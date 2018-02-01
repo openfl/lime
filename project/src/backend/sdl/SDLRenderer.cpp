@@ -1,6 +1,7 @@
 #include "SDLApplication.h"
 #include "SDLWindow.h"
 #include "SDLRenderer.h"
+// #include "SDL_syswm.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
 
@@ -39,6 +40,14 @@ namespace lime {
 				
 			}
 			
+			// sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+			
+			// if (sdlRenderer) {
+				
+			// 	context = SDL_GL_GetCurrentContext ();
+				
+			// }
+			
 		} else {
 			
 			sdlFlags |= SDL_RENDERER_SOFTWARE;
@@ -76,14 +85,18 @@ namespace lime {
 				bool valid = true;
 				#endif
 				
-				#ifdef IPHONE
+				#if defined(IPHONE) || defined(APPLETV)
+				// SDL_SysWMinfo windowInfo;
+				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
+				// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
+				// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
 				glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
 				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
 				#endif
 				
 				((SDLApplication*)currentWindow->currentApplication)->RegisterWindow ((SDLWindow*)currentWindow);
 				
-			} else {
+			} else if (!sdlRenderer) {
 				
 				sdlFlags &= ~SDL_RENDERER_ACCELERATED;
 				sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
@@ -122,7 +135,7 @@ namespace lime {
 	
 	void SDLRenderer::Flip () {
 		
-		if (context) {
+		if (context && !sdlRenderer) {
 			
 			SDL_GL_SwapWindow (sdlWindow);
 			
@@ -261,7 +274,7 @@ namespace lime {
 			
 			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->Data (), buffer->Stride ());
 			
-		} else {
+		} else if (context) {
 			
 			// TODO
 			

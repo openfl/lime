@@ -72,7 +72,7 @@ namespace lime {
 			
 			#if defined (IPHONE) || defined (APPLETV)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			#endif
 			
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
