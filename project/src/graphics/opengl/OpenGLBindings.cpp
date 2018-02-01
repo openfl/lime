@@ -29,6 +29,7 @@ namespace lime {
 	bool OpenGLBindings::initialized = false;
 	void *OpenGLBindings::handle = 0;
 	int OpenGLBindings::defaultFramebuffer = 0;
+	int OpenGLBindings::defaultRenderbuffer = 0;
 	
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
@@ -256,6 +257,12 @@ namespace lime {
 	
 	
 	void lime_gl_bind_renderbuffer (int target, int renderbuffer) {
+		
+		if (!renderbuffer) {
+			
+			renderbuffer = OpenGLBindings::defaultRenderbuffer;
+			
+		}
 		
 		glBindRenderbuffer (target, renderbuffer);
 		

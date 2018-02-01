@@ -441,7 +441,7 @@
 				
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
-				<lib name="-lGLESv2" />
+				<lib name="-lGLESv3" />
 				
 			</section>
 			
@@ -460,7 +460,7 @@
 				
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
-				<lib name="-lGLESv2" />
+				<lib name="-lGLESv3" />
 				
 			</section>
 			

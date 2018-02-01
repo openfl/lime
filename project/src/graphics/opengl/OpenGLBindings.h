@@ -12,6 +12,7 @@ namespace lime {
 			static bool Init ();
 			
 			static int defaultFramebuffer;
+			static int defaultRenderbuffer;
 			static void* handle;
 			
 		
