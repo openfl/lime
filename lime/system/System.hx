@@ -644,7 +644,7 @@ class System {
 		
 		if (__deviceVendor == null) {
 			
-			#if windows
+			#if (windows && !html5)
 			__deviceVendor = NativeCFFI.lime_system_get_device_vendor ();
 			#elseif android
 			var vendor:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
@@ -741,7 +741,7 @@ class System {
 		
 		if (__platformLabel == null) {
 			
-			#if windows
+			#if (windows && !html5)
 			var label:String = NativeCFFI.lime_system_get_platform_label ();
 			if (label != null) __platformLabel = StringTools.trim (label);
 			#elseif linux
@@ -805,7 +805,7 @@ class System {
 		
 		if (__platformVersion == null) {
 			
-			#if windows
+			#if (windows && !html5)
 			__platformVersion = NativeCFFI.lime_system_get_platform_version ();
 			#elseif android
 			var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
