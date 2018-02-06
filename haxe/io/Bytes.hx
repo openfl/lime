@@ -608,7 +608,12 @@ import js.html.compat.DataView;
 
 class Bytes {
 
+	#if commonjs
+	public var length(get,set) : Int;
+	var l : Int;
+	#else
 	public var length(default,null) : Int;
+	#end
 	var b : js.html.Uint8Array;
 	var data : js.html.DataView;
 
@@ -811,6 +816,16 @@ class Bytes {
 		// this requires that we have wrapped it with haxe.io.Bytes beforehand
 		return untyped b.bytes[pos];
 	}
+	
+	#if commonjs
+	private function get_length() : Int {
+		return l;
+	}
+	
+	private function set_length( v : Int ) : Int {
+		return l = v;
+	}
+	#end
 
 }
 
