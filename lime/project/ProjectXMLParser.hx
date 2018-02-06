@@ -196,6 +196,15 @@ class ProjectXMLParser extends HXProject {
 		defines.set ("target", Std.string (target).toLowerCase ());
 		defines.set ("platform", defines.get ("target"));
 		
+		switch (PlatformHelper.hostPlatform) {
+			
+			case WINDOWS: defines.set ("host", "windows");
+			case MAC: defines.set ("host", "mac");
+			case LINUX: defines.set ("host", "linux");
+			default: defines.set ("host", "unknown");
+			
+		}
+		
 	}
 	
 	
