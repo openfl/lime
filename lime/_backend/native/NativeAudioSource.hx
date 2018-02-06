@@ -422,7 +422,7 @@ class NativeAudioSource {
 			
 			AL.sourceStop (handle);
 			
-			parent.buffer.__srcVorbisFile.timeSeekPage ((value + parent.offset) / 1000);
+			parent.buffer.__srcVorbisFile.timeSeek ((value + parent.offset) / 1000);
 			AL.sourceUnqueueBuffers (handle, STREAM_NUM_BUFFERS);
 			refillBuffers (buffers);
 			
