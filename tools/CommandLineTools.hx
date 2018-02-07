@@ -1921,8 +1921,12 @@ class CommandLineTools {
 			
 		}
 		
-		config.merge (project);
-		project = config;
+		if (config != null) {
+			
+			config.merge (project);
+			project = config;
+			
+		}
 		
 		project.haxedefs.set ("tools", version);
 		
