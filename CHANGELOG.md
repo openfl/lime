@@ -15,6 +15,7 @@
 * Fixed an issue when setting volume in HTML5 before playback starts
 * Fixed default framebuffer binding when using iOS simulator
 * Fixed support for properly detecting MP3 format in some files
+* Fixed support for builds on macOS/Linux when `$HOME` variable is not present
 
 
 6.0.1 (01/16/2018)
