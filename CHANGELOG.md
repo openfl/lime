@@ -1,3 +1,22 @@
+6.1.0 (02/07/2018)
+------------------
+
+* Added OpenGL ES 3.0 support on iOS
+* Added `System.deviceVendor` and `System.deviceModel`
+* Added `System.platformLabel`, `.platformName` and `.platformVersion`
+* Added support for `<config:html5 dependency-path="lib" />`
+* Added support for `<config:air sdk-version="25.0" />`
+* Improved garbage collection behavior in `lime.net.curl.CURL`
+* Improved performance when requesting static `System` values repeatedly
+* Improved Xcode template for iPhone X and Xcode 9.2
+* Renamed `-Dmodular` to `-Dlime-modular` (to allow for using lib modular)
+* Fixed a possible crash in `ImageDataUtil.gaussianBlur`
+* Fixed an iOS template path for "haxe/Build.hxml"
+* Fixed an issue when setting volume in HTML5 before playback starts
+* Fixed default framebuffer binding when using iOS simulator
+* Fixed support for properly detecting MP3 format in some files
+
+
 6.0.1 (01/16/2018)
 ------------------
 
