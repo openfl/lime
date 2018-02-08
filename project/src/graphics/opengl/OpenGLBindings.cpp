@@ -27,9 +27,14 @@ namespace lime {
 	
 	
 	bool OpenGLBindings::initialized = false;
-	void *OpenGLBindings::handle = 0;
+	
 	int OpenGLBindings::defaultFramebuffer = 0;
 	int OpenGLBindings::defaultRenderbuffer = 0;
+	void* OpenGLBindings::handle = 0;
+	
+	#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+	void* OpenGLBindings::eglHandle = 0;
+	#endif
 	
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
