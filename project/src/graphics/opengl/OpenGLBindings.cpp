@@ -2732,7 +2732,7 @@ namespace lime {
 			
 			#ifdef NATIVE_TOOLKIT_SDL_ANGLE
 			
-			OpenGLBindings::eglHandle = LoadLibrary (L"libegl.dll");
+			OpenGLBindings::eglHandle = LoadLibraryW (L"libegl.dll");
 			
 			if (!OpenGLBindings::handle) {
 				
