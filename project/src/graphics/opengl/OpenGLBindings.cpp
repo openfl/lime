@@ -2739,7 +2739,7 @@ namespace lime {
 			
 			OpenGLBindings::eglHandle = LoadLibraryW (L"libegl.dll");
 			
-			if (!OpenGLBindings::handle) {
+			if (!OpenGLBindings::eglHandle) {
 				
 				result = false;
 				return result;
