@@ -383,13 +383,11 @@ class HTML5Window {
 		
 		if (textInput.value != dummyCharacter) {
 			
-			if (textInput.value.charAt (0) == dummyCharacter) {
+			var value = StringTools.replace (textInput.value, dummyCharacter, "");
+			
+			if (value.length > 0) {
 				
-				parent.onTextInput.dispatch (textInput.value.substr (1));
-				
-			} else {
-				
-				parent.onTextInput.dispatch (textInput.value);
+				parent.onTextInput.dispatch (value);
 				
 			}
 			
