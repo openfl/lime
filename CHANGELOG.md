@@ -16,6 +16,7 @@
 * Fixed default framebuffer binding when using iOS simulator
 * Fixed support for properly detecting MP3 format in some files
 * Fixed support for builds on macOS/Linux when `$HOME` variable is not present
+* Fixed crash in continuous-testing when no window can be initialized
 
 
 6.0.1 (01/16/2018)
