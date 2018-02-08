@@ -15,6 +15,10 @@ namespace lime {
 			static int defaultRenderbuffer;
 			static void* handle;
 			
+			#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+			static void* eglHandle;
+			#endif
+			
 		
 		private:
 			
