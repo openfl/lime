@@ -608,7 +608,7 @@ import js.html.compat.DataView;
 
 class Bytes {
 
-	#if commonjs
+	#if lime_bytes_length_getter
 	public var length(get,set) : Int;
 	var l : Int;
 	#else
@@ -817,7 +817,7 @@ class Bytes {
 		return untyped b.bytes[pos];
 	}
 	
-	#if commonjs
+	#if lime_bytes_length_getter
 	private function get_length() : Int {
 		return l;
 	}
