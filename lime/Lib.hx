@@ -35,6 +35,14 @@ class Lib {
 				
 			}
 			
+			if (Context.defined ("js") && !Context.defined ("nodejs")) {
+				
+				Compiler.define ("html5");
+				Compiler.define ("web");
+				Compiler.define ("lime-opengl");
+				
+			}
+			
 		}
 		
 	}
