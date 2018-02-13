@@ -35,7 +35,7 @@ class Lib {
 				
 			}
 			
-			if (Context.defined ("js") && !Context.defined ("nodejs")) {
+			if (Context.defined ("js") && !Context.defined ("nodejs") && !Context.defined ("display")) {
 				
 				Compiler.define ("html5");
 				Compiler.define ("web");
