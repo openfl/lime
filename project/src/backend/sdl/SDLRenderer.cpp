@@ -33,6 +33,11 @@ namespace lime {
 			}
 			
 			context = SDL_GL_CreateContext (sdlWindow);
+
+			if (!context)
+			{
+			    printf("SDLRenderer::Error creating GL Context: %s.\n", SDL_GetError ());
+			}
 			
 			if (sdlFlags & SDL_RENDERER_PRESENTVSYNC) {
 				
