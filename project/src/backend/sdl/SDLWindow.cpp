@@ -118,7 +118,22 @@ namespace lime {
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
 			
 		}
-		
+
+		#if defined (IPHONE) || defined (APPLETV)
+		context = SDL_GL_CreateContext (sdlWindow);
+		if (!context)
+        {
+            printf("SDLWindow::Error creating GL Context: %s. Falling back to OpenGL ES v2\n", SDL_GetError ());
+            SDL_DestroyWindow(sdlWindow);
+            SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+            sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+        }
+        else
+        {
+            SDL_GL_DeleteContext (context);
+        }
+        #endif
+
 		//((SDLApplication*)currentApplication)->RegisterWindow (this);
 		
 		#ifdef HX_WINDOWS

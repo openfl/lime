@@ -41,7 +41,13 @@ namespace lime {
 			virtual const char* SetTitle (const char* title);
 			
 			SDL_Window* sdlWindow;
-		
+
+        #if defined (IPHONE) || defined (APPLETV)
+		private:
+
+		    SDL_GLContext context;
+
+		#endif
 	};
 	
 	
