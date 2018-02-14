@@ -48,7 +48,9 @@ namespace lime {
 				
 			// }
 			
-		} else {
+		}
+		
+		if (!context) {
 			
 			sdlFlags |= SDL_RENDERER_SOFTWARE;
 			

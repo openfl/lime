@@ -118,6 +118,17 @@ namespace lime {
 		
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
 		
+		#if defined (IPHONE) || defined (APPLETV)
+		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
+			
+			SDL_DestroyWindow (sdlWindow);
+			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			
+			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+			
+		}
+		#endif
+		
 		if (!sdlWindow) {
 			
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
