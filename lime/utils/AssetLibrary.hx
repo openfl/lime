@@ -562,8 +562,6 @@ class AssetLibrary {
 			var font:Font = Type.createInstance (classTypes.get (id), []);
 			
 			#if (js && html5)
-			// font might have properties set via its classType constructor.
-			// Use __loadFromName to preserve these properties in the loaded font.
 			return font.__loadFromName (font.name);
 			#else
 			return Future.withValue (font);

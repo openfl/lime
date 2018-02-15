@@ -340,10 +340,14 @@ class HTML5Platform extends PlatformTarget {
 						
 						if (embeddedAsset.type == "font" && embeddedAsset.sourcePath == asset.sourcePath) {
 							
-							// in html5 we cannot compute font metrics, so we store them for known fonts
 							var font = Font.fromFile (asset.sourcePath);
+							
 							embeddedAsset.ascender = font.ascender;
 							embeddedAsset.descender = font.descender;
+							embeddedAsset.height = font.height;
+							embeddedAsset.numGlyphs = font.numGlyphs;
+							embeddedAsset.underlinePosition = font.underlinePosition;
+							embeddedAsset.underlineThickness = font.underlineThickness;
 							embeddedAsset.unitsPerEM = font.unitsPerEM;
 							
 							if (shouldEmbedFont) {

@@ -40,15 +40,15 @@ import haxe.io.Path;
 class Font {
 	
 	
-	@:isVar public var ascender (get, set):Null<Int>;		// no "= 0", cause asset sub-classes set properties before calling
-	@:isVar public var descender (get, set):Null<Int>;		// super(). better indicate a missing value with null anyway.
-	public var height (get, null):Int;
+	public var ascender (default, null):Int;
+	public var descender (default, null):Int;
+	public var height (default, null):Int;
 	public var name (default, null):String;
-	public var numGlyphs (get, null):Int;
+	public var numGlyphs (default, null):Int;
 	public var src:Dynamic;
-	public var underlinePosition (get, null):Int;
-	public var underlineThickness (get, null):Int;
-	@:isVar public var unitsPerEM (get, set):Null<Int>;
+	public var underlinePosition (default, null):Int;
+	public var underlineThickness (default, null):Int;
+	public var unitsPerEM (default, null):Int;
 	
 	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
@@ -417,23 +417,44 @@ class Font {
 		return null;
 		
 	}
+	
+	
+	@:noCompletion private function __copyFrom (other:Font):Void {
 		
+		if (other != null) {
+			
+			ascender = other.ascender;
+			descender = other.descender;
+			height = other.height;
+			name = other.name;
+			numGlyphs = other.numGlyphs;
+			src = other.src;
+			underlinePosition = other.underlinePosition;
+			underlineThickness = other.underlineThickness;
+			unitsPerEM = other.unitsPerEM;
+			
+			__fontID = other.__fontID;
+			__fontPath = other.__fontPath;
+			
+			#if lime_cffi
+			__fontPathWithoutDirectory = other.__fontPathWithoutDirectory;
+			#end
+			
+		}
+		
+	}
+	
+	
 	@:noCompletion private function __fromBytes (bytes:Bytes):Void {
 		
 		__fontPath = null;
 		
 		#if (lime_cffi && !macro)
-		
 		__fontPathWithoutDirectory = null;
 		
 		src = NativeCFFI.lime_font_load (bytes);
 		
-		if (src != null && name == null) {
-			
-			name = cast NativeCFFI.lime_font_get_family_name (src);
-			
-		}
-		
+		__initializeSource ();
 		#end
 		
 	}
@@ -444,17 +465,36 @@ class Font {
 		__fontPath = path;
 		
 		#if (lime_cffi && !macro)
-		
 		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
 		src = NativeCFFI.lime_font_load (__fontPath);
 		
-		if (src != null && name == null) {
+		__initializeSource ();
+		#end
+		
+	}
+	
+	
+	private function __initializeSource ():Void {
+		
+		#if (lime_cffi && !macro)
+		if (src != null) {
 			
-			name = cast NativeCFFI.lime_font_get_family_name (src);
+			if (name == null) {
+				
+				name = cast NativeCFFI.lime_font_get_family_name (src);
+				
+			}
+			
+			ascender = NativeCFFI.lime_font_get_ascender (src);
+			descender = NativeCFFI.lime_font_get_descender (src);
+			height = NativeCFFI.lime_font_get_height (src);
+			numGlyphs = NativeCFFI.lime_font_get_num_glyphs (src);
+			underlinePosition = NativeCFFI.lime_font_get_underline_position (src);
+			underlineThickness = NativeCFFI.lime_font_get_underline_thickness (src);
+			unitsPerEM = NativeCFFI.lime_font_get_units_per_em (src);
 			
 		}
-		
 		#end
 		
 	}
@@ -575,121 +615,6 @@ class Font {
 		#end
 		
 	}
-	
-	
-	
-	
-	// Get & Set Methods
-	
-	
-	
-	
-	private function get_ascender ():Null<Int> {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_ascender (src);
-		#else
-		return ascender;
-		#end
-		
-	}
-	
-	
-	private function set_ascender (value:Null<Int>):Null<Int> {
-		
-		return ascender = value;
-		
-	}
-	
-	
-	private function get_descender ():Null<Int> {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_descender (src);
-		#else
-		return descender;
-		#end
-		
-	}
-	
-	
-	private function set_descender (value:Null<Int>):Null<Int> {
-		
-		return descender = value;
-		
-	}
-	
-	
-	private function get_height ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_height (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_numGlyphs ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_num_glyphs (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_underlinePosition ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_underline_position (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_underlineThickness ():Int {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_underline_thickness (src);
-		#else
-		return 0;
-		#end
-		
-	}
-	
-	
-	private function get_unitsPerEM ():Null<Int> {
-		
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_font_get_units_per_em (src);
-		#else
-		return unitsPerEM;
-		#end
-		
-	}
-	
-	
-	private function set_unitsPerEM (value:Null<Int>):Null<Int> {
-		
-		return unitsPerEM = value;
-		
-	}
-	
-	
-	
-	
-	// Native Methods
-	
-	
-	
-	
-	
 	
 	
 }
