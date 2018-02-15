@@ -147,15 +147,18 @@ class NativeRenderer {
 				var width = Std.int (rect.width);
 				var height = Std.int (rect.height);
 				
-				var buffer = Bytes.alloc (width * height * 4);
+				var data = new UInt8Array (width * height * 4);
 				
-				gl.readPixels (x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, buffer);
+				gl.readPixels (x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+				
+				#if !js // TODO
 				
 				var rowLength = width * 4;
 				var srcPosition = (height - 1) * rowLength;
 				var destPosition = 0;
 				
 				var temp = Bytes.alloc (rowLength);
+				var buffer = data.buffer;
 				var rows = Std.int (height / 2);
 				
 				while (rows-- > 0) {
@@ -169,7 +172,9 @@ class NativeRenderer {
 					
 				}
 				
-				imageBuffer = new ImageBuffer (new UInt8Array (buffer), width, height, 32, RGBA32);
+				#end
+				
+				imageBuffer = new ImageBuffer (data, width, height, 32, RGBA32);
 			
 			default:
 				
