@@ -10,6 +10,7 @@
 * Fixed fallback for OpenGL ES 2.0 on older iOS devices when 3.0 is not available
 * Fixed using environment variables to define the path to the Emscripten SDK
 * Fixed letting the user focus outside a Lime embed when text input is enabled
+* Fixed `FileDialog.save` to require FileSaver.js when using CommonJS
 
 
 6.1.0 (02/07/2018)
