@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "6.1.0",
-	"releasenote": "GLESv3 support on iOS, support for device model and platform version, GC fix",
+	"version": "6.2.0",
+	"releasenote": "HTML5 font metrics, Font.renderGlyphs, text input fixes",
 	"contributors": [ "singmajesty" ]
 }
