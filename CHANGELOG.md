@@ -1,3 +1,17 @@
+6.2.0 (02/16/2018)
+------------------
+
+* Added new implementation of `Font.renderGlyphs` for native platforms
+* Added generation of font metrics for embedded HTML5 fonts
+* Improved support for ANGLE builds on Windows
+* Improved accuracy of file seeking in streaming OGG Vorbis sounds on native
+* Fixed regression in `renderer.readPixels` when using an OpenGL renderer
+* Fixed addition of an empty character when using arrow keys on HTML5 text input
+* Fixed fallback for OpenGL ES 2.0 on older iOS devices when 3.0 is not available
+* Fixed using environment variables to define the path to the Emscripten SDK
+* Fixed letting the user focus outside a Lime embed when text input is enabled
+
+
 6.1.0 (02/07/2018)
 ------------------
 
