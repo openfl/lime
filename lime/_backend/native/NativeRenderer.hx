@@ -139,13 +139,26 @@ class NativeRenderer {
 			
 			case OPENGL (gl):
 				
-				var windowWidth = parent.window.__width * parent.window.__scale;
-				var windowHeight = parent.window.__height * parent.window.__scale;
+				var windowWidth = Std.int (parent.window.__width * parent.window.__scale);
+				var windowHeight = Std.int (parent.window.__height * parent.window.__scale);
 				
-				var x = Std.int (rect.x);
-				var y = Std.int ((windowHeight - rect.y) - rect.height);
-				var width = Std.int (rect.width);
-				var height = Std.int (rect.height);
+				var x, y, width, height;
+				
+				if (rect != null) {
+					
+					x = Std.int (rect.x);
+					y = Std.int ((windowHeight - rect.y) - rect.height);
+					width = Std.int (rect.width);
+					height = Std.int (rect.height);
+					
+				} else {
+					
+					x = 0;
+					y = 0;
+					width = windowWidth;
+					height = windowHeight;
+					
+				}
 				
 				var data = new UInt8Array (width * height * 4);
 				
