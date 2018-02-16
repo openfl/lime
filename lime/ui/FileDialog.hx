@@ -274,7 +274,11 @@ class FileDialog {
 		var path = defaultPath != null ? Path.withoutDirectory (defaultPath) : "download" + defaultExtension;
 		var buffer = (data:Bytes).getData ();
 		
+		#if commonjs
+		untyped __js__ ("require ('file-saverjs')") (new Blob ([ buffer ], { type: type }), path, true);
+		#else
 		untyped window.saveAs (new Blob ([ buffer ], { type: type }), path, true);
+		#end
 		onSave.dispatch (path);
 		return true;
 		
