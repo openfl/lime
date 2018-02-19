@@ -26,19 +26,11 @@ namespace lime {
 			
 			sdlFlags |= SDL_RENDERER_ACCELERATED;
 			
-			if (window->flags & WINDOW_FLAG_VSYNC) {
+			// if (window->flags & WINDOW_FLAG_VSYNC) {
 				
-				sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
+			// 	sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
 				
-			}
-			
-			context = SDL_GL_CreateContext (sdlWindow);
-			
-			if (sdlFlags & SDL_RENDERER_PRESENTVSYNC) {
-				
-				SDL_GL_SetSwapInterval (1);
-				
-			}
+			// }
 			
 			// sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
 			
@@ -48,19 +40,15 @@ namespace lime {
 				
 			// }
 			
-		}
-		
-		if (!context) {
-			
-			sdlFlags |= SDL_RENDERER_SOFTWARE;
-			
-			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
-			
-		}
-		
-		if (sdlFlags & SDL_RENDERER_ACCELERATED) {
+			context = SDL_GL_CreateContext (sdlWindow);
 			
 			if (context) {
+				
+				if (window->flags & WINDOW_FLAG_VSYNC) {
+					
+					SDL_GL_SetSwapInterval (1);
+					
+				}
 				
 				OpenGLBindings::Init ();
 				
@@ -96,22 +84,26 @@ namespace lime {
 				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
 				#endif
 				
-				((SDLApplication*)currentWindow->currentApplication)->RegisterWindow ((SDLWindow*)currentWindow);
-				
-			} else if (!sdlRenderer) {
-				
-				sdlFlags &= ~SDL_RENDERER_ACCELERATED;
-				sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
-				
-				sdlFlags |= SDL_RENDERER_SOFTWARE;
-				
-				sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
-				
 			}
 			
 		}
 		
-		if (!context && !sdlRenderer) {
+		if (!context) {
+			
+			sdlFlags &= ~SDL_RENDERER_ACCELERATED;
+			sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
+			
+			sdlFlags |= SDL_RENDERER_SOFTWARE;
+			
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+			
+		}
+		
+		if (context || sdlRenderer) {
+			
+			((SDLApplication*)currentWindow->currentApplication)->RegisterWindow ((SDLWindow*)currentWindow);
+			
+		} else {
 			
 			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
 			
