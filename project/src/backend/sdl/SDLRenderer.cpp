@@ -53,7 +53,6 @@ namespace lime {
 				OpenGLBindings::Init ();
 				
 				#ifndef LIME_GLES
-				bool valid = false;
 				
 				int version = 0;
 				glGetIntegerv (GL_MAJOR_VERSION, &version);
@@ -66,22 +65,22 @@ namespace lime {
 					
 				}
 				
-				if (version >= 2 || strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
+				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
 					
-					valid = true;
+					SDL_GL_DeleteContext (context);
+					context = 0;
 					
 				}
-				#else
-				bool valid = true;
-				#endif
 				
-				#if defined(IPHONE) || defined(APPLETV)
+				#elif defined(IPHONE) || defined(APPLETV)
+				
 				// SDL_SysWMinfo windowInfo;
 				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
 				// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
 				// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
 				glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
 				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
+				
 				#endif
 				
 			}
