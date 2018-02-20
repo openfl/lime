@@ -2088,8 +2088,6 @@ class PlatformSetup {
 		
 		if (answer == YES || answer == ALWAYS) {
 			
-			downloadZip(electronWin, "C:\\_sdks\\electron", "ELECTRON", defines);
-			
 			var downloadPath:String = electronWin;
 			var defaultInstallPath:String = "C:\\_sdks\\electron";
 			
