@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "6.1.0",
-	"releasenote": "HTML5 font metrics, Font.renderGlyphs, text input fixes",
+	"version": "6.3.0",
+	"releasenote": "Add target support for Electron",
 	"contributors": [ "singmajesty" ]
 }
