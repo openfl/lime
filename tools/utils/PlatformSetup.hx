@@ -61,6 +61,8 @@ class PlatformSetup {
 	private static var webOSWindowsX86SDKPath = "http://cdn.downloads.palm.com/sdkdownloads/3.0.5.676/sdkBinaries/HP_webOS_SDK-Win-3.0.5-676-x86.exe";
 	private static var windowsVisualStudioCPPPath = "http://download.microsoft.com/download/1/D/9/1D9A6C0E-FC89-43EE-9658-B9F0E3A76983/vc_web.exe";
 	
+	private static var electronWin = "https://github.com/electron/electron/releases/download/v1.8.2/electron-v1.8.2-win32-ia32.zip";
+	
 	private static var backedUpConfig:Bool = false;
 	private static var nme:String;
 	private static var triedSudo:Bool = false;
@@ -502,6 +504,11 @@ class PlatformSetup {
 				case "webos":
 					
 					setupWebOS ();
+				
+				case "electron":
+					
+					setupElectron();
+					
 				
 				case "windows":
 					
@@ -2069,6 +2076,67 @@ class PlatformSetup {
 		
 	}
 	
+	
+	public static function setupElectron ():Void {
+		
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) return;
+		
+		var setElectronToPath = false;
+		var defines = getDefines ();
+		var answer = CLIHelper.ask ("Download and install Electron?");
+		var electronPath:String = "";
+		
+		if (answer == YES || answer == ALWAYS) {
+			
+			downloadZip(electronWin, "C:\\_sdks\\electron", "ELECTRON", defines);
+			
+			var downloadPath:String = electronWin;
+			var defaultInstallPath:String = "C:\\_sdks\\electron";
+			
+			var localPath:String = "";
+			
+			downloadFile (downloadPath);
+			
+			localPath = unescapePath (CLIHelper.param ("Output directory [" + defaultInstallPath + "]"));
+			localPath = createPath (localPath, defaultInstallPath);
+			
+			extractFile (Path.withoutDirectory (downloadPath), localPath, "");
+			
+			defines.set ("ELECTRON", localPath);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
+			LogHelper.println ("");
+			
+			
+			setElectronToPath = true;
+			
+		}
+		
+		var requiredVariables = new Array<String> ();
+		var requiredVariableDescriptions = new Array<String> ();
+		
+		if (!setElectronToPath) {
+			
+			requiredVariables.push ("Electron");
+			requiredVariableDescriptions.push ("Path to Electron");
+			
+		}
+		
+		if (!setElectronToPath) {
+			
+			LogHelper.println ("");
+			
+		}
+		
+		var defines = getDefines (requiredVariables, requiredVariableDescriptions, null);
+		
+		if (defines != null) {
+			
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
+			
+		}
+		
+		HaxelibHelper.runCommand ("", [ "install", "electron" ], true, true);
+	}
 	
 	public static function setupWindows ():Void {
 		

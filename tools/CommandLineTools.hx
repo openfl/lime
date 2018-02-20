@@ -258,7 +258,6 @@ class CommandLineTools {
 				}
 				
 				for (targetName in targets) {
-					
 					var target = null;
 					
 					switch (targetName) {
@@ -277,6 +276,10 @@ class CommandLineTools {
 							
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("nodejs", "");
+						
+						case "electron":
+							target = Platform.HTML5;
+							targetFlags.set ("electron", "");
 						
 						case "cs":
 							
@@ -706,7 +709,12 @@ class CommandLineTools {
 				
 				case HTML5:
 					
-					platform = new HTML5Platform (command, project, targetFlags);
+					if (targetFlags.exists("electron")) {
+						platform = new ElectronPlatform (command, project, targetFlags);
+					}
+					else {
+						platform = new HTML5Platform (command, project, targetFlags);
+					}
 				
 				case FIREFOX:
 					
@@ -1047,6 +1055,7 @@ class CommandLineTools {
 		LogHelper.println ("  \x1b[1mair\x1b[0m -- Create an AIR application");
 		LogHelper.println ("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 		//LogHelper.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
+		LogHelper.println ("  \x1b[1melectron\x1b[0m -- Create an Electron application");
 		LogHelper.println ("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
 		LogHelper.println ("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
 		LogHelper.println ("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 canvas application");
@@ -1688,6 +1697,11 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("nodejs", "");
+			
+			case "electron":
+				
+				target = Platform.HTML5;
+				targetFlags.set ("electron", "");
 			
 			case "cs":
 				

@@ -20,7 +20,7 @@ import flash.Lib;
 import flash.desktop.NativeApplication;
 #end
 
-#if (js && html5)
+#if ((js && html5) || electron)
 import js.html.Element;
 import js.Browser;
 #end
@@ -316,7 +316,7 @@ class System {
 		
 		#if flash
 		return flash.Lib.getTimer ();
-		#elseif (js && !nodejs)
+		#elseif ((js && !nodejs) || electron)
 		return Std.int (Browser.window.performance.now ());
 		#elseif (!disable_cffi && !macro)
 		return cast NativeCFFI.lime_system_get_timer ();
