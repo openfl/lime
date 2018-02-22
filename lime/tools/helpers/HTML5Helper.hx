@@ -191,7 +191,7 @@ class HTML5Helper {
 					
 				}
 				
-				if (project.debug || project.targetFlags.exists ("source-map")) {
+				if (FileSystem.exists (sourceFile + ".map") || project.targetFlags.exists ("source-map")) {
 					
 					args.push ("--create_source_map");
 					args.push (tempFile + ".map");
@@ -213,7 +213,7 @@ class HTML5Helper {
 				
 				ProcessHelper.runCommand ("", "java", args);
 				
-				if (project.debug || project.targetFlags.exists ("source-map")) {
+				if (FileSystem.exists (tempFile + ".map")) {
 					
 					File.copy (tempFile + ".map", sourceFile + ".map");
 					FileSystem.deleteFile (tempFile + ".map");
