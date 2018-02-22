@@ -193,16 +193,14 @@ class HTML5Helper {
 				
 				if (FileSystem.exists (sourceFile + ".map") || project.targetFlags.exists ("source-map")) {
 					
+					// if an input .js.map exists closure automatically detects it (from sourceMappingURL)
+					// --source_map_location_mapping adds file:// to paths (similarly to haxe's .js.map)
+					
 					args.push ("--create_source_map");
 					args.push (tempFile + ".map");
+					args.push ("--source_map_location_mapping");
+					args.push ("/|file:///");
 					
-					if (FileSystem.exists (sourceFile + ".map")) {
-						
-						args.push ("--source_map_input");
-						args.push (sourceFile + "|" + sourceFile + ".map");
-						
-					}
-				
 				}
 				
 				if (!LogHelper.verbose) {
@@ -214,6 +212,11 @@ class HTML5Helper {
 				ProcessHelper.runCommand ("", "java", args);
 				
 				if (FileSystem.exists (tempFile + ".map")) {
+					
+					// closure does not include a sourceMappingURL in the created .js, we do it here
+					var f = File.append (tempFile);
+					f.writeString ("//# sourceMappingURL=" + Path.withoutDirectory (sourceFile) + ".map");
+					f.close ();
 					
 					File.copy (tempFile + ".map", sourceFile + ".map");
 					FileSystem.deleteFile (tempFile + ".map");
