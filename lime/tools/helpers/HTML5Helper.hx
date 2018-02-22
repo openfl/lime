@@ -182,7 +182,7 @@ class HTML5Helper {
 			} else {
 				
 				var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
-				var args = [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (templatePaths, "bin/compiler.jar"), "--js", sourceFile, "--js_output_file", tempFile ];
+				var args = [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (templatePaths, "bin/compiler.jar"), "--strict_mode_input", "false", "--js", sourceFile, "--js_output_file", tempFile ];
 				
 				if (project.targetFlags.exists ("advanced")) {
 					
