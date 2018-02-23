@@ -214,9 +214,11 @@ class HTML5Helper {
 				if (FileSystem.exists (tempFile + ".map")) {
 					
 					// closure does not include a sourceMappingURL in the created .js, we do it here
+					#if !nodejs
 					var f = File.append (tempFile);
 					f.writeString ("//# sourceMappingURL=" + Path.withoutDirectory (sourceFile) + ".map");
 					f.close ();
+					#end
 					
 					File.copy (tempFile + ".map", sourceFile + ".map");
 					FileSystem.deleteFile (tempFile + ".map");
