@@ -355,6 +355,7 @@ namespace lime {
 		if (method && !val_is_null (method)) {
 			
 			Bytes* _writeBytes = writeBytes[callback];
+			if (!_writeBytes) return 0;
 			_writeBytes->Resize (size * nmemb);
 			memcpy (_writeBytes->Data (), ptr, size * nmemb);
 			
