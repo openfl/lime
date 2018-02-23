@@ -894,6 +894,7 @@ class HTML5Window {
 						document.addEventListener ("webkitfullscreenchange", handleFullscreenEvent, false);
 						document.addEventListener ("webkitfullscreenerror", handleFullscreenEvent, false);
 						element.webkitRequestFullscreen ();
+						document.documentElement.webkitRequestFullScreen (Element.ALLOW_KEYBOARD_INPUT);
 						
 					} else if (element.msRequestFullscreen) {
 						
