@@ -21,7 +21,8 @@ package lime.utils;
                 this = new js.html.Uint8ClampedArray( elements );
             } else if(array != null) {
                 this = new js.html.Uint8ClampedArray( untyped array );
-            #if openfl } else if(vector != null) { this = new js.html.Uint8ClampedArray( untyped untyped (vector).__array ); #end
+            #if (openfl && commonjs) } else if(vector != null) { this = new js.html.Uint8ClampedArray( untyped (vector) );
+            #elseif openfl } else if(vector != null) { this = new js.html.Uint8ClampedArray( untyped untyped (vector).data.__array ); #end
             } else if(view != null) {
                 this = new js.html.Uint8ClampedArray( untyped view );
             } else if(buffer != null) {
@@ -88,7 +89,7 @@ package lime.utils;
                 this = new ArrayBufferView( elements, Uint8Clamped );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Uint8Clamped).initArray(array);
-            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Uint8Clamped).initArray(untyped (vector).__array); #end
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Uint8Clamped).initArray(untyped (vector).data.__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Uint8Clamped).initTypedArray(view);
             } else if(buffer != null) {
