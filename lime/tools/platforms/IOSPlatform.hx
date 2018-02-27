@@ -373,7 +373,7 @@ class IOSPlatform extends PlatformTarget {
 		
 		if (haxelibPath != null) {
 			
-			context.HAXELIB_PATH = 'export HAXELIB_PATH=$haxelibPath;';
+			context.HAXELIB_PATH = 'export HAXELIB_PATH="$haxelibPath";';
 			
 		} else {
 			
