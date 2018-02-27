@@ -18,6 +18,10 @@
 #include <dlfcn.h>
 #endif
 
+#ifndef APIENTRY
+#define APIENTRY GLAPIENTRY
+#endif
+
 #ifdef LIME_SDL
 #include <SDL.h>
 #endif
@@ -36,6 +40,8 @@ namespace lime {
 	void* OpenGLBindings::eglHandle = 0;
 	#endif
 	
+	typedef void (APIENTRY * GL_DebugMessageCallback_Func)(GLDEBUGPROC, const void *);
+	GL_DebugMessageCallback_Func glDebugMessageCallback_ptr = 0;
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
 	std::map<value, GLuint> glObjectIDs;
@@ -183,7 +189,7 @@ namespace lime {
 	}
 	
 	
-	void GLAPIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
+	void APIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
 		
 		puts (message);
 		
@@ -1150,37 +1156,45 @@ namespace lime {
 	
 	value lime_gl_get_extension (HxString name) {
 		
-		void *result = 0;
-		
-		#ifdef LIME_SDL
-		result = SDL_GL_GetProcAddress (name.__s);
-		#endif
-		
-		if (result) {
+		if (!glDebugMessageCallback_ptr && strcmp (name.__s, "KHR_debug") == 0) {
 			
-			static bool init = false;
-			static vkind functionKind;
+			glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallback");
 			
-			if (!init) {
+			if (!glDebugMessageCallback_ptr) {
 				
-				if (strcmp (name.__s, "KHR_debug") == 0) {
-					
-					#ifdef LIME_GLES
-					glDebugMessageCallbackKHR ((GLDEBUGPROCARB)gl_debug_callback, NULL);
-					#elif !defined(HX_MACOS)
-					glDebugMessageCallback ((GLDEBUGPROCARB)gl_debug_callback, NULL);
-					#endif
-					
-				}
-				
-				init = true;
-				kind_share (&functionKind, "function");
+				glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallbackKHR");
 				
 			}
 			
-			return alloc_abstract (functionKind, result);
+			if (glDebugMessageCallback_ptr) {
+				
+				glDebugMessageCallback_ptr ((GLDEBUGPROCARB)gl_debug_callback, NULL);
+				
+			}
 			
 		}
+		
+		// void *result = 0;
+		
+		// #ifdef LIME_SDL
+		// result = SDL_GL_GetProcAddress (name.__s);
+		// #endif
+		
+		// if (result) {
+			
+		// 	static bool init = false;
+		// 	static vkind functionKind;
+			
+		// 	if (!init) {
+				
+		// 		init = true;
+		// 		kind_share (&functionKind, "function");
+				
+		// 	}
+			
+		// 	return alloc_abstract (functionKind, result);
+			
+		// }
 		
 		return alloc_null ();
 		
