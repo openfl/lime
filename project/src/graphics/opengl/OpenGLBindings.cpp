@@ -183,6 +183,13 @@ namespace lime {
 	}
 	
 	
+	void GLAPIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
+		
+		puts (message);
+		
+	}
+	
+	
 	void lime_gl_active_texture (int texture) {
 		
 		glActiveTexture (texture);
@@ -1155,6 +1162,16 @@ namespace lime {
 			static vkind functionKind;
 			
 			if (!init) {
+				
+				if (strcmp (name.__s, "KHR_debug") == 0) {
+					
+					#ifdef LIME_GLES
+					glDebugMessageCallbackKHR ((GLDEBUGPROCARB)gl_debug_callback, NULL);
+					#elif !defined(HX_MACOS)
+					glDebugMessageCallback ((GLDEBUGPROCARB)gl_debug_callback, NULL);
+					#endif
+					
+				}
 				
 				init = true;
 				kind_share (&functionKind, "function");
