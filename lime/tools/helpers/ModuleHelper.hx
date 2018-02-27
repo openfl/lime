@@ -203,21 +203,10 @@ class ModuleHelper {
 	
 	public static function patchFile (outputPath:String):Void {
 		
-		if (FileSystem.exists (outputPath)) {
-			
-			var output = File.getContent (outputPath);
-			
-			var replaceString = "var $hxClasses = {}";
-			var index = output.indexOf (replaceString);
-			
-			if (index > -1) {
-				
-				output = output.substr (0, index) + "if (!$hx_exports.$hxClasses) $hx_exports.$hxClasses = {};\nvar $hxClasses = $hx_exports.$hxClasses" + output.substr (index + replaceString.length);
-				File.saveContent (outputPath, output);
-				
-			}
-			
-		}
+		var replaceString = "var $hxClasses = {}";
+		var replacement = "if (!$hx_exports.$hxClasses) $hx_exports.$hxClasses = {};\nvar $hxClasses = $hx_exports.$hxClasses";
+		
+		FileHelper.replaceText (outputPath, replaceString, replacement);
 		
 	}
 	
