@@ -21,7 +21,8 @@ package lime.utils;
                 this = new js.html.Int8Array( elements );
             } else if(array != null) {
                 this = new js.html.Int8Array( untyped array );
-            #if openfl } else if(vector != null) { this = new js.html.Int8Array( untyped untyped (vector).__array ); #end
+            #if (openfl && commonjs) } else if(vector != null) { this = new js.html.Int8Array( untyped (vector) );
+            #elseif openfl } else if(vector != null) { this = new js.html.Int8Array( untyped untyped (vector).data.__array ); #end
             } else if(view != null) {
                 this = new js.html.Int8Array( untyped view );
             } else if(buffer != null) {
@@ -77,7 +78,7 @@ package lime.utils;
                 this = new ArrayBufferView( elements, Int8 );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Int8).initArray(array);
-            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Int8).initArray(untyped (vector).__array); #end
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Int8).initArray(untyped (vector).data.__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Int8).initTypedArray(view);
             } else if(buffer != null) {
