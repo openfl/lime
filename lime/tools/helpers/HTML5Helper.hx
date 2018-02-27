@@ -12,6 +12,7 @@ import lime.project.Asset;
 import lime.project.Haxelib;
 import lime.project.HXProject;
 import lime.project.Platform;
+import lime.project.Version;
 import sys.FileSystem;
 import sys.io.File;
 
@@ -23,6 +24,31 @@ import cpp.vm.Thread;
 
 
 class HTML5Helper {
+	
+	
+	public static function encodeSourceMappingURL (sourceFile:String) {
+		
+		// This is only required for projects with url-unsafe characters built with a Haxe version prior to 4.0.0
+		
+		var filename = Path.withoutDirectory (sourceFile);
+		
+		if (filename != StringTools.urlEncode (filename)) {
+			
+			var output = ProcessHelper.runProcess ("", "haxe", [ "-version" ], true, true, true, false, true);
+			var haxeVer:Version = StringTools.trim (output);
+			
+			if (haxeVer < ("4.0.0" : Version)) {
+				
+				var replaceString = "//# sourceMappingURL=" + filename + ".map";
+				var replacement = "//# sourceMappingURL=" + StringTools.urlEncode (filename) + ".map";
+				
+				FileHelper.replaceText (sourceFile, replaceString, replacement);
+				
+			}
+			
+		}
+		
+	}
 	
 	
 	public static function generateFontData (project:HXProject, font:Asset):String {
@@ -216,7 +242,7 @@ class HTML5Helper {
 					// closure does not include a sourceMappingURL in the created .js, we do it here
 					#if !nodejs
 					var f = File.append (tempFile);
-					f.writeString ("//# sourceMappingURL=" + Path.withoutDirectory (sourceFile) + ".map");
+					f.writeString ("//# sourceMappingURL=" + StringTools.urlEncode (Path.withoutDirectory (sourceFile)) + ".map");
 					f.close ();
 					#end
 					

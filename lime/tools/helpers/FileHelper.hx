@@ -481,6 +481,26 @@ class FileHelper {
 	}
 	
 	
+	public static function replaceText (source:String, replaceString:String, replacement:String) {
+		
+		if (FileSystem.exists (source)) {
+			
+			var output = File.getContent (source);
+			
+			var index = output.indexOf (replaceString);
+			
+			if (index > -1) {
+				
+				output = output.substr (0, index) + replacement + output.substr (index + replaceString.length);
+				File.saveContent (source, output);
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	public static function isNewer (source:String, destination:String):Bool {
 		
 		if (source == null || !FileSystem.exists (source)) {
