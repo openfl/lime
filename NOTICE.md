@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2017 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2018 Joshua Granick and other Lime contributors
 
 This product bundles axTLS 2.1.4, which is available under a
 "BSD" license. For details, see [project/lib/axtls/](project/lib).
