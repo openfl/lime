@@ -308,7 +308,19 @@ class AssetLibrary {
 	
 	public function getPath (id:String):String {
 		
-		return paths.get (id);
+		if (paths.exists (id)) {
+			
+			return paths.get (id);
+			
+		} else if (pathGroups.exists (id)) {
+			
+			return pathGroups.get (id)[0];
+			
+		} else {
+			
+			return null;
+			
+		}
 		
 	}
 	
