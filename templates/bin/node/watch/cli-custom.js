@@ -93,6 +93,7 @@ for(i = 0; i < dirLen; i++) {
       } catch (e) {}
     }
     try {
+      console.error('> Rebuilding...')
       shell = execshell(command)
     } catch (e) {
       console.error (e);
