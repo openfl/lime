@@ -14,6 +14,7 @@
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" />
 	<set name="LIME_JPEG" value="1" />
+	<!-- <set name="LIME_FAUDIO" value="1" /> -->
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" />
 	<set name="LIME_LZMA" value="1" />
@@ -92,12 +93,12 @@
 			
 		</section>
 		
-		<section if="LIME_JPEG">
+		<section if="LIME_FAUDIO">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
-			<compilerflag value="-DLIME_JPEG" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/faudio/src" />
+			<compilerflag value="-DLIME_FAUDIO" />
 			
-			<file name="src/graphics/format/JPEG.cpp" />
+			<!-- <file name="src/graphics/format/PNG.cpp" /> -->
 			
 		</section>
 		
@@ -117,6 +118,15 @@
 				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
+			
+		</section>
+		
+		<section if="LIME_JPEG">
+			
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
+			<compilerflag value="-DLIME_JPEG" />
+			
+			<file name="src/graphics/format/JPEG.cpp" />
 			
 		</section>
 		
@@ -298,6 +308,7 @@
 	<include name="lib/cairo/files.xml" />
 	<include name="lib/curl/files.xml" />
 	<include name="lib/efsw/files.xml" />
+	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
 	<include name="lib/freetype/files.xml" />
 	<include name="lib/harfbuzz/files.xml" />
 	<include name="lib/jpeg/files.xml" />
@@ -329,9 +340,10 @@
 		<files id="native-toolkit-cairo" if="LIME_CAIRO" />
 		<files id="native-toolkit-curl" if="LIME_CURL" />
 		<files id="native-toolkit-efsw" if="LIME_EFSW" />
-		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
+		<files id="native-toolkit-faudio" if="LIME_FAUDIO" />
 		<files id="native-toolkit-freetype" if="LIME_FREETYPE" />
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
+		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
 		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
