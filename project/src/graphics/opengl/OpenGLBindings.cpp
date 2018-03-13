@@ -40,8 +40,10 @@ namespace lime {
 	void* OpenGLBindings::eglHandle = 0;
 	#endif
 	
+	#ifndef ANDROID
 	typedef void (APIENTRY * GL_DebugMessageCallback_Func)(GLDEBUGPROC, const void *);
 	GL_DebugMessageCallback_Func glDebugMessageCallback_ptr = 0;
+	#endif
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
 	std::map<value, GLuint> glObjectIDs;
@@ -189,11 +191,13 @@ namespace lime {
 	}
 	
 	
+	#ifndef ANDROID
 	void APIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
 		
 		puts (message);
 		
 	}
+	#endif
 	
 	
 	void lime_gl_active_texture (int texture) {
@@ -1156,6 +1160,7 @@ namespace lime {
 	
 	value lime_gl_get_extension (HxString name) {
 		
+		#ifndef ANDROID
 		if (!glDebugMessageCallback_ptr && strcmp (name.__s, "KHR_debug") == 0) {
 			
 			glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallback");
@@ -1173,6 +1178,7 @@ namespace lime {
 			}
 			
 		}
+		#endif
 		
 		// void *result = 0;
 		

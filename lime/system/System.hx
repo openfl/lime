@@ -243,7 +243,7 @@ class System {
 				display.dpi = (tablet ? 132 : 163) * scale;
 			}
 			#elseif android
-			var getDisplayDPI = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "getDisplayDPI", "()D");
+			var getDisplayDPI = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "getDisplayXDPI", "()D");
 			display.dpi = Math.round (getDisplayDPI ());
 			#else
 			display.dpi = displayInfo.dpi;
