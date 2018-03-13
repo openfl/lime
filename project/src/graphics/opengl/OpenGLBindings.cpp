@@ -40,7 +40,7 @@ namespace lime {
 	void* OpenGLBindings::eglHandle = 0;
 	#endif
 	
-	#ifndef ANDROID
+	#if !defined(ANDROID) && !defined(IPHONE)
 	typedef void (APIENTRY * GL_DebugMessageCallback_Func)(GLDEBUGPROC, const void *);
 	GL_DebugMessageCallback_Func glDebugMessageCallback_ptr = 0;
 	#endif
@@ -191,7 +191,7 @@ namespace lime {
 	}
 	
 	
-	#ifndef ANDROID
+	#if !defined(ANDROID) && !defined(IPHONE)
 	void APIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
 		
 		puts (message);
@@ -1160,7 +1160,7 @@ namespace lime {
 	
 	value lime_gl_get_extension (HxString name) {
 		
-		#ifndef ANDROID
+		#if !defined(ANDROID) && !defined(IPHONE)
 		if (!glDebugMessageCallback_ptr && strcmp (name.__s, "KHR_debug") == 0) {
 			
 			glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallback");
