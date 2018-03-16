@@ -189,7 +189,11 @@ class HTML5Platform extends PlatformTarget {
 							
 							if (!FileSystem.exists (source + extension)) {
 								
-								LogHelper.warn ("Could not generate *" + extension + " web font for \"" + originalPath + "\"");
+								if (extension != ".eot" && extension != ".svg") {
+									
+									LogHelper.warn ("Could not generate *" + extension + " web font for \"" + originalPath + "\"");
+									
+								}
 								
 							}
 							
@@ -356,13 +360,13 @@ class HTML5Platform extends PlatformTarget {
 								
 								var urls = [];
 								if (hasFormat[1]) urls.push ("url('" + embeddedAsset.targetPath + ".eot?#iefix') format('embedded-opentype')");
-								if (hasFormat[2]) urls.push ("url('" + embeddedAsset.targetPath + ".svg#my-font-family') format('svg')");
 								if (hasFormat[3]) urls.push ("url('" + embeddedAsset.targetPath + ".woff') format('woff')");
 								urls.push ("url('" + embeddedAsset.targetPath + ext + "') format('truetype')");
+								if (hasFormat[2]) urls.push ("url('" + embeddedAsset.targetPath + ".svg#" + StringTools.urlEncode (embeddedAsset.fontName) + "') format('svg')");
 								
 								var fontFace = "\t\t@font-face {\n";
 								fontFace += "\t\t\tfont-family: '" + embeddedAsset.fontName + "';\n";
-								if (hasFormat[1]) fontFace += "\t\t\tsrc: url('" + embeddedAsset.targetPath + ".eot');\n";
+								// if (hasFormat[1]) fontFace += "\t\t\tsrc: url('" + embeddedAsset.targetPath + ".eot');\n";
 								fontFace += "\t\t\tsrc: " + urls.join (",\n\t\t\t") + ";\n";
 								fontFace += "\t\t\tfont-weight: normal;\n";
 								fontFace += "\t\t\tfont-style: normal;\n";
