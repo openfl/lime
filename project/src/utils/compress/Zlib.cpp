@@ -45,6 +45,7 @@ namespace lime {
 			//if (stream && stream->msg) printf ("%s\n", stream->msg);
 			//val_throw (stream->msg);
 			deflateEnd (stream);
+			free (stream);
 			free (buffer);
 			return;
 			
@@ -54,6 +55,7 @@ namespace lime {
 		result->Resize (size);
 		memcpy (result->Data (), buffer, size);
 		deflateEnd (stream);
+		free (stream);
 		free (buffer);
 		
 		return;
@@ -84,6 +86,7 @@ namespace lime {
 			
 			//val_throw (stream->msg);
 			inflateEnd (stream);
+			free (stream);
 			return;
 			
 		}
@@ -111,6 +114,8 @@ namespace lime {
 				if (ret == Z_STREAM_ERROR) {
 					
 					inflateEnd (stream);
+					free (stream);
+					free (buffer);
 					return;
 					
 				}
@@ -122,6 +127,8 @@ namespace lime {
 					case Z_DATA_ERROR:
 					case Z_MEM_ERROR:
 						inflateEnd (stream);
+						free (stream);
+						free (buffer);
 						return;
 					
 				}
@@ -139,6 +146,7 @@ namespace lime {
 		}
 		
 		inflateEnd (stream);
+		free (stream);
 		free (buffer);
 		
 		return;
