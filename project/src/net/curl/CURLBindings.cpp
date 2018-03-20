@@ -11,6 +11,7 @@ namespace lime {
 	
 	std::map<value, bool> curlValid;
 	std::map<value, AutoGCRoot*> headerCallbacks;
+	std::map<value, curl_slist*> headerSLists;
 	std::map<value, AutoGCRoot*> progressCallbacks;
 	std::map<value, AutoGCRoot*> readCallbacks;
 	std::map<AutoGCRoot*, Bytes*> writeBytes;
@@ -49,6 +50,14 @@ namespace lime {
 				
 				headerCallbacks.erase (handle);
 				delete callback;
+				
+			}
+			
+			if (headerSLists.find (handle) != headerSLists.end ()) {
+				
+				curl_slist* chunk = headerSLists[handle];
+				headerSLists.erase (handle);
+				curl_slist_free_all (chunk);
 				
 			}
 			
@@ -732,6 +741,12 @@ namespace lime {
 			
 			case CURLOPT_HTTPHEADER:
 			{
+				if (headerSLists.find (handle) != headerSLists.end ()) {
+					
+					curl_slist_free_all (headerSLists[handle]);
+					
+				}
+				
 				struct curl_slist *chunk = NULL;
 				int size = val_array_size (parameter);
 				
@@ -740,6 +755,8 @@ namespace lime {
 					chunk = curl_slist_append (chunk, val_string (val_array_i (parameter, i)));
 					
 				}
+				
+				headerSLists[handle] = chunk;
 				
 				code = curl_easy_setopt (curl, type, chunk);
 				break;
