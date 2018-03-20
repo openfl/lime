@@ -174,6 +174,12 @@ abstract UTF8String(String) from String to String {
 	**/
 	public function substr (pos:Int, ?len:Int):String {
 		
+		if (len == null) {
+
+			len = (this:UTF8String).length - pos;
+
+		}
+	
 		return Utf8.sub (this, pos, len);
 		
 	}
