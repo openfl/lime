@@ -1,12 +1,15 @@
 package lime._backend.html5;
 
 
+import js.html.DeviceMotionEvent;
 import js.html.KeyboardEvent;
 import js.Browser;
 import lime.app.Application;
 import lime.app.Config;
 import lime.media.AudioManager;
 import lime.graphics.Renderer;
+import lime.system.Sensor;
+import lime.system.SensorType;
 import lime.ui.GamepadAxis;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
@@ -18,6 +21,7 @@ import lime.ui.Window;
 @:access(lime._backend.html5.HTML5Window)
 @:access(lime.app.Application)
 @:access(lime.graphics.Renderer)
+@:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
@@ -28,6 +32,7 @@ class HTML5Application {
 	
 	private var gameDeviceCache = new Map<Int, GameDeviceData> ();
 	
+	private var accelerometer:Sensor;
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
@@ -49,6 +54,7 @@ class HTML5Application {
 		framePeriod = -1;
 		
 		AudioManager.init ();
+		accelerometer = Sensor.registerSensor (SensorType.ACCELEROMETER, 0);
 		
 	}
 	
@@ -142,6 +148,7 @@ class HTML5Application {
 		Browser.window.addEventListener ("blur", handleWindowEvent, false);
 		Browser.window.addEventListener ("resize", handleWindowEvent, false);
 		Browser.window.addEventListener ("beforeunload", handleWindowEvent, false);
+		Browser.window.addEventListener ("devicemotion", handleSensorEvent, false);
 		
 		#if stats
 		stats = untyped __js__("new Stats ()");
@@ -341,6 +348,13 @@ class HTML5Application {
 			}
 			
 		}
+		
+	}
+	
+	
+	private function handleSensorEvent (event:DeviceMotionEvent):Void {
+		
+		accelerometer.onUpdate.dispatch (event.accelerationIncludingGravity.x, event.accelerationIncludingGravity.y, event.accelerationIncludingGravity.z);
 		
 	}
 	
