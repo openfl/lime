@@ -89,7 +89,7 @@ class AndroidPlatform extends PlatformTarget {
 				
 				if (hasARMV5) {
 					
-					path = sourceSet + "/jniLibs/armeabi-v7";
+					path = sourceSet + "/jniLibs/armeabi-v7a";
 					
 				}
 				
@@ -123,9 +123,9 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (!ArrayHelper.containsValue (project.architectures, Architecture.ARMV7) || !hasARMV5) {
 			
-			if (FileSystem.exists (sourceSet + "/jniLibs/armeabi-v7")) {
+			if (FileSystem.exists (sourceSet + "/jniLibs/armeabi-v7a")) {
 				
-				PathHelper.removeDirectory (sourceSet + "/jniLibs/armeabi-v7");
+				PathHelper.removeDirectory (sourceSet + "/jniLibs/armeabi-v7a");
 				
 			}
 			
