@@ -610,9 +610,10 @@ class ProjectXMLParser extends HXProject {
 					
 					var includeProject = new ProjectXMLParser (includePath, defines);
 					merge (includeProject);
-					return;
 					
-				} else {
+				}
+				
+				if (FileSystem.exists (PathHelper.combine (path, "library.json"))) {
 					
 					var asset = new Asset (path, targetPath, type, embed);
 					asset.library = library;
@@ -803,11 +804,34 @@ class ProjectXMLParser extends HXProject {
 		
 		for (file in files) {
 			
-			if (FileSystem.isDirectory (path + "/" + file) && recursive) {
+			if (FileSystem.isDirectory (path + "/" + file)) {
 				
-				if (filter (file, [ "*" ], exclude.split ("|"))) {
+				if (Path.extension (file) == "bundle") {
 					
-					parseAssetsElementDirectory (path + "/" + file, targetPath + file, include, exclude, type, embed, library, glyphs, true);
+					var includePath = findIncludeFile (path + "/" + file);
+					
+					if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
+						
+						var includeProject = new ProjectXMLParser (includePath, defines);
+						merge (includeProject);
+						
+					}
+					
+					if (FileSystem.exists (PathHelper.combine (path + "/" + file, "library.json"))) {
+						
+						var asset = new Asset (path + "/" + file, targetPath + file, type, embed);
+						asset.library = library;
+						assets.push (asset);
+						
+					}
+					
+				} else if (recursive) {
+					
+					if (filter (file, [ "*" ], exclude.split ("|"))) {
+						
+						parseAssetsElementDirectory (path + "/" + file, targetPath + file, include, exclude, type, embed, library, glyphs, true);
+						
+					}
 					
 				}
 				
