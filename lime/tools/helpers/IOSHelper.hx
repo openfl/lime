@@ -123,8 +123,7 @@ class IOSHelper {
 		project.setenv ("CONFIGURATION", configuration);
 		
 		// setting CONFIGURATION and PLATFORM_NAME in project.environment doesn't set them for xcodebuild so also pass via command line
-		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion];
-		commands.push("-IDEBuildOperationMaxNumberOfConcurrentCompileTasks=1");
+		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
