@@ -70,23 +70,32 @@ class IOSHelper {
 		
 		ProcessHelper.runCommand (workingDirectory, "xcodebuild", archiveCommands);
 		
-		// generate IPA from xcarchive
-		var exportCommands = commands.concat ([]);
-		
-		var exportMethod = project.targetFlags.exists ("adhoc") ? "adhoc"
-			: project.targetFlags.exists ("development") ? "development"
-			: project.targetFlags.exists ("enterprise") ? "enterprise"
-			: "appstore";
-		
-		exportCommands.push ("-exportArchive");
-		exportCommands.push ("-archivePath");
-		exportCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
-		exportCommands.push ("-exportOptionsPlist");
-		exportCommands.push (PathHelper.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
-		exportCommands.push ("-exportPath");
-		exportCommands.push (PathHelper.combine ("dist", exportMethod));
-		
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+		var supportedExportMethods = [ "adhoc", "development", "enterprise", "appstore" ];
+		var exportMethods = [];
+		for (m in supportedExportMethods) {
+			if (project.targetFlags.exists(m)) {
+				exportMethods.push(m);
+			}
+		}
+
+		if (exportMethods.length == 0) {
+			exportMethods.push("appstore");
+		}
+
+		for (exportMethod in exportMethods) {
+			// generate IPA from xcarchive
+			var exportCommands = commands.concat ([]);
+
+			exportCommands.push ("-exportArchive");
+			exportCommands.push ("-archivePath");
+			exportCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
+			exportCommands.push ("-exportOptionsPlist");
+			exportCommands.push (PathHelper.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
+			exportCommands.push ("-exportPath");
+			exportCommands.push (PathHelper.combine ("dist", exportMethod));
+			
+			ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+		}
 		
 	}
 	
@@ -114,7 +123,8 @@ class IOSHelper {
 		project.setenv ("CONFIGURATION", configuration);
 		
 		// setting CONFIGURATION and PLATFORM_NAME in project.environment doesn't set them for xcodebuild so also pass via command line
-		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion ];
+		var commands = [ "-configuration", configuration, "PLATFORM_NAME=" + platformName, "SDKROOT=" + platformName + iphoneVersion];
+		commands.push("-IDEBuildOperationMaxNumberOfConcurrentCompileTasks=1");
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
