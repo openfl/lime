@@ -1,7 +1,7 @@
 package lime.utils;
 
 
-#if !commonjs
+#if !(macro || commonjs)
 import lime._macros.AssetsMacro;
 #end
 
@@ -29,7 +29,7 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
-		version = #if commonjs 0 #else AssetsMacro.cacheVersion () #end;
+		version = #if (macro || commonjs) 0 #else AssetsMacro.cacheVersion () #end;
 		
 	}
 	
