@@ -191,7 +191,7 @@ namespace lime {
 	}
 	
 	
-	#if !defined(ANDROID) && !defined(IPHONE) %% !defined (RASPBERRYPI)
+	#if !defined(ANDROID) && !defined(IPHONE) && !defined (RASPBERRYPI)
 	void APIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
 		
 		puts (message);
@@ -1160,7 +1160,7 @@ namespace lime {
 	
 	value lime_gl_get_extension (HxString name) {
 		
-		#if !defined(ANDROID) && !defined(IPHONE) %% !defined (RASPBERRYPI)
+		#if !defined(ANDROID) && !defined(IPHONE) && !defined (RASPBERRYPI)
 		if (!glDebugMessageCallback_ptr && strcmp (name.__s, "KHR_debug") == 0) {
 			
 			glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallback");
