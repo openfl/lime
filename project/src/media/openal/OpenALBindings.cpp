@@ -12,6 +12,7 @@
 
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
+#include <system/Mutex.h>
 #include <utils/ArrayBufferView.h>
 #include <map>
 
@@ -21,6 +22,7 @@ namespace lime {
 	
 	std::map<ALuint, value> alObjects;
 	std::map<void*, value> alcObjects;
+	Mutex al_gc_mutex;
 	
 	
 	#ifdef LIME_OPENALSOFT
@@ -75,7 +77,9 @@ namespace lime {
 	
 	void gc_alc_object (value object) {
 		
+		al_gc_mutex.Lock ();
 		alcObjects.erase (val_data (object));
+		al_gc_mutex.Unlock ();
 		
 	}
 	
@@ -276,10 +280,12 @@ namespace lime {
 		#ifdef LIME_OPENALSOFT
 		if (!val_is_null (aux)) {
 			
+			al_gc_mutex.Lock ();
 			ALuint data = (ALuint)(uintptr_t)val_data (aux);
 			val_gc (aux, 0);
 			alDeleteAuxiliaryEffectSlots ((ALuint)1, &data);
 			alObjects.erase (data);
+			al_gc_mutex.Unlock ();
 			
 		}
 		#endif
@@ -291,10 +297,12 @@ namespace lime {
 		
 		if (!val_is_null (buffer)) {
 			
+			al_gc_mutex.Lock ();
 			ALuint data = (ALuint)(uintptr_t)val_data (buffer);
 			val_gc (buffer, 0);
 			alDeleteBuffers ((ALuint)1, &data);
 			alObjects.erase (data);
+			al_gc_mutex.Unlock ();
 			
 		}
 		
@@ -309,6 +317,7 @@ namespace lime {
 			ALuint* data = new ALuint[size];
 			value buffer;
 			
+			al_gc_mutex.Lock ();
 			for (int i = 0; i < size; ++i) {
 				
 				buffer = val_array_i (buffers, i);
@@ -317,6 +326,7 @@ namespace lime {
 				alObjects.erase (data[i]);
 				
 			}
+			al_gc_mutex.Unlock ();
 			
 			alDeleteBuffers (n, data);
 			delete[] data;
@@ -537,10 +547,12 @@ namespace lime {
 	
 	value lime_al_gen_buffer () {
 		
+		al_gc_mutex.Lock ();
 		ALuint buffer;
 		alGenBuffers ((ALuint)1, &buffer);
 		value ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
 		alObjects[buffer] = ptr;
+		al_gc_mutex.Unlock ();
 		return ptr;
 		
 	}
@@ -556,6 +568,7 @@ namespace lime {
 		ALuint buffer;
 		value ptr;
 		
+		al_gc_mutex.Lock ();
 		for (int i = 0; i < n; i++) {
 			
 			buffer = buffers[i];
@@ -565,6 +578,7 @@ namespace lime {
 			val_array_set_i (result, i, ptr);
 			
 		}
+		al_gc_mutex.Unlock ();
 		
 		delete[] buffers;
 		return result;
@@ -1019,8 +1033,10 @@ namespace lime {
 				
 			} else {
 				
+				al_gc_mutex.Lock ();
 				value ptr = CFFIPointer ((void*)(uintptr_t)data, gc_al_buffer);
 				alObjects[data] = ptr;
+				al_gc_mutex.Unlock ();
 				return ptr;
 				
 			}
@@ -1381,8 +1397,10 @@ namespace lime {
 				
 			} else {
 				
+				al_gc_mutex.Lock ();
 				ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
 				alObjects[buffer] = ptr;
+				al_gc_mutex.Unlock ();
 				
 			}
 			
@@ -1523,8 +1541,11 @@ namespace lime {
 	
 	bool lime_alc_close_device (value device) {
 		
+		al_gc_mutex.Lock ();
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		alcObjects.erase (alcDevice);
+		al_gc_mutex.Unlock ();
+		
 		return alcCloseDevice (alcDevice);
 		
 	}
@@ -1556,8 +1577,10 @@ namespace lime {
 			
 		}
 		
+		al_gc_mutex.Lock ();
 		value object = CFFIPointer (alcContext, gc_alc_object);
 		alcObjects[alcContext] = object;
+		al_gc_mutex.Unlock ();
 		return object;
 		
 	}
@@ -1565,9 +1588,11 @@ namespace lime {
 	
 	void lime_alc_destroy_context (value context) {
 		
+		al_gc_mutex.Lock ();
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcObjects.erase (alcContext);
 		alcDestroyContext (alcContext);
+		al_gc_mutex.Unlock ();
 		
 	}
 	
@@ -1577,17 +1602,21 @@ namespace lime {
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
 		
+		value result;
+		al_gc_mutex.Lock ();
 		if (alcObjects.find (alcDevice) != alcObjects.end ()) {
 			
-			return alcObjects[alcDevice];
+			result = alcObjects[alcDevice];
 			
 		} else {
 			
 			value object = CFFIPointer (alcDevice, gc_alc_object);
 			alcObjects[alcDevice] = object;
-			return object;
+			result = object;
 			
 		}
+		al_gc_mutex.Unlock ();
+		return result;
 		
 	}
 	
@@ -1596,17 +1625,21 @@ namespace lime {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
 		
+		value result;
+		al_gc_mutex.Lock ();
 		if (alcObjects.find (alcContext) != alcObjects.end ()) {
 			
-			return alcObjects[alcContext];
+			result = alcObjects[alcContext];
 			
 		} else {
 			
 			value object = CFFIPointer (alcContext, gc_alc_object);
 			alcObjects[alcContext] = object;
-			return object;
+			result = object;
 			
 		}
+		al_gc_mutex.Unlock ();
+		return result;
 		
 	}
 	

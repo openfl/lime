@@ -5,6 +5,7 @@
 #include <math/Vector2.h>
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
+#include <system/Mutex.h>
 #include <text/Font.h>
 
 
@@ -17,6 +18,7 @@ namespace lime {
 	static bool init = false;
 	cairo_user_data_key_t userData;
 	std::map<void*, value> cairoObjects;
+	Mutex cairoObjects_Mutex;
 	
 	
 	void gc_cairo (value handle) {
@@ -24,7 +26,9 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_t* cairo = (cairo_t*)val_data (handle);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects.erase (cairo);
+			cairoObjects_Mutex.Unlock ();
 			cairo_destroy (cairo);
 			
 		}
@@ -37,7 +41,9 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_font_face_t* face = (cairo_font_face_t*)val_data (handle);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects.erase (face);
+			cairoObjects_Mutex.Unlock ();
 			cairo_font_face_destroy (face);
 			
 		}
@@ -62,7 +68,9 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_pattern_t* pattern = (cairo_pattern_t*)val_data (handle);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects.erase (pattern);
+			cairoObjects_Mutex.Unlock ();
 			cairo_pattern_destroy (pattern);
 			
 		}
@@ -75,7 +83,9 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			cairo_surface_t* surface = (cairo_surface_t*)val_data (handle);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects.erase (surface);
+			cairoObjects_Mutex.Unlock ();
 			cairo_surface_destroy (surface);
 			
 		}
@@ -145,7 +155,9 @@ namespace lime {
 		cairo_t* cairo = cairo_create ((cairo_surface_t*)val_data (surface));
 		
 		value object = CFFIPointer (cairo, gc_cairo);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[cairo] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -260,7 +272,9 @@ namespace lime {
 		cairo_font_face_set_user_data (cairoFont, &userData, fontReference, gc_user_data);
 		
 		value object = CFFIPointer (cairoFont, gc_cairo_font_face);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[cairoFont] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		#else
 		return 0;
@@ -336,7 +350,9 @@ namespace lime {
 			cairo_font_face_reference (face);
 			
 			value object = CFFIPointer (face, gc_cairo_font_face);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects[face] = object;
+			cairoObjects_Mutex.Unlock ();
 			return object;
 			
 		}
@@ -366,7 +382,9 @@ namespace lime {
 			cairo_surface_reference (surface);
 			
 			value object = CFFIPointer (surface, gc_cairo_surface);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects[surface] = object;
+			cairoObjects_Mutex.Unlock ();
 			return object;
 			
 		}
@@ -432,7 +450,9 @@ namespace lime {
 			cairo_pattern_reference (pattern);
 			
 			value object = CFFIPointer (pattern, gc_cairo_pattern);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects[pattern] = object;
+			cairoObjects_Mutex.Unlock ();
 			return object;
 			
 		}
@@ -453,7 +473,9 @@ namespace lime {
 			cairo_surface_reference (surface);
 			
 			value object = CFFIPointer (surface, gc_cairo_surface);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects[surface] = object;
+			cairoObjects_Mutex.Unlock ();
 			return object;
 			
 		}
@@ -487,7 +509,9 @@ namespace lime {
 		cairo_surface_t* surface = cairo_image_surface_create ((cairo_format_t)format, width, height);
 		
 		value object = CFFIPointer (surface, gc_cairo_surface);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[surface] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -498,7 +522,9 @@ namespace lime {
 		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
 		
 		value object = CFFIPointer (surface, gc_cairo_surface);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[surface] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -628,7 +654,9 @@ namespace lime {
 		cairo_pattern_t* pattern = cairo_pattern_create_for_surface ((cairo_surface_t*)val_data (surface));
 		
 		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[pattern] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -639,7 +667,9 @@ namespace lime {
 		cairo_pattern_t* pattern = cairo_pattern_create_linear (x0, y0, x1, y1);
 		
 		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[pattern] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -650,7 +680,9 @@ namespace lime {
 		cairo_pattern_t* pattern = cairo_pattern_create_radial (cx0, cy0, radius0, cx1, cy1, radius1);
 		
 		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[pattern] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -661,7 +693,9 @@ namespace lime {
 		cairo_pattern_t* pattern = cairo_pattern_create_rgb (r, g, b);
 		
 		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[pattern] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -672,7 +706,9 @@ namespace lime {
 		cairo_pattern_t* pattern = cairo_pattern_create_rgba (r, g, b, a);
 		
 		value object = CFFIPointer (pattern, gc_cairo_pattern);
+		cairoObjects_Mutex.Lock ();
 		cairoObjects[pattern] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -750,7 +786,9 @@ namespace lime {
 			cairo_pattern_reference (pattern);
 			
 			value object = CFFIPointer (pattern, gc_cairo_pattern);
+			cairoObjects_Mutex.Lock ();
 			cairoObjects[pattern] = object;
+			cairoObjects_Mutex.Unlock ();
 			return object;
 			
 		}
