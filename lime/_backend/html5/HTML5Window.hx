@@ -829,7 +829,11 @@ class HTML5Window {
 				untyped (textInput.style).pointerEvents = 'none';
 				textInput.style.zIndex = "-10000000";
 				
-				Browser.document.body.appendChild (textInput);
+			}
+			
+			if (textInput.parentNode == null) {
+				
+				element.appendChild (textInput);
 				
 			}
 			
@@ -894,7 +898,6 @@ class HTML5Window {
 						document.addEventListener ("webkitfullscreenchange", handleFullscreenEvent, false);
 						document.addEventListener ("webkitfullscreenerror", handleFullscreenEvent, false);
 						element.webkitRequestFullscreen ();
-						document.documentElement.webkitRequestFullScreen (Element.ALLOW_KEYBOARD_INPUT);
 						
 					} else if (element.msRequestFullscreen) {
 						
