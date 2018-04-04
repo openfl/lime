@@ -10,10 +10,17 @@ import lime.media.openal.ALDevice;
 import js.Browser;
 #end
 
+#if (ios || tvos)
+import haxe.Timer;
+import lime._backend.native.NativeCFFI;
+#end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class AudioManager {
@@ -66,6 +73,16 @@ class AudioManager {
 				AudioManager.context = context;
 				
 			}
+			
+			#if (ios || tvos)
+			var timer = new Timer (100);
+			timer.run = function () {
+				
+				trace ("run cleanup");
+				NativeCFFI.lime_al_cleanup ();
+				
+			};
+			#end
 			
 		}
 		
