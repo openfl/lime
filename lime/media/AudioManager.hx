@@ -75,7 +75,9 @@ class AudioManager {
 			var timer = new Timer (100);
 			timer.run = function () {
 				
+				#if (!macro && lime_cffi)
 				NativeCFFI.lime_al_cleanup ();
+				#end
 				
 			};
 			#end
