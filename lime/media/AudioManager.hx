@@ -1,6 +1,8 @@
 package lime.media;
 
 
+import haxe.Timer;
+import lime._backend.native.NativeCFFI;
 import lime.media.openal.AL;
 import lime.media.openal.ALC;
 import lime.media.openal.ALContext;
@@ -8,11 +10,6 @@ import lime.media.openal.ALDevice;
 
 #if (js && html5)
 import js.Browser;
-#end
-
-#if (ios || tvos)
-import haxe.Timer;
-import lime._backend.native.NativeCFFI;
 #end
 
 #if !lime_debug
