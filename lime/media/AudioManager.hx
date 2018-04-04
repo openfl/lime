@@ -74,11 +74,10 @@ class AudioManager {
 				
 			}
 			
-			#if (ios || tvos)
+			#if (ios || tvos || mac)
 			var timer = new Timer (100);
 			timer.run = function () {
 				
-				trace ("run cleanup");
 				NativeCFFI.lime_al_cleanup ();
 				
 			};
