@@ -66,10 +66,17 @@ namespace lime {
 	
 	const char* Gamepad::GetDeviceGUID (int id) {
 		
-		char* guid = new char[64];
 		SDL_Joystick* joystick = SDL_GameControllerGetJoystick (gameControllers[id]);
-		SDL_JoystickGetGUIDString (SDL_JoystickGetGUID (joystick), guid, 64);
-		return guid;
+		
+		if (joystick) {
+			
+			char* guid = new char[64];
+			SDL_JoystickGetGUIDString (SDL_JoystickGetGUID (joystick), guid, 64);
+			return guid;
+			
+		}
+		
+		return 0;
 		
 	}
 	
