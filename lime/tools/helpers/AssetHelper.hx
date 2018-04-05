@@ -483,7 +483,7 @@ class AssetHelper {
 				asset.library = library.name;
 				asset.data = manifest.serialize ();
 				
-				if (manifest.assets.length == 0) {
+				if (manifest.assets.length == 0 || (project.target == HTML5 && library.name == DEFAULT_LIBRARY_NAME)) {
 					
 					asset.embed = true;
 					
