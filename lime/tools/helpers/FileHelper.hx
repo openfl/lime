@@ -139,6 +139,8 @@ class FileHelper {
 			
 			PathHelper.mkdir (Path.directory (destination));
 			
+			LogHelper.info ("", " - \x1b[1mWriting file:\x1b[0m " + destination);
+			
 			try {
 				
 				if (asset.encoding == AssetEncoding.BASE64) {

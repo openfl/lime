@@ -54,6 +54,7 @@ class AssetHelper {
 		if (targetPath != null) {
 			
 			PathHelper.mkdir (Path.directory (targetPath));
+			LogHelper.info ("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
 			File.saveContent (targetPath, manifest.serialize ());
 			
 		}
@@ -92,10 +93,13 @@ class AssetHelper {
 		if (targetDirectory != null) {
 			
 			PathHelper.mkdir (targetDirectory);
+			var targetPath;
 			
 			for (manifest in manifests) {
 				
-				File.saveContent (PathHelper.combine (targetDirectory, manifest.name + ".json"), manifest.serialize ());
+				targetPath = PathHelper.combine (targetDirectory, manifest.name + ".json");
+				LogHelper.info ("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
+				File.saveContent (targetPath, manifest.serialize ());
 				
 			}
 			
