@@ -48,6 +48,10 @@ namespace lime {
 					
 					SDL_GL_SetSwapInterval (1);
 					
+				} else {
+					
+					SDL_GL_SetSwapInterval (0);
+					
 				}
 				
 				OpenGLBindings::Init ();
