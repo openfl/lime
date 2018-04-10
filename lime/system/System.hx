@@ -349,7 +349,7 @@ class System {
 			
 			#if (sys && windows)
 			
-			Sys.command ("start", [ path ]);
+			Sys.command ("start", [ "", path ]);
 			
 			#elseif mac
 			

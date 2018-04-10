@@ -1,6 +1,8 @@
 package lime.media;
 
 
+import haxe.Timer;
+import lime._backend.native.NativeCFFI;
 import lime.media.openal.AL;
 import lime.media.openal.ALC;
 import lime.media.openal.ALContext;
@@ -14,6 +16,8 @@ import js.Browser;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+@:access(lime._backend.native.NativeCFFI)
 
 
 class AudioManager {
@@ -66,6 +70,15 @@ class AudioManager {
 				AudioManager.context = context;
 				
 			}
+			
+			#if (lime_cffi && !macro && lime_openal && (ios || tvos || mac))
+			var timer = new Timer (100);
+			timer.run = function () {
+				
+				NativeCFFI.lime_al_cleanup ();
+				
+			};
+			#end
 			
 		}
 		

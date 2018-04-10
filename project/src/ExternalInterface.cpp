@@ -793,7 +793,18 @@ namespace lime {
 	value lime_gamepad_get_device_guid (int id) {
 		
 		const char* guid = Gamepad::GetDeviceGUID (id);
-		return guid ? alloc_string (guid) : alloc_null ();
+		
+		if (guid) {
+			
+			value result = alloc_string (guid);
+			delete guid;
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	

@@ -1,6 +1,8 @@
 #if defined (IPHONE) || defined (TVOS) || (defined (HX_MACOS) && !defined (LIME_OPENALSOFT))
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
+#define LIME_OPENAL_DELETION_DELAY 600
+#include <time.h>
 #else
 #include "AL/al.h"
 #include "AL/alc.h"
@@ -12,15 +14,25 @@
 
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
+#include <system/Mutex.h>
 #include <utils/ArrayBufferView.h>
+#include <list>
 #include <map>
 
 
 namespace lime {
 	
 	
+	#ifdef LIME_OPENAL_DELETION_DELAY
+	std::list<ALuint> alDeletedBuffer;
+	std::list<time_t> alDeletedBufferTime;
+	std::list<ALuint> alDeletedSource;
+	std::list<time_t> alDeletedSourceTime;
+	#endif
+	
 	std::map<ALuint, value> alObjects;
 	std::map<void*, value> alcObjects;
+	Mutex al_gc_mutex;
 	
 	
 	#ifdef LIME_OPENALSOFT
@@ -75,7 +87,31 @@ namespace lime {
 	
 	void gc_alc_object (value object) {
 		
+		al_gc_mutex.Lock ();
 		alcObjects.erase (val_data (object));
+		al_gc_mutex.Unlock ();
+		
+	}
+	
+	
+	void lime_al_atexit () {
+		
+		ALCcontext* alcContext = alcGetCurrentContext ();
+		
+		if (alcContext) {
+			
+			ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
+			
+			alcMakeContextCurrent (0);
+			alcDestroyContext (alcContext);
+			
+			if (alcDevice) {
+				
+				alcCloseDevice (alcDevice);
+				
+			}
+			
+		}
 		
 	}
 	
@@ -251,22 +287,57 @@ namespace lime {
 	
 	void lime_al_cleanup () {
 		
-		ALCcontext* alcContext = alcGetCurrentContext ();
+		#ifdef LIME_OPENAL_DELETION_DELAY
+		time_t currentTime = time (0);
+		ALuint deletedData;
+		time_t deletedTime;
 		
-		if (alcContext) {
+		std::list<ALuint>::const_iterator itSource = alDeletedSource.begin ();
+		std::list<time_t>::const_iterator itSourceTime = alDeletedSourceTime.begin ();
+		
+		while (itSource != alDeletedSource.end ()) {
 			
-			ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
+			deletedTime = *itSourceTime;
 			
-			alcMakeContextCurrent (0);
-			alcDestroyContext (alcContext);
-			
-			if (alcDevice) {
+			if (difftime (currentTime, deletedTime) * 1000 > LIME_OPENAL_DELETION_DELAY) {
 				
-				alcCloseDevice (alcDevice);
+				ALuint deletedData = *itSource;
+				alDeleteSources (1, &deletedData);
+				itSource = alDeletedSource.erase (itSource);
+				itSourceTime = alDeletedSourceTime.erase (itSourceTime);
+				
+			} else {
+				
+				++itSource;
+				++itSourceTime;
 				
 			}
 			
 		}
+		
+		std::list<ALuint>::iterator itBuffer = alDeletedBuffer.begin ();
+		std::list<time_t>::iterator itBufferTime = alDeletedBufferTime.begin ();
+		
+		while (itBuffer != alDeletedBuffer.end ()) {
+			
+			deletedTime = *itBufferTime;
+			
+			if (difftime (currentTime, deletedTime) * 1000 > LIME_OPENAL_DELETION_DELAY) {
+				
+				ALuint deletedData = *itBuffer;
+				alDeleteBuffers (1, &deletedData);
+				itBuffer = alDeletedBuffer.erase (itBuffer);
+				itBufferTime = alDeletedBufferTime.erase (itBufferTime);
+				
+			} else {
+				
+				++itBuffer;
+				++itBufferTime;
+				
+			}
+			
+		}
+		#endif
 		
 	}
 	
@@ -276,10 +347,12 @@ namespace lime {
 		#ifdef LIME_OPENALSOFT
 		if (!val_is_null (aux)) {
 			
+			al_gc_mutex.Lock ();
 			ALuint data = (ALuint)(uintptr_t)val_data (aux);
 			val_gc (aux, 0);
 			alDeleteAuxiliaryEffectSlots ((ALuint)1, &data);
 			alObjects.erase (data);
+			al_gc_mutex.Unlock ();
 			
 		}
 		#endif
@@ -291,10 +364,17 @@ namespace lime {
 		
 		if (!val_is_null (buffer)) {
 			
+			al_gc_mutex.Lock ();
 			ALuint data = (ALuint)(uintptr_t)val_data (buffer);
 			val_gc (buffer, 0);
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			alDeletedBuffer.push_back (data);
+			alDeletedBufferTime.push_back (time (0));
+			#else
 			alDeleteBuffers ((ALuint)1, &data);
+			#endif
 			alObjects.erase (data);
+			al_gc_mutex.Unlock ();
 			
 		}
 		
@@ -306,8 +386,27 @@ namespace lime {
 		if (!val_is_null (buffers)) {
 			
 			int size = val_array_size (buffers);
-			ALuint* data = new ALuint[size];
 			value buffer;
+			
+			al_gc_mutex.Lock ();
+			
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			ALuint data;
+			
+			for (int i = 0; i < size; ++i) {
+				
+				buffer = val_array_i (buffers, i);
+				data = (ALuint)(uintptr_t)val_data (buffer);
+				alDeletedBuffer.push_back (data);
+				alDeletedBufferTime.push_back (time (0));
+				val_gc (buffer, 0);
+				alObjects.erase (data);
+				
+			}
+			
+			#else
+			
+			ALuint* data = new ALuint[size];
 			
 			for (int i = 0; i < size; ++i) {
 				
@@ -320,6 +419,10 @@ namespace lime {
 			
 			alDeleteBuffers (n, data);
 			delete[] data;
+			#endif
+			
+			
+			al_gc_mutex.Unlock ();
 			
 		}
 		
@@ -361,8 +464,16 @@ namespace lime {
 		if (!val_is_null (source)) {
 			
 			ALuint data = (ALuint)(uintptr_t)val_data (source);
-			alDeleteSources (1, &data);
 			val_gc (source, 0);
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			al_gc_mutex.Lock ();
+			alSourcei (data, AL_BUFFER, 0);
+			alDeletedSource.push_back (data);
+			alDeletedSourceTime.push_back (time (0));
+			al_gc_mutex.Unlock ();
+			#else
+			alDeleteSources (1, &data);
+			#endif
 			
 		}
 		
@@ -374,8 +485,28 @@ namespace lime {
 		if (!val_is_null (sources)) {
 			
 			int size = val_array_size (sources);
-			ALuint* data = new ALuint[size];
 			value source;
+			
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			al_gc_mutex.Lock ();
+			ALuint data;
+			
+			for (int i = 0; i < size; ++i) {
+				
+				source = val_array_i (sources, i);
+				data = (ALuint)(uintptr_t)val_data (source);
+				alSourcei (data, AL_BUFFER, 0);
+				alDeletedSource.push_back (data);
+				alDeletedSourceTime.push_back (time (0));
+				val_gc (source, 0);
+				
+			}
+			
+			al_gc_mutex.Unlock ();
+			
+			#else
+			
+			ALuint* data = new ALuint[size];
 			
 			for (int i = 0; i < size; ++i) {
 				
@@ -387,6 +518,7 @@ namespace lime {
 			
 			alDeleteSources (n, data);
 			delete[] data;
+			#endif
 			
 		}
 		
@@ -537,91 +669,153 @@ namespace lime {
 	
 	value lime_al_gen_buffer () {
 		
-		ALuint buffer;
+		alGetError ();
+		
+		ALuint buffer = 0;
 		alGenBuffers ((ALuint)1, &buffer);
-		value ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
-		alObjects[buffer] = ptr;
-		return ptr;
+		
+		if (alGetError () == AL_NO_ERROR) {
+			
+			al_gc_mutex.Lock ();
+			value ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
+			alObjects[buffer] = ptr;
+			al_gc_mutex.Unlock ();
+			return ptr;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
 	
 	value lime_al_gen_buffers (int n) {
 		
+		alGetError ();
+		
 		ALuint* buffers = new ALuint[n];
 		alGenBuffers (n, buffers);
 		
-		value result = alloc_array (n);
-		
-		ALuint buffer;
-		value ptr;
-		
-		for (int i = 0; i < n; i++) {
+		if (alGetError () == AL_NO_ERROR) {
 			
-			buffer = buffers[i];
-			ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
-			alObjects[buffer] = ptr;
+			value result = alloc_array (n);
 			
-			val_array_set_i (result, i, ptr);
+			ALuint buffer;
+			value ptr;
+			
+			al_gc_mutex.Lock ();
+			for (int i = 0; i < n; i++) {
+				
+				buffer = buffers[i];
+				ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
+				alObjects[buffer] = ptr;
+				
+				val_array_set_i (result, i, ptr);
+				
+			}
+			al_gc_mutex.Unlock ();
+			
+			delete[] buffers;
+			return result;
+			
+		} else {
+			
+			delete[] buffers;
+			return alloc_null ();
 			
 		}
-		
-		delete[] buffers;
-		return result;
 		
 	}
 	
 	
 	value lime_al_gen_effect () {
 		
+		alGetError ();
+		
 		#ifdef LIME_OPENALSOFT
 		ALuint effect;
 		alGenEffects ((ALuint)1, &effect);
-		return CFFIPointer ((void*)(uintptr_t)effect, gc_al_effect);
-		#else
-		return alloc_null ();
+		
+		if (alGetError () == AL_NO_ERROR) {
+			
+			return CFFIPointer ((void*)(uintptr_t)effect, gc_al_effect);
+			
+		}
 		#endif
+		
+		return alloc_null ();
 		
 	}
 	
 	
 	value lime_al_gen_filter () {
 		
+		alGetError ();
+		
 		#ifdef LIME_OPENALSOFT
 		ALuint filter;
 		alGenFilters ((ALuint)1, &filter);
-		return CFFIPointer ((void*)(uintptr_t)filter, gc_al_filter);
-		#else
-		return alloc_null ();
+		
+		if (alGetError () == AL_NO_ERROR) {
+			
+			return CFFIPointer ((void*)(uintptr_t)filter, gc_al_filter);
+			
+		}
 		#endif
+		
+		return alloc_null ();
 		
 	}
 	
 	
 	value lime_al_gen_source () {
 		
+		alGetError ();
+		
 		ALuint source;
 		alGenSources ((ALuint)1, &source);
-		return CFFIPointer ((void*)(uintptr_t)source, gc_al_source);
+		
+		if (alGetError () == AL_NO_ERROR) {
+			
+			return CFFIPointer ((void*)(uintptr_t)source, gc_al_source);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
 	
 	value lime_al_gen_sources (int n) {
 		
+		alGetError ();
+		
 		ALuint* sources = new ALuint[n];
 		alGenSources (n, sources);
 		
-		value result = alloc_array (n);
-		
-		for (int i = 0; i < n; i++) {
+		if (alGetError () == AL_NO_ERROR) {
 			
-			val_array_set_i (result, i, CFFIPointer ((void*)(uintptr_t)sources[i], gc_al_source));
+			value result = alloc_array (n);
+			
+			for (int i = 0; i < n; i++) {
+				
+				val_array_set_i (result, i, CFFIPointer ((void*)(uintptr_t)sources[i], gc_al_source));
+				
+			}
+			
+			delete[] sources;
+			return result;
+			
+		} else {
+			
+			delete[] sources;
+			return alloc_null ();
 			
 		}
-		
-		delete[] sources;
-		return result;
 		
 	}
 	
@@ -1019,8 +1213,10 @@ namespace lime {
 				
 			} else {
 				
+				al_gc_mutex.Lock ();
 				value ptr = CFFIPointer ((void*)(uintptr_t)data, gc_al_buffer);
 				alObjects[data] = ptr;
+				al_gc_mutex.Unlock ();
 				return ptr;
 				
 			}
@@ -1381,8 +1577,10 @@ namespace lime {
 				
 			} else {
 				
+				al_gc_mutex.Lock ();
 				ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
 				alObjects[buffer] = ptr;
+				al_gc_mutex.Unlock ();
 				
 			}
 			
@@ -1462,29 +1660,33 @@ namespace lime {
 	void lime_al_sourcei (value source, int param, value val) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALuint data;
+		ALuint data = 0;
 		
-		#ifdef LIME_OPENALSOFT
-		if (param == AL_BUFFER || param == AL_DIRECT_FILTER) {
+		if (!val_is_null (val)) {
 			
-			data = (ALuint)(uintptr_t)val_data (val);
-			
-		} else {
-			
-			data = val_int (val);
+			#ifdef LIME_OPENALSOFT
+			if (param == AL_BUFFER || param == AL_DIRECT_FILTER) {
+				
+				data = (ALuint)(uintptr_t)val_data (val);
+				
+			} else {
+				
+				data = val_int (val);
+				
+			}
+			#else
+			if (param == AL_BUFFER) {
+				
+				data = (ALuint)(uintptr_t)val_data (val);
+				
+			} else {
+				
+				data = val_int (val);
+				
+			}
+			#endif
 			
 		}
-		#else
-		if (param == AL_BUFFER) {
-			
-			data = (ALuint)(uintptr_t)val_data (val);
-			
-		} else {
-			
-			data = val_int (val);
-			
-		}
-		#endif
 		
 		alSourcei (id, param, data);
 		
@@ -1523,8 +1725,11 @@ namespace lime {
 	
 	bool lime_alc_close_device (value device) {
 		
+		al_gc_mutex.Lock ();
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		alcObjects.erase (alcDevice);
+		al_gc_mutex.Unlock ();
+		
 		return alcCloseDevice (alcDevice);
 		
 	}
@@ -1556,8 +1761,10 @@ namespace lime {
 			
 		}
 		
+		al_gc_mutex.Lock ();
 		value object = CFFIPointer (alcContext, gc_alc_object);
 		alcObjects[alcContext] = object;
+		al_gc_mutex.Unlock ();
 		return object;
 		
 	}
@@ -1565,9 +1772,11 @@ namespace lime {
 	
 	void lime_alc_destroy_context (value context) {
 		
+		al_gc_mutex.Lock ();
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcObjects.erase (alcContext);
 		alcDestroyContext (alcContext);
+		al_gc_mutex.Unlock ();
 		
 	}
 	
@@ -1577,17 +1786,21 @@ namespace lime {
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
 		
+		value result;
+		al_gc_mutex.Lock ();
 		if (alcObjects.find (alcDevice) != alcObjects.end ()) {
 			
-			return alcObjects[alcDevice];
+			result = alcObjects[alcDevice];
 			
 		} else {
 			
 			value object = CFFIPointer (alcDevice, gc_alc_object);
 			alcObjects[alcDevice] = object;
-			return object;
+			result = object;
 			
 		}
+		al_gc_mutex.Unlock ();
+		return result;
 		
 	}
 	
@@ -1596,17 +1809,21 @@ namespace lime {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
 		
+		value result;
+		al_gc_mutex.Lock ();
 		if (alcObjects.find (alcContext) != alcObjects.end ()) {
 			
-			return alcObjects[alcContext];
+			result = alcObjects[alcContext];
 			
 		} else {
 			
 			value object = CFFIPointer (alcContext, gc_alc_object);
 			alcObjects[alcContext] = object;
-			return object;
+			result = object;
 			
 		}
+		al_gc_mutex.Unlock ();
+		return result;
 		
 	}
 	
@@ -1660,7 +1877,7 @@ namespace lime {
 	value lime_alc_open_device (HxString devicename) {
 		
 		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
-		atexit (lime_al_cleanup);
+		atexit (lime_al_atexit);
 		
 		value ptr = CFFIPointer (alcDevice, gc_alc_object);
 		alcObjects[alcDevice] = ptr;
@@ -1718,6 +1935,7 @@ namespace lime {
 	DEFINE_PRIME3v (lime_al_bufferfv);
 	DEFINE_PRIME3v (lime_al_bufferi);
 	DEFINE_PRIME3v (lime_al_bufferiv);
+	DEFINE_PRIME0v (lime_al_cleanup);
 	DEFINE_PRIME1v (lime_al_delete_auxiliary_effect_slot);
 	DEFINE_PRIME1v (lime_al_delete_buffer);
 	DEFINE_PRIME2v (lime_al_delete_buffers);
