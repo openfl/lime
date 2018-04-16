@@ -225,7 +225,7 @@ class HTML5Window {
 				
 			}
 			
-			//Release outside browser window
+			// Release outside browser window
 			Browser.window.addEventListener("mouseup", handleMouseEvent);
 			
 			// Disable image drag on Firefox
