@@ -225,9 +225,6 @@ class HTML5Window {
 				
 			}
 			
-			//Release outside browser window
-			Browser.window.addEventListener("mouseup", handleMouseEvent);
-			
 			// Disable image drag on Firefox
 			Browser.document.addEventListener ("dragstart", function (e) {
 				if (e.target.nodeName.toLowerCase () == "img") {
@@ -445,6 +442,13 @@ class HTML5Window {
 				
 				case "mousedown":
 					
+					if (event.currentTarget == element) {
+						
+						// Release outside browser window
+						Browser.window.addEventListener ("mouseup", handleMouseEvent);
+						
+					}
+					
 					parent.onMouseDown.dispatch (x, y, event.button);
 					
 					if (parent.onMouseDown.canceled) {
@@ -483,7 +487,13 @@ class HTML5Window {
 				
 				case "mouseup":
 					
-					event.stopPropagation ();
+					Browser.window.removeEventListener ("mouseup", handleMouseEvent);
+					
+					if (event.currentTarget == element) {
+						
+						event.stopPropagation ();
+						
+					}
 					
 					parent.onMouseUp.dispatch (x, y, event.button);
 					
