@@ -127,7 +127,7 @@ class IOSHelper {
 		
 		if (project.targetFlags.exists ("simulator")) {
 			
-			if (project.targetFlags.exists ("i386")) {
+			if (project.targetFlags.exists ("i386") || project.targetFlags.exists ("32")) {
 				
 				commands.push ("-arch");
 				commands.push ("i386");
