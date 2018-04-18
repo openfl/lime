@@ -525,6 +525,7 @@ class System {
 			var arguments = Sys.args ();
 			var stripQuotes = ~/^['"](.*)['"]$/;
 			var equals, argValue, parameters = null;
+			var windowParamPrefix = "--window-";
 			
 			if (arguments != null) {
 				
@@ -549,23 +550,47 @@ class System {
 				
 			}
 			
-			if (parameters != null) {
+			for (windowConfig in config.windows) {
 				
-				for (windowConfig in config.windows) {
+				if (windowConfig.parameters == null) windowConfig.parameters = {};
+				
+				for (parameter in parameters.keys ()) {
 					
-					if (windowConfig.parameters == null) {
-						
-						windowConfig.parameters = {};
-						
-					}
+					argValue = parameters.get (parameter);
 					
-					for (parameter in parameters.keys ()) {
+					if (#if lime_disable_window_override false && #end StringTools.startsWith (parameter, windowParamPrefix)) {
 						
-						if (!Reflect.hasField (windowConfig.parameters, parameter)) {
+						switch (parameter.substr (windowParamPrefix.length)) {
 							
-							Reflect.setField (windowConfig.parameters, parameter, parameters.get (parameter));
+							case "allow-high-dpi": windowConfig.allowHighDPI = __parseBool (argValue);
+							case "always-on-top": windowConfig.alwaysOnTop = __parseBool (argValue); 
+							case "antialiasing": windowConfig.antialiasing = Std.parseInt (argValue);
+							case "background": windowConfig.background = (argValue == "" || argValue == "null") ? null : Std.parseInt (argValue);
+							case "borderless": windowConfig.borderless = __parseBool (argValue);
+							case "colorDepth": windowConfig.colorDepth = Std.parseInt (argValue);
+							case "depthBuffer": windowConfig.depthBuffer = __parseBool (argValue);
+							case "display": windowConfig.display = Std.parseInt (argValue);
+							case "fullscreen": windowConfig.fullscreen = __parseBool (argValue);
+							case "hardware": windowConfig.hardware = __parseBool (argValue);
+							case "height": windowConfig.height = Std.parseInt (argValue);
+							case "hidden": windowConfig.hidden = __parseBool (argValue);
+							case "maximized": windowConfig.maximized = __parseBool (argValue);
+							case "minimized": windowConfig.minimized = __parseBool (argValue);
+							case "renderer": windowConfig.renderer = argValue;
+							case "resizable": windowConfig.resizable = __parseBool (argValue);
+							case "stencilBuffer": windowConfig.stencilBuffer = __parseBool (argValue);
+							//case "title": windowConfig.title = argValue;
+							case "vsync": windowConfig.vsync = __parseBool (argValue);
+							case "width": windowConfig.width = Std.parseInt (argValue);
+							case "x": windowConfig.x = Std.parseInt (argValue);
+							case "y": windowConfig.y = Std.parseInt (argValue);
+							default:
 							
 						}
+						
+					} else if (!Reflect.hasField (windowConfig.parameters, parameter)) {
+						
+						Reflect.setField (windowConfig.parameters, parameter, argValue);
 						
 					}
 					
@@ -577,6 +602,13 @@ class System {
 		
 	}
 	#end
+	
+	
+	@:noCompletion private static inline function __parseBool (value:String):Bool {
+		
+		return (value == "true");
+		
+	}
 	
 	
 	@:noCompletion private static function __registerEntryPoint (projectName:String, entryPoint:Function, config:Config):Void {
