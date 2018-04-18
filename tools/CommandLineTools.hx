@@ -2182,6 +2182,7 @@ class CommandLineTools {
 		
 		var catchArguments = false;
 		var catchHaxeFlag = false;
+		var catchDefine = false;
 		
 		for (argument in arguments) {
 			
@@ -2200,6 +2201,10 @@ class CommandLineTools {
 				
 				additionalArguments.push (argument);
 				
+			} else if (argument == "-D") {
+				
+				catchDefine = true;
+				
 			} else if (equals > 0) {
 				
 				var argValue = argument.substr (equals + 1);
@@ -2210,7 +2215,12 @@ class CommandLineTools {
 					argValue = r.matched(1);
 				}
 				
-				if (argument.substr (0, 2) == "-D") {
+				if (catchDefine) {
+					
+					userDefines.set (argument, argValue);
+					catchDefine = false;
+					
+				} else if (argument.substr (0, 2) == "-D") {
 					
 					userDefines.set (argument.substr (2, equals - 2), argValue);
 					
@@ -2355,6 +2365,11 @@ class CommandLineTools {
 					userDefines.set (argument.substr (0, equals), argValue);
 					
 				}
+				
+			} else if (catchDefine) {
+				
+				userDefines.set (argument, "");
+				catchDefine = false;
 				
 			} else if (argument.substr (0, 2) == "-D") {
 				
