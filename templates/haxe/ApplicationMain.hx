@@ -54,6 +54,10 @@ package;
 		
 		lime.system.System.__registerEntryPoint (projectName, create, config);
 		
+		#if sys
+		lime.system.System.__parseArguments (config);
+		#end
+		
 		#if (!html5 || munit)
 		create (config);
 		#end

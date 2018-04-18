@@ -515,6 +515,70 @@ class System {
 	}
 	
 	
+	#if sys
+	private static function __parseArguments (config:Config):Void {
+		
+		// TODO: Handle default arguments, like --window-fps=60
+		
+		try {
+			
+			var arguments = Sys.args ();
+			var stripQuotes = ~/^['"](.*)['"]$/;
+			var equals, argValue, parameters = null;
+			
+			if (arguments != null) {
+				
+				for (argument in arguments) {
+					
+					equals = argument.indexOf ("=");
+					
+					if (equals > 0) {
+						
+						argValue = argument.substr (equals + 1);
+						
+						if (stripQuotes.match (argValue)) {
+							argValue = stripQuotes.matched (1);
+						}
+						
+						if (parameters == null) parameters = new Map<String, String> ();
+						parameters.set (argument.substr (0, equals), argValue);
+						
+					}
+					
+				}
+				
+			}
+			
+			if (parameters != null) {
+				
+				for (windowConfig in config.windows) {
+					
+					if (windowConfig.parameters == null) {
+						
+						windowConfig.parameters = {};
+						
+					}
+					
+					for (parameter in parameters.keys ()) {
+						
+						if (!Reflect.hasField (windowConfig.parameters, parameter)) {
+							
+							Reflect.setField (windowConfig.parameters, parameter, parameters.get (parameter));
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		} catch (e:Dynamic) {}
+		
+	}
+	#end
+	
+	
 	@:noCompletion private static function __registerEntryPoint (projectName:String, entryPoint:Function, config:Config):Void {
 		
 		if (__applicationConfig == null) {
