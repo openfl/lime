@@ -2192,6 +2192,10 @@ class CommandLineTools {
 				overrides.haxeflags.push (argument);
 				catchHaxeFlag = false;
 				
+			} else if (argument == "-args" || argument == "--") {
+				
+				catchArguments = true;
+				
 			} else if (catchArguments) {
 				
 				additionalArguments.push (argument);
@@ -2363,10 +2367,6 @@ class CommandLineTools {
 			} else if (argument == "-haxelib-debug") {
 				
 				HaxelibHelper.debug = true;
-				
-			} else if (argument == "-args") {
-				
-				catchArguments = true;
 				
 			} else if (argument.substr (0, 1) == "-") {
 				
