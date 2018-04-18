@@ -76,7 +76,13 @@ class CommandLineTools {
 			
 		}
 		
-		if (LogHelper.verbose && command != "") {
+		if (command == "" && targetFlags.exists ("help")) {
+			
+			command = "help";
+			
+		}
+		
+		if (LogHelper.verbose && command != "help" && command != "") {
 			
 			displayInfo ();
 			Sys.println ("");
@@ -2582,6 +2588,10 @@ class CommandLineTools {
 			} else if (argument == "-haxelib-debug") {
 				
 				HaxelibHelper.debug = true;
+				
+			} else if (argument == "--help" || argument == "-help" || argument == "-h") {
+				
+				targetFlags.set ("help", "");
 				
 			} else if (argument.substr (0, 1) == "-") {
 				
