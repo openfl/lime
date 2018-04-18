@@ -1047,8 +1047,12 @@ class CommandLineTools {
 		var command = (words.length > 0 ? words[0] : "");
 		var isProjectCommand = false, isBuildCommand = false;
 		
-		LogHelper.println ("\x1b[1m" + commands.get (command) + "\x1b[0m");
-		LogHelper.println ("");
+		if (commands.exists (command)) {
+			
+			LogHelper.println ("\x1b[1m" + commands.get (command) + "\x1b[0m");
+			LogHelper.println ("");
+			
+		}
 		
 		switch (command) {
 			
