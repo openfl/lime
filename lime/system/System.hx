@@ -520,35 +520,35 @@ class System {
 		
 		// TODO: Handle default arguments, like --window-fps=60
 		
-		try {
+		var arguments = Sys.args ();
+		var stripQuotes = ~/^['"](.*)['"]$/;
+		var equals, argValue, parameters = null;
+		var windowParamPrefix = "--window-";
+		
+		if (arguments != null) {
 			
-			var arguments = Sys.args ();
-			var stripQuotes = ~/^['"](.*)['"]$/;
-			var equals, argValue, parameters = null;
-			var windowParamPrefix = "--window-";
-			
-			if (arguments != null) {
+			for (argument in arguments) {
 				
-				for (argument in arguments) {
+				equals = argument.indexOf ("=");
+				
+				if (equals > 0) {
 					
-					equals = argument.indexOf ("=");
+					argValue = argument.substr (equals + 1);
 					
-					if (equals > 0) {
-						
-						argValue = argument.substr (equals + 1);
-						
-						if (stripQuotes.match (argValue)) {
-							argValue = stripQuotes.matched (1);
-						}
-						
-						if (parameters == null) parameters = new Map<String, String> ();
-						parameters.set (argument.substr (0, equals), argValue);
-						
+					if (stripQuotes.match (argValue)) {
+						argValue = stripQuotes.matched (1);
 					}
+					
+					if (parameters == null) parameters = new Map<String, String> ();
+					parameters.set (argument.substr (0, equals), argValue);
 					
 				}
 				
 			}
+			
+		}
+		
+		if (parameters != null) {
 			
 			for (windowConfig in config.windows) {
 				
@@ -598,7 +598,7 @@ class System {
 				
 			}
 			
-		} catch (e:Dynamic) {}
+		}
 		
 	}
 	#end
