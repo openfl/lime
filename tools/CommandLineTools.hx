@@ -1219,10 +1219,10 @@ class CommandLineTools {
 			LogHelper.println ("  \x1b[3m(windows|macos|linux|android)\x1b[0m \x1b[1m-static\x1b[0m -- Compile as a static C++ executable");
 			LogHelper.println ("  \x1b[3m(windows|macos|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
 			LogHelper.println ("  \x1b[3m(windows|macos|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
-			LogHelper.println ("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv6\x1b[0m -- Force compilation for ARMv6 instead of the OS defaults");
-			LogHelper.println ("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7\x1b[0m -- Force compilation for ARMv7 instead of the OS defaults");
-			LogHelper.println ("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7s\x1b[0m -- Force compilation for ARMv7s instead of the OS defaults");
-			LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-arm64\x1b[0m -- Force compilation for ARM64 instead of the OS defaults");
+			LogHelper.println ("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv6\x1b[0m -- Compile for ARMv6 instead of the OS defaults");
+			LogHelper.println ("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7\x1b[0m -- Compile for ARMv7 instead of the OS defaults");
+			LogHelper.println ("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7s\x1b[0m -- Compile for ARMv7s instead of the OS defaults");
+			LogHelper.println ("  \x1b[3m(ios)\x1b[0m \x1b[1m-arm64\x1b[0m -- Compile for ARM64 instead of the OS defaults");
 			
 		}
 		
@@ -1307,6 +1307,10 @@ class CommandLineTools {
 	
 	
 	private function displayInfo (showHint:Bool = false):Void {
+		
+		// var out = "";
+		// for (i in 0...80) out += "-";
+		// LogHelper.println (out);
 		
 		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 			
