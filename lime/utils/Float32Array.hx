@@ -23,7 +23,7 @@ package lime.utils;
             } else if(array != null) {
                 this = new js.html.Float32Array( untyped array );
             #if (openfl && commonjs) } else if(vector != null) { this = new js.html.Float32Array( untyped (vector) );
-            #elseif openfl } else if(vector != null) { this = new js.html.Float32Array( untyped untyped (vector).data.__array ); #end
+            #elseif openfl } else if(vector != null) { this = new js.html.Float32Array( untyped untyped (vector).__array ); #end
             } else if(view != null) {
                 this = new js.html.Float32Array( untyped view );
             } else if(buffer != null) {
@@ -82,7 +82,7 @@ public static var hello:Int;
                 this = new ArrayBufferView( elements, Float32 );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Float32).initArray(array);
-            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Float32).initArray(untyped (vector).data.__array); #end
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Float32).initArray(untyped (vector).__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Float32).initTypedArray(view);
             } else if(buffer != null) {

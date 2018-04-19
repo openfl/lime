@@ -22,7 +22,7 @@ package lime.utils;
             } else if(array != null) {
                 this = new js.html.Uint32Array( untyped array );
             #if (openfl && commonjs) } else if(vector != null) { this = new js.html.Uint32Array( untyped (vector) );
-            #elseif openfl } else if(vector != null) { this = new js.html.Uint32Array( untyped untyped (vector).data.__array ); #end
+            #elseif openfl } else if(vector != null) { this = new js.html.Uint32Array( untyped untyped (vector).__array ); #end
             } else if(view != null) {
                 this = new js.html.Uint32Array( untyped view );
             } else if(buffer != null) {
@@ -80,7 +80,7 @@ package lime.utils;
                 this = new ArrayBufferView( elements, Uint32 );
             } else if(array != null) {
                 this = new ArrayBufferView(0, Uint32).initArray(array);
-            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Uint32).initArray(untyped (vector).data.__array); #end
+            #if openfl } else if(vector != null) { this = new ArrayBufferView(0, Uint32).initArray(untyped (vector).__array); #end
             } else if(view != null) {
                 this = new ArrayBufferView(0, Uint32).initTypedArray(view);
             } else if(buffer != null) {
