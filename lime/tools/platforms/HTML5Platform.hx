@@ -307,7 +307,7 @@ class HTML5Platform extends PlatformTarget {
 			
 			if (asset.type != AssetType.TEMPLATE) {
 				
-				if (asset.embed != true && asset.type != AssetType.FONT) {
+				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT) {
 					
 					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
