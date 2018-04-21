@@ -716,7 +716,14 @@ class PlatformSetup {
 	
 	public static function setupAIR ():Void {
 		
+		LogHelper.println ("\x1b[1mIn order to package SWF applications using Adobe AIR, you must");
+		LogHelper.println ("download and extract the Adobe AIR SDK.");
+		LogHelper.println ("");
+		
 		getDefineValue ("AIR_SDK", "Path to AIR SDK");
+		
+		LogHelper.println ("");
+		LogHelper.println ("Setup complete.");
 		
 	}
 	
@@ -745,12 +752,22 @@ class PlatformSetup {
 			
 		}
 		
+		LogHelper.println ("");
+		LogHelper.println ("Setup complete.");
+		
 	}
 	
 	
 	public static function setupEmscripten ():Void {
 		
+		LogHelper.println ("\x1b[1mIn order to build for WebAssembly or ASM.js, you must download");
+		LogHelper.println ("and install the Emscripten SDK.");
+		LogHelper.println ("");
+		
 		getDefineValue ("EMSCRIPTEN_SDK", "Path to Emscripten SDK");
+		
+		LogHelper.println ("");
+		LogHelper.println ("Setup complete.");
 		
 	}
 	
@@ -1047,6 +1064,9 @@ class PlatformSetup {
 			
 			var parameters = [ "apt-get", "install" ].concat (packages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			
+			LogHelper.println ("");
+			LogHelper.println ("Setup complete.");
 			return;
 			
 		}
@@ -1058,6 +1078,9 @@ class PlatformSetup {
 			
 			var parameters = [ "yum", "install" ].concat (linuxYumPackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			
+			LogHelper.println ("");
+			LogHelper.println ("Setup complete.");
 			return;
 			
 		}
@@ -1069,6 +1092,9 @@ class PlatformSetup {
 			
 			var parameters = [ "dnf", "install" ].concat (linuxDnfPackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			
+			LogHelper.println ("");
+			LogHelper.println ("Setup complete.");
 			return;
 			
 		}
@@ -1081,6 +1107,9 @@ class PlatformSetup {
 			// Sabayon docs recommend not using sudo with equo, and instead using a root login shell
 			var parameters = [ "-l", "-c", "equo", "i", "-av" ].concat (linuxEquoPackages.split (" "));
 			ProcessHelper.runCommand ("", "su", parameters, false);
+			
+			LogHelper.println ("");
+			LogHelper.println ("Setup complete.");
 			return;
 			
 		}
@@ -1092,6 +1121,9 @@ class PlatformSetup {
 			
 			var parameters = [ "emerge", "-av" ].concat (linuxEmergePackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			
+			LogHelper.println ("");
+			LogHelper.println ("Setup complete.");
 			return;
 			
 		}
@@ -1114,12 +1146,15 @@ class PlatformSetup {
 			}
 			
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			
+			LogHelper.println ("");
+			LogHelper.println ("Setup complete.");
 			return;
 			
 		}
 		
 		LogHelper.println ("Unable to find a supported package manager on your Linux distribution.");
-		LogHelper.println ("For now, only apt-get, yum, dnf, equo, emerge, and pacman are supported.");
+		LogHelper.println ("Currently apt-get, yum, dnf, equo, emerge, and pacman are supported.");
 		
 		Sys.exit (1);
 		
