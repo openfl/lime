@@ -17,7 +17,7 @@ class CLIHelper {
 		
 		while (true) {
 			
-			LogHelper.print ("\x1b[1m" + question + "\x1b[0m \x1b[3;37m[" + options.join ("/") + "]\x1b[0m ? ");
+			LogHelper.print (LogHelper.accentColor + question + "\x1b[0m \x1b[3;37m[" + options.join ("/") + "]\x1b[0m ? ");
 			
 			try {
 				

@@ -238,7 +238,7 @@ class PlatformSetup {
 			
 		}
 		
-		var inputValue = unescapePath (CLIHelper.param ("\x1b[1m" + description + "\x1b[0m \x1b[37;3m[" + value + "]\x1b[0m"));
+		var inputValue = unescapePath (CLIHelper.param (LogHelper.accentColor + description + "\x1b[0m \x1b[37;3m[" + value + "]\x1b[0m"));
 		
 		if (inputValue != "" && inputValue != value) {
 			

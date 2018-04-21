@@ -370,7 +370,7 @@ class ConfigHelper {
 			var content = lines.join ("\n");
 			File.saveContent (path, content);
 			
-			LogHelper.info ("Set " + LogHelper.accentColor + name + "\x1b[0m to \x1b[1m" + value + "\x1b[0m");
+			LogHelper.info ("Set \x1b[1m" + name + "\x1b[0m to \x1b[1m" + value + "\x1b[0m");
 			
 		} else {
 			
