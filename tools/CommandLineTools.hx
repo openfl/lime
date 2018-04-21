@@ -857,17 +857,17 @@ class CommandLineTools {
 	
 	private function displayConfig ():Void {
 		
-		var config = getLimeConfig ();
-		
 		if (words.length == 0) {
 			
-			LogHelper.println (File.getContent (Sys.getEnv ("LIME_CONFIG")));
+			LogHelper.println (File.getContent (ConfigHelper.getConfigPath ()));
 			
 		} else if (words.length == 1) {
 			
-			if (config.defines.exists (words[0])) {
+			var value = ConfigHelper.getConfigValue (words[0]);
+			
+			if (value != null) {
 				
-				LogHelper.println (config.defines.get (words[0]));
+				LogHelper.println (value);
 				
 			} else {
 				
@@ -877,138 +877,16 @@ class CommandLineTools {
 			
 		} else {
 			
-			// TODO: Cleanup
-			
-			var path = Sys.getEnv ("LIME_CONFIG");
-			
 			var name = words.shift ();
 			var value = words.join (" ");
 			
-			try {
+			if (name == "remove") {
 				
-				if (!FileSystem.exists (value) && FileSystem.exists (PathHelper.expand (value))) {
-					
-					value = PathHelper.expand (value);
-					
-				}
-				
-			} catch (e:Dynamic) {}
-			
-			if (FileSystem.exists (path)) {
-				
-				var doRemove = (name == "remove");
-				
-				if (doRemove) {
-					
-					name = value;
-					
-				}
-				
-				var configText = File.getContent (path);
-				var lines = configText.split ("\n");
-				
-				var findSet = "<set name=\"" + name + "\"";
-				var findSetenv = "<setenv name=\"" + name + "\"";
-				var findDefine = "<define name=\"" + name + "\"";
-				var line, i = 0, index = 0, found = false;
-				
-				while (i < lines.length) {
-					
-					line = lines[i];
-					
-					if ((index = line.indexOf (findSet)) > -1) {
-						
-						found = true;
-						
-						if (doRemove) {
-							
-							lines.splice (i, 1);
-							continue;
-							
-						}
-						
-						lines[i] = line.substr (0, index) + "<set name=\"" + name + "\" value=\"" + value + "\" />";
-						
-					}
-					
-					if ((index = line.indexOf (findSetenv)) > -1) {
-						
-						found = true;
-						
-						if (doRemove) {
-							
-							lines.splice (i, 1);
-							continue;
-							
-						}
-						
-						lines[i] = line.substr (0, index) + "<setenv name=\"" + name + "\" value=\"" + value + "\" />";
-						
-					}
-					
-					if ((index = line.indexOf (findDefine)) > -1) {
-						
-						found = true;
-						
-						if (doRemove) {
-							
-							lines.splice (i, 1);
-							continue;
-							
-						}
-						
-						lines[i] = line.substr (0, index) + "<define name=\"" + name + "\" value=\"" + value + "\" />";
-						
-					}
-					
-					i++;
-					
-				}
-				
-				if (!found && !doRemove && lines.length > 2) {
-					
-					var insertPoint = lines.length - 3;
-					
-					if (StringTools.trim (lines[lines.length - 1]) == "") {
-						
-						insertPoint--;
-						
-					}
-					
-					if (StringTools.trim (lines[insertPoint + 1]) != "") {
-						
-						lines.insert (insertPoint + 1, "\t");
-						
-					}
-					
-					lines.insert (insertPoint + 1, "\t<define name=\"" + name + "\" value=\"" + value + "\" />");
-					
-				}
-				
-				var content = lines.join ("\n");
-				File.saveContent (path, content);
-				
-				if (doRemove) {
-					
-					if (found) {
-						
-						LogHelper.info ("Removed define \"" + name + "\"");
-						
-					} else {
-						
-						LogHelper.info ("There is no define \"" + name + "\"");
-						
-					}
-					
-				} else {
-					
-					LogHelper.info ("Set \"" + name + "\" to \"" + value + "\"");
-					
-				}
+				ConfigHelper.removeConfigValue (value);
 				
 			} else {
 				
-				LogHelper.error ("Cannot find \"" + path + "\"");
+				ConfigHelper.writeConfigValue (name, value);
 				
 			}
 			
@@ -1462,7 +1340,7 @@ class CommandLineTools {
 			
 		} else if (targetFlags.exists ("java-externs")) {
 			
-			var config = getLimeConfig ();
+			var config = ConfigHelper.getConfig ();
 			var sourcePath = words[0];
 			var targetPath = words[1];
 			
@@ -1616,104 +1494,6 @@ class CommandLineTools {
 				}
 				
 			}
-			
-		}
-		
-		return null;
-		
-	}
-	
-	
-	public static function getLimeConfig ():HXProject {
-		
-		var environment = Sys.environment ();
-		var config = "";
-		
-		if (environment.exists ("LIME_CONFIG")) {
-			
-			config = environment.get ("LIME_CONFIG");
-			
-		} else {
-			
-			var home = "";
-			
-			if (environment.exists ("HOME")) {
-				
-				home = environment.get ("HOME");
-				
-			} else if (environment.exists ("USERPROFILE")) {
-				
-				home = environment.get ("USERPROFILE");
-				
-			} else {
-				
-				LogHelper.warn ("Lime config might be missing (Environment has no \"HOME\" variable)");
-				
-				return null;
-				
-			}
-			
-			config = home + "/.lime/config.xml";
-			
-			if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
-				
-				config = config.split ("/").join ("\\");
-				
-			}
-			
-			if (!FileSystem.exists (config)) {
-				
-				PathHelper.mkdir (Path.directory (config));
-				
-				var hxcppConfig = null;
-				
-				if (environment.exists ("HXCPP_CONFIG")) {
-					
-					hxcppConfig = environment.get ("HXCPP_CONFIG");
-					
-				} else {
-					
-					hxcppConfig = home + "/.hxcpp_config.xml";
-					
-				}
-				
-				if (FileSystem.exists (hxcppConfig)) {
-					
-					var vars = new ProjectXMLParser (hxcppConfig);
-					
-					for (key in vars.defines.keys ()) {
-						
-						if (key != key.toUpperCase ()) {
-							
-							vars.defines.remove (key);
-							
-						}
-						
-					}
-					
-					PlatformSetup.writeConfig (config, vars.defines);
-					
-				} else {
-					
-					PlatformSetup.writeConfig (config, new Map ());
-					
-				}
-				
-			}
-			
-			Sys.putEnv ("LIME_CONFIG", config);
-			
-		}
-		
-		if (FileSystem.exists (config)) {
-			
-			LogHelper.info ("", LogHelper.accentColor + "Reading Lime config: " + config + LogHelper.resetColor);
-			
-			return new ProjectXMLParser (config);
-			
-		} else {
-			
-			LogHelper.warn ("", "Could not read Lime config: " + config);
 			
 		}
 		
@@ -1947,7 +1727,7 @@ class CommandLineTools {
 		HXProject._targetFlags = targetFlags;
 		HXProject._userDefines = userDefines;
 		
-		var config = getLimeConfig ();
+		var config = ConfigHelper.getConfig ();
 		
 		if (config != null) {
 			
