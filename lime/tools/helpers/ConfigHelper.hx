@@ -143,7 +143,7 @@ class ConfigHelper {
 	
 	public static function removeConfigValue (name:String):Void {
 		
-		var path = Sys.getEnv ("LIME_CONFIG");
+		var path = getConfigPath ();
 		
 		if (FileSystem.exists (path)) {
 			
@@ -296,7 +296,7 @@ class ConfigHelper {
 	
 	public static function writeConfigValue (name:String, value:String):Void {
 		
-		var path = Sys.getEnv ("LIME_CONFIG");
+		var path = getConfigPath ();
 		
 		try {
 			
