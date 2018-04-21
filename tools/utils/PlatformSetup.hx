@@ -760,7 +760,7 @@ class PlatformSetup {
 	
 	public static function setupEmscripten ():Void {
 		
-		LogHelper.println ("\x1b[1mIn order to build for WebAssembly or ASM.js, you must download");
+		LogHelper.println ("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
 		LogHelper.println ("and install the Emscripten SDK.");
 		LogHelper.println ("");
 		
