@@ -347,4 +347,11 @@ typedef uint64_t  uintmax_t;
 #endif
 
 
+#ifdef ANDROID
+
+std::size_t _mbsrtowcs(wchar_t * ws, const char **src, std::size_t wn, std::mbstate_t *st);
+
+#endif
+
+
 #endif
