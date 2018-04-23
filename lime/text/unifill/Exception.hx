@@ -1,5 +1,10 @@
 package lime.text.unifill;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 class Exception {
 	function new() {
 	}
@@ -7,6 +12,11 @@ class Exception {
 		throw null;
 	}
 }
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 class InvalidCodePoint extends Exception {
 	public var code(default, null) : Int;
@@ -18,6 +28,11 @@ class InvalidCodePoint extends Exception {
 		return 'InvalidCodePoint(code: $code)';
 	}
 }
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 class InvalidCodeUnitSequence extends Exception {
 	public var index(default, null) : Int;

@@ -24,6 +24,12 @@ class HTTPRequest<T> {
 #end
 class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
 
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	
 #end
@@ -91,6 +97,11 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 #if !display
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 	
 	
@@ -136,6 +147,11 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 	
 }
 
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 	

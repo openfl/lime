@@ -142,6 +142,13 @@ class EventMacro {
 			fields.push ( { name: "__listeners", access: [ APublic ], kind: FVar (TPath ({ pack: [], name: "Array", params: [ TPType (typeParam.toComplexType ()) ] })), pos: pos } );
 			fields.push ( { name: "dispatch", access: [ APublic ], kind: FFun ( { args: args, expr: dispatch, params: [], ret: macro :Void } ), pos: pos } );
 			
+			var meta:Array<MetadataEntry> = [ { name: ":dox", params: [ macro hide ], pos: pos }, { name: ":noCompletion", pos: pos } ];
+			
+			#if !lime_debug
+			meta.push ({ name: ":fileXml", params: [ macro 'tags="haxe,release"' ], pos: pos });
+			meta.push ({ name: ":noDebug", pos: pos });
+			#end
+			
 			Context.defineType ({
 				
 				pos: pos,
@@ -150,7 +157,7 @@ class EventMacro {
 				kind: TDClass (),
 				fields: fields,
 				params: [ { name: "T" } ],
-				meta: [ { name: ":dox", params: [ macro hide ], pos: pos }, { name: ":noCompletion", pos: pos } ]
+				meta: meta
 				
 			});
 			

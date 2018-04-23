@@ -132,13 +132,21 @@ class HTTPRequestMacro {
 					{ name: "fromBytes", access: [ APrivate, AOverride ], kind: FFun ( { args: [ { name: "bytes", type: macro :haxe.io.Bytes } ], expr: Context.parse ("return " + typeString + ".fromBytes (bytes)", pos), params: [], ret: paramType.toComplexType () } ), pos: pos }
 				];
 				
+				var meta:Array<MetadataEntry> = [];
+				
+				#if !lime_debug
+				meta.push ({ name: ":fileXml", params: [ macro 'tags="haxe,release"' ], pos: pos });
+				meta.push ({ name: ":noDebug", pos: pos });
+				#end
+				
 				Context.defineType ({
 					
 					name: name,
 					pack: [ "lime", "net" ],
 					kind: TDClass ({ pack: [ "lime", "net" ], name: "HTTPRequest", sub: "_HTTPRequest_Bytes", params: [ TPType (paramType.toComplexType ()) ] }, null, false),
 					fields: fields,
-					pos: pos
+					pos: pos,
+					meta: meta
 					
 				});
 				

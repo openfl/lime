@@ -5,6 +5,11 @@ import haxe.io.Bytes;
 import lime._backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime._backend.native.NativeCFFI)
 
 

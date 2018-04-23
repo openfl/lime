@@ -1,5 +1,10 @@
 package lime.text.unifill;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 class CodePointIter {
 
 	var string : String;
