@@ -165,9 +165,11 @@ class WindowsPlatform extends PlatformTarget {
 			
 			if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 				
+				var targetSuffix = (targetType == "hl") ? ".hdll" : null;
+				
 				for (ndll in project.ndlls) {
 					
-					FileHelper.copyLibrary (project, ndll, "Windows" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug);
+					FileHelper.copyLibrary (project, ndll, "Windows" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug, targetSuffix);
 					
 				}
 				
@@ -199,7 +201,6 @@ class WindowsPlatform extends PlatformTarget {
 				if (noOutput) return;
 				
 				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", PathHelper.combine (applicationDirectory, project.app.file + ".hl"));
-				NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
 				
 			} else if (targetType == "nodejs") {
 				
@@ -208,7 +209,7 @@ class WindowsPlatform extends PlatformTarget {
 				if (noOutput) return;
 				
 				//NekoHelper.createExecutable (project.templatePaths, "windows" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-				NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
+				//NekoHelper.copyLibraries (project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
 				
 			} else if (targetType == "cs") {
 				

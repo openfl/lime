@@ -7,6 +7,9 @@
 #endif
 
 
+#ifdef LIME_HASHLINK
+#include <hl.h>
+#endif
 #include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>

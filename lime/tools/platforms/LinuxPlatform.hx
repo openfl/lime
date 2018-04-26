@@ -98,15 +98,17 @@ class LinuxPlatform extends PlatformTarget {
 		
 		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 			
+			var targetSuffix = (targetType == "hl") ? ".hdll" : null;
+			
 			for (ndll in project.ndlls) {
 				
 				if (isRaspberryPi) {
 					
-					FileHelper.copyLibrary (project, ndll, "RPi", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
+					FileHelper.copyLibrary (project, ndll, "RPi", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug, targetSuffix);
 					
 				} else {
 					
-					FileHelper.copyLibrary (project, ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug);
+					FileHelper.copyLibrary (project, ndll, "Linux" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory, project.debug, targetSuffix);
 					
 				}
 				
@@ -139,13 +141,12 @@ class LinuxPlatform extends PlatformTarget {
 			if (noOutput) return;
 			
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", PathHelper.combine (applicationDirectory, project.app.file + ".hl"));
-			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else if (targetType == "nodejs") {
 			
 			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
 			//NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
+			//NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else if (targetType == "java") {
 			
