@@ -450,20 +450,22 @@ class NativeCFFI {
 	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	
+	#if hl
+	@:hlNative("lime", "hl_lime_alc_open_device") private static function hl_lime_alc_open_device (devicename:hl.Bytes):lime.media.openal.ALDevice { return null; };
+	#end
+	
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
 	@:cffi private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void;
 	@:cffi private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:Float32):Void;
 	@:cffi private static function lime_al_remove_direct_filter(source:CFFIPointer):Void;
 	@:cffi private static function lime_al_is_filter (filter:CFFIPointer):Bool;
 	@:cffi private static function lime_al_get_filteri(filter:CFFIPointer, param:Int):Int;
-	
 	@:cffi private static function lime_al_gen_effect():CFFIPointer;
 	@:cffi private static function lime_al_effectf(effect:CFFIPointer, param:Int, value:Float32):Void;  
 	@:cffi private static function lime_al_effectfv(effect:CFFIPointer, param:Int, values:Array<Float>):Void;
 	@:cffi private static function lime_al_effecti(effect:CFFIPointer, param:Int, value:Int):Void;
 	@:cffi private static function lime_al_effectiv(effect:CFFIPointer, param:Int, values:Array<Int>):Void;
 	@:cffi private static function lime_al_is_effect(effect:CFFIPointer):Bool;	
-
 	@:cffi private static function lime_al_gen_aux():CFFIPointer;
 	@:cffi private static function lime_al_auxf(aux:CFFIPointer, param:Int, value:Float32):Void;  
 	@:cffi private static function lime_al_auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void;

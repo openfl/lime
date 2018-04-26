@@ -56,6 +56,7 @@
 	<files id="lime">
 		
 		<compilerflag value="-Iinclude" />
+		<compilerflag value="-DLIBHL_EXPORTS" />
 		
 		<file name="src/ExternalInterface.cpp" />
 		
@@ -426,7 +427,7 @@
 				<lib name="-lm" if="LIME_NEKO" />
 				
 			</section>
-		
+			
 			<section if="android">
 				
 				<lib name="-L../ndll/Android" />

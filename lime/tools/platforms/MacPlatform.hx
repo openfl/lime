@@ -98,9 +98,11 @@ class MacPlatform extends PlatformTarget {
 		
 		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 			
+			var targetSuffix = (targetType == "hl") ? ".hdll" : null;
+			
 			for (ndll in project.ndlls) {
 				
-				FileHelper.copyLibrary (project, ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory, project.debug);
+				FileHelper.copyLibrary (project, ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory, project.debug, targetSuffix);
 				
 			}
 			
@@ -122,7 +124,6 @@ class MacPlatform extends PlatformTarget {
 			if (noOutput) return;
 			
 			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", PathHelper.combine (executableDirectory, project.app.file + ".hl"));
-			NekoHelper.copyLibraries (project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else if (targetType == "java") {
 			
@@ -144,7 +145,7 @@ class MacPlatform extends PlatformTarget {
 			if (noOutput) return;
 			
 			//NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			//NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else if (targetType == "cs") {
 			
