@@ -278,6 +278,16 @@ class CommandLineTools {
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("neko", "");
 						
+						case "hl":
+							
+							target = PlatformHelper.hostPlatform;
+							targetFlags.set ("hl", "");
+						
+						case "java":
+							
+							target = PlatformHelper.hostPlatform;
+							targetFlags.set ("java", "");
+						
 						case "nodejs":
 							
 							target = PlatformHelper.hostPlatform;
@@ -1044,6 +1054,7 @@ class CommandLineTools {
 			LogHelper.println ("  \x1b[1mnodejs\x1b[0m -- Alias for host platform (using \x1b[1m-nodejs\x1b[0m)");
 			LogHelper.println ("  \x1b[1mjava\x1b[0m -- Alias for host platform (using \x1b[1m-java\x1b[0m)");
 			LogHelper.println ("  \x1b[1mcs\x1b[0m -- Alias for host platform (using \x1b[1m-cs\x1b[0m)");
+			LogHelper.println ("  \x1b[1mhl\x1b[0m -- Alias for host platform (using \x1b[1m-hl\x1b[0m)");
 			LogHelper.println ("  \x1b[1muwp\x1b[0;3m/\x1b[0m\x1b[1mwinjs\x1b[0m -- Alias for \x1b[1mwindows -uwp\x1b[0m");
 			// LogHelper.println ("  \x1b[1miphone\x1b[0;3m/\x1b[0m\x1b[1miphoneos\x1b[0m -- \x1b[1mios\x1b[0m");
 			// LogHelper.println ("  \x1b[1miphonesim\x1b[0m -- Alias for \x1b[1mios -simulator\x1b[0m");
@@ -1163,6 +1174,7 @@ class CommandLineTools {
 			LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-java\x1b[0m -- Build for Java instead of C++");
 			LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-nodejs\x1b[0m -- Build for Node.js instead of C++");
 			LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-cs\x1b[0m -- Build for C# instead of C++");
+			LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hl\x1b[0m -- Build for HashLink instead of C++");
 			LogHelper.println ("  \x1b[3m(windows)\x1b[0m \x1b[1m-winjs\x1b[0m -- Build for WinJS instead of C++ (implies UWP)");
 			LogHelper.println ("  \x1b[3m(windows)\x1b[0m \x1b[1m-uwp\x1b[0m -- Build for Universal Windows Platform");
 			LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-electron\x1b[0m -- Target Electron instead of the browser");
@@ -1675,6 +1687,11 @@ class CommandLineTools {
 				
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("neko", "");
+			
+			case "hl":
+				
+				target = PlatformHelper.hostPlatform;
+				targetFlags.set ("hl", "");
 			
 			case "java":
 				
