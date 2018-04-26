@@ -647,6 +647,12 @@ class Assets {
 }
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
+
 private class LibrarySymbol {
 	
 	
