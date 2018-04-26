@@ -35,7 +35,7 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 			
 		}
 		
-		__clamp = new UInt8Array (0xFF + 0xFF);
+		__clamp = new UInt8Array (0xFF + 0xFF + 1);
 		
 		for (i in 0...0xFF) {
 			
