@@ -138,6 +138,7 @@ class LinuxPlatform extends PlatformTarget {
 			
 			if (noOutput) return;
 			
+			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", PathHelper.combine (applicationDirectory, project.app.file + ".hl"));
 			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else if (targetType == "nodejs") {
@@ -323,7 +324,11 @@ class LinuxPlatform extends PlatformTarget {
 			
 		}
 		
-		if (targetType == "nodejs") {
+		if (targetType == "hl") {
+			
+			ProcessHelper.runCommand (applicationDirectory, "hl", [ project.app.file + ".hl" ].concat (arguments));
+			
+		} else if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, targetDirectory + "/bin/ApplicationMain.js", arguments);
 			
