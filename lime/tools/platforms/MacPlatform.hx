@@ -121,6 +121,7 @@ class MacPlatform extends PlatformTarget {
 			
 			if (noOutput) return;
 			
+			FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", PathHelper.combine (executableDirectory, project.app.file + ".hl"));
 			NekoHelper.copyLibraries (project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
 			
 		} else if (targetType == "java") {
@@ -289,7 +290,11 @@ class MacPlatform extends PlatformTarget {
 			
 		}
 		
-		if (targetType == "nodejs") {
+		if (targetType == "hl") {
+			
+			ProcessHelper.runCommand (applicationDirectory, "hl", [ project.app.file + ".hl" ].concat (arguments));
+			
+		} else if (targetType == "nodejs") {
 			
 			NodeJSHelper.run (project, executableDirectory + "/ApplicationMain.js", arguments);
 			
