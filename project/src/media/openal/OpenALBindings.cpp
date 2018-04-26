@@ -12,9 +12,7 @@
 #endif
 #endif
 
-#define HL_NAME(n) hl_lime_##n
 #include <hl.h>
-
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
@@ -1889,7 +1887,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCdevice* HL_NAME (alc_open_device) (vbyte *devicename) {
+	HL_PRIM ALCdevice* hl_lime_alc_open_device (vbyte *devicename) {
 		
 		ALCdevice* alcDevice = alcOpenDevice ((char*)devicename);
 		atexit (lime_al_atexit);
@@ -2053,10 +2051,11 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_resume_device);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
 	
+	
 	#define TDEVICE _ABSTRACT (alc_device)
 	#define TCONTEXT _ABSTRACT (alc_context)
 	
-	DEFINE_HL_PRIM (TDEVICE, hl_lime_alc_open_device, _BYTES); 
+	DEFINE_HL_PRIM (TDEVICE, lime_alc_open_device, _BYTES); 
 	
 	
 }

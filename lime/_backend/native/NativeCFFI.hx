@@ -288,7 +288,7 @@ class NativeCFFI {
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	
 	#if hl
-	@:hlNative("lime", "hl_lime_alc_open_device") private static function hl_lime_alc_open_device (devicename:hl.Bytes):lime.media.openal.ALDevice { return null; };
+	@:hlNative("lime", "lime_alc_open_device") private static function hl_lime_alc_open_device (devicename:hl.Bytes):lime.media.openal.ALDevice { return null; };
 	#end
 	
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
