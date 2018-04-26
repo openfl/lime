@@ -64,6 +64,10 @@ class LinuxPlatform extends PlatformTarget {
 			
 			targetType = "neko";
 			
+		} else if (project.targetFlags.exists ("hl")) {
+			
+			targetType = "hl";
+			
 		} else if (project.targetFlags.exists ("nodejs")) {
 			
 			targetType = "nodejs";
@@ -127,6 +131,14 @@ class LinuxPlatform extends PlatformTarget {
 				NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 				
 			}
+			
+		} else if (targetType == "hl") {
+			
+			ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+			
+			if (noOutput) return;
+			
+			NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 			
 		} else if (targetType == "nodejs") {
 			
@@ -249,6 +261,7 @@ class LinuxPlatform extends PlatformTarget {
 		
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
+		context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/linux" + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "");
 		context.WIN_ALLOW_SHADERS = false;

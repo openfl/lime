@@ -94,6 +94,12 @@ class ProjectXMLParser extends HXProject {
 			defines.set ("native", "1");
 			defines.set ("neko", "1");
 			
+		} else if (targetFlags.exists ("hl")) {
+			
+			defines.set ("targetType", "hl");
+			defines.set ("native", "1");
+			defines.set ("hl", "1");
+			
 		} else if (targetFlags.exists ("java")) {
 			
 			defines.set ("targetType", "java");

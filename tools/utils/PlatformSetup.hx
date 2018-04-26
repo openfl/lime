@@ -523,7 +523,7 @@ class PlatformSetup {
 						
 					}
 				
-				case "neko", "cs", "uwp", "winjs", "nodejs", "java":
+				case "neko", "hl", "cs", "uwp", "winjs", "nodejs", "java":
 					
 					LogHelper.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
 				
