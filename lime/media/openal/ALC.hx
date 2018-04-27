@@ -40,11 +40,9 @@ class ALC {
 	
 	public static function closeDevice (device:ALDevice):Bool {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_close_device (device);
 		#else
-		return NativeCFFI.hl_lime_alc_close_device (device);
-		#end #else
 		return false;
 		#end
 		
@@ -53,7 +51,7 @@ class ALC {
 	
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = NativeCFFI.lime_alc_create_context (device, attrlist);
 		
 		if (handle != null) {
@@ -61,10 +59,7 @@ class ALC {
 			return new ALContext (handle);
 			
 		}
-		#else
-		var attrlist = (attrlist != null ? hl.Bytes.fromValue (attrlist, null) : null);
-		return NativeCFFI.hl_lime_alc_create_context (device, attrlist);
-		#end #end
+		#end
 		
 		return null;
 		
@@ -73,18 +68,16 @@ class ALC {
 	
 	public static function destroyContext (context:ALContext):Void {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_destroy_context (context);
-		#else
-		NativeCFFI.hl_lime_alc_destroy_context (context);
-		#end #end
+		#end
 		
 	}
 	
 	
 	public static function getContextsDevice (context:ALContext):ALDevice {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = NativeCFFI.lime_alc_get_contexts_device (context);
 		
 		if (handle != null) {
@@ -92,9 +85,6 @@ class ALC {
 			return new ALDevice (handle);
 			
 		}
-		#else
-		return NativeCFFI.hl_lime_alc_get_contexts_device (context);
-		#end
 		#end
 		
 		return null;
@@ -104,7 +94,7 @@ class ALC {
 	
 	public static function getCurrentContext ():ALContext {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = NativeCFFI.lime_alc_get_current_context ();
 		
 		if (handle != null) {
@@ -112,9 +102,7 @@ class ALC {
 			return new ALContext (handle);
 			
 		}
-		#else
-		return NativeCFFI.hl_lime_alc_get_current_context ();
-		#end #end
+		#end
 		
 		return null;
 		
@@ -123,11 +111,9 @@ class ALC {
 	
 	public static function getError (device:ALDevice):Int {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_get_error (device);
 		#else
-		return NativeCFFI.lime_alc_get_error (device);
-		#end #else
 		return 0;
 		#end
 		
@@ -152,18 +138,9 @@ class ALC {
 	
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_get_integerv (device, param, size);
 		#else
-		// TODO: Make this work
-		var bytes = new hl.Bytes (size);
-		NativeCFFI.hl_lime_alc_get_integerv (device, param, size, bytes);
-		var result = new Array ();
-		for (i in 0...size) {
-			result[i] = bytes.getI32 (i);
-		}
-		return result;
-		#end #else
 		return null;
 		#end
 		
@@ -172,12 +149,9 @@ class ALC {
 	
 	public static function getString (device:ALDevice, param:Int):String {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_get_string (device, param);
 		#else
-		// TODO: Is this correct?
-		return cast NativeCFFI.hl_lime_alc_get_string (device, param);
-		#end #else
 		return null;
 		#end
 		
@@ -186,11 +160,9 @@ class ALC {
 	
 	public static function makeContextCurrent (context:ALContext):Bool {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_alc_make_context_current (context);
 		#else
-		return NativeCFFI.hl_lime_alc_make_context_current (context);
-		#end #else
 		return false;
 		#end
 		
@@ -199,7 +171,7 @@ class ALC {
 	
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = NativeCFFI.lime_alc_open_device (deviceName);
 		
 		if (handle != null) {
@@ -207,10 +179,7 @@ class ALC {
 			return new ALDevice (handle);
 			
 		}
-		#else
-		var deviceName = (deviceName != null ? hl.Bytes.fromValue (deviceName, null) : null);
-		return NativeCFFI.hl_lime_alc_open_device (deviceName);
-		#end #end
+		#end
 		
 		return null;
 		
@@ -219,44 +188,36 @@ class ALC {
 	
 	public static function pauseDevice (device:ALDevice):Void {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_pause_device (device);
-		#else
-		NativeCFFI.hl_lime_alc_pause_device (device);
-		#end #end
+		#end
 		
 	}
 	
 	
 	public static function processContext (context:ALContext):Void {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_process_context (context);
-		#else
-		NativeCFFI.hl_lime_alc_process_context (context);
-		#end #end
+		#end
 		
 	}
 	
 	
 	public static function resumeDevice (device:ALDevice):Void {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_resume_device (device);
-		#else
-		NativeCFFI.hl_lime_alc_resume_device (device);
-		#end #end
+		#end
 		
 	}
 	
 	
 	public static function suspendContext (context:ALContext):Void {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_suspend_context (context);
-		#else
-		NativeCFFI.hl_lime_alc_suspend_context (context);
-		#end #end
+		#end
 		
 	}
 	

@@ -12,7 +12,6 @@
 #endif
 #endif
 
-#include <hl.h>
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
@@ -127,15 +126,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_auxf (unsigned effectslot, int param, float flValue) {
-		
-		#ifdef LIME_OPENALSOFT
-		alAuxiliaryEffectSlotf (effectslot, param, flValue);
-		#endif
-		
-	}
-	
-	
 	void lime_al_auxfv (value aux, int param, value values) {
 		
 		#ifdef LIME_OPENALSOFT
@@ -161,15 +151,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_auxfv (unsigned effectslot, int param, vbyte* pflValues) {
-		
-		#ifdef LIME_OPENALSOFT
-		alAuxiliaryEffectSlotfv (effectslot, param, (ALfloat*)pflValues);
-		#endif
-		
-	}
-	
-	
 	void lime_al_auxi (value aux, int param, value val) {
 		
 		#ifdef LIME_OPENALSOFT
@@ -187,15 +168,6 @@ namespace lime {
 		}
 		
 		alAuxiliaryEffectSloti (id, param, data);
-		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_auxi (unsigned effectslot, int param, int iValue) {
-		
-		#ifdef LIME_OPENALSOFT
-		alAuxiliaryEffectSloti(effectslot, param, iValue);
 		#endif
 		
 	}
@@ -226,27 +198,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_auxiv (unsigned effectslot, int param, vbyte* piValues) {
-		
-		#ifdef LIME_OPENALSOFT
-		alAuxiliaryEffectSlotiv (effectslot, param, (ALint*)piValues);
-		#endif
-		
-	}
-	
-	
 	void lime_al_buffer_data (value buffer, int format, value data, int size, int freq) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		ArrayBufferView bufferView (data);
 		alBufferData(id, format, bufferView.Data (), size, freq);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_buffer_data (unsigned buffer, int format, vbyte* data, int size, int freq) {
-		
-		alBufferData (buffer, format, data, size, freq);
 		
 	}
 	
@@ -259,13 +215,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_buffer3f (unsigned buffer, int param, float value1, float value2, float value3) {
-		
-		alBuffer3f (buffer, param, value1, value2, value3);
-		
-	}
-	
-	
 	void lime_al_buffer3i (value buffer, int param, int value1, int value2, int value3) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
@@ -274,25 +223,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_buffer3i (unsigned buffer, int param, int value1, int value2, int value3) {
-		
-		alBuffer3i (buffer, param, value1, value2, value3);
-		
-	}
-	
-	
 	void lime_al_bufferf (value buffer, int param, float value) {
-		
+
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		alBufferf (id, param, value);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_bufferf (unsigned buffer, int param, float value) {
-		
-		alBufferf (buffer, param, value);
-		
+
 	}
 	
 	
@@ -319,24 +254,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_bufferfv (unsigned buffer, int param, vbyte* values) {
-		
-		alBufferfv (buffer, param, (ALfloat*)values);
-		
-	}
-	
-	
 	void lime_al_bufferi (value buffer, int param, int value) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		alBufferi(id, param, value);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_bufferi (unsigned buffer, int param, int value) {
-		
-		alBufferi (buffer, param, value);
 		
 	}
 	
@@ -360,13 +281,6 @@ namespace lime {
 			delete[] data;
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_bufferiv (unsigned buffer, int param, vbyte* values) {
-		
-		alBufferiv (buffer, param, (ALint*)values);
 		
 	}
 	
@@ -446,15 +360,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_delete_auxiliary_effect_slot (unsigned aux) {
-		
-		#ifdef LIME_OPENALSOFT
-		alDeleteAuxiliaryEffectSlots (1, &aux);
-		#endif
-		
-	}
-	
-	
 	void lime_al_delete_buffer (value buffer) {
 		
 		if (!val_is_null (buffer)) {
@@ -472,13 +377,6 @@ namespace lime {
 			al_gc_mutex.Unlock ();
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_delete_buffer (unsigned buffer) {
-		
-		alDeleteBuffers (1, &buffer);
 		
 	}
 	
@@ -531,13 +429,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_delete_buffers (int n, vbyte* buffers) {
-		
-		alDeleteBuffers (n, (ALuint*)buffers);
-		
-	}
-	
-	
 	void lime_al_delete_effect (value effect) {
 		
 		#ifdef LIME_OPENALSOFT
@@ -549,13 +440,6 @@ namespace lime {
 			
 		}
 		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_delete_effect (unsigned effect) {
-		
-		alDeleteEffects (1, &effect);
 		
 	}
 	
@@ -575,13 +459,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_delete_filter (unsigned filter) {
-		
-		alDeleteFilters (1, &filter);
-		
-	}
-	
-	
 	void lime_al_delete_source (value source) {
 		
 		if (!val_is_null (source)) {
@@ -590,7 +467,7 @@ namespace lime {
 			val_gc (source, 0);
 			#ifdef LIME_OPENAL_DELETION_DELAY
 			al_gc_mutex.Lock ();
-			alSourcei (data, lime_al_BUFFER, 0);
+			alSourcei (data, AL_BUFFER, 0);
 			alDeletedSource.push_back (data);
 			alDeletedSourceTime.push_back (time (0));
 			al_gc_mutex.Unlock ();
@@ -599,13 +476,6 @@ namespace lime {
 			#endif
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_delete_source (unsigned source) {
-		
-		alDeleteSources (1, &source);
 		
 	}
 	
@@ -625,7 +495,7 @@ namespace lime {
 				
 				source = val_array_i (sources, i);
 				data = (ALuint)(uintptr_t)val_data (source);
-				alSourcei (data, lime_al_BUFFER, 0);
+				alSourcei (data, AL_BUFFER, 0);
 				alDeletedSource.push_back (data);
 				alDeletedSourceTime.push_back (time (0));
 				val_gc (source, 0);
@@ -655,21 +525,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_delete_sources (int n, vbyte* sources) {
-		
-		alDeleteSources (n, (ALuint*)sources);
-		
-	}
-	
-	
 	void lime_al_disable (int capability) {
-		
-		alDisable (capability);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_disable (int capability) {
 		
 		alDisable (capability);
 		
@@ -683,23 +539,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_distance_model (int value) {
-		
-		alDistanceModel (value);
-		
-	}
-	
-	
 	void lime_al_doppler_factor (float factor) {
 		
 		alDopplerFactor (factor);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_doppler_factor (float value) {
-		
-		alDopplerFactor (value);
 		
 	}
 	
@@ -711,26 +553,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_doppler_velocity (float value) {
-		
-		alDopplerVelocity (value);
-		
-	}
-	
-	
 	void lime_al_effectf (value effect, int param, float value) {
 		
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (effect);
 		alEffectf (id, param, value);
 		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_effectf (unsigned effect, int param, float flValue) {
-		
-		alEffectf (effect, param, flValue);
 		
 	}
 	
@@ -760,26 +588,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_effectfv (unsigned effect, int param, vbyte* pflValues) {
-		
-		alEffectfv (effect, param, (ALfloat*)pflValues);
-		
-	}
-	
-	
 	void lime_al_effecti (value effect, int param, int value) {
 		
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (effect);
 		alEffecti (id, param, value);
 		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_effecti (unsigned effect, int param, int iValue) {
-		
-		alEffecti (effect, param, iValue);
 		
 	}
 	
@@ -809,21 +623,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_effectiv (unsigned effect, int param, vbyte* piValues) {
-		
-		alEffectiv (effect, param, (ALint*)piValues);
-		
-	}
-	
-	
 	void lime_al_enable (int capability) {
-		
-		alEnable (capability);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_enable (int capability) {
 		
 		alEnable (capability);
 		
@@ -844,26 +644,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_filteri (unsigned filter, int param, int iValue) {
-		
-		alFilteri (filter, param, iValue);
-		
-	}
-	
-	
 	void lime_al_filterf (value filter, int param, float value) {
 		
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (filter);
 		alFilterf (id, param, value);
 		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_filterf (unsigned filter, int param, float flValue) {
-		
-		alFilterf (filter, param, flValue);
 		
 	}
 	
@@ -876,19 +662,6 @@ namespace lime {
 		return CFFIPointer ((void*)(uintptr_t)aux, gc_al_auxiliary_effect_slot);
 		#else
 		return alloc_null ();
-		#endif
-		
-	}
-	
-	
-	HL_PRIM unsigned hl_lime_al_gen_aux () {
-		
-		#ifdef LIME_OPENALSOFT
-		ALuint aux;
-		alGenAuxiliaryEffectSlots (1, &aux);
-		return aux;
-		#else
-		return 0;
 		#endif
 		
 	}
@@ -914,13 +687,6 @@ namespace lime {
 			return alloc_null ();
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_gen_buffer (unsigned buffer) {
-		
-		alGenBuffers (1, &buffer);
 		
 	}
 	
@@ -964,13 +730,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_gen_buffers (int n, vbyte* buffers) {
-		
-		alGenBuffers (n, (ALuint*)buffers);
-		
-	}
-	
-	
 	value lime_al_gen_effect () {
 		
 		alGetError ();
@@ -987,13 +746,6 @@ namespace lime {
 		#endif
 		
 		return alloc_null ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_gen_effect (unsigned effect) {
-		
-		alGenEffects (1, &effect);
 		
 	}
 	
@@ -1018,13 +770,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_gen_filter (unsigned filter) {
-		
-		alGenFilters (1, &filter);
-		
-	}
-	
-	
 	value lime_al_gen_source () {
 		
 		alGetError ();
@@ -1041,13 +786,6 @@ namespace lime {
 			return alloc_null ();
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_gen_source (unsigned source) {
-		
-		alGenSources (1, &source);
 		
 	}
 	
@@ -1082,21 +820,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_gen_sources (int n, vbyte* sources) {
-		
-		alGenSources (n, (ALuint*)sources);
-		
-	}
-	
-	
 	bool lime_al_get_boolean (int param) {
-		
-		return alGetBoolean (param);
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_al_get_boolean (int param) {
 		
 		return alGetBoolean (param);
 		
@@ -1122,13 +846,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_booleanv (int param, vbyte* values) {
-		
-		alGetBooleanv (param, (ALboolean*)values);
-		
-	}
-	
-	
 	value lime_al_get_buffer3f (value buffer, int param) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
@@ -1141,13 +858,6 @@ namespace lime {
 		val_array_set_i (result, 1, alloc_float (val2));
 		val_array_set_i (result, 2, alloc_float (val3));
 		return result;
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_get_buffer3f (unsigned buffer, int param, float *value1, float *value2, float *value3) {
-		
-		alGetBuffer3f (buffer, param, value1, value2, value3);
 		
 	}
 	
@@ -1168,28 +878,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_buffer3i (unsigned buffer, int param, int *value1, int *value2, int *value3) {
-		
-		alGetBuffer3i (buffer, param, value1, value2, value3);
-		
-	}
-	
-	
 	float lime_al_get_bufferf (value buffer, int param) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		ALfloat data;
 		alGetBufferf (id, param, &data);
 		return data;
-		
-	}
-	
-	
-	HL_PRIM float hl_lime_al_get_bufferf (unsigned buffer, int param) {
-		
-		float value;
-		alGetBufferf (buffer, param, &value);
-		return value;
 		
 	}
 	
@@ -1214,28 +908,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_bufferfv (unsigned buffer, int param, vbyte* values) {
-		
-		alGetBufferfv (buffer, param, (ALfloat*)values);
-		
-	}
-	
-	
 	int lime_al_get_bufferi (value buffer, int param) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		ALint data;
 		alGetBufferi (id, param, &data);
 		return data;
-		
-	}
-	
-	
-	HL_PRIM int hl_lime_al_get_bufferi (unsigned buffer, int param) {
-		
-		int value;
-		alGetBufferi (buffer, param, &value);
-		return value;
 		
 	}
 	
@@ -1260,21 +938,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_bufferiv (unsigned buffer, int param, vbyte* values) {
-		
-		alGetBufferiv (buffer, param, (ALint*)values);
-		
-	}
-	
-	
 	double lime_al_get_double (int param) {
-		
-		return alGetDouble (param);
-		
-	}
-	
-	
-	HL_PRIM double hl_lime_al_get_double (int param) {
 		
 		return alGetDouble (param);
 		
@@ -1300,13 +964,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_doublev (int param, vbyte* values) {
-		
-		alGetDoublev (param, (ALdouble*)values);
-		
-	}
-	
-	
 	int lime_al_get_enum_value (HxString ename) {
 		
 		return alGetEnumValue (ename.__s);
@@ -1314,21 +971,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_al_get_enum_value (vbyte* ename) {
-		
-		return alGetEnumValue ((char*)ename);
-		
-	}
-	
-	
 	int lime_al_get_error () {
-		
-		return alGetError ();
-		
-	}
-	
-	
-	HL_PRIM int hl_lime_al_get_error () {
 		
 		return alGetError ();
 		
@@ -1349,23 +992,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_al_get_filteri (unsigned filter, int param) {
-		
-		int value;
-		alGetFilteri (filter, param, &value);
-		return value;
-		
-	}
-	
-	
 	float lime_al_get_float (int param) {
-		
-		return alGetFloat (param);
-		
-	}
-	
-	
-	HL_PRIM float hl_lime_al_get_float (int param) {
 		
 		return alGetFloat (param);
 		
@@ -1391,21 +1018,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_floatv (int param, vbyte* values) {
-		
-		alGetFloatv (param, (ALfloat*)values);
-		
-	}
-	
-	
 	int lime_al_get_integer (int param) {
-		
-		return alGetInteger (param);
-		
-	}
-	
-	
-	HL_PRIM int hl_lime_al_get_integer (int param) {
 		
 		return alGetInteger (param);
 		
@@ -1431,13 +1044,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_integerv (int param, vbyte* values) {
-		
-		alGetIntegerv (param, (ALint*)values);
-		
-	}
-	
-	
 	value lime_al_get_listener3f (int param) {
 		
 		ALfloat val1, val2, val3;
@@ -1449,13 +1055,6 @@ namespace lime {
 		val_array_set_i (result, 1, alloc_float (val2));
 		val_array_set_i (result, 2, alloc_float (val3));
 		return result;
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_get_listener3f (int param, float *value1, float *value2, float *value3) {
-		
-		alGetListener3f (param, value1, value2, value3);
 		
 	}
 	
@@ -1475,27 +1074,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_listener3i (int param, int *value1, int *value2, int *value3) {
-		
-		alGetListener3i (param, value1, value2, value3);
-		
-	}
-	
-	
 	float lime_al_get_listenerf (int param) {
 		
 		ALfloat data;
 		alGetListenerf (param, &data);
 		return data;
-		
-	}
-	
-	
-	HL_PRIM float hl_lime_al_get_listenerf (int param) {
-		
-		float value;
-		alGetListenerf (param, &value);
-		return value;
 		
 	}
 	
@@ -1519,27 +1102,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_listenerfv (int param, vbyte* values) {
-		
-		alGetListenerfv (param, (ALfloat*)values);
-		
-	}
-	
-	
 	int lime_al_get_listeneri (int param) {
 		
 		ALint data;
 		alGetListeneri (param, &data);
 		return data;
-		
-	}
-	
-	
-	HL_PRIM int hl_lime_al_get_listeneri (int param) {
-		
-		int value;
-		alGetListeneri (param, &value);
-		return value;
 		
 	}
 	
@@ -1559,13 +1126,6 @@ namespace lime {
 		
 		delete[] values;
 		return result;
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_get_listeneriv (int param, vbyte* values) {
-		
-		alGetListeneriv (param, (ALint*)values);
 		
 	}
 	
@@ -1593,13 +1153,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_source3f (unsigned source, int param, float *value1, float *value2, float *value3) {
-		
-		alGetSource3f (source, param, value1, value2, value3);
-		
-	}
-	
-	
 	value lime_al_get_source3i (value source, int param) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
@@ -1616,28 +1169,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_source3i (unsigned source, int param, int *value1, int *value2, int *value3) {
-		
-		alGetSource3i (source, param, value1, value2, value3);
-		
-	}
-	
-	
 	float lime_al_get_sourcef (value source, int param) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		ALfloat data;
 		alGetSourcef (id, param, &data);
 		return data;
-		
-	}
-	
-	
-	HL_PRIM float hl_lime_al_get_sourcef (unsigned source, int param) {
-		
-		float value;
-		alGetSourcef(source, param, &value);
-		return value;
 		
 	}
 	
@@ -1658,13 +1195,6 @@ namespace lime {
 		
 		delete[] values;
 		return result;
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_get_sourcefv (unsigned source, int param, vbyte* values) {
-		
-		alGetSourcefv (source, param, (ALfloat*)values);
 		
 	}
 	
@@ -1699,14 +1229,6 @@ namespace lime {
 		
 	}
 	
-	HL_PRIM int hl_lime_al_get_sourcei (unsigned source, int param) {
-		
-		int value;
-		alGetSourcei (source, param, &value);
-		return value;
-		
-	}
-	
 	
 	value lime_al_get_sourceiv (value source, int param, int count) {
 
@@ -1728,24 +1250,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_get_sourceiv (unsigned source, int param, vbyte* values) {
-		
-		alGetSourceiv (source, param, (ALint*)values);
-		
-	}
-	
-	
 	value lime_al_get_string (int param) {
 		
 		const char* result = alGetString (param);
 		return result ? alloc_string (result) : alloc_null ();
-		
-	}
-	
-	
-	HL_PRIM vbyte* hl_lime_al_get_string (int param) {
-		
-		return (vbyte*)alGetString (param);
 		
 	}
 	
@@ -1762,28 +1270,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM bool hl_lime_al_is_aux (unsigned effectslot) {
-		
-		#ifdef LIME_OPENALSOFT
-		return alIsAuxiliaryEffectSlot (effectslot) == AL_TRUE;
-		#else
-		return false;
-		#endif
-		
-	}
-	
-	
 	bool lime_al_is_buffer (value buffer) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		return alIsBuffer (id);
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_al_is_buffer (unsigned buffer) {
-		
-		return alIsBuffer (buffer) == AL_TRUE;
 		
 	}
 	
@@ -1800,23 +1290,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM bool hl_lime_al_is_effect (unsigned effect) {
-		
-		return alIsEffect (effect) == AL_TRUE;
-		
-	}
-	
-	
 	bool lime_al_is_enabled (int capability) {
 		
 		return alIsEnabled (capability);
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_al_is_enabled (int capability) {
-		
-		return alIsEnabled (capability) == AL_TRUE;
 		
 	}
 	
@@ -1828,13 +1304,6 @@ namespace lime {
 		#else
 		return false;
 		#endif
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_al_is_extension_present (vbyte* extname) {
-		
-		return alIsExtensionPresent ((char*)extname) == AL_TRUE;
 		
 	}
 	
@@ -1851,13 +1320,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM bool hl_lime_al_is_filter (unsigned filter) {
-		
-		return alIsFilter (filter) == AL_TRUE;
-		
-	}
-	
-	
 	bool lime_al_is_source (value source) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
@@ -1866,21 +1328,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM bool hl_lime_al_is_source (unsigned source) {
-		
-		return alIsSource (source) == AL_TRUE;
-		
-	}
-	
-	
 	void lime_al_listener3f (int param, float value1, float value2, float value3) {
-		
-		alListener3f (param, value1, value2, value3);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_listener3f (int param, float value1, float value2, float value3) {
 		
 		alListener3f (param, value1, value2, value3);
 		
@@ -1894,23 +1342,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_listener3i (int param, int value1, int value2, int value3) {
-		
-		alListener3i (param, value1, value2, value3);
-		
-	}
-	
-	
 	void lime_al_listenerf (int param, float value1) {
 		
 		alListenerf (param, value1);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_listenerf (int param, float value) {
-		
-		alListenerf (param, value);
 		
 	}
 	
@@ -1936,23 +1370,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_listenerfv (int param, vbyte* values) {
-		
-		alListenerfv (param, (ALfloat*)values);
-		
-	}
-	
-	
 	void lime_al_listeneri (int param, int value1) {
 		
 		alListeneri (param, value1);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_listeneri (int param, int value) {
-		
-		alListeneri (param, value);
 		
 	}
 	
@@ -1974,13 +1394,6 @@ namespace lime {
 			delete[] data;
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_listeneriv (int param, vbyte* values) {
-		
-		alListeneriv (param, (ALint*)values);
 		
 	}
 	
@@ -2013,13 +1426,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_source_pause (unsigned source) {
-		
-		alSourcePause (source);
-		
-	}
-	
-	
 	void lime_al_source_pausev (int n, value sources) {
 		
 		if (!val_is_null (sources)) {
@@ -2041,24 +1447,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_source_pausev (int n, vbyte* sources) {
-		
-		alSourcePausev (n, (ALuint*)sources);
-		
-	}
-	
-	
 	void lime_al_source_play (value source) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		alSourcePlay (id);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_source_play (unsigned source) {
-		
-		alSourcePlay (source);
 		
 	}
 	
@@ -2080,13 +1472,6 @@ namespace lime {
 			delete[] data;
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_source_playv (int n, vbyte* sources) {
-		
-		alSourcePlayv (n, (ALuint*)sources);
 		
 	}
 	
@@ -2114,24 +1499,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_source_queue_buffers (unsigned source, int nb, vbyte* buffers) {
-		
-		alSourceQueueBuffers (source, nb, (ALuint*)buffers);
-		
-	}
-	
-	
 	void lime_al_source_rewind (value source) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		alSourceRewind (id);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_source_rewind (unsigned source) {
-		
-		alSourceRewind (source);
 		
 	}
 	
@@ -2157,24 +1528,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_source_rewindv (int n, vbyte* sources) {
-		
-		alSourceRewindv (n, (ALuint*)sources);
-		
-	}
-	
-	
 	void lime_al_source_stop (value source) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		alSourceStop (id);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_source_stop (unsigned source) {
-		
-		alSourceStop (source);
 		
 	}
 	
@@ -2196,13 +1553,6 @@ namespace lime {
 			delete[] data;
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_source_stopv (int n, vbyte* sources) {
-		
-		alSourceStopv (n, (ALuint*)sources);
 		
 	}
 	
@@ -2244,24 +1594,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_source_unqueue_buffers (unsigned source, int nb, vbyte* buffers) {
-		
-		alSourceUnqueueBuffers (source, nb, (ALuint*)buffers);
-		
-	}
-	
-	
 	void lime_al_source3f (value source, int param, float value1, float value2, float value3) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		alSource3f (id, param, value1, value2, value3);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_source3f (unsigned source, int param, float value1, float value2, float value3) {
-		
-		alSource3f (source, param, value1, value2, value3);
 		
 	}
 	
@@ -2290,24 +1626,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_source3i (unsigned source, int param, int value1, int value2, int value3) {
-		
-		alSource3i (source, param, value1, value2, value3);
-		
-	}
-	
-	
 	void lime_al_sourcef (value source, int param, float value) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		alSourcef (id, param, value);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_sourcef (unsigned source, int param, float value) {
-		
-		alSourcef (source, param, value);
 		
 	}
 	
@@ -2331,13 +1653,6 @@ namespace lime {
 			delete[] data;
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_sourcefv (unsigned source, int param, vbyte* values) {
-		
-		alSourcefv (source, param, (ALfloat*)values);
 		
 	}
 	
@@ -2378,14 +1693,6 @@ namespace lime {
 	}
 	
 	
-	
-	HL_PRIM void hl_lime_al_sourcei (unsigned source, int param, int value) {
-		
-		alSourcei (source, param, value);
-		
-	}
-	
-	
 	void lime_al_sourceiv (value source, int param, value values) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
@@ -2409,21 +1716,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_al_sourceiv (unsigned source, int param, vbyte* values) {
-		
-		alSourceiv (source, param, (ALint*)values);
-		
-	}
-	
-	
 	void lime_al_speed_of_sound (float speed) {
-		
-		alSpeedOfSound (speed);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_al_speed_of_sound (float speed) {
 		
 		alSpeedOfSound (speed);
 		
@@ -2438,13 +1731,6 @@ namespace lime {
 		al_gc_mutex.Unlock ();
 		
 		return alcCloseDevice (alcDevice);
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_alc_close_device (ALCdevice *device) {
-		
-		return alcCloseDevice (device) == ALC_TRUE;
 		
 	}
 	
@@ -2484,13 +1770,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCcontext* hl_lime_alc_create_context (ALCdevice* device, vbyte* attrlist) {
-		
-		return alcCreateContext (device, (ALCint*)attrlist);
-		
-	}
-	
-	
 	void lime_alc_destroy_context (value context) {
 		
 		al_gc_mutex.Lock ();
@@ -2498,13 +1777,6 @@ namespace lime {
 		alcObjects.erase (alcContext);
 		alcDestroyContext (alcContext);
 		al_gc_mutex.Unlock ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_alc_destroy_context (ALCcontext* context) {
-		
-		alcDestroyContext (context);
 		
 	}
 	
@@ -2533,13 +1805,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCdevice* hl_lime_alc_get_contexts_device (ALCcontext* context) {
-		
-		return alcGetContextsDevice (context);
-		
-	}
-	
-	
 	value lime_alc_get_current_context () {
 		
 		ALCcontext* alcContext = alcGetCurrentContext ();
@@ -2563,24 +1828,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCcontext* hl_lime_alc_get_current_context () {
-		
-		return alcGetCurrentContext ();
-		
-	}
-	
-	
 	int lime_alc_get_error (value device) {
 		
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		return alcGetError (alcDevice);
-		
-	}
-	
-	
-	HL_PRIM int hl_lime_alc_get_error (ALCdevice* device) {
-		
-		return alcGetError (device);
 		
 	}
 	
@@ -2606,13 +1857,6 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_alc_get_integerv (ALCdevice* device, int param, int size, vbyte* values) {
-		
-		alcGetIntegerv (device, param, size, (ALCint*)values);
-		
-	}
-	
-	
 	value lime_alc_get_string (value device, int param) {
 		
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
@@ -2622,24 +1866,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_alc_get_string (ALCdevice* device, int param) {
-		
-		return (vbyte*)alcGetString (device, param);
-		
-	}
-	
-	
 	bool lime_alc_make_context_current (value context) {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		return alcMakeContextCurrent (alcContext);
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_alc_make_context_current (ALCcontext *context) {
-		
-		return alcMakeContextCurrent (context) == ALC_TRUE;
 		
 	}
 	
@@ -2656,32 +1886,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCdevice* hl_lime_alc_open_device (vbyte* devicename) {
-		
-		ALCdevice* alcDevice = alcOpenDevice ((char*)devicename);
-		atexit (lime_al_atexit);
-		
-		// TODO: GC
-		
-		return alcDevice;
-		
-	}
-	
-	
 	void lime_alc_pause_device (value device) {
-		
+			
 		#ifdef LIME_OPENALSOFT
 		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
 		alcDevicePauseSOFT (alcDevice);
-		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_alc_pause_device (ALCdevice* device) {
-		
-		#ifdef LIME_OPENALSOFT
-		alcDevicePauseSOFT (device);
 		#endif
 		
 	}
@@ -2691,13 +1900,6 @@ namespace lime {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcProcessContext (alcContext);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_alc_process_context (ALCcontext* context) {
-		
-		alcProcessContext (context);
 		
 	}
 	
@@ -2712,26 +1914,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_alc_resume_device (ALCdevice* device) {
-		
-		#ifdef LIME_OPENALSOFT
-		alcDeviceResumeSOFT (device);
-		#endif
-		
-	}
-	
-	
 	void lime_alc_suspend_context (value context) {
 		
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
 		alcSuspendContext (alcContext);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_alc_suspend_context (ALCcontext* context) {
-		
-		alcSuspendContext (context);
 		
 	}
 	
@@ -2851,119 +2037,6 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_process_context);
 	DEFINE_PRIME1v (lime_alc_resume_device);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
-	
-	
-	#define TDEVICE _ABSTRACT (alc_device)
-	#define TCONTEXT _ABSTRACT (alc_context)
-	
-	DEFINE_HL_PRIM (_VOID, lime_al_auxf, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_auxfv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_auxi, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_auxiv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_buffer_data, _I32 _I32 _BYTES _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_buffer3f, _I32 _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_buffer3i, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferf, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferfv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferi, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferiv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_auxiliary_effect_slot, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_buffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_buffers, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_filter, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_source, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_sources, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_disable, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_distance_model, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_doppler_factor, _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_doppler_velocity, _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_effectf, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_effectfv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_effecti, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_effectiv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_enable, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_filteri, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_filterf, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_aux, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_buffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_buffers, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_effect, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_filter, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_source, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_gen_sources, _I32 _BYTES);
-	DEFINE_HL_PRIM (_BOOL, lime_al_get_boolean, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_booleanv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_buffer3f, _I32 _I32 _REF(_F32) _REF(_F32) _REF(_F32));
-	DEFINE_HL_PRIM (_VOID, lime_al_get_buffer3i, _I32 _I32 _REF(_I32) _REF(_I32) _REF(_I32));
-	DEFINE_HL_PRIM (_F32, lime_al_get_bufferf, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_bufferfv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_I32, lime_al_get_bufferi, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_bufferiv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_F64, lime_al_get_double, _I32);
-	DEFINE_HL_PRIM (_I32, lime_al_get_enum_value, _BYTES);
-	DEFINE_HL_PRIM (_I32, lime_al_get_error, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_al_get_filteri, _I32 _I32);
-	DEFINE_HL_PRIM (_F32, lime_al_get_float, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_floatv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_I32, lime_al_get_integer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_integerv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_listener3f, _I32 _REF(_F32) _REF(_F32) _REF(_F32));
-	DEFINE_HL_PRIM (_VOID, lime_al_get_listener3i, _I32 _REF(_I32) _REF(_I32) _REF(_I32));
-	DEFINE_HL_PRIM (_F32, lime_al_get_listenerf, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_listenerfv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_I32, lime_al_get_listeneri, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_listeneriv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_source3f, _I32 _I32 _REF(_F32) _REF(_F32) _REF(_F32));
-	DEFINE_HL_PRIM (_VOID, lime_al_get_source3i, _I32 _I32 _REF(_I32) _REF(_I32) _REF(_I32));
-	DEFINE_HL_PRIM (_F32, lime_al_get_sourcef, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_sourcefv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_I32, lime_al_get_sourcei, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_get_sourceiv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_BYTES, lime_al_get_string, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_aux, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_buffer, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_effect, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_enabled, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_extension_present, _BYTES);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_filter, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_source, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listener3f, _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listener3i, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listenerf, _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listenerfv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_listeneri, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listeneriv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_pause, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_pausev, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_play, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_playv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_queue_buffers, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_rewind, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_rewindv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_stop, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_stopv, _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_unqueue_buffers, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_source3f, _I32 _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source3i, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourcef, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourcefv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourcei, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourceiv, _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_al_speed_of_sound, _F32);
-	DEFINE_HL_PRIM (TCONTEXT, lime_alc_create_context, TDEVICE _BYTES);
-	DEFINE_HL_PRIM (_BOOL, lime_alc_close_device, TDEVICE);
-	DEFINE_HL_PRIM (_VOID, lime_alc_destroy_context, TCONTEXT);
-	DEFINE_HL_PRIM (TDEVICE, lime_alc_get_contexts_device, TCONTEXT);
-	DEFINE_HL_PRIM (TCONTEXT, lime_alc_get_current_context, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_alc_get_error, TDEVICE);
-	DEFINE_HL_PRIM (_VOID, lime_alc_get_integerv, TDEVICE _I32 _I32 _BYTES);
-	DEFINE_HL_PRIM (_BYTES, lime_alc_get_string, TDEVICE _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_alc_make_context_current, TCONTEXT);
-	DEFINE_HL_PRIM (TDEVICE, lime_alc_open_device, _BYTES); 
-	DEFINE_HL_PRIM (_VOID, lime_alc_pause_device, TDEVICE);
-	DEFINE_HL_PRIM (_VOID, lime_alc_process_context, TCONTEXT);
-	DEFINE_HL_PRIM (_VOID, lime_alc_resume_device, TDEVICE);
-	DEFINE_HL_PRIM (_VOID, lime_alc_suspend_context, TCONTEXT);
 	
 }
 

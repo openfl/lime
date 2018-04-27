@@ -19,8 +19,6 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 		
 		#if js
 		this = new HaxeBytes (bytesData);
-		#elseif hl
-		this = new HaxeBytes (bytesData, length);
 		#else
 		this = new HaxeBytes (length, bytesData);
 		#end

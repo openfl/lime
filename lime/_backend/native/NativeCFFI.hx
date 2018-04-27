@@ -8,8 +8,6 @@ import lime.graphics.opengl.GLRenderbuffer;
 import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GLTexture;
 import lime.media.openal.ALAuxiliaryEffectSlot;
-import lime.media.openal.ALContext;
-import lime.media.openal.ALDevice;
 import lime.system.CFFIPointer;
 import lime.utils.DataPointer;
 
@@ -289,35 +287,20 @@ class NativeCFFI {
 	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
 	
-	#if hl
-	@:hlNative("lime", "lime_alc_close_device") private static function hl_lime_alc_close_device (device:ALDevice):Bool { return false; }
-	@:hlNative("lime", "lime_alc_create_context") private static function hl_lime_alc_create_context (device:ALDevice, attrlist:hl.Bytes):ALContext { return null; }
-	@:hlNative("lime", "lime_alc_destroy_context") private static function hl_lime_alc_destroy_context (context:ALContext):Void {}
-	@:hlNative("lime", "lime_alc_get_contexts_device") private static function hl_lime_alc_get_contexts_device (context:ALContext):ALDevice { return null; }
-	@:hlNative("lime", "lime_alc_get_current_context") private static function hl_lime_alc_get_current_context ():ALContext { return null; }
-	@:hlNative("lime", "lime_alc_get_error") private static function hl_lime_alc_get_error (device:ALDevice):Int { return 0; }
-	@:hlNative("lime", "lime_alc_get_integerv") private static function hl_lime_alc_get_integerv (device:ALDevice, param:Int, size:Int, values:hl.Bytes):Void {}
-	@:hlNative("lime", "lime_alc_get_string") private static function hl_lime_alc_get_string (device:ALDevice, param:Int):hl.Bytes { return null; }
-	@:hlNative("lime", "lime_alc_make_context_current") private static function hl_lime_alc_make_context_current (context:ALContext):Bool { return false; }
-	@:hlNative("lime", "lime_alc_open_device") private static function hl_lime_alc_open_device  (devicename:hl.Bytes):ALDevice { return null; }
-	@:hlNative("lime", "lime_alc_pause_device") private static function hl_lime_alc_pause_device (device:ALDevice):Void {}
-	@:hlNative("lime", "lime_alc_process_context") private static function hl_lime_alc_process_context (context:ALContext):Void {}
-	@:hlNative("lime", "lime_alc_resume_device") private static function hl_lime_alc_resume_device (device:ALDevice):Void {}
-	@:hlNative("lime", "lime_alc_suspend_context") private static function hl_lime_alc_suspend_context (context:ALContext):Void {}
-	#end
-	
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
 	@:cffi private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void;
 	@:cffi private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:Float32):Void;
 	@:cffi private static function lime_al_remove_direct_filter(source:CFFIPointer):Void;
 	@:cffi private static function lime_al_is_filter (filter:CFFIPointer):Bool;
 	@:cffi private static function lime_al_get_filteri(filter:CFFIPointer, param:Int):Int;
+	
 	@:cffi private static function lime_al_gen_effect():CFFIPointer;
 	@:cffi private static function lime_al_effectf(effect:CFFIPointer, param:Int, value:Float32):Void;  
 	@:cffi private static function lime_al_effectfv(effect:CFFIPointer, param:Int, values:Array<Float>):Void;
 	@:cffi private static function lime_al_effecti(effect:CFFIPointer, param:Int, value:Int):Void;
 	@:cffi private static function lime_al_effectiv(effect:CFFIPointer, param:Int, values:Array<Int>):Void;
 	@:cffi private static function lime_al_is_effect(effect:CFFIPointer):Bool;	
+
 	@:cffi private static function lime_al_gen_aux():CFFIPointer;
 	@:cffi private static function lime_al_auxf(aux:CFFIPointer, param:Int, value:Float32):Void;  
 	@:cffi private static function lime_al_auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void;

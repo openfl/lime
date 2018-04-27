@@ -5,7 +5,7 @@ package haxe;
 // Original haxe.Timer class
 
 /*
- * Copyright (C)2005-2018 Haxe Foundation
+ * Copyright (C)2005-2013 Haxe Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -177,14 +177,14 @@ class Timer {
 		#elseif (neko || php)
 			return Sys.time();
 		#elseif js
-			return Date.now().getTime() / 1000;
+			return js.Browser.window.performance.now () / 1000;
 		#elseif cpp
 			return untyped __global__.__time_stamp();
 		#elseif python
 			return Sys.cpuTime();
 		#elseif sys
 			return Sys.time();
-
+		
 		#else
 			return 0;
 		#end

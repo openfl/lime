@@ -7,7 +7,7 @@ package lime.app;
 #end
 
 @:allow(lime.app.Future)
-#if (!hl && !js) @:generic #end
+#if !js @:generic #end
 
 
 class Promise<T> {

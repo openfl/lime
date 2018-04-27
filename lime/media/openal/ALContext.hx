@@ -1,4 +1,4 @@
-package lime.media.openal; #if !hl
+package lime.media.openal;
 
 
 import lime.system.CFFIPointer;
@@ -18,8 +18,3 @@ abstract ALContext(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 }
-
-
-#else
-typedef ALContext = hl.Abstract<"alc_context">;
-#end
