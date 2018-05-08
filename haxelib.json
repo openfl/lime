@@ -5,6 +5,6 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "6.3.0",
-	"releasenote": "",
+	"releasenote": "Improved help documentation, rewrote setup command, platform improvements",
 	"contributors": [ "singmajesty" ]
 }
