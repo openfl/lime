@@ -964,6 +964,7 @@ class CommandLineTools {
 			case "config":
 				
 				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config\x1b[0m \x1b[3;37m(name)\x1b[0m \x1b[3;37m(value)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config remove\x1b[0m <name> \x1b[3;37m[options]\x1b[0m");
 			
 			case "install", "remove", "upgrade":
 				
