@@ -58,8 +58,7 @@ class TVOSPlatform extends PlatformTarget {
 			
 			if (!project.targetFlags.exists ("simulator")) {
 				
-				var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";
-				TVOSHelper.sign (project, targetDirectory + "/bin", entitlements);
+				TVOSHelper.sign (project, targetDirectory + "/bin");
 				
 			}
 			
@@ -484,7 +483,6 @@ class TVOSPlatform extends PlatformTarget {
 		FileHelper.recursiveSmartCopyTemplate (project, "haxe", projectDirectory + "/haxe", context);
 		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Classes", projectDirectory + "/Classes", context);
 		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context);
-		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Entitlements.plist", projectDirectory + "/" + project.app.file + "-Entitlements.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context);
 		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context);

@@ -457,7 +457,7 @@ class IOSHelper {
 	}
 	
 	
-	public static function sign (project:HXProject, workingDirectory:String, entitlementsPath:String):Void {
+	public static function sign (project:HXProject, workingDirectory:String):Void {
 		
 		initialize (project);
 		
@@ -472,13 +472,6 @@ class IOSHelper {
 		var identity = project.config.getString ("ios.identity", "iPhone Developer");
 		
 		var commands = [ "-s", identity, "CODE_SIGN_IDENTITY=" + identity ];
-		
-		if (entitlementsPath != null) {
-			
-			commands.push ("--entitlements");
-			commands.push (entitlementsPath);
-			
-		}
 		
 		if (project.config.exists ("ios.provisioning-profile")) {
 			
