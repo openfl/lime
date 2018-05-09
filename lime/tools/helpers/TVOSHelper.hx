@@ -420,7 +420,7 @@ class TVOSHelper {
 	}
 	
 	
-	public static function sign (project:HXProject, workingDirectory:String, entitlementsPath:String):Void {
+	public static function sign (project:HXProject, workingDirectory:String):Void {
 		
 		initialize (project);
 		
@@ -435,13 +435,6 @@ class TVOSHelper {
 		var identity = project.config.getString ("tvos.identity", "tvOS Developer");
 		
 		var commands = [ "-s", identity, "CODE_SIGN_IDENTITY=" + identity ];
-		
-		if (entitlementsPath != null) {
-			
-			commands.push ("--entitlements");
-			commands.push (entitlementsPath);
-			
-		}
 		
 		if (project.config.exists ("tvos.provisioning-profile")) {
 			
