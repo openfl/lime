@@ -946,7 +946,7 @@ class CommandLineTools {
 			
 			case "clean", "update", "build", "run", "test", "display", "deploy", "trace":
 				
-				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " " + command + "\x1b[0m \x1b[3;37m(project)\x1b[0m <target> \x1b[3;37m[options]\x1b[0m");
+				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " " + command + "\x1b[0m \x1b[3;37m(project)\x1b[0m \x1b[1m<target>\x1b[0m \x1b[3;37m[options]\x1b[0m");
 				isProjectCommand = true;
 				isBuildCommand = true;
 			
@@ -954,7 +954,7 @@ class CommandLineTools {
 				
 				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1mproject\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1mextension\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
-				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m <sample> \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1m<sample>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 			
 			case "rebuild":
 				
@@ -964,7 +964,7 @@ class CommandLineTools {
 			case "config":
 				
 				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config\x1b[0m \x1b[3;37m(name)\x1b[0m \x1b[3;37m(value)\x1b[0m \x1b[3;37m[options]\x1b[0m");
-				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config remove\x1b[0m <name> \x1b[3;37m[options]\x1b[0m");
+				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config remove <name>\x1b[0m \x1b[3;37m[options]\x1b[0m");
 			
 			case "install", "remove", "upgrade":
 				
@@ -972,14 +972,14 @@ class CommandLineTools {
 			
 			case "process":
 				
-				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " process\x1b[0m <file> \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " process <file>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 			
 			default:
 				
 				displayInfo ();
 				
 				LogHelper.println ("");
-				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + "\x1b[0m <command> (arguments)");
+				LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " <command>\x1b[0m \x1b[3;37m[arguments]\x1b[0m");
 				LogHelper.println ("");
 				LogHelper.println (" " + LogHelper.accentColor + "Basic Commands:" + LogHelper.resetColor);
 				LogHelper.println ("");
@@ -1001,7 +1001,7 @@ class CommandLineTools {
 				}
 				
 				LogHelper.println ("");
-				LogHelper.println ("For additional help, run \x1b[1m" + commandName + " help (command)\x1b[0m");
+				LogHelper.println ("For additional help, run \x1b[1m" + commandName + " help <command>\x1b[0m");
 				
 				return;
 			
