@@ -1166,6 +1166,7 @@ class ProjectXMLParser extends HXProject {
 						
 						defines.set (name, value);
 						haxedefs.set (name, value);
+						environment.set (name, value);
 					
 					case "setenv":
 						
