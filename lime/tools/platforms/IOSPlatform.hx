@@ -58,8 +58,7 @@ class IOSPlatform extends PlatformTarget {
 			
 			if (!project.targetFlags.exists ("simulator")) {
 				
-				var entitlements = targetDirectory + "/" + project.app.file + "/" + project.app.file + "-Entitlements.plist";
-				IOSHelper.sign (project, targetDirectory + "/bin", entitlements);
+				IOSHelper.sign (project, targetDirectory + "/bin");
 				
 			}
 			
@@ -606,7 +605,6 @@ class IOSPlatform extends PlatformTarget {
 		FileHelper.recursiveSmartCopyTemplate (project, "haxe", projectDirectory + "/haxe", context, true, false);
 		FileHelper.recursiveSmartCopyTemplate (project, "iphone/PROJ/Classes", projectDirectory + "/Classes", context, true, false);
 		FileHelper.recursiveSmartCopyTemplate (project, "iphone/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context, true, false);
-		FileHelper.copyFileTemplate (project.templatePaths, "iphone/PROJ/PROJ-Entitlements.plist", projectDirectory + "/" + project.app.file + "-Entitlements.plist", context, true, false);
 		FileHelper.copyFileTemplate (project.templatePaths, "iphone/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context, true, false);
 		FileHelper.copyFileTemplate (project.templatePaths, "iphone/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context, true, false);
 		FileHelper.recursiveSmartCopyTemplate (project, "iphone/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context, true, false);
