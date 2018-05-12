@@ -1,4 +1,4 @@
-6.3.1 (03/11/2018)
+6.3.1 (05/11/2018)
 ------------------
 
 * Improved support for \*.bundle libraries within an asset folder
@@ -6,7 +6,7 @@
 * Fixed the behavior of `<define />` to behave like `<haxedef />` + `<set />`
 
 
-6.3.0 (03/04/2018)
+6.3.0 (05/04/2018)
 ------------------
 
 * Updated SDL to 2.0.8
