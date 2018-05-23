@@ -19,8 +19,10 @@ allprojects {
 		jcenter {
 			url "http://jcenter.bintray.com/"
 		}
-	}::if ANDROID_GRADLE_BUILD_DIRECTORY::
-	buildDir = "::ANDROID_GRADLE_BUILD_DIRECTORY::/::APP_FILE::/${project.name}"::end::
+		maven {
+			url "https://maven.google.com"
+		}
+	}
 }
 
 task clean(type: Delete) {
