@@ -316,6 +316,11 @@ class CommandLineTools {
 							
 							target = Platform.MAC;
 						
+						case "rpi", "raspberrypi":
+							
+							target = Platform.LINUX;
+							targetFlags.set ("rpi", "");
+						
 						case "webassembly", "wasm":
 							
 							target = Platform.EMSCRIPTEN;
@@ -1040,6 +1045,7 @@ class CommandLineTools {
 			// LogHelper.println ("  \x1b[1miphonesim\x1b[0m -- Alias for \x1b[1mios -simulator\x1b[0m");
 			// LogHelper.println ("  \x1b[1mappletv\x1b[0;3m/\x1b[0m\x1b[1mappletvos\x1b[0m -- Alias for \x1b[1mtvos\x1b[0m");
 			// LogHelper.println ("  \x1b[1mappletvsim\x1b[0m -- Alias for \x1b[1mtvos -simulator\x1b[0m");
+			LogHelper.println ("  \x1b[1mrpi\x1b[0;3m/\x1b[0m\x1b[1mraspberrypi\x1b[0m -- Alias for \x1b[1mlinux -rpi\x1b[0m");
 			LogHelper.println ("  \x1b[1mwebassembly\x1b[0;3m/\x1b[0m\x1b[1mwasm\x1b[0m -- Alias for \x1b[1memscripten -webassembly\x1b[0m");
 			
 		}
@@ -1697,6 +1703,11 @@ class CommandLineTools {
 				
 				target = Platform.MAC;
 				overrides.haxedefs.set ("macos", "");
+			
+			case "rpi", "raspberrypi":
+				
+				target = Platform.LINUX;
+				targetFlags.set ("rpi", "");
 			
 			case "webassembly", "wasm":
 				
