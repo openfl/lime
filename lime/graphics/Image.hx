@@ -1728,6 +1728,11 @@ class Image {
 				
 			}
 			
+			if (newWidth == buffer.width && newHeight == buffer.height)
+			{
+				return value;
+			}
+			
 			switch (type) {
 				
 				case CANVAS:
