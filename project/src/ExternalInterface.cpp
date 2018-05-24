@@ -7,6 +7,7 @@
 #endif
 
 
+#include <hl.h>
 #include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
@@ -980,6 +981,16 @@ namespace lime {
 	
 	
 	void lime_image_data_util_fill_rect (value image, value rect, int rg, int ba) {
+		
+		Image _image = Image (image);
+		Rectangle _rect = Rectangle (rect);
+		int32_t color = (rg << 16) | ba;
+		ImageDataUtil::FillRect (&_image, &_rect, color);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_image_data_util_fill_rect (HL_Image* image, HL_Rectangle* rect, int rg, int ba) {
 		
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
@@ -2127,6 +2138,18 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
+	
+	
+	#define _ENUM "?"
+	#define TBYTES _OBJ (_I32 _BYTES)
+	#define TARRAYBUFFER TBYTES
+	#define TARRAYBUFFERVIEW _OBJ (_I32 TARRAYBUFFER _I32 _I32 _I32 _I32)
+	#define TIMAGEBUFFER _OBJ (_I32 TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN)
+	#define TIMAGE _OBJ (TIMAGEBUFFER _BOOL _I32 _I32 _I32 _ENUM _I32 _I32)
+	#define TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
+	
+	
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, TIMAGE TRECTANGLE _I32 _I32);
 	
 	
 }

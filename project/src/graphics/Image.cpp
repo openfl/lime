@@ -45,6 +45,17 @@ namespace lime {
 	}
 	
 	
+	Image::Image (HL_Image* image) {
+		
+		width = image->width;
+		height = image->height;
+		buffer = new ImageBuffer (image->buffer);
+		offsetX = image->offsetX;
+		offsetY = image->offsetY;
+		
+	}
+	
+	
 	Image::~Image () {
 		
 		delete buffer;

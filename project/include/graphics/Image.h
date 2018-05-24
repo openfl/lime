@@ -2,11 +2,29 @@
 #define LIME_GRAPHICS_IMAGE_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 #include <graphics/ImageBuffer.h>
 
 
 namespace lime {
+	
+	
+	struct HL_Image {
+		
+		hl_type* t;
+		HL_ImageBuffer* buffer;
+		bool dirty;
+		int height;
+		int offsetX;
+		int offsetY;
+		/*ImageType*/ int type;
+		int version;
+		int width;
+		// double x;
+		// double y;
+		
+	};
 	
 	
 	class Image {
@@ -16,6 +34,7 @@ namespace lime {
 			
 			Image ();
 			Image (value image);
+			Image (HL_Image* image);
 			~Image ();
 			
 			ImageBuffer *buffer;

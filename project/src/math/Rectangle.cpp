@@ -51,6 +51,16 @@ namespace lime {
 	}
 	
 	
+	Rectangle::Rectangle (HL_Rectangle* rect) {
+		
+		width = rect->width;
+		height = rect->height;
+		x = rect->x;
+		y = rect->y;
+		
+	}
+	
+	
 	void Rectangle::Contract (double x, double y, double width, double height) {
 		
 		if (this->width == 0 && this->height == 0) {

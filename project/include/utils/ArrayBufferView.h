@@ -2,11 +2,25 @@
 #define LIME_UTILS_ARRAY_BUFFER_VIEW_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 #include <utils/Bytes.h>
 
 
 namespace lime {
+	
+	
+	struct HL_ArrayBufferView {
+		
+		hl_type* t;
+		/*TypedArrayType*/ int type;
+		HL_Bytes* buffer;
+		int byteOffset;
+		int byteLength;
+		int length;
+		int bytesPerElement;
+		
+	};
 	
 	
 	class ArrayBufferView {
@@ -17,6 +31,7 @@ namespace lime {
 			ArrayBufferView ();
 			ArrayBufferView (int size);
 			ArrayBufferView (value arrayBufferView);
+			ArrayBufferView (HL_ArrayBufferView* arrayBufferView);
 			~ArrayBufferView ();
 			
 			unsigned char *Data ();

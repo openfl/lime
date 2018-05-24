@@ -70,6 +70,35 @@ namespace lime {
 	}
 	
 	
+	ImageBuffer::ImageBuffer (HL_ImageBuffer* imageBuffer) {
+		
+		if (imageBuffer) {
+			
+			width = imageBuffer->width;
+			height = imageBuffer->height;
+			bitsPerPixel = imageBuffer->bitsPerPixel;
+			format = imageBuffer->format;
+			transparent = imageBuffer->transparent;
+			premultiplied = imageBuffer->premultiplied;
+			data = new ArrayBufferView (imageBuffer->data);
+			
+		} else {
+			
+			width = 0;
+			height = 0;
+			bitsPerPixel = 32;
+			format = RGBA32;
+			data = 0;
+			premultiplied = false;
+			transparent = false;
+			
+		}
+		
+		mValue = 0;
+		
+	}
+	
+	
 	ImageBuffer::~ImageBuffer () {
 		
 		delete data;

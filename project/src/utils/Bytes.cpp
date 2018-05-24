@@ -70,6 +70,19 @@ namespace lime {
 	}
 	
 	
+	Bytes::Bytes (HL_Bytes* bytes) {
+		
+		// _initializeBytes ();
+		
+		_data = 0;
+		_length = 0;
+		_value = 0;
+		
+		Set (bytes);
+		
+	}
+	
+	
 	Bytes::Bytes (const char* path) {
 		
 		_initializeBytes ();
@@ -233,6 +246,34 @@ namespace lime {
 					_data = (unsigned char*)buffer_data (val_to_buffer (b));
 					
 				}
+				
+			} else {
+				
+				_data = 0;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void Bytes::Set (HL_Bytes* bytes) {
+		
+		if (!bytes) {
+			
+			_length = 0;
+			_data = 0;
+			_value = 0;
+			
+		} else {
+			
+			_value = 0;
+			_length = bytes->length;
+			
+			if (_length > 0) {
+				
+				_data = bytes->b;
 				
 			} else {
 				

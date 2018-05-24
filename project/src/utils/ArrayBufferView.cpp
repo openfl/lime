@@ -60,6 +60,27 @@ namespace lime {
 	}
 	
 	
+	ArrayBufferView::ArrayBufferView (HL_ArrayBufferView* arrayBufferView) {
+		
+		if (arrayBufferView) {
+			
+			buffer = new Bytes (arrayBufferView->buffer);
+			byteLength = arrayBufferView->byteLength;
+			length = arrayBufferView->length;
+			
+		} else {
+			
+			buffer = new Bytes ();
+			byteLength = 0;
+			length = 0;
+			
+		}
+		
+		mValue = 0;
+		
+	}
+	
+	
 	ArrayBufferView::~ArrayBufferView () {
 		
 		delete buffer;
