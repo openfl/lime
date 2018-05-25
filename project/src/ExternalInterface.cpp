@@ -7,7 +7,9 @@
 #endif
 
 
+#define HL_NAME(n) hl_##n
 #include <hl.h>
+
 #include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
@@ -2159,8 +2161,7 @@ namespace lime {
 	#define TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define TIMAGE _OBJ (TIMAGEBUFFER _BOOL _I32 _I32 _I32 TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
 	
-	
-	DEFINE_HL_PRIM (TCFFIPOINTER, lime_application_create, _VOID);
+	DEFINE_HL_PRIM (TCFFIPOINTER, lime_application_create, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, TIMAGE TRECTANGLE _I32 _I32);
 	
 	

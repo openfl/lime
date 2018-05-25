@@ -22,6 +22,10 @@ import flash.display.BitmapData;
 @:noDebug
 #end
 
+#if hl
+@:keep
+#end
+
 @:allow(lime.graphics.Image)
 
 

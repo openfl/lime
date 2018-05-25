@@ -124,8 +124,8 @@
 		
 		<section if="LIME_HASHLINK">
 			
-			<!-- <compilerflag value="-I${HASHLINK_PATH}/include" /> -->
-			<compilerflag value="-DLIBHL_EXPORTS" />
+			<!-- <compilerflag value="-I${HLPATH}/include" /> -->
+			<!-- <compilerflag value="-DLIBHL_EXPORTS" /> -->
 			
 		</section>
 		
@@ -389,9 +389,9 @@
 				<lib name="comdlg32.lib" />
 				<lib name="comsuppw.lib" />
 				
-				<!-- <lib name="-libpath:${HASHLINK_PATH}" />
+				<lib name="-libpath:${HLPATH}" />
 				<lib name="libhl.lib" />
-				<lib name="-delayload:libhl.lib" /> -->
+				<!-- <lib name="-delayload:libhl.dll" /> -->
 				
 			</section>
 			

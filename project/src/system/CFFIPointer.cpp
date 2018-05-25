@@ -44,11 +44,10 @@ namespace lime {
 		
 		if (handle) {
 			
-			// HL_CFFIPointer* pointer = (HL_CFFIPointer*)hl_gc_alloc_finalizer (sizeof (HL_CFFIPointer));
-			// pointer->finalizer = finalizer ? finalizer : 0;
-			// pointer->ptr = handle;
-			// return pointer;
-			return 0;
+			HL_CFFIPointer* pointer = (HL_CFFIPointer*)hl_gc_alloc_finalizer (sizeof (HL_CFFIPointer));
+			pointer->finalizer = finalizer ? finalizer : 0;
+			pointer->ptr = handle;
+			return pointer;
 			
 		} else {
 			

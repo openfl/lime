@@ -12,6 +12,9 @@
 #endif
 #endif
 
+#define HL_NAME(n) hl_##n
+#include <hl.h>
+
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>

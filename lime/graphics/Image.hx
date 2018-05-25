@@ -80,6 +80,9 @@ import lime.graphics.console.TextureData;
 @:access(lime.math.Rectangle)
 @:access(lime.math.Vector2)
 
+#if hl
+@:keep
+#end
 #if (js && html5 && !display)
 @:access(lime._backend.html5.HTML5HTTPRequest)
 #end
