@@ -24,10 +24,12 @@ namespace lime {
 		
 	};
 	
+	typedef void (*hl_finalizer)(void* v);
+	
 	
 	value CFFIPointer (void* ptr, hx::finalizer finalizer = 0);
 	value CFFIPointer (value handle, hx::finalizer finalizer = 0);
-	HL_CFFIPointer* HLCFFIPointer (void* ptr, hx::finalizer finalizer = 0);
+	HL_CFFIPointer* HLCFFIPointer (void* ptr, hl_finalizer finalizer = 0);
 	
 	
 }

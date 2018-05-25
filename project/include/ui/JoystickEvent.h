@@ -2,6 +2,7 @@
 #define LIME_UI_JOYSTICK_EVENT_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 
 
@@ -17,6 +18,19 @@ namespace lime {
 		JOYSTICK_BUTTON_UP,
 		JOYSTICK_CONNECT,
 		JOYSTICK_DISCONNECT
+		
+	};
+	
+	
+	struct HL_JoystickEvent {
+		
+		hl_type* t;
+		int id;
+		int index;
+		JoystickEventType type;
+		int value;
+		double x;
+		double y;
 		
 	};
 	

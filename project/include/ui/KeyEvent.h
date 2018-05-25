@@ -2,6 +2,7 @@
 #define LIME_UI_KEY_EVENT_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 #include <stdint.h>
 
@@ -13,6 +14,17 @@ namespace lime {
 		
 		KEY_DOWN,
 		KEY_UP
+		
+	};
+	
+	
+	struct HL_KeyEvent {
+		
+		hl_type* t;
+		int keyCode;
+		int modifier;
+		KeyEventType type;
+		int windowID;
 		
 	};
 	

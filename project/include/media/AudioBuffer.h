@@ -29,6 +29,25 @@
 namespace lime {
 	
 	
+	struct HL_AudioBuffer {
+		
+		hl_type* t;
+		int bitsPerSample;
+		int channels;
+		HL_ArrayBufferView* data;
+		int sampleRate;
+		
+		vdynamic* __srcAudio;
+		vdynamic* __srcBuffer;
+		vdynamic* __srcCustom;
+		vdynamic* __srcFMODSound;
+		vdynamic* __srcHowl;
+		vdynamic* __srcSound;
+		vdynamic* __srcVorbisFile;
+		
+	};
+	
+	
 	class AudioBuffer {
 		
 		

@@ -2,6 +2,7 @@
 #define LIME_UI_GAMEPAD_EVENT_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 
 
@@ -15,6 +16,18 @@ namespace lime {
 		GAMEPAD_BUTTON_UP,
 		GAMEPAD_CONNECT,
 		GAMEPAD_DISCONNECT
+		
+	};
+	
+	
+	struct HL_GamepadEvent {
+		
+		hl_type* t;
+		int axis;
+		int button;
+		int id;
+		GamepadEventType type;
+		double value;
 		
 	};
 	

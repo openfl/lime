@@ -2,6 +2,7 @@
 #define LIME_UI_WINDOW_EVENT_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 #include <stdint.h>
 
@@ -23,6 +24,19 @@ namespace lime {
 		WINDOW_MOVE,
 		WINDOW_RESIZE,
 		WINDOW_RESTORE,
+		
+	};
+	
+	
+	struct HL_WindowEvent {
+		
+		hl_type* t;
+		int height;
+		WindowEventType type;
+		int width;
+		int windowID;
+		int x;
+		int y;
 		
 	};
 	

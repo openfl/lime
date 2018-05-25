@@ -6,6 +6,7 @@
 #undef CreateWindow
 #endif
 
+#include <hl.h>
 #include <app/Application.h>
 #include <graphics/ImageBuffer.h>
 #include <system/DisplayMode.h>
@@ -13,6 +14,57 @@
 
 
 namespace lime {
+	
+	
+	// struct HL_Window {
+		
+	// 	hl_type* t;
+	// 	HL_Application* application;
+	// 	bool borderless;
+	// 	vdynamic* config;
+	// 	vdynamic* display;
+	// 	int id;
+	// 	vdynamic* onActivate;
+	// 	vdynamic* onClose;
+	// 	vdynamic* onCreate;
+	// 	vdynamic* onDeactivate;
+	// 	vdynamic* onDropFile;
+	// 	vdynamic* onEnter;
+	// 	vdynamic* onFocusIn;
+	// 	vdynamic* onFocusOut;
+	// 	vdynamic* onFullscreen;
+	// 	vdynamic* onKeyDown;
+	// 	vdynamic* onKeyUp;
+	// 	vdynamic* onLeave;
+	// 	vdynamic* onMinimize;
+	// 	vdynamic* onMouseDown;
+	// 	vdynamic* onMouseMove;
+	// 	vdynamic* onMouseMoveRelative;
+	// 	vdynamic* onMouseUp;
+	// 	vdynamic* onMouseWheel;
+	// 	vdynamic* onMove;
+	// 	vdynamic* onResize;
+	// 	vdynamic* onRestore;
+	// 	vdynamic* onTextEdit;
+	// 	vdynamic* onTextInput;
+	// 	HL_Renderer* renderer;
+	// 	double scale;
+	// 	vdynamic* stage;
+		
+	// 	vdynamic* backend;
+	// 	bool __borderless;
+	// 	bool __fullscreen;
+	// 	int __height;
+	// 	bool __maximized;
+	// 	bool __minimized;
+	// 	bool __resizable;
+	// 	double __scale;
+	// 	vbyte* __title;
+	// 	int __width;
+	// 	int __x;
+	// 	int __y;
+		
+	// };
 	
 	
 	class Window {

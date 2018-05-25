@@ -30,6 +30,10 @@ import lime.media.fmod.FMODSound;
 @:access(lime._backend.native.NativeCFFI)
 @:access(lime.Assets)
 
+#if hl
+@:keep
+#end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug

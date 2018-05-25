@@ -2,6 +2,7 @@
 #define LIME_APP_APPLICATION_EVENT_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 
 
@@ -12,6 +13,15 @@ namespace lime {
 		
 		UPDATE,
 		EXIT
+		
+	};
+	
+	
+	struct HL_ApplicationEvent {
+		
+		hl_type* t;
+		int deltaTime;
+		ApplicationEventType type;
 		
 	};
 	

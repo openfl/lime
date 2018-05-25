@@ -11,7 +11,7 @@ namespace lime {
 	
 	struct HL_Rectangle {
 		
-		hl_type* type;
+		hl_type* t;
 		double height;
 		double width;
 		double x;

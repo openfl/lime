@@ -40,12 +40,12 @@ namespace lime {
 	}
 	
 	
-	HL_CFFIPointer* HLCFFIPointer (void* handle, hx::finalizer finalizer) {
+	HL_CFFIPointer* HLCFFIPointer (void* handle, hl_finalizer finalizer) {
 		
 		if (handle) {
 			
 			HL_CFFIPointer* pointer = (HL_CFFIPointer*)hl_gc_alloc_finalizer (sizeof (HL_CFFIPointer));
-			pointer->finalizer = finalizer ? finalizer : 0;
+			pointer->finalizer = finalizer ? (void*)finalizer : 0;
 			pointer->ptr = handle;
 			return pointer;
 			

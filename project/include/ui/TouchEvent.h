@@ -2,6 +2,7 @@
 #define LIME_UI_TOUCH_EVENT_H
 
 
+#include <hl.h>
 #include <hx/CFFI.h>
 #include <stdint.h>
 
@@ -14,6 +15,21 @@ namespace lime {
 		TOUCH_START,
 		TOUCH_END,
 		TOUCH_MOVE
+		
+	};
+	
+	
+	struct HL_TouchEvent {
+		
+		hl_type* t;
+		int device;
+		double dx;
+		double dy;
+		int id;
+		double pressure;
+		TouchEventType type;
+		double x;
+		double y;
 		
 	};
 	

@@ -21,12 +21,13 @@ namespace lime {
 		bool premultiplied;
 		bool transparent;
 		int width;
-		void* __srcBitmapData;
-		void* __srcCanvas;
-		void* __srcContext;
-		void* __srcCustom;
-		void* __srcImage;
-		void* __srcImageData;
+		
+		vdynamic* __srcBitmapData;
+		vdynamic* __srcCanvas;
+		vdynamic* __srcContext;
+		vdynamic* __srcCustom;
+		vdynamic* __srcImage;
+		vdynamic* __srcImageData;
 		
 	};
 	
