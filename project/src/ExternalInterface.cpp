@@ -164,9 +164,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM int hl_lime_application_exec (HL_CFFIPointer* application) {
+		
+		Application* app = (Application*)application->ptr;
+		return app->Exec ();
+		
+	}
+	
+	
 	void lime_application_init (value application) {
 		
 		Application* app = (Application*)val_data (application);
+		app->Init ();
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_application_init (HL_CFFIPointer* application) {
+		
+		Application* app = (Application*)application->ptr;
 		app->Init ();
 		
 	}
@@ -180,6 +196,14 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM int hl_lime_application_quit (HL_CFFIPointer* application) {
+		
+		Application* app = (Application*)application->ptr;
+		return app->Quit ();
+		
+	}
+	
+	
 	void lime_application_set_frame_rate (value application, double frameRate) {
 		
 		Application* app = (Application*)val_data (application);
@@ -188,9 +212,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_application_set_frame_rate (HL_CFFIPointer* application, double frameRate) {
+		
+		Application* app = (Application*)application->ptr;
+		app->SetFrameRate (frameRate);
+		
+	}
+	
+	
 	bool lime_application_update (value application) {
 		
 		Application* app = (Application*)val_data (application);
+		return app->Update ();
+		
+	}
+	
+	
+	HL_PRIM bool hl_lime_application_update (HL_CFFIPointer* application) {
+		
+		Application* app = (Application*)application->ptr;
 		return app->Update ();
 		
 	}
@@ -1757,9 +1797,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_window_alert (HL_CFFIPointer* window, vbyte* message, vbyte* title) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->Alert ((const char*)message, (const char*)title);
+		
+	}
+	
+	
 	void lime_window_close (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->Close ();
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_close (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->Close ();
 		
 	}
@@ -1769,6 +1825,14 @@ namespace lime {
 		
 		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.c_str ());
 		return CFFIPointer (window, gc_window);
+		
+	}
+	
+	
+	HL_PRIM HL_CFFIPointer* hl_lime_window_create (HL_CFFIPointer* application, int width, int height, int flags, vbyte* title) {
+		
+		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)title);
+		return HLCFFIPointer (window, gc_window);
 		
 	}
 	
@@ -1789,9 +1853,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_window_focus (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->Focus ();
+		
+	}
+	
+	
 	int lime_window_get_display (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetDisplay ();
+		
+	}
+	
+	
+	HL_PRIM int hl_lime_window_get_display (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->GetDisplay ();
 		
 	}
@@ -1815,9 +1895,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM bool hl_lime_window_get_enable_text_events (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetEnableTextEvents ();
+		
+	}
+	
+	
 	int lime_window_get_height (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetHeight ();
+		
+	}
+	
+	
+	HL_PRIM int hl_lime_window_get_height (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->GetHeight ();
 		
 	}
@@ -1831,9 +1927,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM int32_t hl_lime_window_get_id (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return (int32_t)targetWindow->GetID ();
+		
+	}
+	
+	
 	int lime_window_get_width (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetWidth ();
+		
+	}
+	
+	
+	HL_PRIM int hl_lime_window_get_width (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->GetWidth ();
 		
 	}
@@ -1847,9 +1959,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM int hl_lime_window_get_x (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetX ();
+		
+	}
+	
+	
 	int lime_window_get_y (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetY ();
+		
+	}
+	
+	
+	HL_PRIM int hl_lime_window_get_y (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->GetY ();
 		
 	}
@@ -1863,6 +1991,14 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_window_move (HL_CFFIPointer* window, int x, int y) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->Move (x, y);
+		
+	}
+	
+	
 	void lime_window_resize (value window, int width, int height) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -1871,9 +2007,25 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_window_resize (HL_CFFIPointer* window, int width, int height) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->Resize (width, height);
+		
+	}
+	
+	
 	bool lime_window_set_borderless (value window, bool borderless) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetBorderless (borderless);
+		
+	}
+	
+	
+	HL_PRIM bool hl_lime_window_set_borderless (HL_CFFIPointer* window, bool borderless) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->SetBorderless (borderless);
 		
 	}
@@ -1893,6 +2045,14 @@ namespace lime {
 	void lime_window_set_enable_text_events (value window, bool enabled) {
 		
 		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetEnableTextEvents (enabled);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_set_enable_text_events (HL_CFFIPointer* window, bool enabled) {
+		
+		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->SetEnableTextEvents (enabled);
 		
 	}
@@ -2160,9 +2320,34 @@ namespace lime {
 	#define TIMAGEBUFFER _OBJ (_I32 TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define TIMAGE _OBJ (TIMAGEBUFFER _BOOL _I32 _I32 _I32 TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
+	// #define TNATIVE_APPLICATION _ABSTRACT (Application)
 	
 	DEFINE_HL_PRIM (TCFFIPOINTER, lime_application_create, _NO_ARG);
+	// DEFINE_PRIME2v (lime_application_event_manager_register);
+	DEFINE_HL_PRIM (_I32, lime_application_exec, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_application_init, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_application_quit, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_application_set_frame_rate, TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_BOOL, lime_application_update, TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, TIMAGE TRECTANGLE _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_window_alert, TCFFIPOINTER _BYTES _BYTES);
+	DEFINE_HL_PRIM (_VOID, lime_window_close, TCFFIPOINTER);
+	DEFINE_HL_PRIM (TCFFIPOINTER, lime_window_create, TCFFIPOINTER _I32 _I32 _I32 _BYTES);
+	// DEFINE_PRIME2v (_VOID, lime_window_event_manager_register, TCFFIPOINTER );
+	DEFINE_HL_PRIM (_VOID, lime_window_focus, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_display, TCFFIPOINTER);
+	// DEFINE_PRIME1 (lime_window_get_display_mode);
+	DEFINE_HL_PRIM (_BOOL, lime_window_get_enable_text_events, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_height, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_id, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_width, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_x, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_y, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_window_move, TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, lime_window_resize, TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, TCFFIPOINTER _BOOL);
+	// DEFINE_PRIME2 (lime_window_set_display_mode, TCFFIPOINTER );
+	DEFINE_HL_PRIM (_VOID, lime_window_set_enable_text_events, TCFFIPOINTER _BOOL);
 	
 	
 }

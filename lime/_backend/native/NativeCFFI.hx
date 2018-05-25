@@ -19,6 +19,10 @@ import cpp.Float32;
 typedef Float32 = Float;
 #end
 
+// #if hl
+// typedef TNative_Application = hl.Abstract<"Application">;
+// #end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -185,11 +189,11 @@ class NativeCFFI {
 	#if hl
 	@:hlNative("lime", "lime_application_create") private static function lime_application_create ():CFFIPointer { return null; }
 	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi private static function lime_application_exec (handle:Dynamic):Int;
-	@:cffi private static function lime_application_init (handle:Dynamic):Void;
-	@:cffi private static function lime_application_quit (handle:Dynamic):Int;
-	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
-	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
+	@:hlNative("lime", "lime_application_exec") private static function lime_application_exec (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_application_init") private static function lime_application_init (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_application_quit") private static function lime_application_quit (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_application_set_frame_rate") private static function lime_application_set_frame_rate (handle:CFFIPointer, value:Float):Void {}
+	@:hlNative("lime", "lime_application_update") private static function lime_application_update (handle:CFFIPointer):Bool { return false; }
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
