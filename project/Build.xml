@@ -16,6 +16,7 @@
 	<!-- <set name="LIME_FAUDIO" value="1" /> -->
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" />
+	<set name="LIME_HASHLINK" value="1" if="windows || mac || linux" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
@@ -118,6 +119,13 @@
 				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
+			
+		</section>
+		
+		<section if="LIME_HASHLINK">
+			
+			<!-- <compilerflag value="-I${HASHLINK_PATH}/include" /> -->
+			<compilerflag value="-DLIBHL_EXPORTS" />
 			
 		</section>
 		
@@ -380,6 +388,10 @@
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
 				<lib name="comsuppw.lib" />
+				
+				<!-- <lib name="-libpath:${HASHLINK_PATH}" />
+				<lib name="libhl.lib" />
+				<lib name="-delayload:libhl.lib" /> -->
 				
 			</section>
 			

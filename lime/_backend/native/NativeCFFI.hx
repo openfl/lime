@@ -33,7 +33,7 @@ class NativeCFFI {
 	
 	
 	#if (lime_cffi && !macro && !hl)
-	@:cffi private static function lime_application_create (config:Dynamic):Dynamic;
+	@:cffi private static function lime_application_create ():Dynamic;
 	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_application_exec (handle:Dynamic):Int;
 	@:cffi private static function lime_application_init (handle:Dynamic):Void;
@@ -183,7 +183,7 @@ class NativeCFFI {
 	#end
 	
 	#if hl
-	@:cffi private static function lime_application_create (config:Dynamic):Dynamic;
+	@:hlNative("lime", "lime_application_create") private static function lime_application_create ():CFFIPointer { return null; }
 	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_application_exec (handle:Dynamic):Int;
 	@:cffi private static function lime_application_init (handle:Dynamic):Void;

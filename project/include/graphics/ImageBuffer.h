@@ -22,9 +22,9 @@ namespace lime {
 		bool transparent;
 		int width;
 		void* __srcBitmapData;
-		// void* __srcCanvas;
+		void* __srcCanvas;
 		void* __srcContext;
-		// void* __srcCustom;
+		void* __srcCustom;
 		void* __srcImage;
 		void* __srcImageData;
 		

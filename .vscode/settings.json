@@ -20,6 +20,18 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "system_error": "cpp",
-        "xfunctional": "cpp"
+        "xfunctional": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp",
+        "xlocmon": "cpp",
+        "xstddef": "cpp",
+        "xtr1common": "cpp",
+        "iterator": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "set": "cpp",
+        "streambuf": "cpp",
+        "unordered_map": "cpp",
+        "xmemory0": "cpp"
     }
 }

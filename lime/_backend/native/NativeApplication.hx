@@ -104,7 +104,7 @@ class NativeApplication {
 	public function create (config:Config):Void {
 		
 		#if (!macro && lime_cffi)
-		handle = NativeCFFI.lime_application_create ( { } );
+		handle = NativeCFFI.lime_application_create ();
 		#end
 		
 	}

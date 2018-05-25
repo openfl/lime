@@ -128,11 +128,20 @@ namespace lime {
 	}
 	
 	
-	value lime_application_create (value callback) {
+	value lime_application_create () {
 		
 		Application* application = CreateApplication ();
-		Application::callback = new AutoGCRoot (callback);
+		// Application::callback = new ValuePointer (callback);
 		return CFFIPointer (application, gc_application);
+		
+	}
+	
+	
+	HL_PRIM HL_CFFIPointer* hl_lime_application_create () {
+		
+		Application* application = CreateApplication ();
+		// Application::callback = new ValuePointer (callback);
+		return HLCFFIPointer (application, gc_application);
 		
 	}
 	
@@ -1986,7 +1995,7 @@ namespace lime {
 	}
 	
 	
-	DEFINE_PRIME1 (lime_application_create);
+	DEFINE_PRIME0 (lime_application_create);
 	DEFINE_PRIME2v (lime_application_event_manager_register);
 	DEFINE_PRIME1 (lime_application_exec);
 	DEFINE_PRIME1v (lime_application_init);
@@ -2141,14 +2150,17 @@ namespace lime {
 	
 	
 	#define _ENUM "?"
+	// #define TCFFIPOINTER _ABSTRACT (HL_CFFIPointer)
+	#define TCFFIPOINTER _DYN
 	#define TBYTES _OBJ (_I32 _BYTES)
 	#define TARRAYBUFFER TBYTES
 	#define TARRAYBUFFERVIEW _OBJ (_I32 TARRAYBUFFER _I32 _I32 _I32 _I32)
-	#define TIMAGEBUFFER _OBJ (_I32 TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN)
-	#define TIMAGE _OBJ (TIMAGEBUFFER _BOOL _I32 _I32 _I32 _ENUM _I32 _I32)
+	#define TIMAGEBUFFER _OBJ (_I32 TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
+	#define TIMAGE _OBJ (TIMAGEBUFFER _BOOL _I32 _I32 _I32 TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
 	
 	
+	DEFINE_HL_PRIM (TCFFIPOINTER, lime_application_create, _VOID);
 	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, TIMAGE TRECTANGLE _I32 _I32);
 	
 	

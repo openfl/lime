@@ -5,6 +5,7 @@
 #include <hl.h>
 #include <hx/CFFI.h>
 #include <graphics/ImageBuffer.h>
+#include <math/Rectangle.h>
 
 
 namespace lime {
@@ -18,11 +19,12 @@ namespace lime {
 		int height;
 		int offsetX;
 		int offsetY;
+		HL_Rectangle* rect;
 		/*ImageType*/ int type;
 		int version;
 		int width;
-		// double x;
-		// double y;
+		double x;
+		double y;
 		
 	};
 	

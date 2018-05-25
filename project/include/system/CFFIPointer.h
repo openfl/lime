@@ -2,6 +2,7 @@
 #define LIME_SYSTEM_CFFI_POINTER_H
 
 
+#include <hl.h>
 #include <hx/CFFIPrime.h>
 
 
@@ -16,8 +17,17 @@ namespace hx {
 namespace lime {
 	
 	
+	struct HL_CFFIPointer {
+		
+		void* finalizer;
+		void* ptr;
+		
+	};
+	
+	
 	value CFFIPointer (void* ptr, hx::finalizer finalizer = 0);
 	value CFFIPointer (value handle, hx::finalizer finalizer = 0);
+	HL_CFFIPointer* HLCFFIPointer (void* ptr, hx::finalizer finalizer = 0);
 	
 	
 }
