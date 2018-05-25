@@ -52,6 +52,7 @@
 #include <ui/WindowEvent.h>
 #include <utils/compress/LZMA.h>
 #include <utils/compress/Zlib.h>
+#include <utils/String.h>
 #include <vm/NekoVM.h>
 
 DEFINE_KIND (k_finalizer);
@@ -2168,6 +2169,7 @@ namespace lime {
 		// int32_t color = (colorRG << 16) | colorBA;
 		// int32_t mask = (maskRG << 16) | maskBA;
 		// return ImageDataUtil::Threshold (&_image, &_sourceImage, &_sourceRect, &_destPoint, operation, threshold, color, mask, copySource);
+		return 0;
 		
 	}
 	
@@ -3536,9 +3538,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_CFFIPointer* hl_lime_window_create (HL_CFFIPointer* application, int width, int height, int flags, vbyte* title) {
+	HL_PRIM HL_CFFIPointer* hl_lime_window_create (HL_CFFIPointer* application, int width, int height, int flags, HL_String* title) {
 		
-		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)title);
+		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)title->bytes);
 		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
 		
 	}
@@ -4167,10 +4169,20 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_application_quit, TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_application_set_frame_rate, TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_BOOL, lime_application_update, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _DYN);
 	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, TIMAGE TRECTANGLE _I32 _I32);
+	DEFINE_HL_PRIM (TCFFIPOINTER, lime_renderer_create, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_renderer_flip, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, lime_renderer_get_context, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, lime_renderer_get_scale, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, lime_renderer_get_type, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, lime_renderer_lock, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_renderer_make_current, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, lime_renderer_read_pixels, TCFFIPOINTER TRECTANGLE TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_VOID, lime_renderer_unlock, TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_alert, TCFFIPOINTER _BYTES _BYTES);
 	DEFINE_HL_PRIM (_VOID, lime_window_close, TCFFIPOINTER);
-	DEFINE_HL_PRIM (TCFFIPOINTER, lime_window_create, TCFFIPOINTER _I32 _I32 _I32 _BYTES);
+	DEFINE_HL_PRIM (TCFFIPOINTER, lime_window_create, TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	// DEFINE_PRIME2v (_VOID, lime_window_event_manager_register, TCFFIPOINTER );
 	DEFINE_HL_PRIM (_VOID, lime_window_focus, TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_display, TCFFIPOINTER);

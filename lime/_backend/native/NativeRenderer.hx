@@ -66,7 +66,11 @@ class NativeRenderer {
 		
 		#else
 		
+		#if hl
+		var type = @:privateAccess String.fromUCS2 (NativeCFFI.lime_renderer_get_type (handle));
+		#else
 		var type:String = NativeCFFI.lime_renderer_get_type (handle);
+		#end
 		
 		switch (type) {
 			
