@@ -1582,6 +1582,10 @@ class ProjectXMLParser extends HXProject {
 						}
 						
 						icons.push (icon);
+					case "language":
+						if (element.has.supported) {
+							language.supported = element.att.supported.split(" ");
+						}
 					
 					case "source", "classpath":
 						

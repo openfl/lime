@@ -126,6 +126,15 @@ class TVOSPlatform extends PlatformTarget {
 		context.OBJC_ARC = false;
 		context.KEY_STORE_IDENTITY = project.config.getString ("tvos.identity");
 		
+		if (project.language.supported.length > 0) {
+			context.SUPPORTED_LANGUAGES = [];
+			for (lang in project.language.supported) {
+				context.SUPPORTED_LANGUAGES.push({ lang: lang });
+			}
+		} else {
+			context.SUPPORTED_LANGUAGES = null;
+		}
+		
 		context.linkedLibraries = [];
 		
 		for (dependency in project.dependencies) {

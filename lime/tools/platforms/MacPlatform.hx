@@ -227,6 +227,15 @@ class MacPlatform extends PlatformTarget {
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
 		
+		if (project.language.supported.length > 0) {
+			context.SUPPORTED_LANGUAGES = [];
+			for (lang in project.language.supported) {
+				context.SUPPORTED_LANGUAGES.push({ lang: lang });
+			}
+		} else {
+			context.SUPPORTED_LANGUAGES = null;
+		}
+		
 		return context;
 		
 	}

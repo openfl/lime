@@ -64,6 +64,7 @@ class HXProject {
 	public var targetHandlers:Map<String, String>;
 	public var templateContext (get_templateContext, null):Dynamic;
 	public var templatePaths:Array<String>;
+	public var language: Language;
 	@:isVar public var window (get, set):WindowData;
 	public var windows:Array<WindowData>;
 	
@@ -310,6 +311,7 @@ class HXProject {
 		samplePaths = new Array<String> ();
 		splashScreens = new Array<SplashScreen> ();
 		targetHandlers = new Map<String, String> ();
+		language = new Language();
 		
 	}
 	
@@ -369,7 +371,7 @@ class HXProject {
 			project.icons.push (icon.clone ());
 			
 		}
-		
+		project.language = language.clone();
 		project.javaPaths = javaPaths.copy ();
 		
 		if (keystore != null) {
@@ -906,6 +908,7 @@ class HXProject {
 			haxelibs = ArrayHelper.concatUnique (haxelibs, project.haxelibs, true, "name");
 			icons = ArrayHelper.concatUnique (icons, project.icons);
 			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
+			language.merge(project.language);
 			
 			if (keystore == null) {
 				
