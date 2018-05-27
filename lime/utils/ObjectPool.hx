@@ -25,24 +25,6 @@ import haxe.ds.ObjectMap;
 	
 	public function new (create:Void->T = null, clean:T->Void = null, size:Null<Int> = null) {
 		
-		if (create != null) {
-			
-			this.create = create;
-			
-		}
-		
-		if (clean != null) {
-			
-			this.clean = clean;
-			
-		}
-		
-		if (size != null) {
-			
-			this.size = size;
-			
-		}
-		
 		__pool = cast new ObjectMap ();
 		
 		activeObjects = 0;
@@ -52,6 +34,15 @@ import haxe.ds.ObjectMap;
 		__inactiveObject1 = null;
 		__inactiveObjectList = new List<T> ();
 		
+		if (create != null) {
+			this.create = create;
+		}
+		if (clean != null) {
+			this.clean = clean;
+		}
+		if (size != null) {
+			this.size = size;
+		}
 	}
 	
 	
