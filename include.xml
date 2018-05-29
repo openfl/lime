@@ -73,7 +73,7 @@
 		<architecture name="armv7" if="android" />
 		
 		<define name="lime-cairo" unless="flash || html5" />
-		<define name="lime-curl" unless="lime-console || emscripten || flash || html5" />
+		<define name="lime-curl" unless="lime-console || lime-switch || emscripten || flash || html5" />
 		<define name="lime-opengl" unless="lime-console || flash" />
 		<define name="lime-openal" unless="lime-console || static_link || flash || html5" />
 		<define name="lime-openal" if="emscripten" />
