@@ -43,6 +43,7 @@ class Window {
 	public var onDeactivate = new Event<Void->Void> ();
 	public var onDropFile = new Event<String->Void> ();
 	public var onEnter = new Event<Void->Void> ();
+	public var onExpose = new Event<Void->Void> ();
 	public var onFocusIn = new Event<Void->Void> ();
 	public var onFocusOut = new Event<Void->Void> ();
 	public var onFullscreen = new Event<Void->Void> ();

@@ -640,6 +640,10 @@ class NativeApplication {
 					
 					window.onEnter.dispatch ();
 				
+				case WINDOW_EXPOSE:
+					
+					window.onExpose.dispatch ();
+				
 				case WINDOW_FOCUS_IN:
 					
 					window.onFocusIn.dispatch ();
@@ -1200,12 +1204,13 @@ private class WindowEventInfo {
 	var WINDOW_CLOSE = 1;
 	var WINDOW_DEACTIVATE = 2;
 	var WINDOW_ENTER = 3;
-	var WINDOW_FOCUS_IN = 4;
-	var WINDOW_FOCUS_OUT = 5;
-	var WINDOW_LEAVE = 6;
-	var WINDOW_MINIMIZE = 7;
-	var WINDOW_MOVE = 8;
-	var WINDOW_RESIZE = 9;
-	var WINDOW_RESTORE = 10;
+	var WINDOW_EXPOSE = 4;
+	var WINDOW_FOCUS_IN = 5;
+	var WINDOW_FOCUS_OUT = 6;
+	var WINDOW_LEAVE = 7;
+	var WINDOW_MINIMIZE = 8;
+	var WINDOW_MOVE = 9;
+	var WINDOW_RESIZE = 10;
+	var WINDOW_RESTORE = 11;
 	
 }
