@@ -52,7 +52,7 @@
 			<ndll name="zlib" haxelib="hxcpp" unless="emscripten || ios || tvos" />
 		</section>
 		
-		<ndll name="lime" if="cpp || neko || nodejs || java" unless="lime-console static_link" />
+		<ndll name="lime" if="cpp || neko || nodejs || java" unless="lime-console static_link || lime-switch static_link" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" />
