@@ -450,7 +450,27 @@ class AssetHelper {
 					
 				}
 				
-				HaxelibHelper.runCommand ("", args);
+				try {
+					
+					HaxelibHelper.runCommand ("", args, false);
+					
+				} catch (e:Dynamic) {
+					
+					var types = [];
+					
+					for (library in project.libraries) {
+						
+						if (library.type != null && project.libraryHandlers.exists (library.type) && project.libraryHandlers.get (library.type) == handler) {
+							
+							types.push (library.type);
+							
+						}
+						
+					}
+					
+					LogHelper.error ("Could not process asset libraries (" + types.join (", ") + ")");
+					
+				}
 				
 				if (FileSystem.exists (outputFile)) {
 					
