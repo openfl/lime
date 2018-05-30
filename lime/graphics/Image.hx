@@ -1828,14 +1828,6 @@ class Image {
 	
 	private function get_src ():Dynamic {
 		
-		#if (js && html5)
-		if (buffer.__srcCanvas == null) {
-			
-			ImageCanvasUtil.convertToCanvas (this);
-			
-		}
-		#end
-		
 		return buffer.src;
 		
 	}
