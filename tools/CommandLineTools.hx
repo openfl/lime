@@ -283,10 +283,6 @@ class CommandLineTools {
 							target = PlatformHelper.hostPlatform;
 							targetFlags.set ("nodejs", "");
 						
-						case "electron":
-							target = Platform.HTML5;
-							targetFlags.set ("electron", "");
-						
 						case "cs":
 							
 							target = PlatformHelper.hostPlatform;
@@ -300,6 +296,11 @@ class CommandLineTools {
 							
 							target = Platform.IOS;
 							targetFlags.set ("simulator", "");
+						
+						case "electron":
+							
+							target = Platform.HTML5;
+							targetFlags.set ("electron", "");
 						
 						case "firefox", "firefoxos":
 							
@@ -720,12 +721,7 @@ class CommandLineTools {
 				
 				case HTML5:
 					
-					if (targetFlags.exists("electron")) {
-						platform = new ElectronPlatform (command, project, targetFlags);
-					}
-					else {
-						platform = new HTML5Platform (command, project, targetFlags);
-					}
+					platform = new HTML5Platform (command, project, targetFlags);
 				
 				case FIREFOX:
 					
@@ -1048,13 +1044,13 @@ class CommandLineTools {
 			LogHelper.println ("  \x1b[1mnodejs\x1b[0m -- Alias for host platform (using \x1b[1m-nodejs\x1b[0m)");
 			LogHelper.println ("  \x1b[1mjava\x1b[0m -- Alias for host platform (using \x1b[1m-java\x1b[0m)");
 			LogHelper.println ("  \x1b[1mcs\x1b[0m -- Alias for host platform (using \x1b[1m-cs\x1b[0m)");
-      LogHelper.println ("  \x1b[1melectron\x1b[0m -- Alias for  \x1b[1mhtml5 -electron\x1b[0m");
 			LogHelper.println ("  \x1b[1muwp\x1b[0;3m/\x1b[0m\x1b[1mwinjs\x1b[0m -- Alias for \x1b[1mwindows -uwp\x1b[0m");
 			// LogHelper.println ("  \x1b[1miphone\x1b[0;3m/\x1b[0m\x1b[1miphoneos\x1b[0m -- \x1b[1mios\x1b[0m");
 			// LogHelper.println ("  \x1b[1miphonesim\x1b[0m -- Alias for \x1b[1mios -simulator\x1b[0m");
 			// LogHelper.println ("  \x1b[1mappletv\x1b[0;3m/\x1b[0m\x1b[1mappletvos\x1b[0m -- Alias for \x1b[1mtvos\x1b[0m");
 			// LogHelper.println ("  \x1b[1mappletvsim\x1b[0m -- Alias for \x1b[1mtvos -simulator\x1b[0m");
 			LogHelper.println ("  \x1b[1mrpi\x1b[0;3m/\x1b[0m\x1b[1mraspberrypi\x1b[0m -- Alias for \x1b[1mlinux -rpi\x1b[0m");
+			LogHelper.println ("  \x1b[1melectron\x1b[0m -- Alias for \x1b[1mhtml5 -electron\x1b[0m");
 			LogHelper.println ("  \x1b[1mwebassembly\x1b[0;3m/\x1b[0m\x1b[1mwasm\x1b[0m -- Alias for \x1b[1memscripten -webassembly\x1b[0m");
 			
 		}
@@ -1155,7 +1151,6 @@ class CommandLineTools {
 			
 			if (command != "run" && command != "trace") {
 				
-        LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-electron\x1b[0m -- Target Electron instead of the browser");
 				LogHelper.println ("  \x1b[3m(emscripten)\x1b[0m \x1b[1m-webassembly\x1b[0m -- Compile for WebAssembly instead of asm.js");
 				
 			}
@@ -1170,6 +1165,7 @@ class CommandLineTools {
 			LogHelper.println ("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-cs\x1b[0m -- Build for C# instead of C++");
 			LogHelper.println ("  \x1b[3m(windows)\x1b[0m \x1b[1m-winjs\x1b[0m -- Build for WinJS instead of C++ (implies UWP)");
 			LogHelper.println ("  \x1b[3m(windows)\x1b[0m \x1b[1m-uwp\x1b[0m -- Build for Universal Windows Platform");
+			LogHelper.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-electron\x1b[0m -- Target Electron instead of the browser");
 			
 			
 			if (command != "run" && command != "trace") {
@@ -1690,11 +1686,6 @@ class CommandLineTools {
 				target = PlatformHelper.hostPlatform;
 				targetFlags.set ("nodejs", "");
 			
-			case "electron":
-				
-				target = Platform.HTML5;
-				targetFlags.set ("electron", "");
-			
 			case "cs":
 				
 				target = PlatformHelper.hostPlatform;
@@ -1708,6 +1699,11 @@ class CommandLineTools {
 				
 				target = Platform.IOS;
 				targetFlags.set ("simulator", "");
+			
+			case "electron":
+				
+				target = Platform.HTML5;
+				targetFlags.set ("electron", "");
 			
 			case "firefox", "firefoxos":
 				

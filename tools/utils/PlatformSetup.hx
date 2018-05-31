@@ -238,7 +238,7 @@ class PlatformSetup {
 			
 		}
 		
-		var inputValue = unescapePath (CLIHelper.param (LogHelper.accentColor + description + "\x1b[0m \x1b[37;3m[" + value + "]\x1b[0m"));
+		var inputValue = unescapePath (CLIHelper.param (LogHelper.accentColor + description + "\x1b[0m \x1b[37;3m[" + (value != null ? value : "") + "]\x1b[0m"));
 		
 		if (inputValue != "" && inputValue != value) {
 			
@@ -517,8 +517,7 @@ class PlatformSetup {
 				
 				case "electron":
 					
-					setupElectron();
-					
+					setupElectron ();
 				
 				case "windows":
 					
@@ -756,6 +755,23 @@ class PlatformSetup {
 			ConfigHelper.writeConfigValue ("ANDROID_SETUP", "true");
 			
 		}
+		
+		LogHelper.println ("");
+		LogHelper.println ("Setup complete.");
+		
+	}
+	
+	
+	public static function setupElectron ():Void {
+		
+		LogHelper.println ("\x1b[1mIn order to run Electron applications, you must download");
+		LogHelper.println ("and extract the Electron runtime on your system.");
+		LogHelper.println ("");
+		
+		getDefineValue ("ELECTRON_PATH", "Path to Electron runtime");
+		
+		LogHelper.println ("");
+		HaxelibHelper.runCommand ("", [ "install", "electron" ], true, true);
 		
 		LogHelper.println ("");
 		LogHelper.println ("Setup complete.");
@@ -1281,65 +1297,6 @@ class PlatformSetup {
 		
 	}
 	
-	
-	public static function setupElectron ():Void {
-		
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS) return;
-		
-		var setElectronToPath = false;
-		var defines = getDefines ();
-		var answer = CLIHelper.ask ("Download and install Electron?");
-		var electronPath:String = "";
-		
-		if (answer == YES || answer == ALWAYS) {
-			
-			var downloadPath:String = electronWin;
-			var defaultInstallPath:String = "C:\\_sdks\\electron";
-			
-			var localPath:String = "";
-			
-			downloadFile (downloadPath);
-			
-			localPath = unescapePath (CLIHelper.param ("Output directory [" + defaultInstallPath + "]"));
-			localPath = createPath (localPath, defaultInstallPath);
-			
-			extractFile (Path.withoutDirectory (downloadPath), localPath, "");
-			
-			defines.set ("ELECTRON", localPath);
-			writeConfig (defines.get ("LIME_CONFIG"), defines);
-			LogHelper.println ("");
-			
-			
-			setElectronToPath = true;
-			
-		}
-		
-		var requiredVariables = new Array<String> ();
-		var requiredVariableDescriptions = new Array<String> ();
-		
-		if (!setElectronToPath) {
-			
-			requiredVariables.push ("Electron");
-			requiredVariableDescriptions.push ("Path to Electron");
-			
-		}
-		
-		if (!setElectronToPath) {
-			
-			LogHelper.println ("");
-			
-		}
-		
-		var defines = getDefines (requiredVariables, requiredVariableDescriptions, null);
-		
-		if (defines != null) {
-			
-			writeConfig (defines.get ("LIME_CONFIG"), defines);
-			
-		}
-		
-		HaxelibHelper.runCommand ("", [ "install", "electron" ], true, true);
-	}
 	
 	public static function setupWindows ():Void {
 		

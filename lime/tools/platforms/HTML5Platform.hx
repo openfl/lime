@@ -5,6 +5,7 @@ import haxe.io.Path;
 import haxe.Template;
 import lime.text.Font;
 import lime.tools.helpers.DeploymentHelper;
+import lime.tools.helpers.ElectronHelper;
 import lime.tools.helpers.FileHelper;
 import lime.tools.helpers.HTML5Helper;
 import lime.tools.helpers.IconHelper;
@@ -98,7 +99,15 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function deploy ():Void {
 		
-		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "HTML5");
+		var name = "HTML5";
+		
+		if (targetFlags.exists ("electron")) {
+			
+			name = "Electron";
+			
+		}
+		
+		DeploymentHelper.deploy (project, targetFlags, targetDirectory, name);
 		
 	}
 	
@@ -112,7 +121,15 @@ class HTML5Platform extends PlatformTarget {
 	
 	private function getDisplayHXML ():String {
 		
-		var hxml = PathHelper.findTemplate (project.templatePaths, "html5/hxml/" + buildType + ".hxml");
+		var type = "html5";
+		
+		if (targetFlags.exists ("electron")) {
+			
+			type = "electron";
+			
+		}
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, type + "/hxml/" + buildType + ".hxml");
 		
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;
@@ -127,8 +144,24 @@ class HTML5Platform extends PlatformTarget {
 	
 	private function initialize (command:String, project:HXProject):Void {
 		
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("html5.output-directory", "html5"));
+		if (targetFlags.exists ("electron")) {
+			
+			targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("electron.output-directory", "electron"));
+			
+		} else {
+			
+			targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("html5.output-directory", "html5"));
+			
+		}
+		
 		dependencyPath = project.config.getString ("html5.dependency-path", "lib");
+		
+		if (targetFlags.exists ("electron")) {
+			
+			dependencyPath = project.config.getString ("html5.dependency-path", dependencyPath);
+			
+		}
+		
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 		
 	}
@@ -136,7 +169,15 @@ class HTML5Platform extends PlatformTarget {
 	
 	public override function run ():Void {
 		
-		HTML5Helper.launch (project, targetDirectory + "/bin");
+		if (targetFlags.exists ("electron")) {
+			
+			ElectronHelper.launch (project, targetDirectory + "/bin");
+			
+		} else {
+			
+			HTML5Helper.launch (project, targetDirectory + "/bin");
+			
+		}
 		
 	}
 	
@@ -395,9 +436,16 @@ class HTML5Platform extends PlatformTarget {
 			FileHelper.recursiveSmartCopyTemplate (project, "html5/haxe", targetDirectory + "/haxe", context, true, false);
 			FileHelper.recursiveSmartCopyTemplate (project, "html5/hxml", targetDirectory + "/haxe", context);
 			
-			if (project.targetFlags.exists ("webgl")) {
+		}
+		
+		if (targetFlags.exists ("electron")) {
+			
+			FileHelper.recursiveSmartCopyTemplate (project, "electron/template", destination, context);
+			
+			if (project.app.main != null) {
 				
-				FileHelper.recursiveSmartCopyTemplate (project, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
+				FileHelper.recursiveSmartCopyTemplate (project, "electron/haxe", targetDirectory + "/haxe", context, true, false);
+				FileHelper.recursiveSmartCopyTemplate (project, "electron/hxml", targetDirectory + "/haxe", context);
 				
 			}
 			
