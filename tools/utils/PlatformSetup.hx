@@ -515,6 +515,11 @@ class PlatformSetup {
 					
 					// setupWebOS ();
 				
+				case "electron":
+					
+					setupElectron();
+					
+				
 				case "windows":
 					
 					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
@@ -1276,6 +1281,65 @@ class PlatformSetup {
 		
 	}
 	
+	
+	public static function setupElectron ():Void {
+		
+		if (PlatformHelper.hostPlatform != Platform.WINDOWS) return;
+		
+		var setElectronToPath = false;
+		var defines = getDefines ();
+		var answer = CLIHelper.ask ("Download and install Electron?");
+		var electronPath:String = "";
+		
+		if (answer == YES || answer == ALWAYS) {
+			
+			var downloadPath:String = electronWin;
+			var defaultInstallPath:String = "C:\\_sdks\\electron";
+			
+			var localPath:String = "";
+			
+			downloadFile (downloadPath);
+			
+			localPath = unescapePath (CLIHelper.param ("Output directory [" + defaultInstallPath + "]"));
+			localPath = createPath (localPath, defaultInstallPath);
+			
+			extractFile (Path.withoutDirectory (downloadPath), localPath, "");
+			
+			defines.set ("ELECTRON", localPath);
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
+			LogHelper.println ("");
+			
+			
+			setElectronToPath = true;
+			
+		}
+		
+		var requiredVariables = new Array<String> ();
+		var requiredVariableDescriptions = new Array<String> ();
+		
+		if (!setElectronToPath) {
+			
+			requiredVariables.push ("Electron");
+			requiredVariableDescriptions.push ("Path to Electron");
+			
+		}
+		
+		if (!setElectronToPath) {
+			
+			LogHelper.println ("");
+			
+		}
+		
+		var defines = getDefines (requiredVariables, requiredVariableDescriptions, null);
+		
+		if (defines != null) {
+			
+			writeConfig (defines.get ("LIME_CONFIG"), defines);
+			
+		}
+		
+		HaxelibHelper.runCommand ("", [ "install", "electron" ], true, true);
+	}
 	
 	public static function setupWindows ():Void {
 		

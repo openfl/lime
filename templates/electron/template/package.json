@@ -1,0 +1,11 @@
+{
+    "name": "::meta.title::",
+    "version": "::meta.version::",
+    "main": "ElectronSetup.js",
+    "scripts": {
+        "start": "electron ElectronSetup.js"
+    },
+    "devDependencies": {
+        "electron": "^1.7.9"
+    }
+}
