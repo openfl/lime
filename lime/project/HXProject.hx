@@ -1314,7 +1314,7 @@ class HXProject {
 							
 							var path = PathHelper.standardize (arg);
 							
-							if (path != null && StringTools.trim (path) != "") {
+							if (path != null && StringTools.trim (path) != "" && !StringTools.startsWith (StringTools.trim (path), "#")) {
 								
 								var param = "-cp " + path;
 								compilerFlags.remove (param);
