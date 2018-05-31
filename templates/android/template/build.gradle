@@ -22,7 +22,8 @@ allprojects {
 		maven {
 			url "https://maven.google.com"
 		}
-	}
+	}::if ANDROID_GRADLE_BUILD_DIRECTORY::
+	buildDir = "::ANDROID_GRADLE_BUILD_DIRECTORY::/::APP_FILE::/${project.name}"::end::
 }
 
 task clean(type: Delete) {
