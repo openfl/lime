@@ -1,0 +1,14 @@
+-cp ::OUTPUT_DIR::/haxe
+
+--each
+
+--next
+-js ::OUTPUT_FILE::
+-main ApplicationMain ::HAXE_FLAGS::
+
+--next
+-js ::OUTPUT_DIR::/bin/ElectronSetup.js
+-main Electron ::HAXE_FLAGS::
+
+-D html5
+-D html
