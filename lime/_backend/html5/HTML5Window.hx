@@ -449,6 +449,13 @@ class HTML5Window {
 				
 				case "mousedown":
 					
+					if (event.currentTarget == element) {
+						
+						// Release outside browser window
+						Browser.window.addEventListener ("mouseup", handleMouseEvent);
+						
+					}
+					
 					parent.onMouseDown.dispatch (x, y, event.button);
 					
 					if (parent.onMouseDown.canceled) {
@@ -486,6 +493,14 @@ class HTML5Window {
 					}
 				
 				case "mouseup":
+					
+					Browser.window.removeEventListener ("mouseup", handleMouseEvent);
+					
+					if (event.currentTarget == element) {
+						
+						event.stopPropagation ();
+						
+					}
 					
 					parent.onMouseUp.dispatch (x, y, event.button);
 					
@@ -829,7 +844,11 @@ class HTML5Window {
 				untyped (textInput.style).pointerEvents = 'none';
 				textInput.style.zIndex = "-10000000";
 				
-				Browser.document.body.appendChild (textInput);
+			}
+			
+			if (textInput.parentNode == null) {
+				
+				element.appendChild (textInput);
 				
 			}
 			

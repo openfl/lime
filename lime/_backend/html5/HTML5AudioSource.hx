@@ -49,7 +49,7 @@ class HTML5AudioSource {
 		
 		#if howlerjs
 		
-		if (playing || parent.buffer == null) {
+		if (playing || parent.buffer == null || parent.buffer.__srcHowl == null) {
 			
 			return;
 			
@@ -85,7 +85,12 @@ class HTML5AudioSource {
 		#if howlerjs
 		
 		playing = false;
-		if (parent.buffer != null) parent.buffer.__srcHowl.pause (id);
+		
+		if (parent.buffer != null && parent.buffer.__srcHowl != null) {
+			
+			parent.buffer.__srcHowl.pause (id);
+			
+		}
 		
 		#end
 		
@@ -97,7 +102,12 @@ class HTML5AudioSource {
 		#if howlerjs
 		
 		playing = false;
-		if (parent.buffer != null) parent.buffer.__srcHowl.stop (id);
+		
+		if (parent.buffer != null && parent.buffer.__srcHowl != null) {
+			
+			parent.buffer.__srcHowl.stop (id);
+			
+		}
 		
 		#end
 		
@@ -125,7 +135,7 @@ class HTML5AudioSource {
 			play ();
 			return;
 			
-		} else {
+		} else if (parent.buffer != null && parent.buffer.__srcHowl != null) {
 			
 			parent.buffer.__srcHowl.stop (id);
 			
@@ -160,7 +170,7 @@ class HTML5AudioSource {
 			
 			return getLength ();
 			
-		} else if (parent.buffer != null) {
+		} else if (parent.buffer != null && parent.buffer.__srcHowl != null) {
 			
 			var time = Std.int (parent.buffer.__srcHowl.seek (id) * 1000) - parent.offset;
 			if (time < 0) return 0;
@@ -179,7 +189,7 @@ class HTML5AudioSource {
 		
 		#if howlerjs
 		
-		if (parent.buffer != null) {
+		if (parent.buffer != null && parent.buffer.__srcHowl != null) {
 			
 			//if (playing) buffer.__srcHowl.play (id);
 			var pos = (value + parent.offset) / 1000;
@@ -209,7 +219,7 @@ class HTML5AudioSource {
 		// set howler volume only if we have an active id.
 		// Passing -1 might create issues in future play()'s.
 		
-		if (parent.buffer != null && id != -1) {
+		if (parent.buffer != null && parent.buffer.__srcHowl != null && id != -1) {
 			
 			parent.buffer.__srcHowl.volume (value, id);
 			
@@ -232,7 +242,7 @@ class HTML5AudioSource {
 		
 		#if howlerjs
 		
-		if (parent.buffer != null) {
+		if (parent.buffer != null && parent.buffer.__srcHowl != null) {
 			
 			return Std.int (parent.buffer.__srcHowl.duration () * 1000);
 			

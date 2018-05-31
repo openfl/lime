@@ -18,6 +18,7 @@ import lime.project.AssetType;
 import lime.project.Dependency;
 import lime.project.Haxelib;
 import lime.project.HXProject;
+import lime.utils.AssetManifest;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -604,28 +605,7 @@ class ProjectXMLParser extends HXProject {
 				
 			} else if (Path.extension (path) == "bundle") {
 				
-				var includePath = findIncludeFile (path);
-				
-				if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
-					
-					var includeProject = new ProjectXMLParser (includePath, defines);
-					merge (includeProject);
-					return;
-					
-				} else {
-					
-					var asset = new Asset (path, targetPath, type, embed);
-					asset.library = library;
-					
-					if (element.has.id) {
-						
-						asset.id = substitute (element.att.id);
-						
-					}
-					
-					assets.push (asset);
-					
-				}
+				parseAssetsElementLibrary (path, targetPath, null, null, type, embed, library, glyphs, true);
 				
 			} else {
 				
@@ -803,11 +783,19 @@ class ProjectXMLParser extends HXProject {
 		
 		for (file in files) {
 			
-			if (FileSystem.isDirectory (path + "/" + file) && recursive) {
+			if (FileSystem.isDirectory (path + "/" + file)) {
 				
-				if (filter (file, [ "*" ], exclude.split ("|"))) {
+				if (Path.extension (file) == "bundle") {
 					
-					parseAssetsElementDirectory (path + "/" + file, targetPath + file, include, exclude, type, embed, library, glyphs, true);
+					parseAssetsElementLibrary (path + "/" + file, targetPath + file, include, exclude, type, embed, library, glyphs, true);
+					
+				} else if (recursive) {
+					
+					if (filter (file, [ "*" ], exclude.split ("|"))) {
+						
+						parseAssetsElementDirectory (path + "/" + file, targetPath + file, include, exclude, type, embed, library, glyphs, true);
+						
+					}
 					
 				}
 				
@@ -829,6 +817,69 @@ class ProjectXMLParser extends HXProject {
 				}
 				
 			}
+			
+		}
+		
+	}
+	
+	
+	private function parseAssetsElementLibrary (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, library:String, glyphs:String, recursive:Bool):Void {
+		
+		var includePath = findIncludeFile (path);
+		
+		if (includePath != null && includePath != "" && FileSystem.exists (includePath) && !FileSystem.isDirectory (includePath)) {
+			
+			var includeProject = new ProjectXMLParser (includePath, defines);
+			merge (includeProject);
+			
+		}
+		
+		var processedLibrary = false;
+		var jsonPath = PathHelper.combine (path, "library.json");
+		
+		if (FileSystem.exists (jsonPath)) {
+			
+			try {
+				
+				var manifest = AssetManifest.fromFile (jsonPath);
+				
+				if (manifest != null) {
+					
+					library = targetPath;
+					manifest.rootPath = targetPath;
+					
+					var asset = new Asset ("", PathHelper.combine (targetPath, "library.json"), AssetType.MANIFEST);
+					asset.id = "libraries/" + library + ".json";
+					asset.library = library;
+					asset.data = manifest.serialize ();
+					asset.embed = embed;
+					assets.push (asset);
+					
+					for (manifestAsset in manifest.assets) {
+						
+						if (Reflect.hasField (manifestAsset, "path")) {
+							
+							var asset = new Asset (PathHelper.combine (path, manifestAsset.path), PathHelper.combine (targetPath, manifestAsset.path), type, embed);
+							asset.id = manifestAsset.id;
+							asset.library = library;
+							asset.embed = embed;
+							assets.push (asset);
+							
+						}
+						
+					}
+					
+					processedLibrary = true;
+					
+				}
+				
+			} catch (e:Dynamic) {}
+			
+		}
+		
+		if (!processedLibrary) {
+			
+			parseAssetsElementDirectory (path, targetPath, include, exclude, type, embed, library, glyphs, true);
 			
 		}
 		
@@ -1115,6 +1166,7 @@ class ProjectXMLParser extends HXProject {
 						
 						defines.set (name, value);
 						haxedefs.set (name, value);
+						environment.set (name, value);
 					
 					case "setenv":
 						

@@ -102,18 +102,8 @@ class WatchHelper {
 			
 		}
 		
-		// LogHelper.info ("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
-		
-		/*Thread.create (function () { 
-			
-			Sys.sleep (0.5);
-			ProcessHelper.openURL ("http://localhost:" + port);
-			
-		});*/
-		
 		var args = [ bin, command ];
 		args = args.concat (directories);
-		
 		
 		args.push ("--exit");
 		args.push ("--ignoreDotFiles");

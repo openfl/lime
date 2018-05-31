@@ -259,7 +259,9 @@ namespace lime {
 						ProcessWindowEvent (event);
 						break;
 					
-					case SDL_WINDOWEVENT_EXPOSED: 
+					case SDL_WINDOWEVENT_EXPOSED:
+						
+						ProcessWindowEvent (event);
 						
 						if (!inBackground) {
 							
@@ -741,6 +743,7 @@ namespace lime {
 				case SDL_WINDOWEVENT_FOCUS_LOST: windowEvent.type = WINDOW_FOCUS_OUT; break;
 				case SDL_WINDOWEVENT_LEAVE: windowEvent.type = WINDOW_LEAVE; break;
 				case SDL_WINDOWEVENT_MINIMIZED: windowEvent.type = WINDOW_MINIMIZE; break;
+				case SDL_WINDOWEVENT_EXPOSED: windowEvent.type = WINDOW_EXPOSE; break;
 				
 				case SDL_WINDOWEVENT_MOVED:
 					

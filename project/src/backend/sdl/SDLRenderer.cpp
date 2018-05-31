@@ -26,19 +26,11 @@ namespace lime {
 			
 			sdlFlags |= SDL_RENDERER_ACCELERATED;
 			
-			if (window->flags & WINDOW_FLAG_VSYNC) {
+			// if (window->flags & WINDOW_FLAG_VSYNC) {
 				
-				sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
+			// 	sdlFlags |= SDL_RENDERER_PRESENTVSYNC;
 				
-			}
-			
-			context = SDL_GL_CreateContext (sdlWindow);
-			
-			if (sdlFlags & SDL_RENDERER_PRESENTVSYNC) {
-				
-				SDL_GL_SetSwapInterval (1);
-				
-			}
+			// }
 			
 			// sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
 			
@@ -48,24 +40,23 @@ namespace lime {
 				
 			// }
 			
-		}
-		
-		if (!context) {
-			
-			sdlFlags |= SDL_RENDERER_SOFTWARE;
-			
-			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
-			
-		}
-		
-		if (sdlFlags & SDL_RENDERER_ACCELERATED) {
+			context = SDL_GL_CreateContext (sdlWindow);
 			
 			if (context) {
+				
+				if (window->flags & WINDOW_FLAG_VSYNC) {
+					
+					SDL_GL_SetSwapInterval (1);
+					
+				} else {
+					
+					SDL_GL_SetSwapInterval (0);
+					
+				}
 				
 				OpenGLBindings::Init ();
 				
 				#ifndef LIME_GLES
-				bool valid = false;
 				
 				int version = 0;
 				glGetIntegerv (GL_MAJOR_VERSION, &version);
@@ -78,40 +69,44 @@ namespace lime {
 					
 				}
 				
-				if (version >= 2 || strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
+				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
 					
-					valid = true;
+					SDL_GL_DeleteContext (context);
+					context = 0;
 					
 				}
-				#else
-				bool valid = true;
-				#endif
 				
-				#if defined(IPHONE) || defined(APPLETV)
+				#elif defined(IPHONE) || defined(APPLETV)
+				
 				// SDL_SysWMinfo windowInfo;
 				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
 				// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
 				// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
 				glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
 				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
+				
 				#endif
-				
-				((SDLApplication*)currentWindow->currentApplication)->RegisterWindow ((SDLWindow*)currentWindow);
-				
-			} else if (!sdlRenderer) {
-				
-				sdlFlags &= ~SDL_RENDERER_ACCELERATED;
-				sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
-				
-				sdlFlags |= SDL_RENDERER_SOFTWARE;
-				
-				sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
 				
 			}
 			
 		}
 		
-		if (!context && !sdlRenderer) {
+		if (!context) {
+			
+			sdlFlags &= ~SDL_RENDERER_ACCELERATED;
+			sdlFlags &= ~SDL_RENDERER_PRESENTVSYNC;
+			
+			sdlFlags |= SDL_RENDERER_SOFTWARE;
+			
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlFlags);
+			
+		}
+		
+		if (context || sdlRenderer) {
+			
+			((SDLApplication*)currentWindow->currentApplication)->RegisterWindow ((SDLWindow*)currentWindow);
+			
+		} else {
 			
 			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
 			

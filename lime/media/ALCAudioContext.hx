@@ -60,6 +60,7 @@ class ALCAudioContext {
 	
 	public function destroyContext (context:ALContext):Void {
 		
+		if (context == null) return;
 		ALC.destroyContext (context);
 		
 	}
@@ -67,6 +68,7 @@ class ALCAudioContext {
 	
 	public function getContextsDevice (context:ALContext):ALDevice {
 		
+		if (context == null) return null;
 		return ALC.getContextsDevice (context);
 		
 	}

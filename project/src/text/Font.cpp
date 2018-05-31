@@ -644,7 +644,12 @@ namespace lime {
 						
 						len = sfnt_name.string_len;
 						family_name = new wchar_t[len + 1];
-						mbstowcs (&family_name[0], &reinterpret_cast<const char*>(sfnt_name.string)[0], len);
+						#ifdef ANDROID
+						// Fix some devices (Android 4.x or older) that have a bad stdc implementation
+						_mbsrtowcs (family_name, (const char**)&sfnt_name.string, len, 0);
+						#else
+						mbstowcs (family_name, (const char*)sfnt_name.string, len);
+						#endif
 						family_name[len] = L'\0';
 						return family_name;
 						

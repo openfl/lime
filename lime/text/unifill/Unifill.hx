@@ -1,5 +1,10 @@
 package lime.text.unifill;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 /**
    Unifill provides Unicode-code-point-wise methods on Strings. It is
    ideally used with 'using Unifill' and then acts as an extension to

@@ -101,9 +101,23 @@ class AssetManifest {
 		manifest.libraryArgs = manifestData.libraryArgs;
 		manifest.assets = Unserializer.run (manifestData.assets);
 		
-		if (rootPath != null) {
+		if (Reflect.hasField (manifestData, "rootPath")) {
 			
-			manifest.rootPath = rootPath;
+			manifest.rootPath = manifestData.rootPath;
+			
+		}
+		
+		if (rootPath != null && rootPath != "") {
+			
+			if (manifest.rootPath == null || manifest.rootPath == "") {
+				
+				manifest.rootPath = rootPath;
+				
+			} else {
+				
+				manifest.rootPath = rootPath + "/" + manifest.rootPath;
+				
+			}
 			
 		}
 		
@@ -128,6 +142,7 @@ class AssetManifest {
 		manifestData.libraryArgs = libraryArgs;
 		manifestData.name = name;
 		manifestData.assets = Serializer.run (assets);
+		manifestData.rootPath = rootPath;
 		
 		return Json.stringify (manifestData);
 		

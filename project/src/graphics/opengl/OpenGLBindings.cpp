@@ -18,6 +18,10 @@
 #include <dlfcn.h>
 #endif
 
+#ifndef APIENTRY
+#define APIENTRY GLAPIENTRY
+#endif
+
 #ifdef LIME_SDL
 #include <SDL.h>
 #endif
@@ -36,6 +40,10 @@ namespace lime {
 	void* OpenGLBindings::eglHandle = 0;
 	#endif
 	
+	#if defined(HX_LINUX) || defined(HX_WINDOWS) || defined(HX_MACOS)
+	typedef void (APIENTRY * GL_DebugMessageCallback_Func)(GLDEBUGPROC, const void *);
+	GL_DebugMessageCallback_Func glDebugMessageCallback_ptr = 0;
+	#endif
 	
 	std::map<GLObjectType, std::map <GLuint, value> > glObjects;
 	std::map<value, GLuint> glObjectIDs;
@@ -181,6 +189,15 @@ namespace lime {
 		}
 		
 	}
+	
+	
+	#if defined(HX_LINUX) || defined(HX_WINDOWS) || defined(HX_MACOS)
+	void APIENTRY gl_debug_callback (GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, GLvoid *userParam) {
+		
+		puts (message);
+		
+	}
+	#endif
 	
 	
 	void lime_gl_active_texture (int texture) {
@@ -1143,27 +1160,47 @@ namespace lime {
 	
 	value lime_gl_get_extension (HxString name) {
 		
-		void *result = 0;
-		
-		#ifdef LIME_SDL
-		result = SDL_GL_GetProcAddress (name.__s);
-		#endif
-		
-		if (result) {
+		#if defined(HX_LINUX) || defined(HX_WINDOWS) || defined(HX_MACOS)
+		if (!glDebugMessageCallback_ptr && strcmp (name.__s, "KHR_debug") == 0) {
 			
-			static bool init = false;
-			static vkind functionKind;
+			glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallback");
 			
-			if (!init) {
+			if (!glDebugMessageCallback_ptr) {
 				
-				init = true;
-				kind_share (&functionKind, "function");
+				glDebugMessageCallback_ptr = (GL_DebugMessageCallback_Func)SDL_GL_GetProcAddress ("glDebugMessageCallbackKHR");
 				
 			}
 			
-			return alloc_abstract (functionKind, result);
+			if (glDebugMessageCallback_ptr) {
+				
+				glDebugMessageCallback_ptr ((GLDEBUGPROCARB)gl_debug_callback, NULL);
+				
+			}
 			
 		}
+		#endif
+		
+		// void *result = 0;
+		
+		// #ifdef LIME_SDL
+		// result = SDL_GL_GetProcAddress (name.__s);
+		// #endif
+		
+		// if (result) {
+			
+		// 	static bool init = false;
+		// 	static vkind functionKind;
+			
+		// 	if (!init) {
+				
+		// 		init = true;
+		// 		kind_share (&functionKind, "function");
+				
+		// 	}
+			
+		// 	return alloc_abstract (functionKind, result);
+			
+		// }
 		
 		return alloc_null ();
 		

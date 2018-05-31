@@ -1859,6 +1859,10 @@ class NativeGLRenderContext {
 				object = __extensionObjectConstructors.get (name) ();
 				__extensionObjects.set (name, object);
 				
+				#if (lime_cffi && lime_opengl && !macro)
+				NativeCFFI.lime_gl_get_extension (name);
+				#end
+				
 			}
 			
 			return object;

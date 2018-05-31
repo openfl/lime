@@ -321,11 +321,19 @@ namespace cs.ndll
 
         private static void cs_val_gc(IntPtr inArg1, CSAbstract.FinalizerDelegate arg2)
         {
-            CSAbstract arg1 = (CSAbstract)HandleUtils.GetObjectFromIntPtr(inArg1);
-            if (arg1 == null)
+            object value = HandleUtils.GetObjectFromIntPtr(inArg1);
+            if (value == null)
                 return;
 
-            arg1.Finalizer = arg2;
+            if (value is CSAbstract)
+            {
+                CSAbstract arg1 = (CSAbstract)value;
+                arg1.Finalizer = arg2;
+            }
+            else
+            {
+                // TODO
+            }
         }
 
         private static double cs_val_number(IntPtr inArg1)

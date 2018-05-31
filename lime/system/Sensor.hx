@@ -55,12 +55,14 @@ class Sensor {
 	}
 	
 	
-	private static function registerSensor (type:SensorType, id:Int):Void {
+	private static function registerSensor (type:SensorType, id:Int):Sensor {
 		
 		var sensor = new Sensor (type, id);
 		
 		sensors.push (sensor);
 		sensorByID.set (id, sensor);
+		
+		return sensor;
 		
 	}
 	

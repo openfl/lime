@@ -235,7 +235,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	private function start ():Void {
 		
-		if (complete) return;
+		if (complete || simulateProgress || !preloadComplete) return;
 		
 		complete = true;
 		

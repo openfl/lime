@@ -203,6 +203,11 @@ class JNI {
 }
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime._backend.native.NativeCFFI)
 
 
@@ -243,6 +248,11 @@ class JNIMemberField {
 }
 
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 @:access(lime._backend.native.NativeCFFI)
 
 
@@ -282,6 +292,11 @@ class JNIStaticField {
 	
 }
 
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 
 @:access(lime._backend.native.NativeCFFI)
 

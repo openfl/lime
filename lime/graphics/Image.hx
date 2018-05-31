@@ -1300,7 +1300,12 @@ class Image {
 	private function __fromBase64 (base64:String, type:String, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
+
+		#if openfljs
+		var image:JSImage = untyped __js__('new window.Image ()');
+		#else
 		var image = new JSImage ();
+		#end
 		
 		var image_onLoaded = function (event) {
 			
@@ -1396,7 +1401,11 @@ class Image {
 		
 		#if (js && html5)
 			
+			#if openfljs
+			var image:JSImage = untyped __js__('new window.Image ()');
+			#else
 			var image = new JSImage ();
+			#end
 			
 			#if !display
 			if (!HTML5HTTPRequest.__isSameOrigin (path)) {
@@ -1719,11 +1728,19 @@ class Image {
 				
 			}
 			
+			if (newWidth == buffer.width && newHeight == buffer.height)
+			{
+				return value;
+			}
+			
 			switch (type) {
 				
 				case CANVAS:
 					
-					// TODO
+					#if (js && html5)
+					ImageCanvasUtil.convertToData (this);
+					#end
+					ImageDataUtil.resizeBuffer (this, newWidth, newHeight);
 				
 				case DATA:
 					

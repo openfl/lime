@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2017 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2018 Joshua Granick and other Lime contributors
 
 This product bundles axTLS 2.1.4, which is available under a
 "BSD" license. For details, see [project/lib/axtls/](project/lib).
@@ -93,7 +93,7 @@ _The following are not embedded in Lime applications directly, but are used
 as dependencies for web-based builds. Their licensing does not affect products
 created with Lime._
 
-This product bundles howler.js 2.0.5, which is available under an
+This product bundles howler.js 2.0.9, which is available under an
 "MIT" license. For details, see [dependencies/howler.min.js](dependencies/howler.min.js).
 
 This product bundles FileSaver.js 1.3.3, which is available under an

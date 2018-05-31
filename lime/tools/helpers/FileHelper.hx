@@ -139,6 +139,8 @@ class FileHelper {
 			
 			PathHelper.mkdir (Path.directory (destination));
 			
+			LogHelper.info ("", " - \x1b[1mWriting file:\x1b[0m " + destination);
+			
 			try {
 				
 				if (asset.encoding == AssetEncoding.BASE64) {
@@ -473,6 +475,26 @@ class FileHelper {
 				
 				itemDestination = PathHelper.combine (destination, PathHelper.substitutePath (project, destinations[i]));
 				copyFile (paths[i], itemDestination, context, process);
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	public static function replaceText (source:String, replaceString:String, replacement:String) {
+		
+		if (FileSystem.exists (source)) {
+			
+			var output = File.getContent (source);
+			
+			var index = output.indexOf (replaceString);
+			
+			if (index > -1) {
+				
+				output = output.substr (0, index) + replacement + output.substr (index + replaceString.length);
+				File.saveContent (source, output);
 				
 			}
 			

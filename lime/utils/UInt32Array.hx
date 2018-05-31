@@ -21,7 +21,8 @@ package lime.utils;
                 this = new js.html.Uint32Array( elements );
             } else if(array != null) {
                 this = new js.html.Uint32Array( untyped array );
-            #if openfl } else if(vector != null) { this = new js.html.Uint32Array( untyped untyped (vector).__array ); #end
+            #if (openfl && commonjs) } else if(vector != null) { this = new js.html.Uint32Array( untyped (vector) );
+            #elseif openfl } else if(vector != null) { this = new js.html.Uint32Array( untyped untyped (vector).__array ); #end
             } else if(view != null) {
                 this = new js.html.Uint32Array( untyped view );
             } else if(buffer != null) {

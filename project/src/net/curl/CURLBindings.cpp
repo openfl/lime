@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
+#include <system/Mutex.h>
 #include <utils/Bytes.h>
 #include <string.h>
 #include <map>
@@ -11,16 +12,20 @@ namespace lime {
 	
 	std::map<value, bool> curlValid;
 	std::map<value, AutoGCRoot*> headerCallbacks;
+	std::map<value, curl_slist*> headerSLists;
 	std::map<value, AutoGCRoot*> progressCallbacks;
 	std::map<value, AutoGCRoot*> readCallbacks;
 	std::map<AutoGCRoot*, Bytes*> writeBytes;
 	std::map<AutoGCRoot*, AutoGCRoot*> writeBytesRoot;
 	std::map<value, AutoGCRoot*> writeCallbacks;
+	Mutex curl_gc_mutex;
 	
 	
 	void gc_curl (value handle) {
 		
 		if (!val_is_null (handle)) {
+			
+			curl_gc_mutex.Lock ();
 			
 			if (curlValid.find (handle) != curlValid.end ()) {
 				
@@ -49,6 +54,14 @@ namespace lime {
 				
 				headerCallbacks.erase (handle);
 				delete callback;
+				
+			}
+			
+			if (headerSLists.find (handle) != headerSLists.end ()) {
+				
+				curl_slist* chunk = headerSLists[handle];
+				headerSLists.erase (handle);
+				curl_slist_free_all (chunk);
 				
 			}
 			
@@ -92,6 +105,8 @@ namespace lime {
 			val_gc (handle, 0);
 			//handle = alloc_null ();
 			
+			curl_gc_mutex.Unlock ();
+			
 		}
 		
 	}
@@ -117,6 +132,8 @@ namespace lime {
 	
 	
 	value lime_curl_easy_duphandle (value handle) {
+		
+		curl_gc_mutex.Lock ();
 		
 		value duphandle = CFFIPointer (curl_easy_duphandle ((CURL*)val_data(handle)), gc_curl);
 		curlValid[duphandle] = true;
@@ -147,6 +164,8 @@ namespace lime {
 			writeBytesRoot[callback] = new AutoGCRoot (_writeBytes->Value ());
 			writeCallbacks[duphandle] = new AutoGCRoot (writeCallbacks[handle]->get());
 		}
+		
+		curl_gc_mutex.Unlock ();
 		
 		return duphandle;
 		
@@ -264,6 +283,8 @@ namespace lime {
 	
 	value lime_curl_easy_init () {
 		
+		curl_gc_mutex.Lock ();
+		
 		value handle = CFFIPointer (curl_easy_init (), gc_curl);
 		
 		if (curlValid.find (handle) != curlValid.end ()) {
@@ -297,6 +318,9 @@ namespace lime {
 		}
 		
 		curlValid[handle] = true;
+		
+		curl_gc_mutex.Unlock ();
+		
 		return handle;
 		
 	}
@@ -355,6 +379,7 @@ namespace lime {
 		if (method && !val_is_null (method)) {
 			
 			Bytes* _writeBytes = writeBytes[callback];
+			if (!_writeBytes) return 0;
 			_writeBytes->Resize (size * nmemb);
 			memcpy (_writeBytes->Data (), ptr, size * nmemb);
 			
@@ -691,14 +716,17 @@ namespace lime {
 			
 			case CURLOPT_READFUNCTION:
 			{
+				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
 				readCallbacks[handle] = callback;
 				code = curl_easy_setopt (curl, type, read_callback);
 				curl_easy_setopt (curl, CURLOPT_READDATA, callback);
+				curl_gc_mutex.Unlock ();
 				break;
 			}
 			case CURLOPT_WRITEFUNCTION:
 			{
+				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
 				writeCallbacks[handle] = callback;
 				Bytes* _writeBytes = new Bytes (bytes);
@@ -706,10 +734,12 @@ namespace lime {
 				writeBytesRoot[callback] = new AutoGCRoot (bytes);
 				code = curl_easy_setopt (curl, type, write_callback);
 				curl_easy_setopt (curl, CURLOPT_WRITEDATA, callback);
+				curl_gc_mutex.Unlock ();
 				break;
 			}
 			case CURLOPT_HEADERFUNCTION:
 			{
+				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
 				headerCallbacks[handle] = callback;
 				Bytes* _writeBytes = new Bytes (bytes);
@@ -717,20 +747,30 @@ namespace lime {
 				writeBytesRoot[callback] = new AutoGCRoot (bytes);
 				code = curl_easy_setopt (curl, type, write_callback);
 				curl_easy_setopt (curl, CURLOPT_HEADERDATA, callback);
+				curl_gc_mutex.Unlock ();
 				break;
 			}
 			case CURLOPT_PROGRESSFUNCTION:
 			{
+				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
 				progressCallbacks[handle] = callback;
 				code = curl_easy_setopt (curl, type, progress_callback);
 				curl_easy_setopt (curl, CURLOPT_PROGRESSDATA, callback);
 				curl_easy_setopt (curl, CURLOPT_NOPROGRESS, false);
+				curl_gc_mutex.Unlock ();
 				break;
 			}
 			
 			case CURLOPT_HTTPHEADER:
 			{
+				curl_gc_mutex.Lock ();
+				if (headerSLists.find (handle) != headerSLists.end ()) {
+					
+					curl_slist_free_all (headerSLists[handle]);
+					
+				}
+				
 				struct curl_slist *chunk = NULL;
 				int size = val_array_size (parameter);
 				
@@ -740,7 +780,10 @@ namespace lime {
 					
 				}
 				
+				headerSLists[handle] = chunk;
+				
 				code = curl_easy_setopt (curl, type, chunk);
+				curl_gc_mutex.Unlock ();
 				break;
 			}
 			

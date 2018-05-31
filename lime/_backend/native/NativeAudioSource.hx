@@ -57,7 +57,10 @@ class NativeAudioSource {
 		
 		if (handle != null) {
 			
+			stop ();
+			AL.sourcei (handle, AL.BUFFER, null);
 			AL.deleteSource (handle);
+			handle = null;
 			
 		}
 		
@@ -117,14 +120,24 @@ class NativeAudioSource {
 			if (parent.buffer.__srcBuffer == null) {
 				
 				parent.buffer.__srcBuffer = AL.createBuffer ();
-				AL.bufferData (parent.buffer.__srcBuffer, format, parent.buffer.data, parent.buffer.data.length, parent.buffer.sampleRate);
+				
+				if (parent.buffer.__srcBuffer != null) {
+					
+					AL.bufferData (parent.buffer.__srcBuffer, format, parent.buffer.data, parent.buffer.data.length, parent.buffer.sampleRate);
+					
+				}
 				
 			}
 			
 			dataLength = parent.buffer.data.length;
 			
 			handle = AL.createSource ();
-			AL.sourcei (handle, AL.BUFFER, parent.buffer.__srcBuffer);
+			
+			if (handle != null) {
+				
+				AL.sourcei (handle, AL.BUFFER, parent.buffer.__srcBuffer);
+				
+			}
 			
 		}
 		
@@ -196,6 +209,8 @@ class NativeAudioSource {
 	public function pause ():Void {
 		
 		playing = false;
+		
+		if (handle == null) return;
 		AL.sourcePause (handle);
 		
 		if (streamTimer != null) {
@@ -324,8 +339,13 @@ class NativeAudioSource {
 	
 	public function stop ():Void {
 		
+		if (playing && handle != null && AL.getSourcei (handle, AL.SOURCE_STATE) == AL.PLAYING) {
+			
+			AL.sourceStop (handle);
+			
+		}
+		
 		playing = false;
-		AL.sourceStop (handle);
 		
 		if (streamTimer != null) {
 			
@@ -358,10 +378,9 @@ class NativeAudioSource {
 	
 	private function timer_onRun ():Void {
 		
-		playing = false;
-		
 		if (loops > 0) {
 			
+			playing = false;
 			loops--;
 			setCurrentTime (0);
 			play ();
@@ -369,8 +388,7 @@ class NativeAudioSource {
 			
 		} else {
 			
-			AL.sourceStop (handle);
-			timer.stop ();
+			stop ();
 			
 		}
 		
@@ -393,57 +411,67 @@ class NativeAudioSource {
 			
 			return getLength ();
 			
-		} else if (stream) {
+		} else if (handle != null) {
 			
-			var time = (Std.int (parent.buffer.__srcVorbisFile.timeTell () * 1000) + Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
-			if (time < 0) return 0;
-			return time;
-			
-		} else {
-			
-			var offset = AL.getSourcei (handle, AL.BYTE_OFFSET);
-			var ratio = (offset / dataLength);
-			var totalSeconds = samples / parent.buffer.sampleRate;
-			
-			var time = Std.int (totalSeconds * ratio * 1000) - parent.offset;
-			
-			//var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
-			if (time < 0) return 0;
-			return time;
+			if (stream) {
+				
+				var time = (Std.int (parent.buffer.__srcVorbisFile.timeTell () * 1000) + Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
+				if (time < 0) return 0;
+				return time;
+				
+			} else {
+				
+				var offset = AL.getSourcei (handle, AL.BYTE_OFFSET);
+				var ratio = (offset / dataLength);
+				var totalSeconds = samples / parent.buffer.sampleRate;
+				
+				var time = Std.int (totalSeconds * ratio * 1000) - parent.offset;
+				
+				//var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
+				if (time < 0) return 0;
+				return time;
+				
+			}
 			
 		}
+		
+		return 0;
 		
 	}
 	
 	
 	public function setCurrentTime (value:Int):Int {
 		
-		if (stream) {
+		if (handle != null) {
 			
-			AL.sourceStop (handle);
-			
-			parent.buffer.__srcVorbisFile.timeSeek ((value + parent.offset) / 1000);
-			AL.sourceUnqueueBuffers (handle, STREAM_NUM_BUFFERS);
-			refillBuffers (buffers);
-			
-			if (playing) AL.sourcePlay (handle);
-			
-		} else if (parent.buffer != null) {
-			
-			AL.sourceRewind (handle);
-			if (playing) AL.sourcePlay (handle);
-			//AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
-			
-			var secondOffset = (value + parent.offset) / 1000;
-			var totalSeconds = samples / parent.buffer.sampleRate;
-			
-			if (secondOffset < 0) secondOffset = 0;
-			if (secondOffset > totalSeconds) secondOffset = totalSeconds;
-			
-			var ratio = (secondOffset / totalSeconds);
-			var totalOffset = Std.int (dataLength * ratio);
-			
-			AL.sourcei (handle, AL.BYTE_OFFSET, totalOffset);
+			if (stream) {
+				
+				AL.sourceStop (handle);
+				
+				parent.buffer.__srcVorbisFile.timeSeek ((value + parent.offset) / 1000);
+				AL.sourceUnqueueBuffers (handle, STREAM_NUM_BUFFERS);
+				refillBuffers (buffers);
+				
+				if (playing) AL.sourcePlay (handle);
+				
+			} else if (parent.buffer != null) {
+				
+				AL.sourceRewind (handle);
+				if (playing) AL.sourcePlay (handle);
+				//AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
+				
+				var secondOffset = (value + parent.offset) / 1000;
+				var totalSeconds = samples / parent.buffer.sampleRate;
+				
+				if (secondOffset < 0) secondOffset = 0;
+				if (secondOffset > totalSeconds) secondOffset = totalSeconds;
+				
+				var ratio = (secondOffset / totalSeconds);
+				var totalOffset = Std.int (dataLength * ratio);
+				
+				AL.sourcei (handle, AL.BYTE_OFFSET, totalOffset);
+				
+			}
 			
 		}
 		
@@ -478,14 +506,27 @@ class NativeAudioSource {
 	
 	public function getGain ():Float {
 		
-		return AL.getSourcef (handle, AL.GAIN);
+		if (handle != null) {
+			
+			return AL.getSourcef (handle, AL.GAIN);
+			
+		} else {
+			
+			return 1;
+			
+		}
 		
 	}
 	
 	
 	public function setGain (value:Float):Float {
 		
-		AL.sourcef (handle, AL.GAIN, value);
+		if (handle != null) {
+			
+			AL.sourcef (handle, AL.GAIN, value);
+			
+		}
+		
 		return value;
 		
 	}
@@ -546,12 +587,16 @@ class NativeAudioSource {
 	
 	public function getPosition ():Vector4 {
 		
-		#if !emscripten
-		var value = AL.getSource3f (handle, AL.POSITION);
-		position.x = value[0];
-		position.y = value[1];
-		position.z = value[2];
-		#end
+		if (handle != null) {
+			
+			#if !emscripten
+			var value = AL.getSource3f (handle, AL.POSITION);
+			position.x = value[0];
+			position.y = value[1];
+			position.z = value[2];
+			#end
+			
+		}
 		
 		return position;
 		
@@ -565,8 +610,12 @@ class NativeAudioSource {
 		position.z = value.z;
 		position.w = value.w;
 		
-		AL.distanceModel (AL.NONE);
-		AL.source3f (handle, AL.POSITION, position.x, position.y, position.z);
+		if (handle != null) {
+			
+			AL.distanceModel (AL.NONE);
+			AL.source3f (handle, AL.POSITION, position.x, position.y, position.z);
+			
+		}
 		
 		return position;
 		

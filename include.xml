@@ -52,7 +52,7 @@
 			<ndll name="zlib" haxelib="hxcpp" unless="emscripten || ios || tvos" />
 		</section>
 		
-		<ndll name="lime" if="cpp || neko || nodejs || java" unless="static_link" />
+		<ndll name="lime" if="cpp || neko || nodejs || java" unless="lime-console static_link || lime-switch static_link" />
 		
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" />
@@ -67,13 +67,13 @@
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
 		<define name="fdb" if="flash debug" unless="nofdb" />
 		
-		<define name="MACOSX_DEPLOYMENT_TARGET" value="10.7" if="mac" unless="MACOSX_DEPLOYMENT_TARGET" />
+		<define name="MACOSX_DEPLOYMENT_TARGET" value="10.9" if="mac" unless="MACOSX_DEPLOYMENT_TARGET" />
 		<setenv name="MACOSX_DEPLOYMENT_TARGET" value="${MACOSX_DEPLOYMENT_TARGET}" if="mac" />
 		
 		<architecture name="armv7" if="android" />
 		
 		<define name="lime-cairo" unless="flash || html5" />
-		<define name="lime-curl" unless="lime-console || emscripten || flash || html5" />
+		<define name="lime-curl" unless="lime-console || lime-switch || emscripten || flash || html5" />
 		<define name="lime-opengl" unless="lime-console || flash" />
 		<define name="lime-openal" unless="lime-console || static_link || flash || html5" />
 		<define name="lime-openal" if="emscripten" />

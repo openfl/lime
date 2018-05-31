@@ -533,13 +533,23 @@ class WindowsPlatform extends PlatformTarget {
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
-			var suffix = ".lib";
+			// TODO: Better way to detect the suffix HXCPP will use?
 			
-			// if (Sys.getEnv ("VS140COMNTOOLS") != null) {
+			var msvc19 = true;
+			var olderVersions = [ "120", "110", "100", "90", "80", "71", "70" ];
+			
+			for (olderVersion in olderVersions) {
 				
-			// 	suffix = "-19.lib";
+				if (project.environment.exists ("VS" + olderVersion + "COMNTOOLS")) {
+					
+					msvc19 = false;
+					break;
+					
+				}
 				
-			// }
+			}
+			
+			var suffix = (msvc19 ? "-19.lib" : ".lib");
 			
 			for (i in 0...project.ndlls.length) {
 				

@@ -8,6 +8,11 @@ package lime.text.unifill;
 	private typedef UtfX = Utf16;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 /**
    InternalEncoding provides primitive API to deal with strings across
    all platforms. You should consider adopting Unifill before this.

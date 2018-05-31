@@ -1,5 +1,10 @@
 package lime.text.unifill;
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 class Unicode {
 
 	public static inline var minCodePoint : Int = 0x0000;

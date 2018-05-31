@@ -60,6 +60,7 @@ class Module implements IModule {
 		window.onDeactivate.add (onWindowDeactivate.bind (window));
 		window.onDropFile.add (onWindowDropFile.bind (window));
 		window.onEnter.add (onWindowEnter.bind (window));
+		window.onExpose.add (onWindowExpose.bind (window));
 		window.onFocusIn.add (onWindowFocusIn.bind (window));
 		window.onFocusOut.add (onWindowFocusOut.bind (window));
 		window.onFullscreen.add (onWindowFullscreen.bind (window));
@@ -469,6 +470,13 @@ class Module implements IModule {
 	 * @param	window	The window dispatching the event
 	 */
 	public function onWindowEnter (window:Window):Void { }
+	
+	
+	/**
+	 * Called when a window expose event is fired
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowExpose (window:Window):Void { }
 	
 	
 	/**

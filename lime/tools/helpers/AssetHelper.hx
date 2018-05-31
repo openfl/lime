@@ -54,6 +54,7 @@ class AssetHelper {
 		if (targetPath != null) {
 			
 			PathHelper.mkdir (Path.directory (targetPath));
+			LogHelper.info ("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
 			File.saveContent (targetPath, manifest.serialize ());
 			
 		}
@@ -66,6 +67,7 @@ class AssetHelper {
 	public static function createManifests (project:HXProject, targetDirectory:String = null):Array<AssetManifest> {
 		
 		var libraryNames = new Map<String, Bool> ();
+		var hasManifest = new Map<String, Bool> ();
 		
 		for (asset in project.assets) {
 			
@@ -75,27 +77,47 @@ class AssetHelper {
 				
 			}
 			
+			if (asset.type == MANIFEST) {
+				
+				hasManifest.set (asset.library != null ? asset.library : DEFAULT_LIBRARY_NAME, true);
+				
+			}
+			
 		}
 		
-		var manifest = createManifest (project);
-		manifest.name = DEFAULT_LIBRARY_NAME;
-		var manifests = [ manifest ];
+		var manifest = null;
+		var manifests = [];
+		
+		if (!hasManifest.exists (DEFAULT_LIBRARY_NAME)) {
+			
+			manifest = createManifest (project);
+			manifest.name = DEFAULT_LIBRARY_NAME;
+			manifests.push (manifest);
+			
+		}
 		
 		for (library in libraryNames.keys ()) {
 			
-			manifest = createManifest (project, library);
-			manifest.name = library;
-			manifests.push (manifest);
+			if (!hasManifest.exists (library)) {
+				
+				manifest = createManifest (project, library);
+				manifest.name = library;
+				manifests.push (manifest);
+				
+			}
 			
 		}
 		
 		if (targetDirectory != null) {
 			
 			PathHelper.mkdir (targetDirectory);
+			var targetPath;
 			
 			for (manifest in manifests) {
 				
-				File.saveContent (PathHelper.combine (targetDirectory, manifest.name + ".json"), manifest.serialize ());
+				targetPath = PathHelper.combine (targetDirectory, manifest.name + ".json");
+				LogHelper.info ("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
+				File.saveContent (targetPath, manifest.serialize ());
 				
 			}
 			
@@ -332,6 +354,7 @@ class AssetHelper {
 	
 	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
 		
+		var hasManifest = new Map<String, Bool> ();
 		var libraryMap = new Map<String, Bool> ();
 		
 		for (library in project.libraries) {
@@ -350,6 +373,12 @@ class AssetHelper {
 				project.libraries.push (library);
 				
 				libraryMap[asset.library] = true;
+				
+			}
+			
+			if (asset.type == MANIFEST) {
+				
+				hasManifest.set (asset.library != null ? asset.library : DEFAULT_LIBRARY_NAME, true);
 				
 			}
 			
@@ -421,7 +450,27 @@ class AssetHelper {
 					
 				}
 				
-				HaxelibHelper.runCommand ("", args);
+				try {
+					
+					HaxelibHelper.runCommand ("", args, false);
+					
+				} catch (e:Dynamic) {
+					
+					var types = [];
+					
+					for (library in project.libraries) {
+						
+						if (library.type != null && project.libraryHandlers.exists (library.type) && project.libraryHandlers.get (library.type) == handler) {
+							
+							types.push (library.type);
+							
+						}
+						
+					}
+					
+					LogHelper.error ("Could not process asset libraries (" + types.join (", ") + ")");
+					
+				}
 				
 				if (FileSystem.exists (outputFile)) {
 					
@@ -467,44 +516,48 @@ class AssetHelper {
 			
 			if (library.type == null || (project.target == FLASH && library.embed != false && ["pak", "pack", "gzip", "zip", "deflate"].indexOf (library.type) > -1)) {
 				
-				manifest = createManifest (project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
-				
 				if (library.name == DEFAULT_LIBRARY_NAME) {
 					
 					library.preload = true;
 					
 				}
 				
-				asset = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
-				asset.library = library.name;
-				asset.data = manifest.serialize ();
-				
-				if (manifest.assets.length == 0) {
+				if (!hasManifest.exists (library.name)) {
 					
-					asset.embed = true;
+					manifest = createManifest (project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
 					
-				} else {
+					asset = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
+					asset.library = library.name;
+					asset.data = manifest.serialize ();
 					
-					// TODO: Make this assumption elsewhere?
-					
-					var allEmbedded = true;
-					
-					for (childAsset in manifest.assets) {
+					if (manifest.assets.length == 0 || (project.target == HTML5 && library.name == DEFAULT_LIBRARY_NAME)) {
 						
-						if (!Reflect.hasField (childAsset, "className") || childAsset.className == null) {
+						asset.embed = true;
+						
+					} else {
+						
+						// TODO: Make this assumption elsewhere?
+						
+						var allEmbedded = true;
+						
+						for (childAsset in manifest.assets) {
 							
-							allEmbedded = false;
-							break;
+							if (!Reflect.hasField (childAsset, "className") || childAsset.className == null) {
+								
+								allEmbedded = false;
+								break;
+								
+							}
 							
 						}
 						
+						if (allEmbedded) asset.embed = true;
+						
 					}
 					
-					if (allEmbedded) asset.embed = true;
+					project.assets.push (asset);
 					
 				}
-				
-				project.assets.push (asset);
 				
 			}
 			

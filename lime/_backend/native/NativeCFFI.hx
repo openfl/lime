@@ -201,6 +201,7 @@ class NativeCFFI {
 	@:cffi private static function lime_al_bufferfv (buffer:CFFIPointer, param:Int, values:Dynamic):Void;
 	@:cffi private static function lime_al_bufferi (buffer:CFFIPointer, param:Int, value:Int):Void;
 	@:cffi private static function lime_al_bufferiv (buffer:CFFIPointer, param:Int, values:Dynamic):Void;
+	@:cffi private static function lime_al_cleanup ():Void;
 	@:cffi private static function lime_al_delete_buffer (buffer:CFFIPointer):Void;
 	@:cffi private static function lime_al_delete_buffers (n:Int, buffers:Dynamic):Void;
 	@:cffi private static function lime_al_delete_source (source:CFFIPointer):Void;

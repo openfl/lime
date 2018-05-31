@@ -33,7 +33,7 @@ public class GameActivity extends SDLActivity {
 	public Handler handler;
 	
 	
-	public static double getDisplayDPI () {
+	public static double getDisplayXDPI () {
 		
 		if (metrics == null) {
 			
@@ -53,6 +53,20 @@ public class GameActivity extends SDLActivity {
 			::foreach ndlls::"::name::",
 			::end::"ApplicationMain"
 		};
+		
+	}
+	
+	
+	@Override protected String getMainSharedObject () {
+		
+		return "libApplicationMain.so";
+		
+	}
+	
+	
+	@Override protected String getMainFunction () {
+		
+		return "hxcpp_main";
 		
 	}
 	

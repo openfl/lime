@@ -243,7 +243,7 @@ class System {
 				display.dpi = (tablet ? 132 : 163) * scale;
 			}
 			#elseif android
-			var getDisplayDPI = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "getDisplayDPI", "()D");
+			var getDisplayDPI = JNI.createStaticMethod ("org/haxe/lime/GameActivity", "getDisplayXDPI", "()D");
 			display.dpi = Math.round (getDisplayDPI ());
 			#else
 			display.dpi = displayInfo.dpi;
@@ -349,7 +349,7 @@ class System {
 			
 			#if (sys && windows)
 			
-			Sys.command ("start", [ path ]);
+			Sys.command ("start", [ "", path ]);
 			
 			#elseif mac
 			
@@ -511,6 +511,102 @@ class System {
 		#end
 		
 		return null;
+		
+	}
+	
+	
+	#if sys
+	private static function __parseArguments (config:Config):Void {
+		
+		// TODO: Handle default arguments, like --window-fps=60
+		
+		var arguments = Sys.args ();
+		var stripQuotes = ~/^['"](.*)['"]$/;
+		var equals, argValue, parameters = null;
+		var windowParamPrefix = "--window-";
+		
+		if (arguments != null) {
+			
+			for (argument in arguments) {
+				
+				equals = argument.indexOf ("=");
+				
+				if (equals > 0) {
+					
+					argValue = argument.substr (equals + 1);
+					
+					if (stripQuotes.match (argValue)) {
+						argValue = stripQuotes.matched (1);
+					}
+					
+					if (parameters == null) parameters = new Map<String, String> ();
+					parameters.set (argument.substr (0, equals), argValue);
+					
+				}
+				
+			}
+			
+		}
+		
+		if (parameters != null) {
+			
+			for (windowConfig in config.windows) {
+				
+				if (windowConfig.parameters == null) windowConfig.parameters = {};
+				
+				for (parameter in parameters.keys ()) {
+					
+					argValue = parameters.get (parameter);
+					
+					if (#if lime_disable_window_override false && #end StringTools.startsWith (parameter, windowParamPrefix)) {
+						
+						switch (parameter.substr (windowParamPrefix.length)) {
+							
+							case "allow-high-dpi": windowConfig.allowHighDPI = __parseBool (argValue);
+							case "always-on-top": windowConfig.alwaysOnTop = __parseBool (argValue); 
+							case "antialiasing": windowConfig.antialiasing = Std.parseInt (argValue);
+							case "background": windowConfig.background = (argValue == "" || argValue == "null") ? null : Std.parseInt (argValue);
+							case "borderless": windowConfig.borderless = __parseBool (argValue);
+							case "colorDepth": windowConfig.colorDepth = Std.parseInt (argValue);
+							case "depthBuffer": windowConfig.depthBuffer = __parseBool (argValue);
+							case "display": windowConfig.display = Std.parseInt (argValue);
+							case "fullscreen": windowConfig.fullscreen = __parseBool (argValue);
+							case "hardware": windowConfig.hardware = __parseBool (argValue);
+							case "height": windowConfig.height = Std.parseInt (argValue);
+							case "hidden": windowConfig.hidden = __parseBool (argValue);
+							case "maximized": windowConfig.maximized = __parseBool (argValue);
+							case "minimized": windowConfig.minimized = __parseBool (argValue);
+							case "renderer": windowConfig.renderer = argValue;
+							case "resizable": windowConfig.resizable = __parseBool (argValue);
+							case "stencilBuffer": windowConfig.stencilBuffer = __parseBool (argValue);
+							//case "title": windowConfig.title = argValue;
+							case "vsync": windowConfig.vsync = __parseBool (argValue);
+							case "width": windowConfig.width = Std.parseInt (argValue);
+							case "x": windowConfig.x = Std.parseInt (argValue);
+							case "y": windowConfig.y = Std.parseInt (argValue);
+							default:
+							
+						}
+						
+					} else if (!Reflect.hasField (windowConfig.parameters, parameter)) {
+						
+						Reflect.setField (windowConfig.parameters, parameter, argValue);
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	#end
+	
+	
+	@:noCompletion private static inline function __parseBool (value:String):Bool {
+		
+		return (value == "true");
 		
 	}
 	

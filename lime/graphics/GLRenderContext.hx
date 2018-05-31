@@ -33,6 +33,11 @@ import lime.utils.DataPointer;
 import js.html.CanvasElement;
 #end
 
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+
 
 class GLRenderContext {
 	

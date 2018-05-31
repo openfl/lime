@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "6.3.0",
-	"releasenote": "Add target support for Electron",
+	"version": "6.3.1",
+	"releasenote": "Better *.bundle library support, fix for <define />",
 	"contributors": [ "singmajesty" ]
 }
