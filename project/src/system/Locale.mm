@@ -16,7 +16,10 @@ namespace lime {
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 		#endif
 		
-		NSString* locale = [[NSLocale currentLocale] localeIdentifier];
+		NSString* localeLanguage = [[NSLocale preferredLanguages] firstObject];
+		NSString* localeRegion = [[NSLocale currentLocale] countryCode];
+		NSString* locale = [[localeLanguage stringByAppendingString:@"_"] stringByAppendingString:localeRegion];
+		
 		std::string* result = 0;
 		
 		if (locale) {
