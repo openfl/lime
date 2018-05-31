@@ -1,4 +1,5 @@
 -cp ::OUTPUT_DIR::/haxe
+-lib electron
 
 --each
 

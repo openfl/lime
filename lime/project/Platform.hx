@@ -9,7 +9,6 @@ package lime.project;
 	var CONSOLE_PC = "console-pc";
 	var FIREFOX = "firefox";
 	var FLASH = "flash";
-	var ELECTRON = "electron";
 	var HTML5 = "html5";
 	var IOS = "ios";
 	var LINUX = "linux";
