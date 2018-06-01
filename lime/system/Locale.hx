@@ -116,6 +116,9 @@ abstract Locale(String) from String to String {
 			
 			if (index > -1) {
 				
+				var dashIndex = this.indexOf ("-");
+				if (dashIndex > -1 && dashIndex < index) index = dashIndex;
+				
 				return this.substring (0, index);
 				
 			}
