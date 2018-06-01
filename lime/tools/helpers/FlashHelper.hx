@@ -435,7 +435,13 @@ class FlashHelper {
 			
 			if (font.kerning != null) {
 				
-				for (k in font.kerning) {
+				var length = font.kerning.length;
+				if (length > 0xFFFF) length = 0xFFFF;
+				var k;
+				
+				for (i in 0...length) {
+					
+					k = font.kerning[i];
 					
 					kerning.push ({
 						charCode1:  k.left_glyph,
