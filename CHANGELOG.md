@@ -1,3 +1,24 @@
+6.4.0 (06/01/2018)
+------------------
+
+* Updated NPM dependency to `file-saver` from `file-saverjs`
+* Updated Android ARMv7 builds to use `armeabi-v7a` instead of `armeabi-v7`
+* Added (Beta) support for `electron` (`html5 -electron`) target
+* Added `window.onExpose` event (useful when not rendering every frame)
+* Added `raspberrypi` or `rpi` as a target alias
+* Improved `Locale` to better handle `en_US-en` style strings
+* Improved handling of iOS locale values
+* Improved support for current Xcode versions by using an `.entitlements` file
+* Improved support for mouse "release outside" behavior on HTML5
+* Improved support for current Raspberry Pi OpenGL/EGL libraries
+* Improved Android Gradle template to include Maven for native extensions
+* Improved error handling when a library handler does not execute properly
+* Fixed crash in `ObjectPool` when setting initial size
+* Fixed setting `powerOfTwo = true` for an `ImageBuffer` with a canvas source
+* Fixed SWF font generation to limit kerning values to the SWF spec maximum
+* Fixed some cases where `HOME` environment variable might return `null`
+
+
 6.3.1 (05/11/2018)
 ------------------
 
