@@ -136,7 +136,15 @@ namespace lime {
 				
 				#elif !defined (ANDROID)
 				
-				std::string path = std::string (getenv ("HOME")) + std::string ("/Desktop");
+				char const* home = getenv ("HOME");
+
+				if (home == NULL) {
+
+					return 0;
+
+				}
+
+				std::string path = std::string (home) + std::string ("/Desktop");
 				std::wstring* result = new std::wstring (path.begin (), path.end ());
 				return result;
 				
@@ -172,7 +180,15 @@ namespace lime {
 				
 				#else
 				
-				std::string path = std::string (getenv ("HOME")) + std::string ("/Documents");
+				char const* home = getenv ("HOME");
+
+				if (home == NULL) {
+
+					return 0;
+
+				}
+
+				std::string path = std::string (home) + std::string ("/Documents");
 				std::wstring* result = new std::wstring (path.begin (), path.end ());
 				return result;
 				
@@ -248,7 +264,15 @@ namespace lime {
 				
 				#else
 				
-				std::string path = getenv ("HOME");
+				char const* home = getenv ("HOME");
+
+				if (home == NULL) {
+
+					return 0;
+
+				}
+
+				std::string path = std::string (home);
 				std::wstring* result = new std::wstring (path.begin (), path.end ());
 				return result;
 				
