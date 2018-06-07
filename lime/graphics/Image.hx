@@ -1829,7 +1829,7 @@ class Image {
 	private function get_src ():Dynamic {
 		
 		#if (js && html5)
-		if (buffer.__srcCanvas == null && (buffer.data != null || image.type == DATA)) {
+		if (buffer.__srcCanvas == null && (buffer.data != null || type == DATA)) {
 			
 			ImageCanvasUtil.convertToCanvas (this);
 			

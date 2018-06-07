@@ -34,9 +34,9 @@ class ImageCanvasUtil {
 	
 	public static function convertToCanvas (image:Image, clear:Bool = false):Void {
 		
+		#if (js && html5)
 		var buffer = image.buffer;
 		
-		#if (js && html5)
 		if (buffer.__srcImage != null) {
 			
 			if (buffer.__srcCanvas == null) {
@@ -429,11 +429,11 @@ class ImageCanvasUtil {
 		if (image == null) return;
 		
 		#if (js && html5)
-		if (image.type == CANVAS) {
+		if (image.type == CANVAS && (image.buffer.__srcCanvas != null || image.buffer.data != null)) {
 			
 			convertToCanvas (image, clear);
 			
-		} else {
+		} else if (image.type == DATA) {
 			
 			convertToData (image, clear);
 			

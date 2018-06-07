@@ -138,8 +138,7 @@ class JPEG {
 		
 		#elseif js
 		
-		image.type = CANVAS;
-		ImageCanvasUtil.sync (image, false);
+		ImageCanvasUtil.convertToCanvas (image, false);
 		
 		if (image.buffer.__srcCanvas != null) {
 			
