@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* SensorEvent::callback = 0;
-	AutoGCRoot* SensorEvent::eventObject = 0;
+	ValuePointer* SensorEvent::callback = 0;
+	ValuePointer* SensorEvent::eventObject = 0;
 	
 	static int id_id;
 	static int id_type;
@@ -31,26 +31,40 @@ namespace lime {
 		
 		if (SensorEvent::callback) {
 			
-			if (!init) {
+			if (SensorEvent::eventObject->IsCFFIValue ()) {
 				
-				id_id = val_id ("id");
-				id_type = val_id ("type");
-				id_x = val_id ("x");
-				id_y = val_id ("y");
-				id_z = val_id ("z");
-				init = true;
+				if (!init) {
+					
+					id_id = val_id ("id");
+					id_type = val_id ("type");
+					id_x = val_id ("x");
+					id_y = val_id ("y");
+					id_z = val_id ("z");
+					init = true;
+					
+				}
+				
+				value object = (value)SensorEvent::eventObject->Get ();
+				
+				alloc_field (object, id_id, alloc_int (event->id));
+				alloc_field (object, id_type, alloc_int (event->type));
+				alloc_field (object, id_x, alloc_float (event->x));
+				alloc_field (object, id_y, alloc_float (event->y));
+				alloc_field (object, id_z, alloc_float (event->z));
+				
+			} else {
+				
+				HL_SensorEvent* eventObject = (HL_SensorEvent*)SensorEvent::eventObject->Get ();
+				
+				eventObject->id = event->id;
+				eventObject->type = event->type;
+				eventObject->x = event->x;
+				eventObject->y = event->y;
+				eventObject->z = event->z;
 				
 			}
 			
-			value object = (SensorEvent::eventObject ? SensorEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_id, alloc_int (event->id));
-			alloc_field (object, id_type, alloc_int (event->type));
-			alloc_field (object, id_x, alloc_float (event->x));
-			alloc_field (object, id_y, alloc_float (event->y));
-			alloc_field (object, id_z, alloc_float (event->z));
-			
-			val_call0 (SensorEvent::callback->get ());
+			SensorEvent::callback->Call ();
 			
 		}
 		

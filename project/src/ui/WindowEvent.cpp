@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* WindowEvent::callback = 0;
-	AutoGCRoot* WindowEvent::eventObject = 0;
+	ValuePointer* WindowEvent::callback = 0;
+	ValuePointer* WindowEvent::eventObject = 0;
 	
 	static int id_height;
 	static int id_type;
@@ -34,42 +34,71 @@ namespace lime {
 		
 		if (WindowEvent::callback) {
 			
-			if (!init) {
+			if (WindowEvent::eventObject->IsCFFIValue ()) {
 				
-				id_height = val_id ("height");
-				id_type = val_id ("type");
-				id_width = val_id ("width");
-				id_windowID = val_id ("windowID");
-				id_x = val_id ("x");
-				id_y = val_id ("y");
-				init = true;
+				if (!init) {
+					
+					id_height = val_id ("height");
+					id_type = val_id ("type");
+					id_width = val_id ("width");
+					id_windowID = val_id ("windowID");
+					id_x = val_id ("x");
+					id_y = val_id ("y");
+					init = true;
+					
+				}
+				
+				value object = (value)WindowEvent::eventObject->Get ();
+				
+				alloc_field (object, id_type, alloc_int (event->type));
+				alloc_field (object, id_windowID, alloc_int (event->windowID));
+				
+				switch (event->type) {
+					
+					case WINDOW_MOVE:
+						
+						alloc_field (object, id_x, alloc_int (event->x));
+						alloc_field (object, id_y, alloc_int (event->y));
+						break;
+					
+					case WINDOW_RESIZE:
+						
+						alloc_field (object, id_width, alloc_int (event->width));
+						alloc_field (object, id_height, alloc_int (event->height));
+						break;
+					
+					default: break;
+					
+				}
+				
+			} else {
+				
+				HL_WindowEvent* eventObject = (HL_WindowEvent*)WindowEvent::eventObject->Get ();
+				
+				eventObject->type = event->type;
+				eventObject->windowID = event->windowID;
+				
+				switch (event->type) {
+					
+					case WINDOW_MOVE:
+						
+						eventObject->x = event->x;
+						eventObject->y = event->y;
+						break;
+					
+					case WINDOW_RESIZE:
+						
+						eventObject->width = event->width;
+						eventObject->height = event->height;
+						break;
+					
+					default: break;
+					
+				}
 				
 			}
 			
-			value object = (WindowEvent::eventObject ? WindowEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_type, alloc_int (event->type));
-			alloc_field (object, id_windowID, alloc_int (event->windowID));
-			
-			switch (event->type) {
-				
-				case WINDOW_MOVE:
-					
-					alloc_field (object, id_x, alloc_int (event->x));
-					alloc_field (object, id_y, alloc_int (event->y));
-					break;
-				
-				case WINDOW_RESIZE:
-					
-					alloc_field (object, id_width, alloc_int (event->width));
-					alloc_field (object, id_height, alloc_int (event->height));
-					break;
-				
-				default: break;
-				
-			}
-			
-			val_call0 (WindowEvent::callback->get ());
+			WindowEvent::callback->Call ();
 			
 		}
 		

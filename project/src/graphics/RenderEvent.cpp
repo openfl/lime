@@ -5,11 +5,11 @@
 namespace lime {
 	
 	
-	AutoGCRoot* RenderEvent::callback = 0;
-	AutoGCRoot* RenderEvent::eventObject = 0;
+	ValuePointer* RenderEvent::callback = 0;
+	ValuePointer* RenderEvent::eventObject = 0;
 	
-	//static int id_type;
-	//static bool init = false;
+	static int id_type;
+	static bool init = false;
 	
 	
 	RenderEvent::RenderEvent () {
@@ -23,17 +23,27 @@ namespace lime {
 		
 		if (RenderEvent::callback) {
 			
-			//if (!init) {
+			if (RenderEvent::eventObject->IsCFFIValue ()) {
 				
-				//id_type = val_id ("type");
+				if (!init) {
+					
+					id_type = val_id ("type");
+					
+				}
 				
-			//}
+				value object = (value)RenderEvent::eventObject->Get ();
+				
+				alloc_field (object, id_type, alloc_int (event->type));
+				
+			} else {
+				
+				HL_RenderEvent* eventObject = (HL_RenderEvent*)RenderEvent::eventObject->Get ();
+				
+				eventObject->type = event->type;
+				
+			}
 			
-			value object = (RenderEvent::eventObject ? RenderEvent::eventObject->get () : alloc_empty_object ());
-			
-			//alloc_field (object, id_type, alloc_int (event->type));
-			
-			val_call0 (RenderEvent::callback->get ());
+			RenderEvent::callback->Call ();
 			
 		}
 		

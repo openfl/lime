@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* GamepadEvent::callback = 0;
-	AutoGCRoot* GamepadEvent::eventObject = 0;
+	ValuePointer* GamepadEvent::callback = 0;
+	ValuePointer* GamepadEvent::eventObject = 0;
 	
 	static double id_axis;
 	static int id_button;
@@ -31,26 +31,40 @@ namespace lime {
 		
 		if (GamepadEvent::callback) {
 			
-			if (!init) {
+			if (GamepadEvent::eventObject->IsCFFIValue ()) {
 				
-				id_axis = val_id ("axis");
-				id_button = val_id ("button");
-				id_id = val_id ("id");
-				id_type = val_id ("type");
-				id_value = val_id ("value");
-				init = true;
+				if (!init) {
+					
+					id_axis = val_id ("axis");
+					id_button = val_id ("button");
+					id_id = val_id ("id");
+					id_type = val_id ("type");
+					id_value = val_id ("value");
+					init = true;
+					
+				}
+				
+				value object = (value)GamepadEvent::eventObject->Get ();
+				
+				alloc_field (object, id_axis, alloc_int (event->axis));
+				alloc_field (object, id_button, alloc_int (event->button));
+				alloc_field (object, id_id, alloc_int (event->id));
+				alloc_field (object, id_type, alloc_int (event->type));
+				alloc_field (object, id_value, alloc_float (event->axisValue));
+				
+			} else {
+				
+				HL_GamepadEvent* eventObject = (HL_GamepadEvent*)GamepadEvent::eventObject->Get ();
+				
+				eventObject->axis = event->axis;
+				eventObject->button = event->button;
+				eventObject->id = event->id;
+				eventObject->type = event->type;
+				eventObject->value = event->axisValue;
 				
 			}
 			
-			value object = (GamepadEvent::eventObject ? GamepadEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_axis, alloc_int (event->axis));
-			alloc_field (object, id_button, alloc_int (event->button));
-			alloc_field (object, id_id, alloc_int (event->id));
-			alloc_field (object, id_type, alloc_int (event->type));
-			alloc_field (object, id_value, alloc_float (event->axisValue));
-			
-			val_call0 (GamepadEvent::callback->get ());
+			GamepadEvent::callback->Call ();
 			
 		}
 		

@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* DropEvent::callback = 0;
-	AutoGCRoot* DropEvent::eventObject = 0;
+	ValuePointer* DropEvent::callback = 0;
+	ValuePointer* DropEvent::eventObject = 0;
 	
 	static int id_file;
 	static int id_type;
@@ -25,20 +25,32 @@ namespace lime {
 		
 		if (DropEvent::callback) {
 			
-			if (!init) {
+			if (DropEvent::eventObject->IsCFFIValue ()) {
 				
-				id_file = val_id ("file");
-				id_type = val_id ("type");
-				init = true;
+				if (!init) {
+					
+					id_file = val_id ("file");
+					id_type = val_id ("type");
+					init = true;
+					
+				}
+				
+				value object = (value)DropEvent::eventObject->Get ();
+				
+				alloc_field (object, id_file, alloc_string (event->file));
+				alloc_field (object, id_type, alloc_int (event->type));
+				
+			} else {
+				
+				HL_DropEvent* eventObject = (HL_DropEvent*)DropEvent::eventObject->Get ();
+				
+				// TODO
+				// eventObject->file = event->file;
+				eventObject->type = event->type;
 				
 			}
 			
-			value object = (DropEvent::eventObject ? DropEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_file, alloc_string (event->file));
-			alloc_field (object, id_type, alloc_int (event->type));
-			
-			val_call0 (DropEvent::callback->get ());
+			DropEvent::callback->Call ();
 			
 		}
 		

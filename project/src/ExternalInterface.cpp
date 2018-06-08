@@ -182,7 +182,6 @@ namespace lime {
 	value lime_application_create () {
 		
 		Application* application = CreateApplication ();
-		// Application::callback = new ValuePointer (callback);
 		return CFFIPointer (application, gc_application);
 		
 	}
@@ -191,7 +190,6 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* hl_lime_application_create () {
 		
 		Application* application = CreateApplication ();
-		// Application::callback = new ValuePointer (callback);
 		return HLCFFIPointer (application, (hl_finalizer)hl_gc_application);
 		
 	}
@@ -199,16 +197,16 @@ namespace lime {
 	
 	void lime_application_event_manager_register (value callback, value eventObject) {
 		
-		ApplicationEvent::callback = new AutoGCRoot (callback);
-		ApplicationEvent::eventObject = new AutoGCRoot (eventObject);
+		ApplicationEvent::callback = new ValuePointer (callback);
+		ApplicationEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_application_event_manager_register (vclosure* callback, HL_ApplicationEvent* eventObject) {
 		
-		// ApplicationEvent::callback = new AutoGCRoot (callback);
-		// ApplicationEvent::eventObject = new AutoGCRoot (eventObject);
+		ApplicationEvent::callback = new ValuePointer (callback);
+		ApplicationEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -488,16 +486,16 @@ namespace lime {
 	
 	void lime_clipboard_event_manager_register (value callback, value eventObject) {
 		
-		ClipboardEvent::callback = new AutoGCRoot (callback);
-		ClipboardEvent::eventObject = new AutoGCRoot (eventObject);
+		ClipboardEvent::callback = new ValuePointer (callback);
+		ClipboardEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_clipboard_event_manager_register (vclosure* callback, HL_ClipboardEvent* eventObject) {
 		
-		// ClipboardEvent::callback = new AutoGCRoot (callback);
-		// ClipboardEvent::eventObject = new AutoGCRoot (eventObject);
+		ClipboardEvent::callback = new ValuePointer (callback);
+		ClipboardEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -634,16 +632,16 @@ namespace lime {
 	
 	void lime_drop_event_manager_register (value callback, value eventObject) {
 		
-		DropEvent::callback = new AutoGCRoot (callback);
-		DropEvent::eventObject = new AutoGCRoot (eventObject);
+		DropEvent::callback = new ValuePointer (callback);
+		DropEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_drop_event_manager_register (vclosure* callback, HL_DropEvent* eventObject) {
 		
-		// DropEvent::callback = new AutoGCRoot (callback);
-		// DropEvent::eventObject = new AutoGCRoot (eventObject);
+		DropEvent::callback = new ValuePointer (callback);
+		DropEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -1536,16 +1534,16 @@ namespace lime {
 	
 	void lime_gamepad_event_manager_register (value callback, value eventObject) {
 		
-		GamepadEvent::callback = new AutoGCRoot (callback);
-		GamepadEvent::eventObject = new AutoGCRoot (eventObject);
+		GamepadEvent::callback = new ValuePointer (callback);
+		GamepadEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_gamepad_event_manager_register (vclosure* callback, HL_GamepadEvent* eventObject) {
 		
-		// GamepadEvent::callback = new AutoGCRoot (callback);
-		// GamepadEvent::eventObject = new AutoGCRoot (eventObject);
+		GamepadEvent::callback = new ValuePointer (callback);
+		GamepadEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -2214,16 +2212,16 @@ namespace lime {
 	
 	void lime_joystick_event_manager_register (value callback, value eventObject) {
 		
-		JoystickEvent::callback = new AutoGCRoot (callback);
-		JoystickEvent::eventObject = new AutoGCRoot (eventObject);
+		JoystickEvent::callback = new ValuePointer (callback);
+		JoystickEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_joystick_event_manager_register (vclosure* callback, HL_JoystickEvent* eventObject) {
 		
-		// JoystickEvent::callback = new AutoGCRoot (callback);
-		// JoystickEvent::eventObject = new AutoGCRoot (eventObject);
+		JoystickEvent::callback = new ValuePointer (callback);
+		JoystickEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -2420,16 +2418,16 @@ namespace lime {
 	
 	void lime_key_event_manager_register (value callback, value eventObject) {
 		
-		KeyEvent::callback = new AutoGCRoot (callback);
-		KeyEvent::eventObject = new AutoGCRoot (eventObject);
+		KeyEvent::callback = new ValuePointer (callback);
+		KeyEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_key_event_manager_register (vclosure* callback, HL_KeyEvent* eventObject) {
 		
-		// KeyEvent::callback = new AutoGCRoot (callback);
-		// KeyEvent::eventObject = new AutoGCRoot (eventObject);
+		KeyEvent::callback = new ValuePointer (callback);
+		KeyEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -2541,16 +2539,16 @@ namespace lime {
 	
 	void lime_mouse_event_manager_register (value callback, value eventObject) {
 		
-		MouseEvent::callback = new AutoGCRoot (callback);
-		MouseEvent::eventObject = new AutoGCRoot (eventObject);
+		MouseEvent::callback = new ValuePointer (callback);
+		MouseEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_mouse_event_manager_register (vclosure* callback, HL_MouseEvent* eventObject) {
 		
-		// MouseEvent::callback = new AutoGCRoot (callback);
-		// MouseEvent::eventObject = new AutoGCRoot (eventObject);
+		MouseEvent::callback = new ValuePointer (callback);
+		MouseEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -2726,16 +2724,16 @@ namespace lime {
 	
 	void lime_render_event_manager_register (value callback, value eventObject) {
 		
-		RenderEvent::callback = new AutoGCRoot (callback);
-		RenderEvent::eventObject = new AutoGCRoot (eventObject);
+		RenderEvent::callback = new ValuePointer (callback);
+		RenderEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_render_event_manager_register (vclosure* callback, HL_RenderEvent* eventObject) {
 		
-		// RenderEvent::callback = new AutoGCRoot (callback);
-		// RenderEvent::eventObject = new AutoGCRoot (eventObject);
+		RenderEvent::callback = new ValuePointer (callback);
+		RenderEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -2821,15 +2819,14 @@ namespace lime {
 	
 	value lime_renderer_lock (value renderer) {
 		
-		return ((Renderer*)val_data (renderer))->Lock ();
+		return (value)((Renderer*)val_data (renderer))->Lock (true);
 		
 	}
 	
 	
 	HL_PRIM vdynamic* hl_lime_renderer_lock (HL_CFFIPointer* renderer) {
 		
-		// return ((Renderer*)renderer->ptr)->Lock ();
-		return 0;
+		return (vdynamic*)((Renderer*)renderer->ptr)->Lock (false);
 		
 	}
 	
@@ -2907,16 +2904,16 @@ namespace lime {
 	
 	void lime_sensor_event_manager_register (value callback, value eventObject) {
 		
-		SensorEvent::callback = new AutoGCRoot (callback);
-		SensorEvent::eventObject = new AutoGCRoot (eventObject);
+		SensorEvent::callback = new ValuePointer (callback);
+		SensorEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_sensor_event_manager_register (vclosure* callback, HL_SensorEvent* eventObject) {
 		
-		// SensorEvent::callback = new AutoGCRoot (callback);
-		// SensorEvent::eventObject = new AutoGCRoot (eventObject);
+		SensorEvent::callback = new ValuePointer (callback);
+		SensorEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -3342,16 +3339,16 @@ namespace lime {
 	
 	void lime_text_event_manager_register (value callback, value eventObject) {
 		
-		TextEvent::callback = new AutoGCRoot (callback);
-		TextEvent::eventObject = new AutoGCRoot (eventObject);
+		TextEvent::callback = new ValuePointer (callback);
+		TextEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_text_event_manager_register (vclosure* callback, HL_TextEvent* eventObject) {
 		
-		// TextEvent::callback = new AutoGCRoot (callback);
-		// TextEvent::eventObject = new AutoGCRoot (eventObject);
+		TextEvent::callback = new ValuePointer (callback);
+		TextEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -3484,16 +3481,16 @@ namespace lime {
 	
 	void lime_touch_event_manager_register (value callback, value eventObject) {
 		
-		TouchEvent::callback = new AutoGCRoot (callback);
-		TouchEvent::eventObject = new AutoGCRoot (eventObject);
+		TouchEvent::callback = new ValuePointer (callback);
+		TouchEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_touch_event_manager_register (vclosure* callback, HL_TouchEvent* eventObject) {
 		
-		// TouchEvent::callback = new AutoGCRoot (callback);
-		// TouchEvent::eventObject = new AutoGCRoot (eventObject);
+		TouchEvent::callback = new ValuePointer (callback);
+		TouchEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -3548,16 +3545,16 @@ namespace lime {
 	
 	void lime_window_event_manager_register (value callback, value eventObject) {
 		
-		WindowEvent::callback = new AutoGCRoot (callback);
-		WindowEvent::eventObject = new AutoGCRoot (eventObject);
+		WindowEvent::callback = new ValuePointer (callback);
+		WindowEvent::eventObject = new ValuePointer (eventObject);
 		
 	}
 	
 	
 	HL_PRIM void hl_lime_window_event_manager_register (vclosure* callback, HL_WindowEvent* eventObject) {
 		
-		// WindowEvent::callback = new AutoGCRoot (callback);
-		// WindowEvent::eventObject = new AutoGCRoot (eventObject);
+		WindowEvent::callback = new ValuePointer (callback);
+		WindowEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 		
 	}
 	
@@ -4152,52 +4149,183 @@ namespace lime {
 	
 	
 	#define _ENUM "?"
-	// #define TCFFIPOINTER _ABSTRACT (HL_CFFIPointer)
-	#define TCFFIPOINTER _DYN
-	#define TBYTES _OBJ (_I32 _BYTES)
-	#define TARRAYBUFFER TBYTES
-	#define TARRAYBUFFERVIEW _OBJ (_I32 TARRAYBUFFER _I32 _I32 _I32 _I32)
-	#define TIMAGEBUFFER _OBJ (_I32 TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
-	#define TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
-	#define TIMAGE _OBJ (TIMAGEBUFFER _BOOL _I32 _I32 _I32 TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
-	// #define TNATIVE_APPLICATION _ABSTRACT (Application)
+	// #define _TCFFIPOINTER _ABSTRACT (HL_CFFIPointer)
+	#define _TAPPLICATION_EVENT _OBJ (_I32 _I32)
+	#define _TARRAYBUFFER _TBYTES
+	#define _TBYTES _OBJ (_I32 _BYTES)
+	#define _TCFFIPOINTER _DYN
+	#define _TCLIPBOARD_EVENT _OBJ (_I32)
+	#define _TDROP_EVENT _OBJ (_STRING _I32)
+	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64)
+	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
+	#define _TKEY_EVENT _OBJ (_I32 _I32 _I32 _I32)
+	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64)
+	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
+	#define _TRENDER_EVENT _OBJ (_ENUM _I32)
+	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
+	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _STRING _I32 _I32)
+	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
+	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
 	
-	DEFINE_HL_PRIM (TCFFIPOINTER, lime_application_create, _NO_ARG);
-	// DEFINE_PRIME2v (lime_application_event_manager_register);
-	DEFINE_HL_PRIM (_I32, lime_application_exec, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_application_init, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_application_quit, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_application_set_frame_rate, TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_BOOL, lime_application_update, TCFFIPOINTER);
+	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
+	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
+	#define _TIMAGE _OBJ (_TIMAGEBUFFER _BOOL _I32 _I32 _I32 _TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
+	
+	
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_application_create, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, lime_application_event_manager_register, _FUN(_VOID, _NO_ARG) _TAPPLICATION_EVENT);
+	DEFINE_HL_PRIM (_I32, lime_application_exec, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_application_init, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_application_quit, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_application_set_frame_rate, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_BOOL, lime_application_update, _TCFFIPOINTER);
+	// DEFINE_PRIME2 (lime_audio_load);
+	// DEFINE_PRIME2 (lime_bytes_from_data_pointer);
+	// DEFINE_PRIME1 (lime_bytes_get_data_pointer);
+	// DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
+	// DEFINE_PRIME2 (lime_bytes_read_file);
+	// DEFINE_PRIME1 (lime_cffi_get_native_pointer);
+	// DEFINE_PRIME1 (lime_cffi_set_finalizer);
+	DEFINE_HL_PRIM (_VOID, lime_clipboard_event_manager_register, _FUN(_VOID, _NO_ARG) _TCLIPBOARD_EVENT);
+	// DEFINE_PRIME0 (lime_clipboard_get_text);
+	// DEFINE_PRIME1v (lime_clipboard_set_text);
+	// DEFINE_PRIME2 (lime_data_pointer_offset);
+	// DEFINE_PRIME2 (lime_deflate_compress);
+	// DEFINE_PRIME2 (lime_deflate_decompress);
+	DEFINE_HL_PRIM (_VOID, lime_drop_event_manager_register, _FUN(_VOID, _NO_ARG) _TDROP_EVENT);
+	// DEFINE_PRIME3 (lime_file_dialog_open_directory);
+	// DEFINE_PRIME3 (lime_file_dialog_open_file);
+	// DEFINE_PRIME3 (lime_file_dialog_open_files);
+	// DEFINE_PRIME3 (lime_file_dialog_save_file);
+	// DEFINE_PRIME1 (lime_file_watcher_create);
+	// DEFINE_PRIME3 (lime_file_watcher_add_directory);
+	// DEFINE_PRIME2v (lime_file_watcher_remove_directory);
+	// DEFINE_PRIME1v (lime_file_watcher_update);
+	// DEFINE_PRIME1 (lime_font_get_ascender);
+	// DEFINE_PRIME1 (lime_font_get_descender);
+	// DEFINE_PRIME1 (lime_font_get_family_name);
+	// DEFINE_PRIME2 (lime_font_get_glyph_index);
+	// DEFINE_PRIME2 (lime_font_get_glyph_indices);
+	// DEFINE_PRIME2 (lime_font_get_glyph_metrics);
+	// DEFINE_PRIME1 (lime_font_get_height);
+	// DEFINE_PRIME1 (lime_font_get_num_glyphs);
+	// DEFINE_PRIME1 (lime_font_get_underline_position);
+	// DEFINE_PRIME1 (lime_font_get_underline_thickness);
+	// DEFINE_PRIME1 (lime_font_get_units_per_em);
+	// DEFINE_PRIME1 (lime_font_load);
+	// DEFINE_PRIME2 (lime_font_outline_decompose);
+	// DEFINE_PRIME3 (lime_font_render_glyph);
+	// DEFINE_PRIME3 (lime_font_render_glyphs);
+	// DEFINE_PRIME2v (lime_font_set_size);
 	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _DYN);
-	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, TIMAGE TRECTANGLE _I32 _I32);
-	DEFINE_HL_PRIM (TCFFIPOINTER, lime_renderer_create, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_renderer_flip, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64, lime_renderer_get_context, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64, lime_renderer_get_scale, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BYTES, lime_renderer_get_type, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_renderer_lock, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_renderer_make_current, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_renderer_read_pixels, TCFFIPOINTER TRECTANGLE TIMAGEBUFFER);
-	DEFINE_HL_PRIM (_VOID, lime_renderer_unlock, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_window_alert, TCFFIPOINTER _BYTES _BYTES);
-	DEFINE_HL_PRIM (_VOID, lime_window_close, TCFFIPOINTER);
-	DEFINE_HL_PRIM (TCFFIPOINTER, lime_window_create, TCFFIPOINTER _I32 _I32 _I32 _STRING);
-	// DEFINE_PRIME2v (_VOID, lime_window_event_manager_register, TCFFIPOINTER );
-	DEFINE_HL_PRIM (_VOID, lime_window_focus, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_window_get_display, TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
+	// DEFINE_PRIME1 (lime_gamepad_get_device_guid);
+	// DEFINE_PRIME1 (lime_gamepad_get_device_name);
+	// DEFINE_PRIME2 (lime_gzip_compress);
+	// DEFINE_PRIME2 (lime_gzip_decompress);
+	// DEFINE_PRIME2v (lime_haptic_vibrate);
+	// DEFINE_PRIME3v (lime_image_data_util_color_transform);
+	// DEFINE_PRIME6v (lime_image_data_util_copy_channel);
+	// DEFINE_PRIME7v (lime_image_data_util_copy_pixels);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, _TIMAGE _TRECTANGLE _I32 _I32);
+	// DEFINE_PRIME5v (lime_image_data_util_flood_fill);
+	// DEFINE_PRIME4v (lime_image_data_util_get_pixels);
+	// DEFINE_PRIME8v (lime_image_data_util_merge);
+	// DEFINE_PRIME1v (lime_image_data_util_multiply_alpha);
+	// DEFINE_PRIME4v (lime_image_data_util_resize);
+	// DEFINE_PRIME2v (lime_image_data_util_set_format);
+	// DEFINE_PRIME6v (lime_image_data_util_set_pixels);
+	// DEFINE_PRIME12 (lime_image_data_util_threshold);
+	// DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
+	// DEFINE_PRIME4 (lime_image_encode);
+	// DEFINE_PRIME2 (lime_image_load);
+	// DEFINE_PRIME0 (lime_jni_getenv);
+	DEFINE_HL_PRIM (_VOID, lime_joystick_event_manager_register, _FUN(_VOID, _NO_ARG) _TJOYSTICK_EVENT);
+	// DEFINE_PRIME1 (lime_joystick_get_device_guid);
+	// DEFINE_PRIME1 (lime_joystick_get_device_name);
+	// DEFINE_PRIME1 (lime_joystick_get_num_axes);
+	// DEFINE_PRIME1 (lime_joystick_get_num_buttons);
+	// DEFINE_PRIME1 (lime_joystick_get_num_hats);
+	// DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
+	// DEFINE_PRIME3 (lime_jpeg_decode_bytes);
+	// DEFINE_PRIME3 (lime_jpeg_decode_file);
+	// DEFINE_PRIME1 (lime_key_code_from_scan_code);
+	// DEFINE_PRIME1 (lime_key_code_to_scan_code);
+	DEFINE_HL_PRIM (_VOID, lime_key_event_manager_register, _FUN (_VOID, _NO_ARG) _TKEY_EVENT);
+	// DEFINE_PRIME0 (lime_locale_get_system_locale);
+	// DEFINE_PRIME2 (lime_lzma_compress);
+	// DEFINE_PRIME2 (lime_lzma_decompress);
+	DEFINE_HL_PRIM (_VOID, lime_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
+	// DEFINE_PRIME0v (lime_mouse_hide);
+	// DEFINE_PRIME1v (lime_mouse_set_cursor);
+	// DEFINE_PRIME1v (lime_mouse_set_lock);
+	// DEFINE_PRIME0v (lime_mouse_show);
+	// DEFINE_PRIME3v (lime_mouse_warp);
+	// DEFINE_PRIME1v (lime_neko_execute);
+	// DEFINE_PRIME3 (lime_png_decode_bytes);
+	// DEFINE_PRIME3 (lime_png_decode_file);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_renderer_create, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_renderer_flip, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, lime_renderer_get_context, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, lime_renderer_get_scale, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, lime_renderer_get_type, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, lime_renderer_lock, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_renderer_make_current, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, lime_renderer_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_VOID, lime_renderer_unlock, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_render_event_manager_register, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
+	DEFINE_HL_PRIM (_VOID, lime_sensor_event_manager_register, _FUN (_VOID, _NO_ARG) _TSENSOR_EVENT);
+	// DEFINE_PRIME2v (lime_render_event_manager_register);
+	// DEFINE_PRIME2v (lime_sensor_event_manager_register);
+	// DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
+	// DEFINE_PRIME0 (lime_system_get_device_model);
+	// DEFINE_PRIME0 (lime_system_get_device_vendor);
+	// DEFINE_PRIME3 (lime_system_get_directory);
+	// DEFINE_PRIME1 (lime_system_get_display);
+	// DEFINE_PRIME0 (lime_system_get_ios_tablet);
+	// DEFINE_PRIME0 (lime_system_get_num_displays);
+	// DEFINE_PRIME0 (lime_system_get_platform_label);
+	// DEFINE_PRIME0 (lime_system_get_platform_name);
+	// DEFINE_PRIME0 (lime_system_get_platform_version);
+	// DEFINE_PRIME0 (lime_system_get_timer);
+	// DEFINE_PRIME1 (lime_system_get_windows_console_mode);
+	// DEFINE_PRIME1v (lime_system_open_file);
+	// DEFINE_PRIME2v (lime_system_open_url);
+	// DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
+	// DEFINE_PRIME2 (lime_system_set_windows_console_mode);
+	DEFINE_HL_PRIM (_VOID, lime_text_event_manager_register, _FUN (_VOID, _NO_ARG) _TTEXT_EVENT);
+	// DEFINE_PRIME3 (lime_text_layout_create);
+	// DEFINE_PRIME5 (lime_text_layout_position);
+	// DEFINE_PRIME2v (lime_text_layout_set_direction);
+	// DEFINE_PRIME2v (lime_text_layout_set_language);
+	// DEFINE_PRIME2v (lime_text_layout_set_script);
+	DEFINE_HL_PRIM (_VOID, lime_touch_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
+	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _BYTES _BYTES);
+	DEFINE_HL_PRIM (_VOID, lime_window_close, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
+	DEFINE_HL_PRIM (_VOID, lime_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
+	DEFINE_HL_PRIM (_VOID, lime_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_display, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_window_get_display_mode);
-	DEFINE_HL_PRIM (_BOOL, lime_window_get_enable_text_events, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_window_get_height, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_window_get_id, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_window_get_width, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_window_get_x, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_window_get_y, TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_window_move, TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_window_resize, TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, TCFFIPOINTER _BOOL);
-	// DEFINE_PRIME2 (lime_window_set_display_mode, TCFFIPOINTER );
-	DEFINE_HL_PRIM (_VOID, lime_window_set_enable_text_events, TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, lime_window_get_enable_text_events, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_height, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_id, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_width, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_x, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_window_get_y, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_window_move, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, lime_window_resize, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, _TCFFIPOINTER _BOOL);
+	// DEFINE_PRIME2 (lime_window_set_display_mode, _TCFFIPOINTER );
+	DEFINE_HL_PRIM (_VOID, lime_window_set_enable_text_events, _TCFFIPOINTER _BOOL);
+	// DEFINE_PRIME2 (lime_window_set_fullscreen);
+	// DEFINE_PRIME2v (lime_window_set_icon);
+	// DEFINE_PRIME2 (lime_window_set_maximized);
+	// DEFINE_PRIME2 (lime_window_set_minimized);
+	// DEFINE_PRIME2 (lime_window_set_resizable);
+	// DEFINE_PRIME2 (lime_window_set_title);
+	// DEFINE_PRIME2 (lime_zlib_compress);
+	// DEFINE_PRIME2 (lime_zlib_decompress);
 	
 	
 }

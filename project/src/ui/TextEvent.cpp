@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* TextEvent::callback = 0;
-	AutoGCRoot* TextEvent::eventObject = 0;
+	ValuePointer* TextEvent::callback = 0;
+	ValuePointer* TextEvent::eventObject = 0;
 	
 	static int id_length;
 	static int id_start;
@@ -29,31 +29,51 @@ namespace lime {
 		
 		if (TextEvent::callback) {
 			
-			if (!init) {
+			if (TextEvent::eventObject->IsCFFIValue ()) {
 				
-				id_length = val_id ("length");
-				id_start = val_id ("start");
-				id_text = val_id ("text");
-				id_type = val_id ("type");
-				id_windowID = val_id ("windowID");
-				init = true;
+				if (!init) {
+					
+					id_length = val_id ("length");
+					id_start = val_id ("start");
+					id_text = val_id ("text");
+					id_type = val_id ("type");
+					id_windowID = val_id ("windowID");
+					init = true;
+					
+				}
+				
+				value object = (value)TextEvent::eventObject->Get ();
+				
+				if (event->type != TEXT_INPUT) {
+					
+					alloc_field (object, id_length, alloc_int (event->length));
+					alloc_field (object, id_start, alloc_int (event->start));
+					
+				}
+				
+				alloc_field (object, id_text, alloc_string (event->text));
+				alloc_field (object, id_type, alloc_int (event->type));
+				alloc_field (object, id_windowID, alloc_int (event->windowID));
+				
+			} else {
+				
+				HL_TextEvent* eventObject = (HL_TextEvent*)TextEvent::eventObject->Get ();
+				
+				if (event->type != TEXT_INPUT) {
+					
+					eventObject->length = event->length;
+					eventObject->start = event->start;
+					
+				}
+				
+				// TODO
+				//eventObject->text = event->text;
+				eventObject->type = event->type;
+				eventObject->windowID = event->windowID;
 				
 			}
 			
-			value object = (TextEvent::eventObject ? TextEvent::eventObject->get () : alloc_empty_object ());
-			
-			if (event->type != TEXT_INPUT) {
-				
-				alloc_field (object, id_length, alloc_int (event->length));
-				alloc_field (object, id_start, alloc_int (event->start));
-				
-			}
-			
-			alloc_field (object, id_text, alloc_string (event->text));
-			alloc_field (object, id_type, alloc_int (event->type));
-			alloc_field (object, id_windowID, alloc_int (event->windowID));
-			
-			val_call0 (TextEvent::callback->get ());
+			TextEvent::callback->Call ();
 			
 		}
 		

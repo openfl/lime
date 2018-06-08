@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* ApplicationEvent::callback = 0;
-	AutoGCRoot* ApplicationEvent::eventObject = 0;
+	ValuePointer* ApplicationEvent::callback = 0;
+	ValuePointer* ApplicationEvent::eventObject = 0;
 	
 	static int id_deltaTime;
 	static int id_type;
@@ -25,20 +25,31 @@ namespace lime {
 		
 		if (ApplicationEvent::callback) {
 			
-			if (!init) {
+			if (ApplicationEvent::eventObject->IsCFFIValue ()) {
 				
-				id_deltaTime = val_id ("deltaTime");
-				id_type = val_id ("type");
-				init = true;
+				if (!init) {
+					
+					id_deltaTime = val_id ("deltaTime");
+					id_type = val_id ("type");
+					init = true;
+					
+				}
+				
+				value object = (value)ApplicationEvent::eventObject->Get ();
+				
+				alloc_field (object, id_deltaTime, alloc_int (event->deltaTime));
+				alloc_field (object, id_type, alloc_int (event->type));
+				
+			} else {
+				
+				HL_ApplicationEvent* eventObject = (HL_ApplicationEvent*)ApplicationEvent::eventObject->Get ();
+				
+				eventObject->deltaTime = event->deltaTime;
+				eventObject->type = event->type;
 				
 			}
 			
-			value object = (ApplicationEvent::eventObject ? ApplicationEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_deltaTime, alloc_int (event->deltaTime));
-			alloc_field (object, id_type, alloc_int (event->type));
-			
-			val_call0 (ApplicationEvent::callback->get ());
+			ApplicationEvent::callback->Call ();
 			
 		}
 		

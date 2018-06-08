@@ -5,8 +5,8 @@
 namespace lime {
 	
 	
-	AutoGCRoot* ClipboardEvent::callback = 0;
-	AutoGCRoot* ClipboardEvent::eventObject = 0;
+	ValuePointer* ClipboardEvent::callback = 0;
+	ValuePointer* ClipboardEvent::eventObject = 0;
 	
 	static int id_type;
 	static bool init = false;
@@ -23,18 +23,28 @@ namespace lime {
 		
 		if (ClipboardEvent::callback) {
 			
-			if (!init) {
+			if (ClipboardEvent::eventObject->IsCFFIValue ()) {
 				
-				id_type = val_id ("type");
-				init = true;
+				if (!init) {
+					
+					id_type = val_id ("type");
+					init = true;
+					
+				}
+				
+				value object = (value)ClipboardEvent::eventObject->Get ();
+				
+				alloc_field (object, id_type, alloc_int (event->type));
+				
+			} else {
+				
+				HL_ClipboardEvent* eventObject = (HL_ClipboardEvent*)ClipboardEvent::eventObject->Get ();
+				
+				eventObject->type = event->type;
 				
 			}
 			
-			value object = (ClipboardEvent::eventObject ? ClipboardEvent::eventObject->get () : alloc_empty_object ());
-			
-			alloc_field (object, id_type, alloc_int (event->type));
-			
-			val_call0 (ClipboardEvent::callback->get ());
+			ClipboardEvent::callback->Call ();
 			
 		}
 		

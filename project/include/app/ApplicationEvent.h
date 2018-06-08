@@ -4,6 +4,7 @@
 
 #include <hl.h>
 #include <hx/CFFI.h>
+#include <system/ValuePointer.h>
 
 
 namespace lime {
@@ -30,8 +31,8 @@ namespace lime {
 		
 		public:
 			
-			static AutoGCRoot* callback;
-			static AutoGCRoot* eventObject;
+			static ValuePointer* callback;
+			static ValuePointer* eventObject;
 			
 			ApplicationEvent ();
 			

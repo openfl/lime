@@ -17,7 +17,6 @@ namespace lime {
 	AutoGCRoot* Application::callback = 0;
 	SDLApplication* SDLApplication::currentApplication = 0;
 	
-
 	const int analogAxisDeadZone = 1000;
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;

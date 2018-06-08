@@ -13,6 +13,10 @@ import lime.media.openal.ALAuxiliaryEffectSlot;
 import lime.system.CFFIPointer;
 import lime.utils.DataPointer;
 
+#if hl
+import lime._backend.native.NativeApplication;
+#end
+
 #if cpp
 import cpp.Float32;
 #else
@@ -188,7 +192,7 @@ class NativeCFFI {
 	
 	#if hl
 	@:hlNative("lime", "lime_application_create") private static function lime_application_create ():CFFIPointer { return null; }
-	@:cffi private static function lime_application_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_application_event_manager_register") private static function lime_application_event_manager_register (callback:Void->Void, eventObject:ApplicationEventInfo):Void {}
 	@:hlNative("lime", "lime_application_exec") private static function lime_application_exec (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_application_init") private static function lime_application_init (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_application_quit") private static function lime_application_quit (handle:CFFIPointer):Int { return 0; }
@@ -200,13 +204,13 @@ class NativeCFFI {
 	@:cffi private static function lime_bytes_get_data_pointer_offset (data:Dynamic, offset:Int):Float;
 	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
-	@:cffi private static function lime_clipboard_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_clipboard_event_manager_register") private static function lime_clipboard_event_manager_register (callback:Void->Void, eventObject:ClipboardEventInfo):Void {}
 	@:cffi private static function lime_clipboard_get_text ():Dynamic;
 	@:cffi private static function lime_clipboard_set_text (text:String):Void;
 	@:cffi private static function lime_data_pointer_offset (dataPointer:DataPointer, offset:Int):Float;
 	@:cffi private static function lime_deflate_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_deflate_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_drop_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_drop_event_manager_register") private static function lime_drop_event_manager_register (callback:Void->Void, eventObject:DropEventInfo):Void {}
 	@:cffi private static function lime_file_dialog_open_directory (title:String, filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_file (title:String, filter:String, defaultPath:String):Dynamic;
 	@:cffi private static function lime_file_dialog_open_files (title:String, filter:String, defaultPath:String):Dynamic;
@@ -234,7 +238,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gamepad_add_mappings (mappings:Dynamic):Void;
 	@:cffi private static function lime_gamepad_get_device_guid (id:Int):Dynamic;
 	@:cffi private static function lime_gamepad_get_device_name (id:Int):Dynamic;
-	@:cffi private static function lime_gamepad_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register (callback:Void->Void, eventObject:GamepadEventInfo):Void {}
 	@:cffi private static function lime_gzip_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_gzip_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_haptic_vibrate (period:Int, duration:Int):Void;
@@ -259,12 +263,12 @@ class NativeCFFI {
 	@:cffi private static function lime_joystick_get_num_buttons (id:Int):Int;
 	@:cffi private static function lime_joystick_get_num_hats (id:Int):Int;
 	@:cffi private static function lime_joystick_get_num_trackballs (id:Int):Int;
-	@:cffi private static function lime_joystick_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_joystick_event_manager_register") private static function lime_joystick_event_manager_register (callback:Void->Void, eventObject:JoystickEventInfo):Void {}
 	@:cffi private static function lime_jpeg_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_jpeg_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_key_code_from_scan_code (scanCode:Float32):Float32;
 	@:cffi private static function lime_key_code_to_scan_code (keyCode:Float32):Float32;
-	@:cffi private static function lime_key_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_key_event_manager_register") private static function lime_key_event_manager_register (callback:Void->Void, eventObject:KeyEventInfo):Void {}
 	@:cffi private static function lime_lzma_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_lzma_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_mouse_hide ():Void;
@@ -272,21 +276,21 @@ class NativeCFFI {
 	@:cffi private static function lime_mouse_set_lock (lock:Bool):Void;
 	@:cffi private static function lime_mouse_show ():Void;
 	@:cffi private static function lime_mouse_warp (x:Int, y:Int, window:Dynamic):Void;
-	@:cffi private static function lime_mouse_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_mouse_event_manager_register") private static function lime_mouse_event_manager_register (callback:Void->Void, eventObject:MouseEventInfo):Void {}
 	@:cffi private static function lime_neko_execute (module:String):Void;
 	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_create (window:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_flip (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_get_context (handle:Dynamic):Float;
-	@:cffi private static function lime_renderer_get_scale (handle:Dynamic):Float;
-	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_unlock (handle:Dynamic):Void;
-	@:cffi private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
-	@:cffi private static function lime_sensor_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_renderer_create") private static function lime_renderer_create (window:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_renderer_flip") private static function lime_renderer_flip (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_renderer_get_context") private static function lime_renderer_get_context (handle:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_renderer_get_scale") private static function lime_renderer_get_scale (handle:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_renderer_get_type") private static function lime_renderer_get_type (handle:CFFIPointer):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_renderer_lock") private static function lime_renderer_lock (handle:CFFIPointer):Dynamic { return null; }
+	@:hlNative("lime", "lime_renderer_make_current") private static function lime_renderer_make_current (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_renderer_read_pixels") private static function lime_renderer_read_pixels (handle:CFFIPointer, rect:Rectangle, imageBuffer:ImageBuffer):Dynamic { return null; }
+	@:hlNative("lime", "lime_renderer_unlock") private static function lime_renderer_unlock (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_render_event_manager_register") private static function lime_render_event_manager_register (callback:Void->Void, eventObject:RenderEventInfo):Void {}
+	@:hlNative("lime", "lime_sensor_event_manager_register") private static function lime_sensor_event_manager_register (callback:Void->Void, eventObject:SensorEventInfo):Void {}
 	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
 	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
 	@:cffi private static function lime_system_get_device_model ():Dynamic;
@@ -301,13 +305,13 @@ class NativeCFFI {
 	@:cffi private static function lime_system_get_timer ():Float;
 	@:cffi private static function lime_system_open_file (path:String):Void;
 	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
-	@:cffi private static function lime_text_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_text_event_manager_register") private static function lime_text_event_manager_register (callback:Void->Void, eventObject:TextEventInfo):Void {}
 	@:cffi private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic;
 	@:cffi private static function lime_text_layout_position (textHandle:Dynamic, fontHandle:Dynamic, size:Int, textString:String, data:Dynamic):Dynamic;
 	@:cffi private static function lime_text_layout_set_direction (textHandle:Dynamic, direction:Int):Void;
 	@:cffi private static function lime_text_layout_set_language (textHandle:Dynamic, language:String):Void;
 	@:cffi private static function lime_text_layout_set_script (textHandle:Dynamic, script:String):Void;
-	@:cffi private static function lime_touch_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_touch_event_manager_register") private static function lime_touch_event_manager_register (callback:Void->Void, eventObject:TouchEventInfo):Void {}
 	@:cffi private static function lime_window_alert (handle:Dynamic, message:String, title:String):Void;
 	@:cffi private static function lime_window_close (handle:Dynamic):Void;
 	@:cffi private static function lime_window_create (application:Dynamic, width:Int, height:Int, flags:Int, title:String):Dynamic;
@@ -331,7 +335,7 @@ class NativeCFFI {
 	@:cffi private static function lime_window_set_minimized (handle:Dynamic, minimized:Bool):Bool;
 	@:cffi private static function lime_window_set_resizable (handle:Dynamic, resizable:Bool):Bool;
 	@:cffi private static function lime_window_set_title (handle:Dynamic, title:String):Dynamic;
-	@:cffi private static function lime_window_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
+	@:hlNative("lime", "lime_window_event_manager_register") private static function lime_window_event_manager_register (callback:Void->Void, eventObject:WindowEventInfo):Void {}
 	@:cffi private static function lime_zlib_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_zlib_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
 	#end
@@ -468,6 +472,7 @@ class NativeCFFI {
 	#end
 	
 	#if (lime_cffi && !macro && lime_cairo)
+	#if !hl
 	@:cffi private static function lime_cairo_arc (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 	@:cffi private static function lime_cairo_arc_negative (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 	@:cffi private static function lime_cairo_clip (handle:CFFIPointer):Void;
@@ -585,6 +590,127 @@ class NativeCFFI {
 	@:cffi private static function lime_cairo_pattern_set_filter (handle:CFFIPointer, filter:Int):Void;
 	@:cffi private static function lime_cairo_pattern_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void;
 	@:cffi private static function lime_cairo_surface_flush (surface:CFFIPointer):Void;
+	#end
+	
+	#if hl
+	@:cffi private static function lime_cairo_arc (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
+	@:cffi private static function lime_cairo_arc_negative (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
+	@:cffi private static function lime_cairo_clip (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_clip_preserve (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_clip_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
+	@:cffi private static function lime_cairo_close_path (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_copy_page (handle:CFFIPointer):Void;
+	@:hlNative("lime", "lime_cairo_create") private static function lime_cairo_create (handle:CFFIPointer):CFFIPointer { return null; }
+	@:cffi private static function lime_cairo_curve_to (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float):Void;
+	@:cffi private static function lime_cairo_fill (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_fill_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
+	@:cffi private static function lime_cairo_fill_preserve (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_get_antialias (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_get_current_point (handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_get_dash (handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_get_dash_count (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_get_fill_rule (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_get_font_face (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_get_font_options (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_get_group_target (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_get_line_cap (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_get_line_join (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_get_line_width (handle:CFFIPointer):Float;
+	@:cffi private static function lime_cairo_get_matrix (handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_get_miter_limit (handle:CFFIPointer):Float;
+	@:cffi private static function lime_cairo_get_operator (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_get_source (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_get_target (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_get_tolerance (handle:CFFIPointer):Float;
+	@:cffi private static function lime_cairo_has_current_point (handle:CFFIPointer):Bool;
+	@:cffi private static function lime_cairo_identity_matrix (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_in_clip (handle:CFFIPointer, x:Float, y:Float):Bool;
+	@:cffi private static function lime_cairo_in_fill (handle:CFFIPointer, x:Float, y:Float):Bool;
+	@:cffi private static function lime_cairo_in_stroke (handle:CFFIPointer, x:Float, y:Float):Bool;
+	@:cffi private static function lime_cairo_line_to (handle:CFFIPointer, x:Float, y:Float):Void;
+	@:cffi private static function lime_cairo_mask (handle:CFFIPointer, pattern:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_mask_surface (handle:CFFIPointer, surface:CFFIPointer, x:Float, y:Float):Void;
+	@:cffi private static function lime_cairo_move_to (handle:CFFIPointer, x:Float, y:Float):Void;
+	@:cffi private static function lime_cairo_new_path (handle:CFFIPointer):Void;
+	@:hlNative("lime", "lime_cairo_paint") private static function lime_cairo_paint (handle:CFFIPointer):Void {}
+	@:cffi private static function lime_cairo_paint_with_alpha (handle:CFFIPointer, alpha:Float):Void;
+	@:cffi private static function lime_cairo_pop_group (handle:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_pop_group_to_source (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_push_group (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_push_group_with_content (handle:CFFIPointer, content:Int):Void;
+	@:cffi private static function lime_cairo_rectangle (handle:CFFIPointer, x:Float, y:Float, width:Float, height:Float):Void;
+	@:cffi private static function lime_cairo_rel_curve_to (handle:CFFIPointer, dx1:Float, dy1:Float, dx2:Float, dy2:Float, dx3:Float, dy3:Float):Void;
+	@:cffi private static function lime_cairo_rel_line_to (handle:CFFIPointer, dx:Float, dy:Float):Void;
+	@:cffi private static function lime_cairo_rel_move_to (handle:CFFIPointer, dx:Float, dy:Float):Void;
+	@:cffi private static function lime_cairo_reset_clip (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_restore (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_rotate (handle:CFFIPointer, amount:Float):Void;
+	@:cffi private static function lime_cairo_save (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_scale (handle:CFFIPointer, x:Float, y:Float):Void;
+	@:cffi private static function lime_cairo_set_antialias (handle:CFFIPointer, cap:Int):Void;
+	@:cffi private static function lime_cairo_set_dash (handle:CFFIPointer, dash:Dynamic):Void;
+	@:cffi private static function lime_cairo_set_fill_rule (handle:CFFIPointer, cap:Int):Void;
+	@:cffi private static function lime_cairo_set_font_face (handle:CFFIPointer, face:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_set_font_options (handle:CFFIPointer, options:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_set_font_size (handle:CFFIPointer, size:Float):Void;
+	@:cffi private static function lime_cairo_set_line_cap (handle:CFFIPointer, cap:Int):Void;
+	@:cffi private static function lime_cairo_set_line_join (handle:CFFIPointer, join:Int):Void;
+	@:cffi private static function lime_cairo_set_line_width (handle:CFFIPointer, width:Float):Void;
+	@:cffi private static function lime_cairo_set_matrix (handle:CFFIPointer, a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void;
+	//@:cffi private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void;
+	@:cffi private static function lime_cairo_set_miter_limit (handle:CFFIPointer, miterLimit:Float):Void;
+	@:cffi private static function lime_cairo_set_operator (handle:CFFIPointer, op:Int):Void;
+	@:cffi private static function lime_cairo_set_source (handle:CFFIPointer, pattern:CFFIPointer):Void;
+	@:hlNative("lime", "lime_cairo_set_source_rgb") private static function lime_cairo_set_source_rgb (handle:CFFIPointer, r:Float, g:Float, b:Float):Void {}
+	@:cffi private static function lime_cairo_set_source_rgba (handle:CFFIPointer, r:Float, g:Float, b:Float, a:Float):Void;
+	@:cffi private static function lime_cairo_set_source_surface (handle:CFFIPointer, surface:CFFIPointer, x:Float, y:Float):Void;
+	@:cffi private static function lime_cairo_set_tolerance (handle:CFFIPointer, tolerance:Float):Void;
+	@:cffi private static function lime_cairo_show_glyphs (handle:CFFIPointer, glyphs:Dynamic):Void;
+	@:cffi private static function lime_cairo_show_page (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_show_text (handle:CFFIPointer, text:String):Void;
+	@:cffi private static function lime_cairo_status (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_stroke (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_stroke_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
+	@:cffi private static function lime_cairo_stroke_preserve (handle:CFFIPointer):Void;
+	@:cffi private static function lime_cairo_text_path (handle:CFFIPointer, text:String):Void;
+	@:cffi private static function lime_cairo_transform (handle:CFFIPointer, matrix:Dynamic):Void;
+	@:cffi private static function lime_cairo_translate (handle:CFFIPointer, x:Float, y:Float):Void;
+	@:cffi private static function lime_cairo_version ():Int;
+	@:cffi private static function lime_cairo_version_string ():String;
+	@:cffi private static function lime_cairo_font_face_status (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_create ():CFFIPointer;
+	@:cffi private static function lime_cairo_font_options_get_antialias (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_get_hint_metrics (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_get_hint_style (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_get_subpixel_order (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_font_options_set_antialias (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_set_hint_metrics (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_set_hint_style (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_font_options_set_subpixel_order (handle:CFFIPointer, v:Int):Void;
+	@:cffi private static function lime_cairo_ft_font_face_create (face:CFFIPointer, flags:Int):CFFIPointer;
+	@:cffi private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):CFFIPointer;
+	@:hlNative("lime", "lime_cairo_image_surface_create_for_data") private static function lime_cairo_image_surface_create_for_data (data:DataPointer, format:Int, width:Int, height:Int, stride:Int):CFFIPointer { return null; }
+	@:cffi private static function lime_cairo_image_surface_get_data (handle:CFFIPointer):DataPointer;
+	@:cffi private static function lime_cairo_image_surface_get_format (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_image_surface_get_height (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_image_surface_get_stride (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_image_surface_get_width (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_add_color_stop_rgb (handle:CFFIPointer, offset:Float, red:Float, green:Float, blue:Float):Void;
+	@:cffi private static function lime_cairo_pattern_add_color_stop_rgba (handle:CFFIPointer, offset:Float, red:Float, green:Float, blue:Float, alpha:Float):Void;
+	@:cffi private static function lime_cairo_pattern_create_for_surface (surface:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_linear (x0:Float, y0:Float, x1:Float, y1:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_radial (cx0:Float, cy0:Float, radius0:Float, cx1:Float, cy1:Float, radius1:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_rgb (r:Float, g:Float, b:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_create_rgba (r:Float, g:Float, b:Float, a:Float):CFFIPointer;
+	@:cffi private static function lime_cairo_pattern_get_color_stop_count (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_get_extend (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_get_filter (handle:CFFIPointer):Int;
+	@:cffi private static function lime_cairo_pattern_get_matrix (handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_pattern_set_extend (handle:CFFIPointer, extend:Int):Void;
+	@:cffi private static function lime_cairo_pattern_set_filter (handle:CFFIPointer, filter:Int):Void;
+	@:cffi private static function lime_cairo_pattern_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void;
+	@:hlNative("lime", "lime_cairo_surface_flush") private static function lime_cairo_surface_flush (surface:CFFIPointer):Void {}
+	#end
 	#end
 	
 	#if (lime_cffi && !macro && lime_curl)

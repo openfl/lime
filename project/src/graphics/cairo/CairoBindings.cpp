@@ -1,3 +1,6 @@
+#define HL_NAME(n) hl_##n
+#include <hl.h>
+
 #include <cairo.h>
 #include <cairo-ft.h>
 #include <map>
@@ -32,6 +35,16 @@ namespace lime {
 			cairo_destroy (cairo);
 			
 		}
+		
+	}
+	
+	
+	void hl_gc_cairo (cairo_t* cairo) {
+		
+		// cairoObjects_Mutex.Lock ();
+		// cairoObjects.erase (cairo);
+		// cairoObjects_Mutex.Unlock ();
+		cairo_destroy (cairo);
 		
 	}
 	
@@ -89,6 +102,16 @@ namespace lime {
 			cairo_surface_destroy (surface);
 			
 		}
+		
+	}
+	
+	
+	void hl_gc_cairo_surface (cairo_surface_t* surface) {
+		
+		// cairoObjects_Mutex.Lock ();
+		// cairoObjects.erase (surface);
+		// cairoObjects_Mutex.Unlock ();
+		cairo_surface_destroy (surface);
 		
 	}
 	
@@ -158,6 +181,19 @@ namespace lime {
 		cairoObjects_Mutex.Lock ();
 		cairoObjects[cairo] = object;
 		cairoObjects_Mutex.Unlock ();
+		return object;
+		
+	}
+	
+	
+	HL_PRIM HL_CFFIPointer* hl_lime_cairo_create (HL_CFFIPointer* surface) {
+		
+		cairo_t* cairo = cairo_create ((cairo_surface_t*)surface->ptr);
+		
+		HL_CFFIPointer* object = HLCFFIPointer (cairo, (hl_finalizer)hl_gc_cairo);
+		// cairoObjects_Mutex.Lock ();
+		// cairoObjects[cairo] = object;
+		// cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -530,6 +566,19 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM HL_CFFIPointer* hl_lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
+		
+		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
+		
+		HL_CFFIPointer* object = HLCFFIPointer (surface, (hl_finalizer)hl_gc_cairo_surface);
+		// cairoObjects_Mutex.Lock ();
+		// cairoObjects[surface] = object;
+		// cairoObjects_Mutex.Unlock ();
+		return object;
+		
+	}
+	
+	
 	double lime_cairo_image_surface_get_data (value handle) {
 		
 		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle));
@@ -624,6 +673,13 @@ namespace lime {
 	void lime_cairo_paint (value handle) {
 		
 		cairo_paint ((cairo_t*)val_data (handle));
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_cairo_paint (HL_CFFIPointer* handle) {
+		
+		cairo_paint ((cairo_t*)handle->ptr);
 		
 	}
 	
@@ -1025,6 +1081,13 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_cairo_set_source_rgb (HL_CFFIPointer* handle, double r, double g, double b) {
+		
+		cairo_set_source_rgb ((cairo_t*)handle->ptr, r, g, b);
+		
+	}
+	
+	
 	void lime_cairo_set_source_rgba (value handle, double r, double g, double b, double a) {
 		
 		cairo_set_source_rgba ((cairo_t*)val_data (handle), r, g, b, a);
@@ -1121,6 +1184,13 @@ namespace lime {
 	void lime_cairo_surface_flush (value handle) {
 		
 		cairo_surface_flush ((cairo_surface_t*)val_data (handle));
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_cairo_surface_flush (HL_CFFIPointer* handle) {
+		
+		cairo_surface_flush ((cairo_surface_t*)handle->ptr);
 		
 	}
 	
@@ -1283,6 +1353,15 @@ namespace lime {
 	DEFINE_PRIME3v (lime_cairo_translate);
 	DEFINE_PRIME0 (lime_cairo_version);
 	DEFINE_PRIME0 (lime_cairo_version_string);
+	
+	
+	#define _TCFFIPOINTER _DYN
+	
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_create, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_image_surface_create_for_data, _F64 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source_rgb, _TCFFIPOINTER _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, lime_cairo_surface_flush, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_cairo_paint, _TCFFIPOINTER);
 	
 	
 }

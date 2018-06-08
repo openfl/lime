@@ -296,6 +296,7 @@
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/system/System.cpp" unless="ios" />
 		<file name="src/system/System.mm" if="ios" />
+		<file name="src/system/ValuePointer.cpp" />
 		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
 		<file name="src/ui/Haptic.mm" if="ios" />
