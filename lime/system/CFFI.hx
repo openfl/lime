@@ -60,7 +60,7 @@ class CFFI {
 	 */
 	public static function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
-		#if (disable_cffi || macro)
+		#if (disable_cffi || macro || hl)
 		var enabled = false;
 		#end
 		
@@ -200,7 +200,7 @@ class CFFI {
 	
 	public static macro function loadPrime (library:String, method:String, signature:String, lazy:Bool = false):Dynamic {
 		
-		#if (!display && !macro)
+		#if (!display && !macro && cpp)
 		return cpp.Prime.load (library, method, signature, lazy);
 		#else
 		var args = signature.length - 1;

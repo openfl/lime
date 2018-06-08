@@ -334,7 +334,7 @@ class NativeCFFI {
 	@:cffi private static function lime_window_set_maximized (handle:Dynamic, maximized:Bool):Bool;
 	@:cffi private static function lime_window_set_minimized (handle:Dynamic, minimized:Bool):Bool;
 	@:cffi private static function lime_window_set_resizable (handle:Dynamic, resizable:Bool):Bool;
-	@:cffi private static function lime_window_set_title (handle:Dynamic, title:String):Dynamic;
+	@:hlNative("lime", "lime_window_set_title") private static function lime_window_set_title (handle:CFFIPointer, title:String):String { return null; }
 	@:hlNative("lime", "lime_window_event_manager_register") private static function lime_window_event_manager_register (callback:Void->Void, eventObject:WindowEventInfo):Void {}
 	@:cffi private static function lime_zlib_compress (data:Dynamic, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_zlib_decompress (data:Dynamic, bytes:Dynamic):Dynamic;

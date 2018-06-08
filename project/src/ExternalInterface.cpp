@@ -69,8 +69,9 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_application (Application* application) {
+	void hl_gc_application (HL_CFFIPointer* handle) {
 		
+		Application* application = (Application*)handle->ptr;
 		delete application;
 		
 	}
@@ -86,9 +87,10 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_file_watcher (FileWatcher* watcher) {
+	void hl_gc_file_watcher (HL_CFFIPointer* handle) {
 		
 		#ifdef LIME_EFSW
+		FileWatcher* watcher = (FileWatcher*)handle->ptr;
 		delete watcher;
 		#endif
 		
@@ -105,9 +107,10 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_font (Font* font) {
+	void hl_gc_font (HL_CFFIPointer* handle) {
 		
 		#ifdef LIME_FREETYPE
+		Font* font = (Font*)handle->ptr;
 		delete font;
 		#endif
 		
@@ -122,8 +125,9 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_renderer (Renderer* renderer) {
+	void hl_gc_renderer (HL_CFFIPointer* handle) {
 		
+		Renderer* renderer = (Renderer*)handle->ptr;
 		delete renderer;
 		
 	}
@@ -139,9 +143,10 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_text_layout (TextLayout* text) {
+	void hl_gc_text_layout (HL_CFFIPointer* handle) {
 		
 		#ifdef LIME_HARFBUZZ
+		TextLayout* text = (TextLayout*)handle->ptr;
 		delete text;
 		#endif
 		
@@ -156,8 +161,9 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_window (Window* window) {
+	void hl_gc_window (HL_CFFIPointer* handle) {
 		
+		Window* window = (Window*)handle->ptr;
 		delete window;
 		
 	}
@@ -3537,7 +3543,7 @@ namespace lime {
 	
 	HL_PRIM HL_CFFIPointer* hl_lime_window_create (HL_CFFIPointer* application, int width, int height, int flags, HL_String* title) {
 		
-		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)title->bytes);
+		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes));
 		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
 		
 	}
@@ -3903,10 +3909,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_window_set_title (HL_CFFIPointer* window, vbyte* title) {
+	HL_PRIM HL_String* hl_lime_window_set_title (HL_CFFIPointer* window, HL_String* title) {
 		
 		Window* targetWindow = (Window*)window->ptr;
-		const char* result = targetWindow->SetTitle ((char*)title);
+		const char* result = targetWindow->SetTitle ((char*)hl_to_utf8 ((const uchar*)title->bytes));
 		
 		if (result) {
 			
@@ -3919,7 +3925,8 @@ namespace lime {
 			// }
 			
 			// return _result;
-			return (vbyte*)result;
+			//return (vbyte*)result;
+			return title;
 			
 		} else {
 			
@@ -4323,7 +4330,7 @@ namespace lime {
 	// DEFINE_PRIME2 (lime_window_set_maximized);
 	// DEFINE_PRIME2 (lime_window_set_minimized);
 	// DEFINE_PRIME2 (lime_window_set_resizable);
-	// DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_HL_PRIM (_STRING, lime_window_set_title, _TCFFIPOINTER _STRING);
 	// DEFINE_PRIME2 (lime_zlib_compress);
 	// DEFINE_PRIME2 (lime_zlib_decompress);
 	

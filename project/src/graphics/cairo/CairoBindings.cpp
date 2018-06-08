@@ -20,7 +20,7 @@ namespace lime {
 	static int id_y;
 	static bool init = false;
 	cairo_user_data_key_t userData;
-	std::map<void*, value> cairoObjects;
+	std::map<void*, void*> cairoObjects;
 	Mutex cairoObjects_Mutex;
 	
 	
@@ -39,11 +39,13 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_cairo (cairo_t* cairo) {
+	void hl_gc_cairo (HL_CFFIPointer* handle) {
 		
-		// cairoObjects_Mutex.Lock ();
-		// cairoObjects.erase (cairo);
-		// cairoObjects_Mutex.Unlock ();
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		
+		cairoObjects_Mutex.Lock ();
+		cairoObjects.erase (cairo);
+		cairoObjects_Mutex.Unlock ();
 		cairo_destroy (cairo);
 		
 	}
@@ -106,11 +108,13 @@ namespace lime {
 	}
 	
 	
-	void hl_gc_cairo_surface (cairo_surface_t* surface) {
+	void hl_gc_cairo_surface (HL_CFFIPointer* handle) {
 		
-		// cairoObjects_Mutex.Lock ();
-		// cairoObjects.erase (surface);
-		// cairoObjects_Mutex.Unlock ();
+		cairo_surface_t* surface = (cairo_surface_t*)handle->ptr;
+		
+		cairoObjects_Mutex.Lock ();
+		cairoObjects.erase (surface);
+		cairoObjects_Mutex.Unlock ();
 		cairo_surface_destroy (surface);
 		
 	}
@@ -191,9 +195,9 @@ namespace lime {
 		cairo_t* cairo = cairo_create ((cairo_surface_t*)surface->ptr);
 		
 		HL_CFFIPointer* object = HLCFFIPointer (cairo, (hl_finalizer)hl_gc_cairo);
-		// cairoObjects_Mutex.Lock ();
-		// cairoObjects[cairo] = object;
-		// cairoObjects_Mutex.Unlock ();
+		cairoObjects_Mutex.Lock ();
+		cairoObjects[cairo] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -379,7 +383,7 @@ namespace lime {
 		
 		if (cairoObjects.find (face) != cairoObjects.end ()) {
 			
-			return cairoObjects[face];
+			return (value)cairoObjects[face];
 			
 		} else {
 			
@@ -411,7 +415,7 @@ namespace lime {
 		
 		if (cairoObjects.find (surface) != cairoObjects.end ()) {
 			
-			return cairoObjects[surface];
+			return (value)cairoObjects[surface];
 			
 		} else {
 			
@@ -479,7 +483,7 @@ namespace lime {
 		
 		if (cairoObjects.find (pattern) != cairoObjects.end ()) {
 			
-			return cairoObjects[pattern];
+			return (value)cairoObjects[pattern];
 			
 		} else {
 			
@@ -502,7 +506,7 @@ namespace lime {
 		
 		if (cairoObjects.find (surface) != cairoObjects.end ()) {
 			
-			return cairoObjects[surface];
+			return (value)cairoObjects[surface];
 			
 		} else {
 			
@@ -571,9 +575,9 @@ namespace lime {
 		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
 		
 		HL_CFFIPointer* object = HLCFFIPointer (surface, (hl_finalizer)hl_gc_cairo_surface);
-		// cairoObjects_Mutex.Lock ();
-		// cairoObjects[surface] = object;
-		// cairoObjects_Mutex.Unlock ();
+		cairoObjects_Mutex.Lock ();
+		cairoObjects[surface] = object;
+		cairoObjects_Mutex.Unlock ();
 		return object;
 		
 	}
@@ -835,7 +839,7 @@ namespace lime {
 		
 		if (cairoObjects.find (pattern) != cairoObjects.end ()) {
 			
-			return cairoObjects[pattern];
+			return (value)cairoObjects[pattern];
 			
 		} else {
 			

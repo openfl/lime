@@ -191,6 +191,7 @@ namespace lime {
 	}
 	
 	
+	
 	void* SDLRenderer::Lock (bool useCFFIValue) {
 		
 		if (sdlRenderer) {
@@ -232,14 +233,19 @@ namespace lime {
 				
 			} else {
 				
+				const int id_width = hl_hash_utf8 ("width");
+				const int id_height = hl_hash_utf8 ("height");
+				const int id_pixels = hl_hash_utf8 ("pixels");
+				const int id_pitch = hl_hash_utf8 ("pitch");
+				
 				vdynamic* result = (vdynamic*)hl_alloc_dynobj ();
 				
 				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
 					
-					hl_dyn_seti (result, hl_hash_utf8 ("width"), &hlt_i32, width);
-					hl_dyn_seti (result, hl_hash_utf8 ("height"), &hlt_i32, height);
-					hl_dyn_setd (result, hl_hash_utf8 ("pixels"), (uintptr_t)pixels);
-					hl_dyn_seti (result, hl_hash_utf8 ("pitch"), &hlt_i32, pitch);
+					hl_dyn_seti (result, id_width, &hlt_i32, width);
+					hl_dyn_seti (result, id_height, &hlt_i32, height);
+					hl_dyn_setd (result, id_pixels, (uintptr_t)pixels);
+					hl_dyn_seti (result, id_pitch, &hlt_i32, pitch);
 					
 				}
 				
