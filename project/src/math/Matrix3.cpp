@@ -61,6 +61,32 @@ namespace lime {
 	}
 	
 	
+	Matrix3::Matrix3 (HL_Matrix3* matrix3) {
+		
+		a = matrix3->a;
+		b = matrix3->b;
+		c = matrix3->c;
+		d = matrix3->d;
+		tx = matrix3->tx;
+		ty = matrix3->ty;
+		
+	}
+	
+	
+	vdynamic* Matrix3::Dynamic () {
+		
+		HL_Matrix3* result = (HL_Matrix3*)malloc (sizeof (HL_Matrix3));
+		result->a = a;
+		result->b = b;
+		result->c = c;
+		result->d = d;
+		result->tx = tx;
+		result->ty = ty;
+		return (vdynamic*) result;
+		
+	}
+	
+	
 	value Matrix3::Value () {
 		
 		value result = alloc_empty_object ();

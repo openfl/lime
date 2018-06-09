@@ -28,6 +28,7 @@ namespace lime {
 			Vector2 (double x, double y);
 			Vector2 (value vec);
 			
+			vdynamic* Dynamic ();
 			value Value ();
 			
 			double x;

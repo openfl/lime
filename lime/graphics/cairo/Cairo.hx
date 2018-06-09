@@ -208,15 +208,6 @@ class Cairo {
 	}
 	
 	
-	public function moveTo (x:Float, y:Float):Void {
-		
-		#if (lime_cffi && lime_cairo && !macro)
-		NativeCFFI.lime_cairo_move_to (handle, x, y);
-		#end
-		
-	}
-	
-	
 	public function mask (pattern:CairoPattern):Void {
 		
 		#if (lime_cffi && lime_cairo && !macro)
@@ -230,6 +221,15 @@ class Cairo {
 		
 		#if (lime_cffi && lime_cairo && !macro)
 		NativeCFFI.lime_cairo_mask_surface (handle, surface, x, y);
+		#end
+		
+	}
+	
+	
+	public function moveTo (x:Float, y:Float):Void {
+		
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_move_to (handle, x, y);
 		#end
 		
 	}
@@ -362,10 +362,28 @@ class Cairo {
 	}
 	
 	
+	public function rotate (amount:Float):Void {
+		
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_rotate (handle, amount);
+		#end
+		
+	}
+	
+	
 	public function save ():Void {
 		
 		#if (lime_cffi && lime_cairo && !macro)
 		NativeCFFI.lime_cairo_save (handle);
+		#end
+		
+	}
+	
+	
+	public function scale (x:Float, y:Float):Void {
+		
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_scale (handle, x, y);
 		#end
 		
 	}
@@ -485,22 +503,6 @@ class Cairo {
 		
 		#if (lime_cffi && lime_cairo && !macro)
 		NativeCFFI.lime_cairo_transform (handle, matrix);
-		#end
-		
-	}
-	
-	public function rotate (amount:Float):Void {
-		
-		#if (lime_cffi && lime_cairo && !macro)
-		NativeCFFI.lime_cairo_rotate (handle, amount);
-		#end
-		
-	}
-	
-	public function scale (x:Float, y:Float):Void {
-		
-		#if (lime_cffi && lime_cairo && !macro)
-		NativeCFFI.lime_cairo_scale (handle, x, y);
 		#end
 		
 	}
@@ -881,7 +883,11 @@ class Cairo {
 	private static function get_versionString ():String {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return @:privateAccess String.fromUTF8 ( NativeCFFI.lime_cairo_version_string ());
+		#else
 		return NativeCFFI.lime_cairo_version_string ();
+		#end
 		#else
 		return "";
 		#end
