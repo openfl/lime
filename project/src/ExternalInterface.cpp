@@ -4313,7 +4313,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, lime_window_focus, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_display, _TCFFIPOINTER);
-	// DEFINE_PRIME1 (lime_window_get_display_mode);
+	DEFINE_HL_PRIM (_DYN, lime_window_get_display_mode, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, lime_window_get_enable_text_events, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_height, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_id, _TCFFIPOINTER);

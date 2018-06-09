@@ -1,4 +1,4 @@
-package lime.media.openal; #if !hl
+package lime.media.openal;
 
 
 import lime.system.CFFIPointer;
@@ -18,8 +18,3 @@ abstract ALDevice(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 }
-
-
-#else
-typedef ALDevice = hl.Abstract<"alc_device">;
-#end

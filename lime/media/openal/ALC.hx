@@ -174,7 +174,7 @@ class ALC {
 	
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
-		#if (lime_cffi && lime_openal && !macro) #if !hl
+		#if (lime_cffi && lime_openal && !macro)
 		var handle:Dynamic = NativeCFFI.lime_alc_open_device (deviceName);
 		
 		if (handle != null) {
@@ -182,10 +182,7 @@ class ALC {
 			return new ALDevice (handle);
 			
 		}
-		#else
-		var deviceName = (deviceName != null ? hl.Bytes.fromValue (deviceName, null) : null);
-		return NativeCFFI.hl_lime_alc_open_device (deviceName);
-		#end #end
+		#end
 		
 		return null;
 		

@@ -14,10 +14,12 @@
 
 #define HL_NAME(n) hl_##n
 #include <hl.h>
+
 #include <hx/CFFIPrime.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
 #include <utils/ArrayBufferView.h>
+#include <utils/String.h>
 #include <list>
 #include <map>
 
@@ -32,19 +34,24 @@ namespace lime {
 	std::list<time_t> alDeletedSourceTime;
 	#endif
 	
-	std::map<ALuint, value> alObjects;
-	std::map<void*, value> alcObjects;
+	std::map<ALuint, void*> alObjects;
+	std::map<void*, void*> alcObjects;
 	Mutex al_gc_mutex;
 	
 	
 	#ifdef LIME_OPENALSOFT
 	void lime_al_delete_auxiliary_effect_slot (value aux);
+	HL_PRIM void hl_lime_al_delete_auxiliary_effect_slot (HL_CFFIPointer* aux);
 	#endif
 	void lime_al_delete_buffer (value buffer);
 	void lime_al_delete_source (value source);
+	HL_PRIM void hl_lime_al_delete_buffer (HL_CFFIPointer* buffer);
+	HL_PRIM void hl_lime_al_delete_source (HL_CFFIPointer* source);
 	#ifdef LIME_OPENALSOFT
 	void lime_al_delete_effect (value effect);
 	void lime_al_delete_filter (value filter);
+	HL_PRIM void hl_lime_al_delete_effect (HL_CFFIPointer* effect);
+	HL_PRIM void hl_lime_al_delete_filter (HL_CFFIPointer* filter);
 	#endif
 	
 	
@@ -55,10 +62,24 @@ namespace lime {
 	}
 	
 	
+	void hl_gc_al_buffer (HL_CFFIPointer* buffer) {
+		
+		hl_lime_al_delete_buffer (buffer);
+		
+	}
+	
+	
 	#ifdef LIME_OPENALSOFT
 	void gc_al_auxiliary_effect_slot (value aux) {
 		
 		lime_al_delete_auxiliary_effect_slot (aux);
+		
+	}
+	
+	
+	void hl_gc_al_auxiliary_effect_slot (HL_CFFIPointer* aux) {
+		
+		hl_lime_al_delete_auxiliary_effect_slot (aux);
 		
 	}
 	#endif
@@ -71,10 +92,24 @@ namespace lime {
 	}
 	
 	
+	void hl_gc_al_source (HL_CFFIPointer* source) {
+		
+		hl_lime_al_delete_source (source);
+		
+	}
+	
+	
 	#ifdef LIME_OPENALSOFT
 	void gc_al_effect (value effect) {
 		
 		lime_al_delete_effect (effect);
+		
+	}
+	
+	
+	void hl_gc_al_effect (HL_CFFIPointer* effect) {
+		
+		hl_lime_al_delete_effect (effect);
 		
 	}
 	
@@ -84,6 +119,13 @@ namespace lime {
 		lime_al_delete_filter (filter);
 		
 	}
+	
+	
+	void hl_gc_al_filter (HL_CFFIPointer* filter) {
+		
+		hl_lime_al_delete_filter (filter);
+		
+	}
 	#endif
 	
 	
@@ -91,6 +133,15 @@ namespace lime {
 		
 		al_gc_mutex.Lock ();
 		alcObjects.erase (val_data (object));
+		al_gc_mutex.Unlock ();
+		
+	}
+	
+	
+	void hl_gc_alc_object (HL_CFFIPointer* object) {
+		
+		al_gc_mutex.Lock ();
+		alcObjects.erase (object->ptr);
 		al_gc_mutex.Unlock ();
 		
 	}
@@ -128,6 +179,16 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_auxf (HL_CFFIPointer* aux, int param, float value) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)aux->ptr;
+		alAuxiliaryEffectSlotf (id, param, value);
+		#endif
+		
+	}
+	
+	
 	void lime_al_auxfv (value aux, int param, value values) {
 		
 		#ifdef LIME_OPENALSOFT
@@ -141,6 +202,32 @@ namespace lime {
 			for (int i = 0; i < size; ++i) {
 				
 				data[i] = (ALfloat)val_float (val_array_i (values, i));
+				
+			}
+			
+			alAuxiliaryEffectSlotfv (id, param, data);
+			delete[] data;
+			
+		}
+		#endif
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_auxfv (HL_CFFIPointer* aux, int param, varray* values) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)aux->ptr;
+		
+		if (values) {
+			
+			int size = values->size;
+			double* valueData = hl_aptr (values, double);
+			ALfloat *data = new ALfloat[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = *valueData++;
 				
 			}
 			
@@ -175,6 +262,30 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_auxi (HL_CFFIPointer* aux, int param, vdynamic* val) {
+		
+		// TODO
+		
+		// #ifdef LIME_OPENALSOFT
+		// ALuint id = (ALuint)(uintptr_t)aux->ptr;
+		// ALuint data;
+		
+		// if (param == AL_EFFECTSLOT_EFFECT) {
+			
+		// 	data = (ALuint)(uintptr_t)val->ptr;
+			
+		// } else {
+			
+		// 	data = val;
+			
+		// }
+		
+		// alAuxiliaryEffectSloti (id, param, data);
+		// #endif
+		
+	}
+	
+	
 	void lime_al_auxiv (value aux, int param, value values) {
 		
 		#ifdef LIME_OPENALSOFT
@@ -200,11 +311,35 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_auxiv (HL_CFFIPointer* aux, int param, varray* values) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)aux->ptr;
+		
+		if (values) {
+			
+			alAuxiliaryEffectSlotiv (id, param, hl_aptr (values, int));
+			
+		}
+		#endif
+		
+	}
+	
+	
 	void lime_al_buffer_data (value buffer, int format, value data, int size, int freq) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		ArrayBufferView bufferView (data);
-		alBufferData(id, format, bufferView.Data (), size, freq);
+		alBufferData (id, format, bufferView.Data (), size, freq);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_buffer_data (HL_CFFIPointer* buffer, int format, HL_ArrayBufferView* data, int size, int freq) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
+		ArrayBufferView bufferView (data);
+		alBufferData (id, format, bufferView.Data (), size, freq);
 		
 	}
 	
@@ -212,6 +347,14 @@ namespace lime {
 	void lime_al_buffer3f (value buffer, int param, float value1, float value2, float value3) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
+		alBuffer3f (id, param, value1, value2, value3);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_buffer3f (HL_CFFIPointer* buffer, int param, float value1, float value2, float value3) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		alBuffer3f (id, param, value1, value2, value3);
 		
 	}
@@ -225,11 +368,27 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_buffer3i (HL_CFFIPointer* buffer, int param, int value1, int value2, int value3) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
+		alBuffer3i (id, param, value1, value2, value3);
+		
+	}
+	
+	
 	void lime_al_bufferf (value buffer, int param, float value) {
-
+		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		alBufferf (id, param, value);
-
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_bufferf (HL_CFFIPointer* buffer, int param, float value) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
+		alBufferf (id, param, value);
+		
 	}
 	
 	
@@ -256,10 +415,42 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_bufferfv (HL_CFFIPointer* buffer, int param, varray* values) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
+		
+		if (values) {
+			
+			int size = values->size;
+			double* valueData = hl_aptr (values, double);
+			ALfloat *data = new ALfloat[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = *valueData++;
+				
+			}
+			
+			alBufferfv (id, param, data);
+			delete[] data;
+			
+		}
+		
+	}
+	
+	
 	void lime_al_bufferi (value buffer, int param, int value) {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		alBufferi(id, param, value);
+		alBufferi (id, param, value);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_bufferi (HL_CFFIPointer* buffer, int param, int value) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
+		alBufferi (id, param, value);
 		
 	}
 	
@@ -281,6 +472,19 @@ namespace lime {
 			
 			alBufferiv (id, param, data);
 			delete[] data;
+			
+		}
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_bufferiv (HL_CFFIPointer* buffer, int param, varray* values) {
+		
+		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
+		
+		if (values) {
+			
+			alBufferiv (id, param, hl_aptr (values, int));
 			
 		}
 		
@@ -362,6 +566,24 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_delete_auxiliary_effect_slot (HL_CFFIPointer* aux) {
+		
+		#ifdef LIME_OPENALSOFT
+		if (aux) {
+			
+			al_gc_mutex.Lock ();
+			ALuint data = (ALuint)(uintptr_t)aux->ptr;
+			aux->finalizer = 0;
+			alDeleteAuxiliaryEffectSlots ((ALuint)1, &data);
+			alObjects.erase (data);
+			al_gc_mutex.Unlock ();
+			
+		}
+		#endif
+		
+	}
+	
+	
 	void lime_al_delete_buffer (value buffer) {
 		
 		if (!val_is_null (buffer)) {
@@ -369,6 +591,27 @@ namespace lime {
 			al_gc_mutex.Lock ();
 			ALuint data = (ALuint)(uintptr_t)val_data (buffer);
 			val_gc (buffer, 0);
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			alDeletedBuffer.push_back (data);
+			alDeletedBufferTime.push_back (time (0));
+			#else
+			alDeleteBuffers ((ALuint)1, &data);
+			#endif
+			alObjects.erase (data);
+			al_gc_mutex.Unlock ();
+			
+		}
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_delete_buffer (HL_CFFIPointer* buffer) {
+		
+		if (buffer) {
+			
+			al_gc_mutex.Lock ();
+			ALuint data = (ALuint)(uintptr_t)buffer->ptr;
+			buffer->finalizer = 0;
 			#ifdef LIME_OPENAL_DELETION_DELAY
 			alDeletedBuffer.push_back (data);
 			alDeletedBufferTime.push_back (time (0));
@@ -423,6 +666,53 @@ namespace lime {
 			delete[] data;
 			#endif
 			
+			al_gc_mutex.Unlock ();
+			
+		}
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_delete_buffers (int n, varray* buffers) {
+		
+		if (buffers) {
+			
+			int size = buffers->size;
+			HL_CFFIPointer** bufferData = hl_aptr (buffers, HL_CFFIPointer*);
+			HL_CFFIPointer* buffer;
+			
+			al_gc_mutex.Lock ();
+			
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			ALuint data;
+			
+			for (int i = 0; i < size; ++i) {
+				
+				buffer = *bufferData++;
+				data = (ALuint)(uintptr_t)buffer->ptr;
+				alDeletedBuffer.push_back (data);
+				alDeletedBufferTime.push_back (time (0));
+				buffer->finalizer = 0;
+				alObjects.erase (data);
+				
+			}
+			
+			#else
+			
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				buffer = *bufferData++;
+				data[i] = (ALuint)(uintptr_t)buffer->ptr;
+				buffer->finalizer = 0;
+				alObjects.erase (data[i]);
+				
+			}
+			
+			alDeleteBuffers (n, data);
+			delete[] data;
+			#endif
 			
 			al_gc_mutex.Unlock ();
 			
@@ -446,6 +736,21 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_delete_effect (HL_CFFIPointer* effect) {
+		
+		#ifdef LIME_OPENALSOFT
+		if (effect) {
+			
+			ALuint data = (ALuint)(uintptr_t)effect->ptr;
+			alDeleteEffects (1, &data);
+			effect->finalizer = 0;
+			
+		}
+		#endif
+		
+	}
+	
+	
 	void lime_al_delete_filter (value filter) {
 		
 		#ifdef LIME_OPENALSOFT
@@ -461,12 +766,48 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_delete_filter (HL_CFFIPointer* filter) {
+		
+		#ifdef LIME_OPENALSOFT
+		if (filter) {
+			
+			ALuint data = (ALuint)(uintptr_t)filter->ptr;
+			alDeleteFilters (1, &data);
+			filter->finalizer = 0;
+			
+		}
+		#endif
+		
+	}
+	
+	
 	void lime_al_delete_source (value source) {
 		
 		if (!val_is_null (source)) {
 			
 			ALuint data = (ALuint)(uintptr_t)val_data (source);
 			val_gc (source, 0);
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			al_gc_mutex.Lock ();
+			alSourcei (data, AL_BUFFER, 0);
+			alDeletedSource.push_back (data);
+			alDeletedSourceTime.push_back (time (0));
+			al_gc_mutex.Unlock ();
+			#else
+			alDeleteSources (1, &data);
+			#endif
+			
+		}
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_delete_source (HL_CFFIPointer* source) {
+		
+		if (source) {
+			
+			ALuint data = (ALuint)(uintptr_t)source->ptr;
+			source->finalizer = 0;
 			#ifdef LIME_OPENAL_DELETION_DELAY
 			al_gc_mutex.Lock ();
 			alSourcei (data, AL_BUFFER, 0);
@@ -527,7 +868,60 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_delete_sources (int n, varray* sources) {
+		
+		if (sources) {
+			
+			int size = sources->size;
+			HL_CFFIPointer** sourceData = hl_aptr (sources, HL_CFFIPointer*);
+			HL_CFFIPointer* source;
+			
+			#ifdef LIME_OPENAL_DELETION_DELAY
+			al_gc_mutex.Lock ();
+			ALuint data;
+			
+			for (int i = 0; i < size; ++i) {
+				
+				source = *sourceData++;
+				data = (ALuint)(uintptr_t)source->ptr;
+				alSourcei (data, AL_BUFFER, 0);
+				alDeletedSource.push_back (data);
+				alDeletedSourceTime.push_back (time (0));
+				source->finalizer = 0;
+				
+			}
+			
+			al_gc_mutex.Unlock ();
+			
+			#else
+			
+			ALuint* data = new ALuint[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				source = *sourceData++;
+				data[i] = (ALuint)(uintptr_t)source->ptr;
+				source->finalizer = 0;
+				
+			}
+			
+			alDeleteSources (n, data);
+			delete[] data;
+			#endif
+			
+		}
+		
+	}
+	
+	
 	void lime_al_disable (int capability) {
+		
+		alDisable (capability);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_disable (int capability) {
 		
 		alDisable (capability);
 		
@@ -541,7 +935,21 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_distance_model (int distanceModel) {
+		
+		alDistanceModel (distanceModel);
+		
+	}
+	
+	
 	void lime_al_doppler_factor (float factor) {
+		
+		alDopplerFactor (factor);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_doppler_factor (float factor) {
 		
 		alDopplerFactor (factor);
 		
@@ -555,10 +963,27 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_doppler_velocity (float velocity) {
+		
+		alDopplerVelocity (velocity);
+		
+	}
+	
+	
 	void lime_al_effectf (value effect, int param, float value) {
 		
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (effect);
+		alEffectf (id, param, value);
+		#endif
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_effectf (HL_CFFIPointer* effect, int param, float value) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)effect->ptr;
 		alEffectf (id, param, value);
 		#endif
 		
@@ -590,10 +1015,46 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_effectfv (HL_CFFIPointer* effect, int param, varray* values) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)effect->ptr;
+		
+		if (values) {
+			
+			int size = values->size;
+			double* valueData = hl_aptr (values, double);
+			ALfloat *data = new ALfloat[size];
+			
+			for (int i = 0; i < size; ++i) {
+				
+				data[i] = *valueData++;
+				
+			}
+			
+			alEffectfv (id, param, data);
+			delete[] data;
+			
+		}
+		#endif
+		
+	}
+	
+	
 	void lime_al_effecti (value effect, int param, int value) {
 		
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (effect);
+		alEffecti (id, param, value);
+		#endif
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_effecti (HL_CFFIPointer* effect, int param, int value) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)effect->ptr;
 		alEffecti (id, param, value);
 		#endif
 		
@@ -625,7 +1086,29 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_effectiv (HL_CFFIPointer* effect, int param, varray* values) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)effect->ptr;
+		
+		if (values) {
+			
+			alEffectiv (id, param, hl_aptr (values, int));
+			
+		}
+		#endif
+		
+	}
+	
+	
 	void lime_al_enable (int capability) {
+		
+		alEnable (capability);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_enable (int capability) {
 		
 		alEnable (capability);
 		
@@ -646,10 +1129,34 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM void hl_lime_al_filteri (HL_CFFIPointer* filter, int param, int val) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)filter->ptr;
+		ALuint data;
+		
+		data = val;
+		
+		alFilteri (id, param, data);
+		#endif
+		
+	}
+	
+	
 	void lime_al_filterf (value filter, int param, float value) {
 		
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (filter);
+		alFilterf (id, param, value);
+		#endif
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_al_filterf (HL_CFFIPointer* filter, int param, float value) {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)filter->ptr;
 		alFilterf (id, param, value);
 		#endif
 		
@@ -664,6 +1171,19 @@ namespace lime {
 		return CFFIPointer ((void*)(uintptr_t)aux, gc_al_auxiliary_effect_slot);
 		#else
 		return alloc_null ();
+		#endif
+		
+	}
+	
+	
+	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_aux () {
+		
+		#ifdef LIME_OPENALSOFT
+		ALuint aux;
+		alGenAuxiliaryEffectSlots ((ALuint)1, &aux);
+		return HLCFFIPointer ((void*)(uintptr_t)aux, (hl_finalizer)hl_gc_al_auxiliary_effect_slot);
+		#else
+		return 0;
 		#endif
 		
 	}
@@ -687,6 +1207,30 @@ namespace lime {
 		} else {
 			
 			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
+	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_buffer () {
+		
+		alGetError ();
+		
+		ALuint buffer = 0;
+		alGenBuffers ((ALuint)1, &buffer);
+		
+		if (alGetError () == AL_NO_ERROR) {
+			
+			al_gc_mutex.Lock ();
+			HL_CFFIPointer* ptr = HLCFFIPointer ((void*)(uintptr_t)buffer, (hl_finalizer)hl_gc_al_buffer);
+			alObjects[buffer] = ptr;
+			al_gc_mutex.Unlock ();
+			return ptr;
+			
+		} else {
+			
+			return 0;
 			
 		}
 		
@@ -728,6 +1272,48 @@ namespace lime {
 			return alloc_null ();
 			
 		}
+		
+	}
+	
+	
+	HL_PRIM varray* hl_lime_al_gen_buffers (int n) {
+		
+		// TODO
+		return 0;
+		
+		// alGetError ();
+		
+		// ALuint* buffers = new ALuint[n];
+		// alGenBuffers (n, buffers);
+		
+		// if (alGetError () == AL_NO_ERROR) {
+			
+		// 	varray* result = hl_alloc_array (&hlt_dyn, n);
+			
+		// 	ALuint buffer;
+		// 	HL_CFFIPointer* ptr;
+			
+		// 	al_gc_mutex.Lock ();
+		// 	for (int i = 0; i < n; i++) {
+				
+		// 		buffer = buffers[i];
+		// 		ptr = CFFIPointer ((void*)(uintptr_t)buffer, gc_al_buffer);
+		// 		alObjects[buffer] = ptr;
+				
+		// 		val_array_set_i (result, i, ptr);
+				
+		// 	}
+		// 	al_gc_mutex.Unlock ();
+			
+		// 	delete[] buffers;
+		// 	return result;
+			
+		// } else {
+			
+		// 	delete[] buffers;
+		// 	return alloc_null ();
+			
+		// }
 		
 	}
 	
@@ -1211,7 +1797,7 @@ namespace lime {
 			
 			if (alObjects.count (data) > 0) {
 				
-				return alObjects[data];
+				return (value)alObjects[data];
 				
 			} else {
 				
@@ -1575,7 +2161,7 @@ namespace lime {
 			
 			if (alObjects.count (buffer) > 0) {
 				
-				ptr = alObjects[buffer];
+				ptr = (value)alObjects[buffer];
 				
 			} else {
 				
@@ -1792,7 +2378,7 @@ namespace lime {
 		al_gc_mutex.Lock ();
 		if (alcObjects.find (alcDevice) != alcObjects.end ()) {
 			
-			result = alcObjects[alcDevice];
+			result = (value)alcObjects[alcDevice];
 			
 		} else {
 			
@@ -1815,7 +2401,7 @@ namespace lime {
 		al_gc_mutex.Lock ();
 		if (alcObjects.find (alcContext) != alcObjects.end ()) {
 			
-			result = alcObjects[alcContext];
+			result = (value)alcObjects[alcContext];
 			
 		} else {
 			
@@ -1876,6 +2462,14 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM bool hl_lime_alc_make_context_current (HL_CFFIPointer* context) {
+		
+		ALCcontext* alcContext = context ? (ALCcontext*)context->ptr : 0;
+		return alcMakeContextCurrent (alcContext);
+		
+	}
+	
+	
 	value lime_alc_open_device (HxString devicename) {
 		
 		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
@@ -1888,9 +2482,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCdevice* hl_lime_alc_open_device (vbyte *devicename) {
+	HL_PRIM ALCdevice* hl_lime_alc_open_device (HL_String* devicename) {
 		
-		ALCdevice* alcDevice = alcOpenDevice ((char*)devicename);
+		ALCdevice* alcDevice = alcOpenDevice (devicename ? (char*)hl_to_utf8 ((const uchar*)devicename->bytes) : 0);
 		atexit (lime_al_atexit);
 		
 		// TODO: GC
@@ -2053,10 +2647,13 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_suspend_context);
 	
 	
-	#define TDEVICE _ABSTRACT (alc_device)
-	#define TCONTEXT _ABSTRACT (alc_context)
+	#define _TCFFIPOINTER _DYN
+	#define _TDEVICE _ABSTRACT (alc_device)
+	#define _TCONTEXT _ABSTRACT (alc_context)
 	
-	DEFINE_HL_PRIM (TDEVICE, lime_alc_open_device, _BYTES); 
+	DEFINE_HL_PRIM (_BOOL, lime_alc_make_context_current, _TCFFIPOINTER);
+	// DEFINE_HL_PRIM (_TDEVICE, lime_alc_open_device, _STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_alc_open_device, _STRING); 
 	
 	
 }
