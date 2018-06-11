@@ -91,14 +91,16 @@ namespace lime {
 	
 	std::wstring* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
 		
+		std::wstring* result = 0;
+		gc_enter_blocking ();
+		
 		switch (type) {
 			
 			case APPLICATION: {
 				
 				char* path = SDL_GetBasePath ();
-				std::wstring* result = new std::wstring (path, path + strlen (path));
+				result = new std::wstring (path, path + strlen (path));
 				SDL_free (path);
-				return result;
 				break;
 				
 			}
@@ -106,9 +108,8 @@ namespace lime {
 			case APPLICATION_STORAGE: {
 				
 				char* path = SDL_GetPrefPath (company, title);
-				std::wstring* result = new std::wstring (path, path + strlen (path));
+				result = new std::wstring (path, path + strlen (path));
 				SDL_free (path);
-				return result;
 				break;
 				
 			}
@@ -118,8 +119,7 @@ namespace lime {
 				#if defined (HX_WINRT)
 				
 				Windows::Storage::StorageFolder folder = Windows::Storage::KnownFolders::HomeGroup;
-				std::wstring* result = new std::wstring (folder->Begin ());
-				return result;
+				result = new std::wstring (folder->Begin ());
 				
 				#elif defined (HX_WINDOWS)
 				
@@ -127,26 +127,24 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
+				result = new std::wstring (path.begin (), path.end ());
 				
 				#elif defined (IPHONE)
 				
-				return System::GetIOSDirectory (type);
+				result = System::GetIOSDirectory (type);
 				
 				#elif !defined (ANDROID)
 				
 				char const* home = getenv ("HOME");
-
+				
 				if (home == NULL) {
-
+					
 					return 0;
-
+					
 				}
-
+				
 				std::string path = std::string (home) + std::string ("/Desktop");
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
+				result = new std::wstring (path.begin (), path.end ());
 				
 				#endif
 				break;
@@ -158,8 +156,7 @@ namespace lime {
 				#if defined (HX_WINRT)
 				
 				Windows::Storage::StorageFolder folder = Windows::Storage::KnownFolders::DocumentsLibrary;
-				std::wstring* result = std::wstring (folder->Begin ());
-				return result;
+				result = std::wstring (folder->Begin ());
 				
 				#elif defined (HX_WINDOWS)
 				
@@ -167,30 +164,26 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
+				result = new std::wstring (path.begin (), path.end ());
 				
 				#elif defined (IPHONE)
 				
-				return System::GetIOSDirectory (type);
+				result = System::GetIOSDirectory (type);
 				
 				#elif defined (ANDROID)
 				
-				return new std::wstring (L"/mnt/sdcard/Documents");
+				result = new std::wstring (L"/mnt/sdcard/Documents");
 				
 				#else
 				
 				char const* home = getenv ("HOME");
-
-				if (home == NULL) {
-
-					return 0;
-
+				
+				if (home != NULL) {
+					
+					std::string path = std::string (home) + std::string ("/Documents");
+					result = new std::wstring (path.begin (), path.end ());
+					
 				}
-
-				std::string path = std::string (home) + std::string ("/Documents");
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
 				
 				#endif
 				break;
@@ -201,7 +194,7 @@ namespace lime {
 				
 				#if defined (HX_WINRT)
 				
-				return 0;
+				// TODO
 				
 				#elif defined (HX_WINDOWS)
 				
@@ -209,28 +202,27 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
+				result = new std::wstring (path.begin (), path.end ());
 				
 				#elif defined (HX_MACOS)
 				
-				return new std::wstring (L"/Library/Fonts");
+				result = new std::wstring (L"/Library/Fonts");
 				
 				#elif defined (IPHONE)
 				
-				return new std::wstring (L"/System/Library/Fonts");
+				result = new std::wstring (L"/System/Library/Fonts");
 				
 				#elif defined (ANDROID)
 				
-				return new std::wstring (L"/system/fonts");
+				result = new std::wstring (L"/system/fonts");
 				
 				#elif defined (BLACKBERRY)
 				
-				return new std::wstring (L"/usr/fonts/font_repository/monotype");
+				result = new std::wstring (L"/usr/fonts/font_repository/monotype");
 				
 				#else
 				
-				return new std::wstring (L"/usr/share/fonts/truetype");
+				result = new std::wstring (L"/usr/share/fonts/truetype");
 				
 				#endif
 				break;
@@ -242,8 +234,7 @@ namespace lime {
 				#if defined (HX_WINRT)
 				
 				Windows::Storage::StorageFolder folder = Windows::Storage::ApplicationData::Current->RoamingFolder;
-				std::wstring* result = new std::wstring (folder->Begin ());
-				return result;
+				result = new std::wstring (folder->Begin ());
 				
 				#elif defined (HX_WINDOWS)
 				
@@ -251,30 +242,26 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
+				result = new std::wstring (path.begin (), path.end ());
 				
 				#elif defined (IPHONE)
 				
-				return System::GetIOSDirectory (type);
+				result = System::GetIOSDirectory (type);
 				
 				#elif defined (ANDROID)
 				
-				return new std::wstring (L"/mnt/sdcard");
+				result = new std::wstring (L"/mnt/sdcard");
 				
 				#else
 				
 				char const* home = getenv ("HOME");
-
-				if (home == NULL) {
-
-					return 0;
-
+				
+				if (home != NULL) {
+					
+					std::string path = std::string (home);
+					result = new std::wstring (path.begin (), path.end ());
+					
 				}
-
-				std::string path = std::string (home);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
-				return result;
 				
 				#endif
 				break;
@@ -283,7 +270,8 @@ namespace lime {
 			
 		}
 		
-		return 0;
+		gc_exit_blocking ();
+		return result;
 		
 	}
 	
@@ -442,8 +430,10 @@ namespace lime {
 			case SDL_RWOPS_JNIFILE:
 			{
 				#ifdef ANDROID
+				gc_enter_blocking ();
 				FILE* file = ::fdopen (((SDL_RWops*)handle)->hidden.androidio.fd, "rb");
 				::fseek (file, ((SDL_RWops*)handle)->hidden.androidio.offset, 0);
+				gc_exit_blocking ();
 				return file;
 				#endif
 			}
@@ -479,7 +469,10 @@ namespace lime {
 		
 		#ifndef HX_WINDOWS
 		
-		return SDL_RWsize (((SDL_RWops*)handle));
+		gc_enter_blocking ();
+		int size = SDL_RWsize (((SDL_RWops*)handle));
+		gc_exit_blocking ();
+		return size;
 		
 		#else
 		
@@ -511,8 +504,10 @@ namespace lime {
 		
 		if (stream) {
 			
+			gc_enter_blocking ();
 			int code = SDL_RWclose ((SDL_RWops*)stream->handle);
 			delete stream;
+			gc_exit_blocking ();
 			return code;
 			
 		}
@@ -523,8 +518,10 @@ namespace lime {
 		
 		if (stream) {
 			
+			gc_enter_blocking ();
 			int code = ::fclose ((FILE*)stream->handle);
 			delete stream;
+			gc_exit_blocking ();
 			return code;
 			
 		}
@@ -540,8 +537,10 @@ namespace lime {
 		
 		#ifndef HX_WINDOWS
 		
+		gc_enter_blocking ();
 		FILE* fp = ::fdopen (fd, mode);
 		SDL_RWops *result = SDL_RWFromFP (fp, SDL_TRUE);
+		gc_exit_blocking ();
 		
 		if (result) {
 			
@@ -553,7 +552,11 @@ namespace lime {
 		
 		#else
 		
-		FILE* result = ::fdopen (fd, mode);
+		FILE* result;
+		
+		gc_enter_blocking ();
+		result = ::fdopen (fd, mode);
+		gc_exit_blocking ();
 		
 		if (result) {
 			
@@ -573,6 +576,8 @@ namespace lime {
 		#ifndef HX_WINDOWS
 		
 		SDL_RWops *result;
+		
+		gc_enter_blocking ();
 		
 		#ifdef HX_MACOS
 		
@@ -607,6 +612,8 @@ namespace lime {
 		result = SDL_RWFromFile (filename, mode);
 		#endif
 		
+		gc_exit_blocking ();
+		
 		if (result) {
 			
 			return new FILE_HANDLE (result);
@@ -617,7 +624,11 @@ namespace lime {
 		
 		#else
 		
-		FILE* result = ::fopen (filename, mode);
+		FILE* result;
+		
+		gc_enter_blocking ();
+		result = ::fopen (filename, mode);
+		gc_exit_blocking ();
 		
 		if (result) {
 			
@@ -634,60 +645,84 @@ namespace lime {
 	
 	size_t fread (void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 		
+		size_t nmem;
+		gc_enter_blocking ();
+		
 		#ifndef HX_WINDOWS
 		
-		return SDL_RWread (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
+		nmem = SDL_RWread (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
 		
 		#else
 		
-		return ::fread (ptr, size, count, (FILE*)stream->handle);
+		read = ::fread (ptr, size, count, (FILE*)stream->handle);
 		
 		#endif
+		
+		gc_exit_blocking ();
+		return nmem;
 		
 	}
 	
 	
 	int fseek (FILE_HANDLE *stream, long int offset, int origin) {
 		
+		int success;
+		gc_enter_blocking ();
+		
 		#ifndef HX_WINDOWS
 		
-		return SDL_RWseek (stream ? (SDL_RWops*)stream->handle : NULL, offset, origin);
+		success = SDL_RWseek (stream ? (SDL_RWops*)stream->handle : NULL, offset, origin);
 		
 		#else
 		
-		return ::fseek ((FILE*)stream->handle, offset, origin);
+		success = ::fseek ((FILE*)stream->handle, offset, origin);
 		
 		#endif
+		
+		gc_exit_blocking ();
+		return success;
 		
 	}
 	
 	
 	long int ftell (FILE_HANDLE *stream) {
 		
+		long int pos;
+		gc_enter_blocking ();
+		
 		#ifndef HX_WINDOWS
 		
-		return SDL_RWtell (stream ? (SDL_RWops*)stream->handle : NULL);
+		pos = SDL_RWtell (stream ? (SDL_RWops*)stream->handle : NULL);
 		
 		#else
 		
-		return ::ftell ((FILE*)stream->handle);
+		pos = ::ftell ((FILE*)stream->handle);
 		
 		#endif
+		
+		gc_exit_blocking ();
+		return pos;
 		
 	}
 	
 	
 	size_t fwrite (const void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 		
+		size_t nmem;
+		gc_enter_blocking ();
+		
 		#ifndef HX_WINDOWS
 		
-		return SDL_RWwrite (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
+		nmem = SDL_RWwrite (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
 		
 		#else
 		
-		return ::fwrite (ptr, size, count, (FILE*)stream->handle);
+		nmem = ::fwrite (ptr, size, count, (FILE*)stream->handle);
 		
 		#endif
+		
+		gc_exit_blocking ();
+		return nmem;
 		
 	}
 	

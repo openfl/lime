@@ -917,9 +917,14 @@ namespace lime {
 		
 		#ifdef HX_MACOS
 		
-		return SDL_WaitEvent (event);
+		gc_enter_blocking ();
+		int result = SDL_WaitEvent (event);
+		gc_exit_blocking ();
+		return result;
 		
 		#else
+		
+		bool isBlocking = false;
 		
 		for(;;) {
 			
@@ -927,9 +932,22 @@ namespace lime {
 			
 			switch (SDL_PeepEvents (event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
 				
-				case -1: return 0;
-				case 1: return 1;
-				default: SDL_Delay (1);
+				case -1:
+					
+					if (isBlocking) gc_exit_blocking ();
+					return 0;
+				
+				case 1:
+					
+					if (isBlocking) gc_exit_blocking ();
+					return 1;
+				
+				default:
+					
+					if (!isBlocking) gc_enter_blocking ();
+					isBlocking = true;
+					SDL_Delay (1);
+					break;
 				
 			}
 			
