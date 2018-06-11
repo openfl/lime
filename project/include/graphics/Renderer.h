@@ -4,8 +4,8 @@
 
 #include <graphics/ImageBuffer.h>
 #include <math/Rectangle.h>
+#include <system/CFFI.h>
 #include <ui/Window.h>
-#include <hx/CFFI.h>
 
 
 namespace lime {

@@ -2,7 +2,7 @@
 #define LIME_MATH_COLOR_MATRIX_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <system/System.h>
 #include <stdint.h>
 

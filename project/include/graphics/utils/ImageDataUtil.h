@@ -2,12 +2,12 @@
 #define LIME_GRAPHICS_UTILS_IMAGE_DATA_UTIL_H
 
 
-#include <hx/CFFI.h>
 #include <graphics/Image.h>
 #include <graphics/PixelFormat.h>
 #include <math/ColorMatrix.h>
 #include <math/Rectangle.h>
 #include <math/Vector2.h>
+#include <system/CFFI.h>
 #include <system/Endian.h>
 #include <system/System.h>
 #include <utils/Bytes.h>

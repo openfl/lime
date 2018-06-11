@@ -2,7 +2,7 @@
 #define LIME_APP_APPLICATION_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 
 
 namespace lime {

@@ -2,8 +2,8 @@
 #define LIME_SYSTEM_DISPLAY_MODE_H
 
 
-#include <hx/CFFI.h>
 #include <graphics/PixelFormat.h>
+#include <system/CFFI.h>
 
 
 namespace lime {

@@ -1,6 +1,6 @@
+#include <system/CFFI.h>
 #include <system/JNI.h>
 #include <utils/Object.h>
-#include <hx/CFFIPrime.h>
 #include <jni.h>
 #include <pthread.h>
 #include <android/log.h>

@@ -427,6 +427,9 @@
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 				
+				<lib name="-L${HLPATH}" />
+				<lib name="-lhl" if="LIME_HASHLINK" />
+				
 			</section>
 			
 			<section if="android">

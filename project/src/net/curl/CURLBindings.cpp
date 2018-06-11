@@ -1,5 +1,5 @@
 #include <curl/curl.h>
-#include <hx/CFFIPrime.h>
+#include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
 #include <utils/Bytes.h>

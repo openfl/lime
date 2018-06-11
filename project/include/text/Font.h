@@ -3,9 +3,9 @@
 
 
 #include <graphics/ImageBuffer.h>
+#include <system/CFFI.h>
 #include <system/System.h>
 #include <utils/Resource.h>
-#include <hx/CFFI.h>
 
 #ifdef HX_WINDOWS
 #undef GetGlyphIndices

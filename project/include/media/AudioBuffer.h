@@ -2,7 +2,7 @@
 #define LIME_MEDIA_AUDIO_BUFFER_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <utils/ArrayBufferView.h>
 
 #ifdef ANDROID

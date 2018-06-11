@@ -5,8 +5,8 @@
 #undef RemoveDirectory
 #endif
 
+#include <system/CFFI.h>
 #include <system/Mutex.h>
-#include <hx/CFFI.h>
 #include <map>
 #include <string>
 #include <vector>
