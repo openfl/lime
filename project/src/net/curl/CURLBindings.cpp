@@ -10,6 +10,9 @@
 namespace lime {
 	
 	
+	std::map<value, value> curlMultiHandles;
+	std::map<value, int> curlMultiRunningHandles;
+	std::map<value, bool> curlMultiValid;
 	std::map<value, bool> curlValid;
 	std::map<value, AutoGCRoot*> headerCallbacks;
 	std::map<value, curl_slist*> headerSLists;
@@ -26,6 +29,14 @@ namespace lime {
 		if (!val_is_null (handle)) {
 			
 			curl_gc_mutex.Lock ();
+			
+			if (curlMultiHandles.find (handle) != curlMultiHandles.end ()) {
+				
+				CURLM* multi = curlMultiHandles[handle];
+				curl_multi_remove_handle (multi, handle);
+				curlMultiHandles.erase (handle);
+				
+			}
 			
 			if (curlValid.find (handle) != curlValid.end ()) {
 				
@@ -99,6 +110,39 @@ namespace lime {
 				
 				writeCallbacks.erase (handle);
 				delete callback;
+				
+			}
+			
+			val_gc (handle, 0);
+			//handle = alloc_null ();
+			
+			curl_gc_mutex.Unlock ();
+			
+		}
+		
+	}
+	
+	
+	void gc_curl_multi (value handle) {
+		
+		if (!val_is_null (handle)) {
+			
+			curl_gc_mutex.Lock ();
+			
+			if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
+				
+				curlMultiValid.erase (handle);
+				curl_multi_cleanup ((CURL*)val_data(handle));
+				
+			}
+			
+			for (std::map<value, value>::iterator it = curlMultiHandles.begin (); it != curlMultiHandles.end (); ++it) {
+				
+				if (curlMultiHandles[it->first] == handle) {
+					
+					gc_curl (it->first);
+					
+				}
 				
 			}
 			
@@ -335,7 +379,13 @@ namespace lime {
 	
 	int lime_curl_easy_perform (value easy_handle) {
 		
-		return curl_easy_perform ((CURL*)val_data(easy_handle));
+		int code;
+		gc_enter_blocking ();
+		
+		code = curl_easy_perform ((CURL*)val_data(easy_handle));
+		
+		gc_exit_blocking ();
+		return code;
 		
 	}
 	
@@ -841,6 +891,96 @@ namespace lime {
 	}
 	
 	
+	int lime_curl_multi_cleanup (value multi_handle) {
+		
+		curl_gc_mutex.Lock ();
+		
+		// CURLMcode result = curl_multi_cleanup ((CURLM*)val_data (multi_handle));
+		gc_curl_multi (multi_handle);
+		
+		curl_gc_mutex.Unlock ();
+		
+		return CURLM_OK;
+		
+	}
+	
+	
+	value lime_curl_multi_init () {
+		
+		curl_gc_mutex.Lock ();
+		
+		value handle = CFFIPointer (curl_multi_init (), gc_curl_multi);
+		
+		if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
+			
+			printf ("Error: Duplicate cURL Multi handle\n");
+			
+		}
+		
+		curlMultiValid[handle] = true;
+		curlMultiRunningHandles[handle] = 0;
+		
+		curl_gc_mutex.Unlock ();
+		
+		return handle;
+		
+	}
+	
+	
+	int lime_curl_multi_add_handle (value multi_handle, value curl_handle) {
+		
+		curl_gc_mutex.Lock ();
+		
+		CURLMcode result = curl_multi_add_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (curl_handle));
+		
+		if (result == CURLM_OK) {
+			
+			curlMultiHandles[curl_handle] = multi_handle;
+			
+		}
+		
+		curl_gc_mutex.Unlock ();
+		
+		return result;
+		
+	}
+	
+	
+	int lime_curl_multi_perform (value multi_handle) {
+		
+		curl_gc_mutex.Lock ();
+		
+		int runningHandles = 0;
+		CURLMcode result = lime_curl_multi_perform ((CURLM*)val_data (multi_handle), &runningHandles);
+		
+		curlMultiRunningHandles[multi_handle] = runningHandles;
+		
+		curl_gc_mutex.Unlock ();
+		
+		return result;
+		
+	}
+	
+	
+	int lime_curl_multi_remove_handle (value multi_handle, value curl_handle) {
+		
+		curl_gc_mutex.Lock ();
+		
+		CURLMcode result = curl_multi_remove_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (curl_handle));
+		
+		if (/*result == CURLM_OK &&*/ curlMultiHandles.find (curl_handle) != curlMultiHandles.end ()) {
+			
+			curlMultiHandles.erase (curl_handle);
+			
+		}
+		
+		curl_gc_mutex.Unlock ();
+		
+		return result;
+		
+	}
+	
+	
 	//lime_curl_multi_add_handle
 	//lime_curl_multi_assign
 	//lime_curl_multi_cleanup
@@ -899,6 +1039,10 @@ namespace lime {
 	DEFINE_PRIME2 (lime_curl_getdate);
 	DEFINE_PRIME0v (lime_curl_global_cleanup);
 	DEFINE_PRIME1 (lime_curl_global_init);
+	DEFINE_PRIME0 (lime_curl_multi_init);
+	DEFINE_PRIME2 (lime_curl_multi_add_handle);
+	DEFINE_PRIME2 (lime_curl_multi_perform);
+	DEFINE_PRIME2 (lime_curl_multi_remove_handle);
 	DEFINE_PRIME0 (lime_curl_version);
 	DEFINE_PRIME1 (lime_curl_version_info);
 	
