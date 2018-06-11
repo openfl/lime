@@ -1,12 +1,9 @@
-#define HL_NAME(n) hl_##n
-#include <hl.h>
-
 #include <cairo.h>
 #include <cairo-ft.h>
 #include <map>
 #include <math/Matrix3.h>
 #include <math/Vector2.h>
-#include <hx/CFFIPrime.h>
+#include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
 #include <system/ValuePointer.h>

@@ -2,8 +2,7 @@
 #define LIME_UI_KEY_EVENT_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <system/ValuePointer.h>
 #include <stdint.h>
 

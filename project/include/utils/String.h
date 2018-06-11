@@ -2,7 +2,7 @@
 #define LIME_UTILS_STRING_H
 
 
-#include <hl.h>
+#include <system/CFFI.h>
 
 
 namespace lime {

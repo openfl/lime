@@ -2,8 +2,7 @@
 #define LIME_SYSTEM_SENSOR_EVENT_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <system/ValuePointer.h>
 
 

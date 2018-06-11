@@ -2,8 +2,7 @@
 #define LIME_SYSTEM_VALUE_POINTER_H
 
 
-#include <hl.h>
-#include <hx/CFFIPrime.h>
+#include <system/CFFI.h>
 
 
 namespace lime {

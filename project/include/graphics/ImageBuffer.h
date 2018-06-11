@@ -2,9 +2,8 @@
 #define LIME_GRAPHICS_IMAGE_BUFFER_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
 #include <graphics/PixelFormat.h>
+#include <system/CFFI.h>
 #include <utils/ArrayBufferView.h>
 
 

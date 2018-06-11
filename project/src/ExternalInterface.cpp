@@ -6,11 +6,8 @@
 #define NEKO_COMPATIBLE
 #endif
 
+#include <system/CFFI.h>
 
-#define HL_NAME(n) hl_##n
-#include <hl.h>
-
-#include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <graphics/format/JPEG.h>
@@ -446,6 +443,13 @@ namespace lime {
 		
 		Bytes data = Bytes (bytes);
 		return (uintptr_t)data.Data ();
+		
+	}
+	
+	
+	HL_PRIM double hl_lime_bytes_get_data_pointer (HL_Bytes* bytes) {
+		
+		return bytes ? (uintptr_t)bytes->b : 0;
 		
 	}
 	
@@ -4188,7 +4192,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, lime_application_update, _TCFFIPOINTER);
 	// DEFINE_PRIME2 (lime_audio_load);
 	// DEFINE_PRIME2 (lime_bytes_from_data_pointer);
-	// DEFINE_PRIME1 (lime_bytes_get_data_pointer);
+	DEFINE_HL_PRIM (_F64, lime_bytes_get_data_pointer, _BYTES);
 	// DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
 	// DEFINE_PRIME2 (lime_bytes_read_file);
 	// DEFINE_PRIME1 (lime_cffi_get_native_pointer);
@@ -4294,7 +4298,7 @@ namespace lime {
 	// DEFINE_PRIME0 (lime_system_get_platform_label);
 	// DEFINE_PRIME0 (lime_system_get_platform_name);
 	// DEFINE_PRIME0 (lime_system_get_platform_version);
-	// DEFINE_PRIME0 (lime_system_get_timer);
+	DEFINE_HL_PRIM (_F64, lime_system_get_timer, _NO_ARG);
 	// DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	// DEFINE_PRIME1v (lime_system_open_file);
 	// DEFINE_PRIME2v (lime_system_open_url);

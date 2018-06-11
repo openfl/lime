@@ -6,9 +6,9 @@
 #undef CreateWindow
 #endif
 
-#include <hl.h>
 #include <app/Application.h>
 #include <graphics/ImageBuffer.h>
+#include <system/CFFI.h>
 #include <system/DisplayMode.h>
 #include <stdint.h>
 

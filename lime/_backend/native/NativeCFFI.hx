@@ -206,7 +206,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_application_update") private static function lime_application_update (handle:CFFIPointer):Bool { return false; }
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
-	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
+	@:hlNative("lime", "lime_bytes_get_data_pointer") private static function lime_bytes_get_data_pointer (data:hl.Bytes):Float { return 0; }
 	@:cffi private static function lime_bytes_get_data_pointer_offset (data:Dynamic, offset:Int):Float;
 	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
@@ -308,7 +308,7 @@ class NativeCFFI {
 	@:cffi private static function lime_system_get_platform_label ():Dynamic;
 	@:cffi private static function lime_system_get_platform_name ():Dynamic;
 	@:cffi private static function lime_system_get_platform_version ():Dynamic;
-	@:cffi private static function lime_system_get_timer ():Float;
+	@:hlNative("lime", "lime_system_get_timer") private static function lime_system_get_timer ():Float { return 0; }
 	@:cffi private static function lime_system_open_file (path:String):Void;
 	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
 	@:hlNative("lime", "lime_text_event_manager_register") private static function lime_text_event_manager_register (callback:Void->Void, eventObject:TextEventInfo):Void {}

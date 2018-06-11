@@ -2,8 +2,7 @@
 #define LIME_UTILS_ARRAY_BUFFER_VIEW_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <utils/Bytes.h>
 
 

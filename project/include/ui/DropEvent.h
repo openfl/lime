@@ -2,8 +2,7 @@
 #define LIME_UI_DROP_EVENT_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <system/ValuePointer.h>
 
 

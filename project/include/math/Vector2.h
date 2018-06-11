@@ -2,8 +2,7 @@
 #define LIME_MATH_VECTOR2_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 
 
 namespace lime {

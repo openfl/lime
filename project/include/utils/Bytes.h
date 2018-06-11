@@ -2,8 +2,7 @@
 #define LIME_UTILS_BYTES_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <utils/QuickVec.h>
 
 

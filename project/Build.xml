@@ -16,7 +16,8 @@
 	<!-- <set name="LIME_FAUDIO" value="1" /> -->
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" />
-	<set name="LIME_HASHLINK" value="1" if="windows || mac || linux" />
+	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
+	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
@@ -56,7 +57,6 @@
 	<files id="lime">
 		
 		<compilerflag value="-Iinclude" />
-		<compilerflag value="-DLIBHL_EXPORTS" />
 		
 		<file name="src/ExternalInterface.cpp" />
 		
@@ -125,8 +125,8 @@
 		
 		<section if="LIME_HASHLINK">
 			
-			<!-- <compilerflag value="-I${HLPATH}/include" /> -->
 			<!-- <compilerflag value="-DLIBHL_EXPORTS" /> -->
+			<compilerflag value="-DLIME_HASHLINK" />
 			
 		</section>
 		
@@ -288,6 +288,7 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
+		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
 		<file name="src/system/DisplayMode.cpp" />
@@ -391,8 +392,8 @@
 				<lib name="comdlg32.lib" />
 				<lib name="comsuppw.lib" />
 				
-				<lib name="-libpath:${HLPATH}" />
-				<lib name="libhl.lib" />
+				<lib name="-libpath:${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
 				
 			</section>

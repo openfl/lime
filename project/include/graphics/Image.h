@@ -2,10 +2,9 @@
 #define LIME_GRAPHICS_IMAGE_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
 #include <graphics/ImageBuffer.h>
 #include <math/Rectangle.h>
+#include <system/CFFI.h>
 
 
 namespace lime {

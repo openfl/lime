@@ -2,8 +2,7 @@
 #define LIME_MATH_MATRIX_3_H
 
 
-#include <hl.h>
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 
 
 namespace lime {
