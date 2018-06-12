@@ -847,6 +847,13 @@ class NativeCFFI {
 	@:cffi private static function lime_curl_easy_setopt (handle:CFFIPointer, option:Int, parameter:Dynamic, writeBytes:Dynamic):Int;
 	@:cffi private static function lime_curl_easy_strerror (errornum:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_unescape (curl:CFFIPointer, url:String, inlength:Int, outlength:Int):Dynamic;
+	@:cffi private static function lime_curl_multi_init ():CFFIPointer;
+	@:cffi private static function lime_curl_multi_add_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int;
+	@:cffi private static function lime_curl_multi_get_running_handles (multi_handle:CFFIPointer):Int;
+	@:cffi private static function lime_curl_multi_info_read (multi_handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_curl_multi_perform (multi_handle:CFFIPointer):Int;
+	@:cffi private static function lime_curl_multi_remove_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int;
+	@:cffi private static function lime_curl_multi_wait (multi_handle:CFFIPointer, timeout_ms:Int):Int;
 	#end
 	
 	#if (lime_cffi && !macro && lime_opengl)

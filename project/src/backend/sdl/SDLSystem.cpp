@@ -654,7 +654,7 @@ namespace lime {
 		
 		#else
 		
-		read = ::fread (ptr, size, count, (FILE*)stream->handle);
+		nmem = ::fread (ptr, size, count, (FILE*)stream->handle);
 		
 		#endif
 		

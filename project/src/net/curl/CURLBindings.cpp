@@ -13,6 +13,7 @@ namespace lime {
 	std::map<value, value> curlMultiHandles;
 	std::map<value, int> curlMultiRunningHandles;
 	std::map<value, bool> curlMultiValid;
+	std::map<CURL*, value> curlObjects;
 	std::map<value, bool> curlValid;
 	std::map<value, AutoGCRoot*> headerCallbacks;
 	std::map<value, curl_slist*> headerSLists;
@@ -40,8 +41,11 @@ namespace lime {
 			
 			if (curlValid.find (handle) != curlValid.end ()) {
 				
+				CURL* curl = (CURL*)val_data (handle);
+				
 				curlValid.erase (handle);
-				curl_easy_cleanup ((CURL*)val_data(handle));
+				curlObjects.erase (curl);
+				curl_easy_cleanup (curl);
 				
 			}
 			
@@ -179,8 +183,10 @@ namespace lime {
 		
 		curl_gc_mutex.Lock ();
 		
-		value duphandle = CFFIPointer (curl_easy_duphandle ((CURL*)val_data(handle)), gc_curl);
+		CURL* dup = curl_easy_duphandle ((CURL*)val_data(handle));
+		value duphandle = CFFIPointer (dup, gc_curl);
 		curlValid[duphandle] = true;
+		curlObjects[dup] = duphandle;
 		
 		AutoGCRoot* callback;
 		Bytes* _writeBytes;
@@ -329,7 +335,8 @@ namespace lime {
 		
 		curl_gc_mutex.Lock ();
 		
-		value handle = CFFIPointer (curl_easy_init (), gc_curl);
+		CURL* curl = curl_easy_init ();
+		value handle = CFFIPointer (curl, gc_curl);
 		
 		if (curlValid.find (handle) != curlValid.end ()) {
 			
@@ -362,6 +369,7 @@ namespace lime {
 		}
 		
 		curlValid[handle] = true;
+		curlObjects[curl] = handle;
 		
 		curl_gc_mutex.Unlock ();
 		
@@ -946,12 +954,56 @@ namespace lime {
 	}
 	
 	
+	int lime_curl_multi_get_running_handles (value multi_handle) {
+		
+		return curlMultiRunningHandles[multi_handle];
+		
+	}
+	
+	
+	value lime_curl_multi_info_read (value multi_handle) {
+		
+		int msgs_in_queue;
+		CURLMsg* msg = curl_multi_info_read ((CURLM*)val_data (multi_handle), &msgs_in_queue);
+		
+		if (msg) {
+			
+			//const field val_id ("msg");
+			const field easy_handle = val_id ("easy_handle");
+			const field _result = val_id ("result");
+			
+			CURL* curl = msg->easy_handle;
+			value result = alloc_empty_object ();
+			
+			if (curlObjects.find (curl) != curlObjects.end ()) {
+				
+				alloc_field (result, easy_handle, curlObjects[curl]);
+				
+			} else {
+				
+				// TODO?
+				alloc_field (result, easy_handle, alloc_null ());
+				
+			}
+			
+			alloc_field (result, _result, alloc_int (msg->data.result));
+			return result;
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
+		
+	}
+	
+	
 	int lime_curl_multi_perform (value multi_handle) {
 		
 		curl_gc_mutex.Lock ();
 		
 		int runningHandles = 0;
-		CURLMcode result = lime_curl_multi_perform ((CURLM*)val_data (multi_handle), &runningHandles);
+		CURLMcode result = curl_multi_perform ((CURLM*)val_data (multi_handle), &runningHandles);
 		
 		curlMultiRunningHandles[multi_handle] = runningHandles;
 		
@@ -976,6 +1028,19 @@ namespace lime {
 		
 		curl_gc_mutex.Unlock ();
 		
+		return result;
+		
+	}
+	
+	
+	int lime_curl_multi_wait (value multi_handle, int timeout_ms) {
+		
+		gc_enter_blocking ();
+		
+		int retcode;
+		CURLMcode result = curl_multi_wait ((CURLM*)val_data (multi_handle), 0, 0, timeout_ms, &retcode);
+		
+		gc_exit_blocking ();
 		return result;
 		
 	}
@@ -1041,8 +1106,11 @@ namespace lime {
 	DEFINE_PRIME1 (lime_curl_global_init);
 	DEFINE_PRIME0 (lime_curl_multi_init);
 	DEFINE_PRIME2 (lime_curl_multi_add_handle);
-	DEFINE_PRIME2 (lime_curl_multi_perform);
+	DEFINE_PRIME1 (lime_curl_multi_get_running_handles);
+	DEFINE_PRIME1 (lime_curl_multi_perform);
+	DEFINE_PRIME1 (lime_curl_multi_info_read);
 	DEFINE_PRIME2 (lime_curl_multi_remove_handle);
+	DEFINE_PRIME2 (lime_curl_multi_wait);
 	DEFINE_PRIME0 (lime_curl_version);
 	DEFINE_PRIME1 (lime_curl_version_info);
 	
