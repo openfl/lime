@@ -2,6 +2,7 @@
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
+#include <system/System.h>
 #include <utils/Bytes.h>
 #include <string.h>
 #include <map>
@@ -195,7 +196,7 @@ namespace lime {
 			callback = headerCallbacks[handle];
 			_writeBytes = new Bytes (1024);
 			writeBytes[callback] = _writeBytes;
-			writeBytesRoot[callback] = new AutoGCRoot (_writeBytes->Value ());
+			writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
 			headerCallbacks[duphandle] = new AutoGCRoot (headerCallbacks[handle]->get());
 		}
 		
@@ -211,7 +212,7 @@ namespace lime {
 			callback = writeCallbacks[handle];
 			_writeBytes = new Bytes (1024);
 			writeBytes[callback] = _writeBytes;
-			writeBytesRoot[callback] = new AutoGCRoot (_writeBytes->Value ());
+			writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
 			writeCallbacks[duphandle] = new AutoGCRoot (writeCallbacks[handle]->get());
 		}
 		
@@ -388,11 +389,11 @@ namespace lime {
 	int lime_curl_easy_perform (value easy_handle) {
 		
 		int code;
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		code = curl_easy_perform ((CURL*)val_data(easy_handle));
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return code;
 		
 	}
@@ -441,7 +442,7 @@ namespace lime {
 			_writeBytes->Resize (size * nmemb);
 			memcpy (_writeBytes->Data (), ptr, size * nmemb);
 			
-			return val_int (val_call3 (callback->get (), _writeBytes->Value (), alloc_int (size), alloc_int (nmemb)));
+			return val_int (val_call3 (callback->get (), (value)_writeBytes->Value (), alloc_int (size), alloc_int (nmemb)));
 			
 		} else {
 			
@@ -1035,12 +1036,12 @@ namespace lime {
 	
 	int lime_curl_multi_wait (value multi_handle, int timeout_ms) {
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		int retcode;
 		CURLMcode result = curl_multi_wait ((CURLM*)val_data (multi_handle), 0, 0, timeout_ms, &retcode);
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return result;
 		
 	}

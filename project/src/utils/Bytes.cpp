@@ -8,6 +8,7 @@ namespace lime {
 	static int id_b;
 	static int id_length;
 	static bool init = false;
+	static bool isHL = false;
 	static bool useBuffer = false;
 	
 	
@@ -72,6 +73,13 @@ namespace lime {
 	
 	Bytes::Bytes (HL_Bytes* bytes) {
 		
+		if (!init) {
+			
+			init = true;
+			isHL = true;
+			
+		}
+		
 		// _initializeBytes ();
 		
 		_data = 0;
@@ -116,14 +124,14 @@ namespace lime {
 	}
 	
 	
-	unsigned char *Bytes::Data () {
+	unsigned char* Bytes::Data () {
 		
 		return (unsigned char*)_data;
 		
 	}
 	
 	
-	const unsigned char *Bytes::Data () const {
+	const unsigned char* Bytes::Data () const {
 		
 		return (const unsigned char*)_data;
 		
@@ -167,51 +175,84 @@ namespace lime {
 		
 		if (size != _length) {
 			
-			if (!_value) {
+			if (isHL) {
 				
-				_value = alloc_empty_object ();
-				
-			}
-			
-			if (val_is_null (val_field (_value, id_b))) {
-				
-				value dataValue;
-				
-				if (useBuffer) {
+				if (size <= 0) {
 					
-					buffer b = alloc_buffer_len (size);
-					dataValue = buffer_val (b);
-					_data = (unsigned char*)buffer_data (b);
+					if (_bytes->b) {
+						
+						free (_bytes->b);
+						_bytes->b = 0;
+						_bytes->length = 0;
+						_data = 0;
+						
+					}
 					
 				} else {
 					
-					dataValue = alloc_raw_string (size);
-					_data = (unsigned char*)val_string (dataValue);
+					unsigned char* data = (unsigned char*)malloc (size);
+					
+					if (_bytes->b && _bytes->length) {
+						
+						memcpy (_bytes->b, data, _bytes->length);
+						free (_bytes->b);
+						_bytes->b = data;
+						_bytes->length = size;
+						_data = _bytes->b;
+						
+					}
 					
 				}
-				
-				alloc_field (_value, id_b, dataValue);
 				
 			} else {
 				
-				if (useBuffer) {
+				if (!_value) {
 					
-					buffer b = val_to_buffer (val_field (_value, id_b));
-					buffer_set_size (b, size);
-					_data = (unsigned char*)buffer_data (b);
-					
-				} else {
-					
-					value s = alloc_raw_string (size);
-					memcpy ((char *)val_string (s), val_string (val_field (_value, id_b)), _length);
-					alloc_field (_value, id_b, s);
-					_data = (unsigned char*)val_string (s);
+					_value = alloc_empty_object ();
 					
 				}
 				
+				if (val_is_null (val_field (_value, id_b))) {
+					
+					value dataValue;
+					
+					if (useBuffer) {
+						
+						buffer b = alloc_buffer_len (size);
+						dataValue = buffer_val (b);
+						_data = (unsigned char*)buffer_data (b);
+						
+					} else {
+						
+						dataValue = alloc_raw_string (size);
+						_data = (unsigned char*)val_string (dataValue);
+						
+					}
+					
+					alloc_field (_value, id_b, dataValue);
+					
+				} else {
+					
+					if (useBuffer) {
+						
+						buffer b = val_to_buffer (val_field (_value, id_b));
+						buffer_set_size (b, size);
+						_data = (unsigned char*)buffer_data (b);
+						
+					} else {
+						
+						value s = alloc_raw_string (size);
+						memcpy ((char *)val_string (s), val_string (val_field (_value, id_b)), _length);
+						alloc_field (_value, id_b, s);
+						_data = (unsigned char*)val_string (s);
+						
+					}
+					
+				}
+				
+				alloc_field (_value, id_length, alloc_int (size));
+				
 			}
-			
-			alloc_field (_value, id_length, alloc_int (size));
 			
 		}
 		
@@ -262,12 +303,14 @@ namespace lime {
 		
 		if (!bytes) {
 			
+			_bytes = 0;
 			_length = 0;
 			_data = 0;
 			_value = 0;
 			
 		} else {
 			
+			_bytes = bytes;
 			_value = 0;
 			_length = bytes->length;
 			
@@ -305,9 +348,13 @@ namespace lime {
 	}
 	
 	
-	value Bytes::Value () {
+	void* Bytes::Value () {
 		
-		if (_value) {
+		if (isHL) {
+			
+			return _bytes;
+			
+		} else if (_value) {
 			
 			return _value;
 			

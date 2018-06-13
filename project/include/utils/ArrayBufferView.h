@@ -33,21 +33,22 @@ namespace lime {
 			ArrayBufferView (HL_ArrayBufferView* arrayBufferView);
 			~ArrayBufferView ();
 			
-			unsigned char *Data ();
-			const unsigned char *Data () const;
+			unsigned char* Data ();
+			const unsigned char* Data () const;
 			int Length () const;
 			void Resize (int size);
 			void Set (value bytes);
 			void Set (const QuickVec<unsigned char> data);
 			value Value ();
 			
-			Bytes *buffer;
+			Bytes* buffer;
 			int byteLength;
 			int length;
 		
 		private:
 			
-			value mValue;
+			HL_ArrayBufferView* _bufferView;
+			value _value;
 		
 		
 	};

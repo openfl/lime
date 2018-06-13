@@ -15,6 +15,8 @@ HL_API hl_type hlt_dynobj = hl_type ();
 HL_API hl_type hlt_bool = hl_type ();
 HL_API hl_type hlt_abstract = hl_type ();
 
+HL_API double hl_nan( void ) { return 0; }
+
 HL_API varray *hl_alloc_array( hl_type *t, int size ) { return 0; }
 HL_API vdynobj *hl_alloc_dynobj( void ) { return 0; }
 HL_API char *hl_to_utf8( const uchar *bytes ) { return 0; }

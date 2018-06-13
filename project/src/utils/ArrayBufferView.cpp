@@ -8,6 +8,7 @@ namespace lime {
 	static int id_byteLength;
 	static int id_length;
 	static bool init = false;
+	static bool isHL = false;
 	
 	
 	ArrayBufferView::ArrayBufferView () {
@@ -15,7 +16,8 @@ namespace lime {
 		buffer = new Bytes ();
 		byteLength = 0;
 		length = 0;
-		mValue = 0;
+		_value = 0;
+		_bufferView = 0;
 		
 	}
 	
@@ -25,7 +27,8 @@ namespace lime {
 		buffer = new Bytes (size);
 		byteLength = size;
 		length = size;
-		mValue = 0;
+		_value = 0;
+		_bufferView = 0;
 		
 	}
 	
@@ -55,47 +58,61 @@ namespace lime {
 			
 		}
 		
-		mValue = arrayBufferView;
+		_value = arrayBufferView;
+		_bufferView = 0;
 		
 	}
 	
 	
 	ArrayBufferView::ArrayBufferView (HL_ArrayBufferView* arrayBufferView) {
 		
+		if (!init) {
+			
+			init = true;
+			isHL = true;
+			
+		}
+		
 		if (arrayBufferView) {
 			
 			buffer = new Bytes (arrayBufferView->buffer);
 			byteLength = arrayBufferView->byteLength;
 			length = arrayBufferView->length;
+			_bufferView = arrayBufferView;
 			
 		} else {
 			
-			buffer = new Bytes ();
+			buffer = 0;
 			byteLength = 0;
 			length = 0;
+			_bufferView = 0;
 			
 		}
 		
-		mValue = 0;
+		_value = 0;
 		
 	}
 	
 	
 	ArrayBufferView::~ArrayBufferView () {
 		
-		delete buffer;
+		if (buffer) {
+			
+			delete buffer;
+			
+		}
 		
 	}
 	
 	
-	unsigned char *ArrayBufferView::Data () {
+	unsigned char* ArrayBufferView::Data () {
 		
 		return buffer->Data ();
 		
 	}
 	
 	
-	const unsigned char *ArrayBufferView::Data () const {
+	const unsigned char* ArrayBufferView::Data () const {
 		
 		return buffer->Data ();
 		
@@ -112,6 +129,14 @@ namespace lime {
 	void ArrayBufferView::Resize (int size) {
 		
 		buffer->Resize (size);
+		
+		if (_bufferView) {
+			
+			_bufferView->byteLength = size;
+			_bufferView->length = size; // ?
+			
+		}
+		
 		byteLength = size;
 		length = size;
 		
@@ -147,16 +172,16 @@ namespace lime {
 			
 		}
 		
-		if (val_is_null (mValue)) {
+		if (val_is_null (_value)) {
 			
-			mValue = alloc_empty_object ();
+			_value = alloc_empty_object ();
 			
 		}
 		
-		alloc_field (mValue, id_buffer, buffer ? buffer->Value () : alloc_null ());
-		alloc_field (mValue, id_byteLength, alloc_int (byteLength));
-		alloc_field (mValue, id_length, alloc_int (length));
-		return mValue;
+		alloc_field (_value, id_buffer, buffer ? (value)buffer->Value () : alloc_null ());
+		alloc_field (_value, id_byteLength, alloc_int (byteLength));
+		alloc_field (_value, id_length, alloc_int (length));
+		return _value;
 		
 	}
 	

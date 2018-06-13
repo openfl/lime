@@ -92,7 +92,7 @@ namespace lime {
 	std::wstring* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
 		
 		std::wstring* result = 0;
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		switch (type) {
 			
@@ -270,7 +270,7 @@ namespace lime {
 			
 		}
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return result;
 		
 	}
@@ -430,10 +430,10 @@ namespace lime {
 			case SDL_RWOPS_JNIFILE:
 			{
 				#ifdef ANDROID
-				gc_enter_blocking ();
+				System::GCEnterBlocking ();
 				FILE* file = ::fdopen (((SDL_RWops*)handle)->hidden.androidio.fd, "rb");
 				::fseek (file, ((SDL_RWops*)handle)->hidden.androidio.offset, 0);
-				gc_exit_blocking ();
+				System::GCExitBlocking ();
 				return file;
 				#endif
 			}
@@ -469,9 +469,9 @@ namespace lime {
 		
 		#ifndef HX_WINDOWS
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		int size = SDL_RWsize (((SDL_RWops*)handle));
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return size;
 		
 		#else
@@ -504,10 +504,10 @@ namespace lime {
 		
 		if (stream) {
 			
-			gc_enter_blocking ();
+			System::GCEnterBlocking ();
 			int code = SDL_RWclose ((SDL_RWops*)stream->handle);
 			delete stream;
-			gc_exit_blocking ();
+			System::GCExitBlocking ();
 			return code;
 			
 		}
@@ -518,10 +518,10 @@ namespace lime {
 		
 		if (stream) {
 			
-			gc_enter_blocking ();
+			System::GCEnterBlocking ();
 			int code = ::fclose ((FILE*)stream->handle);
 			delete stream;
-			gc_exit_blocking ();
+			System::GCExitBlocking ();
 			return code;
 			
 		}
@@ -537,10 +537,10 @@ namespace lime {
 		
 		#ifndef HX_WINDOWS
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		FILE* fp = ::fdopen (fd, mode);
 		SDL_RWops *result = SDL_RWFromFP (fp, SDL_TRUE);
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		
 		if (result) {
 			
@@ -554,9 +554,9 @@ namespace lime {
 		
 		FILE* result;
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		result = ::fdopen (fd, mode);
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		
 		if (result) {
 			
@@ -577,7 +577,7 @@ namespace lime {
 		
 		SDL_RWops *result;
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		#ifdef HX_MACOS
 		
@@ -612,7 +612,7 @@ namespace lime {
 		result = SDL_RWFromFile (filename, mode);
 		#endif
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		
 		if (result) {
 			
@@ -626,9 +626,9 @@ namespace lime {
 		
 		FILE* result;
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		result = ::fopen (filename, mode);
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		
 		if (result) {
 			
@@ -646,7 +646,7 @@ namespace lime {
 	size_t fread (void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 		
 		size_t nmem;
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		#ifndef HX_WINDOWS
 		
@@ -658,7 +658,7 @@ namespace lime {
 		
 		#endif
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return nmem;
 		
 	}
@@ -667,7 +667,7 @@ namespace lime {
 	int fseek (FILE_HANDLE *stream, long int offset, int origin) {
 		
 		int success;
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		#ifndef HX_WINDOWS
 		
@@ -679,7 +679,7 @@ namespace lime {
 		
 		#endif
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return success;
 		
 	}
@@ -688,7 +688,7 @@ namespace lime {
 	long int ftell (FILE_HANDLE *stream) {
 		
 		long int pos;
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		#ifndef HX_WINDOWS
 		
@@ -700,7 +700,7 @@ namespace lime {
 		
 		#endif
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return pos;
 		
 	}
@@ -709,7 +709,7 @@ namespace lime {
 	size_t fwrite (const void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
 		
 		size_t nmem;
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		
 		#ifndef HX_WINDOWS
 		
@@ -721,7 +721,7 @@ namespace lime {
 		
 		#endif
 		
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return nmem;
 		
 	}

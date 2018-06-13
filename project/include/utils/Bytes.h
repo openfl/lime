@@ -29,17 +29,18 @@ namespace lime {
 		Bytes (const QuickVec<unsigned char> data);
 		~Bytes ();
 		
-		unsigned char *Data ();
-		const unsigned char *Data () const;
+		unsigned char* Data ();
+		const unsigned char* Data () const;
 		int Length () const;
 		void ReadFile (const char* path);
 		void Resize (int size);
 		void Set (value bytes);
 		void Set (HL_Bytes* bytes);
 		void Set (const QuickVec<unsigned char> data);
-		value Value ();
+		void* Value ();
 		
-		unsigned char *_data;
+		HL_Bytes* _bytes;
+		unsigned char* _data;
 		int _length;
 		value _value;
 		

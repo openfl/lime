@@ -5,6 +5,8 @@ package lime.math;
 import flash.geom.Point;
 #end
 
+#if hl @:keep #end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug

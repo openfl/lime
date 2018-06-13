@@ -13,6 +13,35 @@
 namespace lime {
 	
 	
+	#ifdef LIME_HASHLINK
+	bool System::_isHL = (hl_nan () != 0);
+	#else
+	bool System::_isHL = false;
+	#endif
+	
+	
+	void System::GCEnterBlocking () {
+		
+		if (!_isHL) {
+			
+			gc_enter_blocking ();
+			
+		}
+		
+	}
+	
+	
+	void System::GCExitBlocking () {
+		
+		if (!_isHL) {
+			
+			gc_exit_blocking ();
+			
+		}
+		
+	}
+	
+	
 	#ifdef HX_WINDOWS
 	std::wstring* GetWMIValue (BSTR query, BSTR field) {
 		

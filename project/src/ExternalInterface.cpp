@@ -434,7 +434,7 @@ namespace lime {
 			
 		}
 		
-		return bytes.Value ();
+		return (value)bytes.Value ();
 		
 	}
 	
@@ -466,7 +466,7 @@ namespace lime {
 		
 		Bytes data (bytes);
 		data.ReadFile (path.c_str ());
-		return data.Value ();
+		return (value)data.Value ();
 		
 	}
 	
@@ -582,7 +582,7 @@ namespace lime {
 		
 		Zlib::Compress (DEFLATE, &data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null();
 		#endif
@@ -615,7 +615,7 @@ namespace lime {
 		
 		Zlib::Decompress (DEFLATE, &data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -1620,7 +1620,7 @@ namespace lime {
 		
 		Zlib::Compress (GZIP, &data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -1652,7 +1652,7 @@ namespace lime {
 		
 		Zlib::Decompress (GZIP, &data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -1706,7 +1706,7 @@ namespace lime {
 				#ifdef LIME_PNG
 				if (PNG::Encode (&imageBuffer, &data)) {
 					
-					return data.Value ();
+					return (value)data.Value ();
 					
 				}
 				#endif
@@ -1717,7 +1717,7 @@ namespace lime {
 				#ifdef LIME_JPEG
 				if (JPEG::Encode (&imageBuffer, &data, quality)) {
 					
-					return data.Value ();
+					return (value)data.Value ();
 					
 				}
 				#endif
@@ -2491,7 +2491,7 @@ namespace lime {
 		
 		LZMA::Compress (&data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -2523,7 +2523,7 @@ namespace lime {
 		
 		LZMA::Decompress (&data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -3403,7 +3403,7 @@ namespace lime {
 		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes (data);
 		text->Position (font, size, textString.c_str (), &bytes);
-		return bytes.Value ();
+		return (value)bytes.Value ();
 		
 		#endif
 		
@@ -3949,7 +3949,7 @@ namespace lime {
 		
 		Zlib::Compress (ZLIB, &data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -3981,7 +3981,7 @@ namespace lime {
 		
 		Zlib::Decompress (ZLIB, &data, &result);
 		
-		return result.Value ();
+		return (value)result.Value ();
 		#else
 		return alloc_null ();
 		#endif
@@ -4072,6 +4072,8 @@ namespace lime {
 	DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
 	DEFINE_PRIME4 (lime_image_encode);
 	DEFINE_PRIME2 (lime_image_load);
+	DEFINE_PRIME2 (lime_image_load_bytes);
+	DEFINE_PRIME2 (lime_image_load_file);
 	DEFINE_PRIME0 (lime_jni_getenv);
 	DEFINE_PRIME2v (lime_joystick_event_manager_register);
 	DEFINE_PRIME1 (lime_joystick_get_device_guid);

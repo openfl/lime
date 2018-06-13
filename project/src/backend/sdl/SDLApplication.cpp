@@ -1,6 +1,7 @@
 #include "SDLApplication.h"
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
+#include <system/System.h>
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -917,9 +918,9 @@ namespace lime {
 		
 		#ifdef HX_MACOS
 		
-		gc_enter_blocking ();
+		System::GCEnterBlocking ();
 		int result = SDL_WaitEvent (event);
-		gc_exit_blocking ();
+		System::GCExitBlocking ();
 		return result;
 		
 		#else
@@ -934,17 +935,17 @@ namespace lime {
 				
 				case -1:
 					
-					if (isBlocking) gc_exit_blocking ();
+					if (isBlocking) System::GCExitBlocking ();
 					return 0;
 				
 				case 1:
 					
-					if (isBlocking) gc_exit_blocking ();
+					if (isBlocking) System::GCExitBlocking ();
 					return 1;
 				
 				default:
 					
-					if (!isBlocking) gc_enter_blocking ();
+					if (!isBlocking) System::GCEnterBlocking ();
 					isBlocking = true;
 					SDL_Delay (1);
 					break;

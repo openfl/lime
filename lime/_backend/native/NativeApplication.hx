@@ -741,7 +741,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class ApplicationEventInfo {
+@:keep /*private*/ class ApplicationEventInfo {
 	
 	
 	public var deltaTime:Int;
@@ -774,7 +774,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class ClipboardEventInfo {
+@:keep /*private*/ class ClipboardEventInfo {
 	
 	
 	public var type:ClipboardEventType;
@@ -804,7 +804,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class DropEventInfo {
+@:keep /*private*/ class DropEventInfo {
 	
 	
 	public var file:String;
@@ -836,7 +836,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class GamepadEventInfo {
+@:keep /*private*/ class GamepadEventInfo {
 	
 	
 	public var axis:Int;
@@ -878,7 +878,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class JoystickEventInfo {
+@:keep /*private*/ class JoystickEventInfo {
 	
 	
 	public var id:Int;
@@ -924,7 +924,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class KeyEventInfo {
+@:keep /*private*/ class KeyEventInfo {
 	
 	
 	public var keyCode:Int;
@@ -961,7 +961,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class MouseEventInfo {
+@:keep /*private*/ class MouseEventInfo {
 	
 	
 	public var button:Int;
@@ -1007,7 +1007,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class RenderEventInfo {
+@:keep /*private*/ class RenderEventInfo {
 	
 	
 	public var context:RenderContext;
@@ -1041,7 +1041,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class SensorEventInfo {
+@:keep /*private*/ class SensorEventInfo {
 	
 	
 	public var id:Int;
@@ -1079,7 +1079,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class TextEventInfo {
+@:keep /*private*/ class TextEventInfo {
 	
 	
 	public var id:Int;
@@ -1119,7 +1119,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class TouchEventInfo {
+@:keep /*private*/ class TouchEventInfo {
 	
 	
 	public var device:Int;
@@ -1165,7 +1165,7 @@ class NativeApplication {
 }
 
 
-/*private*/ class WindowEventInfo {
+@:keep /*private*/ class WindowEventInfo {
 	
 	
 	public var height:Int;

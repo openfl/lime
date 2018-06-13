@@ -26,6 +26,8 @@ namespace lime {
 		
 		public:
 			
+			static void GCEnterBlocking ();
+			static void GCExitBlocking ();
 			static bool GetAllowScreenTimeout ();
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
@@ -49,6 +51,10 @@ namespace lime {
 			#ifdef HX_WINDOWS
 			static bool SetWindowsConsoleMode (int handleType, int mode);
 			#endif
+		
+		private:
+			
+			static bool _isHL;
 		
 		
 	};
