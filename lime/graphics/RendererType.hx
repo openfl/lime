@@ -9,6 +9,7 @@ enum RendererType {
 	FLASH;
 	CAIRO;
 	CONSOLE;
+	KHA;
 	CUSTOM;
 	
 }

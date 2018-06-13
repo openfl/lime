@@ -54,6 +54,17 @@ import sys.FileSystem;
 		
 		var data, manifest, library;
 		
+		#if kha
+		
+		::manifest::
+		library = AssetLibrary.fromManifest (manifest);
+		Assets.registerLibrary ("::library::", library);
+		
+		if (library != null) preloadLibraries.push (library);
+		else preloadLibraryNames.push ("::library::");
+		
+		#else
+		
 		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
@@ -66,11 +77,19 @@ import sys.FileSystem;
 		else preloadLibraryNames.push ("::name::");
 		::end::::end::
 		
+		#end
+		
 	}
 	
 	
 }
 
+
+#if kha
+
+::images::
+
+#else
 
 #if !display
 #if flash
@@ -98,8 +117,15 @@ import sys.FileSystem;
 
 #if (openfl && !flash)
 
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::__fromLimeFont (new __ASSET__::flatName:: ());::else::#if !html5 ::if (targetPath != null)::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: #end name = "::fontName::";::end:: super (); }}
+#if html5
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::__fromLimeFont (new __ASSET__::flatName:: ());::else::name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
+#else
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () { ::if (embed)::__fromLimeFont (new __ASSET__::flatName:: ());::else::::if (targetPath != null)::__fontPath = #if (ios || tvos) "assets/" + #end "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: name = "::fontName::";::end:: super (); }}
+::end::::end::::end::
+#end
 
 #end
+#end
+
 #end

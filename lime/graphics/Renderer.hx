@@ -66,7 +66,9 @@ class Renderer {
 }
 
 
-#if flash
+#if kha
+@:noCompletion private typedef RendererBackend = lime._backend.kha.KhaRenderer;
+#elseif flash
 @:noCompletion private typedef RendererBackend = lime._backend.flash.FlashRenderer;
 #elseif (js && html5)
 @:noCompletion private typedef RendererBackend = lime._backend.html5.HTML5Renderer;

@@ -54,7 +54,7 @@ class AssetsMacro {
 	
 	macro public static function cacheVersion () {
 		
-		return macro $v{Std.int (Math.random () * 1000000)};
+		return macro Std.int (Math.random () * 1000000);
 		
 	}
 	
