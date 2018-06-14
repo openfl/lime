@@ -23,7 +23,8 @@ namespace lime {
 		data = 0;
 		premultiplied = false;
 		transparent = false;
-		mValue = 0;
+		_buffer = 0;
+		_value = 0;
 		
 	}
 	
@@ -65,7 +66,8 @@ namespace lime {
 			
 		}
 		
-		mValue = imageBuffer;
+		_buffer = 0;
+		_value = imageBuffer;
 		
 	}
 	
@@ -81,6 +83,7 @@ namespace lime {
 			transparent = imageBuffer->transparent;
 			premultiplied = imageBuffer->premultiplied;
 			data = new ArrayBufferView (imageBuffer->data);
+			_buffer = imageBuffer;
 			
 		} else {
 			
@@ -91,17 +94,22 @@ namespace lime {
 			data = 0;
 			premultiplied = false;
 			transparent = false;
+			_buffer = 0;
 			
 		}
 		
-		mValue = 0;
+		_value = 0;
 		
 	}
 	
 	
 	ImageBuffer::~ImageBuffer () {
 		
-		delete data;
+		if (data) {
+			
+			delete data;
+			
+		}
 		
 	}
 	
@@ -154,35 +162,50 @@ namespace lime {
 	}
 	
 	
-	value ImageBuffer::Value () {
+	void* ImageBuffer::Value () {
 		
-		if (!init) {
+		if (_buffer) {
 			
-			id_bitsPerPixel = val_id ("bitsPerPixel");
-			id_transparent = val_id ("transparent");
-			id_data = val_id ("data");
-			id_width = val_id ("width");
-			id_height = val_id ("height");
-			id_format = val_id ("format");
-			id_premultiplied = val_id ("premultiplied");
-			init = true;
+			_buffer->width = width;
+			_buffer->height = height;
+			_buffer->bitsPerPixel = bitsPerPixel;
+			_buffer->format = format;
+			_buffer->transparent = transparent;
+			_buffer->premultiplied = premultiplied;
+			//_buffer->data
+			return _buffer;
+			
+		} else {
+			
+			if (!init) {
+				
+				id_bitsPerPixel = val_id ("bitsPerPixel");
+				id_transparent = val_id ("transparent");
+				id_data = val_id ("data");
+				id_width = val_id ("width");
+				id_height = val_id ("height");
+				id_format = val_id ("format");
+				id_premultiplied = val_id ("premultiplied");
+				init = true;
+				
+			}
+			
+			if (val_is_null (_value)) {
+				
+				_value = alloc_empty_object ();
+				
+			}
+			
+			alloc_field (_value, id_width, alloc_int (width));
+			alloc_field (_value, id_height, alloc_int (height));
+			alloc_field (_value, id_bitsPerPixel, alloc_int (bitsPerPixel));
+			alloc_field (_value, id_data, data ? data->Value () : alloc_null ());
+			alloc_field (_value, id_transparent, alloc_bool (transparent));
+			alloc_field (_value, id_format, alloc_int (format));
+			alloc_field (_value, id_premultiplied, alloc_bool (premultiplied));
+			return _value;
 			
 		}
-		
-		if (val_is_null (mValue)) {
-			
-			mValue = alloc_empty_object ();
-			
-		}
-		
-		alloc_field (mValue, id_width, alloc_int (width));
-		alloc_field (mValue, id_height, alloc_int (height));
-		alloc_field (mValue, id_bitsPerPixel, alloc_int (bitsPerPixel));
-		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
-		alloc_field (mValue, id_transparent, alloc_bool (transparent));
-		alloc_field (mValue, id_format, alloc_int (format));
-		alloc_field (mValue, id_premultiplied, alloc_bool (premultiplied));
-		return mValue;
 		
 	}
 	

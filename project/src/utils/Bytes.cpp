@@ -41,6 +41,7 @@ namespace lime {
 		_data = 0;
 		_length = 0;
 		_value = 0;
+		_bytes = 0;
 		
 	}
 	
@@ -52,6 +53,7 @@ namespace lime {
 		_data = 0;
 		_length = 0;
 		_value = 0;
+		_bytes = 0;
 		
 		Resize (size);
 		
@@ -65,6 +67,7 @@ namespace lime {
 		_data = 0;
 		_length = 0;
 		_value = 0;
+		_bytes = 0;
 		
 		Set (bytes);
 		
@@ -85,6 +88,7 @@ namespace lime {
 		_data = 0;
 		_length = 0;
 		_value = 0;
+		_bytes = 0;
 		
 		Set (bytes);
 		
@@ -98,6 +102,7 @@ namespace lime {
 		_data = 0;
 		_length = 0;
 		_value = 0;
+		_bytes = 0;
 		
 		ReadFile (path);
 		
@@ -111,6 +116,7 @@ namespace lime {
 		_data = 0;
 		_length = 0;
 		_value = 0;
+		_bytes = 0;
 		
 		Set (data);
 		
@@ -162,7 +168,7 @@ namespace lime {
 		if (size > 0) {
 			
 			Resize (size);
-			int status = lime::fread (_data, _length, 1, file);
+			int status = lime::fread (_data, 1, size, file);
 			
 		}
 		
@@ -179,7 +185,7 @@ namespace lime {
 				
 				if (size <= 0) {
 					
-					if (_bytes->b) {
+					if (_bytes && _bytes->b) {
 						
 						free (_bytes->b);
 						_bytes->b = 0;
@@ -190,17 +196,22 @@ namespace lime {
 					
 				} else {
 					
-					unsigned char* data = (unsigned char*)malloc (size);
+					unsigned char* data = (unsigned char*)malloc (sizeof (char) * size);
 					
 					if (_bytes->b && _bytes->length) {
 						
-						memcpy (_bytes->b, data, _bytes->length);
+						memcpy (data, _bytes->b, _bytes->length < size ? _bytes->length : size);
 						free (_bytes->b);
-						_bytes->b = data;
-						_bytes->length = size;
-						_data = _bytes->b;
+						
+					} else if (_bytes->b) {
+						
+						free (_bytes->b);
 						
 					}
+					
+					_bytes->b = data;
+					_bytes->length = size;
+					_data = data;
 					
 				}
 				

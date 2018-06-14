@@ -77,7 +77,6 @@ namespace lime {
 	
 	bool PNG::Decode (Resource *resource, ImageBuffer *imageBuffer, bool decodeData) {
 		
-		unsigned char png_sig[PNG_SIG_SIZE];
 		png_structp png_ptr;
 		png_infop info_ptr;
 		png_uint_32 width, height;
@@ -91,7 +90,8 @@ namespace lime {
 			file = lime::fopen (resource->path, "rb");
 			if (!file) return false;
 			
-			int read = lime::fread (png_sig, PNG_SIG_SIZE, 1, file);
+			unsigned char png_sig[PNG_SIG_SIZE];
+			int read = lime::fread (&png_sig, PNG_SIG_SIZE, 1, file);
 			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
 				
 				lime::fclose (file);
@@ -101,9 +101,7 @@ namespace lime {
 			
 		} else {
 			
-			memcpy (png_sig, resource->data->Data (), PNG_SIG_SIZE);
-			
-			if (png_sig_cmp (png_sig, 0, PNG_SIG_SIZE)) {
+			if (png_sig_cmp (resource->data->Data (), 0, PNG_SIG_SIZE)) {
 				
 				return false;
 				
@@ -184,6 +182,7 @@ namespace lime {
 			//png_set_bgr (png_ptr);
 			
 			imageBuffer->Resize (width, height, 32);
+			
 			const unsigned int stride = imageBuffer->Stride ();
 			unsigned char *bytes = imageBuffer->data->Data ();
 			

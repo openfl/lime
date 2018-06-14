@@ -30,8 +30,10 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes {
 	
 	public static function alloc (length:Int):Bytes {
 		
-		var bytes = HaxeBytes.alloc (length);
-		return new Bytes (bytes.length, bytes.getData ());
+		#if hl
+		if (length == 0) return new Bytes (0, null);
+		#end
+		return HaxeBytes.alloc (length);
 		
 	}
 	

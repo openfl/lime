@@ -41,13 +41,13 @@ namespace lime {
 			ImageBuffer (HL_ImageBuffer* imageBuffer);
 			~ImageBuffer ();
 			
-			void Blit (const unsigned char *data, int x, int y, int width, int height);
+			void Blit (const unsigned char* data, int x, int y, int width, int height);
 			void Resize (int width, int height, int bitsPerPixel = 32);
 			int Stride ();
-			value Value ();
+			void* Value ();
 			
 			int bitsPerPixel;
-			ArrayBufferView *data;
+			ArrayBufferView* data;
 			PixelFormat format;
 			int height;
 			bool premultiplied;
@@ -56,7 +56,8 @@ namespace lime {
 		
 		private:
 			
-			value mValue;
+			HL_ImageBuffer* _buffer;
+			value _value;
 		
 		
 	};
