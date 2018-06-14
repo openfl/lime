@@ -215,7 +215,8 @@ import lime.utils.Log;
 		} else if (isError) {
 			
 			var future = new Future<U> ();
-			future.onError (error);
+			future.isError = true;
+			future.error = error;
 			return future;
 			
 		} else {
