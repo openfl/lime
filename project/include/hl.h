@@ -643,13 +643,13 @@ HL_API void hl_thread_yield(void);
 HL_API void hl_register_thread( void *stack_top );
 HL_API void hl_unregister_thread( void );
 
-HL_API hl_mutex *hl_mutex_alloc( void );
+HL_API hl_mutex *hl_mutex_alloc( bool gc_thread );
 HL_API void hl_mutex_acquire( hl_mutex *l );
 HL_API bool hl_mutex_try_acquire( hl_mutex *l );
 HL_API void hl_mutex_release( hl_mutex *l );
 HL_API void hl_mutex_free( hl_mutex *l );
 
-HL_API hl_tls *hl_tls_alloc( void );
+HL_API hl_tls *hl_tls_alloc( bool gc_value );
 HL_API void hl_tls_set( hl_tls *l, void *value );
 HL_API void *hl_tls_get( hl_tls *l );
 HL_API void hl_tls_free( hl_tls *l );
@@ -773,6 +773,12 @@ typedef struct {
 #	define DEFINE_PRIM_WITH_NAME	_DEFINE_PRIM_WITH_NAME
 #endif
 
+#if defined(HL_GCC) && !defined(HL_CONSOLE)
+#	define HL_NO_OPT __attribute__((optimize("-O0")))
+#else
+#	define HL_NO_OPT
+#endif
+
 // -------------- EXTRA ------------------------------------
 
 #define hl_fatal(msg)			hl_fatal_error(msg,__FILE__,__LINE__)
@@ -798,6 +804,7 @@ struct _hl_trap_ctx {
 #define HL_EXC_RETHROW		1
 #define HL_EXC_CATCH_ALL	2
 #define HL_EXC_IS_THROW		4
+#define HL_TRACK_DISABLE	8
 
 typedef struct {
 	int thread_id;

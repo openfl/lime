@@ -200,7 +200,7 @@ class WindowsPlatform extends PlatformTarget {
 				
 				if (noOutput) return;
 				
-				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", PathHelper.combine (applicationDirectory, project.app.file + ".hl"));
+				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.hl", PathHelper.combine (applicationDirectory, project.app.file + ".hl"));
 				
 			} else if (targetType == "nodejs") {
 				

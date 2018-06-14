@@ -23,8 +23,11 @@
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
+	<set name="LIME_MOJOAL" value="1" if="switch || static_link || mojoal" />
+	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
+	<set name="LIME_OPENAL" value="1" if="LIME_MOJOAL" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
@@ -125,8 +128,13 @@
 		
 		<section if="LIME_HASHLINK">
 			
-			<!-- <compilerflag value="-DLIBHL_EXPORTS" /> -->
 			<compilerflag value="-DLIME_HASHLINK" />
+			
+		</section>
+		
+		<section unless="LIME_HASHLINK">
+			
+			<compilerflag value="-DLIBHL_EXPORTS" />
 			
 		</section>
 		
@@ -169,10 +177,12 @@
 		
 		<section if="LIME_OPENAL">
 			
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="emscripten" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="LIME_MOJOAL || emscripten" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mojoal/" if="LIME_MOJOAL" />
 			<compilerflag value="-DLIME_OPENAL" />
 			<compilerflag value="-DLIME_OPENALSOFT" if="LIME_OPENALSOFT" />
-			<compilerflag value="-DAL_LIBTYPE_STATIC=1" if="LIME_OPENALSOFT" />
+			<compilerflag value="-DLIME_MOJOAL" if="LIME_MOJOAL" />
+			<compilerflag value="-DAL_LIBTYPE_STATIC=1" if="LIME_OPENALSOFT || LIME_MOJOAL" />
 			<compilerflag value="-DAL_ALEXT_PROTOTYPES" if="LIME_OPENALSOFT" />
 			
 			<file name="src/media/openal/OpenALBindings.cpp" />
@@ -325,6 +335,7 @@
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/lzma/files.xml" />
 	<include name="lib/mbedtls/files.xml" />
+	<include name="lib/mojoal/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
 	<include name="lib/openal/files.xml" />
@@ -357,6 +368,7 @@
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
 		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" />
+		<files id="native-toolkit-mojoal" if="LIME_MOJOAL" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
 		<files id="native-toolkit-openal" if="LIME_OPENALSOFT" />
