@@ -467,11 +467,19 @@ class System {
 					
 				}
 				
+				#if hl
+				path = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_directory (type, company, file));
+				#else
 				path = NativeCFFI.lime_system_get_directory (type, company, file);
+				#end
 				
 			} else {
 				
+				#if hl
+				path = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_directory (type, null, null));
+				#else
 				path = NativeCFFI.lime_system_get_directory (type, null, null);
+				#end
 				
 			}
 			
@@ -712,7 +720,11 @@ class System {
 		if (__deviceModel == null) {
 			
 			#if (windows || ios || tvos)
+			#if hl
+			__deviceModel = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_device_model ());
+			#else
 			__deviceModel = NativeCFFI.lime_system_get_device_model ();
+			#end
 			#elseif android
 			var manufacturer:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
 			var model:String = JNI.createStaticField ("android/os/Build", "MODEL", "Ljava/lang/String;").get ();
@@ -743,7 +755,11 @@ class System {
 		if (__deviceVendor == null) {
 			
 			#if (windows && !html5)
+			#if hl
+			__deviceVendor = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_device_vendor ());
+			#else
 			__deviceVendor = NativeCFFI.lime_system_get_device_vendor ();
+			#end
 			#elseif android
 			var vendor:String = JNI.createStaticField ("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get ();
 			if (vendor != null) {
@@ -840,7 +856,11 @@ class System {
 		if (__platformLabel == null) {
 			
 			#if (windows && !html5)
+			#if hl
+			var label:String = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_platform_label ());
+			#else
 			var label:String = NativeCFFI.lime_system_get_platform_label ();
+			#end
 			if (label != null) __platformLabel = StringTools.trim (label);
 			#elseif linux
 			__platformLabel = __runProcess ("lsb_release", [ "-ds" ]);
@@ -904,7 +924,11 @@ class System {
 		if (__platformVersion == null) {
 			
 			#if (windows && !html5)
+			#if hl
+			__platformVersion = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_platform_version ());
+			#else
 			__platformVersion = NativeCFFI.lime_system_get_platform_version ();
+			#end
 			#elseif android
 			var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
 			var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();

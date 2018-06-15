@@ -55,9 +55,10 @@ namespace lime {
 			
 			AudioBuffer ();
 			AudioBuffer (value audioBuffer);
+			AudioBuffer (HL_AudioBuffer* audioBuffer);
 			~AudioBuffer ();
 			
-			value Value ();
+			void* Value ();
 			
 			int bitsPerSample;
 			int channels;
@@ -66,7 +67,8 @@ namespace lime {
 			
 		private:
 			
-			value mValue;
+			HL_AudioBuffer* _buffer;
+			value _value;
 		
 		
 	};

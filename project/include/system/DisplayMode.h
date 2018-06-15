@@ -9,20 +9,36 @@
 namespace lime {
 	
 	
+	struct HL_DisplayMode {
+		
+		hl_type* t;
+		int height;
+		PixelFormat pixelFormat;
+		int refreshRate;
+		int width;
+		
+	};
+	
+	
 	class DisplayMode {
 		
 		public:
 			
 			DisplayMode ();
 			DisplayMode (value DisplayMode);
+			DisplayMode (HL_DisplayMode* DisplayMode);
 			DisplayMode (int width, int height, PixelFormat pixelFormat, int refreshRate);
 			
-			value Value ();
+			void* Value ();
 			
 			int height;
 			PixelFormat pixelFormat;
 			int refreshRate;
 			int width;
+		
+		private:
+			
+			HL_DisplayMode* _mode;
 		
 	};
 	

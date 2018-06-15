@@ -17,7 +17,8 @@ namespace lime {
 		channels = 0;
 		data = new ArrayBufferView ();
 		sampleRate = 0;
-		mValue = 0;
+		_buffer = 0;
+		_value = 0;
 		
 	}
 	
@@ -50,7 +51,20 @@ namespace lime {
 			
 		}
 		
-		mValue = audioBuffer;
+		_buffer = 0;
+		_value = audioBuffer;
+		
+	}
+	
+	
+	AudioBuffer::AudioBuffer (HL_AudioBuffer* audioBuffer) {
+		
+		bitsPerSample = audioBuffer->bitsPerSample;
+		channels = audioBuffer->channels;
+		data = new ArrayBufferView (audioBuffer->data);
+		sampleRate = audioBuffer->sampleRate;
+		_buffer = audioBuffer;
+		_value = 0;
 		
 	}
 	
@@ -62,29 +76,41 @@ namespace lime {
 	}
 	
 	
-	value AudioBuffer::Value () {
+	void* AudioBuffer::Value () {
 		
-		if (!init) {
+		if (_buffer) {
 			
-			id_bitsPerSample = val_id ("bitsPerSample");
-			id_channels = val_id ("channels");
-			id_data = val_id ("data");
-			id_sampleRate = val_id ("sampleRate");
-			init = true;
+			_buffer->bitsPerSample = bitsPerSample;
+			_buffer->channels = channels;
+			//data
+			_buffer->sampleRate = sampleRate;
+			return _buffer;
+			
+		} else {
+			
+			if (!init) {
+				
+				id_bitsPerSample = val_id ("bitsPerSample");
+				id_channels = val_id ("channels");
+				id_data = val_id ("data");
+				id_sampleRate = val_id ("sampleRate");
+				init = true;
+				
+			}
+			
+			if (val_is_null (_value)) {
+				
+				_value = alloc_empty_object ();
+				
+			}
+			
+			alloc_field (_value, id_bitsPerSample, alloc_int (bitsPerSample));
+			alloc_field (_value, id_channels, alloc_int (channels));
+			alloc_field (_value, id_data, data ? data->Value () : alloc_null ());
+			alloc_field (_value, id_sampleRate, alloc_int (sampleRate));
+			return _value;
 			
 		}
-		
-		if (val_is_null (mValue)) {
-			
-			mValue = alloc_empty_object ();
-			
-		}
-		
-		alloc_field (mValue, id_bitsPerSample, alloc_int (bitsPerSample));
-		alloc_field (mValue, id_channels, alloc_int (channels));
-		alloc_field (mValue, id_data, data ? data->Value () : alloc_null ());
-		alloc_field (mValue, id_sampleRate, alloc_int (sampleRate));
-		return mValue;
 		
 	}
 	

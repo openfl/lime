@@ -306,14 +306,14 @@ namespace lime {
 		
 		if (WAV::Decode (&resource, &audioBuffer)) {
 			
-			return audioBuffer.Value ();
+			return (value)audioBuffer.Value ();
 			
 		}
 		
 		#ifdef LIME_OGG
 		if (OGG::Decode (&resource, &audioBuffer)) {
 			
-			return audioBuffer.Value ();
+			return (value)audioBuffer.Value ();
 			
 		}
 		#endif
@@ -323,29 +323,29 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_audio_load_bytes (HL_Bytes* data, HL_AudioBuffer* buffer) {
+	HL_PRIM HL_AudioBuffer* hl_lime_audio_load_bytes (HL_Bytes* data, HL_AudioBuffer* buffer) {
 		
-		// Resource resource;
-		// Bytes bytes;
+		Resource resource;
+		Bytes bytes;
 		
-		// AudioBuffer audioBuffer = AudioBuffer (buffer);
+		AudioBuffer audioBuffer = AudioBuffer (buffer);
 		
-		// bytes.Set (data);
-		// resource = Resource (&bytes);
+		bytes.Set (data);
+		resource = Resource (&bytes);
 		
-		// if (WAV::Decode (&resource, &audioBuffer)) {
+		if (WAV::Decode (&resource, &audioBuffer)) {
 			
-		// 	return audioBuffer.Value ();
+			return (HL_AudioBuffer*)audioBuffer.Value ();
 			
-		// }
+		}
 		
-		// #ifdef LIME_OGG
-		// if (OGG::Decode (&resource, &audioBuffer)) {
+		#ifdef LIME_OGG
+		if (OGG::Decode (&resource, &audioBuffer)) {
 			
-		// 	return audioBuffer.Value ();
+			return (HL_AudioBuffer*)audioBuffer.Value ();
 			
-		// }
-		// #endif
+		}
+		#endif
 		
 		return 0;
 		
@@ -363,14 +363,14 @@ namespace lime {
 		
 		if (WAV::Decode (&resource, &audioBuffer)) {
 			
-			return audioBuffer.Value ();
+			return (value)audioBuffer.Value ();
 			
 		}
 		
 		#ifdef LIME_OGG
 		if (OGG::Decode (&resource, &audioBuffer)) {
 			
-			return audioBuffer.Value ();
+			return (value)audioBuffer.Value ();
 			
 		}
 		#endif
@@ -380,28 +380,28 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_audio_load_file (vbyte* data, HL_AudioBuffer* buffer) {
+	HL_PRIM HL_AudioBuffer* hl_lime_audio_load_file (HL_String* data, HL_AudioBuffer* buffer) {
 		
-		// Resource resource;
-		// Bytes bytes;
+		Resource resource;
+		Bytes bytes;
 		
-		// AudioBuffer audioBuffer = AudioBuffer (buffer);
+		AudioBuffer audioBuffer = AudioBuffer (buffer);
 		
-		// resource = Resource (val_string (data));
+		resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
 		
-		// if (WAV::Decode (&resource, &audioBuffer)) {
+		if (WAV::Decode (&resource, &audioBuffer)) {
 			
-		// 	return audioBuffer.Value ();
+			return (HL_AudioBuffer*)audioBuffer.Value ();
 			
-		// }
+		}
 		
-		// #ifdef LIME_OGG
-		// if (OGG::Decode (&resource, &audioBuffer)) {
+		#ifdef LIME_OGG
+		if (OGG::Decode (&resource, &audioBuffer)) {
 			
-		// 	return audioBuffer.Value ();
+			return (HL_AudioBuffer*)audioBuffer.Value ();
 			
-		// }
-		// #endif
+		}
+		#endif
 		
 		return 0;
 		
@@ -571,9 +571,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_clipboard_set_text (vbyte* text) {
+	HL_PRIM void hl_lime_clipboard_set_text (HL_String* text) {
 		
-		Clipboard::SetText ((const char*)text);
+		Clipboard::SetText (text ? (const char*)hl_to_utf8 ((const uchar*)text->bytes) : NULL);
 		
 	}
 	
@@ -601,19 +601,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_deflate_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_deflate_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_ZLIB
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// Zlib::Compress (DEFLATE, &data, &result);
+		Zlib::Compress (DEFLATE, &data, &result);
 		
-		// return result.Value ();
-		// #else
-		// return alloc_null();
-		// #endif
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
+		#endif
 		
 	}
 	
@@ -634,19 +633,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_deflate_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_deflate_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_ZLIB
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// Zlib::Decompress (DEFLATE, &data, &result);
+		Zlib::Decompress (DEFLATE, &data, &result);
 		
-		// return result.Value ();
-		// #else
-		// return alloc_null ();
-		// #endif
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
+		#endif
 		
 	}
 	
@@ -701,7 +699,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_file_dialog_open_directory (vbyte* title, vbyte* filter, vbyte* defaultPath) {
+	HL_PRIM vbyte* hl_lime_file_dialog_open_directory (HL_String* title, HL_String* filter, HL_String* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -769,7 +767,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_file_dialog_open_file (vbyte* title, vbyte* filter, vbyte* defaultPath) {
+	HL_PRIM vbyte* hl_lime_file_dialog_open_file (HL_String* title, HL_String* filter, HL_String* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -836,7 +834,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_file_dialog_open_files (vbyte* title, vbyte* filter, vbyte* defaultPath) {
+	HL_PRIM hl_varray* hl_lime_file_dialog_open_files (HL_String* title, HL_String* filter, HL_String* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -903,7 +901,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_file_dialog_save_file (vbyte* title, vbyte* filter, vbyte* defaultPath) {
+	HL_PRIM vbyte* hl_lime_file_dialog_save_file (HL_String* title, HL_String* filter, HL_String* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -953,11 +951,10 @@ namespace lime {
 		
 		// #ifdef LIME_EFSW
 		// FileWatcher* watcher = new FileWatcher (callback);
-		// return CFFIPointer (watcher, gc_file_watcher);
+		// return HLCFFIPointer (watcher, (hl_finalizer)hl_gc_file_watcher);
 		// #else
-		// return alloc_null ();
-		// #endif
 		return 0;
+		// #endif
 		
 	}
 	
@@ -974,7 +971,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_file_watcher_add_directory (HL_CFFIPointer* handle, vbyte* path, bool recursive) {
+	HL_PRIM int hl_lime_file_watcher_add_directory (HL_CFFIPointer* handle, HL_String* path, bool recursive) {
 		
 		#ifdef LIME_EFSW
 		FileWatcher* watcher = (FileWatcher*)handle->ptr;
@@ -1114,11 +1111,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_font_get_glyph_index (HL_CFFIPointer* fontHandle, vbyte* character) {
+	HL_PRIM int hl_lime_font_get_glyph_index (HL_CFFIPointer* fontHandle, HL_String* character) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
-		return font->GetGlyphIndex ((char*)character);
+		return font->GetGlyphIndex (character ? (char*)hl_to_utf8 ((const uchar*)character->bytes) : NULL);
 		#else
 		return -1;
 		#endif
@@ -1138,11 +1135,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_font_get_glyph_indices (HL_CFFIPointer* fontHandle, vbyte* characters) {
+	HL_PRIM hl_varray* hl_lime_font_get_glyph_indices (HL_CFFIPointer* fontHandle, HL_String* characters) {
 		
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
-		// return font->GetGlyphIndices ((char*)characters);
+		// return font->GetGlyphIndices (characters ? (char*)hl_to_utf8 ((const uchar*)characters->bytes) : NULL);
 		// #else
 		return 0;
 		// #endif
@@ -1162,7 +1159,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_font_get_glyph_metrics (HL_CFFIPointer* fontHandle, int index) {
+	HL_PRIM vdynobj* hl_lime_font_get_glyph_metrics (HL_CFFIPointer* fontHandle, int index) {
 		
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
@@ -1327,29 +1324,29 @@ namespace lime {
 	
 	HL_PRIM HL_CFFIPointer* hl_lime_font_load_bytes (HL_Bytes* data) {
 		
-		// #ifdef LIME_FREETYPE
-		// Resource resource;
-		// Bytes bytes;
+		#ifdef LIME_FREETYPE
+		Resource resource;
+		Bytes bytes;
 		
-		// bytes.Set (data);
-		// resource = Resource (&bytes);
+		bytes.Set (data);
+		resource = Resource (&bytes);
 		
-		// Font *font = new Font (&resource, 0);
+		Font *font = new Font (&resource, 0);
 		
-		// if (font) {
+		if (font) {
 			
-		// 	if (font->face) {
+			if (font->face) {
 				
-		// 		return CFFIPointer (font, gc_font);
+				return HLCFFIPointer (font, (hl_finalizer)hl_gc_font);
 				
-		// 	} else {
+			} else {
 				
-		// 		delete font;
+				delete font;
 				
-		// 	}
+			}
 			
-		// }
-		// #endif
+		}
+		#endif
 		
 		return 0;
 		
@@ -1386,30 +1383,30 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_CFFIPointer* hl_lime_font_load_file (vbyte* data) {
+	HL_PRIM HL_CFFIPointer* hl_lime_font_load_file (HL_String* data) {
 		
-		// #ifdef LIME_FREETYPE
-		// Resource resource;
-		// Bytes bytes;
+		#ifdef LIME_FREETYPE
+		Resource resource;
+		Bytes bytes;
 		
-		// resource = Resource (val_string (data));
+		resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
 		
-		// Font *font = new Font (&resource, 0);
+		Font *font = new Font (&resource, 0);
 		
-		// if (font) {
+		if (font) {
 			
-		// 	if (font->face) {
+			if (font->face) {
 				
-		// 		return CFFIPointer (font, gc_font);
+				return HLCFFIPointer (font, (hl_finalizer)hl_gc_font);
 				
-		// 	} else {
+			} else {
 				
-		// 		delete font;
+				delete font;
 				
-		// 	}
+			}
 			
-		// }
-		// #endif
+		}
+		#endif
 		
 		return 0;
 		
@@ -1443,7 +1440,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_font_outline_decompose (HL_CFFIPointer* fontHandle, int size) {
+	HL_PRIM vdynobj* hl_lime_font_outline_decompose (HL_CFFIPointer* fontHandle, int size) {
 		
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
@@ -1470,13 +1467,13 @@ namespace lime {
 	
 	HL_PRIM bool hl_lime_font_render_glyph (HL_CFFIPointer* fontHandle, int index, HL_Bytes* data) {
 		
-		// #ifdef LIME_FREETYPE
-		// Font *font = (Font*)val_data (fontHandle);
-		// Bytes bytes (data);
-		// return font->RenderGlyph (index, &bytes);
-		// #else
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		Bytes bytes (data);
+		return font->RenderGlyph (index, &bytes);
+		#else
 		return false;
-		// #endif
+		#endif
 		
 	}
 	
@@ -1494,10 +1491,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM bool hl_lime_font_render_glyphs (HL_CFFIPointer* fontHandle, vdynamic* indices, HL_Bytes* data) {
+	HL_PRIM bool hl_lime_font_render_glyphs (HL_CFFIPointer* fontHandle, hl_varray* indices, HL_Bytes* data) {
 		
 		// #ifdef LIME_FREETYPE
-		// Font *font = (Font*)val_data (fontHandle);
+		// Font *font = (Font*)fontHandle->ptr;
 		// Bytes bytes (data);
 		// return font->RenderGlyphs (indices, &bytes);
 		// #else
@@ -1540,13 +1537,14 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_gamepad_add_mappings (vdynamic* mappings) {
+	HL_PRIM void hl_lime_gamepad_add_mappings (hl_varray* mappings) {
 		
-		// int length = val_array_size (mappings);
+		// int length = mappings->size;
+		// HL_String** mappingsData = hl_aptr (mappings, HL_String*);
 		
 		// for (int i = 0; i < length; i++) {
 			
-		// 	Gamepad::AddMapping (val_string (val_array_i (mappings, i)));
+		// 	Gamepad::AddMapping (hl_to_utf8 ((const uchar*)((*mappingsData++)->bytes)));
 			
 		// }
 		
@@ -1639,18 +1637,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_gzip_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_gzip_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_ZLIB
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// Zlib::Compress (GZIP, &data, &result);
+		Zlib::Compress (GZIP, &data, &result);
 		
-		// return result.Value ();
-		// #else
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
-		// #endif
+		#endif
 		
 	}
 	
@@ -1671,18 +1669,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_gzip_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_gzip_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_ZLIB
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// Zlib::Decompress (GZIP, &data, &result);
+		Zlib::Decompress (GZIP, &data, &result);
 		
-		// return result.Value ();
-		// #else
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
-		// #endif
+		#endif
 		
 	}
 	
@@ -1743,38 +1741,38 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_image_encode (HL_ImageBuffer* buffer, int type, int quality, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_image_encode (HL_ImageBuffer* buffer, int type, int quality, HL_Bytes* bytes) {
 		
-		// ImageBuffer imageBuffer = ImageBuffer (buffer);
-		// Bytes data = Bytes (bytes);
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		Bytes data = Bytes (bytes);
 		
-		// switch (type) {
+		switch (type) {
 			
-		// 	case 0: 
+			case 0: 
 				
-		// 		#ifdef LIME_PNG
-		// 		if (PNG::Encode (&imageBuffer, &data)) {
+				#ifdef LIME_PNG
+				if (PNG::Encode (&imageBuffer, &data)) {
 					
-		// 			return data.Value ();
+					return (HL_Bytes*)data.Value ();
 					
-		// 		}
-		// 		#endif
-		// 		break;
+				}
+				#endif
+				break;
 			
-		// 	case 1:
+			case 1:
 				
-		// 		#ifdef LIME_JPEG
-		// 		if (JPEG::Encode (&imageBuffer, &data, quality)) {
+				#ifdef LIME_JPEG
+				if (JPEG::Encode (&imageBuffer, &data, quality)) {
 					
-		// 			return data.Value ();
+					return (HL_Bytes*)data.Value ();
 					
-		// 		}
-		// 		#endif
-		// 		break;
+				}
+				#endif
+				break;
 			
-		// 	default: break;
+			default: break;
 			
-		// }
+		}
 		
 		return 0;
 		
@@ -1930,10 +1928,10 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_image_data_util_color_transform (HL_Image* image, HL_Rectangle* rect, HL_ArrayBufferView* colorMatrix) {
 		
-		// Image _image = Image (image);
-		// Rectangle _rect = Rectangle (rect);
-		// ColorMatrix _colorMatrix = ColorMatrix (colorMatrix);
-		// ImageDataUtil::ColorTransform (&_image, &_rect, &_colorMatrix);
+		Image _image = Image (image);
+		Rectangle _rect = Rectangle (rect);
+		ColorMatrix _colorMatrix = ColorMatrix (colorMatrix);
+		ImageDataUtil::ColorTransform (&_image, &_rect, &_colorMatrix);
 		
 	}
 	
@@ -1951,11 +1949,11 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_image_data_util_copy_channel (HL_Image* image, HL_Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, int srcChannel, int destChannel) {
 		
-		// Image _image = Image (image);
-		// Image _sourceImage = Image (sourceImage);
-		// Rectangle _sourceRect = Rectangle (sourceRect);
-		// Vector2 _destPoint = Vector2 (destPoint);
-		// ImageDataUtil::CopyChannel (&_image, &_sourceImage, &_sourceRect, &_destPoint, srcChannel, destChannel);
+		Image _image = Image (image);
+		Image _sourceImage = Image (sourceImage);
+		Rectangle _sourceRect = Rectangle (sourceRect);
+		Vector2 _destPoint = Vector2 (destPoint);
+		ImageDataUtil::CopyChannel (&_image, &_sourceImage, &_sourceRect, &_destPoint, srcChannel, destChannel);
 		
 	}
 	
@@ -1985,23 +1983,23 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_image_data_util_copy_pixels (HL_Image* image, HL_Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, HL_Image* alphaImage, HL_Vector2* alphaPoint, bool mergeAlpha) {
 		
-		// Image _image = Image (image);
-		// Image _sourceImage = Image (sourceImage);
-		// Rectangle _sourceRect = Rectangle (sourceRect);
-		// Vector2 _destPoint = Vector2 (destPoint);
+		Image _image = Image (image);
+		Image _sourceImage = Image (sourceImage);
+		Rectangle _sourceRect = Rectangle (sourceRect);
+		Vector2 _destPoint = Vector2 (destPoint);
 		
-		// if (val_is_null (alphaImage)) {
+		if (!alphaImage) {
 			
-		// 	ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, 0, 0, mergeAlpha);
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, 0, 0, mergeAlpha);
 			
-		// } else {
+		} else {
 			
-		// 	Image _alphaImage = Image (alphaImage);
-		// 	Vector2 _alphaPoint = Vector2 (alphaPoint);
+			Image _alphaImage = Image (alphaImage);
+			Vector2 _alphaPoint = Vector2 (alphaPoint);
 			
-		// 	ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, &_alphaImage, &_alphaPoint, mergeAlpha);
+			ImageDataUtil::CopyPixels (&_image, &_sourceImage, &_sourceRect, &_destPoint, &_alphaImage, &_alphaPoint, mergeAlpha);
 			
-		// }
+		}
 		
 	}
 	
@@ -2057,11 +2055,11 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_image_data_util_get_pixels (HL_Image* image, HL_Rectangle* rect, int format, HL_Bytes* bytes) {
 		
-		// Image _image = Image (image);
-		// Rectangle _rect = Rectangle (rect);
-		// PixelFormat _format = (PixelFormat)format;
-		// Bytes pixels = Bytes (bytes);
-		// ImageDataUtil::GetPixels (&_image, &_rect, _format, &pixels);
+		Image _image = Image (image);
+		Rectangle _rect = Rectangle (rect);
+		PixelFormat _format = (PixelFormat)format;
+		Bytes pixels = Bytes (bytes);
+		ImageDataUtil::GetPixels (&_image, &_rect, _format, &pixels);
 		
 	}
 	
@@ -2079,11 +2077,11 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_image_data_util_merge (HL_Image* image, HL_Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier) {
 		
-		// Image _image = Image (image);
-		// Image _sourceImage = Image (sourceImage);
-		// Rectangle _sourceRect = Rectangle (sourceRect);
-		// Vector2 _destPoint = Vector2 (destPoint);
-		// ImageDataUtil::Merge (&_image, &_sourceImage, &_sourceRect, &_destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
+		Image _image = Image (image);
+		Image _sourceImage = Image (sourceImage);
+		Rectangle _sourceRect = Rectangle (sourceRect);
+		Vector2 _destPoint = Vector2 (destPoint);
+		ImageDataUtil::Merge (&_image, &_sourceImage, &_sourceRect, &_destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
 		
 	}
 	
@@ -2180,15 +2178,14 @@ namespace lime {
 	
 	HL_PRIM int hl_lime_image_data_util_threshold (HL_Image* image, HL_Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, int operation, int thresholdRG, int thresholdBA, int colorRG, int colorBA, int maskRG, int maskBA, bool copySource) {
 		
-		// Image _image = Image (image);
-		// Image _sourceImage = Image (sourceImage);
-		// Rectangle _sourceRect = Rectangle (sourceRect);
-		// Vector2 _destPoint = Vector2 (destPoint);
-		// int32_t threshold = (thresholdRG << 16) | thresholdBA;
-		// int32_t color = (colorRG << 16) | colorBA;
-		// int32_t mask = (maskRG << 16) | maskBA;
-		// return ImageDataUtil::Threshold (&_image, &_sourceImage, &_sourceRect, &_destPoint, operation, threshold, color, mask, copySource);
-		return 0;
+		Image _image = Image (image);
+		Image _sourceImage = Image (sourceImage);
+		Rectangle _sourceRect = Rectangle (sourceRect);
+		Vector2 _destPoint = Vector2 (destPoint);
+		int32_t threshold = (thresholdRG << 16) | thresholdBA;
+		int32_t color = (colorRG << 16) | colorBA;
+		int32_t mask = (maskRG << 16) | maskBA;
+		return ImageDataUtil::Threshold (&_image, &_sourceImage, &_sourceRect, &_destPoint, operation, threshold, color, mask, copySource);
 		
 	}
 	
@@ -2510,18 +2507,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_lzma_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_lzma_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_LZMA
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_LZMA
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// LZMA::Compress (&data, &result);
+		LZMA::Compress (&data, &result);
 		
-		// return result.Value ();
-		// #else
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
-		// #endif
+		#endif
 		
 	}
 	
@@ -2542,18 +2539,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_lzma_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_lzma_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_LZMA
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_LZMA
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// LZMA::Decompress (&data, &result);
+		LZMA::Decompress (&data, &result);
 		
-		// return result.Value ();
-		// #else
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
-		// #endif
+		#endif
 		
 	}
 	
@@ -2887,24 +2884,23 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_renderer_read_pixels (HL_CFFIPointer* renderer, HL_Rectangle* rect, HL_ImageBuffer* imageBuffer) {
+	HL_PRIM HL_ImageBuffer* hl_lime_renderer_read_pixels (HL_CFFIPointer* renderer, HL_Rectangle* rect, HL_ImageBuffer* imageBuffer) {
 		
-		// Renderer* targetRenderer = (Renderer*)renderer->ptr;
-		// ImageBuffer buffer (imageBuffer);
+		Renderer* targetRenderer = (Renderer*)renderer->ptr;
+		ImageBuffer buffer (imageBuffer);
 		
-		// if (rect) {
+		if (rect) {
 			
-		// 	Rectangle _rect = Rectangle (rect);
-		// 	targetRenderer->ReadPixels (&buffer, &_rect);
+			Rectangle _rect = Rectangle (rect);
+			targetRenderer->ReadPixels (&buffer, &_rect);
 			
-		// } else {
+		} else {
 			
-		// 	targetRenderer->ReadPixels (&buffer, NULL);
+			targetRenderer->ReadPixels (&buffer, NULL);
 			
-		// }
+		}
 		
-		// return buffer.Value ();
-		return 0;
+		return (HL_ImageBuffer*)buffer.Value ();
 		
 	}
 	
@@ -3054,9 +3050,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_system_get_directory (int type, vbyte* company, vbyte* title) {
+	HL_PRIM vbyte* hl_lime_system_get_directory (int type, HL_String* company, HL_String* title) {
 		
-		std::wstring* path = System::GetDirectory ((SystemDirectory)type, (char*)company, (char*)title);
+		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company ? (char*)hl_to_utf8 ((const uchar*)company->bytes) : NULL, title ? (char*)hl_to_utf8 ((const uchar*)title->bytes) : NULL);
 		
 		if (path) {
 			
@@ -3083,10 +3079,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_system_get_display (int id) {
+	HL_PRIM vdynobj* hl_lime_system_get_display (int id) {
 		
-		// return System::GetDisplay (id);
 		return 0;
+		//return System::GetDisplay (id);
 		
 	}
 	
@@ -3390,11 +3386,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_CFFIPointer* hl_lime_text_layout_create (int direction, vbyte* script, vbyte* language) {
+	HL_PRIM HL_CFFIPointer* hl_lime_text_layout_create (int direction, HL_String* script, HL_String* language) {
 		
 		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
 		
-		TextLayout *text = new TextLayout (direction, (char*)script, (char*)language);
+		TextLayout *text = new TextLayout (direction, script ? (char*)hl_to_utf8 ((const uchar*)script->bytes) : NULL, language ? (char*)hl_to_utf8 ((const uchar*)language->bytes) : NULL);
 		return HLCFFIPointer (text, (hl_finalizer)hl_gc_text_layout);
 		
 		#else
@@ -3423,17 +3419,17 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_text_layout_position (HL_CFFIPointer* textHandle, HL_CFFIPointer* fontHandle, int size, vbyte* textString, HL_Bytes* data) {
+	HL_PRIM HL_Bytes* hl_lime_text_layout_position (HL_CFFIPointer* textHandle, HL_CFFIPointer* fontHandle, int size, HL_String* textString, HL_Bytes* data) {
 		
-		// #if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
+		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
-		// TextLayout *text = (TextLayout*)val_data (textHandle);
-		// Font *font = (Font*)val_data (fontHandle);
-		// Bytes bytes (data);
-		// text->Position (font, size, textString.c_str (), &bytes);
-		// return bytes.Value ();
+		TextLayout *text = (TextLayout*)textHandle->ptr;
+		Font *font = (Font*)fontHandle->ptr;
+		Bytes bytes (data);
+		text->Position (font, size, textString ? hl_to_utf8 ((const uchar*)textString->bytes) : NULL, &bytes);
+		return (HL_Bytes*)bytes.Value ();
 		
-		// #endif
+		#endif
 		
 		return 0;
 		
@@ -3470,11 +3466,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_text_layout_set_language (HL_CFFIPointer* textHandle, vbyte* language) {
+	HL_PRIM void hl_lime_text_layout_set_language (HL_CFFIPointer* textHandle, HL_String* language) {
 		
 		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)textHandle->ptr;
-		text->SetLanguage ((char*)language);
+		text->SetLanguage ((char*)hl_to_utf8 ((const uchar*)language->bytes));
 		#endif
 		
 	}
@@ -3490,11 +3486,11 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_text_layout_set_script (HL_CFFIPointer* textHandle, vbyte* script) {
+	HL_PRIM void hl_lime_text_layout_set_script (HL_CFFIPointer* textHandle, HL_String* script) {
 		
 		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)textHandle->ptr;
-		text->SetScript ((char*)script);
+		text->SetScript ((char*)hl_to_utf8 ((const uchar*)script->bytes));
 		#endif
 		
 	}
@@ -3524,10 +3520,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_window_alert (HL_CFFIPointer* window, vbyte* message, vbyte* title) {
+	HL_PRIM void hl_lime_window_alert (HL_CFFIPointer* window, HL_String* message, HL_String* title) {
 		
 		Window* targetWindow = (Window*)window->ptr;
-		targetWindow->Alert ((const char*)message, (const char*)title);
+		targetWindow->Alert (message ? (const char*)hl_to_utf8 ((const uchar*)message) : NULL, title ? (const char*)hl_to_utf8 ((const uchar*)title) : NULL);
 		
 	}
 	
@@ -3617,18 +3613,17 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		DisplayMode displayMode;
 		targetWindow->GetDisplayMode (&displayMode);
-		return displayMode.Value ();
+		return (value)displayMode.Value ();
 		
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_window_get_display_mode (HL_CFFIPointer* window) {
+	HL_PRIM HL_DisplayMode* hl_lime_window_get_display_mode (HL_CFFIPointer* window, HL_DisplayMode* displayMode) {
 		
-		// Window* targetWindow = (Window*)window->ptr;
-		// DisplayMode displayMode;
-		// targetWindow->GetDisplayMode (&displayMode);
-		// return displayMode.Value ();
-		return 0;
+		Window* targetWindow = (Window*)window->ptr;
+		DisplayMode _displayMode = DisplayMode (displayMode);
+		targetWindow->GetDisplayMode (&_displayMode);
+		return (HL_DisplayMode*)_displayMode.Value ();
 		
 	}
 	
@@ -3783,19 +3778,18 @@ namespace lime {
 		DisplayMode _displayMode (displayMode);
 		targetWindow->SetDisplayMode (&_displayMode);
 		targetWindow->GetDisplayMode (&_displayMode);
-		return _displayMode.Value ();
+		return (value)_displayMode.Value ();
 		
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_window_set_display_mode (HL_CFFIPointer* window, vdynamic* displayMode) {
+	HL_PRIM HL_DisplayMode* hl_lime_window_set_display_mode (HL_CFFIPointer* window, HL_DisplayMode* displayMode) {
 		
-		// Window* targetWindow = (Window*)val_data (window);
-		// DisplayMode _displayMode (displayMode);
-		// targetWindow->SetDisplayMode (&_displayMode);
-		// targetWindow->GetDisplayMode (&_displayMode);
-		// return _displayMode.Value ();
-		return 0;
+		Window* targetWindow = (Window*)window->ptr;
+		DisplayMode _displayMode (displayMode);
+		targetWindow->SetDisplayMode (&_displayMode);
+		targetWindow->GetDisplayMode (&_displayMode);
+		return (HL_DisplayMode*)_displayMode.Value ();
 		
 	}
 	
@@ -3968,18 +3962,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_zlib_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_zlib_compress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_ZLIB
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// Zlib::Compress (ZLIB, &data, &result);
+		Zlib::Compress (ZLIB, &data, &result);
 		
-		// return result.Value ();
-		// #else
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
-		// #endif
+		#endif
 		
 	}
 	
@@ -4000,18 +3994,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_zlib_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
+	HL_PRIM HL_Bytes* hl_lime_zlib_decompress (HL_Bytes* buffer, HL_Bytes* bytes) {
 		
-		// #ifdef LIME_ZLIB
-		// Bytes data (buffer);
-		// Bytes result (bytes);
+		#ifdef LIME_ZLIB
+		Bytes data (buffer);
+		Bytes result (bytes);
 		
-		// Zlib::Decompress (ZLIB, &data, &result);
+		Zlib::Decompress (ZLIB, &data, &result);
 		
-		// return result.Value ();
-		// #else
+		return (HL_Bytes*)result.Value ();
+		#else
 		return 0;
-		// #endif
+		#endif
 		
 	}
 	
@@ -4057,6 +4051,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_font_get_underline_thickness);
 	DEFINE_PRIME1 (lime_font_get_units_per_em);
 	DEFINE_PRIME1 (lime_font_load);
+	DEFINE_PRIME1 (lime_font_load_bytes);
+	DEFINE_PRIME1 (lime_font_load_file);
 	DEFINE_PRIME2 (lime_font_outline_decompose);
 	DEFINE_PRIME3 (lime_font_render_glyph);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
@@ -4179,6 +4175,7 @@ namespace lime {
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
+	#define _TDISPLAYMODE _OBJ (_I32 _I32 _I32 _I32)
 	#define _TDROP_EVENT _OBJ (_STRING _I32)
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
@@ -4189,11 +4186,16 @@ namespace lime {
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _STRING _I32 _I32)
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
+	#define _TVECTOR2 _OBJ (_I32 _I32 _I32)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
 	
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
+	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define _TIMAGE _OBJ (_TIMAGEBUFFER _BOOL _I32 _I32 _I32 _TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
+	
+	#define _TARRAY _OBJ (_BYTES _I32)
+	#define _TARRAY2 _OBJ (_ARR)
 	
 	
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_application_create, _NO_ARG);
@@ -4203,7 +4205,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_application_quit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_application_set_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_BOOL, lime_application_update, _TCFFIPOINTER);
-	// DEFINE_PRIME2 (lime_audio_load);
+	DEFINE_HL_PRIM (_TAUDIOBUFFER, lime_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
+	DEFINE_HL_PRIM (_TAUDIOBUFFER, lime_audio_load_file, _STRING _TAUDIOBUFFER);
 	// DEFINE_PRIME2 (lime_bytes_from_data_pointer);
 	DEFINE_HL_PRIM (_F64, lime_bytes_get_data_pointer, _TBYTES);
 	// DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
@@ -4211,85 +4214,87 @@ namespace lime {
 	// DEFINE_PRIME1 (lime_cffi_get_native_pointer);
 	// DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_HL_PRIM (_VOID, lime_clipboard_event_manager_register, _FUN(_VOID, _NO_ARG) _TCLIPBOARD_EVENT);
-	// DEFINE_PRIME0 (lime_clipboard_get_text);
-	// DEFINE_PRIME1v (lime_clipboard_set_text);
+	DEFINE_HL_PRIM (_BYTES, lime_clipboard_get_text, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, lime_clipboard_set_text, _STRING);
 	// DEFINE_PRIME2 (lime_data_pointer_offset);
-	// DEFINE_PRIME2 (lime_deflate_compress);
-	// DEFINE_PRIME2 (lime_deflate_decompress);
+	DEFINE_HL_PRIM (_TBYTES, lime_deflate_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, lime_deflate_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, lime_drop_event_manager_register, _FUN(_VOID, _NO_ARG) _TDROP_EVENT);
-	// DEFINE_PRIME3 (lime_file_dialog_open_directory);
-	// DEFINE_PRIME3 (lime_file_dialog_open_file);
-	// DEFINE_PRIME3 (lime_file_dialog_open_files);
-	// DEFINE_PRIME3 (lime_file_dialog_save_file);
-	// DEFINE_PRIME1 (lime_file_watcher_create);
-	// DEFINE_PRIME3 (lime_file_watcher_add_directory);
-	// DEFINE_PRIME2v (lime_file_watcher_remove_directory);
-	// DEFINE_PRIME1v (lime_file_watcher_update);
-	// DEFINE_PRIME1 (lime_font_get_ascender);
-	// DEFINE_PRIME1 (lime_font_get_descender);
-	// DEFINE_PRIME1 (lime_font_get_family_name);
-	// DEFINE_PRIME2 (lime_font_get_glyph_index);
-	// DEFINE_PRIME2 (lime_font_get_glyph_indices);
-	// DEFINE_PRIME2 (lime_font_get_glyph_metrics);
-	// DEFINE_PRIME1 (lime_font_get_height);
-	// DEFINE_PRIME1 (lime_font_get_num_glyphs);
-	// DEFINE_PRIME1 (lime_font_get_underline_position);
-	// DEFINE_PRIME1 (lime_font_get_underline_thickness);
-	// DEFINE_PRIME1 (lime_font_get_units_per_em);
+	DEFINE_HL_PRIM (_BYTES, lime_file_dialog_open_directory, _STRING _STRING _STRING);
+	DEFINE_HL_PRIM (_BYTES, lime_file_dialog_open_file, _STRING _STRING _STRING);
+	DEFINE_HL_PRIM (_TARRAY2, lime_file_dialog_open_files, _STRING _STRING _STRING);
+	DEFINE_HL_PRIM (_BYTES, lime_file_dialog_save_file, _STRING _STRING _STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_file_watcher_create, _DYN);
+	DEFINE_HL_PRIM (_I32, lime_file_watcher_add_directory, _TCFFIPOINTER _STRING _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_file_watcher_remove_directory, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, lime_file_watcher_update, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_ascender, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_descender, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, lime_font_get_family_name, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_glyph_index, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_TARRAY, lime_font_get_glyph_indices, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_DYN, lime_font_get_glyph_metrics, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, lime_font_get_height, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_num_glyphs, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_underline_position, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_underline_thickness, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_font_get_units_per_em, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_font_load);
-	// DEFINE_PRIME2 (lime_font_outline_decompose);
-	// DEFINE_PRIME3 (lime_font_render_glyph);
-	// DEFINE_PRIME3 (lime_font_render_glyphs);
-	// DEFINE_PRIME2v (lime_font_set_size);
-	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _DYN);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_font_load_bytes, _TBYTES);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_font_load_file, _STRING);
+	DEFINE_HL_PRIM (_DYN, lime_font_outline_decompose, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyphs, _TCFFIPOINTER _TARRAY _TBYTES);
+	DEFINE_HL_PRIM (_VOID, lime_font_set_size, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _TARRAY2);
 	DEFINE_HL_PRIM (_VOID, lime_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
-	// DEFINE_PRIME1 (lime_gamepad_get_device_guid);
-	// DEFINE_PRIME1 (lime_gamepad_get_device_name);
-	// DEFINE_PRIME2 (lime_gzip_compress);
-	// DEFINE_PRIME2 (lime_gzip_decompress);
-	// DEFINE_PRIME2v (lime_haptic_vibrate);
-	// DEFINE_PRIME3v (lime_image_data_util_color_transform);
-	// DEFINE_PRIME6v (lime_image_data_util_copy_channel);
-	// DEFINE_PRIME7v (lime_image_data_util_copy_pixels);
+	DEFINE_HL_PRIM (_BYTES, lime_gamepad_get_device_guid, _I32);
+	DEFINE_HL_PRIM (_BYTES, lime_gamepad_get_device_name, _I32);
+	DEFINE_HL_PRIM (_TBYTES, lime_gzip_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, lime_gzip_decompress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_VOID, lime_haptic_vibrate, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_color_transform, _TIMAGE _TRECTANGLE _TARRAYBUFFERVIEW);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_copy_channel, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_copy_pixels, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _TIMAGE _TVECTOR2 _BOOL);
 	DEFINE_HL_PRIM (_VOID, lime_image_data_util_fill_rect, _TIMAGE _TRECTANGLE _I32 _I32);
-	// DEFINE_PRIME5v (lime_image_data_util_flood_fill);
-	// DEFINE_PRIME4v (lime_image_data_util_get_pixels);
-	// DEFINE_PRIME8v (lime_image_data_util_merge);
-	// DEFINE_PRIME1v (lime_image_data_util_multiply_alpha);
-	// DEFINE_PRIME4v (lime_image_data_util_resize);
-	// DEFINE_PRIME2v (lime_image_data_util_set_format);
-	// DEFINE_PRIME6v (lime_image_data_util_set_pixels);
-	// DEFINE_PRIME12 (lime_image_data_util_threshold);
-	// DEFINE_PRIME1v (lime_image_data_util_unmultiply_alpha);
-	// DEFINE_PRIME4 (lime_image_encode);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_flood_fill, _TIMAGE _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_get_pixels, _TIMAGE _TRECTANGLE _I32 _TBYTES);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_merge, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_multiply_alpha, _TIMAGE);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_resize, _TIMAGE _TIMAGEBUFFER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_set_format, _TIMAGE _I32);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_set_pixels, _TIMAGE _TRECTANGLE _TBYTES _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_I32, lime_image_data_util_threshold, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_image_data_util_unmultiply_alpha, _TIMAGE);
+	DEFINE_HL_PRIM (_TBYTES, lime_image_encode, _TIMAGEBUFFER _I32 _I32 _TBYTES);
 	// DEFINE_PRIME2 (lime_image_load);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_image_load_bytes, _TBYTES _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_image_load_file, _STRING _TIMAGEBUFFER);
-	// DEFINE_PRIME0 (lime_jni_getenv);
+	DEFINE_HL_PRIM (_F64, lime_jni_getenv, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, lime_joystick_event_manager_register, _FUN(_VOID, _NO_ARG) _TJOYSTICK_EVENT);
-	// DEFINE_PRIME1 (lime_joystick_get_device_guid);
-	// DEFINE_PRIME1 (lime_joystick_get_device_name);
-	// DEFINE_PRIME1 (lime_joystick_get_num_axes);
-	// DEFINE_PRIME1 (lime_joystick_get_num_buttons);
-	// DEFINE_PRIME1 (lime_joystick_get_num_hats);
-	// DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
-	// DEFINE_PRIME3 (lime_jpeg_decode_bytes);
-	// DEFINE_PRIME3 (lime_jpeg_decode_file);
-	// DEFINE_PRIME1 (lime_key_code_from_scan_code);
-	// DEFINE_PRIME1 (lime_key_code_to_scan_code);
+	DEFINE_HL_PRIM (_BYTES, lime_joystick_get_device_guid, _I32);
+	DEFINE_HL_PRIM (_BYTES, lime_joystick_get_device_name, _I32);
+	DEFINE_HL_PRIM (_I32, lime_joystick_get_num_axes, _I32);
+	DEFINE_HL_PRIM (_I32, lime_joystick_get_num_buttons, _I32);
+	DEFINE_HL_PRIM (_I32, lime_joystick_get_num_hats, _I32);
+	DEFINE_HL_PRIM (_I32, lime_joystick_get_num_trackballs, _I32);
+	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_jpeg_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_jpeg_decode_file, _STRING _BOOL _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_F32, lime_key_code_from_scan_code, _F32);
+	DEFINE_HL_PRIM (_F32, lime_key_code_to_scan_code, _F32);
 	DEFINE_HL_PRIM (_VOID, lime_key_event_manager_register, _FUN (_VOID, _NO_ARG) _TKEY_EVENT);
-	// DEFINE_PRIME0 (lime_locale_get_system_locale);
-	// DEFINE_PRIME2 (lime_lzma_compress);
-	// DEFINE_PRIME2 (lime_lzma_decompress);
+	DEFINE_HL_PRIM (_BYTES, lime_locale_get_system_locale, _NO_ARG);
+	DEFINE_HL_PRIM (_TBYTES, lime_lzma_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, lime_lzma_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, lime_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
-	// DEFINE_PRIME0v (lime_mouse_hide);
-	// DEFINE_PRIME1v (lime_mouse_set_cursor);
-	// DEFINE_PRIME1v (lime_mouse_set_lock);
-	// DEFINE_PRIME0v (lime_mouse_show);
-	// DEFINE_PRIME3v (lime_mouse_warp);
+	DEFINE_HL_PRIM (_VOID, lime_mouse_hide, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, lime_mouse_set_cursor, _I32);
+	DEFINE_HL_PRIM (_VOID, lime_mouse_set_lock, _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_mouse_show, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, lime_mouse_warp, _I32 _I32 _TCFFIPOINTER);
 	// DEFINE_PRIME1v (lime_neko_execute);
-	// DEFINE_PRIME3 (lime_png_decode_bytes);
-	// DEFINE_PRIME3 (lime_png_decode_file);
+	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_png_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_png_decode_file, _STRING _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_renderer_create, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_renderer_flip, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, lime_renderer_get_context, _TCFFIPOINTER);
@@ -4301,32 +4306,30 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_renderer_unlock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_render_event_manager_register, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
 	DEFINE_HL_PRIM (_VOID, lime_sensor_event_manager_register, _FUN (_VOID, _NO_ARG) _TSENSOR_EVENT);
-	// DEFINE_PRIME2v (lime_render_event_manager_register);
-	// DEFINE_PRIME2v (lime_sensor_event_manager_register);
-	// DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
-	// DEFINE_PRIME0 (lime_system_get_device_model);
-	// DEFINE_PRIME0 (lime_system_get_device_vendor);
-	// DEFINE_PRIME3 (lime_system_get_directory);
-	// DEFINE_PRIME1 (lime_system_get_display);
-	// DEFINE_PRIME0 (lime_system_get_ios_tablet);
-	// DEFINE_PRIME0 (lime_system_get_num_displays);
-	// DEFINE_PRIME0 (lime_system_get_platform_label);
-	// DEFINE_PRIME0 (lime_system_get_platform_name);
-	// DEFINE_PRIME0 (lime_system_get_platform_version);
+	DEFINE_HL_PRIM (_BOOL, lime_system_get_allow_screen_timeout, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, lime_system_get_device_model, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, lime_system_get_device_vendor, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, lime_system_get_directory, _I32 _STRING _STRING);
+	DEFINE_HL_PRIM (_DYN, lime_system_get_display, _I32);
+	DEFINE_HL_PRIM (_BOOL, lime_system_get_ios_tablet, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, lime_system_get_num_displays, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, lime_system_get_platform_label, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, lime_system_get_platform_name, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, lime_system_get_platform_version, _NO_ARG);
 	DEFINE_HL_PRIM (_F64, lime_system_get_timer, _NO_ARG);
-	// DEFINE_PRIME1 (lime_system_get_windows_console_mode);
-	// DEFINE_PRIME1v (lime_system_open_file);
-	// DEFINE_PRIME2v (lime_system_open_url);
-	// DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
-	// DEFINE_PRIME2 (lime_system_set_windows_console_mode);
+	DEFINE_HL_PRIM (_I32, lime_system_get_windows_console_mode, _I32);
+	DEFINE_HL_PRIM (_VOID, lime_system_open_file, _STRING);
+	DEFINE_HL_PRIM (_VOID, lime_system_open_url, _STRING _STRING);
+	DEFINE_HL_PRIM (_BOOL, lime_system_set_allow_screen_timeout, _BOOL);
+	DEFINE_HL_PRIM (_BOOL, lime_system_set_windows_console_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_text_event_manager_register, _FUN (_VOID, _NO_ARG) _TTEXT_EVENT);
-	// DEFINE_PRIME3 (lime_text_layout_create);
-	// DEFINE_PRIME5 (lime_text_layout_position);
-	// DEFINE_PRIME2v (lime_text_layout_set_direction);
-	// DEFINE_PRIME2v (lime_text_layout_set_language);
-	// DEFINE_PRIME2v (lime_text_layout_set_script);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_text_layout_create, _I32 _STRING _STRING);
+	DEFINE_HL_PRIM (_TBYTES, lime_text_layout_position, _TCFFIPOINTER _TCFFIPOINTER _I32 _STRING _TBYTES);
+	DEFINE_HL_PRIM (_VOID, lime_text_layout_set_direction, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, lime_text_layout_set_language, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, lime_text_layout_set_script, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_touch_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
-	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
@@ -4339,19 +4342,19 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_window_get_width, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_x, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_y, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_window_move, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_window_resize, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, lime_window_move, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, lime_window_resize, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, _TCFFIPOINTER _BOOL);
-	// DEFINE_PRIME2 (lime_window_set_display_mode, _TCFFIPOINTER );
+	DEFINE_HL_PRIM (_TDISPLAYMODE, lime_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_VOID, lime_window_set_enable_text_events, _TCFFIPOINTER _BOOL);
-	// DEFINE_PRIME2 (lime_window_set_fullscreen);
-	// DEFINE_PRIME2v (lime_window_set_icon);
-	// DEFINE_PRIME2 (lime_window_set_maximized);
-	// DEFINE_PRIME2 (lime_window_set_minimized);
-	// DEFINE_PRIME2 (lime_window_set_resizable);
+	DEFINE_HL_PRIM (_BOOL, lime_window_set_fullscreen, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_BOOL, lime_window_set_maximized, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, lime_window_set_minimized, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, lime_window_set_resizable, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_STRING, lime_window_set_title, _TCFFIPOINTER _STRING);
-	// DEFINE_PRIME2 (lime_zlib_compress);
-	// DEFINE_PRIME2 (lime_zlib_decompress);
+	DEFINE_HL_PRIM (_TBYTES, lime_zlib_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, lime_zlib_decompress, _TBYTES _TBYTES);
 	
 	
 }

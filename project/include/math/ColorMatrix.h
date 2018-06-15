@@ -4,6 +4,7 @@
 
 #include <system/CFFI.h>
 #include <system/System.h>
+#include <utils/ArrayBufferView.h>
 #include <stdint.h>
 
 
@@ -17,6 +18,7 @@ namespace lime {
 			
 			ColorMatrix ();
 			ColorMatrix (value colorMatrix);
+			ColorMatrix (HL_ArrayBufferView* colorMatrix);
 			~ColorMatrix ();
 			
 			float GetAlphaMultiplier ();

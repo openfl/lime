@@ -79,7 +79,11 @@ class Gamepad {
 	@:noCompletion private inline function get_guid ():String {
 		
 		#if (lime_cffi && !macro)
+		#if hl
+		return @:privateAccess String.fromUCS2 (NativeCFFI.lime_gamepad_get_device_guid (this.id));
+		#else
 		return NativeCFFI.lime_gamepad_get_device_guid (this.id);
+		#end
 		#elseif (js && html5)
 		var devices = Joystick.__getDeviceData ();
 		return devices[this.id].id;
@@ -93,7 +97,11 @@ class Gamepad {
 	@:noCompletion private inline function get_name ():String {
 		
 		#if (lime_cffi && !macro)
+		#if hl
+		return @:privateAccess String.fromUCS2 (NativeCFFI.lime_gamepad_get_device_name (this.id));
+		#else
 		return NativeCFFI.lime_gamepad_get_device_name (this.id);
+		#end
 		#elseif (js && html5)
 		var devices = Joystick.__getDeviceData ();
 		return devices[this.id].id;

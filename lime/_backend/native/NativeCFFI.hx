@@ -22,6 +22,8 @@ import lime.math.Matrix3;
 import lime.math.Vector2;
 import lime.media.openal.ALContext;
 import lime.media.openal.ALDevice;
+import lime.system.DisplayMode;
+import lime.utils.ArrayBufferView;
 #end
 
 #if cpp
@@ -88,6 +90,8 @@ class NativeCFFI {
 	@:cffi private static function lime_font_get_underline_thickness (handle:Dynamic):Int;
 	@:cffi private static function lime_font_get_units_per_em (handle:Dynamic):Int;
 	@:cffi private static function lime_font_load (data:Dynamic):Dynamic;
+	@:cffi private static function lime_font_load_bytes (data:Dynamic):Dynamic;
+	@:cffi private static function lime_font_load_file (path:Dynamic):Dynamic;
 	@:cffi private static function lime_font_outline_decompose (handle:Dynamic, size:Int):Dynamic;
 	@:cffi private static function lime_font_render_glyph (handle:Dynamic, index:Int, data:Dynamic):Bool;
 	@:cffi private static function lime_font_render_glyphs (handle:Dynamic, indices:Dynamic, data:Dynamic):Bool;
@@ -214,83 +218,90 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_bytes_read_file") private static function lime_bytes_read_file (path:String, bytes:Bytes):Bytes { return null; }
 	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
 	@:hlNative("lime", "lime_clipboard_event_manager_register") private static function lime_clipboard_event_manager_register (callback:Void->Void, eventObject:ClipboardEventInfo):Void {}
-	@:cffi private static function lime_clipboard_get_text ():Dynamic;
-	@:cffi private static function lime_clipboard_set_text (text:String):Void;
+	@:hlNative("lime", "lime_clipboard_get_text") private static function lime_clipboard_get_text ():hl.Bytes { return null; }
+	@:hlNative("lime", "lime_clipboard_set_text") private static function lime_clipboard_set_text (text:String):Void {}
 	@:cffi private static function lime_data_pointer_offset (dataPointer:DataPointer, offset:Int):Float;
-	@:cffi private static function lime_deflate_compress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_deflate_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
+	@:hlNative("lime", "lime_deflate_compress") private static function lime_deflate_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_deflate_decompress") private static function lime_deflate_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_drop_event_manager_register") private static function lime_drop_event_manager_register (callback:Void->Void, eventObject:DropEventInfo):Void {}
-	@:cffi private static function lime_file_dialog_open_directory (title:String, filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_open_file (title:String, filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_open_files (title:String, filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_dialog_save_file (title:String, filter:String, defaultPath:String):Dynamic;
-	@:cffi private static function lime_file_watcher_create (callback:Dynamic):CFFIPointer;
-	@:cffi private static function lime_file_watcher_add_directory (handle:CFFIPointer, path:Dynamic, recursive:Bool):Dynamic;
-	@:cffi private static function lime_file_watcher_remove_directory (handle:CFFIPointer, watchID:Dynamic):Void;
-	@:cffi private static function lime_file_watcher_update (handle:CFFIPointer):Void;
-	@:cffi private static function lime_font_get_ascender (handle:Dynamic):Int;
-	@:cffi private static function lime_font_get_descender (handle:Dynamic):Int;
-	@:cffi private static function lime_font_get_family_name (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_font_get_glyph_index (handle:Dynamic, character:String):Int;
-	@:cffi private static function lime_font_get_glyph_indices (handle:Dynamic, characters:String):Dynamic;
-	@:cffi private static function lime_font_get_glyph_metrics (handle:Dynamic, index:Int):Dynamic;
-	@:cffi private static function lime_font_get_height (handle:Dynamic):Int;
-	@:cffi private static function lime_font_get_num_glyphs (handle:Dynamic):Int;
-	@:cffi private static function lime_font_get_underline_position (handle:Dynamic):Int;
-	@:cffi private static function lime_font_get_underline_thickness (handle:Dynamic):Int;
-	@:cffi private static function lime_font_get_units_per_em (handle:Dynamic):Int;
-	@:cffi private static function lime_font_load (data:Dynamic):Dynamic;
-	@:cffi private static function lime_font_outline_decompose (handle:Dynamic, size:Int):Dynamic;
-	@:cffi private static function lime_font_render_glyph (handle:Dynamic, index:Int, data:Dynamic):Bool;
-	@:cffi private static function lime_font_render_glyphs (handle:Dynamic, indices:Dynamic, data:Dynamic):Bool;
-	@:cffi private static function lime_font_set_size (handle:Dynamic, size:Int):Void;
-	@:cffi private static function lime_gamepad_add_mappings (mappings:Dynamic):Void;
-	@:cffi private static function lime_gamepad_get_device_guid (id:Int):Dynamic;
-	@:cffi private static function lime_gamepad_get_device_name (id:Int):Dynamic;
+	@:hlNative("lime", "lime_file_dialog_open_directory") private static function lime_file_dialog_open_directory (title:String, filter:String, defaultPath:String):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_file_dialog_open_file") private static function lime_file_dialog_open_file (title:String, filter:String, defaultPath:String):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_file_dialog_open_files") private static function lime_file_dialog_open_files (title:String, filter:String, defaultPath:String):Array<hl.Bytes> { return null; }
+	@:hlNative("lime", "lime_file_dialog_save_file") private static function lime_file_dialog_save_file (title:String, filter:String, defaultPath:String):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_file_watcher_create") private static function lime_file_watcher_create (callback:Dynamic):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_file_watcher_add_directory") private static function lime_file_watcher_add_directory (handle:CFFIPointer, path:String, recursive:Bool):Int { return 0; }
+	@:hlNative("lime", "lime_file_watcher_remove_directory") private static function lime_file_watcher_remove_directory (handle:CFFIPointer, watchID:Int):Void {}
+	@:hlNative("lime", "lime_file_watcher_update") private static function lime_file_watcher_update (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_font_get_ascender") private static function lime_font_get_ascender (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_descender") private static function lime_font_get_descender (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_family_name") private static function lime_font_get_family_name (handle:CFFIPointer):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_font_get_glyph_index") private static function lime_font_get_glyph_index (handle:CFFIPointer, character:String):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_glyph_indices") private static function lime_font_get_glyph_indices (handle:CFFIPointer, characters:String):Array<Int> { return null; }
+	@:hlNative("lime", "lime_font_get_glyph_metrics") private static function lime_font_get_glyph_metrics (handle:CFFIPointer, index:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_font_get_height") private static function lime_font_get_height (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_num_glyphs") private static function lime_font_get_num_glyphs (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_underline_position") private static function lime_font_get_underline_position (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_underline_thickness") private static function lime_font_get_underline_thickness (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_font_get_units_per_em") private static function lime_font_get_units_per_em (handle:CFFIPointer):Int { return 0; }
+	// @:hlNative("lime", "") private static function lime_font_load (data:Dynamic):Dynamic { return null; }
+	@:hlNative("lime", "lime_font_load_bytes") private static function lime_font_load_bytes (data:Bytes):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_font_load_file") private static function lime_font_load_file (path:String):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_font_outline_decompose") private static function lime_font_outline_decompose (handle:CFFIPointer, size:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_font_render_glyph") private static function lime_font_render_glyph (handle:CFFIPointer, index:Int, data:Bytes):Bool { return false; }
+	@:hlNative("lime", "lime_font_render_glyphs") private static function lime_font_render_glyphs (handle:CFFIPointer, indices:Array<Int>, data:Bytes):Bool { return false; }
+	@:hlNative("lime", "lime_font_set_size") private static function lime_font_set_size (handle:CFFIPointer, size:Int):Void {}
+	@:hlNative("lime", "lime_gamepad_add_mappings") private static function lime_gamepad_add_mappings (mappings:Array<String>):Void {}
+	@:hlNative("lime", "lime_gamepad_get_device_guid") private static function lime_gamepad_get_device_guid (id:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_gamepad_get_device_name") private static function lime_gamepad_get_device_name (id:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register (callback:Void->Void, eventObject:GamepadEventInfo):Void {}
-	@:cffi private static function lime_gzip_compress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_gzip_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_haptic_vibrate (period:Int, duration:Int):Void;
-	@:cffi private static function lime_image_encode (data:Dynamic, type:Int, quality:Int, bytes:Dynamic):Dynamic;
+	@:hlNative("lime", "lime_gzip_compress") private static function lime_gzip_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_gzip_decompress") private static function lime_gzip_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_haptic_vibrate") private static function lime_haptic_vibrate (period:Int, duration:Int):Void {}
+	@:hlNative("lime", "lime_image_encode") private static function lime_image_encode (data:ImageBuffer, type:Int, quality:Int, bytes:Bytes):Bytes { return null; }
 	@:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	@:hlNative("lime", "lime_image_load_bytes") private static function lime_image_load_bytes (data:Bytes, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_load_file") private static function lime_image_load_file (path:String, buffer:ImageBuffer):ImageBuffer { return null; }
-	@:cffi private static function lime_image_data_util_color_transform (image:Dynamic, rect:Dynamic, colorMatrix:Dynamic):Void;
+	@:hlNative("lime", "lime_image_data_util_color_transform") private static function lime_image_data_util_color_transform (image:Image, rect:Rectangle, colorMatrix:ArrayBufferView):Void {}
 	@:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
+	// @:hlNative("lime", "lime_image_data_util_copy_channel") private static function lime_image_data_util_copy_channel (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, srcChannel:Int, destChannel:Int):Void {}
 	@:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
+	// @:hlNative("lime", "lime_image_data_util_copy_pixels") private static function lime_image_data_util_copy_pixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image, alphaPoint:Vector2, mergeAlpha:Bool):Void {}
 	@:hlNative("lime", "lime_image_data_util_fill_rect") private static function lime_image_data_util_fill_rect (image:Image, rect:Rectangle, rg:Int, ba:Int):Void {}
-	@:cffi private static function lime_image_data_util_flood_fill (image:Dynamic, x:Int, y:Int, rg:Int, ba:Int):Void;
-	@:cffi private static function lime_image_data_util_get_pixels (image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic):Void;
+	@:hlNative("lime", "lime_image_data_util_flood_fill") private static function lime_image_data_util_flood_fill (image:Image, x:Int, y:Int, rg:Int, ba:Int):Void {}
+	@:hlNative("lime", "lime_image_data_util_get_pixels") private static function lime_image_data_util_get_pixels (image:Image, rect:Rectangle, format:Int, bytes:Bytes):Void {}
 	@:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
-	@:cffi private static function lime_image_data_util_multiply_alpha (image:Dynamic):Void;
-	@:cffi private static function lime_image_data_util_resize (image:Dynamic, buffer:Dynamic, width:Int, height:Int):Void;
-	@:cffi private static function lime_image_data_util_set_format (image:Dynamic, format:Int):Void;
+	// @:hlNative("lime", "lime_image_data_util_merge") private static function lime_image_data_util_merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {}
+	@:hlNative("lime", "lime_image_data_util_multiply_alpha") private static function lime_image_data_util_multiply_alpha (image:Image):Void {}
+	@:hlNative("lime", "lime_image_data_util_resize") private static function lime_image_data_util_resize (image:Image, buffer:ImageBuffer, width:Int, height:Int):Void {}
+	@:hlNative("lime", "lime_image_data_util_set_format") private static function lime_image_data_util_set_format (image:Image, format:Int):Void {}
 	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, offset:Int, format:Int, endian:Int):Void;
+	// @:hlNative("lime", "lime_image_data_util_set_pixels") private static function lime_image_data_util_set_pixels (image:Image, rect:Rectangle, bytes:Bytes, offset:Int, format:Int, endian:Int):Void {}
 	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
-	@:cffi private static function lime_image_data_util_unmultiply_alpha (image:Dynamic):Void;
-	@:cffi private static function lime_joystick_get_device_guid (id:Int):Dynamic;
-	@:cffi private static function lime_joystick_get_device_name (id:Int):Dynamic;
-	@:cffi private static function lime_joystick_get_num_axes (id:Int):Int;
-	@:cffi private static function lime_joystick_get_num_buttons (id:Int):Int;
-	@:cffi private static function lime_joystick_get_num_hats (id:Int):Int;
-	@:cffi private static function lime_joystick_get_num_trackballs (id:Int):Int;
+	// @:hlNative("lime", "lime_image_data_util_threshold") private static function lime_image_data_util_threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int { return 0; }
+	@:hlNative("lime", "lime_image_data_util_unmultiply_alpha") private static function lime_image_data_util_unmultiply_alpha (image:Image):Void {}
+	@:hlNative("lime", "lime_joystick_get_device_guid") private static function lime_joystick_get_device_guid (id:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_joystick_get_device_name") private static function lime_joystick_get_device_name (id:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_joystick_get_num_axes") private static function lime_joystick_get_num_axes (id:Int):Int { return 0; }
+	@:hlNative("lime", "lime_joystick_get_num_buttons") private static function lime_joystick_get_num_buttons (id:Int):Int { return 0; }
+	@:hlNative("lime", "lime_joystick_get_num_hats") private static function lime_joystick_get_num_hats (id:Int):Int { return 0; }
+	@:hlNative("lime", "lime_joystick_get_num_trackballs") private static function lime_joystick_get_num_trackballs (id:Int):Int { return 0; }
 	@:hlNative("lime", "lime_joystick_event_manager_register") private static function lime_joystick_event_manager_register (callback:Void->Void, eventObject:JoystickEventInfo):Void {}
-	@:cffi private static function lime_jpeg_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_jpeg_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_key_code_from_scan_code (scanCode:Float32):Float32;
-	@:cffi private static function lime_key_code_to_scan_code (keyCode:Float32):Float32;
+	@:hlNative("lime", "lime_jpeg_decode_bytes") private static function lime_jpeg_decode_bytes (data:Bytes, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
+	@:hlNative("lime", "lime_jpeg_decode_file") private static function lime_jpeg_decode_file (path:String, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
+	@:hlNative("lime", "lime_key_code_from_scan_code") private static function lime_key_code_from_scan_code (scanCode:hl.F32):hl.F32 { return 0; }
+	@:hlNative("lime", "lime_key_code_to_scan_code") private static function lime_key_code_to_scan_code (keyCode:hl.F32):hl.F32 { return 0; }
 	@:hlNative("lime", "lime_key_event_manager_register") private static function lime_key_event_manager_register (callback:Void->Void, eventObject:KeyEventInfo):Void {}
-	@:cffi private static function lime_lzma_compress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_lzma_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_mouse_hide ():Void;
-	@:cffi private static function lime_mouse_set_cursor (cursor:Int):Void;
-	@:cffi private static function lime_mouse_set_lock (lock:Bool):Void;
-	@:cffi private static function lime_mouse_show ():Void;
-	@:cffi private static function lime_mouse_warp (x:Int, y:Int, window:Dynamic):Void;
+	@:hlNative("lime", "lime_lzma_compress") private static function lime_lzma_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_lzma_decompress") private static function lime_lzma_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_mouse_hide") private static function lime_mouse_hide ():Void {}
+	@:hlNative("lime", "lime_mouse_set_cursor") private static function lime_mouse_set_cursor (cursor:Int):Void {}
+	@:hlNative("lime", "lime_mouse_set_lock") private static function lime_mouse_set_lock (lock:Bool):Void {}
+	@:hlNative("lime", "lime_mouse_show") private static function lime_mouse_show ():Void {}
+	@:hlNative("lime", "lime_mouse_warp") private static function lime_mouse_warp (x:Int, y:Int, window:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_mouse_event_manager_register") private static function lime_mouse_event_manager_register (callback:Void->Void, eventObject:MouseEventInfo):Void {}
 	@:cffi private static function lime_neko_execute (module:String):Void;
-	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
+	@:hlNative("lime", "lime_png_decode_bytes") private static function lime_png_decode_bytes (data:Bytes, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
+	@:hlNative("lime", "lime_png_decode_file") private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_renderer_create") private static function lime_renderer_create (window:CFFIPointer):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_renderer_flip") private static function lime_renderer_flip (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_renderer_get_context") private static function lime_renderer_get_context (handle:CFFIPointer):Float { return 0; }
@@ -302,31 +313,31 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_renderer_unlock") private static function lime_renderer_unlock (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_render_event_manager_register") private static function lime_render_event_manager_register (callback:Void->Void, eventObject:RenderEventInfo):Void {}
 	@:hlNative("lime", "lime_sensor_event_manager_register") private static function lime_sensor_event_manager_register (callback:Void->Void, eventObject:SensorEventInfo):Void {}
-	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
-	@:cffi private static function lime_system_set_allow_screen_timeout (value:Bool):Bool;
-	@:cffi private static function lime_system_get_device_model ():Dynamic;
-	@:cffi private static function lime_system_get_device_vendor ():Dynamic;
-	@:cffi private static function lime_system_get_directory (type:Int, company:String, title:String):Dynamic;
-	@:cffi private static function lime_system_get_display (index:Int):Dynamic;
-	@:cffi private static function lime_system_get_ios_tablet ():Bool;
-	@:cffi private static function lime_system_get_num_displays ():Int;
-	@:cffi private static function lime_system_get_platform_label ():Dynamic;
-	@:cffi private static function lime_system_get_platform_name ():Dynamic;
-	@:cffi private static function lime_system_get_platform_version ():Dynamic;
+	@:hlNative("lime", "lime_system_get_allow_screen_timeout") private static function lime_system_get_allow_screen_timeout ():Bool { return false; }
+	@:hlNative("lime", "lime_system_set_allow_screen_timeout") private static function lime_system_set_allow_screen_timeout (value:Bool):Bool { return false; }
+	@:hlNative("lime", "lime_system_get_device_model") private static function lime_system_get_device_model ():hl.Bytes { return null; }
+	@:hlNative("lime", "lime_system_get_device_vendor") private static function lime_system_get_device_vendor ():hl.Bytes { return null; }
+	@:hlNative("lime", "lime_system_get_directory") private static function lime_system_get_directory (type:Int, company:String, title:String):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_system_get_display") private static function lime_system_get_display (index:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_system_get_ios_tablet") private static function lime_system_get_ios_tablet ():Bool { return false; }
+	@:hlNative("lime", "lime_system_get_num_displays") private static function lime_system_get_num_displays ():Int { return 0; }
+	@:hlNative("lime", "lime_system_get_platform_label") private static function lime_system_get_platform_label ():hl.Bytes { return null; }
+	@:hlNative("lime", "lime_system_get_platform_name") private static function lime_system_get_platform_name ():hl.Bytes { return null; }
+	@:hlNative("lime", "lime_system_get_platform_version") private static function lime_system_get_platform_version ():hl.Bytes { return null; }
 	@:hlNative("lime", "lime_system_get_timer") private static function lime_system_get_timer ():Float { return 0; }
-	@:cffi private static function lime_system_open_file (path:String):Void;
-	@:cffi private static function lime_system_open_url (url:String, target:String):Void;
+	@:hlNative("lime", "lime_system_open_file") private static function lime_system_open_file (path:String):Void {}
+	@:hlNative("lime", "lime_system_open_url") private static function lime_system_open_url (url:String, target:String):Void {}
 	@:hlNative("lime", "lime_text_event_manager_register") private static function lime_text_event_manager_register (callback:Void->Void, eventObject:TextEventInfo):Void {}
-	@:cffi private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic;
-	@:cffi private static function lime_text_layout_position (textHandle:Dynamic, fontHandle:Dynamic, size:Int, textString:String, data:Dynamic):Dynamic;
-	@:cffi private static function lime_text_layout_set_direction (textHandle:Dynamic, direction:Int):Void;
-	@:cffi private static function lime_text_layout_set_language (textHandle:Dynamic, language:String):Void;
-	@:cffi private static function lime_text_layout_set_script (textHandle:Dynamic, script:String):Void;
+	@:hlNative("lime", "lime_text_layout_create") private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic { return null; }
+	@:hlNative("lime", "lime_text_layout_position") private static function lime_text_layout_position (textHandle:CFFIPointer, fontHandle:CFFIPointer, size:Int, textString:String, data:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_text_layout_set_direction") private static function lime_text_layout_set_direction (textHandle:CFFIPointer, direction:Int):Void {}
+	@:hlNative("lime", "lime_text_layout_set_language") private static function lime_text_layout_set_language (textHandle:CFFIPointer, language:String):Void {}
+	@:hlNative("lime", "lime_text_layout_set_script") private static function lime_text_layout_set_script (textHandle:CFFIPointer, script:String):Void {}
 	@:hlNative("lime", "lime_touch_event_manager_register") private static function lime_touch_event_manager_register (callback:Void->Void, eventObject:TouchEventInfo):Void {}
-	@:cffi private static function lime_window_alert (handle:Dynamic, message:String, title:String):Void;
-	@:cffi private static function lime_window_close (handle:Dynamic):Void;
+	@:hlNative("lime", "lime_window_alert") private static function lime_window_alert (handle:CFFIPointer, message:String, title:String):Void {}
+	@:hlNative("lime", "lime_window_close") private static function lime_window_close (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_window_create") private static function lime_window_create (application:CFFIPointer, width:Int, height:Int, flags:Int, title:String):CFFIPointer { return null; }
-	@:cffi private static function lime_window_focus (handle:Dynamic):Void;
+	@:hlNative("lime", "lime_window_focus") private static function lime_window_focus (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_window_get_display") private static function lime_window_get_display (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_display_mode") private static function lime_window_get_display_mode (handle:CFFIPointer):Dynamic { return null; }
 	@:hlNative("lime", "lime_window_get_enable_text_events") private static function lime_window_get_enable_text_events (handle:CFFIPointer):Bool { return false; }
@@ -335,20 +346,20 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_window_get_width") private static function lime_window_get_width (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_x") private static function lime_window_get_x (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_y") private static function lime_window_get_y (handle:CFFIPointer):Int { return 0; }
-	@:cffi private static function lime_window_move (handle:Dynamic, x:Int, y:Int):Void;
-	@:cffi private static function lime_window_resize (handle:Dynamic, width:Int, height:Int):Void;
-	@:cffi private static function lime_window_set_borderless (handle:Dynamic, borderless:Bool):Bool;
-	@:cffi private static function lime_window_set_display_mode (handle:Dynamic, displayMode:Dynamic):Dynamic;
-	@:cffi private static function lime_window_set_enable_text_events (handle:Dynamic, enabled:Bool):Void;
-	@:cffi private static function lime_window_set_fullscreen (handle:Dynamic, fullscreen:Bool):Bool;
-	@:cffi private static function lime_window_set_icon (handle:Dynamic, buffer:Dynamic):Void;
-	@:cffi private static function lime_window_set_maximized (handle:Dynamic, maximized:Bool):Bool;
-	@:cffi private static function lime_window_set_minimized (handle:Dynamic, minimized:Bool):Bool;
-	@:cffi private static function lime_window_set_resizable (handle:Dynamic, resizable:Bool):Bool;
+	@:hlNative("lime", "lime_window_move") private static function lime_window_move (handle:CFFIPointer, x:Int, y:Int):Void {}
+	@:hlNative("lime", "lime_window_resize") private static function lime_window_resize (handle:CFFIPointer, width:Int, height:Int):Void {}
+	@:hlNative("lime", "lime_window_set_borderless") private static function lime_window_set_borderless (handle:CFFIPointer, borderless:Bool):Bool { return false; }
+	@:hlNative("lime", "lime_window_set_display_mode") private static function lime_window_set_display_mode (handle:CFFIPointer, displayMode:DisplayMode):DisplayMode { return null; }
+	@:hlNative("lime", "lime_window_set_enable_text_events") private static function lime_window_set_enable_text_events (handle:CFFIPointer, enabled:Bool):Void {}
+	@:hlNative("lime", "lime_window_set_fullscreen") private static function lime_window_set_fullscreen (handle:CFFIPointer, fullscreen:Bool):Bool { return false; }
+	@:hlNative("lime", "lime_window_set_icon") private static function lime_window_set_icon (handle:CFFIPointer, buffer:ImageBuffer):Void {}
+	@:hlNative("lime", "lime_window_set_maximized") private static function lime_window_set_maximized (handle:CFFIPointer, maximized:Bool):Bool { return false; }
+	@:hlNative("lime", "lime_window_set_minimized") private static function lime_window_set_minimized (handle:CFFIPointer, minimized:Bool):Bool { return false; }
+	@:hlNative("lime", "lime_window_set_resizable") private static function lime_window_set_resizable (handle:CFFIPointer, resizable:Bool):Bool { return false; }
 	@:hlNative("lime", "lime_window_set_title") private static function lime_window_set_title (handle:CFFIPointer, title:String):String { return null; }
 	@:hlNative("lime", "lime_window_event_manager_register") private static function lime_window_event_manager_register (callback:Void->Void, eventObject:WindowEventInfo):Void {}
-	@:cffi private static function lime_zlib_compress (data:Dynamic, bytes:Dynamic):Dynamic;
-	@:cffi private static function lime_zlib_decompress (data:Dynamic, bytes:Dynamic):Dynamic;
+	@:hlNative("lime", "lime_zlib_compress") private static function lime_zlib_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_zlib_decompress") private static function lime_zlib_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	#end
 	
 	#if (lime_cffi && !macro && android)

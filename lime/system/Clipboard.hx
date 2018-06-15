@@ -35,7 +35,11 @@ class Clipboard {
 		var cacheText = _text;
 		
 		#if (lime_cffi && !macro)
+		#if hl
+		_text = @:privateAccess String.fromUCS2 (NativeCFFI.lime_clipboard_get_text ());
+		#else
 		_text = NativeCFFI.lime_clipboard_get_text ();
+		#end
 		#elseif flash
 		if (FlashClipboard.generalClipboard.hasFormat (TEXT_FORMAT)) {
 			

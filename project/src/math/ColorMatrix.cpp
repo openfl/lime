@@ -51,6 +51,21 @@ namespace lime {
 	}
 	
 	
+	ColorMatrix::ColorMatrix (HL_ArrayBufferView* colorMatrix) {
+		
+		Bytes bytes;
+		bytes.Set (colorMatrix->buffer);
+		float* src = (float*)bytes.Data ();
+		
+		for (int i = 0; i < 20; i++) {
+			
+			data[i] = src[i];
+			
+		}
+		
+	}
+	
+	
 	ColorMatrix::~ColorMatrix () {
 		
 		

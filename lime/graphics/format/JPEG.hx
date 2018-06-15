@@ -38,7 +38,13 @@ class JPEG {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return NativeCFFI.lime_jpeg_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		var buffer = NativeCFFI.lime_jpeg_decode_bytes (bytes, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		
+		if (buffer != null) {
+			
+			return new Image (buffer);
+			
+		}
 		#else
 		var bufferData:Dynamic = NativeCFFI.lime_jpeg_decode_bytes (bytes, decodeData, null);
 		
@@ -63,7 +69,13 @@ class JPEG {
 		#if (lime_cffi && !macro)
 		
 		#if !cs
-		return NativeCFFI.lime_jpeg_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		var buffer = NativeCFFI.lime_jpeg_decode_file (path, decodeData, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+		
+		if (buffer != null) {
+			
+			return new Image (buffer);
+			
+		}
 		#else
 		var bufferData:Dynamic = NativeCFFI.lime_jpeg_decode_file (path, decodeData, null);
 		

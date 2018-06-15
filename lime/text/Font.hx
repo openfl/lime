@@ -446,7 +446,7 @@ class Font {
 		#if (lime_cffi && !macro)
 		__fontPathWithoutDirectory = null;
 		
-		src = NativeCFFI.lime_font_load (bytes);
+		src = NativeCFFI.lime_font_load_bytes (bytes);
 		
 		__initializeSource ();
 		#end
@@ -461,7 +461,7 @@ class Font {
 		#if (lime_cffi && !macro)
 		__fontPathWithoutDirectory = Path.withoutDirectory (__fontPath);
 		
-		src = NativeCFFI.lime_font_load (__fontPath);
+		src = NativeCFFI.lime_font_load_file (__fontPath);
 		
 		__initializeSource ();
 		#end

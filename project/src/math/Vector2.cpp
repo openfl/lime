@@ -50,6 +50,14 @@ namespace lime {
 	}
 	
 	
+	Vector2::Vector2 (HL_Vector2* vec) {
+		
+		x = vec->x;
+		y = vec->y;
+		
+	}
+	
+	
 	vdynamic* Vector2::Dynamic () {
 		
 		HL_Vector2* result = (HL_Vector2*)malloc (sizeof (HL_Vector2));

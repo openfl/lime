@@ -31,6 +31,16 @@ namespace lime {
 	}
 	
 	
+	DisplayMode::DisplayMode (HL_DisplayMode* displayMode) {
+		
+		width = displayMode->width;
+		height = displayMode->height;
+		pixelFormat = displayMode->pixelFormat;
+		refreshRate = displayMode->refreshRate;
+		
+	}
+	
+	
 	DisplayMode::DisplayMode (int _width, int _height, PixelFormat _pixelFormat, int _refreshRate) {
 		
 		width = _width;
@@ -41,24 +51,36 @@ namespace lime {
 	}
 	
 	
-	value DisplayMode::Value () {
+	void* DisplayMode::Value () {
 		
-		if (!init) {
+		if (_mode) {
 			
-			id_height = val_id ("height");
-			id_pixelFormat = val_id ("pixelFormat");
-			id_refreshRate = val_id ("refreshRate");
-			id_width = val_id ("width");
-			init = true;
+			_mode->height = height;
+			_mode->pixelFormat = pixelFormat;
+			_mode->refreshRate = refreshRate;
+			_mode->width = width;
+			return _mode;
+			
+		} else {
+			
+			if (!init) {
+				
+				id_height = val_id ("height");
+				id_pixelFormat = val_id ("pixelFormat");
+				id_refreshRate = val_id ("refreshRate");
+				id_width = val_id ("width");
+				init = true;
+				
+			}
+			
+			value displayMode = alloc_empty_object ();
+			alloc_field (displayMode, id_height, alloc_int (height));
+			alloc_field (displayMode, id_pixelFormat, alloc_int (pixelFormat));
+			alloc_field (displayMode, id_refreshRate, alloc_int (refreshRate));
+			alloc_field (displayMode, id_width, alloc_int (width));
+			return displayMode;
 			
 		}
-		
-		value displayMode = alloc_empty_object ();
-		alloc_field (displayMode, id_height, alloc_int (height));
-		alloc_field (displayMode, id_pixelFormat, alloc_int (pixelFormat));
-		alloc_field (displayMode, id_refreshRate, alloc_int (refreshRate));
-		alloc_field (displayMode, id_width, alloc_int (width));
-		return displayMode;
 		
 	}
 	
