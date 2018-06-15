@@ -462,6 +462,13 @@ namespace lime {
 	}
 	
 	
+	HL_PRIM double hl_lime_bytes_get_data_pointer_offset (HL_Bytes* bytes, int offset) {
+		
+		return (uintptr_t)bytes->b + offset;
+		
+	}
+	
+	
 	value lime_bytes_read_file (HxString path, value bytes) {
 		
 		Bytes data (bytes);
@@ -485,6 +492,13 @@ namespace lime {
 	double lime_cffi_get_native_pointer (value handle) {
 		
 		return (uintptr_t)val_data (handle);
+		
+	}
+	
+	
+	HL_PRIM double hl_lime_cffi_get_native_pointer (HL_CFFIPointer* handle) {
+		
+		return (uintptr_t)handle->ptr;
 		
 	}
 	
@@ -579,6 +593,13 @@ namespace lime {
 	
 	
 	double lime_data_pointer_offset (double pointer, int offset) {
+		
+		return (uintptr_t)pointer + offset;
+		
+	}
+	
+	
+	HL_PRIM double hl_lime_data_pointer_offset (double pointer, int offset) {
 		
 		return (uintptr_t)pointer + offset;
 		
@@ -1539,14 +1560,14 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_gamepad_add_mappings (hl_varray* mappings) {
 		
-		// int length = mappings->size;
-		// HL_String** mappingsData = hl_aptr (mappings, HL_String*);
+		int length = mappings->size;
+		HL_String** mappingsData = hl_aptr (mappings, HL_String*);
 		
-		// for (int i = 0; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			
-		// 	Gamepad::AddMapping (hl_to_utf8 ((const uchar*)((*mappingsData++)->bytes)));
+			Gamepad::AddMapping (hl_to_utf8 ((const uchar*)((*mappingsData++)->bytes)));
 			
-		// }
+		}
 		
 	}
 	
@@ -4209,20 +4230,20 @@ namespace lime {
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, lime_audio_load_file, _STRING _TAUDIOBUFFER);
 	// DEFINE_PRIME2 (lime_bytes_from_data_pointer);
 	DEFINE_HL_PRIM (_F64, lime_bytes_get_data_pointer, _TBYTES);
-	// DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
+	DEFINE_HL_PRIM (_F64, lime_bytes_get_data_pointer_offset, _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, lime_bytes_read_file, _STRING _TBYTES);
-	// DEFINE_PRIME1 (lime_cffi_get_native_pointer);
+	DEFINE_HL_PRIM (_F64, lime_cffi_get_native_pointer, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_HL_PRIM (_VOID, lime_clipboard_event_manager_register, _FUN(_VOID, _NO_ARG) _TCLIPBOARD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, lime_clipboard_get_text, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, lime_clipboard_set_text, _STRING);
-	// DEFINE_PRIME2 (lime_data_pointer_offset);
+	DEFINE_HL_PRIM (_F64, lime_data_pointer_offset, _F64 _I32);
 	DEFINE_HL_PRIM (_TBYTES, lime_deflate_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, lime_deflate_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, lime_drop_event_manager_register, _FUN(_VOID, _NO_ARG) _TDROP_EVENT);
 	DEFINE_HL_PRIM (_BYTES, lime_file_dialog_open_directory, _STRING _STRING _STRING);
 	DEFINE_HL_PRIM (_BYTES, lime_file_dialog_open_file, _STRING _STRING _STRING);
-	DEFINE_HL_PRIM (_TARRAY2, lime_file_dialog_open_files, _STRING _STRING _STRING);
+	DEFINE_HL_PRIM (_ARR, lime_file_dialog_open_files, _STRING _STRING _STRING);
 	DEFINE_HL_PRIM (_BYTES, lime_file_dialog_save_file, _STRING _STRING _STRING);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_file_watcher_create, _DYN);
 	DEFINE_HL_PRIM (_I32, lime_file_watcher_add_directory, _TCFFIPOINTER _STRING _BOOL);
@@ -4232,7 +4253,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_font_get_descender, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, lime_font_get_family_name, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_font_get_glyph_index, _TCFFIPOINTER _STRING);
-	DEFINE_HL_PRIM (_TARRAY, lime_font_get_glyph_indices, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_ARR, lime_font_get_glyph_indices, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_DYN, lime_font_get_glyph_metrics, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, lime_font_get_height, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_font_get_num_glyphs, _TCFFIPOINTER);
@@ -4244,9 +4265,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_font_load_file, _STRING);
 	DEFINE_HL_PRIM (_DYN, lime_font_outline_decompose, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
-	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyphs, _TCFFIPOINTER _TARRAY _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
 	DEFINE_HL_PRIM (_VOID, lime_font_set_size, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _TARRAY2);
+	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _ARR);
 	DEFINE_HL_PRIM (_VOID, lime_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, lime_gamepad_get_device_guid, _I32);
 	DEFINE_HL_PRIM (_BYTES, lime_gamepad_get_device_name, _I32);

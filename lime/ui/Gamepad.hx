@@ -40,6 +40,11 @@ class Gamepad {
 	public static function addMappings (mappings:Array<String>):Void {
 		
 		#if (lime_cffi && !macro)
+		#if hl
+		var _mappings = new hl.NativeArray<String> (mappings.length);
+		for (i in 0...mappings.length) _mappings[i] = mappings[i];
+		var mappings = _mappings;
+		#end
 		NativeCFFI.lime_gamepad_add_mappings (mappings);
 		#end
 		

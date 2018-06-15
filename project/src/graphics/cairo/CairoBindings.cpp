@@ -51,6 +51,7 @@ namespace lime {
 	void hl_gc_cairo (HL_CFFIPointer* handle) {
 		
 		cairo_t* cairo = (cairo_t*)handle->ptr;
+		handle->ptr = 0;
 		cairoObjects_Mutex.Lock ();
 		cairoObjects.erase (cairo);
 		cairoObjects_Mutex.Unlock ();
@@ -77,6 +78,7 @@ namespace lime {
 	void hl_gc_cairo_font_face (HL_CFFIPointer* handle) {
 		
 		cairo_font_face_t* face = (cairo_font_face_t*)handle->ptr;
+		handle->ptr = 0;
 		cairoObjects_Mutex.Lock ();
 		cairoObjects.erase (face);
 		cairoObjects_Mutex.Unlock ();
@@ -100,6 +102,7 @@ namespace lime {
 	void hl_gc_cairo_font_options (HL_CFFIPointer* handle) {
 		
 		cairo_font_options_t* options = (cairo_font_options_t*)handle->ptr;
+		handle->ptr = 0;
 		cairo_font_options_destroy (options);
 		
 	}
@@ -123,6 +126,7 @@ namespace lime {
 	void hl_gc_cairo_pattern (HL_CFFIPointer* handle) {
 		
 		cairo_pattern_t* pattern = (cairo_pattern_t*)handle->ptr;
+		handle->ptr = 0;
 		cairoObjects_Mutex.Lock ();
 		cairoObjects.erase (pattern);
 		cairoObjects_Mutex.Unlock ();
@@ -149,6 +153,7 @@ namespace lime {
 	void hl_gc_cairo_surface (HL_CFFIPointer* handle) {
 		
 		cairo_surface_t* surface = (cairo_surface_t*)handle->ptr;
+		handle->ptr = 0;
 		cairoObjects_Mutex.Lock ();
 		cairoObjects.erase (surface);
 		cairoObjects_Mutex.Unlock ();
@@ -340,6 +345,8 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_cairo_fill_preserve (HL_CFFIPointer* handle) {
 		
+		printf ("handle %d\n", handle);
+		printf ("ptr %d\n", handle->ptr);
 		cairo_fill_preserve ((cairo_t*)handle->ptr);
 		
 	}
@@ -2410,7 +2417,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_hint_metrics, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_antialias, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TVECTOR2, lime_cairo_get_current_point, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_ARR_FLOAT, lime_cairo_get_dash, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_ARR, lime_cairo_get_dash, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_dash_count, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_fill_rule, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_font_face, _TCFFIPOINTER);
@@ -2472,7 +2479,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_cairo_save, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_scale, _TCFFIPOINTER _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_antialias, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_dash, _TCFFIPOINTER _ARR_FLOAT);
+	DEFINE_HL_PRIM (_VOID, lime_cairo_set_dash, _TCFFIPOINTER _ARR);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_fill_rule, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_font_face, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_font_size, _TCFFIPOINTER _F64);
@@ -2488,7 +2495,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_tolerance, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_show_glyphs, _TCFFIPOINTER _ARR_OBJECT);
+	DEFINE_HL_PRIM (_VOID, lime_cairo_show_glyphs, _TCFFIPOINTER _ARR);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_show_page, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_show_text, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_I32, lime_cairo_status, _TCFFIPOINTER);

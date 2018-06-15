@@ -428,6 +428,11 @@ class Cairo {
 	public function showGlyphs (glyphs:Array<CairoGlyph>):Void {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		var _glyphs = new hl.NativeArray<CairoGlyph> (glyphs.length);
+		for (i in 0...glyphs.length) _glyphs[i] = glyphs[i];
+		var glyphs = _glyphs;
+		#end
 		NativeCFFI.lime_cairo_show_glyphs (handle, glyphs);
 		#end
 		
@@ -561,8 +566,16 @@ class Cairo {
 	@:noCompletion private function get_dash ():Array<Float> {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		var result:hl.NativeArray<Float> = NativeCFFI.lime_cairo_get_dash (handle);
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
 		var result:Dynamic = NativeCFFI.lime_cairo_get_dash (handle);
 		return result;
+		#end
 		#end
 		
 		return [];
@@ -573,7 +586,13 @@ class Cairo {
 	@:noCompletion private function set_dash (value:Array<Float>):Array<Float> {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		var _value = new hl.NativeArray<Float> (value.length);
+		for (i in 0...value.length) _value[i] = value[i];
+		NativeCFFI.lime_cairo_set_dash (handle, _value);
+		#else
 		NativeCFFI.lime_cairo_set_dash (handle, value);
+		#end
 		#end
 		
 		return value;

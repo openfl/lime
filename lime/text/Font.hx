@@ -274,6 +274,18 @@ class Font {
 			
 		}
 		
+		#if hl
+		var _glyphList = new hl.NativeArray<Glyph> (glyphList.length);
+		
+		for (i in 0...glyphList.length) {
+			
+			_glyphList[i] = glyphList[i];
+			
+		}
+		
+		var glyphList = _glyphList;
+		#end
+		
 		NativeCFFI.lime_font_set_size (src, fontSize);
 		
 		var bytes = Bytes.alloc (0);

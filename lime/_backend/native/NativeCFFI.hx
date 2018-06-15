@@ -214,19 +214,19 @@ class NativeCFFI {
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
 	@:hlNative("lime", "lime_bytes_get_data_pointer") private static function lime_bytes_get_data_pointer (data:Bytes):Float { return 0; }
-	@:cffi private static function lime_bytes_get_data_pointer_offset (data:Dynamic, offset:Int):Float;
+	@:hlNative("lime", "lime_bytes_get_data_pointer_offset") private static function lime_bytes_get_data_pointer_offset (data:Bytes, offset:Int):Float { return 0; }
 	@:hlNative("lime", "lime_bytes_read_file") private static function lime_bytes_read_file (path:String, bytes:Bytes):Bytes { return null; }
-	@:cffi private static function lime_cffi_get_native_pointer (ptr:Dynamic):Float;
+	@:hlNative("lime", "lime_cffi_get_native_pointer") private static function lime_cffi_get_native_pointer (ptr:CFFIPointer):Float { return 0; }
 	@:hlNative("lime", "lime_clipboard_event_manager_register") private static function lime_clipboard_event_manager_register (callback:Void->Void, eventObject:ClipboardEventInfo):Void {}
 	@:hlNative("lime", "lime_clipboard_get_text") private static function lime_clipboard_get_text ():hl.Bytes { return null; }
 	@:hlNative("lime", "lime_clipboard_set_text") private static function lime_clipboard_set_text (text:String):Void {}
-	@:cffi private static function lime_data_pointer_offset (dataPointer:DataPointer, offset:Int):Float;
+	@:hlNative("lime", "lime_data_pointer_offset") private static function lime_data_pointer_offset (dataPointer:DataPointer, offset:Int):Float { return 0; }
 	@:hlNative("lime", "lime_deflate_compress") private static function lime_deflate_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_deflate_decompress") private static function lime_deflate_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_drop_event_manager_register") private static function lime_drop_event_manager_register (callback:Void->Void, eventObject:DropEventInfo):Void {}
 	@:hlNative("lime", "lime_file_dialog_open_directory") private static function lime_file_dialog_open_directory (title:String, filter:String, defaultPath:String):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_file_dialog_open_file") private static function lime_file_dialog_open_file (title:String, filter:String, defaultPath:String):hl.Bytes { return null; }
-	@:hlNative("lime", "lime_file_dialog_open_files") private static function lime_file_dialog_open_files (title:String, filter:String, defaultPath:String):Array<hl.Bytes> { return null; }
+	@:hlNative("lime", "lime_file_dialog_open_files") private static function lime_file_dialog_open_files (title:String, filter:String, defaultPath:String):hl.NativeArray<hl.Bytes> { return null; }
 	@:hlNative("lime", "lime_file_dialog_save_file") private static function lime_file_dialog_save_file (title:String, filter:String, defaultPath:String):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_file_watcher_create") private static function lime_file_watcher_create (callback:Dynamic):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_file_watcher_add_directory") private static function lime_file_watcher_add_directory (handle:CFFIPointer, path:String, recursive:Bool):Int { return 0; }
@@ -236,7 +236,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_font_get_descender") private static function lime_font_get_descender (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_font_get_family_name") private static function lime_font_get_family_name (handle:CFFIPointer):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_font_get_glyph_index") private static function lime_font_get_glyph_index (handle:CFFIPointer, character:String):Int { return 0; }
-	@:hlNative("lime", "lime_font_get_glyph_indices") private static function lime_font_get_glyph_indices (handle:CFFIPointer, characters:String):Array<Int> { return null; }
+	@:hlNative("lime", "lime_font_get_glyph_indices") private static function lime_font_get_glyph_indices (handle:CFFIPointer, characters:String):hl.NativeArray<Int> { return null; }
 	@:hlNative("lime", "lime_font_get_glyph_metrics") private static function lime_font_get_glyph_metrics (handle:CFFIPointer, index:Int):Dynamic { return null; }
 	@:hlNative("lime", "lime_font_get_height") private static function lime_font_get_height (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_font_get_num_glyphs") private static function lime_font_get_num_glyphs (handle:CFFIPointer):Int { return 0; }
@@ -248,9 +248,9 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_font_load_file") private static function lime_font_load_file (path:String):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_font_outline_decompose") private static function lime_font_outline_decompose (handle:CFFIPointer, size:Int):Dynamic { return null; }
 	@:hlNative("lime", "lime_font_render_glyph") private static function lime_font_render_glyph (handle:CFFIPointer, index:Int, data:Bytes):Bool { return false; }
-	@:hlNative("lime", "lime_font_render_glyphs") private static function lime_font_render_glyphs (handle:CFFIPointer, indices:Array<Int>, data:Bytes):Bool { return false; }
+	@:hlNative("lime", "lime_font_render_glyphs") private static function lime_font_render_glyphs (handle:CFFIPointer, indices:hl.NativeArray<Int>, data:Bytes):Bool { return false; }
 	@:hlNative("lime", "lime_font_set_size") private static function lime_font_set_size (handle:CFFIPointer, size:Int):Void {}
-	@:hlNative("lime", "lime_gamepad_add_mappings") private static function lime_gamepad_add_mappings (mappings:Array<String>):Void {}
+	@:hlNative("lime", "lime_gamepad_add_mappings") private static function lime_gamepad_add_mappings (mappings:hl.NativeArray<String>):Void {}
 	@:hlNative("lime", "lime_gamepad_get_device_guid") private static function lime_gamepad_get_device_guid (id:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gamepad_get_device_name") private static function lime_gamepad_get_device_name (id:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register (callback:Void->Void, eventObject:GamepadEventInfo):Void {}
@@ -738,7 +738,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_fill_preserve") private static function lime_cairo_fill_preserve (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_cairo_get_antialias") private static function lime_cairo_get_antialias (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_current_point") private static function lime_cairo_get_current_point (handle:CFFIPointer):Vector2 { return null; }
-	@:hlNative("lime", "lime_cairo_get_dash") private static function lime_cairo_get_dash (handle:CFFIPointer):Array<Float> { return null; }
+	@:hlNative("lime", "lime_cairo_get_dash") private static function lime_cairo_get_dash (handle:CFFIPointer):hl.NativeArray<Float> { return null; }
 	@:hlNative("lime", "lime_cairo_get_dash_count") private static function lime_cairo_get_dash_count (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_fill_rule") private static function lime_cairo_get_fill_rule (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_font_face") private static function lime_cairo_get_font_face (handle:CFFIPointer):CFFIPointer { return null; }
@@ -779,7 +779,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_save") private static function lime_cairo_save (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_cairo_scale") private static function lime_cairo_scale (handle:CFFIPointer, x:Float, y:Float):Void {}
 	@:hlNative("lime", "lime_cairo_set_antialias") private static function lime_cairo_set_antialias (handle:CFFIPointer, cap:Int):Void {}
-	@:hlNative("lime", "lime_cairo_set_dash") private static function lime_cairo_set_dash (handle:CFFIPointer, dash:Array<Float>):Void {}
+	@:hlNative("lime", "lime_cairo_set_dash") private static function lime_cairo_set_dash (handle:CFFIPointer, dash:hl.NativeArray<Float>):Void {}
 	@:hlNative("lime", "lime_cairo_set_fill_rule") private static function lime_cairo_set_fill_rule (handle:CFFIPointer, cap:Int):Void {}
 	@:hlNative("lime", "lime_cairo_set_font_face") private static function lime_cairo_set_font_face (handle:CFFIPointer, face:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_cairo_set_font_options") private static function lime_cairo_set_font_options (handle:CFFIPointer, options:CFFIPointer):Void {}
@@ -796,7 +796,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_set_source_rgba") private static function lime_cairo_set_source_rgba (handle:CFFIPointer, r:Float, g:Float, b:Float, a:Float):Void {}
 	@:hlNative("lime", "lime_cairo_set_source_surface") private static function lime_cairo_set_source_surface (handle:CFFIPointer, surface:CFFIPointer, x:Float, y:Float):Void {}
 	@:hlNative("lime", "lime_cairo_set_tolerance") private static function lime_cairo_set_tolerance (handle:CFFIPointer, tolerance:Float):Void {}
-	@:hlNative("lime", "lime_cairo_show_glyphs") private static function lime_cairo_show_glyphs (handle:CFFIPointer, glyphs:Array<CairoGlyph>):Void {}
+	@:hlNative("lime", "lime_cairo_show_glyphs") private static function lime_cairo_show_glyphs (handle:CFFIPointer, glyphs:hl.NativeArray<CairoGlyph>):Void {}
 	@:hlNative("lime", "lime_cairo_show_page") private static function lime_cairo_show_page (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_cairo_show_text") private static function lime_cairo_show_text (handle:CFFIPointer, text:String):Void {}
 	@:hlNative("lime", "lime_cairo_status") private static function lime_cairo_status (handle:CFFIPointer):Int { return 0; }
@@ -820,8 +820,8 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_font_options_set_subpixel_order") private static function lime_cairo_font_options_set_subpixel_order (handle:CFFIPointer, v:Int):Void {}
 	@:hlNative("lime", "lime_cairo_ft_font_face_create") private static function lime_cairo_ft_font_face_create (face:CFFIPointer, flags:Int):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_cairo_image_surface_create") private static function lime_cairo_image_surface_create (format:Int, width:Int, height:Int):CFFIPointer { return null; }
-	@:hlNative("lime", "lime_cairo_image_surface_create_for_data") private static function lime_cairo_image_surface_create_for_data (data:DataPointer, format:Int, width:Int, height:Int, stride:Int):CFFIPointer { return null; }
-	@:hlNative("lime", "lime_cairo_image_surface_get_data") private static function lime_cairo_image_surface_get_data (handle:CFFIPointer):DataPointer { return 0; }
+	@:hlNative("lime", "lime_cairo_image_surface_create_for_data") private static function lime_cairo_image_surface_create_for_data (data:Float, format:Int, width:Int, height:Int, stride:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_cairo_image_surface_get_data") private static function lime_cairo_image_surface_get_data (handle:CFFIPointer):Float { return 0; }
 	@:hlNative("lime", "lime_cairo_image_surface_get_format") private static function lime_cairo_image_surface_get_format (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_image_surface_get_height") private static function lime_cairo_image_surface_get_height (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_image_surface_get_stride") private static function lime_cairo_image_surface_get_stride (handle:CFFIPointer):Int { return 0; }
