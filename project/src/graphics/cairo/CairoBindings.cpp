@@ -345,8 +345,6 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_cairo_fill_preserve (HL_CFFIPointer* handle) {
 		
-		printf ("handle %d\n", handle);
-		printf ("ptr %d\n", handle->ptr);
 		cairo_fill_preserve ((cairo_t*)handle->ptr);
 		
 	}
