@@ -22,6 +22,7 @@ import lime.math.Matrix3;
 import lime.math.Vector2;
 import lime.media.openal.ALContext;
 import lime.media.openal.ALDevice;
+import lime.media.AudioBuffer;
 import lime.system.DisplayMode;
 import lime.utils.ArrayBufferView;
 #end
@@ -58,6 +59,8 @@ class NativeCFFI {
 	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
 	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_audio_load_bytes (data:Dynamic, buffer:Dynamic):Dynamic;
+	@:cffi private static function lime_audio_load_file (path:Dynamic, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
 	@:cffi private static function lime_bytes_get_data_pointer_offset (data:Dynamic, offset:Int):Float;
@@ -211,7 +214,9 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_application_quit") private static function lime_application_quit (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_application_set_frame_rate") private static function lime_application_set_frame_rate (handle:CFFIPointer, value:Float):Void {}
 	@:hlNative("lime", "lime_application_update") private static function lime_application_update (handle:CFFIPointer):Bool { return false; }
-	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
+	// @:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
+	@:hlNative("lime", "lime_audio_load_bytes") private static function lime_audio_load_bytes (data:Bytes, buffer:AudioBuffer):AudioBuffer { return null; }
+	@:hlNative("lime", "lime_audio_load_file") private static function lime_audio_load_file (path:String, buffer:AudioBuffer):AudioBuffer { return null; }
 	@:hlNative("lime", "lime_bytes_from_data_pointer") private static function lime_bytes_from_data_pointer (data:Float, length:Int, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_bytes_get_data_pointer") private static function lime_bytes_get_data_pointer (data:Bytes):Float { return 0; }
 	@:hlNative("lime", "lime_bytes_get_data_pointer_offset") private static function lime_bytes_get_data_pointer_offset (data:Bytes, offset:Int):Float { return 0; }
@@ -258,7 +263,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gzip_decompress") private static function lime_gzip_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_haptic_vibrate") private static function lime_haptic_vibrate (period:Int, duration:Int):Void {}
 	@:hlNative("lime", "lime_image_encode") private static function lime_image_encode (data:ImageBuffer, type:Int, quality:Int, bytes:Bytes):Bytes { return null; }
-	@:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
+	// @:cffi private static function lime_image_load (data:Dynamic, buffer:Dynamic):Dynamic;
 	@:hlNative("lime", "lime_image_load_bytes") private static function lime_image_load_bytes (data:Bytes, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_load_file") private static function lime_image_load_file (path:String, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_data_util_color_transform") private static function lime_image_data_util_color_transform (image:Image, rect:Rectangle, colorMatrix:ArrayBufferView):Void {}
@@ -299,7 +304,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_mouse_show") private static function lime_mouse_show ():Void {}
 	@:hlNative("lime", "lime_mouse_warp") private static function lime_mouse_warp (x:Int, y:Int, window:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_mouse_event_manager_register") private static function lime_mouse_event_manager_register (callback:Void->Void, eventObject:MouseEventInfo):Void {}
-	@:cffi private static function lime_neko_execute (module:String):Void;
+	// @:cffi private static function lime_neko_execute (module:String):Void;
 	@:hlNative("lime", "lime_png_decode_bytes") private static function lime_png_decode_bytes (data:Bytes, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_png_decode_file") private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_renderer_create") private static function lime_renderer_create (window:CFFIPointer):CFFIPointer { return null; }

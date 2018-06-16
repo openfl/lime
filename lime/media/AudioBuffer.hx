@@ -136,7 +136,7 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
 		
-		return NativeCFFI.lime_audio_load (bytes, audioBuffer);
+		return NativeCFFI.lime_audio_load_bytes (bytes, audioBuffer);
 		
 		#else
 		
@@ -144,7 +144,7 @@ class AudioBuffer {
 		var base64StringSplit = base64String.split (",");
 		var base64StringNoEncoding = base64StringSplit[base64StringSplit.length - 1];
 		var bytes: Bytes = Base64.decode (base64StringNoEncoding);
-		var data:Dynamic = NativeCFFI.lime_audio_load (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_audio_load_bytes (bytes, null);
 		
 		if (data != null) {
 			
@@ -186,11 +186,11 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
 		
-		return NativeCFFI.lime_audio_load (bytes, audioBuffer);
+		return NativeCFFI.lime_audio_load_bytes (bytes, audioBuffer);
 		
 		#else
 		
-		var data:Dynamic = NativeCFFI.lime_audio_load (bytes, null);
+		var data:Dynamic = NativeCFFI.lime_audio_load_bytes (bytes, null);
 		
 		if (data != null) {
 			
@@ -265,11 +265,11 @@ class AudioBuffer {
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.data = new UInt8Array (Bytes.alloc (0));
 		
-		return NativeCFFI.lime_audio_load (path, audioBuffer);
+		return NativeCFFI.lime_audio_load_file (path, audioBuffer);
 		
 		#else
 		
-		var data:Dynamic = NativeCFFI.lime_audio_load (path, null);
+		var data:Dynamic = NativeCFFI.lime_audio_load_file (path, null);
 		
 		if (data != null) {
 			
