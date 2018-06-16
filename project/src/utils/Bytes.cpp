@@ -1,5 +1,6 @@
 #include <system/System.h>
 #include <utils/Bytes.h>
+#include <map>
 
 
 namespace lime {
@@ -9,6 +10,7 @@ namespace lime {
 	static int id_length;
 	static bool init = false;
 	static bool useBuffer = false;
+	static std::map<Bytes*, bool> usingValue;
 	
 	
 	inline void _initializeBytes () {
@@ -57,7 +59,11 @@ namespace lime {
 	
 	Bytes::~Bytes () {
 		
-		
+		if (usingValue.find (this) != usingValue.end ()) {
+			
+			usingValue.erase (this);
+			
+		}
 		
 	}
 	
@@ -96,7 +102,16 @@ namespace lime {
 				
 				if (b) {
 					
-					free (b);
+					if (usingValue.find (this) != usingValue.end ()) {
+						
+						usingValue.erase (this);
+						
+					} else {
+						
+						free (b);
+						
+					}
+					
 					b = 0;
 					length = 0;
 					
@@ -106,14 +121,23 @@ namespace lime {
 				
 				unsigned char* data = (unsigned char*)malloc (sizeof (char) * size);
 				
-				if (b && length) {
+				if (b) {
 					
-					memcpy (data, b, length < size ? length : size);
-					free (b);
+					if (length) {
+						
+						memcpy (data, b, length < size ? length : size);
+						
+					}
 					
-				} else if (b) {
-					
-					free (b);
+					if (usingValue.find (this) != usingValue.end ()) {
+						
+						usingValue.erase (this);
+						
+					} else {
+						
+						free (b);
+						
+					}
 					
 				}
 				
@@ -131,10 +155,18 @@ namespace lime {
 		
 		if (val_is_null (bytes)) {
 			
+			if (usingValue.find (this) != usingValue.end ()) {
+				
+				usingValue.erase (this);
+				
+			}
+			
 			length = 0;
 			b = 0;
 			
 		} else {
+			
+			usingValue[this] = true;
 			
 			length = val_int (val_field (bytes, id_length));
 			
@@ -173,6 +205,12 @@ namespace lime {
 			memcpy (b, &data[0], length);
 			
 		} else {
+			
+			if (usingValue.find (this) != usingValue.end ()) {
+				
+				usingValue.erase (this);
+				
+			}
 			
 			b = 0;
 			length = 0;

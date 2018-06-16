@@ -58,7 +58,7 @@ class NativeCFFI {
 	@:cffi private static function lime_application_set_frame_rate (handle:Dynamic, value:Float):Void;
 	@:cffi private static function lime_application_update (handle:Dynamic):Bool;
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
+	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int, bytes:Dynamic):Dynamic;
 	@:cffi private static function lime_bytes_get_data_pointer (data:Dynamic):Float;
 	@:cffi private static function lime_bytes_get_data_pointer_offset (data:Dynamic, offset:Int):Float;
 	@:cffi private static function lime_bytes_read_file (path:String, bytes:Dynamic):Dynamic;
@@ -212,7 +212,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_application_set_frame_rate") private static function lime_application_set_frame_rate (handle:CFFIPointer, value:Float):Void {}
 	@:hlNative("lime", "lime_application_update") private static function lime_application_update (handle:CFFIPointer):Bool { return false; }
 	@:cffi private static function lime_audio_load (data:Dynamic, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_bytes_from_data_pointer (data:Float, length:Int):Dynamic;
+	@:hlNative("lime", "lime_bytes_from_data_pointer") private static function lime_bytes_from_data_pointer (data:Float, length:Int, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_bytes_get_data_pointer") private static function lime_bytes_get_data_pointer (data:Bytes):Float { return 0; }
 	@:hlNative("lime", "lime_bytes_get_data_pointer_offset") private static function lime_bytes_get_data_pointer_offset (data:Bytes, offset:Int):Float { return 0; }
 	@:hlNative("lime", "lime_bytes_read_file") private static function lime_bytes_read_file (path:String, bytes:Bytes):Bytes { return null; }

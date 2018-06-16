@@ -411,19 +411,35 @@ namespace lime {
 	}
 	
 	
-	value lime_bytes_from_data_pointer (double data, int length) {
+	value lime_bytes_from_data_pointer (double data, int length, value _bytes) {
 		
-		// uintptr_t ptr = (uintptr_t)data;
-		// Bytes bytes (length);
+		uintptr_t ptr = (uintptr_t)data;
+		Bytes bytes (_bytes);
+		bytes.Resize (length);
 		
-		// if (ptr) {
+		if (ptr) {
 			
-		// 	memcpy (bytes.b, (const void*)ptr, length);
+			memcpy (bytes.b, (const void*)ptr, length);
 			
-		// }
+		}
 		
-		// return bytes.Value ();
-		return alloc_null ();
+		return bytes.Value (_bytes);
+		
+	}
+	
+	
+	HL_PRIM Bytes* hl_lime_bytes_from_data_pointer (double data, int length, Bytes* bytes) {
+		
+		uintptr_t ptr = (uintptr_t)data;
+		bytes->Resize (length);
+		
+		if (ptr) {
+			
+			memcpy (bytes->b, (const void*)ptr, length);
+			
+		}
+		
+		return bytes;
 		
 	}
 	
@@ -3331,7 +3347,9 @@ namespace lime {
 		TextLayout *text = (TextLayout*)val_data (textHandle);
 		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes (data);
+		
 		text->Position (font, size, textString.c_str (), &bytes);
+		
 		return bytes.Value (data);
 		
 		#endif
@@ -3930,7 +3948,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME1 (lime_application_update);
 	DEFINE_PRIME2 (lime_audio_load);
-	DEFINE_PRIME2 (lime_bytes_from_data_pointer);
+	DEFINE_PRIME3 (lime_bytes_from_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
 	DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
 	DEFINE_PRIME2 (lime_bytes_read_file);
@@ -4119,7 +4137,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, lime_application_update, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, lime_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, lime_audio_load_file, _STRING _TAUDIOBUFFER);
-	// DEFINE_PRIME2 (lime_bytes_from_data_pointer);
+	DEFINE_HL_PRIM (_TBYTES, lime_bytes_from_data_pointer, _F64 _I32 _TBYTES);
 	DEFINE_HL_PRIM (_F64, lime_bytes_get_data_pointer, _TBYTES);
 	DEFINE_HL_PRIM (_F64, lime_bytes_get_data_pointer_offset, _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, lime_bytes_read_file, _STRING _TBYTES);
