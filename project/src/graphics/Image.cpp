@@ -12,17 +12,6 @@ namespace lime {
 	static bool init = false;
 	
 	
-	Image::Image () {
-		
-		buffer = 0;
-		height = 0;
-		offsetX = 0;
-		offsetY = 0;
-		width = 0;
-		
-	}
-	
-	
 	Image::Image (value image) {
 		
 		if (!init) {
@@ -45,20 +34,13 @@ namespace lime {
 	}
 	
 	
-	Image::Image (HL_Image* image) {
-		
-		width = image->width;
-		height = image->height;
-		buffer = new ImageBuffer (image->buffer);
-		offsetX = image->offsetX;
-		offsetY = image->offsetY;
-		
-	}
-	
-	
 	Image::~Image () {
 		
-		delete buffer;
+		if (buffer) {
+			
+			delete buffer;
+			
+		}
 		
 	}
 	

@@ -302,7 +302,7 @@ namespace lime {
 			
 			buffer->Resize (bounds.w, bounds.h, 32);
 			
-			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->Data (), buffer->Stride ());
+			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->buffer->b, buffer->Stride ());
 			
 		} else if (context) {
 			

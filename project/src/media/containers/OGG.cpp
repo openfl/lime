@@ -61,7 +61,7 @@ namespace lime {
 		
 		while (bytes > 0) {
 			
-			bytes = ov_read (oggFile, (char *)audioBuffer->data->Data () + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+			bytes = ov_read (oggFile, (char *)audioBuffer->data->buffer->b + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
 			
 			if (bytes > 0) {
 				

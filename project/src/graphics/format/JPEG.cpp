@@ -241,15 +241,16 @@ namespace lime {
 				
 			} else {
 				
-				data = new Bytes (resource->path);
-				manager = new MySrcManager (data->Data (), data->Length ());
+				data = (Bytes*)malloc (sizeof (Bytes));
+				data->ReadFile (resource->path);
+				manager = new MySrcManager (data->b, data->length);
 				cinfo.src = &manager->pub;
 				
 			}
 			
 		} else {
 			
-			manager = new MySrcManager (resource->data->Data (), resource->data->Length ());
+			manager = new MySrcManager (resource->data->b, resource->data->length);
 			cinfo.src = &manager->pub;
 			
 		}
@@ -266,7 +267,7 @@ namespace lime {
 				int components = cinfo.output_components;
 				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 				
-				unsigned char *bytes = imageBuffer->data->Data ();
+				unsigned char *bytes = imageBuffer->data->buffer->b;
 				unsigned char *scanline = new unsigned char [imageBuffer->width * components];
 				
 				while (cinfo.output_scanline < cinfo.output_height) {
@@ -363,7 +364,7 @@ namespace lime {
 		jpeg_start_compress (&cinfo, TRUE);
 		
 		JSAMPROW row_pointer = &row_buf[0];
-		unsigned char* imageData = imageBuffer->data->Data();
+		unsigned char* imageData = imageBuffer->data->buffer->b;
 		int stride = imageBuffer->Stride ();
 		
 		while (cinfo.next_scanline < cinfo.image_height) {
@@ -387,7 +388,14 @@ namespace lime {
 		
 		jpeg_finish_compress (&cinfo);
 		
-		bytes->Set (dest.mOutput);
+		int size = dest.mOutput.size ();
+		
+		if (size > 0) {
+			
+			bytes->Resize (size);
+			memcpy (bytes->b, &dest.mOutput[0], size);
+			
+		}
 		
 		return true;
 		

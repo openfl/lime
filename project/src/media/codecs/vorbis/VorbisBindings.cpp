@@ -286,7 +286,7 @@ namespace lime {
 		int bitstream;
 		
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
-		long result = ov_read (file, (char*)bytes.Data () + position, length, bigendianp, word, sgned, &bitstream);
+		long result = ov_read (file, (char*)bytes.b + position, length, bigendianp, word, sgned, &bitstream);
 		
 		_initializeVorbis ();
 		

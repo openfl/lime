@@ -360,22 +360,23 @@ namespace lime {
 						
 					} else {
 						
-						Bytes data = Bytes (resource->path);
-						faceMemory = (unsigned char*)malloc (data.Length ());
-						memcpy (faceMemory, data.Data (), data.Length ());
+						Bytes data;
+						data.ReadFile (resource->path);
+						faceMemory = (unsigned char*)malloc (data.length);
+						memcpy (faceMemory, data.b, data.length);
 						
 						lime::fclose (file);
 						file = 0;
 						
-						error = FT_New_Memory_Face (library, faceMemory, data.Length (), faceIndex, &face);
+						error = FT_New_Memory_Face (library, faceMemory, data.length, faceIndex, &face);
 						
 					}
 					
 				} else {
 					
-					faceMemory = (unsigned char*)malloc (resource->data->Length ());
-					memcpy (faceMemory, resource->data->Data (), resource->data->Length ());
-					error = FT_New_Memory_Face (library, faceMemory, resource->data->Length (), faceIndex, &face);
+					faceMemory = (unsigned char*)malloc (resource->data->length);
+					memcpy (faceMemory, resource->data->b, resource->data->length);
+					error = FT_New_Memory_Face (library, faceMemory, resource->data->length, faceIndex, &face);
 					
 				}
 				
@@ -786,13 +787,13 @@ namespace lime {
 				
 				uint32_t size = (4 * 5) + (width * height);
 				
-				if (bytes->Length () < size + offset) {
+				if (bytes->length < size + offset) {
 					
 					bytes->Resize (size + offset);
 					
 				}
 				
-				GlyphImage *data = (GlyphImage*)(bytes->Data () + offset);
+				GlyphImage *data = (GlyphImage*)(bytes->b + offset);
 				
 				data->index = index;
 				data->width = width;
@@ -842,7 +843,7 @@ namespace lime {
 		
 		if (count > 0) {
 			
-			*(uint32_t*)(bytes->Data ()) = count;
+			*(uint32_t*)(bytes->b) = count;
 			
 		}
 		

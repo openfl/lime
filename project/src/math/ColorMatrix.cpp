@@ -40,7 +40,7 @@ namespace lime {
 		value buffer_value = val_field (colorMatrix, id_buffer);
 		Bytes bytes;
 		bytes.Set (buffer_value);
-		float* src = (float*)bytes.Data ();
+		float* src = (float*)bytes.b;
 		
 		for (int i = 0; i < 20; i++) {
 			
@@ -51,11 +51,9 @@ namespace lime {
 	}
 	
 	
-	ColorMatrix::ColorMatrix (HL_ArrayBufferView* colorMatrix) {
+	ColorMatrix::ColorMatrix (ArrayBufferView* colorMatrix) {
 		
-		Bytes bytes;
-		bytes.Set (colorMatrix->buffer);
-		float* src = (float*)bytes.Data ();
+		float* src = (float*)colorMatrix->buffer->b;
 		
 		for (int i = 0; i < 20; i++) {
 			

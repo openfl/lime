@@ -9,41 +9,22 @@
 namespace lime {
 	
 	
-	struct HL_Bytes {
+	struct Bytes {
 		
 		hl_type* t;
 		int length;
 		unsigned char* b;
 		
-	};
-	
-	
-	struct Bytes {
-		
-		
 		Bytes ();
-		Bytes (int size);
 		Bytes (value bytes);
-		Bytes (HL_Bytes* bytes);
-		Bytes (const char* path);
-		Bytes (const QuickVec<unsigned char> data);
 		~Bytes ();
 		
-		unsigned char* Data ();
-		const unsigned char* Data () const;
-		int Length () const;
 		void ReadFile (const char* path);
 		void Resize (int size);
 		void Set (value bytes);
-		void Set (HL_Bytes* bytes);
 		void Set (const QuickVec<unsigned char> data);
-		void* Value ();
-		
-		HL_Bytes* _bytes;
-		unsigned char* _data;
-		int _length;
-		value _value;
-		
+		value Value (value bytes);
+		value Value ();
 		
 	};
 	

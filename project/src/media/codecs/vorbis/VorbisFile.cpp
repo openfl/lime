@@ -148,8 +148,8 @@ namespace lime {
 		memset (vorbisFile, 0, sizeof (OggVorbis_File));
 		
 		VorbisFile_Buffer* buffer = new VorbisFile_Buffer ();
-		buffer->data = bytes->Data ();
-		buffer->size = bytes->Length ();
+		buffer->data = bytes->b;
+		buffer->size = bytes->length;
 		buffer->pos = 0;
 		
 		if (ov_open_callbacks (buffer, vorbisFile, NULL, 0, VORBIS_FILE_BUFFER_CALLBACKS) != 0) {

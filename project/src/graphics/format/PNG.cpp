@@ -82,8 +82,8 @@ namespace lime {
 		png_uint_32 width, height;
 		int bit_depth, color_type, interlace_type;
 		
-		FILE_HANDLE *file = NULL;
-		Bytes *data = NULL;
+		FILE_HANDLE* file = NULL;
+		Bytes* data = NULL;
 		
 		if (resource->path) {
 			
@@ -101,7 +101,7 @@ namespace lime {
 			
 		} else {
 			
-			if (png_sig_cmp (resource->data->Data (), 0, PNG_SIG_SIZE)) {
+			if (png_sig_cmp (resource->data->b, 0, PNG_SIG_SIZE)) {
 				
 				return false;
 				
@@ -142,15 +142,16 @@ namespace lime {
 				
 			} else {
 				
-				data = new Bytes (resource->path);
-				ReadBuffer buffer (data->Data (), data->Length ());
+				data = (Bytes*)malloc (sizeof (Bytes));
+				data->ReadFile (resource->path);
+				ReadBuffer buffer (data->b, data->length);
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 				
 			}
 			
 		} else {
 			
-			ReadBuffer buffer (resource->data->Data (), resource->data->Length ());
+			ReadBuffer buffer (resource->data->b, resource->data->length);
 			png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 			
 		}
@@ -184,7 +185,7 @@ namespace lime {
 			imageBuffer->Resize (width, height, 32);
 			
 			const unsigned int stride = imageBuffer->Stride ();
-			unsigned char *bytes = imageBuffer->data->Data ();
+			unsigned char *bytes = imageBuffer->data->buffer->b;
 			
 			int number_of_passes = png_set_interlace_handling (png_ptr);
 			
@@ -218,7 +219,7 @@ namespace lime {
 	}
 	
 	
-	bool PNG::Encode (ImageBuffer *imageBuffer, Bytes *bytes) {
+	bool PNG::Encode (ImageBuffer *imageBuffer, Bytes* bytes) {
 		
 		png_structp png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, user_error_fn, user_warning_fn);
 		
@@ -258,7 +259,7 @@ namespace lime {
 		png_write_info (png_ptr, info_ptr);
 		
 		bool do_alpha = (color_type == PNG_COLOR_TYPE_RGBA);
-		unsigned char* imageData = imageBuffer->data->Data();
+		unsigned char* imageData = imageBuffer->data->buffer->b;
 		int stride = imageBuffer->Stride ();
 		
 		{
@@ -296,7 +297,14 @@ namespace lime {
 		
 		png_write_end (png_ptr, NULL);
 		
-		bytes->Set (out_buffer);
+		int size = out_buffer.size ();
+		
+		if (size > 0) {
+			
+			bytes->Resize (size);
+			memcpy (bytes->b, &out_buffer[0], size);
+			
+		}
 		
 		return true;
 		

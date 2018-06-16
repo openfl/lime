@@ -127,7 +127,7 @@ namespace lime {
 			
 			audioBuffer->data->Resize (wave_data.subChunkSize);
 			
-			if (!lime::fread (audioBuffer->data->Data (), wave_data.subChunkSize, 1, file)) {
+			if (!lime::fread (audioBuffer->data->buffer->b, wave_data.subChunkSize, 1, file)) {
 				
 				LOG_SOUND ("error loading WAVE data into struct!\n");
 				lime::fclose (file);
@@ -139,8 +139,8 @@ namespace lime {
 			
 		} else {
 			
-			const char* start = (const char*)resource->data->Data ();
-			const char* end = start + resource->data->Length ();
+			const char* start = (const char*)resource->data->b;
+			const char* end = start + resource->data->length;
 			const char* ptr = start;
 			
 			memcpy (&riff_header, ptr, sizeof (RIFF_Header));
@@ -196,7 +196,7 @@ namespace lime {
 				
 			}
 			
-			unsigned char* bytes = audioBuffer->data->Data ();
+			unsigned char* bytes = audioBuffer->data->buffer->b;
 			memcpy (bytes, base, size);
 			
 		}

@@ -82,13 +82,13 @@ namespace lime {
 		int glyphSize = sizeof (GlyphPosition);
 		uint32_t dataSize = 5 + (glyph_count * glyphSize);
 		
-		if (bytes->Length () < dataSize) {
+		if (bytes->length < dataSize) {
 			
 			bytes->Resize (dataSize);
 			
 		}
 		
-		unsigned char* bytesPosition = bytes->Data ();
+		unsigned char* bytesPosition = bytes->b;
 		
 		*(uint32_t *)(bytesPosition) = glyph_count;
 		bytesPosition += 4;

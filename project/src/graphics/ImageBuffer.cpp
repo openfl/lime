@@ -14,21 +14,6 @@ namespace lime {
 	static bool init = false;
 	
 	
-	ImageBuffer::ImageBuffer () {
-		
-		width = 0;
-		height = 0;
-		bitsPerPixel = 32;
-		format = RGBA32;
-		data = 0;
-		premultiplied = false;
-		transparent = false;
-		_buffer = 0;
-		_value = 0;
-		
-	}
-	
-	
 	ImageBuffer::ImageBuffer (value imageBuffer) {
 		
 		if (!init) {
@@ -66,40 +51,6 @@ namespace lime {
 			
 		}
 		
-		_buffer = 0;
-		_value = imageBuffer;
-		
-	}
-	
-	
-	ImageBuffer::ImageBuffer (HL_ImageBuffer* imageBuffer) {
-		
-		if (imageBuffer) {
-			
-			width = imageBuffer->width;
-			height = imageBuffer->height;
-			bitsPerPixel = imageBuffer->bitsPerPixel;
-			format = imageBuffer->format;
-			transparent = imageBuffer->transparent;
-			premultiplied = imageBuffer->premultiplied;
-			data = new ArrayBufferView (imageBuffer->data);
-			_buffer = imageBuffer;
-			
-		} else {
-			
-			width = 0;
-			height = 0;
-			bitsPerPixel = 32;
-			format = RGBA32;
-			data = 0;
-			premultiplied = false;
-			transparent = false;
-			_buffer = 0;
-			
-		}
-		
-		_value = 0;
-		
 	}
 	
 	
@@ -123,7 +74,7 @@ namespace lime {
 		}
 		
 		int stride = Stride ();
-		unsigned char *bytes = this->data->buffer->Data ();
+		unsigned char *bytes = this->data->buffer->b;
 		
 		for (int i = 0; i < height; i++) {
 			
@@ -144,7 +95,7 @@ namespace lime {
 		
 		if (!this->data) {
 			
-			this->data = new ArrayBufferView (height * stride);
+			//this->data = new ArrayBufferView (height * stride);
 			
 		} else {
 			
@@ -162,50 +113,36 @@ namespace lime {
 	}
 	
 	
-	void* ImageBuffer::Value () {
+	value ImageBuffer::Value () {
 		
-		if (_buffer) {
+		return Value (alloc_empty_object ());
+		
+	}
+	
+	
+	value ImageBuffer::Value (value imageBuffer) {
+		
+		if (!init) {
 			
-			_buffer->width = width;
-			_buffer->height = height;
-			_buffer->bitsPerPixel = bitsPerPixel;
-			_buffer->format = format;
-			_buffer->transparent = transparent;
-			_buffer->premultiplied = premultiplied;
-			//_buffer->data
-			return _buffer;
-			
-		} else {
-			
-			if (!init) {
-				
-				id_bitsPerPixel = val_id ("bitsPerPixel");
-				id_transparent = val_id ("transparent");
-				id_data = val_id ("data");
-				id_width = val_id ("width");
-				id_height = val_id ("height");
-				id_format = val_id ("format");
-				id_premultiplied = val_id ("premultiplied");
-				init = true;
-				
-			}
-			
-			if (val_is_null (_value)) {
-				
-				_value = alloc_empty_object ();
-				
-			}
-			
-			alloc_field (_value, id_width, alloc_int (width));
-			alloc_field (_value, id_height, alloc_int (height));
-			alloc_field (_value, id_bitsPerPixel, alloc_int (bitsPerPixel));
-			alloc_field (_value, id_data, data ? data->Value () : alloc_null ());
-			alloc_field (_value, id_transparent, alloc_bool (transparent));
-			alloc_field (_value, id_format, alloc_int (format));
-			alloc_field (_value, id_premultiplied, alloc_bool (premultiplied));
-			return _value;
+			id_bitsPerPixel = val_id ("bitsPerPixel");
+			id_transparent = val_id ("transparent");
+			id_data = val_id ("data");
+			id_width = val_id ("width");
+			id_height = val_id ("height");
+			id_format = val_id ("format");
+			id_premultiplied = val_id ("premultiplied");
+			init = true;
 			
 		}
+		
+		alloc_field (imageBuffer, id_width, alloc_int (width));
+		alloc_field (imageBuffer, id_height, alloc_int (height));
+		alloc_field (imageBuffer, id_bitsPerPixel, alloc_int (bitsPerPixel));
+		alloc_field (imageBuffer, id_data, data ? data->Value (val_field (imageBuffer, id_data)) : alloc_null ());
+		alloc_field (imageBuffer, id_transparent, alloc_bool (transparent));
+		alloc_field (imageBuffer, id_format, alloc_int (format));
+		alloc_field (imageBuffer, id_premultiplied, alloc_bool (premultiplied));
+		return imageBuffer;
 		
 	}
 	

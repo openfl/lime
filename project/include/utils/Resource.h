@@ -18,7 +18,7 @@ namespace lime {
 		Resource (HL_String* path) : data (NULL), path (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL) {}
 		Resource (Bytes* data) : data (data), path (NULL) {}
 		
-		Bytes *data;
+		Bytes* data;
 		const char* path;
 		
 		

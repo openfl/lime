@@ -327,16 +327,15 @@ namespace lime {
 		
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
 		ArrayBufferView bufferView (data);
-		alBufferData (id, format, bufferView.Data (), size, freq);
+		alBufferData (id, format, bufferView.buffer->b, size, freq);
 		
 	}
 	
 	
-	HL_PRIM void hl_lime_al_buffer_data (HL_CFFIPointer* buffer, int format, HL_ArrayBufferView* data, int size, int freq) {
+	HL_PRIM void hl_lime_al_buffer_data (HL_CFFIPointer* buffer, int format, ArrayBufferView* data, int size, int freq) {
 		
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
-		ArrayBufferView bufferView (data);
-		alBufferData (id, format, bufferView.Data (), size, freq);
+		alBufferData (id, format, data->buffer->b, size, freq);
 		
 	}
 	

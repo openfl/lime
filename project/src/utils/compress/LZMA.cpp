@@ -34,8 +34,8 @@ namespace lime {
 	
 	void LZMA::Compress (Bytes* data, Bytes* result) {
 		
-		SizeT inputBufferSize = data->Length ();
-		Byte* inputBufferData = data->Data ();
+		SizeT inputBufferSize = data->length;
+		Byte* inputBufferData = data->b;
 		
 		SizeT outputBufferSize = inputBufferSize + inputBufferSize / 5 + (1 << 16);
 		Byte* outputBufferData = (Byte *)malloc (outputBufferSize);
@@ -56,7 +56,7 @@ namespace lime {
 		LzmaEncode (outputBufferData, &outputBufferSize, inputBufferData, inputBufferSize, &props, propsData, &propsSize, props.writeEndMark, &progress, &allocSmall, &allocBig);
 		
 		result->Resize (outputBufferSize + propsSize + 8);
-		Byte* resultData = result->Data ();
+		Byte* resultData = result->b;
 		
 		memcpy (resultData, propsData, propsSize);
 		WRITE_LE64 (resultData + propsSize, uncompressedLength);
@@ -70,8 +70,8 @@ namespace lime {
 	
 	void LZMA::Decompress (Bytes* data, Bytes* result) {
 		
-		SizeT inputBufferSize = data->Length ();
-		Byte* inputBufferData = data->Data ();
+		SizeT inputBufferSize = data->length;
+		Byte* inputBufferData = data->b;
 		Int64 uncompressedLength = -1;
 		
 		ELzmaStatus status = LZMA_STATUS_NOT_SPECIFIED;
@@ -83,8 +83,8 @@ namespace lime {
 		
 		result->Resize ((int)uncompressedLength);
 		
-		SizeT outputBufferSize = result->Length ();
-		Byte* outputBufferData = result->Data ();
+		SizeT outputBufferSize = result->length;
+		Byte* outputBufferData = result->b;
 		
 		Byte* _inputBufferData = inputBufferData + LZMA_PROPS_SIZE + sizeof (uncompressedLength);
 		SizeT _inputBufferSize = inputBufferSize - LZMA_PROPS_SIZE - sizeof (uncompressedLength);

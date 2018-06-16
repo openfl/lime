@@ -32,12 +32,12 @@ namespace lime {
 			
 		}
 		
-		int bufferSize = deflateBound (stream, data->Length ());
+		int bufferSize = deflateBound (stream, data->length);
 		char* buffer = (char*)malloc (bufferSize);
 		
-		stream->next_in = (Bytef*)data->Data ();
+		stream->next_in = (Bytef*)data->b;
 		stream->next_out = (Bytef*)buffer;
-		stream->avail_in = data->Length ();
+		stream->avail_in = data->length;
 		stream->avail_out = bufferSize;
 		
 		if ((ret = deflate (stream, Z_FINISH)) < 0) {
@@ -53,7 +53,7 @@ namespace lime {
 		
 		int size = bufferSize - stream->avail_out;
 		result->Resize (size);
-		memcpy (result->Data (), buffer, size);
+		memcpy (result->b, buffer, size);
 		deflateEnd (stream);
 		free (stream);
 		free (buffer);
@@ -93,14 +93,14 @@ namespace lime {
 		
 		int chunkSize = 1 << 16;
 		int readSize = 0;
-		Bytef* sourcePosition = data->Data ();
+		Bytef* sourcePosition = data->b;
 		int destSize = 0;
 		int readTotal = 0;
 		
 		Bytef* buffer = (Bytef*)malloc (chunkSize);
 		
-		stream->avail_in = data->Length ();
-		stream->next_in = data->Data ();
+		stream->avail_in = data->length;
+		stream->next_in = data->b;
 		
 		if (stream->avail_in > 0) {
 			
@@ -137,7 +137,7 @@ namespace lime {
 				readTotal += readSize;
 				
 				result->Resize (readTotal);
-				memcpy (result->Data () + readTotal - readSize, buffer, readSize);
+				memcpy (result->b + readTotal - readSize, buffer, readSize);
 				
 				sourcePosition += readSize;
 				

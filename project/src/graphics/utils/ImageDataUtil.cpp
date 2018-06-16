@@ -17,7 +17,7 @@ namespace lime {
 		
 		PixelFormat format = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		
 		ImageDataView dataView = ImageDataView (image, rect);
 		
@@ -50,8 +50,8 @@ namespace lime {
 	
 	void ImageDataUtil::CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
 		
-		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
-		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->buffer->b;
+		uint8_t* destData = (uint8_t*)image->buffer->data->buffer->b;
 		
 		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
 		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, srcView.width, srcView.height);
@@ -108,8 +108,8 @@ namespace lime {
 	
 	void ImageDataUtil::CopyPixels (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, Image* alphaImage, Vector2* alphaPoint, bool mergeAlpha) {
 		
-		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
-		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->buffer->b;
+		uint8_t* destData = (uint8_t*)image->buffer->data->buffer->b;
 		
 		if (!sourceData || !destData) return;
 		
@@ -207,7 +207,7 @@ namespace lime {
 			
 		} else {
 			
-			uint8_t* alphaData = (uint8_t*)alphaImage->buffer->data->Data ();
+			uint8_t* alphaData = (uint8_t*)alphaImage->buffer->data->buffer->b;
 			PixelFormat alphaFormat = alphaImage->buffer->format;
 			bool alphaPremultiplied = alphaImage->buffer->premultiplied;
 			int alphaPosition;
@@ -291,10 +291,9 @@ namespace lime {
 	
 	void ImageDataUtil::FillRect (Image* image, Rectangle* rect, int32_t color) {
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		PixelFormat format = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
-		
 		RGBA fillColor (color);
 		
 		if (rect->x == 0 && rect->y == 0 && rect->width == image->width && rect->height == image->height) {
@@ -330,7 +329,7 @@ namespace lime {
 	
 	void ImageDataUtil::FloodFill (Image* image, int x, int y, int32_t color) {
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		PixelFormat format = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
 		
@@ -405,8 +404,8 @@ namespace lime {
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		uint8_t* destData = (uint8_t*)pixels->Data ();
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
+		uint8_t* destData = (uint8_t*)pixels->b;
 		
 		PixelFormat sourceFormat = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
@@ -440,8 +439,8 @@ namespace lime {
 		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, sourceView.width, sourceView.height);
 		ImageDataView destView = ImageDataView (image, &destRect);
 		
-		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->Data ();
-		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* sourceData = (uint8_t*)sourceImage->buffer->data->buffer->b;
+		uint8_t* destData = (uint8_t*)image->buffer->data->buffer->b;
 		PixelFormat sourceFormat = sourceImage->buffer->format;
 		PixelFormat destFormat = image->buffer->format;
 		bool sourcePremultiplied = sourceImage->buffer->premultiplied;
@@ -480,8 +479,8 @@ namespace lime {
 	void ImageDataUtil::MultiplyAlpha (Image* image) {
 		
 		PixelFormat format = image->buffer->format;
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		int length = int (image->buffer->data->Length () / 4);
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
+		int length = int (image->buffer->data->length / 4);
 		RGBA pixel;
 		
 		for (int i = 0; i < length; i++) {
@@ -499,8 +498,8 @@ namespace lime {
 		int imageWidth = image->width;
 		int imageHeight = image->height;
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		uint8_t* newData = (uint8_t*)buffer->data->Data ();
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
+		uint8_t* newData = (uint8_t*)buffer->data->buffer->b;
 		
 		int sourceIndex, sourceIndexX, sourceIndexY, sourceIndexXY, index;
 		int sourceX, sourceY;
@@ -554,7 +553,7 @@ namespace lime {
 	void ImageDataUtil::SetFormat (Image* image, PixelFormat format) {
 		
 		int index;
-		int length = image->buffer->data->Length () / 4;
+		int length = image->buffer->data->length / 4;
 		int r1, g1, b1, a1, r2, g2, b2, a2;
 		int r, g, b, a;
 		
@@ -614,7 +613,7 @@ namespace lime {
 			
 		}
 		
-		unsigned char* data = image->buffer->data->Data ();
+		unsigned char* data = image->buffer->data->buffer->b;
 		
 		for (int i = 0; i < length; i++) {
 			
@@ -637,14 +636,14 @@ namespace lime {
 	
 	void ImageDataUtil::SetPixels (Image* image, Rectangle* rect, Bytes* bytes, int offset, PixelFormat format, Endian endian) {
 		
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		PixelFormat sourceFormat = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
 		ImageDataView dataView = ImageDataView (image, rect);
 		int row;
 		RGBA pixel;
 		
-		uint8_t* byteArray = (uint8_t*)bytes->Data ();
+		uint8_t* byteArray = (uint8_t*)bytes->b;
 		int srcPosition = offset;
 		
 		bool transparent = image->buffer->transparent;
@@ -729,8 +728,8 @@ namespace lime {
 		RGBA _color (color);
 		int hits = 0;
 		
-		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->Data ();
-		uint8_t* destData = (uint8_t*)image->buffer->data->Data ();
+		uint8_t* srcData = (uint8_t*)sourceImage->buffer->data->buffer->b;
+		uint8_t* destData = (uint8_t*)image->buffer->data->buffer->b;
 		
 		ImageDataView srcView = ImageDataView (sourceImage, sourceRect);
 		Rectangle destRect = Rectangle (destPoint->x, destPoint->y, srcView.width, srcView.height);
@@ -796,8 +795,8 @@ namespace lime {
 	void ImageDataUtil::UnmultiplyAlpha (Image* image) {
 		
 		PixelFormat format = image->buffer->format;
-		uint8_t* data = (uint8_t*)image->buffer->data->Data ();
-		int length = int (image->buffer->data->Length () / 4);
+		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
+		int length = int (image->buffer->data->length / 4);
 		RGBA pixel;
 		
 		for (int i = 0; i < length; i++) {

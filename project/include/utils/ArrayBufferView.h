@@ -9,47 +9,24 @@
 namespace lime {
 	
 	
-	struct HL_ArrayBufferView {
+	struct ArrayBufferView {
 		
 		hl_type* t;
 		/*TypedArrayType*/ int type;
-		HL_Bytes* buffer;
+		Bytes* buffer;
 		int byteOffset;
 		int byteLength;
 		int length;
 		int bytesPerElement;
 		
-	};
-	
-	
-	class ArrayBufferView {
+		ArrayBufferView (value arrayBufferView);
+		~ArrayBufferView ();
 		
-		
-		public:
-			
-			ArrayBufferView ();
-			ArrayBufferView (int size);
-			ArrayBufferView (value arrayBufferView);
-			ArrayBufferView (HL_ArrayBufferView* arrayBufferView);
-			~ArrayBufferView ();
-			
-			unsigned char* Data ();
-			const unsigned char* Data () const;
-			int Length () const;
-			void Resize (int size);
-			void Set (value bytes);
-			void Set (const QuickVec<unsigned char> data);
-			value Value ();
-			
-			Bytes* buffer;
-			int byteLength;
-			int length;
-		
-		private:
-			
-			HL_ArrayBufferView* _bufferView;
-			value _value;
-		
+		void Resize (int size);
+		void Set (value bytes);
+		void Set (const QuickVec<unsigned char> data);
+		value Value ();
+		value Value (value arrayBufferView);
 		
 	};
 	

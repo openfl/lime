@@ -10,11 +10,11 @@
 namespace lime {
 	
 	
-	struct HL_ImageBuffer {
+	struct ImageBuffer {
 		
 		hl_type* t;
 		int bitsPerPixel;
-		HL_ArrayBufferView* data;
+		ArrayBufferView* data;
 		PixelFormat format;
 		int height;
 		bool premultiplied;
@@ -28,37 +28,14 @@ namespace lime {
 		vdynamic* __srcImage;
 		vdynamic* __srcImageData;
 		
-	};
-	
-	
-	class ImageBuffer {
+		ImageBuffer (value imageBuffer);
+		~ImageBuffer ();
 		
-		
-		public:
-			
-			ImageBuffer ();
-			ImageBuffer (value imageBuffer);
-			ImageBuffer (HL_ImageBuffer* imageBuffer);
-			~ImageBuffer ();
-			
-			void Blit (const unsigned char* data, int x, int y, int width, int height);
-			void Resize (int width, int height, int bitsPerPixel = 32);
-			int Stride ();
-			void* Value ();
-			
-			int bitsPerPixel;
-			ArrayBufferView* data;
-			PixelFormat format;
-			int height;
-			bool premultiplied;
-			bool transparent;
-			int width;
-		
-		private:
-			
-			HL_ImageBuffer* _buffer;
-			value _value;
-		
+		void Blit (const unsigned char* data, int x, int y, int width, int height);
+		void Resize (int width, int height, int bitsPerPixel = 32);
+		int Stride ();
+		value Value ();
+		value Value (value imageBuffer);
 		
 	};
 	

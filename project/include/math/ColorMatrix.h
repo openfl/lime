@@ -18,7 +18,7 @@ namespace lime {
 			
 			ColorMatrix ();
 			ColorMatrix (value colorMatrix);
-			ColorMatrix (HL_ArrayBufferView* colorMatrix);
+			ColorMatrix (ArrayBufferView* colorMatrix);
 			~ColorMatrix ();
 			
 			float GetAlphaMultiplier ();

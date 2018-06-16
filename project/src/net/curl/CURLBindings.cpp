@@ -194,7 +194,7 @@ namespace lime {
 		
 		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 			callback = headerCallbacks[handle];
-			_writeBytes = new Bytes (1024);
+			// _writeBytes = new Bytes (1024);
 			writeBytes[callback] = _writeBytes;
 			writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
 			headerCallbacks[duphandle] = new AutoGCRoot (headerCallbacks[handle]->get());
@@ -210,7 +210,7 @@ namespace lime {
 		
 		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
 			callback = writeCallbacks[handle];
-			_writeBytes = new Bytes (1024);
+			// _writeBytes = new Bytes (1024);
 			writeBytes[callback] = _writeBytes;
 			writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
 			writeCallbacks[duphandle] = new AutoGCRoot (writeCallbacks[handle]->get());
@@ -440,7 +440,7 @@ namespace lime {
 			Bytes* _writeBytes = writeBytes[callback];
 			if (!_writeBytes) return 0;
 			_writeBytes->Resize (size * nmemb);
-			memcpy (_writeBytes->Data (), ptr, size * nmemb);
+			memcpy (_writeBytes->b, ptr, size * nmemb);
 			
 			return val_int (val_call3 (callback->get (), (value)_writeBytes->Value (), alloc_int (size), alloc_int (nmemb)));
 			
@@ -465,9 +465,9 @@ namespace lime {
 			Bytes bytes;
 			bytes.Set (val_call1 (callback->get (), alloc_int (length)));
 			
-			if (bytes.Length () <= length) length = bytes.Length ();
+			if (bytes.length <= length) length = bytes.length;
 			
-			memcpy (buffer, bytes.Data (), length);
+			memcpy (buffer, bytes.b, length);
 			
 		}
 		
