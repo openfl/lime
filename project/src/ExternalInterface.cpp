@@ -1175,7 +1175,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynobj* hl_lime_font_get_glyph_metrics (HL_CFFIPointer* fontHandle, int index) {
+	HL_PRIM vdynamic* hl_lime_font_get_glyph_metrics (HL_CFFIPointer* fontHandle, int index) {
 		
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
@@ -1446,7 +1446,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynobj* hl_lime_font_outline_decompose (HL_CFFIPointer* fontHandle, int size) {
+	HL_PRIM vdynamic* hl_lime_font_outline_decompose (HL_CFFIPointer* fontHandle, int size) {
 		
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
@@ -3017,7 +3017,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vdynobj* hl_lime_system_get_display (int id) {
+	HL_PRIM vdynamic* hl_lime_system_get_display (int id) {
 		
 		return 0;
 		//return System::GetDisplay (id);

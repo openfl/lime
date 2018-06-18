@@ -238,7 +238,7 @@ namespace lime {
 				const int id_pixels = hl_hash_utf8 ("pixels");
 				const int id_pitch = hl_hash_utf8 ("pitch");
 				
-				vdynamic* result = (vdynamic*)hl_alloc_dynobj ();
+				vdynamic* result = hl_alloc_dynamic (&hlt_dynobj);
 				
 				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
 					
