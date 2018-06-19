@@ -334,7 +334,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_system_open_file") private static function lime_system_open_file (path:String):Void {}
 	@:hlNative("lime", "lime_system_open_url") private static function lime_system_open_url (url:String, target:String):Void {}
 	@:hlNative("lime", "lime_text_event_manager_register") private static function lime_text_event_manager_register (callback:Void->Void, eventObject:TextEventInfo):Void {}
-	@:hlNative("lime", "lime_text_layout_create") private static function lime_text_layout_create (direction:Int, script:String, language:String):Dynamic { return null; }
+	@:hlNative("lime", "lime_text_layout_create") private static function lime_text_layout_create (direction:Int, script:String, language:String):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_text_layout_position") private static function lime_text_layout_position (textHandle:CFFIPointer, fontHandle:CFFIPointer, size:Int, textString:String, data:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_text_layout_set_direction") private static function lime_text_layout_set_direction (textHandle:CFFIPointer, direction:Int):Void {}
 	@:hlNative("lime", "lime_text_layout_set_language") private static function lime_text_layout_set_language (textHandle:CFFIPointer, language:String):Void {}
@@ -794,7 +794,6 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_set_line_join") private static function lime_cairo_set_line_join (handle:CFFIPointer, join:Int):Void {}
 	@:hlNative("lime", "lime_cairo_set_line_width") private static function lime_cairo_set_line_width (handle:CFFIPointer, width:Float):Void {}
 	@:hlNative("lime", "lime_cairo_set_matrix") private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Matrix3):Void {}
-	// @:hlNative("lime", "lime_cairo_create") private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void {}
 	@:hlNative("lime", "lime_cairo_set_miter_limit") private static function lime_cairo_set_miter_limit (handle:CFFIPointer, miterLimit:Float):Void {}
 	@:hlNative("lime", "lime_cairo_set_operator") private static function lime_cairo_set_operator (handle:CFFIPointer, op:Int):Void {}
 	@:hlNative("lime", "lime_cairo_set_source") private static function lime_cairo_set_source (handle:CFFIPointer, pattern:CFFIPointer):Void {}

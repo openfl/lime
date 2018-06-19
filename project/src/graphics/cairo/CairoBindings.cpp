@@ -2394,8 +2394,6 @@ namespace lime {
 	
 	
 	#define _TCFFIPOINTER _DYN
-	#define _ARR_FLOAT _OBJ (_BYTES _I32)
-	#define _ARR_OBJECT _OBJ (_ARR)
 	#define _TMATRIX3 _OBJ (_F64 _F64 _F64 _F64 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64 _F64)
 	

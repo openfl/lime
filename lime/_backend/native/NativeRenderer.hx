@@ -47,7 +47,6 @@ class NativeRenderer {
 	public function new (parent:Renderer) {
 		
 		this.parent = parent;
-		cacheLock = null;
 		
 	}
 	
