@@ -1724,7 +1724,7 @@ class NativeGLRenderContext {
 		for (i in 0...uniformIndices.length) _uniformIndices[i] = uniformIndices[i];
 		var uniformIndices = _uniformIndices;
 		#end
-		NativeCFFI.lime_gl_get_active_uniformsiv (__getObjectID (program), _uniformIndices, pname, params);
+		NativeCFFI.lime_gl_get_active_uniformsiv (__getObjectID (program), uniformIndices, pname, params);
 		#end
 		
 	}
