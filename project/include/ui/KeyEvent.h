@@ -18,7 +18,7 @@ namespace lime {
 	};
 	
 	
-	struct HL_KeyEvent {
+	struct KeyEvent {
 		
 		hl_type* t;
 		int keyCode;
@@ -26,24 +26,12 @@ namespace lime {
 		KeyEventType type;
 		int windowID;
 		
-	};
-	
-	
-	class KeyEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			KeyEvent ();
-			
-			static void Dispatch (KeyEvent* event);
-			
-			double keyCode;
-			uint16_t modifier;
-			KeyEventType type;
-			uint32_t windowID;
+		KeyEvent ();
+		
+		static void Dispatch (KeyEvent* event);
 		
 	};
 	

@@ -18,7 +18,7 @@ namespace lime {
 	};
 	
 	
-	struct HL_TextEvent {
+	struct TextEvent {
 		
 		hl_type* t;
 		int id;
@@ -28,25 +28,12 @@ namespace lime {
 		TextEventType type;
 		int windowID;
 		
-	};
-	
-	
-	class TextEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			TextEvent ();
-			
-			static void Dispatch (TextEvent* event);
-			
-			long length;
-			long start;
-			char text[32];
-			TextEventType type;
-			uint32_t windowID;
+		TextEvent ();
+		
+		static void Dispatch (TextEvent* event);
 		
 	};
 	

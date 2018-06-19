@@ -16,7 +16,7 @@ namespace lime {
 	};
 	
 	
-	struct HL_SensorEvent {
+	struct SensorEvent {
 		
 		hl_type* t;
 		int id;
@@ -25,26 +25,12 @@ namespace lime {
 		double z;
 		SensorEventType type;
 		
-	};
-	
-	
-	class SensorEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			SensorEvent ();
-			
-			static void Dispatch (SensorEvent* event);
-			
-			int id;
-			SensorEventType type;
-			double x;
-			double y;
-			double z;
-			
+		SensorEvent ();
+		
+		static void Dispatch (SensorEvent* event);
 		
 	};
 	

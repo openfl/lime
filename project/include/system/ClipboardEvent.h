@@ -16,26 +16,17 @@ namespace lime {
 	};
 	
 	
-	struct HL_ClipboardEvent {
+	struct ClipboardEvent {
 		
 		hl_type* t;
 		ClipboardEventType type;
 		
-	};
-	
-	
-	class ClipboardEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			ClipboardEvent ();
-			
-			static void Dispatch (ClipboardEvent* event);
-			
-			ClipboardEventType type;
+		ClipboardEvent ();
+		
+		static void Dispatch (ClipboardEvent* event);
 		
 	};
 	

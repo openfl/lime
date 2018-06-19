@@ -66,7 +66,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_TouchEvent* eventObject = (HL_TouchEvent*)TouchEvent::eventObject->Get ();
+				TouchEvent* eventObject = (TouchEvent*)TouchEvent::eventObject->Get ();
 				
 				eventObject->device = event->device;
 				eventObject->dx = event->dx;

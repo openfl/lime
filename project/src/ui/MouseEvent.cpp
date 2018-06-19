@@ -67,7 +67,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_MouseEvent* eventObject = (HL_MouseEvent*)MouseEvent::eventObject->Get ();
+				MouseEvent* eventObject = (MouseEvent*)MouseEvent::eventObject->Get ();
 				
 				eventObject->movementX = event->movementX;
 				eventObject->movementY = event->movementY;

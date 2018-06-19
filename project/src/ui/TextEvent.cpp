@@ -20,6 +20,7 @@ namespace lime {
 		
 		length = 0;
 		start = 0;
+		text = 0;
 		windowID = 0;
 		
 	}
@@ -51,13 +52,13 @@ namespace lime {
 					
 				}
 				
-				alloc_field (object, id_text, alloc_string (event->text));
+				alloc_field (object, id_text, alloc_string ((const char*)event->text));
 				alloc_field (object, id_type, alloc_int (event->type));
 				alloc_field (object, id_windowID, alloc_int (event->windowID));
 				
 			} else {
 				
-				HL_TextEvent* eventObject = (HL_TextEvent*)TextEvent::eventObject->Get ();
+				TextEvent* eventObject = (TextEvent*)TextEvent::eventObject->Get ();
 				
 				if (event->type != TEXT_INPUT) {
 					
@@ -66,8 +67,7 @@ namespace lime {
 					
 				}
 				
-				// TODO
-				//eventObject->text = event->text;
+				eventObject->text = event->text;
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;
 				

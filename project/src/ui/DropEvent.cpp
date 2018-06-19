@@ -37,12 +37,12 @@ namespace lime {
 				
 				value object = (value)DropEvent::eventObject->Get ();
 				
-				alloc_field (object, id_file, alloc_string (event->file));
+				alloc_field (object, id_file, alloc_string ((const char*)event->file));
 				alloc_field (object, id_type, alloc_int (event->type));
 				
 			} else {
 				
-				HL_DropEvent* eventObject = (HL_DropEvent*)DropEvent::eventObject->Get ();
+				DropEvent* eventObject = (DropEvent*)DropEvent::eventObject->Get ();
 				
 				// TODO
 				// eventObject->file = event->file;

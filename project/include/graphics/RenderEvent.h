@@ -18,26 +18,17 @@ namespace lime {
 	};
 	
 	
-	struct HL_RenderEvent {
+	struct RenderEvent {
 		
 		hl_type* t;
 		RenderEventType type;
 		
-	};
-	
-	
-	class RenderEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			RenderEvent ();
-			
-			static void Dispatch (RenderEvent* event);
-			
-			RenderEventType type;
+		RenderEvent ();
+		
+		static void Dispatch (RenderEvent* event);
 		
 	};
 	

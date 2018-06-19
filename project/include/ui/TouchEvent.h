@@ -19,7 +19,7 @@ namespace lime {
 	};
 	
 	
-	struct HL_TouchEvent {
+	struct TouchEvent {
 		
 		hl_type* t;
 		int device;
@@ -31,28 +31,12 @@ namespace lime {
 		double x;
 		double y;
 		
-	};
-	
-	
-	class TouchEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			TouchEvent ();
-			
-			static void Dispatch (TouchEvent* event);
-			
-			uint32_t device;
-			float dx;
-			float dy;
-			uint32_t id;
-			float pressure;
-			TouchEventType type;
-			float x;
-			float y;
+		TouchEvent ();
+		
+		static void Dispatch (TouchEvent* event);
 		
 	};
 	

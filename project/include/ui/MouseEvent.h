@@ -20,7 +20,7 @@ namespace lime {
 	};
 	
 	
-	struct HL_MouseEvent {
+	struct MouseEvent {
 		
 		hl_type* t;
 		int button;
@@ -31,27 +31,12 @@ namespace lime {
 		double x;
 		double y;
 		
-	};
-	
-	
-	class MouseEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			MouseEvent ();
-			
-			static void Dispatch (MouseEvent* event);
-			
-			int button;
-			double movementX;
-			double movementY;
-			MouseEventType type;
-			uint32_t windowID;
-			double x;
-			double y;
+		MouseEvent ();
+		
+		static void Dispatch (MouseEvent* event);
 		
 	};
 	

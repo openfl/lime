@@ -28,7 +28,7 @@ namespace lime {
 	};
 	
 	
-	struct HL_WindowEvent {
+	struct WindowEvent {
 		
 		hl_type* t;
 		int height;
@@ -38,26 +38,12 @@ namespace lime {
 		int x;
 		int y;
 		
-	};
-	
-	
-	class WindowEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			WindowEvent ();
-			
-			static void Dispatch (WindowEvent* event);
-			
-			int height;
-			WindowEventType type;
-			int width;
-			uint32_t windowID;
-			int x;
-			int y;
+		WindowEvent ();
+		
+		static void Dispatch (WindowEvent* event);
 		
 	};
 	

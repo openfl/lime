@@ -113,7 +113,6 @@ class NativeApplication {
 	public function exec ():Int {
 		
 		#if !macro
-		
 		#if lime_cffi
 		NativeCFFI.lime_application_event_manager_register (handleApplicationEvent, applicationEventInfo);
 		NativeCFFI.lime_clipboard_event_manager_register (handleClipboardEvent, clipboardEventInfo);
@@ -220,7 +219,7 @@ class NativeApplication {
 		
 		for (window in parent.windows) {
 			
-			window.onDropFile.dispatch (dropEventInfo.file);
+			window.onDropFile.dispatch (#if hl @:privateAccess String.fromUTF8 (dropEventInfo.file) #else dropEventInfo.file #end);
 			
 		}
 		
@@ -234,7 +233,7 @@ class NativeApplication {
 			case AXIS_MOVE:
 				
 				var gamepad = Gamepad.devices.get (gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onAxisMove.dispatch (gamepadEventInfo.axis, gamepadEventInfo.value);
+				if (gamepad != null) gamepad.onAxisMove.dispatch (gamepadEventInfo.axis, gamepadEventInfo.axisValue);
 			
 			case BUTTON_DOWN:
 				
@@ -271,7 +270,7 @@ class NativeApplication {
 			case HAT_MOVE:
 				
 				var joystick = Joystick.devices.get (joystickEventInfo.id);
-				if (joystick != null) joystick.onHatMove.dispatch (joystickEventInfo.index, joystickEventInfo.value);
+				if (joystick != null) joystick.onHatMove.dispatch (joystickEventInfo.index, joystickEventInfo.eventValue);
 			
 			case TRACKBALL_MOVE:
 				
@@ -527,11 +526,11 @@ class NativeApplication {
 				
 				case TEXT_INPUT:
 					
-					window.onTextInput.dispatch (textEventInfo.text);
+					window.onTextInput.dispatch (#if hl @:privateAccess String.fromUTF8 (textEventInfo.text) #else textEventInfo.text #end);
 				
 				case TEXT_EDIT:
 					
-					window.onTextEdit.dispatch (textEventInfo.text, textEventInfo.start, textEventInfo.length);
+					window.onTextEdit.dispatch (#if hl @:privateAccess String.fromUTF8 (textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start, textEventInfo.length);
 				
 				default:
 				
@@ -807,11 +806,11 @@ class NativeApplication {
 @:keep /*private*/ class DropEventInfo {
 	
 	
-	public var file:String;
+	public var file:#if hl hl.Bytes #else String #end;
 	public var type:DropEventType;
 	
 	
-	public function new (type:DropEventType = null, file:String = null) {
+	public function new (type:DropEventType = null, file = null) {
 		
 		this.type = type;
 		this.file = file;
@@ -843,7 +842,7 @@ class NativeApplication {
 	public var button:Int;
 	public var id:Int;
 	public var type:GamepadEventType;
-	public var value:Float;
+	public var axisValue:Float;
 	
 	
 	public function new (type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0) {
@@ -852,14 +851,14 @@ class NativeApplication {
 		this.id = id;
 		this.button = button;
 		this.axis = axis;
-		this.value = value;
+		this.axisValue = value;
 		
 	}
 	
 	
 	public function clone ():GamepadEventInfo {
 		
-		return new GamepadEventInfo (type, id, button, axis, value);
+		return new GamepadEventInfo (type, id, button, axis, axisValue);
 		
 	}
 	
@@ -884,7 +883,7 @@ class NativeApplication {
 	public var id:Int;
 	public var index:Int;
 	public var type:JoystickEventType;
-	public var value:Int;
+	public var eventValue:Int;
 	public var x:Float;
 	public var y:Float;
 	
@@ -894,7 +893,7 @@ class NativeApplication {
 		this.type = type;
 		this.id = id;
 		this.index = index;
-		this.value = value;
+		this.eventValue = value;
 		this.x = x;
 		this.y = y;
 		
@@ -903,7 +902,7 @@ class NativeApplication {
 	
 	public function clone ():JoystickEventInfo {
 		
-		return new JoystickEventInfo (type, id, index, value, x, y);
+		return new JoystickEventInfo (type, id, index, eventValue, x, y);
 		
 	}
 	
@@ -1085,12 +1084,12 @@ class NativeApplication {
 	public var id:Int;
 	public var length:Int;
 	public var start:Int;
-	public var text:String;
+	public var text:#if hl hl.Bytes #else String #end;
 	public var type:TextEventType;
 	public var windowID:Int;
 	
 	
-	public function new (type:TextEventType = null, windowID:Int = 0, text:String = "", start:Int = 0, length:Int = 0) {
+	public function new (type:TextEventType = null, windowID:Int = 0, text = null, start:Int = 0, length:Int = 0) {
 		
 		this.type = type;
 		this.windowID = windowID;

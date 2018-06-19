@@ -50,7 +50,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_KeyEvent* eventObject = (HL_KeyEvent*)KeyEvent::eventObject->Get ();
+				KeyEvent* eventObject = (KeyEvent*)KeyEvent::eventObject->Get ();
 				
 				eventObject->keyCode = event->keyCode;
 				eventObject->modifier = event->modifier;

@@ -16,28 +16,18 @@ namespace lime {
 	};
 	
 	
-	struct HL_DropEvent {
+	struct DropEvent {
 		
 		hl_type* t;
 		vbyte* file;
 		DropEventType type;
 		
-	};
-	
-	
-	class DropEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			DropEvent ();
-			
-			static void Dispatch (DropEvent* event);
-			
-			char* file;
-			DropEventType type;
+		DropEvent ();
+		
+		static void Dispatch (DropEvent* event);
 		
 	};
 	

@@ -342,7 +342,7 @@ namespace lime {
 		if (DropEvent::callback) {
 			
 			dropEvent.type = DROP_FILE;
-			dropEvent.file = event->drop.file;
+			dropEvent.file = (vbyte*)event->drop.file;
 			
 			DropEvent::Dispatch (&dropEvent);
 			SDL_free (dropEvent.file);
@@ -682,7 +682,15 @@ namespace lime {
 				
 			}
 			
-			strcpy (textEvent.text, event->text.text);
+			if (textEvent.text) {
+				
+				free (textEvent.text);
+				
+			}
+			
+			textEvent.text = (vbyte*)malloc (strlen (event->text.text) + 1);
+			strcpy ((char*)textEvent.text, event->text.text);
+			
 			textEvent.windowID = event->text.windowID;
 			TextEvent::Dispatch (&textEvent);
 			

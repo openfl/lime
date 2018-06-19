@@ -37,7 +37,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_RenderEvent* eventObject = (HL_RenderEvent*)RenderEvent::eventObject->Get ();
+				RenderEvent* eventObject = (RenderEvent*)RenderEvent::eventObject->Get ();
 				
 				eventObject->type = event->type;
 				

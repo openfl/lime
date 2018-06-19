@@ -17,28 +17,18 @@ namespace lime {
 	};
 	
 	
-	struct HL_ApplicationEvent {
+	struct ApplicationEvent {
 		
 		hl_type* t;
 		int deltaTime;
 		ApplicationEventType type;
 		
-	};
-	
-	
-	class ApplicationEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			ApplicationEvent ();
-			
-			static void Dispatch (ApplicationEvent* event);
-			
-			int deltaTime;
-			ApplicationEventType type;
+		ApplicationEvent ();
+		
+		static void Dispatch (ApplicationEvent* event);
 		
 	};
 	

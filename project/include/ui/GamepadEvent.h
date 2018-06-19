@@ -20,34 +20,21 @@ namespace lime {
 	};
 	
 	
-	struct HL_GamepadEvent {
+	struct GamepadEvent {
 		
 		hl_type* t;
 		int axis;
 		int button;
 		int id;
 		GamepadEventType type;
-		double value;
+		double axisValue;
 		
-	};
-	
-	
-	class GamepadEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			GamepadEvent ();
-			
-			static void Dispatch (GamepadEvent* event);
-			
-			int axis;
-			double axisValue;
-			int button;
-			int id;
-			GamepadEventType type;
+		GamepadEvent ();
+		
+		static void Dispatch (GamepadEvent* event);
 		
 	};
 	

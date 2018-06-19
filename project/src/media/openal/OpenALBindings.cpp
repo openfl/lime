@@ -16,7 +16,6 @@
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
 #include <utils/ArrayBufferView.h>
-#include <utils/String.h>
 #include <list>
 #include <map>
 
@@ -2478,7 +2477,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ALCdevice* hl_lime_alc_open_device (HL_String* devicename) {
+	HL_PRIM ALCdevice* hl_lime_alc_open_device (hl_vstring* devicename) {
 		
 		ALCdevice* alcDevice = alcOpenDevice (devicename ? (char*)hl_to_utf8 ((const uchar*)devicename->bytes) : 0);
 		atexit (lime_al_atexit);

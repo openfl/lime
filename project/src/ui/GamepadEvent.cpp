@@ -39,7 +39,7 @@ namespace lime {
 					id_button = val_id ("button");
 					id_id = val_id ("id");
 					id_type = val_id ("type");
-					id_value = val_id ("value");
+					id_value = val_id ("axisValue");
 					init = true;
 					
 				}
@@ -54,13 +54,13 @@ namespace lime {
 				
 			} else {
 				
-				HL_GamepadEvent* eventObject = (HL_GamepadEvent*)GamepadEvent::eventObject->Get ();
+				GamepadEvent* eventObject = (GamepadEvent*)GamepadEvent::eventObject->Get ();
 				
 				eventObject->axis = event->axis;
 				eventObject->button = event->button;
 				eventObject->id = event->id;
 				eventObject->type = event->type;
-				eventObject->value = event->axisValue;
+				eventObject->axisValue = event->axisValue;
 				
 			}
 			

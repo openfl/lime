@@ -40,7 +40,7 @@ namespace lime {
 					id_id = val_id ("id");
 					id_index = val_id ("index");
 					id_type = val_id ("type");
-					id_value = val_id ("value");
+					id_value = val_id ("eventValue");
 					id_x = val_id ("x");
 					id_y = val_id ("y");
 					init = true;
@@ -58,12 +58,12 @@ namespace lime {
 				
 			} else {
 				
-				HL_JoystickEvent* eventObject = (HL_JoystickEvent*)JoystickEvent::eventObject->Get ();
+				JoystickEvent* eventObject = (JoystickEvent*)JoystickEvent::eventObject->Get ();
 				
 				eventObject->id = event->id;
 				eventObject->index = event->index;
 				eventObject->type = event->type;
-				eventObject->value = event->eventValue;
+				eventObject->eventValue = event->eventValue;
 				eventObject->x = event->x;
 				eventObject->y = event->y;
 				

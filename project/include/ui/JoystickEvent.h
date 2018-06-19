@@ -22,36 +22,22 @@ namespace lime {
 	};
 	
 	
-	struct HL_JoystickEvent {
+	struct JoystickEvent {
 		
 		hl_type* t;
 		int id;
 		int index;
 		JoystickEventType type;
-		int value;
+		int eventValue;
 		double x;
 		double y;
 		
-	};
-	
-	
-	class JoystickEvent {
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
 		
-		public:
-			
-			static ValuePointer* callback;
-			static ValuePointer* eventObject;
-			
-			JoystickEvent ();
-			
-			static void Dispatch (JoystickEvent* event);
-			
-			int eventValue;
-			int id;
-			int index;
-			JoystickEventType type;
-			double x;
-			double y;
+		JoystickEvent ();
+		
+		static void Dispatch (JoystickEvent* event);
 		
 	};
 	

@@ -73,7 +73,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_WindowEvent* eventObject = (HL_WindowEvent*)WindowEvent::eventObject->Get ();
+				WindowEvent* eventObject = (WindowEvent*)WindowEvent::eventObject->Get ();
 				
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;

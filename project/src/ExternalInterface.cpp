@@ -49,7 +49,6 @@
 #include <ui/WindowEvent.h>
 #include <utils/compress/LZMA.h>
 #include <utils/compress/Zlib.h>
-#include <utils/String.h>
 #include <vm/NekoVM.h>
 
 DEFINE_KIND (k_finalizer);
@@ -206,7 +205,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_application_event_manager_register (vclosure* callback, HL_ApplicationEvent* eventObject) {
+	HL_PRIM void hl_lime_application_event_manager_register (vclosure* callback, ApplicationEvent* eventObject) {
 		
 		ApplicationEvent::callback = new ValuePointer (callback);
 		ApplicationEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -373,7 +372,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM AudioBuffer* hl_lime_audio_load_file (HL_String* data, AudioBuffer* buffer) {
+	HL_PRIM AudioBuffer* hl_lime_audio_load_file (hl_vstring* data, AudioBuffer* buffer) {
 		
 		Resource resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
 		
@@ -483,7 +482,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM Bytes* hl_lime_bytes_read_file (HL_String* path, Bytes* bytes) {
+	HL_PRIM Bytes* hl_lime_bytes_read_file (hl_vstring* path, Bytes* bytes) {
 		
 		if (!path) return 0;
 		bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes));
@@ -530,7 +529,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_clipboard_event_manager_register (vclosure* callback, HL_ClipboardEvent* eventObject) {
+	HL_PRIM void hl_lime_clipboard_event_manager_register (vclosure* callback, ClipboardEvent* eventObject) {
 		
 		ClipboardEvent::callback = new ValuePointer (callback);
 		ClipboardEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -588,7 +587,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_clipboard_set_text (HL_String* text) {
+	HL_PRIM void hl_lime_clipboard_set_text (hl_vstring* text) {
 		
 		Clipboard::SetText (text ? (const char*)hl_to_utf8 ((const uchar*)text->bytes) : NULL);
 		
@@ -673,7 +672,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_drop_event_manager_register (vclosure* callback, HL_DropEvent* eventObject) {
+	HL_PRIM void hl_lime_drop_event_manager_register (vclosure* callback, DropEvent* eventObject) {
 		
 		DropEvent::callback = new ValuePointer (callback);
 		DropEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -715,7 +714,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_file_dialog_open_directory (HL_String* title, HL_String* filter, HL_String* defaultPath) {
+	HL_PRIM vbyte* hl_lime_file_dialog_open_directory (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -783,7 +782,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_file_dialog_open_file (HL_String* title, HL_String* filter, HL_String* defaultPath) {
+	HL_PRIM vbyte* hl_lime_file_dialog_open_file (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -850,7 +849,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM hl_varray* hl_lime_file_dialog_open_files (HL_String* title, HL_String* filter, HL_String* defaultPath) {
+	HL_PRIM hl_varray* hl_lime_file_dialog_open_files (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -917,7 +916,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_file_dialog_save_file (HL_String* title, HL_String* filter, HL_String* defaultPath) {
+	HL_PRIM vbyte* hl_lime_file_dialog_save_file (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
 		// #ifdef LIME_TINYFILEDIALOGS
 		
@@ -987,7 +986,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_file_watcher_add_directory (HL_CFFIPointer* handle, HL_String* path, bool recursive) {
+	HL_PRIM int hl_lime_file_watcher_add_directory (HL_CFFIPointer* handle, hl_vstring* path, bool recursive) {
 		
 		#ifdef LIME_EFSW
 		FileWatcher* watcher = (FileWatcher*)handle->ptr;
@@ -1127,7 +1126,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_font_get_glyph_index (HL_CFFIPointer* fontHandle, HL_String* character) {
+	HL_PRIM int hl_lime_font_get_glyph_index (HL_CFFIPointer* fontHandle, hl_vstring* character) {
 		
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
@@ -1151,7 +1150,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM hl_varray* hl_lime_font_get_glyph_indices (HL_CFFIPointer* fontHandle, HL_String* characters) {
+	HL_PRIM hl_varray* hl_lime_font_get_glyph_indices (HL_CFFIPointer* fontHandle, hl_vstring* characters) {
 		
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
@@ -1392,7 +1391,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_CFFIPointer* hl_lime_font_load_file (HL_String* data) {
+	HL_PRIM HL_CFFIPointer* hl_lime_font_load_file (hl_vstring* data) {
 		
 		#ifdef LIME_FREETYPE
 		Resource resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
@@ -1544,7 +1543,7 @@ namespace lime {
 	HL_PRIM void hl_lime_gamepad_add_mappings (hl_varray* mappings) {
 		
 		int length = mappings->size;
-		HL_String** mappingsData = hl_aptr (mappings, HL_String*);
+		hl_vstring** mappingsData = hl_aptr (mappings, hl_vstring*);
 		
 		for (int i = 0; i < length; i++) {
 			
@@ -1563,7 +1562,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_gamepad_event_manager_register (vclosure* callback, HL_GamepadEvent* eventObject) {
+	HL_PRIM void hl_lime_gamepad_event_manager_register (vclosure* callback, GamepadEvent* eventObject) {
 		
 		GamepadEvent::callback = new ValuePointer (callback);
 		GamepadEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -1854,7 +1853,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ImageBuffer* hl_lime_image_load_file (HL_String* data, ImageBuffer* buffer) {
+	HL_PRIM ImageBuffer* hl_lime_image_load_file (hl_vstring* data, ImageBuffer* buffer) {
 		
 		Resource resource = Resource (data);
 		
@@ -2174,7 +2173,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_joystick_event_manager_register (vclosure* callback, HL_JoystickEvent* eventObject) {
+	HL_PRIM void hl_lime_joystick_event_manager_register (vclosure* callback, JoystickEvent* eventObject) {
 		
 		JoystickEvent::callback = new ValuePointer (callback);
 		JoystickEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -2323,7 +2322,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ImageBuffer* hl_lime_jpeg_decode_file (HL_String* path, bool decodeData, ImageBuffer* buffer) {
+	HL_PRIM ImageBuffer* hl_lime_jpeg_decode_file (hl_vstring* path, bool decodeData, ImageBuffer* buffer) {
 		
 		Resource resource = Resource (path);
 		
@@ -2376,7 +2375,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_key_event_manager_register (vclosure* callback, HL_KeyEvent* eventObject) {
+	HL_PRIM void hl_lime_key_event_manager_register (vclosure* callback, KeyEvent* eventObject) {
 		
 		KeyEvent::callback = new ValuePointer (callback);
 		KeyEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -2489,7 +2488,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_mouse_event_manager_register (vclosure* callback, HL_MouseEvent* eventObject) {
+	HL_PRIM void hl_lime_mouse_event_manager_register (vclosure* callback, MouseEvent* eventObject) {
 		
 		MouseEvent::callback = new ValuePointer (callback);
 		MouseEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -2646,7 +2645,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ImageBuffer* hl_lime_png_decode_file (HL_String* path, bool decodeData, ImageBuffer* buffer) {
+	HL_PRIM ImageBuffer* hl_lime_png_decode_file (hl_vstring* path, bool decodeData, ImageBuffer* buffer) {
 		
 		Resource resource = Resource (path);
 		
@@ -2671,7 +2670,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_render_event_manager_register (vclosure* callback, HL_RenderEvent* eventObject) {
+	HL_PRIM void hl_lime_render_event_manager_register (vclosure* callback, RenderEvent* eventObject) {
 		
 		RenderEvent::callback = new ValuePointer (callback);
 		RenderEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -2848,7 +2847,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_sensor_event_manager_register (vclosure* callback, HL_SensorEvent* eventObject) {
+	HL_PRIM void hl_lime_sensor_event_manager_register (vclosure* callback, SensorEvent* eventObject) {
 		
 		SensorEvent::callback = new ValuePointer (callback);
 		SensorEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -2971,7 +2970,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM vbyte* hl_lime_system_get_directory (int type, HL_String* company, HL_String* title) {
+	HL_PRIM vbyte* hl_lime_system_get_directory (int type, hl_vstring* company, hl_vstring* title) {
 		
 		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company ? (char*)hl_to_utf8 ((const uchar*)company->bytes) : NULL, title ? (char*)hl_to_utf8 ((const uchar*)title->bytes) : NULL);
 		
@@ -3283,7 +3282,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_text_event_manager_register (vclosure* callback, HL_TextEvent* eventObject) {
+	HL_PRIM void hl_lime_text_event_manager_register (vclosure* callback, TextEvent* eventObject) {
 		
 		TextEvent::callback = new ValuePointer (callback);
 		TextEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -3307,7 +3306,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_CFFIPointer* hl_lime_text_layout_create (int direction, HL_String* script, HL_String* language) {
+	HL_PRIM HL_CFFIPointer* hl_lime_text_layout_create (int direction, hl_vstring* script, hl_vstring* language) {
 		
 		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
 		
@@ -3342,7 +3341,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM Bytes* hl_lime_text_layout_position (HL_CFFIPointer* textHandle, HL_CFFIPointer* fontHandle, int size, HL_String* textString, Bytes* data) {
+	HL_PRIM Bytes* hl_lime_text_layout_position (HL_CFFIPointer* textHandle, HL_CFFIPointer* fontHandle, int size, hl_vstring* textString, Bytes* data) {
 		
 		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
 		
@@ -3388,7 +3387,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_text_layout_set_language (HL_CFFIPointer* textHandle, HL_String* language) {
+	HL_PRIM void hl_lime_text_layout_set_language (HL_CFFIPointer* textHandle, hl_vstring* language) {
 		
 		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)textHandle->ptr;
@@ -3408,7 +3407,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_text_layout_set_script (HL_CFFIPointer* textHandle, HL_String* script) {
+	HL_PRIM void hl_lime_text_layout_set_script (HL_CFFIPointer* textHandle, hl_vstring* script) {
 		
 		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
 		TextLayout *text = (TextLayout*)textHandle->ptr;
@@ -3426,7 +3425,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_touch_event_manager_register (vclosure* callback, HL_TouchEvent* eventObject) {
+	HL_PRIM void hl_lime_touch_event_manager_register (vclosure* callback, TouchEvent* eventObject) {
 		
 		TouchEvent::callback = new ValuePointer (callback);
 		TouchEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -3442,7 +3441,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_window_alert (HL_CFFIPointer* window, HL_String* message, HL_String* title) {
+	HL_PRIM void hl_lime_window_alert (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 		
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->Alert (message ? (const char*)hl_to_utf8 ((const uchar*)message) : NULL, title ? (const char*)hl_to_utf8 ((const uchar*)title) : NULL);
@@ -3474,7 +3473,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_CFFIPointer* hl_lime_window_create (HL_CFFIPointer* application, int width, int height, int flags, HL_String* title) {
+	HL_PRIM HL_CFFIPointer* hl_lime_window_create (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title) {
 		
 		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes));
 		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
@@ -3490,7 +3489,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_window_event_manager_register (vclosure* callback, HL_WindowEvent* eventObject) {
+	HL_PRIM void hl_lime_window_event_manager_register (vclosure* callback, WindowEvent* eventObject) {
 		
 		WindowEvent::callback = new ValuePointer (callback);
 		WindowEvent::eventObject = new ValuePointer ((vobj*)eventObject);
@@ -3839,7 +3838,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_String* hl_lime_window_set_title (HL_CFFIPointer* window, HL_String* title) {
+	HL_PRIM hl_vstring* hl_lime_window_set_title (HL_CFFIPointer* window, hl_vstring* title) {
 		
 		Window* targetWindow = (Window*)window->ptr;
 		const char* result = targetWindow->SetTitle ((char*)hl_to_utf8 ((const uchar*)title->bytes));
@@ -4091,7 +4090,7 @@ namespace lime {
 	#define _TCFFIPOINTER _DYN
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
 	#define _TDISPLAYMODE _OBJ (_I32 _I32 _I32 _I32)
-	#define _TDROP_EVENT _OBJ (_STRING _I32)
+	#define _TDROP_EVENT _OBJ (_BYTES _I32)
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_I32 _I32 _I32 _I32)
@@ -4099,7 +4098,7 @@ namespace lime {
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TRENDER_EVENT _OBJ (_ENUM _I32)
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
-	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _STRING _I32 _I32)
+	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_I32 _I32 _I32)
 	#define _TVORBISFILE _OBJ (_I32 _DYN)

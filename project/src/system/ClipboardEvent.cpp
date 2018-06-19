@@ -38,7 +38,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_ClipboardEvent* eventObject = (HL_ClipboardEvent*)ClipboardEvent::eventObject->Get ();
+				ClipboardEvent* eventObject = (ClipboardEvent*)ClipboardEvent::eventObject->Get ();
 				
 				eventObject->type = event->type;
 				

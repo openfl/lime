@@ -54,7 +54,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_SensorEvent* eventObject = (HL_SensorEvent*)SensorEvent::eventObject->Get ();
+				SensorEvent* eventObject = (SensorEvent*)SensorEvent::eventObject->Get ();
 				
 				eventObject->id = event->id;
 				eventObject->type = event->type;

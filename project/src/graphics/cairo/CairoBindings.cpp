@@ -8,7 +8,6 @@
 #include <system/Mutex.h>
 #include <system/ValuePointer.h>
 #include <text/Font.h>
-#include <utils/String.h>
 
 
 namespace lime {
@@ -2116,7 +2115,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_cairo_show_text (HL_CFFIPointer* handle, HL_String* text) {
+	HL_PRIM void hl_lime_cairo_show_text (HL_CFFIPointer* handle, hl_vstring* text) {
 		
 		cairo_show_text ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 		
@@ -2200,7 +2199,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_cairo_text_path (HL_CFFIPointer* handle, HL_String* text) {
+	HL_PRIM void hl_lime_cairo_text_path (HL_CFFIPointer* handle, hl_vstring* text) {
 		
 		cairo_text_path ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 		

@@ -42,7 +42,7 @@ namespace lime {
 				
 			} else {
 				
-				HL_ApplicationEvent* eventObject = (HL_ApplicationEvent*)ApplicationEvent::eventObject->Get ();
+				ApplicationEvent* eventObject = (ApplicationEvent*)ApplicationEvent::eventObject->Get ();
 				
 				eventObject->deltaTime = event->deltaTime;
 				eventObject->type = event->type;
