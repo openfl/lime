@@ -554,8 +554,12 @@ class Cairo {
 	@:noCompletion private function get_currentPoint ():Vector2 {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_current_point (handle, new Vector2 ());
+		#else
 		var vec:Dynamic = NativeCFFI.lime_cairo_get_current_point (handle);
 		return new Vector2 (vec.x, vec.y);
+		#end
 		#end
 		
 		return null;
@@ -768,8 +772,12 @@ class Cairo {
 	@:noCompletion private function get_matrix ():Matrix3 {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_matrix (handle, new Matrix3 ());
+		#else
 		var m:Dynamic = NativeCFFI.lime_cairo_get_matrix (handle);
 		return new Matrix3 (m.a, m.b, m.c, m.d, m.tx, m.ty);
+		#end
 		#end
 		
 		return null;
@@ -780,8 +788,12 @@ class Cairo {
 	@:noCompletion private function set_matrix (value:Matrix3):Matrix3 {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		NativeCFFI.lime_cairo_set_matrix (handle, value);
+		#else
 		NativeCFFI.lime_cairo_set_matrix (handle, value.a, value.b, value.c, value.d, value.tx, value.ty);
 		//NativeCFFI.lime_cairo_set_matrix (handle, value);
+		#end
 		#end
 		
 		return value;

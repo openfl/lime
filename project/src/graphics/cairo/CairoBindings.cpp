@@ -519,7 +519,7 @@ namespace lime {
 		Font* font = (Font*)face->ptr;
 		cairo_font_face_t* cairoFont = cairo_ft_font_face_create_for_ft_face ((FT_Face)font->face, flags);
 		
-		ValuePointer* fontReference = new ValuePointer ((vdynamic*)face->ptr);
+		ValuePointer* fontReference = new ValuePointer ((vobj*)face->ptr);
 		cairo_font_face_set_user_data (cairoFont, &userData, fontReference, gc_user_data);
 		
 		HL_CFFIPointer* object = HLCFFIPointer (cairoFont, (hl_finalizer)hl_gc_cairo_font_face);
@@ -558,12 +558,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_Vector2* hl_lime_cairo_get_current_point (HL_CFFIPointer* handle) {
+	HL_PRIM Vector2* hl_lime_cairo_get_current_point (HL_CFFIPointer* handle, Vector2* out) {
 		
-		double x, y;
-		cairo_get_current_point ((cairo_t*)handle->ptr, &x, &y);
-		Vector2 vec2 = Vector2 (x, y);
-		return (HL_Vector2*)vec2.Dynamic ();
+		cairo_get_current_point ((cairo_t*)handle->ptr, &out->x, &out->y);
+		return out;
 		
 	}
 	
@@ -795,12 +793,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_Matrix3* hl_lime_cairo_get_matrix (HL_CFFIPointer* handle) {
+	HL_PRIM Matrix3* hl_lime_cairo_get_matrix (HL_CFFIPointer* handle, Matrix3* out) {
 		
-		cairo_matrix_t cm;
-		cairo_get_matrix ((cairo_t*)handle->ptr, &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return (HL_Matrix3*)mat3.Dynamic ();
+		// cairo_matrix_t cm;
+		// cairo_get_matrix ((cairo_t*)handle->ptr, &cm);
+		// out->a = cm.xx;
+		// out->b = cm.yx;
+		// out->c = cm.xy;
+		// out->d = cm.yy;
+		// out->tx = cm.x0;
+		// out->ty = cm.y0;
+		cairo_get_matrix ((cairo_t*)handle->ptr, (cairo_matrix_t*)&out->a);
+		return out;
 		
 	}
 	
@@ -1443,12 +1447,18 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM HL_Matrix3* hl_lime_cairo_pattern_get_matrix (HL_CFFIPointer* handle) {
+	HL_PRIM Matrix3* hl_lime_cairo_pattern_get_matrix (HL_CFFIPointer* handle, Matrix3* out) {
 		
-		cairo_matrix_t cm;
-		cairo_pattern_get_matrix ((cairo_pattern_t*)handle->ptr, &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return (HL_Matrix3*)mat3.Dynamic ();
+		// cairo_matrix_t cm;
+		// cairo_pattern_get_matrix ((cairo_pattern_t*)handle->ptr, &cm);
+		// out->a = cm.xx;
+		// out->b = cm.yx;
+		// out->c = cm.xy;
+		// out->d = cm.yy;
+		// out->tx = cm.x0;
+		// out->ty = cm.y0;
+		cairo_pattern_get_matrix ((cairo_pattern_t*)handle->ptr, (cairo_matrix_t*)&out->a);
+		return out;
 		
 	}
 	
@@ -1493,14 +1503,14 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_cairo_pattern_set_matrix (HL_CFFIPointer* handle, HL_Matrix3* matrix) {
+	HL_PRIM void hl_lime_cairo_pattern_set_matrix (HL_CFFIPointer* handle, Matrix3* matrix) {
 		
-		Matrix3 mat3 = Matrix3 (matrix);
+		// cairo_matrix_t cm;
+		// cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
 		
-		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		// cairo_pattern_set_matrix ((cairo_pattern_t*)handle->ptr, &cm);
 		
-		cairo_pattern_set_matrix ((cairo_pattern_t*)handle->ptr, &cm);
+		cairo_pattern_set_matrix ((cairo_pattern_t*)handle->ptr, (cairo_matrix_t*)&matrix->a);
 		
 	}
 	
@@ -1908,12 +1918,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_cairo_set_matrix (HL_CFFIPointer* handle, double a, double b, double c, double d, double tx, double ty) {
+	HL_PRIM void hl_lime_cairo_set_matrix (HL_CFFIPointer* handle, Matrix3* matrix) {
 		
-		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, a, b, c, d, tx, ty);
+		// cairo_matrix_t cm;
+		// cairo_matrix_init (&cm, a, b, c, d, tx, ty);
 		
-		cairo_set_matrix ((cairo_t*)handle->ptr, &cm);
+		cairo_set_matrix ((cairo_t*)handle->ptr, (cairo_matrix_t*)&matrix->a);
 		
 	}
 	
@@ -2209,14 +2219,14 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_cairo_transform (HL_CFFIPointer* handle, HL_Matrix3* matrix) {
+	HL_PRIM void hl_lime_cairo_transform (HL_CFFIPointer* handle, Matrix3* matrix) {
 		
-		Matrix3 mat3 = Matrix3 (matrix);
+		// cairo_matrix_t cm;
+		// cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
 		
-		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		// cairo_transform ((cairo_t*)handle->ptr, &cm);
 		
-		cairo_transform ((cairo_t*)handle->ptr, &cm);
+		cairo_transform ((cairo_t*)handle->ptr, (cairo_matrix_t*)&matrix->a);
 		
 	}
 	
@@ -2414,7 +2424,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_hint_style, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_hint_metrics, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_antialias, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TVECTOR2, lime_cairo_get_current_point, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TVECTOR2, lime_cairo_get_current_point, _TCFFIPOINTER _TVECTOR2);
 	DEFINE_HL_PRIM (_ARR, lime_cairo_get_dash, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_dash_count, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_fill_rule, _TCFFIPOINTER);
@@ -2424,7 +2434,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_line_cap, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_line_join, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, lime_cairo_get_line_width, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TMATRIX3, lime_cairo_get_matrix, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TMATRIX3, lime_cairo_get_matrix, _TCFFIPOINTER _TMATRIX3);
 	DEFINE_HL_PRIM (_F64, lime_cairo_get_miter_limit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_get_operator, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_source, _TCFFIPOINTER);
@@ -2459,7 +2469,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_cairo_pattern_get_color_stop_count, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_pattern_get_extend, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_cairo_pattern_get_filter, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TMATRIX3, lime_cairo_pattern_get_matrix, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TMATRIX3, lime_cairo_pattern_get_matrix, _TCFFIPOINTER _TMATRIX3);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_set_extend, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_set_filter, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_set_matrix, _TCFFIPOINTER _TMATRIX3);
@@ -2485,7 +2495,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_line_cap, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_line_join, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_line_width, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_matrix, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, lime_cairo_set_matrix, _TCFFIPOINTER _TMATRIX3);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_miter_limit, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_operator, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source, _TCFFIPOINTER _TCFFIPOINTER);

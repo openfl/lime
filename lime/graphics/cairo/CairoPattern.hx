@@ -162,8 +162,12 @@ abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer {
 	@:noCompletion private function get_matrix ():Matrix3 {
 		
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_pattern_get_matrix (this, new Matrix3 ());
+		#else
 		var m:Dynamic = NativeCFFI.lime_cairo_pattern_get_matrix (this);
 		return new Matrix3 (m.a, m.b, m.c, m.d, m.tx, m.ty);
+		#end
 		#else
 		return null;
 		#end

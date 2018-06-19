@@ -9,18 +9,11 @@ namespace lime {
 	static bool init = false;
 	
 	
-	Vector2::Vector2 () {
-		
-		x = 0;
-		y = 0;
-		
-	}
-	
-	
 	Vector2::Vector2 (double x, double y) {
 		
-		this->x = x;
-		this->y = y;
+		t = 0;
+		
+		SetTo (x, y);
 		
 	}
 	
@@ -50,25 +43,22 @@ namespace lime {
 	}
 	
 	
-	Vector2::Vector2 (HL_Vector2* vec) {
+	void Vector2::SetTo (double x, double y) {
 		
-		x = vec->x;
-		y = vec->y;
-		
-	}
-	
-	
-	vdynamic* Vector2::Dynamic () {
-		
-		HL_Vector2* result = (HL_Vector2*)malloc (sizeof (HL_Vector2));
-		result->x = x;
-		result->y = y;
-		return (vdynamic*) result;
+		this->x = x;
+		this->y = y;
 		
 	}
 	
 	
 	value Vector2::Value () {
+		
+		return Value (alloc_empty_object ());
+		
+	}
+	
+	
+	value Vector2::Value (value vec) {
 		
 		if (!init) {
 			
@@ -78,10 +68,9 @@ namespace lime {
 			
 		}
 		
-		value result = alloc_empty_object ();
-		alloc_field (result, id_x, alloc_float (x));
-		alloc_field (result, id_y, alloc_float (y));
-		return result;
+		alloc_field (vec, id_x, alloc_float (x));
+		alloc_field (vec, id_y, alloc_float (y));
+		return vec;
 		
 	}
 	

@@ -8,7 +8,7 @@
 namespace lime {
 	
 	
-	struct HL_Rectangle {
+	struct Rectangle {
 		
 		hl_type* t;
 		double height;
@@ -16,27 +16,13 @@ namespace lime {
 		double x;
 		double y;
 		
-	};
-	
-	
-	class Rectangle {
+		Rectangle (double x, double y, double width, double height);
+		Rectangle (value rect);
 		
-		
-		public:
-			
-			Rectangle ();
-			Rectangle (double x, double y, double width, double height);
-			Rectangle (value rect);
-			Rectangle (HL_Rectangle* rect);
-			
-			void Contract (double x, double y, double width, double height);
-			value Value ();
-			
-			double height;
-			double width;
-			double x;
-			double y;
-		
+		void Contract (double x, double y, double width, double height);
+		void SetTo (double x, double y, double width, double height);
+		value Value ();
+		value Value (value rect);
 		
 	};
 	

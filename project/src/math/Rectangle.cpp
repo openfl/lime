@@ -11,22 +11,11 @@ namespace lime {
 	static bool init = false;
 	
 	
-	Rectangle::Rectangle () {
-		
-		height = 0;
-		width = 0;
-		x = 0;
-		y = 0;
-		
-	}
-	
-	
 	Rectangle::Rectangle (double x, double y, double width, double height) {
 		
-		this->height = height;
-		this->width = width;
-		this->x = x;
-		this->y = y;
+		t = 0;
+		
+		SetTo (x, y, width, height);
 		
 	}
 	
@@ -51,16 +40,6 @@ namespace lime {
 	}
 	
 	
-	Rectangle::Rectangle (HL_Rectangle* rect) {
-		
-		width = rect->width;
-		height = rect->height;
-		x = rect->x;
-		y = rect->y;
-		
-	}
-	
-	
 	void Rectangle::Contract (double x, double y, double width, double height) {
 		
 		if (this->width == 0 && this->height == 0) {
@@ -80,7 +59,24 @@ namespace lime {
 	}
 	
 	
+	void Rectangle::SetTo (double x, double y, double width, double height) {
+		
+		this->height = height;
+		this->width = width;
+		this->x = x;
+		this->y = y;
+		
+	}
+	
+	
 	value Rectangle::Value () {
+		
+		return Value (alloc_empty_object ());
+		
+	}
+	
+	
+	value Rectangle::Value (value rect) {
 		
 		if (!init) {
 			
@@ -92,7 +88,6 @@ namespace lime {
 			
 		}
 		
-		value rect = alloc_empty_object ();
 		alloc_field (rect, id_height, alloc_float (height));
 		alloc_field (rect, id_width, alloc_float (width));
 		alloc_field (rect, id_x, alloc_float (x));

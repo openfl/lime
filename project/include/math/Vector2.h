@@ -8,32 +8,19 @@
 namespace lime {
 	
 	
-	struct HL_Vector2 {
+	struct Vector2 {
 		
 		hl_type* t;
 		double length;
 		double x;
 		double y;
 		
-	};
-	
-	
-	class Vector2 {
+		Vector2 (double x, double y);
+		Vector2 (value vec);
 		
-		
-		public:
-			
-			Vector2 ();
-			Vector2 (double x, double y);
-			Vector2 (value vec);
-			Vector2 (HL_Vector2* vec);
-			
-			vdynamic* Dynamic ();
-			value Value ();
-			
-			double x;
-			double y;
-		
+		void SetTo (double x, double y);
+		value Value ();
+		value Value (value vec);
 		
 	};
 	

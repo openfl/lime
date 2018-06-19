@@ -1904,11 +1904,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_color_transform (Image* image, HL_Rectangle* rect, ArrayBufferView* colorMatrix) {
+	HL_PRIM void hl_lime_image_data_util_color_transform (Image* image, Rectangle* rect, ArrayBufferView* colorMatrix) {
 		
-		Rectangle _rect = Rectangle (rect);
 		ColorMatrix _colorMatrix = ColorMatrix (colorMatrix);
-		ImageDataUtil::ColorTransform (image, &_rect, &_colorMatrix);
+		ImageDataUtil::ColorTransform (image, rect, &_colorMatrix);
 		
 	}
 	
@@ -1924,11 +1923,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_copy_channel (Image* image, Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, int srcChannel, int destChannel) {
+	HL_PRIM void hl_lime_image_data_util_copy_channel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel) {
 		
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
-		ImageDataUtil::CopyChannel (image, sourceImage, &_sourceRect, &_destPoint, srcChannel, destChannel);
+		ImageDataUtil::CopyChannel (image, sourceImage, sourceRect, destPoint, srcChannel, destChannel);
 		
 	}
 	
@@ -1956,20 +1953,15 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_copy_pixels (Image* image, Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, Image* alphaImage, HL_Vector2* alphaPoint, bool mergeAlpha) {
-		
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
+	HL_PRIM void hl_lime_image_data_util_copy_pixels (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, Image* alphaImage, Vector2* alphaPoint, bool mergeAlpha) {
 		
 		if (!alphaImage) {
 			
-			ImageDataUtil::CopyPixels (image, sourceImage, &_sourceRect, &_destPoint, NULL, NULL, mergeAlpha);
+			ImageDataUtil::CopyPixels (image, sourceImage, sourceRect, destPoint, NULL, NULL, mergeAlpha);
 			
 		} else {
 			
-			Vector2 _alphaPoint = Vector2 (alphaPoint);
-			
-			ImageDataUtil::CopyPixels (image, sourceImage, &_sourceRect, &_destPoint, alphaImage, &_alphaPoint, mergeAlpha);
+			ImageDataUtil::CopyPixels (image, sourceImage, sourceRect, destPoint, alphaImage, alphaPoint, mergeAlpha);
 			
 		}
 		
@@ -1986,11 +1978,10 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_fill_rect (Image* image, HL_Rectangle* rect, int rg, int ba) {
+	HL_PRIM void hl_lime_image_data_util_fill_rect (Image* image, Rectangle* rect, int rg, int ba) {
 		
-		Rectangle _rect = Rectangle (rect);
 		int32_t color = (rg << 16) | ba;
-		ImageDataUtil::FillRect (image, &_rect, color);
+		ImageDataUtil::FillRect (image, rect, color);
 		
 	}
 	
@@ -2023,11 +2014,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_get_pixels (Image* image, HL_Rectangle* rect, int format, Bytes* bytes) {
+	HL_PRIM void hl_lime_image_data_util_get_pixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* bytes) {
 		
-		Rectangle _rect = Rectangle (rect);
-		PixelFormat _format = (PixelFormat)format;
-		ImageDataUtil::GetPixels (image, &_rect, _format, bytes);
+		ImageDataUtil::GetPixels (image, rect, format, bytes);
 		
 	}
 	
@@ -2043,11 +2032,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_merge (Image* image, Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier) {
+	HL_PRIM void hl_lime_image_data_util_merge (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier) {
 		
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
-		ImageDataUtil::Merge (image, sourceImage, &_sourceRect, &_destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
+		ImageDataUtil::Merge (image, sourceImage, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
 		
 	}
 	
@@ -2111,10 +2098,9 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM void hl_lime_image_data_util_set_pixels (Image* image, HL_Rectangle* rect, Bytes* bytes, int offset, PixelFormat format, Endian endian) {
+	HL_PRIM void hl_lime_image_data_util_set_pixels (Image* image, Rectangle* rect, Bytes* bytes, int offset, PixelFormat format, Endian endian) {
 		
-		Rectangle _rect = Rectangle (rect);
-		ImageDataUtil::SetPixels (image, &_rect, bytes, offset, format, endian);
+		ImageDataUtil::SetPixels (image, rect, bytes, offset, format, endian);
 		
 	}
 	
@@ -2133,14 +2119,12 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_image_data_util_threshold (Image* image, Image* sourceImage, HL_Rectangle* sourceRect, HL_Vector2* destPoint, int operation, int thresholdRG, int thresholdBA, int colorRG, int colorBA, int maskRG, int maskBA, bool copySource) {
+	HL_PRIM int hl_lime_image_data_util_threshold (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int operation, int thresholdRG, int thresholdBA, int colorRG, int colorBA, int maskRG, int maskBA, bool copySource) {
 		
-		Rectangle _sourceRect = Rectangle (sourceRect);
-		Vector2 _destPoint = Vector2 (destPoint);
 		int32_t threshold = (thresholdRG << 16) | thresholdBA;
 		int32_t color = (colorRG << 16) | colorBA;
 		int32_t mask = (maskRG << 16) | maskBA;
-		return ImageDataUtil::Threshold (image, sourceImage, &_sourceRect, &_destPoint, operation, threshold, color, mask, copySource);
+		return ImageDataUtil::Threshold (image, sourceImage, sourceRect, destPoint, operation, threshold, color, mask, copySource);
 		
 	}
 	
@@ -2823,14 +2807,13 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM ImageBuffer* hl_lime_renderer_read_pixels (HL_CFFIPointer* renderer, HL_Rectangle* rect, ImageBuffer* imageBuffer) {
+	HL_PRIM ImageBuffer* hl_lime_renderer_read_pixels (HL_CFFIPointer* renderer, Rectangle* rect, ImageBuffer* imageBuffer) {
 		
 		Renderer* targetRenderer = (Renderer*)renderer->ptr;
 		
 		if (rect) {
 			
-			Rectangle _rect = Rectangle (rect);
-			targetRenderer->ReadPixels (imageBuffer, &_rect);
+			targetRenderer->ReadPixels (imageBuffer, rect);
 			
 		} else {
 			

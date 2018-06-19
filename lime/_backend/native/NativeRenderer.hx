@@ -73,8 +73,6 @@ class NativeRenderer {
 		var type:String = NativeCFFI.lime_renderer_get_type (handle);
 		#end
 		
-		trace (type);
-		
 		switch (type) {
 			
 			case "opengl":

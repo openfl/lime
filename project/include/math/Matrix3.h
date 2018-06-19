@@ -8,7 +8,7 @@
 namespace lime {
 	
 	
-	struct HL_Matrix3 {
+	struct Matrix3 {
 		
 		hl_type* t;
 		double a;
@@ -18,29 +18,12 @@ namespace lime {
 		double tx;
 		double ty;
 		
-	};
-	
-	
-	class Matrix3 {
+		Matrix3 (double a, double b, double c, double d, double tx, double ty);
+		Matrix3 (value matrix3);
 		
-		
-		public:
-			
-			Matrix3 ();
-			Matrix3 (double a, double b, double c, double d, double tx, double ty);
-			Matrix3 (value matrix3);
-			Matrix3 (HL_Matrix3* matrix3);
-			
-			vdynamic* Dynamic ();
-			value Value ();
-			
-			double a;
-			double b;
-			double c;
-			double d;
-			double tx;
-			double ty;
-		
+		void SetTo (double a, double b, double c, double d, double tx, double ty);
+		value Value ();
+		value Value (value matrix3);
 		
 	};
 	

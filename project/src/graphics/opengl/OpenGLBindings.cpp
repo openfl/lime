@@ -3871,7 +3871,7 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* hl_lime_gl_object_register (int id, int type, void* object) {
 		
 		GLObjectType _type = (GLObjectType)type;
-		HL_CFFIPointer* handle = HLCFFIPointer ((vdynamic*)object, (hl_finalizer)gc_gl_object);
+		HL_CFFIPointer* handle = HLCFFIPointer ((vobj*)object, (hl_finalizer)gc_gl_object);
 		
 		//if (glObjects[_type].find (id) != glObjects[_type].end ()) {
 			//

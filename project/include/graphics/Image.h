@@ -18,7 +18,7 @@ namespace lime {
 		int height;
 		int offsetX;
 		int offsetY;
-		HL_Rectangle* rect;
+		Rectangle* rect;
 		/*ImageType*/ int type;
 		int version;
 		int width;

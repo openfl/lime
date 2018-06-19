@@ -743,7 +743,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_fill_extents") private static function lime_cairo_fill_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void {}
 	@:hlNative("lime", "lime_cairo_fill_preserve") private static function lime_cairo_fill_preserve (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_cairo_get_antialias") private static function lime_cairo_get_antialias (handle:CFFIPointer):Int { return 0; }
-	@:hlNative("lime", "lime_cairo_get_current_point") private static function lime_cairo_get_current_point (handle:CFFIPointer):Vector2 { return null; }
+	@:hlNative("lime", "lime_cairo_get_current_point") private static function lime_cairo_get_current_point (handle:CFFIPointer, out:Vector2):Vector2 { return null; }
 	@:hlNative("lime", "lime_cairo_get_dash") private static function lime_cairo_get_dash (handle:CFFIPointer):hl.NativeArray<Float> { return null; }
 	@:hlNative("lime", "lime_cairo_get_dash_count") private static function lime_cairo_get_dash_count (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_fill_rule") private static function lime_cairo_get_fill_rule (handle:CFFIPointer):Int { return 0; }
@@ -753,7 +753,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_get_line_cap") private static function lime_cairo_get_line_cap (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_line_join") private static function lime_cairo_get_line_join (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_line_width") private static function lime_cairo_get_line_width (handle:CFFIPointer):Float { return 0; }
-	@:hlNative("lime", "lime_cairo_get_matrix") private static function lime_cairo_get_matrix (handle:CFFIPointer):Matrix3 { return null; }
+	@:hlNative("lime", "lime_cairo_get_matrix") private static function lime_cairo_get_matrix (handle:CFFIPointer, out:Matrix3):Matrix3 { return null; }
 	@:hlNative("lime", "lime_cairo_get_miter_limit") private static function lime_cairo_get_miter_limit (handle:CFFIPointer):Float { return 0; }
 	@:hlNative("lime", "lime_cairo_get_operator") private static function lime_cairo_get_operator (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_get_source") private static function lime_cairo_get_source (handle:CFFIPointer):CFFIPointer { return null; }
@@ -793,7 +793,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_set_line_cap") private static function lime_cairo_set_line_cap (handle:CFFIPointer, cap:Int):Void {}
 	@:hlNative("lime", "lime_cairo_set_line_join") private static function lime_cairo_set_line_join (handle:CFFIPointer, join:Int):Void {}
 	@:hlNative("lime", "lime_cairo_set_line_width") private static function lime_cairo_set_line_width (handle:CFFIPointer, width:Float):Void {}
-	@:hlNative("lime", "lime_cairo_set_matrix") private static function lime_cairo_set_matrix (handle:CFFIPointer, a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void {}
+	@:hlNative("lime", "lime_cairo_set_matrix") private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Matrix3):Void {}
 	// @:hlNative("lime", "lime_cairo_create") private static function lime_cairo_set_matrix (handle:CFFIPointer, matrix:Dynamic):Void {}
 	@:hlNative("lime", "lime_cairo_set_miter_limit") private static function lime_cairo_set_miter_limit (handle:CFFIPointer, miterLimit:Float):Void {}
 	@:hlNative("lime", "lime_cairo_set_operator") private static function lime_cairo_set_operator (handle:CFFIPointer, op:Int):Void {}
@@ -842,7 +842,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_pattern_get_color_stop_count") private static function lime_cairo_pattern_get_color_stop_count (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_pattern_get_extend") private static function lime_cairo_pattern_get_extend (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_cairo_pattern_get_filter") private static function lime_cairo_pattern_get_filter (handle:CFFIPointer):Int { return 0; }
-	@:hlNative("lime", "lime_cairo_pattern_get_matrix") private static function lime_cairo_pattern_get_matrix (handle:CFFIPointer):Matrix3 { return null; }
+	@:hlNative("lime", "lime_cairo_pattern_get_matrix") private static function lime_cairo_pattern_get_matrix (handle:CFFIPointer, out:Matrix3):Matrix3 { return null; }
 	@:hlNative("lime", "lime_cairo_pattern_set_extend") private static function lime_cairo_pattern_set_extend (handle:CFFIPointer, extend:Int):Void {}
 	@:hlNative("lime", "lime_cairo_pattern_set_filter") private static function lime_cairo_pattern_set_filter (handle:CFFIPointer, filter:Int):Void {}
 	@:hlNative("lime", "lime_cairo_pattern_set_matrix") private static function lime_cairo_pattern_set_matrix (handle:CFFIPointer, matrix:Matrix3):Void {}
