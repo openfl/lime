@@ -19,7 +19,7 @@ namespace lime {
 			virtual void Flip ();
 			virtual void* GetContext ();
 			virtual double GetScale ();
-			virtual void* Lock (bool useCFFIValue);
+			virtual void* Lock (bool useCFFIValue, void* object);
 			virtual void MakeCurrent ();
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
 			virtual const char* Type ();

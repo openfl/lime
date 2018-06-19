@@ -18,6 +18,7 @@ import lime.utils.DataPointer;
 #if hl
 import lime._backend.native.NativeApplication;
 import lime.graphics.cairo.CairoGlyph;
+import lime.graphics.opengl.GL;
 import lime.math.Matrix3;
 import lime.math.Vector2;
 import lime.media.openal.ALContext;
@@ -312,7 +313,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_renderer_get_context") private static function lime_renderer_get_context (handle:CFFIPointer):Float { return 0; }
 	@:hlNative("lime", "lime_renderer_get_scale") private static function lime_renderer_get_scale (handle:CFFIPointer):Float { return 0; }
 	@:hlNative("lime", "lime_renderer_get_type") private static function lime_renderer_get_type (handle:CFFIPointer):hl.Bytes { return null; }
-	@:hlNative("lime", "lime_renderer_lock") private static function lime_renderer_lock (handle:CFFIPointer):Dynamic { return null; }
+	@:hlNative("lime", "lime_renderer_lock") private static function lime_renderer_lock (handle:CFFIPointer, object:Dynamic):Dynamic { return null; }
 	@:hlNative("lime", "lime_renderer_make_current") private static function lime_renderer_make_current (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_renderer_read_pixels") private static function lime_renderer_read_pixels (handle:CFFIPointer, rect:Rectangle, imageBuffer:ImageBuffer):Dynamic { return null; }
 	@:hlNative("lime", "lime_renderer_unlock") private static function lime_renderer_unlock (handle:CFFIPointer):Void {}
@@ -1065,7 +1066,7 @@ class NativeCFFI {
 	@:cffi private static function lime_gl_map_buffer_range (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer;
 	@:cffi private static function lime_gl_object_deregister (object:Dynamic):Void;
 	@:cffi private static function lime_gl_object_from_id (id:Int, type:Int):Dynamic;
-	@:cffi private static function lime_gl_object_register (id:Int, type:Int, object:Dynamic):Void;
+	@:cffi private static function lime_gl_object_register (id:Int, type:Int, object:Dynamic):Dynamic;
 	@:cffi private static function lime_gl_pause_transform_feedback ():Void;
 	@:cffi private static function lime_gl_pixel_storei (pname:Int, param:Int):Void;
 	@:cffi private static function lime_gl_polygon_offset (factor:Float32, units:Float32):Void;
@@ -1225,7 +1226,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_disable_vertex_attrib_array") private static function lime_gl_disable_vertex_attrib_array (index:Int):Void {}
 	@:hlNative("lime", "lime_gl_draw_arrays") private static function lime_gl_draw_arrays (mode:Int, first:Int, count:Int):Void {}
 	@:hlNative("lime", "lime_gl_draw_arrays_instanced") private static function lime_gl_draw_arrays_instanced (mode:Int, first:Int, count:Int, instanceCount:Int):Void {}
-	@:hlNative("lime", "lime_gl_draw_buffers") private static function lime_gl_draw_buffers (buffers:hl.NativeArray):Void {}
+	@:hlNative("lime", "lime_gl_draw_buffers") private static function lime_gl_draw_buffers (buffers:hl.NativeArray<Int>):Void {}
 	@:hlNative("lime", "lime_gl_draw_elements") private static function lime_gl_draw_elements (mode:Int, count:Int, type:Int, offset:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_draw_elements_instanced") private static function lime_gl_draw_elements_instanced (mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void {}
 	@:hlNative("lime", "lime_gl_draw_range_elements") private static function lime_gl_draw_range_elements (mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void {}
@@ -1241,22 +1242,22 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_framebuffer_texture_layer") private static function lime_gl_framebuffer_texture_layer (target:Int, attachment:Int, texture:Int, level:Int, layer:Int):Void {}
 	@:hlNative("lime", "lime_gl_front_face") private static function lime_gl_front_face (mode:Int):Void {}
 	@:hlNative("lime", "lime_gl_generate_mipmap") private static function lime_gl_generate_mipmap (target:Int):Void {}
-	@:hlNative("lime", "lime_gl_get_active_attrib") private static function lime_gl_get_active_attrib (program:Int, index:Int):Dynamic { return null; }
-	@:hlNative("lime", "lime_gl_get_active_uniform") private static function lime_gl_get_active_uniform (program:Int, index:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_gl_get_active_attrib") private static function lime_gl_get_active_attrib (program:Int, index:Int, object:Dynamic):Dynamic { return null; }
+	@:hlNative("lime", "lime_gl_get_active_uniform") private static function lime_gl_get_active_uniform (program:Int, index:Int, object:Dynamic):Dynamic { return null; }
 	@:hlNative("lime", "lime_gl_get_active_uniform_blocki") private static function lime_gl_get_active_uniform_blocki (program:Int, uniformBlockIndex:Int, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_active_uniform_blockiv") private static function lime_gl_get_active_uniform_blockiv (program:Int, uniformBlockIndex:Int, pname:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_active_uniform_block_name") private static function lime_gl_get_active_uniform_block_name (program:Int, uniformBlockIndex:Int):hl.Bytes { return null; }
-	@:hlNative("lime", "lime_gl_get_active_uniformsiv") private static function lime_gl_get_active_uniformsiv (program:Int, uniformIndices:hl.NativeArray, pname:Int, params:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_attached_shaders") private static function lime_gl_get_attached_shaders (program:Int):hl.NativeArray { return null; }
+	@:hlNative("lime", "lime_gl_get_active_uniformsiv") private static function lime_gl_get_active_uniformsiv (program:Int, uniformIndices:hl.NativeArray<Int>, pname:Int, params:DataPointer):Void {}
+	@:hlNative("lime", "lime_gl_get_attached_shaders") private static function lime_gl_get_attached_shaders (program:Int):hl.NativeArray<Int> { return null; }
 	@:hlNative("lime", "lime_gl_get_attrib_location") private static function lime_gl_get_attrib_location (program:Int, name:String):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_boolean") private static function lime_gl_get_boolean (pname:Int):Bool { return false; }
 	@:hlNative("lime", "lime_gl_get_booleanv") private static function lime_gl_get_booleanv (pname:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_buffer_parameteri") private static function lime_gl_get_buffer_parameteri (target:Int, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_buffer_parameteri64v") private static function lime_gl_get_buffer_parameteri64v (target:Int, index:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_buffer_parameteriv") private static function lime_gl_get_buffer_parameteriv (target:Int, pname:Int, params:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_buffer_pointerv") private static function lime_gl_get_buffer_pointerv (target:Int, pname:Int):DataPointer { return null; }
+	@:hlNative("lime", "lime_gl_get_buffer_pointerv") private static function lime_gl_get_buffer_pointerv (target:Int, pname:Int):DataPointer { return 0; }
 	@:hlNative("lime", "lime_gl_get_buffer_sub_data") private static function lime_gl_get_buffer_sub_data (target:Int, offset:DataPointer, size:Int, data:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_context_attributes") private static function lime_gl_get_context_attributes ():Dynamic { return null; }
+	@:hlNative("lime", "lime_gl_get_context_attributes") private static function lime_gl_get_context_attributes (object:Dynamic):Dynamic { return null; }
 	@:hlNative("lime", "lime_gl_get_error") private static function lime_gl_get_error ():Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_extension") private static function lime_gl_get_extension (name:String):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_gl_get_float") private static function lime_gl_get_float (pname:Int):hl.F32 { return 0; }
@@ -1270,7 +1271,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_get_integerv") private static function lime_gl_get_integerv (pname:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_integeri_v") private static function lime_gl_get_integeri_v (pname:Int, index:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_internalformativ") private static function lime_gl_get_internalformativ (target:Int, internalformat:Int, pname:Int, bufSize:Int, params:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_program_binary") private static function lime_gl_get_program_binary (program:Int, binaryFormat:Int, bytes:Dynamic):Void {}
+	@:hlNative("lime", "lime_gl_get_program_binary") private static function lime_gl_get_program_binary (program:Int, binaryFormat:Int, bytes:Bytes):Void {}
 	@:hlNative("lime", "lime_gl_get_program_info_log") private static function lime_gl_get_program_info_log (program:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gl_get_programi") private static function lime_gl_get_programi (program:Int, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_programiv") private static function lime_gl_get_programiv (program:Int, pname:Int, params:DataPointer):Void {}
@@ -1287,9 +1288,9 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_get_shader_info_log") private static function lime_gl_get_shader_info_log (shader:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gl_get_shaderi") private static function lime_gl_get_shaderi (shader:Int, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_shaderiv") private static function lime_gl_get_shaderiv (shader:Int, pname:Int, params:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_shader_precision_format") private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_gl_get_shader_precision_format") private static function lime_gl_get_shader_precision_format (shadertype:Int, precisiontype:Int, object:Dynamic):Dynamic { return null; }
 	@:hlNative("lime", "lime_gl_get_shader_source") private static function lime_gl_get_shader_source (shader:Int):hl.Bytes { return null; }
-	@:hlNative("lime", "lime_gl_get_string") private static function lime_gl_get_string (pname:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_gl_get_string") private static function lime_gl_get_string (pname:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gl_get_stringi") private static function lime_gl_get_stringi (pname:Int, index:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_gl_get_sync_parameteri") private static function lime_gl_get_sync_parameteri (sync:CFFIPointer, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_sync_parameteriv") private static function lime_gl_get_sync_parameteriv (sync:CFFIPointer, pname:Int, params:DataPointer):Void {}
@@ -1297,7 +1298,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_get_tex_parameterfv") private static function lime_gl_get_tex_parameterfv (target:Int, pname:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_tex_parameteri") private static function lime_gl_get_tex_parameteri (target:Int, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_tex_parameteriv") private static function lime_gl_get_tex_parameteriv (target:Int, pname:Int, params:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_transform_feedback_varying") private static function lime_gl_get_transform_feedback_varying (program:Int, index:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_gl_get_transform_feedback_varying") private static function lime_gl_get_transform_feedback_varying (program:Int, index:Int, object:Dynamic):Dynamic { return null; }
 	@:hlNative("lime", "lime_gl_get_uniformf") private static function lime_gl_get_uniformf (program:Int, location:Int):hl.F32 { return 0; }
 	@:hlNative("lime", "lime_gl_get_uniformfv") private static function lime_gl_get_uniformfv (program:Int, location:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_uniformi") private static function lime_gl_get_uniformi (program:Int, location:Int):Int { return 0; }
@@ -1314,10 +1315,10 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_get_vertex_attribiiv") private static function lime_gl_get_vertex_attribiiv (index:Int, pname:Int, params:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_get_vertex_attribiui") private static function lime_gl_get_vertex_attribiui (index:Int, pname:Int):Int { return 0; }
 	@:hlNative("lime", "lime_gl_get_vertex_attribiuiv") private static function lime_gl_get_vertex_attribiuiv (index:Int, pname:Int, params:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_get_vertex_attrib_pointerv") private static function lime_gl_get_vertex_attrib_pointerv (index:Int, pname:Int):DataPointer { return null; }
+	@:hlNative("lime", "lime_gl_get_vertex_attrib_pointerv") private static function lime_gl_get_vertex_attrib_pointerv (index:Int, pname:Int):DataPointer { return 0; }
 	@:hlNative("lime", "lime_gl_hint") private static function lime_gl_hint (target:Int, mode:Int):Void {}
-	@:hlNative("lime", "lime_gl_invalidate_framebuffer") private static function lime_gl_invalidate_framebuffer (target:Int, attachments:Dynamic):Void {}
-	@:hlNative("lime", "lime_gl_invalidate_sub_framebuffer") private static function lime_gl_invalidate_sub_framebuffer (target:Int, attachments:Dynamic, x:Int, y:Int, width:Int, height:Int):Void {}
+	@:hlNative("lime", "lime_gl_invalidate_framebuffer") private static function lime_gl_invalidate_framebuffer (target:Int, attachments:hl.NativeArray<Int>):Void {}
+	@:hlNative("lime", "lime_gl_invalidate_sub_framebuffer") private static function lime_gl_invalidate_sub_framebuffer (target:Int, attachments:hl.NativeArray<Int>, x:Int, y:Int, width:Int, height:Int):Void {}
 	@:hlNative("lime", "lime_gl_is_buffer") private static function lime_gl_is_buffer (buffer:Int):Bool { return false; }
 	@:hlNative("lime", "lime_gl_is_enabled") private static function lime_gl_is_enabled (cap:Int):Bool { return false; }
 	@:hlNative("lime", "lime_gl_is_framebuffer") private static function lime_gl_is_framebuffer (framebuffer:Int):Bool { return false; }
@@ -1332,10 +1333,10 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_is_vertex_array") private static function lime_gl_is_vertex_array (vertexArray:Int):Bool { return false; }
 	@:hlNative("lime", "lime_gl_line_width") private static function lime_gl_line_width (width:hl.F32):Void {}
 	@:hlNative("lime", "lime_gl_link_program") private static function lime_gl_link_program (program:Int):Void {}
-	@:hlNative("lime", "lime_gl_map_buffer_range") private static function lime_gl_map_buffer_range (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer { return null; }
-	@:hlNative("lime", "lime_gl_object_deregister") private static function lime_gl_object_deregister (object:CFFIPointer):Void {}
-	@:hlNative("lime", "lime_gl_object_from_id") private static function lime_gl_object_from_id (id:Int, type:Int):CFFIPointer { return null; }
-	@:hlNative("lime", "lime_gl_object_register") private static function lime_gl_object_register (id:Int, type:Int, object:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_gl_map_buffer_range") private static function lime_gl_map_buffer_range (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer { return 0; }
+	@:hlNative("lime", "lime_gl_object_deregister") private static function lime_gl_object_deregister (object:GLObject):Void {}
+	@:hlNative("lime", "lime_gl_object_from_id") private static function lime_gl_object_from_id (id:Int, type:Int):GLObject { return null; }
+	@:hlNative("lime", "lime_gl_object_register") private static function lime_gl_object_register (id:Int, type:Int, object:GLObject):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_gl_pause_transform_feedback") private static function lime_gl_pause_transform_feedback ():Void {}
 	@:hlNative("lime", "lime_gl_pixel_storei") private static function lime_gl_pixel_storei (pname:Int, param:Int):Void {}
 	@:hlNative("lime", "lime_gl_polygon_offset") private static function lime_gl_polygon_offset (factor:hl.F32, units:hl.F32):Void {}
@@ -1351,7 +1352,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_sampler_parameterf") private static function lime_gl_sampler_parameterf (sampler:Int, pname:Int, param:hl.F32):Void {}
 	@:hlNative("lime", "lime_gl_sampler_parameteri") private static function lime_gl_sampler_parameteri (sampler:Int, pname:Int, param:Int):Void {}
 	@:hlNative("lime", "lime_gl_scissor") private static function lime_gl_scissor (x:Int, y:Int, width:Int, height:Int):Void {}
-	@:hlNative("lime", "lime_gl_shader_binary") private static function lime_gl_shader_binary (shaders:Dynamic, binaryformat:Int, binary:DataPointer, length:Int):Void {}
+	@:hlNative("lime", "lime_gl_shader_binary") private static function lime_gl_shader_binary (shaders:hl.NativeArray<Int>, binaryformat:Int, binary:DataPointer, length:Int):Void {}
 	@:hlNative("lime", "lime_gl_shader_source") private static function lime_gl_shader_source (shader:Int, source:String):Void {}
 	@:hlNative("lime", "lime_gl_stencil_func") private static function lime_gl_stencil_func (func:Int, ref:Int, mask:Int):Void {}
 	@:hlNative("lime", "lime_gl_stencil_func_separate") private static function lime_gl_stencil_func_separate (face:Int, func:Int, ref:Int, mask:Int):Void {}
@@ -1367,7 +1368,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_tex_storage_3d") private static function lime_gl_tex_storage_3d (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void {}
 	@:hlNative("lime", "lime_gl_tex_sub_image_2d") private static function lime_gl_tex_sub_image_2d (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_tex_sub_image_3d") private static function lime_gl_tex_sub_image_3d (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {}
-	@:hlNative("lime", "lime_gl_transform_feedback_varyings") private static function lime_gl_transform_feedback_varyings (program:Int, varyings:Dynamic, bufferMode:Int):Void {}
+	@:hlNative("lime", "lime_gl_transform_feedback_varyings") private static function lime_gl_transform_feedback_varyings (program:Int, varyings:hl.NativeArray<Int>, bufferMode:Int):Void {}
 	@:hlNative("lime", "lime_gl_uniform1f") private static function lime_gl_uniform1f (location:Int, v0:hl.F32):Void {}
 	@:hlNative("lime", "lime_gl_uniform1fv") private static function lime_gl_uniform1fv (location:Int, count:Int, v:DataPointer):Void {}
 	@:hlNative("lime", "lime_gl_uniform1i") private static function lime_gl_uniform1i (location:Int, v0:Int):Void {}

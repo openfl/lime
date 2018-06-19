@@ -2776,14 +2776,14 @@ namespace lime {
 	
 	value lime_renderer_lock (value renderer) {
 		
-		return (value)((Renderer*)val_data (renderer))->Lock (true);
+		return (value)((Renderer*)val_data (renderer))->Lock (true, NULL);
 		
 	}
 	
 	
-	HL_PRIM vdynamic* hl_lime_renderer_lock (HL_CFFIPointer* renderer) {
+	HL_PRIM vdynamic* hl_lime_renderer_lock (HL_CFFIPointer* renderer, vdynamic* object) {
 		
-		return (vdynamic*)((Renderer*)renderer->ptr)->Lock (false);
+		return (vdynamic*)((Renderer*)renderer->ptr)->Lock (false, object);
 		
 	}
 	
@@ -4233,7 +4233,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_F64, lime_renderer_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, lime_renderer_get_scale, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, lime_renderer_get_type, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_renderer_lock, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, lime_renderer_lock, _TCFFIPOINTER _DYN);
 	DEFINE_HL_PRIM (_VOID, lime_renderer_make_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, lime_renderer_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, lime_renderer_unlock, _TCFFIPOINTER);

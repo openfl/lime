@@ -85,7 +85,7 @@ class Joystick {
 		
 		#if (lime_cffi && !macro)
 		#if hl
-		return @:privateAccess String.fromUCS2 (NativeCFFI.lime_joystick_get_device_guid (this.id));
+		return @:privateAccess String.fromUTF8 (NativeCFFI.lime_joystick_get_device_guid (this.id));
 		#else
 		return NativeCFFI.lime_joystick_get_device_guid (this.id);
 		#end
@@ -103,7 +103,7 @@ class Joystick {
 		
 		#if (lime_cffi && !macro)
 		#if hl
-		return @:privateAccess String.fromUCS2 (NativeCFFI.lime_joystick_get_device_name (this.id));
+		return @:privateAccess String.fromUTF8 (NativeCFFI.lime_joystick_get_device_name (this.id));
 		#else
 		return NativeCFFI.lime_joystick_get_device_name (this.id);
 		#end

@@ -468,7 +468,7 @@ class System {
 				}
 				
 				#if hl
-				path = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_directory (type, company, file));
+				path = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_directory (type, company, file));
 				#else
 				path = NativeCFFI.lime_system_get_directory (type, company, file);
 				#end
@@ -476,7 +476,7 @@ class System {
 			} else {
 				
 				#if hl
-				path = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_directory (type, null, null));
+				path = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_directory (type, null, null));
 				#else
 				path = NativeCFFI.lime_system_get_directory (type, null, null);
 				#end
@@ -721,7 +721,7 @@ class System {
 			
 			#if (windows || ios || tvos)
 			#if hl
-			__deviceModel = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_device_model ());
+			__deviceModel = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_device_model ());
 			#else
 			__deviceModel = NativeCFFI.lime_system_get_device_model ();
 			#end
@@ -756,7 +756,7 @@ class System {
 			
 			#if (windows && !html5)
 			#if hl
-			__deviceVendor = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_device_vendor ());
+			__deviceVendor = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_device_vendor ());
 			#else
 			__deviceVendor = NativeCFFI.lime_system_get_device_vendor ();
 			#end
@@ -857,7 +857,7 @@ class System {
 			
 			#if (windows && !html5)
 			#if hl
-			var label:String = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_platform_label ());
+			var label:String = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_platform_label ());
 			#else
 			var label:String = NativeCFFI.lime_system_get_platform_label ();
 			#end
@@ -925,7 +925,7 @@ class System {
 			
 			#if (windows && !html5)
 			#if hl
-			__platformVersion = @:privateAccess String.fromUCS2 (NativeCFFI.lime_system_get_platform_version ());
+			__platformVersion = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_platform_version ());
 			#else
 			__platformVersion = NativeCFFI.lime_system_get_platform_version ();
 			#end

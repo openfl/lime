@@ -3,6 +3,7 @@ package lime.graphics.opengl;
 
 import haxe.io.Bytes;
 import haxe.Int64;
+import lime.system.CFFIPointer;
 import lime.utils.ArrayBufferView;
 import lime.utils.ArrayBuffer;
 import lime.utils.BytePointer;
@@ -3128,10 +3129,12 @@ class GL {
 
 #if (!js || !html5 || display)
 @:access(lime._backend.native.NativeCFFI)
+#if hl @:keep #end
 @:dox(hide) @:noCompletion class GLObject {
 	
 	
 	private var id:Int;
+	private var ptr:CFFIPointer;
 	private var refs:Array<GLObject>;
 	
 	
@@ -3156,7 +3159,7 @@ class GL {
 		}
 		
 		object = new GLObject (id);
-		NativeCFFI.lime_gl_object_register (id, type, object);
+		object.ptr = NativeCFFI.lime_gl_object_register (id, type, object);
 		return object;
 		#else
 		return null;

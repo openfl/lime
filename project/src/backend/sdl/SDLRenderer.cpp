@@ -191,8 +191,7 @@ namespace lime {
 	}
 	
 	
-	
-	void* SDLRenderer::Lock (bool useCFFIValue) {
+	void* SDLRenderer::Lock (bool useCFFIValue, void* object) {
 		
 		if (sdlRenderer) {
 			
@@ -238,7 +237,9 @@ namespace lime {
 				const int id_pixels = hl_hash_utf8 ("pixels");
 				const int id_pitch = hl_hash_utf8 ("pitch");
 				
-				vdynamic* result = hl_alloc_dynamic (&hlt_dynobj);
+				// TODO: Allocate a new object here?
+				
+				vdynamic* result = (vdynamic*)object;
 				
 				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
 					
