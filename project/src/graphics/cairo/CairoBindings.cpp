@@ -1976,7 +1976,7 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_cairo_set_source (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
 		
-		cairo_set_source ((cairo_t*)handle->ptr, (cairo_pattern_t*)handle->ptr);
+		cairo_set_source ((cairo_t*)handle->ptr, (cairo_pattern_t*)pattern->ptr);
 		
 	}
 	
