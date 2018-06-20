@@ -19,23 +19,21 @@ namespace lime {
 		curl_off_t ultotal;
 		curl_off_t ulnow;
 		
-	}
+	};
 	
-	std::map<void*, void*> curlMultiHandles;
+	std::map<void*, CURLM*> curlMultiHandles;
 	std::map<void*, int> curlMultiRunningHandles;
 	std::map<void*, bool> curlMultiValid;
 	std::map<CURL*, void*> curlObjects;
 	std::map<void*, bool> curlValid;
 	std::map<void*, AutoGCRoot*> headerCallbacks;
 	std::map<void*, curl_slist*> headerSLists;
-	std::map<void*, AutoGCRoot*> progressCallbacks;
+	std::map<CURL*, AutoGCRoot*> progressCallbacks;
 	std::map<CURL*, CURLProgress*> progressValues;
 	std::map<CURL*, std::stringbuf*> readBuffers;
-	std::map<void*, AutoGCRoot*> readCallbacks;
+	std::map<CURL*, AutoGCRoot*> readCallbacks;
 	std::map<CURL*, std::stringbuf*> writeBuffers;
-	std::map<AutoGCRoot*, Bytes*> writeBytes;
-	std::map<AutoGCRoot*, AutoGCRoot*> writeBytesRoot;
-	std::map<void*, AutoGCRoot*> writeCallbacks;
+	std::map<CURL*, AutoGCRoot*> writeCallbacks;
 	Mutex curl_gc_mutex;
 	
 	
@@ -69,17 +67,17 @@ namespace lime {
 				
 				callback = headerCallbacks[handle];
 				
-				if (writeBytes.find (callback) != writeBytes.end ()) {
+				// if (writeBytes.find (callback) != writeBytes.end ()) {
 					
-					Bytes* _writeBytes = writeBytes[callback];
-					delete _writeBytes;
-					writeBytes.erase (callback);
+				// 	Bytes* _writeBytes = writeBytes[callback];
+				// 	delete _writeBytes;
+				// 	writeBytes.erase (callback);
 					
-					AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
-					delete _writeBytesRoot;
-					writeBytesRoot.erase (callback);
+				// 	AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
+				// 	delete _writeBytesRoot;
+				// 	writeBytesRoot.erase (callback);
 					
-				}
+				// }
 				
 				headerCallbacks.erase (handle);
 				delete callback;
@@ -114,17 +112,17 @@ namespace lime {
 				
 				callback = writeCallbacks[handle];
 				
-				if (writeBytes.find (callback) != writeBytes.end ()) {
+				// if (writeBytes.find (callback) != writeBytes.end ()) {
 					
-					Bytes* _writeBytes = writeBytes[callback];
-					delete _writeBytes;
-					writeBytes.erase (callback);
+				// 	Bytes* _writeBytes = writeBytes[callback];
+				// 	delete _writeBytes;
+				// 	writeBytes.erase (callback);
 					
-					AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
-					delete _writeBytesRoot;
-					writeBytesRoot.erase (callback);
+				// 	AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
+				// 	delete _writeBytesRoot;
+				// 	writeBytesRoot.erase (callback);
 					
-				}
+				// }
 				
 				writeCallbacks.erase (handle);
 				delete callback;
@@ -178,17 +176,17 @@ namespace lime {
 				
 				callback = headerCallbacks[handle];
 				
-				if (writeBytes.find (callback) != writeBytes.end ()) {
+				// if (writeBytes.find (callback) != writeBytes.end ()) {
 					
-					Bytes* _writeBytes = writeBytes[callback];
-					delete _writeBytes;
-					writeBytes.erase (callback);
+				// 	Bytes* _writeBytes = writeBytes[callback];
+				// 	delete _writeBytes;
+				// 	writeBytes.erase (callback);
 					
-					AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
-					delete _writeBytesRoot;
-					writeBytesRoot.erase (callback);
+				// 	AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
+				// 	delete _writeBytesRoot;
+				// 	writeBytesRoot.erase (callback);
 					
-				}
+				// }
 				
 				headerCallbacks.erase (handle);
 				delete callback;
@@ -223,17 +221,17 @@ namespace lime {
 				
 				callback = writeCallbacks[handle];
 				
-				if (writeBytes.find (callback) != writeBytes.end ()) {
+				// if (writeBytes.find (callback) != writeBytes.end ()) {
 					
-					Bytes* _writeBytes = writeBytes[callback];
-					delete _writeBytes;
-					writeBytes.erase (callback);
+				// 	Bytes* _writeBytes = writeBytes[callback];
+				// 	delete _writeBytes;
+				// 	writeBytes.erase (callback);
 					
-					AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
-					delete _writeBytesRoot;
-					writeBytesRoot.erase (callback);
+				// 	AutoGCRoot* _writeBytesRoot = writeBytesRoot[callback];
+				// 	delete _writeBytesRoot;
+				// 	writeBytesRoot.erase (callback);
 					
-				}
+				// }
 				
 				writeCallbacks.erase (handle);
 				delete callback;
@@ -364,13 +362,13 @@ namespace lime {
 		curlObjects[dup] = duphandle;
 		
 		AutoGCRoot* callback;
-		Bytes* _writeBytes;
+		// Bytes* _writeBytes;
 		
 		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 			callback = headerCallbacks[handle];
 			// _writeBytes = new Bytes (1024);
-			writeBytes[callback] = _writeBytes;
-			writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
+			// writeBytes[callback] = _writeBytes;
+			// writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
 			headerCallbacks[duphandle] = new AutoGCRoot (headerCallbacks[handle]->get());
 		}
 		
@@ -385,8 +383,8 @@ namespace lime {
 		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
 			callback = writeCallbacks[handle];
 			// _writeBytes = new Bytes (1024);
-			writeBytes[callback] = _writeBytes;
-			writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
+			// writeBytes[callback] = _writeBytes;
+			// writeBytesRoot[callback] = new AutoGCRoot ((value)_writeBytes->Value ());
 			writeCallbacks[duphandle] = new AutoGCRoot (writeCallbacks[handle]->get());
 		}
 		
@@ -461,14 +459,56 @@ namespace lime {
 		curl_gc_mutex.Lock ();
 		
 		CURL* curl = (CURL*)val_data (easy_handle);
+		int code;
+		
+		if (progressCallbacks.find (curl) != progressCallbacks.end ()) {
+			
+			CURLProgress* progress = progressValues[curl];
+			
+			value vals[] = {
+				alloc_float (progress->dltotal),
+				alloc_float (progress->dlnow),
+				alloc_float (progress->ultotal),
+				alloc_float (progress->ulnow),
+			};
+			
+			code = val_int (val_callN (progressCallbacks[curl]->get (), vals, 4));
+			
+			if (code != 0) {
+				
+				// TODO: Abort
+				
+			}
+			
+		}
+		
+		if (readCallbacks.find (curl) != readCallbacks.end ()) {
+			
+			std::stringbuf* readBuffer = readBuffers[curl];
+			
+			// TODO
+			
+			// if (buffer->in_avail () > 0) {
+				
+			// 	Bytes bytes;
+			// 	bytes.Set (val_call1 (readCallbacks[curl]->get (), alloc_int (length)));
+				
+			// 	if (bytes.Length () <= length) length = bytes.Length ();
+				
+			// 	memcpy (buffer, bytes.Data (), length);
+				
+			// }
+			
+		}
+		
 		
 		if (writeBuffers.find (curl) != writeBuffers.end ()) {
 			
 			std::stringbuf* buffer = writeBuffers[curl];
 			
-			if (buffer->in_avail > 0) {
+			if (buffer->in_avail () > 0) {
 				
-				if (writeBytes.find (curl) != writeBytes.end ()) {
+				if (writeCallbacks.find (curl) != writeCallbacks.end ()) {
 					
 					int size = 0;
 					
@@ -483,19 +523,6 @@ namespace lime {
 			}
 			
 		}
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_curl_easy_perform (HL_CFFIPointer* easy_handle) {
-		
-		int code;
-		System::GCEnterBlocking ();
-		
-		code = curl_easy_perform ((CURL*)easy_handle->ptr);
-		
-		System::GCExitBlocking ();
-		return code;
 		
 	}
 	
@@ -908,6 +935,8 @@ namespace lime {
 	
 	static size_t write_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
 		
+		// PHP: cURL, string to be written
+		
 		CURL* easy_handle = (CURL*)userp;
 		std::stringbuf* buffer = writeBuffers[easy_handle];
 		
@@ -917,7 +946,7 @@ namespace lime {
 			
 		}
 		
-		buffer->putn (ptr, size * nmemb);
+		buffer->sputn ((char*)ptr, size * nmemb);
 		return size * nmemb;
 		
 	}
@@ -925,15 +954,17 @@ namespace lime {
 	
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 		
+		// PHP: cURL, string stream (using CURLOPT_INFILE, not defined in standard cURL API, use haxe.io.Input?), max size
+		
 		CURL* easy_handle = (CURL*)userp;
 		std::stringbuf* readBuffer = readBuffers[easy_handle];
 		
 		size_t length = size * nmemb;
-		if (length > readBuffer->in_avail) length = readBuffer->in_avail;
+		if (length > readBuffer->in_avail ()) length = readBuffer->in_avail ();
 		
 		if (length > 0) {
 			
-			readBuffer->sgetn (buffer, length);
+			readBuffer->sgetn ((char*)buffer, length);
 			
 		}
 		
@@ -958,7 +989,7 @@ namespace lime {
 	int lime_curl_easy_setopt (value handle, int option, value parameter, value bytes) {
 		
 		CURLcode code = CURLE_OK;
-		CURL* curl = (CURL*)val_data(handle);
+		CURL* easy_handle = (CURL*)val_data(handle);
 		CURLoption type = (CURLoption)option;
 		
 		switch (type) {
@@ -1013,7 +1044,7 @@ namespace lime {
 			case CURLOPT_SUPPRESS_CONNECT_HEADERS:
 			case CURLOPT_SSH_COMPRESSION:
 				
-				code = curl_easy_setopt (curl, type, val_bool (parameter));
+				code = curl_easy_setopt (easy_handle, type, val_bool (parameter));
 				break;
 			
 			case CURLOPT_SSL_VERIFYHOST:
@@ -1079,7 +1110,7 @@ namespace lime {
 			case CURLOPT_PROXY_SSL_OPTIONS:
 			case CURLOPT_SOCKS5_AUTH:
 				
-				code = curl_easy_setopt (curl, type, val_int (parameter));
+				code = curl_easy_setopt (easy_handle, type, val_int (parameter));
 				break;
 			
 			case CURLOPT_POSTFIELDSIZE_LARGE:
@@ -1089,7 +1120,7 @@ namespace lime {
 			case CURLOPT_MAX_SEND_SPEED_LARGE:
 			case CURLOPT_MAX_RECV_SPEED_LARGE:
 				
-				code = curl_easy_setopt (curl, type, val_float (parameter));
+				code = curl_easy_setopt (easy_handle, type, val_float (parameter));
 				break;
 			
 			case CURLOPT_ERRORBUFFER:
@@ -1171,7 +1202,7 @@ namespace lime {
 			case CURLOPT_ABSTRACT_UNIX_SOCKET:
 			case CURLOPT_REQUEST_TARGET:
 				
-				code = curl_easy_setopt (curl, type, val_string (parameter));
+				code = curl_easy_setopt (easy_handle, type, val_string (parameter));
 				break;
 			
 			case CURLOPT_IOCTLFUNCTION:
@@ -1184,8 +1215,6 @@ namespace lime {
 			case CURLOPT_OPENSOCKETDATA:
 			case CURLOPT_CLOSESOCKETFUNCTION:
 			case CURLOPT_CLOSESOCKETDATA:
-			case CURLOPT_XFERINFOFUNCTION:
-			//case CURLOPT_XFERINFODATA:
 			case CURLOPT_DEBUGFUNCTION:
 			case CURLOPT_DEBUGDATA:
 			case CURLOPT_SSL_CTX_FUNCTION:
@@ -1231,9 +1260,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
-				readCallbacks[handle] = callback;
-				code = curl_easy_setopt (curl, type, read_callback);
-				curl_easy_setopt (curl, CURLOPT_READDATA, callback);
+				readCallbacks[easy_handle] = callback;
+				code = curl_easy_setopt (easy_handle, type, read_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_READDATA, easy_handle);
 				curl_gc_mutex.Unlock ();
 				break;
 			}
@@ -1241,12 +1270,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
-				writeCallbacks[handle] = callback;
-				Bytes* _writeBytes = new Bytes (bytes);
-				writeBytes[callback] = _writeBytes;
-				writeBytesRoot[callback] = new AutoGCRoot (bytes);
-				code = curl_easy_setopt (curl, type, write_callback);
-				curl_easy_setopt (curl, CURLOPT_WRITEDATA, callback);
+				writeCallbacks[easy_handle] = callback;
+				code = curl_easy_setopt (easy_handle, type, write_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_WRITEDATA, easy_handle);
 				curl_gc_mutex.Unlock ();
 				break;
 			}
@@ -1254,25 +1280,23 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
-				headerCallbacks[handle] = callback;
-				Bytes* _writeBytes = new Bytes (bytes);
-				writeBytes[callback] = _writeBytes;
-				writeBytesRoot[callback] = new AutoGCRoot (bytes);
-				code = curl_easy_setopt (curl, type, write_callback);
-				curl_easy_setopt (curl, CURLOPT_HEADERDATA, callback);
+				headerCallbacks[easy_handle] = callback;
+				code = curl_easy_setopt (easy_handle, type, write_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_HEADERDATA, easy_handle);
 				curl_gc_mutex.Unlock ();
 				break;
 			}
 			case CURLOPT_PROGRESSFUNCTION:
+			case CURLOPT_XFERINFOFUNCTION:
 			{
 				// TODO: Use XFERINFO instead
 				
 				curl_gc_mutex.Lock ();
 				AutoGCRoot* callback = new AutoGCRoot (parameter);
-				progressCallbacks[handle] = callback;
-				code = curl_easy_setopt (curl, type, progress_callback);
-				curl_easy_setopt (curl, CURLOPT_PROGRESSDATA, callback);
-				curl_easy_setopt (curl, CURLOPT_NOPROGRESS, false);
+				progressCallbacks[easy_handle] = callback;
+				code = curl_easy_setopt (easy_handle, CURLOPT_XFERINFOFUNCTION, progress_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_XFERINFODATA, easy_handle);
+				curl_easy_setopt (easy_handle, CURLOPT_NOPROGRESS, false);
 				curl_gc_mutex.Unlock ();
 				break;
 			}
@@ -1280,6 +1304,7 @@ namespace lime {
 			case CURLOPT_HTTPHEADER:
 			{
 				curl_gc_mutex.Lock ();
+				
 				if (headerSLists.find (handle) != headerSLists.end ()) {
 					
 					curl_slist_free_all (headerSLists[handle]);
@@ -1297,7 +1322,7 @@ namespace lime {
 				
 				headerSLists[handle] = chunk;
 				
-				code = curl_easy_setopt (curl, type, chunk);
+				code = curl_easy_setopt (easy_handle, type, chunk);
 				curl_gc_mutex.Unlock ();
 				break;
 			}
@@ -1316,7 +1341,7 @@ namespace lime {
 	HL_PRIM int hl_lime_curl_easy_setopt (HL_CFFIPointer* handle, int option, vdynamic* parameter, Bytes* bytes) {
 		
 		CURLcode code = CURLE_OK;
-		CURL* curl = (CURL*)handle->ptr;
+		CURL* easy_handle = (CURL*)handle->ptr;
 		CURLoption type = (CURLoption)option;
 		
 		switch (type) {
@@ -1371,7 +1396,7 @@ namespace lime {
 			case CURLOPT_SUPPRESS_CONNECT_HEADERS:
 			case CURLOPT_SSH_COMPRESSION:
 				
-				code = curl_easy_setopt (curl, type, parameter->v.b);
+				code = curl_easy_setopt (easy_handle, type, parameter->v.b);
 				break;
 			
 			case CURLOPT_SSL_VERIFYHOST:
@@ -1437,7 +1462,7 @@ namespace lime {
 			case CURLOPT_PROXY_SSL_OPTIONS:
 			case CURLOPT_SOCKS5_AUTH:
 				
-				code = curl_easy_setopt (curl, type, parameter->v.i);
+				code = curl_easy_setopt (easy_handle, type, parameter->v.i);
 				break;
 			
 			case CURLOPT_POSTFIELDSIZE_LARGE:
@@ -1447,7 +1472,7 @@ namespace lime {
 			case CURLOPT_MAX_SEND_SPEED_LARGE:
 			case CURLOPT_MAX_RECV_SPEED_LARGE:
 				
-				code = curl_easy_setopt (curl, type, parameter->v.f);
+				code = curl_easy_setopt (easy_handle, type, parameter->v.f);
 				break;
 			
 			case CURLOPT_ERRORBUFFER:
@@ -1529,7 +1554,7 @@ namespace lime {
 			case CURLOPT_ABSTRACT_UNIX_SOCKET:
 			case CURLOPT_REQUEST_TARGET:
 				
-				code = curl_easy_setopt (curl, type, hl_to_utf8 ((const uchar*)parameter->v.bytes));
+				code = curl_easy_setopt (easy_handle, type, hl_to_utf8 ((const uchar*)parameter->v.bytes));
 				break;
 			
 			case CURLOPT_IOCTLFUNCTION:
@@ -1542,8 +1567,6 @@ namespace lime {
 			case CURLOPT_OPENSOCKETDATA:
 			case CURLOPT_CLOSESOCKETFUNCTION:
 			case CURLOPT_CLOSESOCKETDATA:
-			case CURLOPT_XFERINFOFUNCTION:
-			//case CURLOPT_XFERINFODATA:
 			case CURLOPT_DEBUGFUNCTION:
 			case CURLOPT_DEBUGDATA:
 			case CURLOPT_SSL_CTX_FUNCTION:
