@@ -290,6 +290,11 @@ class AL {
 	
 	public static function auxfv(aux:CFFIPointer, param:Int, values:Array<Float>):Void {
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<hl.F32> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_auxfv (aux, param, values);
 		#end
 	}
@@ -304,6 +309,11 @@ class AL {
 	
 	public static function auxiv(aux:CFFIPointer, param:Int, values:Array<Int>):Void {
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<Int> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_auxiv (aux, param, values);
 		#end
 	}
@@ -348,6 +358,11 @@ class AL {
 	public static function bufferfv (buffer:ALBuffer, param:Int, values:Array<Float>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<hl.F32> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_bufferfv (buffer, param, values);
 		#end
 		
@@ -366,6 +381,11 @@ class AL {
 	public static function bufferiv (buffer:ALBuffer, param:Int, values:Array<Int>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<Int> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_bufferiv (buffer, param, values);
 		#end
 		
@@ -433,6 +453,11 @@ class AL {
 	public static function deleteBuffers (buffers:Array<ALBuffer>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _buffers = new hl.NativeArray<ALBuffer> (buffers.length);
+		for (i in 0...buffers.length) _buffers[i] = buffers[i];
+		var buffers = _buffers;
+		#end
 		NativeCFFI.lime_al_delete_buffers (buffers.length, buffers);
 		#end
 		
@@ -451,6 +476,11 @@ class AL {
 	public static function deleteSources (sources:Array<ALSource>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _sources = new hl.NativeArray<ALSource> (sources.length);
+		for (i in 0...sources.length) _sources[i] = sources[i];
+		var sources = _sources;
+		#end
 		NativeCFFI.lime_al_delete_sources (sources.length, sources);
 		#end
 		
@@ -502,6 +532,11 @@ class AL {
 	
 	public static function effectfv(effect:CFFIPointer, param:Int, values:Array<Float>):Void {
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<hl.F32> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_effectfv (effect, param, values);
 		#end
 	}
@@ -516,6 +551,11 @@ class AL {
 	
 	public static function effectiv(effect:CFFIPointer, param:Int, values:Array<Int>):Void {
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<Int> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_effectiv (effect, param, values);
 		#end
 	}
@@ -544,7 +584,15 @@ class AL {
 	public static function genSources (n:Int):Array<ALSource> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_gen_sources (n);
+		var result = NativeCFFI.lime_al_gen_sources (n);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -566,7 +614,15 @@ class AL {
 	public static function genBuffers (n:Int):Array<ALBuffer> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_gen_buffers (n);
+		var result = NativeCFFI.lime_al_gen_buffers (n);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -588,7 +644,15 @@ class AL {
 	public static function getBooleanv (param:Int, count:Int = 1):Array<Bool> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_booleanv (param, 1);
+		var result = NativeCFFI.lime_al_get_booleanv (param, 1);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -599,7 +663,15 @@ class AL {
 	public static function getBuffer3f (buffer:ALBuffer, param:Int):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_buffer3f (buffer, param);
+		var result = NativeCFFI.lime_al_get_buffer3f (buffer, param);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -610,7 +682,15 @@ class AL {
 	public static function getBuffer3i (buffer:ALBuffer, param:Int):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_buffer3i (buffer, param);
+		var result = NativeCFFI.lime_al_get_buffer3i (buffer, param);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -632,7 +712,15 @@ class AL {
 	public static function getBufferfv (buffer:ALBuffer, param:Int, count:Int = 1):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_bufferfv (buffer, param, count);
+		var result = NativeCFFI.lime_al_get_bufferfv (buffer, param, count);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -654,7 +742,15 @@ class AL {
 	public static function getBufferiv (buffer:ALBuffer, param:Int, count:Int = 1):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_bufferiv (buffer, param, count);
+		var result = NativeCFFI.lime_al_get_bufferiv (buffer, param, count);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -676,7 +772,15 @@ class AL {
 	public static function getDoublev (param:Int, count:Int = 1):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_doublev (param, count);
+		var result = NativeCFFI.lime_al_get_doublev (param, count);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -745,7 +849,15 @@ class AL {
 	public static function getFloatv (param:Int, count:Int = 1):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_floatv (param, count);
+		var result = NativeCFFI.lime_al_get_floatv (param, count);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -767,7 +879,15 @@ class AL {
 	public static function getIntegerv (param:Int, count:Int = 1):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_integerv (param, count);
+		var result = NativeCFFI.lime_al_get_integerv (param, count);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -778,7 +898,15 @@ class AL {
 	public static function getListener3f (param:Int):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_listener3f (param);
+		var result = NativeCFFI.lime_al_get_listener3f (param);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -789,7 +917,15 @@ class AL {
 	public static function getListener3i (param:Int):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_listener3i (param);
+		var result = NativeCFFI.lime_al_get_listener3i (param);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -811,7 +947,15 @@ class AL {
 	public static function getListenerfv (param:Int, count:Int = 1):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_listenerfv (param, count);
+		var result = NativeCFFI.lime_al_get_listenerfv (param, count);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -833,7 +977,15 @@ class AL {
 	public static function getListeneriv (param:Int, count:Int = 1):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_listeneriv (param, count);
+		var result = NativeCFFI.lime_al_get_listeneriv (param, count);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -863,7 +1015,15 @@ class AL {
 	public static function getSource3f (source:ALSource, param:Int):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_source3f (source, param);
+		var result = NativeCFFI.lime_al_get_source3f (source, param);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -885,7 +1045,15 @@ class AL {
 	public static function getSource3i (source:ALSource, param:Int):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_source3i (source, param);
+		var result = NativeCFFI.lime_al_get_source3i (source, param);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -896,7 +1064,15 @@ class AL {
 	public static function getSourcefv (source:ALSource, param:Int, count:Int = 1):Array<Float> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_sourcefv (source, param, count);
+		var result = NativeCFFI.lime_al_get_sourcefv (source, param, count);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -918,7 +1094,15 @@ class AL {
 	public static function getSourceiv (source:ALSource, param:Int, count:Int = 1):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_sourceiv (source, param, count);
+		var result = NativeCFFI.lime_al_get_sourceiv (source, param, count);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -929,7 +1113,11 @@ class AL {
 	public static function getString (param:Int):String {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_get_string (param);
+		var result = NativeCFFI.lime_al_get_string (param);
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
@@ -1044,6 +1232,11 @@ class AL {
 	public static function listenerfv (param:Int, values:Array<Float>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<hl.F32> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_listenerfv (param, values);
 		#end
 		
@@ -1062,6 +1255,11 @@ class AL {
 	public static function listeneriv (param:Int, values:Array<Int>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<Int> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_listeneriv (param, values);
 		#end
 		
@@ -1098,6 +1296,11 @@ class AL {
 	public static function sourcefv (source:ALSource, param:Int, values:Array<Float>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<hl.F32> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_sourcefv (source, param, values);
 		#end	
 		
@@ -1129,6 +1332,11 @@ class AL {
 	public static function sourceiv (source:ALSource, param:Int, values:Array<Int>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _values = new hl.NativeArray<Int> (values.length);
+		for (i in 0...values.length) _values[i] = values[i];
+		var values = _values;
+		#end
 		NativeCFFI.lime_al_sourceiv (source, param, values);
 		#end
 		
@@ -1147,6 +1355,11 @@ class AL {
 	public static function sourcePlayv (sources:Array<ALSource>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _sources = new hl.NativeArray<ALSource> (sources.length);
+		for (i in 0...sources.length) _sources[i] = sources[i];
+		var sources = _sources;
+		#end
 		NativeCFFI.lime_al_source_playv (sources.length, sources);
 		#end
 		
@@ -1165,6 +1378,11 @@ class AL {
 	public static function sourceStopv (sources:Array<ALSource>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _sources = new hl.NativeArray<ALSource> (sources.length);
+		for (i in 0...sources.length) _sources[i] = sources[i];
+		var sources = _sources;
+		#end
 		NativeCFFI.lime_al_source_stopv (sources.length, sources);
 		#end
 		
@@ -1183,6 +1401,11 @@ class AL {
 	public static function sourceRewindv (sources:Array<ALSource>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _sources = new hl.NativeArray<ALSource> (sources.length);
+		for (i in 0...sources.length) _sources[i] = sources[i];
+		var sources = _sources;
+		#end
 		NativeCFFI.lime_al_source_rewindv (sources.length, sources);
 		#end
 		
@@ -1201,6 +1424,11 @@ class AL {
 	public static function sourcePausev (sources:Array<ALSource>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _sources = new hl.NativeArray<ALSource> (sources.length);
+		for (i in 0...sources.length) _sources[i] = sources[i];
+		var sources = _sources;
+		#end
 		NativeCFFI.lime_al_source_pausev (sources.length, sources);
 		#end
 		
@@ -1210,7 +1438,12 @@ class AL {
 	public static function sourceQueueBuffer (source:ALSource, buffer:ALBuffer):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var buffers:hl.NativeArray<ALBuffer> = new hl.NativeArray<ALBuffer> (1);
+		buffers[0] = buffer;
+		#else
 		var buffers:Array<ALBuffer> = [ buffer ];
+		#end
 		NativeCFFI.lime_al_source_queue_buffers (source, 1, buffers);
 		#end
 		
@@ -1220,6 +1453,11 @@ class AL {
 	public static function sourceQueueBuffers (source:ALSource, nb:Int, buffers:Array<ALBuffer>):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _buffers = new hl.NativeArray<ALBuffer> (buffers.length);
+		for (i in 0...buffers.length) _buffers[i] = buffers[i];
+		var buffers = _buffers;
+		#end
 		NativeCFFI.lime_al_source_queue_buffers (source, nb, buffers);
 		#end
 		
@@ -1241,7 +1479,15 @@ class AL {
 	public static function sourceUnqueueBuffers (source:ALSource, nb:Int):Array<ALBuffer> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_al_source_unqueue_buffers (source, nb);
+		var result = NativeCFFI.lime_al_source_unqueue_buffers (source, nb);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end

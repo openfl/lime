@@ -56,6 +56,11 @@ abstract Locale(String) from String to String {
 	}
 	
 	
+	#if hl
+	@:hlNative("lime", "lime_locale_get_system_locale") private static function lime_locale_get_system_locale ():hl.Bytes { return null; }
+	#end
+	
+	
 	private static function __init ():Void {
 		
 		if (__systemLocale == null) {
@@ -79,7 +84,12 @@ abstract Locale(String) from String to String {
 			
 			#elseif (lime_cffi && !macro)
 			
+			#if hl
+			var _locale = lime_locale_get_system_locale ();
+			locale = _locale != null ? @:privateAccess String.fromUTF8 (_locale) : null;
+			#else
 			locale = CFFI.load ("lime", "lime_locale_get_system_locale", 0) ();
+			#end
 			
 			#end
 			

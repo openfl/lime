@@ -52,7 +52,15 @@ class ALC {
 	public static function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		var handle:Dynamic = NativeCFFI.lime_alc_create_context (device, attrlist);
+		#if hl
+		var _attrlist = null;
+		if (attrlist != null) {
+			_attrlist = new hl.NativeArray<Int> (attrlist.length);
+			for (i in 0...attrlist.length) _attrlist[i] = attrlist[i];
+		}
+		var attrlist = _attrlist;
+		#end
+		var handle = NativeCFFI.lime_alc_create_context (device, attrlist);
 		
 		if (handle != null) {
 			
@@ -142,7 +150,15 @@ class ALC {
 	public static function getIntegerv (device:ALDevice, param:Int, size:Int):Array<Int> {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_alc_get_integerv (device, param, size);
+		var result = NativeCFFI.lime_alc_get_integerv (device, param, size);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length) _result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
 		#else
 		return null;
 		#end
@@ -153,7 +169,11 @@ class ALC {
 	public static function getString (device:ALDevice, param:Int):String {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		return NativeCFFI.lime_alc_get_string (device, param);
+		var result = NativeCFFI.lime_alc_get_string (device, param);
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
@@ -175,7 +195,7 @@ class ALC {
 	public static function openDevice (deviceName:String = null):ALDevice {
 		
 		#if (lime_cffi && lime_openal && !macro)
-		var handle:Dynamic = NativeCFFI.lime_alc_open_device (deviceName);
+		var handle = NativeCFFI.lime_alc_open_device (deviceName);
 		
 		if (handle != null) {
 			

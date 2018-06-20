@@ -181,6 +181,22 @@ namespace lime {
 	}
 	
 	
+	std::wstring* hxstring_to_wstring (hl_vstring* val) {
+		
+		if (val) {
+			
+			std::string _val = std::string (hl_to_utf8 (val->bytes));
+			return new std::wstring (_val.begin (), _val.end ());
+			
+		} else {
+			
+			return 0;
+			
+		}
+		
+	}
+	
+	
 	value lime_application_create () {
 		
 		Application* application = CreateApplication ();
@@ -563,12 +579,6 @@ namespace lime {
 		if (Clipboard::HasText ()) {
 			
 			const char* text = Clipboard::GetText ();
-			// char* _text = malloc (strlen (text) + 1);
-			// strpy (text, _text);
-			
-			// // TODO: Should we free for all backends? (SDL requires it)
-			
-			// free ((char*)text);
 			return (vbyte*)text;
 			
 		} else {
@@ -702,7 +712,6 @@ namespace lime {
 			
 		} else {
 			
-			delete path;
 			return alloc_null ();
 			
 		}
@@ -716,34 +725,36 @@ namespace lime {
 	
 	HL_PRIM vbyte* hl_lime_file_dialog_open_directory (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
-		// #ifdef LIME_TINYFILEDIALOGS
+		#ifdef LIME_TINYFILEDIALOGS
 		
-		// std::wstring* _title = hxstring_to_wstring (title);
-		// std::wstring* _filter = hxstring_to_wstring (filter);
-		// std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		std::wstring* _title = hxstring_to_wstring (title);
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		// std::wstring* path = FileDialog::OpenDirectory (_title, _filter, _defaultPath);
+		std::wstring* path = FileDialog::OpenDirectory (_title, _filter, _defaultPath);
 		
-		// if (_title) delete _title;
-		// if (_filter) delete _filter;
-		// if (_defaultPath) delete _defaultPath;
+		if (_title) delete _title;
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
-		// if (path) {
+		if (path) {
 			
-		// 	value _path = alloc_wstring (path->c_str ());
-		// 	delete path;
-		// 	return _path;
+			int size = std::wcslen (path->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, path->c_str (), size);
+			delete path;
 			
-		// } else {
+			return (vbyte*)result;
 			
-		// 	delete path;
-		// 	return alloc_null ();
+		} else {
 			
-		// }
+			return NULL;
+			
+		}
 		
-		// #endif
+		#endif
 		
-		return 0;
+		return NULL;
 		
 	}
 	
@@ -770,7 +781,6 @@ namespace lime {
 			
 		} else {
 			
-			delete path;
 			return alloc_null ();
 			
 		}
@@ -784,34 +794,36 @@ namespace lime {
 	
 	HL_PRIM vbyte* hl_lime_file_dialog_open_file (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
-		// #ifdef LIME_TINYFILEDIALOGS
+		#ifdef LIME_TINYFILEDIALOGS
 		
-		// std::wstring* _title = hxstring_to_wstring (title);
-		// std::wstring* _filter = hxstring_to_wstring (filter);
-		// std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		std::wstring* _title = hxstring_to_wstring (title);
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		// std::wstring* path = FileDialog::OpenFile (_title, _filter, _defaultPath);
+		std::wstring* path = FileDialog::OpenFile (_title, _filter, _defaultPath);
 		
-		// if (_title) delete _title;
-		// if (_filter) delete _filter;
-		// if (_defaultPath) delete _defaultPath;
+		if (_title) delete _title;
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
-		// if (path) {
+		if (path) {
 			
-		// 	value _path = alloc_wstring (path->c_str ());
-		// 	delete path;
-		// 	return _path;
+			int size = std::wcslen (path->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, path->c_str (), size);
+			delete path;
 			
-		// } else {
+			return (vbyte*)result;
 			
-		// 	delete path;
-		// 	return alloc_null ();
+		} else {
 			
-		// }
+			return NULL;
+			
+		}
 		
-		// #endif
+		#endif
 		
-		return 0;
+		return NULL;
 		
 	}
 	
@@ -851,33 +863,38 @@ namespace lime {
 	
 	HL_PRIM hl_varray* hl_lime_file_dialog_open_files (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
-		// #ifdef LIME_TINYFILEDIALOGS
+		#ifdef LIME_TINYFILEDIALOGS
 		
-		// std::wstring* _title = hxstring_to_wstring (title);
-		// std::wstring* _filter = hxstring_to_wstring (filter);
-		// std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		std::wstring* _title = hxstring_to_wstring (title);
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		// std::vector<std::wstring*> files;
+		std::vector<std::wstring*> files;
 		
-		// FileDialog::OpenFiles (&files, _title, _filter, _defaultPath);
-		// value result = alloc_array (files.size ());
+		FileDialog::OpenFiles (&files, _title, _filter, _defaultPath);
+		hl_varray* result = (hl_varray*)hl_alloc_array (&hlt_bytes, files.size ());
+		vbyte** resultData = hl_aptr (result, vbyte*);
 		
-		// if (_title) delete _title;
-		// if (_filter) delete _filter;
-		// if (_defaultPath) delete _defaultPath;
+		if (_title) delete _title;
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
-		// for (int i = 0; i < files.size (); i++) {
+		for (int i = 0; i < files.size (); i++) {
 			
-		// 	val_array_set_i (result, i, alloc_wstring (files[i]->c_str ()));
-		// 	delete files[i];
+			int size = std::wcslen (files[i]->c_str ());
+			char* _file = (char*)malloc (size);
+			std::wcstombs (_file, files[i]->c_str (), size);
 			
-		// }
+			*resultData++ = (vbyte*)_file;
+			delete files[i];
+			
+		}
 		
-		// #else
-		// value result = alloc_array (0);
-		// #endif
+		#else
+		hl_varray* result = hl_alloc_array (&hlt_bytes, 0);
+		#endif
 		
-		return 0;
+		return result;
 		
 	}
 	
@@ -904,7 +921,6 @@ namespace lime {
 			
 		} else {
 			
-			delete path;
 			return alloc_null ();
 			
 		}
@@ -918,34 +934,36 @@ namespace lime {
 	
 	HL_PRIM vbyte* hl_lime_file_dialog_save_file (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 		
-		// #ifdef LIME_TINYFILEDIALOGS
+		#ifdef LIME_TINYFILEDIALOGS
 		
-		// std::wstring* _title = hxstring_to_wstring (title);
-		// std::wstring* _filter = hxstring_to_wstring (filter);
-		// std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
+		std::wstring* _title = hxstring_to_wstring (title);
+		std::wstring* _filter = hxstring_to_wstring (filter);
+		std::wstring* _defaultPath = hxstring_to_wstring (defaultPath);
 		
-		// std::wstring* path = FileDialog::SaveFile (_title, _filter, _defaultPath);
+		std::wstring* path = FileDialog::SaveFile (_title, _filter, _defaultPath);
 		
-		// if (_title) delete _title;
-		// if (_filter) delete _filter;
-		// if (_defaultPath) delete _defaultPath;
+		if (_title) delete _title;
+		if (_filter) delete _filter;
+		if (_defaultPath) delete _defaultPath;
 		
-		// if (path) {
+		if (path) {
 			
-		// 	value _path = alloc_wstring (path->c_str ());
-		// 	delete path;
-		// 	return _path;
+			int size = std::wcslen (path->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, path->c_str (), size);
+			delete path;
 			
-		// } else {
+			return (vbyte*)result;
 			
-		// 	delete path;
-		// 	return alloc_null ();
+		} else {
 			
-		// }
+			return NULL;
+			
+		}
 		
-		// #endif
+		#endif
 		
-		return 0;
+		return NULL;
 		
 	}
 	
@@ -1595,9 +1613,6 @@ namespace lime {
 		
 		if (guid) {
 			
-			// value result = alloc_string (guid);
-			// delete guid;
-			// return result;
 			return (vbyte*)guid;
 			
 		} else {
@@ -2412,12 +2427,13 @@ namespace lime {
 			
 		} else {
 			
-			// value result = alloc_string (locale->c_str ());
-			// delete locale;
+			int size = locale->size ();
+			char* _locale = (char*)malloc (size + 1);
+			strncpy (_locale, locale->c_str (), size);
+			_locale[size] = '\0';
+			delete locale;
 			
-			// TODO: Copy string
-			
-			return (vbyte*)locale->c_str ();
+			return (vbyte*)_locale;
 			
 		}
 		
@@ -2894,12 +2910,12 @@ namespace lime {
 		
 		if (model) {
 			
-			// TODO: Copy string
-			return (vbyte*)model->c_str ();
+			int size = std::wcslen (model->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, model->c_str (), size);
+			delete model;
 			
-			// value result = alloc_wstring (model->c_str ());
-			// delete model;
-			// return result;
+			return (vbyte*)result;
 			
 		} else {
 			
@@ -2935,12 +2951,12 @@ namespace lime {
 		
 		if (vendor) {
 			
-			// TODO: Copy string
-			return (vbyte*)vendor->c_str ();
+			int size = std::wcslen (vendor->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, vendor->c_str (), size);
+			delete vendor;
 			
-			// value result = alloc_wstring (vendor->c_str ());
-			// delete vendor;
-			// return result;
+			return (vbyte*)result;
 			
 		} else {
 			
@@ -2976,12 +2992,12 @@ namespace lime {
 		
 		if (path) {
 			
-			// TODO: Copy string
-			return (vbyte*)path->c_str ();
+			int size = std::wcslen (path->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, path->c_str (), size);
+			delete path;
 			
-			// value result = alloc_wstring (path->c_str ());
-			// delete path;
-			// return result;
+			return (vbyte*)result;
 			
 		} else {
 			
@@ -3068,12 +3084,12 @@ namespace lime {
 		
 		if (label) {
 			
-			// TODO: Copy string
-			return (vbyte*)label->c_str ();
+			int size = std::wcslen (label->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, label->c_str (), size);
+			delete label;
 			
-			// value result = alloc_wstring (label->c_str ());
-			// delete label;
-			// return result;
+			return (vbyte*)result;
 			
 		} else {
 			
@@ -3109,12 +3125,12 @@ namespace lime {
 		
 		if (name) {
 			
-			// TODO: Copy string
-			return (vbyte*)name->c_str ();
+			int size = std::wcslen (name->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, name->c_str (), size);
+			delete name;
 			
-			// value result = alloc_wstring (name->c_str ());
-			// delete name;
-			// return result;
+			return (vbyte*)result;
 			
 		} else {
 			
@@ -3150,12 +3166,12 @@ namespace lime {
 		
 		if (version) {
 			
-			// TODO: Copy string
-			return (vbyte*)version->c_str ();
+			int size = std::wcslen (version->c_str ());
+			char* result = (char*)malloc (size);
+			std::wcstombs (result, version->c_str (), size);
+			delete version;
 			
-			// value result = alloc_wstring (version->c_str ());
-			// delete version;
-			// return result;
+			return (vbyte*)result;
 			
 		} else {
 			
@@ -3845,16 +3861,6 @@ namespace lime {
 		
 		if (result) {
 			
-			// value _result = alloc_string (result);
-			
-			// if (result != title.c_str ()) {
-				
-			// 	free ((char*) result);
-				
-			// }
-			
-			// return _result;
-			//return (vbyte*)result;
 			return title;
 			
 		} else {
@@ -4085,7 +4091,6 @@ namespace lime {
 	#define _ENUM "?"
 	// #define _TCFFIPOINTER _ABSTRACT (HL_CFFIPointer)
 	#define _TAPPLICATION_EVENT _OBJ (_I32 _I32)
-	#define _TARRAYBUFFER _TBYTES
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
@@ -4104,6 +4109,7 @@ namespace lime {
 	#define _TVORBISFILE _OBJ (_I32 _DYN)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
 	
+	#define _TARRAYBUFFER _TBYTES
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
 	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _DYN _DYN _TVORBISFILE)
 	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
