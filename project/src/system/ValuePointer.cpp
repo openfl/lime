@@ -92,11 +92,120 @@ namespace lime {
 	}
 	
 	
-	void* ValuePointer::Call (void* arg0) { return 0; }
-	void* ValuePointer::Call (void* arg0, void* arg1) { return 0; }
-	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2) { return 0; }
-	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2, void* arg3) { return 0; }
-	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2, void* arg3, void* arg4) { return 0; }
+	void* ValuePointer::Call (void* arg0) {
+		
+		if (!hlValue) {
+			
+			return val_call1 ((value)Get (), (value)arg0);
+			
+		} else {
+			
+			return hl_dyn_call ((vclosure*)hlValue, &((vdynamic*)arg0), 1);
+			
+		}
+		
+	}
+	
+	
+	void* ValuePointer::Call (void* arg0, void* arg1) {
+		
+		if (!hlValue) {
+			
+			return val_call2 ((value)Get (), (value)arg0, (value)arg1);
+			
+		} else {
+			
+			vdynamic* args[] = {
+				(vdynamic*)arg0,
+				(vdynamic*)arg1,
+			};
+			
+			return hl_dyn_call ((vclosure*)hlValue, (vdynamic**)&args, 2);
+			
+		}
+		
+	}
+	
+	
+	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2) {
+		
+		if (!hlValue) {
+			
+			return val_call3 ((value)Get (), (value)arg0, (value)arg1, (value)arg2);
+			
+		} else {
+			
+			vdynamic* args[] = {
+				(vdynamic*)arg0,
+				(vdynamic*)arg1,
+				(vdynamic*)arg2,
+			};
+			
+			return hl_dyn_call ((vclosure*)hlValue, (vdynamic**)&args, 3);
+			
+		}
+		
+	}
+	
+	
+	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2, void* arg3) {
+		
+		if (!hlValue) {
+			
+			value vals[] = {
+				(value)arg0,
+				(value)arg1,
+				(value)arg2,
+				(value)arg3,
+			};
+			
+			return val_callN ((value)Get (), vals, 4);
+			
+		} else {
+			
+			vdynamic* args[] = {
+				(vdynamic*)arg0,
+				(vdynamic*)arg1,
+				(vdynamic*)arg2,
+				(vdynamic*)arg3,
+			};
+			
+			return hl_dyn_call ((vclosure*)hlValue, (vdynamic**)&args, 4);
+			
+		}
+		
+	}
+	
+	
+	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2, void* arg3, void* arg4) {
+		
+		if (!hlValue) {
+			
+			value vals[] = {
+				(value)arg0,
+				(value)arg1,
+				(value)arg2,
+				(value)arg3,
+				(value)arg4,
+			};
+			
+			return val_callN ((value)Get (), vals, 5);
+			
+		} else {
+			
+			vdynamic* args[] = {
+				(vdynamic*)arg0,
+				(vdynamic*)arg1,
+				(vdynamic*)arg2,
+				(vdynamic*)arg3,
+				(vdynamic*)arg4,
+			};
+			
+			return hl_dyn_call ((vclosure*)hlValue, (vdynamic**)&args, 5);
+			
+		}
+		
+	}
 	
 	
 	void* ValuePointer::Get () const {

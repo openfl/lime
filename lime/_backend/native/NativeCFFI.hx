@@ -858,18 +858,16 @@ class NativeCFFI {
 	#end
 	
 	#if (lime_cffi && !macro && lime_curl)
+	#if !hl
 	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
 	@:cffi private static function lime_curl_global_cleanup ():Void;
-	#if !hl
 	@:cffi private static function lime_curl_global_init (flags:Int):Int;
-	#else
-	private static function lime_curl_global_init (flags:Int):Int { return 0; }
-	#end
 	@:cffi private static function lime_curl_version ():Dynamic;
 	@:cffi private static function lime_curl_version_info (type:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_cleanup (handle:CFFIPointer):Void;
 	@:cffi private static function lime_curl_easy_duphandle (handle:CFFIPointer):CFFIPointer;
 	@:cffi private static function lime_curl_easy_escape (curl:CFFIPointer, url:String, length:Int):Dynamic;
+	@:cffi private static function lime_curl_easy_flush (curl:CFFIPointer):Void;
 	@:cffi private static function lime_curl_easy_getinfo (curl:CFFIPointer, info:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_init ():CFFIPointer;
 	@:cffi private static function lime_curl_easy_pause (handle:CFFIPointer, bitmask:Int):Int;
@@ -887,6 +885,34 @@ class NativeCFFI {
 	@:cffi private static function lime_curl_multi_perform (multi_handle:CFFIPointer):Int;
 	@:cffi private static function lime_curl_multi_remove_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int;
 	@:cffi private static function lime_curl_multi_wait (multi_handle:CFFIPointer, timeout_ms:Int):Int;
+	#else
+	@:hlNative("lime", "lime_curl_getdate") private static function lime_curl_getdate (date:String, now:Float):Float { return 0; }
+	@:hlNative("lime", "lime_curl_global_cleanup") private static function lime_curl_global_cleanup ():Void {}
+	@:hlNative("lime", "lime_curl_global_init") private static function lime_curl_global_init (flags:Int):Int { return 0; }
+	@:hlNative("lime", "lime_curl_version") private static function lime_curl_version ():hl.Bytes { return null; }
+	@:hlNative("lime", "lime_curl_version_info") private static function lime_curl_version_info (type:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_curl_easy_cleanup") private static function lime_curl_easy_cleanup (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_curl_easy_duphandle") private static function lime_curl_easy_duphandle (handle:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_curl_easy_escape") private static function lime_curl_easy_escape (curl:CFFIPointer, url:String, length:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_curl_easy_flush") private static function lime_curl_easy_flush (curl:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_curl_easy_getinfo") private static function lime_curl_easy_getinfo (curl:CFFIPointer, info:Int):Dynamic { return null; }
+	@:hlNative("lime", "lime_curl_easy_init") private static function lime_curl_easy_init ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_curl_easy_pause") private static function lime_curl_easy_pause (handle:CFFIPointer, bitmask:Int):Int { return 0; }
+	@:hlNative("lime", "lime_curl_easy_perform") private static function lime_curl_easy_perform (easy_handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_curl_easy_recv") private static function lime_curl_easy_recv (curl:CFFIPointer, buffer:Float, buflen:Int, n:Int):Int { return 0; };
+	@:hlNative("lime", "lime_curl_easy_reset") private static function lime_curl_easy_reset (curl:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_curl_easy_send") private static function lime_curl_easy_send (curl:CFFIPointer, buffer:Float, buflen:Int, n:Int):Int { return 0; }
+	@:hlNative("lime", "lime_curl_easy_setopt") private static function lime_curl_easy_setopt (handle:CFFIPointer, option:Int, parameter:Dynamic, writeBytes:Bytes):Int { return 0; }
+	@:hlNative("lime", "lime_curl_easy_strerror") private static function lime_curl_easy_strerror (errornum:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_curl_easy_unescape") private static function lime_curl_easy_unescape (curl:CFFIPointer, url:String, inlength:Int, outlength:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_curl_multi_init") private static function lime_curl_multi_init ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_curl_multi_add_handle") private static function lime_curl_multi_add_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_curl_multi_get_running_handles") private static function lime_curl_multi_get_running_handles (multi_handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_curl_multi_info_read") private static function lime_curl_multi_info_read (multi_handle:CFFIPointer, object:Dynamic):Dynamic { return null; }
+	@:hlNative("lime", "lime_curl_multi_perform") private static function lime_curl_multi_perform (multi_handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_curl_multi_remove_handle") private static function lime_curl_multi_remove_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_curl_multi_wait") private static function lime_curl_multi_wait (multi_handle:CFFIPointer, timeout_ms:Int):Int { return 0; }
+	#end
 	#end
 	
 	#if (lime_cffi && !macro && lime_opengl)

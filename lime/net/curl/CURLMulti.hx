@@ -53,7 +53,10 @@ class CURLMulti {
 	public function infoRead ():CURLMsg {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		var msg:Dynamic = NativeCFFI.lime_curl_multi_info_read (handle);
+		#if hl
+		var object:{ easy_handle:CFFIPointer, result:Int } = { easy_handle: null, result: 0 };
+		#end
+		var msg:Dynamic = NativeCFFI.lime_curl_multi_info_read (handle #if hl , object #end);
 		var result = null;
 		
 		if (msg != null) {

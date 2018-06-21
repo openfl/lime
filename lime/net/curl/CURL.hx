@@ -68,7 +68,11 @@ class CURL {
 	public function escape (url:String, length:Int):String {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return NativeCFFI.lime_curl_easy_escape (handle, url, length);
+		var result = NativeCFFI.lime_curl_easy_escape (handle, url, length);
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
@@ -174,21 +178,80 @@ class CURL {
 	public function setOption (option:CURLOption, parameter:Dynamic):CURLCode {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		if (option == CURLOption.WRITEFUNCTION) {
+		var bytes = null;
+		
+		switch (option) {
 			
-			if (writeBytes == null) writeBytes = Bytes.alloc (1024);
-			return cast NativeCFFI.lime_curl_easy_setopt (handle, cast (option, Int), parameter, writeBytes);
+			case CURLOption.PROGRESSFUNCTION:
+				
+				var callback:CURL->Float->Float->Float->Float->Void = cast parameter;
+				parameter = function (dltotal:Float, dlnow:Float, ultotal:Float, ulnow:Float) {
+					
+					callback (this, dltotal, dlnow, ultotal, ulnow);
+					
+				}
 			
-		} else if (option == CURLOption.HEADERFUNCTION) {
+			case CURLOption.XFERINFOFUNCTION:
+				
+				var callback:CURL->Int->Int->Int->Int->Int = cast parameter;
+				parameter = function (dltotal:Int, dlnow:Int, ultotal:Int, ulnow:Int) {
+					
+					return callback (this, dltotal, dlnow, ultotal, ulnow);
+					
+				}
 			
-			if (headerBytes == null) headerBytes = Bytes.alloc (1024);
-			return cast NativeCFFI.lime_curl_easy_setopt (handle, cast (option, Int), parameter, headerBytes);
+			case CURLOption.WRITEFUNCTION:
+				
+				var callback:CURL->Bytes->Int = cast parameter;
+				parameter = function (bytes:Bytes) {
+					
+					return callback (this, bytes);
+					
+				}
+				
+				bytes = Bytes.alloc (0);
 			
-		} else {
+			// case CURLOption.READFUNCTION:
+				
+				// Impossible to support with GC blocking restrictions
+				// TODO: Unsafe version?
+				// return cast 0;
 			
-			return cast NativeCFFI.lime_curl_easy_setopt (handle, cast (option, Int), parameter, null);
+			case CURLOption.READDATA:
+				
+				bytes = parameter;
+			
+			case CURLOption.HEADERFUNCTION:
+				
+				var callback:CURL->String->Void = cast parameter;
+				#if hl
+				parameter = function (header:hl.Bytes) {
+					
+					callback (this, @:privateAccess String.fromUTF8 (header));
+					
+				}
+				#else
+				parameter = function (header:String) {
+					
+					callback (this, header);
+					
+				}
+				#end
+			
+			case CURLOption.HTTPHEADER:
+				
+				#if hl
+				var headers:Array<String> = cast parameter;
+				var _headers = new hl.NativeArray<String> (headers.length);
+				for (i in 0...headers.length) _headers[i] = headers[i];
+				parameter = _headers;
+				#end
+			
+			default:
 			
 		}
+		
+		return cast NativeCFFI.lime_curl_easy_setopt (handle, cast (option, Int), parameter, bytes);
 		#else
 		return cast 0;
 		#end
@@ -199,7 +262,11 @@ class CURL {
 	public static function strerror (code:CURLCode):String {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return NativeCFFI.lime_curl_easy_strerror (cast (code, Int));
+		var result = NativeCFFI.lime_curl_easy_strerror (cast (code, Int));
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
@@ -210,7 +277,11 @@ class CURL {
 	public function unescape (url:String, inLength:Int, outLength:Int):String {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return NativeCFFI.lime_curl_easy_unescape (handle, url, inLength, outLength);
+		var result = NativeCFFI.lime_curl_easy_unescape (handle, url, inLength, outLength);
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
@@ -221,7 +292,11 @@ class CURL {
 	public static function version ():String {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return NativeCFFI.lime_curl_version ();
+		var result = NativeCFFI.lime_curl_version ();
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
