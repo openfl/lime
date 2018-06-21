@@ -93,6 +93,17 @@ class CURLMulti {
 	}
 	
 	
+	public function setOption (option:CURLMultiOption, parameter:Dynamic):CURLMultiCode {
+		
+		#if (lime_cffi && lime_curl && !macro)
+		return cast NativeCFFI.lime_curl_multi_setopt (handle, option, parameter);
+		#else
+		return cast 0;
+		#end
+		
+	}
+	
+	
 	public function wait (timeoutMS:Int):CURLMultiCode {
 		
 		#if (lime_cffi && lime_curl && !macro)
