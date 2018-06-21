@@ -44,6 +44,21 @@
 	<target name="console-pc" handler="lime-console-pc" />
 	<haxelib name="lime-console-pc" if="console-pc" />
 	
+	<section if="hxp">
+		
+		<target name="air" path="tools/platforms/AIRPlatform.hx" />
+		<target name="android" path="tools/platforms/AndroidPlatform.hx" />
+		<target name="emscripten" path="tools/platforms/EmscriptenPlatform.hx" />
+		<target name="flash" path="tools/platforms/FlashPlatform.hx" />
+		<target name="html5" path="tools/platforms/HTML5Platform.hx" />
+		<target name="ios" path="tools/platforms/IOSPlatform.hx" />
+		<target name="linux" path="tools/platforms/LinuxPlatform.hx" />
+		<target name="mac" path="tools/platforms/MacPlatform.hx" />
+		<target name="tvos" path="tools/platforms/TVOSPlatform.hx" />
+		<target name="windows" path="tools/platforms/WindowsPlatform.hx" />
+		
+	</section>
+	
 	<section unless="display">
 		
 		<section if="cpp ${${haxe_ver} < 3.3}" unless="static_link">
