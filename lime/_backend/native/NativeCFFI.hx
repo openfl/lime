@@ -879,7 +879,7 @@ class NativeCFFI {
 	@:cffi private static function lime_curl_easy_strerror (errornum:Int):Dynamic;
 	@:cffi private static function lime_curl_easy_unescape (curl:CFFIPointer, url:String, inlength:Int, outlength:Int):Dynamic;
 	@:cffi private static function lime_curl_multi_init ():CFFIPointer;
-	@:cffi private static function lime_curl_multi_add_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int;
+	@:cffi private static function lime_curl_multi_add_handle (multi_handle:CFFIPointer, curl_object:Dynamic, curl_handle:CFFIPointer):Int;
 	@:cffi private static function lime_curl_multi_get_running_handles (multi_handle:CFFIPointer):Int;
 	@:cffi private static function lime_curl_multi_info_read (multi_handle:CFFIPointer):Dynamic;
 	@:cffi private static function lime_curl_multi_perform (multi_handle:CFFIPointer):Int;
@@ -907,7 +907,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_curl_easy_strerror") private static function lime_curl_easy_strerror (errornum:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_curl_easy_unescape") private static function lime_curl_easy_unescape (curl:CFFIPointer, url:String, inlength:Int, outlength:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_curl_multi_init") private static function lime_curl_multi_init ():CFFIPointer { return null; }
-	@:hlNative("lime", "lime_curl_multi_add_handle") private static function lime_curl_multi_add_handle (multi_handle:CFFIPointer, curl_handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_curl_multi_add_handle") private static function lime_curl_multi_add_handle (multi_handle:CFFIPointer, curl_object:Dynamic, curl_handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_curl_multi_get_running_handles") private static function lime_curl_multi_get_running_handles (multi_handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_curl_multi_info_read") private static function lime_curl_multi_info_read (multi_handle:CFFIPointer, object:Dynamic):Dynamic { return null; }
 	@:hlNative("lime", "lime_curl_multi_perform") private static function lime_curl_multi_perform (multi_handle:CFFIPointer):Int { return 0; }

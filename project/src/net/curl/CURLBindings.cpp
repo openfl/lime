@@ -7,7 +7,6 @@
 #include <utils/Bytes.h>
 #include <string.h>
 #include <map>
-#include <sstream>
 #include <vector>
 
 
@@ -33,6 +32,7 @@ namespace lime {
 	};
 	
 	std::map<void*, std::vector<void*>* > curlMultiHandles;
+	std::map<void*, ValuePointer*> curlMultiObjects;
 	std::map<void*, void*> curlMultiReferences;
 	std::map<void*, int> curlMultiRunningHandles;
 	std::map<void*, bool> curlMultiValid;
@@ -46,7 +46,8 @@ namespace lime {
 	std::map<void*, Bytes*> readBytes;
 	std::map<void*, int> readBytesPosition;
 	std::map<void*, ValuePointer*> readBytesRoot;
-	std::map<void*, std::stringbuf*> writeBuffers;
+	std::map<void*, char*> writeBuffers;
+	std::map<void*, int> writeBufferSize;
 	std::map<void*, Bytes*> writeBytes;
 	std::map<void*, ValuePointer*> writeBytesRoot;
 	std::map<void*, ValuePointer*> writeCallbacks;
@@ -76,6 +77,15 @@ namespace lime {
 				curlValid.erase (handle);
 				curlObjects.erase (curl);
 				curl_easy_cleanup (curl);
+				
+				if (writeBuffers[handle]) {
+					
+					free (writeBuffers[handle]);
+					
+				}
+				
+				writeBuffers.erase (handle);
+				writeBufferSize.erase (handle);
 				
 			}
 			
@@ -181,6 +191,15 @@ namespace lime {
 				curlObjects.erase (curl);
 				curl_easy_cleanup (curl);
 				
+				if (writeBuffers[handle]) {
+					
+					free (writeBuffers[handle]);
+					
+				}
+				
+				writeBuffers.erase (handle);
+				writeBufferSize.erase (handle);
+				
 			}
 			
 			ValuePointer* callback;
@@ -270,13 +289,16 @@ namespace lime {
 			if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
 				
 				curlMultiValid.erase (handle);
-				curl_multi_cleanup ((CURL*)val_data(handle));
+				curl_multi_cleanup ((CURLM*)val_data(handle));
 				
 			}
 			
 			std::vector<void*>* handles = curlMultiHandles[handle];
 			
 			for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+				
+				delete curlMultiObjects[*it];
+				curlMultiObjects.erase (*it);
 				
 				curl_gc_mutex.Unlock ();
 				gc_curl ((value)*it);
@@ -306,13 +328,16 @@ namespace lime {
 			if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
 				
 				curlMultiValid.erase (handle);
-				curl_multi_cleanup ((CURL*)handle->ptr);
+				curl_multi_cleanup ((CURLM*)handle->ptr);
 				
 			}
 			
 			std::vector<void*>* handles = curlMultiHandles[handle];
 			
 			for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+				
+				delete curlMultiObjects[*it];
+				curlMultiObjects.erase (*it);
 				
 				curl_gc_mutex.Unlock ();
 				hl_gc_curl ((HL_CFFIPointer*)*it);
@@ -392,7 +417,8 @@ namespace lime {
 			bytesValue = (value)writeBytesRoot[handle]->Get ();
 			bytes = new Bytes (bytesValue);
 			writeCallbacks[duphandle] = new ValuePointer (callbackValue);
-			writeBuffers[duphandle] = new std::stringbuf ();
+			writeBuffers[duphandle] = NULL;
+			writeBufferSize[duphandle] = 0;
 			writeBytes[duphandle] = bytes;
 			writeBytesRoot[duphandle] = new ValuePointer (bytesValue);
 			
@@ -453,7 +479,8 @@ namespace lime {
 			
 			callbackValue = (vclosure*)writeCallbacks[handle]->Get ();
 			writeCallbacks[duphandle] = new ValuePointer (callbackValue);
-			writeBuffers[duphandle] = new std::stringbuf ();
+			writeBuffers[duphandle] = NULL;
+			writeBufferSize[duphandle] = 0;
 			writeBytes[duphandle] = writeBytes[handle];
 			writeBytesRoot[duphandle] = new ValuePointer ((vobj*)writeBytes[handle]);
 			
@@ -518,10 +545,10 @@ namespace lime {
 		
 		if (writeBuffers.find (easy_handle) != writeBuffers.end ()) {
 			
-			std::stringbuf* buffer = writeBuffers[easy_handle];
-			int length = buffer->in_avail ();
+			char* buffer = writeBuffers[easy_handle];
+			int length = writeBufferSize[easy_handle];
 			
-			if (length > 0) {
+			if (buffer && length > 0) {
 				
 				if (writeCallbacks.find (easy_handle) != writeCallbacks.end ()) {
 					
@@ -530,8 +557,10 @@ namespace lime {
 					
 					Bytes* bytes = writeBytes[easy_handle];
 					bytes->Resize (length);
-					buffer->sputn ((char*)bytes->b, length);
-					buffer->str ("");
+					memcpy ((char*)bytes->b, buffer, length);
+					free (buffer);
+					writeBuffers[easy_handle] = NULL;
+					writeBufferSize[easy_handle] = 0;
 					
 					curl_gc_mutex.Unlock ();
 					length = val_int ((value)writeCallback->Call (bytes->Value ((value)bytesRoot->Get ())));
@@ -619,10 +648,10 @@ namespace lime {
 		
 		if (writeBuffers.find (easy_handle) != writeBuffers.end ()) {
 			
-			std::stringbuf* buffer = writeBuffers[easy_handle];
-			int length = buffer->in_avail ();
+			char* buffer = writeBuffers[easy_handle];
+			int length = writeBufferSize[easy_handle];
 			
-			if (length > 0) {
+			if (buffer && length > 0) {
 				
 				if (writeCallbacks.find (easy_handle) != writeCallbacks.end ()) {
 					
@@ -630,8 +659,10 @@ namespace lime {
 					
 					Bytes* bytes = writeBytes[easy_handle];
 					bytes->Resize (length);
-					buffer->sputn ((char*)bytes->b, length);
-					buffer->str ("");
+					memcpy ((char*)bytes->b, buffer, length);
+					free (buffer);
+					writeBuffers[easy_handle] = NULL;
+					writeBufferSize[easy_handle] = 0;
 					
 					curl_gc_mutex.Unlock ();
 					length = (int)writeCallback->Call (bytes);
@@ -969,7 +1000,8 @@ namespace lime {
 		curlValid[handle] = true;
 		curlObjects[curl] = handle;
 		
-		writeBuffers[handle] = new std::stringbuf ();
+		writeBuffers[handle] = NULL;
+		writeBufferSize[handle] = 0;
 		
 		curl_gc_mutex.Unlock ();
 		
@@ -1018,7 +1050,8 @@ namespace lime {
 		curlValid[handle] = true;
 		curlObjects[curl] = handle;
 		
-		writeBuffers[handle] = new std::stringbuf ();
+		writeBuffers[handle] = NULL;
+		writeBufferSize[handle] = 0;
 		
 		curl_gc_mutex.Unlock ();
 		
@@ -1143,16 +1176,32 @@ namespace lime {
 	
 	static size_t write_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
 		
-		std::stringbuf* buffer = writeBuffers[userp];
-		
 		if (size * nmemb < 1) {
 			
 			return 0;
 			
 		}
 		
-		buffer->sputn ((char*)ptr, size * nmemb);
-		return size * nmemb;
+		char* buffer = writeBuffers[userp];
+		int writeSize = (size * nmemb);
+		
+		if (!buffer) {
+			
+			buffer = (char*)malloc (writeSize);
+			memcpy (buffer, ptr, writeSize);
+			writeBuffers[userp] = buffer;
+			writeBufferSize[userp] = writeSize;
+			
+		} else {
+			
+			int currentSize = writeBufferSize[userp];
+			realloc (buffer, currentSize + writeSize);
+			memcpy (buffer + currentSize, ptr, writeSize);
+			writeBufferSize[userp] = currentSize + writeSize;
+			
+		}
+		
+		return writeSize;
 		
 	}
 	
@@ -2218,7 +2267,7 @@ namespace lime {
 	}
 	
 	
-	int lime_curl_multi_add_handle (value multi_handle, value curl_handle) {
+	int lime_curl_multi_add_handle (value multi_handle, value curl_object, value curl_handle) {
 		
 		curl_gc_mutex.Lock ();
 		
@@ -2228,6 +2277,7 @@ namespace lime {
 			
 			curlMultiReferences[curl_handle] = multi_handle;
 			curlMultiHandles[multi_handle]->push_back (curl_handle);
+			curlMultiObjects[curl_handle] = new ValuePointer (curl_object);
 			
 		}
 		
@@ -2238,7 +2288,7 @@ namespace lime {
 	}
 	
 	
-	HL_PRIM int hl_lime_curl_multi_add_handle (HL_CFFIPointer* multi_handle, HL_CFFIPointer* curl_handle) {
+	HL_PRIM int hl_lime_curl_multi_add_handle (HL_CFFIPointer* multi_handle, vdynamic* curl_object, HL_CFFIPointer* curl_handle) {
 		
 		curl_gc_mutex.Lock ();
 		
@@ -2248,6 +2298,7 @@ namespace lime {
 			
 			curlMultiReferences[curl_handle] = multi_handle;
 			curlMultiHandles[multi_handle]->push_back (curl_handle);
+			curlMultiObjects[curl_handle] = new ValuePointer (curl_object);
 			
 		}
 		
@@ -2280,24 +2331,25 @@ namespace lime {
 		if (msg) {
 			
 			//const field val_id ("msg");
-			const field easy_handle = val_id ("easy_handle");
-			const field _result = val_id ("result");
+			const field id_curl = val_id ("curl");
+			const field id_result = val_id ("result");
 			
 			CURL* curl = msg->easy_handle;
 			value result = alloc_empty_object ();
 			
 			if (curlObjects.find (curl) != curlObjects.end ()) {
 				
-				alloc_field (result, easy_handle, (value)curlObjects[curl]);
+				value handle = (value)curlObjects[curl];
+				alloc_field (result, id_curl, (value)curlMultiObjects[handle]->Get ());
 				
 			} else {
 				
 				// TODO?
-				alloc_field (result, easy_handle, alloc_null ());
+				alloc_field (result, id_curl, alloc_null ());
 				
 			}
 			
-			alloc_field (result, _result, alloc_int (msg->data.result));
+			alloc_field (result, id_result, alloc_int (msg->data.result));
 			return result;
 			
 		} else {
@@ -2317,23 +2369,24 @@ namespace lime {
 		if (msg) {
 			
 			//const field val_id ("msg");
-			const int easy_handle = hl_hash_utf8 ("easy_handle");
-			const int _result = hl_hash_utf8 ("result");
+			const int id_curl = hl_hash_utf8 ("curl");
+			const int id_result = hl_hash_utf8 ("result");
 			
 			CURL* curl = msg->easy_handle;
 			
 			if (curlObjects.find (curl) != curlObjects.end ()) {
 				
-				hl_dyn_setp (result, easy_handle, &hlt_dyn, (value)curlObjects[curl]);
+				HL_CFFIPointer* handle = (HL_CFFIPointer*)curlObjects[curl];
+				hl_dyn_setp (result, id_curl, &hlt_dyn, (vdynamic*)curlMultiObjects[handle]->Get ());
 				
 			} else {
 				
 				// TODO?
-				hl_dyn_setp (result, easy_handle, &hlt_dyn, NULL);
+				hl_dyn_setp (result, id_curl, &hlt_dyn, NULL);
 				
 			}
 			
-			hl_dyn_seti (result, _result, &hlt_i32, msg->data.result);
+			hl_dyn_seti (result, id_result, &hlt_i32, msg->data.result);
 			return result;
 			
 		} else {
@@ -2418,6 +2471,8 @@ namespace lime {
 				if (*it == curl_handle) {
 					
 					handles->erase (it);
+					delete curlMultiObjects[curl_handle];
+					curlMultiObjects.erase (curl_handle);
 					break;
 					
 				}
@@ -2454,6 +2509,8 @@ namespace lime {
 				if (*it == curl_handle) {
 					
 					handles->erase (it);
+					delete curlMultiObjects[curl_handle];
+					curlMultiObjects.erase (curl_handle);
 					break;
 					
 				}
@@ -2675,7 +2732,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_curl_global_init);
 	DEFINE_PRIME1 (lime_curl_multi_cleanup);
 	DEFINE_PRIME0 (lime_curl_multi_init);
-	DEFINE_PRIME2 (lime_curl_multi_add_handle);
+	DEFINE_PRIME3 (lime_curl_multi_add_handle);
 	DEFINE_PRIME1 (lime_curl_multi_get_running_handles);
 	DEFINE_PRIME1 (lime_curl_multi_info_read);
 	DEFINE_PRIME1 (lime_curl_multi_perform);
@@ -2708,7 +2765,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_curl_global_init, _I32);
 	DEFINE_HL_PRIM (_I32, lime_curl_multi_cleanup, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_curl_multi_init, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_add_handle, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_curl_multi_add_handle, _TCFFIPOINTER _DYN _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_curl_multi_get_running_handles, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, lime_curl_multi_info_read, _TCFFIPOINTER _DYN);
 	DEFINE_HL_PRIM (_I32, lime_curl_multi_perform, _TCFFIPOINTER);

@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 
-class CURLMsg {
+class CURLMultiMessage {
 	
 	
 	public var curl:CURL;

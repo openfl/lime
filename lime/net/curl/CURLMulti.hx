@@ -11,7 +11,7 @@ import lime.system.CFFIPointer;
 
 @:access(lime._backend.native.NativeCFFI)
 @:access(lime.net.curl.CURL)
-@:access(lime.net.curl.CURLMsg)
+@:access(lime.net.curl.CURLMultiMessage)
 
 
 class CURLMulti {
@@ -20,6 +20,10 @@ class CURLMulti {
 	public var runningHandles (get, never):Int;
 	
 	private var handle:CFFIPointer;
+	
+	#if hl
+	private var infoObject:CURLMultiMessage;
+	#end
 	
 	
 	public function new (handle:CFFIPointer = null) {
@@ -36,13 +40,17 @@ class CURLMulti {
 			
 		}
 		
+		#if hl
+		infoObject = new CURLMultiMessage (null, 0);
+		#end
+		
 	}
 	
 	
 	public function addHandle (curl:CURL):CURLMultiCode {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		return cast NativeCFFI.lime_curl_multi_add_handle (handle, curl.handle);
+		return cast NativeCFFI.lime_curl_multi_add_handle (handle, curl, curl.handle);
 		#else
 		return cast 0;
 		#end
@@ -50,23 +58,19 @@ class CURLMulti {
 	}
 	
 	
-	public function infoRead ():CURLMsg {
+	public function infoRead ():CURLMultiMessage {
 		
 		#if (lime_cffi && lime_curl && !macro)
-		#if hl
-		var object:{ easy_handle:CFFIPointer, result:Int } = { easy_handle: null, result: 0 };
-		#end
-		var msg:Dynamic = NativeCFFI.lime_curl_multi_info_read (handle #if hl , object #end);
-		var result = null;
+		var msg:Dynamic = NativeCFFI.lime_curl_multi_info_read (handle #if hl, infoObject #end);
 		
 		if (msg != null) {
-			result = new CURLMsg (msg.easy_handle, msg.result);
+			
+			return new CURLMultiMessage (msg.curl, msg.result);
+			
 		}
-		
-		return result;
-		#else
-		return null;
 		#end
+		
+		return null;
 		
 	}
 	

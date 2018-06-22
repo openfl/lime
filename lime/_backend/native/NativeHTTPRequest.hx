@@ -5,8 +5,9 @@ import haxe.io.Bytes;
 import haxe.Timer;
 import lime.app.Future;
 import lime.app.Promise;
-import lime.net.curl.CURLCode;
 import lime.net.curl.CURL;
+import lime.net.curl.CURLCode;
+import lime.net.curl.CURLMulti;
 import lime.net.HTTPRequest;
 import lime.net.HTTPRequestHeader;
 import lime.net.HTTPRequestMethod;
@@ -25,6 +26,9 @@ import sys.FileSystem;
 class NativeHTTPRequest {
 	
 	
+	private static var multi:CURLMulti;
+	private static var multiInstances:Map<CURL, NativeHTTPRequest>;
+	private static var multiTimer:Timer;
 	private static var threadPool:ThreadPool;
 	
 	private var bytes:Bytes;
@@ -34,7 +38,6 @@ class NativeHTTPRequest {
 	private var curl:CURL;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
-	private var readPosition:Int;
 	private var writePosition:Int;
 	private var timeout:Timer;
 	
@@ -72,61 +75,19 @@ class NativeHTTPRequest {
 	}
 	
 	
-	private function doWork_loadFile (path:String):Void {
+	public function init (parent:_IHTTPRequest):Void {
 		
-		var index = path.indexOf ("?");
-		
-		if (index > -1) {
-			
-			path = path.substring (0, index);
-			
-		}
-		
-		#if (sys && !windows)
-		if (StringTools.startsWith (path, "~/")) {
-			
-			path = Sys.getEnv ("HOME") + "/" + path.substr (2);
-			
-		}
-		#end
-		
-		if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
-			
-			threadPool.sendError ({ instance: this, promise: promise, error: "Cannot load file: " + path });
-			
-		} else {
-			
-			bytes = lime.utils.Bytes.fromFile (path);
-			
-			if (bytes != null) {
-				
-				threadPool.sendComplete ({ instance: this, promise: promise, result: bytes });
-				
-			} else {
-				
-				threadPool.sendError ({ instance: this, promise: promise, error: "Cannot load file: " + path });
-				
-			}
-			
-		}
+		this.parent = parent;
 		
 	}
 	
 	
-	private function doWork_loadURL (uri:String, binary:Bool):Void {
-		
-		if (uri == null) {
-			
-			threadPool.sendError ({ instance: this, promise: promise, error: "The URI must not be null" });
-			return;
-			
-		}
+	private function initRequest (uri:String, binary:Bool):Void {
 		
 		bytes = Bytes.alloc (0);
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
-		readPosition = 0;
 		writePosition = 0;
 		
 		if (curl == null) {
@@ -173,11 +134,9 @@ class NativeHTTPRequest {
 					
 				}
 				
-			} else {
-				
-				data = Bytes.alloc (0);
-				
 			}
+			
+			if (data != null && data.length == 0) data = null;
 			
 		}
 		
@@ -196,21 +155,40 @@ class NativeHTTPRequest {
 			case POST:
 				
 				curl.setOption (POST, true);
-				curl.setOption (READFUNCTION, curl_onRead.bind (_, data));
-				curl.setOption (POSTFIELDSIZE, data.length);
-				curl.setOption (INFILESIZE, data.length);
+				
+				if (data != null) {
+					
+					curl.setOption (INFILE, data);
+					curl.setOption (INFILESIZE, data.length);
+					curl.setOption (POSTFIELDSIZE, data.length);
+					
+				} else {
+					
+					curl.setOption (POSTFIELDSIZE, 0);
+					
+				}
 			
 			case PUT:
 				
 				curl.setOption (UPLOAD, true);
-				curl.setOption (READFUNCTION, curl_onRead.bind (_, data));
-				curl.setOption (INFILESIZE, data.length);
+				
+				if (data != null) {
+					
+					curl.setOption (INFILE, data);
+					curl.setOption (INFILESIZE, data.length);
+					
+				}
 			
 			case _:
 				
 				curl.setOption (CUSTOMREQUEST, Std.string (parent.method));
-				curl.setOption (READFUNCTION, curl_onRead.bind (_, data));
-				curl.setOption (INFILESIZE, data.length);
+				
+				if (data != null) {
+					
+					curl.setOption (INFILE, data);
+					curl.setOption (INFILESIZE, data.length);
+					
+				}
 			
 		}
 		
@@ -270,10 +248,9 @@ class NativeHTTPRequest {
 		if (parent.enableResponseHeaders) {
 			
 			parent.responseHeaders = [];
+			curl.setOption (HEADERFUNCTION, curl_onHeader);
 			
 		}
-		
-		curl.setOption (HEADERFUNCTION, curl_onHeader);
 		
 		// TODO: Add support for cookies: https://curl.haxx.se/docs/http-cookies.html
 		
@@ -296,64 +273,65 @@ class NativeHTTPRequest {
 		curl.setOption (VERBOSE, true);
 		#end
 		
-		var result = curl.perform ();
-		parent.responseStatus = curl.getInfo (RESPONSE_CODE);
-		
-		curl.cleanup ();
-		curl = null;
-		
-		if (result == CURLCode.OK) {
-			
-			if ((parent.responseStatus >= 200 && parent.responseStatus < 400) || parent.responseStatus == 0) {
-				
-				threadPool.sendComplete ({ instance: this, promise: promise, result: bytes });
-				
-			} else if (bytes != null) {
-				
-				threadPool.sendError ({ instance: this, promise: promise, error: bytes.getString (0, bytes.length) });
-				
-			} else {
-				
-				threadPool.sendError ({ instance: this, promise: promise, error: 'Status ${parent.responseStatus}' });
-				
-			}
-			
-		} else {
-			
-			threadPool.sendError ({ instance: this, promise: promise, error: CURL.strerror (result) });
-			
-		}
-		
-	}
-	
-	
-	public function init (parent:_IHTTPRequest):Void {
-		
-		this.parent = parent;
-		
 	}
 	
 	
 	public function loadData (uri:String, binary:Bool = true):Future<Bytes> {
 		
-		var promise = new Promise<Bytes> ();
-		this.promise = promise;
-		
-		if (threadPool == null) {
+		if (uri == null) {
 			
-			CURL.globalInit (CURL.GLOBAL_ALL);
-			
-			threadPool = new ThreadPool (1, 4);
-			threadPool.doWork.add (threadPool_doWork);
-			threadPool.onRun.add (threadPool_onRun);
-			threadPool.onProgress.add (threadPool_onProgress);
-			threadPool.onComplete.add (threadPool_onComplete);
-			threadPool.onError.add (threadPool_onError);
+			return cast Future.withError ("The URI must not be null");
 			
 		}
 		
+		var promise = new Promise<Bytes> ();
+		this.promise = promise;
+		
 		canceled = false;
-		threadPool.queue ({ instance: this, uri: uri, binary: binary, timeout: parent.timeout });
+		
+		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
+			
+			if (threadPool == null) {
+				
+				threadPool = new ThreadPool (0, 1);
+				threadPool.doWork.add (threadPool_doWork);
+				threadPool.onProgress.add (threadPool_onProgress);
+				threadPool.onComplete.add (threadPool_onComplete);
+				threadPool.onError.add (threadPool_onError);
+				
+			}
+			
+			threadPool.queue ({ instance: this, uri: uri });
+			
+		} else {
+			
+			if (multi == null) {
+				
+				CURL.globalInit (CURL.GLOBAL_ALL);
+				
+				multi = new CURLMulti ();
+				multiInstances = new Map ();
+				
+			}
+			
+			initRequest (uri, binary);
+			
+			if (curl != null) {
+				
+				multiInstances.set (curl, this);
+				multi.addHandle (curl);
+				
+				if (multiTimer == null) {
+					
+					multiTimer = new Timer (30);
+					multiTimer.run = multiTimer_onRun;
+					multiTimer_onRun ();
+					
+				}
+				
+			}
+			
+		}
 		
 		return promise.future;
 		
@@ -386,18 +364,19 @@ class NativeHTTPRequest {
 		
 	}
 	
-
+	
 	private function growBuffer (length:Int) {
-
+		
 		if (length > bytes.length) {
-
+			
 			var cacheBytes = bytes;
 			bytes = Bytes.alloc (length);
 			bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-		
+			
 		}
-
+		
 	}
+	
 	
 	
 	
@@ -406,43 +385,29 @@ class NativeHTTPRequest {
 	
 	
 	
-	private function curl_onHeader (output:Bytes, size:Int, nmemb:Int):Int {
+	private function curl_onHeader (curl:CURL, header:String):Void {
 		
-		var parts = Std.string (output).split (': ');
+		var parts = header.split (': ');
 		
 		if (parts.length == 2) {
 			
-			if (parent.enableResponseHeaders) {
-				
-				parent.responseHeaders.push (new HTTPRequestHeader (parts[0], parts[1]));
-				
-			}
-			
-			switch (parts[0]) {
-				
-				case 'Content-Length': 
-					
-					growBuffer (Std.parseInt (parts[1]));
-				
-			}
+			parent.responseHeaders.push (new HTTPRequestHeader (StringTools.trim (parts[0]), StringTools.trim (parts[1])));
 			
 		}
-		
-		return size * nmemb;
 		
 	}
 	
 	
-	private function curl_onProgress (dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int {
+	private function curl_onProgress (curl:CURL, dltotal:Int, dlnow:Int, uptotal:Int, upnow:Int):Int {
 		
 		if (upnow > bytesLoaded || dlnow > bytesLoaded || uptotal > bytesTotal || dltotal > bytesTotal) {
 			
-			if (upnow > bytesLoaded) bytesLoaded = Std.int (upnow);
-			if (dlnow > bytesLoaded) bytesLoaded = Std.int (dlnow);
-			if (uptotal > bytesTotal) bytesTotal = Std.int (uptotal);
-			if (dltotal > bytesTotal) bytesTotal = Std.int (dltotal);
+			if (upnow > bytesLoaded) bytesLoaded = upnow;
+			if (dlnow > bytesLoaded) bytesLoaded = dlnow;
+			if (uptotal > bytesTotal) bytesTotal = uptotal;
+			if (dltotal > bytesTotal) bytesTotal = dltotal;
 			
-			threadPool.sendProgress ({ instance: this, promise: promise, bytesLoaded: bytesLoaded, bytesTotal: bytesTotal });
+			promise.progress (bytesLoaded, bytesTotal);
 			
 		}
 		
@@ -451,43 +416,88 @@ class NativeHTTPRequest {
 	}
 	
 	
-	private function curl_onRead (max:Int, input:Bytes):Bytes {
+	private function curl_onWrite (curl:CURL, output:Bytes):Int {
 		
-		if (readPosition == 0 && max >= input.length) {
-			
-			return input;
-			
-		} else if (readPosition >= input.length) {
-			
-			return Bytes.alloc (0);
-			
-		} else {
-			
-			var length = max;
-			
-			if (readPosition + length > input.length) {
-				
-				length = input.length - readPosition;
-				
-			}
-			
-			var data = input.sub (readPosition, length);
-			readPosition += length;
-			return data;
-			
-		}
+		growBuffer (writePosition + output.length);
+		bytes.blit (writePosition, output, 0, output.length);
+		
+		writePosition += output.length;
+		
+		return output.length;
 		
 	}
 	
 	
-	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
+	private static function multiTimer_onRun ():Void {
 		
-		growBuffer (writePosition + output.length);
-		bytes.blit (writePosition, output, 0, output.length);
-
-		writePosition += output.length;
-
-		return size * nmemb;
+		multi.perform ();
+		
+		var message = multi.infoRead ();
+		var curl, instance, status;
+		
+		while (message != null) {
+			
+			curl = message.curl;
+			
+			if (multiInstances.exists (curl)) {
+				
+				instance = multiInstances.get (curl);
+				multiInstances.remove (curl);
+				
+				status = curl.getInfo (RESPONSE_CODE);
+				instance.parent.responseStatus = status;
+				
+				curl.cleanup ();
+				curl = null;
+				
+				if (message.result == CURLCode.OK) {
+					
+					if ((status >= 200 && status < 400) || status == 0) {
+						
+						if (!instance.promise.isError) {
+							
+							instance.promise.complete (instance.bytes);
+							
+						}
+						
+					} else if (instance.bytes != null) {
+						
+						instance.promise.error (instance.bytes.getString (0, instance.bytes.length));
+						
+					} else {
+						
+						instance.promise.error ('Status ${status}');
+						
+					}
+					
+				} else {
+					
+					instance.promise.error (CURL.strerror (message.result));
+					
+				}
+				
+				if (instance.timeout != null) {
+					
+					instance.timeout.stop ();
+					instance.timeout = null;
+					
+				}
+				
+				instance.bytes = null;
+				instance.promise = null;
+				
+			}
+			
+			message = multi.infoRead ();
+			
+		}
+		
+		if (multi.runningHandles == 0) {
+			
+			multiTimer.stop ();
+			multiTimer = null;
+			
+		}
 		
 	}
 	
@@ -495,16 +505,41 @@ class NativeHTTPRequest {
 	private static function threadPool_doWork (state:Dynamic):Void {
 		
 		var instance:NativeHTTPRequest = state.instance;
-		var uri:String = state.uri;
-		var binary:Bool = state.binary;
+		var path:String = state.uri;
 		
-		if (uri.indexOf ("http://") == -1 && uri.indexOf ("https://") == -1) {
+		var index = path.indexOf ("?");
+		
+		if (index > -1) {
 			
-			instance.doWork_loadFile (uri);
+			path = path.substring (0, index);
+			
+		}
+		
+		#if (sys && !windows)
+		if (StringTools.startsWith (path, "~/")) {
+			
+			path = Sys.getEnv ("HOME") + "/" + path.substr (2);
+			
+		}
+		#end
+		
+		if (path == null #if (sys && !android) || !FileSystem.exists (path) #end) {
+			
+			threadPool.sendError ({ instance: instance, promise: instance.promise, error: "Cannot load file: " + path });
 			
 		} else {
 			
-			instance.doWork_loadURL (uri, binary);
+			instance.bytes = lime.utils.Bytes.fromFile (path);
+			
+			if (instance.bytes != null) {
+				
+				threadPool.sendComplete ({ instance: instance, promise: instance.promise, result: instance.bytes });
+				
+			} else {
+				
+				threadPool.sendError ({ instance: instance, promise: instance.promise, error: "Cannot load file: " + path });
+				
+			}
 			
 		}
 		
@@ -557,27 +592,6 @@ class NativeHTTPRequest {
 		var promise:Promise<Bytes> = state.promise;
 		if (promise.isComplete || promise.isError) return;
 		promise.progress (state.bytesLoaded, state.bytesTotal);
-		
-	}
-	
-	
-	private static function threadPool_onRun (state:Dynamic):Void {
-		
-		if (state.timeout > 0) {
-			
-			state.instance.timeout = Timer.delay (function () {
-				
-				if (state.promise != null && state.instance.bytesLoaded == 0 && state.instance.bytesTotal == 0 && !state.promise.isComplete && !state.promise.isError) {
-					
-					//cancel ();
-					
-					state.promise.error (CURL.strerror (CURLCode.OPERATION_TIMEDOUT));
-					
-				}
-				
-			}, state.timeout);
-			
-		}
 		
 	}
 	
