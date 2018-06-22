@@ -100,7 +100,8 @@ namespace lime {
 			
 		} else {
 			
-			return hl_dyn_call ((vclosure*)hlValue, &((vdynamic*)arg0), 1);
+			vdynamic* arg = (vdynamic*) arg0;
+			return hl_dyn_call ((vclosure*)hlValue, &arg, 1);
 			
 		}
 		
