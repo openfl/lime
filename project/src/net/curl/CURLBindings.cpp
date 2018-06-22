@@ -665,7 +665,7 @@ namespace lime {
 					writeBufferSize[easy_handle] = 0;
 					
 					curl_gc_mutex.Unlock ();
-					length = (int)writeCallback->Call (bytes);
+					length = *((int*)writeCallback->Call (bytes));
 					curl_gc_mutex.Lock ();
 					
 					if (length == CURL_WRITEFUNC_PAUSE) {
@@ -696,7 +696,7 @@ namespace lime {
 			ulnow->v.d = progress->ulnow;
 			
 			curl_gc_mutex.Unlock ();
-			code = (int)progressCallback->Call (dltotal, dlnow, ultotal, ulnow);
+			code = *((int*)progressCallback->Call (dltotal, dlnow, ultotal, ulnow));
 			curl_gc_mutex.Lock ();
 			
 			if (code != 0) { // CURLE_OK
@@ -723,7 +723,7 @@ namespace lime {
 			ulnow->v.i = xferInfo->ulnow;
 			
 			curl_gc_mutex.Unlock ();
-			code = (int)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow);
+			code = *((int*)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow));
 			curl_gc_mutex.Lock ();
 			
 			if (code != 0) {
@@ -1195,8 +1195,9 @@ namespace lime {
 		} else {
 			
 			int currentSize = writeBufferSize[userp];
-			realloc (buffer, currentSize + writeSize);
+			buffer = (char*)realloc (buffer, currentSize + writeSize);
 			memcpy (buffer + currentSize, ptr, writeSize);
+			writeBuffers[userp] = buffer;
 			writeBufferSize[userp] = currentSize + writeSize;
 			
 		}
