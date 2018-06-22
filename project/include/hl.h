@@ -235,7 +235,7 @@ typedef uint16_t uchar;
 #include <stdint.h>
 typedef uint16_t char16_t;
 typedef uint32_t char32_t;
-#else
+#elif defined(HL_NATIVE_UCHAR_FUN)
 #	include <uchar.h>
 #endif
 typedef char16_t uchar;
