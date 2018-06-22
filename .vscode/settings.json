@@ -34,6 +34,12 @@
         "unordered_map": "cpp",
         "xmemory0": "cpp",
         "xiosbase": "c",
-        "xlocale": "c"
+        "xlocale": "c",
+        "iosfwd": "cpp",
+        "array": "cpp",
+        "functional": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "sstream": "cpp"
     }
 }
