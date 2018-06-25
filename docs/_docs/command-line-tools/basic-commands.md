@@ -1,8 +1,5 @@
 ---
 title: Basic Commands
-redirect_from:
- - /docs/index.html
- - /docs/home/index.html
 ---
 
 ## lime build
