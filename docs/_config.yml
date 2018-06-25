@@ -1,0 +1,56 @@
+# Site settings
+title: Lime
+# email: your-email@domain.com
+description: >
+  A cross-platform development framework
+  for web, mobile and desktop targets
+
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: http://lime.software # the base hostname & protocol for your site
+git_address: https://github.com/openfl/lime
+git_edit_address: https://github.com/openfl/lime/blob/develop/docs
+
+# theme options from https://bootswatch.com/
+# comment out this to use default Bootstrap
+bootwatch: paper
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+gems:
+  - jekyll-feed
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - .idea/
+  - .gitignore
+  - README.md
+timezone: US/Pacific
+defaults:
+- scope:
+    path: _posts
+    type: posts
+  values:
+    layout: post
+    sectionid: blog
+
+- scope:
+    path: _docs
+    type: docs
+  values:
+    layout: docs
+    sectionid: docs
+    seo:
+      type: "WebPage"
+
+collections:
+  docs:
+    permalink: /:collection/:path/
+    output: true
+  posts:
+    permalink: /blog/:year/:month/:day/:title/
+    output: true

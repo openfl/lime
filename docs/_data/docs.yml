@@ -1,0 +1,20 @@
+- title: Command-Line Tools
+  docs:
+  - command-line-tools/basic-commands
+  - command-line-tools/create-new-project
+  - command-line-tools/samples
+
+- title: Project Files
+  docs:
+  - project-files/xml-format
+  - project-files/hxp-format
+
+- title: Advanced Setup
+  docs:
+  - advanced-setup/windows
+  - advanced-setup/macos
+  - advanced-setup/linux
+  - advanced-setup/ios
+  - advanced-setup/android
+  - advanced-setup/flash
+  - advanced-setup/html5
