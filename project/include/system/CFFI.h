@@ -15,6 +15,9 @@ typedef vdynobj hl_vdynobj;
 typedef venum hl_venum;
 typedef vstring hl_vstring;
 
+#undef hl_aptr
+#define hl_aptr(a,t)	((t*)(((hl_varray*)(a))+1))
+
 
 #include <hx/CFFIPrime.h>
 
