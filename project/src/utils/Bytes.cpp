@@ -229,7 +229,7 @@ namespace lime {
 	
 	value Bytes::Value (value bytes) {
 		
-		if (val_is_null (bytes)) {
+		if (val_is_null (bytes) || !b) {
 			
 			return alloc_null ();
 			
@@ -243,7 +243,10 @@ namespace lime {
 				
 				if (val_is_null (_buffer) || (char*)b != buffer_data (val_to_buffer (_buffer))) {
 					
-					alloc_field (bytes, id_b, buffer_val (alloc_buffer ((const char*)b)));
+					buffer bufferValue = alloc_buffer_len (length);
+					_buffer = buffer_val (bufferValue);
+					memcpy ((unsigned char*)buffer_data (bufferValue), b, length);
+					alloc_field (bytes, id_b, _buffer);
 					
 				}
 				
@@ -260,6 +263,9 @@ namespace lime {
 				}
 				
 			}
+			
+			free (b);
+			b = NULL;
 			
 			return bytes;
 			
