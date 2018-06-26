@@ -1,6 +1,7 @@
 package lime._backend.flash;
 
 
+import flash.display.BitmapData;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
@@ -8,9 +9,13 @@ import flash.events.FocusEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.events.TouchEvent;
+import flash.geom.Matrix;
+import flash.system.Capabilities;
 import flash.Lib;
 import lime.app.Application;
 import lime.graphics.Image;
+import lime.graphics.RenderContext;
+import lime.math.Rectangle;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
@@ -20,6 +25,7 @@ import lime.system.System;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
+@:access(lime.graphics.RenderContext)
 @:access(lime.ui.Window)
 
 
@@ -166,6 +172,13 @@ class FlashWindow {
 		stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
 		stage.addEventListener (Event.MOUSE_LEAVE, handleWindowEvent);
 		stage.addEventListener (Event.RESIZE, handleWindowEvent);
+		
+		var context = new RenderContext ();
+		context.sprite = Lib.current;
+		context.type = FLASH;
+		context.version = Capabilities.version;
+		
+		parent.context = context;
 		
 	}
 	
@@ -393,6 +406,39 @@ class FlashWindow {
 				parent.onResize.dispatch (parent.__width, parent.__height);
 			
 			default:
+			
+		}
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle):Image {
+		
+		if (rect == null) {
+			
+			rect = new Rectangle (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
+			
+		} else {
+			
+			rect.__contract (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
+			
+		}
+		
+		if (rect.width > 0 && rect.height > 0) {
+			
+			var bitmapData = new BitmapData (Std.int (rect.width), Std.int (rect.height));
+			
+			var matrix = new Matrix ();
+			matrix.tx = -rect.x;
+			matrix.ty = -rect.y;
+			
+			bitmapData.draw (parent.stage, matrix);
+			
+			return Image.fromBitmapData (bitmapData);
+			
+		} else {
+			
+			return null;
 			
 		}
 		

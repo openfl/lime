@@ -2,7 +2,6 @@ package lime.app;
 
 
 import lime.graphics.RenderContext;
-import lime.graphics.Renderer;
 import lime.ui.Gamepad;
 import lime.ui.GamepadAxis;
 import lime.ui.GamepadButton;
@@ -29,25 +28,12 @@ class Module implements IModule {
 	
 	@:noCompletion private var __application:Application;
 	@:noCompletion private var __preloader:Preloader;
-	@:noCompletion private var __renderers:Array<Renderer>;
 	@:noCompletion private var __windows:Array<Window>;
 	
 	
 	public function new () {
 		
-		__renderers = new Array ();
 		__windows = new Array ();
-		
-	}
-	
-	
-	@:noCompletion public function addRenderer (renderer:Renderer):Void {
-		
-		renderer.onRender.add (render.bind (renderer));
-		renderer.onContextLost.add (onRenderContextLost.bind (renderer));
-		renderer.onContextRestored.add (onRenderContextRestored.bind (renderer));
-		
-		__renderers.push (renderer);
 		
 	}
 	
@@ -56,6 +42,8 @@ class Module implements IModule {
 		
 		window.onActivate.add (onWindowActivate.bind (window));
 		window.onClose.add (__onWindowClose.bind (window), false, -10000);
+		window.onContextLost.add (onWindowContextLost.bind (window));
+		window.onContextRestored.add (onWindowContextRestored.bind (window));
 		window.onCreate.add (onWindowCreate.bind (window));
 		window.onDeactivate.add (onWindowDeactivate.bind (window));
 		window.onDropFile.add (onWindowDropFile.bind (window));
@@ -74,6 +62,7 @@ class Module implements IModule {
 		window.onMouseUp.add (onMouseUp.bind (window));
 		window.onMouseWheel.add (onMouseWheel.bind (window));
 		window.onMove.add (onWindowMove.bind (window));
+		window.onRender.add (render.bind (window));
 		window.onResize.add (onWindowResize.bind (window));
 		window.onRestore.add (onWindowRestore.bind (window));
 		window.onTextEdit.add (onTextEdit.bind (window));
@@ -121,20 +110,11 @@ class Module implements IModule {
 	}
 	
 	
-	@:noCompletion public function removeRenderer (renderer:Renderer):Void {
-		
-		if (renderer != null && __renderers.indexOf (renderer) > -1) {
-			
-			__renderers.remove (renderer);
-			
-		}
-		
-	}
-	
-	
 	@:noCompletion public function removeWindow (window:Window):Void {
 		
 		if (window != null && __windows.indexOf (window) > -1) {
+			
+			// TODO: Remove events
 			
 			__windows.remove (window);
 			
@@ -370,21 +350,6 @@ class Module implements IModule {
 	
 	
 	/**
-	 * Called when a render context is lost
-	 * @param	renderer	The renderer dispatching the event
-	 */
-	public function onRenderContextLost (renderer:Renderer):Void { }
-	
-	
-	/**
-	 * Called when a render context is restored
-	 * @param	renderer	The renderer dispatching the event
-	 * @param	context	The current render context
-	 */
-	public function onRenderContextRestored (renderer:Renderer, context:RenderContext):Void { }
-	
-	
-	/**
 	 * Called when a text edit event is fired
 	 * @param	window	The window dispatching the event
 	 * @param	text	The current replacement text
@@ -442,6 +407,20 @@ class Module implements IModule {
 	 * @param	window	The window dispatching the event
 	 */
 	public function onWindowClose (window:Window):Void { }
+	
+	
+	/**
+	 * Called when a render context is lost
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowContextLost (window:Window):Void { }
+	
+	
+	/**
+	 * Called when a render context is restored
+	 * @param	window	The window dispatching the event
+	 */
+	public function onWindowContextRestored (window:Window):Void { }
 	
 	
 	/**
@@ -541,9 +520,9 @@ class Module implements IModule {
 	
 	/**
 	 * Called when a render event is fired
-	 * @param	renderer	The renderer dispatching the event
+	 * @param	window	The window dispatching the event
 	 */
-	public function render (renderer:Renderer):Void { }
+	public function render (window:Window):Void { }
 	
 	
 	/**

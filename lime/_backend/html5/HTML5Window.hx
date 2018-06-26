@@ -2,6 +2,7 @@ package lime._backend.html5;
 
 
 import haxe.Timer;
+import js.html.webgl.RenderingContext;
 import js.html.CanvasElement;
 import js.html.DivElement;
 import js.html.Element;
@@ -15,8 +16,11 @@ import js.html.TouchEvent;
 import js.html.ClipboardEvent;
 import js.Browser;
 import lime.app.Application;
+import lime.graphics.opengl.GL;
 import lime.graphics.utils.ImageCanvasUtil;
 import lime.graphics.Image;
+import lime.graphics.RenderContext;
+import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
@@ -28,6 +32,7 @@ import lime.ui.Window;
 
 
 @:access(lime.app.Application)
+@:access(lime.graphics.RenderContext)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.Window)
@@ -247,6 +252,101 @@ class HTML5Window {
 			
 		}
 		
+		createContext ();
+		
+		if (parent.context.type == WEBGL) {
+			
+			canvas.addEventListener ("webglcontextlost", handleContextEvent, false);
+			canvas.addEventListener ("webglcontextrestored", handleContextEvent, false);
+			
+		}
+		
+	}
+	
+	
+	private function createContext ():Void {
+		
+		var context = new RenderContext ();
+		
+		if (div != null) {
+			
+			context.element = div;
+			context.type = DOM;
+			context.version = "";
+			
+		} else if (canvas != null) {
+			
+			var webgl:RenderingContext = null;
+			
+			var forceCanvas = #if (canvas || munit) true #else (renderType == "canvas") #end;
+			var forceWebGL = #if webgl true #else (renderType == "opengl" || renderType == "webgl" || renderType == "webgl1" || renderType == "webgl2") #end;
+			var allowWebGL2 = #if webgl1 false #else (renderType != "webgl1") #end;
+			var isWebGL2 = false;
+			
+			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (parent.config, "hardware") || parent.config.hardware))) {
+				
+				var transparentBackground = Reflect.hasField (parent.config, "background") && parent.config.background == null;
+				var colorDepth = Reflect.hasField (parent.config, "colorDepth") ? parent.config.colorDepth : 16;
+				
+				var options = {
+					
+					alpha: (transparentBackground || colorDepth > 16) ? true : false,
+					antialias: Reflect.hasField (parent.config, "antialiasing") ? parent.config.antialiasing > 0 : false,
+					depth: Reflect.hasField (parent.config, "depthBuffer") ? parent.config.depthBuffer : true,
+					premultipliedAlpha: true,
+					stencil: Reflect.hasField (parent.config, "stencilBuffer") ? parent.config.stencilBuffer : false,
+					preserveDrawingBuffer: false
+					
+				};
+				
+				var glContextType = [ "webgl", "experimental-webgl" ];
+				
+				if (allowWebGL2) {
+					
+					glContextType.unshift ("webgl2");
+					
+				}
+				
+				for (name in glContextType) {
+					
+					webgl = cast canvas.getContext (name, options);
+					if (webgl != null && name == "webgl2") isWebGL2 = true;
+					if (webgl != null) break;
+					
+				}
+				
+			}
+			
+			if (webgl == null) {
+				
+				context.ctx = cast canvas.getContext ("2d");
+				context.type = CANVAS;
+				context.version = "";
+				
+			} else {
+				
+				#if webgl_debug
+				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
+				#end
+				
+				// #if ((js && html5) && !display)
+				// GL.context = new GLRenderContext (cast webgl);
+				// parent.context = OPENGL (GL.context);
+				// #else
+				// parent.context = OPENGL (new GLRenderContext ());
+				// #end
+				
+				// context.webgl = cast webgl;
+				// if (isWebGL2) context.webgl2 = cast webgl;
+				context.type = WEBGL;
+				context.version = isWebGL2 ? "2" : "1";
+				
+			}
+			
+		}
+		
+		parent.context = context;
+		
 	}
 	
 	
@@ -281,6 +381,40 @@ class HTML5Window {
 	public function getEnableTextEvents ():Bool {
 		
 		return enableTextEvents;
+		
+	}
+	
+	
+	private function handleContextEvent (event:js.html.Event):Void {
+		
+		switch (event.type) {
+			
+			case "webglcontextlost":
+				
+				event.preventDefault ();
+				
+				#if !display
+				if (GL.context != null) {
+					
+					// GL.context.__contextLost = true;
+					
+				}
+				#end
+				
+				parent.context = null;
+				
+				parent.onContextLost.dispatch ();
+				
+			case "webglcontextrestored":
+				
+				createContext ();
+				
+				parent.onContextRestored.dispatch ();
+				// parent.onContextRestored.dispatch (parent.context);
+			
+			default:
+			
+		}
 		
 	}
 	
@@ -765,6 +899,42 @@ class HTML5Window {
 	public function move (x:Int, y:Int):Void {
 		
 		
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle):Image {
+		
+		// TODO: Handle DIV, improve 3D canvas support
+		
+		if (canvas != null) {
+			
+			if (rect == null) {
+				
+				rect = new Rectangle (0, 0, canvas.width, canvas.height);
+				
+			} else {
+				
+				rect.__contract (0, 0, canvas.width, canvas.height);
+				
+			}
+			
+			if (rect.width > 0 && rect.height > 0) {
+				
+				var canvas:CanvasElement = cast Browser.document.createElement ("canvas");
+				canvas.width = Std.int (rect.width);
+				canvas.height = Std.int (rect.height);
+				
+				var context = canvas.getContext ("2d");
+				context.drawImage (canvas, -rect.x, -rect.y);
+				
+				return Image.fromCanvas (canvas);
+				
+			}
+			
+		}
+		
+		return null;
 		
 	}
 	

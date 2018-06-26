@@ -7,7 +7,6 @@ import js.Browser;
 import lime.app.Application;
 import lime.app.Config;
 import lime.media.AudioManager;
-import lime.graphics.Renderer;
 import lime.system.Sensor;
 import lime.system.SensorType;
 import lime.ui.GamepadAxis;
@@ -20,7 +19,6 @@ import lime.ui.Window;
 
 @:access(lime._backend.html5.HTML5Window)
 @:access(lime.app.Application)
-@:access(lime.graphics.Renderer)
 @:access(lime.system.Sensor)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
@@ -265,16 +263,9 @@ class HTML5Application {
 			
 			parent.onUpdate.dispatch (Std.int (deltaTime));
 			
-			if (parent.renderer != null && parent.renderer.context != null) {
+			if (parent.window != null && parent.window.context != null) {
 				
-				parent.renderer.render ();
-				parent.renderer.onRender.dispatch ();
-				
-				if (!parent.renderer.onRender.canceled) {
-					
-					parent.renderer.flip ();
-					
-				}
+				parent.window.onRender.dispatch ();
 				
 			}
 			

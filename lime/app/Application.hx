@@ -1,7 +1,6 @@
 package lime.app;
 
 
-import lime.graphics.Renderer;
 import lime.system.System;
 import lime.ui.Window;
 
@@ -55,17 +54,6 @@ class Application extends Module {
 	public var onUpdate = new Event<Int->Void> ();
 	
 	/**
-	 * The Renderer associated with this Application, or the first Renderer
-	 * if there are multiple Renderer instances
-	**/
-	public var renderer (get, null):Renderer;
-	
-	/**
-	 * A list of Renderer instances associated with this Application
-	**/
-	public var renderers (get, null):Array<Renderer>;
-	
-	/**
 	 * The Window associated with this Application, or the first Window
 	 * if there are multiple Windows active
 	**/
@@ -88,8 +76,6 @@ class Application extends Module {
 		untyped Object.defineProperties (p, {
 			"frameRate": { get: p.get_frameRate, set: p.set_frameRate },
 			"preloader": { get: p.get_preloader },
-			"renderer": { get: p.get_renderer },
-			"renderers": { get: p.get_renderers },
 			"window": { get: p.get_window },
 			"windows": { get: p.get_windows }
 		});
@@ -130,16 +116,6 @@ class Application extends Module {
 		module.registerModule (this);
 		modules.push (module);
 		
-		if (__renderers.length > 0) {
-			
-			for (renderer in __renderers) {
-				
-				module.addRenderer (renderer);
-				
-			}
-			
-		}
-		
 		if (__windows.length > 0) {
 			
 			for (window in __windows) {
@@ -151,24 +127,6 @@ class Application extends Module {
 		}
 		
 		module.setPreloader (__preloader);
-		
-	}
-	
-	
-	/**
-	 * Adds a new Renderer to the Application. By default, this is
-	 * called automatically by create()
-	 * @param	renderer	A Renderer object to add
-	 */
-	public override function addRenderer (renderer:Renderer):Void {
-		
-		super.addRenderer (renderer);
-		
-		for (module in modules) {
-			
-			module.addRenderer (renderer);
-			
-		}
 		
 	}
 	
@@ -240,13 +198,6 @@ class Application extends Module {
 			
 		}
 		
-		if (window.renderer == null) {
-			
-			var renderer = new Renderer (window);
-			addRenderer (renderer);
-			
-		}
-		
 		window.create (this);
 		//__windows.push (window);
 		windowByID.set (window.id, window);
@@ -309,12 +260,6 @@ class Application extends Module {
 			windowByID.remove (window.id);
 			window.close ();
 			
-			if (window.renderer != null) {
-				
-				removeRenderer (window.renderer);
-				
-			}
-			
 			if (this.window == window) {
 				
 				this.window = null;
@@ -369,20 +314,6 @@ class Application extends Module {
 	@:noCompletion private inline function get_preloader ():Preloader {
 		
 		return __preloader;
-		
-	}
-	
-	
-	@:noCompletion private inline function get_renderer ():Renderer {
-		
-		return __renderers[0];
-		
-	}
-	
-	
-	@:noCompletion private inline function get_renderers ():Array<Renderer> {
-		
-		return __renderers;
 		
 	}
 	

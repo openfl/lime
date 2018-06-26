@@ -8,11 +8,9 @@ import flash.Lib;
 import lime.app.Application;
 import lime.app.Config;
 import lime.media.AudioManager;
-import lime.graphics.Renderer;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
-@:access(lime.graphics.Renderer)
 
 
 class FlashApplication {
@@ -75,10 +73,9 @@ class FlashApplication {
 		
 		parent.onUpdate.dispatch (deltaTime);
 		
-		if (parent.renderer != null) {
+		if (parent.window != null) {
 			
-			parent.renderer.onRender.dispatch ();
-			parent.renderer.flip ();
+			parent.window.onRender.dispatch ();
 			
 		}
 		

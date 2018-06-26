@@ -1,4 +1,4 @@
-package lime.graphics.opengl;
+package lime.graphics;
 
 
 @:forward(ACTIVE_ATTRIBUTES, ACTIVE_TEXTURE, ACTIVE_UNIFORMS, ALIASED_LINE_WIDTH_RANGE, 
@@ -88,10 +88,10 @@ vertexAttrib3fv, vertexAttrib4f, vertexAttrib4fv, vertexAttribPointer, viewport,
 EXTENSIONS, type, version)
 
 
-abstract GLES2Context(GLES3Context) from GLES3Context from GLRenderContext to WebGLContext {
+abstract GLES2RenderContext(GLES3RenderContext) from GLES3RenderContext from GLRenderContext to WebGLRenderContext {
 	
 	
-	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):GLES2Context {
+	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):GLES2RenderContext {
 		
 		#if lime_opengl
 		return cast GL.context;

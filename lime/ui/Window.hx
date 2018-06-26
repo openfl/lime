@@ -5,7 +5,8 @@ import lime.app.Application;
 import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
-import lime.graphics.Renderer;
+import lime.graphics.RenderContext;
+import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
 
@@ -33,6 +34,7 @@ class Window {
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
 	public var config:WindowConfig;
+	public var context:RenderContext;
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
 	public var enableTextEvents (get, set):Bool;
@@ -43,6 +45,8 @@ class Window {
 	public var minimized (get, set):Bool;
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();
+	public var onContextLost = new Event<Void->Void> ();
+	public var onContextRestored = new Event<Void->Void> ();
 	public var onCreate = new Event<Void->Void> ();
 	public var onDeactivate = new Event<Void->Void> ();
 	public var onDropFile = new Event<String->Void> ();
@@ -61,11 +65,11 @@ class Window {
 	public var onMouseUp = new Event<Float->Float->Int->Void> ();
 	public var onMouseWheel = new Event<Float->Float->Void> ();
 	public var onMove = new Event<Float->Float->Void> ();
+	public var onRender (default, null) = new Event<Void->Void> ();
 	public var onResize = new Event<Int->Int->Void> ();
 	public var onRestore = new Event<Void->Void> ();
 	public var onTextEdit = new Event<String->Int->Int->Void> ();
 	public var onTextInput = new Event<String->Void> ();
-	public var renderer:Renderer;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
 	public var stage:Stage;
@@ -378,12 +382,6 @@ class Window {
 		
 		#end
 		
-		if (renderer != null) {
-			
-			renderer.create ();
-			
-		}
-		
 	}
 	
 	
@@ -400,6 +398,13 @@ class Window {
 		
 		__x = x;
 		__y = y;
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle = null):Image {
+		
+		return backend.readPixels (rect);
 		
 	}
 	

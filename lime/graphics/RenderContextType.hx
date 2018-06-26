@@ -1,15 +1,15 @@
 package lime.graphics;
 
 
-enum RendererType {
+enum RenderContextType {
 	
-	OPENGL;
+	CAIRO;
 	CANVAS;
 	DOM;
 	FLASH;
-	CAIRO;
-	CONSOLE;
-	KHA;
+	OPENGL;
+	OPENGLES;
+	WEBGL;
 	CUSTOM;
 	
 }

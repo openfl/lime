@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "6.4.0",
-	"releasenote": "Added initial Electron support, minor fixes and improvements",
+	"version": "7.0.0",
+	"releasenote": "",
 	"contributors": [ "singmajesty" ]
 }
