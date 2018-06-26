@@ -94,6 +94,9 @@ class CFFIMacro {
 									
 									cffiExpr = 'new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy))';
 									
+									// Sys.println ("private static var " + field.name + ':$typeString = CFFI.loadPrime ("$library", "$method", "$typeSignature");');
+									// Sys.println ("private static var " + field.name + ' = new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy));');
+									
 								} else {
 									
 									var args = typeSignature.length - 1;
@@ -105,6 +108,8 @@ class CFFIMacro {
 									}
 									
 									cffiExpr = 'new cpp.Callable<$typeString> (lime.system.CFFI.load ("$library", "$method", $args, $lazy))';
+									
+									// Sys.println ("private static var " + field.name + ':$typeString = CFFI.load ("$library", "$method", $args);');
 									
 								}
 								
@@ -128,6 +133,20 @@ class CFFIMacro {
 								}
 								
 								expr += ")";
+								
+								// if (Context.defined ("cpp")) {
+									
+								// 	Sys.println ('private static var $cffiName = new cpp.Callable<$typeString> (cpp.Prime._loadPrime ("$library", "$method", "$typeSignature", $lazy));');
+									
+								// 	var _args = "";
+								// 	for (i in 0...typeArgs.length) {
+								// 		if (i > 0) _args += ", ";
+								// 		_args += typeArgs[i].name + ":" + typeArgs[i].t.toString ();
+								// 	}
+									
+								// 	Sys.println ('private static function ${field.name} ($_args) { $expr; }');
+									
+								// }
 								
 							}
 							
