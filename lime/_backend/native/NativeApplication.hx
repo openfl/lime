@@ -10,7 +10,6 @@ import lime.graphics.opengl.GL;
 import lime.graphics.ConsoleRenderContext;
 import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
-import lime.graphics.Renderer;
 import lime.math.Rectangle;
 import lime.system.Clipboard;
 import lime.system.Display;
@@ -35,7 +34,7 @@ import lime.ui.Window;
 @:access(haxe.Timer)
 @:access(lime._backend.native.NativeCFFI)
 @:access(lime._backend.native.NativeGLRenderContext)
-@:access(lime._backend.native.NativeRenderer)
+@:access(lime._backend.native.NativeWindow)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.GLRenderContext)
@@ -436,24 +435,26 @@ class NativeApplication {
 	
 	private function handleRenderEvent ():Void {
 		
-		for (renderer in parent.renderers) {
+		// TODO: Allow windows to render independently
+		
+		for (window in parent.windows) {
 			
-			if (renderer == null) continue;
+			if (window == null) continue;
 			
-			parent.renderer = renderer;
+			// parent.renderer = renderer;
 			
 			switch (renderEventInfo.type) {
 				
 				case RENDER:
 					
-					if (renderer.context != null) {
+					if (window.context != null) {
 						
-						renderer.render ();
-						renderer.onRender.dispatch ();
+						window.backend.render ();
+						window.onRender.dispatch ();
 						
-						if (!renderer.onRender.canceled) {
+						if (!window.onRender.canceled) {
 							
-							renderer.flip ();
+							window.backend.contextFlip ();
 							
 						}
 						
@@ -461,13 +462,14 @@ class NativeApplication {
 					
 				case RENDER_CONTEXT_LOST:
 					
-					if (renderer.backend.useHardware && renderer.context != null) {
+					if (window.backend.useHardware && window.context != null) {
 						
-						switch (renderer.context) {
+						switch (window.context.type) {
 							
-							case OPENGL (gl):
+							case OPENGL, OPENGLES, WEBGL:
 								
 								#if (lime_cffi && lime_opengl && !display)
+								var gl = window.context.gl;
 								(gl:NativeGLRenderContext).__contextLost ();
 								if (GL.context == gl) GL.context = null;
 								#end
@@ -476,23 +478,23 @@ class NativeApplication {
 							
 						}
 						
-						renderer.context = null;
-						renderer.onContextLost.dispatch ();
+						window.context = null;
+						window.onContextLost.dispatch ();
 						
 					}
 				
 				case RENDER_CONTEXT_RESTORED:
 					
-					if (renderer.backend.useHardware) {
+					if (window.backend.useHardware) {
 						
 						#if lime_console
-						renderer.context = CONSOLE (ConsoleRenderContext.singleton);
+						// renderer.context = CONSOLE (ConsoleRenderContext.singleton);
 						#else
-						GL.context = new GLRenderContext ();
-						renderer.context = OPENGL (GL.context);
+						// GL.context = new GLRenderContext ();
+						// window.context.gl = GL.context;
 						#end
 						
-						renderer.onContextRestored.dispatch (renderer.context);
+						window.onContextRestored.dispatch ();
 						
 					}
 				

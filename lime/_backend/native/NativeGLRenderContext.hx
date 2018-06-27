@@ -12,7 +12,6 @@ import lime.graphics.opengl.ext.*;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
-import lime.graphics.opengl.GLContextType;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLRenderbuffer;
@@ -21,9 +20,7 @@ import lime.graphics.opengl.GLShaderPrecisionFormat;
 import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLUniformLocation;
 import lime.graphics.opengl.GL;
-import lime.system.System;
-import lime.utils.ArrayBuffer;
-import lime.utils.ArrayBufferView;
+import lime.graphics.RenderContextType;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
@@ -686,7 +683,7 @@ class NativeGLRenderContext {
 	public var TIMEOUT_IGNORED = -1;
 	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
 	
-	public var type (default, null):GLContextType;
+	public var type (default, null):RenderContextType;
 	public var version (default, null):Float;
 	
 	private var __arrayBufferBinding:GLBuffer;
@@ -710,7 +707,7 @@ class NativeGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		var versionString:String = getParameter (VERSION);
 		if (versionString.indexOf ("OpenGL ES") > -1) {
-			type = GLES;
+			type = OPENGLES;
 		} else {
 			type = OPENGL;
 		}

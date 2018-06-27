@@ -3,6 +3,7 @@ package lime.graphics;
 
 import haxe.Int64;
 import haxe.io.Bytes;
+import lime.graphics.opengl.*;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
@@ -639,7 +640,7 @@ abstract GLES3RenderContext(GLRenderContext) from GLRenderContext to GLRenderCon
 	public var TIMEOUT_IGNORED (get, never):Int;
 	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL (get, never):Int;
 	
-	public var type (get, never):GLContextType;
+	public var type (get, never):RenderContextType;
 	public var version (get, never):Float;
 	
 	private inline function get_EXTENSIONS ():Int { return 0x1F03; }
@@ -940,7 +941,7 @@ abstract GLES3RenderContext(GLRenderContext) from GLRenderContext to GLRenderCon
 	private inline function get_CONTEXT_LOST_WEBGL ():Int { return this.CONTEXT_LOST_WEBGL; }
 	private inline function get_UNPACK_COLORSPACE_CONVERSION_WEBGL ():Int { return this.UNPACK_COLORSPACE_CONVERSION_WEBGL; }
 	private inline function get_BROWSER_DEFAULT_WEBGL ():Int { return this.BROWSER_DEFAULT_WEBGL; }
-	private inline function get_type ():GLContextType { return this.type; }
+	private inline function get_type ():RenderContextType { return this.type; }
 	private inline function get_version ():Float { return this.version; }
 	
 	private inline function get_READ_BUFFER ():Int { return this.READ_BUFFER; }

@@ -1,16 +1,29 @@
 package lime._backend.native;
 
 
+import haxe.io.Bytes;
 import lime._backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.graphics.cairo.Cairo;
+import lime.graphics.cairo.CairoFormat;
+import lime.graphics.cairo.CairoImageSurface;
+import lime.graphics.cairo.CairoSurface;
+import lime.graphics.opengl.GL;
+import lime.graphics.CairoRenderContext;
+import lime.graphics.ConsoleRenderContext;
+import lime.graphics.GLRenderContext;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
+import lime.graphics.RenderContext;
+import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
 import lime.ui.Window;
+import lime.utils.UInt8Array;
+
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -18,7 +31,12 @@ import lime.ui.Window;
 #end
 
 @:access(lime._backend.native.NativeCFFI)
+@:access(lime._backend.native.NativeGLRenderContext)
 @:access(lime.app.Application)
+@:access(lime.graphics.cairo.Cairo)
+@:access(lime.graphics.opengl.GL)
+@:access(lime.graphics.GLRenderContext)
+@:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
 @:access(lime.ui.Window)
 
@@ -31,6 +49,13 @@ class NativeWindow {
 	private var closing:Bool;
 	private var displayMode:DisplayMode;
 	private var parent:Window;
+	private var useHardware:Bool;
+	
+	#if lime_cairo
+	private var cacheLock:Dynamic;
+	private var cairo:Cairo;
+	private var primarySurface:CairoSurface;
+	#end
 	
 	
 	public function new (parent:Window) {
@@ -144,6 +169,93 @@ class NativeWindow {
 			parent.id = NativeCFFI.lime_window_get_id (handle);
 			
 		}
+		
+		parent.__scale = NativeCFFI.lime_window_get_scale (handle);
+		
+		var context = new RenderContext ();
+		
+		#if lime_console
+		
+		useHardware = true;
+		// parent.context = CONSOLE (ConsoleRenderContext.singleton);
+		// parent.type = CONSOLE;
+		
+		#else
+		
+		#if hl
+		var contextType = @:privateAccess String.fromUTF8 (NativeCFFI.lime_window_get_context_type (handle));
+		#else
+		var contextType:String = NativeCFFI.lime_window_get_context_type (handle);
+		#end
+		
+		switch (contextType) {
+			
+			case "opengl":
+				
+				var gl = new GLRenderContext ();
+				
+				useHardware = true;
+				context.gl = gl;
+				context.gles2 = gl;
+				context.webgl = gl;
+				context.type = gl.type;
+				context.version = Std.string (gl.version);
+				
+				if (gl.type == OPENGLES && gl.version >= 3) {
+					
+					context.gles3 = gl;
+					context.webgl2 = gl;
+					
+				}
+				
+				if (GL.context == null) {
+					
+					GL.context = gl;
+					
+				}
+			
+			default:
+				
+				useHardware = false;
+				
+				#if lime_cairo
+				context.cairo = cairo;
+				context.type = CAIRO;
+				context.version = "";
+				
+				parent.context = context;
+				render ();
+				#end
+				context.type = CAIRO;
+			
+		}
+		
+		#end
+		
+		parent.context = context;
+		
+		#end
+		
+	}
+	
+	
+	public function contextFlip ():Void {
+		
+		#if (!macro && lime_cffi)
+		if (!useHardware) {
+			
+			#if lime_cairo
+			if (cairo != null) {
+				
+				primarySurface.flush ();
+				
+			}
+			#end
+			NativeCFFI.lime_window_context_unlock (handle);
+			
+		}
+		
+		NativeCFFI.lime_window_context_flip (handle);
 		#end
 		
 	}
@@ -245,6 +357,136 @@ class NativeWindow {
 			#end
 			
 		}
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle):Image {
+		
+		var imageBuffer:ImageBuffer = null;
+		
+		switch (parent.context.type) {
+			
+			case OPENGL:
+				
+				var gl = parent.context.gl;
+				var windowWidth = Std.int (parent.__width * parent.__scale);
+				var windowHeight = Std.int (parent.__height * parent.__scale);
+				
+				var x, y, width, height;
+				
+				if (rect != null) {
+					
+					x = Std.int (rect.x);
+					y = Std.int ((windowHeight - rect.y) - rect.height);
+					width = Std.int (rect.width);
+					height = Std.int (rect.height);
+					
+				} else {
+					
+					x = 0;
+					y = 0;
+					width = windowWidth;
+					height = windowHeight;
+					
+				}
+				
+				var data = new UInt8Array (width * height * 4);
+				
+				gl.readPixels (x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+				
+				#if !js // TODO
+				
+				var rowLength = width * 4;
+				var srcPosition = (height - 1) * rowLength;
+				var destPosition = 0;
+				
+				var temp = Bytes.alloc (rowLength);
+				var buffer = data.buffer;
+				var rows = Std.int (height / 2);
+				
+				while (rows-- > 0) {
+					
+					temp.blit (0, buffer, destPosition, rowLength);
+					buffer.blit (destPosition, buffer, srcPosition, rowLength);
+					buffer.blit (srcPosition, temp, 0, rowLength);
+					
+					destPosition += rowLength;
+					srcPosition -= rowLength;
+					
+				}
+				
+				#end
+				
+				imageBuffer = new ImageBuffer (data, width, height, 32, RGBA32);
+			
+			default:
+				
+				#if (!macro && lime_cffi)
+				#if !cs
+				imageBuffer = NativeCFFI.lime_window_read_pixels (handle, rect, new ImageBuffer (new UInt8Array (Bytes.alloc (0))));
+				#else
+				var data:Dynamic = NativeCFFI.lime_window_read_pixels (handle, rect, null);
+				if (data != null) {
+					imageBuffer = new ImageBuffer (new UInt8Array (@:privateAccess new Bytes (data.data.length, data.data.b)), data.width, data.height, data.bitsPerPixel);
+				}
+				#end
+				#end
+				
+				if (imageBuffer != null) {
+					
+					imageBuffer.format = RGBA32;
+					
+				}
+			
+		}
+		
+		if (imageBuffer != null) {
+			
+			return new Image (imageBuffer);
+			
+		}
+		
+		return null;
+		
+	}
+	
+	
+	public function render ():Void {
+		
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_window_context_make_current (handle);
+		
+		if (!useHardware) {
+			
+			#if lime_cairo
+			var lock:Dynamic = NativeCFFI.lime_window_context_lock (handle #if hl, { width: 0, height: 0, pixels: 0., pitch: 0 } #end);
+			
+			if (lock != null && (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height)) {
+				
+				primarySurface = CairoImageSurface.create (lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
+				
+				if (cairo != null) {
+					
+					cairo.recreate (primarySurface);
+					
+				} else {
+					
+					cairo = new Cairo (primarySurface);
+					
+				}
+				
+				parent.context.cairo = cairo;
+				
+			}
+			
+			cacheLock = lock;
+			#else
+			parent.context = null;
+			#end
+			
+		}
+		#end
 		
 	}
 	

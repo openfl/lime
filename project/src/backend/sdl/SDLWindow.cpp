@@ -1,5 +1,7 @@
 #include "SDLWindow.h"
 #include "SDLApplication.h"
+#include "../../graphics/opengl/OpenGL.h"
+#include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
@@ -16,20 +18,27 @@ namespace lime {
 	
 	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
 		
+		sdlTexture = 0;
+		sdlRenderer = 0;
+		context = 0;
+		
+		contextWidth = 0;
+		contextHeight = 0;
+		
 		currentApplication = application;
 		this->flags = flags;
 		
-		int sdlFlags = 0;
+		int sdlWindowFlags = 0;
 		
-		if (flags & WINDOW_FLAG_FULLSCREEN) sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-		if (flags & WINDOW_FLAG_RESIZABLE) sdlFlags |= SDL_WINDOW_RESIZABLE;
-		if (flags & WINDOW_FLAG_BORDERLESS) sdlFlags |= SDL_WINDOW_BORDERLESS;
-		if (flags & WINDOW_FLAG_HIDDEN) sdlFlags |= SDL_WINDOW_HIDDEN;
-		if (flags & WINDOW_FLAG_MINIMIZED) sdlFlags |= SDL_WINDOW_MINIMIZED;
-		if (flags & WINDOW_FLAG_MAXIMIZED) sdlFlags |= SDL_WINDOW_MAXIMIZED;
+		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (flags & WINDOW_FLAG_RESIZABLE) sdlWindowFlags |= SDL_WINDOW_RESIZABLE;
+		if (flags & WINDOW_FLAG_BORDERLESS) sdlWindowFlags |= SDL_WINDOW_BORDERLESS;
+		if (flags & WINDOW_FLAG_HIDDEN) sdlWindowFlags |= SDL_WINDOW_HIDDEN;
+		if (flags & WINDOW_FLAG_MINIMIZED) sdlWindowFlags |= SDL_WINDOW_MINIMIZED;
+		if (flags & WINDOW_FLAG_MAXIMIZED) sdlWindowFlags |= SDL_WINDOW_MAXIMIZED;
 		
 		#ifndef EMSCRIPTEN
-		if (flags & WINDOW_FLAG_ALWAYS_ON_TOP) sdlFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
+		if (flags & WINDOW_FLAG_ALWAYS_ON_TOP) sdlWindowFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
 		#endif
 		
 		#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
@@ -53,11 +62,11 @@ namespace lime {
 		
 		if (flags & WINDOW_FLAG_HARDWARE) {
 			
-			sdlFlags |= SDL_WINDOW_OPENGL;
+			sdlWindowFlags |= SDL_WINDOW_OPENGL;
 			
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 				
-				sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 				
 			}
 			
@@ -121,7 +130,7 @@ namespace lime {
 			
 		}
 		
-		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 		
 		#if defined (IPHONE) || defined (APPLETV)
 		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
@@ -129,7 +138,7 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 			
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlFlags);
+			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 			
 		}
 		#endif
@@ -139,8 +148,6 @@ namespace lime {
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
 			
 		}
-		
-		//((SDLApplication*)currentApplication)->RegisterWindow (this);
 		
 		#ifdef HX_WINDOWS
 		
@@ -168,6 +175,98 @@ namespace lime {
 		
 		#endif
 		
+		int sdlRendererFlags = 0;
+		
+		if (flags & WINDOW_FLAG_HARDWARE) {
+			
+			sdlRendererFlags |= SDL_RENDERER_ACCELERATED;
+			
+			// if (window->flags & WINDOW_FLAG_VSYNC) {
+				
+			// 	sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+				
+			// }
+			
+			// sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlRendererFlags);
+			
+			// if (sdlRenderer) {
+				
+			// 	context = SDL_GL_GetCurrentContext ();
+				
+			// }
+			
+			context = SDL_GL_CreateContext (sdlWindow);
+			
+			if (context) {
+				
+				if (flags & WINDOW_FLAG_VSYNC) {
+					
+					SDL_GL_SetSwapInterval (1);
+					
+				} else {
+					
+					SDL_GL_SetSwapInterval (0);
+					
+				}
+				
+				OpenGLBindings::Init ();
+				
+				#ifndef LIME_GLES
+				
+				int version = 0;
+				glGetIntegerv (GL_MAJOR_VERSION, &version);
+				
+				if (version == 0) {
+					
+					float versionScan = 0;
+					sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
+					version = versionScan;
+					
+				}
+				
+				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
+					
+					SDL_GL_DeleteContext (context);
+					context = 0;
+					
+				}
+				
+				#elif defined(IPHONE) || defined(APPLETV)
+				
+				// SDL_SysWMinfo windowInfo;
+				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
+				// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
+				// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
+				glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
+				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
+				
+				#endif
+				
+			}
+			
+		}
+		
+		if (!context) {
+			
+			sdlRendererFlags &= ~SDL_RENDERER_ACCELERATED;
+			sdlRendererFlags &= ~SDL_RENDERER_PRESENTVSYNC;
+			
+			sdlRendererFlags |= SDL_RENDERER_SOFTWARE;
+			
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlRendererFlags);
+			
+		}
+		
+		if (context || sdlRenderer) {
+			
+			((SDLApplication*)currentApplication)->RegisterWindow (this);
+			
+		} else {
+			
+			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
+			
+		}
+		
 	}
 	
 	
@@ -177,6 +276,16 @@ namespace lime {
 			
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
+			
+		}
+		
+		if (sdlRenderer) {
+			
+			SDL_DestroyRenderer (sdlRenderer);
+			
+		} else if (context) {
+			
+			SDL_GL_DeleteContext (context);
 			
 		}
 		
@@ -226,9 +335,166 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::ContextFlip () {
+		
+		if (context && !sdlRenderer) {
+			
+			SDL_GL_SwapWindow (sdlWindow);
+			
+		} else if (sdlRenderer) {
+			
+			SDL_RenderPresent (sdlRenderer);
+			
+		}
+		
+	}
+	
+	
+	void* SDLWindow::ContextLock (bool useCFFIValue, void* object) {
+		
+		if (sdlRenderer) {
+			
+			int width;
+			int height;
+			
+			SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+			
+			if (width != contextWidth || height != contextHeight) {
+				
+				if (sdlTexture) {
+					
+					SDL_DestroyTexture (sdlTexture);
+					
+				}
+				
+				sdlTexture = SDL_CreateTexture (sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+				
+				contextWidth = width;
+				contextHeight = height;
+				
+			}
+			
+			void *pixels;
+			int pitch;
+			
+			if (useCFFIValue) {
+				
+				value result = alloc_empty_object ();
+				
+				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
+					
+					alloc_field (result, val_id ("width"), alloc_int (contextWidth));
+					alloc_field (result, val_id ("height"), alloc_int (contextHeight));
+					alloc_field (result, val_id ("pixels"), alloc_float ((uintptr_t)pixels));
+					alloc_field (result, val_id ("pitch"), alloc_int (pitch));
+					
+				}
+				
+				return result;
+				
+			} else {
+				
+				const int id_width = hl_hash_utf8 ("width");
+				const int id_height = hl_hash_utf8 ("height");
+				const int id_pixels = hl_hash_utf8 ("pixels");
+				const int id_pitch = hl_hash_utf8 ("pitch");
+				
+				// TODO: Allocate a new object here?
+				
+				vdynamic* result = (vdynamic*)object;
+				
+				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
+					
+					hl_dyn_seti (result, id_width, &hlt_i32, contextWidth);
+					hl_dyn_seti (result, id_height, &hlt_i32, contextHeight);
+					hl_dyn_setd (result, id_pixels, (uintptr_t)pixels);
+					hl_dyn_seti (result, id_pitch, &hlt_i32, pitch);
+					
+				}
+				
+				return result;
+				
+			}
+			
+		} else {
+			
+			if (useCFFIValue) {
+				
+				return alloc_null ();
+				
+			} else {
+				
+				return 0;
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	void SDLWindow::ContextMakeCurrent () {
+		
+		if (sdlWindow && context) {
+			
+			SDL_GL_MakeCurrent (sdlWindow, context);
+			
+		}
+		
+	}
+	
+	
+	void SDLWindow::ContextUnlock () {
+		
+		if (sdlTexture) {
+			
+			SDL_UnlockTexture (sdlTexture);
+			SDL_RenderClear (sdlRenderer);
+			SDL_RenderCopy (sdlRenderer, sdlTexture, NULL, NULL);
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::Focus () {
 		
 		SDL_RaiseWindow (sdlWindow);
+		
+	}
+	
+	
+	void* SDLWindow::GetContext () {
+		
+		return context;
+		
+	}
+	
+	
+	const char* SDLWindow::GetContextType () {
+		
+		if (context) {
+			
+			return "opengl";
+			
+		} else if (sdlRenderer) {
+			
+			SDL_RendererInfo info;
+			SDL_GetRendererInfo (sdlRenderer, &info);
+			
+			if (info.flags & SDL_RENDERER_SOFTWARE) {
+				
+				return "software";
+				
+			} else {
+				
+				return "opengl";
+				
+			}
+			
+		}
+		
+		return "none";
 		
 	}
 	
@@ -298,6 +564,45 @@ namespace lime {
 	}
 	
 	
+	double SDLWindow::GetScale () {
+		
+		if (sdlRenderer) {
+			
+			int outputWidth;
+			int outputHeight;
+			
+			SDL_GetRendererOutputSize (sdlRenderer, &outputWidth, &outputHeight);
+			
+			int width;
+			int height;
+			
+			SDL_GetWindowSize (sdlWindow, &width, &height);
+			
+			double scale = double (outputWidth) / width;
+			return scale;
+			
+		} else if (context) {
+			
+			int outputWidth;
+			int outputHeight;
+			
+			SDL_GL_GetDrawableSize (sdlWindow, &outputWidth, &outputHeight);
+			
+			int width;
+			int height;
+			
+			SDL_GetWindowSize (sdlWindow, &width, &height);
+			
+			double scale = double (outputWidth) / width;
+			return scale;
+			
+		}
+		
+		return 1;
+		
+	}
+	
+	
 	int SDLWindow::GetWidth () {
 		
 		int width;
@@ -337,6 +642,38 @@ namespace lime {
 	void SDLWindow::Move (int x, int y) {
 		
 		SDL_SetWindowPosition (sdlWindow, x, y);
+		
+	}
+	
+	
+	void SDLWindow::ReadPixels (ImageBuffer *buffer, Rectangle *rect) {
+		
+		if (sdlRenderer) {
+			
+			SDL_Rect bounds = { 0, 0, 0, 0 };
+			
+			if (rect) {
+				
+				bounds.x = rect->x;
+				bounds.y = rect->y;
+				bounds.w = rect->width;
+				bounds.h = rect->height;
+				
+			} else {
+				
+				SDL_GetWindowSize (sdlWindow, &bounds.w, &bounds.h);
+				
+			}
+			
+			buffer->Resize (bounds.w, bounds.h, 32);
+			
+			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->buffer->b, buffer->Stride ());
+			
+		} else if (context) {
+			
+			// TODO
+			
+		}
 		
 	}
 	

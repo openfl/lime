@@ -18,6 +18,7 @@ import js.Browser;
 import lime.app.Application;
 import lime.graphics.opengl.GL;
 import lime.graphics.utils.ImageCanvasUtil;
+import lime.graphics.GLRenderContext;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
 import lime.math.Rectangle;
@@ -31,7 +32,9 @@ import lime.ui.Touch;
 import lime.ui.Window;
 
 
+@:access(lime._backend.html5.HTML5GLRenderContext)
 @:access(lime.app.Application)
+@:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.RenderContext)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
@@ -329,15 +332,23 @@ class HTML5Window {
 				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
 				#end
 				
-				// #if ((js && html5) && !display)
-				// GL.context = new GLRenderContext (cast webgl);
-				// parent.context = OPENGL (GL.context);
-				// #else
-				// parent.context = OPENGL (new GLRenderContext ());
-				// #end
+				#if ((js && html5) && !display)
+				var gl = new GLRenderContext (cast webgl);
+				context.gl = gl;
+				context.webgl = gl;
+				if (isWebGL2) context.webgl2 = gl;
+				#else
+				var gl = new GLRenderContext ();
+				context.gl = gl;
+				context.webgl = gl;
+				#end
 				
-				// context.webgl = cast webgl;
-				// if (isWebGL2) context.webgl2 = cast webgl;
+				if (GL.context == null) {
+					
+					GL.context = gl;
+					
+				}
+				
 				context.type = WEBGL;
 				context.version = isWebGL2 ? "2" : "1";
 				

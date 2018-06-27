@@ -36,7 +36,6 @@ import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLActiveInfo;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLContextAttributes;
-import lime.graphics.opengl.GLContextType;
 import lime.graphics.opengl.GLES2Context;
 import lime.graphics.opengl.GLES3Context;
 import lime.graphics.opengl.GLFramebuffer;

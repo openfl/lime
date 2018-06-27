@@ -19,16 +19,24 @@ namespace lime {
 			
 			virtual void Alert (const char* message, const char* title);
 			virtual void Close ();
+			virtual void ContextFlip ();
+			virtual void* ContextLock (bool useCFFIValue, void* object);
+			virtual void ContextMakeCurrent ();
+			virtual void ContextUnlock ();
 			virtual void Focus ();
+			virtual void* GetContext ();
+			virtual const char* GetContextType ();
 			virtual int GetDisplay ();
 			virtual void GetDisplayMode (DisplayMode* displayMode);
 			virtual bool GetEnableTextEvents ();
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
+			virtual double GetScale ();
 			virtual int GetWidth ();
 			virtual int GetX ();
 			virtual int GetY ();
 			virtual void Move (int x, int y);
+			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
 			virtual void Resize (int width, int height);
 			virtual bool SetBorderless (bool borderless);
 			virtual void SetDisplayMode (DisplayMode* displayMode);
@@ -40,7 +48,15 @@ namespace lime {
 			virtual bool SetResizable (bool resizable);
 			virtual const char* SetTitle (const char* title);
 			
+			SDL_Renderer* sdlRenderer;
+			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
+		
+		private:
+			
+			SDL_GLContext context;
+			int contextHeight;
+			int contextWidth;
 		
 	};
 	

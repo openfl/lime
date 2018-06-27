@@ -7,6 +7,7 @@ import js.html.webgl.RenderingContext in WebGLRenderingContext;
 import js.html.CanvasElement;
 import js.Browser;
 import lime.graphics.opengl.*;
+import lime.graphics.RenderContextType;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.BytePointer;
@@ -652,7 +653,7 @@ class HTML5GLRenderContext {
 	public var drawingBufferWidth (get, never):Int;
 	#end
 	
-	public var type:GLContextType;
+	public var type:RenderContextType;
 	public var version (default, null):Int;
 	
 	private var __context:WebGL2RenderingContext;

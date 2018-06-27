@@ -8,63 +8,13 @@
 
 #include <app/Application.h>
 #include <graphics/ImageBuffer.h>
+#include <math/Rectangle.h>
 #include <system/CFFI.h>
 #include <system/DisplayMode.h>
 #include <stdint.h>
 
 
 namespace lime {
-	
-	
-	// struct HL_Window {
-		
-	// 	hl_type* t;
-	// 	HL_Application* application;
-	// 	bool borderless;
-	// 	vdynamic* config;
-	// 	vdynamic* display;
-	// 	int id;
-	// 	vdynamic* onActivate;
-	// 	vdynamic* onClose;
-	// 	vdynamic* onCreate;
-	// 	vdynamic* onDeactivate;
-	// 	vdynamic* onDropFile;
-	// 	vdynamic* onEnter;
-	// 	vdynamic* onFocusIn;
-	// 	vdynamic* onFocusOut;
-	// 	vdynamic* onFullscreen;
-	// 	vdynamic* onKeyDown;
-	// 	vdynamic* onKeyUp;
-	// 	vdynamic* onLeave;
-	// 	vdynamic* onMinimize;
-	// 	vdynamic* onMouseDown;
-	// 	vdynamic* onMouseMove;
-	// 	vdynamic* onMouseMoveRelative;
-	// 	vdynamic* onMouseUp;
-	// 	vdynamic* onMouseWheel;
-	// 	vdynamic* onMove;
-	// 	vdynamic* onResize;
-	// 	vdynamic* onRestore;
-	// 	vdynamic* onTextEdit;
-	// 	vdynamic* onTextInput;
-	// 	HL_Renderer* renderer;
-	// 	double scale;
-	// 	vdynamic* stage;
-		
-	// 	vdynamic* backend;
-	// 	bool __borderless;
-	// 	bool __fullscreen;
-	// 	int __height;
-	// 	bool __maximized;
-	// 	bool __minimized;
-	// 	bool __resizable;
-	// 	double __scale;
-	// 	vbyte* __title;
-	// 	int __width;
-	// 	int __x;
-	// 	int __y;
-		
-	// };
 	
 	
 	class Window {
@@ -76,16 +26,24 @@ namespace lime {
 			
 			virtual void Alert (const char* message, const char* title) = 0;
 			virtual void Close () = 0;
+			virtual void ContextFlip () = 0;
+			virtual void* ContextLock (bool useCFFIValue, void* object) = 0;
+			virtual void ContextMakeCurrent () = 0;
+			virtual void ContextUnlock () = 0;
 			virtual void Focus () = 0;
+			virtual void* GetContext () = 0;
+			virtual const char* GetContextType () = 0;
 			virtual int GetDisplay () = 0;
 			virtual void GetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual bool GetEnableTextEvents () = 0;
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
+			virtual double GetScale () = 0;
 			virtual int GetWidth () = 0;
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
+			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect) = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual bool SetBorderless (bool borderless) = 0;
 			virtual void SetDisplayMode (DisplayMode* displayMode) = 0;

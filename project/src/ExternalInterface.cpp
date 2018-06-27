@@ -15,7 +15,6 @@
 #include <graphics/utils/ImageDataUtil.h>
 #include <graphics/Image.h>
 #include <graphics/ImageBuffer.h>
-#include <graphics/Renderer.h>
 #include <graphics/RenderEvent.h>
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
@@ -109,22 +108,6 @@ namespace lime {
 		Font* font = (Font*)handle->ptr;
 		delete font;
 		#endif
-		
-	}
-	
-	
-	void gc_renderer (value handle) {
-		
-		Renderer* renderer = (Renderer*)val_data (handle);
-		delete renderer;
-		
-	}
-	
-	
-	void hl_gc_renderer (HL_CFFIPointer* handle) {
-		
-		Renderer* renderer = (Renderer*)handle->ptr;
-		delete renderer;
 		
 	}
 	
@@ -2694,167 +2677,6 @@ namespace lime {
 	}
 	
 	
-	value lime_renderer_create (value window) {
-		
-		Renderer* renderer = CreateRenderer ((Window*)val_data (window));
-		return CFFIPointer (renderer, gc_renderer);
-		
-	}
-	
-	
-	HL_PRIM HL_CFFIPointer* hl_lime_renderer_create (HL_CFFIPointer* window) {
-		
-		Renderer* renderer = CreateRenderer ((Window*)window->ptr);
-		return HLCFFIPointer (renderer, (hl_finalizer)hl_gc_renderer);
-		
-	}
-	
-	
-	void lime_renderer_flip (value renderer) {
-		
-		((Renderer*)val_data (renderer))->Flip ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_renderer_flip (HL_CFFIPointer* renderer) {
-		
-		((Renderer*)renderer->ptr)->Flip ();
-		
-	}
-	
-	
-	double lime_renderer_get_context (value renderer) {
-		
-		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		return (uintptr_t)targetRenderer->GetContext ();
-		
-	}
-	
-	
-	HL_PRIM double hl_lime_renderer_get_context (HL_CFFIPointer* renderer) {
-		
-		Renderer* targetRenderer = (Renderer*)renderer->ptr;
-		return (uintptr_t)targetRenderer->GetContext ();
-		
-	}
-	
-	
-	double lime_renderer_get_scale (value renderer) {
-		
-		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		return targetRenderer->GetScale ();
-		
-	}
-	
-	
-	HL_PRIM double hl_lime_renderer_get_scale (HL_CFFIPointer* renderer) {
-		
-		Renderer* targetRenderer = (Renderer*)renderer->ptr;
-		return targetRenderer->GetScale ();
-		
-	}
-	
-	
-	value lime_renderer_get_type (value renderer) {
-		
-		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		const char* type = targetRenderer->Type ();
-		return type ? alloc_string (type) : alloc_null ();
-		
-	}
-	
-	
-	HL_PRIM vbyte* hl_lime_renderer_get_type (HL_CFFIPointer* renderer) {
-		
-		Renderer* targetRenderer = (Renderer*)renderer->ptr;
-		return (vbyte*)targetRenderer->Type ();
-		
-	}
-	
-	
-	value lime_renderer_lock (value renderer) {
-		
-		return (value)((Renderer*)val_data (renderer))->Lock (true, NULL);
-		
-	}
-	
-	
-	HL_PRIM vdynamic* hl_lime_renderer_lock (HL_CFFIPointer* renderer, vdynamic* object) {
-		
-		return (vdynamic*)((Renderer*)renderer->ptr)->Lock (false, object);
-		
-	}
-	
-	
-	void lime_renderer_make_current (value renderer) {
-		
-		((Renderer*)val_data (renderer))->MakeCurrent ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_renderer_make_current (HL_CFFIPointer* renderer) {
-		
-		((Renderer*)renderer->ptr)->MakeCurrent ();
-		
-	}
-	
-	
-	value lime_renderer_read_pixels (value renderer, value rect, value imageBuffer) {
-		
-		Renderer* targetRenderer = (Renderer*)val_data (renderer);
-		ImageBuffer buffer (imageBuffer);
-		
-		if (!val_is_null (rect)) {
-			
-			Rectangle _rect = Rectangle (rect);
-			targetRenderer->ReadPixels (&buffer, &_rect);
-			
-		} else {
-			
-			targetRenderer->ReadPixels (&buffer, NULL);
-			
-		}
-		
-		return buffer.Value (imageBuffer);
-		
-	}
-	
-	
-	HL_PRIM ImageBuffer* hl_lime_renderer_read_pixels (HL_CFFIPointer* renderer, Rectangle* rect, ImageBuffer* imageBuffer) {
-		
-		Renderer* targetRenderer = (Renderer*)renderer->ptr;
-		
-		if (rect) {
-			
-			targetRenderer->ReadPixels (imageBuffer, rect);
-			
-		} else {
-			
-			targetRenderer->ReadPixels (imageBuffer, NULL);
-			
-		}
-		
-		return imageBuffer;
-		
-	}
-	
-	
-	void lime_renderer_unlock (value renderer) {
-		
-		((Renderer*)val_data (renderer))->Unlock ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_renderer_unlock (HL_CFFIPointer* renderer) {
-		
-		((Renderer*)renderer->ptr)->Unlock ();
-		
-	}
-	
-	
 	void lime_sensor_event_manager_register (value callback, value eventObject) {
 		
 		SensorEvent::callback = new ValuePointer (callback);
@@ -3481,6 +3303,62 @@ namespace lime {
 	}
 	
 	
+	void lime_window_context_flip (value window) {
+		
+		((Window*)val_data (window))->ContextFlip ();
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_context_flip (HL_CFFIPointer* window) {
+		
+		((Window*)window->ptr)->ContextFlip ();
+		
+	}
+	
+	
+	value lime_window_context_lock (value window) {
+		
+		return (value)((Window*)val_data (window))->ContextLock (true, NULL);
+		
+	}
+	
+	
+	HL_PRIM vdynamic* hl_lime_window_context_lock (HL_CFFIPointer* window, vdynamic* object) {
+		
+		return (vdynamic*)((Window*)window->ptr)->ContextLock (false, object);
+		
+	}
+	
+	
+	void lime_window_context_make_current (value window) {
+		
+		((Window*)val_data (window))->ContextMakeCurrent ();
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_context_make_current (HL_CFFIPointer* window) {
+		
+		((Window*)window->ptr)->ContextMakeCurrent ();
+		
+	}
+	
+	
+	void lime_window_context_unlock (value window) {
+		
+		((Window*)val_data (window))->ContextUnlock ();
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_context_unlock (HL_CFFIPointer* window) {
+		
+		((Window*)window->ptr)->ContextUnlock ();
+		
+	}
+	
+	
 	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 		
 		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.c_str ());
@@ -3525,6 +3403,39 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->Focus ();
+		
+	}
+	
+	
+	double lime_window_get_context (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return (uintptr_t)targetWindow->GetContext ();
+		
+	}
+	
+	
+	HL_PRIM double hl_lime_window_get_context (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return (uintptr_t)targetWindow->GetContext ();
+		
+	}
+	
+	
+	value lime_window_get_context_type (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		const char* type = targetWindow->GetContextType ();
+		return type ? alloc_string (type) : alloc_null ();
+		
+	}
+	
+	
+	HL_PRIM vbyte* hl_lime_window_get_context_type (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return (vbyte*)targetWindow->GetContextType ();
 		
 	}
 	
@@ -3613,6 +3524,22 @@ namespace lime {
 	}
 	
 	
+	double lime_window_get_scale (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetScale ();
+		
+	}
+	
+	
+	HL_PRIM double hl_lime_window_get_scale (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetScale ();
+		
+	}
+	
+	
 	int lime_window_get_width (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -3673,6 +3600,46 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->Move (x, y);
+		
+	}
+	
+	
+	value lime_window_read_pixels (value window, value rect, value imageBuffer) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		ImageBuffer buffer (imageBuffer);
+		
+		if (!val_is_null (rect)) {
+			
+			Rectangle _rect = Rectangle (rect);
+			targetWindow->ReadPixels (&buffer, &_rect);
+			
+		} else {
+			
+			targetWindow->ReadPixels (&buffer, NULL);
+			
+		}
+		
+		return buffer.Value (imageBuffer);
+		
+	}
+	
+	
+	HL_PRIM ImageBuffer* hl_lime_window_read_pixels (HL_CFFIPointer* window, Rectangle* rect, ImageBuffer* imageBuffer) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		
+		if (rect) {
+			
+			targetWindow->ReadPixels (imageBuffer, rect);
+			
+		} else {
+			
+			targetWindow->ReadPixels (imageBuffer, NULL);
+			
+		}
+		
+		return imageBuffer;
 		
 	}
 	
@@ -4026,15 +3993,6 @@ namespace lime {
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME3 (lime_png_decode_bytes);
 	DEFINE_PRIME3 (lime_png_decode_file);
-	DEFINE_PRIME1 (lime_renderer_create);
-	DEFINE_PRIME1v (lime_renderer_flip);
-	DEFINE_PRIME1 (lime_renderer_get_context);
-	DEFINE_PRIME1 (lime_renderer_get_scale);
-	DEFINE_PRIME1 (lime_renderer_get_type);
-	DEFINE_PRIME1 (lime_renderer_lock);
-	DEFINE_PRIME1v (lime_renderer_make_current);
-	DEFINE_PRIME3 (lime_renderer_read_pixels);
-	DEFINE_PRIME1v (lime_renderer_unlock);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
@@ -4062,18 +4020,26 @@ namespace lime {
 	DEFINE_PRIME2v (lime_touch_event_manager_register);
 	DEFINE_PRIME3v (lime_window_alert);
 	DEFINE_PRIME1v (lime_window_close);
+	DEFINE_PRIME1v (lime_window_context_flip);
+	DEFINE_PRIME1 (lime_window_context_lock);
+	DEFINE_PRIME1v (lime_window_context_make_current);
+	DEFINE_PRIME1v (lime_window_context_unlock);
 	DEFINE_PRIME5 (lime_window_create);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME1 (lime_window_get_context);
+	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME1 (lime_window_get_display);
 	DEFINE_PRIME1 (lime_window_get_display_mode);
 	DEFINE_PRIME1 (lime_window_get_enable_text_events);
 	DEFINE_PRIME1 (lime_window_get_height);
 	DEFINE_PRIME1 (lime_window_get_id);
+	DEFINE_PRIME1 (lime_window_get_scale);
 	DEFINE_PRIME1 (lime_window_get_width);
 	DEFINE_PRIME1 (lime_window_get_x);
 	DEFINE_PRIME1 (lime_window_get_y);
 	DEFINE_PRIME3v (lime_window_move);
+	DEFINE_PRIME3 (lime_window_read_pixels);
 	DEFINE_PRIME3v (lime_window_resize);
 	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
@@ -4216,15 +4182,6 @@ namespace lime {
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_png_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_png_decode_file, _STRING _BOOL _TIMAGEBUFFER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_renderer_create, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_renderer_flip, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64, lime_renderer_get_context, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64, lime_renderer_get_scale, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BYTES, lime_renderer_get_type, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_renderer_lock, _TCFFIPOINTER _DYN);
-	DEFINE_HL_PRIM (_VOID, lime_renderer_make_current, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_renderer_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
-	DEFINE_HL_PRIM (_VOID, lime_renderer_unlock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_render_event_manager_register, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
 	DEFINE_HL_PRIM (_VOID, lime_sensor_event_manager_register, _FUN (_VOID, _NO_ARG) _TSENSOR_EVENT);
 	DEFINE_HL_PRIM (_BOOL, lime_system_get_allow_screen_timeout, _NO_ARG);
@@ -4252,18 +4209,26 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_touch_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
 	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_close, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_window_context_flip, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, lime_window_context_lock, _TCFFIPOINTER _DYN);
+	DEFINE_HL_PRIM (_VOID, lime_window_context_make_current, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_window_context_unlock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, lime_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, lime_window_get_context, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, lime_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_display, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, lime_window_get_display_mode, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, lime_window_get_enable_text_events, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_height, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_id, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, lime_window_get_scale, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_width, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_x, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_y, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_move, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, lime_window_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, lime_window_resize, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_TDISPLAYMODE, lime_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE);

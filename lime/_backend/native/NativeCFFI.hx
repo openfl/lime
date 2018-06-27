@@ -151,15 +151,6 @@ class NativeCFFI {
 	@:cffi private static function lime_neko_execute (module:String):Void;
 	@:cffi private static function lime_png_decode_bytes (data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
 	@:cffi private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_create (window:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_flip (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_get_context (handle:Dynamic):Float;
-	@:cffi private static function lime_renderer_get_scale (handle:Dynamic):Float;
-	@:cffi private static function lime_renderer_get_type (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_lock (handle:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_make_current (handle:Dynamic):Void;
-	@:cffi private static function lime_renderer_read_pixels (handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
-	@:cffi private static function lime_renderer_unlock (handle:Dynamic):Void;
 	@:cffi private static function lime_render_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_sensor_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_system_get_allow_screen_timeout ():Bool;
@@ -185,17 +176,25 @@ class NativeCFFI {
 	@:cffi private static function lime_touch_event_manager_register (callback:Dynamic, eventObject:Dynamic):Void;
 	@:cffi private static function lime_window_alert (handle:Dynamic, message:String, title:String):Void;
 	@:cffi private static function lime_window_close (handle:Dynamic):Void;
+	@:cffi private static function lime_window_context_flip (handle:Dynamic):Void;
+	@:cffi private static function lime_window_context_lock (handle:Dynamic):Dynamic;
+	@:cffi private static function lime_window_context_make_current (handle:Dynamic):Void;
+	@:cffi private static function lime_window_context_unlock (handle:Dynamic):Void;
 	@:cffi private static function lime_window_create (application:Dynamic, width:Int, height:Int, flags:Int, title:String):Dynamic;
 	@:cffi private static function lime_window_focus (handle:Dynamic):Void;
+	@:cffi private static function lime_window_get_context (handle:Dynamic):Float;
+	@:cffi private static function lime_window_get_context_type (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_window_get_display (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_display_mode (handle:Dynamic):Dynamic;
 	@:cffi private static function lime_window_get_enable_text_events (handle:Dynamic):Bool;
 	@:cffi private static function lime_window_get_height (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_id (handle:Dynamic):Int;
+	@:cffi private static function lime_window_get_scale (handle:Dynamic):Float;
 	@:cffi private static function lime_window_get_width (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_x (handle:Dynamic):Int;
 	@:cffi private static function lime_window_get_y (handle:Dynamic):Int;
 	@:cffi private static function lime_window_move (handle:Dynamic, x:Int, y:Int):Void;
+	@:cffi private static function lime_window_read_pixels (handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
 	@:cffi private static function lime_window_resize (handle:Dynamic, width:Int, height:Int):Void;
 	@:cffi private static function lime_window_set_borderless (handle:Dynamic, borderless:Bool):Bool;
 	@:cffi private static function lime_window_set_display_mode (handle:Dynamic, displayMode:Dynamic):Dynamic;
@@ -305,15 +304,6 @@ class NativeCFFI {
 	private static var lime_neko_execute = new cpp.Callable<String->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_neko_execute", "sv", false));
 	private static var lime_png_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_png_decode_bytes", "oboo", false));
 	private static var lime_png_decode_file = new cpp.Callable<String->Bool->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_png_decode_file", "sboo", false));
-	private static var lime_renderer_create = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_renderer_create", "oo", false));
-	private static var lime_renderer_flip = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_renderer_flip", "ov", false));
-	private static var lime_renderer_get_context = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_renderer_get_context", "od", false));
-	private static var lime_renderer_get_scale = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_renderer_get_scale", "od", false));
-	private static var lime_renderer_get_type = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_renderer_get_type", "oo", false));
-	private static var lime_renderer_lock = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_renderer_lock", "oo", false));
-	private static var lime_renderer_make_current = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_renderer_make_current", "ov", false));
-	private static var lime_renderer_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_renderer_read_pixels", "oooo", false));
-	private static var lime_renderer_unlock = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_renderer_unlock", "ov", false));
 	private static var lime_render_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_render_event_manager_register", "oov", false));
 	private static var lime_sensor_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_sensor_event_manager_register", "oov", false));
 	private static var lime_system_get_allow_screen_timeout = new cpp.Callable<Void->Bool> (cpp.Prime._loadPrime ("lime", "lime_system_get_allow_screen_timeout", "b", false));
@@ -339,17 +329,25 @@ class NativeCFFI {
 	private static var lime_touch_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_touch_event_manager_register", "oov", false));
 	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_alert", "ossv", false));
 	private static var lime_window_close = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_close", "ov", false));
+	private static var lime_window_context_flip = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_context_flip", "ov", false));
+	private static var lime_window_context_lock = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_window_context_lock", "oo", false));
+	private static var lime_window_context_make_current = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_context_make_current", "ov", false));
+	private static var lime_window_context_unlock = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_context_unlock", "ov", false));
 	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_window_create", "oiiiso", false));
 	private static var lime_window_focus = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_focus", "ov", false));
+	private static var lime_window_get_context = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_window_get_context", "od", false));
+	private static var lime_window_get_context_type = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_window_get_context_type", "oo", false));
 	private static var lime_window_get_display = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_window_get_display", "oi", false));
 	private static var lime_window_get_display_mode = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_window_get_display_mode", "oo", false));
 	private static var lime_window_get_enable_text_events = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_window_get_enable_text_events", "ob", false));
 	private static var lime_window_get_height = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_window_get_height", "oi", false));
 	private static var lime_window_get_id = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_window_get_id", "oi", false));
+	private static var lime_window_get_scale = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_window_get_scale", "od", false));
 	private static var lime_window_get_width = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_window_get_width", "oi", false));
 	private static var lime_window_get_x = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_window_get_x", "oi", false));
 	private static var lime_window_get_y = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_window_get_y", "oi", false));
 	private static var lime_window_move = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_move", "oiiv", false));
+	private static var lime_window_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_window_read_pixels", "oooo", false));
 	private static var lime_window_resize = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_window_resize", "oiiv", false));
 	private static var lime_window_set_borderless = new cpp.Callable<cpp.Object->Bool->Bool> (cpp.Prime._loadPrime ("lime", "lime_window_set_borderless", "obb", false));
 	private static var lime_window_set_display_mode = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_window_set_display_mode", "ooo", false));
@@ -462,15 +460,6 @@ class NativeCFFI {
 	private static var lime_neko_execute = CFFI.load ("lime", "lime_neko_execute", 1);
 	private static var lime_png_decode_bytes = CFFI.load ("lime", "lime_png_decode_bytes", 3);
 	private static var lime_png_decode_file = CFFI.load ("lime", "lime_png_decode_file", 3);
-	private static var lime_renderer_create = CFFI.load ("lime", "lime_renderer_create", 1);
-	private static var lime_renderer_flip = CFFI.load ("lime", "lime_renderer_flip", 1);
-	private static var lime_renderer_get_context = CFFI.load ("lime", "lime_renderer_get_context", 1);
-	private static var lime_renderer_get_scale = CFFI.load ("lime", "lime_renderer_get_scale", 1);
-	private static var lime_renderer_get_type = CFFI.load ("lime", "lime_renderer_get_type", 1);
-	private static var lime_renderer_lock = CFFI.load ("lime", "lime_renderer_lock", 1);
-	private static var lime_renderer_make_current = CFFI.load ("lime", "lime_renderer_make_current", 1);
-	private static var lime_renderer_read_pixels = CFFI.load ("lime", "lime_renderer_read_pixels", 3);
-	private static var lime_renderer_unlock = CFFI.load ("lime", "lime_renderer_unlock", 1);
 	private static var lime_render_event_manager_register = CFFI.load ("lime", "lime_render_event_manager_register", 2);
 	private static var lime_sensor_event_manager_register = CFFI.load ("lime", "lime_sensor_event_manager_register", 2);
 	private static var lime_system_get_allow_screen_timeout = CFFI.load ("lime", "lime_system_get_allow_screen_timeout", 0);
@@ -496,17 +485,25 @@ class NativeCFFI {
 	private static var lime_touch_event_manager_register = CFFI.load ("lime", "lime_touch_event_manager_register", 2);
 	private static var lime_window_alert = CFFI.load ("lime", "lime_window_alert", 3);
 	private static var lime_window_close = CFFI.load ("lime", "lime_window_close", 1);
+	private static var lime_window_context_flip = CFFI.load ("lime", "lime_window_context_flip", 1);
+	private static var lime_window_context_lock = CFFI.load ("lime", "lime_window_context_lock", 1);
+	private static var lime_window_context_make_current = CFFI.load ("lime", "lime_window_context_make_current", 1);
+	private static var lime_window_context_unlock = CFFI.load ("lime", "lime_window_context_unlock", 1);
 	private static var lime_window_create = CFFI.load ("lime", "lime_window_create", 5);
 	private static var lime_window_focus = CFFI.load ("lime", "lime_window_focus", 1);
+	private static var lime_window_get_context = CFFI.load ("lime", "lime_window_get_context", 1);
+	private static var lime_window_get_context_type = CFFI.load ("lime", "lime_window_get_context_type", 1);
 	private static var lime_window_get_display = CFFI.load ("lime", "lime_window_get_display", 1);
 	private static var lime_window_get_display_mode = CFFI.load ("lime", "lime_window_get_display_mode", 1);
 	private static var lime_window_get_enable_text_events = CFFI.load ("lime", "lime_window_get_enable_text_events", 1);
 	private static var lime_window_get_height = CFFI.load ("lime", "lime_window_get_height", 1);
 	private static var lime_window_get_id = CFFI.load ("lime", "lime_window_get_id", 1);
+	private static var lime_window_get_scale = CFFI.load ("lime", "lime_window_get_scale", 1);
 	private static var lime_window_get_width = CFFI.load ("lime", "lime_window_get_width", 1);
 	private static var lime_window_get_x = CFFI.load ("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = CFFI.load ("lime", "lime_window_get_y", 1);
 	private static var lime_window_move = CFFI.load ("lime", "lime_window_move", 3);
+	private static var lime_window_read_pixels = CFFI.load ("lime", "lime_window_read_pixels", 3);
 	private static var lime_window_resize = CFFI.load ("lime", "lime_window_resize", 3);
 	private static var lime_window_set_borderless = CFFI.load ("lime", "lime_window_set_borderless", 2);
 	private static var lime_window_set_display_mode = CFFI.load ("lime", "lime_window_set_display_mode", 2);
@@ -623,15 +620,6 @@ class NativeCFFI {
 	// @:cffi private static function lime_neko_execute (module:String):Void;
 	@:hlNative("lime", "lime_png_decode_bytes") private static function lime_png_decode_bytes (data:Bytes, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_png_decode_file") private static function lime_png_decode_file (path:String, decodeData:Bool, buffer:ImageBuffer):ImageBuffer { return null; }
-	@:hlNative("lime", "lime_renderer_create") private static function lime_renderer_create (window:CFFIPointer):CFFIPointer { return null; }
-	@:hlNative("lime", "lime_renderer_flip") private static function lime_renderer_flip (handle:CFFIPointer):Void {}
-	@:hlNative("lime", "lime_renderer_get_context") private static function lime_renderer_get_context (handle:CFFIPointer):Float { return 0; }
-	@:hlNative("lime", "lime_renderer_get_scale") private static function lime_renderer_get_scale (handle:CFFIPointer):Float { return 0; }
-	@:hlNative("lime", "lime_renderer_get_type") private static function lime_renderer_get_type (handle:CFFIPointer):hl.Bytes { return null; }
-	@:hlNative("lime", "lime_renderer_lock") private static function lime_renderer_lock (handle:CFFIPointer, object:Dynamic):Dynamic { return null; }
-	@:hlNative("lime", "lime_renderer_make_current") private static function lime_renderer_make_current (handle:CFFIPointer):Void {}
-	@:hlNative("lime", "lime_renderer_read_pixels") private static function lime_renderer_read_pixels (handle:CFFIPointer, rect:Rectangle, imageBuffer:ImageBuffer):Dynamic { return null; }
-	@:hlNative("lime", "lime_renderer_unlock") private static function lime_renderer_unlock (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_render_event_manager_register") private static function lime_render_event_manager_register (callback:Void->Void, eventObject:RenderEventInfo):Void {}
 	@:hlNative("lime", "lime_sensor_event_manager_register") private static function lime_sensor_event_manager_register (callback:Void->Void, eventObject:SensorEventInfo):Void {}
 	@:hlNative("lime", "lime_system_get_allow_screen_timeout") private static function lime_system_get_allow_screen_timeout ():Bool { return false; }
@@ -657,17 +645,25 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_touch_event_manager_register") private static function lime_touch_event_manager_register (callback:Void->Void, eventObject:TouchEventInfo):Void {}
 	@:hlNative("lime", "lime_window_alert") private static function lime_window_alert (handle:CFFIPointer, message:String, title:String):Void {}
 	@:hlNative("lime", "lime_window_close") private static function lime_window_close (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_window_context_flip") private static function lime_window_context_flip (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_window_context_lock") private static function lime_window_context_lock (handle:CFFIPointer, object:Dynamic):Dynamic { return null; }
+	@:hlNative("lime", "lime_window_context_make_current") private static function lime_window_context_make_current (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_window_context_unlock") private static function lime_window_context_unlock (handle:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_window_create") private static function lime_window_create (application:CFFIPointer, width:Int, height:Int, flags:Int, title:String):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_window_focus") private static function lime_window_focus (handle:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_window_get_context") private static function lime_window_get_context (handle:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_window_get_context_type") private static function lime_window_get_context_type (handle:CFFIPointer):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_window_get_display") private static function lime_window_get_display (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_display_mode") private static function lime_window_get_display_mode (handle:CFFIPointer):Dynamic { return null; }
 	@:hlNative("lime", "lime_window_get_enable_text_events") private static function lime_window_get_enable_text_events (handle:CFFIPointer):Bool { return false; }
 	@:hlNative("lime", "lime_window_get_height") private static function lime_window_get_height (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_id") private static function lime_window_get_id (handle:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_window_get_scale") private static function lime_window_get_scale (handle:CFFIPointer):Float { return 0; }
 	@:hlNative("lime", "lime_window_get_width") private static function lime_window_get_width (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_x") private static function lime_window_get_x (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_get_y") private static function lime_window_get_y (handle:CFFIPointer):Int { return 0; }
 	@:hlNative("lime", "lime_window_move") private static function lime_window_move (handle:CFFIPointer, x:Int, y:Int):Void {}
+	@:hlNative("lime", "lime_window_read_pixels") private static function lime_window_read_pixels (handle:CFFIPointer, rect:Rectangle, imageBuffer:ImageBuffer):Dynamic { return null; }
 	@:hlNative("lime", "lime_window_resize") private static function lime_window_resize (handle:CFFIPointer, width:Int, height:Int):Void {}
 	@:hlNative("lime", "lime_window_set_borderless") private static function lime_window_set_borderless (handle:CFFIPointer, borderless:Bool):Bool { return false; }
 	@:hlNative("lime", "lime_window_set_display_mode") private static function lime_window_set_display_mode (handle:CFFIPointer, displayMode:DisplayMode):DisplayMode { return null; }

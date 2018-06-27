@@ -247,7 +247,6 @@
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
-			<file name="src/backend/sdl/SDLRenderer.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLKeyCode.cpp" />
