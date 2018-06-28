@@ -766,7 +766,7 @@ class JavaExternGenerator
 			java_out.close();
 			
 			PathHelper.mkdir("compiled");
-			var nme_path = getHaxelib("openfl") + "/backends/native/templates/android/template/src";
+			var nme_path = getHaxelib("openfl") + "/__backends/native/templates/android/template/src";
 			ProcessHelper.runCommand ("", "javac", [ "-classpath", "\"classes/android.jar\";\"" + javaPath.substr (0, javaPath.length -1) + "\"", "-sourcepath", nme_path, "-d", "compiled", "stubs/" + java_name ], true, true, true);
 			
 			//Sys.setCwd("compiled");

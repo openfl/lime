@@ -20,6 +20,8 @@ haxedoc.xml
 docs/api/*.xml
 docs/api/xml
 docs/api/pages*
+docs/.sass-cache
+docs/_site
 legacy/ndll/*/lime*
 legacy/ndll/*/liblime*
 legacy/project/all_objs

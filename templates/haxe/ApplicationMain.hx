@@ -69,7 +69,7 @@ package;
 		
 		ManifestResources.init (config);
 		
-		var preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
+		var preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.utils.Preloader::end:: ();
 		
 		#if !munit
 		var app = new ::APP_MAIN:: ();
