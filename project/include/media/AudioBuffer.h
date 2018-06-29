@@ -40,7 +40,6 @@ namespace lime {
 		vdynamic* __srcAudio;
 		vdynamic* __srcBuffer;
 		vdynamic* __srcCustom;
-		vdynamic* __srcFMODSound;
 		vdynamic* __srcHowl;
 		vdynamic* __srcSound;
 		vdynamic* __srcVorbisFile;
