@@ -1,15 +1,11 @@
-package lime.graphics;
-
-
-#if (flash && !doc_gen)
+package lime.graphics; #if (flash && !doc_gen)
 
 
 import flash.display.Sprite;
 
-
 @:access(lime.graphics.RenderContext)
-
 @:forward()
+
 
 abstract FlashRenderContext(Sprite) from Sprite to Sprite {
 	

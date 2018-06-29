@@ -1,4 +1,4 @@
-package lime.graphics;
+package lime.graphics; #if (sys && lime_cffi && lime_opengl && !doc_gen)
 
 
 import lime.graphics.opengl.*;
@@ -91,18 +91,73 @@ vertexAttrib3fv, vertexAttrib4f, vertexAttrib4fv, vertexAttribPointer, viewport,
 EXTENSIONS, type, version)
 
 
-abstract OpenGLES2RenderContext(OpenGLES3RenderContext) from OpenGLES3RenderContext from OpenGLRenderContext to WebGLRenderContext {
+abstract OpenGLES2RenderContext(OpenGLES3RenderContext) from OpenGLES3RenderContext from OpenGLRenderContext {
 	
 	
-	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):OpenGLES2RenderContext {
+	@:from private static function fromGL (gl:Class<GL>):OpenGLES2RenderContext {
 		
-		#if lime_opengl
 		return cast GL.context;
-		#else
-		return null;
-		#end
+		
+	}
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):OpenGLES2RenderContext {
+		
+		return context.gles2;
 		
 	}
 	
 	
 }
+
+
+#else
+
+
+import lime.graphics.opengl.GL;
+
+@:forward()
+
+
+abstract OpenGLES2RenderContext(Dynamic) from Dynamic to Dynamic {
+	
+	
+	@:from private static function fromGL (gl:Class<GL>):OpenGLES2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):OpenGLES2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromOpenGLRenderContext (gl:OpenGLRenderContext):OpenGLRenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):OpenGLES2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromWebGLRenderContext (gl:WebGLRenderContext):WebGLRenderContext {
+		
+		return null;
+		
+	}
+	
+	
+}
+
+
+#end

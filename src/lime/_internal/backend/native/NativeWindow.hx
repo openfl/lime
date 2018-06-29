@@ -186,10 +186,14 @@ class NativeWindow {
 			
 			case "opengl":
 				
-				var gl = new OpenGLRenderContext ();
+				var gl = new NativeOpenGLRenderContext ();
 				
 				useHardware = true;
+				
+				#if !mobile
 				context.gl = gl;
+				#end
+				
 				context.gles2 = gl;
 				context.webgl = gl;
 				context.type = gl.type;

@@ -1,15 +1,11 @@
-package lime.graphics;
-
-
-#if (js && html5 && !doc_gen)
+package lime.graphics; #if (js && html5 && !doc_gen)
 
 
 import js.html.CanvasRenderingContext2D;
 
-
 @:access(lime.graphics.RenderContext)
-
 @:forward()
+
 
 abstract Canvas2DRenderContext(CanvasRenderingContext2D) from CanvasRenderingContext2D to CanvasRenderingContext2D {
 	
@@ -28,6 +24,7 @@ abstract Canvas2DRenderContext(CanvasRenderingContext2D) from CanvasRenderingCon
 
 
 @:forward()
+
 
 abstract Canvas2DRenderContext(Dynamic) from Dynamic to Dynamic {
 	

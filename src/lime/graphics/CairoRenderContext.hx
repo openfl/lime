@@ -1,15 +1,11 @@
-package lime.graphics;
-
-
-#if (sys && lime_cairo && !doc_gen)
+package lime.graphics; #if (sys && lime_cairo && !doc_gen)
 
 
 import lime.graphics.cairo.Cairo;
 
-
 @:access(lime.graphics.RenderContext)
-
 @:forward()
+
 
 abstract CairoRenderContext(Cairo) from Cairo to Cairo {
 	
@@ -28,6 +24,7 @@ abstract CairoRenderContext(Cairo) from Cairo to Cairo {
 
 
 @:forward()
+
 
 abstract CairoRenderContext(Dynamic) from Dynamic to Dynamic {
 	

@@ -336,21 +336,17 @@ class HTML5Window {
 				#end
 				
 				#if ((js && html5) && !display)
-				var gl = new OpenGLRenderContext (cast webgl);
-				context.gl = gl;
-				context.webgl = gl;
-				if (isWebGL2) context.webgl2 = gl;
-				#else
-				var gl = new OpenGLRenderContext ();
-				context.gl = gl;
-				context.webgl = gl;
-				#end
+				context.webgl = webgl;
+				if (isWebGL2) context.webgl2 = webgl;
 				
 				if (GL.context == null) {
 					
-					GL.context = gl;
+					GL.context = cast webgl;
+					GL.type = WEBGL;
+					GL.version = isWebGL2 ? 2 : 1;
 					
 				}
+				#end
 				
 				context.type = WEBGL;
 				context.version = isWebGL2 ? "2" : "1";

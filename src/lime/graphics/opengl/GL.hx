@@ -17,11 +17,6 @@ import lime._internal.backend.native.NativeCFFI;
 
 @:allow(lime.ui.Window)
 
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
-
 
 class GL {
 	
@@ -103,7 +98,7 @@ class GL {
 	public static inline var INVALID_OPERATION = 0x0502;
 	public static inline var OUT_OF_MEMORY = 0x0505;
 	
-	public static inline var CW  = 0x0900;
+	public static inline var CW = 0x0900;
 	public static inline var CCW = 0x0901;
 	
 	public static inline var LINE_WIDTH = 0x0B21;
@@ -655,23 +650,19 @@ class GL {
 	public static inline var TIMEOUT_IGNORED = -1;
 	public static inline var MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
 	
+	#if (sys && lime_cffi && lime_opengl && !doc_gen)
 	public static var context (default, null):OpenGLRenderContext;
-	public static var type (get, null):RenderContextType;
-	public static var version (get, null):Float;
-	
-	private static var __currentProgram:GLProgram;
-	
-	
-	#if commonjs
-	private static function __init__ () {
-		
-		untyped Object.defineProperties (GL, {
-			"type": { get: function () { return GL.get_type (); } },
-			"version": { get: function () { return GL.get_version (); } }
-		});
-		
-	}
+	#elseif mobile
+	public static var context (default, null):OpenGLES2RenderContext;
+	#elseif (js && html5)
+	public static var context (default, null):WebGL2RenderContext;
+	#else
+	public static var context (default, null):Dynamic;
 	#end
+	
+	public static var type (default, null):RenderContextType;
+	public static var version (default, null):Float;
+	
 	
 	
 	public static inline function activeTexture (texture:Int):Void {
@@ -814,33 +805,37 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function bufferData (target:Int, size:Int, srcData:DataPointer, usage:Int):Void {
 		
 		context.bufferData (target, size, srcData, usage);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function bufferDataWEBGL (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void {
 		
-		context.bufferDataWEBGL (target, srcData, usage, srcOffset, length);
+		context.bufferData (target, srcData, usage, srcOffset, length);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function bufferSubData (target:Int, dstByteOffset:Int, size:Int, srcData:DataPointer):Void {
 		
 		context.bufferSubData (target, dstByteOffset, size, srcData);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function bufferSubDataWEBGL (target:Int, dstByteOffset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
 		
-		context.bufferSubDataWEBGL (target, dstByteOffset, srcData, srcOffset, length);
+		context.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
 		
 	}
 	#end
@@ -867,49 +862,55 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function clearBufferfv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {
 		
 		context.clearBufferfv (buffer, drawbuffer, value);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function clearBufferfvWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
-		context.clearBufferfvWEBGL (buffer, drawbuffer, values, srcOffset);
+		context.clearBufferfv (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function clearBufferiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {
 		
 		context.clearBufferiv (buffer, drawbuffer, value);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function clearBufferivWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
-		context.clearBufferivWEBGL (buffer, drawbuffer, values, srcOffset);
+		context.clearBufferiv (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function clearBufferuiv (buffer:Int, drawbuffer:Int, value:DataPointer):Void {
 		
 		context.clearBufferuiv (buffer, drawbuffer, value);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function clearBufferuivWEBGL (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
 		
-		context.clearBufferuivWEBGL (buffer, drawbuffer, values, srcOffset);
+		context.clearBufferuiv (buffer, drawbuffer, values, srcOffset);
 		
 	}
 	#end
@@ -923,21 +924,21 @@ class GL {
 	
 	
 	#if (js && html5)
-	@:dox(hide) @:noCompletion public static inline function clearDepth (depth:Float):Void {
+	public static inline function clearDepth (depth:Float):Void {
 		
-		#if !display
 		context.clearDepth (depth);
-		#end
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function clearDepthf (depth:Float):Void {
 		
 		context.clearDepthf (depth);
 		
 	}
+	#end
 	
 	
 	public static inline function clearStencil (s:Int):Void {
@@ -968,75 +969,85 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
 		context.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function compressedTexImage2DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		context.compressedTexImage2DWEBGL (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+		context.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, imageSize:Int, data:DataPointer):Void {
 		
 		context.compressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function compressedTexImage3DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		context.compressedTexImage3DWEBGL (target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
+		context.compressedTexImage3D (target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
 		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function compressedTexSubImage2DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		context.compressedTexSubImage2DWEBGL (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+		context.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, imageSize:Int, data:DataPointer):Void {
 		
 		context.compressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function compressedTexSubImage3DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
 		
-		context.compressedTexSubImage3DWEBGL (target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
+		context.compressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {
 		
 		context.copyBufferSubData (readTarget, writeTarget, readOffset, writeOffset, size);
 		
 	}
+	#end
 	
 	
 	public static inline function copyTexImage2D (target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void {
@@ -1229,21 +1240,21 @@ class GL {
 	
 	
 	#if (js && html5)
-	@:dox(hide) @:noCompletion public static inline function depthRange (zNear:Float, zFar:Float):Void {
+	public static inline function depthRange (zNear:Float, zFar:Float):Void {
 		
-		#if !display
 		context.depthRange (zNear, zFar);
-		#end
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function depthRangef (zNear:Float, zFar:Float):Void {
 		
 		context.depthRangef (zNear, zFar);
 		
 	}
+	#end
 	
 	
 	public static inline function detachShader (program:GLProgram, shader:GLShader):Void {
@@ -1407,19 +1418,22 @@ class GL {
 	}
 	
 	
-	
+	#if sys
 	public static inline function getActiveUniformBlocki (program:GLProgram, uniformBlockIndex:Int, pname:Int):Int {
 		
 		return context.getActiveUniformBlocki (program, uniformBlockIndex, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getActiveUniformBlockiv (program:GLProgram, uniformBlockIndex:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getActiveUniformBlockiv (program, uniformBlockIndex, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getActiveUniformBlockName (program:GLProgram, uniformBlockIndex:Int):String {
@@ -1443,11 +1457,13 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getActiveUniformsiv (program:GLProgram, uniformIndices:Array<Int>, pname:Int, params:DataPointer):Void {
 		
 		context.getActiveUniformsiv (program, uniformIndices, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getAttachedShaders (program:GLProgram):Array<GLShader> {
@@ -1464,18 +1480,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getBoolean (pname:Int):Bool { 
 		
 		return context.getBoolean (pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getBooleanv (pname:Int, params:DataPointer):Void {
 		
 		context.getBooleanv (pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getBufferParameter (target:Int, pname:Int):Dynamic {
@@ -1485,45 +1505,55 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getBufferParameteri (target:Int, pname:Int):Int {
 		
 		return context.getBufferParameteri (target, pname);
 		
 	}
+	#end
 	
 	
-	public static inline function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void{
+	#if sys
+	public static inline function getBufferParameteri64v (target:Int, pname:Int, params:DataPointer):Void {
 		
-		return context.getBufferParameteri64v (target, pname, params);
+		context.getBufferParameteri64v (target, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getBufferParameteriv (target:Int, pname:Int, data:DataPointer):Void {
 		
-		return context.getBufferParameteriv (target, pname, data);
+		context.getBufferParameteriv (target, pname, data);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getBufferPointerv (target:Int, pname:Int):DataPointer {
 		
 		return context.getBufferPointerv (target, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getBufferSubData (target:Int, offset:DataPointer, size:Int, data:DataPointer):Void {
 		
 		context.getBufferSubData (target, offset, size, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function getBufferSubDataWEBGL (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void {
 		
-		context.getBufferSubDataWEBGL (target, srcByteOffset, dstData, srcOffset, length);
+		context.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
 		
 	}
 	#end
@@ -1550,18 +1580,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getFloat (pname:Int):Float {
 		
 		return context.getFloat (pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getFloatv (pname:Int, params:DataPointer):Void {
 		
 		context.getFloatv (pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getFragDataLocation (program:GLProgram, name:String):Int {
@@ -1578,18 +1612,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getFramebufferAttachmentParameteri (target:Int, attachment:Int, pname:Int):Int {
 		
 		return context.getFramebufferAttachmentParameteri (target, attachment, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getFramebufferAttachmentParameteriv (target:Int, attachment:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getFramebufferAttachmentParameteriv (target, attachment, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getIndexedParameter (target:Int, index:Int):Dynamic {
@@ -1599,67 +1637,85 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getInteger (pname:Int):Int {
 		
 		return context.getInteger (pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getInteger64 (pname:Int):Int64 {
 		
 		return context.getInteger64 (pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getInteger64i (pname:Int):Int64 {
 		
 		return context.getInteger64i (pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getInteger64i_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return context.getInteger64i_v (pname, index, params);
+		context.getInteger64i_v (pname, index, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getInteger64v (pname:Int, params:DataPointer):Void {
 		
-		return context.getInteger64v (pname, params);
+		context.getInteger64v (pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getIntegeri_v (pname:Int, index:Int, params:DataPointer):Void {
 		
-		return context.getIntegeri_v (pname, index, params);
+		context.getIntegeri_v (pname, index, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getIntegerv (pname:Int, params:DataPointer):Void {
 		
 		context.getIntegerv (pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getInternalformati (target:Int, internalformat:Int, pname:Int):Int {
 		
 		return context.getInternalformati (target, internalformat, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getInternalformativ (target:Int, internalformat:Int, pname:Int, bufSize:Int, params:DataPointer):Void {
 		
 		context.getInternalformativ (target, internalformat, pname, bufSize, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getInternalformatParameter (target:Int, internalformat:Int, pname:Int):Dynamic {
@@ -1676,25 +1732,31 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getProgrami (program:GLProgram, pname:Int):Int {
 		
 		return context.getProgrami (program, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getProgramiv (program:GLProgram, pname:Int, params:DataPointer):Void {
 		
 		context.getProgramiv (program, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getProgramBinary (program:GLProgram, binaryFormat:Int):Bytes {
 		
 		return context.getProgramBinary (program, binaryFormat);
 		
 	}
+	#end
 	
 	
 	public static inline function getProgramInfoLog (program:GLProgram):String {
@@ -1718,32 +1780,40 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getQueryi (target:Int, pname:Int):Int {
 		
 		return context.getQueryi (target, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getQueryiv (target:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getQueryiv (target, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getQueryObjectui (query:GLQuery, pname:Int):Int {
 		
 		return context.getQueryObjectui (query, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getQueryObjectuiv (query:GLQuery, pname:Int, params:DataPointer):Void {
 		
 		context.getQueryObjectuiv (query, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getQueryParameter (query:GLQuery, pname:Int):Dynamic {
@@ -1760,18 +1830,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getRenderbufferParameteri (target:Int, pname:Int):Int {
 		
 		return context.getRenderbufferParameteri (target, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getRenderbufferParameteriv (target:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getRenderbufferParameteriv (target, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getSamplerParameter (sampler:GLSampler, pname:Int):Dynamic {
@@ -1781,46 +1855,58 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getSamplerParameterf (sampler:GLSampler, pname:Int):Float {
 		
 		return context.getSamplerParameterf (sampler, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getSamplerParameterfv (sampler:GLSampler, pname:Int, params:DataPointer):Void {
 		
 		context.getSamplerParameterfv (sampler, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getSamplerParameteri (sampler:GLSampler, pname:Int):Int {
 		
 		return context.getSamplerParameteri (sampler, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getSamplerParameteriv (sampler:GLSampler, pname:Int, params:DataPointer):Void {
 		
 		context.getSamplerParameteriv (sampler, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getShaderi (shader:GLShader, pname:Int):Int {
 		
 		return context.getShaderi (shader, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getShaderiv (shader:GLShader, pname:Int, params:DataPointer):Void {
 		
 		context.getShaderiv (shader, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getShaderInfoLog (shader:GLShader):String {
@@ -1851,18 +1937,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getString (name:Int):String {
 		
 		return context.getString (name);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getStringi (name:Int, index:Int):String {
 		
 		return context.getStringi (name, index);
 		
 	}
+	#end
 	
 	
 	public static inline function getSupportedExtensions ():Array<String> {
@@ -1879,18 +1969,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getSyncParameteri (sync:GLSync, pname:Int):Int {
 		
 		return context.getSyncParameteri (sync, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getSyncParameteriv (sync:GLSync, pname:Int, params:DataPointer):Void {
 		
 		context.getSyncParameteriv (sync, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getTexParameter (target:Int, pname:Int):Dynamic {
@@ -1900,32 +1994,40 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getTexParameterf (target:Int, pname:Int):Float {
 		
 		return context.getTexParameterf (target, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getTexParameterfv (target:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getTexParameterfv (target, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getTexParameteri (target:Int, pname:Int):Int {
 		
 		return context.getTexParameteri (target, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getTexParameteriv (target:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getTexParameteriv (target, pname, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getTransformFeedbackVarying (program:GLProgram, index:Int):GLActiveInfo {
@@ -1942,46 +2044,58 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getUniformf (program:GLProgram, location:GLUniformLocation):Float {
 		
 		return context.getUniformf (program, location);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getUniformfv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
 		
 		context.getUniformfv (program, location, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getUniformi (program:GLProgram, location:GLUniformLocation):Int {
 		
 		return context.getUniformi (program, location);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getUniformiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
 		
 		context.getUniformiv (program, location, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getUniformui (program:GLProgram, location:GLUniformLocation):Int {
 		
 		return context.getUniformui (program, location);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getUniformuiv (program:GLProgram, location:GLUniformLocation, params:DataPointer):Void {
 		
 		context.getUniformuiv (program, location, params);
 		
 	}
+	#end
 	
 	
 	public static inline function getUniformBlockIndex (program:GLProgram, uniformBlockName:String):Int {
@@ -2012,80 +2126,94 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function getVertexAttribf (index:Int, pname:Int):Float {
 		
 		return context.getVertexAttribf (index, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribfv (index:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getVertexAttribfv (index, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribi (index:Int, pname:Int):Int {
 		
 		return context.getVertexAttribi (index, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribIi (index:Int, pname:Int):Int {
 		
 		return context.getVertexAttribIi (index, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribIiv (index:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getVertexAttribIiv (index, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribIui (index:Int, pname:Int):Int {
 		
 		return context.getVertexAttribIui (index, pname);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribIuiv (index:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getVertexAttribIuiv (index, pname, params);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribiv (index:Int, pname:Int, params:DataPointer):Void {
 		
 		context.getVertexAttribiv (index, pname, params);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
-	@:dox(hide) @:noCompletion public static inline function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
+	public static inline function getVertexAttribOffset (index:Int, pname:Int):DataPointer {
 		
-		#if !display
 		return context.getVertexAttribOffset (index, pname);
-		#else
-		return cast 0;
-		#end
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function getVertexAttribPointerv (index:Int, pname:Int):DataPointer {
 		
 		return context.getVertexAttribPointerv (index, pname);
 		
 	}
+	#end
 	
 	
 	public static inline function hint (target:Int, mode:Int):Void {
@@ -2214,11 +2342,13 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function mapBufferRange (target:Int, offset:DataPointer, length:Int, access:Int):DataPointer {
 		
 		return context.mapBufferRange (target, offset, length, access);
 		
 	}
+	#end
 	
 	
 	public static inline function pauseTransformFeedback ():Void {
@@ -2242,18 +2372,22 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function programBinary (program:GLProgram, binaryFormat:Int, binary:DataPointer, length:Int):Void {
 		
 		context.programBinary (program, binaryFormat, binary, length);
 		
 	}
+	#end
 	
 	
+	#if sys
 	public static inline function programParameteri (program:GLProgram, pname:Int, value:Int):Void {
 		
 		context.programParameteri (program, pname, value);
 		
 	}
+	#end
 	
 	
 	public static inline function readBuffer (src:Int):Void {
@@ -2263,27 +2397,31 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:BytePointer):Void {
 		
 		context.readPixels (x, y, width, height, format, type, pixels);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function readPixelsWEBGL (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
 		
-		context.readPixelsWEBGL (x, y, width, height, format, type, pixels, dstOffset);
+		context.readPixels (x, y, width, height, format, type, pixels, dstOffset);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function releaseShaderCompiler ():Void {
 		
 		context.releaseShaderCompiler ();
 		
 	}
+	#end
 	
 	
 	public static inline function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {
@@ -2335,11 +2473,13 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function shaderBinary (shaders:Array<GLShader>, binaryformat:Int, binary:DataPointer, length:Int):Void {
 		
 		context.shaderBinary (shaders, binaryformat, binary, length);
 		
 	}
+	#end
 	
 	
 	public static inline function shaderSource (shader:GLShader, source:String):Void {
@@ -2391,33 +2531,37 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function texImage2DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		context.texImage2DWEBGL (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+		context.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		context.texImage3D (target, level, internalformat, width, height, depth, border, format, type, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function texImage3DWEBGL (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		context.texImage3DWEBGL (target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
+		context.texImage3D (target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
 		
 	}
 	#end
@@ -2451,33 +2595,37 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 		
 		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, pixels);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function texSubImage2DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 		
-		context.texSubImage2DWEBGL (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+		context.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {
 		
 		context.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function texSubImage3DWEBGL (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic, ?srcOffset:Int):Void {
 		
-		context.texSubImage3DWEBGL (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source, srcOffset);
+		context.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, source, srcOffset);
 		
 	}
 	#end
@@ -2497,17 +2645,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform1fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform1fv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform1fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform1fvWEBGL (location, data, srcOffset, srcLength);
+		context.uniform1fv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2520,17 +2670,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform1iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform1iv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform1ivWEBGL (location:GLUniformLocation, ?data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform1ivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform1iv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2543,17 +2695,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform1uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform1uiv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform1uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform1uivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform1uiv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2566,17 +2720,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform2fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform2fv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform2fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform2fvWEBGL (location, data, srcOffset, srcLength);
+		context.uniform2fv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2589,17 +2745,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform2iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform2iv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform2ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform2ivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform2iv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2612,17 +2770,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform2uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform2uiv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform2uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform2uivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform2uiv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2635,17 +2795,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform3fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform3fv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform3fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform3fvWEBGL (location, data, srcOffset, srcLength);
+		context.uniform3fv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2658,17 +2820,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform3iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform3iv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform3ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform3ivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform3iv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2681,17 +2845,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform3uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform3uiv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform3uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform3uivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform3uiv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2704,17 +2870,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform4fv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform4fv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform4fvWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform4fvWEBGL (location, data, srcOffset, srcLength);
+		context.uniform4fv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2727,17 +2895,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform4iv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform4iv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform4ivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform4ivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform4iv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2750,17 +2920,19 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniform4uiv (location:GLUniformLocation, count:Int, v:DataPointer):Void {
 		
 		context.uniform4uiv (location, count, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniform4uivWEBGL (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniform4uivWEBGL (location, data, srcOffset, srcLength);
+		context.uniform4uiv (location, data, srcOffset, srcLength);
 		
 	}
 	#end
@@ -2773,160 +2945,178 @@ class GL {
 	}
 	
 	
+	#if sys
 	public static inline function uniformMatrix2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix2fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix2fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix2fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix2fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix2x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix2x3fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix2x3fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix2x3fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix2x3fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix2x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix2x4fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix2x4fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix2x4fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix2x4fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix3fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix3fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix3fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix3fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix3x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix3x2fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix3x2fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix3x2fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix3x2fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix3x4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix3x4fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix3x4fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix3x4fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix3x4fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix4fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix4fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix4fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix4fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix4fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix4x2fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix4x2fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix4x2fvWEBGL (location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix4x2fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix4x2fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function uniformMatrix4x3fv (location:GLUniformLocation, count:Int, transpose:Bool, v:DataPointer):Void {
 		
 		context.uniformMatrix4x3fv (location, count, transpose, v);
 		
 	}
+	#end
 	
 	
 	#if (js && html5)
 	public static inline function uniformMatrix4x3fvWEBGL (location:GLUniformLocation, transpose:Dynamic, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
 		
-		context.uniformMatrix4x3fvWEBGL (location, transpose, v, srcOffset, srcLength);
+		context.uniformMatrix4x3fv (location, transpose, v, srcOffset, srcLength);
 		
 	}
 	#end
 	
 	
+	#if sys
 	public static inline function unmapBuffer (target:Int):Bool {
 		
 		return context.unmapBuffer (target);
 		
 	}
+	#end
 	
 	
 	public static inline function useProgram (program:GLProgram):Void {
-		
-		__currentProgram = program;
 		
 		context.useProgram (program);
 		
@@ -3111,10 +3301,6 @@ class GL {
 		context.waitSync (sync, flags, timeout);
 		
 	}
-	
-	
-	private static function get_type ():RenderContextType { return context.type; }
-	private static function get_version ():Float { return context.version; }
 	
 	
 	private static inline function __getObjectID (object:#if (!js || !html5 || display) GLObject #else Dynamic #end):Int {

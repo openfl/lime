@@ -1,4 +1,4 @@
-package lime.graphics;
+package lime.graphics; #if (sys && lime_cffi && lime_opengl && !doc_gen)
 
 
 import haxe.Int64;
@@ -9,7 +9,7 @@ import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
 
-abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext to OpenGLRenderContext to OpenGLES2RenderContext to WebGL2RenderContext to WebGLRenderContext {
+abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext {
 	
 	
 	private static var __extensions:String;
@@ -93,7 +93,7 @@ abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext to
 	public var INVALID_OPERATION (get, never):Int;
 	public var OUT_OF_MEMORY (get, never):Int;
 	
-	public var CW  (get, never):Int;
+	public var CW (get, never):Int;
 	public var CCW (get, never):Int;
 	
 	public var LINE_WIDTH (get, never):Int;
@@ -3195,15 +3195,70 @@ abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext to
 	}
 	
 	
-	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):OpenGLES3RenderContext {
+	@:from private static function fromGL (gl:Class<GL>):OpenGLES3RenderContext {
 		
-		#if lime_opengl
 		return cast GL.context;
-		#else
-		return null;
-		#end
+		
+	}
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):OpenGLES3RenderContext {
+		
+		return context.gles3;
 		
 	}
 	
 	
 }
+
+
+#else
+
+
+import lime.graphics.opengl.GL;
+
+@:forward()
+
+
+abstract OpenGLES3RenderContext(Dynamic) from Dynamic to Dynamic {
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):OpenGLES3RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromGL (gl:Class<GL>):OpenGLES3RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromOpenGLES2RenderContext (context:OpenGLES2RenderContext):OpenGLES3RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromWebGLRenderContext (context:WebGLRenderContext):OpenGLES3RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromWebGL2RenderContext (context:WebGL2RenderContext):OpenGLES3RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+}
+
+
+#end

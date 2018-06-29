@@ -1,8 +1,347 @@
-package lime.graphics;
+package lime.graphics; #if (js && html5 && !doc_gen)
+
+
+import lime._internal.backend.html5.HTML5WebGL2RenderContext;
+import lime.graphics.opengl.*;
+import lime.utils.DataPointer;
+
+@:access(lime.graphics.RenderContext)
+@:forward()
+
+
+abstract WebGL2RenderContext(HTML5WebGL2RenderContext) from HTML5WebGL2RenderContext to HTML5WebGL2RenderContext {
+	
+	
+	public inline function bufferData (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.bufferData (target, srcData, usage, srcOffset, length);
+			
+		} else {
+			
+			this.bufferData (target, srcData, usage);
+			
+		}
+		
+	}
+	
+	
+	public inline function bufferSubData (target:Int, dstByteOffset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.bufferSubData (target, dstByteOffset, srcData, srcOffset, length);
+			
+		} else {
+			
+			this.bufferSubData (target, dstByteOffset, srcData);
+			
+		}
+		
+	}
+	
+	
+	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
+			
+		} else {
+			
+			this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData);
+			
+		}
+		
+	}
+	
+	
+	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
+			
+		} else {
+			
+			this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData);
+			
+		}
+		
+	}
+	
+	
+	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.getBufferSubData (target, srcByteOffset, dstData, srcOffset, length);
+			
+		} else {
+			
+			this.getBufferSubData (target, srcByteOffset, dstData);
+			
+		}
+		
+	}
+	
+	
+	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
+		
+		if (dstOffset != null) {
+			
+			this.readPixels (x, y, width, height, format, type, pixels, dstOffset);
+			
+		} else {
+			
+			this.readPixels (x, y, width, height, format, type, pixels);
+			
+		}
+		
+	}
+	
+	
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
+			
+		} else if (format != null) {
+			
+			this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
+			
+		} else {
+			
+			this.texImage2D (target, level, internalformat, width, height, border); // target, level, internalformat, format, type, pixels
+			
+		}
+		
+	}
+	
+	
+	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
+			
+		} else if (type != null) {
+			
+			this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
+			
+		} else {
+			
+			this.texSubImage2D (target, level, xoffset, yoffset, width, height, format); // target, level, xoffset, yoffset, format, type, pixels
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform1fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform1fv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform1fv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform1iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform1iv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform1iv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public function uniform2fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform2fv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform2fv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform2iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform2iv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform2iv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform3fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform3fv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform3fv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform3iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform3iv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform3iv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform4fv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform4fv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform4fv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniform4iv (location:GLUniformLocation, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniform4iv (location, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniform4iv (location, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniformMatrix2fv (location, transpose, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniformMatrix2fv (location, transpose, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniformMatrix3fv (location, transpose, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniformMatrix3fv (location, transpose, data);
+			
+		}
+		
+	}
+	
+	
+	public inline function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, data:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void {
+		
+		if (srcOffset != null) {
+			
+			this.uniformMatrix4fv (location, transpose, data, srcOffset, srcLength);
+			
+		} else {
+			
+			this.uniformMatrix4fv (location, transpose, data);
+			
+		}
+		
+	}
+	
+	
+	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
+		
+		return (gl:OpenGLRenderContext);
+		
+	}
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
+		
+		return context.webgl2;
+		
+	}
+	
+	
+	@:from private static function toWebGLRenderContext (gl:WebGLRenderContext):WebGL2RenderContext {
+		
+		return cast gl;
+		
+	}
+	
+	
+}
+
+
+#elseif (sys && lime_opengl && !doc_gen)
 
 
 import haxe.Int64;
 import lime.graphics.opengl.*;
+import lime.graphics.OpenGLRenderContext;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.BytePointer;
@@ -10,6 +349,8 @@ import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 import lime.utils.UInt32Array;
+
+@:access(lime.graphics.RenderContext)
 
 
 abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to OpenGLRenderContext {
@@ -94,7 +435,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	public var INVALID_OPERATION (get, never):Int;
 	public var OUT_OF_MEMORY (get, never):Int;
 	
-	public var CW  (get, never):Int;
+	public var CW (get, never):Int;
 	public var CCW (get, never):Int;
 	
 	public var LINE_WIDTH (get, never):Int;
@@ -638,9 +979,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	public var TIMEOUT_IGNORED (get, never):Int;
 	public var MAX_CLIENT_WAIT_TIMEOUT_WEBGL (get, never):Int;
 	
-	public var type (get, never):RenderContextType;
-	public var version (get, never):Float;
-	
 	private inline function get_DEPTH_BUFFER_BIT ():Int { return this.DEPTH_BUFFER_BIT; }
 	private inline function get_STENCIL_BUFFER_BIT ():Int { return this.STENCIL_BUFFER_BIT; }
 	private inline function get_COLOR_BUFFER_BIT ():Int { return this.COLOR_BUFFER_BIT; }
@@ -936,8 +1274,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	private inline function get_CONTEXT_LOST_WEBGL ():Int { return this.CONTEXT_LOST_WEBGL; }
 	private inline function get_UNPACK_COLORSPACE_CONVERSION_WEBGL ():Int { return this.UNPACK_COLORSPACE_CONVERSION_WEBGL; }
 	private inline function get_BROWSER_DEFAULT_WEBGL ():Int { return this.BROWSER_DEFAULT_WEBGL; }
-	private inline function get_type ():RenderContextType { return this.type; }
-	private inline function get_version ():Float { return this.version; }
 	
 	private inline function get_READ_BUFFER ():Int { return this.READ_BUFFER; }
 	private inline function get_UNPACK_ROW_LENGTH ():Int { return this.UNPACK_ROW_LENGTH; }
@@ -1357,7 +1693,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public function bufferData (target:Int, srcData:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void {
 		
 		var size = (srcData != null) ? srcData.byteLength : 0;
@@ -1365,16 +1700,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.bufferData (target, size, __tempPointer, usage);
 		
 	}
-	#else
-	public inline function bufferData (target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void {
-		
-		this.bufferDataWEBGL (target, srcData, usage, srcOffset, length);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public inline function bufferSubData (target:Int, offset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?length:Int):Void {
 		
 		var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
@@ -1382,13 +1709,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.bufferSubData (target, offset, size, __tempPointer);
 		
 	}
-	#else
-	public inline function bufferSubData (target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
-		
-		this.bufferSubDataWEBGL (target, offset, srcData, srcOffset, length);
-		
-	}
-	#end
 	
 	
 	public inline function checkFramebufferStatus (target:Int):Int {
@@ -1412,52 +1732,28 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public function clearBufferfv (buffer:Int, drawbuffer:Int, values:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		__tempPointer.set (values, srcOffset);
 		this.clearBufferfv (buffer, drawbuffer, __tempPointer);
 		
 	}
-	#else
-	public inline function clearBufferfv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
-		
-		this.clearBufferfvWEBGL (buffer, drawbuffer, values, srcOffset);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function clearBufferiv (buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void {
 		
 		__tempPointer.set (values, srcOffset);
 		this.clearBufferiv (buffer, drawbuffer, __tempPointer);
 		
 	}
-	#else
-	public inline function clearBufferiv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
-		
-		this.clearBufferivWEBGL (buffer, drawbuffer, values, srcOffset);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function clearBufferuiv (buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void {
 		
 		__tempPointer.set (values, srcOffset);
 		this.clearBufferuiv (buffer, drawbuffer, __tempPointer);
 		
 	}
-	#else
-	public inline function clearBufferuiv (buffer:Int, drawbuffer:Int, values:Dynamic, ?srcOffset:Int):Void {
-		
-		this.clearBufferuivWEBGL (buffer, drawbuffer, values, srcOffset);
-		
-	}
-	#end
 	
 	
 	public inline function clearColor (red:Float, green:Float, blue:Float, alpha:Float):Void {
@@ -1481,19 +1777,11 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public inline function clientWaitSync (sync:GLSync, flags:Int, timeout:Int64):Int {
 		
 		return this.clientWaitSync (sync, flags, timeout);
 		
 	}
-	#else
-	public inline function clientWaitSync (sync:GLSync, flags:Int, timeout:Dynamic):Int {
-		
-		return this.clientWaitSync (sync, flags, timeout);
-		
-	}
-	#end
 	
 	
 	public inline function colorMask (red:Bool, green:Bool, blue:Bool, alpha:Bool):Void {
@@ -1510,7 +1798,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void {
 		
 		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
@@ -1518,18 +1805,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.compressedTexImage2D (target, level, internalformat, width, height, border, imageSize, __tempPointer);
 		
 	}
-	#else
-	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:Int):Void {
-	//public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
-	public inline function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-		
-		this.compressedTexImage2DWEBGL (target, level, internalformat, width, height, border, srcData, srcOffset, srcLengthOverride);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void {
 		
 		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
@@ -1537,18 +1814,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.compressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
 		
 	}
-	#else
-	//public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, offset:DataPointer):Void {
-	//public function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-	public inline function compressedTexImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-		
-		this.compressedTexImage3DWEBGL (target, level, internalformat, width, height, depth, border, srcData, srcOffset, srcLengthOverride);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void {
 		
 		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
@@ -1556,18 +1823,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, __tempPointer);
 		
 	}
-	#else
-	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:Int):Void {
-	//public function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, srcLengthOverride:Int = 0):Void {
-	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-		
-		this.compressedTexSubImage2DWEBGL (target, level, xoffset, yoffset, width, height, format, srcData, srcOffset, srcLengthOverride);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public inline function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void {
 		
 		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
@@ -1575,15 +1832,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.compressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __tempPointer);
 		
 	}
-	#else
-	//public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, offset:DataPointer):Void {
-	//public function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-	public inline function compressedTexSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, srcData:Dynamic, ?srcOffset:Int, ?srcLengthOverride:Int):Void {
-		
-		this.compressedTexSubImage3DWEBGL (target, level, xoffset, yoffset, zoffset, width, height, depth, format, srcData, srcOffset, srcLengthOverride);
-		
-	}
-	#end
 	
 	
 	public inline function copyBufferSubData (readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {
@@ -1992,22 +2240,12 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void {
 		
-		var size = (length != null) ? length : (dstData != null) ? #if (js && !display) dstData.byteLength #else dstData.length #end : 0;
+		var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
 		this.getBufferSubData (target, srcByteOffset + srcOffset, size, dstData);
 		
 	}
-	#else
-	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:js.html.ArrayBuffer, ?srcOffset:Int, ?length:Int):Void {
-	//public function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic /*SharedArrayBuffer*/, ?srcOffset:Int, ?length:Int):Void {
-	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Int, ?length:Int):Void {
-		
-		this.getBufferSubDataWEBGL (target, srcByteOffset, dstData, srcOffset, length);
-		
-	}
-	#end
 	
 	
 	public inline function getContextAttributes ():GLContextAttributes {
@@ -2178,21 +2416,11 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public inline function getUniformIndices (program:GLProgram, uniformNames:Array<String>):Array<Int> {
 		
 		return this.getUniformIndices (program, uniformNames);
 		
 	}
-	#else
-	//public inline function getUniformIndices (program:GLProgram, uniformNames:String):Array<Int> {
-	//public inline function getUniformIndices (program:GLProgram, uniformNames:Array<String>):Array<Int> {
-	public inline function getUniformIndices (program:GLProgram, uniformNames:Dynamic):Array<Int> {
-		
-		return this.getUniformIndices (program, uniformNames);
-		
-	}
-	#end
 	
 	
 	public inline function getUniformLocation (program:GLProgram, name:String):GLUniformLocation {
@@ -2363,23 +2591,12 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, dstOffset:Int = 0):Void {
 		
 		__tempPointer.set (pixels, dstOffset);
 		this.readPixels (x, y, width, height, format, type, __tempPointer);
 		
 	}
-	#else
-	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
-	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, offset:DataPointer):Void {
-	//public function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, ?dstOffset:Int):Void {
-	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void {
-		
-		this.readPixelsWEBGL (x, y, width, height, format, type, pixels, dstOffset);
-		
-	}
-	#end
 	
 	
 	public inline function renderbufferStorage (target:Int, internalformat:Int, width:Int, height:Int):Void {
@@ -2480,50 +2697,20 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		__tempPointer.set (srcData, srcOffset);
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, __tempPointer);
 		
 	}
-	#else
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:CanvasElement):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ImageData):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ImageElement):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:VideoElement):Void {
-	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
-	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
-		
-		this.texImage2DWEBGL (target, level, internalformat, width, height, border, format, type, srcData, srcOffset);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		__tempPointer.set (srcData, srcOffset);
 		this.texImage3D (target, level, internalformat, width, height, depth, border, format, type, __tempPointer);
 		
 	}
-	#else
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.CanvasElement):Void {
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.ImageElement):Void {
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.VideoElement):Void {
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:Dynamic /*js.html.ImageBitmap*/):Void {
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:js.html.ImageData):Void {
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, offset:DataPointer):Void {
-	//public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView, ?srcOffset:Int):Void {
-	public inline function texImage3D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
-		
-		this.texImage3DWEBGL (target, level, internalformat, width, height, depth, border, format, type, srcData, srcOffset);
-		
-	}
-	#end
 	
 	
 	public inline function texStorage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void {
@@ -2554,50 +2741,20 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	#if (!js || !html5 || display)
 	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		__tempPointer.set (srcData, srcOffset);
 		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
 		
 	}
-	#else
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:CanvasElement):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ImageData):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ImageElement):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:Int):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:VideoElement):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
-	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
-		
-		this.texSubImage2DWEBGL (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		__tempPointer.set (srcData, srcOffset);
 		this.texSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __tempPointer);
 		
 	}
-	#else
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:CanvasElement):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ImageData):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ImageElement):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:Int):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:VideoElement):Void {
-	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int):Void {
-	public inline function texSubImage3D (target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, srcData:Dynamic, ?srcOffset:Int):Void {
-		
-		this.texSubImage3DWEBGL (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, srcData, srcOffset);
-		
-	}
-	#end
 	
 	
 	public inline function transformFeedbackVaryings (program:GLProgram, varyings:Array<String>, bufferMode:Int):Void {
@@ -2616,11 +2773,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform1fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform1fv (location, v != null ? v.length : 0, v);
-		#else
-		this.uniform1fvWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2634,11 +2787,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform1iv (location, v != null ? v.length : 0, v);
-		#else
-		this.uniform1ivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2652,11 +2801,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform1uiv (location:GLUniformLocation, v:UInt32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform1uiv (location, v != null ? v.length : 0, v);
-		#else
-		this.uniform1uivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2670,12 +2815,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform2fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		
-		#if (!js || !html5 || display)
 		this.uniform2fv (location, v != null ? v.length >> 1 : 0, v);
-		#else
-		this.uniform2fvWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2689,11 +2829,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform2iv (location, v != null ? v.length >> 1 : 0, v);
-		#else
-		this.uniform2fvWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2707,11 +2843,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform2uiv (location:GLUniformLocation, v:UInt32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform2uiv (location, v != null ? v.length >> 1 : 0, v);
-		#else
-		this.uniform2uivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2725,11 +2857,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform3fv (location, v != null ? Std.int (v.length / 3) : 0, v);
-		#else
-		this.uniform3fvWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2743,11 +2871,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform3iv (location, v != null ? Std.int (v.length / 3) : 0, v);
-		#else
-		this.uniform3ivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2761,11 +2885,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform3uiv (location:GLUniformLocation, v:UInt32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform3uiv (location, v != null ? Std.int (v.length / 3) : 0, v);
-		#else
-		this.uniform3uivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2779,11 +2899,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform4fv (location, v != null ? v.length >> 2 : 0, v);
-		#else
-		this.uniform4fvWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2797,11 +2913,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform4iv (location, v != null ? v.length >> 2 : 0, v);
-		#else
-		this.uniform4ivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2815,11 +2927,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	public inline function uniform4uiv (location:GLUniformLocation, v:UInt32Array):Void {
 		
-		#if (!js || !html5 || display)
 		this.uniform4uiv (location, v != null ? v.length >> 2 : 0, v);
-		#else
-		this.uniform4uivWEBGL (location, v);
-		#end
 		
 	}
 	
@@ -2832,7 +2940,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2844,16 +2951,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix2fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix2fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix2x3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2865,16 +2964,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix2x3fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix2x3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix2x3fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix2x4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2886,16 +2977,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix2x4fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix2x4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix2x4fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2907,16 +2990,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix3fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix3fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix3x2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2928,16 +3003,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix3x2fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix3x2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix3x2fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix3x4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2949,16 +3016,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix3x4fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix3x4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix3x4fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2970,16 +3029,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix4fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix4fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix4x2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -2991,16 +3042,8 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix4x2fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix4x2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix4x2fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
-	#if (!js || !html5 || display)
 	public function uniformMatrix4x3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void {
 		
 		var count = 0;
@@ -3012,13 +3055,6 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 		this.uniformMatrix4x3fv (location, count, transpose, __tempPointer);
 		
 	}
-	#else
-	public inline function uniformMatrix4x3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
-		
-		this.uniformMatrix4x3fvWEBGL (location, transpose, v, srcOffset, srcLength);
-		
-	}
-	#end
 	
 	
 	public inline function useProgram (program:GLProgram):Void {
@@ -3147,20 +3183,23 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	@:from private static function fromGL (gl:#if lime_opengl Class<GL> #else Dynamic #end):WebGL2RenderContext {
+	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
 		
-		#if lime_opengl
 		return cast GL.context;
-		#else
-		return null;
-		#end
 		
 	}
 	
 	
 	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
 		
-		return (gl:OpenGLRenderContext);
+		return cast gl;
+		
+	}
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
+		
+		return context.webgl2;
 		
 	}
 	
@@ -3173,3 +3212,48 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	
 	
 }
+
+
+#else
+
+
+import lime.graphics.opengl.GL;
+
+@:forward()
+
+
+abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic {
+	
+	
+	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+	@:from private static function toWebGLRenderContext (gl:WebGLRenderContext):WebGL2RenderContext {
+		
+		return null;
+		
+	}
+	
+	
+}
+
+
+#end
