@@ -1,47 +1,45 @@
 package lime.graphics;
 
 
-typedef CairoRenderContext = lime.graphics.cairo.Cairo;
-//
-//
-//import lime.graphics.cairo.Cairo;
-//import lime.graphics.cairo.CairoFormat;
-//import lime.graphics.cairo.CairoSurface;
-//
-//
-//class CairoRenderContext {
-	//
-	//
-	//public var version (get, null):Int;
-	//public var versionString (get, null):String;
-	//
-	//
-	//public function new () {
-		//
-		//
-		//
-	//}
-	//
-	//
-	//
-	//
-	//// Get & Set Methods
-	//
-	//
-	//
-	//
-	//private inline function get_version ():Int {
-		//
-		//return Cairo.version;
-		//
-	//}
-	//
-	//
-	//private function get_versionString ():String {
-		//
-		//return Cairo.versionString;
-		//
-	//}
-	//
-	//
-//}
+#if (sys && lime_cairo && !doc_gen)
+
+
+import lime.graphics.cairo.Cairo;
+
+
+@:access(lime.graphics.RenderContext)
+
+@:forward()
+
+abstract CairoRenderContext(Cairo) from Cairo to Cairo {
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):CairoRenderContext {
+		
+		return context.cairo;
+		
+	}
+	
+	
+}
+
+
+#else
+
+
+@:forward()
+
+abstract CairoRenderContext(Dynamic) from Dynamic to Dynamic {
+	
+	
+	@:from private static function fromRenderContext (context:RenderContext):CairoRenderContext {
+		
+		return null;
+		
+	}
+	
+	
+}
+
+
+#end

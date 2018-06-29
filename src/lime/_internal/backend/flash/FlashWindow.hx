@@ -178,7 +178,7 @@ class FlashWindow {
 		stage.addEventListener (Event.RESIZE, handleWindowEvent);
 		
 		var context = new RenderContext ();
-		context.sprite = Lib.current;
+		context.flash = Lib.current;
 		context.type = FLASH;
 		context.version = Capabilities.version;
 		context.window = parent;

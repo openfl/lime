@@ -276,7 +276,7 @@ class HTML5Window {
 		
 		if (div != null) {
 			
-			context.element = cast div;
+			context.dom = cast div;
 			context.type = DOM;
 			context.version = "";
 			
