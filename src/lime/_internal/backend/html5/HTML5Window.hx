@@ -33,7 +33,7 @@ import lime.ui.Window;
 
 
 @:access(lime._internal.backend.html5.HTML5Application)
-@:access(lime._internal.backend.html5.HTML5OpenGLRenderContext)
+@:access(lime._internal.backend.html5.HTML5WebGL2RenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
 @:access(lime.graphics.OpenGLRenderContext)
@@ -282,7 +282,7 @@ class HTML5Window {
 			
 		} else if (canvas != null) {
 			
-			var webgl:RenderingContext = null;
+			var webgl:HTML5WebGL2RenderContext = null;
 			
 			var forceCanvas = #if (canvas || munit) true #else (renderType == "canvas") #end;
 			var forceWebGL = #if webgl true #else (renderType == "opengl" || renderType == "webgl" || renderType == "webgl1" || renderType == "webgl2") #end;

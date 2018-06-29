@@ -6,6 +6,7 @@ import flash.ui.Multitouch;
 import lime.app.Application;
 import lime.app.Config;
 import lime.media.AudioManager;
+import lime.ui.Window;
 
 @:access(lime.app.Application)
 
@@ -22,12 +23,10 @@ class FlashApplication {
 		
 		AudioManager.init ();
 		
-	}
-	
-	
-	public function create (config:Config):Void {
-		
-		
+		#if (flash && !air)
+		var window = new Window ();
+		parent.addWindow (window);
+		#end
 		
 	}
 	

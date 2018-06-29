@@ -3183,9 +3183,9 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
+	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
 		
-		return cast GL.context;
+		return context.webgl2;
 		
 	}
 	
@@ -3197,16 +3197,9 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
+	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
 		
-		return context.webgl2;
-		
-	}
-	
-	
-	@:from private static function toWebGLRenderContext (gl:WebGLRenderContext):WebGL2RenderContext {
-		
-		return cast gl;
+		return cast GL.context;
 		
 	}
 	

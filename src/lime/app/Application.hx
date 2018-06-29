@@ -36,9 +36,9 @@ class Application extends Module {
 	
 	
 	/**
-	 * Configuration values for the application, such as window options or a package name
+	 * Meta-data values for the application, such as a version or a package name
 	**/
-	public var config (default, null):Config;
+	public var metaData:MetaData;
 	
 	/**
 	 * A list of currently attached Module instances
@@ -104,6 +104,37 @@ class Application extends Module {
 		
 		registerModule (this);
 		
+		// if (config != null) {
+			
+		// 	if (Reflect.hasField (config, "windows")) {
+				
+		// 		for (windowConfig in config.windows) {
+					
+		// 			var window = new Window (windowConfig);
+		// 			createWindow (window);
+					
+		// 			#if ((flash && !air) || html5)
+		// 			break;
+		// 			#end
+					
+		// 		}
+				
+		// 	}
+			
+		// 	if (__preloader == null || __preloader.complete) {
+				
+		// 		setPreloader (__preloader);
+				
+		// 		for (module in modules) {
+					
+		// 			setPreloader (__preloader);
+					
+		// 		}
+				
+		// 	}
+			
+		// }
+		
 	}
 	
 	
@@ -167,89 +198,37 @@ class Application extends Module {
 			window.onTextInput.add (onTextInput);
 			window.onUpdate.add (update);
 			
-			if (window.id > -1) {
-				
-				onWindowCreate ();
-				
-			}
-			
 		}
 		
 		if (__windows.indexOf (window) == -1) {
 			
 			__windows.push (window);
 			
-		}
-		
-	}
-	
-	
-	/**
-	 * Initializes the Application, using the settings defined in
-	 * the config instance. By default, this is called automatically
-	 * when building the project using Lime's command-line tools
-	 * @param	config	A Config object
-	 */
-	public function create (config:Config):Void {
-		
-		this.config = config;
-		
-		__backend.create (config);
-		
-		if (config != null) {
-			
-			if (Reflect.hasField (config, "windows")) {
+			for (module in modules) {
 				
-				for (windowConfig in config.windows) {
-					
-					var window = new Window (windowConfig);
-					createWindow (window);
-					
-					#if ((flash && !air) || html5)
-					break;
-					#end
-					
-				}
+				module.addWindow (window);
 				
 			}
 			
-			if (__preloader == null || __preloader.complete) {
+			if (window.id == -1) {
 				
-				setPreloader (__preloader);
+				window.create (this);
+				//__windows.push (window);
+				__windowByID.set (window.id, window);
 				
-				for (module in modules) {
+				window.onCreate.dispatch ();
+				
+			} else {
+				
+				if (window == __window) {
 					
-					setPreloader (__preloader);
+					onWindowCreate ();
 					
 				}
 				
 			}
 			
 		}
-		
-	}
-	
-	
-	/**
-	 * Adds a new Window to the Application. By default, this is
-	 * called automatically by create()
-	 * @param	window	A Window object to add
-	 */
-	public function createWindow (window:Window):Void {
-		
-		addWindow (window);
-		
-		for (module in modules) {
-			
-			module.addWindow (window);
-			
-		}
-		
-		window.create (this);
-		//__windows.push (window);
-		__windowByID.set (window.id, window);
-		
-		window.onCreate.dispatch ();
 		
 	}
 	
