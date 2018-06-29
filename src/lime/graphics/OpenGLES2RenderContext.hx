@@ -136,7 +136,7 @@ abstract OpenGLES2RenderContext(Dynamic) from Dynamic to Dynamic {
 	}
 	
 	
-	@:from private static function fromOpenGLRenderContext (gl:OpenGLRenderContext):OpenGLRenderContext {
+	@:from private static function fromOpenGLRenderContext (gl:OpenGLRenderContext):OpenGLES2RenderContext {
 		
 		return null;
 		
@@ -150,7 +150,7 @@ abstract OpenGLES2RenderContext(Dynamic) from Dynamic to Dynamic {
 	}
 	
 	
-	@:from private static function fromWebGLRenderContext (gl:WebGLRenderContext):WebGLRenderContext {
+	@:from private static function fromWebGLRenderContext (gl:WebGLRenderContext):OpenGLES2RenderContext {
 		
 		return null;
 		
