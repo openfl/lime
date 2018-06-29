@@ -2,16 +2,16 @@ package;
 
 
 import haxe.io.Path;
-import lime.project.Haxelib;
+import hxp.helpers.FileHelper;
+import hxp.helpers.HaxelibHelper;
+import hxp.helpers.LogHelper;
+import hxp.helpers.PathHelper;
+import hxp.helpers.PlatformHelper;
+import hxp.helpers.ProcessHelper;
+import hxp.project.Haxelib;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
-import lime.tools.helpers.FileHelper;
-import lime.tools.helpers.HaxelibHelper;
-import lime.tools.helpers.LogHelper;
-import lime.tools.helpers.PathHelper;
-import lime.tools.helpers.PlatformHelper;
-import lime.tools.helpers.ProcessHelper;
 
 
 class RunScript {

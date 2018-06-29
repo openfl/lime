@@ -1,3 +1,4 @@
 -main RunScript
 -cp ..
 -neko ../run.n
+-lib hxp
