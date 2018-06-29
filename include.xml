@@ -44,7 +44,7 @@
 	<target name="console-pc" handler="lime-console-pc" />
 	<haxelib name="lime-console-pc" if="console-pc" />
 	
-	<section if="hxp">
+	<section if="hxp" unless="lime-tools">
 		
 		<target name="air" path="tools/platforms/AIRPlatform.hx" />
 		<target name="android" path="tools/platforms/AndroidPlatform.hx" />

@@ -1,15 +1,15 @@
 package utils;
 
 
-import lime.tools.helpers.FileHelper;
-import lime.tools.helpers.HaxelibHelper;
-import lime.tools.helpers.LogHelper;
-import lime.tools.helpers.PathHelper;
-import lime.project.Haxelib;
-import lime.project.HXProject;
+import hxp.helpers.FileHelper;
+import hxp.helpers.HaxelibHelper;
+import hxp.helpers.LogHelper;
+import hxp.helpers.PathHelper;
+import hxp.project.Haxelib;
+import hxp.project.HXProject;
 import sys.FileSystem;
 
-@:access(lime.project.HXProject)
+@:access(hxp.project.HXProject)
 
 
 class CreateTemplate {

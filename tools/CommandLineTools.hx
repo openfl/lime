@@ -8,10 +8,10 @@ import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Path;
 import haxe.rtti.Meta;
+import hxp.helpers.*;
+import hxp.platforms.*;
+import hxp.project.*;
 import lime.system.CFFI;
-import lime.tools.helpers.*;
-import lime.tools.platforms.*;
-import lime.project.*;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -20,7 +20,7 @@ import utils.CreateTemplate;
 import utils.JavaExternGenerator;
 import utils.PlatformSetup;
 
-@:access(lime.project.HXProject)
+@:access(hxp.project.HXProject)
 
 
 class CommandLineTools {

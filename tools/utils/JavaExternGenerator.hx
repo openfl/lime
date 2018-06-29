@@ -7,14 +7,14 @@ import haxe.io.Input;
 import haxe.io.Output;
 import haxe.io.Path;
 import haxe.zip.Reader;
-import lime.tools.helpers.PathHelper;
-import lime.tools.helpers.ProcessHelper;
+import hxp.helpers.PathHelper;
+import hxp.helpers.ProcessHelper;
+import hxp.project.HXProject;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 import neko.Lib;
 import neko.zip.Compress;
-import lime.project.HXProject;
 
 
 class JavaExternGenerator

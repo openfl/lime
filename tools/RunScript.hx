@@ -21,6 +21,13 @@ class RunScript {
 		
 		var limeDirectory = HaxelibHelper.getPath (new Haxelib ("lime"), true);
 		var toolsDirectory = PathHelper.combine (limeDirectory, "tools");
+		
+		if (!FileSystem.exists (toolsDirectory)) {
+			
+			toolsDirectory = PathHelper.combine (limeDirectory, "../tools");
+			
+		}
+		
 		/*var extendedToolsDirectory = HaxelibHelper.getPath (new Haxelib ("lime-extended"), false);
 		
 		if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
