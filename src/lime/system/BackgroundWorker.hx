@@ -70,7 +70,13 @@ class BackgroundWorker {
 		__messageQueue = new Deque<Dynamic> ();
 		__workerThread = Thread.create (__doWork);
 		
-		Application.current.onUpdate.add (__update);
+		// TODO: Better way to do this
+		
+		if (Application.current != null && Application.current.window != null) {
+			
+			Application.current.window.onUpdate.add (__update);
+			
+		}
 		
 		#else
 		

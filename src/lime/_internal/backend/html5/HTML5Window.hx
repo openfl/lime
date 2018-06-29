@@ -32,6 +32,7 @@ import lime.ui.Touch;
 import lime.ui.Window;
 
 
+@:access(lime._internal.backend.html5.HTML5Application)
 @:access(lime._internal.backend.html5.HTML5OpenGLRenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.opengl.GL)
@@ -380,6 +381,27 @@ class HTML5Window {
 	public function getDisplayMode ():DisplayMode {
 		
 		return System.getDisplay (0).currentMode;
+		
+	}
+	
+	
+	public function getFrameRate ():Float {
+		
+		if (parent.application == null) return 0;
+		
+		if (parent.application.__backend.framePeriod < 0) {
+			
+			return 60;
+			
+		} else if (parent.application.__backend.framePeriod == 1000) {
+			
+			return 0;
+			
+		} else {
+			
+			return 1000 / parent.application.__backend.framePeriod;
+			
+		}
 		
 	}
 	
@@ -1064,6 +1086,31 @@ class HTML5Window {
 		}
 		
 		return enableTextEvents = value;
+		
+	}
+	
+	
+	public function setFrameRate (value:Float):Float {
+		
+		if (parent.application != null) {
+			
+			if (value >= 60) {
+				
+				if (parent == parent.application.window) parent.application.__backend.framePeriod = -1;
+				
+			} else if (value > 0) {
+				
+				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000 / value;
+				
+			} else {
+				
+				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000;
+				
+			}
+			
+		}
+		
+		return value;
 		
 	}
 	

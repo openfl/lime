@@ -222,30 +222,13 @@ class HTML5Application {
 	}
 	
 	
-	public function getFrameRate ():Float {
-		
-		if (framePeriod < 0) {
-			
-			return 60;
-			
-		} else if (framePeriod == 1000) {
-			
-			return 0;
-			
-		} else {
-			
-			return 1000 / framePeriod;
-			
-		}
-		
-	}
-	
-	
 	private function handleApplicationEvent (?__):Void {
 		
-		if (parent.window != null) {
+		// TODO: Support independent window frame rates
+		
+		for (window in parent.__windows) {
 			
-			parent.window.__backend.updateSize ();
+			window.__backend.updateSize ();
 			
 		}
 		
@@ -261,11 +244,10 @@ class HTML5Application {
 			
 			deltaTime = currentUpdate - lastUpdate;
 			
-			parent.onUpdate.dispatch (Std.int (deltaTime));
-			
-			if (parent.window != null && parent.window.context != null) {
+			for (window in parent.__windows) {
 				
-				parent.window.onRender.dispatch (parent.window.context);
+				parent.window.onUpdate.dispatch (Std.int (deltaTime));
+				if (window.context != null) window.onRender.dispatch (window.context);
 				
 			}
 			
@@ -386,27 +368,6 @@ class HTML5Application {
 			}
 			
 		}
-		
-	}
-	
-	
-	public function setFrameRate (value:Float):Float {
-		
-		if (value >= 60) {
-			
-			framePeriod = -1;
-			
-		} else if (value > 0) {
-			
-			framePeriod = 1000 / value;
-			
-		} else {
-			
-			framePeriod = 1000;
-			
-		}
-		
-		return value;
 		
 	}
 	

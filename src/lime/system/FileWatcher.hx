@@ -39,9 +39,9 @@ class FileWatcher {
 	public function addDirectory (path:String, recursive:Bool = true):Bool {
 		
 		#if (lime_cffi && !macro)
-		if (!__hasUpdate) {
+		if (!__hasUpdate && Application.current != null && Application.current.window != null) {
 			
-			Application.current.onUpdate.add (this_onUpdate);
+			Application.current.window.onUpdate.add (this_onUpdate);
 			__hasUpdate = true;
 			
 		}

@@ -33,15 +33,6 @@ typedef Config = {
 	@:optional var file:String;
 	
 	/**
-	 * A requested frame rate
-	 *
-	 * In the default generated config for Lime applications, the default value
-	 * is 30 FPS on many platforms, or vsync for HTML5. It can be overriden in 
-	 * XML project files using the `<window fps="" />` attribute
-	**/
-	@:optional var fps:Int;
-	
-	/**
 	 * An application name, used as the default Window title
 	 *
 	 * In the default generated config for Lime applications, this value 
@@ -115,6 +106,16 @@ typedef WindowConfig = {
 	#if (js && html5)
 	@:optional var element:js.html.Element;
 	#end
+	
+	/**
+	 * A requested frame rate
+	 *
+	 * In the default generated config for Lime applications, the default value
+	 * is 30 FPS on many platforms, or vsync for HTML5. It can be overriden in 
+	 * XML project files using the `<window fps="" />` attribute
+	**/
+	@:optional var fps:Int;
+	
 	@:optional var fullscreen:Bool;
 	@:optional var hardware:Bool;
 	@:optional var height:Int;

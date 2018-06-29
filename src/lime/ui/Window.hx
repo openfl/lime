@@ -38,6 +38,15 @@ class Window {
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
 	public var enableTextEvents (get, set):Bool;
+	
+	/**
+	 * The current frame rate (measured in frames-per-second) of the window.
+	 *
+	 * On some platforms, a frame rate of 60 or greater may imply vsync, which will
+	 * perform more quickly on displays with a higher refresh rate
+	**/
+	public var frameRate (get, set):Float;
+	
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
 	public var id (default, null):Int;
@@ -70,6 +79,12 @@ class Window {
 	public var onRestore (default, null) = new Event<Void->Void> ();
 	public var onTextEdit (default, null) = new Event<String->Int->Int->Void> ();
 	public var onTextInput (default, null) = new Event<String->Void> ();
+	
+	/**
+	 * Update events are dispatched each frame (usually just before rendering)
+	 */
+	public var onUpdate = new Event<Int->Void> ();
+	
 	public var parameters (default, null):Dynamic;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
@@ -102,6 +117,7 @@ class Window {
 			"display": { get: p.get_display },
 			"displayMode": { get: p.get_displayMode, set: p.set_displayMode },
 			"enableTextEvents": { get: p.get_enableTextEvents, set: p.set_enableTextEvents },
+			"frameRate": { get: p.get_frameRate, set: p.set_frameRate },
 			"fullscreen": { get: p.get_fullscreen, set: p.set_fullscreen },
 			"height": { get: p.get_height, set: p.set_height },
 			"maximized": { get: p.get_maximized, set: p.set_maximized },
@@ -146,6 +162,12 @@ class Window {
 		}
 		
 		__backend = new WindowBackend (this);
+		
+		if (config != null && Reflect.hasField (config, "fps")) {
+			
+			__backend.setFrameRate (config.fps);
+			
+		}
 		
 	}
 	
@@ -492,6 +514,20 @@ class Window {
 	@:noCompletion private inline function set_enableTextEvents (value:Bool):Bool {
 		
 		return __backend.setEnableTextEvents (value);
+		
+	}
+	
+	
+	@:noCompletion private inline function get_frameRate ():Float {
+		
+		return __backend.getFrameRate ();
+		
+	}
+	
+	
+	@:noCompletion private inline function set_frameRate (value:Float):Float {
+		
+		return __backend.setFrameRate (value);
 		
 	}
 	

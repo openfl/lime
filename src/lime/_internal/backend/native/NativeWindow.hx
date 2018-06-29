@@ -47,6 +47,7 @@ class NativeWindow {
 	
 	private var closing:Bool;
 	private var displayMode:DisplayMode;
+	private var frameRate:Float;
 	private var parent:Window;
 	private var useHardware:Bool;
 	
@@ -60,6 +61,7 @@ class NativeWindow {
 	public function new (parent:Window) {
 		
 		this.parent = parent;
+		frameRate = 60;
 		
 		displayMode = new DisplayMode (0, 0, 0, 0);
 		
@@ -226,6 +228,8 @@ class NativeWindow {
 		
 		parent.context = context;
 		
+		setFrameRate (frameRate);
+		
 	}
 	
 	
@@ -304,21 +308,9 @@ class NativeWindow {
 	}
 	
 	
-	public function setDisplayMode (value:DisplayMode):DisplayMode {
+	public function getFrameRate ():Float {
 		
-		if (handle != null) {
-			
-			#if (!macro && lime_cffi)
-			var data:Dynamic = NativeCFFI.lime_window_set_display_mode (handle, value);
-			displayMode.width = data.width;
-			displayMode.height = data.height;
-			displayMode.pixelFormat = data.pixelFormat;
-			displayMode.refreshRate = data.refreshRate;
-			#end
-			
-		}
-		
-		return displayMode;
+		return frameRate;
 		
 	}
 	
@@ -505,6 +497,26 @@ class NativeWindow {
 		}
 		
 		return value;
+		
+	}
+	
+	
+	public function setDisplayMode (value:DisplayMode):DisplayMode {
+		
+		if (handle != null) {
+			
+			#if (!macro && lime_cffi)
+			var data:Dynamic = NativeCFFI.lime_window_set_display_mode (handle, value);
+			displayMode.width = data.width;
+			displayMode.height = data.height;
+			displayMode.pixelFormat = data.pixelFormat;
+			displayMode.refreshRate = data.refreshRate;
+			#end
+			
+		}
+		
+		return displayMode;
+		
 	}
 	
 	
@@ -530,6 +542,23 @@ class NativeWindow {
 		}
 		
 		return value;
+		
+	}
+	
+	
+	public function setFrameRate (value:Float):Float {
+		
+		// TODO: Support multiple independent frame rates per window
+		
+		if (handle != null) {
+			
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_application_set_frame_rate (handle, value);
+			#end
+			
+		}
+		
+		return frameRate = value;
 		
 	}
 	

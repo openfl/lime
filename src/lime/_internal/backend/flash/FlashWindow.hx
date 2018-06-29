@@ -37,8 +37,10 @@ class FlashWindow {
 	
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
+	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch> ();
 	private var enableTextEvents:Bool;
+	private var frameRate:Float;
 	private var mouseLeft:Bool;
 	private var parent:Window;
 	private var stage:Stage;
@@ -51,6 +53,7 @@ class FlashWindow {
 		
 		cacheMouseX = 0;
 		cacheMouseY = 0;
+		frameRate = 60;
 		
 	}
 	
@@ -182,6 +185,15 @@ class FlashWindow {
 		
 		parent.context = context;
 		
+		// TODO: Wait for application.exec?
+		
+		cacheTime = Lib.getTimer ();
+		handleApplicationEvent (null);
+		
+		stage.addEventListener (Event.ENTER_FRAME, handleApplicationEvent);
+		
+		setFrameRate (frameRate);
+		
 	}
 	
 	
@@ -202,6 +214,18 @@ class FlashWindow {
 	public function getDisplayMode ():DisplayMode {
 		
 		return System.getDisplay (0).currentMode;
+		
+	}
+	
+	
+	private function handleApplicationEvent (event:Event):Void {
+		
+		var currentTime = Lib.getTimer ();
+		var deltaTime = currentTime - cacheTime;
+		cacheTime = currentTime;
+		
+		parent.onUpdate.dispatch (deltaTime);
+		parent.onRender.dispatch (parent.context);
 		
 	}
 	
@@ -461,6 +485,13 @@ class FlashWindow {
 	}
 	
 	
+	public function getFrameRate ():Float {
+		
+		return frameRate;
+		
+	}
+	
+	
 	public function move (x:Int, y:Int):Void {
 		
 		
@@ -485,6 +516,15 @@ class FlashWindow {
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		return enableTextEvents = value;
+		
+	}
+	
+	
+	public function setFrameRate (value:Float):Float {
+		
+		frameRate = value;
+		if (stage != null) stage.frameRate = value;
+		return value;
 		
 	}
 	

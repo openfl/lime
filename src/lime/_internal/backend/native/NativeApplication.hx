@@ -65,7 +65,6 @@ class NativeApplication {
 	
 	public var handle:Dynamic;
 	
-	private var frameRate:Float;
 	private var parent:Application;
 	private var toggleFullscreen:Bool;
 	
@@ -82,7 +81,6 @@ class NativeApplication {
 	public function new (parent:Application):Void {
 		
 		this.parent = parent;
-		frameRate = 60;
 		toggleFullscreen = true;
 		
 		AudioManager.init ();
@@ -176,13 +174,6 @@ class NativeApplication {
 	}
 	
 	
-	public function getFrameRate ():Float {
-		
-		return frameRate;
-		
-	}
-	
-	
 	private function handleApplicationEvent ():Void {
 		
 		switch (applicationEventInfo.type) {
@@ -190,11 +181,14 @@ class NativeApplication {
 			case UPDATE:
 				
 				updateTimer ();
-				parent.onUpdate.dispatch (applicationEventInfo.deltaTime);
-			
-			case EXIT:
 				
-				//parent.onExit.dispatch (0);
+				for (window in parent.__windows) {
+					
+					if (window != null) window.onUpdate.dispatch (applicationEventInfo.deltaTime);
+					
+				}
+			
+			default:
 			
 		}
 		
@@ -431,7 +425,7 @@ class NativeApplication {
 		
 		// TODO: Allow windows to render independently
 		
-		for (window in parent.windows) {
+		for (window in parent.__windows) {
 			
 			if (window == null) continue;
 			
@@ -673,16 +667,6 @@ class NativeApplication {
 			}
 			
 		}
-		
-	}
-	
-	
-	public function setFrameRate (value:Float):Float {
-		
-		#if (!macro && lime_cffi)
-		NativeCFFI.lime_application_set_frame_rate (handle, value);
-		#end
-		return frameRate = value;
 		
 	}
 	

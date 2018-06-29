@@ -77,7 +77,9 @@ class ThreadPool {
 		
 		#if (cpp || neko)
 		
-		if (Application.current != null && !__synchronous) {
+		// TODO: Better way to handle this?
+		
+		if (Application.current != null && Application.current.window != null && !__synchronous) {
 			
 			__workIncoming.add (new ThreadPoolMessage (WORK, state));
 			__workQueued++;
@@ -89,9 +91,9 @@ class ThreadPool {
 				
 			}
 			
-			if (!Application.current.onUpdate.has (__update)) {
+			if (!Application.current.window.onUpdate.has (__update)) {
 				
-				Application.current.onUpdate.add (__update);
+				Application.current.window.onUpdate.add (__update);
 				
 			}
 			
@@ -251,9 +253,9 @@ class ThreadPool {
 			
 			// TODO: Add sleep if keeping minThreads running with no work?
 			
-			if (currentThreads == 0 && minThreads <= 0) {
+			if (currentThreads == 0 && minThreads <= 0 && Application.current != null && Application.current.window != null) {
 				
-				Application.current.onUpdate.remove (__update);
+				Application.current.window.onUpdate.remove (__update);
 				
 			}
 			
