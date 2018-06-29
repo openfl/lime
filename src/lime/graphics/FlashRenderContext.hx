@@ -27,6 +27,8 @@ abstract FlashRenderContext(Sprite) from Sprite to Sprite {
 #else
 
 
+@:forward()
+
 abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic {
 	
 	

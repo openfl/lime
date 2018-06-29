@@ -9,7 +9,7 @@ class RenderContext {
 	
 	
 	public var cairo (default, null):CairoRenderContext;
-	public var ctx (default, null):CanvasRenderContext;
+	public var canvas2D (default, null):Canvas2DRenderContext;
 	public var element (default, null):DOMRenderContext;
 	public var gl (default, null):OpenGLRenderContext;
 	public var gles2 (default, null):OpenGLES2RenderContext;

@@ -325,7 +325,7 @@ class HTML5Window {
 			
 			if (webgl == null) {
 				
-				context.ctx = cast canvas.getContext ("2d");
+				context.canvas2D = cast canvas.getContext ("2d");
 				context.type = CANVAS;
 				context.version = "";
 				

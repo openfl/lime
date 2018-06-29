@@ -45,7 +45,7 @@ import lime.graphics.opengl.GLTransformFeedback;
 import lime.graphics.opengl.GLUniformLocation;
 import lime.graphics.opengl.GLVertexArrayObject;
 import lime.graphics.CairoRenderContext;
-import lime.graphics.CanvasRenderContext;
+import lime.graphics.Canvas2DRenderContext;
 import lime.graphics.DOMRenderContext;
 import lime.graphics.FlashRenderContext;
 import lime.graphics.Image;
