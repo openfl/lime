@@ -6,7 +6,6 @@ import flash.desktop.SystemIdleMode;
 import flash.events.Event;
 import lime._internal.backend.flash.FlashApplication;
 import lime.app.Application;
-import lime.app.Config;
 import lime.system.System;
 
 

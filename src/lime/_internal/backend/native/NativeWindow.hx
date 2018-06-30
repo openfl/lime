@@ -115,48 +115,45 @@ class NativeWindow {
 	public function create (application:Application):Void {
 		
 		var title = (parent.__title != null && parent.__title != "") ? parent.__title : "Lime Application";
+		var attributes = parent.__contextAttributes;
 		var flags = 0;
 		
-		if (parent.config != null) {
+		if (Reflect.hasField (attributes, "antialiasing")) {
 			
-			if (Reflect.hasField (parent.config, "antialiasing")) {
+			if (attributes.antialiasing >= 4) {
 				
-				if (parent.config.antialiasing >= 4) {
-					
-					flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
-					
-				} else if (parent.config.antialiasing >= 2) {
-					
-					flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
-					
-				}
+				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+				
+			} else if (attributes.antialiasing >= 2) {
+				
+				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
 				
 			}
 			
-			if (Reflect.hasField (parent.config, "allowHighDPI") && parent.config.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
-			if (Reflect.hasField (parent.config, "alwaysOnTop") && parent.config.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
-			//if (Reflect.hasField (parent.config, "borderless") && parent.config.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-			if (parent.__borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-			if (Reflect.hasField (parent.config, "depthBuffer") && parent.config.depthBuffer) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
-			//if (Reflect.hasField (parent.config, "fullscreen") && parent.config.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-			if (parent.__fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-			#if !cairo if (Reflect.hasField (parent.config, "hardware") && parent.config.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE; #end
-			if (Reflect.hasField (parent.config, "hidden") && parent.config.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
-			if (Reflect.hasField (parent.config, "maximized") && parent.config.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
-			if (Reflect.hasField (parent.config, "minimized") && parent.config.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
-			//if (Reflect.hasField (parent.config, "resizable") && parent.config.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-			if (parent.__resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-			if (Reflect.hasField (parent.config, "stencilBuffer") && parent.config.stencilBuffer) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-			if (Reflect.hasField (parent.config, "vsync") && parent.config.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
-			if (Reflect.hasField (parent.config, "colorDepth") && parent.config.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
-			
-			//if (Reflect.hasField (parent.config, "title")) {
-				//
-				//title = parent.config.title;
-				//
-			//}
-			
 		}
+		
+		if (parent.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
+		if (parent.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
+		//if (Reflect.hasField (attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+		if (parent.__borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+		if (Reflect.hasField (attributes, "depth") && attributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+		//if (Reflect.hasField (attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (parent.__fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		#if !cairo if (Reflect.hasField (attributes, "hardware") && attributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE; #end
+		if (parent.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
+		if (parent.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
+		if (parent.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
+		//if (Reflect.hasField (attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+		if (parent.__resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+		if (Reflect.hasField (attributes, "stencil") && attributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+		if (Reflect.hasField (attributes, "vsync") && attributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		if (Reflect.hasField (attributes, "colorDepth") && attributes.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
+		
+		//if (Reflect.hasField (attributes, "title")) {
+			//
+			//title = attributes.title;
+			//
+		//}
 		
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_window_create (application.__backend.handle, parent.width, parent.height, flags, title);
@@ -175,6 +172,7 @@ class NativeWindow {
 		
 		var context = new RenderContext ();
 		context.window = parent;
+		context.attributes = parent.__contextAttributes;
 		
 		#if hl
 		var contextType = @:privateAccess String.fromUTF8 (NativeCFFI.lime_window_get_context_type (handle));

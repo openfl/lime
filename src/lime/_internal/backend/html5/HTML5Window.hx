@@ -79,30 +79,6 @@ class HTML5Window {
 		
 		this.parent = parent;
 		
-		if (parent.config != null && Reflect.hasField (parent.config, "element")) {
-			
-			element = parent.config.element;
-			
-		}
-		
-		if (parent.config != null && Reflect.hasField (parent.config, "renderer")) {
-			
-			renderType = parent.config.renderer;
-			
-		}
-		
-		#if dom
-		renderType = "dom";
-		#end
-		
-		if (parent.config != null && Reflect.hasField (parent.config, "allowHighDPI") && parent.config.allowHighDPI && renderType != "dom") {
-			
-			scale = Browser.window.devicePixelRatio;
-			
-		}
-		
-		parent.__scale = scale;
-		
 		cacheMouseX = 0;
 		cacheMouseY = 0;
 		
@@ -128,6 +104,33 @@ class HTML5Window {
 	
 	
 	public function create (application:Application):Void {
+		
+		var attributes = parent.__contextAttributes;
+		
+		if (Reflect.hasField (attributes, "element")) {
+			
+			element = attributes.element;
+			
+		}
+		
+		if (Reflect.hasField (attributes, "type")) {
+			
+			renderType = attributes.type;
+			// TODO: Support WebGL1, WebGL2?
+			
+		}
+		
+		#if dom
+		renderType = "dom";
+		#end
+		
+		if (parent.allowHighDPI && renderType != "dom") {
+			
+			scale = Browser.window.devicePixelRatio;
+			
+		}
+		
+		parent.__scale = scale;
 		
 		setWidth = parent.width;
 		setHeight = parent.height;
@@ -272,7 +275,10 @@ class HTML5Window {
 	private function createContext ():Void {
 		
 		var context = new RenderContext ();
+		var attributes = parent.__contextAttributes;
+		
 		context.window = parent;
+		context.attributes = attributes;
 		
 		if (div != null) {
 			
@@ -289,18 +295,18 @@ class HTML5Window {
 			var allowWebGL2 = #if webgl1 false #else (renderType != "webgl1") #end;
 			var isWebGL2 = false;
 			
-			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (parent.config, "hardware") || parent.config.hardware))) {
+			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (attributes, "hardware") || attributes.hardware))) {
 				
-				var transparentBackground = Reflect.hasField (parent.config, "background") && parent.config.background == null;
-				var colorDepth = Reflect.hasField (parent.config, "colorDepth") ? parent.config.colorDepth : 16;
+				var transparentBackground = Reflect.hasField (attributes, "background") && attributes.background == null;
+				var colorDepth = Reflect.hasField (attributes, "colorDepth") ? attributes.colorDepth : 16;
 				
 				var options = {
 					
 					alpha: (transparentBackground || colorDepth > 16) ? true : false,
-					antialias: Reflect.hasField (parent.config, "antialiasing") ? parent.config.antialiasing > 0 : false,
-					depth: Reflect.hasField (parent.config, "depthBuffer") ? parent.config.depthBuffer : true,
+					antialias: Reflect.hasField (attributes, "antialiasing") ? attributes.antialiasing > 0 : false,
+					depth: Reflect.hasField (attributes, "depth") ? attributes.depth : true,
 					premultipliedAlpha: true,
-					stencil: Reflect.hasField (parent.config, "stencilBuffer") ? parent.config.stencilBuffer : false,
+					stencil: Reflect.hasField (attributes, "stencil") ? attributes.stencil : false,
 					preserveDrawingBuffer: false
 					
 				};

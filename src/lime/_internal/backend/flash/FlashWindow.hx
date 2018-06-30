@@ -182,13 +182,14 @@ class FlashWindow {
 		context.type = FLASH;
 		context.version = Capabilities.version;
 		context.window = parent;
+		context.attributes = parent.__contextAttributes;
 		
 		parent.context = context;
 		
 		// TODO: Wait for application.exec?
 		
 		cacheTime = Lib.getTimer ();
-		handleApplicationEvent (null);
+		// handleApplicationEvent (null);
 		
 		stage.addEventListener (Event.ENTER_FRAME, handleApplicationEvent);
 		

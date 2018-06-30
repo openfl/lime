@@ -1,7 +1,10 @@
 package lime.app;
 
 
-typedef MetaData = {
+@:forward()
+
+
+abstract MetaData(Dynamic) from Dynamic to Dynamic {
 	
 	/**
 	 * A build number
@@ -14,7 +17,9 @@ typedef MetaData = {
 	 * updated automatically, or can be overriden in XML project files using
 	 * the `<app build="" />` attribute
 	**/
-	@:optional var build:String;
+	public var build (get, set):String;
+	@:noCompletion private inline function get_build () { return this.build; }
+	@:noCompletion private inline function set_build (value) { return this.build = value; }
 	
 	/**
 	 * A company name
@@ -22,7 +27,9 @@ typedef MetaData = {
 	 * In the default generated config for Lime applications, this value 
 	 * corresponds to the `<meta company="" />` attribute in XML
 	**/
-	@:optional var company:String;
+	public var company (get, set):String;
+	@:noCompletion private inline function get_company () { return this.company; }
+	@:noCompletion private inline function set_company (value) { return this.company = value; }
 	
 	/**
 	 * An application file name, without a file extension
@@ -30,7 +37,9 @@ typedef MetaData = {
 	 * In the default generated config for Lime applications, this value 
 	 * corresponds to the `<app file="" />` attribute in XML
 	**/
-	@:optional var file:String;
+	public var file (get, set):String;
+	@:noCompletion private inline function get_file () { return this.file; }
+	@:noCompletion private inline function set_file (value) { return this.file = value; }
 	
 	/**
 	 * An application name, used as the default Window title
@@ -38,7 +47,9 @@ typedef MetaData = {
 	 * In the default generated config for Lime applications, this value 
 	 * corresponds to the `<meta title="" />` attribute in XML
 	**/
-	@:optional var name:String;
+	public var name (get, set):String;
+	@:noCompletion private inline function get_name () { return this.name; }
+	@:noCompletion private inline function set_name (value) { return this.name = value; }
 	
 	/**
 	 * A package name, this usually corresponds to the unique ID used
@@ -47,7 +58,9 @@ typedef MetaData = {
 	 * In the default generated config for Lime applications, this value 
 	 * corresponds to the `<meta package="" />` attribute in XML
 	**/
-	@:optional var packageName:String;
+	public var packageName (get, set):String;
+	@:noCompletion private inline function get_packageName () { return this.packageName; }
+	@:noCompletion private inline function set_packageName (value) { return this.packageName = value; }
 	
 	/**
 	 * A version number
@@ -60,6 +73,8 @@ typedef MetaData = {
 	 * In the default generated config for Lime applications, this value 
 	 * corresponds to the `<meta title="" />` attribute in XML
 	**/
-	@:optional var version:String;
+	public var version (get, set):String;
+	@:noCompletion private inline function get_version () { return this.version; }
+	@:noCompletion private inline function set_version (value) { return this.version = value; }
 	
 }

@@ -14,6 +14,8 @@ import lime.ui.Touch;
 import lime.ui.Window;
 import lime.utils.Preloader;
 
+@:access(lime.ui.Window)
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -38,7 +40,7 @@ class Application extends Module {
 	/**
 	 * Meta-data values for the application, such as a version or a package name
 	**/
-	public var metaData:MetaData;
+	public var meta:MetaData;
 	
 	/**
 	 * A list of currently attached Module instances
@@ -96,6 +98,7 @@ class Application extends Module {
 			
 		}
 		
+		meta = {};
 		modules = new Array ();
 		__windowByID = new Map ();
 		__windows = new Array ();
@@ -212,7 +215,7 @@ class Application extends Module {
 			
 			if (window.id == -1) {
 				
-				window.create (this);
+				window.__create (this);
 				//__windows.push (window);
 				__windowByID.set (window.id, window);
 				

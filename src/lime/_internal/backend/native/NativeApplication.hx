@@ -4,7 +4,6 @@ package lime._internal.backend.native;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
-import lime.app.Config;
 import lime.graphics.opengl.GL;
 import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
@@ -88,11 +87,6 @@ class NativeApplication {
 		#if (ios || android || tvos)
 		Sensor.registerSensor (SensorType.ACCELEROMETER, 0);
 		#end
-		
-	}
-	
-	
-	public function create (config:Config):Void {
 		
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_application_create ();

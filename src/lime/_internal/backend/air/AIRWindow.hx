@@ -74,6 +74,7 @@ class AIRWindow extends FlashWindow {
 	public override function create (application:Application):Void {
 		
 		var title = (parent.__title != null && parent.__title != "") ? parent.__title : "Lime Application";
+		var attributes = parent.__contextAttributes;
 		
 		var alwaysOnTop = false;
 		var borderless = false;
@@ -87,40 +88,37 @@ class AIRWindow extends FlashWindow {
 		var width = 0;
 		var height = 0;
 		
-		if (parent.config != null) {
-			
-			if (Reflect.hasField (parent.config, "alwaysOnTop") && parent.config.alwaysOnTop) alwaysOnTop = true;
-			if (parent.__borderless) borderless = true;
-			if (parent.__fullscreen) fullscreen;
-			if (Reflect.hasField (parent.config, "hardware") && parent.config.hardware) hardware = true;
-			if (Reflect.hasField (parent.config, "hidden") && parent.config.hidden) hidden = true;
-			if (Reflect.hasField (parent.config, "maximized") && parent.config.maximized) maximized = true;
-			if (Reflect.hasField (parent.config, "minimized") && parent.config.minimized) minimized = true;
-			if (parent.__resizable) resizable;
-			
-		}
+		if (parent.alwaysOnTop) alwaysOnTop = true;
+		if (parent.__borderless) borderless = true;
+		if (parent.__fullscreen) fullscreen;
+		if (Reflect.hasField (attributes, "hardware") && attributes.hardware) hardware = true;
+		if (parent.hidden) hidden = true;
+		if (parent.maximized) maximized = true;
+		if (parent.minimized) minimized = true;
+		if (parent.__resizable) resizable;
 		
-		if (parent.config != null && (parent.config == application.config.windows[0])) {
+		// if (parent.config != null && (parent.config == application.config.windows[0])) {
 			
 			nativeWindow = Lib.current.stage.nativeWindow;
 			
-		} else {
+			// TODO
+		// } else {
 			
-			var options = new NativeWindowInitOptions ();
-			options.systemChrome = borderless ? NativeWindowSystemChrome.NONE : NativeWindowSystemChrome.STANDARD; 
-			options.renderMode = hardware ? NativeWindowRenderMode.DIRECT : NativeWindowRenderMode.CPU;
-			options.transparent = false;
-			options.maximizable = true;
-			options.minimizable = true;
-			options.resizable = resizable;
+		// 	var options = new NativeWindowInitOptions ();
+		// 	options.systemChrome = borderless ? NativeWindowSystemChrome.NONE : NativeWindowSystemChrome.STANDARD; 
+		// 	options.renderMode = hardware ? NativeWindowRenderMode.DIRECT : NativeWindowRenderMode.CPU;
+		// 	options.transparent = false;
+		// 	options.maximizable = true;
+		// 	options.minimizable = true;
+		// 	options.resizable = resizable;
 			
-			nativeWindow = new NativeWindow (options);
-			nativeWindow.stage.frameRate = application.frameRate;
+		// 	nativeWindow = new NativeWindow (options);
+		// 	nativeWindow.stage.frameRate = application.frameRate;
 			
-			if (parent.width > 0) nativeWindow.width = parent.width;
-			if (parent.height > 0) nativeWindow.height = parent.height;
+		// 	if (parent.width > 0) nativeWindow.width = parent.width;
+		// 	if (parent.height > 0) nativeWindow.height = parent.height;
 			
-		}
+		// }
 		
 		if (nativeWindow != null) {
 			

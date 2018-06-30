@@ -5,7 +5,6 @@ import js.html.DeviceMotionEvent;
 import js.html.KeyboardEvent;
 import js.Browser;
 import lime.app.Application;
-import lime.app.Config;
 import lime.media.AudioManager;
 import lime.system.Sensor;
 import lime.system.SensorType;
@@ -127,13 +126,6 @@ class HTML5Application {
 		}
 		
 		return keyCode;
-		
-	}
-	
-	
-	public function create (config:Config):Void {
-		
-		
 		
 	}
 	

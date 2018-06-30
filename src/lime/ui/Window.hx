@@ -2,10 +2,10 @@ package lime.ui;
 
 
 import lime.app.Application;
-import lime.app.Config;
 import lime.app.Event;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
+import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
@@ -31,9 +31,10 @@ typedef Stage = Dynamic;
 class Window {
 	
 	
+	public var allowHighDPI:Bool;
+	public var alwaysOnTop:Bool;
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
-	public var config:WindowConfig;
 	public var context (default, null):RenderContext;
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
@@ -49,6 +50,7 @@ class Window {
 	
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
+	public var hidden:Bool;
 	public var id (default, null):Int;
 	public var maximized (get, set):Bool;
 	public var minimized (get, set):Bool;
@@ -85,7 +87,7 @@ class Window {
 	 */
 	public var onUpdate = new Event<Int->Void> ();
 	
-	public var parameters (default, null):Dynamic;
+	public var parameters:Dynamic;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
 	// public var stage:Stage;
@@ -96,6 +98,7 @@ class Window {
 	
 	@:noCompletion private var __backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
+	@:noCompletion private var __contextAttributes:RenderContextAttributes;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __maximized:Bool;
@@ -133,9 +136,15 @@ class Window {
 	#end
 	
 	
-	public function new (config:WindowConfig = null) {
+	public function new () {
 		
-		this.config = config;
+		__contextAttributes = {
+			
+			colorDepth: 32,
+			depth: true,
+			stencil: true
+			
+		};
 		
 		__width = 0;
 		__height = 0;
@@ -146,28 +155,7 @@ class Window {
 		__title = "";
 		id = -1;
 		
-		if (config != null) {
-			
-			if (Reflect.hasField (config, "width")) __width = config.width;
-			if (Reflect.hasField (config, "height")) __height = config.height;
-			if (Reflect.hasField (config, "x")) __x = config.x;
-			if (Reflect.hasField (config, "y")) __y = config.y;
-			#if !web
-			if (Reflect.hasField (config, "fullscreen")) __fullscreen = config.fullscreen;
-			#end
-			if (Reflect.hasField (config, "borderless")) __borderless = config.borderless;
-			if (Reflect.hasField (config, "resizable")) __resizable = config.resizable;
-			if (Reflect.hasField (config, "title")) __title = config.title;
-			
-		}
-		
 		__backend = new WindowBackend (this);
-		
-		if (config != null && Reflect.hasField (config, "fps")) {
-			
-			__backend.setFrameRate (config.fps);
-			
-		}
 		
 	}
 	
@@ -186,11 +174,77 @@ class Window {
 	}
 	
 	
-	public function create (application:Application):Void {
+	public function focus ():Void {
+		
+		__backend.focus ();
+		
+	}
+	
+	
+	public function move (x:Int, y:Int):Void {
+		
+		__backend.move (x, y);
+		
+		__x = x;
+		__y = y;
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle = null):Image {
+		
+		return __backend.readPixels (rect);
+		
+	}
+	
+	
+	public function resize (width:Int, height:Int):Void {
+		
+		__backend.resize (width, height);
+		
+		__width = width;
+		__height = height;
+		
+	}
+	
+	
+	public function setContextAttributes (attributes:RenderContextAttributes):Void {
+		
+		if (attributes == null) return;
+		
+		for (field in Reflect.fields (attributes)) {
+			
+			Reflect.setField (__contextAttributes, field, Reflect.field (attributes, field));
+			
+		}
+		
+	}
+	
+	
+	public function setIcon (image:Image):Void {
+		
+		if (image == null) {
+			
+			return;
+			
+		}
+		
+		__backend.setIcon (image);
+		
+	}
+	
+	
+	public function toString ():String {
+		
+		return "[object Window]";
+		
+	}
+	
+	
+	@:noCompletion private function __create (application:Application):Void {
 		
 		this.application = application;
 		
-		if (config == null) config = {};
 		__backend.create (application);
 		
 		#if windows
@@ -404,60 +458,6 @@ class Window {
 		Gamepad.addMappings (mappings);
 		
 		#end
-		
-	}
-	
-	
-	public function focus ():Void {
-		
-		__backend.focus ();
-		
-	}
-	
-	
-	public function move (x:Int, y:Int):Void {
-		
-		__backend.move (x, y);
-		
-		__x = x;
-		__y = y;
-		
-	}
-	
-	
-	public function readPixels (rect:Rectangle = null):Image {
-		
-		return __backend.readPixels (rect);
-		
-	}
-	
-	
-	public function resize (width:Int, height:Int):Void {
-		
-		__backend.resize (width, height);
-		
-		__width = width;
-		__height = height;
-		
-	}
-	
-	
-	public function setIcon (image:Image):Void {
-		
-		if (image == null) {
-			
-			return;
-			
-		}
-		
-		__backend.setIcon (image);
-		
-	}
-	
-	
-	public function toString ():String {
-		
-		return "[object Window]";
 		
 	}
 	

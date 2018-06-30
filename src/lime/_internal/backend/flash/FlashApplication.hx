@@ -4,7 +4,6 @@ package lime._internal.backend.flash;
 import flash.ui.MultitouchInputMode;
 import flash.ui.Multitouch;
 import lime.app.Application;
-import lime.app.Config;
 import lime.media.AudioManager;
 import lime.ui.Window;
 

@@ -5,7 +5,6 @@ import haxe.io.Bytes;
 import haxe.io.Path;
 import haxe.macro.Compiler;
 import haxe.Timer;
-import lime.app.Config;
 import lime.app.Event;
 import lime.media.AudioBuffer;
 import lime.system.System;
@@ -124,7 +123,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	public function create (config:Config):Void {
+	public function create ():Void {
 		
 		#if flash
 		Lib.current.addChild (this);

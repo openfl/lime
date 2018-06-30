@@ -10,62 +10,16 @@ package;
 	
 	public static function main () {
 		
-		var projectName = "::APP_FILE::";
-		
-		var config = {
-			
-			build: "::meta.buildNumber::",
-			company: "::meta.company::",
-			file: "::APP_FILE::",
-			name: "::meta.title::",
-			orientation: "::WIN_ORIENTATION::",
-			packageName: "::meta.packageName::",
-			version: "::meta.version::",
-			windows: [
-				::foreach windows::
-				{
-					allowHighDPI: ::allowHighDPI::,
-					alwaysOnTop: ::alwaysOnTop::,
-					antialiasing: ::antialiasing::,
-					background: ::background::,
-					borderless: ::borderless::,
-					colorDepth: ::colorDepth::,
-					depthBuffer: ::depthBuffer::,
-					display: ::display::,
-					fps: ::fps::,
-					fullscreen: ::fullscreen::,
-					hardware: ::hardware::,
-					height: ::height::,
-					hidden: #if munit true #else ::hidden:: #end,
-					maximized: ::maximized::,
-					minimized: ::minimized::,
-					parameters: ::parameters::,
-					resizable: ::resizable::,
-					stencilBuffer: ::stencilBuffer::,
-					title: "::title::",
-					vsync: ::vsync::,
-					width: ::width::,
-					x: ::x::,
-					y: ::y::
-				},::end::
-			]
-			
-		};
-		
-		lime.system.System.__registerEntryPoint (projectName, create, config);
-		
-		#if sys
-		lime.system.System.__parseArguments (config);
-		#end
+		lime.system.System.__registerEntryPoint ("::APP_FILE::", create);
 		
 		#if (!html5 || munit)
-		create (config);
+		create (null);
 		#end
 		
 	}
 	
 	
-	public static function create (config:lime.app.Config):Void {
+	public static function create (config:Dynamic):Void {
 		
 		ManifestResources.init (config);
 		
@@ -74,10 +28,77 @@ package;
 		#if !munit
 		var app = new ::APP_MAIN:: ();
 		app.setPreloader (preloader);
-		app.create (config);
+		
+		app.meta.build = "::meta.buildNumber::";
+		app.meta.company = "::meta.company::";
+		app.meta.file = "::APP_FILE::";
+		app.meta.name = "::meta.title::";
+		app.meta.packageName = "::meta.packageName::";
+		
+		::foreach windows::
+		var window = new lime.ui.Window ();
+		::if (allowHighDPI)::window.allowHighDPI = ::allowHighDPI::;::end::
+		::if (alwaysOnTop)::window.alwaysOnTop = ::alwaysOnTop::;::end::
+		::if (borderless)::window.borderless = ::borderless::;::end::
+		::if (fps)::window.frameRate = ::fps::;::end::
+		::if (fullscreen)::#if !web window.fullscreen = ::fullscreen::; #end::end::
+		::if (height)::window.height = ::height::;::end::
+		::if (hidden)::window.hidden = #if munit true #else ::hidden:: #end;::end::
+		::if (maximized)::window.maximized = ::maximized::;::end::
+		::if (minimized)::window.minimized = ::minimized::;::end::
+		::if (parameters)::window.parameters = ::parameters::;::end::
+		::if (resizable)::window.resizable = ::resizable::;::end::
+		::if (title)::window.title = "::title::";::end::
+		::if (width)::window.width = ::width::;::end::
+		::if (x)::window.x = ::x::;::end::
+		::if (y)::window.y = ::y::;::end::
+		
+		var attributes = {
+			
+			antialiasing: ::antialiasing::,
+			background: ::background::,
+			colorDepth: ::colorDepth::,
+			depth: ::depthBuffer::,
+			element: null,
+			hardware: ::hardware::,
+			stencil: ::stencilBuffer::,
+			type: null,
+			vsync: ::vsync::
+			
+		};
+		
+		if (app.window == null) {
+			
+			if (config != null) {
+				
+				for (field in Reflect.fields (config)) {
+					
+					if (Reflect.hasField (window, field)) {
+						
+						Reflect.setField (window, field, Reflect.field (config, field));
+						
+					} else if (Reflect.hasField (attributes, field)) {
+						
+						Reflect.setField (attributes, field, Reflect.field (config, field));
+						
+					}
+					
+				}
+				
+			}
+			
+			#if sys
+			lime.system.System.__parseArguments (window, attributes);
+			#end
+			
+		}
+		
+		window.setContextAttributes (attributes);
+		app.addWindow (window);
+		::end::
 		#end
 		
-		preloader.create (config);
+		preloader.create ();
 		
 		for (library in ManifestResources.preloadLibraries) {
 			

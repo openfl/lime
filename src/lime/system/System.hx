@@ -4,8 +4,9 @@ package lime.system;
 import haxe.Constraints;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
-import lime.app.Config;
+import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
+import lime.ui.Window;
 import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 import lime.utils.UInt16Array;
@@ -69,7 +70,6 @@ class System {
 	public static var platformVersion (get, never):String;
 	public static var userDirectory (get, never):String;
 	
-	@:noCompletion private static var __applicationConfig:Map<String, Config>;
 	@:noCompletion private static var __applicationDirectory:String;
 	@:noCompletion private static var __applicationEntryPoint:Map<String, Function>;
 	@:noCompletion private static var __applicationStorageDirectory:String;
@@ -88,9 +88,9 @@ class System {
 	
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
-	public static function embed (projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, windowConfig:Dynamic = null):Void {
+	public static function embed (projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void {
 		
-		if (__applicationEntryPoint == null || __applicationConfig == null) return;
+		if (__applicationEntryPoint == null) return;
 		
 		if (__applicationEntryPoint.exists (projectName)) {
 			
@@ -129,65 +129,27 @@ class System {
 				
 			}
 			
-			var defaultConfig = __applicationConfig[projectName];
-			var config:Config = {};
+			if (config == null) config = {};
 			
-			__copyMissingFields (config, defaultConfig);
-			
-			if (windowConfig != null) {
+			if (Reflect.hasField (config, "background") && Std.is (config.background, String)) {
 				
-				config.windows = [];
+				var background = StringTools.replace (Std.string (config.background), "#", "");
 				
-				if (Std.is (windowConfig, Array)) {
+				if (background.indexOf ("0x") > -1) {
 					
-					config.windows = windowConfig;
+					config.background = Std.parseInt (background);
 					
 				} else {
 					
-					config.windows[0] = windowConfig;
-					
-				}
-				
-				for (i in 0...config.windows.length) {
-					
-					if (i < defaultConfig.windows.length) {
-						
-						__copyMissingFields (config.windows[i], defaultConfig.windows[i]);
-						
-					}
-					
-					__copyMissingFields (config.windows[i].parameters, defaultConfig.windows[i].parameters);
-					
-					if (Std.is (windowConfig.background, String)) {
-						
-						var background = StringTools.replace (Std.string (windowConfig.background), "#", "");
-						
-						if (background.indexOf ("0x") > -1) {
-							
-							windowConfig.background = Std.parseInt (background);
-							
-						} else {
-							
-							windowConfig.background = Std.parseInt ("0x" + background);
-							
-						}
-						
-					}
+					config.background = Std.parseInt ("0x" + background);
 					
 				}
 				
 			}
 			
-			if (Reflect.field (config.windows[0], "rootPath")) {
-				
-				config.rootPath = Reflect.field (config.windows[0], "rootPath");
-				Reflect.deleteField (config.windows[0], "rootPath");
-				
-			}
-			
-			config.windows[0].element = htmlElement;
-			config.windows[0].width = width;
-			config.windows[0].height = height;
+			config.element = htmlElement;
+			config.width = width;
+			config.height = height;
 			
 			__applicationEntryPoint[projectName] (config);
 			
@@ -451,17 +413,17 @@ class System {
 				var company = "MyCompany";
 				var file = "MyApplication";
 				
-				if (Application.current != null && Application.current.config != null) {
+				if (Application.current != null && Application.current.meta != null) {
 					
-					if (Application.current.config.company != null) {
+					if (Application.current.meta.company != null) {
 						
-						company = Application.current.config.company;
+						company = Application.current.meta.company;
 						
 					}
 					
-					if (Application.current.config.file != null) {
+					if (Application.current.meta.file != null) {
 						
-						file = Application.current.config.file;
+						file = Application.current.meta.file;
 						
 					}
 					
@@ -526,7 +488,7 @@ class System {
 	
 	
 	#if sys
-	private static function __parseArguments (config:Config):Void {
+	private static function __parseArguments (window:Window, attributes:RenderContextAttributes):Void {
 		
 		// TODO: Handle default arguments, like --window-fps=60
 		
@@ -560,49 +522,45 @@ class System {
 		
 		if (parameters != null) {
 			
-			for (windowConfig in config.windows) {
+			if (window.parameters == null) window.parameters = {};
+			
+			for (parameter in parameters.keys ()) {
 				
-				if (windowConfig.parameters == null) windowConfig.parameters = {};
+				argValue = parameters.get (parameter);
 				
-				for (parameter in parameters.keys ()) {
+				if (#if lime_disable_window_override false && #end StringTools.startsWith (parameter, windowParamPrefix)) {
 					
-					argValue = parameters.get (parameter);
-					
-					if (#if lime_disable_window_override false && #end StringTools.startsWith (parameter, windowParamPrefix)) {
+					switch (parameter.substr (windowParamPrefix.length)) {
 						
-						switch (parameter.substr (windowParamPrefix.length)) {
-							
-							case "allow-high-dpi": windowConfig.allowHighDPI = __parseBool (argValue);
-							case "always-on-top": windowConfig.alwaysOnTop = __parseBool (argValue); 
-							case "antialiasing": windowConfig.antialiasing = Std.parseInt (argValue);
-							case "background": windowConfig.background = (argValue == "" || argValue == "null") ? null : Std.parseInt (argValue);
-							case "borderless": windowConfig.borderless = __parseBool (argValue);
-							case "colorDepth": windowConfig.colorDepth = Std.parseInt (argValue);
-							case "depthBuffer": windowConfig.depthBuffer = __parseBool (argValue);
-							case "display": windowConfig.display = Std.parseInt (argValue);
-							case "fullscreen": windowConfig.fullscreen = __parseBool (argValue);
-							case "hardware": windowConfig.hardware = __parseBool (argValue);
-							case "height": windowConfig.height = Std.parseInt (argValue);
-							case "hidden": windowConfig.hidden = __parseBool (argValue);
-							case "maximized": windowConfig.maximized = __parseBool (argValue);
-							case "minimized": windowConfig.minimized = __parseBool (argValue);
-							case "renderer": windowConfig.renderer = argValue;
-							case "resizable": windowConfig.resizable = __parseBool (argValue);
-							case "stencilBuffer": windowConfig.stencilBuffer = __parseBool (argValue);
-							//case "title": windowConfig.title = argValue;
-							case "vsync": windowConfig.vsync = __parseBool (argValue);
-							case "width": windowConfig.width = Std.parseInt (argValue);
-							case "x": windowConfig.x = Std.parseInt (argValue);
-							case "y": windowConfig.y = Std.parseInt (argValue);
-							default:
-							
-						}
-						
-					} else if (!Reflect.hasField (windowConfig.parameters, parameter)) {
-						
-						Reflect.setField (windowConfig.parameters, parameter, argValue);
+						case "allow-high-dpi": window.allowHighDPI = __parseBool (argValue);
+						case "always-on-top": window.alwaysOnTop = __parseBool (argValue); 
+						case "antialiasing": attributes.antialiasing = Std.parseInt (argValue);
+						case "background": attributes.background = (argValue == "" || argValue == "null") ? null : Std.parseInt (argValue);
+						case "borderless": window.borderless = __parseBool (argValue);
+						case "colorDepth": attributes.colorDepth = Std.parseInt (argValue);
+						case "depth", "depthBuffer": attributes.depth = __parseBool (argValue);
+						// case "display": windowConfig.display = Std.parseInt (argValue);
+						case "fullscreen": window.fullscreen = __parseBool (argValue);
+						case "hardware": attributes.hardware = __parseBool (argValue);
+						case "height": window.height = Std.parseInt (argValue);
+						case "hidden": window.hidden = __parseBool (argValue);
+						case "maximized": window.maximized = __parseBool (argValue);
+						case "minimized": window.minimized = __parseBool (argValue);
+						case "render-type", "renderer": attributes.type = argValue;
+						case "resizable": window.resizable = __parseBool (argValue);
+						case "stencil", "stencilBuffer": attributes.stencil = __parseBool (argValue);
+						//case "title": windowConfig.title = argValue;
+						case "vsync": attributes.vsync = __parseBool (argValue);
+						case "width": window.width = Std.parseInt (argValue);
+						case "x": window.x = Std.parseInt (argValue);
+						case "y": window.y = Std.parseInt (argValue);
+						default:
 						
 					}
+					
+				} else if (!Reflect.hasField (window.parameters, parameter)) {
+					
+					Reflect.setField (window.parameters, parameter, argValue);
 					
 				}
 				
@@ -621,13 +579,7 @@ class System {
 	}
 	
 	
-	@:noCompletion private static function __registerEntryPoint (projectName:String, entryPoint:Function, config:Config):Void {
-		
-		if (__applicationConfig == null) {
-			
-			__applicationConfig = new Map ();
-			
-		}
+	@:noCompletion private static function __registerEntryPoint (projectName:String, entryPoint:Function):Void {
 		
 		if (__applicationEntryPoint == null) {
 			
@@ -636,7 +588,6 @@ class System {
 		}
 		
 		__applicationEntryPoint[projectName] = entryPoint;
-		__applicationConfig[projectName] = config;
 		
 	}
 	

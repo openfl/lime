@@ -8,6 +8,7 @@ import lime.ui.Window;
 class RenderContext {
 	
 	
+	public var attributes (default, null):RenderContextAttributes;
 	public var cairo (default, null):CairoRenderContext;
 	public var canvas2D (default, null):Canvas2DRenderContext;
 	public var dom (default, null):DOMRenderContext;
@@ -22,11 +23,7 @@ class RenderContext {
 	public var window (default, null):Window;
 	
 	
-	private function new () {
-		
-		
-		
-	}
+	private function new () {}
 	
 	
 }
