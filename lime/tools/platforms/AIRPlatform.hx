@@ -220,6 +220,7 @@ class AIRPlatform extends FlashPlatform {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 		context.AIR_SDK_VERSION = project.config.getString ("air.sdk-version", "28.0");
+		context.TARGET_DEVICES = switch (project.config.getString ("ios.device", "universal")) { case "iphone": [{ device: 1}]; case "ipad": [{ device: 2}]; default: [{ device: 1}, { device: 2}];  }
 		
 		var buildNumber = Std.string (context.APP_BUILD_NUMBER);
 		

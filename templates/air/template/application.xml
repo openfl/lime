@@ -65,6 +65,16 @@
 		</manifestAdditions> 
 	</android>
 	<iPhone>
+		<InfoAdditions>
+			<![CDATA[
+::if (TARGET_DEVICES != null)::			
+<key>UIDeviceFamily</key>
+<array>::foreach TARGET_DEVICES::
+	<string>::device::</string>::end::
+</array>
+::end::
+]]>
+		</InfoAdditions>
 		<requestedDisplayResolution>::if WIN_ALLOW_HIGH_DPI::high::else::standard::end::</requestedDisplayResolution>
 	</iPhone>
 	::if (extensions != null)::<extensions>::foreach extensions::
