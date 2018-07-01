@@ -15,6 +15,9 @@ android {
 		targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
 		versionCode Integer.parseInt(project.VERSION_CODE)
 		versionName project.VERSION_NAME
+        ::if (SUPPORTED_LANGUAGES != "")::
+        resConfigs ::SUPPORTED_LANGUAGES::
+        ::end::
 	}
 	
 	::if KEY_STORE::

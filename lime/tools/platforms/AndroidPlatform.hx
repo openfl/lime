@@ -181,6 +181,12 @@ class AndroidPlatform extends PlatformTarget {
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		
+		if (project.language.supported.length > 0) {
+			context.SUPPORTED_LANGUAGES = project.language.supported.join(", ");
+		} else {
+			context.SUPPORTED_LANGUAGES = "";
+		}
+		
 		var template = new Template (File.getContent (hxml));
 		
 		return template.execute (context) + "\n-D display";

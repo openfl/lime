@@ -221,6 +221,12 @@ class AIRPlatform extends FlashPlatform {
 		context.OUTPUT_DIR = targetDirectory;
 		context.AIR_SDK_VERSION = project.config.getString ("air.sdk-version", "28.0");
 		
+		if (project.language.supported.length > 0) {
+			context.SUPPORTED_LANGUAGES = project.language.supported.join(" ");
+		} else {
+			context.SUPPORTED_LANGUAGES = "";
+		}
+		
 		var buildNumber = Std.string (context.APP_BUILD_NUMBER);
 		
 		if (buildNumber.length <= 3) {
@@ -278,6 +284,7 @@ class AIRPlatform extends FlashPlatform {
 		}
 		
 		if (iconData.length > 0) context.icons = iconData;
+		context.language = project.language;
 
 		context.extensions = new Array<String>();
 

@@ -137,6 +137,15 @@ class IOSPlatform extends PlatformTarget {
 		context.OBJC_ARC = false;
 		context.KEY_STORE_IDENTITY = project.config.getString ("ios.identity");
 		
+		if (project.language.supported.length > 0) {
+			context.SUPPORTED_LANGUAGES = [];
+			for (lang in project.language.supported) {
+				context.SUPPORTED_LANGUAGES.push({ lang: lang });
+			}
+		} else {
+			context.SUPPORTED_LANGUAGES = null;
+		}
+		
 		if (project.config.exists ("ios.provisioning-profile")) {
 			
 			context.IOS_PROVISIONING_PROFILE = PathHelper.tryFullPath (project.config.getString ("ios.provisioning-profile"));
