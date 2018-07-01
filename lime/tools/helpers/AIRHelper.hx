@@ -149,44 +149,30 @@ class AIRHelper {
 		args = args.concat ([ targetPath + extension, applicationXML ]);
 		
 		if (targetPlatform == IOS && PlatformHelper.hostPlatform == Platform.MAC && project.targetFlags.exists ("simulator")) {
-			
-			args.push ("-platformsdk");
-			args.push (IOSHelper.getSDKDirectory (project));
-			
+			args.push("-platformsdk");
+			args.push(IOSHelper.getSDKDirectory(project));
 		}
 		
 		if (fileDirectory != null && fileDirectory != "") {
-			
-			args.push ("-C");
-			args.push (fileDirectory);
-			
+			args.push("-C");
+			args.push(fileDirectory);
 		}
-		
-		args = args.concat (files);
-
-		var extDirs:Array<String> = getExtDirs(project);
-
+		args = args.concat(files);
+		var extDirs: Array<String> = getExtDirs(project);
 		if (extDirs.length > 0) {
-
 			args.push("-extdir");
-
 			for (extDir in extDirs) {
-
 				args.push(extDir);
-
 			}
 		}
-		
 		if (targetPlatform == ANDROID) {
-			
-			Sys.putEnv ("AIR_NOANDROIDFLAIR", "true");
-			
+			Sys.putEnv("AIR_NOANDROIDFLAIR", "true");
 		}
-		
+		if (targetPlatform == IOS) {
+			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project.targetFlags));	
+		}
 		ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
-		
 		return targetPath + extension;
-		
 	}
 
 
@@ -236,6 +222,7 @@ class AIRHelper {
 			
 			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-uninstallApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]), true, true);
 			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".ipa" ]));
+			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-launchApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]), true, true);
 			
 			if (project.targetFlags.exists ("simulator")) {
 

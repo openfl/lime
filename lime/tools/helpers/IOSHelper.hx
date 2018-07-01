@@ -5,6 +5,7 @@ import haxe.io.Path;
 import lime.project.Platform;
 import lime.tools.helpers.PathHelper;
 import lime.tools.helpers.ProcessHelper;
+import lime.tools.helpers.XCodeHelper;
 import lime.project.Haxelib;
 import lime.project.HXProject;
 import sys.io.Process;
@@ -319,144 +320,52 @@ class IOSHelper {
 	}
 	
 	
-	public static function launch (project:HXProject, workingDirectory:String):Void {
-		
-		initialize (project);
-		
+	public static function launch(project: HXProject, workingDirectory: String): Void {
+		initialize(project);
 		var configuration = "Release";
-			
 		if (project.debug) {
-			
 			configuration = "Debug";
-			
 		}
-		
-		if (project.targetFlags.exists ("simulator")) {
-			
+		if (project.targetFlags.exists("simulator")) {
 			var applicationPath = "";
-			
-			if (Path.extension (workingDirectory) == "app" || Path.extension (workingDirectory) == "ipa") {
-				
+			if (Path.extension(workingDirectory) == "app" || Path.extension(workingDirectory) == "ipa") {
 				applicationPath = workingDirectory;
-				
 			} else {
-				
 				applicationPath = workingDirectory + "/build/" + configuration + "-iphonesimulator/" + project.app.file + ".app";
-				
 			}
-			
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
-			
-			var output = ProcessHelper.runProcess ("", "xcrun", [ "simctl", "list", "devices" ]);
-			var lines = output.split ("\n");
-			var foundSection = false;
-			
-			var device, deviceID;
-			var devices = new Map<String, String> ();
-			
-			var currentDeviceID = null;
-			
-			for (line in lines) {
-				
-				if (StringTools.startsWith (line, "--")) {
-					
-					if (line.indexOf ("iOS") > -1) {
-						
-						foundSection = true;
-						
-					} else if (foundSection) {
-						
-						break;
-						
-					}
-					
-				} else if (foundSection) {
-					
-					device = StringTools.trim (line);
-					device = device.substring (0, device.indexOf ("(") - 1);
-					device = device.toLowerCase ();
-					device = StringTools.replace (device, " ", "-");
-					
-					deviceID = line.substring (line.indexOf ("(") + 1, line.indexOf (")"));
-					
-					if (deviceID.indexOf ("inch") > -1) {
-						
-						var startIndex = line.indexOf (")") + 2;
-						deviceID = line.substring (line.indexOf ("(", startIndex) + 1, line.indexOf (")", startIndex));
-						
-					}
-					
-					devices.set (device, deviceID);
-					
-					if (project.targetFlags.exists (device)) {
-						
-						currentDeviceID = deviceID;
-						break;
-						
-					}
-					
-				}
-				
-			}
-			
-			if (currentDeviceID == null) {
-				
-				if (project.targetFlags.exists ("ipad")) {
-					
-					currentDeviceID = devices.get ("ipad-air");
-					
-				} else {
-					
-					currentDeviceID = devices.get ("iphone-6");
-					
-				}
-				
-			}
+			// TODO: check if needed as not used
+			var templatePaths = [PathHelper.combine(PathHelper.getHaxelib(new Haxelib("lime")), "templates")].concat(project.templatePaths);
+			var currentDeviceID = XCodeHelper.getSimulatorId(project.targetFlags);
 			
 			try {
-				
-				ProcessHelper.runProcess ("", "open", [ "-Ra", "iOS Simulator" ], true, false);
-				ProcessHelper.runCommand ("", "open", [ "-a", "iOS Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
-				
-			} catch (e:Dynamic) {
-				
-				ProcessHelper.runCommand ("", "open", [ "-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
-				
+				ProcessHelper.runProcess("", "open", ["-Ra", "iOS Simulator"], true, false);
+				ProcessHelper.runCommand("", "open", ["-a", "iOS Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID]);
+			} catch (e: Dynamic) {
+				ProcessHelper.runCommand("", "open", ["-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID]);
 			}
 			
-			waitForDeviceState ("xcrun", [ "simctl", "uninstall", currentDeviceID, project.meta.packageName ]);
-			waitForDeviceState ("xcrun", [ "simctl", "install", currentDeviceID, applicationPath ]);
-			waitForDeviceState ("xcrun", [ "simctl", "launch", currentDeviceID, project.meta.packageName ]);
+			waitForDeviceState("xcrun", ["simctl", "uninstall", currentDeviceID, project.meta.packageName]);
+			waitForDeviceState("xcrun", ["simctl", "install", currentDeviceID, applicationPath]);
+			waitForDeviceState("xcrun", ["simctl", "launch", currentDeviceID, project.meta.packageName]);
 			
-			ProcessHelper.runCommand ("", "tail", [ "-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
-			
+			ProcessHelper.runCommand("", "tail", ["-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
 		} else {
-			
 			var applicationPath = "";
 			
-			if (Path.extension (workingDirectory) == "app" || Path.extension (workingDirectory) == "ipa") {
-				
+			if (Path.extension(workingDirectory) == "app" || Path.extension (workingDirectory) == "ipa") {
 				applicationPath = workingDirectory;
-				
 			} else {
-				
 				applicationPath = workingDirectory + "/build/" + configuration + "-iphoneos/" + project.app.file + ".app";
-				
 			}
 			
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
-			var launcher = PathHelper.findTemplate (templatePaths, "bin/ios-deploy");
-			Sys.command ("chmod", [ "+x", launcher ]);
-			
-			var xcodeVersion = getXcodeVersion ();
-			
-			ProcessHelper.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--bundle", FileSystem.fullPath (applicationPath) ]);
-			
+			var templatePaths = [PathHelper.combine(PathHelper.getHaxelib(new Haxelib("lime")), "templates")].concat(project.templatePaths);
+			var launcher = PathHelper.findTemplate(templatePaths, "bin/ios-deploy");
+			Sys.command("chmod", ["+x", launcher]);
+			// TODO: check if needed as not used
+			var xcodeVersion = getXcodeVersion();
+			ProcessHelper.runCommand("", launcher, ["install", "--noninteractive", "--debug", "--bundle", FileSystem.fullPath (applicationPath)]);
 		}
-		
 	}
-	
-	
 	public static function sign (project:HXProject, workingDirectory:String):Void {
 		
 		initialize (project);
