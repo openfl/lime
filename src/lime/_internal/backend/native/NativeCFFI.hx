@@ -726,6 +726,117 @@ class NativeCFFI {
 	#end
 	
 	
+	#if (lime_cffi && !macro && lime_harfbuzz)
+	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
+	@:cffi private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
+	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):DataPointer;
+	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):DataPointer;
+	@:cffi private static function lime_hb_blob_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
+	@:cffi private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_create ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool;
+	@:cffi private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
+	@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool;
+	@:cffi private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
+	@:cffi private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer;
+	@:cffi private static function lime_hb_face_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int;
+	@:cffi private static function lime_hb_face_get_index (face:CFFIPointer):Int;
+	@:cffi private static function lime_hb_face_get_upem (face:CFFIPointer):Int;
+	@:cffi private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_face_make_immutable (face:CFFIPointer):Void;
+	@:cffi private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer;
+	@:cffi private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void;
+	@:cffi private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void;
+	@:cffi private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void;
+	@:cffi private static function lime_hb_feature_from_string (str:String):CFFIPointer;
+	@:cffi private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
+	@:cffi private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
+	@:cffi private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic;
+	@:cffi private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
+	@:cffi private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int;
+	@:cffi private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer;
+	@:cffi private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_font_make_immutable (font:CFFIPointer):Void;
+	@:cffi private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
+	@:cffi private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
+	@:cffi private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
+	@:cffi private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
+	@:cffi private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;
+	@:cffi private static function lime_hb_language_from_string (str:String):CFFIPointer;
+	@:cffi private static function lime_hb_language_get_default ():CFFIPointer;
+	@:cffi private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic;
+	@:cffi private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void;
+	@:cffi private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void;
+	@:cffi private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_set_clear (set:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_create ():CFFIPointer;
+	@:cffi private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void;
+	@:cffi private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void;
+	@:cffi private static function lime_hb_set_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_set_get_max (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_get_min (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_get_population (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool;
+	@:cffi private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_invert (set:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_is_empty (set:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_set_next (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic;
+	@:cffi private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
+	#end
+	
+	
 	#if (lime_cffi && !macro && lime_openal)
 	
 	#if cpp

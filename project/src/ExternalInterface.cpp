@@ -4258,6 +4258,12 @@ extern "C" int lime_curl_register_prims ();
 extern "C" int lime_curl_register_prims () { return 0; }
 #endif
 
+#ifdef LIME_HARFBUZZ
+extern "C" int lime_harfbuzz_register_prims ();
+#else
+extern "C" int lime_harfbuzz_register_prims () { return 0; }
+#endif
+
 #ifdef LIME_OPENAL
 extern "C" int lime_openal_register_prims ();
 #else

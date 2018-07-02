@@ -119,7 +119,7 @@
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
 				<compilerflag value="-DLIME_HARFBUZZ" />
 				
-				<!--<file name="src/text/harfbuzz/HarfbuzzBindings.cpp" />-->
+				<file name="src/text/harfbuzz/HarfbuzzBindings.cpp" />
 				<file name="src/text/TextLayout.cpp" />
 				
 			</section>

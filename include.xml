@@ -11,6 +11,7 @@
 	<define name="lime-html5" if="html5" />
 	<define name="lime-native" if="native" />
 	<define name="lime-cffi" if="native" />
+	<define name="lime-harfbuzz" if="native" />
 	<define name="lime-vorbis" if="native" />
 	
 	<define name="no-typedarray-inline" if="cs" />
