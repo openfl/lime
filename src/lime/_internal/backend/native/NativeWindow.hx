@@ -554,7 +554,7 @@ class NativeWindow {
 		if (handle != null) {
 			
 			#if (!macro && lime_cffi)
-			NativeCFFI.lime_application_set_frame_rate (handle, value);
+			NativeCFFI.lime_application_set_frame_rate (parent.application.__backend.handle, value);
 			#end
 			
 		}

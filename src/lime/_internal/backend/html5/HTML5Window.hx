@@ -107,8 +107,8 @@ class HTML5Window {
 		
 		setWidth = Reflect.hasField (attributes, "width") ? attributes.width : 0;
 		setHeight = Reflect.hasField (attributes, "height") ? attributes.height : 0;
-		parent.width = setWidth;
-		parent.height = setHeight;
+		parent.__width = setWidth;
+		parent.__height = setHeight;
 		
 		parent.id = windowID++;
 		
@@ -152,22 +152,22 @@ class HTML5Window {
 			
 		}
 		
-		if (parent.width == 0 && parent.height == 0) {
+		if (parent.__width == 0 && parent.__height == 0) {
 			
 			if (element != null) {
 				
-				parent.width = element.clientWidth;
-				parent.height = element.clientHeight;
+				parent.__width = element.clientWidth;
+				parent.__height = element.clientHeight;
 				
 			} else {
 				
-				parent.width = Browser.window.innerWidth;
-				parent.height = Browser.window.innerHeight;
+				parent.__width = Browser.window.innerWidth;
+				parent.__height = Browser.window.innerHeight;
 				
 			}
 			
-			cacheElementWidth = parent.width;
-			cacheElementHeight = parent.height;
+			cacheElementWidth = parent.__width;
+			cacheElementHeight = parent.__height;
 			
 			resizeElement = true;
 			
@@ -175,16 +175,16 @@ class HTML5Window {
 		
 		if (canvas != null) {
 			
-			canvas.width = Math.round (parent.width * scale);
-			canvas.height = Math.round (parent.height * scale);
+			canvas.width = Math.round (parent.__width * scale);
+			canvas.height = Math.round (parent.__height * scale);
 			
-			canvas.style.width = parent.width + "px";
-			canvas.style.height = parent.height + "px";
+			canvas.style.width = parent.__width + "px";
+			canvas.style.height = parent.__height + "px";
 			
 		} else {
 			
-			div.style.width = parent.width + "px";
-			div.style.height = parent.height + "px";
+			div.style.width = parent.__width + "px";
+			div.style.height = parent.__height + "px";
 			
 		}
 		
@@ -582,8 +582,8 @@ class HTML5Window {
 				if (canvas != null) {
 					
 					var rect = canvas.getBoundingClientRect ();
-					x = (event.clientX - rect.left) * (parent.width / rect.width);
-					y = (event.clientY - rect.top) * (parent.height / rect.height);
+					x = (event.clientX - rect.left) * (parent.__width / rect.width);
+					y = (event.clientY - rect.top) * (parent.__height / rect.height);
 					
 				} else if (div != null) {
 					
@@ -596,8 +596,8 @@ class HTML5Window {
 				} else {
 					
 					var rect = element.getBoundingClientRect ();
-					x = (event.clientX - rect.left) * (parent.width / rect.width);
-					y = (event.clientY - rect.top) * (parent.height / rect.height);
+					x = (event.clientX - rect.left) * (parent.__width / rect.width);
+					y = (event.clientY - rect.top) * (parent.__height / rect.height);
 					
 				}
 				
@@ -1265,10 +1265,10 @@ class HTML5Window {
 				
 				if (stretch) {
 					
-					if (parent.width != elementWidth || parent.height != elementHeight) {
+					if (parent.__width != elementWidth || parent.__height != elementHeight) {
 						
-						parent.width = elementWidth;
-						parent.height = elementHeight;
+						parent.__width = elementWidth;
+						parent.__height = elementHeight;
 						
 						if (canvas != null) {
 							

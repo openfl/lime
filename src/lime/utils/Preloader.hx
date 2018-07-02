@@ -57,6 +57,8 @@ class Preloader #if flash extends Sprite #end {
 	
 	public function new () {
 		
+		// TODO: Split out core preloader support from generic Preloader type
+		
 		#if flash
 		super ();
 		#end
@@ -102,6 +104,15 @@ class Preloader #if flash extends Sprite #end {
 		};
 		#end
 		
+		#if flash
+		Lib.current.addChild (this);
+		
+		Lib.current.loaderInfo.addEventListener (flash.events.Event.COMPLETE, loaderInfo_onComplete);
+		Lib.current.loaderInfo.addEventListener (flash.events.Event.INIT, loaderInfo_onInit);
+		Lib.current.loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
+		Lib.current.addEventListener (flash.events.Event.ENTER_FRAME, current_onEnter);
+		#end
+		
 	}
 	
 	
@@ -119,20 +130,6 @@ class Preloader #if flash extends Sprite #end {
 			libraryNames.push (name);
 			
 		}
-		
-	}
-	
-	
-	public function create ():Void {
-		
-		#if flash
-		Lib.current.addChild (this);
-		
-		Lib.current.loaderInfo.addEventListener (flash.events.Event.COMPLETE, loaderInfo_onComplete);
-		Lib.current.loaderInfo.addEventListener (flash.events.Event.INIT, loaderInfo_onInit);
-		Lib.current.loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
-		Lib.current.addEventListener (flash.events.Event.ENTER_FRAME, current_onEnter);
-		#end
 		
 	}
 	
@@ -336,7 +333,7 @@ class Preloader #if flash extends Sprite #end {
 					
 				});
 				
-			}	
+			}
 			
 		}
 		
