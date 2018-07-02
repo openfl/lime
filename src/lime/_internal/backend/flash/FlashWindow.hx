@@ -16,6 +16,7 @@ import flash.Lib;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
+import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
@@ -53,7 +54,75 @@ class FlashWindow {
 		
 		cacheMouseX = 0;
 		cacheMouseY = 0;
-		frameRate = 60;
+		
+		var attributes = parent.__attributes;
+		
+		parent.id = windowID++;
+		
+		if (stage == null) stage = Lib.current.stage;
+		
+		stage.align = StageAlign.TOP_LEFT;
+		stage.scaleMode = StageScaleMode.NO_SCALE;
+		
+		stage.addEventListener (KeyboardEvent.KEY_DOWN, handleKeyEvent);
+		stage.addEventListener (KeyboardEvent.KEY_UP, handleKeyEvent);
+		
+		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
+		
+		for (event in events) {
+			
+			stage.addEventListener (event, handleMouseEvent);
+			
+		}
+		
+		stage.addEventListener (TouchEvent.TOUCH_BEGIN, handleTouchEvent);
+		stage.addEventListener (TouchEvent.TOUCH_MOVE, handleTouchEvent);
+		stage.addEventListener (TouchEvent.TOUCH_END, handleTouchEvent);
+		stage.addEventListener (Event.ACTIVATE, handleWindowEvent);
+		stage.addEventListener (Event.DEACTIVATE, handleWindowEvent);
+		stage.addEventListener (FocusEvent.FOCUS_IN, handleWindowEvent);
+		stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
+		stage.addEventListener (Event.MOUSE_LEAVE, handleWindowEvent);
+		stage.addEventListener (Event.RESIZE, handleWindowEvent);
+		
+		var context = new RenderContext ();
+		context.flash = Lib.current;
+		context.type = FLASH;
+		context.version = Capabilities.version;
+		context.window = parent;
+		
+		var contextAttributes:RenderContextAttributes = {
+			
+			antialiasing: 0,
+			background: null,
+			colorDepth: 32,
+			depth: false,
+			hardware: false,
+			stencil: false,
+			type: FLASH,
+			version: Capabilities.version,
+			vsync: false,
+			
+		};
+		
+		if (Reflect.hasField (attributes, "context") && Reflect.hasField (attributes.context, "background")) {
+			
+			stage.color = attributes.context.background;
+			contextAttributes.background = stage.color;
+			
+		}
+		
+		setFrameRate (Reflect.hasField (attributes, "frameRate") ? attributes.frameRate : 60);
+		
+		context.attributes = contextAttributes;
+		parent.context = context;
+		
+		// TODO: Wait for application.exec?
+		
+		cacheTime = Lib.getTimer ();
+		// handleApplicationEvent (null);
+		
+		stage.addEventListener (Event.ENTER_FRAME, handleApplicationEvent);
 		
 	}
 	
@@ -67,7 +136,7 @@ class FlashWindow {
 	
 	public function close ():Void {
 		
-		parent.application.removeWindow (parent);
+		parent.application.__removeWindow (parent);
 		
 	}
 	
@@ -149,51 +218,6 @@ class FlashWindow {
 	
 	public function create (application:Application):Void {
 		
-		parent.id = windowID++;
-		
-		if (stage == null) stage = Lib.current.stage;
-		
-		stage.align = StageAlign.TOP_LEFT;
-		stage.scaleMode = StageScaleMode.NO_SCALE;
-		
-		stage.addEventListener (KeyboardEvent.KEY_DOWN, handleKeyEvent);
-		stage.addEventListener (KeyboardEvent.KEY_UP, handleKeyEvent);
-		
-		var events = [ "mouseDown", "mouseMove", "mouseUp", "mouseWheel", "middleMouseDown", "middleMouseMove", "middleMouseUp" #if ((!openfl && !disable_flash_right_click) || enable_flash_right_click) , "rightMouseDown", "rightMouseMove", "rightMouseUp" #end ];
-		
-		for (event in events) {
-			
-			stage.addEventListener (event, handleMouseEvent);
-			
-		}
-		
-		stage.addEventListener (TouchEvent.TOUCH_BEGIN, handleTouchEvent);
-		stage.addEventListener (TouchEvent.TOUCH_MOVE, handleTouchEvent);
-		stage.addEventListener (TouchEvent.TOUCH_END, handleTouchEvent);
-		stage.addEventListener (Event.ACTIVATE, handleWindowEvent);
-		stage.addEventListener (Event.DEACTIVATE, handleWindowEvent);
-		stage.addEventListener (FocusEvent.FOCUS_IN, handleWindowEvent);
-		stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
-		stage.addEventListener (Event.MOUSE_LEAVE, handleWindowEvent);
-		stage.addEventListener (Event.RESIZE, handleWindowEvent);
-		
-		var context = new RenderContext ();
-		context.flash = Lib.current;
-		context.type = FLASH;
-		context.version = Capabilities.version;
-		context.window = parent;
-		context.attributes = parent.__contextAttributes;
-		
-		parent.context = context;
-		
-		// TODO: Wait for application.exec?
-		
-		cacheTime = Lib.getTimer ();
-		// handleApplicationEvent (null);
-		
-		stage.addEventListener (Event.ENTER_FRAME, handleApplicationEvent);
-		
-		setFrameRate (frameRate);
 		
 	}
 	
@@ -225,7 +249,7 @@ class FlashWindow {
 		var deltaTime = currentTime - cacheTime;
 		cacheTime = currentTime;
 		
-		parent.onUpdate.dispatch (deltaTime);
+		parent.application.onUpdate.dispatch (deltaTime);
 		parent.onRender.dispatch (parent.context);
 		
 	}

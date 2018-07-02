@@ -21,6 +21,7 @@ import lime.graphics.opengl.GL;
 import lime.graphics.Image;
 import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
+import lime.graphics.RenderContextType;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
@@ -66,7 +67,7 @@ class HTML5Window {
 	private var isFullscreen:Bool;
 	private var parent:Window;
 	private var primaryTouch:Touch;
-	private var renderType:String;
+	private var renderType:RenderContextType;
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
@@ -82,30 +83,8 @@ class HTML5Window {
 		cacheMouseX = 0;
 		cacheMouseY = 0;
 		
-	}
-	
-	
-	public function alert (message:String, title:String):Void {
-		
-		if (message != null) {
-			
-			Browser.alert (message);
-			
-		}
-		
-	}
-	
-	
-	public function close ():Void {
-		
-		parent.application.removeWindow (parent);
-		
-	}
-	
-	
-	public function create (application:Application):Void {
-		
-		var attributes = parent.__contextAttributes;
+		var attributes = parent.__attributes;
+		if (!Reflect.hasField (attributes, "context")) attributes.context = {};
 		
 		if (Reflect.hasField (attributes, "element")) {
 			
@@ -113,18 +92,12 @@ class HTML5Window {
 			
 		}
 		
-		if (Reflect.hasField (attributes, "type")) {
-			
-			renderType = attributes.type;
-			// TODO: Support WebGL1, WebGL2?
-			
-		}
-		
 		#if dom
-		renderType = "dom";
+		attributes.context.type = DOM;
+		attributes.context.version = "";
 		#end
 		
-		if (parent.allowHighDPI && renderType != "dom") {
+		if (Reflect.hasField (attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM) {
 			
 			scale = Browser.window.devicePixelRatio;
 			
@@ -132,8 +105,10 @@ class HTML5Window {
 		
 		parent.__scale = scale;
 		
-		setWidth = parent.width;
-		setHeight = parent.height;
+		setWidth = Reflect.hasField (attributes, "width") ? attributes.width : 0;
+		setHeight = Reflect.hasField (attributes, "height") ? attributes.height : 0;
+		parent.width = setWidth;
+		parent.height = setHeight;
 		
 		parent.id = windowID++;
 		
@@ -143,7 +118,7 @@ class HTML5Window {
 			
 		} else {
 			
-			if (renderType == "dom") {
+			if (renderType == DOM) {
 				
 				div = cast Browser.document.createElement ("div");
 				
@@ -272,13 +247,31 @@ class HTML5Window {
 	}
 	
 	
+	public function alert (message:String, title:String):Void {
+		
+		if (message != null) {
+			
+			Browser.alert (message);
+			
+		}
+		
+	}
+	
+	
+	public function close ():Void {
+		
+		parent.application.__removeWindow (parent);
+		
+	}
+	
+	
 	private function createContext ():Void {
 		
 		var context = new RenderContext ();
-		var attributes = parent.__contextAttributes;
+		var contextAttributes = parent.__attributes.context;
 		
 		context.window = parent;
-		context.attributes = attributes;
+		context.attributes = contextAttributes;
 		
 		if (div != null) {
 			
@@ -290,23 +283,23 @@ class HTML5Window {
 			
 			var webgl:HTML5WebGL2RenderContext = null;
 			
-			var forceCanvas = #if (canvas || munit) true #else (renderType == "canvas") #end;
-			var forceWebGL = #if webgl true #else (renderType == "opengl" || renderType == "webgl" || renderType == "webgl1" || renderType == "webgl2") #end;
-			var allowWebGL2 = #if webgl1 false #else (renderType != "webgl1") #end;
+			var forceCanvas = #if (canvas || munit) true #else (renderType == CANVAS) #end;
+			var forceWebGL = #if webgl true #else (renderType == OPENGL || renderType == OPENGLES || renderType == WEBGL) #end;
+			var allowWebGL2 = #if webgl1 false #else (forceWebGL && (!Reflect.hasField (contextAttributes, "version") || contextAttributes.version != "1")) #end;
 			var isWebGL2 = false;
 			
-			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (attributes, "hardware") || attributes.hardware))) {
+			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (contextAttributes, "hardware") || contextAttributes.hardware))) {
 				
-				var transparentBackground = Reflect.hasField (attributes, "background") && attributes.background == null;
-				var colorDepth = Reflect.hasField (attributes, "colorDepth") ? attributes.colorDepth : 16;
+				var transparentBackground = Reflect.hasField (contextAttributes, "background") && contextAttributes.background == null;
+				var colorDepth = Reflect.hasField (contextAttributes, "colorDepth") ? contextAttributes.colorDepth : 16;
 				
 				var options = {
 					
 					alpha: (transparentBackground || colorDepth > 16) ? true : false,
-					antialias: Reflect.hasField (attributes, "antialiasing") ? attributes.antialiasing > 0 : false,
-					depth: Reflect.hasField (attributes, "depth") ? attributes.depth : true,
+					antialias: Reflect.hasField (contextAttributes, "antialiasing") ? contextAttributes.antialiasing > 0 : false,
+					depth: Reflect.hasField (contextAttributes, "depth") ? contextAttributes.depth : true,
 					premultipliedAlpha: true,
-					stencil: Reflect.hasField (attributes, "stencil") ? attributes.stencil : false,
+					stencil: Reflect.hasField (contextAttributes, "stencil") ? contextAttributes.stencil : false,
 					preserveDrawingBuffer: false
 					
 				};

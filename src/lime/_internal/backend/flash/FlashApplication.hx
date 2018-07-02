@@ -23,8 +23,7 @@ class FlashApplication {
 		AudioManager.init ();
 		
 		#if (flash && !air)
-		var window = new Window ();
-		parent.addWindow (window);
+		parent.createWindow ({});
 		#end
 		
 	}

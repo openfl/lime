@@ -31,8 +31,6 @@ typedef Stage = Dynamic;
 class Window {
 	
 	
-	public var allowHighDPI:Bool;
-	public var alwaysOnTop:Bool;
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
 	public var context (default, null):RenderContext;
@@ -50,13 +48,12 @@ class Window {
 	
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
-	public var hidden:Bool;
+	public var hidden (get, null):Bool;
 	public var id (default, null):Int;
 	public var maximized (get, set):Bool;
 	public var minimized (get, set):Bool;
 	public var onActivate (default, null) = new Event<Void->Void> ();
 	public var onClose (default, null) = new Event<Void->Void> ();
-	public var onCreate (default, null) = new Event<Void->Void> ();
 	public var onDeactivate (default, null) = new Event<Void->Void> ();
 	public var onDropFile (default, null) = new Event<String->Void> ();
 	public var onEnter (default, null) = new Event<Void->Void> ();
@@ -81,12 +78,6 @@ class Window {
 	public var onRestore (default, null) = new Event<Void->Void> ();
 	public var onTextEdit (default, null) = new Event<String->Int->Int->Void> ();
 	public var onTextInput (default, null) = new Event<String->Void> ();
-	
-	/**
-	 * Update events are dispatched each frame (usually just before rendering)
-	 */
-	public var onUpdate = new Event<Int->Void> ();
-	
 	public var parameters:Dynamic;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
@@ -96,11 +87,12 @@ class Window {
 	public var x (get, set):Int;
 	public var y (get, set):Int;
 	
+	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
-	@:noCompletion private var __contextAttributes:RenderContextAttributes;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
+	@:noCompletion private var __hidden:Bool;
 	@:noCompletion private var __maximized:Bool;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
@@ -136,15 +128,10 @@ class Window {
 	#end
 	
 	
-	public function new () {
+	private function new (application:Application, attributes:WindowAttributes) {
 		
-		__contextAttributes = {
-			
-			colorDepth: 32,
-			depth: true,
-			stencil: true
-			
-		};
+		this.application = application;
+		__attributes = attributes != null ? attributes : {};
 		
 		__width = 0;
 		__height = 0;
@@ -156,96 +143,6 @@ class Window {
 		id = -1;
 		
 		__backend = new WindowBackend (this);
-		
-	}
-	
-	
-	public function alert (message:String = null, title:String = null):Void {
-		
-		__backend.alert (message, title);
-		
-	}
-	
-	
-	public function close ():Void {
-		
-		__backend.close ();
-		
-	}
-	
-	
-	public function focus ():Void {
-		
-		__backend.focus ();
-		
-	}
-	
-	
-	public function move (x:Int, y:Int):Void {
-		
-		__backend.move (x, y);
-		
-		__x = x;
-		__y = y;
-		
-	}
-	
-	
-	public function readPixels (rect:Rectangle = null):Image {
-		
-		return __backend.readPixels (rect);
-		
-	}
-	
-	
-	public function resize (width:Int, height:Int):Void {
-		
-		__backend.resize (width, height);
-		
-		__width = width;
-		__height = height;
-		
-	}
-	
-	
-	public function setContextAttributes (attributes:RenderContextAttributes):Void {
-		
-		if (attributes == null) return;
-		
-		for (field in Reflect.fields (attributes)) {
-			
-			Reflect.setField (__contextAttributes, field, Reflect.field (attributes, field));
-			
-		}
-		
-	}
-	
-	
-	public function setIcon (image:Image):Void {
-		
-		if (image == null) {
-			
-			return;
-			
-		}
-		
-		__backend.setIcon (image);
-		
-	}
-	
-	
-	public function toString ():String {
-		
-		return "[object Window]";
-		
-	}
-	
-	
-	@:noCompletion private function __create (application:Application):Void {
-		
-		this.application = application;
-		
-		__backend.create (application);
 		
 		#if windows
 		
@@ -462,6 +359,74 @@ class Window {
 	}
 	
 	
+	public function alert (message:String = null, title:String = null):Void {
+		
+		__backend.alert (message, title);
+		
+	}
+	
+	
+	public function close ():Void {
+		
+		__backend.close ();
+		
+	}
+	
+	
+	public function focus ():Void {
+		
+		__backend.focus ();
+		
+	}
+	
+	
+	public function move (x:Int, y:Int):Void {
+		
+		__backend.move (x, y);
+		
+		__x = x;
+		__y = y;
+		
+	}
+	
+	
+	public function readPixels (rect:Rectangle = null):Image {
+		
+		return __backend.readPixels (rect);
+		
+	}
+	
+	
+	public function resize (width:Int, height:Int):Void {
+		
+		__backend.resize (width, height);
+		
+		__width = width;
+		__height = height;
+		
+	}
+	
+	
+	public function setIcon (image:Image):Void {
+		
+		if (image == null) {
+			
+			return;
+			
+		}
+		
+		__backend.setIcon (image);
+		
+	}
+	
+	
+	public function toString ():String {
+		
+		return "[object Window]";
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
@@ -557,6 +522,13 @@ class Window {
 		
 		resize (__width, value);
 		return __height;
+		
+	}
+	
+	
+	@:noCompletion private inline function get_hidden ():Bool {
+		
+		return __hidden;
 		
 	}
 	

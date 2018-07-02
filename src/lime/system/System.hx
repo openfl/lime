@@ -6,7 +6,7 @@ import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
-import lime.ui.Window;
+import lime.ui.WindowAttributes;
 import lime.utils.ArrayBuffer;
 import lime.utils.UInt8Array;
 import lime.utils.UInt16Array;
@@ -413,17 +413,17 @@ class System {
 				var company = "MyCompany";
 				var file = "MyApplication";
 				
-				if (Application.current != null && Application.current.meta != null) {
+				if (Application.current != null) {
 					
-					if (Application.current.meta.company != null) {
+					if (Application.current.meta.exists ("company")) {
 						
-						company = Application.current.meta.company;
+						company = Application.current.meta.get ("company");
 						
 					}
 					
-					if (Application.current.meta.file != null) {
+					if (Application.current.meta.exists ("file")) {
 						
-						file = Application.current.meta.file;
+						file = Application.current.meta.get ("file");
 						
 					}
 					
@@ -488,7 +488,7 @@ class System {
 	
 	
 	#if sys
-	private static function __parseArguments (window:Window, attributes:RenderContextAttributes):Void {
+	private static function __parseArguments (attributes:WindowAttributes):Void {
 		
 		// TODO: Handle default arguments, like --window-fps=60
 		
@@ -522,7 +522,8 @@ class System {
 		
 		if (parameters != null) {
 			
-			if (window.parameters == null) window.parameters = {};
+			if (attributes.parameters == null) attributes.parameters = {};
+			if (attributes.context == null) attributes.context = {};
 			
 			for (parameter in parameters.keys ()) {
 				
@@ -532,35 +533,36 @@ class System {
 					
 					switch (parameter.substr (windowParamPrefix.length)) {
 						
-						case "allow-high-dpi": window.allowHighDPI = __parseBool (argValue);
-						case "always-on-top": window.alwaysOnTop = __parseBool (argValue); 
-						case "antialiasing": attributes.antialiasing = Std.parseInt (argValue);
-						case "background": attributes.background = (argValue == "" || argValue == "null") ? null : Std.parseInt (argValue);
-						case "borderless": window.borderless = __parseBool (argValue);
-						case "colorDepth": attributes.colorDepth = Std.parseInt (argValue);
-						case "depth", "depthBuffer": attributes.depth = __parseBool (argValue);
+						case "allow-high-dpi": attributes.allowHighDPI = __parseBool (argValue);
+						case "always-on-top": attributes.alwaysOnTop = __parseBool (argValue); 
+						case "antialiasing": attributes.context.antialiasing = Std.parseInt (argValue);
+						case "background": attributes.context.background = (argValue == "" || argValue == "null") ? null : Std.parseInt (argValue);
+						case "borderless": attributes.borderless = __parseBool (argValue);
+						case "colorDepth": attributes.context.colorDepth = Std.parseInt (argValue);
+						case "depth", "depth-buffer": attributes.context.depth = __parseBool (argValue);
 						// case "display": windowConfig.display = Std.parseInt (argValue);
-						case "fullscreen": window.fullscreen = __parseBool (argValue);
-						case "hardware": attributes.hardware = __parseBool (argValue);
-						case "height": window.height = Std.parseInt (argValue);
-						case "hidden": window.hidden = __parseBool (argValue);
-						case "maximized": window.maximized = __parseBool (argValue);
-						case "minimized": window.minimized = __parseBool (argValue);
-						case "render-type", "renderer": attributes.type = argValue;
-						case "resizable": window.resizable = __parseBool (argValue);
-						case "stencil", "stencilBuffer": attributes.stencil = __parseBool (argValue);
+						case "fullscreen": attributes.fullscreen = __parseBool (argValue);
+						case "hardware": attributes.context.hardware = __parseBool (argValue);
+						case "height": attributes.height = Std.parseInt (argValue);
+						case "hidden": attributes.hidden = __parseBool (argValue);
+						case "maximized": attributes.maximized = __parseBool (argValue);
+						case "minimized": attributes.minimized = __parseBool (argValue);
+						case "render-type", "renderer": attributes.context.type = argValue;
+						case "render-version", "renderer-version": attributes.context.version = argValue;
+						case "resizable": attributes.resizable = __parseBool (argValue);
+						case "stencil", "stencil-buffer": attributes.context.stencil = __parseBool (argValue);
 						//case "title": windowConfig.title = argValue;
-						case "vsync": attributes.vsync = __parseBool (argValue);
-						case "width": window.width = Std.parseInt (argValue);
-						case "x": window.x = Std.parseInt (argValue);
-						case "y": window.y = Std.parseInt (argValue);
+						case "vsync": attributes.context.vsync = __parseBool (argValue);
+						case "width": attributes.width = Std.parseInt (argValue);
+						case "x": attributes.x = Std.parseInt (argValue);
+						case "y": attributes.y = Std.parseInt (argValue);
 						default:
 						
 					}
 					
-				} else if (!Reflect.hasField (window.parameters, parameter)) {
+				} else if (!Reflect.hasField (attributes.parameters, parameter)) {
 					
-					Reflect.setField (window.parameters, parameter, argValue);
+					Reflect.setField (attributes.parameters, parameter, argValue);
 					
 				}
 				

@@ -12,6 +12,7 @@ import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
 import lime.ui.Window;
+import lime.ui.WindowAttributes;
 import lime.utils.Preloader;
 
 @:access(lime.ui.Window)
@@ -36,16 +37,22 @@ class Application extends Module {
 	**/
 	public static var current (default, null):Application;
 	
-	
 	/**
 	 * Meta-data values for the application, such as a version or a package name
 	**/
-	public var meta:MetaData;
+	public var meta:Map<String, String>;
 	
 	/**
 	 * A list of currently attached Module instances
 	**/
 	public var modules (default, null):Array<IModule>;
+	
+	/**
+	 * Update events are dispatched each frame (usually just before rendering)
+	 */
+	public var onUpdate = new Event<Int->Void> ();
+	
+	public var onWindowCreate = new Event<Window->Void> ();
 	
 	/**
 	 * The Preloader for the current Application
@@ -98,45 +105,18 @@ class Application extends Module {
 			
 		}
 		
-		meta = {};
+		meta = new Map ();
 		modules = new Array ();
 		__windowByID = new Map ();
 		__windows = new Array ();
 		
 		__backend = new ApplicationBackend (this);
 		
-		registerModule (this);
+		__registerLimeModule (this);
 		
-		// if (config != null) {
-			
-		// 	if (Reflect.hasField (config, "windows")) {
-				
-		// 		for (windowConfig in config.windows) {
-					
-		// 			var window = new Window (windowConfig);
-		// 			createWindow (window);
-					
-		// 			#if ((flash && !air) || html5)
-		// 			break;
-		// 			#end
-					
-		// 		}
-				
-		// 	}
-			
-		// 	if (__preloader == null || __preloader.complete) {
-				
-		// 		setPreloader (__preloader);
-				
-		// 		for (module in modules) {
-					
-		// 			setPreloader (__preloader);
-					
-		// 		}
-				
-		// 	}
-			
-		// }
+		__preloader = new Preloader ();
+		__preloader.onProgress.add (onPreloadProgress);
+		__preloader.onComplete.add (onPreloadComplete);
 		
 	}
 	
@@ -147,25 +127,19 @@ class Application extends Module {
 	 */
 	public function addModule (module:IModule):Void {
 		
-		module.registerModule (this);
+		module.__registerLimeModule (this);
 		modules.push (module);
-		
-		if (__windows.length > 0) {
-			
-			for (window in __windows) {
-				
-				module.addWindow (window);
-				
-			}
-			
-		}
-		
-		module.setPreloader (__preloader);
 		
 	}
 	
 	
-	@:noCompletion public override function addWindow (window:Window):Void {
+	/**
+	 * Creates a new Window and adds it to the Application
+	 * @param	window	A Window object to add
+	 */
+	public function createWindow (attributes:WindowAttributes):Void {
+		
+		var window = new Window (this, attributes);
 		
 		window.onClose.add (__onWindowClose.bind (window), false, -10000);
 		
@@ -176,7 +150,6 @@ class Application extends Module {
 			window.onActivate.add (onWindowActivate);
 			window.onRenderContextLost.add (onRenderContextLost);
 			window.onRenderContextRestored.add (onRenderContextRestored);
-			window.onCreate.add (onWindowCreate);
 			window.onDeactivate.add (onWindowDeactivate);
 			window.onDropFile.add (onWindowDropFile);
 			window.onEnter.add (onWindowEnter);
@@ -199,39 +172,13 @@ class Application extends Module {
 			window.onRestore.add (onWindowRestore);
 			window.onTextEdit.add (onTextEdit);
 			window.onTextInput.add (onTextInput);
-			window.onUpdate.add (update);
 			
 		}
 		
-		if (__windows.indexOf (window) == -1) {
-			
-			__windows.push (window);
-			
-			for (module in modules) {
-				
-				module.addWindow (window);
-				
-			}
-			
-			if (window.id == -1) {
-				
-				window.__create (this);
-				//__windows.push (window);
-				__windowByID.set (window.id, window);
-				
-				window.onCreate.dispatch ();
-				
-			} else {
-				
-				if (window == __window) {
-					
-					onWindowCreate ();
-					
-				}
-				
-			}
-			
-		}
+		__windows.push (window);
+		__windowByID.set (window.id, window);
+		
+		onWindowCreate.dispatch (window);
 		
 	}
 	
@@ -498,12 +445,6 @@ class Application extends Module {
 	
 	
 	/**
-	 * Called when a window create event is fired on the primary window
-	 */
-	public function onWindowCreate ():Void { }
-	
-	
-	/**
 	 * Called when a window deactivate event is fired on the primary window
 	 */
 	public function onWindowDeactivate ():Void { }
@@ -579,8 +520,39 @@ class Application extends Module {
 	public function onWindowRestore ():Void { }
 	
 	
-	@:noCompletion public override function registerModule (application:Application):Void {
+	/**
+	 * Removes a module from the Application
+	 * @param	module	A module to remove
+	 */
+	public function removeModule (module:IModule):Void {
 		
+		if (module != null) {
+			
+			module.__unregisterLimeModule (this);
+			modules.remove (module);
+			
+		}
+		
+	}
+	
+	
+	/**
+	 * Called when a render event is fired on the primary window
+	 * @param	context	The render context ready to be rendered
+	 */
+	public function render (context:RenderContext):Void { }
+	
+	
+	/**
+	 * Called when an update event is fired on the primary window
+	 * @param	deltaTime	The amount of time in milliseconds that has elapsed since the last update
+	 */
+	public function update (deltaTime:Int):Void { }
+	
+	
+	@:noCompletion private override function __registerLimeModule (application:Application):Void {
+		
+		application.onUpdate.add (update);
 		application.onExit.add (onModuleExit, false, 0);
 		application.onExit.add (__onModuleExit, false, 0);
 		
@@ -608,23 +580,7 @@ class Application extends Module {
 	}
 	
 	
-	/**
-	 * Removes a module from the Application
-	 * @param	module	A module to remove
-	 */
-	public function removeModule (module:IModule):Void {
-		
-		if (module != null) {
-			
-			module.unregisterModule (this);
-			modules.remove (module);
-			
-		}
-		
-	}
-	
-	
-	@:noCompletion public override function removeWindow (window:Window):Void {
+	@:noCompletion private function __removeWindow (window:Window):Void {
 		
 		if (window != null && __windowByID.exists (window.id)) {
 			
@@ -647,68 +603,6 @@ class Application extends Module {
 		}
 		
 	}
-	
-	
-	/**
-	 * Called when a render event is fired on the primary window
-	 * @param	context	The render context ready to be rendered
-	 */
-	public function render (context:RenderContext):Void { }
-	
-	
-	@:noCompletion public override function setPreloader (preloader:Preloader):Void {
-		
-		if (__preloader != null) {
-			
-			__preloader.onProgress.remove (onPreloadProgress);
-			__preloader.onComplete.remove (onPreloadComplete);
-			
-		}
-		
-		__preloader = preloader;
-		
-		if (preloader == null || preloader.complete) {
-			
-			onPreloadComplete ();
-			
-		} else {
-			
-			preloader.onProgress.add (onPreloadProgress);
-			preloader.onComplete.add (onPreloadComplete);
-			
-		}
-		
-		for (module in modules) {
-			
-			module.setPreloader (preloader);
-			
-		}
-		
-	}
-	
-	
-	@:noCompletion public override function unregisterModule (application:Application):Void {
-		
-		application.onExit.remove (__onModuleExit);
-		application.onExit.remove (onModuleExit);
-		
-		Gamepad.onConnect.remove (__onGamepadConnect);
-		Joystick.onConnect.remove (__onJoystickConnect);
-		Touch.onCancel.remove (onTouchCancel);
-		Touch.onStart.remove (onTouchStart);
-		Touch.onMove.remove (onTouchMove);
-		Touch.onEnd.remove (onTouchEnd);
-		
-		onModuleExit (0);
-		
-	}
-	
-	
-	/**
-	 * Called when an update event is fired on the primary window
-	 * @param	deltaTime	The amount of time in milliseconds that has elapsed since the last update
-	 */
-	public function update (deltaTime:Int):Void { }
 	
 	
 	@:noCompletion private function __onGamepadConnect (gamepad:Gamepad):Void {
@@ -752,7 +646,24 @@ class Application extends Module {
 			
 		}
 		
-		removeWindow (window);
+		__removeWindow (window);
+		
+	}
+	
+	
+	@:noCompletion private override function __unregisterLimeModule (application:Application):Void {
+		
+		application.onExit.remove (__onModuleExit);
+		application.onExit.remove (onModuleExit);
+		
+		Gamepad.onConnect.remove (__onGamepadConnect);
+		Joystick.onConnect.remove (__onJoystickConnect);
+		Touch.onCancel.remove (onTouchCancel);
+		Touch.onStart.remove (onTouchStart);
+		Touch.onMove.remove (onTouchMove);
+		Touch.onEnd.remove (onTouchEnd);
+		
+		onModuleExit (0);
 		
 	}
 	

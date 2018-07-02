@@ -61,102 +61,55 @@ class NativeWindow {
 	public function new (parent:Window) {
 		
 		this.parent = parent;
-		frameRate = 60;
 		
 		displayMode = new DisplayMode (0, 0, 0, 0);
 		
-	}
-	
-	
-	public function alert (message:String, title:String):Void {
-		
-		if (handle != null) {
-			
-			#if (!macro && lime_cffi)
-			NativeCFFI.lime_window_alert (handle, message, title);
-			#end
-			
-		}
-		
-	}
-	
-	
-	public function close ():Void {
-		
-		if (!closing) {
-			
-			closing = true;
-			parent.onClose.dispatch ();
-			
-			if (!parent.onClose.canceled) {
-				
-				if (handle != null) {
-					
-					#if (!macro && lime_cffi)
-					NativeCFFI.lime_window_close (handle);
-					#end
-					handle = null;
-					
-				}
-				
-			} else {
-				
-				closing = false;
-				
-			}
-			
-		}
-		
-		
-		
-	}
-	
-	
-	public function create (application:Application):Void {
-		
-		var title = (parent.__title != null && parent.__title != "") ? parent.__title : "Lime Application";
-		var attributes = parent.__contextAttributes;
+		var attributes = parent.__attributes;
+		var contextAttributes = Reflect.hasField (attributes, "context") ? attributes.context : {};
+		var title = Reflect.hasField (attributes, "title") ? attributes.title : "Lime Application";
 		var flags = 0;
 		
-		if (Reflect.hasField (attributes, "antialiasing")) {
+		if (!Reflect.hasField (contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
+		if (!Reflect.hasField (contextAttributes, "background")) contextAttributes.background = 0;
+		if (!Reflect.hasField (contextAttributes, "colorDepth")) contextAttributes.colorDepth = 24;
+		if (!Reflect.hasField (contextAttributes, "depth")) contextAttributes.depth = true;
+		if (!Reflect.hasField (contextAttributes, "hardware")) contextAttributes.hardware = true;
+		if (!Reflect.hasField (contextAttributes, "stencil")) contextAttributes.stencil = true;
+		if (!Reflect.hasField (contextAttributes, "vsync")) contextAttributes.vsync = false;
+		
+		#if (cairo || !lime_opengl) contextAttributes.type = CAIRO; #end
+		if (Reflect.hasField (contextAttributes, "type") && contextAttributes.type == CAIRO) contextAttributes.hardware = false;
+		
+		if (Reflect.hasField (attributes, "allowHighDPI") && attributes.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
+		if (Reflect.hasField (attributes, "alwaysOnTop") && attributes.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
+		if (Reflect.hasField (attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
+		if (Reflect.hasField (attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (Reflect.hasField (attributes, "hidden") && attributes.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
+		if (Reflect.hasField (attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
+		if (Reflect.hasField (attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
+		if (Reflect.hasField (attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+		
+		if (contextAttributes.antialiasing >= 4) {
 			
-			if (attributes.antialiasing >= 4) {
-				
-				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
-				
-			} else if (attributes.antialiasing >= 2) {
-				
-				flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
-				
-			}
+			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
+			
+		} else if (contextAttributes.antialiasing >= 2) {
+			
+			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
 			
 		}
 		
-		if (parent.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
-		if (parent.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
-		//if (Reflect.hasField (attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-		if (parent.__borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
-		if (Reflect.hasField (attributes, "depth") && attributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
-		//if (Reflect.hasField (attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-		if (parent.__fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
-		#if !cairo if (Reflect.hasField (attributes, "hardware") && attributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE; #end
-		if (parent.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
-		if (parent.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
-		if (parent.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
-		//if (Reflect.hasField (attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-		if (parent.__resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-		if (Reflect.hasField (attributes, "stencil") && attributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
-		if (Reflect.hasField (attributes, "vsync") && attributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
-		if (Reflect.hasField (attributes, "colorDepth") && attributes.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
+		if (contextAttributes.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
+		if (contextAttributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
+		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
+		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 		
-		//if (Reflect.hasField (attributes, "title")) {
-			//
-			//title = attributes.title;
-			//
-		//}
+		var width = Reflect.hasField (attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
+		var height = Reflect.hasField (attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
 		
 		#if (!macro && lime_cffi)
-		handle = NativeCFFI.lime_window_create (application.__backend.handle, parent.width, parent.height, flags, title);
+		handle = NativeCFFI.lime_window_create (parent.application.__backend.handle, width, height, flags, title);
 		
 		if (handle != null) {
 			
@@ -164,6 +117,7 @@ class NativeWindow {
 			parent.__height = NativeCFFI.lime_window_get_height (handle);
 			parent.__x = NativeCFFI.lime_window_get_x (handle);
 			parent.__y = NativeCFFI.lime_window_get_y (handle);
+			parent.__hidden = (Reflect.hasField (attributes, "hidden") && attributes.hidden);
 			parent.id = NativeCFFI.lime_window_get_id (handle);
 			
 		}
@@ -172,7 +126,6 @@ class NativeWindow {
 		
 		var context = new RenderContext ();
 		context.window = parent;
-		context.attributes = parent.__contextAttributes;
 		
 		#if hl
 		var contextType = @:privateAccess String.fromUTF8 (NativeCFFI.lime_window_get_context_type (handle));
@@ -226,11 +179,57 @@ class NativeWindow {
 			
 		}
 		
-		#end
-		
+		contextAttributes.type = context.type;
+		context.attributes = contextAttributes;
 		parent.context = context;
 		
-		setFrameRate (frameRate);
+		setFrameRate (Reflect.hasField (attributes, "frameRate") ? attributes.frameRate : 60);
+		
+		#end
+		
+	}
+	
+	
+	public function alert (message:String, title:String):Void {
+		
+		if (handle != null) {
+			
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_alert (handle, message, title);
+			#end
+			
+		}
+		
+	}
+	
+	
+	public function close ():Void {
+		
+		if (!closing) {
+			
+			closing = true;
+			parent.onClose.dispatch ();
+			
+			if (!parent.onClose.canceled) {
+				
+				if (handle != null) {
+					
+					#if (!macro && lime_cffi)
+					NativeCFFI.lime_window_close (handle);
+					#end
+					handle = null;
+					
+				}
+				
+			} else {
+				
+				closing = false;
+				
+			}
+			
+		}
+		
+		
 		
 	}
 	

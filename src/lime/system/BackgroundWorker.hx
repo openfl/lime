@@ -72,9 +72,9 @@ class BackgroundWorker {
 		
 		// TODO: Better way to do this
 		
-		if (Application.current != null && Application.current.window != null) {
+		if (Application.current != null) {
 			
-			Application.current.window.onUpdate.add (__update);
+			Application.current.onUpdate.add (__update);
 			
 		}
 		

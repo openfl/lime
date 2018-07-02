@@ -176,11 +176,7 @@ class NativeApplication {
 				
 				updateTimer ();
 				
-				for (window in parent.__windows) {
-					
-					if (window != null) window.onUpdate.dispatch (applicationEventInfo.deltaTime);
-					
-				}
+				parent.onUpdate.dispatch (applicationEventInfo.deltaTime);
 			
 			default:
 			

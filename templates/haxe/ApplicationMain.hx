@@ -23,43 +23,43 @@ package;
 		
 		ManifestResources.init (config);
 		
-		var preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.utils.Preloader::end:: ();
-		
 		#if !munit
 		var app = new ::APP_MAIN:: ();
-		app.setPreloader (preloader);
-		
-		app.meta.build = "::meta.buildNumber::";
-		app.meta.company = "::meta.company::";
-		app.meta.file = "::APP_FILE::";
-		app.meta.name = "::meta.title::";
-		app.meta.packageName = "::meta.packageName::";
+		app.meta["build"] = "::meta.buildNumber::";
+		app.meta["company"] = "::meta.company::";
+		app.meta["file"] = "::APP_FILE::";
+		app.meta["name"] = "::meta.title::";
+		app.meta["packageName"] = "::meta.packageName::";
 		
 		::foreach windows::
-		var window = new lime.ui.Window ();
-		::if (allowHighDPI)::window.allowHighDPI = ::allowHighDPI::;::end::
-		::if (alwaysOnTop)::window.alwaysOnTop = ::alwaysOnTop::;::end::
-		::if (borderless)::window.borderless = ::borderless::;::end::
-		::if (fps)::window.frameRate = ::fps::;::end::
-		::if (fullscreen)::#if !web window.fullscreen = ::fullscreen::; #end::end::
-		::if (height)::window.height = ::height::;::end::
-		::if (hidden)::window.hidden = #if munit true #else ::hidden:: #end;::end::
-		::if (maximized)::window.maximized = ::maximized::;::end::
-		::if (minimized)::window.minimized = ::minimized::;::end::
-		::if (parameters)::window.parameters = ::parameters::;::end::
-		::if (resizable)::window.resizable = ::resizable::;::end::
-		::if (title)::window.title = "::title::";::end::
-		::if (width)::window.width = ::width::;::end::
-		::if (x)::window.x = ::x::;::end::
-		::if (y)::window.y = ::y::;::end::
+		var attributes:lime.ui.WindowAttributes = {
+			
+			allowHighDPI: ::allowHighDPI::,
+			alwaysOnTop: ::alwaysOnTop::,
+			borderless: ::borderless::,
+			// display: ::display::,
+			element: null,
+			frameRate: ::fps::,
+			#if !web fullscreen: ::fullscreen::, #end
+			height: ::height::,
+			hidden: #if munit true #else ::hidden:: #end,
+			maximized: ::maximized::,
+			minimized: ::minimized::,
+			parameters: ::parameters::,
+			resizable: ::resizable::,
+			title: "::title::",
+			width: ::width::,
+			x: ::x::,
+			y: ::y::,
+			
+		};
 		
-		var attributes = {
+		attributes.context = {
 			
 			antialiasing: ::antialiasing::,
 			background: ::background::,
 			colorDepth: ::colorDepth::,
 			depth: ::depthBuffer::,
-			element: null,
 			hardware: ::hardware::,
 			stencil: ::stencilBuffer::,
 			type: null,
@@ -73,13 +73,13 @@ package;
 				
 				for (field in Reflect.fields (config)) {
 					
-					if (Reflect.hasField (window, field)) {
-						
-						Reflect.setField (window, field, Reflect.field (config, field));
-						
-					} else if (Reflect.hasField (attributes, field)) {
+					if (Reflect.hasField (attributes, field)) {
 						
 						Reflect.setField (attributes, field, Reflect.field (config, field));
+						
+					} else if (Reflect.hasField (attributes.context, field)) {
+						
+						Reflect.setField (attributes.context, field, Reflect.field (config, field));
 						
 					}
 					
@@ -88,31 +88,30 @@ package;
 			}
 			
 			#if sys
-			lime.system.System.__parseArguments (window, attributes);
+			lime.system.System.__parseArguments (attributes);
 			#end
 			
 		}
 		
-		window.setContextAttributes (attributes);
-		app.addWindow (window);
+		app.createWindow (attributes);
 		::end::
 		#end
 		
-		preloader.create ();
+		// preloader.create ();
 		
 		for (library in ManifestResources.preloadLibraries) {
 			
-			preloader.addLibrary (library);
+			app.preloader.addLibrary (library);
 			
 		}
 		
 		for (name in ManifestResources.preloadLibraryNames) {
 			
-			preloader.addLibraryName (name);
+			app.preloader.addLibraryName (name);
 			
 		}
 		
-		preloader.load ();
+		app.preloader.load ();
 		
 		#if !munit
 		start (app);
