@@ -61,6 +61,9 @@ class FlashWindow {
 		
 		if (stage == null) stage = Lib.current.stage;
 		
+		parent.__width = stage.stageWidth;
+		parent.__height = stage.stageHeight;
+		
 		stage.align = StageAlign.TOP_LEFT;
 		stage.scaleMode = StageScaleMode.NO_SCALE;
 		

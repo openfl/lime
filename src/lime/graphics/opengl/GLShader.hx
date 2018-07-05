@@ -50,5 +50,13 @@ import lime.utils.Log;
 
 
 #else
-typedef GLShader = Dynamic;
+@:forward abstract GLShader(Dynamic) from Dynamic to Dynamic {
+	
+	public static function fromSources (gl:Dynamic, source:String, type:Int):GLShader {
+		
+		return null;
+		
+	}
+	
+}
 #end

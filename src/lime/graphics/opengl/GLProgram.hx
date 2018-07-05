@@ -50,5 +50,13 @@ import lime.utils.Log;
 
 
 #else
-typedef GLProgram = Dynamic;
+@:forward abstract GLProgram(Dynamic) from Dynamic to Dynamic {
+	
+	public static function fromSources (gl:Dynamic, vertexSource:String, fragmentSource:String):GLProgram {
+		
+		return null;
+		
+	}
+	
+}
 #end
