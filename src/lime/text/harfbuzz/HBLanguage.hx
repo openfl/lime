@@ -43,4 +43,11 @@ abstract HBLanguage(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
+	@:from private static function fromString (value:String):HBLanguage {
+		
+		return new HBLanguage (value);
+		
+	}
+	
+	
 }

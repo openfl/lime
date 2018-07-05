@@ -1315,7 +1315,7 @@ class NativeCFFI {
 	@:cffi private static function lime_cairo_clip_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 	@:cffi private static function lime_cairo_close_path (handle:CFFIPointer):Void;
 	@:cffi private static function lime_cairo_copy_page (handle:CFFIPointer):Void;
-	@:cffi private static function lime_cairo_create (handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_create (handle:CFFIPointer):CFFIPointer;
 	@:cffi private static function lime_cairo_curve_to (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float, y3:Float):Void;
 	@:cffi private static function lime_cairo_fill (handle:CFFIPointer):Void;
 	@:cffi private static function lime_cairo_fill_extents (handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;

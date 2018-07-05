@@ -2316,7 +2316,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_get_tolerance);
 	DEFINE_PRIME1 (lime_cairo_has_current_point);
 	DEFINE_PRIME1v (lime_cairo_identity_matrix);
-	DEFINE_PRIME3v (lime_cairo_image_surface_create);
+	DEFINE_PRIME3 (lime_cairo_image_surface_create);
 	DEFINE_PRIME5 (lime_cairo_image_surface_create_for_data);
 	DEFINE_PRIME1 (lime_cairo_image_surface_get_data);
 	DEFINE_PRIME1 (lime_cairo_image_surface_get_format);
