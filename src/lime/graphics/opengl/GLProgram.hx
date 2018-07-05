@@ -10,7 +10,7 @@ import lime.utils.Log;
 #if (!js || !html5 || display)
 @:forward(id, refs) abstract GLProgram(GLObject) from GLObject to GLObject {
 #else
-@:forward() abstract GLProgram(js.html.webgl.Shader) from js.html.webgl.Program to js.html.webgl.Program {
+@:forward() abstract GLProgram(js.html.webgl.Program) from js.html.webgl.Program to js.html.webgl.Program {
 #end
 	
 	
