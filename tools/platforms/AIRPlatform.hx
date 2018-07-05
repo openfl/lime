@@ -24,6 +24,7 @@ class AIRPlatform extends FlashPlatform {
 	
 	
 	private var iconData:Array<Dynamic>;
+	private var splashScreenData: Array<String>;
 	private var targetPlatform:Platform;
 	private var targetPlatformType:PlatformType;
 	
@@ -93,6 +94,12 @@ class AIRPlatform extends FlashPlatform {
 				
 				files.push (icon.path);
 				
+			}
+			
+			if (splashScreenData != null) {
+				for (splashScreen in splashScreenData) {
+					files.push(splashScreen);
+				}
 			}
 			
 			var targetPath = switch (targetPlatform) {
@@ -342,6 +349,16 @@ class AIRPlatform extends FlashPlatform {
 				
 			}
 			
+		}
+		if (project.splashScreens != null) {
+			splashScreenData = [];
+			for (splash in project.splashScreens) {
+				var splashPath = PathHelper.standardize(splash.path);
+				var splashName = splashPath.substr(splashPath.lastIndexOf("/") + 1);
+				var path = PathHelper.combine(destination, splashName);
+				splashScreenData.push(splashName);
+				FileHelper.copyFile(splash.path, path, context);
+			}
 		}
 		
 	}
