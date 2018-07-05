@@ -572,7 +572,7 @@ class CommandLineTools {
 			
 		}
 		
-		path += "/ndll/";
+		path += "../ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			

@@ -3,15 +3,15 @@ package;
 
 import format.SVG;
 import haxe.io.Path;
-import lime.tools.helpers.LogHelper;
-import lime.tools.helpers.PathHelper;
-import lime.tools.helpers.PlatformHelper;
+import hxp.helpers.LogHelper;
+import hxp.helpers.PathHelper;
+import hxp.helpers.PlatformHelper;
+import hxp.project.Architecture;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;
 import openfl.display.Shape;
 import openfl.geom.Matrix;
-import lime.project.Architecture;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -45,16 +45,16 @@ class SVGExport {
 				}
 				
 				lines.push (line);
-         		
-   			}
-   			
+				
+			}
+			
 		} catch (e:Dynamic) {
 			
 			process.close ();
 			
 		}
 		
-		path += "/ndll/";
+		path += "../ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
