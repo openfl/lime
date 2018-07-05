@@ -137,7 +137,7 @@ class Application extends Module {
 	 * Creates a new Window and adds it to the Application
 	 * @param	window	A Window object to add
 	 */
-	public function createWindow (attributes:WindowAttributes):Void {
+	public function createWindow (attributes:WindowAttributes):Window {
 		
 		var window = new Window (this, attributes);
 		
@@ -179,6 +179,8 @@ class Application extends Module {
 		__windowByID.set (window.id, window);
 		
 		onWindowCreate.dispatch (window);
+		
+		return window;
 		
 	}
 	
