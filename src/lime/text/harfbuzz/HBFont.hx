@@ -89,7 +89,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_font_glyph_from_string (this, s);
 		#else
-		return null;
+		return 0;
 		#end
 		
 	}

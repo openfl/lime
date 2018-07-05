@@ -2246,7 +2246,7 @@ class NativeOpenGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_queryi (target, pname);
 		#else
-		return null;
+		return 0;
 		#end
 		
 	}
@@ -2266,7 +2266,7 @@ class NativeOpenGLRenderContext {
 		#if (lime_cffi && lime_opengl && !macro)
 		return NativeCFFI.lime_gl_get_query_objectui (__getObjectID (query), pname);
 		#else
-		return null;
+		return 0;
 		#end
 		
 	}

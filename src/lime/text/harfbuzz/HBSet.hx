@@ -2,6 +2,7 @@ package lime.text.harfbuzz;
 
 
 import lime._internal.backend.native.NativeCFFI;
+import lime.math.Vector2;
 import lime.system.CFFIPointer;
 
 @:access(lime._internal.backend.native.NativeCFFI)
@@ -10,7 +11,7 @@ import lime.system.CFFIPointer;
 abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
-	public static var empty (get, never):HBBlob;
+	public static var empty (get, never):HBSet;
 	
 	public var allocationSuccessful (get, never):Bool;
 	public var isEmpty (get, never):Bool;
@@ -34,15 +35,6 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_set_add (this, codepoint);
-		#end
-		
-	}
-	
-	
-	public function addRange (first:Int, last:Int):Void {
-		
-		#if (lime_cffi && lime_harfbuzz && !macro)
-		NativeCFFI.lime_hb_set_add_range (this, first, last);
 		#end
 		
 	}

@@ -401,7 +401,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_script (this);
 		#else
-		return null;
+		return cast 0;
 		#end
 		
 	}
