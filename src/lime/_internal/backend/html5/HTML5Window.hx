@@ -281,7 +281,7 @@ class HTML5Window {
 			
 		} else if (canvas != null) {
 			
-			var webgl:HTML5WebGL2RenderContext = null;
+			var webgl:#if !doc_gen HTML5WebGL2RenderContext #else Dynamic #end = null;
 			
 			var forceCanvas = #if (canvas || munit) true #else (renderType == CANVAS) #end;
 			var forceWebGL = #if webgl true #else (renderType == OPENGL || renderType == OPENGLES || renderType == WEBGL) #end;
