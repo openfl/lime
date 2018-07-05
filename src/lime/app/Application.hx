@@ -52,7 +52,7 @@ class Application extends Module {
 	 */
 	public var onUpdate = new Event<Int->Void> ();
 	
-	public var onWindowCreate = new Event<Window->Void> ();
+	public var onCreateWindow = new Event<Window->Void> ();
 	
 	/**
 	 * The Preloader for the current Application
@@ -141,6 +141,9 @@ class Application extends Module {
 		
 		var window = new Window (this, attributes);
 		
+		__windows.push (window);
+		__windowByID.set (window.id, window);
+		
 		window.onClose.add (__onWindowClose.bind (window), false, -10000);
 		
 		if (__window == null) {
@@ -173,12 +176,11 @@ class Application extends Module {
 			window.onTextEdit.add (onTextEdit);
 			window.onTextInput.add (onTextInput);
 			
+			onWindowCreate ();
+			
 		}
 		
-		__windows.push (window);
-		__windowByID.set (window.id, window);
-		
-		onWindowCreate.dispatch (window);
+		onCreateWindow.dispatch (window);
 		
 		return window;
 		
@@ -447,6 +449,12 @@ class Application extends Module {
 	
 	
 	/**
+	 * Called when the primary window is created
+	 */
+	public function onWindowCreate ():Void { }
+	
+	
+	/**
 	 * Called when a window deactivate event is fired on the primary window
 	 */
 	public function onWindowDeactivate ():Void { }
@@ -655,6 +663,7 @@ class Application extends Module {
 	
 	@:noCompletion private override function __unregisterLimeModule (application:Application):Void {
 		
+		application.onUpdate.remove (update);
 		application.onExit.remove (__onModuleExit);
 		application.onExit.remove (onModuleExit);
 		
