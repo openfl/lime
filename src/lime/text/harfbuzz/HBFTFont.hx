@@ -1,12 +1,12 @@
 package lime.text.harfbuzz;
 
 
-import lime._backend.native.NativeCFFI;
+import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 import lime.text.Font;
 
 @:forward
-@:access(lime._backend.native.NativeCFFI)
+@:access(lime._internal.backend.native.NativeCFFI)
 
 
 abstract HBFTFont(HBFont) to HBFont from CFFIPointer to CFFIPointer {
@@ -18,6 +18,7 @@ abstract HBFTFont(HBFont) to HBFont from CFFIPointer to CFFIPointer {
 	public function new (font:Font) {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
+		// this = NativeCFFI.lime_hb_ft_font_create (font.src);
 		this = NativeCFFI.lime_hb_ft_font_create_referenced (font.src);
 		#else
 		this = null;

@@ -1,11 +1,11 @@
 package lime.text.harfbuzz;
 
 
-import lime._backend.native.NativeCFFI;
+import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
 import lime.utils.DataPointer;
 
-@:access(lime._backend.native.NativeCFFI)
+@:access(lime._internal.backend.native.NativeCFFI)
 
 
 abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer {

@@ -1,11 +1,11 @@
 package lime.text.harfbuzz;
 
 
-import lime._backend.native.NativeCFFI;
+import lime._internal.backend.native.NativeCFFI;
 import lime.math.Vector2;
 import lime.system.CFFIPointer;
 
-@:access(lime._backend.native.NativeCFFI)
+@:access(lime._internal.backend.native.NativeCFFI)
 
 
 abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {

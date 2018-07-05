@@ -743,12 +743,13 @@ class NativeCFFI {
 	@:cffi private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
 	@:cffi private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
 	@:cffi private static function lime_hb_buffer_create ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int;
 	@:cffi private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
 	@:cffi private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
 	@:cffi private static function lime_hb_buffer_get_empty ():CFFIPointer;
 	@:cffi private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes;
+	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes;
 	@:cffi private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
 	@:cffi private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
 	@:cffi private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
@@ -763,6 +764,7 @@ class NativeCFFI {
 	@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
 	@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
 	@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void;
 	@:cffi private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
 	@:cffi private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
 	@:cffi private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
@@ -803,6 +805,7 @@ class NativeCFFI {
 	@:cffi private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
 	@:cffi private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
 	@:cffi private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
+	@:cffi private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer;
 	@:cffi private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
 	@:cffi private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
 	@:cffi private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;

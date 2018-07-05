@@ -1,17 +1,19 @@
 package lime.text.harfbuzz;
 
 
-import lime._backend.native.NativeCFFI;
+import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFIPointer;
+import lime.utils.Bytes;
 import lime.utils.DataPointer;
 
-@:access(lime._backend.native.NativeCFFI)
+@:access(lime._internal.backend.native.NativeCFFI)
 
 
 abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	public var allocationSuccessful (get, never):Bool;
+	public var clusterLevel (get, set):HBBufferClusterLevel;
 	public var contentType (get, set):HBBufferContentType;
 	public var direction (get, set):HBDirection;
 	public var flags (get, set):Int;
@@ -90,7 +92,33 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function getGlyphInfo ():Array<HBGlyphInfo> {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_buffer_get_glyph_infos (this);
+		var bytes = Bytes.alloc (0);
+		bytes = NativeCFFI.lime_hb_buffer_get_glyph_infos (this, bytes);
+		
+		if (bytes == null) {
+			
+			return null;
+			
+		} else {
+			
+			var result = new Array<HBGlyphInfo> ();
+			
+			var length = bytes.length;
+			var position = 0, info;
+			
+			while (position < length) {
+				
+				info = new HBGlyphInfo ();
+				info.codepoint = bytes.getInt32 (position); position += 4;
+				info.mask = bytes.getInt32 (position); position += 4;
+				info.cluster = bytes.getInt32 (position); position += 4;
+				result.push (info);
+				
+			}
+			
+			return result;
+			
+		}
 		#else
 		return null;
 		#end
@@ -101,7 +129,34 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function getGlyphPositions ():Array<HBGlyphPosition> {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_buffer_get_glyph_positions (this);
+		var bytes = Bytes.alloc (0);
+		bytes = NativeCFFI.lime_hb_buffer_get_glyph_positions (this, bytes);
+		
+		if (bytes == null) {
+			
+			return null;
+			
+		} else {
+			
+			var result = new Array<HBGlyphPosition> ();
+			
+			var length = bytes.length;
+			var position = 0, glyphPosition;
+			
+			while (position < length) {
+				
+				glyphPosition = new HBGlyphPosition ();
+				glyphPosition.xAdvance = bytes.getInt32 (position); position += 4;
+				glyphPosition.yAdvance = bytes.getInt32 (position); position += 4;
+				glyphPosition.xOffset = bytes.getInt32 (position); position += 4;
+				glyphPosition.yOffset = bytes.getInt32 (position); position += 4;
+				result.push (glyphPosition);
+				
+			}
+			
+			return result;
+			
+		}
 		#else
 		return null;
 		#end
@@ -179,6 +234,27 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 		#else
 		return false;
 		#end
+		
+	}
+	
+	
+	private inline function get_clusterLevel ():HBBufferClusterLevel {
+		
+		#if (lime_cffi && lime_harfbuzz && !macro)
+		return NativeCFFI.lime_hb_buffer_get_cluster_level (this);
+		#else
+		return 0;
+		#end
+		
+	}
+	
+	
+	private inline function set_clusterLevel (value:HBBufferClusterLevel):HBBufferClusterLevel {
+		
+		#if (lime_cffi && lime_harfbuzz && !macro)
+		NativeCFFI.lime_hb_buffer_set_cluster_level (this, value);
+		#end
+		return value;
 		
 	}
 	

@@ -130,6 +130,13 @@ namespace lime {
 	}
 	
 	
+	int lime_hb_buffer_get_cluster_level (value buffer) {
+		
+		return hb_buffer_get_cluster_level ((hb_buffer_t*)val_data (buffer));
+		
+	}
+	
+	
 	int lime_hb_buffer_get_content_type (value buffer) {
 		
 		return hb_buffer_get_content_type ((hb_buffer_t*)val_data (buffer));
@@ -159,26 +166,84 @@ namespace lime {
 	}
 	
 	
-	value lime_hb_buffer_get_glyph_infos (value buffer) {
+	struct HBGlyphInfo {
 		
-		// TODO: Write into byte buffer instead array?
+		int codepoint;
+		int mask;
+		int cluster;
 		
-		value result = alloc_array (0);
-		return result;
-		//unsigned int length = 0;
-		//hb_glyph_info_t* info = hb_buffer_get_glyph_infos ((hb_buffer_t*)val_data (buffer), &length);
-		//return CFFIPointer (info);
+	};
+	
+	
+	value lime_hb_buffer_get_glyph_infos (value buffer, value bytes) {
+		
+		unsigned int length = 0;
+		hb_glyph_info_t* info = hb_buffer_get_glyph_infos ((hb_buffer_t*)val_data (buffer), &length);
+		
+		if (length > 0) {
+			
+			Bytes _bytes = Bytes (bytes);
+			_bytes.Resize (length * sizeof (HBGlyphInfo));
+			
+			HBGlyphInfo* glyphInfo = (HBGlyphInfo*)_bytes.b;
+			
+			for (int i = 0; i < length; i++, info++, glyphInfo++) {
+				
+				glyphInfo->codepoint = info->codepoint;
+				glyphInfo->mask = info->mask;
+				glyphInfo->cluster = info->cluster;
+				
+			}
+			
+			return _bytes.Value (bytes);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
 	
-	value lime_hb_buffer_get_glyph_positions (value buffer) {
+	struct HBGlyphPosition {
 		
-		value result = alloc_array (0);
-		return result;
-		//unsigned int length = 0;
-		//hb_glyph_position_t* positions = hb_buffer_get_glyph_positions ((hb_buffer_t*)val_data (buffer), &length);
-		//return CFFIPointer (positions);
+		int xAdvance;
+		int yAdvance;
+		int xOffset;
+		int yOffset;
+		
+	};
+	
+	
+	value lime_hb_buffer_get_glyph_positions (value buffer, value bytes) {
+		
+		unsigned int length = 0;
+		hb_glyph_position_t* positions = hb_buffer_get_glyph_positions ((hb_buffer_t*)val_data (buffer), &length);
+		
+		if (length > 0) {
+			
+			Bytes _bytes = Bytes (bytes);
+			_bytes.Resize (length * sizeof (HBGlyphPosition));
+			
+			HBGlyphPosition* glyphPosition = (HBGlyphPosition*)_bytes.b;
+			
+			for (int i = 0; i < length; i++, positions++, glyphPosition++) {
+				
+				glyphPosition->xAdvance = positions->x_advance;
+				glyphPosition->yAdvance = positions->y_advance;
+				glyphPosition->xOffset = positions->x_offset;
+				glyphPosition->yOffset = positions->y_offset;
+				
+			}
+			
+			return _bytes.Value (bytes);
+			
+		} else {
+			
+			return alloc_null ();
+			
+		}
 		
 	}
 	
@@ -304,6 +369,13 @@ namespace lime {
 	}
 	
 	
+	void lime_hb_buffer_set_cluster_level (value buffer, int clusterLevel) {
+		
+		hb_buffer_set_cluster_level ((hb_buffer_t*)val_data (buffer), (hb_buffer_cluster_level_t)clusterLevel);
+		
+	}
+	
+	
 	void lime_hb_buffer_set_content_type (value buffer, int contentType) {
 		
 		hb_buffer_set_content_type ((hb_buffer_t*)val_data (buffer), (hb_buffer_content_type_t)contentType);
@@ -347,6 +419,10 @@ namespace lime {
 	
 	
 	void lime_hb_buffer_set_script (value buffer, int script) {
+		
+		script = HB_SCRIPT_COMMON;
+		
+		// TODO: COMMON is an int32 and doesn't translate properly on Neko
 		
 		hb_buffer_set_script ((hb_buffer_t*)val_data (buffer), (hb_script_t)script);
 		
@@ -639,6 +715,15 @@ namespace lime {
 	}
 	
 	
+	value lime_hb_ft_font_create (value font) {
+		
+		Font* _font = (Font*)val_data (font);
+		hb_font_t* __font = hb_ft_font_create ((FT_Face)_font->face, NULL);
+		return CFFIPointer (__font);
+		
+	}
+	
+	
 	value lime_hb_ft_font_create_referenced (value font) {
 		
 		Font* _font = (Font*)val_data (font);
@@ -881,9 +966,8 @@ namespace lime {
 	
 	void lime_hb_shape (value font, value buffer, value features) {
 		
-		int length = val_array_size (features);
-		double* _features = val_array_double (features);
-		
+		int length = !val_is_null (features) ? val_array_size (features) : 0;
+		double* _features = !val_is_null (features) ? val_array_double (features) : NULL;
 		hb_shape ((hb_font_t*)val_data (font), (hb_buffer_t*)val_data (buffer), (const hb_feature_t*)(uintptr_t*)_features, length);
 		
 	}
@@ -941,12 +1025,13 @@ namespace lime {
 	DEFINE_PRIME1 (lime_hb_buffer_allocation_successful);
 	DEFINE_PRIME1v (lime_hb_buffer_clear_contents);
 	DEFINE_PRIME0 (lime_hb_buffer_create);
+	DEFINE_PRIME1 (lime_hb_buffer_get_cluster_level);
 	DEFINE_PRIME1 (lime_hb_buffer_get_content_type);
 	DEFINE_PRIME1 (lime_hb_buffer_get_direction);
 	DEFINE_PRIME0 (lime_hb_buffer_get_empty);
 	DEFINE_PRIME1 (lime_hb_buffer_get_flags);
-	DEFINE_PRIME1 (lime_hb_buffer_get_glyph_infos);
-	DEFINE_PRIME1 (lime_hb_buffer_get_glyph_positions);
+	DEFINE_PRIME2 (lime_hb_buffer_get_glyph_infos);
+	DEFINE_PRIME2 (lime_hb_buffer_get_glyph_positions);
 	DEFINE_PRIME1 (lime_hb_buffer_get_length);
 	DEFINE_PRIME1 (lime_hb_buffer_get_replacement_codepoint);
 	DEFINE_PRIME1 (lime_hb_buffer_get_script);
@@ -961,6 +1046,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_hb_buffer_serialize_format_from_string);
 	DEFINE_PRIME1 (lime_hb_buffer_serialize_format_to_string);
 	DEFINE_PRIME0 (lime_hb_buffer_serialize_list_formats);
+	DEFINE_PRIME2v (lime_hb_buffer_set_cluster_level);
 	DEFINE_PRIME2v (lime_hb_buffer_set_content_type);
 	DEFINE_PRIME2v (lime_hb_buffer_set_direction);
 	DEFINE_PRIME2v (lime_hb_buffer_set_flags);
@@ -1001,6 +1087,7 @@ namespace lime {
 	DEFINE_PRIME3v (lime_hb_font_set_ppem);
 	DEFINE_PRIME3v (lime_hb_font_set_scale);
 	DEFINE_PRIME5v (lime_hb_font_subtract_glyph_origin_for_direction);
+	DEFINE_PRIME1 (lime_hb_ft_font_create);
 	DEFINE_PRIME1 (lime_hb_ft_font_create_referenced);
 	DEFINE_PRIME1 (lime_hb_ft_font_get_load_flags);
 	DEFINE_PRIME2v (lime_hb_ft_font_set_load_flags);
