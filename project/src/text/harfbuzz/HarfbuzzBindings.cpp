@@ -1,21 +1,80 @@
-#include <hx/CFFIPrime.h>
 #include <math/Vector2.h>
+#include <system/CFFI.h>
 #include <system/CFFIPointer.h>
+#include <system/Mutex.h>
+#include <text/Font.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <hb.h>
 #include <hb-ft.h>
 #include <map>
-#include <text/Font.h>
 
 
 namespace lime {
 	
 	
+	struct HBGlyphInfo {
+		
+		int codepoint;
+		int mask;
+		int cluster;
+		
+	};
+	
+	struct HBGlyphPosition {
+		
+		int xAdvance;
+		int yAdvance;
+		int xOffset;
+		int yOffset;
+		
+	};
+	
+	
+	void gc_hb_blob (value handle) {
+		
+		hb_blob_destroy ((hb_blob_t*)val_data (handle));
+		val_gc (handle, 0);
+		
+	}
+	
+	
+	void gc_hb_buffer (value handle) {
+		
+		hb_buffer_destroy ((hb_buffer_t*)val_data (handle));
+		val_gc (handle, 0);
+		
+	}
+	
+	
+	void gc_hb_face (value handle) {
+		
+		hb_face_destroy ((hb_face_t*)val_data (handle));
+		val_gc (handle, 0);
+		
+	}
+	
+	
+	void gc_hb_font (value handle) {
+		
+		hb_font_destroy ((hb_font_t*)val_data (handle));
+		val_gc (handle, 0);
+		
+	}
+	
+	
+	void gc_hb_set (value handle) {
+		
+		hb_set_destroy ((hb_set_t*)val_data (handle));
+		val_gc (handle, 0);
+		
+	}
+	
+	
 	value lime_hb_blob_create (double data, int length, int memoryMode) {
 		
 		hb_blob_t* blob = hb_blob_create ((const char*)(uintptr_t)data, length, (hb_memory_mode_t)memoryMode, 0, 0);
-		return CFFIPointer (blob);
+		return CFFIPointer (blob, gc_hb_blob);
 		
 	}
 	
@@ -23,7 +82,7 @@ namespace lime {
 	value lime_hb_blob_create_sub_blob (value parent, int offset, int length) {
 		
 		hb_blob_t* blob = hb_blob_create_sub_blob ((hb_blob_t*)val_data (parent), offset, length);
-		return CFFIPointer (blob);
+		return CFFIPointer (blob, gc_hb_blob);
 		
 	}
 	
@@ -47,7 +106,7 @@ namespace lime {
 	value lime_hb_blob_get_empty () {
 		
 		hb_blob_t* blob = hb_blob_get_empty ();
-		return CFFIPointer (blob);
+		return CFFIPointer (blob, gc_hb_blob);
 		
 	}
 	
@@ -125,7 +184,7 @@ namespace lime {
 	value lime_hb_buffer_create () {
 		
 		hb_buffer_t* buffer = hb_buffer_create ();
-		return CFFIPointer (buffer);
+		return CFFIPointer (buffer, gc_hb_buffer);
 		
 	}
 	
@@ -154,7 +213,7 @@ namespace lime {
 	value lime_hb_buffer_get_empty () {
 		
 		hb_buffer_t* buffer = hb_buffer_get_empty ();
-		return CFFIPointer (buffer);
+		return CFFIPointer (buffer, gc_hb_buffer);
 		
 	}
 	
@@ -164,15 +223,6 @@ namespace lime {
 		return hb_buffer_get_flags ((hb_buffer_t*)val_data (buffer));
 		
 	}
-	
-	
-	struct HBGlyphInfo {
-		
-		int codepoint;
-		int mask;
-		int cluster;
-		
-	};
 	
 	
 	value lime_hb_buffer_get_glyph_infos (value buffer, value bytes) {
@@ -204,16 +254,6 @@ namespace lime {
 		}
 		
 	}
-	
-	
-	struct HBGlyphPosition {
-		
-		int xAdvance;
-		int yAdvance;
-		int xOffset;
-		int yOffset;
-		
-	};
 	
 	
 	value lime_hb_buffer_get_glyph_positions (value buffer, value bytes) {
@@ -439,7 +479,7 @@ namespace lime {
 	value lime_hb_face_create (value blob, int index) {
 		
 		hb_face_t* face = hb_face_create ((hb_blob_t*)val_data (blob), index);
-		return CFFIPointer (face);
+		return CFFIPointer (face, gc_hb_face);
 		
 	}
 	
@@ -447,7 +487,7 @@ namespace lime {
 	value lime_hb_face_get_empty () {
 		
 		hb_face_t* face = hb_face_get_empty ();
-		return CFFIPointer (face);
+		return CFFIPointer (face, gc_hb_face);
 		
 	}
 	
@@ -490,7 +530,9 @@ namespace lime {
 	value lime_hb_face_reference_blob (value face) {
 		
 		hb_blob_t* blob = hb_face_reference_blob ((hb_face_t*)val_data (face));
-		return CFFIPointer (blob);
+		
+		// TODO: Should this be managed differently?
+		return CFFIPointer (blob, gc_hb_blob);
 		
 	}
 	
@@ -498,7 +540,7 @@ namespace lime {
 	value lime_hb_face_reference_table (value face, int tag) {
 		
 		hb_blob_t* blob = hb_face_reference_table ((hb_face_t*)val_data (face), (hb_tag_t)tag);
-		return CFFIPointer (blob);
+		return CFFIPointer (blob, gc_hb_blob);
 		
 	}
 	
@@ -562,7 +604,7 @@ namespace lime {
 	value lime_hb_font_create (value face) {
 		
 		hb_font_t* font = hb_font_create ((hb_face_t*)val_data (face));
-		return CFFIPointer (font);
+		return CFFIPointer (font, gc_hb_font);
 		
 	}
 	
@@ -570,7 +612,7 @@ namespace lime {
 	value lime_hb_font_create_sub_font (value parent) {
 		
 		hb_font_t* font = hb_font_create_sub_font ((hb_font_t*)val_data (parent));
-		return CFFIPointer (font);
+		return CFFIPointer (font, gc_hb_font);
 		
 	}
 	
@@ -578,7 +620,7 @@ namespace lime {
 	value lime_hb_font_get_empty () {
 		
 		hb_font_t* font = hb_font_get_empty ();
-		return CFFIPointer (font);
+		return CFFIPointer (font, gc_hb_font);
 		
 	}
 	
@@ -586,7 +628,7 @@ namespace lime {
 	value lime_hb_font_get_face (value font) {
 		
 		hb_face_t* face = hb_font_get_face ((hb_font_t*)val_data (font));
-		return CFFIPointer (face);
+		return CFFIPointer (face, gc_hb_face);
 		
 	}
 	
@@ -627,7 +669,7 @@ namespace lime {
 	value lime_hb_font_get_parent (value font) {
 		
 		hb_font_t* parent = hb_font_get_parent ((hb_font_t*)val_data (font));
-		return CFFIPointer (parent);
+		return CFFIPointer (parent, gc_hb_font);
 		
 	}
 	
@@ -719,7 +761,7 @@ namespace lime {
 		
 		Font* _font = (Font*)val_data (font);
 		hb_font_t* __font = hb_ft_font_create ((FT_Face)_font->face, NULL);
-		return CFFIPointer (__font);
+		return CFFIPointer (__font, gc_hb_font);
 		
 	}
 	
@@ -728,7 +770,7 @@ namespace lime {
 		
 		Font* _font = (Font*)val_data (font);
 		hb_font_t* __font = hb_ft_font_create_referenced ((FT_Face)_font->face);
-		return CFFIPointer (__font);
+		return CFFIPointer (__font, gc_hb_font);
 		
 	}
 	
@@ -817,7 +859,7 @@ namespace lime {
 	value lime_hb_set_create () {
 		
 		hb_set_t* set = hb_set_create ();
-		return CFFIPointer (set);
+		return CFFIPointer (set, gc_hb_set);
 		
 	}
 	
@@ -839,7 +881,7 @@ namespace lime {
 	value lime_hb_set_get_empty () {
 		
 		hb_set_t* set = hb_set_get_empty ();
-		return CFFIPointer (set);
+		return CFFIPointer (set, gc_hb_set);
 		
 	}
 	
