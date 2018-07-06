@@ -511,23 +511,9 @@ class ImageDataUtil {
 		
 		// TODO: Support sourceRect better, do not modify sourceImage, create C++ implementation for native
 		
-		// TODO: Better handling of premultiplied alpha
-		var fromPreMult;
-		
 		if (image.buffer.premultiplied || sourceImage.buffer.premultiplied) {
-			
-			fromPreMult = function (col:Float, alpha:Float):Int {
-				var col = Std.int (col);
-				return col < 0 ? 0 : (col > 255 ? 255 : col);
-			}
-			
-		} else {
-			
-			fromPreMult = function (col:Float, alpha:Float):Int {
-				var col = Std.int (col / alpha * 255) ;
-				return col < 0 ? 0 : (col > 255 ? 255 : col);
-			}
-			
+			// TODO: Better handling of premultiplied alpha
+			throw "Pre-multiplied bitmaps are not supported";
 		}
 		
 		var boxesForGauss = function (sigma:Float, n:Int):Array<Float> {
@@ -657,7 +643,7 @@ class ImageDataUtil {
 			while (y < h) {
 				x = 0;
 				while (x < w) {
-					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength, fromPreMult);
+					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength);
 					x += 1;
 				}
 				y += 1;
@@ -667,7 +653,7 @@ class ImageDataUtil {
 			while (y >= 0 ) {
 				x = w-1;
 				while (x >= 0) {
-					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength, fromPreMult);
+					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength);
 					x -= 1;
 				}
 				y -= 1;
@@ -699,16 +685,19 @@ class ImageDataUtil {
 
 	inline private static function translatePixel(imgB:UInt8Array, sourceRect:Rectangle, destRect:Rectangle,
 												  destPoint:Vector2, destX: Int, destY: Int,
-												  strength: Float,
-												  fromPreMult: Float -> Float -> Int) {
-		var d: Int = 4 * (destY * Std.int(destRect.width) + destX);
-		var s: Int = calculateSourceOffset(sourceRect, destPoint, destX, destY);
-		var a: Int = if (s >= 0) Std.int(imgB[ s + 3 ] * strength ) else 0;
-		a = a < 0 ? 0 : (a > 255 ? 255 : a);
-		imgB[ d ] = if (s >= 0) fromPreMult( imgB[ s ], a ) else 0;
-		imgB[ d + 1 ] = if (s >= 0) fromPreMult( imgB[ s + 1 ], a ) else 0;
-		imgB[ d + 2 ] = if (s >= 0) fromPreMult( imgB[ s + 2 ], a ) else 0;
-		imgB[ d + 3 ] = a;
+												  strength: Float) {
+		var d = 4 * (destY * Std.int(destRect.width) + destX);
+		var s = calculateSourceOffset(sourceRect, destPoint, destX, destY);
+		if (s < 0) {
+			imgB[d] = imgB[d + 1] = imgB[d + 2] = imgB[d + 3] = 0;
+		} else {
+			imgB[ d ] = imgB[ s ];
+			imgB[ d + 1 ] = imgB[ s + 1 ];
+			imgB[ d + 2 ] = imgB[ s + 2 ];
+
+			var a = Std.int(imgB[ s + 3 ] * strength);
+			imgB[ d + 3 ] = a < 0 ? 0 : (a > 255 ? 255 : a);
+		}
 	}
 	
 	public static function getColorBoundsRect (image:Image, mask:Int, color:Int, findColor:Bool, format:PixelFormat):Rectangle {
