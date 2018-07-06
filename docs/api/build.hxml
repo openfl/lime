@@ -134,4 +134,4 @@ ImportAll
 
 --next
 
--cmd haxelib run dox -i xml -in lime --title "Lime API Reference" -D website "http://www.openfl.org/lime" -D textColor 0x777777
+-cmd haxelib run dox -i xml -in lime --title "Lime API Reference" -D website "http://lime.software" -D logo "/images/logo.png" -D textColor 0x777777 -theme ../../assets/docs-theme --toplevel-package lime
