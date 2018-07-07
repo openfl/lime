@@ -1,6 +1,8 @@
 package;
 
 
+import ::APP_MAIN::;
+
 @:access(lime.app.Application)
 @:access(lime.system.System)
 
@@ -25,11 +27,11 @@ package;
 		
 		#if !munit
 		var app = new ::APP_MAIN:: ();
-		app.meta["build"] = "::meta.buildNumber::";
-		app.meta["company"] = "::meta.company::";
-		app.meta["file"] = "::APP_FILE::";
-		app.meta["name"] = "::meta.title::";
-		app.meta["packageName"] = "::meta.packageName::";
+		app.meta.set ("build", "::meta.buildNumber::");
+		app.meta.set ("company", "::meta.company::");
+		app.meta.set ("file", "::APP_FILE::");
+		app.meta.set ("name", "::meta.title::");
+		app.meta.set ("packageName", "::meta.packageName::");
 		
 		::foreach windows::
 		var attributes:lime.ui.WindowAttributes = {
