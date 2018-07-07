@@ -12,6 +12,7 @@ class Mouse {
 	
 	public static var cursor (get, set):MouseCursor;
 	public static var lock (get, set):Bool;
+	public static var visible (get, never):Bool;
 	
 	
 	public static function hide ():Void {
@@ -66,6 +67,13 @@ class Mouse {
 	private static function set_lock (value:Bool):Bool {
 		
 		return MouseBackend.set_lock (value);
+		
+	}
+	
+	
+	private static function get_visible ():Bool {
+		
+		return MouseBackend.get_visible ();
 		
 	}
 	

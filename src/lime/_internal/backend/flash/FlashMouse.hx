@@ -110,4 +110,11 @@ class FlashMouse {
 	}
 	
 	
+	public static function get_visible ():Bool {
+		
+		return !__hidden;
+		
+	}
+	
+	
 }

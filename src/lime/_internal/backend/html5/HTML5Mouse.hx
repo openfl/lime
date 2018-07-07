@@ -24,7 +24,7 @@ class HTML5Mouse {
 			
 			for (window in Application.current.windows) {
 				
-				window.__backend.element.style.cursor = "none";
+				window.__backend.hideCursor ();
 				
 			}
 			
@@ -39,9 +39,11 @@ class HTML5Mouse {
 			
 			__hidden = false;
 			
-			var cacheValue = __cursor;
-			__cursor = null;
-			set_cursor (cacheValue);
+			for (window in Application.current.windows) {
+				
+				window.__backend.showCursor ();
+				
+			}
 			
 		}
 		
@@ -74,28 +76,9 @@ class HTML5Mouse {
 		
 		if (__cursor != value) {
 			
-			if (!__hidden) {
+			for (window in Application.current.windows) {
 				
-				for (window in Application.current.windows) {
-					
-					window.__backend.element.style.cursor = switch (value) {
-						
-						case ARROW: "default";
-						case CROSSHAIR: "crosshair";
-						case MOVE: "move";
-						case POINTER: "pointer";
-						case RESIZE_NESW: "nesw-resize";
-						case RESIZE_NS: "ns-resize";
-						case RESIZE_NWSE: "nwse-resize";
-						case RESIZE_WE: "ew-resize";
-						case TEXT: "text";
-						case WAIT: "wait";
-						case WAIT_ARROW: "wait";
-						default: "auto";
-						
-					}
-					
-				}
+				window.__backend.setCursor (value);
 				
 			}
 			
@@ -118,6 +101,13 @@ class HTML5Mouse {
 	public static function set_lock (value:Bool):Bool {
 		
 		return value;
+		
+	}
+	
+	
+	public static function get_visible ():Bool {
+		
+		return !__hidden;
 		
 	}
 	

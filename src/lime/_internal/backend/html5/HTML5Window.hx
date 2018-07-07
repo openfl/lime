@@ -29,6 +29,7 @@ import lime.system.System;
 import lime.system.Clipboard;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
+import lime.ui.MouseCursor;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -62,6 +63,8 @@ class HTML5Window {
 	private var cacheElementWidth:Float;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
+	private var cursor:MouseCursor;
+	private var cursorHidden:Bool;
 	private var currentTouches = new Map<Int, Touch> ();
 	private var enableTextEvents:Bool;
 	private var isFullscreen:Bool;
@@ -395,6 +398,18 @@ class HTML5Window {
 		} else {
 			
 			return 1000 / parent.application.__backend.framePeriod;
+			
+		}
+		
+	}
+	
+	
+	public function hideCursor ():Void {
+		
+		if (!cursorHidden) {
+			
+			cursorHidden = true;
+			element.style.cursor = "none";
 			
 		}
 		
@@ -1005,6 +1020,38 @@ class HTML5Window {
 	}
 	
 	
+	public function setCursor (value:MouseCursor):Void {
+		
+		if (cursor != value) {
+			
+			if (!cursorHidden) {
+				
+				element.style.cursor = switch (value) {
+					
+					case ARROW: "default";
+					case CROSSHAIR: "crosshair";
+					case MOVE: "move";
+					case POINTER: "pointer";
+					case RESIZE_NESW: "nesw-resize";
+					case RESIZE_NS: "ns-resize";
+					case RESIZE_NWSE: "nwse-resize";
+					case RESIZE_WE: "ew-resize";
+					case TEXT: "text";
+					case WAIT: "wait";
+					case WAIT_ARROW: "wait";
+					default: "auto";
+					
+				}
+				
+			}
+			
+			cursor = value;
+			
+		}
+		
+	}
+	
+	
 	public function setEnableTextEvents (value:Bool):Bool {
 		
 		if (value) {
@@ -1232,6 +1279,21 @@ class HTML5Window {
 		}
 		
 		return value;
+		
+	}
+	
+	
+	public function showCursor ():Void {
+		
+		if (cursorHidden) {
+			
+			cursorHidden = false;
+			
+			var cacheValue = cursor;
+			cursor = null;
+			setCursor (cacheValue);
+			
+		}
 		
 	}
 	

@@ -139,6 +139,14 @@ class NativeMouse {
 	}
 	
 	
+	public static function get_visible ():Bool {
+		
+		// TODO: Use SDL_ShowCursor (SDL_QUERY) to poll state instead?
+		return !__hidden;
+		
+	}
+	
+	
 }
 
 
