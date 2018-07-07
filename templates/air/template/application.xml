@@ -36,6 +36,7 @@
 	::if (icons != null)::<icon>::foreach icons::
 		<image::size::x::size::>::path::</image::size::x::size::>::end:: 
 	</icon>::end::
+	::if (languages != null)::<supportedLanguages>::foreach languages::::__current__:: ::end::</supportedLanguages>::end::
 	<customUpdateUI>false</customUpdateUI>
 	<allowBrowserInvocation>false</allowBrowserInvocation>
 	<!-- <fileTypes>

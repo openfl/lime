@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	::if (languages != null)::<key>CFBundleLocalizations</key>
+	<array>::foreach languages::
+		<string>::__current__::</string>::end::
+	</array>::end::
 	<key>CFBundleDisplayName</key>
 	<string>::APP_TITLE::</string>
 	<key>CFBundleExecutable</key>
