@@ -23,9 +23,8 @@ class FlashApplication {
 		
 		AudioManager.init ();
 		
-		#if (flash && !air)
+		// Initial window is already created
 		parent.createWindow ({});
-		#end
 		
 	}
 	
