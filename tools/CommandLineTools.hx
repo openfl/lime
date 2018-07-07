@@ -512,67 +512,38 @@ class CommandLineTools {
 		
 		if (FileSystem.exists ("tools.n")) {
 			
-			path = PathHelper.combine (Sys.getCwd (), "../");
+			path = PathHelper.combine (Sys.getCwd (), "../ndll/");
 			
 		} else if (FileSystem.exists ("run.n")) {
 			
-			path = Sys.getCwd ();
+			path = Sys.getCwd () + "/ndll/";
 			
 		}
 		
 		if (path == "") {
 			
 			var process = new Process ("haxelib", [ "path", "lime" ]);
-			var lines = new Array<String> ();
 			
 			try {
 				
 				while (true) {
 					
-					var length = lines.length;
 					var line = StringTools.trim (process.stdout.readLine ());
-					
-					if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
+					trace (line);
+					if (StringTools.startsWith (line, "-L ")) {
 						
-						path = StringTools.trim (lines[length - 1]);
-						
-					}
-					
-					lines.push (line);
-					
-				}
-				
-			} catch (e:Dynamic) {
-				
-			}
-			
-			if (path == "") {
-				
-				for (line in lines) {
-					
-					if (line != "" && line.substr (0, 1) != "-") {
-						
-						try {
-							
-							if (FileSystem.exists (line)) {
-								
-								path = line;
-								
-							}
-							
-						} catch (e:Dynamic) {}
+						path = StringTools.trim (line.substr (2));
+						break;
 						
 					}
 					
 				}
 				
-			}
+			} catch (e:Dynamic) {}
 			
 			process.close ();
 			
 		}
-		
-		path += "../ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			

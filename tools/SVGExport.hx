@@ -26,35 +26,38 @@ class SVGExport {
 		var haxePath = Sys.getEnv ("HAXEPATH");
 		var command = (haxePath != null && haxePath != "") ? haxePath + "/haxelib" : "haxelib";
 		
-		var process = new Process (command, [ "path", "lime" ]);
 		var path = "";
 		
-		try {
+		if (FileSystem.exists ("svg.n")) {
 			
-			var lines = new Array<String> ();
+			path = PathHelper.combine (Sys.getCwd (), "../ndll/");
 			
-			while (true) {
+		}
+		
+		if (path == "") {
+			
+			var process = new Process ("haxelib", [ "path", "lime" ]);
+			
+			try {
 				
-				var length = lines.length;
-				var line = StringTools.trim (process.stdout.readLine ());
-				
-				if (length > 0 && (line == "-D lime" || StringTools.startsWith (line, "-D lime="))) {
+				while (true) {
 					
-					path = StringTools.trim (lines[length - 1]);
+					var line = StringTools.trim (process.stdout.readLine ());
+					trace (line);
+					if (StringTools.startsWith (line, "-L ")) {
+						
+						path = StringTools.trim (line.substr (2));
+						break;
+						
+					}
 					
 				}
 				
-				lines.push (line);
-				
-			}
-			
-		} catch (e:Dynamic) {
+			} catch (e:Dynamic) {}
 			
 			process.close ();
 			
 		}
-		
-		path += "../ndll/";
 		
 		switch (PlatformHelper.hostPlatform) {
 			
