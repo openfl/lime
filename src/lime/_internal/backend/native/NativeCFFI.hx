@@ -729,8 +729,8 @@ class NativeCFFI {
 	#if (lime_cffi && !macro && lime_harfbuzz)
 	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
 	@:cffi private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):DataPointer;
-	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):DataPointer;
+	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):Float;
+	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float;
 	@:cffi private static function lime_hb_blob_get_empty ():CFFIPointer;
 	@:cffi private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
 	@:cffi private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;

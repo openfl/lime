@@ -55,24 +55,6 @@ class DefineMacro {
 				
 			}
 			
-			
-			if (!Context.defined ("flash") && (!Context.defined ("js") || Context.defined ("nodejs"))) {
-				
-				Compiler.define ("lime-cffi");
-				Compiler.define ("native");
-				Compiler.define ("lime-curl");
-				Compiler.define ("lime-vorbis");
-				
-			}
-			
-			if (Context.defined ("js") && !Context.defined ("nodejs") && !Context.defined ("display")) {
-				
-				Compiler.define ("html5");
-				Compiler.define ("web");
-				Compiler.define ("lime-opengl");
-				
-			}
-			
 		}
 		
 	}

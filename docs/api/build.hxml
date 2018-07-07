@@ -5,6 +5,7 @@
 -swf-version 17.0
 -D display
 -D doc_gen
+-D lime_opengl
 ImportAll
 -lib lime
 --no-output
@@ -128,6 +129,7 @@ ImportAll
 -D display
 -D html5
 -D doc_gen
+-D lime_opengl
 ImportAll
 -lib lime
 --no-output
