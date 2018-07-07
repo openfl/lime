@@ -71,10 +71,10 @@ class AIRWindow extends FlashWindow {
 	}
 	
 	
-	public override function create (application:Application):Void {
+	private override function create ():Void {
 		
 		var title = (parent.__title != null && parent.__title != "") ? parent.__title : "Lime Application";
-		var attributes = parent.__contextAttributes;
+		var attributes = parent.__attributes;
 		
 		var alwaysOnTop = false;
 		var borderless = false;
@@ -88,14 +88,14 @@ class AIRWindow extends FlashWindow {
 		var width = 0;
 		var height = 0;
 		
-		if (parent.alwaysOnTop) alwaysOnTop = true;
-		if (parent.__borderless) borderless = true;
-		if (parent.__fullscreen) fullscreen;
-		if (Reflect.hasField (attributes, "hardware") && attributes.hardware) hardware = true;
-		if (parent.hidden) hidden = true;
-		if (parent.maximized) maximized = true;
-		if (parent.minimized) minimized = true;
-		if (parent.__resizable) resizable;
+		if (Reflect.hasField (attributes, "alwaysOnTop") && attributes.alwaysOnTop) alwaysOnTop = true;
+		if (Reflect.hasField (attributes, "borderless") && attributes.borderless) borderless = true;
+		if (Reflect.hasField (attributes, "fullscreen") && attributes.fullscreen) fullscreen;
+		if (Reflect.hasField (attributes.context, "hardware") && attributes.context.hardware) hardware = true;
+		if (Reflect.hasField (attributes, "hidden") && attributes.hidden) hidden = true;
+		if (Reflect.hasField (attributes, "maximized") && attributes.maximized) maximized = true;
+		if (Reflect.hasField (attributes, "minimized") && attributes.minimized) minimized = true;
+		if (Reflect.hasField (attributes, "resizable") && attributes.resizable) resizable;
 		
 		// if (parent.config != null && (parent.config == application.config.windows[0])) {
 			
@@ -158,7 +158,7 @@ class AIRWindow extends FlashWindow {
 			
 		}
 		
-		super.create (application);
+		super.create ();
 		
 	}
 	

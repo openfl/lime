@@ -14,6 +14,7 @@ class FlashApplication {
 	
 	
 	private var parent:Application;
+	private var requestedWindow:Bool;
 	
 	
 	public function new (parent:Application):Void {
