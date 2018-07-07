@@ -33,6 +33,11 @@ import ::APP_MAIN::;
 		app.meta.set ("name", "::meta.title::");
 		app.meta.set ("packageName", "::meta.packageName::");
 		
+		#if (flash && !air)
+		app.window.context.attributes.background = ::WIN_BACKGROUND::;
+		app.window.frameRate = ::WIN_FPS::;
+		#else
+		
 		::foreach windows::
 		var attributes:lime.ui.WindowAttributes = {
 			
@@ -97,6 +102,7 @@ import ::APP_MAIN::;
 		
 		app.createWindow (attributes);
 		::end::
+		#end
 		#end
 		
 		// preloader.create ();

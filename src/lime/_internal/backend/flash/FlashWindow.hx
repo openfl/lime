@@ -206,7 +206,7 @@ class FlashWindow {
 				
 			};
 			
-			if (Reflect.hasField (attributes, "context") && Reflect.hasField (attributes.context, "background")) {
+			if (Reflect.hasField (attributes, "context") && Reflect.hasField (attributes.context, "background") && attributes.context.background != null) {
 				
 				stage.color = attributes.context.background;
 				contextAttributes.background = stage.color;
