@@ -7,6 +7,9 @@
 #endif
 
 
+#include <locale>
+#include <codecvt>
+#include <string>
 #include <hx/CFFIPrime.h>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
@@ -116,7 +119,8 @@ namespace lime {
 		if (val.c_str ()) {
 			
 			std::string _val = std::string (val.c_str ());
-			return new std::wstring (_val.begin (), _val.end ());
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			return new std::wstring (converter.from_bytes(_val));
 			
 		} else {
 			
