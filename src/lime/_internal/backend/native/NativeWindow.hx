@@ -332,7 +332,7 @@ class NativeWindow {
 		if (handle != null) {
 			
 			#if (!macro && lime_cffi)
-			return NativeCFFI.lime_window_get_mouse_lock (handle);
+			mouseLock = NativeCFFI.lime_window_get_mouse_lock (handle);
 			#end
 			
 		}
@@ -535,7 +535,7 @@ class NativeWindow {
 			if (value == null) {
 				
 				#if (!macro && lime_cffi)
-				NativeCFFI.lime_window_set_cursor (0);
+				NativeCFFI.lime_window_set_cursor (handle, 0);
 				#end
 				
 			} else {
@@ -558,7 +558,7 @@ class NativeWindow {
 				}
 				
 				#if (!macro && lime_cffi)
-				NativeCFFI.lime_window_set_cursor (type);
+				NativeCFFI.lime_window_set_cursor (handle, type);
 				#end
 				
 			}
@@ -596,7 +596,7 @@ class NativeWindow {
 		if (mouseLock != value) {
 			
 			#if (!macro && lime_cffi)
-			NativeCFFI.lime_window_set_mouse_lock (value);
+			NativeCFFI.lime_window_set_mouse_lock (handle, value);
 			#end
 			
 			mouseLock = value;
