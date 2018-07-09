@@ -631,9 +631,18 @@ class NativeApplication {
 					
 					window.onLeave.dispatch ();
 				
+				case WINDOW_MAXIMIZE:
+					
+					window.__maximized = true;
+					window.__fullscreen = false;
+					window.__minimized = false;
+					window.onMaximize.dispatch ();
+				
 				case WINDOW_MINIMIZE:
 					
 					window.__minimized = true;
+					window.__maximized = false;
+					window.__fullscreen = false;
 					window.onMinimize.dispatch ();
 				
 				case WINDOW_MOVE:
@@ -1173,9 +1182,10 @@ class NativeApplication {
 	var WINDOW_FOCUS_IN = 5;
 	var WINDOW_FOCUS_OUT = 6;
 	var WINDOW_LEAVE = 7;
-	var WINDOW_MINIMIZE = 8;
-	var WINDOW_MOVE = 9;
-	var WINDOW_RESIZE = 10;
-	var WINDOW_RESTORE = 11;
+	var WINDOW_MAXIMIZE = 8;
+	var WINDOW_MINIMIZE = 9;
+	var WINDOW_MOVE = 10;
+	var WINDOW_RESIZE = 11;
+	var WINDOW_RESTORE = 12;
 	
 }

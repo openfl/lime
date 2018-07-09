@@ -20,6 +20,7 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.Cursor;
 import lime.ui.Window;
 import lime.utils.UInt8Array;
 
@@ -46,8 +47,10 @@ class NativeWindow {
 	public var handle:Dynamic;
 	
 	private var closing:Bool;
+	private var cursor:Cursor;
 	private var displayMode:DisplayMode;
 	private var frameRate:Float;
+	private var mouseLock:Bool;
 	private var parent:Window;
 	private var useHardware:Bool;
 	
@@ -62,6 +65,7 @@ class NativeWindow {
 		
 		this.parent = parent;
 		
+		cursor = DEFAULT;
 		displayMode = new DisplayMode (0, 0, 0, 0);
 		
 		var attributes = parent.__attributes;
@@ -269,6 +273,13 @@ class NativeWindow {
 	}
 	
 	
+	public function getCursor ():Cursor {
+		
+		return cursor;
+		
+	}
+	
+	
 	public function getDisplay ():Display {
 		
 		if (handle != null) {
@@ -316,12 +327,27 @@ class NativeWindow {
 	}
 	
 	
-	public function getEnableTextEvents ():Bool {
+	public function getMouseLock ():Bool {
 		
 		if (handle != null) {
 			
 			#if (!macro && lime_cffi)
-			return NativeCFFI.lime_window_get_enable_text_events (handle);
+			return NativeCFFI.lime_window_get_mouse_lock (handle);
+			#end
+			
+		}
+		
+		return mouseLock;
+		
+	}
+	
+	
+	public function getTextInputEnabled ():Bool {
+		
+		if (handle != null) {
+			
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_text_input_enabled (handle);
 			#end
 			
 		}
@@ -502,6 +528,50 @@ class NativeWindow {
 	}
 	
 	
+	public function setCursor (value:Cursor):Cursor {
+		
+		if (cursor != value) {
+			
+			if (value == null) {
+				
+				#if (!macro && lime_cffi)
+				NativeCFFI.lime_window_set_cursor (0);
+				#end
+				
+			} else {
+				
+				var type:CursorType = switch (value) {
+					
+					case ARROW: ARROW;
+					case CROSSHAIR: CROSSHAIR;
+					case MOVE: MOVE;
+					case POINTER: POINTER;
+					case RESIZE_NESW: RESIZE_NESW;
+					case RESIZE_NS: RESIZE_NS;
+					case RESIZE_NWSE: RESIZE_NWSE;
+					case RESIZE_WE: RESIZE_WE;
+					case TEXT: TEXT;
+					case WAIT: WAIT;
+					case WAIT_ARROW: WAIT_ARROW;
+					default: DEFAULT;
+					
+				}
+				
+				#if (!macro && lime_cffi)
+				NativeCFFI.lime_window_set_cursor (type);
+				#end
+				
+			}
+			
+			cursor = value;
+			
+		}
+		
+		return cursor;
+		
+	}
+	
+	
 	public function setDisplayMode (value:DisplayMode):DisplayMode {
 		
 		if (handle != null) {
@@ -521,12 +591,29 @@ class NativeWindow {
 	}
 	
 	
-	public function setEnableTextEvents (value:Bool):Bool {
+	public function setMouseLock (value:Bool):Bool {
+		
+		if (mouseLock != value) {
+			
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_mouse_lock (value);
+			#end
+			
+			mouseLock = value;
+			
+		}
+		
+		return mouseLock;
+		
+	}
+	
+	
+	public function setTextInputEnabled (value:Bool):Bool {
 		
 		if (handle != null) {
 			
 			#if (!macro && lime_cffi)
-			NativeCFFI.lime_window_set_enable_text_events (handle, value);
+			NativeCFFI.lime_window_set_text_input_enabled (handle, value);
 			#end
 			
 			#if android
@@ -666,6 +753,34 @@ class NativeWindow {
 		
 	}
 	
+	
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_window_warp_mouse (handle, x, y);
+		#end
+		
+	}
+	
+	
+}
+
+
+@:enum private abstract CursorType(Int) from Int to Int {
+	
+	var HIDDEN = 0;
+	var ARROW = 1;
+	var CROSSHAIR = 2;
+	var DEFAULT = 3;
+	var MOVE = 4;
+	var POINTER = 5;
+	var RESIZE_NESW = 6;
+	var RESIZE_NS = 7;
+	var RESIZE_NWSE = 8;
+	var RESIZE_WE = 9;
+	var TEXT = 10;
+	var WAIT = 11;
+	var WAIT_ARROW = 12;
 	
 }
 

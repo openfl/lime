@@ -1,4 +1,5 @@
 #include "SDLWindow.h"
+#include "SDLCursor.h"
 #include "SDLApplication.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
@@ -12,6 +13,20 @@
 
 namespace lime {
 	
+	
+	static Cursor currentCursor = DEFAULT;
+	
+	SDL_Cursor* SDLCursor::arrowCursor = 0;
+	SDL_Cursor* SDLCursor::crosshairCursor = 0;
+	SDL_Cursor* SDLCursor::moveCursor = 0;
+	SDL_Cursor* SDLCursor::pointerCursor = 0;
+	SDL_Cursor* SDLCursor::resizeNESWCursor = 0;
+	SDL_Cursor* SDLCursor::resizeNSCursor = 0;
+	SDL_Cursor* SDLCursor::resizeNWSECursor = 0;
+	SDL_Cursor* SDLCursor::resizeWECursor = 0;
+	SDL_Cursor* SDLCursor::textCursor = 0;
+	SDL_Cursor* SDLCursor::waitCursor = 0;
+	SDL_Cursor* SDLCursor::waitArrowCursor = 0;
 	
 	static bool displayModeSet = false;
 	
@@ -471,6 +486,9 @@ namespace lime {
 	}
 	
 	
+	
+	
+	
 	const char* SDLWindow::GetContextType () {
 		
 		if (context) {
@@ -538,13 +556,6 @@ namespace lime {
 	}
 	
 	
-	bool SDLWindow::GetEnableTextEvents () {
-		
-		return SDL_IsTextInputActive ();
-		
-	}
-	
-	
 	int SDLWindow::GetHeight () {
 		
 		int width;
@@ -560,6 +571,13 @@ namespace lime {
 	uint32_t SDLWindow::GetID () {
 		
 		return SDL_GetWindowID (sdlWindow);
+		
+	}
+	
+	
+	bool SDLWindow::GetMouseLock () {
+		
+		return SDL_GetRelativeMouseMode ();
 		
 	}
 	
@@ -599,6 +617,13 @@ namespace lime {
 		}
 		
 		return 1;
+		
+	}
+	
+	
+	bool SDLWindow::GetTextInputEnabled () {
+		
+		return SDL_IsTextInputActive ();
 		
 	}
 	
@@ -702,6 +727,152 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::SetCursor (Cursor cursor) {
+		
+		if (cursor != currentCursor) {
+			
+			if (currentCursor == HIDDEN) {
+				
+				SDL_ShowCursor (SDL_ENABLE);
+				
+			}
+			
+			switch (cursor) {
+				
+				case HIDDEN:
+					
+					SDL_ShowCursor (SDL_DISABLE);
+				
+				case CROSSHAIR:
+					
+					if (!SDLCursor::crosshairCursor) {
+						
+						SDLCursor::crosshairCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_CROSSHAIR);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::crosshairCursor);
+					break;
+				
+				case MOVE:
+					
+					if (!SDLCursor::moveCursor) {
+						
+						SDLCursor::moveCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZEALL);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::moveCursor);
+					break;
+				
+				case POINTER:
+					
+					if (!SDLCursor::pointerCursor) {
+						
+						SDLCursor::pointerCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_HAND);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::pointerCursor);
+					break;
+				
+				case RESIZE_NESW:
+					
+					if (!SDLCursor::resizeNESWCursor) {
+						
+						SDLCursor::resizeNESWCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENESW);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::resizeNESWCursor);
+					break;
+				
+				case RESIZE_NS:
+					
+					if (!SDLCursor::resizeNSCursor) {
+						
+						SDLCursor::resizeNSCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENS);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::resizeNSCursor);
+					break;
+				
+				case RESIZE_NWSE:
+					
+					if (!SDLCursor::resizeNWSECursor) {
+						
+						SDLCursor::resizeNWSECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENWSE);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::resizeNWSECursor);
+					break;
+				
+				case RESIZE_WE:
+					
+					if (!SDLCursor::resizeWECursor) {
+						
+						SDLCursor::resizeWECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZEWE);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::resizeWECursor);
+					break;
+				
+				case TEXT:
+					
+					if (!SDLCursor::textCursor) {
+						
+						SDLCursor::textCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_IBEAM);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::textCursor);
+					break;
+				
+				case WAIT:
+					
+					if (!SDLCursor::waitCursor) {
+						
+						SDLCursor::waitCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_WAIT);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::waitCursor);
+					break;
+				
+				case WAIT_ARROW:
+					
+					if (!SDLCursor::waitArrowCursor) {
+						
+						SDLCursor::waitArrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_WAITARROW);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::waitArrowCursor);
+					break;
+				
+				default:
+					
+					if (!SDLCursor::arrowCursor) {
+						
+						SDLCursor::arrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+						
+					}
+					
+					SDL_SetCursor (SDLCursor::arrowCursor);
+					break;
+				
+			}
+			
+			currentCursor = cursor;
+			
+		}
+		
+	}
+	
+	
 	void SDLWindow::SetDisplayMode (DisplayMode* displayMode) {
 		
 		Uint32 pixelFormat = 0;
@@ -735,21 +906,6 @@ namespace lime {
 				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
 				
 			}
-			
-		}
-		
-	}
-	
-	
-	void SDLWindow::SetEnableTextEvents (bool enabled) {
-		
-		if (enabled) {
-			
-			SDL_StartTextInput ();
-			
-		} else {
-			
-			SDL_StopTextInput ();
 			
 		}
 		
@@ -829,6 +985,21 @@ namespace lime {
 	}
 	
 	
+	void SDLWindow::SetMouseLock (bool mouseLock) {
+		
+		if (mouseLock) {
+			
+			SDL_SetRelativeMouseMode (SDL_TRUE);
+			
+		} else {
+			
+			SDL_SetRelativeMouseMode (SDL_FALSE);
+			
+		}
+		
+	}
+	
+	
 	bool SDLWindow::SetResizable (bool resizable) {
 		
 		#ifndef EMSCRIPTEN
@@ -850,6 +1021,22 @@ namespace lime {
 		return resizable;
 		
 		#endif
+		
+	}
+	
+	
+	void SDLWindow::SetTextInputEnabled (bool enabled) {
+		
+		if (enabled) {
+			
+			SDL_StartTextInput ();
+			
+		} else {
+			
+			SDL_StopTextInput ();
+			
+		}
+		
 	}
 	
 	
@@ -858,6 +1045,13 @@ namespace lime {
 		SDL_SetWindowTitle (sdlWindow, title);
 		
 		return title;
+		
+	}
+	
+	
+	void SDLWindow::WarpMouse (int x, int y){
+		
+		SDL_WarpMouseInWindow (sdlWindow, x, y);
 		
 	}
 	

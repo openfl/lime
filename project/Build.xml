@@ -120,7 +120,6 @@
 				<compilerflag value="-DLIME_HARFBUZZ" />
 				
 				<file name="src/text/harfbuzz/HarfbuzzBindings.cpp" />
-				<file name="src/text/TextLayout.cpp" />
 				
 			</section>
 			
@@ -246,13 +245,12 @@
 			<compilerflag value="-DAPPLETV" if="tvos" />
 			
 			<file name="src/backend/sdl/SDLApplication.cpp" />
-			<file name="src/backend/sdl/SDLWindow.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLKeyCode.cpp" />
-			<file name="src/backend/sdl/SDLMouse.cpp" />
 			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
+			<file name="src/backend/sdl/SDLWindow.cpp" />
 			
 		</section>
 		

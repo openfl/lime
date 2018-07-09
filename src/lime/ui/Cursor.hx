@@ -1,7 +1,7 @@
 package lime.ui;
 
 
-enum MouseCursor {
+enum Cursor {
 	
 	ARROW;
 	CROSSHAIR;

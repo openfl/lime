@@ -12,12 +12,15 @@ import flash.events.MouseEvent;
 import flash.events.TouchEvent;
 import flash.geom.Matrix;
 import flash.system.Capabilities;
+import flash.ui.Mouse;
+import flash.ui.MouseCursor;
 import flash.Lib;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
+import lime.ui.Cursor;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Touch;
@@ -40,11 +43,12 @@ class FlashWindow {
 	private var cacheMouseY:Float;
 	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch> ();
-	private var enableTextEvents:Bool;
+	private var cursor:Cursor;
 	private var frameRate:Float;
 	private var mouseLeft:Bool;
 	private var parent:Window;
 	private var stage:Stage;
+	private var textInputEnabled:Bool;
 	private var unusedTouchesPool = new List<Touch> ();
 	
 	
@@ -54,6 +58,7 @@ class FlashWindow {
 		
 		cacheMouseX = 0;
 		cacheMouseY = 0;
+		cursor = DEFAULT;
 		
 		create ();
 		
@@ -237,6 +242,13 @@ class FlashWindow {
 	}
 	
 	
+	public function getCursor ():Cursor {
+		
+		return cursor;
+		
+	}
+	
+	
 	public function getDisplay ():Display {
 		
 		return System.getDisplay (0);
@@ -272,7 +284,7 @@ class FlashWindow {
 			
 			parent.onKeyDown.dispatch (keyCode, modifier);
 			
-			if (parent.enableTextEvents) {
+			if (parent.textInputEnabled) {
 				
 				parent.onTextInput.dispatch (String.fromCharCode (event.charCode));
 				
@@ -504,6 +516,50 @@ class FlashWindow {
 	}
 	
 	
+	public function setCursor (value:Cursor):Cursor {
+		
+		if (cursor != value) {
+			
+			if (value == null) {
+				
+				Mouse.hide ();
+				
+			} else {
+				
+				if (cursor == null) {
+					
+					Mouse.show ();
+					
+				}
+				
+				Mouse.cursor = switch (value) {
+					
+					case ARROW: MouseCursor.ARROW;
+					case CROSSHAIR: MouseCursor.ARROW;
+					case MOVE: MouseCursor.HAND;
+					case POINTER: MouseCursor.BUTTON;
+					case RESIZE_NESW: MouseCursor.HAND;
+					case RESIZE_NS: MouseCursor.HAND;
+					case RESIZE_NWSE: MouseCursor.HAND;
+					case RESIZE_WE: MouseCursor.HAND;
+					case TEXT: MouseCursor.IBEAM;
+					case WAIT: MouseCursor.ARROW;
+					case WAIT_ARROW: MouseCursor.ARROW;
+					default: MouseCursor.AUTO;
+					
+				}
+				
+			}
+			
+			cursor = value;
+			
+		}
+		
+		return cursor;
+		
+	}
+	
+	
 	public function setDisplayMode (value:DisplayMode):DisplayMode {
 		
 		return value;
@@ -511,16 +567,23 @@ class FlashWindow {
 	}
 	
 	
-	public function getEnableTextEvents ():Bool {
+	public function getFrameRate ():Float {
 		
-		return enableTextEvents;
+		return frameRate;
 		
 	}
 	
 	
-	public function getFrameRate ():Float {
+	public function getMouseLock ():Bool {
 		
-		return frameRate;
+		return false;
+		
+	}
+	
+	
+	public function getTextInputEnabled ():Bool {
+		
+		return textInputEnabled;
 		
 	}
 	
@@ -542,13 +605,6 @@ class FlashWindow {
 	public function setBorderless (value:Bool):Bool {
 		
 		return value;
-		
-	}
-	
-	
-	public function setEnableTextEvents (value:Bool):Bool {
-		
-		return enableTextEvents = value;
 		
 	}
 	
@@ -591,6 +647,13 @@ class FlashWindow {
 	}
 	
 	
+	public function setMouseLock (value:Bool):Void {
+		
+		
+		
+	}
+	
+	
 	public function setResizable (value:Bool):Bool {
 		
 		return value;
@@ -598,9 +661,23 @@ class FlashWindow {
 	}
 	
 	
+	public function setTextInputEnabled (value:Bool):Bool {
+		
+		return textInputEnabled = value;
+		
+	}
+	
+	
 	public function setTitle (value:String):String {
 		
 		return value;
+		
+	}
+	
+	
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		
 		
 	}
 	

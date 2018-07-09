@@ -40,6 +40,7 @@
         "functional": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "mutex": "cpp"
     }
 }

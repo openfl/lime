@@ -27,9 +27,9 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.system.Clipboard;
+import lime.ui.Cursor;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
-import lime.ui.MouseCursor;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -63,10 +63,9 @@ class HTML5Window {
 	private var cacheElementWidth:Float;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
-	private var cursor:MouseCursor;
+	private var cursor:Cursor;
 	private var cursorHidden:Bool;
 	private var currentTouches = new Map<Int, Touch> ();
-	private var enableTextEvents:Bool;
 	private var isFullscreen:Bool;
 	private var parent:Window;
 	private var primaryTouch:Touch;
@@ -76,6 +75,7 @@ class HTML5Window {
 	private var scale = 1.0;
 	private var setHeight:Int;
 	private var setWidth:Int;
+	private var textInputEnabled:Bool;
 	private var unusedTouchesPool = new List<Touch> ();
 	
 	
@@ -369,6 +369,13 @@ class HTML5Window {
 	}
 	
 	
+	public function getCursor ():Cursor {
+		
+		return cursor;
+		
+	}
+	
+	
 	public function getDisplay ():Display {
 		
 		return System.getDisplay (0);
@@ -404,28 +411,16 @@ class HTML5Window {
 	}
 	
 	
-	public function hideCursor ():Void {
+	public function getMouseLock ():Bool {
 		
-		if (!cursorHidden) {
-			
-			cursorHidden = true;
-			element.style.cursor = "none";
-			
-		}
+		return false;
 		
 	}
 	
 	
-	public function setDisplayMode (value:DisplayMode):DisplayMode {
+	public function getTextInputEnabled ():Bool {
 		
-		return value;
-		
-	}
-	
-	
-	public function getEnableTextEvents ():Bool {
-		
-		return enableTextEvents;
+		return textInputEnabled;
 		
 	}
 	
@@ -484,13 +479,13 @@ class HTML5Window {
 	
 	private function handleFocusEvent (event:FocusEvent):Void {
 		
-		if (enableTextEvents) {
+		if (textInputEnabled) {
 			
 			if (event.relatedTarget == null || isDescendent (cast event.relatedTarget)) {
 				
 				Timer.delay (function () {
 					
-					if (enableTextEvents) textInput.focus ();
+					if (textInputEnabled) textInput.focus ();
 					
 				}, 20);
 				
@@ -732,7 +727,7 @@ class HTML5Window {
 			var text = event.clipboardData.getData ("text/plain");
 			Clipboard.text = text;
 			
-			if (enableTextEvents) {
+			if (textInputEnabled) {
 				
 				parent.onTextInput.dispatch (text);
 				
@@ -999,9 +994,9 @@ class HTML5Window {
 	
 	public function setClipboard (value:String):Void {
 		
-		var inputEnabled = enableTextEvents;
+		var inputEnabled = textInputEnabled;
 		
-		setEnableTextEvents (true); // create textInput if necessary
+		setTextInputEnabled (true); // create textInput if necessary
 		
 		var cacheText = textInput.value;
 		textInput.value = value;
@@ -1015,16 +1010,20 @@ class HTML5Window {
 		
 		textInput.value = cacheText;
 		
-		setEnableTextEvents (inputEnabled);
+		setTextInputEnabled (inputEnabled);
 		
 	}
 	
 	
-	public function setCursor (value:MouseCursor):Void {
+	public function setCursor (value:Cursor):Cursor {
 		
 		if (cursor != value) {
 			
-			if (!cursorHidden) {
+			if (value == null) {
+				
+				element.style.cursor = null;
+				
+			} else {
 				
 				element.style.cursor = switch (value) {
 					
@@ -1049,85 +1048,14 @@ class HTML5Window {
 			
 		}
 		
+		return cursor;
+		
 	}
 	
 	
-	public function setEnableTextEvents (value:Bool):Bool {
+	public function setDisplayMode (value:DisplayMode):DisplayMode {
 		
-		if (value) {
-			
-			if (textInput == null) {
-				
-				textInput = cast Browser.document.createElement ('input');
-				textInput.type = 'text';
-				textInput.style.position = 'absolute';
-				textInput.style.opacity = "0";
-				textInput.style.color = "transparent";
-				textInput.value = dummyCharacter; // See: handleInputEvent()
-				
-				untyped textInput.autocapitalize = "off";
-				untyped textInput.autocorrect = "off";
-				textInput.autocomplete = "off";
-				
-				// TODO: Position for mobile browsers better
-				
-				textInput.style.left = "0px";
-				textInput.style.top = "50%";
-				
-				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match (Browser.window.navigator.userAgent)) {
-					
-					textInput.style.fontSize = "0px";
-					textInput.style.width = '0px';
-					textInput.style.height = '0px';
-					
-				} else {
-					
-					textInput.style.width = '1px';
-					textInput.style.height = '1px';
-					
-				}
-				
-				untyped (textInput.style).pointerEvents = 'none';
-				textInput.style.zIndex = "-10000000";
-				
-			}
-			
-			if (textInput.parentNode == null) {
-				
-				element.appendChild (textInput);
-				
-			}
-			
-			if (!enableTextEvents) {
-				
-				textInput.addEventListener ('input', handleInputEvent, true);
-				textInput.addEventListener ('blur', handleFocusEvent, true);
-				textInput.addEventListener ('cut', handleCutOrCopyEvent, true);
-				textInput.addEventListener ('copy', handleCutOrCopyEvent, true);
-				textInput.addEventListener ('paste', handlePasteEvent, true);
-				
-			}
-			
-			textInput.focus ();
-			textInput.select ();
-			
-		} else {
-			
-			if (textInput != null) {
-				
-				textInput.removeEventListener ('input', handleInputEvent, true);
-				textInput.removeEventListener ('blur', handleFocusEvent, true);
-				textInput.removeEventListener ('cut', handleCutOrCopyEvent, true);
-				textInput.removeEventListener ('copy', handleCutOrCopyEvent, true);
-				textInput.removeEventListener ('paste', handlePasteEvent, true);
-				
-				textInput.blur ();
-				
-			}
-			
-		}
-		
-		return enableTextEvents = value;
+		return value;
 		
 	}
 	
@@ -1263,9 +1191,96 @@ class HTML5Window {
 	}
 	
 	
+	public function setMouseLock (value:Bool):Void {
+		
+		
+		
+	}
+	
+	
 	public function setResizable (value:Bool):Bool {
 		
 		return value;
+		
+	}
+	
+	
+	public function setTextInputEnabled (value:Bool):Bool {
+		
+		if (value) {
+			
+			if (textInput == null) {
+				
+				textInput = cast Browser.document.createElement ('input');
+				textInput.type = 'text';
+				textInput.style.position = 'absolute';
+				textInput.style.opacity = "0";
+				textInput.style.color = "transparent";
+				textInput.value = dummyCharacter; // See: handleInputEvent()
+				
+				untyped textInput.autocapitalize = "off";
+				untyped textInput.autocorrect = "off";
+				textInput.autocomplete = "off";
+				
+				// TODO: Position for mobile browsers better
+				
+				textInput.style.left = "0px";
+				textInput.style.top = "50%";
+				
+				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match (Browser.window.navigator.userAgent)) {
+					
+					textInput.style.fontSize = "0px";
+					textInput.style.width = '0px';
+					textInput.style.height = '0px';
+					
+				} else {
+					
+					textInput.style.width = '1px';
+					textInput.style.height = '1px';
+					
+				}
+				
+				untyped (textInput.style).pointerEvents = 'none';
+				textInput.style.zIndex = "-10000000";
+				
+			}
+			
+			if (textInput.parentNode == null) {
+				
+				element.appendChild (textInput);
+				
+			}
+			
+			if (!textInputEnabled) {
+				
+				textInput.addEventListener ('input', handleInputEvent, true);
+				textInput.addEventListener ('blur', handleFocusEvent, true);
+				textInput.addEventListener ('cut', handleCutOrCopyEvent, true);
+				textInput.addEventListener ('copy', handleCutOrCopyEvent, true);
+				textInput.addEventListener ('paste', handlePasteEvent, true);
+				
+			}
+			
+			textInput.focus ();
+			textInput.select ();
+			
+		} else {
+			
+			if (textInput != null) {
+				
+				textInput.removeEventListener ('input', handleInputEvent, true);
+				textInput.removeEventListener ('blur', handleFocusEvent, true);
+				textInput.removeEventListener ('cut', handleCutOrCopyEvent, true);
+				textInput.removeEventListener ('copy', handleCutOrCopyEvent, true);
+				textInput.removeEventListener ('paste', handlePasteEvent, true);
+				
+				textInput.blur ();
+				
+			}
+			
+		}
+		
+		return textInputEnabled = value;
 		
 	}
 	
@@ -1402,6 +1417,13 @@ class HTML5Window {
 			}
 			
 		}
+		
+	}
+	
+	
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		
 		
 	}
 	

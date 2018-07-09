@@ -1,17 +1,14 @@
-#ifndef LIME_SDL_MOUSE_H
-#define LIME_SDL_MOUSE_H
+#ifndef LIME_SDL_CURSOR_H
+#define LIME_SDL_CURSOR_H
 
 
 #include <SDL.h>
-#include <ui/Mouse.h>
-#include <ui/MouseCursor.h>
-#include <ui/Window.h>
 
 
 namespace lime {
 	
 	
-	class SDLMouse {
+	class SDLCursor {
 		
 		public:
 			

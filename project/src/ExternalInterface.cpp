@@ -29,7 +29,7 @@
 #include <system/SensorEvent.h>
 #include <system/System.h>
 #include <text/Font.h>
-#include <text/TextLayout.h>
+#include <ui/Cursor.h>
 #include <ui/DropEvent.h>
 #include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
@@ -39,8 +39,6 @@
 #include <ui/JoystickEvent.h>
 #include <ui/KeyCode.h>
 #include <ui/KeyEvent.h>
-#include <ui/Mouse.h>
-#include <ui/MouseCursor.h>
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
@@ -107,26 +105,6 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font* font = (Font*)handle->ptr;
 		delete font;
-		#endif
-		
-	}
-	
-	
-	void gc_text_layout (value handle) {
-		
-		#ifdef LIME_HARFBUZZ
-		TextLayout *text = (TextLayout*)val_data (handle);
-		delete text;
-		#endif
-		
-	}
-	
-	
-	void hl_gc_text_layout (HL_CFFIPointer* handle) {
-		
-		#ifdef LIME_HARFBUZZ
-		TextLayout* text = (TextLayout*)handle->ptr;
-		delete text;
 		#endif
 		
 	}
@@ -2495,92 +2473,6 @@ namespace lime {
 	}
 	
 	
-	void lime_mouse_hide () {
-		
-		Mouse::Hide ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_mouse_hide () {
-		
-		Mouse::Hide ();
-		
-	}
-	
-	
-	void lime_mouse_set_cursor (int cursor) {
-		
-		Mouse::SetCursor ((MouseCursor)cursor);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_mouse_set_cursor (int cursor) {
-		
-		Mouse::SetCursor ((MouseCursor)cursor);
-		
-	}
-	
-	
-	void lime_mouse_set_lock (bool lock) {
-		
-		Mouse::SetLock (lock);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_mouse_set_lock (bool lock) {
-		
-		Mouse::SetLock (lock);
-		
-	}
-	
-	
-	void lime_mouse_show () {
-		
-		Mouse::Show ();
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_mouse_show () {
-		
-		Mouse::Show ();
-		
-	}
-	
-	
-	void lime_mouse_warp (int x, int y, value window) {
-		
-		Window* windowRef = 0;
-		
-		if (window) {
-			
-			windowRef = (Window*)val_data (window);
-			
-		}
-		
-		Mouse::Warp (x, y, windowRef);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_mouse_warp (int x, int y, HL_CFFIPointer* window) {
-		
-		Window* windowRef = 0;
-		
-		if (window) {
-			
-			windowRef = (Window*)window->ptr;
-			
-		}
-		
-		Mouse::Warp (x, y, windowRef);
-		
-	}
-	
-	
 	void lime_neko_execute (HxString module) {
 		
 		#ifdef LIME_NEKO
@@ -3128,133 +3020,6 @@ namespace lime {
 	}
 	
 	
-	value lime_text_layout_create (int direction, HxString script, HxString language) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		
-		TextLayout *text = new TextLayout (direction, script.c_str (), language.c_str ());
-		return CFFIPointer (text, gc_text_layout);
-		
-		#else
-		
-		return alloc_null ();
-		
-		#endif
-		
-	}
-	
-	
-	HL_PRIM HL_CFFIPointer* hl_lime_text_layout_create (int direction, hl_vstring* script, hl_vstring* language) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		
-		TextLayout *text = new TextLayout (direction, script ? (char*)hl_to_utf8 ((const uchar*)script->bytes) : NULL, language ? (char*)hl_to_utf8 ((const uchar*)language->bytes) : NULL);
-		return HLCFFIPointer (text, (hl_finalizer)hl_gc_text_layout);
-		
-		#else
-		
-		return 0;
-		
-		#endif
-		
-	}
-	
-	
-	value lime_text_layout_position (value textHandle, value fontHandle, int size, HxString textString, value data) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		
-		TextLayout *text = (TextLayout*)val_data (textHandle);
-		Font *font = (Font*)val_data (fontHandle);
-		Bytes bytes (data);
-		
-		text->Position (font, size, textString.c_str (), &bytes);
-		
-		return bytes.Value (data);
-		
-		#endif
-		
-		return alloc_null ();
-		
-	}
-	
-	
-	HL_PRIM Bytes* hl_lime_text_layout_position (HL_CFFIPointer* textHandle, HL_CFFIPointer* fontHandle, int size, hl_vstring* textString, Bytes* data) {
-		
-		#if defined(LIME_FREETYPE) && defined(LIME_HARFBUZZ)
-		
-		TextLayout* text = (TextLayout*)textHandle->ptr;
-		Font* font = (Font*)fontHandle->ptr;
-		text->Position (font, size, textString ? hl_to_utf8 ((const uchar*)textString->bytes) : NULL, data);
-		return data;
-		
-		#endif
-		
-		return 0;
-		
-	}
-	
-	
-	void lime_text_layout_set_direction (value textHandle, int direction) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetDirection (direction);
-		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_text_layout_set_direction (HL_CFFIPointer* textHandle, int direction) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)textHandle->ptr;
-		text->SetDirection (direction);
-		#endif
-		
-	}
-	
-	
-	void lime_text_layout_set_language (value textHandle, HxString language) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetLanguage (language.c_str ());
-		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_text_layout_set_language (HL_CFFIPointer* textHandle, hl_vstring* language) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)textHandle->ptr;
-		text->SetLanguage ((char*)hl_to_utf8 ((const uchar*)language->bytes));
-		#endif
-		
-	}
-	
-	
-	void lime_text_layout_set_script (value textHandle, HxString script) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)val_data (textHandle);
-		text->SetScript (script.c_str ());
-		#endif
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_text_layout_set_script (HL_CFFIPointer* textHandle, hl_vstring* script) {
-		
-		#if defined (LIME_FREETYPE) && defined (LIME_HARFBUZZ)
-		TextLayout *text = (TextLayout*)textHandle->ptr;
-		text->SetScript ((char*)hl_to_utf8 ((const uchar*)script->bytes));
-		#endif
-		
-	}
-	
-	
 	void lime_touch_event_manager_register (value callback, value eventObject) {
 		
 		TouchEvent::callback = new ValuePointer (callback);
@@ -3476,22 +3241,6 @@ namespace lime {
 	}
 	
 	
-	bool lime_window_get_enable_text_events (value window) {
-		
-		Window* targetWindow = (Window*)val_data (window);
-		return targetWindow->GetEnableTextEvents ();
-		
-	}
-	
-	
-	HL_PRIM bool hl_lime_window_get_enable_text_events (HL_CFFIPointer* window) {
-		
-		Window* targetWindow = (Window*)window->ptr;
-		return targetWindow->GetEnableTextEvents ();
-		
-	}
-	
-	
 	int lime_window_get_height (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -3524,6 +3273,22 @@ namespace lime {
 	}
 	
 	
+	bool lime_window_get_mouse_lock (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetMouseLock ();
+		
+	}
+	
+	
+	HL_PRIM bool hl_lime_window_get_mouse_lock (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetMouseLock ();
+		
+	}
+	
+	
 	double lime_window_get_scale (value window) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -3536,6 +3301,22 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->GetScale ();
+		
+	}
+	
+	
+	bool lime_window_get_text_input_enabled (value window) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetTextInputEnabled ();
+		
+	}
+	
+	
+	HL_PRIM bool hl_lime_window_get_text_input_enabled (HL_CFFIPointer* window) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetTextInputEnabled ();
 		
 	}
 	
@@ -3676,6 +3457,22 @@ namespace lime {
 	}
 	
 	
+	void lime_window_set_cursor (value window, int cursor) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetCursor ((Cursor)cursor);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_set_cursor (HL_CFFIPointer* window, int cursor) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetCursor ((Cursor)cursor);
+		
+	}
+	
+	
 	value lime_window_set_display_mode (value window, value displayMode) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -3694,22 +3491,6 @@ namespace lime {
 		targetWindow->SetDisplayMode (&_displayMode);
 		targetWindow->GetDisplayMode (&_displayMode);
 		return (HL_DisplayMode*)_displayMode.Value ();
-		
-	}
-	
-	
-	void lime_window_set_enable_text_events (value window, bool enabled) {
-		
-		Window* targetWindow = (Window*)val_data (window);
-		targetWindow->SetEnableTextEvents (enabled);
-		
-	}
-	
-	
-	HL_PRIM void hl_lime_window_set_enable_text_events (HL_CFFIPointer* window, bool enabled) {
-		
-		Window* targetWindow = (Window*)window->ptr;
-		targetWindow->SetEnableTextEvents (enabled);
 		
 	}
 	
@@ -3779,6 +3560,22 @@ namespace lime {
 	}
 	
 	
+	void lime_window_set_mouse_lock (value window, bool mouseLock) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMouseLock (mouseLock);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_set_mouse_lock (HL_CFFIPointer* window, bool mouseLock) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMouseLock (mouseLock);
+		
+	}
+	
+	
 	bool lime_window_set_resizable (value window, bool resizable) {
 		
 		Window* targetWindow = (Window*)val_data (window);
@@ -3791,6 +3588,22 @@ namespace lime {
 		
 		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->SetResizable (resizable);
+		
+	}
+	
+	
+	void lime_window_set_text_input_enabled (value window, bool enabled) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetTextInputEnabled (enabled);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_set_text_input_enabled (HL_CFFIPointer* window, bool enabled) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetTextInputEnabled (enabled);
 		
 	}
 	
@@ -3835,6 +3648,22 @@ namespace lime {
 			return 0;
 			
 		}
+		
+	}
+	
+	
+	void lime_window_warp_mouse (value window, int x, int y) {
+		
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->WarpMouse (x, y);
+		
+	}
+	
+	
+	HL_PRIM void hl_lime_window_warp_mouse (HL_CFFIPointer* window, int x, int y) {
+		
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->WarpMouse (x, y);
 		
 	}
 	
@@ -3985,11 +3814,6 @@ namespace lime {
 	DEFINE_PRIME2 (lime_lzma_compress);
 	DEFINE_PRIME2 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
-	DEFINE_PRIME0v (lime_mouse_hide);
-	DEFINE_PRIME1v (lime_mouse_set_cursor);
-	DEFINE_PRIME1v (lime_mouse_set_lock);
-	DEFINE_PRIME0v (lime_mouse_show);
-	DEFINE_PRIME3v (lime_mouse_warp);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME3 (lime_png_decode_bytes);
 	DEFINE_PRIME3 (lime_png_decode_file);
@@ -4012,11 +3836,6 @@ namespace lime {
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
 	DEFINE_PRIME2 (lime_system_set_windows_console_mode);
 	DEFINE_PRIME2v (lime_text_event_manager_register);
-	DEFINE_PRIME3 (lime_text_layout_create);
-	DEFINE_PRIME5 (lime_text_layout_position);
-	DEFINE_PRIME2v (lime_text_layout_set_direction);
-	DEFINE_PRIME2v (lime_text_layout_set_language);
-	DEFINE_PRIME2v (lime_text_layout_set_script);
 	DEFINE_PRIME2v (lime_touch_event_manager_register);
 	DEFINE_PRIME3v (lime_window_alert);
 	DEFINE_PRIME1v (lime_window_close);
@@ -4031,10 +3850,11 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME1 (lime_window_get_display);
 	DEFINE_PRIME1 (lime_window_get_display_mode);
-	DEFINE_PRIME1 (lime_window_get_enable_text_events);
 	DEFINE_PRIME1 (lime_window_get_height);
 	DEFINE_PRIME1 (lime_window_get_id);
+	DEFINE_PRIME1 (lime_window_get_mouse_lock);
 	DEFINE_PRIME1 (lime_window_get_scale);
+	DEFINE_PRIME1 (lime_window_get_text_input_enabled);
 	DEFINE_PRIME1 (lime_window_get_width);
 	DEFINE_PRIME1 (lime_window_get_x);
 	DEFINE_PRIME1 (lime_window_get_y);
@@ -4042,14 +3862,17 @@ namespace lime {
 	DEFINE_PRIME3 (lime_window_read_pixels);
 	DEFINE_PRIME3v (lime_window_resize);
 	DEFINE_PRIME2 (lime_window_set_borderless);
+	DEFINE_PRIME2v (lime_window_set_cursor);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
-	DEFINE_PRIME2v (lime_window_set_enable_text_events);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
 	DEFINE_PRIME2 (lime_window_set_maximized);
 	DEFINE_PRIME2 (lime_window_set_minimized);
+	DEFINE_PRIME2v (lime_window_set_mouse_lock);
 	DEFINE_PRIME2 (lime_window_set_resizable);
+	DEFINE_PRIME2v (lime_window_set_text_input_enabled);
 	DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
 	
@@ -4174,11 +3997,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_TBYTES, lime_lzma_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, lime_lzma_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, lime_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
-	DEFINE_HL_PRIM (_VOID, lime_mouse_hide, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_mouse_set_cursor, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_mouse_set_lock, _BOOL);
-	DEFINE_HL_PRIM (_VOID, lime_mouse_show, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_mouse_warp, _I32 _I32 _TCFFIPOINTER);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_png_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, lime_png_decode_file, _STRING _BOOL _TIMAGEBUFFER);
@@ -4201,11 +4019,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, lime_system_set_allow_screen_timeout, _BOOL);
 	DEFINE_HL_PRIM (_BOOL, lime_system_set_windows_console_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_text_event_manager_register, _FUN (_VOID, _NO_ARG) _TTEXT_EVENT);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_text_layout_create, _I32 _STRING _STRING);
-	DEFINE_HL_PRIM (_TBYTES, lime_text_layout_position, _TCFFIPOINTER _TCFFIPOINTER _I32 _STRING _TBYTES);
-	DEFINE_HL_PRIM (_VOID, lime_text_layout_set_direction, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_text_layout_set_language, _TCFFIPOINTER _STRING);
-	DEFINE_HL_PRIM (_VOID, lime_text_layout_set_script, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_touch_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
 	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_close, _TCFFIPOINTER);
@@ -4220,10 +4033,11 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, lime_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_display, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, lime_window_get_display_mode, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_window_get_enable_text_events, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_height, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_id, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, lime_window_get_mouse_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, lime_window_get_scale, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, lime_window_get_text_input_enabled, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_width, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_x, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_y, _TCFFIPOINTER);
@@ -4231,14 +4045,17 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, lime_window_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, lime_window_resize, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_window_set_cursor, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TDISPLAYMODE, lime_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
-	DEFINE_HL_PRIM (_VOID, lime_window_set_enable_text_events, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_fullscreen, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, lime_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_maximized, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_minimized, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_resizable, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, lime_window_set_text_input_enabled, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_STRING, lime_window_set_title, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, lime_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_TBYTES, lime_zlib_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, lime_zlib_decompress, _TBYTES _TBYTES);
 	

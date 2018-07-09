@@ -34,9 +34,9 @@ class Window {
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
 	public var context (default, null):RenderContext;
+	public var cursor (get, set):Cursor;
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
-	public var enableTextEvents (get, set):Bool;
 	
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
@@ -52,6 +52,7 @@ class Window {
 	public var id (default, null):Int;
 	public var maximized (get, set):Bool;
 	public var minimized (get, set):Bool;
+	public var mouseLock (get, set):Bool;
 	public var onActivate (default, null) = new Event<Void->Void> ();
 	public var onClose (default, null) = new Event<Void->Void> ();
 	public var onDeactivate (default, null) = new Event<Void->Void> ();
@@ -64,6 +65,7 @@ class Window {
 	public var onKeyDown (default, null) = new Event<KeyCode->KeyModifier->Void> ();
 	public var onKeyUp (default, null) = new Event<KeyCode->KeyModifier->Void> ();
 	public var onLeave (default, null) = new Event<Void->Void> ();
+	public var onMaximize (default, null) = new Event<Void->Void> ();
 	public var onMinimize (default, null) = new Event<Void->Void> ();
 	public var onMouseDown (default, null) = new Event<Float->Float->Int->Void> ();
 	public var onMouseMove (default, null) = new Event<Float->Float->Void> ();
@@ -82,6 +84,7 @@ class Window {
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
 	// public var stage:Stage;
+	public var textInputEnabled (get, set):Bool;
 	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;
@@ -109,15 +112,18 @@ class Window {
 		var p = untyped Window.prototype;
 		untyped Object.defineProperties (p, {
 			"borderless": { get: p.get_borderless, set: p.set_borderless },
+			"cursor": { get: p.get_cursor, set: p.set_cursor },
 			"display": { get: p.get_display },
 			"displayMode": { get: p.get_displayMode, set: p.set_displayMode },
-			"enableTextEvents": { get: p.get_enableTextEvents, set: p.set_enableTextEvents },
 			"frameRate": { get: p.get_frameRate, set: p.set_frameRate },
 			"fullscreen": { get: p.get_fullscreen, set: p.set_fullscreen },
 			"height": { get: p.get_height, set: p.set_height },
 			"maximized": { get: p.get_maximized, set: p.set_maximized },
+			"minimized": { get: p.get_minimized, set: p.set_minimized },
+			"mouseLock": { get: p.get_mouseLock, set: p.set_mouseLock },
 			"resizable": { get: p.get_resizable, set: p.set_resizable },
 			"scale": { get: p.get_scale },
+			"textInputEnabled": { get: p.get_textInputEnabled, set: p.set_textInputEnabled },
 			"title": { get: p.get_title, set: p.set_title },
 			"width": { get: p.get_width, set: p.set_width },
 			"x": { get: p.get_x, set: p.set_y },
@@ -427,11 +433,32 @@ class Window {
 	}
 	
 	
+	public function warpMouse (x:Int, y:Int):Void {
+		
+		__backend.warpMouse (x, y);
+		
+	}
+	
+	
 	
 	
 	// Get & Set Methods
 	
 	
+	
+	
+	@:noCompletion private function get_cursor ():Cursor {
+		
+		return __backend.getCursor ();
+		
+	}
+	
+	
+	@:noCompletion private function set_cursor (value:Cursor):Cursor {
+		
+		return __backend.setCursor (value);
+		
+	}
 	
 	
 	@:noCompletion private function get_display ():Display {
@@ -465,20 +492,6 @@ class Window {
 	@:noCompletion private function set_borderless (value:Bool):Bool {
 		
 		return __borderless = __backend.setBorderless (value);
-		
-	}
-	
-	
-	@:noCompletion private inline function get_enableTextEvents ():Bool {
-		
-		return __backend.getEnableTextEvents ();
-		
-	}
-	
-	
-	@:noCompletion private inline function set_enableTextEvents (value:Bool):Bool {
-		
-		return __backend.setEnableTextEvents (value);
 		
 	}
 	
@@ -563,6 +576,21 @@ class Window {
 	}
 	
 	
+	@:noCompletion private function get_mouseLock ():Bool {
+		
+		return __backend.getMouseLock ();
+		
+	}
+	
+	
+	@:noCompletion private function set_mouseLock (value:Bool):Bool {
+		
+		__backend.setMouseLock (value);
+		return value;
+		
+	}
+	
+	
 	@:noCompletion private inline function get_resizable ():Bool {
 		
 		return __resizable;
@@ -581,6 +609,20 @@ class Window {
 	@:noCompletion private inline function get_scale ():Float {
 		
 		return __scale;
+		
+	}
+	
+	
+	@:noCompletion private inline function get_textInputEnabled ():Bool {
+		
+		return __backend.getTextInputEnabled ();
+		
+	}
+	
+	
+	@:noCompletion private inline function set_textInputEnabled (value:Bool):Bool {
+		
+		return __backend.setTextInputEnabled (value);
 		
 	}
 	
