@@ -1,4 +1,4 @@
-package lime.graphics; #if (sys && lime_cffi && lime_opengl && !doc_gen)
+package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (sys && lime_cffi && lime_opengl && !doc_gen)
 
 
 import lime.graphics.opengl.*;
@@ -91,7 +91,7 @@ vertexAttrib3fv, vertexAttrib4f, vertexAttrib4fv, vertexAttribPointer, viewport,
 EXTENSIONS, type, version)
 
 
-abstract OpenGLES2RenderContext(OpenGLES3RenderContext) from OpenGLES3RenderContext from OpenGLRenderContext {
+abstract OpenGLES2RenderContext(OpenGLES3RenderContext) from OpenGLES3RenderContext #if (!lime_doc_gen && lime_opengl) from OpenGLRenderContext #end {
 	
 	
 	@:from private static function fromGL (gl:Class<GL>):OpenGLES2RenderContext {
@@ -136,11 +136,13 @@ abstract OpenGLES2RenderContext(Dynamic) from Dynamic to Dynamic {
 	}
 	
 	
+	#if (!lime_doc_gen && lime_opengl)
 	@:from private static function fromOpenGLRenderContext (gl:OpenGLRenderContext):OpenGLES2RenderContext {
 		
 		return null;
 		
 	}
+	#end
 	
 	
 	@:from private static function fromRenderContext (context:RenderContext):OpenGLES2RenderContext {
@@ -160,4 +162,5 @@ abstract OpenGLES2RenderContext(Dynamic) from Dynamic to Dynamic {
 }
 
 
+#end
 #end

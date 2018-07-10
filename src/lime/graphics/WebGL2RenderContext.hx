@@ -1,4 +1,4 @@
-package lime.graphics; #if (js && html5 && !doc_gen)
+package lime.graphics; #if (lime_webgl && !doc_gen)
 
 
 import lime._internal.backend.html5.HTML5WebGL2RenderContext;
@@ -312,13 +312,6 @@ abstract WebGL2RenderContext(HTML5WebGL2RenderContext) from HTML5WebGL2RenderCon
 	}
 	
 	
-	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
-		
-		return (gl:OpenGLRenderContext);
-		
-	}
-	
-	
 	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
 		
 		return context.webgl2;
@@ -336,7 +329,7 @@ abstract WebGL2RenderContext(HTML5WebGL2RenderContext) from HTML5WebGL2RenderCon
 }
 
 
-#elseif (sys && lime_opengl && !doc_gen)
+#elseif (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
 
 
 import haxe.Int64;
@@ -353,8 +346,11 @@ import lime.utils.UInt32Array;
 @:access(lime.graphics.RenderContext)
 
 
+#if !doc_gen
 abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to OpenGLRenderContext {
-	
+#else
+abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic {
+#end
 	
 	private static var __tempPointer = new BytePointer ();
 	
@@ -2528,6 +2524,13 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
+	public inline function isSync (sync:GLSync):Bool {
+		
+		return this.isSync (sync);
+		
+	}
+	
+	
 	public inline function isTexture (texture:GLTexture):Bool {
 		
 		return this.isTexture (texture);
@@ -2771,7 +2774,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform1fv (location:GLUniformLocation, v:Float32Array):Void {
+	public inline function uniform1fv (location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform1fv (location, v != null ? v.length : 0, v);
 		
@@ -2785,7 +2788,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform1iv (location:GLUniformLocation, v:Int32Array):Void {
+	public inline function uniform1iv (location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform1iv (location, v != null ? v.length : 0, v);
 		
@@ -2799,7 +2802,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform1uiv (location:GLUniformLocation, v:UInt32Array):Void {
+	public inline function uniform1uiv (location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform1uiv (location, v != null ? v.length : 0, v);
 		
@@ -2813,7 +2816,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform2fv (location:GLUniformLocation, v:Float32Array):Void {
+	public inline function uniform2fv (location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform2fv (location, v != null ? v.length >> 1 : 0, v);
 		
@@ -2827,7 +2830,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform2iv (location:GLUniformLocation, v:Int32Array):Void {
+	public inline function uniform2iv (location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform2iv (location, v != null ? v.length >> 1 : 0, v);
 		
@@ -2841,7 +2844,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform2uiv (location:GLUniformLocation, v:UInt32Array):Void {
+	public inline function uniform2uiv (location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform2uiv (location, v != null ? v.length >> 1 : 0, v);
 		
@@ -2855,7 +2858,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform3fv (location:GLUniformLocation, v:Float32Array):Void {
+	public inline function uniform3fv (location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform3fv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		
@@ -2869,7 +2872,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform3iv (location:GLUniformLocation, v:Int32Array):Void {
+	public inline function uniform3iv (location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform3iv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		
@@ -2883,7 +2886,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform3uiv (location:GLUniformLocation, v:UInt32Array):Void {
+	public inline function uniform3uiv (location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform3uiv (location, v != null ? Std.int (v.length / 3) : 0, v);
 		
@@ -2897,7 +2900,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform4fv (location:GLUniformLocation, v:Float32Array):Void {
+	public inline function uniform4fv (location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform4fv (location, v != null ? v.length >> 2 : 0, v);
 		
@@ -2911,7 +2914,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform4iv (location:GLUniformLocation, v:Int32Array):Void {
+	public inline function uniform4iv (location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform4iv (location, v != null ? v.length >> 2 : 0, v);
 		
@@ -2925,7 +2928,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function uniform4uiv (location:GLUniformLocation, v:UInt32Array):Void {
+	public inline function uniform4uiv (location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void {
 		
 		this.uniform4uiv (location, v != null ? v.length >> 2 : 0, v);
 		
@@ -3078,7 +3081,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function vertexAttrib1fv (indx:Int, values:Float32Array):Void {
+	public inline function vertexAttrib1fv (indx:Int, values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void {
 		
 		this.vertexAttrib1fv (indx, values);
 		
@@ -3092,7 +3095,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function vertexAttrib2fv (indx:Int, values:Float32Array):Void {
+	public inline function vertexAttrib2fv (indx:Int, values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void {
 		
 		this.vertexAttrib2fv (indx, values);
 		
@@ -3106,7 +3109,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function vertexAttrib3fv (indx:Int, values:Float32Array):Void {
+	public inline function vertexAttrib3fv (indx:Int, values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void {
 		
 		this.vertexAttrib3fv (indx, values);
 		
@@ -3120,7 +3123,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function vertexAttrib4fv (indx:Int, values:Float32Array):Void {
+	public inline function vertexAttrib4fv (indx:Int, values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void {
 		
 		this.vertexAttrib4fv (indx, values);
 		
@@ -3141,7 +3144,7 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function vertexAttribI4iv (indx:Int, values:Float32Array):Void {
+	public inline function vertexAttribI4iv (indx:Int, values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void {
 		
 		this.vertexAttribI4iv (indx, values);
 		
@@ -3155,9 +3158,16 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
-	public inline function vertexAttribI4uiv (indx:Int, values:Float32Array):Void {
+	public inline function vertexAttribI4uiv (indx:Int, values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void {
 		
 		this.vertexAttribI4uiv (indx, values);
+		
+	}
+	
+	
+	public inline function vertexAttribIPointer (index:Int, size:Int, type:Int, stride:Int, offset:DataPointer):Void {
+		
+		this.vertexAttribIPointer (index, size, type, stride, offset);
 		
 	}
 	
@@ -3190,58 +3200,18 @@ abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to Op
 	}
 	
 	
+	#if (!lime_doc_gen && (lime_opengl || lime_opengles))
 	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
 		
 		return cast gl;
 		
 	}
+	#end
 	
 	
 	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
 		
 		return cast GL.context;
-		
-	}
-	
-	
-}
-
-
-#else
-
-
-import lime.graphics.opengl.GL;
-
-@:forward()
-
-
-abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic {
-	
-	
-	@:from private static function fromGL (gl:Class<GL>):WebGL2RenderContext {
-		
-		return null;
-		
-	}
-	
-	
-	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
-		
-		return null;
-		
-	}
-	
-	
-	@:from private static function fromRenderContext (context:RenderContext):WebGL2RenderContext {
-		
-		return null;
-		
-	}
-	
-	
-	@:from private static function toWebGLRenderContext (gl:WebGLRenderContext):WebGL2RenderContext {
-		
-		return null;
 		
 	}
 	

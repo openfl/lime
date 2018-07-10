@@ -1,4 +1,4 @@
-package lime.graphics.cairo;
+package lime.graphics.cairo; #if (!lime_doc_gen || native)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -125,3 +125,6 @@ abstract CairoFontOptions(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 }
+
+
+#end

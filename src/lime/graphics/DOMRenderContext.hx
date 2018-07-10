@@ -1,10 +1,10 @@
-package lime.graphics; #if (js && html5 && !doc_gen)
+package lime.graphics; #if (lime_doc_gen && lime_dom) #if (lime_dom && (lime_doc_gen || !doc_gen))
 
 
 import js.html.Element;
 
 @:access(lime.graphics.RenderContext)
-@:forward()
+@:forward
 
 
 abstract DOMRenderContext(Element) from Element to Element {
@@ -23,7 +23,7 @@ abstract DOMRenderContext(Element) from Element to Element {
 #else
 
 
-@:forward()
+@:forward
 
 
 abstract DOMRenderContext(Dynamic) from Dynamic to Dynamic {
@@ -39,4 +39,5 @@ abstract DOMRenderContext(Dynamic) from Dynamic to Dynamic {
 }
 
 
+#end
 #end

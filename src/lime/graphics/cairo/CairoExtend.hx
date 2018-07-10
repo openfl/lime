@@ -1,4 +1,4 @@
-package lime.graphics.cairo;
+package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
 
 
 @:enum abstract CairoExtend(Int) from Int to Int from UInt to UInt {
@@ -9,3 +9,6 @@ package lime.graphics.cairo;
 	public var PAD = 3;
 	
 }
+
+
+#end

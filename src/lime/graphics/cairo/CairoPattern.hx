@@ -1,4 +1,4 @@
-package lime.graphics.cairo;
+package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -187,3 +187,6 @@ abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 }
+
+
+#end

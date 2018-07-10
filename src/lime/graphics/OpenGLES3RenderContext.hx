@@ -1,15 +1,22 @@
-package lime.graphics; #if (sys && lime_cffi && lime_opengl && !doc_gen)
+package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (sys && lime_cffi && lime_opengl && !doc_gen)
 
 
 import haxe.Int64;
 import haxe.io.Bytes;
+import lime._internal.backend.native.NativeOpenGLRenderContext;
 import lime.graphics.opengl.*;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
+@:forward
 
+
+#if (lime_doc_gen)
+abstract OpenGLES3RenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext {
+#else
 abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext {
+#end
 	
 	
 	private static var __extensions:String;
@@ -3261,4 +3268,5 @@ abstract OpenGLES3RenderContext(Dynamic) from Dynamic to Dynamic {
 }
 
 
+#end
 #end

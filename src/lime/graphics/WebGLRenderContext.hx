@@ -1,4 +1,4 @@
-package lime.graphics;
+package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
 
 
 import lime.graphics.opengl.*;
@@ -131,6 +131,7 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 	}
 	
 	
+	#if (!lime_doc_gen && lime_opengl)
 	@:from private static function fromOpenGLContext (gl:OpenGLRenderContext):WebGLRenderContext {
 		
 		#if (sys && lime_cffi && lime_opengl)
@@ -140,8 +141,10 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 		#end
 		
 	}
+	#end
 	
 	
+	#if (!lime_doc_gen && (lime_opengl || lime_opengles))
 	@:from private static function fromOpenGLES2Context (gl:OpenGLES2RenderContext):WebGLRenderContext {
 		
 		#if (sys && lime_cffi && lime_opengl)
@@ -151,8 +154,10 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 		#end
 		
 	}
+	#end
 	
 	
+	#if (!lime_doc_gen && (lime_opengl || lime_opengles))
 	@:from private static function fromOpenGLES3Context (gl:OpenGLES3RenderContext):WebGLRenderContext {
 		
 		#if (sys && lime_cffi && lime_opengl)
@@ -162,6 +167,10 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 		#end
 		
 	}
+	#end
 	
 	
 }
+
+
+#end

@@ -1,4 +1,5 @@
-package lime.graphics.opengl; #if (!js || !html5)
+package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
+#if (!lime_webgl || display)
 
 
 #if !lime_debug
@@ -18,4 +19,5 @@ typedef GLActiveInfo = {
 
 #else
 typedef GLActiveInfo = js.html.webgl.ActiveInfo;
+#end
 #end

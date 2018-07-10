@@ -1,4 +1,4 @@
-package lime.graphics.cairo;
+package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
 
 
 #if !lime_debug
@@ -25,3 +25,6 @@ class CairoGlyph {
 	
 	
 }
+
+
+#end

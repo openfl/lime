@@ -1,4 +1,4 @@
-package lime.graphics; #if (js && html5 && !doc_gen)
+package lime.graphics; #if (lime_doc_gen && lime_canvas) #if (lime_canvas && (lime_doc_gen || !doc_gen))
 
 
 import js.html.CanvasRenderingContext2D;
@@ -39,4 +39,5 @@ abstract Canvas2DRenderContext(Dynamic) from Dynamic to Dynamic {
 }
 
 
+#end
 #end

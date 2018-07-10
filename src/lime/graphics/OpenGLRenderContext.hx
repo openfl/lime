@@ -1,4 +1,4 @@
-package lime.graphics; #if (sys && lime_cffi && lime_opengl && !doc_gen)
+package lime.graphics; #if (!lime_doc_gen || lime_opengl) #if (sys && lime_cffi && lime_opengl && !doc_gen)
 
 
 import lime._internal.backend.native.NativeOpenGLRenderContext;
@@ -39,4 +39,5 @@ abstract OpenGLRenderContext(Dynamic) from Dynamic to Dynamic {
 }
 
 
+#end
 #end

@@ -1,5 +1,5 @@
-package lime.graphics.opengl; #if lime_opengl
-
+package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
+#if !display
 
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLShader;
@@ -7,14 +7,14 @@ import lime.graphics.WebGLRenderContext;
 import lime.utils.Log;
 
 
-#if (!js || !html5 || display)
+#if !lime_webgl
 @:forward(id, refs) abstract GLProgram(GLObject) from GLObject to GLObject {
 #else
 @:forward() abstract GLProgram(js.html.webgl.Program) from js.html.webgl.Program to js.html.webgl.Program {
 #end
 	
 	
-	#if (!js || !html5 || display)
+	#if !lime_webgl
 	@:from private static function fromInt (id:Int):GLProgram {
 		
 		return GLObject.fromInt (PROGRAM, id);
@@ -50,6 +50,8 @@ import lime.utils.Log;
 
 
 #else
+
+
 @:forward abstract GLProgram(Dynamic) from Dynamic to Dynamic {
 	
 	public static function fromSources (gl:Dynamic, vertexSource:String, fragmentSource:String):GLProgram {
@@ -59,4 +61,7 @@ import lime.utils.Log;
 	}
 	
 }
+
+
+#end
 #end

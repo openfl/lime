@@ -1,4 +1,5 @@
-package lime.graphics.opengl; #if lime_opengl
+package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
+#if !display
 
 
 import lime.graphics.opengl.GL;
@@ -6,14 +7,14 @@ import lime.graphics.WebGLRenderContext;
 import lime.utils.Log;
 
 
-#if (!js || !html5 || display)
+#if !lime_webgl
 @:forward(id) abstract GLShader(GLObject) from GLObject to GLObject {
 #else
 @:forward() abstract GLShader(js.html.webgl.Shader) from js.html.webgl.Shader to js.html.webgl.Shader {
 #end
 	
 	
-	#if (!js || !html5 || display)
+	#if !lime_webgl
 	@:from private static function fromInt (id:Int):GLShader {
 		
 		return GLObject.fromInt (SHADER, id);
@@ -50,6 +51,8 @@ import lime.utils.Log;
 
 
 #else
+
+
 @:forward abstract GLShader(Dynamic) from Dynamic to Dynamic {
 	
 	public static function fromSources (gl:Dynamic, source:String, type:Int):GLShader {
@@ -59,4 +62,7 @@ import lime.utils.Log;
 	}
 	
 }
+
+
+#end
 #end

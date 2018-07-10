@@ -145,7 +145,7 @@ class NativeWindow {
 				
 				useHardware = true;
 				
-				#if !mobile
+				#if lime_opengl
 				context.gl = gl;
 				#end
 				
@@ -376,9 +376,9 @@ class NativeWindow {
 		
 		switch (parent.context.type) {
 			
-			case OPENGL:
+			case OPENGL, OPENGLES, WEBGL:
 				
-				var gl = parent.context.gl;
+				var gl = parent.context.webgl;
 				var windowWidth = Std.int (parent.__width * parent.__scale);
 				var windowHeight = Std.int (parent.__height * parent.__scale);
 				

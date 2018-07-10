@@ -31,11 +31,14 @@ class DefineMacro {
 				
 			} else if (Context.defined ("js")) {
 				
-				if (!Context.defined ("nodejs") && !Context.defined ("display")) {
+				if (!Context.defined ("nodejs")) {
 					
 					Compiler.define ("html5");
 					Compiler.define ("web");
-					Compiler.define ("lime-opengl");
+					Compiler.define ("lime-canvas");
+					Compiler.define ("lime-dom");
+					Compiler.define ("lime-howlerjs");
+					Compiler.define ("lime-webgl");
 					
 				}
 				
@@ -43,12 +46,31 @@ class DefineMacro {
 				
 				Compiler.define ("native");
 				
+				if (Context.defined ("ios") || Context.defined ("android") || Context.defined ("tizen")) {
+					
+					Compiler.define ("mobile");
+					if (!Context.defined ("nocffi")) Compiler.define ("lime-opengles");
+					
+				} else if (Context.defined ("emscripten")) {
+					
+					Compiler.define ("web");
+					if (!Context.defined ("nocffi")) Compiler.define ("lime-opengles");
+					
+				} else {
+					
+					Compiler.define ("desktop");
+					if (!Context.defined ("nocffi")) Compiler.define ("lime-opengl");
+					
+				}
+				
 				if (!Context.defined ("nocffi")) {
 					
 					Compiler.define ("lime-cffi");
+					
+					Compiler.define ("lime-openal");
+					Compiler.define ("lime-cairo");
 					Compiler.define ("lime-curl");
 					Compiler.define ("lime-harfbuzz");
-					Compiler.define ("lime-opengl");
 					Compiler.define ("lime-vorbis");
 					
 				}

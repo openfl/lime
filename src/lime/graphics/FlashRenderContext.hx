@@ -1,10 +1,10 @@
-package lime.graphics; #if (flash && !doc_gen)
+package lime.graphics; #if (lime_doc_gen && flash) #if (flash && (lime_doc_gen || !doc_gen))
 
 
 import flash.display.Sprite;
 
 @:access(lime.graphics.RenderContext)
-@:forward()
+@:forward
 
 
 abstract FlashRenderContext(Sprite) from Sprite to Sprite {
@@ -23,7 +23,8 @@ abstract FlashRenderContext(Sprite) from Sprite to Sprite {
 #else
 
 
-@:forward()
+@:forward
+
 
 abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic {
 	
@@ -38,4 +39,5 @@ abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic {
 }
 
 
+#end
 #end

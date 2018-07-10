@@ -1,4 +1,4 @@
-package lime.graphics.cairo;
+package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
 
 
 @:enum abstract CairoFormat(Int) from Int to Int from UInt to UInt {
@@ -12,3 +12,6 @@ package lime.graphics.cairo;
 	public var RGB30 = 5;
 	
 }
+
+
+#end

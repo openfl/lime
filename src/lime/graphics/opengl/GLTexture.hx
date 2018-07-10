@@ -1,4 +1,5 @@
-package lime.graphics.opengl; #if lime_opengl #if (!js || !html5 || display)
+package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
+#if ((lime_opengl || lime_opengles) && !display)
 
 
 import lime.graphics.opengl.GL;
@@ -19,9 +20,9 @@ abstract GLTexture(GLObject) from GLObject to GLObject {
 }
 
 
-#else
+#elseif (lime_webgl && !display)
 typedef GLTexture = js.html.webgl.Texture;
-#end
 #else
 typedef GLTexture = Dynamic;
+#end
 #end
