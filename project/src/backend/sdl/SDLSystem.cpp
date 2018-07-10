@@ -32,6 +32,8 @@
 #endif
 
 #include <SDL.h>
+#include <locale>
+#include <codecvt>
 #include <string>
 
 
@@ -96,7 +98,8 @@ namespace lime {
 			case APPLICATION: {
 				
 				char* path = SDL_GetBasePath ();
-				std::wstring* result = new std::wstring (path, path + strlen (path));
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				SDL_free (path);
 				return result;
 				break;
@@ -106,7 +109,8 @@ namespace lime {
 			case APPLICATION_STORAGE: {
 				
 				char* path = SDL_GetPrefPath (company, title);
-				std::wstring* result = new std::wstring (path, path + strlen (path));
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				SDL_free (path);
 				return result;
 				break;
@@ -127,7 +131,8 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				return result;
 				
 				#elif defined (IPHONE)
@@ -167,7 +172,8 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				return result;
 				
 				#elif defined (IPHONE)
@@ -189,7 +195,8 @@ namespace lime {
 				}
 
 				std::string path = std::string (home) + std::string ("/Documents");
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				return result;
 				
 				#endif
@@ -209,7 +216,8 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				return result;
 				
 				#elif defined (HX_MACOS)
@@ -251,7 +259,8 @@ namespace lime {
 				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath);
 				WIN_StringToUTF8 (folderPath);
 				std::string path = std::string (folderPath);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				return result;
 				
 				#elif defined (IPHONE)
@@ -273,7 +282,8 @@ namespace lime {
 				}
 
 				std::string path = std::string (home);
-				std::wstring* result = new std::wstring (path.begin (), path.end ());
+				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+				std::wstring* result = new std::wstring (converter.from_bytes(path));
 				return result;
 				
 				#endif
@@ -617,7 +627,14 @@ namespace lime {
 		
 		#else
 		
-		FILE* result = ::fopen (filename, mode);
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		std::wstring* wfilename = new std::wstring (converter.from_bytes(filename));
+		std::wstring* wmode = new std::wstring (converter.from_bytes(mode));
+		
+		FILE* result = ::_wfopen (wfilename->c_str(), wmode->c_str());
+		
+		delete wfilename;
+		delete wmode;
 		
 		if (result) {
 			
