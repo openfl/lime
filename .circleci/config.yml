@@ -99,7 +99,7 @@ jobs:
   
   Documentation (Haxe 3.4.x):
     docker:
-     - image: openfl/openfl-tests-unit-3.4:0.0.2
+     - image: openfl/openfl-tests-unit-3.4:0.0.5
     working_directory: /workspace/lime/docs/api
     steps:
      - attach_workspace:
