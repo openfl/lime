@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -113,3 +113,6 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 }
+
+
+#end

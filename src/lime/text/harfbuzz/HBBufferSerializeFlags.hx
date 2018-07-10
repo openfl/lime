@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 @:enum abstract HBBufferSerializeFlags(Int) from Int to Int {
@@ -9,3 +9,6 @@ package lime.text.harfbuzz;
 	public var NO_GLYPH_NAMES = 0x00000004;
 	
 }
+
+
+#end

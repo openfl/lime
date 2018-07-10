@@ -1,4 +1,4 @@
-package lime.system;
+package lime.system; #if (!lime_doc_gen || lime_cffi)
 
 
 import lime._internal.macros.CFFIMacro;
@@ -495,4 +495,7 @@ class CFFI {
 		
 	}
 }
+#end
+
+
 #end

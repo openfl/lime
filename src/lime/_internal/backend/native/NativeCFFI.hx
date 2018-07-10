@@ -12,8 +12,6 @@ import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Rectangle;
 import lime.media.openal.ALAuxiliaryEffectSlot;
-import lime.system.CFFI;
-import lime.system.CFFIPointer;
 import lime.utils.DataPointer;
 
 #if hl
@@ -29,10 +27,20 @@ import lime.system.DisplayMode;
 import lime.utils.ArrayBufferView;
 #end
 
+#if (!lime_doc_gen || lime_cffi)
+import lime.system.CFFI;
+import lime.system.CFFIPointer;
+#end
+
 #if cpp
 import cpp.Float32;
 #else
 typedef Float32 = Float;
+#end
+
+#if (lime_doc_gen && !lime_cffi)
+typedef CFFI = Dynamic;
+typedef CFFIPointer = Dynamic;
 #end
 
 // #if hl
@@ -44,7 +52,7 @@ typedef Float32 = Float;
 @:noDebug
 #end
 
-#if !macro
+#if (!macro && !lime_doc_gen)
 @:build(lime.system.CFFI.build())
 #end
 

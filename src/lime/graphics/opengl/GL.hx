@@ -3,7 +3,6 @@ package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles
 
 import haxe.io.Bytes;
 import haxe.Int64;
-import lime.system.CFFIPointer;
 import lime.utils.ArrayBufferView;
 import lime.utils.ArrayBuffer;
 import lime.utils.BytePointer;
@@ -11,8 +10,9 @@ import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 
-#if (lime_cffi && lime_opengl && !macro)
+#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 import lime._internal.backend.native.NativeCFFI;
+import lime.system.CFFIPointer;
 #end
 
 @:allow(lime.ui.Window)
@@ -3332,7 +3332,7 @@ class GL {
 	
 	
 	private var id:Int;
-	private var ptr:CFFIPointer;
+	private var ptr:#if (lime_cffi && (lime_opengl || lime_opengles) && !macro) CFFIPointer #else Dynamic #end;
 	private var refs:Array<GLObject>;
 	
 	

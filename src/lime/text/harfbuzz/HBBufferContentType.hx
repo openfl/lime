@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 @:enum abstract HBBufferContentType(Int) from Int to Int {
@@ -8,3 +8,6 @@ package lime.text.harfbuzz;
 	public var GLYPHS = 2;
 	
 }
+
+
+#end

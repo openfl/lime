@@ -1,4 +1,4 @@
-package lime.net.curl;
+package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 import haxe.io.Bytes;
@@ -316,3 +316,6 @@ class CURL {
 	
 	
 }
+
+
+#end

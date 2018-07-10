@@ -1,4 +1,4 @@
-package lime.net.curl;
+package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 @:enum abstract CURLOption(Int) from Int to Int from UInt to UInt {
@@ -262,3 +262,6 @@ package lime.net.curl;
 	var MIMEPOST = 10269;
 	
 }
+
+
+#end

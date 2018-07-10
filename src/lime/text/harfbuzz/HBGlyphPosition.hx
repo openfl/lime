@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 class HBGlyphPosition {
@@ -20,7 +20,4 @@ class HBGlyphPosition {
 }
 
 
-//hb_position_t  x_advance;
-  //hb_position_t  y_advance;
-  //hb_position_t  x_offset;
-  //hb_position_t  y_offset;
+#end

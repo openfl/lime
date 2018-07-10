@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 @:enum abstract HBDirection(Int) from Int to Int {
@@ -10,3 +10,6 @@ package lime.text.harfbuzz;
 	public var BTT = 7;
 	
 }
+
+
+#end

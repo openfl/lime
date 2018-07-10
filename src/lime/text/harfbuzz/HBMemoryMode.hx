@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 @:enum abstract HBMemoryMode(Int) from Int to Int {
@@ -9,3 +9,6 @@ package lime.text.harfbuzz;
 	public var READONLY_MAY_MAKE_WRITABLE = 3;
 	
 }
+
+
+#end

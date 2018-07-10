@@ -159,6 +159,7 @@ class System {
 	#end
 	
 	
+	#if (!lime_doc_gen || sys)
 	public static function exit (code:Int):Void {
 		
 		#if ((sys || air) && !macro)
@@ -182,6 +183,7 @@ class System {
 		#end
 		
 	}
+	#end
 	
 	
 	public static function getDisplay (id:Int):Display {
@@ -295,7 +297,7 @@ class System {
 	}
 	
 	
-	
+	#if (!lime_doc_gen || lime_cffi)
 	public static inline function load (library:String, method:String, args:Int = 0, lazy:Bool = false):Dynamic {
 		
 		#if !macro
@@ -305,6 +307,7 @@ class System {
 		#end
 		
 	}
+	#end
 	
 	
 	public static function openFile (path:String):Void {

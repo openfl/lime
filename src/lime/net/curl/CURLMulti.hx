@@ -1,4 +1,4 @@
-package lime.net.curl;
+package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -138,3 +138,6 @@ class CURLMulti {
 	
 	
 }
+
+
+#end

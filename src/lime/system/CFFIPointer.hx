@@ -1,4 +1,4 @@
-package lime.system;
+package lime.system; #if (!lime_doc_gen || lime_cffi)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -46,3 +46,6 @@ abstract CFFIPointer(Dynamic) from Dynamic to Dynamic {
 	
 	
 }
+
+
+#end

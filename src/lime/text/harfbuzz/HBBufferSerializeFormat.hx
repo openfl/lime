@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 @:enum abstract HBBufferSerializeFormat(Int) from Int to Int {
@@ -19,3 +19,6 @@ package lime.text.harfbuzz;
 //@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String, len:Int):Int;
 	//@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
 	//@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
+	
+	
+#end

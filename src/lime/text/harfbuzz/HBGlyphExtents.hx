@@ -1,15 +1,17 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
-/**
- * ...
- * @author Joshua Granick
- */
-class HBGlyphExtents
-{
 
-	public function new() 
-	{
+class HBGlyphExtents {
+	
+	
+	public function new () {
+		
+		
 		
 	}
 	
+	
 }
+
+
+#end

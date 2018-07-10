@@ -1,4 +1,4 @@
-package lime.net.curl;
+package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 class CURLMultiMessage {
@@ -17,3 +17,6 @@ class CURLMultiMessage {
 	
 	
 }
+
+
+#end

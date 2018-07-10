@@ -1,4 +1,4 @@
-package lime.system;
+package lime.system; #if (!lime_doc_gen || android)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -367,3 +367,6 @@ class JNIMethod {
 	
 	
 }
+
+
+#end

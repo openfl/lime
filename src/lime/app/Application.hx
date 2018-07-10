@@ -629,7 +629,9 @@ class Application extends Module {
 			
 			if (__windows.length == 0) {
 				
+				#if !lime_doc_gen
 				System.exit (0);
+				#end
 				
 			}
 			

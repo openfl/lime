@@ -1,4 +1,4 @@
-package lime.text.harfbuzz;
+package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 class HBGlyphInfo {
@@ -19,8 +19,4 @@ class HBGlyphInfo {
 }
 
 
-
-
-//hb_codepoint_t codepoint;
-  //hb_mask_t      mask;
-  //uint32_t       cluster;
+#end

@@ -1,4 +1,4 @@
-package lime.net.curl;
+package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 @:enum abstract CURLInfo(Int) from Int to Int from UInt to UInt {
@@ -60,4 +60,7 @@ package lime.net.curl;
 	var PROTOCOL = 0x200000 + 48;
 	var SCHEME = 0x100000 + 49;
 	
-} 
+}
+
+
+#end
