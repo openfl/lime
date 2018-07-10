@@ -19,6 +19,7 @@
 	
 	<templatePath name="templates" />
 	<source path="externs/air" if="air" />
+	<haxeflag name="--macro" value="allowPackage('sys')" if="air" />
 	<sample path="samples" unless="openfl" />
 	
 	<haxelib name="nodejs" if="nodejs" />
