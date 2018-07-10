@@ -43,7 +43,7 @@ class SVGExport {
 				while (true) {
 					
 					var line = StringTools.trim (process.stdout.readLine ());
-					trace (line);
+					
 					if (StringTools.startsWith (line, "-L ")) {
 						
 						path = StringTools.trim (line.substr (2));
