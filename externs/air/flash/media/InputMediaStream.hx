@@ -3,7 +3,7 @@ package flash.media;
 extern class InputMediaStream extends flash.events.EventDispatcher implements flash.utils.IDataInput {
 	var bytesAvailable(default,never) : UInt;
 	var endian : flash.utils.Endian;
-	var objectEncoding : UInt;
+	var objectEncoding : #if openfl openfl.net.ObjectEncoding #else UInt #end;
 	//function new() : Void;
 	function close() : Dynamic;
 	function open() : Dynamic;

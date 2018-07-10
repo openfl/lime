@@ -3,7 +3,7 @@ package flash.filesystem;
 extern class FileStream extends flash.events.EventDispatcher implements flash.utils.IDataInput implements flash.utils.IDataOutput {
 	var bytesAvailable(default,never) : UInt;
 	var endian : flash.utils.Endian;
-	var objectEncoding : UInt;
+	var objectEncoding : #if openfl openfl.net.ObjectEncoding #else UInt #end;
 	var position : Float;
 	var readAhead : Float;
 	function new() : Void;

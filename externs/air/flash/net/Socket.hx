@@ -9,7 +9,7 @@ extern class Socket extends flash.events.EventDispatcher implements flash.utils.
 	var localAddress(default,never) : String;
 	var localPort(default,never) : Int;
 	#end
-	var objectEncoding : UInt;
+	var objectEncoding : #if openfl openfl.net.ObjectEncoding #else UInt #end;
 	#if air
 	var remoteAddress(default,never) : String;
 	var remotePort(default,never) : Int;
