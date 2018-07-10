@@ -1,12 +1,22 @@
 package lime.app;
 
 
-#if macro
-import haxe.macro.Context;
-import haxe.macro.Expr;
-import haxe.macro.Type;
-using haxe.macro.Tools;
-#end
+/**
+   Event is a strictly-typed signals and slots implementation, used for 
+   core event dispatching.
+   
+   For example:
+   
+   ```
+   var event = new Event<Int->Void> ();
+   event.add (function (value:Int):Void { trace (value); });
+   event.dispatch (100);
+   
+   var event = new Event<Void->Void> ();
+   event.add (function () { trace ("callback"); });
+   event.dispatch ();
+   ```
+**/
 
 #if (!macro && !display)
 @:genericBuild(lime._internal.macros.EventMacro.build())
@@ -21,6 +31,9 @@ using haxe.macro.Tools;
 class Event<T> {
 	
 	
+	/**
+	 * Whether the event was canceled during the previous dispatch
+	**/
 	public var canceled (default, null):Bool;
 	
 	@:noCompletion @:dox(hide) public var __listeners:Array<T>;
@@ -28,6 +41,9 @@ class Event<T> {
 	@:noCompletion private var __priorities:Array<Int>;
 	
 	
+	/**
+	 * Creates a new Event instance
+	**/
 	public function new () {
 		
 		#if !macro
@@ -40,6 +56,12 @@ class Event<T> {
 	}
 	
 	
+	/**
+	   Adds a new event listener
+	   @param	listener	A callback that matches the signature of the event
+	   @param	once	Whether to receive an event dispatch only once, or each time it is fired
+	   @param	priority	The priority for this listener, a higher priority will be dispatched sooner
+	**/
 	public function add (listener:T, once:Bool = false, priority:Int = 0):Void {
 		
 		#if !macro
@@ -64,158 +86,9 @@ class Event<T> {
 	}
 	
 	
-	#if macro
-	private static function build () {
-		
-		var typeArgs;
-		var typeResult;
-		
-		switch (Context.follow (Context.getLocalType ())) {
-			
-			case TInst (_, [ Context.follow (_) => TFun (args, result) ]):
-				
-				typeArgs = args;
-				typeResult = result;
-			
-			case TInst (localType, _):
-				
-				Context.fatalError ("Invalid number of type parameters for " + localType.toString (), Context.currentPos ());
-				return null;
-			
-			default:
-				
-				throw false;
-			
-		}
-		
-		var typeParam = TFun (typeArgs, typeResult);
-		var typeString = "";
-		
-		if (typeArgs.length == 0) {
-			
-			typeString = "Void->";
-			
-		} else {
-			
-			for (arg in typeArgs) {
-				
-				typeString += arg.t.toString () + "->";
-				
-			}
-			
-		}
-		
-		typeString += typeResult.toString ();
-		typeString = StringTools.replace (typeString, "->", "_");
-		typeString = StringTools.replace (typeString, ".", "_");
-		typeString = StringTools.replace (typeString, "<", "_");
-		typeString = StringTools.replace (typeString, ">", "_");
-		
-		var name = "_Event_" + typeString;
-		
-		try {
-			
-			Context.getType ("lime.app." + name);
-			
-		} catch (e:Dynamic) {
-			
-			var pos = Context.currentPos ();
-			var fields = Context.getBuildFields ();
-			
-			var args:Array<FunctionArg> = [];
-			var argName, argNames = [];
-			
-			for (i in 0...typeArgs.length) {
-				
-				if (i == 0) {
-					
-					argName = "a";
-					
-				} else {
-					
-					argName = "a" + i;
-					
-				}
-				
-				argNames.push (Context.parse (argName, pos));
-				args.push ({ name: argName, type: typeArgs[i].t.toComplexType () });
-				
-			}
-			
-			var dispatch = macro {
-				
-				canceled = false;
-				
-				var listeners = __listeners;
-				var repeat = __repeat;
-				var i = 0;
-				
-				while (i < listeners.length) {
-					
-					listeners[i] ($a{argNames});
-					
-					if (!repeat[i]) {
-						
-						this.remove (cast listeners[i]);
-						
-					} else {
-						
-						i++;
-						
-					}
-					
-					if (canceled) {
-						
-						break;
-						
-					}
-					
-				}
-				
-			}
-			
-			var i = 0;
-			var field;
-			
-			while (i < fields.length) {
-				
-				field = fields[i];
-				
-				if (field.name == "__listeners" || field.name == "dispatch") {
-					
-					fields.remove (field);
-					
-				} else {
-					
-					i++;
-					
-				}
-				
-			}
-			
-			fields.push ( { name: "__listeners", access: [ APublic ], kind: FVar (TPath ({ pack: [], name: "Array", params: [ TPType (typeParam.toComplexType ()) ] })), pos: pos } );
-			fields.push ( { name: "dispatch", access: [ APublic ], kind: FFun ( { args: args, expr: dispatch, params: [], ret: macro :Void } ), pos: pos } );
-			
-			Context.defineType ({
-				
-				pos: pos,
-				pack: [ "lime", "app" ],
-				name: name,
-				kind: TDClass (),
-				fields: fields,
-				params: [ { name: "T" } ],
-				meta: [ { name: ":dox", params: [ macro hide ], pos: pos }, { name: ":noCompletion", pos: pos } ]
-				
-			});
-			
-		}
-		
-		return TPath ( { pack: [ "lime", "app" ], name: name, params: [ TPType (typeParam.toComplexType ()) ] } ).toType ();
-		
-	}
-	#end
-	
-	
+	/**
+	   Marks the event as canceled, and stops the current event dispatch
+	**/
 	public function cancel ():Void {
 		
 		canceled = true;
@@ -223,6 +96,12 @@ class Event<T> {
 	}
 	
 	
+	/**
+	   Dispatches a new event callback to all listeners. The signature for the
+	   `dispatch` method depends upon the type of the `Event`. For example, an 
+	   `Event` of type `Int->Int->Void` will create a `dispatch` method that
+	   takes two `Int` arguments, like `dispatch (1, 2);`
+	**/
 	public var dispatch:Dynamic;
 	
 	//macro public function dispatch (ethis:Expr, args:Array<Expr>):Void {
@@ -254,6 +133,11 @@ class Event<T> {
 	//}
 	
 	
+	/**
+	   Checks whether a callback is a listener to this event
+	   @param	listener	A callback that matches the signature of the event
+	   @return	Whether the callback is a listener
+	**/
 	public function has (listener:T):Bool {
 		
 		#if !macro
@@ -269,6 +153,10 @@ class Event<T> {
 	}
 	
 	
+	/**
+	   Removes an event listener
+	   @param	listener	A callback that matches the signature of the event
+	**/
 	public function remove (listener:T):Void {
 		
 		#if !macro

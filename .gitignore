@@ -20,6 +20,7 @@ haxedoc.xml
 docs/api/*.xml
 docs/api/xml
 docs/api/pages*
+docs/api/dump
 docs/.sass-cache
 docs/_site
 legacy/ndll/*/lime*

@@ -15,6 +15,14 @@ import lime.ui.Window;
 import lime.ui.WindowAttributes;
 import lime.utils.Preloader;
 
+
+/**
+ * The Application class forms the foundation for most Lime projects.
+ * It is common to extend this class in a main class. It is then possible
+ * to override "on" functions in the class in order to handle standard events
+ * that are relevant.
+ */
+
 @:access(lime.ui.Window)
 
 #if !lime_debug
@@ -23,12 +31,6 @@ import lime.utils.Preloader;
 #end
 
 
-/** 
- * The Application class forms the foundation for most Lime projects.
- * It is common to extend this class in a main class. It is then possible
- * to override "on" functions in the class in order to handle standard events
- * that are relevant.
- */
 class Application extends Module {
 	
 	
@@ -52,6 +54,9 @@ class Application extends Module {
 	 */
 	public var onUpdate = new Event<Int->Void> ();
 	
+	/**
+	 * Dispatched when a new window has been created by this application
+	**/
 	public var onCreateWindow = new Event<Window->Void> ();
 	
 	/**
