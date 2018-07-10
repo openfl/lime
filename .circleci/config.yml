@@ -117,7 +117,7 @@ jobs:
          name: Deploy
          command: |
             if [ "${CIRCLE_BRANCH}" == "develop" ]; then
-              aws s3 sync docs-api s3://api.lime.software --acl bucket-owner-full-control --acl public-read --size-only --delete --include="*" --cache-control max-age=864000
+              aws s3 sync pages s3://api.lime.software --acl bucket-owner-full-control --acl public-read --size-only --delete --include="*" --cache-control max-age=864000
             else
               echo "Not on master (skipping step)"
             fi
