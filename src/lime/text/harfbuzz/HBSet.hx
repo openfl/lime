@@ -141,7 +141,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function set (other:HBSet):Void {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_set_set (this, other);
+		NativeCFFI.lime_hb_set_set (this, other);
 		#end
 		
 	}

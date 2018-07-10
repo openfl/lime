@@ -109,7 +109,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function makeImmutable ():Void {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_make_immutable (this);
+		NativeCFFI.lime_hb_font_make_immutable (this);
 		#end
 		
 	}
@@ -118,9 +118,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function subtractGlyphOriginForDirection (glyph:Int, direction:HBDirection, x:Int, y:Int):Void {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_subtract_glyph_origin_for_direction (this, glyph, direction, x, y);
-		#else
-		return null;
+		NativeCFFI.lime_hb_font_subtract_glyph_origin_for_direction (this, glyph, direction, x, y);
 		#end
 		
 	}
