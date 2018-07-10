@@ -1,4 +1,4 @@
-package lime.media.openal;
+package lime.media.openal; #if (!lime_doc_gen || lime_openal)
 
 
 import lime.system.CFFIPointer;
@@ -18,3 +18,6 @@ abstract ALContext(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 }
+
+
+#end

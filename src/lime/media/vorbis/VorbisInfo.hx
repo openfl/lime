@@ -1,4 +1,4 @@
-package lime.media.vorbis;
+package lime.media.vorbis; #if (!lime_doc_gen || lime_vorbis)
 
 
 class VorbisInfo {
@@ -21,3 +21,6 @@ class VorbisInfo {
 	
 	
 }
+
+
+#end

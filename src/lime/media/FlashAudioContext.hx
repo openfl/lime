@@ -1,4 +1,4 @@
-package lime.media;
+package lime.media; #if (!lime_doc_gen || flash)
 
 
 #if flash
@@ -9,7 +9,7 @@ import flash.media.Sound;
 class FlashAudioContext {
 	
 	
-	public function new () {
+	private function new () {
 		
 		
 		
@@ -217,3 +217,6 @@ class FlashAudioContext {
 	
 	
 }
+
+
+#end

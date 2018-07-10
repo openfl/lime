@@ -1,4 +1,4 @@
-package lime.media;
+package lime.media; #if (!lime_doc_gen || (js && html5))
 
 
 #if (js && html5)
@@ -22,7 +22,7 @@ class HTML5AudioContext {
 	public var NETWORK_NO_SOURCE:Int = 3;
 	
 	
-	public function new () {
+	private function new () {
 		
 		
 		
@@ -530,3 +530,6 @@ class HTML5AudioContext {
 	
 	
 }
+
+
+#end

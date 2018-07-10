@@ -1,4 +1,4 @@
-package lime.media; #if (!js || !html5 || display)
+package lime.media; #if (!lime_doc_gen || (js && html5)) #if (!lime_doc_gen && (!js || !html5 || display))
 
 
 class WebAudioContext {
@@ -46,4 +46,5 @@ class WebAudioContext {
 
 #else
 typedef WebAudioContext = js.html.audio.AudioContext;
+#end
 #end

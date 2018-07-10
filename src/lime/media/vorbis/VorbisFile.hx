@@ -1,4 +1,4 @@
-package lime.media.vorbis;
+package lime.media.vorbis; #if (!lime_doc_gen || lime_vorbis)
 
 
 import haxe.Int64;
@@ -410,3 +410,6 @@ class VorbisFile {
 	
 	
 }
+
+
+#end

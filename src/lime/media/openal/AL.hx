@@ -1,4 +1,4 @@
-package lime.media.openal;
+package lime.media.openal; #if (!lime_doc_gen || lime_openal)
 
 
 import lime._internal.backend.native.NativeCFFI;
@@ -1505,3 +1505,6 @@ class AL {
 	
 	
 }
+
+
+#end

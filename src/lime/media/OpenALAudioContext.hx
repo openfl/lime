@@ -1,8 +1,11 @@
-package lime.media;
+package lime.media; #if (!lime_doc_gen || lime_openal)
 
 
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
+import lime.media.openal.ALC;
+import lime.media.openal.ALContext;
+import lime.media.openal.ALDevice;
 import lime.media.openal.ALSource;
 import lime.utils.ArrayBufferView;
 
@@ -12,7 +15,7 @@ import lime.utils.ArrayBufferView;
 #end
 
 
-class ALAudioContext {
+class OpenALAudioContext {
 	
 	
 	public var NONE:Int = 0;
@@ -78,8 +81,22 @@ class ALAudioContext {
 	public var EXPONENT_DISTANCE:Int = 0xD005;
 	public var EXPONENT_DISTANCE_CLAMPED:Int = 0xD006;
 	
+	public var REFRESH:Int = 0x1008;
+	public var SYNC:Int = 0x1009;
+	public var MONO_SOURCES:Int = 0x1010;
+	public var STEREO_SOURCES:Int = 0x1011;
+	public var INVALID_DEVICE:Int = 0xA001;
+	public var INVALID_CONTEXT:Int = 0xA002;
+	public var ATTRIBUTES_SIZE:Int = 0x1002;
+	public var ALL_ATTRIBUTES:Int = 0x1003;
+	public var DEFAULT_DEVICE_SPECIFIER:Int = 0x1004;
+	public var DEVICE_SPECIFIER:Int = 0x1005;
+	public var ENUMERATE_ALL_EXT:Int = 1;
+	public var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
+	public var ALL_DEVICES_SPECIFIER:Int = 0x1013;
 	
-	public function new () {
+	
+	private function new () {
 		
 		
 		
@@ -135,9 +152,16 @@ class ALAudioContext {
 	}
 	
 	
-	public function createSource ():ALSource {
+	public function closeDevice (device:ALDevice):Bool {
 		
-		return AL.createSource ();
+		return ALC.closeDevice (device);
+		
+	}
+	
+	
+	public function createContext (device:ALDevice, attrlist:Array<Int> = null):ALContext {
+		
+		return ALC.createContext (device, attrlist);
 		
 	}
 	
@@ -145,6 +169,13 @@ class ALAudioContext {
 	public function createBuffer ():ALBuffer {
 		
 		return AL.createBuffer ();
+		
+	}
+	
+	
+	public function createSource ():ALSource {
+		
+		return AL.createSource ();
 		
 	}
 	
@@ -173,6 +204,14 @@ class ALAudioContext {
 	public function deleteSources (sources:Array<ALSource>):Void {
 		
 		AL.deleteSources (sources);
+		
+	}
+	
+	
+	public function destroyContext (context:ALContext):Void {
+		
+		if (context == null) return;
+		ALC.destroyContext (context);
 		
 	}
 	
@@ -296,6 +335,22 @@ class ALAudioContext {
 	}
 	
 	
+	
+	public function getContextsDevice (context:ALContext):ALDevice {
+		
+		if (context == null) return null;
+		return ALC.getContextsDevice (context);
+		
+	}
+	
+	
+	public function getCurrentContext ():ALContext {
+		
+		return ALC.getCurrentContext ();
+		
+	}
+	
+	
 	public function getDouble (param:Int):Float {
 		
 		return AL.getDouble (param);
@@ -317,16 +372,32 @@ class ALAudioContext {
 	}
 	
 	
-	public function getError ():Int {
+	public function getError (device:ALDevice = null):Int {
 		
-		return AL.getError ();
+		if (device == null) {
+			
+			return AL.getError ();
+			
+		} else {
+			
+			return ALC.getError (device);
+			
+		}
 		
 	}
 	
 	
-	public function getErrorString ():String {
+	public function getErrorString (device:ALDevice = null):String {
 		
-		return AL.getErrorString ();
+		if (device == null) {
+			
+			return AL.getErrorString ();
+			
+		} else {
+			
+			return ALC.getErrorString (device);
+			
+		}
 		
 	}
 	
@@ -352,9 +423,17 @@ class ALAudioContext {
 	}
 	
 	
-	public function getIntegerv (param:Int, count:Int = 1):Array<Int> {
+	public function getIntegerv (param:Int, count:Int = 1, device:ALDevice = null):Array<Int> {
 		
-		return AL.getIntegerv (param, count);
+		if (device == null) {
+			
+			return AL.getIntegerv (param, count);
+			
+		} else {
+			
+			return ALC.getIntegerv (device, param, count);
+			
+		}
 		
 	}
 	
@@ -450,9 +529,17 @@ class ALAudioContext {
 	}
 	
 	
-	public function getString (param:Int):String {
+	public function getString (param:Int, device:ALDevice = null):String {
 		
-		return AL.getString (param);
+		if (device == null) {
+			
+			return AL.getString (param);
+			
+		} else {
+			
+			return ALC.getString (device, param);
+			
+		}
 		
 	}
 	
@@ -523,6 +610,41 @@ class ALAudioContext {
 	public function listeneriv (param:Int, values:Array<Int>):Void {
 		
 		AL.listeneriv (param, values);
+		
+	}
+	
+	
+	public function makeContextCurrent (context:ALContext):Bool {
+		
+		return ALC.makeContextCurrent (context);
+		
+	}
+	
+	
+	public function openDevice (deviceName:String = null):ALDevice {
+		
+		return ALC.openDevice (deviceName);
+		
+	}
+	
+	
+	public function pauseDevice (device:ALDevice):Void {
+		
+		ALC.pauseDevice (device);
+		
+	}
+	
+	
+	public function processContext (context:ALContext):Void {
+		
+		ALC.processContext (context);
+		
+	}
+	
+	
+	public function resumeDevice (device:ALDevice):Void {
+		
+		ALC.resumeDevice (device);
 		
 	}
 	
@@ -660,4 +782,14 @@ class ALAudioContext {
 	}
 	
 	
+	public function suspendContext (context:ALContext):Void {
+		
+		ALC.suspendContext (context);
+		
+	}
+	
+	
 }
+
+
+#end

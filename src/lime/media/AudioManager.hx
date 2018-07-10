@@ -32,32 +32,19 @@ class AudioManager {
 			
 			if (context == null) {
 				
-				#if (js && html5)
+				context = new AudioContext ();
+				
+				#if !lime_doc_gen
+				if (context.type == OPENAL) {
 					
-					try {
-						
-						untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
-						AudioManager.context = WEB (cast untyped __js__ ("new AudioContext ()"));
-						
-					} catch (e:Dynamic) {
-						
-						AudioManager.context = HTML5 (new HTML5AudioContext ());
-						
-					}
+					var alc = context.openal;
 					
-				#elseif flash
+					var device = alc.openDevice ();
+					var ctx = alc.createContext (device);
+					alc.makeContextCurrent (ctx);
+					alc.processContext (ctx);
 					
-					AudioManager.context = FLASH (new FlashAudioContext ());
-					
-				#else
-					
-					AudioManager.context = OPENAL (new ALCAudioContext (), new ALAudioContext ());
-					
-					var device = ALC.openDevice ();
-					var ctx = ALC.createContext (device);
-					ALC.makeContextCurrent (ctx);
-					ALC.processContext (ctx);
-					
+				}
 				#end
 				
 			} else {
@@ -82,89 +69,74 @@ class AudioManager {
 	
 	public static function resume ():Void {
 		
-		if (context != null) {
+		#if !lime_doc_gen
+		if (context != null && context.type == OPENAL) {
 			
-			switch (context) {
+			var alc = context.openal;
+			var currentContext = alc.getCurrentContext ();
+			
+			if (currentContext != null) {
 				
-				case OPENAL (alc, al):
-					
-					var currentContext = alc.getCurrentContext ();
-					
-					if (currentContext != null) {
-						
-						var device = alc.getContextsDevice (currentContext);
-						alc.resumeDevice (device);
-						alc.processContext (currentContext);
-						
-					}
-				
-				default:
+				var device = alc.getContextsDevice (currentContext);
+				alc.resumeDevice (device);
+				alc.processContext (currentContext);
 				
 			}
 			
 		}
+		#end
 		
 	}
 	
 	
 	public static function shutdown ():Void {
 		
-		if (context != null) {
+		#if !lime_doc_gen
+		if (context != null && context.type == OPENAL) {
 			
-			switch (context) {
+			var alc = context.openal;
+			var currentContext = alc.getCurrentContext ();
+			
+			if (currentContext != null) {
 				
-				case OPENAL (alc, al):
-					
-					var currentContext = alc.getCurrentContext ();
-					
-					if (currentContext != null) {
-						
-						var device = alc.getContextsDevice (currentContext);
-						alc.makeContextCurrent (null);
-						alc.destroyContext (currentContext);
-						
-						if (device != null) {
-							
-							alc.closeDevice (device);
-							
-						}
-						
-					}
+				var device = alc.getContextsDevice (currentContext);
+				alc.makeContextCurrent (null);
+				alc.destroyContext (currentContext);
 				
-				default:
+				if (device != null) {
+					
+					alc.closeDevice (device);
+					
+				}
 				
 			}
 			
-			context = null;
-			
 		}
+		#end
+		
+		context = null;
 		
 	}
 	
 	
 	public static function suspend ():Void {
 		
-		if (context != null) {
+		#if !lime_doc_gen
+		if (context != null && context.type == OPENAL) {
 			
-			switch (context) {
+			var alc = context.openal;
+			var currentContext = alc.getCurrentContext ();
+			
+			if (currentContext != null) {
 				
-				case OPENAL (alc, al):
-					
-					var currentContext = alc.getCurrentContext ();
-					
-					if (currentContext != null) {
-						
-						alc.suspendContext (currentContext);
-						var device = alc.getContextsDevice (currentContext);
-						alc.pauseDevice (device);
-						
-					}
-				
-				default:
+				alc.suspendContext (currentContext);
+				var device = alc.getContextsDevice (currentContext);
+				alc.pauseDevice (device);
 				
 			}
 			
 		}
+		#end
 		
 	}
 	

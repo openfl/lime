@@ -1,4 +1,4 @@
-package lime.media.howlerjs; #if (!js || !html5  || display)
+package lime.media.howlerjs; #if (!lime_doc_gen || lime_howlerjs) #if (!lime_howlerjs || display)
 
 
 import haxe.Constraints.Function;
@@ -332,3 +332,6 @@ typedef HowlOptions = {
 	?onfade:Function
 	
 }
+
+
+#end

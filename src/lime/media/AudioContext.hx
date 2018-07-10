@@ -1,18 +1,79 @@
 package lime.media;
 
 
-import lime.media.ALAudioContext;
-import lime.media.FlashAudioContext;
-import lime.media.HTML5AudioContext;
-import lime.media.WebAudioContext;
+@:access(lime.media.FlashAudioContext)
+@:access(lime.media.HTML5AudioContext)
+@:access(lime.media.OpenALAudioContext)
+@:access(lime.media.WebAudioContext)
 
 
-enum AudioContext {
+class AudioContext {
 	
-	OPENAL (alc:ALCAudioContext, al:ALAudioContext);
-	HTML5 (context:HTML5AudioContext);
-	WEB (context:WebAudioContext);
-	FLASH (context:FlashAudioContext);
-	CUSTOM (data:Dynamic);
+	
+	public var custom:Dynamic;
+	
+	#if (!lime_doc_gen || flash)
+	public var flash (default, null):FlashAudioContext;
+	#end
+	
+	#if (!lime_doc_gen || (js && html5))
+	public var html5 (default, null):HTML5AudioContext;
+	#end
+	
+	#if (!lime_doc_gen || lime_openal)
+	public var openal (default, null):OpenALAudioContext;
+	#end
+	
+	public var type (default, null):AudioContextType;
+	
+	#if (!lime_doc_gen || (js && html5))
+	public var web (default, null):WebAudioContext;
+	#end
+	
+	
+	public function new (type:AudioContextType = null) {
+		
+		if (type != CUSTOM) {
+			
+			#if (js && html5)
+			
+			if (type == null || type == WEB) {
+				
+				try {
+					
+					untyped __js__ ("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
+					web = cast untyped __js__ ("new AudioContext ()");
+					this.type = WEB;
+					
+				} catch (e:Dynamic) {}
+				
+			}
+			
+			if (web == null && type != WEB) {
+				
+				html5 = new HTML5AudioContext ();
+				this.type = HTML5;
+				
+			}
+			
+			#elseif flash
+			
+			flash = new FlashAudioContext ();
+			this.type = FLASH;
+			
+			#else
+			
+			openal = new OpenALAudioContext ();
+			this.type = OPENAL;
+			
+			#end
+			
+		} else {
+			
+			this.type = CUSTOM;
+			
+		}
+		
+	}
 	
 }
