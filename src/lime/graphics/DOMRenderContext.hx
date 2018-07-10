@@ -1,4 +1,4 @@
-package lime.graphics; #if (lime_doc_gen && lime_dom) #if (lime_dom && (lime_doc_gen || !doc_gen))
+package lime.graphics; #if (!lime_doc_gen || lime_dom) #if (lime_dom && (lime_doc_gen || !doc_gen))
 
 
 import js.html.Element;

@@ -1,4 +1,4 @@
-package lime.graphics; #if (lime_doc_gen && flash) #if (flash && (lime_doc_gen || !doc_gen))
+package lime.graphics; #if (!lime_doc_gen || flash) #if (flash && (lime_doc_gen || !doc_gen))
 
 
 import flash.display.Sprite;
