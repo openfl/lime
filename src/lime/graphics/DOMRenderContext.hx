@@ -3,6 +3,19 @@ package lime.graphics; #if (!lime_doc_gen || lime_dom) #if (lime_dom && (lime_do
 
 import js.html.Element;
 
+
+/**
+	The `DOMRenderContext` represents the primary `js.html.Element` instance when DOM
+	is the render context type of the `Window`.
+	
+	You can convert from `lime.graphics.RenderContext` to `DOMRenderContext` directly
+	if desired:
+	
+	```
+	var dom:DOMRenderContext = window.context;
+	```
+**/
+
 @:access(lime.graphics.RenderContext)
 @:forward
 

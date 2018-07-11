@@ -54,22 +54,22 @@ class Promise<T> {
 	
 	
 	/**
-	   The `Future` associated with this `Promise`.
-	   
-	   All subsequent calls to set an error, completion or progress state
-	   will update the status and notify listeners to this `Future`
+		The `Future` associated with this `Promise`.
+		
+		All subsequent calls to set an error, completion or progress state
+		will update the status and notify listeners to this `Future`
 	**/
 	public var future (default, null):Future<T>;
 	
 	/**
-	   Whether the `Promise` (and related `Future`) has finished with a completion state.
-	   This will be `false` if the `Promise` has not been resolved with a completion or error state.
+		Whether the `Promise` (and related `Future`) has finished with a completion state.
+		This will be `false` if the `Promise` has not been resolved with a completion or error state.
 	**/
 	public var isComplete (get, null):Bool;
 	
 	/**
-	   Whether the `Promise` (and related `Future`) has finished with an error state.
-	   This will be `false` if the `Promise` has not been resolved with a completion or error state.
+		Whether the `Promise` (and related `Future`) has finished with an error state.
+		This will be `false` if the `Promise` has not been resolved with a completion or error state.
 	**/
 	public var isError (get, null):Bool;
 	
@@ -88,7 +88,7 @@ class Promise<T> {
 	
 	
 	/**
-	   Create a new `Promise` instance
+		Create a new `Promise` instance
 	**/
 	public function new () {
 		
@@ -98,9 +98,9 @@ class Promise<T> {
 	
 	
 	/**
-	   Resolves this `Promise` with a completion state
-	   @param	data	The completion value
-	   @return	The current `Promise`
+		Resolves this `Promise` with a completion state
+		@param	data	The completion value
+		@return	The current `Promise`
 	**/
 	public function complete (data:T):Promise<T> {
 		
@@ -129,10 +129,10 @@ class Promise<T> {
 	
 	
 	/**
-	   Resolves this `Promise` with the complete, error and/or progress state
-	   of another `Future`
-	   @param	future	The `Future` to use to resolve this `Promise`
-	   @return	The current `Promise`
+		Resolves this `Promise` with the complete, error and/or progress state
+		of another `Future`
+		@param	future	The `Future` to use to resolve this `Promise`
+		@return	The current `Promise`
 	**/
 	public function completeWith (future:Future<T>):Promise<T> {
 		
@@ -146,9 +146,9 @@ class Promise<T> {
 	
 	
 	/**
-	   Resolves this `Promise` with an error state
-	   @param	msg	The error value
-	   @return	The current `Promise`
+		Resolves this `Promise` with an error state
+		@param	msg	The error value
+		@return	The current `Promise`
 	**/
 	public function error (msg:Dynamic):Promise<T> {
 		
@@ -177,10 +177,10 @@ class Promise<T> {
 	
 	
 	/**
-	   Sends progress updates to the related `Future`
-	   @param	progress	A progress value
-	   @param	total	A total value. This should be equal or greater to the `progress` value
-	   @return	The current `Promise`
+		Sends progress updates to the related `Future`
+		@param	progress	A progress value
+		@param	total	A total value. This should be equal or greater to the `progress` value
+		@return	The current `Promise`
 	**/
 	public function progress (progress:Int, total:Int):Promise<T> {
 		

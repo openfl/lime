@@ -62,6 +62,15 @@ import sys.io.File;
 #end
 #end
 
+
+/**
+	`Image` is a convenience class for working with bitmap images in Lime.
+	
+	Although `ImageBuffer` holds the actual bitmap data, `Image` includes convenience methods for
+	loading from files, loading from bytes, and performing many pixel operations over an
+	`ImageBuffer` instance.
+**/
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -91,22 +100,105 @@ class Image {
 	private static var __base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var __base64Encoder:BaseCode;
 	
+	/**
+		The `ImageBuffer` store that backs the `Image`
+	**/
 	public var buffer:ImageBuffer;
+	
+	/**
+		Retrieves `UInt8Array` data from the `ImageBuffer`. If the `ImageBuffer`
+		is not in a data format, it will be converted.
+	**/
 	public var data (get, set):UInt8Array;
+	
+	/**
+		Whether the `Image` is dirty. This is set to `true` when pixel operations
+		have been performed on the underlying `buffer`, and can be set to `false`
+		again by your own renderer.
+	**/
 	public var dirty:Bool;
+	
+	/**
+		Get or set the `PixelFormat` for the underlying `ImageBuffer`. This can be
+		used to convert the `ImageBuffer` to a new format.
+	**/
 	public var format (get, set):PixelFormat;
+	
+	/**
+		The logical height of the `Image`. This can be smaller than the `height`
+		of the underlying `buffer`.
+	**/
 	public var height:Int;
+	
+	/**
+		The offset X position of the `Image`, from the source `buffer`,
+		when the `Image` is smaller than the full size of the source `buffer`
+	**/
 	public var offsetX:Int;
+	
+	/**
+		The offset Y position of the `Image`, from the source `buffer`,
+		when the `Image` is smaller than the full size of the source `buffer`
+	**/
 	public var offsetY:Int;
+	
+	/**
+		Get or set whether the `ImageBuffer` dimensions are both a power-of-two
+		(such as 2, 4, 8, 16, so on). Setting this value may resize the underlying
+		`buffer`
+	**/
 	public var powerOfTwo (get, set):Bool;
+	
+	/**
+		Get or set whether this `Image` has premultiplied alpha. Setting this value
+		may multiply or unmultiply data if the underlying `ImageBuffer` uses a 
+		different format.
+	**/
 	public var premultiplied (get, set):Bool;
+	
+	/**
+		The offset, width and height of this image as a `Rectangle`
+	**/
 	public var rect (get, null):Rectangle;
+	
+	/**
+		A higher-level representation of the source `ImageBuffer`. This might be an
+		HTML5 Image, CanvasElement or a Flash BitmapData instance.
+	**/
 	public var src (get, set):Dynamic;
+	
+	/**
+		Get or set whether the underlying `ImageBuffer` is transparent.
+	**/
 	public var transparent (get, set):Bool;
+	
+	/**
+		The current `ImageType`, representing what is being used to store the `Image`'s graphics
+	**/
 	public var type:ImageType;
+	
+	/**
+		The `version` of the `Image` increases each time it is modified, helpful to determining
+		whether a cache is out-of-date.
+	**/
 	public var version:Int;
+	
+	/**
+		The logical width of the `Image`. This can be smaller than the `width`
+		of the underlying `buffer`.
+	**/
 	public var width:Int;
+	
+	/**
+		A convenience property, unused internally, which may be helpful for different renderer
+		implementations
+	**/
 	public var x:Float;
+	
+	/**
+		A convenience property, unused internally, which may be helpful for different renderer
+		implementations
+	**/
 	public var y:Float;
 	
 	
@@ -128,6 +220,18 @@ class Image {
 	#end
 	
 	
+	/**
+		Creates a new `Image` instance.
+		
+		If `buffer` is null, but `width` and `height` are set, a new `ImageBuffer` is allocated matching the `color` requested.
+		@param	buffer	(Optional) The `ImageBuffer` this `Image` represents
+		@param	offsetX	(Optional) A logical offset value within the `ImageBuffer` dimensions
+		@param	offsetY	(Optional) A logical offset value within the `ImageBuffer` dimensions
+		@param	width	(Optional) A logical width value within the `ImageBuffer` dimensions
+		@param	height	(Optional) A logical height value within the `ImageBuffer` dimensions
+		@param	color	(Optional) A fill color to use if the `buffer` property is `null`
+		@param	type	(Optional) An `ImageType` to use for this `Image`
+	**/
 	public function new (buffer:ImageBuffer = null, offsetX:Int = 0, offsetY:Int = 0, width:Int = -1, height:Int = -1, color:Null<Int> = null, type:ImageType = null) {
 		
 		this.offsetX = offsetX;
@@ -200,6 +304,10 @@ class Image {
 	}
 	
 	
+	/**
+		Creates a duplicate copy of this `Image` and `ImageBuffer`
+		@return	A new `Image` instance
+	**/
 	public function clone ():Image {
 		
 		if (buffer != null) {
@@ -229,6 +337,11 @@ class Image {
 	}
 	
 	
+	/**
+		Applies a color transform to the underlying `ImageBuffer` data
+		@param	rect	The target rectangle to transform
+		@param	colorMatrix	A `ColorMatrix` for color offset and/or multiplication
+	**/
 	public function colorTransform (rect:Rectangle, colorMatrix:ColorMatrix):Void {
 		
 		rect = __clipRect (rect);
@@ -260,6 +373,14 @@ class Image {
 	}
 	
 	
+	/**
+		Copy a color channel from one `Image` to another. This can also be within the same `Image` instance.
+		@param	sourceImage	The `Image` to copy from
+		@param	sourceRect	The source rectangle to copy from in the `sourceImage`
+		@param	destPoint	The destination point to apply the channel in the current `Image`
+		@param	sourceChannel	The source color channel to copy the data from
+		@param	destChannel	The destination color channel to apply the data into
+	**/
 	public function copyChannel (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, sourceChannel:ImageChannel, destChannel:ImageChannel):Void {
 		
 		sourceRect = __clipRect (sourceRect);
@@ -312,6 +433,15 @@ class Image {
 	}
 	
 	
+	/**
+		Copies pixels from one `Image` to another. The source `Image` can also be this `Image`
+		@param	sourceImage	The source `Image` to copy from
+		@param	sourceRect	The source rectangle to use when copying
+		@param	destPoint	The destination point to use when copying
+		@param	alphaImage	(Optional) A different `Image` to use as the alpha channel while copying
+		@param	alphaPoint	(Optional) A point in the alpha image to use when copying
+		@param	mergeAlpha	(Optional) Whether to blend the source and destination alpha (`true`), or to replace the destination alpha (`false`)
+	**/
 	public function copyPixels (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void {
 		
 		if (buffer == null || sourceImage == null) return;
@@ -411,6 +541,12 @@ class Image {
 	}
 	
 	
+	/**
+		Encodes this `Image` into an image file format, such as PNG or JPEG.
+		@param	format	(Optional) An `ImageFileFormat` to encode into (default is `PNG`)
+		@param	quality	(Optional) A quality value to use when encoding as JPEG (from 0 to 100)
+		@return	`Bytes` for the encoded `Image`, or `null` if encoding was not successful
+	**/
 	public function encode (format:ImageFileFormat = null, quality:Int = 90):Bytes {
 		
 		switch (format) {
@@ -436,6 +572,12 @@ class Image {
 	}
 	
 	
+	/**
+		Fill a rectangle in the `Image` with a solid color
+		@param	rect	A destination rectangle in this `Image` to fill
+		@param	color	The color to use when filling this `Image`
+		@param	format	(Optional) The `PixelFormat` that `color` is encoded in (default is `RGBA`)
+	**/
 	public function fillRect (rect:Rectangle, color:Int, format:PixelFormat = null):Void {
 		
 		rect = __clipRect (rect);
@@ -478,6 +620,16 @@ class Image {
 	}
 	
 	
+	/**
+		Applies a flood fill to this `Image`, starting with the point specified.
+		
+		A flood fill behaves similarly to the "paint can" tool in many image editors,
+		the fill will apply the chosen color to neighboring pixels of the same color.
+		@param	x	The target x coordinate within the `Image` to use with the fill
+		@param	y	The target y coordinate within the `Image` to use with the fill
+		@param	color	The color to use when performing the fill
+		@param	format	(Optional) The `PixelFormat` that `color` is encoded in (default is `RGBA`)
+	**/
 	public function floodFill (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null) return;
@@ -515,6 +667,12 @@ class Image {
 	}
 	
 	
+	/**
+		Converts a Base64-encoded `String` into an `Image`, or returns `null` if this is not possible
+		@param	base64	A Base64-encoded `String`
+		@param	type	A mime-type to describe the image data (such as "image/png")
+		@return	A new `Image`, or `null` if conversion was not possible
+	**/
 	public static function fromBase64 (base64:String, type:String):Image {
 		
 		if (base64 == null) return null;
@@ -525,6 +683,12 @@ class Image {
 	}
 	
 	
+	#if (!lime_doc_gen || flash)
+	/**
+		Creates a new `Image` from a Flash `BitmapData` instance
+		@param	bitmapData	A source `bitmapData` to use
+		@return		A new `Image` instance
+	**/
 	#if flash
 	public static function fromBitmapData (bitmapData:BitmapData):Image {
 	#else
@@ -541,8 +705,20 @@ class Image {
 		#end
 		
 	}
+	#end
 	
 	
+	/**
+		Converts a `Bytes` object to an `Image` instance
+		
+		Some platforms (such as Flash and HTML5) cannot convert `Bytes` to an 
+		`Image` synchronously, and may not work properly.
+		
+		`Image.loadFromBytes` works asynchronously, and should work
+		consistently on all platforms.
+		@param	bytes	A `Bytes` holding encoded image data
+		@return	A new `Image` instance
+	**/
 	public static function fromBytes (bytes:Bytes):Image {
 		
 		if (bytes == null) return null;
@@ -553,6 +729,12 @@ class Image {
 	}
 	
 	
+	#if (!lime_doc_gen || lime_canvas)
+	/**
+		Converts an `js.html.CanvasElement` instance to an `Image`
+		@param	canvas	A `CanvasElement`
+		@return	A new `Image` instance
+	**/
 	#if (js && html5)
 	public static function fromCanvas (canvas:CanvasElement):Image {
 	#else
@@ -567,8 +749,20 @@ class Image {
 		return image;
 		
 	}
+	#end
 	
 	
+	/**
+		Loads an `Image` from a path synchronously.
+		
+		Some platforms, such as Flash and HTML5, cannot load
+		images synchronously.
+		
+		`Image.loadFromFile` works asynchronously, and should
+		behave consistently on all platforms.
+		@param	path	The source file path or URL of an encoded image file
+		@return	A new `Image` instance
+	**/
 	public static function fromFile (path:String):Image {
 		
 		if (path == null) return null;
@@ -579,6 +773,12 @@ class Image {
 	}
 	
 	
+	#if (!lime_doc_gen || (js && html5))
+	/**
+		Converts a `js.html.Image` instance to an `Image`
+		@param	image	An `ImageElement` instance
+		@return	A new `Image` instance
+	**/
 	#if (js && html5)
 	public static function fromImageElement (image:ImageElement):Image {
 	#else
@@ -593,8 +793,18 @@ class Image {
 		return _image;
 		
 	}
+	#end
 	
 	
+	/**
+		Finds a region in the `Image` that includes pixels all of a certain color (when `findColor` is `true`) or 
+		excludes a certain color (`findColor` is `false`)
+		@param	mask	A hexadecimal mask to use when comparing colors. You can use this to compare all of a color, or only certain color channels
+		@param	color	The color value to use in comparisons
+		@param	findColor	(Optional) Whether to find a region that does match the color (`true`) or excludes it (`false`)
+		@param	format	(Optional) The `PixelFormat` that the `color` and `mask` are encoded in (default is `RGBA`)
+		@return	The matching bounds `Rectangle`, or `null` if no matching region is found
+	**/
 	public function getColorBoundsRect (mask:Int, color:Int, findColor:Bool = true, format:PixelFormat = null):Rectangle {
 		
 		if (buffer == null) return null;
@@ -626,6 +836,13 @@ class Image {
 	}
 	
 	
+	/**
+		Gets a 24-bit pixel from the `Image` (red, green and blue, but no alpha)
+		@param	x	The `x` location to fetch
+		@param	y	The `y` location to fetch
+		@param	format	(Optional) The `PixelFormat` to encode the return value in (default is `RGBA`)
+		@return	The specified pixel, or `0` if it is out-of-bounds
+	**/
 	public function getPixel (x:Int, y:Int, format:PixelFormat = null):Int {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
@@ -665,6 +882,13 @@ class Image {
 	}
 	
 	
+	/**
+		Gets a 32-bit pixel from the `Image`, including alpha
+		@param	x	The `x` location to fetch
+		@param	y	The `y` location to fetch
+		@param	format	(Optional) The `PixelFormat` to encode the return value in (default is `RGBA`)
+		@return	The specified pixel, or `0` if it is out-of-bounds
+	**/
 	public function getPixel32 (x:Int, y:Int, format:PixelFormat = null):Int {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return 0;
@@ -704,6 +928,12 @@ class Image {
 	}
 	
 	
+	/**
+		Gets a region of pixels from the `Image`, as `Bytes`
+		@param	rect	The source `Rectangle` to read from
+		@param	format	(Optional) The `PixelFormat` to use when writing to the `Bytes` object (default is `RGBA`)
+		@return	A `Bytes` object representing the region, or `null` if it is not possible to read
+	**/
 	public function getPixels (rect:Rectangle, format:PixelFormat = null):Bytes {
 		
 		if (buffer == null) return null;
@@ -777,6 +1007,12 @@ class Image {
 	}
 	
 	
+	/**
+		Creates a new `Image` instance from a Base64-encoded `String`, asynchronously
+		@param	base64	A Base64-encoded string representing encoded image data
+		@param	type	The mime type of the encoded data (such as "image/png")
+		@return	A `Future` to return a new `Image` instance
+	**/
 	public static function loadFromBase64 (base64:String, type:String):Future<Image> {
 		
 		if (base64 == null || type == null) return Future.withValue (null);
@@ -794,6 +1030,11 @@ class Image {
 	}
 	
 	
+	/**
+		Creates a new `Image` instance from image-encoded `Bytes`, loaded asynchronously
+		@param	bytes	A `Bytes` instance
+		@return	A `Future` to return a new `Image` instance
+	**/
 	public static function loadFromBytes (bytes:Bytes):Future<Image> {
 		
 		if (bytes == null) return Future.withValue (null);
@@ -864,6 +1105,11 @@ class Image {
 	}
 	
 	
+	/**
+		Creates a new `Image` instance from a file path or URL, loaded asynchronously
+		@param	path	A file path or URL containing an encoded image
+		@return	A `Future` to return a new `Image` instance
+	**/
 	public static function loadFromFile (path:String):Future<Image> {
 		
 		if (path == null) return Future.withValue (null);
@@ -943,6 +1189,16 @@ class Image {
 	}
 	
 	
+	/**
+		Blits a second `Image` onto this one, using optional color multipliers
+		@param	sourceImage	An `Image` instance to copy from
+		@param	sourceRect	The source rectangle to use when copying
+		@param	destPoint	The destination point in this `Image` to copy into
+		@param	redMultiplier	A red multiplier to use when blitting
+		@param	greenMultiplier	A red multiplier to use when blitting
+		@param	blueMultiplier	A red multiplier to use when blitting
+		@param	alphaMultiplier	A red multiplier to use when blitting
+	**/
 	public function merge (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {
 		
 		if (buffer == null || sourceImage == null) return;
@@ -977,6 +1233,12 @@ class Image {
 	}
 	
 	
+	/**
+		Resizes the current `Image`, reallocating the `ImageBuffer` to a new size.
+		The resize algorithm for most platforms is bilinear.
+		@param	newWidth	A new width for the `Image`
+		@param	newHeight	A new height for the `Image`
+	**/
 	public function resize (newWidth:Int, newHeight:Int):Void {
 		
 		switch (type) {
@@ -1014,6 +1276,15 @@ class Image {
 	}
 	
 	
+	/**
+		Scrolls the content of this `Image`.
+		
+		Pixels on the edges of the scroll will remain repeated, while others
+		within the scroll area will be shifted
+		
+		@param	x	The amount of horizontal scroll to apply
+		@param	y	The amount of vertical scroll to apply
+	**/
 	public function scroll (x:Int, y:Int):Void {
 		
 		if (buffer == null) return;
@@ -1039,6 +1310,13 @@ class Image {
 	}
 	
 	
+	/**
+		Sets a pixel in the current `Image` in 24-bit color format (red, green, blue, no alpha)
+		@param	x	The x coordinate of the pixel
+		@param	y	The y coordinate of the pixel
+		@param	color	The color to use
+		@param	format	(Optional) The `PixelFormat` that `color` is encoded in (default is `RGBA`)
+	**/
 	public function setPixel (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
@@ -1076,6 +1354,13 @@ class Image {
 	}
 	
 	
+	/**
+		Sets a pixel in the current `Image` in 32-bit color format (includes alpha)
+		@param	x	The x coordinate of the pixel
+		@param	y	The y coordinate of the pixel
+		@param	color	The color to use
+		@param	format	(Optional) The `PixelFormat` that `color` is encoded in (default is `RGBA`)
+	**/
 	public function setPixel32 (x:Int, y:Int, color:Int, format:PixelFormat = null):Void {
 		
 		if (buffer == null || x < 0 || y < 0 || x >= width || y >= height) return;
@@ -1113,12 +1398,18 @@ class Image {
 	}
 	
 	
+	/**
+		Sets a region of pixels at once using a `BytePointer`
+		@param	rect	The region of pixels in this `Image` to replace with the incoming bytes
+		@param	bytePointer	A `BytePointer` object referencing the `Bytes` and position to read from
+		@param	format	(Optional) The `PixelFormat` that the pixels are encoded in (default is `RGBA`)
+		@param	endian (Optional) The endianness of the incoming bytes (default is the system endianness)
+	**/
 	public function setPixels (rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null, endian:Endian = null):Void {
 		
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
-		//if (endian == null) endian = System.endianness; // TODO: System endian order
-		if (endian == null) endian = BIG_ENDIAN;
+		if (endian == null) endian = System.endianness;
 		
 		switch (type) {
 			
@@ -1199,6 +1490,38 @@ class Image {
 	}
 	
 	
+	/**
+		Tests pixel values in an image against a specified threshold and sets
+		pixels that pass the test to new color values. Using the
+		`threshold()` method, you can isolate and replace color ranges
+		in an image and perform other logical operations on image pixels.
+		
+		The `threshold()` method's test logic is as follows:
+		
+		 1. If `((pixelValue & mask) operation(threshold & mask))`,
+		then set the pixel to `color`;
+		 2. Otherwise, if `copySource == true`, then set the pixel to
+		corresponding pixel value from `sourceBitmap`.
+		
+		The `operation` parameter specifies the comparison operator
+		to use for the threshold test. For example, by using "==" as the
+		`operation` parameter, you can isolate a specific color value
+		in an image. Or by using `{operation: "<", mask: 0xFF000000,
+		threshold: 0x7F000000, color: 0x00000000}`, you can set all
+		destination pixels to be fully transparent when the source image pixel's
+		alpha is less than 0x7F. You can use this technique for animated
+		transitions and other effects.
+		
+		@param	sourceImage	The input bitmap image to use. The source image can be a different `Image` object or it can refer to the current `Image` instance.
+		@param	sourceRect	A rectangle that defines the area of the source image to use as input.
+		@param	destPoint	The point within the destination image (the current `Image` instance) that corresponds to the upper-left corner of the source rectangle.
+		@param	operation	One of the following comparison operators, passed as a `String`: "<", "<=", ">", ">=", "==", "!="
+		@param	threshold	The value that each pixel is tested against to see if it meets or exceeds the threshhold.
+		@param	color	The color value that a pixel is set to if the threshold test succeeds. The default value is 0x00000000.
+		@param	mask	The mask to use to isolate a color component.
+		@param	copySource	If the value is `true`, pixel values from the source image are copied to the destination when the threshold test fails. If the value is `false`, the source image is not copied when the threshold test fails.
+		@return	The number of pixels that were changed.
+	**/
 	public function threshold (sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000, mask:Int = 0xFFFFFFFF, copySource:Bool = false, format:PixelFormat = null):Int {
 		
 		if (buffer == null || sourceImage == null || sourceRect == null) return 0;
@@ -1321,7 +1644,7 @@ class Image {
 	private function __fromBase64 (base64:String, type:String, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
-
+		
 		#if openfljs
 		var image:JSImage = untyped __js__('new window.Image ()');
 		#else

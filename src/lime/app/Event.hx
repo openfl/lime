@@ -2,20 +2,20 @@ package lime.app;
 
 
 /**
-   Event is a strictly-typed signals and slots implementation, used for 
-   core event dispatching.
-   
-   For example:
-   
-   ```
-   var event = new Event<Int->Void> ();
-   event.add (function (value:Int):Void { trace (value); });
-   event.dispatch (100);
-   
-   var event = new Event<Void->Void> ();
-   event.add (function () { trace ("callback"); });
-   event.dispatch ();
-   ```
+	Event is a strictly-typed signals and slots implementation, used for 
+	core event dispatching.
+	
+	For example:
+	
+	```
+	var event = new Event<Int->Void> ();
+	event.add (function (value:Int):Void { trace (value); });
+	event.dispatch (100);
+	
+	var event = new Event<Void->Void> ();
+	event.add (function () { trace ("callback"); });
+	event.dispatch ();
+	```
 **/
 
 #if (!macro && !display)
@@ -32,7 +32,7 @@ class Event<T> {
 	
 	
 	/**
-	 * Whether the event was canceled during the previous dispatch
+		Whether the event was canceled during the previous dispatch
 	**/
 	public var canceled (default, null):Bool;
 	
@@ -42,7 +42,7 @@ class Event<T> {
 	
 	
 	/**
-	 * Creates a new Event instance
+		Creates a new Event instance
 	**/
 	public function new () {
 		
@@ -57,10 +57,10 @@ class Event<T> {
 	
 	
 	/**
-	   Adds a new event listener
-	   @param	listener	A callback that matches the signature of the event
-	   @param	once	Whether to receive an event dispatch only once, or each time it is fired
-	   @param	priority	The priority for this listener, a higher priority will be dispatched sooner
+		Adds a new event listener
+		@param	listener	A callback that matches the signature of the event
+		@param	once	Whether to receive an event dispatch only once, or each time it is fired
+		@param	priority	The priority for this listener, a higher priority will be dispatched sooner
 	**/
 	public function add (listener:T, once:Bool = false, priority:Int = 0):Void {
 		
@@ -87,7 +87,7 @@ class Event<T> {
 	
 	
 	/**
-	   Marks the event as canceled, and stops the current event dispatch
+		Marks the event as canceled, and stops the current event dispatch
 	**/
 	public function cancel ():Void {
 		
@@ -97,10 +97,10 @@ class Event<T> {
 	
 	
 	/**
-	   Dispatches a new event callback to all listeners. The signature for the
-	   `dispatch` method depends upon the type of the `Event`. For example, an 
-	   `Event` of type `Int->Int->Void` will create a `dispatch` method that
-	   takes two `Int` arguments, like `dispatch (1, 2);`
+		Dispatches a new event callback to all listeners. The signature for the
+		`dispatch` method depends upon the type of the `Event`. For example, an 
+		`Event` of type `Int->Int->Void` will create a `dispatch` method that
+		takes two `Int` arguments, like `dispatch (1, 2);`
 	**/
 	public var dispatch:Dynamic;
 	
@@ -134,9 +134,9 @@ class Event<T> {
 	
 	
 	/**
-	   Checks whether a callback is a listener to this event
-	   @param	listener	A callback that matches the signature of the event
-	   @return	Whether the callback is a listener
+		Checks whether a callback is a listener to this event
+		@param	listener	A callback that matches the signature of the event
+		@return	Whether the callback is a listener
 	**/
 	public function has (listener:T):Bool {
 		
@@ -154,8 +154,8 @@ class Event<T> {
 	
 	
 	/**
-	   Removes an event listener
-	   @param	listener	A callback that matches the signature of the event
+		Removes an event listener
+		@param	listener	A callback that matches the signature of the event
 	**/
 	public function remove (listener:T):Void {
 		

@@ -3,6 +3,19 @@ package lime.graphics; #if (!lime_doc_gen || lime_canvas) #if (lime_canvas && (l
 
 import js.html.CanvasRenderingContext2D;
 
+
+/**
+	The `Canvas2DRenderContext` represents the primary `js.html.CanvasRenderingContext2D` instance when Canvas
+	is the render context type of the `Window`.
+	
+	You can convert from `lime.graphics.RenderContext` to `Canvas2DRenderContext` directly
+	if desired:
+	
+	```
+	var ctx:CanvasRenderingContext2D = window.context;
+	```
+**/
+
 @:access(lime.graphics.RenderContext)
 @:forward()
 

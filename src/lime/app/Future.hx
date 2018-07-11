@@ -50,22 +50,22 @@ import lime.utils.Log;
 	
 	
 	/**
-	   If the `Future` has finished with an error state, the `error` value
+		If the `Future` has finished with an error state, the `error` value
 	**/
 	public var error (default, null):Dynamic;
 	
 	/**
-	   Whether the `Future` finished with a completion state
+		Whether the `Future` finished with a completion state
 	**/
 	public var isComplete (default, null):Bool;
 	
 	/**
-	   Whether the `Future` finished with an error state
+		Whether the `Future` finished with an error state
 	**/
 	public var isError (default, null):Bool;
 	
 	/**
-	   If the `Future` has finished with a completion state, the completion `value`
+		If the `Future` has finished with a completion state, the completion `value`
 	**/
 	public var value (default, null):T;
 	
@@ -75,9 +75,9 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Create a new `Future` instance
-	   @param	work	(Optional) A function to execute
-	   @param	async	(Optional) If a function is specified, whether to execute it asynchronously where supported
+		Create a new `Future` instance
+		@param	work	(Optional) A function to execute
+		@param	async	(Optional) If a function is specified, whether to execute it asynchronously where supported
 	**/
 	public function new (work:Void->T = null, async:Bool = false) {
 		
@@ -112,7 +112,7 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Create a new `Future` instance based on complete and (optionally) error and/or progress `Event` instances
+		Create a new `Future` instance based on complete and (optionally) error and/or progress `Event` instances
 	**/
 	public static function ofEvents<T> (onComplete:Event<T->Void>, onError:Event<Dynamic->Void> = null, onProgress:Event<Int->Int->Void> = null):Future<T> {
 		
@@ -128,11 +128,11 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Register a listener for when the `Future` completes.
-	   
-	   If the `Future` has already completed, this is called immediately with the result
-	   @param	listener	A callback method to receive the result value
-	   @return	The current `Future`
+		Register a listener for when the `Future` completes.
+		
+		If the `Future` has already completed, this is called immediately with the result
+		@param	listener	A callback method to receive the result value
+		@return	The current `Future`
 	**/
 	public function onComplete (listener:T->Void):Future<T> {
 		
@@ -162,11 +162,11 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Register a listener for when the `Future` ends with an error state.
-	   
-	   If the `Future` has already ended with an error, this is called immediately with the error value
-	   @param	listener	A callback method to receive the error value
-	   @return	The current `Future`
+		Register a listener for when the `Future` ends with an error state.
+		
+		If the `Future` has already ended with an error, this is called immediately with the error value
+		@param	listener	A callback method to receive the error value
+		@return	The current `Future`
 	**/
 	public function onError (listener:Dynamic->Void):Future<T> {
 		
@@ -196,11 +196,11 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Register a listener for when the `Future` updates progress.
-	   
-	   If the `Future` is already completed, this will not be called.
-	   @param	listener	A callback method to receive the progress value
-	   @return	The current `Future`
+		Register a listener for when the `Future` updates progress.
+		
+		If the `Future` is already completed, this will not be called.
+		@param	listener	A callback method to receive the progress value
+		@return	The current `Future`
 	**/
 	public function onProgress (listener:Int->Int->Void):Future<T> {
 		
@@ -222,9 +222,9 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Attempts to block on an asynchronous `Future`, returning when it is completed.
-	   @param	waitTime	(Optional) A timeout before this call will stop blocking
-	   @return	This current `Future`
+		Attempts to block on an asynchronous `Future`, returning when it is completed.
+		@param	waitTime	(Optional) A timeout before this call will stop blocking
+		@return	This current `Future`
 	**/
 	public function ready (waitTime:Int = -1):Future<T> {
 		
@@ -272,9 +272,9 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Attempts to block on an asynchronous `Future`, returning the completion value when it is finished.
-	   @param	waitTime	(Optional) A timeout before this call will stop blocking
-	   @return	The completion value, or `null` if the request timed out or blocking is not possible
+		Attempts to block on an asynchronous `Future`, returning the completion value when it is finished.
+		@param	waitTime	(Optional) A timeout before this call will stop blocking
+		@return	The completion value, or `null` if the request timed out or blocking is not possible
 	**/
 	public function result (waitTime:Int = -1):Null<T> {
 		
@@ -294,8 +294,8 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Chains two `Future` instances together, passing the result from the first 
-	   as input for creating/returning a new `Future` instance of a new or the same type
+		Chains two `Future` instances together, passing the result from the first 
+		as input for creating/returning a new `Future` instance of a new or the same type
 	**/
 	public function then<U> (next:T->Future<U>):Future<U> {
 		
@@ -333,9 +333,9 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Creates a `Future` instance which has finished with an error value
-	   @param	error	The error value to set
-	   @return	A new `Future` instance
+		Creates a `Future` instance which has finished with an error value
+		@param	error	The error value to set
+		@return	A new `Future` instance
 	**/
 	public static function withError (error:Dynamic):Future<Dynamic> {
 		
@@ -348,9 +348,9 @@ import lime.utils.Log;
 	
 	
 	/**
-	   Creates a `Future` instance which has finished with a completion value
-	   @param	error	The completion value to set
-	   @return	A new `Future` instance
+		Creates a `Future` instance which has finished with a completion value
+		@param	error	The completion value to set
+		@return	A new `Future` instance
 	**/
 	public static function withValue<T> (value:T):Future<T> {
 		
