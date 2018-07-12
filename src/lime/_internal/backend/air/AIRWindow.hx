@@ -9,10 +9,12 @@ import flash.display.NativeWindowSystemChrome;
 import flash.events.Event;
 import flash.html.HTMLLoader;
 import flash.Lib;
+import lime._internal.backend.flash.FlashApplication;
 import lime._internal.backend.flash.FlashWindow;
 import lime.app.Application;
 import lime.ui.Window;
 
+@:access(lime._internal.backend.flash.FlashApplication)
 @:access(lime.ui.Window)
 
 
@@ -85,45 +87,52 @@ class AIRWindow extends FlashWindow {
 		var minimized = false;
 		var resizable = false;
 		
+		var frameRate = 60.0;
 		var width = 0;
 		var height = 0;
 		
 		if (Reflect.hasField (attributes, "alwaysOnTop") && attributes.alwaysOnTop) alwaysOnTop = true;
 		if (Reflect.hasField (attributes, "borderless") && attributes.borderless) borderless = true;
-		if (Reflect.hasField (attributes, "fullscreen") && attributes.fullscreen) fullscreen;
+		if (Reflect.hasField (attributes, "fullscreen") && attributes.fullscreen) fullscreen = true;
 		if (Reflect.hasField (attributes, "context") && Reflect.hasField (attributes.context, "hardware") && attributes.context.hardware) hardware = true;
 		if (Reflect.hasField (attributes, "hidden") && attributes.hidden) hidden = true;
 		if (Reflect.hasField (attributes, "maximized") && attributes.maximized) maximized = true;
 		if (Reflect.hasField (attributes, "minimized") && attributes.minimized) minimized = true;
-		if (Reflect.hasField (attributes, "resizable") && attributes.resizable) resizable;
+		if (Reflect.hasField (attributes, "resizable") && attributes.resizable) resizable = true;
 		
-		// if (parent.config != null && (parent.config == application.config.windows[0])) {
+		if (Reflect.hasField (attributes, "frameRate")) frameRate = attributes.frameRate;
+		if (Reflect.hasField (attributes, "width")) width = attributes.width;
+		if (Reflect.hasField (attributes, "height")) height = attributes.height;
+		
+		if (FlashApplication.createFirstWindow) {
 			
 			nativeWindow = Lib.current.stage.nativeWindow;
 			
-			// TODO
-		// } else {
+		} else {
 			
-		// 	var options = new NativeWindowInitOptions ();
-		// 	options.systemChrome = borderless ? NativeWindowSystemChrome.NONE : NativeWindowSystemChrome.STANDARD; 
-		// 	options.renderMode = hardware ? NativeWindowRenderMode.DIRECT : NativeWindowRenderMode.CPU;
-		// 	options.transparent = false;
-		// 	options.maximizable = true;
-		// 	options.minimizable = true;
-		// 	options.resizable = resizable;
+			var options = new NativeWindowInitOptions ();
+			options.systemChrome = borderless ? NativeWindowSystemChrome.NONE : NativeWindowSystemChrome.STANDARD; 
+			options.renderMode = hardware ? NativeWindowRenderMode.DIRECT : NativeWindowRenderMode.CPU;
+			options.transparent = false;
+			options.maximizable = maximized;
+			options.minimizable = minimized;
+			options.resizable = resizable;
 			
-		// 	nativeWindow = new NativeWindow (options);
-		// 	nativeWindow.stage.frameRate = application.frameRate;
+			nativeWindow = new NativeWindow (options);
+			nativeWindow.stage.frameRate = frameRate;
 			
-		// 	if (parent.width > 0) nativeWindow.width = parent.width;
-		// 	if (parent.height > 0) nativeWindow.height = parent.height;
+			if (width > 0) nativeWindow.width = width;
+			if (height > 0) nativeWindow.height = height;
 			
-		// }
+		}
 		
 		if (nativeWindow != null) {
 			
+			parent.stage = nativeWindow.stage;
+			
 			nativeWindow.addEventListener (Event.CLOSING, handleNativeWindowEvent);
 			nativeWindow.addEventListener (Event.CLOSE, handleNativeWindowEvent);
+			// nativeWindow.addEventListener (Event.RESIZE, handleWindowEvent);
 			
 			nativeWindow.visible = !hidden;
 			//nativeWindow.activate ();
@@ -154,12 +163,20 @@ class AIRWindow extends FlashWindow {
 			parent.__height = Std.int (nativeWindow.height);
 			parent.__x = Math.round (nativeWindow.x);
 			parent.__y = Math.round (nativeWindow.y);
-			stage = nativeWindow.stage;
+			parent.stage = nativeWindow.stage;
 			
 		}
 		
 		super.create ();
 		
+		if (hardware) {
+			
+			parent.context.attributes.hardware = true;
+			parent.context.attributes.depth = true;
+			parent.context.attributes.stencil = true;
+			
+		}
+	
 	}
 	
 	
@@ -193,6 +210,18 @@ class AIRWindow extends FlashWindow {
 				
 				closing = true;
 				parent.onClose.dispatch ();
+			
+			// case Event.RESIZE:
+				
+			// 	// TODO: Should this be the inner (stageWidth) or outer (nativeWindow width) size?
+				
+			// 	parent.__width = parent.stage.stageWidth;
+			// 	parent.__height = parent.stage.stageHeight;
+				
+			// 	// parent.__width = nativeWindow.width;
+			// 	// parent.__height = nativeWindow.height;
+				
+			// 	parent.onResize.dispatch (parent.__width, parent.__height);
 			
 			default:
 			

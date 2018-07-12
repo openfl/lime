@@ -54,7 +54,6 @@ class HTML5Window {
 	
 	public var canvas:CanvasElement;
 	public var div:DivElement;
-	public var element:Element;
 	#if stats
 	public var stats:Dynamic;
 	#end
@@ -91,9 +90,11 @@ class HTML5Window {
 		
 		if (Reflect.hasField (attributes, "element")) {
 			
-			element = attributes.element;
+			parent.element = attributes.element;
 			
 		}
+		
+		var element = parent.element;
 		
 		#if dom
 		attributes.context.type = DOM;
@@ -587,7 +588,7 @@ class HTML5Window {
 		
 		if (event.type != "wheel") {
 			
-			if (element != null) {
+			if (parent.element != null) {
 				
 				if (canvas != null) {
 					
@@ -605,7 +606,7 @@ class HTML5Window {
 					
 				} else {
 					
-					var rect = element.getBoundingClientRect ();
+					var rect = parent.element.getBoundingClientRect ();
 					x = (event.clientX - rect.left) * (parent.__width / rect.width);
 					y = (event.clientY - rect.top) * (parent.__height / rect.height);
 					
@@ -622,7 +623,7 @@ class HTML5Window {
 				
 				case "mousedown":
 					
-					if (event.currentTarget == element) {
+					if (event.currentTarget == parent.element) {
 						
 						// Release outside browser window
 						Browser.window.addEventListener ("mouseup", handleMouseEvent);
@@ -639,7 +640,7 @@ class HTML5Window {
 				
 				case "mouseenter":
 					
-					if (event.target == element) {
+					if (event.target == parent.element) {
 						
 						parent.onEnter.dispatch ();
 						
@@ -653,7 +654,7 @@ class HTML5Window {
 				
 				case "mouseleave":
 					
-					if (event.target == element) {
+					if (event.target == parent.element) {
 						
 						parent.onLeave.dispatch ();
 						
@@ -669,7 +670,7 @@ class HTML5Window {
 					
 					Browser.window.removeEventListener ("mouseup", handleMouseEvent);
 					
-					if (event.currentTarget == element) {
+					if (event.currentTarget == parent.element) {
 						
 						event.stopPropagation ();
 						
@@ -754,7 +755,7 @@ class HTML5Window {
 		
 		var rect = null;
 		
-		if (element != null) {
+		if (parent.element != null) {
 			
 			if (canvas != null) {
 				
@@ -766,7 +767,7 @@ class HTML5Window {
 				
 			} else {
 				
-				rect = element.getBoundingClientRect ();
+				rect = parent.element.getBoundingClientRect ();
 				
 			}
 			
@@ -916,11 +917,11 @@ class HTML5Window {
 	
 	private function isDescendent (node:Node):Bool {
 		
-		if (node == element) return true;
+		if (node == parent.element) return true;
 		
 		while (node != null) {
 			
-			if (node.parentNode == element) {
+			if (node.parentNode == parent.element) {
 				
 				return true;
 				
@@ -1021,11 +1022,11 @@ class HTML5Window {
 			
 			if (value == null) {
 				
-				element.style.cursor = null;
+				parent.element.style.cursor = null;
 				
 			} else {
 				
-				element.style.cursor = switch (value) {
+				parent.element.style.cursor = switch (value) {
 					
 					case ARROW: "default";
 					case CROSSHAIR: "crosshair";
@@ -1095,29 +1096,29 @@ class HTML5Window {
 				
 				untyped {
 					
-					if (element.requestFullscreen) {
+					if (parent.element.requestFullscreen) {
 						
 						document.addEventListener ("fullscreenchange", handleFullscreenEvent, false);
 						document.addEventListener ("fullscreenerror", handleFullscreenEvent, false);
-						element.requestFullscreen ();
+						parent.element.requestFullscreen ();
 						
-					} else if (element.mozRequestFullScreen) {
+					} else if (parent.element.mozRequestFullScreen) {
 						
 						document.addEventListener ("mozfullscreenchange", handleFullscreenEvent, false);
 						document.addEventListener ("mozfullscreenerror", handleFullscreenEvent, false);
-						element.mozRequestFullScreen ();
+						parent.element.mozRequestFullScreen ();
 						
-					} else if (element.webkitRequestFullscreen) {
+					} else if (parent.element.webkitRequestFullscreen) {
 						
 						document.addEventListener ("webkitfullscreenchange", handleFullscreenEvent, false);
 						document.addEventListener ("webkitfullscreenerror", handleFullscreenEvent, false);
-						element.webkitRequestFullscreen ();
+						parent.element.webkitRequestFullscreen ();
 						
-					} else if (element.msRequestFullscreen) {
+					} else if (parent.element.msRequestFullscreen) {
 						
 						document.addEventListener ("MSFullscreenChange", handleFullscreenEvent, false);
 						document.addEventListener ("MSFullscreenError", handleFullscreenEvent, false);
-						element.msRequestFullscreen ();
+						parent.element.msRequestFullscreen ();
 						
 					}
 					
@@ -1247,7 +1248,7 @@ class HTML5Window {
 			
 			if (textInput.parentNode == null) {
 				
-				element.appendChild (textInput);
+				parent.element.appendChild (textInput);
 				
 			}
 			
@@ -1319,10 +1320,10 @@ class HTML5Window {
 		
 		var elementWidth, elementHeight;
 		
-		if (element != null) {
+		if (parent.element != null) {
 			
-			elementWidth = element.clientWidth;
-			elementHeight = element.clientHeight;
+			elementWidth = parent.element.clientWidth;
+			elementHeight = parent.element.clientHeight;
 			
 		} else {
 			
@@ -1338,7 +1339,7 @@ class HTML5Window {
 			
 			var stretch = resizeElement || (setWidth == 0 && setHeight == 0);
 			
-			if (element != null && (div == null || (div != null && stretch))) {
+			if (parent.element != null && (div == null || (div != null && stretch))) {
 				
 				if (stretch) {
 					
@@ -1349,7 +1350,7 @@ class HTML5Window {
 						
 						if (canvas != null) {
 							
-							if (element != cast canvas) {
+							if (parent.element != cast canvas) {
 								
 								canvas.width = Math.round (elementWidth * scale);
 								canvas.height = Math.round (elementHeight * scale);
@@ -1394,7 +1395,7 @@ class HTML5Window {
 					
 					if (canvas != null) {
 						
-						if (element != cast canvas) {
+						if (parent.element != cast canvas) {
 							
 							canvas.style.width = targetWidth + "px";
 							canvas.style.height = targetHeight + "px";

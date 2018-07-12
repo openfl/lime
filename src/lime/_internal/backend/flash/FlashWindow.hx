@@ -29,6 +29,7 @@ import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Window;
 
+@:access(lime._internal.backend.flash.FlashApplication)
 @:access(lime.app.Application)
 @:access(lime.graphics.RenderContext)
 @:access(lime.ui.Window)
@@ -47,7 +48,6 @@ class FlashWindow {
 	private var frameRate:Float;
 	private var mouseLeft:Bool;
 	private var parent:Window;
-	private var stage:Stage;
 	private var textInputEnabled:Bool;
 	private var unusedTouchesPool = new List<Touch> ();
 	
@@ -156,13 +156,14 @@ class FlashWindow {
 	
 	private function create ():Void {
 		
-		if (#if air true #else parent.application.__window == null #end) {
+		if (#if air true #else FlashApplication.createFirstWindow #end) {
 			
 			var attributes = parent.__attributes;
 			
 			parent.id = windowID++;
 			
-			if (stage == null) stage = Lib.current.stage;
+			if (parent.stage == null) parent.stage = Lib.current.stage;
+			var stage = parent.stage;
 			
 			parent.__width = stage.stageWidth;
 			parent.__height = stage.stageHeight;
@@ -189,7 +190,10 @@ class FlashWindow {
 			stage.addEventListener (FocusEvent.FOCUS_IN, handleWindowEvent);
 			stage.addEventListener (FocusEvent.FOCUS_OUT, handleWindowEvent);
 			stage.addEventListener (Event.MOUSE_LEAVE, handleWindowEvent);
+			
+			// #if !air
 			stage.addEventListener (Event.RESIZE, handleWindowEvent);
+			// #end
 			
 			var context = new RenderContext ();
 			context.flash = Lib.current;
@@ -471,8 +475,8 @@ class FlashWindow {
 			
 			case Event.RESIZE:
 				
-				parent.__width = stage.stageWidth;
-				parent.__height = stage.stageHeight;
+				parent.__width = parent.stage.stageWidth;
+				parent.__height = parent.stage.stageHeight;
 				
 				parent.onResize.dispatch (parent.__width, parent.__height);
 			
@@ -487,11 +491,11 @@ class FlashWindow {
 		
 		if (rect == null) {
 			
-			rect = new Rectangle (0, 0, stage.stageWidth, stage.stageHeight);
+			rect = new Rectangle (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
 			
 		} else {
 			
-			rect.__contract (0, 0, stage.stageWidth, stage.stageHeight);
+			rect.__contract (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
 			
 		}
 		
@@ -503,7 +507,7 @@ class FlashWindow {
 			matrix.tx = -rect.x;
 			matrix.ty = -rect.y;
 			
-			bitmapData.draw (stage, matrix);
+			bitmapData.draw (parent.stage, matrix);
 			
 			return Image.fromBitmapData (bitmapData);
 			
@@ -612,7 +616,7 @@ class FlashWindow {
 	public function setFrameRate (value:Float):Float {
 		
 		frameRate = value;
-		if (stage != null) stage.frameRate = value;
+		if (parent.stage != null) parent.stage.frameRate = value;
 		return value;
 		
 	}
@@ -620,7 +624,7 @@ class FlashWindow {
 	
 	public function setFullscreen (value:Bool):Bool {
 		
-		stage.displayState = (value ? FULL_SCREEN_INTERACTIVE : NORMAL);
+		parent.stage.displayState = (value ? FULL_SCREEN_INTERACTIVE : NORMAL);
 		return value;
 		
 	}

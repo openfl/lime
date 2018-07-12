@@ -18,6 +18,10 @@ import flash.display.Stage;
 typedef Stage = Dynamic;
 #end
 
+#if (js && html5)
+import js.html.Element;
+#end
+
 #if hl
 @:keep
 #end
@@ -37,6 +41,10 @@ class Window {
 	public var cursor (get, set):Cursor;
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
+	
+	#if (!lime_doc_gen || (js && html5))
+	public var element (default, null):#if (js && html5) Element #else Dynamic #end;
+	#end
 	
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
@@ -83,7 +91,11 @@ class Window {
 	public var parameters:Dynamic;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
-	// public var stage:Stage;
+	
+	#if (!lime_doc_gen || flash || openfl)
+	public var stage (default, null):Stage;
+	#end
+	
 	public var textInputEnabled (get, set):Bool;
 	public var title (get, set):String;
 	public var width (get, set):Int;

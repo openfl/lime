@@ -13,6 +13,8 @@ import lime.ui.Window;
 class FlashApplication {
 	
 	
+	private static var createFirstWindow:Bool;
+	
 	private var parent:Application;
 	private var requestedWindow:Bool;
 	
@@ -23,8 +25,10 @@ class FlashApplication {
 		
 		AudioManager.init ();
 		
+		createFirstWindow = true;
 		// Initial window is already created
 		parent.createWindow ({});
+		createFirstWindow = false;
 		
 	}
 	
