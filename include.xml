@@ -8,11 +8,21 @@
 	<define name="native" if="cpp || neko || nodejs || cs || java || hl" />
 	<define name="howlerjs" if="html5" />
 	
+	<define name="lime-cairo" if="native" />
+	<define name="lime-canvas" if="html5" />
+	<define name="lime-cffi" if="native" />
+	<define name="lime-curl" unless="lime-console || lime-switch || emscripten || flash || html5" />
+	<define name="lime-dom" if="html5" />
+	<define name="lime-harfbuzz" if="native" />
+	<define name="lime-howlerjs" if="html5" />
 	<define name="lime-html5" if="html5" />
 	<define name="lime-native" if="native" />
-	<define name="lime-cffi" if="native" />
-	<define name="lime-harfbuzz" if="native" />
+	<define name="lime-openal" unless="lime-console || static_link || flash || html5" />
+	<define name="lime-openal" if="emscripten" />
+	<define name="lime-opengl" if="desktop" />
+	<define name="lime-opengles" if="emscripten || mobile" />
 	<define name="lime-vorbis" if="native" />
+	<define name="lime-webgl" if="html5" />
 	
 	<define name="no-typedarray-inline" if="cs" />
 	<haxedef name="no-compilation" />
@@ -88,12 +98,6 @@
 		<setenv name="MACOSX_DEPLOYMENT_TARGET" value="${MACOSX_DEPLOYMENT_TARGET}" if="mac" />
 		
 		<architecture name="armv7" if="android" />
-		
-		<define name="lime-cairo" unless="flash || html5" />
-		<define name="lime-curl" unless="lime-console || lime-switch || emscripten || flash || html5" />
-		<!-- <define name="lime-opengl" unless="lime-console || flash" /> -->
-		<define name="lime-openal" unless="lime-console || static_link || flash || html5" />
-		<define name="lime-openal" if="emscripten" />
 		
 		<section if="emscripten">
 			
