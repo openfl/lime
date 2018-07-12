@@ -3370,6 +3370,13 @@ class NativeOpenGLRenderContext {
 	}
 	
 	
+	@:noCompletion @:dox(hide) public function toString ():String {
+		
+		return "NativeOpenGLRenderContext";
+		
+	}
+	
+	
 	public function transformFeedbackVaryings (program:GLProgram, varyings:Array<String>, bufferMode:Int):Void {
 		
 		#if (lime_cffi && lime_opengl && !macro)
