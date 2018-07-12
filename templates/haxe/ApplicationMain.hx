@@ -98,7 +98,7 @@ import ::APP_MAIN::;
 		
 		app.createWindow (attributes);
 		::end::
-		#elseif flash
+		#elseif !air
 		
 		app.window.context.attributes.background = ::WIN_BACKGROUND::;
 		app.window.frameRate = ::WIN_FPS::;
