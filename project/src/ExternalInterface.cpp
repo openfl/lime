@@ -3890,7 +3890,7 @@ namespace lime {
 	#define _TKEY_EVENT _OBJ (_I32 _I32 _I32 _I32)
 	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
-	#define _TRENDER_EVENT _OBJ (_ENUM _I32)
+	#define _TRENDER_EVENT _OBJ (_I32)
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)

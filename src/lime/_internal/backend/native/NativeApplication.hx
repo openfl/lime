@@ -984,21 +984,19 @@ class NativeApplication {
 @:keep /*private*/ class RenderEventInfo {
 	
 	
-	public var context:RenderContext;
 	public var type:RenderEventType;
 	
 	
-	public function new (type:RenderEventType = null, context:RenderContext = null) {
+	public function new (type:RenderEventType = null) {
 		
 		this.type = type;
-		this.context = context;
 		
 	}
 	
 	
 	public function clone ():RenderEventInfo {
 		
-		return new RenderEventInfo (type, context);
+		return new RenderEventInfo (type);
 		
 	}
 	
