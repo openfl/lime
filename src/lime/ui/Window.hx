@@ -10,16 +10,16 @@ import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
 
+#if (js && html5)
+import js.html.Element;
+#end
+
 #if openfl
 import openfl.display.Stage;
 #elseif flash
 import flash.display.Stage;
 #else
 typedef Stage = Dynamic;
-#end
-
-#if (js && html5)
-import js.html.Element;
 #end
 
 #if hl

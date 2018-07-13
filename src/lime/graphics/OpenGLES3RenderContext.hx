@@ -1,4 +1,4 @@
-package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (sys && lime_cffi && lime_opengl && !doc_gen)
+package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (lime_doc_gen || (sys && lime_cffi))
 
 
 import haxe.Int64;
@@ -8,6 +8,37 @@ import lime.graphics.opengl.*;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
+
+
+/**
+	The `OpenGLES3RenderContext` allows access to OpenGL ES 3.0 features when OpenGL or
+	OpenGL ES is the render context type of the `Window`, and the current context supports
+	GLES3 features.
+	
+	Using an OpenGL ES context on a desktop platform enables support for cross-platform
+	code that should run on both desktop and mobile platforms (when using
+	hardware acceleration), though support for OpenGL ES 3.0 features are more limited than
+	GLES2.
+	
+	Platforms supporting an OpenGL ES 3.0 context are compatible with the Lime 
+	`WebGLRenderContext` as well as the `WebGL2RenderContext` if you would prefer to write
+	WebGL-style code, or support web browsers with the same code. Be aware that not all
+	browsers support WebGL 2, so only plain WebGL might be available.
+	
+	You can convert from `lime.graphics.RenderContext`, `lime.graphics.OpenGLRenderContext`,
+	`lime.graphics.opengl.GL`, and can convert to `lime.graphics.OpenGLES2RenderContext`,
+	`lime.graphics.WebGL2RenderContext` or `lime.graphics.WebGLRenderContext` directly 
+	if desired:
+	
+	```
+	var gles3:OpenGLES3RenderContext = window.context;
+	var gles3:OpenGLES3RenderContext = gl;
+	var gles3:OpenGLES3RenderContext = GL;
+	
+	var gles2:OpenGLES2RenderContext = gles3;
+	var webgl2:WebGL2RenderContext = gles3;
+	var webgl:WebGLRenderContext = gles3;
+**/
 
 @:forward
 

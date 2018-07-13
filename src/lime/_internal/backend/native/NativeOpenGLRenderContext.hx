@@ -32,6 +32,7 @@ import lime.utils.UInt32Array;
 @:noDebug
 #end
 
+@:dox(hide)
 @:allow(lime.ui.Window)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.graphics.opengl)

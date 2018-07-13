@@ -1,8 +1,34 @@
-package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (sys && lime_cffi && lime_opengl && !doc_gen)
+package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (lime_doc_gen || (sys && lime_cffi))
 
 
 import lime.graphics.opengl.*;
 
+
+/**
+	The `OpenGLES2RenderContext` allows access to OpenGL ES 2.0 features when OpenGL or
+	OpenGL ES is the render context type of the `Window`.
+	
+	Using an OpenGL ES context on a desktop platform enables support for cross-platform
+	code that should run on the majority of desktop and mobile platforms (when using
+	hardware acceleration).
+	
+	Platforms supporting an OpenGL ES context are compatible with the Lime 
+	`WebGLRenderContext` if you would prefer to write WebGL-style code, or support web
+	browsers with the same code.
+	
+	You can convert from `lime.graphics.RenderContext`, `lime.graphics.OpenGLRenderContext`,
+	`lime.graphics.OpenGLES3RenderContext`, `lime.graphics.opengl.GL`, and can convert to
+	`lime.graphics.WebGLRenderContext` directly if desired:
+	
+	```
+	var gles2:OpenGLES2RenderContext = window.context;
+	var gles2:OpenGLES2RenderContext = gl;
+	var gles2:OpenGLES2RenderContext = gles3;
+	var gles2:OpenGLES2RenderContext = GL;
+	
+	var webgl:WebGLRenderContext = gles2;
+	```
+**/
 
 @:forward(ACTIVE_ATTRIBUTES, ACTIVE_TEXTURE, ACTIVE_UNIFORMS, ALIASED_LINE_WIDTH_RANGE, 
 ALIASED_POINT_SIZE_RANGE, ALPHA, ALPHA_BITS, ALWAYS, ARRAY_BUFFER, ARRAY_BUFFER_BINDING, 
@@ -91,7 +117,7 @@ vertexAttrib3fv, vertexAttrib4f, vertexAttrib4fv, vertexAttribPointer, viewport,
 EXTENSIONS, type, version)
 
 
-abstract OpenGLES2RenderContext(OpenGLES3RenderContext) from OpenGLES3RenderContext #if (!lime_doc_gen && lime_opengl) from OpenGLRenderContext #end {
+abstract OpenGLES2RenderContext(OpenGLES3RenderContext) from OpenGLES3RenderContext #if (!doc_gen && lime_opengl) from OpenGLRenderContext #end {
 	
 	
 	@:from private static function fromGL (gl:Class<GL>):OpenGLES2RenderContext {
@@ -136,7 +162,7 @@ abstract OpenGLES2RenderContext(Dynamic) from Dynamic to Dynamic {
 	}
 	
 	
-	#if (!lime_doc_gen && lime_opengl)
+	#if (!doc_gen && lime_opengl)
 	@:from private static function fromOpenGLRenderContext (gl:OpenGLRenderContext):OpenGLES2RenderContext {
 		
 		return null;

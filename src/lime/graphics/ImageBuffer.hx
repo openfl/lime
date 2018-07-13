@@ -17,6 +17,13 @@ import js.Browser;
 import flash.display.BitmapData;
 #end
 
+
+/**
+	`ImageBuffer` is a simple object for storing image data.
+	
+	For higher-level operations, use the `Image` class.
+**/
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -32,15 +39,51 @@ import flash.display.BitmapData;
 class ImageBuffer {
 	
 	
+	/**
+		The number of bits per pixel in this image data
+	**/
 	public var bitsPerPixel:Int;
+	
+	/**
+		The data for this image, represented as a `UInt8Array`
+	**/
 	public var data:UInt8Array;
+	
+	/**
+		The `PixelFormat` for this image data
+	**/
 	public var format:PixelFormat;
+	
+	/**
+		The height of this image data
+	**/
 	public var height:Int;
+	
+	/**
+		Whether the image data has premultiplied alpha
+	**/
 	public var premultiplied:Bool;
+	
+	/**
+		The data for this image, represented as a `js.html.CanvasElement`, `js.html.Image` or `flash.display.BitmapData`
+	**/
 	public var src (get, set):Dynamic;
+	
+	/**
+		The stride, or number of data values per row in the image data
+	**/
 	public var stride (get, never):Int;
+	
+	/**
+		Whether this image data is transparent
+	**/
 	public var transparent:Bool;
+	
+	/**
+		The width of this image data
+	**/
 	public var width:Int;
+	
 	
 	@:noCompletion private var __srcBitmapData:#if flash BitmapData #else Dynamic #end;
 	@:noCompletion private var __srcCanvas:#if (js && html5) CanvasElement #else Dynamic #end;
@@ -63,6 +106,14 @@ class ImageBuffer {
 	#end
 	
 	
+	/**
+		Creates a new `ImageBuffer` instance
+		@param	data	(Optional) Initial `UInt8Array` data
+		@param	width	(Optional) An initial `width` value
+		@param	height	(Optional) An initial `height` value
+		@param	bitsPerPixel	(Optional) The `bitsPerPixel` of the data (default is 32)
+		@param	format	(Optional) The `PixelFormat` of this image buffer
+	**/
 	public function new (data:UInt8Array = null, width:Int = 0, height:Int = 0, bitsPerPixel:Int = 32, format:PixelFormat = null) {
 		
 		this.data = data;
@@ -76,6 +127,13 @@ class ImageBuffer {
 	}
 	
 	
+	/**
+		Creates a duplicate of this `ImageBuffer`
+		
+		If the current `ImageBuffer` has `data` or `src` information, this will be 
+		cloned as well.
+		@return	A new `ImageBuffer` with duplicate values
+	**/
 	public function clone ():ImageBuffer {
 		
 		var buffer = new ImageBuffer (data, width, height, bitsPerPixel);

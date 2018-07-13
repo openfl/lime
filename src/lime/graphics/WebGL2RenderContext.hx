@@ -343,6 +343,30 @@ import lime.utils.Float32Array;
 import lime.utils.Int32Array;
 import lime.utils.UInt32Array;
 
+
+/**
+	The `WebGL2RenderContext` allows access to WebGL 2 features when OpenGL, OpenGL ES
+	or WebGL is the render context type of the `Window`, and the current context supports
+	WebGL 2 features.
+	
+	Using a WebGL context on a desktop platform enables support for cross-platform
+	code that should run on all platforms (when using hardware acceleration), though support
+	for WebGL 2 features are more limited than WebGL, and require an OpenGL ES 3.0 compatible
+	desktop or mobile context.
+	
+	You can convert from `lime.graphics.RenderContext`, `lime.graphics.OpenGLRenderContext`,
+	`lime.graphics.OpenGLES3RenderContext` or `lime.graphics.opengl.GL`, and can convert to
+	`lime.graphics.WebGLRenderContext` directly if desired:
+	
+	```
+	var webgl2:WebGL2RenderContext = window.context;
+	var webgl2:WebGL2RenderContext = gl;
+	var webgl2:WebGL2RenderContext = gles3;
+	var webgl2:WebGL2RenderContext = GL;
+	
+	var webgl:WebGLRenderContext = webgl2;
+**/
+
 @:access(lime.graphics.RenderContext)
 
 
@@ -3200,7 +3224,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic {
 	}
 	
 	
-	#if (!lime_doc_gen && (lime_opengl || lime_opengles))
+	#if (!doc_gen && (lime_opengl || lime_opengles))
 	@:from private static function fromOpenGLES3RenderContext (gl:OpenGLES3RenderContext):WebGL2RenderContext {
 		
 		return cast gl;

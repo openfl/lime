@@ -650,11 +650,11 @@ class GL {
 	public static inline var TIMEOUT_IGNORED = -1;
 	public static inline var MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 0x9247;
 	
-	#if (sys && lime_cffi && lime_opengl && !doc_gen)
+	#if lime_opengl
 	public static var context (default, null):OpenGLRenderContext;
-	#elseif mobile
-	public static var context (default, null):OpenGLES2RenderContext;
-	#elseif (js && html5)
+	#elseif lime_opengles
+	public static var context (default, null):OpenGLES3RenderContext;
+	#elseif lime_webgl
 	public static var context (default, null):WebGL2RenderContext;
 	#else
 	public static var context (default, null):Dynamic;
