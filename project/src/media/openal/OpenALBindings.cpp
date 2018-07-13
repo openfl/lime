@@ -3042,7 +3042,7 @@ namespace lime {
 			#else
 			if (param == AL_BUFFER) {
 				
-				data = (ALuint)(uintptr_t)(HL_CFFIPointer*)val->ptr;
+				data = (ALuint)(uintptr_t)((HL_CFFIPointer*)val)->ptr;
 				
 			} else {
 				
