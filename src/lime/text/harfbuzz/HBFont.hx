@@ -54,7 +54,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function getGlyphAdvanceForDirection (glyph:Int, direction:HBDirection):Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_glyph_advance_for_direction (this, glyph, direction);
+		return NativeCFFI.lime_hb_font_get_glyph_advance_for_direction (this, glyph, direction #if hl , new Vector2 () #end);
 		#else
 		return null;
 		#end
@@ -65,7 +65,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function getGlyphKerningForDirection (glyph:Int, firstGlyph:Int, secondGlyph:Int, direction:HBDirection):Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_glyph_kerning_for_direction (this, firstGlyph, secondGlyph, direction);
+		return NativeCFFI.lime_hb_font_get_glyph_kerning_for_direction (this, firstGlyph, secondGlyph, direction #if hl , new Vector2 () #end);
 		#else
 		return null;
 		#end
@@ -76,7 +76,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function getGlyphOriginForDirection (glyph:Int, direction:HBDirection):Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_glyph_origin_for_direction (this, glyph, direction);
+		return NativeCFFI.lime_hb_font_get_glyph_origin_for_direction (this, glyph, direction #if hl , new Vector2 () #end);
 		#else
 		return null;
 		#end
@@ -98,7 +98,11 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function glyphToString (codepoint:Int):String {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_glyph_to_string (this, codepoint);
+		var result = NativeCFFI.lime_hb_font_glyph_to_string (this, codepoint);
+		#if hl
+		var result = @:privateAccess String.fromUTF8 (result);
+		#end
+		return result;
 		#else
 		return null;
 		#end
@@ -178,7 +182,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	private inline function get_ppem ():Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_ppem (this);
+		return NativeCFFI.lime_hb_font_get_ppem (this #if hl , new Vector2 () #end);
 		#else
 		return null;
 		#end
@@ -199,7 +203,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	private inline function get_scale ():Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_scale (this);
+		return NativeCFFI.lime_hb_font_get_scale (this #if hl , new Vector2 () #end);
 		#else
 		return null;
 		#end

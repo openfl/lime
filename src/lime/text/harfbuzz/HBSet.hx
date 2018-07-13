@@ -130,7 +130,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	public function nextRange ():Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_set_next_range (this);
+		return NativeCFFI.lime_hb_set_next_range (this #if hl , new Vector2 () #end);
 		#else
 		return null;
 		#end

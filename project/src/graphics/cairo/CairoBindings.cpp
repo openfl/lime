@@ -518,7 +518,7 @@ namespace lime {
 		Font* font = (Font*)face->ptr;
 		cairo_font_face_t* cairoFont = cairo_ft_font_face_create_for_ft_face ((FT_Face)font->face, flags);
 		
-		ValuePointer* fontReference = new ValuePointer ((vobj*)face->ptr);
+		ValuePointer* fontReference = new ValuePointer ((vobj*)face);
 		cairo_font_face_set_user_data (cairoFont, &userData, fontReference, gc_user_data);
 		
 		HL_CFFIPointer* object = HLCFFIPointer (cairoFont, (hl_finalizer)hl_gc_cairo_font_face);
@@ -1790,7 +1790,7 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_cairo_set_font_face (HL_CFFIPointer* handle, HL_CFFIPointer* face) {
 		
-		cairo_set_font_face ((cairo_t*)handle->ptr, (cairo_font_face_t*)handle->ptr);
+		cairo_set_font_face ((cairo_t*)handle->ptr, (cairo_font_face_t*)face->ptr);
 		
 	}
 	
@@ -1851,7 +1851,7 @@ namespace lime {
 				
 				if (fontReference) {
 					
-					Font* font = (Font*)fontReference->Get ();
+					Font* font = (Font*)((HL_CFFIPointer*)fontReference->Get ())->ptr;
 					font->SetSize (size);
 					
 				}

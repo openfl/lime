@@ -265,7 +265,7 @@ namespace lime {
 	
 	HL_PRIM void hl_lime_hb_buffer_add_utf8 (HL_CFFIPointer* buffer, hl_vstring* text, int itemOffset, int itemLength) {
 		
-		hb_buffer_add_utf8 ((hb_buffer_t*)buffer->ptr, text ? hl_to_utf8 (text->bytes) : NULL, text ? hl_utf8_length ((const vbyte*)text->bytes, 0) : 0, itemOffset, itemLength);
+		hb_buffer_add_utf8 ((hb_buffer_t*)buffer->ptr, text ? hl_to_utf8 (text->bytes) : NULL, text ? text->length : 0, itemOffset, itemLength);
 		
 	}
 	
@@ -703,7 +703,7 @@ namespace lime {
 	
 	HL_PRIM int hl_lime_hb_buffer_serialize_format_from_string (hl_vstring* str) {
 		
-		return hb_buffer_serialize_format_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? hl_utf8_length ((const vbyte*)str->bytes, 0) : 0);
+		return hb_buffer_serialize_format_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? str->length : 0);
 		
 	}
 	
@@ -1108,7 +1108,7 @@ namespace lime {
 		
 		hb_feature_t feature;
 		
-		if (hb_feature_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? hl_utf8_length ((const vbyte*)str->bytes, 0) : 0, &feature)) {
+		if (hb_feature_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? str->length : 0, &feature)) {
 			
 			// TODO;
 			return NULL;
@@ -1375,7 +1375,7 @@ namespace lime {
 		
 		hb_codepoint_t glyph = 0;
 		
-		if (hb_font_glyph_from_string ((hb_font_t*)font->ptr, s ? hl_to_utf8 (s->bytes) : NULL, s ? hl_utf8_length ((const vbyte*)s->bytes, 0) : 0, &glyph)) {
+		if (hb_font_glyph_from_string ((hb_font_t*)font->ptr, s ? hl_to_utf8 (s->bytes) : NULL, s ? s->length : 0, &glyph)) {
 			
 			return glyph;
 			
@@ -1550,7 +1550,7 @@ namespace lime {
 	
 	HL_PRIM HL_CFFIPointer* hl_lime_hb_language_from_string (hl_vstring* str) {
 		
-		hb_language_t language = hb_language_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? hl_utf8_length ((const vbyte*)str->bytes, 0) : 0);
+		hb_language_t language = hb_language_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? str->length : 0);
 		return HLCFFIPointer (&language);
 		
 	}
@@ -2115,7 +2115,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_hb_language_get_default);
 	DEFINE_PRIME1 (lime_hb_language_to_string);
 	DEFINE_PRIME2 (lime_hb_segment_properties_equal);
-	DEFINE_PRIME1v (lime_hb_segment_properties_hash);
+	DEFINE_PRIME1 (lime_hb_segment_properties_hash);
 	DEFINE_PRIME2v (lime_hb_set_add);
 	DEFINE_PRIME3v (lime_hb_set_add_range);
 	DEFINE_PRIME1 (lime_hb_set_allocation_successful);
@@ -2143,7 +2143,7 @@ namespace lime {
 	
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
-	#define _TVECTOR2 _OBJ (_I32 _I32 _I32)
+	#define _TVECTOR2 _OBJ (_F64 _F64 _F64)
 	
 	
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_hb_blob_create, _F64 _I32 _I32);
@@ -2232,7 +2232,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_hb_language_get_default, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, lime_hb_language_to_string, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, lime_hb_segment_properties_equal, _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_hb_segment_properties_hash, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, lime_hb_segment_properties_hash, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_add, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_add_range, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, lime_hb_set_allocation_successful, _TCFFIPOINTER);
@@ -2244,13 +2244,13 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, lime_hb_set_get_max, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_hb_set_get_min, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_hb_set_get_population, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_hb_set_has, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, lime_hb_set_has, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_intersect, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_invert, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, lime_hb_set_is_empty, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, lime_hb_set_is_equal, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_hb_set_next, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_hb_set_next_range, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TVECTOR2, lime_hb_set_next_range, _TCFFIPOINTER _TVECTOR2);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_set, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_subtract, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_hb_set_symmetric_difference, _TCFFIPOINTER _TCFFIPOINTER);

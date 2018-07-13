@@ -34,7 +34,11 @@ abstract HBLanguage(CFFIPointer) from CFFIPointer to CFFIPointer {
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		if (this != null) {
 			
-			return NativeCFFI.lime_hb_language_to_string (this);
+			var result = NativeCFFI.lime_hb_language_to_string (this);
+			#if hl
+			var result = @:privateAccess String.fromUTF8 (result);
+			#end
+			return result;
 			
 		}
 		#end

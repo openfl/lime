@@ -570,22 +570,22 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_image_load_bytes") private static function lime_image_load_bytes (data:Bytes, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_load_file") private static function lime_image_load_file (path:String, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_data_util_color_transform") private static function lime_image_data_util_color_transform (image:Image, rect:Rectangle, colorMatrix:ArrayBufferView):Void {}
-	@:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
-	// @:hlNative("lime", "lime_image_data_util_copy_channel") private static function lime_image_data_util_copy_channel (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, srcChannel:Int, destChannel:Int):Void {}
-	@:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
-	// @:hlNative("lime", "lime_image_data_util_copy_pixels") private static function lime_image_data_util_copy_pixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image, alphaPoint:Vector2, mergeAlpha:Bool):Void {}
+	// @:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
+	@:hlNative("lime", "lime_image_data_util_copy_channel") private static function lime_image_data_util_copy_channel (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, srcChannel:Int, destChannel:Int):Void {}
+	// @:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
+	@:hlNative("lime", "lime_image_data_util_copy_pixels") private static function lime_image_data_util_copy_pixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image, alphaPoint:Vector2, mergeAlpha:Bool):Void {}
 	@:hlNative("lime", "lime_image_data_util_fill_rect") private static function lime_image_data_util_fill_rect (image:Image, rect:Rectangle, rg:Int, ba:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_flood_fill") private static function lime_image_data_util_flood_fill (image:Image, x:Int, y:Int, rg:Int, ba:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_get_pixels") private static function lime_image_data_util_get_pixels (image:Image, rect:Rectangle, format:Int, bytes:Bytes):Void {}
-	@:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
-	// @:hlNative("lime", "lime_image_data_util_merge") private static function lime_image_data_util_merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {}
+	// @:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
+	@:hlNative("lime", "lime_image_data_util_merge") private static function lime_image_data_util_merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_multiply_alpha") private static function lime_image_data_util_multiply_alpha (image:Image):Void {}
 	@:hlNative("lime", "lime_image_data_util_resize") private static function lime_image_data_util_resize (image:Image, buffer:ImageBuffer, width:Int, height:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_set_format") private static function lime_image_data_util_set_format (image:Image, format:Int):Void {}
-	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, offset:Int, format:Int, endian:Int):Void;
-	// @:hlNative("lime", "lime_image_data_util_set_pixels") private static function lime_image_data_util_set_pixels (image:Image, rect:Rectangle, bytes:Bytes, offset:Int, format:Int, endian:Int):Void {}
-	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
-	// @:hlNative("lime", "lime_image_data_util_threshold") private static function lime_image_data_util_threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int { return 0; }
+	// @:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, offset:Int, format:Int, endian:Int):Void;
+	@:hlNative("lime", "lime_image_data_util_set_pixels") private static function lime_image_data_util_set_pixels (image:Image, rect:Rectangle, bytes:Bytes, offset:Int, format:Int, endian:Int):Void {}
+	// @:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
+	@:hlNative("lime", "lime_image_data_util_threshold") private static function lime_image_data_util_threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int { return 0; }
 	@:hlNative("lime", "lime_image_data_util_unmultiply_alpha") private static function lime_image_data_util_unmultiply_alpha (image:Image):Void {}
 	@:hlNative("lime", "lime_joystick_get_device_guid") private static function lime_joystick_get_device_guid (id:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_joystick_get_device_name") private static function lime_joystick_get_device_name (id:Int):hl.Bytes { return null; }
@@ -3216,226 +3216,116 @@ class NativeCFFI {
 	#end
 	
 	#if hl
-	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):Float;
-	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float;
-	@:cffi private static function lime_hb_blob_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
-	@:cffi private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_create ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	@:cffi private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool;
-	@:cffi private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
-	@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool;
-	@:cffi private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	@:cffi private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer;
-	@:cffi private static function lime_hb_face_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_get_index (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_get_upem (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_face_make_immutable (face:CFFIPointer):Void;
-	@:cffi private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer;
-	@:cffi private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void;
-	@:cffi private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void;
-	@:cffi private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void;
-	@:cffi private static function lime_hb_feature_from_string (str:String):CFFIPointer;
-	@:cffi private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int;
-	@:cffi private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer;
-	@:cffi private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_font_make_immutable (font:CFFIPointer):Void;
-	@:cffi private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
-	@:cffi private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
-	@:cffi private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
-	@:cffi private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;
-	@:cffi private static function lime_hb_language_from_string (str:String):CFFIPointer;
-	@:cffi private static function lime_hb_language_get_default ():CFFIPointer;
-	@:cffi private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic;
-	@:cffi private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void;
-	@:cffi private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void;
-	@:cffi private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_clear (set:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_create ():CFFIPointer;
-	@:cffi private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void;
-	@:cffi private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void;
-	@:cffi private static function lime_hb_set_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_set_get_max (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_get_min (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_get_population (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool;
-	@:cffi private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_invert (set:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_is_empty (set:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_next (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic;
-	@:cffi private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
-	// @:hlNative("lime", "lime_hb_blob_create") private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_blob_get_data") private static function lime_hb_blob_get_data (blob:CFFIPointer):Float { return 0; }
-	// @:hlNative("lime", "lime_hb_blob_get_data_writable") private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float { return 0; }
-	// @:hlNative("lime", "lime_hb_blob_get_empty") private static function lime_hb_blob_get_empty ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_blob_get_length") private static function lime_hb_blob_get_length (blob:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_blob_is_immutable") private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_blob_make_immutable") private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_add") private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_add_codepoints") private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_add_utf8") private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_add_utf16") private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_add_utf32") private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_allocation_successful") private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_buffer_clear_contents") private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_create") private static function lime_hb_buffer_create ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_get_cluster_level") private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_content_type") private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_direction") private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_empty") private static function lime_hb_buffer_get_empty ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_get_flags") private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_glyph_infos") private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_get_glyph_positions") private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_get_language") private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_get_length") private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_replacement_codepoint") private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_script") private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_get_segment_properties") private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_guess_segment_properties") private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_normalize_glyphs") private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_preallocate") private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_buffer_reset") private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_reverse") private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_reverse_clusters") private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_serialize_format_from_string") private static function lime_hb_buffer_serialize_format_from_string (str:String):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_buffer_serialize_format_to_string") private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_serialize_list_formats") private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_buffer_set_cluster_level") private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_content_type") private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_direction") private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_flags") private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_language") private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_length") private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_buffer_set_replacement_codepoint") private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_script") private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void {}
-	// @:hlNative("lime", "lime_hb_buffer_set_segment_properties") private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_face_create") private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_face_get_empty") private static function lime_hb_face_get_empty ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_face_get_glyph_count") private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_face_get_index") private static function lime_hb_face_get_index (face:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_face_get_upem") private static function lime_hb_face_get_upem (face:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_face_is_immutable") private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_face_make_immutable") private static function lime_hb_face_make_immutable (face:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_face_reference_blob") private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_face_reference_table") private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_face_set_glyph_count") private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void {}
-	// @:hlNative("lime", "lime_hb_face_set_index") private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void {}
-	// @:hlNative("lime", "lime_hb_face_set_upem") private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void {}
-	// @:hlNative("lime", "lime_hb_feature_from_string") private static function lime_hb_feature_from_string (str:String):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_feature_to_string") private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_add_glyph_origin_for_direction") private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void {}
-	// @:hlNative("lime", "lime_hb_font_create") private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_create_sub_font") private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_empty") private static function lime_hb_font_get_empty ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_face") private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_glyph_advance_for_direction") private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_glyph_kerning_for_direction") private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_glyph_origin_for_direction") private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_parent") private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_ppem") private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_get_scale") private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_glyph_from_string") private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_font_glyph_to_string") private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_font_is_immutable") private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_font_make_immutable") private static function lime_hb_font_make_immutable (font:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_font_set_ppem") private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void {}
-	// @:hlNative("lime", "lime_hb_font_set_scale") private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void {}
-	// @:hlNative("lime", "lime_hb_font_subtract_glyph_origin_for_direction") private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void {}
-	// @:hlNative("lime", "lime_hb_ft_font_create") private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_ft_font_create_referenced") private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_ft_font_get_load_flags") private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_ft_font_set_load_flags") private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void {}
-	// @:hlNative("lime", "lime_hb_language_from_string") private static function lime_hb_language_from_string (str:String):CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_language_get_default") private static function lime_hb_language_get_default ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_language_to_string") private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic { return null; }
-	// @:hlNative("lime", "lime_hb_segment_properties_equal") private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_segment_properties_hash") private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_set_add") private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void {}
-	// @:hlNative("lime", "lime_hb_set_add_range") private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void {}
-	// @:hlNative("lime", "lime_hb_set_allocation_successful") private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_set_clear") private static function lime_hb_set_clear (set:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_set_create") private static function lime_hb_set_create ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_set_del") private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void {}
-	// @:hlNative("lime", "lime_hb_set_del_range") private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void {}
-	// @:hlNative("lime", "lime_hb_set_get_empty") private static function lime_hb_set_get_empty ():CFFIPointer { return null; }
-	// @:hlNative("lime", "lime_hb_set_get_max") private static function lime_hb_set_get_max (set:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_set_get_min") private static function lime_hb_set_get_min (set:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_set_get_population") private static function lime_hb_set_get_population (set:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_set_has") private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_set_intersect") private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_set_invert") private static function lime_hb_set_invert (set:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_set_is_empty") private static function lime_hb_set_is_empty (set:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_set_is_equal") private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool { return false; }
-	// @:hlNative("lime", "lime_hb_set_next") private static function lime_hb_set_next (set:CFFIPointer):Int { return 0; }
-	// @:hlNative("lime", "lime_hb_set_next_range") private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic { return null; }
-	// @:hlNative("lime", "lime_hb_set_set") private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_set_subtract") private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_set_symmetric_difference") private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_set_union") private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void {}
-	// @:hlNative("lime", "lime_hb_shape") private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void {}
+	@:hlNative("lime", "lime_hb_blob_create") private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_blob_get_data") private static function lime_hb_blob_get_data (blob:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_hb_blob_get_data_writable") private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_hb_blob_get_empty") private static function lime_hb_blob_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_blob_get_length") private static function lime_hb_blob_get_length (blob:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_blob_is_immutable") private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_blob_make_immutable") private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add") private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_codepoints") private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_utf8") private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_utf16") private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_utf32") private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_allocation_successful") private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_buffer_clear_contents") private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_create") private static function lime_hb_buffer_create ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_cluster_level") private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_content_type") private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_direction") private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_empty") private static function lime_hb_buffer_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_flags") private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_glyph_infos") private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_glyph_positions") private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_language") private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_length") private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_replacement_codepoint") private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_script") private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_segment_properties") private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_guess_segment_properties") private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_normalize_glyphs") private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_preallocate") private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool { return false; }
+	@:hlNative("lime", "lime_hb_buffer_reset") private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_reverse") private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_reverse_clusters") private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_serialize_format_from_string") private static function lime_hb_buffer_serialize_format_from_string (str:String):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_serialize_format_to_string") private static function lime_hb_buffer_serialize_format_to_string (format:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_buffer_serialize_list_formats") private static function lime_hb_buffer_serialize_list_formats ():hl.NativeArray<hl.Bytes> { return null; }
+	@:hlNative("lime", "lime_hb_buffer_set_cluster_level") private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_content_type") private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_direction") private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_flags") private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_language") private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_length") private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool { return false; }
+	@:hlNative("lime", "lime_hb_buffer_set_replacement_codepoint") private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_script") private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_segment_properties") private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_face_create") private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_get_empty") private static function lime_hb_face_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_get_glyph_count") private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_face_get_index") private static function lime_hb_face_get_index (face:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_face_get_upem") private static function lime_hb_face_get_upem (face:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_face_is_immutable") private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_face_make_immutable") private static function lime_hb_face_make_immutable (face:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_face_reference_blob") private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_reference_table") private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_set_glyph_count") private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void {}
+	@:hlNative("lime", "lime_hb_face_set_index") private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void {}
+	@:hlNative("lime", "lime_hb_face_set_upem") private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void {}
+	@:hlNative("lime", "lime_hb_feature_from_string") private static function lime_hb_feature_from_string (str:String):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_feature_to_string") private static function lime_hb_feature_to_string (feature:CFFIPointer):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_font_add_glyph_origin_for_direction") private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void {}
+	@:hlNative("lime", "lime_hb_font_create") private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_create_sub_font") private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_empty") private static function lime_hb_font_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_face") private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_glyph_advance_for_direction") private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_glyph_kerning_for_direction") private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_glyph_origin_for_direction") private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_parent") private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_ppem") private static function lime_hb_font_get_ppem (font:CFFIPointer, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_scale") private static function lime_hb_font_get_scale (font:CFFIPointer, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_glyph_from_string") private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int { return 0; }
+	@:hlNative("lime", "lime_hb_font_glyph_to_string") private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_font_is_immutable") private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_font_make_immutable") private static function lime_hb_font_make_immutable (font:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_font_set_ppem") private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void {}
+	@:hlNative("lime", "lime_hb_font_set_scale") private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void {}
+	@:hlNative("lime", "lime_hb_font_subtract_glyph_origin_for_direction") private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void {}
+	@:hlNative("lime", "lime_hb_ft_font_create") private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_ft_font_create_referenced") private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_ft_font_get_load_flags") private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_ft_font_set_load_flags") private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void {}
+	@:hlNative("lime", "lime_hb_language_from_string") private static function lime_hb_language_from_string (str:String):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_language_get_default") private static function lime_hb_language_get_default ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_language_to_string") private static function lime_hb_language_to_string (language:CFFIPointer):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_segment_properties_equal") private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_segment_properties_hash") private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_add") private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_add_range") private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_allocation_successful") private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_clear") private static function lime_hb_set_clear (set:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_create") private static function lime_hb_set_create ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_set_del") private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_del_range") private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_get_empty") private static function lime_hb_set_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_set_get_max") private static function lime_hb_set_get_max (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_get_min") private static function lime_hb_set_get_min (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_get_population") private static function lime_hb_set_get_population (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_has") private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_intersect") private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_invert") private static function lime_hb_set_invert (set:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_is_empty") private static function lime_hb_set_is_empty (set:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_is_equal") private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_next") private static function lime_hb_set_next (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_next_range") private static function lime_hb_set_next_range (set:CFFIPointer, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_set_set") private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_subtract") private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_symmetric_difference") private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_union") private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_shape") private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:hl.NativeArray<CFFIPointer>):Void {}
 	#end
 	
 	#end
