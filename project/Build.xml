@@ -391,11 +391,11 @@
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
 				<lib name="winmm.lib" />
-				<lib name="imm32.lib"  />
+				<lib name="imm32.lib" />
 				<lib name="ole32.lib" />
 				<lib name="oleaut32.lib" />
 				<lib name="version.lib" />
-				<lib name="ws2_32.lib"  />
+				<lib name="ws2_32.lib" />
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
@@ -414,6 +414,9 @@
 				
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
+				
+				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-lhl" if="LIME_HASHLINK" />
 				
 			</section>
 			
@@ -436,7 +439,7 @@
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 				
-				<lib name="-L${HLPATH}" />
+				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 				
 			</section>
