@@ -2262,8 +2262,10 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic {
 	
 	public inline function getBufferSubData (target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void {
 		
+		#if !js
 		var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
 		this.getBufferSubData (target, srcByteOffset + srcOffset, size, dstData);
+		#end
 		
 	}
 	

@@ -1,4 +1,4 @@
-package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (lime_doc_gen || (sys && lime_cffi))
+package lime.graphics; #if (!lime_doc_gen || lime_opengl || lime_opengles) #if (doc_gen || (sys && lime_cffi))
 
 
 import lime.graphics.opengl.*;
