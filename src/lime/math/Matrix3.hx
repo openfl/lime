@@ -1,6 +1,21 @@
 package lime.math;
 
 
+/**
+	`Matrix3` is a 3x3 transformation matrix particularly useful for
+	two-dimensional transformation. It can be used for rotation, scale
+	and skewing of a two-dimensional object.
+	
+	Although a 3x3 matrix is represented, configurable values can be
+	considered as a 3x2 matrix:
+	
+	```
+	[ a, c, tx ]
+	[ c, d, ty ]
+	[ 0, 0,  1 ]
+	```
+**/
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -10,16 +25,48 @@ package lime.math;
 class Matrix3 {
 	
 	
+	/**
+		The matrix a component, used in scaling and skewing (default is 1)
+	**/
 	public var a:Float;
+	
+	/**
+		The matrix b component, used in rotation and skewing (default is 0)
+	**/
 	public var b:Float;
+	
+	/**
+		The matrix c component, used in rotation and skewing (default is 0)
+	**/
 	public var c:Float;
+	
+	/**
+		The matrix d component, used in scaling and skewing (default is 1)
+	**/
 	public var d:Float;
+	
+	/**
+		The matrix tx component, used in translation (default is 0)
+	**/
 	public var tx:Float;
+	
+	/**
+		The matrix ty component, used in translation (default is 0)
+	**/
 	public var ty:Float;
 	
 	private static var __identity = new Matrix3 ();
 	
 	
+	/**
+		Creates a new `Matrix` instance
+		@param	a	(Optional) An initial a component value (default is 1)
+		@param	b	(Optional) An initial b component value (default is 0)
+		@param	c	(Optional) An initial c component value (default is 0)
+		@param	d	(Optional) An initial d component value (default is 1)
+		@param	tx	(Optional) An initial tx component value (default is 0)
+		@param	ty	(Optional) An initial ty component value (default is 0)
+	**/
 	public function new (a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0) {
 		
 		this.a = a;
@@ -32,6 +79,10 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Creates a duplicate of the current `Matrix3`
+		@return	A duplicate `Matrix3` instance
+	**/
 	public inline function clone ():Matrix3 {
 		
 		return new Matrix3 (a, b, c, d, tx, ty);
@@ -39,12 +90,18 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Concatenates the values of a second matrix to the current
+		`Matrix3`, combining the effects of both. This is the same
+		as matrix multiplication. The second matrix is not modified.
+		@param	m	A second `Matrix3` to concatenate to the current instance
+	**/
 	public function concat (m:Matrix3):Void {
 		
 		var a1 = a * m.a + b * m.c;
 		b = a * m.b + b * m.d;
 		a = a1;
-
+		
 		var c1 = c * m.a + d * m.c;
 		d = c * m.b + d * m.d;
 		c = c1;
@@ -58,6 +115,13 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Copies the `x` and `y` components from a `Vector4` instance
+		to the `a`/`c`, `b`/`d` or the `tx`/`ty` column of the current
+		matrix
+		@param	column	The column to copy into (0, 1 or 2)
+		@param	vector4	The `Vector4` instance to copy from
+	**/
 	public function copyColumnFrom (column:Int, vector4:Vector4):Void {
 		
 		if (column > 2) {
@@ -67,14 +131,14 @@ class Matrix3 {
 		} else if (column == 0) {
 			
 			a = vector4.x;
-			c = vector4.y;
+			b = vector4.y;
 			
-		}else if (column == 1) {
+		} else if (column == 1) {
 			
-			b = vector4.x;
+			c = vector4.x;
 			d = vector4.y;
 			
-		}else {
+		} else {
 			
 			tx = vector4.x;
 			ty = vector4.y;
@@ -84,6 +148,12 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Copies a column of the current matrix into a `Vector4`
+		instance. The `w` value will not be modified.
+		@param	column	The column to copy from (0, 1 or 2)
+		@param	vector4	The `Vector4` instance to copy to
+	**/
 	public function copyColumnTo (column:Int, vector4:Vector4):Void {
 		
 		if (column > 2) {
@@ -93,12 +163,12 @@ class Matrix3 {
 		} else if (column == 0) {
 			
 			vector4.x = a;
-			vector4.y = c;
+			vector4.y = b;
 			vector4.z = 0;
 			
 		} else if (column == 1) {
 			
-			vector4.x = b;
+			vector4.x = c;
 			vector4.y = d;
 			vector4.z = 0;
 			
@@ -113,6 +183,11 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Copies the values of another `Matrix3` and 
+		applies it to the current instance
+		@param	sourceMatrix3	The `Matrix3` to copy from
+	**/
 	public function copyFrom (sourceMatrix3:Matrix3):Void {
 		
 		a = sourceMatrix3.a;
@@ -125,6 +200,12 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Copies the values of a `Vector4` instance into a row
+		of the current matrix
+		@param	row	The row to copy into (0 or 1)
+		@param	vector4	The `Vector4` instance to copy from
+	**/
 	public function copyRowFrom (row:Int, vector4:Vector4):Void {
 		
 		if (row > 2) {
@@ -135,22 +216,25 @@ class Matrix3 {
 			
 			a = vector4.x;
 			c = vector4.y;
+			tx = vector4.z;
 			
 		} else if (row == 1) {
 			
 			b = vector4.x;
 			d = vector4.y;
-			
-		} else {
-			
-			tx = vector4.x;
-			ty = vector4.y;
+			ty = vector4.z;
 			
 		}
 		
 	}
 	
 	
+	/**
+		Copies a row of the current matrix into a `Vector4`
+		instance. The `w` value will not be modified.
+		@param	row	The row to copy into (0, 1 or 2)
+		@param	vector4	The `Vector4` instance to copy from
+	**/
 	public function copyRowTo (row:Int, vector4:Vector4):Void {
 		
 		if (row > 2) {
@@ -160,16 +244,16 @@ class Matrix3 {
 		} else if (row == 0) {
 			
 			vector4.x = a;
-			vector4.y = b;
+			vector4.y = c;
 			vector4.z = tx;
 			
 		} else if (row == 1) {
 			
-			vector4.x = c;
+			vector4.x = b;
 			vector4.y = d;
 			vector4.z = ty;
 			
-		}else {
+		} else {
 			
 			vector4.setTo (0, 0, 1);
 			
@@ -178,11 +262,38 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Applies a two-dimensional transformation to the current matrix.
+		
+		This is the same as calling `identity()`, `rotate()`, `scale()`
+		then `translate()` with these values.
+		@param	scaleX	An x scale transformation value
+		@param	scaleY	A y scale transformation value
+		@param	rotation (Optional) A rotation value (default is 0)
+		@param	tx	(Optional) A translate x value (default is 0)
+		@param	ty	(Optional) A translate y value (default is 0)
+	**/
 	public function createBox (scaleX:Float, scaleY:Float, rotation:Float = 0, tx:Float = 0, ty:Float = 0):Void {
 		
-		a = scaleX;
-		d = scaleY;
-		b = rotation;
+		if (rotation != 0) {
+			
+			var cos = Math.cos (rotation);
+			var sin = Math.sin (rotation);
+			
+			a = cos * scaleX;
+			b = sin * scaleY;
+			c = -sin * scaleX;
+			d = cos * scaleY;
+			
+		} else {
+			
+			a = scaleX;
+			b = 0;
+			c = 0;
+			d = scaleY;
+			
+		}
+		
 		this.tx = tx;
 		this.ty = ty;
 		
@@ -218,14 +329,14 @@ class Matrix3 {
 	}
 	
 	
-	public function equals (Matrix3):Bool {
+	public function equals (matrix3:Matrix3):Bool {
 		
-		return (Matrix3 != null && tx == Matrix3.tx && ty == Matrix3.ty && a == Matrix3.a && b == Matrix3.b && c == Matrix3.c && d == Matrix3.d);
+		return (matrix3 != null && tx == matrix3.tx && ty == matrix3.ty && a == matrix3.a && b == matrix3.b && c == matrix3.c && d == matrix3.d);
 		
 	}
 	
 	
-	public function deltaTransformVector2 (Vector2:Vector2):Vector2 {
+	public function deltaTransformVector (Vector2:Vector2):Vector2 {
 		
 		return new Vector2 (Vector2.x * a + Vector2.y * c, Vector2.x * b + Vector2.y * d);
 		
@@ -276,13 +387,13 @@ class Matrix3 {
 	}
 	
 	
-	public inline function mult (m:Matrix3) {
+	// public inline function mult (m:Matrix3) {
 		
-		var result = clone ();
-		result.concat (m);
-		return result;
+	// 	var result = clone ();
+	// 	result.concat (m);
+	// 	return result;
 		
-	}
+	// }
 	
 	
 	public function rotate (theta:Float):Void {
@@ -368,7 +479,7 @@ class Matrix3 {
 	}
 	
 	
-	public inline function to3DString (roundPixels:Bool = false):String {
+	@:dox(hide) @:noCompletion public inline function to3DString (roundPixels:Bool = false):String {
 		
 		// identityMatrix3
 		//  [a,b,tx,0],
@@ -380,32 +491,25 @@ class Matrix3 {
 		
 		if (roundPixels) {
 			
-			return "Matrix33d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + Std.int (tx) + ", " + Std.int (ty) + ", 0, 1)";
+			return "matrix3d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + Std.int (tx) + ", " + Std.int (ty) + ", 0, 1)";
 			
 		} else {
 			
-			return "Matrix33d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + tx + ", " + ty + ", 0, 1)";
+			return "matrix3d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + tx + ", " + ty + ", 0, 1)";
 			
 		}
 		
 	}
 	
 	
-	public inline function toMozString () {
-		
-		return "Matrix3(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + "px, " + ty + "px)";
-		
-	}
-	
-	
 	public inline function toString ():String {
 		
-		return "Matrix3(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + ", " + ty + ")";
+		return "matrix(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + ", " + ty + ")";
 		
 	}
 	
 	
-	public function transformVector2 (pos:Vector2) {
+	public function transformVector (pos:Vector2) {
 		
 		return new Vector2 (__transformX (pos), __transformY (pos));
 		
@@ -420,7 +524,7 @@ class Matrix3 {
 	}
 	
 	
-	private inline function __cleanValues ():Void {
+	@:noCompletion private inline function __cleanValues ():Void {
 		
 		a = Math.round (a * 1000) / 1000;
 		b = Math.round (b * 1000) / 1000;
@@ -432,21 +536,21 @@ class Matrix3 {
 	}
 	
 	
-	public inline function __transformX (pos:Vector2):Float {
+	@:dox(hide) @:noCompletion public inline function __transformX (pos:Vector2):Float {
 		
 		return pos.x * a + pos.y * c + tx;
 		
 	}
 	
 	
-	public inline function __transformY (pos:Vector2):Float {
+	@:dox(hide) @:noCompletion public inline function __transformY (pos:Vector2):Float {
 		
 		return pos.x * b + pos.y * d + ty;
 		
 	}
 	
 	
-	public inline function __translateTransformed (pos:Vector2):Void {
+	@:dox(hide) @:noCompletion public inline function __translateTransformed (pos:Vector2):Void {
 		
 		tx = __transformX (pos);
 		ty = __transformY (pos);

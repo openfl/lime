@@ -6,18 +6,52 @@ import lime.utils.UInt32Array;
 import lime.utils.UInt8Array;
 
 
-abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
+/**
+	A utility for storing, accessing and converting colors in an ARGB
+	(alpha, red, green, blue) color format.
+	
+	```
+	var color:ARGB = 0xFF883300;
+	trace (color.a); // 0xFF
+	trace (color.r); // 0x88
+	trace (color.g); // 0x33
+	trace (color.b); // 0x00
+	
+	var convert:BGRA = color; // 0x003388FF
+	```
+**/
+
+abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt {
 	
 	
 	private static var a16:Int;
 	private static var unmult:Float;
 	
+	/**
+		Accesses the alpha component of the color
+	**/
 	public var a (get, set):Int;
+	
+	/**
+		Accesses the blue component of the color
+	**/
 	public var b (get, set):Int;
+	
+	/**
+		Accesses the green component of the color
+	**/
 	public var g (get, set):Int;
+	
+	/**
+		Accesses the red component of the color
+	**/
 	public var r (get, set):Int;
 	
 	
+	/**
+		Creates a new ARGB instance
+		@param	argb	(Optional) An ARGB color value
+	**/
 	public inline function new (argb:Int = 0) {
 		
 		this = argb;
@@ -25,6 +59,14 @@ abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Creates a new ARGB instance from component values
+		@param	a	An alpha component value
+		@param	r	A red component value
+		@param	g	A green component value
+		@param	b	A blue component value
+		@return	A new ARGB instance
+	**/
 	public static inline function create (a:Int, r:Int, g:Int, b:Int):ARGB {
 		
 		var argb = new ARGB ();
@@ -34,7 +76,10 @@ abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
-	public inline function multiplyAlpha () {
+	/**
+		Multiplies the red, green and blue components by the current alpha component
+	**/
+	public inline function multiplyAlpha ():Void {
 		
 		if (a == 0) {
 			
@@ -50,6 +95,13 @@ abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Reads a value from a `UInt8Array` into the current `ARGB` color
+		@param	data	A `UInt8Array` instance
+		@param	offset	An offset into the `UInt8Array` to read
+		@param	format	(Optional) The `PixelFormat` represented by the `UInt8Array` data
+		@param	premultiplied	(Optional) Whether the data is stored in premultiplied alpha format
+	**/
 	public inline function readUInt8 (data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
 		
 		switch (format) {
@@ -77,6 +129,13 @@ abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Sets the current `ARGB` color to new component values
+		@param	a	The alpha component value to set
+		@param	r	The red component value to set
+		@param	g	The green component value to set
+		@param	b	The blue component vlaue to set
+	**/
 	public inline function set (a:Int, r:Int, g:Int, b:Int):Void {
 		
 		this = ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
@@ -84,6 +143,9 @@ abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Divides the current red, green and blue components by the alpha component
+	**/
 	public inline function unmultiplyAlpha () {
 		
 		if (a != 0 && a != 0xFF) {
@@ -96,6 +158,13 @@ abstract ARGB(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Writes the current `ARGB` color into a `UInt8Array`
+		@param	data	A `UInt8Array` instance
+		@param	offset	An offset into the `UInt8Array` to write
+		@param	format	(Optional) The `PixelFormat` represented by the `UInt8Array` data
+		@param	premultiplied	(Optional) Whether the data is stored in premultiplied alpha format
+	**/
 	public inline function writeUInt8 (data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
 		
 		if (premultiplied) {

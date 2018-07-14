@@ -8,7 +8,22 @@ import lime.utils.UInt8Array;
 @:allow(lime.math)
 
 
-abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
+/**
+	A utility for storing, accessing and converting colors in an RGBA
+	(red, green, blue, alpha) color format.
+	
+	```
+	var color:RGBA = 0x883300FF;
+	trace (color.r); // 0x88
+	trace (color.g); // 0x33
+	trace (color.b); // 0x00
+	trace (color.a); // 0xFF
+	
+	var convert:ARGB = color; // 0xFF883300
+	```
+**/
+
+abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt {
 	
 	
 	private static var __alpha16:UInt32Array;
@@ -16,9 +31,24 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	private static var a16:Int;
 	private static var unmult:Float;
 	
+	/**
+		Accesses the alpha component of the color
+	**/
 	public var a (get, set):Int;
+	
+	/**
+		Accesses the blue component of the color
+	**/
 	public var b (get, set):Int;
+	
+	/**
+		Accesses the green component of the color
+	**/
 	public var g (get, set):Int;
+	
+	/**
+		Accesses the red component of the color
+	**/
 	public var r (get, set):Int;
 	
 	
@@ -82,6 +112,10 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	#end
 	
 	
+	/**
+		Creates a new RGBA instance
+		@param	rgba	(Optional) An RGBA color value
+	**/
 	public inline function new (rgba:Int = 0) {
 		
 		this = rgba;
@@ -89,6 +123,14 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Creates a new RGBA instance from component values
+		@param	r	A red component value
+		@param	g	A green component value
+		@param	b	A blue component value
+		@param	a	An alpha component value
+		@return	A new RGBA instance
+	**/
 	public static inline function create (r:Int, g:Int, b:Int, a:Int):RGBA {
 		
 		var rgba = new RGBA ();
@@ -98,6 +140,9 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Multiplies the red, green and blue components by the current alpha component
+	**/
 	public inline function multiplyAlpha () {
 		
 		if (a == 0) {
@@ -118,6 +163,13 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Reads a value from a `UInt8Array` into the current `RGBA` color
+		@param	data	A `UInt8Array` instance
+		@param	offset	An offset into the `UInt8Array` to read
+		@param	format	(Optional) The `PixelFormat` represented by the `UInt8Array` data
+		@param	premultiplied	(Optional) Whether the data is stored in premultiplied alpha format
+	**/
 	public inline function readUInt8 (data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
 		
 		switch (format) {
@@ -145,6 +197,13 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Sets the current `RGBA` color to new component values
+		@param	r	The red component value to set
+		@param	g	The green component value to set
+		@param	b	The blue component vlaue to set
+		@param	a	The alpha component value to set
+	**/
 	public inline function set (r:Int, g:Int, b:Int, a:Int):Void {
 		
 		this = ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
@@ -152,6 +211,9 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Divides the current red, green and blue components by the alpha component
+	**/
 	public inline function unmultiplyAlpha () {
 		
 		if (a != 0 && a != 0xFF) {
@@ -164,6 +226,13 @@ abstract RGBA(#if flash Int #else UInt #end) from Int to Int from UInt to UInt {
 	}
 	
 	
+	/**
+		Writes the current `RGBA` color into a `UInt8Array`
+		@param	data	A `UInt8Array` instance
+		@param	offset	An offset into the `UInt8Array` to write
+		@param	format	(Optional) The `PixelFormat` represented by the `UInt8Array` data
+		@param	premultiplied	(Optional) Whether the data is stored in premultiplied alpha format
+	**/
 	public inline function writeUInt8 (data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void {
 		
 		if (premultiplied) {

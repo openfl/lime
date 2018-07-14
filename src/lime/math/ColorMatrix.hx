@@ -9,6 +9,13 @@ import flash.geom.ColorTransform;
 #end
 
 
+/**
+	`ColorMatrix` is a 4x5 matrix containing color multiplication
+	and offset values for tinting and other kinds of color
+	manipulation. In addition to using the multiplier, offset and
+	`color` properties, it can be edited directly as a `Float32Array`
+**/
+
 abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	
@@ -18,17 +25,60 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	private static var __identity = [ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 ];
 	private static var __redTable:UInt8Array;
 	
+	/**
+		The current alpha multiplication value (default is 1.0)
+	**/
 	public var alphaMultiplier (get, set):Float;
+	
+	/**
+		The current alpha offset value (default is 0)
+	**/
 	public var alphaOffset (get, set):Float;
+	
+	/**
+		The current blue multiplication value (default is 1.0)
+	**/
 	public var blueMultiplier (get, set):Float;
+	
+	/**
+		The current blue offset value (default is 0)
+	**/
 	public var blueOffset (get, set):Float;
+	
+	/**
+		Gets or sets a color offset for tinting.
+		
+		This will change the red, green and blue multipliers
+		to zero, and affect the red, green and blue offset
+		values.
+	**/
 	public var color (get, set):Int;
+	
+	/**
+		The current green multiplication value (default is 1.0)
+	**/
 	public var greenMultiplier (get, set):Float;
+	
+	/**
+		The current green offset value (default is 0)
+	**/
 	public var greenOffset (get, set):Float;
+	
+	/**
+		The current red multiplication value (default is 1.0)
+	**/
 	public var redMultiplier (get, set):Float;
+	
+	/**
+		The current red offset value (default is 0)
+	**/
 	public var redOffset (get, set):Float;
 	
 	
+	/**
+		Creates a new `ColorMatrix` instance
+		@param	data	(Optional) Initial `Float32Array` data to use
+	**/
 	public function new (data:Float32Array = null) {
 		
 		if (data != null && data.length == 20) {
@@ -44,6 +94,10 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Creates a duplicate of the current `ColorMatrix` instance
+		@return	A new `ColorMatrix` instance
+	**/
 	public function clone ():ColorMatrix {
 		
 		return new ColorMatrix (new Float32Array (this));
@@ -51,6 +105,10 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Adds the color multipliers from a second `ColorMatrix` to the current one
+		@param	second	The `ColorMatrix` to `concat` to the current one
+	**/
 	public function concat (second:ColorMatrix):Void {
 		
 		redMultiplier += second.redMultiplier;
@@ -61,6 +119,10 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Sets the current `ColorMatrix` values to the same as another one
+		@param	other	The `ColorMatrix` to copy from
+	**/
 	public function copyFrom (other:ColorMatrix):Void {
 		
 		this.set (other);
@@ -68,6 +130,9 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Resets to default values
+	**/
 	public function identity () {
 		
 		this[0] = 1;
@@ -94,6 +159,26 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Returns a reference to a `UInt8Array` table for transforming
+		alpha values using the current matrix.
+		
+		The table is 256 values in length, and includes values based
+		on the `alphaMultipler` and `alphaOffset` values of the matrix.
+		
+		The values are constrained within 0 and 255.
+		
+		For example:
+		
+		```
+		var colorMatrix = new ColorMatrix ();
+		colorMatrix.alphaOffset = 12;
+		
+		var alphaTable = colorMatrix.getAlphaTable ();
+		trace (alphaTable[0]); // 12
+		trace (alphaTable[1]); // 13
+		```
+	**/
 	public function getAlphaTable ():UInt8Array {
 		
 		if (__alphaTable == null) {
@@ -119,6 +204,26 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Returns a reference to a `UInt8Array` table for transforming
+		blue values using the current matrix.
+		
+		The table is 256 values in length, and includes values based
+		on the `blueMultiplier` and `blueOffset` values of the matrix.
+		
+		The values are constrained within 0 and 255.
+		
+		For example:
+		
+		```
+		var colorMatrix = new ColorMatrix ();
+		colorMatrix.blueOffset = 16;
+		
+		var blueTable = colorMatrix.getBlueTable ();
+		trace (blueTable[0]); // 16
+		trace (blueTable[1]); // 17
+		```
+	**/
 	public function getBlueTable ():UInt8Array {
 		
 		if (__blueTable == null) {
@@ -143,6 +248,26 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Returns a reference to a `UInt8Array` table for transforming
+		green values using the current matrix.
+		
+		The table is 256 values in length, and includes values based
+		on the `greenMultiplier` and `greenOffset` values of the matrix.
+		
+		The values are constrained within 0 and 255.
+		
+		For example:
+		
+		```
+		var colorMatrix = new ColorMatrix ();
+		colorMatrix.greenOffset = 16;
+		
+		var greenTable = colorMatrix.getGreenTable ();
+		trace (greenTable[0]); // 16
+		trace (greenTable[1]); // 17
+		```
+	**/
 	public function getGreenTable ():UInt8Array {
 		
 		if (__greenTable == null) {
@@ -167,6 +292,26 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Returns a reference to a `UInt8Array` table for transforming
+		red values using the current matrix.
+		
+		The table is 256 values in length, and includes values based
+		on the `redMultiplier` and `redOffset` values of the matrix.
+		
+		The values are constrained within 0 and 255.
+		
+		For example:
+		
+		```
+		var colorMatrix = new ColorMatrix ();
+		colorMatrix.redOffset = 16;
+		
+		var redTable = colorMatrix.getRedTable ();
+		trace (redTable[0]); // 16
+		trace (redTable[1]); // 17
+		```
+	**/
 	public function getRedTable ():UInt8Array {
 		
 		if (__redTable == null) {
@@ -343,14 +488,14 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	@:arrayAccess public function get (index:Int):Float {
+	@:dox(hide) @:noCompletion @:arrayAccess public function get (index:Int):Float {
 		
 		return this[index];
 		
 	}
 	
 	
-	@:arrayAccess public function set (index:Int, value:Float):Float {
+	@:dox(hide) @:noCompletion @:arrayAccess public function set (index:Int, value:Float):Float {
 		
 		return this[index] = value;
 		
