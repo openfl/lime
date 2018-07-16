@@ -300,6 +300,15 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Creates a matrix to use for a linear gradient fill
+		@param	width	The width of the gradient fill
+		@param	height	The height of the gradient fill
+		@param	rotation	(Optional) A rotation for the gradient fill (default is 0)
+		@param	tx	(Optional) An x offset for the gradient fill (default is 0)
+		@param	ty	(Optional) A y offset for the gradient fill (default is 0)
+		@return	A new `Matrix` instance
+	**/
 	public function createGradientBox (width:Float, height:Float, rotation:Float = 0, tx:Float = 0, ty:Float = 0):Void {
 		
 		a = width / 1638.4;
@@ -329,6 +338,10 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Check if two matrices have the same values
+		@return	Whether both matrices are equal
+	**/
 	public function equals (matrix3:Matrix3):Bool {
 		
 		return (matrix3 != null && tx == matrix3.tx && ty == matrix3.ty && a == matrix3.a && b == matrix3.b && c == matrix3.c && d == matrix3.d);
@@ -336,6 +349,11 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Transforms a `Vector2` instance by the current matrix,
+		without considering the `tx` and `ty` values of the matrix
+		@return	A new `Vector2` instance representing the transformed values
+	**/
 	public function deltaTransformVector (Vector2:Vector2):Vector2 {
 		
 		return new Vector2 (Vector2.x * a + Vector2.y * c, Vector2.x * b + Vector2.y * d);
@@ -343,6 +361,9 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Resets the matrix to default identity values
+	**/
 	public function identity ():Void {
 		
 		a = 1;
@@ -355,6 +376,10 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Inverts the values of the current matrix
+		@return	The current matrix instance
+	**/
 	public function invert ():Matrix3 {
 		
 		var norm = a * d - b * c;
@@ -396,6 +421,10 @@ class Matrix3 {
 	// }
 	
 	
+	/**
+		Applies rotation to the current matrix
+		@param	theta	A rotation value in degrees
+	**/
 	public function rotate (theta:Float):Void {
 		
 		/*
@@ -432,7 +461,12 @@ class Matrix3 {
 	}
 	
 	
-	public function scale (sx:Float, sy:Float) {
+	/**
+		Scales the current matrix
+		@param	sx	The x scale to apply
+		@param	sy	The y scale to apply
+	**/
+	public function scale (sx:Float, sy:Float):Void {
 		
 		/*
 			
@@ -455,7 +489,7 @@ class Matrix3 {
 	}
 	
 	
-	private inline function setRotation (theta:Float, scale:Float = 1) {
+	@:noCompletion private inline function setRotation (theta:Float, scale:Float = 1):Void {
 		
 		a = Math.cos (theta) * scale;
 		c = Math.sin (theta) * scale;
@@ -467,6 +501,15 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Sets the values of the current matrix
+		@param	a	The new matrix a value
+		@param	b	The new matrix b value
+		@param	c	The new matrix c value
+		@param	d	The new matrix d value
+		@param	tx	The new matrix tx value
+		@param	ty	The new matrix ty value
+	**/
 	public function setTo (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void {
 		
 		this.a = a;
@@ -502,13 +545,17 @@ class Matrix3 {
 	}
 	
 	
-	public inline function toString ():String {
+	@:dox(hide) public inline function toString ():String {
 		
 		return "matrix(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + ", " + ty + ")";
 		
 	}
 	
 	
+	/**
+		Transforms a `Vector2` instance by the current matrix
+		@return	A new `Vector2` instance representing the transformed values
+	**/
 	public function transformVector (pos:Vector2) {
 		
 		return new Vector2 (__transformX (pos), __transformY (pos));
@@ -516,6 +563,11 @@ class Matrix3 {
 	}
 	
 	
+	/**
+		Adjusts the `tx` and `ty` of the current matrix
+		@param	dx	The x amount to translate
+		@param	dy	The y amount to translate
+	**/
 	public inline function translate (dx:Float, dy:Float) {
 		
 		tx += dx;
