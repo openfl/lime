@@ -352,11 +352,15 @@ class Matrix3 {
 	/**
 		Transforms a `Vector2` instance by the current matrix,
 		without considering the `tx` and `ty` values of the matrix
+		@param	result	(Optional) An existing `Vector2` instance to fill with the result
 		@return	A new `Vector2` instance representing the transformed values
 	**/
-	public function deltaTransformVector (Vector2:Vector2):Vector2 {
+	public function deltaTransformVector (Vector2:Vector2, result:Vector2 = null):Vector2 {
 		
-		return new Vector2 (Vector2.x * a + Vector2.y * c, Vector2.x * b + Vector2.y * d);
+		if (result == null) result = new Vector2 ();
+		result.x = Vector2.x * a + Vector2.y * c;
+		result.y = Vector2.x * b + Vector2.y * d;
+		return result;
 		
 	}
 	
@@ -554,11 +558,15 @@ class Matrix3 {
 	
 	/**
 		Transforms a `Vector2` instance by the current matrix
+		@param	result	(Optional) An existing `Vector2` instance to fill with the result
 		@return	A new `Vector2` instance representing the transformed values
 	**/
-	public function transformVector (pos:Vector2) {
+	public function transformVector (pos:Vector2, result:Vector2 = null):Vector2 {
 		
-		return new Vector2 (__transformX (pos), __transformY (pos));
+		if (result == null) result = new Vector2 ();
+		result.x = __transformX (pos);
+		result.y = __transformY (pos);
+		return result;
 		
 	}
 	

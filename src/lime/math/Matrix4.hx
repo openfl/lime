@@ -5,15 +5,30 @@ import lime.utils.Float32Array;
 import lime.utils.Log;
 
 
+/**
+	`Matrix4` is a 4x4 matrix, useful for 3D calculations
+**/
+
 abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	
 	private static var __identity:Array<Float> = [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ];
 	
+	/**
+		Gets the determinant of the matrix
+	**/
 	public var determinant (get, never):Float;
+	
+	/**
+		Gets or sets the position value of this matrix
+	**/
 	public var position (get, set):Vector4;
 	
 	
+	/**
+		Creates a new matrix instance
+		@param	data	(Optional) A `Float32Array` of 16 values to use for this matrix
+	**/
 	public function new (data:Float32Array = null) {
 		
 		if (data != null && data.length == 16) {
@@ -29,6 +44,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Appends a second matrix by multiplying its values against the current one
+		@param	lhs	A second matrix instance
+	**/
 	public function append (lhs:Matrix4):Void {
 		
 		var m111:Float = this[0], m121:Float = this[4], m131:Float = this[8], m141:Float = this[12],
@@ -63,6 +82,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Appends rotation to the current matrix
+		@param	degrees	A rotation value (in degrees)
+		@param	axis	The coordinate position of the rotation axis
+		@param	pivotPoint	(Optional) A pivot point to use in the rotation
+	**/
 	public function appendRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
 		
 		var m = __getAxisRotation (axis.x, axis.y, axis.z, degrees);
@@ -79,6 +104,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Appends a scale value to the current matrix
+		@param	xScale	The x scale to append
+		@param	yScale	The y scale to append
+		@param	zScale	The z scale to append
+	**/
 	public function appendScale (xScale:Float, yScale:Float, zScale:Float):Void {
 		
 		append (new Matrix4 (new Float32Array ([ xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0 ])));
@@ -86,6 +117,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Increases the position/translation of the current matrix
+		@param	x	The x amount to offset the current position
+		@param	y	The y amount to offset the current position
+		@param	z	The z amount to offset the current position
+	**/
 	public function appendTranslation (x:Float, y:Float, z:Float):Void {
 		
 		this[12] = this[12] + x;
@@ -95,6 +132,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Creates a duplicate of the current `Matrix4`
+		@return	A new `Matrix4` with the same values as the current matrix
+	**/
 	public function clone ():Matrix4 {
 		
 		return new Matrix4 (new Float32Array (this));
@@ -102,6 +143,11 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Copies a column of data from a `Vector4` instance into the values of this matrix
+		@param	column	The column to copy into (0, 1, 2 or 3)
+		@param	vector	The `Vector4` copy from
+	**/
 	public function copyColumnFrom (column:Int, vector:Vector4):Void {
 		
 		switch (column) {
@@ -143,6 +189,11 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Copies a column of data from the current matrix into a `Vector4` instance
+		@param	column	The column to copy (0, 1, 2 or 3)
+		@param	vector	The `Vector4` copy to
+	**/
 	public function copyColumnTo (column:Int, vector:Vector4):Void {
 		
 		switch (column) {
@@ -184,6 +235,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Copies the values of another `Matrix4` into the current matrix
+		@param	other	A `Matrix4` instance to copy from
+	**/
 	public function copyFrom (other:Matrix4):Void {
 		
 		this.set (other);
@@ -191,7 +246,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	@:deprecated public function copythisFrom (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
+	@:dox(hide) @:noCompletion @:deprecated public function copythisFrom (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
 		
 		if (transposeValues)
 			transpose ();
@@ -206,7 +261,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	@:deprecated public function copythisTo (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
+	@:dox(hide) @:noCompletion @:deprecated public function copythisTo (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
 		
 		if (transposeValues)
 			transpose ();
@@ -221,6 +276,11 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Copies a row of data from a `Vector4` instance into the values of this matrix
+		@param	row	The row to copy into (0, 1, 2 or 3)
+		@param	vector	The `Vector4` copy from
+	**/
 	public function copyRowFrom (row:Int, vector:Vector4) {
 		
 		switch (row) {
@@ -262,67 +322,11 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	public static function create2D (x:Float, y:Float, scale:Float = 1, rotation:Float = 0) {
-		
-		var theta = rotation * Math.PI / 180.0;
-		var c = Math.cos (theta);
-		var s = Math.sin (theta);
-		
-		return new Matrix4 (new Float32Array ([
-			c*scale,  -s*scale, 0,  0,
-			s*scale,  c*scale, 0,  0,
-			0,        0,        1,  0,
-			x,        y,        0,  1
-		]));
-		
-	}
-	
-	
-	public static function createABCD (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float, matrix:Matrix4 = null) {
-		
-		if (matrix == null) matrix = new Matrix4 ();
-		
-		matrix[0] = a;
-		matrix[1] = b;
-		matrix[2] = 0;
-		matrix[3] = 0;
-		
-		matrix[4] = c;
-		matrix[5] = d;
-		matrix[6] = 0;
-		matrix[7] = 0;
-		
-		matrix[8] = 0;
-		matrix[9] = 0;
-		matrix[10] = 1;
-		matrix[11] = 0;
-		
-		matrix[12] = tx;
-		matrix[13] = ty;
-		matrix[14] = 0;
-		matrix[15] = 1;
-		
-		return matrix;
-		
-	}
-	
-	
-	public static function createOrtho (x0:Float, x1:Float,  y0:Float, y1:Float, zNear:Float, zFar:Float) {
-		
-		var sx = 1.0 / (x1 - x0);
-		var sy = 1.0 / (y1 - y0);
-		var sz = 1.0 / (zFar - zNear);
-		
-		return new Matrix4 (new Float32Array ([
-			2.0 * sx,     0,          0,                 0,
-			0,            2.0 * sy,   0,                 0,
-			0,            0,          -2.0 * sz,         0,
-			- (x0 + x1) * sx, - (y0 + y1) * sy, - (zNear + zFar) * sz,  1,
-		]));
-		
-	}
-	
-	
+	/**
+		Copies a row of data from the current matrix into a `Vector4` instance
+		@param	column	The row to copy (0, 1, 2 or 3)
+		@param	vector	The `Vector4` copy to
+	**/
 	public function copyRowTo (row:Int, vector:Vector4):Void {
 		
 		switch (row) {
@@ -364,9 +368,81 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	public function copyToMatrix4 (other:Matrix4):Void {
+	@:dox(hide) @:noCompletion @:deprecated("Use copyFrom") public function copyToMatrix4 (other:Matrix4):Void {
 		
 		cast (other, Float32Array).set (this);
+		
+	}
+	
+	
+	/**
+		Resets the current matrix using two-dimensional transform values
+		@param	a	A two-dimensional matrix a value
+		@param	b	A two-dimensional matrix b value
+		@param	c	A two-dimensional matrix c value
+		@param	d	A two-dimensional matrix d value
+		@param	tx	(Optional) A two-dimensional matrix tx value (default is 0)
+		@param	ty	(Optional) A two-dimensional matrix ty value (default is 0)
+	**/
+	public function create2D (a:Float, b:Float, c:Float, d:Float, tx:Float = 0, ty:Float = 0):Void {
+		
+		this[0] = a;
+		this[1] = b;
+		this[2] = 0;
+		this[3] = 0;
+		
+		this[4] = c;
+		this[5] = d;
+		this[6] = 0;
+		this[7] = 0;
+		
+		this[8] = 0;
+		this[9] = 0;
+		this[10] = 1;
+		this[11] = 0;
+		
+		this[12] = tx;
+		this[13] = ty;
+		this[14] = 0;
+		this[15] = 1;
+		
+	}
+	
+	
+	/**
+		Initializes this matrix with values for an orthographic projection, useful in rendering
+		@param	left	The left (or x0) coordinate for the projection
+		@param	right	The right (or x1) coordinate for the projection
+		@param	bottom	The bottom (or y0) coordinate for the projection
+		@param	top	The top (or y1) coordinate for the projection
+		@param	zNear	The near depth-clipping plane position
+		@param	zFar	The far depth-clipping plane position
+	**/
+	public function createOrtho (left:Float, right:Float, bottom:Float, top:Float, zNear:Float, zFar:Float):Void {
+		
+		var sx = 1.0 / (right - left);
+		var sy = 1.0 / (top - bottom);
+		var sz = 1.0 / (zFar - zNear);
+		
+		this[0] = 2 * sx;
+		this[1] = 0;
+		this[2] = 0;
+		this[3] = 0;
+		
+		this[4] = 0;
+		this[5] = 2 * sy;
+		this[6] = 0;
+		this[7] = 0;
+		
+		this[8] = 0;
+		this[9] = 0;
+		this[10] = -2 * sz;
+		this[11] = 0;
+		
+		this[12] = -(left + right) * sx;
+		this[13] = -(bottom + top) * sy;
+		this[14] = -(zNear + zFar) * sz;
+		this[15] = 1;
 		
 	}
 	
@@ -432,7 +508,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 					rot.z = (mr[1] - mr[4]) / (4 * rot.w);
 				} else if ((mr[0] > mr[5]) && (mr[0] > mr[10])) {
 					rot.x = Math.sqrt(1 + mr[0] - mr[5] - mr[10]) / 2;
-
+					
 					rot.w = (mr[6] - mr[9]) / (4 * rot.x);
 					rot.y = (mr[1] + mr[4]) / (4 * rot.x);
 					rot.z = (mr[8] + mr[2]) / (4 * rot.x);
@@ -471,20 +547,36 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}*/
 	
 	
-	public function deltaTransformVector (v:Vector4):Vector4 {
+	/**
+		Transforms a vector using this matrix, ignoring the translation of the matrix
+		@param	result	(Optional) An existing `Vector4` instance to fill with the result
+		@param	v	A `Vector4` instance to transform
+	**/
+	public function deltaTransformVector (v:Vector4, result:Vector4 = null):Vector4 {
 		
-		var x:Float = v.x, y:Float = v.y, z:Float = v.z;
-		
-		return new Vector4 (
-			(x * this[0] + y * this[4] + z * this[8] + this[3]),
-			(x * this[1] + y * this[5] + z * this[9] + this[7]),
-			(x * this[2] + y * this[6] + z * this[10] + this[11]),
-			0);
+		if (result == null) result = new Vector4 ();
+		var x = v.x, y = v.y, z = v.z;
+		result.x = (x * this[0] + y * this[4] + z * this[8] + this[3]);
+		result.y = (x * this[1] + y * this[5] + z * this[9] + this[7]);
+		result.z = (x * this[2] + y * this[6] + z * this[10] + this[11]);
+		return result;
 		
 	}
 	
 	
-	public function identity () {
+	@:from public static function fromMatrix3 (matrix3:Matrix3):Matrix4 {
+		
+		var mat = new Matrix4 ();
+		mat.create2D (matrix3.a, matrix3.b, matrix3.c, matrix3.d, matrix3.tx, matrix3.ty);
+		return mat;
+		
+	}
+	
+	
+	/**
+		Resets the current matrix using default identity values
+	**/
+	public function identity ():Void {
 		
 		this[0] = 1;
 		this[1] = 0;
@@ -506,21 +598,34 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	public static function interpolate (thisMat:Matrix4, toMat:Matrix4, percent:Float):Matrix4 {
+	/**
+		Interpolates from one `Matrix4` instance to another, given a percentage between the two
+		@param	thisMat	The first `Matrix4` object to start from
+		@param	toMat	The second `Matrix4` object to interpolate toward
+		@param	percent	The percentage value to interpolate by
+		@param	result	(Optional) A `Matrix4` instance to use when returning the result
+		@return	A `Matrix4` with the resulting value
+	**/
+	public static function interpolate (thisMat:Matrix4, toMat:Matrix4, percent:Float, result:Matrix4 = null):Matrix4 {
 		
-		var m = new Matrix4 ();
+		if (result == null) result = new Matrix4 ();
 		
 		for (i in 0...16) {
 			
-			m[i] = thisMat[i] + (toMat[i] - thisMat[i]) * percent;
+			result[i] = thisMat[i] + (toMat[i] - thisMat[i]) * percent;
 			
 		}
 		
-		return m;
+		return result;
 		
 	}
 	
 	
+	/**
+		Interpolates the current matrix toward another matrix, resetting the values of the current matrix
+		@param	toMat	The second `Matrix4` object to interpolate toward
+		@param	percetn	The percentage value to interpolate by
+	**/
 	public function interpolateTo (toMat:Matrix4, percent:Float):Void {
 		
 		for (i in 0...16) {
@@ -532,6 +637,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Attempts to invert the current matrix, so long as the determinant is greater than zero
+		@return	Whether the `invert` operation was successful
+	**/
 	public function invert ():Bool {
 		
 		var d = determinant;
@@ -570,21 +679,29 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Sets the matrix values as a transformation orientated toward a certain vector position
+		@param	pos	A target vector position in absolute coordinates
+		@param	at	(Optional) A vector relative to this matrix which defines the current direction
+		@param	up	(Optional) A vector relative to this matrix which defines the "up" direction
+	**/
 	public function pointAt (pos:Vector4, at:Vector4 = null, up:Vector4 = null):Void {
+		
+		// TODO: This implementation is broken
 		
 		if (at == null) {
 			
-			at = new Vector4 (0, 0, -1);
+			at = new Vector4 (0, 0, 1);
 			
 		}
 		
 		if (up == null) {
 			
-			up = new Vector4 (0, -1, 0);
+			up = new Vector4 (0, 1, 0);
 			
 		}
 		
-		var dir = at.subtract (pos);
+		var dir = pos.subtract (at);
 		var vup = up.clone ();
 		var right:Vector4;
 		
@@ -637,6 +754,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Prepends a right-hand matrix to the current matrix
+		@param	rhx	A right-hand `Matrix4` to append
+	**/
 	public function prepend (rhs:Matrix4):Void {
 		
 		var m111:Float = rhs[0], m121:Float = rhs[4], m131:Float = rhs[8], m141:Float = rhs[12],
@@ -671,6 +792,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Prepends rotation to this matrix
+		@param	degrees	The rotation amount in degrees
+		@param	axis	The rotation axis
+		@param	pivotPoint	(Optional) A pivot point for the rotation
+	**/
 	public function prependRotation (degrees:Float, axis:Vector4, pivotPoint:Vector4 = null):Void {
 		
 		var m = __getAxisRotation (axis.x, axis.y, axis.z, degrees);
@@ -687,6 +814,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Prepends scale to this matrix
+		@param	xScale	An x scale value
+		@param	yScale	A y scale value
+		@param	zScale	A z scale value
+	**/
 	public function prependScale (xScale:Float, yScale:Float, zScale:Float):Void {
 		
 		prepend (new Matrix4 (new Float32Array ([xScale, 0.0, 0.0, 0.0, 0.0, yScale, 0.0, 0.0, 0.0, 0.0, zScale, 0.0, 0.0, 0.0, 0.0, 1.0])));
@@ -694,6 +827,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Prepends translation values to this matrix
+		@param	x	An x translation value
+		@param	y	A y translation value
+		@param	z	A z translation value
+	**/
 	public function prependTranslation (x:Float, y:Float, z:Float):Void {
 		
 		var m = new Matrix4 ();
@@ -787,19 +926,29 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}*/
 	
 	
-	public function transformVector (v:Vector4):Vector4 {
+	/**
+		Transforms a `Vector4` instance using the current matrix
+		@param	result	(Optional) An existing `Vector2` instance to fill with the result
+		@return	The resulting `Vector4` instance
+	**/
+	public function transformVector (v:Vector4, result:Vector4 = null):Vector4 {
 		
-		var x:Float = v.x, y:Float = v.y, z:Float = v.z;
-		
-		return new Vector4 (
-			(x * this[0] + y * this[4] + z * this[8] + this[12]),
-			(x * this[1] + y * this[5] + z * this[9] + this[13]),
-			(x * this[2] + y * this[6] + z * this[10] + this[14]),
-			(x * this[3] + y * this[7] + z * this[11] + this[15]));
+		if (result == null) result = new Vector4 ();
+		var x = v.x, y = v.y, z = v.z;
+		result.x = (x * this[0] + y * this[4] + z * this[8] + this[12]);
+		result.y = (x * this[1] + y * this[5] + z * this[9] + this[13]);
+		result.z = (x * this[2] + y * this[6] + z * this[10] + this[14]);
+		result.w = (x * this[3] + y * this[7] + z * this[11] + this[15]);
+		return result;
 		
 	}
 	
 	
+	/**
+		Transforms a series of [x, y, z] value pairs at once
+		@param	ain	An input `Float32Array` to transform
+		@param	aout	An output `Float32Array` to write to
+	**/
 	public function transformVectors (ain:Float32Array, aout:Float32Array):Void {
 		
 		var i = 0;
@@ -822,6 +971,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
+	/**
+		Transposes the current matrix
+	**/
 	public function transpose ():Void {
 		
 		__swap (1, 4);
@@ -834,7 +986,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private function __getAxisRotation (x:Float, y:Float, z:Float, degrees:Float):Matrix4 {
+	@:noCompletion private function __getAxisRotation (x:Float, y:Float, z:Float, degrees:Float):Matrix4 {
 		
 		var m = new Matrix4 ();
 		
@@ -866,7 +1018,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private inline function __swap (a:Int, b:Int):Void {
+	@:noCompletion private inline function __swap (a:Int, b:Int):Void {
 		
 		var temp = this[a];
 		this[a] = this[b];
@@ -911,14 +1063,14 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	@:arrayAccess public function get (index:Int):Float {
+	@:dox(hide) @:noCompletion @:arrayAccess public function get (index:Int):Float {
 		
 		return this[index];
 		
 	}
 	
 	
-	@:arrayAccess public function set (index:Int, value:Float):Float {
+	@:dox(hide) @:noCompletion @:arrayAccess public function set (index:Int, value:Float):Float {
 		
 		this[index] = value;
 		return value;
