@@ -246,36 +246,6 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	@:dox(hide) @:noCompletion @:deprecated public function copythisFrom (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
-		
-		if (transposeValues)
-			transpose ();
-		
-		var l:UInt = array.length - index;
-		for (c in 0...l)
-			this[c] = array[c + index];
-		
-		if (transposeValues)
-			transpose ();
-		
-	}
-	
-	
-	@:dox(hide) @:noCompletion @:deprecated public function copythisTo (array:Float32Array, index:Int = 0, transposeValues:Bool = false) {
-		
-		if (transposeValues)
-			transpose ();
-		
-		var l:UInt = this.length;
-		for (c in 0...l)
-			array[c + index] = this[c];
-		
-		if (transposeValues)
-			transpose();
-		
-	}
-	
-	
 	/**
 		Copies a row of data from a `Vector4` instance into the values of this matrix
 		@param	row	The row to copy into (0, 1, 2 or 3)
@@ -364,13 +334,6 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 				Log.error ("Row " + row + " out of bounds [0, ..., 3]");
 			
 		}
-		
-	}
-	
-	
-	@:dox(hide) @:noCompletion @:deprecated("Use copyFrom") public function copyToMatrix4 (other:Matrix4):Void {
-		
-		cast (other, Float32Array).set (this);
 		
 	}
 	

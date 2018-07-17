@@ -5,6 +5,12 @@ package lime.math;
 import flash.geom.Rectangle in FlashRectangle;
 #end
 
+
+/**
+	The `Rectangle` class provides a simple object for storing
+	and manipulating a logical rectangle for calculations
+**/
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -14,19 +20,69 @@ import flash.geom.Rectangle in FlashRectangle;
 class Rectangle {
 	
 	
+	/**
+		Get or set the bottom (y + height) value of the `Rectangle`
+	**/
 	public var bottom (get, set):Float;
+	
+	/**
+		Get or set the bottom-right (x + width, y + height) as a `Vector2`
+	**/
 	public var bottomRight (get, set):Vector2;
+	
+	/**
+		Get or set the height of the rectangle
+	**/
 	public var height:Float;
+	
+	/**
+		Get or set the left (x) of the rectangle
+	**/
 	public var left (get, set):Float;
+	
+	/**
+		Get or set the right (x + width) of the rectangle
+	**/
 	public var right (get, set):Float;
+	
+	/**
+		Get or set the size (width, height) as a `Vector2`
+	**/
 	public var size (get, set):Vector2;
+	
+	/**
+		Get or set the top (y) of the rectangle
+	**/
 	public var top (get, set):Float;
+	
+	/**
+		Get or set the top-left (x, y) as a `Vector2`
+	**/
 	public var topLeft (get, set):Vector2;
+	
+	/**
+		Get or set the width of the rectangle
+	**/
 	public var width:Float;
+	
+	/**
+		Get or set the x of the rectangle
+	**/
 	public var x:Float;
+	
+	/**
+		Get or set the y of the rectangle
+	**/
 	public var y:Float;
 	
 	
+	/**
+		Create a new `Rectangle` instance
+		@param	x	(Optional) Initial x value (default is 0)
+		@param	y	(Optional) Initial y value (default is 0)
+		@param	width	(Optional) Initial width value (default is 0)
+		@param	height	(Optional) Initial height value (default is 0)
+	**/
 	public function new (x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0):Void {
 		
 		this.x = x;
@@ -37,6 +93,10 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Creates a clone of this `Rectangle`
+		@return	A new `Rectangle` instance
+	**/
 	public function clone ():Rectangle {
 		
 		return new Rectangle (x, y, width, height);
@@ -44,6 +104,12 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Returns whether this rectangle contains the specified (x, y) point
+		@param	x	The x coordinate to test
+		@param	y	The y coordinate to test
+		@return	Whether the point is contained in the rectangle
+	**/
 	public function contains (x:Float, y:Float):Bool {
 		
 		return x >= this.x && y >= this.y && x < right && y < bottom;
@@ -51,13 +117,20 @@ class Rectangle {
 	}
 	
 	
-	public function containsPoint (point:Vector2):Bool {
+	@:dox(hide) @:noCompletion @:deprecated("Use containsVector") public function containsPoint (point:Vector2):Bool {
 		
-		return contains (point.x, point.y);
+		return containsVector (point);
 		
 	}
 	
 	
+	/**
+		Returns whether this rectangle contains another rectangle
+		This will return `false` if the second rectangle only
+		overlaps but is not fully contained within the current rectangle
+		@param	rect	A second `Rectangle` instance to test
+		@return	Whether the `rect` is contained within the current `Rectangle`
+	**/
 	public function containsRect (rect:Rectangle):Bool {
 		
 		if (rect.width <= 0 || rect.height <= 0) {
@@ -73,6 +146,22 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Returns whether this rectangle contains the specified vector
+		@param	vector	The vector to test
+		@return	Whether the vector is contained in the rectangle
+	**/
+	public function containsVector (vector:Vector2):Bool {
+		
+		return contains (vector.x, vector.y);
+		
+	}
+	
+	
+	/**
+		Copies the x, y, width and height of another `Rectangle`
+		@param	sourceRect	Another `Rectangle` instance
+	**/
 	public function copyFrom (sourceRect:Rectangle):Void {
 		
 		x = sourceRect.x;
@@ -83,6 +172,12 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Checks whether the current `Rectangle` and another
+		instance have equal values
+		@param	toCompare	Another `Rectangle` to compare with
+		@return	Whether both rectangles are not `null` and have equal values
+	**/
 	public function equals (toCompare:Rectangle):Bool {
 		
 		return toCompare != null && x == toCompare.x && y == toCompare.y && width == toCompare.width && height == toCompare.height;
@@ -90,6 +185,12 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Increases the size of the current rectangle by
+		the given delta x and y values
+		@param	dx	A delta x value to increase the size by
+		@param	dy	A delta y value to increase the size by
+	**/
 	public function inflate (dx:Float, dy:Float):Void {
 		
 		x -= dx; width += dx * 2;
@@ -98,21 +199,38 @@ class Rectangle {
 	}
 	
 	
-	public function inflatePoint (point:Vector2):Void {
+	/**
+		Increases the size of the current rectangle by
+		the given delta vector values
+		@param	vector	A delta vector to increase the size by
+	**/
+	public function inflateVector (vector:Vector2):Void {
 		
-		inflate (point.x, point.y);
+		inflate (vector.x, vector.y);
 		
 	}
 	
 	
-	public function intersection (toIntersect:Rectangle):Rectangle {
+	/**
+		Returns a new rectangle with the area where the current
+		`Rectangle` and another `Rectangle` instance overlap. 
+		If they do not overlap, the returned `Rectangle` will 
+		be empty
+		@param	toIntersect	Another `Rectangle` instance to intersect with
+		@param	result	(Optional) A `Rectangle` instance to use for the result
+		@return	A `Rectangle` of the intersection area
+	**/
+	public function intersection (toIntersect:Rectangle, result:Rectangle = null):Rectangle {
+		
+		if (result == null) result = new Rectangle ();
 		
 		var x0 = x < toIntersect.x ? toIntersect.x : x;
 		var x1 = right > toIntersect.right ? toIntersect.right : right;
 		
 		if (x1 <= x0) {
 			
-			return new Rectangle ();
+			result.setEmpty ();
+			return result;
 			
 		}
 		
@@ -121,15 +239,25 @@ class Rectangle {
 		
 		if (y1 <= y0) {
 			
-			return new Rectangle ();
+			result.setEmpty ();
+			return result;
 			
 		}
 		
-		return new Rectangle (x0, y0, x1 - x0, y1 - y0);
+		result.x = x0;
+		result.y = y0;
+		result.width = x1 - x0;
+		result.height = y1 - y0;
+		return result;
 		
 	}
 	
 	
+	/**
+		Returns if the current `Rectangle` overlaps with another instance
+		@param	toIntersect	Another `Rectangle` to compare with
+		@return	Whether the rectangles intersect
+	**/
 	public function intersects (toIntersect:Rectangle):Bool {
 		
 		var x0 = x < toIntersect.x ? toIntersect.x : x;
@@ -149,6 +277,10 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Whether this rectangle is empty
+		@return	`true` if the width or height is <= 0
+	**/
 	public function isEmpty ():Bool {
 		
 		return (width <= 0 || height <= 0);
@@ -156,6 +288,11 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Moves the rectangle by offset x and values
+		@param	dx	A delta x value
+		@param	dy	A delta y value
+	**/
 	public function offset (dx:Float, dy:Float):Void {
 		
 		x += dx;
@@ -164,14 +301,21 @@ class Rectangle {
 	}
 	
 	
-	public function offsetPoint (point:Vector2):Void {
+	/**
+		Moves the rectangle by the values of a `Vector2`
+		@param	dx	A delta vector
+	**/
+	public function offsetVector (vector:Vector2):Void {
 		
-		x += point.x;
-		y += point.y;
+		x += vector.x;
+		y += vector.y;
 		
 	}
 	
 	
+	/**
+		Makes this rectangle empty
+	**/
 	public function setEmpty ():Void {
 		
 		x = y = width = height = 0;
@@ -179,6 +323,13 @@ class Rectangle {
 	}
 	
 	
+	/**
+		Sets the values of this rectangle at once
+		@param	xa	A new x value
+		@param	ya	A new y value
+		@param	widtha	A new width value
+		@param	heighta	A new height value
+	**/
 	public function setTo (xa:Float, ya:Float, widtha:Float, heighta:Float):Void {
 		
 		x = xa;
@@ -189,107 +340,42 @@ class Rectangle {
 	}
 	
 	
-	public function transform (m:Matrix3):Rectangle {
+	/**
+		Combines two rectangles together, returning the
+		minimum `Rectangle` that contains both rectangles
+		@param	toUnion	A second `Rectangle` to unify
+		@param	result	(Optional) A `Rectangle` instance for the result
+		@return	A `Rectangle` that contains the dimensions of both rectangles
+	**/
+	public function union (toUnion:Rectangle, result:Rectangle = null):Rectangle {
 		
-		var tx0 = m.a * x + m.c * y;
-		var tx1 = tx0;
-		var ty0 = m.b * x + m.d * y;
-		var ty1 = ty0;
-		
-		var tx = m.a * (x + width) + m.c * y;
-		var ty = m.b * (x + width) + m.d * y;
-		
-		if (tx < tx0) tx0 = tx;
-		if (ty < ty0) ty0 = ty;
-		if (tx > tx1) tx1 = tx;
-		if (ty > ty1) ty1 = ty;
-		
-		tx = m.a * (x + width) + m.c * (y + height);
-		ty = m.b * (x + width) + m.d * (y + height);
-		
-		if (tx < tx0) tx0 = tx;
-		if (ty < ty0) ty0 = ty;
-		if (tx > tx1) tx1 = tx;
-		if (ty > ty1) ty1 = ty;
-		
-		tx = m.a * x + m.c * (y + height);
-		ty = m.b * x + m.d * (y + height);
-		
-		if (tx < tx0) tx0 = tx;
-		if (ty < ty0) ty0 = ty;
-		if (tx > tx1) tx1 = tx;
-		if (ty > ty1) ty1 = ty;
-		
-		return new Rectangle (tx0 + m.tx, ty0 + m.ty, tx1 - tx0, ty1 - ty0);
-		
-	}
-	
-	
-	public function union (toUnion:Rectangle):Rectangle {
+		if (result == null) result = new Rectangle ();
 		
 		if (width == 0 || height == 0) {
 			
-			return toUnion.clone ();
+			result.copyFrom (toUnion);
 			
 		} else if (toUnion.width == 0 || toUnion.height == 0) {
 			
-			return clone ();
+			result.copyFrom (this);
+			
+		} else {
+			
+			var x0 = x > toUnion.x ? toUnion.x : x;
+			var x1 = right < toUnion.right ? toUnion.right : right;
+			var y0 = y > toUnion.y ? toUnion.y : y;
+			var y1 = bottom < toUnion.bottom ? toUnion.bottom : bottom;
+			
+			result.setTo (x0, y0, x1 - x0, y1 - y0);
 			
 		}
 		
-		var x0 = x > toUnion.x ? toUnion.x : x;
-		var x1 = right < toUnion.right ? toUnion.right : right;
-		var y0 = y > toUnion.y ? toUnion.y : y;
-		var y1 = bottom < toUnion.bottom ? toUnion.bottom : bottom;
-		
-		return new Rectangle (x0, y0, x1 - x0, y1 - y0);
+		return result;
 		
 	}
 	
 	
-	public function __contract (x:Float, y:Float, width:Float, height:Float):Void {
-		
-		if (this.width == 0 && this.height == 0) {
-			
-			return;
-			
-		}
-		
-		//var cacheRight = right;
-		//var cacheBottom = bottom;
-		
-		if (this.x < x) this.x = x;
-		if (this.y < y) this.y = y;
-		if (this.right > x + width) this.width = x + width - this.x;
-		if (this.bottom > y + height) this.height = y + height - this.y;
-		
-	}
-	
-	
-	public function __expand (x:Float, y:Float, width:Float, height:Float):Void {
-		
-		if (this.width == 0 && this.height == 0) {
-			
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
-			return;
-			
-		}
-		
-		var cacheRight = right;
-		var cacheBottom = bottom;
-		
-		if (this.x > x) this.x = x;
-		if (this.y > y) this.y = y;
-		if (cacheRight < x + width) this.width = x + width - this.x;
-		if (cacheBottom < y + height) this.height = y + height - this.y;
-		
-	}
-	
-	
-	private function __toFlashRectangle ():#if flash FlashRectangle #else Dynamic #end {
+	@:noCompletion private function __toFlashRectangle ():#if flash FlashRectangle #else Dynamic #end {
 		
 		#if flash
 		return new FlashRectangle (x, y, width, height);

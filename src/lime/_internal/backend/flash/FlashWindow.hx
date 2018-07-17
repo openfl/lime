@@ -489,13 +489,15 @@ class FlashWindow {
 	
 	public function readPixels (rect:Rectangle):Image {
 		
+		var stageRect = new Rectangle (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
+		
 		if (rect == null) {
 			
-			rect = new Rectangle (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
+			rect = stageRect;
 			
 		} else {
 			
-			rect.__contract (0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
+			var rect = rect.intersection (stageRect);
 			
 		}
 		

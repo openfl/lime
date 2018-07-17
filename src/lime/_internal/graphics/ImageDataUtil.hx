@@ -1587,6 +1587,7 @@ private class ImageDataView {
 	private var image:Image;
 	private var rect:Rectangle;
 	private var stride:Int;
+	private var tempRect:Rectangle;
 	
 	
 	public function new (image:Image, rect:Rectangle = null) {
@@ -1618,7 +1619,10 @@ private class ImageDataView {
 	
 	public function clip (x:Int, y:Int, width:Int, height:Int):Void {
 		
-		rect.__contract (x, y, width, height);
+		if (tempRect == null) tempRect = new Rectangle ();
+		tempRect.setTo (x, y, width, height);
+		
+		rect.intersection (tempRect, rect);
 		__update ();
 		
 	}

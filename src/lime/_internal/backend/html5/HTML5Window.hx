@@ -955,13 +955,15 @@ class HTML5Window {
 		
 		if (canvas != null) {
 			
+			var stageRect = new Rectangle (0, 0, canvas.width, canvas.height);
+			
 			if (rect == null) {
 				
-				rect = new Rectangle (0, 0, canvas.width, canvas.height);
+				rect = stageRect;
 				
 			} else {
 				
-				rect.__contract (0, 0, canvas.width, canvas.height);
+				rect.intersection (stageRect, rect);
 				
 			}
 			

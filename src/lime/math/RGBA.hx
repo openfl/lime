@@ -5,8 +5,6 @@ import lime.graphics.PixelFormat;
 import lime.utils.UInt32Array;
 import lime.utils.UInt8Array;
 
-@:allow(lime.math)
-
 
 /**
 	A utility for storing, accessing and converting colors in an RGBA
@@ -22,6 +20,9 @@ import lime.utils.UInt8Array;
 	var convert:ARGB = color; // 0xFF883300
 	```
 **/
+
+@:allow(lime.math)
+
 
 abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt {
 	

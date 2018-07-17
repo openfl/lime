@@ -110,8 +110,6 @@ class Matrix3 {
 		ty = tx * m.b + ty * m.d + m.ty;
 		tx = tx1;
 		
-		//__cleanValues ();
-		
 	}
 	
 	
@@ -409,8 +407,6 @@ class Matrix3 {
 			
 		}
 		
-		//__cleanValues ();
-		
 		return this;
 		
 	}
@@ -460,8 +456,6 @@ class Matrix3 {
 		ty = tx * sin + ty * cos;
 		tx = tx1;
 		
-		//__cleanValues ();
-		
 	}
 	
 	
@@ -488,8 +482,6 @@ class Matrix3 {
 		tx *= sx;
 		ty *= sy;
 		
-		//__cleanValues ();
-		
 	}
 	
 	
@@ -499,8 +491,6 @@ class Matrix3 {
 		c = Math.sin (theta) * scale;
 		b = -c;
 		d = a;
-		
-		//__cleanValues ();
 		
 	}
 	
@@ -514,7 +504,7 @@ class Matrix3 {
 		@param	tx	The new matrix tx value
 		@param	ty	The new matrix ty value
 	**/
-	public function setTo (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void {
+	public #if !js inline #end function setTo (a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void {
 		
 		this.a = a;
 		this.b = b;
@@ -528,13 +518,13 @@ class Matrix3 {
 	
 	@:dox(hide) @:noCompletion public inline function to3DString (roundPixels:Bool = false):String {
 		
-		// identityMatrix3
+		// identity matrix
 		//  [a,b,tx,0],
 		//  [c,d,ty,0],
 		//  [0,0,1, 0],
 		//  [0,0,0, 1]
 		//
-		// Matrix33d(a,       b, 0, 0, c, d,       0, 0, 0, 0, 1, 0, tx,     ty, 0, 1)
+		// matrix3d(a,       b, 0, 0, c, d,       0, 0, 0, 0, 1, 0, tx,     ty, 0, 1)
 		
 		if (roundPixels) {
 			
@@ -557,6 +547,53 @@ class Matrix3 {
 	
 	
 	/**
+		Transforms a `Rectangle` instance by the current matrix
+		and returns `Rectangle` with the bounds of the transformed
+		rectangle.
+		@param	transform	A `Matrix3` instance to transform by
+		@param	result	(Optional) A `Rectangle` instance to use for the result
+		@return	A `Rectangle` represented the transformed bounds
+	**/
+	public function transformRect (rect:Rectangle, result:Rectangle = null):Rectangle {
+		
+		if (result == null) result = new Rectangle ();
+		
+		var tx0 = a * rect.x + c * rect.y;
+		var tx1 = tx0;
+		var ty0 = b * rect.x + d * rect.y;
+		var ty1 = ty0;
+		
+		var tx = a * (rect.x + rect.width) + c * rect.y;
+		var ty = b * (rect.x + rect.width) + d * rect.y;
+		
+		if (tx < tx0) tx0 = tx;
+		if (ty < ty0) ty0 = ty;
+		if (tx > tx1) tx1 = tx;
+		if (ty > ty1) ty1 = ty;
+		
+		tx = a * (rect.x + rect.width) + c * (rect.y + rect.height);
+		ty = b * (rect.x + rect.width) + d * (rect.y + rect.height);
+		
+		if (tx < tx0) tx0 = tx;
+		if (ty < ty0) ty0 = ty;
+		if (tx > tx1) tx1 = tx;
+		if (ty > ty1) ty1 = ty;
+		
+		tx = a * rect.x + c * (rect.y + rect.height);
+		ty = b * rect.x + d * (rect.y + rect.height);
+		
+		if (tx < tx0) tx0 = tx;
+		if (ty < ty0) ty0 = ty;
+		if (tx > tx1) tx1 = tx;
+		if (ty > ty1) ty1 = ty;
+		
+		result.setTo (tx0 + tx, ty0 + ty, tx1 - tx0, ty1 - ty0);
+		return result;
+		
+	}
+	
+	
+	/**
 		Transforms a `Vector2` instance by the current matrix
 		@param	result	(Optional) An existing `Vector2` instance to fill with the result
 		@return	A new `Vector2` instance representing the transformed values
@@ -564,8 +601,8 @@ class Matrix3 {
 	public function transformVector (pos:Vector2, result:Vector2 = null):Vector2 {
 		
 		if (result == null) result = new Vector2 ();
-		result.x = __transformX (pos);
-		result.y = __transformY (pos);
+		result.x = pos.x * a + pos.y * c + tx;
+		result.y = pos.x * b + pos.y * d + ty;
 		return result;
 		
 	}
@@ -580,42 +617,6 @@ class Matrix3 {
 		
 		tx += dx;
 		ty += dy;
-		
-	}
-	
-	
-	@:noCompletion private inline function __cleanValues ():Void {
-		
-		a = Math.round (a * 1000) / 1000;
-		b = Math.round (b * 1000) / 1000;
-		c = Math.round (c * 1000) / 1000;
-		d = Math.round (d * 1000) / 1000;
-		tx = Math.round (tx * 10) / 10;
-		ty = Math.round (ty * 10) / 10;
-		
-	}
-	
-	
-	@:dox(hide) @:noCompletion public inline function __transformX (pos:Vector2):Float {
-		
-		return pos.x * a + pos.y * c + tx;
-		
-	}
-	
-	
-	@:dox(hide) @:noCompletion public inline function __transformY (pos:Vector2):Float {
-		
-		return pos.x * b + pos.y * d + ty;
-		
-	}
-	
-	
-	@:dox(hide) @:noCompletion public inline function __translateTransformed (pos:Vector2):Void {
-		
-		tx = __transformX (pos);
-		ty = __transformY (pos);
-		
-		//__cleanValues ();
 		
 	}
 	
