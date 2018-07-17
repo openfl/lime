@@ -1322,12 +1322,7 @@ class HTML5Window {
 	
 	private function updateSize ():Void {
 		
-		
-		trace ("1");
-		
 		if (!parent.__resizable) return;
-		
-		trace ("2");
 		
 		var elementWidth, elementHeight;
 		
@@ -1344,18 +1339,18 @@ class HTML5Window {
 		}
 		
 		if (elementWidth != cacheElementWidth || elementHeight != cacheElementHeight) {
-			trace ("3");
+			
 			cacheElementWidth = elementWidth;
 			cacheElementHeight = elementHeight;
 			
 			var stretch = resizeElement || (setWidth == 0 && setHeight == 0);
 			
 			if (parent.element != null && (div == null || (div != null && stretch))) {
-				trace ("4");
+				
 				if (stretch) {
-					trace ("5");
+					
 					if (parent.__width != elementWidth || parent.__height != elementHeight) {
-						trace ("6");
+						
 						parent.__width = elementWidth;
 						parent.__height = elementHeight;
 						
