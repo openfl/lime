@@ -69,7 +69,7 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 	}
 	
 	
-	#if (!js || !html5 || display)
+	#if (!js || !html5 || lime_doc_gen)
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView):Void {
 		
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
@@ -90,7 +90,7 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 	#end
 	
 	
-	#if (!js || !html5 || display)
+	#if (!js || !html5 || lime_doc_gen)
 	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 		
 		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
