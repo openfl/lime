@@ -291,14 +291,14 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	
 	
 	
-	private inline function get_a ():Int {
+	@:noCompletion private inline function get_a ():Int {
 		
 		return this & 0xFF;
 		
 	}
 	
 	
-	private inline function set_a (value:Int):Int {
+	@:noCompletion private inline function set_a (value:Int):Int {
 		
 		set (r, g, b, value);
 		return value;
@@ -306,14 +306,14 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	}
 	
 	
-	private inline function get_b ():Int {
+	@:noCompletion private inline function get_b ():Int {
 		
 		return (this >> 8) & 0xFF;
 		
 	}
 	
 	
-	private inline function set_b (value:Int):Int {
+	@:noCompletion private inline function set_b (value:Int):Int {
 		
 		set (r, g, value, a);
 		return value;
@@ -321,14 +321,14 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	}
 	
 	
-	private inline function get_g ():Int {
+	@:noCompletion private inline function get_g ():Int {
 		
 		return (this >> 16) & 0xFF;
 		
 	}
 	
 	
-	private inline function set_g (value:Int):Int {
+	@:noCompletion private inline function set_g (value:Int):Int {
 		
 		set (r, value, b, a);
 		return value;
@@ -336,14 +336,14 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	}
 	
 	
-	private inline function get_r ():Int {
+	@:noCompletion private inline function get_r ():Int {
 		
 		return (this >> 24) & 0xFF;
 		
 	}
 	
 	
-	private inline function set_r (value:Int):Int {
+	@:noCompletion private inline function set_r (value:Int):Int {
 		
 		set (value, g, b, a);
 		return value;

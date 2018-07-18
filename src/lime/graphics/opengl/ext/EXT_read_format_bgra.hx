@@ -11,7 +11,7 @@ class EXT_read_format_bgra {
 	public var UNSIGNED_SHORT_1_5_5_5_REV_EXT = 0x8366;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

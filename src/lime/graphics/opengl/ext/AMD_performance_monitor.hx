@@ -15,7 +15,7 @@ class AMD_performance_monitor {
 	public var PERFMON_RESULT_AMD = 0x8BC6;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

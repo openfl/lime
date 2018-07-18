@@ -59,7 +59,7 @@ class AudioSource {
 	}
 	
 	
-	private function init ():Void {
+	@:noCompletion private function init ():Void {
 		
 		__backend.init ();
 		
@@ -94,70 +94,70 @@ class AudioSource {
 	
 	
 	
-	private function get_currentTime ():Int {
+	@:noCompletion private function get_currentTime ():Int {
 		
 		return __backend.getCurrentTime ();
 		
 	}
 	
 	
-	private function set_currentTime (value:Int):Int {
+	@:noCompletion private function set_currentTime (value:Int):Int {
 		
 		return __backend.setCurrentTime (value);
 		
 	}
 	
 	
-	private function get_gain ():Float {
+	@:noCompletion private function get_gain ():Float {
 		
 		return __backend.getGain ();
 		
 	}
 	
 	
-	private function set_gain (value:Float):Float {
+	@:noCompletion private function set_gain (value:Float):Float {
 		
 		return __backend.setGain (value);
 		
 	}
 	
 	
-	private function get_length ():Int {
+	@:noCompletion private function get_length ():Int {
 		
 		return __backend.getLength ();
 		
 	}
 	
 	
-	private function set_length (value:Int):Int {
+	@:noCompletion private function set_length (value:Int):Int {
 		
 		return __backend.setLength (value);
 		
 	}
 	
 	
-	private function get_loops ():Int {
+	@:noCompletion private function get_loops ():Int {
 		
 		return __backend.getLoops ();
 		
 	}
 	
 	
-	private function set_loops (value:Int):Int {
+	@:noCompletion private function set_loops (value:Int):Int {
 		
 		return __backend.setLoops (value);
 		
 	}
 	
 	
-	private function get_position ():Vector4 {
+	@:noCompletion private function get_position ():Vector4 {
 		
 		return __backend.getPosition ();
 		
 	}
 	
 	
-	private function set_position (value:Vector4):Vector4 {
+	@:noCompletion private function set_position (value:Vector4):Vector4 {
 		
 		return __backend.setPosition (value);
 		

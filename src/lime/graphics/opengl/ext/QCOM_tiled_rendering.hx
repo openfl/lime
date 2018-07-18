@@ -40,7 +40,7 @@ class QCOM_tiled_rendering {
 	public var MULTISAMPLE_BUFFER_BIT7_QCOM = 0x80000000;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

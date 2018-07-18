@@ -12,7 +12,7 @@ class EXT_packed_depth_stencil {
 	public var TEXTURE_STENCIL_SIZE_EXT = 0x88F1;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

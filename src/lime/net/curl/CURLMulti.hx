@@ -126,7 +126,7 @@ class CURLMulti {
 	
 	
 	
-	private function get_runningHandles ():Int {
+	@:noCompletion private function get_runningHandles ():Int {
 		
 		#if (lime_cffi && lime_curl && !macro)
 		return NativeCFFI.lime_curl_multi_get_running_handles (handle);

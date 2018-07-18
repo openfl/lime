@@ -300,7 +300,7 @@ class Cairo {
 	}
 	
 	
-	private function recreate (surface:CairoSurface):Void {
+	@:noCompletion private function recreate (surface:CairoSurface):Void {
 		
 		#if (lime_cffi && lime_cairo && !macro)
 		handle = NativeCFFI.lime_cairo_create (surface);

@@ -11,7 +11,7 @@ class EXT_discard_framebuffer {
 	public var STENCIL_EXT = 0x1802;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

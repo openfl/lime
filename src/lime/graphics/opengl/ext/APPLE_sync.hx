@@ -25,7 +25,7 @@ class APPLE_sync {
 	//public var TIMEOUT_IGNORED_APPLE = 0xFFFFFFFFFFFFFFFFull;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

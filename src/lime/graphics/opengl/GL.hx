@@ -3331,12 +3331,12 @@ class GL {
 @:dox(hide) @:noCompletion class GLObject {
 	
 	
-	private var id:Int;
-	private var ptr:#if (lime_cffi && (lime_opengl || lime_opengles) && !macro) CFFIPointer #else Dynamic #end;
-	private var refs:Array<GLObject>;
+	@:noCompletion private var id:Int;
+	@:noCompletion private var ptr:#if (lime_cffi && (lime_opengl || lime_opengles) && !macro) CFFIPointer #else Dynamic #end;
+	@:noCompletion private var refs:Array<GLObject>;
 	
 	
-	private function new (id:Int) {
+	@:noCompletion private function new (id:Int) {
 		
 		this.id = id;
 		

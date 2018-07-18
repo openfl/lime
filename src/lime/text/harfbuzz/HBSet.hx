@@ -181,7 +181,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	
-	private inline function get_allocationSuccessful ():Bool {
+	@:noCompletion private inline function get_allocationSuccessful ():Bool {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_set_allocation_successful (this);
@@ -203,7 +203,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_isEmpty ():Bool {
+	@:noCompletion private inline function get_isEmpty ():Bool {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_set_is_empty (this);
@@ -214,7 +214,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_max ():Int {
+	@:noCompletion private inline function get_max ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_set_get_max (this);
@@ -225,7 +225,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_min ():Int {
+	@:noCompletion private inline function get_min ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_set_get_min (this);
@@ -236,7 +236,7 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_population ():Int {
+	@:noCompletion private inline function get_population ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_set_get_population (this);

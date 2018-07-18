@@ -34,7 +34,7 @@ abstract HBFTFont(HBFont) to HBFont from CFFIPointer to CFFIPointer {
 	
 	
 	
-	private inline function get_loadFlags ():Int {
+	@:noCompletion private inline function get_loadFlags ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_ft_font_get_load_flags (this);
@@ -45,7 +45,7 @@ abstract HBFTFont(HBFont) to HBFont from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_loadFlags (value:Int):Int {
+	@:noCompletion private inline function set_loadFlags (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_ft_font_set_load_flags (this, value);

@@ -70,7 +70,7 @@ class FileWatcher {
 	}
 	
 	
-	private function combine (directory:String, file:String):String {
+	@:noCompletion private function combine (directory:String, file:String):String {
 		
 		var trailingSlash = (directory.substr (-1) == "/" || directory.substr (-1) == "\\");
 		var startingSlash = (file.substr (0, 1) == "/" || file.substr (0, 1) == "\\");
@@ -120,7 +120,7 @@ class FileWatcher {
 	}
 	
 	
-	private function this_onChange (directory:String, file:String, action:Int, oldFile:String):Void {
+	@:noCompletion private function this_onChange (directory:String, file:String, action:Int, oldFile:String):Void {
 		
 		var path = combine (directory, file);
 		
@@ -147,7 +147,7 @@ class FileWatcher {
 	}
 	
 	
-	private function this_onUpdate (_):Void {
+	@:noCompletion private function this_onUpdate (_):Void {
 		
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_file_watcher_update (handle);

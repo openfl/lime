@@ -13,7 +13,7 @@ class OES_standard_derivatives {
 	public var FRAGMENT_SHADER_DERIVATIVE_HINT_OES = 0x8B8B;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

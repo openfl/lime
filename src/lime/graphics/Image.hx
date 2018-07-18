@@ -1598,7 +1598,7 @@ class Image {
 	}
 	
 	
-	private function __clipRect (r:Rectangle):Rectangle {
+	@:noCompletion private function __clipRect (r:Rectangle):Rectangle {
 		
 		if (r == null) return null;
 		
@@ -1641,7 +1641,7 @@ class Image {
 	}
 	
 	
-	private function __fromBase64 (base64:String, type:String, onload:Image->Void = null):Void {
+	@:noCompletion private function __fromBase64 (base64:String, type:String, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
 		
@@ -1676,7 +1676,7 @@ class Image {
 	}
 	
 	
-	private function __fromBytes (bytes:Bytes, onload:Image->Void = null):Void {
+	@:noCompletion private function __fromBytes (bytes:Bytes, onload:Image->Void = null):Void {
 		
 		#if (js && html5)
 			
@@ -1737,7 +1737,7 @@ class Image {
 	}
 	
 	
-	private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Void {
+	@:noCompletion private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Void {
 		
 		#if (kha && !macro)
 		
@@ -1914,7 +1914,7 @@ class Image {
 	}
 	
 	
-	private function __fromImageBuffer (buffer:ImageBuffer):Void {
+	@:noCompletion private function __fromImageBuffer (buffer:ImageBuffer):Void {
 		
 		this.buffer = buffer;
 		
@@ -1981,7 +1981,7 @@ class Image {
 	
 	
 	
-	private function get_data ():UInt8Array {
+	@:noCompletion private function get_data ():UInt8Array {
 		
 		if (buffer.data == null && buffer.width > 0 && buffer.height > 0) {
 			
@@ -2003,21 +2003,21 @@ class Image {
 	}
 	
 	
-	private function set_data (value:UInt8Array):UInt8Array {
+	@:noCompletion private function set_data (value:UInt8Array):UInt8Array {
 		
 		return buffer.data = value;
 		
 	}
 	
 	
-	private function get_format ():PixelFormat {
+	@:noCompletion private function get_format ():PixelFormat {
 		
 		return buffer.format;
 		
 	}
 	
 	
-	private function set_format (value:PixelFormat):PixelFormat {
+	@:noCompletion private function set_format (value:PixelFormat):PixelFormat {
 		
 		if (buffer.format != value) {
 			
@@ -2038,14 +2038,14 @@ class Image {
 	}
 	
 	
-	private function get_powerOfTwo ():Bool {
+	@:noCompletion private function get_powerOfTwo ():Bool {
 		
 		return ((buffer.width != 0) && ((buffer.width & (~buffer.width + 1)) == buffer.width)) && ((buffer.height != 0) && ((buffer.height & (~buffer.height + 1)) == buffer.height));
 		
 	}
 	
 	
-	private function set_powerOfTwo (value:Bool):Bool {
+	@:noCompletion private function set_powerOfTwo (value:Bool):Bool {
 		
 		if (value != powerOfTwo) {
 			
@@ -2103,14 +2103,14 @@ class Image {
 	}
 	
 	
-	private function get_premultiplied ():Bool {
+	@:noCompletion private function get_premultiplied ():Bool {
 		
 		return buffer.premultiplied;
 		
 	}
 	
 	
-	private function set_premultiplied (value:Bool):Bool {
+	@:noCompletion private function set_premultiplied (value:Bool):Bool {
 		
 		if (value && !buffer.premultiplied) {
 			
@@ -2155,14 +2155,14 @@ class Image {
 	}
 	
 	
-	private function get_rect ():Rectangle {
+	@:noCompletion private function get_rect ():Rectangle {
 		
 		return new Rectangle (0, 0, width, height);
 		
 	}
 	
 	
-	private function get_src ():Dynamic {
+	@:noCompletion private function get_src ():Dynamic {
 		
 		#if (js && html5)
 		if (buffer.__srcCanvas == null && (buffer.data != null || type == DATA)) {
@@ -2177,14 +2177,14 @@ class Image {
 	}
 	
 	
-	private function set_src (value:Dynamic):Dynamic {
+	@:noCompletion private function set_src (value:Dynamic):Dynamic {
 		
 		return buffer.src = value;
 		
 	}
 	
 	
-	private function get_transparent ():Bool {
+	@:noCompletion private function get_transparent ():Bool {
 		
 		if (buffer == null) return false;
 		return buffer.transparent;
@@ -2192,7 +2192,7 @@ class Image {
 	}
 	
 	
-	private function set_transparent (value:Bool):Bool {
+	@:noCompletion private function set_transparent (value:Bool):Bool {
 		
 		// TODO, modify data to set transparency
 		if (buffer == null) return false;

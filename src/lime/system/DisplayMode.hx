@@ -33,7 +33,7 @@ class DisplayMode {
 	public var width (default, null):Int;
 	
 	
-	private function new (width:Int, height:Int, refreshRate:Int, pixelFormat:PixelFormat) {
+	@:noCompletion private function new (width:Int, height:Int, refreshRate:Int, pixelFormat:PixelFormat) {
 		
 		this.width = width;
 		this.height = height;

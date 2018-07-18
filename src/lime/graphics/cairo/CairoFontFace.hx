@@ -10,7 +10,7 @@ import lime.system.CFFIPointer;
 abstract CairoFontFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		this = null;
 		

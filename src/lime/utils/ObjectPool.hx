@@ -143,7 +143,7 @@ import haxe.ds.ObjectMap;
 	}
 	
 	
-	private inline function __addInactive (object:T):Void {
+	@:noCompletion private inline function __addInactive (object:T):Void {
 		
 		#if debug
 		__pool.set (object, false);
@@ -168,7 +168,7 @@ import haxe.ds.ObjectMap;
 	}
 	
 	
-	private inline function __getInactive ():T {
+	@:noCompletion private inline function __getInactive ():T {
 		
 		var object = null;
 		
@@ -212,7 +212,7 @@ import haxe.ds.ObjectMap;
 	}
 	
 	
-	private function __removeInactive (count:Int):Void {
+	@:noCompletion private function __removeInactive (count:Int):Void {
 		
 		if (count <= 0 || inactiveObjects == 0) return;
 		
@@ -259,14 +259,14 @@ import haxe.ds.ObjectMap;
 	
 	
 	
-	private function get_size ():Null<Int> {
+	@:noCompletion private function get_size ():Null<Int> {
 		
 		return __size;
 		
 	}
 	
 	
-	private function set_size (value:Null<Int>):Null<Int> {
+	@:noCompletion private function set_size (value:Null<Int>):Null<Int> {
 		
 		if (value == null) {
 			

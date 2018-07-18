@@ -12,7 +12,7 @@ class IMG_texture_compression_pvrtc {
 	public var COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8C03;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

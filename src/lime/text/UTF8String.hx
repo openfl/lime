@@ -357,7 +357,7 @@ abstract UTF8String(String) from String to String {
 	
 	
 	
-	private function get_length ():Int {
+	@:noCompletion private function get_length ():Int {
 		
 		return this == null ? 0 : Utf8.length (this);
 		

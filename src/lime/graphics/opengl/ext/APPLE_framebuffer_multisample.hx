@@ -15,7 +15,7 @@ class APPLE_framebuffer_multisample {
 	public var READ_FRAMEBUFFER_BINDING_APPLE = 0x8CAA;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -15,7 +15,7 @@ import lime._internal.backend.native.NativeCFFI;
 abstract DataPointer(DataPointerType) to DataPointerType {
 	
 	
-	private function new (data:DataPointerType) {
+	@:noCompletion private function new (data:DataPointerType) {
 		
 		this = data;
 		

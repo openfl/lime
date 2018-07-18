@@ -14,7 +14,7 @@ class EXT_map_buffer_range {
 	public var MAP_UNSYNCHRONIZED_BIT_EXT = 0x0020;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

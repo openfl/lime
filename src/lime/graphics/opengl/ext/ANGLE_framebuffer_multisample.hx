@@ -11,7 +11,7 @@ class ANGLE_framebuffer_multisample {
 	public var MAX_SAMPLES_ANGLE = 0x8D57;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

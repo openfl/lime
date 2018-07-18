@@ -23,7 +23,7 @@ class OES_required_internalformat {
 	public var RGB10_A2_EXT = 0x8059;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -13,10 +13,10 @@ class VorbisFile {
 	
 	public var bitstream (default, null):Int;
 	
-	private var handle:Dynamic;
+	@:noCompletion private var handle:Dynamic;
 	
 	
-	private function new (handle:Dynamic) {
+	@:noCompletion private function new (handle:Dynamic) {
 		
 		this.handle = handle;
 		

@@ -7,7 +7,7 @@ package lime.graphics.opengl.ext;
 class EXT_color_buffer_float {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

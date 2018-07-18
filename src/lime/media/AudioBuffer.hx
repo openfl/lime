@@ -453,7 +453,7 @@ class AudioBuffer {
 	
 	
 	
-	private function get_src ():Dynamic {
+	@:noCompletion private function get_src ():Dynamic {
 		
 		#if (js && html5)
 		#if howlerjs
@@ -482,7 +482,7 @@ class AudioBuffer {
 	}
 	
 	
-	private function set_src (value:Dynamic):Dynamic {
+	@:noCompletion private function set_src (value:Dynamic):Dynamic {
 		
 		#if (js && html5)
 		#if howlerjs

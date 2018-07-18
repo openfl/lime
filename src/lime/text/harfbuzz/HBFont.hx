@@ -146,7 +146,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_face ():HBFace {
+	@:noCompletion private inline function get_face ():HBFace {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_font_get_face (this);
@@ -157,7 +157,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_immutable ():Bool {
+	@:noCompletion private inline function get_immutable ():Bool {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_font_is_immutable (this);
@@ -168,7 +168,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_parent ():HBFont {
+	@:noCompletion private inline function get_parent ():HBFont {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_font_get_parent (this);
@@ -179,7 +179,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_ppem ():Vector2 {
+	@:noCompletion private inline function get_ppem ():Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_font_get_ppem (this #if hl , new Vector2 () #end);
@@ -190,7 +190,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_ppem (value:Vector2):Vector2 {
+	@:noCompletion private inline function set_ppem (value:Vector2):Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_font_set_ppem (this, Std.int (value.x), Std.int (value.y));
@@ -200,7 +200,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_scale ():Vector2 {
+	@:noCompletion private inline function get_scale ():Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_font_get_scale (this #if hl , new Vector2 () #end);
@@ -211,7 +211,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_scale (value:Vector2):Vector2 {
+	@:noCompletion private inline function set_scale (value:Vector2):Vector2 {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_font_set_scale (this, Std.int (value.x), Std.int (value.y));

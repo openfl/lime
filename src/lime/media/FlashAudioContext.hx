@@ -9,7 +9,7 @@ import flash.media.Sound;
 class FlashAudioContext {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

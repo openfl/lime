@@ -18,7 +18,7 @@ class OES_compressed_paletted_texture {
 	public var PALETTE8_RGB5_A1_OES = 0x8B99;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

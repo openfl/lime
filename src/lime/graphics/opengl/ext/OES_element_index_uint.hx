@@ -13,7 +13,7 @@ class OES_element_index_uint {
 	public var UNSIGNED_INT = 0x1405;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -47,7 +47,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_glyphCount ():Int {
+	@:noCompletion private inline function get_glyphCount ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_glyph_count (this);
@@ -58,7 +58,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_glyphCount (value:Int):Int {
+	@:noCompletion private inline function set_glyphCount (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_face_set_glyph_count (this, value);
@@ -68,7 +68,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_immutable ():Bool {
+	@:noCompletion private inline function get_immutable ():Bool {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_is_immutable (this);
@@ -79,7 +79,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_index ():Int {
+	@:noCompletion private inline function get_index ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_index (this);
@@ -90,7 +90,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_index (value:Int):Int {
+	@:noCompletion private inline function set_index (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_face_set_index (this, value);
@@ -100,7 +100,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_upem ():Int {
+	@:noCompletion private inline function get_upem ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_face_get_upem (this);
@@ -111,7 +111,7 @@ abstract HBFace(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_upem (value:Int):Int {
+	@:noCompletion private inline function set_upem (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_face_set_upem (this, value);

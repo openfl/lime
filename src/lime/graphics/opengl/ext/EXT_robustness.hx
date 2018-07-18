@@ -15,7 +15,7 @@ class EXT_robustness {
 	public var NO_RESET_NOTIFICATION_EXT = 0x8261;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

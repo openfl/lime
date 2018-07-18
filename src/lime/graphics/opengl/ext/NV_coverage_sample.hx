@@ -17,7 +17,7 @@ class NV_coverage_sample {
 	public var COVERAGE_BUFFER_BIT_NV = 0x8000;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

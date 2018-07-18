@@ -13,7 +13,7 @@ class EXT_occlusion_query_boolean {
 	public var QUERY_RESULT_AVAILABLE_EXT = 0x8867;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -10,7 +10,7 @@ class EXT_bgra {
 	public var BGRA_EXT = 0x80E1;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

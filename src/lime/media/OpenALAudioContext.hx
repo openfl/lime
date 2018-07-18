@@ -96,7 +96,7 @@ class OpenALAudioContext {
 	public var ALL_DEVICES_SPECIFIER:Int = 0x1013;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

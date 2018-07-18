@@ -50,7 +50,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	public var withCredentials:Bool;
 	
 	#if !display
-	private var __backend:HTTPRequestBackend;
+	@:noCompletion private var __backend:HTTPRequestBackend;
 	#end
 	
 	
@@ -112,7 +112,7 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 	}
 	
 	
-	private function fromBytes (bytes:Bytes):T {
+	@:noCompletion private function fromBytes (bytes:Bytes):T {
 		
 		return cast bytes;
 		

@@ -11,7 +11,7 @@ class NV_fence {
 	public var FENCE_CONDITION_NV = 0x84F4;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

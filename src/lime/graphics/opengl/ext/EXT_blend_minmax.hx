@@ -14,7 +14,7 @@ class EXT_blend_minmax {
 	public var MAX_EXT = 0x8008;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

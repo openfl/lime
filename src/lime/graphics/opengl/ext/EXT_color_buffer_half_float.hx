@@ -22,7 +22,7 @@ class EXT_color_buffer_half_float {
 	public var UNSIGNED_NORMALIZED_EXT = 0x8C17;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

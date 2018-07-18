@@ -31,7 +31,7 @@ class EXT_texture_storage {
 	public var RG16F_EXT = 0x822F;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -12,7 +12,7 @@ class QCOM_binning_control {
 	public var RENDER_DIRECT_TO_FRAMEBUFFER_QCOM = 0x8FB3;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

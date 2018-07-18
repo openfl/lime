@@ -13,7 +13,7 @@ class EXT_multiview_draw_buffers {
 	public var MAX_MULTIVIEW_BUFFERS_EXT = 0x90F2;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

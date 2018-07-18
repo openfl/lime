@@ -46,7 +46,7 @@ class KHR_debug {
 	public var STACK_UNDERFLOW = 0x0504;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

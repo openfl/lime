@@ -12,7 +12,7 @@ class EXT_texture_rg {
 	public var RG8_EXT = 0x822B;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

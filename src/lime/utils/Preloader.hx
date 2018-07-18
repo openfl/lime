@@ -40,19 +40,19 @@ class Preloader #if flash extends Sprite #end {
 	public var onComplete = new Event<Void->Void> ();
 	public var onProgress = new Event<Int->Int->Void> ();
 	
-	private var bytesLoaded:Int;
-	private var bytesLoadedCache = new Map<AssetLibrary, Int> ();
-	private var bytesLoadedCache2 = new Map<String, Int> ();
-	private var bytesTotal:Int;
-	private var bytesTotalCache = new Map<String, Int> ();
-	private var initLibraryNames:Bool;
-	private var libraries:Array<AssetLibrary>;
-	private var libraryNames:Array<String>;
-	private var loadedLibraries:Int;
-	private var loadedStage:Bool;
-	private var preloadComplete:Bool;
-	private var preloadStarted:Bool;
-	private var simulateProgress:Bool;
+	@:noCompletion private var bytesLoaded:Int;
+	@:noCompletion private var bytesLoadedCache = new Map<AssetLibrary, Int> ();
+	@:noCompletion private var bytesLoadedCache2 = new Map<String, Int> ();
+	@:noCompletion private var bytesTotal:Int;
+	@:noCompletion private var bytesTotalCache = new Map<String, Int> ();
+	@:noCompletion private var initLibraryNames:Bool;
+	@:noCompletion private var libraries:Array<AssetLibrary>;
+	@:noCompletion private var libraryNames:Array<String>;
+	@:noCompletion private var loadedLibraries:Int;
+	@:noCompletion private var loadedStage:Bool;
+	@:noCompletion private var preloadComplete:Bool;
+	@:noCompletion private var preloadStarted:Bool;
+	@:noCompletion private var simulateProgress:Bool;
 	
 	
 	public function new () {
@@ -206,7 +206,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function loadedAssetLibrary (name:String = null):Void {
+	@:noCompletion private function loadedAssetLibrary (name:String = null):Void {
 		
 		loadedLibraries++;
 		
@@ -230,7 +230,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function start ():Void {
+	@:noCompletion private function start ():Void {
 		
 		if (complete || simulateProgress || !preloadComplete) return;
 		
@@ -249,14 +249,14 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function update (loaded:Int, total:Int):Void {
+	@:noCompletion private function update (loaded:Int, total:Int):Void {
 		
 		
 		
 	}
 	
 	
-	private function updateProgress ():Void {
+	@:noCompletion private function updateProgress ():Void {
 		
 		if (!simulateProgress) {
 			
@@ -355,7 +355,7 @@ class Preloader #if flash extends Sprite #end {
 	
 	
 	#if flash
-	private function current_onEnter (event:flash.events.Event):Void {
+	@:noCompletion private function current_onEnter (event:flash.events.Event):Void {
 		
 		if (!loadedStage && Lib.current.loaderInfo.bytesLoaded == Lib.current.loaderInfo.bytesTotal) {
 			
@@ -387,7 +387,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function loaderInfo_onComplete (event:flash.events.Event):Void {
+	@:noCompletion private function loaderInfo_onComplete (event:flash.events.Event):Void {
 		
 		//loadedStage = true;
 		
@@ -404,7 +404,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function loaderInfo_onInit (event:flash.events.Event):Void {
+	@:noCompletion private function loaderInfo_onInit (event:flash.events.Event):Void {
 		
 		bytesTotal += Lib.current.loaderInfo.bytesTotal;
 		bytesTotalCache["_root"] = Lib.current.loaderInfo.bytesTotal;
@@ -422,7 +422,7 @@ class Preloader #if flash extends Sprite #end {
 	}
 	
 	
-	private function loaderInfo_onProgress (event:flash.events.ProgressEvent):Void {
+	@:noCompletion private function loaderInfo_onProgress (event:flash.events.ProgressEvent):Void {
 		
 		if (bytesTotalCache["_root"] > 0) {
 			

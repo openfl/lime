@@ -161,7 +161,7 @@ class ThreadPool {
 	}
 	
 	
-	private function runWork (state:Dynamic = null):Void {
+	@:noCompletion private function runWork (state:Dynamic = null):Void {
 		
 		#if (cpp || neko)
 		if (!__synchronous) {
@@ -181,7 +181,7 @@ class ThreadPool {
 	
 	#if (cpp || neko)
 	
-	private function __doWork ():Void {
+	@:noCompletion private function __doWork ():Void {
 		
 		while (true) {
 			
@@ -202,7 +202,7 @@ class ThreadPool {
 	}
 	
 	
-	private function __update (deltaTime:Int):Void {
+	@:noCompletion private function __update (deltaTime:Int):Void {
 		
 		if (__workQueued > __workCompleted) {
 			

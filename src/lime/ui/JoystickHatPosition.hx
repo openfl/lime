@@ -29,14 +29,14 @@ abstract JoystickHatPosition(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_center ():Bool {
+	@:noCompletion private function get_center ():Bool {
 		
 		return (this == 0);
 		
 	}
 	
 	
-	private inline function set_center (value:Bool):Bool {
+	@:noCompletion private inline function set_center (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -49,14 +49,14 @@ abstract JoystickHatPosition(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_down ():Bool {
+	@:noCompletion private function get_down ():Bool {
 		
 		return (this & DOWN > 0);
 		
 	}
 	
 	
-	private inline function set_down (value:Bool):Bool {
+	@:noCompletion private inline function set_down (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -73,14 +73,14 @@ abstract JoystickHatPosition(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_left ():Bool {
+	@:noCompletion private function get_left ():Bool {
 		
 		return (this & LEFT > 0);
 		
 	}
 	
 	
-	private inline function set_left (value:Bool):Bool {
+	@:noCompletion private inline function set_left (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -97,14 +97,14 @@ abstract JoystickHatPosition(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_right ():Bool {
+	@:noCompletion private function get_right ():Bool {
 		
 		return (this & RIGHT > 0);
 		
 	}
 	
 	
-	private inline function set_right (value:Bool):Bool {
+	@:noCompletion private inline function set_right (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -121,14 +121,14 @@ abstract JoystickHatPosition(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_up ():Bool {
+	@:noCompletion private function get_up ():Bool {
 		
 		return (this & UP > 0);
 		
 	}
 	
 	
-	private inline function set_up (value:Bool):Bool {
+	@:noCompletion private inline function set_up (value:Bool):Bool {
 		
 		if (value) {
 			

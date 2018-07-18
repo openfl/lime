@@ -11,7 +11,7 @@ class EXT_unpack_subimage {
 	public var UNPACK_SKIP_PIXELS = 0x0CF4;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -210,14 +210,14 @@ class Promise<T> {
 	
 	
 	
-	private function get_isComplete ():Bool {
+	@:noCompletion private function get_isComplete ():Bool {
 		
 		return future.isComplete;
 		
 	}
 	
 	
-	private function get_isError ():Bool {
+	@:noCompletion private function get_isError ():Bool {
 		
 		return future.isError;
 		

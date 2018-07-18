@@ -22,7 +22,7 @@ class HTML5AudioContext {
 	public var NETWORK_NO_SOURCE:Int = 3;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

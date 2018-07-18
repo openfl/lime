@@ -146,7 +146,7 @@ class Window {
 	#end
 	
 	
-	private function new (application:Application, attributes:WindowAttributes) {
+	@:noCompletion private function new (application:Application, attributes:WindowAttributes) {
 		
 		this.application = application;
 		__attributes = attributes != null ? attributes : {};

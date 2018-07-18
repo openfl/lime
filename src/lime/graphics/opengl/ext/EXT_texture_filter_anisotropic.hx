@@ -14,7 +14,7 @@ class EXT_texture_filter_anisotropic {
 	public var MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -12,7 +12,7 @@ class ANGLE_framebuffer_blit {
 	public var READ_FRAMEBUFFER_BINDING_ANGLE = 0x8CAA;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

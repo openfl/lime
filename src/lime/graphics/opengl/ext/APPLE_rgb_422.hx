@@ -11,7 +11,7 @@ class APPLE_rgb_422 {
 	public var UNSIGNED_SHORT_8_8_REV_APPLE = 0x85BB;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

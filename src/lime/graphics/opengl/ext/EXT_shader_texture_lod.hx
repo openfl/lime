@@ -10,7 +10,7 @@ package lime.graphics.opengl.ext;
 class EXT_shader_texture_lod {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

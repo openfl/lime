@@ -9,7 +9,7 @@ import lime.system.CFFIPointer;
 abstract ALFilter(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
-	private inline function new (handle:CFFIPointer) {
+	@:noCompletion private inline function new (handle:CFFIPointer) {
 		
 		this = handle;
 		

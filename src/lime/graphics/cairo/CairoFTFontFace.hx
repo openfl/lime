@@ -14,7 +14,7 @@ abstract CairoFTFontFace(CairoFontFace) from CairoFontFace to CairoFontFace from
 	public static inline var FT_LOAD_FORCE_AUTOHINT = (1 << 5);
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		this = cast 0;
 		

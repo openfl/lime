@@ -4,7 +4,7 @@ package lime.graphics.opengl.ext;
 class OES_EGL_image {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

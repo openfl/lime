@@ -25,7 +25,7 @@ class NV_fbo_color_attachments {
 	public var COLOR_ATTACHMENT15_NV = 0x8CEF;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

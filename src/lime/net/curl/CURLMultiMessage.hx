@@ -8,7 +8,7 @@ class CURLMultiMessage {
 	public var result:CURLCode;
 	
 	
-	private function new (curl:CURL, result:CURLCode) {
+	@:noCompletion private function new (curl:CURL, result:CURLCode) {
 		
 		this.curl = curl;
 		this.result = result;

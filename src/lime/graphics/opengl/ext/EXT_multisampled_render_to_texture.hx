@@ -12,7 +12,7 @@ class EXT_multisampled_render_to_texture {
 	public var MAX_SAMPLES_EXT = 0x8D57;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

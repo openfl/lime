@@ -16,7 +16,7 @@ class EXT_sRGB {
 	public var FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT = 0x8210;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

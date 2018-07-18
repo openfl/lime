@@ -14,7 +14,7 @@ class EXT_debug_label {
 	public var VERTEX_ARRAY_OBJECT_EXT = 0x9154;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

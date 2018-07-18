@@ -681,583 +681,583 @@ abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext {
 	public var type (get, never):RenderContextType;
 	public var version (get, never):Float;
 	
-	private inline function get_EXTENSIONS ():Int { return 0x1F03; }
-	private inline function get_DEPTH_BUFFER_BIT ():Int { return this.DEPTH_BUFFER_BIT; }
-	private inline function get_STENCIL_BUFFER_BIT ():Int { return this.STENCIL_BUFFER_BIT; }
-	private inline function get_COLOR_BUFFER_BIT ():Int { return this.COLOR_BUFFER_BIT; }
-	private inline function get_POINTS ():Int { return this.POINTS; }
-	private inline function get_LINES ():Int { return this.LINES; }
-	private inline function get_LINE_LOOP ():Int { return this.LINE_LOOP; }
-	private inline function get_LINE_STRIP ():Int { return this.LINE_STRIP; }
-	private inline function get_TRIANGLES ():Int { return this.TRIANGLES; }
-	private inline function get_TRIANGLE_STRIP ():Int { return this.TRIANGLE_STRIP; }
-	private inline function get_TRIANGLE_FAN ():Int { return this.TRIANGLE_FAN; }
-	private inline function get_ZERO ():Int { return this.ZERO; }
-	private inline function get_ONE ():Int { return this.ONE; }
-	private inline function get_SRC_COLOR ():Int { return this.SRC_COLOR; }
-	private inline function get_ONE_MINUS_SRC_COLOR ():Int { return this.ONE_MINUS_SRC_COLOR; }
-	private inline function get_SRC_ALPHA ():Int { return this.SRC_ALPHA; }
-	private inline function get_ONE_MINUS_SRC_ALPHA ():Int { return this.ONE_MINUS_SRC_ALPHA; }
-	private inline function get_DST_ALPHA ():Int { return this.DST_ALPHA; }
-	private inline function get_ONE_MINUS_DST_ALPHA ():Int { return this.ONE_MINUS_DST_ALPHA; }
-	private inline function get_DST_COLOR ():Int { return this.DST_COLOR; }
-	private inline function get_ONE_MINUS_DST_COLOR ():Int { return this.ONE_MINUS_DST_COLOR; }
-	private inline function get_SRC_ALPHA_SATURATE ():Int { return this.SRC_ALPHA_SATURATE; }
-	private inline function get_FUNC_ADD ():Int { return this.FUNC_ADD; }
-	private inline function get_BLEND_EQUATION ():Int { return this.BLEND_EQUATION; }
-	private inline function get_BLEND_EQUATION_RGB ():Int { return this.BLEND_EQUATION_RGB; }
-	private inline function get_BLEND_EQUATION_ALPHA ():Int { return this.BLEND_EQUATION_ALPHA; }
-	private inline function get_FUNC_SUBTRACT ():Int { return this.FUNC_SUBTRACT; }
-	private inline function get_FUNC_REVERSE_SUBTRACT ():Int { return this.FUNC_REVERSE_SUBTRACT; }
-	private inline function get_BLEND_DST_RGB ():Int { return this.BLEND_DST_RGB; }
-	private inline function get_BLEND_SRC_RGB ():Int { return this.BLEND_SRC_RGB; }
-	private inline function get_BLEND_DST_ALPHA ():Int { return this.BLEND_DST_ALPHA; }
-	private inline function get_BLEND_SRC_ALPHA ():Int { return this.BLEND_SRC_ALPHA; }
-	private inline function get_CONSTANT_COLOR ():Int { return this.CONSTANT_COLOR; }
-	private inline function get_ONE_MINUS_CONSTANT_COLOR ():Int { return this.ONE_MINUS_CONSTANT_COLOR; }
-	private inline function get_CONSTANT_ALPHA ():Int { return this.CONSTANT_ALPHA; }
-	private inline function get_ONE_MINUS_CONSTANT_ALPHA ():Int { return this.ONE_MINUS_CONSTANT_ALPHA; }
-	private inline function get_BLEND_COLOR ():Int { return this.BLEND_COLOR; }
-	private inline function get_ARRAY_BUFFER ():Int { return this.ARRAY_BUFFER; }
-	private inline function get_ELEMENT_ARRAY_BUFFER ():Int { return this.ELEMENT_ARRAY_BUFFER; }
-	private inline function get_ARRAY_BUFFER_BINDING ():Int { return this.ARRAY_BUFFER_BINDING; }
-	private inline function get_ELEMENT_ARRAY_BUFFER_BINDING ():Int { return this.ELEMENT_ARRAY_BUFFER_BINDING; }
-	private inline function get_STREAM_DRAW ():Int { return this.STREAM_DRAW; }
-	private inline function get_STATIC_DRAW ():Int { return this.STATIC_DRAW; }
-	private inline function get_DYNAMIC_DRAW ():Int { return this.DYNAMIC_DRAW; }
-	private inline function get_BUFFER_SIZE ():Int { return this.BUFFER_SIZE; }
-	private inline function get_BUFFER_USAGE ():Int { return this.BUFFER_USAGE; }
-	private inline function get_CURRENT_VERTEX_ATTRIB ():Int { return this.CURRENT_VERTEX_ATTRIB; }
-	private inline function get_FRONT ():Int { return this.FRONT; }
-	private inline function get_BACK ():Int { return this.BACK; }
-	private inline function get_FRONT_AND_BACK ():Int { return this.FRONT_AND_BACK; }
-	private inline function get_CULL_FACE ():Int { return this.CULL_FACE; }
-	private inline function get_BLEND ():Int { return this.BLEND; }
-	private inline function get_DITHER ():Int { return this.DITHER; }
-	private inline function get_STENCIL_TEST ():Int { return this.STENCIL_TEST; }
-	private inline function get_DEPTH_TEST ():Int { return this.DEPTH_TEST; }
-	private inline function get_SCISSOR_TEST ():Int { return this.SCISSOR_TEST; }
-	private inline function get_POLYGON_OFFSET_FILL ():Int { return this.POLYGON_OFFSET_FILL; }
-	private inline function get_SAMPLE_ALPHA_TO_COVERAGE ():Int { return this.SAMPLE_ALPHA_TO_COVERAGE; }
-	private inline function get_SAMPLE_COVERAGE ():Int { return this.SAMPLE_COVERAGE; }
-	private inline function get_NO_ERROR ():Int { return this.NO_ERROR; }
-	private inline function get_INVALID_ENUM ():Int { return this.INVALID_ENUM; }
-	private inline function get_INVALID_VALUE ():Int { return this.INVALID_VALUE; }
-	private inline function get_INVALID_OPERATION ():Int { return this.INVALID_OPERATION; }
-	private inline function get_OUT_OF_MEMORY ():Int { return this.OUT_OF_MEMORY; }
-	private inline function get_CW ():Int { return this.CW; }
-	private inline function get_CCW ():Int { return this.CCW; }
-	private inline function get_LINE_WIDTH ():Int { return this.LINE_WIDTH; }
-	private inline function get_ALIASED_POINT_SIZE_RANGE ():Int { return this.ALIASED_POINT_SIZE_RANGE; }
-	private inline function get_ALIASED_LINE_WIDTH_RANGE ():Int { return this.ALIASED_LINE_WIDTH_RANGE; }
-	private inline function get_CULL_FACE_MODE ():Int { return this.CULL_FACE_MODE; }
-	private inline function get_FRONT_FACE ():Int { return this.FRONT_FACE; }
-	private inline function get_DEPTH_RANGE ():Int { return this.DEPTH_RANGE; }
-	private inline function get_DEPTH_WRITEMASK ():Int { return this.DEPTH_WRITEMASK; }
-	private inline function get_DEPTH_CLEAR_VALUE ():Int { return this.DEPTH_CLEAR_VALUE; }
-	private inline function get_DEPTH_FUNC ():Int { return this.DEPTH_FUNC; }
-	private inline function get_STENCIL_CLEAR_VALUE ():Int { return this.STENCIL_CLEAR_VALUE; }
-	private inline function get_STENCIL_FUNC ():Int { return this.STENCIL_FUNC; }
-	private inline function get_STENCIL_FAIL ():Int { return this.STENCIL_FAIL; }
-	private inline function get_STENCIL_PASS_DEPTH_FAIL ():Int { return this.STENCIL_PASS_DEPTH_FAIL; }
-	private inline function get_STENCIL_PASS_DEPTH_PASS ():Int { return this.STENCIL_PASS_DEPTH_PASS; }
-	private inline function get_STENCIL_REF ():Int { return this.STENCIL_REF; }
-	private inline function get_STENCIL_VALUE_MASK ():Int { return this.STENCIL_VALUE_MASK; }
-	private inline function get_STENCIL_WRITEMASK ():Int { return this.STENCIL_WRITEMASK; }
-	private inline function get_STENCIL_BACK_FUNC ():Int { return this.STENCIL_BACK_FUNC; }
-	private inline function get_STENCIL_BACK_FAIL ():Int { return this.STENCIL_BACK_FAIL; }
-	private inline function get_STENCIL_BACK_PASS_DEPTH_FAIL ():Int { return this.STENCIL_BACK_PASS_DEPTH_FAIL; }
-	private inline function get_STENCIL_BACK_PASS_DEPTH_PASS ():Int { return this.STENCIL_BACK_PASS_DEPTH_PASS; }
-	private inline function get_STENCIL_BACK_REF ():Int { return this.STENCIL_BACK_REF; }
-	private inline function get_STENCIL_BACK_VALUE_MASK ():Int { return this.STENCIL_BACK_VALUE_MASK; }
-	private inline function get_STENCIL_BACK_WRITEMASK ():Int { return this.STENCIL_BACK_WRITEMASK; }
-	private inline function get_VIEWPORT ():Int { return this.VIEWPORT; }
-	private inline function get_SCISSOR_BOX ():Int { return this.SCISSOR_BOX; }
-	private inline function get_COLOR_CLEAR_VALUE ():Int { return this.COLOR_CLEAR_VALUE; }
-	private inline function get_COLOR_WRITEMASK ():Int { return this.COLOR_WRITEMASK; }
-	private inline function get_UNPACK_ALIGNMENT ():Int { return this.UNPACK_ALIGNMENT; }
-	private inline function get_PACK_ALIGNMENT ():Int { return this.PACK_ALIGNMENT; }
-	private inline function get_MAX_TEXTURE_SIZE ():Int { return this.MAX_TEXTURE_SIZE; }
-	private inline function get_MAX_VIEWPORT_DIMS ():Int { return this.MAX_VIEWPORT_DIMS; }
-	private inline function get_SUBPIXEL_BITS ():Int { return this.SUBPIXEL_BITS; }
-	private inline function get_RED_BITS ():Int { return this.RED_BITS; }
-	private inline function get_GREEN_BITS ():Int { return this.GREEN_BITS; }
-	private inline function get_BLUE_BITS ():Int { return this.BLUE_BITS; }
-	private inline function get_ALPHA_BITS ():Int { return this.ALPHA_BITS; }
-	private inline function get_DEPTH_BITS ():Int { return this.DEPTH_BITS; }
-	private inline function get_STENCIL_BITS ():Int { return this.STENCIL_BITS; }
-	private inline function get_POLYGON_OFFSET_UNITS ():Int { return this.POLYGON_OFFSET_UNITS; }
-	private inline function get_POLYGON_OFFSET_FACTOR ():Int { return this.POLYGON_OFFSET_FACTOR; }
-	private inline function get_TEXTURE_BINDING_2D ():Int { return this.TEXTURE_BINDING_2D; }
-	private inline function get_SAMPLE_BUFFERS ():Int { return this.SAMPLE_BUFFERS; }
-	private inline function get_SAMPLES ():Int { return this.SAMPLES; }
-	private inline function get_SAMPLE_COVERAGE_VALUE ():Int { return this.SAMPLE_COVERAGE_VALUE; }
-	private inline function get_SAMPLE_COVERAGE_INVERT ():Int { return this.SAMPLE_COVERAGE_INVERT; }
-	private inline function get_COMPRESSED_TEXTURE_FORMATS ():Int { return this.COMPRESSED_TEXTURE_FORMATS; }
-	private inline function get_DONT_CARE ():Int { return this.DONT_CARE; }
-	private inline function get_FASTEST ():Int { return this.FASTEST; }
-	private inline function get_NICEST ():Int { return this.NICEST; }
-	private inline function get_GENERATE_MIPMAP_HINT ():Int { return this.GENERATE_MIPMAP_HINT; }
-	private inline function get_BYTE ():Int { return this.BYTE; }
-	private inline function get_UNSIGNED_BYTE ():Int { return this.UNSIGNED_BYTE; }
-	private inline function get_SHORT ():Int { return this.SHORT; }
-	private inline function get_UNSIGNED_SHORT ():Int { return this.UNSIGNED_SHORT; }
-	private inline function get_INT ():Int { return this.INT; }
-	private inline function get_UNSIGNED_INT ():Int { return this.UNSIGNED_INT; }
-	private inline function get_FLOAT ():Int { return this.FLOAT; }
-	private inline function get_DEPTH_COMPONENT ():Int { return this.DEPTH_COMPONENT; }
-	private inline function get_ALPHA ():Int { return this.ALPHA; }
-	private inline function get_RGB ():Int { return this.RGB; }
-	private inline function get_RGBA ():Int { return this.RGBA; }
-	private inline function get_LUMINANCE ():Int { return this.LUMINANCE; }
-	private inline function get_LUMINANCE_ALPHA ():Int { return this.LUMINANCE_ALPHA; }
-	private inline function get_UNSIGNED_SHORT_4_4_4_4 ():Int { return this.UNSIGNED_SHORT_4_4_4_4; }
-	private inline function get_UNSIGNED_SHORT_5_5_5_1 ():Int { return this.UNSIGNED_SHORT_5_5_5_1; }
-	private inline function get_UNSIGNED_SHORT_5_6_5 ():Int { return this.UNSIGNED_SHORT_5_6_5; }
-	private inline function get_FRAGMENT_SHADER ():Int { return this.FRAGMENT_SHADER; }
-	private inline function get_VERTEX_SHADER ():Int { return this.VERTEX_SHADER; }
-	private inline function get_MAX_VERTEX_ATTRIBS ():Int { return this.MAX_VERTEX_ATTRIBS; }
-	private inline function get_MAX_VERTEX_UNIFORM_VECTORS ():Int { return this.MAX_VERTEX_UNIFORM_VECTORS; }
-	private inline function get_MAX_VARYING_VECTORS ():Int { return this.MAX_VARYING_VECTORS; }
-	private inline function get_MAX_COMBINED_TEXTURE_IMAGE_UNITS ():Int { return this.MAX_COMBINED_TEXTURE_IMAGE_UNITS; }
-	private inline function get_MAX_VERTEX_TEXTURE_IMAGE_UNITS ():Int { return this.MAX_VERTEX_TEXTURE_IMAGE_UNITS; }
-	private inline function get_MAX_TEXTURE_IMAGE_UNITS ():Int { return this.MAX_TEXTURE_IMAGE_UNITS; }
-	private inline function get_MAX_FRAGMENT_UNIFORM_VECTORS ():Int { return this.MAX_FRAGMENT_UNIFORM_VECTORS; }
-	private inline function get_SHADER_TYPE ():Int { return this.SHADER_TYPE; }
-	private inline function get_DELETE_STATUS ():Int { return this.DELETE_STATUS; }
-	private inline function get_LINK_STATUS ():Int { return this.LINK_STATUS; }
-	private inline function get_VALIDATE_STATUS ():Int { return this.VALIDATE_STATUS; }
-	private inline function get_ATTACHED_SHADERS ():Int { return this.ATTACHED_SHADERS; }
-	private inline function get_ACTIVE_UNIFORMS ():Int { return this.ACTIVE_UNIFORMS; }
-	private inline function get_ACTIVE_ATTRIBUTES ():Int { return this.ACTIVE_ATTRIBUTES; }
-	private inline function get_SHADING_LANGUAGE_VERSION ():Int { return this.SHADING_LANGUAGE_VERSION; }
-	private inline function get_CURRENT_PROGRAM ():Int { return this.CURRENT_PROGRAM; }
-	private inline function get_NEVER ():Int { return this.NEVER; }
-	private inline function get_LESS ():Int { return this.LESS; }
-	private inline function get_EQUAL ():Int { return this.EQUAL; }
-	private inline function get_LEQUAL ():Int { return this.LEQUAL; }
-	private inline function get_GREATER ():Int { return this.GREATER; }
-	private inline function get_NOTEQUAL ():Int { return this.NOTEQUAL; }
-	private inline function get_GEQUAL ():Int { return this.GEQUAL; }
-	private inline function get_ALWAYS ():Int { return this.ALWAYS; }
-	private inline function get_KEEP ():Int { return this.KEEP; }
-	private inline function get_REPLACE ():Int { return this.REPLACE; }
-	private inline function get_INCR ():Int { return this.INCR; }
-	private inline function get_DECR ():Int { return this.DECR; }
-	private inline function get_INVERT ():Int { return this.INVERT; }
-	private inline function get_INCR_WRAP ():Int { return this.INCR_WRAP; }
-	private inline function get_DECR_WRAP ():Int { return this.DECR_WRAP; }
-	private inline function get_VENDOR ():Int { return this.VENDOR; }
-	private inline function get_RENDERER ():Int { return this.RENDERER; }
-	private inline function get_VERSION ():Int { return this.VERSION; }
-	private inline function get_NEAREST ():Int { return this.NEAREST; }
-	private inline function get_LINEAR ():Int { return this.LINEAR; }
-	private inline function get_NEAREST_MIPMAP_NEAREST ():Int { return this.NEAREST_MIPMAP_NEAREST; }
-	private inline function get_LINEAR_MIPMAP_NEAREST ():Int { return this.LINEAR_MIPMAP_NEAREST; }
-	private inline function get_NEAREST_MIPMAP_LINEAR ():Int { return this.NEAREST_MIPMAP_LINEAR; }
-	private inline function get_LINEAR_MIPMAP_LINEAR ():Int { return this.LINEAR_MIPMAP_LINEAR; }
-	private inline function get_TEXTURE_MAG_FILTER ():Int { return this.TEXTURE_MAG_FILTER; }
-	private inline function get_TEXTURE_MIN_FILTER ():Int { return this.TEXTURE_MIN_FILTER; }
-	private inline function get_TEXTURE_WRAP_S ():Int { return this.TEXTURE_WRAP_S; }
-	private inline function get_TEXTURE_WRAP_T ():Int { return this.TEXTURE_WRAP_T; }
-	private inline function get_TEXTURE_2D ():Int { return this.TEXTURE_2D; }
-	private inline function get_TEXTURE ():Int { return this.TEXTURE; }
-	private inline function get_TEXTURE_CUBE_MAP ():Int { return this.TEXTURE_CUBE_MAP; }
-	private inline function get_TEXTURE_BINDING_CUBE_MAP ():Int { return this.TEXTURE_BINDING_CUBE_MAP; }
-	private inline function get_TEXTURE_CUBE_MAP_POSITIVE_X ():Int { return this.TEXTURE_CUBE_MAP_POSITIVE_X; }
-	private inline function get_TEXTURE_CUBE_MAP_NEGATIVE_X ():Int { return this.TEXTURE_CUBE_MAP_NEGATIVE_X; }
-	private inline function get_TEXTURE_CUBE_MAP_POSITIVE_Y ():Int { return this.TEXTURE_CUBE_MAP_POSITIVE_Y; }
-	private inline function get_TEXTURE_CUBE_MAP_NEGATIVE_Y ():Int { return this.TEXTURE_CUBE_MAP_NEGATIVE_Y; }
-	private inline function get_TEXTURE_CUBE_MAP_POSITIVE_Z ():Int { return this.TEXTURE_CUBE_MAP_POSITIVE_Z; }
-	private inline function get_TEXTURE_CUBE_MAP_NEGATIVE_Z ():Int { return this.TEXTURE_CUBE_MAP_NEGATIVE_Z; }
-	private inline function get_MAX_CUBE_MAP_TEXTURE_SIZE ():Int { return this.MAX_CUBE_MAP_TEXTURE_SIZE; }
-	private inline function get_TEXTURE0 ():Int { return this.TEXTURE0; }
-	private inline function get_TEXTURE1 ():Int { return this.TEXTURE1; }
-	private inline function get_TEXTURE2 ():Int { return this.TEXTURE2; }
-	private inline function get_TEXTURE3 ():Int { return this.TEXTURE3; }
-	private inline function get_TEXTURE4 ():Int { return this.TEXTURE4; }
-	private inline function get_TEXTURE5 ():Int { return this.TEXTURE5; }
-	private inline function get_TEXTURE6 ():Int { return this.TEXTURE6; }
-	private inline function get_TEXTURE7 ():Int { return this.TEXTURE7; }
-	private inline function get_TEXTURE8 ():Int { return this.TEXTURE8; }
-	private inline function get_TEXTURE9 ():Int { return this.TEXTURE9; }
-	private inline function get_TEXTURE10 ():Int { return this.TEXTURE10; }
-	private inline function get_TEXTURE11 ():Int { return this.TEXTURE11; }
-	private inline function get_TEXTURE12 ():Int { return this.TEXTURE12; }
-	private inline function get_TEXTURE13 ():Int { return this.TEXTURE13; }
-	private inline function get_TEXTURE14 ():Int { return this.TEXTURE14; }
-	private inline function get_TEXTURE15 ():Int { return this.TEXTURE15; }
-	private inline function get_TEXTURE16 ():Int { return this.TEXTURE16; }
-	private inline function get_TEXTURE17 ():Int { return this.TEXTURE17; }
-	private inline function get_TEXTURE18 ():Int { return this.TEXTURE18; }
-	private inline function get_TEXTURE19 ():Int { return this.TEXTURE19; }
-	private inline function get_TEXTURE20 ():Int { return this.TEXTURE20; }
-	private inline function get_TEXTURE21 ():Int { return this.TEXTURE21; }
-	private inline function get_TEXTURE22 ():Int { return this.TEXTURE22; }
-	private inline function get_TEXTURE23 ():Int { return this.TEXTURE23; }
-	private inline function get_TEXTURE24 ():Int { return this.TEXTURE24; }
-	private inline function get_TEXTURE25 ():Int { return this.TEXTURE25; }
-	private inline function get_TEXTURE26 ():Int { return this.TEXTURE26; }
-	private inline function get_TEXTURE27 ():Int { return this.TEXTURE27; }
-	private inline function get_TEXTURE28 ():Int { return this.TEXTURE28; }
-	private inline function get_TEXTURE29 ():Int { return this.TEXTURE29; }
-	private inline function get_TEXTURE30 ():Int { return this.TEXTURE30; }
-	private inline function get_TEXTURE31 ():Int { return this.TEXTURE31; }
-	private inline function get_ACTIVE_TEXTURE ():Int { return this.ACTIVE_TEXTURE; }
-	private inline function get_REPEAT ():Int { return this.REPEAT; }
-	private inline function get_CLAMP_TO_EDGE ():Int { return this.CLAMP_TO_EDGE; }
-	private inline function get_MIRRORED_REPEAT ():Int { return this.MIRRORED_REPEAT; }
-	private inline function get_FLOAT_VEC2 ():Int { return this.FLOAT_VEC2; }
-	private inline function get_FLOAT_VEC3 ():Int { return this.FLOAT_VEC3; }
-	private inline function get_FLOAT_VEC4 ():Int { return this.FLOAT_VEC4; }
-	private inline function get_INT_VEC2 ():Int { return this.INT_VEC2; }
-	private inline function get_INT_VEC3 ():Int { return this.INT_VEC3; }
-	private inline function get_INT_VEC4 ():Int { return this.INT_VEC4; }
-	private inline function get_BOOL ():Int { return this.BOOL; }
-	private inline function get_BOOL_VEC2 ():Int { return this.BOOL_VEC2; }
-	private inline function get_BOOL_VEC3 ():Int { return this.BOOL_VEC3; }
-	private inline function get_BOOL_VEC4 ():Int { return this.BOOL_VEC4; }
-	private inline function get_FLOAT_MAT2 ():Int { return this.FLOAT_MAT2; }
-	private inline function get_FLOAT_MAT3 ():Int { return this.FLOAT_MAT3; }
-	private inline function get_FLOAT_MAT4 ():Int { return this.FLOAT_MAT4; }
-	private inline function get_SAMPLER_2D ():Int { return this.SAMPLER_2D; }
-	private inline function get_SAMPLER_CUBE ():Int { return this.SAMPLER_CUBE; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_ENABLED ():Int { return this.VERTEX_ATTRIB_ARRAY_ENABLED; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_SIZE ():Int { return this.VERTEX_ATTRIB_ARRAY_SIZE; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_STRIDE ():Int { return this.VERTEX_ATTRIB_ARRAY_STRIDE; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_TYPE ():Int { return this.VERTEX_ATTRIB_ARRAY_TYPE; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_NORMALIZED ():Int { return this.VERTEX_ATTRIB_ARRAY_NORMALIZED; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_POINTER ():Int { return this.VERTEX_ATTRIB_ARRAY_POINTER; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING ():Int { return this.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING; }
-	private inline function get_VERTEX_PROGRAM_POINT_SIZE ():Int { #if (js && html5) return 0; #else return this.VERTEX_PROGRAM_POINT_SIZE; #end } // TODO
-	private inline function get_POINT_SPRITE ():Int { #if (js && html5) return 0; #else return this.POINT_SPRITE; #end } // TODO
-	private inline function get_COMPILE_STATUS ():Int { return this.COMPILE_STATUS; }
-	private inline function get_LOW_FLOAT ():Int { return this.LOW_FLOAT; }
-	private inline function get_MEDIUM_FLOAT ():Int { return this.MEDIUM_FLOAT; }
-	private inline function get_HIGH_FLOAT ():Int { return this.HIGH_FLOAT; }
-	private inline function get_LOW_INT ():Int { return this.LOW_INT; }
-	private inline function get_MEDIUM_INT ():Int { return this.MEDIUM_INT; }
-	private inline function get_HIGH_INT ():Int { return this.HIGH_INT; }
-	private inline function get_FRAMEBUFFER ():Int { return this.FRAMEBUFFER; }
-	private inline function get_RENDERBUFFER ():Int { return this.RENDERBUFFER; }
-	private inline function get_RGBA4 ():Int { return this.RGBA4; }
-	private inline function get_RGB5_A1 ():Int { return this.RGB5_A1; }
-	private inline function get_RGB565 ():Int { return this.RGB565; }
-	private inline function get_DEPTH_COMPONENT16 ():Int { return this.DEPTH_COMPONENT16; }
-	private inline function get_STENCIL_INDEX ():Int { return this.STENCIL_INDEX; }
-	private inline function get_STENCIL_INDEX8 ():Int { return this.STENCIL_INDEX8; }
-	private inline function get_DEPTH_STENCIL ():Int { return this.DEPTH_STENCIL; }
-	private inline function get_RENDERBUFFER_WIDTH ():Int { return this.RENDERBUFFER_WIDTH; }
-	private inline function get_RENDERBUFFER_HEIGHT ():Int { return this.RENDERBUFFER_HEIGHT; }
-	private inline function get_RENDERBUFFER_INTERNAL_FORMAT ():Int { return this.RENDERBUFFER_INTERNAL_FORMAT; }
-	private inline function get_RENDERBUFFER_RED_SIZE ():Int { return this.RENDERBUFFER_RED_SIZE; }
-	private inline function get_RENDERBUFFER_GREEN_SIZE ():Int { return this.RENDERBUFFER_GREEN_SIZE; }
-	private inline function get_RENDERBUFFER_BLUE_SIZE ():Int { return this.RENDERBUFFER_BLUE_SIZE; }
-	private inline function get_RENDERBUFFER_ALPHA_SIZE ():Int { return this.RENDERBUFFER_ALPHA_SIZE; }
-	private inline function get_RENDERBUFFER_DEPTH_SIZE ():Int { return this.RENDERBUFFER_DEPTH_SIZE; }
-	private inline function get_RENDERBUFFER_STENCIL_SIZE ():Int { return this.RENDERBUFFER_STENCIL_SIZE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE ():Int { return this.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME ():Int { return this.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE; }
-	private inline function get_COLOR_ATTACHMENT0 ():Int { return this.COLOR_ATTACHMENT0; }
-	private inline function get_DEPTH_ATTACHMENT ():Int { return this.DEPTH_ATTACHMENT; }
-	private inline function get_STENCIL_ATTACHMENT ():Int { return this.STENCIL_ATTACHMENT; }
-	private inline function get_DEPTH_STENCIL_ATTACHMENT ():Int { return this.DEPTH_STENCIL_ATTACHMENT; }
-	private inline function get_NONE ():Int { return this.NONE; }
-	private inline function get_FRAMEBUFFER_COMPLETE ():Int { return this.FRAMEBUFFER_COMPLETE; }
-	private inline function get_FRAMEBUFFER_INCOMPLETE_ATTACHMENT ():Int { return this.FRAMEBUFFER_INCOMPLETE_ATTACHMENT; }
-	private inline function get_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT ():Int { return this.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT; }
-	private inline function get_FRAMEBUFFER_INCOMPLETE_DIMENSIONS ():Int { return this.FRAMEBUFFER_INCOMPLETE_DIMENSIONS; }
-	private inline function get_FRAMEBUFFER_UNSUPPORTED ():Int { return this.FRAMEBUFFER_UNSUPPORTED; }
-	private inline function get_FRAMEBUFFER_BINDING ():Int { return this.FRAMEBUFFER_BINDING; }
-	private inline function get_RENDERBUFFER_BINDING ():Int { return this.RENDERBUFFER_BINDING; }
-	private inline function get_MAX_RENDERBUFFER_SIZE ():Int { return this.MAX_RENDERBUFFER_SIZE; }
-	private inline function get_INVALID_FRAMEBUFFER_OPERATION ():Int { return this.INVALID_FRAMEBUFFER_OPERATION; }
-	private inline function get_UNPACK_FLIP_Y_WEBGL ():Int { return this.UNPACK_FLIP_Y_WEBGL; }
-	private inline function get_UNPACK_PREMULTIPLY_ALPHA_WEBGL ():Int { return this.UNPACK_PREMULTIPLY_ALPHA_WEBGL; }
-	private inline function get_CONTEXT_LOST_WEBGL ():Int { return this.CONTEXT_LOST_WEBGL; }
-	private inline function get_UNPACK_COLORSPACE_CONVERSION_WEBGL ():Int { return this.UNPACK_COLORSPACE_CONVERSION_WEBGL; }
-	private inline function get_BROWSER_DEFAULT_WEBGL ():Int { return this.BROWSER_DEFAULT_WEBGL; }
-	private inline function get_type ():RenderContextType { return this.type; }
-	private inline function get_version ():Float { return this.version; }
+	@:noCompletion private inline function get_EXTENSIONS ():Int { return 0x1F03; }
+	@:noCompletion private inline function get_DEPTH_BUFFER_BIT ():Int { return this.DEPTH_BUFFER_BIT; }
+	@:noCompletion private inline function get_STENCIL_BUFFER_BIT ():Int { return this.STENCIL_BUFFER_BIT; }
+	@:noCompletion private inline function get_COLOR_BUFFER_BIT ():Int { return this.COLOR_BUFFER_BIT; }
+	@:noCompletion private inline function get_POINTS ():Int { return this.POINTS; }
+	@:noCompletion private inline function get_LINES ():Int { return this.LINES; }
+	@:noCompletion private inline function get_LINE_LOOP ():Int { return this.LINE_LOOP; }
+	@:noCompletion private inline function get_LINE_STRIP ():Int { return this.LINE_STRIP; }
+	@:noCompletion private inline function get_TRIANGLES ():Int { return this.TRIANGLES; }
+	@:noCompletion private inline function get_TRIANGLE_STRIP ():Int { return this.TRIANGLE_STRIP; }
+	@:noCompletion private inline function get_TRIANGLE_FAN ():Int { return this.TRIANGLE_FAN; }
+	@:noCompletion private inline function get_ZERO ():Int { return this.ZERO; }
+	@:noCompletion private inline function get_ONE ():Int { return this.ONE; }
+	@:noCompletion private inline function get_SRC_COLOR ():Int { return this.SRC_COLOR; }
+	@:noCompletion private inline function get_ONE_MINUS_SRC_COLOR ():Int { return this.ONE_MINUS_SRC_COLOR; }
+	@:noCompletion private inline function get_SRC_ALPHA ():Int { return this.SRC_ALPHA; }
+	@:noCompletion private inline function get_ONE_MINUS_SRC_ALPHA ():Int { return this.ONE_MINUS_SRC_ALPHA; }
+	@:noCompletion private inline function get_DST_ALPHA ():Int { return this.DST_ALPHA; }
+	@:noCompletion private inline function get_ONE_MINUS_DST_ALPHA ():Int { return this.ONE_MINUS_DST_ALPHA; }
+	@:noCompletion private inline function get_DST_COLOR ():Int { return this.DST_COLOR; }
+	@:noCompletion private inline function get_ONE_MINUS_DST_COLOR ():Int { return this.ONE_MINUS_DST_COLOR; }
+	@:noCompletion private inline function get_SRC_ALPHA_SATURATE ():Int { return this.SRC_ALPHA_SATURATE; }
+	@:noCompletion private inline function get_FUNC_ADD ():Int { return this.FUNC_ADD; }
+	@:noCompletion private inline function get_BLEND_EQUATION ():Int { return this.BLEND_EQUATION; }
+	@:noCompletion private inline function get_BLEND_EQUATION_RGB ():Int { return this.BLEND_EQUATION_RGB; }
+	@:noCompletion private inline function get_BLEND_EQUATION_ALPHA ():Int { return this.BLEND_EQUATION_ALPHA; }
+	@:noCompletion private inline function get_FUNC_SUBTRACT ():Int { return this.FUNC_SUBTRACT; }
+	@:noCompletion private inline function get_FUNC_REVERSE_SUBTRACT ():Int { return this.FUNC_REVERSE_SUBTRACT; }
+	@:noCompletion private inline function get_BLEND_DST_RGB ():Int { return this.BLEND_DST_RGB; }
+	@:noCompletion private inline function get_BLEND_SRC_RGB ():Int { return this.BLEND_SRC_RGB; }
+	@:noCompletion private inline function get_BLEND_DST_ALPHA ():Int { return this.BLEND_DST_ALPHA; }
+	@:noCompletion private inline function get_BLEND_SRC_ALPHA ():Int { return this.BLEND_SRC_ALPHA; }
+	@:noCompletion private inline function get_CONSTANT_COLOR ():Int { return this.CONSTANT_COLOR; }
+	@:noCompletion private inline function get_ONE_MINUS_CONSTANT_COLOR ():Int { return this.ONE_MINUS_CONSTANT_COLOR; }
+	@:noCompletion private inline function get_CONSTANT_ALPHA ():Int { return this.CONSTANT_ALPHA; }
+	@:noCompletion private inline function get_ONE_MINUS_CONSTANT_ALPHA ():Int { return this.ONE_MINUS_CONSTANT_ALPHA; }
+	@:noCompletion private inline function get_BLEND_COLOR ():Int { return this.BLEND_COLOR; }
+	@:noCompletion private inline function get_ARRAY_BUFFER ():Int { return this.ARRAY_BUFFER; }
+	@:noCompletion private inline function get_ELEMENT_ARRAY_BUFFER ():Int { return this.ELEMENT_ARRAY_BUFFER; }
+	@:noCompletion private inline function get_ARRAY_BUFFER_BINDING ():Int { return this.ARRAY_BUFFER_BINDING; }
+	@:noCompletion private inline function get_ELEMENT_ARRAY_BUFFER_BINDING ():Int { return this.ELEMENT_ARRAY_BUFFER_BINDING; }
+	@:noCompletion private inline function get_STREAM_DRAW ():Int { return this.STREAM_DRAW; }
+	@:noCompletion private inline function get_STATIC_DRAW ():Int { return this.STATIC_DRAW; }
+	@:noCompletion private inline function get_DYNAMIC_DRAW ():Int { return this.DYNAMIC_DRAW; }
+	@:noCompletion private inline function get_BUFFER_SIZE ():Int { return this.BUFFER_SIZE; }
+	@:noCompletion private inline function get_BUFFER_USAGE ():Int { return this.BUFFER_USAGE; }
+	@:noCompletion private inline function get_CURRENT_VERTEX_ATTRIB ():Int { return this.CURRENT_VERTEX_ATTRIB; }
+	@:noCompletion private inline function get_FRONT ():Int { return this.FRONT; }
+	@:noCompletion private inline function get_BACK ():Int { return this.BACK; }
+	@:noCompletion private inline function get_FRONT_AND_BACK ():Int { return this.FRONT_AND_BACK; }
+	@:noCompletion private inline function get_CULL_FACE ():Int { return this.CULL_FACE; }
+	@:noCompletion private inline function get_BLEND ():Int { return this.BLEND; }
+	@:noCompletion private inline function get_DITHER ():Int { return this.DITHER; }
+	@:noCompletion private inline function get_STENCIL_TEST ():Int { return this.STENCIL_TEST; }
+	@:noCompletion private inline function get_DEPTH_TEST ():Int { return this.DEPTH_TEST; }
+	@:noCompletion private inline function get_SCISSOR_TEST ():Int { return this.SCISSOR_TEST; }
+	@:noCompletion private inline function get_POLYGON_OFFSET_FILL ():Int { return this.POLYGON_OFFSET_FILL; }
+	@:noCompletion private inline function get_SAMPLE_ALPHA_TO_COVERAGE ():Int { return this.SAMPLE_ALPHA_TO_COVERAGE; }
+	@:noCompletion private inline function get_SAMPLE_COVERAGE ():Int { return this.SAMPLE_COVERAGE; }
+	@:noCompletion private inline function get_NO_ERROR ():Int { return this.NO_ERROR; }
+	@:noCompletion private inline function get_INVALID_ENUM ():Int { return this.INVALID_ENUM; }
+	@:noCompletion private inline function get_INVALID_VALUE ():Int { return this.INVALID_VALUE; }
+	@:noCompletion private inline function get_INVALID_OPERATION ():Int { return this.INVALID_OPERATION; }
+	@:noCompletion private inline function get_OUT_OF_MEMORY ():Int { return this.OUT_OF_MEMORY; }
+	@:noCompletion private inline function get_CW ():Int { return this.CW; }
+	@:noCompletion private inline function get_CCW ():Int { return this.CCW; }
+	@:noCompletion private inline function get_LINE_WIDTH ():Int { return this.LINE_WIDTH; }
+	@:noCompletion private inline function get_ALIASED_POINT_SIZE_RANGE ():Int { return this.ALIASED_POINT_SIZE_RANGE; }
+	@:noCompletion private inline function get_ALIASED_LINE_WIDTH_RANGE ():Int { return this.ALIASED_LINE_WIDTH_RANGE; }
+	@:noCompletion private inline function get_CULL_FACE_MODE ():Int { return this.CULL_FACE_MODE; }
+	@:noCompletion private inline function get_FRONT_FACE ():Int { return this.FRONT_FACE; }
+	@:noCompletion private inline function get_DEPTH_RANGE ():Int { return this.DEPTH_RANGE; }
+	@:noCompletion private inline function get_DEPTH_WRITEMASK ():Int { return this.DEPTH_WRITEMASK; }
+	@:noCompletion private inline function get_DEPTH_CLEAR_VALUE ():Int { return this.DEPTH_CLEAR_VALUE; }
+	@:noCompletion private inline function get_DEPTH_FUNC ():Int { return this.DEPTH_FUNC; }
+	@:noCompletion private inline function get_STENCIL_CLEAR_VALUE ():Int { return this.STENCIL_CLEAR_VALUE; }
+	@:noCompletion private inline function get_STENCIL_FUNC ():Int { return this.STENCIL_FUNC; }
+	@:noCompletion private inline function get_STENCIL_FAIL ():Int { return this.STENCIL_FAIL; }
+	@:noCompletion private inline function get_STENCIL_PASS_DEPTH_FAIL ():Int { return this.STENCIL_PASS_DEPTH_FAIL; }
+	@:noCompletion private inline function get_STENCIL_PASS_DEPTH_PASS ():Int { return this.STENCIL_PASS_DEPTH_PASS; }
+	@:noCompletion private inline function get_STENCIL_REF ():Int { return this.STENCIL_REF; }
+	@:noCompletion private inline function get_STENCIL_VALUE_MASK ():Int { return this.STENCIL_VALUE_MASK; }
+	@:noCompletion private inline function get_STENCIL_WRITEMASK ():Int { return this.STENCIL_WRITEMASK; }
+	@:noCompletion private inline function get_STENCIL_BACK_FUNC ():Int { return this.STENCIL_BACK_FUNC; }
+	@:noCompletion private inline function get_STENCIL_BACK_FAIL ():Int { return this.STENCIL_BACK_FAIL; }
+	@:noCompletion private inline function get_STENCIL_BACK_PASS_DEPTH_FAIL ():Int { return this.STENCIL_BACK_PASS_DEPTH_FAIL; }
+	@:noCompletion private inline function get_STENCIL_BACK_PASS_DEPTH_PASS ():Int { return this.STENCIL_BACK_PASS_DEPTH_PASS; }
+	@:noCompletion private inline function get_STENCIL_BACK_REF ():Int { return this.STENCIL_BACK_REF; }
+	@:noCompletion private inline function get_STENCIL_BACK_VALUE_MASK ():Int { return this.STENCIL_BACK_VALUE_MASK; }
+	@:noCompletion private inline function get_STENCIL_BACK_WRITEMASK ():Int { return this.STENCIL_BACK_WRITEMASK; }
+	@:noCompletion private inline function get_VIEWPORT ():Int { return this.VIEWPORT; }
+	@:noCompletion private inline function get_SCISSOR_BOX ():Int { return this.SCISSOR_BOX; }
+	@:noCompletion private inline function get_COLOR_CLEAR_VALUE ():Int { return this.COLOR_CLEAR_VALUE; }
+	@:noCompletion private inline function get_COLOR_WRITEMASK ():Int { return this.COLOR_WRITEMASK; }
+	@:noCompletion private inline function get_UNPACK_ALIGNMENT ():Int { return this.UNPACK_ALIGNMENT; }
+	@:noCompletion private inline function get_PACK_ALIGNMENT ():Int { return this.PACK_ALIGNMENT; }
+	@:noCompletion private inline function get_MAX_TEXTURE_SIZE ():Int { return this.MAX_TEXTURE_SIZE; }
+	@:noCompletion private inline function get_MAX_VIEWPORT_DIMS ():Int { return this.MAX_VIEWPORT_DIMS; }
+	@:noCompletion private inline function get_SUBPIXEL_BITS ():Int { return this.SUBPIXEL_BITS; }
+	@:noCompletion private inline function get_RED_BITS ():Int { return this.RED_BITS; }
+	@:noCompletion private inline function get_GREEN_BITS ():Int { return this.GREEN_BITS; }
+	@:noCompletion private inline function get_BLUE_BITS ():Int { return this.BLUE_BITS; }
+	@:noCompletion private inline function get_ALPHA_BITS ():Int { return this.ALPHA_BITS; }
+	@:noCompletion private inline function get_DEPTH_BITS ():Int { return this.DEPTH_BITS; }
+	@:noCompletion private inline function get_STENCIL_BITS ():Int { return this.STENCIL_BITS; }
+	@:noCompletion private inline function get_POLYGON_OFFSET_UNITS ():Int { return this.POLYGON_OFFSET_UNITS; }
+	@:noCompletion private inline function get_POLYGON_OFFSET_FACTOR ():Int { return this.POLYGON_OFFSET_FACTOR; }
+	@:noCompletion private inline function get_TEXTURE_BINDING_2D ():Int { return this.TEXTURE_BINDING_2D; }
+	@:noCompletion private inline function get_SAMPLE_BUFFERS ():Int { return this.SAMPLE_BUFFERS; }
+	@:noCompletion private inline function get_SAMPLES ():Int { return this.SAMPLES; }
+	@:noCompletion private inline function get_SAMPLE_COVERAGE_VALUE ():Int { return this.SAMPLE_COVERAGE_VALUE; }
+	@:noCompletion private inline function get_SAMPLE_COVERAGE_INVERT ():Int { return this.SAMPLE_COVERAGE_INVERT; }
+	@:noCompletion private inline function get_COMPRESSED_TEXTURE_FORMATS ():Int { return this.COMPRESSED_TEXTURE_FORMATS; }
+	@:noCompletion private inline function get_DONT_CARE ():Int { return this.DONT_CARE; }
+	@:noCompletion private inline function get_FASTEST ():Int { return this.FASTEST; }
+	@:noCompletion private inline function get_NICEST ():Int { return this.NICEST; }
+	@:noCompletion private inline function get_GENERATE_MIPMAP_HINT ():Int { return this.GENERATE_MIPMAP_HINT; }
+	@:noCompletion private inline function get_BYTE ():Int { return this.BYTE; }
+	@:noCompletion private inline function get_UNSIGNED_BYTE ():Int { return this.UNSIGNED_BYTE; }
+	@:noCompletion private inline function get_SHORT ():Int { return this.SHORT; }
+	@:noCompletion private inline function get_UNSIGNED_SHORT ():Int { return this.UNSIGNED_SHORT; }
+	@:noCompletion private inline function get_INT ():Int { return this.INT; }
+	@:noCompletion private inline function get_UNSIGNED_INT ():Int { return this.UNSIGNED_INT; }
+	@:noCompletion private inline function get_FLOAT ():Int { return this.FLOAT; }
+	@:noCompletion private inline function get_DEPTH_COMPONENT ():Int { return this.DEPTH_COMPONENT; }
+	@:noCompletion private inline function get_ALPHA ():Int { return this.ALPHA; }
+	@:noCompletion private inline function get_RGB ():Int { return this.RGB; }
+	@:noCompletion private inline function get_RGBA ():Int { return this.RGBA; }
+	@:noCompletion private inline function get_LUMINANCE ():Int { return this.LUMINANCE; }
+	@:noCompletion private inline function get_LUMINANCE_ALPHA ():Int { return this.LUMINANCE_ALPHA; }
+	@:noCompletion private inline function get_UNSIGNED_SHORT_4_4_4_4 ():Int { return this.UNSIGNED_SHORT_4_4_4_4; }
+	@:noCompletion private inline function get_UNSIGNED_SHORT_5_5_5_1 ():Int { return this.UNSIGNED_SHORT_5_5_5_1; }
+	@:noCompletion private inline function get_UNSIGNED_SHORT_5_6_5 ():Int { return this.UNSIGNED_SHORT_5_6_5; }
+	@:noCompletion private inline function get_FRAGMENT_SHADER ():Int { return this.FRAGMENT_SHADER; }
+	@:noCompletion private inline function get_VERTEX_SHADER ():Int { return this.VERTEX_SHADER; }
+	@:noCompletion private inline function get_MAX_VERTEX_ATTRIBS ():Int { return this.MAX_VERTEX_ATTRIBS; }
+	@:noCompletion private inline function get_MAX_VERTEX_UNIFORM_VECTORS ():Int { return this.MAX_VERTEX_UNIFORM_VECTORS; }
+	@:noCompletion private inline function get_MAX_VARYING_VECTORS ():Int { return this.MAX_VARYING_VECTORS; }
+	@:noCompletion private inline function get_MAX_COMBINED_TEXTURE_IMAGE_UNITS ():Int { return this.MAX_COMBINED_TEXTURE_IMAGE_UNITS; }
+	@:noCompletion private inline function get_MAX_VERTEX_TEXTURE_IMAGE_UNITS ():Int { return this.MAX_VERTEX_TEXTURE_IMAGE_UNITS; }
+	@:noCompletion private inline function get_MAX_TEXTURE_IMAGE_UNITS ():Int { return this.MAX_TEXTURE_IMAGE_UNITS; }
+	@:noCompletion private inline function get_MAX_FRAGMENT_UNIFORM_VECTORS ():Int { return this.MAX_FRAGMENT_UNIFORM_VECTORS; }
+	@:noCompletion private inline function get_SHADER_TYPE ():Int { return this.SHADER_TYPE; }
+	@:noCompletion private inline function get_DELETE_STATUS ():Int { return this.DELETE_STATUS; }
+	@:noCompletion private inline function get_LINK_STATUS ():Int { return this.LINK_STATUS; }
+	@:noCompletion private inline function get_VALIDATE_STATUS ():Int { return this.VALIDATE_STATUS; }
+	@:noCompletion private inline function get_ATTACHED_SHADERS ():Int { return this.ATTACHED_SHADERS; }
+	@:noCompletion private inline function get_ACTIVE_UNIFORMS ():Int { return this.ACTIVE_UNIFORMS; }
+	@:noCompletion private inline function get_ACTIVE_ATTRIBUTES ():Int { return this.ACTIVE_ATTRIBUTES; }
+	@:noCompletion private inline function get_SHADING_LANGUAGE_VERSION ():Int { return this.SHADING_LANGUAGE_VERSION; }
+	@:noCompletion private inline function get_CURRENT_PROGRAM ():Int { return this.CURRENT_PROGRAM; }
+	@:noCompletion private inline function get_NEVER ():Int { return this.NEVER; }
+	@:noCompletion private inline function get_LESS ():Int { return this.LESS; }
+	@:noCompletion private inline function get_EQUAL ():Int { return this.EQUAL; }
+	@:noCompletion private inline function get_LEQUAL ():Int { return this.LEQUAL; }
+	@:noCompletion private inline function get_GREATER ():Int { return this.GREATER; }
+	@:noCompletion private inline function get_NOTEQUAL ():Int { return this.NOTEQUAL; }
+	@:noCompletion private inline function get_GEQUAL ():Int { return this.GEQUAL; }
+	@:noCompletion private inline function get_ALWAYS ():Int { return this.ALWAYS; }
+	@:noCompletion private inline function get_KEEP ():Int { return this.KEEP; }
+	@:noCompletion private inline function get_REPLACE ():Int { return this.REPLACE; }
+	@:noCompletion private inline function get_INCR ():Int { return this.INCR; }
+	@:noCompletion private inline function get_DECR ():Int { return this.DECR; }
+	@:noCompletion private inline function get_INVERT ():Int { return this.INVERT; }
+	@:noCompletion private inline function get_INCR_WRAP ():Int { return this.INCR_WRAP; }
+	@:noCompletion private inline function get_DECR_WRAP ():Int { return this.DECR_WRAP; }
+	@:noCompletion private inline function get_VENDOR ():Int { return this.VENDOR; }
+	@:noCompletion private inline function get_RENDERER ():Int { return this.RENDERER; }
+	@:noCompletion private inline function get_VERSION ():Int { return this.VERSION; }
+	@:noCompletion private inline function get_NEAREST ():Int { return this.NEAREST; }
+	@:noCompletion private inline function get_LINEAR ():Int { return this.LINEAR; }
+	@:noCompletion private inline function get_NEAREST_MIPMAP_NEAREST ():Int { return this.NEAREST_MIPMAP_NEAREST; }
+	@:noCompletion private inline function get_LINEAR_MIPMAP_NEAREST ():Int { return this.LINEAR_MIPMAP_NEAREST; }
+	@:noCompletion private inline function get_NEAREST_MIPMAP_LINEAR ():Int { return this.NEAREST_MIPMAP_LINEAR; }
+	@:noCompletion private inline function get_LINEAR_MIPMAP_LINEAR ():Int { return this.LINEAR_MIPMAP_LINEAR; }
+	@:noCompletion private inline function get_TEXTURE_MAG_FILTER ():Int { return this.TEXTURE_MAG_FILTER; }
+	@:noCompletion private inline function get_TEXTURE_MIN_FILTER ():Int { return this.TEXTURE_MIN_FILTER; }
+	@:noCompletion private inline function get_TEXTURE_WRAP_S ():Int { return this.TEXTURE_WRAP_S; }
+	@:noCompletion private inline function get_TEXTURE_WRAP_T ():Int { return this.TEXTURE_WRAP_T; }
+	@:noCompletion private inline function get_TEXTURE_2D ():Int { return this.TEXTURE_2D; }
+	@:noCompletion private inline function get_TEXTURE ():Int { return this.TEXTURE; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP ():Int { return this.TEXTURE_CUBE_MAP; }
+	@:noCompletion private inline function get_TEXTURE_BINDING_CUBE_MAP ():Int { return this.TEXTURE_BINDING_CUBE_MAP; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP_POSITIVE_X ():Int { return this.TEXTURE_CUBE_MAP_POSITIVE_X; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP_NEGATIVE_X ():Int { return this.TEXTURE_CUBE_MAP_NEGATIVE_X; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP_POSITIVE_Y ():Int { return this.TEXTURE_CUBE_MAP_POSITIVE_Y; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP_NEGATIVE_Y ():Int { return this.TEXTURE_CUBE_MAP_NEGATIVE_Y; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP_POSITIVE_Z ():Int { return this.TEXTURE_CUBE_MAP_POSITIVE_Z; }
+	@:noCompletion private inline function get_TEXTURE_CUBE_MAP_NEGATIVE_Z ():Int { return this.TEXTURE_CUBE_MAP_NEGATIVE_Z; }
+	@:noCompletion private inline function get_MAX_CUBE_MAP_TEXTURE_SIZE ():Int { return this.MAX_CUBE_MAP_TEXTURE_SIZE; }
+	@:noCompletion private inline function get_TEXTURE0 ():Int { return this.TEXTURE0; }
+	@:noCompletion private inline function get_TEXTURE1 ():Int { return this.TEXTURE1; }
+	@:noCompletion private inline function get_TEXTURE2 ():Int { return this.TEXTURE2; }
+	@:noCompletion private inline function get_TEXTURE3 ():Int { return this.TEXTURE3; }
+	@:noCompletion private inline function get_TEXTURE4 ():Int { return this.TEXTURE4; }
+	@:noCompletion private inline function get_TEXTURE5 ():Int { return this.TEXTURE5; }
+	@:noCompletion private inline function get_TEXTURE6 ():Int { return this.TEXTURE6; }
+	@:noCompletion private inline function get_TEXTURE7 ():Int { return this.TEXTURE7; }
+	@:noCompletion private inline function get_TEXTURE8 ():Int { return this.TEXTURE8; }
+	@:noCompletion private inline function get_TEXTURE9 ():Int { return this.TEXTURE9; }
+	@:noCompletion private inline function get_TEXTURE10 ():Int { return this.TEXTURE10; }
+	@:noCompletion private inline function get_TEXTURE11 ():Int { return this.TEXTURE11; }
+	@:noCompletion private inline function get_TEXTURE12 ():Int { return this.TEXTURE12; }
+	@:noCompletion private inline function get_TEXTURE13 ():Int { return this.TEXTURE13; }
+	@:noCompletion private inline function get_TEXTURE14 ():Int { return this.TEXTURE14; }
+	@:noCompletion private inline function get_TEXTURE15 ():Int { return this.TEXTURE15; }
+	@:noCompletion private inline function get_TEXTURE16 ():Int { return this.TEXTURE16; }
+	@:noCompletion private inline function get_TEXTURE17 ():Int { return this.TEXTURE17; }
+	@:noCompletion private inline function get_TEXTURE18 ():Int { return this.TEXTURE18; }
+	@:noCompletion private inline function get_TEXTURE19 ():Int { return this.TEXTURE19; }
+	@:noCompletion private inline function get_TEXTURE20 ():Int { return this.TEXTURE20; }
+	@:noCompletion private inline function get_TEXTURE21 ():Int { return this.TEXTURE21; }
+	@:noCompletion private inline function get_TEXTURE22 ():Int { return this.TEXTURE22; }
+	@:noCompletion private inline function get_TEXTURE23 ():Int { return this.TEXTURE23; }
+	@:noCompletion private inline function get_TEXTURE24 ():Int { return this.TEXTURE24; }
+	@:noCompletion private inline function get_TEXTURE25 ():Int { return this.TEXTURE25; }
+	@:noCompletion private inline function get_TEXTURE26 ():Int { return this.TEXTURE26; }
+	@:noCompletion private inline function get_TEXTURE27 ():Int { return this.TEXTURE27; }
+	@:noCompletion private inline function get_TEXTURE28 ():Int { return this.TEXTURE28; }
+	@:noCompletion private inline function get_TEXTURE29 ():Int { return this.TEXTURE29; }
+	@:noCompletion private inline function get_TEXTURE30 ():Int { return this.TEXTURE30; }
+	@:noCompletion private inline function get_TEXTURE31 ():Int { return this.TEXTURE31; }
+	@:noCompletion private inline function get_ACTIVE_TEXTURE ():Int { return this.ACTIVE_TEXTURE; }
+	@:noCompletion private inline function get_REPEAT ():Int { return this.REPEAT; }
+	@:noCompletion private inline function get_CLAMP_TO_EDGE ():Int { return this.CLAMP_TO_EDGE; }
+	@:noCompletion private inline function get_MIRRORED_REPEAT ():Int { return this.MIRRORED_REPEAT; }
+	@:noCompletion private inline function get_FLOAT_VEC2 ():Int { return this.FLOAT_VEC2; }
+	@:noCompletion private inline function get_FLOAT_VEC3 ():Int { return this.FLOAT_VEC3; }
+	@:noCompletion private inline function get_FLOAT_VEC4 ():Int { return this.FLOAT_VEC4; }
+	@:noCompletion private inline function get_INT_VEC2 ():Int { return this.INT_VEC2; }
+	@:noCompletion private inline function get_INT_VEC3 ():Int { return this.INT_VEC3; }
+	@:noCompletion private inline function get_INT_VEC4 ():Int { return this.INT_VEC4; }
+	@:noCompletion private inline function get_BOOL ():Int { return this.BOOL; }
+	@:noCompletion private inline function get_BOOL_VEC2 ():Int { return this.BOOL_VEC2; }
+	@:noCompletion private inline function get_BOOL_VEC3 ():Int { return this.BOOL_VEC3; }
+	@:noCompletion private inline function get_BOOL_VEC4 ():Int { return this.BOOL_VEC4; }
+	@:noCompletion private inline function get_FLOAT_MAT2 ():Int { return this.FLOAT_MAT2; }
+	@:noCompletion private inline function get_FLOAT_MAT3 ():Int { return this.FLOAT_MAT3; }
+	@:noCompletion private inline function get_FLOAT_MAT4 ():Int { return this.FLOAT_MAT4; }
+	@:noCompletion private inline function get_SAMPLER_2D ():Int { return this.SAMPLER_2D; }
+	@:noCompletion private inline function get_SAMPLER_CUBE ():Int { return this.SAMPLER_CUBE; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_ENABLED ():Int { return this.VERTEX_ATTRIB_ARRAY_ENABLED; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_SIZE ():Int { return this.VERTEX_ATTRIB_ARRAY_SIZE; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_STRIDE ():Int { return this.VERTEX_ATTRIB_ARRAY_STRIDE; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_TYPE ():Int { return this.VERTEX_ATTRIB_ARRAY_TYPE; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_NORMALIZED ():Int { return this.VERTEX_ATTRIB_ARRAY_NORMALIZED; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_POINTER ():Int { return this.VERTEX_ATTRIB_ARRAY_POINTER; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING ():Int { return this.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING; }
+	@:noCompletion private inline function get_VERTEX_PROGRAM_POINT_SIZE ():Int { #if (js && html5) return 0; #else return this.VERTEX_PROGRAM_POINT_SIZE; #end } // TODO
+	@:noCompletion private inline function get_POINT_SPRITE ():Int { #if (js && html5) return 0; #else return this.POINT_SPRITE; #end } // TODO
+	@:noCompletion private inline function get_COMPILE_STATUS ():Int { return this.COMPILE_STATUS; }
+	@:noCompletion private inline function get_LOW_FLOAT ():Int { return this.LOW_FLOAT; }
+	@:noCompletion private inline function get_MEDIUM_FLOAT ():Int { return this.MEDIUM_FLOAT; }
+	@:noCompletion private inline function get_HIGH_FLOAT ():Int { return this.HIGH_FLOAT; }
+	@:noCompletion private inline function get_LOW_INT ():Int { return this.LOW_INT; }
+	@:noCompletion private inline function get_MEDIUM_INT ():Int { return this.MEDIUM_INT; }
+	@:noCompletion private inline function get_HIGH_INT ():Int { return this.HIGH_INT; }
+	@:noCompletion private inline function get_FRAMEBUFFER ():Int { return this.FRAMEBUFFER; }
+	@:noCompletion private inline function get_RENDERBUFFER ():Int { return this.RENDERBUFFER; }
+	@:noCompletion private inline function get_RGBA4 ():Int { return this.RGBA4; }
+	@:noCompletion private inline function get_RGB5_A1 ():Int { return this.RGB5_A1; }
+	@:noCompletion private inline function get_RGB565 ():Int { return this.RGB565; }
+	@:noCompletion private inline function get_DEPTH_COMPONENT16 ():Int { return this.DEPTH_COMPONENT16; }
+	@:noCompletion private inline function get_STENCIL_INDEX ():Int { return this.STENCIL_INDEX; }
+	@:noCompletion private inline function get_STENCIL_INDEX8 ():Int { return this.STENCIL_INDEX8; }
+	@:noCompletion private inline function get_DEPTH_STENCIL ():Int { return this.DEPTH_STENCIL; }
+	@:noCompletion private inline function get_RENDERBUFFER_WIDTH ():Int { return this.RENDERBUFFER_WIDTH; }
+	@:noCompletion private inline function get_RENDERBUFFER_HEIGHT ():Int { return this.RENDERBUFFER_HEIGHT; }
+	@:noCompletion private inline function get_RENDERBUFFER_INTERNAL_FORMAT ():Int { return this.RENDERBUFFER_INTERNAL_FORMAT; }
+	@:noCompletion private inline function get_RENDERBUFFER_RED_SIZE ():Int { return this.RENDERBUFFER_RED_SIZE; }
+	@:noCompletion private inline function get_RENDERBUFFER_GREEN_SIZE ():Int { return this.RENDERBUFFER_GREEN_SIZE; }
+	@:noCompletion private inline function get_RENDERBUFFER_BLUE_SIZE ():Int { return this.RENDERBUFFER_BLUE_SIZE; }
+	@:noCompletion private inline function get_RENDERBUFFER_ALPHA_SIZE ():Int { return this.RENDERBUFFER_ALPHA_SIZE; }
+	@:noCompletion private inline function get_RENDERBUFFER_DEPTH_SIZE ():Int { return this.RENDERBUFFER_DEPTH_SIZE; }
+	@:noCompletion private inline function get_RENDERBUFFER_STENCIL_SIZE ():Int { return this.RENDERBUFFER_STENCIL_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE ():Int { return this.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME ():Int { return this.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT0 ():Int { return this.COLOR_ATTACHMENT0; }
+	@:noCompletion private inline function get_DEPTH_ATTACHMENT ():Int { return this.DEPTH_ATTACHMENT; }
+	@:noCompletion private inline function get_STENCIL_ATTACHMENT ():Int { return this.STENCIL_ATTACHMENT; }
+	@:noCompletion private inline function get_DEPTH_STENCIL_ATTACHMENT ():Int { return this.DEPTH_STENCIL_ATTACHMENT; }
+	@:noCompletion private inline function get_NONE ():Int { return this.NONE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_COMPLETE ():Int { return this.FRAMEBUFFER_COMPLETE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_INCOMPLETE_ATTACHMENT ():Int { return this.FRAMEBUFFER_INCOMPLETE_ATTACHMENT; }
+	@:noCompletion private inline function get_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT ():Int { return this.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT; }
+	@:noCompletion private inline function get_FRAMEBUFFER_INCOMPLETE_DIMENSIONS ():Int { return this.FRAMEBUFFER_INCOMPLETE_DIMENSIONS; }
+	@:noCompletion private inline function get_FRAMEBUFFER_UNSUPPORTED ():Int { return this.FRAMEBUFFER_UNSUPPORTED; }
+	@:noCompletion private inline function get_FRAMEBUFFER_BINDING ():Int { return this.FRAMEBUFFER_BINDING; }
+	@:noCompletion private inline function get_RENDERBUFFER_BINDING ():Int { return this.RENDERBUFFER_BINDING; }
+	@:noCompletion private inline function get_MAX_RENDERBUFFER_SIZE ():Int { return this.MAX_RENDERBUFFER_SIZE; }
+	@:noCompletion private inline function get_INVALID_FRAMEBUFFER_OPERATION ():Int { return this.INVALID_FRAMEBUFFER_OPERATION; }
+	@:noCompletion private inline function get_UNPACK_FLIP_Y_WEBGL ():Int { return this.UNPACK_FLIP_Y_WEBGL; }
+	@:noCompletion private inline function get_UNPACK_PREMULTIPLY_ALPHA_WEBGL ():Int { return this.UNPACK_PREMULTIPLY_ALPHA_WEBGL; }
+	@:noCompletion private inline function get_CONTEXT_LOST_WEBGL ():Int { return this.CONTEXT_LOST_WEBGL; }
+	@:noCompletion private inline function get_UNPACK_COLORSPACE_CONVERSION_WEBGL ():Int { return this.UNPACK_COLORSPACE_CONVERSION_WEBGL; }
+	@:noCompletion private inline function get_BROWSER_DEFAULT_WEBGL ():Int { return this.BROWSER_DEFAULT_WEBGL; }
+	@:noCompletion private inline function get_type ():RenderContextType { return this.type; }
+	@:noCompletion private inline function get_version ():Float { return this.version; }
 	
-	private inline function get_READ_BUFFER ():Int { return this.READ_BUFFER; }
-	private inline function get_UNPACK_ROW_LENGTH ():Int { return this.UNPACK_ROW_LENGTH; }
-	private inline function get_UNPACK_SKIP_ROWS ():Int { return this.UNPACK_SKIP_ROWS; }
-	private inline function get_UNPACK_SKIP_PIXELS ():Int { return this.UNPACK_SKIP_PIXELS; }
-	private inline function get_PACK_ROW_LENGTH ():Int { return this.PACK_ROW_LENGTH; }
-	private inline function get_PACK_SKIP_ROWS ():Int { return this.PACK_SKIP_ROWS; }
-	private inline function get_PACK_SKIP_PIXELS ():Int { return this.PACK_SKIP_PIXELS; }
-	private inline function get_TEXTURE_BINDING_3D ():Int { return this.TEXTURE_BINDING_3D; }
-	private inline function get_UNPACK_SKIP_IMAGES ():Int { return this.UNPACK_SKIP_IMAGES; }
-	private inline function get_UNPACK_IMAGE_HEIGHT ():Int { return this.UNPACK_IMAGE_HEIGHT; }
-	private inline function get_MAX_3D_TEXTURE_SIZE ():Int { return this.MAX_3D_TEXTURE_SIZE; }
-	private inline function get_MAX_ELEMENTS_VERTICES ():Int { return this.MAX_ELEMENTS_VERTICES; }
-	private inline function get_MAX_ELEMENTS_INDICES ():Int { return this.MAX_ELEMENTS_INDICES; }
-	private inline function get_MAX_TEXTURE_LOD_BIAS ():Int { return this.MAX_TEXTURE_LOD_BIAS; }
-	private inline function get_MAX_FRAGMENT_UNIFORM_COMPONENTS ():Int { return this.MAX_FRAGMENT_UNIFORM_COMPONENTS; }
-	private inline function get_MAX_VERTEX_UNIFORM_COMPONENTS ():Int { return this.MAX_VERTEX_UNIFORM_COMPONENTS; }
-	private inline function get_MAX_ARRAY_TEXTURE_LAYERS ():Int { return this.MAX_ARRAY_TEXTURE_LAYERS; }
-	private inline function get_MIN_PROGRAM_TEXEL_OFFSET ():Int { return this.MIN_PROGRAM_TEXEL_OFFSET; }
-	private inline function get_MAX_PROGRAM_TEXEL_OFFSET ():Int { return this.MAX_PROGRAM_TEXEL_OFFSET; }
-	private inline function get_MAX_VARYING_COMPONENTS ():Int { return this.MAX_VARYING_COMPONENTS; }
-	private inline function get_FRAGMENT_SHADER_DERIVATIVE_HINT ():Int { return this.FRAGMENT_SHADER_DERIVATIVE_HINT; }
-	private inline function get_RASTERIZER_DISCARD ():Int { return this.RASTERIZER_DISCARD; }
-	private inline function get_VERTEX_ARRAY_BINDING ():Int { return this.VERTEX_ARRAY_BINDING; }
-	private inline function get_MAX_VERTEX_OUTPUT_COMPONENTS ():Int { return this.MAX_VERTEX_OUTPUT_COMPONENTS; }
-	private inline function get_MAX_FRAGMENT_INPUT_COMPONENTS ():Int { return this.MAX_FRAGMENT_INPUT_COMPONENTS; }
-	private inline function get_MAX_SERVER_WAIT_TIMEOUT ():Int { return this.MAX_SERVER_WAIT_TIMEOUT; }
-	private inline function get_MAX_ELEMENT_INDEX ():Int { return this.MAX_ELEMENT_INDEX; }
+	@:noCompletion private inline function get_READ_BUFFER ():Int { return this.READ_BUFFER; }
+	@:noCompletion private inline function get_UNPACK_ROW_LENGTH ():Int { return this.UNPACK_ROW_LENGTH; }
+	@:noCompletion private inline function get_UNPACK_SKIP_ROWS ():Int { return this.UNPACK_SKIP_ROWS; }
+	@:noCompletion private inline function get_UNPACK_SKIP_PIXELS ():Int { return this.UNPACK_SKIP_PIXELS; }
+	@:noCompletion private inline function get_PACK_ROW_LENGTH ():Int { return this.PACK_ROW_LENGTH; }
+	@:noCompletion private inline function get_PACK_SKIP_ROWS ():Int { return this.PACK_SKIP_ROWS; }
+	@:noCompletion private inline function get_PACK_SKIP_PIXELS ():Int { return this.PACK_SKIP_PIXELS; }
+	@:noCompletion private inline function get_TEXTURE_BINDING_3D ():Int { return this.TEXTURE_BINDING_3D; }
+	@:noCompletion private inline function get_UNPACK_SKIP_IMAGES ():Int { return this.UNPACK_SKIP_IMAGES; }
+	@:noCompletion private inline function get_UNPACK_IMAGE_HEIGHT ():Int { return this.UNPACK_IMAGE_HEIGHT; }
+	@:noCompletion private inline function get_MAX_3D_TEXTURE_SIZE ():Int { return this.MAX_3D_TEXTURE_SIZE; }
+	@:noCompletion private inline function get_MAX_ELEMENTS_VERTICES ():Int { return this.MAX_ELEMENTS_VERTICES; }
+	@:noCompletion private inline function get_MAX_ELEMENTS_INDICES ():Int { return this.MAX_ELEMENTS_INDICES; }
+	@:noCompletion private inline function get_MAX_TEXTURE_LOD_BIAS ():Int { return this.MAX_TEXTURE_LOD_BIAS; }
+	@:noCompletion private inline function get_MAX_FRAGMENT_UNIFORM_COMPONENTS ():Int { return this.MAX_FRAGMENT_UNIFORM_COMPONENTS; }
+	@:noCompletion private inline function get_MAX_VERTEX_UNIFORM_COMPONENTS ():Int { return this.MAX_VERTEX_UNIFORM_COMPONENTS; }
+	@:noCompletion private inline function get_MAX_ARRAY_TEXTURE_LAYERS ():Int { return this.MAX_ARRAY_TEXTURE_LAYERS; }
+	@:noCompletion private inline function get_MIN_PROGRAM_TEXEL_OFFSET ():Int { return this.MIN_PROGRAM_TEXEL_OFFSET; }
+	@:noCompletion private inline function get_MAX_PROGRAM_TEXEL_OFFSET ():Int { return this.MAX_PROGRAM_TEXEL_OFFSET; }
+	@:noCompletion private inline function get_MAX_VARYING_COMPONENTS ():Int { return this.MAX_VARYING_COMPONENTS; }
+	@:noCompletion private inline function get_FRAGMENT_SHADER_DERIVATIVE_HINT ():Int { return this.FRAGMENT_SHADER_DERIVATIVE_HINT; }
+	@:noCompletion private inline function get_RASTERIZER_DISCARD ():Int { return this.RASTERIZER_DISCARD; }
+	@:noCompletion private inline function get_VERTEX_ARRAY_BINDING ():Int { return this.VERTEX_ARRAY_BINDING; }
+	@:noCompletion private inline function get_MAX_VERTEX_OUTPUT_COMPONENTS ():Int { return this.MAX_VERTEX_OUTPUT_COMPONENTS; }
+	@:noCompletion private inline function get_MAX_FRAGMENT_INPUT_COMPONENTS ():Int { return this.MAX_FRAGMENT_INPUT_COMPONENTS; }
+	@:noCompletion private inline function get_MAX_SERVER_WAIT_TIMEOUT ():Int { return this.MAX_SERVER_WAIT_TIMEOUT; }
+	@:noCompletion private inline function get_MAX_ELEMENT_INDEX ():Int { return this.MAX_ELEMENT_INDEX; }
 	
-	private inline function get_RED ():Int { return this.RED; }
-	private inline function get_RGB8 ():Int { return this.RGB8; }
-	private inline function get_RGBA8 ():Int { return this.RGBA8; }
-	private inline function get_RGB10_A2 ():Int { return this.RGB10_A2; }
-	private inline function get_TEXTURE_3D ():Int { return this.TEXTURE_3D; }
-	private inline function get_TEXTURE_WRAP_R ():Int { return this.TEXTURE_WRAP_R; }
-	private inline function get_TEXTURE_MIN_LOD ():Int { return this.TEXTURE_MIN_LOD; }
-	private inline function get_TEXTURE_MAX_LOD ():Int { return this.TEXTURE_MAX_LOD; }
-	private inline function get_TEXTURE_BASE_LEVEL ():Int { return this.TEXTURE_BASE_LEVEL; }
-	private inline function get_TEXTURE_MAX_LEVEL ():Int { return this.TEXTURE_MAX_LEVEL; }
-	private inline function get_TEXTURE_COMPARE_MODE ():Int { return this.TEXTURE_COMPARE_MODE; }
-	private inline function get_TEXTURE_COMPARE_FUNC ():Int { return this.TEXTURE_COMPARE_FUNC; }
-	private inline function get_SRGB ():Int { return this.SRGB; }
-	private inline function get_SRGB8 ():Int { return this.SRGB8; }
-	private inline function get_SRGB8_ALPHA8 ():Int { return this.SRGB8_ALPHA8; }
-	private inline function get_COMPARE_REF_TO_TEXTURE ():Int { return this.COMPARE_REF_TO_TEXTURE; }
-	private inline function get_RGBA32F ():Int { return this.RGBA32F; }
-	private inline function get_RGB32F ():Int { return this.RGB32F; }
-	private inline function get_RGBA16F ():Int { return this.RGBA16F; }
-	private inline function get_RGB16F ():Int { return this.RGB16F; }
-	private inline function get_TEXTURE_2D_ARRAY ():Int { return this.TEXTURE_2D_ARRAY; }
-	private inline function get_TEXTURE_BINDING_2D_ARRAY ():Int { return this.TEXTURE_BINDING_2D_ARRAY; }
-	private inline function get_R11F_G11F_B10F ():Int { return this.R11F_G11F_B10F; }
-	private inline function get_RGB9_E5 ():Int { return this.RGB9_E5; }
-	private inline function get_RGBA32UI ():Int { return this.RGBA32UI; }
-	private inline function get_RGB32UI ():Int { return this.RGB32UI; }
-	private inline function get_RGBA16UI ():Int { return this.RGBA16UI; }
-	private inline function get_RGB16UI ():Int { return this.RGB16UI; }
-	private inline function get_RGBA8UI ():Int { return this.RGBA8UI; }
-	private inline function get_RGB8UI ():Int { return this.RGB8UI; }
-	private inline function get_RGBA32I ():Int { return this.RGBA32I; }
-	private inline function get_RGB32I ():Int { return this.RGB32I; }
-	private inline function get_RGBA16I ():Int { return this.RGBA16I; }
-	private inline function get_RGB16I ():Int { return this.RGB16I; }
-	private inline function get_RGBA8I ():Int { return this.RGBA8I; }
-	private inline function get_RGB8I ():Int { return this.RGB8I; }
-	private inline function get_RED_INTEGER ():Int { return this.RED_INTEGER; }
-	private inline function get_RGB_INTEGER ():Int { return this.RGB_INTEGER; }
-	private inline function get_RGBA_INTEGER ():Int { return this.RGBA_INTEGER; }
-	private inline function get_R8 ():Int { return this.R8; }
-	private inline function get_RG8 ():Int { return this.RG8; }
-	private inline function get_R16F ():Int { return this.R16F; }
-	private inline function get_R32F ():Int { return this.R32F; }
-	private inline function get_RG16F ():Int { return this.RG16F; }
-	private inline function get_RG32F ():Int { return this.RG32F; }
-	private inline function get_R8I ():Int { return this.R8I; }
-	private inline function get_R8UI ():Int { return this.R8UI; }
-	private inline function get_R16I ():Int { return this.R16I; }
-	private inline function get_R16UI ():Int { return this.R16UI; }
-	private inline function get_R32I ():Int { return this.R32I; }
-	private inline function get_R32UI ():Int { return this.R32UI; }
-	private inline function get_RG8I ():Int { return this.RG8I; }
-	private inline function get_RG8UI ():Int { return this.RG8UI; }
-	private inline function get_RG16I ():Int { return this.RG16I; }
-	private inline function get_RG16UI ():Int { return this.RG16UI; }
-	private inline function get_RG32I ():Int { return this.RG32I; }
-	private inline function get_RG32UI ():Int { return this.RG32UI; }
-	private inline function get_R8_SNORM ():Int { return this.R8_SNORM; }
-	private inline function get_RG8_SNORM ():Int { return this.RG8_SNORM; }
-	private inline function get_RGB8_SNORM ():Int { return this.RGB8_SNORM; }
-	private inline function get_RGBA8_SNORM ():Int { return this.RGBA8_SNORM; }
-	private inline function get_RGB10_A2UI ():Int { return this.RGB10_A2UI; }
-	private inline function get_TEXTURE_IMMUTABLE_FORMAT ():Int { return this.TEXTURE_IMMUTABLE_FORMAT; }
-	private inline function get_TEXTURE_IMMUTABLE_LEVELS ():Int { return this.TEXTURE_IMMUTABLE_LEVELS; }
+	@:noCompletion private inline function get_RED ():Int { return this.RED; }
+	@:noCompletion private inline function get_RGB8 ():Int { return this.RGB8; }
+	@:noCompletion private inline function get_RGBA8 ():Int { return this.RGBA8; }
+	@:noCompletion private inline function get_RGB10_A2 ():Int { return this.RGB10_A2; }
+	@:noCompletion private inline function get_TEXTURE_3D ():Int { return this.TEXTURE_3D; }
+	@:noCompletion private inline function get_TEXTURE_WRAP_R ():Int { return this.TEXTURE_WRAP_R; }
+	@:noCompletion private inline function get_TEXTURE_MIN_LOD ():Int { return this.TEXTURE_MIN_LOD; }
+	@:noCompletion private inline function get_TEXTURE_MAX_LOD ():Int { return this.TEXTURE_MAX_LOD; }
+	@:noCompletion private inline function get_TEXTURE_BASE_LEVEL ():Int { return this.TEXTURE_BASE_LEVEL; }
+	@:noCompletion private inline function get_TEXTURE_MAX_LEVEL ():Int { return this.TEXTURE_MAX_LEVEL; }
+	@:noCompletion private inline function get_TEXTURE_COMPARE_MODE ():Int { return this.TEXTURE_COMPARE_MODE; }
+	@:noCompletion private inline function get_TEXTURE_COMPARE_FUNC ():Int { return this.TEXTURE_COMPARE_FUNC; }
+	@:noCompletion private inline function get_SRGB ():Int { return this.SRGB; }
+	@:noCompletion private inline function get_SRGB8 ():Int { return this.SRGB8; }
+	@:noCompletion private inline function get_SRGB8_ALPHA8 ():Int { return this.SRGB8_ALPHA8; }
+	@:noCompletion private inline function get_COMPARE_REF_TO_TEXTURE ():Int { return this.COMPARE_REF_TO_TEXTURE; }
+	@:noCompletion private inline function get_RGBA32F ():Int { return this.RGBA32F; }
+	@:noCompletion private inline function get_RGB32F ():Int { return this.RGB32F; }
+	@:noCompletion private inline function get_RGBA16F ():Int { return this.RGBA16F; }
+	@:noCompletion private inline function get_RGB16F ():Int { return this.RGB16F; }
+	@:noCompletion private inline function get_TEXTURE_2D_ARRAY ():Int { return this.TEXTURE_2D_ARRAY; }
+	@:noCompletion private inline function get_TEXTURE_BINDING_2D_ARRAY ():Int { return this.TEXTURE_BINDING_2D_ARRAY; }
+	@:noCompletion private inline function get_R11F_G11F_B10F ():Int { return this.R11F_G11F_B10F; }
+	@:noCompletion private inline function get_RGB9_E5 ():Int { return this.RGB9_E5; }
+	@:noCompletion private inline function get_RGBA32UI ():Int { return this.RGBA32UI; }
+	@:noCompletion private inline function get_RGB32UI ():Int { return this.RGB32UI; }
+	@:noCompletion private inline function get_RGBA16UI ():Int { return this.RGBA16UI; }
+	@:noCompletion private inline function get_RGB16UI ():Int { return this.RGB16UI; }
+	@:noCompletion private inline function get_RGBA8UI ():Int { return this.RGBA8UI; }
+	@:noCompletion private inline function get_RGB8UI ():Int { return this.RGB8UI; }
+	@:noCompletion private inline function get_RGBA32I ():Int { return this.RGBA32I; }
+	@:noCompletion private inline function get_RGB32I ():Int { return this.RGB32I; }
+	@:noCompletion private inline function get_RGBA16I ():Int { return this.RGBA16I; }
+	@:noCompletion private inline function get_RGB16I ():Int { return this.RGB16I; }
+	@:noCompletion private inline function get_RGBA8I ():Int { return this.RGBA8I; }
+	@:noCompletion private inline function get_RGB8I ():Int { return this.RGB8I; }
+	@:noCompletion private inline function get_RED_INTEGER ():Int { return this.RED_INTEGER; }
+	@:noCompletion private inline function get_RGB_INTEGER ():Int { return this.RGB_INTEGER; }
+	@:noCompletion private inline function get_RGBA_INTEGER ():Int { return this.RGBA_INTEGER; }
+	@:noCompletion private inline function get_R8 ():Int { return this.R8; }
+	@:noCompletion private inline function get_RG8 ():Int { return this.RG8; }
+	@:noCompletion private inline function get_R16F ():Int { return this.R16F; }
+	@:noCompletion private inline function get_R32F ():Int { return this.R32F; }
+	@:noCompletion private inline function get_RG16F ():Int { return this.RG16F; }
+	@:noCompletion private inline function get_RG32F ():Int { return this.RG32F; }
+	@:noCompletion private inline function get_R8I ():Int { return this.R8I; }
+	@:noCompletion private inline function get_R8UI ():Int { return this.R8UI; }
+	@:noCompletion private inline function get_R16I ():Int { return this.R16I; }
+	@:noCompletion private inline function get_R16UI ():Int { return this.R16UI; }
+	@:noCompletion private inline function get_R32I ():Int { return this.R32I; }
+	@:noCompletion private inline function get_R32UI ():Int { return this.R32UI; }
+	@:noCompletion private inline function get_RG8I ():Int { return this.RG8I; }
+	@:noCompletion private inline function get_RG8UI ():Int { return this.RG8UI; }
+	@:noCompletion private inline function get_RG16I ():Int { return this.RG16I; }
+	@:noCompletion private inline function get_RG16UI ():Int { return this.RG16UI; }
+	@:noCompletion private inline function get_RG32I ():Int { return this.RG32I; }
+	@:noCompletion private inline function get_RG32UI ():Int { return this.RG32UI; }
+	@:noCompletion private inline function get_R8_SNORM ():Int { return this.R8_SNORM; }
+	@:noCompletion private inline function get_RG8_SNORM ():Int { return this.RG8_SNORM; }
+	@:noCompletion private inline function get_RGB8_SNORM ():Int { return this.RGB8_SNORM; }
+	@:noCompletion private inline function get_RGBA8_SNORM ():Int { return this.RGBA8_SNORM; }
+	@:noCompletion private inline function get_RGB10_A2UI ():Int { return this.RGB10_A2UI; }
+	@:noCompletion private inline function get_TEXTURE_IMMUTABLE_FORMAT ():Int { return this.TEXTURE_IMMUTABLE_FORMAT; }
+	@:noCompletion private inline function get_TEXTURE_IMMUTABLE_LEVELS ():Int { return this.TEXTURE_IMMUTABLE_LEVELS; }
 	
-	private inline function get_UNSIGNED_INT_2_10_10_10_REV ():Int { return this.UNSIGNED_INT_2_10_10_10_REV; }
-	private inline function get_UNSIGNED_INT_10F_11F_11F_REV ():Int { return this.UNSIGNED_INT_10F_11F_11F_REV; }
-	private inline function get_UNSIGNED_INT_5_9_9_9_REV ():Int { return this.UNSIGNED_INT_5_9_9_9_REV; }
-	private inline function get_FLOAT_32_UNSIGNED_INT_24_8_REV ():Int { return this.FLOAT_32_UNSIGNED_INT_24_8_REV; }
-	private inline function get_UNSIGNED_INT_24_8 ():Int { return this.UNSIGNED_INT_24_8; }
-	private inline function get_HALF_FLOAT ():Int { return this.HALF_FLOAT; }
-	private inline function get_RG ():Int { return this.RG; }
-	private inline function get_RG_INTEGER ():Int { return this.RG_INTEGER; }
-	private inline function get_INT_2_10_10_10_REV ():Int { return this.INT_2_10_10_10_REV; }
+	@:noCompletion private inline function get_UNSIGNED_INT_2_10_10_10_REV ():Int { return this.UNSIGNED_INT_2_10_10_10_REV; }
+	@:noCompletion private inline function get_UNSIGNED_INT_10F_11F_11F_REV ():Int { return this.UNSIGNED_INT_10F_11F_11F_REV; }
+	@:noCompletion private inline function get_UNSIGNED_INT_5_9_9_9_REV ():Int { return this.UNSIGNED_INT_5_9_9_9_REV; }
+	@:noCompletion private inline function get_FLOAT_32_UNSIGNED_INT_24_8_REV ():Int { return this.FLOAT_32_UNSIGNED_INT_24_8_REV; }
+	@:noCompletion private inline function get_UNSIGNED_INT_24_8 ():Int { return this.UNSIGNED_INT_24_8; }
+	@:noCompletion private inline function get_HALF_FLOAT ():Int { return this.HALF_FLOAT; }
+	@:noCompletion private inline function get_RG ():Int { return this.RG; }
+	@:noCompletion private inline function get_RG_INTEGER ():Int { return this.RG_INTEGER; }
+	@:noCompletion private inline function get_INT_2_10_10_10_REV ():Int { return this.INT_2_10_10_10_REV; }
 	
-	private inline function get_CURRENT_QUERY ():Int { return this.CURRENT_QUERY; }
-	private inline function get_QUERY_RESULT ():Int { return this.QUERY_RESULT; }
-	private inline function get_QUERY_RESULT_AVAILABLE ():Int { return this.QUERY_RESULT_AVAILABLE; }
-	private inline function get_ANY_SAMPLES_PASSED ():Int { return this.ANY_SAMPLES_PASSED; }
-	private inline function get_ANY_SAMPLES_PASSED_CONSERVATIVE ():Int { return this.ANY_SAMPLES_PASSED_CONSERVATIVE; }
+	@:noCompletion private inline function get_CURRENT_QUERY ():Int { return this.CURRENT_QUERY; }
+	@:noCompletion private inline function get_QUERY_RESULT ():Int { return this.QUERY_RESULT; }
+	@:noCompletion private inline function get_QUERY_RESULT_AVAILABLE ():Int { return this.QUERY_RESULT_AVAILABLE; }
+	@:noCompletion private inline function get_ANY_SAMPLES_PASSED ():Int { return this.ANY_SAMPLES_PASSED; }
+	@:noCompletion private inline function get_ANY_SAMPLES_PASSED_CONSERVATIVE ():Int { return this.ANY_SAMPLES_PASSED_CONSERVATIVE; }
 	
-	private inline function get_MAX_DRAW_BUFFERS ():Int { return this.MAX_DRAW_BUFFERS; }
-	private inline function get_DRAW_BUFFER0 ():Int { return this.DRAW_BUFFER0; }
-	private inline function get_DRAW_BUFFER1 ():Int { return this.DRAW_BUFFER1; }
-	private inline function get_DRAW_BUFFER2 ():Int { return this.DRAW_BUFFER2; }
-	private inline function get_DRAW_BUFFER3 ():Int { return this.DRAW_BUFFER3; }
-	private inline function get_DRAW_BUFFER4 ():Int { return this.DRAW_BUFFER4; }
-	private inline function get_DRAW_BUFFER5 ():Int { return this.DRAW_BUFFER5; }
-	private inline function get_DRAW_BUFFER6 ():Int { return this.DRAW_BUFFER6; }
-	private inline function get_DRAW_BUFFER7 ():Int { return this.DRAW_BUFFER7; }
-	private inline function get_DRAW_BUFFER8 ():Int { return this.DRAW_BUFFER8; }
-	private inline function get_DRAW_BUFFER9 ():Int { return this.DRAW_BUFFER9; }
-	private inline function get_DRAW_BUFFER10 ():Int { return this.DRAW_BUFFER10; }
-	private inline function get_DRAW_BUFFER11 ():Int { return this.DRAW_BUFFER11; }
-	private inline function get_DRAW_BUFFER12 ():Int { return this.DRAW_BUFFER12; }
-	private inline function get_DRAW_BUFFER13 ():Int { return this.DRAW_BUFFER13; }
-	private inline function get_DRAW_BUFFER14 ():Int { return this.DRAW_BUFFER14; }
-	private inline function get_DRAW_BUFFER15 ():Int { return this.DRAW_BUFFER15; }
-	private inline function get_MAX_COLOR_ATTACHMENTS ():Int { return this.MAX_COLOR_ATTACHMENTS; }
-	private inline function get_COLOR_ATTACHMENT1 ():Int { return this.COLOR_ATTACHMENT1; }
-	private inline function get_COLOR_ATTACHMENT2 ():Int { return this.COLOR_ATTACHMENT2; }
-	private inline function get_COLOR_ATTACHMENT3 ():Int { return this.COLOR_ATTACHMENT3; }
-	private inline function get_COLOR_ATTACHMENT4 ():Int { return this.COLOR_ATTACHMENT4; }
-	private inline function get_COLOR_ATTACHMENT5 ():Int { return this.COLOR_ATTACHMENT5; }
-	private inline function get_COLOR_ATTACHMENT6 ():Int { return this.COLOR_ATTACHMENT6; }
-	private inline function get_COLOR_ATTACHMENT7 ():Int { return this.COLOR_ATTACHMENT7; }
-	private inline function get_COLOR_ATTACHMENT8 ():Int { return this.COLOR_ATTACHMENT8; }
-	private inline function get_COLOR_ATTACHMENT9 ():Int { return this.COLOR_ATTACHMENT9; }
-	private inline function get_COLOR_ATTACHMENT10 ():Int { return this.COLOR_ATTACHMENT10; }
-	private inline function get_COLOR_ATTACHMENT11 ():Int { return this.COLOR_ATTACHMENT11; }
-	private inline function get_COLOR_ATTACHMENT12 ():Int { return this.COLOR_ATTACHMENT12; }
-	private inline function get_COLOR_ATTACHMENT13 ():Int { return this.COLOR_ATTACHMENT13; }
-	private inline function get_COLOR_ATTACHMENT14 ():Int { return this.COLOR_ATTACHMENT14; }
-	private inline function get_COLOR_ATTACHMENT15 ():Int { return this.COLOR_ATTACHMENT15; }
+	@:noCompletion private inline function get_MAX_DRAW_BUFFERS ():Int { return this.MAX_DRAW_BUFFERS; }
+	@:noCompletion private inline function get_DRAW_BUFFER0 ():Int { return this.DRAW_BUFFER0; }
+	@:noCompletion private inline function get_DRAW_BUFFER1 ():Int { return this.DRAW_BUFFER1; }
+	@:noCompletion private inline function get_DRAW_BUFFER2 ():Int { return this.DRAW_BUFFER2; }
+	@:noCompletion private inline function get_DRAW_BUFFER3 ():Int { return this.DRAW_BUFFER3; }
+	@:noCompletion private inline function get_DRAW_BUFFER4 ():Int { return this.DRAW_BUFFER4; }
+	@:noCompletion private inline function get_DRAW_BUFFER5 ():Int { return this.DRAW_BUFFER5; }
+	@:noCompletion private inline function get_DRAW_BUFFER6 ():Int { return this.DRAW_BUFFER6; }
+	@:noCompletion private inline function get_DRAW_BUFFER7 ():Int { return this.DRAW_BUFFER7; }
+	@:noCompletion private inline function get_DRAW_BUFFER8 ():Int { return this.DRAW_BUFFER8; }
+	@:noCompletion private inline function get_DRAW_BUFFER9 ():Int { return this.DRAW_BUFFER9; }
+	@:noCompletion private inline function get_DRAW_BUFFER10 ():Int { return this.DRAW_BUFFER10; }
+	@:noCompletion private inline function get_DRAW_BUFFER11 ():Int { return this.DRAW_BUFFER11; }
+	@:noCompletion private inline function get_DRAW_BUFFER12 ():Int { return this.DRAW_BUFFER12; }
+	@:noCompletion private inline function get_DRAW_BUFFER13 ():Int { return this.DRAW_BUFFER13; }
+	@:noCompletion private inline function get_DRAW_BUFFER14 ():Int { return this.DRAW_BUFFER14; }
+	@:noCompletion private inline function get_DRAW_BUFFER15 ():Int { return this.DRAW_BUFFER15; }
+	@:noCompletion private inline function get_MAX_COLOR_ATTACHMENTS ():Int { return this.MAX_COLOR_ATTACHMENTS; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT1 ():Int { return this.COLOR_ATTACHMENT1; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT2 ():Int { return this.COLOR_ATTACHMENT2; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT3 ():Int { return this.COLOR_ATTACHMENT3; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT4 ():Int { return this.COLOR_ATTACHMENT4; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT5 ():Int { return this.COLOR_ATTACHMENT5; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT6 ():Int { return this.COLOR_ATTACHMENT6; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT7 ():Int { return this.COLOR_ATTACHMENT7; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT8 ():Int { return this.COLOR_ATTACHMENT8; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT9 ():Int { return this.COLOR_ATTACHMENT9; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT10 ():Int { return this.COLOR_ATTACHMENT10; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT11 ():Int { return this.COLOR_ATTACHMENT11; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT12 ():Int { return this.COLOR_ATTACHMENT12; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT13 ():Int { return this.COLOR_ATTACHMENT13; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT14 ():Int { return this.COLOR_ATTACHMENT14; }
+	@:noCompletion private inline function get_COLOR_ATTACHMENT15 ():Int { return this.COLOR_ATTACHMENT15; }
 	
-	private inline function get_SAMPLER_3D ():Int { return this.SAMPLER_3D; }
-	private inline function get_SAMPLER_2D_SHADOW ():Int { return this.SAMPLER_2D_SHADOW; }
-	private inline function get_SAMPLER_2D_ARRAY ():Int { return this.SAMPLER_2D_ARRAY; }
-	private inline function get_SAMPLER_2D_ARRAY_SHADOW ():Int { return this.SAMPLER_2D_ARRAY_SHADOW; }
-	private inline function get_SAMPLER_CUBE_SHADOW ():Int { return this.SAMPLER_CUBE_SHADOW; }
-	private inline function get_INT_SAMPLER_2D ():Int { return this.INT_SAMPLER_2D; }
-	private inline function get_INT_SAMPLER_3D ():Int { return this.INT_SAMPLER_3D; }
-	private inline function get_INT_SAMPLER_CUBE ():Int { return this.INT_SAMPLER_CUBE; }
-	private inline function get_INT_SAMPLER_2D_ARRAY ():Int { return this.INT_SAMPLER_2D_ARRAY; }
-	private inline function get_UNSIGNED_INT_SAMPLER_2D ():Int { return this.UNSIGNED_INT_SAMPLER_2D; }
-	private inline function get_UNSIGNED_INT_SAMPLER_3D ():Int { return this.UNSIGNED_INT_SAMPLER_3D; }
-	private inline function get_UNSIGNED_INT_SAMPLER_CUBE ():Int { return this.UNSIGNED_INT_SAMPLER_CUBE; }
-	private inline function get_UNSIGNED_INT_SAMPLER_2D_ARRAY ():Int { return this.UNSIGNED_INT_SAMPLER_2D_ARRAY; }
-	private inline function get_MAX_SAMPLES ():Int { return this.MAX_SAMPLES; }
-	private inline function get_SAMPLER_BINDING ():Int { return this.SAMPLER_BINDING; }
+	@:noCompletion private inline function get_SAMPLER_3D ():Int { return this.SAMPLER_3D; }
+	@:noCompletion private inline function get_SAMPLER_2D_SHADOW ():Int { return this.SAMPLER_2D_SHADOW; }
+	@:noCompletion private inline function get_SAMPLER_2D_ARRAY ():Int { return this.SAMPLER_2D_ARRAY; }
+	@:noCompletion private inline function get_SAMPLER_2D_ARRAY_SHADOW ():Int { return this.SAMPLER_2D_ARRAY_SHADOW; }
+	@:noCompletion private inline function get_SAMPLER_CUBE_SHADOW ():Int { return this.SAMPLER_CUBE_SHADOW; }
+	@:noCompletion private inline function get_INT_SAMPLER_2D ():Int { return this.INT_SAMPLER_2D; }
+	@:noCompletion private inline function get_INT_SAMPLER_3D ():Int { return this.INT_SAMPLER_3D; }
+	@:noCompletion private inline function get_INT_SAMPLER_CUBE ():Int { return this.INT_SAMPLER_CUBE; }
+	@:noCompletion private inline function get_INT_SAMPLER_2D_ARRAY ():Int { return this.INT_SAMPLER_2D_ARRAY; }
+	@:noCompletion private inline function get_UNSIGNED_INT_SAMPLER_2D ():Int { return this.UNSIGNED_INT_SAMPLER_2D; }
+	@:noCompletion private inline function get_UNSIGNED_INT_SAMPLER_3D ():Int { return this.UNSIGNED_INT_SAMPLER_3D; }
+	@:noCompletion private inline function get_UNSIGNED_INT_SAMPLER_CUBE ():Int { return this.UNSIGNED_INT_SAMPLER_CUBE; }
+	@:noCompletion private inline function get_UNSIGNED_INT_SAMPLER_2D_ARRAY ():Int { return this.UNSIGNED_INT_SAMPLER_2D_ARRAY; }
+	@:noCompletion private inline function get_MAX_SAMPLES ():Int { return this.MAX_SAMPLES; }
+	@:noCompletion private inline function get_SAMPLER_BINDING ():Int { return this.SAMPLER_BINDING; }
 	
-	private inline function get_PIXEL_PACK_BUFFER ():Int { return this.PIXEL_PACK_BUFFER; }
-	private inline function get_PIXEL_UNPACK_BUFFER ():Int { return this.PIXEL_UNPACK_BUFFER; }
-	private inline function get_PIXEL_PACK_BUFFER_BINDING ():Int { return this.PIXEL_PACK_BUFFER_BINDING; }
-	private inline function get_PIXEL_UNPACK_BUFFER_BINDING ():Int { return this.PIXEL_UNPACK_BUFFER_BINDING; }
-	private inline function get_COPY_READ_BUFFER ():Int { return this.COPY_READ_BUFFER; }
-	private inline function get_COPY_WRITE_BUFFER ():Int { return this.COPY_WRITE_BUFFER; }
-	private inline function get_COPY_READ_BUFFER_BINDING ():Int { return this.COPY_READ_BUFFER_BINDING; }
-	private inline function get_COPY_WRITE_BUFFER_BINDING ():Int { return this.COPY_WRITE_BUFFER_BINDING; }
+	@:noCompletion private inline function get_PIXEL_PACK_BUFFER ():Int { return this.PIXEL_PACK_BUFFER; }
+	@:noCompletion private inline function get_PIXEL_UNPACK_BUFFER ():Int { return this.PIXEL_UNPACK_BUFFER; }
+	@:noCompletion private inline function get_PIXEL_PACK_BUFFER_BINDING ():Int { return this.PIXEL_PACK_BUFFER_BINDING; }
+	@:noCompletion private inline function get_PIXEL_UNPACK_BUFFER_BINDING ():Int { return this.PIXEL_UNPACK_BUFFER_BINDING; }
+	@:noCompletion private inline function get_COPY_READ_BUFFER ():Int { return this.COPY_READ_BUFFER; }
+	@:noCompletion private inline function get_COPY_WRITE_BUFFER ():Int { return this.COPY_WRITE_BUFFER; }
+	@:noCompletion private inline function get_COPY_READ_BUFFER_BINDING ():Int { return this.COPY_READ_BUFFER_BINDING; }
+	@:noCompletion private inline function get_COPY_WRITE_BUFFER_BINDING ():Int { return this.COPY_WRITE_BUFFER_BINDING; }
 	
-	private inline function get_FLOAT_MAT2x3 ():Int { return this.FLOAT_MAT2x3; }
-	private inline function get_FLOAT_MAT2x4 ():Int { return this.FLOAT_MAT2x4; }
-	private inline function get_FLOAT_MAT3x2 ():Int { return this.FLOAT_MAT3x2; }
-	private inline function get_FLOAT_MAT3x4 ():Int { return this.FLOAT_MAT3x4; }
-	private inline function get_FLOAT_MAT4x2 ():Int { return this.FLOAT_MAT4x2; }
-	private inline function get_FLOAT_MAT4x3 ():Int { return this.FLOAT_MAT4x3; }
-	private inline function get_UNSIGNED_INT_VEC2 ():Int { return this.UNSIGNED_INT_VEC2; }
-	private inline function get_UNSIGNED_INT_VEC3 ():Int { return this.UNSIGNED_INT_VEC3; }
-	private inline function get_UNSIGNED_INT_VEC4 ():Int { return this.UNSIGNED_INT_VEC4; }
-	private inline function get_UNSIGNED_NORMALIZED ():Int { return this.UNSIGNED_NORMALIZED; }
-	private inline function get_SIGNED_NORMALIZED ():Int { return this.SIGNED_NORMALIZED; }
+	@:noCompletion private inline function get_FLOAT_MAT2x3 ():Int { return this.FLOAT_MAT2x3; }
+	@:noCompletion private inline function get_FLOAT_MAT2x4 ():Int { return this.FLOAT_MAT2x4; }
+	@:noCompletion private inline function get_FLOAT_MAT3x2 ():Int { return this.FLOAT_MAT3x2; }
+	@:noCompletion private inline function get_FLOAT_MAT3x4 ():Int { return this.FLOAT_MAT3x4; }
+	@:noCompletion private inline function get_FLOAT_MAT4x2 ():Int { return this.FLOAT_MAT4x2; }
+	@:noCompletion private inline function get_FLOAT_MAT4x3 ():Int { return this.FLOAT_MAT4x3; }
+	@:noCompletion private inline function get_UNSIGNED_INT_VEC2 ():Int { return this.UNSIGNED_INT_VEC2; }
+	@:noCompletion private inline function get_UNSIGNED_INT_VEC3 ():Int { return this.UNSIGNED_INT_VEC3; }
+	@:noCompletion private inline function get_UNSIGNED_INT_VEC4 ():Int { return this.UNSIGNED_INT_VEC4; }
+	@:noCompletion private inline function get_UNSIGNED_NORMALIZED ():Int { return this.UNSIGNED_NORMALIZED; }
+	@:noCompletion private inline function get_SIGNED_NORMALIZED ():Int { return this.SIGNED_NORMALIZED; }
 	
-	private inline function get_VERTEX_ATTRIB_ARRAY_INTEGER ():Int { return this.VERTEX_ATTRIB_ARRAY_INTEGER; }
-	private inline function get_VERTEX_ATTRIB_ARRAY_DIVISOR ():Int { return this.VERTEX_ATTRIB_ARRAY_DIVISOR; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_INTEGER ():Int { return this.VERTEX_ATTRIB_ARRAY_INTEGER; }
+	@:noCompletion private inline function get_VERTEX_ATTRIB_ARRAY_DIVISOR ():Int { return this.VERTEX_ATTRIB_ARRAY_DIVISOR; }
 	
-	private inline function get_TRANSFORM_FEEDBACK_BUFFER_MODE ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_MODE; }
-	private inline function get_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS ():Int { return this.MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS; }
-	private inline function get_TRANSFORM_FEEDBACK_VARYINGS ():Int { return this.TRANSFORM_FEEDBACK_VARYINGS; }
-	private inline function get_TRANSFORM_FEEDBACK_BUFFER_START ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_START; }
-	private inline function get_TRANSFORM_FEEDBACK_BUFFER_SIZE ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_SIZE; }
-	private inline function get_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN ():Int { return this.TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN; }
-	private inline function get_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS ():Int { return this.MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS; }
-	private inline function get_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS ():Int { return this.MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS; }
-	private inline function get_INTERLEAVED_ATTRIBS ():Int { return this.INTERLEAVED_ATTRIBS; }
-	private inline function get_SEPARATE_ATTRIBS ():Int { return this.SEPARATE_ATTRIBS; }
-	private inline function get_TRANSFORM_FEEDBACK_BUFFER ():Int { return this.TRANSFORM_FEEDBACK_BUFFER; }
-	private inline function get_TRANSFORM_FEEDBACK_BUFFER_BINDING ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_BINDING; }
-	private inline function get_TRANSFORM_FEEDBACK ():Int { return this.TRANSFORM_FEEDBACK; }
-	private inline function get_TRANSFORM_FEEDBACK_PAUSED ():Int { return this.TRANSFORM_FEEDBACK_PAUSED; }
-	private inline function get_TRANSFORM_FEEDBACK_ACTIVE ():Int { return this.TRANSFORM_FEEDBACK_ACTIVE; }
-	private inline function get_TRANSFORM_FEEDBACK_BINDING ():Int { return this.TRANSFORM_FEEDBACK_BINDING; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_BUFFER_MODE ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_MODE; }
+	@:noCompletion private inline function get_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS ():Int { return this.MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_VARYINGS ():Int { return this.TRANSFORM_FEEDBACK_VARYINGS; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_BUFFER_START ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_START; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_BUFFER_SIZE ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_SIZE; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN ():Int { return this.TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN; }
+	@:noCompletion private inline function get_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS ():Int { return this.MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS; }
+	@:noCompletion private inline function get_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS ():Int { return this.MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS; }
+	@:noCompletion private inline function get_INTERLEAVED_ATTRIBS ():Int { return this.INTERLEAVED_ATTRIBS; }
+	@:noCompletion private inline function get_SEPARATE_ATTRIBS ():Int { return this.SEPARATE_ATTRIBS; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_BUFFER ():Int { return this.TRANSFORM_FEEDBACK_BUFFER; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_BUFFER_BINDING ():Int { return this.TRANSFORM_FEEDBACK_BUFFER_BINDING; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK ():Int { return this.TRANSFORM_FEEDBACK; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_PAUSED ():Int { return this.TRANSFORM_FEEDBACK_PAUSED; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_ACTIVE ():Int { return this.TRANSFORM_FEEDBACK_ACTIVE; }
+	@:noCompletion private inline function get_TRANSFORM_FEEDBACK_BINDING ():Int { return this.TRANSFORM_FEEDBACK_BINDING; }
 	
-	private inline function get_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING ():Int { return this.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE ():Int { return this.FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_RED_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_RED_SIZE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_GREEN_SIZE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_BLUE_SIZE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE; }
-	private inline function get_FRAMEBUFFER_DEFAULT ():Int { return this.FRAMEBUFFER_DEFAULT; }
-	private inline function get_DEPTH24_STENCIL8 ():Int { return this.DEPTH24_STENCIL8; }
-	private inline function get_DRAW_FRAMEBUFFER_BINDING ():Int { return this.DRAW_FRAMEBUFFER_BINDING; }
-	private inline function get_READ_FRAMEBUFFER ():Int { return this.READ_FRAMEBUFFER; }
-	private inline function get_DRAW_FRAMEBUFFER ():Int { return this.DRAW_FRAMEBUFFER; }
-	private inline function get_READ_FRAMEBUFFER_BINDING ():Int { return this.READ_FRAMEBUFFER_BINDING; }
-	private inline function get_RENDERBUFFER_SAMPLES ():Int { return this.RENDERBUFFER_SAMPLES; }
-	private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER; }
-	private inline function get_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE ():Int { return this.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING ():Int { return this.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE ():Int { return this.FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_RED_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_RED_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_GREEN_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_BLUE_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE ():Int { return this.FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE; }
+	@:noCompletion private inline function get_FRAMEBUFFER_DEFAULT ():Int { return this.FRAMEBUFFER_DEFAULT; }
+	@:noCompletion private inline function get_DEPTH24_STENCIL8 ():Int { return this.DEPTH24_STENCIL8; }
+	@:noCompletion private inline function get_DRAW_FRAMEBUFFER_BINDING ():Int { return this.DRAW_FRAMEBUFFER_BINDING; }
+	@:noCompletion private inline function get_READ_FRAMEBUFFER ():Int { return this.READ_FRAMEBUFFER; }
+	@:noCompletion private inline function get_DRAW_FRAMEBUFFER ():Int { return this.DRAW_FRAMEBUFFER; }
+	@:noCompletion private inline function get_READ_FRAMEBUFFER_BINDING ():Int { return this.READ_FRAMEBUFFER_BINDING; }
+	@:noCompletion private inline function get_RENDERBUFFER_SAMPLES ():Int { return this.RENDERBUFFER_SAMPLES; }
+	@:noCompletion private inline function get_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER ():Int { return this.FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER; }
+	@:noCompletion private inline function get_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE ():Int { return this.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE; }
 	
-	private inline function get_UNIFORM_BUFFER ():Int { return this.UNIFORM_BUFFER; }
-	private inline function get_UNIFORM_BUFFER_BINDING ():Int { return this.UNIFORM_BUFFER_BINDING; }
-	private inline function get_UNIFORM_BUFFER_START ():Int { return this.UNIFORM_BUFFER_START; }
-	private inline function get_UNIFORM_BUFFER_SIZE ():Int { return this.UNIFORM_BUFFER_SIZE; }
-	private inline function get_MAX_VERTEX_UNIFORM_BLOCKS ():Int { return this.MAX_VERTEX_UNIFORM_BLOCKS; }
-	private inline function get_MAX_FRAGMENT_UNIFORM_BLOCKS ():Int { return this.MAX_FRAGMENT_UNIFORM_BLOCKS; }
-	private inline function get_MAX_COMBINED_UNIFORM_BLOCKS ():Int { return this.MAX_COMBINED_UNIFORM_BLOCKS; }
-	private inline function get_MAX_UNIFORM_BUFFER_BINDINGS ():Int { return this.MAX_UNIFORM_BUFFER_BINDINGS; }
-	private inline function get_MAX_UNIFORM_BLOCK_SIZE ():Int { return this.MAX_UNIFORM_BLOCK_SIZE; }
-	private inline function get_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS ():Int { return this.MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS; }
-	private inline function get_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS ():Int { return this.MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS; }
-	private inline function get_UNIFORM_BUFFER_OFFSET_ALIGNMENT ():Int { return this.UNIFORM_BUFFER_OFFSET_ALIGNMENT; }
-	private inline function get_ACTIVE_UNIFORM_BLOCKS ():Int { return this.ACTIVE_UNIFORM_BLOCKS; }
-	private inline function get_UNIFORM_TYPE ():Int { return this.UNIFORM_TYPE; }
-	private inline function get_UNIFORM_SIZE ():Int { return this.UNIFORM_SIZE; }
-	private inline function get_UNIFORM_BLOCK_INDEX ():Int { return this.UNIFORM_BLOCK_INDEX; }
-	private inline function get_UNIFORM_OFFSET ():Int { return this.UNIFORM_OFFSET; }
-	private inline function get_UNIFORM_ARRAY_STRIDE ():Int { return this.UNIFORM_ARRAY_STRIDE; }
-	private inline function get_UNIFORM_MATRIX_STRIDE ():Int { return this.UNIFORM_MATRIX_STRIDE; }
-	private inline function get_UNIFORM_IS_ROW_MAJOR ():Int { return this.UNIFORM_IS_ROW_MAJOR; }
-	private inline function get_UNIFORM_BLOCK_BINDING ():Int { return this.UNIFORM_BLOCK_BINDING; }
-	private inline function get_UNIFORM_BLOCK_DATA_SIZE ():Int { return this.UNIFORM_BLOCK_DATA_SIZE; }
-	private inline function get_UNIFORM_BLOCK_ACTIVE_UNIFORMS ():Int { return this.UNIFORM_BLOCK_ACTIVE_UNIFORMS; }
-	private inline function get_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES ():Int { return this.UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES; }
-	private inline function get_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER ():Int { return this.UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER; }
-	private inline function get_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER ():Int { return this.UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER; }
+	@:noCompletion private inline function get_UNIFORM_BUFFER ():Int { return this.UNIFORM_BUFFER; }
+	@:noCompletion private inline function get_UNIFORM_BUFFER_BINDING ():Int { return this.UNIFORM_BUFFER_BINDING; }
+	@:noCompletion private inline function get_UNIFORM_BUFFER_START ():Int { return this.UNIFORM_BUFFER_START; }
+	@:noCompletion private inline function get_UNIFORM_BUFFER_SIZE ():Int { return this.UNIFORM_BUFFER_SIZE; }
+	@:noCompletion private inline function get_MAX_VERTEX_UNIFORM_BLOCKS ():Int { return this.MAX_VERTEX_UNIFORM_BLOCKS; }
+	@:noCompletion private inline function get_MAX_FRAGMENT_UNIFORM_BLOCKS ():Int { return this.MAX_FRAGMENT_UNIFORM_BLOCKS; }
+	@:noCompletion private inline function get_MAX_COMBINED_UNIFORM_BLOCKS ():Int { return this.MAX_COMBINED_UNIFORM_BLOCKS; }
+	@:noCompletion private inline function get_MAX_UNIFORM_BUFFER_BINDINGS ():Int { return this.MAX_UNIFORM_BUFFER_BINDINGS; }
+	@:noCompletion private inline function get_MAX_UNIFORM_BLOCK_SIZE ():Int { return this.MAX_UNIFORM_BLOCK_SIZE; }
+	@:noCompletion private inline function get_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS ():Int { return this.MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS; }
+	@:noCompletion private inline function get_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS ():Int { return this.MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS; }
+	@:noCompletion private inline function get_UNIFORM_BUFFER_OFFSET_ALIGNMENT ():Int { return this.UNIFORM_BUFFER_OFFSET_ALIGNMENT; }
+	@:noCompletion private inline function get_ACTIVE_UNIFORM_BLOCKS ():Int { return this.ACTIVE_UNIFORM_BLOCKS; }
+	@:noCompletion private inline function get_UNIFORM_TYPE ():Int { return this.UNIFORM_TYPE; }
+	@:noCompletion private inline function get_UNIFORM_SIZE ():Int { return this.UNIFORM_SIZE; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_INDEX ():Int { return this.UNIFORM_BLOCK_INDEX; }
+	@:noCompletion private inline function get_UNIFORM_OFFSET ():Int { return this.UNIFORM_OFFSET; }
+	@:noCompletion private inline function get_UNIFORM_ARRAY_STRIDE ():Int { return this.UNIFORM_ARRAY_STRIDE; }
+	@:noCompletion private inline function get_UNIFORM_MATRIX_STRIDE ():Int { return this.UNIFORM_MATRIX_STRIDE; }
+	@:noCompletion private inline function get_UNIFORM_IS_ROW_MAJOR ():Int { return this.UNIFORM_IS_ROW_MAJOR; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_BINDING ():Int { return this.UNIFORM_BLOCK_BINDING; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_DATA_SIZE ():Int { return this.UNIFORM_BLOCK_DATA_SIZE; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_ACTIVE_UNIFORMS ():Int { return this.UNIFORM_BLOCK_ACTIVE_UNIFORMS; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES ():Int { return this.UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER ():Int { return this.UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER; }
+	@:noCompletion private inline function get_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER ():Int { return this.UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER; }
 	
-	private inline function get_OBJECT_TYPE ():Int { return this.OBJECT_TYPE; }
-	private inline function get_SYNC_CONDITION ():Int { return this.SYNC_CONDITION; }
-	private inline function get_SYNC_STATUS ():Int { return this.SYNC_STATUS; }
-	private inline function get_SYNC_FLAGS ():Int { return this.SYNC_FLAGS; }
-	private inline function get_SYNC_FENCE ():Int { return this.SYNC_FENCE; }
-	private inline function get_SYNC_GPU_COMMANDS_COMPLETE ():Int { return this.SYNC_GPU_COMMANDS_COMPLETE; }
-	private inline function get_UNSIGNALED ():Int { return this.UNSIGNALED; }
-	private inline function get_SIGNALED ():Int { return this.SIGNALED; }
-	private inline function get_ALREADY_SIGNALED ():Int { return this.ALREADY_SIGNALED; }
-	private inline function get_TIMEOUT_EXPIRED ():Int { return this.TIMEOUT_EXPIRED; }
-	private inline function get_CONDITION_SATISFIED ():Int { return this.CONDITION_SATISFIED; }
-	private inline function get_WAIT_FAILED ():Int { return this.WAIT_FAILED; }
-	private inline function get_SYNC_FLUSH_COMMANDS_BIT ():Int { return this.SYNC_FLUSH_COMMANDS_BIT; }
+	@:noCompletion private inline function get_OBJECT_TYPE ():Int { return this.OBJECT_TYPE; }
+	@:noCompletion private inline function get_SYNC_CONDITION ():Int { return this.SYNC_CONDITION; }
+	@:noCompletion private inline function get_SYNC_STATUS ():Int { return this.SYNC_STATUS; }
+	@:noCompletion private inline function get_SYNC_FLAGS ():Int { return this.SYNC_FLAGS; }
+	@:noCompletion private inline function get_SYNC_FENCE ():Int { return this.SYNC_FENCE; }
+	@:noCompletion private inline function get_SYNC_GPU_COMMANDS_COMPLETE ():Int { return this.SYNC_GPU_COMMANDS_COMPLETE; }
+	@:noCompletion private inline function get_UNSIGNALED ():Int { return this.UNSIGNALED; }
+	@:noCompletion private inline function get_SIGNALED ():Int { return this.SIGNALED; }
+	@:noCompletion private inline function get_ALREADY_SIGNALED ():Int { return this.ALREADY_SIGNALED; }
+	@:noCompletion private inline function get_TIMEOUT_EXPIRED ():Int { return this.TIMEOUT_EXPIRED; }
+	@:noCompletion private inline function get_CONDITION_SATISFIED ():Int { return this.CONDITION_SATISFIED; }
+	@:noCompletion private inline function get_WAIT_FAILED ():Int { return this.WAIT_FAILED; }
+	@:noCompletion private inline function get_SYNC_FLUSH_COMMANDS_BIT ():Int { return this.SYNC_FLUSH_COMMANDS_BIT; }
 	
-	private inline function get_COLOR ():Int { return this.COLOR; }
-	private inline function get_DEPTH ():Int { return this.DEPTH; }
-	private inline function get_STENCIL ():Int { return this.STENCIL; }
-	private inline function get_MIN ():Int { return this.MIN; }
-	private inline function get_MAX ():Int { return this.MAX; }
-	private inline function get_DEPTH_COMPONENT24 ():Int { return this.DEPTH_COMPONENT24; }
-	private inline function get_STREAM_READ ():Int { return this.STREAM_READ; }
-	private inline function get_STREAM_COPY ():Int { return this.STREAM_COPY; }
-	private inline function get_STATIC_READ ():Int { return this.STATIC_READ; }
-	private inline function get_STATIC_COPY ():Int { return this.STATIC_COPY; }
-	private inline function get_DYNAMIC_READ ():Int { return this.DYNAMIC_READ; }
-	private inline function get_DYNAMIC_COPY ():Int { return this.DYNAMIC_COPY; }
-	private inline function get_DEPTH_COMPONENT32F ():Int { return this.DEPTH_COMPONENT32F; }
-	private inline function get_DEPTH32F_STENCIL8 ():Int { return this.DEPTH32F_STENCIL8; }
-	private inline function get_INVALID_INDEX ():Int { return this.INVALID_INDEX; }
-	private inline function get_TIMEOUT_IGNORED ():Int { return this.TIMEOUT_IGNORED; }
-	private inline function get_MAX_CLIENT_WAIT_TIMEOUT_WEBGL ():Int { return this.MAX_CLIENT_WAIT_TIMEOUT_WEBGL; }
+	@:noCompletion private inline function get_COLOR ():Int { return this.COLOR; }
+	@:noCompletion private inline function get_DEPTH ():Int { return this.DEPTH; }
+	@:noCompletion private inline function get_STENCIL ():Int { return this.STENCIL; }
+	@:noCompletion private inline function get_MIN ():Int { return this.MIN; }
+	@:noCompletion private inline function get_MAX ():Int { return this.MAX; }
+	@:noCompletion private inline function get_DEPTH_COMPONENT24 ():Int { return this.DEPTH_COMPONENT24; }
+	@:noCompletion private inline function get_STREAM_READ ():Int { return this.STREAM_READ; }
+	@:noCompletion private inline function get_STREAM_COPY ():Int { return this.STREAM_COPY; }
+	@:noCompletion private inline function get_STATIC_READ ():Int { return this.STATIC_READ; }
+	@:noCompletion private inline function get_STATIC_COPY ():Int { return this.STATIC_COPY; }
+	@:noCompletion private inline function get_DYNAMIC_READ ():Int { return this.DYNAMIC_READ; }
+	@:noCompletion private inline function get_DYNAMIC_COPY ():Int { return this.DYNAMIC_COPY; }
+	@:noCompletion private inline function get_DEPTH_COMPONENT32F ():Int { return this.DEPTH_COMPONENT32F; }
+	@:noCompletion private inline function get_DEPTH32F_STENCIL8 ():Int { return this.DEPTH32F_STENCIL8; }
+	@:noCompletion private inline function get_INVALID_INDEX ():Int { return this.INVALID_INDEX; }
+	@:noCompletion private inline function get_TIMEOUT_IGNORED ():Int { return this.TIMEOUT_IGNORED; }
+	@:noCompletion private inline function get_MAX_CLIENT_WAIT_TIMEOUT_WEBGL ():Int { return this.MAX_CLIENT_WAIT_TIMEOUT_WEBGL; }
 	
 	
 	public inline function activeTexture (texture:Int):Void {

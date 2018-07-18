@@ -29,24 +29,24 @@ class AssetLibrary {
 	
 	public var onChange = new Event<Void->Void> ();
 	
-	private var assetsLoaded:Int;
-	private var assetsTotal:Int;
-	private var bytesLoaded:Int;
-	private var bytesLoadedCache:Map<String, Int>;
-	private var bytesTotal:Int;
-	private var cachedAudioBuffers = new Map<String, AudioBuffer> ();
-	private var cachedBytes = new Map<String, Bytes> ();
-	private var cachedFonts = new Map<String, Font> ();
-	private var cachedImages = new Map<String, Image> ();
-	private var cachedText = new Map<String, String> ();
-	private var classTypes = new Map<String, Class<Dynamic>> ();
-	private var loaded:Bool;
-	private var pathGroups = new Map<String, Array<String>> ();
-	private var paths = new Map<String, String> ();
-	private var preload = new Map<String, Bool> ();
-	private var promise:Promise<AssetLibrary>;
-	private var sizes = new Map<String, Int> ();
-	private var types = new Map<String, AssetType> ();
+	@:noCompletion private var assetsLoaded:Int;
+	@:noCompletion private var assetsTotal:Int;
+	@:noCompletion private var bytesLoaded:Int;
+	@:noCompletion private var bytesLoadedCache:Map<String, Int>;
+	@:noCompletion private var bytesTotal:Int;
+	@:noCompletion private var cachedAudioBuffers = new Map<String, AudioBuffer> ();
+	@:noCompletion private var cachedBytes = new Map<String, Bytes> ();
+	@:noCompletion private var cachedFonts = new Map<String, Font> ();
+	@:noCompletion private var cachedImages = new Map<String, Image> ();
+	@:noCompletion private var cachedText = new Map<String, String> ();
+	@:noCompletion private var classTypes = new Map<String, Class<Dynamic>> ();
+	@:noCompletion private var loaded:Bool;
+	@:noCompletion private var pathGroups = new Map<String, Array<String>> ();
+	@:noCompletion private var paths = new Map<String, String> ();
+	@:noCompletion private var preload = new Map<String, Bool> ();
+	@:noCompletion private var promise:Promise<AssetLibrary>;
+	@:noCompletion private var sizes = new Map<String, Int> ();
+	@:noCompletion private var types = new Map<String, AssetType> ();
 	
 	
 	public function new () {
@@ -689,7 +689,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function __assetLoaded (id:String):Void {
+	@:noCompletion private function __assetLoaded (id:String):Void {
 		
 		assetsLoaded++;
 		
@@ -738,7 +738,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function __cacheBreak (path:String):String {
+	@:noCompletion private function __cacheBreak (path:String):String {
 		
 		#if web
 		if (path.indexOf ("?") > -1) {
@@ -757,7 +757,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function __fromManifest (manifest:AssetManifest):Void {
+	@:noCompletion private function __fromManifest (manifest:AssetManifest):Void {
 		
 		var hasSize = (manifest.version >= 2);
 		var size, id, pathGroup:Array<String>, classRef;
@@ -842,7 +842,7 @@ class AssetLibrary {
 	
 	
 	
-	private function loadAudioBuffer_onComplete (id:String, audioBuffer:AudioBuffer):Void {
+	@:noCompletion private function loadAudioBuffer_onComplete (id:String, audioBuffer:AudioBuffer):Void {
 		
 		cachedAudioBuffers.set (id, audioBuffer);
 		
@@ -874,7 +874,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function loadAudioBuffer_onError (id:String, message:Dynamic):Void {
+	@:noCompletion private function loadAudioBuffer_onError (id:String, message:Dynamic):Void {
 		
 		#if (js && html5)
 		
@@ -899,7 +899,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function loadBytes_onComplete (id:String, bytes:Bytes):Void {
+	@:noCompletion private function loadBytes_onComplete (id:String, bytes:Bytes):Void {
 		
 		cachedBytes.set (id, bytes);
 		__assetLoaded (id);
@@ -907,7 +907,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function loadFont_onComplete (id:String, font:Font):Void {
+	@:noCompletion private function loadFont_onComplete (id:String, font:Font):Void {
 		
 		cachedFonts.set (id, font);
 		__assetLoaded (id);
@@ -915,7 +915,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function loadImage_onComplete (id:String, image:Image):Void {
+	@:noCompletion private function loadImage_onComplete (id:String, image:Image):Void {
 		
 		cachedImages.set (id, image);
 		__assetLoaded (id);
@@ -923,7 +923,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function loadText_onComplete (id:String, text:String):Void {
+	@:noCompletion private function loadText_onComplete (id:String, text:String):Void {
 		
 		cachedText.set (id, text);
 		__assetLoaded (id);
@@ -931,7 +931,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function load_onError (id:String, message:Dynamic):Void {
+	@:noCompletion private function load_onError (id:String, message:Dynamic):Void {
 		
 		if (message != null && message != "") {
 			
@@ -947,7 +947,7 @@ class AssetLibrary {
 	}
 	
 	
-	private function load_onProgress (id:String, bytesLoaded:Int, bytesTotal:Int):Void {
+	@:noCompletion private function load_onProgress (id:String, bytesLoaded:Int, bytesTotal:Int):Void {
 		
 		if (bytesLoaded > 0) {
 			

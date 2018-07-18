@@ -4,7 +4,7 @@ package lime.graphics.opengl.ext;
 class EXT_multi_draw_arrays {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

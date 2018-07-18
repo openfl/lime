@@ -7,7 +7,7 @@ package lime.graphics.opengl.ext;
 class OES_texture_half_float_linear {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

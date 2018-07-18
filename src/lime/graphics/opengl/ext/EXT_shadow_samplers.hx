@@ -12,7 +12,7 @@ class EXT_shadow_samplers {
 	public var SAMPLER_2D_SHADOW_EXT = 0x8B62;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -10,7 +10,7 @@ class EXT_texture_compression_dxt1 {
 	public var COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -12,7 +12,7 @@ class OES_EGL_image_external {
 	public var REQUIRED_TEXTURE_IMAGE_UNITS_OES = 0x8D68;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

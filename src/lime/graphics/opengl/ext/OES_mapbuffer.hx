@@ -12,7 +12,7 @@ class OES_mapbuffer {
 	public var BUFFER_MAP_POINTER_OES = 0x88BD;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

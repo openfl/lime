@@ -214,7 +214,7 @@ class JNI {
 class JNIMemberField {
 	
 	
-	private var field:Dynamic;
+	@:noCompletion private var field:Dynamic;
 	
 	
 	public function new (field:Dynamic) {
@@ -259,7 +259,7 @@ class JNIMemberField {
 class JNIStaticField {
 	
 	
-	private var field:Dynamic;
+	@:noCompletion private var field:Dynamic;
 	
 	
 	public function new (field:Dynamic) {
@@ -304,7 +304,7 @@ class JNIStaticField {
 class JNIMethod {
 	
 	
-	private var method:Dynamic;
+	@:noCompletion private var method:Dynamic;
 	
 	
 	public function new (method:Dynamic) {

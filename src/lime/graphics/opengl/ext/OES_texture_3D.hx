@@ -14,7 +14,7 @@ class OES_texture_3D {
 	public var FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_OES = 0x8CD4;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -13,7 +13,7 @@ class OES_vertex_array_object {
 	public var VERTEX_ARRAY_BINDING_OES = 0x85B5;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

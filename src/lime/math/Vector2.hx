@@ -223,14 +223,14 @@ class Vector2 {
 	
 	
 	
-	private function get_length ():Float {
+	@:noCompletion private function get_length ():Float {
 		
 		return Math.sqrt (x * x + y * y);
 		
 	}
 	
 	
-	private function get_lengthSquared ():Float {
+	@:noCompletion private function get_lengthSquared ():Float {
 		
 		return (x * x + y * y);
 		

@@ -336,7 +336,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private function __toFlashColorTransform ():#if flash ColorTransform #else Dynamic #end {
+	@:noCompletion private function __toFlashColorTransform ():#if flash ColorTransform #else Dynamic #end {
 		
 		#if flash
 		return new ColorTransform (redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier, redOffset, greenOffset, blueOffset, alphaOffset);
@@ -354,70 +354,70 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	
 	
 	
-	private inline function get_alphaMultiplier ():Float {
+	@:noCompletion private inline function get_alphaMultiplier ():Float {
 		
 		return this[18];
 		
 	}
 	
 	
-	private inline function set_alphaMultiplier (value:Float):Float {
+	@:noCompletion private inline function set_alphaMultiplier (value:Float):Float {
 		
 		return this[18] = value;
 		
 	}
 	
 	
-	private inline function get_alphaOffset ():Float {
+	@:noCompletion private inline function get_alphaOffset ():Float {
 		
 		return this[19] * 255;
 		
 	}
 	
 	
-	private inline function set_alphaOffset (value:Float):Float {
+	@:noCompletion private inline function set_alphaOffset (value:Float):Float {
 		
 		return this[19] = value / 255;
 		
 	}
 	
 	
-	private inline function get_blueMultiplier ():Float {
+	@:noCompletion private inline function get_blueMultiplier ():Float {
 		
 		return this[12];
 		
 	}
 	
 	
-	private inline function set_blueMultiplier (value:Float):Float {
+	@:noCompletion private inline function set_blueMultiplier (value:Float):Float {
 		
 		return this[12] = value;
 		
 	}
 	
 	
-	private inline function get_blueOffset ():Float {
+	@:noCompletion private inline function get_blueOffset ():Float {
 		
 		return this[14] * 255;
 		
 	}
 	
 	
-	private inline function set_blueOffset (value:Float):Float {
+	@:noCompletion private inline function set_blueOffset (value:Float):Float {
 		
 		return this[14] = value / 255;
 		
 	}
 	
 	
-	private function get_color ():Int {
+	@:noCompletion private function get_color ():Int {
 		
 		return ((Std.int (redOffset) << 16) | (Std.int (greenOffset) << 8) | Std.int (blueOffset));
 		
 	}
 	
 	
-	private function set_color (value:Int):Int {
+	@:noCompletion private function set_color (value:Int):Int {
 		
 		redOffset = (value >> 16) & 0xFF;
 		greenOffset = (value >> 8) & 0xFF;
@@ -432,56 +432,56 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private inline function get_greenMultiplier ():Float {
+	@:noCompletion private inline function get_greenMultiplier ():Float {
 		
 		return this[6];
 		
 	}
 	
 	
-	private inline function set_greenMultiplier (value:Float):Float {
+	@:noCompletion private inline function set_greenMultiplier (value:Float):Float {
 		
 		return this[6] = value;
 		
 	}
 	
 	
-	private inline function get_greenOffset ():Float {
+	@:noCompletion private inline function get_greenOffset ():Float {
 		
 		return this[9] * 255;
 		
 	}
 	
 	
-	private inline function set_greenOffset (value:Float):Float {
+	@:noCompletion private inline function set_greenOffset (value:Float):Float {
 		
 		return this[9] = value / 255;
 		
 	}
 	
 	
-	private inline function get_redMultiplier ():Float {
+	@:noCompletion private inline function get_redMultiplier ():Float {
 		
 		return this[0];
 		
 	}
 	
 	
-	private inline function set_redMultiplier (value:Float):Float {
+	@:noCompletion private inline function set_redMultiplier (value:Float):Float {
 		
 		return this[0] = value;
 		
 	}
 	
 	
-	private inline function get_redOffset ():Float {
+	@:noCompletion private inline function get_redOffset ():Float {
 		
 		return this[4] * 255;
 		
 	}
 	
 	
-	private inline function set_redOffset (value:Float):Float {
+	@:noCompletion private inline function set_redOffset (value:Float):Float {
 		
 		return this[4] = value / 255;
 		

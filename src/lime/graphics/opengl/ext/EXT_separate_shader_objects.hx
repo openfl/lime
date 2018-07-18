@@ -14,7 +14,7 @@ class EXT_separate_shader_objects {
 	public var PROGRAM_PIPELINE_BINDING_EXT = 0x825A;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

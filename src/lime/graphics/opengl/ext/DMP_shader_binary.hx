@@ -9,7 +9,7 @@ class DMP_shader_binary {
 	public var SHADER_BINARY_DMP = 0x9250;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

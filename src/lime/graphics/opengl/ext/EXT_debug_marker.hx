@@ -4,7 +4,7 @@ package lime.graphics.opengl.ext;
 class EXT_debug_marker {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

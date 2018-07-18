@@ -4,7 +4,7 @@ package lime.graphics.opengl.ext;
 class QCOM_driver_control {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

@@ -19,7 +19,7 @@ class QCOM_extended_get {
 	public var STATE_RESTORE = 0x8BDC;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

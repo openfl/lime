@@ -227,7 +227,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	
-	private inline function get_allocationSuccessful ():Bool {
+	@:noCompletion private inline function get_allocationSuccessful ():Bool {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_allocation_successful (this);
@@ -238,7 +238,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_clusterLevel ():HBBufferClusterLevel {
+	@:noCompletion private inline function get_clusterLevel ():HBBufferClusterLevel {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_cluster_level (this);
@@ -249,7 +249,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_clusterLevel (value:HBBufferClusterLevel):HBBufferClusterLevel {
+	@:noCompletion private inline function set_clusterLevel (value:HBBufferClusterLevel):HBBufferClusterLevel {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_cluster_level (this, value);
@@ -259,7 +259,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_contentType ():HBBufferContentType {
+	@:noCompletion private inline function get_contentType ():HBBufferContentType {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_content_type (this);
@@ -270,7 +270,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_contentType (value:HBBufferContentType):HBBufferContentType {
+	@:noCompletion private inline function set_contentType (value:HBBufferContentType):HBBufferContentType {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_content_type (this, value);
@@ -280,7 +280,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_direction ():HBDirection {
+	@:noCompletion private inline function get_direction ():HBDirection {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_direction (this);
@@ -291,7 +291,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_direction (value:HBDirection):HBDirection {
+	@:noCompletion private inline function set_direction (value:HBDirection):HBDirection {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_direction (this, value);
@@ -312,7 +312,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_flags ():Int {
+	@:noCompletion private inline function get_flags ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_flags (this);
@@ -323,7 +323,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_flags (value:Int):Int {
+	@:noCompletion private inline function set_flags (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_flags (this, value);
@@ -333,7 +333,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_language ():HBLanguage {
+	@:noCompletion private inline function get_language ():HBLanguage {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_language (this);
@@ -344,7 +344,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_language (value:HBLanguage):HBLanguage {
+	@:noCompletion private inline function set_language (value:HBLanguage):HBLanguage {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_language (this, value);
@@ -354,7 +354,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_length ():Int {
+	@:noCompletion private inline function get_length ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_length (this);
@@ -365,7 +365,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_length (value:Int):Int {
+	@:noCompletion private inline function set_length (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_length (this, value);
@@ -375,7 +375,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_replacementCodepoint ():Int {
+	@:noCompletion private inline function get_replacementCodepoint ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_replacement_codepoint (this);
@@ -386,7 +386,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_replacementCodepoint (value:Int):Int {
+	@:noCompletion private inline function set_replacementCodepoint (value:Int):Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_replacement_codepoint (this, value);
@@ -396,7 +396,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_script ():HBScript {
+	@:noCompletion private inline function get_script ():HBScript {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_buffer_get_script (this);
@@ -407,7 +407,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_script (value:HBScript):HBScript {
+	@:noCompletion private inline function set_script (value:HBScript):HBScript {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		#if neko value = -1; #end
@@ -418,7 +418,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_segmentProperties ():HBSegmentProperties {
+	@:noCompletion private inline function get_segmentProperties ():HBSegmentProperties {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return null;
@@ -430,7 +430,7 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function set_segmentProperties (value:HBSegmentProperties):HBSegmentProperties {
+	@:noCompletion private inline function set_segmentProperties (value:HBSegmentProperties):HBSegmentProperties {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		NativeCFFI.lime_hb_buffer_set_segment_properties (this, value);

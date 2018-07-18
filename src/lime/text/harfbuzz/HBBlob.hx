@@ -57,7 +57,7 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer {
 	
 	
 	
-	private inline function get_data ():DataPointer {
+	@:noCompletion private inline function get_data ():DataPointer {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_blob_get_data (this);
@@ -68,7 +68,7 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_dataWritable ():DataPointer {
+	@:noCompletion private inline function get_dataWritable ():DataPointer {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_blob_get_data_writable (this);
@@ -90,7 +90,7 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_immutable ():Bool {
+	@:noCompletion private inline function get_immutable ():Bool {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_blob_is_immutable (this);
@@ -101,7 +101,7 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer {
 	}
 	
 	
-	private inline function get_length ():Int {
+	@:noCompletion private inline function get_length ():Int {
 		
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		return NativeCFFI.lime_hb_blob_get_length (this);

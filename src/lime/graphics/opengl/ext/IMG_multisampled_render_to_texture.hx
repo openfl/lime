@@ -12,7 +12,7 @@ class IMG_multisampled_render_to_texture {
 	public var TEXTURE_SAMPLES_IMG = 0x9136;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

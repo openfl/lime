@@ -93,7 +93,7 @@ class RenderContext {
 	public var window (default, null):Window;
 	
 	
-	private function new () {}
+	@:noCompletion private function new () {}
 	
 	
 }

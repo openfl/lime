@@ -20,7 +20,7 @@ class Sensor {
 	public var type:SensorType;
 	
 	
-	private function new (type:SensorType, id:Int) {
+	@:noCompletion private function new (type:SensorType, id:Int) {
 		
 		this.type = type;
 		this.id = id;

@@ -10,7 +10,7 @@ class AMD_compressed_3DC_texture {
 	public var _3DC_XY_AMD = 0x87FA;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

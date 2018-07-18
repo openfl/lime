@@ -4,7 +4,7 @@ package lime.graphics.opengl.ext;
 class APPLE_copy_texture_levels {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

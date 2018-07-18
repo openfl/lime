@@ -11,7 +11,7 @@ class OES_get_program_binary {
 	public var PROGRAM_BINARY_FORMATS_OES = 0x87FF;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

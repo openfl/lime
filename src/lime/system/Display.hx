@@ -40,7 +40,7 @@ class Display {
 	public var supportedModes (default, null):Array<DisplayMode>;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

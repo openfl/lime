@@ -13,7 +13,7 @@ class ANGLE_instanced_arrays {
 	public var VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE = 0x88FE;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

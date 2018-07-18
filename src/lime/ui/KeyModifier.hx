@@ -30,14 +30,14 @@ abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	public var shiftKey (get, set):Bool;
 	
 	
-	private function get_altKey ():Bool {
+	@:noCompletion private function get_altKey ():Bool {
 		
 		return (this & LEFT_ALT > 0) || (this & RIGHT_ALT > 0);
 		
 	}
 	
 	
-	private inline function set_altKey (value:Bool):Bool {
+	@:noCompletion private inline function set_altKey (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -54,14 +54,14 @@ abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_capsLock ():Bool {
+	@:noCompletion private function get_capsLock ():Bool {
 		
 		return (this & CAPS_LOCK > 0) || (this & CAPS_LOCK > 0);
 		
 	}
 	
 	
-	private inline function set_capsLock (value:Bool):Bool {
+	@:noCompletion private inline function set_capsLock (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -78,14 +78,14 @@ abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_ctrlKey ():Bool {
+	@:noCompletion private function get_ctrlKey ():Bool {
 		
 		return (this & LEFT_CTRL > 0) || (this & RIGHT_CTRL > 0);
 		
 	}
 	
 	
-	private inline function set_ctrlKey (value:Bool):Bool {
+	@:noCompletion private inline function set_ctrlKey (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -102,14 +102,14 @@ abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_metaKey ():Bool {
+	@:noCompletion private function get_metaKey ():Bool {
 		
 		return (this & LEFT_META > 0) || (this & RIGHT_META > 0);
 		
 	}
 	
 	
-	private inline function set_metaKey (value:Bool):Bool {
+	@:noCompletion private inline function set_metaKey (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -126,14 +126,14 @@ abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_numLock ():Bool {
+	@:noCompletion private function get_numLock ():Bool {
 		
 		return (this & NUM_LOCK > 0) || (this & NUM_LOCK > 0);
 		
 	}
 	
 	
-	private inline function set_numLock (value:Bool):Bool {
+	@:noCompletion private inline function set_numLock (value:Bool):Bool {
 		
 		if (value) {
 			
@@ -150,14 +150,14 @@ abstract KeyModifier(Int) from Int to Int from UInt to UInt {
 	}
 	
 	
-	private function get_shiftKey ():Bool {
+	@:noCompletion private function get_shiftKey ():Bool {
 		
 		return (this & LEFT_SHIFT > 0) || (this & RIGHT_SHIFT > 0);
 		
 	}
 	
 	
-	private inline function set_shiftKey (value:Bool):Bool {
+	@:noCompletion private inline function set_shiftKey (value:Bool):Bool {
 		
 		if (value) {
 			

@@ -482,7 +482,7 @@ class Font {
 	}
 	
 	
-	private function __initializeSource ():Void {
+	@:noCompletion private function __initializeSource ():Void {
 		
 		#if (lime_cffi && !macro)
 		if (src != null) {
@@ -507,7 +507,7 @@ class Font {
 	}
 	
 	
-	private function __loadFromName (name:String):Future<Font> {
+	@:noCompletion private function __loadFromName (name:String):Future<Font> {
 		
 		var promise = new Promise<Font> ();
 		

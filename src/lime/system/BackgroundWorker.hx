@@ -150,7 +150,7 @@ class BackgroundWorker {
 	}
 	
 	
-	private function __doWork ():Void {
+	@:noCompletion private function __doWork ():Void {
 		
 		doWork.dispatch (__runMessage);
 		
@@ -172,7 +172,7 @@ class BackgroundWorker {
 	}
 	
 	
-	private function __update (deltaTime:Int):Void {
+	@:noCompletion private function __update (deltaTime:Int):Void {
 		
 		#if (cpp || neko)
 		

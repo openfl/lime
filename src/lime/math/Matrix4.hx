@@ -997,7 +997,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	
 	
 	
-	private function get_determinant ():Float {
+	@:noCompletion private function get_determinant ():Float {
 		
 		return 1 * ((this[0] * this[5] - this[4] * this[1]) * (this[10] * this[15] - this[14] * this[11]) 
 			- (this[0] * this[9] - this[8] * this[1]) * (this[6] * this[15] - this[14] * this[7])
@@ -1009,14 +1009,14 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array {
 	}
 	
 	
-	private function get_position ():Vector4 {
+	@:noCompletion private function get_position ():Vector4 {
 		
 		return new Vector4 (this[12], this[13], this[14]);
 		
 	}
 	
 	
-	private function set_position (val:Vector4):Vector4 {
+	@:noCompletion private function set_position (val:Vector4):Vector4 {
 		
 		this[12] = val.x;
 		this[13] = val.y;

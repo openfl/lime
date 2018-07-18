@@ -207,7 +207,7 @@ class ImageBuffer {
 	
 	
 	
-	private function get_src ():Dynamic {
+	@:noCompletion private function get_src ():Dynamic {
 		
 		#if (js && html5)
 			
@@ -227,7 +227,7 @@ class ImageBuffer {
 	}
 	
 	
-	private function set_src (value:Dynamic):Dynamic {
+	@:noCompletion private function set_src (value:Dynamic):Dynamic {
 		
 		#if (js && html5)
 			
@@ -257,7 +257,7 @@ class ImageBuffer {
 	}
 	
 	
-	private function get_stride ():Int {
+	@:noCompletion private function get_stride ():Int {
 		
 		return width * 4;
 		

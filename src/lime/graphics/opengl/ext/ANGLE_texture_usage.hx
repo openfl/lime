@@ -10,7 +10,7 @@ class ANGLE_texture_usage {
 	public var FRAMEBUFFER_ATTACHMENT_ANGLE = 0x93A3;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

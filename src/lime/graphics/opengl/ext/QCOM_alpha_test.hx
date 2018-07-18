@@ -11,7 +11,7 @@ class QCOM_alpha_test {
 	public var ALPHA_TEST_REF_QCOM = 0x0BC2;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

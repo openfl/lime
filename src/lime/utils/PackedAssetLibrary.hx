@@ -27,12 +27,12 @@ import flash.media.Sound;
 @:keep class PackedAssetLibrary extends AssetLibrary {
 	
 	
-	private var id:String;
-	private var lengths = new Map<String, Int> ();
-	private var packedData:Bytes;
-	private var positions = new Map<String, Int> ();
-	private var type:String;
-	private var rootPath:String;
+	@:noCompletion private var id:String;
+	@:noCompletion private var lengths = new Map<String, Int> ();
+	@:noCompletion private var packedData:Bytes;
+	@:noCompletion private var positions = new Map<String, Int> ();
+	@:noCompletion private var type:String;
+	@:noCompletion private var rootPath:String;
 	
 	
 	public function new (id:String, type:String) {
@@ -485,7 +485,7 @@ import flash.media.Sound;
 	}
 	
 	
-	private override function __fromManifest (manifest:AssetManifest):Void {
+	@:noCompletion private override function __fromManifest (manifest:AssetManifest):Void {
 		rootPath = manifest.rootPath;
 		
 		super.__fromManifest (manifest);
@@ -509,7 +509,7 @@ import flash.media.Sound;
 	}
 	
 	
-	private override function __assetLoaded (id:String):Void {
+	@:noCompletion private override function __assetLoaded (id:String):Void {
 		
 		assetsLoaded++;
 		

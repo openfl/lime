@@ -11,7 +11,7 @@ class OES_rgb8_rgba8 {
 	public var RGBA8_OES = 0x8058;
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		

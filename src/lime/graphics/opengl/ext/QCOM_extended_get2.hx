@@ -4,7 +4,7 @@ package lime.graphics.opengl.ext;
 class QCOM_extended_get2 {
 	
 	
-	private function new () {
+	@:noCompletion private function new () {
 		
 		
 		
