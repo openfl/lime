@@ -30,7 +30,7 @@ import lime.utils.Int32Array;
 	`lime.graphics.WebGL2RenderContext` or `lime.graphics.WebGLRenderContext` directly
 	if desired:
 
-	```
+	```haxe
 	var gles3:OpenGLES3RenderContext = window.context;
 	var gles3:OpenGLES3RenderContext = gl;
 	var gles3:OpenGLES3RenderContext = GL;
@@ -38,6 +38,7 @@ import lime.utils.Int32Array;
 	var gles2:OpenGLES2RenderContext = gles3;
 	var webgl2:WebGL2RenderContext = gles3;
 	var webgl:WebGLRenderContext = gles3;
+	```
 **/
 
 @:forward

@@ -21,7 +21,7 @@ import lime._internal.backend.native.NativeOpenGLRenderContext;
 	`lime.graphics.OpenGLES2RenderContext`, `lime.graphics.WebGL2RenderContext`, or
 	`lime.graphics.WebGLRenderContext` directly if desired:
 
-	```
+	```haxe
 	var gl:OpenGLRenderContext = window.context;
 	var gl:OpenGLRenderContext = GL;
 

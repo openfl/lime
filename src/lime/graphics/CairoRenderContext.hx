@@ -11,7 +11,7 @@ import lime.graphics.cairo.Cairo;
 	You can convert from `lime.graphics.RenderContext` to `CairoRenderContext` directly
 	if desired:
 
-	```
+	```haxe
 	var cairo:CairoRenderContext = window.context;
 	```
 **/

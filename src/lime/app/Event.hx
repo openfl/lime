@@ -7,7 +7,7 @@ package lime.app;
 
 	For example:
 
-	```
+	```haxe
 	var event = new Event<Int->Void> ();
 	event.add (function (value:Int):Void { trace (value); });
 	event.dispatch (100);

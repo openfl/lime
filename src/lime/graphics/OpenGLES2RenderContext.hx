@@ -20,7 +20,7 @@ import lime.graphics.opengl.*;
 	`lime.graphics.OpenGLES3RenderContext`, `lime.graphics.opengl.GL`, and can convert to
 	`lime.graphics.WebGLRenderContext` directly if desired:
 
-	```
+	```haxe
 	var gles2:OpenGLES2RenderContext = window.context;
 	var gles2:OpenGLES2RenderContext = gl;
 	var gles2:OpenGLES2RenderContext = gles3;

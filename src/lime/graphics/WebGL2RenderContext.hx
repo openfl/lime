@@ -358,13 +358,14 @@ import lime.utils.UInt32Array;
 	`lime.graphics.OpenGLES3RenderContext` or `lime.graphics.opengl.GL`, and can convert to
 	`lime.graphics.WebGLRenderContext` directly if desired:
 
-	```
+	```haxe
 	var webgl2:WebGL2RenderContext = window.context;
 	var webgl2:WebGL2RenderContext = gl;
 	var webgl2:WebGL2RenderContext = gles3;
 	var webgl2:WebGL2RenderContext = GL;
 
 	var webgl:WebGLRenderContext = webgl2;
+	```
 **/
 
 @:access(lime.graphics.RenderContext)

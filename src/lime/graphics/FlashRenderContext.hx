@@ -11,7 +11,7 @@ import flash.display.Sprite;
 	You can convert from `lime.graphics.RenderContext` to `FlashRenderContext` directly
 	if desired:
 
-	```
+	```haxe
 	var sprite:FlashRenderContext = window.context;
 	```
 **/

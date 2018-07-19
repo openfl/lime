@@ -11,7 +11,7 @@ import js.html.Element;
 	You can convert from `lime.graphics.RenderContext` to `DOMRenderContext` directly
 	if desired:
 
-	```
+	```haxe
 	var dom:DOMRenderContext = window.context;
 	```
 **/

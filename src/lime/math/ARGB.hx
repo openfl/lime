@@ -10,7 +10,7 @@ import lime.utils.UInt8Array;
 	A utility for storing, accessing and converting colors in an ARGB
 	(alpha, red, green, blue) color format.
 
-	```
+	```haxe
 	var color:ARGB = 0xFF883300;
 	trace (color.a); // 0xFF
 	trace (color.r); // 0x88

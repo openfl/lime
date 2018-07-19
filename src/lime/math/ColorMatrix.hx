@@ -170,7 +170,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 
 		For example:
 
-		```
+		```haxe
 		var colorMatrix = new ColorMatrix ();
 		colorMatrix.alphaOffset = 12;
 
@@ -215,7 +215,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 
 		For example:
 
-		```
+		```haxe
 		var colorMatrix = new ColorMatrix ();
 		colorMatrix.blueOffset = 16;
 
@@ -259,7 +259,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 
 		For example:
 
-		```
+		```haxe
 		var colorMatrix = new ColorMatrix ();
 		colorMatrix.greenOffset = 16;
 
@@ -303,7 +303,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array {
 
 		For example:
 
-		```
+		```haxe
 		var colorMatrix = new ColorMatrix ();
 		colorMatrix.redOffset = 16;
 

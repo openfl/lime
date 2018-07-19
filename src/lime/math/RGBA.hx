@@ -10,7 +10,7 @@ import lime.utils.UInt8Array;
 	A utility for storing, accessing and converting colors in an RGBA
 	(red, green, blue, alpha) color format.
 
-	```
+	```haxe
 	var color:RGBA = 0x883300FF;
 	trace (color.r); // 0x88
 	trace (color.g); // 0x33

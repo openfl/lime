@@ -10,7 +10,7 @@ import lime.utils.UInt8Array;
 	A utility for storing, accessing and converting colors in a BGRA
 	(blue, green, red, alpha) color format.
 
-	```
+	```haxe
 	var color:BGRA = 0x003388FF;
 	trace (color.b); // 0x00
 	trace (color.g); // 0x33

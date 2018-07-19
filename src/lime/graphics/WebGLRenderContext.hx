@@ -17,7 +17,7 @@ import lime.utils.Float32Array;
 	`lime.graphics.OpenGLES3RenderContext`, `lime.graphics.OpenGLES2RenderContext`,
 	`lime.graphics.WebGL2RenderContext` or `lime.graphics.opengl.GL` directly if desired:
 
-	```
+	```haxe
 	var webgl:WebGLRenderContext = window.context;
 	var webgl:WebGLRenderContext = gl;
 	var webgl:WebGLRenderContext = gles3;

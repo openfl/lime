@@ -12,7 +12,7 @@ import lime.utils.Log;
 	Lime `Future` introduces "progress" feedback as well to increase the value of
 	`Future` values.
 
-	```
+	```haxe
 	var future = Image.loadFromFile ("image.png");
 	future.onComplete (function (image) { trace ("Image loaded"); });
 	future.onProgress (function (loaded, total) { trace ("Loading: " + loaded + ", " + total); });
