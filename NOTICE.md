@@ -13,7 +13,7 @@ This product bundles libcurl 7.56.1, which is available under an
 This product bundles efsw, which is available under an
 "MIT" license. For details, see [project/lib/efsw/](project/lib).
 
-This product bundles freetype 2.7.1, which is available under an
+This product bundles freetype 2.9.1, which is available under an
 "FTL" (BSD-style) license. For details, see [project/lib/freetype/](project/lib).
 
 This product bundles harfbuzz 1.4.6, which is available under an
