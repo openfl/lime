@@ -2,7 +2,7 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 @:enum abstract CURLInfo(Int) from Int to Int from UInt to UInt {
-	
+
 	var NONE = 0;
 	var EFFECTIVE_URL = 0x100000 + 1;
 	var RESPONSE_CODE = 0x200000 + 2;
@@ -59,7 +59,7 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 	var PROXY_SSL_VERIFYRESULT = 0x200000 + 47;
 	var PROTOCOL = 0x200000 + 48;
 	var SCHEME = 0x100000 + 49;
-	
+
 }
 
 

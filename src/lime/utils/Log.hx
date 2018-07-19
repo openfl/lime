@@ -10,69 +10,69 @@ import haxe.PosInfos;
 
 
 class Log {
-	
-	
+
+
 	public static var level:LogLevel;
 	public static var throwErrors:Bool = true;
-	
-	
+
+
 	public static function debug (message:Dynamic, ?info:PosInfos):Void {
-		
+
 		if (level >= LogLevel.DEBUG) {
-			
+
 			#if js
 				untyped __js__("console").debug ("[" + info.className + "] " + message);
 			#else
 				println ("[" + info.className + "] " + Std.string (message));
 			#end
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public static function error (message:Dynamic, ?info:PosInfos):Void {
-		
+
 		if (level >= LogLevel.ERROR) {
-			
+
 			var message = "[" + info.className + "] ERROR: " + message;
-			
+
 			if (throwErrors) {
-				
+
 				throw message;
-				
+
 			} else {
-				
+
 				#if js
 					untyped __js__("console").error (message);
 				#else
 					println (message);
 				#end
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public static function info (message:Dynamic, ?info:PosInfos):Void {
-		
+
 		if (level >= LogLevel.INFO) {
-			
+
 			#if js
 				untyped __js__("console").info ("[" + info.className + "] " + message);
 			#else
 				println ("[" + info.className + "] " + Std.string (message));
 			#end
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public static inline function print (message:Dynamic):Void {
-		
+
 		#if sys
 		Sys.print (Std.string (message));
 		#elseif flash
@@ -82,12 +82,12 @@ class Log {
 		#else
 		trace (message);
 		#end
-		
+
 	}
-	
-	
+
+
 	public static inline function println (message:Dynamic):Void {
-		
+
 		#if sys
 		Sys.println (Std.string (message));
 		#elseif flash
@@ -97,38 +97,38 @@ class Log {
 		#else
 		trace (Std.string (message));
 		#end
-		
+
 	}
-	
-	
+
+
 	public static function verbose (message:Dynamic, ?info:PosInfos):Void {
-		
+
 		if (level >= LogLevel.VERBOSE) {
-			
+
 			println ("[" + info.className + "] " + message);
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public static function warn (message:Dynamic, ?info:PosInfos):Void {
-		
+
 		if (level >= LogLevel.WARN) {
-			
+
 			#if js
 				untyped __js__("console").warn ("[" + info.className + "] WARNING: " + message);
 			#else
 				println ("[" + info.className + "] WARNING: " + Std.string (message));
 			#end
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	private static function __init__ ():Void {
-		
+
 		#if no_traces
 		level = NONE;
 		#elseif verbose
@@ -148,7 +148,7 @@ class Log {
 			#end
 		}
 		#end
-		
+
 		#if js
 		if (untyped __js__("typeof console") == "undefined") {
 			untyped __js__("console = {}");
@@ -157,8 +157,8 @@ class Log {
 			untyped __js__("console").log = function () {};
 		}
 		#end
-		
+
 	}
-	
-	
+
+
 }

@@ -23,7 +23,7 @@
 #define HL_H
 
 /**
-	Detailed documentation can be found here: 
+	Detailed documentation can be found here:
 	https://github.com/HaxeFoundation/hashlink/wiki/
 **/
 
@@ -765,9 +765,9 @@ typedef struct {
 #	endif
 #elif defined(LIBHL_STATIC)
 #	ifdef __cplusplus
-#		define	HL_PRIM				extern "C" 
+#		define	HL_PRIM				extern "C"
 #	else
-#		define	HL_PRIM				
+#		define	HL_PRIM
 #	endif
 #define DEFINE_PRIM_WITH_NAME(t,name,args,realName)
 #else

@@ -9,14 +9,14 @@ import lime.utils.Float32Array;
 /**
 	The `WebGLRenderContext` allows access to WebGL features when OpenGL, OpenGL ES or
 	WebGL is the render context type of the `Window`.
-	
+
 	Using a WebGL context on a desktop or mobile platform enables support for cross-platform
 	code that should run all platforms (when hardware acceleration is supported).
-	
+
 	You can convert from `lime.graphics.RenderContext`, `lime.graphics.OpenGLRenderContext`,
 	`lime.graphics.OpenGLES3RenderContext`, `lime.graphics.OpenGLES2RenderContext`,
 	`lime.graphics.WebGL2RenderContext` or `lime.graphics.opengl.GL` directly if desired:
-	
+
 	```
 	var webgl:WebGLRenderContext = window.context;
 	var webgl:WebGLRenderContext = gl;
@@ -31,49 +31,49 @@ import lime.utils.Float32Array;
 
 
 abstract WebGLRenderContext(WebGL2RenderContext) {
-	
-	
-	
+
+
+
 	public function bufferData (target:Int, srcData:#if (!js || !html5 || display) ArrayBufferView #else Dynamic #end, usage:Int):Void {
-		
+
 		this.bufferData (target, srcData, usage);
-		
+
 	}
-	
-	
+
+
 	public inline function bufferSubData (target:Int, offset:Int, srcData:#if (!js || !html5 || display) ArrayBufferView #else Dynamic #end):Void {
-		
+
 		this.bufferSubData (target, offset, srcData);
-		
+
 	}
-	
-	
+
+
 	public function compressedTexImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:#if (!js || !html5 || display) ArrayBufferView #else Dynamic #end):Void {
-		
+
 		this.compressedTexImage2D (target, level, internalformat, width, height, border, srcData);
-		
+
 	}
-	
-	
+
+
 	public inline function compressedTexSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:#if (!js || !html5 || display) ArrayBufferView #else Dynamic #end):Void {
-		
+
 		this.compressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, srcData);
-		
+
 	}
-	
-	
+
+
 	public inline function readPixels (x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:#if (!js || !html5 || display) ArrayBufferView #else Dynamic #end):Void {
-		
+
 		this.readPixels (x, y, width, height, format, type, pixels);
-		
+
 	}
-	
-	
+
+
 	#if (!js || !html5 || lime_doc_gen)
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView):Void {
-		
+
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
-		
+
 	}
 	#else
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:Dynamic /*ImageBitmap*/):Void {
@@ -83,18 +83,18 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) VideoElement #else Dynamic #end):Void {
 	//public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView):Void {
 	public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic):Void {
-		
+
 		this.texImage2D (target, level, internalformat, width, height, border, format, type, srcData);
-		
+
 	}
 	#end
-	
-	
+
+
 	#if (!js || !html5 || lime_doc_gen)
 	public inline function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
-		
+
 		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
-		
+
 	}
 	#else
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) CanvasElement #else Dynamic #end):Void {
@@ -104,94 +104,94 @@ abstract WebGLRenderContext(WebGL2RenderContext) {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:#if (js && html5) VideoElement #else Dynamic #end):Void {
 	//public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView):Void {
 	public function texSubImage2D (target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic, ?type:Int, ?srcData:Dynamic):Void {
-		
+
 		this.texSubImage2D (target, level, xoffset, yoffset, width, height, format, type, srcData);
-		
+
 	}
 	#end
-	
-	
+
+
 	public function uniformMatrix2fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
-		
+
 		this.uniformMatrix2fv (location, transpose, v);
-		
+
 	}
-	
-	
+
+
 	public function uniformMatrix3fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
-		
+
 		this.uniformMatrix3fv (location, transpose, v);
-		
+
 	}
-	
-	
+
+
 	public function uniformMatrix4fv (location:GLUniformLocation, transpose:Bool, v:Float32Array):Void {
-		
+
 		this.uniformMatrix4fv (location, transpose, v);
-		
+
 	}
-	
-	
+
+
 	@:from private static function fromWebGL2RenderContext (gl:WebGL2RenderContext):WebGLRenderContext {
-		
+
 		return cast gl;
-		
+
 	}
-	
-	
+
+
 	@:from private static function fromRenderContext (context:RenderContext):WebGLRenderContext {
-		
+
 		return context.webgl;
-		
+
 	}
-	
-	
+
+
 	@:from private static function fromGL (gl:Class<GL>):WebGLRenderContext {
-		
+
 		return cast GL.context;
-		
+
 	}
-	
-	
+
+
 	#if (!doc_gen && lime_opengl)
 	@:from private static function fromOpenGLContext (gl:OpenGLRenderContext):WebGLRenderContext {
-		
+
 		#if (sys && lime_cffi && lime_opengl)
 		return cast gl;
 		#else
 		return null;
 		#end
-		
+
 	}
 	#end
-	
-	
+
+
 	#if (!doc_gen && (lime_opengl || lime_opengles))
 	@:from private static function fromOpenGLES2Context (gl:OpenGLES2RenderContext):WebGLRenderContext {
-		
+
 		#if (sys && lime_cffi && lime_opengl)
 		return cast gl;
 		#else
 		return null;
 		#end
-		
+
 	}
 	#end
-	
-	
+
+
 	#if (!doc_gen && (lime_opengl || lime_opengles))
 	@:from private static function fromOpenGLES3Context (gl:OpenGLES3RenderContext):WebGLRenderContext {
-		
+
 		#if (sys && lime_cffi && lime_opengl)
 		return cast gl;
 		#else
 		return null;
 		#end
-		
+
 	}
 	#end
-	
-	
+
+
 }
 
 

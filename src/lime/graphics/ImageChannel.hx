@@ -6,25 +6,25 @@ package lime.graphics;
 **/
 
 enum ImageChannel {
-	
+
 	/**
 		The red color channel
 	**/
 	RED;
-	
+
 	/**
 		The green color channel
 	**/
 	GREEN;
-	
+
 	/**
 		The blue color channel
 	**/
 	BLUE;
-	
+
 	/**
 		The alpha color channel
 	**/
 	ALPHA;
-	
+
 }

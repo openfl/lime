@@ -7,363 +7,363 @@ import lime._internal.unifill.CodePoint;
 
 
 abstract UTF8String(String) from String to String {
-	
-	
+
+
 	#if sys
 	private static var lowercaseMap:Map<Int, Int>;
 	private static var uppercaseMap:Map<Int, Int>;
 	#end
-	
+
 	/**
 		The number of characters in `this` String.
 	**/
 	public var length (get, never):Int;
-	
-	
+
+
 	/**
 		Creates a copy from a given String.
 	**/
 	public function new (str:String) {
-		
+
 		this = new String (str);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the character at position `index` of `this` String.
-		
+
 		If `index` is negative or exceeds `this.length`, the empty String `""`
 		is returned.
 	**/
 	public function charAt (index:Int):String {
-		
+
 		return Unifill.uCharAt (this, index);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the character code at position `index` of `this` String.
-		
+
 		If `index` is negative or exceeds `this.length`, `null` is returned.
-		
+
 		To obtain the character code of a single character, `"x".code` can be
 		used instead to inline the character code at compile time. Note that
 		this only works on String literals of length 1.
 	**/
 	public function charCodeAt (index:Int):Null<Int> {
-		
+
 		if (index < 0 || index >= Unifill.uLength (this)) return null;
 		return Unifill.uCharCodeAt (this, index);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the String corresponding to the character code `code`.
-		
+
 		If `code` is negative or has another invalid value, the result is
 		unspecified.
 	**/
 	public static function fromCharCode (code:Int):String {
-		
+
 		return CodePoint.fromInt (code);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the string corresponding to the array of character codes `codes`.
-		
+
 		If #unifill is defined, these codes will be treated as UTF-8 code points,
 		otherwise it will default to using String.fromCharCode() for each character
 	 **/
 	public static function fromCharCodes (codes:Array<Int>):String {
-		
+
 		var s = "";
-		
+
 		for (code in codes) {
-			
+
 			s += CodePoint.fromInt (code);
-			
+
 		}
-		
+
 		return s;
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the position of the leftmost occurence of `str` within `this`
 		String.
-		
+
 		If `startIndex` is given, the search is performed within the substring
 		of `this` String starting from `startIndex`. Otherwise the search is
 		performed within `this` String. In either case, the returned position
 		is relative to the beginning of `this` String.
-		
+
 		If `str` cannot be found, -1 is returned.
 	**/
 	public function indexOf (str:String, startIndex:Int = 0):Int {
-		
+
 		return Unifill.uIndexOf (this, str, startIndex);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the position of the rightmost occurence of `str` within `this`
 		String.
-		
+
 		If `startIndex` is given, the search is performed within the substring
 		of `this` String from 0 to `startIndex`. Otherwise the search is
 		performed within `this` String. In either case, the returned position
 		is relative to the beginning of `this` String.
-		
+
 		If `str` cannot be found, -1 is returned.
 	**/
 	public function lastIndexOf(str:String, ?startIndex:Int):Int {
-		
+
 		return Unifill.uLastIndexOf (this, str, startIndex);
-		
+
 	}
-	
-	
+
+
 	/**
 		Splits `this` String at each occurence of `delimiter`.
-		
+
 		If `this` String is the empty String `""`, the result is not consistent
 		across targets and may either be `[]` (on Js, Cpp) or `[""]`.
-		
+
 		If `delimiter` is the empty String `""`, `this` String is split into an
 		Array of `this.length` elements, where the elements correspond to the
 		characters of `this` String.
-		
+
 		If `delimiter` is not found within `this` String, the result is an Array
 		with one element, which equals `this` String.
-		
+
 		If `delimiter` is null, the result is unspecified.
-		
+
 		Otherwise, `this` String is split into parts at each occurence of
 		`delimiter`. If `this` String starts (or ends) with `delimiter`, the
 		result `Array` contains a leading (or trailing) empty String `""` element.
 		Two subsequent delimiters also result in an empty String `""` element.
 	**/
 	public function split (delimiter:String):Array<String> {
-		
+
 		return Unifill.uSplit (this, delimiter);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns `len` characters of `this` String, starting at position `pos`.
-		
+
 		If `len` is omitted, all characters from position `pos` to the end of
 		`this` String are included.
-		
+
 		If `pos` is negative, its value is calculated from the end of `this`
 		String by `this.length + pos`. If this yields a negative value, 0 is
 		used instead.
-		
+
 		If the calculated position + `len` exceeds `this.length`, the characters
 		from that position to the end of `this` String are returned.
-		
+
 		If `len` is negative, the result is unspecified.
 	**/
 	public function substr (pos:Int, ?len:Int):String {
-		
+
 		if (len == null) {
 
 			len = (this:UTF8String).length - pos;
 
 		}
-	
+
 		return Utf8.sub (this, pos, len);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the part of `this` String from `startIndex` to but not including `endIndex`.
-		
+
 		If `startIndex` or `endIndex` are negative, 0 is used instead.
-		
+
 		If `startIndex` exceeds `endIndex`, they are swapped.
-		
+
 		If the (possibly swapped) `endIndex` is omitted or exceeds
 		`this.length`, `this.length` is used instead.
-		
+
 		If the (possibly swapped) `startIndex` exceeds `this.length`, the empty
 		String `""` is returned.
 	**/
 	public function substring (startIndex:Int, ?endIndex:Int):String {
-		
+
 		return Unifill.uSubstring (this, startIndex, endIndex);
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns a String where all characters of `this` String are lower case.
-		
+
 		Affects the characters `A-Z`. Other characters remain unchanged.
 	**/
 	public function toLowerCase ():String {
-		
+
 		#if sys
-		
+
 		if (lowercaseMap == null) {
-			
+
 			lowercaseMap = new Map<Int, Int> ();
 			Utf8Ext.fillUpperToLowerMap (uppercaseMap);
-			
+
 		}
-		
+
 		var r = new Utf8 ();
-		
+
 		Utf8.iter (this, function (v) {
-			
+
 			r.addChar (lowercaseMap.exists (v) ? lowercaseMap[v] : v);
-			
+
 		});
-		
+
 		return r.toString ();
-		
+
 		#else
-		
+
 		return this.toLowerCase ();
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns the String itself.
 	**/
 	public function toString ():String {
-		
+
 		return this;
-		
+
 	}
-	
-	
+
+
 	/**
 		Returns a String where all characters of `this` String are upper case.
-		
+
 		Affects the characters `a-z`. Other characters remain unchanged.
 	**/
 	public function toUpperCase ():String {
-		
+
 		#if sys
-		
+
 		if (uppercaseMap == null) {
-			
+
 			uppercaseMap = new Map<Int, Int> ();
 			Utf8Ext.fillLowerToUpperMap (uppercaseMap);
-			
+
 		}
-		
+
 		var r = new Utf8 ();
-		
+
 		Utf8.iter (this, function(v) {
-			
+
 			r.addChar (uppercaseMap.exists (v) ? uppercaseMap[v] : v);
-			
+
 		});
-		
+
 		return r.toString ();
-		
+
 		#else
-		
+
 		return this.toUpperCase ();
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	@:op(A == B) private static function equals (a:UTF8String, b:UTF8String):Bool {
-		
+
 		if (a == null || b == null) return (a:String) == (b:String);
 		return Unifill.uCompare (a, b) == 0;
-		
+
 	}
-	
-	
+
+
 	@:op(A < B) private static function lt (a:UTF8String, b:UTF8String):Bool {
-		
+
 		if (b == null) return false;
 		if (a == null) return true;
 		return Unifill.uCompare (a, b) == -1;
-		
+
 	}
-	
-	
+
+
 	@:op(A > B) private static function gt (a:UTF8String, b:UTF8String):Bool {
-		
+
 		if (a == null) return false;
 		if (b == null) return true;
 		return Unifill.uCompare (a, b) == 1;
-		
+
 	}
-	
-	
+
+
 	@:op(A <= B) private static function lteq (a:UTF8String, b:UTF8String):Bool {
-		
+
 		if (b == null) return (a == null);
 		if (a == null) return true;
 		return Unifill.uCompare (a, b) != 1;
-		
+
 	}
-	
-	
+
+
 	@:op(A >= B) private static function gteq (a:UTF8String, b:UTF8String):Bool {
-		
+
 		if (a == null) return (b == null);
 		if (b == null) return true;
 		return Unifill.uCompare (a, b) != -1;
-		
+
 	}
-	
-	
+
+
 	@:op(A + B) private static function plus (a:UTF8String, b:UTF8String):UTF8String {
-		
+
 		if (a == null && b == null) return null;
 		if (a == null) return b;
 		if (b == null) return a;
-		
+
 		var sb = new StringBuf ();
 		sb.add (Std.string (a));
 		sb.add (Std.string (b));
 		return sb.toString ();
-		
+
 	}
-	
-	
+
+
 	@:from static function fromDynamic (value:Dynamic):UTF8String {
-		
+
 		return Std.string (value);
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Get & Set Methods
-	
-	
-	
-	
+
+
+
+
 	@:noCompletion private function get_length ():Int {
-		
+
 		return this == null ? 0 : Utf8.length (this);
-		
+
 	}
-	
-	
+
+
 }
 
 

@@ -58,10 +58,10 @@ typedef CFFIPointer = Dynamic;
 
 
 class NativeCFFI {
-	
-	
+
+
 	#if (lime_cffi && !macro)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_application_create ():Dynamic;
@@ -359,7 +359,7 @@ class NativeCFFI {
 	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_zlib_decompress", "ooo", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_application_create = CFFI.load ("lime", "lime_application_create", 0);
 	private static var lime_application_event_manager_register = CFFI.load ("lime", "lime_application_event_manager_register", 2);
@@ -508,7 +508,7 @@ class NativeCFFI {
 	private static var lime_zlib_compress = CFFI.load ("lime", "lime_zlib_compress", 2);
 	private static var lime_zlib_decompress = CFFI.load ("lime", "lime_zlib_decompress", 2);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_application_create") private static function lime_application_create ():CFFIPointer { return null; }
 	@:hlNative("lime", "lime_application_event_manager_register") private static function lime_application_event_manager_register (callback:Void->Void, eventObject:ApplicationEventInfo):Void {}
@@ -662,12 +662,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_zlib_compress") private static function lime_zlib_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_zlib_decompress") private static function lime_zlib_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && android)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
@@ -693,7 +693,7 @@ class NativeCFFI {
 	private static var lime_jni_set_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_jni_set_static", "oov", false));
 	#end
 	#end
-	
+
 	#if !cpp
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
@@ -706,12 +706,12 @@ class NativeCFFI {
 	@:cffi private static function lime_jni_set_member (jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 	@:cffi private static function lime_jni_set_static (jniField:Dynamic, value:Dynamic):Void;
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_openal)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_al_buffer_data (buffer:CFFIPointer, format:Int, data:Dynamic, size:Int, freq:Int):Void;
@@ -806,7 +806,7 @@ class NativeCFFI {
 	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
 	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
-	
+
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
 	@:cffi private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void;
 	@:cffi private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:Float32):Void;
@@ -940,7 +940,7 @@ class NativeCFFI {
 	private static var lime_al_remove_send = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_al_remove_send", "oiv", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_al_buffer_data = CFFI.load ("lime", "lime_al_buffer_data", 5);
 	private static var lime_al_buffer3f = CFFI.load ("lime", "lime_al_buffer3f", 5);
@@ -1034,7 +1034,7 @@ class NativeCFFI {
 	private static var lime_alc_process_context = CFFI.load ("lime", "lime_alc_process_context", 1);
 	private static var lime_alc_resume_device = CFFI.load ("lime", "lime_alc_resume_device", 1);
 	private static var lime_alc_suspend_context = CFFI.load ("lime", "lime_alc_suspend_context", 1);
-	
+
 	private static var lime_al_gen_filter = CFFI.load ("lime", "lime_al_gen_filter", 0);
 	private static var lime_al_filteri = CFFI.load ("lime", "lime_al_filteri", 3);
 	private static var lime_al_filterf = CFFI.load ("lime", "lime_al_filterf", 3);
@@ -1055,7 +1055,7 @@ class NativeCFFI {
 	private static var lime_al_is_aux = CFFI.load ("lime", "lime_al_is_aux", 1);
 	private static var lime_al_remove_send = CFFI.load ("lime", "lime_al_remove_send", 2);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_al_buffer_data") private static function lime_al_buffer_data (buffer:CFFIPointer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {}
 	@:hlNative("lime", "lime_al_buffer3f") private static function lime_al_buffer3f (buffer:CFFIPointer, param:Int, value1:hl.F32, value2:hl.F32, value3:hl.F32):Void {}
@@ -1149,7 +1149,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_alc_process_context") private static function lime_alc_process_context (context:ALContext):Void {}
 	@:hlNative("lime", "lime_alc_resume_device") private static function lime_alc_resume_device (device:ALDevice):Void {}
 	@:hlNative("lime", "lime_alc_suspend_context") private static function lime_alc_suspend_context (context:ALContext):Void {}
-	
+
 	@:hlNative("lime", "lime_al_gen_filter") private static function lime_al_gen_filter():CFFIPointer { return null; }
 	@:hlNative("lime", "lime_al_filteri") private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void {}
 	@:hlNative("lime", "lime_al_filterf") private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:hl.F32):Void {}
@@ -1170,12 +1170,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_al_is_aux") private static function lime_al_is_aux(aux:CFFIPointer):Bool { return false; }
 	@:hlNative("lime", "lime_al_remove_send") private static function lime_al_remove_send (source:CFFIPointer, index:Int):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_cairo)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_cairo_arc (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
@@ -1414,7 +1414,7 @@ class NativeCFFI {
 	private static var lime_cairo_surface_flush = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_cairo_surface_flush", "ov", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_cairo_arc = CFFI.load ("lime", "lime_cairo_arc", -1);
 	private static var lime_cairo_arc_negative = CFFI.load ("lime", "lime_cairo_arc_negative", -1);
@@ -1533,7 +1533,7 @@ class NativeCFFI {
 	private static var lime_cairo_pattern_set_matrix = CFFI.load ("lime", "lime_cairo_pattern_set_matrix", 2);
 	private static var lime_cairo_surface_flush = CFFI.load ("lime", "lime_cairo_surface_flush", 1);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_cairo_arc") private static function lime_cairo_arc (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {}
 	@:hlNative("lime", "lime_cairo_arc_negative") private static function lime_cairo_arc_negative (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {}
@@ -1652,12 +1652,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_pattern_set_matrix") private static function lime_cairo_pattern_set_matrix (handle:CFFIPointer, matrix:Matrix3):Void {}
 	@:hlNative("lime", "lime_cairo_surface_flush") private static function lime_cairo_surface_flush (surface:CFFIPointer):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_curl)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
@@ -1717,7 +1717,7 @@ class NativeCFFI {
 	private static var lime_curl_multi_wait = new cpp.Callable<cpp.Object->Int->Int> (cpp.Prime._loadPrime ("lime", "lime_curl_multi_wait", "oii", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_curl_getdate = CFFI.load ("lime", "lime_curl_getdate", 2);
 	private static var lime_curl_global_cleanup = CFFI.load ("lime", "lime_curl_global_cleanup", 0);
@@ -1747,7 +1747,7 @@ class NativeCFFI {
 	private static var lime_curl_multi_setopt = CFFI.load ("lime", "lime_curl_multi_setopt", 3);
 	private static var lime_curl_multi_wait = CFFI.load ("lime", "lime_curl_multi_wait", 2);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_curl_getdate") private static function lime_curl_getdate (date:String, now:Float):Float { return 0; }
 	@:hlNative("lime", "lime_curl_global_cleanup") private static function lime_curl_global_cleanup ():Void {}
@@ -1777,12 +1777,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_curl_multi_setopt") private static function lime_curl_multi_setopt (multi_handle:CFFIPointer, option:Int, parameter:Dynamic):Int { return 0; }
 	@:hlNative("lime", "lime_curl_multi_wait") private static function lime_curl_multi_wait (multi_handle:CFFIPointer, timeout_ms:Int):Int { return 0; }
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_opengl)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
@@ -2326,7 +2326,7 @@ class NativeCFFI {
 	private static var lime_gl_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_gl_wait_sync", "oiiiv", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_gl_active_texture = CFFI.load ("lime", "lime_gl_active_texture", 1);
 	private static var lime_gl_attach_shader = CFFI.load ("lime", "lime_gl_attach_shader", 2);
@@ -2598,7 +2598,7 @@ class NativeCFFI {
 	private static var lime_gl_viewport = CFFI.load ("lime", "lime_gl_viewport", 4);
 	private static var lime_gl_wait_sync = CFFI.load ("lime", "lime_gl_wait_sync", 4);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_gl_active_texture") private static function lime_gl_active_texture (texture:Int):Void {}
 	@:hlNative("lime", "lime_gl_attach_shader") private static function lime_gl_attach_shader (program:Int, shader:Int):Void {}
@@ -2870,12 +2870,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_viewport") private static function lime_gl_viewport (x:Int, y:Int, width:Int, height:Int):Void {}
 	@:hlNative("lime", "lime_gl_wait_sync") private static function lime_gl_wait_sync (sync:CFFIPointer, flags:Int, timeoutA:Int, timeoutB:Int):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_harfbuzz)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
@@ -3101,7 +3101,7 @@ class NativeCFFI {
 	private static var lime_hb_shape = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_shape", "ooov", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_hb_blob_create:lime.utils.DataPointer->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_blob_create", 3);
 	private static var lime_hb_blob_create_sub_blob:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_blob_create_sub_blob", 3);
@@ -3214,7 +3214,7 @@ class NativeCFFI {
 	private static var lime_hb_set_union:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_union", 2);
 	private static var lime_hb_shape:Dynamic->Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_shape", 3);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_hb_blob_create") private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer { return null; }
@@ -3327,12 +3327,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_hb_set_union") private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void {}
 	@:hlNative("lime", "lime_hb_shape") private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:hl.NativeArray<CFFIPointer>):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_vorbis)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_vorbis_file_bitrate (vorbisFile:Dynamic, bitstream:Int):Int;
@@ -3396,7 +3396,7 @@ class NativeCFFI {
 	private static var lime_vorbis_file_time_total = new cpp.Callable<cpp.Object->Int->Float> (cpp.Prime._loadPrime ("lime", "lime_vorbis_file_time_total", "oid", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_vorbis_file_bitrate = CFFI.load ("lime", "lime_vorbis_file_bitrate", 2);
 	private static var lime_vorbis_file_bitrate_instant = CFFI.load ("lime", "lime_vorbis_file_bitrate_instant", 1);
@@ -3428,7 +3428,7 @@ class NativeCFFI {
 	private static var lime_vorbis_file_time_tell = CFFI.load ("lime", "lime_vorbis_file_time_tell", 1);
 	private static var lime_vorbis_file_time_total = CFFI.load ("lime", "lime_vorbis_file_time_total", 2);
 	#end
-	
+
 	#if hl
 	@:cffi private static function lime_vorbis_file_bitrate (vorbisFile:Dynamic, bitstream:Int):Int;
 	@:cffi private static function lime_vorbis_file_bitrate_instant (vorbisFile:Dynamic):Int;
@@ -3460,8 +3460,8 @@ class NativeCFFI {
 	@:cffi private static function lime_vorbis_file_time_tell (vorbisFile:Dynamic):Float;
 	@:cffi private static function lime_vorbis_file_time_total (vorbisFile:Dynamic, bitstream:Int):Float;
 	#end
-	
+
 	#end
-	
-	
+
+
 }

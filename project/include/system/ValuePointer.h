@@ -6,19 +6,19 @@
 
 
 namespace lime {
-	
-	
+
+
 	class ValuePointer {
-		
-		
+
+
 		public:
-			
+
 			ValuePointer (vobj* handle);
 			ValuePointer (vdynamic* handle);
 			ValuePointer (vclosure* handle);
 			ValuePointer (value handle);
 			~ValuePointer ();
-			
+
 			void* Call ();
 			void* Call (void* arg0);
 			void* Call (void* arg0, void* arg1);
@@ -30,16 +30,16 @@ namespace lime {
 			bool IsHLValue ();
 			void Set (vobj* handle);
 			void Set (value handle);
-		
+
 		private:
-			
+
 			gcroot cffiRoot;
 			value* cffiValue;
 			vobj* hlValue;
-		
+
 	};
-	
-	
+
+
 }
 
 

@@ -15,13 +15,13 @@
 
 
 namespace lime {
-	
-	
+
+
 	class ImageDataUtil {
-		
-		
+
+
 		public:
-			
+
 			static void ColorTransform (Image* image, Rectangle* rect, ColorMatrix* ColorMatrix);
 			static void CopyChannel (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int srcChannel, int destChannel);
 			static void CopyPixels (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, Image* alphaImage, Vector2* alphaPoint, bool mergeAlpha);
@@ -35,41 +35,41 @@ namespace lime {
 			static void SetPixels (Image* image, Rectangle* rect, Bytes* bytes, int offset, PixelFormat format, Endian endian);
 			static int Threshold (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int operation, int32_t threshold, int32_t color, int32_t mask, bool copySource);
 			static void UnmultiplyAlpha (Image* image);
-		
-		
+
+
 	};
-	
-	
+
+
 	class ImageDataView {
-		
-		
+
+
 		public:
-			
+
 			ImageDataView (Image* image, Rectangle* rect);
-			
+
 			void Clip (int x, int y, int width, int height);
 			bool HasRow (int y);
 			void Offset (int x, int y);
 			int Row (int y);
-			
+
 			int x;
 			int y;
 			int width;
 			int height;
-		
+
 		private:
-			
+
 			void __Update ();
-			
+
 			int byteOffset;
 			Image* image;
 			Rectangle* rect;
 			int stride;
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

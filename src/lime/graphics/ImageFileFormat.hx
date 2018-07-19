@@ -6,20 +6,20 @@ package lime.graphics;
 **/
 
 enum ImageFileFormat {
-	
+
 	/**
 		An image file encoded in the BMP file format
 	**/
 	BMP;
-	
+
 	/**
 		An image file encoded in the JPEG file format
 	**/
 	JPEG;
-	
+
 	/**
 		An image file encoded in the PNG file format
 	**/
 	PNG;
-	
+
 }

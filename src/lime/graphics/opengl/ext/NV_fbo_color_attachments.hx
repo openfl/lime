@@ -3,9 +3,9 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class NV_fbo_color_attachments {
-	
-	
+@:noCompletion class NV_fbo_color_attachments {
+
+
 	public var MAX_COLOR_ATTACHMENTS_NV = 0x8CDF;
 	public var COLOR_ATTACHMENT0_NV = 0x8CE0;
 	public var COLOR_ATTACHMENT1_NV = 0x8CE1;
@@ -23,13 +23,13 @@ class NV_fbo_color_attachments {
 	public var COLOR_ATTACHMENT13_NV = 0x8CED;
 	public var COLOR_ATTACHMENT14_NV = 0x8CEE;
 	public var COLOR_ATTACHMENT15_NV = 0x8CEF;
-	
-	
+
+
 	@:noCompletion private function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 }

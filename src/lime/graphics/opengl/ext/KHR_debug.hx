@@ -3,9 +3,9 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class KHR_debug {
-	
-	
+@:noCompletion class KHR_debug {
+
+
 	public var DEBUG_OUTPUT_SYNCHRONOUS = 0x8242;
 	public var DEBUG_NEXT_LOGGED_MESSAGE_LENGTH = 0x8243;
 	public var DEBUG_CALLBACK_FUNCTION = 0x8244;
@@ -44,15 +44,15 @@ class KHR_debug {
 	public var CONTEXT_FLAG_DEBUG_BIT = 0x00000002;
 	public var STACK_OVERFLOW = 0x0503;
 	public var STACK_UNDERFLOW = 0x0504;
-	
-	
+
+
 	@:noCompletion private function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 	//public function debugMessageControl (source:Int, type:Int, severity:Int, count:Int, ids:Array<Int>, enabled:Bool):Void {}
 	//public function debugMessageInsert (source:Int, type:Int, id:Int, severity:Int, message:String):Void {}
 	//public function debugMessageCallback (callback:Dynamic, userParam:Dynamic):Void;
@@ -64,6 +64,6 @@ class KHR_debug {
 	//public function objectPtrLabel (ptr:Dynamic, label:String):Void {}
 	//public function getObjectPtrLabel (ptr:Dynamic):String {}
 	//public function getPointerv (pname:Int, params:Array<Dynamic>):Void {}
-	
-	
+
+
 }

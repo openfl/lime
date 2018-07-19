@@ -5,12 +5,12 @@ import flash.display.Sprite;
 
 
 /**
-	The `FlashRenderContext` represents the primary `flash.display.Sprite` instance when 
+	The `FlashRenderContext` represents the primary `flash.display.Sprite` instance when
 	targeting Flash Player.
-	
+
 	You can convert from `lime.graphics.RenderContext` to `FlashRenderContext` directly
 	if desired:
-	
+
 	```
 	var sprite:FlashRenderContext = window.context;
 	```
@@ -21,15 +21,15 @@ import flash.display.Sprite;
 
 
 abstract FlashRenderContext(Sprite) from Sprite to Sprite {
-	
-	
+
+
 	@:from private static function fromRenderContext (context:RenderContext):FlashRenderContext {
-		
+
 		return context.flash;
-		
+
 	}
-	
-	
+
+
 }
 
 
@@ -40,15 +40,15 @@ abstract FlashRenderContext(Sprite) from Sprite to Sprite {
 
 
 abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic {
-	
-	
+
+
 	@:from private static function fromRenderContext (context:RenderContext):FlashRenderContext {
-		
+
 		return null;
-		
+
 	}
-	
-	
+
+
 }
 
 

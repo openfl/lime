@@ -7,10 +7,10 @@ import lime.graphics.cairo.Cairo;
 /**
 	The `CairoRenderContext` represents the primary `lime.graphics.Cairo` instance when Cairo
 	is the render context type of the `Window`.
-	
+
 	You can convert from `lime.graphics.RenderContext` to `CairoRenderContext` directly
 	if desired:
-	
+
 	```
 	var cairo:CairoRenderContext = window.context;
 	```
@@ -21,15 +21,15 @@ import lime.graphics.cairo.Cairo;
 
 
 abstract CairoRenderContext(Cairo) from Cairo to Cairo {
-	
-	
+
+
 	@:from private static function fromRenderContext (context:RenderContext):CairoRenderContext {
-		
+
 		return context.cairo;
-		
+
 	}
-	
-	
+
+
 }
 
 

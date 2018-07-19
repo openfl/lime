@@ -8,8 +8,8 @@ import lime._internal.backend.native.NativeCFFI;
 
 
 @:enum abstract ScanCode(Int) from Int to Int from UInt to UInt {
-	
-	
+
+
 	var UNKNOWN = 0;
 	var BACKSPACE = 42;
 	var TAB = 43;
@@ -246,24 +246,24 @@ import lime._internal.backend.native.NativeCFFI;
 	var BACKLIGHT_UP = 280;
 	var EJECT = 281;
 	var SLEEP = 282;
-	
+
 	@:from public static function fromKeyCode (keyCode:KeyCode):ScanCode {
-		
+
 		return KeyCode.toScanCode (keyCode);
-		
+
 	}
-	
+
 	private static function toKeyCode (scanCode:ScanCode):KeyCode {
-		
+
 		return KeyCode.fromScanCode (scanCode);
-		
+
 	}
-	
+
 	@:op(A > B) private static inline function gt (a:ScanCode, b:ScanCode):Bool { return (a:Int) > (b:Int); }
 	@:op(A >= B) private static inline function gte (a:ScanCode, b:ScanCode):Bool { return (a:Int) >= (b:Int); }
 	@:op(A < B) private static inline function lt (a:ScanCode, b:ScanCode):Bool { return (a:Int) < (b:Int); }
 	@:op(A <= B) private static inline function lte (a:ScanCode, b:ScanCode):Bool { return (a:Int) <= (b:Int); }
 	@:op(A + B) private static inline function plus (a:ScanCode, b:Int):ScanCode { return (a:Int) + b; }
-	
-	
+
+
 }

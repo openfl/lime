@@ -8,15 +8,15 @@ import lime.graphics.opengl.GL;
 
 
 abstract GLQuery(GLObject) from GLObject to GLObject {
-	
-	
+
+
 	@:from private static function fromInt (id:Int):GLQuery {
-		
+
 		return GLObject.fromInt (QUERY, id);
-		
+
 	}
-	
-	
+
+
 }
 
 

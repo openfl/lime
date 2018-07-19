@@ -7,8 +7,8 @@ extern "C" { void std_main (); }
 
 
 namespace lime {
-	
-	
+
+
 	static void report( neko_vm *vm, value exc, int isexc ) {
 		int i;
 		buffer b = alloc_buffer(NULL);
@@ -38,33 +38,33 @@ namespace lime {
 		fprintf(stderr,"%s\n",val_string(buffer_to_string(b)));
 	#	endif
 	}
-	
-	
+
+
 	void NekoVM::Execute (const char *modulePath) {
-		
+
 		neko_vm *vm;
-		
+
 		neko_global_init ();
 		vm = neko_vm_alloc (NULL);
 		neko_vm_select (vm);
-		
+
 		std_main ();
-		
+
 		value mload = neko_default_loader(NULL, 0);
-		
+
 		value args2[] = { alloc_string(modulePath), mload };
 		value exc = NULL;
-		
+
 		val_callEx(mload,val_field(mload,val_id("loadmodule")),args2,2,&exc);
-		
+
 		if( exc != NULL ) {
-			
+
 			report(vm,exc,1);
 			//return 1;
 		}
 		//return 0;
-		
+
 	}
-	
-	
+
+
 }

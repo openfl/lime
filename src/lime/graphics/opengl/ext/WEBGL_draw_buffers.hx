@@ -5,9 +5,9 @@ package lime.graphics.opengl.ext; #if (js && html5)
 
 
 @:native("WEBGL_draw_buffers")
-extern class WEBGL_draw_buffers {
-	
-	
+extern @:noCompletion class WEBGL_draw_buffers {
+
+
 	public var COLOR_ATTACHMENT0_WEBGL:Int;
 	public var COLOR_ATTACHMENT1_WEBGL:Int;
 	public var COLOR_ATTACHMENT2_WEBGL:Int;
@@ -42,10 +42,10 @@ extern class WEBGL_draw_buffers {
 	public var DRAW_BUFFER15_WEBGL:Int;
 	public var MAX_COLOR_ATTACHMENTS_WEBGL:Int;
 	public var MAX_DRAW_BUFFERS_WEBGL:Int;
-	
+
 	public function drawBuffersWEBGL (buffers:Array<Int>):Void;
-	
-	
+
+
 }
 
 

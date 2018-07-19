@@ -8,15 +8,15 @@ import lime.graphics.opengl.GL;
 
 
 abstract GLTexture(GLObject) from GLObject to GLObject {
-	
-	
+
+
 	@:from private static function fromInt (id:Int):GLTexture {
-		
+
 		return GLObject.fromInt (TEXTURE, id);
-		
+
 	}
-	
-	
+
+
 }
 
 

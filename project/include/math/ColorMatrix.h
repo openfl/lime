@@ -9,18 +9,18 @@
 
 
 namespace lime {
-	
-	
+
+
 	class ColorMatrix {
-		
-		
+
+
 		public:
-			
+
 			ColorMatrix ();
 			ColorMatrix (value colorMatrix);
 			ColorMatrix (ArrayBufferView* colorMatrix);
 			~ColorMatrix ();
-			
+
 			float GetAlphaMultiplier ();
 			float GetAlphaOffset ();
 			void GetAlphaTable (unsigned char* table);
@@ -34,17 +34,17 @@ namespace lime {
 			float GetRedMultiplier ();
 			float GetRedOffset ();
 			void GetRedTable (unsigned char* table);
-			
+
 			float data[20];
-		
+
 		private:
-			
+
 			void GetDataTable (unsigned char* table, float multiplier, float offset);
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

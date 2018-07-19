@@ -31,9 +31,9 @@ class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
 #end
 
 private class AbstractHTTPRequest<T> implements _IHTTPRequest {
-	
+
 #end
-	
+
 	public var contentType:String;
 	public var data:Bytes;
 	public var enableResponseHeaders:Bool;
@@ -48,16 +48,16 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	public var uri:String;
 	public var userAgent:String;
 	public var withCredentials:Bool;
-	
+
 	#if !display
 	@:noCompletion private var __backend:HTTPRequestBackend;
 	#end
-	
-	
+
+
 	public function new (uri:String = null) {
-		
+
 		this.uri = uri;
-		
+
 		contentType = "application/x-www-form-urlencoded";
 		followRedirects = true;
 		enableResponseHeaders = false;
@@ -66,31 +66,31 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 		method = GET;
 		timeout = #if lime_default_timeout Std.parseInt (Compiler.getDefine ("lime-default-timeout")) #else 30000 #end;
 		withCredentials = false;
-		
+
 		#if !display
 		__backend = new HTTPRequestBackend ();
 		__backend.init (this);
 		#end
-		
+
 	}
-	
-	
+
+
 	public function cancel ():Void {
-		
+
 		#if !display
 		__backend.cancel ();
 		#end
-		
+
 	}
-	
-	
+
+
 	public function load (uri:String = null):Future<T> {
-		
+
 		return null;
-		
+
 	}
-	
-	
+
+
 }
 
 
@@ -103,48 +103,48 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 #end
 
 class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
-	
-	
+
+
 	public function new (uri:String = null) {
-		
+
 		super (uri);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function fromBytes (bytes:Bytes):T {
-		
+
 		return cast bytes;
-		
+
 	}
-	
-	
+
+
 	public override function load (uri:String = null):Future<T> {
-		
+
 		if (uri != null) {
-			
+
 			this.uri = uri;
-			
+
 		}
-		
+
 		var promise = new Promise<T> ();
 		var future = __backend.loadData (this.uri);
-		
+
 		future.onProgress (promise.progress);
 		future.onError (promise.error);
-		
+
 		future.onComplete (function (bytes) {
-			
+
 			responseData = fromBytes (bytes);
 			promise.complete (responseData);
-			
+
 		});
-		
+
 		return promise.future;
-		
+
 	}
-	
-	
+
+
 }
 
 
@@ -154,46 +154,46 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 #end
 
 class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
-	
-	
+
+
 	public function new (uri:String = null) {
-		
+
 		super (uri);
-		
+
 	}
-	
-	
+
+
 	public override function load (uri:String = null):Future<T> {
-		
+
 		if (uri != null) {
-			
+
 			this.uri = uri;
-			
+
 		}
-		
+
 		var promise = new Promise<T> ();
 		var future = __backend.loadText (this.uri);
-		
+
 		future.onProgress (promise.progress);
 		future.onError (promise.error);
-		
+
 		future.onComplete (function (text) {
-			
+
 			responseData = cast text;
 			promise.complete (responseData);
-			
+
 		});
-		
+
 		return promise.future;
-		
+
 	}
-	
-	
+
+
 }
 
 
 interface _IHTTPRequest {
-	
+
 	public var contentType:String;
 	public var data:haxe.io.Bytes;
 	public var enableResponseHeaders:Bool;
@@ -208,9 +208,9 @@ interface _IHTTPRequest {
 	public var uri:String;
 	public var userAgent:String;
 	public var withCredentials:Bool;
-	
+
 	public function cancel ():Void;
-	
+
 }
 
 

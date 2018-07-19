@@ -6,12 +6,12 @@
 
 
 namespace lime {
-	
-	
+
+
 	class SDLCursor {
-		
+
 		public:
-			
+
 			static SDL_Cursor* arrowCursor;
 			static SDL_Cursor* crosshairCursor;
 			static SDL_Cursor* moveCursor;
@@ -23,10 +23,10 @@ namespace lime {
 			static SDL_Cursor* textCursor;
 			static SDL_Cursor* waitCursor;
 			static SDL_Cursor* waitArrowCursor;
-		
+
 	};
-	
-	
+
+
 }
 
 

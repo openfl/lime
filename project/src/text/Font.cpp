@@ -129,121 +129,121 @@ unsigned long readNextChar (char*& p)
 
 
 namespace {
-	
-	
+
+
 	enum {
-		
+
 		PT_MOVE = 1,
 		PT_LINE = 2,
 		PT_CURVE = 3,
 		PT_CUBIC = 4
-		
+
 	};
-	
-	
+
+
 	struct point {
-		
+
 		int x, y;
 		unsigned char type;
-		
+
 		point () { }
 		point (int x, int y, unsigned char type) : x (x), y (y), type (type) { }
-		
+
 	};
-	
-	
+
+
 	struct glyph {
-		
+
 		FT_ULong char_code;
 		FT_Vector advance;
 		FT_Glyph_Metrics metrics;
 		int index, x, y;
 		std::vector<int> pts;
-		
+
 		glyph () : x (0), y (0) { }
-		
+
 	};
-	
-	
+
+
 	struct kerning {
-		
+
 		int l_glyph, r_glyph;
 		int x, y;
-		
+
 		kerning () { }
 		kerning (int l, int r, int x, int y) : l_glyph (l), r_glyph (r), x (x), y (y) { }
-		
+
 	};
-	
-	
+
+
 	struct glyph_sort_predicate {
-		
+
 		bool operator () (const glyph* g1, const glyph* g2) const {
-			
+
 			return g1->char_code < g2->char_code;
-			
+
 		}
-		
+
 	};
-	
-	
+
+
 	typedef const FT_Vector *FVecPtr;
-	
-	
+
+
 	int outline_move_to (FVecPtr to, void *user) {
-		
+
 		glyph *g = static_cast<glyph*> (user);
-		
+
 		g->pts.push_back (PT_MOVE);
 		g->pts.push_back (to->x);
 		g->pts.push_back (to->y);
-		
+
 		g->x = to->x;
 		g->y = to->y;
-		
+
 		return 0;
-		
+
 	}
-	
-	
+
+
 	int outline_line_to (FVecPtr to, void *user) {
-		
+
 		glyph *g = static_cast<glyph*> (user);
-		
+
 		g->pts.push_back (PT_LINE);
 		g->pts.push_back (to->x - g->x);
 		g->pts.push_back (to->y - g->y);
-		
+
 		g->x = to->x;
 		g->y = to->y;
-		
+
 		return 0;
-		
+
 	}
-	
-	
+
+
 	int outline_conic_to (FVecPtr ctl, FVecPtr to, void *user) {
-		
+
 		glyph *g = static_cast<glyph*> (user);
-		
+
 		g->pts.push_back (PT_CURVE);
 		g->pts.push_back (ctl->x - g->x);
 		g->pts.push_back (ctl->y - g->y);
 		g->pts.push_back (to->x - ctl->x);
 		g->pts.push_back (to->y - ctl->y);
-		
+
 		g->x = to->x;
 		g->y = to->y;
-		
+
 		return 0;
-		
+
 	}
-	
-	
+
+
 	int outline_cubic_to (FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
-		
+
 		glyph *g = static_cast<glyph*> (user);
-		
+
 		g->pts.push_back (PT_CUBIC);
 		g->pts.push_back (ctl1->x - g->x);
 		g->pts.push_back (ctl1->y - g->y);
@@ -251,21 +251,21 @@ namespace {
 		g->pts.push_back (ctl2->y - ctl1->y);
 		g->pts.push_back (to->x - ctl2->x);
 		g->pts.push_back (to->y - ctl2->y);
-		
+
 		g->x = to->x;
 		g->y = to->y;
-		
+
 		return 0;
-		
+
 	}
-	
-	
+
+
 }
 
 
 namespace lime {
-	
-	
+
+
 	static int id_buffer;
 	static int id_charCode;
 	static int id_codepoint;
@@ -286,12 +286,12 @@ namespace lime {
 	static int id_x;
 	static int id_y;
 	static bool init = false;
-	
-	
+
+
 	static void initialize () {
-		
+
 		if (!init) {
-			
+
 			id_width = val_id ("width");
 			id_height = val_id ("height");
 			id_x = val_id ("x");
@@ -299,7 +299,7 @@ namespace lime {
 			id_offset = val_id ("offset");
 			id_size = val_id ("size");
 			id_codepoint = val_id ("codepoint");
-			
+
 			id_buffer = val_id ("buffer");
 			id_charCode = val_id ("charCode");
 			id_horizontalAdvance = val_id ("horizontalAdvance");
@@ -312,87 +312,87 @@ namespace lime {
 			id_verticalAdvance = val_id ("verticalAdvance");
 			id_verticalBearingX = val_id ("verticalBearingX");
 			id_verticalBearingY = val_id ("verticalBearingY");
-			
+
 			init = true;
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	Font::Font (Resource *resource, int faceIndex) {
-		
+
 		this->library = 0;
 		this->face = 0;
 		this->faceMemory = 0;
-		
+
 		if (resource) {
-			
+
 			int error;
 			FT_Library library;
-			
+
 			error = FT_Init_FreeType (&library);
-			
+
 			if (error) {
-				
+
 				printf ("Could not initialize FreeType\n");
-				
+
 			} else {
-				
+
 				FT_Face face;
 				FILE_HANDLE *file = NULL;
 				unsigned char *faceMemory = NULL;
-				
+
 				if (resource->path) {
-					
+
 					file = lime::fopen (resource->path, "rb");
-					
+
 					if (!file) {
-						
+
 						FT_Done_FreeType (library);
 						return;
-						
+
 					}
-					
+
 					if (file->isFile ()) {
-						
+
 						error = FT_New_Face (library, resource->path, faceIndex, &face);
-						
+
 					} else {
-						
+
 						Bytes data;
 						data.ReadFile (resource->path);
 						faceMemory = (unsigned char*)malloc (data.length);
 						memcpy (faceMemory, data.b, data.length);
-						
+
 						lime::fclose (file);
 						file = 0;
-						
+
 						error = FT_New_Memory_Face (library, faceMemory, data.length, faceIndex, &face);
-						
+
 					}
-					
+
 				} else {
-					
+
 					faceMemory = (unsigned char*)malloc (resource->data->length);
 					memcpy (faceMemory, resource->data->b, resource->data->length);
 					error = FT_New_Memory_Face (library, faceMemory, resource->data->length, faceIndex, &face);
-					
+
 				}
-				
+
 				if (file) {
-					
+
 					lime::fclose (file);
 					file = 0;
-					
+
 				}
-				
+
 				if (!error) {
-					
+
 					this->library = library;
 					this->face = face;
 					this->faceMemory = faceMemory;
-					
+
 					/* Set charmap
 					 *
 					 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
@@ -403,57 +403,57 @@ namespace lime {
 					 * slower that UCS-2 - left as an excercise to check.
 					 */
 					for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
-						
+
 						FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
 						FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
-						
+
 						if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
-							
+
 							FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
-							
+
 						}
-						
+
 					}
-					
+
 				} else {
-					
+
 					FT_Done_FreeType (library);
 					free (faceMemory);
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	Font::~Font () {
 
 		if (library) {
-			
+
 			FT_Done_FreeType ((FT_Library)library);
 			library = 0;
 			face = 0;
-			
+
 		}
 
 		free (faceMemory);
 		faceMemory = 0;
-		
+
 	}
-	
-	
+
+
 	value Font::Decompose (int em) {
-		
+
 		int result, i, j;
-		
+
 		FT_Set_Char_Size ((FT_Face)face, em, em, 72, 72);
 		FT_Set_Transform ((FT_Face)face, 0, NULL);
 
 		std::vector<glyph*> glyphs;
-		
+
 		FT_Outline_Funcs ofn =
 		{
 			outline_move_to,
@@ -463,74 +463,74 @@ namespace lime {
 			0, // shift
 			0  // delta
 		};
-		
+
 		// Import every character in face
 		FT_ULong char_code;
 		FT_UInt glyph_index;
-		
+
 		char_code = FT_Get_First_Char ((FT_Face)face, &glyph_index);
-		
+
 		while (glyph_index != 0) {
-			
+
 			if (FT_Load_Glyph ((FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
-				
+
 				glyph *g = new glyph;
 				result = FT_Outline_Decompose (&((FT_Face)face)->glyph->outline, &ofn, g);
-				
+
 				if (result == 0) {
-					
+
 					g->index = glyph_index;
 					g->char_code = char_code;
 					g->metrics = ((FT_Face)face)->glyph->metrics;
 					glyphs.push_back (g);
-					
+
 				} else {
-					
+
 					delete g;
-					
+
 				}
-				
+
 			}
-			
+
 			char_code = FT_Get_Next_Char ((FT_Face)face, char_code, &glyph_index);
-			
+
 		}
-		
+
 		// Ascending sort by character codes
 		std::sort (glyphs.begin (), glyphs.end (), glyph_sort_predicate ());
-		
+
 		std::vector<kerning>  kern;
 		if (FT_HAS_KERNING (((FT_Face)face))) {
-			
+
 			int n = glyphs.size ();
 			FT_Vector v;
-			
+
 			for (i = 0; i < n; i++) {
-				
+
 				int  l_glyph = glyphs[i]->index;
-				
+
 				for (j = 0; j < n; j++) {
-					
+
 					int r_glyph = glyphs[j]->index;
-					
+
 					FT_Get_Kerning ((FT_Face)face, l_glyph, r_glyph, FT_KERNING_DEFAULT, &v);
-					
+
 					if (v.x != 0 || v.y != 0) {
-						
+
 						kern.push_back (kerning (i, j, v.x, v.y));
-						
+
 					}
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		int num_glyphs = glyphs.size ();
-		
+
 		wchar_t* family_name = GetFamilyName ();
-		
+
 		value ret = alloc_empty_object ();
 		alloc_field (ret, val_id ("has_kerning"), alloc_bool (FT_HAS_KERNING (((FT_Face)face))));
 		alloc_field (ret, val_id ("is_fixed_width"), alloc_bool (FT_IS_FIXED_WIDTH (((FT_Face)face))));
@@ -544,24 +544,24 @@ namespace lime {
 		alloc_field (ret, val_id ("ascend"), alloc_int (((FT_Face)face)->ascender));
 		alloc_field (ret, val_id ("descend"), alloc_int (((FT_Face)face)->descender));
 		alloc_field (ret, val_id ("height"), alloc_int (((FT_Face)face)->height));
-		
+
 		delete family_name;
-		
+
 		// 'glyphs' field
 		value neko_glyphs = alloc_array (num_glyphs);
 		for (i = 0; i < glyphs.size (); i++) {
-			
+
 			glyph *g = glyphs[i];
 			int num_points = g->pts.size ();
-			
+
 			value points = alloc_array (num_points);
-			
+
 			for (j = 0; j < num_points; j++) {
-				
+
 				val_array_set_i (points, j, alloc_int (g->pts[j]));
-				
+
 			}
-			
+
 			value item = alloc_empty_object ();
 			val_array_set_i (neko_glyphs, i, item);
 			alloc_field (item, val_id ("char_code"), alloc_int (g->char_code));
@@ -571,78 +571,78 @@ namespace lime {
 			alloc_field (item, val_id ("min_y"), alloc_int (g->metrics.horiBearingY - g->metrics.height));
 			alloc_field (item, val_id ("max_y"), alloc_int (g->metrics.horiBearingY));
 			alloc_field (item, val_id ("points"), points);
-			
+
 			delete g;
-			
+
 		}
-		
+
 		alloc_field (ret, val_id ("glyphs"), neko_glyphs);
-		
+
 		// 'kerning' field
 		if (FT_HAS_KERNING (((FT_Face)face))) {
-			
+
 			value neko_kerning = alloc_array (kern.size ());
-			
+
 			for (i = 0; i < kern.size(); i++) {
-				
+
 				kerning *k = &kern[i];
-				
+
 				value item = alloc_empty_object();
 				val_array_set_i (neko_kerning,i,item);
 				alloc_field (item, val_id ("left_glyph"), alloc_int (k->l_glyph));
 				alloc_field (item, val_id ("right_glyph"), alloc_int (k->r_glyph));
 				alloc_field (item, val_id ("x"), alloc_int (k->x));
 				alloc_field (item, val_id ("y"), alloc_int (k->y));
-				
+
 			}
-			
+
 			alloc_field (ret, val_id ("kerning"), neko_kerning);
-			
+
 		} else {
-			
+
 			alloc_field (ret, val_id ("kerning"), alloc_null ());
-			
+
 		}
-		
+
 		return ret;
-		
+
 	}
-	
-	
+
+
 	int Font::GetAscender () {
-		
+
 		return ((FT_Face)face)->ascender;
-		
+
 	}
-	
-	
+
+
 	int Font::GetDescender () {
-		
+
 		return ((FT_Face)face)->descender;
-		
+
 	}
-	
-	
+
+
 	wchar_t *Font::GetFamilyName () {
-		
+
 		#ifdef LIME_FREETYPE
-		
+
 		wchar_t *family_name = NULL;
 		FT_SfntName sfnt_name;
 		FT_UInt num_sfnt_names, sfnt_name_index;
 		int len, i;
-		
+
 		if (FT_IS_SFNT (((FT_Face)face))) {
-			
+
 			num_sfnt_names = FT_Get_Sfnt_Name_Count ((FT_Face)face);
 			sfnt_name_index = 0;
-			
+
 			while (sfnt_name_index < num_sfnt_names) {
-				
+
 				if (!FT_Get_Sfnt_Name ((FT_Face)face, sfnt_name_index++, (FT_SfntName *)&sfnt_name) && sfnt_name.name_id == TT_NAME_ID_FULL_NAME) {
-					
+
 					if (sfnt_name.platform_id == TT_PLATFORM_MACINTOSH) {
-						
+
 						len = sfnt_name.string_len;
 						family_name = new wchar_t[len + 1];
 						#ifdef ANDROID
@@ -653,72 +653,72 @@ namespace lime {
 						#endif
 						family_name[len] = L'\0';
 						return family_name;
-						
+
 					} else if ((sfnt_name.platform_id == TT_PLATFORM_MICROSOFT) && (sfnt_name.encoding_id == TT_MS_ID_UNICODE_CS)) {
-						
+
 						len = sfnt_name.string_len / 2;
 						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
-						
+
 						for (i = 0; i < len; i++) {
-							
+
 							family_name[i] = ((wchar_t)sfnt_name.string[i * 2 + 1]) | (((wchar_t)sfnt_name.string[i * 2]) << 8);
-							
+
 						}
-						
+
 						family_name[len] = L'\0';
 						return family_name;
-						
+
 					}
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		#endif
-		
+
 		return NULL;
-		
+
 	}
-	
-	
+
+
 	int Font::GetGlyphIndex (char* character) {
-		
+
 		long charCode = readNextChar (character);
-		
+
 		return FT_Get_Char_Index ((FT_Face)face, charCode);
-		 
+
 	}
-	
-	
+
+
 	value Font::GetGlyphIndices (char* characters) {
-		
+
 		value indices = alloc_array (0);
 		unsigned long character;
 		int index;
-		
+
 		while (*characters != 0) {
-			
+
 			character = readNextChar (characters);
 			index = FT_Get_Char_Index ((FT_Face)face, character);
 			val_array_push (indices, alloc_int (index));
-			
+
 		}
-		
+
 		return indices;
-		
+
 	}
-	
-	
+
+
 	value Font::GetGlyphMetrics (int index) {
-		
+
 		initialize ();
-		
+
 		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
-			
+
 			value metrics = alloc_empty_object ();
-			
+
 			alloc_field (metrics, id_height, alloc_int (((FT_Face)face)->glyph->metrics.height));
 			alloc_field (metrics, id_horizontalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingX));
 			alloc_field (metrics, id_horizontalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.horiBearingY));
@@ -726,141 +726,141 @@ namespace lime {
 			alloc_field (metrics, id_verticalBearingX, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingX));
 			alloc_field (metrics, id_verticalBearingY, alloc_int (((FT_Face)face)->glyph->metrics.vertBearingY));
 			alloc_field (metrics, id_verticalAdvance, alloc_int (((FT_Face)face)->glyph->metrics.vertAdvance));
-			
+
 			return metrics;
-			
+
 		}
-		
+
 		return alloc_null ();
-		
+
 	}
-	
-	
+
+
 	int Font::GetHeight () {
-		
+
 		return ((FT_Face)face)->height;
-		
+
 	}
-	
-	
+
+
 	int Font::GetNumGlyphs () {
-		
+
 		return ((FT_Face)face)->num_glyphs;
-		
+
 	}
-	
-	
+
+
 	int Font::GetUnderlinePosition () {
-		
+
 		return ((FT_Face)face)->underline_position;
-		
+
 	}
-	
-	
+
+
 	int Font::GetUnderlineThickness () {
-		
+
 		return ((FT_Face)face)->underline_thickness;
-		
+
 	}
-	
-	
+
+
 	int Font::GetUnitsPerEM () {
-		
+
 		return ((FT_Face)face)->units_per_EM;
-		
+
 	}
-	
-	
+
+
 	int Font::RenderGlyph (int index, Bytes *bytes, int offset) {
-		
+
 		if (FT_Load_Glyph ((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
-			
+
 			if (FT_Render_Glyph (((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0) {
-				
+
 				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
-				
+
 				int height = bitmap.rows;
 				int width = bitmap.width;
 				int pitch = bitmap.pitch;
-				
+
 				if (width == 0 || height == 0) return 0;
-				
+
 				uint32_t size = (4 * 5) + (width * height);
-				
+
 				if (bytes->length < size + offset) {
-					
+
 					bytes->Resize (size + offset);
-					
+
 				}
-				
+
 				GlyphImage *data = (GlyphImage*)(bytes->b + offset);
-				
+
 				data->index = index;
 				data->width = width;
 				data->height = height;
 				data->x = ((FT_Face)face)->glyph->bitmap_left;
 				data->y = ((FT_Face)face)->glyph->bitmap_top;
-				
+
 				unsigned char* position = &data->data;
-				
+
 				for (int i = 0; i < height; i++) {
-					
+
 					memcpy (position + (i * width), bitmap.buffer + (i * pitch), width);
-					
+
 				}
-				
+
 				return size;
-				
+
 			}
-			
+
 		}
-		
+
 		return 0;
-		
+
 	}
-	
-	
+
+
 	int Font::RenderGlyphs (value indices, Bytes *bytes) {
-		
+
 		int offset = 0;
 		int totalOffset = 4;
 		uint32_t count = 0;
-		
+
 		int numIndices = val_array_size (indices);
-		
+
 		for (int i = 0; i < numIndices; i++) {
-			
+
 			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
-			
+
 			if (offset > 0) {
-				
+
 				totalOffset += offset;
 				count++;
-				
+
 			}
-			
+
 		}
-		
+
 		if (count > 0) {
-			
+
 			*(uint32_t*)(bytes->b) = count;
-			
+
 		}
-		
+
 		return totalOffset;
-		
+
 	}
-	
-	
+
+
 	void Font::SetSize (size_t size) {
-		
+
 		size_t hdpi = 72;
 		size_t vdpi = 72;
-		
+
 		FT_Set_Char_Size ((FT_Face)face, (int)(size*64), (int)(size*64), hdpi, vdpi);
 		mSize = size;
-		
+
 	}
-	
-	
+
+
 }

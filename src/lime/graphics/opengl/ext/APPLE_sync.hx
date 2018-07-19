@@ -3,9 +3,9 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class APPLE_sync {
-	
-	
+@:noCompletion class APPLE_sync {
+
+
 	public var SYNC_OBJECT_APPLE = 0x8A53;
 	public var MAX_SERVER_WAIT_TIMEOUT_APPLE = 0x9111;
 	public var OBJECT_TYPE_APPLE = 0x9112;
@@ -23,15 +23,15 @@ class APPLE_sync {
 	public var SYNC_FLUSH_COMMANDS_BIT_APPLE = 0x00000001;
 	public var TIMEOUT_IGNORED_APPLE = 0xFFFFFFFF;
 	//public var TIMEOUT_IGNORED_APPLE = 0xFFFFFFFFFFFFFFFFull;
-	
-	
+
+
 	@:noCompletion private function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 	//GL_APICALL GLsync GL_APIENTRY glFenceSyncAPPLE (GLenum condition, GLbitfield flags);
 	//GL_APICALL GLboolean GL_APIENTRY glIsSyncAPPLE (GLsync sync);
 	//GL_APICALL void GL_APIENTRY glDeleteSyncAPPLE (GLsync sync);
@@ -39,6 +39,6 @@ class APPLE_sync {
 	//GL_APICALL void GL_APIENTRY glWaitSyncAPPLE (GLsync sync, GLbitfield flags, GLuint64 timeout);
 	//GL_APICALL void GL_APIENTRY glGetInteger64vAPPLE (GLenum pname, GLint64 *params);
 	//GL_APICALL void GL_APIENTRY glGetSyncivAPPLE (GLsync sync, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values);
-	
-	
+
+
 }

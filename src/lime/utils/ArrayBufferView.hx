@@ -5,12 +5,12 @@ package lime.utils;
     typedef ArrayBufferView = js.html.ArrayBufferView;
 
 #else
-    
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-    
+
     class ArrayBufferView {
 
         public var type = TypedArrayType.None;
@@ -640,7 +640,7 @@ abstract TypedArrayType(Int) from Int to Int {
                 #if neko
                     if (value == null) value = 0;
                 #end
-                
+
                 buffer.setInt32(byteOffset,value);
             #end
 
@@ -655,7 +655,7 @@ abstract TypedArrayType(Int) from Int to Int {
                 #if neko
                     if (value == null) value = 0;
                 #end
-                
+
                 buffer.setInt32(byteOffset,value);
             #end
 

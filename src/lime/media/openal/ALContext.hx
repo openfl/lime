@@ -8,15 +8,15 @@ import lime.system.CFFIPointer;
 
 
 abstract ALContext(CFFIPointer) from CFFIPointer to CFFIPointer {
-	
-	
+
+
 	@:noCompletion private inline function new (handle:CFFIPointer) {
-		
+
 		this = handle;
-		
+
 	}
-	
-	
+
+
 }
 
 

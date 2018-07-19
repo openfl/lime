@@ -7,12 +7,12 @@ import lime.graphics.opengl.GLShader;
 @:keep
 
 @:native("WEBGL_debug_shaders")
-extern class WEBGL_debug_shaders {
-	
-	
+extern @:noCompletion class WEBGL_debug_shaders {
+
+
 	public function getTranslatedShaderSource (shader:GLShader):String;
-	
-	
+
+
 }
 
 

@@ -7,10 +7,10 @@ import js.html.Element;
 /**
 	The `DOMRenderContext` represents the primary `js.html.Element` instance when DOM
 	is the render context type of the `Window`.
-	
+
 	You can convert from `lime.graphics.RenderContext` to `DOMRenderContext` directly
 	if desired:
-	
+
 	```
 	var dom:DOMRenderContext = window.context;
 	```
@@ -21,15 +21,15 @@ import js.html.Element;
 
 
 abstract DOMRenderContext(Element) from Element to Element {
-	
-	
+
+
 	@:from private static function fromRenderContext (context:RenderContext):DOMRenderContext {
-		
+
 		return context.dom;
-		
+
 	}
-	
-	
+
+
 }
 
 
@@ -40,15 +40,15 @@ abstract DOMRenderContext(Element) from Element to Element {
 
 
 abstract DOMRenderContext(Dynamic) from Dynamic to Dynamic {
-	
-	
+
+
 	@:from private static function fromRenderContext (context:RenderContext):DOMRenderContext {
-		
+
 		return null;
-		
+
 	}
-	
-	
+
+
 }
 
 

@@ -2,7 +2,7 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 
 
 @:enum abstract CURLCode(Int) from Int to Int from UInt to UInt {
-	
+
 	var OK = 0;
 	var UNSUPPORTED_PROTOCOL = 1;
 	var FAILED_INIT = 2;
@@ -97,7 +97,7 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 	var SSL_INVALIDCERTSTATUS = 91;
 	var HTTP2_STREAM = 92;
 	//var LAST = 93;
-	
+
 }
 
 

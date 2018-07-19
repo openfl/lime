@@ -7,7 +7,7 @@ package lime.graphics.opengl.ext;
 #if (!js || !html5 || display)
 
 
-class EXT_sRGB {
+@:noCompletion class EXT_sRGB {
 	
 	
 	public var SRGB_EXT = 0x8C40;
@@ -30,7 +30,7 @@ class EXT_sRGB {
 
 
 @:native("EXT_sRGB")
-extern class EXT_sRGB {
+extern @:noCompletion class EXT_sRGB {
 	
 	
 	public var SRGB_EXT:Int;

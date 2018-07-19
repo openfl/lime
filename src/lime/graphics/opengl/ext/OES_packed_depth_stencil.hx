@@ -3,7 +3,7 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class OES_packed_depth_stencil {
+@:noCompletion class OES_packed_depth_stencil {
 	
 	
 	public var DEPTH_STENCIL_OES = 0x84F9;

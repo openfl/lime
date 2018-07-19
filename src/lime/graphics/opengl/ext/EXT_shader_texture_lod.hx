@@ -7,16 +7,16 @@ package lime.graphics.opengl.ext;
 #if (!js || !html5 || display)
 
 
-class EXT_shader_texture_lod {
-	
-	
+@:noCompletion class EXT_shader_texture_lod {
+
+
 	@:noCompletion private function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 }
 
 
@@ -24,11 +24,11 @@ class EXT_shader_texture_lod {
 
 
 @:native("EXT_shader_texture_lod")
-extern class EXT_shader_texture_lod {
-	
-	
-	
-	
+extern @:noCompletion class EXT_shader_texture_lod {
+
+
+
+
 }
 
 

@@ -7,19 +7,19 @@ package lime.graphics.opengl.ext;
 #if (!js || !html5 || display)
 
 
-class OES_standard_derivatives {
-	
-	
+@:noCompletion class OES_standard_derivatives {
+
+
 	public var FRAGMENT_SHADER_DERIVATIVE_HINT_OES = 0x8B8B;
-	
-	
+
+
 	@:noCompletion private function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 }
 
 
@@ -27,12 +27,12 @@ class OES_standard_derivatives {
 
 
 @:native("OES_standard_derivatives")
-extern class OES_standard_derivatives {
-	
-	
+extern @:noCompletion class OES_standard_derivatives {
+
+
 	public var FRAGMENT_SHADER_DERIVATIVE_HINT_OES:Int;
-	
-	
+
+
 }
 
 

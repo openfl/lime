@@ -3,9 +3,9 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class OES_required_internalformat {
-	
-	
+@:noCompletion class OES_required_internalformat {
+
+
 	public var ALPHA8_OES = 0x803C;
 	public var DEPTH_COMPONENT16_OES = 0x81A5;
 	public var DEPTH_COMPONENT24_OES = 0x81A6;
@@ -21,13 +21,13 @@ class OES_required_internalformat {
 	public var RGBA8_OES = 0x8058;
 	public var RGB10_EXT = 0x8052;
 	public var RGB10_A2_EXT = 0x8059;
-	
-	
+
+
 	@:noCompletion private function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 }

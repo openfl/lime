@@ -15,15 +15,15 @@
 
 
 namespace lime {
-	
-	
+
+
 	class Window {
-		
-		
+
+
 		public:
-			
+
 			virtual ~Window () {};
-			
+
 			virtual void Alert (const char* message, const char* title) = 0;
 			virtual void Close () = 0;
 			virtual void ContextFlip () = 0;
@@ -59,19 +59,19 @@ namespace lime {
 			virtual void SetTextInputEnabled (bool enable) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
-			
+
 			Application* currentApplication;
 			int flags;
-		
-		
+
+
 	};
-	
-	
+
+
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title);
-	
-	
+
+
 	enum WindowFlags {
-		
+
 		WINDOW_FLAG_FULLSCREEN = 0x00000001,
 		WINDOW_FLAG_BORDERLESS = 0x00000002,
 		WINDOW_FLAG_RESIZABLE = 0x00000004,
@@ -89,9 +89,9 @@ namespace lime {
 		WINDOW_FLAG_MAXIMIZED = 0x00004000,
 		WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000,
 		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000
-		
+
 	};
-	
+
 }
 
 

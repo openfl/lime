@@ -8,20 +8,20 @@
 
 
 namespace lime {
-	
-	
+
+
 	enum MouseEventType {
-		
+
 		MOUSE_DOWN,
 		MOUSE_UP,
 		MOUSE_MOVE,
 		MOUSE_WHEEL
-		
+
 	};
-	
-	
+
+
 	struct MouseEvent {
-		
+
 		hl_type* t;
 		int button;
 		double movementX;
@@ -30,17 +30,17 @@ namespace lime {
 		int windowID;
 		double x;
 		double y;
-		
+
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;
-		
+
 		MouseEvent ();
-		
+
 		static void Dispatch (MouseEvent* event);
-		
+
 	};
-	
-	
+
+
 }
 
 

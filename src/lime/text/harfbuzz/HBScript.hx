@@ -2,7 +2,7 @@ package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 
 
 @:enum abstract HBScript(Int) from Int to Int {
-	
+
 	public var COMMON = "Z".code << 24 | "y".code << 16 | "y".code << 8 | "y".code;
 	public var INHERITED = "Z".code << 24 | "i".code << 16 | "n".code << 8 | "h".code;
 	public var UNKNOWN = "Z".code << 24 | "z".code << 16 | "z".code << 8 | "z".code;
@@ -142,7 +142,7 @@ package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 	public var TANGUT = "T".code << 24 | "a".code << 16 | "n".code << 8 | "g".code;
 	public var NEWA = "N".code << 24 | "e".code << 16 | "w".code << 8 | "a".code;
 	public var INVALID = 0;
-	
+
 }
 
 
