@@ -8,7 +8,6 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
-	<!-- <set name="LIME_AXTLS" value="1" /> -->
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" />
@@ -44,12 +43,10 @@
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 
-	<set name="NATIVE_TOOLKIT_HAVE_AXTLS" value="1" if="LIME_AXTLS" />
 	<set name="NATIVE_TOOLKIT_HAVE_HARFBUZZ" value="1" if="LIME_HARFBUZZ" />
 	<set name="NATIVE_TOOLKIT_HAVE_MBEDTLS" value="1" if="LIME_MBEDTLS" />
 	<set name="NATIVE_TOOLKIT_HAVE_PNG" value="1" if="LIME_PNG" />
 
-	<set name="NATIVE_TOOLKIT_CURL_DISABLE_AXTLS_NONBLOCKING" value="1" />
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
 
 	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />
@@ -322,7 +319,6 @@
 
 	</files>
 
-	<include name="lib/axtls/files.xml" />
 	<include name="lib/cairo/files.xml" />
 	<include name="lib/curl/files.xml" />
 	<include name="lib/efsw/files.xml" />
@@ -355,7 +351,6 @@
 
 		<files id="lime" />
 
-		<files id="native-toolkit-axtls" if="LIME_AXTLS" />
 		<files id="native-toolkit-cairo" if="LIME_CAIRO" />
 		<files id="native-toolkit-curl" if="LIME_CURL" />
 		<files id="native-toolkit-efsw" if="LIME_EFSW" />

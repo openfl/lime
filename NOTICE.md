@@ -4,9 +4,6 @@ Notices
 ### Lime
 Copyright (c) 2013-2018 Joshua Granick and other Lime contributors
 
-This product bundles axTLS 2.1.4, which is available under a
-"BSD" license. For details, see [project/lib/axtls/](project/lib).
-
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
 
