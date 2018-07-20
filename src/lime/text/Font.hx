@@ -515,10 +515,11 @@ class Font {
 
 		this.name = name;
 
-		var ua = Browser.navigator.userAgent.toLowerCase();
-		var isSafari = (ua.indexOf(" safari/") >= 0 && ua.indexOf(" chrome/") < 0);
+		var userAgent = Browser.navigator.userAgent.toLowerCase ();
+		var isSafari = (userAgent.indexOf (" safari/") >= 0 && userAgent.indexOf (" chrome/") < 0);
+		var isUIWebView = ~/(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)/i.match (userAgent);
 
-		if (!isSafari && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
+		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load) {
 
 			untyped (Browser.document).fonts.load ("1em '" + name + "'").then (function (_) {
 
