@@ -3,9 +3,9 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class QCOM_tiled_rendering {
-	
-	
+@:noCompletion class QCOM_tiled_rendering {
+
+
 	public var COLOR_BUFFER_BIT0_QCOM = 0x00000001;
 	public var COLOR_BUFFER_BIT1_QCOM = 0x00000002;
 	public var COLOR_BUFFER_BIT2_QCOM = 0x00000004;
@@ -38,17 +38,17 @@ class QCOM_tiled_rendering {
 	public var MULTISAMPLE_BUFFER_BIT5_QCOM = 0x20000000;
 	public var MULTISAMPLE_BUFFER_BIT6_QCOM = 0x40000000;
 	public var MULTISAMPLE_BUFFER_BIT7_QCOM = 0x80000000;
-	
-	
-	private function new () {
-		
-		
-		
+
+
+	@:noCompletion private function new () {
+
+
+
 	}
-	
-	
+
+
 	//GL_APICALL void GL_APIENTRY glStartTilingQCOM (GLuint x, GLuint y, GLuint width, GLuint height, GLbitfield preserveMask);
 	//GL_APICALL void GL_APIENTRY glEndTilingQCOM (GLbitfield preserveMask);
-	
-	
+
+
 }

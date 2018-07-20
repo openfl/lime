@@ -1,14 +1,14 @@
 package lime.graphics.opengl.ext;
 
 
-class NV_read_depth {
-	
-	
-	private function new () {
-		
-		
-		
+@:noCompletion class NV_read_depth {
+
+
+	@:noCompletion private function new () {
+
+
+
 	}
-	
-	
+
+
 }

@@ -3,17 +3,17 @@
 
 
 namespace lime {
-	
-	
+
+
 	class NekoVM {
-		
+
 		public:
-			
+
 			static void Execute (const char *module);
-		
+
 	};
-	
-	
+
+
 }
 
 

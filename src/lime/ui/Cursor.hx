@@ -2,7 +2,7 @@ package lime.ui;
 
 
 enum Cursor {
-	
+
 	ARROW;
 	CROSSHAIR;
 	DEFAULT;
@@ -16,5 +16,5 @@ enum Cursor {
 	WAIT;
 	WAIT_ARROW;
 	CUSTOM;
-	
+
 }

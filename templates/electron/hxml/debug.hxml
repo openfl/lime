@@ -9,7 +9,7 @@
 
 --next
 -js ::OUTPUT_DIR::/bin/ElectronSetup.js
--main Electron ::HAXE_FLAGS::
+-main Electron
 
 -D html5
 -D html

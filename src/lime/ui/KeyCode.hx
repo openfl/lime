@@ -7,8 +7,8 @@ import lime._internal.backend.native.NativeCFFI;
 
 
 @:enum abstract KeyCode(Int) from Int to Int from UInt to UInt {
-	
-	
+
+
 	var UNKNOWN = 0x00;
 	var BACKSPACE = 0x08;
 	var TAB = 0x09;
@@ -245,34 +245,34 @@ import lime._internal.backend.native.NativeCFFI;
 	var BACKLIGHT_UP = 0x40000118;
 	var EJECT = 0x40000119;
 	var SLEEP = 0x4000011A;
-	
+
 	@:from public static function fromScanCode (scanCode:ScanCode):KeyCode {
-		
+
 		#if (lime_cffi && !macro)
 		var code:Int = scanCode;
 		return Std.int (NativeCFFI.lime_key_code_from_scan_code (code));
 		#else
 		return KeyCode.UNKNOWN;
 		#end
-		
+
 	}
-	
+
 	private static function toScanCode (keyCode:KeyCode):ScanCode {
-		
+
 		#if (lime_cffi && !macro)
 		var code:Int = keyCode;
 		return Std.int (NativeCFFI.lime_key_code_to_scan_code (code));
 		#else
 		return ScanCode.UNKNOWN;
 		#end
-		
+
 	}
-	
+
 	@:op(A > B) private static inline function gt (a:KeyCode, b:KeyCode):Bool { return (a:Int) > (b:Int); }
 	@:op(A >= B) private static inline function gte (a:KeyCode, b:KeyCode):Bool { return (a:Int) >= (b:Int); }
 	@:op(A < B) private static inline function lt (a:KeyCode, b:KeyCode):Bool { return (a:Int) < (b:Int); }
 	@:op(A <= B) private static inline function lte (a:KeyCode, b:KeyCode):Bool { return (a:Int) <= (b:Int); }
 	@:op(A + B) private static inline function plus (a:KeyCode, b:Int):KeyCode { return (a:Int) + b; }
-	
-	
+
+
 }

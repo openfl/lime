@@ -58,10 +58,10 @@ typedef CFFIPointer = Dynamic;
 
 
 class NativeCFFI {
-	
-	
+
+
 	#if (lime_cffi && !macro)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_application_create ():Dynamic;
@@ -359,7 +359,7 @@ class NativeCFFI {
 	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_zlib_decompress", "ooo", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_application_create = CFFI.load ("lime", "lime_application_create", 0);
 	private static var lime_application_event_manager_register = CFFI.load ("lime", "lime_application_event_manager_register", 2);
@@ -508,7 +508,7 @@ class NativeCFFI {
 	private static var lime_zlib_compress = CFFI.load ("lime", "lime_zlib_compress", 2);
 	private static var lime_zlib_decompress = CFFI.load ("lime", "lime_zlib_decompress", 2);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_application_create") private static function lime_application_create ():CFFIPointer { return null; }
 	@:hlNative("lime", "lime_application_event_manager_register") private static function lime_application_event_manager_register (callback:Void->Void, eventObject:ApplicationEventInfo):Void {}
@@ -570,22 +570,22 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_image_load_bytes") private static function lime_image_load_bytes (data:Bytes, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_load_file") private static function lime_image_load_file (path:String, buffer:ImageBuffer):ImageBuffer { return null; }
 	@:hlNative("lime", "lime_image_data_util_color_transform") private static function lime_image_data_util_color_transform (image:Image, rect:Rectangle, colorMatrix:ArrayBufferView):Void {}
-	@:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
-	// @:hlNative("lime", "lime_image_data_util_copy_channel") private static function lime_image_data_util_copy_channel (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, srcChannel:Int, destChannel:Int):Void {}
-	@:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
-	// @:hlNative("lime", "lime_image_data_util_copy_pixels") private static function lime_image_data_util_copy_pixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image, alphaPoint:Vector2, mergeAlpha:Bool):Void {}
+	// @:cffi private static function lime_image_data_util_copy_channel (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int, destChannel:Int):Void;
+	@:hlNative("lime", "lime_image_data_util_copy_channel") private static function lime_image_data_util_copy_channel (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, srcChannel:Int, destChannel:Int):Void {}
+	// @:cffi private static function lime_image_data_util_copy_pixels (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
+	@:hlNative("lime", "lime_image_data_util_copy_pixels") private static function lime_image_data_util_copy_pixels (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image, alphaPoint:Vector2, mergeAlpha:Bool):Void {}
 	@:hlNative("lime", "lime_image_data_util_fill_rect") private static function lime_image_data_util_fill_rect (image:Image, rect:Rectangle, rg:Int, ba:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_flood_fill") private static function lime_image_data_util_flood_fill (image:Image, x:Int, y:Int, rg:Int, ba:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_get_pixels") private static function lime_image_data_util_get_pixels (image:Image, rect:Rectangle, format:Int, bytes:Bytes):Void {}
-	@:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
-	// @:hlNative("lime", "lime_image_data_util_merge") private static function lime_image_data_util_merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {}
+	// @:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
+	@:hlNative("lime", "lime_image_data_util_merge") private static function lime_image_data_util_merge (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_multiply_alpha") private static function lime_image_data_util_multiply_alpha (image:Image):Void {}
 	@:hlNative("lime", "lime_image_data_util_resize") private static function lime_image_data_util_resize (image:Image, buffer:ImageBuffer, width:Int, height:Int):Void {}
 	@:hlNative("lime", "lime_image_data_util_set_format") private static function lime_image_data_util_set_format (image:Image, format:Int):Void {}
-	@:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, offset:Int, format:Int, endian:Int):Void;
-	// @:hlNative("lime", "lime_image_data_util_set_pixels") private static function lime_image_data_util_set_pixels (image:Image, rect:Rectangle, bytes:Bytes, offset:Int, format:Int, endian:Int):Void {}
-	@:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
-	// @:hlNative("lime", "lime_image_data_util_threshold") private static function lime_image_data_util_threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int { return 0; }
+	// @:cffi private static function lime_image_data_util_set_pixels (image:Dynamic, rect:Dynamic, bytes:Dynamic, offset:Int, format:Int, endian:Int):Void;
+	@:hlNative("lime", "lime_image_data_util_set_pixels") private static function lime_image_data_util_set_pixels (image:Image, rect:Rectangle, bytes:Bytes, offset:Int, format:Int, endian:Int):Void {}
+	// @:cffi private static function lime_image_data_util_threshold (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int;
+	@:hlNative("lime", "lime_image_data_util_threshold") private static function lime_image_data_util_threshold (image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:Int, thresholdRG:Int, thresholdBA:Int, colorRG:Int, colorBA:Int, maskRG:Int, maskBA:Int, copySource:Bool):Int { return 0; }
 	@:hlNative("lime", "lime_image_data_util_unmultiply_alpha") private static function lime_image_data_util_unmultiply_alpha (image:Image):Void {}
 	@:hlNative("lime", "lime_joystick_get_device_guid") private static function lime_joystick_get_device_guid (id:Int):hl.Bytes { return null; }
 	@:hlNative("lime", "lime_joystick_get_device_name") private static function lime_joystick_get_device_name (id:Int):hl.Bytes { return null; }
@@ -662,12 +662,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_zlib_compress") private static function lime_zlib_compress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_zlib_decompress") private static function lime_zlib_decompress (data:Bytes, bytes:Bytes):Bytes { return null; }
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && android)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
@@ -693,7 +693,7 @@ class NativeCFFI {
 	private static var lime_jni_set_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_jni_set_static", "oov", false));
 	#end
 	#end
-	
+
 	#if !cpp
 	@:cffi private static function lime_jni_call_member (jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 	@:cffi private static function lime_jni_call_static (jniMethod:Dynamic, args:Dynamic):Dynamic;
@@ -706,579 +706,12 @@ class NativeCFFI {
 	@:cffi private static function lime_jni_set_member (jniField:Dynamic, jniObject:Dynamic, value:Dynamic):Void;
 	@:cffi private static function lime_jni_set_static (jniField:Dynamic, value:Dynamic):Void;
 	#end
-	
+
 	#end
-	
-	
-	#if (lime_cffi && !macro && lime_harfbuzz)
-	
-	#if cpp
-	#if (disable_cffi || haxe_ver < "3.4.0")
-	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):Float;
-	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float;
-	@:cffi private static function lime_hb_blob_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
-	@:cffi private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_create ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	@:cffi private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool;
-	@:cffi private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
-	@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool;
-	@:cffi private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	@:cffi private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer;
-	@:cffi private static function lime_hb_face_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_get_index (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_get_upem (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_face_make_immutable (face:CFFIPointer):Void;
-	@:cffi private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer;
-	@:cffi private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void;
-	@:cffi private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void;
-	@:cffi private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void;
-	@:cffi private static function lime_hb_feature_from_string (str:String):CFFIPointer;
-	@:cffi private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int;
-	@:cffi private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer;
-	@:cffi private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_font_make_immutable (font:CFFIPointer):Void;
-	@:cffi private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
-	@:cffi private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
-	@:cffi private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
-	@:cffi private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;
-	@:cffi private static function lime_hb_language_from_string (str:String):CFFIPointer;
-	@:cffi private static function lime_hb_language_get_default ():CFFIPointer;
-	@:cffi private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic;
-	@:cffi private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void;
-	@:cffi private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void;
-	@:cffi private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_clear (set:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_create ():CFFIPointer;
-	@:cffi private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void;
-	@:cffi private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void;
-	@:cffi private static function lime_hb_set_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_set_get_max (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_get_min (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_get_population (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool;
-	@:cffi private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_invert (set:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_is_empty (set:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_next (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic;
-	@:cffi private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
-	#else
-	private static var lime_hb_blob_create = new cpp.Callable<lime.utils.DataPointer->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_create", "diio", false));
-	private static var lime_hb_blob_create_sub_blob = new cpp.Callable<cpp.Object->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_create_sub_blob", "oiio", false));
-	private static var lime_hb_blob_get_data = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_data", "od", false));
-	private static var lime_hb_blob_get_data_writable = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_data_writable", "od", false));
-	private static var lime_hb_blob_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_empty", "o", false));
-	private static var lime_hb_blob_get_length = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_length", "oi", false));
-	private static var lime_hb_blob_is_immutable = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_is_immutable", "ob", false));
-	private static var lime_hb_blob_make_immutable = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_make_immutable", "ov", false));
-	private static var lime_hb_buffer_add = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add", "oiiv", false));
-	private static var lime_hb_buffer_add_codepoints = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_codepoints", "odiiiv", false));
-	private static var lime_hb_buffer_add_utf8 = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_utf8", "osiiv", false));
-	private static var lime_hb_buffer_add_utf16 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_utf16", "odiiiv", false));
-	private static var lime_hb_buffer_add_utf32 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_utf32", "odiiiv", false));
-	private static var lime_hb_buffer_allocation_successful = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_allocation_successful", "ob", false));
-	private static var lime_hb_buffer_clear_contents = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_clear_contents", "ov", false));
-	private static var lime_hb_buffer_create = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_create", "o", false));
-	private static var lime_hb_buffer_get_cluster_level = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_cluster_level", "oi", false));
-	private static var lime_hb_buffer_get_content_type = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_content_type", "oi", false));
-	private static var lime_hb_buffer_get_direction = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_direction", "oi", false));
-	private static var lime_hb_buffer_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_empty", "o", false));
-	private static var lime_hb_buffer_get_flags = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_flags", "oi", false));
-	private static var lime_hb_buffer_get_glyph_infos = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_glyph_infos", "ooo", false));
-	private static var lime_hb_buffer_get_glyph_positions = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_glyph_positions", "ooo", false));
-	private static var lime_hb_buffer_get_language = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_language", "oo", false));
-	private static var lime_hb_buffer_get_length = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_length", "oi", false));
-	private static var lime_hb_buffer_get_replacement_codepoint = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_replacement_codepoint", "oi", false));
-	private static var lime_hb_buffer_get_script = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_script", "oi", false));
-	private static var lime_hb_buffer_get_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_segment_properties", "oov", false));
-	private static var lime_hb_buffer_guess_segment_properties = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_guess_segment_properties", "ov", false));
-	private static var lime_hb_buffer_normalize_glyphs = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_normalize_glyphs", "ov", false));
-	private static var lime_hb_buffer_preallocate = new cpp.Callable<cpp.Object->Int->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_preallocate", "oib", false));
-	private static var lime_hb_buffer_reset = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_reset", "ov", false));
-	private static var lime_hb_buffer_reverse = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_reverse", "ov", false));
-	private static var lime_hb_buffer_reverse_clusters = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_reverse_clusters", "ov", false));
-	private static var lime_hb_buffer_serialize_format_from_string = new cpp.Callable<String->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_serialize_format_from_string", "si", false));
-	private static var lime_hb_buffer_serialize_format_to_string = new cpp.Callable<Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_serialize_format_to_string", "io", false));
-	private static var lime_hb_buffer_serialize_list_formats = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_serialize_list_formats", "o", false));
-	private static var lime_hb_buffer_set_cluster_level = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_cluster_level", "oiv", false));
-	private static var lime_hb_buffer_set_content_type = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_content_type", "oiv", false));
-	private static var lime_hb_buffer_set_direction = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_direction", "oiv", false));
-	private static var lime_hb_buffer_set_flags = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_flags", "oiv", false));
-	private static var lime_hb_buffer_set_language = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_language", "oov", false));
-	private static var lime_hb_buffer_set_length = new cpp.Callable<cpp.Object->Int->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_length", "oib", false));
-	private static var lime_hb_buffer_set_replacement_codepoint = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_replacement_codepoint", "oiv", false));
-	private static var lime_hb_buffer_set_script = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_script", "oiv", false));
-	private static var lime_hb_buffer_set_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_segment_properties", "oov", false));
-	private static var lime_hb_face_create = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_create", "oio", false));
-	private static var lime_hb_face_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_empty", "o", false));
-	private static var lime_hb_face_get_glyph_count = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_glyph_count", "oi", false));
-	private static var lime_hb_face_get_index = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_index", "oi", false));
-	private static var lime_hb_face_get_upem = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_upem", "oi", false));
-	private static var lime_hb_face_is_immutable = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_face_is_immutable", "ob", false));
-	private static var lime_hb_face_make_immutable = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_make_immutable", "ov", false));
-	private static var lime_hb_face_reference_blob = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_reference_blob", "oo", false));
-	private static var lime_hb_face_reference_table = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_reference_table", "oio", false));
-	private static var lime_hb_face_set_glyph_count = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_set_glyph_count", "oiv", false));
-	private static var lime_hb_face_set_index = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_set_index", "oiv", false));
-	private static var lime_hb_face_set_upem = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_set_upem", "oiv", false));
-	private static var lime_hb_feature_from_string = new cpp.Callable<String->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_feature_from_string", "so", false));
-	private static var lime_hb_feature_to_string = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_feature_to_string", "oo", false));
-	private static var lime_hb_font_add_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_add_glyph_origin_for_direction", "oiiiiv", false));
-	private static var lime_hb_font_create = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_create", "oo", false));
-	private static var lime_hb_font_create_sub_font = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_create_sub_font", "oo", false));
-	private static var lime_hb_font_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_empty", "o", false));
-	private static var lime_hb_font_get_face = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_face", "oo", false));
-	private static var lime_hb_font_get_glyph_advance_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_glyph_advance_for_direction", "oiio", false));
-	private static var lime_hb_font_get_glyph_kerning_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_glyph_kerning_for_direction", "oiiio", false));
-	private static var lime_hb_font_get_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_glyph_origin_for_direction", "oiio", false));
-	private static var lime_hb_font_get_parent = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_parent", "oo", false));
-	private static var lime_hb_font_get_ppem = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_ppem", "oo", false));
-	private static var lime_hb_font_get_scale = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_scale", "oo", false));
-	private static var lime_hb_font_glyph_from_string = new cpp.Callable<cpp.Object->String->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_font_glyph_from_string", "osi", false));
-	private static var lime_hb_font_glyph_to_string = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_glyph_to_string", "oio", false));
-	private static var lime_hb_font_is_immutable = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_font_is_immutable", "ob", false));
-	private static var lime_hb_font_make_immutable = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_make_immutable", "ov", false));
-	private static var lime_hb_font_set_ppem = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_set_ppem", "oiiv", false));
-	private static var lime_hb_font_set_scale = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_set_scale", "oiiv", false));
-	private static var lime_hb_font_subtract_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_subtract_glyph_origin_for_direction", "oiiiiv", false));
-	private static var lime_hb_ft_font_create = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_create", "oo", false));
-	private static var lime_hb_ft_font_create_referenced = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_create_referenced", "oo", false));
-	private static var lime_hb_ft_font_get_load_flags = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_get_load_flags", "oi", false));
-	private static var lime_hb_ft_font_set_load_flags = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_set_load_flags", "oiv", false));
-	private static var lime_hb_language_from_string = new cpp.Callable<String->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_language_from_string", "so", false));
-	private static var lime_hb_language_get_default = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_language_get_default", "o", false));
-	private static var lime_hb_language_to_string = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_language_to_string", "oo", false));
-	private static var lime_hb_segment_properties_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_segment_properties_equal", "oob", false));
-	private static var lime_hb_segment_properties_hash = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_segment_properties_hash", "oi", false));
-	private static var lime_hb_set_add = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_add", "oiv", false));
-	private static var lime_hb_set_add_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_add_range", "oiiv", false));
-	private static var lime_hb_set_allocation_successful = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_allocation_successful", "ob", false));
-	private static var lime_hb_set_clear = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_clear", "ov", false));
-	private static var lime_hb_set_create = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_set_create", "o", false));
-	private static var lime_hb_set_del = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_del", "oiv", false));
-	private static var lime_hb_set_del_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_del_range", "oiiv", false));
-	private static var lime_hb_set_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_empty", "o", false));
-	private static var lime_hb_set_get_max = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_max", "oi", false));
-	private static var lime_hb_set_get_min = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_min", "oi", false));
-	private static var lime_hb_set_get_population = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_population", "oi", false));
-	private static var lime_hb_set_has = new cpp.Callable<cpp.Object->Int->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_has", "oib", false));
-	private static var lime_hb_set_intersect = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_intersect", "oov", false));
-	private static var lime_hb_set_invert = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_invert", "ov", false));
-	private static var lime_hb_set_is_empty = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_is_empty", "ob", false));
-	private static var lime_hb_set_is_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_is_equal", "oob", false));
-	private static var lime_hb_set_next = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_next", "oi", false));
-	private static var lime_hb_set_next_range = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_set_next_range", "oo", false));
-	private static var lime_hb_set_set = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_set", "oov", false));
-	private static var lime_hb_set_subtract = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_subtract", "oov", false));
-	private static var lime_hb_set_symmetric_difference = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_symmetric_difference", "oov", false));
-	private static var lime_hb_set_union = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_union", "oov", false));
-	private static var lime_hb_shape = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_shape", "ooov", false));
-	#end
-	#end
-	
-	#if neko
-	private static var lime_hb_blob_create:lime.utils.DataPointer->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_blob_create", 3);
-	private static var lime_hb_blob_create_sub_blob:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_blob_create_sub_blob", 3);
-	private static var lime_hb_blob_get_data:Dynamic->Float = CFFI.load ("lime", "lime_hb_blob_get_data", 1);
-	private static var lime_hb_blob_get_data_writable:Dynamic->Float = CFFI.load ("lime", "lime_hb_blob_get_data_writable", 1);
-	private static var lime_hb_blob_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_blob_get_empty", 0);
-	private static var lime_hb_blob_get_length:Dynamic->Int = CFFI.load ("lime", "lime_hb_blob_get_length", 1);
-	private static var lime_hb_blob_is_immutable:Dynamic->Bool = CFFI.load ("lime", "lime_hb_blob_is_immutable", 1);
-	private static var lime_hb_blob_make_immutable:Dynamic->Void = CFFI.load ("lime", "lime_hb_blob_make_immutable", 1);
-	private static var lime_hb_buffer_add:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add", 3);
-	private static var lime_hb_buffer_add_codepoints:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_codepoints", 5);
-	private static var lime_hb_buffer_add_utf8:Dynamic->String->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_utf8", 4);
-	private static var lime_hb_buffer_add_utf16:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_utf16", 5);
-	private static var lime_hb_buffer_add_utf32:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_utf32", 5);
-	private static var lime_hb_buffer_allocation_successful:Dynamic->Bool = CFFI.load ("lime", "lime_hb_buffer_allocation_successful", 1);
-	private static var lime_hb_buffer_clear_contents:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_clear_contents", 1);
-	private static var lime_hb_buffer_create:Void->Dynamic = CFFI.load ("lime", "lime_hb_buffer_create", 0);
-	private static var lime_hb_buffer_get_cluster_level:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_cluster_level", 1);
-	private static var lime_hb_buffer_get_content_type:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_content_type", 1);
-	private static var lime_hb_buffer_get_direction:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_direction", 1);
-	private static var lime_hb_buffer_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_empty", 0);
-	private static var lime_hb_buffer_get_flags:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_flags", 1);
-	private static var lime_hb_buffer_get_glyph_infos:Dynamic->Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_glyph_infos", 2);
-	private static var lime_hb_buffer_get_glyph_positions:Dynamic->Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_glyph_positions", 2);
-	private static var lime_hb_buffer_get_language:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_language", 1);
-	private static var lime_hb_buffer_get_length:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_length", 1);
-	private static var lime_hb_buffer_get_replacement_codepoint:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_replacement_codepoint", 1);
-	private static var lime_hb_buffer_get_script:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_script", 1);
-	private static var lime_hb_buffer_get_segment_properties:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_get_segment_properties", 2);
-	private static var lime_hb_buffer_guess_segment_properties:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_guess_segment_properties", 1);
-	private static var lime_hb_buffer_normalize_glyphs:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_normalize_glyphs", 1);
-	private static var lime_hb_buffer_preallocate:Dynamic->Int->Bool = CFFI.load ("lime", "lime_hb_buffer_preallocate", 2);
-	private static var lime_hb_buffer_reset:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_reset", 1);
-	private static var lime_hb_buffer_reverse:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_reverse", 1);
-	private static var lime_hb_buffer_reverse_clusters:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_reverse_clusters", 1);
-	private static var lime_hb_buffer_serialize_format_from_string:String->Int = CFFI.load ("lime", "lime_hb_buffer_serialize_format_from_string", 1);
-	private static var lime_hb_buffer_serialize_format_to_string:Int->Dynamic = CFFI.load ("lime", "lime_hb_buffer_serialize_format_to_string", 1);
-	private static var lime_hb_buffer_serialize_list_formats:Void->Dynamic = CFFI.load ("lime", "lime_hb_buffer_serialize_list_formats", 0);
-	private static var lime_hb_buffer_set_cluster_level:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_cluster_level", 2);
-	private static var lime_hb_buffer_set_content_type:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_content_type", 2);
-	private static var lime_hb_buffer_set_direction:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_direction", 2);
-	private static var lime_hb_buffer_set_flags:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_flags", 2);
-	private static var lime_hb_buffer_set_language:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_set_language", 2);
-	private static var lime_hb_buffer_set_length:Dynamic->Int->Bool = CFFI.load ("lime", "lime_hb_buffer_set_length", 2);
-	private static var lime_hb_buffer_set_replacement_codepoint:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_replacement_codepoint", 2);
-	private static var lime_hb_buffer_set_script:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_script", 2);
-	private static var lime_hb_buffer_set_segment_properties:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_set_segment_properties", 2);
-	private static var lime_hb_face_create:Dynamic->Int->Dynamic = CFFI.load ("lime", "lime_hb_face_create", 2);
-	private static var lime_hb_face_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_face_get_empty", 0);
-	private static var lime_hb_face_get_glyph_count:Dynamic->Int = CFFI.load ("lime", "lime_hb_face_get_glyph_count", 1);
-	private static var lime_hb_face_get_index:Dynamic->Int = CFFI.load ("lime", "lime_hb_face_get_index", 1);
-	private static var lime_hb_face_get_upem:Dynamic->Int = CFFI.load ("lime", "lime_hb_face_get_upem", 1);
-	private static var lime_hb_face_is_immutable:Dynamic->Bool = CFFI.load ("lime", "lime_hb_face_is_immutable", 1);
-	private static var lime_hb_face_make_immutable:Dynamic->Void = CFFI.load ("lime", "lime_hb_face_make_immutable", 1);
-	private static var lime_hb_face_reference_blob:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_face_reference_blob", 1);
-	private static var lime_hb_face_reference_table:Dynamic->Int->Dynamic = CFFI.load ("lime", "lime_hb_face_reference_table", 2);
-	private static var lime_hb_face_set_glyph_count:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_face_set_glyph_count", 2);
-	private static var lime_hb_face_set_index:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_face_set_index", 2);
-	private static var lime_hb_face_set_upem:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_face_set_upem", 2);
-	private static var lime_hb_feature_from_string:String->Dynamic = CFFI.load ("lime", "lime_hb_feature_from_string", 1);
-	private static var lime_hb_feature_to_string:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_feature_to_string", 1);
-	private static var lime_hb_font_add_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_add_glyph_origin_for_direction", 5);
-	private static var lime_hb_font_create:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_create", 1);
-	private static var lime_hb_font_create_sub_font:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_create_sub_font", 1);
-	private static var lime_hb_font_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_font_get_empty", 0);
-	private static var lime_hb_font_get_face:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_face", 1);
-	private static var lime_hb_font_get_glyph_advance_for_direction:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_get_glyph_advance_for_direction", 3);
-	private static var lime_hb_font_get_glyph_kerning_for_direction:Dynamic->Int->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_get_glyph_kerning_for_direction", 4);
-	private static var lime_hb_font_get_glyph_origin_for_direction:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_get_glyph_origin_for_direction", 3);
-	private static var lime_hb_font_get_parent:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_parent", 1);
-	private static var lime_hb_font_get_ppem:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_ppem", 1);
-	private static var lime_hb_font_get_scale:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_scale", 1);
-	private static var lime_hb_font_glyph_from_string:Dynamic->String->Int = CFFI.load ("lime", "lime_hb_font_glyph_from_string", 2);
-	private static var lime_hb_font_glyph_to_string:Dynamic->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_glyph_to_string", 2);
-	private static var lime_hb_font_is_immutable:Dynamic->Bool = CFFI.load ("lime", "lime_hb_font_is_immutable", 1);
-	private static var lime_hb_font_make_immutable:Dynamic->Void = CFFI.load ("lime", "lime_hb_font_make_immutable", 1);
-	private static var lime_hb_font_set_ppem:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_set_ppem", 3);
-	private static var lime_hb_font_set_scale:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_set_scale", 3);
-	private static var lime_hb_font_subtract_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_subtract_glyph_origin_for_direction", 5);
-	private static var lime_hb_ft_font_create:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_ft_font_create", 1);
-	private static var lime_hb_ft_font_create_referenced:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_ft_font_create_referenced", 1);
-	private static var lime_hb_ft_font_get_load_flags:Dynamic->Int = CFFI.load ("lime", "lime_hb_ft_font_get_load_flags", 1);
-	private static var lime_hb_ft_font_set_load_flags:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_ft_font_set_load_flags", 2);
-	private static var lime_hb_language_from_string:String->Dynamic = CFFI.load ("lime", "lime_hb_language_from_string", 1);
-	private static var lime_hb_language_get_default:Void->Dynamic = CFFI.load ("lime", "lime_hb_language_get_default", 0);
-	private static var lime_hb_language_to_string:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_language_to_string", 1);
-	private static var lime_hb_segment_properties_equal:Dynamic->Dynamic->Bool = CFFI.load ("lime", "lime_hb_segment_properties_equal", 2);
-	private static var lime_hb_segment_properties_hash:Dynamic->Int = CFFI.load ("lime", "lime_hb_segment_properties_hash", 1);
-	private static var lime_hb_set_add:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_set_add", 2);
-	private static var lime_hb_set_add_range:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_set_add_range", 3);
-	private static var lime_hb_set_allocation_successful:Dynamic->Bool = CFFI.load ("lime", "lime_hb_set_allocation_successful", 1);
-	private static var lime_hb_set_clear:Dynamic->Void = CFFI.load ("lime", "lime_hb_set_clear", 1);
-	private static var lime_hb_set_create:Void->Dynamic = CFFI.load ("lime", "lime_hb_set_create", 0);
-	private static var lime_hb_set_del:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_set_del", 2);
-	private static var lime_hb_set_del_range:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_set_del_range", 3);
-	private static var lime_hb_set_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_set_get_empty", 0);
-	private static var lime_hb_set_get_max:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_get_max", 1);
-	private static var lime_hb_set_get_min:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_get_min", 1);
-	private static var lime_hb_set_get_population:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_get_population", 1);
-	private static var lime_hb_set_has:Dynamic->Int->Bool = CFFI.load ("lime", "lime_hb_set_has", 2);
-	private static var lime_hb_set_intersect:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_intersect", 2);
-	private static var lime_hb_set_invert:Dynamic->Void = CFFI.load ("lime", "lime_hb_set_invert", 1);
-	private static var lime_hb_set_is_empty:Dynamic->Bool = CFFI.load ("lime", "lime_hb_set_is_empty", 1);
-	private static var lime_hb_set_is_equal:Dynamic->Dynamic->Bool = CFFI.load ("lime", "lime_hb_set_is_equal", 2);
-	private static var lime_hb_set_next:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_next", 1);
-	private static var lime_hb_set_next_range:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_set_next_range", 1);
-	private static var lime_hb_set_set:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_set", 2);
-	private static var lime_hb_set_subtract:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_subtract", 2);
-	private static var lime_hb_set_symmetric_difference:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_symmetric_difference", 2);
-	private static var lime_hb_set_union:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_union", 2);
-	private static var lime_hb_shape:Dynamic->Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_shape", 3);
-	#end
-	
-	#if hl
-	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):Float;
-	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float;
-	@:cffi private static function lime_hb_blob_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
-	@:cffi private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	@:cffi private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_create ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	@:cffi private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int;
-	@:cffi private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool;
-	@:cffi private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
-	@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
-	@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
-	@:cffi private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void;
-	@:cffi private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool;
-	@:cffi private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void;
-	@:cffi private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	@:cffi private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer;
-	@:cffi private static function lime_hb_face_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_get_index (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_get_upem (face:CFFIPointer):Int;
-	@:cffi private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_face_make_immutable (face:CFFIPointer):Void;
-	@:cffi private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer;
-	@:cffi private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void;
-	@:cffi private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void;
-	@:cffi private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void;
-	@:cffi private static function lime_hb_feature_from_string (str:String):CFFIPointer;
-	@:cffi private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	@:cffi private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int;
-	@:cffi private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer;
-	@:cffi private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_font_make_immutable (font:CFFIPointer):Void;
-	@:cffi private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
-	@:cffi private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
-	@:cffi private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	@:cffi private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
-	@:cffi private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
-	@:cffi private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;
-	@:cffi private static function lime_hb_language_from_string (str:String):CFFIPointer;
-	@:cffi private static function lime_hb_language_get_default ():CFFIPointer;
-	@:cffi private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic;
-	@:cffi private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void;
-	@:cffi private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void;
-	@:cffi private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_clear (set:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_create ():CFFIPointer;
-	@:cffi private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void;
-	@:cffi private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void;
-	@:cffi private static function lime_hb_set_get_empty ():CFFIPointer;
-	@:cffi private static function lime_hb_set_get_max (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_get_min (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_get_population (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool;
-	@:cffi private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_invert (set:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_is_empty (set:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool;
-	@:cffi private static function lime_hb_set_next (set:CFFIPointer):Int;
-	@:cffi private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic;
-	@:cffi private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void;
-	@:cffi private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
-	// @:hlNative("lime", "lime_hb_blob_create") private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_blob_get_data") private static function lime_hb_blob_get_data (blob:CFFIPointer):Float;
-	// @:hlNative("lime", "lime_hb_blob_get_data_writable") private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float;
-	// @:hlNative("lime", "lime_hb_blob_get_empty") private static function lime_hb_blob_get_empty ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_blob_get_length") private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_blob_is_immutable") private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_blob_make_immutable") private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_add") private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_add_codepoints") private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_add_utf8") private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_add_utf16") private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_add_utf32") private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_allocation_successful") private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_buffer_clear_contents") private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_create") private static function lime_hb_buffer_create ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_buffer_get_cluster_level") private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_content_type") private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_direction") private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_empty") private static function lime_hb_buffer_get_empty ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_buffer_get_flags") private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_glyph_infos") private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	// @:hlNative("lime", "lime_hb_buffer_get_glyph_positions") private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes;
-	// @:hlNative("lime", "lime_hb_buffer_get_language") private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_buffer_get_length") private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_replacement_codepoint") private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_script") private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_buffer_get_segment_properties") private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_guess_segment_properties") private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_normalize_glyphs") private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_preallocate") private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool;
-	// @:hlNative("lime", "lime_hb_buffer_reset") private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_reverse") private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_reverse_clusters") private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_serialize_format_from_string") private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
-	// @:hlNative("lime", "lime_hb_buffer_serialize_format_to_string") private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_buffer_serialize_list_formats") private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_buffer_set_cluster_level") private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_content_type") private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_direction") private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_flags") private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_language") private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_length") private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool;
-	// @:hlNative("lime", "lime_hb_buffer_set_replacement_codepoint") private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_script") private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void;
-	// @:hlNative("lime", "lime_hb_buffer_set_segment_properties") private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_face_create") private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_face_get_empty") private static function lime_hb_face_get_empty ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_face_get_glyph_count") private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_face_get_index") private static function lime_hb_face_get_index (face:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_face_get_upem") private static function lime_hb_face_get_upem (face:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_face_is_immutable") private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_face_make_immutable") private static function lime_hb_face_make_immutable (face:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_face_reference_blob") private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_face_reference_table") private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_face_set_glyph_count") private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void;
-	// @:hlNative("lime", "lime_hb_face_set_index") private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void;
-	// @:hlNative("lime", "lime_hb_face_set_upem") private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void;
-	// @:hlNative("lime", "lime_hb_feature_from_string") private static function lime_hb_feature_from_string (str:String):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_feature_to_string") private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_add_glyph_origin_for_direction") private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	// @:hlNative("lime", "lime_hb_font_create") private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_create_sub_font") private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_get_empty") private static function lime_hb_font_get_empty ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_get_face") private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_get_glyph_advance_for_direction") private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	// @:hlNative("lime", "lime_hb_font_get_glyph_kerning_for_direction") private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic;
-	// @:hlNative("lime", "lime_hb_font_get_glyph_origin_for_direction") private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
-	// @:hlNative("lime", "lime_hb_font_get_parent") private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_get_ppem") private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_get_scale") private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_glyph_from_string") private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int;
-	// @:hlNative("lime", "lime_hb_font_glyph_to_string") private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_font_is_immutable") private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_font_make_immutable") private static function lime_hb_font_make_immutable (font:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_font_set_ppem") private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
-	// @:hlNative("lime", "lime_hb_font_set_scale") private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
-	// @:hlNative("lime", "lime_hb_font_subtract_glyph_origin_for_direction") private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
-	// @:hlNative("lime", "lime_hb_ft_font_create") private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_ft_font_create_referenced") private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_ft_font_get_load_flags") private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_ft_font_set_load_flags") private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;
-	// @:hlNative("lime", "lime_hb_language_from_string") private static function lime_hb_language_from_string (str:String):CFFIPointer;
-	// @:hlNative("lime", "lime_hb_language_get_default") private static function lime_hb_language_get_default ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_language_to_string") private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic;
-	// @:hlNative("lime", "lime_hb_segment_properties_equal") private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_segment_properties_hash") private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_set_add") private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void;
-	// @:hlNative("lime", "lime_hb_set_add_range") private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void;
-	// @:hlNative("lime", "lime_hb_set_allocation_successful") private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_set_clear") private static function lime_hb_set_clear (set:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_set_create") private static function lime_hb_set_create ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_set_del") private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void;
-	// @:hlNative("lime", "lime_hb_set_del_range") private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void;
-	// @:hlNative("lime", "lime_hb_set_get_empty") private static function lime_hb_set_get_empty ():CFFIPointer;
-	// @:hlNative("lime", "lime_hb_set_get_max") private static function lime_hb_set_get_max (set:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_set_get_min") private static function lime_hb_set_get_min (set:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_set_get_population") private static function lime_hb_set_get_population (set:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_set_has") private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool;
-	// @:hlNative("lime", "lime_hb_set_intersect") private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_set_invert") private static function lime_hb_set_invert (set:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_set_is_empty") private static function lime_hb_set_is_empty (set:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_set_is_equal") private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool;
-	// @:hlNative("lime", "lime_hb_set_next") private static function lime_hb_set_next (set:CFFIPointer):Int;
-	// @:hlNative("lime", "lime_hb_set_next_range") private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic;
-	// @:hlNative("lime", "lime_hb_set_set") private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_set_subtract") private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_set_symmetric_difference") private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_set_union") private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void;
-	// @:hlNative("lime", "lime_hb_shape") private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
-	#end
-	
-	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_openal)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_al_buffer_data (buffer:CFFIPointer, format:Int, data:Dynamic, size:Int, freq:Int):Void;
@@ -1373,7 +806,7 @@ class NativeCFFI {
 	@:cffi private static function lime_alc_process_context (context:CFFIPointer):Void;
 	@:cffi private static function lime_alc_resume_device (device:CFFIPointer):Void;
 	@:cffi private static function lime_alc_suspend_context (context:CFFIPointer):Void;
-	
+
 	@:cffi private static function lime_al_gen_filter():CFFIPointer;
 	@:cffi private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void;
 	@:cffi private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:Float32):Void;
@@ -1507,7 +940,7 @@ class NativeCFFI {
 	private static var lime_al_remove_send = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_al_remove_send", "oiv", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_al_buffer_data = CFFI.load ("lime", "lime_al_buffer_data", 5);
 	private static var lime_al_buffer3f = CFFI.load ("lime", "lime_al_buffer3f", 5);
@@ -1601,7 +1034,7 @@ class NativeCFFI {
 	private static var lime_alc_process_context = CFFI.load ("lime", "lime_alc_process_context", 1);
 	private static var lime_alc_resume_device = CFFI.load ("lime", "lime_alc_resume_device", 1);
 	private static var lime_alc_suspend_context = CFFI.load ("lime", "lime_alc_suspend_context", 1);
-	
+
 	private static var lime_al_gen_filter = CFFI.load ("lime", "lime_al_gen_filter", 0);
 	private static var lime_al_filteri = CFFI.load ("lime", "lime_al_filteri", 3);
 	private static var lime_al_filterf = CFFI.load ("lime", "lime_al_filterf", 3);
@@ -1622,7 +1055,7 @@ class NativeCFFI {
 	private static var lime_al_is_aux = CFFI.load ("lime", "lime_al_is_aux", 1);
 	private static var lime_al_remove_send = CFFI.load ("lime", "lime_al_remove_send", 2);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_al_buffer_data") private static function lime_al_buffer_data (buffer:CFFIPointer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void {}
 	@:hlNative("lime", "lime_al_buffer3f") private static function lime_al_buffer3f (buffer:CFFIPointer, param:Int, value1:hl.F32, value2:hl.F32, value3:hl.F32):Void {}
@@ -1716,7 +1149,7 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_alc_process_context") private static function lime_alc_process_context (context:ALContext):Void {}
 	@:hlNative("lime", "lime_alc_resume_device") private static function lime_alc_resume_device (device:ALDevice):Void {}
 	@:hlNative("lime", "lime_alc_suspend_context") private static function lime_alc_suspend_context (context:ALContext):Void {}
-	
+
 	@:hlNative("lime", "lime_al_gen_filter") private static function lime_al_gen_filter():CFFIPointer { return null; }
 	@:hlNative("lime", "lime_al_filteri") private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void {}
 	@:hlNative("lime", "lime_al_filterf") private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:hl.F32):Void {}
@@ -1737,12 +1170,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_al_is_aux") private static function lime_al_is_aux(aux:CFFIPointer):Bool { return false; }
 	@:hlNative("lime", "lime_al_remove_send") private static function lime_al_remove_send (source:CFFIPointer, index:Int):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_cairo)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_cairo_arc (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
@@ -1981,7 +1414,7 @@ class NativeCFFI {
 	private static var lime_cairo_surface_flush = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_cairo_surface_flush", "ov", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_cairo_arc = CFFI.load ("lime", "lime_cairo_arc", -1);
 	private static var lime_cairo_arc_negative = CFFI.load ("lime", "lime_cairo_arc_negative", -1);
@@ -2100,7 +1533,7 @@ class NativeCFFI {
 	private static var lime_cairo_pattern_set_matrix = CFFI.load ("lime", "lime_cairo_pattern_set_matrix", 2);
 	private static var lime_cairo_surface_flush = CFFI.load ("lime", "lime_cairo_surface_flush", 1);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_cairo_arc") private static function lime_cairo_arc (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {}
 	@:hlNative("lime", "lime_cairo_arc_negative") private static function lime_cairo_arc_negative (handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void {}
@@ -2219,12 +1652,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_cairo_pattern_set_matrix") private static function lime_cairo_pattern_set_matrix (handle:CFFIPointer, matrix:Matrix3):Void {}
 	@:hlNative("lime", "lime_cairo_surface_flush") private static function lime_cairo_surface_flush (surface:CFFIPointer):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_curl)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_curl_getdate (date:String, now:Float):Float;
@@ -2284,7 +1717,7 @@ class NativeCFFI {
 	private static var lime_curl_multi_wait = new cpp.Callable<cpp.Object->Int->Int> (cpp.Prime._loadPrime ("lime", "lime_curl_multi_wait", "oii", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_curl_getdate = CFFI.load ("lime", "lime_curl_getdate", 2);
 	private static var lime_curl_global_cleanup = CFFI.load ("lime", "lime_curl_global_cleanup", 0);
@@ -2314,7 +1747,7 @@ class NativeCFFI {
 	private static var lime_curl_multi_setopt = CFFI.load ("lime", "lime_curl_multi_setopt", 3);
 	private static var lime_curl_multi_wait = CFFI.load ("lime", "lime_curl_multi_wait", 2);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_curl_getdate") private static function lime_curl_getdate (date:String, now:Float):Float { return 0; }
 	@:hlNative("lime", "lime_curl_global_cleanup") private static function lime_curl_global_cleanup ():Void {}
@@ -2344,12 +1777,12 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_curl_multi_setopt") private static function lime_curl_multi_setopt (multi_handle:CFFIPointer, option:Int, parameter:Dynamic):Int { return 0; }
 	@:hlNative("lime", "lime_curl_multi_wait") private static function lime_curl_multi_wait (multi_handle:CFFIPointer, timeout_ms:Int):Int { return 0; }
 	#end
-	
+
 	#end
-	
-	
+
+
 	#if (lime_cffi && !macro && lime_opengl)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
@@ -2893,7 +2326,7 @@ class NativeCFFI {
 	private static var lime_gl_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_gl_wait_sync", "oiiiv", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_gl_active_texture = CFFI.load ("lime", "lime_gl_active_texture", 1);
 	private static var lime_gl_attach_shader = CFFI.load ("lime", "lime_gl_attach_shader", 2);
@@ -3165,7 +2598,7 @@ class NativeCFFI {
 	private static var lime_gl_viewport = CFFI.load ("lime", "lime_gl_viewport", 4);
 	private static var lime_gl_wait_sync = CFFI.load ("lime", "lime_gl_wait_sync", 4);
 	#end
-	
+
 	#if hl
 	@:hlNative("lime", "lime_gl_active_texture") private static function lime_gl_active_texture (texture:Int):Void {}
 	@:hlNative("lime", "lime_gl_attach_shader") private static function lime_gl_attach_shader (program:Int, shader:Int):Void {}
@@ -3437,12 +2870,469 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_gl_viewport") private static function lime_gl_viewport (x:Int, y:Int, width:Int, height:Int):Void {}
 	@:hlNative("lime", "lime_gl_wait_sync") private static function lime_gl_wait_sync (sync:CFFIPointer, flags:Int, timeoutA:Int, timeoutB:Int):Void {}
 	#end
-	
+
 	#end
-	
-	
+
+
+	#if (lime_cffi && !macro && lime_harfbuzz)
+
+	#if cpp
+	#if (disable_cffi || haxe_ver < "3.4.0")
+	@:cffi private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
+	@:cffi private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
+	@:cffi private static function lime_hb_blob_get_data (blob:CFFIPointer):Float;
+	@:cffi private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float;
+	@:cffi private static function lime_hb_blob_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_blob_get_length (blob:CFFIPointer):Int;
+	@:cffi private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void;
+	@:cffi private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_create ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes;
+	@:cffi private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes;
+	@:cffi private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int;
+	@:cffi private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool;
+	@:cffi private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String):Int;
+	@:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
+	@:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;
+	@:cffi private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void;
+	@:cffi private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool;
+	@:cffi private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void;
+	@:cffi private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void;
+	@:cffi private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer;
+	@:cffi private static function lime_hb_face_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int;
+	@:cffi private static function lime_hb_face_get_index (face:CFFIPointer):Int;
+	@:cffi private static function lime_hb_face_get_upem (face:CFFIPointer):Int;
+	@:cffi private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_face_make_immutable (face:CFFIPointer):Void;
+	@:cffi private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer;
+	@:cffi private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void;
+	@:cffi private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void;
+	@:cffi private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void;
+	@:cffi private static function lime_hb_feature_from_string (str:String):CFFIPointer;
+	@:cffi private static function lime_hb_feature_to_string (feature:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
+	@:cffi private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
+	@:cffi private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int):Dynamic;
+	@:cffi private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int):Dynamic;
+	@:cffi private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_ppem (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_get_scale (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int;
+	@:cffi private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):CFFIPointer;
+	@:cffi private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_font_make_immutable (font:CFFIPointer):Void;
+	@:cffi private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void;
+	@:cffi private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void;
+	@:cffi private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void;
+	@:cffi private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer;
+	@:cffi private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int;
+	@:cffi private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void;
+	@:cffi private static function lime_hb_language_from_string (str:String):CFFIPointer;
+	@:cffi private static function lime_hb_language_get_default ():CFFIPointer;
+	@:cffi private static function lime_hb_language_to_string (language:CFFIPointer):Dynamic;
+	@:cffi private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void;
+	@:cffi private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void;
+	@:cffi private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_set_clear (set:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_create ():CFFIPointer;
+	@:cffi private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void;
+	@:cffi private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void;
+	@:cffi private static function lime_hb_set_get_empty ():CFFIPointer;
+	@:cffi private static function lime_hb_set_get_max (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_get_min (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_get_population (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool;
+	@:cffi private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_invert (set:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_is_empty (set:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool;
+	@:cffi private static function lime_hb_set_next (set:CFFIPointer):Int;
+	@:cffi private static function lime_hb_set_next_range (set:CFFIPointer):Dynamic;
+	@:cffi private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void;
+	@:cffi private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
+	#else
+	private static var lime_hb_blob_create = new cpp.Callable<lime.utils.DataPointer->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_create", "diio", false));
+	private static var lime_hb_blob_create_sub_blob = new cpp.Callable<cpp.Object->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_create_sub_blob", "oiio", false));
+	private static var lime_hb_blob_get_data = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_data", "od", false));
+	private static var lime_hb_blob_get_data_writable = new cpp.Callable<cpp.Object->Float> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_data_writable", "od", false));
+	private static var lime_hb_blob_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_empty", "o", false));
+	private static var lime_hb_blob_get_length = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_get_length", "oi", false));
+	private static var lime_hb_blob_is_immutable = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_is_immutable", "ob", false));
+	private static var lime_hb_blob_make_immutable = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_blob_make_immutable", "ov", false));
+	private static var lime_hb_buffer_add = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add", "oiiv", false));
+	private static var lime_hb_buffer_add_codepoints = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_codepoints", "odiiiv", false));
+	private static var lime_hb_buffer_add_utf8 = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_utf8", "osiiv", false));
+	private static var lime_hb_buffer_add_utf16 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_utf16", "odiiiv", false));
+	private static var lime_hb_buffer_add_utf32 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_add_utf32", "odiiiv", false));
+	private static var lime_hb_buffer_allocation_successful = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_allocation_successful", "ob", false));
+	private static var lime_hb_buffer_clear_contents = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_clear_contents", "ov", false));
+	private static var lime_hb_buffer_create = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_create", "o", false));
+	private static var lime_hb_buffer_get_cluster_level = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_cluster_level", "oi", false));
+	private static var lime_hb_buffer_get_content_type = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_content_type", "oi", false));
+	private static var lime_hb_buffer_get_direction = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_direction", "oi", false));
+	private static var lime_hb_buffer_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_empty", "o", false));
+	private static var lime_hb_buffer_get_flags = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_flags", "oi", false));
+	private static var lime_hb_buffer_get_glyph_infos = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_glyph_infos", "ooo", false));
+	private static var lime_hb_buffer_get_glyph_positions = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_glyph_positions", "ooo", false));
+	private static var lime_hb_buffer_get_language = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_language", "oo", false));
+	private static var lime_hb_buffer_get_length = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_length", "oi", false));
+	private static var lime_hb_buffer_get_replacement_codepoint = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_replacement_codepoint", "oi", false));
+	private static var lime_hb_buffer_get_script = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_script", "oi", false));
+	private static var lime_hb_buffer_get_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_get_segment_properties", "oov", false));
+	private static var lime_hb_buffer_guess_segment_properties = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_guess_segment_properties", "ov", false));
+	private static var lime_hb_buffer_normalize_glyphs = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_normalize_glyphs", "ov", false));
+	private static var lime_hb_buffer_preallocate = new cpp.Callable<cpp.Object->Int->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_preallocate", "oib", false));
+	private static var lime_hb_buffer_reset = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_reset", "ov", false));
+	private static var lime_hb_buffer_reverse = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_reverse", "ov", false));
+	private static var lime_hb_buffer_reverse_clusters = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_reverse_clusters", "ov", false));
+	private static var lime_hb_buffer_serialize_format_from_string = new cpp.Callable<String->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_serialize_format_from_string", "si", false));
+	private static var lime_hb_buffer_serialize_format_to_string = new cpp.Callable<Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_serialize_format_to_string", "io", false));
+	private static var lime_hb_buffer_serialize_list_formats = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_serialize_list_formats", "o", false));
+	private static var lime_hb_buffer_set_cluster_level = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_cluster_level", "oiv", false));
+	private static var lime_hb_buffer_set_content_type = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_content_type", "oiv", false));
+	private static var lime_hb_buffer_set_direction = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_direction", "oiv", false));
+	private static var lime_hb_buffer_set_flags = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_flags", "oiv", false));
+	private static var lime_hb_buffer_set_language = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_language", "oov", false));
+	private static var lime_hb_buffer_set_length = new cpp.Callable<cpp.Object->Int->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_length", "oib", false));
+	private static var lime_hb_buffer_set_replacement_codepoint = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_replacement_codepoint", "oiv", false));
+	private static var lime_hb_buffer_set_script = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_script", "oiv", false));
+	private static var lime_hb_buffer_set_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_buffer_set_segment_properties", "oov", false));
+	private static var lime_hb_face_create = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_create", "oio", false));
+	private static var lime_hb_face_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_empty", "o", false));
+	private static var lime_hb_face_get_glyph_count = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_glyph_count", "oi", false));
+	private static var lime_hb_face_get_index = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_index", "oi", false));
+	private static var lime_hb_face_get_upem = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_face_get_upem", "oi", false));
+	private static var lime_hb_face_is_immutable = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_face_is_immutable", "ob", false));
+	private static var lime_hb_face_make_immutable = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_make_immutable", "ov", false));
+	private static var lime_hb_face_reference_blob = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_reference_blob", "oo", false));
+	private static var lime_hb_face_reference_table = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_face_reference_table", "oio", false));
+	private static var lime_hb_face_set_glyph_count = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_set_glyph_count", "oiv", false));
+	private static var lime_hb_face_set_index = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_set_index", "oiv", false));
+	private static var lime_hb_face_set_upem = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_face_set_upem", "oiv", false));
+	private static var lime_hb_feature_from_string = new cpp.Callable<String->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_feature_from_string", "so", false));
+	private static var lime_hb_feature_to_string = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_feature_to_string", "oo", false));
+	private static var lime_hb_font_add_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_add_glyph_origin_for_direction", "oiiiiv", false));
+	private static var lime_hb_font_create = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_create", "oo", false));
+	private static var lime_hb_font_create_sub_font = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_create_sub_font", "oo", false));
+	private static var lime_hb_font_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_empty", "o", false));
+	private static var lime_hb_font_get_face = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_face", "oo", false));
+	private static var lime_hb_font_get_glyph_advance_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_glyph_advance_for_direction", "oiio", false));
+	private static var lime_hb_font_get_glyph_kerning_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_glyph_kerning_for_direction", "oiiio", false));
+	private static var lime_hb_font_get_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_glyph_origin_for_direction", "oiio", false));
+	private static var lime_hb_font_get_parent = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_parent", "oo", false));
+	private static var lime_hb_font_get_ppem = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_ppem", "oo", false));
+	private static var lime_hb_font_get_scale = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_get_scale", "oo", false));
+	private static var lime_hb_font_glyph_from_string = new cpp.Callable<cpp.Object->String->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_font_glyph_from_string", "osi", false));
+	private static var lime_hb_font_glyph_to_string = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_font_glyph_to_string", "oio", false));
+	private static var lime_hb_font_is_immutable = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_font_is_immutable", "ob", false));
+	private static var lime_hb_font_make_immutable = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_make_immutable", "ov", false));
+	private static var lime_hb_font_set_ppem = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_set_ppem", "oiiv", false));
+	private static var lime_hb_font_set_scale = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_set_scale", "oiiv", false));
+	private static var lime_hb_font_subtract_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_font_subtract_glyph_origin_for_direction", "oiiiiv", false));
+	private static var lime_hb_ft_font_create = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_create", "oo", false));
+	private static var lime_hb_ft_font_create_referenced = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_create_referenced", "oo", false));
+	private static var lime_hb_ft_font_get_load_flags = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_get_load_flags", "oi", false));
+	private static var lime_hb_ft_font_set_load_flags = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_ft_font_set_load_flags", "oiv", false));
+	private static var lime_hb_language_from_string = new cpp.Callable<String->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_language_from_string", "so", false));
+	private static var lime_hb_language_get_default = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_language_get_default", "o", false));
+	private static var lime_hb_language_to_string = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_language_to_string", "oo", false));
+	private static var lime_hb_segment_properties_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_segment_properties_equal", "oob", false));
+	private static var lime_hb_segment_properties_hash = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_segment_properties_hash", "oi", false));
+	private static var lime_hb_set_add = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_add", "oiv", false));
+	private static var lime_hb_set_add_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_add_range", "oiiv", false));
+	private static var lime_hb_set_allocation_successful = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_allocation_successful", "ob", false));
+	private static var lime_hb_set_clear = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_clear", "ov", false));
+	private static var lime_hb_set_create = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_set_create", "o", false));
+	private static var lime_hb_set_del = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_del", "oiv", false));
+	private static var lime_hb_set_del_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_del_range", "oiiv", false));
+	private static var lime_hb_set_get_empty = new cpp.Callable<Void->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_empty", "o", false));
+	private static var lime_hb_set_get_max = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_max", "oi", false));
+	private static var lime_hb_set_get_min = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_min", "oi", false));
+	private static var lime_hb_set_get_population = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_get_population", "oi", false));
+	private static var lime_hb_set_has = new cpp.Callable<cpp.Object->Int->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_has", "oib", false));
+	private static var lime_hb_set_intersect = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_intersect", "oov", false));
+	private static var lime_hb_set_invert = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_invert", "ov", false));
+	private static var lime_hb_set_is_empty = new cpp.Callable<cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_is_empty", "ob", false));
+	private static var lime_hb_set_is_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_hb_set_is_equal", "oob", false));
+	private static var lime_hb_set_next = new cpp.Callable<cpp.Object->Int> (cpp.Prime._loadPrime ("lime", "lime_hb_set_next", "oi", false));
+	private static var lime_hb_set_next_range = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_hb_set_next_range", "oo", false));
+	private static var lime_hb_set_set = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_set", "oov", false));
+	private static var lime_hb_set_subtract = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_subtract", "oov", false));
+	private static var lime_hb_set_symmetric_difference = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_symmetric_difference", "oov", false));
+	private static var lime_hb_set_union = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_set_union", "oov", false));
+	private static var lime_hb_shape = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_hb_shape", "ooov", false));
+	#end
+	#end
+
+	#if neko
+	private static var lime_hb_blob_create:lime.utils.DataPointer->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_blob_create", 3);
+	private static var lime_hb_blob_create_sub_blob:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_blob_create_sub_blob", 3);
+	private static var lime_hb_blob_get_data:Dynamic->Float = CFFI.load ("lime", "lime_hb_blob_get_data", 1);
+	private static var lime_hb_blob_get_data_writable:Dynamic->Float = CFFI.load ("lime", "lime_hb_blob_get_data_writable", 1);
+	private static var lime_hb_blob_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_blob_get_empty", 0);
+	private static var lime_hb_blob_get_length:Dynamic->Int = CFFI.load ("lime", "lime_hb_blob_get_length", 1);
+	private static var lime_hb_blob_is_immutable:Dynamic->Bool = CFFI.load ("lime", "lime_hb_blob_is_immutable", 1);
+	private static var lime_hb_blob_make_immutable:Dynamic->Void = CFFI.load ("lime", "lime_hb_blob_make_immutable", 1);
+	private static var lime_hb_buffer_add:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add", 3);
+	private static var lime_hb_buffer_add_codepoints:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_codepoints", 5);
+	private static var lime_hb_buffer_add_utf8:Dynamic->String->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_utf8", 4);
+	private static var lime_hb_buffer_add_utf16:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_utf16", 5);
+	private static var lime_hb_buffer_add_utf32:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_buffer_add_utf32", 5);
+	private static var lime_hb_buffer_allocation_successful:Dynamic->Bool = CFFI.load ("lime", "lime_hb_buffer_allocation_successful", 1);
+	private static var lime_hb_buffer_clear_contents:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_clear_contents", 1);
+	private static var lime_hb_buffer_create:Void->Dynamic = CFFI.load ("lime", "lime_hb_buffer_create", 0);
+	private static var lime_hb_buffer_get_cluster_level:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_cluster_level", 1);
+	private static var lime_hb_buffer_get_content_type:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_content_type", 1);
+	private static var lime_hb_buffer_get_direction:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_direction", 1);
+	private static var lime_hb_buffer_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_empty", 0);
+	private static var lime_hb_buffer_get_flags:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_flags", 1);
+	private static var lime_hb_buffer_get_glyph_infos:Dynamic->Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_glyph_infos", 2);
+	private static var lime_hb_buffer_get_glyph_positions:Dynamic->Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_glyph_positions", 2);
+	private static var lime_hb_buffer_get_language:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_buffer_get_language", 1);
+	private static var lime_hb_buffer_get_length:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_length", 1);
+	private static var lime_hb_buffer_get_replacement_codepoint:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_replacement_codepoint", 1);
+	private static var lime_hb_buffer_get_script:Dynamic->Int = CFFI.load ("lime", "lime_hb_buffer_get_script", 1);
+	private static var lime_hb_buffer_get_segment_properties:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_get_segment_properties", 2);
+	private static var lime_hb_buffer_guess_segment_properties:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_guess_segment_properties", 1);
+	private static var lime_hb_buffer_normalize_glyphs:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_normalize_glyphs", 1);
+	private static var lime_hb_buffer_preallocate:Dynamic->Int->Bool = CFFI.load ("lime", "lime_hb_buffer_preallocate", 2);
+	private static var lime_hb_buffer_reset:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_reset", 1);
+	private static var lime_hb_buffer_reverse:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_reverse", 1);
+	private static var lime_hb_buffer_reverse_clusters:Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_reverse_clusters", 1);
+	private static var lime_hb_buffer_serialize_format_from_string:String->Int = CFFI.load ("lime", "lime_hb_buffer_serialize_format_from_string", 1);
+	private static var lime_hb_buffer_serialize_format_to_string:Int->Dynamic = CFFI.load ("lime", "lime_hb_buffer_serialize_format_to_string", 1);
+	private static var lime_hb_buffer_serialize_list_formats:Void->Dynamic = CFFI.load ("lime", "lime_hb_buffer_serialize_list_formats", 0);
+	private static var lime_hb_buffer_set_cluster_level:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_cluster_level", 2);
+	private static var lime_hb_buffer_set_content_type:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_content_type", 2);
+	private static var lime_hb_buffer_set_direction:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_direction", 2);
+	private static var lime_hb_buffer_set_flags:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_flags", 2);
+	private static var lime_hb_buffer_set_language:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_set_language", 2);
+	private static var lime_hb_buffer_set_length:Dynamic->Int->Bool = CFFI.load ("lime", "lime_hb_buffer_set_length", 2);
+	private static var lime_hb_buffer_set_replacement_codepoint:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_replacement_codepoint", 2);
+	private static var lime_hb_buffer_set_script:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_buffer_set_script", 2);
+	private static var lime_hb_buffer_set_segment_properties:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_buffer_set_segment_properties", 2);
+	private static var lime_hb_face_create:Dynamic->Int->Dynamic = CFFI.load ("lime", "lime_hb_face_create", 2);
+	private static var lime_hb_face_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_face_get_empty", 0);
+	private static var lime_hb_face_get_glyph_count:Dynamic->Int = CFFI.load ("lime", "lime_hb_face_get_glyph_count", 1);
+	private static var lime_hb_face_get_index:Dynamic->Int = CFFI.load ("lime", "lime_hb_face_get_index", 1);
+	private static var lime_hb_face_get_upem:Dynamic->Int = CFFI.load ("lime", "lime_hb_face_get_upem", 1);
+	private static var lime_hb_face_is_immutable:Dynamic->Bool = CFFI.load ("lime", "lime_hb_face_is_immutable", 1);
+	private static var lime_hb_face_make_immutable:Dynamic->Void = CFFI.load ("lime", "lime_hb_face_make_immutable", 1);
+	private static var lime_hb_face_reference_blob:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_face_reference_blob", 1);
+	private static var lime_hb_face_reference_table:Dynamic->Int->Dynamic = CFFI.load ("lime", "lime_hb_face_reference_table", 2);
+	private static var lime_hb_face_set_glyph_count:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_face_set_glyph_count", 2);
+	private static var lime_hb_face_set_index:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_face_set_index", 2);
+	private static var lime_hb_face_set_upem:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_face_set_upem", 2);
+	private static var lime_hb_feature_from_string:String->Dynamic = CFFI.load ("lime", "lime_hb_feature_from_string", 1);
+	private static var lime_hb_feature_to_string:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_feature_to_string", 1);
+	private static var lime_hb_font_add_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_add_glyph_origin_for_direction", 5);
+	private static var lime_hb_font_create:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_create", 1);
+	private static var lime_hb_font_create_sub_font:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_create_sub_font", 1);
+	private static var lime_hb_font_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_font_get_empty", 0);
+	private static var lime_hb_font_get_face:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_face", 1);
+	private static var lime_hb_font_get_glyph_advance_for_direction:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_get_glyph_advance_for_direction", 3);
+	private static var lime_hb_font_get_glyph_kerning_for_direction:Dynamic->Int->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_get_glyph_kerning_for_direction", 4);
+	private static var lime_hb_font_get_glyph_origin_for_direction:Dynamic->Int->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_get_glyph_origin_for_direction", 3);
+	private static var lime_hb_font_get_parent:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_parent", 1);
+	private static var lime_hb_font_get_ppem:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_ppem", 1);
+	private static var lime_hb_font_get_scale:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_font_get_scale", 1);
+	private static var lime_hb_font_glyph_from_string:Dynamic->String->Int = CFFI.load ("lime", "lime_hb_font_glyph_from_string", 2);
+	private static var lime_hb_font_glyph_to_string:Dynamic->Int->Dynamic = CFFI.load ("lime", "lime_hb_font_glyph_to_string", 2);
+	private static var lime_hb_font_is_immutable:Dynamic->Bool = CFFI.load ("lime", "lime_hb_font_is_immutable", 1);
+	private static var lime_hb_font_make_immutable:Dynamic->Void = CFFI.load ("lime", "lime_hb_font_make_immutable", 1);
+	private static var lime_hb_font_set_ppem:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_set_ppem", 3);
+	private static var lime_hb_font_set_scale:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_set_scale", 3);
+	private static var lime_hb_font_subtract_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI.load ("lime", "lime_hb_font_subtract_glyph_origin_for_direction", 5);
+	private static var lime_hb_ft_font_create:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_ft_font_create", 1);
+	private static var lime_hb_ft_font_create_referenced:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_ft_font_create_referenced", 1);
+	private static var lime_hb_ft_font_get_load_flags:Dynamic->Int = CFFI.load ("lime", "lime_hb_ft_font_get_load_flags", 1);
+	private static var lime_hb_ft_font_set_load_flags:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_ft_font_set_load_flags", 2);
+	private static var lime_hb_language_from_string:String->Dynamic = CFFI.load ("lime", "lime_hb_language_from_string", 1);
+	private static var lime_hb_language_get_default:Void->Dynamic = CFFI.load ("lime", "lime_hb_language_get_default", 0);
+	private static var lime_hb_language_to_string:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_language_to_string", 1);
+	private static var lime_hb_segment_properties_equal:Dynamic->Dynamic->Bool = CFFI.load ("lime", "lime_hb_segment_properties_equal", 2);
+	private static var lime_hb_segment_properties_hash:Dynamic->Int = CFFI.load ("lime", "lime_hb_segment_properties_hash", 1);
+	private static var lime_hb_set_add:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_set_add", 2);
+	private static var lime_hb_set_add_range:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_set_add_range", 3);
+	private static var lime_hb_set_allocation_successful:Dynamic->Bool = CFFI.load ("lime", "lime_hb_set_allocation_successful", 1);
+	private static var lime_hb_set_clear:Dynamic->Void = CFFI.load ("lime", "lime_hb_set_clear", 1);
+	private static var lime_hb_set_create:Void->Dynamic = CFFI.load ("lime", "lime_hb_set_create", 0);
+	private static var lime_hb_set_del:Dynamic->Int->Void = CFFI.load ("lime", "lime_hb_set_del", 2);
+	private static var lime_hb_set_del_range:Dynamic->Int->Int->Void = CFFI.load ("lime", "lime_hb_set_del_range", 3);
+	private static var lime_hb_set_get_empty:Void->Dynamic = CFFI.load ("lime", "lime_hb_set_get_empty", 0);
+	private static var lime_hb_set_get_max:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_get_max", 1);
+	private static var lime_hb_set_get_min:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_get_min", 1);
+	private static var lime_hb_set_get_population:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_get_population", 1);
+	private static var lime_hb_set_has:Dynamic->Int->Bool = CFFI.load ("lime", "lime_hb_set_has", 2);
+	private static var lime_hb_set_intersect:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_intersect", 2);
+	private static var lime_hb_set_invert:Dynamic->Void = CFFI.load ("lime", "lime_hb_set_invert", 1);
+	private static var lime_hb_set_is_empty:Dynamic->Bool = CFFI.load ("lime", "lime_hb_set_is_empty", 1);
+	private static var lime_hb_set_is_equal:Dynamic->Dynamic->Bool = CFFI.load ("lime", "lime_hb_set_is_equal", 2);
+	private static var lime_hb_set_next:Dynamic->Int = CFFI.load ("lime", "lime_hb_set_next", 1);
+	private static var lime_hb_set_next_range:Dynamic->Dynamic = CFFI.load ("lime", "lime_hb_set_next_range", 1);
+	private static var lime_hb_set_set:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_set", 2);
+	private static var lime_hb_set_subtract:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_subtract", 2);
+	private static var lime_hb_set_symmetric_difference:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_symmetric_difference", 2);
+	private static var lime_hb_set_union:Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_set_union", 2);
+	private static var lime_hb_shape:Dynamic->Dynamic->Dynamic->Void = CFFI.load ("lime", "lime_hb_shape", 3);
+	#end
+
+	#if hl
+	@:hlNative("lime", "lime_hb_blob_create") private static function lime_hb_blob_create (data:DataPointer, length:Int, memoryMode:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob (parent:CFFIPointer, offset:Int, length:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_blob_get_data") private static function lime_hb_blob_get_data (blob:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_hb_blob_get_data_writable") private static function lime_hb_blob_get_data_writable (blob:CFFIPointer):Float { return 0; }
+	@:hlNative("lime", "lime_hb_blob_get_empty") private static function lime_hb_blob_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_blob_get_length") private static function lime_hb_blob_get_length (blob:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_blob_is_immutable") private static function lime_hb_blob_is_immutable (blob:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_blob_make_immutable") private static function lime_hb_blob_make_immutable (blob:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add") private static function lime_hb_buffer_add (buffer:CFFIPointer, codepoint:Int, cluster:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_codepoints") private static function lime_hb_buffer_add_codepoints (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_utf8") private static function lime_hb_buffer_add_utf8 (buffer:CFFIPointer, text:String, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_utf16") private static function lime_hb_buffer_add_utf16 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_add_utf32") private static function lime_hb_buffer_add_utf32 (buffer:CFFIPointer, text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_allocation_successful") private static function lime_hb_buffer_allocation_successful (buffer:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_buffer_clear_contents") private static function lime_hb_buffer_clear_contents (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_create") private static function lime_hb_buffer_create ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_cluster_level") private static function lime_hb_buffer_get_cluster_level (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_content_type") private static function lime_hb_buffer_get_content_type (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_direction") private static function lime_hb_buffer_get_direction (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_empty") private static function lime_hb_buffer_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_flags") private static function lime_hb_buffer_get_flags (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_glyph_infos") private static function lime_hb_buffer_get_glyph_infos (buffer:CFFIPointer, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_glyph_positions") private static function lime_hb_buffer_get_glyph_positions (buffer:CFFIPointer, bytes:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_language") private static function lime_hb_buffer_get_language (buffer:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_buffer_get_length") private static function lime_hb_buffer_get_length (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_replacement_codepoint") private static function lime_hb_buffer_get_replacement_codepoint (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_script") private static function lime_hb_buffer_get_script (buffer:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_get_segment_properties") private static function lime_hb_buffer_get_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_guess_segment_properties") private static function lime_hb_buffer_guess_segment_properties (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_normalize_glyphs") private static function lime_hb_buffer_normalize_glyphs (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_preallocate") private static function lime_hb_buffer_preallocate (buffer:CFFIPointer, size:Int):Bool { return false; }
+	@:hlNative("lime", "lime_hb_buffer_reset") private static function lime_hb_buffer_reset (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_reverse") private static function lime_hb_buffer_reverse (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_reverse_clusters") private static function lime_hb_buffer_reverse_clusters (buffer:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_serialize_format_from_string") private static function lime_hb_buffer_serialize_format_from_string (str:String):Int { return 0; }
+	@:hlNative("lime", "lime_hb_buffer_serialize_format_to_string") private static function lime_hb_buffer_serialize_format_to_string (format:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_buffer_serialize_list_formats") private static function lime_hb_buffer_serialize_list_formats ():hl.NativeArray<hl.Bytes> { return null; }
+	@:hlNative("lime", "lime_hb_buffer_set_cluster_level") private static function lime_hb_buffer_set_cluster_level (buffer:CFFIPointer, clusterLevel:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_content_type") private static function lime_hb_buffer_set_content_type (buffer:CFFIPointer, contentType:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_direction") private static function lime_hb_buffer_set_direction (buffer:CFFIPointer, direction:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_flags") private static function lime_hb_buffer_set_flags (buffer:CFFIPointer, flags:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_language") private static function lime_hb_buffer_set_language (buffer:CFFIPointer, language:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_length") private static function lime_hb_buffer_set_length (buffer:CFFIPointer, length:Int):Bool { return false; }
+	@:hlNative("lime", "lime_hb_buffer_set_replacement_codepoint") private static function lime_hb_buffer_set_replacement_codepoint (buffer:CFFIPointer, replacement:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_script") private static function lime_hb_buffer_set_script (buffer:CFFIPointer, script:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_segment_properties") private static function lime_hb_buffer_set_segment_properties (buffer:CFFIPointer, props:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_face_create") private static function lime_hb_face_create (blob:CFFIPointer, index:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_get_empty") private static function lime_hb_face_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_get_glyph_count") private static function lime_hb_face_get_glyph_count (face:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_face_get_index") private static function lime_hb_face_get_index (face:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_face_get_upem") private static function lime_hb_face_get_upem (face:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_face_is_immutable") private static function lime_hb_face_is_immutable (face:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_face_make_immutable") private static function lime_hb_face_make_immutable (face:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_face_reference_blob") private static function lime_hb_face_reference_blob (face:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_reference_table") private static function lime_hb_face_reference_table (face:CFFIPointer, tag:Int):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_face_set_glyph_count") private static function lime_hb_face_set_glyph_count (face:CFFIPointer, glyphCount:Int):Void {}
+	@:hlNative("lime", "lime_hb_face_set_index") private static function lime_hb_face_set_index (face:CFFIPointer, index:Int):Void {}
+	@:hlNative("lime", "lime_hb_face_set_upem") private static function lime_hb_face_set_upem (face:CFFIPointer, upem:Int):Void {}
+	@:hlNative("lime", "lime_hb_feature_from_string") private static function lime_hb_feature_from_string (str:String):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_feature_to_string") private static function lime_hb_feature_to_string (feature:CFFIPointer):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_font_add_glyph_origin_for_direction") private static function lime_hb_font_add_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void {}
+	@:hlNative("lime", "lime_hb_font_create") private static function lime_hb_font_create (face:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_create_sub_font") private static function lime_hb_font_create_sub_font (parent:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_empty") private static function lime_hb_font_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_face") private static function lime_hb_font_get_face (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_glyph_advance_for_direction") private static function lime_hb_font_get_glyph_advance_for_direction (font:CFFIPointer, glyph:Int, direction:Int, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_glyph_kerning_for_direction") private static function lime_hb_font_get_glyph_kerning_for_direction (font:CFFIPointer, firstGlyph:Int, secondGlyph:Int, direction:Int, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_glyph_origin_for_direction") private static function lime_hb_font_get_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_parent") private static function lime_hb_font_get_parent (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_font_get_ppem") private static function lime_hb_font_get_ppem (font:CFFIPointer, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_get_scale") private static function lime_hb_font_get_scale (font:CFFIPointer, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_font_glyph_from_string") private static function lime_hb_font_glyph_from_string (font:CFFIPointer, s:String):Int { return 0; }
+	@:hlNative("lime", "lime_hb_font_glyph_to_string") private static function lime_hb_font_glyph_to_string (font:CFFIPointer, codepoint:Int):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_font_is_immutable") private static function lime_hb_font_is_immutable (font:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_font_make_immutable") private static function lime_hb_font_make_immutable (font:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_font_set_ppem") private static function lime_hb_font_set_ppem (font:CFFIPointer, xppem:Int, yppem:Int):Void {}
+	@:hlNative("lime", "lime_hb_font_set_scale") private static function lime_hb_font_set_scale (font:CFFIPointer, xScale:Int, yScale:Int):Void {}
+	@:hlNative("lime", "lime_hb_font_subtract_glyph_origin_for_direction") private static function lime_hb_font_subtract_glyph_origin_for_direction (font:CFFIPointer, glyph:Int, direction:Int, x:Int, y:Int):Void {}
+	@:hlNative("lime", "lime_hb_ft_font_create") private static function lime_hb_ft_font_create (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_ft_font_create_referenced") private static function lime_hb_ft_font_create_referenced (font:CFFIPointer):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_ft_font_get_load_flags") private static function lime_hb_ft_font_get_load_flags (font:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_ft_font_set_load_flags") private static function lime_hb_ft_font_set_load_flags (font:CFFIPointer, loadFlags:Int):Void {}
+	@:hlNative("lime", "lime_hb_language_from_string") private static function lime_hb_language_from_string (str:String):CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_language_get_default") private static function lime_hb_language_get_default ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_language_to_string") private static function lime_hb_language_to_string (language:CFFIPointer):hl.Bytes { return null; }
+	@:hlNative("lime", "lime_hb_segment_properties_equal") private static function lime_hb_segment_properties_equal (a:CFFIPointer, b:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_segment_properties_hash") private static function lime_hb_segment_properties_hash (p:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_add") private static function lime_hb_set_add (set:CFFIPointer, codepoint:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_add_range") private static function lime_hb_set_add_range (set:CFFIPointer, first:Int, last:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_allocation_successful") private static function lime_hb_set_allocation_successful (set:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_clear") private static function lime_hb_set_clear (set:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_create") private static function lime_hb_set_create ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_set_del") private static function lime_hb_set_del (set:CFFIPointer, codepoint:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_del_range") private static function lime_hb_set_del_range (set:CFFIPointer, first:Int, last:Int):Void {}
+	@:hlNative("lime", "lime_hb_set_get_empty") private static function lime_hb_set_get_empty ():CFFIPointer { return null; }
+	@:hlNative("lime", "lime_hb_set_get_max") private static function lime_hb_set_get_max (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_get_min") private static function lime_hb_set_get_min (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_get_population") private static function lime_hb_set_get_population (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_has") private static function lime_hb_set_has (set:CFFIPointer, codepoint:Int):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_intersect") private static function lime_hb_set_intersect (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_invert") private static function lime_hb_set_invert (set:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_is_empty") private static function lime_hb_set_is_empty (set:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_is_equal") private static function lime_hb_set_is_equal (set:CFFIPointer, other:CFFIPointer):Bool { return false; }
+	@:hlNative("lime", "lime_hb_set_next") private static function lime_hb_set_next (set:CFFIPointer):Int { return 0; }
+	@:hlNative("lime", "lime_hb_set_next_range") private static function lime_hb_set_next_range (set:CFFIPointer, out:Vector2):Vector2 { return null; }
+	@:hlNative("lime", "lime_hb_set_set") private static function lime_hb_set_set (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_subtract") private static function lime_hb_set_subtract (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_symmetric_difference") private static function lime_hb_set_symmetric_difference (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_set_union") private static function lime_hb_set_union (set:CFFIPointer, other:CFFIPointer):Void {}
+	@:hlNative("lime", "lime_hb_shape") private static function lime_hb_shape (font:CFFIPointer, buffer:CFFIPointer, features:hl.NativeArray<CFFIPointer>):Void {}
+	#end
+
+	#end
+
+
 	#if (lime_cffi && !macro && lime_vorbis)
-	
+
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_vorbis_file_bitrate (vorbisFile:Dynamic, bitstream:Int):Int;
@@ -3506,7 +3396,7 @@ class NativeCFFI {
 	private static var lime_vorbis_file_time_total = new cpp.Callable<cpp.Object->Int->Float> (cpp.Prime._loadPrime ("lime", "lime_vorbis_file_time_total", "oid", false));
 	#end
 	#end
-	
+
 	#if neko
 	private static var lime_vorbis_file_bitrate = CFFI.load ("lime", "lime_vorbis_file_bitrate", 2);
 	private static var lime_vorbis_file_bitrate_instant = CFFI.load ("lime", "lime_vorbis_file_bitrate_instant", 1);
@@ -3538,7 +3428,7 @@ class NativeCFFI {
 	private static var lime_vorbis_file_time_tell = CFFI.load ("lime", "lime_vorbis_file_time_tell", 1);
 	private static var lime_vorbis_file_time_total = CFFI.load ("lime", "lime_vorbis_file_time_total", 2);
 	#end
-	
+
 	#if hl
 	@:cffi private static function lime_vorbis_file_bitrate (vorbisFile:Dynamic, bitstream:Int):Int;
 	@:cffi private static function lime_vorbis_file_bitrate_instant (vorbisFile:Dynamic):Int;
@@ -3570,8 +3460,8 @@ class NativeCFFI {
 	@:cffi private static function lime_vorbis_file_time_tell (vorbisFile:Dynamic):Float;
 	@:cffi private static function lime_vorbis_file_time_total (vorbisFile:Dynamic, bitstream:Int):Float;
 	#end
-	
+
 	#end
-	
-	
+
+
 }

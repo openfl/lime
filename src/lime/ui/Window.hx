@@ -10,6 +10,10 @@ import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
 
+#if (js && html5)
+import js.html.Element;
+#end
+
 #if openfl
 import openfl.display.Stage;
 #elseif flash
@@ -29,15 +33,19 @@ typedef Stage = Dynamic;
 
 
 class Window {
-	
-	
+
+
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
 	public var context (default, null):RenderContext;
 	public var cursor (get, set):Cursor;
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
-	
+
+	#if (!lime_doc_gen || (js && html5))
+	public var element (default, null):#if (js && html5) Element #else Dynamic #end;
+	#end
+
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
 	 *
@@ -45,7 +53,7 @@ class Window {
 	 * perform more quickly on displays with a higher refresh rate
 	**/
 	public var frameRate (get, set):Float;
-	
+
 	public var fullscreen (get, set):Bool;
 	public var height (get, set):Int;
 	public var hidden (get, null):Bool;
@@ -83,13 +91,17 @@ class Window {
 	public var parameters:Dynamic;
 	public var resizable (get, set):Bool;
 	public var scale (get, null):Float;
-	// public var stage:Stage;
+
+	#if (!lime_doc_gen || flash || openfl)
+	public var stage (default, null):Stage;
+	#end
+
 	public var textInputEnabled (get, set):Bool;
 	public var title (get, set):String;
 	public var width (get, set):Int;
 	public var x (get, set):Int;
 	public var y (get, set):Int;
-	
+
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
@@ -104,11 +116,11 @@ class Window {
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	
-	
+
+
 	#if commonjs
 	private static function __init__ () {
-		
+
 		var p = untyped Window.prototype;
 		untyped Object.defineProperties (p, {
 			"borderless": { get: p.get_borderless, set: p.set_borderless },
@@ -129,16 +141,16 @@ class Window {
 			"x": { get: p.get_x, set: p.set_y },
 			"y": { get: p.get_x, set: p.set_y }
 		});
-		
+
 	}
 	#end
-	
-	
-	private function new (application:Application, attributes:WindowAttributes) {
-		
+
+
+	@:noCompletion private function new (application:Application, attributes:WindowAttributes) {
+
 		this.application = application;
 		__attributes = attributes != null ? attributes : {};
-		
+
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
@@ -147,13 +159,13 @@ class Window {
 		__y = 0;
 		__title = "";
 		id = -1;
-		
+
 		__backend = new WindowBackend (this);
-		
+
 		#if windows
-		
+
 		var mappings = [
-			
+
 			"8f0e1200000000000000504944564944,Acme,platform:Windows,x:b2,a:b0,b:b1,y:b3,back:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b5,rightshoulder:b6,righttrigger:b7,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a3,righty:a2",
 			"341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Windows",
 			"ffff0000000000000000504944564944,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Windows",
@@ -200,15 +212,15 @@ class Window {
 			"c0111352000000000000504944564944,Battalife Joystick,platform:Windows,x:b4,a:b6,b:b7,y:b5,back:b2,start:b3,leftshoulder:b0,rightshoulder:b1,leftx:a0,lefty:a1",
 			"100801e5000000000000504944564944,NEXT Classic USB Game Controller,a:b0,b:b1,back:b8,start:b9,rightx:a2,righty:a3,leftx:a0,lefty:a1,platform:Windows",
 			"79000600000000000000504944564944,NGS Phantom,a:b2,b:b3,y:b1,x:b0,start:b9,back:b8,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a4,lefttrigger:b6,righttrigger:b7,platform:Windows"
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#elseif mac
-		
+
 		var mappings = [
-			
+
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Mac OS X",
 			"6d0400000000000016c2000000000000,Logitech F310 Gamepad (DInput),a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Mac OS X",
 			"6d0400000000000018c2000000000000,Logitech F510 Gamepad (DInput),a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Mac OS X",
@@ -241,15 +253,15 @@ class Window {
 			"10280000000000000900000000000000,8Bitdo SFC30 GamePad,a:b1,b:b0,x:b4,y:b3,back:b10,start:b11,leftshoulder:b6,rightshoulder:b7,leftx:a0,lefty:a1,platform:Mac OS X",
 			"d814000000000000cecf000000000000,MC Cthulhu,platform:Mac OS X,leftx:,lefty:,rightx:,righty:,lefttrigger:b6,a:b1,b:b2,y:b3,x:b0,start:b9,back:b8,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,righttrigger:b7",
 			"0d0f0000000000006600000000000000,HORIPAD FPS PLUS 4,platform:Mac OS X,a:b1,b:b2,y:b3,x:b0,start:b9,guide:b12,back:b8,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a5,lefttrigger:b6,righttrigger:a4"
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#elseif linux
-		
+
 		var mappings = [
-			
+
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Linux",
 			"03000000ba2200002010000001010000,Jess Technology USB Game Controller,a:b2,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,righttrigger:b7,rightx:a3,righty:a2,start:b9,x:b3,y:b0,platform:Linux",
 			"030000006d04000019c2000010010000,Logitech Cordless RumblePad 2,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Linux",
@@ -343,349 +355,349 @@ class Window {
 			"03000000100800000300000010010000,USB Gamepad,platform:Linux,a:b2,b:b1,x:b3,y:b0,start:b9,back:b8,leftstick:b10,rightstick:b11,leftshoulder:b6,rightshoulder:b7,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a3,righty:a2,lefttrigger:b4,righttrigger:b5",
 			"05000000ac0500003232000001000000,VR-BOX,platform:Linux,a:b0,b:b1,x:b2,y:b3,start:b9,back:b8,leftstick:b10,rightstick:b11,leftshoulder:b6,rightshoulder:b7,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a3,righty:a2,lefttrigger:b4,righttrigger:b5",
 			"03000000780000000600000010010000,Microntek USB Joystick,platform:Linux,x:b3,a:b2,b:b1,y:b0,back:b8,start:b9,leftshoulder:b6,lefttrigger:b4,rightshoulder:b7,righttrigger:b5,leftx:a0,lefty:a1"
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#elseif (ios || tvos)
-		
+
 		var mappings = [
-			
+
 			"4d466947616d65706164010000000000,MFi Extended Gamepad,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,righttrigger:a5,rightx:a3,righty:a4,start:b6,x:b2,y:b3,",
 			"4d466947616d65706164020000000000,MFi Gamepad,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,rightshoulder:b5,start:b6,x:b2,y:b3,",
 			"4d466947616d65706164030000000000,MFi Apple TV Remote,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,rightshoulder:b5,start:b6,x:b2,y:b3,",
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	public function alert (message:String = null, title:String = null):Void {
-		
+
 		__backend.alert (message, title);
-		
+
 	}
-	
-	
+
+
 	public function close ():Void {
-		
+
 		__backend.close ();
-		
+
 	}
-	
-	
+
+
 	public function focus ():Void {
-		
+
 		__backend.focus ();
-		
+
 	}
-	
-	
+
+
 	public function move (x:Int, y:Int):Void {
-		
+
 		__backend.move (x, y);
-		
+
 		__x = x;
 		__y = y;
-		
+
 	}
-	
-	
+
+
 	public function readPixels (rect:Rectangle = null):Image {
-		
+
 		return __backend.readPixels (rect);
-		
+
 	}
-	
-	
+
+
 	public function resize (width:Int, height:Int):Void {
-		
+
 		__backend.resize (width, height);
-		
+
 		__width = width;
 		__height = height;
-		
+
 	}
-	
-	
+
+
 	public function setIcon (image:Image):Void {
-		
+
 		if (image == null) {
-			
+
 			return;
-			
+
 		}
-		
+
 		__backend.setIcon (image);
-		
+
 	}
-	
-	
+
+
 	public function toString ():String {
-		
+
 		return "[object Window]";
-		
+
 	}
-	
-	
+
+
 	public function warpMouse (x:Int, y:Int):Void {
-		
+
 		__backend.warpMouse (x, y);
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Get & Set Methods
-	
-	
-	
-	
+
+
+
+
 	@:noCompletion private function get_cursor ():Cursor {
-		
+
 		return __backend.getCursor ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_cursor (value:Cursor):Cursor {
-		
+
 		return __backend.setCursor (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function get_display ():Display {
-		
+
 		return __backend.getDisplay ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function get_displayMode ():DisplayMode {
-		
+
 		return __backend.getDisplayMode ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_displayMode (value:DisplayMode):DisplayMode {
-		
+
 		return __backend.setDisplayMode (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_borderless ():Bool {
-		
+
 		return __borderless;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_borderless (value:Bool):Bool {
-		
+
 		return __borderless = __backend.setBorderless (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_frameRate ():Float {
-		
+
 		return __backend.getFrameRate ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function set_frameRate (value:Float):Float {
-		
+
 		return __backend.setFrameRate (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_fullscreen ():Bool {
-		
+
 		return __fullscreen;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_fullscreen (value:Bool):Bool {
-		
+
 		return __fullscreen = __backend.setFullscreen (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_height ():Int {
-		
+
 		return __height;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_height (value:Int):Int {
-		
+
 		resize (__width, value);
 		return __height;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_hidden ():Bool {
-		
+
 		return __hidden;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_maximized ():Bool {
-		
+
 		return __maximized;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function set_maximized (value:Bool):Bool {
-		
+
 		__minimized = false;
 		return __maximized = __backend.setMaximized (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_minimized ():Bool {
-		
+
 		return __minimized;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_minimized (value:Bool):Bool {
-		
+
 		__maximized = false;
 		return __minimized = __backend.setMinimized (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function get_mouseLock ():Bool {
-		
+
 		return __backend.getMouseLock ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_mouseLock (value:Bool):Bool {
-		
+
 		__backend.setMouseLock (value);
 		return value;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_resizable ():Bool {
-		
+
 		return __resizable;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_resizable (value:Bool):Bool {
-		
+
 		__resizable = __backend.setResizable (value);
 		return __resizable;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_scale ():Float {
-		
+
 		return __scale;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_textInputEnabled ():Bool {
-		
+
 		return __backend.getTextInputEnabled ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function set_textInputEnabled (value:Bool):Bool {
-		
+
 		return __backend.setTextInputEnabled (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_title ():String {
-		
+
 		return __title;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_title (value:String):String {
-		
+
 		return __title = __backend.setTitle (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_width ():Int {
-		
+
 		return __width;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_width (value:Int):Int {
-		
+
 		resize (value, __height);
 		return __width;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_x ():Int {
-		
+
 		return __x;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_x (value:Int):Int {
-		
+
 		move (value, __y);
 		return __x;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_y ():Int {
-		
+
 		return __y;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_y (value:Int):Int {
-		
+
 		move (__x, value);
 		return __y;
-		
+
 	}
-	
-	
+
+
 }
 
 

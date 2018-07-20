@@ -20,25 +20,25 @@
 
 
 namespace lime {
-	
-	
+
+
 	class SDLApplication : public Application {
-		
+
 		public:
-			
+
 			SDLApplication ();
 			~SDLApplication ();
-			
+
 			virtual int Exec ();
 			virtual void Init ();
 			virtual int Quit ();
 			virtual void SetFrameRate (double frameRate);
 			virtual bool Update ();
-			
+
 			void RegisterWindow (SDLWindow *window);
-		
+
 		private:
-			
+
 			void HandleEvent (SDL_Event* event);
 			void ProcessClipboardEvent (SDL_Event* event);
 			void ProcessDropEvent (SDL_Event* event);
@@ -51,12 +51,12 @@ namespace lime {
 			void ProcessTouchEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event);
 			int WaitEvent (SDL_Event* event);
-			
+
 			static void UpdateFrame ();
 			static void UpdateFrame (void*);
-			
+
 			static SDLApplication* currentApplication;
-			
+
 			bool active;
 			ApplicationEvent applicationEvent;
 			ClipboardEvent clipboardEvent;
@@ -74,10 +74,10 @@ namespace lime {
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			WindowEvent windowEvent;
-		
+
 	};
-	
-	
+
+
 }
 
 

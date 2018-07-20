@@ -9,9 +9,9 @@ import lime.system.CFFIPointer;
 
 
 abstract GLSync(CFFIPointer) from CFFIPointer to CFFIPointer {
-	
-	
-	
+
+
+
 }
 
 

@@ -3,10 +3,10 @@
 
 
 namespace lime {
-	
-	
+
+
 	enum Cursor {
-		
+
 		HIDDEN,
 		ARROW,
 		CROSSHAIR,
@@ -21,10 +21,10 @@ namespace lime {
 		WAIT,
 		WAIT_ARROW,
 		CUSTOM
-		
+
 	};
-	
-	
+
+
 }
 
 

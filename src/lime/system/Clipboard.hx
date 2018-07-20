@@ -21,19 +21,19 @@ import lime._internal.backend.html5.HTML5Window;
 
 
 class Clipboard {
-	
-	
+
+
 	public static var onUpdate = new Event<Void->Void> ();
 	public static var text (get, set):String;
-	
+
 	private static var _text:String;
-	
-	
-	
+
+
+
 	private static function __update ():Void {
-		
+
 		var cacheText = _text;
-		
+
 		#if (lime_cffi && !macro)
 		#if hl
 		_text = @:privateAccess String.fromUTF8 (NativeCFFI.lime_clipboard_get_text ());
@@ -42,45 +42,45 @@ class Clipboard {
 		#end
 		#elseif flash
 		if (FlashClipboard.generalClipboard.hasFormat (TEXT_FORMAT)) {
-			
+
 			_text = FlashClipboard.generalClipboard.getData (TEXT_FORMAT);
-			
+
 		}
 		_text = null;
 		#end
-		
+
 		if (_text != cacheText) {
-			
+
 			onUpdate.dispatch ();
-			
+
 		}
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Get & Set Methods
-	
-	
-	
-	
+
+
+
+
 	private static function get_text ():String {
-		
+
 		#if flash
 		__update ();
 		#end
-		
+
 		return _text;
-		
+
 	}
-	
-	
+
+
 	private static function set_text (value:String):String {
-		
+
 		var cacheText = _text;
 		_text = value;
-		
+
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_clipboard_set_text (value);
 		#elseif flash
@@ -88,21 +88,21 @@ class Clipboard {
 		#elseif (js && html5)
 		var window = Application.current.window;
 		if (window != null) {
-			
+
 			window.__backend.setClipboard (value);
-			
+
 		}
 		#end
-		
+
 		if (_text != cacheText) {
-			
+
 			onUpdate.dispatch ();
-			
+
 		}
-		
+
 		return value;
-		
+
 	}
-	
-	
+
+
 }

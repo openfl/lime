@@ -63,7 +63,7 @@ class URIParser {
 	public static function parseQuery(query:String):Array<KVPair> {
 
 		var result:Array<KVPair> = [];
-		
+
 		for(str in query.split("&")) {
 			if(QUERY_REGEX.match(str)) {
 				result.push({k:QUERY_REGEX.matched(1), v:QUERY_REGEX.matched(2)});

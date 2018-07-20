@@ -7,28 +7,28 @@
 
 
 namespace lime {
-	
-	
+
+
 	struct Bytes {
-		
+
 		hl_type* t;
 		int length;
 		unsigned char* b;
-		
+
 		Bytes ();
 		Bytes (value bytes);
 		~Bytes ();
-		
+
 		void ReadFile (const char* path);
 		void Resize (int size);
 		void Set (value bytes);
 		void Set (const QuickVec<unsigned char> data);
 		value Value (value bytes);
 		value Value ();
-		
+
 	};
-	
-	
+
+
 }
 
 

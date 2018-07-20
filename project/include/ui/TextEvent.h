@@ -8,18 +8,18 @@
 
 
 namespace lime {
-	
-	
+
+
 	enum TextEventType {
-		
+
 		TEXT_INPUT,
 		TEXT_EDIT
-		
+
 	};
-	
-	
+
+
 	struct TextEvent {
-		
+
 		hl_type* t;
 		int id;
 		int length;
@@ -27,17 +27,17 @@ namespace lime {
 		vbyte* text;
 		TextEventType type;
 		int windowID;
-		
+
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;
-		
+
 		TextEvent ();
-		
+
 		static void Dispatch (TextEvent* event);
-		
+
 	};
-	
-	
+
+
 }
 
 

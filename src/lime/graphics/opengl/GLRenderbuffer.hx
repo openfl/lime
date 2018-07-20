@@ -8,15 +8,15 @@ import lime.graphics.opengl.GL;
 
 
 abstract GLRenderbuffer(GLObject) from GLObject to GLObject {
-	
-	
+
+
 	@:from private static function fromInt (id:Int):GLRenderbuffer {
-		
+
 		return GLObject.fromInt (RENDERBUFFER, id);
-		
+
 	}
-	
-	
+
+
 }
 
 

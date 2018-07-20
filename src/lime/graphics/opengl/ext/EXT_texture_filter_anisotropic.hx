@@ -7,20 +7,20 @@ package lime.graphics.opengl.ext;
 #if (!js || !html5 || display)
 
 
-class EXT_texture_filter_anisotropic {
-	
-	
+@:noCompletion class EXT_texture_filter_anisotropic {
+
+
 	public var TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE;
 	public var MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF;
-	
-	
-	private function new () {
-		
-		
-		
+
+
+	@:noCompletion private function new () {
+
+
+
 	}
-	
-	
+
+
 }
 
 
@@ -28,13 +28,13 @@ class EXT_texture_filter_anisotropic {
 
 
 @:native("EXT_texture_filter_anisotropic")
-extern class EXT_texture_filter_anisotropic {
-	
-	
+extern @:noCompletion class EXT_texture_filter_anisotropic {
+
+
 	public var TEXTURE_MAX_ANISOTROPY_EXT:Int;
 	public var MAX_TEXTURE_MAX_ANISOTROPY_EXT:Int;
-	
-	
+
+
 }
 
 

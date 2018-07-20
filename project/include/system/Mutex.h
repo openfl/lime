@@ -3,28 +3,28 @@
 
 
 namespace lime {
-	
-	
+
+
 	class Mutex {
-		
-		
+
+
 		public:
-			
+
 			Mutex ();
 			~Mutex ();
-			
+
 			bool Lock ();
 			bool TryLock ();
 			bool Unlock ();
-		
+
 		private:
-			
+
 			void* mutex;
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 
