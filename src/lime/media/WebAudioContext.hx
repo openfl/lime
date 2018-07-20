@@ -2,23 +2,23 @@ package lime.media; #if (!lime_doc_gen || (js && html5)) #if (!lime_doc_gen && (
 
 
 class WebAudioContext {
-	
-	
+
+
 	public var activeSourceCount (default, null):Int;
 	public var currentTime (default, null):Float;
 	public var destination (default, null):Dynamic /*AudioDestinationNode*/;
 	public var listener (default, null):Dynamic /*AudioListener*/;
 	public var oncomplete:Dynamic /*js.html.EventListener*/;
 	public var sampleRate (default, null):Float;
-	
-	
+
+
 	public function new () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 	public function createAnalyser ():Dynamic /*AnalyserNode*/ { return null; }
 	public function createBiquadFilter ():Dynamic /*BiquadFilterNode*/ { return null; }
 	@:overload(function(numberOfChannels:Int, numberOfFrames:Int, sampleRate:Float):Dynamic /*AudioBuffer*/ {})
@@ -39,8 +39,8 @@ class WebAudioContext {
 	public function createWaveTable (real:Dynamic /*js.html.Float32Array*/, imag:Dynamic /*js.html.Float32Array*/):Dynamic /*WaveTable*/ { return null; }
 	public function decodeAudioData (audioData:Dynamic /*js.html.ArrayBuffer*/, successCallback:Dynamic /*AudioBufferCallback*/, ?errorCallback:Dynamic /*AudioBufferCallback*/):Void {}
 	public function startRendering ():Void {}
-	
-	
+
+
 }
 
 

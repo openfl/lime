@@ -1,14 +1,13 @@
 <xml>
-	
+
 	<set name="PLATFORM" value="android-14" if="android" />
 	<set name="HXCPP_CPP11" value="1" />
-	
+
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
-	
+
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
-	
-	<!-- <set name="LIME_AXTLS" value="1" /> -->
+
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" />
@@ -40,31 +39,29 @@
 	<!-- <set name="LIME_VPX" value="1" />
 	<set name="LIME_WEBM" value="1" /> -->
 	<set name="LIME_ZLIB" value="1" />
-	
+
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
-	
-	<set name="NATIVE_TOOLKIT_HAVE_AXTLS" value="1" if="LIME_AXTLS" />
+
 	<set name="NATIVE_TOOLKIT_HAVE_HARFBUZZ" value="1" if="LIME_HARFBUZZ" />
 	<set name="NATIVE_TOOLKIT_HAVE_MBEDTLS" value="1" if="LIME_MBEDTLS" />
 	<set name="NATIVE_TOOLKIT_HAVE_PNG" value="1" if="LIME_PNG" />
-	
-	<set name="NATIVE_TOOLKIT_CURL_DISABLE_AXTLS_NONBLOCKING" value="1" />
+
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
-	
+
 	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />
 	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
 	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
-	
-	
+
+
 	<files id="lime">
-		
+
 		<compilerflag value="-Iinclude" />
-		
+
 		<file name="src/ExternalInterface.cpp" />
-		
+
 		<section if="LIME_CAIRO">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux"/>
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux"/>
@@ -74,108 +71,108 @@
 			<compilerflag value="-DHAVE_CONFIG_H" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
 			<compilerflag value="-DCAIRO_HAS_FT_FONT" />
-			
+
 			<file name="src/graphics/cairo/CairoBindings.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_CURL">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
 			<compilerflag value="-DLIME_CURL" />
 			<compilerflag value="-DCURL_STATICLIB" />
-			
+
 			<file name="src/net/curl/CURLBindings.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_EFSW">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/efsw/include/" />
 			<compilerflag value="-DLIME_EFSW" />
-			
+
 			<file name="src/system/FileWatcher.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_FAUDIO">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/faudio/src" />
 			<compilerflag value="-DLIME_FAUDIO" />
-			
+
 			<!-- <file name="src/graphics/format/PNG.cpp" /> -->
-			
+
 		</section>
-		
+
 		<section if="LIME_FREETYPE">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
 			<compilerflag value="-DLIME_FREETYPE" />
-			
+
 			<file name="src/text/Font.cpp" />
-			
+
 			<section if="LIME_HARFBUZZ">
-				
+
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/harfbuzz/src" />
 				<compilerflag value="-DLIME_HARFBUZZ" />
-				
+
 				<file name="src/text/harfbuzz/HarfbuzzBindings.cpp" />
-				
+
 			</section>
-			
+
 		</section>
-		
+
 		<section if="LIME_HASHLINK">
-			
+
 			<compilerflag value="-DLIME_HASHLINK" />
-			
+
 		</section>
-		
+
 		<section unless="LIME_HASHLINK">
-			
+
 			<compilerflag value="-DLIBHL_EXPORTS" />
-			
+
 		</section>
-		
+
 		<section if="LIME_JPEG">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
-			
+
 			<file name="src/graphics/format/JPEG.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_LZMA">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/src" />
 			<compilerflag value="-DLIME_LZMA" />
-			
+
 			<file name="src/utils/compress/LZMA.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_NEKO">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/neko/vm/" />
 			<compilerflag value="-DLIME_NEKO" />
-			
+
 			<file name="src/vm/NekoVM.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_OGG">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
-			
+
 			<file name="src/media/containers/OGG.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_OPENAL">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="LIME_MOJOAL || emscripten" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mojoal/" if="LIME_MOJOAL" />
 			<compilerflag value="-DLIME_OPENAL" />
@@ -183,50 +180,50 @@
 			<compilerflag value="-DLIME_MOJOAL" if="LIME_MOJOAL" />
 			<compilerflag value="-DAL_LIBTYPE_STATIC=1" if="LIME_OPENALSOFT || LIME_MOJOAL" />
 			<compilerflag value="-DAL_ALEXT_PROTOTYPES" if="LIME_OPENALSOFT" />
-			
+
 			<file name="src/media/openal/OpenALBindings.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_OPENGL">
-			
+
 			<compilerflag value="-DLIME_OPENGL" />
 			<compilerflag value="-I${DEVELOPER_DIR}/Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS${TVOS_VER}.sdk/" if="tvos" />
-			
+
 			<file name="src/graphics/opengl/OpenGLBindings.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_PNG">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />
-			
+
 			<file name="src/graphics/format/PNG.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_SDL">
-			
+
 			<section if="emscripten">
-				
+
 				<compilerflag value="-s" />
 				<compilerflag value="USE_SDL=2" />
-				
+
 			</section>
-			
+
 			<section unless="emscripten">
-				
+
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi"/>
-				
+
 				<compilerflag value="-DHAVE_LIBC" />
-				
+
 			</section>
 
 			<section if="rpi">
@@ -237,13 +234,13 @@
 				<compilerflag value="-lbrcmEGL" />
 				<compilerflag value="-Wl,--no-undefined -lm -L/opt/vc/lib -lbcm_host -ldl -lpthread -lrt" />
 			</section>
-			
+
 			<compilerflag value="-DLIME_SDL" />
 			<compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
 			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
 			<compilerflag value="-D__APPLETVOS__" if="tvos" />
 			<compilerflag value="-DAPPLETV" if="tvos" />
-			
+
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
@@ -251,39 +248,39 @@
 			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_TINYFILEDIALOGS">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/tinyfiledialogs/" />
 			<compilerflag value="-DLIME_TINYFILEDIALOGS" />
-			
+
 			<file name="src/ui/FileDialog.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_VORBIS">
-			
+
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_VORBIS" />
-			
+
 			<file name="src/media/codecs/vorbis/VorbisBindings.cpp" />
 			<file name="src/media/codecs/vorbis/VorbisFile.cpp" />
-			
+
 		</section>
-		
+
 		<section if="LIME_ZLIB">
-			
+
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
 			<compilerflag value="-DLIME_ZLIB" />
-			
+
 			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
 			<file name="src/utils/compress/Zlib.cpp" />
-			
+
 		</section>
-		
+
 		<file name="src/app/ApplicationEvent.cpp" />
 		<file name="src/graphics/utils/ImageDataUtil.cpp" />
 		<file name="src/graphics/Image.cpp" />
@@ -317,12 +314,11 @@
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
-		
+
 		<file name="src/hx/CFFIExt.cpp" />
-		
+
 	</files>
-	
-	<include name="lib/axtls/files.xml" />
+
 	<include name="lib/cairo/files.xml" />
 	<include name="lib/curl/files.xml" />
 	<include name="lib/efsw/files.xml" />
@@ -344,18 +340,17 @@
 	<include name="lib/vpx/files.xml" />
 	<include name="lib/webm/files.xml" />
 	<include name="lib/zlib/files.xml" />
-	
+
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
 	<set name="LIBSUFFIX" value="${LIBEXTRA}" unless="LIBSUFFIX" />
-	
+
 	<target id="lime" output="${LIBPREFIX}lime${DEBUGEXTRA}${LIBSUFFIX}" tool="linker" toolid="${STD_MODULE_LINK}">
-		
+
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
-		
+
 		<files id="lime" />
-		
-		<files id="native-toolkit-axtls" if="LIME_AXTLS" />
+
 		<files id="native-toolkit-cairo" if="LIME_CAIRO" />
 		<files id="native-toolkit-curl" if="LIME_CURL" />
 		<files id="native-toolkit-efsw" if="LIME_EFSW" />
@@ -377,48 +372,51 @@
 		<files id="native-toolkit-vpx" if="LIME_VPX" />
 		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
-		
+
 		<section unless="static_link">
-			
+
 			<ext value=".so" />
 			<ext value=".ndll" if="windows || mac || linux" />
-			
+
 			<section if="windows">
-				
+
 				<lib name="gdi32.lib" />
 				<lib name="opengl32.lib" />
 				<lib name="user32.lib" />
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
 				<lib name="winmm.lib" />
-				<lib name="imm32.lib"  />
+				<lib name="imm32.lib" />
 				<lib name="ole32.lib" />
 				<lib name="oleaut32.lib" />
 				<lib name="version.lib" />
-				<lib name="ws2_32.lib"  />
+				<lib name="ws2_32.lib" />
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
 				<lib name="comsuppw.lib" />
-				
+
 				<lib name="-libpath:${HLPATH}" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
-				
+
 			</section>
-			
+
 			<section if="linux">
-				
+
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
-				
+
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
-				
+
+				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-lhl" if="LIME_HASHLINK" />
+
 			</section>
-			
+
 			<section if="mac">
-				
+
 				<vflag name="-l" value="iconv"/>
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />
@@ -432,19 +430,19 @@
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL"/>
-				
+
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
-				
-				<lib name="-L${HLPATH}" />
+
+				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
-				
+
 			</section>
-			
+
 			<section if="android">
-				
+
 				<lib name="-L../ndll/Android" />
-				
+
 				<lib name="-ldl" />
 				<lib name="-llog" />
 				<lib name="-landroid" />
@@ -452,22 +450,22 @@
 				<lib name="-lGLESv2" />
 				<lib name="-lGLESv1_CM" />
 				<lib name="-lOpenSLES" />
-				
+
 			</section>
-			
+
 			<section if="rpi">
-				
+
 				<lib name="-lbcm_host" />
 				<lib name="-ldl" />
 				<lib name="-lm" />
 				<lib name="-lbrcmGLESv2" />
 				<lib name="-lbrcmEGL" />
 				<lib name="-L/opt/vc/lib" />
-				
+
 			</section>
-			
+
 			<section if="tvos">
-				
+
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
@@ -477,15 +475,15 @@
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="GameController"/>
-				
+
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv3" />
-				
+
 			</section>
-			
+
 			<section if="ios">
-				
+
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
@@ -496,24 +494,24 @@
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="CoreMotion"/>
 				<vflag name="-framework" value="CoreText"/>
-				
+
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv3" />
-				
+
 			</section>
-			
+
 		</section>
-		
+
 	</target>
-	
+
 	<include name="../legacy/project/Build.xml" if="lime-legacy" />
-	
+
 	<target id="default">
-		
+
 		<target id="lime" unless="lime-legacy" />
 		<target id="lime-legacy" if="lime-legacy" />
-		
+
 	</target>
-	
+
 </xml>

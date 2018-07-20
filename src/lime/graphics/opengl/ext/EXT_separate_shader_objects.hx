@@ -3,24 +3,24 @@ package lime.graphics.opengl.ext;
 
 @:keep
 
-class EXT_separate_shader_objects {
-	
-	
+@:noCompletion class EXT_separate_shader_objects {
+
+
 	public var VERTEX_SHADER_BIT_EXT = 0x00000001;
 	public var FRAGMENT_SHADER_BIT_EXT = 0x00000002;
 	public var ALL_SHADER_BITS_EXT = 0xFFFFFFFF;
 	public var PROGRAM_SEPARABLE_EXT = 0x8258;
 	public var ACTIVE_PROGRAM_EXT = 0x8259;
 	public var PROGRAM_PIPELINE_BINDING_EXT = 0x825A;
-	
-	
-	private function new () {
-		
-		
-		
+
+
+	@:noCompletion private function new () {
+
+
+
 	}
-	
-	
+
+
 	//GL_APICALL void GL_APIENTRY glUseProgramStagesEXT (GLuint pipeline, GLbitfield stages, GLuint program);
 	//GL_APICALL void GL_APIENTRY glActiveShaderProgramEXT (GLuint pipeline, GLuint program);
 	//GL_APICALL GLuint GL_APIENTRY glCreateShaderProgramvEXT (GLenum type, GLsizei count, const GLchar **strings);
@@ -51,6 +51,6 @@ class EXT_separate_shader_objects {
 	//GL_APICALL void GL_APIENTRY glProgramUniformMatrix4fvEXT (GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 	//GL_APICALL void GL_APIENTRY glValidateProgramPipelineEXT (GLuint pipeline);
 	//GL_APICALL void GL_APIENTRY glGetProgramPipelineInfoLogEXT (GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-	
-	
+
+
 }

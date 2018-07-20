@@ -7,10 +7,10 @@
 
 
 namespace lime {
-	
-	
+
+
 	struct ArrayBufferView {
-		
+
 		hl_type* t;
 		/*TypedArrayType*/ int type;
 		Bytes* buffer;
@@ -18,19 +18,19 @@ namespace lime {
 		int byteLength;
 		int length;
 		int bytesPerElement;
-		
+
 		ArrayBufferView (value arrayBufferView);
 		~ArrayBufferView ();
-		
+
 		void Resize (int size);
 		void Set (value bytes);
 		void Set (const QuickVec<unsigned char> data);
 		value Value ();
 		value Value (value arrayBufferView);
-		
+
 	};
-	
-	
+
+
 }
 
 

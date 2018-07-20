@@ -8,10 +8,10 @@
 
 
 namespace lime {
-	
-	
+
+
 	struct Image {
-		
+
 		hl_type* t;
 		ImageBuffer* buffer;
 		bool dirty;
@@ -24,13 +24,13 @@ namespace lime {
 		int width;
 		double x;
 		double y;
-		
+
 		Image (value image);
 		~Image ();
-		
+
 	};
-	
-	
+
+
 }
 
 

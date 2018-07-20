@@ -1,21 +1,22 @@
 package lime.graphics.opengl.ext;
 
 
+
 @:keep
 
-class AMD_compressed_ATC_texture {
-	
-	
+@:noCompletion class AMD_compressed_ATC_texture {
+
+
 	public var ATC_RGB_AMD = 0x8C92;
 	public var ATC_RGBA_EXPLICIT_ALPHA_AMD = 0x8C93;
 	public var ATC_RGBA_INTERPOLATED_ALPHA_AMD = 0x87EE;
-	
-	
-	private function new () {
-		
-		
-		
+
+
+	@:noCompletion private function new () {
+
+
+
 	}
-	
-	
+
+
 }

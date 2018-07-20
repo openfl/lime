@@ -9,15 +9,15 @@
 
 
 namespace lime {
-	
-	
+
+
 	class SDLWindow : public Window {
-		
+
 		public:
-			
+
 			SDLWindow (Application* application, int width, int height, int flags, const char* title);
 			~SDLWindow ();
-			
+
 			virtual void Alert (const char* message, const char* title);
 			virtual void Close ();
 			virtual void ContextFlip ();
@@ -53,20 +53,20 @@ namespace lime {
 			virtual void SetTextInputEnabled (bool enabled);
 			virtual const char* SetTitle (const char* title);
 			virtual void WarpMouse (int x, int y);
-			
+
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
-		
+
 		private:
-			
+
 			SDL_GLContext context;
 			int contextHeight;
 			int contextWidth;
-		
+
 	};
-	
-	
+
+
 }
 
 

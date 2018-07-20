@@ -8,10 +8,10 @@
 
 
 namespace lime {
-	
-	
+
+
 	enum WindowEventType {
-		
+
 		WINDOW_ACTIVATE,
 		WINDOW_CLOSE,
 		WINDOW_DEACTIVATE,
@@ -25,12 +25,12 @@ namespace lime {
 		WINDOW_MOVE,
 		WINDOW_RESIZE,
 		WINDOW_RESTORE,
-		
+
 	};
-	
-	
+
+
 	struct WindowEvent {
-		
+
 		hl_type* t;
 		int height;
 		WindowEventType type;
@@ -38,17 +38,17 @@ namespace lime {
 		int windowID;
 		int x;
 		int y;
-		
+
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;
-		
+
 		WindowEvent ();
-		
+
 		static void Dispatch (WindowEvent* event);
-		
+
 	};
-	
-	
+
+
 }
 
 

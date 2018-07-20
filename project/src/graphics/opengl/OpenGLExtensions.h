@@ -45,7 +45,7 @@
    {\
       *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func);\
    }
-   
+
    #define EGL_EXT(func,ret,args) \
    {\
       *(void **)&lime::func = (void *)GetProcAddress((HMODULE)lime::OpenGLBindings::eglHandle, #func);\

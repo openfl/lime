@@ -8,17 +8,17 @@ import lime.system.CFFIPointer;
 
 
 abstract CairoSurface(CFFIPointer) from CFFIPointer to CFFIPointer {
-	
-	
+
+
 	public function flush ():Void {
-		
+
 		#if (lime_cffi && lime_cairo && !macro)
 		NativeCFFI.lime_cairo_surface_flush (this);
 		#end
-		
+
 	}
-	
-	
+
+
 }
 
 

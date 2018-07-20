@@ -1,6 +1,6 @@
 {
-    "editor.trimAutoWhitespace": false,
     "editor.insertSpaces": false,
+    "editor.trimAutoWhitespace": true,
     "codedox": {
         "commentprefix": "    ",
         "commentdescription": "",
@@ -10,37 +10,6 @@
         "returnFormat": "",
         "neverAskTemplate": true
     },
-    "files.associations": {
-        "initializer_list": "cpp",
-        "list": "cpp",
-        "type_traits": "cpp",
-        "vector": "cpp",
-        "xhash": "cpp",
-        "xstring": "cpp",
-        "xtree": "cpp",
-        "xutility": "cpp",
-        "system_error": "cpp",
-        "xfunctional": "cpp",
-        "chrono": "cpp",
-        "ratio": "cpp",
-        "xlocmon": "cpp",
-        "xstddef": "cpp",
-        "xtr1common": "cpp",
-        "iterator": "cpp",
-        "map": "cpp",
-        "memory": "cpp",
-        "set": "cpp",
-        "streambuf": "cpp",
-        "unordered_map": "cpp",
-        "xmemory0": "cpp",
-        "xiosbase": "c",
-        "xlocale": "c",
-        "iosfwd": "cpp",
-        "array": "cpp",
-        "functional": "cpp",
-        "tuple": "cpp",
-        "utility": "cpp",
-        "sstream": "cpp",
-        "mutex": "cpp"
-    }
+    "files.trimTrailingWhitespace": true,
+    "C_Cpp.autoAddFileAssociations": false,
 }

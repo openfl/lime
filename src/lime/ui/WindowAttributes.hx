@@ -5,7 +5,7 @@ import lime.graphics.RenderContextAttributes;
 
 
 typedef WindowAttributes = {
-	
+
 	@:optional public var allowHighDPI:Bool;
 	@:optional public var alwaysOnTop:Bool;
 	@:optional public var borderless:Bool;
@@ -24,5 +24,5 @@ typedef WindowAttributes = {
 	@:optional public var width:Int;
 	@:optional public var x:Int;
 	@:optional public var y:Int;
-	
+
 }

@@ -8,34 +8,34 @@
 
 
 namespace lime {
-	
-	
+
+
 	enum KeyEventType {
-		
+
 		KEY_DOWN,
 		KEY_UP
-		
+
 	};
-	
-	
+
+
 	struct KeyEvent {
-		
+
 		hl_type* t;
 		int keyCode;
 		int modifier;
 		KeyEventType type;
 		int windowID;
-		
+
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;
-		
+
 		KeyEvent ();
-		
+
 		static void Dispatch (KeyEvent* event);
-		
+
 	};
-	
-	
+
+
 }
 
 

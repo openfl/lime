@@ -21,124 +21,124 @@ import js.Browser;
 
 
 class AudioManager {
-	
-	
+
+
 	public static var context:AudioContext;
-	
-	
+
+
 	public static function init (context:AudioContext = null) {
-		
+
 		if (AudioManager.context == null) {
-			
+
 			if (context == null) {
-				
+
 				context = new AudioContext ();
-				
+
 				#if !lime_doc_gen
 				if (context.type == OPENAL) {
-					
+
 					var alc = context.openal;
-					
+
 					var device = alc.openDevice ();
 					var ctx = alc.createContext (device);
 					alc.makeContextCurrent (ctx);
 					alc.processContext (ctx);
-					
+
 				}
 				#end
-				
+
 			} else {
-				
+
 				AudioManager.context = context;
-				
+
 			}
-			
+
 			#if (lime_cffi && !macro && lime_openal && (ios || tvos || mac))
 			var timer = new Timer (100);
 			timer.run = function () {
-				
+
 				NativeCFFI.lime_al_cleanup ();
-				
+
 			};
 			#end
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public static function resume ():Void {
-		
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL) {
-			
+
 			var alc = context.openal;
 			var currentContext = alc.getCurrentContext ();
-			
+
 			if (currentContext != null) {
-				
+
 				var device = alc.getContextsDevice (currentContext);
 				alc.resumeDevice (device);
 				alc.processContext (currentContext);
-				
+
 			}
-			
+
 		}
 		#end
-		
+
 	}
-	
-	
+
+
 	public static function shutdown ():Void {
-		
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL) {
-			
+
 			var alc = context.openal;
 			var currentContext = alc.getCurrentContext ();
-			
+
 			if (currentContext != null) {
-				
+
 				var device = alc.getContextsDevice (currentContext);
 				alc.makeContextCurrent (null);
 				alc.destroyContext (currentContext);
-				
+
 				if (device != null) {
-					
+
 					alc.closeDevice (device);
-					
+
 				}
-				
+
 			}
-			
+
 		}
 		#end
-		
+
 		context = null;
-		
+
 	}
-	
-	
+
+
 	public static function suspend ():Void {
-		
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL) {
-			
+
 			var alc = context.openal;
 			var currentContext = alc.getCurrentContext ();
-			
+
 			if (currentContext != null) {
-				
+
 				alc.suspendContext (currentContext);
 				var device = alc.getContextsDevice (currentContext);
 				alc.pauseDevice (device);
-				
+
 			}
-			
+
 		}
 		#end
-		
+
 	}
-	
-	
+
+
 }

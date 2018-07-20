@@ -1,14 +1,14 @@
 package lime.graphics.opengl.ext;
 
 
-class OES_depth_texture {
-	
-	
-	private function new () {
-		
-		
-		
+@:noCompletion class OES_depth_texture {
+
+
+	@:noCompletion private function new () {
+
+
+
 	}
-	
-	
+
+
 }

@@ -5,12 +5,12 @@ package lime.utils;
     typedef ArrayBufferView = js.html.ArrayBufferView;
 
 #else
-    
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-    
+
     class ArrayBufferView {
 
         public var type = TypedArrayType.None;
@@ -275,7 +275,7 @@ package lime.utils;
     //Non-spec
 
         #if !no_typedarray_inline #end
-        function copyFromArray(array:Array<Float>, offset : Int = 0 ) {
+        function copyFromArray(array:Array<#if hl Dynamic #else Float #end>, offset : Int = 0 ) {
 
             //Ideally, native semantics could be used, like cpp.NativeArray.blit
             var i = 0, len = array.length;
@@ -640,7 +640,7 @@ abstract TypedArrayType(Int) from Int to Int {
                 #if neko
                     if (value == null) value = 0;
                 #end
-                
+
                 buffer.setInt32(byteOffset,value);
             #end
 
@@ -655,7 +655,7 @@ abstract TypedArrayType(Int) from Int to Int {
                 #if neko
                     if (value == null) value = 0;
                 #end
-                
+
                 buffer.setInt32(byteOffset,value);
             #end
 
