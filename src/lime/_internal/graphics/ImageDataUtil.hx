@@ -511,11 +511,17 @@ class ImageDataUtil {
 
 		// TODO: Support sourceRect better, do not modify sourceImage, create C++ implementation for native
 
-		if (image.buffer.premultiplied || sourceImage.buffer.premultiplied) {
-			// TODO: Better handling of premultiplied alpha
-			throw "Pre-multiplied bitmaps are not supported";
+		// TODO: Faster approach
+		var imagePremultiplied = image.premultiplied;
+		var sourceImagePremultiplied = sourceImage.premultiplied;
+		if (imagePremultiplied) image.premultiplied = false;
+		if (sourceImagePremultiplied) sourceImage.premultiplied = false;
 
-		}
+		// if (image.buffer.premultiplied || sourceImage.buffer.premultiplied) {
+		// 	// TODO: Better handling of premultiplied alpha
+		// 	throw "Pre-multiplied bitmaps are not supported";
+
+		// }
 
 		var boxesForGauss = function (sigma:Float, n:Int):Array<Float> {
 			var wIdeal = Math.sqrt((12*sigma*sigma/n)+1);  // Ideal averaging filter width
@@ -665,6 +671,9 @@ class ImageDataUtil {
 		image.version++;
 		sourceImage.dirty = true;
 		sourceImage.version++;
+		
+		if (imagePremultiplied) image.premultiplied = true;
+		if (sourceImagePremultiplied) sourceImage.premultiplied = true;
 
 		if (imgB == image.data) return image;
 		return sourceImage;
