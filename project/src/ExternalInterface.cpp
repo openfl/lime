@@ -48,6 +48,9 @@
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
 
+#include <locale>
+#include <codecvt>
+
 DEFINE_KIND (k_finalizer);
 
 
@@ -131,7 +134,8 @@ namespace lime {
 		if (val.c_str ()) {
 
 			std::string _val = std::string (val.c_str ());
-			return new std::wstring (_val.begin (), _val.end ());
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			return new std::wstring (converter.from_bytes (_val));
 
 		} else {
 
@@ -147,7 +151,8 @@ namespace lime {
 		if (val) {
 
 			std::string _val = std::string (hl_to_utf8 (val->bytes));
-			return new std::wstring (_val.begin (), _val.end ());
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			return new std::wstring (converter.from_bytes (_val));
 
 		} else {
 
