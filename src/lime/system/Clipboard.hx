@@ -67,9 +67,9 @@ class Clipboard {
 
 	private static function get_text ():String {
 
-		#if flash
+		// #if flash
 		__update ();
-		#end
+		// #end
 
 		return _text;
 
