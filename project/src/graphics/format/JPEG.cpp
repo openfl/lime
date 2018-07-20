@@ -241,7 +241,7 @@ namespace lime {
 
 			} else {
 
-				data = (Bytes*)malloc (sizeof (Bytes));
+				data = new Bytes ();
 				data->ReadFile (resource->path);
 				manager = new MySrcManager (data->b, data->length);
 				cinfo.src = &manager->pub;

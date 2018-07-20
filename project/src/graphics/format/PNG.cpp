@@ -142,7 +142,7 @@ namespace lime {
 
 			} else {
 
-				data = (Bytes*)malloc (sizeof (Bytes));
+				data = new Bytes ();
 				data->ReadFile (resource->path);
 				ReadBuffer buffer (data->b, data->length);
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
