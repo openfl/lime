@@ -39,7 +39,7 @@ import sys.io.Process;
 @:access(lime.system.Display)
 @:access(lime.system.DisplayMode)
 
-#if (cpp && windows && !lime_disable_gpu_hint)
+#if (cpp && windows && !HXCPP_MINGW && !lime_disable_gpu_hint)
 @:cppFileCode('
 #if defined(HX_WINDOWS)
 extern "C" {
