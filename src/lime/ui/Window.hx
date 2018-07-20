@@ -38,7 +38,7 @@ class Window {
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
 	public var context (default, null):RenderContext;
-	public var cursor (get, set):Cursor;
+	public var cursor (get, set):MouseCursor;
 	public var display (get, null):Display;
 	public var displayMode (get, set):DisplayMode;
 
@@ -75,11 +75,11 @@ class Window {
 	public var onLeave (default, null) = new Event<Void->Void> ();
 	public var onMaximize (default, null) = new Event<Void->Void> ();
 	public var onMinimize (default, null) = new Event<Void->Void> ();
-	public var onMouseDown (default, null) = new Event<Float->Float->Int->Void> ();
+	public var onMouseDown (default, null) = new Event<Float->Float->MouseButton->Void> ();
 	public var onMouseMove (default, null) = new Event<Float->Float->Void> ();
 	public var onMouseMoveRelative (default, null) = new Event<Float->Float->Void> ();
 	public var onMouseUp (default, null) = new Event<Float->Float->Int->Void> ();
-	public var onMouseWheel (default, null) = new Event<Float->Float->Void> ();
+	public var onMouseWheel (default, null) = new Event<Float->Float->MouseWheelMode->Void> ();
 	public var onMove (default, null) = new Event<Float->Float->Void> ();
 	public var onRender (default, null) = new Event<RenderContext->Void> ();
 	public var onRenderContextLost (default, null) = new Event<Void->Void> ();
@@ -459,14 +459,14 @@ class Window {
 
 
 
-	@:noCompletion private function get_cursor ():Cursor {
+	@:noCompletion private function get_cursor ():MouseCursor {
 
 		return __backend.getCursor ();
 
 	}
 
 
-	@:noCompletion private function set_cursor (value:Cursor):Cursor {
+	@:noCompletion private function set_cursor (value:MouseCursor):MouseCursor {
 
 		return __backend.setCursor (value);
 

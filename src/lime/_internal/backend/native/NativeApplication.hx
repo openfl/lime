@@ -400,7 +400,7 @@ class NativeApplication {
 
 				case MOUSE_WHEEL:
 
-					window.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y);
+					window.onMouseWheel.dispatch (mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
 
 				default:
 

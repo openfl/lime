@@ -27,9 +27,9 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.system.Clipboard;
-import lime.ui.Cursor;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
+import lime.ui.MouseCursor;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -61,7 +61,7 @@ class HTML5Window {
 	private var cacheElementWidth:Float;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
-	private var cursor:Cursor;
+	private var cursor:MouseCursor;
 	private var cursorHidden:Bool;
 	private var currentTouches = new Map<Int, Touch> ();
 	private var isFullscreen:Bool;
@@ -375,7 +375,7 @@ class HTML5Window {
 	}
 
 
-	public function getCursor ():Cursor {
+	public function getCursor ():MouseCursor {
 
 		return cursor;
 
@@ -713,7 +713,16 @@ class HTML5Window {
 
 		} else {
 
-			parent.onMouseWheel.dispatch (untyped event.deltaX, -untyped event.deltaY);
+			var deltaMode = switch (untyped event.deltaMode) {
+				
+				case 0: PIXELS;
+				case 1: LINES;
+				case 2: PAGES;
+				default: UNKNOWN;
+				
+			}
+
+			parent.onMouseWheel.dispatch (untyped event.deltaX, -untyped event.deltaY, deltaMode);
 
 			if (parent.onMouseWheel.canceled) {
 
@@ -1023,7 +1032,7 @@ class HTML5Window {
 	}
 
 
-	public function setCursor (value:Cursor):Cursor {
+	public function setCursor (value:MouseCursor):MouseCursor {
 
 		if (cursor != value) {
 

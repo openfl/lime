@@ -10,6 +10,8 @@ import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.MouseButton;
+import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
 import lime.ui.Window;
 import lime.ui.WindowAttributes;
@@ -292,7 +294,7 @@ class Application extends Module {
 		@param	y	The current y coordinate of the mouse
 		@param	button	The ID of the mouse button that was pressed
 	**/
-	public function onMouseDown (x:Float, y:Float, button:Int):Void { }
+	public function onMouseDown (x:Float, y:Float, button:MouseButton):Void { }
 
 
 	/**
@@ -319,7 +321,7 @@ class Application extends Module {
 		@param	y	The current y coordinate of the mouse
 		@param	button	The ID of the button that was released
 	**/
-	public function onMouseUp (x:Float, y:Float, button:Int):Void { }
+	public function onMouseUp (x:Float, y:Float, button:MouseButton):Void { }
 
 
 	/**
@@ -327,7 +329,7 @@ class Application extends Module {
 		@param	deltaX	The amount of horizontal scrolling (if applicable)
 		@param	deltaY	The amount of vertical scrolling (if applicable)
 	**/
-	public function onMouseWheel (deltaX:Float, deltaY:Float):Void { }
+	public function onMouseWheel (deltaX:Float, deltaY:Float, deltaMode:MouseWheelMode):Void { }
 
 
 	/**

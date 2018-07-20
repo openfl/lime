@@ -20,7 +20,7 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
-import lime.ui.Cursor;
+import lime.ui.MouseCursor;
 import lime.ui.Window;
 import lime.utils.UInt8Array;
 
@@ -47,7 +47,7 @@ class NativeWindow {
 	public var handle:Dynamic;
 
 	private var closing:Bool;
-	private var cursor:Cursor;
+	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
 	private var frameRate:Float;
 	private var mouseLock:Bool;
@@ -273,7 +273,7 @@ class NativeWindow {
 	}
 
 
-	public function getCursor ():Cursor {
+	public function getCursor ():MouseCursor {
 
 		return cursor;
 
@@ -528,7 +528,7 @@ class NativeWindow {
 	}
 
 
-	public function setCursor (value:Cursor):Cursor {
+	public function setCursor (value:MouseCursor):MouseCursor {
 
 		if (cursor != value) {
 
@@ -540,7 +540,7 @@ class NativeWindow {
 
 			} else {
 
-				var type:CursorType = switch (value) {
+				var type:MouseCursorType = switch (value) {
 
 					case ARROW: ARROW;
 					case CROSSHAIR: CROSSHAIR;
@@ -766,7 +766,7 @@ class NativeWindow {
 }
 
 
-@:enum private abstract CursorType(Int) from Int to Int {
+@:enum private abstract MouseCursorType(Int) from Int to Int {
 
 	var HIDDEN = 0;
 	var ARROW = 1;

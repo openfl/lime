@@ -13,16 +13,17 @@ import flash.events.TouchEvent;
 import flash.geom.Matrix;
 import flash.system.Capabilities;
 import flash.ui.Mouse;
-import flash.ui.MouseCursor;
+import flash.ui.MouseCursor in FlashMouseCursor;
 import flash.Lib;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
-import lime.ui.Cursor;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.MouseButton;
+import lime.ui.MouseCursor;
 import lime.ui.Touch;
 import lime.system.Display;
 import lime.system.DisplayMode;
@@ -305,11 +306,11 @@ class FlashWindow {
 
 	private function handleMouseEvent (event:MouseEvent):Void {
 
-		var button = switch (event.type) {
+		var button:MouseButton = switch (event.type) {
 
-			case "middleMouseDown", "middleMouseUp": 1;
-			case "rightMouseDown", "rightMouseUp": 2;
-			default: 0;
+			case "middleMouseDown", "middleMouseUp": MIDDLE;
+			case "rightMouseDown", "rightMouseUp": RIGHT;
+			default: LEFT;
 
 		}
 
@@ -343,7 +344,7 @@ class FlashWindow {
 
 			case "mouseWheel":
 
-				parent.onMouseWheel.dispatch (0, event.delta);
+				parent.onMouseWheel.dispatch (0, event.delta, LINES);
 
 			default:
 
@@ -385,7 +386,7 @@ class FlashWindow {
 
 				if (event.isPrimaryTouchPoint) {
 
-					parent.onMouseDown.dispatch (x, y, 0);
+					parent.onMouseDown.dispatch (x, y, LEFT);
 
 				}
 
@@ -522,7 +523,7 @@ class FlashWindow {
 	}
 
 
-	public function setCursor (value:Cursor):Cursor {
+	public function setCursor (value:MouseCursor):MouseCursor {
 
 		if (cursor != value) {
 
@@ -540,18 +541,18 @@ class FlashWindow {
 
 				Mouse.cursor = switch (value) {
 
-					case ARROW: MouseCursor.ARROW;
-					case CROSSHAIR: MouseCursor.ARROW;
-					case MOVE: MouseCursor.HAND;
-					case POINTER: MouseCursor.BUTTON;
-					case RESIZE_NESW: MouseCursor.HAND;
-					case RESIZE_NS: MouseCursor.HAND;
-					case RESIZE_NWSE: MouseCursor.HAND;
-					case RESIZE_WE: MouseCursor.HAND;
-					case TEXT: MouseCursor.IBEAM;
-					case WAIT: MouseCursor.ARROW;
-					case WAIT_ARROW: MouseCursor.ARROW;
-					default: MouseCursor.AUTO;
+					case ARROW: FlashMouseCursor.ARROW;
+					case CROSSHAIR: FlashMouseCursor.ARROW;
+					case MOVE: FlashMouseCursor.HAND;
+					case POINTER: FlashMouseCursor.BUTTON;
+					case RESIZE_NESW: FlashMouseCursor.HAND;
+					case RESIZE_NS: FlashMouseCursor.HAND;
+					case RESIZE_NWSE: FlashMouseCursor.HAND;
+					case RESIZE_WE: FlashMouseCursor.HAND;
+					case TEXT: FlashMouseCursor.IBEAM;
+					case WAIT: FlashMouseCursor.ARROW;
+					case WAIT_ARROW: FlashMouseCursor.ARROW;
+					default: FlashMouseCursor.AUTO;
 
 				}
 
