@@ -1409,7 +1409,7 @@ class Image {
 
 		rect = __clipRect (rect);
 		if (buffer == null || rect == null) return;
-		if (endian == null) endian = System.endianness;
+		if (endian == null) endian = BIG_ENDIAN;
 
 		switch (type) {
 
