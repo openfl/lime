@@ -30,11 +30,11 @@
 		::end::
 		<fullScreen>::WIN_FULLSCREEN::</fullScreen>
 		::if (WIN_HARDWARE)::<depthAndStencil>true</depthAndStencil>::end::
-	</initialWindow> 
+	</initialWindow>
 	<installFolder>::if (APP_COMPANY != "")::::APP_COMPANY::/::APP_TITLE::::else::::APP_TITLE::::end::</installFolder>
 	<programMenuFolder>::APP_TITLE::</programMenuFolder>
 	::if (icons != null)::<icon>::foreach icons::
-		<image::size::x::size::>::path::</image::size::x::size::>::end:: 
+		<image::size::x::size::>::path::</image::size::x::size::>::end::
 	</icon>::end::
 	::if (languages != null)::<supportedLanguages>::foreach languages::::__current__:: ::end::</supportedLanguages>::end::
 	<customUpdateUI>false</customUpdateUI>
@@ -53,19 +53,27 @@
 			</icon>
 		</fileType>
 	</fileTypes> -->
-	<android> 
-		<manifestAdditions> 
-			<![CDATA[ 
-				<manifest> 
+	<android>
+		<manifestAdditions>
+			<![CDATA[
+				<manifest>
 					<uses-permission android:name="android.permission.WAKE_LOCK" />
 					<uses-permission android:name="android.permission.INTERNET" />
 					<uses-permission android:name="android.permission.VIBRATE" />
 					<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-				</manifest> 
-			]]> 
-		</manifestAdditions> 
+				</manifest>
+			]]>
+		</manifestAdditions>
 	</android>
 	<iPhone>
+		<InfoAdditions>
+			<![CDATA[
+				::if (IOS_TARGET_DEVICES != null)::<key>UIDeviceFamily</key>
+				<array>::foreach IOS_TARGET_DEVICES::
+					<string>__current__</string>::end::
+				</array>::end::
+			]]>
+		</InfoAdditions>
 		<requestedDisplayResolution>::if WIN_ALLOW_HIGH_DPI::high::else::standard::end::</requestedDisplayResolution>
 	</iPhone>
 	::if (extensions != null)::<extensions>::foreach extensions::
