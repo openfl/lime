@@ -32,9 +32,12 @@
 #endif
 
 #include <SDL.h>
+#include <string>
+
+#ifdef HX_WINDOWS
 #include <locale>
 #include <codecvt>
-#include <string>
+#endif
 
 
 namespace lime {
@@ -101,8 +104,12 @@ namespace lime {
 			case APPLICATION: {
 
 				char* path = SDL_GetBasePath ();
+				#ifdef HX_WINDOWS
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 				result = new std::wstring (converter.from_bytes(path));
+				#else
+				result = new std::wstring (path, path + strlen (path));
+				#endif
 				SDL_free (path);
 				break;
 
@@ -111,8 +118,12 @@ namespace lime {
 			case APPLICATION_STORAGE: {
 
 				char* path = SDL_GetPrefPath (company, title);
+				#ifdef HX_WINDOWS
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 				result = new std::wstring (converter.from_bytes(path));
+				#else
+				result = new std::wstring (path, path + strlen (path));
+				#endif
 				SDL_free (path);
 				break;
 
@@ -185,8 +196,7 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home) + std::string ("/Documents");
-					std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-					result = new std::wstring (converter.from_bytes (path.c_str ()));
+					result = new std::wstring (path.begin (), path.end ());
 
 				}
 
@@ -264,8 +274,7 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home);
-					std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-					result = new std::wstring (converter.from_bytes (path.c_str ()));
+					result = new std::wstring (path.begin (), path.end ());
 
 				}
 
