@@ -519,7 +519,7 @@ class PlatformSetup {
 					
 					setupElectron ();
 				
-				case "windows":
+				case "windows", "winrt":
 					
 					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
 						

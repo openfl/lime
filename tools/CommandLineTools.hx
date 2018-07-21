@@ -1719,6 +1719,11 @@ class CommandLineTools {
 				targetFlags.set ("uwp", "");
 				targetFlags.set ("winjs", "");
 			
+			case "winrt":
+				
+				target = Platform.WINDOWS;
+				targetFlags.set ("winrt", "");
+			
 			default:
 				
 				target = cast targetName.toLowerCase ();

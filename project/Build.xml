@@ -10,7 +10,7 @@
 
 	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten" />
-	<set name="LIME_EFSW" value="1" if="windows || mac || linux" />
+	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
 	<!-- <set name="LIME_FAUDIO" value="1" /> -->
 	<set name="LIME_FREETYPE" value="1" />
@@ -18,11 +18,11 @@
 	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
 	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
-	<set name="LIME_MBEDTLS" value="1" unless="emscripten" />
+	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
-	<set name="LIME_MOJOAL" value="1" if="switch || static_link || mojoal" />
+	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" />
 	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
@@ -34,7 +34,8 @@
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
-	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" />
+	<set name="LIME_SDL_ANGLE" value="1" if="winrt" unless="static_link" />
+	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_VORBIS" value="1" />
 	<!-- <set name="LIME_VPX" value="1" />
 	<set name="LIME_WEBM" value="1" /> -->
@@ -227,12 +228,14 @@
 			</section>
 
 			<section if="rpi">
+
 				<compilerflag value="-I/opt/vc/include"/>
 				<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads"/>
 				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux"/>
 				<compilerflag value="-lbrcmGLESv2" />
 				<compilerflag value="-lbrcmEGL" />
 				<compilerflag value="-Wl,--no-undefined -lm -L/opt/vc/lib -lbcm_host -ldl -lpthread -lrt" />
+
 			</section>
 
 			<compilerflag value="-DLIME_SDL" />
@@ -394,7 +397,12 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
-				<lib name="comsuppw.lib" />
+				<lib name="comsuppw.lib" unless="winrt" />
+
+				<lib name="D3D11.lib" if="winrt" />
+				<lib name="RuntimeObject.lib" if="winrt" />
+				<lib name="Xinput.lib" if="winrt" />
+				<lib name="DXGI.lib" if="winrt" />
 
 				<lib name="-libpath:${HLPATH}" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />

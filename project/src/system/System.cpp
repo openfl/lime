@@ -42,7 +42,7 @@ namespace lime {
 	}
 
 
-	#ifdef HX_WINDOWS
+	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 	std::wstring* GetWMIValue (BSTR query, BSTR field) {
 
 		HRESULT hres = 0;
@@ -139,7 +139,7 @@ namespace lime {
 
 	std::wstring* System::GetDeviceModel () {
 
-		#ifdef HX_WINDOWS
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Version");
 		#endif
 
@@ -150,7 +150,7 @@ namespace lime {
 
 	std::wstring* System::GetDeviceVendor () {
 
-		#ifdef HX_WINDOWS
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Vendor");
 		#endif
 
@@ -161,7 +161,7 @@ namespace lime {
 
 	std::wstring* System::GetPlatformLabel () {
 
-		#ifdef HX_WINDOWS
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Caption");
 		#endif
 
@@ -179,7 +179,7 @@ namespace lime {
 
 	std::wstring* System::GetPlatformVersion () {
 
-		#ifdef HX_WINDOWS
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Version");
 		#endif
 
@@ -188,7 +188,7 @@ namespace lime {
 	}
 
 
-	#ifdef HX_WINDOWS
+	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 	int System::GetWindowsConsoleMode (int handleType) {
 
 		HANDLE handle = GetStdHandle ((DWORD)handleType);
@@ -206,7 +206,7 @@ namespace lime {
 	#endif
 
 
-	#ifdef HX_WINDOWS
+	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 	bool System::SetWindowsConsoleMode (int handleType, int mode) {
 
 		HANDLE handle = GetStdHandle ((DWORD)handleType);

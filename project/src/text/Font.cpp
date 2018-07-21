@@ -16,6 +16,10 @@
 #include FT_OUTLINE_H
 #endif
 
+#ifdef GetGlyphIndices
+#undef GetGlyphIndices
+#endif
+
 
 // from http://stackoverflow.com/questions/2948308/how-do-i-read-utf-8-characters-via-a-pointer
 #define IS_IN_RANGE(c, f, l) (((c) >= (f)) && ((c) <= (l)))
@@ -240,17 +244,17 @@ namespace {
 	}
 
 
-	int outline_cubic_to (FVecPtr ctl1, FVecPtr ctl2, FVecPtr to, void *user) {
+	int outline_cubic_to (FVecPtr control1, FVecPtr control2, FVecPtr to, void *user) {
 
 		glyph *g = static_cast<glyph*> (user);
 
 		g->pts.push_back (PT_CUBIC);
-		g->pts.push_back (ctl1->x - g->x);
-		g->pts.push_back (ctl1->y - g->y);
-		g->pts.push_back (ctl2->x - ctl1->x);
-		g->pts.push_back (ctl2->y - ctl1->y);
-		g->pts.push_back (to->x - ctl2->x);
-		g->pts.push_back (to->y - ctl2->y);
+		g->pts.push_back (control1->x - g->x);
+		g->pts.push_back (control1->y - g->y);
+		g->pts.push_back (control2->x - control1->x);
+		g->pts.push_back (control2->y - control1->y);
+		g->pts.push_back (to->x - control2->x);
+		g->pts.push_back (to->y - control2->y);
 
 		g->x = to->x;
 		g->y = to->y;
