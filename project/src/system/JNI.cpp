@@ -1972,7 +1972,7 @@ namespace lime {
 
 		if (AbstractToJObject (inValue, obj)) {
 
-			return alloc_int ((int)obj);
+			return alloc_float ((uintptr_t)obj);
 
 		}
 
