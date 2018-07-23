@@ -403,6 +403,10 @@ namespace lime {
 					alloc_field (result, val_id ("pixels"), alloc_float ((uintptr_t)pixels));
 					alloc_field (result, val_id ("pitch"), alloc_int (pitch));
 
+				} else {
+
+					return alloc_null ();
+
 				}
 
 				return result;
@@ -424,6 +428,10 @@ namespace lime {
 					hl_dyn_seti (result, id_height, &hlt_i32, contextHeight);
 					hl_dyn_setd (result, id_pixels, (uintptr_t)pixels);
 					hl_dyn_seti (result, id_pitch, &hlt_i32, pitch);
+
+				} else {
+
+					return 0;
 
 				}
 
