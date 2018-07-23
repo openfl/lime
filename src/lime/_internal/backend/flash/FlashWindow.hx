@@ -24,6 +24,7 @@ import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
 import lime.ui.MouseCursor;
+import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
 import lime.system.Display;
 import lime.system.DisplayMode;
@@ -344,7 +345,7 @@ class FlashWindow {
 
 			case "mouseWheel":
 
-				parent.onMouseWheel.dispatch (0, event.delta, LINES);
+				parent.onMouseWheel.dispatch (0, event.delta, MouseWheelMode.LINES);
 
 			default:
 
