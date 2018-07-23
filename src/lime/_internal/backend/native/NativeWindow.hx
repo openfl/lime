@@ -81,7 +81,7 @@ class NativeWindow {
 		if (!Reflect.hasField (contextAttributes, "stencil")) contextAttributes.stencil = true;
 		if (!Reflect.hasField (contextAttributes, "vsync")) contextAttributes.vsync = false;
 
-		#if (cairo || !lime_opengl) contextAttributes.type = CAIRO; #end
+		#if (cairo || (!lime_opengl && !lime_opengles)) contextAttributes.type = CAIRO; #end
 		if (Reflect.hasField (contextAttributes, "type") && contextAttributes.type == CAIRO) contextAttributes.hardware = false;
 
 		if (Reflect.hasField (attributes, "allowHighDPI") && attributes.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;

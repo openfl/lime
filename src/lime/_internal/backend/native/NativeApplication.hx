@@ -446,7 +446,7 @@ class NativeApplication {
 
 							case OPENGL, OPENGLES, WEBGL:
 
-								#if (lime_cffi && lime_opengl && !display)
+								#if (lime_cffi && (lime_opengl || lime_opengles) && !display)
 								var gl = window.context.gl;
 								(gl:NativeOpenGLRenderContext).__contextLost ();
 								if (GL.context == gl) GL.context = null;

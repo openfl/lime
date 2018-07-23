@@ -3347,7 +3347,7 @@ class GL {
 
 		if (id == 0) return null;
 
-		#if (lime_cffi && lime_opengl && !macro)
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		var object = NativeCFFI.lime_gl_object_from_id (id, type);
 
 		if (object != null) {

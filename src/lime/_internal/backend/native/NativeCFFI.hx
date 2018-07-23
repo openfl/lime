@@ -1781,7 +1781,7 @@ class NativeCFFI {
 	#end
 
 
-	#if (lime_cffi && !macro && lime_opengl)
+	#if (lime_cffi && !macro && (lime_opengl || lime_opengles))
 
 	#if cpp
 	#if (disable_cffi || haxe_ver < "3.4.0")
