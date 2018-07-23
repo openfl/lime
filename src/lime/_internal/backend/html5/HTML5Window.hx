@@ -30,6 +30,7 @@ import lime.system.Clipboard;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.MouseCursor;
+import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
 import lime.ui.Window;
 
@@ -713,7 +714,7 @@ class HTML5Window {
 
 		} else {
 
-			var deltaMode = switch (untyped event.deltaMode) {
+			var deltaMode:MouseWheelMode = switch (untyped event.deltaMode) {
 				
 				case 0: PIXELS;
 				case 1: LINES;

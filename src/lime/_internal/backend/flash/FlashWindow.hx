@@ -45,7 +45,7 @@ class FlashWindow {
 	private var cacheMouseY:Float;
 	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch> ();
-	private var cursor:Cursor;
+	private var cursor:MouseCursor;
 	private var frameRate:Float;
 	private var mouseLeft:Bool;
 	private var parent:Window;
@@ -247,7 +247,7 @@ class FlashWindow {
 	}
 
 
-	public function getCursor ():Cursor {
+	public function getCursor ():MouseCursor {
 
 		return cursor;
 
