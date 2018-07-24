@@ -344,7 +344,7 @@ class HTML5Window {
 				webgl = untyped WebGLDebugUtils.makeDebugContext (webgl);
 				#end
 
-				#if ((js && html5) && !display)
+				#if (js && html5)
 				context.webgl = webgl;
 				if (isWebGL2) context.webgl2 = webgl;
 
@@ -440,13 +440,13 @@ class HTML5Window {
 
 				event.preventDefault ();
 
-				#if !display
+				// #if !display
 				if (GL.context != null) {
 
 					// GL.context.__contextLost = true;
 
 				}
-				#end
+				// #end
 
 				parent.context = null;
 
@@ -523,6 +523,9 @@ class HTML5Window {
 
 			isFullscreen = false;
 			parent.__fullscreen = false;
+
+			// TODO: Handle a different way?
+			parent.onResize.dispatch (parent.__width, parent.__height);
 
 			var changeEvents = [ "fullscreenchange", "mozfullscreenchange", "webkitfullscreenchange", "MSFullscreenChange" ];
 			var errorEvents = [ "fullscreenerror", "mozfullscreenerror", "webkitfullscreenerror", "MSFullscreenError" ];
@@ -715,12 +718,12 @@ class HTML5Window {
 		} else {
 
 			var deltaMode:MouseWheelMode = switch (untyped event.deltaMode) {
-				
+
 				case 0: PIXELS;
 				case 1: LINES;
 				case 2: PAGES;
 				default: UNKNOWN;
-				
+
 			}
 
 			parent.onMouseWheel.dispatch (untyped event.deltaX, -untyped event.deltaY, deltaMode);

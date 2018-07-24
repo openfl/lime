@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     @:forward
     abstract Int16Array(js.html.Int16Array)

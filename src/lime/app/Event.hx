@@ -18,7 +18,7 @@ package lime.app;
 	```
 **/
 
-#if (!macro && !display)
+#if !macro
 @:genericBuild(lime._internal.macros.EventMacro.build())
 #end
 

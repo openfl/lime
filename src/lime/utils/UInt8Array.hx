@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     @:forward
     abstract UInt8Array(js.html.Uint8Array)

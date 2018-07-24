@@ -948,7 +948,7 @@ class GL {
 	}
 
 
-	public static inline function clientWaitSync (sync:GLSync, flags:Int, timeout:#if (!js || !html5 || display) Int64 #else Dynamic #end):Int {
+	public static inline function clientWaitSync (sync:GLSync, flags:Int, timeout:#if (!js || !html5 || doc_gen) Int64 #else Dynamic #end):Int {
 
 		return context.clientWaitSync (sync, flags, timeout);
 
@@ -3308,14 +3308,14 @@ class GL {
 	}
 
 
-	public static inline function waitSync (sync:GLSync, flags:Int, timeout:#if (!js || !html5 || display) Int64 #else Dynamic #end):Void {
+	public static inline function waitSync (sync:GLSync, flags:Int, timeout:#if (!js || !html5 || doc_gen) Int64 #else Dynamic #end):Void {
 
 		context.waitSync (sync, flags, timeout);
 
 	}
 
 
-	private static inline function __getObjectID (object:#if (!js || !html5 || display) GLObject #else Dynamic #end):Int {
+	private static inline function __getObjectID (object:#if (!js || !html5 || doc_gen) GLObject #else Dynamic #end):Int {
 
 		return (object == null) ? 0 : @:privateAccess object.id;
 
@@ -3325,7 +3325,7 @@ class GL {
 }
 
 
-#if (!js || !html5 || display)
+#if (!js || !html5 || doc_gen)
 @:access(lime._internal.backend.native.NativeCFFI)
 #if hl @:keep #end
 @:dox(hide) @:noCompletion class GLObject {

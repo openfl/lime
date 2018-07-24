@@ -2,7 +2,7 @@ package lime.utils;
 
 import lime.utils.ArrayBufferView;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     @:forward
     abstract DataView(js.html.DataView)

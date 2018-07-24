@@ -27,7 +27,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		var float:Float = value;
 		return new DataPointer (float);
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return new DataPointer (new DataPointerObject (value));
 		#else
 		return null;
@@ -40,7 +40,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if (lime_cffi && !macro)
 		return new DataPointer (value);
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return new DataPointer (new DataPointerObject (Std.int (value)));
 		#else
 		return null;
@@ -55,7 +55,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		if (pointer == null || pointer.bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (pointer.bytes, pointer.offset);
 		return new DataPointer (data);
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return new DataPointer (new DataPointerObject (null, pointer.bytes.getData (), pointer.offset));
 		#else
 		return null;
@@ -70,7 +70,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		if (arrayBufferView == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (arrayBufferView.buffer, arrayBufferView.byteOffset);
 		return new DataPointer (data);
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return new DataPointer (new DataPointerObject (arrayBufferView));
 		#else
 		return null;
@@ -84,7 +84,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		if (buffer == null) return cast 0;
 		return fromBytes (buffer);
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return new DataPointer (new DataPointerObject (buffer));
 		#else
 		return null;
@@ -99,7 +99,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		if (bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes);
 		return new DataPointer (data);
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return fromArrayBuffer (bytes.getData ());
 		#else
 		return null;
@@ -113,7 +113,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 		#if (lime_cffi && !macro)
 		if (bytesData == null) return cast 0;
 		return fromBytes (Bytes.ofData (bytesData));
-		#elseif (js && !display)
+		#elseif (js && !doc_gen)
 		return fromArrayBuffer (bytesData);
 		#else
 		return null;
@@ -154,7 +154,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	}
 
 
-	#if (js && html5 && !display)
+	#if (js && html5 && !doc_gen)
 	@:dox(hide) @:noCompletion public function toBufferOrBufferView (?length:Int):Dynamic {
 
 		var data:DataPointerObject = this;

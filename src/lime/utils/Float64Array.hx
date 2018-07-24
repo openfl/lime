@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     @:forward
     abstract Float64Array(js.html.Float64Array)

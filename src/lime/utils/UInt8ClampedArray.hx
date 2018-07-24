@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     @:forward
     abstract UInt8ClampedArray(js.html.Uint8ClampedArray)

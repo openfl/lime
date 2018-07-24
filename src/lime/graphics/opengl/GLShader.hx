@@ -1,5 +1,5 @@
 package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
-#if !display
+#if !doc_gen
 
 
 import lime.graphics.opengl.GL;

@@ -13,7 +13,7 @@ import lime.app.Promise;
 #end
 
 
-#if display
+#if doc_gen
 
 class HTTPRequest<T> {
 
@@ -49,7 +49,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 	public var userAgent:String;
 	public var withCredentials:Bool;
 
-	#if !display
+	#if !doc_gen
 	@:noCompletion private var __backend:HTTPRequestBackend;
 	#end
 
@@ -67,7 +67,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 		timeout = #if lime_default_timeout Std.parseInt (Compiler.getDefine ("lime-default-timeout")) #else 30000 #end;
 		withCredentials = false;
 
-		#if !display
+		#if !doc_gen
 		__backend = new HTTPRequestBackend ();
 		__backend.init (this);
 		#end
@@ -77,7 +77,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 
 	public function cancel ():Void {
 
-		#if !display
+		#if !doc_gen
 		__backend.cancel ();
 		#end
 
@@ -94,7 +94,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 }
 
 
-#if !display
+#if !doc_gen
 
 
 #if !lime_debug

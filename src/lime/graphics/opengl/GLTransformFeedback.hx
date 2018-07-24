@@ -1,5 +1,5 @@
 package lime.graphics.opengl; #if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
-#if ((lime_opengl || lime_opengles) && !display)
+#if ((lime_opengl || lime_opengles) && !doc_gen)
 
 
 import lime.graphics.opengl.GL;
@@ -20,7 +20,7 @@ abstract GLTransformFeedback(GLObject) from GLObject to GLObject {
 }
 
 
-#elseif (lime_webgl && !display)
+#elseif (lime_webgl && !doc_gen)
 @:native("WebGLTransformFeedback")
 extern class GLTransformFeedback {}
 #else

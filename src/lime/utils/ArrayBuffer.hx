@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     typedef ArrayBuffer = js.html.ArrayBuffer;
 

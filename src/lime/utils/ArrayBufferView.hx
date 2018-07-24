@@ -1,6 +1,6 @@
 package lime.utils;
 
-#if (js && !display)
+#if (js && !doc_gen)
 
     typedef ArrayBufferView = js.html.ArrayBufferView;
 
@@ -419,7 +419,7 @@ abstract TypedArrayType(Int) from Int to Int {
 }
 
 
-#if (!js || display)
+#if (!js || doc_gen)
 
 @:noCompletion @:dox(hide) class ArrayBufferIO {
 
