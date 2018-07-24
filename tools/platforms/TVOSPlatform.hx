@@ -215,7 +215,12 @@ class TVOSPlatform extends PlatformTarget {
 
 		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("hxcpp"), true) + "/haxelib.json"));
 
-		if (Std.parseFloat (json.version) > 3.1) {
+		var version = Std.string (json.version);
+		var versionSplit = version.split (".");
+
+		while (versionSplit.length > 2) versionSplit.pop ();
+
+		if (Std.parseFloat (versionSplit.join (".")) > 3.1) {
 
 			context.CPP_LIBPREFIX = "lib";
 
