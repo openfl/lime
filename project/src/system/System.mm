@@ -9,6 +9,28 @@
 namespace lime {
 
 
+	void System::GCEnterBlocking () {
+
+		// if (!_isHL) {
+
+			gc_enter_blocking ();
+
+		// }
+
+	}
+
+
+	void System::GCExitBlocking () {
+
+		// if (!_isHL) {
+
+			gc_exit_blocking ();
+
+		// }
+
+	}
+
+
 	std::wstring* System::GetIOSDirectory (SystemDirectory type) {
 
 		#ifndef OBJC_ARC

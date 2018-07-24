@@ -233,8 +233,10 @@ typedef uint16_t uchar;
 #if defined(HL_IOS) || defined(HL_TVOS) || defined(HL_MAC)
 #include <stddef.h>
 #include <stdint.h>
+#ifdef HL_MAC
 typedef uint16_t char16_t;
 typedef uint32_t char32_t;
+#endif
 #elif defined(HL_NATIVE_UCHAR_FUN)
 #	include <uchar.h>
 #elif __cplusplus <= 199711L
