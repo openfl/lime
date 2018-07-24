@@ -3,6 +3,7 @@
 -D lime-curl
 -D lime-cffi
 -D lime
+-cp platforms
 -cp ../src
 -lib format
 -lib hxp

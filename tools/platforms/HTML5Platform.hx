@@ -3,7 +3,9 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
-// import lime.text.Font;
+#if lime
+import lime.text.Font;
+#end
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.ElectronHelper;
 import hxp.helpers.FileHelper;
@@ -387,24 +389,16 @@ class HTML5Platform extends PlatformTarget {
 						
 						if (embeddedAsset.type == "font" && embeddedAsset.sourcePath == asset.sourcePath) {
 							
-							// var font = Font.fromFile (asset.sourcePath);
+							#if lime
+							var font = Font.fromFile (asset.sourcePath);
 							
-							// embeddedAsset.ascender = font.ascender;
-							// embeddedAsset.descender = font.descender;
-							// embeddedAsset.height = font.height;
-							// embeddedAsset.numGlyphs = font.numGlyphs;
-							// embeddedAsset.underlinePosition = font.underlinePosition;
-							// embeddedAsset.underlineThickness = font.underlineThickness;
-							// embeddedAsset.unitsPerEM = font.unitsPerEM;
-							
-							embeddedAsset.ascender = 0;
-							embeddedAsset.descender = 0;
-							embeddedAsset.height = 0;
-							embeddedAsset.numGlyphs = 0;
-							embeddedAsset.underlinePosition = 0;
-							embeddedAsset.underlineThickness = 0;
-							embeddedAsset.unitsPerEM = 0;
-							embeddedAsset.fontName = "sans";
+							embeddedAsset.ascender = font.ascender;
+							embeddedAsset.descender = font.descender;
+							embeddedAsset.height = font.height;
+							embeddedAsset.numGlyphs = font.numGlyphs;
+							embeddedAsset.underlinePosition = font.underlinePosition;
+							embeddedAsset.underlineThickness = font.underlineThickness;
+							embeddedAsset.unitsPerEM = font.unitsPerEM;
 							
 							if (shouldEmbedFont) {
 								
@@ -426,6 +420,7 @@ class HTML5Platform extends PlatformTarget {
 								
 							}
 							break;
+							#end
 							
 						}
 						

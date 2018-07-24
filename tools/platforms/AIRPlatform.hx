@@ -2,6 +2,7 @@ package;
 
 
 import haxe.io.Path;
+import haxe.Template;
 import hxp.project.AssetType;
 import hxp.project.HXProject;
 import hxp.project.Icon;
@@ -24,6 +25,7 @@ class AIRPlatform extends FlashPlatform {
 	
 	
 	private var iconData:Array<Dynamic>;
+	private var splashScreenData:Array<Dynamic>;
 	private var targetPlatform:Platform;
 	private var targetPlatformType:PlatformType;
 	
@@ -92,6 +94,12 @@ class AIRPlatform extends FlashPlatform {
 			for (icon in iconData) {
 				
 				files.push (icon.path);
+				
+			}
+			
+			for (splashScreen in splashScreenData) {
+				
+				files.push (splashScreen.path);
 				
 			}
 			
@@ -180,6 +188,31 @@ class AIRPlatform extends FlashPlatform {
 	}
 	
 	
+	private override function getDisplayHXML ():String {
+		
+		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
+		
+		var context = project.templateContext;
+		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
+		context.OUTPUT_DIR = targetDirectory;
+		
+		for (dependency in project.dependencies) {
+			
+			if (StringTools.endsWith (dependency.path, ".ane")) {
+				
+				context.HAXE_FLAGS += "\n-swf-lib " + dependency.path;
+				
+			}
+			
+		}
+		
+		var template = new Template (File.getContent (hxml));
+		
+		return template.execute (context) + "\n-D display";
+		
+	}
+	
+	
 	public override function install ():Void {
 		
 		// TODO: Make separate install step
@@ -257,6 +290,14 @@ class AIRPlatform extends FlashPlatform {
 			
 		}
 		
+		var targetDevice = project.config.getString ("ios.device", "universal");
+		var targetDevices = [];
+		
+		if (targetDevice != "ipad") targetDevices.push (1); // iphone
+		if (targetDevice != "iphone") targetDevices.push (2); // ipad
+		
+		context.IOS_TARGET_DEVICES = targetDevices;
+		
 		var iconSizes = [ 16, 29, 32, 36, 40, 48, 50, 57, 58, 60, 72, 75, 76, 80, 87, 96, 100, 114, 120, 128, 144, 152, 167, 180, 192, 512, 1024 ];
 		var icons = project.icons;
 		iconData = [];
@@ -278,19 +319,19 @@ class AIRPlatform extends FlashPlatform {
 		}
 		
 		if (iconData.length > 0) context.icons = iconData;
-
+		
 		context.extensions = new Array<String>();
-
+		
 		for (dependency in project.dependencies) {
-
-			if (StringTools.endsWith(dependency.path, ".ane")) {
-
+			
+			if (StringTools.endsWith (dependency.path, ".ane")) {
+				
 				var extension:Dynamic = { name: dependency.name };
-				context.extensions.push(extension);
+				context.extensions.push (extension);
 				context.HAXE_FLAGS += "\n-swf-lib " + dependency.path;
-
+				
 			}
-
+			
 		}
 		
 		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
@@ -339,6 +380,20 @@ class AIRPlatform extends FlashPlatform {
 				
 				PathHelper.mkdir (Path.directory (path));
 				FileHelper.copyAsset (asset, path, context);
+				
+			}
+			
+		}
+		
+		splashScreenData = [];
+		
+		if (project.splashScreens != null) {
+			
+			for (splashScreen in project.splashScreens) {
+				
+				var path = Path.withoutDirectory (splashScreen.path);
+				FileHelper.copyFile (splashScreen.path, PathHelper.combine (destination, path), context);
+				splashScreenData.push ({ path: path });
 				
 			}
 			

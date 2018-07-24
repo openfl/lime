@@ -17,7 +17,9 @@ import hxp.helpers.PlatformHelper;
 import hxp.helpers.ProcessHelper;
 import hxp.helpers.StringHelper;
 import hxp.helpers.WatchHelper;
+#if lime
 import lime.graphics.Image;
+#end
 import hxp.project.Architecture;
 import hxp.project.Asset;
 import hxp.project.AssetType;
@@ -573,12 +575,14 @@ class IOSPlatform extends PlatformTarget {
 				
 				if (!FileSystem.exists (imagePath)) {
 					
+					#if lime
 					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 					
 					var image = new Image (null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-					var bytes = image.encode ("png");
+					var bytes = image.encode (PNG);
 					
 					File.saveBytes (imagePath, bytes);
+					#end
 					
 				}
 				

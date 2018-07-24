@@ -298,7 +298,7 @@ class WindowsPlatform extends PlatformTarget {
 				
 				if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == Platform.WINDOWS) {
 					
-					var templates = [ PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates" ].concat (project.templatePaths);
+					var templates = [ PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (project.templatePaths);
 					ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
 					
 				}
@@ -403,13 +403,31 @@ class WindowsPlatform extends PlatformTarget {
 			
 			var commands = [];
 			
-			if (targetFlags.exists ("64")) {
+			if (!targetFlags.exists ("32") && PlatformHelper.hostArchitecture == X64) {
 				
-				commands.push ([ "-Dwindow", "-DHXCPP_M64" ]);
+				if (targetFlags.exists ("winrt")) {
+					
+					commands.push ([ "-Dwinrt", "-DHXCPP_M64" ]);
+					
+				} else {
+					
+					commands.push ([ "-Dwindows", "-DHXCPP_M64" ]);
+					
+				}
 				
-			} else {
+			}
+			
+			if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == Architecture.X86)) {
 				
-				commands.push ([ "-Dwindow", "-DHXCPP_M32" ]);
+				if (targetFlags.exists ("winrt")) {
+					
+					commands.push ([ "-Dwinrt", "-DHXCPP_M32" ]);
+					
+				} else {
+					
+					commands.push ([ "-Dwindows", "-DHXCPP_M32" ]);
+					
+				}
 				
 			}
 			
@@ -552,19 +570,16 @@ class WindowsPlatform extends PlatformTarget {
 		
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 			
-			// TODO: Better way to detect the suffix HXCPP will use?
+			var programFiles = project.environment.get ("ProgramFiles(x86)");
+			var hasVSCommunity = (programFiles != null && FileSystem.exists (PathHelper.combine (programFiles, "Microsoft Visual Studio/Installer/vswhere.exe")));
+			var hxcppMSVC = project.environment.get ("HXCPP_MSVC");
+			var vs140 = project.environment.get ("VS140COMNTOOLS");
 			
 			var msvc19 = true;
-			var olderVersions = [ "120", "110", "100", "90", "80", "71", "70" ];
 			
-			for (olderVersion in olderVersions) {
+			if ((!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140)) {
 				
-				if (project.environment.exists ("VS" + olderVersion + "COMNTOOLS")) {
-					
-					msvc19 = false;
-					break;
-					
-				}
+				msvc19 = false;
 				
 			}
 			

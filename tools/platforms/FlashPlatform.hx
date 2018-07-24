@@ -4,7 +4,6 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
-import hxp.helpers.CompatibilityHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.FileHelper;
 import hxp.helpers.FlashHelper;

@@ -66,12 +66,14 @@ class AndroidPlatform extends PlatformTarget {
 		
 		var hasARMV5 = (ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayHelper.containsValue (project.architectures, Architecture.ARMV7);
+		var hasARM64 = ArrayHelper.containsValue (project.architectures, Architecture.ARM64);
 		var hasX86 = ArrayHelper.containsValue (project.architectures, Architecture.X86);
 		
 		var architectures = [];
 		
 		if (hasARMV5) architectures.push (Architecture.ARMV5);
 		if (hasARMV7 || (!hasARMV5 && !hasX86)) architectures.push (Architecture.ARMV7);
+		if (hasARM64) architectures.push (Architecture.ARM64);
 		if (hasX86) architectures.push (Architecture.X86);
 		
 		for (architecture in architectures) {
@@ -94,6 +96,17 @@ class AndroidPlatform extends PlatformTarget {
 				}
 				
 				suffix = "-v7.so";
+				
+			} else if (architecture == Architecture.ARM64) {
+				
+				haxeParams = [ hxml, "-D", "android", "-D", "PLATFORM=android-21" ];
+				cppParams = [ "-Dandroid", "-DPLATFORM=android-21" ];
+				
+				haxeParams.push ("-D");
+				haxeParams.push ("HXCPP_ARM64");
+				cppParams.push ("-DHXCPP_ARM64");
+				path = sourceSet + "/jniLibs/arm64-v8a";
+				suffix = "-64.so";
 				
 			} else if (architecture == Architecture.X86) {
 				
@@ -126,6 +139,16 @@ class AndroidPlatform extends PlatformTarget {
 			if (FileSystem.exists (sourceSet + "/jniLibs/armeabi-v7a")) {
 				
 				PathHelper.removeDirectory (sourceSet + "/jniLibs/armeabi-v7a");
+				
+			}
+			
+		}
+		
+		if (!hasARM64) {
+			
+			if (FileSystem.exists (sourceSet + "/jniLibs/arm64-v8a")) {
+				
+				PathHelper.removeDirectory (sourceSet + "/jniLibs/arm64-v8a");
 				
 			}
 			
@@ -221,12 +244,14 @@ class AndroidPlatform extends PlatformTarget {
 		
 		var armv5 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.ARMV5) || ArrayHelper.containsValue (project.architectures, Architecture.ARMV6));
 		var armv7 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.ARMV7));
+		var arm64 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.ARM64));
 		var x86 = (command == "rebuild" || ArrayHelper.containsValue (project.architectures, Architecture.X86));
 		
 		var commands = [];
 		
 		if (armv5) commands.push ([ "-Dandroid", "-DPLATFORM=android-14" ]);
 		if (armv7) commands.push ([ "-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-14" ]);
+		if (arm64) commands.push ([ "-Dandroid", "-DHXCPP_ARM64", "-DPLATFORM=android-21" ]);
 		if (x86) commands.push ([ "-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-14" ]);
 		
 		CPPHelper.rebuild (project, commands);
@@ -326,8 +351,8 @@ class AndroidPlatform extends PlatformTarget {
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString ("android.install-location", "auto");
-		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt ("android.minimum-sdk-version", 9);
-		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt ("android.target-sdk-version", 19);
+		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt ("android.minimum-sdk-version", 14);
+		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt ("android.target-sdk-version", 26);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString ("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString ("android.permission", [ "android.permission.WAKE_LOCK", "android.permission.INTERNET", "android.permission.VIBRATE", "android.permission.ACCESS_NETWORK_STATE" ]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString ("android.gradle-version", "2.10");
@@ -336,7 +361,7 @@ class AndroidPlatform extends PlatformTarget {
 		
 		if (!project.environment.exists ("ANDROID_SDK") || !project.environment.exists ("ANDROID_NDK_ROOT")) {
 			
-			var command = "lime";
+			var command = #if lime "lime" #else "hxp" #end;
 			var toolsBase = Type.resolveClass ("CommandLineTools");
 			if (toolsBase != null)
 				command = Reflect.field (toolsBase, "commandName");
