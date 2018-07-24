@@ -675,7 +675,7 @@ class System {
 
 		if (__deviceModel == null) {
 
-			#if (windows || ios || tvos)
+			#if (lime_cffi && !macro && (windows || ios || tvos))
 			#if hl
 			__deviceModel = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_device_model ());
 			#else
@@ -710,7 +710,7 @@ class System {
 
 		if (__deviceVendor == null) {
 
-			#if (windows && !html5)
+			#if (lime_cffi && !macro && windows && !html5)
 			#if hl
 			__deviceVendor = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_device_vendor ());
 			#else
@@ -811,7 +811,7 @@ class System {
 
 		if (__platformLabel == null) {
 
-			#if (windows && !html5)
+			#if (lime_cffi && !macro && windows && !html5)
 			#if hl
 			var label:String = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_platform_label ());
 			#else
@@ -879,7 +879,7 @@ class System {
 
 		if (__platformVersion == null) {
 
-			#if (windows && !html5)
+			#if (lime_cffi && !macro && windows && !html5)
 			#if hl
 			__platformVersion = @:privateAccess String.fromUTF8 (NativeCFFI.lime_system_get_platform_version ());
 			#else
@@ -889,7 +889,7 @@ class System {
 			var release = JNI.createStaticField ("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get ();
 			var api = JNI.createStaticField ("android/os/Build$VERSION", "SDK_INT", "I").get ();
 			if (release != null && api != null) __platformVersion = release + " (API " + api + ")";
-			#elseif (ios || tvos)
+			#elseif (lime_cffi && !macro && (ios || tvos))
 			__platformVersion = NativeCFFI.lime_system_get_platform_version ();
 			#elseif mac
 			__platformVersion = __runProcess ("sw_vers", [ "-productVersion" ]);
