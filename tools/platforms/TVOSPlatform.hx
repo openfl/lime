@@ -5,6 +5,7 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
+import hxp.helpers.AssetHelper;
 import hxp.helpers.ArrayHelper;
 import hxp.helpers.CPPHelper;
 import hxp.helpers.DeploymentHelper;
@@ -357,6 +358,8 @@ class TVOSPlatform extends PlatformTarget {
 
 
 	public override function update ():Void {
+
+		AssetHelper.processLibraries (project, targetDirectory);
 
 		// project = project.clone ();
 

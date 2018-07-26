@@ -46,24 +46,26 @@ class DefineMacro {
 
 				Compiler.define ("native");
 
+				var cffi = (!Context.defined ("nocffi") && !Context.defined ("eval"));
+
 				if (Context.defined ("ios") || Context.defined ("android") || Context.defined ("tizen")) {
 
 					Compiler.define ("mobile");
-					if (!Context.defined ("nocffi")) Compiler.define ("lime-opengles");
+					if (cffi) Compiler.define ("lime-opengles");
 
 				} else if (Context.defined ("emscripten")) {
 
 					Compiler.define ("web");
-					if (!Context.defined ("nocffi")) Compiler.define ("lime-opengles");
+					if (cffi) Compiler.define ("lime-opengles");
 
 				} else {
 
 					Compiler.define ("desktop");
-					if (!Context.defined ("nocffi")) Compiler.define ("lime-opengl");
+					if (cffi) Compiler.define ("lime-opengl");
 
 				}
 
-				if (!Context.defined ("nocffi")) {
+				if (cffi) {
 
 					Compiler.define ("lime-cffi");
 
@@ -72,6 +74,10 @@ class DefineMacro {
 					Compiler.define ("lime-curl");
 					Compiler.define ("lime-harfbuzz");
 					Compiler.define ("lime-vorbis");
+
+				} else {
+
+					Compiler.define ("disable-cffi");
 
 				}
 

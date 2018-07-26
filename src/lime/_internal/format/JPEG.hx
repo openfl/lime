@@ -109,7 +109,7 @@ class JPEG {
 
 		#if java
 
-		#elseif (sys && (!disable_cffi || !format) && !macro)
+		#elseif (sys && lime_cffi && (!disable_cffi || !format) && !macro)
 
 		if (CFFI.enabled) {
 

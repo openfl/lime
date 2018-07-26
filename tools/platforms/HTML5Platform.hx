@@ -6,6 +6,7 @@ import haxe.Template;
 #if lime
 import lime.text.Font;
 #end
+import hxp.helpers.AssetHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.ElectronHelper;
 import hxp.helpers.FileHelper;
@@ -185,6 +186,8 @@ class HTML5Platform extends PlatformTarget {
 
 
 	public override function update ():Void {
+
+		AssetHelper.processLibraries (project, targetDirectory);
 
 		// project = project.clone ();
 

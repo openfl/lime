@@ -4,6 +4,7 @@ package;
 import haxe.io.Path;
 import haxe.Template;
 import hxp.project.Icon;
+import hxp.helpers.AssetHelper;
 import hxp.helpers.CPPHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.FileHelper;
@@ -536,6 +537,8 @@ class WindowsPlatform extends PlatformTarget {
 
 
 	public override function update ():Void {
+
+		AssetHelper.processLibraries (project, targetDirectory);
 
 		if (targetType == "winjs") {
 

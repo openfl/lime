@@ -4,6 +4,7 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
+import hxp.helpers.AssetHelper;
 import hxp.helpers.CPPHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.FileHelper;
@@ -284,6 +285,8 @@ class EmscriptenPlatform extends PlatformTarget {
 
 
 	public override function update ():Void {
+
+		AssetHelper.processLibraries (project, targetDirectory);
 
 		// project = project.clone ();
 
