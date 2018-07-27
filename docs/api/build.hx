@@ -1,38 +1,62 @@
-class Build extends hxp.Script { public function new () { super ();
+import hxp.helpers.ProcessHelper;
+import hxp.HXML;
+import sys.io.File;
 
-	var flash = new hxp.HXML ();
-	flash.xml = "xml/Flash.xml";
-	flash.swf = "obj/docs";
-	flash.swfVersion = "17.0";
-	flash.define ("display");
-	flash.define ("doc_gen");
-	flash.define ("lime-doc-gen");
-	flash.addClassName ("ImportAll");
-	flash.lib ("lime");
-	flash.noOutput = true;
-	flash.build ();
+class Build {
 
-	var windows = new hxp.HXML ("
-		-xml xml/Windows.xml
-		-cpp obj/docs
-		-D display
-		-D native
-		-D lime-cffi
-		-D windows
-		-D doc_gen
-		-D lime-doc-gen
-		ImportAll
-		-lib lime
-		--no-output
-	");
-	windows.build ();
+	public function new () {
 
-	var mac = new hxp.HXML (sys.io.File.getContent ("hxml/mac.hxml")).build ();
-	var linux = new hxp.HXML (sys.io.File.getContent ("hxml/linux.hxml")).build ();
-	var ios = new hxp.HXML (sys.io.File.getContent ("hxml/ios.hxml")).build ();
-	var android = new hxp.HXML (sys.io.File.getContent ("hxml/android.hxml")).build ();
-	var html5 = new hxp.HXML (sys.io.File.getContent ("hxml/html5.hxml")).build ();
+		var base = new HXML ({
+			defines: [ "display", "doc-gen", "lime-doc-gen" ],
+			classNames: [ "ImportAll" ],
+			libs: [ "lime" ],
+			noOutput: true
+		});
 
-	Sys.command ("haxelib run dox -i xml -in lime --title \"Lime API Reference\" -D website \"http://lime.software\" -D logo \"/images/logo.png\" -D textColor 0x777777 -theme ../../assets/docs-theme --toplevel-package lime");
+		var flash = base.clone ();
+		flash.xml = "xml/Flash.xml";
+		flash.swf = "obj/docs";
+		flash.swfVersion = "17.0";
+		flash.build ();
 
-} }
+		var native = base.clone ();
+		native.cpp = "obj/docs";
+		native.define ("native");
+		native.define ("lime-cffi");
+
+		var windows = native.clone ();
+		windows.xml = "xml/Windows.xml";
+		windows.define ("windows");
+		windows.build ();
+
+		var mac = native.clone ();
+		mac.xml = "xml/macOS.xml";
+		mac.define ("mac");
+		mac.build ();
+
+		var linux = native.clone ();
+		linux.xml = "xml/Linux.xml";
+		linux.define ("linux");
+		linux.build ();
+
+		var ios = native.clone ();
+		ios.xml = "xml/iOS.xml";
+		ios.define ("ios");
+		ios.build ();
+
+		var android = native.clone ();
+		android.xml = "xml/Android.xml";
+		android.define ("android");
+		android.build ();
+
+		var html5 = base.clone ();
+		html5.xml = "xml/HTML5.xml";
+		html5.js = "obj/docs";
+		html5.define ("html5");
+		html5.build ();
+
+		ProcessHelper.runCommand ("", "haxelib", [ "run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../../assets/docs-theme", "--toplevel-package", "lime" ]);
+
+	}
+
+}
