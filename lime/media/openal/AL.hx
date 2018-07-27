@@ -1077,7 +1077,7 @@ class AL {
 	}
 	
 	
-	public static function source3i (source:ALSource, param:Int, value1:Int, value2:Int, value3:Int):Void {
+	public static function source3i (source:ALSource, param:Int, value1:Dynamic, value2:Int, value3:Int):Void {
 		
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_al_source3i (source, param, value1, value2, value3);
