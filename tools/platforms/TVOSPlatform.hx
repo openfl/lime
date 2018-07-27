@@ -470,7 +470,7 @@ class TVOSPlatform extends PlatformTarget {
 
 				if (!FileSystem.exists (imagePath)) {
 
-					#if lime
+					#if (lime && lime_cffi && !macro)
 					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 
 					var image = new Image (null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
