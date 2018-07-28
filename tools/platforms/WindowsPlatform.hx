@@ -46,16 +46,6 @@ class WindowsPlatform extends PlatformTarget {
 
 		super (command, _project, targetFlags);
 
-		for (architecture in project.architectures) {
-
-			if (architecture == Architecture.X64) {
-
-				is64 = true;
-
-			}
-
-		}
-
 		if (project.targetFlags.exists ("uwp") || project.targetFlags.exists ("winjs")) {
 
 			targetType = "winjs";
@@ -83,6 +73,16 @@ class WindowsPlatform extends PlatformTarget {
 		} else {
 
 			targetType = "cpp";
+
+		}
+
+		for (architecture in project.architectures) {
+
+			if (targetType != "neko" && architecture == Architecture.X64) {
+
+				is64 = true;
+
+			}
 
 		}
 
