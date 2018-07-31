@@ -1,7 +1,7 @@
 import electron.main.App;
 import electron.main.BrowserWindow;
 
-class Electron {
+class ElectronSetup {
 	
 	public static var window:BrowserWindow;
 	
@@ -45,7 +45,7 @@ class Electron {
 			var frame:Bool = window.borderless == false;
 			
 			electron.main.App.on( 'ready', function(e) {
-				Electron.window = new BrowserWindow( { 
+				ElectronSetup.window = new BrowserWindow( { 
 					fullscreen: window.fullscreen, 
 					frame:frame, 
 					resizable: window.resizable,
@@ -54,14 +54,14 @@ class Electron {
 					height:height
 				} );
 				
-				Electron.window.on( closed, function() {
+				ElectronSetup.window.on( closed, function() {
 					if( js.Node.process.platform != 'darwin' )
 						electron.main.App.quit();
 				});
 				
-				Electron.window.loadURL( 'file://' + js.Node.__dirname + '/index.html' );
+				ElectronSetup.window.loadURL( 'file://' + js.Node.__dirname + '/index.html' );
 				#if debug
-					Electron.window.webContents.openDevTools();
+					ElectronSetup.window.webContents.openDevTools();
 				#end
 			});
 		}
