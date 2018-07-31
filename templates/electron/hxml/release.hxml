@@ -1,15 +1,17 @@
--cp ::OUTPUT_DIR::/haxe
--lib electron
-
 --each
 
 --next
 -js ::OUTPUT_FILE::
+-cp ::OUTPUT_DIR::/haxe
+-lib electron
 -main ApplicationMain ::HAXE_FLAGS::
 
 --next
 -js ::OUTPUT_DIR::/bin/ElectronSetup.js
--main Electron
+-cp ::OUTPUT_DIR::/haxe
+-lib electron
+-main ElectronSetup
+-dce full
 
 -D html5
 -D html
