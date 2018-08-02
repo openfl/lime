@@ -79,6 +79,10 @@ class CFFIMacro {
 
 										expr += "return false";
 
+									case "Void":
+
+										expr += "return";
+
 									default:
 
 										expr += "return null";
