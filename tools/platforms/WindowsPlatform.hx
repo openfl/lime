@@ -78,7 +78,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		for (architecture in project.architectures) {
 
-			if (targetType != "neko" && architecture == Architecture.X64) {
+			if (targetType == "cpp" && architecture == Architecture.X64) {
 
 				is64 = true;
 
