@@ -25,13 +25,13 @@ class Vector2 {
 	/**
 		Gets the length of this vector from (0, 0) to (x, y)
 	**/
-	public var length (get, null):Float;
+	public var length (get, never):Float;
 
 	/**
 		Gets the square of the length of this vector, which
 		avoids use of `Math.sqrt` for faster performance
 	**/
-	public var lengthSquared (get, null):Float;
+	public var lengthSquared (get, never):Float;
 
 	/**
 		The x coodinate for this vector

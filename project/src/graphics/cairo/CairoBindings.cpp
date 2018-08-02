@@ -2395,7 +2395,7 @@ namespace lime {
 
 	#define _TCFFIPOINTER _DYN
 	#define _TMATRIX3 _OBJ (_F64 _F64 _F64 _F64 _F64 _F64)
-	#define _TVECTOR2 _OBJ (_F64 _F64 _F64)
+	#define _TVECTOR2 _OBJ (_F64 _F64)
 
 	DEFINE_HL_PRIM (_VOID, lime_cairo_arc, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, lime_cairo_arc_negative, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);

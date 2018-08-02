@@ -2143,7 +2143,7 @@ namespace lime {
 
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
-	#define _TVECTOR2 _OBJ (_F64 _F64 _F64)
+	#define _TVECTOR2 _OBJ (_F64 _F64)
 
 
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_hb_blob_create, _F64 _I32 _I32);

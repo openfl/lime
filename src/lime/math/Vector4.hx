@@ -18,30 +18,30 @@ class Vector4 {
 	/**
 		A constant representing the x axis (1, 0, 0)
 	**/
-	public static var X_AXIS (get, null):Vector4;
+	public static var X_AXIS (get, never):Vector4;
 
 	/**
 		A constant representing the y axis (0, 1, 0)
 	**/
-	public static var Y_AXIS (get, null):Vector4;
+	public static var Y_AXIS (get, never):Vector4;
 
 	/**
 		A constant representing the z axis (0, 0, 1)
 	**/
-	public static var Z_AXIS (get, null):Vector4;
+	public static var Z_AXIS (get, never):Vector4;
 
 
 	/**
 		Get the length of this vector
 	**/
-	public var length (get, null):Float;
+	public var length (get, never):Float;
 
 	/**
 		Get the squared length of this vector
 		(avoiding the use of `Math.sqrt` for faster
 		performance)
 	**/
-	public var lengthSquared (get, null):Float;
+	public var lengthSquared (get, never):Float;
 
 	/**
 		The w component value

@@ -11,6 +11,8 @@ import flash.geom.Rectangle in FlashRectangle;
 	and manipulating a logical rectangle for calculations
 **/
 
+#if hl @:keep #end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug

@@ -11,7 +11,6 @@ namespace lime {
 	struct Vector2 {
 
 		hl_type* t;
-		double length;
 		double x;
 		double y;
 
