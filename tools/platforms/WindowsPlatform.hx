@@ -3,6 +3,33 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
+#if (hxp > "1.0.0")
+import hxp.Architecture;
+import hxp.Asset;
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.CPPHelper;
+import hxp.CSHelper;
+import hxp.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.GUID;
+import hxp.Haxelib;
+import hxp.HTML5Helper;
+import hxp.Icon;
+import hxp.IconHelper;
+import hxp.JavaHelper;
+import hxp.LogHelper;
+import hxp.ModuleHelper;
+import hxp.NekoHelper;
+import hxp.NodeJSHelper;
+import hxp.PathHelper;
+import hxp.Platform;
+import hxp.PlatformHelper;
+import hxp.PlatformTarget;
+import hxp.ProcessHelper;
+import hxp.Project;
+import hxp.WatchHelper;
+#else
 import hxp.project.Icon;
 import hxp.helpers.AssetHelper;
 import hxp.helpers.CPPHelper;
@@ -25,9 +52,10 @@ import hxp.project.Architecture;
 import hxp.project.Asset;
 import hxp.project.AssetType;
 import hxp.project.Haxelib;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Platform;
 import hxp.project.PlatformTarget;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -42,7 +70,7 @@ class WindowsPlatform extends PlatformTarget {
 	private var outputFile:String;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 

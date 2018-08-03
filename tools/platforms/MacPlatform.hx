@@ -3,6 +3,31 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
+#if (hxp > "1.0.0")
+import hxp.Architecture;
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.CPPHelper;
+import hxp.CSHelper;
+import hxp.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.GUID;
+import hxp.Haxelib;
+import hxp.HaxelibHelper;
+import hxp.Icon;
+import hxp.IconHelper;
+import hxp.JavaHelper;
+import hxp.LogHelper;
+import hxp.NekoHelper;
+import hxp.NodeJSHelper;
+import hxp.PathHelper;
+import hxp.Platform;
+import hxp.PlatformHelper;
+import hxp.PlatformTarget;
+import hxp.ProcessHelper;
+import hxp.Project;
+import hxp.WatchHelper;
+#else
 import hxp.helpers.AssetHelper;
 import hxp.helpers.CPPHelper;
 import hxp.helpers.CSHelper;
@@ -22,10 +47,11 @@ import hxp.helpers.WatchHelper;
 import hxp.project.AssetType;
 import hxp.project.Architecture;
 import hxp.project.Haxelib;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Icon;
 import hxp.project.Platform;
 import hxp.project.PlatformTarget;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -41,7 +67,7 @@ class MacPlatform extends PlatformTarget {
 	private var targetType:String;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 

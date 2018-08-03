@@ -4,6 +4,23 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
+#if (hxp > "1.0.0")
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.FlashHelper;
+import hxp.Haxelib;
+import hxp.HTML5Helper;
+import hxp.LogHelper;
+import hxp.PathHelper;
+import hxp.Platform;
+import hxp.PlatformHelper;
+import hxp.PlatformTarget;
+import hxp.ProcessHelper;
+import hxp.Project;
+import hxp.WatchHelper;
+#else
 import hxp.helpers.AssetHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.FileHelper;
@@ -16,9 +33,10 @@ import hxp.helpers.ProcessHelper;
 import hxp.helpers.WatchHelper;
 import hxp.project.AssetType;
 import hxp.project.Haxelib;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Platform;
 import hxp.project.PlatformTarget;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -34,7 +52,7 @@ class FlashPlatform extends PlatformTarget {
 	private var logLength:Int = 0;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 

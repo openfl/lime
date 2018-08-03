@@ -3,6 +3,25 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
+#if (hxp > "1.0.0")
+import hxp.AndroidHelper;
+import hxp.Architecture;
+import hxp.ArrayHelper;
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.CPPHelper;
+import hxp.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.Haxelib;
+import hxp.Icon;
+import hxp.IconHelper;
+import hxp.LogHelper;
+import hxp.PathHelper;
+import hxp.PlatformTarget;
+import hxp.ProcessHelper;
+import hxp.Project;
+import hxp.WatchHelper;
+#else
 import hxp.helpers.AndroidHelper;
 import hxp.helpers.ArrayHelper;
 import hxp.helpers.AssetHelper;
@@ -17,9 +36,10 @@ import hxp.helpers.WatchHelper;
 import hxp.project.Architecture;
 import hxp.project.AssetType;
 import hxp.project.Haxelib;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Icon;
 import hxp.project.PlatformTarget;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -30,7 +50,7 @@ class AndroidPlatform extends PlatformTarget {
 	private var deviceID:String;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 

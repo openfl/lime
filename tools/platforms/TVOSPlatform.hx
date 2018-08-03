@@ -5,32 +5,58 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
-import hxp.helpers.AssetHelper;
+#if (hxp > "1.0.0")
+import hxp.Architecture;
+import hxp.ArrayHelper;
+import hxp.Asset;
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.CPPHelper;
+import hxp.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.Haxelib;
+import hxp.Icon;
+import hxp.IconHelper;
+import hxp.Keystore;
+import hxp.LogHelper;
+import hxp.NDLL;
+import hxp.PathHelper;
+import hxp.Platform;
+import hxp.PlatformHelper;
+import hxp.PlatformTarget;
+import hxp.ProcessHelper;
+import hxp.Project;
+import hxp.StringHelper;
+import hxp.TVOSHelper;
+import hxp.WatchHelper;
+#else
 import hxp.helpers.ArrayHelper;
+import hxp.helpers.AssetHelper;
 import hxp.helpers.CPPHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.FileHelper;
 import hxp.helpers.IconHelper;
-import hxp.helpers.TVOSHelper;
 import hxp.helpers.LogHelper;
 import hxp.helpers.PathHelper;
 import hxp.helpers.PlatformHelper;
 import hxp.helpers.ProcessHelper;
 import hxp.helpers.StringHelper;
+import hxp.helpers.TVOSHelper;
 import hxp.helpers.WatchHelper;
-#if lime
-import lime.graphics.Image;
-#end
 import hxp.project.Architecture;
 import hxp.project.Asset;
 import hxp.project.AssetType;
 import hxp.project.Haxelib;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Icon;
 import hxp.project.Keystore;
 import hxp.project.NDLL;
 import hxp.project.Platform;
 import hxp.project.PlatformTarget;
+#end
+#if lime
+import lime.graphics.Image;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -38,7 +64,7 @@ import sys.FileSystem;
 class TVOSPlatform extends PlatformTarget {
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 

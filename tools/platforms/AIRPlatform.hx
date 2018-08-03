@@ -3,8 +3,25 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
+#if (hxp > "1.0.0")
+import hxp.AIRHelper;
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.FlashHelper;
+import hxp.Icon;
+import hxp.IconHelper;
+import hxp.LogHelper;
+import hxp.PathHelper;
+import hxp.Platform;
+import hxp.PlatformHelper;
+import hxp.PlatformType;
+import hxp.Project;
+import hxp.ZipHelper;
+#else
 import hxp.project.AssetType;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Icon;
 import hxp.project.Platform;
 import hxp.project.PlatformType;
@@ -18,6 +35,7 @@ import hxp.helpers.PathHelper;
 import hxp.helpers.PlatformHelper;
 import hxp.helpers.LogHelper;
 import hxp.helpers.ZipHelper;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -31,7 +49,7 @@ class AIRPlatform extends FlashPlatform {
 	private var targetPlatformType:PlatformType;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 

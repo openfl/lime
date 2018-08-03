@@ -1,4 +1,4 @@
-import hxp.helpers.ProcessHelper;
+import hxp.ProcessHelper;
 import hxp.HXML;
 import sys.io.File;
 

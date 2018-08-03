@@ -6,6 +6,23 @@ import haxe.Template;
 #if lime
 import lime.text.Font;
 #end
+#if (hxp > "1.0.0")
+import hxp.AssetHelper;
+import hxp.AssetType;
+import hxp.DeploymentHelper;
+import hxp.ElectronHelper;
+import hxp.FileHelper;
+import hxp.HTML5Helper;
+import hxp.Icon;
+import hxp.IconHelper;
+import hxp.LogHelper;
+import hxp.ModuleHelper;
+import hxp.PathHelper;
+import hxp.PlatformTarget;
+import hxp.ProcessHelper;
+import hxp.Project;
+import hxp.WatchHelper;
+#else
 import hxp.helpers.AssetHelper;
 import hxp.helpers.DeploymentHelper;
 import hxp.helpers.ElectronHelper;
@@ -18,9 +35,10 @@ import hxp.helpers.PathHelper;
 import hxp.helpers.ProcessHelper;
 import hxp.helpers.WatchHelper;
 import hxp.project.AssetType;
-import hxp.project.HXProject;
+import hxp.project.HXProject in Project;
 import hxp.project.Icon;
 import hxp.project.PlatformTarget;
+#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -32,7 +50,7 @@ class HTML5Platform extends PlatformTarget {
 	private var outputFile:String;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 
@@ -145,7 +163,7 @@ class HTML5Platform extends PlatformTarget {
 	}
 
 
-	private function initialize (command:String, project:HXProject):Void {
+	private function initialize (command:String, project:Project):Void {
 
 		if (targetFlags.exists ("electron")) {
 
