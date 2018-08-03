@@ -6,31 +6,31 @@ import haxe.io.Eof;
 import haxe.io.Path;
 import haxe.zip.Reader;
 #if (hxp > "1.0.0")
-import hxp.CLIHelper;
-import hxp.ConfigHelper;
+import lime.tools.CLIHelper;
+import lime.tools.ConfigHelper;
 import hxp.FileHelper;
 import hxp.Haxelib;
 import hxp.HaxelibHelper;
-import hxp.LogHelper;
+import hxp.Log;
 import hxp.PathHelper;
-import hxp.Platform;
+import lime.tools.Platform;
 import hxp.PlatformHelper;
 import hxp.ProcessHelper;
-import hxp.Project;
+import lime.tools.Project;
 import hxp.Version;
 #else
 import hxp.helpers.CLIHelper;
 import hxp.helpers.ConfigHelper;
 import hxp.helpers.FileHelper;
 import hxp.helpers.HaxelibHelper;
-import hxp.helpers.LogHelper;
+import hxp.helpers.Log;
 import hxp.helpers.PathHelper;
 import hxp.helpers.PlatformHelper;
 import hxp.helpers.ProcessHelper;
-import hxp.project.Haxelib;
-import hxp.project.HXProject in Project;
-import hxp.project.Platform;
-import hxp.project.Version;
+import lime.tools.Project.Haxelib;
+import lime.tools.Project.HXProject in Project;
+import lime.tools.Project.Platform;
+import lime.tools.Project.Version;
 #end
 import sys.io.File;
 import sys.io.Process;
@@ -117,7 +117,7 @@ class PlatformSetup {
 
 		if (!followingLocation) {
 
-			LogHelper.println ("Downloading " + localPath + "...");
+			Log.println ("Downloading " + localPath + "...");
 
 		}
 
@@ -217,13 +217,13 @@ class PlatformSetup {
 
 						if (file == "") {
 
-							if (path != "") LogHelper.println ("  Created " + path);
+							if (path != "") Log.println ("  Created " + path);
 							continue; // was just a directory
 
 						}
 
 						path += file;
-						LogHelper.println ("  Install " + path);
+						Log.println ("  Install " + path);
 
 						var data = Reader.unzip (entry);
 						var f = File.write (targetPath + "/" + path, true);
@@ -238,7 +238,7 @@ class PlatformSetup {
 
 		}
 
-		LogHelper.println ("Done");
+		Log.println ("Done");
 
 	}
 
@@ -253,7 +253,7 @@ class PlatformSetup {
 
 		}
 
-		var inputValue = unescapePath (CLIHelper.param (LogHelper.accentColor + description + "\x1b[0m \x1b[37;3m[" + (value != null ? value : "") + "]\x1b[0m"));
+		var inputValue = unescapePath (CLIHelper.param (Log.accentColor + description + "\x1b[0m \x1b[37;3m[" + (value != null ? value : "") + "]\x1b[0m"));
 
 		if (inputValue != "" && inputValue != value) {
 
@@ -310,7 +310,7 @@ class PlatformSetup {
 
 		// 	} else {
 
-		// 		LogHelper.println ("Warning : No 'HOME' variable set - ~/.lime/config.xml might be missing.");
+		// 		Log.println ("Warning : No 'HOME' variable set - ~/.lime/config.xml might be missing.");
 
 		// 		return null;
 
@@ -409,7 +409,7 @@ class PlatformSetup {
 
 			} else {
 
-				LogHelper.error ("Could not find version \"" + haxelib.version + "\" for haxelib \"" + haxelib.name + "\"");
+				Log.error ("Could not find version \"" + haxelib.version + "\" for haxelib \"" + haxelib.name + "\"");
 
 			}
 
@@ -438,11 +438,11 @@ class PlatformSetup {
 
 	private static function openURL (url:String):Void {
 
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform == WINDOWS) {
 
 			Sys.command ("explorer", [ url ]);
 
-		} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
+		} else if (PlatformHelper.hostPlatform == LINUX) {
 
 			ProcessHelper.runCommand ("", "xdg-open", [ url ], false);
 
@@ -495,12 +495,12 @@ class PlatformSetup {
 
 				case "html5":
 
-					LogHelper.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+					Log.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
 					//setupHTML5 ();
 
 				case "ios", "iphoneos", "iphonesim":
 
-					if (PlatformHelper.hostPlatform == Platform.MAC) {
+					if (PlatformHelper.hostPlatform == MAC) {
 
 						setupIOS ();
 
@@ -508,7 +508,7 @@ class PlatformSetup {
 
 				case "linux":
 
-					if (PlatformHelper.hostPlatform == Platform.LINUX) {
+					if (PlatformHelper.hostPlatform == LINUX) {
 
 						setupLinux ();
 
@@ -516,7 +516,7 @@ class PlatformSetup {
 
 				case "mac", "macos":
 
-					if (PlatformHelper.hostPlatform == Platform.MAC) {
+					if (PlatformHelper.hostPlatform == MAC) {
 
 						setupMac ();
 
@@ -536,7 +536,7 @@ class PlatformSetup {
 
 				case "windows", "winrt":
 
-					if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+					if (PlatformHelper.hostPlatform == WINDOWS) {
 
 						setupWindows ();
 
@@ -544,7 +544,7 @@ class PlatformSetup {
 
 				case "neko", "hl", "cs", "uwp", "winjs", "nodejs", "java":
 
-					LogHelper.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+					Log.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
 
 				case "lime":
 
@@ -556,7 +556,7 @@ class PlatformSetup {
 
 				case "tvos", "tvsim":
 
-					if (PlatformHelper.hostPlatform == Platform.MAC) {
+					if (PlatformHelper.hostPlatform == MAC) {
 
 						setupIOS ();
 
@@ -589,17 +589,17 @@ class PlatformSetup {
 
 	private static function runInstaller (path:String, message:String = "Waiting for process to complete..."):Void {
 
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform == WINDOWS) {
 
 			try {
 
-				LogHelper.println (message);
+				Log.println (message);
 				ProcessHelper.runCommand ("", "call", [ path ], false);
-				LogHelper.println ("Done");
+				Log.println ("Done");
 
 			} catch (e:Dynamic) {}
 
-		} else if (PlatformHelper.hostPlatform == Platform.LINUX) {
+		} else if (PlatformHelper.hostPlatform == LINUX) {
 
 			if (Path.extension (path) == "deb") {
 
@@ -607,7 +607,7 @@ class PlatformSetup {
 
 			} else {
 
-				LogHelper.println (message);
+				Log.println (message);
 				Sys.command ("chmod", [ "755", path ]);
 
 				if (path.substr (0, 1) == "/") {
@@ -620,7 +620,7 @@ class PlatformSetup {
 
 				}
 
-				LogHelper.println ("Done");
+				Log.println ("Done");
 
 			}
 
@@ -628,10 +628,10 @@ class PlatformSetup {
 
 			if (Path.extension (path) == "") {
 
-				LogHelper.println (message);
+				Log.println (message);
 				Sys.command ("chmod", [ "755", path ]);
 				ProcessHelper.runCommand ("", path, [], false);
-				LogHelper.println ("Done");
+				Log.println ("Done");
 
 			} else if (Path.extension (path) == "dmg") {
 
@@ -694,9 +694,9 @@ class PlatformSetup {
 
 					if (file != "") {
 
-						LogHelper.println (message);
+						Log.println (message);
 						ProcessHelper.runCommand ("", "open", [ "-W", volumePath + "/" + file ], false);
-						LogHelper.println ("Done");
+						Log.println ("Done");
 
 					}
 
@@ -735,31 +735,31 @@ class PlatformSetup {
 
 	public static function setupAIR ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to package SWF applications using Adobe AIR, you must");
-		LogHelper.println ("download and extract the Adobe AIR SDK.");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to package SWF applications using Adobe AIR, you must");
+		Log.println ("download and extract the Adobe AIR SDK.");
+		Log.println ("");
 
 		getDefineValue ("AIR_SDK", "Path to AIR SDK");
 
-		LogHelper.println ("");
-		LogHelper.println ("Setup complete.");
+		Log.println ("");
+		Log.println ("Setup complete.");
 
 	}
 
 
 	public static function setupAndroid ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to build applications for Android, you must have recent");
-		LogHelper.println ("versions of the Android SDK, Android NDK and Java JDK installed.");
-		LogHelper.println ("");
-		LogHelper.println ("You must also install the Android SDK Platform-tools and API 19 using");
-		LogHelper.println ("the SDK manager from Android Studio.\x1b[0m");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to build applications for Android, you must have recent");
+		Log.println ("versions of the Android SDK, Android NDK and Java JDK installed.");
+		Log.println ("");
+		Log.println ("You must also install the Android SDK Platform-tools and API 19 using");
+		Log.println ("the SDK manager from Android Studio.\x1b[0m");
+		Log.println ("");
 
 		getDefineValue ("ANDROID_SDK", "Path to Android SDK");
 		getDefineValue ("ANDROID_NDK_ROOT", "Path to Android NDK");
 
-		if (PlatformHelper.hostPlatform != Platform.MAC) {
+		if (PlatformHelper.hostPlatform != MAC) {
 
 			getDefineValue ("JAVA_HOME", "Path to Java JDK");
 
@@ -771,39 +771,39 @@ class PlatformSetup {
 
 		}
 
-		LogHelper.println ("");
-		LogHelper.println ("Setup complete.");
+		Log.println ("");
+		Log.println ("Setup complete.");
 
 	}
 
 
 	public static function setupElectron ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to run Electron applications, you must download");
-		LogHelper.println ("and extract the Electron runtime on your system.");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to run Electron applications, you must download");
+		Log.println ("and extract the Electron runtime on your system.");
+		Log.println ("");
 
 		getDefineValue ("ELECTRON_PATH", "Path to Electron runtime");
 
-		LogHelper.println ("");
+		Log.println ("");
 		HaxelibHelper.runCommand ("", [ "install", "electron" ], true, true);
 
-		LogHelper.println ("");
-		LogHelper.println ("Setup complete.");
+		Log.println ("");
+		Log.println ("Setup complete.");
 
 	}
 
 
 	public static function setupEmscripten ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
-		LogHelper.println ("and install the Emscripten SDK.");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
+		Log.println ("and install the Emscripten SDK.");
+		Log.println ("");
 
 		getDefineValue ("EMSCRIPTEN_SDK", "Path to Emscripten SDK");
 
-		LogHelper.println ("");
-		LogHelper.println ("Setup complete.");
+		Log.println ("");
+		Log.println ("Setup complete.");
 
 	}
 
@@ -842,7 +842,7 @@ class PlatformSetup {
 
 					if (defines.exists ("dev")) {
 
-						LogHelper.error ("Could not find dependency \"" + lib.name + "\" for library \"" + haxelib.name + "\"");
+						Log.error ("Could not find dependency \"" + lib.name + "\" for library \"" + haxelib.name + "\"");
 
 					}
 
@@ -860,7 +860,7 @@ class PlatformSetup {
 
 		} else if (!dependency) {
 
-			//LogHelper.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
+			//Log.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
 
 		}
 
@@ -879,7 +879,7 @@ class PlatformSetup {
 		// 	var downloadPath = "";
 		// 	var defaultInstallPath = "";
 
-		// 	if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		// 	if (PlatformHelper.hostPlatform == WINDOWS) {
 
 		// 		defaultInstallPath = "C:\\Development\\Apache Cordova";
 
@@ -939,7 +939,7 @@ class PlatformSetup {
 
 		// 	}
 
-		// 	if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+		// 	if (PlatformHelper.hostPlatform != WINDOWS) {
 
 		// 		ProcessHelper.runCommand ("", "chmod", [ "-R", "777", path ], false);
 
@@ -948,7 +948,7 @@ class PlatformSetup {
 		// 	setApacheCordova = true;
 		// 	defines.set ("CORDOVA_PATH", path);
 		// 	writeConfig (defines.get ("LIME_CONFIG"), defines);
-		// 	LogHelper.println ("");
+		// 	Log.println ("");
 
 		// }
 
@@ -987,11 +987,11 @@ class PlatformSetup {
 
 	public static function setupIOS ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to build applications for iOS and tvOS, you must have");
-		LogHelper.println ("Xcode installed. Xcode is available from Apple as a free download.\x1b[0m");
-		LogHelper.println ("");
-		LogHelper.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to build applications for iOS and tvOS, you must have");
+		Log.println ("Xcode installed. Xcode is available from Apple as a free download.\x1b[0m");
+		Log.println ("");
+		Log.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+		Log.println ("");
 
 		var answer = CLIHelper.ask ("Would you like to visit the download page now?");
 
@@ -1014,7 +1014,7 @@ class PlatformSetup {
 
 		var haxePath = Sys.getEnv ("HAXEPATH");
 
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform == WINDOWS) {
 
 			if (haxePath == null || haxePath == "") {
 
@@ -1074,7 +1074,7 @@ class PlatformSetup {
 
 		}
 
-		if (PlatformHelper.hostPlatform == Platform.MAC) {
+		if (PlatformHelper.hostPlatform == MAC) {
 
 			ConfigHelper.writeConfigValue ("MAC_USE_CURRENT_SDK", "1");
 
@@ -1101,8 +1101,8 @@ class PlatformSetup {
 			var parameters = [ "apt-get", "install" ].concat (packages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 
-			LogHelper.println ("");
-			LogHelper.println ("Setup complete.");
+			Log.println ("");
+			Log.println ("Setup complete.");
 			return;
 
 		}
@@ -1115,8 +1115,8 @@ class PlatformSetup {
 			var parameters = [ "yum", "install" ].concat (linuxYumPackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 
-			LogHelper.println ("");
-			LogHelper.println ("Setup complete.");
+			Log.println ("");
+			Log.println ("Setup complete.");
 			return;
 
 		}
@@ -1129,8 +1129,8 @@ class PlatformSetup {
 			var parameters = [ "dnf", "install" ].concat (linuxDnfPackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 
-			LogHelper.println ("");
-			LogHelper.println ("Setup complete.");
+			Log.println ("");
+			Log.println ("Setup complete.");
 			return;
 
 		}
@@ -1144,8 +1144,8 @@ class PlatformSetup {
 			var parameters = [ "-l", "-c", "equo", "i", "-av" ].concat (linuxEquoPackages.split (" "));
 			ProcessHelper.runCommand ("", "su", parameters, false);
 
-			LogHelper.println ("");
-			LogHelper.println ("Setup complete.");
+			Log.println ("");
+			Log.println ("Setup complete.");
 			return;
 
 		}
@@ -1158,8 +1158,8 @@ class PlatformSetup {
 			var parameters = [ "emerge", "-av" ].concat (linuxEmergePackages.split (" "));
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 
-			LogHelper.println ("");
-			LogHelper.println ("Setup complete.");
+			Log.println ("");
+			Log.println ("Setup complete.");
 			return;
 
 		}
@@ -1183,14 +1183,14 @@ class PlatformSetup {
 
 			ProcessHelper.runCommand ("", "sudo", parameters, false);
 
-			LogHelper.println ("");
-			LogHelper.println ("Setup complete.");
+			Log.println ("");
+			Log.println ("Setup complete.");
 			return;
 
 		}
 
-		LogHelper.println ("Unable to find a supported package manager on your Linux distribution.");
-		LogHelper.println ("Currently apt-get, yum, dnf, equo, emerge, and pacman are supported.");
+		Log.println ("Unable to find a supported package manager on your Linux distribution.");
+		Log.println ("Currently apt-get, yum, dnf, equo, emerge, and pacman are supported.");
 
 		Sys.exit (1);
 
@@ -1199,11 +1199,11 @@ class PlatformSetup {
 
 	public static function setupMac ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to build native executables for macOS, you must have");
-		LogHelper.println ("Xcode installed. Xcode is available from Apple as a free download.\x1b[0m");
-		LogHelper.println ("");
-		LogHelper.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to build native executables for macOS, you must have");
+		Log.println ("Xcode installed. Xcode is available from Apple as a free download.\x1b[0m");
+		Log.println ("");
+		Log.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+		Log.println ("");
 
 		var answer = CLIHelper.ask ("Would you like to visit the download page now?");
 
@@ -1233,7 +1233,7 @@ class PlatformSetup {
 
 		} catch (e:Dynamic) {}
 
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform == WINDOWS) {
 
 			if (haxePath == null || haxePath == "") {
 
@@ -1304,7 +1304,7 @@ class PlatformSetup {
 
 		}
 
-		if (PlatformHelper.hostPlatform == Platform.MAC) {
+		if (PlatformHelper.hostPlatform == MAC) {
 
 			ConfigHelper.writeConfigValue ("MAC_USE_CURRENT_SDK", "1");
 
@@ -1315,13 +1315,13 @@ class PlatformSetup {
 
 	public static function setupWindows ():Void {
 
-		LogHelper.println ("\x1b[1mIn order to build native executables for Windows, you must have a");
-		LogHelper.println ("Visual Studio C++ compiler with \"Windows Desktop\" (Win32) support");
-		LogHelper.println ("installed. We recommend using Visual Studio Community, which is");
-		LogHelper.println ("available as a free download from Microsoft.\x1b[0m");
-		LogHelper.println ("");
-		LogHelper.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mIn order to build native executables for Windows, you must have a");
+		Log.println ("Visual Studio C++ compiler with \"Windows Desktop\" (Win32) support");
+		Log.println ("installed. We recommend using Visual Studio Community, which is");
+		Log.println ("available as a free download from Microsoft.\x1b[0m");
+		Log.println ("");
+		Log.println ("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+		Log.println ("");
 
 		var answer = CLIHelper.ask ("Would you like to visit the download page now?");
 
@@ -1336,13 +1336,13 @@ class PlatformSetup {
 
 	private static function throwPermissionsError () {
 
-		if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+		if (PlatformHelper.hostPlatform == WINDOWS) {
 
-			LogHelper.println ("Unable to access directory. Perhaps you need to run \"setup\" with administrative privileges?");
+			Log.println ("Unable to access directory. Perhaps you need to run \"setup\" with administrative privileges?");
 
 		} else {
 
-			LogHelper.println ("Unable to access directory. Perhaps you should run \"setup\" again using \"sudo\"");
+			Log.println ("Unable to access directory. Perhaps you should run \"setup\" again using \"sudo\"");
 
 		}
 
@@ -1361,7 +1361,7 @@ class PlatformSetup {
 
 		path = StringTools.replace (path, "\\ ", " ");
 
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS && StringTools.startsWith (path, "~/")) {
+		if (PlatformHelper.hostPlatform != WINDOWS && StringTools.startsWith (path, "~/")) {
 
 			path = Sys.getEnv ("HOME") + "/" + path.substr (2);
 
@@ -1394,9 +1394,9 @@ class PlatformSetup {
 
 			if (FileSystem.exists (git)) {
 
-				LogHelper.info (LogHelper.accentColor + "Updating \"" + haxelib.name + "\"" + LogHelper.resetColor);
+				Log.info (Log.accentColor + "Updating \"" + haxelib.name + "\"" + Log.resetColor);
 
-				if (PlatformHelper.hostPlatform == Platform.WINDOWS) {
+				if (PlatformHelper.hostPlatform == WINDOWS) {
 
 					var path = Sys.getEnv ("PATH");
 

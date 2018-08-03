@@ -3,33 +3,19 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
-#if (hxp > "1.0.0")
-import hxp.AssetHelper;
-import hxp.AssetType;
-import hxp.CPPHelper;
-import hxp.DeploymentHelper;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.DeploymentHelper;
 import hxp.FileHelper;
-import hxp.Icon;
-import hxp.IconHelper;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
 import hxp.PathHelper;
-import hxp.PlatformTarget;
+import lime.tools.PlatformTarget;
 import hxp.ProcessHelper;
-import hxp.Project;
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
 import hxp.TizenHelper;
-#else
-import hxp.helpers.AssetHelper;
-import hxp.helpers.CPPHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.TizenHelper;
-import hxp.project.AssetType;
-import hxp.project.HXProject in Project;
-import hxp.project.Icon;
-import hxp.project.PlatformTarget;
-#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -63,7 +49,7 @@ class TizenPlatform extends PlatformTarget {
 
 		for (ndll in project.ndlls) {
 
-			FileHelper.copyLibrary (project, ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
+			ProjectHelper.copyLibrary (project, ndll, "Tizen", "", arch + ".so", destination + "lib/", project.debug, ".so");
 
 		}
 
@@ -164,7 +150,7 @@ class TizenPlatform extends PlatformTarget {
 
 				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path);
+				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
 			}
@@ -208,9 +194,9 @@ class TizenPlatform extends PlatformTarget {
 
 		}
 
-		FileHelper.recursiveSmartCopyTemplate (project, "tizen/template", destination, context);
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "tizen/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tizen/template", destination, context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tizen/hxml", targetDirectory + "/haxe", context);
 
 		for (asset in project.assets) {
 
@@ -222,19 +208,19 @@ class TizenPlatform extends PlatformTarget {
 
 				if (asset.targetPath == "/appinfo.json") {
 
-					FileHelper.copyAsset (asset, path, context);
+					AssetHelper.copyAsset (asset, path, context);
 
 				} else {
 
 					// going to root directory now, but should it be a forced "assets" folder later?
 
-					FileHelper.copyAssetIfNewer (asset, path);
+					AssetHelper.copyAssetIfNewer (asset, path);
 
 				}
 
 			} else {
 
-				FileHelper.copyAsset (asset, path, context);
+				AssetHelper.copyAsset (asset, path, context);
 
 			}
 

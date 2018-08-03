@@ -1,25 +1,17 @@
 package utils;
 
 
-#if (hxp > "1.0.0")
 import hxp.FileHelper;
 import hxp.Haxelib;
 import hxp.HaxelibHelper;
-import hxp.LogHelper;
+import hxp.Log;
 import hxp.PathHelper;
-import hxp.Project;
-#else
-import hxp.helpers.FileHelper;
-import hxp.helpers.HaxelibHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.PathHelper;
-import hxp.project.Haxelib;
-import hxp.project.HXProject in Project;
-#end
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
 import sys.FileSystem;
 
-@:access(hxp.Project)
-@:access(hxp.project.HXProject)
+@:access(lime.tools.Project)
+@:access(lime.tools.Project.HXProject)
 
 
 class CreateTemplate {
@@ -295,7 +287,7 @@ class CreateTemplate {
 				}*/
 
 				PathHelper.mkdir (folder);
-				FileHelper.recursiveSmartCopyTemplate (project, "project", folder, context);
+				ProjectHelper.recursiveSmartCopyTemplate (project, "project", folder, context);
 
 				try {
 
@@ -319,7 +311,7 @@ class CreateTemplate {
 
 		}
 
-		LogHelper.error ("Could not find project \"" + projectName + "\"");
+		Log.error ("Could not find project \"" + projectName + "\"");
 
 	}
 
@@ -364,7 +356,7 @@ class CreateTemplate {
 
 		if (sampleName == null || sampleName == "") {
 
-			LogHelper.error ("You must specify a sample name to copy when using \"" + CommandLineTools.commandName + " create\"");
+			Log.error ("You must specify a sample name to copy when using \"" + CommandLineTools.commandName + " create\"");
 			return;
 
 		}
@@ -409,7 +401,7 @@ class CreateTemplate {
 
 		}
 
-		LogHelper.error ("Could not find sample \"" + sampleName + "\" in project \"" + projectName + "\"");
+		Log.error ("Could not find sample \"" + sampleName + "\" in project \"" + projectName + "\"");
 
 	}
 
@@ -471,25 +463,25 @@ class CreateTemplate {
 
 		}
 
-		LogHelper.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
-		LogHelper.println ("");
+		Log.println ("\x1b[1mYou must specify a template when using the 'create' command.\x1b[0m");
+		Log.println ("");
 
 		if (projectName == CommandLineTools.commandName) {
 
-			LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create project (directory)");
-			LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension (directory)");
+			Log.println (" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create project (directory)");
+			Log.println (" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension (directory)");
 
 		}
 
-		LogHelper.println (" " + LogHelper.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName + " " : "") + "<sample> (directory)");
+		Log.println (" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools.commandName ? projectName + " " : "") + "<sample> (directory)");
 
 
 
 		if (templates.length > 0) {
 
-			LogHelper.println ("");
-			LogHelper.println (" " + LogHelper.accentColor + "Available samples:\x1b[0m");
-			LogHelper.println ("");
+			Log.println ("");
+			Log.println (" " + Log.accentColor + "Available samples:\x1b[0m");
+			Log.println ("");
 
 			for (template in templates) {
 

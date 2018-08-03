@@ -6,39 +6,22 @@ import haxe.Template;
 #if lime
 import lime.text.Font;
 #end
-#if (hxp > "1.0.0")
-import hxp.AssetHelper;
-import hxp.AssetType;
-import hxp.DeploymentHelper;
-import hxp.ElectronHelper;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.DeploymentHelper;
+import lime.tools.ElectronHelper;
 import hxp.FileHelper;
-import hxp.HTML5Helper;
-import hxp.Icon;
-import hxp.IconHelper;
-import hxp.LogHelper;
-import hxp.ModuleHelper;
+import lime.tools.HTML5Helper;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import hxp.Log;
+import lime.tools.ModuleHelper;
+import lime.tools.ProjectHelper;
 import hxp.PathHelper;
-import hxp.PlatformTarget;
+import lime.tools.PlatformTarget;
 import hxp.ProcessHelper;
-import hxp.Project;
+import lime.tools.Project;
 import hxp.WatchHelper;
-#else
-import hxp.helpers.AssetHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.ElectronHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.HTML5Helper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.ModuleHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.WatchHelper;
-import hxp.project.AssetType;
-import hxp.project.HXProject in Project;
-import hxp.project.Icon;
-import hxp.project.PlatformTarget;
-#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -255,7 +238,7 @@ class HTML5Platform extends PlatformTarget {
 
 								if (extension != ".eot" && extension != ".svg") {
 
-									LogHelper.warn ("Could not generate *" + extension + " web font for \"" + originalPath + "\"");
+									Log.warn ("Could not generate *" + extension + " web font for \"" + originalPath + "\"");
 
 								}
 
@@ -284,7 +267,7 @@ class HTML5Platform extends PlatformTarget {
 
 		}
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			project.haxedefs.set ("verbose", 1);
 
@@ -374,7 +357,7 @@ class HTML5Platform extends PlatformTarget {
 				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT) {
 
 					PathHelper.mkdir (Path.directory (path));
-					FileHelper.copyAssetIfNewer (asset, path);
+					AssetHelper.copyAssetIfNewer (asset, path);
 
 				} else if (asset.type == AssetType.FONT && useWebfonts) {
 
@@ -453,24 +436,24 @@ class HTML5Platform extends PlatformTarget {
 
 		}
 
-		FileHelper.recursiveSmartCopyTemplate (project, "html5/template", destination, context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "html5/template", destination, context);
 
 		if (project.app.main != null) {
 
-			FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-			FileHelper.recursiveSmartCopyTemplate (project, "html5/haxe", targetDirectory + "/haxe", context, true, false);
-			FileHelper.recursiveSmartCopyTemplate (project, "html5/hxml", targetDirectory + "/haxe", context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "html5/haxe", targetDirectory + "/haxe", context, true, false);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "html5/hxml", targetDirectory + "/haxe", context);
 
 		}
 
 		if (targetFlags.exists ("electron")) {
 
-			FileHelper.recursiveSmartCopyTemplate (project, "electron/template", destination, context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "electron/template", destination, context);
 
 			if (project.app.main != null) {
 
-				FileHelper.recursiveSmartCopyTemplate (project, "electron/haxe", targetDirectory + "/haxe", context, true, false);
-				FileHelper.recursiveSmartCopyTemplate (project, "electron/hxml", targetDirectory + "/haxe", context);
+				ProjectHelper.recursiveSmartCopyTemplate (project, "electron/haxe", targetDirectory + "/haxe", context, true, false);
+				ProjectHelper.recursiveSmartCopyTemplate (project, "electron/hxml", targetDirectory + "/haxe", context);
 
 			}
 
@@ -483,7 +466,7 @@ class HTML5Platform extends PlatformTarget {
 			if (asset.type == AssetType.TEMPLATE) {
 
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+				AssetHelper.copyAsset (asset, path, context);
 
 			}
 
@@ -496,9 +479,9 @@ class HTML5Platform extends PlatformTarget {
 
 		// TODO: Use a custom live reload HTTP server for test/run instead
 
-		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
-		var command = WatchHelper.getCurrentCommand ();
-		WatchHelper.watch (project, command, dirs);
+		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var command = ProjectHelper.getCurrentCommand ();
+		WatchHelper.watch (command, dirs);
 
 	}
 

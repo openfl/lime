@@ -4,33 +4,19 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
-#if (hxp > "1.0.0")
-import hxp.AssetHelper;
-import hxp.AssetType;
-import hxp.CPPHelper;
-import hxp.DeploymentHelper;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.DeploymentHelper;
 import hxp.FileHelper;
 import hxp.Haxelib;
-import hxp.HTML5Helper;
-import hxp.LogHelper;
+import lime.tools.HTML5Helper;
+import hxp.Log;
 import hxp.PathHelper;
-import hxp.PlatformTarget;
+import lime.tools.PlatformTarget;
 import hxp.ProcessHelper;
-import hxp.Project;
-#else
-import hxp.helpers.AssetHelper;
-import hxp.helpers.CPPHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.HTML5Helper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.project.AssetType;
-import hxp.project.Haxelib;
-import hxp.project.HXProject in Project;
-import hxp.project.PlatformTarget;
-#end
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -67,14 +53,14 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		if (sdkPath == null) {
 
-			LogHelper.error ("You must define EMSCRIPTEN_SDK with the path to your Emscripten SDK");
+			Log.error ("You must define EMSCRIPTEN_SDK with the path to your Emscripten SDK");
 
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		var args = [ hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			args.push ("-D");
 			args.push ("verbose");
@@ -197,7 +183,7 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		}
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			args.push ("-v");
 
@@ -311,7 +297,7 @@ class EmscriptenPlatform extends PlatformTarget {
 
 				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path);
+				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
 			}
@@ -360,7 +346,7 @@ class EmscriptenPlatform extends PlatformTarget {
 				//if (asset.type != AssetType.FONT) {
 
 					PathHelper.mkdir (Path.directory (path));
-					FileHelper.copyAssetIfNewer (asset, path);
+					AssetHelper.copyAssetIfNewer (asset, path);
 
 				//}
 
@@ -368,10 +354,10 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		}
 
-		FileHelper.recursiveSmartCopyTemplate (project, "emscripten/template", destination, context);
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "emscripten/hxml", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "emscripten/cpp", targetDirectory + "/obj", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "emscripten/template", destination, context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "emscripten/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "emscripten/cpp", targetDirectory + "/obj", context);
 
 		for (asset in project.assets) {
 
@@ -380,7 +366,7 @@ class EmscriptenPlatform extends PlatformTarget {
 			if (asset.type == AssetType.TEMPLATE) {
 
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+				AssetHelper.copyAsset (asset, path, context);
 
 			}
 

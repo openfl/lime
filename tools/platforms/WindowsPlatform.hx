@@ -3,59 +3,32 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
-#if (hxp > "1.0.0")
-import hxp.Architecture;
-import hxp.Asset;
-import hxp.AssetHelper;
-import hxp.AssetType;
-import hxp.CPPHelper;
-import hxp.CSHelper;
-import hxp.DeploymentHelper;
+import lime.tools.Architecture;
+import lime.tools.Asset;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.CSHelper;
+import lime.tools.DeploymentHelper;
 import hxp.FileHelper;
 import hxp.GUID;
 import hxp.Haxelib;
-import hxp.HTML5Helper;
-import hxp.Icon;
-import hxp.IconHelper;
-import hxp.JavaHelper;
-import hxp.LogHelper;
-import hxp.ModuleHelper;
-import hxp.NekoHelper;
-import hxp.NodeJSHelper;
+import lime.tools.HTML5Helper;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import lime.tools.JavaHelper;
+import hxp.Log;
+import lime.tools.ModuleHelper;
+import lime.tools.NekoHelper;
+import lime.tools.NodeJSHelper;
 import hxp.PathHelper;
-import hxp.Platform;
+import lime.tools.Platform;
 import hxp.PlatformHelper;
-import hxp.PlatformTarget;
+import lime.tools.PlatformTarget;
 import hxp.ProcessHelper;
-import hxp.Project;
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
 import hxp.WatchHelper;
-#else
-import hxp.project.Icon;
-import hxp.helpers.AssetHelper;
-import hxp.helpers.CPPHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.HTML5Helper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.JavaHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.ModuleHelper;
-import hxp.helpers.CSHelper;
-import hxp.helpers.GUID;
-import hxp.helpers.NekoHelper;
-import hxp.helpers.NodeJSHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.WatchHelper;
-import hxp.project.Architecture;
-import hxp.project.Asset;
-import hxp.project.AssetType;
-import hxp.project.Haxelib;
-import hxp.project.HXProject in Project;
-import hxp.project.Platform;
-import hxp.project.PlatformTarget;
-#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -78,7 +51,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			targetType = "winjs";
 
-		} else if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+		} else if (project.targetFlags.exists ("neko") || project.target != cast PlatformHelper.hostPlatform) {
 
 			targetType = "neko";
 
@@ -198,7 +171,7 @@ class WindowsPlatform extends PlatformTarget {
 
 				for (ndll in project.ndlls) {
 
-					FileHelper.copyLibrary (project, ndll, "Windows" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug, targetSuffix);
+					ProjectHelper.copyLibrary (project, ndll, "Windows" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug, targetSuffix);
 
 				}
 
@@ -325,7 +298,7 @@ class WindowsPlatform extends PlatformTarget {
 
 				var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
 
-				if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == Platform.WINDOWS) {
+				if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == WINDOWS) {
 
 					var templates = [ PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (project.templatePaths);
 					ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
@@ -446,7 +419,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			}
 
-			if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == Architecture.X86)) {
+			if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == X86)) {
 
 				if (targetFlags.exists ("winrt")) {
 
@@ -471,7 +444,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		var arguments = additionalArguments.copy ();
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			arguments.push ("-verbose");
 
@@ -554,7 +527,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			ProcessHelper.runCommand (applicationDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
 
-		} else if (project.target == PlatformHelper.hostPlatform) {
+		} else if (project.target == cast PlatformHelper.hostPlatform) {
 
 			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (applicationDirectory, Path.withoutDirectory (executablePath), arguments);
@@ -589,7 +562,7 @@ class WindowsPlatform extends PlatformTarget {
 
 				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path);
+				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
 			}
@@ -637,12 +610,12 @@ class WindowsPlatform extends PlatformTarget {
 
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, targetType + "/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, targetType + "/hxml", targetDirectory + "/haxe", context);
 
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 
-			FileHelper.recursiveSmartCopyTemplate (project, "cpp/static", targetDirectory + "/obj", context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "cpp/static", targetDirectory + "/obj", context);
 
 		}
 
@@ -662,12 +635,12 @@ class WindowsPlatform extends PlatformTarget {
 				if (asset.type != AssetType.TEMPLATE) {
 
 					PathHelper.mkdir (Path.directory (path));
-					FileHelper.copyAssetIfNewer (asset, path);
+					AssetHelper.copyAssetIfNewer (asset, path);
 
 				} else {
 
 					PathHelper.mkdir (Path.directory (path));
-					FileHelper.copyAsset (asset, path, context);
+					AssetHelper.copyAsset (asset, path, context);
 
 				}
 
@@ -738,7 +711,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		}
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			project.haxedefs.set ("verbose", 1);
 
@@ -819,7 +792,7 @@ class WindowsPlatform extends PlatformTarget {
 				if (asset.type != AssetType.FONT) {
 
 					PathHelper.mkdir (Path.directory (path));
-					FileHelper.copyAssetIfNewer (asset, path);
+					AssetHelper.copyAssetIfNewer (asset, path);
 
 				} else if (useWebfonts) {
 
@@ -835,7 +808,7 @@ class WindowsPlatform extends PlatformTarget {
 
 						} else {
 
-							LogHelper.warn ("Could not find generated font file \"" + source + extension + "\"");
+							Log.warn ("Could not find generated font file \"" + source + extension + "\"");
 
 						}
 
@@ -847,7 +820,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		}
 
-		FileHelper.recursiveSmartCopyTemplate (project, "winjs/template", targetDirectory, context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "winjs/template", targetDirectory, context);
 
 		var renamePaths = [ "uwp-project.sln", "source/uwp-project.jsproj", "source/uwp-project_TemporaryKey.pfx" ];
 		var fullPath;
@@ -871,13 +844,13 @@ class WindowsPlatform extends PlatformTarget {
 
 		if (project.app.main != null) {
 
-			FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-			FileHelper.recursiveSmartCopyTemplate (project, "winjs/haxe", targetDirectory + "/haxe", context, true, false);
-			FileHelper.recursiveSmartCopyTemplate (project, "winjs/hxml", targetDirectory + "/haxe", context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "winjs/haxe", targetDirectory + "/haxe", context, true, false);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "winjs/hxml", targetDirectory + "/haxe", context);
 
 			if (project.targetFlags.exists ("webgl")) {
 
-				FileHelper.recursiveSmartCopyTemplate (project, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
+				ProjectHelper.recursiveSmartCopyTemplate (project, "webgl/hxml", targetDirectory + "/haxe", context, true, false);
 
 			}
 
@@ -890,7 +863,7 @@ class WindowsPlatform extends PlatformTarget {
 			if (asset.type == AssetType.TEMPLATE) {
 
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+				AssetHelper.copyAsset (asset, path, context);
 
 			}
 
@@ -901,9 +874,9 @@ class WindowsPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
-		var command = WatchHelper.getCurrentCommand ();
-		WatchHelper.watch (project, command, dirs);
+		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var command = ProjectHelper.getCurrentCommand ();
+		WatchHelper.watch (command, dirs);
 
 	}
 

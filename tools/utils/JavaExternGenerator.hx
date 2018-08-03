@@ -10,11 +10,11 @@ import haxe.zip.Reader;
 #if (hxp > "1.0.0")
 import hxp.PathHelper;
 import hxp.ProcessHelper;
-import hxp.Project;
+import lime.tools.Project;
 #else
 import hxp.helpers.PathHelper;
 import hxp.helpers.ProcessHelper;
-import hxp.project.HXProject in Project;
+import lime.tools.Project.HXProject in Project;
 #end
 import sys.io.File;
 import sys.io.Process;
