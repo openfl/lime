@@ -72,9 +72,38 @@ class AssetsMacro {
 				var bytes = haxe.Resource.getBytes (resourceName);
 				#if html5
 				super (bytes.b.buffer);
+				#elseif hl
+				super (bytes.b, bytes.length);
 				#else
 				super (bytes.length, bytes.b);
 				#end
+
+			};
+
+			var args = [ { name: "length", opt: true, type: macro :Int }, { name: "bytesData", opt: true, type: macro :haxe.io.BytesData } ];
+			fields.push ({ name: "new", access: [ APublic ], kind: FFun({ args: args, expr: constructor, params: [], ret: null }), pos: Context.currentPos () });
+
+			#end
+
+		}
+
+		return fields;
+
+	}
+
+
+	macro public static function embedBytesHL ():Array<Field> {
+
+		var fields = embedData (":file");
+
+		if (fields != null) {
+
+			#if !display
+
+			var constructor = macro {
+
+				var bytes = haxe.Resource.getBytes (resourceName);
+				super (bytes.b, bytes.length);
 
 			};
 

@@ -3,23 +3,24 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
-import hxp.helpers.AndroidHelper;
-import hxp.helpers.ArrayHelper;
-import hxp.helpers.AssetHelper;
-import hxp.helpers.CPPHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.WatchHelper;
-import hxp.project.Architecture;
-import hxp.project.AssetType;
-import hxp.project.Haxelib;
-import hxp.project.HXProject;
-import hxp.project.Icon;
-import hxp.project.PlatformTarget;
+import lime.tools.AndroidHelper;
+import lime.tools.Architecture;
+import hxp.ArrayHelper;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.Haxelib;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import hxp.Log;
+import hxp.PathHelper;
+import lime.tools.PlatformTarget;
+import hxp.ProcessHelper;
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
+import hxp.WatchHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -30,7 +31,7 @@ class AndroidPlatform extends PlatformTarget {
 	private var deviceID:String;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 
@@ -40,7 +41,7 @@ class AndroidPlatform extends PlatformTarget {
 
 			if (!project.environment.exists ("ANDROID_SETUP")) {
 
-				LogHelper.error ("You need to run \"lime setup android\" before you can use the Android target");
+				Log.error ("You need to run \"lime setup android\" before you can use the Android target");
 
 			}
 
@@ -115,7 +116,7 @@ class AndroidPlatform extends PlatformTarget {
 
 			for (ndll in project.ndlls) {
 
-				FileHelper.copyLibrary (project, ndll, "Android", "lib", suffix, path, project.debug, ".so");
+				ProjectHelper.copyLibrary (project, ndll, "Android", "lib", suffix, path, project.debug, ".so");
 
 			}
 
@@ -297,7 +298,7 @@ class AndroidPlatform extends PlatformTarget {
 
 				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path);
+				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
 			}
@@ -341,7 +342,7 @@ class AndroidPlatform extends PlatformTarget {
 
 				}
 
-				FileHelper.copyAssetIfNewer (asset, targetPath);
+				AssetHelper.copyAssetIfNewer (asset, targetPath);
 
 			}
 
@@ -373,7 +374,7 @@ class AndroidPlatform extends PlatformTarget {
 			if (toolsBase != null)
 				command = Reflect.field (toolsBase, "commandName");
 
-			LogHelper.error ("You must define ANDROID_SDK and ANDROID_NDK_ROOT to target Android, please run '" + command + " setup android' first");
+			Log.error ("You must define ANDROID_SDK and ANDROID_NDK_ROOT to target Android, please run '" + command + " setup android' first");
 			Sys.exit (1);
 
 		}
@@ -481,10 +482,10 @@ class AndroidPlatform extends PlatformTarget {
 
 		}
 
-		FileHelper.recursiveSmartCopyTemplate (project, "android/template", destination, context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "android/template", destination, context);
 		FileHelper.copyFileTemplate (project.templatePaths, "android/MainActivity.java", packageDirectory + "/MainActivity.java", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "android/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "android/hxml", targetDirectory + "/haxe", context);
 
 		for (asset in project.assets) {
 
@@ -492,7 +493,7 @@ class AndroidPlatform extends PlatformTarget {
 
 				var targetPath = PathHelper.combine (destination, asset.targetPath);
 				PathHelper.mkdir (Path.directory (targetPath));
-				FileHelper.copyAsset (asset, targetPath, context);
+				AssetHelper.copyAsset (asset, targetPath, context);
 
 			}
 
@@ -503,9 +504,9 @@ class AndroidPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
-		var command = WatchHelper.getCurrentCommand ();
-		WatchHelper.watch (project, command, dirs);
+		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var command = ProjectHelper.getCurrentCommand ();
+		WatchHelper.watch (command, dirs);
 
 	}
 

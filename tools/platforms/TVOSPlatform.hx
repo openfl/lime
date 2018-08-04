@@ -5,32 +5,33 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
-import hxp.helpers.AssetHelper;
-import hxp.helpers.ArrayHelper;
-import hxp.helpers.CPPHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.TVOSHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.StringHelper;
-import hxp.helpers.WatchHelper;
+import lime.tools.Architecture;
+import hxp.ArrayHelper;
+import lime.tools.Asset;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.Haxelib;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import lime.tools.Keystore;
+import hxp.Log;
+import hxp.NDLL;
+import hxp.PathHelper;
+import lime.tools.Platform;
+import hxp.PlatformHelper;
+import lime.tools.PlatformTarget;
+import hxp.ProcessHelper;
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
+import hxp.StringHelper;
+import lime.tools.TVOSHelper;
+import hxp.WatchHelper;
 #if lime
 import lime.graphics.Image;
 #end
-import hxp.project.Architecture;
-import hxp.project.Asset;
-import hxp.project.AssetType;
-import hxp.project.Haxelib;
-import hxp.project.HXProject;
-import hxp.project.Icon;
-import hxp.project.Keystore;
-import hxp.project.NDLL;
-import hxp.project.Platform;
-import hxp.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -38,7 +39,7 @@ import sys.FileSystem;
 class TVOSPlatform extends PlatformTarget {
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 
@@ -49,7 +50,7 @@ class TVOSPlatform extends PlatformTarget {
 
 	public override function build ():Void {
 
-		if (project.targetFlags.exists ("xcode") && PlatformHelper.hostPlatform == Platform.MAC) {
+		if (project.targetFlags.exists ("xcode") && PlatformHelper.hostPlatform == MAC) {
 
 			ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
 
@@ -369,7 +370,7 @@ class TVOSPlatform extends PlatformTarget {
 
 				var path = PathHelper.combine (targetDirectory + "/" + project.app.file + "/obj/tmp", asset.targetPath);
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path);
+				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
 			}
@@ -471,7 +472,7 @@ class TVOSPlatform extends PlatformTarget {
 				if (!FileSystem.exists (imagePath)) {
 
 					#if (lime && lime_cffi && !macro)
-					LogHelper.info ("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
+					Log.info ("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 
 					var image = new Image (null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
 					var bytes = image.encode (PNG);
@@ -490,15 +491,15 @@ class TVOSPlatform extends PlatformTarget {
 		PathHelper.mkdir (projectDirectory + "/resources");
 		PathHelper.mkdir (projectDirectory + "/haxe/build");
 
-		FileHelper.recursiveSmartCopyTemplate (project, "tvos/resources", projectDirectory + "/resources", context, true, false);
-		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/haxe", projectDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", projectDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Classes", projectDirectory + "/Classes", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tvos/resources", projectDirectory + "/resources", context, true, false);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/haxe", projectDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", projectDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Classes", projectDirectory + "/Classes", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Entitlements.plist", projectDirectory + "/" + project.app.file + "-Entitlements.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context);
 		FileHelper.copyFileTemplate (project.templatePaths, "tvos/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "tvos/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context);
 
 		//SWFHelper.generateSWFClasses (project, projectDirectory + "/haxe");
 
@@ -521,16 +522,16 @@ class TVOSPlatform extends PlatformTarget {
 				//if (ndll.haxelib != null) {
 
 					var releaseLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", libExt);
-					LogHelper.info("releaseLib: " + releaseLib);
+					Log.info("releaseLib: " + releaseLib);
 					var debugLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", libExt, true);
 					var releaseDest = projectDirectory + "/lib/" + arch + "/lib" + ndll.name + ".a";
-					LogHelper.info("releaseDest: " + releaseDest);
+					Log.info("releaseDest: " + releaseDest);
 					var debugDest = projectDirectory + "/lib/" + arch + "-debug/lib" + ndll.name + ".a";
 
 					if (!FileSystem.exists (releaseLib)) {
 
 						releaseLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos-64.a");
-						LogHelper.info("alternative releaseLib: " + releaseLib);
+						Log.info("alternative releaseLib: " + releaseLib);
 						debugLib = PathHelper.getLibraryPath (ndll, "AppleTV", "lib", ".appletvos-64.a", true);
 
 					}
@@ -582,7 +583,7 @@ class TVOSPlatform extends PlatformTarget {
 				//var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
 
 				PathHelper.mkdir (Path.directory (targetPath));
-				FileHelper.copyAssetIfNewer (asset, targetPath);
+				AssetHelper.copyAssetIfNewer (asset, targetPath);
 
 				//PathHelper.mkdir (Path.directory (sourceAssetPath));
 				//FileHelper.linkFile (flatAssetPath, sourceAssetPath, true, true);
@@ -592,13 +593,13 @@ class TVOSPlatform extends PlatformTarget {
 				var targetPath = PathHelper.combine (projectDirectory, asset.targetPath);
 
 				PathHelper.mkdir (Path.directory (targetPath));
-				FileHelper.copyAsset (asset, targetPath, context);
+				AssetHelper.copyAsset (asset, targetPath, context);
 
 			}
 
 		}
 
-		if (project.targetFlags.exists ("xcode") && PlatformHelper.hostPlatform == Platform.MAC && command == "update") {
+		if (project.targetFlags.exists ("xcode") && PlatformHelper.hostPlatform == MAC && command == "update") {
 
 			ProcessHelper.runCommand ("", "open", [ targetDirectory + "/" + project.app.file + ".xcodeproj" ] );
 
@@ -630,9 +631,9 @@ class TVOSPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
-		var command = WatchHelper.getCurrentCommand ();
-		WatchHelper.watch (project, command, dirs);
+		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var command = ProjectHelper.getCurrentCommand ();
+		WatchHelper.watch (command, dirs);
 
 	}
 

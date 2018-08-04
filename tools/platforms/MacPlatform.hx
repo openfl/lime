@@ -3,29 +3,30 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
-import hxp.helpers.AssetHelper;
-import hxp.helpers.CPPHelper;
-import hxp.helpers.CSHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.GUID;
-import hxp.helpers.FileHelper;
-import hxp.helpers.HaxelibHelper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.JavaHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.NekoHelper;
-import hxp.helpers.NodeJSHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.WatchHelper;
-import hxp.project.AssetType;
-import hxp.project.Architecture;
-import hxp.project.Haxelib;
-import hxp.project.HXProject;
-import hxp.project.Icon;
-import hxp.project.Platform;
-import hxp.project.PlatformTarget;
+import lime.tools.Architecture;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.CSHelper;
+import lime.tools.DeploymentHelper;
+import hxp.FileHelper;
+import hxp.GUID;
+import hxp.Haxelib;
+import hxp.HaxelibHelper;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import lime.tools.JavaHelper;
+import hxp.Log;
+import lime.tools.NekoHelper;
+import lime.tools.NodeJSHelper;
+import hxp.PathHelper;
+import lime.tools.Platform;
+import hxp.PlatformHelper;
+import lime.tools.PlatformTarget;
+import hxp.ProcessHelper;
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
+import hxp.WatchHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -41,7 +42,7 @@ class MacPlatform extends PlatformTarget {
 	private var targetType:String;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 
@@ -55,7 +56,7 @@ class MacPlatform extends PlatformTarget {
 
 		}
 
-		if (project.targetFlags.exists ("neko") || project.target != PlatformHelper.hostPlatform) {
+		if (project.targetFlags.exists ("neko") || project.target != cast PlatformHelper.hostPlatform) {
 
 			targetType = "neko";
 
@@ -103,7 +104,7 @@ class MacPlatform extends PlatformTarget {
 
 			for (ndll in project.ndlls) {
 
-				FileHelper.copyLibrary (project, ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory, project.debug, targetSuffix);
+				ProjectHelper.copyLibrary (project, ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory, project.debug, targetSuffix);
 
 			}
 
@@ -200,7 +201,7 @@ class MacPlatform extends PlatformTarget {
 
 		}
 
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS && targetType != "nodejs" && targetType != "java") {
+		if (PlatformHelper.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java") {
 
 			ProcessHelper.runCommand ("", "chmod", [ "755", executablePath ]);
 
@@ -265,13 +266,13 @@ class MacPlatform extends PlatformTarget {
 
 		var commands = [];
 
-		if (!targetFlags.exists ("32") && (command == "rebuild" || PlatformHelper.hostArchitecture == Architecture.X64)) {
+		if (!targetFlags.exists ("32") && (command == "rebuild" || PlatformHelper.hostArchitecture == X64)) {
 
 			commands.push ([ "-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64" ]);
 
 		}
 
-		if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == Architecture.X86)) {
+		if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == X86)) {
 
 			commands.push ([ "-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32" ]);
 
@@ -286,7 +287,7 @@ class MacPlatform extends PlatformTarget {
 
 		var arguments = additionalArguments.copy ();
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			arguments.push ("-verbose");
 
@@ -304,7 +305,7 @@ class MacPlatform extends PlatformTarget {
 
 			ProcessHelper.runCommand (executableDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
 
-		} else if (project.target == PlatformHelper.hostPlatform) {
+		} else if (project.target == cast PlatformHelper.hostPlatform) {
 
 			arguments = arguments.concat ([ "-livereload" ]);
 			ProcessHelper.runCommand (executableDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
@@ -332,7 +333,7 @@ class MacPlatform extends PlatformTarget {
 
 				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path);
+				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
 			}
@@ -366,12 +367,12 @@ class MacPlatform extends PlatformTarget {
 
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, targetType + "/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, targetType + "/hxml", targetDirectory + "/haxe", context);
 
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 
-			FileHelper.recursiveSmartCopyTemplate (project, "cpp/static", targetDirectory + "/obj", context);
+			ProjectHelper.recursiveSmartCopyTemplate (project, "cpp/static", targetDirectory + "/obj", context);
 
 		}
 
@@ -395,12 +396,12 @@ class MacPlatform extends PlatformTarget {
 				if (asset.type != AssetType.TEMPLATE) {
 
 					PathHelper.mkdir (Path.directory (PathHelper.combine (contentDirectory, asset.targetPath)));
-					FileHelper.copyAssetIfNewer (asset, PathHelper.combine (contentDirectory, asset.targetPath));
+					AssetHelper.copyAssetIfNewer (asset, PathHelper.combine (contentDirectory, asset.targetPath));
 
 				} else {
 
 					PathHelper.mkdir (Path.directory (PathHelper.combine (targetDirectory, asset.targetPath)));
-					FileHelper.copyAsset (asset, PathHelper.combine (targetDirectory, asset.targetPath), context);
+					AssetHelper.copyAsset (asset, PathHelper.combine (targetDirectory, asset.targetPath), context);
 
 				}
 
@@ -413,9 +414,9 @@ class MacPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
-		var command = WatchHelper.getCurrentCommand ();
-		WatchHelper.watch (project, command, dirs);
+		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var command = ProjectHelper.getCurrentCommand ();
+		WatchHelper.watch (command, dirs);
 
 	}
 

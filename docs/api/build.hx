@@ -1,8 +1,8 @@
-import hxp.helpers.ProcessHelper;
+import hxp.ProcessHelper;
 import hxp.HXML;
 import sys.io.File;
 
-class Build {
+class Build extends hxp.Script {
 
 	public function new () {
 

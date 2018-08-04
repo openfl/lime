@@ -810,6 +810,10 @@ class Bytes {
 #elseif hl
 
 
+#if !macro
+@:autoBuild(lime._internal.macros.AssetsMacro.embedBytesHL()) // Enable @:bytes embed metadata
+#end
+
 @:coreApi
 class Bytes {
 

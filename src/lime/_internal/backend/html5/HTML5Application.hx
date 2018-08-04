@@ -253,13 +253,7 @@ class HTML5Application {
 
 			} else {
 
-				nextUpdate = currentUpdate + framePeriod;
-
-				//while (nextUpdate <= currentUpdate) {
-					//
-					//nextUpdate += framePeriod;
-					//
-				//}
+				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
 
 			}
 

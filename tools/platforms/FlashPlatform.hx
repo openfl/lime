@@ -4,21 +4,22 @@ package;
 import haxe.io.Path;
 import haxe.Json;
 import haxe.Template;
-import hxp.helpers.AssetHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.FlashHelper;
-import hxp.helpers.HTML5Helper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.ProcessHelper;
-import hxp.helpers.WatchHelper;
-import hxp.project.AssetType;
-import hxp.project.Haxelib;
-import hxp.project.HXProject;
-import hxp.project.Platform;
-import hxp.project.PlatformTarget;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.DeploymentHelper;
+import lime.tools.ProjectHelper;
+import hxp.FileHelper;
+import lime.tools.FlashHelper;
+import hxp.Haxelib;
+import lime.tools.HTML5Helper;
+import hxp.Log;
+import hxp.PathHelper;
+import lime.tools.Platform;
+import hxp.PlatformHelper;
+import lime.tools.PlatformTarget;
+import hxp.ProcessHelper;
+import lime.tools.Project;
+import hxp.WatchHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -34,7 +35,7 @@ class FlashPlatform extends PlatformTarget {
 	private var logLength:Int = 0;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 
@@ -87,7 +88,7 @@ class FlashPlatform extends PlatformTarget {
 
 		}
 
-		if (LogHelper.verbose) {
+		if (Log.verbose) {
 
 			project.haxedefs.set ("verbose", 1);
 
@@ -203,14 +204,14 @@ class FlashPlatform extends PlatformTarget {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "flash/hxml", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "flash/haxe", targetDirectory + "/haxe", context, true, false);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "flash/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "flash/haxe", targetDirectory + "/haxe", context, true, false);
 
 		if (project.targetFlags.exists ("web") || project.app.url != "") {
 
 			PathHelper.mkdir (destination);
-			FileHelper.recursiveSmartCopyTemplate (project, "flash/templates/web", destination, generateContext ());
+			ProjectHelper.recursiveSmartCopyTemplate (project, "flash/templates/web", destination, generateContext ());
 
 		}
 
@@ -255,7 +256,7 @@ class FlashPlatform extends PlatformTarget {
 				var path = PathHelper.combine (destination, asset.targetPath);
 
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+				AssetHelper.copyAsset (asset, path, context);
 
 			}
 
@@ -283,9 +284,9 @@ class FlashPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (project, getDisplayHXML ());
-		var command = WatchHelper.getCurrentCommand ();
-		WatchHelper.watch (project, command, dirs);
+		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var command = ProjectHelper.getCurrentCommand ();
+		WatchHelper.watch (command, dirs);
 
 	}
 

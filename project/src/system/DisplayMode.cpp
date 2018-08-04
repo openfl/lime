@@ -53,15 +53,15 @@ namespace lime {
 
 	void* DisplayMode::Value () {
 
-		if (_mode) {
+		// if (_mode) {
 
-			_mode->height = height;
-			_mode->pixelFormat = pixelFormat;
-			_mode->refreshRate = refreshRate;
-			_mode->width = width;
-			return _mode;
+		// 	_mode->height = height;
+		// 	_mode->pixelFormat = pixelFormat;
+		// 	_mode->refreshRate = refreshRate;
+		// 	_mode->width = width;
+		// 	return _mode;
 
-		} else {
+		// } else {
 
 			if (!init) {
 
@@ -80,7 +80,7 @@ namespace lime {
 			alloc_field (displayMode, id_width, alloc_int (width));
 			return displayMode;
 
-		}
+		// }
 
 	}
 

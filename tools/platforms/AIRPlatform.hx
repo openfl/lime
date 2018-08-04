@@ -3,21 +3,22 @@ package;
 
 import haxe.io.Path;
 import haxe.Template;
-import hxp.project.AssetType;
-import hxp.project.HXProject;
-import hxp.project.Icon;
-import hxp.project.Platform;
-import hxp.project.PlatformType;
-import hxp.helpers.AIRHelper;
-import hxp.helpers.AssetHelper;
-import hxp.helpers.DeploymentHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.FlashHelper;
-import hxp.helpers.IconHelper;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.LogHelper;
-import hxp.helpers.ZipHelper;
+import lime.tools.AIRHelper;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.DeploymentHelper;
+import hxp.FileHelper;
+import lime.tools.FlashHelper;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import hxp.Log;
+import hxp.PathHelper;
+import lime.tools.Platform;
+import hxp.PlatformHelper;
+import lime.tools.PlatformType;
+import lime.tools.Project;
+import lime.tools.ProjectHelper;
+import hxp.ZipHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -31,7 +32,7 @@ class AIRPlatform extends FlashPlatform {
 	private var targetPlatformType:PlatformType;
 
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 
@@ -59,7 +60,7 @@ class AIRPlatform extends FlashPlatform {
 
 		} else {
 
-			targetPlatform = PlatformHelper.hostPlatform;
+			targetPlatform = cast PlatformHelper.hostPlatform;
 			targetPlatformType = DESKTOP;
 
 		}
@@ -73,7 +74,7 @@ class AIRPlatform extends FlashPlatform {
 
 		if (!project.defines.exists ("AIR_SDK")) {
 
-			LogHelper.error ("You must define AIR_SDK with the path to your AIR SDK");
+			Log.error ("You must define AIR_SDK with the path to your AIR SDK");
 
 		}
 
@@ -287,7 +288,7 @@ class AIRPlatform extends FlashPlatform {
 
 			if (buildNumber.length > 0) {
 
-				LogHelper.warn ("Application build number " + buildNumber + buildNumberSplit + " exceeds 9 digits");
+				Log.warn ("Application build number " + buildNumber + buildNumberSplit + " exceeds 9 digits");
 
 			}
 
@@ -337,9 +338,9 @@ class AIRPlatform extends FlashPlatform {
 
 		}
 
-		FileHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "air/hxml", targetDirectory + "/haxe", context);
-		FileHelper.recursiveSmartCopyTemplate (project, "air/template", targetDirectory, context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "air/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate (project, "air/template", targetDirectory, context);
 
 		if (embedded) {
 
@@ -382,7 +383,7 @@ class AIRPlatform extends FlashPlatform {
 				var path = PathHelper.combine (destination, asset.targetPath);
 
 				PathHelper.mkdir (Path.directory (path));
-				FileHelper.copyAsset (asset, path, context);
+				AssetHelper.copyAsset (asset, path, context);
 
 			}
 
