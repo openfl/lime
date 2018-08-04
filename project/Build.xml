@@ -17,7 +17,7 @@
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" />
 	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
-	<set name="LIME_HASHLINK" value="1" if="hashlink" />
+	<set name="LIME_HASHLINK" value="1" if="hashlink" unless="HXCPP_M64" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
