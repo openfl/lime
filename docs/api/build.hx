@@ -6,6 +6,8 @@ class Build extends hxp.Script {
 
 	public function new () {
 
+		super ();
+
 		var base = new HXML ({
 			defines: [ "display", "doc-gen", "lime-doc-gen" ],
 			classNames: [ "ImportAll" ],
