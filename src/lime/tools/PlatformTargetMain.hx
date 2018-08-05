@@ -1,16 +1,16 @@
 package lime.tools;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Unserializer;
 import lime.tools.Architecture;
 import hxp.Haxelib;
 import lime.tools.Project;
 import lime.tools.Platform;
-import hxp.HaxelibHelper;
+import hxp.Haxelib;
 import hxp.Log;
-import hxp.PathHelper;
-import hxp.PlatformHelper;
+import hxp.Path;
+import hxp.System;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -69,11 +69,11 @@ class PlatformTargetMain {
 
 			if (FileSystem.exists ("tools.n")) {
 
-				HaxelibHelper.setOverridePath (new Haxelib("lime"), PathHelper.combine (Sys.getCwd (), "../"));
+				Haxelib.setOverridePath (new Haxelib("lime"), Path.combine (Sys.getCwd (), "../"));
 
 			} else if (FileSystem.exists ("run.n")) {
 
-				HaxelibHelper.setOverridePath (new Haxelib("lime"), Sys.getCwd ());
+				Haxelib.setOverridePath (new Haxelib("lime"), Sys.getCwd ());
 
 			}
 

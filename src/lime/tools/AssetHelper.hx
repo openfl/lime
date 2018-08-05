@@ -1,10 +1,10 @@
 package lime.tools; #if lime
 
 
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
-import hxp.PathHelper;
+import hxp.Path;
 import hxp.*;
 import lime.tools.AssetType;
 import lime.tools.Asset;
@@ -89,7 +89,7 @@ class AssetHelper {
 
 		if (asset.sourcePath != "") {
 
-			FileHelper.copyFile (asset.sourcePath, destination, context, asset.type == TEMPLATE);
+			System.copyFile (asset.sourcePath, destination, context, asset.type == TEMPLATE);
 
 		} else {
 
@@ -97,7 +97,7 @@ class AssetHelper {
 
 				if (asset.encoding == AssetEncoding.BASE64) {
 
-					File.saveBytes (destination, StringHelper.base64Decode (asset.data));
+					File.saveBytes (destination, StringTools.base64Decode (asset.data));
 
 				} else if (Std.is (asset.data, Bytes)) {
 
@@ -124,15 +124,15 @@ class AssetHelper {
 
 		if (asset.sourcePath != "") {
 
-			if (FileHelper.isNewer (asset.sourcePath, destination)) {
+			if (System.isNewer (asset.sourcePath, destination)) {
 
-				FileHelper.copyFile (asset.sourcePath, destination, null, asset.type == TEMPLATE);
+				System.copyFile (asset.sourcePath, destination, null, asset.type == TEMPLATE);
 
 			}
 
 		} else {
 
-			PathHelper.mkdir (Path.directory (destination));
+			System.mkdir (Path.directory (destination));
 
 			Log.info ("", " - \x1b[1mWriting file:\x1b[0m " + destination);
 
@@ -140,7 +140,7 @@ class AssetHelper {
 
 				if (asset.encoding == AssetEncoding.BASE64) {
 
-					File.saveBytes (destination, StringHelper.base64Decode (asset.data));
+					File.saveBytes (destination, StringTools.base64Decode (asset.data));
 
 				} else if (Std.is (asset.data, Bytes)) {
 
@@ -193,7 +193,7 @@ class AssetHelper {
 
 		if (targetPath != null) {
 
-			PathHelper.mkdir (Path.directory (targetPath));
+			System.mkdir (Path.directory (targetPath));
 			Log.info ("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
 			File.saveContent (targetPath, manifest.serialize ());
 
@@ -250,12 +250,12 @@ class AssetHelper {
 
 		if (targetDirectory != null) {
 
-			PathHelper.mkdir (targetDirectory);
+			System.mkdir (targetDirectory);
 			var targetPath;
 
 			for (manifest in manifests) {
 
-				targetPath = PathHelper.combine (targetDirectory, manifest.name + ".json");
+				targetPath = Path.combine (targetDirectory, manifest.name + ".json");
 				Log.info ("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
 				File.saveContent (targetPath, manifest.serialize ());
 
@@ -573,13 +573,13 @@ class AssetHelper {
 		if (handlers.length > 0) {
 
 			var projectData = Serializer.run (project);
-			var temporaryFile = PathHelper.getTemporaryFile ();
+			var temporaryFile = System.getTemporaryFile ();
 
 			File.saveContent (temporaryFile, projectData);
 
 			for (handler in handlers) {
 
-				var outputFile = PathHelper.getTemporaryFile ();
+				var outputFile = System.getTemporaryFile ();
 				var args = [ "run", handler, "process", temporaryFile, outputFile ];
 
 				if (Log.verbose) {
@@ -590,13 +590,13 @@ class AssetHelper {
 
 				if (targetDirectory != null) {
 
-					args.push ("--targetDirectory=" + PathHelper.tryFullPath (targetDirectory));
+					args.push ("--targetDirectory=" + Path.tryFullPath (targetDirectory));
 
 				}
 
 				try {
 
-					HaxelibHelper.runCommand ("", args, false);
+					Haxelib.runCommand ("", args, false);
 
 				} catch (e:Dynamic) {
 
@@ -749,7 +749,7 @@ class AssetHelper {
 
 					// TODO: Support caching
 
-					PathHelper.mkdir (cacheDirectory);
+					System.mkdir (cacheDirectory);
 
 					if (FileSystem.exists (cacheDirectory + filename)) {
 

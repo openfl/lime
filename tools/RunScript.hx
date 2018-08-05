@@ -1,7 +1,7 @@
 package;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import hxp.helpers.FileHelper;
 import hxp.helpers.HaxelibHelper;
 import hxp.helpers.Log;
@@ -19,28 +19,28 @@ class RunScript {
 
 	private static function rebuildTools (rebuildBinaries = true):Void {
 
-		var limeDirectory = HaxelibHelper.getPath (new Haxelib ("lime"), true);
-		var toolsDirectory = PathHelper.combine (limeDirectory, "tools");
+		var limeDirectory = Haxelib.getPath (new Haxelib ("lime"), true);
+		var toolsDirectory = Path.combine (limeDirectory, "tools");
 
 		if (!FileSystem.exists (toolsDirectory)) {
 
-			toolsDirectory = PathHelper.combine (limeDirectory, "../tools");
+			toolsDirectory = Path.combine (limeDirectory, "../tools");
 
 		}
 
-		/*var extendedToolsDirectory = HaxelibHelper.getPath (new Haxelib ("lime-extended"), false);
+		/*var extendedToolsDirectory = Haxelib.getPath (new Haxelib ("lime-extended"), false);
 
 		if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
 
-			var buildScript = File.getContent (PathHelper.combine (extendedToolsDirectory, "tools.hxml"));
+			var buildScript = File.getContent (Path.combine (extendedToolsDirectory, "tools.hxml"));
 			buildScript = StringTools.replace (buildScript, "\r\n", "\n");
 			buildScript = StringTools.replace (buildScript, "\n", " ");
 
-			ProcessHelper.runCommand (toolsDirectory, "haxe", buildScript.split (" "));
+			System.runCommand (toolsDirectory, "haxe", buildScript.split (" "));
 
 		} else {*/
 
-			ProcessHelper.runCommand (toolsDirectory, "haxe", [ "tools.hxml" ]);
+			System.runCommand (toolsDirectory, "haxe", [ "tools.hxml" ]);
 
 		//}
 
@@ -50,8 +50,8 @@ class RunScript {
 
 		for (platform in platforms) {
 
-			var source = PathHelper.combine (limeDirectory, "ndll/" + platform + "/lime.ndll");
-			//var target = PathHelper.combine (toolsDirectory, "ndll/" + platform + "/lime.ndll");
+			var source = Path.combine (limeDirectory, "ndll/" + platform + "/lime.ndll");
+			//var target = Path.combine (toolsDirectory, "ndll/" + platform + "/lime.ndll");
 
 			if (!FileSystem.exists (source)) {
 
@@ -73,33 +73,33 @@ class RunScript {
 
 					case "Windows":
 
-						if (PlatformHelper.hostPlatform == WINDOWS) {
+						if (System.hostPlatform == WINDOWS) {
 
-							ProcessHelper.runCommand (limeDirectory, "neko", args.concat ([ "windows", toolsDirectory ]));
+							System.runCommand (limeDirectory, "neko", args.concat ([ "windows", toolsDirectory ]));
 
 						}
 
 					case "Mac", "Mac64":
 
-						if (PlatformHelper.hostPlatform == MAC) {
+						if (System.hostPlatform == MAC) {
 
-							ProcessHelper.runCommand (limeDirectory, "neko", args.concat ([ "mac", toolsDirectory ]));
+							System.runCommand (limeDirectory, "neko", args.concat ([ "mac", toolsDirectory ]));
 
 						}
 
 					case "Linux":
 
-						if (PlatformHelper.hostPlatform == LINUX && PlatformHelper.hostArchitecture != X64) {
+						if (System.hostPlatform == LINUX && System.hostArchitecture != X64) {
 
-							ProcessHelper.runCommand (limeDirectory, "neko", args.concat ([ "linux", "-32", toolsDirectory ]));
+							System.runCommand (limeDirectory, "neko", args.concat ([ "linux", "-32", toolsDirectory ]));
 
 						}
 
 					case "Linux64":
 
-						if (PlatformHelper.hostPlatform == LINUX && PlatformHelper.hostArchitecture == X64) {
+						if (System.hostPlatform == LINUX && System.hostArchitecture == X64) {
 
-							ProcessHelper.runCommand (limeDirectory, "neko", args.concat ([ "linux", "-64", toolsDirectory ]));
+							System.runCommand (limeDirectory, "neko", args.concat ([ "linux", "-64", toolsDirectory ]));
 
 						}
 
@@ -117,7 +117,7 @@ class RunScript {
 
 			} else {
 
-				//FileHelper.copyIfNewer (source, target);
+				//System.copyIfNewer (source, target);
 
 			}
 
@@ -186,7 +186,7 @@ class RunScript {
 
 			}
 
-			HaxelibHelper.workingDirectory = Sys.getCwd ();
+			Haxelib.workingDirectory = Sys.getCwd ();
 			var rebuildBinaries = true;
 
 			for (arg in args) {
@@ -201,7 +201,7 @@ class RunScript {
 					if (StringTools.startsWith (field, "haxelib-")) {
 
 						var name = field.substr (8);
-						HaxelibHelper.pathOverrides.set (name, PathHelper.tryFullPath (argValue));
+						Haxelib.pathOverrides.set (name, Path.tryFullPath (argValue));
 
 					}
 

@@ -21,11 +21,11 @@ class CommandHelper {
 
 	public static function openFile (file:String):CLICommand {
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			return new CLICommand ("start", [ file ]);
 
-		} else if (PlatformHelper.hostPlatform == MAC) {
+		} else if (System.hostPlatform == MAC) {
 
 			return new CLICommand ("/usr/bin/open", [ file ]);
 

@@ -11,9 +11,9 @@ class DeploymentHelper {
 	public static function deploy (project:Project, targetFlags:Map<String, String>, targetDirectory:String, targetName:String) {
 
 		var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ") (" + targetName + ").zip";
-		var targetPath = PathHelper.combine (targetDirectory + "/dist", name);
+		var targetPath = Path.combine (targetDirectory + "/dist", name);
 
-		ZipHelper.compress (PathHelper.combine (targetDirectory, "bin"), targetPath);
+		System.compress (Path.combine (targetDirectory, "bin"), targetPath);
 
 		if (targetFlags.exists ("gdrive")) {
 
@@ -35,7 +35,7 @@ class DeploymentHelper {
 
 			}
 
-			ProcessHelper.runCommand ("", "drive", args);
+			System.runCommand ("", "drive", args);
 
 		}
 

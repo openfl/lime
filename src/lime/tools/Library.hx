@@ -1,7 +1,7 @@
 package lime.tools;
 
 
-import haxe.io.Path;
+import hxp.Path;
 
 
 class Library {

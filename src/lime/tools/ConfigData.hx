@@ -3,7 +3,7 @@ package lime.tools;
 
 import haxe.xml.Fast;
 import hxp.Log;
-import hxp.ObjectHelper;
+import hxp.ObjectTools;
 
 
 abstract ConfigData(Dynamic) to Dynamic from Dynamic {
@@ -32,7 +32,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 
 	public function clone ():ConfigData {
 
-		return ObjectHelper.deepCopy (this);
+		return ObjectTools.deepCopy (this);
 
 	}
 
@@ -313,7 +313,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 
 					if (!Reflect.hasField (destination, field + "___array")) {
 
-						Reflect.setField (destination, field + "___array", [ ObjectHelper.deepCopy (Reflect.field (destination, field)) ]);
+						Reflect.setField (destination, field + "___array", [ ObjectTools.deepCopy (Reflect.field (destination, field)) ]);
 
 					}
 
@@ -428,7 +428,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 
 					if (!Reflect.hasField (bucket, child.name + "___array")) {
 
-						Reflect.setField (bucket, child.name + "___array", [ ObjectHelper.deepCopy (Reflect.field (bucket, child.name)) ]);
+						Reflect.setField (bucket, child.name + "___array", [ ObjectTools.deepCopy (Reflect.field (bucket, child.name)) ]);
 
 					}
 
@@ -507,7 +507,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 
 				if (!Reflect.hasField (this, id + "___array")) {
 
-					Reflect.setField (this, id + "___array", Reflect.hasField (this, id) ? [ ObjectHelper.deepCopy (Reflect.field (this, id)) ] : []);
+					Reflect.setField (this, id + "___array", Reflect.hasField (this, id) ? [ ObjectTools.deepCopy (Reflect.field (this, id)) ] : []);
 
 				}
 
@@ -549,7 +549,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 
 			if (!Reflect.hasField (current, field + "___array")) {
 
-				Reflect.setField (current, field + "___array", Reflect.hasField (current, field) ? [ ObjectHelper.deepCopy (Reflect.field (current, field)) ] : []);
+				Reflect.setField (current, field + "___array", Reflect.hasField (current, field) ? [ ObjectTools.deepCopy (Reflect.field (current, field)) ] : []);
 
 			}
 
@@ -631,7 +631,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic {
 
 					if (!Reflect.hasField (bucket, node + "___array")) {
 
-						Reflect.setField (bucket, node + "___array", [ ObjectHelper.deepCopy (Reflect.field (bucket, node)) ]);
+						Reflect.setField (bucket, node + "___array", [ ObjectTools.deepCopy (Reflect.field (bucket, node)) ]);
 
 					}
 

@@ -1,7 +1,7 @@
 package lime.tools; #if !macro
 
 
-import haxe.io.Path;
+import hxp.Path;
 import lime.tools.Dependency;
 import hxp.Haxelib;
 import hxp.*;
@@ -29,7 +29,7 @@ class ModuleHelper {
 
 		if (packageName != null && packageName.length > 0) {
 
-			path = PathHelper.combine (source, StringTools.replace (packageName, ".", "/"));
+			path = Path.combine (source, StringTools.replace (packageName, ".", "/"));
 
 		}
 
@@ -40,11 +40,11 @@ class ModuleHelper {
 
 	public static function buildModules (project:Project, tempDirectory:String, outputDirectory:String):Void {
 
-		tempDirectory = PathHelper.combine (tempDirectory, "lib");
-		outputDirectory = PathHelper.combine (outputDirectory, "lib");
+		tempDirectory = Path.combine (tempDirectory, "lib");
+		outputDirectory = Path.combine (outputDirectory, "lib");
 
-		PathHelper.mkdir (tempDirectory);
-		PathHelper.mkdir (outputDirectory);
+		System.mkdir (tempDirectory);
+		System.mkdir (outputDirectory);
 
 		var importName, hxmlPath, importPath, outputPath, moduleImport, hxml;
 
@@ -54,16 +54,16 @@ class ModuleHelper {
 
 				importName = "Module" + module.name.charAt (0).toUpperCase () + module.name.substr (1);
 
-				hxmlPath = PathHelper.combine (tempDirectory, module.name + ".hxml");
-				importPath = PathHelper.combine (tempDirectory, importName + ".hx");
+				hxmlPath = Path.combine (tempDirectory, module.name + ".hxml");
+				importPath = Path.combine (tempDirectory, importName + ".hx");
 
 				if (project.targetFlags.exists ("final")) {
 
-					outputPath = PathHelper.combine (outputDirectory, module.name + ".min.js");
+					outputPath = Path.combine (outputDirectory, module.name + ".min.js");
 
 				} else {
 
-					outputPath = PathHelper.combine (outputDirectory, module.name + ".js");
+					outputPath = Path.combine (outputDirectory, module.name + ".js");
 
 				}
 
@@ -74,7 +74,7 @@ class ModuleHelper {
 
 				for (haxelib in project.haxelibs) {
 
-					hxml += "\n-cp " + PathHelper.getHaxelib (haxelib);
+					hxml += "\n-cp " + Haxelib.getPath (haxelib);
 
 				}
 
@@ -111,8 +111,8 @@ class ModuleHelper {
 
 					if (otherModule != module) {
 
-						excludeTypes = excludeTypes.concat (ArrayHelper.getUnique (includeTypes, otherModule.classNames));
-						excludeTypes = excludeTypes.concat (ArrayHelper.getUnique (includeTypes, otherModule.includeTypes));
+						excludeTypes = excludeTypes.concat (ArrayTools.getUnique (includeTypes, otherModule.classNames));
+						excludeTypes = excludeTypes.concat (ArrayTools.getUnique (includeTypes, otherModule.includeTypes));
 
 					}
 
@@ -136,7 +136,7 @@ class ModuleHelper {
 				File.saveContent (importPath, moduleImport);
 				File.saveContent (hxmlPath, hxml);
 
-				ProcessHelper.runCommand ("", "haxe", [ hxmlPath ]);
+				System.runCommand ("", "haxe", [ hxmlPath ]);
 
 				patchFile (outputPath);
 
@@ -160,7 +160,7 @@ class ModuleHelper {
 
 		for (file in files) {
 
-			filePath = PathHelper.combine (currentPath, file);
+			filePath = Path.combine (currentPath, file);
 
 			if (FileSystem.isDirectory (filePath)) {
 
@@ -171,7 +171,7 @@ class ModuleHelper {
 
 				packageName = StringTools.replace (packageName, "/", ".");
 
-				if (StringHelper.filter (packageName, include, exclude)) {
+				if (StringTools.filter (packageName, include, exclude)) {
 
 					parseModuleSource (source, moduleData, include, exclude, filePath);
 
@@ -189,7 +189,7 @@ class ModuleHelper {
 				className = StringTools.replace (className, "/", ".");
 				className = StringTools.replace (className, ".hx", "");
 
-				if (StringHelper.filter (className, include, exclude)) {
+				if (StringTools.filter (className, include, exclude)) {
 
 					moduleData.classNames.push (className);
 
@@ -207,7 +207,7 @@ class ModuleHelper {
 		var replaceString = "var $hxClasses = {}";
 		var replacement = "if (!$hx_exports.$hxClasses) $hx_exports.$hxClasses = {};\nvar $hxClasses = $hx_exports.$hxClasses";
 
-		FileHelper.replaceText (outputPath, replaceString, replacement);
+		System.replaceText (outputPath, replaceString, replacement);
 
 	}
 
@@ -222,9 +222,9 @@ class ModuleHelper {
 
 			project.dependencies.push (new Dependency ("./lib/" + module.name + suffix, null));
 
-			excludeTypes = ArrayHelper.concatUnique (excludeTypes, module.classNames);
-			excludeTypes = ArrayHelper.concatUnique (excludeTypes, module.excludeTypes);
-			excludeTypes = ArrayHelper.concatUnique (excludeTypes, module.includeTypes);
+			excludeTypes = ArrayTools.concatUnique (excludeTypes, module.classNames);
+			excludeTypes = ArrayTools.concatUnique (excludeTypes, module.excludeTypes);
+			excludeTypes = ArrayTools.concatUnique (excludeTypes, module.includeTypes);
 
 			hasModules = true;
 

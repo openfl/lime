@@ -1,8 +1,8 @@
 package lime.tools;
 
 
-import hxp.PathHelper;
-import hxp.ProcessHelper;
+import hxp.Path;
+import hxp.System;
 import lime.tools.Project;
 
 
@@ -19,11 +19,11 @@ class ElectronHelper {
 
 		} else {
 
-			electronPath = PathHelper.combine (electronPath, "electron");
+			electronPath = Path.combine (electronPath, "electron");
 
 		}
 
-		ProcessHelper.runCommand ("", electronPath, [ path ]);
+		System.runCommand ("", electronPath, [ path ]);
 
 	}
 

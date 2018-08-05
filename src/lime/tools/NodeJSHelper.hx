@@ -1,7 +1,7 @@
 package lime.tools;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import lime.tools.Architecture;
 import hxp.Haxelib;
 import lime.tools.Project;
@@ -14,7 +14,7 @@ class NodeJSHelper {
 
 	public static function run (project:Project, modulePath:String, args:Array<String> = null):Void {
 
-		/*var suffix = switch (PlatformHelper.hostPlatform) {
+		/*var suffix = switch (System.hostPlatform) {
 
 			case Platform.WINDOWS: "-windows.exe";
 			case Platform.MAC: "-mac";
@@ -25,7 +25,7 @@ class NodeJSHelper {
 
 		if (suffix == "-linux") {
 
-			if (PlatformHelper.hostArchitecture == X86) {
+			if (System.hostArchitecture == X86) {
 
 				suffix += "32";
 
@@ -37,10 +37,10 @@ class NodeJSHelper {
 
 		}
 
-		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), "templates") ].concat (project.templatePaths);
-		var node = PathHelper.findTemplate (templatePaths, "bin/node/node" + suffix);
+		var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), "templates") ].concat (project.templatePaths);
+		var node = System.findTemplate (templatePaths, "bin/node/node" + suffix);
 
-		if (PlatformHelper.hostPlatform != WINDOWS) {
+		if (System.hostPlatform != WINDOWS) {
 
 			Sys.command ("chmod", [ "+x", node ]);
 
@@ -54,7 +54,7 @@ class NodeJSHelper {
 
 		args.unshift (Path.withoutDirectory (modulePath));
 
-		ProcessHelper.runCommand (Path.directory (modulePath), "node", args);
+		System.runCommand (Path.directory (modulePath), "node", args);
 
 	}
 

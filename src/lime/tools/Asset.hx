@@ -1,11 +1,11 @@
 package lime.tools;
 
 
-import haxe.io.Path;
-import hxp.FileHelper;
-import hxp.ObjectHelper;
-import hxp.StringHelper;
-import hxp.PathHelper;
+import hxp.Path;
+import hxp.System;
+import hxp.ObjectTools;
+import hxp.StringTools;
+import hxp.Path;
 import lime.tools.AssetType;
 import sys.FileSystem;
 
@@ -36,7 +36,7 @@ class Asset {
 		if (!setDefaults) return;
 
 		this.embed = embed;
-		sourcePath = PathHelper.standardize (path);
+		sourcePath = Path.standardize (path);
 
 		if (rename == "") {
 
@@ -50,7 +50,7 @@ class Asset {
 
 		id = targetPath;
 		resourceName = targetPath;
-		flatName = StringHelper.getFlatName (targetPath);
+		flatName = StringTools.getFlatName (targetPath);
 		format = Path.extension (path).toLowerCase ();
 		glyphs = "32-255";
 
@@ -96,7 +96,7 @@ class Asset {
 
 					default:
 
-						if (path != "" && FileHelper.isText (path)) {
+						if (path != "" && System.isText (path)) {
 
 							this.type = AssetType.TEXT;
 
@@ -136,7 +136,7 @@ class Asset {
 		asset.targetPath = targetPath;
 		asset.type = type;
 
-		//ObjectHelper.copyFields (this, asset);
+		//ObjectTools.copyFields (this, asset);
 
 		return asset;
 

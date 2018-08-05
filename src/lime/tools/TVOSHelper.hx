@@ -1,9 +1,9 @@
 package lime.tools;
 
 
-import haxe.io.Path;
-import hxp.PathHelper;
-import hxp.ProcessHelper;
+import hxp.Path;
+import hxp.Path;
+import hxp.System;
 import hxp.Haxelib;
 import hxp.*;
 import lime.tools.Project;
@@ -32,7 +32,7 @@ class TVOSHelper {
 			commands.push ("-scheme");
 			commands.push (project.app.file);
 			commands.push ("-archivePath");
-			commands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file)));
+			commands.push (Path.combine ("build", Path.combine (configuration + "-" + platformName, project.app.file)));
 
 		}
 
@@ -42,7 +42,7 @@ class TVOSHelper {
 
 		}
 
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", commands);
+		System.runCommand (workingDirectory, "xcodebuild", commands);
 
 	}
 
@@ -62,9 +62,9 @@ class TVOSHelper {
 		archiveCommands.push ("-scheme");
 		archiveCommands.push (project.app.file);
 		archiveCommands.push ("-archivePath");
-		archiveCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file)));
+		archiveCommands.push (Path.combine ("build", Path.combine (configuration + "-" + platformName, project.app.file)));
 
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", archiveCommands);
+		System.runCommand (workingDirectory, "xcodebuild", archiveCommands);
 
 		// generate IPA from xcarchive
 		var exportCommands = commands.concat ([]);
@@ -76,13 +76,13 @@ class TVOSHelper {
 
 		exportCommands.push ("-exportArchive");
 		exportCommands.push ("-archivePath");
-		exportCommands.push (PathHelper.combine("build", PathHelper.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
+		exportCommands.push (Path.combine("build", Path.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
 		exportCommands.push ("-exportOptionsPlist");
-		exportCommands.push (PathHelper.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
+		exportCommands.push (Path.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
 		exportCommands.push ("-exportPath");
-		exportCommands.push (PathHelper.combine ("dist", exportMethod));
+		exportCommands.push (Path.combine ("dist", exportMethod));
 
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+		System.runCommand (workingDirectory, "xcodebuild", exportCommands);
 
 	}
 
@@ -204,7 +204,7 @@ class TVOSHelper {
 
 	private static function getOSXVersion ():String {
 
-		var output = ProcessHelper.runProcess ("", "sw_vers", [ "-productVersion" ]);
+		var output = System.runProcess ("", "sw_vers", [ "-productVersion" ]);
 		return StringTools.trim (output);
 
 	}
@@ -212,7 +212,7 @@ class TVOSHelper {
 
 	public static function getProvisioningFile ():String {
 
-		var path = PathHelper.expand ("~/Library/MobileDevice/Provisioning Profiles");
+		var path = Path.expand ("~/Library/MobileDevice/Provisioning Profiles");
 		var files = FileSystem.readDirectory (path);
 
 		for (file in files) {
@@ -261,7 +261,7 @@ class TVOSHelper {
 
 	private static function getXcodeVersion ():String {
 
-		var output = ProcessHelper.runProcess ("", "xcodebuild", [ "-version" ]);
+		var output = System.runProcess ("", "xcodebuild", [ "-version" ]);
 		var firstLine = output.split ("\n").shift ();
 
 		return StringTools.trim (firstLine.substring ("Xcode".length, firstLine.length));
@@ -308,8 +308,8 @@ class TVOSHelper {
 
 			}
 
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-			var launcher = PathHelper.findTemplate (templatePaths, "bin/ios-sim");
+			var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+			var launcher = System.findTemplate (templatePaths, "bin/ios-sim");
 			Sys.command ("chmod", [ "+x", launcher ]);
 
 			// device config
@@ -357,7 +357,7 @@ class TVOSHelper {
 
 			// check if device is available
 			// $ ios-sim showdevicetypes
-			var devicesOutput:String = ProcessHelper.runProcess ("", launcher, [ "showdevicetypes" ]);
+			var devicesOutput:String = System.runProcess ("", launcher, [ "showdevicetypes" ]);
 			var deviceTypeList:Array<String> = devicesOutput.split ("\n");
 
 			for (i in 0...deviceTypeList.length) {
@@ -386,11 +386,11 @@ class TVOSHelper {
 			// run command with --devicetypeid if exists
 			if (deviceTypeID != null) {
 
-				ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), /*"--sdk", project.environment.get ("IPHONE_VER"),*/ "--devicetypeid", deviceTypeID, "--timeout", "60" ]);
+				System.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), /*"--sdk", project.environment.get ("IPHONE_VER"),*/ "--devicetypeid", deviceTypeID, "--timeout", "60" ]);
 
 			} else {
 
-				ProcessHelper.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), /*"--sdk", project.environment.get ("IPHONE_VER"), "--devicetypeid", deviceTypeID,*/ "--timeout", "60" ]);
+				System.runCommand ("", launcher, [ "launch", FileSystem.fullPath (applicationPath), /*"--sdk", project.environment.get ("IPHONE_VER"), "--devicetypeid", deviceTypeID,*/ "--timeout", "60" ]);
 
 			}
 
@@ -408,13 +408,13 @@ class TVOSHelper {
 
 			}
 
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-			var launcher = PathHelper.findTemplate (templatePaths, "bin/ios-deploy");
+			var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+			var launcher = System.findTemplate (templatePaths, "bin/ios-deploy");
 			Sys.command ("chmod", [ "+x", launcher ]);
 
 			var xcodeVersion = getXcodeVersion ();
 
-			ProcessHelper.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
+			System.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--timeout", "5", "--bundle", FileSystem.fullPath (applicationPath) ]);
 
 		}
 
@@ -446,7 +446,7 @@ class TVOSHelper {
 		var applicationPath = "build/" + configuration + "-appletvos/" + project.app.file + ".app";
 		commands.push (applicationPath);
 
-		ProcessHelper.runCommand (workingDirectory, "codesign", commands, true, true);
+		System.runCommand (workingDirectory, "codesign", commands, true, true);
 
 	}
 

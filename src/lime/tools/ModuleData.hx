@@ -1,7 +1,7 @@
 package lime.tools;
 
 
-import hxp.ArrayHelper;
+import hxp.ArrayTools;
 
 
 class ModuleData {
@@ -41,10 +41,10 @@ class ModuleData {
 
 		if (other.name == name) {
 
-			classNames = ArrayHelper.concatUnique (classNames, other.classNames);
-			excludeTypes = ArrayHelper.concatUnique (excludeTypes, other.excludeTypes);
-			haxeflags = ArrayHelper.concatUnique (haxeflags, other.haxeflags);
-			includeTypes = ArrayHelper.concatUnique (includeTypes, other.includeTypes);
+			classNames = ArrayTools.concatUnique (classNames, other.classNames);
+			excludeTypes = ArrayTools.concatUnique (excludeTypes, other.excludeTypes);
+			haxeflags = ArrayTools.concatUnique (haxeflags, other.haxeflags);
+			includeTypes = ArrayTools.concatUnique (includeTypes, other.includeTypes);
 			return true;
 
 		}

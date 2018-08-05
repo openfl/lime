@@ -1,12 +1,12 @@
 package lime.tools;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Timer;
 import hxp.Log;
-import hxp.PathHelper;
-import hxp.PlatformHelper;
-import hxp.ProcessHelper;
+import hxp.Path;
+import hxp.System;
+import hxp.System;
 import lime.tools.Architecture;
 import hxp.*;
 import lime.tools.Asset;
@@ -35,7 +35,7 @@ class HTML5Helper {
 
 		if (filename != StringTools.urlEncode (filename)) {
 
-			var output = ProcessHelper.runProcess ("", "haxe", [ "-version" ], true, true, true, false, true);
+			var output = System.runProcess ("", "haxe", [ "-version" ], true, true, true, false, true);
 			var haxeVer:Version = StringTools.trim (output);
 
 			if (haxeVer < ("4.0.0" : Version)) {
@@ -43,7 +43,7 @@ class HTML5Helper {
 				var replaceString = "//# sourceMappingURL=" + filename + ".map";
 				var replacement = "//# sourceMappingURL=" + StringTools.urlEncode (filename) + ".map";
 
-				FileHelper.replaceText (sourceFile, replaceString, replacement);
+				System.replaceText (sourceFile, replaceString, replacement);
 
 			}
 
@@ -58,8 +58,8 @@ class HTML5Helper {
 
 	// 	if (!FileSystem.exists (FileSystem.fullPath (sourcePath) + ".hash")) {
 
-	// 		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), "templates") ].concat (project.templatePaths);
-	// 		ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ PathHelper.findTemplate (templatePaths, "bin/hxswfml.n"), "ttf2hash2", Path.withoutDirectory (sourcePath), FileSystem.fullPath (sourcePath) + ".hash", "-glyphs", font.glyphs ]);
+	// 		var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), "templates") ].concat (project.templatePaths);
+	// 		System.runCommand (Path.directory (sourcePath), "neko", [ System.findTemplate (templatePaths, "bin/hxswfml.n"), "ttf2hash2", Path.withoutDirectory (sourcePath), FileSystem.fullPath (sourcePath) + ".hash", "-glyphs", font.glyphs ]);
 
 	// 	}
 
@@ -70,7 +70,7 @@ class HTML5Helper {
 
 	public static function generateWebfonts (project:Project, font:Asset):Void {
 
-		var suffix = switch (PlatformHelper.hostPlatform) {
+		var suffix = switch (System.hostPlatform) {
 
 			case WINDOWS: "-windows.exe";
 			case MAC: "-mac";
@@ -81,7 +81,7 @@ class HTML5Helper {
 
 		if (suffix == "-linux") {
 
-			if (PlatformHelper.hostArchitecture == X86) {
+			if (System.hostArchitecture == X86) {
 
 				suffix += "32";
 
@@ -93,9 +93,9 @@ class HTML5Helper {
 
 		}
 
-		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-		var webify = PathHelper.findTemplate (templatePaths, "bin/webify" + suffix);
-		if (PlatformHelper.hostPlatform != WINDOWS) {
+		var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+		var webify = System.findTemplate (templatePaths, "bin/webify" + suffix);
+		if (System.hostPlatform != WINDOWS) {
 
 			Sys.command ("chmod", [ "+x", webify ]);
 
@@ -103,11 +103,11 @@ class HTML5Helper {
 
 		if (Log.verbose) {
 
-			ProcessHelper.runCommand ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
+			System.runCommand ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
 
 		} else {
 
-			ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ], true, true, true);
+			System.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ], true, true, true);
 
 		}
 
@@ -118,11 +118,11 @@ class HTML5Helper {
 
 		if (project.app.url != null && project.app.url != "") {
 
-			ProcessHelper.openURL (project.app.url);
+			System.openURL (project.app.url);
 
 		} else {
 
-			var suffix = switch (PlatformHelper.hostPlatform) {
+			var suffix = switch (System.hostPlatform) {
 
 				case WINDOWS: "-windows.exe";
 				case MAC: "-mac";
@@ -133,7 +133,7 @@ class HTML5Helper {
 
 			if (suffix == "-linux") {
 
-				if (PlatformHelper.hostArchitecture == X86) {
+				if (System.hostArchitecture == X86) {
 
 					suffix += "32";
 
@@ -145,11 +145,11 @@ class HTML5Helper {
 
 			}
 
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-			var node = PathHelper.findTemplate (templatePaths, "bin/node/node" + suffix);
-			var server = PathHelper.findTemplate (templatePaths, "bin/node/http-server/bin/http-server");
+			var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+			var node = System.findTemplate (templatePaths, "bin/node/node" + suffix);
+			var server = System.findTemplate (templatePaths, "bin/node/http-server/bin/http-server");
 
-			if (PlatformHelper.hostPlatform != WINDOWS) {
+			if (System.hostPlatform != WINDOWS) {
 
 				Sys.command ("chmod", [ "+x", node ]);
 
@@ -166,7 +166,7 @@ class HTML5Helper {
 			/*Thread.create (function () {
 
 				Sys.sleep (0.5);
-				ProcessHelper.openURL ("http://localhost:" + port);
+				System.openURL ("http://localhost:" + port);
 
 			});*/
 
@@ -188,7 +188,7 @@ class HTML5Helper {
 
 			}
 
-			ProcessHelper.runCommand ("", node, args);
+			System.runCommand ("", node, args);
 
 		}
 
@@ -199,17 +199,17 @@ class HTML5Helper {
 
 		if (FileSystem.exists (sourceFile)) {
 
-			var tempFile = PathHelper.getTemporaryFile (".js");
+			var tempFile = System.getTemporaryFile (".js");
 
 			if (project.targetFlags.exists ("yui")) {
 
-				var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-				ProcessHelper.runCommand ("", "java", [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (templatePaths, "bin/yuicompressor-2.4.7.jar"), "-o", tempFile, sourceFile ]);
+				var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+				System.runCommand ("", "java", [ "-Dapple.awt.UIElement=true", "-jar", System.findTemplate (templatePaths, "bin/yuicompressor-2.4.7.jar"), "-o", tempFile, sourceFile ]);
 
 			} else {
 
-				var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-				var args = [ "-Dapple.awt.UIElement=true", "-jar", PathHelper.findTemplate (templatePaths, "bin/compiler.jar"), "--strict_mode_input", "false", "--js", sourceFile, "--js_output_file", tempFile ];
+				var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+				var args = [ "-Dapple.awt.UIElement=true", "-jar", System.findTemplate (templatePaths, "bin/compiler.jar"), "--strict_mode_input", "false", "--js", sourceFile, "--js_output_file", tempFile ];
 
 				if (project.targetFlags.exists ("advanced")) {
 
@@ -236,7 +236,7 @@ class HTML5Helper {
 
 				}
 
-				ProcessHelper.runCommand ("", "java", args);
+				System.runCommand ("", "java", args);
 
 				if (FileSystem.exists (tempFile + ".map")) {
 

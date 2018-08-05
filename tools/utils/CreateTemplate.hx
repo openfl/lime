@@ -1,11 +1,11 @@
 package utils;
 
 
-import hxp.FileHelper;
+import hxp.System;
 import hxp.Haxelib;
-import hxp.HaxelibHelper;
+import hxp.Haxelib;
 import hxp.Log;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.Project;
 import lime.tools.ProjectHelper;
 import sys.FileSystem;
@@ -43,8 +43,8 @@ class CreateTemplate {
 		context.META_VERSION = "::META_VERSION::";
 		context.ANDROID_GRADLE_PLUGIN = "::ANDROID_GRADLE_PLUGIN::";
 
-		PathHelper.mkdir (title);
-		FileHelper.recursiveCopyTemplate ([ HaxelibHelper.getPath (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);
+		System.mkdir (title);
+		System.recursiveCopyTemplate ([ Haxelib.getPath (new Haxelib ("lime"), true)  + "/templates" ], "extension", title, context);
 
 		if (FileSystem.exists (title + "/Extension.hx")) {
 
@@ -72,12 +72,12 @@ class CreateTemplate {
 
 		if (FileSystem.exists (title)) {
 
-			PathHelper.mkdir (title + "/ndll");
-			PathHelper.mkdir (title + "/ndll/Linux");
-			PathHelper.mkdir (title + "/ndll/Linux64");
-			PathHelper.mkdir (title + "/ndll/Mac");
-			PathHelper.mkdir (title + "/ndll/Mac64");
-			PathHelper.mkdir (title + "/ndll/Windows");
+			System.mkdir (title + "/ndll");
+			System.mkdir (title + "/ndll/Linux");
+			System.mkdir (title + "/ndll/Linux64");
+			System.mkdir (title + "/ndll/Mac");
+			System.mkdir (title + "/ndll/Mac64");
+			System.mkdir (title + "/ndll/Windows");
 
 		}
 
@@ -266,7 +266,7 @@ class CreateTemplate {
 
 					if (words.length > 1) {
 
-						folder = PathHelper.tryFullPath (words[1]);
+						folder = Path.tryFullPath (words[1]);
 
 					}
 
@@ -274,7 +274,7 @@ class CreateTemplate {
 
 					if (words.length > 2) {
 
-						folder = PathHelper.tryFullPath (words[2]);
+						folder = Path.tryFullPath (words[2]);
 
 					}
 
@@ -282,11 +282,11 @@ class CreateTemplate {
 
 				/*if (words.length > 2) {
 
-					folder = PathHelper.tryFullPath (words[2]);
+					folder = Path.tryFullPath (words[2]);
 
 				}*/
 
-				PathHelper.mkdir (folder);
+				System.mkdir (folder);
 				ProjectHelper.recursiveSmartCopyTemplate (project, "project", folder, context);
 
 				try {
@@ -387,12 +387,12 @@ class CreateTemplate {
 
 			for (samplePath in samplePaths) {
 
-				var sourcePath = PathHelper.combine (samplePath, sampleName);
+				var sourcePath = Path.combine (samplePath, sampleName);
 
 				if (FileSystem.exists (sourcePath)) {
 
-					PathHelper.mkdir (outputPath);
-					FileHelper.recursiveCopy (sourcePath, PathHelper.tryFullPath (outputPath));
+					System.mkdir (outputPath);
+					System.recursiveCopy (sourcePath, Path.tryFullPath (outputPath));
 					return;
 
 				}
@@ -426,7 +426,7 @@ class CreateTemplate {
 
 					for (samplePath in samplePaths) {
 
-						var path = PathHelper.tryFullPath (samplePath);
+						var path = Path.tryFullPath (samplePath);
 						if (!FileSystem.exists (path)) continue;
 
 						for (name in FileSystem.readDirectory (path)) {
@@ -445,7 +445,7 @@ class CreateTemplate {
 
 				/*templates.push ("extension");
 
-				var projectTemplate = PathHelper.findTemplate (project.templatePaths, "project", false);
+				var projectTemplate = System.findTemplate (project.templatePaths, "project", false);
 
 				if (projectTemplate != null) {
 

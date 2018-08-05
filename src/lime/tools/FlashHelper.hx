@@ -4,7 +4,7 @@ package lime.tools;
 //import openfl.text.Font;
 //import openfl.utils.ByteArray;
 import haxe.io.Bytes;
-import haxe.io.Path;
+import hxp.Path;
 import lime.tools.Asset;
 import lime.tools.AssetEncoding;
 import lime.tools.AssetType;
@@ -13,7 +13,7 @@ import lime.tools.Project;
 import lime.text.Font;
 #end
 import hxp.Log;
-import hxp.ProcessHelper;
+import hxp.System;
 import hxp.*;
 import sys.io.File;
 import sys.FileSystem;
@@ -276,7 +276,7 @@ class FlashHelper {
 
 				if (inAsset.encoding == AssetEncoding.BASE64) {
 
-					outTags.push (TBitsJPEG (cid, JDJPEG2 (StringHelper.base64Decode (inAsset.data))));
+					outTags.push (TBitsJPEG (cid, JDJPEG2 (StringTools.base64Decode (inAsset.data))));
 
 				} else {
 
@@ -490,7 +490,7 @@ class FlashHelper {
 
 				if (inAsset.encoding == AssetEncoding.BASE64) {
 
-					bytes = StringHelper.base64Decode (inAsset.data);
+					bytes = StringTools.base64Decode (inAsset.data);
 
 				} else if (Std.is (inAsset.data, Bytes)) {
 
@@ -598,7 +598,7 @@ class FlashHelper {
 
 		try {
 
-			var path = switch (PlatformHelper.hostPlatform) {
+			var path = switch (System.hostPlatform) {
 
 				case WINDOWS: Sys.getEnv ("HOMEDRIVE") + "/" + Sys.getEnv ("HOMEPATH") + "/mm.cfg";
 				//case MAC: "/Library/Application Support/Macromedia/mm.cfg";
@@ -621,7 +621,7 @@ class FlashHelper {
 
 		#if format
 		destination = destination + "/obj";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		var label = (id > 0 ? Std.string (id + 1) : "");
 
@@ -732,7 +732,7 @@ class FlashHelper {
 	/*private static function compileSWC (project:Project, embed:String, id:Int):Void {
 
 		var destination = project.app.path + "/flash/obj";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		var label = (id > 0 ? Std.string (id + 1) : "");
 
@@ -748,7 +748,7 @@ class FlashHelper {
 
 			if (FileSystem.exists (destination + "/assets.swf")) {
 
-				FileHelper.copyFile (destination + "/assets.swf", destination + "/.assets.swf");
+				System.copyFile (destination + "/assets.swf", destination + "/.assets.swf");
 
 			}
 
@@ -761,7 +761,7 @@ class FlashHelper {
 
 		}
 
-		ProcessHelper.runCommand ("", "haxe", args);
+		System.runCommand ("", "haxe", args);
 
 		if (FileSystem.exists (destination + "/.assets.swf")) {
 
@@ -816,12 +816,12 @@ class FlashHelper {
 
 				if (asset.data != null) {
 
-					sourcePath = PathHelper.getTemporaryFile ();
+					sourcePath = System.getTemporaryFile ();
 					tempFiles.push (sourcePath);
 
 					if (asset.encoding == AssetEncoding.BASE64) {
 
-						File.saveBytes (sourcePath, StringHelper.base64Decode (asset.data));
+						File.saveBytes (sourcePath, StringTools.base64Decode (asset.data));
 
 					} else if (Std.is (asset.data, Bytes)) {
 
@@ -933,9 +933,9 @@ class FlashHelper {
 
 		try {
 
-			var path = switch (PlatformHelper.hostPlatform) {
+			var path = switch (System.hostPlatform) {
 
-				case WINDOWS: PathHelper.escape (Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt");
+				case WINDOWS: Path.escape (Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt");
 				case MAC: Sys.getEnv ("HOME") + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt";
 				default: Sys.getEnv ("HOME") + "/.macromedia/Flash_Player/Logs/flashlog.txt";
 
@@ -979,7 +979,7 @@ class FlashHelper {
 
 		}
 
-		ProcessHelper.openFile (workingDirectory, targetPath, player);
+		System.openFile (workingDirectory, targetPath, player);
 
 	}
 
@@ -988,7 +988,7 @@ class FlashHelper {
 
 		try {
 
-			var path = switch (PlatformHelper.hostPlatform) {
+			var path = switch (System.hostPlatform) {
 
 				case WINDOWS: Sys.getEnv ("APPDATA") + "/Macromedia/Flash Player/Logs/flashlog.txt";
 				case MAC: Sys.getEnv ("HOME") + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt";

@@ -133,7 +133,7 @@ class XCodeHelper {
 
 	private static function getSimulators ():String {
 
-		return ProcessHelper.runProcess ("", "xcrun", [ "simctl", "list", "devices" ]);
+		return System.runProcess ("", "xcrun", [ "simctl", "list", "devices" ]);
 
 	}
 

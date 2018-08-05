@@ -1,7 +1,7 @@
 package lime.tools;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import lime.tools.Project;
 import lime.tools.Platform;
 import hxp.*;
@@ -70,7 +70,7 @@ class ConfigHelper {
 
 				configPath = home + "/.hxp/config.xml";
 
-				if (PlatformHelper.hostPlatform == WINDOWS) {
+				if (System.hostPlatform == WINDOWS) {
 
 					configPath = configPath.split ("/").join ("\\");
 
@@ -82,7 +82,7 @@ class ConfigHelper {
 
 					if (FileSystem.exists (limeConfig)) {
 
-						FileHelper.copyFile (limeConfig, configPath);
+						System.copyFile (limeConfig, configPath);
 
 					}
 
@@ -90,7 +90,7 @@ class ConfigHelper {
 
 				if (!FileSystem.exists (configPath)) {
 
-					PathHelper.mkdir (Path.directory (configPath));
+					System.mkdir (Path.directory (configPath));
 
 					var hxcppConfig = null;
 
@@ -313,9 +313,9 @@ class ConfigHelper {
 
 		try {
 
-			if (!FileSystem.exists (value) && FileSystem.exists (PathHelper.expand (value))) {
+			if (!FileSystem.exists (value) && FileSystem.exists (Path.expand (value))) {
 
-				value = PathHelper.expand (value);
+				value = Path.expand (value);
 
 			}
 

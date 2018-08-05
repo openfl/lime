@@ -21,11 +21,11 @@ class ProjectHelper {
 
 	public static function copyLibrary (project:Project, ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
 
-		var path = PathHelper.getLibraryPath (ndll, directoryName, namePrefix, nameSuffix, allowDebug);
+		var path = NDLL.getLibraryPath (ndll, directoryName, namePrefix, nameSuffix, allowDebug);
 
 		if (FileSystem.exists (path)) {
 
-			var targetPath = PathHelper.combine (targetDirectory, namePrefix + ndll.name);
+			var targetPath = Path.combine (targetDirectory, namePrefix + ndll.name);
 
 			if (targetSuffix != null) {
 
@@ -41,7 +41,7 @@ class ProjectHelper {
 
 				Log.info ("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 
-				PathHelper.mkdir (targetDirectory);
+				System.mkdir (targetDirectory);
 
 				try {
 
@@ -73,9 +73,9 @@ class ProjectHelper {
 		var args = Sys.args ();
 		args.remove ("-watch");
 
-		if (HaxelibHelper.pathOverrides.exists ("lime-tools")) {
+		if (Haxelib.pathOverrides.exists ("lime-tools")) {
 
-			var tools = HaxelibHelper.pathOverrides.get ("lime-tools");
+			var tools = Haxelib.pathOverrides.get ("lime-tools");
 
 			return "neko " + tools + "/tools.n " + args.join (" ");
 
@@ -93,17 +93,17 @@ class ProjectHelper {
 	public static function recursiveSmartCopyTemplate (project:Project, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
 
 		var destinations = [];
-		var paths = PathHelper.findTemplateRecursive (project.templatePaths, source, warnIfNotFound, destinations);
+		var paths = System.findTemplateRecursive (project.templatePaths, source, warnIfNotFound, destinations);
 
 		if (paths != null) {
 
-			PathHelper.mkdir (destination);
+			System.mkdir (destination);
 			var itemDestination;
 
 			for (i in 0...paths.length) {
 
-				itemDestination = PathHelper.combine (destination, ProjectHelper.substitutePath (project, destinations[i]));
-				FileHelper.copyFile (paths[i], itemDestination, context, process);
+				itemDestination = Path.combine (destination, ProjectHelper.substitutePath (project, destinations[i]));
+				System.copyFile (paths[i], itemDestination, context, process);
 
 			}
 
@@ -116,8 +116,8 @@ class ProjectHelper {
 
 		if (string.substr (0, 8) == "haxelib:") {
 
-			var path = HaxelibHelper.getPath (new Haxelib (string.substr (8)), true);
-			return PathHelper.standardize (path);
+			var path = Haxelib.getPath (new Haxelib (string.substr (8)), true);
+			return Path.standardize (path);
 
 		} else if (project.defines.exists (string)) {
 

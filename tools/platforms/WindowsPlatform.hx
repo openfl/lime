@@ -1,7 +1,8 @@
 package;
 
 
-import haxe.io.Path;
+import hxp.Path;
+import hxp.NDLL;
 import haxe.Template;
 import lime.tools.Architecture;
 import lime.tools.Asset;
@@ -10,8 +11,8 @@ import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.CSHelper;
 import lime.tools.DeploymentHelper;
-import hxp.FileHelper;
-import hxp.GUID;
+import hxp.System;
+import lime.tools.GUID;
 import hxp.Haxelib;
 import lime.tools.HTML5Helper;
 import lime.tools.Icon;
@@ -21,14 +22,14 @@ import hxp.Log;
 import lime.tools.ModuleHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.Platform;
-import hxp.PlatformHelper;
+import hxp.System;
 import lime.tools.PlatformTarget;
-import hxp.ProcessHelper;
+import hxp.System;
 import lime.tools.Project;
 import lime.tools.ProjectHelper;
-import hxp.WatchHelper;
+import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -51,7 +52,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			targetType = "winjs";
 
-		} else if (project.targetFlags.exists ("neko") || project.target != cast PlatformHelper.hostPlatform) {
+		} else if (project.targetFlags.exists ("neko") || project.target != cast System.hostPlatform) {
 
 			targetType = "neko";
 
@@ -87,7 +88,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		}
 
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
+		targetDirectory = Path.combine (project.app.path, project.config.getString ("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
 		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
 
 		if (targetType == "winjs") {
@@ -108,13 +109,13 @@ class WindowsPlatform extends PlatformTarget {
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		PathHelper.mkdir (targetDirectory);
+		System.mkdir (targetDirectory);
 
 		var icons = project.icons;
 
 		if (icons.length == 0) {
 
-			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			icons = [ new Icon (System.findTemplate (project.templatePaths, "default/icon.svg")) ];
 
 		}
 
@@ -124,17 +125,17 @@ class WindowsPlatform extends PlatformTarget {
 
 			if (project.app.main != null) {
 
-				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand ("", "haxe", [ hxml ]);
 
 				var msBuildPath = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe";
-				var args = [ PathHelper.tryFullPath (targetDirectory + "/source/" + project.app.file + ".jsproj"), "/p:Configuration=Release" ];
+				var args = [ Path.tryFullPath (targetDirectory + "/source/" + project.app.file + ".jsproj"), "/p:Configuration=Release" ];
 
-				ProcessHelper.runCommand ("", msBuildPath, args);
+				System.runCommand ("", msBuildPath, args);
 				if (noOutput) return;
 
 				if (project.targetFlags.exists ("webgl")) {
 
-					FileHelper.copyFile (targetDirectory + "/source/ApplicationMain.js", outputFile);
+					System.copyFile (targetDirectory + "/source/ApplicationMain.js", outputFile);
 
 				}
 
@@ -159,7 +160,7 @@ class WindowsPlatform extends PlatformTarget {
 				if (StringTools.endsWith (dependency.path, ".dll")) {
 
 					var fileName = Path.withoutDirectory (dependency.path);
-					FileHelper.copyIfNewer (dependency.path, applicationDirectory + "/" + fileName);
+					System.copyIfNewer (dependency.path, applicationDirectory + "/" + fileName);
 
 				}
 
@@ -177,15 +178,15 @@ class WindowsPlatform extends PlatformTarget {
 
 			}
 
-			//IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"));
+			//IconHelper.createIcon (project.icons, 32, 32, Path.combine (applicationDirectory, "icon.png"));
 
 			if (targetType == "neko") {
 
-				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand ("", "haxe", [ hxml ]);
 
 				if (noOutput) return;
 
-				var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+				var iconPath = Path.combine (applicationDirectory, "icon.ico");
 
 				if (!IconHelper.createWindowsIcon (icons, iconPath)) {
 
@@ -198,15 +199,15 @@ class WindowsPlatform extends PlatformTarget {
 
 			} else if (targetType == "hl") {
 
-				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand ("", "haxe", [ hxml ]);
 
 				if (noOutput) return;
 
-				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.hl", PathHelper.combine (applicationDirectory, project.app.file + ".hl"));
+				System.copyFile (targetDirectory + "/obj/ApplicationMain.hl", Path.combine (applicationDirectory, project.app.file + ".hl"));
 
 			} else if (targetType == "nodejs") {
 
-				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand ("", "haxe", [ hxml ]);
 
 				if (noOutput) return;
 
@@ -215,7 +216,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			} else if (targetType == "cs") {
 
-				ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand ("", "haxe", [ hxml ]);
 
 				if (noOutput) return;
 
@@ -227,10 +228,10 @@ class WindowsPlatform extends PlatformTarget {
 
 			} else if (targetType == "java") {
 
-				var libPath = PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates/java/lib/");
+				var libPath = Path.combine (Haxelib.getPath (new Haxelib ("lime")), "templates/java/lib/");
 
-				ProcessHelper.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
-				//ProcessHelper.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
+				//System.runCommand ("", "haxe", [ hxml ]);
 
 				if (noOutput) return;
 
@@ -243,9 +244,9 @@ class WindowsPlatform extends PlatformTarget {
 
 				}
 
-				ProcessHelper.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString ]);
-				FileHelper.recursiveCopy (targetDirectory + "/obj/lib", PathHelper.combine (applicationDirectory, "lib"));
-				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", PathHelper.combine (applicationDirectory, project.app.file + ".jar"));
+				System.runCommand (targetDirectory + "/obj", "haxelib", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString ]);
+				System.recursiveCopy (targetDirectory + "/obj/lib", Path.combine (applicationDirectory, "lib"));
+				System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", Path.combine (applicationDirectory, project.app.file + ".jar"));
 				JavaHelper.copyLibraries (project.templatePaths, "Windows" + (is64 ? "64" : ""), applicationDirectory);
 
 			} else {
@@ -275,33 +276,33 @@ class WindowsPlatform extends PlatformTarget {
 
 				if (!project.targetFlags.exists ("static")) {
 
-					ProcessHelper.runCommand ("", "haxe", haxeArgs);
+					System.runCommand ("", "haxe", haxeArgs);
 
 					if (noOutput) return;
 
 					CPPHelper.compile (project, targetDirectory + "/obj", flags);
 
-					FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+					System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 
 				} else {
 
-					ProcessHelper.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+					System.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
 
 					if (noOutput) return;
 
 					CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
 					CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
 
-					FileHelper.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+					System.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 
 				}
 
-				var iconPath = PathHelper.combine (applicationDirectory, "icon.ico");
+				var iconPath = Path.combine (applicationDirectory, "icon.ico");
 
-				if (IconHelper.createWindowsIcon (icons, iconPath) && PlatformHelper.hostPlatform == WINDOWS) {
+				if (IconHelper.createWindowsIcon (icons, iconPath) && System.hostPlatform == WINDOWS) {
 
-					var templates = [ PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (project.templatePaths);
-					ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
+					var templates = [ Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (project.templatePaths);
+					System.runCommand ("", System.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
 
 				}
 
@@ -316,7 +317,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		if (FileSystem.exists (targetDirectory)) {
 
-			PathHelper.removeDirectory (targetDirectory);
+			System.removeDirectory (targetDirectory);
 
 		}
 
@@ -381,7 +382,7 @@ class WindowsPlatform extends PlatformTarget {
 
 	private function getDisplayHXML ():String {
 
-		var hxml = PathHelper.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
+		var hxml = System.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
 		var template = new Template (File.getContent (hxml));
 
 		var context = generateContext ();
@@ -405,7 +406,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			var commands = [];
 
-			if (!targetFlags.exists ("32") && PlatformHelper.hostArchitecture == X64) {
+			if (!targetFlags.exists ("32") && System.hostArchitecture == X64) {
 
 				if (targetFlags.exists ("winrt")) {
 
@@ -419,7 +420,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			}
 
-			if (!targetFlags.exists ("64") && (command == "rebuild" || PlatformHelper.hostArchitecture == X86)) {
+			if (!targetFlags.exists ("64") && (command == "rebuild" || System.hostArchitecture == X86)) {
 
 				if (targetFlags.exists ("winrt")) {
 
@@ -452,7 +453,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		if (targetType == "hl") {
 
-			ProcessHelper.runCommand (applicationDirectory, "hl", [ project.app.file + ".hl" ].concat (arguments));
+			System.runCommand (applicationDirectory, "hl", [ project.app.file + ".hl" ].concat (arguments));
 
 		} else if (targetType == "nodejs") {
 
@@ -513,11 +514,11 @@ class WindowsPlatform extends PlatformTarget {
 	 		*/
 
 			// Using option B because obtaining the device pin programatically does not seem possible.
-			//ProcessHelper.runCommand ("", "regedit", [ '/s', '"' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"' ]);
+			//System.runCommand ("", "regedit", [ '/s', '"' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"' ]);
 			//var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
 			//Sys.command ('powershell & ""' + targetDirectory + '/bin/source/AppPackages/' + project.app.file + '_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1""');
 			var version = project.meta.version + "." + project.meta.buildNumber;
-			ProcessHelper.openFile (targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test", project.app.file + "_" + version + "_AnyCPU.appx");
+			System.openFile (targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test", project.app.file + "_" + version + "_AnyCPU.appx");
 
 			//source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
 
@@ -525,12 +526,12 @@ class WindowsPlatform extends PlatformTarget {
 
 		} else if (targetType == "java") {
 
-			ProcessHelper.runCommand (applicationDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
+			System.runCommand (applicationDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
 
-		} else if (project.target == cast PlatformHelper.hostPlatform) {
+		} else if (project.target == cast System.hostPlatform) {
 
 			arguments = arguments.concat ([ "-livereload" ]);
-			ProcessHelper.runCommand (applicationDirectory, Path.withoutDirectory (executablePath), arguments);
+			System.runCommand (applicationDirectory, Path.withoutDirectory (executablePath), arguments);
 
 		}
 
@@ -560,8 +561,8 @@ class WindowsPlatform extends PlatformTarget {
 
 			if (asset.embed && asset.sourcePath == "") {
 
-				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
-				PathHelper.mkdir (Path.directory (path));
+				var path = Path.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
@@ -575,7 +576,7 @@ class WindowsPlatform extends PlatformTarget {
 		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
 
 			var programFiles = project.environment.get ("ProgramFiles(x86)");
-			var hasVSCommunity = (programFiles != null && FileSystem.exists (PathHelper.combine (programFiles, "Microsoft Visual Studio/Installer/vswhere.exe")));
+			var hasVSCommunity = (programFiles != null && FileSystem.exists (Path.combine (programFiles, "Microsoft Visual Studio/Installer/vswhere.exe")));
 			var hxcppMSVC = project.environment.get ("HXCPP_MSVC");
 			var vs140 = project.environment.get ("VS140COMNTOOLS");
 
@@ -595,7 +596,7 @@ class WindowsPlatform extends PlatformTarget {
 
 				if (ndll.path == null || ndll.path == "") {
 
-					context.ndlls[i].path = PathHelper.getLibraryPath (ndll, "Windows" + (is64 ? "64" : ""), "lib", suffix, project.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath (ndll, "Windows" + (is64 ? "64" : ""), "lib", suffix, project.debug);
 
 				}
 
@@ -603,10 +604,10 @@ class WindowsPlatform extends PlatformTarget {
 
 		}
 
-		PathHelper.mkdir (targetDirectory);
-		PathHelper.mkdir (targetDirectory + "/obj");
-		PathHelper.mkdir (targetDirectory + "/haxe");
-		PathHelper.mkdir (applicationDirectory);
+		System.mkdir (targetDirectory);
+		System.mkdir (targetDirectory + "/obj");
+		System.mkdir (targetDirectory + "/haxe");
+		System.mkdir (applicationDirectory);
 
 		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 
@@ -619,7 +620,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		}
 
-		/*if (IconHelper.createIcon (project.icons, 32, 32, PathHelper.combine (applicationDirectory, "icon.png"))) {
+		/*if (IconHelper.createIcon (project.icons, 32, 32, Path.combine (applicationDirectory, "icon.png"))) {
 
 			context.HAS_ICON = true;
 			context.WIN_ICON = "icon.png";
@@ -630,16 +631,16 @@ class WindowsPlatform extends PlatformTarget {
 
 			if (asset.embed != true) {
 
-				var path = PathHelper.combine (applicationDirectory, asset.targetPath);
+				var path = Path.combine (applicationDirectory, asset.targetPath);
 
 				if (asset.type != AssetType.TEMPLATE) {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					AssetHelper.copyAssetIfNewer (asset, path);
 
 				} else {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					AssetHelper.copyAsset (asset, path, context);
 
 				}
@@ -656,7 +657,7 @@ class WindowsPlatform extends PlatformTarget {
 		project = project.clone ();
 
 		var destination = targetDirectory + "/source/";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
@@ -679,12 +680,12 @@ class WindowsPlatform extends PlatformTarget {
 
 				if (useWebfonts) {
 
-					fontPath = PathHelper.combine (webfontDirectory, Path.withoutDirectory (asset.targetPath));
+					fontPath = Path.combine (webfontDirectory, Path.withoutDirectory (asset.targetPath));
 
 					if (!FileSystem.exists (fontPath)) {
 
-						PathHelper.mkdir (webfontDirectory);
-						FileHelper.copyFile (asset.sourcePath, fontPath);
+						System.mkdir (webfontDirectory);
+						System.copyFile (asset.sourcePath, fontPath);
 
 						asset.sourcePath = fontPath;
 
@@ -748,17 +749,17 @@ class WindowsPlatform extends PlatformTarget {
 
 		if (icons.length == 0) {
 
-			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			icons = [ new Icon (System.findTemplate (project.templatePaths, "default/icon.svg")) ];
 
 		}
 
-		//if (IconHelper.createWindowsIcon (icons, PathHelper.combine (destination, "favicon.ico"))) {
+		//if (IconHelper.createWindowsIcon (icons, Path.combine (destination, "favicon.ico"))) {
 			//
 			//context.favicons.push ({ rel: "icon", type: "image/x-icon", href: "./favicon.ico" });
 			//
 		//}
 
-		if (IconHelper.createIcon (icons, 192, 192, PathHelper.combine (destination, "favicon.png"))) {
+		if (IconHelper.createIcon (icons, 192, 192, Path.combine (destination, "favicon.png"))) {
 
 			context.favicons.push ({ rel: "shortcut icon", type: "image/png", href: "./favicon.png" });
 
@@ -777,7 +778,7 @@ class WindowsPlatform extends PlatformTarget {
 				var name = Path.withoutDirectory (dependency.path);
 
 				context.linkedLibraries.push ("./js/lib/" + name);
-				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine ("js/lib", name)));
+				System.copyIfNewer (dependency.path, Path.combine (destination, Path.combine ("js/lib", name)));
 
 			}
 
@@ -785,18 +786,18 @@ class WindowsPlatform extends PlatformTarget {
 
 		for (asset in project.assets) {
 
-			var path = PathHelper.combine (destination, asset.targetPath);
+			var path = Path.combine (destination, asset.targetPath);
 
 			if (asset.type != AssetType.TEMPLATE) {
 
 				if (asset.type != AssetType.FONT) {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					AssetHelper.copyAssetIfNewer (asset, path);
 
 				} else if (useWebfonts) {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					var ext = "." + Path.extension (asset.sourcePath);
 					var source = Path.withoutExtension (asset.sourcePath);
 
@@ -804,7 +805,7 @@ class WindowsPlatform extends PlatformTarget {
 
 						if (FileSystem.exists (source + extension)) {
 
-							FileHelper.copyIfNewer (source + extension, path + extension);
+							System.copyIfNewer (source + extension, path + extension);
 
 						} else {
 
@@ -858,11 +859,11 @@ class WindowsPlatform extends PlatformTarget {
 
 		for (asset in project.assets) {
 
-			var path = PathHelper.combine (destination, asset.targetPath);
+			var path = Path.combine (destination, asset.targetPath);
 
 			if (asset.type == AssetType.TEMPLATE) {
 
-				PathHelper.mkdir (Path.directory (path));
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path, context);
 
 			}
@@ -874,9 +875,9 @@ class WindowsPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
 		var command = ProjectHelper.getCurrentCommand ();
-		WatchHelper.watch (command, dirs);
+		System.watch (command, dirs);
 
 	}
 

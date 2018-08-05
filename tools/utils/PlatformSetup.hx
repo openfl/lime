@@ -3,19 +3,19 @@ package utils;
 
 import haxe.Http;
 import haxe.io.Eof;
-import haxe.io.Path;
+import hxp.Path;
 import haxe.zip.Reader;
 #if (hxp > "1.0.0")
 import lime.tools.CLIHelper;
 import lime.tools.ConfigHelper;
-import hxp.FileHelper;
+import hxp.System;
 import hxp.Haxelib;
-import hxp.HaxelibHelper;
+import hxp.Haxelib;
 import hxp.Log;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.Platform;
-import hxp.PlatformHelper;
-import hxp.ProcessHelper;
+import hxp.System;
+import hxp.System;
 import lime.tools.Project;
 import hxp.Version;
 #else
@@ -63,12 +63,12 @@ class PlatformSetup {
 
 			if (path == "") {
 
-				PathHelper.mkdir (defaultPath);
+				System.mkdir (defaultPath);
 				return defaultPath;
 
 			} else {
 
-				PathHelper.mkdir (path);
+				System.mkdir (path);
 				return path;
 
 			}
@@ -168,13 +168,13 @@ class PlatformSetup {
 
 				}
 
-				ProcessHelper.runCommand ("", "tar", [ arguments, sourceZIP ], false);
-				ProcessHelper.runCommand ("", "cp", [ "-R", ignoreRootFolder + "/.", targetPath ], false);
+				System.runCommand ("", "tar", [ arguments, sourceZIP ], false);
+				System.runCommand ("", "cp", [ "-R", ignoreRootFolder + "/.", targetPath ], false);
 				Sys.command ("rm", [ "-r", ignoreRootFolder ]);
 
 			} else {
 
-				ProcessHelper.runCommand ("", "tar", [ arguments, sourceZIP, "-C", targetPath ], false);
+				System.runCommand ("", "tar", [ arguments, sourceZIP, "-C", targetPath ], false);
 
 				//InstallTool.runCommand (targetPath, "tar", [ arguments, FileSystem.fullPath (sourceZIP) ]);
 
@@ -210,7 +210,7 @@ class PlatformSetup {
 						for (d in dirs) {
 
 							path += d;
-							PathHelper.mkdir (targetPath + "/" + path);
+							System.mkdir (targetPath + "/" + path);
 							path += "/";
 
 						}
@@ -380,7 +380,7 @@ class PlatformSetup {
 		if (version != null && version.indexOf ("*") > -1) {
 
 			var regexp = new EReg ("^.+[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +([a-z0-9.-]+) +", "gi");
-			var output = HaxelibHelper.runProcess ("", [ "info", haxelib.name ]);
+			var output = Haxelib.runProcess ("", [ "info", haxelib.name ]);
 			var lines = output.split ("\n");
 
 			var versions = new Array<Version> ();
@@ -401,7 +401,7 @@ class PlatformSetup {
 
 			}
 
-			var match = HaxelibHelper.findMatch (haxelib, versions);
+			var match = Haxelib.findMatch (haxelib, versions);
 
 			if (match != null) {
 
@@ -423,7 +423,7 @@ class PlatformSetup {
 
 		}
 
-		HaxelibHelper.runCommand ("", args);
+		Haxelib.runCommand ("", args);
 
 	}
 
@@ -438,17 +438,17 @@ class PlatformSetup {
 
 	private static function openURL (url:String):Void {
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			Sys.command ("explorer", [ url ]);
 
-		} else if (PlatformHelper.hostPlatform == LINUX) {
+		} else if (System.hostPlatform == LINUX) {
 
-			ProcessHelper.runCommand ("", "xdg-open", [ url ], false);
+			System.runCommand ("", "xdg-open", [ url ], false);
 
 		} else {
 
-			ProcessHelper.runCommand ("", "open", [ url ], false);
+			System.runCommand ("", "open", [ url ], false);
 
 		}
 
@@ -464,7 +464,7 @@ class PlatformSetup {
 
 			if (target == "cpp") {
 
-				switch (PlatformHelper.hostPlatform) {
+				switch (System.hostPlatform) {
 
 					case WINDOWS: target = "windows";
 					case MAC: target = "mac";
@@ -500,7 +500,7 @@ class PlatformSetup {
 
 				case "ios", "iphoneos", "iphonesim":
 
-					if (PlatformHelper.hostPlatform == MAC) {
+					if (System.hostPlatform == MAC) {
 
 						setupIOS ();
 
@@ -508,7 +508,7 @@ class PlatformSetup {
 
 				case "linux":
 
-					if (PlatformHelper.hostPlatform == LINUX) {
+					if (System.hostPlatform == LINUX) {
 
 						setupLinux ();
 
@@ -516,7 +516,7 @@ class PlatformSetup {
 
 				case "mac", "macos":
 
-					if (PlatformHelper.hostPlatform == MAC) {
+					if (System.hostPlatform == MAC) {
 
 						setupMac ();
 
@@ -536,7 +536,7 @@ class PlatformSetup {
 
 				case "windows", "winrt":
 
-					if (PlatformHelper.hostPlatform == WINDOWS) {
+					if (System.hostPlatform == WINDOWS) {
 
 						setupWindows ();
 
@@ -556,7 +556,7 @@ class PlatformSetup {
 
 				case "tvos", "tvsim":
 
-					if (PlatformHelper.hostPlatform == MAC) {
+					if (System.hostPlatform == MAC) {
 
 						setupIOS ();
 
@@ -589,21 +589,21 @@ class PlatformSetup {
 
 	private static function runInstaller (path:String, message:String = "Waiting for process to complete..."):Void {
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			try {
 
 				Log.println (message);
-				ProcessHelper.runCommand ("", "call", [ path ], false);
+				System.runCommand ("", "call", [ path ], false);
 				Log.println ("Done");
 
 			} catch (e:Dynamic) {}
 
-		} else if (PlatformHelper.hostPlatform == LINUX) {
+		} else if (System.hostPlatform == LINUX) {
 
 			if (Path.extension (path) == "deb") {
 
-				ProcessHelper.runCommand ("", "sudo", [ "dpkg", "-i", "--force-architecture", path ], false);
+				System.runCommand ("", "sudo", [ "dpkg", "-i", "--force-architecture", path ], false);
 
 			} else {
 
@@ -612,11 +612,11 @@ class PlatformSetup {
 
 				if (path.substr (0, 1) == "/") {
 
-					ProcessHelper.runCommand ("", path, [], false);
+					System.runCommand ("", path, [], false);
 
 				} else {
 
-					ProcessHelper.runCommand ("", "./" + path, [], false);
+					System.runCommand ("", "./" + path, [], false);
 
 				}
 
@@ -630,7 +630,7 @@ class PlatformSetup {
 
 				Log.println (message);
 				Sys.command ("chmod", [ "755", path ]);
-				ProcessHelper.runCommand ("", path, [], false);
+				System.runCommand ("", path, [], false);
 				Log.println ("Done");
 
 			} else if (Path.extension (path) == "dmg") {
@@ -695,7 +695,7 @@ class PlatformSetup {
 					if (file != "") {
 
 						Log.println (message);
-						ProcessHelper.runCommand ("", "open", [ "-W", volumePath + "/" + file ], false);
+						System.runCommand ("", "open", [ "-W", volumePath + "/" + file ], false);
 						Log.println ("Done");
 
 					}
@@ -712,19 +712,19 @@ class PlatformSetup {
 
 					if (file == "") {
 
-						ProcessHelper.runCommand ("", "open", [ path ], false);
+						System.runCommand ("", "open", [ path ], false);
 
 					}
 
 				} else {
 
-					ProcessHelper.runCommand ("", "open", [ path ], false);
+					System.runCommand ("", "open", [ path ], false);
 
 				}
 
 			} else {
 
-				ProcessHelper.runCommand ("", "open", [ path ], false);
+				System.runCommand ("", "open", [ path ], false);
 
 			}
 
@@ -759,7 +759,7 @@ class PlatformSetup {
 		getDefineValue ("ANDROID_SDK", "Path to Android SDK");
 		getDefineValue ("ANDROID_NDK_ROOT", "Path to Android NDK");
 
-		if (PlatformHelper.hostPlatform != MAC) {
+		if (System.hostPlatform != MAC) {
 
 			getDefineValue ("JAVA_HOME", "Path to Java JDK");
 
@@ -786,7 +786,7 @@ class PlatformSetup {
 		getDefineValue ("ELECTRON_PATH", "Path to Electron runtime");
 
 		Log.println ("");
-		HaxelibHelper.runCommand ("", [ "install", "electron" ], true, true);
+		Haxelib.runCommand ("", [ "install", "electron" ], true, true);
 
 		Log.println ("");
 		Log.println ("Setup complete.");
@@ -815,14 +815,14 @@ class PlatformSetup {
 		var defines = new Map<String, Dynamic> ();
 		defines.set ("setup", 1);
 
-		var basePath = HaxelibHelper.runProcess ("", [ "config" ]);
+		var basePath = Haxelib.runProcess ("", [ "config" ]);
 		if (basePath != null) {
 
 			basePath = StringTools.trim (basePath.split ("\n")[0]);
 
 		}
-		var lib = HaxelibHelper.getPath (haxelib, false, true);
-		if (lib != null && !StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
+		var lib = Haxelib.getPath (haxelib, false, true);
+		if (lib != null && !StringTools.startsWith (Path.standardize (lib), Path.standardize (basePath))) {
 
 			defines.set ("dev", 1);
 
@@ -836,7 +836,7 @@ class PlatformSetup {
 
 				if (setupHaxelibs.exists (lib.name)) continue;
 
-				var path = HaxelibHelper.getPath (lib, false, true);
+				var path = Haxelib.getPath (lib, false, true);
 
 				if (path == null || path == "" || (lib.version != null && lib.version != "")) {
 
@@ -879,7 +879,7 @@ class PlatformSetup {
 		// 	var downloadPath = "";
 		// 	var defaultInstallPath = "";
 
-		// 	if (PlatformHelper.hostPlatform == WINDOWS) {
+		// 	if (System.hostPlatform == WINDOWS) {
 
 		// 		defaultInstallPath = "C:\\Development\\Apache Cordova";
 
@@ -939,9 +939,9 @@ class PlatformSetup {
 
 		// 	}
 
-		// 	if (PlatformHelper.hostPlatform != WINDOWS) {
+		// 	if (System.hostPlatform != WINDOWS) {
 
-		// 		ProcessHelper.runCommand ("", "chmod", [ "-R", "777", path ], false);
+		// 		System.runCommand ("", "chmod", [ "-R", "777", path ], false);
 
 		// 	}
 
@@ -975,12 +975,12 @@ class PlatformSetup {
 
 		// /*Sys.println ("");
 		// Sys.println ("Setting Apache Cordova install path...");
-		// ProcessHelper.runCommand (defines.get ("CORDOVA_PATH") + "/lib/ios", "make", [ "install" ], true, true);
+		// System.runCommand (defines.get ("CORDOVA_PATH") + "/lib/ios", "make", [ "install" ], true, true);
 		// Sys.println ("Done.");*/
 
 		// writeConfig (defines.get ("LIME_CONFIG"), defines);
 
-		// HaxelibHelper.runCommand ("", [ "install", "cordova" ], true, true);
+		// Haxelib.runCommand ("", [ "install", "cordova" ], true, true);
 
 	}
 
@@ -997,7 +997,7 @@ class PlatformSetup {
 
 		if (answer == YES || answer == ALWAYS) {
 
-			ProcessHelper.openURL (appleXcodeURL);
+			System.openURL (appleXcodeURL);
 
 		}
 
@@ -1014,7 +1014,7 @@ class PlatformSetup {
 
 		var haxePath = Sys.getEnv ("HAXEPATH");
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			if (haxePath == null || haxePath == "") {
 
@@ -1022,8 +1022,8 @@ class PlatformSetup {
 
 			}
 
-			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
-			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
+			try { File.copy (Haxelib.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
+			try { File.copy (Haxelib.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
 
 		} else {
 
@@ -1050,8 +1050,8 @@ class PlatformSetup {
 
 				try {
 
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
+					System.runCommand ("", "sudo", [ "cp", "-f", Haxelib.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
+					System.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
 					installedCommand = true;
 
 				} catch (e:Dynamic) {}
@@ -1066,7 +1066,7 @@ class PlatformSetup {
 				Sys.println (" a) Manually add an alias called \"lime\" to run \"haxelib run lime\"");
 				Sys.println (" b) Run the following commands:");
 				Sys.println ("");
-				Sys.println ("sudo cp \"" + PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
+				Sys.println ("sudo cp \"" + Path.combine (Haxelib.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
 				Sys.println ("sudo chmod 755 /usr/local/bin/lime");
 				Sys.println ("");
 
@@ -1074,7 +1074,7 @@ class PlatformSetup {
 
 		}
 
-		if (PlatformHelper.hostPlatform == MAC) {
+		if (System.hostPlatform == MAC) {
 
 			ConfigHelper.writeConfigValue ("MAC_USE_CURRENT_SDK", "1");
 
@@ -1085,21 +1085,21 @@ class PlatformSetup {
 
 	public static function setupLinux ():Void {
 
-		var whichAptGet = ProcessHelper.runProcess ("", "which", ["apt-get"], true, true, true);
+		var whichAptGet = System.runProcess ("", "which", ["apt-get"], true, true, true);
 		var hasApt = whichAptGet != null && whichAptGet != "";
 
 		if (hasApt) {
 
 			// check if this is ubuntu saucy 64bit, which uses different packages.
-			var lsbId = ProcessHelper.runProcess ("", "lsb_release", ["-si"], true, true, true);
-			var lsbRelease = ProcessHelper.runProcess ("", "lsb_release", ["-sr"], true, true, true);
-			var arch = ProcessHelper.runProcess ("", "uname", ["-m"], true, true, true);
+			var lsbId = System.runProcess ("", "lsb_release", ["-si"], true, true, true);
+			var lsbRelease = System.runProcess ("", "lsb_release", ["-sr"], true, true, true);
+			var arch = System.runProcess ("", "uname", ["-m"], true, true, true);
 			var isSaucy = lsbId == "Ubuntu\n" &&  lsbRelease >= "13.10\n" && arch == "x86_64\n";
 
 			var packages = isSaucy ? linuxUbuntuSaucyPackages : linuxAptPackages;
 
 			var parameters = [ "apt-get", "install" ].concat (packages.split (" "));
-			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			System.runCommand ("", "sudo", parameters, false);
 
 			Log.println ("");
 			Log.println ("Setup complete.");
@@ -1107,13 +1107,13 @@ class PlatformSetup {
 
 		}
 
-		var whichYum = ProcessHelper.runProcess ("", "which", ["yum"], true, true, true);
+		var whichYum = System.runProcess ("", "which", ["yum"], true, true, true);
 		var hasYum = whichYum != null && whichYum != "";
 
 		if (hasYum) {
 
 			var parameters = [ "yum", "install" ].concat (linuxYumPackages.split (" "));
-			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			System.runCommand ("", "sudo", parameters, false);
 
 			Log.println ("");
 			Log.println ("Setup complete.");
@@ -1121,13 +1121,13 @@ class PlatformSetup {
 
 		}
 
-		var whichDnf = ProcessHelper.runProcess ("", "which", ["dnf"], true, true, true);
+		var whichDnf = System.runProcess ("", "which", ["dnf"], true, true, true);
 		var hasDnf = whichDnf != null && whichDnf != "";
 
 		if (hasDnf) {
 
 			var parameters = [ "dnf", "install" ].concat (linuxDnfPackages.split (" "));
-			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			System.runCommand ("", "sudo", parameters, false);
 
 			Log.println ("");
 			Log.println ("Setup complete.");
@@ -1135,14 +1135,14 @@ class PlatformSetup {
 
 		}
 
-		var whichEquo = ProcessHelper.runProcess ("", "which", ["equo"], true,true, true);
+		var whichEquo = System.runProcess ("", "which", ["equo"], true,true, true);
 		var hasEquo = whichEquo != null && whichEquo != "";
 
 		if (hasEquo) {
 
 			// Sabayon docs recommend not using sudo with equo, and instead using a root login shell
 			var parameters = [ "-l", "-c", "equo", "i", "-av" ].concat (linuxEquoPackages.split (" "));
-			ProcessHelper.runCommand ("", "su", parameters, false);
+			System.runCommand ("", "su", parameters, false);
 
 			Log.println ("");
 			Log.println ("Setup complete.");
@@ -1150,13 +1150,13 @@ class PlatformSetup {
 
 		}
 
-		var whichEmerge = ProcessHelper.runProcess ("", "which", ["emerge"], true,true, true);
+		var whichEmerge = System.runProcess ("", "which", ["emerge"], true,true, true);
 		var hasEmerge = whichEmerge != null && whichEmerge != "";
 
 		if (hasEmerge) {
 
 			var parameters = [ "emerge", "-av" ].concat (linuxEmergePackages.split (" "));
-			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			System.runCommand ("", "sudo", parameters, false);
 
 			Log.println ("");
 			Log.println ("Setup complete.");
@@ -1164,14 +1164,14 @@ class PlatformSetup {
 
 		}
 
-		var whichPacman = ProcessHelper.runProcess ("", "which", ["pacman"], true, true, true);
+		var whichPacman = System.runProcess ("", "which", ["pacman"], true, true, true);
 		var hasPacman = whichPacman != null && whichPacman != "";
 
 		if (hasPacman) {
 
 			var parameters = [ "pacman", "-S", "--needed" ];
 
-			if (PlatformHelper.hostArchitecture == X64) {
+			if (System.hostArchitecture == X64) {
 
 				parameters = parameters.concat (linuxPacman64Packages.split (" "));
 
@@ -1181,7 +1181,7 @@ class PlatformSetup {
 
 			}
 
-			ProcessHelper.runCommand ("", "sudo", parameters, false);
+			System.runCommand ("", "sudo", parameters, false);
 
 			Log.println ("");
 			Log.println ("Setup complete.");
@@ -1209,7 +1209,7 @@ class PlatformSetup {
 
 		if (answer == YES || answer == ALWAYS) {
 
-			ProcessHelper.openURL (appleXcodeURL);
+			System.openURL (appleXcodeURL);
 
 		}
 
@@ -1233,7 +1233,7 @@ class PlatformSetup {
 
 		} catch (e:Dynamic) {}
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			if (haxePath == null || haxePath == "") {
 
@@ -1241,13 +1241,13 @@ class PlatformSetup {
 
 			}
 
-			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
-			try { File.copy (HaxelibHelper.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
+			try { File.copy (Haxelib.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe"); } catch (e:Dynamic) {}
+			try { File.copy (Haxelib.getPath (new Haxelib ("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime"); } catch (e:Dynamic) {}
 
 			try {
 
-				FileHelper.copyFileTemplate (project.templatePaths, "bin/openfl.exe", haxePath + "\\openfl.exe");
-				FileHelper.copyFileTemplate (project.templatePaths, "bin/openfl.sh", haxePath + "\\openfl");
+				System.copyFileTemplate (project.templatePaths, "bin/openfl.exe", haxePath + "\\openfl.exe");
+				System.copyFileTemplate (project.templatePaths, "bin/openfl.sh", haxePath + "\\openfl");
 
 			} catch (e:Dynamic) {}
 
@@ -1276,10 +1276,10 @@ class PlatformSetup {
 
 				try {
 
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "cp", "-f", PathHelper.findTemplate (project.templatePaths, "bin/openfl.sh"), "/usr/local/bin/openfl" ], false);
-					ProcessHelper.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/openfl" ], false);
+					System.runCommand ("", "sudo", [ "cp", "-f", Haxelib.getPath (new Haxelib ("lime")) + "/templates/bin/lime.sh", "/usr/local/bin/lime" ], false);
+					System.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/lime" ], false);
+					System.runCommand ("", "sudo", [ "cp", "-f", System.findTemplate (project.templatePaths, "bin/openfl.sh"), "/usr/local/bin/openfl" ], false);
+					System.runCommand ("", "sudo", [ "chmod", "755", "/usr/local/bin/openfl" ], false);
 					installedCommand = true;
 
 				} catch (e:Dynamic) {}
@@ -1294,9 +1294,9 @@ class PlatformSetup {
 				Sys.println (" a) Manually add an alias called \"openfl\" to run \"haxelib run openfl\"");
 				Sys.println (" b) Run the following commands:");
 				Sys.println ("");
-				Sys.println ("sudo cp \"" + PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
+				Sys.println ("sudo cp \"" + Path.combine (Haxelib.getPath (new Haxelib ("lime")), "templates/bin/lime.sh") + "\" /usr/local/bin/lime");
 				Sys.println ("sudo chmod 755 /usr/local/bin/lime");
-				Sys.println ("sudo cp \"" + PathHelper.findTemplate (project.templatePaths, "bin/openfl.sh") + "\" /usr/local/bin/openfl");
+				Sys.println ("sudo cp \"" + System.findTemplate (project.templatePaths, "bin/openfl.sh") + "\" /usr/local/bin/openfl");
 				Sys.println ("sudo chmod 755 /usr/local/bin/openfl");
 				Sys.println ("");
 
@@ -1304,7 +1304,7 @@ class PlatformSetup {
 
 		}
 
-		if (PlatformHelper.hostPlatform == MAC) {
+		if (System.hostPlatform == MAC) {
 
 			ConfigHelper.writeConfigValue ("MAC_USE_CURRENT_SDK", "1");
 
@@ -1327,7 +1327,7 @@ class PlatformSetup {
 
 		if (answer == YES || answer == ALWAYS) {
 
-			ProcessHelper.openURL (visualStudioURL);
+			System.openURL (visualStudioURL);
 
 		}
 
@@ -1336,7 +1336,7 @@ class PlatformSetup {
 
 	private static function throwPermissionsError () {
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			Log.println ("Unable to access directory. Perhaps you need to run \"setup\" with administrative privileges?");
 
@@ -1361,7 +1361,7 @@ class PlatformSetup {
 
 		path = StringTools.replace (path, "\\ ", " ");
 
-		if (PlatformHelper.hostPlatform != WINDOWS && StringTools.startsWith (path, "~/")) {
+		if (System.hostPlatform != WINDOWS && StringTools.startsWith (path, "~/")) {
 
 			path = Sys.getEnv ("HOME") + "/" + path.substr (2);
 
@@ -1374,7 +1374,7 @@ class PlatformSetup {
 
 	public static function updateHaxelib (haxelib:Haxelib):Void {
 
-		var basePath = HaxelibHelper.runProcess ("", [ "config" ]);
+		var basePath = Haxelib.runProcess ("", [ "config" ]);
 
 		if (basePath != null) {
 
@@ -1382,21 +1382,21 @@ class PlatformSetup {
 
 		}
 
-		var lib = HaxelibHelper.getPath (haxelib, false, true);
+		var lib = Haxelib.getPath (haxelib, false, true);
 
-		if (StringTools.startsWith (PathHelper.standardize (lib), PathHelper.standardize (basePath))) {
+		if (StringTools.startsWith (Path.standardize (lib), Path.standardize (basePath))) {
 
-			HaxelibHelper.runCommand ("", [ "update", haxelib.name ]);
+			Haxelib.runCommand ("", [ "update", haxelib.name ]);
 
 		} else {
 
-			var git = PathHelper.combine (lib, ".git");
+			var git = Path.combine (lib, ".git");
 
 			if (FileSystem.exists (git)) {
 
 				Log.info (Log.accentColor + "Updating \"" + haxelib.name + "\"" + Log.resetColor);
 
-				if (PlatformHelper.hostPlatform == WINDOWS) {
+				if (System.hostPlatform == WINDOWS) {
 
 					var path = Sys.getEnv ("PATH");
 
@@ -1408,9 +1408,9 @@ class PlatformSetup {
 
 				}
 
-				ProcessHelper.runCommand (lib, "git", [ "pull" ]);
-				ProcessHelper.runCommand (lib, "git", [ "submodule", "init" ]);
-				ProcessHelper.runCommand (lib, "git", [ "submodule", "update" ]);
+				System.runCommand (lib, "git", [ "pull" ]);
+				System.runCommand (lib, "git", [ "submodule", "init" ]);
+				System.runCommand (lib, "git", [ "submodule", "update" ]);
 
 			}
 

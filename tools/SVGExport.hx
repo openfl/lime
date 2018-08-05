@@ -2,7 +2,7 @@ package;
 
 
 import format.SVG;
-import haxe.io.Path;
+import hxp.Path;
 import hxp.helpers.Log;
 import hxp.helpers.PathHelper;
 import hxp.helpers.PlatformHelper;
@@ -30,7 +30,7 @@ class SVGExport {
 
 		if (FileSystem.exists ("svg.n")) {
 
-			path = PathHelper.combine (Sys.getCwd (), "../ndll/");
+			path = Path.combine (Sys.getCwd (), "../ndll/");
 
 		}
 
@@ -59,7 +59,7 @@ class SVGExport {
 
 		}
 
-		switch (PlatformHelper.hostPlatform) {
+		switch (System.hostPlatform) {
 
 			case WINDOWS:
 
@@ -85,7 +85,7 @@ class SVGExport {
 
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 
-				} else if (PlatformHelper.hostArchitecture == X64) {
+				} else if (System.hostArchitecture == X64) {
 
 					untyped $loader.path = $array (path + "Linux64/", $loader.path);
 
