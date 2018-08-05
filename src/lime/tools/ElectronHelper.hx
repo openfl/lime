@@ -1,8 +1,7 @@
 package lime.tools;
 
 
-import hxp.Path;
-import hxp.System;
+import hxp.*;
 import lime.tools.Project;
 
 

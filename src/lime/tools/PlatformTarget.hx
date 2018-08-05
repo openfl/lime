@@ -2,9 +2,9 @@ package lime.tools;
 
 
 import haxe.rtti.Meta;
+import hxp.*;
 import lime.tools.AssetHelper;
 import lime.tools.CommandHelper;
-import hxp.Log;
 
 
 class PlatformTarget {

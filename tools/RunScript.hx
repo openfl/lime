@@ -1,14 +1,7 @@
 package;
 
 
-import hxp.Path;
-import hxp.helpers.FileHelper;
-import hxp.helpers.HaxelibHelper;
-import hxp.helpers.Log;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.ProcessHelper;
-import lime.tools.Project.Haxelib;
+import hxp.*;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;

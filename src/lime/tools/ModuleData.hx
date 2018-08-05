@@ -1,7 +1,7 @@
 package lime.tools;
 
 
-import hxp.ArrayTools;
+import hxp.*;
 
 
 class ModuleData {

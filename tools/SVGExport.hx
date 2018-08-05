@@ -2,11 +2,8 @@ package;
 
 
 import format.SVG;
-import hxp.Path;
-import hxp.helpers.Log;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import lime.tools.Project.Architecture;
+import hxp.*;
+import lime.tools.Architecture;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.PNGEncoderOptions;

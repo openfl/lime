@@ -2,21 +2,11 @@ package lime.tools;
 
 
 import haxe.io.Eof;
-import hxp.Path;
 import haxe.xml.Fast;
 import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
-import hxp.ArrayTools;
-import hxp.System;
-import hxp.Haxelib;
-import hxp.Log;
-import hxp.ObjectTools;
-import hxp.Path;
-import hxp.System;
-import hxp.System;
-import hxp.StringTools;
-import hxp.MapTools;
+import hxp.*;
 import lime.tools.AssetType;
 import sys.FileSystem;
 import sys.io.File;

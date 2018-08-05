@@ -6,7 +6,6 @@ package;
 //import openfl.utils.CompressionAlgorithm;
 import haxe.Serializer;
 import haxe.Unserializer;
-import hxp.Path;
 import haxe.rtti.Meta;
 import hxp.*;
 import lime.system.CFFI;

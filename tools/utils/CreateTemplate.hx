@@ -1,11 +1,7 @@
 package utils;
 
 
-import hxp.System;
-import hxp.Haxelib;
-import hxp.Haxelib;
-import hxp.Log;
-import hxp.Path;
+import hxp.*;
 import lime.tools.Project;
 import lime.tools.ProjectHelper;
 import sys.FileSystem;

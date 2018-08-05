@@ -1,15 +1,13 @@
 package lime.tools;
 
 
+import hxp.*;
 #if (lime && lime_cffi && !macro)
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.utils.UInt8Array;
 #end
-import hxp.Path;
-import hxp.Haxelib;
 import lime.tools.Platform;
-import hxp.*;
 import sys.io.File;
 import sys.FileSystem;
 

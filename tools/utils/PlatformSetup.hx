@@ -3,35 +3,12 @@ package utils;
 
 import haxe.Http;
 import haxe.io.Eof;
-import hxp.Path;
 import haxe.zip.Reader;
-#if (hxp > "1.0.0")
+import hxp.*;
 import lime.tools.CLIHelper;
 import lime.tools.ConfigHelper;
-import hxp.System;
-import hxp.Haxelib;
-import hxp.Haxelib;
-import hxp.Log;
-import hxp.Path;
 import lime.tools.Platform;
-import hxp.System;
-import hxp.System;
 import lime.tools.Project;
-import hxp.Version;
-#else
-import hxp.helpers.CLIHelper;
-import hxp.helpers.ConfigHelper;
-import hxp.helpers.FileHelper;
-import hxp.helpers.HaxelibHelper;
-import hxp.helpers.Log;
-import hxp.helpers.PathHelper;
-import hxp.helpers.PlatformHelper;
-import hxp.helpers.ProcessHelper;
-import lime.tools.Project.Haxelib;
-import lime.tools.Project.HXProject in Project;
-import lime.tools.Project.Platform;
-import lime.tools.Project.Version;
-#end
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;

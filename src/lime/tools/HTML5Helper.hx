@@ -1,19 +1,11 @@
 package lime.tools;
 
 
-import hxp.Path;
-import haxe.Timer;
-import hxp.Log;
-import hxp.Path;
-import hxp.System;
-import hxp.System;
-import lime.tools.Architecture;
 import hxp.*;
+import lime.tools.Architecture;
 import lime.tools.Asset;
-import hxp.Haxelib;
 import lime.tools.Project;
 import lime.tools.Platform;
-import hxp.Version;
 import sys.FileSystem;
 import sys.io.File;
 

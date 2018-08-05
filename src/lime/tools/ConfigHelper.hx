@@ -1,10 +1,9 @@
 package lime.tools;
 
 
-import hxp.Path;
+import hxp.*;
 import lime.tools.Project;
 import lime.tools.Platform;
-import hxp.*;
 import lime.tools.ProjectXMLParser;
 import sys.io.File;
 import sys.FileSystem;

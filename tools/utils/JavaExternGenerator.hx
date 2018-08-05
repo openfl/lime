@@ -5,17 +5,9 @@ import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.io.Input;
 import haxe.io.Output;
-import hxp.Path;
 import haxe.zip.Reader;
-#if (hxp > "1.0.0")
-import hxp.Path;
-import hxp.System;
+import hxp.*;
 import lime.tools.Project;
-#else
-import hxp.helpers.PathHelper;
-import hxp.helpers.ProcessHelper;
-import lime.tools.Project.HXProject in Project;
-#end
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;

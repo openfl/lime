@@ -1,11 +1,7 @@
 package lime.tools;
 
 
-import hxp.Path;
-import hxp.System;
-import hxp.ObjectTools;
-import hxp.StringTools;
-import hxp.Path;
+import hxp.*;
 import lime.tools.AssetType;
 import sys.FileSystem;
 

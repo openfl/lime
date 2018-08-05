@@ -1,12 +1,10 @@
 package lime.tools;
 
 
-import hxp.Path;
+import hxp.*;
 import lime.tools.Architecture;
-import hxp.Haxelib;
 import lime.tools.Project;
 import lime.tools.Platform;
-import hxp.*;
 
 
 class NodeJSHelper {

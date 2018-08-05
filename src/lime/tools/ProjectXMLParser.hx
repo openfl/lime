@@ -1,7 +1,6 @@
 package lime.tools;
 
 
-import hxp.Path;
 import haxe.xml.Fast;
 import hxp.*;
 import lime.tools.CommandHelper;
@@ -9,7 +8,6 @@ import lime.tools.ModuleHelper;
 import lime.tools.Asset;
 import lime.tools.AssetType;
 import lime.tools.Dependency;
-import hxp.Haxelib;
 import lime.tools.Project;
 #if lime
 import lime.utils.AssetManifest;

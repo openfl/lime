@@ -1,10 +1,8 @@
 package lime.tools; #if lime
 
 
-import hxp.Path;
 import haxe.Serializer;
 import haxe.Unserializer;
-import hxp.Path;
 import hxp.*;
 import lime.tools.AssetType;
 import lime.tools.Asset;

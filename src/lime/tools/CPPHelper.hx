@@ -1,9 +1,6 @@
 package lime.tools;
 
 
-import hxp.Log;
-import hxp.System;
-import hxp.System;
 import hxp.*;
 import lime.tools.Project;
 import lime.tools.Platform;

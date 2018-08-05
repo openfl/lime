@@ -1,10 +1,8 @@
 package lime.tools; #if !macro
 
 
-import hxp.Path;
-import lime.tools.Dependency;
-import hxp.Haxelib;
 import hxp.*;
+import lime.tools.Dependency;
 import lime.tools.Project;
 import lime.tools.ModuleData;
 import sys.io.File;

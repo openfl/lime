@@ -1,7 +1,6 @@
 package lime.tools;
 
 
-import hxp.Path;
 import hxp.*;
 import sys.FileSystem;
 

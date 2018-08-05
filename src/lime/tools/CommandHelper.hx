@@ -1,9 +1,9 @@
 package lime.tools;
 
 
+import hxp.*;
 import lime.tools.CLICommand;
 import lime.tools.Platform;
-import hxp.*;
 
 
 class CommandHelper {

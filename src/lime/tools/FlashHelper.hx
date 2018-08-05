@@ -4,7 +4,7 @@ package lime.tools;
 //import openfl.text.Font;
 //import openfl.utils.ByteArray;
 import haxe.io.Bytes;
-import hxp.Path;
+import hxp.*;
 import lime.tools.Asset;
 import lime.tools.AssetEncoding;
 import lime.tools.AssetType;
@@ -12,9 +12,6 @@ import lime.tools.Project;
 #if (lime && lime_cffi && !macro)
 import lime.text.Font;
 #end
-import hxp.Log;
-import hxp.System;
-import hxp.*;
 import sys.io.File;
 import sys.FileSystem;
 import sys.io.FileSeek;

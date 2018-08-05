@@ -1,12 +1,8 @@
 package lime.tools;
 
 
-import hxp.Path;
-import lime.tools.Platform;
-import hxp.Path;
-import hxp.System;
-import hxp.Haxelib;
 import hxp.*;
+import lime.tools.Platform;
 import lime.tools.Project;
 import sys.io.Process;
 import sys.FileSystem;

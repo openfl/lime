@@ -1,16 +1,11 @@
 package lime.tools;
 
 
-import hxp.Path;
 import haxe.Unserializer;
+import hxp.*;
 import lime.tools.Architecture;
-import hxp.Haxelib;
 import lime.tools.Project;
 import lime.tools.Platform;
-import hxp.Haxelib;
-import hxp.Log;
-import hxp.Path;
-import hxp.System;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
