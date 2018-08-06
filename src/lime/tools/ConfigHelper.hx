@@ -22,13 +22,13 @@ class ConfigHelper {
 
 		if (FileSystem.exists (config)) {
 
-			Log.info ("", Log.accentColor + "Reading HXP config: " + config + Log.resetColor);
+			Log.info ("", Log.accentColor + "Reading Lime config: " + config + Log.resetColor);
 
 			return new ProjectXMLParser (config);
 
 		} else {
 
-			Log.warn ("", "Could not read HXP config: " + config);
+			Log.warn ("", "Could not read Lime config: " + config);
 
 		}
 
@@ -43,9 +43,9 @@ class ConfigHelper {
 
 			var environment = Sys.environment ();
 
-			if (environment.exists ("HXP_CONFIG")) {
+			if (environment.exists ("LIME_CONFIG")) {
 
-				configPath = environment.get ("HXP_CONFIG");
+				configPath = environment.get ("LIME_CONFIG");
 
 			} else {
 
@@ -67,23 +67,11 @@ class ConfigHelper {
 
 				}
 
-				configPath = home + "/.hxp/config.xml";
+				configPath = home + "/.lime/config.xml";
 
 				if (System.hostPlatform == WINDOWS) {
 
 					configPath = configPath.split ("/").join ("\\");
-
-				}
-
-				if (!FileSystem.exists (configPath)) {
-
-					var limeConfig = home + "/.lime/config.xml";
-
-					if (FileSystem.exists (limeConfig)) {
-
-						System.copyFile (limeConfig, configPath);
-
-					}
 
 				}
 
