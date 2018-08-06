@@ -7,7 +7,7 @@ class ElectronSetup {
 
 	static function main()
 	{
-		electron.main.App.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
+		untyped (electron.main.App).commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
 
 		var windows:Array<OpenFLWindow> = [
 			::foreach windows::
