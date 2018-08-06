@@ -1,4 +1,7 @@
 {
+    "haxe.displayConfigurations": [
+        [ "--cwd", "tools", "tools.hxml" ]
+    ],
     "editor.insertSpaces": false,
     "editor.trimAutoWhitespace": true,
     "codedox": {
