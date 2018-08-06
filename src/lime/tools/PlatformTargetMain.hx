@@ -4,7 +4,7 @@ package lime.tools;
 import haxe.Unserializer;
 import hxp.*;
 import lime.tools.Architecture;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.io.File;
 import sys.io.Process;
@@ -136,7 +136,7 @@ class PlatformTargetMain {
 
 				var unserializer = new Unserializer (projectData);
 				unserializer.setResolver (cast { resolveEnum: Type.resolveEnum, resolveClass: resolveClass });
-				var project:Project = unserializer.unserialize ();
+				var project:HXProject = unserializer.unserialize ();
 
 				var platform = Type.createInstance (classRef, [ command, project, project.targetFlags ]);
 				platform.traceEnabled = traceEnabled;
@@ -159,7 +159,7 @@ class PlatformTargetMain {
 
 		if (result == null) {
 
-			result = Project;
+			result = HXProject;
 
 		}
 

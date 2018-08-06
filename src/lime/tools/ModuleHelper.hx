@@ -3,7 +3,7 @@ package lime.tools; #if !macro
 
 import hxp.*;
 import lime.tools.Dependency;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.ModuleData;
 import sys.io.File;
 import sys.FileSystem;
@@ -36,7 +36,7 @@ class ModuleHelper {
 	}
 
 
-	public static function buildModules (project:Project, tempDirectory:String, outputDirectory:String):Void {
+	public static function buildModules (project:HXProject, tempDirectory:String, outputDirectory:String):Void {
 
 		tempDirectory = Path.combine (tempDirectory, "lib");
 		outputDirectory = Path.combine (outputDirectory, "lib");
@@ -210,7 +210,7 @@ class ModuleHelper {
 	}
 
 
-	public static function updateProject (project:Project):Void {
+	public static function updateProject (project:HXProject):Void {
 
 		var excludeTypes = [];
 		var suffix = (project.targetFlags.exists ("final") ? ".min" : "") + ".js";

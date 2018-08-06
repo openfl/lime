@@ -7,7 +7,7 @@ import haxe.io.Input;
 import haxe.io.Output;
 import haxe.zip.Reader;
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -30,7 +30,7 @@ class JavaExternGenerator
 	private static var base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var fmatch = ~/^\((.*)\)(.*)/;
 
-	private var config:Project;
+	private var config:HXProject;
 	private var externPath:String;
 	private var extractedAndroidClasses:Bool;
 	private var extractedAndroidPaths:Array<String>;
@@ -46,7 +46,7 @@ class JavaExternGenerator
 	private var retType:JNIType;
 
 
-	public function new(config:Project, javaPath:String, externPath:String)
+	public function new(config:HXProject, javaPath:String, externPath:String)
 	{
 		this.config = config;
 		this.javaPath = javaPath;

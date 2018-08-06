@@ -19,7 +19,7 @@ class ProjectHelper {
 	private static var varMatch = new EReg ("{{(.*?)}}", "");
 
 
-	public static function copyLibrary (project:Project, ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
+	public static function copyLibrary (project:HXProject, ndll:NDLL, directoryName:String, namePrefix:String, nameSuffix:String, targetDirectory:String, allowDebug:Bool = false, targetSuffix:String = null) {
 
 		var path = NDLL.getLibraryPath (ndll, directoryName, namePrefix, nameSuffix, allowDebug);
 
@@ -90,7 +90,7 @@ class ProjectHelper {
 	}
 
 
-	public static function recursiveSmartCopyTemplate (project:Project, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
+	public static function recursiveSmartCopyTemplate (project:HXProject, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
 
 		var destinations = [];
 		var paths = System.findTemplateRecursive (project.templatePaths, source, warnIfNotFound, destinations);
@@ -112,7 +112,7 @@ class ProjectHelper {
 	}
 
 
-	public static function replaceVariable (project:Project, string:String):String {
+	public static function replaceVariable (project:HXProject, string:String):String {
 
 		if (string.substr (0, 8) == "haxelib:") {
 
@@ -207,7 +207,7 @@ class ProjectHelper {
 	}
 
 
-	public static function substitutePath (project:Project, path:String):String {
+	public static function substitutePath (project:HXProject, path:String):String {
 
 		var newString = path;
 

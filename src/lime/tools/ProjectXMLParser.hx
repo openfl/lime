@@ -8,7 +8,7 @@ import lime.tools.ModuleHelper;
 import lime.tools.Asset;
 import lime.tools.AssetType;
 import lime.tools.Dependency;
-import lime.tools.Project;
+import lime.tools.HXProject;
 #if lime
 import lime.utils.AssetManifest;
 #end
@@ -16,7 +16,7 @@ import sys.io.File;
 import sys.FileSystem;
 
 
-class ProjectXMLParser extends Project {
+class ProjectXMLParser extends HXProject {
 
 
 	public var includePaths:Array<String>;
@@ -1440,7 +1440,7 @@ class ProjectXMLParser extends Project {
 
 						haxelibs.push (haxelib);
 
-						var includeProject = Project.fromHaxelib (haxelib, defines);
+						var includeProject =  HXProject.fromHaxelib (haxelib, defines);
 
 						if (includeProject != null) {
 

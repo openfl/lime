@@ -9,7 +9,7 @@ import haxe.Unserializer;
 import haxe.rtti.Meta;
 import hxp.*;
 import lime.system.CFFI;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.*;
 import sys.io.File;
 import sys.io.Process;
@@ -19,7 +19,7 @@ import utils.CreateTemplate;
 import utils.JavaExternGenerator;
 import utils.PlatformSetup;
 
-@:access(lime.tools.Project)
+@:access(lime.tools.HXProject)
 
 
 class CommandLineTools {
@@ -34,8 +34,8 @@ class CommandLineTools {
 	private var debug:Bool;
 	private var environment:Map<String, String>;
 	private var includePaths:Array<String>;
-	private var overrides:Project;
-	private var project:Project;
+	private var overrides:HXProject;
+	private var project:HXProject;
 	private var projectDefines:Map<String, String>;
 	private var runFromHaxelib:Bool;
 	private var targetFlags:Map<String, String>;
@@ -58,7 +58,7 @@ class CommandLineTools {
 		userDefines = new Map<String, Dynamic> ();
 		words = new Array<String> ();
 
-		overrides = new Project ();
+		overrides = new HXProject ();
 		overrides.architectures = [];
 
 		//Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (Haxelib.getPath (new Haxelib ("lime")), "tools"));
@@ -365,23 +365,23 @@ class CommandLineTools {
 
 					} else {
 
-						Project._command = command;
-						Project._environment = environment;
-						Project._debug = debug;
-						Project._target = target;
-						Project._targetFlags = targetFlags;
-						Project._userDefines = userDefines;
+						HXProject._command = command;
+						HXProject._environment = environment;
+						HXProject._debug = debug;
+						HXProject._target = target;
+						HXProject._targetFlags = targetFlags;
+						HXProject._userDefines = userDefines;
 
 						var project = null;
 
 						if (haxelib != null) {
 
 							userDefines.set ("rebuild", 1);
-							project = Project.fromHaxelib (haxelib, userDefines);
+							project =  HXProject.fromHaxelib (haxelib, userDefines);
 
 							if (project == null) {
 
-								project = new Project ();
+								project = new HXProject ();
 								project.config.set ("project.rebuild.path", Path.combine (Haxelib.getPath (haxelib), "project"));
 
 							} else {
@@ -392,11 +392,11 @@ class CommandLineTools {
 
 						} else {
 
-							//project = Project.fromPath (path);
+							//project =  HXProject.fromPath (path);
 
 							if (project == null) {
 
-								project = new Project ();
+								project = new HXProject ();
 
 								if (FileSystem.isDirectory (path)) {
 
@@ -422,7 +422,7 @@ class CommandLineTools {
 
 						for (haxelib in overrides.haxelibs) {
 
-							var includeProject = Project.fromHaxelib (haxelib, project.defines);
+							var includeProject =  HXProject.fromHaxelib (haxelib, project.defines);
 
 							if (includeProject != null) {
 
@@ -596,7 +596,7 @@ class CommandLineTools {
 	#end
 
 
-	private function buildProject (project:Project, command:String = "") {
+	private function buildProject (project:HXProject, command:String = "") {
 
 		if (command == "") {
 
@@ -798,7 +798,7 @@ class CommandLineTools {
 					var sampleExists = false;
 					var defines = new Map<String, Dynamic> ();
 					defines.set ("create", 1);
-					var project = Project.fromHaxelib (new Haxelib (defaultLibrary), defines);
+					var project =  HXProject.fromHaxelib (new Haxelib (defaultLibrary), defines);
 
 					for (samplePath in project.samplePaths) {
 
@@ -1341,7 +1341,7 @@ class CommandLineTools {
 	}
 
 
-	private function getBuildNumber (project:Project, increment:Bool = true):Void {
+	private function getBuildNumber (project:HXProject, increment:Bool = true):Void {
 
 		var buildNumber = project.meta.buildNumber;
 
@@ -1405,7 +1405,7 @@ class CommandLineTools {
 	}
 
 
-	private function getBuildNumber_GIT (project:Project, increment:Bool = true):String {
+	private function getBuildNumber_GIT (project:HXProject, increment:Bool = true):String {
 
 		var cache = Log.mute;
 		Log.mute = true;
@@ -1445,7 +1445,7 @@ class CommandLineTools {
 	}
 
 
-	private function getBuildNumber_SVN (project:Project, increment:Bool = true):String {
+	private function getBuildNumber_SVN (project:HXProject, increment:Bool = true):String {
 
 		var cache = Log.mute;
 		Log.mute = true;
@@ -1509,7 +1509,7 @@ class CommandLineTools {
 	}
 
 
-	private function initializeProject (project:Project = null, targetName:String = ""):Project {
+	private function initializeProject (project:HXProject = null, targetName:String = ""):HXProject {
 
 		Log.info ("", Log.accentColor + "Initializing project..." + Log.resetColor);
 
@@ -1730,12 +1730,12 @@ class CommandLineTools {
 
 		}
 
-		Project._command = command;
-		Project._debug = debug;
-		Project._environment = environment;
-		Project._target = target;
-		Project._targetFlags = targetFlags;
-		Project._userDefines = userDefines;
+		HXProject._command = command;
+		HXProject._debug = debug;
+		HXProject._environment = environment;
+		HXProject._target = target;
+		HXProject._targetFlags = targetFlags;
+		HXProject._userDefines = userDefines;
 
 		var config = ConfigHelper.getConfig ();
 
@@ -1855,12 +1855,12 @@ class CommandLineTools {
 
 		if (project == null) {
 
-			Project._command = command;
-			Project._debug = debug;
-			Project._environment = environment;
-			Project._target = target;
-			Project._targetFlags = targetFlags;
-			Project._userDefines = userDefines;
+			HXProject._command = command;
+			HXProject._debug = debug;
+			HXProject._environment = environment;
+			HXProject._target = target;
+			HXProject._targetFlags = targetFlags;
+			HXProject._userDefines = userDefines;
 
 			try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 
@@ -1870,7 +1870,7 @@ class CommandLineTools {
 
 			} else if (Path.extension (projectFile) == "hxp") {
 
-				project = Project.fromFile (projectFile, userDefines, includePaths);
+				project =  HXProject.fromFile (projectFile, userDefines, includePaths);
 
 				if (project != null) {
 

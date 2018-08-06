@@ -8,7 +8,7 @@ import hxp.*;
 import lime.tools.CLIHelper;
 import lime.tools.ConfigHelper;
 import lime.tools.Platform;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -805,7 +805,7 @@ class PlatformSetup {
 
 		}
 
-		var project = Project.fromHaxelib (haxelib, defines, true);
+		var project =  HXProject.fromHaxelib (haxelib, defines, true);
 
 		if (project != null && project.haxelibs.length > 0) {
 
@@ -1206,7 +1206,7 @@ class PlatformSetup {
 
 		try {
 
-			project = Project.fromHaxelib (new Haxelib ("openfl"));
+			project =  HXProject.fromHaxelib (new Haxelib ("openfl"));
 
 		} catch (e:Dynamic) {}
 

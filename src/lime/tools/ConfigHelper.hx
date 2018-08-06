@@ -2,7 +2,7 @@ package lime.tools;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import lime.tools.ProjectXMLParser;
 import sys.io.File;
@@ -16,7 +16,7 @@ class ConfigHelper {
 	private static var configPath:String = null;
 
 
-	public static function getConfig ():Project {
+	public static function getConfig ():HXProject {
 
 		var config = getConfigPath ();
 

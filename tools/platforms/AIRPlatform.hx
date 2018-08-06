@@ -16,7 +16,7 @@ import hxp.Path;
 import lime.tools.Platform;
 import hxp.System;
 import lime.tools.PlatformType;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
 import hxp.System;
 import sys.io.File;
@@ -32,7 +32,7 @@ class AIRPlatform extends FlashPlatform {
 	private var targetPlatformType:PlatformType;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 

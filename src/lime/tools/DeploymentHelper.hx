@@ -2,13 +2,13 @@ package lime.tools;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 
 
 class DeploymentHelper {
 
 
-	public static function deploy (project:Project, targetFlags:Map<String, String>, targetDirectory:String, targetName:String) {
+	public static function deploy (project:HXProject, targetFlags:Map<String, String>, targetDirectory:String, targetName:String) {
 
 		var name = project.meta.title + " (" + project.meta.version + " build " + project.meta.buildNumber + ") (" + targetName + ").zip";
 		var targetPath = Path.combine (targetDirectory + "/dist", name);

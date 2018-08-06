@@ -8,7 +8,7 @@ import sys.FileSystem;
 class AIRHelper {
 
 
-	public static function build (project:Project, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):String {
+	public static function build (project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):String {
 
 		//var airTarget = "air";
 		//var extension = ".air";
@@ -207,7 +207,7 @@ class AIRHelper {
 	}
 
 
-	public static function getExtDirs(project:Project):Array<String> {
+	public static function getExtDirs(project:HXProject):Array<String> {
 
 		var extDirs:Array<String> = [];
 
@@ -228,7 +228,7 @@ class AIRHelper {
 	}
 
 
-	public static function run (project:Project, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void {
+	public static function run (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void {
 
 		if (targetPlatform == ANDROID) {
 
@@ -315,7 +315,7 @@ class AIRHelper {
 	}
 
 
-	public static function trace (project:Project, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
+	public static function trace (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
 
 		if (targetPlatform == ANDROID) {
 
@@ -344,7 +344,7 @@ class AIRHelper {
 	}
 
 
-	public static function uninstall (project:Project, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
+	public static function uninstall (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
 
 		if (targetPlatform == ANDROID) {
 

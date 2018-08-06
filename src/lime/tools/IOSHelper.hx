@@ -3,7 +3,7 @@ package lime.tools;
 
 import hxp.*;
 import lime.tools.Platform;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import sys.io.Process;
 import sys.FileSystem;
 
@@ -14,7 +14,7 @@ class IOSHelper {
 	private static var initialized = false;
 
 
-	public static function build (project:Project, workingDirectory:String, additionalArguments:Array<String> = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void {
 
 		initialize (project);
 
@@ -48,7 +48,7 @@ class IOSHelper {
 	}
 
 
-	public static function deploy (project:Project, workingDirectory:String):Void {
+	public static function deploy (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -97,7 +97,7 @@ class IOSHelper {
 	}
 
 
-	private static function getXCodeArgs (project:Project):Array<String> {
+	private static function getXCodeArgs (project:HXProject):Array<String> {
 
 		var platformName = "iphoneos";
 		var iphoneVersion = project.environment.get ("IPHONE_VER");
@@ -177,7 +177,7 @@ class IOSHelper {
 	}
 
 
-	public static function getSDKDirectory (project:Project):String {
+	public static function getSDKDirectory (project:HXProject):String {
 
 		initialize (project);
 
@@ -205,7 +205,7 @@ class IOSHelper {
 	}
 
 
-	public static function getIOSVersion (project:Project):Void {
+	public static function getIOSVersion (project:HXProject):Void {
 
 		if (!project.environment.exists ("IPHONE_VER") || project.environment.get ("IPHONE_VER") == "4.2") {
 
@@ -265,7 +265,7 @@ class IOSHelper {
 	}
 
 
-	public static function getProvisioningFile (project:Project = null):String {
+	public static function getProvisioningFile (project:HXProject = null):String {
 
 		if (project != null && project.config.exists ("ios.provisioning-profile")) {
 
@@ -303,7 +303,7 @@ class IOSHelper {
 	}
 
 
-	private static function initialize (project:Project):Void {
+	private static function initialize (project:HXProject):Void {
 
 		if (!initialized) {
 
@@ -316,7 +316,7 @@ class IOSHelper {
 	}
 
 
-	public static function launch (project:Project, workingDirectory:String):Void {
+	public static function launch (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -388,7 +388,7 @@ class IOSHelper {
 	}
 
 
-	public static function sign (project:Project, workingDirectory:String):Void {
+	public static function sign (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 

@@ -25,7 +25,7 @@ import lime.tools.Platform;
 import hxp.System;
 import lime.tools.PlatformTarget;
 import hxp.System;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
 import hxp.System;
 import sys.io.File;
@@ -43,7 +43,7 @@ class MacPlatform extends PlatformTarget {
 	private var targetType:String;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 

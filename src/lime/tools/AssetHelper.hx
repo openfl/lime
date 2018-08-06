@@ -6,7 +6,7 @@ import haxe.Unserializer;
 import hxp.*;
 import lime.tools.AssetType;
 import lime.tools.Asset;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Library;
 import lime.utils.AssetManifest;
 import lime.utils.Bytes;
@@ -161,7 +161,7 @@ class AssetHelper {
 	}
 
 
-	public static function createManifest (project:Project, library:String = null, targetPath:String = null):AssetManifest {
+	public static function createManifest (project:HXProject, library:String = null, targetPath:String = null):AssetManifest {
 
 		var manifest = new AssetManifest ();
 		var pathGroups = new Map<String, Array<String>> ();
@@ -202,7 +202,7 @@ class AssetHelper {
 	}
 
 
-	public static function createManifests (project:Project, targetDirectory:String = null):Array<AssetManifest> {
+	public static function createManifests (project:HXProject, targetDirectory:String = null):Array<AssetManifest> {
 
 		var libraryNames = new Map<String, Bool> ();
 		var hasManifest = new Map<String, Bool> ();
@@ -266,7 +266,7 @@ class AssetHelper {
 	}
 
 
-	private static function getAssetData (project:Project, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:String, asset:Asset):Dynamic {
+	private static function getAssetData (project:HXProject, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:String, asset:Asset):Dynamic {
 
 		if ((asset.library != null && asset.library != library) || asset.type == TEMPLATE) return null;
 		if (asset.library == null && library != DEFAULT_LIBRARY_NAME) return null;
@@ -369,7 +369,7 @@ class AssetHelper {
 	}
 
 
-	private static function getPackedAssetData (project:Project, output:FileOutput, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:Library, asset:Asset):Dynamic {
+	private static function getPackedAssetData (project:HXProject, output:FileOutput, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:Library, asset:Asset):Dynamic {
 
 		if (project.target == HTML5 && (asset.type == MUSIC || asset.type == SOUND || asset.type == FONT)) {
 
@@ -480,7 +480,7 @@ class AssetHelper {
 	}
 
 
-	private static function isPackedLibrary (project:Project, library:Library) {
+	private static function isPackedLibrary (project:HXProject, library:Library) {
 
 		if (project.target == FLASH && library.embed != false) return false;
 
@@ -494,7 +494,7 @@ class AssetHelper {
 	}
 
 
-	public static function processLibraries (project:Project, targetDirectory:String = null):Void {
+	public static function processLibraries (project:HXProject, targetDirectory:String = null):Void {
 
 		var hasManifest = new Map<String, Bool> ();
 		var libraryMap = new Map<String, Bool> ();
@@ -619,7 +619,7 @@ class AssetHelper {
 					try {
 
 						var output = File.getContent (outputFile);
-						var data:Project = Unserializer.run (output);
+						var data:HXProject = Unserializer.run (output);
 						project.merge (data);
 
 					} catch (e:Dynamic) {
@@ -708,7 +708,7 @@ class AssetHelper {
 	}
 
 
-	public static function processPackedLibraries (project:Project, targetDirectory:String = null):Void {
+	public static function processPackedLibraries (project:HXProject, targetDirectory:String = null):Void {
 
 		var type, asset, cacheAvailable, cacheDirectory, filename;
 		var output, manifest, position, assetData:Dynamic, input;

@@ -2,7 +2,7 @@ package lime.tools;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import sys.io.Process;
 import sys.FileSystem;
 
@@ -13,7 +13,7 @@ class TVOSHelper {
 	private static var initialized = false;
 
 
-	public static function build (project:Project, workingDirectory:String, additionalArguments:Array<String> = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void {
 
 		initialize (project);
 
@@ -43,7 +43,7 @@ class TVOSHelper {
 	}
 
 
-	public static function deploy (project:Project, workingDirectory:String):Void {
+	public static function deploy (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -83,7 +83,7 @@ class TVOSHelper {
 	}
 
 
-	private static function getXCodeArgs (project:Project):Array<String> {
+	private static function getXCodeArgs (project:HXProject):Array<String> {
 
 		var platformName = "appletvos";
 
@@ -148,7 +148,7 @@ class TVOSHelper {
 	}
 
 
-	private static function getIOSVersion (project:Project):Void {
+	private static function getIOSVersion (project:HXProject):Void {
 
 		if (!project.environment.exists("TVOS_VER")) {
 
@@ -226,7 +226,7 @@ class TVOSHelper {
 	}
 
 
-	public static function getSDKDirectory (project:Project):String {
+	public static function getSDKDirectory (project:HXProject):String {
 
 		initialize (project);
 
@@ -265,7 +265,7 @@ class TVOSHelper {
 	}
 
 
-	private static function initialize (project:Project):Void {
+	private static function initialize (project:HXProject):Void {
 
 		if (!initialized) {
 
@@ -278,7 +278,7 @@ class TVOSHelper {
 	}
 
 
-	public static function launch (project:Project, workingDirectory:String):Void {
+	public static function launch (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -417,7 +417,7 @@ class TVOSHelper {
 	}
 
 
-	public static function sign (project:Project, workingDirectory:String):Void {
+	public static function sign (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 

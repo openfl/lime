@@ -13,7 +13,7 @@ import lime.tools.IconHelper;
 import hxp.Path;
 import lime.tools.PlatformTarget;
 import hxp.System;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
 import hxp.TizenHelper;
 import sys.io.File;
@@ -26,7 +26,7 @@ class TizenPlatform extends PlatformTarget {
 	private static var uuid:String = null;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 

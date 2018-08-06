@@ -4,7 +4,7 @@ package lime.tools;
 import hxp.*;
 import lime.tools.Architecture;
 import lime.tools.Asset;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.FileSystem;
 import sys.io.File;
@@ -44,7 +44,7 @@ class HTML5Helper {
 	}
 
 
-	// public static function generateFontData (project:Project, font:Asset):String {
+	// public static function generateFontData (project:HXProject, font:Asset):String {
 
 	// 	var sourcePath = font.sourcePath;
 
@@ -60,7 +60,7 @@ class HTML5Helper {
 	// }
 
 
-	public static function generateWebfonts (project:Project, font:Asset):Void {
+	public static function generateWebfonts (project:HXProject, font:Asset):Void {
 
 		var suffix = switch (System.hostPlatform) {
 
@@ -106,7 +106,7 @@ class HTML5Helper {
 	}
 
 
-	public static function launch (project:Project, path:String, port:Int = 3000):Void {
+	public static function launch (project:HXProject, path:String, port:Int = 3000):Void {
 
 		if (project.app.url != null && project.app.url != "") {
 
@@ -187,7 +187,7 @@ class HTML5Helper {
 	}
 
 
-	public static function minify (project:Project, sourceFile:String):Bool {
+	public static function minify (project:HXProject, sourceFile:String):Bool {
 
 		if (FileSystem.exists (sourceFile)) {
 

@@ -17,7 +17,7 @@ class AndroidHelper {
 	private static var emulatorPath:String;
 
 
-	public static function build (project:Project, projectDirectory:String):Void {
+	public static function build (project:HXProject, projectDirectory:String):Void {
 
 		if (project.environment.exists ("ANDROID_SDK")) {
 
@@ -79,7 +79,7 @@ class AndroidHelper {
 	}
 
 
-	public static function getBuildToolsVersion (project:Project):String {
+	public static function getBuildToolsVersion (project:HXProject):String {
 
 		var buildToolsPath = Path.combine (project.environment.get ("ANDROID_SDK"), "build-tools/");
 
@@ -186,7 +186,7 @@ class AndroidHelper {
 	}
 
 
-	public static function initialize (project:Project):Void {
+	public static function initialize (project:HXProject):Void {
 
 		adbPath = project.environment.get ("ANDROID_SDK") + "/tools/";
 		androidPath = project.environment.get ("ANDROID_SDK") + "/tools/";
@@ -227,7 +227,7 @@ class AndroidHelper {
 	}
 
 
-	public static function install (project:Project, targetPath:String, deviceID:String = null):String {
+	public static function install (project:HXProject, targetPath:String, deviceID:String = null):String {
 
 		if (project.targetFlags.exists ("emulator") || project.targetFlags.exists ("simulator")) {
 
@@ -410,7 +410,7 @@ class AndroidHelper {
 	}
 
 
-	public static function trace (project:Project, debug:Bool, deviceID:String = null, customFilter:String = null):Void {
+	public static function trace (project:HXProject, debug:Bool, deviceID:String = null, customFilter:String = null):Void {
 
 		// Use -DFULL_LOGCAT or  <set name="FULL_LOGCAT" /> if you do not want to filter log messages
 

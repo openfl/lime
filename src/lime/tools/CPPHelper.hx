@@ -2,7 +2,7 @@ package lime.tools;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.io.File;
 import sys.FileSystem;
@@ -15,7 +15,7 @@ class CPPHelper {
 	private static var rebuiltPaths = new Map<String, Bool> ();
 
 
-	public static function compile (project:Project, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {
+	public static function compile (project:HXProject, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {
 
 		if (project.config.getBool ("cpp.requireBuild", true)) {
 
@@ -143,7 +143,7 @@ class CPPHelper {
 	}
 
 
-	public static function rebuild (project:Project, commands:Array<Array<String>>, path:String = null, buildFile:String = null):Void {
+	public static function rebuild (project:HXProject, commands:Array<Array<String>>, path:String = null, buildFile:String = null):Void {
 
 		var buildRelease = (!project.targetFlags.exists ("debug"));
 		var buildDebug = (project.targetFlags.exists ("debug") ||
@@ -159,11 +159,11 @@ class CPPHelper {
 				var defines = MapTools.copy (project.defines);
 				defines.set ("rebuild", "1");
 
-				var haxelibProject = Project.fromHaxelib (haxelib, defines);
+				var haxelibProject = HXProject.fromHaxelib (haxelib, defines);
 
 				if (haxelibProject == null) {
 
-					haxelibProject = new Project ();
+					haxelibProject = new HXProject ();
 					haxelibProject.config.set ("project.rebuild.path", Path.combine (Haxelib.getPath (haxelib), "project"));
 
 				}
@@ -227,7 +227,7 @@ class CPPHelper {
 	}
 
 
-	public static function rebuildSingle (project:Project, flags:Array<String> = null, path:String = null, buildFile:String = null):Void {
+	public static function rebuildSingle (project:HXProject, flags:Array<String> = null, path:String = null, buildFile:String = null):Void {
 
 		if (path == null) {
 

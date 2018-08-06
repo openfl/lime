@@ -3,14 +3,14 @@ package lime.tools;
 
 import hxp.*;
 import lime.tools.Architecture;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 
 
 class NodeJSHelper {
 
 
-	public static function run (project:Project, modulePath:String, args:Array<String> = null):Void {
+	public static function run (project:HXProject, modulePath:String, args:Array<String> = null):Void {
 
 		/*var suffix = switch (System.hostPlatform) {
 

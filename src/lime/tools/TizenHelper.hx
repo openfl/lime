@@ -5,7 +5,7 @@ import haxe.crypto.Crc32;
 import haxe.io.Bytes;
 import haxe.io.Eof;
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.FileSystem;
 
@@ -17,7 +17,7 @@ class TizenHelper {
 	private static var cacheUUID:String = null;
 
 
-	public static function createPackage (project:Project, workingDirectory:String, targetPath:String):Void {
+	public static function createPackage (project:HXProject, workingDirectory:String, targetPath:String):Void {
 
 		var keystore = null;
 		var password = null;
@@ -73,7 +73,7 @@ class TizenHelper {
 	}
 
 
-	public static function getUUID (project:Project):String {
+	public static function getUUID (project:HXProject):String {
 
 		if (cacheID != project.meta.packageName) {
 
@@ -98,7 +98,7 @@ class TizenHelper {
 	}
 
 
-	public static function install (project:Project, workingDirectory:String):Void {
+	public static function install (project:HXProject, workingDirectory:String):Void {
 
 		var packageName = getUUID (project) + "-" + project.meta.version + "-";
 
@@ -119,7 +119,7 @@ class TizenHelper {
 	}
 
 
-	public static function launch (project:Project):Void {
+	public static function launch (project:HXProject):Void {
 
 		runCommand (project, "", "native-run", [ "--package", getUUID (project) ]);
 
@@ -151,7 +151,7 @@ class TizenHelper {
 	}
 
 
-	private static function runCommand (project:Project, workingDirectory:String, command:String, args:Array<String>):Void {
+	private static function runCommand (project:HXProject, workingDirectory:String, command:String, args:Array<String>):Void {
 
 		var sdkDirectory = "";
 
@@ -178,7 +178,7 @@ class TizenHelper {
 	}
 
 
-	public static function trace (project:Project, follow:Bool = true):Void {
+	public static function trace (project:HXProject, follow:Bool = true):Void {
 
 		/*var args = [];
 

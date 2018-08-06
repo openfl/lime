@@ -20,7 +20,7 @@ import lime.tools.ProjectHelper;
 import hxp.Path;
 import lime.tools.PlatformTarget;
 import hxp.System;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
@@ -33,7 +33,7 @@ class HTML5Platform extends PlatformTarget {
 	private var outputFile:String;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 
@@ -146,7 +146,7 @@ class HTML5Platform extends PlatformTarget {
 	}
 
 
-	private function initialize (command:String, project:Project):Void {
+	private function initialize (command:String, project:HXProject):Void {
 
 		if (targetFlags.exists ("electron")) {
 

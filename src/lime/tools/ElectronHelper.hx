@@ -2,13 +2,13 @@ package lime.tools;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 
 
 class ElectronHelper {
 
 
-	public static function launch (project:Project, path:String):Void {
+	public static function launch (project:HXProject, path:String):Void {
 
 		var electronPath = project.defines.get ("ELECTRON_PATH");
 

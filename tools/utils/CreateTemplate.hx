@@ -2,12 +2,11 @@ package utils;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
 import sys.FileSystem;
 
-@:access(lime.tools.Project)
-@:access(lime.tools.Project.HXProject)
+@:access(lime.tools.HXProject)
 
 
 class CreateTemplate {
@@ -80,7 +79,7 @@ class CreateTemplate {
 	}
 
 
-	public static function createProject (words:Array<String>, userDefines:Map<String, Dynamic>, overrides:Project):Void {
+	public static function createProject (words:Array<String>, userDefines:Map<String, Dynamic>, overrides:HXProject):Void {
 
 		var colonIndex = words[0].indexOf (":");
 
@@ -139,7 +138,7 @@ class CreateTemplate {
 
 			var defines = new Map<String, Dynamic> ();
 			defines.set ("create", 1);
-			var project = Project.fromHaxelib (new Haxelib (projectName), defines);
+			var project =  HXProject.fromHaxelib (new Haxelib (projectName), defines);
 
 			if (project != null) {
 
@@ -359,14 +358,14 @@ class CreateTemplate {
 
 		var defines = new Map<String, Dynamic> ();
 		defines.set ("create", 1);
-		var project = Project.fromHaxelib (new Haxelib (projectName), defines);
+		var project =  HXProject.fromHaxelib (new Haxelib (projectName), defines);
 
 		if (project == null && outputPath == null) {
 
 			outputPath = sampleName;
 			sampleName = projectName;
 			projectName = CommandLineTools.defaultLibrary;
-			project = Project.fromHaxelib (new Haxelib (projectName), defines);
+			project =  HXProject.fromHaxelib (new Haxelib (projectName), defines);
 
 		}
 
@@ -410,7 +409,7 @@ class CreateTemplate {
 
 			var defines = new Map<String, Dynamic> ();
 			defines.set ("create", 1);
-			var project = Project.fromHaxelib (new Haxelib (projectName), defines);
+			var project =  HXProject.fromHaxelib (new Haxelib (projectName), defines);
 
 			if (project != null) {
 

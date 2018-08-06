@@ -7,7 +7,9 @@ import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
 import hxp.*;
+import lime.tools.Architecture;
 import lime.tools.AssetType;
+import lime.tools.Platform;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
@@ -18,16 +20,16 @@ import lime.text.Font;
 #end
 
 
-class Project {
+class HXProject extends Script {
 
 
 	public var app:ApplicationData;
 	public var architectures:Array<Architecture>;
 	public var assets:Array<Asset>;
-	public var command:String;
+	// public var command:String;
 	public var config:ConfigData;
 	public var debug:Bool;
-	public var defines:Map<String, Dynamic>;
+	// public var defines:Map<String, Dynamic>;
 	public var dependencies:Array<Dependency>;
 	public var environment:Map<String, String>;
 	public var haxedefs:Map<String, Dynamic>;
@@ -87,13 +89,13 @@ class Project {
 		var inputData = Unserializer.run (File.getContent (args[0]));
 		var outputFile = args[1];
 
-		Project._command = inputData.command;
-		Project._target = cast inputData.target;
-		Project._debug = inputData.debug;
-		Project._targetFlags = inputData.targetFlags;
-		Project._templatePaths = inputData.templatePaths;
-		Project._userDefines = inputData.userDefines;
-		Project._environment = inputData.environment;
+		HXProject._command = inputData.command;
+		HXProject._target = cast inputData.target;
+		HXProject._debug = inputData.debug;
+		HXProject._targetFlags = inputData.targetFlags;
+		HXProject._templatePaths = inputData.templatePaths;
+		HXProject._userDefines = inputData.userDefines;
+		HXProject._environment = inputData.environment;
 		Log.verbose = inputData.logVerbose;
 		Log.enableColor = inputData.logEnableColor;
 
@@ -118,6 +120,8 @@ class Project {
 
 
 	public function new () {
+
+		super ();
 
 		initialize ();
 
@@ -229,7 +233,13 @@ class Project {
 
 				} else {
 
-					architectures = [ System.hostArchitecture ];
+					switch (System.hostArchitecture) {
+						case ARMV6: architectures = [ ARMV6 ];
+						case ARMV7: architectures = [ ARMV7 ];
+						case X86: architectures = [ X86 ];
+						case X64: architectures = [ X64 ];
+						default: architectures = [];
+					}
 
 				}
 
@@ -238,7 +248,13 @@ class Project {
 			case MAC, LINUX:
 
 				platformType = PlatformType.DESKTOP;
-				architectures = [ System.hostArchitecture ];
+				switch (System.hostArchitecture) {
+						case ARMV6: architectures = [ ARMV6 ];
+						case ARMV7: architectures = [ ARMV7 ];
+						case X86: architectures = [ X86 ];
+						case X64: architectures = [ X64 ];
+						default: architectures = [];
+					}
 
 				defaultWindow.allowHighDPI = false;
 
@@ -269,7 +285,7 @@ class Project {
 
 		} else {
 
-			defines = new Map<String, Dynamic> ();
+			defines = new Map<String, String> ();
 
 		}
 
@@ -305,9 +321,9 @@ class Project {
 	}
 
 
-	public function clone ():Project {
+	public function clone ():HXProject {
 
-		var project = new Project ();
+		var project = new HXProject ();
 
 		ObjectTools.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
@@ -493,9 +509,9 @@ class Project {
 	}
 
 
-	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):Project {
+	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject {
 
-		var project:Project = null;
+		var project:HXProject = null;
 
 		var path = FileSystem.fullPath (Path.withoutDirectory (projectFile));
 		var name = Path.withoutDirectory (Path.withoutExtension (projectFile));
@@ -508,9 +524,9 @@ class Project {
 		System.copyFile (path, classFile);
 
 		#if lime
-		var args = [ name, "-main", "lime.tools.Project", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", Path.combine (Haxelib.getPath (new Haxelib ("hxp")), "src"), "-lib", "hxp" ];
+		var args = [ name, "-main", "lime.tools.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", Path.combine (Haxelib.getPath (new Haxelib ("hxp")), "src"), "-lib", "lime", "-lib", "hxp" ];
 		#else
-		var args = [ name, "--interp", "-main", "lime.tools.Project", "-cp", tempDirectory, "-cp", Path.combine (Haxelib.getPath (new Haxelib ("hxp")), "src") ];
+		var args = [ name, "--interp", "-main", "lime.tools.HXProject", "-cp", tempDirectory, "-cp", Path.combine (Haxelib.getPath (new Haxelib ("hxp")), "src") ];
 		#end
 		var input = File.read (classFile, false);
 		var tag = "@:compiler(";
@@ -545,14 +561,14 @@ class Project {
 
 		var inputData = Serializer.run ({
 
-			command: Project._command,
+			command: HXProject._command,
 			name: name,
-			target: Project._target,
-			debug: Project._debug,
-			targetFlags: Project._targetFlags,
-			templatePaths: Project._templatePaths,
-			userDefines: Project._userDefines,
-			environment: Project._environment,
+			target: HXProject._target,
+			debug: HXProject._debug,
+			targetFlags: HXProject._targetFlags,
+			templatePaths: HXProject._templatePaths,
+			userDefines: HXProject._userDefines,
+			environment: HXProject._environment,
 			logVerbose: Log.verbose,
 			logEnableColor: Log.enableColor,
 			processDryRun: cacheDryRun,
@@ -615,7 +631,7 @@ class Project {
 
 			}
 
-			var defines = MapTools.copy (userDefines);
+			var defines = MapTools.copyDynamic (userDefines);
 			MapTools.copyKeys (project.defines, defines);
 
 			processHaxelibs (project, defines);
@@ -629,7 +645,7 @@ class Project {
 	}
 
 
-	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false):Project {
+	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false):HXProject {
 
 		if (haxelib.name == null || haxelib.name == "") {
 
@@ -651,12 +667,12 @@ class Project {
 			//
 		//}
 
-		return Project.fromPath (path, userDefines);
+		return  HXProject.fromPath (path, userDefines);
 
 	}
 
 
-	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null):Project {
+	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null):HXProject {
 
 		if (!FileSystem.exists (path) || !FileSystem.isDirectory (path)) {
 
@@ -823,7 +839,7 @@ class Project {
 
 			if (_target == null) {
 
-				_target = System.hostPlatform;
+				_target = cast System.hostPlatform;
 
 			}
 
@@ -846,7 +862,7 @@ class Project {
 	}
 
 
-	public function merge (project:Project):Void {
+	public function merge (project:HXProject):Void {
 
 		if (project != null) {
 
@@ -869,7 +885,7 @@ class Project {
 
 			MapTools.copyUniqueKeys (project.defines, defines);
 			MapTools.copyUniqueKeys (project.environment, environment);
-			MapTools.copyUniqueKeys (project.haxedefs, haxedefs);
+			MapTools.copyUniqueKeysDynamic (project.haxedefs, haxedefs);
 			MapTools.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
 			MapTools.copyUniqueKeys (project.targetHandlers, targetHandlers);
 
@@ -963,7 +979,7 @@ class Project {
 
 	// #if lime
 
-	@:noCompletion private static function processHaxelibs (project:Project, userDefines:Map<String, Dynamic>):Void {
+	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map<String, Dynamic>):Void {
 
 		var haxelibs = project.haxelibs.copy ();
 		project.haxelibs = [];
@@ -973,7 +989,7 @@ class Project {
 			var validatePath = Haxelib.getPath (haxelib, true);
 			project.haxelibs.push (haxelib);
 
-			var includeProject = Project.fromHaxelib (haxelib, userDefines);
+			var includeProject =  HXProject.fromHaxelib (haxelib, userDefines);
 
 			if (includeProject != null) {
 
@@ -1002,7 +1018,7 @@ class Project {
 
 		if (type == null) {
 
-			return Project;
+			return HXProject;
 
 		} else {
 
@@ -1070,7 +1086,7 @@ class Project {
 
 	private function get_host ():Platform {
 
-		return System.hostPlatform;
+		return cast System.hostPlatform;
 
 	}
 

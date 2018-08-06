@@ -8,7 +8,7 @@ import hxp.*;
 import lime.tools.Asset;
 import lime.tools.AssetEncoding;
 import lime.tools.AssetType;
-import lime.tools.Project;
+import lime.tools.HXProject;
 #if (lime && lime_cffi && !macro)
 import lime.text.Font;
 #end
@@ -614,7 +614,7 @@ class FlashHelper {
 	}
 
 
-	private static function compileSWC (project:Project, assets:Array<Asset>, id:Int, destination:String):Void {
+	private static function compileSWC (project:HXProject, assets:Array<Asset>, id:Int, destination:String):Void {
 
 		#if format
 		destination = destination + "/obj";
@@ -726,7 +726,7 @@ class FlashHelper {
 	}
 
 
-	/*private static function compileSWC (project:Project, embed:String, id:Int):Void {
+	/*private static function compileSWC (project:HXProject, embed:String, id:Int):Void {
 
 		var destination = project.app.path + "/flash/obj";
 		System.mkdir (destination);
@@ -773,7 +773,7 @@ class FlashHelper {
 	}*/
 
 
-	public static function embedAssets (project:Project, targetDirectory:String):Bool {
+	public static function embedAssets (project:HXProject, targetDirectory:String):Bool {
 
 		var embed = "";
 		var assets = [];
@@ -958,7 +958,7 @@ class FlashHelper {
 	}
 
 
-	public static function run (project:Project, workingDirectory:String, targetPath:String):Void {
+	public static function run (project:HXProject, workingDirectory:String, targetPath:String):Void {
 
 		var player:String = null;
 
