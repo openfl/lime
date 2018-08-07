@@ -175,7 +175,7 @@ class Image {
 	/**
 		The current `ImageType`, representing what is being used to store the `Image`'s graphics
 	**/
-	public var type:ImageType;
+	public var type (get, set):ImageType;
 
 	/**
 		The `version` of the `Image` increases each time it is modified, helpful to determining
@@ -201,6 +201,8 @@ class Image {
 	**/
 	public var y:Float;
 
+	@:noCompletion private var __type:ImageType;
+
 
 	#if commonjs
 	private static function __init__ () {
@@ -213,7 +215,8 @@ class Image {
 			"premultiplied": { get: p.get_premultiplied, set: p.set_premultiplied },
 			"rect": { get: p.get_rect },
 			"src": { get: p.get_src, set: p.set_src },
-			"transparent": { get: p.get_transparent, set: p.set_transparent }
+			"transparent": { get: p.get_transparent, set: p.set_transparent },
+			"type": { get: p.get_type, set: p.set_type }
 		});
 
 	}
@@ -253,13 +256,13 @@ class Image {
 
 		}
 
-		this.type = type;
+		__type = type;
 
 		if (buffer == null) {
 
 			if (width > 0 && height > 0) {
 
-				switch (this.type) {
+				switch (__type) {
 
 					case CANVAS:
 
@@ -495,7 +498,7 @@ class Image {
 
 			case CANVAS:
 
-				if (alphaImage != null || sourceImage.type != CANVAS) {
+				if (alphaImage != null || sourceImage.__type != CANVAS) {
 
 					ImageCanvasUtil.convertToData (this);
 					ImageCanvasUtil.convertToData (sourceImage);
@@ -745,7 +748,7 @@ class Image {
 		var buffer = new ImageBuffer (null, canvas.width, canvas.height);
 		buffer.src = canvas;
 		var image = new Image (buffer);
-		image.type = CANVAS;
+		image.__type = CANVAS;
 		return image;
 
 	}
@@ -789,7 +792,7 @@ class Image {
 		var buffer = new ImageBuffer (null, image.width, image.height);
 		buffer.src = image;
 		var _image = new Image (buffer);
-		_image.type = CANVAS;
+		_image.__type = CANVAS;
 		return _image;
 
 	}
@@ -1983,20 +1986,24 @@ class Image {
 
 	@:noCompletion private function get_data ():UInt8Array {
 
+		#if (js && html5)
 		if (buffer.data == null && buffer.width > 0 && buffer.height > 0) {
 
-			#if (js && html5)
+			ImageCanvasUtil.convertToData (this);
 
-				ImageCanvasUtil.convertToData (this);
+		} else {
 
-			#elseif flash
-
-				var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
-				buffer.data = new UInt8Array (Bytes.ofData (pixels));
-
-			#end
+			ImageCanvasUtil.sync (this, false);
 
 		}
+		#elseif flash
+		if (buffer.data == null && buffer.width > 0 && buffer.height > 0) {
+
+			var pixels = buffer.__srcBitmapData.getPixels (buffer.__srcBitmapData.rect);
+			buffer.data = new UInt8Array (Bytes.ofData (pixels));
+
+		}
+		#end
 
 		return buffer.data;
 
@@ -2064,9 +2071,10 @@ class Image {
 
 			}
 
-			if (newWidth == buffer.width && newHeight == buffer.height)
-			{
+			if (newWidth == buffer.width && newHeight == buffer.height) {
+
 				return value;
+
 			}
 
 			switch (type) {
@@ -2165,9 +2173,13 @@ class Image {
 	@:noCompletion private function get_src ():Dynamic {
 
 		#if (js && html5)
-		if (buffer.__srcCanvas == null && (buffer.data != null || type == DATA)) {
+		if (__type != CANVAS) {
 
 			ImageCanvasUtil.convertToCanvas (this);
+
+		} else {
+
+			ImageCanvasUtil.sync (this, false);
 
 		}
 		#end
@@ -2197,6 +2209,46 @@ class Image {
 		// TODO, modify data to set transparency
 		if (buffer == null) return false;
 		return buffer.transparent = value;
+
+	}
+
+
+	@:noCompletion private function get_type ():ImageType {
+
+		return __type;
+
+	}
+
+
+	@:noCompletion private function set_type (value:ImageType):ImageType {
+
+		if (__type != null) {
+
+			if (__type != value) {
+
+				switch (value) {
+
+					case CANVAS:
+
+						ImageCanvasUtil.convertToCanvas (this);
+
+					case DATA:
+
+						ImageCanvasUtil.convertToData (this);
+
+					default:
+
+				}
+
+			} else {
+
+				ImageCanvasUtil.sync (this, false);
+
+			}
+
+		}
+
+		return __type = value;
 
 	}
 
