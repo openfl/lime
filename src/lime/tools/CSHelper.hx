@@ -1,13 +1,13 @@
 package lime.tools;
 
-import lime.tools.Architecture;
-import lime.tools.Project;
-import hxp.NDLL;
-import hxp.ProcessHelper;
+
 import hxp.*;
+import lime.tools.Architecture;
+import lime.tools.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 using StringTools;
+
 
 class CSHelper {
 
@@ -99,7 +99,7 @@ class CSHelper {
 
 	public static function copySourceFiles (templatePaths:Array<String>, targetPath:String) {
 
-		FileHelper.recursiveCopyTemplate (templatePaths, "cs/src", targetPath);
+		System.recursiveCopyTemplate (templatePaths, "cs/src", targetPath);
 
 	}
 
@@ -255,12 +255,12 @@ class CSHelper {
 
 	}
 
-	public static function compile (project:Project, path:String, outPath:String, arch:String, platform:String, buildFile:String = "hxcs_build.txt", noCompile:Bool = false) {
+	public static function compile (project:HXProject, path:String, outPath:String, arch:String, platform:String, buildFile:String = "hxcs_build.txt", noCompile:Bool = false) {
 
 		var args = [ "run", project.config.getString ("cs.buildLibrary", "hxcs"), buildFile, "--arch", arch, "--platform", platform, "--out", outPath, "--unsafe" ];
 		if (noCompile)
 			args.push ("--no-compile");
-		var code = HaxelibHelper.runCommand (path, args);
+		var code = Haxelib.runCommand (path, args);
 
 		if (code != 0) {
 
@@ -273,7 +273,7 @@ class CSHelper {
 	public static function buildGradleProj (path:String) {
 
 		var gradlePath = FileSystem.absolutePath(path + "/" + "gradlew");
-		ProcessHelper.runCommand (path, gradlePath, ["build", "assembleRelease"]);
+		System.runCommand (path, gradlePath, ["build", "assembleRelease"]);
 
 	}
 
@@ -295,7 +295,7 @@ class CSHelper {
 
 		}
 
-		ProcessHelper.runCommand (path, msBuildPath, args);
+		System.runCommand (path, msBuildPath, args);
 
 	}
 

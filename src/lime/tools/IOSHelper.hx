@@ -1,13 +1,9 @@
 package lime.tools;
 
 
-import haxe.io.Path;
-import lime.tools.Platform;
-import hxp.PathHelper;
-import hxp.ProcessHelper;
-import hxp.Haxelib;
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.Platform;
+import lime.tools.HXProject;
 import sys.io.Process;
 import sys.FileSystem;
 
@@ -18,7 +14,7 @@ class IOSHelper {
 	private static var initialized = false;
 
 
-	public static function build (project:Project, workingDirectory:String, additionalArguments:Array<String> = null):Void {
+	public static function build (project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void {
 
 		initialize (project);
 
@@ -33,7 +29,7 @@ class IOSHelper {
 			commands.push ("-scheme");
 			commands.push (project.app.file);
 			commands.push ("-archivePath");
-			commands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file)));
+			commands.push (Path.combine ("build", Path.combine (configuration + "-" + platformName, project.app.file)));
 
 		} else {
 
@@ -47,12 +43,12 @@ class IOSHelper {
 
 		}
 
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", commands);
+		System.runCommand (workingDirectory, "xcodebuild", commands);
 
 	}
 
 
-	public static function deploy (project:Project, workingDirectory:String):Void {
+	public static function deploy (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -67,9 +63,9 @@ class IOSHelper {
 		archiveCommands.push ("-scheme");
 		archiveCommands.push (project.app.file);
 		archiveCommands.push ("-archivePath");
-		archiveCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file)));
+		archiveCommands.push (Path.combine ("build", Path.combine (configuration + "-" + platformName, project.app.file)));
 
-		ProcessHelper.runCommand (workingDirectory, "xcodebuild", archiveCommands);
+		System.runCommand (workingDirectory, "xcodebuild", archiveCommands);
 
 		var supportedExportMethods = [ "adhoc", "development", "enterprise", "appstore" ];
 		var exportMethods = [];
@@ -89,19 +85,19 @@ class IOSHelper {
 
 			exportCommands.push ("-exportArchive");
 			exportCommands.push ("-archivePath");
-			exportCommands.push (PathHelper.combine ("build", PathHelper.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
+			exportCommands.push (Path.combine ("build", Path.combine (configuration + "-" + platformName, project.app.file + ".xcarchive")));
 			exportCommands.push ("-exportOptionsPlist");
-			exportCommands.push (PathHelper.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
+			exportCommands.push (Path.combine (project.app.file, "exportOptions-" + exportMethod + ".plist"));
 			exportCommands.push ("-exportPath");
-			exportCommands.push (PathHelper.combine ("dist", exportMethod));
+			exportCommands.push (Path.combine ("dist", exportMethod));
 
-			ProcessHelper.runCommand (workingDirectory, "xcodebuild", exportCommands);
+			System.runCommand (workingDirectory, "xcodebuild", exportCommands);
 		}
 
 	}
 
 
-	private static function getXCodeArgs (project:Project):Array<String> {
+	private static function getXCodeArgs (project:HXProject):Array<String> {
 
 		var platformName = "iphoneos";
 		var iphoneVersion = project.environment.get ("IPHONE_VER");
@@ -181,7 +177,7 @@ class IOSHelper {
 	}
 
 
-	public static function getSDKDirectory (project:Project):String {
+	public static function getSDKDirectory (project:HXProject):String {
 
 		initialize (project);
 
@@ -209,11 +205,11 @@ class IOSHelper {
 	}
 
 
-	public static function getIOSVersion (project:Project):Void {
+	public static function getIOSVersion (project:HXProject):Void {
 
 		if (!project.environment.exists ("IPHONE_VER") || project.environment.get ("IPHONE_VER") == "4.2") {
 
-			if (!project.environment.exists ("DEVELOPER_DIR") && PlatformHelper.hostPlatform == MAC) {
+			if (!project.environment.exists ("DEVELOPER_DIR") && System.hostPlatform == MAC) {
 
 				var process = new Process ("xcode-select", [ "--print-path" ]);
 				var developerDir = process.stdout.readLine ();
@@ -262,22 +258,22 @@ class IOSHelper {
 
 	private static function getOSXVersion ():String {
 
-		var output = ProcessHelper.runProcess ("", "sw_vers", [ "-productVersion" ]);
+		var output = System.runProcess ("", "sw_vers", [ "-productVersion" ]);
 
 		return StringTools.trim (output);
 
 	}
 
 
-	public static function getProvisioningFile (project:Project = null):String {
+	public static function getProvisioningFile (project:HXProject = null):String {
 
 		if (project != null && project.config.exists ("ios.provisioning-profile")) {
 
-			return PathHelper.tryFullPath (project.config.getString ("ios.provisioning-profile"));
+			return Path.tryFullPath (project.config.getString ("ios.provisioning-profile"));
 
-		} else if (PlatformHelper.hostPlatform == MAC) {
+		} else if (System.hostPlatform == MAC) {
 
-			var path = PathHelper.expand ("~/Library/MobileDevice/Provisioning Profiles");
+			var path = Path.expand ("~/Library/MobileDevice/Provisioning Profiles");
 			var files = FileSystem.readDirectory (path);
 
 			for (file in files) {
@@ -299,7 +295,7 @@ class IOSHelper {
 
 	private static function getXcodeVersion ():String {
 
-		var output = ProcessHelper.runProcess ("", "xcodebuild", [ "-version" ]);
+		var output = System.runProcess ("", "xcodebuild", [ "-version" ]);
 		var firstLine = output.split ("\n").shift ();
 
 		return StringTools.trim (firstLine.substring ("Xcode".length, firstLine.length));
@@ -307,7 +303,7 @@ class IOSHelper {
 	}
 
 
-	private static function initialize (project:Project):Void {
+	private static function initialize (project:HXProject):Void {
 
 		if (!initialized) {
 
@@ -320,7 +316,7 @@ class IOSHelper {
 	}
 
 
-	public static function launch (project:Project, workingDirectory:String):Void {
+	public static function launch (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -350,12 +346,12 @@ class IOSHelper {
 
 			try {
 
-				ProcessHelper.runProcess ("", "open", [ "-Ra", "iOS Simulator" ], true, false);
-				ProcessHelper.runCommand ("", "open", [ "-a", "iOS Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
+				System.runProcess ("", "open", [ "-Ra", "iOS Simulator" ], true, false);
+				System.runCommand ("", "open", [ "-a", "iOS Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
 
 			} catch (e:Dynamic) {
 
-				ProcessHelper.runCommand ("", "open", [ "-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
+				System.runCommand ("", "open", [ "-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID ]);
 
 			}
 
@@ -363,7 +359,7 @@ class IOSHelper {
 			waitForDeviceState ("xcrun", [ "simctl", "install", currentDeviceID, applicationPath ]);
 			waitForDeviceState ("xcrun", [ "simctl", "launch", currentDeviceID, project.meta.packageName ]);
 
-			ProcessHelper.runCommand ("", "tail", [ "-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
+			System.runCommand ("", "tail", [ "-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
 
 		} else {
 
@@ -379,20 +375,20 @@ class IOSHelper {
 
 			}
 
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-			var launcher = PathHelper.findTemplate (templatePaths, "bin/ios-deploy");
+			var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+			var launcher = System.findTemplate (templatePaths, "bin/ios-deploy");
 			Sys.command ("chmod", [ "+x", launcher ]);
 
 			// var xcodeVersion = getXcodeVersion ();
 
-			ProcessHelper.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--bundle", FileSystem.fullPath (applicationPath) ]);
+			System.runCommand ("", launcher, [ "install", "--noninteractive", "--debug", "--bundle", FileSystem.fullPath (applicationPath) ]);
 
 		}
 
 	}
 
 
-	public static function sign (project:Project, workingDirectory:String):Void {
+	public static function sign (project:HXProject, workingDirectory:String):Void {
 
 		initialize (project);
 
@@ -417,7 +413,7 @@ class IOSHelper {
 		var applicationPath = "build/" + configuration + "-iphoneos/" + project.app.file + ".app";
 		commands.push (applicationPath);
 
-		ProcessHelper.runCommand (workingDirectory, "codesign", commands, true, true);
+		System.runCommand (workingDirectory, "codesign", commands, true, true);
 
 	}
 
@@ -428,7 +424,7 @@ class IOSHelper {
 
 		while (true) {
 
-			output = ProcessHelper.runProcess ("", command, args, true, true, true);
+			output = System.runProcess ("", command, args, true, true, true);
 
 			if (output != null && output.toLowerCase ().indexOf ("invalid device state") > -1) {
 

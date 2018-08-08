@@ -9,11 +9,8 @@ package lime.tools;
 //import format.SVG;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
-import haxe.io.Path;
-import hxp.FileHelper;
+import hxp.*;
 import lime.tools.ImageHelper;
-import hxp.Log;
-import hxp.PathHelper;
 #if (lime && lime_cffi && !macro)
 import lime.graphics.Image;
 import lime.math.Rectangle;
@@ -30,11 +27,11 @@ class IconHelper {
 
 		if (FileSystem.exists (targetPath)) {
 
-			var cacheTime = FileHelper.getLastModified (targetPath);
+			var cacheTime = System.getLastModified (targetPath);
 
 			for (icon in icons) {
 
-				if (FileHelper.getLastModified (icon.path) > cacheTime) {
+				if (System.getLastModified (icon.path) > cacheTime) {
 
 					return false;
 
@@ -65,8 +62,8 @@ class IconHelper {
 
 			}
 
-			PathHelper.mkdir (Path.directory (targetPath));
-			FileHelper.copyFile (icon.path, targetPath);
+			System.mkdir (Path.directory (targetPath));
+			System.copyFile (icon.path, targetPath);
 			return true;
 
 		} else {
@@ -85,7 +82,7 @@ class IconHelper {
 
 				if (bytes != null) {
 
-					PathHelper.mkdir (Path.directory (targetPath));
+					System.mkdir (Path.directory (targetPath));
 					File.saveBytes (targetPath, bytes);
 					return true;
 

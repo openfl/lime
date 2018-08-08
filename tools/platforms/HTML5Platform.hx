@@ -1,7 +1,7 @@
 package;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Template;
 #if lime
 import lime.text.Font;
@@ -10,18 +10,18 @@ import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.DeploymentHelper;
 import lime.tools.ElectronHelper;
-import hxp.FileHelper;
+import hxp.System;
 import lime.tools.HTML5Helper;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import hxp.Log;
 import lime.tools.ModuleHelper;
 import lime.tools.ProjectHelper;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.PlatformTarget;
-import hxp.ProcessHelper;
-import lime.tools.Project;
-import hxp.WatchHelper;
+import hxp.System;
+import lime.tools.HXProject;
+import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -33,7 +33,7 @@ class HTML5Platform extends PlatformTarget {
 	private var outputFile:String;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String> ) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
 
 		super (command, _project, targetFlags);
 
@@ -61,7 +61,7 @@ class HTML5Platform extends PlatformTarget {
 			}
 
 			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
-			ProcessHelper.runCommand ("", "haxe", [ hxml ] );
+			System.runCommand ("", "haxe", [ hxml ] );
 
 			if (noOutput) return;
 
@@ -69,7 +69,7 @@ class HTML5Platform extends PlatformTarget {
 
 			if (project.targetFlags.exists ("webgl")) {
 
-				FileHelper.copyFile (targetDirectory + "/obj/ApplicationMain.js", outputFile);
+				System.copyFile (targetDirectory + "/obj/ApplicationMain.js", outputFile);
 
 			}
 
@@ -94,7 +94,7 @@ class HTML5Platform extends PlatformTarget {
 
 		if (FileSystem.exists (targetDirectory)) {
 
-			PathHelper.removeDirectory (targetDirectory);
+			System.removeDirectory (targetDirectory);
 
 		}
 
@@ -133,7 +133,7 @@ class HTML5Platform extends PlatformTarget {
 
 		}
 
-		var hxml = PathHelper.findTemplate (project.templatePaths, type + "/hxml/" + buildType + ".hxml");
+		var hxml = System.findTemplate (project.templatePaths, type + "/hxml/" + buildType + ".hxml");
 
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;
@@ -146,15 +146,15 @@ class HTML5Platform extends PlatformTarget {
 	}
 
 
-	private function initialize (command:String, project:Project):Void {
+	private function initialize (command:String, project:HXProject):Void {
 
 		if (targetFlags.exists ("electron")) {
 
-			targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("electron.output-directory", "electron"));
+			targetDirectory = Path.combine (project.app.path, project.config.getString ("electron.output-directory", "electron"));
 
 		} else {
 
-			targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("html5.output-directory", "html5"));
+			targetDirectory = Path.combine (project.app.path, project.config.getString ("html5.output-directory", "html5"));
 
 		}
 
@@ -193,7 +193,7 @@ class HTML5Platform extends PlatformTarget {
 		// project = project.clone ();
 
 		var destination = targetDirectory + "/bin/";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
@@ -216,12 +216,12 @@ class HTML5Platform extends PlatformTarget {
 
 				if (useWebfonts) {
 
-					fontPath = PathHelper.combine (webfontDirectory, Path.withoutDirectory (asset.targetPath));
+					fontPath = Path.combine (webfontDirectory, Path.withoutDirectory (asset.targetPath));
 
 					if (!FileSystem.exists (fontPath)) {
 
-						PathHelper.mkdir (webfontDirectory);
-						FileHelper.copyFile (asset.sourcePath, fontPath);
+						System.mkdir (webfontDirectory);
+						System.copyFile (asset.sourcePath, fontPath);
 
 						var originalPath = asset.sourcePath;
 						asset.sourcePath = fontPath;
@@ -313,17 +313,17 @@ class HTML5Platform extends PlatformTarget {
 
 		if (icons.length == 0) {
 
-			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			icons = [ new Icon (System.findTemplate (project.templatePaths, "default/icon.svg")) ];
 
 		}
 
-		//if (IconHelper.createWindowsIcon (icons, PathHelper.combine (destination, "favicon.ico"))) {
+		//if (IconHelper.createWindowsIcon (icons, Path.combine (destination, "favicon.ico"))) {
 			//
 			//context.favicons.push ({ rel: "icon", type: "image/x-icon", href: "./favicon.ico" });
 			//
 		//}
 
-		if (IconHelper.createIcon (icons, 192, 192, PathHelper.combine (destination, "favicon.png"))) {
+		if (IconHelper.createIcon (icons, 192, 192, Path.combine (destination, "favicon.png"))) {
 
 			context.favicons.push ({ rel: "shortcut icon", type: "image/png", href: "./favicon.png" });
 
@@ -342,7 +342,7 @@ class HTML5Platform extends PlatformTarget {
 				var name = Path.withoutDirectory (dependency.path);
 
 				context.linkedLibraries.push ("./" + dependencyPath + "/" + name);
-				FileHelper.copyIfNewer (dependency.path, PathHelper.combine (destination, PathHelper.combine (dependencyPath, name)));
+				System.copyIfNewer (dependency.path, Path.combine (destination, Path.combine (dependencyPath, name)));
 
 			}
 
@@ -350,18 +350,18 @@ class HTML5Platform extends PlatformTarget {
 
 		for (asset in project.assets) {
 
-			var path = PathHelper.combine (destination, asset.targetPath);
+			var path = Path.combine (destination, asset.targetPath);
 
 			if (asset.type != AssetType.TEMPLATE) {
 
 				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT) {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					AssetHelper.copyAssetIfNewer (asset, path);
 
 				} else if (asset.type == AssetType.FONT && useWebfonts) {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					var ext = "." + Path.extension (asset.sourcePath);
 					var source = Path.withoutExtension (asset.sourcePath);
 
@@ -375,7 +375,7 @@ class HTML5Platform extends PlatformTarget {
 
 						if (FileSystem.exists (source + extension)) {
 
-							FileHelper.copyIfNewer (source + extension, path + extension);
+							System.copyIfNewer (source + extension, path + extension);
 							hasFormat[i] = true;
 
 						}
@@ -461,11 +461,11 @@ class HTML5Platform extends PlatformTarget {
 
 		for (asset in project.assets) {
 
-			var path = PathHelper.combine (destination, asset.targetPath);
+			var path = Path.combine (destination, asset.targetPath);
 
 			if (asset.type == AssetType.TEMPLATE) {
 
-				PathHelper.mkdir (Path.directory (path));
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path, context);
 
 			}
@@ -479,9 +479,9 @@ class HTML5Platform extends PlatformTarget {
 
 		// TODO: Use a custom live reload HTTP server for test/run instead
 
-		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
 		var command = ProjectHelper.getCurrentCommand ();
-		WatchHelper.watch (command, dirs);
+		System.watch (command, dirs);
 
 	}
 

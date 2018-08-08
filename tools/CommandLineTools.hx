@@ -6,11 +6,10 @@ package;
 //import openfl.utils.CompressionAlgorithm;
 import haxe.Serializer;
 import haxe.Unserializer;
-import haxe.io.Path;
 import haxe.rtti.Meta;
 import hxp.*;
 import lime.system.CFFI;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.*;
 import sys.io.File;
 import sys.io.Process;
@@ -20,7 +19,7 @@ import utils.CreateTemplate;
 import utils.JavaExternGenerator;
 import utils.PlatformSetup;
 
-@:access(lime.tools.Project)
+@:access(lime.tools.HXProject)
 
 
 class CommandLineTools {
@@ -35,8 +34,8 @@ class CommandLineTools {
 	private var debug:Bool;
 	private var environment:Map<String, String>;
 	private var includePaths:Array<String>;
-	private var overrides:Project;
-	private var project:Project;
+	private var overrides:HXProject;
+	private var project:HXProject;
 	private var projectDefines:Map<String, String>;
 	private var runFromHaxelib:Bool;
 	private var targetFlags:Map<String, String>;
@@ -59,13 +58,13 @@ class CommandLineTools {
 		userDefines = new Map<String, Dynamic> ();
 		words = new Array<String> ();
 
-		overrides = new Project ();
+		overrides = new HXProject ();
 		overrides.architectures = [];
 
-		//HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (HaxelibHelper.getPath (new Haxelib ("lime")), "tools"));
+		//Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (Haxelib.getPath (new Haxelib ("lime")), "tools"));
 
 		processArguments ();
-		version = HaxelibHelper.getVersion ();
+		version = Haxelib.getVersion ();
 
 		if (targetFlags.exists ("openfl")) {
 
@@ -157,7 +156,7 @@ class CommandLineTools {
 
 				if (words.length == 1) {
 
-					var haxelibPath = HaxelibHelper.getPath (new Haxelib (words[0]), false);
+					var haxelibPath = Haxelib.getPath (new Haxelib (words[0]), false);
 
 					if (haxelibPath != "" && haxelibPath != null) {
 
@@ -190,12 +189,12 @@ class CommandLineTools {
 
 				if (!FileSystem.exists (words[0])) {
 
-					var fullPath = PathHelper.tryFullPath (words[0]);
+					var fullPath = Path.tryFullPath (words[0]);
 
 					if (FileSystem.exists (fullPath)) {
 
-						path = PathHelper.combine (fullPath, "project");
-						hxmlPath = PathHelper.combine (fullPath, "rebuild.hxml");
+						path = Path.combine (fullPath, "project");
+						hxmlPath = Path.combine (fullPath, "rebuild.hxml");
 
 					} else {
 
@@ -207,17 +206,17 @@ class CommandLineTools {
 
 					if (FileSystem.isDirectory (words[0])) {
 
-						if (FileSystem.exists (PathHelper.combine (words[0], "Build.xml"))) {
+						if (FileSystem.exists (Path.combine (words[0], "Build.xml"))) {
 
 							path = words[0];
 
 						} else {
 
-							path = PathHelper.combine (words[0], "project/Build.xml");
+							path = Path.combine (words[0], "project/Build.xml");
 
 						}
 
-						hxmlPath = PathHelper.combine (words[0], "rebuild.hxml");
+						hxmlPath = Path.combine (words[0], "rebuild.hxml");
 
 					} else {
 
@@ -231,7 +230,7 @@ class CommandLineTools {
 
 					}
 
-					var haxelibPath = HaxelibHelper.getPath (new Haxelib (words[0]));
+					var haxelibPath = Haxelib.getPath (new Haxelib (words[0]));
 
 					if (!FileSystem.exists (path) && haxelibPath != null) {
 
@@ -243,21 +242,21 @@ class CommandLineTools {
 
 				if (haxelib != null) {
 
-					var haxelibPath = HaxelibHelper.getPath (haxelib, true);
+					var haxelibPath = Haxelib.getPath (haxelib, true);
 
 					switch (haxelib.name) {
 
 						case "hxcpp":
 
-							hxmlPath = PathHelper.combine (haxelibPath, "tools/hxcpp/compile.hxml");
+							hxmlPath = Path.combine (haxelibPath, "tools/hxcpp/compile.hxml");
 
 						case "haxelib":
 
-							hxmlPath = PathHelper.combine (haxelibPath, "../client.hxml");
+							hxmlPath = Path.combine (haxelibPath, "../client.hxml");
 
 						default:
 
-							hxmlPath = PathHelper.combine (haxelibPath, "rebuild.hxml");
+							hxmlPath = Path.combine (haxelibPath, "rebuild.hxml");
 
 					}
 
@@ -271,32 +270,32 @@ class CommandLineTools {
 
 						case "cpp":
 
-							target = cast PlatformHelper.hostPlatform;
+							target = cast System.hostPlatform;
 							targetFlags.set ("cpp", "");
 
 						case "neko":
 
-							target = cast PlatformHelper.hostPlatform;
+							target = cast System.hostPlatform;
 							targetFlags.set ("neko", "");
 
 						case "hl":
 
-							target = cast PlatformHelper.hostPlatform;
+							target = cast System.hostPlatform;
 							targetFlags.set ("hl", "");
 
 						case "java":
 
-							target = cast PlatformHelper.hostPlatform;
+							target = cast System.hostPlatform;
 							targetFlags.set ("java", "");
 
 						case "nodejs":
 
-							target = cast PlatformHelper.hostPlatform;
+							target = cast System.hostPlatform;
 							targetFlags.set ("nodejs", "");
 
 						case "cs":
 
-							target = cast PlatformHelper.hostPlatform;
+							target = cast System.hostPlatform;
 							targetFlags.set ("cs", "");
 
 						case "iphone", "iphoneos":
@@ -352,9 +351,9 @@ class CommandLineTools {
 						if (hxmlPath != null && FileSystem.exists (hxmlPath)) {
 
 							var cacheValue = Sys.getEnv ("HAXELIB_PATH");
-							Sys.putEnv ("HAXELIB_PATH", HaxelibHelper.getRepositoryPath ());
+							Sys.putEnv ("HAXELIB_PATH", Haxelib.getRepositoryPath ());
 
-							ProcessHelper.runCommand (Path.directory (hxmlPath), "haxe", [ Path.withoutDirectory (hxmlPath) ]);
+							System.runCommand (Path.directory (hxmlPath), "haxe", [ Path.withoutDirectory (hxmlPath) ]);
 
 							if (cacheValue != null) {
 
@@ -366,38 +365,38 @@ class CommandLineTools {
 
 					} else {
 
-						Project._command = command;
-						Project._environment = environment;
-						Project._debug = debug;
-						Project._target = target;
-						Project._targetFlags = targetFlags;
-						Project._userDefines = userDefines;
+						HXProject._command = command;
+						HXProject._environment = environment;
+						HXProject._debug = debug;
+						HXProject._target = target;
+						HXProject._targetFlags = targetFlags;
+						HXProject._userDefines = userDefines;
 
 						var project = null;
 
 						if (haxelib != null) {
 
 							userDefines.set ("rebuild", 1);
-							project = Project.fromHaxelib (haxelib, userDefines);
+							project =  HXProject.fromHaxelib (haxelib, userDefines);
 
 							if (project == null) {
 
-								project = new Project ();
-								project.config.set ("project.rebuild.path", PathHelper.combine (HaxelibHelper.getPath (haxelib), "project"));
+								project = new HXProject ();
+								project.config.set ("project.rebuild.path", Path.combine (Haxelib.getPath (haxelib), "project"));
 
 							} else {
 
-								project.config.set ("project.rebuild.path", PathHelper.combine (HaxelibHelper.getPath (haxelib), project.config.get ("project.rebuild.path")));
+								project.config.set ("project.rebuild.path", Path.combine (Haxelib.getPath (haxelib), project.config.get ("project.rebuild.path")));
 
 							}
 
 						} else {
 
-							//project = Project.fromPath (path);
+							//project =  HXProject.fromPath (path);
 
 							if (project == null) {
 
-								project = new Project ();
+								project = new HXProject ();
 
 								if (FileSystem.isDirectory (path)) {
 
@@ -423,7 +422,7 @@ class CommandLineTools {
 
 						for (haxelib in overrides.haxelibs) {
 
-							var includeProject = Project.fromHaxelib (haxelib, project.defines);
+							var includeProject =  HXProject.fromHaxelib (haxelib, project.defines);
 
 							if (includeProject != null) {
 
@@ -513,7 +512,7 @@ class CommandLineTools {
 
 		if (FileSystem.exists ("tools.n")) {
 
-			path = PathHelper.combine (Sys.getCwd (), "../ndll/");
+			path = Path.combine (Sys.getCwd (), "../ndll/");
 
 		} else if (FileSystem.exists ("run.n")) {
 
@@ -546,7 +545,7 @@ class CommandLineTools {
 
 		}
 
-		switch (PlatformHelper.hostPlatform) {
+		switch (System.hostPlatform) {
 
 			case WINDOWS:
 
@@ -554,7 +553,7 @@ class CommandLineTools {
 
 			case MAC:
 
-				//if (PlatformHelper.hostArchitecture == X64) {
+				//if (System.hostArchitecture == X64) {
 
 					untyped $loader.path = $array (path + "Mac64/", $loader.path);
 
@@ -575,11 +574,11 @@ class CommandLineTools {
 
 				}
 
-				if (raspberryPi || PlatformHelper.hostArchitecture == ARMV6 || PlatformHelper.hostArchitecture == ARMV7) {
+				if (raspberryPi || System.hostArchitecture == ARMV6 || System.hostArchitecture == ARMV7) {
 
 					untyped $loader.path = $array (path + "RPi/", $loader.path);
 
-				} else if (PlatformHelper.hostArchitecture == X64) {
+				} else if (System.hostArchitecture == X64) {
 
 					untyped $loader.path = $array (path + "Linux64/", $loader.path);
 
@@ -597,7 +596,7 @@ class CommandLineTools {
 	#end
 
 
-	private function buildProject (project:Project, command:String = "") {
+	private function buildProject (project:HXProject, command:String = "") {
 
 		if (command == "") {
 
@@ -617,10 +616,10 @@ class CommandLineTools {
 
 			var handler = project.targetHandlers.get (Std.string (project.target));
 			var projectData = Serializer.run (project);
-			var temporaryFile = PathHelper.getTemporaryFile ();
+			var temporaryFile = System.getTemporaryFile ();
 			File.saveContent (temporaryFile, projectData);
 
-			var targetDir = HaxelibHelper.getPath (new Haxelib (handler));
+			var targetDir = Haxelib.getPath (new Haxelib (handler));
 			var exePath = Path.join ([targetDir, "run.exe"]);
 			var exeExists = FileSystem.exists (exePath);
 
@@ -639,11 +638,11 @@ class CommandLineTools {
 
 			if (exeExists) {
 
-				ProcessHelper.runCommand ("", exePath, args);
+				System.runCommand ("", exePath, args);
 
 			} else {
 
-				HaxelibHelper.runCommand ("", [ "run", handler ].concat (args));
+				Haxelib.runCommand ("", [ "run", handler ].concat (args));
 
 			}
 
@@ -799,11 +798,11 @@ class CommandLineTools {
 					var sampleExists = false;
 					var defines = new Map<String, Dynamic> ();
 					defines.set ("create", 1);
-					var project = Project.fromHaxelib (new Haxelib (defaultLibrary), defines);
+					var project =  HXProject.fromHaxelib (new Haxelib (defaultLibrary), defines);
 
 					for (samplePath in project.samplePaths) {
 
-						if (FileSystem.exists (PathHelper.combine (samplePath, projectName))) {
+						if (FileSystem.exists (Path.combine (samplePath, projectName))) {
 
 							sampleExists = true;
 
@@ -815,7 +814,7 @@ class CommandLineTools {
 
 						CreateTemplate.createSample (words, userDefines);
 
-					} else if (HaxelibHelper.getPath (new Haxelib (projectName)) != "") {
+					} else if (Haxelib.getPath (new Haxelib (projectName)) != "") {
 
 						CreateTemplate.listSamples (projectName, userDefines);
 
@@ -1181,7 +1180,7 @@ class CommandLineTools {
 		// for (i in 0...80) out += "-";
 		// Log.println (out);
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			Log.println ("");
 
@@ -1238,21 +1237,21 @@ class CommandLineTools {
 
 	private function findProjectFile (path:String):String {
 
-		if (FileSystem.exists (PathHelper.combine (path, "project.hxp"))) {
+		if (FileSystem.exists (Path.combine (path, "project.hxp"))) {
 
-			return PathHelper.combine (path, "project.hxp");
+			return Path.combine (path, "project.hxp");
 
-		} else if (FileSystem.exists (PathHelper.combine (path, "project.lime"))) {
+		} else if (FileSystem.exists (Path.combine (path, "project.lime"))) {
 
-			return PathHelper.combine (path, "project.lime");
+			return Path.combine (path, "project.lime");
 
-		} else if (FileSystem.exists (PathHelper.combine (path, "project.xml"))) {
+		} else if (FileSystem.exists (Path.combine (path, "project.xml"))) {
 
-			return PathHelper.combine (path, "project.xml");
+			return Path.combine (path, "project.xml");
 
-		} else if (FileSystem.exists (PathHelper.combine (path, "project.nmml"))) {
+		} else if (FileSystem.exists (Path.combine (path, "project.nmml"))) {
 
-			return PathHelper.combine (path, "project.nmml");
+			return Path.combine (path, "project.nmml");
 
 		} else {
 
@@ -1265,7 +1264,7 @@ class CommandLineTools {
 
 			for (file in files) {
 
-				var path = PathHelper.combine (path, file);
+				var path = Path.combine (path, file);
 
 				if (FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 
@@ -1319,7 +1318,7 @@ class CommandLineTools {
 			var sourcePath = words[0];
 			var glyphs = "32-255";
 
-			ProcessHelper.runCommand (Path.directory (sourcePath), "neko", [ HaxelibHelper.getPath (new Haxelib ("lime")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
+			System.runCommand (Path.directory (sourcePath), "neko", [ Haxelib.getPath (new Haxelib ("lime")) + "/templates/bin/hxswfml.n", "ttf2hash2", Path.withoutDirectory (sourcePath), Path.withoutDirectory (sourcePath) + ".hash", "-glyphs", glyphs ]);
 
 		} else if (targetFlags.exists ("font-details")) {
 
@@ -1342,7 +1341,7 @@ class CommandLineTools {
 	}
 
 
-	private function getBuildNumber (project:Project, increment:Bool = true):Void {
+	private function getBuildNumber (project:HXProject, increment:Bool = true):Void {
 
 		var buildNumber = project.meta.buildNumber;
 
@@ -1360,7 +1359,7 @@ class CommandLineTools {
 
 		if (buildNumber == null) {
 
-			var versionFile = PathHelper.combine (project.app.path, ".build");
+			var versionFile = Path.combine (project.app.path, ".build");
 			var version = 1;
 
 			try {
@@ -1391,7 +1390,7 @@ class CommandLineTools {
 
 				try {
 
-					PathHelper.mkdir (project.app.path);
+					System.mkdir (project.app.path);
 
 					var output = File.write (versionFile, false);
 					output.writeString (Std.string (version));
@@ -1406,12 +1405,12 @@ class CommandLineTools {
 	}
 
 
-	private function getBuildNumber_GIT (project:Project, increment:Bool = true):String {
+	private function getBuildNumber_GIT (project:HXProject, increment:Bool = true):String {
 
 		var cache = Log.mute;
 		Log.mute = true;
 
-		var output = ProcessHelper.runProcess ("", "git", [ "rev-list", "HEAD", "--count" ], true, true, true);
+		var output = System.runProcess ("", "git", [ "rev-list", "HEAD", "--count" ], true, true, true);
 
 		Log.mute = cache;
 
@@ -1446,12 +1445,12 @@ class CommandLineTools {
 	}
 
 
-	private function getBuildNumber_SVN (project:Project, increment:Bool = true):String {
+	private function getBuildNumber_SVN (project:HXProject, increment:Bool = true):String {
 
 		var cache = Log.mute;
 		Log.mute = true;
 
-		var output = ProcessHelper.runProcess ("", "svn", [ "info" ], true, true, true);
+		var output = System.runProcess ("", "svn", [ "info" ], true, true, true);
 
 		Log.mute = cache;
 
@@ -1499,7 +1498,7 @@ class CommandLineTools {
 
 		if (targetFlags.exists ("openfl")) {
 
-			return HaxelibHelper.getVersion (new Haxelib ("openfl")) + "-L" + StringHelper.generateUUID (5, null, StringHelper.generateHashCode (version));
+			return Haxelib.getVersion (new Haxelib ("openfl")) + "-L" + StringTools.generateUUID (5, null, StringTools.generateHashCode (version));
 
 		} else {
 
@@ -1510,7 +1509,7 @@ class CommandLineTools {
 	}
 
 
-	private function initializeProject (project:Project = null, targetName:String = ""):Project {
+	private function initializeProject (project:HXProject = null, targetName:String = ""):HXProject {
 
 		Log.info ("", Log.accentColor + "Initializing project..." + Log.resetColor);
 
@@ -1571,19 +1570,19 @@ class CommandLineTools {
 
 				var forceGlobal = (overrides.haxeflags.indexOf ("--global") > -1);
 				var projectDirectory = Path.directory (projectFile);
-				var localRepository = PathHelper.combine (projectDirectory, ".haxelib");
+				var localRepository = Path.combine (projectDirectory, ".haxelib");
 
 				if (!forceGlobal && FileSystem.exists (localRepository) && FileSystem.isDirectory (localRepository)) {
 
-					var overrideExists = HaxelibHelper.pathOverrides.exists ("lime");
-					var cacheOverride = HaxelibHelper.pathOverrides.get ("lime");
-					HaxelibHelper.pathOverrides.remove ("lime");
+					var overrideExists = Haxelib.pathOverrides.exists ("lime");
+					var cacheOverride = Haxelib.pathOverrides.get ("lime");
+					Haxelib.pathOverrides.remove ("lime");
 
 					var workingDirectory = Sys.getCwd ();
 					Sys.setCwd (projectDirectory);
 
-					var limePath = HaxelibHelper.getPath (new Haxelib ("lime"), true, true);
-					var toolsPath = HaxelibHelper.getPath (new Haxelib ("lime-tools"));
+					var limePath = Haxelib.getPath (new Haxelib ("lime"), true, true);
+					var toolsPath = Haxelib.getPath (new Haxelib ("lime-tools"));
 
 					Sys.setCwd (workingDirectory);
 
@@ -1596,7 +1595,7 @@ class CommandLineTools {
 
 						Sys.setCwd (limePath);
 
-						args = [ PathHelper.combine (limePath, "run.n") ].concat (args);
+						args = [ Path.combine (limePath, "run.n") ].concat (args);
 						args.push ("--haxelib-lime=" + limePath);
 						args.push ("-nolocalrepocheck");
 						args.push (workingDirectory);
@@ -1608,7 +1607,7 @@ class CommandLineTools {
 
 					if (overrideExists) {
 
-						HaxelibHelper.pathOverrides.set ("lime", cacheOverride);
+						Haxelib.pathOverrides.set ("lime", cacheOverride);
 
 					}
 
@@ -1652,32 +1651,32 @@ class CommandLineTools {
 
 			case "cpp":
 
-				target = cast PlatformHelper.hostPlatform;
+				target = cast System.hostPlatform;
 				targetFlags.set ("cpp", "");
 
 			case "neko":
 
-				target = cast PlatformHelper.hostPlatform;
+				target = cast System.hostPlatform;
 				targetFlags.set ("neko", "");
 
 			case "hl":
 
-				target = cast PlatformHelper.hostPlatform;
+				target = cast System.hostPlatform;
 				targetFlags.set ("hl", "");
 
 			case "java":
 
-				target = cast PlatformHelper.hostPlatform;
+				target = cast System.hostPlatform;
 				targetFlags.set ("java", "");
 
 			case "nodejs":
 
-				target = cast PlatformHelper.hostPlatform;
+				target = cast System.hostPlatform;
 				targetFlags.set ("nodejs", "");
 
 			case "cs":
 
-				target = cast PlatformHelper.hostPlatform;
+				target = cast System.hostPlatform;
 				targetFlags.set ("cs", "");
 
 			case "iphone", "iphoneos":
@@ -1731,12 +1730,12 @@ class CommandLineTools {
 
 		}
 
-		Project._command = command;
-		Project._debug = debug;
-		Project._environment = environment;
-		Project._target = target;
-		Project._targetFlags = targetFlags;
-		Project._userDefines = userDefines;
+		HXProject._command = command;
+		HXProject._debug = debug;
+		HXProject._environment = environment;
+		HXProject._target = target;
+		HXProject._targetFlags = targetFlags;
+		HXProject._userDefines = userDefines;
 
 		var config = ConfigHelper.getConfig ();
 
@@ -1784,14 +1783,14 @@ class CommandLineTools {
 
 		}
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			if (environment.get ("JAVA_HOME") != null) {
 
-				var javaPath = PathHelper.combine (environment.get ("JAVA_HOME"), "bin");
+				var javaPath = Path.combine (environment.get ("JAVA_HOME"), "bin");
 				var value;
 
-				if (PlatformHelper.hostPlatform == WINDOWS) {
+				if (System.hostPlatform == WINDOWS) {
 
 					value = javaPath + ";" + Sys.getEnv ("PATH");
 
@@ -1830,7 +1829,7 @@ class CommandLineTools {
 
 		if (!environment.exists ("HAXE_STD_PATH")) {
 
-			if (PlatformHelper.hostPlatform == WINDOWS) {
+			if (System.hostPlatform == WINDOWS) {
 
 				environment.set ("HAXE_STD_PATH", "C:\\HaxeToolkit\\haxe\\std\\");
 
@@ -1856,12 +1855,12 @@ class CommandLineTools {
 
 		if (project == null) {
 
-			Project._command = command;
-			Project._debug = debug;
-			Project._environment = environment;
-			Project._target = target;
-			Project._targetFlags = targetFlags;
-			Project._userDefines = userDefines;
+			HXProject._command = command;
+			HXProject._debug = debug;
+			HXProject._environment = environment;
+			HXProject._target = target;
+			HXProject._targetFlags = targetFlags;
+			HXProject._userDefines = userDefines;
 
 			try { Sys.setCwd (Path.directory (projectFile)); } catch (e:Dynamic) {}
 
@@ -1871,7 +1870,7 @@ class CommandLineTools {
 
 			} else if (Path.extension (projectFile) == "hxp") {
 
-				project = Project.fromFile (projectFile, userDefines, includePaths);
+				project =  HXProject.fromFile (projectFile, userDefines, includePaths);
 
 				if (project != null) {
 
@@ -1893,9 +1892,9 @@ class CommandLineTools {
 
 		if (project != null && project.needRerun && !project.targetFlags.exists ("norerun")) {
 
-			HaxelibHelper.pathOverrides.remove ("lime");
+			Haxelib.pathOverrides.remove ("lime");
 			var workingDirectory = Sys.getCwd ();
-			var limePath = HaxelibHelper.getPath (new Haxelib ("lime"), true, true);
+			var limePath = Haxelib.getPath (new Haxelib ("lime"), true, true);
 			Sys.setCwd (workingDirectory);
 
 			Log.info ("", Log.accentColor + "Requesting alternate tools from custom haxelib path...\x1b[0m\n\n");
@@ -1905,7 +1904,7 @@ class CommandLineTools {
 
 			Sys.setCwd (limePath);
 
-			args = [ PathHelper.combine (limePath, "run.n") ].concat (args);
+			args = [ Path.combine (limePath, "run.n") ].concat (args);
 			args.push ("--haxelib-lime=" + limePath);
 			args.push ("-norerun");
 			args.push (workingDirectory);
@@ -1956,7 +1955,7 @@ class CommandLineTools {
 
 							if (haxelib.name == "openfl") {
 
-								HaxelibHelper.setOverridePath (haxelib, HaxelibHelper.getPath (haxelib));
+								Haxelib.setOverridePath (haxelib, Haxelib.getPath (haxelib));
 
 							}
 
@@ -1966,22 +1965,22 @@ class CommandLineTools {
 
 					Log.info ("", Log.accentColor + "Requesting tools version " + getToolsVersion (haxelib.version) + "...\x1b[0m\n\n");
 
-					HaxelibHelper.pathOverrides.remove ("lime");
-					var path = HaxelibHelper.getPath (haxelib);
+					Haxelib.pathOverrides.remove ("lime");
+					var path = Haxelib.getPath (haxelib);
 
 					var args = Sys.args ();
 					var workingDirectory = args.pop ();
 
 					for (haxelib in project.haxelibs) {
 
-						args.push ("--haxelib-" + haxelib.name + "=" + HaxelibHelper.getPath (haxelib));
+						args.push ("--haxelib-" + haxelib.name + "=" + Haxelib.getPath (haxelib));
 
 					}
 
 					args.push ("-notoolscheck");
 
 					Sys.setCwd (path);
-					var args = [ PathHelper.combine (path, "run.n") ].concat (args);
+					var args = [ Path.combine (path, "run.n") ].concat (args);
 					args.push (workingDirectory);
 
 					Sys.exit (Sys.command ("neko", args));
@@ -1992,7 +1991,7 @@ class CommandLineTools {
 
 				} else {
 
-					if (Std.string (version) != Std.string (HaxelibHelper.getVersion (haxelib))) {
+					if (Std.string (version) != Std.string (Haxelib.getVersion (haxelib))) {
 
 						Log.warn ("", Log.accentColor + "Could not switch to requested tools version\x1b[0m");
 
@@ -2071,7 +2070,7 @@ class CommandLineTools {
 
 		}
 
-		StringMapHelper.copyKeys (userDefines, project.haxedefs);
+		MapTools.copyKeysDynamic (userDefines, project.haxedefs);
 
 		getBuildNumber (project, (project.command == "build" || project.command == "test"));
 
@@ -2131,7 +2130,7 @@ class CommandLineTools {
 			lastArgument = new Path (lastArgument).toString ();
 			var isRootDirectory = false;
 
-			if (PlatformHelper.hostPlatform == WINDOWS) {
+			if (System.hostPlatform == WINDOWS) {
 
 				isRootDirectory = (lastArgument.length == 3 && lastArgument.charAt (1) == ":" && (lastArgument.charAt (2) == "/" || lastArgument.charAt (2) == "\\"));
 
@@ -2143,7 +2142,7 @@ class CommandLineTools {
 
 			if (FileSystem.exists (lastArgument) && FileSystem.isDirectory (lastArgument)) {
 
-				HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (Sys.getCwd (), "tools"));
+				Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (Sys.getCwd (), "tools"));
 
 				Sys.setCwd (lastArgument);
 				runFromHaxelib = true;
@@ -2154,7 +2153,7 @@ class CommandLineTools {
 
 			}
 
-			HaxelibHelper.workingDirectory = Sys.getCwd ();
+			Haxelib.workingDirectory = Sys.getCwd ();
 
 		}
 
@@ -2164,7 +2163,7 @@ class CommandLineTools {
 
 			if (FileSystem.exists ("tools.n")) {
 
-				path = PathHelper.combine (Sys.getCwd (), "../");
+				path = Path.combine (Sys.getCwd (), "../");
 
 			} else if (FileSystem.exists ("run.n")) {
 
@@ -2176,8 +2175,8 @@ class CommandLineTools {
 
 			}
 
-			HaxelibHelper.setOverridePath (new Haxelib ("lime"), path);
-			HaxelibHelper.setOverridePath (new Haxelib ("lime-tools"), PathHelper.combine (path, "tools"));
+			Haxelib.setOverridePath (new Haxelib ("lime"), path);
+			Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (path, "tools"));
 
 		}
 
@@ -2259,7 +2258,7 @@ class CommandLineTools {
 					} else if (StringTools.startsWith (field, "haxelib-")) {
 
 						var name = field.substr (8);
-						HaxelibHelper.setOverridePath (new Haxelib (name), PathHelper.tryFullPath (argValue));
+						Haxelib.setOverridePath (new Haxelib (name), Path.tryFullPath (argValue));
 
 					} else if (field == "source") {
 
@@ -2382,7 +2381,7 @@ class CommandLineTools {
 
 			} else if (argument == "-haxelib-debug") {
 
-				HaxelibHelper.debug = true;
+				Haxelib.debug = true;
 
 			} else if (argument == "--help" || argument == "-help" || argument == "-h") {
 
@@ -2441,7 +2440,7 @@ class CommandLineTools {
 
 					} else if (argument == "-dryrun") {
 
-						ProcessHelper.dryRun = true;
+						System.dryRun = true;
 
 					} else if (argument == "-notrace") {
 
@@ -2521,7 +2520,7 @@ class CommandLineTools {
 		}
 
 		var haxelib = new Haxelib (name);
-		var path = HaxelibHelper.getPath (haxelib);
+		var path = Haxelib.getPath (haxelib);
 
 		switch (command) {
 
@@ -2543,7 +2542,7 @@ class CommandLineTools {
 
 				if (path != null && path != "") {
 
-					HaxelibHelper.runCommand ("", [ "remove", name ]);
+					Haxelib.runCommand ("", [ "remove", name ]);
 
 				}
 

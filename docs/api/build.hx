@@ -1,10 +1,10 @@
-import hxp.ProcessHelper;
-import hxp.HXML;
-import sys.io.File;
+import hxp.*;
 
-class Build extends hxp.Script {
+class Build extends Script {
 
 	public function new () {
+
+		super ();
 
 		var base = new HXML ({
 			defines: [ "display", "doc-gen", "lime-doc-gen" ],
@@ -55,7 +55,7 @@ class Build extends hxp.Script {
 		html5.define ("html5");
 		html5.build ();
 
-		ProcessHelper.runCommand ("", "haxelib", [ "run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../../assets/docs-theme", "--toplevel-package", "lime" ]);
+		System.runCommand ("", "haxelib", [ "run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../../assets/docs-theme", "--toplevel-package", "lime" ]);
 
 	}
 

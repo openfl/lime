@@ -1,10 +1,9 @@
 package lime.tools;
 
 
-import haxe.io.Path;
-import lime.tools.Project;
-import lime.tools.Platform;
 import hxp.*;
+import lime.tools.HXProject;
+import lime.tools.Platform;
 import lime.tools.ProjectXMLParser;
 import sys.io.File;
 import sys.FileSystem;
@@ -17,19 +16,19 @@ class ConfigHelper {
 	private static var configPath:String = null;
 
 
-	public static function getConfig ():Project {
+	public static function getConfig ():HXProject {
 
 		var config = getConfigPath ();
 
 		if (FileSystem.exists (config)) {
 
-			Log.info ("", Log.accentColor + "Reading HXP config: " + config + Log.resetColor);
+			Log.info ("", Log.accentColor + "Reading Lime config: " + config + Log.resetColor);
 
 			return new ProjectXMLParser (config);
 
 		} else {
 
-			Log.warn ("", "Could not read HXP config: " + config);
+			Log.warn ("", "Could not read Lime config: " + config);
 
 		}
 
@@ -44,9 +43,9 @@ class ConfigHelper {
 
 			var environment = Sys.environment ();
 
-			if (environment.exists ("HXP_CONFIG")) {
+			if (environment.exists ("LIME_CONFIG")) {
 
-				configPath = environment.get ("HXP_CONFIG");
+				configPath = environment.get ("LIME_CONFIG");
 
 			} else {
 
@@ -62,15 +61,15 @@ class ConfigHelper {
 
 				} else {
 
-					Log.warn ("HXP config might be missing (Environment has no \"HOME\" variable)");
+					Log.warn ("Lime config might be missing (Environment has no \"HOME\" variable)");
 
 					return null;
 
 				}
 
-				configPath = home + "/.hxp/config.xml";
+				configPath = home + "/.lime/config.xml";
 
-				if (PlatformHelper.hostPlatform == WINDOWS) {
+				if (System.hostPlatform == WINDOWS) {
 
 					configPath = configPath.split ("/").join ("\\");
 
@@ -78,19 +77,7 @@ class ConfigHelper {
 
 				if (!FileSystem.exists (configPath)) {
 
-					var limeConfig = home + "/.lime/config.xml";
-
-					if (FileSystem.exists (limeConfig)) {
-
-						FileHelper.copyFile (limeConfig, configPath);
-
-					}
-
-				}
-
-				if (!FileSystem.exists (configPath)) {
-
-					PathHelper.mkdir (Path.directory (configPath));
+					System.mkdir (Path.directory (configPath));
 
 					var hxcppConfig = null;
 
@@ -313,9 +300,9 @@ class ConfigHelper {
 
 		try {
 
-			if (!FileSystem.exists (value) && FileSystem.exists (PathHelper.expand (value))) {
+			if (!FileSystem.exists (value) && FileSystem.exists (Path.expand (value))) {
 
-				value = PathHelper.expand (value);
+				value = Path.expand (value);
 
 			}
 

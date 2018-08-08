@@ -1,7 +1,6 @@
 package lime.tools;
 
 
-import haxe.io.Path;
 import haxe.xml.Fast;
 import hxp.*;
 import lime.tools.CommandHelper;
@@ -9,8 +8,7 @@ import lime.tools.ModuleHelper;
 import lime.tools.Asset;
 import lime.tools.AssetType;
 import lime.tools.Dependency;
-import hxp.Haxelib;
-import lime.tools.Project;
+import lime.tools.HXProject;
 #if lime
 import lime.utils.AssetManifest;
 #end
@@ -18,7 +16,7 @@ import sys.io.File;
 import sys.FileSystem;
 
 
-class ProjectXMLParser extends Project {
+class ProjectXMLParser extends HXProject {
 
 
 	public var includePaths:Array<String>;
@@ -33,7 +31,7 @@ class ProjectXMLParser extends Project {
 
 		if (defines != null) {
 
-			this.defines = StringMapHelper.copy (defines);
+			this.defines = MapTools.copy (defines);
 
 		}
 
@@ -136,7 +134,7 @@ class ProjectXMLParser extends Project {
 			defines.set ("uwp", "1");
 			defines.set ("winjs", "1");
 
-		} else if (platformType == DESKTOP && target != cast PlatformHelper.hostPlatform) {
+		} else if (platformType == DESKTOP && target != cast System.hostPlatform) {
 
 			defines.set ("native", "1");
 
@@ -198,7 +196,7 @@ class ProjectXMLParser extends Project {
 		defines.set ("target", Std.string (target).toLowerCase ());
 		defines.set ("platform", defines.get ("target"));
 
-		switch (PlatformHelper.hostPlatform) {
+		switch (System.hostPlatform) {
 
 			case WINDOWS: defines.set ("host", "windows");
 			case MAC: defines.set ("host", "mac");
@@ -452,7 +450,7 @@ class ProjectXMLParser extends Project {
 
 				case "path":
 
-					app.path = PathHelper.combine (extensionPath, substitute (element.att.path));
+					app.path = Path.combine (extensionPath, substitute (element.att.path));
 
 				case "min-swf-version":
 
@@ -513,7 +511,7 @@ class ProjectXMLParser extends Project {
 
 		if (element.has.path) {
 
-			path = PathHelper.combine (basePath, substitute (element.att.path));
+			path = Path.combine (basePath, substitute (element.att.path));
 
 		}
 
@@ -842,7 +840,7 @@ class ProjectXMLParser extends Project {
 		}
 
 		var processedLibrary = false;
-		var jsonPath = PathHelper.combine (path, "library.json");
+		var jsonPath = Path.combine (path, "library.json");
 
 		if (FileSystem.exists (jsonPath)) {
 
@@ -856,7 +854,7 @@ class ProjectXMLParser extends Project {
 					library = targetPath;
 					manifest.rootPath = targetPath;
 
-					var asset = new Asset ("", PathHelper.combine (targetPath, "library.json"), AssetType.MANIFEST);
+					var asset = new Asset ("", Path.combine (targetPath, "library.json"), AssetType.MANIFEST);
 					asset.id = "libraries/" + library + ".json";
 					asset.library = library;
 					asset.data = manifest.serialize ();
@@ -867,7 +865,7 @@ class ProjectXMLParser extends Project {
 
 						if (Reflect.hasField (manifestAsset, "path")) {
 
-							var asset = new Asset (PathHelper.combine (path, manifestAsset.path), PathHelper.combine (targetPath, manifestAsset.path), type, embed);
+							var asset = new Asset (Path.combine (path, manifestAsset.path), Path.combine (targetPath, manifestAsset.path), type, embed);
 							asset.id = manifestAsset.id;
 							asset.library = library;
 							asset.embed = embed;
@@ -1026,7 +1024,7 @@ class ProjectXMLParser extends Project {
 
 				if (element.has.resolve (sourceAttribute)) {
 
-					var source = PathHelper.combine (basePath, substitute (element.att.resolve (sourceAttribute)));
+					var source = Path.combine (basePath, substitute (element.att.resolve (sourceAttribute)));
 					var packageName = "";
 
 					if (element.has.resolve ("package")) {
@@ -1112,7 +1110,7 @@ class ProjectXMLParser extends Project {
 
 		if (element.has.path) {
 
-			app.path = PathHelper.combine (extensionPath, substitute (element.att.path));
+			app.path = Path.combine (extensionPath, substitute (element.att.path));
 
 		}
 
@@ -1264,7 +1262,7 @@ class ProjectXMLParser extends Project {
 						if (element.has.haxelib) {
 
 							haxelib = new Haxelib (substitute (element.att.haxelib));
-							path = findIncludeFile (HaxelibHelper.getPath (haxelib, true));
+							path = findIncludeFile (Haxelib.getPath (haxelib, true));
 							addSourcePath = false;
 
 						} else if (element.has.path) {
@@ -1272,11 +1270,11 @@ class ProjectXMLParser extends Project {
 							var subPath = substitute (element.att.path);
 							if (subPath == "") subPath = element.att.path;
 
-							path = findIncludeFile (PathHelper.combine (extensionPath, subPath));
+							path = findIncludeFile (Path.combine (extensionPath, subPath));
 
 						} else {
 
-							path = findIncludeFile (PathHelper.combine (extensionPath, substitute (element.att.name)));
+							path = findIncludeFile (Path.combine (extensionPath, substitute (element.att.name)));
 
 						}
 
@@ -1352,7 +1350,7 @@ class ProjectXMLParser extends Project {
 
 					case "java":
 
-						javaPaths.push (PathHelper.combine (extensionPath, substitute (element.att.path)));
+						javaPaths.push (Path.combine (extensionPath, substitute (element.att.path)));
 
 					case "language":
 
@@ -1362,7 +1360,7 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.repository) {
 
-							setenv ("HAXELIB_PATH", PathHelper.combine (Sys.getCwd (), element.att.repository));
+							setenv ("HAXELIB_PATH", Path.combine (Sys.getCwd (), element.att.repository));
 							if (needRerun) return;
 							continue;
 
@@ -1387,7 +1385,7 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.path) {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							path = Path.combine (extensionPath, substitute (element.att.path));
 
 						}
 
@@ -1404,11 +1402,11 @@ class ProjectXMLParser extends Project {
 
 							if (defines.exists ("setup")) {
 
-								path = HaxelibHelper.getPath (haxelib);
+								path = Haxelib.getPath (haxelib);
 
 							} else {
 
-								path = HaxelibHelper.getPath (haxelib, !optional);
+								path = Haxelib.getPath (haxelib, !optional);
 
 								if (optional && path == "") {
 
@@ -1420,15 +1418,15 @@ class ProjectXMLParser extends Project {
 
 						} else {
 
-							path = PathHelper.tryFullPath (PathHelper.combine (extensionPath, path));
+							path = Path.tryFullPath (Path.combine (extensionPath, path));
 
 							if (version != "") {
 
-								HaxelibHelper.pathOverrides.set (name + ":" + version, path);
+								Haxelib.pathOverrides.set (name + ":" + version, path);
 
 							} else {
 
-								HaxelibHelper.pathOverrides.set (name, path);
+								Haxelib.pathOverrides.set (name, path);
 
 							}
 
@@ -1436,13 +1434,13 @@ class ProjectXMLParser extends Project {
 
 						if (!defines.exists (haxelib.name)) {
 
-							defines.set (haxelib.name, Std.string (HaxelibHelper.getVersion (haxelib)));
+							defines.set (haxelib.name, Std.string (Haxelib.getVersion (haxelib)));
 
 						}
 
 						haxelibs.push (haxelib);
 
-						var includeProject = Project.fromHaxelib (haxelib, defines);
+						var includeProject =  HXProject.fromHaxelib (haxelib, defines);
 
 						if (includeProject != null) {
 
@@ -1464,7 +1462,7 @@ class ProjectXMLParser extends Project {
 
 						var name = substitute (element.att.name);
 						var haxelib = null;
-						var type = NDLLType.AUTO;
+						var staticLink:Null<Bool> = null;
 						var registerStatics = true;
 						var subdirectory = null;
 
@@ -1488,7 +1486,9 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.type) {
 
-							type = Reflect.field (NDLLType, substitute (element.att.type).toUpperCase ());
+							var typeString = substitute (element.att.type).toLowerCase ();
+							if (typeString == "static") staticLink = true;
+							if (typeString == "dynamic") staticLink = false;
 
 						}
 
@@ -1498,7 +1498,7 @@ class ProjectXMLParser extends Project {
 
 						}
 
-						var ndll = new NDLL (name, haxelib, type, registerStatics);
+						var ndll = new NDLL (name, haxelib, staticLink, registerStatics);
 						ndll.extensionPath = extensionPath;
 						ndll.subdirectory = subdirectory;
 
@@ -1512,7 +1512,7 @@ class ProjectXMLParser extends Project {
 
 							if (Reflect.hasField (Architecture, name.toUpperCase ())) {
 
-								ArrayHelper.addUnique (architectures, Reflect.field (Architecture, name.toUpperCase ()));
+								ArrayTools.addUnique (architectures, Reflect.field (Architecture, name.toUpperCase ()));
 
 							}
 
@@ -1536,11 +1536,11 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.path) {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							path = Path.combine (extensionPath, substitute (element.att.path));
 
 						} else {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.name));
+							path = Path.combine (extensionPath, substitute (element.att.name));
 
 						}
 
@@ -1566,11 +1566,11 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.path) {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							path = Path.combine (extensionPath, substitute (element.att.path));
 
 						} else {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.name));
+							path = Path.combine (extensionPath, substitute (element.att.name));
 
 						}
 
@@ -1602,11 +1602,11 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.path) {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							path = Path.combine (extensionPath, substitute (element.att.path));
 
 						} else {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.name));
+							path = Path.combine (extensionPath, substitute (element.att.name));
 
 						}
 
@@ -1679,7 +1679,7 @@ class ProjectXMLParser extends Project {
 
 							if (element.has.path) {
 
-								path = PathHelper.combine (extensionPath, substitute (element.att.path));
+								path = Path.combine (extensionPath, substitute (element.att.path));
 
 							}
 
@@ -1740,7 +1740,7 @@ class ProjectXMLParser extends Project {
 
 					case "sample":
 
-						samplePaths.push (PathHelper.combine (extensionPath, substitute (element.att.path)));
+						samplePaths.push (Path.combine (extensionPath, substitute (element.att.path)));
 
 					case "target":
 
@@ -1756,7 +1756,7 @@ class ProjectXMLParser extends Project {
 
 							if (element.has.name) {
 
-								targetHandlers.set (substitute (element.att.name), PathHelper.combine (extensionPath, substitute (element.att.path)));
+								targetHandlers.set (substitute (element.att.name), Path.combine (extensionPath, substitute (element.att.path)));
 
 							}
 
@@ -1768,13 +1768,13 @@ class ProjectXMLParser extends Project {
 
 							if (element.has.haxelib) {
 
-								var haxelibPath = HaxelibHelper.getPath (new Haxelib (substitute (element.att.haxelib)), true);
-								var path = PathHelper.combine (haxelibPath, substitute (element.att.path));
+								var haxelibPath = Haxelib.getPath (new Haxelib (substitute (element.att.haxelib)), true);
+								var path = Path.combine (haxelibPath, substitute (element.att.path));
 								templatePaths.push (path);
 
 							} else {
 
-								var path = PathHelper.combine (extensionPath, substitute (element.att.path));
+								var path = Path.combine (extensionPath, substitute (element.att.path));
 
 								if (FileSystem.exists (path) && !FileSystem.isDirectory (path)) {
 
@@ -1796,7 +1796,7 @@ class ProjectXMLParser extends Project {
 
 					case "templatePath":
 
-						templatePaths.push (PathHelper.combine (extensionPath, substitute (element.att.name)));
+						templatePaths.push (Path.combine (extensionPath, substitute (element.att.name)));
 
 					case "preloader":
 
@@ -1830,7 +1830,7 @@ class ProjectXMLParser extends Project {
 
 						if (path != null) {
 
-							keystore = new Keystore (PathHelper.combine (extensionPath, substitute (element.att.path)));
+							keystore = new Keystore (Path.combine (extensionPath, substitute (element.att.path)));
 
 							if (element.has.type) {
 
@@ -1883,7 +1883,7 @@ class ProjectXMLParser extends Project {
 
 						if (element.has.path) {
 
-							path = PathHelper.combine (extensionPath, substitute (element.att.path));
+							path = Path.combine (extensionPath, substitute (element.att.path));
 
 						}
 
@@ -1893,7 +1893,7 @@ class ProjectXMLParser extends Project {
 
 							if (StringTools.endsWith (foundName, ".a") || StringTools.endsWith (foundName, ".dll")) {
 
-								path = PathHelper.combine (extensionPath, foundName);
+								path = Path.combine (extensionPath, foundName);
 
 							} else {
 
@@ -2025,17 +2025,17 @@ class ProjectXMLParser extends Project {
 
 									case "fat":
 
-										ArrayHelper.addUnique (architectures, Architecture.ARMV6);
-										ArrayHelper.addUnique (architectures, Architecture.ARMV7);
+										ArrayTools.addUnique (architectures, Architecture.ARMV6);
+										ArrayTools.addUnique (architectures, Architecture.ARMV7);
 
 									case "armv6":
 
-										ArrayHelper.addUnique (architectures, Architecture.ARMV6);
+										ArrayTools.addUnique (architectures, Architecture.ARMV6);
 										architectures.remove (Architecture.ARMV7);
 
 									case "armv7":
 
-										ArrayHelper.addUnique (architectures, Architecture.ARMV7);
+										ArrayTools.addUnique (architectures, Architecture.ARMV7);
 										architectures.remove (Architecture.ARMV6);
 
 								}
@@ -2090,7 +2090,7 @@ class ProjectXMLParser extends Project {
 
 									case "arm64":
 
-										ArrayHelper.addUnique (architectures, Architecture.ARM64);
+										ArrayTools.addUnique (architectures, Architecture.ARM64);
 
 								}
 
@@ -2163,7 +2163,7 @@ class ProjectXMLParser extends Project {
 
 		while (id >= windows.length) {
 
-			windows.push (ObjectHelper.copyFields (defaultWindow, {}));
+			windows.push (ObjectTools.copyFields (defaultWindow, {}));
 
 		}
 

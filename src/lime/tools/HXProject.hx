@@ -2,22 +2,14 @@ package lime.tools;
 
 
 import haxe.io.Eof;
-import haxe.io.Path;
 import haxe.xml.Fast;
 import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
-import hxp.ArrayHelper;
-import hxp.FileHelper;
-import hxp.HaxelibHelper;
-import hxp.Log;
-import hxp.ObjectHelper;
-import hxp.PathHelper;
-import hxp.PlatformHelper;
-import hxp.ProcessHelper;
-import hxp.StringHelper;
-import hxp.StringMapHelper;
+import hxp.*;
+import lime.tools.Architecture;
 import lime.tools.AssetType;
+import lime.tools.Platform;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
@@ -28,16 +20,16 @@ import lime.text.Font;
 #end
 
 
-class Project {
+class HXProject extends Script {
 
 
 	public var app:ApplicationData;
 	public var architectures:Array<Architecture>;
 	public var assets:Array<Asset>;
-	public var command:String;
+	// public var command:String;
 	public var config:ConfigData;
 	public var debug:Bool;
-	public var defines:Map<String, Dynamic>;
+	// public var defines:Map<String, Dynamic>;
 	public var dependencies:Array<Dependency>;
 	public var environment:Map<String, String>;
 	public var haxedefs:Map<String, Dynamic>;
@@ -97,21 +89,21 @@ class Project {
 		var inputData = Unserializer.run (File.getContent (args[0]));
 		var outputFile = args[1];
 
-		Project._command = inputData.command;
-		Project._target = cast inputData.target;
-		Project._debug = inputData.debug;
-		Project._targetFlags = inputData.targetFlags;
-		Project._templatePaths = inputData.templatePaths;
-		Project._userDefines = inputData.userDefines;
-		Project._environment = inputData.environment;
+		HXProject._command = inputData.command;
+		HXProject._target = cast inputData.target;
+		HXProject._debug = inputData.debug;
+		HXProject._targetFlags = inputData.targetFlags;
+		HXProject._templatePaths = inputData.templatePaths;
+		HXProject._userDefines = inputData.userDefines;
+		HXProject._environment = inputData.environment;
 		Log.verbose = inputData.logVerbose;
 		Log.enableColor = inputData.logEnableColor;
 
 		#if lime
-		ProcessHelper.dryRun = inputData.processDryRun;
+		System.dryRun = inputData.processDryRun;
 		#end
 
-		HaxelibHelper.debug = inputData.haxelibDebug;
+		Haxelib.debug = inputData.haxelibDebug;
 
 		initialize ();
 
@@ -129,13 +121,15 @@ class Project {
 
 	public function new () {
 
+		super ();
+
 		initialize ();
 
 		command = _command;
 		config = new ConfigData ();
 		debug = _debug;
 		target = _target;
-		targetFlags = StringMapHelper.copy (_targetFlags);
+		targetFlags = MapTools.copy (_targetFlags);
 		templatePaths = _templatePaths.copy ();
 
 		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: null, companyId: "" }
@@ -239,7 +233,13 @@ class Project {
 
 				} else {
 
-					architectures = [ PlatformHelper.hostArchitecture ];
+					switch (System.hostArchitecture) {
+						case ARMV6: architectures = [ ARMV6 ];
+						case ARMV7: architectures = [ ARMV7 ];
+						case X86: architectures = [ X86 ];
+						case X64: architectures = [ X64 ];
+						default: architectures = [];
+					}
 
 				}
 
@@ -248,7 +248,13 @@ class Project {
 			case MAC, LINUX:
 
 				platformType = PlatformType.DESKTOP;
-				architectures = [ PlatformHelper.hostArchitecture ];
+				switch (System.hostArchitecture) {
+						case ARMV6: architectures = [ ARMV6 ];
+						case ARMV7: architectures = [ ARMV7 ];
+						case X86: architectures = [ X86 ];
+						case X64: architectures = [ X64 ];
+						default: architectures = [];
+					}
 
 				defaultWindow.allowHighDPI = false;
 
@@ -267,19 +273,19 @@ class Project {
 
 		defaultArchitectures = architectures.copy ();
 
-		meta = ObjectHelper.copyFields (defaultMeta, {});
-		app = ObjectHelper.copyFields (defaultApp, {});
-		window = ObjectHelper.copyFields (defaultWindow, {});
+		meta = ObjectTools.copyFields (defaultMeta, {});
+		app = ObjectTools.copyFields (defaultApp, {});
+		window = ObjectTools.copyFields (defaultWindow, {});
 		windows = [ window ];
 		assets = new Array<Asset> ();
 
 		if (_userDefines != null) {
 
-			defines = StringMapHelper.copy (_userDefines);
+			defines = MapTools.copy (_userDefines);
 
 		} else {
 
-			defines = new Map<String, Dynamic> ();
+			defines = new Map<String, String> ();
 
 		}
 
@@ -315,11 +321,11 @@ class Project {
 	}
 
 
-	public function clone ():Project {
+	public function clone ():HXProject {
 
-		var project = new Project ();
+		var project = new HXProject ();
 
-		ObjectHelper.copyFields (app, project.app);
+		ObjectTools.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
 		project.assets = assets.copy ();
 
@@ -393,7 +399,7 @@ class Project {
 
 		}
 
-		ObjectHelper.copyFields (meta, project.meta);
+		ObjectTools.copyFields (meta, project.meta);
 
 		for (key in modules.keys ()) {
 
@@ -437,7 +443,7 @@ class Project {
 
 		for (i in 0...windows.length) {
 
-			project.windows[i] = (ObjectHelper.copyFields (windows[i], {}));
+			project.windows[i] = (ObjectTools.copyFields (windows[i], {}));
 
 		}
 
@@ -503,24 +509,24 @@ class Project {
 	}
 
 
-	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):Project {
+	public static function fromFile (projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject {
 
-		var project:Project = null;
+		var project:HXProject = null;
 
 		var path = FileSystem.fullPath (Path.withoutDirectory (projectFile));
 		var name = Path.withoutDirectory (Path.withoutExtension (projectFile));
 		name = name.substr (0, 1).toUpperCase () + name.substr (1);
 
-		var tempDirectory = PathHelper.getTemporaryDirectory ();
-		var classFile = PathHelper.combine (tempDirectory, name + ".hx");
-		var nekoOutput = PathHelper.combine (tempDirectory, name + ".n");
+		var tempDirectory = System.getTemporaryDirectory ();
+		var classFile = Path.combine (tempDirectory, name + ".hx");
+		var nekoOutput = Path.combine (tempDirectory, name + ".n");
 
-		FileHelper.copyFile (path, classFile);
+		System.copyFile (path, classFile);
 
 		#if lime
-		var args = [ name, "-main", "lime.tools.Project", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("hxp")), "src"), "-lib", "hxp" ];
+		var args = [ name, "-main", "lime.tools.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", Path.combine (Haxelib.getPath (new Haxelib ("hxp")), "src"), "-lib", "lime", "-lib", "hxp" ];
 		#else
-		var args = [ name, "--interp", "-main", "lime.tools.Project", "-cp", tempDirectory, "-cp", PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("hxp")), "src") ];
+		var args = [ name, "--interp", "-main", "lime.tools.HXProject", "-cp", tempDirectory, "-cp", Path.combine (Haxelib.getPath (new Haxelib ("hxp")), "src") ];
 		#end
 		var input = File.read (classFile, false);
 		var tag = "@:compiler(";
@@ -543,30 +549,30 @@ class Project {
 
 		input.close ();
 
-		var cacheDryRun = ProcessHelper.dryRun;
-		ProcessHelper.dryRun = false;
+		var cacheDryRun = System.dryRun;
+		System.dryRun = false;
 
 		#if lime
-		ProcessHelper.runCommand ("", "haxe", args);
+		System.runCommand ("", "haxe", args);
 		#end
 
-		var inputFile = PathHelper.combine (tempDirectory, "input.dat");
-		var outputFile = PathHelper.combine (tempDirectory, "output.dat");
+		var inputFile = Path.combine (tempDirectory, "input.dat");
+		var outputFile = Path.combine (tempDirectory, "output.dat");
 
 		var inputData = Serializer.run ({
 
-			command: Project._command,
+			command: HXProject._command,
 			name: name,
-			target: Project._target,
-			debug: Project._debug,
-			targetFlags: Project._targetFlags,
-			templatePaths: Project._templatePaths,
-			userDefines: Project._userDefines,
-			environment: Project._environment,
+			target: HXProject._target,
+			debug: HXProject._debug,
+			targetFlags: HXProject._targetFlags,
+			templatePaths: HXProject._templatePaths,
+			userDefines: HXProject._userDefines,
+			environment: HXProject._environment,
 			logVerbose: Log.verbose,
 			logEnableColor: Log.enableColor,
 			processDryRun: cacheDryRun,
-			haxelibDebug: HaxelibHelper.debug
+			haxelibDebug: Haxelib.debug
 
 		});
 
@@ -575,9 +581,9 @@ class Project {
 		try {
 
 			#if lime
-			ProcessHelper.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), inputFile, outputFile ]);
+			System.runCommand ("", "neko", [ FileSystem.fullPath (nekoOutput), inputFile, outputFile ]);
 			#else
-			ProcessHelper.runCommand ("", "haxe", args.concat ([ "--", inputFile, outputFile ]));
+			System.runCommand ("", "haxe", args.concat ([ "--", inputFile, outputFile ]));
 			#end
 
 		} catch (e:Dynamic) {
@@ -587,7 +593,7 @@ class Project {
 
 		}
 
-		ProcessHelper.dryRun = cacheDryRun;
+		System.dryRun = cacheDryRun;
 
 		var tPaths:Array<String> = [];
 
@@ -595,7 +601,7 @@ class Project {
 
 			FileSystem.deleteFile (inputFile);
 
-			var outputPath = PathHelper.combine (tempDirectory, "output.dat");
+			var outputPath = Path.combine (tempDirectory, "output.dat");
 
 			if (FileSystem.exists (outputPath)) {
 
@@ -615,7 +621,7 @@ class Project {
 
 		} catch (e:Dynamic) {}
 
-		PathHelper.removeDirectory (tempDirectory);
+		System.removeDirectory (tempDirectory);
 
 		if (project != null) {
 
@@ -625,13 +631,13 @@ class Project {
 
 			}
 
-			var defines = StringMapHelper.copy (userDefines);
-			StringMapHelper.copyKeys (project.defines, defines);
+			var defines = MapTools.copyDynamic (userDefines);
+			MapTools.copyKeys (project.defines, defines);
 
 			processHaxelibs (project, defines);
 
 			//Adding template paths from the Project file
-			project.templatePaths = ArrayHelper.concatUnique (project.templatePaths, tPaths, true);
+			project.templatePaths = ArrayTools.concatUnique (project.templatePaths, tPaths, true);
 		}
 
 		return project;
@@ -639,7 +645,7 @@ class Project {
 	}
 
 
-	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false):Project {
+	public static function fromHaxelib (haxelib:Haxelib, userDefines:Map<String, Dynamic> = null, clearCache:Bool = false):HXProject {
 
 		if (haxelib.name == null || haxelib.name == "") {
 
@@ -647,7 +653,7 @@ class Project {
 
 		}
 
-		var path = PathHelper.getHaxelib (haxelib, false, clearCache);
+		var path = Haxelib.getPath (haxelib, false, clearCache);
 
 		if (path == null || path == "") {
 
@@ -657,16 +663,16 @@ class Project {
 
 		//if (!userDefines.exists (haxelib.name)) {
 			//
-			//userDefines.set (haxelib.name, HaxelibHelper.getVersion (haxelib));
+			//userDefines.set (haxelib.name, Haxelib.getVersion (haxelib));
 			//
 		//}
 
-		return Project.fromPath (path, userDefines);
+		return  HXProject.fromPath (path, userDefines);
 
 	}
 
 
-	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null):Project {
+	public static function fromPath (path:String, userDefines:Map<String, Dynamic> = null):HXProject {
 
 		if (!FileSystem.exists (path) || !FileSystem.isDirectory (path)) {
 
@@ -679,9 +685,9 @@ class Project {
 
 		for (file in files) {
 
-			if (projectFile == null && FileSystem.exists (PathHelper.combine (path, file))) {
+			if (projectFile == null && FileSystem.exists (Path.combine (path, file))) {
 
-				projectFile = PathHelper.combine (path, file);
+				projectFile = Path.combine (path, file);
 
 			}
 
@@ -693,7 +699,7 @@ class Project {
 
 			if (project.config.get ("project.rebuild.path") == null) {
 
-				project.config.set ("project.rebuild.path", PathHelper.combine (path, "project"));
+				project.config.set ("project.rebuild.path", Path.combine (path, "project"));
 
 			}
 
@@ -712,8 +718,8 @@ class Project {
 
 		if (version == "" || version == null) {
 
-			var haxelibPath = PathHelper.getHaxelib (haxelib);
-			var jsonPath = PathHelper.combine (haxelibPath, "haxelib.json");
+			var haxelibPath = Haxelib.getPath (haxelib);
+			var jsonPath = Path.combine (haxelibPath, "haxelib.json");
 
 			try {
 
@@ -833,7 +839,7 @@ class Project {
 
 			if (_target == null) {
 
-				_target = PlatformHelper.hostPlatform;
+				_target = cast System.hostPlatform;
 
 			}
 
@@ -856,32 +862,32 @@ class Project {
 	}
 
 
-	public function merge (project:Project):Void {
+	public function merge (project:HXProject):Void {
 
 		if (project != null) {
 
-			ObjectHelper.copyUniqueFields (project.meta, meta, project.defaultMeta);
-			ObjectHelper.copyUniqueFields (project.app, app, project.defaultApp);
+			ObjectTools.copyUniqueFields (project.meta, meta, project.defaultMeta);
+			ObjectTools.copyUniqueFields (project.app, app, project.defaultApp);
 
 			for (i in 0...project.windows.length) {
 
 				if (i < windows.length) {
 
-					ObjectHelper.copyUniqueFields (project.windows[i], windows[i], project.defaultWindow);
+					ObjectTools.copyUniqueFields (project.windows[i], windows[i], project.defaultWindow);
 
 				} else {
 
-					windows.push (ObjectHelper.copyFields (project.windows[i], {}));
+					windows.push (ObjectTools.copyFields (project.windows[i], {}));
 
 				}
 
 			}
 
-			StringMapHelper.copyUniqueKeys (project.defines, defines);
-			StringMapHelper.copyUniqueKeys (project.environment, environment);
-			StringMapHelper.copyUniqueKeys (project.haxedefs, haxedefs);
-			StringMapHelper.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
-			StringMapHelper.copyUniqueKeys (project.targetHandlers, targetHandlers);
+			MapTools.copyUniqueKeys (project.defines, defines);
+			MapTools.copyUniqueKeys (project.environment, environment);
+			MapTools.copyUniqueKeysDynamic (project.haxedefs, haxedefs);
+			MapTools.copyUniqueKeys (project.libraryHandlers, libraryHandlers);
+			MapTools.copyUniqueKeys (project.targetHandlers, targetHandlers);
 
 			config.merge (project.config);
 
@@ -909,12 +915,12 @@ class Project {
 
 			}
 
-			assets = ArrayHelper.concatUnique (assets, project.assets);
-			dependencies = ArrayHelper.concatUnique (dependencies, project.dependencies, true);
-			haxeflags = ArrayHelper.concatUnique (haxeflags, project.haxeflags);
-			haxelibs = ArrayHelper.concatUnique (haxelibs, project.haxelibs, true, "name");
-			icons = ArrayHelper.concatUnique (icons, project.icons);
-			javaPaths = ArrayHelper.concatUnique (javaPaths, project.javaPaths, true);
+			assets = ArrayTools.concatUnique (assets, project.assets);
+			dependencies = ArrayTools.concatUnique (dependencies, project.dependencies, true);
+			haxeflags = ArrayTools.concatUnique (haxeflags, project.haxeflags);
+			haxelibs = ArrayTools.concatUnique (haxelibs, project.haxelibs, true, "name");
+			icons = ArrayTools.concatUnique (icons, project.icons);
+			javaPaths = ArrayTools.concatUnique (javaPaths, project.javaPaths, true);
 
 			if (keystore == null) {
 
@@ -926,8 +932,8 @@ class Project {
 
 			}
 
-			languages = ArrayHelper.concatUnique (languages, project.languages, true);
-			libraries = ArrayHelper.concatUnique (libraries, project.libraries, true);
+			languages = ArrayTools.concatUnique (languages, project.languages, true);
+			libraries = ArrayTools.concatUnique (libraries, project.libraries, true);
 
 			for (key in project.modules.keys ()) {
 
@@ -943,13 +949,13 @@ class Project {
 
 			}
 
-			ndlls = ArrayHelper.concatUnique (ndlls, project.ndlls);
+			ndlls = ArrayTools.concatUnique (ndlls, project.ndlls);
 			postBuildCallbacks = postBuildCallbacks.concat (project.postBuildCallbacks);
 			preBuildCallbacks = preBuildCallbacks.concat (project.preBuildCallbacks);
-			samplePaths = ArrayHelper.concatUnique (samplePaths, project.samplePaths, true);
-			sources = ArrayHelper.concatUnique (sources, project.sources, true);
-			splashScreens = ArrayHelper.concatUnique (splashScreens, project.splashScreens);
-			templatePaths = ArrayHelper.concatUnique (templatePaths, project.templatePaths, true);
+			samplePaths = ArrayTools.concatUnique (samplePaths, project.samplePaths, true);
+			sources = ArrayTools.concatUnique (sources, project.sources, true);
+			splashScreens = ArrayTools.concatUnique (splashScreens, project.splashScreens);
+			templatePaths = ArrayTools.concatUnique (templatePaths, project.templatePaths, true);
 
 		}
 
@@ -973,17 +979,17 @@ class Project {
 
 	// #if lime
 
-	@:noCompletion private static function processHaxelibs (project:Project, userDefines:Map<String, Dynamic>):Void {
+	@:noCompletion private static function processHaxelibs (project:HXProject, userDefines:Map<String, Dynamic>):Void {
 
 		var haxelibs = project.haxelibs.copy ();
 		project.haxelibs = [];
 
 		for (haxelib in haxelibs) {
 
-			var validatePath = PathHelper.getHaxelib (haxelib, true);
+			var validatePath = Haxelib.getPath (haxelib, true);
 			project.haxelibs.push (haxelib);
 
-			var includeProject = Project.fromHaxelib (haxelib, userDefines);
+			var includeProject =  HXProject.fromHaxelib (haxelib, userDefines);
 
 			if (includeProject != null) {
 
@@ -1012,7 +1018,7 @@ class Project {
 
 		if (type == null) {
 
-			return Project;
+			return HXProject;
 
 		} else {
 
@@ -1036,9 +1042,9 @@ class Project {
 
 		if (name == "HAXELIB_PATH") {
 
-			var currentPath = HaxelibHelper.getRepositoryPath ();
+			var currentPath = Haxelib.getRepositoryPath ();
 			Sys.putEnv (name, value);
-			var newPath = HaxelibHelper.getRepositoryPath (true);
+			var newPath = Haxelib.getRepositoryPath (true);
 
 			if (currentPath != newPath) {
 
@@ -1080,7 +1086,7 @@ class Project {
 
 	private function get_host ():Platform {
 
-		return PlatformHelper.hostPlatform;
+		return cast System.hostPlatform;
 
 	}
 
@@ -1099,12 +1105,12 @@ class Project {
 
 		}
 
-		ObjectHelper.copyMissingFields (defaultApp, app);
-		ObjectHelper.copyMissingFields (defaultMeta, meta);
+		ObjectTools.copyMissingFields (defaultApp, app);
+		ObjectTools.copyMissingFields (defaultMeta, meta);
 
 		for (item in windows) {
 
-			ObjectHelper.copyMissingFields (defaultWindow, item);
+			ObjectTools.copyMissingFields (defaultWindow, item);
 
 		}
 
@@ -1112,7 +1118,7 @@ class Project {
 
 		for (field in Reflect.fields (app)) {
 
-			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (app, field));
+			Reflect.setField (context, "APP_" + StringTools.formatUppercaseVariable (field), Reflect.field (app, field));
 
 		}
 
@@ -1128,8 +1134,8 @@ class Project {
 
 		for (field in Reflect.fields (meta)) {
 
-			Reflect.setField (context, "APP_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
-			Reflect.setField (context, "META_" + StringHelper.formatUppercaseVariable (field), Reflect.field (meta, field));
+			Reflect.setField (context, "APP_" + StringTools.formatUppercaseVariable (field), Reflect.field (meta, field));
+			Reflect.setField (context, "META_" + StringTools.formatUppercaseVariable (field), Reflect.field (meta, field));
 
 		}
 
@@ -1137,8 +1143,8 @@ class Project {
 
 		for (field in Reflect.fields (windows[0])) {
 
-			Reflect.setField (context, "WIN_" + StringHelper.formatUppercaseVariable (field), Reflect.field (windows[0], field));
-			Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field), Reflect.field (windows[0], field));
+			Reflect.setField (context, "WIN_" + StringTools.formatUppercaseVariable (field), Reflect.field (windows[0], field));
+			Reflect.setField (context, "WINDOW_" + StringTools.formatUppercaseVariable (field), Reflect.field (windows[0], field));
 
 		}
 
@@ -1160,7 +1166,7 @@ class Project {
 
 			for (field in Reflect.fields (windows[i])) {
 
-				Reflect.setField (context, "WINDOW_" + StringHelper.formatUppercaseVariable (field) + "_" + i, Reflect.field (windows[i], field));
+				Reflect.setField (context, "WINDOW_" + StringTools.formatUppercaseVariable (field) + "_" + i, Reflect.field (windows[i], field));
 
 			}
 
@@ -1182,7 +1188,7 @@ class Project {
 
 			if (StringTools.startsWith (haxeflag, "-lib")) {
 
-				Reflect.setField (context, "LIB_" + StringHelper.formatUppercaseVariable (haxeflag.substr (5)), "true");
+				Reflect.setField (context, "LIB_" + StringTools.formatUppercaseVariable (haxeflag.substr (5)), "true");
 
 			}
 
@@ -1195,9 +1201,9 @@ class Project {
 			if (asset.type != AssetType.TEMPLATE) {
 
 				var embeddedAsset:Dynamic = { };
-				ObjectHelper.copyFields (asset, embeddedAsset);
+				ObjectTools.copyFields (asset, embeddedAsset);
 
-				embeddedAsset.sourcePath = PathHelper.standardize (asset.sourcePath);
+				embeddedAsset.sourcePath = Path.standardize (asset.sourcePath);
 
 				if (asset.embed == null) {
 
@@ -1235,7 +1241,7 @@ class Project {
 		for (library in libraries) {
 
 			var embeddedLibrary:Dynamic = { };
-			ObjectHelper.copyFields (library, embeddedLibrary);
+			ObjectTools.copyFields (library, embeddedLibrary);
 			context.libraries.push (embeddedLibrary);
 			embeddedLibraries[library.name] = embeddedLibrary;
 
@@ -1259,7 +1265,7 @@ class Project {
 		for (ndll in ndlls) {
 
 			var templateNDLL:Dynamic = { };
-			ObjectHelper.copyFields (ndll, templateNDLL);
+			ObjectTools.copyFields (ndll, templateNDLL);
 			templateNDLL.nameSafe = StringTools.replace (ndll.name, "-", "_");
 			context.ndlls.push (templateNDLL);
 
@@ -1277,7 +1283,7 @@ class Project {
 
 			// TODO: Handle real version when better/smarter haxelib available
 			var version = haxelib.version;
-			//var version = HaxelibHelper.getVersion (haxelib);
+			//var version = Haxelib.getVersion (haxelib);
 
 			if (version != null && version != "") {
 
@@ -1287,21 +1293,21 @@ class Project {
 
 			// #if lime
 
-			if (HaxelibHelper.pathOverrides.exists (name)) {
+			if (Haxelib.pathOverrides.exists (name)) {
 
-				var param = "-cp " + HaxelibHelper.pathOverrides.get (name);
+				var param = "-cp " + Haxelib.pathOverrides.get (name);
 				compilerFlags.remove (param);
 				compilerFlags.push (param);
 
 			} else {
 
 				var cache = Log.verbose;
-				Log.verbose = HaxelibHelper.debug;
+				Log.verbose = Haxelib.debug;
 				var output = "";
 
 				try {
 
-					output = HaxelibHelper.runProcess ("", [ "path", name ], true, true, true);
+					output = Haxelib.runProcess ("", [ "path", name ], true, true, true);
 
 				} catch (e:Dynamic) { }
 
@@ -1322,7 +1328,7 @@ class Project {
 
 						} else if (!StringTools.startsWith (arg, "-")) {
 
-							var path = PathHelper.standardize (arg);
+							var path = Path.standardize (arg);
 
 							if (path != null && StringTools.trim (path) != "" && !StringTools.startsWith (StringTools.trim (path), "#")) {
 
@@ -1333,7 +1339,7 @@ class Project {
 							}
 
 							var version = "0.0.0";
-							var jsonPath = PathHelper.combine (path, "haxelib.json");
+							var jsonPath = Path.combine (path, "haxelib.json");
 
 							try {
 
@@ -1341,7 +1347,7 @@ class Project {
 
 									var json = Json.parse (File.getContent (jsonPath));
 									haxelibName = json.name;
-									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+									compilerFlags = ArrayTools.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
 
 								}
 
@@ -1355,24 +1361,24 @@ class Project {
 
 								if (name != haxelibName) {
 
-									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + name ], true);
+									compilerFlags = ArrayTools.concatUnique (compilerFlags, [ "-D " + name ], true);
 
 								}
 
 								/*var haxelib = new Haxelib (arg.substr (3));
-								var path = PathHelper.getHaxelib (haxelib);
+								var path = Haxelib.getPath (haxelib);
 								var version = getHaxelibVersion (haxelib);
 
 								if (path != null) {
 
 									CompatibilityHelper.patchProject (this, haxelib, version);
-									compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
+									compilerFlags = ArrayTools.concatUnique (compilerFlags, [ "-D " + haxelib.name + "=" + version ], true);
 
 								}*/
 
 							} else if (!StringTools.startsWith (arg, "-L")) {
 
-								compilerFlags = ArrayHelper.concatUnique (compilerFlags, [ arg ], true);
+								compilerFlags = ArrayTools.concatUnique (compilerFlags, [ arg ], true);
 
 							}
 
@@ -1390,7 +1396,7 @@ class Project {
 
 			// #end
 
-			Reflect.setField (context, "LIB_" + StringHelper.formatUppercaseVariable (haxelib.name), true);
+			Reflect.setField (context, "LIB_" + StringTools.formatUppercaseVariable (haxelib.name), true);
 
 			if (name == "nme") {
 
@@ -1416,11 +1422,11 @@ class Project {
 
 			if (value == null || value == "") {
 
-				Reflect.setField (context, "SET_" + StringHelper.formatUppercaseVariable (key), true);
+				Reflect.setField (context, "SET_" + StringTools.formatUppercaseVariable (key), true);
 
 			} else {
 
-				Reflect.setField (context, "SET_" + StringHelper.formatUppercaseVariable (key), value);
+				Reflect.setField (context, "SET_" + StringTools.formatUppercaseVariable (key), value);
 
 			}
 
@@ -1434,13 +1440,13 @@ class Project {
 
 				compilerFlags.push ("-D " + key);
 
-				Reflect.setField (context, "DEFINE_" + StringHelper.formatUppercaseVariable (key), true);
+				Reflect.setField (context, "DEFINE_" + StringTools.formatUppercaseVariable (key), true);
 
 			} else {
 
 				compilerFlags.push ("-D " + key + "=" + value);
 
-				Reflect.setField (context, "DEFINE_" + StringHelper.formatUppercaseVariable (key), value);
+				Reflect.setField (context, "DEFINE_" + StringTools.formatUppercaseVariable (key), value);
 
 			}
 
@@ -1494,7 +1500,7 @@ class Project {
 
 		for (templatePath in templatePaths) {
 
-			var path = PathHelper.combine (templatePath, hxml);
+			var path = Path.combine (templatePath, hxml);
 
 			if (FileSystem.exists (path)) {
 
@@ -1512,7 +1518,7 @@ class Project {
 
 		if (keystore != null) {
 
-			context.KEY_STORE = PathHelper.tryFullPath (keystore.path);
+			context.KEY_STORE = Path.tryFullPath (keystore.path);
 
 			if (keystore.password != null) {
 

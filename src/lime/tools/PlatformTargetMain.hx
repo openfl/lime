@@ -1,16 +1,11 @@
 package lime.tools;
 
 
-import haxe.io.Path;
 import haxe.Unserializer;
+import hxp.*;
 import lime.tools.Architecture;
-import hxp.Haxelib;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
-import hxp.HaxelibHelper;
-import hxp.Log;
-import hxp.PathHelper;
-import hxp.PlatformHelper;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -69,11 +64,11 @@ class PlatformTargetMain {
 
 			if (FileSystem.exists ("tools.n")) {
 
-				HaxelibHelper.setOverridePath (new Haxelib("lime"), PathHelper.combine (Sys.getCwd (), "../"));
+				Haxelib.setOverridePath (new Haxelib("lime"), Path.combine (Sys.getCwd (), "../"));
 
 			} else if (FileSystem.exists ("run.n")) {
 
-				HaxelibHelper.setOverridePath (new Haxelib("lime"), Sys.getCwd ());
+				Haxelib.setOverridePath (new Haxelib("lime"), Sys.getCwd ());
 
 			}
 
@@ -141,7 +136,7 @@ class PlatformTargetMain {
 
 				var unserializer = new Unserializer (projectData);
 				unserializer.setResolver (cast { resolveEnum: Type.resolveEnum, resolveClass: resolveClass });
-				var project:Project = unserializer.unserialize ();
+				var project:HXProject = unserializer.unserialize ();
 
 				var platform = Type.createInstance (classRef, [ command, project, project.targetFlags ]);
 				platform.traceEnabled = traceEnabled;
@@ -164,7 +159,7 @@ class PlatformTargetMain {
 
 		if (result == null) {
 
-			result = Project;
+			result = HXProject;
 
 		}
 

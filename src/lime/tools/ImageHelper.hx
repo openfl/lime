@@ -1,15 +1,13 @@
 package lime.tools;
 
 
+import hxp.*;
 #if (lime && lime_cffi && !macro)
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.utils.UInt8Array;
 #end
-import hxp.PathHelper;
-import hxp.Haxelib;
 import lime.tools.Platform;
-import hxp.*;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -23,11 +21,11 @@ class ImageHelper {
 		#if (lime && lime_cffi && !macro)
 		if (path == null) return null;
 
-		var temp = PathHelper.getTemporaryFile (".png");
+		var temp = System.getTemporaryFile (".png");
 
 		try {
 
-			ProcessHelper.runCommand ("", "neko", [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), "svg.n"), "process", path, Std.string (width), Std.string (height), temp ], true, true);
+			System.runCommand ("", "neko", [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), "svg.n"), "process", path, Std.string (width), Std.string (height), temp ], true, true);
 
 			if (FileSystem.exists (temp)) {
 
@@ -49,7 +47,7 @@ class ImageHelper {
 
 		} catch (e:Dynamic) {}
 
-		var rasterizer = PathHelper.getHaxelib (new Haxelib ("lime")) + "/templates/bin/batik/batik-rasterizer.jar";
+		var rasterizer = Haxelib.getPath (new Haxelib ("lime")) + "/templates/bin/batik/batik-rasterizer.jar";
 		var args = [ "-Dapple.awt.UIElement=true", "-jar", rasterizer, "-d", temp, "-w", Std.string (width), "-h", Std.string (height) ];
 
 		if (backgroundColor != null) {
@@ -66,7 +64,7 @@ class ImageHelper {
 
 		args.push (path);
 
-		if (PlatformHelper.hostPlatform == MAC) {
+		if (System.hostPlatform == MAC) {
 
 			try {
 
@@ -98,11 +96,11 @@ class ImageHelper {
 
 		if (Log.verbose) {
 
-			ProcessHelper.runCommand ("", "java", args, true, true);
+			System.runCommand ("", "java", args, true, true);
 
 		} else {
 
-			ProcessHelper.runProcess ("", "java", args, true, true, true);
+			System.runProcess ("", "java", args, true, true, true);
 
 		}
 

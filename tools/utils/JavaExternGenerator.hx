@@ -5,17 +5,9 @@ import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.io.Input;
 import haxe.io.Output;
-import haxe.io.Path;
 import haxe.zip.Reader;
-#if (hxp > "1.0.0")
-import hxp.PathHelper;
-import hxp.ProcessHelper;
-import lime.tools.Project;
-#else
-import hxp.helpers.PathHelper;
-import hxp.helpers.ProcessHelper;
-import lime.tools.Project.HXProject in Project;
-#end
+import hxp.*;
+import lime.tools.HXProject;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -38,7 +30,7 @@ class JavaExternGenerator
 	private static var base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	private static var fmatch = ~/^\((.*)\)(.*)/;
 
-	private var config:Project;
+	private var config:HXProject;
 	private var externPath:String;
 	private var extractedAndroidClasses:Bool;
 	private var extractedAndroidPaths:Array<String>;
@@ -54,7 +46,7 @@ class JavaExternGenerator
 	private var retType:JNIType;
 
 
-	public function new(config:Project, javaPath:String, externPath:String)
+	public function new(config:HXProject, javaPath:String, externPath:String)
 	{
 		this.config = config;
 		this.javaPath = javaPath;
@@ -78,8 +70,8 @@ class JavaExternGenerator
 			if (Path.extension (javaPath) == "jar") {
 
 				this.javaPath = path + "/";
-				PathHelper.mkdir (path);
-				ProcessHelper.runCommand (path, "jar", [ "-xvf", FileSystem.fullPath (javaPath) ], false);
+				System.mkdir (path);
+				System.runCommand (path, "jar", [ "-xvf", FileSystem.fullPath (javaPath) ], false);
 				getPaths(path, "", paths);
 
 			} else {
@@ -149,9 +141,9 @@ class JavaExternGenerator
 
 						if (FileSystem.exists(androidJAR))
 						{
-							PathHelper.mkdir (path);
+							System.mkdir (path);
 							extractedAndroidPaths.push (path);
-							ProcessHelper.runCommand (path, "jar", [ "-xvf", androidJAR ], false);
+							System.runCommand (path, "jar", [ "-xvf", androidJAR ], false);
 						}
 
 					}
@@ -179,12 +171,12 @@ class JavaExternGenerator
 		var dir_parts = parts.slice(0,parts.length-1);
 		var outputBase = externPath;
 		var dir = outputBase;
-		PathHelper.mkdir(dir);
+		System.mkdir(dir);
 
 		for(d in dir_parts)
 		{
 			dir += "/" + d;
-			PathHelper.mkdir(dir);
+			System.mkdir(dir);
 		}
 
 		var filename = javaPath + inClass + ".class";
@@ -525,12 +517,12 @@ class JavaExternGenerator
 			var dir = "stubs";
 			var parts = mCurrentType.split(".");
 			var dir_parts = parts.slice(0, parts.length - 1);
-			PathHelper.mkdir(dir);
+			System.mkdir(dir);
 
 			for(d in dir_parts)
 			{
 				dir += "/" + d;
-				PathHelper.mkdir(dir);
+				System.mkdir(dir);
 			}
 
 			var interface_name = parts[parts.length - 1];
@@ -771,16 +763,16 @@ class JavaExternGenerator
 			java_out.writeString("}\n");
 			java_out.close();
 
-			PathHelper.mkdir("compiled");
+			System.mkdir("compiled");
 			var nme_path = getHaxelib("openfl") + "/__backends/native/templates/android/template/src";
-			ProcessHelper.runCommand ("", "javac", [ "-classpath", "\"classes/android.jar\";\"" + javaPath.substr (0, javaPath.length -1) + "\"", "-sourcepath", nme_path, "-d", "compiled", "stubs/" + java_name ], true, true, true);
+			System.runCommand ("", "javac", [ "-classpath", "\"classes/android.jar\";\"" + javaPath.substr (0, javaPath.length -1) + "\"", "-sourcepath", nme_path, "-d", "compiled", "stubs/" + java_name ], true, true, true);
 
 			//Sys.setCwd("compiled");
 
 			var class_name =  java_name.substr(0, java_name.length - 4) + "class";
 
 			var dx = Sys.getEnv("ANDROID_SDK") + "/platforms/" + extractedAndroidPaths[0] + "/tools/dx";
-			ProcessHelper.runCommand ("compiled", dx, [ "--dex", "--output=classes.jar", class_name ], true, true, true);
+			System.runCommand ("compiled", dx, [ "--dex", "--output=classes.jar", class_name ], true, true, true);
 
 			if (FileSystem.exists ("classes.jar")) {
 

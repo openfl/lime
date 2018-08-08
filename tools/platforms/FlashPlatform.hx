@@ -1,25 +1,25 @@
 package;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Json;
 import haxe.Template;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.DeploymentHelper;
 import lime.tools.ProjectHelper;
-import hxp.FileHelper;
+import hxp.System;
 import lime.tools.FlashHelper;
 import hxp.Haxelib;
 import lime.tools.HTML5Helper;
 import hxp.Log;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.Platform;
-import hxp.PlatformHelper;
+import hxp.System;
 import lime.tools.PlatformTarget;
-import hxp.ProcessHelper;
-import lime.tools.Project;
-import hxp.WatchHelper;
+import hxp.System;
+import lime.tools.HXProject;
+import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -35,18 +35,18 @@ class FlashPlatform extends PlatformTarget {
 	private var logLength:Int = 0;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("flash.output-directory", "flash"));
+		targetDirectory = Path.combine (project.app.path, project.config.getString ("flash.output-directory", "flash"));
 
 	}
 
 
 	public override function build ():Void {
 
-		ProcessHelper.runCommand ("", "haxe", [ targetDirectory + "/haxe/" + buildType + ".hxml" ]);
+		System.runCommand ("", "haxe", [ targetDirectory + "/haxe/" + buildType + ".hxml" ]);
 
 	}
 
@@ -57,7 +57,7 @@ class FlashPlatform extends PlatformTarget {
 
 		if (FileSystem.exists (targetPath)) {
 
-			PathHelper.removeDirectory (targetPath);
+			System.removeDirectory (targetPath);
 
 		}
 
@@ -121,7 +121,7 @@ class FlashPlatform extends PlatformTarget {
 
 	private function getDisplayHXML ():String {
 
-		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
+		var hxml = System.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
 
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
@@ -145,7 +145,7 @@ class FlashPlatform extends PlatformTarget {
 
 		if (project.app.url != null && project.app.url != "") {
 
-			ProcessHelper.openURL (project.app.url);
+			System.openURL (project.app.url);
 
 		} else {
 
@@ -195,7 +195,7 @@ class FlashPlatform extends PlatformTarget {
 		AssetHelper.processLibraries (project, targetDirectory);
 
 		var destination = targetDirectory + "/bin/";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		// project = project.clone ();
 
@@ -210,7 +210,7 @@ class FlashPlatform extends PlatformTarget {
 
 		if (project.targetFlags.exists ("web") || project.app.url != "") {
 
-			PathHelper.mkdir (destination);
+			System.mkdir (destination);
 			ProjectHelper.recursiveSmartCopyTemplate (project, "flash/templates/web", destination, generateContext ());
 
 		}
@@ -253,9 +253,9 @@ class FlashPlatform extends PlatformTarget {
 
 			if (asset.type == AssetType.TEMPLATE || asset.embed == false /*|| !usesLime*/) {
 
-				var path = PathHelper.combine (destination, asset.targetPath);
+				var path = Path.combine (destination, asset.targetPath);
 
-				PathHelper.mkdir (Path.directory (path));
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path, context);
 
 			}
@@ -271,7 +271,7 @@ class FlashPlatform extends PlatformTarget {
 
 		if (icon != "") {
 
-			FileHelper.copyIfNewer (icon, targetPath);
+			System.copyIfNewer (icon, targetPath);
 
 		} else {
 
@@ -284,9 +284,9 @@ class FlashPlatform extends PlatformTarget {
 
 	public override function watch ():Void {
 
-		var dirs = WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
 		var command = ProjectHelper.getCurrentCommand ();
-		WatchHelper.watch (command, dirs);
+		System.watch (command, dirs);
 
 	}
 

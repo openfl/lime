@@ -2,11 +2,13 @@ import electron.main.App;
 import electron.main.BrowserWindow;
 
 class ElectronSetup {
-	
+
 	public static var window:BrowserWindow;
-	
+
 	static function main()
 	{
+		untyped (electron.main.App).commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
+
 		var windows:Array<OpenFLWindow> = [
 			::foreach windows::
 			{
@@ -34,8 +36,8 @@ class ElectronSetup {
 				y: ::y::
 			},::end::
 		];
-		
-		for (i in 0...windows.length) 
+
+		for (i in 0...windows.length)
 		{
 			var window:OpenFLWindow = windows[i];
 			var width:Int = window.width;
@@ -43,22 +45,24 @@ class ElectronSetup {
 			if (width < 1200) width = 1200;
 			if (height < 800) height = 800;
 			var frame:Bool = window.borderless == false;
-			
+
 			electron.main.App.on( 'ready', function(e) {
-				ElectronSetup.window = new BrowserWindow( { 
-					fullscreen: window.fullscreen, 
-					frame:frame, 
+				var config:Dynamic = {
+					fullscreen: window.fullscreen,
+					frame:frame,
 					resizable: window.resizable,
 					alwaysOnTop: window.alwaysOnTop,
-					width:width, 
-					height:height
-				} );
-				
+					width:width,
+					height:height,
+					webgl:window.hardware
+				};
+				ElectronSetup.window = new BrowserWindow(config);
+
 				ElectronSetup.window.on( closed, function() {
 					if( js.Node.process.platform != 'darwin' )
 						electron.main.App.quit();
 				});
-				
+
 				ElectronSetup.window.loadURL( 'file://' + js.Node.__dirname + '/index.html' );
 				#if debug
 					ElectronSetup.window.webContents.openDevTools();

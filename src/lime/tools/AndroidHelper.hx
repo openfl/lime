@@ -17,7 +17,7 @@ class AndroidHelper {
 	private static var emulatorPath:String;
 
 
-	public static function build (project:Project, projectDirectory:String):Void {
+	public static function build (project:HXProject, projectDirectory:String):Void {
 
 		if (project.environment.exists ("ANDROID_SDK")) {
 
@@ -49,14 +49,14 @@ class AndroidHelper {
 
 		}
 
-		if (PlatformHelper.hostPlatform != WINDOWS) {
+		if (System.hostPlatform != WINDOWS) {
 
-			ProcessHelper.runCommand ("", "chmod", [ "755", PathHelper.combine (projectDirectory, "gradlew") ]);
-			ProcessHelper.runCommand (projectDirectory, "./gradlew", args);
+			System.runCommand ("", "chmod", [ "755", Path.combine (projectDirectory, "gradlew") ]);
+			System.runCommand (projectDirectory, "./gradlew", args);
 
 		} else {
 
-			ProcessHelper.runCommand (projectDirectory, "gradlew", args);
+			System.runCommand (projectDirectory, "gradlew", args);
 
 		}
 	}
@@ -72,16 +72,16 @@ class AndroidHelper {
 
 			}
 
-			ProcessHelper.runCommand (adbPath, adbName, [ "connect", deviceID ]);
+			System.runCommand (adbPath, adbName, [ "connect", deviceID ]);
 
 		}
 
 	}
 
 
-	public static function getBuildToolsVersion (project:Project):String {
+	public static function getBuildToolsVersion (project:HXProject):String {
 
-		var buildToolsPath = PathHelper.combine (project.environment.get ("ANDROID_SDK"), "build-tools/");
+		var buildToolsPath = Path.combine (project.environment.get ("ANDROID_SDK"), "build-tools/");
 
 		var version = ~/^(\d+)\.(\d+)\.(\d+)$/i;
 		var current = { major : 0, minor : 0, micro : 0 };
@@ -149,7 +149,7 @@ class AndroidHelper {
 
 		if (devices.length > 0) {
 
-			var tempFile = PathHelper.getTemporaryFile ();
+			var tempFile = System.getTemporaryFile ();
 
 			var args = [ "wait-for-device", "shell", "getprop", "ro.build.version.sdk", ">", tempFile ];
 
@@ -162,13 +162,13 @@ class AndroidHelper {
 
 			}
 
-			if (PlatformHelper.hostPlatform == MAC) {
+			if (System.hostPlatform == MAC) {
 
-				ProcessHelper.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args), true, true);
+				System.runCommand (adbPath, "perl", [ "-e", 'alarm shift @ARGV; exec @ARGV', "3", adbName ].concat (args), true, true);
 
 			} else {
 
-				ProcessHelper.runCommand (adbPath, adbName, args, true, true);
+				System.runCommand (adbPath, adbName, args, true, true);
 
 			}
 
@@ -186,7 +186,7 @@ class AndroidHelper {
 	}
 
 
-	public static function initialize (project:Project):Void {
+	public static function initialize (project:HXProject):Void {
 
 		adbPath = project.environment.get ("ANDROID_SDK") + "/tools/";
 		androidPath = project.environment.get ("ANDROID_SDK") + "/tools/";
@@ -196,7 +196,7 @@ class AndroidHelper {
 		androidName = "android";
 		emulatorName = "emulator";
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			adbName += ".exe";
 			androidName += ".bat";
@@ -210,7 +210,7 @@ class AndroidHelper {
 
 		}
 
-		if (PlatformHelper.hostPlatform != WINDOWS) {
+		if (System.hostPlatform != WINDOWS) {
 
 			adbName = "./" + adbName;
 			androidName = "./" + androidName;
@@ -227,7 +227,7 @@ class AndroidHelper {
 	}
 
 
-	public static function install (project:Project, targetPath:String, deviceID:String = null):String {
+	public static function install (project:HXProject, targetPath:String, deviceID:String = null):String {
 
 		if (project.targetFlags.exists ("emulator") || project.targetFlags.exists ("simulator")) {
 
@@ -259,7 +259,7 @@ class AndroidHelper {
 
 				Log.info ("Starting AVD: " + avds[0]);
 
-				ProcessHelper.runProcess (emulatorPath, emulatorName, [ "-avd", avds[0], "-gpu", "on" ], false);
+				System.runProcess (emulatorPath, emulatorName, [ "-avd", avds[0], "-gpu", "on" ], false);
 
 				while (deviceID == null) {
 
@@ -295,7 +295,7 @@ class AndroidHelper {
 
 			}
 
-			ProcessHelper.runCommand (adbPath, adbName, [ "-s", deviceID, "shell", "input", "keyevent", "82" ]);
+			System.runCommand (adbPath, adbName, [ "-s", deviceID, "shell", "input", "keyevent", "82" ]);
 
 		}
 
@@ -318,7 +318,7 @@ class AndroidHelper {
 
 		}
 
-		ProcessHelper.runCommand (adbPath, adbName, args);
+		System.runCommand (adbPath, adbName, args);
 
 		return deviceID;
 
@@ -328,7 +328,7 @@ class AndroidHelper {
 	public static function listAVDs ():Array<String> {
 
 		var avds = new Array<String> ();
-		var output = ProcessHelper.runProcess (androidPath, androidName, [ "list", "avd" ]);
+		var output = System.runProcess (androidPath, androidName, [ "list", "avd" ]);
 
 		if (output != null && output != "") {
 
@@ -354,11 +354,11 @@ class AndroidHelper {
 		var devices = new Array<String> ();
 		var output = "";
 
-		if (PlatformHelper.hostPlatform != WINDOWS) {
+		if (System.hostPlatform != WINDOWS) {
 
-			var tempFile = PathHelper.getTemporaryFile ();
+			var tempFile = System.getTemporaryFile ();
 
-			ProcessHelper.runCommand (adbPath, adbName, [ "devices", ">", tempFile ], true, true);
+			System.runCommand (adbPath, adbName, [ "devices", ">", tempFile ], true, true);
 
 			if (FileSystem.exists (tempFile)) {
 
@@ -369,7 +369,7 @@ class AndroidHelper {
 
 		} else {
 
-			output = ProcessHelper.runProcess (adbPath, adbName, [ "devices" ], true, true);
+			output = System.runProcess (adbPath, adbName, [ "devices" ], true, true);
 
 		}
 
@@ -405,12 +405,12 @@ class AndroidHelper {
 
 		}
 
-		ProcessHelper.runCommand (adbPath, adbName, args);
+		System.runCommand (adbPath, adbName, args);
 
 	}
 
 
-	public static function trace (project:Project, debug:Bool, deviceID:String = null, customFilter:String = null):Void {
+	public static function trace (project:HXProject, debug:Bool, deviceID:String = null, customFilter:String = null):Void {
 
 		// Use -DFULL_LOGCAT or  <set name="FULL_LOGCAT" /> if you do not want to filter log messages
 
@@ -427,12 +427,12 @@ class AndroidHelper {
 
 		if (customFilter != null) {
 
-			ProcessHelper.runCommand (adbPath, adbName, args.concat ([ customFilter ]));
+			System.runCommand (adbPath, adbName, args.concat ([ customFilter ]));
 
 		} else if (project.environment.exists("FULL_LOGCAT") || Log.verbose) {
 
-			ProcessHelper.runCommand (adbPath, adbName, args.concat ([ "-c" ]));
-			ProcessHelper.runCommand (adbPath, adbName, args);
+			System.runCommand (adbPath, adbName, args.concat ([ "-c" ]));
+			System.runCommand (adbPath, adbName, args);
 
 		} else if (debug) {
 
@@ -447,11 +447,11 @@ class AndroidHelper {
 
 			Sys.println (filter);
 
-			ProcessHelper.runCommand (adbPath, adbName, args.concat ([ filter ]));
+			System.runCommand (adbPath, adbName, args.concat ([ filter ]));
 
 		} else {
 
-			ProcessHelper.runCommand (adbPath, adbName, args.concat ([ "*:S trace:I" ]));
+			System.runCommand (adbPath, adbName, args.concat ([ "*:S trace:I" ]));
 
 		}
 
@@ -471,7 +471,7 @@ class AndroidHelper {
 
 		}
 
-		ProcessHelper.runCommand (adbPath, adbName, args);
+		System.runCommand (adbPath, adbName, args);
 
 	}
 

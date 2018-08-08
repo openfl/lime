@@ -1,21 +1,22 @@
 package;
 
 
-import haxe.io.Path;
+import hxp.Path;
+import hxp.NDLL;
 import haxe.Json;
 import haxe.Template;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
-import hxp.FileHelper;
+import hxp.System;
 import hxp.Haxelib;
 import lime.tools.HTML5Helper;
 import hxp.Log;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.PlatformTarget;
-import hxp.ProcessHelper;
-import lime.tools.Project;
+import hxp.System;
+import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
 import sys.io.File;
 import sys.FileSystem;
@@ -27,11 +28,11 @@ class EmscriptenPlatform extends PlatformTarget {
 	private var outputFile:String;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("emscripten.output-directory", "emscripten"));
+		targetDirectory = Path.combine (project.app.path, project.config.getString ("emscripten.output-directory", "emscripten"));
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 
 	}
@@ -67,7 +68,7 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		}
 
-		ProcessHelper.runCommand ("", "haxe", args);
+		System.runCommand ("", "haxe", args);
 
 		if (noOutput) return;
 
@@ -75,18 +76,18 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		project.path (sdkPath);
 
-		ProcessHelper.runCommand ("", "emcc", [ targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o" ], true, false, true);
+		System.runCommand ("", "emcc", [ targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o" ], true, false, true);
 
 		args = [ "Main.o" ];
 
 		for (ndll in project.ndlls) {
 
-			var path = PathHelper.getLibraryPath (ndll, "Emscripten", "lib", ".a", project.debug);
+			var path = NDLL.getLibraryPath (ndll, "Emscripten", "lib", ".a", project.debug);
 			args.push (path);
 
 		}
 
-		var json = Json.parse (File.getContent (PathHelper.getHaxelib (new Haxelib ("hxcpp"), true) + "/haxelib.json"));
+		var json = Json.parse (File.getContent (Haxelib.getPath (new Haxelib ("hxcpp"), true) + "/haxelib.json"));
 		var prefix = "";
 
 		var version = Std.string (json.version);
@@ -101,7 +102,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		}
 
 		args = args.concat ([ prefix + "ApplicationMain" + (project.debug ? "-debug" : "") + ".a", "-o", "ApplicationMain.o" ]);
-		ProcessHelper.runCommand (targetDirectory + "/obj", "emcc", args, true, false, true);
+		System.runCommand (targetDirectory + "/obj", "emcc", args, true, false, true);
 
 		args = [ "ApplicationMain.o" ];
 
@@ -192,8 +193,8 @@ class EmscriptenPlatform extends PlatformTarget {
 		//if (project.targetFlags.exists ("compress")) {
 			//
 			//args.push ("--compression");
-			//args.push (PathHelper.findTemplate (project.templatePaths, "bin/utils/lzma/compress.exe") + "," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
-			//args.push ("haxelib run openfl compress," + PathHelper.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
+			//args.push (System.findTemplate (project.templatePaths, "bin/utils/lzma/compress.exe") + "," + System.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
+			//args.push ("haxelib run openfl compress," + System.findTemplate (project.templatePaths, "resources/lzma-decoder.js") + ",LZMA.decompress");
 			//args.push ("-o");
 			//args.push ("../bin/index.html");
 			//
@@ -206,7 +207,7 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		//args.push ("../bin/index.html");
 
-		ProcessHelper.runCommand (targetDirectory + "/obj", "emcc", args, true, false, true);
+		System.runCommand (targetDirectory + "/obj", "emcc", args, true, false, true);
 
 		if (project.targetFlags.exists ("minify")) {
 
@@ -241,7 +242,7 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		if (FileSystem.exists (targetDirectory)) {
 
-			PathHelper.removeDirectory (targetDirectory);
+			System.removeDirectory (targetDirectory);
 
 		}
 
@@ -257,7 +258,7 @@ class EmscriptenPlatform extends PlatformTarget {
 
 	public override function display ():Void {
 
-		var hxml = PathHelper.findTemplate (project.templatePaths, "emscripten/hxml/" + buildType + ".hxml");
+		var hxml = System.findTemplate (project.templatePaths, "emscripten/hxml/" + buildType + ".hxml");
 
 		var context = project.templateContext;
 		context.OUTPUT_DIR = targetDirectory;
@@ -295,8 +296,8 @@ class EmscriptenPlatform extends PlatformTarget {
 
 			if (asset.embed && asset.sourcePath == "") {
 
-				var path = PathHelper.combine (targetDirectory + "/obj/tmp", asset.targetPath);
-				PathHelper.mkdir (Path.directory (path));
+				var path = Path.combine (targetDirectory + "/obj/tmp", asset.targetPath);
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path);
 				asset.sourcePath = path;
 
@@ -311,7 +312,7 @@ class EmscriptenPlatform extends PlatformTarget {
 		}
 
 		var destination = targetDirectory + "/bin/";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		//for (asset in project.assets) {
 			//
@@ -339,13 +340,13 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		for (asset in project.assets) {
 
-			var path = PathHelper.combine (targetDirectory + "/obj/assets", asset.targetPath);
+			var path = Path.combine (targetDirectory + "/obj/assets", asset.targetPath);
 
 			if (asset.type != AssetType.TEMPLATE) {
 
 				//if (asset.type != AssetType.FONT) {
 
-					PathHelper.mkdir (Path.directory (path));
+					System.mkdir (Path.directory (path));
 					AssetHelper.copyAssetIfNewer (asset, path);
 
 				//}
@@ -361,11 +362,11 @@ class EmscriptenPlatform extends PlatformTarget {
 
 		for (asset in project.assets) {
 
-			var path = PathHelper.combine (destination, asset.targetPath);
+			var path = Path.combine (destination, asset.targetPath);
 
 			if (asset.type == AssetType.TEMPLATE) {
 
-				PathHelper.mkdir (Path.directory (path));
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path, context);
 
 			}

@@ -2,7 +2,7 @@ package lime.tools;
 
 
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 
 
 class XCodeHelper {
@@ -57,7 +57,7 @@ class XCodeHelper {
 	}
 
 
-	public static function getSelectedSimulator (project:Project):SimulatorInfo {
+	public static function getSelectedSimulator (project:HXProject):SimulatorInfo {
 
 		var output = getSimulators ();
 		var lines = output.split ("\n");
@@ -117,14 +117,14 @@ class XCodeHelper {
 	}
 
 
-	public static function getSimulatorID (project:Project):String {
+	public static function getSimulatorID (project:HXProject):String {
 
 		return getSelectedSimulator (project).id;
 
 	}
 
 
-	public static function getSimulatorName (project:Project):String {
+	public static function getSimulatorName (project:HXProject):String {
 
 		return getSelectedSimulator (project).name;
 
@@ -133,7 +133,7 @@ class XCodeHelper {
 
 	private static function getSimulators ():String {
 
-		return ProcessHelper.runProcess ("", "xcrun", [ "simctl", "list", "devices" ]);
+		return System.runProcess ("", "xcrun", [ "simctl", "list", "devices" ]);
 
 	}
 

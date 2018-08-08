@@ -1,11 +1,8 @@
 package lime.tools;
 
 
-import haxe.io.Path;
-import hxp.PlatformHelper;
-import hxp.Haxelib;
-import lime.tools.Platform;
 import hxp.*;
+import lime.tools.Platform;
 import sys.FileSystem;
 import sys.io.File;
 
@@ -15,14 +12,14 @@ class NekoHelper {
 
 	public static function copyLibraries (templatePaths:Array<String>, platformName:String, targetPath:String) {
 
-		//FileHelper.recursiveCopyTemplate (templatePaths, "neko/ndll/" + platformName, targetPath);
+		//System.recursiveCopyTemplate (templatePaths, "neko/ndll/" + platformName, targetPath);
 
 	}
 
 
 	public static function createExecutable (templatePaths:Array<String>, platformName:String, source:String, target:String, iconPath:String = null):Void {
 
-		/*var executablePath = PathHelper.findTemplate (templatePaths, "neko/bin/neko-" + platformName);
+		/*var executablePath = System.findTemplate (templatePaths, "neko/bin/neko-" + platformName);
 		var executable = File.getBytes (executablePath);
 		var sourceContents = File.getBytes (source);
 
@@ -33,28 +30,28 @@ class NekoHelper {
 		output.writeInt32 (executable.length);
 		output.close ();*/
 
-		var path = PathHelper.tryFullPath (source);
+		var path = Path.tryFullPath (source);
 		var file = Path.withoutDirectory (path);
 		var dir = Path.directory (path);
 
-		ProcessHelper.runCommand (dir, "nekotools", [ "boot", file ]);
+		System.runCommand (dir, "nekotools", [ "boot", file ]);
 
 		var path = Path.withoutExtension (source);
 
-		if (PlatformHelper.hostPlatform == WINDOWS) {
+		if (System.hostPlatform == WINDOWS) {
 
 			path += ".exe";
 
 		}
 
-		FileHelper.copyFile (path, target);
+		System.copyFile (path, target);
 
 	}
 
 
 	public static function createWindowsExecutable (templatePaths:Array<String>, source:String, target:String, iconPath:String):Void {
 
-		/*var executablePath = PathHelper.findTemplate (templatePaths, "neko/bin/neko-windows");
+		/*var executablePath = System.findTemplate (templatePaths, "neko/bin/neko-windows");
 		var executable = File.getBytes (executablePath);
 		var sourceContents = File.getBytes (source);
 
@@ -62,10 +59,10 @@ class NekoHelper {
 		output.write (executable);
 		output.close ();
 
-		if (iconPath != null && PlatformHelper.hostPlatform == WINDOWS) {
+		if (iconPath != null && System.hostPlatform == WINDOWS) {
 
-			var templates = [ PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (templatePaths);
-			ProcessHelper.runCommand ("", PathHelper.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ target, iconPath, "1" ], true, true);
+			var templates = [ Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (templatePaths);
+			System.runCommand ("", System.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ target, iconPath, "1" ], true, true);
 
 		}
 

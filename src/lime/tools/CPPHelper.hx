@@ -1,11 +1,8 @@
 package lime.tools;
 
 
-import hxp.Log;
-import hxp.PlatformHelper;
-import hxp.ProcessHelper;
 import hxp.*;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.io.File;
 import sys.FileSystem;
@@ -18,7 +15,7 @@ class CPPHelper {
 	private static var rebuiltPaths = new Map<String, Bool> ();
 
 
-	public static function compile (project:Project, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {
+	public static function compile (project:HXProject, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void {
 
 		if (project.config.getBool ("cpp.requireBuild", true)) {
 
@@ -27,12 +24,12 @@ class CPPHelper {
 
 			try {
 
-				var options = PathHelper.combine (path, "Options.txt");
+				var options = Path.combine (path, "Options.txt");
 
 				if (FileSystem.exists (options)) {
 
 					args.push ("-options");
-					args.push (PathHelper.tryFullPath (options));
+					args.push (Path.tryFullPath (options));
 
 					// var list;
 					// var input = File.read (options, false);
@@ -117,13 +114,13 @@ class CPPHelper {
 
 			}
 
-			if (PlatformHelper.hostPlatform == WINDOWS && !project.environment.exists ("HXCPP_COMPILE_THREADS")) {
+			if (System.hostPlatform == WINDOWS && !project.environment.exists ("HXCPP_COMPILE_THREADS")) {
 
 				var threads = 1;
 
-				if (ProcessHelper.processorCores > 1) {
+				if (System.processorCores > 1) {
 
-					threads = ProcessHelper.processorCores - 1;
+					threads = System.processorCores - 1;
 
 				}
 
@@ -133,7 +130,7 @@ class CPPHelper {
 
 			Sys.putEnv ("HXCPP_EXIT_ON_ERROR", "");
 
-			var code = HaxelibHelper.runCommand (path, args);
+			var code = Haxelib.runCommand (path, args);
 
 			if (code != 0) {
 
@@ -146,7 +143,7 @@ class CPPHelper {
 	}
 
 
-	public static function rebuild (project:Project, commands:Array<Array<String>>, path:String = null, buildFile:String = null):Void {
+	public static function rebuild (project:HXProject, commands:Array<Array<String>>, path:String = null, buildFile:String = null):Void {
 
 		var buildRelease = (!project.targetFlags.exists ("debug"));
 		var buildDebug = (project.targetFlags.exists ("debug") ||
@@ -159,19 +156,19 @@ class CPPHelper {
 
 			if (!rebuiltLibraries.exists (haxelib.name)) {
 
-				var defines = StringMapHelper.copy (project.defines);
+				var defines = MapTools.copy (project.defines);
 				defines.set ("rebuild", "1");
 
-				var haxelibProject = Project.fromHaxelib (haxelib, defines);
+				var haxelibProject = HXProject.fromHaxelib (haxelib, defines);
 
 				if (haxelibProject == null) {
 
-					haxelibProject = new Project ();
-					haxelibProject.config.set ("project.rebuild.path", PathHelper.combine (PathHelper.getHaxelib (haxelib), "project"));
+					haxelibProject = new HXProject ();
+					haxelibProject.config.set ("project.rebuild.path", Path.combine (Haxelib.getPath (haxelib), "project"));
 
 				}
 
-				StringMapHelper.copyKeys (project.targetFlags, haxelibProject.targetFlags);
+				MapTools.copyKeys (project.targetFlags, haxelibProject.targetFlags);
 
 				rebuiltLibraries.set (haxelib.name, true);
 
@@ -230,7 +227,7 @@ class CPPHelper {
 	}
 
 
-	public static function rebuildSingle (project:Project, flags:Array<String> = null, path:String = null, buildFile:String = null):Void {
+	public static function rebuildSingle (project:HXProject, flags:Array<String> = null, path:String = null, buildFile:String = null):Void {
 
 		if (path == null) {
 
@@ -252,7 +249,7 @@ class CPPHelper {
 
 		if (buildFile == null) buildFile = "Build.xml";
 
-		if (!FileSystem.exists (PathHelper.combine (path, buildFile))) {
+		if (!FileSystem.exists (Path.combine (path, buildFile))) {
 
 			return;
 
@@ -307,13 +304,13 @@ class CPPHelper {
 
 		}
 
-		if (PlatformHelper.hostPlatform == WINDOWS && !project.environment.exists ("HXCPP_COMPILE_THREADS")) {
+		if (System.hostPlatform == WINDOWS && !project.environment.exists ("HXCPP_COMPILE_THREADS")) {
 
 			var threads = 1;
 
-			if (ProcessHelper.processorCores > 1) {
+			if (System.processorCores > 1) {
 
-				threads = ProcessHelper.processorCores - 1;
+				threads = System.processorCores - 1;
 
 			}
 
@@ -323,7 +320,7 @@ class CPPHelper {
 
 		Sys.putEnv ("HXCPP_EXIT_ON_ERROR", "");
 
-		HaxelibHelper.runCommand (path, args);
+		Haxelib.runCommand (path, args);
 
 	}
 

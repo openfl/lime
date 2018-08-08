@@ -4,11 +4,8 @@ package lime.tools;
 import haxe.crypto.Crc32;
 import haxe.io.Bytes;
 import haxe.io.Eof;
-import hxp.PathHelper;
-import hxp.PlatformHelper;
-import hxp.ProcessHelper;
-import hxp.Haxelib;
-import lime.tools.Project;
+import hxp.*;
+import lime.tools.HXProject;
 import lime.tools.Platform;
 import sys.FileSystem;
 
@@ -20,14 +17,14 @@ class TizenHelper {
 	private static var cacheUUID:String = null;
 
 
-	public static function createPackage (project:Project, workingDirectory:String, targetPath:String):Void {
+	public static function createPackage (project:HXProject, workingDirectory:String, targetPath:String):Void {
 
 		var keystore = null;
 		var password = null;
 
 		if (project.keystore != null) {
 
-			keystore = PathHelper.tryFullPath (project.keystore.path);
+			keystore = Path.tryFullPath (project.keystore.path);
 			password = project.keystore.password;
 
 			if (password == null) {
@@ -41,8 +38,8 @@ class TizenHelper {
 
 		if (keystore == null) {
 
-			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
-			keystore = PathHelper.findTemplate (templatePaths, "bin/debug.p12");
+			var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end) ].concat (project.templatePaths);
+			keystore = System.findTemplate (templatePaths, "bin/debug.p12");
 			password = "1234";
 
 		}
@@ -61,11 +58,11 @@ class TizenHelper {
 
 		packageName += ".tpk";
 
-		if (FileSystem.exists (PathHelper.combine (workingDirectory, packageName))) {
+		if (FileSystem.exists (Path.combine (workingDirectory, packageName))) {
 
 			try {
 
-				FileSystem.deleteFile ((PathHelper.combine (workingDirectory, packageName)));
+				FileSystem.deleteFile ((Path.combine (workingDirectory, packageName)));
 
 			} catch (e:Dynamic) {}
 
@@ -76,7 +73,7 @@ class TizenHelper {
 	}
 
 
-	public static function getUUID (project:Project):String {
+	public static function getUUID (project:HXProject):String {
 
 		if (cacheID != project.meta.packageName) {
 
@@ -84,7 +81,7 @@ class TizenHelper {
 
 				var bytes = Bytes.ofString (project.meta.packageName);
 				var crc = Crc32.make (bytes);
-				cacheUUID = StringHelper.generateUUID (10, null, crc);
+				cacheUUID = StringTools.generateUUID (10, null, crc);
 
 			} else {
 
@@ -101,7 +98,7 @@ class TizenHelper {
 	}
 
 
-	public static function install (project:Project, workingDirectory:String):Void {
+	public static function install (project:HXProject, workingDirectory:String):Void {
 
 		var packageName = getUUID (project) + "-" + project.meta.version + "-";
 
@@ -122,7 +119,7 @@ class TizenHelper {
 	}
 
 
-	public static function launch (project:Project):Void {
+	public static function launch (project:HXProject):Void {
 
 		runCommand (project, "", "native-run", [ "--package", getUUID (project) ]);
 
@@ -154,7 +151,7 @@ class TizenHelper {
 	}
 
 
-	private static function runCommand (project:Project, workingDirectory:String, command:String, args:Array<String>):Void {
+	private static function runCommand (project:HXProject, workingDirectory:String, command:String, args:Array<String>):Void {
 
 		var sdkDirectory = "";
 
@@ -164,7 +161,7 @@ class TizenHelper {
 
 		} else {
 
-			if (PlatformHelper.hostPlatform == WINDOWS) {
+			if (System.hostPlatform == WINDOWS) {
 
 				sdkDirectory = "C:\\Development\\Tizen\\tizen-sdk";
 
@@ -176,12 +173,12 @@ class TizenHelper {
 
 		}
 
-		ProcessHelper.runCommand (workingDirectory, PathHelper.combine (sdkDirectory, "tools/ide/bin/" + command), args);
+		System.runCommand (workingDirectory, Path.combine (sdkDirectory, "tools/ide/bin/" + command), args);
 
 	}
 
 
-	public static function trace (project:Project, follow:Bool = true):Void {
+	public static function trace (project:HXProject, follow:Bool = true):Void {
 
 		/*var args = [];
 
@@ -203,7 +200,7 @@ class TizenHelper {
 
 		} else {
 
-			if (PlatformHelper.hostPlatform == WINDOWS) {
+			if (System.hostPlatform == WINDOWS) {
 
 				sdkDirectory = "C:\\Development\\Tizen\\tizen-sdk";
 
@@ -219,8 +216,8 @@ class TizenHelper {
 		//var args = [ "dlog", project.meta.packageName + ":V", "*:E" ];
 		var args = [ "dlog", project.app.file + ":V", "*:F" ];
 
-		ProcessHelper.runCommand ("", PathHelper.combine (sdkDirectory, "tools/sdb"), [ "dlog", "-c" ]);
-		ProcessHelper.runCommand ("", PathHelper.combine (sdkDirectory, "tools/sdb"), args);
+		System.runCommand ("", Path.combine (sdkDirectory, "tools/sdb"), [ "dlog", "-c" ]);
+		System.runCommand ("", Path.combine (sdkDirectory, "tools/sdb"), args);
 		//runCommand (project, "", "native-debug", [ "-p", project.meta.packageName ]);
 
 	}

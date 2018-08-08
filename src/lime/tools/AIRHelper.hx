@@ -1,7 +1,6 @@
 package lime.tools;
 
 
-import haxe.io.Path;
 import hxp.*;
 import sys.FileSystem;
 
@@ -9,7 +8,7 @@ import sys.FileSystem;
 class AIRHelper {
 
 
-	public static function build (project:Project, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):String {
+	public static function build (project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String, files:Array<String>, fileDirectory:String = null):String {
 
 		//var airTarget = "air";
 		//var extension = ".air";
@@ -74,7 +73,7 @@ class AIRHelper {
 
 		if (project.keystore != null) {
 
-			var keystore = PathHelper.tryFullPath (project.keystore.path);
+			var keystore = Path.tryFullPath (project.keystore.path);
 			var keystoreType = project.keystore.type != null ? project.keystore.type : "pkcs12";
 
 			signingOptions.push ("-storetype");
@@ -108,7 +107,7 @@ class AIRHelper {
 			signingOptions.push ("-storetype");
 			signingOptions.push ("pkcs12");
 			signingOptions.push ("-keystore");
-			signingOptions.push (PathHelper.findTemplate (project.templatePaths, "air/debug.pfx"));
+			signingOptions.push (System.findTemplate (project.templatePaths, "air/debug.pfx"));
 			signingOptions.push ("-storepass");
 			signingOptions.push ("samplePassword");
 
@@ -160,7 +159,7 @@ class AIRHelper {
 
 		args = args.concat ([ targetPath + extension, applicationXML ]);
 
-		if (targetPlatform == IOS && PlatformHelper.hostPlatform == MAC && project.targetFlags.exists ("simulator")) {
+		if (targetPlatform == IOS && System.hostPlatform == MAC && project.targetFlags.exists ("simulator")) {
 
 			args.push ("-platformsdk");
 			args.push (IOSHelper.getSDKDirectory (project));
@@ -201,14 +200,14 @@ class AIRHelper {
 
  		}
 
-		ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
+		System.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", args);
 
 		return targetPath + extension;
 
 	}
 
 
-	public static function getExtDirs(project:Project):Array<String> {
+	public static function getExtDirs(project:HXProject):Array<String> {
 
 		var extDirs:Array<String> = [];
 
@@ -229,7 +228,7 @@ class AIRHelper {
 	}
 
 
-	public static function run (project:Project, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void {
+	public static function run (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void {
 
 		if (targetPlatform == ANDROID) {
 
@@ -248,13 +247,13 @@ class AIRHelper {
 				args.push ("-platformsdk");
 				args.push (IOSHelper.getSDKDirectory (project));
 
-				ProcessHelper.runCommand ("", "killall", [ "iPhone Simulator" ], true, true);
+				System.runCommand ("", "killall", [ "iPhone Simulator" ], true, true);
 
 			}
 
-			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-uninstallApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]), true, true);
-			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".ipa" ]));
-			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-launchApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]), true, true);
+			System.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-uninstallApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]), true, true);
+			System.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-installApp" ].concat (args).concat ([ "-package", FileSystem.fullPath (workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".ipa" ]));
+			System.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adt", [ "-launchApp" ].concat (args).concat ([ "-appid", project.meta.packageName ]), true, true);
 
 			if (project.targetFlags.exists ("simulator")) {
 
@@ -266,7 +265,7 @@ class AIRHelper {
 
 				}
 
-				ProcessHelper.runCommand ("", "open", [ simulatorAppPath ]);
+				System.runCommand ("", "open", [ simulatorAppPath ]);
 
 			}
 
@@ -309,14 +308,14 @@ class AIRHelper {
 
 			}
 
-			ProcessHelper.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adl", args);
+			System.runCommand (workingDirectory, project.defines.get ("AIR_SDK") + "/bin/adl", args);
 
 		}
 
 	}
 
 
-	public static function trace (project:Project, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
+	public static function trace (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
 
 		if (targetPlatform == ANDROID) {
 
@@ -345,7 +344,7 @@ class AIRHelper {
 	}
 
 
-	public static function uninstall (project:Project, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
+	public static function uninstall (project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null) {
 
 		if (targetPlatform == ANDROID) {
 

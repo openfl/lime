@@ -1,15 +1,14 @@
 package lime.tools;
 
 
-import hxp.PathHelper;
-import hxp.ProcessHelper;
-import lime.tools.Project;
+import hxp.*;
+import lime.tools.HXProject;
 
 
 class ElectronHelper {
 
 
-	public static function launch (project:Project, path:String):Void {
+	public static function launch (project:HXProject, path:String):Void {
 
 		var electronPath = project.defines.get ("ELECTRON_PATH");
 
@@ -19,11 +18,11 @@ class ElectronHelper {
 
 		} else {
 
-			electronPath = PathHelper.combine (electronPath, "electron");
+			electronPath = Path.combine (electronPath, "electron");
 
 		}
 
-		ProcessHelper.runCommand ("", electronPath, [ path ]);
+		System.runCommand ("", electronPath, [ path ]);
 
 	}
 

@@ -2,7 +2,7 @@ package utils.publish;
 
 
 import haxe.crypto.Base64;
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Json;
 import lime.tools.helpers.CLIHelper;
 import lime.tools.helpers.Log;
@@ -27,7 +27,7 @@ class FirefoxMarketplace {
 		var packagedFile = project.app.file + ".zip";
 		var destination = outputDirectory + "/dist/" + packagedFile;
 
-		ZipHelper.compress (source, destination);
+		System.compress (source, destination);
 
 		return destination;
 
@@ -150,7 +150,7 @@ class FirefoxMarketplace {
 
 			if (answer == YES) {
 
-				ProcessHelper.openURL (baseUrl + '/developers/app/${app.slug}/edit');
+				System.openURL (baseUrl + '/developers/app/${app.slug}/edit');
 
 			}
 
@@ -249,7 +249,7 @@ class FirefoxMarketplace {
 			if (answer == YES || answer == ALWAYS) {
 
 				if (Log.verbose) Log.println ("");
-				ProcessHelper.openURL (urlContentRatings);
+				System.openURL (urlContentRatings);
 
 			} else {
 
@@ -279,9 +279,9 @@ class FirefoxMarketplace {
 
 					switch (x) {
 
-						case "1": ProcessHelper.openURL (urlContentRatings);
-						case "2": ProcessHelper.openURL (devUrlApp);
-						case "3": ProcessHelper.openURL (urlApp);
+						case "1": System.openURL (urlContentRatings);
+						case "2": System.openURL (devUrlApp);
+						case "3": System.openURL (urlApp);
 						case _:
 
 					}
@@ -398,7 +398,7 @@ class FirefoxMarketplace {
 
 			Sys.sleep (3);
 			if (Log.verbose) Log.println ("");
-			ProcessHelper.openURL (server + "/developers/api");
+			System.openURL (server + "/developers/api");
 			Sys.sleep (2);
 
 			Log.println ("");

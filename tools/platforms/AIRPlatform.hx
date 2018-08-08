@@ -1,24 +1,24 @@
 package;
 
 
-import haxe.io.Path;
+import hxp.Path;
 import haxe.Template;
 import lime.tools.AIRHelper;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.DeploymentHelper;
-import hxp.FileHelper;
+import hxp.System;
 import lime.tools.FlashHelper;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import hxp.Log;
-import hxp.PathHelper;
+import hxp.Path;
 import lime.tools.Platform;
-import hxp.PlatformHelper;
+import hxp.System;
 import lime.tools.PlatformType;
-import lime.tools.Project;
+import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
-import hxp.ZipHelper;
+import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -32,11 +32,11 @@ class AIRPlatform extends FlashPlatform {
 	private var targetPlatformType:PlatformType;
 
 
-	public function new (command:String, _project:Project, targetFlags:Map<String, String>) {
+	public function new (command:String, _project:HXProject, targetFlags:Map<String, String>) {
 
 		super (command, _project, targetFlags);
 
-		targetDirectory = PathHelper.combine (project.app.path, project.config.getString ("air.output-directory", "air"));
+		targetDirectory = Path.combine (project.app.path, project.config.getString ("air.output-directory", "air"));
 
 		if (targetFlags.exists ("android")) {
 
@@ -60,7 +60,7 @@ class AIRPlatform extends FlashPlatform {
 
 		} else {
 
-			targetPlatform = cast PlatformHelper.hostPlatform;
+			targetPlatform = cast System.hostPlatform;
 			targetPlatformType = DESKTOP;
 
 		}
@@ -124,7 +124,7 @@ class AIRPlatform extends FlashPlatform {
 
 		if (FileSystem.exists (targetDirectory)) {
 
-			PathHelper.removeDirectory (targetDirectory);
+			System.removeDirectory (targetDirectory);
 
 		}
 
@@ -140,7 +140,7 @@ class AIRPlatform extends FlashPlatform {
 		} else {
 
 			var rootDirectory = targetDirectory + "/bin";
-			var paths = PathHelper.readDirectory (rootDirectory, [ project.app.file + ".apk", project.app.file + ".ipa", project.app.file + ".air" ]);
+			var paths = System.readDirectory (rootDirectory, [ project.app.file + ".apk", project.app.file + ".ipa", project.app.file + ".air" ]);
 			var files = [];
 
 			for (path in paths) {
@@ -175,13 +175,13 @@ class AIRPlatform extends FlashPlatform {
 
 			var outputPath = "dist/" + name;
 
-			PathHelper.mkdir (targetDirectory + "/dist");
+			System.mkdir (targetDirectory + "/dist");
 
 			outputPath = AIRHelper.build (project, targetDirectory, targetPlatform, outputPath, "application.xml", files, "bin");
 
 			if (targetPlatformType == DESKTOP) {
 
-				ZipHelper.compress (PathHelper.combine (targetDirectory, outputPath), PathHelper.combine (targetDirectory, "dist/" + name + ".zip"));
+				System.compress (Path.combine (targetDirectory, outputPath), Path.combine (targetDirectory, "dist/" + name + ".zip"));
 
 			}
 
@@ -192,7 +192,7 @@ class AIRPlatform extends FlashPlatform {
 
 	private override function getDisplayHXML ():String {
 
-		var hxml = PathHelper.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
+		var hxml = System.findTemplate (project.templatePaths, "flash/hxml/" + buildType + ".hxml");
 
 		var context = project.templateContext;
 		context.WIN_FLASHBACKGROUND = StringTools.hex (project.window.background, 6);
@@ -248,7 +248,7 @@ class AIRPlatform extends FlashPlatform {
 		AssetHelper.processLibraries (project, targetDirectory);
 
 		var destination = targetDirectory + "/bin/";
-		PathHelper.mkdir (destination);
+		System.mkdir (destination);
 
 		// project = project.clone ();
 
@@ -308,7 +308,7 @@ class AIRPlatform extends FlashPlatform {
 
 		if (icons.length == 0) {
 
-			icons = [ new Icon (PathHelper.findTemplate (project.templatePaths, "default/icon.svg")) ];
+			icons = [ new Icon (System.findTemplate (project.templatePaths, "default/icon.svg")) ];
 
 		}
 
@@ -380,9 +380,9 @@ class AIRPlatform extends FlashPlatform {
 
 			if (asset.type == AssetType.TEMPLATE || asset.embed == false /*|| !usesLime*/) {
 
-				var path = PathHelper.combine (destination, asset.targetPath);
+				var path = Path.combine (destination, asset.targetPath);
 
-				PathHelper.mkdir (Path.directory (path));
+				System.mkdir (Path.directory (path));
 				AssetHelper.copyAsset (asset, path, context);
 
 			}
@@ -396,7 +396,7 @@ class AIRPlatform extends FlashPlatform {
 			for (splashScreen in project.splashScreens) {
 
 				var path = Path.withoutDirectory (splashScreen.path);
-				FileHelper.copyFile (splashScreen.path, PathHelper.combine (destination, path), context);
+				System.copyFile (splashScreen.path, Path.combine (destination, path), context);
 				splashScreenData.push ({ path: path });
 
 			}

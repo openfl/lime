@@ -2,9 +2,9 @@ package lime.tools;
 
 
 import haxe.rtti.Meta;
+import hxp.*;
 import lime.tools.AssetHelper;
 import lime.tools.CommandHelper;
-import hxp.Log;
 
 
 class PlatformTarget {
@@ -14,13 +14,13 @@ class PlatformTarget {
 	public var buildType:String;
 	public var command:String;
 	public var noOutput:Bool;
-	public var project:Project;
+	public var project:HXProject;
 	public var targetDirectory:String;
 	public var targetFlags:Map<String, String>;
 	public var traceEnabled = true;
 
 
-	public function new (command:String = null, project:Project = null, targetFlags:Map<String, String> = null) {
+	public function new (command:String = null, project:HXProject = null, targetFlags:Map<String, String> = null) {
 
 		this.command = command;
 		this.project = project;
