@@ -59,7 +59,7 @@ class ImageCanvasUtil {
 
 		} else {
 
-			if (image.__type == DATA && buffer.__srcImageData != null && image.dirty) {
+			if (image.type == DATA && buffer.__srcImageData != null && image.dirty) {
 
 				buffer.__srcContext.putImageData (buffer.__srcImageData, 0, 0);
 				image.dirty = false;
@@ -84,7 +84,7 @@ class ImageCanvasUtil {
 		}
 		#end
 
-		image.__type = CANVAS;
+		image.type = CANVAS;
 
 	}
 
@@ -103,9 +103,9 @@ class ImageCanvasUtil {
 		if (buffer.__srcCanvas != null && buffer.data == null) {
 
 			createImageData (image);
-			if (image.__type == CANVAS) image.dirty = false;
+			if (image.type == CANVAS) image.dirty = false;
 
-		} else if (image.__type == CANVAS && buffer.__srcCanvas != null && image.dirty) {
+		} else if (image.type == CANVAS && buffer.__srcCanvas != null && image.dirty) {
 
 			if (buffer.__srcImageData == null) {
 
@@ -130,7 +130,7 @@ class ImageCanvasUtil {
 		}
 		#end
 
-		image.__type = DATA;
+		image.type = DATA;
 
 	}
 
@@ -430,11 +430,11 @@ class ImageCanvasUtil {
 		if (image == null) return;
 
 		#if (js && html5)
-		if (image.__type == CANVAS && (image.buffer.__srcCanvas != null || image.buffer.data != null)) {
+		if (image.type == CANVAS && (image.buffer.__srcCanvas != null || image.buffer.data != null)) {
 
 			convertToCanvas (image, clear);
 
-		} else if (image.__type == DATA) {
+		} else if (image.type == DATA) {
 
 			convertToData (image, clear);
 

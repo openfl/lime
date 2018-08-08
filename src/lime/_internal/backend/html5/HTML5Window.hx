@@ -99,7 +99,6 @@ class HTML5Window {
 		#if dom
 		attributes.context.type = DOM;
 		attributes.context.version = "";
-		renderType = DOM;
 		#end
 
 		if (Reflect.hasField (attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM) {
