@@ -42,8 +42,8 @@ class ElectronSetup {
 			var window:OpenFLWindow = windows[i];
 			var width:Int = window.width;
 			var height:Int = window.height;
-			if (width < 1200) width = 1200;
-			if (height < 800) height = 800;
+			if (width == 0) width = 800;
+			if (height == 0) height = 600;
 			var frame:Bool = window.borderless == false;
 
 			electron.main.App.on( 'ready', function(e) {
