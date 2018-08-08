@@ -533,6 +533,7 @@ class NativeHTTPRequest {
 
 			if (instance.bytes != null) {
 
+				threadPool.sendProgress ({ instance: instance, promise: instance.promise, bytesLoaded: instance.bytes.length, bytesTotal: instance.bytes.length });
 				threadPool.sendComplete ({ instance: instance, promise: instance.promise, result: instance.bytes });
 
 			} else {
