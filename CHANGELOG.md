@@ -1,4 +1,4 @@
-7.0.0 (08/08/2018)
+7.0.0 (08/09/2018)
 ------------------
 
 * Major API re-design to improve workflow outside of command-line tools
