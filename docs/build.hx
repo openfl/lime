@@ -55,7 +55,7 @@ class Build extends Script {
 		html5.define ("html5");
 		html5.build ();
 
-		System.runCommand ("", "haxelib", [ "run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../assets/docs-theme", "--toplevel-package", "lime" ]);
+		System.runCommand ("", "haxelib", [ "run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "source-path", "https://github.com/openfl/lime/tree/develop/src/", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../assets/docs-theme", "--toplevel-package", "lime" ]);
 
 	}
 
