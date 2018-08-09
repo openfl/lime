@@ -1,3 +1,55 @@
+7.0.0 (08/08/2018)
+------------------
+
+* Major API re-design to improve workflow outside of command-line tools
+* Migrated the core of the command-line tools into a new project called HXP
+* Updated Freetype to 2.9.1
+* Updated Android minimum SDK to API 14 and the default target SDK to API 26
+* Updated window defaults to always enable depth and stencil buffers
+* Updated window defaults to use a 32-bit (instead of 16-bit) backbuffer
+* Removed `lime.graphics.Renderer`, functionality moved to `Window`
+* Removed `lime.app.Config`, moved `app.frameRate` to `Window`
+* Removed `lime.graphics.format.*`, functionality moved to `image.encode`
+* Removed `lime.utils.compress.*`, functionality moved to `lime.utils.Bytes`
+* Removed `lime.ui.Mouse`, functionality moved to `Window`
+* Renamed `lime.app.Preloader` to `lime.utils.Preloader`
+* Removed `lime.text.TextLayout`, replaced with native Harfbuzz bindings
+* Moved `lime.project` types into `lime.tools`
+* Moved `lime.utils.GLUtils` functionality to `GLProgram` and `GLShader`
+* Added new `lime.graphics.RenderContext` with more lightweight API bindings
+* Divided OpenGL support into separate `OPENGL`, `OPENGLES` and `WEBGL` types
+* Compatibility APIs are provided in one direction (GL -> GLES -> WebGL)
+* Added `lime.ui.WindowAttributes` with broader context creation control
+* Sub-classing `Application` now requires no `window` argument for most methods
+* Multi-window applications should listen to `app.onWindowCreate` instead
+* Added support for Haxe Eval target, and beta support for HashLink (on dev)
+* Added Windows 64-bit support, Android ARM64 support, progress on WinRT support
+* Added bindings for the Harfbuzz native text layout library
+* Added `lime.ui.MouseButton` and `lime.ui.MouseWheelMode`
+* Added MojoAL support (as an alternative to OpenAL-Soft) in dev builds
+* Added cURL Multi support
+* Added support for `<config:air languages="" />`
+* Exposed `window.stage` and `window.element` on Flash/HTML5 targets
+* Improved native build times by not relying on macros for CFFI
+* Improved mouse event bindings, improved consistency of mouse wheel behavior
+* Improved HTML5 fullscreen exit to dispatch a restore, not a resize event
+* Improved `lime.math.*` classes to allow for less GC activity
+* Improved support for Electron on Linux to allow for WebGL on more drivers
+* Improved quality for HTML5 frame rate when set to lower than VSync
+* Improved `HTTPRequest` to dispatch a progress event when loading locally
+* Fixed some cases where allocation could occur during native GC
+* Fixed use of future.then when the result is an error condition
+* Fixed issues with some of the equations in `lime.math.*`
+* Fixed warning in Chrome caused by default HTML5 template
+* Fixed unnecessary AL cleanup message on exit
+* Fixed replay of existing native AudioSource sounds
+* Fixed Unicode paths on Windows when returning paths from the system
+* Fixed pasting Clipboard data when application first launches
+* Fixed webfont loading on mobile Safari
+* Fixed issue with AL.source3i types
+* Fixed support for iOS entitlements paths that include spaces
+
+
 6.4.0 (06/01/2018)
 ------------------
 
@@ -64,7 +116,7 @@
 * Fixed support for a software fallback when GL support is too old
 * Fixed a regression in support for static desktop builds
 * Fixed a possible garbage collection issue in cURL support
-* Fixed calling `UTF8String.substr()` internally without a length field 
+* Fixed calling `UTF8String.substr()` internally without a length field
 * Fixed request of keyboard input on WebKit when in fullscreen
 * Fixed a possible issue when building on macOS with spaces in the Lime directory
 * Fixed the behavior of `embed="false"` assets on HTML5
@@ -1137,7 +1189,7 @@
 * Improved the behavior of image getPixel/setPixel
 * Fixed native fillRect/floodFill when using certain color values
 * Improved color conversion support for Flash
-* Fixed issue preventing Neko from reading 32-bit integers correctly 
+* Fixed issue preventing Neko from reading 32-bit integers correctly
 
 
 2.5.1 (07/21/2015)
@@ -1286,7 +1338,7 @@
 * Minor fix to image premultiply alpha
 * Minor fix to "lime create" command
 * Minor fix to rectangle.transform
-* Fixed Windows Neko builds when not running on Windows 
+* Fixed Windows Neko builds when not running on Windows
 
 
 2.4.1 (05/13/2015)
@@ -1332,7 +1384,7 @@
 
 * Improved performance of pixel-based operations in Image
 * Added support for RGBA (default) and ARGB color order
-* Added --port=123 to change the webserver port on HTML5 builds 
+* Added --port=123 to change the webserver port on HTML5 builds
 * Added support for Unicode Windows system paths
 * Added larger icon sizes requested by Windows 10
 * Improved functionality of BMP.encode
@@ -1517,7 +1569,7 @@
 * Improved the Windows ICO generation support
 * Added support for embedded ICO resources in Windows applications
 * Added caching to improve performance when icons exist
-* Added lime.graphics.format.JPEG/PNG/BMP classes for encoding 
+* Added lime.graphics.format.JPEG/PNG/BMP classes for encoding
 * Improved KeyCode so it automatically casts to/from Int
 * Improved the behavior of Android ADB management
 * Migrated to an "Asset Catalog" for iOS icons and launch images
@@ -1594,7 +1646,7 @@
 ------------------
 
 * Improved the "lime rebuild" command
-* Added a "-dryrun" flag to help test the tools 
+* Added a "-dryrun" flag to help test the tools
 * Fixed zero width/height in lime.graphics.Image
 * Populate environment with HXCPP config defines
 * Fixed double dispatch of HTML5 mouse events
