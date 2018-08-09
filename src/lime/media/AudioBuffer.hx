@@ -14,7 +14,7 @@ import lime.net.HTTPRequest;
 import lime.utils.Log;
 import lime.utils.UInt8Array;
 
-#if howlerjs
+#if lime_howlerjs
 import lime.media.howlerjs.Howl;
 #end
 #if (js && html5)
@@ -49,7 +49,7 @@ class AudioBuffer {
 	@:noCompletion private var __srcAudio:#if (js && html5) Audio #else Dynamic #end;
 	@:noCompletion private var __srcBuffer:#if lime_cffi ALBuffer #else Dynamic #end;
 	@:noCompletion private var __srcCustom:Dynamic;
-	@:noCompletion private var __srcHowl:#if howlerjs Howl #else Dynamic #end;
+	@:noCompletion private var __srcHowl:#if lime_howlerjs Howl #else Dynamic #end;
 	@:noCompletion private var __srcSound:#if flash Sound #else Dynamic #end;
 	@:noCompletion private var __srcVorbisFile:#if lime_vorbis VorbisFile #else Dynamic #end;
 
@@ -75,7 +75,7 @@ class AudioBuffer {
 
 	public function dispose ():Void {
 
-		#if (js && html5 && howlerjs)
+		#if (js && html5 && lime_howlerjs)
 
 		__srcHowl.unload ();
 
@@ -88,7 +88,7 @@ class AudioBuffer {
 
 		if (base64String == null) return null;
 
-		#if (js && html5 && howlerjs)
+		#if (js && html5 && lime_howlerjs)
 
 		// if base64String doesn't contain codec data, add it.
 		if (base64String.indexOf(",") == -1) {
@@ -144,7 +144,7 @@ class AudioBuffer {
 
 		if (bytes == null) return null;
 
-		#if (js && html5 && howlerjs)
+		#if (js && html5 && lime_howlerjs)
 
 		var	audioBuffer = new AudioBuffer ();
 		audioBuffer.src = new Howl ({ src: [ "data:" + __getCodec (bytes) + ";base64," + Base64.encode (bytes) ], html5: true, preload: false });
@@ -186,7 +186,7 @@ class AudioBuffer {
 
 		if (path == null) return null;
 
-		#if (js && html5 && howlerjs)
+		#if (js && html5 && lime_howlerjs)
 
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.__srcHowl = new Howl ({ src: [ path ], preload: false });
@@ -242,7 +242,7 @@ class AudioBuffer {
 
 	public static function fromFiles (paths:Array<String>):AudioBuffer {
 
-		#if (js && html5 && howlerjs)
+		#if (js && html5 && lime_howlerjs)
 
 		var audioBuffer = new AudioBuffer ();
 		audioBuffer.__srcHowl = new Howl ({ src: paths, preload: false });
@@ -321,7 +321,7 @@ class AudioBuffer {
 
 			audioBuffer.__srcSound.addEventListener (flash.events.IOErrorEvent.IO_ERROR, promise.error);
 
-			#elseif (js && html5 && howlerjs)
+			#elseif (js && html5 && lime_howlerjs)
 
 			if (audioBuffer != null) {
 
@@ -383,7 +383,7 @@ class AudioBuffer {
 
 		var promise = new Promise<AudioBuffer> ();
 
-		#if (js && html5 && howlerjs)
+		#if (js && html5 && lime_howlerjs)
 
 		var audioBuffer = AudioBuffer.fromFiles (paths);
 
@@ -456,7 +456,7 @@ class AudioBuffer {
 	@:noCompletion private function get_src ():Dynamic {
 
 		#if (js && html5)
-		#if howlerjs
+		#if lime_howlerjs
 
 		return __srcHowl;
 
@@ -485,7 +485,7 @@ class AudioBuffer {
 	@:noCompletion private function set_src (value:Dynamic):Dynamic {
 
 		#if (js && html5)
-		#if howlerjs
+		#if lime_howlerjs
 
 		return __srcHowl = value;
 

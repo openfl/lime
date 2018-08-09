@@ -47,7 +47,7 @@ class HTML5AudioSource {
 
 	public function play ():Void {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		if (playing || parent.buffer == null || parent.buffer.__srcHowl == null) {
 
@@ -82,7 +82,7 @@ class HTML5AudioSource {
 
 	public function pause ():Void {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		playing = false;
 
@@ -99,7 +99,7 @@ class HTML5AudioSource {
 
 	public function stop ():Void {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		playing = false;
 
@@ -123,7 +123,7 @@ class HTML5AudioSource {
 
 	private function howl_onEnd () {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		playing = false;
 
@@ -164,7 +164,7 @@ class HTML5AudioSource {
 
 		}
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		if (completed) {
 
@@ -187,7 +187,7 @@ class HTML5AudioSource {
 
 	public function setCurrentTime (value:Int):Int {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		if (parent.buffer != null && parent.buffer.__srcHowl != null) {
 
@@ -214,7 +214,7 @@ class HTML5AudioSource {
 
 	public function setGain (value:Float):Float {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		// set howler volume only if we have an active id.
 		// Passing -1 might create issues in future play()'s.
@@ -240,7 +240,7 @@ class HTML5AudioSource {
 
 		}
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		if (parent.buffer != null && parent.buffer.__srcHowl != null) {
 
@@ -278,7 +278,7 @@ class HTML5AudioSource {
 
 	public function getPosition ():Vector4 {
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		// TODO: Use 3D audio plugin
 
@@ -296,7 +296,7 @@ class HTML5AudioSource {
 		position.z = value.z;
 		position.w = value.w;
 
-		#if howlerjs
+		#if lime_howlerjs
 
 		// TODO: Use 3D audio plugin
 
