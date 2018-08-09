@@ -769,6 +769,7 @@ class AssetLibrary {
 		for (asset in manifest.assets) {
 
 			size = hasSize ? asset.size : 100;
+			if (size == null) size = 100;
 			id = asset.id;
 
 			if (Reflect.hasField (asset, "path")) {
