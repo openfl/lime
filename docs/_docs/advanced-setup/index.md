@@ -1,3 +1,0 @@
----
-title: Advanced Setup
----

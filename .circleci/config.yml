@@ -33,7 +33,7 @@ jobs:
          paths:
           - usr/local/lib/haxe/lib/*/.dev
           - workspace
-  
+
   HTML5 (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
@@ -52,7 +52,7 @@ jobs:
      - run: haxelib run lime build HelloWorld html5 -Ddom
      - run: haxelib run lime build SimpleAudio html5 -Ddom
      - run: haxelib run lime build SimpleImage html5 -Ddom
-  
+
   Neko (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
@@ -69,7 +69,7 @@ jobs:
      - run: haxelib run lime build HelloWorld neko -Dcairo
      - run: haxelib run lime build SimpleAudio neko -Dcairo
      - run: haxelib run lime build SimpleImage neko -Dcairo
-  
+
   C++ (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
@@ -83,7 +83,7 @@ jobs:
      - run: haxelib run lime build HelloWorld linux
      - run: haxelib run lime build SimpleAudio linux
      - run: haxelib run lime build SimpleImage linux
-  
+
   Flash (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.2
@@ -96,11 +96,11 @@ jobs:
      - run: haxelib run lime build HelloWorld flash
      - run: haxelib run lime build SimpleAudio flash
      - run: haxelib run lime build SimpleImage flash
-  
+
   Documentation (Haxe 3.4.x):
     docker:
      - image: openfl/openfl-tests-unit-3.4:0.0.5
-    working_directory: /workspace/lime/docs/api
+    working_directory: /workspace/lime/docs
     steps:
      - attach_workspace:
          at: /
@@ -125,7 +125,7 @@ jobs:
 
 workflows:
   version: 2
-  
+
   Tests (Haxe 3.4.x):
     jobs:
      - Setup (Haxe 3.4.x)
