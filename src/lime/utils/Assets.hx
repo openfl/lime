@@ -182,7 +182,7 @@ class Assets {
 
 	/**
 	 * Gets an instance of an embedded sound
-	 * @usage		var sound = Assets.getSound("sound.wav");
+	 * @usage		var sound = Assets.getAudioBuffer ("sound.wav");
 	 * @param	id		The ID or asset path for the sound
 	 * @return		A new Sound object
 	 */
