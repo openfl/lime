@@ -88,6 +88,8 @@ class HTML5Window {
 		var attributes = parent.__attributes;
 		if (!Reflect.hasField (attributes, "context")) attributes.context = {};
 
+		renderType = attributes.context.type;
+
 		if (Reflect.hasField (attributes, "element")) {
 
 			parent.element = attributes.element;
