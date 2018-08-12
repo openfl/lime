@@ -433,7 +433,7 @@ class AudioBuffer {
 
 				switch ([bytes.get(0), bytes.get(1), bytes.get(2)]) {
 
-					case [73, 68, 51] | [255, 251, _] | [255, 250, _]: return "audio/mp3";
+					case [73, 68, 51] | [255, 251, _] | [255, 250, _] | [255, 243, _]: return "audio/mp3";
 					default:
 
 				}
