@@ -103,7 +103,6 @@ class TizenPlatform extends PlatformTarget {
 		var template = new Template (File.getContent (hxml));
 
 		Sys.println (template.execute (context));
-		Sys.println ("-D display");
 
 	}
 

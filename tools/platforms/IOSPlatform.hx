@@ -404,7 +404,7 @@ class IOSPlatform extends PlatformTarget {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 
-		return template.execute (context) + "\n-D display";
+		return template.execute (context);
 
 	}
 
