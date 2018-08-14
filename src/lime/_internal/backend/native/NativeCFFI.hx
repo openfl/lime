@@ -53,7 +53,9 @@ typedef CFFIPointer = Dynamic;
 #end
 
 #if (!macro && !lime_doc_gen)
+#if (disable_cffi || haxe_ver < "3.4.0"))
 @:build(lime.system.CFFI.build())
+#end
 #end
 
 
