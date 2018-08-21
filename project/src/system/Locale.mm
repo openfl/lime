@@ -17,7 +17,16 @@ namespace lime {
 		#endif
 
 		NSString* localeLanguage = [[NSLocale preferredLanguages] firstObject];
-		NSString* localeRegion = [[NSLocale currentLocale] countryCode];
+		if (localeLanguage == nil) localeLanguage = @"en";
+
+		NSString* localeRegion = nil;
+		NSLocale* currentLocale = [NSLocale autoupdatingCurrentLocale];
+		if (currentLocale == nil || ![currentLocale respondsToSelector:@selector(countryCode)]) {
+			localeRegion = @"";
+		} else {
+			localeRegion = [currentLocale countryCode];
+		}
+
 		NSString* locale = [[localeLanguage stringByAppendingString:@"_"] stringByAppendingString:localeRegion];
 
 		std::string* result = 0;
