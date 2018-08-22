@@ -397,12 +397,12 @@ class WindowsPlatform extends PlatformTarget {
 
 		if (targetType != "winjs") {
 
-			if (project.environment.exists ("VS110COMNTOOLS") && project.environment.exists ("VS100COMNTOOLS")) {
+			// if (project.environment.exists ("VS110COMNTOOLS") && project.environment.exists ("VS100COMNTOOLS")) {
 
-				project.environment.set ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
-				Sys.putEnv ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
+				// project.environment.set ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
+				// Sys.putEnv ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
 
-			}
+			// }
 
 			var commands = [];
 
