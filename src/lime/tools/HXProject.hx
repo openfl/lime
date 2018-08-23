@@ -1304,7 +1304,27 @@ class HXProject extends Script {
 
 			if (Haxelib.pathOverrides.exists (name)) {
 
-				var param = "-cp " + Haxelib.pathOverrides.get (name);
+				var path = Haxelib.pathOverrides.get (name);
+				var jsonPath = Path.combine (path, "haxelib.json");
+				var added = false;
+
+				try {
+
+					if (FileSystem.exists (jsonPath)) {
+
+						var json = Json.parse (File.getContent (jsonPath));
+						if (Reflect.hasField (json, "classPath")) {
+							path = Path.combine (path, json.classPath);
+						}
+
+						var haxelibName = json.name;
+						compilerFlags = ArrayTools.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+
+					}
+
+				} catch (e:Dynamic) {}
+
+				var param = "-cp " + path;
 				compilerFlags.remove (param);
 				compilerFlags.push (param);
 
