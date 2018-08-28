@@ -541,7 +541,7 @@ namespace lime {
 	value lime_hb_buffer_get_language (value buffer) {
 
 		hb_language_t language = hb_buffer_get_language ((hb_buffer_t*)val_data (buffer));
-		return CFFIPointer (&language);
+		return CFFIPointer ((void*)language);
 
 	}
 
@@ -549,7 +549,7 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* hl_lime_hb_buffer_get_language (HL_CFFIPointer* buffer) {
 
 		hb_language_t language = hb_buffer_get_language ((hb_buffer_t*)buffer->ptr);
-		return HLCFFIPointer (&language);
+		return HLCFFIPointer ((void*)language);
 
 	}
 
@@ -834,14 +834,14 @@ namespace lime {
 
 	void lime_hb_buffer_set_language (value buffer, value language) {
 
-		hb_buffer_set_language ((hb_buffer_t*)val_data (buffer), *(hb_language_t*)val_data (language));
+		hb_buffer_set_language ((hb_buffer_t*)val_data (buffer), (hb_language_t)val_data (language));
 
 	}
 
 
 	HL_PRIM void hl_lime_hb_buffer_set_language (HL_CFFIPointer* buffer, HL_CFFIPointer* language) {
 
-		hb_buffer_set_language ((hb_buffer_t*)buffer->ptr, *(hb_language_t*)language->ptr);
+		hb_buffer_set_language ((hb_buffer_t*)buffer->ptr, (hb_language_t)language->ptr);
 
 	}
 
@@ -1543,7 +1543,7 @@ namespace lime {
 	value lime_hb_language_from_string (HxString str) {
 
 		hb_language_t language = hb_language_from_string (str.c_str (), str.length);
-		return CFFIPointer (&language);
+		return CFFIPointer ((void*)language);
 
 	}
 
@@ -1551,7 +1551,7 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* hl_lime_hb_language_from_string (hl_vstring* str) {
 
 		hb_language_t language = hb_language_from_string (str ? hl_to_utf8 (str->bytes) : NULL, str ? str->length : 0);
-		return HLCFFIPointer (&language);
+		return HLCFFIPointer ((void*)language);
 
 	}
 
@@ -1559,7 +1559,7 @@ namespace lime {
 	value lime_hb_language_get_default () {
 
 		hb_language_t language = hb_language_get_default ();
-		return CFFIPointer (&language);
+		return CFFIPointer ((void*)language);
 
 	}
 
@@ -1567,15 +1567,15 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* hl_lime_hb_language_get_default () {
 
 		hb_language_t language = hb_language_get_default ();
-		return HLCFFIPointer (&language);
+		return HLCFFIPointer ((void*)language);
 
 	}
 
 
 	value lime_hb_language_to_string (value language) {
 
-		hb_language_t* _language = (hb_language_t*)val_data (language);
-		const char* result = hb_language_to_string (*_language);
+		hb_language_t _language = (hb_language_t)val_data (language);
+		const char* result = hb_language_to_string (_language);
 		return alloc_string (result);
 
 	}
@@ -1583,8 +1583,8 @@ namespace lime {
 
 	HL_PRIM vbyte* hl_lime_hb_language_to_string (HL_CFFIPointer* language) {
 
-		hb_language_t* _language = (hb_language_t*)language->ptr;
-		const char* result = hb_language_to_string (*_language);
+		hb_language_t _language = (hb_language_t)language->ptr;
+		const char* result = hb_language_to_string (_language);
 		return (vbyte*)result;
 
 	}
