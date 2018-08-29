@@ -320,6 +320,7 @@ class NativeHTTPRequest {
 
 				multiInstances.set (curl, this);
 				multi.addHandle (curl);
+				multi.perform ();
 
 				if (multiTimer == null) {
 
