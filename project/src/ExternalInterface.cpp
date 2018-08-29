@@ -452,6 +452,8 @@ namespace lime {
 
 	double lime_bytes_get_data_pointer_offset (value bytes, int offset) {
 
+		if (val_is_null (bytes)) return 0;
+
 		Bytes data = Bytes (bytes);
 		return (uintptr_t)data.b + offset;
 
@@ -460,6 +462,7 @@ namespace lime {
 
 	HL_PRIM double hl_lime_bytes_get_data_pointer_offset (Bytes* bytes, int offset) {
 
+		if (!bytes) return 0;
 		return (uintptr_t)bytes->b + offset;
 
 	}
