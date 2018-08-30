@@ -36,7 +36,7 @@ import lime._internal.backend.html5.HTML5HTTPRequest;
 #end
 import js.html.CanvasElement;
 import js.html.ImageElement;
-import js.html.Image in JSImage;
+import js.html.Image as JSImage;
 import js.Browser;
 #elseif flash
 import flash.display.Bitmap;

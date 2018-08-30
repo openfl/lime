@@ -13,7 +13,7 @@ import flash.events.TouchEvent;
 import flash.geom.Matrix;
 import flash.system.Capabilities;
 import flash.ui.Mouse;
-import flash.ui.MouseCursor in FlashMouseCursor;
+import flash.ui.MouseCursor as FlashMouseCursor;
 import flash.Lib;
 import lime.app.Application;
 import lime.graphics.Image;
