@@ -70,7 +70,7 @@
 			<![CDATA[
 				::if (IOS_TARGET_DEVICES != null)::<key>UIDeviceFamily</key>
 				<array>::foreach IOS_TARGET_DEVICES::
-					<string>__current__</string>::end::
+					<string>::__current__::</string>::end::
 				</array>::end::
 			]]>
 		</InfoAdditions>
