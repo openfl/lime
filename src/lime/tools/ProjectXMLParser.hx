@@ -2212,7 +2212,7 @@ class ProjectXMLParser extends HXProject {
 
 					}
 
-				case "parameters":
+				case "parameters", "title":
 
 					if (Reflect.hasField (windows[id], name)) {
 
