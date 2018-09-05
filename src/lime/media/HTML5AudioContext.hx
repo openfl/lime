@@ -378,7 +378,7 @@ class HTML5AudioContext {
 		#if (js && html5)
 		if (buffer.__srcAudio != null) {
 
-			return buffer.__srcAudio.load ();
+			buffer.__srcAudio.load ();
 
 		}
 		#end
@@ -391,7 +391,7 @@ class HTML5AudioContext {
 		#if (js && html5)
 		if (buffer.__srcAudio != null) {
 
-			return buffer.__srcAudio.pause ();
+			buffer.__srcAudio.pause ();
 
 		}
 		#end
@@ -404,7 +404,7 @@ class HTML5AudioContext {
 		#if (js && html5)
 		if (buffer.__srcAudio != null) {
 
-			return buffer.__srcAudio.play ();
+			buffer.__srcAudio.play ();
 
 		}
 		#end
