@@ -1175,6 +1175,12 @@ class ProjectXMLParser extends HXProject {
 						haxedefs.set (name, value);
 						environment.set (name, value);
 
+					case "undefine":
+
+						defines.remove (element.att.name);
+						haxedefs.remove (element.att.name);
+						environment.remove (element.att.name);
+
 					case "setenv":
 
 						var value = "";
