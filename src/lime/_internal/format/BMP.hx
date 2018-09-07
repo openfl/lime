@@ -49,7 +49,7 @@ class BMP {
 
 			case RGB:
 
-				pixelValuesLength = (image.width * 3) + ((image.width * 3) % 4) + (image.height * 3) + (image.height * 3);
+				pixelValuesLength = ((image.width * 3) + ((image.width * 3) % 4)) * image.height;
 
 			default:
 
