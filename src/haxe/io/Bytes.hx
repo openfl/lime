@@ -575,8 +575,10 @@ class Bytes {
 
 
 #if !nodejs
+#if (haxe_ver < 4.0)
 import js.html.compat.Uint8Array;
 import js.html.compat.DataView;
+#end
 #end
 
 #if !macro
