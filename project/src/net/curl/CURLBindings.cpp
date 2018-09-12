@@ -562,8 +562,10 @@ namespace lime {
 					writeBuffers[easy_handle] = NULL;
 					writeBufferSize[easy_handle] = 0;
 
+					value _bytes = bytes->Value ((value)bytesRoot->Get ());
+
 					curl_gc_mutex.Unlock ();
-					length = val_int ((value)writeCallback->Call (bytes->Value ((value)bytesRoot->Get ())));
+					length = val_int ((value)writeCallback->Call (_bytes));
 					curl_gc_mutex.Lock ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
