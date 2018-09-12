@@ -96,7 +96,7 @@ namespace lime {
 
 	void Bytes::Resize (int size) {
 
-		if (size != length) {
+		if (size != length || (length > 0 && !b)) {
 
 			if (size <= 0) {
 
@@ -264,6 +264,7 @@ namespace lime {
 
 			}
 
+			// TODO: Should this be freed on the destructor instead? Solution for HashLink?
 			free (b);
 			b = NULL;
 

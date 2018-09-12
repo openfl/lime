@@ -435,6 +435,13 @@ class NativeHTTPRequest {
 		var message = multi.infoRead ();
 		var curl, instance, status;
 
+		if (message == null && multi.runningHandles == 0) {
+
+			multiTimer.stop ();
+			multiTimer = null;
+
+		}
+
 		while (message != null) {
 
 			curl = message.curl;
@@ -489,13 +496,6 @@ class NativeHTTPRequest {
 			}
 
 			message = multi.infoRead ();
-
-		}
-
-		if (multi.runningHandles == 0) {
-
-			multiTimer.stop ();
-			multiTimer = null;
 
 		}
 
