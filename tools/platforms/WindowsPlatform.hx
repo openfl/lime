@@ -406,20 +406,6 @@ class WindowsPlatform extends PlatformTarget {
 
 			var commands = [];
 
-			if (!targetFlags.exists ("32") && System.hostArchitecture == X64) {
-
-				if (targetFlags.exists ("winrt")) {
-
-					commands.push ([ "-Dwinrt", "-DHXCPP_M64" ]);
-
-				} else {
-
-					commands.push ([ "-Dwindows", "-DHXCPP_M64" ]);
-
-				}
-
-			}
-
 			if (!targetFlags.exists ("64") && (command == "rebuild" || System.hostArchitecture == X86)) {
 
 				if (targetFlags.exists ("winrt")) {
@@ -429,6 +415,24 @@ class WindowsPlatform extends PlatformTarget {
 				} else {
 
 					commands.push ([ "-Dwindows", "-DHXCPP_M32" ]);
+
+				}
+
+			}
+
+			// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
+			// as previous Windows builds. For now, force -64 to be done last
+			// so that it can be debugged in a default "rebuild"
+
+			if (!targetFlags.exists ("32") && System.hostArchitecture == X64) {
+
+				if (targetFlags.exists ("winrt")) {
+
+					commands.push ([ "-Dwinrt", "-DHXCPP_M64" ]);
+
+				} else {
+
+					commands.push ([ "-Dwindows", "-DHXCPP_M64" ]);
 
 				}
 
