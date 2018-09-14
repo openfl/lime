@@ -459,6 +459,7 @@
 				<lib name="-ldl" />
 				<lib name="-llog" />
 				<lib name="-landroid" />
+				<lib name="-lm" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv2" />
 				<lib name="-lGLESv1_CM" />
