@@ -32,7 +32,7 @@ This product bundles mbedTLS 2.6.0, which is available under an
 "Apache 2.0" license. For details, see [project/lib/mbedtls/](project/lib).
 
 This product bundles OpenAL-Soft 1.19.0, which is available under an
-"LGPLv3" license. For details, see [project/lib/openal/](project/lib).
+"LGPLv2" license. For details, see [project/lib/openal/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
