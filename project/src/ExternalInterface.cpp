@@ -704,7 +704,6 @@ namespace lime {
 
 	HL_PRIM vbyte* hl_lime_file_dialog_open_directory (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 
-		#ifndef EMSCRIPTEN
 		#ifdef LIME_TINYFILEDIALOGS
 
 		std::wstring* _title = hxstring_to_wstring (title);
@@ -732,7 +731,6 @@ namespace lime {
 
 		}
 
-		#endif
 		#endif
 
 		return NULL;
@@ -775,7 +773,6 @@ namespace lime {
 
 	HL_PRIM vbyte* hl_lime_file_dialog_open_file (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 
-		#ifndef EMSCRIPTEN
 		#ifdef LIME_TINYFILEDIALOGS
 
 		std::wstring* _title = hxstring_to_wstring (title);
@@ -803,7 +800,6 @@ namespace lime {
 
 		}
 
-		#endif
 		#endif
 
 		return NULL;
@@ -846,7 +842,6 @@ namespace lime {
 
 	HL_PRIM hl_varray* hl_lime_file_dialog_open_files (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 
-		#ifndef EMSCRIPTEN
 		#ifdef LIME_TINYFILEDIALOGS
 
 		std::wstring* _title = hxstring_to_wstring (title);
@@ -876,7 +871,6 @@ namespace lime {
 
 		#else
 		hl_varray* result = hl_alloc_array (&hlt_bytes, 0);
-		#endif
 		#endif
 
 		return result;
@@ -919,7 +913,6 @@ namespace lime {
 
 	HL_PRIM vbyte* hl_lime_file_dialog_save_file (hl_vstring* title, hl_vstring* filter, hl_vstring* defaultPath) {
 
-		#ifndef EMSCRIPTEN
 		#ifdef LIME_TINYFILEDIALOGS
 
 		std::wstring* _title = hxstring_to_wstring (title);
@@ -947,7 +940,6 @@ namespace lime {
 
 		}
 
-		#endif
 		#endif
 
 		return NULL;
