@@ -43,6 +43,7 @@ typedef RenderContextAttributes = {
 		The type of render context requested
 	**/
 	@:optional var type:RenderContextType;
+	
 	@:optional var version:String;
 
 	/**

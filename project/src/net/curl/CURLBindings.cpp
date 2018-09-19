@@ -65,7 +65,7 @@ namespace lime {
 			if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
 
 				value multi_handle = (value)curlMultiReferences[handle];
-				curl_multi_remove_handle ((CURLM*)val_data (multi_handle), handle);
+				curl_multi_remove_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (handle));
 				curlMultiReferences.erase (handle);
 
 			}
@@ -178,7 +178,7 @@ namespace lime {
 			if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
 
 				HL_CFFIPointer* multi_handle = (HL_CFFIPointer*)curlMultiReferences[handle];
-				curl_multi_remove_handle ((CURLM*)multi_handle->ptr, handle);
+				curl_multi_remove_handle ((CURLM*)multi_handle->ptr, (CURL*)handle->ptr);
 				curlMultiReferences.erase (handle);
 
 			}
@@ -562,8 +562,10 @@ namespace lime {
 					writeBuffers[easy_handle] = NULL;
 					writeBufferSize[easy_handle] = 0;
 
+					value _bytes = bytes->Value ((value)bytesRoot->Get ());
+
 					curl_gc_mutex.Unlock ();
-					length = val_int ((value)writeCallback->Call (bytes->Value ((value)bytesRoot->Get ())));
+					length = val_int ((value)writeCallback->Call (_bytes));
 					curl_gc_mutex.Lock ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {

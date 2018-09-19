@@ -388,7 +388,7 @@ class WindowsPlatform extends PlatformTarget {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 
-		return template.execute (context) + "\n-D display";
+		return template.execute (context);
 
 	}
 
@@ -397,28 +397,14 @@ class WindowsPlatform extends PlatformTarget {
 
 		if (targetType != "winjs") {
 
-			if (project.environment.exists ("VS110COMNTOOLS") && project.environment.exists ("VS100COMNTOOLS")) {
+			// if (project.environment.exists ("VS110COMNTOOLS") && project.environment.exists ("VS100COMNTOOLS")) {
 
-				project.environment.set ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
-				Sys.putEnv ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
+				// project.environment.set ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
+				// Sys.putEnv ("HXCPP_MSVC", project.environment.get ("VS100COMNTOOLS"));
 
-			}
+			// }
 
 			var commands = [];
-
-			if (!targetFlags.exists ("32") && System.hostArchitecture == X64) {
-
-				if (targetFlags.exists ("winrt")) {
-
-					commands.push ([ "-Dwinrt", "-DHXCPP_M64" ]);
-
-				} else {
-
-					commands.push ([ "-Dwindows", "-DHXCPP_M64" ]);
-
-				}
-
-			}
 
 			if (!targetFlags.exists ("64") && (command == "rebuild" || System.hostArchitecture == X86)) {
 
@@ -429,6 +415,24 @@ class WindowsPlatform extends PlatformTarget {
 				} else {
 
 					commands.push ([ "-Dwindows", "-DHXCPP_M32" ]);
+
+				}
+
+			}
+
+			// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
+			// as previous Windows builds. For now, force -64 to be done last
+			// so that it can be debugged in a default "rebuild"
+
+			if (!targetFlags.exists ("32") && System.hostArchitecture == X64) {
+
+				if (targetFlags.exists ("winrt")) {
+
+					commands.push ([ "-Dwinrt", "-DHXCPP_M64" ]);
+
+				} else {
+
+					commands.push ([ "-Dwindows", "-DHXCPP_M64" ]);
 
 				}
 

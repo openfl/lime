@@ -1175,6 +1175,12 @@ class ProjectXMLParser extends HXProject {
 						haxedefs.set (name, value);
 						environment.set (name, value);
 
+					case "undefine":
+
+						defines.remove (element.att.name);
+						haxedefs.remove (element.att.name);
+						environment.remove (element.att.name);
+
 					case "setenv":
 
 						var value = "";
@@ -2212,7 +2218,7 @@ class ProjectXMLParser extends HXProject {
 
 					}
 
-				case "parameters":
+				case "parameters", "title":
 
 					if (Reflect.hasField (windows[id], name)) {
 

@@ -16,7 +16,7 @@ This product bundles efsw, which is available under an
 This product bundles freetype 2.9.1, which is available under an
 "FTL" (BSD-style) license. For details, see [project/lib/freetype/](project/lib).
 
-This product bundles harfbuzz 1.4.6, which is available under an
+This product bundles harfbuzz 1.8.8, which is available under an
 "MIT" license. For details, see [project/lib/harfbuzz/](project/lib).
 
 This product bundles libjpeg 6b, which is available under a
@@ -31,8 +31,8 @@ public domain. For details, see [project/lib/lzma/](project/lzma).
 This product bundles mbedTLS 2.6.0, which is available under an
 "Apache 2.0" license. For details, see [project/lib/mbedtls/](project/lib).
 
-This product bundles OpenAL-Soft 1.17.2, which is available under an
-"LGPLv3" license. For details, see [project/lib/openal/](project/lib).
+This product bundles OpenAL-Soft 1.19.0, which is available under an
+"LGPLv2" license. For details, see [project/lib/openal/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._

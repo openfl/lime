@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "7.0.0",
-	"releasenote": "",
+	"releasenote": "Major API re-design, migrated core of tools to HXP, initial HashLink support",
 	"contributors": [ "singmajesty" ],
 	"classPath": "src"
 }

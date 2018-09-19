@@ -4,7 +4,7 @@ package lime.utils;
 import haxe.io.BytesData;
 import haxe.io.Bytes;
 import lime.system.CFFIPointer;
-import lime.utils.Bytes in LimeBytes;
+import lime.utils.Bytes as LimeBytes;
 
 #if (lime_cffi && !macro)
 import lime._internal.backend.native.NativeCFFI;

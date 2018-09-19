@@ -1,0 +1,16 @@
+hxml/flash.hxml
+--next
+hxml/windows.hxml
+--next
+hxml/mac.hxml
+--next
+hxml/linux.hxml
+--next
+hxml/ios.hxml
+--next
+hxml/android.hxml
+--next
+hxml/html5.hxml
+--next
+
+-cmd haxelib run dox -i xml -in lime --title "Lime API Reference" -D website "http://lime.software" -D source-path "https://github.com/openfl/lime/tree/develop/src/" -D logo "/images/logo.png" -D textColor 0x777777 -theme ../assets/docs-theme --toplevel-package lime

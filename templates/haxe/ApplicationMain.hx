@@ -8,23 +8,23 @@ import ::APP_MAIN::;
 
 
 @:dox(hide) class ApplicationMain {
-	
-	
+
+
 	public static function main () {
-		
+
 		lime.system.System.__registerEntryPoint ("::APP_FILE::", create);
-		
+
 		#if (!html5 || munit)
 		create (null);
 		#end
-		
+
 	}
-	
-	
+
+
 	public static function create (config:Dynamic):Void {
-		
+
 		ManifestResources.init (config);
-		
+
 		#if !munit
 		var app = new ::APP_MAIN:: ();
 		app.meta.set ("build", "::meta.buildNumber::");
@@ -32,11 +32,12 @@ import ::APP_MAIN::;
 		app.meta.set ("file", "::APP_FILE::");
 		app.meta.set ("name", "::meta.title::");
 		app.meta.set ("packageName", "::meta.packageName::");
-		
+		app.meta.set ("version", "::meta.version::");
+
 		#if !flash
 		::foreach windows::
 		var attributes:lime.ui.WindowAttributes = {
-			
+
 			allowHighDPI: ::allowHighDPI::,
 			alwaysOnTop: ::alwaysOnTop::,
 			borderless: ::borderless::,
@@ -54,11 +55,11 @@ import ::APP_MAIN::;
 			width: ::width::,
 			x: ::x::,
 			y: ::y::,
-			
+
 		};
-		
+
 		attributes.context = {
-			
+
 			antialiasing: ::antialiasing::,
 			background: ::background::,
 			colorDepth: ::colorDepth::,
@@ -67,91 +68,91 @@ import ::APP_MAIN::;
 			stencil: ::stencilBuffer::,
 			type: null,
 			vsync: ::vsync::
-			
+
 		};
-		
+
 		if (app.window == null) {
-			
+
 			if (config != null) {
-				
+
 				for (field in Reflect.fields (config)) {
-					
+
 					if (Reflect.hasField (attributes, field)) {
-						
+
 						Reflect.setField (attributes, field, Reflect.field (config, field));
-						
+
 					} else if (Reflect.hasField (attributes.context, field)) {
-						
+
 						Reflect.setField (attributes.context, field, Reflect.field (config, field));
-						
+
 					}
-					
+
 				}
-				
+
 			}
-			
+
 			#if sys
 			lime.system.System.__parseArguments (attributes);
 			#end
-			
+
 		}
-		
+
 		app.createWindow (attributes);
 		::end::
 		#elseif !air
-		
+
 		app.window.context.attributes.background = ::WIN_BACKGROUND::;
 		app.window.frameRate = ::WIN_FPS::;
-		
+
 		#end
 		#end
-		
+
 		// preloader.create ();
-		
+
 		for (library in ManifestResources.preloadLibraries) {
-			
+
 			app.preloader.addLibrary (library);
-			
+
 		}
-		
+
 		for (name in ManifestResources.preloadLibraryNames) {
-			
+
 			app.preloader.addLibraryName (name);
-			
+
 		}
-		
+
 		app.preloader.load ();
-		
+
 		#if !munit
 		start (app);
 		#end
-		
+
 	}
-	
-	
+
+
 	public static function start (app:lime.app.Application = null):Void {
-		
+
 		#if !munit
-		
+
 		var result = app.exec ();
-		
+
 		#if (sys && !ios && !nodejs && !emscripten)
 		lime.system.System.exit (result);
 		#end
-		
+
 		#else
-		
+
 		new ::APP_MAIN:: ();
-		
+
 		#end
-		
+
 	}
-	
-	
+
+
 	@:noCompletion @:dox(hide) public static function __init__ () {
-		
+
 		var init = lime.app.Application;
-		
+
 		#if neko
 		// Copy from https://github.com/HaxeFoundation/haxe/blob/development/std/neko/_std/Sys.hx#L164
 		// since Sys.programPath () isn't available in __init__
@@ -172,14 +173,14 @@ import ::APP_MAIN::;
 				}
 			}
 		};
-		
+
 		var loader = new neko.vm.Loader (untyped $loader);
 		loader.addPath (haxe.io.Path.directory (#if (haxe_ver >= 3.3) sys_program_path #else Sys.executablePath () #end));
 		loader.addPath ("./");
 		loader.addPath ("@executable_path/");
 		#end
-		
+
 	}
-	
-	
+
+
 }

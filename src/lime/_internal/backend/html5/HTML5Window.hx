@@ -88,6 +88,8 @@ class HTML5Window {
 		var attributes = parent.__attributes;
 		if (!Reflect.hasField (attributes, "context")) attributes.context = {};
 
+		renderType = attributes.context.type;
+
 		if (Reflect.hasField (attributes, "element")) {
 
 			parent.element = attributes.element;
@@ -295,7 +297,7 @@ class HTML5Window {
 
 			var forceCanvas = #if (canvas || munit) true #else (renderType == CANVAS) #end;
 			var forceWebGL = #if webgl true #else (renderType == OPENGL || renderType == OPENGLES || renderType == WEBGL) #end;
-			var allowWebGL2 = #if webgl1 false #else (forceWebGL && (!Reflect.hasField (contextAttributes, "version") || contextAttributes.version != "1")) #end;
+			var allowWebGL2 = #if webgl1 false #else (!Reflect.hasField (contextAttributes, "version") || contextAttributes.version != "1") #end;
 			var isWebGL2 = false;
 
 			if (forceWebGL || (!forceCanvas && (!Reflect.hasField (contextAttributes, "hardware") || contextAttributes.hardware))) {
@@ -306,7 +308,7 @@ class HTML5Window {
 				var options = {
 
 					alpha: (transparentBackground || colorDepth > 16) ? true : false,
-					antialias: Reflect.hasField (contextAttributes, "antialiasing") ? contextAttributes.antialiasing > 0 : false,
+					antialias: Reflect.hasField (contextAttributes, "antialiasing") ? false : false,
 					depth: Reflect.hasField (contextAttributes, "depth") ? contextAttributes.depth : true,
 					premultipliedAlpha: true,
 					stencil: Reflect.hasField (contextAttributes, "stencil") ? contextAttributes.stencil : false,

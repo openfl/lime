@@ -141,6 +141,17 @@ package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 	public var OSAGE = "O".code << 24 | "s".code << 16 | "g".code << 8 | "e".code;
 	public var TANGUT = "T".code << 24 | "a".code << 16 | "n".code << 8 | "g".code;
 	public var NEWA = "N".code << 24 | "e".code << 16 | "w".code << 8 | "a".code;
+	public var MASARAM_GONDI = "G".code << 24 | "o".code << 16 | "n".code << 8 | "m".code;
+	public var NUSHU = "N".code << 24 | "s".code << 16 | "h".code << 8 | "u".code;
+	public var SOYOMBO = "S".code << 24 | "o".code << 16 | "y".code << 8 | "o".code;
+	public var ZANABAZAR_SQUARE = "Z".code << 24 | "a".code << 16 | "n".code << 8 | "b".code;
+	public var DOGRA = "D".code << 24 | "o".code << 16 | "g".code << 8 | "r".code;
+	public var GUNJALA_GONDI = "G".code << 24 | "o".code << 16 | "n".code << 8 | "g".code;
+	public var HANIFI_ROHINGYA = "R".code << 24 | "o".code << 16 | "h".code << 8 | "g".code;
+	public var MAKASAR = "M".code << 24 | "a".code << 16 | "k".code << 8 | "a".code;
+	public var MEDEFAIDRIN = "M".code << 24 | "e".code << 16 | "d".code << 8 | "f".code;
+	public var OLD_SOGDIAN = "S".code << 24 | "o".code << 16 | "g".code << 8 | "o".code;
+	public var SOGDIAN = "S".code << 24 | "o".code << 16 | "g".code << 8 | "d".code;
 	public var INVALID = 0;
 
 }

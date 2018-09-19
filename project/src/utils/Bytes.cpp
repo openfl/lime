@@ -10,6 +10,7 @@ namespace lime {
 	static int id_length;
 	static bool init = false;
 	static bool useBuffer = false;
+	static std::map<Bytes*, bool> hadValue;
 	static std::map<Bytes*, bool> usingValue;
 
 
@@ -59,6 +60,18 @@ namespace lime {
 
 	Bytes::~Bytes () {
 
+		if (hadValue.find (this) != hadValue.end ()) {
+
+			hadValue.erase (this);
+
+			if (usingValue.find (this) == usingValue.end () && b) {
+
+				free (b);
+
+			}
+
+		}
+
 		if (usingValue.find (this) != usingValue.end ()) {
 
 			usingValue.erase (this);
@@ -96,7 +109,7 @@ namespace lime {
 
 	void Bytes::Resize (int size) {
 
-		if (size != length) {
+		if (size != length || (length > 0 && !b)) {
 
 			if (size <= 0) {
 
@@ -166,6 +179,7 @@ namespace lime {
 
 		} else {
 
+			hadValue[this] = true;
 			usingValue[this] = true;
 
 			length = val_int (val_field (bytes, id_length));
@@ -264,8 +278,7 @@ namespace lime {
 
 			}
 
-			free (b);
-			b = NULL;
+			hadValue[this] = true;
 
 			return bytes;
 

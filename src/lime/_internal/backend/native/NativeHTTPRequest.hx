@@ -435,6 +435,13 @@ class NativeHTTPRequest {
 		var message = multi.infoRead ();
 		var curl, instance, status;
 
+		if (message == null && multi.runningHandles == 0) {
+
+			multiTimer.stop ();
+			multiTimer = null;
+
+		}
+
 		while (message != null) {
 
 			curl = message.curl;
@@ -492,13 +499,6 @@ class NativeHTTPRequest {
 
 		}
 
-		if (multi.runningHandles == 0) {
-
-			multiTimer.stop ();
-			multiTimer = null;
-
-		}
-
 	}
 
 
@@ -533,6 +533,7 @@ class NativeHTTPRequest {
 
 			if (instance.bytes != null) {
 
+				threadPool.sendProgress ({ instance: instance, promise: instance.promise, bytesLoaded: instance.bytes.length, bytesTotal: instance.bytes.length });
 				threadPool.sendComplete ({ instance: instance, promise: instance.promise, result: instance.bytes });
 
 			} else {

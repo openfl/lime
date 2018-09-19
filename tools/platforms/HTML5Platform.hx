@@ -141,7 +141,7 @@ class HTML5Platform extends PlatformTarget {
 
 		var template = new Template (File.getContent (hxml));
 
-		return template.execute (context) + "\n-D display";
+		return template.execute (context);
 
 	}
 

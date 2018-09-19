@@ -241,10 +241,12 @@ typedef uint32_t char32_t;
 #	include <uchar.h>
 #elif __cplusplus <= 199711L
 #	include <stdint.h>
-typedef int16_t char16_t;
 typedef uint16_t uchar16_t;
-typedef int32_t char32_t;
 typedef uint32_t uchar32_t;
+#ifndef EMSCRIPTEN
+typedef int32_t char32_t;
+typedef int16_t char16_t;
+#endif
 #endif
 typedef char16_t uchar;
 #	undef USTR

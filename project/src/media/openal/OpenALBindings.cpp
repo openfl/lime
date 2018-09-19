@@ -3186,7 +3186,19 @@ namespace lime {
 
 		al_gc_mutex.Lock ();
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
-		alcObjects.erase (alcContext);
+
+		if (alcObjects.find (alcContext) != alcObjects.end ()) {
+
+			alcObjects.erase (alcContext);
+
+		}
+
+		if (alcContext == alcGetCurrentContext ()) {
+
+			alcMakeContextCurrent (0);
+
+		}
+
 		alcDestroyContext (alcContext);
 		al_gc_mutex.Unlock ();
 
@@ -3197,7 +3209,19 @@ namespace lime {
 
 		al_gc_mutex.Lock ();
 		ALCcontext* alcContext = (ALCcontext*)context->ptr;
-		alcObjects.erase (alcContext);
+
+		if (alcObjects.find (alcContext) != alcObjects.end ()) {
+
+			alcObjects.erase (alcContext);
+
+		}
+
+		if (alcContext == alcGetCurrentContext ()) {
+
+			alcMakeContextCurrent (0);
+
+		}
+
 		alcDestroyContext (alcContext);
 		al_gc_mutex.Unlock ();
 

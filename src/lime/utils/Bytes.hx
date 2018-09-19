@@ -1,7 +1,7 @@
 package lime.utils;
 
 
-import haxe.io.Bytes in HaxeBytes;
+import haxe.io.Bytes as HaxeBytes;
 import haxe.io.BytesData;
 import lime._internal.backend.native.NativeCFFI;
 import lime._internal.format.Deflate;

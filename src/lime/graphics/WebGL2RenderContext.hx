@@ -2754,7 +2754,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic {
 	#if !lime_webgl
 	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView, srcOffset:Int = 0):Void {
 	#else
-	public inline function texImage2D (foo:Dynamic, target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
+	public inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic, ?srcOffset:Int):Void {
 	#end
 
 		#if !lime_webgl

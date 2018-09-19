@@ -794,7 +794,7 @@ class AssetHelper {
 					var data = new Asset ("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
 					data.library = library.name;
 					manifest.libraryType = "lime.utils.PackedAssetLibrary";
-					manifest.libraryArgs = [ "lib/" + filename, library.type ];
+					manifest.libraryArgs = [ "lib/" + filename, type ];
 					data.data = manifest.serialize ();
 					data.embed = true;
 

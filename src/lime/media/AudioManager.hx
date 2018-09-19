@@ -32,7 +32,8 @@ class AudioManager {
 
 			if (context == null) {
 
-				context = new AudioContext ();
+				AudioManager.context = new AudioContext ();
+				context = AudioManager.context;
 
 				#if !lime_doc_gen
 				if (context.type == OPENAL) {
@@ -47,11 +48,9 @@ class AudioManager {
 				}
 				#end
 
-			} else {
-
-				AudioManager.context = context;
-
 			}
+
+			AudioManager.context = context;
 
 			#if (lime_cffi && !macro && lime_openal && (ios || tvos || mac))
 			var timer = new Timer (100);

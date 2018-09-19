@@ -64,6 +64,7 @@ class MacPlatform extends PlatformTarget {
 		} else if (project.targetFlags.exists ("hl")) {
 
 			targetType = "hl";
+			is64 = false;
 
 		} else if (project.targetFlags.exists ("java")) {
 
@@ -258,7 +259,7 @@ class MacPlatform extends PlatformTarget {
 		var context = generateContext ();
 		context.OUTPUT_DIR = targetDirectory;
 
-		return template.execute (context) + "\n-D display";
+		return template.execute (context);
 
 	}
 

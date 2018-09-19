@@ -151,6 +151,8 @@ class Window {
 		this.application = application;
 		__attributes = attributes != null ? attributes : {};
 
+		if (Reflect.hasField (__attributes, "parameters")) parameters = __attributes.parameters;
+
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;

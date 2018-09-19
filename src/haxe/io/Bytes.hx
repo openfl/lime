@@ -356,7 +356,7 @@ class Bytes {
 		setInt32(pos + 4, v.high);
 	}
 
-	public function getString( pos : Int, len : Int ) : String {
+	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String {
 		#if !neko
 		if( pos < 0 || len < 0 || pos + len > length ) throw Error.OutsideBounds;
 		#end
@@ -417,6 +417,9 @@ class Bytes {
 		return getString(pos, len);
 	}
 
+	/**
+		Returns string representation of the bytes as UTF8
+	**/
 	public function toString() : String {
 		#if neko
 		return new String(untyped __dollar__ssub(b,0,length));
@@ -479,8 +482,11 @@ class Bytes {
 		#end
 	}
 
+	/**
+		Returns bytes representation of the given String, using specific encoding (UTF-8 by default)
+	**/
 	@:pure
-	public static function ofString( s : String ) : Bytes {
+	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes {
 		#if neko
 		return new Bytes(s.length,untyped __dollar__ssub(s.__s,0,s.length));
 		#elseif flash
@@ -575,8 +581,10 @@ class Bytes {
 
 
 #if !nodejs
+#if (haxe_ver < 4.0)
 import js.html.compat.Uint8Array;
 import js.html.compat.DataView;
+#end
 #end
 
 #if !macro

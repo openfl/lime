@@ -2,7 +2,7 @@ package lime.math;
 
 
 #if flash
-import flash.geom.Rectangle in FlashRectangle;
+import flash.geom.Rectangle as FlashRectangle;
 #end
 
 

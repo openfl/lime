@@ -23,9 +23,9 @@
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
-	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" />
-	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
+	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
+	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
 	<set name="LIME_OPENAL" value="1" if="LIME_MOJOAL" />
 	<set name="LIME_OPENGL" value="1" />
@@ -36,7 +36,7 @@
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="winrt" unless="static_link" />
-	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt" />
+	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
 	<!-- <set name="LIME_VPX" value="1" />
 	<set name="LIME_WEBM" value="1" /> -->
@@ -45,16 +45,15 @@
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 
+	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
+	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
 	<set name="NATIVE_TOOLKIT_HAVE_HARFBUZZ" value="1" if="LIME_HARFBUZZ" />
 	<set name="NATIVE_TOOLKIT_HAVE_MBEDTLS" value="1" if="LIME_MBEDTLS" />
 	<set name="NATIVE_TOOLKIT_HAVE_PNG" value="1" if="LIME_PNG" />
+	<set name="NATIVE_TOOLKIT_HAVE_SDL" value="1" if="LIME_SDL" />
 
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
-
 	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />
-	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
-	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
-
 
 	<files id="lime">
 
@@ -398,6 +397,11 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
+
+				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
+				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
+				<lib name="dwrite.lib" if="LIME_HARFBUZZ" />
+
 				<lib name="comsuppw.lib" unless="winrt" />
 
 				<lib name="D3D11.lib" if="winrt" />
@@ -455,6 +459,7 @@
 				<lib name="-ldl" />
 				<lib name="-llog" />
 				<lib name="-landroid" />
+				<lib name="-lm" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv2" />
 				<lib name="-lGLESv1_CM" />

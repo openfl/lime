@@ -3,7 +3,7 @@ package lime.utils;
 
 import haxe.io.BytesData;
 import haxe.io.Bytes;
-import lime.utils.Bytes in LimeBytes;
+import lime.utils.Bytes as LimeBytes;
 
 @:access(haxe.io.Bytes)
 @:access(lime.utils.BytePointerData)

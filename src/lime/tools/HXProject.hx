@@ -134,7 +134,7 @@ class HXProject extends Script {
 
 		defaultMeta = { title: "MyApplication", description: "", packageName: "com.example.myapp", version: "1.0.0", company: "", companyUrl: "", buildNumber: null, companyId: "" }
 		defaultApp = { main: "Main", file: "MyApplication", path: "bin", preloader: "", swfVersion: 17, url: "", init: null }
-		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, alwaysOnTop: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: true, stencilBuffer: true, colorDepth: 32, maximized: false, minimized: false, hidden: false }
+		defaultWindow = { width: 800, height: 600, parameters: "{}", background: 0xFFFFFF, fps: 30, hardware: true, display: 0, resizable: true, borderless: false, orientation: Orientation.AUTO, vsync: false, fullscreen: false, allowHighDPI: true, alwaysOnTop: false, antialiasing: 0, allowShaders: true, requireShaders: false, depthBuffer: true, stencilBuffer: true, colorDepth: 32, maximized: false, minimized: false, hidden: false, title:"" }
 
 		platformType = PlatformType.DESKTOP;
 		architectures = [];
@@ -168,8 +168,17 @@ class HXProject extends Script {
 				platformType = PlatformType.WEB;
 				architectures = [];
 
-				defaultWindow.width = 0;
-				defaultWindow.height = 0;
+				if (!targetFlags.exists ("electron")) {
+
+					defaultWindow.width = 0;
+					defaultWindow.height = 0;
+
+				} else {
+
+					// platformType = PlatformType.DESKTOP;
+
+				}
+
 				defaultWindow.fps = 60;
 				defaultWindow.allowHighDPI = false;
 
@@ -1180,7 +1189,7 @@ class HXProject extends Script {
 
 			}
 
-			windows[i].title = meta.title;
+			if(windows[i].title=="") windows[i].title = meta.title;
 
 		}
 
@@ -1295,7 +1304,27 @@ class HXProject extends Script {
 
 			if (Haxelib.pathOverrides.exists (name)) {
 
-				var param = "-cp " + Haxelib.pathOverrides.get (name);
+				var path = Haxelib.pathOverrides.get (name);
+				var jsonPath = Path.combine (path, "haxelib.json");
+				var added = false;
+
+				try {
+
+					if (FileSystem.exists (jsonPath)) {
+
+						var json = Json.parse (File.getContent (jsonPath));
+						if (Reflect.hasField (json, "classPath")) {
+							path = Path.combine (path, json.classPath);
+						}
+
+						var haxelibName = json.name;
+						compilerFlags = ArrayTools.concatUnique (compilerFlags, [ "-D " + haxelibName + "=" + json.version ], true);
+
+					}
+
+				} catch (e:Dynamic) {}
+
+				var param = "-cp " + path;
 				compilerFlags.remove (param);
 				compilerFlags.push (param);
 

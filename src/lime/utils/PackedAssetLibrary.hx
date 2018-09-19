@@ -84,7 +84,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return AudioBuffer.fromBytes (bytes);
 
 		}
@@ -111,7 +111,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return bytes;
 
 		}
@@ -137,7 +137,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Font.fromBytes (bytes);
 
 		}
@@ -159,7 +159,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Image.fromBytes (bytes);
 
 		}
@@ -173,12 +173,12 @@ import flash.media.Sound;
 
 			return cachedText.get (id);
 
-		} else if (type == "gzip" || type == "deflate") {
+		} else if (type == "gzip" || type == "zip" || type == "deflate") {
 
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return bytes.getString (0, bytes.length);
 
 		} else {
@@ -325,7 +325,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Future.withValue (AudioBuffer.fromBytes (bytes));
 
 		}
@@ -347,7 +347,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Future.withValue (bytes);
 
 		}
@@ -373,7 +373,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Font.loadFromBytes (bytes);
 
 		}
@@ -431,7 +431,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Image.loadFromBytes (bytes);
 
 		}
@@ -466,7 +466,7 @@ import flash.media.Sound;
 			var bytes = Bytes.alloc (lengths[id]);
 			bytes.blit (0, packedData, positions[id], lengths[id]);
 			if (type == "gzip") bytes = bytes.decompress (GZIP);
-			else if (type == "deflate") bytes = bytes.decompress (DEFLATE);
+			else if (type == "zip" || type == "deflate") bytes = bytes.decompress (DEFLATE);
 			return Future.withValue (bytes.getString (0, bytes.length));
 
 		} else {
