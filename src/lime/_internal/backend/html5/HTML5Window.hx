@@ -984,14 +984,14 @@ class HTML5Window {
 
 			if (rect.width > 0 && rect.height > 0) {
 
-				var canvas:CanvasElement = cast Browser.document.createElement ("canvas");
-				canvas.width = Std.int (rect.width);
-				canvas.height = Std.int (rect.height);
+				var canvas2:CanvasElement = cast Browser.document.createElement ("canvas");
+				canvas2.width = Std.int (rect.width);
+				canvas2.height = Std.int (rect.height);
 
-				var context = canvas.getContext ("2d");
+				var context = canvas2.getContext ("2d");
 				context.drawImage (canvas, -rect.x, -rect.y);
 
-				return Image.fromCanvas (canvas);
+				return Image.fromCanvas (canvas2);
 
 			}
 
