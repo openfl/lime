@@ -322,6 +322,13 @@
 
 	</files>
 
+	<files id="android-cpufeatures">
+
+		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android"/>
+		<file name="${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.c" />
+
+	</files>
+
 	<include name="lib/cairo/files.xml" />
 	<include name="lib/curl/files.xml" />
 	<include name="lib/efsw/files.xml" />
@@ -353,6 +360,7 @@
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 
 		<files id="lime" />
+		<files id="android-cpufeatures" if="android" />
 
 		<files id="native-toolkit-cairo" if="LIME_CAIRO" />
 		<files id="native-toolkit-curl" if="LIME_CURL" />
