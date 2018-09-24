@@ -23,6 +23,7 @@ class Cairo {
 	public static var versionString (get, null):String;
 
 	public var antialias (get, set):CairoAntialias;
+	public var blendMode (get, set):CairoOperator;
 	public var currentPoint (get, never):Vector2;
 	public var dash (get, set):Array<Float>;
 	public var dashCount (get, never):Int;
@@ -36,7 +37,9 @@ class Cairo {
 	public var lineWidth (get, set):Float;
 	public var matrix (get, set):Matrix3;
 	public var miterLimit (get, set):Float;
+	#if (haxe_ver < "4.0.0")
 	public var operator (get, set):CairoOperator;
+	#end
 	public var source (get, set):CairoPattern;
 	public var target (get, null):CairoSurface;
 	public var tolerance (get, set):Float;
@@ -551,6 +554,28 @@ class Cairo {
 	}
 
 
+	@:noCompletion private function get_blendMode ():CairoOperator {
+
+		#if (lime_cffi && lime_cairo && !macro)
+		return NativeCFFI.lime_cairo_get_operator (handle);
+		#end
+
+		return cast 0;
+
+	}
+
+
+	@:noCompletion private function set_blendMode (value:CairoOperator):CairoOperator {
+
+		#if (lime_cffi && lime_cairo && !macro)
+		NativeCFFI.lime_cairo_set_operator (handle, value);
+		#end
+
+		return value;
+
+	}
+
+
 	@:noCompletion private function get_currentPoint ():Vector2 {
 
 		#if (lime_cffi && lime_cairo && !macro)
@@ -823,6 +848,7 @@ class Cairo {
 	}
 
 
+	#if (haxe_ver < "4.0.0")
 	@:noCompletion private function get_operator ():CairoOperator {
 
 		#if (lime_cffi && lime_cairo && !macro)
@@ -843,6 +869,7 @@ class Cairo {
 		return value;
 
 	}
+	#end
 
 
 	@:noCompletion private function get_source ():CairoPattern {
