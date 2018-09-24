@@ -236,11 +236,35 @@ class Howl {
 
 	}
 
+	
+	/**
+	* Get/set the 3D spatial position of the audio source for this sound or group relative to the global listener.
+	* @param  x  The x-position of the audio source.
+	* @param  y  The y-position of the audio source.
+	* @param  z  The z-position of the audio source.
+	* @param  id The sound ID. If none is passed, all in group will be updated.
+	* @return Returns self or the current 3D spatial position: [x, y, z].
+	*/
+	public function pos (?x:Float, ?y:Float, ?z:Float, ?id:Int):Dynamic {
+
+		return null;
+
+	}
+	
+	
+	/**
+	* Get/set the stereo panning of the audio source for this sound or all in the group.
+	* @param  pan  A value of -1.0 is all the way left and 1.0 is all the way right.
+	* @param  id (optional) The sound ID. If none is passed, all in group will be updated.
+	* @return Returns self or the current stereo panning value.
+	*/
+	public function stereo (?pan:Float, ?id:Int):Dynamic {
+
+		return null;
+
+	}
 
 }
-
-
-
 #else
 
 
@@ -299,6 +323,15 @@ extern class Howl {
 	@:overload(function(vol:Float, id:Int):Howl {})
 	public function volume ():Float;
 
+	@:overload(function(pan:Float):Howl {})
+	@:overload(function(pan:Float, id:Int):Howl {})
+	public function stereo():Float;
+	
+	@:overload(function(x:Float):Howl {})
+	@:overload(function(x:Float,y:Float):Howl {})
+	@:overload(function(x:Float,y:Float,z:Float):Howl {})
+	@:overload(function(x:Float,y:Float,z:Float,id:Int):Howl {})
+	public function pos():Array<Float>;
 
 }
 
