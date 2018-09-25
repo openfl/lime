@@ -1,3 +1,38 @@
+7.1.0 (09/25/2018)
+------------------
+
+* Updated Harfbuzz to 1.8.8
+* Updated OpenAL to 1.19.0
+* Updated howler.js to 2.0.15
+* Updated build configuration of pixman to better support each platform
+* Added `application.meta.version` to the default application template
+* Added support for `<undefine name="" />` for undefining values
+* Added support for `<window title="" />` in project.xml
+* Renamed `cairo.operator` to `cairo.setOperator`/`getOperator` on Haxe 4 builds
+* Updated `lime.text.Font` to allow for changes to the font metric meta values
+* Removed `-Ddisplay` on `lime display` output for better cached compilation
+* Removed prefixes on `imageSmoothingEnabled` internally to remove HTML5 warnings
+* Improved use of howler.js to enable sound position
+* Improved HTML5 support for certain MP3 audio files
+* Improved `Image.loadFromBase64`/`Image.fromBase64` to work on non-HTML5 platforms
+* Fixed an issue where multiple `HTTPRequest` instances on native could hang
+* Fixed support for `<library type="zip" />` as an alias for type "deflate"
+* Fixed minor issues in `TextField` when working with non-UTF8 `String` values
+* Fixed use of specific iOS target devices in the AIR project template
+* Fixed an exception caused in garbage collection for cURL requests
+* Fixed an issue when using `window.readPixels` on HTML5
+* Fixed possible exceptions when working with Harfbuzz languages
+* Fixed a minor encoding issue in `image.encode (BMP)`
+* Fixed setting of `window.parameters` using `WindowAttributes` on creation
+* Fixed default use of Visual Studio Community when older versions are installed
+* Fixed an exception when checking locale on certain iOS devices
+* Fixed compiler errors when using `webgl2.texImage2D` with certain parameters
+* Fixed use of WebGL 2, when available, as the default context on HTML5
+* Fixed support for `-static` native builds for Windows
+* Fixed an issue where `Assets` cache breaking was not working properly
+* Fixed compilation issues in Haxe 4 development builds
+
+
 7.0.0 (08/09/2018)
 ------------------
 
