@@ -1,6 +1,7 @@
 package lime.graphics;
 
 
+import haxe.crypto.Base64;
 import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.io.BytesData;
@@ -1023,7 +1024,15 @@ class Image {
 
 		#else
 
-		return cast Future.withError ("");
+		if (base64 != null) {
+
+			return loadFromBytes (Base64.decode (base64));
+
+		} else {
+
+			return cast Future.withError ("");
+
+		}
 
 		#end
 
@@ -1671,6 +1680,15 @@ class Image {
 
 		image.addEventListener ("load", image_onLoaded, false);
 		image.src = "data:" + type + ";base64," + base64;
+
+		#else
+
+		if (base64 != null) {
+
+			__fromBytes (Base64.decode (base64));
+
+		}
+
 		#end
 
 	}
