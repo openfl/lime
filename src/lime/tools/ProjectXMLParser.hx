@@ -610,7 +610,7 @@ class ProjectXMLParser extends HXProject {
 
 			} else if (Path.extension (path) == "bundle") {
 
-				parseAssetsElementLibrary (path, targetPath, null, null, type, embed, library, glyphs, true);
+				parseAssetsElementLibrary (path, targetPath, "*", "", type, embed, library, glyphs, true);
 
 			} else {
 
