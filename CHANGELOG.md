@@ -15,6 +15,7 @@
 * Improved use of howler.js to enable sound position
 * Improved HTML5 support for certain MP3 audio files
 * Improved `Image.loadFromBase64`/`Image.fromBase64` to work on non-HTML5 platforms
+* Fixed a possible error when processing directories ending in ".bundle"
 * Fixed an issue where multiple `HTTPRequest` instances on native could hang
 * Fixed support for `<library type="zip" />` as an alias for type "deflate"
 * Fixed minor issues in `TextField` when working with non-UTF8 `String` values
