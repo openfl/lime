@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "7.0.0",
-	"releasenote": "Major API re-design, migrated core of tools to HXP, initial HashLink support",
+	"version": "7.1.0",
+	"releasenote": "Improvements to native Harfbuzz, pixman, OpenAL, cURL libraries, additional improvements",
 	"contributors": [ "singmajesty" ],
 	"classPath": "src"
 }

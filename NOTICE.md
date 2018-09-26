@@ -90,7 +90,7 @@ _The following are not embedded in Lime applications directly, but are used
 as dependencies for web-based builds. Their licensing does not affect products
 created with Lime._
 
-This product bundles howler.js 2.0.9, which is available under an
+This product bundles howler.js 2.0.15, which is available under an
 "MIT" license. For details, see [dependencies/howler.min.js](dependencies/howler.min.js).
 
 This product bundles FileSaver.js 1.3.3, which is available under an

@@ -279,9 +279,15 @@ class HTML5AudioSource {
 	public function getPosition ():Vector4 {
 
 		#if lime_howlerjs
-
-		// TODO: Use 3D audio plugin
-
+		
+		//This should work, but it returns null (But checking the inside of the howl, the _pos is actually null... so ¯\_(ツ)_/¯)
+		/*
+		var arr = parent.buffer.__srcHowl.pos())
+		position.x = arr[0];
+		position.y = arr[1];
+		position.z = arr[2];
+		*/
+		
 		#end
 
 		return position;
@@ -297,9 +303,10 @@ class HTML5AudioSource {
 		position.w = value.w;
 
 		#if lime_howlerjs
-
-		// TODO: Use 3D audio plugin
-
+		
+		parent.buffer.__srcHowl.pos (position.x, position.y, position.z, id);
+		//There are more settings to the position of the sound on the "pannerAttr()" function of howler. Maybe somebody who understands sound should look into it?
+		
 		#end
 
 		return position;
