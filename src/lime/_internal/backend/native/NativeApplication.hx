@@ -64,6 +64,7 @@ class NativeApplication {
 
 	public var handle:Dynamic;
 
+	private var pauseTimer:Int;
 	private var parent:Application;
 	private var toggleFullscreen:Bool;
 
@@ -80,6 +81,7 @@ class NativeApplication {
 	public function new (parent:Application):Void {
 
 		this.parent = parent;
+		pauseTimer = -1;
 		toggleFullscreen = true;
 
 		AudioManager.init ();
@@ -91,6 +93,21 @@ class NativeApplication {
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_application_create ();
 		#end
+
+	}
+
+
+	private function advanceTimer ():Void {
+
+		if (pauseTimer > -1) {
+
+			var offset = System.getTimer () - pauseTimer;
+			for (i in 0...Timer.sRunningTimers.length) {
+				if (Timer.sRunningTimers[i] != null) Timer.sRunningTimers[i].mFireAt += offset;
+			}
+			pauseTimer = -1;
+
+		}
 
 	}
 
@@ -597,8 +614,8 @@ class NativeApplication {
 
 				case WINDOW_ACTIVATE:
 
+					advanceTimer ();
 					window.onActivate.dispatch ();
-
 					AudioManager.resume ();
 
 				case WINDOW_CLOSE:
@@ -608,8 +625,8 @@ class NativeApplication {
 				case WINDOW_DEACTIVATE:
 
 					window.onDeactivate.dispatch ();
-
 					AudioManager.suspend ();
+					pauseTimer = System.getTimer ();
 
 				case WINDOW_ENTER:
 
@@ -685,7 +702,7 @@ class NativeApplication {
 
 				if (timer != null) {
 
-					if (currentTime >= timer.mFireAt) {
+					while (currentTime >= timer.mFireAt) {
 
 						timer.mFireAt += timer.mTime;
 						timer.run ();
