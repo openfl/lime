@@ -323,7 +323,7 @@ class NativeHTTPRequest {
 
 				if (multiTimer == null) {
 
-					multiTimer = new Timer (30);
+					multiTimer = new Timer (14);
 					multiTimer.run = multiTimer_onRun;
 					multiTimer_onRun ();
 
