@@ -702,7 +702,7 @@ class NativeApplication {
 
 				if (timer != null) {
 
-					while (currentTime >= timer.mFireAt) {
+					if (timer.mRunning && currentTime >= timer.mFireAt) {
 
 						timer.mFireAt += timer.mTime;
 						timer.run ();
