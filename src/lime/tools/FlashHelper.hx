@@ -658,7 +658,7 @@ class FlashHelper {
 		var packageName = "";
 		var inserted = false;
 
-		tags.push (TBackgroundColor (project.window.background));
+		tags.push (TBackgroundColor (project.window.background & 0xFFFFFF));
 
 		if (project.target != AIR) {
 
