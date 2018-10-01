@@ -99,6 +99,7 @@ class NativeApplication {
 
 	private function advanceTimer ():Void {
 
+		#if lime_cffi
 		if (pauseTimer > -1) {
 
 			var offset = System.getTimer () - pauseTimer;
@@ -108,6 +109,7 @@ class NativeApplication {
 			pauseTimer = -1;
 
 		}
+		#end
 
 	}
 
