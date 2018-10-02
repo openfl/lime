@@ -209,35 +209,22 @@ abstract UTF8String(String) from String to String {
 		Returns a String where all characters of `this` String are lower case.
 
 		Affects the characters `A-Z`. Other characters remain unchanged.
-		
-		If `language` is specified, language-specific casing rules will be followed.
 	**/
-	public function toLowerCase (language:Language=null):String {
+	public function toLowerCase ():String {
 
-		if(language == null) language = STANDARD;
-		
 		#if sys
 
 		if (lowercaseMap == null) {
 
 			lowercaseMap = new Map<Int, Int> ();
-			Utf8Ext.fillUpperToLowerMap (lowercaseMap);
-			
+			Utf8Ext.fillUpperToLowerMap (uppercaseMap);
+
 		}
 
 		var r = new Utf8 ();
 
 		Utf8.iter (this, function (v) {
 
-			if(language != STANDARD)
-			{
-				var v2 = toLowerCaseLanguageFixes(v,language);
-				if(v2 != v)
-				{
-					r.addChar(v2);
-					return;
-				}
-			}
 			r.addChar (lowercaseMap.exists (v) ? lowercaseMap[v] : v);
 
 		});
@@ -252,19 +239,6 @@ abstract UTF8String(String) from String to String {
 
 	}
 
-	private static function toLowerCaseLanguageFixes(v:Int,language:Language):Int
-	{
-		return switch(language)
-		{
-			case TURKISH:
-				switch(v)
-				{
-					case 0xC4B0: 0x69; //İ-->i (large dotted İ to small i) //probably redundant and can be removed, presented here for logical symmtery for when genuine cases are needed
-					default: v;
-				}
-			default: v;
-		}
-	}
 
 	/**
 		Returns the String itself.
@@ -280,35 +254,22 @@ abstract UTF8String(String) from String to String {
 		Returns a String where all characters of `this` String are upper case.
 
 		Affects the characters `a-z`. Other characters remain unchanged.
-		
-		If `language` is specified, language-specific casing rules will be followed.
 	**/
-	public function toUpperCase (language:Language=null):String {
+	public function toUpperCase ():String {
 
-		if(language == null) language = STANDARD;
-	
 		#if sys
 
 		if (uppercaseMap == null) {
 
 			uppercaseMap = new Map<Int, Int> ();
 			Utf8Ext.fillLowerToUpperMap (uppercaseMap);
-		
+
 		}
 
 		var r = new Utf8 ();
 
 		Utf8.iter (this, function(v) {
 
-			if(language != STANDARD)
-			{
-				var v2 = toUpperCaseLanguageFixes(v,language);
-				if(v2 != v)
-				{
-					r.addChar(v2);
-					return;
-				}
-			}
 			r.addChar (uppercaseMap.exists (v) ? uppercaseMap[v] : v);
 
 		});
@@ -321,20 +282,6 @@ abstract UTF8String(String) from String to String {
 
 		#end
 
-	}
-	
-	private static function toUpperCaseLanguageFixes(v:Int,language:Language):Int
-	{
-		return switch(language)
-		{
-			case TURKISH:
-				switch(v)
-				{
-					case 0x69: 0xC4B0; //i-->İ (small i to large dotted İ)
-					default: v;
-				}
-			default: v;
-		}
 	}
 
 
@@ -801,11 +748,4 @@ for (i in 0...51) map[0x10CC0+i] = 0x10C80+i;
 for (i in 0...32) map[0x118C0+i] = 0x118A0+i;
 for (i in 0...34) map[0x1E922+i] = 0x1E900+i;
 }
-}
-
-enum Language
-{
-	STANDARD;	//any language that doesn't have surprising results with casing
-	TURKISH;	//turkish
-				//add more special case languages as necessary
 }
