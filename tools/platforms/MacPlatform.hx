@@ -13,7 +13,6 @@ import lime.tools.DeploymentHelper;
 import hxp.System;
 import lime.tools.GUID;
 import hxp.Haxelib;
-import hxp.Haxelib;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
@@ -274,7 +273,7 @@ class MacPlatform extends PlatformTarget {
 
 		}
 
-		if (!targetFlags.exists ("64") && (command == "rebuild" || System.hostArchitecture == X86)) {
+		if (!targetFlags.exists ("64") && (targetFlags.exists ("32") || System.hostArchitecture == X86)) {
 
 			commands.push ([ "-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32" ]);
 
