@@ -1,3 +1,14 @@
+7.1.1 (10/02/2018)
+------------------
+
+* Improved the timing on native `HTTPRequest` to process more quickly
+* Improved handling of `haxe.Timer` to pause and resume when the application suspends
+* Fixed `lime rebuild mac` using Xcode 10 (disabled 32-bit rebuilds by default)
+* Fixed an issue in the newer howler.js library regarding IE support
+* Fixed a regression in older desktop CPU support
+* Fixed an issue when using larger than 64-bit background color values on Flash
+
+
 7.1.0 (09/26/2018)
 ------------------
 
