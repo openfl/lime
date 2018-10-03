@@ -7,6 +7,7 @@
 * Fixed an issue in the newer howler.js library regarding IE support
 * Fixed a regression in older desktop CPU support
 * Fixed an issue when using larger than 64-bit background color values on Flash
+* Fixed `context.antialiasing` setting on HTML5 `Window`
 
 
 7.1.0 (09/26/2018)
