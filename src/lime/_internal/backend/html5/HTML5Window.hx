@@ -63,7 +63,6 @@ class HTML5Window {
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
-	private var cursorHidden:Bool;
 	private var currentTouches = new Map<Int, Touch> ();
 	private var isFullscreen:Bool;
 	private var parent:Window;
@@ -82,6 +81,7 @@ class HTML5Window {
 
 		this.parent = parent;
 
+		cursor = DEFAULT;
 		cacheMouseX = 0;
 		cacheMouseY = 0;
 
@@ -1045,7 +1045,7 @@ class HTML5Window {
 
 			if (value == null) {
 
-				parent.element.style.cursor = null;
+				parent.element.style.cursor = "none";
 
 			} else {
 
@@ -1318,21 +1318,6 @@ class HTML5Window {
 		}
 
 		return value;
-
-	}
-
-
-	public function showCursor ():Void {
-
-		if (cursorHidden) {
-
-			cursorHidden = false;
-
-			var cacheValue = cursor;
-			cursor = null;
-			setCursor (cacheValue);
-
-		}
 
 	}
 
