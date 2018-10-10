@@ -1721,7 +1721,7 @@ class Image {
 			} else {
 
 				//throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
-				return;
+				return false;
 
 			}
 
