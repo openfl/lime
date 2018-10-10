@@ -724,8 +724,11 @@ class Image {
 
 		if (bytes == null) return null;
 		var image = new Image ();
-		image.__fromBytes (bytes);
-		return image;
+		if (image.__fromBytes (bytes)) {
+			return image;
+		} else {
+			return null;
+		}
 
 	}
 
@@ -768,8 +771,11 @@ class Image {
 
 		if (path == null) return null;
 		var image = new Image ();
-		image.__fromFile (path);
-		return image;
+		if (image.__fromFile (path)) {
+			return image;
+		} else {
+			return null;
+		}
 
 	}
 
@@ -1694,7 +1700,7 @@ class Image {
 	}
 
 
-	@:noCompletion private function __fromBytes (bytes:Bytes, onload:Image->Void = null):Void {
+	@:noCompletion private function __fromBytes (bytes:Bytes, onload:Image->Void = null):Bool {
 
 		#if (js && html5)
 
@@ -1720,6 +1726,7 @@ class Image {
 			}
 
 			__fromBase64 (__base64Encode (bytes), type, onload);
+			return true;
 
 		#elseif (lime_cffi && !macro)
 
@@ -1744,6 +1751,8 @@ class Image {
 
 				}
 
+				return true;
+
 			}
 
 		#else
@@ -1752,10 +1761,12 @@ class Image {
 
 		#end
 
+		return false;
+
 	}
 
 
-	@:noCompletion private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Void {
+	@:noCompletion private function __fromFile (path:String, onload:Image->Void = null, onerror:Void->Void = null):Bool {
 
 		#if (kha && !macro)
 
@@ -1797,6 +1808,8 @@ class Image {
 						onload (this);
 
 					}
+
+					return true;
 
 				}
 
@@ -1851,6 +1864,8 @@ class Image {
 			// Another IE9 bug: loading 20+ images fails unless this line is added.
 			// (issue #1019768)
 			if (image.complete) { }
+
+			return true;
 
 		#elseif (lime_cffi || java)
 
@@ -1921,6 +1936,8 @@ class Image {
 
 				}
 
+				return true;
+
 			}
 
 		#else
@@ -1928,6 +1945,8 @@ class Image {
 			Log.warn ("Image.fromFile not supported on this target");
 
 		#end
+
+		return false;
 
 	}
 

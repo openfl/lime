@@ -21,9 +21,9 @@ namespace lime {
 
 		ReadBuffer (const unsigned char* data, int length) : data (data), length (length), position (0) {}
 
-		void Read (unsigned char* out, int count) {
+		bool Read (unsigned char* out, int count) {
 
-			if (position >= length) return;
+			if (position >= length) return false;
 
 			if (count > length - position) {
 
@@ -36,6 +36,8 @@ namespace lime {
 				position += count;
 
 			}
+
+			return true;
 
 		}
 
@@ -57,7 +59,9 @@ namespace lime {
 	static void user_read_data_fn (png_structp png_ptr, png_bytep data, png_size_t length) {
 
 		ReadBuffer* buffer = (ReadBuffer*)png_get_io_ptr (png_ptr);
-		buffer->Read (data, length);
+		if (!buffer->Read (data, length)) {
+			png_error (png_ptr, "Read Error");
+		}
 
 	}
 
