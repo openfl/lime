@@ -18,7 +18,7 @@
 	<define name="lime-html5" if="html5" />
 	<define name="lime-native" if="native" />
 	<define name="lime-openal" unless="lime-console || flash || html5" />
-	<define name="lime-opengl" if="desktop" />
+	<define name="lime-opengl" if="desktop" unless="html5" />
 	<define name="lime-opengles" if="emscripten || mobile" />
 	<define name="lime-vorbis" if="native" />
 	<define name="lime-webgl" if="html5" />
