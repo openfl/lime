@@ -1121,19 +1121,19 @@ class CommandLineTools {
 			Log.println ("  \x1b[3m(air)\x1b[0m \x1b[1m-ios\x1b[0m -- Target iOS instead of AIR desktop");
 			Log.println ("  \x1b[3m(air)\x1b[0m \x1b[1m-android\x1b[0m -- Target Android instead of AIR desktop");
 
+			if (command != "run" && command != "trace") {
+
+				Log.println ("  \x1b[3m(emscripten)\x1b[0m \x1b[1m-webassembly\x1b[0m -- Compile for WebAssembly instead of asm.js");
+				Log.println ("  \x1b[3m(emscripten|html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
+
+			}
+
 			if (command == "run" || command == "test") {
 
 				Log.println ("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
 				//Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
-				Log.println ("  \x1b[3m(emscripten|html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
 				//Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
 				Log.println ("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
-
-			}
-
-			if (command != "run" && command != "trace") {
-
-				Log.println ("  \x1b[3m(emscripten)\x1b[0m \x1b[1m-webassembly\x1b[0m -- Compile for WebAssembly instead of asm.js");
 
 			}
 
