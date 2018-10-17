@@ -1,12 +1,12 @@
 buildscript {
 	repositories {
-		maven {
-			url "http://repo1.maven.org/maven2/"
+		jcenter {
+			url "http://jcenter.bintray.com/"
 		}
 	}
 	
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.1.0'
+		classpath 'com.android.tools.build:gradle:::::if (1 == 1)::ANDROID_GRADLE_PLUGIN::end::::'
 	}
 }
 

@@ -2,23 +2,25 @@
 #define LIME_MATH_COLOR_MATRIX_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <system/System.h>
+#include <utils/ArrayBufferView.h>
 #include <stdint.h>
 
 
 namespace lime {
-	
-	
+
+
 	class ColorMatrix {
-		
-		
+
+
 		public:
-			
+
 			ColorMatrix ();
 			ColorMatrix (value colorMatrix);
+			ColorMatrix (ArrayBufferView* colorMatrix);
 			~ColorMatrix ();
-			
+
 			float GetAlphaMultiplier ();
 			float GetAlphaOffset ();
 			void GetAlphaTable (unsigned char* table);
@@ -32,17 +34,17 @@ namespace lime {
 			float GetRedMultiplier ();
 			float GetRedOffset ();
 			void GetRedTable (unsigned char* table);
-			
+
 			float data[20];
-		
+
 		private:
-			
+
 			void GetDataTable (unsigned char* table, float multiplier, float offset);
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

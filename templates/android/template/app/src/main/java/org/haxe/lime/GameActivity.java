@@ -1,18 +1,26 @@
 package org.haxe.lime;
 
 
-import android.content.res.AssetManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
+import android.webkit.MimeTypeMap;
+import org.haxe.extension.Extension;
+import org.libsdl.app.SDLActivity;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.haxe.extension.Extension;
-import org.haxe.HXCPP;
-import org.libsdl.app.SDLActivity;
 
 
 public class GameActivity extends SDLActivity {
@@ -20,21 +28,45 @@ public class GameActivity extends SDLActivity {
 	
 	private static AssetManager assetManager;
 	private static List<Extension> extensions;
+	private static DisplayMetrics metrics;
 	
 	public Handler handler;
 	
 	
-	public static void postUICallback (final long handle) {
+	public static double getDisplayXDPI () {
 		
-		Extension.callbackHandler.post (new Runnable () {
+		if (metrics == null) {
 			
-			@Override public void run () {
-				
-				Lime.onCallback (handle);
-				
-			}
+			metrics = new DisplayMetrics ();
+			Extension.mainActivity.getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
 			
-		});
+		}
+		
+		return metrics.xdpi;
+		
+	}
+	
+	
+	protected String[] getLibraries () {
+		
+		return new String[] {
+			::foreach ndlls::"::name::",
+			::end::"ApplicationMain"
+		};
+		
+	}
+	
+	
+	@Override protected String getMainSharedObject () {
+		
+		return "libApplicationMain.so";
+		
+	}
+	
+	
+	@Override protected String getMainFunction () {
+		
+		return "hxcpp_main";
 		
 	}
 	
@@ -86,6 +118,22 @@ public class GameActivity extends SDLActivity {
 		Extension.mainContext = this;
 		Extension.mainView = mLayout;
 		Extension.packageName = getApplicationContext ().getPackageName ();
+		
+		if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 19) {
+			
+			View decorView = getWindow ().getDecorView ();
+			
+			decorView.setOnSystemUiVisibilityChangeListener (new View.OnSystemUiVisibilityChangeListener () {
+				
+				@Override public void onSystemUiVisibilityChange (int visibility) {
+					
+					updateSystemUI ();
+					
+				}
+				
+			});
+			
+		}
 		
 		if (extensions == null) {
 			
@@ -156,6 +204,25 @@ public class GameActivity extends SDLActivity {
 	}
 	
 	
+	::if (ANDROID_TARGET_SDK_VERSION >= 23)::
+	@Override public void onRequestPermissionsResult (int requestCode, String permissions[], int[] grantResults) {
+		
+		for (Extension extension : extensions) {
+			
+			if (!extension.onRequestPermissionsResult (requestCode, permissions, grantResults)) {
+				
+				return;
+				
+			}
+			
+		}
+		
+		super.onRequestPermissionsResult (requestCode, permissions, grantResults);
+		
+	}
+	::end::
+	
+	
 	@Override protected void onRestart () {
 		
 		super.onRestart ();
@@ -171,7 +238,9 @@ public class GameActivity extends SDLActivity {
 	
 	@Override protected void onResume () {
 		
-		super.onResume();
+		super.onResume ();
+		
+		updateSystemUI ();
 		
 		for (Extension extension : extensions) {
 			
@@ -212,13 +281,7 @@ public class GameActivity extends SDLActivity {
 		
 		super.onStart ();
 		
-		::if WIN_FULLSCREEN::::if (ANDROID_TARGET_SDK_VERSION < 19)::
-		if (Build.VERSION.SDK_INT >= 19) {
-			
-			getWindow ().getDecorView ().setSystemUiVisibility (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN);
-			
-		}
-		::end::::end::
+		updateSystemUI ();
 		
 		for (Extension extension : extensions) {
 			
@@ -261,21 +324,129 @@ public class GameActivity extends SDLActivity {
 	::end::
 	
 	
-	@Override public void onWindowFocusChanged(boolean hasFocus) {
+	@Override public void onWindowFocusChanged (boolean hasFocus) {
 		
 		super.onWindowFocusChanged (hasFocus);
 		
-		::if WIN_FULLSCREEN::::if (ANDROID_TARGET_SDK_VERSION >= 19)::
-		if (hasFocus) {
+		updateSystemUI ();
+		
+	}
+	
+	
+	public static void openFile (String path) {
+		
+		try {
 			
-			if (Build.VERSION.SDK_INT >= 19) {
+			String extension = path;
+			int index = path.lastIndexOf ('.');
+			
+			if (index > 0) {
 				
-				getWindow ().getDecorView ().setSystemUiVisibility (View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+				extension = path.substring (index + 1);
 				
 			}
 			
+			String mimeType = MimeTypeMap.getSingleton ().getMimeTypeFromExtension (extension);
+			File file = new File (path);
+			
+			Intent intent = new Intent ();
+			intent.setAction (Intent.ACTION_VIEW);
+			intent.setDataAndType (Uri.fromFile (file), mimeType);
+			
+			Extension.mainActivity.startActivity (intent);
+			
+		} catch (Exception e) {
+			
+			Log.e ("GameActivity", e.toString ());
+			return;
+			
+		}
+		
+	}
+	
+	
+	public static void openURL (String url, String target) {
+		
+		Intent browserIntent = new Intent (Intent.ACTION_VIEW).setData (Uri.parse (url));
+		
+		try {
+			
+			Extension.mainActivity.startActivity (browserIntent);
+			
+		} catch (Exception e) {
+			
+			Log.e ("GameActivity", e.toString ());
+			return;
+			
+		}
+		
+	}
+	
+	
+	public static void postUICallback (final long handle) {
+		
+		Extension.callbackHandler.post (new Runnable () {
+			
+			@Override public void run () {
+				
+				Lime.onCallback (handle);
+				
+			}
+			
+		});
+		
+	}
+	
+	
+	public static void updateSystemUI () {
+		
+		::if WIN_FULLSCREEN::::if (ANDROID_TARGET_SDK_VERSION >= 19)::
+		boolean hasBackKey = KeyCharacterMap.deviceHasKey (KeyEvent.KEYCODE_BACK);
+		boolean hasHomeKey = KeyCharacterMap.deviceHasKey (KeyEvent.KEYCODE_HOME);
+		
+		View decorView = Extension.mainActivity.getWindow ().getDecorView ();
+		
+		if (Build.VERSION.SDK_INT >= 19) {
+			
+			decorView.setSystemUiVisibility (View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+			
+		} else if (hasBackKey && hasHomeKey && Build.VERSION.SDK_INT >= 16) {
+			
+			decorView.setSystemUiVisibility (View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LOW_PROFILE);
+			
+		} else if (Build.VERSION.SDK_INT >= 15) {
+			
+			decorView.setSystemUiVisibility (View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LOW_PROFILE);
+			
 		}
 		::end::::end::
+		
+	}
+	
+	
+	public static void vibrate (int period, int duration) {
+		
+		Vibrator v = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
+		
+		if (period == 0) {
+			
+			v.vibrate (duration);
+			
+		} else {
+			
+			int periodMS = (int)Math.ceil (period / 2);
+			int count = (int)Math.ceil ((duration / period) * 2);
+			long[] pattern = new long[count];
+			
+			for (int i = 0; i < count; i++) {
+				
+				pattern[i] = periodMS;
+				
+			}
+			
+			v.vibrate (pattern, -1);
+			
+		}
 		
 	}
 	

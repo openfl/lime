@@ -1,7 +1,7 @@
 /*
  * index.js: Top-level plugin exposing HTTP features in flatiron
  *
- * (C) 2011, Nodejitsu Inc.
+ * (C) 2011, Charlie Robbins & the Contributors
  * MIT LICENSE
  *
  */
@@ -9,9 +9,9 @@
 var union = exports;
 
 //
-// Expose version information through `pkginfo`
+// Expose version information
 //
-require('pkginfo')(module, 'version');
+exports.version = require('../package.json').version;
 
 //
 // Expose core union components

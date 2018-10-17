@@ -1,4 +1,4 @@
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md) [![Haxelib Version](https://img.shields.io/github/tag/openfl/lime.svg?style=flat&label=haxelib)](http://lib.haxe.org/p/lime) [![Build Status](https://img.shields.io/travis/openfl/lime.svg?style=flat)](https://travis-ci.org/openfl/lime)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE.md) [![Haxelib Version](https://img.shields.io/github/tag/openfl/lime.svg?style=flat&label=haxelib)](http://lib.haxe.org/p/lime) [![Build Status](https://img.shields.io/circleci/project/github/openfl/lime/develop.svg)](https://circleci.com/gh/openfl/lime)
 
 Lime
 ====
@@ -111,5 +111,6 @@ Lime currently supports the following targets:
     lime test ios
     lime test html5
     lime test flash
+    lime test air
 
 Desktop builds are currently designed to be built on the same host OS

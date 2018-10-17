@@ -1,3 +1,879 @@
+7.1.1 (10/02/2018)
+------------------
+
+* Improved the timing on native `HTTPRequest` to process more quickly
+* Improved handling of `haxe.Timer` to pause and resume when the application suspends
+* Fixed `lime rebuild mac` using Xcode 10 (disabled 32-bit rebuilds by default)
+* Fixed an issue in the newer howler.js library regarding IE support
+* Fixed a regression in older desktop CPU support
+* Fixed an issue when using larger than 64-bit background color values on Flash
+* Fixed `context.antialiasing` setting on HTML5 `Window`
+
+
+7.1.0 (09/26/2018)
+------------------
+
+* Updated Harfbuzz to 1.8.8
+* Updated OpenAL to 1.19.0
+* Updated howler.js to 2.0.15
+* Updated build configuration of pixman to better support each platform
+* Added `application.meta.version` to the default application template
+* Added support for `<undefine name="" />` for undefining values
+* Added support for `<window title="" />` in project.xml
+* Renamed `cairo.operator` to `cairo.setOperator`/`getOperator` on Haxe 4 builds
+* Updated `lime.text.Font` to allow for changes to the font metric meta values
+* Removed `-Ddisplay` on `lime display` output for better cached compilation
+* Removed prefixes on `imageSmoothingEnabled` internally to remove HTML5 warnings
+* Improved use of howler.js to enable sound position
+* Improved HTML5 support for certain MP3 audio files
+* Improved `Image.loadFromBase64`/`Image.fromBase64` to work on non-HTML5 platforms
+* Fixed a possible error when processing directories ending in ".bundle"
+* Fixed an issue where multiple `HTTPRequest` instances on native could hang
+* Fixed support for `<library type="zip" />` as an alias for type "deflate"
+* Fixed minor issues in `TextField` when working with non-UTF8 `String` values
+* Fixed use of specific iOS target devices in the AIR project template
+* Fixed an exception caused in garbage collection for cURL requests
+* Fixed an issue when using `window.readPixels` on HTML5
+* Fixed possible exceptions when working with Harfbuzz languages
+* Fixed a minor encoding issue in `image.encode (BMP)`
+* Fixed setting of `window.parameters` using `WindowAttributes` on creation
+* Fixed default use of Visual Studio Community when older versions are installed
+* Fixed an exception when checking locale on certain iOS devices
+* Fixed compiler errors when using `webgl2.texImage2D` with certain parameters
+* Fixed use of WebGL 2, when available, as the default context on HTML5
+* Fixed support for `-static` native builds for Windows
+* Fixed an issue where `Assets` cache breaking was not working properly
+* Fixed compilation issues in Haxe 4 development builds
+
+
+7.0.0 (08/09/2018)
+------------------
+
+* Major API re-design to improve workflow outside of command-line tools
+* Migrated the core of the command-line tools into a new project called HXP
+* Updated Freetype to 2.9.1
+* Updated Android minimum SDK to API 14 and the default target SDK to API 26
+* Updated window defaults to always enable depth and stencil buffers
+* Updated window defaults to use a 32-bit (instead of 16-bit) backbuffer
+* Removed `lime.graphics.Renderer`, functionality moved to `Window`
+* Removed `lime.app.Config`, moved `app.frameRate` to `Window`
+* Removed `lime.graphics.format.*`, functionality moved to `image.encode`
+* Removed `lime.utils.compress.*`, functionality moved to `lime.utils.Bytes`
+* Removed `lime.ui.Mouse`, functionality moved to `Window`
+* Renamed `lime.app.Preloader` to `lime.utils.Preloader`
+* Removed `lime.text.TextLayout`, replaced with native Harfbuzz bindings
+* Moved `lime.project` types into `lime.tools`
+* Moved `lime.utils.GLUtils` functionality to `GLProgram` and `GLShader`
+* Added new `lime.graphics.RenderContext` with more lightweight API bindings
+* Divided OpenGL support into separate `OPENGL`, `OPENGLES` and `WEBGL` types
+* Compatibility APIs are provided in one direction (GL -> GLES -> WebGL)
+* Added `lime.ui.WindowAttributes` with broader context creation control
+* Sub-classing `Application` now requires no `window` argument for most methods
+* Multi-window applications should listen to `app.onWindowCreate` instead
+* Added support for Haxe Eval target, and beta support for HashLink (on dev)
+* Added Windows 64-bit support, Android ARM64 support, progress on WinRT support
+* Added bindings for the Harfbuzz native text layout library
+* Added `lime.ui.MouseButton` and `lime.ui.MouseWheelMode`
+* Added MojoAL support (as an alternative to OpenAL-Soft) in dev builds
+* Added cURL Multi support
+* Added support for `<config:air languages="" />`
+* Exposed `window.stage` and `window.element` on Flash/HTML5 targets
+* Improved native build times by not relying on macros for CFFI
+* Improved mouse event bindings, improved consistency of mouse wheel behavior
+* Improved HTML5 fullscreen exit to dispatch a restore, not a resize event
+* Improved `lime.math.*` classes to allow for less GC activity
+* Improved support for Electron on Linux to allow for WebGL on more drivers
+* Improved quality for HTML5 frame rate when set to lower than VSync
+* Improved `HTTPRequest` to dispatch a progress event when loading locally
+* Fixed some cases where allocation could occur during native GC
+* Fixed use of future.then when the result is an error condition
+* Fixed issues with some of the equations in `lime.math.*`
+* Fixed warning in Chrome caused by default HTML5 template
+* Fixed unnecessary AL cleanup message on exit
+* Fixed replay of existing native AudioSource sounds
+* Fixed Unicode paths on Windows when returning paths from the system
+* Fixed pasting Clipboard data when application first launches
+* Fixed webfont loading on mobile Safari
+* Fixed issue with AL.source3i types
+* Fixed support for iOS entitlements paths that include spaces
+
+
+6.4.0 (06/01/2018)
+------------------
+
+* Updated NPM dependency to `file-saver` from `file-saverjs`
+* Updated Android ARMv7 builds to use `armeabi-v7a` instead of `armeabi-v7`
+* Added (Beta) support for `electron` (`html5 -electron`) target
+* Added `window.onExpose` event (useful when not rendering every frame)
+* Added `raspberrypi` or `rpi` as a target alias
+* Improved `Locale` to better handle `en_US-en` style strings
+* Improved handling of iOS locale values
+* Improved support for current Xcode versions by using an `.entitlements` file
+* Improved support for mouse "release outside" behavior on HTML5
+* Improved support for current Raspberry Pi OpenGL/EGL libraries
+* Improved Android Gradle template to include Maven for native extensions
+* Improved error handling when a library handler does not execute properly
+* Fixed crash in `ObjectPool` when setting initial size
+* Fixed setting `powerOfTwo = true` for an `ImageBuffer` with a canvas source
+* Fixed SWF font generation to limit kerning values to the SWF spec maximum
+* Fixed some cases where `HOME` environment variable might return `null`
+
+
+6.3.1 (05/11/2018)
+------------------
+
+* Improved support for \*.bundle libraries within an asset folder
+* Improved the output of `lime help`
+* Fixed the behavior of `<define />` to behave like `<haxedef />` + `<set />`
+
+
+6.3.0 (05/04/2018)
+------------------
+
+* Updated SDL to 2.0.8
+* Updated howler.js to 2.0.9
+* Updated Android NDK platform to a minimum of API 14
+* Updated macOS minimum support version to 10.9
+* Added support for `-D foo` in addition to `-Dfoo`
+* Added support for `--` in addition to `-args` for runtime arguments
+* Added catching of key/value runtime arguments as `window.config.parameters`
+* Added support for `--window-` flags at runtime on Lime applications
+* Added a workaround to fix memory leaks in Apple's OpenAL implementation
+* Added initial HTML5 accelerometer sensor support
+* Added support for exporting multiple iOS IPA types when using `lime deploy`
+* Added `ENHANCED` profile to AIR extern types
+* Improved the behavior of `lime setup`
+* Improved the output of `lime help`
+* Improved failed sound loading on HTML5 to print a runtime warning
+* Improved support for multiple threads in OpenAL, Cairo and cURL GC
+* Improved the generation of webfonts to ignore non-essential formats
+* Improved behavior when calling closure compiler to minify JS
+* Improved `openfl.Vector` to typed array conversion to support OpenFL 8
+* Improved `Assets.getPath` to return the first path if using a path group
+* Improved support for `KHR_debug` in OpenGL
+* Improved handling of errors within OpenAL generation of sources and buffers
+* Improved window focus mouse clicks to still fire an event
+* Improvde handling of disposed native `AudioSource` objects
+* Improved support for opening files with spaces in the path
+* Improved the Gradle template to use jcenter instead of maven for dependencies
+* Fixed detection of font family names on some Android 4.x devices
+* Fixed support for `-dce full` with `embed=true` assets on native
+* Fixed a small memory leak in Zlib compress
+* Fixed a small memory leak when using cURL request headers
+* Fixed a small memory leak in `gamepad.guid`
+* Fixed support for a software fallback when GL support is too old
+* Fixed a regression in support for static desktop builds
+* Fixed a possible garbage collection issue in cURL support
+* Fixed calling `UTF8String.substr()` internally without a length field
+* Fixed request of keyboard input on WebKit when in fullscreen
+* Fixed a possible issue when building on macOS with spaces in the Lime directory
+* Fixed the behavior of `embed="false"` assets on HTML5
+* Fixed a possible race condition in `-Dsimulate-preloader` on Flash target
+* Fixed support for additional iOS icon sizes
+* Fixed fullscreen text input on WebKit browsers
+* Fixed an issue using `Image.fromBase64` in ES6/NPM-based builds
+* Fixed disabling of vsync on native targets when not desired
+
+
+6.2.0 (02/16/2018)
+------------------
+
+* Added new implementation of `Font.renderGlyphs` for native platforms
+* Added generation of font metrics for embedded HTML5 fonts
+* Improved support for ANGLE builds on Windows
+* Improved accuracy of file seeking in streaming OGG Vorbis sounds on native
+* Fixed regression in `renderer.readPixels` when using an OpenGL renderer
+* Fixed addition of an empty character when using arrow keys on HTML5 text input
+* Fixed fallback for OpenGL ES 2.0 on older iOS devices when 3.0 is not available
+* Fixed using environment variables to define the path to the Emscripten SDK
+* Fixed letting the user focus outside a Lime embed when text input is enabled
+* Fixed `FileDialog.save` to require FileSaver.js when using CommonJS
+
+
+6.1.0 (02/07/2018)
+------------------
+
+* Added OpenGL ES 3.0 support on iOS
+* Added `System.deviceVendor` and `System.deviceModel`
+* Added `System.platformLabel`, `.platformName` and `.platformVersion`
+* Added support for `<config:html5 dependency-path="lib" />`
+* Added support for `<config:air sdk-version="25.0" />`
+* Improved garbage collection behavior in `lime.net.curl.CURL`
+* Improved performance when requesting static `System` values repeatedly
+* Improved Xcode template for iPhone X and Xcode 9.2
+* Renamed `-Dmodular` to `-Dlime-modular` (to allow for using lib modular)
+* Fixed a possible crash in `ImageDataUtil.gaussianBlur`
+* Fixed an iOS template path for "haxe/Build.hxml"
+* Fixed an issue when setting volume in HTML5 before playback starts
+* Fixed default framebuffer binding when using iOS simulator
+* Fixed support for properly detecting MP3 format in some files
+* Fixed support for builds on macOS/Linux when `$HOME` variable is not present
+* Fixed crash in continuous-testing when no window can be initialized
+
+
+6.0.1 (01/16/2018)
+------------------
+
+* Minor fix for `haxelib run openfl setup` command-line alias installation
+
+
+6.0.0 (01/15/2018)
+------------------
+
+* Added `-watch` for simple \*.hx file watching support on commands
+* Added support for OpenAL effects extension where available
+* Added support for forcing a WebGL 1 context at runtime
+* Added support for defining an HTML5 DOM renderer at runtime
+* Added support for automatic iOS device provisioning and registration
+* Added improved support for CommonJS output
+* Improved support for the `haxe-modular` library
+* Improved support for haxelibs that define `classPath` in haxelib.json
+* Improved performance of `image.copyPixels` on HTML5 when image is not a canvas
+* Improved use of external libraries when using CommonJS
+* Improved the quality of locale values returned on Windows
+* Improved handling of null responses in `HTTPRequest`
+* Improved `ObjectPool` to not use generics on HTML5 for better file size
+* Fixed issues preventing compilation of tools for Node.js
+* Fixed use of `rootPath` when loading packed asset libraries
+* Fixed launch image sizes for iPhone X
+* Fixed support for `-Dnocffi` when compiling CLI tools
+* Fixed a possible range error in `DataPointer`
+* Fixed a minor debug message when HXCPP "std" is statically linked
+
+
+5.9.1 (11/30/2017)
+------------------
+
+* Updated howler.js with minor fixes for IE11 and Firefox browsers
+
+
+5.9.0 (11/29/2017)
+------------------
+
+* Added support for {{variable}} substitution in template file/folder names
+* Added support for packed asset libraries, with optional compression
+* Added initial support for Adobe native extensions (ANE) for AIR
+* Added `-Dlime-default-timeout` to override the default HTTPRequest timeout
+* Added a prompt for keystore password on Android if no password is provided
+* Added a hint to request a discrete GPU on dual-GPU Windows systems
+* Added a general "ios/template" template path for copying additional files
+* Added ability to export iOS `-archive` on build
+* Added ability to `lime deploy ios` and output IPA for store or ad-hoc
+* Improved `-verbose` to be ignored by default on `lime display` for IDEs
+* Improved iOS launch image list to support iPhone X fullscreen resolution
+* Improved CSS font generation to skip formats that are not able to convert
+* Improved the behavior of `<window resizable="false" />` on HTML5
+* Fixed handling of HTTP status 0 as an error when not running on Tizen HTML5
+* Fixed an issue with `ContextMenuItem`/`NativeContextMenuItem` for Flash/AIR
+* Fixed the AIR target install folder if `<meta company="" />` is empty
+* Fixed reference to the `EMSCRIPTEN_SDK` when targeting Emscripten/WebAssembly
+* Fixed an issue with double playing of sound on Firefox using howler.js
+* Fixed a possible error in some web browsers when reloading the current page
+* Fixed handling of the newer iOS simulator and file extensions for AIR builds
+* Fixed return to Android fullscreen when dismissing an on-screen keyboard
+* Fixed a minor naming issue when using newer HXCPP and MSVC for static builds
+* Fixed setting of "ios" and "android" project values when using AIR iOS/Android
+* Fixed handling of Haxe version output with newer Haxe development build
+
+
+5.8.2 (11/10/2017)
+------------------
+
+* Updated cURL to 7.56.1 and changed SSL library from axTLS to mbedTLS
+* Updated howler.js to 2.0.5, FileSaver.js to 1.3.3
+* Added `-Dcurl-verbose` for additional cURL debug info in native `HTTPRequest`
+* Improved support for `<window color-depth="32" />` on HTML5 target
+* Improved `renderer.readPixels` on native platforms to allow transparency
+* Fixed the behavior of `<asset path="Assets" library="default" />`
+
+
+5.8.1 (11/06/2017)
+------------------
+
+* Added support for `AudioBuffer.fromBytes` on HTML5
+* Added initial support for `fileDialog.save` on HTML5 (using FileSaver.js)
+* Added initial support for native extensions on the Adobe AIR target
+* Improved the behavior of missing webfonts to no longer crash a web application
+* Improved `window.onClose` to be cancelable on HTML5
+* Improved tools to print warning for unrecognized `<asset type="" />` values
+* Fixed support for Adobe AIR where `nativeWindow` is `null`
+
+
+5.8.0 (10/24/2017)
+------------------
+
+* Added `httpRequest.withCredentials` for sending cookies with web requests
+* Added initial support for `Touch.onCancel` events
+* Restored `false` as the default `httpRequest.enableResponseHeaders` value
+* Improved image loading to better support progress events on some browsers
+* Improved support for `HTTPRequest` headers on native platforms
+* Improved the handling of `lime.utils.Log` output on web browsers
+* Improved `lime.utils.ObjectPool` to allow abstract types
+* Improved AIR builds to support the `<certificate />` tag for signing
+* Improved the default window size for AIR output for mobile platforms
+* Improved AIR template to respect `<window allow-high-dpi="" />` for iOS
+* Improved AIR template to support additional icon sizes for mobile
+* Fixed the behavior of tailing the `trace` log on Windows/Flash target
+* Fixed HTML5 "same origin" calculation for CORS requests
+* Fixed return to Android fullscreen after losing window focus
+* Fixed support for `ANDROID_GRADLE_TASK` with command-line arguments
+* Fixed support for relative provisioning profile paths for AIR target
+
+
+5.7.1 (10/12/2017)
+------------------
+
+* Updated default `MACOSX_DEPLOYMENT_TARGET` on macOS to 10.7
+* Improved native `HTTPRequest` to complete as error if response status is error
+* Fixed `HTTPRequest` to treat HTTP status code 400 as an error
+
+
+5.7.0 (10/10/2017)
+------------------
+
+* Updated Freetype to 2.7.1, compiled with Harfbuzz/PNG support enabled
+* Added initial Adobe AIR backend support for multiple windows, alerts, etc
+* Added `threadPool.onRun` to be notified when work is about to be run
+* Added `ModuleHelper.addModuleSource` to improve JS modules from HXP projects
+* Added initial Dockerfile script
+* Added a polyfill for `performance.now()` to restore iPhone 4 HTML5 support
+* Improved Raspberry Pi support by adding "Escape" as a default key to exit
+* Improved support for non-premultiplied alpha in `imageDataUtil.gaussianBlur`
+* Improved native `HTTPRequest` to size bytes initially based on Content-Length
+* Improved support for Xcode 9.1
+* Improved support for combined characters in `TextLayout`
+* Fixed setting of `MACOSX_DEPLOYMENT_TARGET` on macOS
+* Fixed support for resolving iOS provisioning profiles for AIR/iOS on Windows
+* Fixed the addition of the HTML5 default cache break string for assets
+* Fixed default asset type assignment for files with upper-case file extensions
+* Fixed support for Raspberry Pi
+* Fixed `threadPool.onProgress` to dispatch in the proper foreground thread
+* Fixed native `HTTPRequest` to calculate timeout from when requests run
+
+
+5.6.0 (09/26/2017)
+------------------
+
+* Added `lime.system.FileWatcher` for notifications of file events
+* Added support for color output on the Windows 10 standard command prompt
+* Added support for `lime config NAME VALUE` to add/set config values
+* Added initial template support for `lime test winjs` for HTML5/UWP support
+* Updated haxe.io.Bytes to match current official version
+* Improved key events to always set the key modifier on alt/ctrl/shift key press
+* Improved support for Adobe AIR iOS and Android builds
+* Improved Android builds to minimize to background on back button and not exit
+* Improved Linux target to build without HXCPP liblinuxcompat.a
+* Improved support for setting `-dce` on the command-line
+* Fixed support for setting `--window-minimized`, maximized and hidden using CLI
+* Fixed escaping of spaces in Windows paths
+* Fixed the behavior of `image.copyPixels` using an alpha image
+* Fixed the class path order when embedding Flash assets in certain conditions
+* Fixed support for Tizen HTML5 applications
+* Fixed progress event update on HTML5 HTTPRequest uploads
+* Fixed `ImageHelper.resizeImage` to properly handle null parameters
+
+
+5.5.0 (09/12/2017)
+------------------
+
+* Added an instance-based API for cURL (such as `new CURL ()`)
+* Added `<config:ios non-exempt-encryption="true" />` setting value
+* Added generation of source map when minifying HTML5 on debug
+* Deprecated `lime.net.curl.CURLEasy` in favor of `CURL`
+* Updated tinyfiledialogs to 2.9.3
+* Updated bundled Google Closure Compiler to v20170806
+* Improved the functionality of `System.endianness`
+* Improved Adobe AIR `deploy` command to generate a \*.bundle file
+* Improved the behavior of native HTTPRequest for better memory management
+* Fixed endianness issues in `image.setPixels`
+* Fixed support for `image.copyPixels` using alpha image and offset point
+* Fixed support for newer HXCPP, including dynamic libs only on Haxe 3.2.1
+* Fixed ability to exclude default architectures on builds
+* Fixed support for `<window fullscreen="false" />` on Android
+* Fixed minor issues caused by detecting some AWD files as text
+
+
+5.4.0 (08/25/2017)
+------------------
+
+* Added tooling for Adobe AIR (`lime test air`, `lime test windows -air`, etc)
+* Added externs for Adobe AIR classes and types
+* Added `<haxelib repository="" />` for choosing a custom haxelib repository path
+* Added OpenGL ES 3 API support (currently enabled on Linux and Emscripten)
+* Added support for setting `HAXELIB_PATH` environment variable in projects
+* Changed the output directory to not include the build type by default
+* Improved HTML5 to default images to canvas, not a typed array
+* Improved HXP to handle `-nocolor`, `-verbose` and other compile flags
+* Improved HXP to be able to update environment variables for build process
+* Fixed tvOS target to use `<config:tvos provisioning-profile="" />`
+* Fixed Android builds when using an Android SDK older than API 23
+* Fixed an issue when running command-line tools from a root directory
+* Fixed UTF-8 `charCodeAt` when index is out of range
+* Fixed the `strength` property of `ImageDataUtils.gaussianBlur`
+
+
+5.3.0 (07/31/2017)
+------------------
+
+* Added support for WebAssembly (`emscripten -webassembly` or `-wasm`)
+* Added `lime -version` for simpler Lime version output
+* Added `@:compiler` to add extra compiler arguments to HXP projects
+* Updated howler.js to 2.0.4, plus an additional Firefox WebAudio patch
+* Improved support for using Lime in local .haxelib directories
+* Improved detection of default asset type in command-line tools
+* Improved support for HTML5 -Dmodular builds
+* Improved handling of error messages from howler.js
+* Fixed support for asset libraries in Emscripten/WebAssembly target
+* Fixed `lime create extension` to preserve `ANDROID_GRADLE_PLUGIN` variable
+* Fixed support for preloading fonts on Safari
+
+
+5.2.1 (06/21/2017)
+------------------
+
+* Improved HTTPRequest with default "Content-Type" headers when sending data
+* Fixed case where HTML5 could preload sounds twice, unintentionally
+* Fixed support for compiling HTML5 -Dmodular builds
+
+
+5.2.0 (06/20/2017)
+------------------
+
+* Added ability to override the target output directory
+* Added `Assets.hasLibrary` to check if a given library is registered
+* Improved webfonts to cache upon generation and not save in asset directory
+* Updated JavaScript timers to use `performance.now()` instead of `new Date()`
+* Fixed support for *.bundle directories which include "include.xml"
+* Fixed `AssetLibrary` to preload non-embedded assets if set to preload
+* Fixed an issue when converting non-String values to `UTF8String`
+* Fixed an issue with Node http-server resolving properly to localhost
+* Fixed support for `lime test linux -32` on 64-bit systems
+
+
+5.1.0 (06/07/2017)
+------------------
+
+* Added `lime.text.UTF8String` with unifill for handling UTF-8 text
+* Added support for `Clipboard.onUpdate` on native and HTML5
+* Added initial support for HTML5 fullscreen
+* Added initial support for `window.setIcon` and `window.title` on HTML5
+* Added support for 32-bit GL color depth on native platforms
+* Added support for making 64-bit Windows builds
+* Added support for automatically detecting latest Android build tools
+* Added support for setting `<config:android build-tools-version="" />`
+* Added support for `<config:ios allow-insecure-http="" />`
+* Added support for `<config:android gradle-build-directory="" />`
+* Updated Node http-server to version 0.10.0
+* Improved handling of crossOrigin requests on HTML5 for same-origin
+* Improved the accuracy of `image.copyPixels` when using alpha image
+* Improved performance of ObjectPool when constantly recycling objects
+* Improved `image.setPixels` to accept bytes and offset
+* Improved performance of creating a new Image with no fill color
+* Fixed issue with OpenAL GC
+* Fixed loading of some WAV files
+* Fixed minor issues in using output of `lime display` for code completion
+* Fixed semi-transparent fillRect on canvas-based Image
+* Fixed minor issues with cURL
+
+
+5.0.3 (05/24/2017)
+------------------
+
+* Reverted inclusion of custom haxelib build in Lime tools
+* Support for wildcard versioning requires a compatible install of haxelib
+* Added support for optional runtime overriding of haxelib script
+* Improved handling of haxelib errors during HXML generation
+* Fixed support for uploading larger byte objects using HTTPRequest
+* Fixed support for config.rootPath
+
+
+5.0.2 (05/22/2017)
+------------------
+
+* Improved support for finding versioned haxelib path when using haxelib git
+
+
+5.0.1 (05/22/2017)
+------------------
+
+* Fixed an issue with PathHelper.getHaxelib outside of Lime tools
+* Fixed regressions in haxelib path resolution
+
+
+5.0.0 (05/19/2017)
+------------------
+
+* Updated the OpenGL bindings for better performance on HTML5
+* WebGL-specific signatures are now available using "WEBGL" suffix
+* Added support for wildcard haxelib versions (such as "1.0.\*")
+* Added a new joystick.onTrackballMove with both x and y values
+* Added support for ThreadPool when there is no Application instance
+* Added haxelib to Lime tools to support path resolution fixes
+* Added ProjectXMLParser.fromFile for consistency
+* Updated default SWF version to 17 to prevent common compile issues
+* Removed deprecated config.assetsPrefix (use config.rootPath)
+* Improved support for HXP projects on Windows
+* Improved performance of image.copyPixels
+* Improved the `lime create extension <name>` template
+* Improved the behavior of Flash Player logging on Linux
+* Improved memory use in Matrix4 and TextLayout
+* Improved render event to allow canceling (avoids a screen flip)
+* Improved `lime setup` to quiet the "no setup required" message
+* Fixed dead-code-elimination with OpenGL extension classes
+* Fixed support for >, <, >=, <= and == in XML "unless" attribute
+* Fixed complete exit on Android when using the back button
+
+
+4.1.0 (05/04/2017)
+------------------
+
+* Updated SDL to latest development version
+* Updated Freetype to 2.7.1
+* Updated Harfbuzz to 1.4.6
+* Updated Howler.js to 2.0.3
+* Added window.alwaysOnTop, with initial support on Windows and Linux
+* Added WebP compatibility on HTML5, improved file format detection
+* Added EXT_texture_compression_s3tc to GL extensions
+* Added ability to specify architecture when performing iOS simulator builds
+* Removed deprecated HTML meta for Google Chrome Frame
+* Improved macro compile performance
+* Improved asset manifests to embed when all of their assets are embedded
+* Improved the web template for Flash for better relative URL resolution
+* Improved support for OpenGL extensions when dead-code-elimination is enabled
+* Improved the suspend/resume behavior on Android
+* Improved System.endianness to return BIG_ENDIAN on Flash Player
+* Improved file copying in tools to not copy templates that have not changed
+* Improved Cairo bindings to return the same object reference when possible
+* Improved OpenAL bindings to return the same object reference when possible
+* Fixed an issue with exiting fullscreen on HTML5
+* Fixed an issue with escaped paths when generating Neko executables
+* Fixed possible cases where paths could have been escaped twice in Haxe 3.3
+* Fixed support for GL.compressedTexImage on HTML5
+* Fixed CORS exception on HTML5 if there is no content-type header
+* Fixed static initialization order of core lime.system.CFFI methods
+* Fixed a dead-code-elimination issue in NativeHTTPRequest
+* Fixed the Android Gradle Plugin setting in the Lime extension template
+
+
+4.0.3 (03/28/2017)
+------------------
+
+* Added support for GL EXT_packed_depth_stencil
+* Improved safety around DataPointer when performing arithmetic
+* Improved Image.loadFromBytes when bytes are not a known image type
+* Improved the performance of Image.fillRect in some cases
+
+
+4.0.2 (03/21/2017)
+------------------
+
+* Added an internal transfer queue for limiting simultaneous HTML5 requests
+* Added an internal thread pool for limiting simultaneous native HTTPRequests
+* Fixed compilation support with newer Haxe releases on Raspberry Pi
+* Fixed the default "end" argument value of ArrayBufferView subarray
+* Fixed a performance regression in WebGL support
+* Fixed native HTTPRequest so that it always returns on the correct thread
+* Fixed path resolution to APK-based assets using HTTPRequest on Android
+* Fixed "unused pattern" warning caused by duplicate constant in GL bindings
+* Fixed a mismatch between intptr_t and uintptr_t (affecting Android)
+* Fixed several Window properties when creating a new window without a config
+
+
+4.0.1 (03/17/2017)
+------------------
+
+* Improved error message when an asset library is not found
+* Improved generated code performance when using ArrayBufferView
+* Fixed some issues with incorrect OpenGL garbage collection
+* Fixed AssetLibrary loadText to use text (not binary) loading on HTML5
+* Fixed support `<library />` tag without using a "path" attribute
+* Fixed premature loading of `embed="false"` assets on HTML5
+* Fixed missing bufferData API in WebGLContext
+* Fixed OpenGL bindings to return null OpenGL objects if an ID is zero
+
+
+4.0.0 (03/15/2017)
+------------------
+
+* Added support for WebGL 2 APIs on HTML5
+* Recreated GL bindings in preparation for GLES3 support
+* Added support for running different Lime tools to match project version
+* Added WebGL, WebGL 2, GLES 2 and GLES 3 abstracts
+* Added initial support for WebGL/GLES2 extension constants
+* Added GL context, type and version properties
+* Added window.displayMode for full-screen display mode switching
+* Added lime.utils.DataPointer for managing native pointers
+* Added lime.utils.BytePointer for Bytes + offset without a new typed array
+* Added lime.utils.ObjectPool as a convenience API for object pooling
+* Added support for `<assets path="" library="" />` for library packing
+* Added support for loading \*.bundle directories as asset libraries
+* Added support for `${meta.title}` and other project data in project.xml
+* Added support for Cairo textPath
+* Added support for multiple Lime embeds, rewrote HTML5 embed code
+* Added asset type to verbose Preloader messages
+* Added `-Dwebgl1` to use a WebGL 1 context instead of WebGL 2 on HTML5
+* Removed deprecated behaviors from Lime 3
+* Updated Gamepad mappings to support additional models
+* Updated HTML5 window to dispatch resize event if parent element is resized
+* Improved support for deferred loading of asset libraries
+* Improved Asset error events, updated to throw errors when assets not found
+* Improved handling of GL context loss on WebGL
+* Improved behavior of asset manifests included as assets of another library
+* Improved behavior of path groups for audioBuffer assets
+* Improved error message if ANDROID_SDK or ANDROID_NDK_ROOT is not defined
+* Fixed caching for HTML5 cache groups
+* Fixed native HTTPRequest if file is not found or uses ~/ for home directory
+* Fixed copying of files when a directory exists of the same name
+* Fixed dispatch of Renderer.onRender when there is no context
+* Fixed dispatch of Renderer.onContextLost on native platforms
+* Fixed use of image.threshold when source is canvas or HTML5 image
+* Fixed missing warning if `<icon path="" />` is null
+* Fixed `<app path="" />` to be relative to include.xml path
+* Fixed `<splashScreen path="" />` to be relative to include.xml path
+* Fixed case where assets could be processed as templates
+* Fixed support for ATF textures on Flash target
+* Fixed ID value for Joystick/Gamepad guid property
+* Fixed double dispatch of preloader complete verbose message
+* Fixed path of `-options` parameter when calling HXCPP
+
+
+3.7.4 (02/15/2017)
+------------------
+
+* Improved AudioBuffer/Font/Image/Sound.loadFromFile to support URLs
+* Deprecated AudioBuffer.fromURL and onload/onerror callbacks
+* Added verbose log messages during asset library preload
+* Fixed crash on iOS when rewinding or looping sounds
+
+
+3.7.3 (02/13/2017)
+------------------
+
+* Improved support for Raspberry Pi
+* Improved configuration for Gradle version on Android builds
+* Fixed a crash in VorbisFile.fromBytes
+* Fixed httpRequest.timeout to timeout only on opening a connection
+* Fixed setting of system clipboard when using Clipboard.text on HTML5
+* Fixed Assets.getBytes for cached text assets
+* Fixed the final progress value when using -Dsimulate-preloader
+* Fixed valid image check when returning cached image assets
+* Fixed a minor memory leak in System application directories
+* Fixed filters and default file name in FileDialog
+* Fixed AudioBuffer.loadFromFile on native for remote assets
+
+
+3.7.2 (01/26/2017)
+------------------
+
+* Reverted high-DPI HTML5 mouse scale change
+* Improved the DPI values returned from display.dpi
+* Fixed "Update to Recommended Settings" message on Xcode 8.2
+
+
+3.7.1 (01/25/2017)
+------------------
+
+* Improved output of Flash Player log output
+* Fixed minor issues with Flash Player preload logic
+* Fixed use of AudioBuffer in multiple native AudioSource instances
+
+
+3.7.0 (01/24/2017)
+------------------
+
+* Added `<define />` (implies `<set />` and `<haxedef />`)
+* Added `<dependency force-load="" />` (will default to false in Lime 4)
+* Added `-Dsimulate-preloader=3000` for simulating preload progress
+* Improved Image.loadFromBase64/loadFromBytes/loadFromFile on HTML5
+* Improved Image.loadFromBytes/loadFromFile support on Flash target
+* Improved support for "library.json" files that are not embedded
+* Improved support for browsers that do not have context.isPointInPath
+* Improved `lime setup linux` command for some newer environments
+* Improved caching behavior of text assets in AssetLibrary
+* Improved seeking behavior for AudioSource on native targets
+* Improved preload behavior on Flash target
+* Fixed metadata-based font embedding for Flash Player
+* Fixed issues with Windows paths when building tools with Haxe 3.4
+* Fixed preloading of fonts similar to default sans-serif on HTML5
+* Fixed base path for assets loaded from non-default asset libraries
+* Fixed scale of mouse events dispatched for high-DPI HTML5 windows
+
+
+3.6.2 (01/20/2017)
+------------------
+
+* Improved error when making a directory on an unavailable drive letter
+* Fixed regression in support for HTML5 font preloading
+* Fixed possible font overflow when embedding fonts on Flash target
+* Fixed crash on Neko when using AudioSource with no AudioBuffer
+
+
+3.6.1 (01/18/2017)
+------------------
+
+* Added streaming audio support to AudioSource
+* Fixed issues in bytesLoaded/bytesTotal calculation
+* Fixed a regression in support for static-linking
+* Fixed a regression in support for lime.utils.JNI
+
+
+3.6.0 (01/16/2017)
+------------------
+
+* Moved "lime.audio" to "lime.media"
+* Added Vorbis bindings under "lime.media.codecs.vorbis"
+* Added lime.ui.ScanCode, with conversion support to/from KeyCode on native
+* Added tool support for the "--no-output" argument
+* Migrated from NFD to tinyfiledialogs for better dialog support
+* Made window.close cancelable on desktop platforms
+* Updated libjpeg to 9b
+* Updated howler.js to 2.0.2
+* Improved support for Haxe 3.4
+* Improved support for progress events while preloading
+* Fixed force install when deploying to Android (API 16+ devices)
+* Fixed an invalid state when returning from background on Android
+* Fixed playback of a single audio buffer multiple times on HTML5
+* Fixed initial volume level in AudioSource on HTML5
+* Fixed a regression in the default architecture list for iOS
+* Fixed merging of multiple <architecture /> tags in project files
+* Fixed a possible crash when retrieving OpenGL strings
+* Fixed the default template for HTML5 when multiple projects are embedded
+* Fixed support for non-preloaded assets on HTML5
+* Fixed support for image.copyChannel on HTML5 when using WebGL
+* Fixed support for command-line arguments with "lime rebuild"
+
+
+3.5.2 (12/19/2016)
+------------------
+
+* Fixed issues related to @:bitmap, @:file and @:sound
+* Fixed support for HTML5 font preloading
+* Fixed issue with HTTPRequest and IE 11
+* Fixed an issue when merging multiple project.config values
+* Reverted bytes changes to resolve C++ GC issues
+
+
+3.5.1 (12/16/2016)
+------------------
+
+* Made major changes to Assets and the behavior of asset libraries
+* Made progress on a better asset manifest system
+* Made significant improvements to the iOS project templates
+* Moved lime.Assets to lime.utils.Assets
+* Added lime.utils.AssetLibrary, lime.utils.AssetType, lime.utils.AssetManifest
+* Added static "loadFrom" constructors for core types
+* Improved C++ performance on debug builds, added -Dlime-debug
+* Updated CFFI bytes to better support C# target
+* Fixed the 'cannot find build target "by"' error with current Haxe releases
+* Fixed support for *.hxp projects
+* Fixed some compile errors when core types were used in macros
+* Fixed a minor issue with HTTPRequest on HTML5
+* Fixed Android template so READ\_PHONE\_STATE is not a required permission
+* Fixed support for `<haxelib name="" path="" />`
+* Fixed a regression with the quality of generated SVG icons
+
+
+3.5.0 (12/07/2016)
+------------------
+
+* Significantly improved lime.net.HTTPRequest
+* Added support for lime.system.Clipboard on HTML5
+* Added System.openURL to launch a website externally
+* Added System.openFile to open a file using a system default application
+* Added -nolaunch option for HTML5 "test" command
+* Added support for `<config:ios provisioning-profile="" />` for iOS
+* Updated SDL to dev version to fix Linux keyboard events
+* Updated lime.app.Future with better progress events
+* Updated to initialize WebGL2 on HTML5, when available
+* Refactored certificate storage in HXProject
+* Improved the parsing and merge support for default Lime config
+* Improved the GL context in anticipation for GLES3/WebGL2 support
+* Improved HTML5 mouse events to allow canceling
+* Improved auto-build number detection to support SVN
+* Improved support for toggling window.resizable on native
+* Fixed audioBuffer.dispose for Howler.js buffers
+* Fixed use of deprecated APIs in lime.ui.Haptic implementation on iOS
+* Fixed use of deprecated APIs in accelerometer implementation on iOS
+* Fixed crash when resuming iOS applications from the background
+* Fixed crash if an asset manifest is not found and live reloading is enabled
+* Fixed handling of the default framebuffer on iOS
+* Fixed handling of \*.jpeg file extension when making Flash builds
+* Fixed an issue in bytes handling for C#
+* Fixed the behavior of window onEnter/onLeave on DOM
+* Fixed the behavior of image.scroll
+* Fixed garbage collection for lime.audio.openal.ALSource
+* Fixed incorrect window scale calculation on the iPhone Plus
+* Fixed some standard APIs when making modular HTML5 builds
+* Fixed crash when setting window.title
+* Fixed the return value of gl.shaderInfoLog on some platforms
+* Fixed the behavior of Event.ACTIVATE when resuming on iOS
+* Fixed missing input event initially on HTML5
+
+
+3.4.1 (11/01/2016)
+------------------
+
+* Fixed order of Assets.registerLibrary and app.onPreloaderComplete
+* Added a workaround for HAXE_STD_PATH error on -Dmodular
+
+
+3.4.0 (10/31/2016)
+------------------
+
+* Moved Lime config from ~/.hxcpp_config.xml to ~/.lime/config.xml
+* Added a new "lime config" command to print the current config
+* Added "lime config VARNAME" command to print a value from the current config
+* Added initial support for modular HTML5 builds (generates separate lime.js)
+* Added support for comparisons in project XML (like ${haxe >= 3.2.1})
+* Added lime.ui.Haptic for initial support of vibrate on iOS/Android
+* Added `<log />` to project XML for info/warning/error/verbose messages
+* Added a build-time error if Haxe is less than 3.2.0
+* Added support for GIT-based meta build number value
+* Added initial high-DPI support for HTML5
+* Updated SDL to version 2.0.5
+* Improved support for Android immersive mode
+* Improved idle performance on macOS
+* Improved Gradle template to output APK filenames based on build type
+* Improved verbose messages for embedded fonts
+* Removed Neko template binaries, updated tools to use host version
+* Fixed IPHONE_VER issues with certain versions of HXCPP
+* Fixed iOS device deployment on macOS Sierra
+* Fixed iOS simulator deployment on macOS Sierra
+* Fixed node.js HTTP server support on macOS Sierra
+* Fixed duplicate symbol error on iOS
+* Fixed support for older CPUs without SSE4 instruction support
+* Fixed crash on negative seek position for HTML5 AudioSource
+* Fixed initial gain and position when playing HTML5 AudioSource sound
+* Fixed compatibility issues with current Haxe development versions
+
+
+3.3.0 (10/10/2016)
+-----------------
+
+* Added Future.ready and Future.result
+* Added AudioBuffer.loadFromFile and AudioBuffer.loadFromFiles
+* Added favicon support to HTML5 builds
+* Added automatic garbage collection to OpenAL bindings
+* Improved the behavior of AudioSource, added Howler.js for HTML5
+* Improved CFFI bindings to prevent early GC of bytes
+* Improved the behavior of \*.hxp project files
+* Improved support for the C# target
+* Improved `<meta build-number="" />` to allow a value of 0
+* Improved support for "-lib lime" from plain HXML
+* Implemented relative mouse movement events for Flash and HTML5
+* Implemented Locale support for Android
+* Updated the behavior of "lime run" to imply "trace" (unless "-notrace")
+* Updated Android template to allow submission to non-touchscreen devices
+* Fixed support for `<java path="" />` on Android
+* Fixed the value of Assets.isLocal for certain non-embedded assets
+* Fixed an issue affecting touch events after an HTML5 build was rotated
+* Fixed use of a custom HAXELIB_PATH for iOS builds (in Xcode)
+* Fixed numpad key values in HTML5
+* Fixed C++ casting when converting openfl.Vector to Float32Array
+* Fixed support for `<window allow-high-dpi="true" />`
+* Fixed Android compilation using debug
+
+
 3.2.1 (09/20/2016)
 ------------------
 
@@ -58,7 +934,7 @@
 3.0.1 (07/20/2016)
 ------------------
 
-* Improved the exclude/include filter behavior on <asset /> tags
+* Improved the exclude/include filter behavior on `<asset />` tags
 * Fixed an issue that caused Window to duplicate event dispatches
 * Fixed the name of generated folder for HTML5 output
 * Fixed support for OpenAL getSource3f
@@ -141,7 +1017,7 @@
 * Ensured that OpenAL is disabled in static builds by default
 * Fixed support for the current Haxe development build
 * Fixed the setup command to ensure all requested dependencies
-* Fixed a compile error when using <source /> and an empty path
+* Fixed a compile error when using `<source />` and an empty path
 * Fixed the -notrace flag (to disable "trace" on "test" commands)
 
 
@@ -152,7 +1028,7 @@
 * Added support for Lime event canceling
 * Added default keyboard shortcuts for toggling fullscreen
 * Added default Android back button behavior to quit
-* Added support for <window resizable="false" /> on HTML5 template
+* Added support for `<window resizable="false" />` on HTML5 template
 * Changed iOS default system font path to be more generic
 * Fixed issues with OGG decoding on newer Android NDK
 * Fixed AudioSource complete event when setting currentTime or length
@@ -361,7 +1237,7 @@
 * Improved the behavior of image getPixel/setPixel
 * Fixed native fillRect/floodFill when using certain color values
 * Improved color conversion support for Flash
-* Fixed issue preventing Neko from reading 32-bit integers correctly 
+* Fixed issue preventing Neko from reading 32-bit integers correctly
 
 
 2.5.1 (07/21/2015)
@@ -506,11 +1382,11 @@
 * Add cubic support to font decomposition
 * Added Cairo window resize handling
 * Added Cairo Freetype support
-* Added check to remove duplicated <dependency /> references
+* Added check to remove duplicated `<dependency />` references
 * Minor fix to image premultiply alpha
 * Minor fix to "lime create" command
 * Minor fix to rectangle.transform
-* Fixed Windows Neko builds when not running on Windows 
+* Fixed Windows Neko builds when not running on Windows
 
 
 2.4.1 (05/13/2015)
@@ -556,7 +1432,7 @@
 
 * Improved performance of pixel-based operations in Image
 * Added support for RGBA (default) and ARGB color order
-* Added --port=123 to change the webserver port on HTML5 builds 
+* Added --port=123 to change the webserver port on HTML5 builds
 * Added support for Unicode Windows system paths
 * Added larger icon sizes requested by Windows 10
 * Improved functionality of BMP.encode
@@ -741,7 +1617,7 @@
 * Improved the Windows ICO generation support
 * Added support for embedded ICO resources in Windows applications
 * Added caching to improve performance when icons exist
-* Added lime.graphics.format.JPEG/PNG/BMP classes for encoding 
+* Added lime.graphics.format.JPEG/PNG/BMP classes for encoding
 * Improved KeyCode so it automatically casts to/from Int
 * Improved the behavior of Android ADB management
 * Migrated to an "Asset Catalog" for iOS icons and launch images
@@ -818,7 +1694,7 @@
 ------------------
 
 * Improved the "lime rebuild" command
-* Added a "-dryrun" flag to help test the tools 
+* Added a "-dryrun" flag to help test the tools
 * Fixed zero width/height in lime.graphics.Image
 * Populate environment with HXCPP config defines
 * Fixed double dispatch of HTML5 mouse events

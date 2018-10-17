@@ -2,36 +2,35 @@
 #define LIME_GRAPHICS_IMAGE_H
 
 
-#include <hx/CFFI.h>
 #include <graphics/ImageBuffer.h>
+#include <math/Rectangle.h>
+#include <system/CFFI.h>
 
 
 namespace lime {
-	
-	
-	class Image {
-		
-		
-		public:
-			
-			Image ();
-			Image (value image);
-			~Image ();
-			
-			ImageBuffer *buffer;
-			int height;
-			int offsetX;
-			int offsetY;
-			int width;
-		
-		private:
-			
-			value mValue;
-		
-		
+
+
+	struct Image {
+
+		hl_type* t;
+		ImageBuffer* buffer;
+		bool dirty;
+		int height;
+		int offsetX;
+		int offsetY;
+		Rectangle* rect;
+		/*ImageType*/ int type;
+		int version;
+		int width;
+		double x;
+		double y;
+
+		Image (value image);
+		~Image ();
+
 	};
-	
-	
+
+
 }
 
 

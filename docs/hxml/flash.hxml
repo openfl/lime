@@ -1,0 +1,9 @@
+-xml xml/Flash.xml
+-swf obj/docs
+-swf-version 17.0
+-D display
+-D doc_gen
+-D lime-doc-gen
+ImportAll
+-lib lime
+--no-output

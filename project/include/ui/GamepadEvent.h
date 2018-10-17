@@ -2,43 +2,43 @@
 #define LIME_UI_GAMEPAD_EVENT_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
+#include <system/ValuePointer.h>
 
 
 namespace lime {
-	
-	
+
+
 	enum GamepadEventType {
-		
+
 		GAMEPAD_AXIS_MOVE,
 		GAMEPAD_BUTTON_DOWN,
 		GAMEPAD_BUTTON_UP,
 		GAMEPAD_CONNECT,
 		GAMEPAD_DISCONNECT
-		
+
 	};
-	
-	
-	class GamepadEvent {
-		
-		public:
-			
-			static AutoGCRoot* callback;
-			static AutoGCRoot* eventObject;
-			
-			GamepadEvent ();
-			
-			static void Dispatch (GamepadEvent* event);
-			
-			int axis;
-			double axisValue;
-			int button;
-			int id;
-			GamepadEventType type;
-		
+
+
+	struct GamepadEvent {
+
+		hl_type* t;
+		int axis;
+		int button;
+		int id;
+		GamepadEventType type;
+		double axisValue;
+
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
+
+		GamepadEvent ();
+
+		static void Dispatch (GamepadEvent* event);
+
 	};
-	
-	
+
+
 }
 
 

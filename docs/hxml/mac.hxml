@@ -1,0 +1,11 @@
+-xml xml/Mac.xml
+-cpp obj/docs
+-D display
+-D native
+-D lime-cffi
+-D mac
+-D doc_gen
+-D lime-doc-gen
+ImportAll
+-lib lime
+--no-output

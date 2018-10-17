@@ -1,0 +1,5 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cp ::OUTPUT_DIR::/haxe
+-hl ::HL_FILE::
+--macro keep("::APP_MAIN::")
+-D final

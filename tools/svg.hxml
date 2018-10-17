@@ -1,7 +1,8 @@
 -main SVGExport
 -neko ../svg.n
--D lime
--cp ..
+-D lime=7.0.0
+-cp ../src
+-lib hxp
 -lib openfl
 -lib svg
 -D lime-cairo

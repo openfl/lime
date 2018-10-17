@@ -31,9 +31,6 @@
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
 	url = https://github.com/native-toolkit/harfbuzz
-[submodule "project/lib/openal-android"]
-	path = project/lib/openal-android
-	url = https://github.com/native-toolkit/openal-android
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
 	url = https://github.com/native-toolkit/cairo
@@ -43,6 +40,21 @@
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
 	url = https://github.com/native-toolkit/lzma
-[submodule "project/lib/nfd"]
-	path = project/lib/nfd
-	url = https://github.com/native-toolkit/nfd
+[submodule "project/lib/tinyfiledialogs"]
+	path = project/lib/tinyfiledialogs
+	url = https://github.com/native-toolkit/tinyfiledialogs
+[submodule "project/lib/efsw"]
+	path = project/lib/efsw
+	url = https://github.com/native-toolkit/efsw
+[submodule "project/lib/vpx"]
+	path = project/lib/vpx
+	url = https://github.com/native-toolkit/vpx
+[submodule "project/lib/webm"]
+	path = project/lib/webm
+	url = https://github.com/native-toolkit/webm
+[submodule "project/lib/mbedtls"]
+	path = project/lib/mbedtls
+	url = https://github.com/native-toolkit/mbedtls
+[submodule "project/lib/mojoal"]
+	path = project/lib/mojoal
+	url = https://github.com/native-toolkit/mojoal

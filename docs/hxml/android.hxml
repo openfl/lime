@@ -1,0 +1,11 @@
+-xml xml/Android.xml
+-cpp obj/docs
+-D display
+-D native
+-D lime-cffi
+-D android
+-D doc_gen
+-D lime-doc-gen
+ImportAll
+-lib lime
+--no-output

@@ -1,58 +1,78 @@
 #ifndef LIME_SYSTEM_SYSTEM_H
 #define LIME_SYSTEM_SYSTEM_H
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 #include <stdio.h>
 #include <string>
 
 
 namespace lime {
-	
-	
+
+
 	enum SystemDirectory {
-		
+
 		APPLICATION,
 		APPLICATION_STORAGE,
 		DESKTOP,
 		DOCUMENTS,
 		FONTS,
 		USER
-		
+
 	};
-	
-	
+
+
 	class System {
-		
-		
+
+
 		public:
-			
+
+			static void GCEnterBlocking ();
+			static void GCExitBlocking ();
 			static bool GetAllowScreenTimeout ();
+			static std::wstring* GetDeviceModel ();
+			static std::wstring* GetDeviceVendor ();
 			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
+			static value GetDisplay (int id);
 			#ifdef IPHONE
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
+			static bool GetIOSTablet ();
 			#endif
-			static value GetDisplay (int id);
 			static int GetNumDisplays ();
+			static std::wstring* GetPlatformLabel ();
+			static std::wstring* GetPlatformName ();
+			static std::wstring* GetPlatformVersion ();
 			static double GetTimer ();
+			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
+			static int GetWindowsConsoleMode (int handleType);
+			#endif
+			static void OpenFile (const char* path);
+			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);
-		
-		
+			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
+			static bool SetWindowsConsoleMode (int handleType, int mode);
+			#endif
+
+		private:
+
+			static bool _isHL;
+
+
 	};
-	
-	
+
+
 	struct FILE_HANDLE {
-		
+
 		void *handle;
-		
+
 		FILE_HANDLE (void* handle) : handle (handle) {}
-		
+
 		FILE* getFile ();
 		int getLength ();
 		bool isFile ();
-		
+
 	};
-	
-	
+
+
 	extern int fclose (FILE_HANDLE *stream);
 	extern FILE_HANDLE *fdopen (int fd, const char *mode);
 	extern FILE_HANDLE *fopen (const char *filename, const char *mode);
@@ -61,8 +81,8 @@ namespace lime {
 	extern int fseek (FILE_HANDLE *stream, long int offset, int origin);
 	extern long int ftell (FILE_HANDLE *stream);
 	extern size_t fwrite (const void *ptr, size_t size, size_t count, FILE_HANDLE *stream);
-	
-	
+
+
 }
 
 
@@ -72,35 +92,35 @@ namespace lime {
 
 
 // ISO C9x  compliant stdint.h for Microsoft Visual Studio
-// Based on ISO/IEC 9899:TC2 Committee draft (May 6, 2005) WG14/N1124 
-// 
+// Based on ISO/IEC 9899:TC2 Committee draft (May 6, 2005) WG14/N1124
+//
 //  Copyright (c) 2006-2013 Alexander Chemeris
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 //   1. Redistributions of source code must retain the above copyright notice,
 //      this list of conditions and the following disclaimer.
-// 
+//
 //   2. Redistributions in binary form must reproduce the above copyright
 //      notice, this list of conditions and the following disclaimer in the
 //      documentation and/or other materials provided with the distribution.
-// 
+//
 //   3. Neither the name of the product nor the names of its contributors may
 //      be used to endorse or promote products derived from this software
 //      without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
 // WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
 // EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
 // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
 // PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 // WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 // OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _MSC_VER // [
@@ -330,6 +350,13 @@ typedef uint64_t  uintmax_t;
 #endif // _MSC_VER >= 1600 ]
 
 #endif // _MSC_STDINT_H_ ]
+#endif
+
+
+#ifdef ANDROID
+
+std::size_t _mbsrtowcs(wchar_t * ws, const char **src, std::size_t wn, std::mbstate_t *st);
+
 #endif
 
 

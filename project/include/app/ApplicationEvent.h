@@ -2,37 +2,37 @@
 #define LIME_APP_APPLICATION_EVENT_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
+#include <system/ValuePointer.h>
 
 
 namespace lime {
-	
-	
+
+
 	enum ApplicationEventType {
-		
+
 		UPDATE,
 		EXIT
-		
+
 	};
-	
-	
-	class ApplicationEvent {
-		
-		public:
-			
-			static AutoGCRoot* callback;
-			static AutoGCRoot* eventObject;
-			
-			ApplicationEvent ();
-			
-			static void Dispatch (ApplicationEvent* event);
-			
-			int deltaTime;
-			ApplicationEventType type;
-		
+
+
+	struct ApplicationEvent {
+
+		hl_type* t;
+		int deltaTime;
+		ApplicationEventType type;
+
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
+
+		ApplicationEvent ();
+
+		static void Dispatch (ApplicationEvent* event);
+
 	};
-	
-	
+
+
 }
 
 

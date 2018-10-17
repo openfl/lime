@@ -1,3 +1,7 @@
-module.exports = function (stat) {
-  return JSON.stringify([stat.ino, stat.size, stat.mtime].join('-'));
+module.exports = function (stat, weakEtag) {
+  var etag = '"' + [stat.ino, stat.size, JSON.stringify(stat.mtime)].join('-') + '"';
+  if (weakEtag) {
+    etag = 'W/' + etag;
+  }
+  return etag;
 }
