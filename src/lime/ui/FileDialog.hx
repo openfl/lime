@@ -197,7 +197,7 @@ class FileDialog {
 	}
 
 
-	public function save (data:Resource, filter:String = null, defaultPath:String = null, title:String = null):Bool {
+	public function save (data:Resource, filter:String = null, defaultPath:String = null, title:String = null, type:String = "application/octet-stream"):Bool {
 
 		if (data == null) {
 
@@ -246,7 +246,6 @@ class FileDialog {
 
 		// TODO: Cleaner API for mimeType detection
 
-		var type = "application/octet-stream";
 		var defaultExtension = "";
 
 		if (Image.__isPNG (data)) {
