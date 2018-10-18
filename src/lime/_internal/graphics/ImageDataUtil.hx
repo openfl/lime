@@ -15,6 +15,7 @@ import lime.math.RGBA;
 import lime.math.ColorMatrix;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.math.Vector4;
 import lime.system.CFFI;
 import lime.system.Endian;
 import lime.utils.BytePointer;
