@@ -31,7 +31,144 @@ import lime.utils.UInt8Array;
 
 
 class ImageDataUtil {
+	public static function displaceMap(
+		target:Image, source:Image, map:Image, mapPoint:Vector2,
+		componentX:Vector4, componentY:Vector4,
+		smooth:Bool
+	):Void {
+		var targetData:UInt8Array = target.buffer.data;
+		var sourceData:UInt8Array = source.buffer.data;
+		var mapData:UInt8Array = map.buffer.data;
 
+		var targetFormat:PixelFormat = target.buffer.format;
+		var sourceFormat:PixelFormat = source.buffer.format;
+		var mapFormat:PixelFormat = map.buffer.format;
+
+		var targetPremultiplied:Bool = target.premultiplied;
+		var sourcePremultiplied:Bool = source.premultiplied;
+		var mapPremultiplied:Bool = map.premultiplied;
+
+		var sourceView:ImageDataView = new ImageDataView(source);
+		var mapView:ImageDataView = new ImageDataView(map);
+
+		var row:Int;
+
+		var sourceOffset:Int;
+
+		var sourcePixel:RGBA;
+		var mapPixel:RGBA;
+		var targetPixel:RGBA;
+
+		var mapPixelX:Float;
+		var mapPixelY:Float;
+		var mapPixelA:Float;
+
+		// for bilinear smoothing
+		var s1:RGBA;
+		var s2:RGBA;
+		var s3:RGBA;
+		var s4:RGBA;
+
+		var mPointXFloor:Int;
+		var mPointYFloor:Int;
+
+		var disOffsetXFloor:Int;
+		var disOffsetYFloor:Int;
+
+		var disX:Float;
+		var disY:Float;
+
+		for (y in 0...sourceView.height) {
+			row = sourceView.row(y);
+
+			for (x in 0...sourceView.width) {
+				sourceOffset = row + (x * 4);
+
+				mPointXFloor = Std.int(mapPoint.x);
+				mPointYFloor = Std.int(mapPoint.y);
+
+				if (smooth) {
+					s1.readUInt8(mapData, sourceView.row(y - mPointYFloor + 1) + (x - mPointXFloor) * 4, mapFormat, mapPremultiplied);
+					s2.readUInt8(mapData, sourceView.row(y - mPointYFloor) + (x - mPointXFloor + 1) * 4, mapFormat, mapPremultiplied);
+					s3.readUInt8(mapData, sourceView.row(y - mPointYFloor + 1) + (x - mPointXFloor + 1) * 4, mapFormat, mapPremultiplied);
+					s4.readUInt8(mapData, sourceView.row(y - mPointYFloor) + (x - mPointXFloor) * 4, mapFormat, mapPremultiplied);
+
+					mapPixel = bilinear(
+						s1, s2, s3, s4,
+						mapPoint.x - mPointXFloor,
+						mapPoint.y - mPointYFloor
+					);
+				} else {
+					mapPixel.readUInt8(mapData, mapView.row(y - mPointYFloor) + (x - mPointXFloor) * 4, mapFormat, mapPremultiplied);
+				}
+
+				mapPixelA = mapPixel.a / 255.0;
+				mapPixelX = (((mapPixel.r - 128) / 255.0)) * mapPixelA;
+				mapPixelY = (((mapPixel.g - 128) / 255.0)) * mapPixelA;
+
+				disX = mapPixelX * componentX.x + mapPixelY * componentY.x;
+				disY = mapPixelX * componentX.y + mapPixelY * componentY.y;
+
+				disOffsetXFloor = Math.floor(disX * sourceView.width);
+				disOffsetYFloor = Math.floor(disY * sourceView.height);
+
+				if (smooth) {
+					s1.readUInt8(sourceData, sourceView.row(y + disOffsetYFloor + 1) + (x + disOffsetXFloor) * 4, sourceFormat, sourcePremultiplied);
+					s2.readUInt8(sourceData, sourceView.row(y + disOffsetYFloor) + (x + disOffsetXFloor + 1) * 4, sourceFormat, sourcePremultiplied);
+					s3.readUInt8(sourceData, sourceView.row(y + disOffsetYFloor + 1) + (x + disOffsetXFloor + 1) * 4, sourceFormat, sourcePremultiplied);
+					s4.readUInt8(sourceData, sourceView.row(y + disOffsetYFloor) + (x + disOffsetXFloor) * 4, sourceFormat, sourcePremultiplied);
+
+					sourcePixel = bilinear(
+						s1, s2, s3, s4,
+						disX * sourceView.width - disOffsetXFloor,
+						disY * sourceView.height - disOffsetYFloor
+					);
+				} else {
+					sourcePixel.readUInt8(sourceData, sourceView.row(y + disOffsetYFloor) + (x + disOffsetXFloor) * 4, sourceFormat, sourcePremultiplied);
+				}
+
+				sourcePixel.writeUInt8(targetData, sourceOffset, targetFormat, targetPremultiplied);
+			}
+		}
+
+		target.dirty = true;
+		target.version++;
+	}
+
+	// s1 = (x, y+1)
+	// s2 = (x + 1, y);
+	// s3 = (x + 1, y + 1);
+	// s4 = (x, y)
+	private static function bilinear(s1:RGBA, s2:RGBA, s3:RGBA, s4:RGBA, su:Float, sv:Float):RGBA {
+		return lerpRGBA(
+			lerpRGBA(s4, s2, su),
+			lerpRGBA(s1, s3, su),
+			sv
+		);
+	}
+
+	private static function lerpRGBA(v0:RGBA, v1:RGBA, x:Float):RGBA {
+		var result:RGBA = new RGBA();
+		result.r = Math.floor(lerp(v0.r, v1.r, x));
+		result.g = Math.floor(lerp(v0.g, v1.g, x));
+		result.b = Math.floor(lerp(v0.b, v1.b, x));
+		result.a = Math.floor(lerp(v0.a, v1.a, x));
+
+		return result;
+	}
+
+	private static function lerp4f(v0:Vector4, v1:Vector4, x:Float):Vector4 {
+		return new Vector4(
+		lerp(v0.x, v1.x, x),
+		lerp(v0.y, v1.y, x),
+		lerp(v0.z, v1.z, x),
+		lerp(v0.w, v1.w, x)
+		);
+	}
+
+	private static function lerp(v0:Float, v1:Float, x:Float):Float {
+		return (1.0 - x) * v0 + x * v1;
+	}
 
 	public static function colorTransform (image:Image, rect:Rectangle, colorMatrix:ColorMatrix):Void {
 
