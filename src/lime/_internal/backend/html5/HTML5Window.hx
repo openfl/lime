@@ -228,7 +228,7 @@ class HTML5Window {
 
 			// Disable image drag on Firefox
 			Browser.document.addEventListener ("dragstart", function (e) {
-				if (e.target.nodeName.toLowerCase () == "img") {
+				if (e.target.nodeName.toLowerCase () == "img" && e.cancelable) {
 					e.preventDefault ();
 					return false;
 				}
@@ -440,7 +440,7 @@ class HTML5Window {
 
 			case "webglcontextlost":
 
-				event.preventDefault ();
+				if (event.cancelable) event.preventDefault ();
 
 				// #if !display
 				if (GL.context != null) {
@@ -469,7 +469,7 @@ class HTML5Window {
 
 	private function handleContextMenuEvent (event:MouseEvent):Void {
 
-		if (parent.onMouseUp.canceled) {
+		if (parent.onMouseUp.canceled && event.cancelable) {
 
 			event.preventDefault ();
 
@@ -481,7 +481,7 @@ class HTML5Window {
 	private function handleCutOrCopyEvent (event:ClipboardEvent):Void {
 
 		event.clipboardData.setData ("text/plain", Clipboard.text);
-		event.preventDefault ();
+		if (event.cancelable) event.preventDefault ();
 
 	}
 
@@ -644,7 +644,7 @@ class HTML5Window {
 
 					parent.onMouseDown.dispatch (x, y, event.button);
 
-					if (parent.onMouseDown.canceled) {
+					if (parent.onMouseDown.canceled && event.cancelable) {
 
 						event.preventDefault ();
 
@@ -656,7 +656,7 @@ class HTML5Window {
 
 						parent.onEnter.dispatch ();
 
-						if (parent.onEnter.canceled) {
+						if (parent.onEnter.canceled && event.cancelable) {
 
 							event.preventDefault ();
 
@@ -670,7 +670,7 @@ class HTML5Window {
 
 						parent.onLeave.dispatch ();
 
-						if (parent.onLeave.canceled) {
+						if (parent.onLeave.canceled && event.cancelable) {
 
 							event.preventDefault ();
 
@@ -690,7 +690,7 @@ class HTML5Window {
 
 					parent.onMouseUp.dispatch (x, y, event.button);
 
-					if (parent.onMouseUp.canceled) {
+					if (parent.onMouseUp.canceled && event.cancelable) {
 
 						event.preventDefault ();
 
@@ -703,7 +703,7 @@ class HTML5Window {
 						parent.onMouseMove.dispatch (x, y);
 						parent.onMouseMoveRelative.dispatch (x - cacheMouseX, y - cacheMouseY);
 
-						if (parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) {
+						if ((parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) && event.cancelable) {
 
 							event.preventDefault ();
 
@@ -731,7 +731,7 @@ class HTML5Window {
 
 			parent.onMouseWheel.dispatch (untyped event.deltaX, -untyped event.deltaY, deltaMode);
 
-			if (parent.onMouseWheel.canceled) {
+			if (parent.onMouseWheel.canceled && event.cancelable) {
 
 				event.preventDefault ();
 
@@ -755,7 +755,7 @@ class HTML5Window {
 
 			}
 
-			event.preventDefault ();
+			if (event.cancelable) event.preventDefault ();
 
 		}
 
@@ -772,7 +772,7 @@ class HTML5Window {
 
 	private function handleTouchEvent (event:TouchEvent):Void {
 
-		event.preventDefault ();
+		if (event.cancelable) event.preventDefault ();
 
 		var rect = null;
 

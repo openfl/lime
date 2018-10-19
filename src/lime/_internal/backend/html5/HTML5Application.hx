@@ -334,7 +334,7 @@ class HTML5Application {
 
 				parent.window.onKeyDown.dispatch (keyCode, modifier);
 
-				if (parent.window.onKeyDown.canceled) {
+				if (parent.window.onKeyDown.canceled && event.cancelable) {
 
 					event.preventDefault ();
 
@@ -344,7 +344,7 @@ class HTML5Application {
 
 				parent.window.onKeyUp.dispatch (keyCode, modifier);
 
-				if (parent.window.onKeyUp.canceled) {
+				if (parent.window.onKeyUp.canceled && event.cancelable) {
 
 					event.preventDefault ();
 
@@ -390,7 +390,7 @@ class HTML5Application {
 
 						parent.window.onClose.dispatch ();
 
-						if (parent.window != null && parent.window.onClose.canceled) {
+						if (parent.window != null && parent.window.onClose.canceled && event.cancelable) {
 
 							event.preventDefault ();
 

@@ -756,8 +756,8 @@ class ImageDataUtil {
 			boxBlurT(imgA, imgB, w, h, Std.int(by), 3);
 		}
 
-		var imgB = image.data;
-		var imgA = sourceImage.data;
+		var imgB = sourceImage.data;
+		var imgA = image.data;
 		var w = Std.int (sourceRect.width);
 		var h = Std.int (sourceRect.height);
 		var bx = Std.int (blurX);
@@ -809,12 +809,12 @@ class ImageDataUtil {
 		image.version++;
 		sourceImage.dirty = true;
 		sourceImage.version++;
-		
+
 		if (imagePremultiplied) image.premultiplied = true;
 		if (sourceImagePremultiplied) sourceImage.premultiplied = true;
 
-		if (imgB == image.data) return image;
-		return sourceImage;
+		if (imgA == sourceImage.data) return sourceImage;
+		return image;
 
 	}
 
