@@ -701,7 +701,7 @@ class Bytes {
 		setInt32(pos + 4, v.high);
 	}
 
-	public function getString( pos : Int, len : Int ) : String {
+	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String {
 		if( pos < 0 || len < 0 || pos + len > length ) throw Error.OutsideBounds;
 		var s = "";
 		var b = b;
@@ -763,7 +763,7 @@ class Bytes {
 		return new Bytes(new BytesData(length));
 	}
 
-	public static function ofString( s : String ) : Bytes {
+	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes {
 		var a = new Array();
 		// utf16-decode and utf8-encode
 		var i = 0;
@@ -920,7 +920,7 @@ class Bytes {
 		setInt32(pos, v.low);
 	}
 
-	public function getString( pos : Int, len : Int ) : String {
+	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String {
 		if( outRange(pos,len) ) throw Error.OutsideBounds;
 
 		var b = new hl.Bytes(len + 1);
@@ -963,7 +963,7 @@ class Bytes {
 		return new Bytes(b,length);
 	}
 
-	public static function ofString( s : String ) : Bytes @:privateAccess {
+	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes @:privateAccess {
 		var size = 0;
 		var b = s.bytes.utf16ToUtf8(0, size);
 		return new Bytes(b,size);
@@ -1002,13 +1002,13 @@ extern class Bytes {
 	public function getInt64( pos : Int ) : haxe.Int64;
 	public function setInt32( pos : Int, v : Int ) : Void;
 	public function setInt64( pos : Int, v : haxe.Int64 ) : Void;
-	public function getString( pos : Int, len : Int ) : String;
+	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String;
 	public function toString() : String;
 	public function toHex() : String;
 	public function getData() : BytesData;
 	public static function alloc( length : Int ) : Bytes;
 	@:pure
-	public static function ofString( s : String ) : Bytes;
+	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes;
 	public static function ofData( b : BytesData ) : Bytes;
 	public static function fastGet( b : BytesData, pos : Int ) : Int;
 	static function __init__():Void {
