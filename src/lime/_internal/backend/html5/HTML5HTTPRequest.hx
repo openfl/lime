@@ -42,7 +42,7 @@ class HTML5HTTPRequest {
 
 	public function new () {
 
-		validStatus0 = ~/Tizen/gi.match (Browser.window.navigator.userAgent);
+		validStatus0 = #if forceLocal true #else ~/Tizen/gi.match (Browser.window.navigator.userAgent) #end;
 
 	}
 
