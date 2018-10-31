@@ -4,6 +4,7 @@ package lime.text;
 import haxe.Utf8;
 import lime._internal.unifill.Unifill;
 import lime._internal.unifill.CodePoint;
+import lime.system.Locale;
 
 
 abstract UTF8String(String) from String to String {
@@ -123,7 +124,7 @@ abstract UTF8String(String) from String to String {
 
 		If `str` cannot be found, -1 is returned.
 	**/
-	public function lastIndexOf(str:String, ?startIndex:Int):Int {
+	public function lastIndexOf (str:String, ?startIndex:Int):Int {
 
 		return Unifill.uLastIndexOf (this, str, startIndex);
 
@@ -212,10 +213,8 @@ abstract UTF8String(String) from String to String {
 		
 		If `language` is specified, language-specific casing rules will be followed.
 	**/
-	public function toLowerCase (language:Language=null):String {
+	public function toLowerCase (locale:Locale = null):String {
 
-		if(language == null) language = STANDARD;
-		
 		#if sys
 
 		if (lowercaseMap == null) {
@@ -229,12 +228,12 @@ abstract UTF8String(String) from String to String {
 
 		Utf8.iter (this, function (v) {
 
-			if(language != STANDARD)
+			if (language != null)
 			{
-				var v2 = toLowerCaseLanguageFixes(v,language);
-				if(v2 != v)
+				var v2 = toLowerCaseLocaleFixes (v, locale);
+				if (v2 != v)
 				{
-					r.addChar(v2);
+					r.addChar (v2);
 					return;
 				}
 			}
@@ -252,12 +251,13 @@ abstract UTF8String(String) from String to String {
 
 	}
 
-	private static function toLowerCaseLanguageFixes(v:Int,language:Language):Int
+
+	private static function toLowerCaseLocaleFixes (v:Int, locale:Locale):Int
 	{
-		return switch(language)
+		return switch (locale.language)
 		{
-			case TURKISH:
-				switch(v)
+			case "tr":
+				switch (v)
 				{
 					case 0xC4B0: 0x69; //İ-->i (large dotted İ to small i) //probably redundant and can be removed, presented here for logical symmtery for when genuine cases are needed
 					default: v;
@@ -265,6 +265,7 @@ abstract UTF8String(String) from String to String {
 			default: v;
 		}
 	}
+
 
 	/**
 		Returns the String itself.
@@ -283,10 +284,8 @@ abstract UTF8String(String) from String to String {
 		
 		If `language` is specified, language-specific casing rules will be followed.
 	**/
-	public function toUpperCase (language:Language=null):String {
+	public function toUpperCase (locale:Locale = null):String {
 
-		if(language == null) language = STANDARD;
-	
 		#if sys
 
 		if (uppercaseMap == null) {
@@ -298,14 +297,14 @@ abstract UTF8String(String) from String to String {
 
 		var r = new Utf8 ();
 
-		Utf8.iter (this, function(v) {
+		Utf8.iter (this, function (v) {
 
-			if(language != STANDARD)
+			if (locale != null)
 			{
-				var v2 = toUpperCaseLanguageFixes(v,language);
-				if(v2 != v)
+				var v2 = toUpperCaseLocaleFixes (v, locale);
+				if (v2 != v)
 				{
-					r.addChar(v2);
+					r.addChar (v2);
 					return;
 				}
 			}
@@ -322,13 +321,14 @@ abstract UTF8String(String) from String to String {
 		#end
 
 	}
-	
-	private static function toUpperCaseLanguageFixes(v:Int,language:Language):Int
+
+
+	private static function toUpperCaseLocaleFixes (v:Int, locale:Locale):Int
 	{
-		return switch(language)
+		return switch (locale.language)
 		{
-			case TURKISH:
-				switch(v)
+			case "tr":
+				switch (v)
 				{
 					case 0x69: 0xC4B0; //i-->İ (small i to large dotted İ)
 					default: v;
@@ -801,11 +801,4 @@ for (i in 0...51) map[0x10CC0+i] = 0x10C80+i;
 for (i in 0...32) map[0x118C0+i] = 0x118A0+i;
 for (i in 0...34) map[0x1E922+i] = 0x1E900+i;
 }
-}
-
-enum Language
-{
-	STANDARD;	//any language that doesn't have surprising results with casing
-	TURKISH;	//turkish
-				//add more special case languages as necessary
 }
