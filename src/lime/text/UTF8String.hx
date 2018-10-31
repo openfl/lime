@@ -228,7 +228,7 @@ abstract UTF8String(String) from String to String {
 
 		Utf8.iter (this, function (v) {
 
-			if (language != null)
+			if (locale != null)
 			{
 				var v2 = toLowerCaseLocaleFixes (v, locale);
 				if (v2 != v)
