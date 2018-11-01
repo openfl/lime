@@ -12,7 +12,7 @@
 		<content>::APP_FILE::.swf</content>
 		<systemChrome>::if (WIN_BORDERLESS)::none::else::standard::end::</systemChrome>
 		<transparent>false</transparent>
-		<visible>::if (WIN_HIDDEN)::false::else::true::end::</visible>
+		<visible>::if (LIB_MUNIT)::false::else::::if (WIN_HIDDEN)::false::else::true::end::::end::</visible>
 		<minimizable>true</minimizable>
 		<maximizable>true</maximizable>
 		<resizable>::WIN_RESIZABLE::</resizable>

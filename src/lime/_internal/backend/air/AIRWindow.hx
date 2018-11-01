@@ -108,6 +108,10 @@ class AIRWindow extends FlashWindow {
 
 			nativeWindow = Lib.current.stage.nativeWindow;
 
+			#if munit
+			hidden = true;
+			#end
+
 		} else {
 
 			var options = new NativeWindowInitOptions ();
@@ -182,7 +186,7 @@ class AIRWindow extends FlashWindow {
 
 	public override function focus ():Void {
 
-		if (nativeWindow != null) {
+		if (nativeWindow != null && nativeWindow.visible) {
 
 			nativeWindow.activate ();
 
