@@ -64,7 +64,7 @@ class ElectronSetup {
 				});
 
 				ElectronSetup.window.loadURL( 'file://' + js.Node.__dirname + '/index.html' );
-				#if debug
+				#if (debug && !suppress_devtools)
 					ElectronSetup.window.webContents.openDevTools();
 				#end
 			});
