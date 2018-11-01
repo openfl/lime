@@ -6,6 +6,10 @@
 -lib electron
 -main ApplicationMain ::HAXE_FLAGS::
 
+-D html5
+-D html
+-debug
+
 --next
 -js ::OUTPUT_DIR::/bin/ElectronSetup.js
 -cp ::OUTPUT_DIR::/haxe
