@@ -1454,51 +1454,66 @@ namespace lime {
 	}
 
 
-	bool lime_font_render_glyph (value fontHandle, int index, value data) {
+	value lime_font_render_glyph (value fontHandle, int index, value data) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes (data);
-		return font->RenderGlyph (index, &bytes);
-		#else
-		return false;
+
+		if (font->RenderGlyph (index, &bytes)) {
+
+			return bytes.Value (data);
+
+		}
 		#endif
+
+		return alloc_null ();
 
 	}
 
 
-	HL_PRIM bool hl_lime_font_render_glyph (HL_CFFIPointer* fontHandle, int index, Bytes* data) {
+	HL_PRIM Bytes* hl_lime_font_render_glyph (HL_CFFIPointer* fontHandle, int index, Bytes* data) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
-		return font->RenderGlyph (index, data);
-		#else
-		return false;
+
+		if (font->RenderGlyph (index, data)) {
+
+			return data;
+
+		}
 		#endif
+
+		return NULL;
 
 	}
 
 
-	bool lime_font_render_glyphs (value fontHandle, value indices, value data) {
+	value lime_font_render_glyphs (value fontHandle, value indices, value data) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
 		Bytes bytes (data);
-		return font->RenderGlyphs (indices, &bytes);
-		#else
-		return false;
+
+		if (font->RenderGlyphs (indices, &bytes)) {
+
+			return bytes.Value (data);
+
+		}
 		#endif
+
+		return alloc_null ();
 
 	}
 
 
-	HL_PRIM bool hl_lime_font_render_glyphs (HL_CFFIPointer* fontHandle, hl_varray* indices, Bytes* data) {
+	HL_PRIM Bytes* hl_lime_font_render_glyphs (HL_CFFIPointer* fontHandle, hl_varray* indices, Bytes* data) {
 
 		// #ifdef LIME_FREETYPE
 		// Font *font = (Font*)fontHandle->ptr;
 		// return font->RenderGlyphs (indices, &bytes);
 		// #else
-		return false;
+		return NULL;
 		// #endif
 
 	}
@@ -3983,8 +3998,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_font_load_bytes, _TBYTES);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_font_load_file, _STRING);
 	DEFINE_HL_PRIM (_DYN, lime_font_outline_decompose, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
-	DEFINE_HL_PRIM (_BOOL, lime_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, lime_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, lime_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
 	DEFINE_HL_PRIM (_VOID, lime_font_set_size, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gamepad_add_mappings, _ARR);
 	DEFINE_HL_PRIM (_VOID, lime_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);

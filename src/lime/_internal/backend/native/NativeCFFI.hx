@@ -111,8 +111,8 @@ class NativeCFFI {
 	@:cffi private static function lime_font_load_bytes (data:Dynamic):Dynamic;
 	@:cffi private static function lime_font_load_file (path:Dynamic):Dynamic;
 	@:cffi private static function lime_font_outline_decompose (handle:Dynamic, size:Int):Dynamic;
-	@:cffi private static function lime_font_render_glyph (handle:Dynamic, index:Int, data:Dynamic):Bool;
-	@:cffi private static function lime_font_render_glyphs (handle:Dynamic, indices:Dynamic, data:Dynamic):Bool;
+	@:cffi private static function lime_font_render_glyph (handle:Dynamic, index:Int, data:Dynamic):Dynamic;
+	@:cffi private static function lime_font_render_glyphs (handle:Dynamic, indices:Dynamic, data:Dynamic):Dynamic;
 	@:cffi private static function lime_font_set_size (handle:Dynamic, size:Int):Void;
 	@:cffi private static function lime_gamepad_add_mappings (mappings:Dynamic):Void;
 	@:cffi private static function lime_gamepad_get_device_guid (id:Int):Dynamic;
@@ -258,8 +258,8 @@ class NativeCFFI {
 	private static var lime_font_load_bytes = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_font_load_bytes", "oo", false));
 	private static var lime_font_load_file = new cpp.Callable<cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_font_load_file", "oo", false));
 	private static var lime_font_outline_decompose = new cpp.Callable<cpp.Object->Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_font_outline_decompose", "oio", false));
-	private static var lime_font_render_glyph = new cpp.Callable<cpp.Object->Int->cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_font_render_glyph", "oiob", false));
-	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Bool> (cpp.Prime._loadPrime ("lime", "lime_font_render_glyphs", "ooob", false));
+	private static var lime_font_render_glyph = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_font_render_glyph", "oioo", false));
+	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_font_render_glyphs", "oooo", false));
 	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_font_set_size", "oiv", false));
 	private static var lime_gamepad_add_mappings = new cpp.Callable<cpp.Object->cpp.Void> (cpp.Prime._loadPrime ("lime", "lime_gamepad_add_mappings", "ov", false));
 	private static var lime_gamepad_get_device_guid = new cpp.Callable<Int->cpp.Object> (cpp.Prime._loadPrime ("lime", "lime_gamepad_get_device_guid", "io", false));
@@ -557,8 +557,8 @@ class NativeCFFI {
 	@:hlNative("lime", "lime_font_load_bytes") private static function lime_font_load_bytes (data:Bytes):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_font_load_file") private static function lime_font_load_file (path:String):CFFIPointer { return null; }
 	@:hlNative("lime", "lime_font_outline_decompose") private static function lime_font_outline_decompose (handle:CFFIPointer, size:Int):Dynamic { return null; }
-	@:hlNative("lime", "lime_font_render_glyph") private static function lime_font_render_glyph (handle:CFFIPointer, index:Int, data:Bytes):Bool { return false; }
-	@:hlNative("lime", "lime_font_render_glyphs") private static function lime_font_render_glyphs (handle:CFFIPointer, indices:hl.NativeArray<Int>, data:Bytes):Bool { return false; }
+	@:hlNative("lime", "lime_font_render_glyph") private static function lime_font_render_glyph (handle:CFFIPointer, index:Int, data:Bytes):Bytes { return null; }
+	@:hlNative("lime", "lime_font_render_glyphs") private static function lime_font_render_glyphs (handle:CFFIPointer, indices:hl.NativeArray<Int>, data:Bytes):Bytes { return null; }
 	@:hlNative("lime", "lime_font_set_size") private static function lime_font_set_size (handle:CFFIPointer, size:Int):Void {}
 	@:hlNative("lime", "lime_gamepad_add_mappings") private static function lime_gamepad_add_mappings (mappings:hl.NativeArray<String>):Void {}
 	@:hlNative("lime", "lime_gamepad_get_device_guid") private static function lime_gamepad_get_device_guid (id:Int):hl.Bytes { return null; }

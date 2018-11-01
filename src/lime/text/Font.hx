@@ -235,8 +235,9 @@ class Font {
 		//bytes.endian = (System.endianness == BIG_ENDIAN ? "bigEndian" : "littleEndian");
 
 		var dataPosition = 0;
+		bytes = NativeCFFI.lime_font_render_glyph (src, glyph, bytes);
 
-		if (NativeCFFI.lime_font_render_glyph (src, glyph, bytes)) {
+		if (bytes != null && bytes.length > 0) {
 
 			var index = bytes.getInt32 (dataPosition); dataPosition += 4;
 			var width = bytes.getInt32 (dataPosition); dataPosition += 4;
@@ -298,8 +299,9 @@ class Font {
 		NativeCFFI.lime_font_set_size (src, fontSize);
 
 		var bytes = Bytes.alloc (0);
+		bytes = NativeCFFI.lime_font_render_glyphs (src, glyphList, bytes);
 
-		if (NativeCFFI.lime_font_render_glyphs (src, glyphList, bytes)) {
+		if (bytes != null && bytes.length > 0) {
 
 			var bytesPosition = 0;
 			var count = bytes.getInt32 (bytesPosition); bytesPosition += 4;
