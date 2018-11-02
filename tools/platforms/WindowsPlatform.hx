@@ -72,6 +72,10 @@ class WindowsPlatform extends PlatformTarget {
 
 			targetType = "java";
 
+		} else if (project.targetFlags.exists ("winrt")) {
+
+			targetType = "winrt";
+
 		} else {
 
 			targetType = "cpp";
@@ -166,7 +170,15 @@ class WindowsPlatform extends PlatformTarget {
 
 			}
 
-			if (!project.targetFlags.exists ("static") || targetType != "cpp") {
+			if (targetType == "winrt") {
+
+				for (ndll in project.ndlls) {
+
+					ProjectHelper.copyLibrary (project, ndll, "WinRT", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug, null);
+
+				}
+
+			} else if (!project.targetFlags.exists ("static") || targetType != "cpp") {
 
 				var targetSuffix = (targetType == "hl") ? ".hdll" : null;
 
@@ -248,6 +260,55 @@ class WindowsPlatform extends PlatformTarget {
 				System.recursiveCopy (targetDirectory + "/obj/lib", Path.combine (applicationDirectory, "lib"));
 				System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", Path.combine (applicationDirectory, project.app.file + ".jar"));
 				JavaHelper.copyLibraries (project.templatePaths, "Windows" + (is64 ? "64" : ""), applicationDirectory);
+
+			} else if (targetType == "winrt") {
+
+				var haxeArgs = [ hxml ];
+				var flags = [];
+
+				haxeArgs.push ("-D");
+				haxeArgs.push ("winrt");
+				flags.push ("-Dwinrt");
+
+				if (!project.environment.exists ("SHOW_CONSOLE")) {
+
+					haxeArgs.push ("-D");
+					haxeArgs.push ("no_console");
+					flags.push ("-Dno_console");
+
+				}
+
+				if (!project.targetFlags.exists ("static")) {
+
+					System.runCommand ("", "haxe", haxeArgs);
+
+					if (noOutput) return;
+
+					CPPHelper.compile (project, targetDirectory + "/obj", flags);
+
+					System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+
+				} else {
+
+					System.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+
+					if (noOutput) return;
+
+					CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
+					CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
+
+					System.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+
+				}
+
+				var iconPath = Path.combine (applicationDirectory, "icon.ico");
+
+				if (IconHelper.createWindowsIcon (icons, iconPath) && System.hostPlatform == WINDOWS) {
+
+					var templates = [ Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)) + "/templates" ].concat (project.templatePaths);
+					System.runCommand ("", System.findTemplate (templates, "bin/ReplaceVistaIcon.exe"), [ executablePath, iconPath, "1" ], true, true);
+
+				}
 
 			} else {
 
