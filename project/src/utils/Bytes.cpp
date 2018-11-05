@@ -1,3 +1,4 @@
+#include <system/Mutex.h>
 #include <system/System.h>
 #include <utils/Bytes.h>
 #include <map>
@@ -12,6 +13,7 @@ namespace lime {
 	static bool useBuffer = false;
 	static std::map<Bytes*, bool> hadValue;
 	static std::map<Bytes*, bool> usingValue;
+	static Mutex mutex;
 
 
 	inline void _initializeBytes () {
@@ -60,6 +62,8 @@ namespace lime {
 
 	Bytes::~Bytes () {
 
+		mutex.Lock ();
+
 		if (hadValue.find (this) != hadValue.end ()) {
 
 			hadValue.erase (this);
@@ -77,6 +81,8 @@ namespace lime {
 			usingValue.erase (this);
 
 		}
+
+		mutex.Unlock ();
 
 	}
 
@@ -110,6 +116,8 @@ namespace lime {
 	void Bytes::Resize (int size) {
 
 		if (size != length || (length > 0 && !b)) {
+
+			mutex.Lock ();
 
 			if (size <= 0) {
 
@@ -159,12 +167,16 @@ namespace lime {
 
 			}
 
+			mutex.Unlock ();
+
 		}
 
 	}
 
 
 	void Bytes::Set (value bytes) {
+
+		mutex.Lock ();
 
 		if (val_is_null (bytes)) {
 
@@ -206,6 +218,8 @@ namespace lime {
 
 		}
 
+		mutex.Unlock ();
+
 	}
 
 
@@ -220,11 +234,15 @@ namespace lime {
 
 		} else {
 
+			mutex.Lock ();
+
 			if (usingValue.find (this) != usingValue.end ()) {
 
 				usingValue.erase (this);
 
 			}
+
+			mutex.Unlock ();
 
 			b = 0;
 			length = 0;
@@ -278,7 +296,9 @@ namespace lime {
 
 			}
 
+			mutex.Lock ();
 			hadValue[this] = true;
+			mutex.Unlock ();
 
 			return bytes;
 
