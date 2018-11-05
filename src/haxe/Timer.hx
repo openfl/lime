@@ -215,106 +215,107 @@ import lime.system.System;
 
 
 class Timer {
-	
-	
+
+
 	private static var sRunningTimers:Array <Timer> = [];
-	
+
 	private var mTime:Float;
 	private var mFireAt:Float;
 	private var mRunning:Bool;
-	
-	
+
+
 	public function new (time:Float) {
-		
+
 		mTime = time;
 		sRunningTimers.push (this);
 		mFireAt = getMS () + mTime;
 		mRunning = true;
-		
+
 	}
-	
-	
+
+
 	public static function delay (f:Void -> Void, time:Int) {
-		
+
 		var t = new Timer (time);
-		
+
 		t.run = function () {
-			
+
 			t.stop ();
 			f ();
-			
+
 		};
-		
+
 		return t;
-		
+
 	}
-	
-	
+
+
 	private static function getMS ():Float {
-		
+
 		return System.getTimer ();
-		
+
 	}
-	
-	
+
+
 	public static function measure<T> (f:Void -> T, ?pos:PosInfos):T {
-		
+
 		var t0 = stamp ();
 		var r = f ();
 		Log.trace ((stamp () - t0) + "s", pos);
 		return r;
-		
+
 	}
-	
-	
+
+
 	dynamic public function run () {
-		
-		
-		
+
+
+
 	}
-	
-	
+
+
 	public static inline function stamp ():Float {
-		
-		return System.getTimer () / 1000;
-		
+
+		var timer = System.getTimer ();
+		return (timer > 0 ? timer / 1000 : 0);
+
 	}
-	
-	
+
+
 	public function stop ():Void {
-		
+
 		if (mRunning) {
-			
+
 			mRunning = false;
-			
+
 			for (i in 0...sRunningTimers.length) {
-				
+
 				if (sRunningTimers[i] == this) {
-					
+
 					sRunningTimers[i] = null;
 					break;
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function __check (inTime:Float) {
-		
+
 		if (inTime >= mFireAt) {
-			
+
 			mFireAt += mTime;
 			run ();
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 }
 
 
