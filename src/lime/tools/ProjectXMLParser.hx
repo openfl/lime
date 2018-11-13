@@ -1,7 +1,6 @@
 package lime.tools;
 
 
-import haxe.xml.Fast;
 import hxp.*;
 import lime.tools.CommandHelper;
 import lime.tools.ModuleHelper;
@@ -14,6 +13,12 @@ import lime.utils.AssetManifest;
 #end
 import sys.io.File;
 import sys.FileSystem;
+
+#if (haxe_ver >= 4)
+import haxe.xml.Access in Fast;
+#else
+import haxe.xml.Fast;
+#end
 
 
 class ProjectXMLParser extends HXProject {
