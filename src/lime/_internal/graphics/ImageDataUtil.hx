@@ -783,28 +783,30 @@ class ImageDataUtil {
 
 		var x: Int;
 		var y: Int;
-		if (offset <= 0) {
-			y = 0;
-			while (y < h) {
-				x = 0;
-				while (x < w) {
-					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength);
-					x += 1;
+		if (strength > 1) {
+			if (offset <= 0) {
+				y = 0;
+				while (y < h) {
+					x = 0;
+					while (x < w) {
+						translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength);
+						x += 1;
+					}
+					y += 1;
 				}
-				y += 1;
-			}
-		} else {
-			y = h-1;
-			while (y >= 0 ) {
-				x = w-1;
-				while (x >= 0) {
-					translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength);
-					x -= 1;
+			} else {
+				y = h-1;
+				while (y >= 0 ) {
+					x = w-1;
+					while (x >= 0) {
+						translatePixel(imgB, sourceImage.rect, image.rect, destPoint, x, y, strength);
+						x -= 1;
+					}
+					y -= 1;
 				}
-				y -= 1;
 			}
 		}
-
+		
 		image.dirty = true;
 		image.version++;
 		sourceImage.dirty = true;
@@ -813,8 +815,7 @@ class ImageDataUtil {
 		if (imagePremultiplied) image.premultiplied = true;
 		if (sourceImagePremultiplied) sourceImage.premultiplied = true;
 
-		if (imgA == sourceImage.data) return sourceImage;
-		return image;
+		return sourceImage;
 
 	}
 
