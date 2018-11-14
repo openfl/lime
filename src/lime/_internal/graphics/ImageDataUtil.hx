@@ -756,8 +756,8 @@ class ImageDataUtil {
 			boxBlurT(imgA, imgB, w, h, Std.int(by), 3);
 		}
 
-		var imgB = sourceImage.data;
-		var imgA = image.data;
+		var imgB = image.data;
+		var imgA = sourceImage.data;
 		var w = Std.int (sourceRect.width);
 		var h = Std.int (sourceRect.height);
 		var bx = Std.int (blurX);
