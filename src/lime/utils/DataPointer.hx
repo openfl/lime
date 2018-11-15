@@ -7,6 +7,7 @@ import lime.system.CFFIPointer;
 import lime.utils.Bytes as LimeBytes;
 
 #if cpp
+import cpp.Char;
 import cpp.Pointer;
 #end
 
@@ -56,6 +57,12 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 
 	#if cpp
+	@:from @:noCompletion public static inline function fromCharPointer (pointer:Pointer<Char>):DataPointer {
+
+		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
+
+	}
+
 	@:generic @:from @:noCompletion public static inline function fromPointer<T> (pointer:Pointer<T>):DataPointer {
 
 		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
@@ -68,7 +75,9 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if cpp
 		if (pointer == null || pointer.bytes == null) return cast 0;
-		return Pointer.arrayElem (pointer.bytes.b, 0).add (pointer.offset);
+		var data = Pointer.arrayElem (pointer.bytes.b, 0);
+		data.add (pointer.offset);
+		return data;
 		#elseif (lime_cffi && !macro)
 		if (pointer == null || pointer.bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (pointer.bytes, pointer.offset);
@@ -86,7 +95,9 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if cpp
 		if (arrayBufferView == null) return cast 0;
-		return Pointer.arrayElem (arrayBufferView.buffer.b, 0).add (arrayBufferView.byteOffset);
+		var data = Pointer.arrayElem (arrayBufferView.buffer.b, 0);
+		data.add (arrayBufferView.byteOffset);
+		return data;
 		#elseif (lime_cffi && !js && !macro)
 		if (arrayBufferView == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (arrayBufferView.buffer, arrayBufferView.byteOffset);
@@ -118,7 +129,8 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if cpp
 		if (bytes == null) return cast 0;
-		return Pointer.arrayElem (bytes.b, 0);
+		var data = Pointer.arrayElem (bytes.b, 0);
+		return data;
 		#elseif (lime_cffi && !macro)
 		if (bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes);
