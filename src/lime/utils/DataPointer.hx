@@ -63,11 +63,13 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 	}
 
+	#if (haxe_ver >= 4)
 	@:generic @:from @:noCompletion public static inline function fromPointer<T> (pointer:Pointer<T>):DataPointer {
 
 		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
 
 	}
+	#end
 	#end
 
 
@@ -75,9 +77,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if cpp
 		if (pointer == null || pointer.bytes == null) return cast 0;
-		var data = Pointer.arrayElem (pointer.bytes.b, 0);
-		data.add (pointer.offset);
-		return data;
+		return Pointer.arrayElem (pointer.bytes.b, 0).add (pointer.offset);
 		#elseif (lime_cffi && !macro)
 		if (pointer == null || pointer.bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (pointer.bytes, pointer.offset);
@@ -95,9 +95,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if cpp
 		if (arrayBufferView == null) return cast 0;
-		var data = Pointer.arrayElem (arrayBufferView.buffer.b, 0);
-		data.add (arrayBufferView.byteOffset);
-		return data;
+		return Pointer.arrayElem (arrayBufferView.buffer.b, 0).add (arrayBufferView.byteOffset);
 		#elseif (lime_cffi && !js && !macro)
 		if (arrayBufferView == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer_offset (arrayBufferView.buffer, arrayBufferView.byteOffset);
@@ -129,8 +127,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 		#if cpp
 		if (bytes == null) return cast 0;
-		var data = Pointer.arrayElem (bytes.b, 0);
-		return data;
+		return Pointer.arrayElem (bytes.b, 0);
 		#elseif (lime_cffi && !macro)
 		if (bytes == null) return cast 0;
 		var data:Float = NativeCFFI.lime_bytes_get_data_pointer (bytes);
