@@ -9,6 +9,7 @@ import lime.utils.Bytes as LimeBytes;
 #if cpp
 import cpp.Char;
 import cpp.Pointer;
+import cpp.UInt8;
 #end
 
 #if (lime_cffi && !macro)
@@ -56,26 +57,32 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 	}
 
 
-	#if cpp
+	#if (cpp && !doc_gen)
+	#if (haxe_ver < 4)
 	@:from @:noCompletion public static inline function fromCharPointer (pointer:Pointer<Char>):DataPointer {
 
 		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
 
 	}
 
-	#if (haxe_ver >= 4)
+	@:from @:noCompletion public static inline function fromUint8Pointer (pointer:Pointer<UInt8>):DataPointer {
+
+		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
+
+	}
+	#end
+
 	@:generic @:from @:noCompletion public static inline function fromPointer<T> (pointer:Pointer<T>):DataPointer {
 
 		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
 
 	}
 	#end
-	#end
 
 
 	@:from @:noCompletion public static function fromBytesPointer (pointer:BytePointer):DataPointer {
 
-		#if cpp
+		#if (cpp && !doc_gen)
 		if (pointer == null || pointer.bytes == null) return cast 0;
 		return Pointer.arrayElem (pointer.bytes.b, 0).add (pointer.offset);
 		#elseif (lime_cffi && !macro)
@@ -93,7 +100,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 	@:from @:noCompletion public static function fromArrayBufferView (arrayBufferView:ArrayBufferView):DataPointer {
 
-		#if cpp
+		#if (cpp && !doc_gen)
 		if (arrayBufferView == null) return cast 0;
 		return Pointer.arrayElem (arrayBufferView.buffer.b, 0).add (arrayBufferView.byteOffset);
 		#elseif (lime_cffi && !js && !macro)
@@ -125,7 +132,7 @@ abstract DataPointer(DataPointerType) to DataPointerType {
 
 	@:from @:noCompletion public static function fromBytes (bytes:Bytes):DataPointer {
 
-		#if cpp
+		#if (cpp && !doc_gen)
 		if (bytes == null) return cast 0;
 		return Pointer.arrayElem (bytes.b, 0);
 		#elseif (lime_cffi && !macro)
