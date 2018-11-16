@@ -12,7 +12,7 @@ namespace lime {
 
 			static const char* GetText ();
 			static bool HasText ();
-			static void SetText (const char* text);
+			static bool SetText (const char* text);
 
 
 	};

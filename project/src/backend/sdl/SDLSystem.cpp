@@ -69,9 +69,9 @@ namespace lime {
 	}
 
 
-	void Clipboard::SetText (const char* text) {
+	bool Clipboard::SetText (const char* text) {
 
-		SDL_SetClipboardText (text);
+		return (SDL_SetClipboardText (text) == 0);
 
 	}
 
