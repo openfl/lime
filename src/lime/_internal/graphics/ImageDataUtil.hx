@@ -783,7 +783,7 @@ class ImageDataUtil {
 
 		var x: Int;
 		var y: Int;
-		if (strength > 1) {
+		if (strength != 1) {
 			if (offset <= 0) {
 				y = 0;
 				while (y < h) {
