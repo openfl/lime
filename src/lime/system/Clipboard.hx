@@ -67,9 +67,11 @@ class Clipboard {
 
 	private static function get_text ():String {
 
-		// #if flash
+		// Native clipboard calls __update when clipboard changes
+
+		#if (flash || js || html5)
 		__update ();
-		// #end
+		#end
 
 		return _text;
 
