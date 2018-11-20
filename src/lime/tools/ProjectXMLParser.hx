@@ -1,7 +1,6 @@
 package lime.tools;
 
 
-import haxe.xml.Fast;
 import hxp.*;
 import lime.tools.CommandHelper;
 import lime.tools.ModuleHelper;
@@ -14,6 +13,12 @@ import lime.utils.AssetManifest;
 #end
 import sys.io.File;
 import sys.FileSystem;
+
+#if (haxe_ver >= 4)
+import haxe.xml.Access in Fast;
+#else
+import haxe.xml.Fast;
+#end
 
 
 class ProjectXMLParser extends HXProject {
@@ -2184,19 +2189,23 @@ class ProjectXMLParser extends HXProject {
 
 					value = StringTools.replace (value, "#", "");
 
-					if (value.indexOf ("0x") == -1) {
-
-						value = "0x" + value;
-
-					}
-
-					if (value == "0x" || (value.length == 10 && StringTools.startsWith (value, "0x00"))) {
+					if (value == "null" || value == "transparent" || value == "") {
 
 						windows[id].background = null;
 
 					} else {
 
-						windows[id].background = Std.parseInt (value);
+						if (value.indexOf ("0x") == -1) value = "0x" + value;
+
+						if (value.length == 10 && StringTools.startsWith (value, "0x00")) {
+
+							windows[id].background = null;
+
+						} else {
+
+							windows[id].background = Std.parseInt (value);
+
+						}
 
 					}
 

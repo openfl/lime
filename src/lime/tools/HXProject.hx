@@ -14,6 +14,12 @@ import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
 
+#if (haxe_ver >= 4)
+import haxe.xml.Access in Fast;
+#else
+import haxe.xml.Fast;
+#end
+
 #if (lime && lime_cffi && !macro)
 import lime.text.Font;
 @:access(lime.text.Font)

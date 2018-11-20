@@ -88,6 +88,11 @@ class HTML5Window {
 		var attributes = parent.__attributes;
 		if (!Reflect.hasField (attributes, "context")) attributes.context = {};
 
+		#if dom
+		attributes.context.type = DOM;
+		attributes.context.version = "";
+		#end
+
 		renderType = attributes.context.type;
 
 		if (Reflect.hasField (attributes, "element")) {
@@ -97,11 +102,6 @@ class HTML5Window {
 		}
 
 		var element = parent.element;
-
-		#if dom
-		attributes.context.type = DOM;
-		attributes.context.version = "";
-		#end
 
 		if (Reflect.hasField (attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM) {
 
