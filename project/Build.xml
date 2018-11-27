@@ -9,13 +9,13 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
-	<set name="LIME_CAIRO" value="1" />
-	<set name="LIME_CURL" value="1" unless="emscripten" />
+	<set name="LIME_CAIRO" value="1" unless="winrt" />
+	<set name="LIME_CURL" value="1" unless="emscripten || winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
 	<!-- <set name="LIME_FAUDIO" value="1" /> -->
 	<set name="LIME_FREETYPE" value="1" />
-	<set name="LIME_HARFBUZZ" value="1" />
+	<set name="LIME_HARFBUZZ" value="1" unless="winrt" />
 	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
 	<set name="LIME_HASHLINK" value="1" if="hashlink" unless="HXCPP_M64" />
 	<set name="LIME_LZMA" value="1" />
