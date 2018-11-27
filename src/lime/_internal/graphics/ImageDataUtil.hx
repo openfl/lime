@@ -815,8 +815,8 @@ class ImageDataUtil {
 		if (imagePremultiplied) image.premultiplied = true;
 		if (sourceImagePremultiplied) sourceImage.premultiplied = true;
 
-		if (imgA == sourceImage.data) return sourceImage;
-		return image;
+		if (imgB == image.data) return image;
+		return sourceImage;
 
 	}
 
