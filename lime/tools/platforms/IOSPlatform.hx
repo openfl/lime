@@ -128,6 +128,12 @@ class IOSPlatform extends PlatformTarget {
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
 		
+		if (project.config.exists ("ios.team-id")) {
+			
+			context.DEVELOPMENT_TEAM_ID = project.config.getString ("ios.team-id");
+			
+		}
+		
 		context.linkedLibraries = [];
 		
 		for (dependency in project.dependencies) {
