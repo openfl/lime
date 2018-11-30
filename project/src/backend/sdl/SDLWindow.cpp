@@ -212,7 +212,7 @@ namespace lime {
 
 			context = SDL_GL_CreateContext (sdlWindow);
 
-			if (context && SDL_GL_MakeCurrent (sdlWindow, context)) {
+			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
 
 				if (flags & WINDOW_FLAG_VSYNC) {
 
