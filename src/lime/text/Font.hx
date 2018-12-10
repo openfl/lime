@@ -19,6 +19,7 @@ import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.SpanElement;
 import js.Browser;
+import js.Lib;
 #end
 
 #if (lime_cffi && !macro)
@@ -56,6 +57,7 @@ class Font {
 	#if lime_cffi
 	@:noCompletion private var __fontPathWithoutDirectory:String;
 	#end
+	@:noCompletion private var __init:Bool;
 
 
 	public function new (name:String = null) {
@@ -66,25 +68,31 @@ class Font {
 
 		}
 
-		ascender = 0;
-		descender = 0;
-		height = 0;
-		numGlyphs = 0;
-		underlinePosition = 0;
-		underlineThickness = 0;
-		unitsPerEM = 0;
+		if (!__init) {
 
-		if (__fontID != null) {
+			#if js if (ascender == Lib.undefined) #end ascender = 0;
+			#if js if (descender == Lib.undefined) #end descender = 0;
+			#if js if (height == Lib.undefined) #end height = 0;
+			#if js if (numGlyphs == Lib.undefined) #end numGlyphs = 0;
+			#if js if (underlinePosition == Lib.undefined) #end underlinePosition = 0;
+			#if js if (underlineThickness == Lib.undefined) #end underlineThickness = 0;
+			#if js if (unitsPerEM == Lib.undefined) #end unitsPerEM = 0;
 
-			if (Assets.isLocal (__fontID)) {
+			if (__fontID != null) {
 
-				__fromBytes (Assets.getBytes (__fontID));
+				if (Assets.isLocal (__fontID)) {
+
+					__fromBytes (Assets.getBytes (__fontID));
+
+				}
+
+			} else if (__fontPath != null) {
+
+				__fromFile (__fontPath);
 
 			}
 
-		} else if (__fontPath != null) {
-
-			__fromFile (__fontPath);
+			__init = true;
 
 		}
 
@@ -457,6 +465,8 @@ class Font {
 			__fontPathWithoutDirectory = other.__fontPathWithoutDirectory;
 			#end
 
+			__init = true;
+
 		}
 
 	}
@@ -513,6 +523,8 @@ class Font {
 
 		}
 		#end
+
+		__init = true;
 
 	}
 
