@@ -469,7 +469,7 @@ class HTML5Window {
 
 	private function handleContextMenuEvent (event:MouseEvent):Void {
 
-		if (parent.onMouseUp.canceled && event.cancelable) {
+		if ((parent.onMouseUp.canceled || parent.onMouseDown.canceled) && event.cancelable) {
 
 			event.preventDefault ();
 
