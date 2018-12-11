@@ -91,8 +91,6 @@ class Font {
 
 			}
 
-			__init = true;
-
 		}
 
 	}
