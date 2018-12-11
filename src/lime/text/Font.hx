@@ -19,7 +19,6 @@ import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.SpanElement;
 import js.Browser;
-import js.Lib;
 #end
 
 #if (lime_cffi && !macro)
@@ -70,13 +69,13 @@ class Font {
 
 		if (!__init) {
 
-			#if js if (ascender == Lib.undefined) #end ascender = 0;
-			#if js if (descender == Lib.undefined) #end descender = 0;
-			#if js if (height == Lib.undefined) #end height = 0;
-			#if js if (numGlyphs == Lib.undefined) #end numGlyphs = 0;
-			#if js if (underlinePosition == Lib.undefined) #end underlinePosition = 0;
-			#if js if (underlineThickness == Lib.undefined) #end underlineThickness = 0;
-			#if js if (unitsPerEM == Lib.undefined) #end unitsPerEM = 0;
+			#if js if (ascender == untyped __js__("undefined")) #end ascender = 0;
+			#if js if (descender == untyped __js__("undefined")) #end descender = 0;
+			#if js if (height == untyped __js__("undefined")) #end height = 0;
+			#if js if (numGlyphs == untyped __js__("undefined")) #end numGlyphs = 0;
+			#if js if (underlinePosition == untyped __js__("undefined")) #end underlinePosition = 0;
+			#if js if (underlineThickness == untyped __js__("undefined")) #end underlineThickness = 0;
+			#if js if (unitsPerEM == untyped __js__("undefined")) #end unitsPerEM = 0;
 
 			if (__fontID != null) {
 
