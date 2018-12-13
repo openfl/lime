@@ -112,7 +112,7 @@ import sys.FileSystem;
 
 #else
 
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__::flatName::') #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { #if !html5 __fontPath = "::targetPath::"; #else ascender = ::ascender::; descender = ::descender::; height = ::height::; numGlyphs = ::numGlyphs::; underlinePosition = ::underlinePosition::; underlineThickness = ::underlineThickness::; unitsPerEM = ::unitsPerEM::; #end::if (fontName):: name = "::fontName::";::end::; super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__::flatName::') #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { #if !html5 __fontPath = "::targetPath::"; #else ascender = ::ascender::; descender = ::descender::; height = ::height::; numGlyphs = ::numGlyphs::; underlinePosition = ::underlinePosition::; underlineThickness = ::underlineThickness::; unitsPerEM = ::unitsPerEM::; #end::if (fontName):: name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
 
 #end
