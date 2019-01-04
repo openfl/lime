@@ -1,12 +1,13 @@
 package lime.utils;
 
 
+import haxe.macro.Compiler;
+import lime.media.AudioBuffer;
+import lime.graphics.Image;
+
 #if !(macro || commonjs)
 import lime._internal.macros.AssetsMacro;
 #end
-
-import lime.media.AudioBuffer;
-import lime.graphics.Image;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -29,7 +30,14 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
-		version = #if (macro || commonjs) 0 #else AssetsMacro.cacheVersion () #end;
+
+		#if (macro || commonjs || lime_disable_assets_version)
+		version = 0;
+		#elseif lime_assets_version
+		version = Std.parseInt (Compiler.getDefine ("lime-assets-version"));
+		#else
+		version = AssetsMacro.cacheVersion ();
+		#end
 
 	}
 

@@ -617,15 +617,14 @@ class Assets {
 	@:noCompletion private static function __cacheBreak (path:String):String {
 
 		#if web
-		if (path.indexOf ("?") > -1) {
-
-			path += "&" + cache.version;
-
-		} else {
-
-			path += "?" + cache.version;
-
+		if (cache.version > 0) {
+			if (path.indexOf ("?") > -1) {
+				path += "&" + cache.version;
+			} else {
+				path += "?" + cache.version;
+			}
 		}
+
 		#end
 
 		return path;
