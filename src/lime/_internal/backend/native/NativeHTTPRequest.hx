@@ -323,7 +323,9 @@ class NativeHTTPRequest {
 
 				if (multiTimer == null) {
 
-					multiTimer = new Timer (14);
+					// TODO: Reduce sleep when network is busy?
+
+					multiTimer = new Timer (8);
 					multiTimer.run = multiTimer_onRun;
 					multiTimer_onRun ();
 

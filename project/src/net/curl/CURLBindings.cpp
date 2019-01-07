@@ -46,7 +46,9 @@ namespace lime {
 	std::map<void*, Bytes*> readBytes;
 	std::map<void*, int> readBytesPosition;
 	std::map<void*, ValuePointer*> readBytesRoot;
+	// TODO: Switch to structs
 	std::map<void*, char*> writeBuffers;
+	std::map<void*, int> writeBufferPosition;
 	std::map<void*, int> writeBufferSize;
 	std::map<void*, Bytes*> writeBytes;
 	std::map<void*, ValuePointer*> writeBytesRoot;
@@ -85,6 +87,7 @@ namespace lime {
 				}
 
 				writeBuffers.erase (handle);
+				writeBufferPosition.erase (handle);
 				writeBufferSize.erase (handle);
 
 			}
@@ -198,6 +201,7 @@ namespace lime {
 				}
 
 				writeBuffers.erase (handle);
+				writeBufferPosition.erase (handle);
 				writeBufferSize.erase (handle);
 
 			}
@@ -418,6 +422,7 @@ namespace lime {
 			bytes = new Bytes (bytesValue);
 			writeCallbacks[duphandle] = new ValuePointer (callbackValue);
 			writeBuffers[duphandle] = NULL;
+			writeBufferPosition[duphandle] = 0;
 			writeBufferSize[duphandle] = 0;
 			writeBytes[duphandle] = bytes;
 			writeBytesRoot[duphandle] = new ValuePointer (bytesValue);
@@ -480,6 +485,7 @@ namespace lime {
 			callbackValue = (vclosure*)writeCallbacks[handle]->Get ();
 			writeCallbacks[duphandle] = new ValuePointer (callbackValue);
 			writeBuffers[duphandle] = NULL;
+			writeBufferPosition[duphandle] = 0;
 			writeBufferSize[duphandle] = 0;
 			writeBytes[duphandle] = writeBytes[handle];
 			writeBytesRoot[duphandle] = new ValuePointer ((vobj*)writeBytes[handle]);
@@ -546,9 +552,10 @@ namespace lime {
 		if (writeBuffers.find (easy_handle) != writeBuffers.end ()) {
 
 			char* buffer = writeBuffers[easy_handle];
+			int position = writeBufferPosition[easy_handle];
 			int length = writeBufferSize[easy_handle];
 
-			if (buffer && length > 0) {
+			if (buffer && position > 0) {
 
 				if (writeCallbacks.find (easy_handle) != writeCallbacks.end ()) {
 
@@ -556,11 +563,12 @@ namespace lime {
 					ValuePointer* bytesRoot = writeBytesRoot[easy_handle];
 
 					Bytes* bytes = writeBytes[easy_handle];
-					bytes->Resize (length);
-					memcpy ((char*)bytes->b, buffer, length);
-					free (buffer);
-					writeBuffers[easy_handle] = NULL;
-					writeBufferSize[easy_handle] = 0;
+					if (bytes->length < position) bytes->Resize (position);
+					memcpy ((char*)bytes->b, buffer, position);
+					// free (buffer);
+					// writeBuffers[easy_handle] = NULL;
+					// writeBufferSize[easy_handle] = 0;
+					writeBufferPosition[easy_handle] = 0;
 
 					value _bytes = bytes->Value ((value)bytesRoot->Get ());
 
@@ -651,20 +659,22 @@ namespace lime {
 		if (writeBuffers.find (easy_handle) != writeBuffers.end ()) {
 
 			char* buffer = writeBuffers[easy_handle];
+			int position = writeBufferPosition[easy_handle];
 			int length = writeBufferSize[easy_handle];
 
-			if (buffer && length > 0) {
+			if (buffer && position > 0) {
 
 				if (writeCallbacks.find (easy_handle) != writeCallbacks.end ()) {
 
 					ValuePointer* writeCallback = writeCallbacks[easy_handle];
 
 					Bytes* bytes = writeBytes[easy_handle];
-					bytes->Resize (length);
-					memcpy ((char*)bytes->b, buffer, length);
-					free (buffer);
-					writeBuffers[easy_handle] = NULL;
-					writeBufferSize[easy_handle] = 0;
+					if (bytes->length > position) bytes->Resize (position);
+					memcpy ((char*)bytes->b, buffer, position);
+					// free (buffer);
+					// writeBuffers[easy_handle] = NULL;
+					// writeBufferSize[easy_handle] = 0;
+					writeBufferPosition[easy_handle] = 0;
 
 					curl_gc_mutex.Unlock ();
 					length = *((int*)writeCallback->Call (bytes));
@@ -1003,6 +1013,7 @@ namespace lime {
 		curlObjects[curl] = handle;
 
 		writeBuffers[handle] = NULL;
+		writeBufferPosition[handle] = false;
 		writeBufferSize[handle] = 0;
 
 		curl_gc_mutex.Unlock ();
@@ -1053,6 +1064,7 @@ namespace lime {
 		curlObjects[curl] = handle;
 
 		writeBuffers[handle] = NULL;
+		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
 
 		curl_gc_mutex.Unlock ();
@@ -1189,18 +1201,30 @@ namespace lime {
 
 		if (!buffer) {
 
-			buffer = (char*)malloc (writeSize);
+			buffer = (char*)malloc (CURL_MAX_WRITE_SIZE);
 			memcpy (buffer, ptr, writeSize);
 			writeBuffers[userp] = buffer;
-			writeBufferSize[userp] = writeSize;
+			writeBufferPosition[userp] = writeSize;
+			writeBufferSize[userp] = CURL_MAX_WRITE_SIZE;
 
 		} else {
 
+			int position = writeBufferPosition[userp];
 			int currentSize = writeBufferSize[userp];
-			buffer = (char*)realloc (buffer, currentSize + writeSize);
-			memcpy (buffer + currentSize, ptr, writeSize);
-			writeBuffers[userp] = buffer;
-			writeBufferSize[userp] = currentSize + writeSize;
+
+			if (position + writeSize > currentSize) {
+
+				int newSize = currentSize;
+				while (newSize < position + writeSize) newSize += CURL_MAX_WRITE_SIZE;
+
+				buffer = (char*)realloc (buffer, newSize);
+				writeBufferSize[userp] = newSize;
+				writeBuffers[userp] = buffer;
+
+			}
+
+			memcpy (buffer + position, ptr, writeSize);
+			writeBufferPosition[userp] = position + writeSize;
 
 		}
 
