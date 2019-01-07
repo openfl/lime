@@ -1,8 +1,9 @@
-7.2.1 (01/04/2019)
+7.2.1 (01/07/2019)
 ------------------
 
 * Updated howler.js to 2.1.0
 * Improved the internal HTTP request limit for better transfer speed on HTML5
+* Improved the performance for native HTTP requests
 * Improved the quality of embedded font meta-data on the HTML5 target
 * Improved `lime.utils.Assets` to allow disabling or setting the cache break number
 * Fixed `Window` to not dispatch `onClose` on HTML5 (due to some mobile browsers)
