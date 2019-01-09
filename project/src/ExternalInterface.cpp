@@ -2,10 +2,6 @@
 #define IMPLEMENT_API
 #endif
 
-#if defined(HX_MACOS)
-#include <cstdlib>
-#endif
-
 #if defined(HX_WINDOWS) || defined(HX_MACOS) || defined(HX_LINUX)
 #define NEKO_COMPATIBLE
 #endif
@@ -56,6 +52,8 @@
 #include <locale>
 #include <codecvt>
 #endif
+
+#include <cstdlib>
 
 DEFINE_KIND (k_finalizer);
 
