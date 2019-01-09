@@ -5,6 +5,7 @@ import haxe.Timer;
 import js.html.webgl.RenderingContext;
 import js.html.CanvasElement;
 import js.html.DivElement;
+import js.html.DragEvent;
 import js.html.Element;
 import js.html.FocusEvent;
 import js.html.InputElement;
@@ -226,16 +227,11 @@ class HTML5Window {
 
 			}
 
-			// Disable image drag on Firefox
-			Browser.document.addEventListener ("dragstart", function (e) {
-				if (e.target.nodeName.toLowerCase () == "img" && e.cancelable) {
-					e.preventDefault ();
-					return false;
-				}
-				return true;
-			}, false);
-
 			element.addEventListener ("contextmenu", handleContextMenuEvent, true);
+
+			element.addEventListener ("dragstart", handleDragEvent, true);
+			element.addEventListener ("dragover", handleDragEvent, true);
+			element.addEventListener ("drop", handleDragEvent, true);
 
 			element.addEventListener ("touchstart", handleTouchEvent, true);
 			element.addEventListener ("touchmove", handleTouchEvent, true);
@@ -482,6 +478,42 @@ class HTML5Window {
 
 		event.clipboardData.setData ("text/plain", Clipboard.text);
 		if (event.cancelable) event.preventDefault ();
+
+	}
+
+
+	private function handleDragEvent (event:DragEvent):Bool {
+
+		switch (event.type) {
+
+			case "dragstart":
+
+				if (cast (event.target, Element).nodeName.toLowerCase () == "img" && event.cancelable) {
+
+					event.preventDefault ();
+					return false;
+
+				}
+
+			case "dragover":
+
+				event.preventDefault ();
+				return false;
+
+			case "drop":
+
+				// TODO: Create a formal API that supports HTML5 file objects
+				if (event.dataTransfer != null && event.dataTransfer.files.length > 0) {
+
+					parent.onDropFile.dispatch (cast event.dataTransfer.files);
+					event.preventDefault ();
+					return false;
+
+				}
+
+		}
+
+		return true;
 
 	}
 
