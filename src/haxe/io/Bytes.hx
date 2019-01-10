@@ -356,7 +356,7 @@ class Bytes {
 		setInt32(pos + 4, v.high);
 	}
 
-	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String {
+	public function getString( pos : Int, len : Int, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : String {
 		#if !neko
 		if( pos < 0 || len < 0 || pos + len > length ) throw Error.OutsideBounds;
 		#end
@@ -486,7 +486,7 @@ class Bytes {
 		Returns bytes representation of the given String, using specific encoding (UTF-8 by default)
 	**/
 	@:pure
-	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes {
+	public static function ofString( s : String, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : Bytes {
 		#if neko
 		return new Bytes(s.length,untyped __dollar__ssub(s.__s,0,s.length));
 		#elseif flash
@@ -554,6 +554,26 @@ class Bytes {
 		#else
 		return new Bytes(b.length,b);
 		#end
+	}
+
+	/**
+		Convert hexadecimal string to Bytes.
+		Support only straight hex string ( Example: "0FDA14058916052309" )
+	**/
+	public static function ofHex( s : String ) : Bytes {
+		var len:Int = s.length;
+		if ( (len & 1) != 0 ) throw "Not a hex string (odd number of digits)";
+		var ret : Bytes = Bytes.alloc(len >> 1);
+		for (i in  0...ret.length)
+		{
+			var high = StringTools.fastCodeAt(s, i*2);
+			var low = StringTools.fastCodeAt(s, i*2 + 1);
+			high = (high & 0xF) + ( (high & 0x40) >> 6 ) * 9;
+			low = (low & 0xF) + ( (low & 0x40) >> 6 ) * 9;
+			ret.set( i ,( (high << 4) | low)  & 0xFF );
+		}
+
+		return ret;
 	}
 
 	/**
@@ -701,7 +721,7 @@ class Bytes {
 		setInt32(pos + 4, v.high);
 	}
 
-	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String {
+	public function getString( pos : Int, len : Int, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : String {
 		if( pos < 0 || len < 0 || pos + len > length ) throw Error.OutsideBounds;
 		var s = "";
 		var b = b;
@@ -763,7 +783,7 @@ class Bytes {
 		return new Bytes(new BytesData(length));
 	}
 
-	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes {
+	public static function ofString( s : String, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : Bytes {
 		var a = new Array();
 		// utf16-decode and utf8-encode
 		var i = 0;
@@ -795,6 +815,23 @@ class Bytes {
 		var hb = untyped b.hxBytes;
 		if( hb != null ) return hb;
 		return new Bytes(b);
+	}
+
+	public static function ofHex( s : String ) : Bytes {
+		if ( (s.length & 1) != 0 ) throw "Not a hex string (odd number of digits)";
+		var a = new Array();
+		var i = 0;
+		var len = s.length >> 1;
+		while( i < len ) {
+			var high = StringTools.fastCodeAt(s, i*2);
+			var low = StringTools.fastCodeAt(s, i*2 + 1);
+			high = (high & 0xF) + ( (high & 0x40) >> 6 ) * 9;
+			low = (low & 0xF) + ( (low & 0x40) >> 6 ) * 9;
+			a.push( ( (high << 4) | low)  & 0xFF );
+			i++;
+		}
+
+		return new Bytes(new js.html.Uint8Array(a).buffer);
 	}
 
 	public inline static function fastGet( b : BytesData, pos : Int ) : Int {
@@ -920,7 +957,7 @@ class Bytes {
 		setInt32(pos, v.low);
 	}
 
-	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String {
+	public function getString( pos : Int, len : Int, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : String {
 		if( outRange(pos,len) ) throw Error.OutsideBounds;
 
 		var b = new hl.Bytes(len + 1);
@@ -963,7 +1000,7 @@ class Bytes {
 		return new Bytes(b,length);
 	}
 
-	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes @:privateAccess {
+	public static function ofString( s : String, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : Bytes @:privateAccess {
 		var size = 0;
 		var b = s.bytes.utf16ToUtf8(0, size);
 		return new Bytes(b,size);
@@ -971,6 +1008,23 @@ class Bytes {
 
 	public static function ofData( b : BytesData ) : Bytes {
 		return new Bytes(b.bytes,b.length);
+	}
+
+	public static function ofHex( s : String ) : Bytes {
+		var len = s.length;
+		if ( (len & 1) != 0 ) throw "Not a hex string (odd number of digits)";
+		var l = len >> 1;
+		var b = new hl.Bytes(l);
+		for (i in  0...l)
+		{
+			var high = s.charCodeAt(i*2);
+			var low = s.charCodeAt(i*2 + 1);
+			high = (high & 0xf) + ( (high & 0x40) >> 6 ) * 9;
+			low = (low & 0xf) + ( (low & 0x40) >> 6 ) * 9;
+			b.setUI8(i, ( (high << 4) | low)  & 0xff );
+		}
+
+		return new Bytes(b,l);
 	}
 
 	public inline static function fastGet( b : BytesData, pos : Int ) : Int {
@@ -1002,14 +1056,15 @@ extern class Bytes {
 	public function getInt64( pos : Int ) : haxe.Int64;
 	public function setInt32( pos : Int, v : Int ) : Void;
 	public function setInt64( pos : Int, v : haxe.Int64 ) : Void;
-	public function getString( pos : Int, len : Int, ?encoding : Dynamic ) : String;
+	public function getString( pos : Int, len : Int, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : String;
 	public function toString() : String;
 	public function toHex() : String;
 	public function getData() : BytesData;
 	public static function alloc( length : Int ) : Bytes;
 	@:pure
-	public static function ofString( s : String, ?encoding : Dynamic ) : Bytes;
+	public static function ofString( s : String, ?encoding : #if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end ) : Bytes;
 	public static function ofData( b : BytesData ) : Bytes;
+	public static function ofHex ( s : String ) : Bytes;
 	public static function fastGet( b : BytesData, pos : Int ) : Int;
 	static function __init__():Void {
 		haxe.io.Error;
