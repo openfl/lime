@@ -405,6 +405,7 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
+				<lib name="setupapi.lib" />
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
