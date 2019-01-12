@@ -34,6 +34,7 @@
 			<lib name="usp10.lib" />
 			<lib name="rpcrt4.lib" />
 			<lib name="dwrite.lib" />
+			<lib name="setupapi.lib" />
 
 		</section>
 
