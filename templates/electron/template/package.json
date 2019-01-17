@@ -1,5 +1,5 @@
 {
-    "name": "::meta.title::",
+    "name": "::meta.packageName::",
     "version": "::meta.version::",
     "main": "ElectronSetup.js",
     "scripts": {
