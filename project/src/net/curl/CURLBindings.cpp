@@ -70,6 +70,25 @@ namespace lime {
 				curl_multi_remove_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (handle));
 				curlMultiReferences.erase (handle);
 
+				std::vector<void*>* handles = curlMultiHandles[multi_handle];
+
+				if (handles->size () > 0) {
+
+					for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+
+						if (*it == handle) {
+
+							handles->erase (it);
+							delete curlMultiObjects[handle];
+							curlMultiObjects.erase (handle);
+							break;
+
+						}
+
+					}
+
+				}
+
 			}
 
 			if (curlValid.find (handle) != curlValid.end ()) {
@@ -183,6 +202,25 @@ namespace lime {
 				HL_CFFIPointer* multi_handle = (HL_CFFIPointer*)curlMultiReferences[handle];
 				curl_multi_remove_handle ((CURLM*)multi_handle->ptr, (CURL*)handle->ptr);
 				curlMultiReferences.erase (handle);
+
+				std::vector<void*>* handles = curlMultiHandles[multi_handle];
+
+				if (handles->size () > 0) {
+
+					for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+
+						if (*it == handle) {
+
+							handles->erase (it);
+							delete curlMultiObjects[handle];
+							curlMultiObjects.erase (handle);
+							break;
+
+						}
+
+					}
+
+				}
 
 			}
 
