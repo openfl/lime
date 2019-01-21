@@ -610,6 +610,7 @@ class NativeHTTPRequest {
 
 	private static function multiThreadPool_onComplete (_):Void {
 
+		#if (cpp || neko)
 		var curl = multiAddHandle.pop (false);
 
 		if (curl != null) {
@@ -629,6 +630,7 @@ class NativeHTTPRequest {
 			multiThreadPoolRunning = false;
 
 		}
+		#end
 
 	}
 
