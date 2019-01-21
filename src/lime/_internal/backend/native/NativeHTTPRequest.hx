@@ -343,7 +343,7 @@ class NativeHTTPRequest {
 
 				#if (cpp || neko)
 				if (multiAddHandle == null) multiAddHandle = new Deque<CURL> ();
-				multiAddHandle.push (curl);
+				multiAddHandle.add (curl);
 				#end
 
 				if (multiThreadPool == null) {
@@ -610,14 +610,25 @@ class NativeHTTPRequest {
 
 	private static function multiThreadPool_onComplete (_):Void {
 
-		if (multiProgressTimer != null) {
+		var curl = multiAddHandle.pop (false);
 
-			multiProgressTimer.stop ();
-			multiProgressTimer = null;
+		if (curl != null) {
+
+			multiAddHandle.push (curl);
+			multiThreadPool.queue ();
+
+		} else {
+
+			if (multiProgressTimer != null) {
+
+				multiProgressTimer.stop ();
+				multiProgressTimer = null;
+
+			}
+
+			multiThreadPoolRunning = false;
 
 		}
-
-		multiThreadPoolRunning = false;
 
 	}
 
