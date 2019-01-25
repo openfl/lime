@@ -152,7 +152,7 @@ class HTML5Platform extends PlatformTarget {
 		if (targetFlags.exists ("electron")) {
 
 			targetDirectory = Path.combine (project.app.path, project.config.getString ("electron.output-directory", "electron"));
-			electronMain = project.config.getString ("electron.electron-main", null);
+			electronMain = project.config.getString ("electron.electron-main", "");
 
 		} else {
 
@@ -302,7 +302,7 @@ class HTML5Platform extends PlatformTarget {
 		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex (project.window.background, 6) : "";
 		context.OUTPUT_DIR = targetDirectory;
 		context.OUTPUT_FILE = outputFile;
-		context.ELECTRON_MAIN = electronMain;
+		context.ELECTRON_MAIN = electronMain == "" ? "ElectronSetup" : electronMain;
 
 		if (project.targetFlags.exists ("webgl")) {
 
