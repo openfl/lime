@@ -90,19 +90,20 @@ class ProjectHelper {
 	}
 
 
-	public static function recursiveSmartCopyTemplate (project:HXProject, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true) {
+	public static function recursiveSmartCopyTemplate (project:HXProject, source:String, destination:String, context:Dynamic = null, process:Bool = true, warnIfNotFound:Bool = true, isDir:Bool=true) {
 
 		var destinations = [];
 		var paths = System.findTemplateRecursive (project.templatePaths, source, warnIfNotFound, destinations);
 
 		if (paths != null) {
 
-			System.mkdir (destination);
+			if (isDir) System.mkdir (destination);
 			var itemDestination;
 
 			for (i in 0...paths.length) {
 
-				itemDestination = Path.combine (destination, ProjectHelper.substitutePath (project, destinations[i]));
+				if (isDir) itemDestination = Path.combine (destination, ProjectHelper.substitutePath (project, destinations[i]));
+				else itemDestination = destination;
 				System.copyFile (paths[i], itemDestination, context, process);
 
 			}

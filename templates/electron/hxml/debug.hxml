@@ -14,7 +14,7 @@
 -js ::OUTPUT_DIR::/bin/ElectronSetup.js
 -cp ::OUTPUT_DIR::/haxe
 -lib electron
--main ElectronSetup
+-main ::ELECTRON_MAIN::
 -dce full
 
 -D html5
