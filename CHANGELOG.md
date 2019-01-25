@@ -1,3 +1,42 @@
+7.2.1 (01/07/2019)
+------------------
+
+* Updated howler.js to 2.1.0
+* Improved the internal HTTP request limit for better transfer speed on HTML5
+* Improved the performance for native HTTP requests
+* Improved the quality of embedded font meta-data on the HTML5 target
+* Improved `lime.utils.Assets` to allow disabling or setting the cache break number
+* Fixed `Window` to not dispatch `onClose` on HTML5 (due to some mobile browsers)
+* Fixed ability to cancel context menus on HTML5 when they occur on mouse down
+* Fixed font support for some video game console targets
+
+
+7.2.0 (12/04/2018)
+------------------
+
+* Improved support for Haxe 4 preview 5
+* Improved detection of HTML5 browser key codes to convert to Lime key values
+* Improved support for Turkish lowercase values in `lime.text.UTF8String`
+* Improved `HTTPRequest` with `-Dallow-status-0` to allow code 0 as success
+* Improved project XML to allow `<window background="null" />` or `"transparent"`
+* Improved `fileDialog.save` support optional MIME types on HTML5
+* Improved munit support by enabling headless testing on the AIR target
+* Improved the Electron target template with minor updates
+* Improved the standard index.html template for cases when the window is transparent
+* Improved performance when converting `lime.utils.DataPointer` on the C++ target
+* Improved support for native `Clipboard` events
+* Improved use of the `-rebuild` flag when targeting Neko on Windows
+* Fixed a memory leak when certain kinds of bytes were loaded from disk
+* Fixed a possible multi-thread crash in Lime native Bytes
+* Fixed the failure case when loading corrupted PNG images
+* Fixed an issue where `window.cursor = null` did not hide the cursor on HTML5
+* Fixed cases where the HTML5 backend attempted to cancel non-cancelable events
+* Fixed support for `Font.renderGlyph` and `Font.renderGlyphs`
+* Fixed an error in `haxe.Timer` if `System.getTimer` returned 0
+* Fixed native libraries to build with SSE3 support for better performance
+* Fixed use of the `-Ddom` define to force HTML5 DOM render mode
+
+
 7.1.1 (10/02/2018)
 ------------------
 

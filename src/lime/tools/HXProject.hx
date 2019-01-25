@@ -2,7 +2,6 @@ package lime.tools;
 
 
 import haxe.io.Eof;
-import haxe.xml.Fast;
 import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
@@ -15,9 +14,9 @@ import sys.io.File;
 import sys.io.Process;
 
 #if (haxe_ver >= 4)
-import haxe.xml.Access in Fast;
+import haxe.xml.Access;
 #else
-import haxe.xml.Fast;
+import haxe.xml.Fast as Access;
 #end
 
 #if (lime && lime_cffi && !macro)
@@ -840,7 +839,7 @@ class HXProject extends Script {
 	public function includeXML (xml:String):Void {
 
 		var projectXML = new ProjectXMLParser ();
-		@:privateAccess projectXML.parseXML (new Fast (Xml.parse (xml).firstElement ()), "");
+		@:privateAccess projectXML.parseXML (new Access (Xml.parse (xml).firstElement ()), "");
 		merge (projectXML);
 
 	}

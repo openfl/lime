@@ -212,7 +212,7 @@ namespace lime {
 
 			context = SDL_GL_CreateContext (sdlWindow);
 
-			if (context) {
+			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
 
 				if (flags & WINDOW_FLAG_VSYNC) {
 
@@ -256,6 +256,11 @@ namespace lime {
 				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
 
 				#endif
+
+			} else {
+
+				SDL_GL_DeleteContext (context);
+				context = NULL;
 
 			}
 

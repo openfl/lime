@@ -23,13 +23,13 @@ class ThreadPool {
 
 
 	public var currentThreads (default, null):Int;
-	public var doWork = new Event<Function->Void> ();
+	public var doWork = new Event<Dynamic->Void> ();
 	public var maxThreads:Int;
 	public var minThreads:Int;
-	public var onComplete = new Event<Function->Void> ();
-	public var onError = new Event<Function->Void> ();
-	public var onProgress = new Event<Function->Void> ();
-	public var onRun = new Event<Function->Void> ();
+	public var onComplete = new Event<Dynamic->Void> ();
+	public var onError = new Event<Dynamic->Void> ();
+	public var onProgress = new Event<Dynamic->Void> ();
+	public var onRun = new Event<Dynamic->Void> ();
 
 	#if (cpp || neko)
 	@:noCompletion private var __synchronous:Bool;

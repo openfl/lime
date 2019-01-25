@@ -22,6 +22,7 @@ import flash.media.Sound;
 #end
 
 @:access(lime.text.Font)
+@:access(lime.utils.Assets)
 
 
 class AssetLibrary {
@@ -740,19 +741,7 @@ class AssetLibrary {
 
 	@:noCompletion private function __cacheBreak (path:String):String {
 
-		#if web
-		if (path.indexOf ("?") > -1) {
-
-			path += "&" + Assets.cache.version;
-
-		} else {
-
-			path += "?" + Assets.cache.version;
-
-		}
-		#end
-
-		return path;
+		return Assets.__cacheBreak (path);
 
 	}
 

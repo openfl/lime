@@ -160,6 +160,10 @@ namespace lime {
 
 					}
 
+				} else if (usingValue.find (this) != usingValue.end ()) {
+
+					usingValue.erase (this);
+
 				}
 
 				b = data;

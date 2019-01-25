@@ -511,9 +511,15 @@ class Assets {
 			path = libraryPaths[id];
 			rootPath = defaultRootPath;
 
-		} else if (StringTools.endsWith (path, ".bundle")) {
+		} else {
 
-			path += "/library.json";
+			if (StringTools.endsWith (path, ".bundle")) {
+
+				path += "/library.json";
+
+			}
+
+			path = __cacheBreak (path);
 
 		}
 
@@ -608,7 +614,25 @@ class Assets {
 	}
 
 
-	private static function __libraryNotFound (name:String):String {
+	@:noCompletion private static function __cacheBreak (path:String):String {
+
+		#if web
+		if (cache.version > 0) {
+			if (path.indexOf ("?") > -1) {
+				path += "&" + cache.version;
+			} else {
+				path += "?" + cache.version;
+			}
+		}
+
+		#end
+
+		return path;
+
+	}
+
+
+	@:noCompletion private static function __libraryNotFound (name:String):String {
 
 		if (name == null || name == "") {
 
@@ -636,7 +660,7 @@ class Assets {
 
 
 
-	private static function library_onChange ():Void {
+	@:noCompletion private static function library_onChange ():Void {
 
 		cache.clear ();
 		onChange.dispatch ();

@@ -56,6 +56,7 @@ class Font {
 	#if lime_cffi
 	@:noCompletion private var __fontPathWithoutDirectory:String;
 	#end
+	@:noCompletion private var __init:Bool;
 
 
 	public function new (name:String = null) {
@@ -66,25 +67,29 @@ class Font {
 
 		}
 
-		ascender = 0;
-		descender = 0;
-		height = 0;
-		numGlyphs = 0;
-		underlinePosition = 0;
-		underlineThickness = 0;
-		unitsPerEM = 0;
+		if (!__init) {
 
-		if (__fontID != null) {
+			#if js if (ascender == untyped __js__("undefined")) #end ascender = 0;
+			#if js if (descender == untyped __js__("undefined")) #end descender = 0;
+			#if js if (height == untyped __js__("undefined")) #end height = 0;
+			#if js if (numGlyphs == untyped __js__("undefined")) #end numGlyphs = 0;
+			#if js if (underlinePosition == untyped __js__("undefined")) #end underlinePosition = 0;
+			#if js if (underlineThickness == untyped __js__("undefined")) #end underlineThickness = 0;
+			#if js if (unitsPerEM == untyped __js__("undefined")) #end unitsPerEM = 0;
 
-			if (Assets.isLocal (__fontID)) {
+			if (__fontID != null) {
 
-				__fromBytes (Assets.getBytes (__fontID));
+				if (Assets.isLocal (__fontID)) {
+
+					__fromBytes (Assets.getBytes (__fontID));
+
+				}
+
+			} else if (__fontPath != null) {
+
+				__fromFile (__fontPath);
 
 			}
-
-		} else if (__fontPath != null) {
-
-			__fromFile (__fontPath);
 
 		}
 
@@ -457,6 +462,8 @@ class Font {
 			__fontPathWithoutDirectory = other.__fontPathWithoutDirectory;
 			#end
 
+			__init = true;
+
 		}
 
 	}
@@ -513,6 +520,8 @@ class Font {
 
 		}
 		#end
+
+		__init = true;
 
 	}
 

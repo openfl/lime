@@ -1,6 +1,7 @@
 package lime.tools; #if lime
 
 
+import haxe.io.Bytes as HaxeBytes;
 import haxe.Serializer;
 import haxe.Unserializer;
 import hxp.*;
@@ -97,7 +98,7 @@ class AssetHelper {
 
 					File.saveBytes (destination, StringTools.base64Decode (asset.data));
 
-				} else if (Std.is (asset.data, Bytes)) {
+				} else if (Std.is (asset.data, HaxeBytes)) {
 
 					File.saveBytes (destination, cast asset.data);
 
@@ -140,7 +141,7 @@ class AssetHelper {
 
 					File.saveBytes (destination, StringTools.base64Decode (asset.data));
 
-				} else if (Std.is (asset.data, Bytes)) {
+				} else if (Std.is (asset.data, HaxeBytes)) {
 
 					File.saveBytes (destination, cast asset.data);
 

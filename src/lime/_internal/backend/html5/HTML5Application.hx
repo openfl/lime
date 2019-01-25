@@ -386,17 +386,25 @@ class HTML5Application {
 
 				case "beforeunload":
 
-					if (!event.defaultPrevented) {
+					// Mobile Chrome dispatches 'beforeunload' after device sleep,
+					// but returns later without reloading the page. This triggers
+					// a window.onClose(), without us creating the window again.
+					//
+					// For now, let focus in/out and activate/deactivate trigger
+					// on blur and focus, and do not dispatch a closed window event
+					// since it may actually never close.
 
-						parent.window.onClose.dispatch ();
+					// if (!event.defaultPrevented) {
 
-						if (parent.window != null && parent.window.onClose.canceled && event.cancelable) {
+				// 		parent.window.onClose.dispatch ();
 
-							event.preventDefault ();
+				// 		if (parent.window != null && parent.window.onClose.canceled && event.cancelable) {
 
-						}
+				// 			event.preventDefault ();
 
-					}
+				// 		}
+
+				// 	}
 
 			}
 

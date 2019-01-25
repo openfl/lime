@@ -1,6 +1,12 @@
 package lime.media.vorbis; #if (!lime_doc_gen || lime_vorbis)
 
 
+@:headerCode("
+#undef EFAULT
+#undef EINVAL
+")
+
+
 class Vorbis {
 
 

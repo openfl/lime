@@ -134,7 +134,7 @@ class AndroidPlatform extends PlatformTarget {
 
 			if (FileSystem.exists (sourceSet + "/jniLibs/armeabi")) {
 
-				System.removeDirectory (sourceSet + "/jniLibs/armeabi-");
+				System.removeDirectory (sourceSet + "/jniLibs/armeabi");
 
 			}
 

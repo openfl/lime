@@ -53,6 +53,8 @@
 #include <codecvt>
 #endif
 
+#include <cstdlib>
+
 DEFINE_KIND (k_finalizer);
 
 

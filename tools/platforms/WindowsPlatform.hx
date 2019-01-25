@@ -84,7 +84,7 @@ class WindowsPlatform extends PlatformTarget {
 
 		for (architecture in project.architectures) {
 
-			if (targetType == "cpp" && architecture == Architecture.X64) {
+			if ((targetType == "cpp" || targetType == "winrt") && architecture == Architecture.X64) {
 
 				is64 = true;
 
@@ -174,7 +174,7 @@ class WindowsPlatform extends PlatformTarget {
 
 				for (ndll in project.ndlls) {
 
-					ProjectHelper.copyLibrary (project, ndll, "WinRT", "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug, null);
+					ProjectHelper.copyLibrary (project, ndll, "WinRT" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory, project.debug, null);
 
 				}
 
@@ -269,6 +269,20 @@ class WindowsPlatform extends PlatformTarget {
 				haxeArgs.push ("-D");
 				haxeArgs.push ("winrt");
 				flags.push ("-Dwinrt");
+
+				// TODO: ARM support
+
+				if (is64) {
+
+					haxeArgs.push ("-D");
+					haxeArgs.push ("HXCPP_M64");
+					flags.push ("-DHXCPP_M64");
+
+				} else {
+
+					flags.push ("-DHXCPP_M32");
+
+				}
 
 				if (!project.environment.exists ("SHOW_CONSOLE")) {
 
@@ -467,7 +481,7 @@ class WindowsPlatform extends PlatformTarget {
 
 			var commands = [];
 
-			if (!targetFlags.exists ("64") && (command == "rebuild" || System.hostArchitecture == X86)) {
+			if (!targetFlags.exists ("64") && (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt"))) {
 
 				if (targetFlags.exists ("winrt")) {
 
@@ -485,7 +499,7 @@ class WindowsPlatform extends PlatformTarget {
 			// as previous Windows builds. For now, force -64 to be done last
 			// so that it can be debugged in a default "rebuild"
 
-			if (!targetFlags.exists ("32") && System.hostArchitecture == X64) {
+			if (!targetFlags.exists ("32") && System.hostArchitecture == X64 && (command != "rebuild" || targetType == "cpp" || targetType == "winrt")) {
 
 				if (targetFlags.exists ("winrt")) {
 
