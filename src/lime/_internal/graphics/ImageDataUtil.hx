@@ -426,7 +426,6 @@ class ImageDataUtil {
 					var alphaPosition, alphaPixel:RGBA;
 
 					var alphaView = new ImageDataView (alphaImage, new Rectangle (alphaPoint.x, alphaPoint.y, alphaImage.width, alphaImage.height));
-					alphaView.offset (sourceView.x, sourceView.y);
 
 					destView.clip (Std.int (destPoint.x), Std.int (destPoint.y), alphaView.width, alphaView.height);
 
