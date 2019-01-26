@@ -215,7 +215,6 @@ namespace lime {
 
 			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, alphaImage->width, alphaImage->height);
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
-			alphaView.Offset (sourceView.x, sourceView.y);
 
 			destView.Clip (destPoint->x, destPoint->y, alphaView.width, alphaView.height);
 
