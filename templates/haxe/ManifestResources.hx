@@ -96,23 +96,23 @@ import sys.FileSystem;
 #if !display
 #if flash
 
-::foreach assets::::if (embed != false)::::if (type == "image")::@:keep @:bind #if display private #end class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep @:bind #if display private #end class __ASSET__::flatName:: extends ::flashClass:: { }::end::
+::foreach assets::::if (embed != false)::::if (type == "image")::@:keep @:bind @:noCompletion #if display private #end class __ASSET__::flatName:: extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }::else::@:keep @:bind @:noCompletion #if display private #end class __ASSET__::flatName:: extends ::flashClass:: { }::end::
 ::end::::end::
 
 #elseif (desktop || cpp)
 
-::if (assets != null)::::foreach assets::::if (embed)::@:keep ::if (type == "image")::@:image("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.graphics.Image {}
-::elseif (type == "sound")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
-::elseif (type == "music")::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
-::elseif (type == "font")::@:font("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends lime.text.Font {}
-::else::@:file("::sourcePath::") #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
+::if (assets != null)::::foreach assets::::if (embed)::@:keep ::if (type == "image")::@:image("::sourcePath::") @:noCompletion #if display private #end class __ASSET__::flatName:: extends lime.graphics.Image {}
+::elseif (type == "sound")::@:file("::sourcePath::") @:noCompletion #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
+::elseif (type == "music")::@:file("::sourcePath::") @:noCompletion #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
+::elseif (type == "font")::@:font("::sourcePath::") @:noCompletion #if display private #end class __ASSET__::flatName:: extends lime.text.Font {}
+::else::@:file("::sourcePath::") @:noCompletion #if display private #end class __ASSET__::flatName:: extends haxe.io.Bytes {}
 ::end::::end::::end::::end::
-::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { ::if (targetPath != null)::__fontPath = ManifestResources.rootPath + "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: ::if (fontName)::name = "::fontName::";::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (!embed)::::if (type == "font")::@:keep @:noCompletion #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { ::if (targetPath != null)::__fontPath = ManifestResources.rootPath + "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end:: ::if (fontName)::name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::::end::
 
 #else
 
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__::flatName::') #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { #if !html5 __fontPath = "::targetPath::"; #else ascender = ::ascender::; descender = ::descender::; height = ::height::; numGlyphs = ::numGlyphs::; underlinePosition = ::underlinePosition::; underlineThickness = ::underlineThickness::; unitsPerEM = ::unitsPerEM::; #end::if (fontName):: name = "::fontName::";::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__::flatName::') @:noCompletion #if display private #end class __ASSET__::flatName:: extends lime.text.Font { public function new () { #if !html5 __fontPath = "::targetPath::"; #else ascender = ::ascender::; descender = ::descender::; height = ::height::; numGlyphs = ::numGlyphs::; underlinePosition = ::underlinePosition::; underlineThickness = ::underlineThickness::; unitsPerEM = ::unitsPerEM::; #end::if (fontName):: name = "::fontName::";::end:: super (); }}
 ::end::::end::::end::
 
 #end
@@ -120,10 +120,10 @@ import sys.FileSystem;
 #if (openfl && !flash)
 
 #if html5
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () {::if (embed):: __fromLimeFont (new __ASSET__::flatName:: ());::else::::if (fontName):: name = "::fontName::";::end::::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') @:noCompletion #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () {::if (embed):: __fromLimeFont (new __ASSET__::flatName:: ());::else::::if (fontName):: name = "::fontName::";::end::::end:: super (); }}
 ::end::::end::::end::
 #else
-::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () {::if (embed):: __fromLimeFont (new __ASSET__::flatName:: ());::else:: ::if (targetPath != null)::__fontPath = ManifestResources.rootPath + "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end::::if (fontName):: name = "::fontName::";::end::::end:: super (); }}
+::if (assets != null)::::foreach assets::::if (type == "font")::@:keep @:expose('__ASSET__OPENFL__::flatName::') @:noCompletion #if display private #end class __ASSET__OPENFL__::flatName:: extends openfl.text.Font { public function new () {::if (embed):: __fromLimeFont (new __ASSET__::flatName:: ());::else:: ::if (targetPath != null)::__fontPath = ManifestResources.rootPath + "::targetPath::";::else::::if (library != null)::__fontID = "::library:::::id::";::else::__fontID = "::id::";::end::::end::::if (fontName):: name = "::fontName::";::end::::end:: super (); }}
 ::end::::end::::end::
 #end
 

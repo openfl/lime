@@ -102,7 +102,7 @@ private class AbstractHTTPRequest<T> implements _IHTTPRequest {
 @:noDebug
 #end
 
-class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
+@:noCompletion class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 
 
 	public function new (uri:String = null) {
@@ -153,7 +153,7 @@ class _HTTPRequest_Bytes<T> extends AbstractHTTPRequest<T> {
 @:noDebug
 #end
 
-class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
+@:noCompletion class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 
 
 	public function new (uri:String = null) {
@@ -192,7 +192,7 @@ class _HTTPRequest_String<T> extends AbstractHTTPRequest<T> {
 }
 
 
-interface _IHTTPRequest {
+@:noCompletion interface _IHTTPRequest {
 
 	public var contentType:String;
 	public var data:haxe.io.Bytes;
