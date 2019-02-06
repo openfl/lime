@@ -203,9 +203,13 @@ class CURL {
 			case CURLOption.WRITEFUNCTION:
 
 				var callback:CURL->Bytes->Int = cast parameter;
-				parameter = function (bytes:Bytes) {
+				parameter = function (bytes:Bytes, length:Int) {
 
-					return callback (this, bytes);
+					var cacheLength = bytes.length;
+					@:privateAccess bytes.length = length;
+					var read = callback (this, bytes);
+					@:privateAccess bytes.length = cacheLength;
+					return read;
 
 				}
 
