@@ -707,7 +707,7 @@ namespace lime {
 					ValuePointer* writeCallback = writeCallbacks[easy_handle];
 
 					Bytes* bytes = writeBytes[easy_handle];
-					if (bytes->length > position) bytes->Resize (position);
+					if (bytes->length < position) bytes->Resize (position);
 					memcpy ((char*)bytes->b, buffer, position);
 					// free (buffer);
 					// writeBuffers[easy_handle] = NULL;
@@ -1051,7 +1051,7 @@ namespace lime {
 		curlObjects[curl] = handle;
 
 		writeBuffers[handle] = NULL;
-		writeBufferPosition[handle] = false;
+		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
 
 		curl_gc_mutex.Unlock ();
