@@ -68,7 +68,7 @@ namespace lime {
 			KeyEvent keyEvent;
 			Uint32 lastUpdate;
 			MouseEvent mouseEvent;
-			double nextUpdate;
+			Uint32 nextUpdate;
 			RenderEvent renderEvent;
 			SensorEvent sensorEvent;
 			TextEvent textEvent;
