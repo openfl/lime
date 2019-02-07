@@ -1983,6 +1983,10 @@ class ProjectXMLParser extends HXProject {
 
 									config.set ("android.gradle-version", value);
 
+								case "gradle-plugin":
+
+									config.set ("android.gradle-plugin", value);
+									
 								default:
 
 									name = formatAttributeName (attribute);
