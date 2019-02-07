@@ -13,6 +13,9 @@
         "returnFormat": "",
         "neverAskTemplate": true
     },
+    "files.watcherExclude": {
+        "**/project/lib/**": true
+    }
     "files.trimTrailingWhitespace": true,
     "C_Cpp.autoAddFileAssociations": false,
 }
