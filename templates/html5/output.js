@@ -1,3 +1,5 @@
+::if embeddedLibraries::::foreach (embeddedLibraries)::
+::__current__::::end::::end::
 // lime.embed namespace wrapper
 (function ($hx_exports, $global) { "use strict";
 $hx_exports.lime = $hx_exports.lime || {};

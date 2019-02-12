@@ -83,6 +83,19 @@ class HTML5Platform extends PlatformTarget {
 
 				var context = project.templateContext;
 				context.SOURCE_FILE = File.getContent (outputFile);
+				context.embeddedLibraries = [];
+
+				for (dependency in project.dependencies) {
+
+					if (dependency.embed && StringTools.endsWith (dependency.path, ".js") && FileSystem.exists (dependency.path)) {
+
+						var script = File.getContent (dependency.path);
+						context.embeddedLibraries.push (script);
+
+					}
+
+				}
+
 				System.copyFileTemplate (project.templatePaths, "html5/output.js", outputFile, context);
 
 			}
@@ -341,16 +354,20 @@ class HTML5Platform extends PlatformTarget {
 
 		for (dependency in project.dependencies) {
 
-			if (StringTools.endsWith (dependency.name, ".js")) {
+			if (!dependency.embed) {
 
-				context.linkedLibraries.push (dependency.name);
+				if (StringTools.endsWith (dependency.name, ".js")) {
 
-			} else if (StringTools.endsWith (dependency.path, ".js") && FileSystem.exists (dependency.path)) {
+					context.linkedLibraries.push (dependency.name);
 
-				var name = Path.withoutDirectory (dependency.path);
+				} else if (StringTools.endsWith (dependency.path, ".js") && FileSystem.exists (dependency.path)) {
 
-				context.linkedLibraries.push ("./" + dependencyPath + "/" + name);
-				System.copyIfNewer (dependency.path, Path.combine (destination, Path.combine (dependencyPath, name)));
+					var name = Path.withoutDirectory (dependency.path);
+
+					context.linkedLibraries.push ("./" + dependencyPath + "/" + name);
+					System.copyIfNewer (dependency.path, Path.combine (destination, Path.combine (dependencyPath, name)));
+
+				}
 
 			}
 

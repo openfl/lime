@@ -81,11 +81,11 @@
 		<ndll name="lime" if="native" unless="lime-console static_link || lime-switch static_link" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
-		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" />
-		<dependency path="dependencies/pako.min.js" if="html5" />
-		<dependency path="dependencies/FileSaver.min.js" if="html5" />
-		<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" />
-		<dependency path="dependencies/stats.min.js" if="html5 stats" />
+		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
+		<dependency path="dependencies/pako.min.js" if="html5" embed="true" />
+		<dependency path="dependencies/FileSaver.min.js" if="html5" embed="true" />
+		<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="true" />
+		<dependency path="dependencies/stats.min.js" if="html5 stats" embed="true" />
 		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />

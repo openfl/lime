@@ -1916,9 +1916,15 @@ class ProjectXMLParser extends HXProject {
 
 						var dependency = new Dependency (name, path);
 
+						if (element.has.embed) {
+
+							dependency.embed = parseBool (element.att.embed);
+
+						}
+
 						if (element.has.resolve ("force-load")) {
 
-							dependency.forceLoad = (substitute (element.att.resolve ("force-load")) == "true");
+							dependency.forceLoad = parseBool (element.att.resolve ("force-load"));
 
 						}
 
