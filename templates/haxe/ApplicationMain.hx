@@ -1,9 +1,10 @@
 package;
 
-import::APP_MAIN::;
+import ::APP_MAIN::;
 
 @:access(lime.app.Application)
 @:access(lime.system.System)
+
 @:dox(hide) class ApplicationMain
 {
 	public static function main()
@@ -20,7 +21,7 @@ import::APP_MAIN::;
 		ManifestResources.init(config);
 
 		#if !munit
-		var app = new::APP_MAIN::();
+		var app = new ::APP_MAIN::();
 		app.meta.set("build", "::meta.buildNumber::");
 		app.meta.set("company", "::meta.company::");
 		app.meta.set("file", "::APP_FILE::");
@@ -29,39 +30,38 @@ import::APP_MAIN::;
 		app.meta.set("version", "::meta.version::");
 
 		#if !flash
-		::foreach windows::var attributes:lime.ui.WindowAttributes =
+		::foreach windows::
+		var attributes:lime.ui.WindowAttributes =
 			{
-				allowHighDPI:::allowHighDPI::,
-				alwaysOnTop:::alwaysOnTop::,
-				borderless:::borderless::,
+				allowHighDPI: ::allowHighDPI::,
+				alwaysOnTop: ::alwaysOnTop::,
+				borderless: ::borderless::,
 				// display: ::display::,
 				element: null,
-				frameRate:::fps::,
-				#if !web
-				fullscreen:::fullscreen::,
-				#end
-				height:::height::,
-				hidden: #if munit true #else::hidden:: #end,
-				maximized:::maximized::,
-				minimized:::minimized::,
-				parameters:::parameters::,
-				resizable:::resizable::,
+				frameRate: ::fps::,
+				#if !web fullscreen: ::fullscreen::, #end
+				height: ::height::,
+				hidden: #if munit true #else ::hidden:: #end,
+				maximized: ::maximized::,
+				minimized: ::minimized::,
+				parameters: ::parameters::,
+				resizable: ::resizable::,
 				title: "::title::",
-				width:::width::,
-				x:::x::,
-				y:::y::,
+				width: ::width::,
+				x: ::x::,
+				y: ::y::,
 			};
 
 		attributes.context =
 			{
-				antialiasing:::antialiasing::,
-				background:::background::,
-				colorDepth:::colorDepth::,
-				depth:::depthBuffer::,
-				hardware:::hardware::,
-				stencil:::stencilBuffer::,
+				antialiasing: ::antialiasing::,
+				background: ::background::,
+				colorDepth: ::colorDepth::,
+				depth: ::depthBuffer::,
+				hardware: ::hardware::,
+				stencil: ::stencilBuffer::,
 				type: null,
-				vsync:::vsync::
+				vsync: ::vsync::
 			};
 
 		if (app.window == null)
@@ -89,8 +89,10 @@ import::APP_MAIN::;
 		app.createWindow(attributes);
 		::end::
 		#elseif !air
-		app.window.context.attributes.background =::WIN_BACKGROUND::;
-		app.window.frameRate =::WIN_FPS::;
+
+		app.window.context.attributes.background = ::WIN_BACKGROUND::;
+		app.window.frameRate = ::WIN_FPS::;
+
 		#end
 		#end
 
@@ -116,13 +118,17 @@ import::APP_MAIN::;
 	public static function start(app:lime.app.Application = null):Void
 	{
 		#if !munit
+
 		var result = app.exec();
 
 		#if (sys && !ios && !nodejs && !emscripten)
 		lime.system.System.exit(result);
 		#end
+
 		#else
-		new::APP_MAIN::();
+
+		new ::APP_MAIN::();
+
 		#end
 	}
 

@@ -10,34 +10,31 @@ class ElectronSetup
 		electron.main.App.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
 
 		var windows:Array<OpenFLWindow> = [
-			::foreach
-			windows::
+			::foreach windows::
 			{
-				allowHighDPI:::allowHighDPI::,
-				alwaysOnTop:::alwaysOnTop::,
-				antialiasing:::antialiasing::,
-				background:::background::,
-				borderless:::borderless::,
-				colorDepth:::colorDepth::,
-				depthBuffer:::depthBuffer::,
-				display:::display::,
-				fullscreen:::fullscreen::,
-				hardware:::hardware::,
-				height:::height::,
-				hidden: #if munit true #else::hidden:: #end,
-				maximized:::maximized::,
-				minimized:::minimized::,
-				parameters:::parameters::,
-				resizable:::resizable::,
-				stencilBuffer:::stencilBuffer::,
+				allowHighDPI: ::allowHighDPI::,
+				alwaysOnTop: ::alwaysOnTop::,
+				antialiasing: ::antialiasing::,
+				background: ::background::,
+				borderless: ::borderless::,
+				colorDepth: ::colorDepth::,
+				depthBuffer: ::depthBuffer::,
+				display: ::display::,
+				fullscreen: ::fullscreen::,
+				hardware: ::hardware::,
+				height: ::height::,
+				hidden: #if munit true #else ::hidden:: #end,
+				maximized: ::maximized::,
+				minimized: ::minimized::,
+				parameters: ::parameters::,
+				resizable: ::resizable::,
+				stencilBuffer: ::stencilBuffer::,
 				title: "::title::",
-				vsync:::vsync::,
-				width:::width::,
-				x:::x::,
-				y:::y::
-			},
-			::
-			end::
+				vsync: ::vsync::,
+				width: ::width::,
+				x: ::x::,
+				y: ::y::
+			},::end::
 		];
 
 		for (i in 0...windows.length)
@@ -67,7 +64,10 @@ class ElectronSetup
 
 				ElectronSetup.window.on(closed, function()
 				{
-					if (js.Node.process.platform != 'darwin') electron.main.App.quit();
+					if (js.Node.process.platform != 'darwin')
+					{
+						electron.main.App.quit();
+					}
 				});
 
 				ElectronSetup.window.loadURL('file://' + js.Node.__dirname + '/index.html');
