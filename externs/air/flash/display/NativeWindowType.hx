@@ -1,6 +1,7 @@
 package flash.display;
 
-@:fakeEnum(String) extern enum NativeWindowType {
+@:fakeEnum(String) extern enum NativeWindowType
+{
 	LIGHTWEIGHT;
 	NORMAL;
 	UTILITY;

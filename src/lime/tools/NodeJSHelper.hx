@@ -1,60 +1,54 @@
 package lime.tools;
 
-
 import hxp.*;
 import lime.tools.Architecture;
 import lime.tools.HXProject;
 import lime.tools.Platform;
 
-
-class NodeJSHelper {
-
-
-	public static function run (project:HXProject, modulePath:String, args:Array<String> = null):Void {
-
+class NodeJSHelper
+{
+	public static function run(project:HXProject, modulePath:String, args:Array<String> = null):Void
+	{
 		/*var suffix = switch (System.hostPlatform) {
 
-			case Platform.WINDOWS: "-windows.exe";
-			case Platform.MAC: "-mac";
-			case Platform.LINUX: "-linux";
-			default: return;
-
-		}
-
-		if (suffix == "-linux") {
-
-			if (System.hostArchitecture == X86) {
-
-				suffix += "32";
-
-			} else {
-
-				suffix += "64";
+				case Platform.WINDOWS: "-windows.exe";
+				case Platform.MAC: "-mac";
+				case Platform.LINUX: "-linux";
+				default: return;
 
 			}
 
-		}
+			if (suffix == "-linux") {
 
-		var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), "templates") ].concat (project.templatePaths);
-		var node = System.findTemplate (templatePaths, "bin/node/node" + suffix);
+				if (System.hostArchitecture == X86) {
 
-		if (System.hostPlatform != WINDOWS) {
+					suffix += "32";
 
-			Sys.command ("chmod", [ "+x", node ]);
+				} else {
 
-		}
+					suffix += "64";
 
-		if (args == null) {
+				}
 
-			args = [];
+			}
+
+			var templatePaths = [ Path.combine (Haxelib.getPath (new Haxelib (#if lime "lime" #else "hxp" #end)), "templates") ].concat (project.templatePaths);
+			var node = System.findTemplate (templatePaths, "bin/node/node" + suffix);
+
+			if (System.hostPlatform != WINDOWS) {
+
+				Sys.command ("chmod", [ "+x", node ]);
+
+			}
+
+			if (args == null) {
+
+				args = [];
 
 		}*/
 
-		args.unshift (Path.withoutDirectory (modulePath));
+		args.unshift(Path.withoutDirectory(modulePath));
 
-		System.runCommand (Path.directory (modulePath), "node", args);
-
+		System.runCommand(Path.directory(modulePath), "node", args);
 	}
-
-
 }

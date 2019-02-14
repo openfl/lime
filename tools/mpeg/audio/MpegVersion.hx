@@ -1,7 +1,8 @@
 package mpeg.audio;
 
-enum MpegVersion {
-    Version1;
-    Version2;
-    Version25;
+enum MpegVersion
+{
+	Version1;
+	Version2;
+	Version25;
 }

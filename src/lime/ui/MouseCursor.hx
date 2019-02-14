@@ -1,8 +1,7 @@
 package lime.ui;
 
-
-enum MouseCursor {
-
+enum MouseCursor
+{
 	ARROW;
 	CROSSHAIR;
 	DEFAULT;
@@ -16,5 +15,4 @@ enum MouseCursor {
 	WAIT;
 	WAIT_ARROW;
 	CUSTOM;
-
 }

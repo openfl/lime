@@ -1,6 +1,5 @@
 package;
 
-
 import hxp.Path;
 import hxp.NDLL;
 import haxe.Template;
@@ -30,10 +29,8 @@ import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
-
-class MacPlatform extends PlatformTarget {
-
-
+class MacPlatform extends PlatformTarget
+{
 	private var applicationDirectory:String;
 	private var contentDirectory:String;
 	private var executableDirectory:String;
@@ -41,203 +38,186 @@ class MacPlatform extends PlatformTarget {
 	private var is64:Bool;
 	private var targetType:String;
 
+	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
+	{
+		super(command, _project, targetFlags);
 
-	public function new (command:String, _project:HXProject, targetFlags:Map<String, String> ) {
-
-		super (command, _project, targetFlags);
-
-		for (architecture in project.architectures) {
-
-			if (architecture == Architecture.X64) {
-
+		for (architecture in project.architectures)
+		{
+			if (architecture == Architecture.X64)
+			{
 				is64 = true;
-
 			}
-
 		}
 
-		if (project.targetFlags.exists ("neko") || project.target != cast System.hostPlatform) {
-
+		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		{
 			targetType = "neko";
-
-		} else if (project.targetFlags.exists ("hl")) {
-
+		}
+		else if (project.targetFlags.exists("hl"))
+		{
 			targetType = "hl";
 			is64 = false;
-
-		} else if (project.targetFlags.exists ("java")) {
-
+		}
+		else if (project.targetFlags.exists("java"))
+		{
 			targetType = "java";
-
-		} else if (project.targetFlags.exists ("nodejs")) {
-
+		}
+		else if (project.targetFlags.exists("nodejs"))
+		{
 			targetType = "nodejs";
-
-		} else if (project.targetFlags.exists ("cs")) {
-
+		}
+		else if (project.targetFlags.exists("cs"))
+		{
 			targetType = "cs";
-
-		} else {
-
+		}
+		else
+		{
 			targetType = "cpp";
-
 		}
 
-		targetDirectory = Path.combine (project.app.path, project.config.getString ("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
-		targetDirectory = StringTools.replace (targetDirectory, "arch64", is64 ? "64" : "");
+		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
+		targetDirectory = StringTools.replace(targetDirectory, "arch64", is64 ? "64" : "");
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";
 		executableDirectory = applicationDirectory + "/Contents/MacOS";
 		executablePath = executableDirectory + "/" + project.app.file;
-
 	}
 
-
-	public override function build ():Void {
-
+	public override function build():Void
+	{
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		System.mkdir (targetDirectory);
+		System.mkdir(targetDirectory);
 
-		if (!project.targetFlags.exists ("static") || targetType != "cpp") {
-
+		if (!project.targetFlags.exists("static") || targetType != "cpp")
+		{
 			var targetSuffix = (targetType == "hl") ? ".hdll" : null;
 
-			for (ndll in project.ndlls) {
-
-				ProjectHelper.copyLibrary (project, ndll, "Mac" + (is64 ? "64" : ""), "", (ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory, project.debug, targetSuffix);
-
+			for (ndll in project.ndlls)
+			{
+				ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
+					(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory,
+					project.debug, targetSuffix);
 			}
-
 		}
 
-		if (targetType == "neko") {
-
-			System.runCommand ("", "haxe", [ hxml ]);
-
-			if (noOutput) return;
-
-			NekoHelper.createExecutable (project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries (project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
-
-		} else if (targetType == "hl") {
-
-			System.runCommand ("", "haxe", [ hxml ]);
+		if (targetType == "neko")
+		{
+			System.runCommand("", "haxe", [hxml]);
 
 			if (noOutput) return;
 
-			System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl", Path.combine (executableDirectory, project.app.file + ".hl"));
-
-		} else if (targetType == "java") {
-
-			var libPath = Path.combine (Haxelib.getPath (new Haxelib ("lime")), "templates/java/lib/");
-
-			System.runCommand ("", "haxe", [ hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar" ]);
-
-			if (noOutput) return;
-
-			Haxelib.runCommand (targetDirectory + "/obj", [ "run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103" ]);
-			System.recursiveCopy (targetDirectory + "/obj/lib", Path.combine (executableDirectory, "lib"));
-			System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar", Path.combine (executableDirectory, project.app.file + ".jar"));
-			JavaHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
-
-		} else if (targetType == "nodejs") {
-
-			System.runCommand ("", "haxe", [ hxml ]);
+			NekoHelper.createExecutable(project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries(project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
+		}
+		else if (targetType == "hl")
+		{
+			System.runCommand("", "haxe", [hxml]);
 
 			if (noOutput) return;
 
-			//NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			//NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
+				Path.combine(executableDirectory, project.app.file + ".hl"));
+		}
+		else if (targetType == "java")
+		{
+			var libPath = Path.combine(Haxelib.getPath(new Haxelib("lime")), "templates/java/lib/");
 
-		} else if (targetType == "cs") {
-
-			System.runCommand ("", "haxe", [ hxml ]);
+			System.runCommand("", "haxe", [hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar"]);
 
 			if (noOutput) return;
 
-			CSHelper.copySourceFiles (project.templatePaths, targetDirectory + "/obj/src");
+			Haxelib.runCommand(targetDirectory + "/obj", ["run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103"]);
+			System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(executableDirectory, "lib"));
+			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
+				Path.combine(executableDirectory, project.app.file + ".jar"));
+			JavaHelper.copyLibraries(project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+		}
+		else if (targetType == "nodejs")
+		{
+			System.runCommand("", "haxe", [hxml]);
+
+			if (noOutput) return;
+
+			// NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			// NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+		}
+		else if (targetType == "cs")
+		{
+			System.runCommand("", "haxe", [hxml]);
+
+			if (noOutput) return;
+
+			CSHelper.copySourceFiles(project.templatePaths, targetDirectory + "/obj/src");
 			var txtPath = targetDirectory + "/obj/hxcs_build.txt";
-			CSHelper.addSourceFiles (txtPath, CSHelper.ndllSourceFiles);
-			CSHelper.addGUID (txtPath, GUID.uuid ());
-			CSHelper.compile (project, targetDirectory + "/obj", targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), "x64", "desktop");
-			System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath + ".exe");
-			File.saveContent (executablePath, "#!/bin/sh\nmono ${PWD}/" + project.app.file + ".exe");
+			CSHelper.addSourceFiles(txtPath, CSHelper.ndllSourceFiles);
+			CSHelper.addGUID(txtPath, GUID.uuid());
+			CSHelper.compile(project, targetDirectory + "/obj", targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), "x64", "desktop");
+			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath + ".exe");
+			File.saveContent(executablePath, "#!/bin/sh\nmono ${PWD}/" + project.app.file + ".exe");
+		}
+		else
+		{
+			var haxeArgs = [hxml, "-D", "HXCPP_CLANG"];
+			var flags = ["-DHXCPP_CLANG"];
 
-		} else {
-
-			var haxeArgs = [ hxml, "-D", "HXCPP_CLANG" ];
-			var flags = [ "-DHXCPP_CLANG" ];
-
-			if (is64) {
-
-				haxeArgs.push ("-D");
-				haxeArgs.push ("HXCPP_M64");
-				flags.push ("-DHXCPP_M64");
-
+			if (is64)
+			{
+				haxeArgs.push("-D");
+				haxeArgs.push("HXCPP_M64");
+				flags.push("-DHXCPP_M64");
 			}
 
-			if (!project.targetFlags.exists ("static")) {
-
-				System.runCommand ("", "haxe", haxeArgs);
+			if (!project.targetFlags.exists("static"))
+			{
+				System.runCommand("", "haxe", haxeArgs);
 
 				if (noOutput) return;
 
-				CPPHelper.compile (project, targetDirectory + "/obj", flags);
+				CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
-				System.copyFile (targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
-
-			} else {
-
-				System.runCommand ("", "haxe", haxeArgs.concat ([ "-D", "static_link" ]));
+				System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : ""), executablePath);
+			}
+			else
+			{
+				System.runCommand("", "haxe", haxeArgs.concat(["-D", "static_link"]));
 
 				if (noOutput) return;
 
-				CPPHelper.compile (project, targetDirectory + "/obj", flags.concat ([ "-Dstatic_link" ]));
-				CPPHelper.compile (project, targetDirectory + "/obj", flags, "BuildMain.xml");
+				CPPHelper.compile(project, targetDirectory + "/obj", flags.concat(["-Dstatic_link"]));
+				CPPHelper.compile(project, targetDirectory + "/obj", flags, "BuildMain.xml");
 
-				System.copyFile (targetDirectory + "/obj/Main" + (project.debug ? "-debug" : ""), executablePath);
-
+				System.copyFile(targetDirectory + "/obj/Main" + (project.debug ? "-debug" : ""), executablePath);
 			}
-
 		}
 
-		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java") {
-
-			System.runCommand ("", "chmod", [ "755", executablePath ]);
-
+		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java")
+		{
+			System.runCommand("", "chmod", ["755", executablePath]);
 		}
-
 	}
 
-
-	public override function clean ():Void {
-
-		if (FileSystem.exists (targetDirectory)) {
-
-			System.removeDirectory (targetDirectory);
-
+	public override function clean():Void
+	{
+		if (FileSystem.exists(targetDirectory))
+		{
+			System.removeDirectory(targetDirectory);
 		}
-
 	}
 
-
-	public override function deploy ():Void {
-
-		DeploymentHelper.deploy (project, targetFlags, targetDirectory, "Mac");
-
+	public override function deploy():Void
+	{
+		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Mac");
 	}
 
-
-	public override function display ():Void {
-
-		Sys.println (getDisplayHXML ());
-
+	public override function display():Void
+	{
+		Sys.println(getDisplayHXML());
 	}
 
-
-	private function generateContext ():Dynamic {
-
+	private function generateContext():Dynamic
+	{
 		var context = project.templateContext;
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.NODE_FILE = executableDirectory + "/ApplicationMain.js";
@@ -246,185 +226,159 @@ class MacPlatform extends PlatformTarget {
 		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
 
 		return context;
-
 	}
 
+	private function getDisplayHXML():String
+	{
+		var hxml = System.findTemplate(project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
+		var template = new Template(File.getContent(hxml));
 
-	private function getDisplayHXML ():String {
-
-		var hxml = System.findTemplate (project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
-		var template = new Template (File.getContent (hxml));
-
-		var context = generateContext ();
+		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
-		return template.execute (context);
-
+		return template.execute(context);
 	}
 
-
-	public override function rebuild ():Void {
-
+	public override function rebuild():Void
+	{
 		var commands = [];
 
-		if (!targetFlags.exists ("32") && (command == "rebuild" || System.hostArchitecture == X64)) {
-
-			commands.push ([ "-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64" ]);
-
+		if (!targetFlags.exists("32") && (command == "rebuild" || System.hostArchitecture == X64))
+		{
+			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
 		}
 
-		if (!targetFlags.exists ("64") && (targetFlags.exists ("32") || System.hostArchitecture == X86)) {
-
-			commands.push ([ "-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32" ]);
-
+		if (!targetFlags.exists("64") && (targetFlags.exists("32") || System.hostArchitecture == X86))
+		{
+			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
 		}
 
-		CPPHelper.rebuild (project, commands);
-
+		CPPHelper.rebuild(project, commands);
 	}
 
+	public override function run():Void
+	{
+		var arguments = additionalArguments.copy();
 
-	public override function run ():Void {
-
-		var arguments = additionalArguments.copy ();
-
-		if (Log.verbose) {
-
-			arguments.push ("-verbose");
-
+		if (Log.verbose)
+		{
+			arguments.push("-verbose");
 		}
 
-		if (targetType == "hl") {
-
-			System.runCommand (applicationDirectory, "hl", [ project.app.file + ".hl" ].concat (arguments));
-
-		} else if (targetType == "nodejs") {
-
-			NodeJSHelper.run (project, executableDirectory + "/ApplicationMain.js", arguments);
-
-		} else if (targetType == "java") {
-
-			System.runCommand (executableDirectory, "java", [ "-jar", project.app.file + ".jar" ].concat (arguments));
-
-		} else if (project.target == cast System.hostPlatform) {
-
-			arguments = arguments.concat ([ "-livereload" ]);
-			System.runCommand (executableDirectory, "./" + Path.withoutDirectory (executablePath), arguments);
-
+		if (targetType == "hl")
+		{
+			System.runCommand(applicationDirectory, "hl", [project.app.file + ".hl"].concat(arguments));
 		}
-
+		else if (targetType == "nodejs")
+		{
+			NodeJSHelper.run(project, executableDirectory + "/ApplicationMain.js", arguments);
+		}
+		else if (targetType == "java")
+		{
+			System.runCommand(executableDirectory, "java", ["-jar", project.app.file + ".jar"].concat(arguments));
+		}
+		else if (project.target == cast System.hostPlatform)
+		{
+			arguments = arguments.concat(["-livereload"]);
+			System.runCommand(executableDirectory, "./" + Path.withoutDirectory(executablePath), arguments);
+		}
 	}
 
-
-	public override function update ():Void {
-
-		AssetHelper.processLibraries (project, targetDirectory);
+	public override function update():Void
+	{
+		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
 
-		if (project.targetFlags.exists ("xml")) {
-
-			project.haxeflags.push ("-xml " + targetDirectory + "/types.xml");
-
+		if (project.targetFlags.exists("xml"))
+		{
+			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
-		for (asset in project.assets) {
-
-			if (asset.embed && asset.sourcePath == "") {
-
-				var path = Path.combine (targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir (Path.directory (path));
-				AssetHelper.copyAsset (asset, path);
+		for (asset in project.assets)
+		{
+			if (asset.embed && asset.sourcePath == "")
+			{
+				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
+				System.mkdir(Path.directory(path));
+				AssetHelper.copyAsset(asset, path);
 				asset.sourcePath = path;
-
 			}
-
 		}
 
-		var context = generateContext ();
+		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
-		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
-
-			for (i in 0...project.ndlls.length) {
-
+		if (targetType == "cpp" && project.targetFlags.exists("static"))
+		{
+			for (i in 0...project.ndlls.length)
+			{
 				var ndll = project.ndlls[i];
 
-				if (ndll.path == null || ndll.path == "") {
-
-					context.ndlls[i].path = NDLL.getLibraryPath (ndll, "Mac" + (is64 ? "64" : ""), "lib", ".a", project.debug);
-
+				if (ndll.path == null || ndll.path == "")
+				{
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + (is64 ? "64" : ""), "lib", ".a", project.debug);
 				}
-
 			}
-
 		}
 
-		System.mkdir (targetDirectory);
-		System.mkdir (targetDirectory + "/obj");
-		System.mkdir (targetDirectory + "/haxe");
-		System.mkdir (applicationDirectory);
-		System.mkdir (contentDirectory);
+		System.mkdir(targetDirectory);
+		System.mkdir(targetDirectory + "/obj");
+		System.mkdir(targetDirectory + "/haxe");
+		System.mkdir(applicationDirectory);
+		System.mkdir(contentDirectory);
 
-		//SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
+		// SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
 
-		ProjectHelper.recursiveSmartCopyTemplate (project, "haxe", targetDirectory + "/haxe", context);
-		ProjectHelper.recursiveSmartCopyTemplate (project, targetType + "/hxml", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate(project, targetType + "/hxml", targetDirectory + "/haxe", context);
 
-		if (targetType == "cpp" && project.targetFlags.exists ("static")) {
-
-			ProjectHelper.recursiveSmartCopyTemplate (project, "cpp/static", targetDirectory + "/obj", context);
-
+		if (targetType == "cpp" && project.targetFlags.exists("static"))
+		{
+			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 		}
 
-		System.copyFileTemplate (project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
-		System.copyFileTemplate (project.templatePaths, "mac/Entitlements.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Entitlements.plist", context);
+		System.copyFileTemplate(project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
+		System.copyFileTemplate(project.templatePaths, "mac/Entitlements.plist",
+			targetDirectory + "/bin/" + project.app.file + ".app/Contents/Entitlements.plist", context);
 
 		var icons = project.icons;
 
-		if (icons.length == 0) {
-
-			icons = [ new Icon (System.findTemplate (project.templatePaths, "default/icon.svg")) ];
-
+		if (icons.length == 0)
+		{
+			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
-		context.HAS_ICON = IconHelper.createMacIcon (icons, Path.combine (contentDirectory, "icon.icns"));
+		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		for (asset in project.assets) {
-
-			if (asset.embed != true) {
-
-				if (asset.type != AssetType.TEMPLATE) {
-
-					System.mkdir (Path.directory (Path.combine (contentDirectory, asset.targetPath)));
-					AssetHelper.copyAssetIfNewer (asset, Path.combine (contentDirectory, asset.targetPath));
-
-				} else {
-
-					System.mkdir (Path.directory (Path.combine (targetDirectory, asset.targetPath)));
-					AssetHelper.copyAsset (asset, Path.combine (targetDirectory, asset.targetPath), context);
-
+		for (asset in project.assets)
+		{
+			if (asset.embed != true)
+			{
+				if (asset.type != AssetType.TEMPLATE)
+				{
+					System.mkdir(Path.directory(Path.combine(contentDirectory, asset.targetPath)));
+					AssetHelper.copyAssetIfNewer(asset, Path.combine(contentDirectory, asset.targetPath));
 				}
-
+				else
+				{
+					System.mkdir(Path.directory(Path.combine(targetDirectory, asset.targetPath)));
+					AssetHelper.copyAsset(asset, Path.combine(targetDirectory, asset.targetPath), context);
+				}
 			}
-
 		}
-
 	}
 
-
-	public override function watch ():Void {
-
+	public override function watch():Void
+	{
 		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
-		var command = ProjectHelper.getCurrentCommand ();
-		System.watch (command, dirs);
-
+		var command = ProjectHelper.getCurrentCommand();
+		System.watch(command, dirs);
 	}
 
+	@ignore public override function install():Void {}
 
-	@ignore public override function install ():Void {}
-	@ignore public override function trace ():Void {}
-	@ignore public override function uninstall ():Void {}
+	@ignore public override function trace():Void {}
 
-
+	@ignore public override function uninstall():Void {}
 }

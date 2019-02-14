@@ -1,32 +1,28 @@
 package lime.ui;
 
-
 import lime._internal.backend.native.NativeCFFI;
 
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.ui.KeyCode)
-
-
-@:enum abstract ScanCode(Int) from Int to Int from UInt to UInt {
-
-
+@:enum abstract ScanCode(Int) from Int to Int from UInt to UInt
+{
 	var UNKNOWN = 0;
 	var BACKSPACE = 42;
 	var TAB = 43;
 	var RETURN = 40;
 	var ESCAPE = 41;
 	var SPACE = 44;
-	//var EXCLAMATION = 0x21;
-	//var QUOTE = 0x22;
-	//var HASH = 0x23;
-	//var DOLLAR = 0x24;
-	//var PERCENT = 0x25;
-	//var AMPERSAND = 0x26;
+	// var EXCLAMATION = 0x21;
+	// var QUOTE = 0x22;
+	// var HASH = 0x23;
+	// var DOLLAR = 0x24;
+	// var PERCENT = 0x25;
+	// var AMPERSAND = 0x26;
 	var SINGLE_QUOTE = 52;
-	//var LEFT_PARENTHESIS = 0x28;
-	//var RIGHT_PARENTHESIS = 0x29;
-	//var ASTERISK = 0x2A;
-	//var PLUS = 0x2B;
+	// var LEFT_PARENTHESIS = 0x28;
+	// var RIGHT_PARENTHESIS = 0x29;
+	// var ASTERISK = 0x2A;
+	// var PLUS = 0x2B;
 	var COMMA = 54;
 	var MINUS = 45;
 	var PERIOD = 55;
@@ -41,18 +37,18 @@ import lime._internal.backend.native.NativeCFFI;
 	var NUMBER_7 = 36;
 	var NUMBER_8 = 37;
 	var NUMBER_9 = 38;
-	//var COLON = 0x3A;
+	// var COLON = 0x3A;
 	var SEMICOLON = 51;
-	//var LESS_THAN = 0x3C;
+	// var LESS_THAN = 0x3C;
 	var EQUALS = 46;
-	//var GREATER_THAN = 0x3E;
-	//var QUESTION = 0x3F;
-	//var AT = 0x40;
+	// var GREATER_THAN = 0x3E;
+	// var QUESTION = 0x3F;
+	// var AT = 0x40;
 	var LEFT_BRACKET = 47;
 	var BACKSLASH = 49;
 	var RIGHT_BRACKET = 48;
-	//var CARET = 0x5E;
-	//var UNDERSCORE = 0x5F;
+	// var CARET = 0x5E;
+	// var UNDERSCORE = 0x5F;
 	var GRAVE = 53;
 	var A = 4;
 	var B = 5;
@@ -153,7 +149,7 @@ import lime._internal.backend.native.NativeCFFI;
 	var VOLUME_UP = 128;
 	var VOLUME_DOWN = 129;
 	var NUMPAD_COMMA = 133;
-	//var NUMPAD_EQUALS_AS400 = 134;
+	// var NUMPAD_EQUALS_AS400 = 134;
 	var ALT_ERASE = 153;
 	var SYSTEM_REQUEST = 154;
 	var CANCEL = 155;
@@ -247,23 +243,38 @@ import lime._internal.backend.native.NativeCFFI;
 	var EJECT = 281;
 	var SLEEP = 282;
 
-	@:from public static function fromKeyCode (keyCode:KeyCode):ScanCode {
-
-		return KeyCode.toScanCode (keyCode);
-
+	@:from public static function fromKeyCode(keyCode:KeyCode):ScanCode
+	{
+		return KeyCode.toScanCode(keyCode);
 	}
 
-	private static function toKeyCode (scanCode:ScanCode):KeyCode {
-
-		return KeyCode.fromScanCode (scanCode);
-
+	private static function toKeyCode(scanCode:ScanCode):KeyCode
+	{
+		return KeyCode.fromScanCode(scanCode);
 	}
 
-	@:op(A > B) private static inline function gt (a:ScanCode, b:ScanCode):Bool { return (a:Int) > (b:Int); }
-	@:op(A >= B) private static inline function gte (a:ScanCode, b:ScanCode):Bool { return (a:Int) >= (b:Int); }
-	@:op(A < B) private static inline function lt (a:ScanCode, b:ScanCode):Bool { return (a:Int) < (b:Int); }
-	@:op(A <= B) private static inline function lte (a:ScanCode, b:ScanCode):Bool { return (a:Int) <= (b:Int); }
-	@:op(A + B) private static inline function plus (a:ScanCode, b:Int):ScanCode { return (a:Int) + b; }
+	@:op(A > B) private static inline function gt(a:ScanCode, b:ScanCode):Bool
+	{
+		return (a : Int) > (b : Int);
+	}
 
+	@:op(A >= B) private static inline function gte(a:ScanCode, b:ScanCode):Bool
+	{
+		return (a : Int) >= (b : Int);
+	}
 
+	@:op(A < B) private static inline function lt(a:ScanCode, b:ScanCode):Bool
+	{
+		return (a : Int) < (b : Int);
+	}
+
+	@:op(A <= B) private static inline function lte(a:ScanCode, b:ScanCode):Bool
+	{
+		return (a : Int) <= (b : Int);
+	}
+
+	@:op(A + B) private static inline function plus(a:ScanCode, b:Int):ScanCode
+	{
+		return (a : Int) + b;
+	}
 }

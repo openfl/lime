@@ -1,9 +1,7 @@
 package lime.ui;
 
-
-@:enum abstract GamepadButton(Int) from Int to Int from UInt to UInt {
-
-
+@:enum abstract GamepadButton(Int) from Int to Int from UInt to UInt
+{
 	var A = 0;
 	var B = 1;
 	var X = 2;
@@ -20,11 +18,10 @@ package lime.ui;
 	var DPAD_LEFT = 13;
 	var DPAD_RIGHT = 14;
 
-
-	public inline function toString ():String {
-
-		return switch (this) {
-
+	public inline function toString():String
+	{
+		return switch (this)
+		{
 			case A: "A";
 			case B: "B";
 			case X: "X";
@@ -41,10 +38,6 @@ package lime.ui;
 			case DPAD_LEFT: "DPAD_LEFT";
 			case DPAD_RIGHT: "DPAD_RIGHT";
 			default: "UNKNOWN (" + this + ")";
-
 		}
-
 	}
-
-
 }

@@ -1,8 +1,7 @@
 package lime.tools;
 
-
-enum Architecture {
-
+enum Architecture
+{
 	ARMV5;
 	ARMV6;
 	ARMV7;
@@ -12,5 +11,4 @@ enum Architecture {
 	X64;
 	MIPS;
 	MIPSEL;
-
 }

@@ -1,8 +1,8 @@
-package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
+package lime.text.harfbuzz;
 
-
-@:enum abstract HBScript(Int) from Int to Int {
-
+#if (!lime_doc_gen || lime_harfbuzz)
+@:enum abstract HBScript(Int) from Int to Int
+{
 	public var COMMON = "Z".code << 24 | "y".code << 16 | "y".code << 8 | "y".code;
 	public var INHERITED = "Z".code << 24 | "i".code << 16 | "n".code << 8 | "h".code;
 	public var UNKNOWN = "Z".code << 24 | "z".code << 16 | "z".code << 8 | "z".code;
@@ -153,8 +153,5 @@ package lime.text.harfbuzz; #if (!lime_doc_gen || lime_harfbuzz)
 	public var OLD_SOGDIAN = "S".code << 24 | "o".code << 16 | "g".code << 8 | "o".code;
 	public var SOGDIAN = "S".code << 24 | "o".code << 16 | "g".code << 8 | "d".code;
 	public var INVALID = 0;
-
 }
-
-
 #end

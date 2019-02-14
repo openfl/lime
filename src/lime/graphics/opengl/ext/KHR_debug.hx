@@ -1,11 +1,8 @@
 package lime.graphics.opengl.ext;
 
-
 @:keep
-
-@:noCompletion class KHR_debug {
-
-
+@:noCompletion class KHR_debug
+{
 	public var DEBUG_OUTPUT_SYNCHRONOUS = 0x8242;
 	public var DEBUG_NEXT_LOGGED_MESSAGE_LENGTH = 0x8243;
 	public var DEBUG_CALLBACK_FUNCTION = 0x8244;
@@ -45,25 +42,16 @@ package lime.graphics.opengl.ext;
 	public var STACK_OVERFLOW = 0x0503;
 	public var STACK_UNDERFLOW = 0x0504;
 
-
-	@:noCompletion private function new () {
-
-
-
-	}
-
-
-	//public function debugMessageControl (source:Int, type:Int, severity:Int, count:Int, ids:Array<Int>, enabled:Bool):Void {}
-	//public function debugMessageInsert (source:Int, type:Int, id:Int, severity:Int, message:String):Void {}
-	//public function debugMessageCallback (callback:Dynamic, userParam:Dynamic):Void;
-	//public function getDebugMessageLog (count:Int, sources:Array<Int>, types:Array<Int>, ids:Array<Int>, severities:Array<Int>, lengths:Array<Int>):String {}
-	//public function pushDebugGroup (source:Int, id:Int, message:String):Void {}
-	//public function popDebugGroup ():Void {}
-	//public function objectLabel (identifier:Int, name:Int, label:String):Void {}
-	//public function getObjectLabel (identifier:Int, name:Int):String {}
-	//public function objectPtrLabel (ptr:Dynamic, label:String):Void {}
-	//public function getObjectPtrLabel (ptr:Dynamic):String {}
-	//public function getPointerv (pname:Int, params:Array<Dynamic>):Void {}
-
-
+	@:noCompletion private function new() {}
+	// public function debugMessageControl (source:Int, type:Int, severity:Int, count:Int, ids:Array<Int>, enabled:Bool):Void {}
+	// public function debugMessageInsert (source:Int, type:Int, id:Int, severity:Int, message:String):Void {}
+	// public function debugMessageCallback (callback:Dynamic, userParam:Dynamic):Void;
+	// public function getDebugMessageLog (count:Int, sources:Array<Int>, types:Array<Int>, ids:Array<Int>, severities:Array<Int>, lengths:Array<Int>):String {}
+	// public function pushDebugGroup (source:Int, id:Int, message:String):Void {}
+	// public function popDebugGroup ():Void {}
+	// public function objectLabel (identifier:Int, name:Int, label:String):Void {}
+	// public function getObjectLabel (identifier:Int, name:Int):String {}
+	// public function objectPtrLabel (ptr:Dynamic, label:String):Void {}
+	// public function getObjectPtrLabel (ptr:Dynamic):String {}
+	// public function getPointerv (pname:Int, params:Array<Dynamic>):Void {}
 }

@@ -1,10 +1,10 @@
-package lime.net.curl; #if (!lime_doc_gen || lime_curl)
+package lime.net.curl;
 
-
-@:enum abstract CURLOption(Int) from Int to Int from UInt to UInt {
-
-	//var FILE = 10001;
-	//var WRITEDATA = 10001;
+#if (!lime_doc_gen || lime_curl)
+@:enum abstract CURLOption(Int) from Int to Int from UInt to UInt
+{
+	// var FILE = 10001;
+	// var WRITEDATA = 10001;
 	var URL = 10002;
 	var PORT = 3;
 	var PROXY = 10004;
@@ -260,8 +260,5 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 	var SOCKS5_AUTH = 267;
 	var SSH_COMPRESSION = 268;
 	var MIMEPOST = 10269;
-
 }
-
-
 #end

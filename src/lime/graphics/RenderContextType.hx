@@ -1,12 +1,10 @@
 package lime.graphics;
 
-
 /**
 	An enum for possible render context types
 **/
-
-@:enum abstract RenderContextType(String) from String to String {
-
+@:enum abstract RenderContextType(String) from String to String
+{
 	/**
 		Describes a Cairo render context
 	**/
@@ -46,5 +44,4 @@ package lime.graphics;
 		Describes a custom render context
 	**/
 	var CUSTOM = "custom";
-
 }

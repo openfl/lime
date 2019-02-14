@@ -1,6 +1,5 @@
 package;
 
-
 import lime.app.Application;
 import lime.app.Event;
 import lime.app.Future;

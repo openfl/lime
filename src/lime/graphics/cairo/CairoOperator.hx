@@ -1,8 +1,8 @@
-package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
+package lime.graphics.cairo;
 
-
-@:enum abstract CairoOperator(Int) from Int to Int from UInt to UInt {
-
+#if (!lime_doc_gen || lime_cairo)
+@:enum abstract CairoOperator(Int) from Int to Int from UInt to UInt
+{
 	public var CLEAR = 0;
 	public var SOURCE = 1;
 	public var OVER = 2;
@@ -32,8 +32,5 @@ package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
 	public var HSL_SATURATION = 26;
 	public var HSL_COLOR = 27;
 	public var HSL_LUMINOSITY = 28;
-
 }
-
-
 #end

@@ -1,19 +1,15 @@
-package lime.media.vorbis; #if (!lime_doc_gen || lime_vorbis)
+package lime.media.vorbis;
 
-
+#if (!lime_doc_gen || lime_vorbis)
 @:headerCode("
 #undef EFAULT
 #undef EINVAL
 ")
-
-
-class Vorbis {
-
-
+class Vorbis
+{
 	public static inline var FALSE = -1;
 	public static inline var EOF = -2;
 	public static inline var HOLE = -3;
-
 	public static inline var EREAD = -128;
 	public static inline var EFAULT = -129;
 	public static inline var EIMPL = -130;
@@ -25,12 +21,6 @@ class Vorbis {
 	public static inline var EBADPACKET = -136;
 	public static inline var EBADLINK = -137;
 	public static inline var ENOSEEK = -138;
-
-
 	// TODO: Vorbis primitives
-
-
 }
-
-
 #end

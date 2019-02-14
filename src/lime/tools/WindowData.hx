@@ -1,8 +1,7 @@
 package lime.tools;
 
-
-typedef WindowData = {
-
+typedef WindowData =
+{
 	@:optional var width:Int;
 	@:optional var height:Int;
 	@:optional var x:Float;
@@ -32,5 +31,4 @@ typedef WindowData = {
 	@:optional var minimized:Bool;
 	@:optional var maximized:Bool;
 	@:optional var hidden:Bool;
-
 }

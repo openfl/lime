@@ -1,8 +1,6 @@
-package lime.graphics; #if (!lime_doc_gen || lime_opengl) #if (lime_doc_gen || (sys && lime_cffi && !doc_gen))
+package lime.graphics;
 
-
-import lime._internal.backend.native.NativeOpenGLRenderContext;
-
+#if (!lime_doc_gen || lime_opengl) #if (lime_doc_gen || (sys && lime_cffi && !doc_gen)) import lime._internal.backend.native.NativeOpenGLRenderContext;
 
 /**
 	The `OpenGLRenderContext` allows access to OpenGL features when OpenGL is the render
@@ -31,42 +29,20 @@ import lime._internal.backend.native.NativeOpenGLRenderContext;
 	var webgl:WebGLRenderContext = gl;
 	```
 **/
-
 @:access(lime.graphics.RenderContext)
 @:forward()
-
-
-abstract OpenGLRenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext to NativeOpenGLRenderContext {
-
-
-	@:from private static function fromRenderContext (context:RenderContext):OpenGLRenderContext {
-
+abstract OpenGLRenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext to NativeOpenGLRenderContext
+{
+	@:from private static function fromRenderContext(context:RenderContext):OpenGLRenderContext
+	{
 		return context.gl;
-
 	}
-
-
-}
-
-
-#else
-
-
-@:forward()
-
-
-abstract OpenGLRenderContext(Dynamic) from Dynamic to Dynamic {
-
-
-	@:from private static function fromRenderContext (context:RenderContext):OpenGLRenderContext {
-
+} #else @:forward()
+abstract OpenGLRenderContext(Dynamic) from Dynamic to Dynamic
+{
+	@:from private static function fromRenderContext(context:RenderContext):OpenGLRenderContext
+	{
 		return null;
-
 	}
-
-
-}
-
-
-#end
+} #end
 #end

@@ -1,12 +1,13 @@
 package flash.printing;
 
-extern class PrintJobOptions {
+extern class PrintJobOptions
+{
 	#if air
-	var pixelsPerInch : Float;
+	var pixelsPerInch:Float;
 	#end
-	var printAsBitmap : Bool;
+	var printAsBitmap:Bool;
 	#if air
-	var printMethod : PrintMethod;
+	var printMethod:PrintMethod;
 	#end
-	function new(printAsBitmap : Bool = false) : Void;
+	function new(printAsBitmap:Bool = false):Void;
 }

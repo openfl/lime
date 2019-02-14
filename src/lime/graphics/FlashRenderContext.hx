@@ -1,8 +1,6 @@
-package lime.graphics; #if (!lime_doc_gen || flash) #if (flash && (lime_doc_gen || !doc_gen))
+package lime.graphics;
 
-
-import flash.display.Sprite;
-
+#if (!lime_doc_gen || flash) #if (flash && (lime_doc_gen || !doc_gen)) import flash.display.Sprite;
 
 /**
 	The `FlashRenderContext` represents the primary `flash.display.Sprite` instance when
@@ -15,42 +13,20 @@ import flash.display.Sprite;
 	var sprite:FlashRenderContext = window.context;
 	```
 **/
-
 @:access(lime.graphics.RenderContext)
 @:forward
-
-
-abstract FlashRenderContext(Sprite) from Sprite to Sprite {
-
-
-	@:from private static function fromRenderContext (context:RenderContext):FlashRenderContext {
-
+abstract FlashRenderContext(Sprite) from Sprite to Sprite
+{
+	@:from private static function fromRenderContext(context:RenderContext):FlashRenderContext
+	{
 		return context.flash;
-
 	}
-
-
-}
-
-
-#else
-
-
-@:forward
-
-
-abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic {
-
-
-	@:from private static function fromRenderContext (context:RenderContext):FlashRenderContext {
-
+} #else @:forward
+abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic
+{
+	@:from private static function fromRenderContext(context:RenderContext):FlashRenderContext
+	{
 		return null;
-
 	}
-
-
-}
-
-
-#end
+} #end
 #end

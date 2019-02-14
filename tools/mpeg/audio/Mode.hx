@@ -1,8 +1,9 @@
 package mpeg.audio;
 
-enum Mode {
-    Stereo;
-    JointStereo;
-    DualChannel;
-    SingleChannel;
+enum Mode
+{
+	Stereo;
+	JointStereo;
+	DualChannel;
+	SingleChannel;
 }

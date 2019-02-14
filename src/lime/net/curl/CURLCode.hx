@@ -1,8 +1,8 @@
-package lime.net.curl; #if (!lime_doc_gen || lime_curl)
+package lime.net.curl;
 
-
-@:enum abstract CURLCode(Int) from Int to Int from UInt to UInt {
-
+#if (!lime_doc_gen || lime_curl)
+@:enum abstract CURLCode(Int) from Int to Int from UInt to UInt
+{
 	var OK = 0;
 	var UNSUPPORTED_PROTOCOL = 1;
 	var FAILED_INIT = 2;
@@ -23,19 +23,19 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 	var FTP_COULDNT_SET_TYPE = 17;
 	var PARTIAL_FILE = 18;
 	var FTP_COULDNT_RETR_FILE = 19;
-	//var OBSOLETE20 = 20;
+	// var OBSOLETE20 = 20;
 	var QUOTE_ERROR = 21;
 	var HTTP_RETURNED_ERROR = 22;
 	var WRITE_ERROR = 23;
-	//var OBSOLETE24 = 24;
+	// var OBSOLETE24 = 24;
 	var UPLOAD_FAILED = 25;
 	var READ_ERROR = 26;
 	var OUT_OF_MEMORY = 27;
 	var OPERATION_TIMEDOUT = 28;
-	//var OBSOLETE29 = 29;
+	// var OBSOLETE29 = 29;
 	var FTP_PORT_FAILED = 30;
 	var FTP_COULDNT_USE_REST = 31;
-	//var OBSOLETE32 = 32;
+	// var OBSOLETE32 = 32;
 	var RANGE_ERROR = 33;
 	var HTTP_POST_ERROR = 34;
 	var SSL_CONNECT_ERROR = 35;
@@ -43,24 +43,24 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 	var FILE_COULDNT_READ_FILE = 37;
 	var LDAP_CANNOT_BIND = 38;
 	var LDAP_SEARCH_FAILED = 39;
-	//var OBSOLETE40 = 40;
-	//var FUNCTION_NOT_FOUND = 41;
+	// var OBSOLETE40 = 40;
+	// var FUNCTION_NOT_FOUND = 41;
 	var ABORTED_BY_CALLBACK = 42;
 	var BAD_FUNCTION_ARGUMENT = 43;
-	//var OBSOLETE44 = 44;
+	// var OBSOLETE44 = 44;
 	var INTERFACE_FAILED = 45;
-	//var OBSOLETE46 = 46;
+	// var OBSOLETE46 = 46;
 	var TOO_MANY_REDIRECTS = 47;
 	var UNKNOWN_OPTION = 48;
 	var TELNET_OPTION_SYNTAX = 49;
-	//var OBSOLETE50 = 50;
+	// var OBSOLETE50 = 50;
 	var PEER_FAILED_VERIFICATION = 51;
 	var GOT_NOTHING = 52;
 	var SSL_ENGINE_NOTFOUND = 53;
 	var SSL_ENGINE_SETFAILED = 54;
 	var SEND_ERROR = 55;
 	var RECV_ERROR = 56;
-	//var OBSOLETE57 = 57;
+	// var OBSOLETE57 = 57;
 	var SSL_CERTPROBLEM = 58;
 	var SSL_CIPHER = 59;
 	var SSL_CACERT = 60;
@@ -96,9 +96,6 @@ package lime.net.curl; #if (!lime_doc_gen || lime_curl)
 	var SSL_PINNEDPUBKEYNOTMATCH = 90;
 	var SSL_INVALIDCERTSTATUS = 91;
 	var HTTP2_STREAM = 92;
-	//var LAST = 93;
-
+	// var LAST = 93;
 }
-
-
 #end

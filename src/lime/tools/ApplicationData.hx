@@ -1,8 +1,7 @@
 package lime.tools;
 
-
-typedef ApplicationData = {
-
+typedef ApplicationData =
+{
 	@:optional var file:String;
 	@:optional var init:String;
 	@:optional var main:String;
@@ -10,5 +9,4 @@ typedef ApplicationData = {
 	@:optional var preloader:String;
 	@:optional var swfVersion:Float;
 	@:optional var url:String;
-
 }

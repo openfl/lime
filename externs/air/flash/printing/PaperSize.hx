@@ -1,6 +1,7 @@
 package flash.printing;
 
-@:fakeEnum(String) extern enum PaperSize {
+@:fakeEnum(String) extern enum PaperSize
+{
 	A4;
 	A5;
 	A6;

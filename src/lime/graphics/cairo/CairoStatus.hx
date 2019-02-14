@@ -1,8 +1,8 @@
-package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
+package lime.graphics.cairo;
 
-
-@:enum abstract CairoStatus(Int) from Int to Int from UInt to UInt {
-
+#if (!lime_doc_gen || lime_cairo)
+@:enum abstract CairoStatus(Int) from Int to Int from UInt to UInt
+{
 	public var SUCCESS = 0;
 	public var NO_MEMORY = 1;
 	public var INVALID_RESTORE = 2;
@@ -42,8 +42,5 @@ package lime.graphics.cairo; #if (!lime_doc_gen || lime_cairo)
 	public var INVALID_MESH_CONSTRUCTION = 36;
 	public var DEVICE_FINISHED = 37;
 	public var JBIG2_GLOBAL_MISSING = 38;
-
 }
-
-
 #end

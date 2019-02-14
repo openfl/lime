@@ -1,8 +1,7 @@
 package lime.tools;
 
-
-typedef MetaData = {
-
+typedef MetaData =
+{
 	@:optional var buildNumber:String;
 	@:optional var company:String;
 	@:optional var companyId:String;
@@ -11,5 +10,4 @@ typedef MetaData = {
 	@:optional var packageName:String;
 	@:optional var title:String;
 	@:optional var version:String;
-
 }

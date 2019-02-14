@@ -1,21 +1,11 @@
-package lime.media.vorbis; #if (!lime_doc_gen || lime_vorbis)
+package lime.media.vorbis;
 
-
-class VorbisComment {
-
-
+#if (!lime_doc_gen || lime_vorbis)
+class VorbisComment
+{
 	public var userComments:Array<String>;
 	public var vendor:String;
 
-
-	public function new () {
-
-
-
-	}
-
-
+	public function new() {}
 }
-
-
 #end

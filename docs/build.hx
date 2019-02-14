@@ -1,62 +1,65 @@
 import hxp.*;
 
-class Build extends Script {
+class Build extends Script
+{
+	public function new()
+	{
+		super();
 
-	public function new () {
+		var base = new HXML(
+			{
+				defines: ["display", "doc-gen", "lime-doc-gen"],
+				classNames: ["ImportAll"],
+				libs: ["lime"],
+				noOutput: true
+			});
 
-		super ();
-
-		var base = new HXML ({
-			defines: [ "display", "doc-gen", "lime-doc-gen" ],
-			classNames: [ "ImportAll" ],
-			libs: [ "lime" ],
-			noOutput: true
-		});
-
-		var flash = base.clone ();
+		var flash = base.clone();
 		flash.xml = "xml/Flash.xml";
 		flash.swf = "obj/docs";
 		flash.swfVersion = "17.0";
-		flash.build ();
+		flash.build();
 
-		var native = base.clone ();
+		var native = base.clone();
 		native.cpp = "obj/docs";
-		native.define ("native");
-		native.define ("lime-cffi");
+		native.define("native");
+		native.define("lime-cffi");
 
-		var windows = native.clone ();
+		var windows = native.clone();
 		windows.xml = "xml/Windows.xml";
-		windows.define ("windows");
-		windows.build ();
+		windows.define("windows");
+		windows.build();
 
-		var mac = native.clone ();
+		var mac = native.clone();
 		mac.xml = "xml/macOS.xml";
-		mac.define ("mac");
-		mac.build ();
+		mac.define("mac");
+		mac.build();
 
-		var linux = native.clone ();
+		var linux = native.clone();
 		linux.xml = "xml/Linux.xml";
-		linux.define ("linux");
-		linux.build ();
+		linux.define("linux");
+		linux.build();
 
-		var ios = native.clone ();
+		var ios = native.clone();
 		ios.xml = "xml/iOS.xml";
-		ios.define ("ios");
-		ios.build ();
+		ios.define("ios");
+		ios.build();
 
-		var android = native.clone ();
+		var android = native.clone();
 		android.xml = "xml/Android.xml";
-		android.define ("android");
-		android.build ();
+		android.define("android");
+		android.build();
 
-		var html5 = base.clone ();
+		var html5 = base.clone();
 		html5.xml = "xml/HTML5.xml";
 		html5.js = "obj/docs";
-		html5.define ("html5");
-		html5.build ();
+		html5.define("html5");
+		html5.build();
 
-		System.runCommand ("", "haxelib", [ "run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "source-path", "https://github.com/openfl/lime/tree/develop/src/", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../assets/docs-theme", "--toplevel-package", "lime" ]);
-
+		System.runCommand("", "haxelib", [
+			"run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "source-path", "https://github.com/openfl/lime/tree/develop/src/",
+			"-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor", "0x777777", "-theme", "../assets/docs-theme",
+			"--toplevel-package", "lime"
+		]);
 	}
-
 }

@@ -1,11 +1,8 @@
 package lime.graphics.opengl.ext;
 
-
 @:keep
-
-@:noCompletion class NV_draw_buffers {
-
-
+@:noCompletion class NV_draw_buffers
+{
 	public var MAX_DRAW_BUFFERS_NV = 0x8824;
 	public var DRAW_BUFFER0_NV = 0x8825;
 	public var DRAW_BUFFER1_NV = 0x8826;
@@ -40,15 +37,6 @@ package lime.graphics.opengl.ext;
 	public var COLOR_ATTACHMENT14_NV = 0x8CEE;
 	public var COLOR_ATTACHMENT15_NV = 0x8CEF;
 
-
-	@:noCompletion private function new () {
-
-
-
-	}
-
-
-	//GL_APICALL void GL_APIENTRY glDrawBuffersNV (GLsizei n, const GLenum *bufs);
-
-
+	@:noCompletion private function new() {}
+	// GL_APICALL void GL_APIENTRY glDrawBuffersNV (GLsizei n, const GLenum *bufs);
 }

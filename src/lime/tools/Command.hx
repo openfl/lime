@@ -1,8 +1,7 @@
 package lime.tools;
 
-
-enum Command {
-
+enum Command
+{
 	BUILD;
 	CLEAN;
 	CONFIG;
@@ -14,5 +13,4 @@ enum Command {
 	TRACE;
 	PUBLISH;
 	REBUILD;
-
 }

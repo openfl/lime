@@ -1,8 +1,7 @@
-package lime.graphics; #if (!lime_doc_gen || lime_cairo)
+package lime.graphics;
 
-
+#if (!lime_doc_gen || lime_cairo)
 import lime.graphics.cairo.Cairo;
-
 
 /**
 	The `CairoRenderContext` represents the primary `lime.graphics.Cairo` instance when Cairo
@@ -15,22 +14,13 @@ import lime.graphics.cairo.Cairo;
 	var cairo:CairoRenderContext = window.context;
 	```
 **/
-
 @:access(lime.graphics.RenderContext)
 @:forward
-
-
-abstract CairoRenderContext(Cairo) from Cairo to Cairo {
-
-
-	@:from private static function fromRenderContext (context:RenderContext):CairoRenderContext {
-
+abstract CairoRenderContext(Cairo) from Cairo to Cairo
+{
+	@:from private static function fromRenderContext(context:RenderContext):CairoRenderContext
+	{
 		return context.cairo;
-
 	}
-
-
 }
-
-
 #end

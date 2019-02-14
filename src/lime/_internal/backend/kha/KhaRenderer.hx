@@ -1,6 +1,5 @@
 package lime._internal.backend.kha;
 
-
 import haxe.io.Bytes;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
@@ -12,60 +11,33 @@ import lime.utils.UInt8Array;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-
 @:access(lime.ui.Window)
-
-
-class KhaRenderer {
-	
-	
+class KhaRenderer
+{
 	public var handle:Dynamic;
-	
+
 	private var parent:Renderer;
 	private var useHardware:Bool = true;
 
-	public function new (parent:Renderer) {
-		
+	public function new(parent:Renderer)
+	{
 		this.parent = parent;
-		
 	}
-	
-	
-	public function create ():Void {
 
-		parent.context = KHA;			
+	public function create():Void
+	{
+		parent.context = KHA;
 		parent.type = KHA;
+	}
 
-	}
-	
-	
-	private function dispatch ():Void {
-		
-		
-		
-	}
-	
-	
-	public function flip ():Void {
-		
-		
-		
-	}
-	
-	
-	public function readPixels (rect:Rectangle):Image {
-		
-		
+	private function dispatch():Void {}
+
+	public function flip():Void {}
+
+	public function readPixels(rect:Rectangle):Image
+	{
 		return null;
-		
 	}
-	
-	
-	public function render ():Void {
-		
-		
-		
-	}
-	
-	
+
+	public function render():Void {}
 }

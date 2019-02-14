@@ -1,12 +1,10 @@
 package lime.graphics;
 
-
 /**
 	Additional options possible for a render context
 **/
-
-typedef RenderContextAttributes = {
-
+typedef RenderContextAttributes =
+{
 	/**
 		Whether to enable anti-aliasing, `0` is disabled, `2` enables
 		2x2 anti-aliasing or `4` enables 4x4 anti-aliasing.
@@ -43,12 +41,10 @@ typedef RenderContextAttributes = {
 		The type of render context requested
 	**/
 	@:optional var type:RenderContextType;
-	
 	@:optional var version:String;
 
 	/**
 		Whether vertical-sync (VSync) is enabled
 	**/
 	@:optional var vsync:Bool;
-
 }

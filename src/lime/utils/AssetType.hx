@@ -1,8 +1,7 @@
 package lime.utils;
 
-
-@:enum abstract AssetType(String) to String {
-
+@:enum abstract AssetType(String) to String
+{
 	var BINARY = "BINARY";
 	var FONT = "FONT";
 	var IMAGE = "IMAGE";
@@ -11,5 +10,4 @@ package lime.utils;
 	var SOUND = "SOUND";
 	var TEMPLATE = "TEMPLATE";
 	var TEXT = "TEXT";
-
 }

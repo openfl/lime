@@ -1,6 +1,5 @@
 package lime.ui;
 
-
 import lime.app.Application;
 import lime.app.Event;
 import lime.graphics.Image;
@@ -9,11 +8,9 @@ import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
-
 #if (js && html5)
 import js.html.Element;
 #end
-
 #if openfl
 import openfl.display.Stage;
 #elseif flash
@@ -25,25 +22,20 @@ typedef Stage = Dynamic;
 #if hl
 @:keep
 #end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-
-
-class Window {
-
-
-	public var application (default, null):Application;
-	public var borderless (get, set):Bool;
-	public var context (default, null):RenderContext;
-	public var cursor (get, set):MouseCursor;
-	public var display (get, null):Display;
-	public var displayMode (get, set):DisplayMode;
-
+class Window
+{
+	public var application(default, null):Application;
+	public var borderless(get, set):Bool;
+	public var context(default, null):RenderContext;
+	public var cursor(get, set):MouseCursor;
+	public var display(get, null):Display;
+	public var displayMode(get, set):DisplayMode;
 	#if (!lime_doc_gen || (js && html5))
-	public var element (default, null):#if (js && html5) Element #else Dynamic #end;
+	public var element(default, null):#if (js && html5) Element #else Dynamic #end;
 	#end
 
 	/**
@@ -52,55 +44,52 @@ class Window {
 	 * On some platforms, a frame rate of 60 or greater may imply vsync, which will
 	 * perform more quickly on displays with a higher refresh rate
 	**/
-	public var frameRate (get, set):Float;
-
-	public var fullscreen (get, set):Bool;
-	public var height (get, set):Int;
-	public var hidden (get, null):Bool;
-	public var id (default, null):Int;
-	public var maximized (get, set):Bool;
-	public var minimized (get, set):Bool;
-	public var mouseLock (get, set):Bool;
-	public var onActivate (default, null) = new Event<Void->Void> ();
-	public var onClose (default, null) = new Event<Void->Void> ();
-	public var onDeactivate (default, null) = new Event<Void->Void> ();
-	public var onDropFile (default, null) = new Event<String->Void> ();
-	public var onEnter (default, null) = new Event<Void->Void> ();
-	public var onExpose (default, null) = new Event<Void->Void> ();
-	public var onFocusIn (default, null) = new Event<Void->Void> ();
-	public var onFocusOut (default, null) = new Event<Void->Void> ();
-	public var onFullscreen (default, null) = new Event<Void->Void> ();
-	public var onKeyDown (default, null) = new Event<KeyCode->KeyModifier->Void> ();
-	public var onKeyUp (default, null) = new Event<KeyCode->KeyModifier->Void> ();
-	public var onLeave (default, null) = new Event<Void->Void> ();
-	public var onMaximize (default, null) = new Event<Void->Void> ();
-	public var onMinimize (default, null) = new Event<Void->Void> ();
-	public var onMouseDown (default, null) = new Event<Float->Float->MouseButton->Void> ();
-	public var onMouseMove (default, null) = new Event<Float->Float->Void> ();
-	public var onMouseMoveRelative (default, null) = new Event<Float->Float->Void> ();
-	public var onMouseUp (default, null) = new Event<Float->Float->Int->Void> ();
-	public var onMouseWheel (default, null) = new Event<Float->Float->MouseWheelMode->Void> ();
-	public var onMove (default, null) = new Event<Float->Float->Void> ();
-	public var onRender (default, null) = new Event<RenderContext->Void> ();
-	public var onRenderContextLost (default, null) = new Event<Void->Void> ();
-	public var onRenderContextRestored (default, null) = new Event<RenderContext->Void> ();
-	public var onResize (default, null) = new Event<Int->Int->Void> ();
-	public var onRestore (default, null) = new Event<Void->Void> ();
-	public var onTextEdit (default, null) = new Event<String->Int->Int->Void> ();
-	public var onTextInput (default, null) = new Event<String->Void> ();
+	public var frameRate(get, set):Float;
+	public var fullscreen(get, set):Bool;
+	public var height(get, set):Int;
+	public var hidden(get, null):Bool;
+	public var id(default, null):Int;
+	public var maximized(get, set):Bool;
+	public var minimized(get, set):Bool;
+	public var mouseLock(get, set):Bool;
+	public var onActivate(default, null) = new Event<Void->Void>();
+	public var onClose(default, null) = new Event<Void->Void>();
+	public var onDeactivate(default, null) = new Event<Void->Void>();
+	public var onDropFile(default, null) = new Event<String->Void>();
+	public var onEnter(default, null) = new Event<Void->Void>();
+	public var onExpose(default, null) = new Event<Void->Void>();
+	public var onFocusIn(default, null) = new Event<Void->Void>();
+	public var onFocusOut(default, null) = new Event<Void->Void>();
+	public var onFullscreen(default, null) = new Event<Void->Void>();
+	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
+	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
+	public var onLeave(default, null) = new Event<Void->Void>();
+	public var onMaximize(default, null) = new Event<Void->Void>();
+	public var onMinimize(default, null) = new Event<Void->Void>();
+	public var onMouseDown(default, null) = new Event<Float->Float->MouseButton->Void>();
+	public var onMouseMove(default, null) = new Event<Float->Float->Void>();
+	public var onMouseMoveRelative(default, null) = new Event<Float->Float->Void>();
+	public var onMouseUp(default, null) = new Event<Float->Float->Int->Void>();
+	public var onMouseWheel(default, null) = new Event<Float->Float->MouseWheelMode->Void>();
+	public var onMove(default, null) = new Event<Float->Float->Void>();
+	public var onRender(default, null) = new Event<RenderContext->Void>();
+	public var onRenderContextLost(default, null) = new Event<Void->Void>();
+	public var onRenderContextRestored(default, null) = new Event<RenderContext->Void>();
+	public var onResize(default, null) = new Event<Int->Int->Void>();
+	public var onRestore(default, null) = new Event<Void->Void>();
+	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
+	public var onTextInput(default, null) = new Event<String->Void>();
 	public var parameters:Dynamic;
-	public var resizable (get, set):Bool;
-	public var scale (get, null):Float;
-
+	public var resizable(get, set):Bool;
+	public var scale(get, null):Float;
 	#if (!lime_doc_gen || flash || openfl)
-	public var stage (default, null):Stage;
+	public var stage(default, null):Stage;
 	#end
-
-	public var textInputEnabled (get, set):Bool;
-	public var title (get, set):String;
-	public var width (get, set):Int;
-	public var x (get, set):Int;
-	public var y (get, set):Int;
+	public var textInputEnabled(get, set):Bool;
+	public var title(get, set):String;
+	public var width(get, set):Int;
+	public var x(get, set):Int;
+	public var y(get, set):Int;
 
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
@@ -117,41 +106,39 @@ class Window {
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
 
-
 	#if commonjs
-	private static function __init__ () {
-
+	private static function __init__()
+	{
 		var p = untyped Window.prototype;
-		untyped Object.defineProperties (p, {
-			"borderless": { get: p.get_borderless, set: p.set_borderless },
-			"cursor": { get: p.get_cursor, set: p.set_cursor },
-			"display": { get: p.get_display },
-			"displayMode": { get: p.get_displayMode, set: p.set_displayMode },
-			"frameRate": { get: p.get_frameRate, set: p.set_frameRate },
-			"fullscreen": { get: p.get_fullscreen, set: p.set_fullscreen },
-			"height": { get: p.get_height, set: p.set_height },
-			"maximized": { get: p.get_maximized, set: p.set_maximized },
-			"minimized": { get: p.get_minimized, set: p.set_minimized },
-			"mouseLock": { get: p.get_mouseLock, set: p.set_mouseLock },
-			"resizable": { get: p.get_resizable, set: p.set_resizable },
-			"scale": { get: p.get_scale },
-			"textInputEnabled": { get: p.get_textInputEnabled, set: p.set_textInputEnabled },
-			"title": { get: p.get_title, set: p.set_title },
-			"width": { get: p.get_width, set: p.set_width },
-			"x": { get: p.get_x, set: p.set_y },
-			"y": { get: p.get_x, set: p.set_y }
-		});
-
+		untyped Object.defineProperties(p,
+			{
+				"borderless": {get: p.get_borderless, set: p.set_borderless},
+				"cursor": {get: p.get_cursor, set: p.set_cursor},
+				"display": {get: p.get_display},
+				"displayMode": {get: p.get_displayMode, set: p.set_displayMode},
+				"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
+				"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
+				"height": {get: p.get_height, set: p.set_height},
+				"maximized": {get: p.get_maximized, set: p.set_maximized},
+				"minimized": {get: p.get_minimized, set: p.set_minimized},
+				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
+				"resizable": {get: p.get_resizable, set: p.set_resizable},
+				"scale": {get: p.get_scale},
+				"textInputEnabled": {get: p.get_textInputEnabled, set: p.set_textInputEnabled},
+				"title": {get: p.get_title, set: p.set_title},
+				"width": {get: p.get_width, set: p.set_width},
+				"x": {get: p.get_x, set: p.set_y},
+				"y": {get: p.get_x, set: p.set_y}
+			});
 	}
 	#end
 
-
-	@:noCompletion private function new (application:Application, attributes:WindowAttributes) {
-
+	@:noCompletion private function new(application:Application, attributes:WindowAttributes)
+	{
 		this.application = application;
 		__attributes = attributes != null ? attributes : {};
 
-		if (Reflect.hasField (__attributes, "parameters")) parameters = __attributes.parameters;
+		if (Reflect.hasField(__attributes, "parameters")) parameters = __attributes.parameters;
 
 		__width = 0;
 		__height = 0;
@@ -162,10 +149,9 @@ class Window {
 		__title = "";
 		id = -1;
 
-		__backend = new WindowBackend (this);
+		__backend = new WindowBackend(this);
 
 		#if windows
-
 		var mappings = [
 
 			"8f0e1200000000000000504944564944,Acme,platform:Windows,x:b2,a:b0,b:b1,y:b3,back:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b5,rightshoulder:b6,righttrigger:b7,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a3,righty:a2",
@@ -217,10 +203,8 @@ class Window {
 
 		];
 
-		Gamepad.addMappings (mappings);
-
+		Gamepad.addMappings(mappings);
 		#elseif mac
-
 		var mappings = [
 
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Mac OS X",
@@ -258,10 +242,8 @@ class Window {
 
 		];
 
-		Gamepad.addMappings (mappings);
-
+		Gamepad.addMappings(mappings);
 		#elseif linux
-
 		var mappings = [
 
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Linux",
@@ -360,10 +342,8 @@ class Window {
 
 		];
 
-		Gamepad.addMappings (mappings);
-
+		Gamepad.addMappings(mappings);
 		#elseif (ios || tvos)
-
 		var mappings = [
 
 			"4d466947616d65706164010000000000,MFi Extended Gamepad,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,righttrigger:a5,rightx:a3,righty:a4,start:b6,x:b2,y:b3,",
@@ -372,336 +352,240 @@ class Window {
 
 		];
 
-		Gamepad.addMappings (mappings);
-
+		Gamepad.addMappings(mappings);
 		#end
-
 	}
 
-
-	public function alert (message:String = null, title:String = null):Void {
-
-		__backend.alert (message, title);
-
+	public function alert(message:String = null, title:String = null):Void
+	{
+		__backend.alert(message, title);
 	}
 
-
-	public function close ():Void {
-
-		__backend.close ();
-
+	public function close():Void
+	{
+		__backend.close();
 	}
 
-
-	public function focus ():Void {
-
-		__backend.focus ();
-
+	public function focus():Void
+	{
+		__backend.focus();
 	}
 
-
-	public function move (x:Int, y:Int):Void {
-
-		__backend.move (x, y);
+	public function move(x:Int, y:Int):Void
+	{
+		__backend.move(x, y);
 
 		__x = x;
 		__y = y;
-
 	}
 
-
-	public function readPixels (rect:Rectangle = null):Image {
-
-		return __backend.readPixels (rect);
-
+	public function readPixels(rect:Rectangle = null):Image
+	{
+		return __backend.readPixels(rect);
 	}
 
-
-	public function resize (width:Int, height:Int):Void {
-
-		__backend.resize (width, height);
+	public function resize(width:Int, height:Int):Void
+	{
+		__backend.resize(width, height);
 
 		__width = width;
 		__height = height;
-
 	}
 
-
-	public function setIcon (image:Image):Void {
-
-		if (image == null) {
-
+	public function setIcon(image:Image):Void
+	{
+		if (image == null)
+		{
 			return;
-
 		}
 
-		__backend.setIcon (image);
-
+		__backend.setIcon(image);
 	}
 
-
-	public function toString ():String {
-
+	public function toString():String
+	{
 		return "[object Window]";
-
 	}
 
-
-	public function warpMouse (x:Int, y:Int):Void {
-
-		__backend.warpMouse (x, y);
-
+	public function warpMouse(x:Int, y:Int):Void
+	{
+		__backend.warpMouse(x, y);
 	}
-
-
-
 
 	// Get & Set Methods
-
-
-
-
-	@:noCompletion private function get_cursor ():MouseCursor {
-
-		return __backend.getCursor ();
-
+	@:noCompletion private function get_cursor():MouseCursor
+	{
+		return __backend.getCursor();
 	}
 
-
-	@:noCompletion private function set_cursor (value:MouseCursor):MouseCursor {
-
-		return __backend.setCursor (value);
-
+	@:noCompletion private function set_cursor(value:MouseCursor):MouseCursor
+	{
+		return __backend.setCursor(value);
 	}
 
-
-	@:noCompletion private function get_display ():Display {
-
-		return __backend.getDisplay ();
-
+	@:noCompletion private function get_display():Display
+	{
+		return __backend.getDisplay();
 	}
 
-
-	@:noCompletion private function get_displayMode ():DisplayMode {
-
-		return __backend.getDisplayMode ();
-
+	@:noCompletion private function get_displayMode():DisplayMode
+	{
+		return __backend.getDisplayMode();
 	}
 
-
-	@:noCompletion private function set_displayMode (value:DisplayMode):DisplayMode {
-
-		return __backend.setDisplayMode (value);
-
+	@:noCompletion private function set_displayMode(value:DisplayMode):DisplayMode
+	{
+		return __backend.setDisplayMode(value);
 	}
 
-
-	@:noCompletion private inline function get_borderless ():Bool {
-
+	@:noCompletion private inline function get_borderless():Bool
+	{
 		return __borderless;
-
 	}
 
-
-	@:noCompletion private function set_borderless (value:Bool):Bool {
-
-		return __borderless = __backend.setBorderless (value);
-
+	@:noCompletion private function set_borderless(value:Bool):Bool
+	{
+		return __borderless = __backend.setBorderless(value);
 	}
 
-
-	@:noCompletion private inline function get_frameRate ():Float {
-
-		return __backend.getFrameRate ();
-
+	@:noCompletion private inline function get_frameRate():Float
+	{
+		return __backend.getFrameRate();
 	}
 
-
-	@:noCompletion private inline function set_frameRate (value:Float):Float {
-
-		return __backend.setFrameRate (value);
-
+	@:noCompletion private inline function set_frameRate(value:Float):Float
+	{
+		return __backend.setFrameRate(value);
 	}
 
-
-	@:noCompletion private inline function get_fullscreen ():Bool {
-
+	@:noCompletion private inline function get_fullscreen():Bool
+	{
 		return __fullscreen;
-
 	}
 
-
-	@:noCompletion private function set_fullscreen (value:Bool):Bool {
-
-		return __fullscreen = __backend.setFullscreen (value);
-
+	@:noCompletion private function set_fullscreen(value:Bool):Bool
+	{
+		return __fullscreen = __backend.setFullscreen(value);
 	}
 
-
-	@:noCompletion private inline function get_height ():Int {
-
+	@:noCompletion private inline function get_height():Int
+	{
 		return __height;
-
 	}
 
-
-	@:noCompletion private function set_height (value:Int):Int {
-
-		resize (__width, value);
+	@:noCompletion private function set_height(value:Int):Int
+	{
+		resize(__width, value);
 		return __height;
-
 	}
 
-
-	@:noCompletion private inline function get_hidden ():Bool {
-
+	@:noCompletion private inline function get_hidden():Bool
+	{
 		return __hidden;
-
 	}
 
-
-	@:noCompletion private inline function get_maximized ():Bool {
-
+	@:noCompletion private inline function get_maximized():Bool
+	{
 		return __maximized;
-
 	}
 
-
-	@:noCompletion private inline function set_maximized (value:Bool):Bool {
-
+	@:noCompletion private inline function set_maximized(value:Bool):Bool
+	{
 		__minimized = false;
-		return __maximized = __backend.setMaximized (value);
-
+		return __maximized = __backend.setMaximized(value);
 	}
 
-
-	@:noCompletion private inline function get_minimized ():Bool {
-
+	@:noCompletion private inline function get_minimized():Bool
+	{
 		return __minimized;
-
 	}
 
-
-	@:noCompletion private function set_minimized (value:Bool):Bool {
-
+	@:noCompletion private function set_minimized(value:Bool):Bool
+	{
 		__maximized = false;
-		return __minimized = __backend.setMinimized (value);
-
+		return __minimized = __backend.setMinimized(value);
 	}
 
-
-	@:noCompletion private function get_mouseLock ():Bool {
-
-		return __backend.getMouseLock ();
-
+	@:noCompletion private function get_mouseLock():Bool
+	{
+		return __backend.getMouseLock();
 	}
 
-
-	@:noCompletion private function set_mouseLock (value:Bool):Bool {
-
-		__backend.setMouseLock (value);
+	@:noCompletion private function set_mouseLock(value:Bool):Bool
+	{
+		__backend.setMouseLock(value);
 		return value;
-
 	}
 
-
-	@:noCompletion private inline function get_resizable ():Bool {
-
+	@:noCompletion private inline function get_resizable():Bool
+	{
 		return __resizable;
-
 	}
 
-
-	@:noCompletion private function set_resizable (value:Bool):Bool {
-
-		__resizable = __backend.setResizable (value);
+	@:noCompletion private function set_resizable(value:Bool):Bool
+	{
+		__resizable = __backend.setResizable(value);
 		return __resizable;
-
 	}
 
-
-	@:noCompletion private inline function get_scale ():Float {
-
+	@:noCompletion private inline function get_scale():Float
+	{
 		return __scale;
-
 	}
 
-
-	@:noCompletion private inline function get_textInputEnabled ():Bool {
-
-		return __backend.getTextInputEnabled ();
-
+	@:noCompletion private inline function get_textInputEnabled():Bool
+	{
+		return __backend.getTextInputEnabled();
 	}
 
-
-	@:noCompletion private inline function set_textInputEnabled (value:Bool):Bool {
-
-		return __backend.setTextInputEnabled (value);
-
+	@:noCompletion private inline function set_textInputEnabled(value:Bool):Bool
+	{
+		return __backend.setTextInputEnabled(value);
 	}
 
-
-	@:noCompletion private inline function get_title ():String {
-
+	@:noCompletion private inline function get_title():String
+	{
 		return __title;
-
 	}
 
-
-	@:noCompletion private function set_title (value:String):String {
-
-		return __title = __backend.setTitle (value);
-
+	@:noCompletion private function set_title(value:String):String
+	{
+		return __title = __backend.setTitle(value);
 	}
 
-
-	@:noCompletion private inline function get_width ():Int {
-
+	@:noCompletion private inline function get_width():Int
+	{
 		return __width;
-
 	}
 
-
-	@:noCompletion private function set_width (value:Int):Int {
-
-		resize (value, __height);
+	@:noCompletion private function set_width(value:Int):Int
+	{
+		resize(value, __height);
 		return __width;
-
 	}
 
-
-	@:noCompletion private inline function get_x ():Int {
-
+	@:noCompletion private inline function get_x():Int
+	{
 		return __x;
-
 	}
 
-
-	@:noCompletion private function set_x (value:Int):Int {
-
-		move (value, __y);
+	@:noCompletion private function set_x(value:Int):Int
+	{
+		move(value, __y);
 		return __x;
-
 	}
 
-
-	@:noCompletion private inline function get_y ():Int {
-
+	@:noCompletion private inline function get_y():Int
+	{
 		return __y;
-
 	}
 
-
-	@:noCompletion private function set_y (value:Int):Int {
-
-		move (__x, value);
+	@:noCompletion private function set_y(value:Int):Int
+	{
+		move(__x, value);
 		return __y;
-
 	}
-
-
 }
-
 
 #if air
 @:noCompletion private typedef WindowBackend = lime._internal.backend.air.AIRWindow;

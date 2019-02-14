@@ -1,6 +1,5 @@
 package lime._internal.backend.html5;
 
-
 import haxe.io.Bytes;
 import js.html.AnchorElement;
 import js.html.ErrorEvent;
@@ -20,18 +19,15 @@ import lime.utils.AssetType;
 
 @:access(lime.graphics.ImageBuffer)
 @:access(lime.graphics.Image)
-
-
-class HTML5HTTPRequest {
-
-
+class HTML5HTTPRequest
+{
 	private static var activeRequests = 0;
 	private static var originElement:AnchorElement;
 	private static var originHostname:String;
 	private static var originPort:String;
 	private static var originProtocol:String;
 	private static var requestLimit = 17;
-	private static var requestQueue = new List<QueueItem> ();
+	private static var requestQueue = new List<QueueItem>();
 	private static var supportsImageProgress:Null<Bool>;
 
 	private var binary:Bool;
@@ -39,285 +35,254 @@ class HTML5HTTPRequest {
 	private var request:XMLHttpRequest;
 	private var validStatus0:Bool;
 
-
-	public function new () {
-
-		validStatus0 = #if allow_status_0 true #else ~/Tizen/gi.match (Browser.window.navigator.userAgent) #end;
-
+	public function new()
+	{
+		validStatus0 = #if allow_status_0 true #else ~/Tizen/gi.match(Browser.window.navigator.userAgent) #end;
 	}
 
-
-	public function cancel ():Void {
-
-		if (request != null) {
-
-			request.abort ();
-
+	public function cancel():Void
+	{
+		if (request != null)
+		{
+			request.abort();
 		}
-
 	}
 
-
-	public function init (parent:_IHTTPRequest):Void {
-
+	public function init(parent:_IHTTPRequest):Void
+	{
 		this.parent = parent;
-
 	}
 
+	private function load(uri:String, progress:Dynamic, readyStateChange:Dynamic):Void
+	{
+		request = new XMLHttpRequest();
 
-	private function load (uri:String, progress:Dynamic, readyStateChange:Dynamic):Void {
-
-		request = new XMLHttpRequest ();
-
-		if (parent.method == POST) {
-
-			request.upload.addEventListener ("progress", progress, false);
-
-		} else {
-
-			request.addEventListener ("progress", progress, false);
-
+		if (parent.method == POST)
+		{
+			request.upload.addEventListener("progress", progress, false);
+		}
+		else
+		{
+			request.addEventListener("progress", progress, false);
 		}
 
 		request.onreadystatechange = readyStateChange;
 
 		var query = "";
 
-		if (parent.data == null) {
-
-			for (key in parent.formData.keys ()) {
-
+		if (parent.data == null)
+		{
+			for (key in parent.formData.keys())
+			{
 				if (query.length > 0) query += "&";
-				query += StringTools.urlEncode (key) + "=" + StringTools.urlEncode (Std.string (parent.formData.get (key)));
-
+				query += StringTools.urlEncode(key) + "=" + StringTools.urlEncode(Std.string(parent.formData.get(key)));
 			}
 
-			if (parent.method == GET && query != "") {
-
-				if (uri.indexOf ("?") > -1) {
-
+			if (parent.method == GET && query != "")
+			{
+				if (uri.indexOf("?") > -1)
+				{
 					uri += "&" + query;
-
-				} else {
-
+				}
+				else
+				{
 					uri += "?" + query;
-
 				}
 
 				query = "";
-
 			}
-
 		}
 
-		request.open (Std.string (parent.method), uri, true);
+		request.open(Std.string(parent.method), uri, true);
 
-		if (parent.timeout > 0) {
-
+		if (parent.timeout > 0)
+		{
 			request.timeout = parent.timeout;
-
 		}
 
-		if (binary) {
-
+		if (binary)
+		{
 			request.responseType = ARRAYBUFFER;
-
 		}
 
 		var contentType = null;
 
-		for (header in parent.headers) {
-
-			if (header.name == "Content-Type") {
-
+		for (header in parent.headers)
+		{
+			if (header.name == "Content-Type")
+			{
 				contentType = header.value;
-
-			} else {
-
-				request.setRequestHeader (header.name, header.value);
-
 			}
-
+			else
+			{
+				request.setRequestHeader(header.name, header.value);
+			}
 		}
 
-		if (parent.contentType != null) {
-
+		if (parent.contentType != null)
+		{
 			contentType = parent.contentType;
-
 		}
 
-		if (contentType == null) {
-
-			if (parent.data != null) {
-
+		if (contentType == null)
+		{
+			if (parent.data != null)
+			{
 				contentType = "application/octet-stream";
-
-			} else if (query != "") {
-
-				contentType = "application/x-www-form-urlencoded";
-
 			}
-
+			else if (query != "")
+			{
+				contentType = "application/x-www-form-urlencoded";
+			}
 		}
 
-		if (contentType != null) {
-
-			request.setRequestHeader ("Content-Type", contentType);
-
+		if (contentType != null)
+		{
+			request.setRequestHeader("Content-Type", contentType);
 		}
 
-		if (parent.withCredentials) {
-
+		if (parent.withCredentials)
+		{
 			request.withCredentials = true;
-
 		}
 
-		if (parent.data != null) {
-
-			request.send (parent.data.getData ());
-
-		} else {
-
-			request.send (query);
-
+		if (parent.data != null)
+		{
+			request.send(parent.data.getData());
 		}
-
+		else
+		{
+			request.send(query);
+		}
 	}
 
+	public function loadData(uri:String):Future<Bytes>
+	{
+		var promise = new Promise<Bytes>();
 
-	public function loadData (uri:String):Future<Bytes> {
-
-		var promise = new Promise<Bytes> ();
-
-		if (activeRequests < requestLimit) {
-
+		if (activeRequests < requestLimit)
+		{
 			activeRequests++;
-			__loadData (uri, promise);
-
-		} else {
-
-			requestQueue.add ({ instance: this, uri: uri, promise: promise, type: AssetType.BINARY });
-
+			__loadData(uri, promise);
+		}
+		else
+		{
+			requestQueue.add(
+				{
+					instance: this,
+					uri: uri,
+					promise: promise,
+					type: AssetType.BINARY
+				});
 		}
 
 		return promise.future;
-
 	}
 
+	private static function loadImage(uri:String):Future<Image>
+	{
+		var promise = new Promise<Image>();
 
-	private static function loadImage (uri:String):Future<Image> {
-
-		var promise = new Promise<Image> ();
-
-		if (activeRequests < requestLimit) {
-
+		if (activeRequests < requestLimit)
+		{
 			activeRequests++;
-			__loadImage (uri, promise);
-
-		} else {
-
-			requestQueue.add ({ instance: null, uri: uri, promise: promise, type: AssetType.IMAGE });
-
+			__loadImage(uri, promise);
+		}
+		else
+		{
+			requestQueue.add(
+				{
+					instance: null,
+					uri: uri,
+					promise: promise,
+					type: AssetType.IMAGE
+				});
 		}
 
 		return promise.future;
-
 	}
 
+	public function loadText(uri:String):Future<String>
+	{
+		var promise = new Promise<String>();
 
-	public function loadText (uri:String):Future<String> {
-
-		var promise = new Promise<String> ();
-
-		if (activeRequests < requestLimit) {
-
+		if (activeRequests < requestLimit)
+		{
 			activeRequests++;
-			__loadText (uri, promise);
-
-		} else {
-
-			requestQueue.add ({ instance: this, uri: uri, promise: promise, type: AssetType.TEXT });
-
+			__loadText(uri, promise);
+		}
+		else
+		{
+			requestQueue.add(
+				{
+					instance: this,
+					uri: uri,
+					promise: promise,
+					type: AssetType.TEXT
+				});
 		}
 
 		return promise.future;
-
 	}
 
-
-	private static function processQueue ():Void {
-
-		if (activeRequests < requestLimit && requestQueue.length > 0) {
-
+	private static function processQueue():Void
+	{
+		if (activeRequests < requestLimit && requestQueue.length > 0)
+		{
 			activeRequests++;
 
-			var queueItem = requestQueue.pop ();
+			var queueItem = requestQueue.pop();
 
-			switch (queueItem.type) {
-
+			switch (queueItem.type)
+			{
 				case IMAGE:
-
-					__loadImage (queueItem.uri, queueItem.promise);
+					__loadImage(queueItem.uri, queueItem.promise);
 
 				case TEXT:
-
-					queueItem.instance.__loadText (queueItem.uri, queueItem.promise);
+					queueItem.instance.__loadText(queueItem.uri, queueItem.promise);
 
 				case BINARY:
-
-					queueItem.instance.__loadData (queueItem.uri, queueItem.promise);
+					queueItem.instance.__loadData(queueItem.uri, queueItem.promise);
 
 				default:
-
 					activeRequests--;
-
 			}
-
 		}
-
 	}
 
-
-	private function processResponse ():Void {
-
-		if (parent.enableResponseHeaders) {
-
+	private function processResponse():Void
+	{
+		if (parent.enableResponseHeaders)
+		{
 			parent.responseHeaders = [];
 			var name, value;
 
-			for (line in request.getAllResponseHeaders ().split ("\n")) {
+			for (line in request.getAllResponseHeaders().split("\n"))
+			{
+				name = StringTools.trim(line.substr(0, line.indexOf(":")));
+				value = StringTools.trim(line.substr(line.indexOf(":") + 1));
 
-				name = StringTools.trim (line.substr (0, line.indexOf (":")));
-				value = StringTools.trim (line.substr (line.indexOf (":") + 1));
-
-				if (name != "") {
-
-					parent.responseHeaders.push (new HTTPRequestHeader (name, value));
-
+				if (name != "")
+				{
+					parent.responseHeaders.push(new HTTPRequestHeader(name, value));
 				}
-
 			}
-
 		}
 
 		parent.responseStatus = request.status;
-
 	}
 
-
-	private static function __fixHostname (hostname:String):String {
-
+	private static function __fixHostname(hostname:String):String
+	{
 		return hostname == null ? "" : hostname;
-
 	}
 
-
-	private static function __fixPort (port:String, protocol:String):String {
-
-		if (port == null || port == "") {
-
-			return switch (protocol) {
-
+	private static function __fixPort(port:String, protocol:String):String
+	{
+		if (port == null || port == "")
+		{
+			return switch (protocol)
+			{
 				case "ftp:": "21";
 				case "gopher:": "70";
 				case "http:": "80";
@@ -325,244 +290,208 @@ class HTML5HTTPRequest {
 				case "ws:": "80";
 				case "wss:": "443";
 				default: "";
-
 			}
-
 		}
 
 		return port;
-
 	}
 
-
-	private static function __fixProtocol (protocol:String):String {
-
+	private static function __fixProtocol(protocol:String):String
+	{
 		return (protocol == null || protocol == "") ? "http:" : protocol;
-
 	}
 
+	private static function __isSameOrigin(path:String):Bool
+	{
+		if (originElement == null)
+		{
+			originElement = Browser.document.createAnchorElement();
 
-	private static function __isSameOrigin (path:String):Bool {
-
-		if (originElement == null) {
-
-			originElement = Browser.document.createAnchorElement ();
-
-			originHostname = __fixHostname (Browser.location.hostname);
-			originProtocol = __fixProtocol (Browser.location.protocol);
-			originPort = __fixPort (Browser.location.port, originProtocol);
-
+			originHostname = __fixHostname(Browser.location.hostname);
+			originProtocol = __fixProtocol(Browser.location.protocol);
+			originPort = __fixPort(Browser.location.port, originProtocol);
 		}
 
 		var a = originElement;
 		a.href = path;
 
-		if (a.hostname == "") {
-
+		if (a.hostname == "")
+		{
 			// Workaround for IE, updates other properties
 			a.href = a.href;
-
 		}
 
-		var hostname = __fixHostname (a.hostname);
-		var protocol = __fixProtocol (a.protocol);
-		var port = __fixPort (a.port, protocol);
+		var hostname = __fixHostname(a.hostname);
+		var protocol = __fixProtocol(a.protocol);
+		var port = __fixPort(a.port, protocol);
 
 		var sameHost = (hostname == "" || (hostname == originHostname));
 		var samePort = (port == "" || (port == originPort));
 
 		return (protocol != "file:" && sameHost && samePort);
-
 	}
 
-
-	public function __loadData (uri:String, promise:Promise<Bytes>):Void {
-
-		var progress = function (event) {
-
-			promise.progress (event.loaded, event.total);
-
+	public function __loadData(uri:String, promise:Promise<Bytes>):Void
+	{
+		var progress = function(event)
+		{
+			promise.progress(event.loaded, event.total);
 		}
 
-		var readyStateChange = function (event) {
-
+		var readyStateChange = function(event)
+		{
 			if (request.readyState != 4) return;
 
-			if (request.status != null && ((request.status >= 200 && request.status < 400) || (validStatus0 && request.status == 0))) {
-
+			if (request.status != null && ((request.status >= 200 && request.status < 400) || (validStatus0 && request.status == 0)))
+			{
 				var bytes = null;
 
-				if (request.responseType == NONE) {
-
-					if (request.responseText != null) {
-
-						bytes = Bytes.ofString (request.responseText);
-
+				if (request.responseType == NONE)
+				{
+					if (request.responseText != null)
+					{
+						bytes = Bytes.ofString(request.responseText);
 					}
-
-				} else if (request.response != null) {
-
-					bytes = Bytes.ofData (request.response);
-
+				}
+				else if (request.response != null)
+				{
+					bytes = Bytes.ofData(request.response);
 				}
 
-				processResponse ();
-				promise.complete (bytes);
-
-			} else {
-
-				processResponse ();
-				promise.error (request.status);
-
+				processResponse();
+				promise.complete(bytes);
+			}
+			else
+			{
+				processResponse();
+				promise.error(request.status);
 			}
 
 			request = null;
 
 			activeRequests--;
-			processQueue ();
-
+			processQueue();
 		}
 
 		binary = true;
-		load (uri, progress, readyStateChange);
-
+		load(uri, progress, readyStateChange);
 	}
 
+	private static function __loadImage(uri:String, promise:Promise<Image>):Void
+	{
+		var image = new JSImage();
 
-	private static function __loadImage (uri:String, promise:Promise<Image>):Void {
-
-		var image = new JSImage ();
-
-		if (!__isSameOrigin (uri)) {
-
+		if (!__isSameOrigin(uri))
+		{
 			image.crossOrigin = "Anonymous";
-
 		}
 
-		if (supportsImageProgress == null) {
-
-			supportsImageProgress = untyped __js__ ("'onprogress' in image");
-
+		if (supportsImageProgress == null)
+		{
+			supportsImageProgress = untyped __js__("'onprogress' in image");
 		}
 
-		if (supportsImageProgress || StringTools.startsWith (uri, "data:")) {
-
-			image.addEventListener ("load", function (event) {
-
-				var buffer = new ImageBuffer (null, image.width, image.height);
+		if (supportsImageProgress || StringTools.startsWith(uri, "data:"))
+		{
+			image.addEventListener("load", function(event)
+			{
+				var buffer = new ImageBuffer(null, image.width, image.height);
 				buffer.__srcImage = cast image;
 
 				activeRequests--;
-				processQueue ();
+				processQueue();
 
-				promise.complete (new Image (buffer));
-
+				promise.complete(new Image(buffer));
 			}, false);
 
-			image.addEventListener ("progress", function (event) {
-
-				promise.progress (event.loaded, event.total);
-
+			image.addEventListener("progress", function(event)
+			{
+				promise.progress(event.loaded, event.total);
 			}, false);
 
-			image.addEventListener ("error", function (event) {
-
+			image.addEventListener("error", function(event)
+			{
 				activeRequests--;
-				processQueue ();
+				processQueue();
 
-				promise.error (event.detail);
-
+				promise.error(event.detail);
 			}, false);
 
 			image.src = uri;
-
-		} else {
-
-			var request = new XMLHttpRequest ();
-
-			request.onload = function (_) {
-
-				activeRequests--;
-				processQueue ();
-
-				var img = new Image ();
-				img.__fromBytes (Bytes.ofData (request.response), function (img) {
-					promise.complete (img);
-				});
-
-			}
-
-			request.onerror = function (event:ErrorEvent) {
-
-				promise.error (event.message);
-
-			}
-
-			request.onprogress = function (event:ProgressEvent) {
-
-				if (event.lengthComputable) {
-
-					promise.progress (event.loaded, event.total);
-
-				}
-
-			}
-
-			request.open ("GET", uri, true);
-			request.responseType = XMLHttpRequestResponseType.ARRAYBUFFER;
-			request.overrideMimeType ('text/plain; charset=x-user-defined');
-			request.send (null);
-
 		}
+		else
+		{
+			var request = new XMLHttpRequest();
 
+			request.onload = function(_)
+			{
+				activeRequests--;
+				processQueue();
+
+				var img = new Image();
+				img.__fromBytes(Bytes.ofData(request.response), function(img)
+				{
+					promise.complete(img);
+				});
+			}
+
+			request.onerror = function(event:ErrorEvent)
+			{
+				promise.error(event.message);
+			}
+
+			request.onprogress = function(event:ProgressEvent)
+			{
+				if (event.lengthComputable)
+				{
+					promise.progress(event.loaded, event.total);
+				}
+			}
+
+			request.open("GET", uri, true);
+			request.responseType = XMLHttpRequestResponseType.ARRAYBUFFER;
+			request.overrideMimeType('text/plain; charset=x-user-defined');
+			request.send(null);
+		}
 	}
 
-
-	private function __loadText (uri:String, promise:Promise<String>):Void {
-
-		var progress = function (event) {
-
-			promise.progress (event.loaded, event.total);
-
+	private function __loadText(uri:String, promise:Promise<String>):Void
+	{
+		var progress = function(event)
+		{
+			promise.progress(event.loaded, event.total);
 		}
 
-		var readyStateChange = function (event) {
-
+		var readyStateChange = function(event)
+		{
 			if (request.readyState != 4) return;
 
-			if (request.status != null && ((request.status >= 200 && request.status <= 400) || (validStatus0 && request.status == 0))) {
-
-				processResponse ();
-				promise.complete (request.responseText);
-
-			} else {
-
-				processResponse ();
-				promise.error (request.status);
-
+			if (request.status != null && ((request.status >= 200 && request.status <= 400) || (validStatus0 && request.status == 0)))
+			{
+				processResponse();
+				promise.complete(request.responseText);
+			}
+			else
+			{
+				processResponse();
+				promise.error(request.status);
 			}
 
 			request = null;
 
 			activeRequests--;
-			processQueue ();
-
+			processQueue();
 		}
 
 		binary = false;
-		load (uri, progress, readyStateChange);
-
+		load(uri, progress, readyStateChange);
 	}
-
-
 }
 
-
-@:dox(hide) typedef QueueItem = {
-
+@:dox(hide) typedef QueueItem =
+{
 	var instance:HTML5HTTPRequest;
 	var type:AssetType;
 	var promise:Dynamic;
 	var uri:String;
-
 }
