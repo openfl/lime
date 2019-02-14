@@ -301,7 +301,6 @@ class Application extends Module {
 		Called when a mouse move event is fired on the primary window
 		@param	x	The current x coordinate of the mouse
 		@param	y	The current y coordinate of the mouse
-		@param	button	The ID of the mouse button that was pressed
 	**/
 	public function onMouseMove (x:Float, y:Float):Void { }
 
@@ -310,7 +309,6 @@ class Application extends Module {
 		Called when a mouse move relative event is fired on the primary window
 		@param	x	The x movement of the mouse
 		@param	y	The y movement of the mouse
-		@param	button	The ID of the mouse button that was pressed
 	**/
 	public function onMouseMoveRelative (x:Float, y:Float):Void { }
 
@@ -328,6 +326,7 @@ class Application extends Module {
 		Called when a mouse wheel event is fired on the primary window
 		@param	deltaX	The amount of horizontal scrolling (if applicable)
 		@param	deltaY	The amount of vertical scrolling (if applicable)
+		@param	deltaMode	The units of measurement used
 	**/
 	public function onMouseWheel (deltaX:Float, deltaY:Float, deltaMode:MouseWheelMode):Void { }
 
