@@ -71,9 +71,9 @@ namespace lime {
 		#endif
 
 		#ifndef EMSCRIPTEN
+		SDL_SetHint (SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "0");
 		SDL_SetHint (SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 		#endif
-
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
