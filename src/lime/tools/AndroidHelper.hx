@@ -70,8 +70,7 @@ class AndroidHelper
 		var buildToolsPath = Path.combine(project.environment.get("ANDROID_SDK"), "build-tools/");
 
 		var version = ~/^(\d+)\.(\d+)\.(\d+)$/i;
-		var current =
-			{major: 0, minor: 0, micro: 0};
+		var current = {major: 0, minor: 0, micro: 0};
 
 		if (!FileSystem.exists(buildToolsPath))
 		{

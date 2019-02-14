@@ -23,7 +23,6 @@ package haxe;
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
 /**
 	The Timer class allows you to create asynchronous timers on platforms that
 	support events.

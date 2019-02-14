@@ -666,8 +666,8 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 		offset:DataPointer):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView,
 		srcOffset:Int):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
-		source:Dynamic /*js.html.ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:Dynamic
+		/*js.html.ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
 		source:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
@@ -688,8 +688,8 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 		source:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
 		source:js.html.VideoElement):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
-		source:Dynamic /*js.html.ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int, source:Dynamic
+		/*js.html.ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
 		source:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
@@ -703,15 +703,16 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView,
 		srcOffset:Int):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:DataPointer):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, source:js.html.ImageData):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
+		source:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
 		source:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
 		source:js.html.CanvasElement):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
 		source:js.html.VideoElement):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
-		source:Dynamic /*ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, source:Dynamic
+		/*ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
 		pixels:js.html.ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
@@ -728,8 +729,8 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 		source:js.html.CanvasElement):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
 		source:js.html.VideoElement):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
-		source:Dynamic /*ImageBitmap*/):Void {})
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic
+		/*ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
 		pixels:js.html.ArrayBufferView, ?srcOffset:Int):Void {})
 	public function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,

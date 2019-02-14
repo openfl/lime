@@ -1,7 +1,6 @@
 package lime.utils;
 
-#if (js && !doc_gen)
-@:forward
+#if (js && !doc_gen) @:forward
 abstract UInt32Array(js.html.Uint32Array) from js.html.Uint32Array to js.html.Uint32Array
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
@@ -67,9 +66,7 @@ abstract UInt32Array(js.html.Uint32Array) from js.html.Uint32Array to js.html.Ui
 
 	inline function toString()
 		return this != null ? 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-}
-#else
-import lime.utils.ArrayBufferView;
+} #else import lime.utils.ArrayBufferView;
 
 @:forward
 abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
@@ -144,5 +141,4 @@ abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	inline function toString()
 		return this != null ? 'UInt32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-}
-#end // !js
+} #end // !js

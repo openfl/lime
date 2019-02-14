@@ -313,13 +313,7 @@ class Matrix3
 	**/
 	public function equals(matrix3:Matrix3):Bool
 	{
-		return (matrix3 != null &&
-			tx == matrix3.tx &&
-			ty == matrix3.ty &&
-			a == matrix3.a &&
-			b == matrix3.b &&
-			c == matrix3.c &&
-			d == matrix3.d);
+		return (matrix3 != null && tx == matrix3.tx && ty == matrix3.ty && a == matrix3.a && b == matrix3.b && c == matrix3.c && d == matrix3.d);
 	}
 
 	/**

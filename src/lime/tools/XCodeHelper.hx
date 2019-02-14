@@ -74,8 +74,7 @@ class XCodeHelper
 				deviceName = extractSimulatorFullName(StringTools.trim(line));
 				deviceID = extractSimulatorID(StringTools.trim(line));
 				device = extractSimulatorFlagName(StringTools.trim(line));
-				devices.set(device,
-					{id: deviceID, name: deviceName});
+				devices.set(device, {id: deviceID, name: deviceName});
 
 				if (project.targetFlags.exists(device))
 				{

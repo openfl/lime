@@ -382,8 +382,7 @@ class JavaExternGenerator
 					var hi = src.readInt32();
 					var lo = src.readInt32();
 					// debug("Long - ignore");
-					mConstants[cid] =
-						{lo: lo, hi: hi};
+					mConstants[cid] = {lo: lo, hi: hi};
 					cid++;
 
 				case 6:
@@ -406,8 +405,7 @@ class JavaExternGenerator
 					var cref = src.readUInt16();
 					var type = src.readUInt16();
 					// debug("Member ref:" + cref + "," + type);
-					mConstants[cid] =
-						{cref: cref, type: type};
+					mConstants[cid] = {cref: cref, type: type};
 
 				default:
 					throw("Unknown constant tag:" + tag);
@@ -603,8 +601,7 @@ class JavaExternGenerator
 
 				var ret_full_class = constructor || ((mExactTypes.exists(retType.name) || isPOD(retType.name)) && retType.arrayCount == 0);
 
-				if (constructor) retType =
-					{name: mCurrentType, java: mCurrentType, arrayCount: 0};
+				if (constructor) retType = {name: mCurrentType, java: mCurrentType, arrayCount: 0};
 
 				var ret_void = (retType.name == "Void" && retType.arrayCount == 0);
 

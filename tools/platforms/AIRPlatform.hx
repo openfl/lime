@@ -285,8 +285,7 @@ class AIRPlatform extends FlashPlatform
 		{
 			if (StringTools.endsWith(dependency.path, ".ane"))
 			{
-				var extension:Dynamic =
-					{name: dependency.name};
+				var extension:Dynamic = {name: dependency.name};
 				context.extensions.push(extension);
 				context.HAXE_FLAGS += "\n-swf-lib " + dependency.path;
 			}

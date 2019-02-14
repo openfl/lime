@@ -19,6 +19,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
 package haxe.io;
 
 #if (!hl && !js && !eval)
@@ -87,11 +88,7 @@ class Bytes
 	public function blit(pos:Int, src:Bytes, srcpos:Int, len:Int):Void
 	{
 		#if !neko
-		if (pos < 0 ||
-			srcpos < 0 ||
-			len < 0 ||
-			pos + len > length ||
-			srcpos + len > src.length) throw Error.OutsideBounds;
+		if (pos < 0 || srcpos < 0 || len < 0 || pos + len > length || srcpos + len > src.length) throw Error.OutsideBounds;
 		#end
 		#if neko
 		try
@@ -696,11 +693,7 @@ class Bytes
 
 	public function blit(pos:Int, src:Bytes, srcpos:Int, len:Int):Void
 	{
-		if (pos < 0 ||
-			srcpos < 0 ||
-			len < 0 ||
-			pos + len > length ||
-			srcpos + len > src.length) throw Error.OutsideBounds;
+		if (pos < 0 || srcpos < 0 || len < 0 || pos + len > length || srcpos + len > src.length) throw Error.OutsideBounds;
 		if (srcpos == 0 && len == src.b.byteLength) b.set(src.b, pos);
 		else
 			b.set(src.b.subarray(srcpos, srcpos + len), pos);

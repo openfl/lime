@@ -236,7 +236,9 @@ abstract DataPointer(DataPointerType) to DataPointerType
 		{
 			case BUFFER_VIEW:
 				if (length == null) length = data.bufferView.byteLength;
-				if (data.offset == 0 && length == data.bufferView.byteLength && untyped __js__("data.bufferView.constructor == Float32Array"))
+				if (data.offset == 0
+					&& length == data.bufferView.byteLength
+					&& untyped __js__("data.bufferView.constructor == Float32Array"))
 				{
 					return cast data.bufferView;
 				}
@@ -264,7 +266,9 @@ abstract DataPointer(DataPointerType) to DataPointerType
 		{
 			case BUFFER_VIEW:
 				if (length == null) length = data.bufferView.byteLength;
-				if (data.offset == 0 && length == data.bufferView.byteLength && untyped __js__("data.bufferView.constructor == Int32Array"))
+				if (data.offset == 0
+					&& length == data.bufferView.byteLength
+					&& untyped __js__("data.bufferView.constructor == Int32Array"))
 				{
 					return cast data.bufferView;
 				}
@@ -291,7 +295,9 @@ abstract DataPointer(DataPointerType) to DataPointerType
 		{
 			case BUFFER_VIEW:
 				if (length == null) length = data.bufferView.byteLength;
-				if (data.offset == 0 && length == data.bufferView.byteLength && untyped __js__("data.bufferView.constructor == Uint8Array"))
+				if (data.offset == 0
+					&& length == data.bufferView.byteLength
+					&& untyped __js__("data.bufferView.constructor == Uint8Array"))
 				{
 					return cast data.bufferView;
 				}
@@ -318,7 +324,9 @@ abstract DataPointer(DataPointerType) to DataPointerType
 		{
 			case BUFFER_VIEW:
 				if (length == null) length = data.bufferView.byteLength;
-				if (data.offset == 0 && length == data.bufferView.byteLength && untyped __js__("data.bufferView.constructor == Uint32Array"))
+				if (data.offset == 0
+					&& length == data.bufferView.byteLength
+					&& untyped __js__("data.bufferView.constructor == Uint32Array"))
 				{
 					return cast data.bufferView;
 				}

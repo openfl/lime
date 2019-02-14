@@ -135,8 +135,9 @@ class IOSPlatform extends PlatformTarget
 
 		for (dependency in project.dependencies)
 		{
-			if (!StringTools.endsWith(dependency.name, ".framework") && !StringTools.endsWith(dependency.name, ".tbd") && !StringTools.endsWith(dependency
-					.path, ".framework"))
+			if (!StringTools.endsWith(dependency.name, ".framework")
+				&& !StringTools.endsWith(dependency.name, ".tbd")
+				&& !StringTools.endsWith(dependency.path, ".framework"))
 			{
 				if (dependency.path != "")
 				{
@@ -144,8 +145,8 @@ class IOSPlatform extends PlatformTarget
 
 					if (dependency.forceLoad)
 					{
-						project.config.push("ios.linker-flags", "-force_load $SRCROOT/$PRODUCT_NAME/lib/$CURRENT_ARCH/" + Path.withoutDirectory(dependency
-								.path));
+						project.config.push("ios.linker-flags",
+							"-force_load $SRCROOT/$PRODUCT_NAME/lib/$CURRENT_ARCH/" + Path.withoutDirectory(dependency.path));
 					}
 
 					if (StringTools.startsWith(name, "lib"))
@@ -466,16 +467,11 @@ class IOSPlatform extends PlatformTarget
 
 		var iconSizes:Array<IconSize> = [
 			{name: "Icon-20.png", size: 20}, {name: "Icon-Small.png", size: 29}, {name: "Icon-Small-40.png", size: 40}, {name: "Icon-20@2x.png", size: 40},
-			{name: "Icon-Small-50.png", size: 50},
-			{name: "Icon.png", size: 57}, {name: "Icon-Small@2x.png", size: 58}, {name: "Icon-20@3x.png", size: 60},
-			{name: "Icon-72.png", size: 72},
-			{name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80}, {name: "Icon-Small@3x.png", size: 87},
-			{name: "Icon-Small-50@2x.png", size: 100},
-			{name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
-			{name: "Icon-Small-40@3x.png", size: 120},
-			{name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152},
-			{name: "Icon-83.5@2x.png", size: 167},
-			{name: "Icon-60@3x.png", size: 180}, {name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-Small-50.png", size: 50}, {name: "Icon.png", size: 57}, {name: "Icon-Small@2x.png", size: 58}, {name: "Icon-20@3x.png", size: 60},
+			{name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80}, {name: "Icon-Small@3x.png", size: 87},
+			{name: "Icon-Small-50@2x.png", size: 100}, {name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
+			{name: "Icon-Small-40@3x.png", size: 120}, {name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152},
+			{name: "Icon-83.5@2x.png", size: 167}, {name: "Icon-60@3x.png", size: 180}, {name: "Icon-Marketing.png", size: 1024}
 		];
 
 		context.HAS_ICON = true;
@@ -519,7 +515,9 @@ class IOSPlatform extends PlatformTarget
 
 			for (splashScreen in project.splashScreens)
 			{
-				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
+				if (splashScreen.width == size.w
+					&& splashScreen.height == size.h
+					&& Path.extension(splashScreen.path) == "png")
 				{
 					System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
 					match = true;
@@ -563,10 +561,10 @@ class IOSPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", projectDirectory + "/haxe", context, true, false);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ/Classes", projectDirectory + "/Classes", context, true, false);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context, true, false);
-		System.copyFileTemplate(project.templatePaths, "iphone/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context, true,
-			false);
-		System.copyFileTemplate(project.templatePaths, "iphone/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context, true,
-			false);
+		System.copyFileTemplate(project.templatePaths, "iphone/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context,
+			true, false);
+		System.copyFileTemplate(project.templatePaths, "iphone/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context,
+			true, false);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ.xcodeproj", targetDirectory + "/" + project.app
 			.file + ".xcodeproj", context, true, false);
 

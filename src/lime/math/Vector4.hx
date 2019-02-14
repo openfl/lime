@@ -197,10 +197,7 @@ class Vector4
 	**/
 	public inline function equals(toCompare:Vector4, ?allFour:Bool = false):Bool
 	{
-		return x == toCompare.x &&
-			y == toCompare.y &&
-			z == toCompare.z &&
-			(!allFour || w == toCompare.w);
+		return x == toCompare.x && y == toCompare.y && z == toCompare.z && (!allFour || w == toCompare.w);
 	}
 
 	/**
@@ -224,10 +221,10 @@ class Vector4
 	**/
 	public inline function nearEquals(toCompare:Vector4, tolerance:Float, ?allFour:Bool = false):Bool
 	{
-		return Math.abs(x - toCompare.x) < tolerance &&
-			Math.abs(y - toCompare.y) < tolerance &&
-			Math.abs(z - toCompare.z) < tolerance &&
-			(!allFour || Math.abs(w - toCompare.w) < tolerance);
+		return Math.abs(x - toCompare.x) < tolerance
+			&& Math.abs(y - toCompare.y) < tolerance
+			&& Math.abs(z - toCompare.z) < tolerance
+			&& (!allFour || Math.abs(w - toCompare.w) < tolerance);
 	}
 
 	/**

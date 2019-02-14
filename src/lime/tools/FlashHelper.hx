@@ -282,10 +282,7 @@ class FlashHelper
 			{
 				var src = path;
 
-				if (ext == "jpg" ||
-					ext == "jpeg" ||
-					ext == "png" ||
-					ext == "gif")
+				if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif")
 				{
 					if (!FileSystem.exists(src))
 					{
@@ -697,8 +694,7 @@ class FlashHelper
 
 		if (inserted)
 		{
-			var swf:SWF =
-				{header: header, tags: tags};
+			var swf:SWF = {header: header, tags: tags};
 			var output = File.write(destination + "/assets.swf", true);
 			var writer = new Writer(output);
 			writer.write(swf);

@@ -78,7 +78,9 @@ class HTML5Platform extends PlatformTarget
 
 				for (dependency in project.dependencies)
 				{
-					if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
+					if (dependency.embed
+						&& StringTools.endsWith(dependency.path, ".js")
+						&& FileSystem.exists(dependency.path))
 					{
 						var script = File.getContent(dependency.path);
 						context.embeddedLibraries.push(script);

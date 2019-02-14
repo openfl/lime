@@ -1743,24 +1743,15 @@ class Image
 	{
 		if (bytes == null || bytes.length < 4) return false;
 
-		return bytes.get(0) == 0xFF &&
-			bytes.get(1) == 0xD8 &&
-			bytes.get(bytes.length - 2) == 0xFF &&
-			bytes.get(bytes.length - 1) == 0xD9;
+		return bytes.get(0) == 0xFF && bytes.get(1) == 0xD8 && bytes.get(bytes.length - 2) == 0xFF && bytes.get(bytes.length - 1) == 0xD9;
 	}
 
 	private static function __isPNG(bytes:Bytes):Bool
 	{
 		if (bytes == null || bytes.length < 8) return false;
 
-		return (bytes.get(0) == 0x89 &&
-			bytes.get(1) == "P".code &&
-			bytes.get(2) == "N".code &&
-			bytes.get(3) == "G".code &&
-			bytes.get(4) == "\r".code &&
-			bytes.get(5) == "\n".code &&
-			bytes.get(6) == 0x1A &&
-			bytes.get(7) == "\n".code);
+		return (bytes.get(0) == 0x89 && bytes.get(1) == "P".code && bytes.get(2) == "N".code && bytes.get(3) == "G".code && bytes.get(4) == "\r".code
+			&& bytes.get(5) == "\n".code && bytes.get(6) == 0x1A && bytes.get(7) == "\n".code);
 	}
 
 	private static function __isWebP(bytes:Bytes):Bool

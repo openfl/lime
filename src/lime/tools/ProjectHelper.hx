@@ -8,6 +8,7 @@ import neko.Lib;
 #elseif cpp
 import cpp.Lib;
 #end
+
 class ProjectHelper
 {
 	// private static var doubleVarMatch = new EReg ("\\$\\${(.*?)}", "");

@@ -76,8 +76,8 @@ abstract WebGLRenderContext(WebGL2RenderContext)
 	}
 	#end
 	#if (!js || !html5 || lime_doc_gen)
-	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView,
-			srcOffset:Int = 0):Void
+	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0):Void
 	{
 		this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, srcData, srcOffset);
 	}

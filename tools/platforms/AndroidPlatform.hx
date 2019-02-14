@@ -214,8 +214,9 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var armv5 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV5) || ArrayTools.containsValue(project
-				.architectures, Architecture.ARMV6));
+		var armv5 = (command == "rebuild"
+			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
+			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV6));
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
 		var x86 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.X86));
@@ -363,10 +364,10 @@ class AndroidPlatform extends PlatformTarget
 
 		for (dependency in project.dependencies)
 		{
-			if (dependency.path != "" &&
-				FileSystem.exists(dependency.path) &&
-				FileSystem.isDirectory(dependency.path) &&
-				(FileSystem.exists(Path.combine(dependency.path, "project.properties")) || FileSystem.exists(Path.combine(dependency.path, "build.gradle"))))
+			if (dependency.path != ""
+				&& FileSystem.exists(dependency.path)
+				&& FileSystem.isDirectory(dependency.path)
+				&& (FileSystem.exists(Path.combine(dependency.path, "project.properties")) || FileSystem.exists(Path.combine(dependency.path, "build.gradle"))))
 			{
 				var name = dependency.name;
 				if (name == "") name = "project" + index;

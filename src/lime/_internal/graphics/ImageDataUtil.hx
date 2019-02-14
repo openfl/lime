@@ -289,15 +289,15 @@ class ImageDataUtil
 	public static function copyPixels(image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null,
 			alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void
 	{
-		if (image.width == sourceImage.width &&
-			image.height == sourceImage.height &&
-			sourceRect.width == sourceImage.width &&
-			sourceRect.height == sourceImage.height &&
-			sourceRect.x == 0 &&
-			sourceRect.y == 0 &&
-			destPoint.x == 0 &&
-			destPoint.y == 0 &&
-			alphaImage == null && alphaPoint == null && mergeAlpha == false && image.format == sourceImage.format)
+		if (image.width == sourceImage.width
+			&& image.height == sourceImage.height
+			&& sourceRect.width == sourceImage.width
+			&& sourceRect.height == sourceImage.height
+			&& sourceRect.x == 0
+			&& sourceRect.y == 0
+			&& destPoint.x == 0
+			&& destPoint.y == 0
+			&& alphaImage == null && alphaPoint == null && mergeAlpha == false && image.format == sourceImage.format)
 		{
 			image.buffer.data.set(sourceImage.buffer.data);
 		}
@@ -376,7 +376,9 @@ class ImageDataUtil
 							}
 						}
 					}
-					else if (sourceFormat == destFormat && sourcePremultiplied == destPremultiplied && sourceBytesPerPixel == destBytesPerPixel)
+					else if (sourceFormat == destFormat
+						&& sourcePremultiplied == destPremultiplied
+						&& sourceBytesPerPixel == destBytesPerPixel)
 					{
 						for (y in 0...destView.height)
 						{
@@ -598,10 +600,7 @@ class ImageDataUtil
 					nextPointX = curPointX + dx[i];
 					nextPointY = curPointY + dy[i];
 
-					if (nextPointX < minX ||
-						nextPointY < minY ||
-						nextPointX >= maxX ||
-						nextPointY >= maxY)
+					if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY)
 					{
 						continue;
 					}
@@ -1586,10 +1585,7 @@ class ImageDataUtil
 
 		var offset = 0;
 
-		if (sourceX < 0 ||
-			sourceY < 0 ||
-			sourceX >= sourceRect.width ||
-			sourceY >= sourceRect.height)
+		if (sourceX < 0 || sourceY < 0 || sourceX >= sourceRect.width || sourceY >= sourceRect.height)
 		{
 			offset = -1;
 		}

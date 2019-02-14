@@ -1,7 +1,6 @@
 package lime.utils;
 
-#if (js && !doc_gen)
-@:forward
+#if (js && !doc_gen) @:forward
 @:arrayAccess
 abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html.Float32Array
 {
@@ -68,9 +67,7 @@ abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html
 
 	inline function toString()
 		return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-}
-#else
-import lime.utils.ArrayBuffer;
+} #else import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 
 @:forward
@@ -147,5 +144,4 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		ArrayBufferIO.setFloat32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
 		return val;
 	}
-}
-#end // !js
+} #end // !js

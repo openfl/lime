@@ -263,10 +263,10 @@ private class Utf8Impl
 		var c3 = accessor(i);
 		if (c1 < 0xF0)
 		{
-			if (((c1 & 0x0F != 0) || (c2 & 0x20 != 0)) &&
-				(c2 & 0xC0 == 0x80) &&
-				(c3 & 0xC0 == 0x80) &&
-				!(c1 == 0xED && 0xA0 <= c2 && c2 <= 0xBF)) return ((c1 & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (c3 & 0x7F);
+			if (((c1 & 0x0F != 0) || (c2 & 0x20 != 0))
+				&& (c2 & 0xC0 == 0x80)
+				&& (c3 & 0xC0 == 0x80)
+				&& !(c1 == 0xED && 0xA0 <= c2 && c2 <= 0xBF)) return ((c1 & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (c3 & 0x7F);
 			else
 				throw new Exception.InvalidCodeUnitSequence(index);
 		}
@@ -275,11 +275,11 @@ private class Utf8Impl
 		var c4 = accessor(i);
 		if (c1 < 0xF8)
 		{
-			if (((c1 & 0x07 != 0) || (c2 & 0x30 != 0)) &&
-				(c2 & 0xC0 == 0x80) &&
-				(c3 & 0xC0 == 0x80) &&
-				(c4 & 0xC0 == 0x80) &&
-				!((c1 == 0xF4 && c2 > 0x8F) || c1 > 0xF4)) return ((c1 & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 & 0x7F) << 6) | (c4 & 0x7F);
+			if (((c1 & 0x07 != 0) || (c2 & 0x30 != 0))
+				&& (c2 & 0xC0 == 0x80)
+				&& (c3 & 0xC0 == 0x80)
+				&& (c4 & 0xC0 == 0x80)
+				&& !((c1 == 0xF4 && c2 > 0x8F) || c1 > 0xF4)) return ((c1 & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 & 0x7F) << 6) | (c4 & 0x7F);
 			else
 				throw new Exception.InvalidCodeUnitSequence(index);
 		}

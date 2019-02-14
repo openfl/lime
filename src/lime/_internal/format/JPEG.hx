@@ -102,7 +102,8 @@ class JPEG
 
 		#if ((!js || !html5) && format)
 		#if (sys && (!disable_cffi || !format) && !macro)
-		else #end
+		else
+		#end
 		{
 			try
 			{

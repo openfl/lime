@@ -6,6 +6,7 @@ import haxe.xml.Access;
 #else
 import haxe.xml.Fast as Access;
 #end
+
 abstract ConfigData(Dynamic) to Dynamic from Dynamic
 {
 	public function new()

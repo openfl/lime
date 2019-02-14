@@ -1,12 +1,8 @@
 package lime.utils;
 
-#if (js && !doc_gen)
-typedef ArrayBufferView = js.html.ArrayBufferView;
-#else
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
+#if (js && !doc_gen) typedef ArrayBufferView = js.html.ArrayBufferView;
+#else #if !lime_debug@:fileXml('tags="haxe,release"')
+@:noDebug #end
 class ArrayBufferView
 {
 	public var type = TypedArrayType.None;

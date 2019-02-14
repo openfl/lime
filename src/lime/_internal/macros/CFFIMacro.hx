@@ -21,8 +21,7 @@ class CFFIMacro
 		{
 			switch (field)
 			{
-				case _ =>
-					{kind: FFun(fun), meta: meta}:
+				case _ => {kind: FFun(fun), meta: meta}:
 					for (m in meta)
 					{
 						if (m.name == ":cffi")

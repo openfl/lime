@@ -1264,7 +1264,9 @@ class HXProject extends Script
 						{
 							var path = Path.standardize(arg);
 
-							if (path != null && StringTools.trim(path) != "" && !StringTools.startsWith(StringTools.trim(path), "#"))
+							if (path != null
+								&& StringTools.trim(path) != ""
+								&& !StringTools.startsWith(StringTools.trim(path), "#"))
 							{
 								var param = "-cp " + path;
 								compilerFlags.remove(param);

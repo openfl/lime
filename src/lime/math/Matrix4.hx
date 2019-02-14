@@ -446,7 +446,6 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		return vec;
 
 	}*/
-
 	/**
 		Transforms a vector using this matrix, ignoring the translation of the matrix
 		@param	result	(Optional) An existing `Vector4` instance to fill with the result
@@ -801,7 +800,6 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 
 		return !(components[2].x == 0 || components[2].y == 0 || components[2].y == 0);
 	}*/
-
 	/**
 		Transforms a `Vector4` instance using the current matrix
 		@param	result	(Optional) An existing `Vector2` instance to fill with the result

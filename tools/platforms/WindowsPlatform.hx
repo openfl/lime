@@ -442,7 +442,9 @@ class WindowsPlatform extends PlatformTarget
 
 			var commands = [];
 
-			if (!targetFlags.exists("64") && (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+			if (!targetFlags.exists("64") && (command == "rebuild"
+				|| System.hostArchitecture == X86
+				|| (targetType != "cpp" && targetType != "winrt")))
 			{
 				if (targetFlags.exists("winrt"))
 				{
@@ -458,7 +460,9 @@ class WindowsPlatform extends PlatformTarget
 			// as previous Windows builds. For now, force -64 to be done last
 			// so that it can be debugged in a default "rebuild"
 
-			if (!targetFlags.exists("32") && System.hostArchitecture == X64 && (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+			if (!targetFlags.exists("32")
+				&& System.hostArchitecture == X64
+				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
 			{
 				if (targetFlags.exists("winrt"))
 				{

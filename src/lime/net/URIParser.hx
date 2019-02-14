@@ -73,4 +73,7 @@ class URIParser
 }
 
 @:dox(hide) typedef KVPair =
-{k:String, v:String};
+{
+	k:String,
+	v:String
+};

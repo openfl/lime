@@ -25,8 +25,8 @@ extern class SQLConnection extends flash.events.EventDispatcher
 		?responder:flash.net.Responder):Void;
 	function open(?reference:Dynamic, ?openMode:SQLMode = SQLMode.CREATE, ?autoCompact:Bool = false, ?pageSize:Int = 1024,
 		?encryptionKey:flash.utils.ByteArray):Void;
-	function openAsync(?reference:Dynamic, ?openMode:SQLMode = SQLMode.CREATE, ?responder:flash.net.Responder, ?autoCompact:Bool = false, ?pageSize:Int = 1024,
-		?encryptionKey:flash.utils.ByteArray):Void;
+	function openAsync(?reference:Dynamic, ?openMode:SQLMode = SQLMode.CREATE, ?responder:flash.net.Responder, ?autoCompact:Bool = false,
+		?pageSize:Int = 1024, ?encryptionKey:flash.utils.ByteArray):Void;
 	function reencrypt(newEncryptionKey:flash.utils.ByteArray, ?responder:flash.net.Responder):Void;
 	function releaseSavepoint(?name:String, ?responder:flash.net.Responder):Void;
 	function rollback(?responder:flash.net.Responder):Void;

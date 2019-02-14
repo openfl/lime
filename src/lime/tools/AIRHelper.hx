@@ -307,7 +307,8 @@ class AIRHelper
 		}
 	}
 
-	public static function uninstall(project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null)
+	public static function uninstall(project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String,
+			rootDirectory:String = null)
 	{
 		if (targetPlatform == ANDROID)
 		{

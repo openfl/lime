@@ -12,6 +12,7 @@ import neko.vm.Thread;
 #elseif cpp
 import cpp.vm.Thread;
 #end
+
 class HTML5Helper
 {
 	public static function encodeSourceMappingURL(sourceFile:String)

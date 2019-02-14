@@ -175,8 +175,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_image_data_util_color_transform(image:Dynamic, rect:Dynamic, colorMatrix:Dynamic):Void;
 
-	@:cffi private static function lime_image_data_util_copy_channel(image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, srcChannel:Int,
-		destChannel:Int):Void;
+	@:cffi private static function lime_image_data_util_copy_channel(image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic,
+		srcChannel:Int, destChannel:Int):Void;
 
 	@:cffi private static function lime_image_data_util_copy_pixels(image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic,
 		alphaImage:Dynamic, alphaPoint:Dynamic, mergeAlpha:Bool):Void;
@@ -1923,7 +1923,8 @@ class NativeCFFI
 	@:hlNative("lime", "lime_al_buffer3f") private static function lime_al_buffer3f(buffer:CFFIPointer, param:Int, value1:hl.F32, value2:hl.F32,
 		value3:hl.F32):Void {}
 
-	@:hlNative("lime", "lime_al_buffer3i") private static function lime_al_buffer3i(buffer:CFFIPointer, param:Int, value1:Int, value2:Int, value3:Int):Void {}
+	@:hlNative("lime", "lime_al_buffer3i") private static function lime_al_buffer3i(buffer:CFFIPointer, param:Int, value1:Int, value2:Int,
+		value3:Int):Void {}
 
 	@:hlNative("lime", "lime_al_bufferf") private static function lime_al_bufferf(buffer:CFFIPointer, param:Int, value:hl.F32):Void {}
 
@@ -2887,8 +2888,8 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "lime_cairo_curve_to") private static function lime_cairo_curve_to(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float, x3:Float,
-		y3:Float):Void {}
+	@:hlNative("lime", "lime_cairo_curve_to") private static function lime_cairo_curve_to(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float,
+		x3:Float, y3:Float):Void {}
 
 	@:hlNative("lime", "lime_cairo_fill") private static function lime_cairo_fill(handle:CFFIPointer):Void {}
 
@@ -3077,13 +3078,14 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_cairo_set_source") private static function lime_cairo_set_source(handle:CFFIPointer, pattern:CFFIPointer):Void {}
 
-	@:hlNative("lime", "lime_cairo_set_source_rgb") private static function lime_cairo_set_source_rgb(handle:CFFIPointer, r:Float, g:Float, b:Float):Void {}
+	@:hlNative("lime", "lime_cairo_set_source_rgb") private static function lime_cairo_set_source_rgb(handle:CFFIPointer, r:Float, g:Float,
+		b:Float):Void {}
 
 	@:hlNative("lime", "lime_cairo_set_source_rgba") private static function lime_cairo_set_source_rgba(handle:CFFIPointer, r:Float, g:Float, b:Float,
 		a:Float):Void {}
 
-	@:hlNative("lime", "lime_cairo_set_source_surface") private static function lime_cairo_set_source_surface(handle:CFFIPointer, surface:CFFIPointer, x:Float,
-		y:Float):Void {}
+	@:hlNative("lime", "lime_cairo_set_source_surface") private static function lime_cairo_set_source_surface(handle:CFFIPointer, surface:CFFIPointer,
+		x:Float, y:Float):Void {}
 
 	@:hlNative("lime", "lime_cairo_set_tolerance") private static function lime_cairo_set_tolerance(handle:CFFIPointer, tolerance:Float):Void {}
 
@@ -3204,8 +3206,8 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "lime_cairo_pattern_add_color_stop_rgb") private static function lime_cairo_pattern_add_color_stop_rgb(handle:CFFIPointer, offset:Float,
-		red:Float, green:Float, blue:Float):Void {}
+	@:hlNative("lime", "lime_cairo_pattern_add_color_stop_rgb") private static function lime_cairo_pattern_add_color_stop_rgb(handle:CFFIPointer,
+		offset:Float, red:Float, green:Float, blue:Float):Void {}
 
 	@:hlNative("lime", "lime_cairo_pattern_add_color_stop_rgba") private static function lime_cairo_pattern_add_color_stop_rgba(handle:CFFIPointer,
 		offset:Float, red:Float, green:Float, blue:Float, alpha:Float):Void {}
@@ -3512,7 +3514,8 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "lime_curl_multi_setopt") private static function lime_curl_multi_setopt(multi_handle:CFFIPointer, option:Int, parameter:Dynamic):Int
+	@:hlNative("lime", "lime_curl_multi_setopt") private static function lime_curl_multi_setopt(multi_handle:CFFIPointer, option:Int,
+			parameter:Dynamic):Int
 	{
 		return 0;
 	}
@@ -3595,8 +3598,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_gl_compile_shader(shader:Int):Void;
 
-	@:cffi private static function lime_gl_compressed_tex_image_2d(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int,
-		data:DataPointer):Void;
+	@:cffi private static function lime_gl_compressed_tex_image_2d(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int,
+		imageSize:Int, data:DataPointer):Void;
 
 	@:cffi private static function lime_gl_compressed_tex_image_3d(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
 		imageSize:Int, data:DataPointer):Void;
@@ -3610,7 +3613,8 @@ class NativeCFFI
 	@:cffi private static function lime_gl_copy_buffer_sub_data(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer,
 		size:Int):Void;
 
-	@:cffi private static function lime_gl_copy_tex_image_2d(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
+	@:cffi private static function lime_gl_copy_tex_image_2d(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int,
+		border:Int):Void;
 
 	@:cffi private static function lime_gl_copy_tex_sub_image_2d(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
 
@@ -4844,7 +4848,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_clear") private static function lime_gl_clear(mask:Int):Void {}
 
-	@:hlNative("lime", "lime_gl_clear_bufferfi") private static function lime_gl_clear_bufferfi(buffer:Int, drawBuffer:Int, depth:hl.F32, stencil:Int):Void {}
+	@:hlNative("lime", "lime_gl_clear_bufferfi") private static function lime_gl_clear_bufferfi(buffer:Int, drawBuffer:Int, depth:hl.F32,
+		stencil:Int):Void {}
 
 	@:hlNative("lime", "lime_gl_clear_bufferfv") private static function lime_gl_clear_bufferfv(buffer:Int, drawBuffer:Int, data:DataPointer):Void {}
 
@@ -4852,7 +4857,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_clear_bufferuiv") private static function lime_gl_clear_bufferuiv(buffer:Int, drawBuffer:Int, data:DataPointer):Void {}
 
-	@:hlNative("lime", "lime_gl_client_wait_sync") private static function lime_gl_client_wait_sync(sync:CFFIPointer, flags:Int, timeoutA:Int, timeoutB:Int):Int
+	@:hlNative("lime", "lime_gl_client_wait_sync") private static function lime_gl_client_wait_sync(sync:CFFIPointer, flags:Int, timeoutA:Int,
+			timeoutB:Int):Int
 	{
 		return 0;
 	}
@@ -5476,8 +5482,8 @@ class NativeCFFI
 	@:hlNative("lime", "lime_gl_tex_storage_3d") private static function lime_gl_tex_storage_3d(target:Int, level:Int, internalformat:Int, width:Int,
 		height:Int, depth:Int):Void {}
 
-	@:hlNative("lime", "lime_gl_tex_sub_image_2d") private static function lime_gl_tex_sub_image_2d(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int,
-		height:Int, format:Int, type:Int, data:DataPointer):Void {}
+	@:hlNative("lime", "lime_gl_tex_sub_image_2d") private static function lime_gl_tex_sub_image_2d(target:Int, level:Int, xoffset:Int, yoffset:Int,
+		width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void {}
 
 	@:hlNative("lime", "lime_gl_tex_sub_image_3d") private static function lime_gl_tex_sub_image_3d(target:Int, level:Int, xoffset:Int, yoffset:Int,
 		zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, data:DataPointer):Void {}
@@ -6288,7 +6294,8 @@ class NativeCFFI
 	@:hlNative("lime", "lime_hb_buffer_set_cluster_level") private static function lime_hb_buffer_set_cluster_level(buffer:CFFIPointer,
 		clusterLevel:Int):Void {}
 
-	@:hlNative("lime", "lime_hb_buffer_set_content_type") private static function lime_hb_buffer_set_content_type(buffer:CFFIPointer, contentType:Int):Void {}
+	@:hlNative("lime", "lime_hb_buffer_set_content_type") private static function lime_hb_buffer_set_content_type(buffer:CFFIPointer,
+		contentType:Int):Void {}
 
 	@:hlNative("lime", "lime_hb_buffer_set_direction") private static function lime_hb_buffer_set_direction(buffer:CFFIPointer, direction:Int):Void {}
 

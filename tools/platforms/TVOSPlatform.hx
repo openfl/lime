@@ -114,8 +114,9 @@ class TVOSPlatform extends PlatformTarget
 
 		for (dependency in project.dependencies)
 		{
-			if (!StringTools.endsWith(dependency.name, ".framework") && !StringTools.endsWith(dependency.name, ".tbd") && !StringTools.endsWith(dependency
-					.path, ".framework"))
+			if (!StringTools.endsWith(dependency.name, ".framework")
+				&& !StringTools.endsWith(dependency.name, ".tbd")
+				&& !StringTools.endsWith(dependency.path, ".framework"))
 			{
 				if (dependency.path != "")
 				{
@@ -389,12 +390,9 @@ class TVOSPlatform extends PlatformTarget
 
 		var iconSizes:Array<IconSize> = [
 			{name: "Icon-Small.png", size: 29}, {name: "Icon-Small-40.png", size: 40}, {name: "Icon-Small-50.png", size: 50}, {name: "Icon.png", size: 57},
-			{name: "Icon-Small@2x.png", size: 58},
-			{name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80},
-			{name: "Icon-Small-50@2x.png", size: 100},
-			{name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120}, {name: "Icon-72@2x.png", size: 144},
-			{name: "Icon-76@2x.png", size: 152},
-			{name: "Icon-60@3x.png", size: 180},
+			{name: "Icon-Small@2x.png", size: 58}, {name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80},
+			{name: "Icon-Small-50@2x.png", size: 100}, {name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
+			{name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152}, {name: "Icon-60@3x.png", size: 180},
 		];
 
 		context.HAS_ICON = true;
@@ -435,7 +433,9 @@ class TVOSPlatform extends PlatformTarget
 
 			for (splashScreen in project.splashScreens)
 			{
-				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
+				if (splashScreen.width == size.w
+					&& splashScreen.height == size.h
+					&& Path.extension(splashScreen.path) == "png")
 				{
 					System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
 					match = true;

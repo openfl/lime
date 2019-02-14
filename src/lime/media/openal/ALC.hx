@@ -81,7 +81,6 @@ class ALC
 		{
 			return new ALDevice(handle);
 		} #else #end
-
 		#end
 
 		return null;

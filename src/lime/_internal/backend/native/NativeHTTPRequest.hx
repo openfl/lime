@@ -21,6 +21,7 @@ import cpp.vm.Deque;
 #elseif neko
 import neko.vm.Deque;
 #end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -373,10 +374,7 @@ class NativeHTTPRequest
 
 	private function curl_onProgress(curl:CURL, dltotal:Int, dlnow:Int, uptotal:Int, upnow:Int):Int
 	{
-		if (upnow > writeBytesLoaded ||
-			dlnow > writeBytesLoaded ||
-			uptotal > writeBytesTotal ||
-			dltotal > writeBytesTotal)
+		if (upnow > writeBytesLoaded || dlnow > writeBytesLoaded || uptotal > writeBytesTotal || dltotal > writeBytesTotal)
 		{
 			if (upnow > writeBytesLoaded) writeBytesLoaded = upnow;
 			if (dlnow > writeBytesLoaded) writeBytesLoaded = dlnow;

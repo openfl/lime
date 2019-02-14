@@ -1110,10 +1110,10 @@ class CommandLineTools
 				{
 					var extension = Path.extension(file);
 
-					if ((extension == "lime" && file != "include.lime") ||
-						(extension == "nmml" && file != "include.nmml") ||
-						(extension == "xml" && file != "include.xml") ||
-						extension == "hxp")
+					if ((extension == "lime" && file != "include.lime")
+						|| (extension == "nmml" && file != "include.nmml")
+						|| (extension == "xml" && file != "include.xml")
+						|| extension == "hxp")
 					{
 						matches.get(extension).push(path);
 					}
@@ -1629,7 +1629,9 @@ class CommandLineTools
 			}
 			catch (e:Dynamic) {}
 
-			if (Path.extension(projectFile) == "lime" || Path.extension(projectFile) == "nmml" || Path.extension(projectFile) == "xml")
+			if (Path.extension(projectFile) == "lime"
+				|| Path.extension(projectFile) == "nmml"
+				|| Path.extension(projectFile) == "xml")
 			{
 				project = new ProjectXMLParser(Path.withoutDirectory(projectFile), userDefines, includePaths);
 			}
@@ -1675,7 +1677,9 @@ class CommandLineTools
 			return null;
 		}
 
-		if (project == null || (command != "rebuild" && project.sources.length == 0 && !FileSystem.exists(project.app.main + ".hx")))
+		if (project == null || (command != "rebuild"
+			&& project.sources.length == 0
+			&& !FileSystem.exists(project.app.main + ".hx")))
 		{
 			Log.error("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;
@@ -1704,10 +1708,7 @@ class CommandLineTools
 
 		for (haxelib in project.haxelibs)
 		{
-			if (haxelib.name == "lime" && haxelib.version != null &&
-					haxelib.version != "" &&
-					haxelib.version != "dev" &&
-					!haxelib.versionMatches(version))
+			if (haxelib.name == "lime" && haxelib.version != null && haxelib.version != "" && haxelib.version != "dev" && !haxelib.versionMatches(version))
 			{
 				if (!project.targetFlags.exists("notoolscheck"))
 				{
@@ -1870,8 +1871,9 @@ class CommandLineTools
 
 			if (System.hostPlatform == WINDOWS)
 			{
-				isRootDirectory = (lastArgument.length == 3 && lastArgument.charAt(1) == ":" && (lastArgument.charAt(2) == "/" || lastArgument
-					.charAt(2) == "\\"));
+				isRootDirectory = (lastArgument.length == 3
+					&& lastArgument.charAt(1) == ":"
+					&& (lastArgument.charAt(2) == "/" || lastArgument.charAt(2) == "\\"));
 			}
 			else
 			{
@@ -2029,7 +2031,9 @@ class CommandLineTools
 							overrides.config.set("tvos.team-id", argValue);
 						}
 					}
-					else if (StringTools.startsWith(field, "app-") || StringTools.startsWith(field, "meta-") || StringTools.startsWith(field, "window-"))
+					else if (StringTools.startsWith(field, "app-")
+						|| StringTools.startsWith(field, "meta-")
+						|| StringTools.startsWith(field, "window-"))
 					{
 						var split = field.split("-");
 

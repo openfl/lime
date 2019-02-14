@@ -206,10 +206,10 @@ class System
 
 			for (mode in display.supportedModes)
 			{
-				if (currentMode.pixelFormat == mode.pixelFormat &&
-					currentMode.width == mode.width &&
-					currentMode.height == mode.height &&
-					currentMode.refreshRate == mode.refreshRate)
+				if (currentMode.pixelFormat == mode.pixelFormat
+					&& currentMode.width == mode.width
+					&& currentMode.height == mode.height
+					&& currentMode.refreshRate == mode.refreshRate)
 				{
 					currentMode = mode;
 					break;

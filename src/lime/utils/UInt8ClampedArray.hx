@@ -1,7 +1,6 @@
 package lime.utils;
 
-#if (js && !doc_gen)
-@:forward
+#if (js && !doc_gen) @:forward
 abstract UInt8ClampedArray(js.html.Uint8ClampedArray) from js.html.Uint8ClampedArray to js.html.Uint8ClampedArray
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
@@ -76,9 +75,7 @@ abstract UInt8ClampedArray(js.html.Uint8ClampedArray) from js.html.Uint8ClampedA
 		_out = _out > 255 ? 255 : _out;
 		return _out < 0 ? 0 : _out;
 	} // _clamp
-}
-#else
-import lime.utils.ArrayBufferView;
+} #else import lime.utils.ArrayBufferView;
 
 @:forward
 @:arrayAccess
@@ -154,5 +151,4 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 
 	inline function toString()
 		return this != null ? 'UInt8ClampedArray [byteLength:${this.byteLength}, length:${this.length}]' : null;
-}
-#end // !js
+} #end // !js

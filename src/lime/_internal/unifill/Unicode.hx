@@ -24,10 +24,7 @@ class Unicode
 
 	public static inline function isScalar(code:Int):Bool
 	{
-		return minCodePoint <= code &&
-			code <= maxCodePoint &&
-			!isHighSurrogate(code) &&
-			!isLowSurrogate(code);
+		return minCodePoint <= code && code <= maxCodePoint && !isHighSurrogate(code) && !isLowSurrogate(code);
 	}
 
 	public static inline function isHighSurrogate(code:Int):Bool

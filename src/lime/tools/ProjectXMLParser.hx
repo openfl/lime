@@ -17,6 +17,7 @@ import haxe.xml.Access;
 #else
 import haxe.xml.Fast as Access;
 #end
+
 class ProjectXMLParser extends HXProject
 {
 	public var includePaths:Array<String>;
@@ -139,7 +140,9 @@ class ProjectXMLParser extends HXProject
 				defines.set("neko", "1");
 			}
 		}
-		else if (targetFlags.exists("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")) || target == Platform.EMSCRIPTEN)
+		else if (targetFlags.exists("cpp")
+			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5"))
+			|| target == Platform.EMSCRIPTEN)
 		{
 			defines.set("targetType", "cpp");
 			defines.set("native", "1");
@@ -222,11 +225,11 @@ class ProjectXMLParser extends HXProject
 					{
 						matchRequired = false;
 					}
-					else if (check != "" &&
-						check != "true" &&
-						!defines.exists(check) &&
-						(environment == null || !environment.exists(check)) &&
-						check != command)
+					else if (check != ""
+						&& check != "true"
+						&& !defines.exists(check)
+						&& (environment == null || !environment.exists(check))
+						&& check != command)
 					{
 						matchRequired = false;
 					}
@@ -265,11 +268,11 @@ class ProjectXMLParser extends HXProject
 					{
 						matchRequired = false;
 					}
-					else if (check != "" &&
-						check != "true" &&
-						!defines.exists(check) &&
-						(environment == null || !environment.exists(check)) &&
-						check != command)
+					else if (check != ""
+						&& check != "true"
+						&& !defines.exists(check)
+						&& (environment == null || !environment.exists(check))
+						&& check != command)
 					{
 						matchRequired = false;
 					}
@@ -315,11 +318,7 @@ class ProjectXMLParser extends HXProject
 			return "";
 		}
 
-		if (base.substr(0, 1) != "/" &&
-			base.substr(0, 1) != "\\" &&
-			base.substr(1, 1) != ":" &&
-			base.substr(0, 1) != "." &&
-			!FileSystem.exists(base))
+		if (base.substr(0, 1) != "/" && base.substr(0, 1) != "\\" && base.substr(1, 1) != ":" && base.substr(0, 1) != "." && !FileSystem.exists(base))
 		{
 			for (path in includePaths)
 			{
@@ -743,10 +742,7 @@ class ProjectXMLParser extends HXProject
 	{
 		var includePath = findIncludeFile(path);
 
-		if (includePath != null &&
-			includePath != "" &&
-			FileSystem.exists(includePath) &&
-			!FileSystem.isDirectory(includePath))
+		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath))
 		{
 			var includeProject = new ProjectXMLParser(includePath, defines);
 			merge(includeProject);
@@ -1128,10 +1124,7 @@ class ProjectXMLParser extends HXProject
 							path = findIncludeFile(Path.combine(extensionPath, substitute(element.att.name)));
 						}
 
-						if (path != null &&
-							path != "" &&
-							FileSystem.exists(path) &&
-							!FileSystem.isDirectory(path))
+						if (path != null && path != "" && FileSystem.exists(path) && !FileSystem.isDirectory(path))
 						{
 							var includeProject = new ProjectXMLParser(path, defines);
 

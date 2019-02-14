@@ -271,7 +271,9 @@ class NativeApplication
 			{
 				if (type == KEY_DOWN)
 				{
-					if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
+					if (toggleFullscreen
+						&& modifier.altKey
+						&& (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
 					{
 						toggleFullscreen = false;
 
@@ -288,10 +290,7 @@ class NativeApplication
 			}
 
 			#if rpi
-			if (keyCode == ESCAPE &&
-				modifier == KeyModifier.NONE &&
-				type == KEY_UP &&
-				!window.onKeyUp.canceled)
+			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
 			{
 				System.exit(0);
 			}
@@ -301,7 +300,9 @@ class NativeApplication
 			{
 				if (type == KEY_DOWN)
 				{
-					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey))
+					if (toggleFullscreen
+						&& (modifier.ctrlKey && modifier.metaKey)
+						&& (!modifier.altKey && !modifier.shiftKey))
 					{
 						toggleFullscreen = false;
 
@@ -317,10 +318,7 @@ class NativeApplication
 				}
 			}
 			#elseif android
-			if (keyCode == APP_CONTROL_BACK &&
-				modifier == KeyModifier.NONE &&
-				type == KEY_UP &&
-				!window.onKeyUp.canceled)
+			if (keyCode == APP_CONTROL_BACK && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
 			{
 				var mainActivity = JNI.createStaticField("org/haxe/extension/Extension", "mainActivity", "Landroid/app/Activity;");
 				var moveTaskToBack = JNI.createMemberMethod("android/app/Activity", "moveTaskToBack", "(Z)Z");

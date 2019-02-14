@@ -1390,8 +1390,7 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		var object:{size:Int, type:Int, name:hl.Bytes} =
-			{size: 0, type: 0, name: null};
+		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
 		return NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index, object);
 		#else
 		return NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index);
@@ -1405,8 +1404,7 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		var object:{size:Int, type:Int, name:hl.Bytes} =
-			{size: 0, type: 0, name: null};
+		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
 		return NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index, object);
 		#else
 		return NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index);
@@ -2043,8 +2041,7 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		return NativeCFFI.lime_gl_get_shader_precision_format(shadertype, precisiontype,
-			{rangeMin: 0, rangeMax: 0, precision: 0});
+		return NativeCFFI.lime_gl_get_shader_precision_format(shadertype, precisiontype, {rangeMin: 0, rangeMax: 0, precision: 0});
 		#else
 		return NativeCFFI.lime_gl_get_shader_precision_format(shadertype, precisiontype);
 		#end
@@ -2192,8 +2189,7 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		var object:{size:Int, type:Int, name:hl.Bytes} =
-			{size: 0, type: 0, name: null};
+		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
 		var result:Dynamic = NativeCFFI.lime_gl_get_transform_feedback_varying(__getObjectID(program), index, object);
 		return result;
 		#else
@@ -2794,7 +2790,8 @@ class NativeOpenGLRenderContext
 		#end
 	}
 
-	public function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void
+	public function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
+			data:DataPointer):Void
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		NativeCFFI.lime_gl_tex_image_2d(target, level, internalformat, width, height, border, format, type, data);

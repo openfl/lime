@@ -22,6 +22,7 @@ import flash.display.Sprite;
 import flash.events.ProgressEvent;
 import flash.Lib;
 #end
+
 @:access(lime.utils.AssetLibrary)
 #if !lime_debug
 @:fileXml('tags="haxe,release"')

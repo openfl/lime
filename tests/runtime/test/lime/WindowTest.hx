@@ -124,8 +124,7 @@ class WindowTest
 		Assert.isNull(app.window);
 		Assert.areEqual(0, app.windows.length);
 
-		var config =
-			{width: 400, height: 300};
+		var config = {width: 400, height: 300};
 		var window = new Window(config);
 
 		Assert.isNull(window.renderer);

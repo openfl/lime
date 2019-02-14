@@ -8,6 +8,7 @@ import flash.desktop.Clipboard as FlashClipboard;
 #elseif (js && html5)
 import lime._internal.backend.html5.HTML5Window;
 #end
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug

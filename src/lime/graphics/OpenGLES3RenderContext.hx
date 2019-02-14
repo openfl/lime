@@ -4562,7 +4562,8 @@ public inline function texParameteri(target:Int, pname:Int, param:Int):Void
 	this.texParameteri(target, pname, param);
 }
 
-public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void
+public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
+		data:DataPointer):Void
 {
 	this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, data);
 }

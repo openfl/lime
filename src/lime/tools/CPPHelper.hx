@@ -128,10 +128,10 @@ class CPPHelper
 	public static function rebuild(project:HXProject, commands:Array<Array<String>>, path:String = null, buildFile:String = null):Void
 	{
 		var buildRelease = (!project.targetFlags.exists("debug"));
-		var buildDebug = (project.targetFlags.exists("debug") || (!project.targetFlags.exists("rebuild") &&
-			!project.targetFlags.exists("release") &&
-			!project.targetFlags.exists("final") &&
-			project.config.exists("project.rebuild.fulldebug")));
+		var buildDebug = (project.targetFlags.exists("debug") || (!project.targetFlags.exists("rebuild")
+			&& !project.targetFlags.exists("release")
+			&& !project.targetFlags.exists("final")
+			&& project.config.exists("project.rebuild.fulldebug")));
 
 		for (haxelib in project.haxelibs)
 		{

@@ -452,8 +452,7 @@ class FirefoxHelper
 	public static inline var DEVELOPMENT_SERVER_URL = "https://marketplace-dev.allizom.org";
 	private static inline var TITLE_MAX_CHARS = 127;
 	private static inline var MAX_CATEGORIES = 2;
-	private static var MIN_WH_SCREENSHOT =
-		{width: 320, height: 480};
+	private static var MIN_WH_SCREENSHOT = {width: 320, height: 480};
 
 	private static function isScreenshotValid(path:String):Bool
 	{

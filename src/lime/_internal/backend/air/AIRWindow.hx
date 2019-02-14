@@ -79,7 +79,9 @@ class AIRWindow extends FlashWindow
 		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) alwaysOnTop = true;
 		if (Reflect.hasField(attributes, "borderless") && attributes.borderless) borderless = true;
 		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen) fullscreen = true;
-		if (Reflect.hasField(attributes, "context") && Reflect.hasField(attributes.context, "hardware") && attributes.context.hardware) hardware = true;
+		if (Reflect.hasField(attributes, "context")
+			&& Reflect.hasField(attributes.context, "hardware")
+			&& attributes.context.hardware) hardware = true;
 		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) hidden = true;
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) maximized = true;
 		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) minimized = true;

@@ -68,7 +68,9 @@ class TizenHelper
 	{
 		if (cacheID != project.meta.packageName)
 		{
-			if (project.meta.packageName != null || project.meta.packageName.length == 10 || project.meta.packageName.indexOf(".") == -1)
+			if (project.meta.packageName != null
+					|| project.meta.packageName.length == 10
+					|| project.meta.packageName.indexOf(".") == -1)
 			{
 				var bytes = Bytes.ofString(project.meta.packageName);
 				var crc = Crc32.make(bytes);

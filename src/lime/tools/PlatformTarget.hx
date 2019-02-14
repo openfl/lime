@@ -66,7 +66,8 @@ class PlatformTarget
 
 		// if (!Reflect.hasField (metaFields.clean, "ignore") && (command == "clean" || targetFlags.exists ("clean"))) {
 		if ((!Reflect.hasField(metaFields, "clean") || !Reflect.hasField(metaFields.clean, "ignore")) && (command == "clean" || (project.targetFlags
-			.exists("clean") && (command == "update" || command == "build" || command == "test"))))
+			.exists("clean") && (command == "update"
+			|| command == "build" || command == "test"))))
 		{
 			Log.info("", Log.accentColor + "Running command: CLEAN" + Log.resetColor);
 			clean();
@@ -87,8 +88,8 @@ class PlatformTarget
 			rebuild();
 		}
 
-		if ((!Reflect.hasField(metaFields, "update") || !Reflect.hasField(metaFields
-				.update, "ignore")) && (command == "update" || command == "build" || command == "test"))
+		if ((!Reflect.hasField(metaFields, "update") || !Reflect.hasField(metaFields.update, "ignore")) && (command == "update" || command == "build"
+			|| command == "test"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: UPDATE" + Log.resetColor);
 			// #if lime
@@ -113,24 +114,22 @@ class PlatformTarget
 			deploy();
 		}
 
-		if ((!Reflect.hasField(metaFields, "install") || !Reflect.hasField(metaFields
-				.install, "ignore")) && (command == "install" || command == "run" || command == "test"))
+		if ((!Reflect.hasField(metaFields, "install") || !Reflect.hasField(metaFields.install, "ignore")) && (command == "install" || command == "run"
+			|| command == "test"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: INSTALL" + Log.resetColor);
 			install();
 		}
 
-		if ((!Reflect.hasField(metaFields, "run") || !Reflect.hasField(metaFields
-				.run, "ignore")) && (command == "run" || command == "rerun" || command == "test"))
+		if ((!Reflect.hasField(metaFields, "run") || !Reflect.hasField(metaFields.run, "ignore")) && (command == "run" || command == "rerun"
+			|| command == "test"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: RUN" + Log.resetColor);
 			run();
 		}
 
-		if ((!Reflect.hasField(metaFields, "trace") || !Reflect.hasField(metaFields.trace, "ignore")) && (command == "test" ||
-			command == "trace" ||
-			command == "run" ||
-			command == "rerun"))
+		if ((!Reflect.hasField(metaFields, "trace") || !Reflect.hasField(metaFields.trace, "ignore")) && (command == "test" || command == "trace"
+			|| command == "run" || command == "rerun"))
 		{
 			if (traceEnabled || command == "trace")
 			{

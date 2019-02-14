@@ -145,7 +145,9 @@ class EventMacro
 				});
 
 			var meta:Array<MetadataEntry> = [
-				{name: ":dox", params: [macro hide], pos: pos}, {name: ":noCompletion", pos: pos}];
+				{name: ":dox", params: [macro hide], pos: pos},
+				{name: ":noCompletion", pos: pos}
+			];
 
 			#if !lime_debug
 			meta.push({name: ":fileXml", params: [macro 'tags="haxe,release"'], pos: pos});

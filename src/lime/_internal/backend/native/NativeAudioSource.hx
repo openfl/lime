@@ -131,7 +131,6 @@ class NativeAudioSource
 			AL.sourcef (handle, AL.PITCH, pitch*0.9);
 			pitch = AL.getSourcef (handle, AL.PITCH);
 			trace(pitch); */
-
 		/*var pos = getPosition();
 			trace(AL.DISTANCE_MODEL);
 			AL.distanceModel(AL.INVERSE_DISTANCE);
@@ -140,7 +139,6 @@ class NativeAudioSource
 			setPosition(new Vector4(10, 10, -100));
 			pos = getPosition();
 			trace(pos); */
-
 		/*var filter = AL.createFilter();
 			trace(AL.getErrorString());
 

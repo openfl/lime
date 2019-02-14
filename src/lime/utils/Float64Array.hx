@@ -1,7 +1,6 @@
 package lime.utils;
 
-#if (js && !doc_gen)
-@:forward
+#if (js && !doc_gen) @:forward
 abstract Float64Array(js.html.Float64Array) from js.html.Float64Array to js.html.Float64Array
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 8;
@@ -67,9 +66,7 @@ abstract Float64Array(js.html.Float64Array) from js.html.Float64Array to js.html
 
 	function toString()
 		return this != null ? 'Float64Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-}
-#else
-import lime.utils.ArrayBufferView;
+} #else import lime.utils.ArrayBufferView;
 
 @:forward
 abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
@@ -144,5 +141,4 @@ abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	inline function toString()
 		return this != null ? 'Float64Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-}
-#end // !js
+} #end // !js
