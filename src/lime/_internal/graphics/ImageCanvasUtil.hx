@@ -194,8 +194,6 @@ class ImageCanvasUtil
 			{
 				buffer.__srcContext = buffer.__srcCanvas.getContext("2d");
 			}
-
-			buffer.__srcContext.imageSmoothingEnabled = false;
 		}
 		#end
 	}
