@@ -1,24 +1,20 @@
 package;
 
-import hxp.Path;
 import haxe.Json;
-import haxe.Template;
+import hxp.Haxelib;
+import hxp.HXML;
+import hxp.Log;
+import hxp.Path;
+import hxp.System;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.DeploymentHelper;
-import lime.tools.ProjectHelper;
-import hxp.System;
-import lime.tools.FlashHelper;
-import hxp.Haxelib;
-import lime.tools.HTML5Helper;
-import hxp.Log;
-import hxp.Path;
-import lime.tools.Platform;
-import hxp.System;
-import lime.tools.PlatformTarget;
-import hxp.System;
 import lime.tools.HXProject;
-import hxp.System;
+import lime.tools.ProjectHelper;
+import lime.tools.FlashHelper;
+import lime.tools.HTML5Helper;
+import lime.tools.Platform;
+import lime.tools.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 #if neko
@@ -104,15 +100,21 @@ class FlashPlatform extends PlatformTarget
 
 	private function getDisplayHXML():String
 	{
-		var hxml = System.findTemplate(project.templatePaths, "flash/hxml/" + buildType + ".hxml");
+		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex(project.window.background, 6);
-		context.OUTPUT_DIR = targetDirectory;
-
-		var template = new Template(File.getContent(hxml));
-
-		return template.execute(context);
+		if (FileSystem.exists(path))
+		{
+			return File.getContent(path);
+		}
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			hxml.swfVersion = context.SWF_VERSION;
+			hxml.swf = "_.swf";
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	public override function run():Void

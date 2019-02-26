@@ -1,21 +1,19 @@
 package;
 
-import hxp.Path;
-import hxp.NDLL;
 import haxe.Json;
-import haxe.Template;
+import hxp.Haxelib;
+import hxp.HXML;
+import hxp.Log;
+import hxp.NDLL;
+import hxp.Path;
+import hxp.System;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
-import hxp.System;
-import hxp.Haxelib;
 import lime.tools.HTML5Helper;
-import hxp.Log;
-import hxp.Path;
-import lime.tools.PlatformTarget;
-import hxp.System;
 import lime.tools.HXProject;
+import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
 import sys.io.File;
 import sys.FileSystem;
@@ -235,15 +233,26 @@ class EmscriptenPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		var hxml = System.findTemplate(project.templatePaths, "emscripten/hxml/" + buildType + ".hxml");
+		Sys.println(getDisplayHXML());
+	}
 
-		var context = project.templateContext;
-		context.OUTPUT_DIR = targetDirectory;
-		context.OUTPUT_FILE = outputFile;
+	private function getDisplayHXML():String
+	{
+		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		var template = new Template(File.getContent(hxml));
-
-		Sys.println(template.execute(context));
+		if (FileSystem.exists(path))
+		{
+			return File.getContent(path);
+		}
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			hxml.cpp = "_";
+			hxml.define("webgl");
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	public override function rebuild():Void

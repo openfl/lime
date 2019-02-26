@@ -1,36 +1,31 @@
 package;
 
-// import openfl.display.BitmapData;
-import hxp.Path;
 import haxe.Json;
-import haxe.Template;
-import lime.tools.Architecture;
 import hxp.ArrayTools;
-import lime.tools.Asset;
-import lime.tools.AssetHelper;
-import lime.tools.AssetType;
-import lime.tools.CPPHelper;
-import lime.tools.DeploymentHelper;
-import hxp.System;
 import hxp.Haxelib;
-import lime.tools.Icon;
-import lime.tools.IconHelper;
-import lime.tools.IOSHelper;
-import lime.tools.Keystore;
+import hxp.HXML;
 import hxp.Log;
 import hxp.NDLL;
 import hxp.Path;
-import lime.tools.Platform;
-import hxp.System;
-import lime.tools.PlatformTarget;
-import hxp.System;
-import lime.tools.HXProject;
-import lime.tools.ProjectHelper;
 import hxp.StringTools;
 import hxp.System;
 #if lime
 import lime.graphics.Image;
 #end
+import lime.tools.Architecture;
+import lime.tools.Asset;
+import lime.tools.AssetHelper;
+import lime.tools.AssetType;
+import lime.tools.CPPHelper;
+import lime.tools.DeploymentHelper;
+import lime.tools.HXProject;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
+import lime.tools.IOSHelper;
+import lime.tools.Keystore;
+import lime.tools.Platform;
+import lime.tools.PlatformTarget;
+import lime.tools.ProjectHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -374,15 +369,21 @@ class IOSPlatform extends PlatformTarget
 
 	private function getDisplayHXML():String
 	{
-		var hxml = System.findTemplate(project.templatePaths, "iphone/PROJ/haxe/Build.hxml", false);
-		if (hxml == null) hxml = System.findTemplate(project.templatePaths, "iphone/template/{{app.file}}/Build.hxml", true);
-		var template = new Template(File.getContent(hxml));
+		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
-		// project = project.clone ();
-		var context = generateContext();
-		context.OUTPUT_DIR = targetDirectory;
-
-		return template.execute(context);
+		if (FileSystem.exists(path))
+		{
+			return File.getContent(path);
+		}
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			hxml.cpp = "_";
+			hxml.define("iphone");
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	public override function rebuild():Void

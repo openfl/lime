@@ -1,31 +1,27 @@
 package;
 
+import hxp.Haxelib;
+import hxp.HXML;
+import hxp.Log;
 import hxp.Path;
 import hxp.NDLL;
-import haxe.Template;
+import hxp.System;
 import lime.tools.Architecture;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.CSHelper;
 import lime.tools.DeploymentHelper;
-import hxp.System;
 import lime.tools.GUID;
-import hxp.Haxelib;
+import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
-import hxp.Log;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
-import hxp.Path;
 import lime.tools.Platform;
-import hxp.System;
 import lime.tools.PlatformTarget;
-import hxp.System;
-import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
-import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -230,13 +226,27 @@ class MacPlatform extends PlatformTarget
 
 	private function getDisplayHXML():String
 	{
-		var hxml = System.findTemplate(project.templatePaths, targetType + "/hxml/" + buildType + ".hxml");
-		var template = new Template(File.getContent(hxml));
+		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		var context = generateContext();
-		context.OUTPUT_DIR = targetDirectory;
-
-		return template.execute(context);
+		if (FileSystem.exists(path))
+		{
+			return File.getContent(path);
+		}
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			switch (targetType)
+			{
+				case "hl": hxml.hl = "_.hl";
+				case "neko": hxml.neko = "_.n";
+				case "java": hxml.java = "_";
+				case "nodejs": hxml.js = "_.js";
+				default: hxml.cpp = "_";
+			}
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	public override function rebuild():Void

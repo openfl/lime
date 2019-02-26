@@ -1,23 +1,19 @@
 package;
 
+import hxp.Log;
 import hxp.Path;
-import haxe.Template;
+import hxp.System;
 import lime.tools.AIRHelper;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.DeploymentHelper;
-import hxp.System;
 import lime.tools.FlashHelper;
+import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
-import hxp.Log;
-import hxp.Path;
 import lime.tools.Platform;
-import hxp.System;
 import lime.tools.PlatformType;
-import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
-import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -159,27 +155,6 @@ class AIRPlatform extends FlashPlatform
 				System.compress(Path.combine(targetDirectory, outputPath), Path.combine(targetDirectory, "dist/" + name + ".zip"));
 			}
 		}
-	}
-
-	private override function getDisplayHXML():String
-	{
-		var hxml = System.findTemplate(project.templatePaths, "flash/hxml/" + buildType + ".hxml");
-
-		var context = project.templateContext;
-		context.WIN_FLASHBACKGROUND = StringTools.hex(project.window.background, 6);
-		context.OUTPUT_DIR = targetDirectory;
-
-		for (dependency in project.dependencies)
-		{
-			if (StringTools.endsWith(dependency.path, ".ane"))
-			{
-				context.HAXE_FLAGS += "\n-swf-lib " + dependency.path;
-			}
-		}
-
-		var template = new Template(File.getContent(hxml));
-
-		return template.execute(context);
 	}
 
 	public override function install():Void

@@ -1,20 +1,18 @@
 package;
 
+import hxp.HXML;
 import hxp.Path;
-import haxe.Template;
+import hxp.System;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
-import hxp.System;
+import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
-import hxp.Path;
 import lime.tools.PlatformTarget;
-import hxp.System;
-import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
-import hxp.TizenHelper;
+import lime.tools.TizenHelper;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -79,15 +77,20 @@ class TizenPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		var hxml = System.findTemplate(project.templatePaths, "tizen/hxml/" + buildType + ".hxml");
+		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		var context = project.templateContext;
-		context.CPP_DIR = targetDirectory + "/obj";
-		context.OUTPUT_DIR = targetDirectory;
-
-		var template = new Template(File.getContent(hxml));
-
-		Sys.println(template.execute(context));
+		if (FileSystem.exists(path))
+		{
+			return File.getContent(path);
+		}
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			hxml.cpp = "_";
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	public override function rebuild():Void

@@ -1,6 +1,9 @@
 package;
 
+import hxp.HXML;
+import hxp.Log;
 import hxp.Path;
+import hxp.System;
 import haxe.Template;
 #if lime
 import lime.text.Font;
@@ -9,18 +12,13 @@ import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.DeploymentHelper;
 import lime.tools.ElectronHelper;
-import hxp.System;
 import lime.tools.HTML5Helper;
+import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
-import hxp.Log;
 import lime.tools.ModuleHelper;
 import lime.tools.ProjectHelper;
-import hxp.Path;
 import lime.tools.PlatformTarget;
-import hxp.System;
-import lime.tools.HXProject;
-import hxp.System;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -124,22 +122,25 @@ class HTML5Platform extends PlatformTarget
 
 	private function getDisplayHXML():String
 	{
-		var type = "html5";
+		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		if (targetFlags.exists("electron"))
+		if (FileSystem.exists(path))
 		{
-			type = "electron";
+			return File.getContent(path);
 		}
-
-		var hxml = System.findTemplate(project.templatePaths, type + "/hxml/" + buildType + ".hxml");
-
-		var context = project.templateContext;
-		context.OUTPUT_DIR = targetDirectory;
-		context.OUTPUT_FILE = outputFile;
-
-		var template = new Template(File.getContent(hxml));
-
-		return template.execute(context);
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			hxml.js = "_";
+			hxml.define("html");
+			if (targetFlags.exists("electron"))
+			{
+				hxml.define("electron");
+			}
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	private function initialize(command:String, project:HXProject):Void

@@ -1,36 +1,31 @@
 package;
 
-// import openfl.display.BitmapData;
-import hxp.Path;
 import haxe.Json;
-import haxe.Template;
-import lime.tools.Architecture;
 import hxp.ArrayTools;
+import hxp.Haxelib;
+import hxp.HXML;
+import hxp.Log;
+import hxp.NDLL;
+import hxp.Path;
+import hxp.StringTools;
+import hxp.System;
+#if lime
+import lime.graphics.Image;
+#end
+import lime.tools.Architecture;
 import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
-import hxp.System;
-import hxp.Haxelib;
+import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.Keystore;
-import hxp.Log;
-import hxp.NDLL;
-import hxp.Path;
 import lime.tools.Platform;
-import hxp.System;
 import lime.tools.PlatformTarget;
-import hxp.System;
-import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
-import hxp.StringTools;
 import lime.tools.TVOSHelper;
-import hxp.System;
-#if lime
-import lime.graphics.Image;
-#end
 import sys.io.File;
 import sys.FileSystem;
 
@@ -301,13 +296,22 @@ class TVOSPlatform extends PlatformTarget
 
 	private function getDisplayHXML():String
 	{
-		var hxml = System.findTemplate(project.templatePaths, "tvos/PROJ/haxe/Build.hxml");
-		var template = new Template(File.getContent(hxml));
+		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
-		var context = generateContext();
-		context.OUTPUT_DIR = targetDirectory;
-
-		return template.execute(context);
+		if (FileSystem.exists(path))
+		{
+			return File.getContent(path);
+		}
+		else
+		{
+			var context = project.templateContext;
+			var hxml = new HXML();
+			hxml.noOutput = true;
+			hxml.cpp = "_";
+			hxml.define("tvos");
+			hxml.define("appletv");
+			return context.HAXE_FLAGS + "\n" + hxml.toString();
+		}
 	}
 
 	public override function rebuild():Void
