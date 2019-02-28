@@ -235,8 +235,8 @@ class MacPlatform extends PlatformTarget
 		else
 		{
 			var context = project.templateContext;
-			var hxml = new HXML();
-			hxml.noOutput = true;
+			var hxml = HXML.fromString(context.HAXE_FLAGS);
+			hxml.addClassName(context.APP_MAIN);
 			switch (targetType)
 			{
 				case "hl": hxml.hl = "_.hl";
@@ -245,7 +245,8 @@ class MacPlatform extends PlatformTarget
 				case "nodejs": hxml.js = "_.js";
 				default: hxml.cpp = "_";
 			}
-			return context.HAXE_FLAGS + "\n" + hxml.toString();
+			hxml.noOutput = true;
+			return hxml;
 		}
 	}
 

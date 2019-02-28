@@ -305,12 +305,13 @@ class TVOSPlatform extends PlatformTarget
 		else
 		{
 			var context = project.templateContext;
-			var hxml = new HXML();
-			hxml.noOutput = true;
+			var hxml = HXML.fromString(context.HAXE_FLAGS);
+			hxml.addClassName(context.APP_MAIN);
 			hxml.cpp = "_";
 			hxml.define("tvos");
 			hxml.define("appletv");
-			return context.HAXE_FLAGS + "\n" + hxml.toString();
+			hxml.noOutput = true;
+			return hxml;
 		}
 	}
 

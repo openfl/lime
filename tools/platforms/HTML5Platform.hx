@@ -131,15 +131,16 @@ class HTML5Platform extends PlatformTarget
 		else
 		{
 			var context = project.templateContext;
-			var hxml = new HXML();
-			hxml.noOutput = true;
+			var hxml = HXML.fromString(context.HAXE_FLAGS);
+			hxml.addClassName(context.APP_MAIN);
 			hxml.js = "_";
 			hxml.define("html");
 			if (targetFlags.exists("electron"))
 			{
 				hxml.define("electron");
 			}
-			return context.HAXE_FLAGS + "\n" + hxml.toString();
+			hxml.noOutput = true;
+			return hxml;
 		}
 	}
 

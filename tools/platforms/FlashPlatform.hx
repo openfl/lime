@@ -109,11 +109,12 @@ class FlashPlatform extends PlatformTarget
 		else
 		{
 			var context = project.templateContext;
-			var hxml = new HXML();
-			hxml.noOutput = true;
-			hxml.swfVersion = context.SWF_VERSION;
+			var hxml = HXML.fromString(context.HAXE_FLAGS);
+			hxml.addClassName(context.APP_MAIN);
 			hxml.swf = "_.swf";
-			return context.HAXE_FLAGS + "\n" + hxml.toString();
+			hxml.swfVersion = context.SWF_VERSION;
+			hxml.noOutput = true;
+			return hxml;
 		}
 	}
 
