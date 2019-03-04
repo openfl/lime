@@ -11,77 +11,21 @@
 	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
 
 		<files id="main" />
+
 		::foreach ndlls::
 		<lib name="::path::" />::end::
 
-		<section if="windows">
-
-			<lib name="gdi32.lib" />
-			<lib name="opengl32.lib" />
-			<lib name="user32.lib" />
-			<lib name="kernel32.lib" />
-			<lib name="advapi32.lib" />
-			<lib name="winmm.lib" />
-			<lib name="imm32.lib"  />
-			<lib name="ole32.lib" />
-			<lib name="oleaut32.lib" />
-			<lib name="version.lib" />
-			<lib name="ws2_32.lib"  />
-			<lib name="wldap32.lib" />
-			<lib name="shell32.lib" />
-			<lib name="comdlg32.lib" />
-			<lib name="comsuppw.lib" />
-			<lib name="usp10.lib" />
-			<lib name="rpcrt4.lib" />
-			<lib name="dwrite.lib" />
-			<lib name="setupapi.lib" />
+		<section if="winrt">
+		        <lib name="kernel32.lib" />
+		        <lib name="d3d11.lib" />
+		        <lib name="Xaudio2.lib" />
+		        <lib name="Xinput.lib" />
+		        <lib name="DXGI.lib" />
+		        <lib name="Dwrite.lib" />
+		        <lib name="D3dcompiler.lib" />
 
 		</section>
 
-		<section if="linux">
-
-			<lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
-			<lib name="-lpthread" />
-			<lib name="-lrt" />
-
-			<lib name="-lgc" if="LIME_NEKO" />
-			<lib name="-lm" if="LIME_NEKO" />
-
-		</section>
-
-		<section if="mac">
-
-			<vflag name="-l" value="iconv"/>
-			<vflag name="-framework" value="IOKit" />
-			<vflag name="-framework" value="Foundation" />
-			<vflag name="-framework" value="CoreAudio" />
-			<vflag name="-framework" value="CoreVideo" />
-			<vflag name="-framework" value="Cocoa" />
-			<vflag name="-framework" value="OpenGL" />
-			<vflag name="-framework" value="AudioToolbox" />
-			<vflag name="-framework" value="AudioUnit" />
-			<vflag name="-framework" value="ForceFeedback" />
-			<vflag name="-framework" value="Carbon" />
-			<vflag name="-framework" value="AppKit" />
-			<vflag name="-framework" value="OpenAL"/>
-
-			<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
-			<lib name="-lm" if="LIME_NEKO" />
-
-		</section>
-
-		<section if="android">
-
-			<lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LIME_SDL"/>
-			<lib name="-ldl" />
-			<lib name="-llog" />
-			<lib name="-landroid" />
-			<lib name="-lEGL" />
-			<lib name="-lGLESv2" />
-			<lib name="-lGLESv1_CM" />
-			<lib name="-lOpenSLES" />
-
-		</section>
 
 		<lib name="libApplicationMain${DBG}${LIBEXT}" />
 
