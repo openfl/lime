@@ -35,7 +35,7 @@
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
-	<set name="LIME_SDL_ANGLE" value="1" if="winrt" unless="static_link" />
+	<set name="LIME_SDL_ANGLE" value="1" if="winrt" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
 	<!-- <set name="LIME_VPX" value="1" />
@@ -219,9 +219,10 @@
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" unless="winrt"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt"/>
 
 				<compilerflag value="-DHAVE_LIBC" />
 
