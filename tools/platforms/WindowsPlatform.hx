@@ -650,7 +650,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Windows" + (is64 ? "64" : ""), "lib", suffix, project.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT":"Windows") + (is64 ? "64" : ""), "lib", suffix, project.debug);
 				}
 			}
 		}
