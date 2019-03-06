@@ -267,6 +267,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_system_get_timer():Float;
 
+	@:cffi private static function lime_system_update_keyboard():Void;
+
 	@:cffi private static function lime_system_open_file(path:String):Void;
 
 	@:cffi private static function lime_system_open_url(url:String, target:String):Void;
@@ -521,6 +523,8 @@ class NativeCFFI
 		._loadPrime("lime", "lime_system_get_device_vendor", "o", false));
 	private static var lime_system_get_directory = new cpp.Callable<Int->String->String->cpp.Object>(cpp.Prime
 		._loadPrime("lime", "lime_system_get_directory", "isso", false));
+	private static var lime_system_update_keyboard = new cpp.Callable<Void->cpp.Object>(cpp.Prime
+	._loadPrime("lime", "lime_system_update_keyboard", "o", false));
 	private static var lime_system_get_display = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_display", "io", false));
 	private static var lime_system_get_ios_tablet = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_system_get_ios_tablet", "b", false));
 	private static var lime_system_get_num_displays = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_system_get_num_displays", "i", false));

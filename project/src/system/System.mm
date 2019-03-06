@@ -30,7 +30,6 @@ namespace lime {
 
 	}
 
-
 	std::wstring* System::GetIOSDirectory (SystemDirectory type) {
 
 		#ifndef OBJC_ARC
@@ -83,6 +82,10 @@ namespace lime {
 
 	}
 
+	void System::updateKeyboard()
+	{
+		UIKit_updateKeyboard();
+	}
 
 	std::wstring* System::GetDeviceModel () {
 

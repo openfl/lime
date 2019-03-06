@@ -2625,6 +2625,10 @@ namespace lime {
 		return System::GetAllowScreenTimeout ();
 
 	}
+	void lime_system_update_keyboard()
+	{
+		return System::updateKeyboard();
+	}
 
 
 	HL_PRIM bool hl_lime_system_get_allow_screen_timeout () {
@@ -2804,6 +2808,11 @@ namespace lime {
 
 		return System::GetNumDisplays ();
 
+	}
+
+	int lime_system_get_keyboard_height ()
+	{
+		return System::GetKeyboardHeight();
 	}
 
 
@@ -3789,6 +3798,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME2v (lime_clipboard_event_manager_register);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
+	DEFINE_PRIME0 (lime_system_get_keyboard_height);
+	DEFINE_PRIME1v(lime_system_update_keyboard);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
 	DEFINE_PRIME2 (lime_data_pointer_offset);
 	DEFINE_PRIME2 (lime_deflate_compress);

@@ -161,6 +161,17 @@ class System
 	}
 	#end
 
+	public static function updateKeyboard()
+	{
+		#if (lime_cffi && !macro)
+			#if ios
+			NativeCFFI.lime_system_update_keyboard();
+			#elseif android
+
+			#end
+		#end
+	}
+
 	public static function getDisplay(id:Int):Display
 	{
 		#if (lime_cffi && !macro)
