@@ -9,7 +9,7 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
-	<set name="LIME_CAIRO" value="1" unless="winrt" />
+	<set name="LIME_CAIRO" value="1"/>
 	<set name="LIME_CURL" value="1" unless="emscripten || winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
