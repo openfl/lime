@@ -28,6 +28,7 @@ extern DECLSPEC int SDLCALL SDL_WinRTRunApp(int (*mainFunction)(int, char **), v
 #define LIME_SDL
 #define LIME_OPENGL
 #define LIME_CAIRO
+#define NATIVE_TOOLKIT_SDL_ANGLE
 
 #ifndef SDL_WINRT_METADATA_FILE_AVAILABLE
 #ifndef __cplusplus_winrt
