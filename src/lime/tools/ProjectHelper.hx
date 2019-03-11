@@ -173,13 +173,15 @@ class ProjectHelper
 						return Std.string(Reflect.field(field, subField));
 					}
 				}
-			} #if sys
+			}
+			#if sys
 			else if (substring == "projectDirectory")
 			{
 				// TODO: Better handling if CWD has changed?
 
 				return Std.string(Sys.getCwd());
-			} #end
+			}
+			#end
 		}
 
 		return string;

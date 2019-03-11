@@ -9,5 +9,6 @@ package lime.graphics.opengl.ext;
 	public var REQUIRED_TEXTURE_IMAGE_UNITS_OES = 0x8D68;
 
 	@:noCompletion private function new() {}
+
 	// public function eglImageTargetTexture2DOES (target:Int, image:BytesPointer):Void {}
 }

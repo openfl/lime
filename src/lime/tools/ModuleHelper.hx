@@ -686,8 +686,9 @@ class Generator
 		for (s in statics)
 			println(getPath(s.c) + field(s.f.name) + ' = ' + api.generateValue(s.f.expr()));
 		if (api.main != null) println(api.generateValue(api.main));
-		if (jsModern)
-			print('})(' + (genExpose ? 'typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, ' : '') + 'typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);\n');
+		if (jsModern) print('})('
+			+ (genExpose ? 'typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, ' : '')
+			+ 'typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);\n');
 		sys.io.File.saveContent(api.outputFile, buf.toString());
 	}
 

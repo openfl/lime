@@ -1,6 +1,8 @@
 package lime.graphics;
 
-#if (!lime_doc_gen || flash) #if (flash && (lime_doc_gen || !doc_gen)) import flash.display.Sprite;
+#if (!lime_doc_gen || flash)
+#if (flash && (lime_doc_gen || !doc_gen))
+import flash.display.Sprite;
 
 /**
 	The `FlashRenderContext` represents the primary `flash.display.Sprite` instance when
@@ -21,12 +23,15 @@ abstract FlashRenderContext(Sprite) from Sprite to Sprite
 	{
 		return context.flash;
 	}
-} #else @:forward
+}
+#else
+@:forward
 abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):FlashRenderContext
 	{
 		return null;
 	}
-} #end
+}
+#end
 #end

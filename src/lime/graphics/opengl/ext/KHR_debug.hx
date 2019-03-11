@@ -43,6 +43,7 @@ package lime.graphics.opengl.ext;
 	public var STACK_UNDERFLOW = 0x0504;
 
 	@:noCompletion private function new() {}
+
 	// public function debugMessageControl (source:Int, type:Int, severity:Int, count:Int, ids:Array<Int>, enabled:Bool):Void {}
 	// public function debugMessageInsert (source:Int, type:Int, id:Int, severity:Int, message:String):Void {}
 	// public function debugMessageCallback (callback:Dynamic, userParam:Dynamic):Void;

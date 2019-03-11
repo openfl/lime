@@ -187,7 +187,7 @@ class NativeApplication
 	{
 		for (window in parent.windows)
 		{
-			window.onDropFile.dispatch(#if hl@:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
+			window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
 		}
 	}
 
@@ -271,9 +271,7 @@ class NativeApplication
 			{
 				if (type == KEY_DOWN)
 				{
-					if (toggleFullscreen
-						&& modifier.altKey
-						&& (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
+					if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
 					{
 						toggleFullscreen = false;
 
@@ -300,9 +298,7 @@ class NativeApplication
 			{
 				if (type == KEY_DOWN)
 				{
-					if (toggleFullscreen
-						&& (modifier.ctrlKey && modifier.metaKey)
-						&& (!modifier.altKey && !modifier.shiftKey))
+					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey))
 					{
 						toggleFullscreen = false;
 
@@ -387,7 +383,7 @@ class NativeApplication
 							case OPENGL, OPENGLES, WEBGL:
 								#if (lime_cffi && (lime_opengl || lime_opengles) && !display)
 								var gl = window.context.gl;
-								(gl : NativeOpenGLRenderContext).__contextLost();
+								(gl:NativeOpenGLRenderContext).__contextLost();
 								if (GL.context == gl) GL.context = null;
 								#end
 
@@ -429,10 +425,10 @@ class NativeApplication
 			switch (textEventInfo.type)
 			{
 				case TEXT_INPUT:
-					window.onTextInput.dispatch(#if hl@:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end);
+					window.onTextInput.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end);
 
 				case TEXT_EDIT:
-					window.onTextEdit.dispatch(#if hl@:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start,
+					window.onTextEdit.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start,
 						textEventInfo.length);
 
 				default:

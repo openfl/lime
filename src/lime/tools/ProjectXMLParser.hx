@@ -1971,8 +1971,11 @@ class ProjectXMLParser extends HXProject
 
 		while (doubleVarMatch.match(newString))
 		{
-			newString = doubleVarMatch.matchedLeft() + "${" + ProjectHelper.replaceVariable(this, doubleVarMatch.matched(1)) + "}" + doubleVarMatch
-				.matchedRight();
+			newString = doubleVarMatch.matchedLeft()
+				+ "${"
+				+ ProjectHelper.replaceVariable(this, doubleVarMatch.matched(1))
+				+ "}"
+				+ doubleVarMatch.matchedRight();
 		}
 
 		while (varMatch.match(newString))

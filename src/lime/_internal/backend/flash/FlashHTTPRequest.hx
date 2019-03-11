@@ -102,7 +102,7 @@ class FlashHTTPRequest
 
 		urlLoader.addEventListener(ProgressEvent.PROGRESS, function(event)
 		{
-			promise.progress(event.bytesLoaded, event.bytesTotal);
+			promise.progress(Std.int(event.bytesLoaded), Std.int(event.bytesTotal));
 		});
 
 		urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, function(event)
@@ -111,7 +111,7 @@ class FlashHTTPRequest
 
 			if (parent.enableResponseHeaders)
 			{
-				parent.responseHeaders = event.responseHeaders;
+				parent.responseHeaders = cast event.responseHeaders;
 			}
 		});
 
@@ -141,7 +141,7 @@ class FlashHTTPRequest
 
 		urlLoader.addEventListener(ProgressEvent.PROGRESS, function(event)
 		{
-			promise.progress(event.bytesLoaded, event.bytesTotal);
+			promise.progress(Std.int(event.bytesLoaded), Std.int(event.bytesTotal));
 		});
 
 		urlLoader.addEventListener(HTTPStatusEvent.HTTP_STATUS, function(event)
@@ -150,7 +150,7 @@ class FlashHTTPRequest
 
 			if (parent.enableResponseHeaders)
 			{
-				parent.responseHeaders = event.responseHeaders;
+				parent.responseHeaders = cast event.responseHeaders;
 			}
 		});
 

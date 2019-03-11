@@ -1,6 +1,8 @@
 package lime.graphics;
 
-#if (!lime_doc_gen || lime_canvas) #if (lime_canvas && (lime_doc_gen || !doc_gen)) import js.html.CanvasRenderingContext2D;
+#if (!lime_doc_gen || lime_canvas)
+#if (lime_canvas && (lime_doc_gen || !doc_gen))
+import js.html.CanvasRenderingContext2D;
 
 /**
 	The `Canvas2DRenderContext` represents the primary `js.html.CanvasRenderingContext2D` instance when Canvas
@@ -21,12 +23,15 @@ abstract Canvas2DRenderContext(CanvasRenderingContext2D) from CanvasRenderingCon
 	{
 		return context.canvas2D;
 	}
-} #else @:forward()
+}
+#else
+@:forward()
 abstract Canvas2DRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):Canvas2DRenderContext
 	{
 		return null;
 	}
-} #end
+}
+#end
 #end

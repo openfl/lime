@@ -1,6 +1,8 @@
 package lime.media.howlerjs;
 
-#if (!lime_doc_gen || lime_howlerjs) #if (!lime_howlerjs || display) import haxe.Constraints.Function;
+#if (!lime_doc_gen || lime_howlerjs)
+#if (!lime_howlerjs || display)
+import haxe.Constraints.Function;
 class Howl
 {
 	public function new(options:HowlOptions) {}
@@ -214,7 +216,9 @@ class Howl
 	{
 		return null;
 	}
-} #else import haxe.Constraints.Function;
+}
+#else
+import haxe.Constraints.Function;
 import haxe.extern.EitherType;
 
 #if commonjs
@@ -263,7 +267,8 @@ extern class Howl
 	@:overload(function(x:Float, y:Float, z:Float):Howl {})
 	@:overload(function(x:Float, y:Float, z:Float, id:Int):Howl {})
 	public function pos():Array<Float>;
-} #end
+}
+#end
 
 typedef HowlOptions =
 {

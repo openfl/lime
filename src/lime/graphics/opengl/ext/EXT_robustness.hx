@@ -12,6 +12,7 @@ package lime.graphics.opengl.ext;
 	public var NO_RESET_NOTIFICATION_EXT = 0x8261;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL GLenum GL_APIENTRY glGetGraphicsResetStatusEXT (void);
 	// GL_APICALL void GL_APIENTRY glReadnPixelsEXT (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei bufSize, void *data);
 	// GL_APICALL void GL_APIENTRY glGetnUniformfvEXT (GLuint program, GLint location, GLsizei bufSize, float *params);

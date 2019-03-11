@@ -11,6 +11,7 @@ package lime.graphics.opengl.ext;
 	public var MAP_UNSYNCHRONIZED_BIT_EXT = 0x0020;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void* GL_APIENTRY glMapBufferRangeEXT (GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
 	// GL_APICALL void GL_APIENTRY glFlushMappedBufferRangeEXT (GLenum target, GLintptr offset, GLsizeiptr length);
 }

@@ -37,6 +37,7 @@ package lime.graphics.opengl.ext;
 	public var MULTISAMPLE_BUFFER_BIT7_QCOM = 0x80000000;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glStartTilingQCOM (GLuint x, GLuint y, GLuint width, GLuint height, GLbitfield preserveMask);
 	// GL_APICALL void GL_APIENTRY glEndTilingQCOM (GLbitfield preserveMask);
 }

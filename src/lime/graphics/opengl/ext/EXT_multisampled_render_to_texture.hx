@@ -9,6 +9,7 @@ package lime.graphics.opengl.ext;
 	public var MAX_SAMPLES_EXT = 0x8D57;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glRenderbufferStorageMultisampleEXT (GLenum, GLsizei, GLenum, GLsizei, GLsizei);
 	// GL_APICALL void GL_APIENTRY glFramebufferTexture2DMultisampleEXT (GLenum, GLenum, GLenum, GLuint, GLint, GLsizei);
 }

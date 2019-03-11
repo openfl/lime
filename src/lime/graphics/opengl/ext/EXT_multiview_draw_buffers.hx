@@ -10,6 +10,7 @@ package lime.graphics.opengl.ext;
 	public var MAX_MULTIVIEW_BUFFERS_EXT = 0x90F2;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glReadBufferIndexedEXT (GLenum src, GLint index);
 	// GL_APICALL void GL_APIENTRY glDrawBuffersIndexedEXT (GLint n, const GLenum *location, const GLint *indices);
 	// GL_APICALL void GL_APIENTRY glGetIntegeri_vEXT (GLenum target, GLuint index, GLint *data);

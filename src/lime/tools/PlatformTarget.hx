@@ -65,16 +65,16 @@ class PlatformTarget
 		}
 
 		// if (!Reflect.hasField (metaFields.clean, "ignore") && (command == "clean" || targetFlags.exists ("clean"))) {
-		if ((!Reflect.hasField(metaFields, "clean") || !Reflect.hasField(metaFields.clean, "ignore")) && (command == "clean" || (project.targetFlags
-			.exists("clean") && (command == "update"
-			|| command == "build" || command == "test"))))
+		if ((!Reflect.hasField(metaFields, "clean") || !Reflect.hasField(metaFields.clean, "ignore"))
+			&& (command == "clean"
+				|| (project.targetFlags.exists("clean") && (command == "update" || command == "build" || command == "test"))))
 		{
 			Log.info("", Log.accentColor + "Running command: CLEAN" + Log.resetColor);
 			clean();
 		}
 
-		if ((!Reflect.hasField(metaFields, "rebuild") || !Reflect.hasField(metaFields.rebuild, "ignore")) && (command == "rebuild" || project.targetFlags
-			.exists("rebuild")))
+		if ((!Reflect.hasField(metaFields, "rebuild") || !Reflect.hasField(metaFields.rebuild, "ignore"))
+			&& (command == "rebuild" || project.targetFlags.exists("rebuild")))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: REBUILD" + Log.resetColor);
 
@@ -88,8 +88,8 @@ class PlatformTarget
 			rebuild();
 		}
 
-		if ((!Reflect.hasField(metaFields, "update") || !Reflect.hasField(metaFields.update, "ignore")) && (command == "update" || command == "build"
-			|| command == "test"))
+		if ((!Reflect.hasField(metaFields, "update") || !Reflect.hasField(metaFields.update, "ignore"))
+			&& (command == "update" || command == "build" || command == "test"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: UPDATE" + Log.resetColor);
 			// #if lime
@@ -98,7 +98,8 @@ class PlatformTarget
 			update();
 		}
 
-		if ((!Reflect.hasField(metaFields, "build") || !Reflect.hasField(metaFields.build, "ignore")) && (command == "build" || command == "test"))
+		if ((!Reflect.hasField(metaFields, "build") || !Reflect.hasField(metaFields.build, "ignore"))
+			&& (command == "build" || command == "test"))
 		{
 			CommandHelper.executeCommands(project.preBuildCallbacks);
 
@@ -114,22 +115,22 @@ class PlatformTarget
 			deploy();
 		}
 
-		if ((!Reflect.hasField(metaFields, "install") || !Reflect.hasField(metaFields.install, "ignore")) && (command == "install" || command == "run"
-			|| command == "test"))
+		if ((!Reflect.hasField(metaFields, "install") || !Reflect.hasField(metaFields.install, "ignore"))
+			&& (command == "install" || command == "run" || command == "test"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: INSTALL" + Log.resetColor);
 			install();
 		}
 
-		if ((!Reflect.hasField(metaFields, "run") || !Reflect.hasField(metaFields.run, "ignore")) && (command == "run" || command == "rerun"
-			|| command == "test"))
+		if ((!Reflect.hasField(metaFields, "run") || !Reflect.hasField(metaFields.run, "ignore"))
+			&& (command == "run" || command == "rerun" || command == "test"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: RUN" + Log.resetColor);
 			run();
 		}
 
-		if ((!Reflect.hasField(metaFields, "trace") || !Reflect.hasField(metaFields.trace, "ignore")) && (command == "test" || command == "trace"
-			|| command == "run" || command == "rerun"))
+		if ((!Reflect.hasField(metaFields, "trace") || !Reflect.hasField(metaFields.trace, "ignore"))
+			&& (command == "test" || command == "trace" || command == "run" || command == "rerun"))
 		{
 			if (traceEnabled || command == "trace")
 			{

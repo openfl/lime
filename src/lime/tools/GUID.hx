@@ -34,9 +34,18 @@ class GUID
 	{
 		var specialChars = ['8', '9', 'A', 'B'];
 
-		return "{" + GUID.createRandomIdentifier(8, 15, seeded) + '-' + GUID.createRandomIdentifier(4, 15, seeded) + '-4' + GUID
-			.createRandomIdentifier(3, 15, seeded) + '-' + specialChars[GUID.randomIntegerWithinRange(0, 3, seeded)] + GUID.createRandomIdentifier(3, 15, seeded) +
-			'-' + GUID.createRandomIdentifier(12, 15, seeded) + "}";
+		return "{"
+			+ GUID.createRandomIdentifier(8, 15, seeded)
+			+ '-'
+			+ GUID.createRandomIdentifier(4, 15, seeded)
+			+ '-4'
+			+ GUID.createRandomIdentifier(3, 15, seeded)
+			+ '-'
+			+ specialChars[GUID.randomIntegerWithinRange(0, 3, seeded)]
+			+ GUID.createRandomIdentifier(3, 15, seeded)
+			+ '-'
+			+ GUID.createRandomIdentifier(12, 15, seeded)
+			+ "}";
 	}
 
 	private static var seed:Int = 0;

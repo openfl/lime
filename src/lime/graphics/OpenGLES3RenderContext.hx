@@ -1,6 +1,8 @@
 package lime.graphics;
 
-#if (!lime_doc_gen || lime_opengl || lime_opengles) #if (lime_doc_gen || (sys && lime_cffi && !doc_gen)) import haxe.Int64;
+#if (!lime_doc_gen || lime_opengl || lime_opengles)
+#if (lime_doc_gen || (sys && lime_cffi && !doc_gen))
+import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeOpenGLRenderContext;
 import lime.graphics.opengl.*;
@@ -4858,7 +4860,9 @@ public inline function waitSync(sync:GLSync, flags:Int, timeout:Int64):Void
 {
 	return context.gles3;
 }
-} #else import lime.graphics.opengl.GL;
+}
+#else
+import lime.graphics.opengl.GL;
 
 @:forward()
 abstract OpenGLES3RenderContext(Dynamic) from Dynamic to Dynamic
@@ -4887,5 +4891,6 @@ abstract OpenGLES3RenderContext(Dynamic) from Dynamic to Dynamic
 	{
 		return null;
 	}
-} #end
+}
+#end
 #end

@@ -8,5 +8,6 @@ package lime.graphics.opengl.ext;
 	public var ALPHA_TEST_REF_QCOM = 0x0BC2;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glAlphaFuncQCOM (GLenum func, GLclampf ref);
 }

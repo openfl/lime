@@ -22,6 +22,7 @@ package lime.graphics.opengl.ext;
 
 	// public var TIMEOUT_IGNORED_APPLE = 0xFFFFFFFFFFFFFFFFull;
 	@:noCompletion private function new() {}
+
 	// GL_APICALL GLsync GL_APIENTRY glFenceSyncAPPLE (GLenum condition, GLbitfield flags);
 	// GL_APICALL GLboolean GL_APIENTRY glIsSyncAPPLE (GLsync sync);
 	// GL_APICALL void GL_APIENTRY glDeleteSyncAPPLE (GLsync sync);

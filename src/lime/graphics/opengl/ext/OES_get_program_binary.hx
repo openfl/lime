@@ -8,6 +8,7 @@ package lime.graphics.opengl.ext;
 	public var PROGRAM_BINARY_FORMATS_OES = 0x87FF;
 
 	@:noCompletion private function new() {}
+
 	// public function getProgramBinaryOES (program:GLProgram, bufSize:Int, length:Int, binaryFormat:Int, binary:BytesPointer):Void {}
 	// public function programBinaryOES (program:GLProgram, binaryFormat:Int, binary:BytesPointer, length:Int):Void {}
 }

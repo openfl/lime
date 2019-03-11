@@ -182,9 +182,8 @@ class HTML5Window
 			div.style.height = parent.__height + "px";
 		}
 
-		if ((Reflect.hasField(attributes, "resizable") && attributes.resizable) || (!Reflect.hasField(attributes, "width")
-			&& setWidth == 0
-			&& setHeight == 0))
+		if ((Reflect.hasField(attributes, "resizable") && attributes.resizable)
+			|| (!Reflect.hasField(attributes, "width") && setWidth == 0 && setHeight == 0))
 		{
 			parent.__resizable = true;
 		}
@@ -269,7 +268,8 @@ class HTML5Window
 
 			var forceCanvas = #if (canvas || munit) true #else (renderType == CANVAS) #end;
 			var forceWebGL = #if webgl true #else (renderType == OPENGL || renderType == OPENGLES || renderType == WEBGL) #end;
-			var allowWebGL2 = #if webgl1 false #else (!Reflect.hasField(contextAttributes, "version") || contextAttributes.version != "1") #end;
+			var allowWebGL2 = #if webgl1 false #else (!Reflect.hasField(contextAttributes, "version")
+				|| contextAttributes.version != "1") #end;
 			var isWebGL2 = false;
 
 			if (forceWebGL || (!forceCanvas && (!Reflect.hasField(contextAttributes, "hardware") || contextAttributes.hardware)))

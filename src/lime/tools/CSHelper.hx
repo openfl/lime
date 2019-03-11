@@ -159,7 +159,8 @@ class CSHelper
 
 			for (lib in libraries)
 			{
-				file.writeString(FileSystem.absolutePath(libPath + "/" + archName + "/" + "lib" + lib.name + ".so").replace("/", "\\") + '\n');
+				file.writeString(FileSystem.absolutePath(libPath + "/" + archName + "/" + "lib" + lib.name + ".so").replace("/", "\\")
+					+ '\n');
 			}
 		}
 

@@ -11,6 +11,7 @@ package lime.graphics.opengl.ext;
 	public var VERTEX_ARRAY_OBJECT_EXT = 0x9154;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glLabelObjectEXT (GLenum type, GLuint object, GLsizei length, const GLchar *label);
 	// GL_APICALL void GL_APIENTRY glGetObjectLabelEXT (GLenum type, GLuint object, GLsizei bufSize, GLsizei *length, GLchar *label);
 }

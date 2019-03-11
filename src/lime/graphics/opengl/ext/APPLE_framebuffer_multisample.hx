@@ -12,6 +12,7 @@ package lime.graphics.opengl.ext;
 	public var READ_FRAMEBUFFER_BINDING_APPLE = 0x8CAA;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glRenderbufferStorageMultisampleAPPLE (GLenum, GLsizei, GLenum, GLsizei, GLsizei);
 	// GL_APICALL void GL_APIENTRY glResolveMultisampleFramebufferAPPLE (void);
 }

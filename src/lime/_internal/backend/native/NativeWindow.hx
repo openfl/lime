@@ -416,7 +416,8 @@ class NativeWindow
 					pitch: 0
 				} #end);
 
-			if (lock != null && (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height))
+			if (lock != null
+				&& (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height))
 			{
 				primarySurface = CairoImageSurface.create(lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
 

@@ -1,13 +1,14 @@
 package lime.utils;
 
-#if (js && !doc_gen) @:forward
+#if (js && !doc_gen)
+@:forward
 @:arrayAccess
 abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html.Float32Array
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ? vector : openfl.Vector<Float>, #end?view:ArrayBufferView, ?buffer:ArrayBuffer,
+	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end?view:ArrayBufferView, ?buffer:ArrayBuffer,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -67,7 +68,9 @@ abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html
 
 	inline function toString()
 		return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-} #else import lime.utils.ArrayBuffer;
+}
+#else
+import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 
 @:forward
@@ -79,7 +82,7 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	public var length(get, never):Int;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ? vector : openfl.Vector<Float>, #end?view:ArrayBufferView,
+	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -144,4 +147,5 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		ArrayBufferIO.setFloat32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
 		return val;
 	}
-} #end // !js
+}
+#end // !js

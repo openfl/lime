@@ -2,6 +2,7 @@ package haxe;
 
 #if !lime_cffi
 // Original haxe.Timer class
+
 /*
  * Copyright (C)2005-2018 Haxe Foundation
  *

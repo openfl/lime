@@ -893,10 +893,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	// Getters & Setters
 	@:noCompletion private function get_determinant():Float
 	{
-		return
-			1 * ((this[0] * this[5] - this[4] * this[1]) * (this[10] * this[15] - this[14] * this[11]) - (this[0] * this[9] - this[8] * this[1]) * (this[6] * this[15] - this[14] * this[7]) +
-				(this[0] * this[13] - this[12] * this[1]) * (this[6] * this[11] - this[10] * this[7]) + (this[4] * this[9] - this[8] * this[5]) * (this[2] * this[15] - this[14] * this[3]) - (this[4] * this[13] - this[12] * this[5]) * (this[2] * this[11] - this[10] * this[3]) +
-					(this[8] * this[13] - this[12] * this[9]) * (this[2] * this[7] - this[6] * this[3]));
+		return 1 * ((this[0] * this[5] - this[4] * this[1]) * (this[10] * this[15] - this[14] * this[11])
+			- (this[0] * this[9] - this[8] * this[1]) * (this[6] * this[15] - this[14] * this[7])
+			+ (this[0] * this[13] - this[12] * this[1]) * (this[6] * this[11] - this[10] * this[7])
+			+ (this[4] * this[9] - this[8] * this[5]) * (this[2] * this[15] - this[14] * this[3])
+			- (this[4] * this[13] - this[12] * this[5]) * (this[2] * this[11] - this[10] * this[3])
+			+ (this[8] * this[13] - this[12] * this[9]) * (this[2] * this[7] - this[6] * this[3]));
 	}
 
 	@:noCompletion private function get_position():Vector4

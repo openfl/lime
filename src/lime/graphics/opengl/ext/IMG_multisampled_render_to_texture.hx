@@ -9,6 +9,7 @@ package lime.graphics.opengl.ext;
 	public var TEXTURE_SAMPLES_IMG = 0x9136;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glRenderbufferStorageMultisampleIMG (GLenum, GLsizei, GLenum, GLsizei, GLsizei);
 	// GL_APICALL void GL_APIENTRY glFramebufferTexture2DMultisampleIMG (GLenum, GLenum, GLenum, GLuint, GLint, GLsizei);
 }

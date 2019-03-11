@@ -495,13 +495,13 @@ class Font
 		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
 		{
 			untyped (Browser.document).fonts.load("1em '" + name + "'").then(function(_)
-				{
-					promise.complete(this);
-				}, function(_)
-				{
-					Log.warn("Could not load web font \"" + name + "\"");
-					promise.complete(this);
-				});
+			{
+				promise.complete(this);
+			}, function(_)
+			{
+				Log.warn("Could not load web font \"" + name + "\"");
+				promise.complete(this);
+			});
 		}
 		else
 		{

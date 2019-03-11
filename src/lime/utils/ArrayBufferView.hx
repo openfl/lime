@@ -1,7 +1,8 @@
 package lime.utils;
 
-#if (js && !doc_gen) typedef ArrayBufferView = js.html.ArrayBufferView;
-#else #if !lime_debug@:fileXml('tags="haxe,release"')
+#if (js && !doc_gen)
+typedef ArrayBufferView = js.html.ArrayBufferView;
+#else #if !lime_debug @:fileXml('tags="haxe,release"')
 @:noDebug #end
 class ArrayBufferView
 {
@@ -414,7 +415,8 @@ abstract TypedArrayType(Int) from Int to Int
 	var Float64 = 9;
 }
 
-#if (!js || doc_gen) @:noCompletion @:dox(hide) class ArrayBufferIO
+#if (!js || doc_gen)
+@:noCompletion @:dox(hide) class ArrayBufferIO
 {
 	// 8
 	#if !no_typedarray_inline
@@ -845,5 +847,6 @@ abstract TypedArrayType(Int) from Int to Int
 		_out = _out > 255 ? 255 : _out;
 		return _out < 0 ? 0 : _out;
 	} // _clamp
-} #else // #error "ArrayBufferIO is not used on js target, use DataView instead"
+}
+#else // #error "ArrayBufferIO is not used on js target, use DataView instead"
 #end // !js

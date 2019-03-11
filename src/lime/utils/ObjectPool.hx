@@ -6,7 +6,7 @@ import haxe.ds.ObjectMap;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-#if !js@:generic #end class ObjectPool<T>
+#if !js @:generic #end class ObjectPool<T>
 {
 	public var activeObjects(default, null):Int;
 	public var inactiveObjects(default, null):Int;

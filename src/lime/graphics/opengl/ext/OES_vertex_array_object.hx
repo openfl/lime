@@ -21,6 +21,7 @@ package lime.graphics.opengl.ext;
 	}
 
 	public function bindVertexArrayOES(arrayObject:Dynamic /*WebGLVertexArrayObject*/):Void {}
+
 	// public function bindVertexArrayOES (array:Int):Void {}
 	// public function deleteVertexArraysOES (n:Int, arrays:Array<Int>):Void {}
 	// public function genVertexArraysOES (n:Int, arrays:Array<Int>):Void {}

@@ -11,6 +11,7 @@ package lime.graphics.opengl.ext;
 	public var PROGRAM_PIPELINE_BINDING_EXT = 0x825A;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glUseProgramStagesEXT (GLuint pipeline, GLbitfield stages, GLuint program);
 	// GL_APICALL void GL_APIENTRY glActiveShaderProgramEXT (GLuint pipeline, GLuint program);
 	// GL_APICALL GLuint GL_APIENTRY glCreateShaderProgramvEXT (GLenum type, GLsizei count, const GLchar **strings);

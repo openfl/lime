@@ -1,6 +1,8 @@
 package lime.graphics;
 
-#if (!lime_doc_gen || lime_opengl) #if (lime_doc_gen || (sys && lime_cffi && !doc_gen)) import lime._internal.backend.native.NativeOpenGLRenderContext;
+#if (!lime_doc_gen || lime_opengl)
+#if (lime_doc_gen || (sys && lime_cffi && !doc_gen))
+import lime._internal.backend.native.NativeOpenGLRenderContext;
 
 /**
 	The `OpenGLRenderContext` allows access to OpenGL features when OpenGL is the render
@@ -37,12 +39,15 @@ abstract OpenGLRenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderC
 	{
 		return context.gl;
 	}
-} #else @:forward()
+}
+#else
+@:forward()
 abstract OpenGLRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):OpenGLRenderContext
 	{
 		return null;
 	}
-} #end
+}
+#end
 #end

@@ -12,6 +12,7 @@ package lime.graphics.opengl.ext;
 	public var PERFMON_RESULT_AMD = 0x8BC6;
 
 	@:noCompletion private function new() {}
+
 	// public function getPerfMonitorGroupsAMD (GLint *numGroups, GLsizei groupsSize, GLuint *groups);
 	// public function getPerfMonitorCountersAMD (GLuint group, GLint *numCounters, GLint *maxActiveCounters, GLsizei counterSize, GLuint *counters);
 	// public function getPerfMonitorGroupStringAMD (GLuint group, GLsizei bufSize, GLsizei *length, GLchar *groupString);

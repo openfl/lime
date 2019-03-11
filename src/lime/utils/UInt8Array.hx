@@ -1,12 +1,13 @@
 package lime.utils;
 
-#if (js && !doc_gen) @:forward
+#if (js && !doc_gen)
+@:forward
 abstract UInt8Array(js.html.Uint8Array) from js.html.Uint8Array to js.html.Uint8Array
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ? vector : openfl.Vector<Int>, #end?view:ArrayBufferView, ?buffer:ArrayBuffer,
+	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end?view:ArrayBufferView, ?buffer:ArrayBuffer,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -66,7 +67,9 @@ abstract UInt8Array(js.html.Uint8Array) from js.html.Uint8Array to js.html.Uint8
 
 	inline function toString()
 		return this != null ? 'UInt8Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
-} #else import lime.utils.ArrayBufferView;
+}
+#else
+import lime.utils.ArrayBufferView;
 
 @:forward
 abstract UInt8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
@@ -76,7 +79,7 @@ abstract UInt8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	public var length(get, never):Int;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ? vector : openfl.Vector<Int>, #end?view:ArrayBufferView,
+	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -141,4 +144,5 @@ abstract UInt8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		ArrayBufferIO.setUint8(this.buffer, this.byteOffset + idx, val);
 		return val;
 	}
-} #end // !js
+}
+#end // !js

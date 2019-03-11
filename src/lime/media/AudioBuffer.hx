@@ -247,7 +247,7 @@ class AudioBuffer
 
 			audioBuffer.__srcSound.addEventListener(flash.events.ProgressEvent.PROGRESS, function(event)
 			{
-				promise.progress(event.bytesLoaded, event.bytesTotal);
+				promise.progress(Std.int(event.bytesLoaded), Std.int(event.bytesTotal));
 			});
 
 			audioBuffer.__srcSound.addEventListener(flash.events.IOErrorEvent.IO_ERROR, promise.error);

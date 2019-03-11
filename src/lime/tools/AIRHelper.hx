@@ -204,8 +204,8 @@ class AIRHelper
 		if (targetPlatform == ANDROID)
 		{
 			AndroidHelper.initialize(project);
-			AndroidHelper.install(project,
-				FileSystem.fullPath(workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".apk");
+			AndroidHelper.install(project, FileSystem.fullPath(workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "")
+				+ project.app.file + ".apk");
 			AndroidHelper.run(project.meta.packageName + "/.AppEntry");
 		}
 		else if (targetPlatform == IOS)
@@ -224,10 +224,12 @@ class AIRHelper
 
 			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-uninstallApp"]
 				.concat(args).concat(["-appid", project.meta.packageName]), true, true);
-			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-installApp"].concat(args).concat([
-					"-package",
-					FileSystem.fullPath(workingDirectory) + "/" + (rootDirectory != null ? rootDirectory + "/" : "") + project.app.file + ".ipa"
-				]));
+			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-installApp"].concat(args).concat(["-package",
+				FileSystem.fullPath(workingDirectory)
+				+ "/"
+				+ (rootDirectory != null ? rootDirectory + "/" : "")
+				+ project.app.file
+				+ ".ipa"]));
 			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-launchApp"]
 				.concat(args).concat(["-appid", project.meta.packageName]), true, true);
 

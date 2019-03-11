@@ -8,5 +8,6 @@ package lime.graphics.opengl.ext;
 	public var STENCIL_EXT = 0x1802;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glDiscardFramebufferEXT (GLenum target, GLsizei numAttachments, const GLenum *attachments);
 }

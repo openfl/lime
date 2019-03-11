@@ -194,8 +194,10 @@ class AssetsMacro
 							}
 
 							var bytes = File.getBytes(path);
-							var resourceName = "__ASSET__" + metaName + "_" + (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "") + classType
-								.name;
+							var resourceName = "__ASSET__" + metaName
+								+ "_"
+								+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
+								+ classType.name;
 
 							if (Context.getResources().exists(resourceName))
 							{

@@ -1,6 +1,8 @@
 package lime.media;
 
-#if (!lime_doc_gen || (js && html5)) #if (!lime_doc_gen && (!js || !html5 || display)) class WebAudioContext
+#if (!lime_doc_gen || (js && html5))
+#if (!lime_doc_gen && (!js || !html5 || display))
+class WebAudioContext
 {
 	public var activeSourceCount(default, null):Int;
 	public var currentTime(default, null):Float;
@@ -101,6 +103,8 @@ package lime.media;
 		/*AudioBufferCallback*/):Void {}
 
 	public function startRendering():Void {}
-} #else typedef WebAudioContext = js.html.audio.AudioContext;
+}
+#else
+typedef WebAudioContext = js.html.audio.AudioContext;
 #end
 #end

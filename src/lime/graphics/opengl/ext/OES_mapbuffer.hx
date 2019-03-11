@@ -9,6 +9,7 @@ package lime.graphics.opengl.ext;
 	public var BUFFER_MAP_POINTER_OES = 0x88BD;
 
 	@:noCompletion private function new() {}
+
 	// public function mapBufferOES (target:Int, access:Int):Dynamic {}
 	// public function unmapBufferOES (target:Int):Bool {}
 	// public function getBufferPointervOES (target:Int, pname:Int):Dynamic {}

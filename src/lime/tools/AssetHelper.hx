@@ -263,8 +263,9 @@ class AssetHelper
 		}
 		else
 		{
-			if (project.target == EMSCRIPTEN && (asset.embed != false || (asset.library != null && libraries.exists(asset.library)
-						&& libraries[asset.library].preload)))
+			if (project.target == EMSCRIPTEN
+				&& (asset.embed != false
+					|| (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload)))
 			{
 				assetData.preload = true;
 			}
@@ -488,8 +489,8 @@ class AssetHelper
 					for (library in project.libraries)
 					{
 						if (library.type != null
-								&& project.libraryHandlers.exists(library.type)
-								&& project.libraryHandlers.get(library.type) == handler)
+							&& project.libraryHandlers.exists(library.type)
+							&& project.libraryHandlers.get(library.type) == handler)
 						{
 							types.push(library.type);
 						}
@@ -535,8 +536,10 @@ class AssetHelper
 
 		for (library in project.libraries)
 		{
-			if (library.type == null || (project.target == FLASH && library.embed != false && ["pak", "pack", "gzip", "zip", "deflate"].indexOf(library
-						.type) > -1))
+			if (library.type == null
+				|| (project.target == FLASH
+					&& library.embed != false
+					&& ["pak", "pack", "gzip", "zip", "deflate"].indexOf(library.type) > -1))
 			{
 				if (library.name == DEFAULT_LIBRARY_NAME)
 				{

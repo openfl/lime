@@ -102,8 +102,8 @@ class FlashHelper
 							}
 							else if (frameSamplingFrequency != samplingFrequency)
 							{
-								Sys
-									.println("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with variable sampling frequencies), embedding as binary");
+								Sys.println("Warning: Could not embed \"" + name
+									+ "\" (Flash does not support MP3 audio with variable sampling frequencies), embedding as binary");
 								inAsset.type = BINARY;
 								return embedAsset(inAsset, packageName, outTags);
 							}
@@ -114,8 +114,8 @@ class FlashHelper
 							}
 							else if (frameIsStereo != isStereo)
 							{
-								Sys
-									.println("Warning: Could not embed \"" + name + "\" (Flash does not support MP3 audio with mixed mono and stero frames), embedding as binary");
+								Sys.println("Warning: Could not embed \"" + name
+									+ "\" (Flash does not support MP3 audio with mixed mono and stero frames), embedding as binary");
 								inAsset.type = BINARY;
 								return embedAsset(inAsset, packageName, outTags);
 							}
@@ -135,7 +135,9 @@ class FlashHelper
 
 				if (totalLengthSamples == 0)
 				{
-					Sys.println("Warning: Could not embed \"" + name + "\" (Could not find any valid MP3 audio data), embedding as binary");
+					Sys.println("Warning: Could not embed \""
+						+ name
+						+ "\" (Could not find any valid MP3 audio data), embedding as binary");
 					inAsset.type = BINARY;
 					return embedAsset(inAsset, packageName, outTags);
 				}
@@ -150,8 +152,11 @@ class FlashHelper
 
 				if (flashSamplingFrequency == null)
 				{
-					Sys
-						.println("Warning: Could not embed \"" + name + "\" (Flash supports 11025, 22050 and 44100kHz MP3 files, but file is " + samplingFrequency + "kHz), embedding as binary");
+					Sys.println("Warning: Could not embed \""
+						+ name
+						+ "\" (Flash supports 11025, 22050 and 44100kHz MP3 files, but file is "
+						+ samplingFrequency
+						+ "kHz), embedding as binary");
 					inAsset.type = BINARY;
 					return embedAsset(inAsset, packageName, outTags);
 				}
@@ -198,7 +203,9 @@ class FlashHelper
 
 					if (hdr.format != WF_PCM)
 					{
-						Sys.println("Warning: Could not embed \"" + name + "\" (Only PCM uncompressed WAV files are currently supported), embedding as binary");
+						Sys.println("Warning: Could not embed \""
+							+ name
+							+ "\" (Only PCM uncompressed WAV files are currently supported), embedding as binary");
 						inAsset.type = BINARY;
 						return embedAsset(inAsset, packageName, outTags);
 					}
@@ -215,8 +222,11 @@ class FlashHelper
 
 					if (flashRate == null)
 					{
-						Sys.println("Warning: Could not embed \"" + name + "\" (Flash supports 5512, 11025, 22050 and 44100kHz WAV files, but file is " + hdr
-							.samplingRate + "kHz), embedding as binary");
+						Sys.println("Warning: Could not embed \""
+							+ name
+							+ "\" (Flash supports 5512, 11025, 22050 and 44100kHz WAV files, but file is "
+							+ hdr.samplingRate
+							+ "kHz), embedding as binary");
 						inAsset.type = BINARY;
 						return embedAsset(inAsset, packageName, outTags);
 					}
@@ -321,7 +331,9 @@ class FlashHelper
 			{
 				if (native_glyph.char_code > 65535)
 				{
-					Sys.println("Warning: glyph with character code greater than 65535 encountered (" + native_glyph.char_code + "). Skipping...");
+					Sys.println("Warning: glyph with character code greater than 65535 encountered ("
+						+ native_glyph.char_code
+						+ "). Skipping...");
 					continue;
 				}
 
@@ -849,8 +861,8 @@ class FlashHelper
 
 					if (asset.type == IMAGE)
 					{
-						embed += "@:keep " + tagName + "('" + sourcePath + "') class __ASSET__" + asset.flatName + " extends " + flashClass +
-							" { public function new () { super (0, 0, true, 0); } }\n";
+						embed += "@:keep " + tagName + "('" + sourcePath + "') class __ASSET__" + asset.flatName + " extends " + flashClass
+							+ " { public function new () { super (0, 0, true, 0); } }\n";
 					}
 					else
 					{

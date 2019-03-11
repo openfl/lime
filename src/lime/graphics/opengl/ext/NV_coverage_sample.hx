@@ -14,6 +14,7 @@ package lime.graphics.opengl.ext;
 	public var COVERAGE_BUFFER_BIT_NV = 0x8000;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glCoverageMaskNV (GLboolean mask);
 	// GL_APICALL void GL_APIENTRY glCoverageOperationNV (GLenum operation);
 }

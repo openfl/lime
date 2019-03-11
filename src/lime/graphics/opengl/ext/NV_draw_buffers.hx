@@ -38,5 +38,6 @@ package lime.graphics.opengl.ext;
 	public var COLOR_ATTACHMENT15_NV = 0x8CEF;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glDrawBuffersNV (GLsizei n, const GLenum *bufs);
 }

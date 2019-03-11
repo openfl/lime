@@ -8,6 +8,7 @@ package lime.graphics.opengl.ext;
 	public var FENCE_CONDITION_NV = 0x84F4;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glDeleteFencesNV (GLsizei, const GLuint *);
 	// GL_APICALL void GL_APIENTRY glGenFencesNV (GLsizei, GLuint *);
 	// GL_APICALL GLboolean GL_APIENTRY glIsFenceNV (GLuint);

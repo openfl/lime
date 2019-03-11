@@ -36,8 +36,8 @@ class PlatformTargetMain
 
 			lastArgument = new Path(lastArgument).toString();
 
-			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\")) && !StringTools
-				.endsWith(lastArgument, ":\\"))
+			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\"))
+				&& !StringTools.endsWith(lastArgument, ":\\"))
 			{
 				lastArgument = lastArgument.substr(0, lastArgument.length - 1);
 			}

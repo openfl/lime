@@ -16,6 +16,7 @@ package lime.graphics.opengl.ext;
 	public var STATE_RESTORE = 0x8BDC;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glExtGetTexturesQCOM (GLuint *textures, GLint maxTextures, GLint *numTextures);
 	// GL_APICALL void GL_APIENTRY glExtGetBuffersQCOM (GLuint *buffers, GLint maxBuffers, GLint *numBuffers);
 	// GL_APICALL void GL_APIENTRY glExtGetRenderbuffersQCOM (GLuint *renderbuffers, GLint maxRenderbuffers, GLint *numRenderbuffers);

@@ -56,7 +56,8 @@ class AssetLibrary
 
 		if (assetType != null)
 		{
-			if (assetType == requestedType || ((requestedType == SOUND || requestedType == MUSIC) && (assetType == MUSIC || assetType == SOUND)))
+			if (assetType == requestedType
+				|| ((requestedType == SOUND || requestedType == MUSIC) && (assetType == MUSIC || assetType == SOUND)))
 			{
 				return true;
 			}

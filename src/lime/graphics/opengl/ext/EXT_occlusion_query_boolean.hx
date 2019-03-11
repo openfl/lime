@@ -10,6 +10,7 @@ package lime.graphics.opengl.ext;
 	public var QUERY_RESULT_AVAILABLE_EXT = 0x8867;
 
 	@:noCompletion private function new() {}
+
 	// GL_APICALL void GL_APIENTRY glGenQueriesEXT (GLsizei n, GLuint *ids);
 	// GL_APICALL void GL_APIENTRY glDeleteQueriesEXT (GLsizei n, const GLuint *ids);
 	// GL_APICALL GLboolean GL_APIENTRY glIsQueryEXT (GLuint id);

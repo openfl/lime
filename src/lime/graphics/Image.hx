@@ -985,12 +985,12 @@ class Image
 
 		loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, function(event)
 		{
-			promise.progress(event.bytesLoaded, event.bytesTotal);
+			promise.progress(Std.int(event.bytesLoaded), Std.int(event.bytesTotal));
 		});
 
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, function(event)
 		{
-			promise.error(event.error);
+			promise.error(event.errorID);
 		});
 
 		loader.loadBytes(bytes.getData());
@@ -1041,12 +1041,12 @@ class Image
 
 		loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, function(event)
 		{
-			promise.progress(event.bytesLoaded, event.bytesTotal);
+			promise.progress(Std.int(event.bytesLoaded), Std.int(event.bytesTotal));
 		});
 
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, function(event)
 		{
-			promise.error(event.error);
+			promise.error(event.errorID);
 		});
 
 		loader.load(new URLRequest(path), new LoaderContext(true));
@@ -1743,7 +1743,10 @@ class Image
 	{
 		if (bytes == null || bytes.length < 4) return false;
 
-		return bytes.get(0) == 0xFF && bytes.get(1) == 0xD8 && bytes.get(bytes.length - 2) == 0xFF && bytes.get(bytes.length - 1) == 0xD9;
+		return bytes.get(0) == 0xFF
+			&& bytes.get(1) == 0xD8
+			&& bytes.get(bytes.length - 2) == 0xFF
+			&& bytes.get(bytes.length - 1) == 0xD9;
 	}
 
 	private static function __isPNG(bytes:Bytes):Bool
@@ -1805,8 +1808,9 @@ class Image
 
 	@:noCompletion private function get_powerOfTwo():Bool
 	{
-		return ((buffer.width != 0) && ((buffer.width & (~buffer.width + 1)) == buffer.width)) && ((buffer.height != 0) && ((buffer.height & (~buffer.height +
-					1)) == buffer.height));
+		return ((buffer.width != 0)
+			&& ((buffer.width & (~buffer.width + 1)) == buffer.width))
+			&& ((buffer.height != 0) && ((buffer.height & (~buffer.height + 1)) == buffer.height));
 	}
 
 	@:noCompletion private function set_powerOfTwo(value:Bool):Bool

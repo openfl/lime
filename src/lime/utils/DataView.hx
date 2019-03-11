@@ -1,7 +1,8 @@
 package lime.utils;
 
 import lime.utils.ArrayBufferView;
-#if (js && !doc_gen) @:forward
+#if (js && !doc_gen)
+@:forward
 abstract DataView(js.html.DataView) from js.html.DataView to js.html.DataView
 {
 	public inline function new(buffer:ArrayBuffer, byteOffset:Null<Int> = null, byteLength:Null<Int> = null)
@@ -139,7 +140,9 @@ abstract DataView(js.html.DataView) from js.html.DataView to js.html.DataView
 	{
 		this.setFloat64(byteOffset, value, littleEndian);
 	}
-} #else import lime.utils.ArrayBuffer;
+}
+#else
+import lime.utils.ArrayBuffer;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -310,4 +313,5 @@ class DataView
 	{
 		littleEndian ? ArrayBufferIO.setFloat64(buffer, byteOffset, value) : ArrayBufferIO.setFloat64_BE(buffer, byteOffset, value);
 	}
-} #end // !js
+}
+#end // !js

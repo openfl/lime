@@ -1,7 +1,9 @@
 package lime.utils;
 
-#if (js && !doc_gen) typedef ArrayBuffer = js.html.ArrayBuffer;
-#else import haxe.io.Bytes;
+#if (js && !doc_gen)
+typedef ArrayBuffer = js.html.ArrayBuffer;
+#else
+import haxe.io.Bytes;
 
 @:forward
 abstract ArrayBuffer(Bytes) from Bytes to Bytes
@@ -12,4 +14,5 @@ abstract ArrayBuffer(Bytes) from Bytes to Bytes
 	{
 		this = Bytes.alloc(byteLength);
 	}
-} #end // !js
+}
+#end // !js
