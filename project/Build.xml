@@ -390,6 +390,9 @@
 			<ext value=".so" />
 			<ext value=".ndll" if="windows || mac || linux" />
 
+			<!-- TODO: Support single binary -->
+			<ext value=".hdll" if="LIME_HASHLINK" />
+
 			<section if="windows">
 
 				<lib name="gdi32.lib" />
@@ -419,7 +422,7 @@
 				<lib name="Xinput.lib" if="winrt" />
 				<lib name="DXGI.lib" if="winrt" />
 
-				<lib name="-libpath:${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-libpath:../templates/bin/hl/windows" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
 

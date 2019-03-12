@@ -51,6 +51,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
+			is64 = false;
 		}
 		else if (project.targetFlags.exists("nodejs"))
 		{
@@ -154,13 +155,13 @@ class WindowsPlatform extends PlatformTarget
 
 			if (targetType == "winrt")
 			{
-				if(!project.targetFlags.exists ("static"))
+				if (!project.targetFlags.exists("static"))
 				{
 					for (ndll in project.ndlls)
 					{
 						ProjectHelper.copyLibrary(project, ndll, "WinRT" + (is64 ? "64" : ""), "",
-						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory,
-						project.debug, null);
+							(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
+							applicationDirectory, project.debug, null);
 					}
 				}
 			}
@@ -170,9 +171,18 @@ class WindowsPlatform extends PlatformTarget
 
 				for (ndll in project.ndlls)
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "",
-						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory,
-						project.debug, targetSuffix);
+					// TODO: Support single binary for HashLink
+					if (targetType == "hl")
+					{
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project
+							.debug, targetSuffix);
+					}
+					else
+					{
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "",
+							(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
+							applicationDirectory, project.debug, targetSuffix);
+					}
 				}
 			}
 
@@ -200,7 +210,19 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
-				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, project.app.file + ".hl"));
+				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, project.app.file + ".hl"));
+				System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
+				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
+				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
+
+				var iconPath = Path.combine(applicationDirectory, "icon.ico");
+
+				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
+				{
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
+						+ "/templates"].concat(project.templatePaths);
+					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
+				}
 			}
 			else if (targetType == "nodejs")
 			{
@@ -237,8 +259,9 @@ class WindowsPlatform extends PlatformTarget
 
 				if (haxeVersion.length > 4)
 				{
-					haxeVersionString = haxeVersion.charAt(0) + haxeVersion.charAt(2) + (haxeVersion.length == 5 ? "0" + haxeVersion.charAt(4) : haxeVersion
-						.charAt(4) + haxeVersion.charAt(5));
+					haxeVersionString = haxeVersion.charAt(0)
+						+ haxeVersion.charAt(2)
+						+ (haxeVersion.length == 5 ? "0" + haxeVersion.charAt(4) : haxeVersion.charAt(4) + haxeVersion.charAt(5));
 				}
 
 				System.runCommand(targetDirectory + "/obj", "haxelib", ["run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString]);
@@ -298,14 +321,14 @@ class WindowsPlatform extends PlatformTarget
 					System.copyFile(targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 				}
 
-				//TODO createWinrtIcons
-				//var iconPath = Path.combine(applicationDirectory, "icon.ico");
+				// TODO createWinrtIcons
+				// var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
-				//if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
-				//{
+				// if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
+				// {
 				//	var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 				//	System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
-				//}
+				// }
 			}
 			else
 			{
@@ -356,7 +379,8 @@ class WindowsPlatform extends PlatformTarget
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
+						+ "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -407,11 +431,11 @@ class WindowsPlatform extends PlatformTarget
 			}
 		}
 		else if (targetType == "winrt")
-		{			
+		{
 			context.CPP_DIR = targetDirectory + "/obj";
 			context.BUILD_DIR = project.app.path + "/winrt" + (is64 ? "64" : "");
 			context.DC = "::";
-		} 
+		}
 		else
 		{
 			context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
@@ -439,11 +463,16 @@ class WindowsPlatform extends PlatformTarget
 			hxml.addClassName(context.APP_MAIN);
 			switch (targetType)
 			{
-				case "hl": hxml.hl = "_.hl";
-				case "neko": hxml.neko = "_.n";
-				case "java": hxml.java = "_";
-				case "nodejs", "winjs": hxml.js = "_.js";
-				default: hxml.cpp = "_";
+				case "hl":
+					hxml.hl = "_.hl";
+				case "neko":
+					hxml.neko = "_.n";
+				case "java":
+					hxml.java = "_";
+				case "nodejs", "winjs":
+					hxml.js = "_.js";
+				default:
+					hxml.cpp = "_";
 			}
 			hxml.noOutput = true;
 			return hxml;
@@ -463,13 +492,17 @@ class WindowsPlatform extends PlatformTarget
 
 			var commands = [];
 
-			if (!targetFlags.exists("64") && (command == "rebuild"
-				|| System.hostArchitecture == X86
-				|| (targetType != "cpp" && targetType != "winrt")))
+			if (!targetFlags.exists("64")
+				&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
 			{
-				if (targetFlags.exists("winrt"))
+				if (targetType == "winrt")
 				{
 					commands.push(["-Dwinrt", "-DHXCPP_M32"]);
+				}
+				else if (targetType == "hl")
+				{
+					// TODO: Support single binary
+					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
 				}
 				else
 				{
@@ -483,10 +516,12 @@ class WindowsPlatform extends PlatformTarget
 
 			if (!targetFlags.exists("32")
 				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt")
+				&& targetType != "hl")
 			{
-				if (targetFlags.exists("winrt"))
+				if (targetType == "winrt")
 				{
+
 					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
 				}
 				else
@@ -508,11 +543,7 @@ class WindowsPlatform extends PlatformTarget
 			arguments.push("-verbose");
 		}
 
-		if (targetType == "hl")
-		{
-			System.runCommand(applicationDirectory, "hl", [project.app.file + ".hl"].concat(arguments));
-		}
-		else if (targetType == "nodejs")
+		if (targetType == "nodejs")
 		{
 			NodeJSHelper.run(project, targetDirectory + "/bin/ApplicationMain.js", arguments);
 		}
@@ -575,8 +606,8 @@ class WindowsPlatform extends PlatformTarget
 			// var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
 			// Sys.command ('powershell & ""' + targetDirectory + '/bin/source/AppPackages/' + project.app.file + '_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1""');
 			var version = project.meta.version + "." + project.meta.buildNumber;
-			System.openFile(targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test",
-				project.app.file + "_" + version + "_AnyCPU.appx");
+			System.openFile(targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test", project.app
+				.file + "_" + version + "_AnyCPU.appx");
 
 			// source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
 
@@ -631,7 +662,8 @@ class WindowsPlatform extends PlatformTarget
 		if ((targetType == "cpp" || targetType == "winrt") && project.targetFlags.exists("static"))
 		{
 			var programFiles = project.environment.get("ProgramFiles(x86)");
-			var hasVSCommunity = (programFiles != null && FileSystem.exists(Path.combine(programFiles, "Microsoft Visual Studio/Installer/vswhere.exe")));
+			var hasVSCommunity = (programFiles != null
+				&& FileSystem.exists(Path.combine(programFiles, "Microsoft Visual Studio/Installer/vswhere.exe")));
 			var hxcppMSVC = project.environment.get("HXCPP_MSVC");
 			var vs140 = project.environment.get("VS140COMNTOOLS");
 
@@ -650,7 +682,8 @@ class WindowsPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT":"Windows") + (is64 ? "64" : ""), "lib", suffix, project.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix, project
+						.debug);
 				}
 			}
 		}
@@ -665,11 +698,11 @@ class WindowsPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, targetType + "/hxml", targetDirectory + "/haxe", context);
 
-		if (targetType == "winrt" && project.targetFlags.exists ("static"))
+		if (targetType == "winrt" && project.targetFlags.exists("static"))
 		{
-			ProjectHelper.recursiveSmartCopyTemplate (project, "winrt/assetspkg", targetDirectory + "/bin/assetspkg", context, false, true);
-			ProjectHelper.recursiveSmartCopyTemplate (project, "winrt/appx", targetDirectory + "/bin", context, true, true);
-			ProjectHelper.recursiveSmartCopyTemplate (project, "winrt/static", targetDirectory + "/obj", context, true, true);		
+			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/assetspkg", targetDirectory + "/bin/assetspkg", context, false, true);
+			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/appx", targetDirectory + "/bin", context, true, true);
+			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/static", targetDirectory + "/obj", context, true, true);
 		}
 		else if (targetType == "cpp" && project.targetFlags.exists("static"))
 		{
@@ -908,78 +941,83 @@ class WindowsPlatform extends PlatformTarget
 		System.watch(command, dirs);
 	}
 
-//	@ignore public override function install ():Void {}
+	//	@ignore public override function install ():Void {}
 	override public function install():Void
 	{
 		super.install();
 		if (targetType == "winrt")
 		{
-			//if(project.winrtConfig.isAppx)
-			//{
+			// if(project.winrtConfig.isAppx)
+			// {
 			//   TODO: pack in appx
-			//}
-			//else
+			// }
+			// else
 			{
-	        		uninstall();
-	        		Log.info("run: Register app");
-	        		var process = new sys.io.Process('powershell', ["-noprofile", "-command",'Add-AppxPackage -Path '+applicationDirectory + "/"+'AppxManifest.xml -Register']);
-	        		if (process.exitCode() != 0) 
+				uninstall();
+				Log.info("run: Register app");
+				var process = new sys.io.Process('powershell', [
+					"-noprofile",
+					"-command",
+					'Add-AppxPackage -Path ' + applicationDirectory + "/" + 'AppxManifest.xml -Register'
+				]);
+				if (process.exitCode() != 0)
 				{
 					var message = process.stderr.readAll().toString();
-	            			Log.error("Cannot register. " + message);
-	        		}
-	        		process.close();
+					Log.error("Cannot register. " + message);
+				}
+				process.close();
 			}
 		}
 	}
 
 	@ignore public override function trace():Void {}
 
-	//@ignore public override function uninstall ():Void {}
+	// @ignore public override function uninstall ():Void {}
 	override public function uninstall():Void
-	{ 
+	{
 		super.uninstall();
-		if (targetType == "winrt")
-		//if(project.winrtConfig.isAppx)
-		//{
-		//  TODO
-		//}
-		//else
+		if (targetType == "winrt") // if(project.winrtConfig.isAppx)
+			// {
+			//  TODO
+			// }
+			// else
 		{
-  			var appxName = project.meta.packageName;
-  			Log.info("run: Remove previous registered app");
-  			var process = new sys.io.Process('powershell', ["-noprofile", "-command",'Get-AppxPackage '+appxName+' | Remove-AppxPackage']);
-  			if (process.exitCode() != 0)
+			var appxName = project.meta.packageName;
+			Log.info("run: Remove previous registered app");
+			var process = new sys.io.Process('powershell', [
+				"-noprofile",
+				"-command",
+				'Get-AppxPackage ' + appxName + ' | Remove-AppxPackage'
+			]);
+			if (process.exitCode() != 0)
 			{
-    				var message = process.stderr.readAll().toString();
-    				Log.error("Cannot remove. " + message);
+				var message = process.stderr.readAll().toString();
+				Log.error("Cannot remove. " + message);
 			}
-			process.close();        
+			process.close();
 		}
 	}
 
-
-	public function winrtRun (arguments:Array<String>):Void
+	public function winrtRun(arguments:Array<String>):Void
 	{
-	
 		var dir = applicationDirectory;
-		var haxeDir = targetDirectory + "/haxe"; 
+		var haxeDir = targetDirectory + "/haxe";
 
-		//if(project.winrtConfig.isAppx)
-		//{
+		// if(project.winrtConfig.isAppx)
+		// {
 		//	Log.info("\n***Double click on "+project.app.file + ".Appx to install Appx");
-		//}
-		//else
+		// }
+		// else
 		{
 			var appxName = project.meta.packageName;
 			var appxId = "App";
-			var appxAUMID:String = null; 
+			var appxAUMID:String = null;
 			var appxInfoFile = haxeDir + "/appxinfo.txt";
-			var kitsRoot10 = "C:\\Program Files (x86)\\Windows Kits\\10\\"; //%WindowsSdkDir%
+			var kitsRoot10 = "C:\\Program Files (x86)\\Windows Kits\\10\\"; // %WindowsSdkDir%
 
-			//get PackageFamilyappxName and set appxAUMID
+			// get PackageFamilyappxName and set appxAUMID
 			//	write app info in a file
-			var cmd = 'Get-AppxPackage '+appxName+' | Out-File '+appxInfoFile+' -Encoding ASCII';
+			var cmd = 'Get-AppxPackage ' + appxName + ' | Out-File ' + appxInfoFile + ' -Encoding ASCII';
 			trace("powershell " + cmd);
 			var process3 = new sys.io.Process('powershell', [cmd]);
 			if (process3.exitCode() != 0)
@@ -989,37 +1027,38 @@ class WindowsPlatform extends PlatformTarget
 			}
 			process3.close();
 			//	parse file
-			if(sys.FileSystem.exists(appxInfoFile))
+			if (sys.FileSystem.exists(appxInfoFile))
 			{
 				var fin = sys.io.File.read(appxInfoFile, false);
-			  	try
-			  	{
-			  		while(true)
-			  		{
-				  		var str = fin.readLine();
-				  		var split = str.split (":");
-				  		var name = StringTools.trim(split[0]);
-				  		if( name == "PackageFamilyName")
-				  		{
-				  			var appxPackageFamilyName = StringTools.trim(split[1]);
-				  			if(appxPackageFamilyName!=null)
-				  			{
-								appxAUMID = appxPackageFamilyName+"!"+appxId;
+				try
+				{
+					while (true)
+					{
+						var str = fin.readLine();
+						var split = str.split(":");
+						var name = StringTools.trim(split[0]);
+						if (name == "PackageFamilyName")
+						{
+							var appxPackageFamilyName = StringTools.trim(split[1]);
+							if (appxPackageFamilyName != null)
+							{
+								appxAUMID = appxPackageFamilyName + "!" + appxId;
 								break;
-				  			}
-			  			}
-		  			}
-		  		}
-		  		catch(e:haxe.io.Eof)
-		  		{
-			 		Log.error('Could not get PackageFamilyName from '+appxInfoFile);
-		  		}
-		  		fin.close();
+							}
+						}
+					}
+				}
+				catch (e:haxe.io.Eof)
+				{
+					Log.error('Could not get PackageFamilyName from ' + appxInfoFile);
+				}
+				fin.close();
 			}
 
-			Log.info("run: "+appxAUMID);
-			Log.info(kitsRoot10+'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe '+appxAUMID);
-			var process4 = new sys.io.Process(kitsRoot10+'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe', [appxAUMID]);
+			Log.info("run: " + appxAUMID);
+			Log.info(kitsRoot10 + 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe ' + appxAUMID);
+			var process4 = new sys.io.Process(kitsRoot10
+				+ 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe', [appxAUMID]);
 		}
 	}
 }

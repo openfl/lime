@@ -27,7 +27,7 @@
 	https://github.com/HaxeFoundation/hashlink/wiki/
 **/
 
-#define HL_VERSION	0x160
+#define HL_VERSION	0x190
 
 #if defined(_WIN32)
 #	define HL_WIN
@@ -206,8 +206,10 @@ typedef unsigned long long uint64;
 // -------------- UNICODE -----------------------------------
 
 #if defined(HL_WIN) && !defined(HL_LLVM)
-#ifdef HL_WIN_DESKTOP
+#if defined(HL_WIN_DESKTOP) && !defined(HL_MINGW)
 // #	include <Windows.h>
+#elif defined(HL_WIN_DESKTOP) && defined(HL_MINGW)
+// #	include<windows.h>
 #else
 #	include <xdk.h>
 #endif
@@ -219,7 +221,7 @@ typedef wchar_t	uchar;
 #	define uprintf		wprintf
 #	define ustrlen		wcslen
 #	define ustrdup		_wcsdup
-#	define uvsprintf	wvsprintf
+HL_API int uvszprintf( uchar *out, int out_size, const uchar *fmt, va_list arglist );
 #	define utod(s,end)	wcstod(s,end)
 #	define utoi(s,end)	wcstol(s,end,10)
 #	define ucmp(a,b)	wcscmp(a,b)
@@ -262,7 +264,7 @@ HL_API int utoi( const uchar *str, uchar **end );
 HL_API int ucmp( const uchar *a, const uchar *b );
 HL_API int utostr( char *out, int out_size, const uchar *str );
 HL_API int usprintf( uchar *out, int out_size, const uchar *fmt, ... );
-HL_API int uvsprintf( uchar *out, const uchar *fmt, va_list arglist );
+HL_API int uvszprintf( uchar *out, int out_size, const uchar *fmt, va_list arglist );
 HL_API void uprintf( const uchar *fmt, const uchar *str );
 C_FUNCTION_END
 #endif
@@ -295,6 +297,14 @@ C_FUNCTION_END
 #	define hl_debug_break()
 #endif
 
+#ifdef HL_VCC
+#	define HL_NO_RETURN(f) __declspec(noreturn) f
+#	define HL_UNREACHABLE
+#else
+#	define HL_NO_RETURN(f) f __attribute__((noreturn))
+#	define HL_UNREACHABLE __builtin_unreachable()
+#endif
+
 // ---- TYPES -------------------------------------------
 
 typedef enum {
@@ -318,8 +328,9 @@ typedef enum {
 	HABSTRACT=17,
 	HENUM	= 18,
 	HNULL	= 19,
+	HMETHOD = 20,
 	// ---------
-	HLAST	= 20,
+	HLAST	= 21,
 	_H_FORCE_INT = 0x7FFFFFFF
 } hl_type_kind;
 
@@ -578,11 +589,12 @@ HL_API int hl_hash_utf8( const char *str ); // no cache
 HL_API int hl_hash_gen( const uchar *name, bool cache_name );
 HL_API const uchar *hl_field_name( int hash );
 
-#define hl_error(msg)	hl_error_msg(USTR(msg))
-HL_API void hl_error_msg( const uchar *msg, ... );
+#define hl_error(msg, ...) hl_throw(hl_alloc_strbytes(USTR(msg), ## __VA_ARGS__))
+
+HL_API vdynamic *hl_alloc_strbytes( const uchar *msg, ... );
 HL_API void hl_assert( void );
-HL_API void hl_throw( vdynamic *v );
-HL_API void hl_rethrow( vdynamic *v );
+HL_API HL_NO_RETURN( void hl_throw( vdynamic *v ) );
+HL_API HL_NO_RETURN( void hl_rethrow( vdynamic *v ) );
 HL_API void hl_setup_longjump( void *j );
 HL_API void hl_setup_exception( void *resolve_symbol, void *capture_stack );
 HL_API void hl_dump_stack( void );
@@ -716,6 +728,7 @@ HL_API int hl_buffer_length( hl_buffer *b );
 HL_API uchar *hl_buffer_content( hl_buffer *b, int *len );
 HL_API uchar *hl_to_string( vdynamic *v );
 HL_API const uchar *hl_type_str( hl_type *t );
+HL_API void hl_throw_buffer( hl_buffer *b );
 
 // ----------------------- FFI ------------------------------------------------------
 
@@ -784,7 +797,11 @@ typedef struct {
 #endif
 
 #if defined(HL_GCC) && !defined(HL_CONSOLE)
-#	define HL_NO_OPT __attribute__((optimize("-O0")))
+#	ifdef HL_CLANG
+#		define HL_NO_OPT	__attribute__ ((optnone))
+#	else
+#		define HL_NO_OPT	__attribute__((optimize("-O0")))
+#	endif
 #else
 #	define HL_NO_OPT
 #endif
@@ -806,8 +823,9 @@ typedef struct _hl_trap_ctx hl_trap_ctx;
 struct _hl_trap_ctx {
 	jmp_buf buf;
 	hl_trap_ctx *prev;
+	vdynamic *tcheck;
 };
-#define hl_trap(ctx,r,label) { hl_thread_info *__tinf = hl_get_thread(); ctx.prev = __tinf->trap_current; __tinf->trap_current = &ctx; if( setjmp(ctx.buf) ) { r = __tinf->exc_value; goto label; } }
+#define hl_trap(ctx,r,label) { hl_thread_info *__tinf = hl_get_thread(); ctx.tcheck = NULL; ctx.prev = __tinf->trap_current; __tinf->trap_current = &ctx; if( setjmp(ctx.buf) ) { r = __tinf->exc_value; goto label; } }
 #define hl_endtrap(ctx)	hl_get_thread()->trap_current = ctx.prev
 
 #define HL_EXC_MAX_STACK	0x100
@@ -815,6 +833,7 @@ struct _hl_trap_ctx {
 #define HL_EXC_CATCH_ALL	2
 #define HL_EXC_IS_THROW		4
 #define HL_TRACK_DISABLE	8
+#define HL_THREAD_INVISIBLE	16
 
 typedef struct {
 	int thread_id;
