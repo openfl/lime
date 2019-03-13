@@ -1391,7 +1391,18 @@ class NativeOpenGLRenderContext
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
 		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
-		return NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index, object);
+		if (NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index, object) != null)
+		{
+			return {
+				size: object.size,
+				type: object.type,
+				name: object.name != null ? @:privateAccess String.fromUTF8(object.name) : null
+			};
+		}
+		else
+		{
+			return null;
+		}
 		#else
 		return NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index);
 		#end
@@ -1405,7 +1416,18 @@ class NativeOpenGLRenderContext
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
 		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
-		return NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index, object);
+		if (NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index, object) != null)
+		{
+			return {
+				size: object.size,
+				type: object.type,
+				name: object.name != null ? @:privateAccess String.fromUTF8(object.name) : null
+			};
+		}
+		else
+		{
+			return null;
+		}
 		#else
 		return NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index);
 		#end
@@ -2184,8 +2206,18 @@ class NativeOpenGLRenderContext
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
 		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
-		var result:Dynamic = NativeCFFI.lime_gl_get_transform_feedback_varying(__getObjectID(program), index, object);
-		return result;
+		if (NativeCFFI.lime_gl_get_transform_feedback_varying(__getObjectID(program), index, object) != null)
+		{
+			return {
+				size: object.size,
+				type: object.type,
+				name: object.name != null ? @:privateAccess String.fromUTF8(object.name) : null
+			};
+		}
+		else
+		{
+			return null;
+		}
 		#else
 		var result:Dynamic = NativeCFFI.lime_gl_get_transform_feedback_varying(__getObjectID(program), index);
 		return result;
