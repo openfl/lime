@@ -1060,7 +1060,7 @@ class Bytes
 		setInt32(pos, v.low);
 	}
 
-	public function getString(pos:Int, len:Int, ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end):String
+	public function getString(pos:Int, len:Int #if (!hl || haxe_ver >= 4), ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end #end):String
 	{
 		if (outRange(pos, len)) throw Error.OutsideBounds;
 
@@ -1110,7 +1110,7 @@ class Bytes
 		return new Bytes(b, length);
 	}
 
-	public static function ofString(s:String, ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end):Bytes@:privateAccess {
+	public static function ofString(s:String #if (!hl || haxe_ver >= 4) , ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end #end):Bytes@:privateAccess {
 		var size = 0;
 		var b = s.bytes.utf16ToUtf8(0, size);
 		return new Bytes(b, size);
@@ -1121,6 +1121,7 @@ class Bytes
 		return new Bytes(b.bytes, b.length);
 	}
 
+	#if (!hl || haxe_ver >= 4)
 	public static function ofHex(s:String):Bytes
 	{
 		var len = s.length;
@@ -1138,6 +1139,7 @@ class Bytes
 
 		return new Bytes(b, l);
 	}
+	#end
 
 	public inline static function fastGet(b:BytesData, pos:Int):Int
 	{

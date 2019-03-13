@@ -59,7 +59,7 @@ class LinuxPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = false;
+			is64 = true;
 		}
 		else if (project.targetFlags.exists("nodejs"))
 		{
@@ -92,7 +92,13 @@ class LinuxPlatform extends PlatformTarget
 
 			for (ndll in project.ndlls)
 			{
-				if (isRaspberryPi)
+				// TODO: Support single binary for HashLink
+				if (targetType == "hl")
+				{
+					ProjectHelper.copyLibrary(project, ndll, "Linux" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project
+						.debug, targetSuffix);
+				}
+				else if (isRaspberryPi)
 				{
 					ProjectHelper.copyLibrary(project, ndll, "RPi", "",
 						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory,
@@ -101,8 +107,8 @@ class LinuxPlatform extends PlatformTarget
 				else
 				{
 					ProjectHelper.copyLibrary(project, ndll, "Linux" + (is64 ? "64" : ""), "",
-						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory,
-						project.debug, targetSuffix);
+						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
+						applicationDirectory, project.debug, targetSuffix);
 				}
 			}
 		}
@@ -130,8 +136,11 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-				Path.combine(applicationDirectory, project.app.file + ".hl"));
+			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
+			// 	Path.combine(applicationDirectory, project.app.file + ".hl"));
+			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/linux", applicationDirectory);
+			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
+			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
 		}
 		else if (targetType == "nodejs")
 		{
@@ -293,6 +302,11 @@ class LinuxPlatform extends PlatformTarget
 				"-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib"
 			]);
 		}
+		else if (targetFlags.exists("hl") && System.hostArchitecture == X64)
+		{
+			// TODO: Support single binary
+			commands.push(["-Dlinux", "-DHXCPP_M64", "-Dhashlink"]);
+		}
 		else
 		{
 			if (!targetFlags.exists("32") && System.hostArchitecture == X64)
@@ -318,11 +332,7 @@ class LinuxPlatform extends PlatformTarget
 			arguments.push("-verbose");
 		}
 
-		if (targetType == "hl")
-		{
-			System.runCommand(applicationDirectory, "hl", [project.app.file + ".hl"].concat(arguments));
-		}
-		else if (targetType == "nodejs")
+		if (targetType == "nodejs")
 		{
 			NodeJSHelper.run(project, targetDirectory + "/bin/ApplicationMain.js", arguments);
 		}
