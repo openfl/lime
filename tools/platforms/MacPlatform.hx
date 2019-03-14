@@ -95,14 +95,14 @@ class MacPlatform extends PlatformTarget
 				// TODO: Support single binary for HashLink
 				if (targetType == "hl")
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", executableDirectory, project
 						.debug, targetSuffix);
 				}
 				else
 				{
 					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
 						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
-						applicationDirectory, project.debug, targetSuffix);
+						executableDirectory, project.debug, targetSuffix);
 				}
 			}
 		}
@@ -124,9 +124,9 @@ class MacPlatform extends PlatformTarget
 
 			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
 			// 	Path.combine(executableDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", applicationDirectory);
-			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
+			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", executableDirectory);
+			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
+			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
 		}
 		else if (targetType == "java")
 		{
