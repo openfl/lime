@@ -2070,7 +2070,6 @@ class NativeOpenGLRenderContext
 		var result = NativeCFFI.lime_gl_get_string(name);
 		#if hl
 		var result = @:privateAccess String.fromUTF8(result);
-		trace (result);
 		#end
 		return result;
 		#else
