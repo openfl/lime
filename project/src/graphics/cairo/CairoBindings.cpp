@@ -2272,7 +2272,6 @@ namespace lime {
 		int length = strlen (version);
 		char* _version = (char*)malloc (length + 1);
 		strcpy (_version, version);
-		_version[length] = '\0';
 		return (vbyte*)_version;
 
 	}

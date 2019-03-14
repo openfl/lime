@@ -2191,7 +2191,6 @@ namespace lime {
 		int length = strlen (result);
 		char* _result = (char*)malloc (length + 1);
 		strcpy (_result, result);
-		_result[length] = '\0';
 		return (vbyte*)_result;
 
 	}
@@ -2211,7 +2210,6 @@ namespace lime {
 		int length = strlen (result);
 		char* _result = (char*)malloc (length + 1);
 		strcpy (_result, result);
-		_result[length] = '\0';
 		return (vbyte*)_result;
 
 	}
@@ -2762,7 +2760,6 @@ namespace lime {
 		int length = strlen (result);
 		char* _result = (char*)malloc (length + 1);
 		strcpy (_result, result);
-		_result[length] = '\0';
 		return (vbyte*)_result;
 
 	}

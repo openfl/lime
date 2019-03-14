@@ -622,11 +622,28 @@ namespace lime {
 			hl_dyn_seti (ret, hl_hash_utf8 ("is_bold"), &hlt_bool, ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD);
 			hl_dyn_seti (ret, hl_hash_utf8 ("num_glyphs"), &hlt_i32, num_glyphs);
 
-			// TODO: if family_name is null, convert to wide string
+			char* _family_name = NULL;
+
+			if (family_name != NULL) {
+
+				int length = std::wcslen (family_name);
+				char* result = (char*)malloc (length + 1);
+				std::wcstombs (result, family_name, length);
+				result[length] = '\0';
+				delete family_name;
+
+			} else {
+
+				int length = strlen (((FT_Face)face)->family_name);
+				_family_name = (char*)malloc (length + 1);
+				strcpy (_family_name, ((FT_Face)face)->family_name);
+
+			}
+
 			char* style_name = (char*)malloc(strlen(((FT_Face)face)->style_name) + 1);
 			strcpy(style_name, ((FT_Face)face)->style_name);
 
-			hl_dyn_setp (ret, hl_hash_utf8 ("family_name"), &hlt_bytes, family_name);
+			hl_dyn_setp (ret, hl_hash_utf8 ("family_name"), &hlt_bytes, _family_name);
 			hl_dyn_setp (ret, hl_hash_utf8 ("style_name"), &hlt_bytes, style_name);
 			hl_dyn_seti (ret, hl_hash_utf8 ("em_size"), &hlt_i32, ((FT_Face)face)->units_per_EM);
 			hl_dyn_seti (ret, hl_hash_utf8 ("ascend"), &hlt_i32, ((FT_Face)face)->ascender);

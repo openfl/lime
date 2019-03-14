@@ -1109,7 +1109,12 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
 		wchar_t *name = font->GetFamilyName ();
-		return (vbyte*)name;
+		int size = std::wcslen (name);
+		char* result = (char*)malloc (size + 1);
+		std::wcstombs (result, name, size);
+		result[size] = '\0';
+		delete name;
+		return (vbyte*)result;
 		#else
 		return 0;
 		#endif
