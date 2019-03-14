@@ -170,7 +170,11 @@ class System
 		{
 			var display = new Display();
 			display.id = id;
+			#if hl
+			display.name = @:privateAccess String.fromUTF8(displayInfo.name);
+			#else
 			display.name = displayInfo.name;
+			#end
 			display.bounds = new Rectangle(displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
 
 			#if ios
@@ -195,7 +199,12 @@ class System
 
 			var displayMode;
 
-			for (mode in cast(displayInfo.supportedModes, Array<Dynamic>))
+			#if hl
+			var supportedModes:hl.NativeArray<Dynamic> = displayInfo.supportedModes;
+			#else
+			var supportedModes:Array<Dynamic> = displayInfo.supportedModes;
+			#end
+			for (mode in supportedModes)
 			{
 				displayMode = new DisplayMode(mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
 				display.supportedModes.push(displayMode);

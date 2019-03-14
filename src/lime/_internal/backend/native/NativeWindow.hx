@@ -267,11 +267,15 @@ class NativeWindow
 		if (handle != null)
 		{
 			#if (!macro && lime_cffi)
+			#if hl
+			NativeCFFI.lime_window_get_display_mode(handle, displayMode);
+			#else
 			var data:Dynamic = NativeCFFI.lime_window_get_display_mode(handle);
 			displayMode.width = data.width;
 			displayMode.height = data.height;
 			displayMode.pixelFormat = data.pixelFormat;
 			displayMode.refreshRate = data.refreshRate;
+			#end
 			#end
 		}
 
@@ -501,11 +505,15 @@ class NativeWindow
 		if (handle != null)
 		{
 			#if (!macro && lime_cffi)
+			#if hl
+			NativeCFFI.lime_window_set_display_mode(handle, value, displayMode);
+			#else
 			var data:Dynamic = NativeCFFI.lime_window_set_display_mode(handle, value);
 			displayMode.width = data.width;
 			displayMode.height = data.height;
 			displayMode.pixelFormat = data.pixelFormat;
 			displayMode.refreshRate = data.refreshRate;
+			#end
 			#end
 		}
 

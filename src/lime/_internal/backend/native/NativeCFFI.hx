@@ -1249,10 +1249,7 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "lime_window_get_display_mode") private static function lime_window_get_display_mode(handle:CFFIPointer):Dynamic
-	{
-		return null;
-	}
+	@:hlNative("lime", "lime_window_get_display_mode") private static function lime_window_get_display_mode(handle:CFFIPointer, result:DisplayMode):Void {}
 
 	@:hlNative("lime", "lime_window_get_height") private static function lime_window_get_height(handle:CFFIPointer):Int
 	{
@@ -1312,10 +1309,7 @@ class NativeCFFI
 	@:hlNative("lime", "lime_window_set_cursor") private static function lime_window_set_cursor(handle:CFFIPointer, cursor:Int):Void {}
 
 	@:hlNative("lime", "lime_window_set_display_mode") private static function lime_window_set_display_mode(handle:CFFIPointer,
-			displayMode:DisplayMode):DisplayMode
-	{
-		return null;
-	}
+			displayMode:DisplayMode, result:DisplayMode):Void {}
 
 	@:hlNative("lime", "lime_window_set_fullscreen") private static function lime_window_set_fullscreen(handle:CFFIPointer, fullscreen:Bool):Bool
 	{
