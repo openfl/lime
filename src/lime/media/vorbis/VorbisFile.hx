@@ -5,6 +5,9 @@ import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
 
+#if hl
+@:keep
+#end
 @:access(lime._internal.backend.native.NativeCFFI)
 class VorbisFile
 {

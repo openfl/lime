@@ -3806,7 +3806,7 @@ namespace lime {
 
 			HL_CFFIPointer* handle = (HL_CFFIPointer*)glObjectPtrs[object];
 			handle->finalizer = NULL;
-			delete handle;
+			//delete handle;
 			glObjectPtrs.erase (object);
 
 		}
