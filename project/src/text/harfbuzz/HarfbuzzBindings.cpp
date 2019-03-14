@@ -722,7 +722,16 @@ namespace lime {
 
 		const char* result = hb_buffer_serialize_format_to_string ((hb_buffer_serialize_format_t)format);
 
-		if (result) return (vbyte*)result;
+		if (result) {
+
+			int length = strlen (result);
+			char* _result = (char*)malloc (length + 1);
+			strcpy (_result, result);
+			_result[length] = '\0';
+			return (vbyte*)_result;
+
+		}
+
 		return NULL;
 
 	}
@@ -1136,7 +1145,12 @@ namespace lime {
 
 		char* result = (char*)malloc (128);
 		hb_feature_to_string ((hb_feature_t*)feature->ptr, result, 128);
-		return (vbyte*)result;
+
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 
@@ -1401,7 +1415,12 @@ namespace lime {
 
 		char* result = (char*)malloc (1024);
 		hb_font_glyph_to_string ((hb_font_t*)font->ptr, (hb_codepoint_t)codepoint, result, 1024);
-		return (vbyte*)result;
+
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 
@@ -1585,7 +1604,12 @@ namespace lime {
 
 		hb_language_t _language = (hb_language_t)language->ptr;
 		const char* result = hb_language_to_string (_language);
-		return (vbyte*)result;
+
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 

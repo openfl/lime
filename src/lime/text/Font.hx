@@ -471,7 +471,11 @@ class Font
 		{
 			if (name == null)
 			{
+				#if hl
+				name = @:privateAccess String.fromUCS2(NativeCFFI.lime_font_get_family_name(src));
+				#else
 				name = cast NativeCFFI.lime_font_get_family_name(src);
+				#end
 			}
 
 			ascender = NativeCFFI.lime_font_get_ascender(src);

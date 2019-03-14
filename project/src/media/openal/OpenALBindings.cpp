@@ -2204,7 +2204,11 @@ namespace lime {
 	HL_PRIM vbyte* hl_lime_al_get_string (int param) {
 
 		const char* result = alGetString (param);
-		return (vbyte*)result;
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 
@@ -3382,7 +3386,11 @@ namespace lime {
 
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
 		const char* result = alcGetString (alcDevice, param);
-		return (vbyte*)result;
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 

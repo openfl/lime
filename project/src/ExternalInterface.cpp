@@ -721,8 +721,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;
@@ -790,8 +791,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;
@@ -863,8 +865,9 @@ namespace lime {
 		for (int i = 0; i < files.size (); i++) {
 
 			int size = std::wcslen (files[i]->c_str ());
-			char* _file = (char*)malloc (size);
+			char* _file = (char*)malloc (size + 1);
 			std::wcstombs (_file, files[i]->c_str (), size);
+			_file[size] = '\0';
 
 			*resultData++ = (vbyte*)_file;
 			delete files[i];
@@ -930,8 +933,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;

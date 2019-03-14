@@ -220,7 +220,11 @@ private class ClipboardEventInfo
 
 private class DropEventInfo
 {
+	#if hl
+	public var file:hl.Bytes;
+	#else
 	public var file:String;
+	#end
 	public var type:DropEventType;
 
 	public function new(type:DropEventType = null, file:String = null)
@@ -427,7 +431,11 @@ private class TextEventInfo
 	public var id:Int;
 	public var length:Int;
 	public var start:Int;
+	#if hl
+	public var text:hl.Bytes;
+	#else
 	public var text:String;
+	#end
 	public var type:TextEventType;
 	public var windowID:Int;
 

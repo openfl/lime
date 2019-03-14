@@ -1835,10 +1835,11 @@ namespace lime {
 		GLint length;
 		glGetActiveUniformBlockiv (program, uniformBlockIndex, GL_UNIFORM_BLOCK_NAME_LENGTH, &length);
 
-		char* buffer = (char*)malloc (length);
+		char* buffer = (char*)malloc (length + 1);
 
 		glGetActiveUniformBlockName (program, uniformBlockIndex, length, 0, buffer);
 
+		buffer[length] = '\0';
 		return (vbyte*)buffer;
 		#else
 		return NULL;
@@ -2472,10 +2473,11 @@ namespace lime {
 
 		}
 
-		char* buffer = (char*)malloc (logSize);
+		char* buffer = (char*)malloc (logSize + 1);
 
 		glGetProgramInfoLog (program, logSize, 0, buffer);
 
+		buffer[logSize] = '\0';
 		return (vbyte*)buffer;
 
 	}
@@ -2740,10 +2742,11 @@ namespace lime {
 
 		}
 
-		char* buffer = (char*)malloc (logSize);
+		char* buffer = (char*)malloc (logSize + 1);
 		GLint writeSize;
 		glGetShaderInfoLog (shader, logSize, &writeSize, buffer);
 
+		buffer[logSize] = '\0';
 		return (vbyte*)buffer;
 
 	}
@@ -2867,8 +2870,9 @@ namespace lime {
 		}
 
 		char *result = new char[len + 1];
-		glGetShaderSource (shader, len + 1, 0, result);
+		glGetShaderSource (shader, len, 0, result);
 
+		result[len] = '\0';
 		return (vbyte*)result;
 
 	}
@@ -2898,8 +2902,9 @@ namespace lime {
 		if (val) {
 
 			int size = strlen (val);
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			memcpy (result, val, size);
+			result[size] = '\0';
 			return (vbyte*)result;
 
 		} else {
@@ -2940,8 +2945,9 @@ namespace lime {
 		if (val) {
 
 			int size = strlen (val);
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			memcpy (result, val, size);
+			result[size] = '\0';
 			return (vbyte*)result;
 
 		} else {

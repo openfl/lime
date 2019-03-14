@@ -2188,7 +2188,11 @@ namespace lime {
 	HL_PRIM vbyte* hl_lime_curl_easy_strerror (int errornum) {
 
 		const char* result = curl_easy_strerror ((CURLcode)errornum);
-		return (vbyte*)result;
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 
@@ -2204,7 +2208,11 @@ namespace lime {
 	HL_PRIM vbyte* hl_lime_curl_easy_unescape (HL_CFFIPointer* curl, hl_vstring* url, int inlength, int outlength) {
 
 		char* result = curl_easy_unescape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, inlength, &outlength);
-		return (vbyte*)result;
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 
@@ -2751,7 +2759,11 @@ namespace lime {
 	HL_PRIM vbyte* hl_lime_curl_version () {
 
 		char* result = curl_version ();
-		return (vbyte*)result;
+		int length = strlen (result);
+		char* _result = (char*)malloc (length + 1);
+		strcpy (_result, result);
+		_result[length] = '\0';
+		return (vbyte*)_result;
 
 	}
 
