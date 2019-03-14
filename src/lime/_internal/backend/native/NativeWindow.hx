@@ -408,13 +408,7 @@ class NativeWindow
 		if (!useHardware)
 		{
 			#if lime_cairo
-			var lock:Dynamic = NativeCFFI.lime_window_context_lock(handle #if hl,
-				{
-					width: 0,
-					height: 0,
-					pixels: 0.,
-					pitch: 0
-				} #end);
+			var lock:Dynamic = NativeCFFI.lime_window_context_lock(handle);
 
 			if (lock != null
 				&& (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height))

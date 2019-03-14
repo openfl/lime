@@ -1390,13 +1390,13 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
-		if (NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index, object) != null)
+		var result = NativeCFFI.lime_gl_get_active_attrib(__getObjectID(program), index);
+		if (result != null)
 		{
 			return {
-				size: object.size,
-				type: object.type,
-				name: object.name != null ? @:privateAccess String.fromUTF8(object.name) : null
+				size: result.size,
+				type: result.type,
+				name: @:privateAccess String.fromUTF8(result.name)
 			};
 		}
 		else
@@ -1415,13 +1415,13 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
-		if (NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index, object) != null)
+		var result = NativeCFFI.lime_gl_get_active_uniform(__getObjectID(program), index);
+		if (result != null)
 		{
 			return {
-				size: object.size,
-				type: object.type,
-				name: object.name != null ? @:privateAccess String.fromUTF8(object.name) : null
+				size: result.size,
+				type: result.type,
+				name: @:privateAccess String.fromUTF8(result.name)
 			};
 		}
 		else
@@ -1582,18 +1582,7 @@ class NativeOpenGLRenderContext
 	public function getContextAttributes():GLContextAttributes
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
-		#if hl
-		var object:Dynamic =
-			{
-				alpha: false,
-				depth: false,
-				stencil: false,
-				antialias: false
-			};
-		var base:Dynamic = NativeCFFI.lime_gl_get_context_attributes(object);
-		#else
 		var base:Dynamic = NativeCFFI.lime_gl_get_context_attributes();
-		#end
 		base.premultipliedAlpha = false;
 		base.preserveDrawingBuffer = false;
 		return base;
@@ -2056,11 +2045,7 @@ class NativeOpenGLRenderContext
 	public function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
-		#if hl
-		return NativeCFFI.lime_gl_get_shader_precision_format(shadertype, precisiontype, {rangeMin: 0, rangeMax: 0, precision: 0});
-		#else
 		return NativeCFFI.lime_gl_get_shader_precision_format(shadertype, precisiontype);
-		#end
 		#else
 		return null;
 		#end
@@ -2205,13 +2190,13 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		#if hl
-		var object:{size:Int, type:Int, name:hl.Bytes} = {size: 0, type: 0, name: null};
-		if (NativeCFFI.lime_gl_get_transform_feedback_varying(__getObjectID(program), index, object) != null)
+		var result = NativeCFFI.lime_gl_get_transform_feedback_varying(__getObjectID(program), index);
+		if (result != null)
 		{
 			return {
-				size: object.size,
-				type: object.type,
-				name: object.name != null ? @:privateAccess String.fromUTF8(object.name) : null
+				size: result.size,
+				type: result.type,
+				name: @:privateAccess String.fromUTF8(result.name)
 			};
 		}
 		else

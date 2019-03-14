@@ -3131,14 +3131,14 @@ namespace lime {
 
 	value lime_window_context_lock (value window) {
 
-		return (value)((Window*)val_data (window))->ContextLock (true, NULL);
+		return (value)((Window*)val_data (window))->ContextLock (true);
 
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_window_context_lock (HL_CFFIPointer* window, vdynamic* object) {
+	HL_PRIM vdynamic* hl_lime_window_context_lock (HL_CFFIPointer* window) {
 
-		return (vdynamic*)((Window*)window->ptr)->ContextLock (false, object);
+		return (vdynamic*)((Window*)window->ptr)->ContextLock (false);
 
 	}
 
@@ -4070,7 +4070,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_context_flip, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_window_context_lock, _TCFFIPOINTER _DYN);
+	DEFINE_HL_PRIM (_DYN, lime_window_context_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_context_make_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_context_unlock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);

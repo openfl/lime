@@ -370,7 +370,7 @@ namespace lime {
 	}
 
 
-	void* SDLWindow::ContextLock (bool useCFFIValue, void* object) {
+	void* SDLWindow::ContextLock (bool useCFFIValue) {
 
 		if (sdlRenderer) {
 
@@ -399,22 +399,20 @@ namespace lime {
 
 			if (useCFFIValue) {
 
-				value result = alloc_empty_object ();
-
 				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
 
+					value result = alloc_empty_object ();
 					alloc_field (result, val_id ("width"), alloc_int (contextWidth));
 					alloc_field (result, val_id ("height"), alloc_int (contextHeight));
 					alloc_field (result, val_id ("pixels"), alloc_float ((uintptr_t)pixels));
 					alloc_field (result, val_id ("pitch"), alloc_int (pitch));
+					return result;
 
 				} else {
 
 					return alloc_null ();
 
 				}
-
-				return result;
 
 			} else {
 
@@ -423,24 +421,20 @@ namespace lime {
 				const int id_pixels = hl_hash_utf8 ("pixels");
 				const int id_pitch = hl_hash_utf8 ("pitch");
 
-				// TODO: Allocate a new object here?
-
-				vdynamic* result = (vdynamic*)object;
-
 				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
 
+					vdynamic* result = (vdynamic*)hl_alloc_dynobj();
 					hl_dyn_seti (result, id_width, &hlt_i32, contextWidth);
 					hl_dyn_seti (result, id_height, &hlt_i32, contextHeight);
 					hl_dyn_setd (result, id_pixels, (uintptr_t)pixels);
 					hl_dyn_seti (result, id_pitch, &hlt_i32, pitch);
+					return result;
 
 				} else {
 
 					return 0;
 
 				}
-
-				return result;
 
 			}
 
