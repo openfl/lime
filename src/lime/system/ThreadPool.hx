@@ -183,7 +183,7 @@ class ThreadPool
 					case COMPLETE, ERROR:
 						__workCompleted++;
 
-						if (currentThreads > (__workQueued - __workCompleted) || currentThreads > maxThreads)
+						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads) || currentThreads > maxThreads)
 						{
 							currentThreads--;
 							__workIncoming.add(new ThreadPoolMessage(EXIT, null));
