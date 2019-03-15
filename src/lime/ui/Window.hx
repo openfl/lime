@@ -243,7 +243,7 @@ class Window
 		];
 
 		Gamepad.addMappings(mappings);
-		#elseif linux
+		#elseif (linux || android)
 		var mappings = [
 
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Linux",
