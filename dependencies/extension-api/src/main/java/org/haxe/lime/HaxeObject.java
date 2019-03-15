@@ -19,7 +19,12 @@ public class HaxeObject
       __haxeHandle = value;
    }
 
-   public static HaxeObject create(long inHandle) { return new HaxeObject(inHandle); }
+   public static HaxeObject create(long inHandle)
+   {
+      if (inHandle == 0)
+         return null;
+      return new HaxeObject(inHandle);
+   }
 
 
    protected void finalize() throws Throwable {
