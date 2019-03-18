@@ -57,7 +57,7 @@ class FlashPlatform extends PlatformTarget
 	{
 		if (project.targetFlags.exists ("output-file"))
 		{
-			Sys.println (Path.combine(targetDirectory, project.app.file + ".swf"));
+			Sys.println (Path.combine(targetDirectory, "bin/" + project.app.file + ".swf"));
 		}
 		else
 		{
