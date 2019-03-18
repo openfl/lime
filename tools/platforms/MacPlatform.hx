@@ -223,7 +223,7 @@ class MacPlatform extends PlatformTarget
 	{
 		if (project.targetFlags.exists("output-file"))
 		{
-			Sys.println(Path.combine(targetDirectory, project.app.file));
+			Sys.println(executablePath);
 		}
 		else
 		{
