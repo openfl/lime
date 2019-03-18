@@ -402,7 +402,14 @@ class WindowsPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		Sys.println(getDisplayHXML());
+		if (project.targetFlags.exists("output-file"))
+		{
+			Sys.println(executablePath);
+		}
+		else
+		{
+			Sys.println(getDisplayHXML());
+		}
 	}
 
 	private function generateContext():Dynamic
@@ -521,7 +528,6 @@ class WindowsPlatform extends PlatformTarget
 			{
 				if (targetType == "winrt")
 				{
-
 					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
 				}
 				else

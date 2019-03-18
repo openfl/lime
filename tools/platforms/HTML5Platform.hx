@@ -117,7 +117,14 @@ class HTML5Platform extends PlatformTarget
 
 	public override function display():Void
 	{
-		Sys.println(getDisplayHXML());
+		if (project.targetFlags.exists("output-file"))
+		{
+			Sys.println(outputFile);
+		}
+		else
+		{
+			Sys.println(getDisplayHXML());
+		}
 	}
 
 	private function getDisplayHXML():String
