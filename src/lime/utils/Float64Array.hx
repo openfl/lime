@@ -69,7 +69,7 @@ abstract Float64Array(JSFloat64Array) from JSFloat64Array to JSFloat64Array
 
 	inline public function toBytes():haxe.io.Bytes
 	{
-		return @:privateAccess new haxe.io.Bytes(cast new JSUint8Array(this.buffer));
+		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
 
 	function toString()

@@ -69,7 +69,7 @@ abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
 
 	inline public function toBytes():haxe.io.Bytes
 	{
-		return @:privateAccess new haxe.io.Bytes(cast new JSUint8Array(this.buffer));
+		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
 
 	inline function toString()
