@@ -1,7 +1,7 @@
 package lime.utils;
 
 #if (js && !doc_gen)
-typedef ArrayBuffer = js.html.ArrayBuffer;
+typedef ArrayBuffer = #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end;
 #else
 import haxe.io.Bytes;
 

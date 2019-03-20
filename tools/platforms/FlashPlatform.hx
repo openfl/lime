@@ -18,7 +18,11 @@ import lime.tools.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 #if neko
+#if haxe4
+import sys.thread.Thread;
+#else
 import neko.vm.Thread;
+#end
 #end
 
 class FlashPlatform extends PlatformTarget

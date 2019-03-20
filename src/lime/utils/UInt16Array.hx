@@ -1,8 +1,13 @@
 package lime.utils;
 
 #if (js && !doc_gen)
+#if haxe4
+import js.lib.Uint16Array as JSUInt16Array;
+#else
+import js.html.Uint16Array as JSUInt16Array;
+#end
 @:forward
-abstract UInt16Array(js.html.Uint16Array) from js.html.Uint16Array to js.html.Uint16Array
+abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 2;
 
@@ -12,32 +17,32 @@ abstract UInt16Array(js.html.Uint16Array) from js.html.Uint16Array to js.html.Ui
 	{
 		if (elements != null)
 		{
-			this = new js.html.Uint16Array(elements);
+			this = new JSUInt16Array(elements);
 		}
 		else if (array != null)
 		{
-			this = new js.html.Uint16Array(untyped array);
+			this = new JSUInt16Array(untyped array);
 			#if (openfl && commonjs)
 			}
-			else if (vector != null) {this = new js.html.Uint16Array(untyped (vector));
+			else if (vector != null) {this = new JSUInt16Array(untyped (vector));
 			#elseif openfl
 			}
-			else if (vector != null) {this = new js.html.Uint16Array(untyped untyped (vector).__array);
+			else if (vector != null) {this = new JSUInt16Array(untyped untyped (vector).__array);
 			#end
 		}
 		else if (view != null)
 		{
-			this = new js.html.Uint16Array(untyped view);
+			this = new JSUInt16Array(untyped view);
 		}
 		else if (buffer != null)
 		{
 			if (len == null)
 			{
-				this = new js.html.Uint16Array(buffer, byteoffset);
+				this = new JSUInt16Array(buffer, byteoffset);
 			}
 			else
 			{
-				this = new js.html.Uint16Array(buffer, byteoffset, len);
+				this = new JSUInt16Array(buffer, byteoffset, len);
 			}
 		}
 		else
@@ -55,14 +60,14 @@ abstract UInt16Array(js.html.Uint16Array) from js.html.Uint16Array to js.html.Ui
 	// non spec haxe conversions
 	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):UInt16Array
 	{
-		if (byteOffset == null) return new js.html.Uint16Array(cast bytes.getData());
-		if (len == null) return new js.html.Uint16Array(cast bytes.getData(), byteOffset);
-		return new js.html.Uint16Array(cast bytes.getData(), byteOffset, len);
+		if (byteOffset == null) return new JSUInt16Array(cast bytes.getData());
+		if (len == null) return new JSUInt16Array(cast bytes.getData(), byteOffset);
+		return new JSUInt16Array(cast bytes.getData(), byteOffset, len);
 	}
 
 	inline public function toBytes():haxe.io.Bytes
 	{
-		return @:privateAccess new haxe.io.Bytes(cast new js.html.Uint8Array(this.buffer));
+		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
 
 	inline function toString()

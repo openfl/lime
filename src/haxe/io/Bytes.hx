@@ -649,7 +649,10 @@ class Bytes
 }
 #elseif js
 #if !nodejs
-#if (haxe_ver < 4.0)
+#if haxe4
+import js.lib.Uint8Array;
+import js.lib.DataView;
+#else
 import js.html.compat.Uint8Array;
 import js.html.compat.DataView;
 #end
@@ -666,13 +669,13 @@ class Bytes
 	#else
 	public var length(default, null):Int;
 	#end
-	var b:js.html.Uint8Array;
-	var data:js.html.DataView;
+	var b:Uint8Array;
+	var data:DataView;
 
 	function new(data:BytesData)
 	{
 		this.length = data.byteLength;
-		this.b = new js.html.Uint8Array(data);
+		this.b = new Uint8Array(data);
 		untyped
 			{
 				b.bufferValue = data; // some impl does not return the same instance in .buffer
@@ -723,7 +726,7 @@ class Bytes
 
 	inline function initData():Void
 	{
-		if (data == null) data = new js.html.DataView(b.buffer, b.byteOffset, b.byteLength);
+		if (data == null) data = new DataView(b.buffer, b.byteOffset, b.byteLength);
 	}
 
 	public function getDouble(pos:Int):Float
@@ -889,7 +892,7 @@ class Bytes
 				a.push(0x80 | (c & 63));
 			}
 		}
-		return new Bytes(new js.html.Uint8Array(a).buffer);
+		return new Bytes(new Uint8Array(a).buffer);
 	}
 
 	public static function ofData(b:BytesData):Bytes
@@ -915,7 +918,7 @@ class Bytes
 			i++;
 		}
 
-		return new Bytes(new js.html.Uint8Array(a).buffer);
+		return new Bytes(new Uint8Array(a).buffer);
 	}
 
 	public inline static function fastGet(b:BytesData, pos:Int):Int

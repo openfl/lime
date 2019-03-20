@@ -1,9 +1,14 @@
 package lime.utils;
 
 #if (js && !doc_gen)
+#if haxe4
+import js.lib.Float32Array as JSFloat32Array;
+#else
+import js.html.Float32Array as JSFloat32Array;
+#end
 @:forward
 @:arrayAccess
-abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html.Float32Array
+abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
@@ -13,32 +18,32 @@ abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html
 	{
 		if (elements != null)
 		{
-			this = new js.html.Float32Array(elements);
+			this = new JSFloat32Array(elements);
 		}
 		else if (array != null)
 		{
-			this = new js.html.Float32Array(untyped array);
+			this = new JSFloat32Array(untyped array);
 			#if (openfl && commonjs)
 			}
-			else if (vector != null) {this = new js.html.Float32Array(untyped (vector));
+			else if (vector != null) {this = new JSFloat32Array(untyped (vector));
 			#elseif openfl
 			}
-			else if (vector != null) {this = new js.html.Float32Array(untyped untyped (vector).__array);
+			else if (vector != null) {this = new JSFloat32Array(untyped untyped (vector).__array);
 			#end
 		}
 		else if (view != null)
 		{
-			this = new js.html.Float32Array(untyped view);
+			this = new JSFloat32Array(untyped view);
 		}
 		else if (buffer != null)
 		{
 			if (len == null)
 			{
-				this = new js.html.Float32Array(buffer, byteoffset);
+				this = new JSFloat32Array(buffer, byteoffset);
 			}
 			else
 			{
-				this = new js.html.Float32Array(buffer, byteoffset, len);
+				this = new JSFloat32Array(buffer, byteoffset, len);
 			}
 		}
 		else
@@ -56,14 +61,14 @@ abstract Float32Array(js.html.Float32Array) from js.html.Float32Array to js.html
 	// non spec haxe conversions
 	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):Float32Array
 	{
-		if (byteOffset == null) return new js.html.Float32Array(cast bytes.getData());
-		if (len == null) return new js.html.Float32Array(cast bytes.getData(), byteOffset);
-		return new js.html.Float32Array(cast bytes.getData(), byteOffset, len);
+		if (byteOffset == null) return new JSFloat32Array(cast bytes.getData());
+		if (len == null) return new JSFloat32Array(cast bytes.getData(), byteOffset);
+		return new JSFloat32Array(cast bytes.getData(), byteOffset, len);
 	}
 
 	inline public function toBytes():haxe.io.Bytes
 	{
-		return @:privateAccess new haxe.io.Bytes(cast new js.html.Uint8Array(this.buffer));
+		return @:privateAccess new haxe.io.Bytes(cast new JSUint8Array(this.buffer));
 	}
 
 	inline function toString()

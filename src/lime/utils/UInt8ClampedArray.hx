@@ -1,8 +1,13 @@
 package lime.utils;
 
 #if (js && !doc_gen)
+#if haxe4
+import js.lib.Uint8ClampedArray as JSUInt8ClampedArray;
+#else
+import js.html.Uint8ClampedArray as JSUInt8ClampedArray;
+#end
 @:forward
-abstract UInt8ClampedArray(js.html.Uint8ClampedArray) from js.html.Uint8ClampedArray to js.html.Uint8ClampedArray
+abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUInt8ClampedArray
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 
@@ -12,32 +17,32 @@ abstract UInt8ClampedArray(js.html.Uint8ClampedArray) from js.html.Uint8ClampedA
 	{
 		if (elements != null)
 		{
-			this = new js.html.Uint8ClampedArray(elements);
+			this = new JSUInt8ClampedArray(elements);
 		}
 		else if (array != null)
 		{
-			this = new js.html.Uint8ClampedArray(untyped array);
+			this = new JSUInt8ClampedArray(untyped array);
 			#if (openfl && commonjs)
 			}
-			else if (vector != null) {this = new js.html.Uint8ClampedArray(untyped (vector));
+			else if (vector != null) {this = new JSUInt8ClampedArray(untyped (vector));
 			#elseif openfl
 			}
-			else if (vector != null) {this = new js.html.Uint8ClampedArray(untyped untyped (vector).__array);
+			else if (vector != null) {this = new JSUInt8ClampedArray(untyped untyped (vector).__array);
 			#end
 		}
 		else if (view != null)
 		{
-			this = new js.html.Uint8ClampedArray(untyped view);
+			this = new JSUInt8ClampedArray(untyped view);
 		}
 		else if (buffer != null)
 		{
 			if (len == null)
 			{
-				this = new js.html.Uint8ClampedArray(buffer, byteoffset);
+				this = new JSUInt8ClampedArray(buffer, byteoffset);
 			}
 			else
 			{
-				this = new js.html.Uint8ClampedArray(buffer, byteoffset, len);
+				this = new JSUInt8ClampedArray(buffer, byteoffset, len);
 			}
 		}
 		else
@@ -55,14 +60,14 @@ abstract UInt8ClampedArray(js.html.Uint8ClampedArray) from js.html.Uint8ClampedA
 	// non spec haxe conversions
 	inline public static function fromBytes(bytes:haxe.io.Bytes, ?byteOffset:Int = 0, ?len:Int):UInt8ClampedArray
 	{
-		if (byteOffset == null) return new js.html.Uint8ClampedArray(cast bytes.getData());
-		if (len == null) return new js.html.Uint8ClampedArray(cast bytes.getData(), byteOffset);
-		return new js.html.Uint8ClampedArray(cast bytes.getData(), byteOffset, len);
+		if (byteOffset == null) return new JSUInt8ClampedArray(cast bytes.getData());
+		if (len == null) return new JSUInt8ClampedArray(cast bytes.getData(), byteOffset);
+		return new JSUInt8ClampedArray(cast bytes.getData(), byteOffset, len);
 	}
 
 	inline public function toBytes():haxe.io.Bytes
 	{
-		return @:privateAccess new haxe.io.Bytes(cast new js.html.Uint8Array(this.buffer));
+		return @:privateAccess new haxe.io.Bytes(cast new JSUInt8Array(this.buffer));
 	}
 
 	inline function toString()
