@@ -3,8 +3,10 @@ package lime.utils;
 #if (js && !doc_gen)
 #if haxe4
 import js.lib.Float32Array as JSFloat32Array;
+import js.lib.Uint8Array as JSUInt8Array;
 #else
 import js.html.Float32Array as JSFloat32Array;
+import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
 @:arrayAccess

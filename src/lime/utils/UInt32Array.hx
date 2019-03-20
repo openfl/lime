@@ -2,8 +2,10 @@ package lime.utils;
 
 #if (js && !doc_gen)
 #if haxe4
+import js.lib.Uint8Array as JSUInt8Array;
 import js.lib.Uint32Array as JSUInt32Array;
 #else
+import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint32Array as JSUInt32Array;
 #end
 @:forward

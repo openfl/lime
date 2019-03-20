@@ -3,8 +3,10 @@ package lime.utils;
 #if (js && !doc_gen)
 #if haxe4
 import js.lib.Int8Array as JSInt8Array;
+import js.lib.Uint8Array as JSUInt8Array;
 #else
 import js.html.Int8Array as JSInt8Array;
+import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
 abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array
