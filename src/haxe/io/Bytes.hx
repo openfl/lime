@@ -655,6 +655,8 @@ import js.lib.DataView;
 #else
 import js.html.compat.Uint8Array;
 import js.html.compat.DataView;
+import js.html.Uint8Array;
+import js.html.DataView;
 #end
 #end
 #if !macro
