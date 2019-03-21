@@ -648,16 +648,16 @@ class Bytes
 	}
 }
 #elseif js
-#if !nodejs
 #if haxe4
 import js.lib.Uint8Array;
 import js.lib.DataView;
 #else
+#if !nodejs
 import js.html.compat.Uint8Array;
 import js.html.compat.DataView;
+#end
 import js.html.Uint8Array;
 import js.html.DataView;
-#end
 #end
 #if !macro
 @:autoBuild(lime._internal.macros.AssetsMacro.embedBytes()) // Enable @:bytes embed metadata
