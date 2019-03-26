@@ -34,6 +34,7 @@ RUN haxelib setup /usr/lib/haxe/lib/
 RUN haxelib install hxcpp
 RUN haxelib git format https://github.com/jgranick/format
 RUN haxelib install munit
+RUN haxelib install hxp
 
 COPY . /opt/lime/
 COPY templates/bin/lime.sh /usr/local/bin/lime
