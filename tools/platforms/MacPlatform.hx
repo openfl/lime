@@ -53,7 +53,7 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = false;
+			is64 = true;
 		}
 		else if (project.targetFlags.exists("java"))
 		{
@@ -92,9 +92,18 @@ class MacPlatform extends PlatformTarget
 
 			for (ndll in project.ndlls)
 			{
-				ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
-					(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dylib" : ".ndll", executableDirectory,
-					project.debug, targetSuffix);
+				// TODO: Support single binary for HashLink
+				if (targetType == "hl")
+				{
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", executableDirectory, project
+						.debug, targetSuffix);
+				}
+				else
+				{
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
+						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
+						executableDirectory, project.debug, targetSuffix);
+				}
 			}
 		}
 
@@ -113,8 +122,11 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-				Path.combine(executableDirectory, project.app.file + ".hl"));
+			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
+			// 	Path.combine(executableDirectory, project.app.file + ".hl"));
+			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", executableDirectory);
+			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
+			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
 		}
 		else if (targetType == "java")
 		{
@@ -209,7 +221,14 @@ class MacPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		Sys.println(getDisplayHXML());
+		if (project.targetFlags.exists("output-file"))
+		{
+			Sys.println(executablePath);
+		}
+		else
+		{
+			Sys.println(getDisplayHXML());
+		}
 	}
 
 	private function generateContext():Dynamic
@@ -254,14 +273,22 @@ class MacPlatform extends PlatformTarget
 	{
 		var commands = [];
 
-		if (!targetFlags.exists("32") && (command == "rebuild" || System.hostArchitecture == X64))
+		if (targetFlags.exists("hl") && System.hostArchitecture == X64)
 		{
-			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
+			// TODO: Support single binary
+			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
 		}
-
-		if (!targetFlags.exists("64") && (targetFlags.exists("32") || System.hostArchitecture == X86))
+		else
 		{
-			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
+			if (!targetFlags.exists("32") && (command == "rebuild" || System.hostArchitecture == X64))
+			{
+				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
+			}
+
+			if (!targetFlags.exists("64") && (targetFlags.exists("32") || System.hostArchitecture == X86))
+			{
+				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
+			}
 		}
 
 		CPPHelper.rebuild(project, commands);
@@ -276,11 +303,7 @@ class MacPlatform extends PlatformTarget
 			arguments.push("-verbose");
 		}
 
-		if (targetType == "hl")
-		{
-			System.runCommand(applicationDirectory, "hl", [project.app.file + ".hl"].concat(arguments));
-		}
-		else if (targetType == "nodejs")
+		if (targetType == "nodejs")
 		{
 			NodeJSHelper.run(project, executableDirectory + "/ApplicationMain.js", arguments);
 		}

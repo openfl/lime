@@ -104,6 +104,12 @@ class Font
 		#if (lime_cffi && !macro)
 		if (src == null) throw "Uninitialized font handle.";
 		var data:Dynamic = NativeCFFI.lime_font_outline_decompose(src, 1024 * 20);
+		#if hl
+		if (data != null) {
+			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
+			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
+		}
+		#end
 		return data;
 		#else
 		return null;
@@ -465,7 +471,11 @@ class Font
 		{
 			if (name == null)
 			{
+				#if hl
+				name = @:privateAccess String.fromUTF8(NativeCFFI.lime_font_get_family_name(src));
+				#else
 				name = cast NativeCFFI.lime_font_get_family_name(src);
+				#end
 			}
 
 			ascender = NativeCFFI.lime_font_get_ascender(src);

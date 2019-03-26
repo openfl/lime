@@ -17,7 +17,7 @@
 	<set name="LIME_FREETYPE" value="1" />
 	<set name="LIME_HARFBUZZ" value="1" unless="winrt" />
 	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
-	<set name="LIME_HASHLINK" value="1" if="hashlink" unless="HXCPP_M64" />
+	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
@@ -390,6 +390,9 @@
 			<ext value=".so" />
 			<ext value=".ndll" if="windows || mac || linux" />
 
+			<!-- TODO: Support single binary -->
+			<ext value=".hdll" if="LIME_HASHLINK" />
+
 			<section if="windows">
 
 				<lib name="gdi32.lib" />
@@ -419,7 +422,7 @@
 				<lib name="Xinput.lib" if="winrt" />
 				<lib name="DXGI.lib" if="winrt" />
 
-				<lib name="-libpath:${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-libpath:../templates/bin/hl/windows" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
 
@@ -433,7 +436,7 @@
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-L../templates/bin/hl/linux" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>
@@ -457,7 +460,7 @@
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L${HLPATH}" if="LIME_HASHLINK" />
+				<lib name="-L../templates/bin/hl/mac" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>

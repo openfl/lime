@@ -168,7 +168,30 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		Sys.println(getDisplayHXML());
+		if (project.targetFlags.exists("output-file"))
+		{
+			var build = "-debug";
+			if (project.keystore != null)
+			{
+				build = "-release";
+			}
+
+			var outputDirectory = null;
+			if (project.config.exists("android.gradle-build-directory"))
+			{
+				outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk");
+			}
+			else
+			{
+				outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk");
+			}
+
+			Sys.println(Path.combine(outputDirectory, project.app.file + build + ".apk"));
+		}
+		else
+		{
+			Sys.println(getDisplayHXML());
+		}
 	}
 
 	private function getDisplayHXML():String

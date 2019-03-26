@@ -3,12 +3,17 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
-#if cpp
+#if sys
+#if haxe4
+import sys.thread.Deque;
+import sys.thread.Thread;
+#elseif cpp
 import cpp.vm.Deque;
 import cpp.vm.Thread;
 #elseif neko
 import neko.vm.Deque;
 import neko.vm.Thread;
+#end
 #end
 
 #if !lime_debug
@@ -183,7 +188,7 @@ class ThreadPool
 					case COMPLETE, ERROR:
 						__workCompleted++;
 
-						if (currentThreads > (__workQueued - __workCompleted) || currentThreads > maxThreads)
+						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads) || currentThreads > maxThreads)
 						{
 							currentThreads--;
 							__workIncoming.add(new ThreadPoolMessage(EXIT, null));

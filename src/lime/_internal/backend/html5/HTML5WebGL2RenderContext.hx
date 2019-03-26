@@ -2,8 +2,12 @@ package lime._internal.backend.html5;
 
 import js.html.webgl.RenderingContext in WebGLRenderingContext;
 import lime.graphics.opengl.*;
+import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 import lime.utils.DataPointer;
+import lime.utils.Float32Array;
+import lime.utils.Int32Array;
+import lime.utils.UInt32Array;
 
 @:native("WebGL2RenderingContext")
 extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
@@ -574,39 +578,39 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	public function bindTransformFeedback(target:Int, transformFeedback:GLTransformFeedback):Void;
 	public function bindVertexArray(vertexArray:GLVertexArrayObject):Void;
 	public function blitFramebuffer(srcX0:Int, srcY0:Int, srcX1:Int, srcY1:Int, dstX0:Int, dstY0:Int, dstX1:Int, dstY1:Int, mask:Int, filter:Int):Void;
-	@:overload(function(target:Int, data:js.html.ArrayBufferView, usage:Int, srcOffset:Int, ?length:Int):Void {})
+	@:overload(function(target:Int, data:ArrayBufferView, usage:Int, srcOffset:Int, ?length:Int):Void {})
 	@:overload(function(target:Int, size:Int, usage:Int):Void {})
-	@:overload(function(target:Int, data:js.html.ArrayBufferView, usage:Int):Void {})
-	@:overload(function(target:Int, data:js.html.ArrayBuffer, usage:Int):Void {})
+	@:overload(function(target:Int, data:ArrayBufferView, usage:Int):Void {})
+	@:overload(function(target:Int, data:ArrayBuffer, usage:Int):Void {})
 	override function bufferData(target:Int, data:Dynamic /*MISSING SharedArrayBuffer*/, usage:Int):Void;
-	@:overload(function(target:Int, dstByteOffset:Int, srcData:js.html.ArrayBufferView, srcOffset:Int, ?length:Int):Void {})
-	@:overload(function(target:Int, offset:Int, data:js.html.ArrayBufferView):Void {})
-	@:overload(function(target:Int, offset:Int, data:js.html.ArrayBuffer):Void {})
+	@:overload(function(target:Int, dstByteOffset:Int, srcData:ArrayBufferView, srcOffset:Int, ?length:Int):Void {})
+	@:overload(function(target:Int, offset:Int, data:ArrayBufferView):Void {})
+	@:overload(function(target:Int, offset:Int, data:ArrayBuffer):Void {})
 	override function bufferSubData(target:Int, offset:Int, data:Dynamic /*MISSING SharedArrayBuffer*/):Void;
 	public function clearBufferfi(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void;
-	@:overload(function(buffer:Int, drawbuffer:Int, values:js.html.Float32Array, ?srcOffset:Int):Void {})
+	@:overload(function(buffer:Int, drawbuffer:Int, values:Float32Array, ?srcOffset:Int):Void {})
 	@:overload(function(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {})
 	public function clearBufferfv(buffer:Int, drawbuffer:Int, values:Array<Float>, ?srcOffset:Int):Void;
-	@:overload(function(buffer:Int, drawbuffer:Int, values:js.html.Int32Array, ?srcOffset:Int):Void {})
+	@:overload(function(buffer:Int, drawbuffer:Int, values:Int32Array, ?srcOffset:Int):Void {})
 	@:overload(function(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {})
 	public function clearBufferiv(buffer:Int, drawbuffer:Int, values:Array<Int>, ?srcOffset:Int):Void;
-	@:overload(function(buffer:Int, drawbuffer:Int, values:js.html.Uint32Array, ?srcOffset:Int):Void {})
+	@:overload(function(buffer:Int, drawbuffer:Int, values:UInt32Array, ?srcOffset:Int):Void {})
 	@:overload(function(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void {})
 	public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:Array<Int>, ?srcOffset:Int):Void;
 	public function clientWaitSync(sync:GLSync, flags:Int, timeout:Dynamic /*Int64*/):Int;
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, offset:Int):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:js.html.ArrayBufferView, ?srcOffset:Int,
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView, ?srcOffset:Int,
 		?srcLengthOverride:Int):Void {})
 	override function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int,
-		data:js.html.ArrayBufferView):Void;
+		data:ArrayBufferView):Void;
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, offset:Int):Void {})
 	public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView,
 		?srcOffset:Int, ?srcLengthOverride:Int):Void;
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, offset:Int):Void {})
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:js.html.ArrayBufferView, ?srcOffset:Int,
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, srcData:ArrayBufferView, ?srcOffset:Int,
 		?srcLengthOverride:Int):Void {})
 	override function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-		data:js.html.ArrayBufferView):Void;
+		data:ArrayBufferView):Void;
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, offset:Int):Void {})
 	public function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int,
 		srcData:ArrayBufferView, ?srcOffset:Int, ?srcLengthOverride:Int):Void;
@@ -632,7 +636,7 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	public function getActiveUniformBlockName(program:GLProgram, uniformBlockIndex:Int):String;
 	public function getActiveUniformBlockParameter(program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic;
 	public function getActiveUniforms(program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic;
-	@:overload(function(target:Int, srcByteOffset:DataPointer, dstData:js.html.ArrayBuffer, ?srcOffset:Int, ?length:Int):Void {})
+	@:overload(function(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, ?srcOffset:Int, ?length:Int):Void {})
 	public function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:Dynamic /*SharedArrayBuffer*/, ?srcOffset:Int, ?length:Int):Void;
 	public function getFragDataLocation(program:GLProgram, name:String):Int;
 	public function getIndexedParameter(target:Int, index:Int):Dynamic;
@@ -654,17 +658,17 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	public function isVertexArray(vertexArray:GLVertexArrayObject):Bool;
 	public function pauseTransformFeedback():Void;
 	public function readBuffer(src:Int):Void;
-	@:overload(function(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView):Void {})
+	@:overload(function(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {})
 	@:overload(function(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, offset:Int):Void {})
-	@:overload(function(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView, dstOffset:Int):Void {})
-	override function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:js.html.ArrayBufferView):Void;
+	@:overload(function(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView, dstOffset:Int):Void {})
+	override function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void;
 	public function renderbufferStorageMultisample(target:Int, samples:Int, internalFormat:Int, width:Int, height:Int):Void;
 	public function resumeTransformFeedback():Void;
 	public function samplerParameterf(sampler:GLSampler, pname:Int, param:Float):Void;
 	public function samplerParameteri(sampler:GLSampler, pname:Int, param:Int):Void;
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
 		offset:DataPointer):Void {})
-	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView,
+	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView,
 		srcOffset:Int):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, source:Dynamic
 		/*js.html.ImageBitmap*/):Void {})
@@ -677,7 +681,7 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
 		source:js.html.VideoElement):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
-		pixels:js.html.ArrayBufferView):Void {})
+		pixels:ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
@@ -693,14 +697,14 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
 		source:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
-		source:js.html.ArrayBufferView):Void {})
+		source:ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
 		offset:DataPointer):Void {})
 	public function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
-		srcData:js.html.ArrayBufferView, ?srcOffset:Int):Void;
+		srcData:ArrayBufferView, ?srcOffset:Int):Void;
 	public function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void;
 	public function texStorage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void;
-	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:js.html.ArrayBufferView,
+	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, srcData:ArrayBufferView,
 		srcOffset:Int):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, offset:DataPointer):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
@@ -714,7 +718,7 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, source:Dynamic
 		/*ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
-		pixels:js.html.ArrayBufferView):Void {})
+		pixels:ArrayBufferView):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, pixels:js.html.ImageData):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, image:js.html.ImageElement):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, format:Int, type:Int, canvas:js.html.CanvasElement):Void {})
@@ -732,7 +736,7 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int, source:Dynamic
 		/*ImageBitmap*/):Void {})
 	@:overload(function(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
-		pixels:js.html.ArrayBufferView, ?srcOffset:Int):Void {})
+		pixels:ArrayBufferView, ?srcOffset:Int):Void {})
 	public function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
 		video:js.html.VideoElement):Void;
 	public function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void;
@@ -740,56 +744,56 @@ extern class HTML5WebGL2RenderContext extends WebGLRenderingContext
 	public function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void;
 	public function uniform3ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void;
 	public function uniform4ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	@:overload(function(location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform1fv(location:GLUniformLocation, data:Array<Float>):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	@:overload(function(location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Int>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform1iv(location:GLUniformLocation, data:Array<Int>):Void;
-	public function uniform1uiv(location:GLUniformLocation, data:js.html.Uint32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	public function uniform1uiv(location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	@:overload(function(location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform2fv(location:GLUniformLocation, data:Array<Float>):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	@:overload(function(location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Int>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform2iv(location:GLUniformLocation, data:Array<Int>):Void;
-	public function uniform2uiv(location:GLUniformLocation, data:js.html.Uint32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	public function uniform2uiv(location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	@:overload(function(location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform3fv(location:GLUniformLocation, data:Array<Float>):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	@:overload(function(location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Int>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform3iv(location:GLUniformLocation, data:Array<Int>):Void;
-	public function uniform3uiv(location:GLUniformLocation, data:js.html.Uint32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	public function uniform3uiv(location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	@:overload(function(location:GLUniformLocation, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform4fv(location:GLUniformLocation, data:Array<Float>):Void;
-	@:overload(function(location:GLUniformLocation, data:js.html.Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	@:overload(function(location:GLUniformLocation, data:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, data:Array<Int>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniform4iv(location:GLUniformLocation, data:Array<Int>):Void;
-	public function uniform4uiv(location:GLUniformLocation, data:js.html.Uint32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	public function uniform4uiv(location:GLUniformLocation, data:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void;
 	public function uniformBlockBinding(program:GLProgram, uniformBlockIndex:Int, uniformBlockBinding:Int):Void;
-	@:overload(function(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	@:overload(function(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, transpose:Bool, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, data:Array<Float>):Void;
-	public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	@:overload(function(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	@:overload(function(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, transpose:Bool, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, data:Array<Float>):Void;
-	public function uniformMatrix3x2fv(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	public function uniformMatrix3x4fv(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	@:overload(function(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
+	public function uniformMatrix3x2fv(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	public function uniformMatrix3x4fv(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	@:overload(function(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void {})
 	@:overload(function(location:GLUniformLocation, transpose:Bool, data:Array<Float>, ?srcOffset:Int, ?srcLength:Int):Void {})
 	override function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, data:Array<Float>):Void;
-	public function uniformMatrix4x2fv(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
-	public function uniformMatrix4x3fv(location:GLUniformLocation, transpose:Bool, data:js.html.Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	public function uniformMatrix4x2fv(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
+	public function uniformMatrix4x3fv(location:GLUniformLocation, transpose:Bool, data:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void;
 	public function vertexAttribDivisor(index:Int, divisor:Int):Void;
 	public function vertexAttribI4i(index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void;
 	public function vertexAttribI4ui(index:Int, v0:Int, v1:Int, v2:Int, v3:Int):Void;
-	@:overload(function(index:Int, value:js.html.Int32Array):Void {})
+	@:overload(function(index:Int, value:Int32Array):Void {})
 	public function vertexAttribI4iv(index:Int, value:Array<Int>):Void;
-	@:overload(function(index:Int, value:js.html.Uint32Array):Void {})
+	@:overload(function(index:Int, value:UInt32Array):Void {})
 	public function vertexAttribI4uiv(index:Int, value:Array<Int>):Void;
 	public function vertexAttribIPointer(index:Int, size:Int, type:Int, stride:Int, offset:DataPointer):Void;
 	public function waitSync(sync:GLSync, flags:Int, timeout:Dynamic /*int64*/):Void;

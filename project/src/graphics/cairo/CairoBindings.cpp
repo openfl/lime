@@ -2269,7 +2269,10 @@ namespace lime {
 	HL_PRIM vbyte* hl_lime_cairo_version_string () {
 
 		const char* version = cairo_version_string ();
-		return (vbyte*)version;
+		int length = strlen (version);
+		char* _version = (char*)malloc (length + 1);
+		strcpy (_version, version);
+		return (vbyte*)_version;
 
 	}
 

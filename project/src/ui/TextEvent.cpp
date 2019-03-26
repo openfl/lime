@@ -67,7 +67,10 @@ namespace lime {
 
 				}
 
-				eventObject->text = event->text;
+				int length = strlen ((const char*)event->text);
+				char* text = (char*)malloc (length + 1);
+				strcpy (text, (const char*)event->text);
+				eventObject->text = (vbyte*)text;
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;
 

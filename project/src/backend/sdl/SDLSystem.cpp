@@ -291,81 +291,50 @@ namespace lime {
 	}
 
 
-	value System::GetDisplay (int id) {
+	void* System::GetDisplay (bool useCFFIValue, int id) {
 
-		if (!init) {
+		if (useCFFIValue) {
 
-			id_bounds = val_id ("bounds");
-			id_currentMode = val_id ("currentMode");
-			id_dpi = val_id ("dpi");
-			id_height = val_id ("height");
-			id_name = val_id ("name");
-			id_pixelFormat = val_id ("pixelFormat");
-			id_refreshRate = val_id ("refreshRate");
-			id_supportedModes = val_id ("supportedModes");
-			id_width = val_id ("width");
-			init = true;
+			if (!init) {
 
-		}
+				id_bounds = val_id ("bounds");
+				id_currentMode = val_id ("currentMode");
+				id_dpi = val_id ("dpi");
+				id_height = val_id ("height");
+				id_name = val_id ("name");
+				id_pixelFormat = val_id ("pixelFormat");
+				id_refreshRate = val_id ("refreshRate");
+				id_supportedModes = val_id ("supportedModes");
+				id_width = val_id ("width");
+				init = true;
 
-		int numDisplays = GetNumDisplays ();
+			}
 
-		if (id < 0 || id >= numDisplays) {
+			int numDisplays = GetNumDisplays ();
 
-			return alloc_null ();
+			if (id < 0 || id >= numDisplays) {
 
-		}
+				return alloc_null ();
 
-		value display = alloc_empty_object ();
-		alloc_field (display, id_name, alloc_string (SDL_GetDisplayName (id)));
+			}
 
-		SDL_Rect bounds = { 0, 0, 0, 0 };
-		SDL_GetDisplayBounds (id, &bounds);
-		alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
+			value display = alloc_empty_object ();
+			alloc_field (display, id_name, alloc_string (SDL_GetDisplayName (id)));
 
-		float dpi = 72.0;
-		#ifndef EMSCRIPTEN
-		SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
-		#endif
-		alloc_field (display, id_dpi, alloc_float (dpi));
+			SDL_Rect bounds = { 0, 0, 0, 0 };
+			SDL_GetDisplayBounds (id, &bounds);
+			alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
 
-		SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-		DisplayMode mode;
+			float dpi = 72.0;
+			#ifndef EMSCRIPTEN
+			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+			#endif
+			alloc_field (display, id_dpi, alloc_float (dpi));
 
-		SDL_GetDesktopDisplayMode (id, &displayMode);
+			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			DisplayMode mode;
 
-		mode.height = displayMode.h;
-
-		switch (displayMode.format) {
-
-			case SDL_PIXELFORMAT_ARGB8888:
-
-				mode.pixelFormat = ARGB32;
-				break;
-
-			case SDL_PIXELFORMAT_BGRA8888:
-			case SDL_PIXELFORMAT_BGRX8888:
-
-				mode.pixelFormat = BGRA32;
-				break;
-
-			default:
-
-				mode.pixelFormat = RGBA32;
-
-		}
-
-		mode.refreshRate = displayMode.refresh_rate;
-		mode.width = displayMode.w;
-
-		alloc_field (display, id_currentMode, (value)mode.Value ());
-
-		int numDisplayModes = SDL_GetNumDisplayModes (id);
-		value supportedModes = alloc_array (numDisplayModes);
-
-		for (int i = 0; i < numDisplayModes; i++) {
-
-			SDL_GetDisplayMode (id, i, &displayMode);
+			SDL_GetDesktopDisplayMode (id, &displayMode);
 
 			mode.height = displayMode.h;
 
@@ -391,12 +360,175 @@ namespace lime {
 			mode.refreshRate = displayMode.refresh_rate;
 			mode.width = displayMode.w;
 
-			val_array_set_i (supportedModes, i, (value)mode.Value ());
+			alloc_field (display, id_currentMode, (value)mode.Value ());
+
+			int numDisplayModes = SDL_GetNumDisplayModes (id);
+			value supportedModes = alloc_array (numDisplayModes);
+
+			for (int i = 0; i < numDisplayModes; i++) {
+
+				SDL_GetDisplayMode (id, i, &displayMode);
+
+				mode.height = displayMode.h;
+
+				switch (displayMode.format) {
+
+					case SDL_PIXELFORMAT_ARGB8888:
+
+						mode.pixelFormat = ARGB32;
+						break;
+
+					case SDL_PIXELFORMAT_BGRA8888:
+					case SDL_PIXELFORMAT_BGRX8888:
+
+						mode.pixelFormat = BGRA32;
+						break;
+
+					default:
+
+						mode.pixelFormat = RGBA32;
+
+				}
+
+				mode.refreshRate = displayMode.refresh_rate;
+				mode.width = displayMode.w;
+
+				val_array_set_i (supportedModes, i, (value)mode.Value ());
+
+			}
+
+			alloc_field (display, id_supportedModes, supportedModes);
+			return display;
+
+		} else {
+
+			const int id_bounds = hl_hash_utf8 ("bounds");
+			const int id_currentMode = hl_hash_utf8 ("currentMode");
+			const int id_dpi = hl_hash_utf8 ("dpi");
+			const int id_height = hl_hash_utf8 ("height");
+			const int id_name = hl_hash_utf8 ("name");
+			const int id_pixelFormat = hl_hash_utf8 ("pixelFormat");
+			const int id_refreshRate = hl_hash_utf8 ("refreshRate");
+			const int id_supportedModes = hl_hash_utf8 ("supportedModes");
+			const int id_width = hl_hash_utf8 ("width");
+			const int id_x = hl_hash_utf8 ("x");
+			const int id_y = hl_hash_utf8 ("y");
+
+			int numDisplays = GetNumDisplays ();
+
+			if (id < 0 || id >= numDisplays) {
+
+				return 0;
+
+			}
+
+			vdynamic* display = (vdynamic*)hl_alloc_dynobj ();
+
+			const char* displayName = SDL_GetDisplayName (id);
+			char* _displayName = (char*)malloc(strlen(displayName) + 1);
+			strcpy (_displayName, displayName);
+			hl_dyn_setp (display, id_name, &hlt_bytes, _displayName);
+
+			SDL_Rect bounds = { 0, 0, 0, 0 };
+			SDL_GetDisplayBounds (id, &bounds);
+
+			vdynamic* _bounds = (vdynamic*)hl_alloc_dynobj ();
+			hl_dyn_seti (_bounds, id_x, &hlt_i32, bounds.x);
+			hl_dyn_seti (_bounds, id_y, &hlt_i32, bounds.y);
+			hl_dyn_seti (_bounds, id_width, &hlt_i32, bounds.w);
+			hl_dyn_seti (_bounds, id_height, &hlt_i32, bounds.h);
+
+			hl_dyn_setp (display, id_bounds, &hlt_dynobj, _bounds);
+
+			float dpi = 72.0;
+			#ifndef EMSCRIPTEN
+			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+			#endif
+			hl_dyn_setf (display, id_dpi, dpi);
+
+			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			DisplayMode mode;
+
+			SDL_GetDesktopDisplayMode (id, &displayMode);
+
+			mode.height = displayMode.h;
+
+			switch (displayMode.format) {
+
+				case SDL_PIXELFORMAT_ARGB8888:
+
+					mode.pixelFormat = ARGB32;
+					break;
+
+				case SDL_PIXELFORMAT_BGRA8888:
+				case SDL_PIXELFORMAT_BGRX8888:
+
+					mode.pixelFormat = BGRA32;
+					break;
+
+				default:
+
+					mode.pixelFormat = RGBA32;
+
+			}
+
+			mode.refreshRate = displayMode.refresh_rate;
+			mode.width = displayMode.w;
+
+			vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
+			hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
+			hl_dyn_seti (_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
+			hl_dyn_seti (_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
+			hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
+			hl_dyn_setp (display, id_currentMode, &hlt_dynobj, _displayMode);
+
+			int numDisplayModes = SDL_GetNumDisplayModes (id);
+
+			hl_varray* supportedModes = (hl_varray*)hl_alloc_array (&hlt_dynobj, numDisplayModes);
+			vdynamic** supportedModesData = hl_aptr (supportedModes, vdynamic*);
+
+			for (int i = 0; i < numDisplayModes; i++) {
+
+				SDL_GetDisplayMode (id, i, &displayMode);
+
+				mode.height = displayMode.h;
+
+				switch (displayMode.format) {
+
+					case SDL_PIXELFORMAT_ARGB8888:
+
+						mode.pixelFormat = ARGB32;
+						break;
+
+					case SDL_PIXELFORMAT_BGRA8888:
+					case SDL_PIXELFORMAT_BGRX8888:
+
+						mode.pixelFormat = BGRA32;
+						break;
+
+					default:
+
+						mode.pixelFormat = RGBA32;
+
+				}
+
+				mode.refreshRate = displayMode.refresh_rate;
+				mode.width = displayMode.w;
+
+				vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
+				hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
+				hl_dyn_seti (_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
+				hl_dyn_seti (_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
+				hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
+
+				*supportedModesData++ = _displayMode;
+
+			}
+
+			hl_dyn_setp (display, id_supportedModes, &hlt_array, supportedModes);
+			return display;
 
 		}
-
-		alloc_field (display, id_supportedModes, supportedModes);
-		return display;
 
 	}
 

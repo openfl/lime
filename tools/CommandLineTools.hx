@@ -1015,6 +1015,15 @@ class CommandLineTools
 				Log.println("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source/> value");
 				Log.println("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate/> setting");
 			}
+
+			if (command == "display")
+			{
+				Log.println("");
+				Log.println(" " + Log.accentColor + "Display Options:" + Log.resetColor);
+				Log.println("");
+				Log.println("  \x1b[3m(no option)\x1b[0m -- Display HXML build arguments");
+				Log.println("  \x1b[1m--output-file\x1b[0m -- Display the output file for the project");
+			}
 		}
 	}
 
@@ -2116,6 +2125,10 @@ class CommandLineTools
 			else if (argument == "--help" || argument == "-help" || argument == "-h")
 			{
 				targetFlags.set("help", "");
+			}
+			else if (argument == "--output-file")
+			{
+				targetFlags.set ("output-file", "");
 			}
 			else if (argument.substr(0, 1) == "-")
 			{

@@ -72,7 +72,14 @@ class IOSPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		Sys.println(getDisplayHXML());
+		if (project.targetFlags.exists("output-file"))
+		{
+			Sys.println(Path.combine(targetDirectory, project.app.file + ".xcodeproj"));
+		}
+		else
+		{
+			Sys.println(getDisplayHXML());
+		}
 	}
 
 	private function generateContext():Dynamic

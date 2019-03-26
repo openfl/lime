@@ -14,12 +14,14 @@ import lime.net.HTTPRequestHeader;
 import lime.net.HTTPRequestMethod;
 import lime.system.ThreadPool;
 #if sys
-import sys.FileSystem;
-#end
-#if cpp
+#if haxe4
+import sys.thread.Deque;
+#elseif cpp
 import cpp.vm.Deque;
 #elseif neko
 import neko.vm.Deque;
+#end
+import sys.FileSystem;
 #end
 
 #if !lime_debug

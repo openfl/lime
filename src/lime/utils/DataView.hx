@@ -2,15 +2,20 @@ package lime.utils;
 
 import lime.utils.ArrayBufferView;
 #if (js && !doc_gen)
+#if haxe4
+import js.lib.DataView as JSDataView;
+#else
+import js.html.DataView as JSDataView;
+#end
 @:forward
-abstract DataView(js.html.DataView) from js.html.DataView to js.html.DataView
+abstract DataView(JSDataView) from JSDataView to JSDataView
 {
 	public inline function new(buffer:ArrayBuffer, byteOffset:Null<Int> = null, byteLength:Null<Int> = null)
 	{
-		if (byteOffset != null && byteLength == null) this = new js.html.DataView(buffer, byteOffset);
-		else if (byteOffset != null && byteLength != null) this = new js.html.DataView(buffer, byteOffset, byteLength);
+		if (byteOffset != null && byteLength == null) this = new JSDataView(buffer, byteOffset);
+		else if (byteOffset != null && byteLength != null) this = new JSDataView(buffer, byteOffset, byteLength);
 		else
-			this = new js.html.DataView(buffer);
+			this = new JSDataView(buffer);
 	}
 
 	#if !no_typedarray_inline

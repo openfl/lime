@@ -31,22 +31,22 @@ namespace lime {
 	}
 
 
-	DisplayMode::DisplayMode (HL_DisplayMode* displayMode) {
-
-		width = displayMode->width;
-		height = displayMode->height;
-		pixelFormat = displayMode->pixelFormat;
-		refreshRate = displayMode->refreshRate;
-
-	}
-
-
 	DisplayMode::DisplayMode (int _width, int _height, PixelFormat _pixelFormat, int _refreshRate) {
 
 		width = _width;
 		height = _height;
 		pixelFormat = _pixelFormat;
 		refreshRate = _refreshRate;
+
+	}
+
+
+	void DisplayMode::CopyFrom (DisplayMode* other) {
+
+		height = other->height;
+		pixelFormat = other->pixelFormat;
+		refreshRate = other->refreshRate;
+		width = other->width;
 
 	}
 

@@ -45,13 +45,13 @@ namespace lime {
 			Font (Resource *resource, int faceIndex = 0);
 			~Font ();
 
-			value Decompose (int em);
+			void* Decompose (bool useCFFIValue, int em);
 			int GetAscender ();
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
 			int GetGlyphIndex (char* character);
-			value GetGlyphIndices (char* characters);
-			value GetGlyphMetrics (int index);
+			void* GetGlyphIndices (bool useCFFIValue, char* characters);
+			void* GetGlyphMetrics (bool useCFFIValue, int index);
 			int GetHeight ();
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();

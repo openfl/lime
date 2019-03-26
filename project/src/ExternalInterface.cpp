@@ -721,8 +721,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;
@@ -790,8 +791,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;
@@ -863,8 +865,9 @@ namespace lime {
 		for (int i = 0; i < files.size (); i++) {
 
 			int size = std::wcslen (files[i]->c_str ());
-			char* _file = (char*)malloc (size);
+			char* _file = (char*)malloc (size + 1);
 			std::wcstombs (_file, files[i]->c_str (), size);
+			_file[size] = '\0';
 
 			*resultData++ = (vbyte*)_file;
 			delete files[i];
@@ -930,8 +933,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;
@@ -1105,7 +1109,12 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
 		wchar_t *name = font->GetFamilyName ();
-		return (vbyte*)name;
+		int size = std::wcslen (name);
+		char* result = (char*)malloc (size + 1);
+		std::wcstombs (result, name, size);
+		result[size] = '\0';
+		delete name;
+		return (vbyte*)result;
 		#else
 		return 0;
 		#endif
@@ -1141,7 +1150,7 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndices ((char*)characters.c_str ());
+		return (value)font->GetGlyphIndices (true, (char*)characters.c_str ());
 		#else
 		return alloc_null ();
 		#endif
@@ -1151,12 +1160,12 @@ namespace lime {
 
 	HL_PRIM hl_varray* hl_lime_font_get_glyph_indices (HL_CFFIPointer* fontHandle, hl_vstring* characters) {
 
-		// #ifdef LIME_FREETYPE
-		// Font *font = (Font*)fontHandle->ptr;
-		// return font->GetGlyphIndices (characters ? (char*)hl_to_utf8 ((const uchar*)characters->bytes) : NULL);
-		// #else
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return (hl_varray*)font->GetGlyphIndices (false, characters ? (char*)hl_to_utf8 ((const uchar*)characters->bytes) : NULL);
+		#else
 		return 0;
-		// #endif
+		#endif
 
 	}
 
@@ -1165,7 +1174,7 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphMetrics (index);
+		return (value)font->GetGlyphMetrics (true, index);
 		#else
 		return alloc_null ();
 		#endif
@@ -1175,12 +1184,12 @@ namespace lime {
 
 	HL_PRIM vdynamic* hl_lime_font_get_glyph_metrics (HL_CFFIPointer* fontHandle, int index) {
 
-		// #ifdef LIME_FREETYPE
-		// Font *font = (Font*)fontHandle->ptr;
-		// return font->GetGlyphMetrics (index);
-		// #else
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return (vdynamic*)font->GetGlyphMetrics (false, index);
+		#else
 		return 0;
-		// #endif
+		#endif
 
 	}
 
@@ -1436,7 +1445,7 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->Decompose (size);
+		return (value)font->Decompose (true, size);
 		#else
 		return alloc_null ();
 		#endif
@@ -1446,12 +1455,12 @@ namespace lime {
 
 	HL_PRIM vdynamic* hl_lime_font_outline_decompose (HL_CFFIPointer* fontHandle, int size) {
 
-		// #ifdef LIME_FREETYPE
-		// Font *font = (Font*)fontHandle->ptr;
-		// return font->Decompose (size);
-		// #else
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return (vdynamic*)font->Decompose (false, size);
+		#else
 		return 0;
-		// #endif
+		#endif
 
 	}
 
@@ -2765,15 +2774,14 @@ namespace lime {
 
 	value lime_system_get_display (int id) {
 
-		return System::GetDisplay (id);
+		return (value)System::GetDisplay (true, id);
 
 	}
 
 
 	HL_PRIM vdynamic* hl_lime_system_get_display (int id) {
 
-		return 0;
-		//return System::GetDisplay (id);
+		return (vdynamic*)System::GetDisplay (false, id);
 
 	}
 
@@ -3131,14 +3139,14 @@ namespace lime {
 
 	value lime_window_context_lock (value window) {
 
-		return (value)((Window*)val_data (window))->ContextLock (true, NULL);
+		return (value)((Window*)val_data (window))->ContextLock (true);
 
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_window_context_lock (HL_CFFIPointer* window, vdynamic* object) {
+	HL_PRIM vdynamic* hl_lime_window_context_lock (HL_CFFIPointer* window) {
 
-		return (vdynamic*)((Window*)window->ptr)->ContextLock (false, object);
+		return (vdynamic*)((Window*)window->ptr)->ContextLock (false);
 
 	}
 
@@ -3278,12 +3286,12 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_DisplayMode* hl_lime_window_get_display_mode (HL_CFFIPointer* window, HL_DisplayMode* displayMode) {
+	HL_PRIM void hl_lime_window_get_display_mode (HL_CFFIPointer* window, DisplayMode* result) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		DisplayMode _displayMode = DisplayMode (displayMode);
-		targetWindow->GetDisplayMode (&_displayMode);
-		return (HL_DisplayMode*)_displayMode.Value ();
+		DisplayMode displayMode;
+		targetWindow->GetDisplayMode (&displayMode);
+		result->CopyFrom(&displayMode);
 
 	}
 
@@ -3531,13 +3539,12 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_DisplayMode* hl_lime_window_set_display_mode (HL_CFFIPointer* window, HL_DisplayMode* displayMode) {
+	HL_PRIM void hl_lime_window_set_display_mode (HL_CFFIPointer* window, DisplayMode* displayMode, DisplayMode* result) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		DisplayMode _displayMode (displayMode);
-		targetWindow->SetDisplayMode (&_displayMode);
-		targetWindow->GetDisplayMode (&_displayMode);
-		return (HL_DisplayMode*)_displayMode.Value ();
+		targetWindow->SetDisplayMode (displayMode);
+		targetWindow->GetDisplayMode (displayMode);
+		result->CopyFrom(displayMode);
 
 	}
 
@@ -4070,7 +4077,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, lime_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_context_flip, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_window_context_lock, _TCFFIPOINTER _DYN);
+	DEFINE_HL_PRIM (_DYN, lime_window_context_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_context_make_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, lime_window_context_unlock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
@@ -4079,7 +4086,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_F64, lime_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, lime_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_display, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_window_get_display_mode, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, lime_window_get_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_I32, lime_window_get_height, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, lime_window_get_id, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, lime_window_get_mouse_lock, _TCFFIPOINTER);
@@ -4093,7 +4100,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_window_resize, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_borderless, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, lime_window_set_cursor, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_TDISPLAYMODE, lime_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
+	DEFINE_HL_PRIM (_VOID, lime_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_fullscreen, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, lime_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_BOOL, lime_window_set_maximized, _TCFFIPOINTER _BOOL);

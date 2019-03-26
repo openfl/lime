@@ -1696,9 +1696,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_active_attrib (int program, int index, void* object) {
-
-		vdynamic* result = (vdynamic*)object;
+	HL_PRIM vdynamic* hl_lime_gl_get_active_attrib (int program, int index) {
 
 		char buffer[GL_ACTIVE_ATTRIBUTE_MAX_LENGTH];
 		GLsizei outLen = 0;
@@ -1707,13 +1705,15 @@ namespace lime {
 
 		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
 
-		char* _buffer = (char*)malloc (outLen);
+		char* _buffer = (char*)malloc (outLen + 1);
 		memcpy (_buffer, &buffer, outLen);
+		_buffer[outLen] = '\0';
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
 		const int id_name = hl_hash_utf8 ("name");
 
+		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
 		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
@@ -1744,7 +1744,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_active_uniform (int program, int index, void* object) {
+	HL_PRIM vdynamic* hl_lime_gl_get_active_uniform (int program, int index) {
 
 		char* buffer[GL_ACTIVE_UNIFORM_MAX_LENGTH];
 		GLsizei outLen = 0;
@@ -1753,15 +1753,15 @@ namespace lime {
 
 		glGetActiveUniform (program, index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, (GLchar*)&buffer);
 
-		char* _buffer = (char*)malloc (outLen);
+		char* _buffer = (char*)malloc (outLen + 1);
 		memcpy (_buffer, &buffer, outLen);
+		_buffer[outLen] = '\0';
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
 		const int id_name = hl_hash_utf8 ("name");
 
-		vdynamic* result = (vdynamic*)object;
-
+		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
 		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
@@ -1835,10 +1835,11 @@ namespace lime {
 		GLint length;
 		glGetActiveUniformBlockiv (program, uniformBlockIndex, GL_UNIFORM_BLOCK_NAME_LENGTH, &length);
 
-		char* buffer = (char*)malloc (length);
+		char* buffer = (char*)malloc (length + 1);
 
 		glGetActiveUniformBlockName (program, uniformBlockIndex, length, 0, buffer);
 
+		buffer[length] = '\0';
 		return (vbyte*)buffer;
 		#else
 		return NULL;
@@ -2076,9 +2077,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_context_attributes (void* object) {
-
-		vdynamic* result = (vdynamic*)object;
+	HL_PRIM vdynamic* hl_lime_gl_get_context_attributes () {
 
 		const int id_alpha = hl_hash_utf8 ("alpha");
 		const int id_depth = hl_hash_utf8 ("depth");
@@ -2087,6 +2086,7 @@ namespace lime {
 
 		// TODO: Handle if depth and stencil are disabled
 
+		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_alpha, &hlt_bool, true);
 		hl_dyn_seti (result, id_depth, &hlt_bool, true);
 		hl_dyn_seti (result, id_stencil, &hlt_bool, true);
@@ -2473,10 +2473,11 @@ namespace lime {
 
 		}
 
-		char* buffer = (char*)malloc (logSize);
+		char* buffer = (char*)malloc (logSize + 1);
 
 		glGetProgramInfoLog (program, logSize, 0, buffer);
 
+		buffer[logSize] = '\0';
 		return (vbyte*)buffer;
 
 	}
@@ -2741,10 +2742,11 @@ namespace lime {
 
 		}
 
-		char* buffer = (char*)malloc (logSize);
+		char* buffer = (char*)malloc (logSize + 1);
 		GLint writeSize;
 		glGetShaderInfoLog (shader, logSize, &writeSize, buffer);
 
+		buffer[logSize] = '\0';
 		return (vbyte*)buffer;
 
 	}
@@ -2806,7 +2808,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_shader_precision_format (int shadertype, int precisiontype, void* object) {
+	HL_PRIM vdynamic* hl_lime_gl_get_shader_precision_format (int shadertype, int precisiontype) {
 
 		#ifdef LIME_GLES
 
@@ -2815,12 +2817,11 @@ namespace lime {
 
 		glGetShaderPrecisionFormat (shadertype, precisiontype, range, &precision);
 
-		vdynamic* result = (vdynamic*)object;
-
 		const int id_rangeMin = hl_hash_utf8 ("rangeMin");
 		const int id_rangeMax = hl_hash_utf8 ("rangeMax");
 		const int id_precision = hl_hash_utf8 ("precision");
 
+		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_rangeMin, &hlt_i32, range[0]);
 		hl_dyn_seti (result, id_rangeMax, &hlt_i32, range[1]);
 		hl_dyn_seti (result, id_precision, &hlt_i32, precision);
@@ -2869,8 +2870,9 @@ namespace lime {
 		}
 
 		char *result = new char[len + 1];
-		glGetShaderSource (shader, len + 1, 0, result);
+		glGetShaderSource (shader, len, 0, result);
 
+		result[len] = '\0';
 		return (vbyte*)result;
 
 	}
@@ -2900,8 +2902,9 @@ namespace lime {
 		if (val) {
 
 			int size = strlen (val);
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			memcpy (result, val, size);
+			result[size] = '\0';
 			return (vbyte*)result;
 
 		} else {
@@ -2942,8 +2945,9 @@ namespace lime {
 		if (val) {
 
 			int size = strlen (val);
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			memcpy (result, val, size);
+			result[size] = '\0';
 			return (vbyte*)result;
 
 		} else {
@@ -3092,11 +3096,9 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_transform_feedback_varying (int program, int index, void* object) {
+	HL_PRIM vdynamic* hl_lime_gl_get_transform_feedback_varying (int program, int index) {
 
 		#ifdef LIME_GLES3_API
-		vdynamic* result = (vdynamic*)object;
-
 		GLint maxLength = 0;
 		glGetProgramiv (program, GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH, &maxLength);
 
@@ -3108,13 +3110,18 @@ namespace lime {
 
 		glGetTransformFeedbackVarying (program, index, maxLength, &outLen, &size, &type, buffer);
 
+		char* _buffer = (char*)malloc (outLen + 1);
+		memcpy (_buffer, &buffer, outLen);
+		_buffer[outLen] = '\0';
+
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
 		const int id_name = hl_hash_utf8 ("name");
 
+		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
-		hl_dyn_setp (result, id_name, &hlt_bytes, buffer);
+		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
 
 		return result;
 		#else
@@ -3799,7 +3806,7 @@ namespace lime {
 
 			HL_CFFIPointer* handle = (HL_CFFIPointer*)glObjectPtrs[object];
 			handle->finalizer = NULL;
-			delete handle;
+			//delete handle;
 			glObjectPtrs.erase (object);
 
 		}
@@ -5704,8 +5711,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_gl_framebuffer_texture2D, _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_front_face, _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_generate_mipmap, _I32);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_active_attrib, _I32 _I32 _DYN);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_active_uniform, _I32 _I32 _DYN);
+	DEFINE_HL_PRIM (_DYN, lime_gl_get_active_attrib, _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, lime_gl_get_active_uniform, _I32 _I32);
 	DEFINE_HL_PRIM (_I32, lime_gl_get_active_uniform_blocki, _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_active_uniform_blockiv, _I32 _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_BYTES, lime_gl_get_active_uniform_block_name, _I32 _I32);
@@ -5719,7 +5726,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_buffer_parameteri64v, _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_F64, lime_gl_get_buffer_pointerv, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_buffer_sub_data, _I32 _F64 _I32 _F64);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_context_attributes, _DYN);
+	DEFINE_HL_PRIM (_DYN, lime_gl_get_context_attributes, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, lime_gl_get_error, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, lime_gl_get_extension, _STRING);
 	DEFINE_HL_PRIM (_F32, lime_gl_get_float, _I32);
@@ -5750,7 +5757,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, lime_gl_get_shader_info_log, _I32);
 	DEFINE_HL_PRIM (_I32, lime_gl_get_shaderi, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_shaderiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_shader_precision_format, _I32 _I32 _DYN);
+	DEFINE_HL_PRIM (_DYN, lime_gl_get_shader_precision_format, _I32 _I32);
 	DEFINE_HL_PRIM (_BYTES, lime_gl_get_shader_source, _I32);
 	DEFINE_HL_PRIM (_BYTES, lime_gl_get_string, _I32);
 	DEFINE_HL_PRIM (_BYTES, lime_gl_get_stringi, _I32 _I32);
@@ -5760,7 +5767,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_tex_parameterfv, _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_I32, lime_gl_get_tex_parameteri, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_tex_parameteriv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_transform_feedback_varying, _I32 _I32 _DYN);
+	DEFINE_HL_PRIM (_DYN, lime_gl_get_transform_feedback_varying, _I32 _I32);
 	DEFINE_HL_PRIM (_F32, lime_gl_get_uniformf, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, lime_gl_get_uniformfv, _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_I32, lime_gl_get_uniformi, _I32 _I32);

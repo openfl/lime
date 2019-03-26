@@ -1217,7 +1217,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_window_context_flip") private static function lime_window_context_flip(handle:CFFIPointer):Void {}
 
-	@:hlNative("lime", "lime_window_context_lock") private static function lime_window_context_lock(handle:CFFIPointer, object:Dynamic):Dynamic
+	@:hlNative("lime", "lime_window_context_lock") private static function lime_window_context_lock(handle:CFFIPointer):Dynamic
 	{
 		return null;
 	}
@@ -1249,10 +1249,7 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "lime_window_get_display_mode") private static function lime_window_get_display_mode(handle:CFFIPointer):Dynamic
-	{
-		return null;
-	}
+	@:hlNative("lime", "lime_window_get_display_mode") private static function lime_window_get_display_mode(handle:CFFIPointer, result:DisplayMode):Void {}
 
 	@:hlNative("lime", "lime_window_get_height") private static function lime_window_get_height(handle:CFFIPointer):Int
 	{
@@ -1312,10 +1309,7 @@ class NativeCFFI
 	@:hlNative("lime", "lime_window_set_cursor") private static function lime_window_set_cursor(handle:CFFIPointer, cursor:Int):Void {}
 
 	@:hlNative("lime", "lime_window_set_display_mode") private static function lime_window_set_display_mode(handle:CFFIPointer,
-			displayMode:DisplayMode):DisplayMode
-	{
-		return null;
-	}
+			displayMode:DisplayMode, result:DisplayMode):Void {}
 
 	@:hlNative("lime", "lime_window_set_fullscreen") private static function lime_window_set_fullscreen(handle:CFFIPointer, fullscreen:Bool):Bool
 	{
@@ -5024,12 +5018,12 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_generate_mipmap") private static function lime_gl_generate_mipmap(target:Int):Void {}
 
-	@:hlNative("lime", "lime_gl_get_active_attrib") private static function lime_gl_get_active_attrib(program:Int, index:Int, object:Dynamic):Dynamic
+	@:hlNative("lime", "lime_gl_get_active_attrib") private static function lime_gl_get_active_attrib(program:Int, index:Int):Dynamic
 	{
 		return null;
 	}
 
-	@:hlNative("lime", "lime_gl_get_active_uniform") private static function lime_gl_get_active_uniform(program:Int, index:Int, object:Dynamic):Dynamic
+	@:hlNative("lime", "lime_gl_get_active_uniform") private static function lime_gl_get_active_uniform(program:Int, index:Int):Dynamic
 	{
 		return null;
 	}
@@ -5088,7 +5082,7 @@ class NativeCFFI
 	@:hlNative("lime", "lime_gl_get_buffer_sub_data") private static function lime_gl_get_buffer_sub_data(target:Int, offset:DataPointer, size:Int,
 		data:DataPointer):Void {}
 
-	@:hlNative("lime", "lime_gl_get_context_attributes") private static function lime_gl_get_context_attributes(object:Dynamic):Dynamic
+	@:hlNative("lime", "lime_gl_get_context_attributes") private static function lime_gl_get_context_attributes():Dynamic
 	{
 		return null;
 	}
@@ -5204,8 +5198,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_get_shaderiv") private static function lime_gl_get_shaderiv(shader:Int, pname:Int, params:DataPointer):Void {}
 
-	@:hlNative("lime", "lime_gl_get_shader_precision_format") private static function lime_gl_get_shader_precision_format(shadertype:Int, precisiontype:Int,
-			object:Dynamic):Dynamic
+	@:hlNative("lime", "lime_gl_get_shader_precision_format") private static function lime_gl_get_shader_precision_format(shadertype:Int, precisiontype:Int):Dynamic
 	{
 		return null;
 	}
@@ -5247,8 +5240,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_get_tex_parameteriv") private static function lime_gl_get_tex_parameteriv(target:Int, pname:Int, params:DataPointer):Void {}
 
-	@:hlNative("lime", "lime_gl_get_transform_feedback_varying") private static function lime_gl_get_transform_feedback_varying(program:Int, index:Int,
-			object:Dynamic):Dynamic
+	@:hlNative("lime", "lime_gl_get_transform_feedback_varying") private static function lime_gl_get_transform_feedback_varying(program:Int, index:Int):Dynamic
 	{
 		return null;
 	}

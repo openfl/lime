@@ -51,6 +51,14 @@ class NativeAudioSource
 			stop();
 			AL.sourcei(handle, AL.BUFFER, null);
 			AL.deleteSource(handle);
+			if (buffers != null)
+			{
+				for (buffer in buffers)
+				{
+					AL.deleteBuffer(buffer);
+				}
+				buffers = null;
+			}
 			handle = null;
 		}
 	}

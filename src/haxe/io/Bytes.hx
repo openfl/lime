@@ -648,11 +648,16 @@ class Bytes
 	}
 }
 #elseif js
+#if haxe4
+import js.lib.Uint8Array;
+import js.lib.DataView;
+#else
 #if !nodejs
-#if (haxe_ver < 4.0)
 import js.html.compat.Uint8Array;
 import js.html.compat.DataView;
 #end
+import js.html.Uint8Array;
+import js.html.DataView;
 #end
 #if !macro
 @:autoBuild(lime._internal.macros.AssetsMacro.embedBytes()) // Enable @:bytes embed metadata
@@ -666,13 +671,13 @@ class Bytes
 	#else
 	public var length(default, null):Int;
 	#end
-	var b:js.html.Uint8Array;
-	var data:js.html.DataView;
+	var b:Uint8Array;
+	var data:DataView;
 
 	function new(data:BytesData)
 	{
 		this.length = data.byteLength;
-		this.b = new js.html.Uint8Array(data);
+		this.b = new Uint8Array(data);
 		untyped
 			{
 				b.bufferValue = data; // some impl does not return the same instance in .buffer
@@ -723,7 +728,7 @@ class Bytes
 
 	inline function initData():Void
 	{
-		if (data == null) data = new js.html.DataView(b.buffer, b.byteOffset, b.byteLength);
+		if (data == null) data = new DataView(b.buffer, b.byteOffset, b.byteLength);
 	}
 
 	public function getDouble(pos:Int):Float
@@ -889,7 +894,7 @@ class Bytes
 				a.push(0x80 | (c & 63));
 			}
 		}
-		return new Bytes(new js.html.Uint8Array(a).buffer);
+		return new Bytes(new Uint8Array(a).buffer);
 	}
 
 	public static function ofData(b:BytesData):Bytes
@@ -915,7 +920,7 @@ class Bytes
 			i++;
 		}
 
-		return new Bytes(new js.html.Uint8Array(a).buffer);
+		return new Bytes(new Uint8Array(a).buffer);
 	}
 
 	public inline static function fastGet(b:BytesData, pos:Int):Int
@@ -1060,7 +1065,7 @@ class Bytes
 		setInt32(pos, v.low);
 	}
 
-	public function getString(pos:Int, len:Int, ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end):String
+	public function getString(pos:Int, len:Int #if (!hl || haxe_ver >= 4), ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end #end):String
 	{
 		if (outRange(pos, len)) throw Error.OutsideBounds;
 
@@ -1110,7 +1115,7 @@ class Bytes
 		return new Bytes(b, length);
 	}
 
-	public static function ofString(s:String, ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end):Bytes@:privateAccess {
+	public static function ofString(s:String #if (!hl || haxe_ver >= 4) , ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end #end):Bytes@:privateAccess {
 		var size = 0;
 		var b = s.bytes.utf16ToUtf8(0, size);
 		return new Bytes(b, size);
@@ -1121,6 +1126,7 @@ class Bytes
 		return new Bytes(b.bytes, b.length);
 	}
 
+	#if (!hl || haxe_ver >= 4)
 	public static function ofHex(s:String):Bytes
 	{
 		var len = s.length;
@@ -1138,6 +1144,7 @@ class Bytes
 
 		return new Bytes(b, l);
 	}
+	#end
 
 	public inline static function fastGet(b:BytesData, pos:Int):Int
 	{

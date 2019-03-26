@@ -18,7 +18,11 @@ import lime.tools.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
 #if neko
+#if haxe4
+import sys.thread.Thread;
+#else
 import neko.vm.Thread;
+#end
 #end
 
 class FlashPlatform extends PlatformTarget
@@ -55,7 +59,14 @@ class FlashPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		Sys.println(getDisplayHXML());
+		if (project.targetFlags.exists ("output-file"))
+		{
+			Sys.println (Path.combine(targetDirectory, "bin/" + project.app.file + ".swf"));
+		}
+		else
+		{
+			Sys.println(getDisplayHXML());
+		}
 	}
 
 	private function generateContext():Dynamic
