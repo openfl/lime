@@ -19,7 +19,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("ANGLE_instanced_arrays")
-extern @:noCompletion class ANGLE_instanced_arrays
+@:noCompletion extern class ANGLE_instanced_arrays
 {
 	public var VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE:Int;
 	public function drawArraysInstancedANGLE(mode:Int, first:Int, count:Int, primcount:Int):Void;

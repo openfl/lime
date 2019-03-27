@@ -3,7 +3,7 @@ package lime.graphics.opengl.ext;
 #if (js && html5)
 @:keep
 @:native("WEBGL_compressed_texture_etc")
-extern @:noCompletion class WEBGL_compressed_texture_etc
+@:noCompletion extern class WEBGL_compressed_texture_etc
 {
 	public var COMPRESSED_R11_EAC:Int;
 	public var COMPRESSED_SIGNED_R11_EAC:Int;

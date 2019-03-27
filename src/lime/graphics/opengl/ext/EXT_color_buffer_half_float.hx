@@ -17,7 +17,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("EXT_color_buffer_half_float")
-extern @:noCompletion class EXT_color_buffer_half_float
+@:noCompletion extern class EXT_color_buffer_half_float
 {
 	public var RGBA16F_EXT:Int;
 	public var RGB16F_EXT:Int;

@@ -8,5 +8,5 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("EXT_shader_texture_lod")
-extern @:noCompletion class EXT_shader_texture_lod {}
+@:noCompletion extern class EXT_shader_texture_lod {}
 #end

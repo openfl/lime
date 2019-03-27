@@ -10,7 +10,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("OES_standard_derivatives")
-extern @:noCompletion class OES_standard_derivatives
+@:noCompletion extern class OES_standard_derivatives
 {
 	public var FRAGMENT_SHADER_DERIVATIVE_HINT_OES:Int;
 }

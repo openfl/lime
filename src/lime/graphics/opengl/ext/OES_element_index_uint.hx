@@ -10,5 +10,5 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("OES_element_index_uint")
-extern @:noCompletion class OES_element_index_uint {}
+@:noCompletion extern class OES_element_index_uint {}
 #end

@@ -7,5 +7,5 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("OES_texture_float_linear")
-extern @:noCompletion class OES_texture_float_linear {}
+@:noCompletion extern class OES_texture_float_linear {}
 #end
