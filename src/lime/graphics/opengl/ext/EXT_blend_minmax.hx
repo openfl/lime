@@ -11,7 +11,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("ANGLE_instanced_arrays")
-extern @:noCompletion class EXT_blend_minmax
+@:noCompletion extern class EXT_blend_minmax
 {
 	public var MIN_EXT:Int;
 	public var MAX_EXT:Int;

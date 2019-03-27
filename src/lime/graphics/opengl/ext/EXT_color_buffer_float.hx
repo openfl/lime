@@ -7,5 +7,5 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("EXT_color_buffer_float")
-extern @:noCompletion class EXT_color_buffer_float {}
+@:noCompletion extern class EXT_color_buffer_float {}
 #end

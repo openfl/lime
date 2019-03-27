@@ -13,7 +13,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("EXT_sRGB")
-extern @:noCompletion class EXT_sRGB
+@:noCompletion extern class EXT_sRGB
 {
 	public var SRGB_EXT:Int;
 	public var SRGB_ALPHA_EXT:Int;
