@@ -102,7 +102,7 @@
   "description": "A simple zero-configuration command-line http server",
   "devDependencies": {
     "common-style": "^3.0.0",
-    "request": "2.49.x",
+    "request": ">=2.68.0",
     "vows": "0.7.x"
   },
   "directories": {},
