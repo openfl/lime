@@ -238,7 +238,7 @@ class Font
 			var data = bytes.sub(dataPosition, width * height);
 			dataPosition += (width * height);
 
-			var buffer = new ImageBuffer(new UInt8Array(data), width, height, 1);
+			var buffer = new ImageBuffer(new UInt8Array(data), width, height, 8);
 			var image = new Image(buffer, 0, 0, width, height);
 			image.x = x;
 			image.y = y;
