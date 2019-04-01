@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "7.3.0",
-	"releasenote": "",
+	"releasenote": "Initial HashLink 1.9 support, SDL update, cURL and JS improvements",
 	"contributors": [ "singmajesty" ],
 	"classPath": "src"
 }
