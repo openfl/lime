@@ -1,3 +1,33 @@
+7.3.0 (04/01/2019)
+------------------
+
+* Updated support for Haxe 4 dev versions
+* Updated SDL to 2.0.9
+* Updated howler.js to 2.1.1
+* Added initial display options to improve debugging with VS Code
+* Added initial HashLink 1.9 support (requires Haxe 4 dev)
+* Added initial support for embedding HTML5 projects in unique isolated JS closures
+* Added support for appending dependency JS scripts to the application file
+* Added initial support for haptic feedback on HTML5
+* Improved `lime display` when `lime build` has not been called
+* Improved support for WinRT native builds
+* Improved the behavior of `URLRequest` to re-use `Bytes` when writing
+* Improved the performance of `URLRequest` on native platforms
+* Improved `window.onDropFile` with an initial workaround for HTML5 support
+* Moved internal code style to use the Haxe "formatter" library for consistency
+* Fixed possible incorrect names in generated package.json for Electron output
+* Fixed support for building for Android using ARMv5 or ARMv6 only
+* Fixed the event types in `lime.system.ThreadPool`
+* Fixed a possible rounding error when calculating application update times
+* Fixed cases where HTML5 canvas was not properly enabling image smoothing
+* Fixed the behavior of `threadPool.minThreads` to keep threads active
+* Fixed incorrect extern in "lime/graphics/opengl/ext" classes on HTML5
+* Fixed incorrect `imageBuffer.bitsPerPixel` handling in `Font.renderGlyph`
+* Fixed incorrect offset when using `image.copyPixels` with an alpha image
+* Fixed Java `HaxeObject.create` to return `null` if handle is `null`
+* Fixed exposure of generated `__ASSET__` classes to display completion
+
+
 7.2.1 (01/07/2019)
 ------------------
 
