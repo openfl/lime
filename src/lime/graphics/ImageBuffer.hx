@@ -65,7 +65,7 @@ class ImageBuffer
 	public var src(get, set):Dynamic;
 
 	/**
-		The stride, or number of data values per row in the image data
+		The stride, or number of data values (in bytes) per row in the image data
 	**/
 	public var stride(get, never):Int;
 
@@ -221,6 +221,6 @@ class ImageBuffer
 
 	@:noCompletion private function get_stride():Int
 	{
-		return width * 4;
+		return width * bitsPerPixel / 8;
 	}
 }
