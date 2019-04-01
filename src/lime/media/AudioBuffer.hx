@@ -151,7 +151,13 @@ class AudioBuffer
 
 		#if (js && html5 && lime_howlerjs)
 		var audioBuffer = new AudioBuffer();
+		
+		#if force_html5_audio
+		audioBuffer.__srcHowl = new Howl({src: [path], html5: true, preload: false});
+		#else
 		audioBuffer.__srcHowl = new Howl({src: [path], preload: false});
+		#end
+		
 		return audioBuffer;
 		#elseif flash
 		switch (Path.extension(path))
@@ -194,7 +200,13 @@ class AudioBuffer
 	{
 		#if (js && html5 && lime_howlerjs)
 		var audioBuffer = new AudioBuffer();
+		
+		#if force_html5_audio
+		audioBuffer.__srcHowl = new Howl({src: paths, html5: true, preload: false});
+		#else
 		audioBuffer.__srcHowl = new Howl({src: paths, preload: false});
+		#end
+			
 		return audioBuffer;
 		#else
 		var buffer = null;
