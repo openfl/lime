@@ -3,7 +3,7 @@ package lime.graphics.opengl.ext;
 #if (js && html5)
 @:keep
 @:native("WEBGL_draw_buffers")
-extern @:noCompletion class WEBGL_draw_buffers
+@:noCompletion extern class WEBGL_draw_buffers
 {
 	public var COLOR_ATTACHMENT0_WEBGL:Int;
 	public var COLOR_ATTACHMENT1_WEBGL:Int;

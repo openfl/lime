@@ -29,7 +29,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("OES_vertex_array_object")
-extern @:noCompletion class OES_vertex_array_object
+@:noCompletion extern class OES_vertex_array_object
 {
 	public var VERTEX_ARRAY_BINDING_OES:Int;
 	public function createVertexArrayOES():Dynamic; /*WebGLVertexArrayObject*/

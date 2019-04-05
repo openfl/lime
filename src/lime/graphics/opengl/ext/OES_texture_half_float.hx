@@ -10,7 +10,7 @@ package lime.graphics.opengl.ext;
 }
 #else
 @:native("OES_texture_half_float")
-extern @:noCompletion class OES_texture_half_float
+@:noCompletion extern class OES_texture_half_float
 {
 	public var HALF_FLOAT_OES:Int;
 }

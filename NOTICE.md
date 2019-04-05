@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2018 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2019 Joshua Granick and other Lime contributors
 
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
@@ -18,6 +18,9 @@ This product bundles freetype 2.9.1, which is available under an
 
 This product bundles harfbuzz 1.8.8, which is available under an
 "MIT" license. For details, see [project/lib/harfbuzz/](project/lib).
+
+This product bundles HashLink 1.9, which is available under an
+"MIT" license. For details, see [HaxeFoundation/hashlink/](https://github.com/HaxeFoundation/hashlink/blob/1.9/LICENSE).
 
 This product bundles libjpeg 6b, which is available under a
 "libjpeg" (BSD-style) license. For details, see [project/lib/jpeg/](project/lib).
