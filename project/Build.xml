@@ -1,6 +1,6 @@
 <xml>
 
-	<set name="PLATFORM" value="android-14" if="android" unless="HXCPP_ARM64" />
+	<set name="PLATFORM" value="android-16" if="android" unless="HXCPP_ARM64" />
 	<set name="PLATFORM" value="android-21" if="android HXCPP_ARM64" />
 	<set name="HXCPP_CPP11" value="1" />
 

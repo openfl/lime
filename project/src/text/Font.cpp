@@ -754,7 +754,7 @@ namespace lime {
 
 						len = sfnt_name.string_len;
 						family_name = new wchar_t[len + 1];
-						#ifdef ANDROID
+						#if defined(ANDROID) && !defined(HXCPP_CLANG)
 						// Fix some devices (Android 4.x or older) that have a bad stdc implementation
 						_mbsrtowcs (family_name, (const char**)&sfnt_name.string, len, 0);
 						#else
