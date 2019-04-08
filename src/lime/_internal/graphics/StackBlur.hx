@@ -18,11 +18,15 @@ class StackBlur
 
 	private static function __stackBlurCanvasRGBA(image:Image, width:Int, height:Int, blurX:Float, blurY:Float, quality:Int)
 	{
+		// TODO: Handle pixel order
+		// TODO: Support blur without unmultiplying alpha
+
 		var radiusX = Math.round(blurX) >> 1;
 		var radiusY = Math.round(blurY) >> 1;
 
-		if (radiusX < 0 || radiusY < 0)
-			return;
+		if (radiusX >= MUL_TABLE.length) radiusX = MUL_TABLE.length - 1;
+		if (radiusY >= MUL_TABLE.length) radiusY = MUL_TABLE.length - 1;
+		if (radiusX < 0 || radiusY < 0) return;
 
 		var iterations = quality;
 		if (iterations < 1) iterations = 1;
