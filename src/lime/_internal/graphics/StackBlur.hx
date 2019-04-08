@@ -114,7 +114,7 @@ class StackBlur
 					si = si.n;
 				}
 				yw += w;
-			} while (--y > -1);
+			} while (--y > 0);
 
 			ms = mty;
 			ss = sty;
