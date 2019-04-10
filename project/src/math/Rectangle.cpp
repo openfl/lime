@@ -11,6 +11,15 @@ namespace lime {
 	static bool init = false;
 
 
+	Rectangle::Rectangle () {
+
+		t = 0;
+
+		SetTo (0, 0, 0, 0);
+
+	}
+
+
 	Rectangle::Rectangle (double x, double y, double width, double height) {
 
 		t = 0;
