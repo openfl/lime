@@ -42,7 +42,7 @@
 	<set name="LIME_WEBM" value="1" /> -->
 	<set name="LIME_ZLIB" value="1" />
 
-	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
+	<set name="OUTPUT_DIR" value="../lib" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 
 	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
@@ -390,7 +390,7 @@
 			<ext value=".so" />
 			<ext value=".ndll" if="windows || mac || linux" />
 
-			<!-- TODO: Support single binary -->
+			<!-- TODO: Support single binary? -->
 			<ext value=".hdll" if="LIME_HASHLINK" />
 
 			<section if="windows">
@@ -467,7 +467,7 @@
 
 			<section if="android">
 
-				<lib name="-L../ndll/Android" />
+				<lib name="-L../lib/Android" />
 
 				<lib name="-ldl" />
 				<lib name="-llog" />

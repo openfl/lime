@@ -4,6 +4,8 @@
 Export/
 ndll/*/lime*
 ndll/*/liblime*
+lib/*/lime*
+lib/*/liblime*
 project/all_objs
 project/obj
 project/vc*.pdb
