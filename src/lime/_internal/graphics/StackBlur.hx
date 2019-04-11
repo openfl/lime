@@ -24,6 +24,7 @@ class StackBlur
 		var radiusX = Math.round(blurX) >> 1;
 		var radiusY = Math.round(blurY) >> 1;
 
+		if (MUL_TABLE == null) return; // can be null due to static initialization order
 		if (radiusX >= MUL_TABLE.length) radiusX = MUL_TABLE.length - 1;
 		if (radiusY >= MUL_TABLE.length) radiusY = MUL_TABLE.length - 1;
 		if (radiusX < 0 || radiusY < 0) return;
