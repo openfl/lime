@@ -33,8 +33,9 @@ class StackBlur
 		if (iterations > 3) iterations = 3;
 
 		var px = image.data;
-		var x:Int=0, y:Int=0, i:Int=0, p:Int=0, yp:Int=0, yi:Int=0, yw:Int=0;
-		var r:Int=0, g:Int=0, b:Int=0, a:Int=0, pr:Int=0, pg:Int=0, pb:Int=0, pa:Int=0;
+		var x:Int, y:Int, i:Int, p:Int, yp:Int, yi:Int, yw:Int;
+		var r:Int, g:Int, b:Int, a:Int, pr:Int, pg:Int, pb:Int, pa:Int;
+		var f:Float;
 
 		var divx = (radiusX + radiusX + 1);
 		var divy = (radiusY + radiusY + 1);
@@ -96,10 +97,10 @@ class StackBlur
 				for (i in 1...rxp1)
 				{
 					p = yi + ((w1 < i ? w1 : i) << 2);
-					r += ( sx.r = px[p]);
-					g += ( sx.g = px[p+1]);
-					b += ( sx.b = px[p+2]);
-					a += ( sx.a = px[p+3]);
+					r += (sx.r = px[p]);
+					g += (sx.g = px[p + 1]);
+					b += (sx.b = px[p + 2]);
+					a += (sx.a = px[p + 3]);
 					sx = sx.n;
 				}
 
@@ -111,10 +112,10 @@ class StackBlur
 					px[yi++] = (b * ms) >>> ss;
 					px[yi++] = (a * ms) >>> ss;
 					p = (yw + ((p = x + radiusX + 1) < w1 ? p : w1)) << 2;
-					r -= si.r - ( si.r = px[p]);
-					g -= si.g - ( si.g = px[p+1]);
-					b -= si.b - ( si.b = px[p+2]);
-					a -= si.a - ( si.a = px[p+3]);
+					r -= si.r - (si.r = px[p]);
+					g -= si.g - (si.g = px[p + 1]);
+					b -= si.b - (si.b = px[p + 2]);
+					a -= si.a - (si.a = px[p + 3]);
 					si = si.n;
 				}
 				yw += w;
@@ -139,42 +140,75 @@ class StackBlur
 					sy = sy.n;
 				}
 				yp = w;
-				for(i in 1...(radiusY + 1))
+				for (i in 1...(radiusY + 1))
 				{
-					yi = ( yp + x ) << 2;
-					r += ( sy.r = px[yi]);
-					g += ( sy.g = px[yi+1]);
-					b += ( sy.b = px[yi+2]);
-					a += ( sy.a = px[yi+3]);
+					yi = (yp + x) << 2;
+					r += (sy.r = px[yi]);
+					g += (sy.g = px[yi + 1]);
+					b += (sy.b = px[yi + 2]);
+					a += (sy.a = px[yi + 3]);
 					sy = sy.n;
-					if( i < h1 )
+					if (i < h1)
 					{
 						yp += w;
 					}
 				}
 				yi = x;
 				si = ssy;
-				for (y in 0...h)
+
+				if (iterations > 0)
 				{
-					p = yi << 2;
-					px[p+3] = pa = (a * ms) >>> ss;
-					if ( pa > 0 )
+					for (y in 0...h)
 					{
-						px[p]   = (r * ms) >>> ss;
-						px[p+1] = (g * ms) >>> ss;
-						px[p+2] = (b * ms) >>> ss;
+						p = yi << 2;
+						px[p + 3] = pa = (a * ms) >>> ss;
+						if (pa > 0)
+						{
+							px[p]     = ((r * ms) >>> ss);
+							px[p + 1] = ((g * ms) >>> ss);
+							px[p + 2] = ((b * ms) >>> ss);
+						}
+						else
+						{
+							px[p] = px[p + 1] = px[p + 2] = 0;
+						}
+						p = (x + (((p = y + ryp1) < h1 ? p : h1) * w)) << 2;
+						r -= si.r - (si.r = px[p]);
+						g -= si.g - (si.g = px[p + 1]);
+						b -= si.b - (si.b = px[p + 2]);
+						a -= si.a - (si.a = px[p + 3]);
+						si = si.n;
+						yi += w;
 					}
-					else
+				}
+				else
+				{
+					for (y in 0...h)
 					{
-						px[p] = px[p+1] = px[p+2] = 0;
+						p = yi << 2;
+						px[p + 3] = pa = (a * ms) >>> ss;
+						if (pa > 0)
+						{
+							f = 255 / pa;
+							pr = Std.int(((r * ms) >>> ss) * f);
+							pg = Std.int(((g * ms) >>> ss) * f);
+							pb = Std.int(((b * ms) >>> ss) * f);
+							px[p]     = pr > 255 ? 255 : pr;
+							px[p + 1] = pg > 255 ? 255 : pg;
+							px[p + 2] = pb > 255 ? 255 : pb;
+						}
+						else
+						{
+							px[p] = px[p + 1] = px[p + 2] = 0;
+						}
+						p = (x + (((p = y + ryp1) < h1 ? p : h1) * w)) << 2;
+						r -= si.r - (si.r = px[p]);
+						g -= si.g - (si.g = px[p + 1]);
+						b -= si.b - (si.b = px[p + 2]);
+						a -= si.a - (si.a = px[p + 3]);
+						si = si.n;
+						yi += w;
 					}
-					p = ( x + (( ( p = y + ryp1) < h1 ? p : h1 ) * w )) << 2;
-					r -= si.r - (si.r = px[p]);
-					g -= si.g - (si.g = px[p+1]);
-					b -= si.b - (si.b = px[p+2]);
-					a -= si.a - (si.a = px[p+3]);
-					si = si.n;
-					yi += w;
 				}
 			}
 		}
