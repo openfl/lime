@@ -239,7 +239,7 @@ class CommandLineTools
 							target = cast System.hostPlatform;
 							targetFlags.set("neko", "");
 
-						case "hl":
+						case "hl", "hashlink":
 							target = cast System.hostPlatform;
 							targetFlags.set("hl", "");
 
@@ -886,7 +886,7 @@ class CommandLineTools
 			Log.println("  \x1b[1mnodejs\x1b[0m -- Alias for host platform (using \x1b[1m-nodejs\x1b[0m)");
 			Log.println("  \x1b[1mjava\x1b[0m -- Alias for host platform (using \x1b[1m-java\x1b[0m)");
 			Log.println("  \x1b[1mcs\x1b[0m -- Alias for host platform (using \x1b[1m-cs\x1b[0m)");
-			Log.println("  \x1b[1mhl\x1b[0m -- Alias for host platform (using \x1b[1m-hl\x1b[0m)");
+			Log.println("  \x1b[1mhl/hashlink\x1b[0m -- Alias for host platform (using \x1b[1m-hl\x1b[0m)");
 			Log.println("  \x1b[1muwp\x1b[0;3m/\x1b[0m\x1b[1mwinjs\x1b[0m -- Alias for \x1b[1mwindows -uwp\x1b[0m");
 			// Log.println ("  \x1b[1miphone\x1b[0;3m/\x1b[0m\x1b[1miphoneos\x1b[0m -- \x1b[1mios\x1b[0m");
 			// Log.println ("  \x1b[1miphonesim\x1b[0m -- Alias for \x1b[1mios -simulator\x1b[0m");
@@ -1461,7 +1461,7 @@ class CommandLineTools
 				target = cast System.hostPlatform;
 				targetFlags.set("neko", "");
 
-			case "hl":
+			case "hl", "hashlink":
 				target = cast System.hostPlatform;
 				targetFlags.set("hl", "");
 
