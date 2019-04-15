@@ -25,6 +25,7 @@ import sys.FileSystem;
 class HTML5Platform extends PlatformTarget
 {
 	private var dependencyPath:String;
+	private var npm:Bool;
 	private var outputFile:String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
@@ -36,6 +37,18 @@ class HTML5Platform extends PlatformTarget
 
 	public override function build():Void
 	{
+		if (npm)
+		{
+			if (command == "build")
+			{
+				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
+				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
+			} else
+			{
+				return;
+			}
+		}
+
 		ModuleHelper.buildModules(project, targetDirectory + "/obj", targetDirectory + "/bin");
 
 		if (project.app.main != null)
@@ -76,9 +89,7 @@ class HTML5Platform extends PlatformTarget
 
 				for (dependency in project.dependencies)
 				{
-					if (dependency.embed
-						&& StringTools.endsWith(dependency.path, ".js")
-						&& FileSystem.exists(dependency.path))
+					if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
 					{
 						var script = File.getContent(dependency.path);
 						context.embeddedLibraries.push(script);
@@ -163,18 +174,27 @@ class HTML5Platform extends PlatformTarget
 		}
 
 		dependencyPath = project.config.getString("html5.dependency-path", "lib");
-
-		if (targetFlags.exists("electron"))
-		{
-			dependencyPath = project.config.getString("html5.dependency-path", dependencyPath);
-		}
-
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
+
+		try
+		{
+			if (targetFlags.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron")))
+			{
+				npm = true;
+				outputFile = project.app.file + ".js";
+			}
+		}
+		catch (e:Dynamic) {}
 	}
 
 	public override function run():Void
 	{
-		if (targetFlags.exists("electron"))
+		if (npm)
+		{
+			var runCommand = "start:" + (project.targetFlags.exists("final") ? "prod" : "dev");
+			System.runCommand(targetDirectory + "/bin", "npm", ["run", runCommand, "-s"]);
+		}
+		else if (targetFlags.exists("electron"))
 		{
 			ElectronHelper.launch(project, targetDirectory + "/bin");
 		}
@@ -191,6 +211,7 @@ class HTML5Platform extends PlatformTarget
 		// project = project.clone ();
 
 		var destination = targetDirectory + "/bin/";
+		if (npm) destination += "dist/";
 		System.mkdir(destination);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
@@ -272,6 +293,14 @@ class HTML5Platform extends PlatformTarget
 			}
 		}
 
+		if (npm)
+		{
+			for (i in 0...project.sources.length)
+			{
+				project.sources[i] = Path.tryFullPath(project.sources[i]);
+			}
+		}
+
 		// for (library in libraryNames.keys ()) {
 		//
 		// project.haxeflags.push ("-resource " + targetDirectory + "/obj/manifest/" + library + ".json@__ASSET_MANIFEST__" + library);
@@ -283,7 +312,7 @@ class HTML5Platform extends PlatformTarget
 		var context = project.templateContext;
 
 		context.WIN_FLASHBACKGROUND = project.window.background != null ? StringTools.hex(project.window.background, 6) : "";
-		context.OUTPUT_DIR = targetDirectory;
+		context.OUTPUT_DIR = npm ? Path.tryFullPath(targetDirectory) : targetDirectory;
 		context.OUTPUT_FILE = outputFile;
 
 		if (project.targetFlags.exists("webgl"))
@@ -315,7 +344,7 @@ class HTML5Platform extends PlatformTarget
 
 		for (dependency in project.dependencies)
 		{
-			if (!dependency.embed)
+			if (!dependency.embed || npm)
 			{
 				if (StringTools.endsWith(dependency.name, ".js"))
 				{
@@ -392,8 +421,8 @@ class HTML5Platform extends PlatformTarget
 								if (hasFormat[1]) urls.push("url('" + embeddedAsset.targetPath + ".eot?#iefix') format('embedded-opentype')");
 								if (hasFormat[3]) urls.push("url('" + embeddedAsset.targetPath + ".woff') format('woff')");
 								urls.push("url('" + embeddedAsset.targetPath + ext + "') format('truetype')");
-								if (hasFormat[2]) urls.push("url('" + embeddedAsset.targetPath + ".svg#" + StringTools.urlEncode(embeddedAsset
-										.fontName) + "') format('svg')");
+								if (hasFormat[2]) urls.push("url('" + embeddedAsset.targetPath + ".svg#" + StringTools.urlEncode(embeddedAsset.fontName)
+									+ "') format('svg')");
 
 								var fontFace = "\t\t@font-face {\n";
 								fontFace += "\t\t\tfont-family: '" + embeddedAsset.fontName + "';\n";
@@ -420,6 +449,15 @@ class HTML5Platform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/haxe", targetDirectory + "/haxe", context, true, false);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/hxml", targetDirectory + "/haxe", context);
+		}
+
+		if (npm)
+		{
+			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/npm", targetDirectory + "/bin", context);
+			if (!FileSystem.exists(targetDirectory + "/bin/node_modules"))
+			{
+				System.runCommand(targetDirectory + "/bin", "npm", ["install", "-s"]);
+			}
 		}
 
 		if (targetFlags.exists("electron"))
