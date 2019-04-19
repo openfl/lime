@@ -1,8 +1,9 @@
 package flash.display;
 
-@:fakeEnum(String) extern enum NativeWindowDisplayState
+@:native("flash.display.NativeWindowDisplayState")
+@:enum extern abstract NativeWindowDisplayState(String)
 {
-	MAXIMIZED;
-	MINIMIZED;
-	NORMAL;
+	var MAXIMIZED;
+	var MINIMIZED;
+	var NORMAL;
 }

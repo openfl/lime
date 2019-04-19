@@ -1,10 +1,11 @@
 package flash.display;
 
-@:fakeEnum(String) extern enum StageOrientation
+@:native("flash.display.StageOrientation")
+@:enum extern abstract StageOrientation(String)
 {
-	DEFAULT;
-	ROTATED_LEFT;
-	ROTATED_RIGHT;
-	UNKNOWN;
-	UPSIDE_DOWN;
+	var DEFAULT;
+	var ROTATED_LEFT;
+	var ROTATED_RIGHT;
+	var UNKNOWN;
+	var UPSIDE_DOWN;
 }

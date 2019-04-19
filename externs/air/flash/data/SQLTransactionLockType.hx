@@ -1,8 +1,9 @@
 package flash.data;
 
-@:fakeEnum(String) extern enum SQLTransactionLockType
+@:native("flash.data.SQLTransactionLockType")
+@:enum extern abstract SQLTransactionLockType(String)
 {
-	DEFERRED;
-	EXCLUSIVE;
-	IMMEDIATE;
+	var DEFERRED;
+	var EXCLUSIVE;
+	var IMMEDIATE;
 }
