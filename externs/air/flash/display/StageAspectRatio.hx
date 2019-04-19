@@ -1,8 +1,9 @@
 package flash.display;
 
-@:fakeEnum(String) extern enum StageAspectRatio
+@:native("flash.display.StageAspectRatio")
+@:enum extern abstract StageAspectRatio(String)
 {
-	ANY;
-	LANDSCAPE;
-	PORTRAIT;
+	var ANY;
+	var LANDSCAPE;
+	var PORTRAIT;
 }

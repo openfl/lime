@@ -1,8 +1,9 @@
 package flash.security;
 
-@:fakeEnum(String) extern enum SignatureStatus
+@:native("flash.security.SignatureStatus")
+@:enum extern abstract SignatureStatus(String)
 {
-	INVALID;
-	UNKNOWN;
-	VALID;
+	var INVALID;
+	var UNKNOWN;
+	var VALID;
 }

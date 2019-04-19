@@ -1,10 +1,11 @@
 package flash.text;
 
-@:fakeEnum(String) extern enum ReturnKeyLabel
+@:native("flash.text.ReturnKeyLabel")
+@:enum extern abstract ReturnKeyLabel(String)
 {
-	DEFAULT;
-	DONE;
-	GO;
-	NEXT;
-	SEARCH;
+	var DEFAULT;
+	var DONE;
+	var GO;
+	var NEXT;
+	var SEARCH;
 }

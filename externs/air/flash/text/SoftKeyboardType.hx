@@ -1,11 +1,12 @@
 package flash.text;
 
-@:fakeEnum(String) extern enum SoftKeyboardType
+@:native("flash.text.SoftKeyboardType")
+@:enum extern abstract SoftKeyboardType(String)
 {
-	CONTACT;
-	DEFAULT;
-	EMAIL;
-	NUMBER;
-	PUNCTUATION;
-	URL;
+	var CONTACT;
+	var DEFAULT;
+	var EMAIL;
+	var NUMBER;
+	var PUNCTUATION;
+	var URL;
 }
