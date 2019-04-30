@@ -232,6 +232,7 @@ namespace lime {
 		}
 
 		jpeg_create_decompress (&cinfo);
+		jpeg_save_markers (&cinfo, JPEG_APP0 + 14, 0xFF);
 
 		if (file) {
 
@@ -259,31 +260,110 @@ namespace lime {
 
 		if (jpeg_read_header (&cinfo, TRUE) == JPEG_HEADER_OK) {
 
-			cinfo.out_color_space = JCS_RGB;
+			switch (cinfo.jpeg_color_space) {
+
+				case JCS_CMYK:
+				case JCS_YCCK:
+
+					cinfo.out_color_space = JCS_CMYK;
+					break;
+
+				case JCS_GRAYSCALE:
+				case JCS_RGB:
+				case JCS_YCbCr:
+				default:
+
+					cinfo.out_color_space = JCS_RGB;
+					break;
+
+				// case JCS_BG_RGB:
+				// case JCS_BG_YCC:
+				// case JCS_UNKNOWN:
+
+			}
 
 			if (decodeData) {
 
 				jpeg_start_decompress (&cinfo);
+
 				int components = cinfo.output_components;
 				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 
 				unsigned char *bytes = imageBuffer->data->buffer->b;
 				unsigned char *scanline = new unsigned char [imageBuffer->width * components];
 
-				while (cinfo.output_scanline < cinfo.output_height) {
+				if (cinfo.out_color_space == JCS_CMYK) {
 
-					jpeg_read_scanlines (&cinfo, &scanline, 1);
+					bool invert = false;
+					jpeg_saved_marker_ptr marker;
+					marker = cinfo.marker_list;
 
-					// convert 24-bit scanline to 32-bit
-					const unsigned char *line = scanline;
-					const unsigned char *const end = line + imageBuffer->width * components;
+					while (marker) {
 
-					while (line < end) {
+						if (marker->marker == JPEG_APP0 + 14 && marker->data_length >= 12 && !strncmp ((const char*)marker->data, "Adobe", 5)) {
 
-						*bytes++ = *line++;
-						*bytes++ = *line++;
-						*bytes++ = *line++;
-						*bytes++ = 0xFF;
+							// Are there other transforms?
+							invert = true;
+
+						}
+
+						marker = marker->next;
+
+					}
+
+					while (cinfo.output_scanline < cinfo.output_height) {
+
+						jpeg_read_scanlines (&cinfo, &scanline, 1);
+
+						const unsigned char *line = scanline;
+						const unsigned char *const end = line + imageBuffer->width * components;
+						unsigned char c, m, y, k;
+
+						while (line < end) {
+
+							if (invert) {
+
+								c = 0xFF - *line++;
+								m = 0xFF - *line++;
+								y = 0xFF - *line++;
+								k = 0xFF - *line++;
+
+							} else {
+
+								c = *line++;
+								m = *line++;
+								y = *line++;
+								k = *line++;
+
+							}
+
+							*bytes++ = (unsigned char)((0xFF - c) * (0xFF - k) / 0xFF);
+							*bytes++ = (unsigned char)((0xFF - m) * (0xFF - k) / 0xFF);
+							*bytes++ = (unsigned char)((0xFF - y) * (0xFF - k) / 0xFF);
+							*bytes++ = 0xFF;
+
+						}
+
+					}
+
+				} else {
+
+					while (cinfo.output_scanline < cinfo.output_height) {
+
+						jpeg_read_scanlines (&cinfo, &scanline, 1);
+
+						// convert 24-bit scanline to 32-bit
+						const unsigned char *line = scanline;
+						const unsigned char *const end = line + imageBuffer->width * components;
+
+						while (line < end) {
+
+							*bytes++ = *line++;
+							*bytes++ = *line++;
+							*bytes++ = *line++;
+							*bytes++ = 0xFF;
+
+						}
 
 					}
 
