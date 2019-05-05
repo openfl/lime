@@ -1074,11 +1074,30 @@ class WindowsPlatform extends PlatformTarget
 			var kitsRoot10 = "C:\\Program Files (x86)\\Windows Kits\\10\\"; //%WindowsSdkDir%
 			var haxeDir = targetDirectory + "/haxe";
 
-			//TODO! Get latest sdkVersion path automatically
-			var sdkVersion = '10.0.17763.0';
-			var makepriPath =  kitsRoot10+'\\bin\\'+sdkVersion+'\\x86\\MakePri.exe';
-			var makeappxPath = kitsRoot10+'\\bin\\'+sdkVersion+'\\x86\\MakeAppx.exe';
-			var signToolPath = kitsRoot10+'\\bin\\'+sdkVersion+'\\x64\\SignTool.exe';
+			var binDir:String = kitsRoot10 + "\\bin";
+			if (sys.FileSystem.exists(binDir)) 
+			{
+				var maxSDK:Int = 0;
+				for (file in sys.FileSystem.readDirectory(binDir)) {
+					if(StringTools.startsWith(file,"10.0")){
+						var file2 = file.split("10.0.")[1];
+						file2 = file2.split(".0")[0];
+						var fileSDK:Int  = Std.parseInt(file2);
+						maxSDK = (maxSDK>fileSDK?maxSDK:fileSDK);
+					}
+				}
+				if(maxSDK>0){
+					Log.info("Found max SDK 10.0."+maxSDK+".0");
+					binDir += "\\10.0."+maxSDK+".0";
+				}
+			} else {
+				Log.error('"$binDir" does not exists');
+				return;
+			}
+
+			var makepriPath =  binDir+'\\x86\\MakePri.exe';
+			var makeappxPath = binDir+'\\x86\\MakeAppx.exe';
+			var signToolPath = binDir+'\\x64\\SignTool.exe';
 
 			var resultFilePath = haxeDir +"\\temp";
 			var resultFileName = resultFilePath +"/layout.resfiles";
