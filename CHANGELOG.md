@@ -1,3 +1,22 @@
+7.4.0 (05/13/2019)
+------------------
+
+* Renamed the "ndll" folder to "lib"
+* Updated SDL to latest development version
+* Updated the minimum target Android API from 14 to 16
+* Added support for CMYK JPEG decoding on native platforms
+* Added an `-npm` option for HTML5 to use Webpack
+* Added "hashlink" as an alias for the HL target
+* Improved the Zlib default compression level
+* Improved support for WinRT applications
+* Improved the internal blur implementation
+* Improved support for native joystick connection/disconnection
+* Improved the output HTML5 script wrapper with better Haxe 3.2 support
+* Fixed the values in `lime.ui.MouseButton` to match Lime's historic values (zero based)
+* Fixed issues effecting proper `Image` pixel-level APIs when targeting HL
+* Fixed a missing button value when dispatching HL mouse events
+
+
 7.3.0 (04/01/2019)
 ------------------
 
