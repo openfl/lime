@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "7.5.0",
+	"version": "7.4.0",
 	"releasenote": "Better HL support, faster blur, new SDL version",
 	"contributors": [ "singmajesty" ],
 	"classPath": "src"
