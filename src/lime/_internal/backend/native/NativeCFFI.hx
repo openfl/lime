@@ -28,7 +28,7 @@ import lime.utils.ArrayBufferView;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
 #end
-#if cpp
+#if (cpp && !cppia)
 import cpp.Float32;
 #else
 typedef Float32 = Float;
@@ -53,7 +53,7 @@ typedef CFFIPointer = Dynamic;
 class NativeCFFI
 {
 	#if (lime_cffi && !macro)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_application_create():Dynamic;
 
@@ -601,7 +601,7 @@ class NativeCFFI
 		._loadPrime("lime", "lime_zlib_decompress", "ooo", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_application_create = CFFI.load("lime", "lime_application_create", 0);
 	private static var lime_application_event_manager_register = CFFI.load("lime", "lime_application_event_manager_register", 2);
 	private static var lime_application_exec = CFFI.load("lime", "lime_application_exec", 1);
@@ -1360,7 +1360,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && android)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_jni_call_member(jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 
@@ -1425,7 +1425,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_openal)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_al_buffer_data(buffer:CFFIPointer, format:Int, data:Dynamic, size:Int, freq:Int):Void;
 
@@ -1796,7 +1796,7 @@ class NativeCFFI
 	private static var lime_al_remove_send = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_remove_send", "oiv", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_al_buffer_data = CFFI.load("lime", "lime_al_buffer_data", 5);
 	private static var lime_al_buffer3f = CFFI.load("lime", "lime_al_buffer3f", 5);
 	private static var lime_al_buffer3i = CFFI.load("lime", "lime_al_buffer3i", 5);
@@ -2306,7 +2306,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_cairo)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_cairo_arc(handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 
@@ -2739,7 +2739,7 @@ class NativeCFFI
 	private static var lime_cairo_surface_flush = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_surface_flush", "ov", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_cairo_arc = CFFI.load("lime", "lime_cairo_arc", -1);
 	private static var lime_cairo_arc_negative = CFFI.load("lime", "lime_cairo_arc_negative", -1);
 	private static var lime_cairo_clip = CFFI.load("lime", "lime_cairo_clip", 1);
@@ -3261,7 +3261,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_curl)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_curl_getdate(date:String, now:Float):Float;
 
@@ -3358,7 +3358,7 @@ class NativeCFFI
 	private static var lime_curl_multi_wait = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_wait", "oii", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_curl_getdate = CFFI.load("lime", "lime_curl_getdate", 2);
 	private static var lime_curl_global_cleanup = CFFI.load("lime", "lime_curl_global_cleanup", 0);
 	private static var lime_curl_global_init = CFFI.load("lime", "lime_curl_global_init", 1);
@@ -3518,7 +3518,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && (lime_opengl || lime_opengles))
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_gl_active_texture(texture:Int):Void;
 
@@ -4511,7 +4511,7 @@ class NativeCFFI
 		._loadPrime("lime", "lime_gl_wait_sync", "oiiiv", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_gl_active_texture = CFFI.load("lime", "lime_gl_active_texture", 1);
 	private static var lime_gl_attach_shader = CFFI.load("lime", "lime_gl_attach_shader", 2);
 	private static var lime_gl_begin_query = CFFI.load("lime", "lime_gl_begin_query", 2);
@@ -5599,7 +5599,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_harfbuzz)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_hb_blob_create(data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
 
@@ -6002,7 +6002,7 @@ class NativeCFFI
 		._loadPrime("lime", "lime_hb_shape", "ooov", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_hb_blob_create:lime.utils.DataPointer->Int->Int->Dynamic = CFFI.load("lime", "lime_hb_blob_create", 3);
 	private static var lime_hb_blob_create_sub_blob:Dynamic->Int->Int->Dynamic = CFFI.load("lime", "lime_hb_blob_create_sub_blob", 3);
 	private static var lime_hb_blob_get_data:Dynamic->Float = CFFI.load("lime", "lime_hb_blob_get_data", 1);
@@ -6559,7 +6559,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_vorbis)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_vorbis_file_bitrate(vorbisFile:Dynamic, bitstream:Int):Int;
 
@@ -6677,7 +6677,7 @@ class NativeCFFI
 		._loadPrime("lime", "lime_vorbis_file_time_total", "oid", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_vorbis_file_bitrate = CFFI.load("lime", "lime_vorbis_file_bitrate", 2);
 	private static var lime_vorbis_file_bitrate_instant = CFFI.load("lime", "lime_vorbis_file_bitrate_instant", 1);
 	private static var lime_vorbis_file_clear = CFFI.load("lime", "lime_vorbis_file_clear", 1);

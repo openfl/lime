@@ -45,7 +45,7 @@ abstract DataPointer(DataPointerType) to DataPointerType
 		#end
 	}
 
-	#if (cpp && !doc_gen)
+	#if (cpp && !cppia && !doc_gen)
 	#if (haxe_ver < 4)
 	@:from @:noCompletion public static inline function fromCharPointer(pointer:Pointer<Char>):DataPointer
 	{

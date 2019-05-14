@@ -53,6 +53,11 @@ class WindowsPlatform extends PlatformTarget
 			targetType = "hl";
 			is64 = false;
 		}
+		else if (project.targetFlags.exists("cppia"))
+		{
+			targetType = "cppia";
+			is64 = true;
+		}
 		else if (project.targetFlags.exists("nodejs"))
 		{
 			targetType = "nodejs";
@@ -214,6 +219,24 @@ class WindowsPlatform extends PlatformTarget
 				System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
 				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
+
+				var iconPath = Path.combine(applicationDirectory, "icon.ico");
+
+				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
+				{
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
+						+ "/templates"].concat(project.templatePaths);
+					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
+				}
+			}
+			else if (targetType == "cppia")
+			{
+				System.runCommand("", "haxe", [hxml]);
+
+				if (noOutput) return;
+
+				System.copyFile(Path.combine(Haxelib.getPath(new Haxelib("hxcpp")), "bin/Windows64/Cppia.exe"), executablePath);
+				System.copyFile(targetDirectory + "/obj/ApplicationMain.cppia", Path.combine(applicationDirectory, "script.cppia"));
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
@@ -448,6 +471,7 @@ class WindowsPlatform extends PlatformTarget
 			context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 			context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
 			context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
+			context.CPPIA_FILE = targetDirectory + "/obj/ApplicationMain.cppia";
 			context.CPP_DIR = targetDirectory + "/obj";
 			context.BUILD_DIR = project.app.path + "/windows" + (is64 ? "64" : "");
 		}
@@ -474,6 +498,8 @@ class WindowsPlatform extends PlatformTarget
 					hxml.hl = "_.hl";
 				case "neko":
 					hxml.neko = "_.n";
+				case "cppia":
+					hxml.cppia = "_.cppia";
 				case "java":
 					hxml.java = "_";
 				case "nodejs", "winjs":
@@ -552,6 +578,12 @@ class WindowsPlatform extends PlatformTarget
 		if (targetType == "nodejs")
 		{
 			NodeJSHelper.run(project, targetDirectory + "/bin/ApplicationMain.js", arguments);
+		}
+		else if (targetType == "cppia")
+		{
+			// arguments = arguments.concat(["-livereload"]);
+			arguments = ["script.cppia"]; //.concat(arguments);
+			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);
 		}
 		else if (targetType == "winjs")
 		{
@@ -955,7 +987,7 @@ class WindowsPlatform extends PlatformTarget
 		super.install();
 		if (targetType == "winrt")
 		{
-			if(project.targetFlags.exists("appx"))
+			if (project.targetFlags.exists("appx"))
 			{
 				var context = project.templateContext;
 				buildWinrtPackage(context.KEY_STORE, context.KEY_STORE_PASSWORD);
@@ -985,7 +1017,7 @@ class WindowsPlatform extends PlatformTarget
 	override public function uninstall():Void
 	{
 		super.uninstall();
-		if (targetType == "winrt" && !project.targetFlags.exists("appx")) 
+		if (targetType == "winrt" && !project.targetFlags.exists("appx"))
 		{
 			var appxName = project.meta.packageName;
 			Log.info("run: Remove previous registered app");
@@ -1001,16 +1033,16 @@ class WindowsPlatform extends PlatformTarget
 			}
 			process.close();
 		}
-		//TODO 		if (targetType == "winrt" && project.targetFlags.exists("appx")) 
+		// TODO 		if (targetType == "winrt" && project.targetFlags.exists("appx"))
 	}
 
 	public function winrtRun(arguments:Array<String>):Void
 	{
 		var dir = applicationDirectory;
 		var haxeDir = targetDirectory + "/haxe";
-		if (project.targetFlags.exists("appx")) 
+		if (project.targetFlags.exists("appx"))
 		{
-			Log.info("\n***Double click on "+project.app.file + ".Appx to install Appx");
+			Log.info("\n***Double click on " + project.app.file + ".Appx to install Appx");
 		}
 		else
 		{
@@ -1067,176 +1099,196 @@ class WindowsPlatform extends PlatformTarget
 		}
 	}
 
-	public function buildWinrtPackage(pfxPath:String, certificatePwd:String):Void 
+	public function buildWinrtPackage(pfxPath:String, certificatePwd:String):Void
 	{
 		if (project.targetFlags.exists("appx"))
 		{
-			var kitsRoot10 = "C:\\Program Files (x86)\\Windows Kits\\10\\"; //%WindowsSdkDir%
+			var kitsRoot10 = "C:\\Program Files (x86)\\Windows Kits\\10\\"; // %WindowsSdkDir%
 			var haxeDir = targetDirectory + "/haxe";
 
 			var binDir:String = kitsRoot10 + "\\bin";
-			if (sys.FileSystem.exists(binDir)) 
+			if (sys.FileSystem.exists(binDir))
 			{
 				var maxSDK:Int = 0;
-				for (file in sys.FileSystem.readDirectory(binDir)) {
-					if(StringTools.startsWith(file,"10.0")){
+				for (file in sys.FileSystem.readDirectory(binDir))
+				{
+					if (StringTools.startsWith(file, "10.0"))
+					{
 						var file2 = file.split("10.0.")[1];
 						file2 = file2.split(".0")[0];
-						var fileSDK:Int  = Std.parseInt(file2);
-						maxSDK = (maxSDK>fileSDK?maxSDK:fileSDK);
+						var fileSDK:Int = Std.parseInt(file2);
+						maxSDK = (maxSDK > fileSDK ? maxSDK : fileSDK);
 					}
 				}
-				if(maxSDK>0){
-					Log.info("Found max SDK 10.0."+maxSDK+".0");
-					binDir += "\\10.0."+maxSDK+".0";
+				if (maxSDK > 0)
+				{
+					Log.info("Found max SDK 10.0." + maxSDK + ".0");
+					binDir += "\\10.0." + maxSDK + ".0";
 				}
-			} else {
+			}
+			else
+			{
 				Log.error('"$binDir" does not exists');
 				return;
 			}
 
-			var makepriPath =  binDir+'\\x86\\MakePri.exe';
-			var makeappxPath = binDir+'\\x86\\MakeAppx.exe';
-			var signToolPath = binDir+'\\x64\\SignTool.exe';
+			var makepriPath = binDir + '\\x86\\MakePri.exe';
+			var makeappxPath = binDir + '\\x86\\MakeAppx.exe';
+			var signToolPath = binDir + '\\x64\\SignTool.exe';
 
-			var resultFilePath = haxeDir +"\\temp";
-			var resultFileName = resultFilePath +"/layout.resfiles";
+			var resultFilePath = haxeDir + "\\temp";
+			var resultFileName = resultFilePath + "/layout.resfiles";
 			Log.info("make pri");
 
 			var outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "appx");
 			var binPath = Path.combine(FileSystem.fullPath(targetDirectory), "bin");
 
 			pfxPath = Path.combine(outputDirectory, pfxPath);
-			//prepare file to make pri
+			// prepare file to make pri
 			try
 			{
 				var from = outputDirectory;
 				var buf = new StringBuf();
 
-				//todo
+				// todo
 				var outputFiles = FileSystem.readDirectory(binPath);
 
 				for (filename in outputFiles)
 				{
-					if (!(StringTools.endsWith(filename,".exe") || 
-						StringTools.endsWith(filename,".pri") ) 
-						&& filename!="AppxManifest.xml")
+					if (!(StringTools.endsWith(filename, ".exe") || StringTools.endsWith(filename, ".pri"))
+						&& filename != "AppxManifest.xml")
 					{
-						 buf.add(filename);
-						 buf.addChar(10);
+						buf.add(filename);
+						buf.addChar(10);
 					}
 				}
-  
-				if(sys.FileSystem.exists(resultFileName))	
-					sys.FileSystem.deleteFile(sys.FileSystem.absolutePath(resultFileName));
+
+				if (sys.FileSystem.exists(resultFileName)) sys.FileSystem.deleteFile(sys.FileSystem.absolutePath(resultFileName));
 
 				sys.io.File.saveContent(resultFileName, buf.toString());
 				Log.info("Created layout.resfiles : " + resultFileName);
 			}
-			catch(e:Dynamic)
+			catch (e:Dynamic)
 			{
 				Log.error("Error creating layout.resfiles " + e);
 			}
 
-
-			var makepriParams = ["new", "/ProjectRoot", resultFilePath, "/ConfigXml", resultFilePath + "\\priconfig.xml", "/Manifest", applicationDirectory + "/"+'AppxManifest.xml', "/OutputFile", applicationDirectory +"resources.pri"];
-			Log.info( makepriPath+ " " + makepriParams);
+			var makepriParams = [
+				"new",
+				"/ProjectRoot",
+				resultFilePath,
+				"/ConfigXml",
+				resultFilePath + "\\priconfig.xml",
+				"/Manifest",
+				applicationDirectory + "/" + 'AppxManifest.xml',
+				"/OutputFile",
+				applicationDirectory + "resources.pri"
+			];
+			Log.info(makepriPath + " " + makepriParams);
 			var process = new sys.io.Process(makepriPath, makepriParams);
 
-			//needs to wait make pri
+			// needs to wait make pri
 			var retry:Int = 10;
-			while (retry>0 && !sys.FileSystem.exists(applicationDirectory + "/"+"resources.pri"))
+			while (retry > 0 && !sys.FileSystem.exists(applicationDirectory + "/" + "resources.pri"))
 			{
 				Sys.sleep(1);
 				Log.info("waiting pri..");
 				retry--;
 			}
-			if (retry<=0)
-				Log.error("Error on MakePri");
+			if (retry <= 0) Log.error("Error on MakePri");
 
-			var appxDir = applicationDirectory+"../";
+			var appxDir = applicationDirectory + "../";
 
-			Log.info("make "+project.app.file+".Appx");
-			var makeappParams = ["pack", "/d", applicationDirectory, "/p", appxDir+project.app.file+".Appx" ];
+			Log.info("make " + project.app.file + ".Appx");
+			var makeappParams = ["pack", "/d", applicationDirectory, "/p", appxDir + project.app.file + ".Appx"];
 			var process2 = new sys.io.Process(makeappxPath, makeappParams);
 			Log.info(makeappParams.toString());
 			process.close();
 			process2.close();
 
-			var pfxFileName =  project.app.file+".pfx";
+			var pfxFileName = project.app.file + ".pfx";
 
-			if (pfxPath!=null && pfxPath.length>0)
+			if (pfxPath != null && pfxPath.length > 0)
 			{
-				if (sys.FileSystem.exists(appxDir+"scripts/"+pfxFileName))
+				if (sys.FileSystem.exists(appxDir + "scripts/" + pfxFileName))
 				{
-					//apply certificate
-					Log.info("Pfx cert found: path: " +appxDir+"scripts/"+pfxFileName+", pwd:"+certificatePwd);
+					// apply certificate
+					Log.info("Pfx cert found: path: " + appxDir + "scripts/" + pfxFileName + ", pwd:" + certificatePwd);
 				}
 				else
 				{
-					//create certificate
-					Log.warn("Warn: certificate " +pfxPath+" not found, run the following command to create a new one:");
-					//copyTemplateDir( "winrt/scripts", applicationDirectory+"/.." );
+					// create certificate
+					Log.warn("Warn: certificate " + pfxPath + " not found, run the following command to create a new one:");
+					// copyTemplateDir( "winrt/scripts", applicationDirectory+"/.." );
 
-					//New certificate, calls powershell script on elevated mode
-//					var cmd = "Start-Process powershell \"-ExecutionPolicy Bypass -Command `\"cd `\""+sys.FileSystem.absolutePath(applicationDirectory)+"/.."+"`\"; & `\".\\newcertificate.ps1`\"`\"\" -Verb RunAs";
-//					var cmd = "Start-Process powershell \"-Command `\"cd `\""+sys.FileSystem.absolutePath(applicationDirectory)+"/.."+"`\"; & `\".\\newcertificate.ps1`\"`\"\" -Verb RunAs";
+					// New certificate, calls powershell script on elevated mode
+					//					var cmd = "Start-Process powershell \"-ExecutionPolicy Bypass -Command `\"cd `\""+sys.FileSystem.absolutePath(applicationDirectory)+"/.."+"`\"; & `\".\\newcertificate.ps1`\"`\"\" -Verb RunAs";
+					//					var cmd = "Start-Process powershell \"-Command `\"cd `\""+sys.FileSystem.absolutePath(applicationDirectory)+"/.."+"`\"; & `\".\\newcertificate.ps1`\"`\"\" -Verb RunAs";
 
-					//var cmd = "\"cd "+sys.FileSystem.absolutePath(applicationDirectory)+"/../scripts;Start-Process powershell -verb runas -ArgumentList \'-file .\\newcertificate.ps1\'\"";
+					// var cmd = "\"cd "+sys.FileSystem.absolutePath(applicationDirectory)+"/../scripts;Start-Process powershell -verb runas -ArgumentList \'-file .\\newcertificate.ps1\'\"";
 
 					var cmd = "-Command \"Start-Process powershell \\\"-ExecutionPolicy Bypass -NoProfile -NoExit -Command `\\\"cd \\`\\\"E:/openfl/BunnyMark/Export/winrt/bin/../scripts\\`\\\"; & \\`\\\".\\newcertificate.ps1\\`\\\"`\\\"\\\" -Verb RunAs\"";
-					Log.info("powershell "+cmd);
+					Log.info("powershell " + cmd);
 
 					#if 0
 					var process3 = new sys.io.Process("powershell", [cmd]);
-					if (process3.exitCode() != 0) {
+					if (process3.exitCode() != 0)
+					{
 						var message = process3.stderr.readAll().toString();
 						Log.error("Error newcertificate. " + message);
 					}
 					process3.close();
 
-					//check pfx
+					// check pfx
 					retry = 10;
-					while (retry>0 && !sys.FileSystem.exists(appxDir+"scripts/"+pfxFileName)){
-						Log.info("waiting "+appxDir+"scripts/"+pfxFileName);
+					while (retry > 0 && !sys.FileSystem.exists(appxDir + "scripts/" + pfxFileName))
+					{
+						Log.info("waiting " + appxDir + "scripts/" + pfxFileName);
 						Sys.sleep(6);
 						retry--;
 					}
-					if (retry<=0)
-						Log.error("Error creating certificate");
-
-
-
+					if (retry <= 0) Log.error("Error creating certificate");
 					#else
 					return;
 					#end
 				}
 
-				if(appxDir+"scripts/"+pfxFileName != pfxPath)
+				if (appxDir + "scripts/" + pfxFileName != pfxPath)
 				{
-					System.copyFile(appxDir+"scripts/"+pfxFileName, pfxPath);
+					System.copyFile(appxDir + "scripts/" + pfxFileName, pfxPath);
 					if (!sys.FileSystem.exists(pfxPath))
 					{
-						Log.error("could not copy "+appxDir+pfxFileName+" to "+pfxPath);
+						Log.error("could not copy " + appxDir + pfxFileName + " to " + pfxPath);
 					}
 				}
-
 			}
 
-			if (pfxPath!=null && certificatePwd!=null && pfxPath.length>0 && certificatePwd.length>0)
+			if (pfxPath != null && certificatePwd != null && pfxPath.length > 0 && certificatePwd.length > 0)
 			{
-				Log.info("signing "+project.app.file+".Appx with " + pfxPath);
+				Log.info("signing " + project.app.file + ".Appx with " + pfxPath);
 
-				var signParams = ["sign", "/fd", "SHA256", "/a", "/f", pfxPath, "/p", certificatePwd, appxDir+project.app.file+".Appx"];
+				var signParams = [
+					"sign",
+					"/fd",
+					"SHA256",
+					"/a",
+					"/f",
+					pfxPath,
+					"/p",
+					certificatePwd,
+					appxDir + project.app.file + ".Appx"
+				];
 
-				Log.info(signToolPath+" "+signParams);
+				Log.info(signToolPath + " " + signParams);
 				var process4 = new sys.io.Process(signToolPath, signParams);
-				if (process4.exitCode() != 0) {
+				if (process4.exitCode() != 0)
+				{
 					var message = process4.stderr.readAll().toString();
 					Log.error("Error signing appx. " + message);
 				}
-				Log.info("\n\n***Double click "+pfxPath+" to setup certificate (Local machine, Place all certificates in the following store->Trusted People)\n");
-					process4.close();
+				Log.info("\n\n***Double click " + pfxPath
+					+ " to setup certificate (Local machine, Place all certificates in the following store->Trusted People)\n");
+				process4.close();
 			}
 		}
 	}
