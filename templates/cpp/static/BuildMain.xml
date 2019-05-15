@@ -17,7 +17,7 @@
 		<section if="windows">
 
 			<lib name="gdi32.lib" />
-			<lib name="opengl32.lib" />
+			<lib name="opengl32.lib" unless="NATIVE_TOOLKIT_STATIC_ANGLE"/>
 			<lib name="user32.lib" />
 			<lib name="kernel32.lib" />
 			<lib name="advapi32.lib" />
@@ -35,6 +35,7 @@
 			<lib name="rpcrt4.lib" />
 			<lib name="dwrite.lib" />
 			<lib name="setupapi.lib" />
+		        <lib name="d3d9.lib" if="NATIVE_TOOLKIT_STATIC_ANGLE"/>
 
 		</section>
 

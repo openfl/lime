@@ -86,7 +86,7 @@
 		<dependency path="dependencies/FileSaver.min.js" if="html5" embed="true" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="true" />
 		<dependency path="dependencies/stats.min.js" if="html5 stats" embed="true" />
-		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows angle" unless="static_link" />
+		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows angle" />
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 

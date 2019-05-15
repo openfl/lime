@@ -36,7 +36,7 @@ namespace lime {
 	int OpenGLBindings::defaultRenderbuffer = 0;
 	void* OpenGLBindings::handle = 0;
 
-	#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+	#if defined (NATIVE_TOOLKIT_SDL_ANGLE) && !defined (NATIVE_TOOLKIT_STATIC_ANGLE)
 	void* OpenGLBindings::eglHandle = 0;
 	#endif
 
@@ -5316,10 +5316,10 @@ namespace lime {
 
 			#endif
 
-			#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+			#if defined (NATIVE_TOOLKIT_SDL_ANGLE) && !defined (NATIVE_TOOLKIT_STATIC_ANGLE)
 
 			#ifdef HX_WINRT
-			return true;
+			return false;
 			#else
 			OpenGLBindings::eglHandle = LoadLibraryW (L"libegl.dll");
 
