@@ -1,6 +1,6 @@
 package flash.desktop;
 
-@:native("flash.data.SQLCollationType")
+@:native("flash.desktop.SystemIdleMode")
 @:enum extern abstract SystemIdleMode(String)
 {
 	var KEEP_AWAKE;
