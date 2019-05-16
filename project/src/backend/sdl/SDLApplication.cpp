@@ -936,7 +936,7 @@ namespace lime {
 	int SDLApplication::BatchUpdate (int numEvents) {
 
 		if (!active) {
-			return 0;
+			return -1;
 		}
 
 		queueLength = numEvents;
@@ -964,7 +964,7 @@ namespace lime {
 			HandleEvent (&eventQueue[nextEvent]);
 			eventQueue[nextEvent].type = -1;
 			if (!active) {
-				return nextEvent;
+				return -1;
 			}
 		}
 
