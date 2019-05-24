@@ -128,7 +128,7 @@ class Application extends Module
 
 	/**
 		Creates a new Window and adds it to the Application
-		@param	window	A Window object to add
+		@param	attributes	A set of parameters to initialize the window
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{
