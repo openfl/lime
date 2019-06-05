@@ -59,6 +59,7 @@ class AndroidPlatform extends PlatformTarget
 		var hasARMV7 = ArrayTools.containsValue(project.architectures, Architecture.ARMV7);
 		var hasARM64 = ArrayTools.containsValue(project.architectures, Architecture.ARM64);
 		var hasX86 = ArrayTools.containsValue(project.architectures, Architecture.X86);
+		var hasX64 = ArrayTools.containsValue(project.architectures, Architecture.X64);
 
 		var architectures = [];
 
@@ -66,6 +67,7 @@ class AndroidPlatform extends PlatformTarget
 		if (hasARMV7 || (!hasARMV5 && !hasX86)) architectures.push(Architecture.ARMV7);
 		if (hasARM64) architectures.push(Architecture.ARM64);
 		if (hasX86) architectures.push(Architecture.X86);
+		if (hasX64) architectures.push(Architecture.X64);
 
 		for (architecture in architectures)
 		{
@@ -100,6 +102,14 @@ class AndroidPlatform extends PlatformTarget
 				cppParams.push("-DHXCPP_X86");
 				path = sourceSet + "/jniLibs/x86";
 				suffix = "-x86.so";
+			}
+			else if (architecture == Architecture.X64)
+			{
+				haxeParams.push("-D");
+				haxeParams.push("HXCPP_M64");
+				cppParams.push("-DHXCPP_M64");
+				path = sourceSet + "/jniLibs/x86_64";
+				suffix = "-x86_64.so";
 			}
 
 			for (ndll in project.ndlls)
@@ -145,6 +155,14 @@ class AndroidPlatform extends PlatformTarget
 			if (FileSystem.exists(sourceSet + "/jniLibs/x86"))
 			{
 				System.removeDirectory(sourceSet + "/jniLibs/x86");
+			}
+		}
+
+		if (!hasX64)
+		{
+			if (FileSystem.exists(sourceSet + "/jniLibs/x86_64"))
+			{
+				System.removeDirectory(sourceSet + "/jniLibs/x86_64");
 			}
 		}
 
@@ -246,6 +264,7 @@ class AndroidPlatform extends PlatformTarget
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
 		var x86 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.X86));
+		var x64 = (/*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.X64));
 
 		var commands = [];
 
@@ -253,6 +272,7 @@ class AndroidPlatform extends PlatformTarget
 		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-16"]);
 		if (arm64) commands.push(["-Dandroid", "-DHXCPP_ARM64", "-DPLATFORM=android-21"]);
 		if (x86) commands.push(["-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-16"]);
+		if (x64) commands.push(["-Dandroid", "-DHXCPP_M64", "-DPLATFORM=android-21"]);
 
 		CPPHelper.rebuild(project, commands);
 	}
