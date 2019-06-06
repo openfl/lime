@@ -761,9 +761,8 @@ class ProjectXMLParser extends HXProject
 				if (manifest != null)
 				{
 					library = targetPath;
-					manifest.rootPath = targetPath;
 
-					var asset = new Asset("", Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
+					var asset = new Asset(jsonPath, Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
 					asset.id = "libraries/" + library + ".json";
 					asset.library = library;
 					asset.data = manifest.serialize();

@@ -409,15 +409,17 @@ class Assets
 		if (libraryPaths.exists(id))
 		{
 			path = libraryPaths[id];
-			rootPath = defaultRootPath;
+			rootPath = (defaultRootPath != "" ? defaultRootPath + "/" : "") + Path.directory(path);
 		}
 		else
 		{
 			if (StringTools.endsWith(path, ".bundle"))
 			{
+				rootPath = path;
 				path += "/library.json";
 			}
 
+			rootPath = (defaultRootPath != "" ? defaultRootPath + "/" : "") + Path.directory(path);
 			path = __cacheBreak(path);
 		}
 
