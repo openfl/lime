@@ -549,6 +549,7 @@ class AssetHelper
 				if (!hasManifest.exists(library.name))
 				{
 					manifest = createManifest(project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
+					manifest.rootPath = "../";
 
 					asset = new Asset("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
 					asset.library = library.name;
@@ -663,6 +664,7 @@ class AssetHelper
 					data.library = library.name;
 					manifest.libraryType = "lime.utils.PackedAssetLibrary";
 					manifest.libraryArgs = ["lib/" + filename, type];
+					manifest.rootPath = "../";
 					data.data = manifest.serialize();
 					data.embed = true;
 
