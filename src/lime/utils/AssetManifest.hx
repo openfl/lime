@@ -80,7 +80,15 @@ class AssetManifest
 		manifest.name = manifestData.name;
 		manifest.libraryType = manifestData.libraryType;
 		manifest.libraryArgs = manifestData.libraryArgs;
-		manifest.assets = Unserializer.run(manifestData.assets);
+
+		if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
+		{
+			manifest.assets = Unserializer.run(manifestData.assets);
+		}
+		else if (Reflect.hasField(manifestData, "assets") && Std.is(manifestData.assets, Array))
+		{
+			manifest.assets = cast manifestData.assets;
+		}
 
 		if (Reflect.hasField(manifestData, "rootPath"))
 		{
