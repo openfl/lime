@@ -620,7 +620,7 @@ class AssetLibrary
 		for (asset in manifest.assets)
 		{
 			size = hasSize && Reflect.hasField(asset, "size") ? asset.size : 100;
-			id = asset.id;
+			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
 			if (Reflect.hasField(asset, "path"))
 			{
@@ -666,7 +666,7 @@ class AssetLibrary
 
 		for (asset in manifest.assets)
 		{
-			id = asset.id;
+			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
 			if (preload.exists(id) && preload.get(id))
 			{
