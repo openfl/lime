@@ -17,12 +17,12 @@ import lime._internal.backend.native.NativeCFFI;
 @:access(haxe.io.Bytes)
 abstract DataPointer(DataPointerType) to DataPointerType
 {
-	@:noCompletion private function new(data:DataPointerType)
+	@:noCompletion private function new(data:#if !doc_gen DataPointerType #else Dynamic #end)
 	{
 		this = data;
 	}
 
-	#if (lime_cffi && !js)
+	#if (lime_cffi && !js && !doc_gen)
 	@:from @:noCompletion private static function fromInt(value:Int):DataPointer
 	{
 		#if (lime_cffi && !macro)
