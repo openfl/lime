@@ -55,7 +55,6 @@ class NativeWindow
 
 	public function new(parent:Window)
 	{
-		trace ("1");
 		this.parent = parent;
 
 		cursor = DEFAULT;
@@ -65,7 +64,7 @@ class NativeWindow
 		var contextAttributes = Reflect.hasField(attributes, "context") ? attributes.context : {};
 		var title = Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
 		var flags = 0;
-trace ("2");
+
 		if (!Reflect.hasField(contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
 		if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
 		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = 24;
@@ -87,7 +86,7 @@ trace ("2");
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
 		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
 		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-trace ("3");
+
 		if (contextAttributes.antialiasing >= 4)
 		{
 			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
@@ -96,7 +95,7 @@ trace ("3");
 		{
 			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA;
 		}
-trace ("4");
+
 		if (contextAttributes.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
 		if (contextAttributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
 		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
@@ -105,7 +104,7 @@ trace ("4");
 
 		var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
 		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
-trace ("5");
+
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
@@ -120,7 +119,7 @@ trace ("5");
 		}
 
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
-trace ("6");
+
 		var context = new RenderContext();
 		context.window = parent;
 
@@ -129,7 +128,7 @@ trace ("6");
 		#else
 		var contextType:String = NativeCFFI.lime_window_get_context_type(handle);
 		#end
-trace ("7");
+
 		switch (contextType)
 		{
 			case "opengl":
@@ -170,8 +169,7 @@ trace ("7");
 				#end
 				context.type = CAIRO;
 		}
-trace ("8");
-trace(context.type);
+
 		contextAttributes.type = context.type;
 		context.attributes = contextAttributes;
 		parent.context = context;
