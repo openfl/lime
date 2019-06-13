@@ -29,7 +29,7 @@ abstract DataPointer(DataPointerType) to DataPointerType
 		var float:Float = value;
 		return new DataPointer(float);
 		#else
-		return 0;
+		return cast value;
 		#end
 	}
 	#else
