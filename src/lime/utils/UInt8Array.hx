@@ -7,7 +7,7 @@ import js.lib.Uint8Array as JSUInt8Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
-abstract UInt8Array(JSUInt8Array) from JSUInt8Array to JSUInt8Array
+abstract UInt8Array(JSUInt8Array) from JSUInt8Array to JSUInt8Array to ArrayBufferView
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 

@@ -9,7 +9,7 @@ import js.html.Float64Array as JSFloat64Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
-abstract Float64Array(JSFloat64Array) from JSFloat64Array to JSFloat64Array
+abstract Float64Array(JSFloat64Array) from JSFloat64Array to JSFloat64Array to ArrayBufferView
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 8;
 
