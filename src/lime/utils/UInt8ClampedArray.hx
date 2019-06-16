@@ -9,7 +9,7 @@ import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint8ClampedArray as JSUInt8ClampedArray;
 #end
 @:forward
-abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUInt8ClampedArray
+abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUInt8ClampedArray to ArrayBufferView
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 
