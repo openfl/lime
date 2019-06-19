@@ -96,6 +96,47 @@ class AssetLibrary
 		return fromManifest(AssetManifest.fromFile(path, rootPath));
 	}
 
+	public static function fromBundle(bundle:AssetBundle):AssetLibrary
+	{
+		if (bundle.data.exists("library.json"))
+		{
+			var manifest = AssetManifest.fromBytes(bundle.data.get("library.json"));
+			if (manifest != null)
+			{
+				var library:AssetLibrary = null;
+
+				if (manifest.libraryType == null)
+				{
+					library = new AssetLibrary();
+				}
+				else
+				{
+					var libraryClass = Type.resolveClass(manifest.libraryType);
+
+					if (libraryClass != null)
+					{
+						library = Type.createInstance(libraryClass, manifest.libraryArgs);
+					}
+					else
+					{
+						Log.warn("Could not find library type: " + manifest.libraryType);
+						return null;
+					}
+				}
+
+				library.__fromBundle(bundle, manifest);
+				return library;
+			}
+		}
+		else
+		{
+			var library = new AssetLibrary();
+			library.__fromBundle(bundle);
+			return library;
+		}
+		return null;
+	}
+
 	public static function fromManifest(manifest:AssetManifest):AssetLibrary
 	{
 		if (manifest == null) return null;
@@ -608,6 +649,50 @@ class AssetLibrary
 		return Assets.__cacheBreak(path);
 	}
 
+	@:noCompletion private function __fromBundle(bundle:AssetBundle, manifest:AssetManifest = null):Void
+	{
+		if (manifest != null)
+		{
+			var id, data, type:AssetType;
+			for (asset in manifest.assets)
+			{
+				id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
+				data = bundle.data.get(asset.path);
+				if (Reflect.hasField(asset, "type"))
+				{
+					type = asset.type;
+					switch(type)
+					{
+						case IMAGE:
+							cachedImages.set(id, Image.fromBytes(data));
+						case MUSIC, SOUND:
+							cachedAudioBuffers.set(id, AudioBuffer.fromBytes(data));
+						case FONT:
+							cachedFonts.set(id, Font.fromBytes(data));
+						case TEXT:
+							cachedText.set(id, data != null ? Std.string(data) : null);
+						default:
+							cachedBytes.set(id, data);
+					}
+					types.set(id, asset.type);
+				}
+				else
+				{
+					cachedBytes.set(id, data);
+					types.set(id, BINARY);
+				}
+			}
+		}
+		else
+		{
+			for (path in bundle.paths)
+			{
+				cachedBytes.set(path, bundle.data.get(path));
+				types.set(path, BINARY);
+			}
+		}
+	}
+
 	@:noCompletion private function __fromManifest(manifest:AssetManifest):Void
 	{
 		var hasSize = (manifest.version >= 2);
@@ -620,7 +705,7 @@ class AssetLibrary
 		for (asset in manifest.assets)
 		{
 			size = hasSize && Reflect.hasField(asset, "size") ? asset.size : 100;
-			id = asset.id;
+			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
 			if (Reflect.hasField(asset, "path"))
 			{
@@ -666,7 +751,7 @@ class AssetLibrary
 
 		for (asset in manifest.assets)
 		{
-			id = asset.id;
+			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
 			if (preload.exists(id) && preload.get(id))
 			{

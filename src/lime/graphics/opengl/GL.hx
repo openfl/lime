@@ -2458,7 +2458,7 @@ class GL
 		context.vertexAttrib1f(index, v0);
 	}
 
-	public static inline function vertexAttrib1fv(index:Int, v:DataPointer):Void
+	public static inline function vertexAttrib1fv(index:Int, v:#if (!js || !html5 || doc_gen) DataPointer #else Dynamic #end):Void
 	{
 		#if !doc_gen
 		context.vertexAttrib1fv(index, v);
@@ -2477,7 +2477,7 @@ class GL
 		context.vertexAttrib2f(index, v0, v1);
 	}
 
-	public static inline function vertexAttrib2fv(index:Int, v:DataPointer):Void
+	public static inline function vertexAttrib2fv(index:Int, v:#if (!js || !html5 || doc_gen) DataPointer #else Dynamic #end):Void
 	{
 		#if !doc_gen
 		context.vertexAttrib2fv(index, v);
@@ -2496,7 +2496,7 @@ class GL
 		context.vertexAttrib3f(index, v0, v1, v2);
 	}
 
-	public static inline function vertexAttrib3fv(index:Int, v:DataPointer):Void
+	public static inline function vertexAttrib3fv(index:Int, v:#if (!js || !html5 || doc_gen) DataPointer #else Dynamic #end):Void
 	{
 		#if !doc_gen
 		context.vertexAttrib3fv(index, v);
@@ -2515,7 +2515,7 @@ class GL
 		context.vertexAttrib4f(index, v0, v1, v2, v3);
 	}
 
-	public static inline function vertexAttrib4fv(index:Int, v:DataPointer):Void
+	public static inline function vertexAttrib4fv(index:Int, v:#if (!js || !html5 || doc_gen) DataPointer #else Dynamic #end):Void
 	{
 		#if !doc_gen
 		context.vertexAttrib4fv(index, v);
@@ -2539,7 +2539,7 @@ class GL
 		context.vertexAttribI4i(index, v0, v1, v2, v3);
 	}
 
-	public static inline function vertexAttribI4iv(index:Int, v:DataPointer):Void
+	public static inline function vertexAttribI4iv(index:Int, v:#if (!js || !html5 || doc_gen) DataPointer #else Dynamic #end):Void
 	{
 		#if !doc_gen
 		context.vertexAttribI4iv(index, v);
@@ -2558,7 +2558,7 @@ class GL
 		context.vertexAttribI4ui(index, v0, v1, v2, v3);
 	}
 
-	public static inline function vertexAttribI4uiv(index:Int, v:DataPointer):Void
+	public static inline function vertexAttribI4uiv(index:Int, v:#if (!js || !html5 || doc_gen) DataPointer #else Dynamic #end):Void
 	{
 		#if !doc_gen
 		context.vertexAttribI4uiv(index, v);
