@@ -1,6 +1,9 @@
 package lime.utils;
 
+import haxe.io.BytesInput;
+import haxe.io.Input;
 import haxe.zip.Reader;
+import lime.app.Future;
 import lime.utils.Bytes;
 
 #if sys
@@ -27,6 +30,23 @@ class AssetBundle
 	{
 		#if sys
 		var input = File.read(path);
+		return __extractBundle(input);
+		#else
+		return null;
+		#end
+	}
+
+	public static function loadFromFile(path:String):Future<AssetBundle>
+	{
+		return Bytes.loadFromFile(path).then(function(bytes)
+		{
+			var input = new BytesInput(bytes);
+			return Future.withValue(__extractBundle(input));
+		});
+	}
+
+	@:noCompletion private static function __extractBundle(input:Input):AssetBundle
+	{
 		var entries = Reader.readZip(input);
 
 		var bundle = new AssetBundle();
@@ -46,8 +66,5 @@ class AssetBundle
 		}
 
 		return bundle;
-		#else
-		return null;
-		#end
 	}
 }

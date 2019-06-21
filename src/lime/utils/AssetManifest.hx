@@ -77,9 +77,20 @@ class AssetManifest
 		var manifestData = Json.parse(data);
 		var manifest = new AssetManifest();
 
-		manifest.name = manifestData.name;
-		manifest.libraryType = manifestData.libraryType;
-		manifest.libraryArgs = manifestData.libraryArgs;
+		if (Reflect.hasField(manifestData, "name"))
+		{
+			manifest.name = manifestData.name;
+		}
+
+		if (Reflect.hasField(manifestData, "libraryType"))
+		{
+			manifest.libraryType = manifestData.libraryType;
+		}
+
+		if (Reflect.hasField(manifestData, "libraryArgs"))
+		{
+			manifest.libraryArgs = manifestData.libraryArgs;
+		}
 
 		if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
 		{

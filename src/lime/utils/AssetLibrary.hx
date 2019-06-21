@@ -613,7 +613,7 @@ class AssetLibrary
 
 		if (id != null)
 		{
-			var size = sizes.get(id);
+			var size = sizes.exists(id) ? sizes.get(id) : 0;
 
 			if (!bytesLoadedCache.exists(id))
 			{
@@ -658,6 +658,7 @@ class AssetLibrary
 			{
 				id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 				data = bundle.data.get(asset.path);
+
 				if (Reflect.hasField(asset, "type"))
 				{
 					type = asset.type;
@@ -753,7 +754,7 @@ class AssetLibrary
 		{
 			id = Reflect.hasField(asset, "id") ? asset.id : asset.path;
 
-			if (preload.exists(id) && preload.get(id))
+			if (preload.exists(id) && preload.get(id) && sizes.exists(id))
 			{
 				bytesTotal += sizes.get(id);
 			}
