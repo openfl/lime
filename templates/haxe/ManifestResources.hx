@@ -74,7 +74,9 @@ import sys.FileSystem;
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("::library::", library);
 		::else::Assets.libraryPaths["::library::"] = rootPath + "::resourceName::";
-		::end::::end::::end::::end::
+		::end::::end::::if (type == "bundle")::
+		Assets.bundlePaths["::library::"] = rootPath + "::resourceName::";
+		::end::::end::::end::
 
 		::foreach libraries::::if (preload)::library = Assets.getLibrary ("::name::");
 		if (library != null) preloadLibraries.push (library);
