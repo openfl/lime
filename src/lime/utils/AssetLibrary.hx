@@ -566,6 +566,15 @@ class AssetLibrary
 		{
 			return Future.withValue(Type.createInstance(classTypes.get(id), []));
 		}
+		else if (cachedBytes.exists(id))
+		{
+			return Image.loadFromBytes(cachedBytes.get(id)).then(function (image)
+			{
+				cachedBytes.remove(id);
+				cachedImages.set(id, image);
+				return Future.withValue(image);
+			});
+		}
 		else
 		{
 			return Image.loadFromFile(paths.get(id));
@@ -664,12 +673,14 @@ class AssetLibrary
 					type = asset.type;
 					switch(type)
 					{
+						#if !web
 						case IMAGE:
 							cachedImages.set(id, Image.fromBytes(data));
 						case MUSIC, SOUND:
 							cachedAudioBuffers.set(id, AudioBuffer.fromBytes(data));
 						case FONT:
 							cachedFonts.set(id, Font.fromBytes(data));
+						#end
 						case TEXT:
 							cachedText.set(id, data != null ? Std.string(data) : null);
 						default:

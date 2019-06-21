@@ -1,10 +1,11 @@
 package lime.utils;
 
+import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.Input;
 import haxe.zip.Reader;
 import lime.app.Future;
-import lime.utils.Bytes;
+import lime.utils.Bytes as LimeBytes;
 
 #if sys
 import sys.io.File;
@@ -26,6 +27,12 @@ class AssetBundle
 		paths = new Array();
 	}
 
+	public static function fromBytes(bytes:Bytes):AssetBundle
+	{
+		var input = new BytesInput(bytes);
+		return __extractBundle(input);
+	}
+
 	public static function fromFile(path:String):AssetBundle
 	{
 		#if sys
@@ -36,13 +43,14 @@ class AssetBundle
 		#end
 	}
 
+	public static function loadFromBytes(bytes:Bytes):Future<AssetBundle>
+	{
+		return Future.withValue(fromBytes(bytes));
+	}
+
 	public static function loadFromFile(path:String):Future<AssetBundle>
 	{
-		return Bytes.loadFromFile(path).then(function(bytes)
-		{
-			var input = new BytesInput(bytes);
-			return Future.withValue(__extractBundle(input));
-		});
+		return LimeBytes.loadFromFile(path).then(loadFromBytes);
 	}
 
 	@:noCompletion private static function __extractBundle(input:Input):AssetBundle
@@ -55,7 +63,7 @@ class AssetBundle
 		{
 			if (entry.compressed)
 			{
-				var bytes:Bytes = entry.data;
+				var bytes:LimeBytes = entry.data;
 				bundle.data.set(entry.fileName, bytes.decompress(DEFLATE));
 			}
 			else

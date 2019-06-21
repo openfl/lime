@@ -92,13 +92,17 @@ class AssetManifest
 			manifest.libraryArgs = manifestData.libraryArgs;
 		}
 
-		if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
+		if (Reflect.hasField(manifestData, "assets"))
 		{
-			manifest.assets = Unserializer.run(manifestData.assets);
-		}
-		else if (Reflect.hasField(manifestData, "assets") && Std.is(manifestData.assets, Array))
-		{
-			manifest.assets = cast manifestData.assets;
+			var assets:Dynamic = manifestData.assets;
+			if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
+			{
+				manifest.assets = Unserializer.run(assets);
+			}
+			else
+			{
+				manifest.assets = assets;
+			}
 		}
 
 		if (Reflect.hasField(manifestData, "rootPath"))
