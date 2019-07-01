@@ -9,7 +9,7 @@ import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint16Array as JSUInt16Array;
 #end
 @:forward
-abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array
+abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array to ArrayBufferView
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 2;
 

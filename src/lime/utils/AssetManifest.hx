@@ -77,17 +77,32 @@ class AssetManifest
 		var manifestData = Json.parse(data);
 		var manifest = new AssetManifest();
 
-		manifest.name = manifestData.name;
-		manifest.libraryType = manifestData.libraryType;
-		manifest.libraryArgs = manifestData.libraryArgs;
-
-		if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
+		if (Reflect.hasField(manifestData, "name"))
 		{
-			manifest.assets = Unserializer.run(manifestData.assets);
+			manifest.name = manifestData.name;
 		}
-		else if (Reflect.hasField(manifestData, "assets") && Std.is(manifestData.assets, Array))
+
+		if (Reflect.hasField(manifestData, "libraryType"))
 		{
-			manifest.assets = cast manifestData.assets;
+			manifest.libraryType = manifestData.libraryType;
+		}
+
+		if (Reflect.hasField(manifestData, "libraryArgs"))
+		{
+			manifest.libraryArgs = manifestData.libraryArgs;
+		}
+
+		if (Reflect.hasField(manifestData, "assets"))
+		{
+			var assets:Dynamic = manifestData.assets;
+			if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
+			{
+				manifest.assets = Unserializer.run(assets);
+			}
+			else
+			{
+				manifest.assets = assets;
+			}
 		}
 
 		if (Reflect.hasField(manifestData, "rootPath"))

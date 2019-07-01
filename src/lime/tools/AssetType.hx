@@ -3,6 +3,7 @@ package lime.tools;
 enum AssetType
 {
 	BINARY;
+	BUNDLE;
 	FONT;
 	IMAGE;
 	MANIFEST;

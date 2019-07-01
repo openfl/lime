@@ -17,7 +17,21 @@ class RunScript
 			toolsDirectory = Path.combine(limeDirectory, "../tools");
 		}
 
+		/*var extendedToolsDirectory = Haxelib.getPath (new Haxelib ("lime-extended"), false);
+
+			if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
+
+				var buildScript = File.getContent (Path.combine (extendedToolsDirectory, "tools.hxml"));
+				buildScript = StringTools.replace (buildScript, "\r\n", "\n");
+				buildScript = StringTools.replace (buildScript, "\n", " ");
+
+				System.runCommand (toolsDirectory, "haxe", buildScript.split (" "));
+
+		} else {*/
+
 		System.runCommand(toolsDirectory, "haxe", ["tools.hxml"]);
+
+		// }
 
 		if (!rebuildBinaries) return;
 
@@ -25,7 +39,8 @@ class RunScript
 
 		for (platform in platforms)
 		{
-			var source = Path.combine(limeDirectory, "lib/" + platform + "/lime.ndll");
+			var source = Path.combine(limeDirectory, "ndll/" + platform + "/lime.ndll");
+			// var target = Path.combine (toolsDirectory, "ndll/" + platform + "/lime.ndll");
 
 			if (!FileSystem.exists(source))
 			{
@@ -75,6 +90,10 @@ class RunScript
 				{
 					Log.warn("", "Source path \"" + source + "\" does not exist");
 				}
+			}
+			else
+			{
+				// System.copyIfNewer (source, target);
 			}
 		}
 	}

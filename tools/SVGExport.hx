@@ -24,7 +24,7 @@ class SVGExport
 
 		if (FileSystem.exists("svg.n"))
 		{
-			path = Path.combine(Sys.getCwd(), "../lib/");
+			path = Path.combine(Sys.getCwd(), "../ndll/");
 		}
 
 		if (path == "")
@@ -37,21 +37,9 @@ class SVGExport
 				{
 					var line = StringTools.trim(process.stdout.readLine());
 
-					if (line.length > 0 && !StringTools.startsWith(line, "-"))
+					if (StringTools.startsWith(line, "-L "))
 					{
-						path = StringTools.trim(line);
-						if (FileSystem.exists(Path.combine(path, "../lib")))
-						{
-							path = Path.combine(path, "../lib");
-						}
-						else
-						{
-							path = Path.combine(path, "../ndll");
-						}
-						if (!StringTools.endsWith(path, "/"))
-						{
-							path += "/";
-						}
+						path = StringTools.trim(line.substr(2));
 						break;
 					}
 				}
