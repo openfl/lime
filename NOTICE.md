@@ -46,7 +46,7 @@ This product bundles pixman 0.32.8, which is available under an
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
-This product bundles SDL revision 24883e864f7e, which is available under a
+This product bundles SDL revision b5cd5e1e4440, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
 This product bundles tinyfiledialogs 2.9.3, which is available under a
