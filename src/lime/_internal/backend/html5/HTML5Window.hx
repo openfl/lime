@@ -280,7 +280,7 @@ class HTML5Window
 				var options =
 					{
 						alpha: (transparentBackground || colorDepth > 16) ? true : false,
-						antialias: Reflect.hasField(contextAttributes, "antialiasing") ? true : false,
+						antialias: Reflect.hasField(contextAttributes, "antialiasing") ? contextAttributes.antialiasing > 0 : false,
 						depth: Reflect.hasField(contextAttributes, "depth") ? contextAttributes.depth : true,
 						premultipliedAlpha: true,
 						stencil: Reflect.hasField(contextAttributes, "stencil") ? contextAttributes.stencil : false,
