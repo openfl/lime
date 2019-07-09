@@ -1,12 +1,11 @@
 package lime.graphics;
 
-import haxe.crypto.Base64;
-import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.io.BytesData;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import lime._internal.backend.native.NativeCFFI;
+import lime._internal.format.Base64;
 import lime._internal.format.BMP;
 import lime._internal.format.JPEG;
 import lime._internal.format.PNG;
@@ -87,9 +86,6 @@ import sys.io.File;
 #end
 class Image
 {
-	private static var __base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	private static var __base64Encoder:BaseCode;
-
 	/**
 		The `ImageBuffer` store that backs the `Image`
 	**/
@@ -972,7 +968,7 @@ class Image
 			return Future.withValue(null);
 		}
 
-		return loadFromBase64(__base64Encode(bytes), type);
+		return loadFromBase64(Base64.encode(bytes), type);
 		#elseif flash
 		var promise = new Promise<Image>();
 
@@ -1401,27 +1397,6 @@ class Image
 		return 0;
 	}
 
-	private static function __base64Encode(bytes:Bytes):String
-	{
-		#if (js && html5)
-		var extension = switch (bytes.length % 3)
-		{
-			case 1: "==";
-			case 2: "=";
-			default: "";
-		}
-
-		if (__base64Encoder == null)
-		{
-			__base64Encoder = new BaseCode(Bytes.ofString(__base64Chars));
-		}
-
-		return __base64Encoder.encodeBytes(bytes).toString() + extension;
-		#else
-		return "";
-		#end
-	}
-
 	@:noCompletion private function __clipRect(r:Rectangle):Rectangle
 	{
 		if (r == null) return null;
@@ -1517,7 +1492,7 @@ class Image
 			return false;
 		}
 
-		__fromBase64(__base64Encode(bytes), type, onload);
+		__fromBase64(Base64.encode(bytes), type, onload);
 		return true;
 		#elseif (lime_cffi && !macro)
 		var imageBuffer:ImageBuffer = null;
