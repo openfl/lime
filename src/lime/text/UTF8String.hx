@@ -1,5 +1,6 @@
 package lime.text; #if !haxe4
 
+import haxe.Utf8;
 import lime._internal.unifill.Unifill;
 import lime._internal.unifill.CodePoint;
 import lime.system.Locale;
