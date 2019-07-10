@@ -906,7 +906,7 @@ namespace lime {
 
 			if (currentUpdate >= nextUpdate) {
 
-				SDL_RemoveTimer (timerID);
+				if (timerActive) SDL_RemoveTimer (timerID);
 				OnTimer (0, 0);
 
 			} else if (!timerActive) {
@@ -941,7 +941,7 @@ namespace lime {
 
 	int SDLApplication::WaitEvent (SDL_Event *event) {
 
-		#ifdef HX_MACOS
+		#if defined(HX_MACOS) || defined(ANDROID)
 
 		System::GCEnterBlocking ();
 		int result = SDL_WaitEvent (event);
