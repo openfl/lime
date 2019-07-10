@@ -240,6 +240,7 @@ class HXProject extends Script
 					else
 					{
 						architectures = [Architecture.ARMV7];
+						if (target == ANDROID) architectures.push(Architecture.ARM64);
 					}
 				}
 				else if (target == Platform.TVOS)
