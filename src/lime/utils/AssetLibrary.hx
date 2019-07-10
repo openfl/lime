@@ -721,7 +721,7 @@ class AssetLibrary
 
 			if (Reflect.hasField(asset, "path"))
 			{
-				paths.set(id, __cacheBreak(basePath + Reflect.field(asset, "path")));
+				paths.set(id, __cacheBreak(__resolvePath(basePath + Reflect.field(asset, "path"))));
 			}
 
 			if (Reflect.hasField(asset, "pathGroup"))
@@ -730,7 +730,7 @@ class AssetLibrary
 
 				for (i in 0...pathGroup.length)
 				{
-					pathGroup[i] = __cacheBreak(basePath + pathGroup[i]);
+					pathGroup[i] = __cacheBreak(__resolvePath(basePath + pathGroup[i]));
 				}
 
 				pathGroups.set(id, pathGroup);
@@ -770,6 +770,47 @@ class AssetLibrary
 				bytesTotal += sizes.get(id);
 			}
 		}
+	}
+
+	@:noCompletion private function __resolvePath(path:String):String
+	{
+		path = StringTools.replace(path, "\\", "/");
+		path = StringTools.replace(path, "//", "/");
+
+		if (path.indexOf("./") > -1)
+		{
+			var split = path.split("/");
+			var newPath = [];
+
+			for (i in 0...split.length)
+			{
+				if (split[i] == "..")
+				{
+					if (i == 0 || newPath[i - 1] == "..")
+					{
+						newPath.push("..");
+					}
+					else
+					{
+						newPath.pop();
+					}
+				}
+				else if (split[i] == ".")
+				{
+					if (i == 0)
+					{
+						newPath.push(".");
+					}
+				}
+				else
+				{
+					newPath.push(split[i]);
+				}
+			}
+			path = newPath.join("/");
+		}
+
+		return path;
 	}
 
 	// Event Handlers
