@@ -360,7 +360,7 @@ class AndroidPlatform extends PlatformTarget
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString("android.install-location", "auto");
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 16);
-		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 26);
+		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 28);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString("android.permission", [
 			"android.permission.WAKE_LOCK",

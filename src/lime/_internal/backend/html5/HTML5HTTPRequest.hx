@@ -303,6 +303,9 @@ class HTML5HTTPRequest
 
 	private static function __isSameOrigin(path:String):Bool
 	{
+		if (path == null || path == "") return true;
+		if (StringTools.startsWith(path, "data:")) return true;
+
 		if (originElement == null)
 		{
 			originElement = Browser.document.createAnchorElement();

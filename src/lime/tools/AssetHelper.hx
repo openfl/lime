@@ -5,6 +5,7 @@ import haxe.io.Bytes as HaxeBytes;
 import haxe.Serializer;
 import haxe.Unserializer;
 import hxp.*;
+import lime._internal.format.Base64;
 import lime.tools.AssetType;
 import lime.tools.Asset;
 import lime.tools.HXProject;
@@ -46,7 +47,7 @@ class AssetHelper
 			{
 				if (asset.encoding == AssetEncoding.BASE64)
 				{
-					File.saveBytes(destination, StringTools.base64Decode(asset.data));
+					File.saveBytes(destination, Base64.decode(asset.data));
 				}
 				else if (Std.is(asset.data, HaxeBytes))
 				{
@@ -83,7 +84,7 @@ class AssetHelper
 			{
 				if (asset.encoding == AssetEncoding.BASE64)
 				{
-					File.saveBytes(destination, StringTools.base64Decode(asset.data));
+					File.saveBytes(destination, Base64.decode(asset.data));
 				}
 				else if (Std.is(asset.data, HaxeBytes))
 				{

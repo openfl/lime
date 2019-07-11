@@ -1,4 +1,4 @@
-package lime.text;
+package lime.text; #if !haxe4
 
 import haxe.Utf8;
 import lime._internal.unifill.Unifill;
@@ -1151,3 +1151,7 @@ private class Utf8Ext
 			map[0x1E922 + i] = 0x1E900 + i;
 	}
 }
+
+#else
+typedef UTF8String = UnicodeString;
+#end

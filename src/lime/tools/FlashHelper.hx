@@ -4,6 +4,7 @@ package lime.tools;
 // import openfl.utils.ByteArray;
 import haxe.io.Bytes;
 import hxp.*;
+import lime._internal.format.Base64;
 import lime.tools.Asset;
 import lime.tools.AssetEncoding;
 import lime.tools.AssetType;
@@ -281,7 +282,7 @@ class FlashHelper
 			{
 				if (inAsset.encoding == AssetEncoding.BASE64)
 				{
-					outTags.push(TBitsJPEG(cid, JDJPEG2(StringTools.base64Decode(inAsset.data))));
+					outTags.push(TBitsJPEG(cid, JDJPEG2(Base64.decode(inAsset.data))));
 				}
 				else
 				{
@@ -495,7 +496,7 @@ class FlashHelper
 			{
 				if (inAsset.encoding == AssetEncoding.BASE64)
 				{
-					bytes = StringTools.base64Decode(inAsset.data);
+					bytes = Base64.decode(inAsset.data);
 				}
 				else if (Std.is(inAsset.data, Bytes))
 				{
@@ -803,7 +804,7 @@ class FlashHelper
 
 					if (asset.encoding == AssetEncoding.BASE64)
 					{
-						File.saveBytes(sourcePath, StringTools.base64Decode(asset.data));
+						File.saveBytes(sourcePath, Base64.decode(asset.data));
 					}
 					else if (Std.is(asset.data, Bytes))
 					{
