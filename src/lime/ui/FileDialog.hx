@@ -156,8 +156,7 @@ class FileDialog
 		#end
 	}
 
-	public function save(data:Resource, filter:String = null, defaultPath:String = null, title:String = null,
-			type:String = "application/octet-stream"):Bool
+	public function save(data:Resource, filter:String = null, defaultPath:String = null, title:String = null, type:String = "application/octet-stream"):Bool
 	{
 		if (data == null)
 		{

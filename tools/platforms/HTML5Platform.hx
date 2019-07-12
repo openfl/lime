@@ -43,7 +43,8 @@ class HTML5Platform extends PlatformTarget
 			{
 				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
 				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
-			} else
+			}
+			else
 			{
 				return;
 			}

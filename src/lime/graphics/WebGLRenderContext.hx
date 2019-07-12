@@ -116,12 +116,12 @@ abstract WebGLRenderContext(WebGL2RenderContext)
 	// public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) ImageElement #else Dynamic #end):Void {
 	// public function texImage2D (target:Int, level:Int, internalformat:Int, format:Int, type:Int, pixels:#if (js && html5) VideoElement #else Dynamic #end):Void {
 	// public function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, srcData:ArrayBufferView):Void {
-	public function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int,
-			?srcData:Dynamic):Void
+	public function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int, ?type:Int, ?srcData:Dynamic):Void
 	{
 		this.texImage2D(target, level, internalformat, width, height, border, format, type, srcData);
 	}
 	#end
+
 	#if (!js || !html5 || lime_doc_gen)
 	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
 			srcData:ArrayBufferView, srcOffset:Int = 0):Void
@@ -140,6 +140,7 @@ abstract WebGLRenderContext(WebGL2RenderContext)
 		this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, srcData);
 	}
 	#end
+
 	public function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
 	{
 		this.uniformMatrix2fv(location, transpose, v);

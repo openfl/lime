@@ -57,8 +57,14 @@ class TizenPlatform extends PlatformTarget
 		}
 
 		CPPHelper.compile(project, targetDirectory + "/obj", args);
-		System.copyIfNewer(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe",
-			targetDirectory + "/bin/CommandLineBuild/" + project.app.file + ".exe");
+		System.copyIfNewer(targetDirectory
+			+ "/obj/ApplicationMain"
+			+ (project.debug ? "-debug" : "")
+			+ ".exe",
+			targetDirectory
+			+ "/bin/CommandLineBuild/"
+			+ project.app.file
+			+ ".exe");
 		TizenHelper.createPackage(project, targetDirectory + "/bin/CommandLineBuild", "");
 	}
 

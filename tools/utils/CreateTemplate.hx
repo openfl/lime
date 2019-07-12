@@ -53,8 +53,12 @@ class CreateTemplate
 
 		if (FileSystem.exists(title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java"))
 		{
-			FileSystem.rename(title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java",
-				title + "/dependencies/android/src/main/java/org/haxe/extension/" + file + ".java");
+			FileSystem.rename(title
+				+ "/dependencies/android/src/main/java/org/haxe/extension/Extension.java",
+				title
+				+ "/dependencies/android/src/main/java/org/haxe/extension/"
+				+ file
+				+ ".java");
 		}
 
 		if (FileSystem.exists(title))
@@ -411,8 +415,13 @@ class CreateTemplate
 			Log.println(" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension (directory)");
 		}
 
-		Log.println(" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools
-				.commandName ? projectName + " " : "") + "<sample> (directory)");
+		Log.println(" "
+			+ Log.accentColor
+			+ "Usage:\x1b[0m \x1b[1m"
+			+ CommandLineTools.commandName
+			+ "\x1b[0m create "
+			+ (projectName != CommandLineTools.commandName ? projectName + " " : "")
+			+ "<sample> (directory)");
 
 		if (templates.length > 0)
 		{

@@ -192,7 +192,12 @@ class IOSHelper
 			directory = "/Applications/Xcode.app/Contents/Developer";
 		}
 
-		directory += "/Platforms/" + platformName + ".platform/Developer/SDKs/" + platformName + project.environment.get("IPHONE_VER") + ".sdk";
+		directory += "/Platforms/"
+			+ platformName
+			+ ".platform/Developer/SDKs/"
+			+ platformName
+			+ project.environment.get("IPHONE_VER")
+			+ ".sdk";
 		return directory;
 	}
 

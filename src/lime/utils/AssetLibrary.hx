@@ -347,8 +347,7 @@ class AssetLibrary
 			case FONT:
 				cachedFonts.exists(id);
 
-			default:
-				cachedBytes.exists(id) || cachedText.exists(id);
+			default: cachedBytes.exists(id) || cachedText.exists(id);
 		}
 		#end
 	}
@@ -568,7 +567,7 @@ class AssetLibrary
 		}
 		else if (cachedBytes.exists(id))
 		{
-			return Image.loadFromBytes(cachedBytes.get(id)).then(function (image)
+			return Image.loadFromBytes(cachedBytes.get(id)).then(function(image)
 			{
 				cachedBytes.remove(id);
 				cachedImages.set(id, image);
@@ -671,7 +670,7 @@ class AssetLibrary
 				if (Reflect.hasField(asset, "type"))
 				{
 					type = asset.type;
-					switch(type)
+					switch (type)
 					{
 						#if !web
 						case IMAGE:

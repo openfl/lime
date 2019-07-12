@@ -105,7 +105,8 @@ class Font
 		if (src == null) throw "Uninitialized font handle.";
 		var data:Dynamic = NativeCFFI.lime_font_outline_decompose(src, 1024 * 20);
 		#if hl
-		if (data != null) {
+		if (data != null)
+		{
 			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}

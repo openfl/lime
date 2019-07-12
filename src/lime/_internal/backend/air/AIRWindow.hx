@@ -203,7 +203,6 @@ class AIRWindow extends FlashWindow
 			// 	parent.onResize.dispatch (parent.__width, parent.__height);
 
 			case NativeWindowBoundsEvent.MOVE:
-
 				parent.onMove.dispatch(nativeWindow.x, nativeWindow.y);
 
 			default:

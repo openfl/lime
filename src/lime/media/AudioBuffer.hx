@@ -242,6 +242,7 @@ class AudioBuffer
 		return null;
 	}
 	#end
+
 	public static function loadFromFile(path:String):Future<AudioBuffer>
 	{
 		#if (flash || (js && html5))

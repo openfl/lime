@@ -29,6 +29,7 @@ class Event<T>
 		Whether the event was canceled during the previous dispatch
 	**/
 	public var canceled(default, null):Bool;
+
 	@:noCompletion @:dox(hide) public var __listeners:Array<T>;
 	@:noCompletion @:dox(hide) public var __repeat:Array<Bool>;
 

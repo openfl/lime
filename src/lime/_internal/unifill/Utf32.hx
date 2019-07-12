@@ -173,7 +173,10 @@ abstract Utf32(Array<Int>)
 
 	public static inline function fromString(string:String):Utf32
 	{
-		var u = [for (c in new InternalEncodingIter(string, 0, string.length)) InternalEncoding.codePointAt(string, c)];
+		var u = [
+			for (c in new InternalEncodingIter(string, 0, string.length))
+				InternalEncoding.codePointAt(string, c)
+		];
 		return new Utf32(u);
 	}
 
