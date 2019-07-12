@@ -24,7 +24,6 @@ import sys.thread.Thread;
 import neko.vm.Thread;
 #end
 #end
-
 class FlashPlatform extends PlatformTarget
 {
 	private var embedded:Bool;
@@ -59,9 +58,9 @@ class FlashPlatform extends PlatformTarget
 
 	public override function display():Void
 	{
-		if (project.targetFlags.exists ("output-file"))
+		if (project.targetFlags.exists("output-file"))
 		{
-			Sys.println (Path.combine(targetDirectory, "bin/" + project.app.file + ".swf"));
+			Sys.println(Path.combine(targetDirectory, "bin/" + project.app.file + ".swf"));
 		}
 		else
 		{
@@ -155,11 +154,12 @@ class FlashPlatform extends PlatformTarget
 				if (traceEnabled)
 				{
 					#if neko
-					Thread.create(function() {
+					Thread.create(function()
+					{
 					#end
 
-					FlashHelper.run(project, destination, targetPath);
-					// Sys.exit (0);
+						FlashHelper.run(project, destination, targetPath);
+						// Sys.exit (0);
 
 					#if neko
 					});

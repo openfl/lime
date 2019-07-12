@@ -11,18 +11,22 @@ import lime.app.Promise;
 @:noDebug
 #end
 #if doc_gen
-class HTTPRequest<T> {
+class HTTPRequest<T>
+{
 #else
 #if !macro
 @:genericBuild(lime._internal.macros.HTTPRequestMacro.build())
 #end
 class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-private class AbstractHTTPRequest<T> implements _IHTTPRequest {
+private class AbstractHTTPRequest<T> implements _IHTTPRequest
+{
 #end
+
 public var contentType:String;
 public var data:Bytes;
 public var enableResponseHeaders:Bool;

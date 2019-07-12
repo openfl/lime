@@ -151,8 +151,12 @@ class ImageCanvasUtil
 		{
 			if (image.transparent && sourceImage.transparent)
 			{
-				image.buffer.__srcContext.clearRect(destPoint.x + image.offsetX, destPoint.y + image.offsetY, sourceRect.width + image.offsetX,
-					sourceRect.height + image.offsetY);
+				image.buffer.__srcContext.clearRect(destPoint.x
+					+ image.offsetX, destPoint.y
+					+ image.offsetY, sourceRect.width
+					+ image.offsetX,
+					sourceRect.height
+					+ image.offsetY);
 			}
 		}
 

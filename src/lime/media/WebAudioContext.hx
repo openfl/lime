@@ -99,8 +99,8 @@ class WebAudioContext
 		return null;
 	}
 
-	public function decodeAudioData(audioData:Dynamic /*js.html.ArrayBuffer*/, successCallback:Dynamic /*AudioBufferCallback*/, ?errorCallback:Dynamic
-		/*AudioBufferCallback*/):Void {}
+	public function decodeAudioData(audioData:Dynamic /*js.html.ArrayBuffer*/, successCallback:Dynamic /*AudioBufferCallback*/,
+		?errorCallback:Dynamic /*AudioBufferCallback*/):Void {}
 
 	public function startRendering():Void {}
 }

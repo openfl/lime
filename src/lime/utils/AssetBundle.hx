@@ -6,7 +6,6 @@ import haxe.io.Input;
 import haxe.zip.Reader;
 import lime.app.Future;
 import lime.utils.Bytes as LimeBytes;
-
 #if sys
 import sys.io.File;
 #end

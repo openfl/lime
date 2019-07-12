@@ -57,8 +57,7 @@ class TVOSHelper
 		// generate IPA from xcarchive
 		var exportCommands = commands.concat([]);
 
-		var exportMethod = project.targetFlags.exists("adhoc") ? "adhoc" : project.targetFlags.exists("development") ? "development" : project.targetFlags
-			.exists("enterprise") ? "enterprise" : "appstore";
+		var exportMethod = project.targetFlags.exists("adhoc") ? "adhoc" : project.targetFlags.exists("development") ? "development" : project.targetFlags.exists("enterprise") ? "enterprise" : "appstore";
 
 		exportCommands.push("-exportArchive");
 		exportCommands.push("-archivePath");

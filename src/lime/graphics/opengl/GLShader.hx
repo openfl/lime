@@ -7,9 +7,11 @@ import lime.graphics.WebGLRenderContext;
 import lime.utils.Log;
 
 #if !lime_webgl
-@:forward(id) abstract GLShader(GLObject) from GLObject to GLObject {
+@:forward(id) abstract GLShader(GLObject) from GLObject to GLObject
+{
 #else
-@:forward() abstract GLShader(js.html.webgl.Shader) from js.html.webgl.Shader to js.html.webgl.Shader {
+@:forward() abstract GLShader(js.html.webgl.Shader) from js.html.webgl.Shader to js.html.webgl.Shader
+{
 #end
 
 #if !lime_webgl

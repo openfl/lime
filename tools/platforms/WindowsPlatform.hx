@@ -179,8 +179,8 @@ class WindowsPlatform extends PlatformTarget
 					// TODO: Support single binary for HashLink
 					if (targetType == "hl")
 					{
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project
-							.debug, targetSuffix);
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
+							targetSuffix);
 					}
 					else
 					{
@@ -224,8 +224,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
-						+ "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -242,8 +241,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
-						+ "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -402,8 +400,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
-						+ "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -582,7 +579,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (targetType == "cppia")
 		{
 			// arguments = arguments.concat(["-livereload"]);
-			arguments = ["script.cppia"]; //.concat(arguments);
+			arguments = ["script.cppia"]; // .concat(arguments);
 			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);
 		}
 		else if (targetType == "winjs")
@@ -644,8 +641,16 @@ class WindowsPlatform extends PlatformTarget
 			// var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
 			// Sys.command ('powershell & ""' + targetDirectory + '/bin/source/AppPackages/' + project.app.file + '_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1""');
 			var version = project.meta.version + "." + project.meta.buildNumber;
-			System.openFile(targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test", project.app
-				.file + "_" + version + "_AnyCPU.appx");
+			System.openFile(targetDirectory
+				+ "/source/AppPackages/"
+				+ project.app.file
+				+ "_"
+				+ version
+				+ "_AnyCPU_Test",
+				project.app.file
+				+ "_"
+				+ version
+				+ "_AnyCPU.appx");
 
 			// source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
 
@@ -720,8 +725,8 @@ class WindowsPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix, project
-						.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix,
+						project.debug);
 				}
 			}
 		}
@@ -1094,8 +1099,7 @@ class WindowsPlatform extends PlatformTarget
 
 			Log.info("run: " + appxAUMID);
 			Log.info(kitsRoot10 + 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe ' + appxAUMID);
-			var process4 = new sys.io.Process(kitsRoot10
-				+ 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe', [appxAUMID]);
+			var process4 = new sys.io.Process(kitsRoot10 + 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe', [appxAUMID]);
 		}
 	}
 
@@ -1286,7 +1290,8 @@ class WindowsPlatform extends PlatformTarget
 					var message = process4.stderr.readAll().toString();
 					Log.error("Error signing appx. " + message);
 				}
-				Log.info("\n\n***Double click " + pfxPath
+				Log.info("\n\n***Double click "
+					+ pfxPath
 					+ " to setup certificate (Local machine, Place all certificates in the following store->Trusted People)\n");
 				process4.close();
 			}

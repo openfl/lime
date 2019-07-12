@@ -54,8 +54,8 @@ class AndroidPlatform extends PlatformTarget
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 		var sourceSet = destination + "/app/src/main";
 
-		var hasARMV5 = (ArrayTools.containsValue(project.architectures, Architecture.ARMV5) || ArrayTools.containsValue(project.architectures, Architecture
-				.ARMV6));
+		var hasARMV5 = (ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
+			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV6));
 		var hasARMV7 = ArrayTools.containsValue(project.architectures, Architecture.ARMV7);
 		var hasARM64 = ArrayTools.containsValue(project.architectures, Architecture.ARM64);
 		var hasX86 = ArrayTools.containsValue(project.architectures, Architecture.X86);
@@ -264,7 +264,7 @@ class AndroidPlatform extends PlatformTarget
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
 		var x86 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.X86));
-		var x64 = (/*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.X64));
+		var x64 = ( /*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.X64));
 
 		var commands = [];
 
@@ -403,8 +403,8 @@ class AndroidPlatform extends PlatformTarget
 		if (Reflect.hasField(context, "KEY_STORE")) context.KEY_STORE = StringTools.replace(context.KEY_STORE, "\\", "\\\\");
 		if (Reflect.hasField(context, "KEY_STORE_ALIAS")) context.KEY_STORE_ALIAS = StringTools.replace(context.KEY_STORE_ALIAS, "\\", "\\\\");
 		if (Reflect.hasField(context, "KEY_STORE_PASSWORD")) context.KEY_STORE_PASSWORD = StringTools.replace(context.KEY_STORE_PASSWORD, "\\", "\\\\");
-		if (Reflect.hasField(context, "KEY_STORE_ALIAS_PASSWORD")) context.KEY_STORE_ALIAS_PASSWORD = StringTools.replace(context
-			.KEY_STORE_ALIAS_PASSWORD, "\\", "\\\\");
+		if (Reflect.hasField(context,
+			"KEY_STORE_ALIAS_PASSWORD")) context.KEY_STORE_ALIAS_PASSWORD = StringTools.replace(context.KEY_STORE_ALIAS_PASSWORD, "\\", "\\\\");
 
 		var index = 1;
 
@@ -413,7 +413,8 @@ class AndroidPlatform extends PlatformTarget
 			if (dependency.path != ""
 				&& FileSystem.exists(dependency.path)
 				&& FileSystem.isDirectory(dependency.path)
-				&& (FileSystem.exists(Path.combine(dependency.path, "project.properties")) || FileSystem.exists(Path.combine(dependency.path, "build.gradle"))))
+				&& (FileSystem.exists(Path.combine(dependency.path, "project.properties"))
+					|| FileSystem.exists(Path.combine(dependency.path, "build.gradle"))))
 			{
 				var name = dependency.name;
 				if (name == "") name = "project" + index;

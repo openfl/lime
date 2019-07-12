@@ -18,7 +18,6 @@ class AssetsMacro
 	#if !macro
 	macro public static function cacheVersion() {}
 	#else
-
 	macro public static function cacheVersion()
 	{
 		return macro $v{Std.int(Math.random() * 1000000)};
@@ -123,7 +122,8 @@ class AssetsMacro
 					opt: true,
 					type: macro:Int,
 					value: macro 0
-				}];
+				}
+			];
 			fields.push(
 				{
 					name: "new",
@@ -176,7 +176,8 @@ class AssetsMacro
 							}
 
 							var bytes = File.getBytes(path);
-							var resourceName = "__ASSET__" + metaName
+							var resourceName = "__ASSET__"
+								+ metaName
 								+ "_"
 								+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
 								+ classType.name;

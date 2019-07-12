@@ -766,14 +766,14 @@ class CommandLineTools
 	{
 		var commands = [
 
-			"config" => "Display or set command-line configuration values", "create" => "Create a new project or extension using templates",
-			"clean" => "Clean the specified project and target", "update" => "Copy assets for the specified project and target",
-			"build" => "Compile and package for the specified project and target", "run" => "Install and run for the specified project and target",
-			"test" => "Update, build and run in one command", "help" => "Show this information", "trace" => "Trace output for the specifed project and target",
-			"deploy" => "Archive and upload builds", "display" => "Display information for the specified project and target",
-			"rebuild" => "Recompile native binaries for libraries", "install" => "Install a library from haxelib, plus dependencies",
-			"remove" => "Remove a library from haxelib", "upgrade" => "Upgrade a library from haxelib",
-			"setup" => "Setup " + defaultLibraryName + " or a specific platform"
+			         "config" => "Display or set command-line configuration values",    "create" => "Create a new project or extension using templates",
+			                    "clean" => "Clean the specified project and target",     "update" => "Copy assets for the specified project and target",
+			  "build" => "Compile and package for the specified project and target",    "run" => "Install and run for the specified project and target",
+			                       "test" => "Update, build and run in one command",                                  "help" => "Show this information",
+			          "trace" => "Trace output for the specifed project and target",                            "deploy" => "Archive and upload builds",
+			"display" => "Display information for the specified project and target",             "rebuild" => "Recompile native binaries for libraries",
+			       "install" => "Install a library from haxelib, plus dependencies",                        "remove" => "Remove a library from haxelib",
+			                          "upgrade" => "Upgrade a library from haxelib", "setup" => "Setup " + defaultLibraryName + " or a specific platform"
 
 		];
 
@@ -798,40 +798,75 @@ class CommandLineTools
 		switch (command)
 		{
 			case "setup":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " setup\x1b[0m \x1b[3;37m(target)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " setup\x1b[0m \x1b[3;37m(target)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 
 			case "clean", "update", "build", "run", "test", "display", "deploy", "trace":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " " + command + "\x1b[0m \x1b[3;37m(project)\x1b[0m \x1b[1m<target>\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " "
+					+ command
+					+ "\x1b[0m \x1b[3;37m(project)\x1b[0m \x1b[1m<target>\x1b[0m \x1b[3;37m[options]\x1b[0m");
 				isProjectCommand = true;
 				isBuildCommand = true;
 
 			case "create":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1mproject\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1mextension\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1m<sample>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1mproject\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1mextension\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " create\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[1m<sample>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 
 			case "rebuild":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " rebuild\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[3;37m(target)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " rebuild\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[3;37m(target)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 				isBuildCommand = true;
 
 			case "config":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config\x1b[0m \x1b[3;37m(name)\x1b[0m \x1b[3;37m(value)\x1b[0m \x1b[3;37m[options]\x1b[0m");
-				Log.println(" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " config remove <name>\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " config\x1b[0m \x1b[3;37m(name)\x1b[0m \x1b[3;37m(value)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " config remove <name>\x1b[0m \x1b[3;37m[options]\x1b[0m");
 
 			case "install", "remove", "upgrade":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " " + command + "\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " "
+					+ command
+					+ "\x1b[0m \x1b[3;37m(library)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 
 			case "process":
-				Log.println(" " + Log
-					.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " process <file>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+				Log.println(" "
+					+ Log.accentColor
+					+ "Usage:\x1b[0m \x1b[1m"
+					+ commandName
+					+ " process <file>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
 
 			default:
 				displayInfo();
@@ -1070,18 +1105,12 @@ class CommandLineTools
 			Log.println("\x1b[32m_\x1b[1m/\\\\\\\\\\\\\x1b[0m\x1b[32m______________________________________________\x1b[0m");
 			Log.println("\x1b[32m_\x1b[1m\\////\\\\\\\x1b[0m\x1b[32m______________________________________________\x1b[0m");
 			Log.println("\x1b[32m_____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m_____________________________________\x1b[0m");
-			Log
-				.println("\x1b[32m______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\///\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m_______\x1b[1m/\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
-			Log
-				.println("\x1b[32m_______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\///\\\\\\\\\\///\\\\\\\x1b[0m\x1b[32m___\x1b[1m/\\\\\\/////\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
-			Log
-				.println("\x1b[32m________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
-			Log
-				.println("\x1b[32m_________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\///////\x1b[0m\x1b[32m____\x1b[0m");
-			Log
-				.println("\x1b[32m________\x1b[1m/\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\//\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
-			Log
-				.println("\x1b[32m________\x1b[1m\\/////////\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m____\x1b[1m\\//////////\x1b[0m\x1b[32m___\x1b[0m");
+			Log.println("\x1b[32m______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\///\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\x1b[0m\x1b[32m_______\x1b[1m/\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
+			Log.println("\x1b[32m_______\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_____\x1b[1m/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\///\\\\\\\\\\///\\\\\\\x1b[0m\x1b[32m___\x1b[1m/\\\\\\/////\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
+			Log.println("\x1b[32m________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m/\\\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m___\x1b[0m");
+			Log.println("\x1b[32m_________\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m____\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\//\\\\///////\x1b[0m\x1b[32m____\x1b[0m");
+			Log.println("\x1b[32m________\x1b[1m/\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m_\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\/\\\\\\\x1b[0m\x1b[32m__\x1b[1m\\//\\\\\\\\\\\\\\\\\\\\\x1b[0m\x1b[32m__\x1b[0m");
+			Log.println("\x1b[32m________\x1b[1m\\/////////\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m__\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m___\x1b[1m\\///\x1b[0m\x1b[32m____\x1b[1m\\//////////\x1b[0m\x1b[32m___\x1b[0m");
 
 			Log.println("");
 			Log.println("\x1b[1mLime Command-Line Tools\x1b[0;1m (" + getToolsVersion() + ")\x1b[0m");
@@ -1089,7 +1118,11 @@ class CommandLineTools
 
 		if (showHint)
 		{
-			Log.println("Use \x1b[3m" + commandName + " setup\x1b[0m to configure platforms or \x1b[3m" + commandName + " help\x1b[0m for more commands");
+			Log.println("Use \x1b[3m"
+				+ commandName
+				+ " setup\x1b[0m to configure platforms or \x1b[3m"
+				+ commandName
+				+ " help\x1b[0m for more commands");
 		}
 	}
 
@@ -1653,9 +1686,7 @@ class CommandLineTools
 			}
 			catch (e:Dynamic) {}
 
-			if (Path.extension(projectFile) == "lime"
-				|| Path.extension(projectFile) == "nmml"
-				|| Path.extension(projectFile) == "xml")
+			if (Path.extension(projectFile) == "lime" || Path.extension(projectFile) == "nmml" || Path.extension(projectFile) == "xml")
 			{
 				project = new ProjectXMLParser(Path.withoutDirectory(projectFile), userDefines, includePaths);
 			}
@@ -1701,9 +1732,7 @@ class CommandLineTools
 			return null;
 		}
 
-		if (project == null || (command != "rebuild"
-			&& project.sources.length == 0
-			&& !FileSystem.exists(project.app.main + ".hx")))
+		if (project == null || (command != "rebuild" && project.sources.length == 0 && !FileSystem.exists(project.app.main + ".hx")))
 		{
 			Log.error("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
 			return null;
@@ -1829,7 +1858,8 @@ class CommandLineTools
 						}
 						else if (Std.is(Reflect.field(fieldValue, attribute), Bool))
 						{
-							Reflect.setField(fieldValue, attribute, (projectDefines.get(key).toLowerCase() == "true" || projectDefines.get(key) == "1"));
+							Reflect.setField(fieldValue, attribute, (projectDefines.get(key).toLowerCase() == "true"
+								|| projectDefines.get(key) == "1"));
 						}
 					}
 				}
@@ -2143,7 +2173,7 @@ class CommandLineTools
 			}
 			else if (argument == "--output-file")
 			{
-				targetFlags.set ("output-file", "");
+				targetFlags.set("output-file", "");
 			}
 			else if (argument.substr(0, 1) == "-")
 			{

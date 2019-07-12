@@ -467,7 +467,8 @@ class FirefoxHelper
 		return false;
 	}
 
-	public static function validate(project:HXProject):{errors:Array<String>, warnings:Array<String>} {
+	public static function validate(project:HXProject):{errors:Array<String>, warnings:Array<String>}
+	{
 		var errors:Array<String> = [];
 		var warnings:Array<String> = [];
 
@@ -502,8 +503,7 @@ class FirefoxHelper
 
 		if (categories.length == 0)
 		{
-			errors
-				.push("You need to have at least one category\n\n\t<config type=\"firefox-marketplace\">\n\t   <categories>\n\t      <category name=\"games\"/>\n\t   </categories>\n\t</config>\n");
+			errors.push("You need to have at least one category\n\n\t<config type=\"firefox-marketplace\">\n\t   <categories>\n\t      <category name=\"games\"/>\n\t   </categories>\n\t</config>\n");
 		}
 		else if (categories.length > MAX_CATEGORIES)
 		{
@@ -512,22 +512,19 @@ class FirefoxHelper
 
 		if (project.config.getString("firefox-marketplace.privacyPolicy") == "")
 		{
-			errors
-				.push("You need to have a privacy policy\n\n\t<config type=\"firefox-marketplace\">\n\t   <privacyPolicy>Policy detail</privacyPolicy>\n\t</config>\n");
+			errors.push("You need to have a privacy policy\n\n\t<config type=\"firefox-marketplace\">\n\t   <privacyPolicy>Policy detail</privacyPolicy>\n\t</config>\n");
 		}
 
 		if (project.config.getString("firefox-marketplace.support.email") == "")
 		{
-			errors
-				.push("You need to have a support email address\n\n\t<config type=\"firefox-marketplace\">\n\t   <support email=\"support@company.com\"/>\n\t</config>\n");
+			errors.push("You need to have a support email address\n\n\t<config type=\"firefox-marketplace\">\n\t   <support email=\"support@company.com\"/>\n\t</config>\n");
 		}
 
 		var screenshots = project.config.getArrayString("firefox-marketplace.screenshots.screenshot", "path");
 
 		if (screenshots.length == 0)
 		{
-			errors
-				.push("You need to have at least one screenshot\n\n\t<config type=\"firefox-marketplace\">\n\t   <screenshots>\n\t      <screenshot path=\"screenshot.png\"/>\n\t   </screenshots>\n\t</config>\n");
+			errors.push("You need to have at least one screenshot\n\n\t<config type=\"firefox-marketplace\">\n\t   <screenshots>\n\t      <screenshot path=\"screenshot.png\"/>\n\t   </screenshots>\n\t</config>\n");
 		}
 		else
 		{

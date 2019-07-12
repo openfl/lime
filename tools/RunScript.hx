@@ -140,8 +140,8 @@ class RunScript
 			var lastArgument = new Path(args[args.length - 1]).toString();
 			var cacheDirectory = Sys.getCwd();
 
-			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\")) && !StringTools
-				.endsWith(lastArgument, ":\\"))
+			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\"))
+				&& !StringTools.endsWith(lastArgument, ":\\"))
 			{
 				lastArgument = lastArgument.substr(0, lastArgument.length - 1);
 			}

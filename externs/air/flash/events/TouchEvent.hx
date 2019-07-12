@@ -30,8 +30,8 @@ package flash.events;
 	function new(type:String, bubbles:Bool = true, cancelable:Bool = false, touchPointID:Int = 0, isPrimaryTouchPoint:Bool = false, localX:Float = 0. /*NaN*/,
 		localY:Float = 0. /*NaN*/, sizeX:Float = 0. /*NaN*/, sizeY:Float = 0. /*NaN*/, pressure:Float = 0. /*NaN*/,
 		?relatedObject:flash.display.InteractiveObject, ctrlKey:Bool = false, altKey:Bool = false, shiftKey:Bool = false
-		#if air, commandKey:Bool = false, controlKey:Bool = false, ?timestamp:Float, ?touchIntent:TouchEventIntent, ?samples:flash.utils
-			.ByteArray, isTouchPointCanceled:Bool = false #end):Void;
+		#if air, commandKey:Bool = false, controlKey:Bool = false, ?timestamp:Float, ?touchIntent:TouchEventIntent, ?samples:flash.utils.ByteArray,
+		isTouchPointCanceled:Bool = false #end):Void;
 	#if air
 	function getSamples(buffer:flash.utils.ByteArray, append:Bool = false):UInt;
 	function isToolButtonDown(index:Int):Bool;

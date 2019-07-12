@@ -21,8 +21,7 @@ extern class SQLConnection extends flash.events.EventDispatcher
 	function deanalyze(?responder:flash.net.Responder):Void;
 	function detach(name:String, ?responder:flash.net.Responder):Void;
 	function getSchemaResult():SQLSchemaResult;
-	function loadSchema(?type:Class<Dynamic>, ?name:String, ?database:String = "main", ?includeColumnSchema:Bool = true,
-		?responder:flash.net.Responder):Void;
+	function loadSchema(?type:Class<Dynamic>, ?name:String, ?database:String = "main", ?includeColumnSchema:Bool = true, ?responder:flash.net.Responder):Void;
 	function open(?reference:Dynamic, ?openMode:SQLMode = SQLMode.CREATE, ?autoCompact:Bool = false, ?pageSize:Int = 1024,
 		?encryptionKey:flash.utils.ByteArray):Void;
 	function openAsync(?reference:Dynamic, ?openMode:SQLMode = SQLMode.CREATE, ?responder:flash.net.Responder, ?autoCompact:Bool = false,

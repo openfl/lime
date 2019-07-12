@@ -45,6 +45,7 @@ class Window
 	 * perform more quickly on displays with a higher refresh rate
 	**/
 	public var frameRate(get, set):Float;
+
 	public var fullscreen(get, set):Bool;
 	public var height(get, set):Int;
 	public var hidden(get, null):Bool;

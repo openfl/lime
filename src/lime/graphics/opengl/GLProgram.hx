@@ -8,9 +8,11 @@ import lime.graphics.WebGLRenderContext;
 import lime.utils.Log;
 
 #if !lime_webgl
-@:forward(id, refs) abstract GLProgram(GLObject) from GLObject to GLObject {
+@:forward(id, refs) abstract GLProgram(GLObject) from GLObject to GLObject
+{
 #else
-@:forward() abstract GLProgram(js.html.webgl.Program) from js.html.webgl.Program to js.html.webgl.Program {
+@:forward() abstract GLProgram(js.html.webgl.Program) from js.html.webgl.Program to js.html.webgl.Program
+{
 #end
 
 #if !lime_webgl
