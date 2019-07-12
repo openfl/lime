@@ -387,7 +387,8 @@ class Image
 				sourceRect.offset(sourceImage.offsetX, sourceImage.offsetY);
 				destPoint.offset(offsetX, offsetY);
 
-				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel, dstChannel);
+				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel,
+					dstChannel);
 
 			default:
 		}
@@ -616,20 +617,16 @@ class Image
 		@param	bitmapData	A source `bitmapData` to use
 		@return		A new `Image` instance
 	**/
-	#if flash
-	public static function fromBitmapData(bitmapData:BitmapData):Image {
-	#else
-	public static function fromBitmapData(bitmapData:Dynamic):Image {
-	#end
-	if (bitmapData == null) return null;
-	#if flash
-	var buffer = new ImageBuffer(null, bitmapData.width, bitmapData.height);
-
-	buffer.__srcBitmapData = bitmapData;
-	return new Image(buffer);
-	#else
-	return bitmapData.image;
-	#end
+	public static function fromBitmapData(bitmapData:#if flash BitmapData #else Dynamic #end):Image
+	{
+		if (bitmapData == null) return null;
+		#if flash
+		var buffer = new ImageBuffer(null, bitmapData.width, bitmapData.height);
+		buffer.__srcBitmapData = bitmapData;
+		return new Image(buffer);
+		#else
+		return bitmapData.image;
+		#end
 	}
 	#end
 
@@ -664,18 +661,15 @@ class Image
 		@param	canvas	A `CanvasElement`
 		@return	A new `Image` instance
 	**/
-	#if (js && html5)
-	public static function fromCanvas(canvas:CanvasElement):Image {
-	#else
-	public static function fromCanvas(canvas:Dynamic):Image {
-	#end
-	if (canvas == null) return null;
-	var buffer = new ImageBuffer(null, canvas.width, canvas.height);
-	buffer.src = canvas;
-	var image = new Image(buffer);
+	public static function fromCanvas(canvas:#if (js && html5) CanvasElement #else Dynamic #end):Image
+	{
+		if (canvas == null) return null;
+		var buffer = new ImageBuffer(null, canvas.width, canvas.height);
+		buffer.src = canvas;
+		var image = new Image(buffer);
 
-	image.type = CANVAS;
-	return image;
+		image.type = CANVAS;
+		return image;
 	}
 	#end
 
@@ -710,18 +704,15 @@ class Image
 		@param	image	An `ImageElement` instance
 		@return	A new `Image` instance
 	**/
-	#if (js && html5)
-	public static function fromImageElement(image:ImageElement):Image {
-	#else
-	public static function fromImageElement(image:Dynamic):Image {
-	#end
-	if (image == null) return null;
-	var buffer = new ImageBuffer(null, image.width, image.height);
-	buffer.src = image;
-	var _image = new Image(buffer);
+	public static function fromImageElement(image:#if (js && html5) ImageElement #else Dynamic #end):Image
+	{
+		if (image == null) return null;
+		var buffer = new ImageBuffer(null, image.width, image.height);
+		buffer.src = image;
+		var _image = new Image(buffer);
 
-	_image.type = CANVAS;
-	return _image;
+		_image.type = CANVAS;
+		return _image;
 	}
 	#end
 
@@ -967,8 +958,11 @@ class Image
 			// throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
 			return Future.withValue(null);
 		}
-
+		#if !display
+		return HTML5HTTPRequest.loadImageFromBytes(bytes, type);
+		#else
 		return loadFromBase64(Base64.encode(bytes), type);
+		#end
 		#elseif flash
 		var promise = new Promise<Image>();
 
