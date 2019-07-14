@@ -1,5 +1,5 @@
 {
-    "haxe.displayConfigurations": [
+    "haxe.configurations": [
         [ "--cwd", "tools", "tools.hxml" ]
     ],
     "editor.insertSpaces": false,
@@ -15,7 +15,7 @@
     },
     "files.watcherExclude": {
         "**/project/lib/**": true
-    }
+    },
     "files.trimTrailingWhitespace": true,
     "C_Cpp.autoAddFileAssociations": false,
 }
