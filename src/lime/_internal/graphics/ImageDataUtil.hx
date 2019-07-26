@@ -337,7 +337,7 @@ class ImageDataUtil
 				var destBytesPerPixel = Std.int(image.buffer.bitsPerPixel / 8);
 
 				var useAlphaImage = (alphaImage != null && alphaImage.transparent);
-				var blend = (mergeAlpha || (useAlphaImage && !image.transparent));
+				var blend = (mergeAlpha || (useAlphaImage && !image.transparent)) || (!mergeAlpha && !image.transparent && sourceImage.transparent);
 
 				if (!useAlphaImage)
 				{

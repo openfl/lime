@@ -131,7 +131,7 @@ namespace lime {
 		int destBytesPerPixel = image->buffer->bitsPerPixel / 8;
 
 		bool useAlphaImage = (alphaImage && alphaImage->buffer->transparent);
-		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent));
+		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent) || (!mergeAlpha && !image->buffer->transparent && sourceImage->buffer->transparent));
 
 		if (!useAlphaImage) {
 
