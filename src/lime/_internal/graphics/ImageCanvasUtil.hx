@@ -139,8 +139,8 @@ class ImageCanvasUtil
 
 			// TODO: use faster method
 
-			var tempData = image.clone();
-			tempData.copyChannel(alphaImage, new Rectangle(alphaPoint.x, alphaPoint.y, sourceRect.width, sourceRect.height),
+			var tempData = sourceImage.clone();
+			tempData.copyChannel(alphaImage, new Rectangle(sourceRect.x + alphaPoint.x, sourceRect.y + alphaPoint.y, sourceRect.width, sourceRect.height),
 				new Vector2(sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
 			sourceImage = tempData;
 		}

@@ -457,7 +457,7 @@ class Image
 		switch (type)
 		{
 			case CANVAS:
-				if (alphaImage != null || sourceImage.type != CANVAS)
+				if (alphaImage != null)
 				{
 					ImageCanvasUtil.convertToData(this);
 					ImageCanvasUtil.convertToData(sourceImage);
