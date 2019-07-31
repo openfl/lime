@@ -774,7 +774,18 @@ class AssetLibrary
 	@:noCompletion private function __resolvePath(path:String):String
 	{
 		path = StringTools.replace(path, "\\", "/");
-		path = StringTools.replace(path, "//", "/");
+		
+		var colonIdx:Int = path.indexOf(":");
+		if (StringTools.startsWith(path, "http") && colonIdx > 0)
+		{
+			var lastSlashIdx:Int = colonIdx + 3;
+			var httpSection:String = path.substr(0, lastSlashIdx);
+			path = httpSection + StringTools.replace(path.substr(lastSlashIdx), "//", "/");
+		}
+		else
+		{
+			path = StringTools.replace(path, "//", "/");
+		}
 
 		if (path.indexOf("./") > -1)
 		{
