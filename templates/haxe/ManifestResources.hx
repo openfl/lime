@@ -41,8 +41,10 @@ import sys.FileSystem;
 			rootPath = "assets/";
 			#elseif console
 			rootPath = lime.system.System.applicationDirectory;
-			#else
+			#elseif (html5 || winrt)
 			rootPath = "./";
+			#else
+			rootPath = "";
 			#end
 
 		}
