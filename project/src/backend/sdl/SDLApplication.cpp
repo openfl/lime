@@ -185,9 +185,7 @@ namespace lime {
 			case SDL_FINGERDOWN:
 			case SDL_FINGERUP:
 
-				#ifndef HX_MACOS
 				ProcessTouchEvent (event);
-				#endif
 				break;
 
 			case SDL_JOYAXISMOTION:

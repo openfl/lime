@@ -2,7 +2,7 @@
 ------------------
 
 * Updated support for Haxe 4 dev versions
-* Updated SDL to latest development version
+* Updated SDL to 2.10
 * Updated the default Android target API to 28 (per Google guidelines)
 * Updated HashLink support to 1.10 (requires Haxe 4 RC3 or greater)
 * Added official support for Android ARM64 architecture
