@@ -1,3 +1,29 @@
+7.6.0 (08/20/2019)
+------------------
+
+* Updated support for Haxe 4 dev versions
+* Updated SDL to latest development version
+* Updated the default Android target API to 28 (per Google guidelines)
+* Updated HashLink support to 1.10 (requires Haxe 4 RC3 or greater)
+* Added official support for Android ARM64 architecture
+* Added ARM64 as a default architecture in Android builds
+* Added `lime.utils.AssetBundle` for standard compressed libraries
+* Added support for pure JSON-based asset manifest data
+* Added AMD support to generated JavaScript output
+* Added `remove` to `lime.utils.ObjectPool`
+* Added initial support for `window.onMove` on the AIR target
+* Improved the performance of `Image.loadFromBytes` on HTML5
+* Improved `DataPointer` to be a more reliable implementation in JavaScript
+* Improved support for pre-generated asset libraries
+* Improved the same origin check for `HTTPRequest` data-based URIs
+* Improved the native main loop behavior on the Android target
+* Fixed a compile error when using `flash.system.SystemIdleMode`
+* Fixed issues with WebGL on the HTML5 target caused by `DataPointer`
+* Fixed an issue where antialiasing was always enabled on HTML5
+* Fixed the behavior of `image.copyPixels` in a few cases
+* Fixed minor issues when using the `-npm` HTML5 template
+
+
 7.5.0 (05/14/2019)
 ------------------
 
