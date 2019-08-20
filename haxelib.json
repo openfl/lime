@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "7.5.0",
-	"releasenote": "Better HL support, faster blur, new SDL version",
+	"version": "7.6.0",
+	"releasenote": "Android ARM64 support, new AssetBundle type, fixes",
 	"contributors": [ "singmajesty" ],
 	"classPath": "src"
 }
