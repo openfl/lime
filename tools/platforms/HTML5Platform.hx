@@ -296,9 +296,15 @@ class HTML5Platform extends PlatformTarget
 
 		if (npm)
 		{
+			var path;
 			for (i in 0...project.sources.length)
 			{
-				project.sources[i] = Path.tryFullPath(project.sources[i]);
+				path = project.sources[i];
+				if (StringTools.startsWith(path, targetDirectory) && !FileSystem.exists(Path.directory(path)))
+				{
+					System.mkdir(Path.directory(path));
+				}
+				project.sources[i] = Path.tryFullPath(path);
 			}
 		}
 
