@@ -8,6 +8,7 @@ HL_API int hl_pad_struct( int size, hl_type *t ) { return 0; }
 
 HL_API hl_runtime_obj *hl_get_obj_rt( hl_type *ot ) { return NULL; }
 HL_API hl_runtime_obj *hl_get_obj_proto( hl_type *ot ) { return NULL; }
+HL_API void hl_flush_proto( hl_type *ot ) {}
 HL_API void hl_init_enum( hl_type *et, hl_module_context *m ) {}
 
 hl_type hlt_void = hl_type ();
@@ -46,7 +47,7 @@ HL_API hl_obj_field *hl_obj_field_fetch( hl_type *t, int fid ) { return NULL; }
 HL_API int hl_hash( vbyte *name ) { return 0; }
 HL_API int hl_hash_utf8 ( const char *str ) { return 0; } // no cache
 HL_API int hl_hash_gen( const uchar *name, bool cache_name ) { return 0; }
-HL_API const uchar *hl_field_name( int hash ) { return NULL; }
+HL_API vbyte *hl_field_name( int hash ) { return NULL; }
 
 HL_API void hl_error_msg( const uchar *msg, ... ) {}
 HL_API void hl_assert( void ) {}
@@ -75,7 +76,7 @@ HL_API double hl_dyn_castd( void *data, hl_type *t ) { return 0; }
 
 HL_API int hl_dyn_compare( vdynamic *a, vdynamic *b ) { return 0; }
 HL_API vdynamic *hl_make_dyn( void *data, hl_type *t ) { return NULL; }
-HL_API void hl_write_dyn( void *data, hl_type *t, vdynamic *v ) {}
+HL_API void hl_write_dyn( void *data, hl_type *t, vdynamic *v, bool is_tmp ) {}
 
 HL_API void hl_dyn_seti( vdynamic *d, int hfield, hl_type *t, int value ) {}
 HL_API void hl_dyn_setp( vdynamic *d, int hfield, hl_type *t, void *ptr ) {}
@@ -146,6 +147,7 @@ HL_API void *hl_fatal_error( const char *msg, const char *file, int line ) { ret
 HL_API void hl_fatal_fmt( const char *file, int line, const char *fmt, ...) {}
 HL_API void hl_sys_init(void **args, int nargs, void *hlfile) {}
 HL_API void hl_setup_callbacks(void *sc, void *gw) {}
+HL_API void hl_setup_reload_check( void *freload, void *param ) {}
 
 HL_API hl_thread_info *hl_get_thread() { return NULL; }
 
