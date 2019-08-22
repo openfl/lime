@@ -39,6 +39,8 @@ import sys.FileSystem;
 
 			#if (ios || tvos || emscripten)
 			rootPath = "assets/";
+			#elseif android
+			rootPath = "";
 			#elseif console
 			rootPath = lime.system.System.applicationDirectory;
 			#else
