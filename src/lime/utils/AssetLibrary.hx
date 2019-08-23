@@ -774,7 +774,7 @@ class AssetLibrary
 	@:noCompletion private function __resolvePath(path:String):String
 	{
 		path = StringTools.replace(path, "\\", "/");
-		
+
 		var colonIdx:Int = path.indexOf(":");
 		if (StringTools.startsWith(path, "http") && colonIdx > 0)
 		{
@@ -786,6 +786,13 @@ class AssetLibrary
 		{
 			path = StringTools.replace(path, "//", "/");
 		}
+
+		#if android
+		if (StringTools.startsWith(path, "./"))
+		{
+			path = path.substr(2);
+		}
+		#end
 
 		if (path.indexOf("./") > -1)
 		{
