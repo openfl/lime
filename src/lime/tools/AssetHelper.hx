@@ -533,7 +533,7 @@ class AssetHelper
 			processPackedLibraries(project, targetDirectory);
 		}
 
-		var manifest, asset;
+		var manifest, embed, asset;
 
 		for (library in project.libraries)
 		{
@@ -550,15 +550,11 @@ class AssetHelper
 				if (!hasManifest.exists(library.name))
 				{
 					manifest = createManifest(project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
-					manifest.rootPath = "../";
-
-					asset = new Asset("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
-					asset.library = library.name;
-					asset.data = manifest.serialize();
+					embed = false;
 
 					if (manifest.assets.length == 0 || (project.target == HTML5 && library.name == DEFAULT_LIBRARY_NAME))
 					{
-						asset.embed = true;
+						embed = true;
 					}
 					else
 					{
@@ -575,8 +571,23 @@ class AssetHelper
 							}
 						}
 
-						if (allEmbedded) asset.embed = true;
+						if (allEmbedded) embed = true;
 					}
+
+					asset = new Asset("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
+
+					if (embed)
+					{
+						asset.embed = true;
+					}
+					else
+					{
+						asset.embed = false;
+						manifest.rootPath = "../";
+					}
+
+					asset.library = library.name;
+					asset.data = manifest.serialize();
 
 					project.assets.push(asset);
 				}
@@ -665,7 +676,7 @@ class AssetHelper
 					data.library = library.name;
 					manifest.libraryType = "lime.utils.PackedAssetLibrary";
 					manifest.libraryArgs = ["lib/" + filename, type];
-					manifest.rootPath = "../";
+					// manifest.rootPath = "../";
 					data.data = manifest.serialize();
 					data.embed = true;
 
