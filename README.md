@@ -39,7 +39,7 @@ Installation
 
 First install the latest version of [Haxe](http://www.haxe.org/download).
 
-The current version of Lime has not been released on haxelib, yet, so please install the latest [development build](http://www.openfl.org/builds/lime).
+The current version of Lime has not been released on haxelib, yet, so please install the latest [development build](http://builds.openfl.org).
 
 
 Development Builds

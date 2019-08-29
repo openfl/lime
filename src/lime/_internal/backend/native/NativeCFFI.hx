@@ -28,7 +28,7 @@ import lime.utils.ArrayBufferView;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
 #end
-#if cpp
+#if (cpp && !cppia)
 import cpp.Float32;
 #else
 typedef Float32 = Float;
@@ -53,7 +53,7 @@ typedef CFFIPointer = Dynamic;
 class NativeCFFI
 {
 	#if (lime_cffi && !macro)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_application_create():Dynamic;
 
@@ -352,256 +352,260 @@ class NativeCFFI
 	@:cffi private static function lime_zlib_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 	#else
 	private static var lime_application_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_application_create", "o", false));
-	private static var lime_application_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_application_event_manager_register", "oov", false));
+	private static var lime_application_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_event_manager_register", "oov", false));
 	private static var lime_application_exec = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_exec", "oi", false));
 	private static var lime_application_init = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_application_init", "ov", false));
 	private static var lime_application_quit = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_quit", "oi", false));
-	private static var lime_application_set_frame_rate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_application_set_frame_rate", "odv", false));
+	private static var lime_application_set_frame_rate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_set_frame_rate", "odv", false));
 	private static var lime_application_update = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_application_update", "ob", false));
 	private static var lime_audio_load = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load", "ooo", false));
-	private static var lime_audio_load_bytes = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_audio_load_bytes", "ooo", false));
-	private static var lime_audio_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_audio_load_file", "ooo", false));
-	private static var lime_bytes_from_data_pointer = new cpp.Callable<Float->Int->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_bytes_from_data_pointer", "dioo", false));
-	private static var lime_bytes_get_data_pointer = new cpp.Callable<cpp.Object->Float>(cpp.Prime
-		._loadPrime("lime", "lime_bytes_get_data_pointer", "od", false));
-	private static var lime_bytes_get_data_pointer_offset = new cpp.Callable<cpp.Object->Int->Float>(cpp.Prime
-		._loadPrime("lime", "lime_bytes_get_data_pointer_offset", "oid", false));
-	private static var lime_bytes_read_file = new cpp.Callable<String->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_bytes_read_file", "soo", false));
-	private static var lime_cffi_get_native_pointer = new cpp.Callable<cpp.Object->Float>(cpp.Prime
-		._loadPrime("lime", "lime_cffi_get_native_pointer", "od", false));
-	private static var lime_clipboard_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_clipboard_event_manager_register", "oov", false));
+	private static var lime_audio_load_bytes = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load_bytes",
+		"ooo", false));
+	private static var lime_audio_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load_file", "ooo",
+		false));
+	private static var lime_bytes_from_data_pointer = new cpp.Callable<Float->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_bytes_from_data_pointer", "dioo", false));
+	private static var lime_bytes_get_data_pointer = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_bytes_get_data_pointer", "od",
+		false));
+	private static var lime_bytes_get_data_pointer_offset = new cpp.Callable<cpp.Object->Int->Float>(cpp.Prime._loadPrime("lime",
+		"lime_bytes_get_data_pointer_offset", "oid", false));
+	private static var lime_bytes_read_file = new cpp.Callable<String->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_bytes_read_file", "soo",
+		false));
+	private static var lime_cffi_get_native_pointer = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cffi_get_native_pointer", "od",
+		false));
+	private static var lime_clipboard_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_clipboard_event_manager_register", "oov", false));
 	private static var lime_clipboard_get_text = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_text", "o", false));
 	private static var lime_clipboard_set_text = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_text", "sv", false));
-	private static var lime_data_pointer_offset = new cpp.Callable<lime.utils.DataPointer->Int->Float>(cpp.Prime
-		._loadPrime("lime", "lime_data_pointer_offset", "did", false));
-	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_deflate_compress", "ooo", false));
-	private static var lime_deflate_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_deflate_decompress", "ooo", false));
-	private static var lime_drop_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_drop_event_manager_register", "oov", false));
-	private static var lime_file_dialog_open_directory = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_file_dialog_open_directory", "ssso", false));
-	private static var lime_file_dialog_open_file = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_file_dialog_open_file", "ssso", false));
-	private static var lime_file_dialog_open_files = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_file_dialog_open_files", "ssso", false));
-	private static var lime_file_dialog_save_file = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_file_dialog_save_file", "ssso", false));
-	private static var lime_file_watcher_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_file_watcher_create", "oo", false));
-	private static var lime_file_watcher_add_directory = new cpp.Callable<cpp.Object->cpp.Object->Bool->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_file_watcher_add_directory", "oobo", false));
-	private static var lime_file_watcher_remove_directory = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_file_watcher_remove_directory", "oov", false));
-	private static var lime_file_watcher_update = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_file_watcher_update", "ov", false));
+	private static var lime_data_pointer_offset = new cpp.Callable<lime.utils.DataPointer->Int->Float>(cpp.Prime._loadPrime("lime",
+		"lime_data_pointer_offset", "did", false));
+	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress",
+		"ooo", false));
+	private static var lime_deflate_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_decompress",
+		"ooo", false));
+	private static var lime_drop_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_drop_event_manager_register", "oov", false));
+	private static var lime_file_dialog_open_directory = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_file_dialog_open_directory", "ssso", false));
+	private static var lime_file_dialog_open_file = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_file_dialog_open_file", "ssso", false));
+	private static var lime_file_dialog_open_files = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_file_dialog_open_files", "ssso", false));
+	private static var lime_file_dialog_save_file = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_file_dialog_save_file", "ssso", false));
+	private static var lime_file_watcher_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_file_watcher_create", "oo",
+		false));
+	private static var lime_file_watcher_add_directory = new cpp.Callable<cpp.Object->cpp.Object->Bool->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_file_watcher_add_directory", "oobo", false));
+	private static var lime_file_watcher_remove_directory = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_file_watcher_remove_directory", "oov", false));
+	private static var lime_file_watcher_update = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_file_watcher_update", "ov",
+		false));
 	private static var lime_font_get_ascender = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_ascender", "oi", false));
 	private static var lime_font_get_descender = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_descender", "oi", false));
-	private static var lime_font_get_family_name = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_font_get_family_name", "oo", false));
-	private static var lime_font_get_glyph_index = new cpp.Callable<cpp.Object->String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_font_get_glyph_index", "osi", false));
-	private static var lime_font_get_glyph_indices = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_font_get_glyph_indices", "oso", false));
-	private static var lime_font_get_glyph_metrics = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_font_get_glyph_metrics", "oio", false));
+	private static var lime_font_get_family_name = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_get_family_name", "oo",
+		false));
+	private static var lime_font_get_glyph_index = new cpp.Callable<cpp.Object->String->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_glyph_index", "osi",
+		false));
+	private static var lime_font_get_glyph_indices = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_font_get_glyph_indices", "oso", false));
+	private static var lime_font_get_glyph_metrics = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_get_glyph_metrics",
+		"oio", false));
 	private static var lime_font_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_height", "oi", false));
 	private static var lime_font_get_num_glyphs = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_num_glyphs", "oi", false));
-	private static var lime_font_get_underline_position = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_font_get_underline_position", "oi", false));
-	private static var lime_font_get_underline_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_font_get_underline_thickness", "oi", false));
+	private static var lime_font_get_underline_position = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_underline_position",
+		"oi", false));
+	private static var lime_font_get_underline_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_underline_thickness",
+		"oi", false));
 	private static var lime_font_get_units_per_em = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_units_per_em", "oi", false));
 	private static var lime_font_load = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load", "oo", false));
 	private static var lime_font_load_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_bytes", "oo", false));
 	private static var lime_font_load_file = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_file", "oo", false));
-	private static var lime_font_outline_decompose = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_font_outline_decompose", "oio", false));
-	private static var lime_font_render_glyph = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_font_render_glyph", "oioo", false));
-	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_font_render_glyphs", "oooo", false));
+	private static var lime_font_outline_decompose = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_outline_decompose",
+		"oio", false));
+	private static var lime_font_render_glyph = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_font_render_glyph", "oioo", false));
+	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_font_render_glyphs", "oooo", false));
 	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiv", false));
-	private static var lime_gamepad_add_mappings = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gamepad_add_mappings", "ov", false));
-	private static var lime_gamepad_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gamepad_get_device_guid", "io", false));
-	private static var lime_gamepad_get_device_name = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gamepad_get_device_name", "io", false));
-	private static var lime_gamepad_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gamepad_event_manager_register", "oov", false));
-	private static var lime_gzip_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gzip_compress", "ooo", false));
-	private static var lime_gzip_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gzip_decompress", "ooo", false));
+	private static var lime_gamepad_add_mappings = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_add_mappings", "ov",
+		false));
+	private static var lime_gamepad_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_device_guid", "io",
+		false));
+	private static var lime_gamepad_get_device_name = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_device_name", "io",
+		false));
+	private static var lime_gamepad_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gamepad_event_manager_register", "oov", false));
+	private static var lime_gzip_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_compress", "ooo",
+		false));
+	private static var lime_gzip_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_decompress", "ooo",
+		false));
 	private static var lime_haptic_vibrate = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_haptic_vibrate", "iiv", false));
-	private static var lime_image_encode = new cpp.Callable<cpp.Object->Int->Int->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_image_encode", "oiioo", false));
+	private static var lime_image_encode = new cpp.Callable<cpp.Object->Int->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_image_encode",
+		"oiioo", false));
 	private static var lime_image_load = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_image_load", "ooo", false));
-	private static var lime_image_load_bytes = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_image_load_bytes", "ooo", false));
-	private static var lime_image_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_image_load_file", "ooo", false));
-	private static var lime_image_data_util_color_transform = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_color_transform", "ooov", false));
-	private static var lime_image_data_util_copy_channel = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_copy_channel", "ooooiiv", false));
-	private static var lime_image_data_util_copy_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->cpp.Object->cpp.Object->Bool->cpp
-		.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_copy_pixels", "oooooobv", false));
-	private static var lime_image_data_util_fill_rect = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_fill_rect", "ooiiv", false));
-	private static var lime_image_data_util_flood_fill = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_flood_fill", "oiiiiv", false));
-	private static var lime_image_data_util_get_pixels = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_get_pixels", "ooiov", false));
-	private static var lime_image_data_util_merge = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_merge", "ooooiiiiv", false));
-	private static var lime_image_data_util_multiply_alpha = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_multiply_alpha", "ov", false));
-	private static var lime_image_data_util_resize = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_resize", "ooiiv", false));
-	private static var lime_image_data_util_set_format = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_set_format", "oiv", false));
-	private static var lime_image_data_util_set_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_set_pixels", "oooiiiv", false));
-	private static var lime_image_data_util_threshold = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp
-		.Object->Int->Int->Int->Int->Int->Int->Int->Bool->Int>(cpp.Prime._loadPrime("lime", "lime_image_data_util_threshold", "ooooiiiiiiibi", false));
-	private static var lime_image_data_util_unmultiply_alpha = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_image_data_util_unmultiply_alpha", "ov", false));
-	private static var lime_joystick_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_joystick_get_device_guid", "io", false));
-	private static var lime_joystick_get_device_name = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_joystick_get_device_name", "io", false));
+	private static var lime_image_load_bytes = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_image_load_bytes",
+		"ooo", false));
+	private static var lime_image_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_image_load_file", "ooo",
+		false));
+	private static var lime_image_data_util_color_transform = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_color_transform", "ooov", false));
+	private static var lime_image_data_util_copy_channel = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_copy_channel", "ooooiiv", false));
+	private static var lime_image_data_util_copy_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->cpp.Object->cpp.Object->Bool->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_copy_pixels", "oooooobv", false));
+	private static var lime_image_data_util_fill_rect = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_fill_rect", "ooiiv", false));
+	private static var lime_image_data_util_flood_fill = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_flood_fill", "oiiiiv", false));
+	private static var lime_image_data_util_get_pixels = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_get_pixels", "ooiov", false));
+	private static var lime_image_data_util_merge = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_merge", "ooooiiiiv", false));
+	private static var lime_image_data_util_multiply_alpha = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_multiply_alpha", "ov", false));
+	private static var lime_image_data_util_resize = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_resize", "ooiiv", false));
+	private static var lime_image_data_util_set_format = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_set_format", "oiv", false));
+	private static var lime_image_data_util_set_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_set_pixels", "oooiiiv", false));
+	private static var lime_image_data_util_threshold = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->Int->Int->Int->Int->
+		Bool->Int>(cpp.Prime._loadPrime("lime", "lime_image_data_util_threshold", "ooooiiiiiiibi", false));
+	private static var lime_image_data_util_unmultiply_alpha = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_unmultiply_alpha", "ov", false));
+	private static var lime_joystick_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_joystick_get_device_guid", "io",
+		false));
+	private static var lime_joystick_get_device_name = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_joystick_get_device_name", "io",
+		false));
 	private static var lime_joystick_get_num_axes = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_axes", "ii", false));
 	private static var lime_joystick_get_num_buttons = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_buttons", "ii", false));
 	private static var lime_joystick_get_num_hats = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_hats", "ii", false));
-	private static var lime_joystick_get_num_trackballs = new cpp.Callable<Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_joystick_get_num_trackballs", "ii", false));
-	private static var lime_joystick_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_joystick_event_manager_register", "oov", false));
-	private static var lime_jpeg_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jpeg_decode_bytes", "oboo", false));
-	private static var lime_jpeg_decode_file = new cpp.Callable<String->Bool->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jpeg_decode_file", "sboo", false));
-	private static var lime_key_code_from_scan_code = new cpp.Callable<cpp.Float32->cpp.Float32>(cpp.Prime
-		._loadPrime("lime", "lime_key_code_from_scan_code", "ff", false));
-	private static var lime_key_code_to_scan_code = new cpp.Callable<cpp.Float32->cpp.Float32>(cpp.Prime
-		._loadPrime("lime", "lime_key_code_to_scan_code", "ff", false));
-	private static var lime_key_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_key_event_manager_register", "oov", false));
-	private static var lime_lzma_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_lzma_compress", "ooo", false));
-	private static var lime_lzma_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_lzma_decompress", "ooo", false));
-	private static var lime_mouse_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_mouse_event_manager_register", "oov", false));
+	private static var lime_joystick_get_num_trackballs = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_trackballs", "ii",
+		false));
+	private static var lime_joystick_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_joystick_event_manager_register", "oov", false));
+	private static var lime_jpeg_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_jpeg_decode_bytes", "oboo", false));
+	private static var lime_jpeg_decode_file = new cpp.Callable<String->Bool->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_jpeg_decode_file",
+		"sboo", false));
+	private static var lime_key_code_from_scan_code = new cpp.Callable<cpp.Float32->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_key_code_from_scan_code",
+		"ff", false));
+	private static var lime_key_code_to_scan_code = new cpp.Callable<cpp.Float32->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_key_code_to_scan_code",
+		"ff", false));
+	private static var lime_key_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_key_event_manager_register", "oov", false));
+	private static var lime_lzma_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_compress", "ooo",
+		false));
+	private static var lime_lzma_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_decompress", "ooo",
+		false));
+	private static var lime_mouse_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_mouse_event_manager_register", "oov", false));
 	private static var lime_neko_execute = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_neko_execute", "sv", false));
-	private static var lime_png_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_png_decode_bytes", "oboo", false));
-	private static var lime_png_decode_file = new cpp.Callable<String->Bool->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_png_decode_file", "sboo", false));
-	private static var lime_render_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_render_event_manager_register", "oov", false));
-	private static var lime_sensor_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_sensor_event_manager_register", "oov", false));
-	private static var lime_system_get_allow_screen_timeout = new cpp.Callable<Void->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_allow_screen_timeout", "b", false));
-	private static var lime_system_set_allow_screen_timeout = new cpp.Callable<Bool->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_system_set_allow_screen_timeout", "bb", false));
-	private static var lime_system_get_device_model = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_device_model", "o", false));
-	private static var lime_system_get_device_vendor = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_device_vendor", "o", false));
-	private static var lime_system_get_directory = new cpp.Callable<Int->String->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_directory", "isso", false));
+	private static var lime_png_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_png_decode_bytes", "oboo", false));
+	private static var lime_png_decode_file = new cpp.Callable<String->Bool->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_png_decode_file",
+		"sboo", false));
+	private static var lime_render_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_render_event_manager_register", "oov", false));
+	private static var lime_sensor_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_sensor_event_manager_register", "oov", false));
+	private static var lime_system_get_allow_screen_timeout = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_system_get_allow_screen_timeout", "b", false));
+	private static var lime_system_set_allow_screen_timeout = new cpp.Callable<Bool->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_system_set_allow_screen_timeout", "bb", false));
+	private static var lime_system_get_device_model = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_device_model", "o",
+		false));
+	private static var lime_system_get_device_vendor = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_device_vendor", "o",
+		false));
+	private static var lime_system_get_directory = new cpp.Callable<Int->String->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_directory",
+		"isso", false));
 	private static var lime_system_get_display = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_display", "io", false));
 	private static var lime_system_get_ios_tablet = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_system_get_ios_tablet", "b", false));
 	private static var lime_system_get_num_displays = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_system_get_num_displays", "i", false));
-	private static var lime_system_get_platform_label = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_platform_label", "o", false));
-	private static var lime_system_get_platform_name = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_platform_name", "o", false));
-	private static var lime_system_get_platform_version = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_system_get_platform_version", "o", false));
+	private static var lime_system_get_platform_label = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_label", "o",
+		false));
+	private static var lime_system_get_platform_name = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_name", "o",
+		false));
+	private static var lime_system_get_platform_version = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_version",
+		"o", false));
 	private static var lime_system_get_timer = new cpp.Callable<Void->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_timer", "d", false));
 	private static var lime_system_open_file = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_file", "sv", false));
 	private static var lime_system_open_url = new cpp.Callable<String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_url", "ssv", false));
-	private static var lime_text_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_text_event_manager_register", "oov", false));
-	private static var lime_touch_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_touch_event_manager_register", "oov", false));
-	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_alert", "ossv", false));
+	private static var lime_text_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_text_event_manager_register", "oov", false));
+	private static var lime_touch_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_touch_event_manager_register", "oov", false));
+	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_alert", "ossv",
+		false));
 	private static var lime_window_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_close", "ov", false));
-	private static var lime_window_context_flip = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_context_flip", "ov", false));
-	private static var lime_window_context_lock = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_context_lock", "oo", false));
-	private static var lime_window_context_make_current = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_context_make_current", "ov", false));
-	private static var lime_window_context_unlock = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_context_unlock", "ov", false));
-	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_create", "oiiiso", false));
+	private static var lime_window_context_flip = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_context_flip", "ov",
+		false));
+	private static var lime_window_context_lock = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_context_lock", "oo",
+		false));
+	private static var lime_window_context_make_current = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_context_make_current", "ov", false));
+	private static var lime_window_context_unlock = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_context_unlock", "ov",
+		false));
+	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_create",
+		"oiiiso", false));
 	private static var lime_window_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_focus", "ov", false));
 	private static var lime_window_get_context = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_context", "od", false));
-	private static var lime_window_get_context_type = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_get_context_type", "oo", false));
+	private static var lime_window_get_context_type = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_context_type",
+		"oo", false));
 	private static var lime_window_get_display = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_display", "oi", false));
-	private static var lime_window_get_display_mode = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_get_display_mode", "oo", false));
+	private static var lime_window_get_display_mode = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_display_mode",
+		"oo", false));
 	private static var lime_window_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_height", "oi", false));
 	private static var lime_window_get_id = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_id", "oi", false));
-	private static var lime_window_get_mouse_lock = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_lock", "ob", false));
+	private static var lime_window_get_mouse_lock = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_lock", "ob",
+		false));
 	private static var lime_window_get_scale = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_scale", "od", false));
-	private static var lime_window_get_text_input_enabled = new cpp.Callable<cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_window_get_text_input_enabled", "ob", false));
+	private static var lime_window_get_text_input_enabled = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_window_get_text_input_enabled", "ob", false));
 	private static var lime_window_get_width = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_width", "oi", false));
 	private static var lime_window_get_x = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_x", "oi", false));
 	private static var lime_window_get_y = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_y", "oi", false));
 	private static var lime_window_move = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_move", "oiiv", false));
-	private static var lime_window_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_read_pixels", "oooo", false));
-	private static var lime_window_resize = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_resize", "oiiv", false));
-	private static var lime_window_set_borderless = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_borderless", "obb", false));
-	private static var lime_window_set_cursor = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_cursor", "oiv", false));
-	private static var lime_window_set_display_mode = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_display_mode", "ooo", false));
-	private static var lime_window_set_fullscreen = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_fullscreen", "obb", false));
-	private static var lime_window_set_icon = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_icon", "oov", false));
-	private static var lime_window_set_maximized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_maximized", "obb", false));
-	private static var lime_window_set_minimized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_minimized", "obb", false));
-	private static var lime_window_set_mouse_lock = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_mouse_lock", "obv", false));
-	private static var lime_window_set_resizable = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_resizable", "obb", false));
-	private static var lime_window_set_text_input_enabled = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_text_input_enabled", "obv", false));
-	private static var lime_window_set_title = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_set_title", "oso", false));
-	private static var lime_window_warp_mouse = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_window_warp_mouse", "oiiv", false));
-	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_window_event_manager_register", "oov", false));
-	private static var lime_zlib_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_zlib_compress", "ooo", false));
-	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_zlib_decompress", "ooo", false));
+	private static var lime_window_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_window_read_pixels", "oooo", false));
+	private static var lime_window_resize = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_resize", "oiiv",
+		false));
+	private static var lime_window_set_borderless = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_borderless", "obb",
+		false));
+	private static var lime_window_set_cursor = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_cursor", "oiv",
+		false));
+	private static var lime_window_set_display_mode = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_display_mode", "ooo", false));
+	private static var lime_window_set_fullscreen = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_fullscreen", "obb",
+		false));
+	private static var lime_window_set_icon = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_icon", "oov",
+		false));
+	private static var lime_window_set_maximized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_maximized", "obb",
+		false));
+	private static var lime_window_set_minimized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_minimized", "obb",
+		false));
+	private static var lime_window_set_mouse_lock = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_mouse_lock",
+		"obv", false));
+	private static var lime_window_set_resizable = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_resizable", "obb",
+		false));
+	private static var lime_window_set_text_input_enabled = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_text_input_enabled", "obv", false));
+	private static var lime_window_set_title = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_set_title", "oso",
+		false));
+	private static var lime_window_warp_mouse = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_warp_mouse",
+		"oiiv", false));
+	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_event_manager_register", "oov", false));
+	private static var lime_zlib_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_compress", "ooo",
+		false));
+	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_decompress", "ooo",
+		false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_application_create = CFFI.load("lime", "lime_application_create", 0);
 	private static var lime_application_event_manager_register = CFFI.load("lime", "lime_application_event_manager_register", 2);
 	private static var lime_application_exec = CFFI.load("lime", "lime_application_exec", 1);
@@ -1308,8 +1312,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_window_set_cursor") private static function lime_window_set_cursor(handle:CFFIPointer, cursor:Int):Void {}
 
-	@:hlNative("lime", "lime_window_set_display_mode") private static function lime_window_set_display_mode(handle:CFFIPointer,
-			displayMode:DisplayMode, result:DisplayMode):Void {}
+	@:hlNative("lime", "lime_window_set_display_mode") private static function lime_window_set_display_mode(handle:CFFIPointer, displayMode:DisplayMode,
+		result:DisplayMode):Void {}
 
 	@:hlNative("lime", "lime_window_set_fullscreen") private static function lime_window_set_fullscreen(handle:CFFIPointer, fullscreen:Bool):Bool
 	{
@@ -1360,7 +1364,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && android)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_jni_call_member(jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 
@@ -1382,24 +1386,24 @@ class NativeCFFI
 
 	@:cffi private static function lime_jni_set_static(jniField:Dynamic, value:Dynamic):Void;
 	#else
-	private static var lime_jni_call_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jni_call_member", "oooo", false));
-	private static var lime_jni_call_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jni_call_static", "ooo", false));
-	private static var lime_jni_create_field = new cpp.Callable<String->String->String->Bool->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jni_create_field", "sssbo", false));
-	private static var lime_jni_create_method = new cpp.Callable<String->String->String->Bool->Bool->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jni_create_method", "sssbbo", false));
+	private static var lime_jni_call_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_jni_call_member", "oooo", false));
+	private static var lime_jni_call_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_jni_call_static", "ooo",
+		false));
+	private static var lime_jni_create_field = new cpp.Callable<String->String->String->Bool->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_jni_create_field", "sssbo", false));
+	private static var lime_jni_create_method = new cpp.Callable<String->String->String->Bool->Bool->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_jni_create_method", "sssbbo", false));
 	private static var lime_jni_get_env = new cpp.Callable<Void->Float>(cpp.Prime._loadPrime("lime", "lime_jni_get_env", "d", false));
-	private static var lime_jni_get_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_jni_get_member", "ooo", false));
+	private static var lime_jni_get_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_jni_get_member", "ooo",
+		false));
 	private static var lime_jni_get_static = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_jni_get_static", "oo", false));
-	private static var lime_jni_post_ui_callback = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_jni_post_ui_callback", "ov", false));
-	private static var lime_jni_set_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_jni_set_member", "ooov", false));
-	private static var lime_jni_set_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_jni_set_static", "oov", false));
+	private static var lime_jni_post_ui_callback = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_jni_post_ui_callback", "ov",
+		false));
+	private static var lime_jni_set_member = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_jni_set_member", "ooov", false));
+	private static var lime_jni_set_static = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_jni_set_static", "oov",
+		false));
 	#end
 	#end
 	#if !cpp
@@ -1425,7 +1429,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_openal)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_al_buffer_data(buffer:CFFIPointer, format:Int, data:Dynamic, size:Int, freq:Int):Void;
 
@@ -1649,31 +1653,31 @@ class NativeCFFI
 
 	@:cffi private static function lime_al_remove_send(source:CFFIPointer, index:Int):Void;
 	#else
-	private static var lime_al_buffer_data = new cpp.Callable<cpp.Object->Int->cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_buffer_data", "oioiiv", false));
-	private static var lime_al_buffer3f = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_buffer3f", "oifffv", false));
-	private static var lime_al_buffer3i = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_buffer3i", "oiiiiv", false));
-	private static var lime_al_bufferf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_bufferf", "oifv", false));
-	private static var lime_al_bufferfv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_bufferfv", "oiov", false));
+	private static var lime_al_buffer_data = new cpp.Callable<cpp.Object->Int->cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_al_buffer_data", "oioiiv", false));
+	private static var lime_al_buffer3f = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_al_buffer3f", "oifffv", false));
+	private static var lime_al_buffer3i = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_buffer3i",
+		"oiiiiv", false));
+	private static var lime_al_bufferf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_bufferf", "oifv",
+		false));
+	private static var lime_al_bufferfv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_bufferfv", "oiov",
+		false));
 	private static var lime_al_bufferi = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_bufferi", "oiiv", false));
-	private static var lime_al_bufferiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_bufferiv", "oiov", false));
+	private static var lime_al_bufferiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_bufferiv", "oiov",
+		false));
 	private static var lime_al_cleanup = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_cleanup", "v", false));
 	private static var lime_al_delete_buffer = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_buffer", "ov", false));
-	private static var lime_al_delete_buffers = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_delete_buffers", "iov", false));
+	private static var lime_al_delete_buffers = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_buffers", "iov",
+		false));
 	private static var lime_al_delete_source = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_source", "ov", false));
-	private static var lime_al_delete_sources = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_delete_sources", "iov", false));
+	private static var lime_al_delete_sources = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_sources", "iov",
+		false));
 	private static var lime_al_disable = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_disable", "iv", false));
 	private static var lime_al_distance_model = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_distance_model", "iv", false));
 	private static var lime_al_doppler_factor = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_doppler_factor", "fv", false));
-	private static var lime_al_doppler_velocity = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_doppler_velocity", "fv", false));
+	private static var lime_al_doppler_velocity = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_doppler_velocity", "fv",
+		false));
 	private static var lime_al_enable = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_enable", "iv", false));
 	private static var lime_al_gen_source = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_source", "o", false));
 	private static var lime_al_gen_sources = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_sources", "io", false));
@@ -1681,14 +1685,16 @@ class NativeCFFI
 	private static var lime_al_get_booleanv = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_booleanv", "iio", false));
 	private static var lime_al_gen_buffer = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_buffer", "o", false));
 	private static var lime_al_gen_buffers = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_buffers", "io", false));
-	private static var lime_al_get_buffer3f = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_buffer3f", "oio", false));
-	private static var lime_al_get_buffer3i = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_buffer3i", "oio", false));
+	private static var lime_al_get_buffer3f = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_buffer3f", "oio",
+		false));
+	private static var lime_al_get_buffer3i = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_buffer3i", "oio",
+		false));
 	private static var lime_al_get_bufferf = new cpp.Callable<cpp.Object->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_al_get_bufferf", "oif", false));
-	private static var lime_al_get_bufferfv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_al_get_bufferfv", "oiio", false));
+	private static var lime_al_get_bufferfv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_bufferfv", "oiio",
+		false));
 	private static var lime_al_get_bufferi = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_al_get_bufferi", "oii", false));
-	private static var lime_al_get_bufferiv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_al_get_bufferiv", "oiio", false));
+	private static var lime_al_get_bufferiv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_bufferiv", "oiio",
+		false));
 	private static var lime_al_get_double = new cpp.Callable<Int->Float>(cpp.Prime._loadPrime("lime", "lime_al_get_double", "id", false));
 	private static var lime_al_get_doublev = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_doublev", "iio", false));
 	private static var lime_al_get_enum_value = new cpp.Callable<String->Int>(cpp.Prime._loadPrime("lime", "lime_al_get_enum_value", "si", false));
@@ -1704,88 +1710,95 @@ class NativeCFFI
 	private static var lime_al_get_listeneri = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_al_get_listeneri", "ii", false));
 	private static var lime_al_get_listeneriv = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_listeneriv", "iio", false));
 	private static var lime_al_get_proc_address = new cpp.Callable<String->Float>(cpp.Prime._loadPrime("lime", "lime_al_get_proc_address", "sd", false));
-	private static var lime_al_get_source3f = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_source3f", "oio", false));
-	private static var lime_al_get_source3i = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_source3i", "oio", false));
+	private static var lime_al_get_source3f = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_source3f", "oio",
+		false));
+	private static var lime_al_get_source3i = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_source3i", "oio",
+		false));
 	private static var lime_al_get_sourcef = new cpp.Callable<cpp.Object->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcef", "oif", false));
-	private static var lime_al_get_sourcefv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_al_get_sourcefv", "oiio", false));
+	private static var lime_al_get_sourcefv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcefv", "oiio",
+		false));
 	private static var lime_al_get_sourcei = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcei", "oio", false));
-	private static var lime_al_get_sourceiv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_al_get_sourceiv", "oiio", false));
+	private static var lime_al_get_sourceiv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourceiv", "oiio",
+		false));
 	private static var lime_al_get_string = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_string", "io", false));
 	private static var lime_al_is_buffer = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_buffer", "ob", false));
 	private static var lime_al_is_enabled = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_enabled", "ib", false));
-	private static var lime_al_is_extension_present = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_extension_present", "sb", false));
+	private static var lime_al_is_extension_present = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_extension_present", "sb",
+		false));
 	private static var lime_al_is_source = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_source", "ob", false));
-	private static var lime_al_listener3f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_listener3f", "ifffv", false));
+	private static var lime_al_listener3f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_al_listener3f", "ifffv", false));
 	private static var lime_al_listener3i = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_listener3i", "iiiiv", false));
 	private static var lime_al_listenerf = new cpp.Callable<Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_listenerf", "ifv", false));
 	private static var lime_al_listenerfv = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_listenerfv", "iov", false));
 	private static var lime_al_listeneri = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_listeneri", "iiv", false));
 	private static var lime_al_listeneriv = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_listeneriv", "iov", false));
 	private static var lime_al_source_pause = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_pause", "ov", false));
-	private static var lime_al_source_pausev = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_pausev", "iov", false));
+	private static var lime_al_source_pausev = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_pausev", "iov",
+		false));
 	private static var lime_al_source_play = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_play", "ov", false));
 	private static var lime_al_source_playv = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_playv", "iov", false));
-	private static var lime_al_source_queue_buffers = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_source_queue_buffers", "oiov", false));
+	private static var lime_al_source_queue_buffers = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_al_source_queue_buffers", "oiov", false));
 	private static var lime_al_source_rewind = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_rewind", "ov", false));
-	private static var lime_al_source_rewindv = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_source_rewindv", "iov", false));
+	private static var lime_al_source_rewindv = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_rewindv", "iov",
+		false));
 	private static var lime_al_source_stop = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_stop", "ov", false));
 	private static var lime_al_source_stopv = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source_stopv", "iov", false));
-	private static var lime_al_source_unqueue_buffers = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_al_source_unqueue_buffers", "oio", false));
-	private static var lime_al_source3f = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_source3f", "oifffv", false));
-	private static var lime_al_source3i = new cpp.Callable<cpp.Object->Int->cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_source3i", "oioiiv", false));
-	private static var lime_al_sourcef = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_sourcef", "oifv", false));
-	private static var lime_al_sourcefv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_sourcefv", "oiov", false));
-	private static var lime_al_sourcei = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_sourcei", "oiov", false));
-	private static var lime_al_sourceiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_sourceiv", "oiov", false));
+	private static var lime_al_source_unqueue_buffers = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_al_source_unqueue_buffers", "oio", false));
+	private static var lime_al_source3f = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_al_source3f", "oifffv", false));
+	private static var lime_al_source3i = new cpp.Callable<cpp.Object->Int->cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_source3i",
+		"oioiiv", false));
+	private static var lime_al_sourcef = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_sourcef", "oifv",
+		false));
+	private static var lime_al_sourcefv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_sourcefv", "oiov",
+		false));
+	private static var lime_al_sourcei = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_sourcei", "oiov",
+		false));
+	private static var lime_al_sourceiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_sourceiv", "oiov",
+		false));
 	private static var lime_al_speed_of_sound = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_speed_of_sound", "fv", false));
 	private static var lime_alc_close_device = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_alc_close_device", "ob", false));
-	private static var lime_alc_create_context = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_alc_create_context", "ooo", false));
-	private static var lime_alc_destroy_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_destroy_context", "ov", false));
-	private static var lime_alc_get_contexts_device = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_alc_get_contexts_device", "oo", false));
-	private static var lime_alc_get_current_context = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_alc_get_current_context", "o", false));
+	private static var lime_alc_create_context = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_create_context",
+		"ooo", false));
+	private static var lime_alc_destroy_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_destroy_context", "ov",
+		false));
+	private static var lime_alc_get_contexts_device = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_contexts_device",
+		"oo", false));
+	private static var lime_alc_get_current_context = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_current_context", "o",
+		false));
 	private static var lime_alc_get_error = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_alc_get_error", "oi", false));
-	private static var lime_alc_get_integerv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_alc_get_integerv", "oiio", false));
+	private static var lime_alc_get_integerv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_integerv",
+		"oiio", false));
 	private static var lime_alc_get_string = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_get_string", "oio", false));
-	private static var lime_alc_make_context_current = new cpp.Callable<cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_alc_make_context_current", "ob", false));
+	private static var lime_alc_make_context_current = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_alc_make_context_current", "ob",
+		false));
 	private static var lime_alc_open_device = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_open_device", "so", false));
 	private static var lime_alc_pause_device = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_pause_device", "ov", false));
-	private static var lime_alc_process_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_process_context", "ov", false));
+	private static var lime_alc_process_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_process_context", "ov",
+		false));
 	private static var lime_alc_resume_device = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_resume_device", "ov", false));
-	private static var lime_alc_suspend_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_suspend_context", "ov", false));
+	private static var lime_alc_suspend_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_suspend_context", "ov",
+		false));
 	private static var lime_al_gen_filter = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_filter", "o", false));
-	private static var lime_al_filteri = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_filteri", "oiov", false));
-	private static var lime_al_filterf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_filterf", "oifv", false));
-	private static var lime_al_remove_direct_filter = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_remove_direct_filter", "ov", false));
+	private static var lime_al_filteri = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_filteri", "oiov",
+		false));
+	private static var lime_al_filterf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_filterf", "oifv",
+		false));
+	private static var lime_al_remove_direct_filter = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_remove_direct_filter",
+		"ov", false));
 	private static var lime_al_is_filter = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_filter", "ob", false));
 	private static var lime_al_get_filteri = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_al_get_filteri", "oii", false));
 	private static var lime_al_gen_effect = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_effect", "o", false));
-	private static var lime_al_effectf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_effectf", "oifv", false));
-	private static var lime_al_effectfv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_effectfv", "oiov", false));
+	private static var lime_al_effectf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_effectf", "oifv",
+		false));
+	private static var lime_al_effectfv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_effectfv", "oiov",
+		false));
 	private static var lime_al_effecti = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_effecti", "oiiv", false));
-	private static var lime_al_effectiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_al_effectiv", "oiov", false));
+	private static var lime_al_effectiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_effectiv", "oiov",
+		false));
 	private static var lime_al_is_effect = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_al_is_effect", "ob", false));
 	private static var lime_al_gen_aux = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_gen_aux", "o", false));
 	private static var lime_al_auxf = new cpp.Callable<cpp.Object->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_auxf", "oifv", false));
@@ -1796,7 +1809,7 @@ class NativeCFFI
 	private static var lime_al_remove_send = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_remove_send", "oiv", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_al_buffer_data = CFFI.load("lime", "lime_al_buffer_data", 5);
 	private static var lime_al_buffer3f = CFFI.load("lime", "lime_al_buffer3f", 5);
 	private static var lime_al_buffer3i = CFFI.load("lime", "lime_al_buffer3i", 5);
@@ -2306,7 +2319,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_cairo)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_cairo_arc(handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 
@@ -2542,204 +2555,210 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_surface_flush(surface:CFFIPointer):Void;
 	#else
-	private static var lime_cairo_arc = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_arc", "odddddv", false));
-	private static var lime_cairo_arc_negative = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_arc_negative", "odddddv", false));
+	private static var lime_cairo_arc = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_arc", "odddddv", false));
+	private static var lime_cairo_arc_negative = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_arc_negative", "odddddv", false));
 	private static var lime_cairo_clip = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_clip", "ov", false));
-	private static var lime_cairo_clip_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_clip_preserve", "ov", false));
-	private static var lime_cairo_clip_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_clip_extents", "oddddv", false));
+	private static var lime_cairo_clip_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_clip_preserve", "ov",
+		false));
+	private static var lime_cairo_clip_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_clip_extents", "oddddv", false));
 	private static var lime_cairo_close_path = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_close_path", "ov", false));
 	private static var lime_cairo_copy_page = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_copy_page", "ov", false));
 	private static var lime_cairo_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_create", "oo", false));
-	private static var lime_cairo_curve_to = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_curve_to", "oddddddv", false));
+	private static var lime_cairo_curve_to = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_curve_to", "oddddddv", false));
 	private static var lime_cairo_fill = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill", "ov", false));
-	private static var lime_cairo_fill_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_fill_extents", "oddddv", false));
-	private static var lime_cairo_fill_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill_preserve", "ov", false));
+	private static var lime_cairo_fill_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_fill_extents", "oddddv", false));
+	private static var lime_cairo_fill_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill_preserve", "ov",
+		false));
 	private static var lime_cairo_get_antialias = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_antialias", "oi", false));
-	private static var lime_cairo_get_current_point = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_get_current_point", "oo", false));
+	private static var lime_cairo_get_current_point = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_current_point",
+		"oo", false));
 	private static var lime_cairo_get_dash = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_dash", "oo", false));
 	private static var lime_cairo_get_dash_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_dash_count", "oi", false));
 	private static var lime_cairo_get_fill_rule = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_fill_rule", "oi", false));
-	private static var lime_cairo_get_font_face = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_get_font_face", "oo", false));
-	private static var lime_cairo_get_font_options = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_get_font_options", "oo", false));
-	private static var lime_cairo_get_group_target = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_get_group_target", "oo", false));
+	private static var lime_cairo_get_font_face = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_font_face", "oo",
+		false));
+	private static var lime_cairo_get_font_options = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_font_options",
+		"oo", false));
+	private static var lime_cairo_get_group_target = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_group_target",
+		"oo", false));
 	private static var lime_cairo_get_line_cap = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_line_cap", "oi", false));
 	private static var lime_cairo_get_line_join = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_line_join", "oi", false));
 	private static var lime_cairo_get_line_width = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cairo_get_line_width", "od", false));
 	private static var lime_cairo_get_matrix = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_matrix", "oo", false));
-	private static var lime_cairo_get_miter_limit = new cpp.Callable<cpp.Object->Float>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_get_miter_limit", "od", false));
+	private static var lime_cairo_get_miter_limit = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cairo_get_miter_limit", "od",
+		false));
 	private static var lime_cairo_get_operator = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_operator", "oi", false));
 	private static var lime_cairo_get_source = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_source", "oo", false));
 	private static var lime_cairo_get_target = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_target", "oo", false));
 	private static var lime_cairo_get_tolerance = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cairo_get_tolerance", "od", false));
-	private static var lime_cairo_has_current_point = new cpp.Callable<cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_has_current_point", "ob", false));
-	private static var lime_cairo_identity_matrix = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_identity_matrix", "ov", false));
-	private static var lime_cairo_in_clip = new cpp.Callable<cpp.Object->Float->Float->Bool>(cpp.Prime._loadPrime("lime", "lime_cairo_in_clip", "oddb", false));
-	private static var lime_cairo_in_fill = new cpp.Callable<cpp.Object->Float->Float->Bool>(cpp.Prime._loadPrime("lime", "lime_cairo_in_fill", "oddb", false));
-	private static var lime_cairo_in_stroke = new cpp.Callable<cpp.Object->Float->Float->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_in_stroke", "oddb", false));
-	private static var lime_cairo_line_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_line_to", "oddv", false));
+	private static var lime_cairo_has_current_point = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_cairo_has_current_point", "ob",
+		false));
+	private static var lime_cairo_identity_matrix = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_identity_matrix", "ov",
+		false));
+	private static var lime_cairo_in_clip = new cpp.Callable<cpp.Object->Float->Float->Bool>(cpp.Prime._loadPrime("lime", "lime_cairo_in_clip", "oddb",
+		false));
+	private static var lime_cairo_in_fill = new cpp.Callable<cpp.Object->Float->Float->Bool>(cpp.Prime._loadPrime("lime", "lime_cairo_in_fill", "oddb",
+		false));
+	private static var lime_cairo_in_stroke = new cpp.Callable<cpp.Object->Float->Float->Bool>(cpp.Prime._loadPrime("lime", "lime_cairo_in_stroke", "oddb",
+		false));
+	private static var lime_cairo_line_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_line_to", "oddv",
+		false));
 	private static var lime_cairo_mask = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_mask", "oov", false));
-	private static var lime_cairo_mask_surface = new cpp.Callable<cpp.Object->cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_mask_surface", "ooddv", false));
-	private static var lime_cairo_move_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_move_to", "oddv", false));
+	private static var lime_cairo_mask_surface = new cpp.Callable<cpp.Object->cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_mask_surface", "ooddv", false));
+	private static var lime_cairo_move_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_move_to", "oddv",
+		false));
 	private static var lime_cairo_new_path = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_new_path", "ov", false));
 	private static var lime_cairo_paint = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_paint", "ov", false));
-	private static var lime_cairo_paint_with_alpha = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_paint_with_alpha", "odv", false));
+	private static var lime_cairo_paint_with_alpha = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_paint_with_alpha",
+		"odv", false));
 	private static var lime_cairo_pop_group = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_pop_group", "oo", false));
-	private static var lime_cairo_pop_group_to_source = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pop_group_to_source", "ov", false));
+	private static var lime_cairo_pop_group_to_source = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_pop_group_to_source",
+		"ov", false));
 	private static var lime_cairo_push_group = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_push_group", "ov", false));
-	private static var lime_cairo_push_group_with_content = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_push_group_with_content", "oiv", false));
-	private static var lime_cairo_rectangle = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_rectangle", "oddddv", false));
-	private static var lime_cairo_rel_curve_to = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_rel_curve_to", "oddddddv", false));
-	private static var lime_cairo_rel_line_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_rel_line_to", "oddv", false));
-	private static var lime_cairo_rel_move_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_rel_move_to", "oddv", false));
+	private static var lime_cairo_push_group_with_content = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_push_group_with_content", "oiv", false));
+	private static var lime_cairo_rectangle = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_rectangle", "oddddv", false));
+	private static var lime_cairo_rel_curve_to = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_rel_curve_to", "oddddddv", false));
+	private static var lime_cairo_rel_line_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_rel_line_to",
+		"oddv", false));
+	private static var lime_cairo_rel_move_to = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_rel_move_to",
+		"oddv", false));
 	private static var lime_cairo_reset_clip = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_reset_clip", "ov", false));
 	private static var lime_cairo_restore = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_restore", "ov", false));
 	private static var lime_cairo_rotate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_rotate", "odv", false));
 	private static var lime_cairo_save = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_save", "ov", false));
-	private static var lime_cairo_scale = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_scale", "oddv", false));
-	private static var lime_cairo_set_antialias = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_antialias", "oiv", false));
-	private static var lime_cairo_set_dash = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_dash", "oov", false));
-	private static var lime_cairo_set_fill_rule = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_fill_rule", "oiv", false));
-	private static var lime_cairo_set_font_face = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_font_face", "oov", false));
-	private static var lime_cairo_set_font_options = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_font_options", "oov", false));
-	private static var lime_cairo_set_font_size = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_font_size", "odv", false));
-	private static var lime_cairo_set_line_cap = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_line_cap", "oiv", false));
-	private static var lime_cairo_set_line_join = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_line_join", "oiv", false));
-	private static var lime_cairo_set_line_width = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_line_width", "odv", false));
-	private static var lime_cairo_set_matrix = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_matrix", "oddddddv", false));
-	private static var lime_cairo_set_miter_limit = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_miter_limit", "odv", false));
-	private static var lime_cairo_set_operator = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_operator", "oiv", false));
-	private static var lime_cairo_set_source = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_source", "oov", false));
-	private static var lime_cairo_set_source_rgb = new cpp.Callable<cpp.Object->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_source_rgb", "odddv", false));
-	private static var lime_cairo_set_source_rgba = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_source_rgba", "oddddv", false));
-	private static var lime_cairo_set_source_surface = new cpp.Callable<cpp.Object->cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_source_surface", "ooddv", false));
-	private static var lime_cairo_set_tolerance = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_set_tolerance", "odv", false));
-	private static var lime_cairo_show_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_show_glyphs", "oov", false));
+	private static var lime_cairo_scale = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_scale", "oddv",
+		false));
+	private static var lime_cairo_set_antialias = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_antialias", "oiv",
+		false));
+	private static var lime_cairo_set_dash = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_dash", "oov",
+		false));
+	private static var lime_cairo_set_fill_rule = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_fill_rule", "oiv",
+		false));
+	private static var lime_cairo_set_font_face = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_font_face",
+		"oov", false));
+	private static var lime_cairo_set_font_options = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_set_font_options", "oov", false));
+	private static var lime_cairo_set_font_size = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_font_size",
+		"odv", false));
+	private static var lime_cairo_set_line_cap = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_line_cap", "oiv",
+		false));
+	private static var lime_cairo_set_line_join = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_line_join", "oiv",
+		false));
+	private static var lime_cairo_set_line_width = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_line_width",
+		"odv", false));
+	private static var lime_cairo_set_matrix = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_set_matrix", "oddddddv", false));
+	private static var lime_cairo_set_miter_limit = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_miter_limit",
+		"odv", false));
+	private static var lime_cairo_set_operator = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_operator", "oiv",
+		false));
+	private static var lime_cairo_set_source = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_source", "oov",
+		false));
+	private static var lime_cairo_set_source_rgb = new cpp.Callable<cpp.Object->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_set_source_rgb", "odddv", false));
+	private static var lime_cairo_set_source_rgba = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_set_source_rgba", "oddddv", false));
+	private static var lime_cairo_set_source_surface = new cpp.Callable<cpp.Object->cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_set_source_surface", "ooddv", false));
+	private static var lime_cairo_set_tolerance = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_tolerance",
+		"odv", false));
+	private static var lime_cairo_show_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_glyphs",
+		"oov", false));
 	private static var lime_cairo_show_page = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_page", "ov", false));
-	private static var lime_cairo_show_text = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_show_text", "osv", false));
+	private static var lime_cairo_show_text = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_text", "osv",
+		false));
 	private static var lime_cairo_status = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_status", "oi", false));
 	private static var lime_cairo_stroke = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_stroke", "ov", false));
-	private static var lime_cairo_stroke_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_stroke_extents", "oddddv", false));
-	private static var lime_cairo_stroke_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_stroke_preserve", "ov", false));
-	private static var lime_cairo_text_path = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_text_path", "osv", false));
-	private static var lime_cairo_transform = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_transform", "oov", false));
-	private static var lime_cairo_translate = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_translate", "oddv", false));
+	private static var lime_cairo_stroke_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_stroke_extents", "oddddv", false));
+	private static var lime_cairo_stroke_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_stroke_preserve", "ov",
+		false));
+	private static var lime_cairo_text_path = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_text_path", "osv",
+		false));
+	private static var lime_cairo_transform = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_transform", "oov",
+		false));
+	private static var lime_cairo_translate = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_translate",
+		"oddv", false));
 	private static var lime_cairo_version = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_version", "i", false));
 	private static var lime_cairo_version_string = new cpp.Callable<Void->String>(cpp.Prime._loadPrime("lime", "lime_cairo_version_string", "s", false));
-	private static var lime_cairo_font_face_status = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_face_status", "oi", false));
-	private static var lime_cairo_font_options_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_create", "o", false));
-	private static var lime_cairo_font_options_get_antialias = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_get_antialias", "oi", false));
-	private static var lime_cairo_font_options_get_hint_metrics = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_get_hint_metrics", "oi", false));
-	private static var lime_cairo_font_options_get_hint_style = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_get_hint_style", "oi", false));
-	private static var lime_cairo_font_options_get_subpixel_order = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_get_subpixel_order", "oi", false));
-	private static var lime_cairo_font_options_set_antialias = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_set_antialias", "oiv", false));
-	private static var lime_cairo_font_options_set_hint_metrics = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_set_hint_metrics", "oiv", false));
-	private static var lime_cairo_font_options_set_hint_style = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_set_hint_style", "oiv", false));
-	private static var lime_cairo_font_options_set_subpixel_order = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_font_options_set_subpixel_order", "oiv", false));
-	private static var lime_cairo_ft_font_face_create = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_ft_font_face_create", "oio", false));
-	private static var lime_cairo_image_surface_create = new cpp.Callable<Int->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_create", "iiio", false));
-	private static var lime_cairo_image_surface_create_for_data = new cpp.Callable<lime.utils.DataPointer->Int->Int->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_create_for_data", "diiiio", false));
-	private static var lime_cairo_image_surface_get_data = new cpp.Callable<cpp.Object->lime.utils.DataPointer>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_get_data", "od", false));
-	private static var lime_cairo_image_surface_get_format = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_get_format", "oi", false));
-	private static var lime_cairo_image_surface_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_get_height", "oi", false));
-	private static var lime_cairo_image_surface_get_stride = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_get_stride", "oi", false));
-	private static var lime_cairo_image_surface_get_width = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_image_surface_get_width", "oi", false));
-	private static var lime_cairo_pattern_add_color_stop_rgb = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_add_color_stop_rgb", "oddddv", false));
-	private static var lime_cairo_pattern_add_color_stop_rgba = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_add_color_stop_rgba", "odddddv", false));
-	private static var lime_cairo_pattern_create_for_surface = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_create_for_surface", "oo", false));
-	private static var lime_cairo_pattern_create_linear = new cpp.Callable<Float->Float->Float->Float->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_create_linear", "ddddo", false));
-	private static var lime_cairo_pattern_create_radial = new cpp.Callable<Float->Float->Float->Float->Float->Float->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_create_radial", "ddddddo", false));
-	private static var lime_cairo_pattern_create_rgb = new cpp.Callable<Float->Float->Float->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_create_rgb", "dddo", false));
-	private static var lime_cairo_pattern_create_rgba = new cpp.Callable<Float->Float->Float->Float->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_create_rgba", "ddddo", false));
-	private static var lime_cairo_pattern_get_color_stop_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_get_color_stop_count", "oi", false));
-	private static var lime_cairo_pattern_get_extend = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_get_extend", "oi", false));
-	private static var lime_cairo_pattern_get_filter = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_get_filter", "oi", false));
-	private static var lime_cairo_pattern_get_matrix = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_get_matrix", "oo", false));
-	private static var lime_cairo_pattern_set_extend = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_set_extend", "oiv", false));
-	private static var lime_cairo_pattern_set_filter = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_set_filter", "oiv", false));
-	private static var lime_cairo_pattern_set_matrix = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_cairo_pattern_set_matrix", "oov", false));
-	private static var lime_cairo_surface_flush = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_surface_flush", "ov", false));
+	private static var lime_cairo_font_face_status = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_font_face_status", "oi",
+		false));
+	private static var lime_cairo_font_options_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_font_options_create", "o",
+		false));
+	private static var lime_cairo_font_options_get_antialias = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_get_antialias", "oi", false));
+	private static var lime_cairo_font_options_get_hint_metrics = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_get_hint_metrics", "oi", false));
+	private static var lime_cairo_font_options_get_hint_style = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_get_hint_style", "oi", false));
+	private static var lime_cairo_font_options_get_subpixel_order = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_get_subpixel_order", "oi", false));
+	private static var lime_cairo_font_options_set_antialias = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_set_antialias", "oiv", false));
+	private static var lime_cairo_font_options_set_hint_metrics = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_set_hint_metrics", "oiv", false));
+	private static var lime_cairo_font_options_set_hint_style = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_set_hint_style", "oiv", false));
+	private static var lime_cairo_font_options_set_subpixel_order = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_font_options_set_subpixel_order", "oiv", false));
+	private static var lime_cairo_ft_font_face_create = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_ft_font_face_create", "oio", false));
+	private static var lime_cairo_image_surface_create = new cpp.Callable<Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_image_surface_create", "iiio", false));
+	private static var lime_cairo_image_surface_create_for_data = new cpp.Callable<lime.utils.DataPointer->Int->Int->Int->Int->
+		cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_image_surface_create_for_data", "diiiio", false));
+	private static var lime_cairo_image_surface_get_data = new cpp.Callable<cpp.Object->lime.utils.DataPointer>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_image_surface_get_data", "od", false));
+	private static var lime_cairo_image_surface_get_format = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_image_surface_get_format", "oi", false));
+	private static var lime_cairo_image_surface_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_image_surface_get_height", "oi", false));
+	private static var lime_cairo_image_surface_get_stride = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_image_surface_get_stride", "oi", false));
+	private static var lime_cairo_image_surface_get_width = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_image_surface_get_width", "oi", false));
+	private static var lime_cairo_pattern_add_color_stop_rgb = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_add_color_stop_rgb", "oddddv", false));
+	private static var lime_cairo_pattern_add_color_stop_rgba = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_pattern_add_color_stop_rgba", "odddddv", false));
+	private static var lime_cairo_pattern_create_for_surface = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_create_for_surface", "oo", false));
+	private static var lime_cairo_pattern_create_linear = new cpp.Callable<Float->Float->Float->Float->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_create_linear", "ddddo", false));
+	private static var lime_cairo_pattern_create_radial = new cpp.Callable<Float->Float->Float->Float->Float->Float->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_create_radial", "ddddddo", false));
+	private static var lime_cairo_pattern_create_rgb = new cpp.Callable<Float->Float->Float->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_create_rgb", "dddo", false));
+	private static var lime_cairo_pattern_create_rgba = new cpp.Callable<Float->Float->Float->Float->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_create_rgba", "ddddo", false));
+	private static var lime_cairo_pattern_get_color_stop_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_get_color_stop_count", "oi", false));
+	private static var lime_cairo_pattern_get_extend = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_pattern_get_extend", "oi",
+		false));
+	private static var lime_cairo_pattern_get_filter = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_pattern_get_filter", "oi",
+		false));
+	private static var lime_cairo_pattern_get_matrix = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_pattern_get_matrix",
+		"oo", false));
+	private static var lime_cairo_pattern_set_extend = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_set_extend", "oiv", false));
+	private static var lime_cairo_pattern_set_filter = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_set_filter", "oiv", false));
+	private static var lime_cairo_pattern_set_matrix = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_set_matrix", "oov", false));
+	private static var lime_cairo_surface_flush = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_surface_flush", "ov",
+		false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_cairo_arc = CFFI.load("lime", "lime_cairo_arc", -1);
 	private static var lime_cairo_arc_negative = CFFI.load("lime", "lime_cairo_arc_negative", -1);
 	private static var lime_cairo_clip = CFFI.load("lime", "lime_cairo_clip", 1);
@@ -3162,7 +3181,8 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "lime_cairo_image_surface_create") private static function lime_cairo_image_surface_create(format:Int, width:Int, height:Int):CFFIPointer
+	@:hlNative("lime", "lime_cairo_image_surface_create") private static function lime_cairo_image_surface_create(format:Int, width:Int,
+			height:Int):CFFIPointer
 	{
 		return null;
 	}
@@ -3261,7 +3281,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_curl)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_curl_getdate(date:String, now:Float):Float;
 
@@ -3323,42 +3343,42 @@ class NativeCFFI
 	private static var lime_curl_version = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_version", "o", false));
 	private static var lime_curl_version_info = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_version_info", "io", false));
 	private static var lime_curl_easy_cleanup = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_curl_easy_cleanup", "ov", false));
-	private static var lime_curl_easy_duphandle = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_duphandle", "oo", false));
-	private static var lime_curl_easy_escape = new cpp.Callable<cpp.Object->String->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_escape", "osio", false));
+	private static var lime_curl_easy_duphandle = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_duphandle", "oo",
+		false));
+	private static var lime_curl_easy_escape = new cpp.Callable<cpp.Object->String->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_escape",
+		"osio", false));
 	private static var lime_curl_easy_flush = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_curl_easy_flush", "ov", false));
-	private static var lime_curl_easy_getinfo = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_getinfo", "oio", false));
+	private static var lime_curl_easy_getinfo = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_getinfo", "oio",
+		false));
 	private static var lime_curl_easy_init = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_init", "o", false));
 	private static var lime_curl_easy_pause = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_easy_pause", "oii", false));
 	private static var lime_curl_easy_perform = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_curl_easy_perform", "oi", false));
-	private static var lime_curl_easy_recv = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_recv", "ooiii", false));
+	private static var lime_curl_easy_recv = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_easy_recv",
+		"ooiii", false));
 	private static var lime_curl_easy_reset = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_curl_easy_reset", "ov", false));
-	private static var lime_curl_easy_send = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_send", "ooiii", false));
-	private static var lime_curl_easy_setopt = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_setopt", "oiooi", false));
+	private static var lime_curl_easy_send = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_easy_send",
+		"ooiii", false));
+	private static var lime_curl_easy_setopt = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_curl_easy_setopt", "oiooi", false));
 	private static var lime_curl_easy_strerror = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_strerror", "io", false));
-	private static var lime_curl_easy_unescape = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_curl_easy_unescape", "osiio", false));
+	private static var lime_curl_easy_unescape = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_curl_easy_unescape", "osiio", false));
 	private static var lime_curl_multi_init = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_multi_init", "o", false));
-	private static var lime_curl_multi_add_handle = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_multi_add_handle", "oooi", false));
-	private static var lime_curl_multi_get_running_handles = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_multi_get_running_handles", "oi", false));
-	private static var lime_curl_multi_info_read = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_curl_multi_info_read", "oo", false));
+	private static var lime_curl_multi_add_handle = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_curl_multi_add_handle", "oooi", false));
+	private static var lime_curl_multi_get_running_handles = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_curl_multi_get_running_handles", "oi", false));
+	private static var lime_curl_multi_info_read = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_multi_info_read", "oo",
+		false));
 	private static var lime_curl_multi_perform = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_perform", "oi", false));
-	private static var lime_curl_multi_remove_handle = new cpp.Callable<cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_multi_remove_handle", "ooi", false));
-	private static var lime_curl_multi_setopt = new cpp.Callable<cpp.Object->Int->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_curl_multi_setopt", "oioi", false));
+	private static var lime_curl_multi_remove_handle = new cpp.Callable<cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_curl_multi_remove_handle", "ooi", false));
+	private static var lime_curl_multi_setopt = new cpp.Callable<cpp.Object->Int->cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_setopt",
+		"oioi", false));
 	private static var lime_curl_multi_wait = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_wait", "oii", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_curl_getdate = CFFI.load("lime", "lime_curl_getdate", 2);
 	private static var lime_curl_global_cleanup = CFFI.load("lime", "lime_curl_global_cleanup", 0);
 	private static var lime_curl_global_init = CFFI.load("lime", "lime_curl_global_init", 1);
@@ -3518,7 +3538,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && (lime_opengl || lime_opengles))
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_gl_active_texture(texture:Int):Void;
 
@@ -3604,8 +3624,7 @@ class NativeCFFI
 	@:cffi private static function lime_gl_copy_buffer_sub_data(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer,
 		size:Int):Void;
 
-	@:cffi private static function lime_gl_copy_tex_image_2d(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int,
-		border:Int):Void;
+	@:cffi private static function lime_gl_copy_tex_image_2d(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
 
 	@:cffi private static function lime_gl_copy_tex_sub_image_2d(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
 
@@ -4073,73 +4092,73 @@ class NativeCFFI
 	private static var lime_gl_active_texture = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_active_texture", "iv", false));
 	private static var lime_gl_attach_shader = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_attach_shader", "iiv", false));
 	private static var lime_gl_begin_query = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_begin_query", "iiv", false));
-	private static var lime_gl_begin_transform_feedback = new cpp.Callable<Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_begin_transform_feedback", "iv", false));
-	private static var lime_gl_bind_attrib_location = new cpp.Callable<Int->Int->String->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_bind_attrib_location", "iisv", false));
+	private static var lime_gl_begin_transform_feedback = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_begin_transform_feedback",
+		"iv", false));
+	private static var lime_gl_bind_attrib_location = new cpp.Callable<Int->Int->String->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_bind_attrib_location", "iisv", false));
 	private static var lime_gl_bind_buffer = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_buffer", "iiv", false));
-	private static var lime_gl_bind_buffer_base = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_bind_buffer_base", "iiiv", false));
-	private static var lime_gl_bind_buffer_range = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_bind_buffer_range", "iiidiv", false));
+	private static var lime_gl_bind_buffer_base = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_buffer_base", "iiiv",
+		false));
+	private static var lime_gl_bind_buffer_range = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_bind_buffer_range", "iiidiv", false));
 	private static var lime_gl_bind_framebuffer = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_framebuffer", "iiv", false));
-	private static var lime_gl_bind_renderbuffer = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_bind_renderbuffer", "iiv", false));
+	private static var lime_gl_bind_renderbuffer = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_renderbuffer", "iiv",
+		false));
 	private static var lime_gl_bind_sampler = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_sampler", "iiv", false));
 	private static var lime_gl_bind_texture = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_texture", "iiv", false));
-	private static var lime_gl_bind_transform_feedback = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_bind_transform_feedback", "iiv", false));
+	private static var lime_gl_bind_transform_feedback = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_transform_feedback",
+		"iiv", false));
 	private static var lime_gl_bind_vertex_array = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_bind_vertex_array", "iv", false));
-	private static var lime_gl_blend_color = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_blend_color", "ffffv", false));
+	private static var lime_gl_blend_color = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_blend_color", "ffffv", false));
 	private static var lime_gl_blend_equation = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_blend_equation", "iv", false));
-	private static var lime_gl_blend_equation_separate = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_blend_equation_separate", "iiv", false));
+	private static var lime_gl_blend_equation_separate = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_blend_equation_separate",
+		"iiv", false));
 	private static var lime_gl_blend_func = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_blend_func", "iiv", false));
-	private static var lime_gl_blend_func_separate = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_blend_func_separate", "iiiiv", false));
-	private static var lime_gl_blit_framebuffer = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_blit_framebuffer", "iiiiiiiiiiv", false));
-	private static var lime_gl_buffer_data = new cpp.Callable<Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_buffer_data", "iidiv", false));
-	private static var lime_gl_buffer_sub_data = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_buffer_sub_data", "iiidv", false));
-	private static var lime_gl_check_framebuffer_status = new cpp.Callable<Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_check_framebuffer_status", "ii", false));
+	private static var lime_gl_blend_func_separate = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_blend_func_separate", "iiiiv", false));
+	private static var lime_gl_blit_framebuffer = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_blit_framebuffer", "iiiiiiiiiiv", false));
+	private static var lime_gl_buffer_data = new cpp.Callable<Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_buffer_data", "iidiv", false));
+	private static var lime_gl_buffer_sub_data = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_buffer_sub_data", "iiidv", false));
+	private static var lime_gl_check_framebuffer_status = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_check_framebuffer_status", "ii",
+		false));
 	private static var lime_gl_clear = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_clear", "iv", false));
-	private static var lime_gl_clear_bufferfi = new cpp.Callable<Int->Int->cpp.Float32->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_clear_bufferfi", "iifiv", false));
-	private static var lime_gl_clear_bufferfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_clear_bufferfv", "iidv", false));
-	private static var lime_gl_clear_bufferiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_clear_bufferiv", "iidv", false));
-	private static var lime_gl_clear_bufferuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_clear_bufferuiv", "iidv", false));
-	private static var lime_gl_client_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_client_wait_sync", "oiiii", false));
-	private static var lime_gl_clear_color = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_clear_color", "ffffv", false));
+	private static var lime_gl_clear_bufferfi = new cpp.Callable<Int->Int->cpp.Float32->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_clear_bufferfi",
+		"iifiv", false));
+	private static var lime_gl_clear_bufferfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_clear_bufferfv", "iidv", false));
+	private static var lime_gl_clear_bufferiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_clear_bufferiv", "iidv", false));
+	private static var lime_gl_clear_bufferuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_clear_bufferuiv", "iidv", false));
+	private static var lime_gl_client_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_client_wait_sync",
+		"oiiii", false));
+	private static var lime_gl_clear_color = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_clear_color", "ffffv", false));
 	private static var lime_gl_clear_depthf = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_clear_depthf", "fv", false));
 	private static var lime_gl_clear_stencil = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_clear_stencil", "iv", false));
-	private static var lime_gl_color_mask = new cpp.Callable<Bool->Bool->Bool->Bool->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_color_mask", "bbbbv", false));
+	private static var lime_gl_color_mask = new cpp.Callable<Bool->Bool->Bool->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_color_mask", "bbbbv",
+		false));
 	private static var lime_gl_compile_shader = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compile_shader", "iv", false));
-	private static var lime_gl_compressed_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_compressed_tex_image_2d", "iiiiiiidv", false));
-	private static var lime_gl_compressed_tex_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_compressed_tex_image_3d", "iiiiiiiidv", false));
-	private static var lime_gl_compressed_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp
-		.Prime._loadPrime("lime", "lime_gl_compressed_tex_sub_image_2d", "iiiiiiiidv", false));
-	private static var lime_gl_compressed_tex_sub_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp
-		.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compressed_tex_sub_image_3d", "iiiiiiiiiidv", false));
-	private static var lime_gl_copy_buffer_sub_data = new cpp.Callable<Int->Int->lime.utils.DataPointer->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_copy_buffer_sub_data", "iiddiv", false));
-	private static var lime_gl_copy_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_copy_tex_image_2d", "iiiiiiiiv", false));
-	private static var lime_gl_copy_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_copy_tex_sub_image_2d", "iiiiiiiiv", false));
-	private static var lime_gl_copy_tex_sub_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_copy_tex_sub_image_3d", "iiiiiiiiiv", false));
+	private static var lime_gl_compressed_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compressed_tex_image_2d", "iiiiiiidv", false));
+	private static var lime_gl_compressed_tex_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compressed_tex_image_3d", "iiiiiiiidv", false));
+	private static var lime_gl_compressed_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compressed_tex_sub_image_2d", "iiiiiiiidv", false));
+	private static var lime_gl_compressed_tex_sub_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compressed_tex_sub_image_3d", "iiiiiiiiiidv", false));
+	private static var lime_gl_copy_buffer_sub_data = new cpp.Callable<Int->Int->lime.utils.DataPointer->lime.utils.DataPointer->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_copy_buffer_sub_data", "iiddiv", false));
+	private static var lime_gl_copy_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_copy_tex_image_2d", "iiiiiiiiv", false));
+	private static var lime_gl_copy_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_copy_tex_sub_image_2d", "iiiiiiiiv", false));
+	private static var lime_gl_copy_tex_sub_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_copy_tex_sub_image_3d", "iiiiiiiiiv", false));
 	private static var lime_gl_create_buffer = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_buffer", "i", false));
 	private static var lime_gl_create_framebuffer = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_framebuffer", "i", false));
 	private static var lime_gl_create_program = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_program", "i", false));
@@ -4148,8 +4167,8 @@ class NativeCFFI
 	private static var lime_gl_create_sampler = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_sampler", "i", false));
 	private static var lime_gl_create_shader = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_shader", "ii", false));
 	private static var lime_gl_create_texture = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_texture", "i", false));
-	private static var lime_gl_create_transform_feedback = new cpp.Callable<Void->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_create_transform_feedback", "i", false));
+	private static var lime_gl_create_transform_feedback = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_transform_feedback", "i",
+		false));
 	private static var lime_gl_create_vertex_array = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_create_vertex_array", "i", false));
 	private static var lime_gl_cull_face = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_cull_face", "iv", false));
 	private static var lime_gl_delete_buffer = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_delete_buffer", "iv", false));
@@ -4161,179 +4180,180 @@ class NativeCFFI
 	private static var lime_gl_delete_shader = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_delete_shader", "iv", false));
 	private static var lime_gl_delete_sync = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_delete_sync", "ov", false));
 	private static var lime_gl_delete_texture = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_delete_texture", "iv", false));
-	private static var lime_gl_delete_transform_feedback = new cpp.Callable<Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_delete_transform_feedback", "iv", false));
+	private static var lime_gl_delete_transform_feedback = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_delete_transform_feedback",
+		"iv", false));
 	private static var lime_gl_delete_vertex_array = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_delete_vertex_array", "iv", false));
 	private static var lime_gl_depth_func = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_depth_func", "iv", false));
 	private static var lime_gl_depth_mask = new cpp.Callable<Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_depth_mask", "bv", false));
-	private static var lime_gl_depth_rangef = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_depth_rangef", "ffv", false));
+	private static var lime_gl_depth_rangef = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_depth_rangef", "ffv",
+		false));
 	private static var lime_gl_detach_shader = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_detach_shader", "iiv", false));
 	private static var lime_gl_disable = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_disable", "iv", false));
-	private static var lime_gl_disable_vertex_attrib_array = new cpp.Callable<Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_disable_vertex_attrib_array", "iv", false));
+	private static var lime_gl_disable_vertex_attrib_array = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_disable_vertex_attrib_array", "iv", false));
 	private static var lime_gl_draw_arrays = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_draw_arrays", "iiiv", false));
-	private static var lime_gl_draw_arrays_instanced = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_draw_arrays_instanced", "iiiiv", false));
+	private static var lime_gl_draw_arrays_instanced = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_draw_arrays_instanced", "iiiiv", false));
 	private static var lime_gl_draw_buffers = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_draw_buffers", "ov", false));
-	private static var lime_gl_draw_elements = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_draw_elements", "iiidv", false));
-	private static var lime_gl_draw_elements_instanced = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_draw_elements_instanced", "iiidiv", false));
-	private static var lime_gl_draw_range_elements = new cpp.Callable<Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_draw_range_elements", "iiiiidv", false));
+	private static var lime_gl_draw_elements = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_draw_elements", "iiidv", false));
+	private static var lime_gl_draw_elements_instanced = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_draw_elements_instanced", "iiidiv", false));
+	private static var lime_gl_draw_range_elements = new cpp.Callable<Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_draw_range_elements", "iiiiidv", false));
 	private static var lime_gl_enable = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_enable", "iv", false));
-	private static var lime_gl_enable_vertex_attrib_array = new cpp.Callable<Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_enable_vertex_attrib_array", "iv", false));
+	private static var lime_gl_enable_vertex_attrib_array = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_enable_vertex_attrib_array",
+		"iv", false));
 	private static var lime_gl_end_query = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_end_query", "iv", false));
-	private static var lime_gl_end_transform_feedback = new cpp.Callable<Void->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_end_transform_feedback", "v", false));
+	private static var lime_gl_end_transform_feedback = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_end_transform_feedback", "v",
+		false));
 	private static var lime_gl_fence_sync = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_fence_sync", "iio", false));
 	private static var lime_gl_finish = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_finish", "v", false));
 	private static var lime_gl_flush = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_flush", "v", false));
-	private static var lime_gl_framebuffer_renderbuffer = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_framebuffer_renderbuffer", "iiiiv", false));
-	private static var lime_gl_framebuffer_texture2D = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_framebuffer_texture2D", "iiiiiv", false));
-	private static var lime_gl_framebuffer_texture_layer = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_framebuffer_texture_layer", "iiiiiv", false));
+	private static var lime_gl_framebuffer_renderbuffer = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_framebuffer_renderbuffer", "iiiiv", false));
+	private static var lime_gl_framebuffer_texture2D = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_framebuffer_texture2D", "iiiiiv", false));
+	private static var lime_gl_framebuffer_texture_layer = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_framebuffer_texture_layer", "iiiiiv", false));
 	private static var lime_gl_front_face = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_front_face", "iv", false));
 	private static var lime_gl_generate_mipmap = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_generate_mipmap", "iv", false));
-	private static var lime_gl_get_active_attrib = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_active_attrib", "iio", false));
-	private static var lime_gl_get_active_uniform = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_active_uniform", "iio", false));
-	private static var lime_gl_get_active_uniform_blocki = new cpp.Callable<Int->Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_active_uniform_blocki", "iiii", false));
-	private static var lime_gl_get_active_uniform_blockiv = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_active_uniform_blockiv", "iiidv", false));
-	private static var lime_gl_get_active_uniform_block_name = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_active_uniform_block_name", "iio", false));
-	private static var lime_gl_get_active_uniformsiv = new cpp.Callable<Int->cpp.Object->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_active_uniformsiv", "ioidv", false));
-	private static var lime_gl_get_attached_shaders = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_attached_shaders", "io", false));
-	private static var lime_gl_get_attrib_location = new cpp.Callable<Int->String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_attrib_location", "isi", false));
+	private static var lime_gl_get_active_attrib = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_active_attrib", "iio",
+		false));
+	private static var lime_gl_get_active_uniform = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_active_uniform", "iio",
+		false));
+	private static var lime_gl_get_active_uniform_blocki = new cpp.Callable<Int->Int->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_active_uniform_blocki", "iiii", false));
+	private static var lime_gl_get_active_uniform_blockiv = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_active_uniform_blockiv", "iiidv", false));
+	private static var lime_gl_get_active_uniform_block_name = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_active_uniform_block_name", "iio", false));
+	private static var lime_gl_get_active_uniformsiv = new cpp.Callable<Int->cpp.Object->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_active_uniformsiv", "ioidv", false));
+	private static var lime_gl_get_attached_shaders = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_attached_shaders", "io",
+		false));
+	private static var lime_gl_get_attrib_location = new cpp.Callable<Int->String->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_attrib_location", "isi",
+		false));
 	private static var lime_gl_get_boolean = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_get_boolean", "ib", false));
-	private static var lime_gl_get_booleanv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_booleanv", "idv", false));
-	private static var lime_gl_get_buffer_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_buffer_parameteri", "iii", false));
-	private static var lime_gl_get_buffer_parameteri64v = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_buffer_parameteri64v", "iidv", false));
-	private static var lime_gl_get_buffer_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_buffer_parameteriv", "iidv", false));
-	private static var lime_gl_get_buffer_pointerv = new cpp.Callable<Int->Int->lime.utils.DataPointer>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_buffer_pointerv", "iid", false));
-	private static var lime_gl_get_buffer_sub_data = new cpp.Callable<Int->lime.utils.DataPointer->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_buffer_sub_data", "ididv", false));
-	private static var lime_gl_get_context_attributes = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_context_attributes", "o", false));
+	private static var lime_gl_get_booleanv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_booleanv",
+		"idv", false));
+	private static var lime_gl_get_buffer_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_buffer_parameteri", "iii",
+		false));
+	private static var lime_gl_get_buffer_parameteri64v = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_buffer_parameteri64v", "iidv", false));
+	private static var lime_gl_get_buffer_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_buffer_parameteriv", "iidv", false));
+	private static var lime_gl_get_buffer_pointerv = new cpp.Callable<Int->Int->lime.utils.DataPointer>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_buffer_pointerv", "iid", false));
+	private static var lime_gl_get_buffer_sub_data = new cpp.Callable<Int->lime.utils.DataPointer->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_buffer_sub_data", "ididv", false));
+	private static var lime_gl_get_context_attributes = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_context_attributes", "o",
+		false));
 	private static var lime_gl_get_error = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_error", "i", false));
 	private static var lime_gl_get_extension = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_extension", "so", false));
 	private static var lime_gl_get_float = new cpp.Callable<Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_gl_get_float", "if", false));
-	private static var lime_gl_get_floatv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_floatv", "idv", false));
-	private static var lime_gl_get_frag_data_location = new cpp.Callable<Int->String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_frag_data_location", "isi", false));
-	private static var lime_gl_get_framebuffer_attachment_parameteri = new cpp.Callable<Int->Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_framebuffer_attachment_parameteri", "iiii", false));
-	private static var lime_gl_get_framebuffer_attachment_parameteriv = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_framebuffer_attachment_parameteriv", "iiidv", false));
+	private static var lime_gl_get_floatv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_floatv", "idv",
+		false));
+	private static var lime_gl_get_frag_data_location = new cpp.Callable<Int->String->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_frag_data_location",
+		"isi", false));
+	private static var lime_gl_get_framebuffer_attachment_parameteri = new cpp.Callable<Int->Int->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_framebuffer_attachment_parameteri", "iiii", false));
+	private static var lime_gl_get_framebuffer_attachment_parameteriv = new cpp.Callable<Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_framebuffer_attachment_parameteriv", "iiidv", false));
 	private static var lime_gl_get_integer = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_integer", "ii", false));
-	private static var lime_gl_get_integer64v = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_integer64v", "idv", false));
-	private static var lime_gl_get_integer64i_v = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_integer64i_v", "iidv", false));
-	private static var lime_gl_get_integerv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_integerv", "idv", false));
-	private static var lime_gl_get_integeri_v = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_integeri_v", "iidv", false));
-	private static var lime_gl_get_internalformativ = new cpp.Callable<Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_internalformativ", "iiiidv", false));
-	private static var lime_gl_get_program_binary = new cpp.Callable<Int->Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_program_binary", "iiov", false));
-	private static var lime_gl_get_program_info_log = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_program_info_log", "io", false));
+	private static var lime_gl_get_integer64v = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_integer64v",
+		"idv", false));
+	private static var lime_gl_get_integer64i_v = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_integer64i_v", "iidv", false));
+	private static var lime_gl_get_integerv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_integerv",
+		"idv", false));
+	private static var lime_gl_get_integeri_v = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_integeri_v", "iidv", false));
+	private static var lime_gl_get_internalformativ = new cpp.Callable<Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_internalformativ", "iiiidv", false));
+	private static var lime_gl_get_program_binary = new cpp.Callable<Int->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_program_binary", "iiov", false));
+	private static var lime_gl_get_program_info_log = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_program_info_log", "io",
+		false));
 	private static var lime_gl_get_programi = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_programi", "iii", false));
-	private static var lime_gl_get_programiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_programiv", "iidv", false));
+	private static var lime_gl_get_programiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_programiv", "iidv", false));
 	private static var lime_gl_get_queryi = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_queryi", "iii", false));
-	private static var lime_gl_get_queryiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_queryiv", "iidv", false));
+	private static var lime_gl_get_queryiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_get_queryiv",
+		"iidv", false));
 	private static var lime_gl_get_query_objectui = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_query_objectui", "iii", false));
-	private static var lime_gl_get_query_objectuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_query_objectuiv", "iidv", false));
-	private static var lime_gl_get_renderbuffer_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_renderbuffer_parameteri", "iii", false));
-	private static var lime_gl_get_renderbuffer_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_renderbuffer_parameteriv", "iidv", false));
-	private static var lime_gl_get_sampler_parameterf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_sampler_parameterf", "iif", false));
-	private static var lime_gl_get_sampler_parameterfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_sampler_parameterfv", "iidv", false));
-	private static var lime_gl_get_sampler_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_sampler_parameteri", "iii", false));
-	private static var lime_gl_get_sampler_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_sampler_parameteriv", "iidv", false));
-	private static var lime_gl_get_shader_info_log = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_shader_info_log", "io", false));
+	private static var lime_gl_get_query_objectuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_query_objectuiv", "iidv", false));
+	private static var lime_gl_get_renderbuffer_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_renderbuffer_parameteri", "iii", false));
+	private static var lime_gl_get_renderbuffer_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_renderbuffer_parameteriv", "iidv", false));
+	private static var lime_gl_get_sampler_parameterf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_gl_get_sampler_parameterf",
+		"iif", false));
+	private static var lime_gl_get_sampler_parameterfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_sampler_parameterfv", "iidv", false));
+	private static var lime_gl_get_sampler_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_sampler_parameteri", "iii",
+		false));
+	private static var lime_gl_get_sampler_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_sampler_parameteriv", "iidv", false));
+	private static var lime_gl_get_shader_info_log = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_shader_info_log", "io",
+		false));
 	private static var lime_gl_get_shaderi = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_shaderi", "iii", false));
-	private static var lime_gl_get_shaderiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_shaderiv", "iidv", false));
-	private static var lime_gl_get_shader_precision_format = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_shader_precision_format", "iio", false));
+	private static var lime_gl_get_shaderiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_shaderiv", "iidv", false));
+	private static var lime_gl_get_shader_precision_format = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_shader_precision_format", "iio", false));
 	private static var lime_gl_get_shader_source = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_shader_source", "io", false));
 	private static var lime_gl_get_string = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_string", "io", false));
 	private static var lime_gl_get_stringi = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_get_stringi", "iio", false));
-	private static var lime_gl_get_sync_parameteri = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_sync_parameteri", "oii", false));
-	private static var lime_gl_get_sync_parameteriv = new cpp.Callable<cpp.Object->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_sync_parameteriv", "oidv", false));
-	private static var lime_gl_get_tex_parameterf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_tex_parameterf", "iif", false));
-	private static var lime_gl_get_tex_parameterfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_tex_parameterfv", "iidv", false));
+	private static var lime_gl_get_sync_parameteri = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_sync_parameteri", "oii",
+		false));
+	private static var lime_gl_get_sync_parameteriv = new cpp.Callable<cpp.Object->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_sync_parameteriv", "oidv", false));
+	private static var lime_gl_get_tex_parameterf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_gl_get_tex_parameterf", "iif",
+		false));
+	private static var lime_gl_get_tex_parameterfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_tex_parameterfv", "iidv", false));
 	private static var lime_gl_get_tex_parameteri = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_tex_parameteri", "iii", false));
-	private static var lime_gl_get_tex_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_tex_parameteriv", "iidv", false));
-	private static var lime_gl_get_transform_feedback_varying = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_transform_feedback_varying", "iio", false));
+	private static var lime_gl_get_tex_parameteriv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_tex_parameteriv", "iidv", false));
+	private static var lime_gl_get_transform_feedback_varying = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_transform_feedback_varying", "iio", false));
 	private static var lime_gl_get_uniformf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_gl_get_uniformf", "iif", false));
-	private static var lime_gl_get_uniformfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_uniformfv", "iidv", false));
+	private static var lime_gl_get_uniformfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_uniformfv", "iidv", false));
 	private static var lime_gl_get_uniformi = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_uniformi", "iii", false));
-	private static var lime_gl_get_uniformiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_uniformiv", "iidv", false));
+	private static var lime_gl_get_uniformiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_uniformiv", "iidv", false));
 	private static var lime_gl_get_uniformui = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_uniformui", "iii", false));
-	private static var lime_gl_get_uniformuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_uniformuiv", "iidv", false));
-	private static var lime_gl_get_uniform_block_index = new cpp.Callable<Int->String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_uniform_block_index", "isi", false));
-	private static var lime_gl_get_uniform_location = new cpp.Callable<Int->String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_uniform_location", "isi", false));
-	private static var lime_gl_get_vertex_attribf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attribf", "iif", false));
-	private static var lime_gl_get_vertex_attribfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attribfv", "iidv", false));
+	private static var lime_gl_get_uniformuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_uniformuiv", "iidv", false));
+	private static var lime_gl_get_uniform_block_index = new cpp.Callable<Int->String->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_uniform_block_index",
+		"isi", false));
+	private static var lime_gl_get_uniform_location = new cpp.Callable<Int->String->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_uniform_location", "isi",
+		false));
+	private static var lime_gl_get_vertex_attribf = new cpp.Callable<Int->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_gl_get_vertex_attribf", "iif",
+		false));
+	private static var lime_gl_get_vertex_attribfv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_vertex_attribfv", "iidv", false));
 	private static var lime_gl_get_vertex_attribi = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_vertex_attribi", "iii", false));
-	private static var lime_gl_get_vertex_attribiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attribiv", "iidv", false));
-	private static var lime_gl_get_vertex_attribii = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_vertex_attribii", "iii", false));
-	private static var lime_gl_get_vertex_attribiiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attribiiv", "iidv", false));
-	private static var lime_gl_get_vertex_attribiui = new cpp.Callable<Int->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attribiui", "iii", false));
-	private static var lime_gl_get_vertex_attribiuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attribiuiv", "iidv", false));
-	private static var lime_gl_get_vertex_attrib_pointerv = new cpp.Callable<Int->Int->lime.utils.DataPointer>(cpp.Prime
-		._loadPrime("lime", "lime_gl_get_vertex_attrib_pointerv", "iid", false));
+	private static var lime_gl_get_vertex_attribiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_vertex_attribiv", "iidv", false));
+	private static var lime_gl_get_vertex_attribii = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_vertex_attribii", "iii",
+		false));
+	private static var lime_gl_get_vertex_attribiiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_vertex_attribiiv", "iidv", false));
+	private static var lime_gl_get_vertex_attribiui = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_gl_get_vertex_attribiui", "iii",
+		false));
+	private static var lime_gl_get_vertex_attribiuiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_vertex_attribiuiv", "iidv", false));
+	private static var lime_gl_get_vertex_attrib_pointerv = new cpp.Callable<Int->Int->lime.utils.DataPointer>(cpp.Prime._loadPrime("lime",
+		"lime_gl_get_vertex_attrib_pointerv", "iid", false));
 	private static var lime_gl_hint = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_hint", "iiv", false));
-	private static var lime_gl_invalidate_framebuffer = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_invalidate_framebuffer", "iov", false));
-	private static var lime_gl_invalidate_sub_framebuffer = new cpp.Callable<Int->cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_invalidate_sub_framebuffer", "ioiiiiv", false));
+	private static var lime_gl_invalidate_framebuffer = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_invalidate_framebuffer", "iov", false));
+	private static var lime_gl_invalidate_sub_framebuffer = new cpp.Callable<Int->cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_invalidate_sub_framebuffer", "ioiiiiv", false));
 	private static var lime_gl_is_buffer = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_is_buffer", "ib", false));
 	private static var lime_gl_is_enabled = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_is_enabled", "ib", false));
 	private static var lime_gl_is_framebuffer = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_is_framebuffer", "ib", false));
@@ -4348,170 +4368,170 @@ class NativeCFFI
 	private static var lime_gl_is_vertex_array = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_is_vertex_array", "ib", false));
 	private static var lime_gl_line_width = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_line_width", "fv", false));
 	private static var lime_gl_link_program = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_link_program", "iv", false));
-	private static var lime_gl_map_buffer_range = new cpp.Callable<Int->lime.utils.DataPointer->Int->Int->lime.utils.DataPointer>(cpp.Prime
-		._loadPrime("lime", "lime_gl_map_buffer_range", "idiid", false));
-	private static var lime_gl_object_deregister = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_object_deregister", "ov", false));
+	private static var lime_gl_map_buffer_range = new cpp.Callable<Int->lime.utils.DataPointer->Int->Int->lime.utils.DataPointer>(cpp.Prime._loadPrime("lime",
+		"lime_gl_map_buffer_range", "idiid", false));
+	private static var lime_gl_object_deregister = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_object_deregister", "ov",
+		false));
 	private static var lime_gl_object_from_id = new cpp.Callable<Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_object_from_id", "iio", false));
-	private static var lime_gl_object_register = new cpp.Callable<Int->Int->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_gl_object_register", "iioo", false));
-	private static var lime_gl_pause_transform_feedback = new cpp.Callable<Void->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_pause_transform_feedback", "v", false));
+	private static var lime_gl_object_register = new cpp.Callable<Int->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gl_object_register",
+		"iioo", false));
+	private static var lime_gl_pause_transform_feedback = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_pause_transform_feedback",
+		"v", false));
 	private static var lime_gl_pixel_storei = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_pixel_storei", "iiv", false));
-	private static var lime_gl_polygon_offset = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_polygon_offset", "ffv", false));
-	private static var lime_gl_program_binary = new cpp.Callable<Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_program_binary", "iidiv", false));
-	private static var lime_gl_program_parameteri = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_program_parameteri", "iiiv", false));
+	private static var lime_gl_polygon_offset = new cpp.Callable<cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_polygon_offset",
+		"ffv", false));
+	private static var lime_gl_program_binary = new cpp.Callable<Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_program_binary", "iidiv", false));
+	private static var lime_gl_program_parameteri = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_program_parameteri",
+		"iiiv", false));
 	private static var lime_gl_read_buffer = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_read_buffer", "iv", false));
-	private static var lime_gl_read_pixels = new cpp.Callable<Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_read_pixels", "iiiiiidv", false));
-	private static var lime_gl_release_shader_compiler = new cpp.Callable<Void->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_release_shader_compiler", "v", false));
-	private static var lime_gl_renderbuffer_storage = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_renderbuffer_storage", "iiiiv", false));
-	private static var lime_gl_renderbuffer_storage_multisample = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_renderbuffer_storage_multisample", "iiiiiv", false));
-	private static var lime_gl_resume_transform_feedback = new cpp.Callable<Void->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_resume_transform_feedback", "v", false));
-	private static var lime_gl_sample_coverage = new cpp.Callable<cpp.Float32->Bool->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_sample_coverage", "fbv", false));
-	private static var lime_gl_sampler_parameterf = new cpp.Callable<Int->Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_sampler_parameterf", "iifv", false));
-	private static var lime_gl_sampler_parameteri = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_sampler_parameteri", "iiiv", false));
+	private static var lime_gl_read_pixels = new cpp.Callable<Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_read_pixels", "iiiiiidv", false));
+	private static var lime_gl_release_shader_compiler = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_release_shader_compiler", "v",
+		false));
+	private static var lime_gl_renderbuffer_storage = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_renderbuffer_storage", "iiiiv", false));
+	private static var lime_gl_renderbuffer_storage_multisample = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_renderbuffer_storage_multisample", "iiiiiv", false));
+	private static var lime_gl_resume_transform_feedback = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_resume_transform_feedback",
+		"v", false));
+	private static var lime_gl_sample_coverage = new cpp.Callable<cpp.Float32->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_sample_coverage", "fbv",
+		false));
+	private static var lime_gl_sampler_parameterf = new cpp.Callable<Int->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_sampler_parameterf", "iifv", false));
+	private static var lime_gl_sampler_parameteri = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_sampler_parameteri",
+		"iiiv", false));
 	private static var lime_gl_scissor = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_scissor", "iiiiv", false));
-	private static var lime_gl_shader_binary = new cpp.Callable<cpp.Object->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_shader_binary", "oidiv", false));
+	private static var lime_gl_shader_binary = new cpp.Callable<cpp.Object->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_shader_binary", "oidiv", false));
 	private static var lime_gl_shader_source = new cpp.Callable<Int->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_shader_source", "isv", false));
 	private static var lime_gl_stencil_func = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_stencil_func", "iiiv", false));
-	private static var lime_gl_stencil_func_separate = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_stencil_func_separate", "iiiiv", false));
+	private static var lime_gl_stencil_func_separate = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_stencil_func_separate", "iiiiv", false));
 	private static var lime_gl_stencil_mask = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_stencil_mask", "iv", false));
-	private static var lime_gl_stencil_mask_separate = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_stencil_mask_separate", "iiv", false));
+	private static var lime_gl_stencil_mask_separate = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_stencil_mask_separate",
+		"iiv", false));
 	private static var lime_gl_stencil_op = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_stencil_op", "iiiv", false));
-	private static var lime_gl_stencil_op_separate = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_stencil_op_separate", "iiiiv", false));
-	private static var lime_gl_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_image_2d", "iiiiiiiidv", false));
-	private static var lime_gl_tex_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_image_3d", "iiiiiiiiidv", false));
-	private static var lime_gl_tex_parameterf = new cpp.Callable<Int->Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_parameterf", "iifv", false));
-	private static var lime_gl_tex_parameteri = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_parameteri", "iiiv", false));
-	private static var lime_gl_tex_storage_2d = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_storage_2d", "iiiiiv", false));
-	private static var lime_gl_tex_storage_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_storage_3d", "iiiiiiv", false));
-	private static var lime_gl_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_sub_image_2d", "iiiiiiiidv", false));
-	private static var lime_gl_tex_sub_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_tex_sub_image_3d", "iiiiiiiiiidv", false));
-	private static var lime_gl_transform_feedback_varyings = new cpp.Callable<Int->cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_transform_feedback_varyings", "ioiv", false));
+	private static var lime_gl_stencil_op_separate = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_stencil_op_separate", "iiiiv", false));
+	private static var lime_gl_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_image_2d", "iiiiiiiidv", false));
+	private static var lime_gl_tex_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_image_3d", "iiiiiiiiidv", false));
+	private static var lime_gl_tex_parameterf = new cpp.Callable<Int->Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_parameterf",
+		"iifv", false));
+	private static var lime_gl_tex_parameteri = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_parameteri", "iiiv",
+		false));
+	private static var lime_gl_tex_storage_2d = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_storage_2d",
+		"iiiiiv", false));
+	private static var lime_gl_tex_storage_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_tex_storage_3d", "iiiiiiv", false));
+	private static var lime_gl_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_sub_image_2d", "iiiiiiiidv", false));
+	private static var lime_gl_tex_sub_image_3d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_tex_sub_image_3d", "iiiiiiiiiidv", false));
+	private static var lime_gl_transform_feedback_varyings = new cpp.Callable<Int->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_transform_feedback_varyings", "ioiv", false));
 	private static var lime_gl_uniform1f = new cpp.Callable<Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform1f", "ifv", false));
-	private static var lime_gl_uniform1fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform1fv", "iidv", false));
+	private static var lime_gl_uniform1fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform1fv",
+		"iidv", false));
 	private static var lime_gl_uniform1i = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform1i", "iiv", false));
-	private static var lime_gl_uniform1iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform1iv", "iidv", false));
+	private static var lime_gl_uniform1iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform1iv",
+		"iidv", false));
 	private static var lime_gl_uniform1ui = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform1ui", "iiv", false));
-	private static var lime_gl_uniform1uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform1uiv", "iidv", false));
-	private static var lime_gl_uniform2f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform2f", "iffv", false));
-	private static var lime_gl_uniform2fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform2fv", "iidv", false));
+	private static var lime_gl_uniform1uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform1uiv",
+		"iidv", false));
+	private static var lime_gl_uniform2f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform2f", "iffv",
+		false));
+	private static var lime_gl_uniform2fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform2fv",
+		"iidv", false));
 	private static var lime_gl_uniform2i = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform2i", "iiiv", false));
-	private static var lime_gl_uniform2iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform2iv", "iidv", false));
+	private static var lime_gl_uniform2iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform2iv",
+		"iidv", false));
 	private static var lime_gl_uniform2ui = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform2ui", "iiiv", false));
-	private static var lime_gl_uniform2uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform2uiv", "iidv", false));
-	private static var lime_gl_uniform3f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform3f", "ifffv", false));
-	private static var lime_gl_uniform3fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform3fv", "iidv", false));
+	private static var lime_gl_uniform2uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform2uiv",
+		"iidv", false));
+	private static var lime_gl_uniform3f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform3f", "ifffv", false));
+	private static var lime_gl_uniform3fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform3fv",
+		"iidv", false));
 	private static var lime_gl_uniform3i = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform3i", "iiiiv", false));
-	private static var lime_gl_uniform3iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform3iv", "iidv", false));
+	private static var lime_gl_uniform3iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform3iv",
+		"iidv", false));
 	private static var lime_gl_uniform3ui = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform3ui", "iiiiv", false));
-	private static var lime_gl_uniform3uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform3uiv", "iidv", false));
-	private static var lime_gl_uniform4f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform4f", "iffffv", false));
-	private static var lime_gl_uniform4fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform4fv", "iidv", false));
-	private static var lime_gl_uniform4i = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform4i", "iiiiiv", false));
-	private static var lime_gl_uniform4iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform4iv", "iidv", false));
-	private static var lime_gl_uniform4ui = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform4ui", "iiiiiv", false));
-	private static var lime_gl_uniform4uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform4uiv", "iidv", false));
-	private static var lime_gl_uniform_block_binding = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_block_binding", "iiiv", false));
-	private static var lime_gl_uniform_matrix2fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix2fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix2x3fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix2x3fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix2x4fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix2x4fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix3fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix3fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix3x2fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix3x2fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix3x4fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix3x4fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix4fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix4fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix4x2fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix4x2fv", "iibdv", false));
-	private static var lime_gl_uniform_matrix4x3fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_uniform_matrix4x3fv", "iibdv", false));
+	private static var lime_gl_uniform3uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform3uiv",
+		"iidv", false));
+	private static var lime_gl_uniform4f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform4f", "iffffv", false));
+	private static var lime_gl_uniform4fv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform4fv",
+		"iidv", false));
+	private static var lime_gl_uniform4i = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform4i", "iiiiiv",
+		false));
+	private static var lime_gl_uniform4iv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform4iv",
+		"iidv", false));
+	private static var lime_gl_uniform4ui = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform4ui", "iiiiiv",
+		false));
+	private static var lime_gl_uniform4uiv = new cpp.Callable<Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform4uiv",
+		"iidv", false));
+	private static var lime_gl_uniform_block_binding = new cpp.Callable<Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_uniform_block_binding",
+		"iiiv", false));
+	private static var lime_gl_uniform_matrix2fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix2fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix2x3fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix2x3fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix2x4fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix2x4fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix3fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix3fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix3x2fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix3x2fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix3x4fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix3x4fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix4fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix4fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix4x2fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix4x2fv", "iibdv", false));
+	private static var lime_gl_uniform_matrix4x3fv = new cpp.Callable<Int->Int->Bool->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_uniform_matrix4x3fv", "iibdv", false));
 	private static var lime_gl_unmap_buffer = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_unmap_buffer", "ib", false));
 	private static var lime_gl_use_program = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_use_program", "iv", false));
 	private static var lime_gl_validate_program = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_validate_program", "iv", false));
-	private static var lime_gl_vertex_attrib1f = new cpp.Callable<Int->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib1f", "ifv", false));
-	private static var lime_gl_vertex_attrib1fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib1fv", "idv", false));
-	private static var lime_gl_vertex_attrib2f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib2f", "iffv", false));
-	private static var lime_gl_vertex_attrib2fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib2fv", "idv", false));
-	private static var lime_gl_vertex_attrib3f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib3f", "ifffv", false));
-	private static var lime_gl_vertex_attrib3fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib3fv", "idv", false));
-	private static var lime_gl_vertex_attrib4f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib4f", "iffffv", false));
-	private static var lime_gl_vertex_attrib4fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib4fv", "idv", false));
-	private static var lime_gl_vertex_attribi4i = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attribi4i", "iiiiiv", false));
-	private static var lime_gl_vertex_attribi4iv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attribi4iv", "idv", false));
-	private static var lime_gl_vertex_attribi4ui = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attribi4ui", "iiiiiv", false));
-	private static var lime_gl_vertex_attribi4uiv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attribi4uiv", "idv", false));
-	private static var lime_gl_vertex_attrib_divisor = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib_divisor", "iiv", false));
-	private static var lime_gl_vertex_attrib_ipointer = new cpp.Callable<Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib_ipointer", "iiiidv", false));
-	private static var lime_gl_vertex_attrib_pointer = new cpp.Callable<Int->Int->Int->Bool->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_vertex_attrib_pointer", "iiibidv", false));
+	private static var lime_gl_vertex_attrib1f = new cpp.Callable<Int->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attrib1f", "ifv",
+		false));
+	private static var lime_gl_vertex_attrib1fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib1fv", "idv", false));
+	private static var lime_gl_vertex_attrib2f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib2f", "iffv", false));
+	private static var lime_gl_vertex_attrib2fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib2fv", "idv", false));
+	private static var lime_gl_vertex_attrib3f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib3f", "ifffv", false));
+	private static var lime_gl_vertex_attrib3fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib3fv", "idv", false));
+	private static var lime_gl_vertex_attrib4f = new cpp.Callable<Int->cpp.Float32->cpp.Float32->cpp.Float32->cpp.Float32->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attrib4f", "iffffv", false));
+	private static var lime_gl_vertex_attrib4fv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib4fv", "idv", false));
+	private static var lime_gl_vertex_attribi4i = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attribi4i",
+		"iiiiiv", false));
+	private static var lime_gl_vertex_attribi4iv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attribi4iv", "idv", false));
+	private static var lime_gl_vertex_attribi4ui = new cpp.Callable<Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attribi4ui", "iiiiiv", false));
+	private static var lime_gl_vertex_attribi4uiv = new cpp.Callable<Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attribi4uiv", "idv", false));
+	private static var lime_gl_vertex_attrib_divisor = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attrib_divisor",
+		"iiv", false));
+	private static var lime_gl_vertex_attrib_ipointer = new cpp.Callable<Int->Int->Int->Int->lime.utils.DataPointer->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib_ipointer", "iiiidv", false));
+	private static var lime_gl_vertex_attrib_pointer = new cpp.Callable<Int->Int->Int->Bool->Int->lime.utils.DataPointer->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attrib_pointer", "iiibidv", false));
 	private static var lime_gl_viewport = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_viewport", "iiiiv", false));
-	private static var lime_gl_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_gl_wait_sync", "oiiiv", false));
+	private static var lime_gl_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_wait_sync", "oiiiv",
+		false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_gl_active_texture = CFFI.load("lime", "lime_gl_active_texture", 1);
 	private static var lime_gl_attach_shader = CFFI.load("lime", "lime_gl_attach_shader", 2);
 	private static var lime_gl_begin_query = CFFI.load("lime", "lime_gl_begin_query", 2);
@@ -5198,7 +5218,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_get_shaderiv") private static function lime_gl_get_shaderiv(shader:Int, pname:Int, params:DataPointer):Void {}
 
-	@:hlNative("lime", "lime_gl_get_shader_precision_format") private static function lime_gl_get_shader_precision_format(shadertype:Int, precisiontype:Int):Dynamic
+	@:hlNative("lime", "lime_gl_get_shader_precision_format") private static function lime_gl_get_shader_precision_format(shadertype:Int,
+			precisiontype:Int):Dynamic
 	{
 		return null;
 	}
@@ -5381,7 +5402,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_gl_link_program") private static function lime_gl_link_program(program:Int):Void {}
 
-	@:hlNative("lime", "lime_gl_map_buffer_range") private static function lime_gl_map_buffer_range(target:Int, offset:DataPointer, length:Int, access:Int):DataPointer
+	@:hlNative("lime", "lime_gl_map_buffer_range") private static function lime_gl_map_buffer_range(target:Int, offset:DataPointer, length:Int,
+			access:Int):DataPointer
 	{
 		return 0;
 	}
@@ -5599,7 +5621,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_harfbuzz)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_hb_blob_create(data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
 
@@ -5821,188 +5843,191 @@ class NativeCFFI
 
 	@:cffi private static function lime_hb_shape(font:CFFIPointer, buffer:CFFIPointer, features:Dynamic):Void;
 	#else
-	private static var lime_hb_blob_create = new cpp.Callable<lime.utils.DataPointer->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_blob_create", "diio", false));
-	private static var lime_hb_blob_create_sub_blob = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_blob_create_sub_blob", "oiio", false));
+	private static var lime_hb_blob_create = new cpp.Callable<lime.utils.DataPointer->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_blob_create", "diio", false));
+	private static var lime_hb_blob_create_sub_blob = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_blob_create_sub_blob", "oiio", false));
 	private static var lime_hb_blob_get_data = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_hb_blob_get_data", "od", false));
-	private static var lime_hb_blob_get_data_writable = new cpp.Callable<cpp.Object->Float>(cpp.Prime
-		._loadPrime("lime", "lime_hb_blob_get_data_writable", "od", false));
+	private static var lime_hb_blob_get_data_writable = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_hb_blob_get_data_writable",
+		"od", false));
 	private static var lime_hb_blob_get_empty = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_blob_get_empty", "o", false));
 	private static var lime_hb_blob_get_length = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_blob_get_length", "oi", false));
 	private static var lime_hb_blob_is_immutable = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_blob_is_immutable", "ob", false));
-	private static var lime_hb_blob_make_immutable = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_blob_make_immutable", "ov", false));
-	private static var lime_hb_buffer_add = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_add", "oiiv", false));
-	private static var lime_hb_buffer_add_codepoints = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_add_codepoints", "odiiiv", false));
-	private static var lime_hb_buffer_add_utf8 = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_add_utf8", "osiiv", false));
-	private static var lime_hb_buffer_add_utf16 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_add_utf16", "odiiiv", false));
-	private static var lime_hb_buffer_add_utf32 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_add_utf32", "odiiiv", false));
-	private static var lime_hb_buffer_allocation_successful = new cpp.Callable<cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_allocation_successful", "ob", false));
-	private static var lime_hb_buffer_clear_contents = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_clear_contents", "ov", false));
+	private static var lime_hb_blob_make_immutable = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_blob_make_immutable", "ov",
+		false));
+	private static var lime_hb_buffer_add = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_add", "oiiv",
+		false));
+	private static var lime_hb_buffer_add_codepoints = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_add_codepoints", "odiiiv", false));
+	private static var lime_hb_buffer_add_utf8 = new cpp.Callable<cpp.Object->String->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_add_utf8", "osiiv", false));
+	private static var lime_hb_buffer_add_utf16 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_add_utf16", "odiiiv", false));
+	private static var lime_hb_buffer_add_utf32 = new cpp.Callable<cpp.Object->lime.utils.DataPointer->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_add_utf32", "odiiiv", false));
+	private static var lime_hb_buffer_allocation_successful = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_allocation_successful", "ob", false));
+	private static var lime_hb_buffer_clear_contents = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_clear_contents",
+		"ov", false));
 	private static var lime_hb_buffer_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_create", "o", false));
-	private static var lime_hb_buffer_get_cluster_level = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_cluster_level", "oi", false));
-	private static var lime_hb_buffer_get_content_type = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_content_type", "oi", false));
-	private static var lime_hb_buffer_get_direction = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_direction", "oi", false));
+	private static var lime_hb_buffer_get_cluster_level = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_cluster_level",
+		"oi", false));
+	private static var lime_hb_buffer_get_content_type = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_content_type",
+		"oi", false));
+	private static var lime_hb_buffer_get_direction = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_direction", "oi",
+		false));
 	private static var lime_hb_buffer_get_empty = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_empty", "o", false));
 	private static var lime_hb_buffer_get_flags = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_flags", "oi", false));
-	private static var lime_hb_buffer_get_glyph_infos = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_glyph_infos", "ooo", false));
-	private static var lime_hb_buffer_get_glyph_positions = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_glyph_positions", "ooo", false));
-	private static var lime_hb_buffer_get_language = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_language", "oo", false));
+	private static var lime_hb_buffer_get_glyph_infos = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_get_glyph_infos", "ooo", false));
+	private static var lime_hb_buffer_get_glyph_positions = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_get_glyph_positions", "ooo", false));
+	private static var lime_hb_buffer_get_language = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_language",
+		"oo", false));
 	private static var lime_hb_buffer_get_length = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_length", "oi", false));
-	private static var lime_hb_buffer_get_replacement_codepoint = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_replacement_codepoint", "oi", false));
+	private static var lime_hb_buffer_get_replacement_codepoint = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_get_replacement_codepoint", "oi", false));
 	private static var lime_hb_buffer_get_script = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_get_script", "oi", false));
-	private static var lime_hb_buffer_get_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_get_segment_properties", "oov", false));
-	private static var lime_hb_buffer_guess_segment_properties = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_guess_segment_properties", "ov", false));
-	private static var lime_hb_buffer_normalize_glyphs = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_normalize_glyphs", "ov", false));
-	private static var lime_hb_buffer_preallocate = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_preallocate", "oib", false));
+	private static var lime_hb_buffer_get_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_get_segment_properties", "oov", false));
+	private static var lime_hb_buffer_guess_segment_properties = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_guess_segment_properties", "ov", false));
+	private static var lime_hb_buffer_normalize_glyphs = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_normalize_glyphs", "ov", false));
+	private static var lime_hb_buffer_preallocate = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_preallocate", "oib",
+		false));
 	private static var lime_hb_buffer_reset = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_reset", "ov", false));
 	private static var lime_hb_buffer_reverse = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_reverse", "ov", false));
-	private static var lime_hb_buffer_reverse_clusters = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_reverse_clusters", "ov", false));
-	private static var lime_hb_buffer_serialize_format_from_string = new cpp.Callable<String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_serialize_format_from_string", "si", false));
-	private static var lime_hb_buffer_serialize_format_to_string = new cpp.Callable<Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_serialize_format_to_string", "io", false));
-	private static var lime_hb_buffer_serialize_list_formats = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_serialize_list_formats", "o", false));
-	private static var lime_hb_buffer_set_cluster_level = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_cluster_level", "oiv", false));
-	private static var lime_hb_buffer_set_content_type = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_content_type", "oiv", false));
-	private static var lime_hb_buffer_set_direction = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_direction", "oiv", false));
-	private static var lime_hb_buffer_set_flags = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_flags", "oiv", false));
-	private static var lime_hb_buffer_set_language = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_language", "oov", false));
-	private static var lime_hb_buffer_set_length = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_length", "oib", false));
-	private static var lime_hb_buffer_set_replacement_codepoint = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_replacement_codepoint", "oiv", false));
-	private static var lime_hb_buffer_set_script = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_script", "oiv", false));
-	private static var lime_hb_buffer_set_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_buffer_set_segment_properties", "oov", false));
+	private static var lime_hb_buffer_reverse_clusters = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_reverse_clusters", "ov", false));
+	private static var lime_hb_buffer_serialize_format_from_string = new cpp.Callable<String->Int>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_serialize_format_from_string", "si", false));
+	private static var lime_hb_buffer_serialize_format_to_string = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_serialize_format_to_string", "io", false));
+	private static var lime_hb_buffer_serialize_list_formats = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_serialize_list_formats", "o", false));
+	private static var lime_hb_buffer_set_cluster_level = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_set_cluster_level", "oiv", false));
+	private static var lime_hb_buffer_set_content_type = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_set_content_type", "oiv", false));
+	private static var lime_hb_buffer_set_direction = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_set_direction",
+		"oiv", false));
+	private static var lime_hb_buffer_set_flags = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_set_flags", "oiv",
+		false));
+	private static var lime_hb_buffer_set_language = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_set_language", "oov", false));
+	private static var lime_hb_buffer_set_length = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_set_length", "oib",
+		false));
+	private static var lime_hb_buffer_set_replacement_codepoint = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_set_replacement_codepoint", "oiv", false));
+	private static var lime_hb_buffer_set_script = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_buffer_set_script",
+		"oiv", false));
+	private static var lime_hb_buffer_set_segment_properties = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_buffer_set_segment_properties", "oov", false));
 	private static var lime_hb_face_create = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_face_create", "oio", false));
 	private static var lime_hb_face_get_empty = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_face_get_empty", "o", false));
-	private static var lime_hb_face_get_glyph_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_face_get_glyph_count", "oi", false));
+	private static var lime_hb_face_get_glyph_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_face_get_glyph_count", "oi",
+		false));
 	private static var lime_hb_face_get_index = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_face_get_index", "oi", false));
 	private static var lime_hb_face_get_upem = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_face_get_upem", "oi", false));
 	private static var lime_hb_face_is_immutable = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_face_is_immutable", "ob", false));
-	private static var lime_hb_face_make_immutable = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_face_make_immutable", "ov", false));
-	private static var lime_hb_face_reference_blob = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_face_reference_blob", "oo", false));
-	private static var lime_hb_face_reference_table = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_face_reference_table", "oio", false));
-	private static var lime_hb_face_set_glyph_count = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_face_set_glyph_count", "oiv", false));
-	private static var lime_hb_face_set_index = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_face_set_index", "oiv", false));
-	private static var lime_hb_face_set_upem = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_face_set_upem", "oiv", false));
-	private static var lime_hb_feature_from_string = new cpp.Callable<String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_feature_from_string", "so", false));
-	private static var lime_hb_feature_to_string = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_feature_to_string", "oo", false));
-	private static var lime_hb_font_add_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_add_glyph_origin_for_direction", "oiiiiv", false));
+	private static var lime_hb_face_make_immutable = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_face_make_immutable", "ov",
+		false));
+	private static var lime_hb_face_reference_blob = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_face_reference_blob",
+		"oo", false));
+	private static var lime_hb_face_reference_table = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_face_reference_table", "oio", false));
+	private static var lime_hb_face_set_glyph_count = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_face_set_glyph_count",
+		"oiv", false));
+	private static var lime_hb_face_set_index = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_face_set_index", "oiv",
+		false));
+	private static var lime_hb_face_set_upem = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_face_set_upem", "oiv",
+		false));
+	private static var lime_hb_feature_from_string = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_feature_from_string", "so",
+		false));
+	private static var lime_hb_feature_to_string = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_feature_to_string", "oo",
+		false));
+	private static var lime_hb_font_add_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_font_add_glyph_origin_for_direction", "oiiiiv", false));
 	private static var lime_hb_font_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_create", "oo", false));
-	private static var lime_hb_font_create_sub_font = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_create_sub_font", "oo", false));
+	private static var lime_hb_font_create_sub_font = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_create_sub_font",
+		"oo", false));
 	private static var lime_hb_font_get_empty = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_get_empty", "o", false));
 	private static var lime_hb_font_get_face = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_get_face", "oo", false));
-	private static var lime_hb_font_get_glyph_advance_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_get_glyph_advance_for_direction", "oiio", false));
-	private static var lime_hb_font_get_glyph_kerning_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_get_glyph_kerning_for_direction", "oiiio", false));
-	private static var lime_hb_font_get_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_get_glyph_origin_for_direction", "oiio", false));
-	private static var lime_hb_font_get_parent = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_get_parent", "oo", false));
+	private static var lime_hb_font_get_glyph_advance_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_font_get_glyph_advance_for_direction", "oiio", false));
+	private static var lime_hb_font_get_glyph_kerning_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_font_get_glyph_kerning_for_direction", "oiiio", false));
+	private static var lime_hb_font_get_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_font_get_glyph_origin_for_direction", "oiio", false));
+	private static var lime_hb_font_get_parent = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_get_parent", "oo",
+		false));
 	private static var lime_hb_font_get_ppem = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_get_ppem", "oo", false));
 	private static var lime_hb_font_get_scale = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_font_get_scale", "oo", false));
-	private static var lime_hb_font_glyph_from_string = new cpp.Callable<cpp.Object->String->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_glyph_from_string", "osi", false));
-	private static var lime_hb_font_glyph_to_string = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_glyph_to_string", "oio", false));
+	private static var lime_hb_font_glyph_from_string = new cpp.Callable<cpp.Object->String->Int>(cpp.Prime._loadPrime("lime",
+		"lime_hb_font_glyph_from_string", "osi", false));
+	private static var lime_hb_font_glyph_to_string = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_font_glyph_to_string", "oio", false));
 	private static var lime_hb_font_is_immutable = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_font_is_immutable", "ob", false));
-	private static var lime_hb_font_make_immutable = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_make_immutable", "ov", false));
-	private static var lime_hb_font_set_ppem = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_set_ppem", "oiiv", false));
-	private static var lime_hb_font_set_scale = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_set_scale", "oiiv", false));
-	private static var lime_hb_font_subtract_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_font_subtract_glyph_origin_for_direction", "oiiiiv", false));
+	private static var lime_hb_font_make_immutable = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_font_make_immutable", "ov",
+		false));
+	private static var lime_hb_font_set_ppem = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_font_set_ppem", "oiiv",
+		false));
+	private static var lime_hb_font_set_scale = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_font_set_scale",
+		"oiiv", false));
+	private static var lime_hb_font_subtract_glyph_origin_for_direction = new cpp.Callable<cpp.Object->Int->Int->Int->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_font_subtract_glyph_origin_for_direction", "oiiiiv", false));
 	private static var lime_hb_ft_font_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_ft_font_create", "oo", false));
-	private static var lime_hb_ft_font_create_referenced = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_ft_font_create_referenced", "oo", false));
-	private static var lime_hb_ft_font_get_load_flags = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_ft_font_get_load_flags", "oi", false));
-	private static var lime_hb_ft_font_set_load_flags = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_ft_font_set_load_flags", "oiv", false));
-	private static var lime_hb_language_from_string = new cpp.Callable<String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_language_from_string", "so", false));
-	private static var lime_hb_language_get_default = new cpp.Callable<Void->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_language_get_default", "o", false));
-	private static var lime_hb_language_to_string = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_hb_language_to_string", "oo", false));
-	private static var lime_hb_segment_properties_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_hb_segment_properties_equal", "oob", false));
-	private static var lime_hb_segment_properties_hash = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_hb_segment_properties_hash", "oi", false));
+	private static var lime_hb_ft_font_create_referenced = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_hb_ft_font_create_referenced", "oo", false));
+	private static var lime_hb_ft_font_get_load_flags = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_ft_font_get_load_flags", "oi",
+		false));
+	private static var lime_hb_ft_font_set_load_flags = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_ft_font_set_load_flags", "oiv", false));
+	private static var lime_hb_language_from_string = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_language_from_string", "so",
+		false));
+	private static var lime_hb_language_get_default = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_language_get_default", "o",
+		false));
+	private static var lime_hb_language_to_string = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_language_to_string", "oo",
+		false));
+	private static var lime_hb_segment_properties_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_hb_segment_properties_equal", "oob", false));
+	private static var lime_hb_segment_properties_hash = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_segment_properties_hash",
+		"oi", false));
 	private static var lime_hb_set_add = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_add", "oiv", false));
-	private static var lime_hb_set_add_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_add_range", "oiiv", false));
-	private static var lime_hb_set_allocation_successful = new cpp.Callable<cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_allocation_successful", "ob", false));
+	private static var lime_hb_set_add_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_add_range", "oiiv",
+		false));
+	private static var lime_hb_set_allocation_successful = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_hb_set_allocation_successful", "ob", false));
 	private static var lime_hb_set_clear = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_clear", "ov", false));
 	private static var lime_hb_set_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_set_create", "o", false));
 	private static var lime_hb_set_del = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_del", "oiv", false));
-	private static var lime_hb_set_del_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_del_range", "oiiv", false));
+	private static var lime_hb_set_del_range = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_del_range", "oiiv",
+		false));
 	private static var lime_hb_set_get_empty = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_set_get_empty", "o", false));
 	private static var lime_hb_set_get_max = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_set_get_max", "oi", false));
 	private static var lime_hb_set_get_min = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_set_get_min", "oi", false));
 	private static var lime_hb_set_get_population = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_set_get_population", "oi", false));
 	private static var lime_hb_set_has = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_set_has", "oib", false));
-	private static var lime_hb_set_intersect = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_intersect", "oov", false));
+	private static var lime_hb_set_intersect = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_intersect", "oov",
+		false));
 	private static var lime_hb_set_invert = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_invert", "ov", false));
 	private static var lime_hb_set_is_empty = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_set_is_empty", "ob", false));
-	private static var lime_hb_set_is_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_is_equal", "oob", false));
+	private static var lime_hb_set_is_equal = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_hb_set_is_equal", "oob",
+		false));
 	private static var lime_hb_set_next = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_set_next", "oi", false));
 	private static var lime_hb_set_next_range = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_set_next_range", "oo", false));
 	private static var lime_hb_set_set = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_set", "oov", false));
-	private static var lime_hb_set_subtract = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_subtract", "oov", false));
-	private static var lime_hb_set_symmetric_difference = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_set_symmetric_difference", "oov", false));
+	private static var lime_hb_set_subtract = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_subtract", "oov",
+		false));
+	private static var lime_hb_set_symmetric_difference = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_hb_set_symmetric_difference", "oov", false));
 	private static var lime_hb_set_union = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_set_union", "oov", false));
-	private static var lime_hb_shape = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime
-		._loadPrime("lime", "lime_hb_shape", "ooov", false));
+	private static var lime_hb_shape = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_shape", "ooov",
+		false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_hb_blob_create:lime.utils.DataPointer->Int->Int->Dynamic = CFFI.load("lime", "lime_hb_blob_create", 3);
 	private static var lime_hb_blob_create_sub_blob:Dynamic->Int->Int->Dynamic = CFFI.load("lime", "lime_hb_blob_create_sub_blob", 3);
 	private static var lime_hb_blob_get_data:Dynamic->Float = CFFI.load("lime", "lime_hb_blob_get_data", 1);
@@ -6012,8 +6037,8 @@ class NativeCFFI
 	private static var lime_hb_blob_is_immutable:Dynamic->Bool = CFFI.load("lime", "lime_hb_blob_is_immutable", 1);
 	private static var lime_hb_blob_make_immutable:Dynamic->Void = CFFI.load("lime", "lime_hb_blob_make_immutable", 1);
 	private static var lime_hb_buffer_add:Dynamic->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add", 3);
-	private static var lime_hb_buffer_add_codepoints:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI
-		.load("lime", "lime_hb_buffer_add_codepoints", 5);
+	private static var lime_hb_buffer_add_codepoints:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_codepoints",
+		5);
 	private static var lime_hb_buffer_add_utf8:Dynamic->String->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_utf8", 4);
 	private static var lime_hb_buffer_add_utf16:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_utf16", 5);
 	private static var lime_hb_buffer_add_utf32:Dynamic->lime.utils.DataPointer->Int->Int->Int->Void = CFFI.load("lime", "lime_hb_buffer_add_utf32", 5);
@@ -6064,18 +6089,18 @@ class NativeCFFI
 	private static var lime_hb_face_set_upem:Dynamic->Int->Void = CFFI.load("lime", "lime_hb_face_set_upem", 2);
 	private static var lime_hb_feature_from_string:String->Dynamic = CFFI.load("lime", "lime_hb_feature_from_string", 1);
 	private static var lime_hb_feature_to_string:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_feature_to_string", 1);
-	private static var lime_hb_font_add_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI
-		.load("lime", "lime_hb_font_add_glyph_origin_for_direction", 5);
+	private static var lime_hb_font_add_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI.load("lime",
+		"lime_hb_font_add_glyph_origin_for_direction", 5);
 	private static var lime_hb_font_create:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_font_create", 1);
 	private static var lime_hb_font_create_sub_font:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_font_create_sub_font", 1);
 	private static var lime_hb_font_get_empty:Void->Dynamic = CFFI.load("lime", "lime_hb_font_get_empty", 0);
 	private static var lime_hb_font_get_face:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_font_get_face", 1);
-	private static var lime_hb_font_get_glyph_advance_for_direction:Dynamic->Int->Int->Dynamic = CFFI
-		.load("lime", "lime_hb_font_get_glyph_advance_for_direction", 3);
-	private static var lime_hb_font_get_glyph_kerning_for_direction:Dynamic->Int->Int->Int->Dynamic = CFFI
-		.load("lime", "lime_hb_font_get_glyph_kerning_for_direction", 4);
-	private static var lime_hb_font_get_glyph_origin_for_direction:Dynamic->Int->Int->Dynamic = CFFI
-		.load("lime", "lime_hb_font_get_glyph_origin_for_direction", 3);
+	private static var lime_hb_font_get_glyph_advance_for_direction:Dynamic->Int->Int->Dynamic = CFFI.load("lime",
+		"lime_hb_font_get_glyph_advance_for_direction", 3);
+	private static var lime_hb_font_get_glyph_kerning_for_direction:Dynamic->Int->Int->Int->Dynamic = CFFI.load("lime",
+		"lime_hb_font_get_glyph_kerning_for_direction", 4);
+	private static var lime_hb_font_get_glyph_origin_for_direction:Dynamic->Int->Int->Dynamic = CFFI.load("lime",
+		"lime_hb_font_get_glyph_origin_for_direction", 3);
 	private static var lime_hb_font_get_parent:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_font_get_parent", 1);
 	private static var lime_hb_font_get_ppem:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_font_get_ppem", 1);
 	private static var lime_hb_font_get_scale:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_font_get_scale", 1);
@@ -6085,8 +6110,8 @@ class NativeCFFI
 	private static var lime_hb_font_make_immutable:Dynamic->Void = CFFI.load("lime", "lime_hb_font_make_immutable", 1);
 	private static var lime_hb_font_set_ppem:Dynamic->Int->Int->Void = CFFI.load("lime", "lime_hb_font_set_ppem", 3);
 	private static var lime_hb_font_set_scale:Dynamic->Int->Int->Void = CFFI.load("lime", "lime_hb_font_set_scale", 3);
-	private static var lime_hb_font_subtract_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI
-		.load("lime", "lime_hb_font_subtract_glyph_origin_for_direction", 5);
+	private static var lime_hb_font_subtract_glyph_origin_for_direction:Dynamic->Int->Int->Int->Int->Void = CFFI.load("lime",
+		"lime_hb_font_subtract_glyph_origin_for_direction", 5);
 	private static var lime_hb_ft_font_create:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_ft_font_create", 1);
 	private static var lime_hb_ft_font_create_referenced:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_ft_font_create_referenced", 1);
 	private static var lime_hb_ft_font_get_load_flags:Dynamic->Int = CFFI.load("lime", "lime_hb_ft_font_get_load_flags", 1);
@@ -6127,7 +6152,8 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob(parent:CFFIPointer, offset:Int, length:Int):CFFIPointer
+	@:hlNative("lime", "lime_hb_blob_create_sub_blob") private static function lime_hb_blob_create_sub_blob(parent:CFFIPointer, offset:Int,
+			length:Int):CFFIPointer
 	{
 		return null;
 	}
@@ -6432,7 +6458,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "lime_hb_font_set_scale") private static function lime_hb_font_set_scale(font:CFFIPointer, xScale:Int, yScale:Int):Void {}
 
-	@:hlNative("lime", "lime_hb_font_subtract_glyph_origin_for_direction") private static function lime_hb_font_subtract_glyph_origin_for_direction(font:CFFIPointer,
+	@:hlNative("lime",
+		"lime_hb_font_subtract_glyph_origin_for_direction") private static function lime_hb_font_subtract_glyph_origin_for_direction(font:CFFIPointer,
 		glyph:Int, direction:Int, x:Int, y:Int):Void {}
 
 	@:hlNative("lime", "lime_hb_ft_font_create") private static function lime_hb_ft_font_create(font:CFFIPointer):CFFIPointer
@@ -6559,7 +6586,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (lime_cffi && !macro && lime_vorbis)
-	#if cpp
+	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
 	@:cffi private static function lime_vorbis_file_bitrate(vorbisFile:Dynamic, bitstream:Int):Int;
 
@@ -6620,64 +6647,64 @@ class NativeCFFI
 
 	@:cffi private static function lime_vorbis_file_time_total(vorbisFile:Dynamic, bitstream:Int):Float;
 	#else
-	private static var lime_vorbis_file_bitrate = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_bitrate", "oii", false));
-	private static var lime_vorbis_file_bitrate_instant = new cpp.Callable<cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_bitrate_instant", "oi", false));
+	private static var lime_vorbis_file_bitrate = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_bitrate", "oii",
+		false));
+	private static var lime_vorbis_file_bitrate_instant = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_bitrate_instant",
+		"oi", false));
 	private static var lime_vorbis_file_clear = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_clear", "ov", false));
-	private static var lime_vorbis_file_comment = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_comment", "oio", false));
-	private static var lime_vorbis_file_crosslap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_crosslap", "ooo", false));
-	private static var lime_vorbis_file_from_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_from_bytes", "oo", false));
-	private static var lime_vorbis_file_from_file = new cpp.Callable<String->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_from_file", "so", false));
-	private static var lime_vorbis_file_info = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_info", "oio", false));
-	private static var lime_vorbis_file_pcm_seek = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_pcm_seek", "oooi", false));
-	private static var lime_vorbis_file_pcm_seek_lap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_pcm_seek_lap", "oooi", false));
-	private static var lime_vorbis_file_pcm_seek_page = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_pcm_seek_page", "oooi", false));
-	private static var lime_vorbis_file_pcm_seek_page_lap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_pcm_seek_page_lap", "oooi", false));
-	private static var lime_vorbis_file_raw_seek = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_raw_seek", "oooi", false));
-	private static var lime_vorbis_file_raw_seek_lap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_raw_seek_lap", "oooi", false));
-	private static var lime_vorbis_file_pcm_tell = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_pcm_tell", "oo", false));
-	private static var lime_vorbis_file_pcm_total = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_pcm_total", "oio", false));
-	private static var lime_vorbis_file_raw_tell = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_raw_tell", "oo", false));
-	private static var lime_vorbis_file_raw_total = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_raw_total", "oio", false));
-	private static var lime_vorbis_file_read = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Bool->Int->Bool->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_read", "ooiibibo", false));
-	private static var lime_vorbis_file_read_float = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_read_float", "ooio", false));
+	private static var lime_vorbis_file_comment = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_comment",
+		"oio", false));
+	private static var lime_vorbis_file_crosslap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_crosslap", "ooo", false));
+	private static var lime_vorbis_file_from_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_from_bytes",
+		"oo", false));
+	private static var lime_vorbis_file_from_file = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_from_file", "so",
+		false));
+	private static var lime_vorbis_file_info = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_info", "oio",
+		false));
+	private static var lime_vorbis_file_pcm_seek = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_pcm_seek", "oooi", false));
+	private static var lime_vorbis_file_pcm_seek_lap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_pcm_seek_lap", "oooi", false));
+	private static var lime_vorbis_file_pcm_seek_page = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_pcm_seek_page", "oooi", false));
+	private static var lime_vorbis_file_pcm_seek_page_lap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_pcm_seek_page_lap", "oooi", false));
+	private static var lime_vorbis_file_raw_seek = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_raw_seek", "oooi", false));
+	private static var lime_vorbis_file_raw_seek_lap = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_raw_seek_lap", "oooi", false));
+	private static var lime_vorbis_file_pcm_tell = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_pcm_tell", "oo",
+		false));
+	private static var lime_vorbis_file_pcm_total = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_pcm_total",
+		"oio", false));
+	private static var lime_vorbis_file_raw_tell = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_raw_tell", "oo",
+		false));
+	private static var lime_vorbis_file_raw_total = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_raw_total",
+		"oio", false));
+	private static var lime_vorbis_file_read = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Bool->Int->Bool->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_read", "ooiibibo", false));
+	private static var lime_vorbis_file_read_float = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_read_float", "ooio", false));
 	private static var lime_vorbis_file_seekable = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_seekable", "ob", false));
-	private static var lime_vorbis_file_serial_number = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_serial_number", "oii", false));
+	private static var lime_vorbis_file_serial_number = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_serial_number",
+		"oii", false));
 	private static var lime_vorbis_file_streams = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_streams", "oi", false));
-	private static var lime_vorbis_file_time_seek = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_time_seek", "odi", false));
-	private static var lime_vorbis_file_time_seek_lap = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_time_seek_lap", "odi", false));
-	private static var lime_vorbis_file_time_seek_page = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_time_seek_page", "odi", false));
-	private static var lime_vorbis_file_time_seek_page_lap = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_time_seek_page_lap", "odi", false));
-	private static var lime_vorbis_file_time_tell = new cpp.Callable<cpp.Object->Float>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_time_tell", "od", false));
-	private static var lime_vorbis_file_time_total = new cpp.Callable<cpp.Object->Int->Float>(cpp.Prime
-		._loadPrime("lime", "lime_vorbis_file_time_total", "oid", false));
+	private static var lime_vorbis_file_time_seek = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_time_seek", "odi",
+		false));
+	private static var lime_vorbis_file_time_seek_lap = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_time_seek_lap", "odi", false));
+	private static var lime_vorbis_file_time_seek_page = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_time_seek_page", "odi", false));
+	private static var lime_vorbis_file_time_seek_page_lap = new cpp.Callable<cpp.Object->Float->Int>(cpp.Prime._loadPrime("lime",
+		"lime_vorbis_file_time_seek_page_lap", "odi", false));
+	private static var lime_vorbis_file_time_tell = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_time_tell", "od",
+		false));
+	private static var lime_vorbis_file_time_total = new cpp.Callable<cpp.Object->Int->Float>(cpp.Prime._loadPrime("lime", "lime_vorbis_file_time_total",
+		"oid", false));
 	#end
 	#end
-	#if neko
+	#if (neko || cppia)
 	private static var lime_vorbis_file_bitrate = CFFI.load("lime", "lime_vorbis_file_bitrate", 2);
 	private static var lime_vorbis_file_bitrate_instant = CFFI.load("lime", "lime_vorbis_file_bitrate_instant", 1);
 	private static var lime_vorbis_file_clear = CFFI.load("lime", "lime_vorbis_file_clear", 1);

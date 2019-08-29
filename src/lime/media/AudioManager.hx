@@ -108,7 +108,11 @@ class AudioManager
 			{
 				alc.suspendContext(currentContext);
 				var device = alc.getContextsDevice(currentContext);
-				alc.pauseDevice(device);
+
+				if (device != null)
+				{
+					alc.pauseDevice(device);
+				}
 			}
 		}
 		#end

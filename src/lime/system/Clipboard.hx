@@ -24,10 +24,15 @@ class Clipboard
 	private static function __update():Void
 	{
 		var cacheText = _text;
+		_text = null;
 
 		#if (lime_cffi && !macro)
 		#if hl
-		_text = @:privateAccess String.fromUTF8(NativeCFFI.lime_clipboard_get_text());
+		var utf = NativeCFFI.lime_clipboard_get_text();
+		if (utf != null)
+		{
+			_text = @:privateAccess String.fromUTF8(utf);
+		}
 		#else
 		_text = NativeCFFI.lime_clipboard_get_text();
 		#end
@@ -36,7 +41,6 @@ class Clipboard
 		{
 			_text = FlashClipboard.generalClipboard.getData(TEXT_FORMAT);
 		}
-		_text = null;
 		#end
 
 		if (_text != cacheText)

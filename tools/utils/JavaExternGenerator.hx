@@ -499,8 +499,11 @@ class JavaExternGenerator
 			java_out.writeString("   long __haxeHandle;\n");
 			java_out.writeString("   public " + impl_name + "(long inHandle) { __haxeHandle=inHandle; }\n");
 
-			output("   public function new() { __jobject = openfl.utils.JNI.createInterface(this,\"" + dir_parts
-				.join(".") + "." + impl_name + "\", classDef ); }\n	\n");
+			output("   public function new() { __jobject = openfl.utils.JNI.createInterface(this,\""
+				+ dir_parts.join(".")
+				+ "."
+				+ impl_name
+				+ "\", classDef ); }\n	\n");
 		}
 
 		var field_count = src.readUInt16();
@@ -664,8 +667,8 @@ class JavaExternGenerator
 					func_name = "_" + uniq_name + "_func";
 					output("		if (" + func_name + " == null)\n");
 					output("			" + func_name + " = openfl.utils.JNI." + (is_static ? "createStaticMethod" : "createMemberMethod"));
-					output("(\"" + StringTools
-						.replace(mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref] + "\", true);\n");
+					output("(\"" + StringTools.replace(mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref]
+						+ "\", true);\n");
 
 					output("		var a = new Array<Dynamic>();\n");
 

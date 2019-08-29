@@ -280,7 +280,7 @@ class HTML5Window
 				var options =
 					{
 						alpha: (transparentBackground || colorDepth > 16) ? true : false,
-						antialias: Reflect.hasField(contextAttributes, "antialiasing") ? true : false,
+						antialias: Reflect.hasField(contextAttributes, "antialiasing") ? contextAttributes.antialiasing > 0 : false,
 						depth: Reflect.hasField(contextAttributes, "depth") ? contextAttributes.depth : true,
 						premultipliedAlpha: true,
 						stencil: Reflect.hasField(contextAttributes, "stencil") ? contextAttributes.stencil : false,
@@ -987,32 +987,32 @@ class HTML5Window
 				requestedFullscreen = true;
 
 				untyped
+				{
+					if (parent.element.requestFullscreen)
 					{
-						if (parent.element.requestFullscreen)
-						{
-							document.addEventListener("fullscreenchange", handleFullscreenEvent, false);
-							document.addEventListener("fullscreenerror", handleFullscreenEvent, false);
-							parent.element.requestFullscreen();
-						}
-						else if (parent.element.mozRequestFullScreen)
-						{
-							document.addEventListener("mozfullscreenchange", handleFullscreenEvent, false);
-							document.addEventListener("mozfullscreenerror", handleFullscreenEvent, false);
-							parent.element.mozRequestFullScreen();
-						}
-						else if (parent.element.webkitRequestFullscreen)
-						{
-							document.addEventListener("webkitfullscreenchange", handleFullscreenEvent, false);
-							document.addEventListener("webkitfullscreenerror", handleFullscreenEvent, false);
-							parent.element.webkitRequestFullscreen();
-						}
-						else if (parent.element.msRequestFullscreen)
-						{
-							document.addEventListener("MSFullscreenChange", handleFullscreenEvent, false);
-							document.addEventListener("MSFullscreenError", handleFullscreenEvent, false);
-							parent.element.msRequestFullscreen();
-						}
+						document.addEventListener("fullscreenchange", handleFullscreenEvent, false);
+						document.addEventListener("fullscreenerror", handleFullscreenEvent, false);
+						parent.element.requestFullscreen();
 					}
+					else if (parent.element.mozRequestFullScreen)
+					{
+						document.addEventListener("mozfullscreenchange", handleFullscreenEvent, false);
+						document.addEventListener("mozfullscreenerror", handleFullscreenEvent, false);
+						parent.element.mozRequestFullScreen();
+					}
+					else if (parent.element.webkitRequestFullscreen)
+					{
+						document.addEventListener("webkitfullscreenchange", handleFullscreenEvent, false);
+						document.addEventListener("webkitfullscreenerror", handleFullscreenEvent, false);
+						parent.element.webkitRequestFullscreen();
+					}
+					else if (parent.element.msRequestFullscreen)
+					{
+						document.addEventListener("MSFullscreenChange", handleFullscreenEvent, false);
+						document.addEventListener("MSFullscreenError", handleFullscreenEvent, false);
+						parent.element.msRequestFullscreen();
+					}
+				}
 			}
 		}
 		else if (isFullscreen)
@@ -1020,12 +1020,12 @@ class HTML5Window
 			requestedFullscreen = false;
 
 			untyped
-				{
-					if (document.exitFullscreen) document.exitFullscreen();
-					else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-					else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-					else if (document.msExitFullscreen) document.msExitFullscreen();
-				}
+			{
+				if (document.exitFullscreen) document.exitFullscreen();
+				else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+				else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+				else if (document.msExitFullscreen) document.msExitFullscreen();
+			}
 		}
 
 		return value;

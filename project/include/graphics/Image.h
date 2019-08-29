@@ -19,7 +19,7 @@ namespace lime {
 		int offsetX;
 		int offsetY;
 		Rectangle* rect;
-		/*ImageType*/ int type;
+		venum* type;
 		int version;
 		int width;
 		double x;

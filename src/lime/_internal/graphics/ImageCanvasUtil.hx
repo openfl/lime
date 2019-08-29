@@ -139,8 +139,8 @@ class ImageCanvasUtil
 
 			// TODO: use faster method
 
-			var tempData = image.clone();
-			tempData.copyChannel(alphaImage, new Rectangle(alphaPoint.x, alphaPoint.y, sourceRect.width, sourceRect.height),
+			var tempData = sourceImage.clone();
+			tempData.copyChannel(alphaImage, new Rectangle(sourceRect.x + alphaPoint.x, sourceRect.y + alphaPoint.y, sourceRect.width, sourceRect.height),
 				new Vector2(sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
 			sourceImage = tempData;
 		}
@@ -151,8 +151,12 @@ class ImageCanvasUtil
 		{
 			if (image.transparent && sourceImage.transparent)
 			{
-				image.buffer.__srcContext.clearRect(destPoint.x + image.offsetX, destPoint.y + image.offsetY, sourceRect.width + image.offsetX,
-					sourceRect.height + image.offsetY);
+				image.buffer.__srcContext.clearRect(destPoint.x
+					+ image.offsetX, destPoint.y
+					+ image.offsetY, sourceRect.width
+					+ image.offsetX,
+					sourceRect.height
+					+ image.offsetY);
 			}
 		}
 

@@ -215,6 +215,7 @@ class HTML5Helper
 				if (!Log.verbose)
 				{
 					args.push("--jscomp_off=uselessCode");
+					args.push("--jscomp_off=suspiciousCode"); // avoid warnings caused by the embedded minified libraries
 				}
 
 				System.runCommand("", "java", args);

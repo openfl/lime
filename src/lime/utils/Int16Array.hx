@@ -9,12 +9,12 @@ import js.html.Int16Array as JSInt16Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
-abstract Int16Array(JSInt16Array) from JSInt16Array to JSInt16Array
+abstract Int16Array(JSInt16Array) from JSInt16Array to JSInt16Array to ArrayBufferView
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 2;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end?view:ArrayBufferView, ?buffer:ArrayBuffer,
+	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -24,13 +24,17 @@ abstract Int16Array(JSInt16Array) from JSInt16Array to JSInt16Array
 		else if (array != null)
 		{
 			this = new JSInt16Array(untyped array);
-			#if (openfl && commonjs)
-			}
-			else if (vector != null) {this = new JSInt16Array(untyped (vector));
-			#elseif openfl
-			}
-			else if (vector != null) {this = new JSInt16Array(untyped untyped (vector).__array);
-			#end
+		#if (openfl && commonjs)
+		}
+		else if (vector != null)
+		{
+			this = new JSInt16Array(untyped (vector));
+		#elseif openfl
+		}
+		else if (vector != null)
+		{
+			this = new JSInt16Array(untyped untyped (vector).__array);
+		#end
 		}
 		else if (view != null)
 		{
@@ -86,7 +90,7 @@ abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	public var length(get, never):Int;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end?view:ArrayBufferView,
+	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -96,10 +100,12 @@ abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		else if (array != null)
 		{
 			this = new ArrayBufferView(0, Int16).initArray(array);
-			#if openfl
-			}
-			else if (vector != null) {this = new ArrayBufferView(0, Int16).initArray(untyped (vector).__array);
-			#end
+		#if openfl
+		}
+		else if (vector != null)
+		{
+			this = new ArrayBufferView(0, Int16).initArray(untyped (vector).__array);
+		#end
 		}
 		else if (view != null)
 		{

@@ -12,6 +12,19 @@ $hx_exports.lime.embed = function(projectName) { var exports = {};
 	if (lime && lime.embed && this != lime.embed) lime.embed.apply(lime, arguments);
 	return exports;
 };
-})(typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
+::if false::
+	AMD compatibility: If define() is present we need to
+	- call it, to define our module
+	- disable it so that the embedded libraries register themselves in the global scope!
+::end::if(typeof define == "function" && define.amd) {
+	define([], function() { return $hx_exports.lime; });
+	define.__amd = define.amd;
+	define.amd = null;
+}
+})(typeof exports != "undefined" ? exports : typeof define == "function" && define.amd ? {} : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 ::if embeddedLibraries::::foreach (embeddedLibraries)::
 ::__current__::::end::::end::
+if(typeof define == "function" && define.__amd) {
+	define.amd = define.__amd;
+	delete define.__amd;
+}

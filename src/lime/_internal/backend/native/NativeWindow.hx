@@ -384,8 +384,8 @@ class NativeWindow
 				var data:Dynamic = NativeCFFI.lime_window_read_pixels(handle, rect, null);
 				if (data != null)
 				{
-					imageBuffer = new ImageBuffer(new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b)), data.width, data.height, data
-						.bitsPerPixel);
+					imageBuffer = new ImageBuffer(new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b)), data.width, data.height,
+						data.bitsPerPixel);
 				}
 				#end
 				#end

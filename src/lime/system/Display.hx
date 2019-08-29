@@ -17,6 +17,7 @@ class Display
 	 * The current display mode
 	**/
 	public var currentMode(default, null):DisplayMode;
+
 	public var id(default, null):Int;
 
 	/**

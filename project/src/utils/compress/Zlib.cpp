@@ -24,7 +24,7 @@ namespace lime {
 
 		int ret = 0;
 
-		if ((ret = deflateInit2 (stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY) != Z_OK)) {
+		if ((ret = deflateInit2 (stream, Z_BEST_COMPRESSION, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY) != Z_OK)) {
 
 			//val_throw (stream->msg);
 			free (stream);

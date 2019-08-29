@@ -1,8 +1,9 @@
 package flash.printing;
 
-@:fakeEnum(String) extern enum PrintMethod
+@:native("flash.printing.PrintMethod")
+@:enum extern abstract PrintMethod(String)
 {
-	AUTO;
-	BITMAP;
-	VECTOR;
+	var AUTO;
+	var BITMAP;
+	var VECTOR;
 }

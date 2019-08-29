@@ -42,10 +42,13 @@ import lime.utils.Int32Array;
 **/
 @:forward
 #if (lime_doc_gen)
-abstract OpenGLES3RenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext {
+abstract OpenGLES3RenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext
+{
 #else
-abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext {
+abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext
+{
 #end
+
 private static var __extensions:String;
 public var EXTENSIONS(get, never):Int;
 public var DEPTH_BUFFER_BIT(get, never):Int;
@@ -3594,8 +3597,7 @@ public inline function compileShader(shader:GLShader):Void
 	this.compileShader(shader);
 }
 
-public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int,
-		data:DataPointer):Void
+public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, imageSize:Int, data:DataPointer):Void
 {
 	this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
 }
@@ -4532,8 +4534,7 @@ public inline function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:In
 	this.stencilOpSeparate(face, fail, zfail, zpass);
 }
 
-public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int,
-		data:DataPointer):Void
+public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:DataPointer):Void
 {
 	this.texImage2D(target, level, internalformat, width, height, border, format, type, data);
 }
@@ -4564,8 +4565,7 @@ public inline function texParameteri(target:Int, pname:Int, param:Int):Void
 	this.texParameteri(target, pname, param);
 }
 
-public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int,
-		data:DataPointer):Void
+public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:DataPointer):Void
 {
 	this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, data);
 }

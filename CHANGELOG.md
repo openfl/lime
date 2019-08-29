@@ -1,3 +1,54 @@
+7.6.0 (08/20/2019)
+------------------
+
+* Updated support for Haxe 4 dev versions
+* Updated SDL to 2.10
+* Updated the default Android target API to 28 (per Google guidelines)
+* Updated HashLink support to 1.10 (requires Haxe 4 RC3 or greater)
+* Added official support for Android ARM64 architecture
+* Added ARM64 as a default architecture in Android builds
+* Added `lime.utils.AssetBundle` for standard compressed libraries
+* Added support for pure JSON-based asset manifest data
+* Added AMD support to generated JavaScript output
+* Added `remove` to `lime.utils.ObjectPool`
+* Added initial support for `window.onMove` on the AIR target
+* Improved the performance of `Image.loadFromBytes` on HTML5
+* Improved `DataPointer` to be a more reliable implementation in JavaScript
+* Improved support for pre-generated asset libraries
+* Improved the same origin check for `HTTPRequest` data-based URIs
+* Improved the native main loop behavior on the Android target
+* Fixed a compile error when using `flash.system.SystemIdleMode`
+* Fixed issues with WebGL on the HTML5 target caused by `DataPointer`
+* Fixed an issue where antialiasing was always enabled on HTML5
+* Fixed the behavior of `image.copyPixels` in a few cases
+* Fixed minor issues when using the `-npm` HTML5 template
+
+
+7.5.0 (05/14/2019)
+------------------
+
+* Update version
+
+
+7.4.0 (05/14/2019)
+------------------
+
+* Renamed the "ndll" folder to "lib"
+* Updated SDL to latest development version
+* Updated the minimum target Android API from 14 to 16
+* Added support for CMYK JPEG decoding on native platforms
+* Added an `-npm` option for HTML5 to use Webpack
+* Added "hashlink" as an alias for the HL target
+* Improved the Zlib default compression level
+* Improved support for WinRT applications
+* Improved the internal blur implementation
+* Improved support for native joystick connection/disconnection
+* Improved the output HTML5 script wrapper with better Haxe 3.2 support
+* Fixed the values in `lime.ui.MouseButton` to match Lime's historic values (zero based)
+* Fixed issues effecting proper `Image` pixel-level APIs when targeting HL
+* Fixed a missing button value when dispatching HL mouse events
+
+
 7.3.0 (04/01/2019)
 ------------------
 

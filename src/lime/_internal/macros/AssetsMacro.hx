@@ -8,6 +8,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 #end
 #if (macro && !display)
+import lime._internal.format.Base64;
 import sys.io.File;
 import sys.FileSystem;
 #end
@@ -17,26 +18,6 @@ class AssetsMacro
 	#if !macro
 	macro public static function cacheVersion() {}
 	#else
-	private static var base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	private static var base64Encoder:BaseCode;
-
-	private static function base64Encode(bytes:Bytes):String
-	{
-		var extension = switch (bytes.length % 3)
-		{
-			case 1: "==";
-			case 2: "=";
-			default: "";
-		}
-
-		if (base64Encoder == null)
-		{
-			base64Encoder = new BaseCode(Bytes.ofString(base64Chars));
-		}
-
-		return base64Encoder.encodeBytes(bytes).toString() + extension;
-	}
-
 	macro public static function cacheVersion()
 	{
 		return macro $v{Std.int(Math.random() * 1000000)};
@@ -141,7 +122,8 @@ class AssetsMacro
 					opt: true,
 					type: macro:Int,
 					value: macro 0
-				}];
+				}
+			];
 			fields.push(
 				{
 					name: "new",
@@ -194,7 +176,8 @@ class AssetsMacro
 							}
 
 							var bytes = File.getBytes(path);
-							var resourceName = "__ASSET__" + metaName
+							var resourceName = "__ASSET__"
+								+ metaName
 								+ "_"
 								+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
 								+ classType.name;
@@ -226,7 +209,7 @@ class AssetsMacro
 										pos: position
 									});
 
-								var base64 = base64Encode(bytes);
+								var base64 = Base64.encode(bytes);
 								Context.addResource(resourceName, Bytes.ofString(base64));
 							}
 							else

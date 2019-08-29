@@ -63,7 +63,7 @@ namespace lime {
 
 			int byteOffset;
 			Image* image;
-			Rectangle* rect;
+			Rectangle rect;
 			int stride;
 
 

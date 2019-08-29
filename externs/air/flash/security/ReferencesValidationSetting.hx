@@ -1,8 +1,9 @@
 package flash.security;
 
-@:fakeEnum(String) extern enum ReferencesValidationSetting
+@:native("flash.security.ReferencesValidationSetting")
+@:enum extern abstract ReferencesValidationSetting(String)
 {
-	NEVER;
-	VALID_IDENTITY;
-	VALID_OR_UNKNOWN_IDENTITY;
+	var NEVER;
+	var VALID_IDENTITY;
+	var VALID_OR_UNKNOWN_IDENTITY;
 }

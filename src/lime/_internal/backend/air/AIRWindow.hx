@@ -6,6 +6,7 @@ import flash.display.NativeWindowInitOptions;
 import flash.display.NativeWindowRenderMode;
 import flash.display.NativeWindowSystemChrome;
 import flash.events.Event;
+import flash.events.NativeWindowBoundsEvent;
 import flash.html.HTMLLoader;
 import flash.Lib;
 import lime._internal.backend.flash.FlashApplication;
@@ -123,6 +124,7 @@ class AIRWindow extends FlashWindow
 			nativeWindow.addEventListener(Event.CLOSING, handleNativeWindowEvent);
 			nativeWindow.addEventListener(Event.CLOSE, handleNativeWindowEvent);
 			// nativeWindow.addEventListener (Event.RESIZE, handleWindowEvent);
+			nativeWindow.addEventListener(NativeWindowBoundsEvent.MOVE, handleNativeWindowEvent);
 
 			nativeWindow.visible = !hidden;
 			// nativeWindow.activate ();
@@ -199,6 +201,9 @@ class AIRWindow extends FlashWindow
 			// 	// parent.__height = nativeWindow.height;
 
 			// 	parent.onResize.dispatch (parent.__width, parent.__height);
+
+			case NativeWindowBoundsEvent.MOVE:
+				parent.onMove.dispatch(nativeWindow.x, nativeWindow.y);
 
 			default:
 		}

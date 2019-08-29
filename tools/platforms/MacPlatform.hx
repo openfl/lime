@@ -95,14 +95,14 @@ class MacPlatform extends PlatformTarget
 				// TODO: Support single binary for HashLink
 				if (targetType == "hl")
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", executableDirectory, project
-						.debug, targetSuffix);
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", executableDirectory, project.debug, targetSuffix);
 				}
 				else
 				{
 					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
-						(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
-						executableDirectory, project.debug, targetSuffix);
+						(ndll.haxelib != null
+							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", executableDirectory,
+						project.debug, targetSuffix);
 				}
 			}
 		}
@@ -258,11 +258,16 @@ class MacPlatform extends PlatformTarget
 			hxml.addClassName(context.APP_MAIN);
 			switch (targetType)
 			{
-				case "hl": hxml.hl = "_.hl";
-				case "neko": hxml.neko = "_.n";
-				case "java": hxml.java = "_";
-				case "nodejs": hxml.js = "_.js";
-				default: hxml.cpp = "_";
+				case "hl":
+					hxml.hl = "_.hl";
+				case "neko":
+					hxml.neko = "_.n";
+				case "java":
+					hxml.java = "_";
+				case "nodejs":
+					hxml.js = "_.js";
+				default:
+					hxml.cpp = "_";
 			}
 			hxml.noOutput = true;
 			return hxml;
@@ -374,7 +379,10 @@ class MacPlatform extends PlatformTarget
 
 		System.copyFileTemplate(project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
 		System.copyFileTemplate(project.templatePaths, "mac/Entitlements.plist",
-			targetDirectory + "/bin/" + project.app.file + ".app/Contents/Entitlements.plist", context);
+			targetDirectory
+			+ "/bin/"
+			+ project.app.file
+			+ ".app/Contents/Entitlements.plist", context);
 
 		var icons = project.icons;
 

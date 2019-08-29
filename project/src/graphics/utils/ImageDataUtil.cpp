@@ -19,6 +19,7 @@ namespace lime {
 		bool premultiplied = image->buffer->premultiplied;
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 
+		Rectangle* _rect = (Rectangle*)(image->type);
 		ImageDataView dataView = ImageDataView (image, rect);
 
 		colorMatrix->GetAlphaTable (alphaTable);
@@ -130,7 +131,7 @@ namespace lime {
 		int destBytesPerPixel = image->buffer->bitsPerPixel / 8;
 
 		bool useAlphaImage = (alphaImage && alphaImage->buffer->transparent);
-		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent));
+		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent) || (!mergeAlpha && !image->buffer->transparent && sourceImage->buffer->transparent));
 
 		if (!useAlphaImage) {
 
@@ -213,7 +214,7 @@ namespace lime {
 			int alphaPosition;
 			RGBA alphaPixel;
 
-			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, alphaImage->width, alphaImage->height);
+			Rectangle alphaRect = Rectangle (sourceView.x + alphaPoint->x, sourceView.y + alphaPoint->y, sourceView.width, sourceView.height);
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 
 			destView.Clip (destPoint->x, destPoint->y, alphaView.width, alphaView.height);
@@ -811,14 +812,14 @@ namespace lime {
 	ImageDataView::ImageDataView (Image* image, Rectangle* rect) {
 
 		this->image = image;
+		this->rect = Rectangle(rect->x, rect->y, rect->width, rect->height);
 
-		if (rect->x < 0) rect->x = 0;
-		if (rect->y < 0) rect->y = 0;
-		if (rect->x + rect->width > image->width) rect->width = image->width - rect->x;
-		if (rect->y + rect->height > image->height) rect->height = image->height - rect->y;
-		if (rect->width < 0) rect->width = 0;
-		if (rect->height < 0) rect->height = 0;
-		this->rect = rect;
+		if (this->rect.x < 0) this->rect.x = 0;
+		if (this->rect.y < 0) this->rect.y = 0;
+		if (this->rect.x + this->rect.width > image->width) this->rect.width = image->width - this->rect.x;
+		if (this->rect.y + this->rect.height > image->height) this->rect.height = image->height - this->rect.y;
+		if (this->rect.width < 0) this->rect.width = 0;
+		if (this->rect.height < 0) this->rect.height = 0;
 
 		stride = image->buffer->Stride ();
 
@@ -830,7 +831,7 @@ namespace lime {
 
 	void ImageDataView::Clip (int x, int y, int width, int height) {
 
-		rect->Contract (x, y, width, height);
+		rect.Contract (x, y, width, height);
 		__Update ();
 
 	}
@@ -847,25 +848,25 @@ namespace lime {
 
 		if (x < 0) {
 
-			rect->x += x;
-			if (rect->x < 0) rect->x = 0;
+			rect.x += x;
+			if (rect.x < 0) rect.x = 0;
 
 		} else {
 
-			rect->x += x;
-			rect->width -= x;
+			rect.x += x;
+			rect.width -= x;
 
 		}
 
 		if (y < 0) {
 
-			rect->y += y;
-			if (rect->y < 0) rect->y = 0;
+			rect.y += y;
+			if (rect.y < 0) rect.y = 0;
 
 		} else {
 
-			rect->y += y;
-			rect->height -= y;
+			rect.y += y;
+			rect.height -= y;
 
 		}
 
@@ -883,10 +884,10 @@ namespace lime {
 
 	inline void ImageDataView::__Update () {
 
-		this->x = (int) ceil (rect->x);
-		this->y = (int) ceil (rect->y);
-		this->width = (int) floor (rect->width);
-		this->height = (int) floor (rect->height);
+		this->x = (int) ceil (rect.x);
+		this->y = (int) ceil (rect.y);
+		this->width = (int) floor (rect.width);
+		this->height = (int) floor (rect.height);
 		byteOffset = (stride * (this->y + image->offsetY)) + ((this->x + image->offsetX) * 4);
 
 	}

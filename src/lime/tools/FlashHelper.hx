@@ -4,6 +4,7 @@ package lime.tools;
 // import openfl.utils.ByteArray;
 import haxe.io.Bytes;
 import hxp.*;
+import lime._internal.format.Base64;
 import lime.tools.Asset;
 import lime.tools.AssetEncoding;
 import lime.tools.AssetType;
@@ -90,8 +91,11 @@ class FlashHelper
 						case Frame(frame):
 							if (frame.header.layer != mpeg.audio.Layer.Layer3)
 							{
-								Sys.println("Warning: Could not embed \"" + name + "\" (Flash only supports Layer-III MP3 files, but file is " + frame.header
-									.layer + "), embedding as binary");
+								Sys.println("Warning: Could not embed \""
+									+ name
+									+ "\" (Flash only supports Layer-III MP3 files, but file is "
+									+ frame.header.layer
+									+ "), embedding as binary");
 								inAsset.type = BINARY;
 								return embedAsset(inAsset, packageName, outTags);
 							}
@@ -102,7 +106,8 @@ class FlashHelper
 							}
 							else if (frameSamplingFrequency != samplingFrequency)
 							{
-								Sys.println("Warning: Could not embed \"" + name
+								Sys.println("Warning: Could not embed \""
+									+ name
 									+ "\" (Flash does not support MP3 audio with variable sampling frequencies), embedding as binary");
 								inAsset.type = BINARY;
 								return embedAsset(inAsset, packageName, outTags);
@@ -114,7 +119,8 @@ class FlashHelper
 							}
 							else if (frameIsStereo != isStereo)
 							{
-								Sys.println("Warning: Could not embed \"" + name
+								Sys.println("Warning: Could not embed \""
+									+ name
 									+ "\" (Flash does not support MP3 audio with mixed mono and stero frames), embedding as binary");
 								inAsset.type = BINARY;
 								return embedAsset(inAsset, packageName, outTags);
@@ -135,9 +141,7 @@ class FlashHelper
 
 				if (totalLengthSamples == 0)
 				{
-					Sys.println("Warning: Could not embed \""
-						+ name
-						+ "\" (Could not find any valid MP3 audio data), embedding as binary");
+					Sys.println("Warning: Could not embed \"" + name + "\" (Could not find any valid MP3 audio data), embedding as binary");
 					inAsset.type = BINARY;
 					return embedAsset(inAsset, packageName, outTags);
 				}
@@ -281,7 +285,7 @@ class FlashHelper
 			{
 				if (inAsset.encoding == AssetEncoding.BASE64)
 				{
-					outTags.push(TBitsJPEG(cid, JDJPEG2(StringTools.base64Decode(inAsset.data))));
+					outTags.push(TBitsJPEG(cid, JDJPEG2(Base64.decode(inAsset.data))));
 				}
 				else
 				{
@@ -331,9 +335,7 @@ class FlashHelper
 			{
 				if (native_glyph.char_code > 65535)
 				{
-					Sys.println("Warning: glyph with character code greater than 65535 encountered ("
-						+ native_glyph.char_code
-						+ "). Skipping...");
+					Sys.println("Warning: glyph with character code greater than 65535 encountered (" + native_glyph.char_code + "). Skipping...");
 					continue;
 				}
 
@@ -495,7 +497,7 @@ class FlashHelper
 			{
 				if (inAsset.encoding == AssetEncoding.BASE64)
 				{
-					bytes = StringTools.base64Decode(inAsset.data);
+					bytes = Base64.decode(inAsset.data);
 				}
 				else if (Std.is(inAsset.data, Bytes))
 				{
@@ -803,7 +805,7 @@ class FlashHelper
 
 					if (asset.encoding == AssetEncoding.BASE64)
 					{
-						File.saveBytes(sourcePath, StringTools.base64Decode(asset.data));
+						File.saveBytes(sourcePath, Base64.decode(asset.data));
 					}
 					else if (Std.is(asset.data, Bytes))
 					{

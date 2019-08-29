@@ -1,22 +1,23 @@
 package flash.printing;
 
-@:fakeEnum(String) extern enum PaperSize
+@:native("flash.printing.PaperSize")
+@:enum extern abstract PaperSize(String)
 {
-	A4;
-	A5;
-	A6;
-	CHOUKEI3GOU;
-	CHOUKEI4GOU;
-	ENV_10;
-	ENV_B5;
-	ENV_C5;
-	ENV_DL;
-	ENV_MONARCH;
-	ENV_PERSONAL;
-	EXECUTIVE;
-	FOLIO;
-	JIS_B5;
-	LEGAL;
-	LETTER;
-	STATEMENT;
+	var A4;
+	var A5;
+	var A6;
+	var CHOUKEI3GOU;
+	var CHOUKEI4GOU;
+	var ENV_10;
+	var ENV_B5;
+	var ENV_C5;
+	var ENV_DL;
+	var ENV_MONARCH;
+	var ENV_PERSONAL;
+	var EXECUTIVE;
+	var FOLIO;
+	var JIS_B5;
+	var LEGAL;
+	var LETTER;
+	var STATEMENT;
 }

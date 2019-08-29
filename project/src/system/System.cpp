@@ -250,7 +250,7 @@ long int __fdelt_chk (long int d) {
 #endif
 
 
-#ifdef ANDROID
+#if defined(ANDROID) && !defined(HXCPP_CLANG)
 
 #include <stdint.h>
 #include <wchar.h>

@@ -270,8 +270,7 @@ class MpegAudioReader
 
 			var frameLengthSlots = Math.floor(frameLengthBytes / slotSizeByLayerIndex[layerIndex]);
 
-			bitrate = Math
-				.floor(samplingFrequency * frameLengthSlots / slotsPerBitPerSampleByLayerIndexByVersionIndex[versionIndex][layerIndex]); // TODO should bitrate be Float?
+			bitrate = Math.floor(samplingFrequency * frameLengthSlots / slotsPerBitPerSampleByLayerIndexByVersionIndex[versionIndex][layerIndex]); // TODO should bitrate be Float?
 
 			frameData = yieldBytes(frameLengthBytes);
 		}
@@ -350,8 +349,8 @@ class MpegAudioReader
 			}
 		}
 
-		if (frameData.sub(infoStartIndex, infoTagSignature.length).compare(infoTagSignature) == 0 || frameData.sub(infoStartIndex, xingTagSignature.length)
-			.compare(xingTagSignature) == 0)
+		if (frameData.sub(infoStartIndex, infoTagSignature.length).compare(infoTagSignature) == 0
+			|| frameData.sub(infoStartIndex, xingTagSignature.length).compare(xingTagSignature) == 0)
 		{
 			return new Info(header, infoStartIndex, frameData);
 		}

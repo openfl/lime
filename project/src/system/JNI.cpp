@@ -817,6 +817,7 @@ namespace lime {
 
 					}
 				}
+				default:
 				break;
 
 			}
@@ -1052,6 +1053,8 @@ namespace lime {
 					out.l = 0;
 					return true;
 
+				default: {}
+
 			}
 
 			return false;
@@ -1100,6 +1103,7 @@ namespace lime {
 				case jniFloat: out.f = (float)val_number (inValue); return true;
 				case jniDouble: out.d = val_number (inValue); return true;
 				case jniVoid: out.l = 0; return true;
+				default: {}
 
 			}
 
@@ -1173,7 +1177,7 @@ namespace lime {
 
 		bool Ok () const {
 
-			return mField > 0;
+			return mField != 0;
 
 		}
 
@@ -1230,6 +1234,8 @@ namespace lime {
 
 						result = alloc_float (env->GetStaticDoubleField (mClass, mField));
 						break;
+
+					default: {}
 
 				}
 
@@ -1301,6 +1307,8 @@ namespace lime {
 						env->SetStaticDoubleField (mClass, mField, setValue.d);
 						break;
 
+					default: {}
+
 				}
 
 			}
@@ -1362,6 +1370,8 @@ namespace lime {
 
 						result = alloc_float(env->GetDoubleField (inObject, mField));
 						break;
+
+					default: {}
 
 				}
 
@@ -1432,6 +1442,8 @@ namespace lime {
 
 						env->SetDoubleField (inObject, mField, setValue.d);
 						break;
+
+					default: {}
 
 				}
 
@@ -1706,7 +1718,7 @@ namespace lime {
 
 		bool Ok () const {
 
-			return mMethod > 0;
+			return mMethod != 0;
 
 		}
 
@@ -1785,6 +1797,8 @@ namespace lime {
 
 						result = alloc_float (env->CallStaticDoubleMethodA (mClass, mMethod, jargs));
 						break;
+
+					default: {}
 
 				}
 
@@ -1866,6 +1880,8 @@ namespace lime {
 
 						result = alloc_float (env->CallDoubleMethodA (inObject, mMethod, jargs));
 						break;
+
+					default: {}
 
 				}
 

@@ -392,7 +392,8 @@ class ProjectXMLParser extends HXProject
 		return segments.join("");
 	}
 
-	public static function fromFile(path:String, defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false):ProjectXMLParser
+	public static function fromFile(path:String, defines:Map<String, Dynamic> = null, includePaths:Array<String> = null,
+			useExtensionPath:Bool = false):ProjectXMLParser
 	{
 		if (path == null) return null;
 
@@ -761,9 +762,8 @@ class ProjectXMLParser extends HXProject
 				if (manifest != null)
 				{
 					library = targetPath;
-					manifest.rootPath = targetPath;
 
-					var asset = new Asset("", Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
+					var asset = new Asset(jsonPath, Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
 					asset.id = "libraries/" + library + ".json";
 					asset.library = library;
 					asset.data = manifest.serialize();
@@ -1222,8 +1222,8 @@ class ProjectXMLParser extends HXProject
 
 						if (version != "" && defines.exists(name) && !haxelib.versionMatches(defines.get(name)))
 						{
-							Log.warn("Ignoring requested haxelib \"" + name + "\" version \"" + version + "\" (version \"" + defines
-								.get(name) + "\" was already included)");
+							Log.warn("Ignoring requested haxelib \"" + name + "\" version \"" + version + "\" (version \"" + defines.get(name)
+								+ "\" was already included)");
 							continue;
 						}
 

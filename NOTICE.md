@@ -46,7 +46,7 @@ This product bundles pixman 0.32.8, which is available under an
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
-This product bundles SDL 2.0.9, which is available under a
+This product bundles SDL 2.10, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
 This product bundles tinyfiledialogs 2.9.3, which is available under a
@@ -84,8 +84,10 @@ For details, see https://github.com/underscorediscovery/hxtypedarray
 The unifill project is included in the [lime/text/unifill/](lime/text/unifill/) directory,
 which is available under an "MIT" license. For details, see https://github.com/mandel59/unifill
 
-lime/project/Version is adapted from thx.semver project, which is available under
-an "MIT" license. For details, see https://github.com/fponticelli/thx.semver
+lime/_internal/graphics/StackBlur.hx is adapted from original code by Mario Klingemann
+and the EaselJS project, and is available under an "MIT" license. For details, see
+http://www.quasimondo.com/StackBlurForCanvas/StackBlur.js and
+https://github.com/createjs/easeljs
 
 -------
 

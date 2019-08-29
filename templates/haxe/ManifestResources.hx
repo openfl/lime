@@ -1,6 +1,8 @@
 package;
 
 
+import haxe.io.Bytes;
+import lime.utils.AssetBundle;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
 import lime.utils.Assets;
@@ -37,14 +39,12 @@ import sys.FileSystem;
 
 			#if (ios || tvos || emscripten)
 			rootPath = "assets/";
+			#elseif android
+			rootPath = "";
 			#elseif console
 			rootPath = lime.system.System.applicationDirectory;
-			#elseif (winrt)
-			rootPath = "./";
-			#elseif (sys && windows && !cs)
-			rootPath = FileSystem.absolutePath (haxe.io.Path.directory (#if (haxe_ver >= 3.3) Sys.programPath () #else Sys.executablePath () #end)) + "/";
 			#else
-			rootPath = "";
+			rootPath = "./";
 			#end
 
 		}
@@ -56,7 +56,7 @@ import sys.FileSystem;
 		::end::::end::::end::
 		#end
 
-		var data, manifest, library;
+		var data, manifest, library, bundle;
 
 		#if kha
 
@@ -74,6 +74,11 @@ import sys.FileSystem;
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("::library::", library);
 		::else::Assets.libraryPaths["::library::"] = rootPath + "::resourceName::";
+		::end::::end::::if (type == "bundle")::::if (embed)::
+		bundle = AssetBundle.fromBytes(#if flash Bytes.ofData(new __ASSET__::flatName::() #else new __ASSET__::flatName::() #end));
+		library = AssetLibrary.fromBundle(bundle);
+		Assets.registerLibrary("::library::", library);
+		::else::Assets.bundlePaths["::library::"] = rootPath + "::resourceName::";
 		::end::::end::::end::::end::
 
 		::foreach libraries::::if (preload)::library = Assets.getLibrary ("::name::");

@@ -82,7 +82,10 @@ class Unifill
 	{
 		return if (delimiter.length == 0)
 		{
-			[for (i in new InternalEncodingIter(s, 0, s.length)) InternalEncoding.charAt(s, i)];
+			[
+				for (i in new InternalEncodingIter(s, 0, s.length))
+					InternalEncoding.charAt(s, i)
+			];
 		}
 		else
 		{
