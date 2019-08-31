@@ -73,6 +73,19 @@
 
 #elif defined (HX_WINDOWS)
 
+#ifdef NATIVE_TOOLKIT_STATIC_ANGLE
+
+// Static link, not dll import
+#define EGLAPI
+#define GL_APICALL
+#define LIME_GLES
+#define GL_GLEXT_PROTOTYPES
+#define LIME_GLES3_API
+#include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
+
+#else
+
 //#define LIME_GLES3_API
 #include <windows.h>
 #ifndef NATIVE_TOOLKIT_SDL_ANGLE
@@ -97,8 +110,10 @@ typedef ptrdiff_t GLsizeiptrARB;
 
 #endif
 
+#endif
 
-#ifdef HX_WINDOWS
+
+#if defined (HX_WINDOWS) && !defined (NATIVE_TOOLKIT_STATIC_ANGLE)
 typedef HDC WinDC;
 typedef HGLRC GLCtx;
 #else

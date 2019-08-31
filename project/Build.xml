@@ -32,9 +32,9 @@
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
-	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
+	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
-	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
+	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" />
 	<set name="LIME_SDL_ANGLE" value="1" if="winrt" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
@@ -54,12 +54,34 @@
 
 	<set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" />
 	<set name="NATIVE_TOOLKIT_SDL_ANGLE" value="1" if="LIME_SDL_ANGLE" />
+	<set name="NATIVE_TOOLKIT_ANGLE" value="1" if="NATIVE_TOOLKIT_SDL_ANGLE" />
 
+	<!-- -angle sets static angle: -->
+	<set name="NATIVE_TOOLKIT_STATIC_ANGLE" value="1" if="LIME_SDL_ANGLE angle" />
+	<set name="NATIVE_TOOLKIT_STATIC_ANGLE" value="1" if="winrt" />
+	<!-- <set name="NATIVE_TOOLKIT_STATIC_ANGLE" value="1" if="windows" /> -->
 	<files id="lime">
 
 		<compilerflag value="-Iinclude" />
 
 		<file name="src/ExternalInterface.cpp" />
+
+		<section if="NATIVE_TOOLKIT_STATIC_ANGLE">
+
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/angle/include" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/angle/src" />
+	  		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/angle/src/common/third_party/numerics" />
+			<compilerflag value="-DANGLE_ENABLE_GLSL" />
+	   		<compilerflag value="-DANGLE_ENABLE_D3D11" />
+			<compilerflag value="-DANGLE_ENABLE_D3D9" unless="winrt"/>
+	   		<compilerflag value="-DANGLE_ENABLE_HLSL" />
+	   		<compilerflag value="-DLIBANGLE_IMPLEMENTATION" />
+	   		<compilerflag value="-DEGLAPI=" />
+	   		<compilerflag value="-DNOMINMAX" />
+			<compilerflag value="-DNATIVE_TOOLKIT_STATIC_ANGLE"/>
+			<compilerflag value="-DSDL_VIDEO_STATIC_ANGLE"/>
+
+		</section>
 
 		<section if="LIME_CAIRO">
 
@@ -351,6 +373,7 @@
 	<include name="lib/vpx/files.xml" />
 	<include name="lib/webm/files.xml" />
 	<include name="lib/zlib/files.xml" />
+	<include name="lib/angle/files.xml" if="NATIVE_TOOLKIT_STATIC_ANGLE"/>
 
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
@@ -384,6 +407,7 @@
 		<files id="native-toolkit-vpx" if="LIME_VPX" />
 		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
+		<files id="native-toolkit-angle" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
 
 		<section unless="static_link">
 
@@ -393,10 +417,10 @@
 			<!-- TODO: Support single binary -->
 			<ext value=".hdll" if="LIME_HASHLINK" />
 
-			<section if="windows">
+			<section if="windows" unless="winrt">
 
 				<lib name="gdi32.lib" />
-				<lib name="opengl32.lib" />
+				<lib name="opengl32.lib" unless="NATIVE_TOOLKIT_STATIC_ANGLE"/>
 				<lib name="user32.lib" />
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
@@ -415,16 +439,23 @@
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
 				<lib name="dwrite.lib" if="LIME_HARFBUZZ" />
 
-				<lib name="comsuppw.lib" unless="winrt" />
-
-				<lib name="D3D11.lib" if="winrt" />
-				<lib name="RuntimeObject.lib" if="winrt" />
-				<lib name="Xinput.lib" if="winrt" />
-				<lib name="DXGI.lib" if="winrt" />
+				<lib name="comsuppw.lib" />
+				<lib name="d3d9.lib" if="NATIVE_TOOLKIT_STATIC_ANGLE"/>
 
 				<lib name="-libpath:../templates/bin/hl/windows" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
+			</section>
+
+			<section if="winrt">
+
+				<lib name="kernel32.lib" />
+				<lib name="d3d11.lib" />
+				<lib name="Xaudio2.lib" />
+				<lib name="Xinput.lib" />
+				<lib name="DXGI.lib" />
+				<lib name="Dwrite.lib" />
+				<lib name="D3dcompiler.lib" />
 
 			</section>
 
