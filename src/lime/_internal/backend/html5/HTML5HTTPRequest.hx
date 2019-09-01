@@ -80,7 +80,16 @@ class HTML5HTTPRequest
 			for (key in parent.formData.keys())
 			{
 				if (query.length > 0) query += "&";
-				query += StringTools.urlEncode(key) + "=" + StringTools.urlEncode(Std.string(parent.formData.get(key)));
+				var value:Dynamic = parent.formData.get(key);
+				if (key.indexOf("[]") > -1 && Std.is(value, Array)) {
+					var arrayValue:String = Lambda.map(value, function(v:String) {
+						return StringTools.urlEncode(v);
+					}).join('&amp;${key}=');
+					query += StringTools.urlEncode(key) + "=" + arrayValue;
+				}
+				else {
+					query += StringTools.urlEncode(key) + "=" + StringTools.urlEncode(Std.string(value));
+				}
 			}
 
 			if (parent.method == GET && query != "")
