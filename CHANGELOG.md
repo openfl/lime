@@ -1,3 +1,9 @@
+7.6.2 (09/05/2019)
+------------------
+
+* Fixed support for 64-bit Neko on Windows (included in Haxe 4 RC 4)
+
+
 7.6.1 (09/04/2019)
 ------------------
 
