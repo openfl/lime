@@ -1,3 +1,11 @@
+7.6.1 (09/04/2019)
+------------------
+
+* Fixed support for array-based form parameters when making HTTP requests
+* Fixed incorrect default root path for asset manifests on some platforms
+* Fixed a crash on the HL target when pasting non-text data
+
+
 7.6.0 (08/20/2019)
 ------------------
 

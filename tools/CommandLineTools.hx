@@ -415,7 +415,7 @@ class CommandLineTools
 		}
 	}
 
-	#if (neko && (haxe_210 || haxe3))
+	#if neko
 	public static function __init__():Void
 	{
 		var args = Sys.args();
@@ -472,6 +472,7 @@ class CommandLineTools
 		{
 			case WINDOWS:
 				untyped $loader.path = $array(path + "Windows/", $loader.path);
+				untyped $loader.path = $array(path + "Windows64/", $loader.path);
 
 			case MAC:
 				// if (System.hostArchitecture == X64) {
