@@ -1219,7 +1219,7 @@ class Progress extends haxe.io.Output
 {
 	var o:haxe.io.Output;
 	var cur:Int;
-	var max:Int;
+	var max:Null<Int>;
 	var start:Float;
 
 	public function new(o)
@@ -1267,7 +1267,7 @@ class Progress extends haxe.io.Output
 		}
 	}
 
-	public override function prepare(m)
+	public override function prepare(m:Int)
 	{
 		max = m;
 	}
