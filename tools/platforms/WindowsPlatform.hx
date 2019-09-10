@@ -26,6 +26,7 @@ import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
 import sys.io.File;
+import sys.io.Process;
 import sys.FileSystem;
 
 class WindowsPlatform extends PlatformTarget
@@ -81,9 +82,30 @@ class WindowsPlatform extends PlatformTarget
 
 		for (architecture in project.architectures)
 		{
-			if ((targetType == "cpp" || targetType == "winrt") && architecture == Architecture.X64)
+			if (architecture == Architecture.X64)
 			{
-				is64 = true;
+				if ((targetType == "cpp" || targetType == "winrt"))
+				{
+					is64 = true;
+				} else if (targetType == "neko")
+				{
+					try
+					{
+						var process = new Process("haxe", ["-version"]);
+						var haxeVersion = StringTools.trim(process.stderr.readAll().toString());
+						if (haxeVersion == "")
+						{
+							haxeVersion = StringTools.trim(process.stdout.readAll().toString());
+						}
+						process.close();
+
+						if (Std.parseInt(haxeVersion.split(".")[0]) >= 4)
+						{
+							is64 = true;
+						}
+					}
+					catch (e:Dynamic) {}
+				}
 			}
 		}
 
