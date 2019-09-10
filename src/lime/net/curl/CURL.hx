@@ -169,8 +169,7 @@ class CURL
 				#if hl
 				parameter = function(bytes:Bytes):Int
 				{
-					 var read = callback(this, bytes);
-					return read;
+					 return callback(this, bytes);
 				}
 				#else	
 				parameter = function(bytes:Bytes, length:Int):Int
