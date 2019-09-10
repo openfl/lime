@@ -166,12 +166,6 @@ class CURL
 
 			case CURLOption.WRITEFUNCTION:
 				var callback:CURL->Bytes->Int = cast parameter;
-				#if hl
-				parameter = function(bytes:Bytes):Int
-				{
-					 return callback(this, bytes);
-				}
-				#else	
 				parameter = function(bytes:Bytes, length:Int):Int
 				{
 					var cacheLength = bytes.length;
@@ -180,7 +174,6 @@ class CURL
 					@:privateAccess bytes.length = cacheLength;
 					return read;
 				}
-				#end
 				bytes = Bytes.alloc(0);
 
 			// case CURLOption.READFUNCTION:
