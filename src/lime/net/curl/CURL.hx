@@ -159,14 +159,21 @@ class CURL
 
 			case CURLOption.XFERINFOFUNCTION:
 				var callback:CURL->Int->Int->Int->Int->Int = cast parameter;
-				parameter = function(dltotal:Int, dlnow:Int, ultotal:Int, ulnow:Int)
+				parameter = function(dltotal:Int, dlnow:Int, ultotal:Int, ulnow:Int):Int
 				{
 					return callback(this, dltotal, dlnow, ultotal, ulnow);
 				}
 
 			case CURLOption.WRITEFUNCTION:
 				var callback:CURL->Bytes->Int = cast parameter;
-				parameter = function(bytes:Bytes, length:Int)
+				#if hl
+				parameter = function(bytes:Bytes):Int
+				{
+					 var read = callback(this, bytes);
+					return read;
+				}
+				#else	
+				parameter = function(bytes:Bytes, length:Int):Int
 				{
 					var cacheLength = bytes.length;
 					@:privateAccess bytes.length = length;
@@ -174,7 +181,7 @@ class CURL
 					@:privateAccess bytes.length = cacheLength;
 					return read;
 				}
-
+				#end
 				bytes = Bytes.alloc(0);
 
 			// case CURLOption.READFUNCTION:
