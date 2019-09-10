@@ -714,8 +714,11 @@ namespace lime {
 					// writeBufferSize[easy_handle] = 0;
 					writeBufferPosition[easy_handle] = 0;
 
+					vdynamic* pos = hl_alloc_dynamic (&hlt_i32);
+					pos->v.i = position;
+
 					curl_gc_mutex.Unlock ();
-					length = *((int*)writeCallback->Call (bytes, &position));
+					length = *((int*)writeCallback->Call (bytes, pos));
 					curl_gc_mutex.Lock ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
