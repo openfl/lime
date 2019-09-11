@@ -1,3 +1,11 @@
+7.6.3 (09/11/2019)
+------------------
+
+* Fixed copying of 64-bit binaries when using Neko on Windows with Haxe 4
+* Fixed support for both 32- and 64-bit Neko on Windows (for Haxe 3 and 4)
+* Fixed support for loading `HTTPRequest` data using the HL target
+
+
 7.6.2 (09/05/2019)
 ------------------
 
