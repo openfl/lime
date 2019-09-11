@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "7.6.2",
-	"releasenote": "Fixed support for 64-bit Neko on Windows",
+	"version": "7.6.3",
+	"releasenote": "Neko fixes, fix HTTPRequest on HL target",
 	"contributors": [ "singmajesty" ],
 	"classPath": "src"
 }
