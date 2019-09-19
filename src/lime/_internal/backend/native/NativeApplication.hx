@@ -544,6 +544,12 @@ class NativeApplication
 					window.__minimized = true;
 					window.__maximized = false;
 					window.__fullscreen = false;
+					#if windows
+					if (!window.__resizable)
+					{
+						window.__backend.setResizable(true);
+					}
+					#end
 					window.onMinimize.dispatch();
 
 				case WINDOW_MOVE:
@@ -559,6 +565,12 @@ class NativeApplication
 				case WINDOW_RESTORE:
 					window.__fullscreen = false;
 					window.__minimized = false;
+					#if windows
+					if (!window.__resizable)
+					{
+						window.__backend.setResizable(false);
+					}
+					#end
 					window.onRestore.dispatch();
 			}
 		}
