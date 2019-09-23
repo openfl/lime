@@ -629,6 +629,7 @@ class Image
 		#if flash
 		var buffer = new ImageBuffer(null, bitmapData.width, bitmapData.height);
 		buffer.__srcBitmapData = bitmapData;
+		buffer.transparent = bitmapData.transparent;
 		return new Image(buffer);
 		#else
 		return bitmapData.image;
