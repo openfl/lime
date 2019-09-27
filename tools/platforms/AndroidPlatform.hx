@@ -106,8 +106,8 @@ class AndroidPlatform extends PlatformTarget
 			else if (architecture == Architecture.X64)
 			{
 				haxeParams.push("-D");
-				haxeParams.push("HXCPP_M64");
-				cppParams.push("-DHXCPP_M64");
+				haxeParams.push("HXCPP_X86_64");
+				cppParams.push("-DHXCPP_X86_64");
 				path = sourceSet + "/jniLibs/x86_64";
 				suffix = "-x86_64.so";
 			}
@@ -272,7 +272,7 @@ class AndroidPlatform extends PlatformTarget
 		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-16"]);
 		if (arm64) commands.push(["-Dandroid", "-DHXCPP_ARM64", "-DPLATFORM=android-21"]);
 		if (x86) commands.push(["-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-16"]);
-		if (x64) commands.push(["-Dandroid", "-DHXCPP_M64", "-DPLATFORM=android-21"]);
+		if (x64) commands.push(["-Dandroid", "-DHXCPP_X86_64", "-DPLATFORM=android-21"]);
 
 		CPPHelper.rebuild(project, commands);
 	}
