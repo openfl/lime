@@ -12,7 +12,6 @@
 --next
 -js ::OUTPUT_DIR::/bin/ElectronSetup.js
 -cp ::OUTPUT_DIR::/haxe
--lib electron
 -main ElectronSetup
 -dce full
 
