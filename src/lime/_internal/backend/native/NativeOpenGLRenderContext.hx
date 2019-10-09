@@ -1605,7 +1605,6 @@ class NativeOpenGLRenderContext
 		{
 			__extensionObjects = new Map();
 			var supportedExtensions = getSupportedExtensions();
-			trace(supportedExtensions);
 
 			for (extension in supportedExtensions)
 			{
