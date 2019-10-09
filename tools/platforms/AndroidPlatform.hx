@@ -105,6 +105,9 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.X64)
 			{
+				haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
+				cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
+
 				haxeParams.push("-D");
 				haxeParams.push("HXCPP_X86_64");
 				cppParams.push("-DHXCPP_X86_64");
