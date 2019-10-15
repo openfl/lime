@@ -27,7 +27,11 @@ namespace lime {
 			localeRegion = [currentLocale countryCode];
 		}
 
-		NSString* locale = [[localeLanguage stringByAppendingString:@"_"] stringByAppendingString:localeRegion];
+		NSString* locale = localeLanguage;
+		if (localeRegion != nil)
+		{
+			locale = [[localeLanguage stringByAppendingString:@"_"] stringByAppendingString:localeRegion];
+		}
 
 		std::string* result = 0;
 
