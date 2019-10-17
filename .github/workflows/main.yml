@@ -15,6 +15,7 @@ jobs:
     - name: Setup
       run: |
         sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+        haxelib setup ~/.haxelib
         haxelib install hxcpp
         git clone https://github.com/jgranick/format ~/format --depth 1
         haxelib dev format ~/format
