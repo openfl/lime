@@ -12,8 +12,8 @@ jobs:
       
     - name: Setup
       run: |
-        sudo apt update,
-        sudo apt install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev,
+        sudo apt-get update,
+        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev,
         haxelib install hxcpp,
         git clone https://github.com/jgranick/format ~/format --depth 1,
         haxelib dev format ~/format,
@@ -22,7 +22,7 @@ jobs:
         git clone https://github.com/openfl/munit ~/munit --depth 1,
         haxelib dev munit ~/munit/src,
         cd ~/munit/tool && haxe build.hxml,
-        apt install -y build-essential git curl python,
+        sudo apt-get install -y build-essential git curl python,
         curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py,
         pip install awscli awsebcli,
         
