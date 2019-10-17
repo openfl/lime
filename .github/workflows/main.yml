@@ -12,10 +12,7 @@ jobs:
       
     - name: Setup
       run: |
-        sudo apt-get install -y haxe
-        sudo apt-get install -y g++
-        sudo apt-get install -y libgl1-mesa-dev
-        sudo apt-get install -y libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev,
+        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev,
         haxelib install hxcpp,
         git clone https://github.com/jgranick/format ~/format --depth 1,
         haxelib dev format ~/format,
