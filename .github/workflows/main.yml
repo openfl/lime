@@ -12,7 +12,7 @@ jobs:
       
     - name: Setup
       run: |
-        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev,
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev haxe,
         haxelib install hxcpp,
         git clone https://github.com/jgranick/format ~/format --depth 1,
         haxelib dev format ~/format,
@@ -27,7 +27,7 @@ jobs:
         
     - name: Install
       run: |
-        haxelib dev lime .,
+        haxelib dev lime $GITHUB_WORKSPACE,
         haxelib install format,
         haxelib install hxp,
         haxelib run lime setup -alias -y,
