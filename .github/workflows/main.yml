@@ -17,7 +17,7 @@ jobs:
         sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
         sudo apt-get install -y build-essential git curl python
         curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
-        pip install awscli awsebcli
+        sudo pip install awscli awsebcli
       
     - name: Install Dependencies
       run: |
