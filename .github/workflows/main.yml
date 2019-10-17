@@ -12,14 +12,14 @@ jobs:
       with:
         fetch-depth: 1
         
-    - name: Setup Environment
+    - name: Setup environment
       run: |
         sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-        sudo apt-get install -y build-essential git curl python
-        curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
-        pip install awscli awsebcli
+        #sudo apt-get install -y build-essential git curl python
+        #curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
+        #sudo pip install awscli awsebcli
       
-    - name: Install Dependencies
+    - name: Install dependencies
       run: |
         mkdir ./.haxelib
         haxelib setup ./.haxelib
@@ -34,17 +34,17 @@ jobs:
         haxelib install format --quiet
         haxelib install hxp --quiet
        
-    - name: Install Alias
+    - name: Install "lime" command alias
       run: |
         haxelib dev lime $GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
         
-    - name: Rebuild Tools
+    - name: Rebuild Lime tools
       run: |
         lime rebuild hxcpp linux -static
         lime rebuild tools -nocolor -verbose
       
-    - name: Rebuild Binaries
+    - name: Rebuild Lime binaries
       run: |
         lime rebuild linux -64 -release -verbose -nocolor
         lime rebuild linux -32 -release -verbose -nocolor
