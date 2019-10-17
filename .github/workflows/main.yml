@@ -48,5 +48,5 @@ jobs:
       run: |
         lime rebuild linux -64 -release -verbose -nocolor
         lime rebuild linux -32 -release -verbose -nocolor
-        lime rebuild android -release -verbose -nocolor
+        #lime rebuild android -release -verbose -nocolor
         lime rebuild hl -64 -release -verbose -nocolor
