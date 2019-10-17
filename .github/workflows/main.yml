@@ -11,36 +11,40 @@ jobs:
     - uses: actions/checkout@v1
       with:
         fetch-depth: 1
-      
-    - name: Setup
+        
+    - name: Setup Environment
       run: |
         sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-        mkdir ./.haxelib
-        haxelib setup ./.haxelib
-        haxelib install hxcpp
-        git clone https://github.com/jgranick/format ./format --depth 1
-        haxelib dev format ./format
-        haxelib install mcover
-        haxelib install hamcrest
-        git clone https://github.com/openfl/munit ./munit --depth 1
-        haxelib dev munit ./munit/src
-        cd ./munit/tool && haxe build.hxml
         sudo apt-get install -y build-essential git curl python
         curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
         pip install awscli awsebcli
-        
-    - name: Install
+      
+    - name: Install Dependencies
+      run: |
+        mkdir ./.haxelib
+        haxelib setup ./.haxelib
+        haxelib install hxcpp --quiet
+        git clone https://github.com/jgranick/format ./format --depth 1
+        haxelib dev format ./format
+        haxelib install mcover --quiet
+        haxelib install hamcrest --quiet
+        git clone https://github.com/openfl/munit ./munit --depth 1
+        haxelib dev munit ./munit/src
+        cd ./munit/tool && haxe build.hxml
+        haxelib install format --quiet
+        haxelib install hxp --quiet
+       
+    - name: Install Alias
       run: |
         haxelib dev lime $GITHUB_WORKSPACE
-        haxelib install format
-        haxelib install hxp
         haxelib run lime setup -alias -y
-        lime rebuild hxcpp linux -static
         
-    - name: Tools
-      run: lime rebuild tools -nocolor -verbose
+    - name: Rebuild Tools
+      run: |
+        lime rebuild hxcpp linux -static
+        lime rebuild tools -nocolor -verbose
       
-    - name: Binaries
+    - name: Rebuild Binaries
       run: |
         lime rebuild linux -64 -release -verbose -nocolor
         lime rebuild linux -32 -release -verbose -nocolor
