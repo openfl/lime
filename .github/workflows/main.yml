@@ -21,18 +21,18 @@ jobs:
       
     - name: Install dependencies
       run: |
-        mkdir ./.haxelib
-        haxelib setup ./.haxelib
-        haxelib install hxcpp --quiet
-        git clone https://github.com/jgranick/format ./format --depth 1
-        haxelib dev format ./format
-        haxelib install mcover --quiet
-        haxelib install hamcrest --quiet
-        git clone https://github.com/openfl/munit ./munit --depth 1
-        haxelib dev munit ./munit/src
-        cd ./munit/tool && haxe build.hxml
-        haxelib install format --quiet
-        haxelib install hxp --quiet
+        mkdir $GITHUB_WORKSPACE/.haxelib
+        haxelib setup $GITHUB_WORKSPACE/.haxelib
+        haxelib install hxcpp
+        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
+        haxelib dev format $GITHUB_WORKSPACE/format
+        haxelib install mcover
+        haxelib install hamcrest
+        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
+        haxelib dev munit $GITHUB_WORKSPACE/munit/src
+        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
+        haxelib install format
+        haxelib install hxp
        
     - name: Install "lime" command alias
       run: |
