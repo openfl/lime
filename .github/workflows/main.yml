@@ -9,28 +9,30 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
       
     - name: Setup
       run: |
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev haxe,
-        haxelib install hxcpp,
-        git clone https://github.com/jgranick/format ~/format --depth 1,
-        haxelib dev format ~/format,
-        haxelib install mcover,
-        haxelib install hamcrest,
-        git clone https://github.com/openfl/munit ~/munit --depth 1,
-        haxelib dev munit ~/munit/src,
-        cd ~/munit/tool && haxe build.hxml,
-        sudo apt-get install -y build-essential git curl python,
-        curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py,
-        pip install awscli awsebcli,
+        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+        haxelib install hxcpp
+        git clone https://github.com/jgranick/format ~/format --depth 1
+        haxelib dev format ~/format
+        haxelib install mcover
+        haxelib install hamcrest
+        git clone https://github.com/openfl/munit ~/munit --depth 1
+        haxelib dev munit ~/munit/src
+        cd ~/munit/tool && haxe build.hxml
+        sudo apt-get install -y build-essential git curl python
+        curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
+        pip install awscli awsebcli
         
     - name: Install
       run: |
-        haxelib dev lime $GITHUB_WORKSPACE,
-        haxelib install format,
-        haxelib install hxp,
-        haxelib run lime setup -alias -y,
+        haxelib dev lime $GITHUB_WORKSPACE
+        haxelib install format
+        haxelib install hxp
+        haxelib run lime setup -alias -y
         lime rebuild hxcpp linux -static
         
     - name: Tools
@@ -38,7 +40,7 @@ jobs:
       
     - name: Binaries
       run: |
-        lime rebuild linux -64 -release -verbose -nocolor,
-        lime rebuild linux -32 -release -verbose -nocolor,
-        lime rebuild android -release -verbose -nocolor,
+        lime rebuild linux -64 -release -verbose -nocolor
+        lime rebuild linux -32 -release -verbose -nocolor
+        lime rebuild android -release -verbose -nocolor
         lime rebuild hl -64 -release -verbose -nocolor
