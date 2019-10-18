@@ -64,7 +64,7 @@ jobs:
         
     - name: Setup environment
       run: |
-        sudo brew install haxe
+        brew install haxe
       
     - name: Install dependencies
       run: |
