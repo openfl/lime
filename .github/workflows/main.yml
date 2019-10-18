@@ -54,8 +54,8 @@ jobs:
   build-macos:
     runs-on: macOS-10.14
     env:
-      MACOSX_VER: 10.13
-      MACOSX_DEPLOYMENT_TARGET: 10.9 
+      #MACOSX_VER: 10.13
+      #MACOSX_DEPLOYMENT_TARGET: 10.9 
     
     steps:
     - uses: actions/checkout@v1
@@ -92,8 +92,10 @@ jobs:
       
     - name: Rebuild Lime binaries
       run: |
-        lime rebuild mac -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-        lime rebuild hl -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
+        #lime rebuild mac -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
+        #lime rebuild hl -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
+        lime rebuild mac -release -verbose -nocolor
+        lime rebuild hl -release -verbose -nocolor
         lime rebuild ios -release -verbose -nocolor
 
   build-windows:
