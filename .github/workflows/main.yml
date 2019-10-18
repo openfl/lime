@@ -110,8 +110,6 @@ jobs:
       
     - name: Install dependencies
       run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
         haxelib install hxcpp
         git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
         haxelib dev format $GITHUB_WORKSPACE/format
