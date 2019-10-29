@@ -66,19 +66,17 @@ android {
 	}
 	
 	android.applicationVariants.all { variant ->
-		variant.outputs.each { output ->
-			def outputFile = output.outputFile
-			
-			if (outputFile != null && outputFile.name.endsWith('.apk')) {
-				output.outputFile = new File(outputFile.parent, "::APP_FILE::-" + variant.buildType.name + ".apk")
+		variant.outputs.all { output ->
+			if (outputFileName != null && outputFileName.endsWith('.apk')) {
+				outputFileName =  "::APP_FILE::-" + variant.buildType.name + ".apk"
 			}
 		}
 	}
 }
 
 dependencies {
-	compile fileTree(dir: 'libs', include: ['*.jar'])
-	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::compile project(':deps:::name::')
+	api fileTree(dir: 'libs', include: ['*.jar'])
+	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::api project(':deps:::name::')
 	::end::::end::
 }
 
