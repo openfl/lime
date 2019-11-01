@@ -23,16 +23,16 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/.haxelib
         haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp
+        haxelib install hxcpp > /dev/null
         git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
         haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover
-        haxelib install hamcrest
+        haxelib install mcover > /dev/null
+        haxelib install hamcrest > /dev/null
         git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
         haxelib dev munit $GITHUB_WORKSPACE/munit/src
         cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format
-        haxelib install hxp
+        haxelib install format > /dev/null
+        haxelib install hxp > /dev/null
        
     - name: Install "lime" command alias
       run: |
@@ -70,16 +70,16 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/.haxelib
         haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp
+        haxelib install hxcpp > /dev/null
         git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
         haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover
-        haxelib install hamcrest
+        haxelib install mcover > /dev/null
+        haxelib install hamcrest > /dev/null
         git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
         haxelib dev munit $GITHUB_WORKSPACE/munit/src
         cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format
-        haxelib install hxp
+        haxelib install format > /dev/null
+        haxelib install hxp > /dev/null
        
     - name: Install "lime" command alias
       run: |
@@ -112,16 +112,17 @@ jobs:
       
     - name: Install dependencies
       run: |
-        haxelib install hxcpp
+        haxelib install hxcpp > nul 2>&1
         git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
         haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover
-        haxelib install hamcrest
+        haxelib install mcover > nul 2>&1
+        haxelib install hamcrest > nul 2>&1
         git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
         haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format
-        haxelib install hxp
+        cd $GITHUB_WORKSPACE/munit/tool
+        haxe build.hxml
+        haxelib install format > nul 2>&1
+        haxelib install hxp > nul 2>&1
        
     - name: Install "lime" command alias
       run: |
