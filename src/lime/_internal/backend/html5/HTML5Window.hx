@@ -284,7 +284,8 @@ class HTML5Window
 						depth: Reflect.hasField(contextAttributes, "depth") ? contextAttributes.depth : true,
 						premultipliedAlpha: true,
 						stencil: Reflect.hasField(contextAttributes, "stencil") ? contextAttributes.stencil : false,
-						preserveDrawingBuffer: false
+						preserveDrawingBuffer: false,
+						failIfMajorPerformanceCaveat: true
 					};
 
 				var glContextType = ["webgl", "experimental-webgl"];
