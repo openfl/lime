@@ -24,6 +24,7 @@
 		4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4257533E1A5EFD8C004AA45B /* Images.xcassets */; };
 		792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE0 /* GameController.framework */; };
 		792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE1 /* CoreText.framework */; };
+		::if (IOS_LAUNCH_STORYBOARD != null)::D099CA9021A64C87003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */; };::end::
 		::ADDL_PBX_BUILD_FILE::
 
 /* End PBXBuildFile section */
@@ -58,6 +59,7 @@
 		6662F3920A0E282007F4E3E /* ::APP_FILE::.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = "::APP_FILE::.entitlements"; path = "::APP_FILE::/::APP_FILE::.entitlements"; sourceTree = "<group>"; };
 		792E75C81C6C876900D01DE0 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		792E75C81C6C876900D01DE1 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		::if (IOS_LAUNCH_STORYBOARD != null)::D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "::APP_FILE::/::IOS_LAUNCH_STORYBOARD::.storyboard"; sourceTree = "<group>"; };::end::
 		::ADDL_PBX_FILE_REFERENCE::
 
 		8D1107310486CEB800E47090 /* ::APP_FILE::-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "::APP_FILE::/::APP_FILE::-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				4257533E1A5EFD8C004AA45B /* Images.xcassets */,
+				::if (IOS_LAUNCH_STORYBOARD != null)::D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */,::end::
 				8D1107310486CEB800E47090 /* ::APP_FILE::/::APP_FILE::-Info.plist */,
 				1E2E17A5131E8B5D0048F3C7 /* ::APP_FILE::/assets */,
 			);
@@ -229,6 +232,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E2E17AD131E8B5D0048F3C7 /* ::APP_FILE::/assets in Resources */,
+				::if (IOS_LAUNCH_STORYBOARD != null)::D099CA9021A64C87003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard in Resources */,::end::
 				4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -345,7 +349,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				::if (IOS_LAUNCH_STORYBOARD == null)::ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;::end::
 				CODE_SIGN_ENTITLEMENTS = "::APP_FILE::/::APP_FILE::.entitlements";
 				::if DEVELOPMENT_TEAM_ID::DEVELOPMENT_TEAM = ::DEVELOPMENT_TEAM_ID::;::end::
 				ENABLE_BITCODE = ::if (ENABLE_BITCODE)::YES::else::NO::end::;
@@ -401,7 +405,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				::if (IOS_LAUNCH_STORYBOARD == null)::ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;::end::
 				CODE_SIGN_ENTITLEMENTS = "::APP_FILE::/::APP_FILE::.entitlements";
 				::if DEVELOPMENT_TEAM_ID::DEVELOPMENT_TEAM = ::DEVELOPMENT_TEAM_ID::;::end::
 				ENABLE_BITCODE = ::if (ENABLE_BITCODE)::YES::else::NO::end::;
