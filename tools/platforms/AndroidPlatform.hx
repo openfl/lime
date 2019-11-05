@@ -236,25 +236,35 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function install():Void
 	{
-		var build = "-debug";
+		var build = "debug";
 
 		if (project.keystore != null)
 		{
-			build = "-release";
+			build = "release";
+		}
+		
+		if (project.environment.exists("ANDROID_GRADLE_TASK"))
+		{
+			var task = project.environment.get("ANDROID_GRADLE_TASK");
+			if ( task == "assembleDebug" ) {
+			  build = "debug";
+			} else {
+			  build = "release";
+			}
 		}
 
 		var outputDirectory = null;
 
 		if (project.config.exists("android.gradle-build-directory"))
 		{
-			outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk");
+			outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk/"+build);
 		}
 		else
 		{
-			outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk");
+			outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk/"+build);
 		}
 
-		var apkPath = Path.combine(outputDirectory, project.app.file + build + ".apk");
+		var apkPath = Path.combine(outputDirectory, project.app.file + "-" + build + ".apk");
 
 		deviceID = AndroidHelper.install(project, apkPath, deviceID);
 	}
@@ -371,8 +381,9 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.VIBRATE",
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
-		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "2.10");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "2.1.0");
+		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "5.6.3");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "3.5.1");
+
 		context.ANDROID_LIBRARY_PROJECTS = [];
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))

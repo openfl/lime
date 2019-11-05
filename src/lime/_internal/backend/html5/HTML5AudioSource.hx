@@ -78,6 +78,7 @@ class HTML5AudioSource
 		if (parent.buffer != null && parent.buffer.__srcHowl != null)
 		{
 			parent.buffer.__srcHowl.stop(id);
+			parent.buffer.__srcHowl.off ("end", howl_onEnd, id);
 		}
 		#end
 	}
@@ -99,6 +100,7 @@ class HTML5AudioSource
 		else if (parent.buffer != null && parent.buffer.__srcHowl != null)
 		{
 			parent.buffer.__srcHowl.stop(id);
+			parent.buffer.__srcHowl.off ("end", howl_onEnd, id);
 		}
 
 		completed = true;

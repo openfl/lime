@@ -1,6 +1,7 @@
 #include <ui/FileDialog.h>
 #include <stdio.h>
 #include <cstdlib>
+#include <cstring>
 
 #include <tinyfiledialogs.h>
 
@@ -31,7 +32,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_selectFolderDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0);
 
-		if (path) {
+		if (path && std::wcslen(path) > 0) {
 
 			std::wstring* _path = new std::wstring (path);
 			return _path;
@@ -50,7 +51,7 @@ namespace lime {
 		//if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 
-		if (path) {
+		if (path && std::strlen(path) > 0) {
 
 			std::string _path = std::string (path);
 			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
@@ -74,7 +75,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 0);
 
-		if (path) {
+		if (path && std::wcslen(path) > 0) {
 
 			std::wstring* _path = new std::wstring (path);
 			return _path;
@@ -102,7 +103,7 @@ namespace lime {
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 
-		if (path) {
+		if (path && std::strlen(path) > 0) {
 
 			std::string _path = std::string (path);
 			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
@@ -193,7 +194,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_saveFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL);
 
-		if (path) {
+		if (path && std::wcslen(path) > 0) {
 
 			std::wstring* _path = new std::wstring (path);
 			return _path;
@@ -221,7 +222,7 @@ namespace lime {
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 
-		if (path) {
+		if (path && std::strlen(path) > 0) {
 
 			std::string _path = std::string (path);
 			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
