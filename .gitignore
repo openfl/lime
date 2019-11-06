@@ -13,6 +13,7 @@ project/vc*.pdb
 *.iml
 tools/*.n
 tools/*.exe
+tools/obj
 haxedoc.xml
 docs/*.xml
 docs/xml

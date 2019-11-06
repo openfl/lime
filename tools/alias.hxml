@@ -1,11 +1,23 @@
+#-main AliasScript
+#-D command=lime
+#-neko lime.n
+#-cmd nekotools boot lime.n
+
+#--next
+
+#-main AliasScript
+#-D command=openfl
+#-neko openfl.n
+#-cmd nekotools boot openfl.n
+
 -main AliasScript
 -D command=lime
--neko lime.n
--cmd nekotools boot lime.n
+-D HXCPP_M32
+-cpp obj/lime
 
 --next
 
 -main AliasScript
 -D command=openfl
--neko openfl.n
--cmd nekotools boot openfl.n
+-D HXCPP_M32
+-cpp obj/openfl

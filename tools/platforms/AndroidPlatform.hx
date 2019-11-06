@@ -105,9 +105,12 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.X64)
 			{
+				haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
+				cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
+
 				haxeParams.push("-D");
-				haxeParams.push("HXCPP_M64");
-				cppParams.push("-DHXCPP_M64");
+				haxeParams.push("HXCPP_X86_64");
+				cppParams.push("-DHXCPP_X86_64");
 				path = sourceSet + "/jniLibs/x86_64";
 				suffix = "-x86_64.so";
 			}
@@ -233,25 +236,35 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function install():Void
 	{
-		var build = "-debug";
+		var build = "debug";
 
 		if (project.keystore != null)
 		{
-			build = "-release";
+			build = "release";
+		}
+		
+		if (project.environment.exists("ANDROID_GRADLE_TASK"))
+		{
+			var task = project.environment.get("ANDROID_GRADLE_TASK");
+			if ( task == "assembleDebug" ) {
+			  build = "debug";
+			} else {
+			  build = "release";
+			}
 		}
 
 		var outputDirectory = null;
 
 		if (project.config.exists("android.gradle-build-directory"))
 		{
-			outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk");
+			outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk/"+build);
 		}
 		else
 		{
-			outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk");
+			outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk/"+build);
 		}
 
-		var apkPath = Path.combine(outputDirectory, project.app.file + build + ".apk");
+		var apkPath = Path.combine(outputDirectory, project.app.file + "-" + build + ".apk");
 
 		deviceID = AndroidHelper.install(project, apkPath, deviceID);
 	}
@@ -272,7 +285,7 @@ class AndroidPlatform extends PlatformTarget
 		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-16"]);
 		if (arm64) commands.push(["-Dandroid", "-DHXCPP_ARM64", "-DPLATFORM=android-21"]);
 		if (x86) commands.push(["-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-16"]);
-		if (x64) commands.push(["-Dandroid", "-DHXCPP_M64", "-DPLATFORM=android-21"]);
+		if (x64) commands.push(["-Dandroid", "-DHXCPP_X86_64", "-DPLATFORM=android-21"]);
 
 		CPPHelper.rebuild(project, commands);
 	}
@@ -368,8 +381,9 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.VIBRATE",
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
-		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "2.10");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "2.1.0");
+		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "5.6.3");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "3.5.1");
+
 		context.ANDROID_LIBRARY_PROJECTS = [];
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))

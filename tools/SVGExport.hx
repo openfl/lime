@@ -52,7 +52,19 @@ class SVGExport
 		switch (System.hostPlatform)
 		{
 			case WINDOWS:
+				// var is64 = neko.Lib.load("std", "sys_is64", 0)();
 				untyped $loader.path = $array(path + "Windows/", $loader.path);
+				// if (CFFI.enabled)
+				// {
+					try
+					{
+						neko.Lib.load("lime", "lime_application_create", 0);
+					}
+					catch(e:Dynamic)
+					{
+						untyped $loader.path = $array(path + "Windows64/", $loader.path);
+					}
+				// }
 
 			case MAC:
 				untyped $loader.path = $array(path + "Mac/", $loader.path);

@@ -4,14 +4,13 @@ import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.io.Input;
 import haxe.io.Output;
+import haxe.zip.Compress;
 import haxe.zip.Reader;
 import hxp.*;
 import lime.tools.HXProject;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
-import neko.Lib;
-import neko.zip.Compress;
 
 class JavaExternGenerator
 {
@@ -145,7 +144,7 @@ class JavaExternGenerator
 
 	private function generate(inClass:String, inMembers:Map<String, String>)
 	{
-		Lib.println(inClass);
+		Sys.println(inClass);
 
 		var parts = Path.withoutExtension(inClass).split("/");
 		var old_type = mCurrentType;

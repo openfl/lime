@@ -163,6 +163,7 @@ namespace lime {
 		if (!sdlWindow) {
 
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
+			return;
 
 		}
 

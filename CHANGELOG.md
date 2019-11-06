@@ -1,3 +1,25 @@
+7.6.3 (09/11/2019)
+------------------
+
+* Fixed copying of 64-bit binaries when using Neko on Windows with Haxe 4
+* Fixed support for both 32- and 64-bit Neko on Windows (for Haxe 3 and 4)
+* Fixed support for loading `HTTPRequest` data using the HL target
+
+
+7.6.2 (09/05/2019)
+------------------
+
+* Fixed support for 64-bit Neko on Windows (included in Haxe 4 RC 4)
+
+
+7.6.1 (09/04/2019)
+------------------
+
+* Fixed support for array-based form parameters when making HTTP requests
+* Fixed incorrect default root path for asset manifests on some platforms
+* Fixed a crash on the HL target when pasting non-text data
+
+
 7.6.0 (08/20/2019)
 ------------------
 
