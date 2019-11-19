@@ -37,7 +37,7 @@ namespace lime {
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		#endif
 
-		NSUInteger searchType = NSDocumentDirectory;
+		NSSearchPathDirectory searchType = NSDocumentDirectory;
 
 		switch (type) {
 
