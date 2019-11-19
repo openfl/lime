@@ -21,8 +21,10 @@ import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
+import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
+import lime.tools.LaunchStoryboard;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -501,54 +503,147 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		var splashSizes:Array<SplashSize> = [
-			{name: "Default.png", w: 320, h: 480}, // iPhone, portrait {name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
-			{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait {name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
-			{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait {name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
-			{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape {name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242},
-			// iPhone 6 Plus, landscape
-			{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait {name: "Default-Portrait@2x.png", w: 1536, h: 2048},
-			// iPad Retina, portrait
-			{name: "Default-812h@3x.png", w: 1125, h: 2436}, // iPhone X, portrait
-			{name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125} // iPhone X, landscape
-		];
-
-		var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
-		System.mkdir(splashScreenPath);
-
-		for (size in splashSizes)
+		if (project.launchStoryboard != null)
 		{
-			var match = false;
-
-			for (splashScreen in project.splashScreens)
+			var sb = project.launchStoryboard;
+			
+			var assetsPath = sb.assetsPath;
+			var imagesets = [];
+			
+			for (asset in sb.assets)
 			{
-				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
+				switch (asset.type)
 				{
-					System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
-					match = true;
+					case "imageset":
+						var imageset = cast(asset, ImageSet);
+						imagesets.push(imageset);
+						
+						var imagesetPath = Path.combine(projectDirectory, "Images.xcassets/" + imageset.name + ".imageset");
+						System.mkdir(imagesetPath);
+						
+						var baseImageName = Path.withoutExtension(imageset.name);
+						
+						var imageScales = ["1x", "2x", "3x"];
+						var images = [];
+						for (scale in imageScales)
+						{
+							var filename = baseImageName + (scale == "1x" ? "" : "@"+scale) + ".png";
+							if (FileSystem.exists(Path.combine(assetsPath, filename)))
+							{
+								images.push({idiom: "universal", filename: filename, scale: scale});
+								System.copyFile(Path.combine(assetsPath, filename), Path.combine(imagesetPath, filename));
+								
+								if (imageset.width == 0 || imageset.height == 0)
+								{
+									var dim = ImageHelper.readPNGImageSize(Path.combine(assetsPath, filename));
+									var scaleValue = Std.parseInt(scale.charAt(0));
+									imageset.width = Std.int(dim.width / scaleValue);
+									imageset.height = Std.int(dim.height / scaleValue);
+								}
+							}
+						}
+						
+						var contents = {
+							images: images,
+							info: {
+								version: "1",
+								author: "xcode"
+							}
+						};
+						
+						File.saveContent(Path.combine(imagesetPath, "Contents.json"), Json.stringify(contents));
+						
+					default:
+					
 				}
 			}
-
-			if (!match)
+			
+			if (sb.template != null)
 			{
-				var imagePath = Path.combine(splashScreenPath, size.name);
-
-				if (!FileSystem.exists(imagePath))
+				sb.templateContext.imagesets = [];
+				
+				for (imageset in imagesets)
 				{
-					#if (lime && lime_cffi && !macro)
-					Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
-
-					var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-					var bytes = image.encode(PNG);
-
-					File.saveBytes(imagePath, bytes);
-					#end
+					sb.templateContext.imagesets.push({
+						name: imageset.name,
+						width: imageset.width,
+						height: imageset.height,
+					});
 				}
+				
+				var deployment:String = context.DEPLOYMENT;
+				var parts = deployment.split(".");
+				var major = Std.parseInt(parts[0]);
+				var minor = parts.length >= 2 ? Std.parseInt(parts[1]) : 0;
+				var patch = parts.length >= 3 ? Std.parseInt(parts[2]) : 0;
+
+				Reflect.setField(sb.templateContext, "deploymentVersion", {
+					major: major,
+					minor: minor,
+					patch: patch,
+					code: Std.parseInt("0x" + major + minor + patch)
+				});
+				
+				System.copyFileTemplate(project.templatePaths, "ios/storyboards/" + sb.template, projectDirectory + sb.template, sb.templateContext, true, true);
+				context.IOS_LAUNCH_STORYBOARD = Path.withoutExtension(sb.template);
+			}
+			else
+			{
+				System.copyFile(sb.path, projectDirectory + Path.withoutDirectory(sb.path));
+				context.IOS_LAUNCH_STORYBOARD = Path.withoutDirectory(Path.withoutExtension(sb.path));
 			}
 		}
+		else
+		{
+			var splashSizes:Array<SplashSize> = [
+				{name: "Default.png", w: 320, h: 480}, // iPhone, portrait {name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
+				{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait {name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
+				{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait {name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
+				{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape {name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242},
+				// iPhone 6 Plus, landscape
+				{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait {name: "Default-Portrait@2x.png", w: 1536, h: 2048},
+				// iPad Retina, portrait
+				{name: "Default-812h@3x.png", w: 1125, h: 2436}, // iPhone X, portrait
+				{name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125} // iPhone X, landscape
+			];
 
-		context.HAS_LAUNCH_IMAGE = true;
+			var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
+			System.mkdir(splashScreenPath);
 
+			for (size in splashSizes)
+			{
+				var match = false;
+
+				for (splashScreen in project.splashScreens)
+				{
+					if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
+					{
+						System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
+						match = true;
+					}
+				}
+
+				if (!match)
+				{
+					var imagePath = Path.combine(splashScreenPath, size.name);
+
+					if (!FileSystem.exists(imagePath))
+					{
+						#if (lime && lime_cffi && !macro)
+						Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
+
+						var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+						var bytes = image.encode(PNG);
+
+						File.saveBytes(imagePath, bytes);
+						#end
+					}
+				}
+			}
+
+			context.HAS_LAUNCH_IMAGE = true;
+		}
+		
 		System.mkdir(projectDirectory + "/resources");
 		System.mkdir(projectDirectory + "/haxe/build");
 
