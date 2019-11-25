@@ -515,6 +515,11 @@ class Assets
 	public static function unloadLibrary(name:String):Void
 	{
 		#if (tools && !display)
+		if (name == null || name == "")
+		{
+			name = "default";
+		}
+
 		var library = libraries.get(name);
 
 		if (library != null)
