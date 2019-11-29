@@ -12,6 +12,7 @@ import js.html.InputEvent;
 import js.html.LinkElement;
 import js.html.MouseEvent;
 import js.html.Node;
+import js.html.TextAreaElement;
 import js.html.TouchEvent;
 import js.html.ClipboardEvent;
 import js.Browser;
@@ -46,6 +47,7 @@ import lime.ui.Window;
 class HTML5Window
 {
 	private static var dummyCharacter = String.fromCharCode(127);
+	private static var textArea:TextAreaElement;
 	private static var textInput:InputElement;
 	private static var windowID:Int = 0;
 
@@ -902,22 +904,25 @@ class HTML5Window
 
 	public function setClipboard(value:String):Void
 	{
-		var inputEnabled = textInputEnabled;
-
-		setTextInputEnabled(true); // create textInput if necessary
-
-		var cacheText = textInput.value;
-		textInput.value = value;
-		textInput.select();
-
 		if (Browser.document.queryCommandEnabled("copy"))
 		{
+			if (textArea == null)
+			{
+				textArea = cast Browser.document.createElement("textarea");
+				textArea.style.height = "0px";
+				textArea.style.left = "-100px";
+				textArea.style.opacity = "0";
+				textArea.style.position = "fixed";
+				textArea.style.top = "-100px";
+				textArea.style.width = "0px";
+				Browser.document.body.appendChild(textArea);
+			}
+
+			textArea.value = value;
+			textArea.select();
+
 			Browser.document.execCommand("copy");
 		}
-
-		textInput.value = cacheText;
-
-		setTextInputEnabled(inputEnabled);
 	}
 
 	public function setCursor(value:MouseCursor):MouseCursor
