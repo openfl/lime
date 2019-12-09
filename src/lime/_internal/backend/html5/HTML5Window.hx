@@ -904,23 +904,23 @@ class HTML5Window
 
 	public function setClipboard(value:String):Void
 	{
+        if (textArea == null)
+        {
+            textArea = cast Browser.document.createElement("textarea");
+            textArea.style.height = "0px";
+            textArea.style.left = "-100px";
+            textArea.style.opacity = "0";
+            textArea.style.position = "fixed";
+            textArea.style.top = "-100px";
+            textArea.style.width = "0px";
+            Browser.document.body.appendChild(textArea);
+        }
+        textArea.value = value;
+        textArea.focus();
+        textArea.select();
+
 		if (Browser.document.queryCommandEnabled("copy"))
 		{
-			if (textArea == null)
-			{
-				textArea = cast Browser.document.createElement("textarea");
-				textArea.style.height = "0px";
-				textArea.style.left = "-100px";
-				textArea.style.opacity = "0";
-				textArea.style.position = "fixed";
-				textArea.style.top = "-100px";
-				textArea.style.width = "0px";
-				Browser.document.body.appendChild(textArea);
-			}
-
-			textArea.value = value;
-			textArea.select();
-
 			Browser.document.execCommand("copy");
 		}
 	}
