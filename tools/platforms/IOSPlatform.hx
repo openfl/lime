@@ -506,10 +506,10 @@ class IOSPlatform extends PlatformTarget
 		if (project.launchStoryboard != null)
 		{
 			var sb = project.launchStoryboard;
-			
+
 			var assetsPath = sb.assetsPath;
 			var imagesets = [];
-			
+
 			for (asset in sb.assets)
 			{
 				switch (asset.type)
@@ -517,22 +517,22 @@ class IOSPlatform extends PlatformTarget
 					case "imageset":
 						var imageset = cast(asset, ImageSet);
 						imagesets.push(imageset);
-						
+
 						var imagesetPath = Path.combine(projectDirectory, "Images.xcassets/" + imageset.name + ".imageset");
 						System.mkdir(imagesetPath);
-						
+
 						var baseImageName = Path.withoutExtension(imageset.name);
-						
+
 						var imageScales = ["1x", "2x", "3x"];
 						var images = [];
 						for (scale in imageScales)
 						{
-							var filename = baseImageName + (scale == "1x" ? "" : "@"+scale) + ".png";
+							var filename = baseImageName + (scale == "1x" ? "" : "@" + scale) + ".png";
 							if (FileSystem.exists(Path.combine(assetsPath, filename)))
 							{
 								images.push({idiom: "universal", filename: filename, scale: scale});
 								System.copyFile(Path.combine(assetsPath, filename), Path.combine(imagesetPath, filename));
-								
+
 								if (imageset.width == 0 || imageset.height == 0)
 								{
 									var dim = ImageHelper.readPNGImageSize(Path.combine(assetsPath, filename));
@@ -542,49 +542,53 @@ class IOSPlatform extends PlatformTarget
 								}
 							}
 						}
-						
-						var contents = {
-							images: images,
-							info: {
-								version: "1",
-								author: "xcode"
-							}
-						};
-						
+
+						var contents =
+							{
+								images: images,
+								info:
+									{
+										version: "1",
+										author: "xcode"
+									}
+							};
+
 						File.saveContent(Path.combine(imagesetPath, "Contents.json"), Json.stringify(contents));
-						
+
 					default:
-					
 				}
 			}
-			
+
 			if (sb.template != null)
 			{
 				sb.templateContext.imagesets = [];
-				
+
 				for (imageset in imagesets)
 				{
-					sb.templateContext.imagesets.push({
-						name: imageset.name,
-						width: imageset.width,
-						height: imageset.height,
-					});
+					sb.templateContext.imagesets.push(
+						{
+							name: imageset.name,
+							width: imageset.width,
+							height: imageset.height,
+						});
 				}
-				
+
 				var deployment:String = context.DEPLOYMENT;
 				var parts = deployment.split(".");
 				var major = Std.parseInt(parts[0]);
 				var minor = parts.length >= 2 ? Std.parseInt(parts[1]) : 0;
 				var patch = parts.length >= 3 ? Std.parseInt(parts[2]) : 0;
 
-				Reflect.setField(sb.templateContext, "deploymentVersion", {
-					major: major,
-					minor: minor,
-					patch: patch,
-					code: Std.parseInt("0x" + major + minor + patch)
-				});
-				
-				System.copyFileTemplate(project.templatePaths, "ios/storyboards/" + sb.template, projectDirectory + sb.template, sb.templateContext, true, true);
+				Reflect.setField(sb.templateContext, "deploymentVersion",
+					{
+						major: major,
+						minor: minor,
+						patch: patch,
+						code: Std.parseInt("0x" + major + minor + patch)
+					});
+
+				System.copyFileTemplate(project.templatePaths, "ios/storyboards/" + sb.template, projectDirectory + sb.template, sb.templateContext, true,
+					true);
 				context.IOS_LAUNCH_STORYBOARD = Path.withoutExtension(sb.template);
 			}
 			else
@@ -643,7 +647,7 @@ class IOSPlatform extends PlatformTarget
 
 			context.HAS_LAUNCH_IMAGE = true;
 		}
-		
+
 		System.mkdir(projectDirectory + "/resources");
 		System.mkdir(projectDirectory + "/haxe/build");
 

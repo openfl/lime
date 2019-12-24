@@ -413,7 +413,7 @@ class HXProject extends Script
 		}
 
 		project.languages = languages.copy();
-		
+
 		if (launchStoryboard != null)
 		{
 			project.launchStoryboard = launchStoryboard.clone();
@@ -909,7 +909,7 @@ class HXProject extends Script
 			{
 				launchStoryboard.merge(project.launchStoryboard);
 			}
-			
+
 			languages = ArrayTools.concatUnique(languages, project.languages, true);
 			libraries = ArrayTools.concatUnique(libraries, project.libraries, true);
 

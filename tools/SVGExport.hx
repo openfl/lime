@@ -56,15 +56,15 @@ class SVGExport
 				untyped $loader.path = $array(path + "Windows/", $loader.path);
 				// if (CFFI.enabled)
 				// {
-					try
-					{
-						neko.Lib.load("lime", "lime_application_create", 0);
-					}
-					catch(e:Dynamic)
-					{
-						untyped $loader.path = $array(path + "Windows64/", $loader.path);
-					}
-				// }
+				try
+				{
+					neko.Lib.load("lime", "lime_application_create", 0);
+				}
+				catch (e:Dynamic)
+				{
+					untyped $loader.path = $array(path + "Windows64/", $loader.path);
+				}
+			// }
 
 			case MAC:
 				untyped $loader.path = $array(path + "Mac/", $loader.path);

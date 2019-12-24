@@ -81,13 +81,16 @@ class HTML5HTTPRequest
 			{
 				if (query.length > 0) query += "&";
 				var value:Dynamic = parent.formData.get(key);
-				if (key.indexOf("[]") > -1 && Std.is(value, Array)) {
-					var arrayValue:String = Lambda.map(value, function(v:String) {
+				if (key.indexOf("[]") > -1 && Std.is(value, Array))
+				{
+					var arrayValue:String = Lambda.map(value, function(v:String)
+					{
 						return StringTools.urlEncode(v);
 					}).join('&amp;${key}=');
 					query += StringTools.urlEncode(key) + "=" + arrayValue;
 				}
-				else {
+				else
+				{
 					query += StringTools.urlEncode(key) + "=" + StringTools.urlEncode(Std.string(value));
 				}
 			}
