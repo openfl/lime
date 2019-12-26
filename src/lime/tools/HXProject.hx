@@ -1100,8 +1100,8 @@ class HXProject extends Script
 		}
 		else
 		{
-			context.WIN_ORIENTATION = "";
-			context.WINDOW_ORIENTATION = "";
+			context.WIN_ORIENTATION = "auto";
+			context.WINDOW_ORIENTATION = "auto";
 		}
 
 		context.windows = windows;
