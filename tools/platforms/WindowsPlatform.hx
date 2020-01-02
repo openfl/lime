@@ -87,7 +87,8 @@ class WindowsPlatform extends PlatformTarget
 				if ((targetType == "cpp" || targetType == "winrt"))
 				{
 					is64 = true;
-				} else if (targetType == "neko")
+				}
+				else if (targetType == "neko")
 				{
 					try
 					{

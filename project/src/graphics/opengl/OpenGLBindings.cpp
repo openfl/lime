@@ -135,7 +135,7 @@ namespace lime {
 
 					case TYPE_RENDERBUFFER:
 
-						if (glIsProgram (id)) glDeleteRenderbuffers (1, &id);
+						if (glIsRenderbuffer (id)) glDeleteRenderbuffers (1, &id);
 						break;
 
 					#ifdef LIME_GLES3_API

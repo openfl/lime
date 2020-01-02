@@ -242,14 +242,17 @@ class AndroidPlatform extends PlatformTarget
 		{
 			build = "release";
 		}
-		
+
 		if (project.environment.exists("ANDROID_GRADLE_TASK"))
 		{
 			var task = project.environment.get("ANDROID_GRADLE_TASK");
-			if ( task == "assembleDebug" ) {
-			  build = "debug";
-			} else {
-			  build = "release";
+			if (task == "assembleDebug")
+			{
+				build = "debug";
+			}
+			else
+			{
+				build = "release";
 			}
 		}
 
@@ -257,11 +260,11 @@ class AndroidPlatform extends PlatformTarget
 
 		if (project.config.exists("android.gradle-build-directory"))
 		{
-			outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk/"+build);
+			outputDirectory = Path.combine(project.config.getString("android.gradle-build-directory"), project.app.file + "/app/outputs/apk/" + build);
 		}
 		else
 		{
-			outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk/"+build);
+			outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "bin/app/build/outputs/apk/" + build);
 		}
 
 		var apkPath = Path.combine(outputDirectory, project.app.file + "-" + build + ".apk");

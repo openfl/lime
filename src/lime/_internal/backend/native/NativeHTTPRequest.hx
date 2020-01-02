@@ -386,7 +386,6 @@ class NativeHTTPRequest
 			// Wrong thread
 			// promise.progress (bytesLoaded, bytesTotal);
 		}
-
 	}
 
 	private function curl_onWrite(curl:CURL, output:Bytes):Int
