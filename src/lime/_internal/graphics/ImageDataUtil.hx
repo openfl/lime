@@ -337,7 +337,8 @@ class ImageDataUtil
 				var destBytesPerPixel = Std.int(image.buffer.bitsPerPixel / 8);
 
 				var useAlphaImage = (alphaImage != null && alphaImage.transparent);
-				var blend = (mergeAlpha || (useAlphaImage && !image.transparent)) || (!mergeAlpha && !image.transparent && sourceImage.transparent);
+				var blend = (mergeAlpha || (useAlphaImage && !image.transparent))
+					|| (!mergeAlpha && !image.transparent && sourceImage.transparent);
 
 				if (!useAlphaImage)
 				{
@@ -424,7 +425,9 @@ class ImageDataUtil
 					var alphaFormat = alphaImage.buffer.format;
 					var alphaPosition, alphaPixel:RGBA;
 
-					var alphaView = new ImageDataView(alphaImage, new Rectangle(sourceView.x + (alphaPoint == null ? 0 : alphaPoint.x), sourceView.y + (alphaPoint == null ? 0 : alphaPoint.y), sourceView.width, sourceView.height));
+					var alphaView = new ImageDataView(alphaImage,
+						new Rectangle(sourceView.x + (alphaPoint == null ? 0 : alphaPoint.x), sourceView.y + (alphaPoint == null ? 0 : alphaPoint.y),
+							sourceView.width, sourceView.height));
 
 					destView.clip(Std.int(destPoint.x), Std.int(destPoint.y), alphaView.width, alphaView.height);
 

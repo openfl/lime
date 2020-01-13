@@ -479,7 +479,7 @@ class CommandLineTools
 					{
 						neko.Lib.load("lime", "lime_application_create", 0);
 					}
-					catch(e:Dynamic)
+					catch (e:Dynamic)
 					{
 						untyped $loader.path = $array(path + "Windows64/", $loader.path);
 					}

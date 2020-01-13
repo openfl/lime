@@ -1365,13 +1365,13 @@ class ProjectXMLParser extends HXProject
 						}
 
 						splashScreens.push(splashScreen);
-						
+
 					case "launchStoryboard":
 						if (launchStoryboard == null)
 						{
 							launchStoryboard = new LaunchStoryboard();
 						}
-					
+
 						if (element.has.path)
 						{
 							launchStoryboard.path = Path.combine(extensionPath, substitute(element.att.path));
@@ -1388,7 +1388,7 @@ class ProjectXMLParser extends HXProject
 							for (attr in element.x.attributes())
 							{
 								if (attr == "assetsPath") continue;
-								
+
 								var valueType = "String";
 								var valueName = attr;
 
@@ -1401,13 +1401,13 @@ class ProjectXMLParser extends HXProject
 								var stringValue = element.x.get(attr);
 								var value:Dynamic;
 
-								switch(valueType)
+								switch (valueType)
 								{
 									case "Int":
 										value = Std.parseInt(stringValue);
 									case "RGB":
 										var rgb:lime.math.ARGB = Std.parseInt(stringValue);
-										value = {r: rgb.r/255, g: rgb.g/255, b: rgb.b/255};
+										value = {r: rgb.r / 255, g: rgb.g / 255, b: rgb.b / 255};
 									case "String":
 										value = stringValue;
 									default:
@@ -1418,29 +1418,27 @@ class ProjectXMLParser extends HXProject
 								Reflect.setField(launchStoryboard.templateContext, valueName, value);
 							}
 						}
-						
+
 						if (element.has.assetsPath)
 						{
 							launchStoryboard.assetsPath = Path.combine(extensionPath, substitute(element.att.assetsPath));
 						}
-						
+
 						for (childElement in element.elements)
 						{
 							var isValid = isValidElement(childElement, "");
 
 							if (isValid)
 							{
-								switch(childElement.name)
+								switch (childElement.name)
 								{
 									case "imageset":
 										var name = substitute(childElement.att.name);
 										var imageset = new LaunchStoryboard.ImageSet(name);
-										
-										if (childElement.has.width)
-											imageset.width = Std.parseInt(substitute(childElement.att.width));
-										if (childElement.has.height)
-											imageset.height = Std.parseInt(substitute(childElement.att.height));
-										
+
+										if (childElement.has.width) imageset.width = Std.parseInt(substitute(childElement.att.width));
+										if (childElement.has.height) imageset.height = Std.parseInt(substitute(childElement.att.height));
+
 										launchStoryboard.assets.push(imageset);
 								}
 							}

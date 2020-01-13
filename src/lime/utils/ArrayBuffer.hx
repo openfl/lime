@@ -11,7 +11,11 @@ abstract ArrayBuffer(Bytes) from Bytes to Bytes
 #end
 {
 	public var byteLength(get, never):Int;
-	private inline function get_byteLength() { return this.length; }
+
+	private inline function get_byteLength()
+	{
+		return this.length;
+	}
 
 	public inline function new(byteLength:Int)
 	{
