@@ -1,3 +1,30 @@
+7.7.0 (01/24/2020)
+------------------
+
+* Updated SDL with a patch for high DPI resolution on macOS
+* Updated tinyfiledialogs with a Unicode patch on Windows
+* Added missing properties/methods to `lime.utils.ArrayBuffer`
+* Added support for NVX_gpu_memory_info OpenGL extension
+* Added support for using launch storyboards instead of launch images on iOS
+* Updated Android template to use Gradle 5.6.3 and Android Gradle Plugin 3.5.1
+* Improved `Assets.unloadLibrary` to allow unloading the default asset library
+* Improved HTML5 WebGL to fallback to canvas if "major performance caveat"
+* Improved the Electron output template to work without `-lib hxelectron`
+* Improved support for x86-64 on Android target
+* Improved handling of asset library root paths
+* Improved garbage collection performance on `GLRenderbuffer`
+* Fixed "auto" window orientation in the AIR template
+* Fixed launch of iOS simulator on some systems
+* Fixed support for `Clipboard` on HTML5
+* Fixed minimize/maximize on some desktop windows that are not resizable
+* Fixed `Image.fromBitmapData` to set `buffer.transparent`
+* Fixed some issues when toggling fullscreen on Android
+* Fixed a potential crash when getting the system locale on iOS or macOS
+* Fixed cleanup of Howler.js sounds after they are stopped
+* Fixed `FileDialog` to not return as completed if the path is an empty string
+* Fixed the default launch screen sizes on the iOS target
+
+
 7.6.3 (09/11/2019)
 ------------------
 
