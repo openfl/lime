@@ -3,6 +3,7 @@
 
 * Updated SDL with a patch for high DPI resolution on macOS
 * Updated tinyfiledialogs with a Unicode patch on Windows
+* Updated macOS to use OpenAL-Soft (rather than deprecated Apple OpenAL library)
 * Added missing properties/methods to `lime.utils.ArrayBuffer`
 * Added support for NVX_gpu_memory_info OpenGL extension
 * Added support for using launch storyboards instead of launch images on iOS
@@ -23,6 +24,7 @@
 * Fixed cleanup of Howler.js sounds after they are stopped
 * Fixed `FileDialog` to not return as completed if the path is an empty string
 * Fixed the default launch screen sizes on the iOS target
+* Fixed Gradle paths to jcenter/Google for HTTPS support
 
 
 7.6.3 (09/11/2019)
