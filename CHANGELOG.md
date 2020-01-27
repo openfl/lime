@@ -1,4 +1,4 @@
-7.7.0 (01/24/2020)
+7.7.0 (01/27/2020)
 ------------------
 
 * Updated SDL with a patch for high DPI resolution on macOS
