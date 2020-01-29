@@ -1855,6 +1855,10 @@ class NativeOpenGLRenderContext
 			case GL.FRAMEBUFFER_BINDING:
 				var data:GLFramebuffer = getInteger(pname);
 				return data;
+			
+			case GL.RENDERBUFFER_BINDING:
+				var data:GLRenderbuffer = getInteger(pname);
+				return data;
 
 			case GL.TEXTURE_BINDING_2D, GL.TEXTURE_BINDING_CUBE_MAP:
 				var data:GLTexture = getInteger(pname);
