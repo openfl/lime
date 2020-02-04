@@ -481,7 +481,7 @@ class AssetHelper
 
 				try
 				{
-					Haxelib.runCommand("", args, false, false, false, true);
+					Haxelib.runCommand("", args, false);
 				}
 				catch (e:Dynamic)
 				{

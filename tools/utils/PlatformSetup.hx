@@ -272,7 +272,7 @@ class PlatformSetup
 		if (version != null && version.indexOf("*") > -1)
 		{
 			var regexp = new EReg("^.+[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +([a-z0-9.-]+) +", "gi");
-			var output = Haxelib.runProcess("", ["info", haxelib.name], true, true, false, false, false, true);
+			var output = Haxelib.runProcess("", ["info", haxelib.name]);
 			var lines = output.split("\n");
 
 			var versions = new Array<Version>();
@@ -310,7 +310,7 @@ class PlatformSetup
 			args.push(version);
 		}
 
-		Haxelib.runCommand("", args, false, false, false, true);
+		Haxelib.runCommand("", args, false);
 	}
 
 	private static function link(dir:String, file:String, dest:String):Void
@@ -615,7 +615,7 @@ class PlatformSetup
 		getDefineValue("ELECTRON_PATH", "Path to Electron runtime");
 
 		Log.println("");
-		Haxelib.runCommand("", ["install", "electron"], true, true, false, true);
+		Haxelib.runCommand("", ["install", "electron"], true, true);
 
 		Log.println("");
 		Log.println("Setup complete.");
@@ -640,7 +640,7 @@ class PlatformSetup
 		var defines = new Map<String, Dynamic>();
 		defines.set("setup", 1);
 
-		var basePath = Haxelib.runProcess("", ["config"], true, true, false, false, false, true);
+		var basePath = Haxelib.runProcess("", ["config"], true, true);
 		if (basePath != null)
 		{
 			basePath = StringTools.trim(basePath.split("\n")[0]);
@@ -1176,7 +1176,7 @@ class PlatformSetup
 
 	public static function updateHaxelib(haxelib:Haxelib):Void
 	{
-		var basePath = Haxelib.runProcess("", ["config"], true, true, false, false, false, true);
+		var basePath = Haxelib.runProcess("", ["config"], true, true);
 
 		if (basePath != null)
 		{
@@ -1187,7 +1187,7 @@ class PlatformSetup
 
 		if (StringTools.startsWith(Path.standardize(lib), Path.standardize(basePath)))
 		{
-			Haxelib.runCommand("", ["update", haxelib.name], false, false, false, true);
+			Haxelib.runCommand("", ["update", haxelib.name], false);
 		}
 		else
 		{

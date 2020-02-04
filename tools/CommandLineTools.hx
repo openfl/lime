@@ -570,7 +570,7 @@ class CommandLineTools
 			}
 			else
 			{
-				Haxelib.runCommand("", ["run", handler].concat(args), false, false, false, true);
+				Haxelib.runCommand("", ["run", handler].concat(args), false);
 			}
 
 			try
@@ -2328,7 +2328,7 @@ class CommandLineTools
 			case "remove":
 				if (path != null && path != "")
 				{
-					Haxelib.runCommand("", ["remove", name], false, false, false, true);
+					Haxelib.runCommand("", ["remove", name], false);
 				}
 
 			case "upgrade":

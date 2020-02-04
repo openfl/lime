@@ -1258,7 +1258,7 @@ class HXProject extends Script
 
 				try
 				{
-					output = Haxelib.runProcess("", ["path", name], true, true, true, false, false, true);
+					output = Haxelib.runProcess("", ["path", name], true, true, true);
 				}
 				catch (e:Dynamic) {}
 
