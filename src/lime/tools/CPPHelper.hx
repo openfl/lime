@@ -273,8 +273,24 @@ class CPPHelper
 			Sys.putEnv("HXCPP_COMPILE_THREADS", Std.string(threads));
 		}
 
+		var scoped = FileSystem.exists(".lime") && FileSystem.isDirectory(".lime");
+
+		if (scoped)
+		{
+			var localPath = ".lime/temp";
+
+			System.recursiveCopy(path, ".lime/temp");
+
+			path = ".lime/temp";
+		}
+
 		Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
 
 		Haxelib.runCommand(path, args, false, false, false, true);
+
+		if (scoped)
+		{
+			System.removeDirectory(path);
+		}
 	}
 }
