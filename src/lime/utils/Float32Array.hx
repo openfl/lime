@@ -10,8 +10,10 @@ import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
 @:arrayAccess
-abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array to ArrayBufferView
+abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 {
+	@:to function toArrayBufferView ():ArrayBufferView return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
