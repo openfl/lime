@@ -38,7 +38,8 @@ class FlashPlatform extends PlatformTarget
 
 	public override function build():Void
 	{
-		System.runCommand("", "haxe", [targetDirectory + "/haxe/" + buildType + ".hxml"]);
+		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
+		System.runCommand("", 'haxe "$hxml"', null);
 	}
 
 	public override function clean():Void

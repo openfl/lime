@@ -119,7 +119,7 @@ class ModuleHelper
 				File.saveContent(importPath, moduleImport);
 				File.saveContent(hxmlPath, hxml);
 
-				System.runCommand("", "haxe", [hxmlPath]);
+				System.runCommand("", 'haxe "$hxmlPath"', null);
 
 				patchFile(outputPath);
 

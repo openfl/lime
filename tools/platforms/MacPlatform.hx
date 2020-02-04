@@ -109,7 +109,7 @@ class MacPlatform extends PlatformTarget
 
 		if (targetType == "neko")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 
@@ -118,7 +118,7 @@ class MacPlatform extends PlatformTarget
 		}
 		else if (targetType == "hl")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 
@@ -132,11 +132,11 @@ class MacPlatform extends PlatformTarget
 		{
 			var libPath = Path.combine(Haxelib.getPath(new Haxelib("lime")), "templates/java/lib/");
 
-			System.runCommand("", "haxe", [hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar"]);
+			System.runCommand("", "haxe " + ['"$hxml"', "-java-lib", '"$libPath"' + "disruptor.jar", "-java-lib", '"$libPath"' + "lwjgl.jar"].join(" "), null);
 
 			if (noOutput) return;
 
-			Haxelib.runCommand(targetDirectory + "/obj", ["run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103"]);
+			Haxelib.runCommand(targetDirectory + "/obj", ["run", "hxjava", "hxjava_build.txt", "--haxe-version", "3103"], false, false, false, true);
 			System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(executableDirectory, "lib"));
 			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
 				Path.combine(executableDirectory, project.app.file + ".jar"));
@@ -144,7 +144,7 @@ class MacPlatform extends PlatformTarget
 		}
 		else if (targetType == "nodejs")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 
@@ -153,7 +153,7 @@ class MacPlatform extends PlatformTarget
 		}
 		else if (targetType == "cs")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 
@@ -167,7 +167,7 @@ class MacPlatform extends PlatformTarget
 		}
 		else
 		{
-			var haxeArgs = [hxml, "-D", "HXCPP_CLANG"];
+			var haxeArgs = ['"$hxml"', "-D", "HXCPP_CLANG"];
 			var flags = ["-DHXCPP_CLANG"];
 
 			if (is64)
@@ -179,7 +179,7 @@ class MacPlatform extends PlatformTarget
 
 			if (!project.targetFlags.exists("static"))
 			{
-				System.runCommand("", "haxe", haxeArgs);
+				System.runCommand("", "haxe " + haxeArgs.join(" "), null);
 
 				if (noOutput) return;
 
@@ -189,7 +189,7 @@ class MacPlatform extends PlatformTarget
 			}
 			else
 			{
-				System.runCommand("", "haxe", haxeArgs.concat(["-D", "static_link"]));
+				System.runCommand("", "haxe " + haxeArgs.concat(["-D", "static_link"]).join(" "), null);
 
 				if (noOutput) return;
 

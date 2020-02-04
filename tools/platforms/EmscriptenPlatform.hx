@@ -49,7 +49,7 @@ class EmscriptenPlatform extends PlatformTarget
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-		var args = [hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
+		var args = ['"$hxml"', "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
 
 		if (Log.verbose)
 		{
@@ -57,7 +57,7 @@ class EmscriptenPlatform extends PlatformTarget
 			args.push("verbose");
 		}
 
-		System.runCommand("", "haxe", args);
+		System.runCommand("", "haxe " + args.join(" "), null);
 
 		if (noOutput) return;
 

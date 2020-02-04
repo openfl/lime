@@ -467,7 +467,7 @@ class AssetHelper
 			for (handler in handlers)
 			{
 				var outputFile = System.getTemporaryFile();
-				var args = ["run", handler, "process", temporaryFile, outputFile];
+				var args = ["run", '"$handler"', "process", '"$temporaryFile"', '"$outputFile"'];
 
 				if (Log.verbose)
 				{
@@ -476,12 +476,12 @@ class AssetHelper
 
 				if (targetDirectory != null)
 				{
-					args.push("--targetDirectory=" + Path.tryFullPath(targetDirectory));
+					args.push("--targetDirectory=\"" + Path.tryFullPath(targetDirectory) + '"');
 				}
 
 				try
 				{
-					Haxelib.runCommand("", args, false);
+					Haxelib.runCommand("", args, false, false, false, true);
 				}
 				catch (e:Dynamic)
 				{

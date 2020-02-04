@@ -116,7 +116,7 @@ class LinuxPlatform extends PlatformTarget
 
 		if (targetType == "neko")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 
@@ -133,7 +133,7 @@ class LinuxPlatform extends PlatformTarget
 		}
 		else if (targetType == "hl")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 
@@ -145,7 +145,7 @@ class LinuxPlatform extends PlatformTarget
 		}
 		else if (targetType == "nodejs")
 		{
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 			// NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			// NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
 		}
@@ -153,7 +153,7 @@ class LinuxPlatform extends PlatformTarget
 		{
 			var libPath = Path.combine(Haxelib.getPath(new Haxelib("lime")), "templates/java/lib/");
 
-			System.runCommand("", "haxe", [hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar"]);
+			System.runCommand("", "haxe " + ['"$hxml"', "-java-lib", '"$libPath"' + "disruptor.jar", "-java-lib", '"$libPath"' + "lwjgl.jar"].join(" "), null);
 			// System.runCommand ("", "haxe", [ hxml ]);
 
 			if (noOutput) return;
@@ -168,7 +168,7 @@ class LinuxPlatform extends PlatformTarget
 					+ (haxeVersion.length == 5 ? "0" + haxeVersion.charAt(4) : haxeVersion.charAt(4) + haxeVersion.charAt(5));
 			}
 
-			System.runCommand(targetDirectory + "/obj", "haxelib", ["run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString]);
+			System.runCommand(targetDirectory + "/obj", "haxelib run hxjava hxjava_build.txt --haxe-version " + haxeVersionString, null);
 			System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(applicationDirectory, "lib"));
 			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
 				Path.combine(applicationDirectory, project.app.file + ".jar"));
@@ -176,7 +176,7 @@ class LinuxPlatform extends PlatformTarget
 		}
 		else
 		{
-			var haxeArgs = [hxml];
+			var haxeArgs = ['"$hxml"'];
 			var flags = [];
 
 			if (is64)
@@ -194,7 +194,7 @@ class LinuxPlatform extends PlatformTarget
 
 			if (!project.targetFlags.exists("static"))
 			{
-				System.runCommand("", "haxe", haxeArgs);
+				System.runCommand("", "haxe " + haxeArgs.join(" "), null);
 
 				if (noOutput) return;
 
@@ -204,7 +204,7 @@ class LinuxPlatform extends PlatformTarget
 			}
 			else
 			{
-				System.runCommand("", "haxe", haxeArgs.concat(["-D", "static_link"]));
+				System.runCommand("", "haxe " + haxeArgs.concat(["-D", "static_link"]).join(" "), null);
 
 				if (noOutput) return;
 

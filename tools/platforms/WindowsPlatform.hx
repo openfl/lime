@@ -92,7 +92,7 @@ class WindowsPlatform extends PlatformTarget
 				{
 					try
 					{
-						var process = new Process("haxe", ["-version"]);
+						var process = new Process("haxe -version");
 						var haxeVersion = StringTools.trim(process.stderr.readAll().toString());
 						if (haxeVersion == "")
 						{
@@ -143,7 +143,7 @@ class WindowsPlatform extends PlatformTarget
 
 			if (project.app.main != null)
 			{
-				System.runCommand("", "haxe", [hxml]);
+				System.runCommand("", 'haxe "$hxml"', null);
 
 				var msBuildPath = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe";
 				var args = [
@@ -218,7 +218,7 @@ class WindowsPlatform extends PlatformTarget
 
 			if (targetType == "neko")
 			{
-				System.runCommand("", "haxe", [hxml]);
+				System.runCommand("", 'haxe "$hxml"', null);
 
 				if (noOutput) return;
 
@@ -234,7 +234,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "hl")
 			{
-				System.runCommand("", "haxe", [hxml]);
+				System.runCommand("", 'haxe "$hxml"', null);
 
 				if (noOutput) return;
 
@@ -253,7 +253,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "cppia")
 			{
-				System.runCommand("", "haxe", [hxml]);
+				System.runCommand("", 'haxe "$hxml"', null);
 
 				if (noOutput) return;
 
@@ -270,7 +270,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "nodejs")
 			{
-				System.runCommand("", "haxe", [hxml]);
+				System.runCommand("", 'haxe "$hxml"', null);
 
 				if (noOutput) return;
 
@@ -279,7 +279,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "cs")
 			{
-				System.runCommand("", "haxe", [hxml]);
+				System.runCommand("", 'haxe "$hxml"', null);
 
 				if (noOutput) return;
 
@@ -293,8 +293,8 @@ class WindowsPlatform extends PlatformTarget
 			{
 				var libPath = Path.combine(Haxelib.getPath(new Haxelib("lime")), "templates/java/lib/");
 
-				System.runCommand("", "haxe", [hxml, "-java-lib", libPath + "disruptor.jar", "-java-lib", libPath + "lwjgl.jar"]);
-				// System.runCommand ("", "haxe", [ hxml ]);
+				System.runCommand("", 'haxe "$hxml" -java-lib "${libPath + "disruptor.jar"}" -java-lib "${libPath + "lwjgl.jar"}"', null);
+				// System.runCommand ("", "haxe " + hxml, null);
 
 				if (noOutput) return;
 
@@ -308,7 +308,7 @@ class WindowsPlatform extends PlatformTarget
 						+ (haxeVersion.length == 5 ? "0" + haxeVersion.charAt(4) : haxeVersion.charAt(4) + haxeVersion.charAt(5));
 				}
 
-				System.runCommand(targetDirectory + "/obj", "haxelib", ["run", "hxjava", "hxjava_build.txt", "--haxe-version", haxeVersionString]);
+				System.runCommand(targetDirectory + "/obj", "haxelib run hxjava hxjava_build.txt --haxe-version " + haxeVersionString, null);
 				System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(applicationDirectory, "lib"));
 				System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
 					Path.combine(applicationDirectory, project.app.file + ".jar"));
@@ -316,7 +316,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "winrt")
 			{
-				var haxeArgs = [hxml];
+				var haxeArgs = ['"$hxml"'];
 				var flags = [];
 
 				haxeArgs.push("-D");
@@ -345,7 +345,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (!project.targetFlags.exists("static"))
 				{
-					System.runCommand("", "haxe", haxeArgs);
+					System.runCommand("", "haxe " + haxeArgs.join(" "), null);
 
 					if (noOutput) return;
 
@@ -355,7 +355,7 @@ class WindowsPlatform extends PlatformTarget
 				}
 				else
 				{
-					System.runCommand("", "haxe", haxeArgs.concat(["-D", "static_link"]));
+					System.runCommand("", "haxe " + haxeArgs.join(" ") + " -D static_link", null);
 
 					if (noOutput) return;
 
@@ -376,7 +376,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else
 			{
-				var haxeArgs = [hxml];
+				var haxeArgs = ['"$hxml"'];
 				var flags = [];
 
 				if (is64)
@@ -399,7 +399,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (!project.targetFlags.exists("static"))
 				{
-					System.runCommand("", "haxe", haxeArgs);
+					System.runCommand("", "haxe " + haxeArgs.join(" "), null);
 
 					if (noOutput) return;
 
@@ -409,7 +409,7 @@ class WindowsPlatform extends PlatformTarget
 				}
 				else
 				{
-					System.runCommand("", "haxe", haxeArgs.concat(["-D", "static_link"]));
+					System.runCommand("", "haxe " + haxeArgs.join(" ") + " -D static_link", null);
 
 					if (noOutput) return;
 

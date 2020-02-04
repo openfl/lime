@@ -532,12 +532,13 @@ class HXProject extends Script
 		var tempDirectory = System.getTemporaryDirectory();
 		var classFile = Path.combine(tempDirectory, name + ".hx");
 		var nekoOutput = Path.combine(tempDirectory, name + ".n");
+		var hxpSourcesPath = Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src");
 
 		System.copyFile(path, classFile);
 
 		#if lime
 		var args = [
-			name, "-main", "lime.tools.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src"),
+			name, "-main", "lime.tools.HXProject", "-cp", '"$tempDirectory"', "-neko", '"$nekoOutput"', "-cp", '"$hxpSourcesPath"',
 			"-lib", "lime", "-lib", "hxp"
 		];
 		#else
@@ -547,9 +548,9 @@ class HXProject extends Script
 			"-main",
 			"lime.tools.HXProject",
 			"-cp",
-			tempDirectory,
+			'"$tempDirectory"',
 			"-cp",
-			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
+			'"$hxpSourcesPath"'
 		];
 		#end
 		var input = File.read(classFile, false);
@@ -575,7 +576,7 @@ class HXProject extends Script
 		System.dryRun = false;
 
 		#if lime
-		System.runCommand("", "haxe", args);
+		System.runCommand("", "haxe " + args.join(" "), null);
 		#end
 
 		var inputFile = Path.combine(tempDirectory, "input.dat");
@@ -602,9 +603,9 @@ class HXProject extends Script
 		try
 		{
 			#if lime
-			System.runCommand("", "neko", [FileSystem.fullPath(nekoOutput), inputFile, outputFile]);
+			System.runCommand("", 'neko "${FileSystem.fullPath(nekoOutput)}" "$inputFile" "$outputFile"', null);
 			#else
-			System.runCommand("", "haxe", args.concat(["--", inputFile, outputFile]));
+			System.runCommand("", "haxe " + args.concat(["--", '"$inputFile"', '"$outputFile"']).join(" "), null);
 			#end
 		}
 		catch (e:Dynamic)
@@ -1257,7 +1258,7 @@ class HXProject extends Script
 
 				try
 				{
-					output = Haxelib.runProcess("", ["path", name], true, true, true);
+					output = Haxelib.runProcess("", ["path", name], true, true, true, false, false, true);
 				}
 				catch (e:Dynamic) {}
 

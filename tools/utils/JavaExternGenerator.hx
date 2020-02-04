@@ -205,7 +205,7 @@ class JavaExternGenerator
 
 	public static function getHaxelib(library:String):String
 	{
-		var proc = new Process("haxelib", ["path", library]);
+		var proc = new Process("haxelib path " + library);
 		var result = "";
 
 		try

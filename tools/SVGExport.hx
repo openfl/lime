@@ -29,7 +29,7 @@ class SVGExport
 
 		if (path == "")
 		{
-			var process = new Process("haxelib", ["path", "lime"]);
+			var process = new Process("haxelib path lime");
 
 			try
 			{

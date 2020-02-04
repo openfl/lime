@@ -45,7 +45,7 @@ class TizenPlatform extends PlatformTarget
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		System.runCommand("", "haxe", [hxml, "-D", "tizen"]);
+		System.runCommand("", 'haxe "$hxml" -D tizen', null);
 
 		if (noOutput) return;
 

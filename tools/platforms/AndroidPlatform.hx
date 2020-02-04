@@ -71,7 +71,7 @@ class AndroidPlatform extends PlatformTarget
 
 		for (architecture in architectures)
 		{
-			var haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-16"];
+			var haxeParams = ['"$hxml"', "-D", "android", "-D", "PLATFORM=android-16"];
 			var cppParams = ["-Dandroid", "-DPLATFORM=android-16"];
 			var path = sourceSet + "/jniLibs/armeabi";
 			var suffix = ".so";
@@ -86,7 +86,7 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.ARM64)
 			{
-				haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
+				haxeParams = ['"$hxml"', "-D", "android", "-D", "PLATFORM=android-21"];
 				cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
 
 				haxeParams.push("-D");
@@ -105,7 +105,7 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.X64)
 			{
-				haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
+				haxeParams = ['"$hxml"', "-D", "android", "-D", "PLATFORM=android-21"];
 				cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
 
 				haxeParams.push("-D");
@@ -120,7 +120,7 @@ class AndroidPlatform extends PlatformTarget
 				ProjectHelper.copyLibrary(project, ndll, "Android", "lib", suffix, path, project.debug, ".so");
 			}
 
-			System.runCommand("", "haxe", haxeParams);
+			System.runCommand("", "haxe " + haxeParams.join(" "), null);
 
 			if (noOutput) return;
 

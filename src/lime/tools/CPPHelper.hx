@@ -116,7 +116,7 @@ class CPPHelper
 
 			Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
 
-			var code = Haxelib.runCommand(path, args);
+			var code = Haxelib.runCommand(path, args, false, false, false, true);
 
 			if (code != 0)
 			{
@@ -275,6 +275,6 @@ class CPPHelper
 
 		Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
 
-		Haxelib.runCommand(path, args);
+		Haxelib.runCommand(path, args, false, false, false, true);
 	}
 }

@@ -204,7 +204,7 @@ class CFFI
 		#if (sys && !macro && !html5)
 		try
 		{
-			var proc = new Process("haxelib", ["path", library]);
+			var proc = new Process("haxelib path "+ library);
 
 			if (proc != null)
 			{
