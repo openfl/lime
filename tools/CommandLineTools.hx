@@ -303,7 +303,7 @@ class CommandLineTools
 							var cacheValue = Sys.getEnv("HAXELIB_PATH");
 							Sys.putEnv("HAXELIB_PATH", Haxelib.getRepositoryPath());
 
-							System.runCommand(Path.directory(hxmlPath), "haxe", [Path.withoutDirectory(hxmlPath)]);
+							HXML.buildFile(hxmlPath, Sys.getCwd());
 
 							if (cacheValue != null)
 							{
@@ -437,7 +437,11 @@ class CommandLineTools
 
 		var path = "";
 
-		if (FileSystem.exists("tools.n"))
+		if (Path.normalize(Sys.getCwd()).substr(-6, 6) == "/.lime")
+		{
+			path = Path.combine(Sys.getCwd(), "/ndll/");
+		}
+		else if (FileSystem.exists("tools.n"))
 		{
 			path = Path.combine(Sys.getCwd(), "../ndll/");
 		}
@@ -448,7 +452,7 @@ class CommandLineTools
 
 		if (path == "")
 		{
-			var process = new Process("haxelib", ["path", "lime"]);
+			var process = new Process("haxelib path lime");
 
 			try
 			{
@@ -548,7 +552,7 @@ class CommandLineTools
 			var exePath = Path.join([targetDir, "run.exe"]);
 			var exeExists = FileSystem.exists(exePath);
 
-			var args = [command, temporaryFile];
+			var args = [command, '"$temporaryFile"'];
 
 			if (Log.verbose) args.push("-verbose");
 			if (!Log.enableColor) args.push("-nocolor");
@@ -566,7 +570,7 @@ class CommandLineTools
 			}
 			else
 			{
-				Haxelib.runCommand("", ["run", handler].concat(args));
+				Haxelib.runCommand("", ["run", handler].concat(args), false, false, false, true);
 			}
 
 			try
@@ -1216,14 +1220,14 @@ class CommandLineTools
 			var sourcePath = words[0];
 			var glyphs = "32-255";
 
-			System.runCommand(Path.directory(sourcePath), "neko", [
-				Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/hxswfml.n",
+			System.runCommand(Path.directory(sourcePath), "neko " + [
+				'"${Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/hxswfml.n"}"',
 				"ttf2hash2",
-				Path.withoutDirectory(sourcePath),
-				Path.withoutDirectory(sourcePath) + ".hash",
+				'"${Path.withoutDirectory(sourcePath)}"',
+				'"${Path.withoutDirectory(sourcePath) + ".hash"}"',
 				"-glyphs",
 				glyphs
-			]);
+			].join(" "), null);
 		}
 		else if (targetFlags.exists("font-details"))
 		{
@@ -1643,7 +1647,7 @@ class CommandLineTools
 
 		try
 		{
-			var process = new Process("haxe", ["-version"]);
+			var process = new Process("haxe -version");
 			var haxeVersion = StringTools.trim(process.stderr.readAll().toString());
 
 			if (haxeVersion == "")
@@ -2324,7 +2328,7 @@ class CommandLineTools
 			case "remove":
 				if (path != null && path != "")
 				{
-					Haxelib.runCommand("", ["remove", name]);
+					Haxelib.runCommand("", ["remove", name], false, false, false, true);
 				}
 
 			case "upgrade":
