@@ -310,7 +310,7 @@ class PlatformSetup
 			args.push(version);
 		}
 
-		Haxelib.runCommand("", args, false);
+		Haxelib.runCommand("", args);
 	}
 
 	private static function link(dir:String, file:String, dest:String):Void
@@ -640,7 +640,7 @@ class PlatformSetup
 		var defines = new Map<String, Dynamic>();
 		defines.set("setup", 1);
 
-		var basePath = Haxelib.runProcess("", ["config"], true, true);
+		var basePath = Haxelib.runProcess("", ["config"]);
 		if (basePath != null)
 		{
 			basePath = StringTools.trim(basePath.split("\n")[0]);
@@ -1176,7 +1176,7 @@ class PlatformSetup
 
 	public static function updateHaxelib(haxelib:Haxelib):Void
 	{
-		var basePath = Haxelib.runProcess("", ["config"], true, true);
+		var basePath = Haxelib.runProcess("", ["config"]);
 
 		if (basePath != null)
 		{
@@ -1187,7 +1187,7 @@ class PlatformSetup
 
 		if (StringTools.startsWith(Path.standardize(lib), Path.standardize(basePath)))
 		{
-			Haxelib.runCommand("", ["update", haxelib.name], false);
+			Haxelib.runCommand("", ["update", haxelib.name]);
 		}
 		else
 		{
