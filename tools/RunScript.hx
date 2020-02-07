@@ -7,11 +7,13 @@ import sys.FileSystem;
 
 class RunScript
 {
-	private static function rebuildTools(toolsDirectory:String, targetDirectory:String = null, rebuildBinaries = true):Void
+	private static function buildTools(targetDirectory:String = null, rebuildBinaries = true):Void
 	{
+		var toolsHxmlPath = getToolsHxmlPath();
+
 		if (targetDirectory == null)
 		{
-			targetDirectory = toolsDirectory;
+			targetDirectory = Path.directory(toolsHxmlPath);
 		}
 
 		Haxelib.workingDirectory = targetDirectory;
@@ -28,7 +30,7 @@ class RunScript
 
 		} else {*/
 
-		HXML.buildFile(toolsDirectory + "/tools.hxml", targetDirectory);
+		HXML.buildFile(toolsHxmlPath, targetDirectory);
 
 		// }
 
@@ -227,7 +229,34 @@ class RunScript
 
 	private static function checkTools(workingDirectory:String, args:Array<String>):String
 	{
-		var scopeDirectory:String = workingDirectory + "/.lime";
+		var toolsPath:String = getToolsPath(workingDirectory);
+		var toolsDest = Path.directory(toolsPath);
+
+		if (!hasTools(toolsDest) || args.indexOf("-rebuild") > -1)
+		{
+			buildTools(toolsDest);
+		}
+
+		return toolsPath;
+	}
+
+	private static function rebuildTools(workingDirectory:String, rebuildBinaries = true):String
+	{
+		var toolsPath = getToolsPath(workingDirectory);
+		var toolsDest = Path.directory(toolsPath);
+
+		buildTools(toolsDest, rebuildBinaries);
+
+		return toolsPath;
+	}
+
+	private static function hasTools(directory:String):Bool
+	{
+		return FileSystem.exists(directory + "/tools.n");
+	}
+
+	private static function getToolsHxmlPath():String
+	{
 		var toolsDirectory:String = Path.combine(Haxelib.getPath(new Haxelib("lime"), true), "tools");
 
 		if (!FileSystem.exists(toolsDirectory))
@@ -235,28 +264,24 @@ class RunScript
 			toolsDirectory = Path.combine(toolsDirectory, "../../tools");
 		}
 
+		return toolsDirectory + "/tools.hxml";
+	}
+
+	private static function getToolsPath(workingDirectory:String):String
+	{
+		var scopeDirectory:String = workingDirectory + "/.lime";
+
+		var targetDirectory:String;
+
 		if (FileSystem.exists(scopeDirectory) && FileSystem.isDirectory(scopeDirectory))
 		{
-			if (!hasTools(scopeDirectory) || args.indexOf("-rebuild") > -1)
-			{
-				rebuildTools(toolsDirectory, scopeDirectory);
-			}
-
-			return scopeDirectory + "/tools.n";
+			targetDirectory = scopeDirectory;
 		}
 		else
 		{
-			if (!hasTools(toolsDirectory) || args.indexOf("-rebuild") > -1)
-			{
-				rebuildTools(toolsDirectory);
-			}
-
-			return toolsDirectory + "/tools.n";
+			targetDirectory = Path.directory(getToolsHxmlPath());
 		}
-	}
 
-	private static function hasTools(directory:String):Bool
-	{
-		return FileSystem.exists(directory + "/tools.n");
+		return targetDirectory + "/tools.n";
 	}
 }
