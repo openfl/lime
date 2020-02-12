@@ -276,7 +276,7 @@ class AssetsMacro
 		if (path != null && path != "")
 		{
 			#if html5
-			Sys.command("haxelib", ["run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path)]);
+			Sys.command("haxelib run lime generate -font-hash \"" + sys.FileSystem.fullPath(path) + "\"");
 			path += ".hash";
 			#end
 
