@@ -23,8 +23,8 @@
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || android" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="mac || iphone || emscripten || tvos" />
+	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
+	<set name="LIME_OPENAL" value="1" if="iphone || emscripten || tvos" />
 	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
 	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />

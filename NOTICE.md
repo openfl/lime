@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2019 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2020 Joshua Granick and other Lime contributors
 
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).

@@ -600,13 +600,16 @@ class IOSPlatform extends PlatformTarget
 		else
 		{
 			var splashSizes:Array<SplashSize> = [
-				{name: "Default.png", w: 320, h: 480}, // iPhone, portrait {name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
-				{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait {name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
-				{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait {name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
-				{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape {name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242},
-				// iPhone 6 Plus, landscape
-				{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait {name: "Default-Portrait@2x.png", w: 1536, h: 2048},
-				// iPad Retina, portrait
+				{name: "Default.png", w: 320, h: 480}, // iPhone, portrait
+				{name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
+				{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait
+				{name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
+				{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait
+				{name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
+				{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape
+				{name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242}, // iPhone 6 Plus, landscape
+				{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait
+				{name: "Default-Portrait@2x.png", w: 1536, h: 2048}, // iPad Retina, portrait
 				{name: "Default-812h@3x.png", w: 1125, h: 2436}, // iPhone X, portrait
 				{name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125} // iPhone X, landscape
 			];
