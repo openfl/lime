@@ -277,11 +277,11 @@ class CPPHelper
 
 		if (scoped)
 		{
-			var localPath = ".lime/temp";
+			var localTemp = ".lime/temp";
 
-			System.recursiveCopy(path, ".lime/temp");
+			System.recursiveCopy(path, localTemp);
 
-			path = ".lime/temp";
+			path = localTemp;
 		}
 
 		Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
