@@ -7,6 +7,11 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifdef HX_WINDOWS
+#include <windows.h>
+#include <SDL_syswm.h>
+#endif
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -21,6 +26,8 @@ namespace lime {
 	const int analogAxisDeadZone = 1000;
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;
+	bool winTimerActive = false;
+	int winTimerID = 1;
 
 
 	SDLApplication::SDLApplication () {
@@ -333,6 +340,11 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+
+		#ifdef HX_WINDOWS
+		SDL_AddEventWatch (SDLApplication::WatchEvent, nullptr);
+		SDL_EventState (SDL_SYSWMEVENT, SDL_ENABLE);
+		#endif
 
 		while (20 == BatchUpdate(20));
 
@@ -883,6 +895,15 @@ namespace lime {
 
 			while (SDL_PollEvent (&event)) {
 
+				#ifdef HX_WINDOWS
+				if (winTimerActive) {
+
+					KillTimer (GetActiveWindow (), winTimerID);
+					winTimerActive = false;
+
+				}
+				#endif
+
 				HandleEvent (&event);
 				event.type = -1;
 				if (!active)
@@ -1054,6 +1075,38 @@ namespace lime {
 		int numEvents = SDL_PeepEvents (events, maxEvents, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
 
 		return numEvents;
+	}
+
+
+	int SDLApplication::WatchEvent (void* userData, SDL_Event* event) {
+
+		#ifdef HX_WINDOWS
+		if (event->type == SDL_SYSWMEVENT) {
+
+			const auto& message = event->syswm.msg->msg.win;
+
+			if (message.msg == WM_ENTERSIZEMOVE) {
+
+				winTimerActive = SetTimer (GetActiveWindow (), winTimerID, currentApplication->framePeriod, nullptr);
+
+				// TODO: Are we thread-safe to call GL here?
+				RenderEvent::Dispatch (&currentApplication->renderEvent);
+
+			} else if (message.msg == WM_TIMER) {
+
+				if (message.wParam == winTimerID) {
+
+					RenderEvent::Dispatch (&currentApplication->renderEvent);
+
+				}
+
+			}
+
+		}
+		#endif
+
+		return 0;
+
 	}
 
 

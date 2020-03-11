@@ -56,6 +56,7 @@ namespace lime {
 
 			static void UpdateFrame ();
 			static void UpdateFrame (void*);
+			static int WatchEvent (void* userData, SDL_Event* event);
 
 			static SDLApplication* currentApplication;
 
