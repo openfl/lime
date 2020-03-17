@@ -915,6 +915,9 @@ class HTML5Window
 			textArea.style.width = "0px";
 			Browser.document.body.appendChild(textArea);
 		}
+
+		var cacheElement = Browser.document.activeElement;
+
 		textArea.value = value;
 		textArea.focus();
 		textArea.select();
@@ -922,6 +925,11 @@ class HTML5Window
 		if (Browser.document.queryCommandEnabled("copy"))
 		{
 			Browser.document.execCommand("copy");
+		}
+
+		if (cacheElement != null && cacheElement != textArea)
+		{
+			cacheElement.focus();
 		}
 	}
 
