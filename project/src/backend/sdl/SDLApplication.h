@@ -51,6 +51,7 @@ namespace lime {
 			void ProcessTextEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event);
+			void SendUpdateEvent ();
 			int WaitEvent (SDL_Event* event);
 			int GetPendingEvents (SDL_Event* event, int NumEvents);
 

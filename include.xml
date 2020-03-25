@@ -90,6 +90,9 @@
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 
+		<!-- TODO: Move to template or move all template dependencies to XML? -->
+		<dependency name="CoreBluetooth.framework" if="ios" />
+
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
 		<define name="fdb" if="flash debug" unless="nofdb" />
 

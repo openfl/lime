@@ -136,26 +136,7 @@ namespace lime {
 
 			case SDL_USEREVENT:
 
-				if (!inBackground) {
-
-					currentUpdate = SDL_GetTicks ();
-					applicationEvent.type = UPDATE;
-					applicationEvent.deltaTime = currentUpdate - lastUpdate;
-					lastUpdate = currentUpdate;
-
-					nextUpdate += framePeriod;
-
-					while (nextUpdate <= currentUpdate) {
-
-						nextUpdate += framePeriod;
-
-					}
-
-					ApplicationEvent::Dispatch (&applicationEvent);
-					RenderEvent::Dispatch (&renderEvent);
-
-				}
-
+				SendUpdateEvent();
 				break;
 
 			case SDL_APP_WILLENTERBACKGROUND:
@@ -838,6 +819,31 @@ namespace lime {
 	}
 
 
+	void SDLApplication::SendUpdateEvent () {
+
+		if (!inBackground) {
+
+			currentUpdate = SDL_GetTicks ();
+			applicationEvent.type = UPDATE;
+			applicationEvent.deltaTime = currentUpdate - lastUpdate;
+			lastUpdate = currentUpdate;
+
+			nextUpdate += framePeriod;
+
+			while (nextUpdate <= currentUpdate) {
+
+				nextUpdate += framePeriod;
+
+			}
+
+			ApplicationEvent::Dispatch (&applicationEvent);
+			RenderEvent::Dispatch (&renderEvent);
+
+		}
+
+	}
+
+
 	void SDLApplication::SetFrameRate (double frameRate) {
 
 		if (frameRate > 0) {
@@ -1089,14 +1095,11 @@ namespace lime {
 
 				winTimerActive = SetTimer (GetActiveWindow (), winTimerID, currentApplication->framePeriod, nullptr);
 
-				// TODO: Are we thread-safe to call GL here?
-				RenderEvent::Dispatch (&currentApplication->renderEvent);
-
 			} else if (message.msg == WM_TIMER) {
 
 				if (message.wParam == winTimerID) {
 
-					RenderEvent::Dispatch (&currentApplication->renderEvent);
+					currentApplication->SendUpdateEvent ();
 
 				}
 

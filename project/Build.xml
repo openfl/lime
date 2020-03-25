@@ -503,6 +503,7 @@
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="GameController"/>
+				<vflag name="-framework" value="CoreBluetooth" />
 
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
@@ -522,6 +523,7 @@
 				<vflag name="-framework" value="OpenAL"/>
 				<vflag name="-framework" value="CoreMotion"/>
 				<vflag name="-framework" value="CoreText"/>
+				<vflag name="-framework" value="CoreBluetooth" />
 
 				<lib name="-ldl" />
 				<lib name="-lEGL" />
