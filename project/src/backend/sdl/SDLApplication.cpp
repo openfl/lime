@@ -7,11 +7,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#ifdef HX_WINDOWS
-#include <windows.h>
-#include <SDL_syswm.h>
-#endif
-
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -26,8 +21,6 @@ namespace lime {
 	const int analogAxisDeadZone = 1000;
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;
-	bool winTimerActive = false;
-	int winTimerID = 1;
 
 
 	SDLApplication::SDLApplication () {
@@ -136,7 +129,26 @@ namespace lime {
 
 			case SDL_USEREVENT:
 
-				SendUpdateEvent();
+				if (!inBackground) {
+
+					currentUpdate = SDL_GetTicks ();
+					applicationEvent.type = UPDATE;
+					applicationEvent.deltaTime = currentUpdate - lastUpdate;
+					lastUpdate = currentUpdate;
+
+					nextUpdate += framePeriod;
+
+					while (nextUpdate <= currentUpdate) {
+
+						nextUpdate += framePeriod;
+
+					}
+
+					ApplicationEvent::Dispatch (&applicationEvent);
+					RenderEvent::Dispatch (&renderEvent);
+
+				}
+
 				break;
 
 			case SDL_APP_WILLENTERBACKGROUND:
@@ -321,11 +333,6 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
-
-		#ifdef HX_WINDOWS
-		SDL_AddEventWatch (SDLApplication::WatchEvent, nullptr);
-		SDL_EventState (SDL_SYSWMEVENT, SDL_ENABLE);
-		#endif
 
 		while (20 == BatchUpdate(20));
 
@@ -819,31 +826,6 @@ namespace lime {
 	}
 
 
-	void SDLApplication::SendUpdateEvent () {
-
-		if (!inBackground) {
-
-			currentUpdate = SDL_GetTicks ();
-			applicationEvent.type = UPDATE;
-			applicationEvent.deltaTime = currentUpdate - lastUpdate;
-			lastUpdate = currentUpdate;
-
-			nextUpdate += framePeriod;
-
-			while (nextUpdate <= currentUpdate) {
-
-				nextUpdate += framePeriod;
-
-			}
-
-			ApplicationEvent::Dispatch (&applicationEvent);
-			RenderEvent::Dispatch (&renderEvent);
-
-		}
-
-	}
-
-
 	void SDLApplication::SetFrameRate (double frameRate) {
 
 		if (frameRate > 0) {
@@ -900,15 +882,6 @@ namespace lime {
 		#endif
 
 			while (SDL_PollEvent (&event)) {
-
-				#ifdef HX_WINDOWS
-				if (winTimerActive) {
-
-					KillTimer (GetActiveWindow (), winTimerID);
-					winTimerActive = false;
-
-				}
-				#endif
 
 				HandleEvent (&event);
 				event.type = -1;
@@ -1081,35 +1054,6 @@ namespace lime {
 		int numEvents = SDL_PeepEvents (events, maxEvents, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
 
 		return numEvents;
-	}
-
-
-	int SDLApplication::WatchEvent (void* userData, SDL_Event* event) {
-
-		#ifdef HX_WINDOWS
-		if (event->type == SDL_SYSWMEVENT) {
-
-			const auto& message = event->syswm.msg->msg.win;
-
-			if (message.msg == WM_ENTERSIZEMOVE) {
-
-				winTimerActive = SetTimer (GetActiveWindow (), winTimerID, currentApplication->framePeriod, nullptr);
-
-			} else if (message.msg == WM_TIMER) {
-
-				if (message.wParam == winTimerID) {
-
-					currentApplication->SendUpdateEvent ();
-
-				}
-
-			}
-
-		}
-		#endif
-
-		return 0;
-
 	}
 
 
