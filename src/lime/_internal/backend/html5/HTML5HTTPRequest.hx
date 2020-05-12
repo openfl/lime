@@ -453,7 +453,7 @@ class HTML5HTTPRequest
 
 		if (supportsImageProgress == null)
 		{
-			supportsImageProgress = untyped __js__("'onprogress' in image");
+			supportsImageProgress = untyped js.Syntax.code("'onprogress' in image");
 		}
 
 		if (supportsImageProgress || __isInMemoryURI(uri))

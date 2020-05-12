@@ -59,29 +59,29 @@ class Font
 
 		if (!__init)
 		{
-			#if js if (ascender == untyped __js__("undefined")) #end ascender = 0;
+			#if js if (ascender == untyped js.Syntax.code("undefined")) #end ascender = 0;
 			#if js
-			if (descender == untyped __js__("undefined"))
+			if (descender == untyped js.Syntax.code("undefined"))
 			#end
 			descender = 0;
 			#if js
-			if (height == untyped __js__("undefined"))
+			if (height == untyped js.Syntax.code("undefined"))
 			#end
 			height = 0;
 			#if js
-			if (numGlyphs == untyped __js__("undefined"))
+			if (numGlyphs == untyped js.Syntax.code("undefined"))
 			#end
 			numGlyphs = 0;
 			#if js
-			if (underlinePosition == untyped __js__("undefined"))
+			if (underlinePosition == untyped js.Syntax.code("undefined"))
 			#end
 			underlinePosition = 0;
 			#if js
-			if (underlineThickness == untyped __js__("undefined"))
+			if (underlineThickness == untyped js.Syntax.code("undefined"))
 			#end
 			underlineThickness = 0;
 			#if js
-			if (unitsPerEM == untyped __js__("undefined"))
+			if (unitsPerEM == untyped js.Syntax.code("undefined"))
 			#end
 			unitsPerEM = 0;
 

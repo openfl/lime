@@ -225,7 +225,7 @@ class FileDialog
 		var buffer = (data : Bytes).getData();
 
 		#if commonjs
-		untyped __js__("require ('file-saver')")(new Blob([buffer], {type: type}), path, true);
+		untyped js.Syntax.code("require ('file-saver')")(new Blob([buffer], {type: type}), path, true);
 		#else
 		untyped window.saveAs(new Blob([buffer], {type: type}), path, true);
 		#end

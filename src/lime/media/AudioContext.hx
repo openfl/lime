@@ -30,8 +30,8 @@ class AudioContext
 			{
 				try
 				{
-					untyped __js__("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
-					web = cast untyped __js__("new window.AudioContext ()");
+					untyped js.Syntax.code("window.AudioContext = window.AudioContext || window.webkitAudioContext;");
+					web = cast untyped js.Syntax.code("new window.AudioContext ()");
 					this.type = WEB;
 				}
 				catch (e:Dynamic) {}

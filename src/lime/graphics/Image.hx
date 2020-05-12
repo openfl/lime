@@ -1439,7 +1439,7 @@ class Image
 	{
 		#if (js && html5)
 		#if openfljs
-		var image:JSImage = untyped __js__('new window.Image ()');
+		var image:JSImage = untyped js.Syntax.code('new window.Image ()');
 		#else
 		var image = new JSImage();
 		#end
@@ -1575,7 +1575,7 @@ class Image
 		});
 		#elseif (js && html5)
 		#if openfljs
-		var image:JSImage = untyped __js__('new window.Image ()');
+		var image:JSImage = untyped js.Syntax.code('new window.Image ()');
 		#else
 		var image = new JSImage();
 		#end

@@ -25,9 +25,9 @@ class Deflate
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped __js__("require (\"pako\").deflateRaw")(bytes.getData());
+		var data = untyped js.Syntax.code("require (\"pako\").deflateRaw")(bytes.getData());
 		#else
-		var data = untyped __js__("pako.deflateRaw")(bytes.getData());
+		var data = untyped js.Syntax.code("pako.deflateRaw")(bytes.getData());
 		#end
 		return Bytes.ofData(data);
 		#elseif flash
@@ -55,9 +55,9 @@ class Deflate
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped __js__("require (\"pako\").inflateRaw")(bytes.getData());
+		var data = untyped js.Syntax.code("require (\"pako\").inflateRaw")(bytes.getData());
 		#else
-		var data = untyped __js__("pako.inflateRaw")(bytes.getData());
+		var data = untyped js.Syntax.code("pako.inflateRaw")(bytes.getData());
 		#end
 		return Bytes.ofData(data);
 		#elseif flash

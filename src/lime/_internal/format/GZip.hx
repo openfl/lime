@@ -22,9 +22,9 @@ class GZip
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped __js__("require (\"pako\").gzip")(bytes.getData());
+		var data = untyped js.Syntax.code("require (\"pako\").gzip")(bytes.getData());
 		#else
-		var data = untyped __js__("pako.gzip")(bytes.getData());
+		var data = untyped js.Syntax.code("pako.gzip")(bytes.getData());
 		#end
 		return Bytes.ofData(data);
 		#else
@@ -44,9 +44,9 @@ class GZip
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped __js__("require (\"pako\").ungzip")(bytes.getData());
+		var data = untyped js.Syntax.code("require (\"pako\").ungzip")(bytes.getData());
 		#else
-		var data = untyped __js__("pako.ungzip")(bytes.getData());
+		var data = untyped js.Syntax.code("pako.ungzip")(bytes.getData());
 		#end
 		return Bytes.ofData(data);
 		#else

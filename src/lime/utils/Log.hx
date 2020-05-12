@@ -16,7 +16,7 @@ class Log
 		if (level >= LogLevel.DEBUG)
 		{
 			#if js
-			untyped __js__("console").debug("[" + info.className + "] " + message);
+			untyped js.Syntax.code("console").debug("[" + info.className + "] " + message);
 			#else
 			println("[" + info.className + "] " + Std.string(message));
 			#end
@@ -36,7 +36,7 @@ class Log
 			else
 			{
 				#if js
-				untyped __js__("console").error(message);
+				untyped js.Syntax.code("console").error(message);
 				#else
 				println(message);
 				#end
@@ -49,7 +49,7 @@ class Log
 		if (level >= LogLevel.INFO)
 		{
 			#if js
-			untyped __js__("console").info("[" + info.className + "] " + message);
+			untyped js.Syntax.code("console").info("[" + info.className + "] " + message);
 			#else
 			println("[" + info.className + "] " + Std.string(message));
 			#end
@@ -63,7 +63,7 @@ class Log
 		#elseif flash
 		untyped __global__["trace"](Std.string(message));
 		#elseif js
-		untyped __js__("console").log(message);
+		untyped js.Syntax.code("console").log(message);
 		#else
 		trace(message);
 		#end
@@ -76,7 +76,7 @@ class Log
 		#elseif flash
 		untyped __global__["trace"](Std.string(message));
 		#elseif js
-		untyped __js__("console").log(message);
+		untyped js.Syntax.code("console").log(message);
 		#else
 		trace(Std.string(message));
 		#end
@@ -95,7 +95,7 @@ class Log
 		if (level >= LogLevel.WARN)
 		{
 			#if js
-			untyped __js__("console").warn("[" + info.className + "] WARNING: " + message);
+			untyped js.Syntax.code("console").warn("[" + info.className + "] WARNING: " + message);
 			#else
 			println("[" + info.className + "] WARNING: " + Std.string(message));
 			#end
@@ -127,13 +127,13 @@ class Log
 		#end
 
 		#if js
-		if (untyped __js__("typeof console") == "undefined")
+		if (untyped js.Syntax.code("typeof console") == "undefined")
 		{
-			untyped __js__("console = {}");
+			untyped js.Syntax.code("console = {}");
 		}
-		if (untyped __js__("console").log == null)
+		if (untyped js.Syntax.code("console").log == null)
 		{
-			untyped __js__("console").log = function() {};
+			untyped js.Syntax.code("console").log = function() {};
 		}
 		#end
 	}

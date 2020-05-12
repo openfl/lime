@@ -190,7 +190,7 @@ class ImageCanvasUtil
 			if (!image.transparent)
 			{
 				if (!image.transparent) buffer.__srcCanvas.setAttribute("moz-opaque", "true");
-				buffer.__srcContext = untyped __js__('buffer.__srcCanvas.getContext ("2d", { alpha: false })');
+				buffer.__srcContext = untyped js.Syntax.code('buffer.__srcCanvas.getContext ("2d", { alpha: false })');
 			}
 			else
 			{

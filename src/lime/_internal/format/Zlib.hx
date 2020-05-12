@@ -25,9 +25,9 @@ class Zlib
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped __js__("require (\"pako\").deflate")(bytes.getData());
+		var data = untyped js.Syntax.code("require (\"pako\").deflate")(bytes.getData());
 		#else
-		var data = untyped __js__("pako.deflate")(bytes.getData());
+		var data = untyped js.Syntax.code("pako.deflate")(bytes.getData());
 		#end
 		return Bytes.ofData(data);
 		#elseif flash
@@ -55,9 +55,9 @@ class Zlib
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped __js__("require (\"pako\").inflate")(bytes.getData());
+		var data = untyped js.Syntax.code("require (\"pako\").inflate")(bytes.getData());
 		#else
-		var data = untyped __js__("pako.inflate")(bytes.getData());
+		var data = untyped js.Syntax.code("pako.inflate")(bytes.getData());
 		#end
 		return Bytes.ofData(data);
 		#elseif flash
