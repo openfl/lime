@@ -119,7 +119,7 @@ _The following are not included in Lime applications, but are used by
 the Lime command-line tools. Their licensing does not affect products
 created with Lime._
 
-This product bundles Closure Compiler v20170806, which is available under an
+This product bundles Closure Compiler v20200315, which is available under an
 "Apache 2.0 License" license. For details, see https://github.com/google/closure-compiler.
 
 This product bundles ios-deploy 1.9.0, which is available under an
