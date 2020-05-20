@@ -279,13 +279,13 @@ class HTML5Application
 		Browser.window.addEventListener("devicemotion", handleSensorEvent, false);
 
 		#if stats
-		stats = untyped __js__("new Stats ()");
+		stats = untyped #if haxe4 js.Syntax.code #else __js__ #end("new Stats ()");
 		stats.domElement.style.position = "absolute";
 		stats.domElement.style.top = "0px";
 		Browser.document.body.appendChild(stats.domElement);
 		#end
 
-		untyped __js__("
+		untyped #if haxe4 js.Syntax.code #else __js__ #end("
 			if (!CanvasRenderingContext2D.prototype.isPointInStroke) {
 				CanvasRenderingContext2D.prototype.isPointInStroke = function (path, x, y) {
 					return false;
