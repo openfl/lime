@@ -23,6 +23,8 @@ import lime.ui.Window;
 @:access(lime.ui.Window)
 class HTML5Application
 {
+	private static var VISIBILITY_EVENT_NAME:String = "visibilitychange";
+	private static var HIDDEN_PROPERTY_NAME:String = "hidden";
 	private var gameDeviceCache = new Map<Int, GameDeviceData>();
 	private var accelerometer:Sensor;
 	private var currentUpdate:Float;
@@ -270,10 +272,26 @@ class HTML5Application
 
 	public function exec():Int
 	{
+		untyped #if haxe4 js.Syntax.code #else __js__ #end("
+			// Set the name of the hidden property and the change event for visibility
+			var hidden; 
+			if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+				HTML5Application.HIDDEN_PROPERTY_NAME = 'hidden';
+				HTML5Application.VISIBILITY_EVENT_NAME = 'visibilitychange';
+			} else if (typeof document.msHidden !== 'undefined') {
+				HTML5Application.HIDDEN_PROPERTY_NAME = 'msHidden';
+				HTML5Application.VISIBILITY_EVENT_NAME = 'msvisibilitychange';
+			} else if (typeof document.webkitHidden !== 'undefined') {
+				HTML5Application.HIDDEN_PROPERTY_NAME = 'webkitHidden';
+				HTML5Application.VISIBILITY_EVENT_NAME = 'webkitvisibilitychange';
+			}
+		");
+
 		Browser.window.addEventListener("keydown", handleKeyEvent, false);
 		Browser.window.addEventListener("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener("focus", handleWindowEvent, false);
 		Browser.window.addEventListener("blur", handleWindowEvent, false);
+		Browser.window.addEventListener(VISIBILITY_EVENT_NAME, handleWindowEvent, false);
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
 		Browser.window.addEventListener("devicemotion", handleSensorEvent, false);
@@ -341,6 +359,17 @@ class HTML5Application
 		handleApplicationEvent();
 
 		return 0;
+	}
+
+	public function checkFlagHidden():Bool 
+	{
+		var hiddenExist:Bool = false;
+		untyped #if haxe4 js.Syntax.code #else __js__ #end("
+			if (document[HTML5Application.HIDDEN_PROPERTY_NAME]) {
+				hiddenExist = true;
+			}
+		")
+		return hiddenExist;
 	}
 
 	public function exit():Void {}
@@ -447,6 +476,15 @@ class HTML5Application
 				case "blur":
 					parent.window.onFocusOut.dispatch();
 					parent.window.onDeactivate.dispatch();
+
+				case VISIBILITY_EVENT_NAME:
+					if (checkFlagHidden()==true) {
+						parent.window.onFocusOut.dispatch();
+						parent.window.onDeactivate.dispatch();
+					} else {
+						parent.window.onFocusIn.dispatch();
+						parent.window.onActivate.dispatch();
+					}
 
 				case "resize":
 					parent.window.__backend.handleResizeEvent(event);
