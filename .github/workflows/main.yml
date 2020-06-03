@@ -6,137 +6,169 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-16.04
-    
+
+    env:
+      ANDROID_NDK_ROOT: /opt/android-ndk-r15c
+
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.1]
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: true
-        
-    - name: Setup environment
-      run: |
-        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-        #sudo apt-get install -y build-essential git curl python
-        #curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
-        #sudo pip install awscli awsebcli
-      
+    - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      with:
+        haxe-version: ${{ matrix.haxe-version }}
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+
     - name: Install dependencies
       run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp > /dev/null
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover > /dev/null
-        haxelib install hamcrest > /dev/null
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format > /dev/null
-        haxelib install hxp > /dev/null
-       
+        haxelib install hxcpp --quiet
+        haxelib install format  --quiet
+        haxelib install hxp  --quiet
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+
+    - name: Install Android NDK
+      run: |
+        mkdir $ANDROID_NDK_ROOT
+        wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
+        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
+        rm android-ndk.zip
+
     - name: Install "lime" command alias
       run: |
         haxelib dev lime $GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
-        
+
+    - name: Configure Lime for Android
+      run: |
+        lime config ANDROID_SDK $ANDROID_HOME
+        haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+        haxelib run lime config JAVA_HOME $JAVA_HOME
+        haxelib run lime config ANDROID_SETUP true
+        haxelib run lime config
+
     - name: Rebuild Lime tools
       run: |
-        lime rebuild hxcpp linux -static
         lime rebuild tools -nocolor -verbose
-      
+
     - name: Rebuild Lime binaries
       run: |
         lime rebuild linux -64 -release -verbose -nocolor
         lime rebuild linux -32 -release -verbose -nocolor
-        #lime rebuild android -release -verbose -nocolor
         lime rebuild hl -64 -release -verbose -nocolor
-        
+        lime rebuild android -release -verbose -nocolor
+
   build-macos:
-    runs-on: macOS-10.14
-    #env:
-      #MACOSX_VER: 10.13
-      #MACOSX_DEPLOYMENT_TARGET: 10.9 
-    
+    runs-on: macos-latest
+
+    env:
+      ANDROID_NDK_ROOT: /opt/android-ndk-r15c
+
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.1]
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: true
-        
-    - name: Setup environment
-      run: |
-        brew install haxe
-      
+    - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      with:
+        haxe-version: ${{ matrix.haxe-version }}
+
     - name: Install dependencies
       run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp > /dev/null
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover > /dev/null
-        haxelib install hamcrest > /dev/null
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format > /dev/null
-        haxelib install hxp > /dev/null
-       
+        haxelib install hxcpp  --quiet
+        haxelib install format  --quiet
+        haxelib install hxp  --quiet
+
+    - name: Install Android NDK r15c
+      run: |
+        mkdir $ANDROID_NDK_ROOT
+        wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
+        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
+        rm android-ndk.zip
+
     - name: Install "lime" command alias
       run: |
         haxelib dev lime $GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
-        
+
+    - name: Configure Lime for Android
+      run: |
+        lime config ANDROID_SDK $ANDROID_HOME
+        haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+        haxelib run lime config JAVA_HOME $JAVA_HOME
+        haxelib run lime config ANDROID_SETUP true
+        haxelib run lime config
+
     - name: Rebuild Lime tools
       run: |
         lime rebuild tools -nocolor -verbose
-      
+
     - name: Rebuild Lime binaries
       run: |
-        #lime rebuild mac -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-        #lime rebuild hl -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
         lime rebuild mac -release -verbose -nocolor
         lime rebuild hl -release -verbose -nocolor
         lime rebuild ios -release -verbose -nocolor
+        lime rebuild android -release -verbose -nocolor
 
   build-windows:
     runs-on: windows-latest
-    
+
+    env:
+      ANDROID_NDK_ROOT: C:\android-ndk-r15c
+
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.1]
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: true
-        
-    - name: Setup environment
-      run: |
-        choco install haxe
-      
+    - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      with:
+        haxe-version: ${{ matrix.haxe-version }}
+
     - name: Install dependencies
       run: |
-        haxelib install hxcpp
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover
-        haxelib install hamcrest
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool
-        haxe build.hxml
-        haxelib install format
-        haxelib install hxp
-       
+        haxelib install hxcpp --quiet
+        haxelib install format --quiet
+        haxelib install hxp --quiet
+
+    - name: Install Android NDK r15c
+      run: |
+        mkdir $Env:ANDROID_NDK_ROOT
+        Invoke-WebRequest https://dl.google.com/android/repository/android-ndk-r15c-windows-x86_64.zip -OutFile android-ndk.zip
+        Expand-Archive android-ndk.zip -DestinationPath $Env:ANDROID_NDK_ROOT/..
+        rm android-ndk.zip
+
     - name: Install "lime" command alias
       run: |
-        haxelib dev lime $GITHUB_WORKSPACE
+        haxelib dev lime $Env:GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
-        
+
+    - name: Configure Lime for Android
+      run: |
+        lime config ANDROID_SDK $Env:ANDROID_HOME
+        haxelib run lime config ANDROID_NDK_ROOT $Env:ANDROID_NDK_ROOT
+        haxelib run lime config JAVA_HOME $Env:JAVA_HOME
+        haxelib run lime config ANDROID_SETUP true
+        haxelib run lime config
+
     - name: Rebuild Lime tools
       run: |
         lime rebuild tools -nocolor -verbose
-      
+
     - name: Rebuild Lime binaries
       run: |
-        REM set HXCPP_MSVC=%env.VS100COMNTOOLS%
         lime rebuild windows -32 -release -verbose -nocolor
-        lime rebuild hl -32 -release -verbose -nocolor
-        REM set HXCPP_MSVC=
         lime rebuild windows -64 -release -verbose -nocolor
+        lime rebuild hl -32 -release -verbose -nocolor
+        lime rebuild android -release -verbose -nocolor
