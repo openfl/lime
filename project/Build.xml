@@ -281,6 +281,7 @@
 			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
 			<compilerflag value="-DLIME_ZLIB" />
 
+			<file name="${HXCPP}/project/libs/zlib/ZLib.cpp" if="emscripten || ios || static_link || tvos" />
 			<file name="src/utils/compress/Zlib.cpp" />
 
 		</section>
