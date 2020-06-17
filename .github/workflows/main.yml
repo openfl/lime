@@ -113,7 +113,6 @@ jobs:
       if: ${{ startsWith(matrix.os, 'macos-') }}
       run: |
         lime rebuild ios -release -verbose -nocolor
-        lime rebuild ios -simulator -release -verbose -nocolor
 
     - name: Rebuild Lime (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
@@ -189,12 +188,12 @@ jobs:
         lime build SimpleImage mac -release -verbose -nocolor
         lime build SimpleAudio mac -release -verbose -nocolor
 
-    #- name: Build Lime Samples (ios)
-    #  if: ${{ startsWith(matrix.os, 'macos-') }}
-    #  run: |
-    #    lime build HelloWorld ios -simulator -release -verbose -nocolor
-    #    lime build SimpleImage ios -simulator -release -verbose -nocolor
-    #    lime build SimpleAudio ios -simulator -release -verbose -nocolor
+    - name: Build Lime Samples (ios)
+      if: ${{ startsWith(matrix.os, 'macos-') }}
+      run: |
+        lime build HelloWorld ios -simulator -release -verbose -nocolor
+        lime build SimpleImage ios -simulator -release -verbose -nocolor
+        lime build SimpleAudio ios -simulator -release -verbose -nocolor
 
     - name: Build Lime Samples (windows)
       if: ${{ startsWith(matrix.os, 'windows-') }}
