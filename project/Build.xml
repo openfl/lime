@@ -278,7 +278,7 @@
 
 		<section if="LIME_ZLIB">
 
-			<compilerflag value="-DSTATIC_LINK" if="emscripten" />
+			<compilerflag value="-DSTATIC_LINK" if="emscripten || ios || tvos" />
 			<compilerflag value="-DLIME_ZLIB" />
 
 			<file name="src/utils/compress/Zlib.cpp" />

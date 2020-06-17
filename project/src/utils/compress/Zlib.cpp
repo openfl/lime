@@ -2,6 +2,17 @@
 #include <zlib.h>
 
 
+#ifdef STATIC_LINK
+extern "C" int zlib_register_prims()
+{
+   static bool init = false;
+   if (init) return 0;
+   init = true;
+
+   return 0;
+}
+#endif
+
 namespace lime {
 
 
