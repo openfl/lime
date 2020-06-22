@@ -78,7 +78,7 @@ class Application extends Module
 
 	private static function __init__()
 	{
-		var init = ApplicationBackend;
+		var _init = ApplicationBackend;
 		#if commonjs
 		var p = untyped Application.prototype;
 		untyped Object.defineProperties(p,

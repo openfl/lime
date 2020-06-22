@@ -4,139 +4,200 @@ on: [push]
 
 jobs:
 
-  build-linux:
-    runs-on: ubuntu-16.04
-    
+  build:
+
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.1]
+        os: [ubuntu-16.04, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
       with:
         submodules: true
-        
-    - name: Setup environment
+    - uses: haxeui/haxeui-core/.github/actions/haxe@master
+      with:
+        haxe-version: ${{ matrix.haxe-version }}
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+
+    - name: Install Haxelib dependencies
       run: |
-        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-        #sudo apt-get install -y build-essential git curl python
-        #curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
-        #sudo pip install awscli awsebcli
-      
-    - name: Install dependencies
+        haxelib install hxcpp 4.0.64 --quiet
+        haxelib install format  --quiet
+        haxelib install hxp  --quiet
+        haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+    - name: Set ANDROID_NDK_ROOT (Linux and macOS)
+      if: ${{ !startsWith(matrix.os, 'windows-') }}
+      run: echo "::set-env name=ANDROID_NDK_ROOT::/opt/android-ndk-r15c"
+
+    - name: Set ANDROID_NDK_ROOT (Windows)
+      if: ${{ startsWith(matrix.os, 'windows-') }}
+      run: echo "::set-env name=ANDROID_NDK_ROOT::C:\android-ndk-r15c"
+
+    - name: Install Linux dependencies
+      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+      run: sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+
+    - name: Install Android NDK (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp > /dev/null
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover > /dev/null
-        haxelib install hamcrest > /dev/null
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format > /dev/null
-        haxelib install hxp > /dev/null
-       
-    - name: Install "lime" command alias
+        mkdir $ANDROID_NDK_ROOT
+        wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
+        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
+        rm android-ndk.zip
+
+    - name: Install Android NDK r15c (macOS)
+      if: ${{ startsWith(matrix.os, 'macos-') }}
+      run: |
+        mkdir $ANDROID_NDK_ROOT
+        wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
+        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
+        rm android-ndk.zip
+
+    - name: Install Android NDK r15c (Windows)
+      if: ${{ startsWith(matrix.os, 'windows-') }}
+      run: |
+        mkdir $Env:ANDROID_NDK_ROOT
+        Invoke-WebRequest https://dl.google.com/android/repository/android-ndk-r15c-windows-x86_64.zip -OutFile android-ndk.zip
+        Expand-Archive android-ndk.zip -DestinationPath $Env:ANDROID_NDK_ROOT/..
+        rm android-ndk.zip
+
+    - name: Install "lime" command alias (Linux and macOS)
+      if: ${{ !startsWith(matrix.os, 'windows-') }}
       run: |
         haxelib dev lime $GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
-        
-    - name: Rebuild Lime tools
+
+    - name: Install "lime" command alias (Windows)
+      if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
-        lime rebuild hxcpp linux -static
+        haxelib dev lime $Env:GITHUB_WORKSPACE
+        haxelib run lime setup -alias -y
+
+    - name: Configure Lime for Android (Linux and macOS)
+      if: ${{ !startsWith(matrix.os, 'windows-') }}
+      run: |
+        lime config ANDROID_SDK $ANDROID_HOME
+        haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+        haxelib run lime config JAVA_HOME $JAVA_HOME
+        haxelib run lime config ANDROID_SETUP true
+        haxelib run lime config
+
+    - name: Configure Lime for Android (Windows)
+      if: ${{ startsWith(matrix.os, 'windows-') }}
+      run: |
+        lime config ANDROID_SDK $Env:ANDROID_HOME
+        haxelib run lime config ANDROID_NDK_ROOT $Env:ANDROID_NDK_ROOT
+        haxelib run lime config JAVA_HOME $Env:JAVA_HOME
+        haxelib run lime config ANDROID_SETUP true
+        haxelib run lime config
+
+    - name: Rebuild Lime Tools
+      run: |
         lime rebuild tools -nocolor -verbose
-      
-    - name: Rebuild Lime binaries
+
+    - name: Rebuild Lime (HashLink)
+      run: |
+        lime rebuild hl -release -verbose -nocolor
+
+    - name: Rebuild Lime (Android)
+      run: |
+        lime rebuild android -release -verbose -nocolor
+
+    - name: Rebuild Lime (iOS)
+      if: ${{ startsWith(matrix.os, 'macos-') }}
+      run: |
+        lime rebuild ios -release -verbose -nocolor
+
+    - name: Rebuild Lime (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       run: |
         lime rebuild linux -64 -release -verbose -nocolor
         lime rebuild linux -32 -release -verbose -nocolor
-        #lime rebuild android -release -verbose -nocolor
-        lime rebuild hl -64 -release -verbose -nocolor
-        
-  build-macos:
-    runs-on: macOS-10.14
-    #env:
-      #MACOSX_VER: 10.13
-      #MACOSX_DEPLOYMENT_TARGET: 10.9 
-    
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-        
-    - name: Setup environment
-      run: |
-        brew install haxe
-      
-    - name: Install dependencies
-      run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp > /dev/null
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover > /dev/null
-        haxelib install hamcrest > /dev/null
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format > /dev/null
-        haxelib install hxp > /dev/null
-       
-    - name: Install "lime" command alias
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
-        
-    - name: Rebuild Lime tools
-      run: |
-        lime rebuild tools -nocolor -verbose
-      
-    - name: Rebuild Lime binaries
-      run: |
-        #lime rebuild mac -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-        #lime rebuild hl -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-        lime rebuild mac -release -verbose -nocolor
-        lime rebuild hl -release -verbose -nocolor
-        lime rebuild ios -release -verbose -nocolor
 
-  build-windows:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-        
-    - name: Setup environment
+    - name: Rebuild Lime (macOS)
+      if: ${{ startsWith(matrix.os, 'macos-') }}
       run: |
-        choco install haxe
-      
-    - name: Install dependencies
+        lime rebuild mac -release -verbose -nocolor
+
+    - name: Rebuild Lime (Windows)
+      if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
-        haxelib install hxcpp
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover
-        haxelib install hamcrest
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool
-        haxe build.hxml
-        haxelib install format
-        haxelib install hxp
-       
-    - name: Install "lime" command alias
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
-        
-    - name: Rebuild Lime tools
-      run: |
-        lime rebuild tools -nocolor -verbose
-      
-    - name: Rebuild Lime binaries
-      run: |
-        REM set HXCPP_MSVC=%env.VS100COMNTOOLS%
         lime rebuild windows -32 -release -verbose -nocolor
-        lime rebuild hl -32 -release -verbose -nocolor
-        REM set HXCPP_MSVC=
         lime rebuild windows -64 -release -verbose -nocolor
+
+    - name: Create Lime Samples
+      run: |
+        lime create HelloWorld -verbose -nocolor
+        lime create SimpleImage -verbose -nocolor
+        lime create SimpleAudio -verbose -nocolor
+
+    - name: Build Lime Samples (html5)
+      run: |
+        lime build HelloWorld html5 -release -verbose -nocolor
+        lime build HelloWorld html5 -Dcanvas -release -verbose -nocolor
+        lime build HelloWorld html5 -Ddom -release -verbose -nocolor
+        lime build SimpleImage html5 -release -verbose -nocolor
+        lime build SimpleImage html5 -Dcanvas -release -verbose -nocolor
+        lime build SimpleImage html5 -Ddom -release -verbose -nocolor
+        lime build SimpleAudio html5 -release -verbose -nocolor
+        lime build SimpleAudio html5 -Dcanvas -release -verbose -nocolor
+        lime build SimpleAudio html5 -Ddom -release -verbose -nocolor
+
+    - name: Build Lime Samples (flash)
+      run: |
+        lime build HelloWorld flash -release -verbose -nocolor
+        lime build SimpleImage flash -release -verbose -nocolor
+        lime build SimpleAudio flash -release -verbose -nocolor
+
+    - name: Build Lime Samples (neko)
+      run: |
+        lime build HelloWorld neko -release -verbose -nocolor
+        lime build SimpleImage neko -release -verbose -nocolor
+        lime build SimpleAudio neko -release -verbose -nocolor
+
+    - name: Build Lime Samples (hl)
+      if: ${{ !startsWith(matrix.haxe-version, '3.') }}
+      run: |
+        lime build HelloWorld hl -release -verbose -nocolor
+        lime build SimpleImage hl -release -verbose -nocolor
+        lime build SimpleAudio hl -release -verbose -nocolor
+
+    - name: Build Lime Samples (android)
+      run: |
+        lime build HelloWorld android -release -verbose -nocolor
+        lime build SimpleImage android -release -verbose -nocolor
+        lime build SimpleAudio android -release -verbose -nocolor
+
+    - name: Build Lime Samples (linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+      run: |
+        lime build HelloWorld linux -release -verbose -nocolor
+        lime build SimpleImage linux -release -verbose -nocolor
+        lime build SimpleAudio linux -release -verbose -nocolor
+
+    - name: Build Lime Samples (mac)
+      if: ${{ startsWith(matrix.os, 'macos-') }}
+      run: |
+        lime build HelloWorld mac -release -verbose -nocolor
+        lime build SimpleImage mac -release -verbose -nocolor
+        lime build SimpleAudio mac -release -verbose -nocolor
+
+    - name: Build Lime Samples (ios)
+      if: ${{ startsWith(matrix.os, 'macos-') }}
+      run: |
+        lime build HelloWorld ios -simulator -release -verbose -nocolor
+        lime build SimpleImage ios -simulator -release -verbose -nocolor
+        lime build SimpleAudio ios -simulator -release -verbose -nocolor
+
+    - name: Build Lime Samples (windows)
+      if: ${{ startsWith(matrix.os, 'windows-') }}
+      run: |
+        lime build HelloWorld windows -release -verbose -nocolor
+        lime build SimpleImage windows -release -verbose -nocolor
+        lime build SimpleAudio windows -release -verbose -nocolor

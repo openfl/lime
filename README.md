@@ -104,11 +104,12 @@ Lime currently supports the following targets:
     lime test windows
     lime test mac
     lime test linux
-    lime test neko
     lime test android
     lime test ios
     lime test html5
     lime test flash
     lime test air
+    lime test neko
+    lime test hl
 
 Desktop builds are currently designed to be built on the same host OS
