@@ -63,6 +63,7 @@ namespace lime {
 			SDL_Event* eventQueue;
 			int queueLength;
 			int queueMaxLength;
+			bool isGCBlocking;
 			ApplicationEvent applicationEvent;
 			ClipboardEvent clipboardEvent;
 			Uint32 currentUpdate;

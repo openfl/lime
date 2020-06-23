@@ -55,6 +55,7 @@ namespace lime {
 		eventQueue = NULL;
 		queueLength = 0;
 		queueMaxLength = 0;
+		isGCBlocking = false;
 
 		ApplicationEvent applicationEvent;
 		ClipboardEvent clipboardEvent;
@@ -936,7 +937,7 @@ namespace lime {
 		if (!active) {
 			return -1;
 		}
-
+		
 		queueLength = numEvents;
 
 		if (queueLength > queueMaxLength) {
@@ -955,6 +956,10 @@ namespace lime {
 		}
 		
 		int numPending = GetPendingEvents (eventQueue, queueLength);
+
+		// only allow GC free objects while we're handling events
+		if (isGCBlocking) System::GCExitBlocking ();
+		isGCBlocking = false;
 		
 		int nextEvent;
 		for (nextEvent = 0; nextEvent < numPending; ++nextEvent) {
@@ -981,6 +986,9 @@ namespace lime {
 			timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
 
 		}
+
+		if (!isGCBlocking) System::GCEnterBlocking ();
+		isGCBlocking = true;
 
 		#endif
 
