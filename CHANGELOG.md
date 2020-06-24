@@ -1,3 +1,19 @@
+7.8.0 (06/24/2020)
+------------------
+
+* Updated to SDL 2.0.12
+* Updated Google Closure to v20200315
+* Added support for *.xcframework dependencies on iOS
+* Added support for merging "-Info.plist" files from native extensions on iOS
+* Fixed warnings when compiling on HTML5 using Haxe 4.1
+* Fixed HTML5 focus to return to previous element after using `lime.app.Clipboard`
+* Fixed an unnecessary `setTextInputEnabled` workaround on Android
+* Fixed return type for `gl.getParameter(GL.RENDERBUFFER_BINDING)`
+* Fixed old default iOS simulator version
+* Fixed the search string for HaxeObject/JNI to be more precise
+* Fixed support for building using `-Djs-es=6`
+
+
 7.7.0 (01/27/2020)
 ------------------
 
