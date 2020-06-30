@@ -1860,15 +1860,15 @@ class CommandLineTools
 
 					if (Reflect.hasField(fieldValue, attribute))
 					{
-						if (Std.is(Reflect.field(fieldValue, attribute), String))
+						if ((Reflect.field(fieldValue, attribute) is String))
 						{
 							Reflect.setField(fieldValue, attribute, projectDefines.get(key));
 						}
-						else if (Std.is(Reflect.field(fieldValue, attribute), Float))
+						else if ((Reflect.field(fieldValue, attribute) is Float))
 						{
 							Reflect.setField(fieldValue, attribute, Std.parseFloat(projectDefines.get(key)));
 						}
-						else if (Std.is(Reflect.field(fieldValue, attribute), Bool))
+						else if ((Reflect.field(fieldValue, attribute) is Bool))
 						{
 							Reflect.setField(fieldValue, attribute, (projectDefines.get(key).toLowerCase() == "true"
 								|| projectDefines.get(key) == "1"));
@@ -2121,19 +2121,19 @@ class CommandLineTools
 						{
 							var propertyReference = Reflect.field(fieldReference, property);
 
-							if (Std.is(propertyReference, Bool))
+							if ((propertyReference is Bool))
 							{
 								Reflect.setField(fieldReference, property, argValue == "true");
 							}
-							else if (Std.is(propertyReference, Int))
+							else if ((propertyReference is Int))
 							{
 								Reflect.setField(fieldReference, property, Std.parseInt(argValue));
 							}
-							else if (Std.is(propertyReference, Float))
+							else if ((propertyReference is Float))
 							{
 								Reflect.setField(fieldReference, property, Std.parseFloat(argValue));
 							}
-							else if (Std.is(propertyReference, String))
+							else if ((propertyReference is String))
 							{
 								Reflect.setField(fieldReference, property, argValue);
 							}

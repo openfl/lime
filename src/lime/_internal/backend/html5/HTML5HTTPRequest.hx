@@ -81,7 +81,7 @@ class HTML5HTTPRequest
 			{
 				if (query.length > 0) query += "&";
 				var value:Dynamic = parent.formData.get(key);
-				if (key.indexOf("[]") > -1 && Std.is(value, Array))
+				if (key.indexOf("[]") > -1 && (value is Array))
 				{
 					var arrayValue:String = Lambda.map(value, function(v:String)
 					{
