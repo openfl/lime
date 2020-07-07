@@ -867,13 +867,12 @@ class PlatformSetup
 			{
 				try
 				{
-					System.runCommand("", "sudo", [
-						"cp",
+					System.runCommand("", "cp", [
 						"-f",
 						Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
 						"/usr/local/bin/lime"
 					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
+					System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
 					installedCommand = true;
 				}
 				catch (e:Dynamic) {}
@@ -1084,20 +1083,18 @@ class PlatformSetup
 			{
 				try
 				{
-					System.runCommand("", "sudo", [
-						"cp",
+					System.runCommand("", "cp", [
 						"-f",
 						Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
 						"/usr/local/bin/lime"
 					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
-					System.runCommand("", "sudo", [
-						"cp",
+					System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+					System.runCommand("", "cp", [
 						"-f",
 						System.findTemplate(project.templatePaths, "bin/openfl.sh"),
 						"/usr/local/bin/openfl"
 					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
+					System.runCommand("", "chmod", ["755", "/usr/local/bin/openfl"], false);
 					installedCommand = true;
 				}
 				catch (e:Dynamic) {}
