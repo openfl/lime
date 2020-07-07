@@ -1257,7 +1257,7 @@ class CommandLineTools
 			buildNumber = getBuildNumber_SVN(project, increment);
 		}
 
-		if (buildNumber == null)
+		if (buildNumber == null || buildNumber == ".build")
 		{
 			var versionFile = Path.combine(project.app.path, ".build");
 			var version = 1;
