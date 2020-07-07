@@ -6,6 +6,6 @@
         "start": "electron ElectronSetup.js"
     },
     "devDependencies": {
-        "electron": "^1.7.9"
+        "electron": "^9.1.0"
     }
 }
