@@ -1247,16 +1247,6 @@ class CommandLineTools
 	{
 		var buildNumber = project.meta.buildNumber;
 
-		if (buildNumber == null || StringTools.startsWith(buildNumber, "git"))
-		{
-			buildNumber = getBuildNumber_GIT(project, increment);
-		}
-
-		if (buildNumber == null || StringTools.startsWith(buildNumber, "svn"))
-		{
-			buildNumber = getBuildNumber_SVN(project, increment);
-		}
-
 		if (buildNumber == null)
 		{
 			var versionFile = Path.combine(project.app.path, ".build");
@@ -1295,6 +1285,14 @@ class CommandLineTools
 				}
 				catch (e:Dynamic) {}
 			}
+		}
+		else if (StringTools.startsWith(buildNumber, "git"))
+		{
+			buildNumber = getBuildNumber_GIT(project, increment);
+		}
+		else if (StringTools.startsWith(buildNumber, "svn"))
+		{
+			buildNumber = getBuildNumber_SVN(project, increment);
 		}
 	}
 
