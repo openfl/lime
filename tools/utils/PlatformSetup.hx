@@ -865,18 +865,35 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-				try
+				if (System.hostPlatform == MAC)
 				{
-					System.runCommand("", "sudo", [
-						"cp",
-						"-f",
-						Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-						"/usr/local/bin/lime"
-					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
-					installedCommand = true;
+					try
+					{
+						System.runCommand("", "cp", [
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
 				}
-				catch (e:Dynamic) {}
+				else
+				{
+					try
+					{
+						System.runCommand("", "sudo", [
+							"cp",
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
+				}
 			}
 
 			if (!installedCommand)
@@ -1082,7 +1099,28 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-				try
+
+				if (System.hostPlatform == MAC)
+				{
+					try
+					{
+						System.runCommand("", "cp", [
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+						System.runCommand("", "cp", [
+							"-f",
+							System.findTemplate(project.templatePaths, "bin/openfl.sh"),
+							"/usr/local/bin/openfl"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/openfl"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
+				}
+				else
 				{
 					System.runCommand("", "sudo", [
 						"cp",
@@ -1100,7 +1138,6 @@ class PlatformSetup
 					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
 					installedCommand = true;
 				}
-				catch (e:Dynamic) {}
 			}
 
 			if (!installedCommand)

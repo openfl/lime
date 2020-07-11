@@ -1247,12 +1247,12 @@ class CommandLineTools
 	{
 		var buildNumber = project.meta.buildNumber;
 
-		if (buildNumber == null && StringTools.startsWith(buildNumber, "git"))
+		if (buildNumber == null || StringTools.startsWith(buildNumber, "git"))
 		{
 			buildNumber = getBuildNumber_GIT(project, increment);
 		}
 
-		if (buildNumber == null && StringTools.startsWith(buildNumber, "svn"))
+		if (buildNumber == null || StringTools.startsWith(buildNumber, "svn"))
 		{
 			buildNumber = getBuildNumber_SVN(project, increment);
 		}
