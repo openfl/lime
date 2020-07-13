@@ -41,7 +41,9 @@ jobs:
 
     - name: Install Linux dependencies
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-      run: sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
     - name: Install Android NDK (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
