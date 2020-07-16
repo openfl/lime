@@ -33,7 +33,7 @@ jobs:
 
     - name: Set ANDROID_NDK_ROOT (Linux and macOS)
       if: ${{ !startsWith(matrix.os, 'windows-') }}
-      run: echo "::set-env name=ANDROID_NDK_ROOT::~/Library/lime-dependencies/android-ndk-r15c"
+      run: echo "::set-env name=ANDROID_NDK_ROOT::$HOME/Library/lime-dependencies/android-ndk-r15c"
 
     - name: Set ANDROID_NDK_ROOT (Windows)
       if: ${{ startsWith(matrix.os, 'windows-') }}
