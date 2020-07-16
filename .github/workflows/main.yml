@@ -47,7 +47,7 @@ jobs:
     - name: Install Android NDK (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       run: |
-        mkdir $ANDROID_NDK_ROOT
+        mkdir -p $ANDROID_NDK_ROOT
         wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
         unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
         rm android-ndk.zip
@@ -55,7 +55,7 @@ jobs:
     - name: Install Android NDK r15c (macOS)
       if: ${{ startsWith(matrix.os, 'macos-') }}
       run: |
-        mkdir $ANDROID_NDK_ROOT
+        mkdir -p $ANDROID_NDK_ROOT
         wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-darwin-x86_64.zip
         unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
         rm android-ndk.zip
