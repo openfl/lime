@@ -73,6 +73,7 @@ jobs:
       run: |
         haxelib dev lime $GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
+        lime || alias lime="haxelib run lime"
 
     - name: Install "lime" command alias (Windows)
       if: ${{ startsWith(matrix.os, 'windows-') }}
