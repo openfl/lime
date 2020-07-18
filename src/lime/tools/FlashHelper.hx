@@ -499,7 +499,7 @@ class FlashHelper
 				{
 					bytes = Base64.decode(inAsset.data);
 				}
-				else if (Std.is(inAsset.data, Bytes))
+				else if ((inAsset.data is Bytes))
 				{
 					bytes = cast inAsset.data;
 				}
@@ -807,7 +807,7 @@ class FlashHelper
 					{
 						File.saveBytes(sourcePath, Base64.decode(asset.data));
 					}
-					else if (Std.is(asset.data, Bytes))
+					else if ((asset.data is Bytes))
 					{
 						File.saveBytes(sourcePath, asset.data);
 					}

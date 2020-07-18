@@ -114,7 +114,7 @@ class HTML5Window
 
 		parent.id = windowID++;
 
-		if (Std.is(element, CanvasElement))
+		if ((element is CanvasElement))
 		{
 			canvas = cast element;
 		}

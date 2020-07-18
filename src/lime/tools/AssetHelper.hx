@@ -49,7 +49,7 @@ class AssetHelper
 				{
 					File.saveBytes(destination, Base64.decode(asset.data));
 				}
-				else if (Std.is(asset.data, HaxeBytes))
+				else if ((asset.data is HaxeBytes))
 				{
 					File.saveBytes(destination, cast asset.data);
 				}
@@ -86,7 +86,7 @@ class AssetHelper
 				{
 					File.saveBytes(destination, Base64.decode(asset.data));
 				}
-				else if (Std.is(asset.data, HaxeBytes))
+				else if ((asset.data is HaxeBytes))
 				{
 					File.saveBytes(destination, cast asset.data);
 				}
