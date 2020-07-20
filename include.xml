@@ -3,6 +3,8 @@
 
 	<log error="Lime ${lime} is not compatible with Haxe ${haxe} (version 3.2.0 or higher is required)" if="${haxe < 3.2.0}" />
 
+	<log error="Lime ${lime} requires Haxe 4 to target HashLink (version ${haxe} found)" if="hl ${${haxe} < 4.0}" />
+
 	<set name="lime" />
 
 	<define name="native" if="cpp || neko || nodejs || cs || java || hl" />
