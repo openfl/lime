@@ -24,6 +24,7 @@ class PlatformSetup
 	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
 	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var visualStudioURL = "https://www.visualstudio.com/downloads/";
+	private static var hashlinkURL = "https://github.com/HaxeFoundation/hashlink/releases";
 	private static var triedSudo:Bool = false;
 	private static var userDefines:Map<String, Dynamic>;
 	private static var targetFlags:Map<String, Dynamic>;
@@ -410,8 +411,11 @@ class PlatformSetup
 						setupWindows();
 					}
 
-				case "neko", "hl", "hashlink", "cs", "uwp", "winjs", "nodejs", "java":
+				case "neko", "cs", "uwp", "winjs", "nodejs", "java":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+				
+				case "hl", "hashlink":
+					setupHL();
 
 				case "lime":
 					setupLime();
@@ -1178,6 +1182,28 @@ class PlatformSetup
 		{
 			System.openURL(visualStudioURL);
 		}
+	}
+	
+	public static function setupHL():Void
+	{
+		Log.println("\x1b[1mIn order to build HashLink executables you must have");
+		Log.println("HashLink binaries installed.");
+		Log.println("We recommend using version \"1.10.0\"");
+		Log.println("available as a free download from Github.\x1b[0m");
+		
+		
+
+		var answer = CLIHelper.ask("Would you like to visit the download page now?");
+
+		if (answer == YES || answer == ALWAYS)
+		{
+			System.openURL(hashlinkURL);
+			
+		}
+		
+		getDefineValue("HL_PATH", "Path to Hashlink binaries.");
+		Log.println("");
+		Log.println("Setup completed");
 	}
 
 	private static function throwPermissionsError()
