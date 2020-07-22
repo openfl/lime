@@ -934,6 +934,8 @@ namespace lime {
 
 	int SDLApplication::BatchUpdate (int numEvents) {
 
+		SDL_Event* mouseMoved = NULL;
+
 		if (!active) {
 			return -1;
 		}
@@ -964,11 +966,22 @@ namespace lime {
 		int nextEvent;
 		for (nextEvent = 0; nextEvent < numPending; ++nextEvent) {
 
-			HandleEvent (&eventQueue[nextEvent]);
-			eventQueue[nextEvent].type = -1;
-			if (!active) {
-				return -1;
+			if (SDL_MOUSEMOTION == eventQueue[nextEvent].type) {
+				// we'll only handle the last motion event in the batch
+				mouseMoved = &eventQueue[nextEvent];
+			} else {
+				HandleEvent (&eventQueue[nextEvent]);
+				eventQueue[nextEvent].type = -1;
+				if (!active) {
+					return -1;
+				}
 			}
+		}
+
+		// handle the mouse motion event if there is one this batch
+		if (NULL != mouseMoved) {
+			HandleEvent (mouseMoved);
+			mouseMoved->type = -1;
 		}
 
 		currentUpdate = SDL_GetTicks ();
