@@ -54,7 +54,13 @@ class HTML5AudioSource
 
 		parent.buffer.__srcHowl.on("end", howl_onEnd, id);
 
+		// Calling setCurrentTime causes html5 audio to replay from this position on next frame
+		#if force_html5_audio
+		if(time == 0) setCurrentTime(time);
+		#else
 		setCurrentTime(time);
+		#end
+
 		#end
 	}
 
