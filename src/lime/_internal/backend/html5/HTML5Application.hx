@@ -23,11 +23,12 @@ import lime.ui.Window;
 @:access(lime.ui.Window)
 class HTML5Application
 {
-	private var gameDeviceCache = new Map<Int, GameDeviceData>();
 	private var accelerometer:Sensor;
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
+	private var gameDeviceCache = new Map<Int, GameDeviceData>();
+	private var hidden:Bool;
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
 	private var parent:Application;
@@ -441,12 +442,40 @@ class HTML5Application
 			switch (event.type)
 			{
 				case "focus":
-					parent.window.onFocusIn.dispatch();
-					parent.window.onActivate.dispatch();
+					if (hidden)
+					{
+						parent.window.onFocusIn.dispatch();
+						parent.window.onActivate.dispatch();
+						hidden = false;
+					}
 
 				case "blur":
-					parent.window.onFocusOut.dispatch();
-					parent.window.onDeactivate.dispatch();
+					if (!hidden)
+					{
+						parent.window.onFocusOut.dispatch();
+						parent.window.onDeactivate.dispatch();
+						hidden = true;
+					}
+
+				case "visibilitychange":
+					if (Browser.document.hidden)
+					{
+						if (!hidden)
+						{
+							parent.window.onFocusOut.dispatch();
+							parent.window.onDeactivate.dispatch();
+							hidden = true;
+						}
+					}
+					else
+					{
+						if (hidden)
+						{
+							parent.window.onFocusIn.dispatch();
+							parent.window.onActivate.dispatch();
+							hidden = false;
+						}
+					}
 
 				case "resize":
 					parent.window.__backend.handleResizeEvent(event);
