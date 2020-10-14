@@ -287,7 +287,7 @@ class HTML5Window
 						premultipliedAlpha: true,
 						stencil: Reflect.hasField(contextAttributes, "stencil") ? contextAttributes.stencil : false,
 						preserveDrawingBuffer: false,
-						failIfMajorPerformanceCaveat: true
+						failIfMajorPerformanceCaveat: Reflect.hasField(contextAttributes, "failIfMajorPerformanceCaveat") ? contextAttributes.failIfMajorPerformanceCaveat : false,
 					};
 
 				var glContextType = ["webgl", "experimental-webgl"];

@@ -23,6 +23,7 @@ typedef WindowData =
 	@:optional var requireShaders:Bool;
 	@:optional var depthBuffer:Bool;
 	@:optional var stencilBuffer:Bool;
+	@:optional var failIfMajorPerformanceCaveat:Bool;
 	@:optional var title:String;
 	#if (js && html5)
 	@:optional var element:js.html.Element;
