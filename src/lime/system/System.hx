@@ -509,6 +509,8 @@ class System
 							attributes.x = Std.parseInt(argValue);
 						case "y":
 							attributes.y = Std.parseInt(argValue);
+						case "failIfMajorPerformanceCaveat":
+							attributes.context.failIfMajorPerformanceCaveat = __parseBool(argValue);
 						default:
 					}
 				}
