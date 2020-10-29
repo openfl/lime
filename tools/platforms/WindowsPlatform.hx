@@ -204,13 +204,13 @@ class WindowsPlatform extends PlatformTarget
 					{
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
-							
+
 						if (!project.environment.exists("HL_PATH"))
 						{
 							var command = #if lime "lime" #else "hxp" #end;
 
-							Log.info("You must define HL_PATH to copy HL dependencies: '" + command + " setup hl' first");
-							
+							Log.error("You must define HL_PATH to copy HashLink dependencies, please run '" + command + " setup hl' first");
+
 						}else{
 							System.copyFile(project.environment.get("HL_PATH") + '/ssl.hdll', applicationDirectory + '/ssl.hdll');
 						}
