@@ -6737,145 +6737,144 @@ class NativeCFFI
 	#end
 
 	#if hl
-	// TODO
-	private static function lime_vorbis_file_bitrate(vorbisFile:Dynamic, bitstream:Int):Int
+	@:hlNative("lime", "lime_vorbis_file_bitrate") private static function lime_vorbis_file_bitrate(vorbisFile:CFFIPointer, bitstream:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_bitrate_instant(vorbisFile:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_bitrate_instant") private static function lime_vorbis_file_bitrate_instant(vorbisFile:CFFIPointer):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_clear(vorbisFile:Dynamic):Void {}
+	@:hlNative("lime", "lime_vorbis_file_clear") private static function lime_vorbis_file_clear(vorbisFile:CFFIPointer):Void {}
 
-	private static function lime_vorbis_file_comment(vorbisFile:Dynamic, bitstream:Int):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_comment") private static function lime_vorbis_file_comment(vorbisFile:CFFIPointer, bitstream:Int):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_crosslap(vorbisFile:Dynamic, otherVorbisFile:Dynamic):Dynamic
-	{
-		return null;
-	}
-
-	private static function lime_vorbis_file_from_bytes(bytes:Dynamic):Dynamic
-	{
-		return null;
-	}
-
-	private static function lime_vorbis_file_from_file(path:String):Dynamic
-	{
-		return null;
-	}
-
-	private static function lime_vorbis_file_info(vorbisFile:Dynamic, bitstream:Int):Dynamic
-	{
-		return null;
-	}
-
-	private static function lime_vorbis_file_pcm_seek(vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_crosslap") private static function lime_vorbis_file_crosslap(vorbisFile:CFFIPointer, otherVorbisFile:CFFIPointer):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_pcm_seek_lap(vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_from_bytes") private static function lime_vorbis_file_from_bytes(bytes:Bytes):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "lime_vorbis_file_from_file") private static function lime_vorbis_file_from_file(path:String):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "lime_vorbis_file_info") private static function lime_vorbis_file_info(vorbisFile:CFFIPointer, bitstream:Int):Dynamic
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "lime_vorbis_file_pcm_seek") private static function lime_vorbis_file_pcm_seek(vorbisFile:CFFIPointer, posLow:Int, posHigh:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_pcm_seek_page(vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_pcm_seek_lap") private static function lime_vorbis_file_pcm_seek_lap(vorbisFile:CFFIPointer, posLow:Int, posHigh:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_pcm_seek_page_lap(vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_pcm_seek_page") private static function lime_vorbis_file_pcm_seek_page(vorbisFile:CFFIPointer, posLow:Int, posHigh:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_raw_seek(vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_pcm_seek_page_lap") private static function lime_vorbis_file_pcm_seek_page_lap(vorbisFile:CFFIPointer, posLow:Int, posHigh:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_raw_seek_lap(vorbisFile:Dynamic, posLow:Dynamic, posHigh:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_raw_seek") private static function lime_vorbis_file_raw_seek(vorbisFile:CFFIPointer, posLow:Int, posHigh:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_pcm_tell(vorbisFile:Dynamic):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_raw_seek_lap") private static function lime_vorbis_file_raw_seek_lap(vorbisFile:CFFIPointer, posLow:Int, posHigh:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "lime_vorbis_file_pcm_tell") private static function lime_vorbis_file_pcm_tell(vorbisFile:CFFIPointer):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_pcm_total(vorbisFile:Dynamic, bitstream:Int):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_pcm_total") private static function lime_vorbis_file_pcm_total(vorbisFile:CFFIPointer, bitstream:Int):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_raw_tell(vorbisFile:Dynamic):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_raw_tell") private static function lime_vorbis_file_raw_tell(vorbisFile:CFFIPointer):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_raw_total(vorbisFile:Dynamic, bitstream:Int):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_raw_total") private static function lime_vorbis_file_raw_total(vorbisFile:CFFIPointer, bitstream:Int):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_read(vorbisFile:Dynamic, buffer:Dynamic, position:Int, length:Int, bigendianp:Bool, word:Int, signed:Bool):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_read") private static function lime_vorbis_file_read(vorbisFile:CFFIPointer, buffer:Bytes, position:Int, length:Int, bigendianp:Bool, word:Int, signed:Bool):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_read_float(vorbisFile:Dynamic, pcmChannels:Dynamic, samples:Int):Dynamic
+	@:hlNative("lime", "lime_vorbis_file_read_float") private static function lime_vorbis_file_read_float(vorbisFile:CFFIPointer, pcmChannels:Bytes, samples:Int):Dynamic
 	{
 		return null;
 	}
 
-	private static function lime_vorbis_file_seekable(vorbisFile:Dynamic):Bool
+	@:hlNative("lime", "lime_vorbis_file_seekable") private static function lime_vorbis_file_seekable(vorbisFile:CFFIPointer):Bool
 	{
 		return false;
 	}
 
-	private static function lime_vorbis_file_serial_number(vorbisFile:Dynamic, bitstream:Int):Int
+	@:hlNative("lime", "lime_vorbis_file_serial_number") private static function lime_vorbis_file_serial_number(vorbisFile:CFFIPointer, bitstream:Int):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_streams(vorbisFile:Dynamic):Int
+	@:hlNative("lime", "lime_vorbis_file_streams") private static function lime_vorbis_file_streams(vorbisFile:CFFIPointer):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_time_seek(vorbisFile:Dynamic, s:Float):Int
+	@:hlNative("lime", "lime_vorbis_file_time_seek") private static function lime_vorbis_file_time_seek(vorbisFile:CFFIPointer, s:Float):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_time_seek_lap(vorbisFile:Dynamic, s:Float):Int
+	@:hlNative("lime", "lime_vorbis_file_time_seek_lap") private static function lime_vorbis_file_time_seek_lap(vorbisFile:CFFIPointer, s:Float):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_time_seek_page(vorbisFile:Dynamic, s:Float):Int
+	@:hlNative("lime", "lime_vorbis_file_time_seek_page") private static function lime_vorbis_file_time_seek_page(vorbisFile:CFFIPointer, s:Float):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_time_seek_page_lap(vorbisFile:Dynamic, s:Float):Int
+	@:hlNative("lime", "lime_vorbis_file_time_seek_page_lap") private static function lime_vorbis_file_time_seek_page_lap(vorbisFile:CFFIPointer, s:Float):Int
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_time_tell(vorbisFile:Dynamic):Float
+	@:hlNative("lime", "lime_vorbis_file_time_tell") private static function lime_vorbis_file_time_tell(vorbisFile:CFFIPointer):Float
 	{
 		return 0;
 	}
 
-	private static function lime_vorbis_file_time_total(vorbisFile:Dynamic, bitstream:Int):Float
+	@:hlNative("lime", "lime_vorbis_file_time_total") private static function lime_vorbis_file_time_total(vorbisFile:CFFIPointer, bitstream:Int):Float
 	{
 		return 0;
 	}

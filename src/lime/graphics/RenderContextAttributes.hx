@@ -48,4 +48,10 @@ typedef RenderContextAttributes =
 		Whether vertical-sync (VSync) is enabled
 	**/
 	@:optional var vsync:Bool;
+	
+	/**
+		Boolean that indicates if a context will be created 
+		if the system performance is low or if no hardware GPU is available
+	**/
+	@:optional var failIfMajorPerformanceCaveat:Bool;
 }
