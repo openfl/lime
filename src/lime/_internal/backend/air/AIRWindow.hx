@@ -126,7 +126,11 @@ class AIRWindow extends FlashWindow
 			// nativeWindow.addEventListener (Event.RESIZE, handleWindowEvent);
 			nativeWindow.addEventListener(NativeWindowBoundsEvent.MOVE, handleNativeWindowEvent);
 
-			nativeWindow.visible = !hidden;
+			if (hidden)
+			{
+				nativeWindow.visible = false;
+			}
+
 			// nativeWindow.activate ();
 			nativeWindow.alwaysInFront = alwaysOnTop;
 			nativeWindow.title = title;
