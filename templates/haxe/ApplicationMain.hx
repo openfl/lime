@@ -60,7 +60,6 @@ import ::APP_MAIN::;
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
-				failIfMajorPerformanceCaveat: ::failIfMajorPerformanceCaveat::,
 				type: null,
 				vsync: ::vsync::
 			};

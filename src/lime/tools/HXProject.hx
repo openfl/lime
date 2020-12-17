@@ -171,7 +171,6 @@ class HXProject extends Script
 				depthBuffer: true,
 				stencilBuffer: true,
 				colorDepth: 32,
-				failIfMajorPerformanceCaveat: false,
 				maximized: false,
 				minimized: false,
 				hidden: false,
