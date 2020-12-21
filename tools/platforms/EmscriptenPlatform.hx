@@ -243,7 +243,7 @@ class EmscriptenPlatform extends PlatformTarget
 		}
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
