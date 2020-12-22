@@ -78,7 +78,7 @@ class TVOSPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 

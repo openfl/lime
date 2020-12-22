@@ -64,7 +64,7 @@ class FlashPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 

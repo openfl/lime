@@ -135,7 +135,7 @@ class HTML5Platform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
