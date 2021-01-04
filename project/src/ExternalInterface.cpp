@@ -2671,8 +2671,9 @@ namespace lime {
 		if (model) {
 
 			int size = std::wcslen (model->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, model->c_str (), size);
+			result[size] = '\0';
 			delete model;
 
 			return (vbyte*)result;
@@ -2714,8 +2715,9 @@ namespace lime {
 		if (vendor) {
 
 			int size = std::wcslen (vendor->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, vendor->c_str (), size);
+			result[size] = '\0';
 			delete vendor;
 
 			return (vbyte*)result;
@@ -2757,8 +2759,9 @@ namespace lime {
 		if (path) {
 
 			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, path->c_str (), size);
+			result[size] = '\0';
 			delete path;
 
 			return (vbyte*)result;
@@ -2850,8 +2853,9 @@ namespace lime {
 		if (label) {
 
 			int size = std::wcslen (label->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, label->c_str (), size);
+			result[size] = '\0';
 			delete label;
 
 			return (vbyte*)result;
@@ -2893,8 +2897,9 @@ namespace lime {
 		if (name) {
 
 			int size = std::wcslen (name->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, name->c_str (), size);
+			result[size] = '\0';
 			delete name;
 
 			return (vbyte*)result;
@@ -2936,8 +2941,9 @@ namespace lime {
 		if (version) {
 
 			int size = std::wcslen (version->c_str ());
-			char* result = (char*)malloc (size);
+			char* result = (char*)malloc (size + 1);
 			std::wcstombs (result, version->c_str (), size);
+			result[size] = '\0';
 			delete version;
 
 			return (vbyte*)result;

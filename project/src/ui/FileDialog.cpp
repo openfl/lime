@@ -14,8 +14,9 @@ namespace lime {
 		if (!source) return NULL;
 
 		int size = std::wcslen (source->c_str ());
-		char* temp = (char*)malloc (size);
+		char* temp = (char*)malloc (size + 1);
 		std::wcstombs (temp, source->c_str (), size);
+		temp[size] = '\0';
 
 		std::string* data = new std::string (temp);
 		free (temp);
