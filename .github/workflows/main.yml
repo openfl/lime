@@ -37,12 +37,12 @@ jobs:
     - name: Configure HXCPP compile cache (Linux/macOS)
       if: ${{ !startsWith(matrix.os, 'windows-') }}
       run: |
-        echo "::set-env name=HXCPP_COMPILE_CACHE::$HOME/.hxcpp"
+        echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
     - name: Configure HXCPP compile cache (Windows)
       if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
-        echo "::set-env name=HXCPP_COMPILE_CACHE::C:\.hxcpp"
+        echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $GITHUB_ENV
 
     - name: Install system dependencies (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
@@ -59,19 +59,18 @@ jobs:
     - name: Install "lime" command alias (Windows)
       if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
-        haxelib dev lime $Env:GITHUB_WORKSPACE
+        haxelib dev lime $GITHUB_WORKSPACE
         haxelib run lime setup -alias -y
 
     - name: Configure Android support (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       run: |
-        echo "::set-env name=ANDROID_NDK_ROOT::$HOME/Library/lime-dependencies/android-ndk-r15c"
-        mkdir -p $ANDROID_NDK_ROOT
+        mkdir -p ~/.android-ndk-r15c
         wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
-        unzip -qq android-ndk.zip -d $ANDROID_NDK_ROOT/..
+        unzip -qq android-ndk.zip -d ~/.android-ndk-r15c
         rm android-ndk.zip
         lime config ANDROID_SDK $ANDROID_HOME
-        haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
+        haxelib run lime config ANDROID_NDK_ROOT ~/.android-ndk-r15c
         haxelib run lime config JAVA_HOME $JAVA_HOME
         haxelib run lime config ANDROID_SETUP true
         haxelib run lime config
