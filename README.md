@@ -64,6 +64,7 @@ Tell haxelib where your development copy of Lime is installed:
 The first time you run the "lime" command, it will attempt to build the Lime standard binary for your desktop platform as the command-line tools. To build these manually, use the following command (using "mac" or "linux" if appropriate):
 
     haxelib install format
+    haxelib install hxp
     lime rebuild windows
 
 You can build additional binaries, or rebuild binaries after making changes, using "lime rebuild":
