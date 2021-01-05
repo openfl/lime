@@ -49,6 +49,13 @@ jobs:
       run: |
         echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $GITHUB_ENV
 
+    - name: Install Android NDK (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r15c
+
     - name: Install "lime" command alias (Linux/macOS)
       if: ${{ !startsWith(matrix.os, 'windows-') }}
       run: |
@@ -64,13 +71,9 @@ jobs:
 
     - name: Configure Android support (Linux)
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-      uses: nttld/setup-ndk@v1
-      id: configure-android
-      with:
-        ndk-version: r15c
       run: |
         lime config ANDROID_SDK $ANDROID_HOME
-        lime config ANDROID_NDK_ROOT ${{ steps.configure-android.outputs.ndk-path }}
+        lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
         lime config JAVA_HOME $JAVA_HOME
         lime config ANDROID_SETUP true
         lime config
