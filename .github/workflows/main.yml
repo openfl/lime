@@ -185,20 +185,3 @@ jobs:
         lime build SimpleImage windows -release -verbose -nocolor
         lime build SimpleAudio windows -release -verbose -nocolor
 
-    - name: Notify Discord (success)
-      uses: appleboy/discord-action@master
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }} && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
-      with:
-        webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-        webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-        color: "#00C07F"
-        message: "https://github.com/haxelime/lime/actions\nCI build succeeded (Linux)."
-
-    - name: Notify Discord (failure)
-      uses: appleboy/discord-action@master
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }} && failure() && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
-      with:
-        webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-        webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-        color: "#FF6562"
-        message: "https://github.com/haxelime/lime/actions\nCI build failed (Linux)."
