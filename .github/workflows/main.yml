@@ -34,6 +34,11 @@ jobs:
         haxelib install hxp  --quiet
         haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
+    - name: Install system dependencies (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+      run: |
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+
     - name: Configure HXCPP compile cache (Linux/macOS)
       if: ${{ !startsWith(matrix.os, 'windows-') }}
       run: |
@@ -43,11 +48,6 @@ jobs:
       if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
         echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $GITHUB_ENV
-
-    - name: Install system dependencies (Linux)
-      if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-      run: |
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
     - name: Install "lime" command alias (Linux/macOS)
       if: ${{ !startsWith(matrix.os, 'windows-') }}
@@ -67,7 +67,7 @@ jobs:
       run: |
         mkdir -p ~/.android-ndk-r15c
         wget -O android-ndk.zip --quiet https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
-        unzip -qq android-ndk.zip -d ~/.android-ndk-r15c
+        unzip -qq android-ndk.zip -d ~/.android-ndk-r15c/..
         rm android-ndk.zip
         lime config ANDROID_SDK $ANDROID_HOME
         haxelib run lime config ANDROID_NDK_ROOT ~/.android-ndk-r15c
