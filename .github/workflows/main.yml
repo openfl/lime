@@ -13,6 +13,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
     steps:
     - uses: actions/checkout@v2
       with:
@@ -20,8 +23,6 @@ jobs:
     - uses: haxeui/haxeui-core/.github/actions/haxe@master
       with:
         haxe-version: ${{ matrix.haxe-version }}
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     - uses: actions/setup-java@v1
       with:
         java-version: 8
