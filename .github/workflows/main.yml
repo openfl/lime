@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.1]
+        haxe-version: [3.4.7, 4.1.5]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
@@ -20,6 +20,8 @@ jobs:
     - uses: haxeui/haxeui-core/.github/actions/haxe@master
       with:
         haxe-version: ${{ matrix.haxe-version }}
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     - uses: actions/setup-java@v1
       with:
         java-version: 8
