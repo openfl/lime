@@ -531,7 +531,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#00C07F"
-          message: "https://github.com/haxelime/lime/actions/runs/${{ GITHUB_RUN_ID }}\nCI build succeeded."
+          message: "https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}\nCI build succeeded."
 
       - name: Notify Discord (failure)
         uses: appleboy/discord-action@master
@@ -540,7 +540,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#FF6562"
-          message: "https://github.com/haxelime/lime/actions/runs/${{ GITHUB_RUN_ID }}\nCI build failed."
+          message: "https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}\nCI build failed."
 
   test-notify-discord:
     if: always()
@@ -553,7 +553,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#00C07F"
-          message: "<a href='https://github.com/haxelime/lime/actions/runs/${{ GITHUB_RUN_ID }}''>CI build message test</a>"
+          message: "<a href='https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}'>CI build message test</a>"
 
   test-notify-discord2:
     if: always()
@@ -566,4 +566,4 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#00C07F"
-          message: "[https://github.com/haxelime/lime/actions/runs/${{ GITHUB_RUN_ID }}](CI build message test)"
+          message: "[https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}](CI build message test)"
