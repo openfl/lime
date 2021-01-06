@@ -150,16 +150,6 @@ class TVOSPlatform extends PlatformTarget
 			architectures = [Architecture.ARM64];
 		}
 
-		/*if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
-
-			if (project.config.getFloat ("ios.deployment", 5.1) < 5) {
-
-				ArrayTools.addUnique (architectures, Architecture.ARMV6);
-
-			}
-
-		}*/
-
 		for (architecture in project.architectures)
 		{
 			switch (architecture)
