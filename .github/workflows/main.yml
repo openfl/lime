@@ -536,7 +536,7 @@ jobs:
     needs: [notify-discord]
     if: always()
     steps:
-       - name: Notify Discord (failure)
+      - name: Notify Discord (failure)
         uses: appleboy/discord-action@master
         if: needs.notify-discord.result != 'success'
         with:
