@@ -520,6 +520,7 @@ jobs:
         lime build SimpleAudio windows -release -verbose -nocolor
 
   notify-discord:
+    runs-on: ubuntu-16.04
     if: always()
     needs: [android, flash, hashlink, html5, ios, linux, macos, neko, windows]
     steps:
@@ -543,6 +544,7 @@ jobs:
           message: "https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}\nCI build failed."
 
   test-notify-discord:
+    runs-on: ubuntu-16.04
     if: always()
     steps:
 
@@ -556,6 +558,7 @@ jobs:
           message: "<a href='https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}'>CI build message test</a>"
 
   test-notify-discord2:
+    runs-on: ubuntu-16.04
     if: always()
     steps:
 
