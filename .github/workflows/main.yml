@@ -27,7 +27,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -95,7 +95,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -145,7 +145,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -202,7 +202,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -308,7 +308,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -358,7 +358,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -415,7 +415,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.0.64 --quiet
           haxelib install format  --quiet
           haxelib install hxp  --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -484,7 +484,7 @@ jobs:
 
     - name: Install Haxe dependencies
       run: |
-        haxelib install hxcpp --quiet
+        haxelib install hxcpp 4.0.64 --quiet
         haxelib install format  --quiet
         haxelib install hxp  --quiet
         haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -532,7 +532,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#00C07F"
-          message: "https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}\nCI build succeeded."
+          message: "https://github.com/haxelime/lime/actions/runs/${{ github.run_id }}\nCI build succeeded."
 
       - name: Notify Discord (failure)
         uses: appleboy/discord-action@master
@@ -541,7 +541,7 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#FF6562"
-          message: "https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}\nCI build failed."
+          message: "https://github.com/haxelime/lime/actions/runs/${{ github.run_id }}\nCI build failed."
 
   test-notify-discord:
     runs-on: ubuntu-16.04
@@ -555,18 +555,4 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#00C07F"
-          message: "<a href='https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}'>CI build message test</a>"
-
-  test-notify-discord2:
-    runs-on: ubuntu-16.04
-    if: always()
-    steps:
-
-      - name: Notify Discord
-        uses: appleboy/discord-action@master
-        if: github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#00C07F"
-          message: "[https://github.com/haxelime/lime/actions/runs/${GITHUB_RUN_ID}](CI build message test)"
+          message: "https://github.com/haxelime/lime/actions/runs/${{ github.run_id }}\nCI build message test."
