@@ -522,6 +522,7 @@ jobs:
   notify-discord:
     runs-on: ubuntu-16.04
     needs: [android, flash, hashlink, html5, ios, linux, macos, neko, windows]
+    if: (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
     steps:
       - name: Notify Discord
         uses: appleboy/discord-action@master
@@ -534,7 +535,7 @@ jobs:
   notify-discord-failure:
     runs-on: ubuntu-16.04
     needs: [notify-discord]
-    if: always()
+    if: always() && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
     steps:
       - name: Notify Discord (failure)
         uses: appleboy/discord-action@master
