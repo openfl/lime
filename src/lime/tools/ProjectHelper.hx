@@ -111,6 +111,10 @@ class ProjectHelper
 		{
 			return project.environment.get(string);
 		}
+		else if (string == "projectDirectory")
+		{
+			return project.workingDirectory;
+		}
 		else
 		{
 			var substring = StringTools.replace(string, " ", "");
@@ -174,14 +178,6 @@ class ProjectHelper
 					}
 				}
 			}
-			#if sys
-			else if (substring == "projectDirectory")
-			{
-				// TODO: Better handling if CWD has changed?
-
-				return Std.string(Sys.getCwd());
-			}
-			#end
 		}
 
 		return string;
