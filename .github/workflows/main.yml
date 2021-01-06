@@ -502,10 +502,10 @@ jobs:
       run: |
         haxelib run lime setup -alias -y -nocffi
 
-   - name: Rebuild Lime
-      run: |
-        lime rebuild windows -32 -release -verbose -nocolor
-        lime rebuild windows -64 -release -verbose -nocolor
+    - name: Rebuild Lime
+        run: |
+          lime rebuild windows -32 -release -verbose -nocolor
+          lime rebuild windows -64 -release -verbose -nocolor
 
     - name: Create Lime samples
       run: |
