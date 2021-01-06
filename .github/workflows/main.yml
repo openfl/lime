@@ -521,22 +521,24 @@ jobs:
 
   notify-discord:
     runs-on: ubuntu-16.04
-    if: always()
     needs: [android, flash, hashlink, html5, ios, linux, macos, neko, windows]
     steps:
-
-      - name: Notify Discord (success)
+      - name: Notify Discord
         uses: appleboy/discord-action@master
-        if: github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#00C07F"
           message: "https://github.com/haxelime/lime/actions/runs/${{ github.run_id }}\nCI build succeeded"
 
-      - name: Notify Discord (failure)
+  notify-discord-failure:
+    runs-on: ubuntu-16.04
+    needs: [notify-discord]
+    if: always()
+    steps:
+       - name: Notify Discord (failure)
         uses: appleboy/discord-action@master
-        if: failure() && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
+        if: needs.notify-discord.result != 'success'
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
