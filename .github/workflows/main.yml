@@ -519,29 +519,13 @@ jobs:
         lime build SimpleImage windows -release -verbose -nocolor
         lime build SimpleAudio windows -release -verbose -nocolor
 
-  notify-discord:
+  notify:
     runs-on: ubuntu-16.04
     needs: [android, flash, hashlink, html5, ios, linux, macos, neko, windows]
-    if: (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
+    if: always()
     steps:
       - name: Notify Discord
-        uses: appleboy/discord-action@master
+        uses: nobrayner/discord-webhook@v1
         with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#00C07F"
-          message: "https://github.com/haxelime/lime/actions/runs/${{ github.run_id }}\nCI build succeeded"
-
-  notify-discord-failure:
-    runs-on: ubuntu-16.04
-    needs: [notify-discord]
-    if: always() && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
-    steps:
-      - name: Notify Discord (failure)
-        uses: appleboy/discord-action@master
-        if: needs.notify-discord.result != 'success'
-        with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#FF6562"
-          message: "https://github.com/haxelime/lime/actions/runs/${{ github.run_id }}\nCI build failed"
+          github-token: ${{ secrets.github_token }}
+          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}
