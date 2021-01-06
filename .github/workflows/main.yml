@@ -27,7 +27,7 @@ jobs:
       with:
         java-version: 8
 
-    - name: Install system dependencies (Linux)
+    - name: Linux | Install system dependencies
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       run: |
         sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
@@ -39,44 +39,52 @@ jobs:
         haxelib install hxp  --quiet
         haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-    - name: Enable HXCPP compile cache (Linux/macOS)
-      if: ${{ !startsWith(matrix.os, 'windows-') }}
-      run: |
-        echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-
-    - name: Enable HXCPP compile cache (Windows)
+    - name: Windows | Enable HXCPP compile cache
       if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
         echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $GITHUB_ENV
 
-    - name: Install Android NDK (Linux)
+    - name: Linux/macOS | Enable HXCPP compile cache
+      if: ${{ !startsWith(matrix.os, 'windows-') }}
+      run: |
+        echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+    - name: Linux | Install Android NDK
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
         ndk-version: r15c
 
-    - name: Install "lime" command alias (Linux/macOS)
-      if: ${{ !startsWith(matrix.os, 'windows-') }}
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime rebuild tools -nocolor -verbose
-        haxelib run lime setup -alias -y -nocffi
-        lime || alias lime="haxelib run lime"
-
-    - name: Install "lime" command alias (Windows)
+    - name: Windows | Rebuild Lime tools
       if: ${{ startsWith(matrix.os, 'windows-') }}
       run: |
         haxelib dev lime $Env:GITHUB_WORKSPACE
-        haxelib run lime rebuild tools -nocolor -verbose
-        haxelib run lime setup -alias -y -nocffi
+        haxelib run lime rebuild tools -nocolor -verbose -nocffi
+
+    - name: Linux/macOS | Rebuild Lime tools
+      if: ${{ !startsWith(matrix.os, 'windows-') }}
+      run: |
+        haxelib dev lime $GITHUB_WORKSPACE
+        haxelib run lime rebuild tools -nocolor -verbose -nocffi
 
     - name: Rebuild dev HXCPP
       if: ${{ !startsWith(matrix.os, 'windows-') }}
       run: |
         haxelib run lime rebuild hxcpp
 
-    - name: Configure Android support (Linux)
+    - name: Windows | Install "lime" command alias
+      if: ${{ startsWith(matrix.os, 'windows-') }}
+      run: |
+        haxelib run lime setup -alias -y -nocffi
+
+    - name: Linux/macOS | Install "lime" command alias
+      if: ${{ !startsWith(matrix.os, 'windows-') }}
+      run: |
+        haxelib run lime setup -alias -y -nocffi
+        lime || alias lime="haxelib run lime"
+
+    - name: Linux | Configure Android support
       if: ${{ startsWith(matrix.os, 'ubuntu-') }}
       run: |
         lime config ANDROID_SDK $ANDROID_HOME
