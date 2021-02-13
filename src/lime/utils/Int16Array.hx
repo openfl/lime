@@ -9,6 +9,7 @@ import js.html.Int16Array as JSInt16Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
+@:transitive
 abstract Int16Array(JSInt16Array) from JSInt16Array to JSInt16Array
 {
 	@:to inline function toArrayBufferView ():ArrayBufferView return this;
@@ -84,6 +85,7 @@ abstract Int16Array(JSInt16Array) from JSInt16Array to JSInt16Array
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {

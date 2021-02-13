@@ -10,6 +10,7 @@ import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
 @:arrayAccess
+@:transitive
 abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 {
 	@:to function toArrayBufferView ():ArrayBufferView return this;
@@ -86,6 +87,7 @@ abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {

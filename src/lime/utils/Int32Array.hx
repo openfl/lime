@@ -9,6 +9,7 @@ import js.html.Int32Array as JSInt32Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
+@:transitive
 abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
 {
 	@:to inline function toArrayBufferView ():ArrayBufferView return this;
@@ -83,7 +84,7 @@ abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
 }
 #else
 import lime.utils.ArrayBufferView;
-
+@:transitive
 @:forward
 abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {

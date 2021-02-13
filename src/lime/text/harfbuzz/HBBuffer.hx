@@ -106,6 +106,58 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 		return null;
 		#end
 	}
+	public function getGlyphInfoArrays()
+	{
+		#if (lime_cffi && lime_harfbuzz && !macro)
+		var bytes = Bytes.alloc(0);
+		bytes = NativeCFFI.lime_hb_buffer_get_glyph_infos(this, bytes);
+
+		if (bytes == null)
+		{
+			return null;
+		}
+		else
+		{
+
+			var length = bytes.length;
+			var position = 0, info;
+
+			var size:Int = Math.floor(length / (4*3));
+
+			var codepoint:Array<Int> = new Array();
+			var mask:Array<Int> = new Array();
+			var cluster:Array<Int> = new Array();
+
+			codepoint.resize(size);
+			mask.resize(size);
+			cluster.resize(size);
+
+			var i:Int = 0;
+			while (position < length)
+			{
+				codepoint[i] = bytes.getInt32(position);
+				position += 4;
+
+				mask[i] = bytes.getInt32(position);
+				position += 4;
+
+				cluster[i] = bytes.getInt32(position);
+				position += 4;
+
+				++i;
+
+			}
+
+			return {
+				codepoint:codepoint,
+				mask:mask,
+				cluster:cluster
+			};
+		}
+		#else
+		return null;
+		#end
+	}
 
 	public function getGlyphPositions():Array<HBGlyphPosition>
 	{
@@ -122,7 +174,8 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 			var result = new Array<HBGlyphPosition>();
 
 			var length = bytes.length;
-			var position = 0, glyphPosition;
+			var position:Int = 0;
+			var glyphPosition;
 
 			while (position < length)
 			{
@@ -139,6 +192,63 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 			}
 
 			return result;
+		}
+		#else
+		return null;
+		#end
+	}
+	public function getGlyphPositionsArrays()
+	{
+		#if (lime_cffi && lime_harfbuzz && !macro)
+		var bytes = Bytes.alloc(0);
+		bytes = NativeCFFI.lime_hb_buffer_get_glyph_positions(this, bytes);
+
+		if (bytes == null)
+		{
+			return null;
+		}
+		else
+		{
+			var result = new Array<HBGlyphPosition>();
+
+			var length = bytes.length;
+			var position = 0, glyphPosition;
+
+			var size:Int = Math.floor(length / (4*4));
+
+			var xAdvance:Array<Int> = new Array();
+			var xOffset:Array<Int> = new Array();
+			var yAdvance:Array<Int> = new Array();
+			var yOffset:Array<Int> = new Array();
+
+			xAdvance.resize(size);
+			xOffset.resize(size);
+			yAdvance.resize(size);
+			yOffset.resize(size);
+
+			var i:Int = 0;
+			while (position < length)
+			{
+				xAdvance[i] = bytes.getInt32(position);
+				position += 4;
+
+				yAdvance[i]= bytes.getInt32(position);
+				position += 4;
+
+				xOffset[i] = bytes.getInt32(position);
+				position += 4;
+
+				yOffset[i] = bytes.getInt32(position);
+				position += 4;
+				++i;
+			}
+
+			return {
+				xAdvance:xAdvance,
+				xOffset:xOffset,
+				yAdvance:yAdvance,
+				yOffset:yOffset
+			};
 		}
 		#else
 		return null;

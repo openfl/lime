@@ -42,6 +42,7 @@ abstract OpenGLRenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderC
 }
 #else
 @:forward()
+@:transitive
 abstract OpenGLRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):OpenGLRenderContext

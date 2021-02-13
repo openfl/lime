@@ -16,6 +16,7 @@ import lime.graphics.cairo.Cairo;
 **/
 @:access(lime.graphics.RenderContext)
 @:forward
+@:transitive
 abstract CairoRenderContext(Cairo) from Cairo to Cairo
 {
 	@:from private static function fromRenderContext(context:RenderContext):CairoRenderContext

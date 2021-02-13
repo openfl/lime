@@ -9,6 +9,7 @@ import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint8ClampedArray as JSUInt8ClampedArray;
 #end
 @:forward
+@:transitive
 abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUInt8ClampedArray
 {
 	@:to inline function toArrayBufferView ():ArrayBufferView return this;
@@ -92,7 +93,7 @@ abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUI
 }
 #else
 import lime.utils.ArrayBufferView;
-
+@:transitive
 @:forward
 @:arrayAccess
 abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferView
