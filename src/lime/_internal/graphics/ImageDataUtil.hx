@@ -864,8 +864,8 @@ class ImageDataUtil
 			var dataView = new ImageDataView(image, rect);
 			var position;
 			var argb:ARGB = new RGBA();
-			var bgra:BGRA = new RGBA();
-			var pixel:RGBA= new RGBA();
+			var bgra:BGRA = new BGRA();
+			var pixel:RGBA = new RGBA();
 			var destPosition = 0;
 
 			for (y in 0...dataView.height)
