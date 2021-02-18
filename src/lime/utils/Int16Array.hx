@@ -92,7 +92,7 @@ abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	public inline static var BYTES_PER_ELEMENT:Int = 2;
 
 	public var length(get, never):Int;
-
+	#if (haxe_ver < 4.2) @:generic #end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
