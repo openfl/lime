@@ -77,7 +77,7 @@ class FileDialog
 			switch (type)
 			{
 				case OPEN, OPEN_DIRECTORY, SAVE:
-					var path:String = cast result;
+					var path:String = @:privateAccess String.fromUTF8(result);
 
 					if (path != null)
 					{
