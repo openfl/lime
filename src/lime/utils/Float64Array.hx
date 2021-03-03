@@ -9,6 +9,7 @@ import js.html.Float64Array as JSFloat64Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
+@:transitive
 abstract Float64Array(JSFloat64Array) from JSFloat64Array to JSFloat64Array
 {
 	@:to inline function toArrayBufferView ():ArrayBufferView return this;
@@ -84,6 +85,7 @@ abstract Float64Array(JSFloat64Array) from JSFloat64Array to JSFloat64Array
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
@@ -91,7 +93,7 @@ abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	public var length(get, never):Int;
 
-	@:generic
+	#if (haxe_ver < 4.2) @:generic #end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{

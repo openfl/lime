@@ -9,6 +9,7 @@ import js.html.Int8Array as JSInt8Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
+@:transitive
 abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array
 {
 	@:to inline function toArrayBufferView ():ArrayBufferView return this;
@@ -82,6 +83,7 @@ abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
@@ -89,7 +91,7 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	public var length(get, never):Int;
 
-	@:generic
+	#if (haxe_ver < 4.2) @:generic #end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
