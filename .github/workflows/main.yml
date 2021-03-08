@@ -343,6 +343,38 @@ jobs:
             !.git/
           if-no-files-found: error
 
+  docs:
+    runs-on: macos-10.15
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.0
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install dox --quiet
+          haxelib dev lime $GITHUB_WORKSPACE
+
+      - name: Build docs
+        working-directory: docs
+        run: |
+          haxe build.hxml
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: lime-docs
+          path: docs/pages
+          if-no-files-found: error
+
   android-samples:
     needs: package-haxelib
     runs-on: macos-10.15
@@ -807,7 +839,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-16.04
-    needs: [package-haxelib, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
+    needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
     if: always()
     steps:
       - name: Notify Discord
