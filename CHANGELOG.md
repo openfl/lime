@@ -1,3 +1,26 @@
+7.9.0 (03/10/2021)
+------------------
+
+_Notice: We are moving from our custom build server to Github Actions for releases._
+_As a result, official releases support only current macOS versions. Earlier macOS_
+_releases are still supported when building Lime from the source._
+
+* Updated support for Haxe 4.2
+* Updated the default iOS deployment to 9.0
+* Updated `ios-deploy` tool to support newer iOS and Xcode versions
+* Added `failIfMajorPerformanceCaveat` setting for window (default false)
+* Added bindings for OGG Vorbis on the HashLink target
+* Improved iOS target to exclude Core Bluetooth framework
+* Improved the performance for AIR application boot times
+* Improved error message when attempting to use HashLink target on Haxe 3
+* Fixed support for Android screen orientation
+* Fixed touch support on Android hardware that return unusual touch IDs
+* Fixed an issue with excess bytes saved from `FileDialog` on HTML5
+* Fixed null-termination issues on strings returned from `lime.system.System`
+* Fixed support for IEM input text on HTML5
+* Fixed audio stutter on HTML5 when `force-html-audio` is defined
+
+
 7.8.0 (06/24/2020)
 ------------------
 
