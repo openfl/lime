@@ -536,8 +536,7 @@ class HTML5Window
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
 
-		if(inputing)
-			return;
+		if (inputing) return;
 
 		if (textInput.value != dummyCharacter)
 		{
@@ -1164,15 +1163,16 @@ class HTML5Window
 
 	private var inputing = false;
 
-	public function handleCompositionstartEvent(e):Void{
+	public function handleCompositionstartEvent(e):Void
+	{
 		inputing = true;
 	}
 
-	public function handleCompositionendEvent(e):Void{
+	public function handleCompositionendEvent(e):Void
+	{
 		inputing = false;
 		handleInputEvent(e);
 	}
-
 
 	public function setTitle(value:String):String
 	{

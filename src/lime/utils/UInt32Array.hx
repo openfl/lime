@@ -12,8 +12,9 @@ import js.html.Uint32Array as JSUInt32Array;
 @:transitive
 abstract UInt32Array(JSUInt32Array) from JSUInt32Array to JSUInt32Array
 {
-	@:to inline function toArrayBufferView ():ArrayBufferView return this;
-	
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic

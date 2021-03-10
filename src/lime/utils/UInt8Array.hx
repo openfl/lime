@@ -10,8 +10,9 @@ import js.html.Uint8Array as JSUInt8Array;
 @:transitive
 abstract UInt8Array(JSUInt8Array) from JSUInt8Array to JSUInt8Array
 {
-	@:to inline function toArrayBufferView ():ArrayBufferView return this;
-	
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 
 	@:generic

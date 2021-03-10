@@ -682,12 +682,19 @@ class IOSPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context, true,
 			false);
 
-		//Merge plist files
-		var plistFiles = System.readDirectory(projectDirectory).filter(function(fileName:String){
+		// Merge plist files
+		var plistFiles = System.readDirectory(projectDirectory).filter(function(fileName:String)
+		{
 			return fileName.substr(-11) == "-Info.plist" && fileName != projectDirectory + "/" + project.app.file + "-Info.plist";
 		});
-		for(plist in plistFiles){
-			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", ["-x", "-c", "Merge " + plist, projectDirectory + "/" + project.app.file + "-Info.plist"]);
+		for (plist in plistFiles)
+		{
+			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", [
+				"-x",
+				"-c",
+				"Merge " + plist,
+				projectDirectory + "/" + project.app.file + "-Info.plist"
+			]);
 		}
 
 		System.mkdir(projectDirectory + "/lib");

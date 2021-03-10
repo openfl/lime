@@ -52,7 +52,7 @@ class PlatformTarget
 		this.additionalArguments = additionalArguments;
 		var metaFields = Meta.getFields(Type.getClass(this));
 
-		if ( /*!Reflect.hasField (metaFields.watch, "ignore") && */ (project.targetFlags.exists("watch")))
+		if (/*!Reflect.hasField (metaFields.watch, "ignore") && */ (project.targetFlags.exists("watch")))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: WATCH" + Log.resetColor);
 			watch();

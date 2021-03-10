@@ -59,29 +59,29 @@ class Font
 
 		if (!__init)
 		{
-			#if js if (ascender == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined")) #end ascender = 0;
+			#if js if (ascender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined")) #end ascender = 0;
 			#if js
-			if (descender == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined"))
+			if (descender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			descender = 0;
 			#if js
-			if (height == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined"))
+			if (height == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			height = 0;
 			#if js
-			if (numGlyphs == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined"))
+			if (numGlyphs == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			numGlyphs = 0;
 			#if js
-			if (underlinePosition == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined"))
+			if (underlinePosition == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			underlinePosition = 0;
 			#if js
-			if (underlineThickness == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined"))
+			if (underlineThickness == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			underlineThickness = 0;
 			#if js
-			if (unitsPerEM == untyped #if haxe4 js.Syntax.code #else __js__ #end("undefined"))
+			if (unitsPerEM == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			unitsPerEM = 0;
 
