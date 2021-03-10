@@ -6,6 +6,7 @@ import lime.graphics.opengl.*;
 import lime.utils.DataPointer;
 @:access(lime.graphics.RenderContext)
 @:forward()
+@:transitive
 abstract WebGL2RenderContext(HTML5WebGL2RenderContext) from HTML5WebGL2RenderContext to HTML5WebGL2RenderContext
 {
 	public inline function bufferData(target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void
