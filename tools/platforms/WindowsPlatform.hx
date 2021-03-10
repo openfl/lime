@@ -210,8 +210,9 @@ class WindowsPlatform extends PlatformTarget
 							var command = #if lime "lime" #else "hxp" #end;
 
 							Log.error("You must define HL_PATH to copy HashLink dependencies, please run '" + command + " setup hl' first");
-
-						}else{
+						}
+						else
+						{
 							System.copyFile(project.environment.get("HL_PATH") + '/ssl.hdll', applicationDirectory + '/ssl.hdll');
 						}
 					}

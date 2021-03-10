@@ -1855,7 +1855,7 @@ class NativeOpenGLRenderContext
 			case GL.FRAMEBUFFER_BINDING:
 				var data:GLFramebuffer = getInteger(pname);
 				return data;
-			
+
 			case GL.RENDERBUFFER_BINDING:
 				var data:GLRenderbuffer = getInteger(pname);
 				return data;

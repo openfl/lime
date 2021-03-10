@@ -413,7 +413,7 @@ class PlatformSetup
 
 				case "neko", "cs", "uwp", "winjs", "nodejs", "java":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
-				
+
 				case "hl", "hashlink":
 					setupHL();
 
@@ -1103,7 +1103,6 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-
 				if (System.hostPlatform == MAC)
 				{
 					try
@@ -1183,24 +1182,21 @@ class PlatformSetup
 			System.openURL(visualStudioURL);
 		}
 	}
-	
+
 	public static function setupHL():Void
 	{
 		Log.println("\x1b[1mIn order to build HashLink executables you must have");
 		Log.println("HashLink binaries installed.");
 		Log.println("We recommend using version \"1.10.0\"");
 		Log.println("available as a free download from Github.\x1b[0m");
-		
-		
 
 		var answer = CLIHelper.ask("Would you like to visit the download page now?");
 
 		if (answer == YES || answer == ALWAYS)
 		{
 			System.openURL(hashlinkURL);
-			
 		}
-		
+
 		getDefineValue("HL_PATH", "Path to Hashlink binaries.");
 		Log.println("");
 		Log.println("Setup completed");

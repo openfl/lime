@@ -56,11 +56,10 @@ class HTML5AudioSource
 
 		// Calling setCurrentTime causes html5 audio to replay from this position on next frame
 		#if force_html5_audio
-		if(time == 0) setCurrentTime(time);
+		if (time == 0) setCurrentTime(time);
 		#else
 		setCurrentTime(time);
 		#end
-
 		#end
 	}
 

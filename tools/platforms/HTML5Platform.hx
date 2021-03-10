@@ -376,7 +376,7 @@ class HTML5Platform extends PlatformTarget
 
 			if (asset.type != AssetType.TEMPLATE)
 			{
-				if ( /*asset.embed != true &&*/ asset.type != AssetType.FONT)
+				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT)
 				{
 					dir = Path.directory(path);
 					if (!createdDirectories.exists(dir))
