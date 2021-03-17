@@ -305,7 +305,7 @@ class AndroidHelper
 		{
 			var tempFile = System.getTemporaryFile();
 
-			System.runCommand(adbPath, adbName, ["devices", ">", tempFile], true, true);
+			System.runCommand('/bin', 'sh',  ["-c", '${adbPath}${adbName} devices > ${tempFile}'], true, true);
 
 			if (FileSystem.exists(tempFile))
 			{
