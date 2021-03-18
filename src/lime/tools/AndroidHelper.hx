@@ -303,20 +303,14 @@ class AndroidHelper
 
 		if (System.hostPlatform != WINDOWS)
 		{
-			var tempFile = System.getTemporaryFile();
-
-			System.runCommand('/bin', 'sh',  ["-c", '${adbPath}${adbName} devices > ${tempFile}'], true, true);
-
-			if (FileSystem.exists(tempFile))
-			{
-				output = File.getContent(tempFile);
-				FileSystem.deleteFile(tempFile);
-			}
+			/*
+			 * using System.runProcess on *NIX platforms for `adb devices` usually
+			 * hangs when adb also starts the server.
+			 * To avoid this, we start the server beforehand
+			 */
+			System.runCommand(adbPath, adbName, ["start-server"], true);
 		}
-		else
-		{
-			output = System.runProcess(adbPath, adbName, ["devices"], true, true);
-		}
+		output = System.runProcess(adbPath, adbName, ["devices"], true, true);
 
 		if (output != null && output != "")
 		{
