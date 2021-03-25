@@ -692,7 +692,7 @@ class IOSPlatform extends PlatformTarget
 			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", [
 				"-x",
 				"-c",
-				"Merge " + plist,
+				"Merge '" + plist + "'",
 				projectDirectory + "/" + project.app.file + "-Info.plist"
 			]);
 		}
