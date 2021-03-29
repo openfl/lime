@@ -19,10 +19,10 @@ import lime.utils.UInt8Array;
 class NativeAudioSource
 {
 	private static var STREAM_BUFFER_SIZE = 48000;
-	#if !(!native_audio_buffers || macro)
-	private static var STREAM_NUM_BUFFERS = 3;
+	#if (native_audio_buffers && !macro)
+	private static var STREAM_NUM_BUFFERS = Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers"));
 	#else
-	private static var STREAM_NUM_BUFFERS =  Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers"));
+	private static var STREAM_NUM_BUFFERS = 3;
 	#end
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
