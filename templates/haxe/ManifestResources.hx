@@ -33,7 +33,7 @@ import sys.FileSystem;
 
 			rootPath = Reflect.field (config, "rootPath");
 
-			if(!StringTools.endsWith(rootPath, "/")) {
+			if(!StringTools.endsWith (rootPath, "/")) {
 
 				rootPath += "/";
 
@@ -79,9 +79,9 @@ import sys.FileSystem;
 		Assets.registerLibrary ("::library::", library);
 		::else::Assets.libraryPaths["::library::"] = rootPath + "::resourceName::";
 		::end::::end::::if (type == "bundle")::::if (embed)::
-		bundle = AssetBundle.fromBytes(#if flash Bytes.ofData(new __ASSET__::flatName::() #else new __ASSET__::flatName::() #end));
-		library = AssetLibrary.fromBundle(bundle);
-		Assets.registerLibrary("::library::", library);
+		bundle = AssetBundle.fromBytes (#if flash Bytes.ofData (new __ASSET__::flatName:: () #else new __ASSET__::flatName:: () #end));
+		library = AssetLibrary.fromBundle (bundle);
+		Assets.registerLibrary ("::library::", library);
 		::else::Assets.bundlePaths["::library::"] = rootPath + "::resourceName::";
 		::end::::end::::end::::end::
 
