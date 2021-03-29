@@ -294,9 +294,10 @@ class NativeAudioSource
 
 			AL.sourceQueueBuffers(handle, numBuffers, buffers);
 
-			// If openAL runs out of buffer it will stop playback.
-			// This check is here to recover from this and resume playback
-			// this situation typically happens when resizing window or other operations that freezes the main thread
+			// OpenAL can unexpectedly stop playback if the buffers fill up,
+			// which typically happens if an operation (such as resizing a
+			// window) freezes the main thread.
+			// If AL is supposed to be playing but isn't, restart it here.
 			if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED){
 				AL.sourcePlay(handle);
 			}
