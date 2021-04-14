@@ -1392,7 +1392,12 @@ class ProjectXMLParser extends HXProject
 								var valueType = "String";
 								var valueName = attr;
 
-								if (valueName.indexOf(":") != -1)
+								if (valueName.indexOf("-") != -1)
+								{
+									valueType = valueName.substring(valueName.lastIndexOf("-") + 1);
+									valueName = valueName.substring(0, valueName.lastIndexOf("-"));
+								}
+								else if (valueName.indexOf(":") != -1)
 								{
 									valueType = valueName.substring(valueName.lastIndexOf(":") + 1);
 									valueName = valueName.substring(0, valueName.lastIndexOf(":"));
