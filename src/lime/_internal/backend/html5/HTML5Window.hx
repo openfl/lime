@@ -442,7 +442,10 @@ class HTML5Window
 				// TODO: Create a formal API that supports HTML5 file objects
 				if (event.dataTransfer != null && event.dataTransfer.files.length > 0)
 				{
-					parent.onDropFile.dispatch(cast event.dataTransfer.files);
+					for (file in event.dataTransfer.files)
+					{
+						parent.onDropFile.dispatch(js.html.URL.createObjectURL(file));
+					}
 					event.preventDefault();
 					return false;
 				}
