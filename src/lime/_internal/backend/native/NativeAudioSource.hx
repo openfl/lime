@@ -310,7 +310,6 @@ class NativeAudioSource
 		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
 		{
 			AL.sourceStop(handle);
-			setCurrentTime(0);
 		}
 
 		playing = false;
@@ -324,6 +323,8 @@ class NativeAudioSource
 		{
 			timer.stop();
 		}
+		
+		setCurrentTime(0);
 	}
 
 	// Event Handlers
