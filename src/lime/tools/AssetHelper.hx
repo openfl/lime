@@ -295,6 +295,13 @@ class AssetHelper
 		if (asset.type == TEMPLATE) return null;
 		if (asset.library == library.name || (asset.library == null && library.name == DEFAULT_LIBRARY_NAME))
 		{
+			if (output.tell() == 0)
+			{
+				//write some dummy text at the start of the packed asset file just to prevent
+				//the file from beginning with a packed file header.
+				output.writeString("asset-pack");
+			}
+
 			var assetData:Dynamic =
 				{
 					id: asset.id,
