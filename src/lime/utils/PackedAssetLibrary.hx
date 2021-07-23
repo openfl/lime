@@ -243,7 +243,7 @@ import flash.media.Sound;
 			{
 				var basePath = rootPath;
 				if (basePath == null) basePath = "";
-				if (basePath != "") basePath += "/";
+				if (basePath != "" && !StringTools.endsWith(basePath, "/")) basePath += "/";
 
 				var path = basePath + (paths.exists(id) ? paths.get(id) : id);
 				path = __cacheBreak(path);
