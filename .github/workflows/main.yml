@@ -13,6 +13,7 @@ jobs:
 
       - name: Install system dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - uses: krdlab/setup-haxe@v1
@@ -503,6 +504,7 @@ jobs:
       - name: Install system dependencies (Linux)
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - name: Install Haxe dependencies
@@ -636,6 +638,7 @@ jobs:
 
       - name: Install system dependencies
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - uses: krdlab/setup-haxe@v1
@@ -750,6 +753,7 @@ jobs:
       - name: Install system dependencies (Linux)
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: |
+          sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
 
       - name: Install Haxe dependencies
