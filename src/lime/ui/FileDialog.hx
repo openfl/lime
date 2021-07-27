@@ -8,6 +8,10 @@ import lime.graphics.Image;
 import lime.system.BackgroundWorker;
 import lime.utils.ArrayBuffer;
 import lime.utils.Resource;
+#if hl
+import hl.Bytes as HLBytes;
+import hl.NativeArray;
+#end
 #if sys
 import sys.io.File;
 #end
@@ -47,28 +51,67 @@ class FileDialog
 					if (title == null) title = "Open File";
 					#end
 
-					worker.sendComplete(NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath));
+					var path = null;
+					#if hl
+					var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
+					path = @:privateAccess String.fromUTF8(cast bytes);
+					#else
+					path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
+					#end
+
+					worker.sendComplete(path);
 
 				case OPEN_MULTIPLE:
 					#if linux
 					if (title == null) title = "Open Files";
 					#end
 
-					worker.sendComplete(NativeCFFI.lime_file_dialog_open_files(title, filter, defaultPath));
+					var paths = null;
+					#if hl
+					var bytes:NativeArray<HLBytes> = cast NativeCFFI.lime_file_dialog_open_files(title, filter, defaultPath);
+					if (bytes != null)
+					{
+						paths = [];
+						for (i in 0...bytes.length)
+						{
+							paths[i] = @:privateAccess String.fromUTF8(bytes[i]);
+						}
+					}
+					#else
+					paths = NativeCFFI.lime_file_dialog_open_files(title, filter, defaultPath);
+					#end
+
+					worker.sendComplete(paths);
 
 				case OPEN_DIRECTORY:
 					#if linux
 					if (title == null) title = "Open Directory";
 					#end
 
-					worker.sendComplete(NativeCFFI.lime_file_dialog_open_directory(title, filter, defaultPath));
+					var path = null;
+					#if hl
+					var bytes = NativeCFFI.lime_file_dialog_open_directory(title, filter, defaultPath);
+					path = @:privateAccess String.fromUTF8(cast bytes);
+					#else
+					path = NativeCFFI.lime_file_dialog_open_directory(title, filter, defaultPath);
+					#end
+
+					worker.sendComplete(path);
 
 				case SAVE:
 					#if linux
 					if (title == null) title = "Save File";
 					#end
 
-					worker.sendComplete(NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath));
+					var path = null;
+					#if hl
+					var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
+					path = @:privateAccess String.fromUTF8(cast bytes);
+					#else
+					path = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
+					#end
+
+					worker.sendComplete(path);
 			}
 		});
 
@@ -77,7 +120,7 @@ class FileDialog
 			switch (type)
 			{
 				case OPEN, OPEN_DIRECTORY, SAVE:
-					var path:String = @:privateAccess String.fromUTF8(result);
+					var path:String = cast result;
 
 					if (path != null)
 					{
@@ -128,7 +171,15 @@ class FileDialog
 			if (title == null) title = "Open File";
 			#end
 
-			worker.sendComplete(NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath));
+			var path = null;
+			#if hl
+			var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
+			path = @:privateAccess String.fromUTF8(cast bytes);
+			#else
+			path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
+			#end
+
+			worker.sendComplete(path);
 		});
 
 		worker.onComplete.add(function(path:String)
@@ -173,7 +224,15 @@ class FileDialog
 			if (title == null) title = "Save File";
 			#end
 
-			worker.sendComplete(NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath));
+			var path = null;
+			#if hl
+			var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
+			path = @:privateAccess String.fromUTF8(cast bytes);
+			#else
+			path = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath)
+			#end
+
+			worker.sendComplete(path);
 		});
 
 		worker.onComplete.add(function(path:String)
