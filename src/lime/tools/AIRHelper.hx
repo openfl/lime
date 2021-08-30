@@ -117,7 +117,10 @@ class AIRHelper
 
 			if (project.debug)
 			{
-				args.push("-connect");
+				if(project.targetFlags.exists("listen"))
+					args.push("-listen");
+				else
+					args.push("-connect");
 
 				if (project.config.exists("air.connect"))
 				{
