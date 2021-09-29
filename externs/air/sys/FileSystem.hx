@@ -37,5 +37,5 @@ class FileSystem
 
 	public static function deleteDirectory(path:String):Void {}
 
-	public static function readDirectory(path:String):Array<String> {}
+	public static function readDirectory(path:String):Array<String> {return [];}
 }
