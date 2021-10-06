@@ -19,6 +19,27 @@ import sys.io.File;
 import js.html.Blob;
 #end
 
+/**
+	Simple file dialog used for asking user where to save a file, or select
+	files to open.
+
+	Example usage:
+	```haxe
+	var fileDialog = new FileDialog();
+
+	fileDialog.onCancel.add( () -> trace("Canceled.") );
+
+	fileDialog.onSave.add( path -> trace("File saved in " + path) );
+
+	fileDialog.onOpen.add( res -> trace("Size of the file = " + cast(res, haxe.io.Bytes).length) );
+
+	if ( fileDialog.open("jpg", null, "Load file") )
+		trace("Triggered opening file");
+	else
+		trace("This dialog is unsupported.");
+	```
+**/
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -27,14 +48,45 @@ import js.html.Blob;
 @:access(lime.graphics.Image)
 class FileDialog
 {
+
+	/**
+		Handles clicking the "Cancel" button by the user. It is also triggered on unsupported platforms (like HTML5 for `open()`).
+	**/
 	public var onCancel = new Event<Void->Void>();
+
+	/**
+		Triggers when file was successfuly opened. `lime.utils.Resource` is the argument passed
+		which in essence is `haxe.io.Bytes` of the selected file's contents. Triggers only when used with `open()`.
+	**/
 	public var onOpen = new Event<Resource->Void>();
+
+	/**
+		Triggers when file was successfuly saved by the user. Argument is `String` - the path under which the file was saved.
+		Triggers only when used with `save()`.
+	**/
 	public var onSave = new Event<String->Void>();
+
+	/**
+		Selected single file from `browse()`. Passes `String` path to the file.
+	**/
 	public var onSelect = new Event<String->Void>();
+
+	/**
+		Is called with array of selected file paths from `browse()` with `FileDialogType.OPEN_MULTIPLE`.
+	**/
 	public var onSelectMultiple = new Event<Array<String>->Void>();
+
 
 	public function new() {}
 
+	/**
+		Opens a file dialog that will trigger either `onSelect` or `onSelectMultiple` returting path(s) to file(s).
+		@param type 		type of the file dialog: `OPEN`, `SAVE`, `OPEN_DIRECTORY` or `OPEN_MULTIPLE`.
+		@param filter 		filter to be used when browsing for the file. For example for `"*.jpg"` it will be `"jpg"`.
+		@param defaultPath 	directory in which to start browsing. Default is current working directory of the application.
+		@param title 		title to give the dialog window.
+		@return `false` if the dialog is unsupported.
+	**/
 	public function browse(type:FileDialogType = null, filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
 		if (type == null) type = FileDialogType.OPEN;
@@ -160,6 +212,13 @@ class FileDialog
 		#end
 	}
 
+	/**
+		Shows an open file dialog and immediately returns the contents of the file in `onOpen` listeners.
+		@param 	filter 		filter to be used when browsing for the file. For example for `"*.jpg"` it will be `"jpg"`.
+		@param 	defaultPath directory in which to start browsing. Default is current working directory of the application.
+		@param 	title 		title to give the dialog window.
+		@return `false` if the dialog is unsupported.
+	**/
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
 		#if desktop
@@ -207,6 +266,14 @@ class FileDialog
 		#end
 	}
 
+	/**
+		Asks the user where to save the `data`. Will return path of the saved file in `onSave`.
+		@param filter filter to be used when browsing for the file. For example for `"*.jpg"` it will be `"jpg"`.
+		@param defaultPath directory in which to start browsing. Default is current working directory of the application.
+		@param title title to give the dialog window.
+		@param type MIME type of the file. Used only on HTML5 targets.
+		@return `false` if the dialog is unsupported.
+	**/
 	public function save(data:Resource, filter:String = null, defaultPath:String = null, title:String = null, type:String = "application/octet-stream"):Bool
 	{
 		if (data == null)
