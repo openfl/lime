@@ -15,51 +15,56 @@ class URIParser
 	public static var QUERY_REGEX = ~/(?:^|&)([^&=]*)=?([^&]*)/;
 
 	/**
-		The original URI value from the constructor.
+		The original URI value from the constructor if the parsing is successful.
+		Otherwise `null`.
 	**/
 	public var source:String;
 
 	/**
 		In `"https://example.com/page/index.html"` this would be `"https"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var protocol:String;
 
 	/**
-		In `"https://user:password@example.com:443/page/index.html"` this would be `"user:password@example.com:443"`.
-		`null` if unspecified.
+		Hostname and port along with the credentials found in the URI.
+		In `"https://john:secret@example.com:443/page/index.html"` this would be `"user:password@example.com:443"`.
+		`null` if unspecified or malformed.
 	**/
 	public var authority:String;
 
 	/**
-		In `"https://user:password@example.com/page/index.html"` this would be `"user:password"`.
-		`null` if unspecified.
+		Credentials found in this URI.
+		In `"https://john:secret@example.com/page/index.html"` this would be `"john:secret"`.
+		`null` if unspecified or malformed.
 	**/
 	public var userInfo:String;
 
 	/**
-		In `"https://john:password@example.com/index.html"` this would be `"john"`.
-		`null` if unspecified.
+		Username found in this URI.
+		In `"https://john:secret@example.com/index.html"` this would be `"john"`.
+		`null` if unspecified or malformed.
 	**/
 	public var user:String;
 
 	/**
+		Password found in this URI.
 		In `"https://john:secret@example.com/index.html"` this would be `"secret"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var password:String;
 
 	/**
-		Domain/hostname/IP in the address.
+		Hostname (domain/IP) found in this URI.
 		In `"https://subdomain.example.com:443/index.html"` this would be `"subdomain.example.com"`
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var host:String;
 
 	/**
-		Port used in the address as **String**.
+		Port used in the URI as **String**.
 		In `"https://subdomain.example.com:443/index.html"` this would be `"443"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var port:String;
 
@@ -67,7 +72,7 @@ class URIParser
 		Full path after the domain with all the directories and parameters.
 		In `"https://subdomain.example.com/files/website/index.php?action=upload&token=12345#header"`
 		this would be `"/files/website/index.php?action=upload&token=12345#header"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var relative:String;
 
@@ -75,29 +80,29 @@ class URIParser
 		Full path after the domain with directories, without parameters.
 		In `"https://subdomain.example.com/files/website/index.php?action=upload&token=12345#header"`
 		this would be `"/files/website/index.php"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var path:String;
 
 	/**
-		Directory where the target file lays.
+		Directory where the target file pointed by the URI is located.
 		In `"https://subdomain.example.com/files/website/index.php"` this would be `"/files/website/"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var directory:String;
 
 	/**
-		Name of the file pointed.
+		Name of the file pointed by the URI.
 		In `"https://example.com/files/website/index.php?action=upload"` this would be `"index.php"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var file:String;
 
 	/**
-		Query string passed.
+		Query string passed to the URI.
 		In `"https://example.com/index.php?action=upload&token=12345#header"`
 		this would be `"action=upload&token=12345"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var query:String;
 
@@ -106,15 +111,15 @@ class URIParser
 		In `"https://example.com/index.php?action=upload&token=12345#header"` this would be `"header"`.
 		In a more sophisicated example `"https://example.com/index.php?action=upload#header=/abc/1234"`
 		that would be `"header=/abc/1234"`.
-		`null` if unspecified.
+		`null` if unspecified or malformed.
 	**/
 	public var anchor:String;
 
 	/**
-		Value from `query` returned as an array of key pair values.
+		Value from `query` returned as an array of key, pair values.
 		In `"https://example.com/index.php?action=upload&token=12345#header"` the array would contain
-		`{k: "action", v: "upload"}, {k: "token", v: "12345"}`. If query is not present it is just an empty
-		array.
+		`{k: "action", v: "upload"}, {k: "token", v: "12345"}`. If query is not present or the URI
+		is malformed, it is just an empty array.
 
 		```haxe
 		var uri = new URIParser("https://example.com/index.php?action=upload&token=12345#header");
@@ -125,6 +130,11 @@ class URIParser
 	**/
 	public var queryArray:Array<KVPair>;
 
+	/**
+		Parses the given URI with regular expression and stores its parts in class variables.
+		If the URI is malformed and cannot be parsed, the values will be `null`.
+		@param uri the URI to be parsed.
+	**/
 	public function new(uri:String)
 	{
 		if (URI_REGEX.match(uri))
