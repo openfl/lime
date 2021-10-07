@@ -15,19 +15,20 @@ class URIParser
 	public static var QUERY_REGEX = ~/(?:^|&)([^&=]*)=?([^&]*)/;
 
 	/**
-		The original URI value from the constructor if the parsing is successful.
+		The original URI from the constructor if the parsing is successful.
 		Otherwise `null`.
 	**/
 	public var source:String;
 
 	/**
+		Protocol found in this URI.
 		In `"https://example.com/page/index.html"` this would be `"https"`.
 		`null` if unspecified or malformed.
 	**/
 	public var protocol:String;
 
 	/**
-		Hostname and port along with the credentials found in the URI.
+		Hostname and port along with the credentials found in this URI.
 		In `"https://john:secret@example.com:443/page/index.html"` this would be `"user:password@example.com:443"`.
 		`null` if unspecified or malformed.
 	**/
@@ -62,14 +63,14 @@ class URIParser
 	public var host:String;
 
 	/**
-		Port used in the URI as **String**.
+		Port used in this URI as **String**.
 		In `"https://subdomain.example.com:443/index.html"` this would be `"443"`.
 		`null` if unspecified or malformed.
 	**/
 	public var port:String;
 
 	/**
-		Full path after the domain with all the directories and parameters.
+		Full path after the host with all the directories and parameters, starting with `/`.
 		In `"https://subdomain.example.com/files/website/index.php?action=upload&token=12345#header"`
 		this would be `"/files/website/index.php?action=upload&token=12345#header"`.
 		`null` if unspecified or malformed.
@@ -77,7 +78,7 @@ class URIParser
 	public var relative:String;
 
 	/**
-		Full path after the domain with directories, without parameters.
+		Full path after the domain with directories, starting with `/`, without parameters
 		In `"https://subdomain.example.com/files/website/index.php?action=upload&token=12345#header"`
 		this would be `"/files/website/index.php"`.
 		`null` if unspecified or malformed.
@@ -85,7 +86,7 @@ class URIParser
 	public var path:String;
 
 	/**
-		Directory where the target file pointed by the URI is located.
+		Directory where the target file pointed by the URI is located. Starts and ends with `/`.
 		In `"https://subdomain.example.com/files/website/index.php"` this would be `"/files/website/"`.
 		`null` if unspecified or malformed.
 	**/
@@ -107,7 +108,7 @@ class URIParser
 	public var query:String;
 
 	/**
-		The "#hash" part of the query.
+		The "#hash" part of the URI.
 		In `"https://example.com/index.php?action=upload&token=12345#header"` this would be `"header"`.
 		In a more sophisicated example `"https://example.com/index.php?action=upload#header=/abc/1234"`
 		that would be `"header=/abc/1234"`.
