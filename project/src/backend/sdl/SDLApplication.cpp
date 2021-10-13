@@ -116,6 +116,13 @@ namespace lime {
 
 	void SDLApplication::HandleEvent (SDL_Event* event) {
 
+		#if defined(IPHONE) || defined(EMSCRIPTEN)
+
+		int top = 0;
+		gc_set_top_of_stack(&top,false);
+
+		#endif
+
 		switch (event->type) {
 
 			case SDL_USEREVENT:
