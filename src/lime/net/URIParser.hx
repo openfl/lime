@@ -29,7 +29,7 @@ class URIParser
 
 	/**
 		Hostname and port along with the credentials found in this URI.
-		In `"https://john:secret@example.com:443/page/index.html"` this would be `"user:password@example.com:443"`.
+		In `"https://john:secret@example.com:443/page/index.html"` this would be `"john:secret@example.com:443"`.
 		`null` if unspecified or malformed.
 	**/
 	public var authority:String;
@@ -117,16 +117,16 @@ class URIParser
 	public var anchor:String;
 
 	/**
-		Value from `query` returned as an array of key, pair values.
-		In `"https://example.com/index.php?action=upload&token=12345#header"` the array would contain
-		`{k: "action", v: "upload"}, {k: "token", v: "12345"}`. If query is not present or the URI
+		Value from `query` returned as an array of key-value pairs.
+		In `"https://example.com/index.php?action=upload&token=12345#header"` the array would be
+		`[{k: "action", v: "upload"}, {k: "token", v: "12345"}]`. If query is not present or the URI
 		is malformed, it is just an empty array.
 
 		```haxe
 		var uri = new URIParser("https://example.com/index.php?action=upload&token=12345#header");
 		for( q in uri.queryArray )
-			trace( q.k + " = " + q.v); 	// action = upload
-										// token = 12345
+			trace( q.k + " = " + q.v); // action = upload
+			                           // token = 12345
 		```
 	**/
 	public var queryArray:Array<KVPair>;
