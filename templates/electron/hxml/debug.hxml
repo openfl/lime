@@ -6,6 +6,7 @@
 -lib hxnodejs
 -main ApplicationMain ::HAXE_FLAGS::
 
+-D electron
 -D html5
 -D html
 -debug
@@ -17,6 +18,7 @@
 -lib hxnodejs
 -dce full
 
+-D electron
 -D html5
 -D html
 -debug
