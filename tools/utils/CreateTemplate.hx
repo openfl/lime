@@ -123,7 +123,6 @@ class CreateTemplate
 		if (projectName != null && projectName != "")
 		{
 			var defines = new Map<String, Dynamic>();
-			defines.set("create", 1);
 			var project = HXProject.fromHaxelib(new Haxelib(projectName), defines);
 
 			if (project != null)
