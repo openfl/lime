@@ -464,7 +464,7 @@ class AssetLibrary
 		}
 		else if (classTypes.exists(id))
 		{
-			return Future.withValue(Type.createInstance(classTypes.get(id), []));
+			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
 		}
 		else
 		{
