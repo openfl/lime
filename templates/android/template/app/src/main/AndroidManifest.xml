@@ -7,8 +7,6 @@
 	::if (ANDROID_PERMISSIONS != null)::::foreach ANDROID_PERMISSIONS::<uses-permission android:name="::__current__::" />
 	::end::::end::
 	
-	<uses-sdk android:minSdkVersion="::ANDROID_MINIMUM_SDK_VERSION::" android:targetSdkVersion="::ANDROID_TARGET_SDK_VERSION::"/>
-	
 	<application android:label="::APP_TITLE::" ::if (HAS_ICON):: android:icon="@drawable/icon"::end:: android:allowBackup="true" android:theme="@android:style/Theme.NoTitleBar::if (WIN_FULLSCREEN)::.Fullscreen::end::" android:hardwareAccelerated="true">
 
 		::if (WIN_ORIENTATION=="portrait")::
