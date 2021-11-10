@@ -2,7 +2,7 @@
 
 buildscript {
 	repositories {
-		jcenter()
+		mavenCentral()
 		google()
 	}
 	dependencies {
@@ -15,7 +15,7 @@ buildscript {
 
 allprojects {
 	repositories {
-		jcenter()
+		mavenCentral()
 		google()
 	}::if ANDROID_GRADLE_BUILD_DIRECTORY::
 	buildDir = "::ANDROID_GRADLE_BUILD_DIRECTORY::/::APP_FILE::/${project.name}"::end::
@@ -32,7 +32,7 @@ wrapper {
 configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('build.xml').exists()}) {
 	buildscript {
 		repositories {
-			jcenter()
+			mavenCentral()
 			google()
 		}
 		
