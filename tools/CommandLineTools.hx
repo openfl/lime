@@ -1026,6 +1026,8 @@ class CommandLineTools
 			Log.println("  \x1b[3m(flash)\x1b[0m \x1b[1m-web\x1b[0m -- Test Flash target using a web template");
 			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-ios\x1b[0m -- Target iOS instead of AIR desktop");
 			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-android\x1b[0m -- Target Android instead of AIR desktop");
+			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-ios -air-simulator\x1b[0m -- Target AIR simulator as iOS");
+			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-android -air-simulator\x1b[0m -- Target AIR simulator as Android");
 
 			if (command != "run" && command != "trace")
 			{
