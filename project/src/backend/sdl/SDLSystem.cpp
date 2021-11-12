@@ -31,6 +31,10 @@
 #endif
 #endif
 
+#ifdef ANDROID
+#include <android/asset_manager_jni.h>
+#endif
+
 #include <SDL.h>
 #include <string>
 
@@ -578,8 +582,12 @@ namespace lime {
 			{
 				#ifdef ANDROID
 				System::GCEnterBlocking ();
-				FILE* file = ::fdopen (((SDL_RWops*)handle)->hidden.androidio.fd, "rb");
-				::fseek (file, ((SDL_RWops*)handle)->hidden.androidio.offset, 0);
+				int fd;
+				off_t outStart;
+				off_t outLength;
+				fd = AAsset_openFileDescriptor ((AAsset*)(((SDL_RWops*)handle)->hidden.androidio.asset), &outStart, &outLength);
+				FILE* file = ::fdopen (fd, "rb");
+				::fseek (file, outStart, 0);
 				System::GCExitBlocking ();
 				return file;
 				#endif
