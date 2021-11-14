@@ -68,12 +68,12 @@ class BackgroundWorker
 
 	public function sendComplete(message:Dynamic = null):Void
 	{
-		completed = true;
-
 		#if (target.threaded || cpp || neko)
 		__messageQueue.add(MESSAGE_COMPLETE);
 		__messageQueue.add(message);
 		#else
+		completed = true;
+
 		if (!canceled)
 		{
 			canceled = true;
@@ -147,6 +147,7 @@ class BackgroundWorker
 			}
 			else if (message == MESSAGE_COMPLETE)
 			{
+				completed = true;
 				Application.current.onUpdate.remove(__update);
 
 				if (!canceled)
