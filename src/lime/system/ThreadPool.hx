@@ -3,8 +3,7 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
-#if sys
-#if haxe4
+#if target.threaded
 import sys.thread.Deque;
 import sys.thread.Thread;
 #elseif cpp
@@ -13,7 +12,6 @@ import cpp.vm.Thread;
 #elseif neko
 import neko.vm.Deque;
 import neko.vm.Thread;
-#end
 #end
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -30,7 +28,7 @@ class ThreadPool
 	public var onProgress = new Event<Dynamic->Void>();
 	public var onRun = new Event<Dynamic->Void>();
 
-	#if (cpp || neko)
+	#if (target.threaded || cpp || neko)
 	@:noCompletion private var __synchronous:Bool;
 	@:noCompletion private var __workCompleted:Int;
 	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
@@ -45,7 +43,7 @@ class ThreadPool
 
 		currentThreads = 0;
 
-		#if (cpp || neko)
+		#if (target.threaded || cpp || neko)
 		__workQueued = 0;
 		__workCompleted = 0;
 		#end
@@ -67,7 +65,7 @@ class ThreadPool
 	// }
 	public function queue(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (target.threaded || cpp || neko)
 		// TODO: Better way to handle this?
 
 		if (Application.current != null && Application.current.window != null && !__synchronous)
@@ -98,7 +96,7 @@ class ThreadPool
 
 	public function sendComplete(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (target.threaded || cpp || neko)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(COMPLETE, state));
@@ -111,7 +109,7 @@ class ThreadPool
 
 	public function sendError(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (target.threaded || cpp || neko)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(ERROR, state));
@@ -124,7 +122,7 @@ class ThreadPool
 
 	public function sendProgress(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (target.threaded || cpp || neko)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(PROGRESS, state));
@@ -137,7 +135,7 @@ class ThreadPool
 
 	@:noCompletion private function runWork(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (target.threaded || cpp || neko)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(WORK, state));
@@ -150,7 +148,7 @@ class ThreadPool
 		doWork.dispatch(state);
 	}
 
-	#if (cpp || neko)
+	#if (target.threaded || cpp || neko)
 	@:noCompletion private function __doWork():Void
 	{
 		while (true)
