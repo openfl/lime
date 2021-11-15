@@ -29,6 +29,7 @@ class BackgroundWorker
 	public var onError = new Event<Dynamic->Void>();
 	public var onProgress = new Event<Dynamic->Void>();
 
+	@:noCompletion private var __alreadyRun:Bool = false;
 	@:noCompletion private var __runMessage:Dynamic;
 	#if (target.threaded || cpp || neko)
 	@:noCompletion private var __messageQueue:Deque<Dynamic>;
@@ -44,30 +45,13 @@ class BackgroundWorker
 		#if (target.threaded || cpp || neko)
 		if (__workerThread != null)
 		{
-			// Canceling an event eventually stops the
-			// `dispatch()` function, thereby stopping the
-			// background thread. But this will be undone
-			// if the event is reused, such as by calling
-			// `run()` again and creating a new thread. Then
-			// the old thread will continue to completion.
-
-			// `lime.app.Event` wasn't designed with thread
-			// safety as a priority.
+			// Canceling `doWork` causes the background
+			// thread to stop after the active function,
+			// instead of calling the remaining listeners.
 			doWork.cancel();
 
-			// To ensure `doWork` stays canceled, we need
-			// to make a new instance instead of reusing
-			// this one.
-			var clone = new Event<Dynamic -> Void>();
-
-			// Synchronize everything except `canceled`.
-			clone.__listeners = doWork.__listeners.copy();
-			clone.__repeat = doWork.__repeat.copy();
-			@:privateAccess clone.__priorities = doWork.__priorities.copy();
-			doWork = clone;
-
-			// Send a message for `isThreadCanceled()`
-			// to receive.
+			// Send a message to the active function,
+			// telling it to return early.
 			__workerThread.sendMessage(MESSAGE_CANCEL);
 
 			__workerThread = null;
@@ -85,10 +69,12 @@ class BackgroundWorker
 
 	public function run(message:Dynamic = null):Void
 	{
-		cancel();
+		if (__alreadyRun)
+		{
+			return;
+		}
 
-		canceled = false;
-		completed = false;
+		__alreadyRun = true;
 		__runMessage = message;
 
 		#if (target.threaded || cpp || neko)
