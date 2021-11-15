@@ -32,7 +32,7 @@ class BackgroundWorker
 	@:noCompletion private var __alreadyRun:Bool = false;
 	@:noCompletion private var __runMessage:Dynamic;
 	#if (target.threaded || cpp || neko)
-	@:noCompletion private var __messageQueue:Deque<Dynamic>;
+	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
 	@:noCompletion private var __workerThread:Thread;
 	#end
 
@@ -78,7 +78,7 @@ class BackgroundWorker
 		__runMessage = message;
 
 		#if (target.threaded || cpp || neko)
-		__messageQueue = new Deque<Dynamic>();
+		__messageQueue = new Deque();
 		__workerThread = Thread.create(__doWork);
 
 		// TODO: Better way to do this
@@ -97,8 +97,10 @@ class BackgroundWorker
 		#if (target.threaded || cpp || neko)
 		if (__messageQueue != null)
 		{
-			__messageQueue.add(MESSAGE_COMPLETE);
-			__messageQueue.add(message);
+			__messageQueue.add({
+				event: MESSAGE_COMPLETE,
+				message: message
+			});
 		}
 		#else
 		completed = true;
@@ -116,8 +118,10 @@ class BackgroundWorker
 		#if (target.threaded || cpp || neko)
 		if (__messageQueue != null)
 		{
-			__messageQueue.add(MESSAGE_ERROR);
-			__messageQueue.add(message);
+			__messageQueue.add({
+				event: MESSAGE_ERROR,
+				message: message
+			});
 		}
 		#else
 		if (!canceled)
@@ -133,7 +137,9 @@ class BackgroundWorker
 		#if (target.threaded || cpp || neko)
 		if (__messageQueue != null)
 		{
-			__messageQueue.add(message);
+			__messageQueue.add({
+				message: message
+			});
 		}
 		#else
 		if (!canceled)
@@ -166,21 +172,21 @@ class BackgroundWorker
 	@:noCompletion private function __update(deltaTime:Int):Void
 	{
 		#if (target.threaded || cpp || neko)
-		var message = __messageQueue.pop(false);
+		var data = __messageQueue.pop(false);
 
-		if (message != null)
+		if (data != null)
 		{
-			if (message == MESSAGE_ERROR)
+			if (data.event == MESSAGE_ERROR)
 			{
 				Application.current.onUpdate.remove(__update);
 
 				if (!canceled)
 				{
 					canceled = true;
-					onError.dispatch(__messageQueue.pop(false));
+					onError.dispatch(data.message);
 				}
 			}
-			else if (message == MESSAGE_COMPLETE)
+			else if (data.event == MESSAGE_COMPLETE)
 			{
 				completed = true;
 				Application.current.onUpdate.remove(__update);
@@ -188,14 +194,14 @@ class BackgroundWorker
 				if (!canceled)
 				{
 					canceled = true;
-					onComplete.dispatch(__messageQueue.pop(false));
+					onComplete.dispatch(data.message);
 				}
 			}
 			else
 			{
 				if (!canceled)
 				{
-					onProgress.dispatch(message);
+					onProgress.dispatch(data.message);
 				}
 			}
 		}
