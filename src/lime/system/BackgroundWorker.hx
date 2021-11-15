@@ -18,8 +18,8 @@ import neko.vm.Thread;
 #end
 class BackgroundWorker
 {
-	private static var MESSAGE_COMPLETE = "__COMPLETE__";
-	private static var MESSAGE_ERROR = "__ERROR__";
+	private static inline var MESSAGE_COMPLETE = "__COMPLETE__";
+	private static inline var MESSAGE_ERROR = "__ERROR__";
 
 	public var canceled(default, null):Bool;
 	public var completed(default, null):Bool;
