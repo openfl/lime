@@ -20,6 +20,7 @@ class BackgroundWorker
 {
 	private static inline var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static inline var MESSAGE_ERROR = "__ERROR__";
+	private static inline var MESSAGE_CANCEL = "__CANCEL__";
 
 	public var canceled(default, null):Bool;
 	public var completed(default, null):Bool;
@@ -41,12 +42,51 @@ class BackgroundWorker
 		canceled = true;
 
 		#if (target.threaded || cpp || neko)
-		__workerThread = null;
+		if (__workerThread != null)
+		{
+			// Canceling an event eventually stops the
+			// `dispatch()` function, thereby stopping the
+			// background thread. But this will be undone
+			// if the event is reused, such as by calling
+			// `run()` again and creating a new thread. Then
+			// the old thread will continue to completion.
+
+			// `lime.app.Event` wasn't designed with thread
+			// safety as a priority.
+			doWork.cancel();
+
+			// To ensure `doWork` stays canceled, we need
+			// to make a new instance instead of reusing
+			// this one.
+			var clone = new Event<Dynamic -> Void>();
+
+			// Synchronize everything except `canceled`.
+			clone.__listeners = doWork.__listeners.copy();
+			clone.__repeat = doWork.__repeat.copy();
+			@:privateAccess clone.__priorities = doWork.__priorities.copy();
+			doWork = clone;
+
+			// Send a message for `isThreadCanceled()`
+			// to receive.
+			__workerThread.sendMessage(MESSAGE_CANCEL);
+
+			__workerThread = null;
+			__messageQueue = null;
+		}
 		#end
 	}
 
+	#if (target.threaded || cpp || neko)
+	public inline function isThreadCanceled():Bool
+	{
+		return Thread.current().readMessage(false) == MESSAGE_CANCEL;
+	}
+	#end
+
 	public function run(message:Dynamic = null):Void
 	{
+		cancel();
+
 		canceled = false;
 		completed = false;
 		__runMessage = message;
@@ -69,8 +109,11 @@ class BackgroundWorker
 	public function sendComplete(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
-		__messageQueue.add(MESSAGE_COMPLETE);
-		__messageQueue.add(message);
+		if (__messageQueue != null)
+		{
+			__messageQueue.add(MESSAGE_COMPLETE);
+			__messageQueue.add(message);
+		}
 		#else
 		completed = true;
 
@@ -85,8 +128,11 @@ class BackgroundWorker
 	public function sendError(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
-		__messageQueue.add(MESSAGE_ERROR);
-		__messageQueue.add(message);
+		if (__messageQueue != null)
+		{
+			__messageQueue.add(MESSAGE_ERROR);
+			__messageQueue.add(message);
+		}
 		#else
 		if (!canceled)
 		{
@@ -99,7 +145,10 @@ class BackgroundWorker
 	public function sendProgress(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
-		__messageQueue.add(message);
+		if (__messageQueue != null)
+		{
+			__messageQueue.add(message);
+		}
 		#else
 		if (!canceled)
 		{
