@@ -11,6 +11,14 @@ import cpp.vm.Thread;
 #elseif neko
 import neko.vm.Deque;
 import neko.vm.Thread;
+#elseif js
+import haxe.Template;
+import js.html.Blob;
+import js.html.DedicatedWorkerGlobalScope;
+import js.html.MessageEvent;
+import js.html.URL;
+import js.html.Worker;
+import js.Syntax;
 #end
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -21,6 +29,16 @@ class BackgroundWorker
 	private static inline var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static inline var MESSAGE_ERROR = "__ERROR__";
 	private static inline var MESSAGE_CANCEL = "__CANCEL__";
+
+	#if js
+	private static var WORKER_TEMPLATE = new Template(
+		"this.onmessage = function(event) {"
+		+ "this.onmessage = null;"
+		+ "::foreach workers::(::listener::)(event.data);"
+		+ "::end::"
+		+ "};"
+	);
+	#end
 
 	public var canceled(default, null):Bool;
 	public var completed(default, null):Bool;
@@ -34,6 +52,9 @@ class BackgroundWorker
 	#if (target.threaded || cpp || neko)
 	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
 	@:noCompletion private var __workerThread:Thread;
+	#elseif js
+	@:noCompletion private var __worker:Worker;
+	@:noCompletion private var __workerURL:String;
 	#end
 
 	public function new() {}
@@ -56,6 +77,12 @@ class BackgroundWorker
 
 			__workerThread = null;
 			__messageQueue = null;
+		}
+		#elseif js
+		if (__worker != null)
+		{
+			__worker.terminate();
+			__worker = null;
 		}
 		#end
 	}
@@ -87,11 +114,26 @@ class BackgroundWorker
 		{
 			Application.current.onUpdate.add(__update);
 		}
+		#elseif js
+		var workerJS = WORKER_TEMPLATE.execute(
+			{
+				workers: [for(listener in doWork.__listeners)
+					{ listener: Syntax.code("'' + {0}", listener) }
+				]
+			}
+		);
+
+		__workerURL = URL.createObjectURL(new Blob([workerJS]));
+
+		__worker = new Worker(workerURL);
+		__worker.postMessage(__runMessage);
+		__worker.onmessage = __handleMessage;
 		#else
 		__doWork();
 		#end
 	}
 
+	#if js inline #end
 	public function sendComplete(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -102,6 +144,11 @@ class BackgroundWorker
 				message: message
 			});
 		}
+		#elseif js
+		Syntax.code("this.postMessage({0})", {
+			event: MESSAGE_COMPLETE,
+			message: message
+		});
 		#else
 		completed = true;
 
@@ -113,6 +160,7 @@ class BackgroundWorker
 		#end
 	}
 
+	#if js inline #end
 	public function sendError(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -123,6 +171,11 @@ class BackgroundWorker
 				message: message
 			});
 		}
+		#elseif js
+		Syntax.code("this.postMessage({0})", {
+			event: MESSAGE_ERROR,
+			message: message
+		});
 		#else
 		if (!canceled)
 		{
@@ -132,6 +185,7 @@ class BackgroundWorker
 		#end
 	}
 
+	#if js inline #end
 	public function sendProgress(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -141,6 +195,10 @@ class BackgroundWorker
 				message: message
 			});
 		}
+		#elseif js
+		Syntax.code("this.postMessage({0})", {
+			message: message
+		});
 		#else
 		if (!canceled)
 		{
@@ -207,4 +265,25 @@ class BackgroundWorker
 		}
 		#end
 	}
+
+	#if js
+	@:noCompletion private function __handleMessage(event:MessageEvent):Void
+	{
+		if (event.data.event == MESSAGE_COMPLETE)
+		{
+			completed = true;
+			canceled = true;
+			onComplete.dispatch(event.data.message);
+		}
+		else if (event.data.event == MESSAGE_ERROR)
+		{
+			canceled = true;
+			onError.dispatch(event.data.message);
+		}
+		else
+		{
+			onProgress.dispatch(event.data.message);
+		}
+	}
+	#end
 }
