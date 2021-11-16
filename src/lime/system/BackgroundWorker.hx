@@ -64,6 +64,8 @@ class BackgroundWorker
 		canceled = true;
 
 		#if (target.threaded || cpp || neko)
+		Application.current.onUpdate.remove(__update);
+
 		if (__workerThread != null)
 		{
 			// Canceling `doWork` causes the background
