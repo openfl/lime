@@ -232,8 +232,10 @@ class AIRHelper
 
 	public static function run(project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void
 	{
-		if (targetPlatform == ANDROID)
+		var runInAdl = true;
+		if (targetPlatform == ANDROID && !project.targetFlags.exists("air-simulator"))
 		{
+			runInAdl = false;
 			AndroidHelper.initialize(project);
 			AndroidHelper.install(project,
 				FileSystem.fullPath(workingDirectory)
@@ -243,8 +245,9 @@ class AIRHelper
 				+ ".apk");
 			AndroidHelper.run(project.meta.packageName + "/.AppEntry");
 		}
-		else if (targetPlatform == IOS)
+		else if (targetPlatform == IOS && !project.targetFlags.exists("air-simulator"))
 		{
+			runInAdl = false;
 			var args = ["-platform", "ios"];
 
 			if (project.targetFlags.exists("simulator"))
@@ -280,13 +283,45 @@ class AIRHelper
 				System.runCommand("", "open", [simulatorAppPath]);
 			}
 		}
-		else
+		if (runInAdl)
 		{
 			var extDirs:Array<String> = getExtDirs(project);
 
-			var profile:String = extDirs.length > 0 ? "extendedDesktop" : "desktop";
+			var profile:String;
+			if (targetPlatform == ANDROID)
+			{
+				profile = "mobileDevice";
+			}
+			else if (targetPlatform == IOS)
+			{
+				profile = "mobileDevice";
+			}
+			else
+			{
+				profile = extDirs.length > 0 ? "extendedDesktop" : "desktop";
+			}
 
 			var args = ["-profile", profile];
+
+			if (targetPlatform == ANDROID || targetPlatform == IOS)
+			{
+				// these are just generic default dimensions that are a bit
+				// larger than AIR's defaults for the simulator
+				args.push("-XscreenDPI");
+				args.push("252");
+				args.push("-screensize");
+				args.push("480x762:480x800");
+			}
+			if (targetPlatform == ANDROID)
+			{
+				args.push("-XversionPlatform");
+				args.push("AND");
+			}
+			else if (targetPlatform == IOS)
+			{
+				args.push("-XversionPlatform");
+				args.push("IOS");
+			}
 
 			if (!project.debug)
 			{
@@ -321,7 +356,7 @@ class AIRHelper
 
 	public static function trace(project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null)
 	{
-		if (targetPlatform == ANDROID)
+		if (targetPlatform == ANDROID && !project.targetFlags.exists("air-simulator"))
 		{
 			AndroidHelper.initialize(project);
 			var deviceID = null;

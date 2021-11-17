@@ -68,7 +68,7 @@ class AIRPlatform extends FlashPlatform
 
 		// TODO: Should we package on desktop in "deploy" command instead?
 
-		if (targetPlatformType != DESKTOP)
+		if (targetPlatformType != DESKTOP && !project.targetFlags.exists("air-simulator"))
 		{
 			var files = [project.app.file + ".swf"];
 			for (asset in project.assets)

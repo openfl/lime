@@ -206,16 +206,8 @@ class HXProject extends Script
 				platformType = PlatformType.WEB;
 				architectures = [];
 
-				if (!targetFlags.exists("electron"))
-				{
-					defaultWindow.width = 0;
-					defaultWindow.height = 0;
-				}
-				else
-				{
-					// platformType = PlatformType.DESKTOP;
-				}
-
+				defaultWindow.width = 0;
+				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
 				defaultWindow.allowHighDPI = false;
 
