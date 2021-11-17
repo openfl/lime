@@ -39,11 +39,67 @@ class BackgroundWorker
 	private static inline var MESSAGE_ERROR = "__ERROR__";
 	private static inline var MESSAGE_CANCEL = "__CANCEL__";
 
+	/**
+		Indicates that `cancel()`, `sendComplete()`, or
+		`sendError()` has been called. This also means that
+		"send" functions will be ignored from now on.
+
+		Only the main thread should set this value, but
+		workers are encouraged to check it periodically and
+		return if it's ever true.
+
+		While this is not technically thread-safe, canceled
+		workers have effectively no impact on anything, so
+		thread safety is unlikely to matter.
+	**/
 	public var canceled(default, null):Bool;
+
+	/**
+		Indicates that `sendComplete()` has been called
+		at least once.
+	**/
 	public var completed(default, null):Bool;
+
+	/**
+		This function will be executed on the background
+		thread when the main thread calls `run()`. It must
+		take a single argument - the value passed to
+		`run()`. Instead of returning a value, it should
+		call `sendComplete()`, `sendError()`, and/or
+		`sendProgress()` to communicate.
+
+		On most targets, it's possible for the background
+		function to access all memory, just like any other
+		code. However, this may be less safe than using the
+		provided "send" functions.
+
+		HTML5 imposes some extra restrictions. The function
+		can't access outside memory, such as class variables
+		and static functions. Inline variables and functions
+		still work, including the three "send" functions.
+		Using a bound function will not work.
+
+		DCE is highly recommended on HTML5, as it will
+		inline standard functions such as `trace()`.
+	**/
 	@:noCompletion public var doWork(default, null):DoWork;
+
+	/**
+		Dispatched on the main thread when the background
+		thread calls `sendComplete()`.
+	**/
 	public var onComplete = new Event<Dynamic->Void>();
+
+	/**
+		Dispatched on the main thread when the background
+		thread calls `sendError()`.
+	**/
 	public var onError = new Event<Dynamic->Void>();
+
+	/**
+		Dispatched on the main thread when the background
+		thread calls `sendProgress()`.
+	**/
 	public var onProgress = new Event<Dynamic->Void>();
 
 	@:noCompletion private var __alreadyRun:Bool = false;
@@ -58,6 +114,18 @@ class BackgroundWorker
 
 	public function new() {}
 
+	/**
+		[Call this from the main thread.]
+
+		Sets `canceled` and stops reporting events from the
+		background thread.
+
+		On system targets, it's impossible to forcefully
+		stop a thread, so it's up to that thread to check
+		the value of `canceled` and return.
+
+		On HTML5, the thread will be forcefully stopped.
+	**/
 	public function cancel():Void
 	{
 		canceled = true;
@@ -150,6 +218,12 @@ class BackgroundWorker
 		#end
 	}
 
+	/**
+		[Call this from the background thread.]
+
+		Dispatches `onComplete` on the main thread, with
+		the given argument.
+	**/
 	#if js inline #end
 	public function sendComplete(message:Dynamic = null):Void
 	{
@@ -177,6 +251,12 @@ class BackgroundWorker
 		#end
 	}
 
+	/**
+		[Call this from the background thread.]
+
+		Dispatches `onError` on the main thread, with
+		the given argument.
+	**/
 	#if js inline #end
 	public function sendError(message:Dynamic = null):Void
 	{
@@ -202,6 +282,12 @@ class BackgroundWorker
 		#end
 	}
 
+	/**
+		[Call this from the background thread.]
+
+		Dispatches `onProgress` on the main thread,
+		with the given argument.
+	**/
 	#if js inline #end
 	public function sendProgress(message:Dynamic = null):Void
 	{
@@ -290,6 +376,34 @@ class BackgroundWorker
 	#end
 	#end // !macro
 
+	/**
+		[Call this from the main thread.]
+
+		Creates a new thread and calls `doWork` on that
+		thread. Can only be called once, to avoid having
+		old threads interfere with new ones.
+
+		@param doWork The code to run in the background.
+
+		Optional only for backwards compatibility. New code
+		should always supply this.
+
+		Caution: in HTML5, this will be almost completely
+		isolated from the main thread. Closures will be
+		lost, external variables and functions (even from
+		Haxe's standard library) will be undefined, "`this`"
+		will refer to a `DedicatedWorkerGlobalScope`, and
+		even `trace()` will only work with DCE enabled.
+		`doWork` will still have access to `message`,
+		built-in JS functions, inline variables, and inline
+		functions (including all three "send" functions).
+
+		@param message Data to pass to `doWork`. This is
+		especially important in HTML5, as it will be the
+		only data available to the function.
+
+		Optional.
+	**/
 	public macro function run(self:Expr, ?doWork:Expr, ?message:Expr):Expr
 	{
 		function isNull(expr:Expr)
@@ -335,7 +449,16 @@ class BackgroundWorker
 	}
 }
 
+/**
+	A single function that offers the same interface as
+	`lime.app.Event`, for backwards compatibility.
+**/
 abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void {
+	/**
+		Adds the given callback function, to be run on the
+		other thread. Unlike with `lime.app.Event`, only one
+		callback can exist; `add()` overwrites the old one.
+	**/
 	#if (!js && !macro)
 	public inline function add(callback:Dynamic -> Void):Void
 	{
