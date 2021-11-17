@@ -37,7 +37,6 @@ class BackgroundWorker
 	#if !macro
 	private static inline var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static inline var MESSAGE_ERROR = "__ERROR__";
-	private static inline var MESSAGE_CANCEL = "__CANCEL__";
 
 	/**
 		Indicates that `cancel()`, `sendComplete()`, or
@@ -419,7 +418,7 @@ class BackgroundWorker
 
 		if (isNull(doWork))
 		{
-			return macro $self.__run();
+			return macro $self.__run(null, null);
 		}
 
 		if (isNull(message))
