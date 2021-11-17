@@ -427,7 +427,7 @@ class AssetHelper
 			}
 		}
 
-		if (!libraryMap.exists(DEFAULT_LIBRARY_NAME))
+		if (project.assets.length > 0 && !libraryMap.exists(DEFAULT_LIBRARY_NAME))
 		{
 			library = new Library(null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push(library);
