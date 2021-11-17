@@ -127,9 +127,9 @@ class BackgroundWorker
 
 		__workerURL = URL.createObjectURL(new Blob([workerJS]));
 
-		__worker = new Worker(workerURL);
-		__worker.postMessage(__runMessage);
+		__worker = new Worker(__workerURL);
 		__worker.onmessage = __handleMessage;
+		__worker.postMessage(__runMessage);
 		#else
 		__doWork();
 		#end
