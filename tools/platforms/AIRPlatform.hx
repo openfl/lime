@@ -98,7 +98,7 @@ class AIRPlatform extends FlashPlatform
 
 			var targetPath = switch (targetPlatform)
 			{
-				case ANDROID: "bin/" + project.app.file + ".apk";
+				case ANDROID: "bin/" + project.app.file + "." + (project.debug ? "apk" : project.config.getString("air.android_package", "apk"));
 				case IOS: "bin/" + project.app.file + ".ipa";
 				default: "bin/" + project.app.file + ".air";
 			}
