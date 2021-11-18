@@ -1,3 +1,4 @@
+#if !disable_preloader_assets
 package;
 
 
@@ -133,6 +134,8 @@ import sys.FileSystem;
 #end
 
 #end
+#end
+
 #end
 
 #end
