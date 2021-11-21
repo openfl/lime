@@ -473,15 +473,11 @@ private abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 			return macro $self = $callback;
 		}
 
-		// On JS targets, Haxe automatically calls `bind(this)`
-		// for instance functions. This allows them to access
-		// `this`, which is usually good. However,
-		// `BackgroundWorker` can't use bound functions.
-
-		// To combat this, generate an `Expr` that refers to
-		// the callback without invoking `bind()`.
-
-		var unboundCallback = null;
+		// On JS targets, Haxe automatically calls
+		// `bind(this)` for instance functions. This allows
+		// the functions to access `this`, which is usually
+		// good. However, `BackgroundWorker` can't use bound
+		// functions, so a workaround is required.
 
 		switch (callback.expr)
 		{
@@ -496,13 +492,15 @@ private abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 				}
 				else
 				{
-					// Potentially an instance function.
-					var syntax = 'this.$ident';
-					unboundCallback = macro js.Syntax.code($v{syntax});
+					// Potentially an instance function, but
+					// allow Haxe to generate a fallback.
+					var syntax = 'this.$ident || {0}';
+					return macro $self = js.Syntax.code($v{syntax}, $callback);
 				}
 			case EField(e, field):
 				// Field access could refer to a static or
-				// instance function.
+				// instance function. Check what comes
+				// before the dot.
 				switch (Context.typeof(e))
 				{
 					case TType(_):
@@ -510,30 +508,18 @@ private abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 					default:
 						// Likely an instance function.
 						var syntax = '{0}.$field';
-						unboundCallback = macro js.Syntax.code($v{syntax}, $e);
+
+						// Refer to `callback` so that DCE
+						// knows to keep the function. This
+						// reference won't make it into the
+						// final JavaScript.
+						return macro $self = js.Syntax.code($v{syntax}, $e, $callback);
 				}
 			default:
 				// Other cases aren't likely to matter.
 		}
 
-		if (unboundCallback != null)
-		{
-			// Note that DCE can't parse `unboundCallback`,
-			// and may delete the function. Unfortunately
-			// `Compiler.keep()` does nothing, possibly
-			// because it's too late in the compile process.
-			return macro {
-				// Refer directly to the callback. This will
-				// invoke `bind()`.
-				$self = $callback;
-				// Immediately overwrite the bound callback.
-				$self = $unboundCallback;
-			};
-		}
-		else
-		{
-			return macro $self = $callback;
-		}
+		return macro $self = $callback;
 	}
 	#end
 
