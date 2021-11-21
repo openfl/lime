@@ -431,6 +431,9 @@ class BackgroundWorker
 	// Don't advertise that `doWork` is optional.
 	public macro function run(self:Expr, doWork:ExprOf<Dynamic -> Void> #if !display = null #end, ?message:Expr):Expr
 	{
+		#if display
+		return macro null;
+		#else
 		function isNull(expr:Expr)
 		{
 			switch(expr.expr)
@@ -470,6 +473,7 @@ class BackgroundWorker
 
 			$self.__run(doWork, $message);
 		}
+		#end
 	}
 }
 
