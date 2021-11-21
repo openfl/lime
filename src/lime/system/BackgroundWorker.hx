@@ -369,7 +369,7 @@ class BackgroundWorker
 			}
 			else if (data.event == MESSAGE_COMPLETE)
 			{
-				complete = true;
+				completed = true;
 				cancel();
 				onComplete.dispatch(data.message);
 			}
