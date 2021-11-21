@@ -424,7 +424,7 @@ class BackgroundWorker
 		inline Haxe functions (including all three "send"
 		functions), and (3) the contents of `message`. To
 		inline as much as possible, turn on DCE and tag the
-		function with `@:analyzer(optimize)`.
+		function with &commat;`:analyzer(optimize)`.
 
 		@param message (Optional) Data to pass to `doWork`.
 	**/
