@@ -213,8 +213,9 @@ class BackgroundWorker
 	/**
 		[Call this from the background thread.]
 
-		Dispatches `onComplete` on the main thread, with
-		the given argument.
+		Dispatches `onComplete` on the main thread, with the
+		given argument. After completion, all further
+		messages will be ignored.
 	**/
 	#if js inline #end
 	public function sendComplete(message:Dynamic = null):Void
@@ -248,8 +249,9 @@ class BackgroundWorker
 	/**
 		[Call this from the background thread.]
 
-		Dispatches `onError` on the main thread, with
-		the given argument.
+		Dispatches `onError` on the main thread, with the
+		given argument. After an error, all further messages
+		will be ignored.
 	**/
 	#if js inline #end
 	public function sendError(message:Dynamic = null):Void
@@ -281,8 +283,8 @@ class BackgroundWorker
 	/**
 		[Call this from the background thread.]
 
-		Dispatches `onProgress` on the main thread,
-		with the given argument.
+		Dispatches `onProgress` on the main thread, with the
+		given argument.
 	**/
 	#if js inline #end
 	public function sendProgress(message:Dynamic = null):Void
@@ -322,31 +324,18 @@ class BackgroundWorker
 		{
 			if (data.event == MESSAGE_ERROR)
 			{
-				Application.current.onUpdate.remove(__update);
-
-				if (!canceled)
-				{
-					canceled = true;
-					onError.dispatch(data.message);
-				}
+				cancel();
+				onError.dispatch(data.message);
 			}
 			else if (data.event == MESSAGE_COMPLETE)
 			{
-				completed = true;
-				Application.current.onUpdate.remove(__update);
-
-				if (!canceled)
-				{
-					canceled = true;
-					onComplete.dispatch(data.message);
-				}
+				complete = true;
+				cancel();
+				onComplete.dispatch(data.message);
 			}
 			else
 			{
-				if (!canceled)
-				{
-					onProgress.dispatch(data.message);
-				}
+				onProgress.dispatch(data.message);
 			}
 		}
 		#end
@@ -355,16 +344,20 @@ class BackgroundWorker
 	#if js
 	@:noCompletion private function __handleMessage(event:MessageEvent):Void
 	{
-		if (event.data.event == MESSAGE_COMPLETE)
+		if (canceled)
 		{
-			completed = true;
-			canceled = true;
-			onComplete.dispatch(event.data.message);
+			return;
 		}
 		else if (event.data.event == MESSAGE_ERROR)
 		{
 			canceled = true;
 			onError.dispatch(event.data.message);
+		}
+		else if (event.data.event == MESSAGE_COMPLETE)
+		{
+			completed = true;
+			canceled = true;
+			onComplete.dispatch(event.data.message);
 		}
 		else
 		{
