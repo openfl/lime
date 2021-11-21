@@ -101,7 +101,6 @@ class BackgroundWorker
 	**/
 	public var onProgress = new Event<Dynamic->Void>();
 
-	@:noCompletion private var __alreadyRun:Bool = false;
 	@:noCompletion private var __runMessage:Dynamic;
 	#if (target.threaded || cpp || neko)
 	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
@@ -148,11 +147,6 @@ class BackgroundWorker
 
 	@:noCompletion @:dox(hide) public function __run(doWork:Dynamic -> Void, message:Dynamic):Void
 	{
-		if (__alreadyRun)
-		{
-			return;
-		}
-
 		if (doWork != null)
 		{
 			this.doWork = doWork;
@@ -163,7 +157,6 @@ class BackgroundWorker
 			return;
 		}
 
-		__alreadyRun = true;
 		__runMessage = message;
 
 		#if (target.threaded || cpp || neko)
@@ -227,6 +220,8 @@ class BackgroundWorker
 	public function sendComplete(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
+		if (Thread.current() != __workerThread) return;
+
 		if (__messageQueue != null)
 		{
 			__messageQueue.add({
@@ -260,6 +255,8 @@ class BackgroundWorker
 	public function sendError(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
+		if (Thread.current() != __workerThread) return;
+
 		if (__messageQueue != null)
 		{
 			__messageQueue.add({
@@ -291,6 +288,8 @@ class BackgroundWorker
 	public function sendProgress(message:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
+		if (Thread.current() != __workerThread) return;
+
 		if (__messageQueue != null)
 		{
 			__messageQueue.add({
