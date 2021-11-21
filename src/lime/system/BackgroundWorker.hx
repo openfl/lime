@@ -28,6 +28,68 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 #end
+
+/**
+	A simple way to run a task on another thread. If threads
+	threads aren't available, `BackgroundWorker` falls back
+	to synchronous code, running the function immediately.
+	Use `#if (target.threaded || js)` to check if threads
+	are supported.
+
+	The worker function can return data in a thread-safe
+	manner using the `sendProgress()`, `sendError()`, and
+	`sendComplete()` functions. The main thread receives
+	this data via the `onProgress`, `onError`, and
+	`onComplete` events.
+
+	Sample usage:
+
+		private var bgWorker:BackgroundWorker;
+
+		@:analyzer(optimize)
+		private static function makeItems(_):Void {
+			var items:Array<Item> = [];
+
+			try
+			{
+				for (i in 0...3000)
+				{
+					items.push(Item.generateRandomItem());
+
+					if (i % 100 == 0)
+					{
+						bgWorker.sendProgress(i);
+					}
+				}
+			}
+			catch (e:Dynamic)
+			{
+				bgWorker.sendError(e);
+				return;
+			}
+
+			bgWorker.sendComplete(items);
+		}
+
+		public function new() {
+			bgWorker = new BackgroundWorker();
+
+			bgWorker.onProgress(function(count:Int) {
+				trace(count + " items done!");
+			});
+
+			bgWorker.onError.add(function(error:Dynamic) {
+				trace("Error: " + Std.string(error));
+			});
+
+			bgWorker.onComplete(function(items:Array<Item>) {
+				this.items = items;
+				trace('Created ${items.length} items!');
+			});
+
+			bgWorker.run(makeItems);
+		}
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -45,11 +107,8 @@ class BackgroundWorker
 
 		Only the main thread should set this value, but
 		workers are encouraged to check it periodically and
-		return if it's ever true.
-
-		While this is not technically thread-safe, canceled
-		workers have effectively no impact on anything, so
-		thread safety is unlikely to matter.
+		return if it's ever true. (This is technically not
+		thread-safe, but it's very unlikely to matter.)
 	**/
 	public var canceled(default, null):Bool;
 
@@ -59,45 +118,26 @@ class BackgroundWorker
 	**/
 	public var completed(default, null):Bool;
 
-	/**
-		This function will be executed on the background
-		thread when the main thread calls `run()`. It must
-		take a single argument - the value passed to
-		`run()`. Instead of returning a value, it should
-		call `sendComplete()`, `sendError()`, and/or
-		`sendProgress()` to communicate.
-
-		On most targets, it's possible for the background
-		function to access all memory, just like any other
-		code. However, this may be less safe than using the
-		provided "send" functions.
-
-		HTML5 imposes some extra restrictions. The function
-		can't access outside memory, such as class variables
-		and static functions. Inline variables and functions
-		still work, including the three "send" functions.
-		Using a bound function will not work.
-
-		DCE is highly recommended on HTML5, as it will
-		inline standard functions such as `trace()`.
-	**/
 	@:noCompletion public var doWork(default, null):DoWork;
 
 	/**
 		Dispatched on the main thread when the background
-		thread calls `sendComplete()`.
+		thread calls `sendComplete()`. For best results, add
+		all listeners before calling `run()`.
 	**/
 	public var onComplete = new Event<Dynamic->Void>();
 
 	/**
 		Dispatched on the main thread when the background
-		thread calls `sendError()`.
+		thread calls `sendError()`. For best results, add
+		all listeners before calling `run()`.
 	**/
 	public var onError = new Event<Dynamic->Void>();
 
 	/**
 		Dispatched on the main thread when the background
-		thread calls `sendProgress()`.
+		thread calls `sendProgress()`. For best results, add
+		all listeners before calling `run()`.
 	**/
 	public var onProgress = new Event<Dynamic->Void>();
 
@@ -370,32 +410,26 @@ class BackgroundWorker
 	/**
 		[Call this from the main thread.]
 
-		Creates a new thread and calls `doWork` on that
-		thread. Can only be called once, to avoid having
-		old threads interfere with new ones.
+		Creates the background thread.
 
-		@param doWork The code to run in the background.
+		@param doWork A `Dynamic -> Void` function to run in
+		the background. It will receive `message` as its one
+		argument, and it can call `sendComplete()`,
+		`sendError()`, and/or `sendProgress()` to send data.
 
-		Optional only for backwards compatibility. New code
-		should always supply this.
+		Caution: in HTML5, workers are almost completely
+		isolated from the main thread. They will have
+		access to three main things: (1) certain JavaScript
+		functions (see `DedicatedWorkerGlobalScope`), (2)
+		inline Haxe functions (including all three "send"
+		functions), and (3) the contents of `message`. To
+		inline as much as possible, turn on DCE and tag the
+		function with `@:analyzer(optimize)`.
 
-		Caution: in HTML5, this will be almost completely
-		isolated from the main thread. Closures will be
-		lost, external variables and functions (even from
-		Haxe's standard library) will be undefined, "`this`"
-		will refer to a `DedicatedWorkerGlobalScope`, and
-		even `trace()` will only work with DCE enabled.
-		`doWork` will still have access to `message`,
-		built-in JS functions, inline variables, and inline
-		functions (including all three "send" functions).
-
-		@param message Data to pass to `doWork`. This is
-		especially important in HTML5, as it will be the
-		only data available to the function.
-
-		Optional.
+		@param message (Optional) Data to pass to `doWork`.
 	**/
-	public macro function run(self:Expr, ?doWork:Expr, ?message:Expr):Expr
+	// Don't advertise that `doWork` is optional.
+	public macro function run(self:Expr, doWork:ExprOf<Dynamic -> Void> #if !display = null #end, ?message:Expr):Expr
 	{
 		function isNull(expr:Expr)
 		{
@@ -418,11 +452,10 @@ class BackgroundWorker
 			switch (Context.typeof(doWork))
 			{
 				case TFun(_):
-					// The one argument is indeed `doWork`.
+					// The one argument is `doWork`.
 					message = macro null;
 				default:
-					// The one argument was supposed to be
-					// `message`.
+					// The one argument is `message`.
 					message = doWork;
 					return macro $self.__run(null, $message);
 			}
@@ -431,8 +464,8 @@ class BackgroundWorker
 		return macro {
 			var doWork;
 
-			// Assign the function to the local variable
-			// without binding it.
+			// Set `doWork = $doWork`, with some extra
+			// JS-specific checks.
 			${DoWork.add(macro doWork, doWork)};
 
 			$self.__run(doWork, $message);
