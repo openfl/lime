@@ -452,13 +452,13 @@ class BackgroundWorker
 	A single function that offers the same interface as
 	`lime.app.Event`, for backwards compatibility.
 **/
-abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void {
+private abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void {
 	/**
 		Adds the given callback function, to be run on the
 		other thread. Unlike with `lime.app.Event`, only one
 		callback can exist; `add()` overwrites the old one.
 	**/
-	#if (!js && !macro)
+	#if (display || !js && !macro)
 	public inline function add(callback:Dynamic -> Void):Void
 	{
 		this = callback;
