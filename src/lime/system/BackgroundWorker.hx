@@ -197,6 +197,8 @@ class BackgroundWorker
 			return;
 		}
 
+		cancel();
+
 		__runMessage = message;
 
 		#if (target.threaded || cpp || neko)
