@@ -141,7 +141,6 @@ class BackgroundWorker
 	**/
 	public var onProgress = new Event<Dynamic->Void>();
 
-	@:noCompletion private var __runMessage:Dynamic;
 	#if (target.threaded || cpp || neko)
 	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
 	@:noCompletion private var __workerThread:Thread;
@@ -187,23 +186,17 @@ class BackgroundWorker
 
 	@:noCompletion @:dox(hide) public function __run(doWork:Dynamic -> Void, message:Dynamic):Void
 	{
-		if (doWork != null)
+		if (doWork == null)
 		{
-			this.doWork = doWork;
-		}
-
-		if (this.doWork == null)
-		{
-			return;
+			doWork = this.doWork;
+			if (doWork == null) return;
 		}
 
 		cancel();
 
-		__runMessage = message;
-
 		#if (target.threaded || cpp || neko)
 		__messageQueue = new Deque();
-		__workerThread = Thread.create(__doWork);
+		__workerThread = Thread.create(doWork.bind(message));
 
 		// TODO: Better way to do this
 
@@ -212,7 +205,7 @@ class BackgroundWorker
 			Application.current.onUpdate.add(__update);
 		}
 		#elseif js
-		var stringListener:String = Syntax.code("{0}.toString()", this.doWork);
+		var stringListener:String = Syntax.code("{0}.toString()", doWork);
 
 		// It is actually possible to unbind a function, but
 		// this requires calling it, and the whole point is
@@ -246,9 +239,9 @@ class BackgroundWorker
 
 		__worker = new Worker(__workerURL);
 		__worker.onmessage = __handleMessage;
-		__worker.postMessage(__runMessage);
+		__worker.postMessage(message);
 		#else
-		__doWork();
+		doWork(message);
 		#end
 	}
 
@@ -350,11 +343,6 @@ class BackgroundWorker
 			onProgress.dispatch(message);
 		}
 		#end
-	}
-
-	@:noCompletion private function __doWork():Void
-	{
-		doWork.dispatch(__runMessage);
 	}
 
 	@:noCompletion private function __update(deltaTime:Int):Void
@@ -583,5 +571,9 @@ private abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 	@:noCompletion @:dox(hide) public inline function removeAll():Void
 	{
 		this = null;
+	}
+
+	public inline function bind(arg) {
+		return this.bind(arg);
 	}
 }
