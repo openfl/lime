@@ -13,7 +13,6 @@ import cpp.vm.Thread;
 import neko.vm.Deque;
 import neko.vm.Thread;
 #elseif js
-import haxe.Template;
 import js.html.Blob;
 import js.html.DedicatedWorkerGlobalScope;
 import js.html.MessageEvent;
@@ -184,7 +183,7 @@ class BackgroundWorker
 		#end
 	}
 
-	@:noCompletion @:dox(hide) public function __run(doWork:Dynamic -> Void, message:Dynamic):Void
+	@:noCompletion @:dox(hide) public function __run(doWork:DoWork, message:Dynamic):Void
 	{
 		if (doWork == null)
 		{
@@ -206,35 +205,11 @@ class BackgroundWorker
 			Application.current.onUpdate.add(__update);
 		}
 		#elseif js
-		var stringListener:String = Syntax.code("{0}.toString()", doWork);
-
-		// It is actually possible to unbind a function, but
-		// this requires calling it, and the whole point is
-		// not to call it on the main thread.
-		// https://www.quora.com/In-Javascript-how-would-I-extract-the-actual-function-when-provided-only-a-bound-function-Or-is-this-not-possible/answer/Andrew-Smith-1766
-		/* if (stringListener.indexOf("[native code]") >= 0)
-		{
-			stringListener = Syntax.code("new {0}().constructor.toString()", doWork);
-		} */
-
-		// Unless `@:analyzer(optimize)` was enabled,
-		// `postMessage` likely still includes an unneeded
-		// reference to outside code.
-		stringListener = ~/var _this = .+?;\s*postMessage/g
-			.replace(stringListener, "postMessage");
-
 		var workerJS:String =
 			"this.onmessage = function(messageEvent) {\n"
 			+ "    this.onmessage = null;\n"
-			+ '    (async $stringListener)(messageEvent.data);\n'
+			+ '    (async ${doWork.toString()})(messageEvent.data);\n'
 			+ "};";
-		// Compile with -verbose to view.
-		Log.verbose("Generated script:\n" + workerJS);
-
-		if (stringListener.indexOf("[native code]") >= 0)
-		{
-			throw "BackgroundWorker doesn't support bound functions. Try a static function instead.";
-		}
 
 		__workerURL = URL.createObjectURL(new Blob([workerJS]));
 
@@ -573,7 +548,40 @@ abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void {
 		this = null;
 	}
 
-	public inline function bind(arg) {
+	public inline function bind(arg)
+	{
 		return this.bind(arg);
 	}
+
+	#if js
+	@:noCompletion @:to public function toString():String
+	{
+		var script:String = Syntax.code("{0}.toString()", this);
+
+		// It is actually possible to unbind a function, but
+		// this requires calling it, and the whole point is
+		// not to call it on the main thread.
+		// https://www.quora.com/In-Javascript-how-would-I-extract-the-actual-function-when-provided-only-a-bound-function-Or-is-this-not-possible/answer/Andrew-Smith-1766
+		/* if (string.indexOf("[native code]") >= 0)
+		{
+			string = Syntax.code("new {0}().constructor.toString()", doWork);
+		} */
+
+		// Unless `@:analyzer(optimize)` was enabled,
+		// `postMessage` likely still includes an unneeded
+		// reference to outside code.
+		script = ~/var _this = .+?;\s*postMessage/g
+			.replace(script, "postMessage");
+
+		// Compile with -verbose to view.
+		Log.verbose("Generated script:\n" + script);
+
+		if (script.indexOf("[native code]") >= 0)
+		{
+			throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. Try a static function instead.";
+		}
+
+		return script;
+	}
+	#end
 }
