@@ -193,6 +193,7 @@ class BackgroundWorker
 		}
 
 		cancel();
+		canceled = false;
 
 		#if (target.threaded || cpp || neko)
 		__messageQueue = new Deque();
