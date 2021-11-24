@@ -400,26 +400,25 @@ class BackgroundWorker
 	/**
 		[Call this from the main thread.]
 
-		Creates the background thread.
+		Creates a background thread to run `doWork`. The
+		function will receive `message` as an argument, and
+		it can call `sendComplete()`, `sendError()`, and/or
+		`sendProgress()` to send data.
 
-		@param doWork A `Dynamic -> Void` function to run in
-		the background. It will receive `message` as its one
-		argument, and it can call `sendComplete()`,
-		`sendError()`, and/or `sendProgress()` to send data.
-
-		Caution: in HTML5, workers are almost completely
+		**Caution:** in HTML5, workers are almost completely
 		isolated from the main thread. They will have
 		access to three main things: (1) certain JavaScript
 		functions (see `DedicatedWorkerGlobalScope`), (2)
 		inline Haxe functions (including all three "send"
 		functions), and (3) the contents of `message`. To
 		inline as much as possible, turn on DCE and tag the
-		function with &commat;`:analyzer(optimize)`.
-
-		@param message (Optional) Data to pass to `doWork`.
+		function with `@:analyzer(optimize)`.
+		@param doWork A `Dynamic -> Void` function to run in
+		the background. (Optional only for backwards
+		compatibility. Treat this as a required argument.)
+		@param message Data to pass to `doWork`.
 	**/
-	// Don't advertise that `doWork` is optional.
-	public macro function run(self:Expr, doWork:ExprOf<Dynamic -> Void> #if !display = null #end, ?message:Expr):Expr
+	public macro function run(self:Expr, ?doWork:ExprOf<Dynamic -> Void>, ?message:Expr):Expr
 	{
 		#if display
 		return macro null;
