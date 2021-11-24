@@ -317,11 +317,14 @@ import lime.utils.Log;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:dox(hide) private class FutureWork
+@:dox(hide) class FutureWork
 {
 	private static var threadPool:ThreadPool;
+	public static var minThreads(get, set):Int;
+	public static var maxThreads(get, set):Int;
 
-	public static function queue(state:Dynamic = null):Void
+	@:allow(lime.app.Future)
+	private static function queue(state:Dynamic = null):Void
 	{
 		if (threadPool == null)
 		{
@@ -356,5 +359,26 @@ import lime.utils.Log;
 	private static function threadPool_onError(state:Dynamic):Void
 	{
 		state.promise.error(state.error);
+	}
+
+	// Getters & Setters
+	@:noCompletion private static inline function get_minThreads():Int
+	{
+		return threadPool.minThreads;
+	}
+
+	@:noCompletion private static inline function set_minThreads(value:Int):Int
+	{
+		return threadPool.minThreads = value;
+	}
+
+	@:noCompletion private static inline function get_maxThreads():Int
+	{
+		return threadPool.maxThreads;
+	}
+
+	@:noCompletion private static inline function set_maxThreads(value:Int):Int
+	{
+		return threadPool.maxThreads = value;
 	}
 }
