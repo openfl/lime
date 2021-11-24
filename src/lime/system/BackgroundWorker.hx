@@ -179,6 +179,8 @@ class BackgroundWorker
 		{
 			__worker.terminate();
 			__worker = null;
+			URL.revokeObjectURL(__workerURL);
+			__workerURL = null;
 		}
 		#end
 	}
@@ -209,6 +211,7 @@ class BackgroundWorker
 			"this.onmessage = function(messageEvent) {\n"
 			+ "    this.onmessage = null;\n"
 			+ '    (async ${doWork.toString()})(messageEvent.data);\n'
+			+ "    this.close();\n"
 			+ "};";
 
 		__workerURL = URL.createObjectURL(new Blob([workerJS]));
@@ -358,12 +361,18 @@ class BackgroundWorker
 		{
 			canceled = true;
 			onError.dispatch(event.data.message);
+
+			URL.revokeObjectURL(__workerURL);
+			__workerURL = null;
 		}
 		else if (event.data.event == MESSAGE_COMPLETE)
 		{
 			completed = true;
 			canceled = true;
 			onComplete.dispatch(event.data.message);
+
+			URL.revokeObjectURL(__workerURL);
+			__workerURL = null;
 		}
 		else
 		{
