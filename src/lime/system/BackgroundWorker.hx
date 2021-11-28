@@ -117,7 +117,7 @@ class BackgroundWorker
 	**/
 	public var completed(default, null):Bool;
 
-	@:noCompletion public var doWork(default, null):ThreadFunction;
+	@:noCompletion public var doWork:ThreadFunction;
 
 	/**
 		Dispatched on the main thread when the background
@@ -210,7 +210,7 @@ class BackgroundWorker
 		var workerJS:String =
 			"this.onmessage = function(messageEvent) {\n"
 			+ "    this.onmessage = null;\n"
-			+ '    (async ${doWork.toString()})(messageEvent.data);\n'
+			+ '    (async $doWork)(messageEvent.data);\n'
 			+ "    this.close();\n"
 			+ "};";
 
@@ -462,7 +462,11 @@ class BackgroundWorker
 	backwards compatibility. However, it can only store one
 	function at once; `add()` overwrites the old function.
 **/
+#if !js
 abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
+#else
+abstract ThreadFunction(String) from String to String
+#end
 {
 	/**
 		Adds the given callback function, to be run on the
@@ -491,6 +495,8 @@ abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 		// good. However, `BackgroundWorker` can't use bound
 		// functions, so a workaround is required.
 
+		var convert:Expr = macro js.Syntax.code("{0}.toString()", $callback);
+
 		switch (callback.expr)
 		{
 			case EConst(CIdent(ident)):
@@ -506,8 +512,8 @@ abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 				{
 					// Potentially an instance function, but
 					// allow Haxe to generate a fallback.
-					var syntax = 'this.$ident || {0}';
-					return macro $self = js.Syntax.code($v{syntax}, $callback);
+					var syntax = '(this.$ident || {0}).toString()';
+					convert = macro js.Syntax.code($v{syntax}, $callback);
 				}
 			case EField(e, field):
 				// Field access could refer to a static or
@@ -519,19 +525,48 @@ abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 						// Static function - fine as-is.
 					default:
 						// Likely an instance function.
-						var syntax = '{0}.$field';
+						var syntax = '{0}.$field.toString()';
 
 						// Refer to `callback` so that DCE
 						// knows to keep the function. This
 						// reference won't make it into the
 						// final JavaScript.
-						return macro $self = js.Syntax.code($v{syntax}, $e, $callback);
+						convert = macro js.Syntax.code($v{syntax}, $e, $callback);
+
+						// If Syntax.code() throws an error,
+						// try this syntax string instead:
+						// '({0}.$field || {1}).toString()`
 				}
 			default:
 				// Other cases aren't likely to matter.
 		}
 
-		return macro $self = $callback;
+		return macro {
+			var script:String = $convert;
+
+			// Unless `@:analyzer(optimize)` was enabled,
+			// all of the "send" functions will likely
+			// generate a reference to outside code.
+			script = ~/var _this = .+?;\s*postMessage/g
+				.replace(script, "postMessage");
+
+			// It is actually possible to unbind a function, but
+			// this requires calling it, and the whole point is
+			// not to call it on the main thread.
+			// https://www.quora.com/In-Javascript-how-would-I-extract-the-actual-function-when-provided-only-a-bound-function-Or-is-this-not-possible/answer/Andrew-Smith-1766
+			/* if (this.indexOf("[native code]") >= 0)
+			{
+				this = js.Syntax.code("new {0}().constructor.toString()", script);
+			} */
+
+			if (script.indexOf("[native code]") >= 0)
+			{
+				throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. Try a static function instead of "
+					+ $v{new haxe.macro.Printer().printExpr(callback)} + ".";
+			}
+
+			$self = script;
+		};
 	}
 	#end
 
@@ -542,14 +577,21 @@ abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 	{
 		if (this != null)
 		{
+			#if !js
 			this(message);
+			#else
+			js.Syntax.code("Function({0})()", this);
+			#end
 		}
 	}
 
 	@:noCompletion @:dox(hide) public inline function has(callback:Dynamic -> Void):Bool
 	{
-		// Not fully compatible with JS.
+		#if !js
 		return Reflect.compareMethods(this, callback);
+		#else
+		return this != null;
+		#end
 	}
 
 	@:noCompletion @:dox(hide) public inline function remove(callback:Dynamic -> Void):Void
@@ -565,40 +607,10 @@ abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 		this = null;
 	}
 
+	#if !js
 	public inline function bind(arg)
 	{
 		return this.bind(arg);
-	}
-
-	#if js
-	@:noCompletion @:to public function toString():String
-	{
-		var script:String = Syntax.code("{0}.toString()", this);
-
-		// It is actually possible to unbind a function, but
-		// this requires calling it, and the whole point is
-		// not to call it on the main thread.
-		// https://www.quora.com/In-Javascript-how-would-I-extract-the-actual-function-when-provided-only-a-bound-function-Or-is-this-not-possible/answer/Andrew-Smith-1766
-		/* if (string.indexOf("[native code]") >= 0)
-		{
-			string = Syntax.code("new {0}().constructor.toString()", doWork);
-		} */
-
-		// Unless `@:analyzer(optimize)` was enabled,
-		// `postMessage` likely still includes an unneeded
-		// reference to outside code.
-		script = ~/var _this = .+?;\s*postMessage/g
-			.replace(script, "postMessage");
-
-		// Compile with -verbose to view.
-		Log.verbose("Generated script:\n" + script);
-
-		if (script.indexOf("[native code]") >= 0)
-		{
-			throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. Try a static function instead.";
-		}
-
-		return script;
 	}
 	#end
 }
