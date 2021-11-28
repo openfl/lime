@@ -401,7 +401,9 @@ class BackgroundWorker
 		@param doWork A `Dynamic -> Void` function to run in
 		the background. (Optional only for backwards
 		compatibility. Treat this as a required argument.)
-		@param message Data to pass to `doWork`.
+		@param message Data to pass to `doWork`. In HTML5, this
+		cannot include functions and certain other data types:
+		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 	**/
 	public macro function run(self:Expr, ?doWork:ExprOf<Dynamic -> Void>, ?message:Expr):Expr
 	{
