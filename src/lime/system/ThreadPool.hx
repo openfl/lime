@@ -3,7 +3,7 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
-import lime.system.BackgroundWorker.DoWork;
+import lime.system.BackgroundWorker.ThreadFunction;
 #if target.threaded
 import sys.thread.Deque;
 import sys.thread.Thread;
@@ -21,7 +21,7 @@ import neko.vm.Thread;
 class ThreadPool
 {
 	public var currentThreads(default, null):Int;
-	public var doWork:DoWork;
+	public var doWork:ThreadFunction;
 	public var maxThreads:Int;
 	public var minThreads:Int;
 	public var onComplete = new Event<Dynamic->Void>();

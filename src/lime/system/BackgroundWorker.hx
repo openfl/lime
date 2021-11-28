@@ -117,7 +117,7 @@ class BackgroundWorker
 	**/
 	public var completed(default, null):Bool;
 
-	@:noCompletion public var doWork(default, null):DoWork;
+	@:noCompletion public var doWork(default, null):ThreadFunction;
 
 	/**
 		Dispatched on the main thread when the background
@@ -185,7 +185,7 @@ class BackgroundWorker
 		#end
 	}
 
-	@:noCompletion @:dox(hide) public function __run(doWork:DoWork, message:Dynamic):Void
+	@:noCompletion @:dox(hide) public function __run(doWork:ThreadFunction, message:Dynamic):Void
 	{
 		if (doWork == null)
 		{
@@ -443,7 +443,7 @@ class BackgroundWorker
 
 			// Set `doWork = $doWork`, with some extra
 			// JS-specific checks.
-			${DoWork.add(macro doWork, doWork)};
+			${ThreadFunction.add(macro doWork, doWork)};
 
 			$self.__run(doWork, $message);
 		}
@@ -452,10 +452,16 @@ class BackgroundWorker
 }
 
 /**
-	A single function that offers the same interface as
-	`lime.app.Event`, for backwards compatibility.
+	A function that can be called on another thread. In
+	JavaScript, calling a function on another thread
+	requires extra work, which is performed automatically.
+
+	`ThreadFunction` also provides an `Event`-like API for
+	backwards compatibility. However, it can only store one
+	function at once; `add()` overwrites the old function.
 **/
-abstract DoWork(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void {
+abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
+{
 	/**
 		Adds the given callback function, to be run on the
 		other thread. Unlike with `lime.app.Event`, only one
