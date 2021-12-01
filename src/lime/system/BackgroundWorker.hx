@@ -26,6 +26,7 @@ import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import sys.io.File;
 #end
 
 /**
@@ -185,7 +186,30 @@ class BackgroundWorker
 		#end
 	}
 
-	@:noCompletion @:dox(hide) public function __run(doWork:ThreadFunction, message:Dynamic):Void
+	/**
+		[Call this from the main thread.]
+
+		Creates a background thread to run `doWork`. The
+		function will receive `message` as an argument, and
+		it can call `sendComplete()`, `sendError()`, and/or
+		`sendProgress()` to send data.
+
+		**Caution:** in HTML5, workers are almost completely
+		isolated from the main thread. They will have
+		access to three main things: (1) certain JavaScript
+		functions (see `DedicatedWorkerGlobalScope`), (2)
+		inline Haxe functions (including all three "send"
+		functions), and (3) the contents of `message`. To
+		inline as much as possible, turn on DCE and tag the
+		function with `@:analyzer(optimize)`.
+		@param doWork A `Dynamic -> Void` function to run in
+		the background. (Optional only for backwards
+		compatibility. Treat this as a required argument.)
+		@param message Data to pass to `doWork`. In HTML5, this
+		cannot include functions and certain other data types:
+		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+	**/
+	public function run(?doWork:ThreadFunction, ?message:Dynamic):Void
 	{
 		if (doWork == null)
 		{
@@ -207,6 +231,13 @@ class BackgroundWorker
 			Application.current.onUpdate.add(__update);
 		}
 		#elseif js
+		if ((doWork:String).indexOf("[native code]") >= 0)
+		{
+			throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. ThreadFunction tries to remove this binding; the sooner you convert to ThreadFunction, the more likely it will work. Failing that, try a static function.";
+			// Addendum: explicit casts will NOT work. You
+			// have to use implicit casts or type hints.
+		}
+
 		var workerJS:String =
 			"this.onmessage = function(messageEvent) {\n"
 			+ "    this.onmessage = null;\n"
@@ -381,82 +412,12 @@ class BackgroundWorker
 	}
 	#end
 	#end // !macro
-
-	/**
-		[Call this from the main thread.]
-
-		Creates a background thread to run `doWork`. The
-		function will receive `message` as an argument, and
-		it can call `sendComplete()`, `sendError()`, and/or
-		`sendProgress()` to send data.
-
-		**Caution:** in HTML5, workers are almost completely
-		isolated from the main thread. They will have
-		access to three main things: (1) certain JavaScript
-		functions (see `DedicatedWorkerGlobalScope`), (2)
-		inline Haxe functions (including all three "send"
-		functions), and (3) the contents of `message`. To
-		inline as much as possible, turn on DCE and tag the
-		function with `@:analyzer(optimize)`.
-		@param doWork A `Dynamic -> Void` function to run in
-		the background. (Optional only for backwards
-		compatibility. Treat this as a required argument.)
-		@param message Data to pass to `doWork`. In HTML5, this
-		cannot include functions and certain other data types:
-		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
-	**/
-	public macro function run(self:Expr, ?doWork:ExprOf<Dynamic -> Void>, ?message:Expr):Expr
-	{
-		#if display
-		return macro null;
-		#else
-		function isNull(expr:Expr)
-		{
-			switch(expr.expr)
-			{
-				case EConst(CIdent("null")):
-					return true;
-				default:
-					return false;
-			}
-		}
-
-		if (isNull(doWork))
-		{
-			return macro $self.__run(null, null);
-		}
-
-		if (isNull(message))
-		{
-			switch (Context.typeof(doWork))
-			{
-				case TFun(_):
-					// The one argument is `doWork`.
-					message = macro null;
-				default:
-					// The one argument is `message`.
-					message = doWork;
-					return macro $self.__run(null, $message);
-			}
-		}
-
-		return macro {
-			var doWork;
-
-			// Set `doWork = $doWork`, with some extra
-			// JS-specific checks.
-			${ThreadFunction.add(macro doWork, doWork)};
-
-			$self.__run(doWork, $message);
-		}
-		#end
-	}
 }
 
 /**
-	A function that can be called on another thread. In
-	JavaScript, calling a function on another thread
-	requires extra work, which is performed automatically.
+	A `Dynamic -> Void` function to be called on another
+	thread. On most targets, functions work as-is, but JS
+	requires converting to string and back.
 
 	`ThreadFunction` also provides an `Event`-like API for
 	backwards compatibility. However, it can only store one
@@ -465,110 +426,32 @@ class BackgroundWorker
 #if !js
 abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
 #else
-abstract ThreadFunction(String) from String to String
+// Excluding "from String" to help `run()` disambiguate.
+abstract ThreadFunction(String) to String
 #end
 {
+	#if (js || macro)
+	private static inline var TAG:String = "/* lime.system.ThreadFunction */";
+	private static var TAG_ESCAPED:String = ~/([\/\*])/g.replace(TAG, "\\$1");
+
+	// Other macros can call this statically, if needed.
+	@:noCompletion @:dox(hide) #if !macro @:from #end
+	public static #if !macro macro #end function fromFunction(func:ExprOf<Dynamic -> Void>)
+	{
+		cleanAfterGenerate();
+		return macro js.Syntax.code($v{TAG + "{0}.toString()" + TAG}, $func);
+	}
+	#end
+
 	/**
 		Adds the given callback function, to be run on the
 		other thread. Unlike with `lime.app.Event`, only one
 		callback can exist; `add()` overwrites the old one.
 	**/
-	#if (display || !js && !macro)
-	public inline function add(callback:Dynamic -> Void):Void
+	public inline function add(callback:ThreadFunction):Void
 	{
 		this = callback;
 	}
-	#else
-	// Other macros can call this statically to generate
-	// `$self = $callback` with anti-binding measures.
-	#if macro static #else macro #end
-	public function add(self:Expr, callback:ExprOf<Dynamic -> Void>):Expr
-	{
-		if (!Context.defined("js"))
-		{
-			return macro $self = $callback;
-		}
-
-		// On JS targets, Haxe automatically calls
-		// `bind(this)` for instance functions. This allows
-		// the functions to access `this`, which is usually
-		// good. However, `BackgroundWorker` can't use bound
-		// functions, so a workaround is required.
-
-		var convert:Expr = macro js.Syntax.code("{0}.toString()", $callback);
-
-		switch (callback.expr)
-		{
-			case EConst(CIdent(ident)):
-				// Raw identifiers could be local, static,
-				// or instance functions.
-				if (Lambda.exists(Context.getLocalTVars(),
-					function(tVar) return tVar.name == ident))
-				{
-					// Local function - either fine as-is or
-					// infeasible to fix.
-				}
-				else
-				{
-					// Potentially an instance function, but
-					// allow Haxe to generate a fallback.
-					var syntax = '(this.$ident || {0}).toString()';
-					convert = macro js.Syntax.code($v{syntax}, $callback);
-				}
-			case EField(e, field):
-				// Field access could refer to a static or
-				// instance function. Check what comes
-				// before the dot.
-				switch (Context.typeof(e))
-				{
-					case TType(_):
-						// Static function - fine as-is.
-					default:
-						// Likely an instance function.
-						var syntax = '{0}.$field.toString()';
-
-						// Refer to `callback` so that DCE
-						// knows to keep the function. This
-						// reference won't make it into the
-						// final JavaScript.
-						convert = macro js.Syntax.code($v{syntax}, $e, $callback);
-
-						// If Syntax.code() throws an error,
-						// try this syntax string instead:
-						// '({0}.$field || {1}).toString()`
-				}
-			default:
-				// Other cases aren't likely to matter.
-		}
-
-		return macro {
-			var script:String = $convert;
-
-			// Unless `@:analyzer(optimize)` was enabled,
-			// all of the "send" functions will likely
-			// generate a reference to outside code.
-			script = ~/var _this = .+?;\s*postMessage/g
-				.replace(script, "postMessage");
-
-			// It is actually possible to unbind a function, but
-			// this requires calling it, and the whole point is
-			// not to call it on the main thread.
-			// https://www.quora.com/In-Javascript-how-would-I-extract-the-actual-function-when-provided-only-a-bound-function-Or-is-this-not-possible/answer/Andrew-Smith-1766
-			/* if (this.indexOf("[native code]") >= 0)
-			{
-				this = js.Syntax.code("new {0}().constructor.toString()", script);
-			} */
-
-			if (script.indexOf("[native code]") >= 0)
-			{
-				throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. Try a static function instead of "
-					+ $v{new haxe.macro.Printer().printExpr(callback)} + ".";
-			}
-
-			$self = script;
-		};
-	}
-	#end
 
 	/**
 		Executes this function on the current thread.
@@ -585,16 +468,16 @@ abstract ThreadFunction(String) from String to String
 		}
 	}
 
-	@:noCompletion @:dox(hide) public inline function has(callback:Dynamic -> Void):Bool
+	@:noCompletion @:dox(hide) public inline function has(callback:ThreadFunction):Bool
 	{
 		#if !js
 		return Reflect.compareMethods(this, callback);
 		#else
-		return this != null;
+		return this == callback;
 		#end
 	}
 
-	@:noCompletion @:dox(hide) public inline function remove(callback:Dynamic -> Void):Void
+	@:noCompletion @:dox(hide) public inline function remove(callback:ThreadFunction):Void
 	{
 		if (has(callback))
 		{
@@ -611,6 +494,49 @@ abstract ThreadFunction(String) from String to String
 	public inline function bind(arg)
 	{
 		return this.bind(arg);
+	}
+	#end
+
+	#if macro
+	private static var callbacksRegistered:Bool = false;
+
+	#if !haxe4
+	private static function resetCallbacksRegistered():Bool
+	{
+		callbacksRegistered = false;
+		return true;
+	}
+	#end
+
+	/**
+		Adds an `onAfterGenerate()` listener to read the JS
+		file and clean up any bound functions.
+	**/
+	private static function cleanAfterGenerate():Void
+	{
+		if (callbacksRegistered || !Context.defined("js") || Context.defined("display"))
+		{
+			return;
+		}
+		callbacksRegistered = true;
+
+		#if !haxe4
+		Context.onMacroContextReused(resetCallbacksRegistered);
+		#end
+
+		#if !lime_suppress_onAfterGenerate
+		Context.onAfterGenerate(function():Void
+		{
+			var outputFile:String = Compiler.getOutput();
+			var outputContent:String = File.getContent(outputFile);
+
+			outputContent = new EReg(TAG_ESCAPED + "\\$bind\\(this,(.+?)\\)\\.toString\\(\\)" + TAG_ESCAPED, "gm")
+				.replace(outputContent, "$1.toString()");
+				outputContent = new EReg(TAG_ESCAPED, "g").replace(outputContent, "");
+
+			File.saveContent(outputFile, outputContent);
+		});
+		#end
 	}
 	#end
 }
