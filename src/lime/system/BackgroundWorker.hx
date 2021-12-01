@@ -244,7 +244,7 @@ class BackgroundWorker
 			"this.onmessage = function(messageEvent) {\n"
 			+ "    this.onmessage = null;\n"
 			+ "    var haxe_Log = { trace: console.log };\n"
-			+ '    (async $doWork)(messageEvent.data);\n'
+			+ '    ($doWork)(messageEvent.data);\n'
 			+ "    this.close();\n"
 			+ "};";
 
