@@ -238,9 +238,12 @@ class BackgroundWorker
 			// have to use implicit casts or type hints.
 		}
 
+		doWork.fixCommonJSErrors();
+
 		var workerJS:String =
 			"this.onmessage = function(messageEvent) {\n"
 			+ "    this.onmessage = null;\n"
+			+ "    var haxe_Log = { trace: console.log };\n"
 			+ '    (async $doWork)(messageEvent.data);\n'
 			+ "    this.close();\n"
 			+ "};";
@@ -490,7 +493,15 @@ abstract ThreadFunction(String) to String
 		this = null;
 	}
 
-	#if !js
+	#if js
+	@:noCompletion @:dox(hide) public inline function fixCommonJSErrors():Void
+	{
+		// Without analyzer-optimize, there's likely to be
+		// an unused reference to outside code.
+		this = cast ~/var _g?this = .+?;\s*postMessage/gm
+			.replace(this, "postMessage");
+	}
+	#else
 	public inline function bind(arg)
 	{
 		return this.bind(arg);
