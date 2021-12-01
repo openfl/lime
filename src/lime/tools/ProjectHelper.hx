@@ -37,6 +37,7 @@ class ProjectHelper
 				Log.info("", " - \x1b[1mCopying library file:\x1b[0m " + path + " \x1b[3;37m->\x1b[0m " + targetPath);
 
 				System.mkdir(targetDirectory);
+				System.markFileAsTouched(targetPath);
 
 				try
 				{
@@ -91,6 +92,7 @@ class ProjectHelper
 			for (i in 0...paths.length)
 			{
 				itemDestination = Path.combine(destination, ProjectHelper.substitutePath(project, destinations[i]));
+				System.markFileAsTouched(itemDestination);
 				System.copyFile(paths[i], itemDestination, context, process);
 			}
 		}

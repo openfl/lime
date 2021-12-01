@@ -34,6 +34,7 @@ class IconHelper
 				}
 			}
 
+			System.markFileAsTouched(targetPath);
 			return true;
 		}
 
@@ -53,6 +54,7 @@ class IconHelper
 			}
 
 			System.mkdir(Path.directory(targetPath));
+			System.markFileAsTouched(targetPath);
 			System.copyFile(icon.path, targetPath);
 			return true;
 		}
@@ -72,6 +74,7 @@ class IconHelper
 				if (bytes != null)
 				{
 					System.mkdir(Path.directory(targetPath));
+					System.markFileAsTouched(targetPath);
 					File.saveBytes(targetPath, bytes);
 					return true;
 				}
@@ -154,6 +157,7 @@ class IconHelper
 
 		if (bytes.length > 0)
 		{
+			System.markFileAsTouched(targetPath);
 			var file = File.write(targetPath, true);
 			file.bigEndian = true;
 
@@ -255,6 +259,7 @@ class IconHelper
 
 		if (images.length > 0)
 		{
+			System.markFileAsTouched(targetPath);
 			File.saveBytes(targetPath, icon);
 			return true;
 		}
