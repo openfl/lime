@@ -14,7 +14,6 @@ import neko.vm.Deque;
 import neko.vm.Thread;
 #elseif js
 import js.html.Blob;
-import js.html.DedicatedWorkerGlobalScope;
 import js.html.MessageEvent;
 import js.html.URL;
 import js.html.Worker;
@@ -231,14 +230,7 @@ class BackgroundWorker
 			Application.current.onUpdate.add(__update);
 		}
 		#elseif js
-		if ((doWork:String).indexOf("[native code]") >= 0)
-		{
-			throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. ThreadFunction tries to remove this binding; the sooner you convert to ThreadFunction, the more likely it will work. Failing that, try a static function.";
-			// Addendum: explicit casts will NOT work. You
-			// have to use implicit casts or type hints.
-		}
-
-		doWork.fixCommonJSErrors();
+		doWork.checkJS();
 
 		var workerJS:String =
 			"this.onmessage = function(messageEvent) {\n"
@@ -494,12 +486,24 @@ abstract ThreadFunction(String) to String
 	}
 
 	#if js
-	@:noCompletion @:dox(hide) public inline function fixCommonJSErrors():Void
+	/**
+		Makes sure the JS string is suitable for making a
+		`Worker`. Fixes issues when possible and throws
+		errors if not.
+	**/
+	@:noCompletion @:dox(hide) public inline function checkJS():Void
 	{
+		if (this.indexOf("[native code]") >= 0)
+		{
+			throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. ThreadFunction tries to remove this binding; the sooner you convert to ThreadFunction, the more likely it will work. Failing that, try a static function.";
+			// Addendum: explicit casts will NOT work. You
+			// have to use implicit casts or type hints.
+		}
+
 		// Without analyzer-optimize, there's likely to be
 		// an unused reference to outside code.
-		this = cast ~/var _g?this = .+?;\s*postMessage/gm
-			.replace(this, "postMessage");
+		this = cast ~/var _g?this = .+?;\s*(.+?postMessage)/gs
+			.replace(this, "$1");
 	}
 	#else
 	public inline function bind(arg)

@@ -13,6 +13,12 @@ import cpp.vm.Thread;
 #elseif neko
 import neko.vm.Deque;
 import neko.vm.Thread;
+#elseif js
+import js.html.Blob;
+import js.html.MessageEvent;
+import js.html.URL;
+import js.html.Worker;
+import js.Syntax;
 #end
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -35,6 +41,9 @@ class ThreadPool
 	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
 	@:noCompletion private var __workQueued:Int;
 	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
+	#elseif js
+	@:noCompletion private var __idleWorkers = new Array<Worker>();
+	@:noCompletion private var __workIncoming = new List<Dynamic>();
 	#end
 
 	public function new(minThreads:Int = 0, maxThreads:Int = 1)
@@ -47,10 +56,10 @@ class ThreadPool
 		#if (target.threaded || cpp || neko)
 		__workQueued = 0;
 		__workCompleted = 0;
-		#end
 
 		#if (emscripten || force_synchronous)
 		__synchronous = true;
+		#end
 		#end
 	}
 
@@ -88,13 +97,36 @@ class ThreadPool
 		else
 		{
 			__synchronous = true;
-			runWork(state);
+			__runWork(state);
 		}
+		#elseif js
+		if (currentThreads < maxThreads && __idleWorkers.length == 0)
+		{
+			doWork.checkJS();
+
+			var workerJS:String =
+				"var haxe_Log = { trace: console.log };\n"
+				+ "this.onmessage = function(messageEvent) {\n"
+				+ '    ($doWork)(messageEvent.data);\n'
+				+ "};";
+
+			var workerURL:String = URL.createObjectURL(new Blob([workerJS]));
+
+			var worker:Worker = new Worker(workerURL);
+			worker.onmessage = __handleMessage.bind(worker, workerURL);
+			__idleWorkers.push(worker);
+
+			currentThreads++;
+		}
+
+		__workIncoming.add(state);
+		__startIdleWorkers();
 		#else
-		runWork(state);
+		__runWork(state);
 		#end
 	}
 
+	#if js inline #end
 	public function sendComplete(state:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -105,9 +137,14 @@ class ThreadPool
 		}
 		#end
 
+		#if js
+		Syntax.code("postMessage({0})", new ThreadPoolMessage(COMPLETE, state));
+		#else
 		onComplete.dispatch(state);
+		#end
 	}
 
+	#if js inline #end
 	public function sendError(state:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -118,9 +155,14 @@ class ThreadPool
 		}
 		#end
 
+		#if js
+		Syntax.code("postMessage({0})", new ThreadPoolMessage(ERROR, state));
+		#else
 		onError.dispatch(state);
+		#end
 	}
 
+	#if js inline #end
 	public function sendProgress(state:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -131,10 +173,15 @@ class ThreadPool
 		}
 		#end
 
+		#if js
+		Syntax.code("postMessage({0})", new ThreadPoolMessage(PROGRESS, state));
+		#else
 		onProgress.dispatch(state);
+		#end
 	}
 
-	@:noCompletion private function runWork(state:Dynamic = null):Void
+	#if !js
+	@:noCompletion private function __runWork(state:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
 		if (!__synchronous)
@@ -148,6 +195,7 @@ class ThreadPool
 		onRun.dispatch(state);
 		doWork.dispatch(state);
 	}
+	#end
 
 	#if (target.threaded || cpp || neko)
 	@:noCompletion private function __doWork():Void
@@ -158,7 +206,7 @@ class ThreadPool
 
 			if (message.type == WORK)
 			{
-				runWork(message.state);
+				__runWork(message.state);
 			}
 			else if (message.type == EXIT)
 			{
@@ -218,26 +266,72 @@ class ThreadPool
 			}
 		}
 	}
+	#elseif js
+	@:noCompletion private function __startIdleWorkers():Void
+	{
+		while (__idleWorkers.length > 0 && !__workIncoming.isEmpty())
+		{
+			__idleWorkers.pop().postMessage(__workIncoming.pop());
+		}
+	}
+
+	@:noCompletion private function __handleMessage(worker:Worker, workerURL:String, event:MessageEvent):Void
+	{
+		var message:ThreadPoolMessage = event.data;
+
+		switch (message.type)
+		{
+			case WORK:
+				onRun.dispatch(message.state);
+
+			case PROGRESS:
+				onProgress.dispatch(message.state);
+
+			case COMPLETE, ERROR:
+				if (__workIncoming.isEmpty() && currentThreads > minThreads || currentThreads > maxThreads)
+				{
+					currentThreads--;
+					worker.terminate();
+					URL.revokeObjectURL(workerURL);
+				}
+				else
+				{
+					__idleWorkers.push(worker);
+				}
+
+				if (message.type == COMPLETE)
+				{
+					onComplete.dispatch(message.state);
+				}
+				else
+				{
+					onError.dispatch(message.state);
+				}
+
+				__startIdleWorkers();
+			default:
+		}
+	}
 	#end
 }
 
-private enum ThreadPoolMessageType
+@:enum private abstract ThreadPoolMessageType(String)
 {
-	COMPLETE;
-	ERROR;
-	EXIT;
-	PROGRESS;
-	WORK;
+	var COMPLETE = "COMPLETE";
+	var ERROR = "ERROR";
+	var EXIT = "EXIT";
+	var PROGRESS = "PROGRESS";
+	var WORK = "WORK";
 }
 
-private class ThreadPoolMessage
+@:forward
+private abstract ThreadPoolMessage({ state:Dynamic, type:ThreadPoolMessageType })
 {
-	public var state:Dynamic;
-	public var type:ThreadPoolMessageType;
-
-	public function new(type:ThreadPoolMessageType, state:Dynamic)
+	public inline function new(type:ThreadPoolMessageType, state:Dynamic)
 	{
-		this.type = type;
-		this.state = state;
+		this = {
+			type: type,
+			state: state
+		};
 	}
 }
