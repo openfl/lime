@@ -144,6 +144,18 @@ class BackgroundWorker
 	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
 	@:noCompletion private var __workerThread:Thread;
 	#elseif js
+	/**
+		Any `Worker` created by `BackgroundWorker` or
+		`ThreadPool` will run this JavaScript code first.
+
+		This is intended to declare functions that workers
+		might try to access, such as `trace()`, that are
+		normally only available on the main thread.
+	**/
+	@:noCompletion @:dox(hide) public static var initializeWorker:String =
+		"'use strict';\n"
+		+ 'var haxe_Log = { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };\n';
+
 	@:noCompletion private var __worker:Worker;
 	@:noCompletion private var __workerURL:String;
 	#end
@@ -232,15 +244,14 @@ class BackgroundWorker
 		#elseif js
 		doWork.checkJS();
 
-		var workerJS:String =
-			"this.onmessage = function(messageEvent) {\n"
-			+ "    this.onmessage = null;\n"
-			+ "    var haxe_Log = { trace: console.log };\n"
-			+ '    ($doWork)(messageEvent.data);\n'
-			+ "    this.close();\n"
-			+ "};";
-
-		__workerURL = URL.createObjectURL(new Blob([workerJS]));
+		__workerURL = URL.createObjectURL(new Blob([
+			initializeWorker,
+			"this.onmessage = function(messageEvent) {\n",
+			"    this.onmessage = null;\n",
+			'    ($doWork)(messageEvent.data);\n',
+			"    this.close();\n",
+			"};"
+		]));
 
 		__worker = new Worker(__workerURL);
 		__worker.onmessage = __handleMessage;

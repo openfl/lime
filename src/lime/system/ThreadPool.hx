@@ -104,13 +104,12 @@ class ThreadPool
 		{
 			doWork.checkJS();
 
-			var workerJS:String =
-				"var haxe_Log = { trace: console.log };\n"
-				+ "this.onmessage = function(messageEvent) {\n"
-				+ '    ($doWork)(messageEvent.data);\n'
-				+ "};";
-
-			var workerURL:String = URL.createObjectURL(new Blob([workerJS]));
+			var workerURL:String = URL.createObjectURL(new Blob([
+				BackgroundWorker.initializeWorker,
+				"this.onmessage = function(messageEvent) {\n",
+				'    ($doWork)(messageEvent.data);\n',
+				"};"
+			]));
 
 			var worker:Worker = new Worker(workerURL);
 			worker.onmessage = __handleMessage.bind(worker, workerURL);
