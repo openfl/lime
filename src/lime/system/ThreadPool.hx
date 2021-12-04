@@ -26,9 +26,9 @@ import js.Syntax;
 #end
 class ThreadPool
 {
-	public var currentThreads(default, null):Int;
+	public var currentThreads(default, set):Int;
 	public var doWork:ThreadFunction;
-	public var maxThreads:Int;
+	public var maxThreads(default, set):Int;
 	public var minThreads:Int;
 	public var onComplete = new Event<Dynamic->Void>();
 	public var onError = new Event<Dynamic->Void>();
@@ -36,31 +36,22 @@ class ThreadPool
 	public var onRun = new Event<Dynamic->Void>();
 
 	#if (target.threaded || cpp || neko)
-	@:noCompletion private var __synchronous:Bool;
-	@:noCompletion private var __workCompleted:Int;
+	@:noCompletion private var __synchronous:Bool =
+		#if (emscripten || force_synchronous) true #else false #end;
 	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
-	@:noCompletion private var __workQueued:Int;
+	@:noCompletion private var __workQueued:Int = 0;
 	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
 	#elseif js
-	@:noCompletion private var __idleWorkers = new Array<Worker>();
+	@:noCompletion private var __idleWorkers = new Array<WorkerWithURL>();
 	@:noCompletion private var __workIncoming = new List<Dynamic>();
+	@:noCompletion private var __workersToTerminate:Int = 0;
 	#end
 
 	public function new(minThreads:Int = 0, maxThreads:Int = 1)
 	{
 		this.minThreads = minThreads;
-		this.maxThreads = maxThreads;
-
-		currentThreads = 0;
-
-		#if (target.threaded || cpp || neko)
-		__workQueued = 0;
-		__workCompleted = 0;
-
-		#if (emscripten || force_synchronous)
-		__synchronous = true;
-		#end
-		#end
+		@:bypassAccessor this.maxThreads = maxThreads;
+		@:bypassAccessor currentThreads = 0;
 	}
 
 	// public function cancel (id:String):Void {
@@ -83,10 +74,9 @@ class ThreadPool
 			__workIncoming.add(new ThreadPoolMessage(WORK, state));
 			__workQueued++;
 
-			if (currentThreads < maxThreads && currentThreads < (__workQueued - __workCompleted))
+			if (currentThreads < maxThreads && currentThreads < __workQueued)
 			{
 				currentThreads++;
-				Thread.create(__doWork);
 			}
 
 			if (!Application.current.onUpdate.has(__update))
@@ -102,19 +92,6 @@ class ThreadPool
 		#elseif js
 		if (currentThreads < maxThreads && __idleWorkers.length == 0)
 		{
-			doWork.checkJS();
-
-			var workerURL:String = URL.createObjectURL(new Blob([
-				BackgroundWorker.initializeWorker,
-				"this.onmessage = function(messageEvent) {\n",
-				'    ($doWork)(messageEvent.data);\n',
-				"};"
-			]));
-
-			var worker:Worker = new Worker(workerURL);
-			worker.onmessage = __handleMessage.bind(worker, workerURL);
-			__idleWorkers.push(worker);
-
 			currentThreads++;
 		}
 
@@ -216,7 +193,7 @@ class ThreadPool
 
 	@:noCompletion private function __update(deltaTime:Int):Void
 	{
-		if (__workQueued > __workCompleted)
+		if (__workQueued > 0)
 		{
 			var message = __workResult.pop(false);
 
@@ -231,13 +208,11 @@ class ThreadPool
 						onProgress.dispatch(message.state);
 
 					case COMPLETE, ERROR:
-						__workCompleted++;
+						__workQueued--;
 
-						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads)
-							|| currentThreads > maxThreads)
+						if (currentThreads > __workQueued && currentThreads > minThreads)
 						{
 							currentThreads--;
-							__workIncoming.add(new ThreadPoolMessage(EXIT, null));
 						}
 
 						if (message.type == COMPLETE)
@@ -274,7 +249,7 @@ class ThreadPool
 		}
 	}
 
-	@:noCompletion private function __handleMessage(worker:Worker, workerURL:String, event:MessageEvent):Void
+	@:noCompletion private function __handleMessage(worker:WorkerWithURL, event:MessageEvent):Void
 	{
 		var message:ThreadPoolMessage = event.data;
 
@@ -287,11 +262,14 @@ class ThreadPool
 				onProgress.dispatch(message.state);
 
 			case COMPLETE, ERROR:
-				if (__workIncoming.isEmpty() && currentThreads > minThreads || currentThreads > maxThreads)
+				if (__workersToTerminate > 0)
+				{
+					__workersToTerminate--;
+					worker.terminate();
+				}
+				else if (__workIncoming.isEmpty() && currentThreads > minThreads)
 				{
 					currentThreads--;
-					worker.terminate();
-					URL.revokeObjectURL(workerURL);
 				}
 				else
 				{
@@ -312,6 +290,62 @@ class ThreadPool
 		}
 	}
 	#end
+
+	// Getters & Setters
+
+	private function set_currentThreads(value:Int):Int
+	{
+		while (currentThreads < value)
+		{
+			currentThreads++;
+
+			#if (target.threaded || cpp || neko)
+			Thread.create(__doWork);
+			#elseif js
+			doWork.checkJS();
+
+			var worker = new WorkerWithURL(new Blob([
+				BackgroundWorker.initializeWorker,
+				"this.onmessage = function(messageEvent) {\n",
+				'    ($doWork)(messageEvent.data);\n',
+				"};"
+			]));
+
+			worker.onmessage = __handleMessage.bind(worker);
+			__idleWorkers.push(worker);
+			#end
+		}
+
+		while (currentThreads > value)
+		{
+			currentThreads--;
+
+			#if (target.threaded || cpp || neko)
+			__workIncoming.add(new ThreadPoolMessage(EXIT, null));
+			#elseif js
+			var worker = __idleWorkers.pop();
+			if (worker != null)
+			{
+				worker.terminate();
+			}
+			else
+			{
+				__workersToTerminate++;
+			}
+			#end
+		}
+
+		return currentThreads;
+	}
+
+	private function set_maxThreads(value:Int):Int
+	{
+		if (currentThreads > value)
+		{
+			currentThreads = value;
+		}
+		return maxThreads = value;
+	}
 }
 
 @:enum private abstract ThreadPoolMessageType(String)
@@ -334,3 +368,41 @@ private abstract ThreadPoolMessage({ state:Dynamic, type:ThreadPoolMessageType }
 		};
 	}
 }
+
+#if js
+private class WorkerWithURL {
+	public var url:String;
+	public var worker:Worker;
+
+	public var onmessage(get, set):haxe.Constraints.Function;
+
+	public function new(blob:Blob)
+	{
+		url = URL.createObjectURL(blob);
+		worker = new Worker(url);
+	}
+
+	public inline function postMessage(message:Dynamic, ?transfer:Array<Dynamic>):Void
+	{
+		worker.postMessage(message, transfer);
+	}
+
+	public function terminate():Void
+	{
+		worker.terminate();
+		URL.revokeObjectURL(url);
+	}
+
+	// Getters & Setters
+
+	private inline function get_onmessage():haxe.Constraints.Function
+	{
+		return worker.onmessage;
+	}
+
+	private inline function set_onmessage(value:haxe.Constraints.Function):haxe.Constraints.Function
+	{
+		return worker.onmessage = value;
+	}
+}
+#end
