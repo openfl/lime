@@ -57,7 +57,7 @@ class ThreadPool
 		This is public for backwards compatibility, but it
 		should now be set via the constructor.
 	**/
-	@:noCompletion @:dox(hide) public var doWork:ThreadFunction;
+	@:noCompletion @:dox(hide) public var doWork:ThreadFunction<Dynamic->Void>;
 	/**
 		The maximum number of threads this pool will create.
 
@@ -114,7 +114,7 @@ class ThreadPool
 		background. It will run once for each time `queue()`
 		is called, each time receiving a different argument.
 	**/
-	public function new(?doWork:ThreadFunction, minThreads:Int = 0, maxThreads:Int = 1)
+	public function new(?doWork:ThreadFunction<Dynamic->Void>, minThreads:Int = 0, maxThreads:Int = 1)
 	{
 		this.doWork = doWork;
 		this.minThreads = minThreads;

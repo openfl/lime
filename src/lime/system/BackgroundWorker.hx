@@ -18,7 +18,6 @@ import js.html.MessageEvent;
 import js.html.URL;
 import js.html.Worker;
 import js.Syntax;
-import lime.utils.Log;
 #end
 #else
 import haxe.macro.Compiler;
@@ -117,7 +116,7 @@ class BackgroundWorker
 	**/
 	public var completed(default, null):Bool;
 
-	@:noCompletion public var doWork:ThreadFunction;
+	@:noCompletion public var doWork:ThreadFunction<Dynamic->Void>;
 
 	/**
 		Dispatched on the main thread when the background
@@ -222,7 +221,7 @@ class BackgroundWorker
 		imposes several restrictions on this data:
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 	**/
-	public function run(?doWork:ThreadFunction, ?message:Dynamic):Void
+	public function run(?doWork:ThreadFunction<Dynamic->Void>, ?message:Dynamic):Void
 	{
 		if (doWork == null)
 		{
@@ -235,7 +234,9 @@ class BackgroundWorker
 
 		#if (target.threaded || cpp || neko)
 		__messageQueue = new Deque();
-		__workerThread = Thread.create(doWork.bind(message));
+		__workerThread = Thread.create(function():Void {
+			doWork.dispatch(message);
+		});
 
 		// TODO: Better way to do this
 
@@ -432,10 +433,10 @@ class BackgroundWorker
 	function at once; `add()` overwrites the old function.
 **/
 #if !js
-abstract ThreadFunction(Dynamic -> Void) from Dynamic -> Void to Dynamic -> Void
+abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
 #else
 // Excluding "from String" to help `run()` disambiguate.
-abstract ThreadFunction(String) to String
+abstract ThreadFunction<T>(String) to String
 #end
 {
 	#if (js || macro)
@@ -444,7 +445,7 @@ abstract ThreadFunction(String) to String
 
 	// Other macros can call this statically, if needed.
 	@:noCompletion @:dox(hide) #if !macro @:from #end
-	public static #if !macro macro #end function fromFunction(func:ExprOf<Dynamic -> Void>)
+	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
 		cleanAfterGenerate();
 		return macro js.Syntax.code($v{TAG + "{0}.toString()" + TAG}, $func);
@@ -456,7 +457,7 @@ abstract ThreadFunction(String) to String
 		other thread. Unlike with `lime.app.Event`, only one
 		callback can exist; `add()` overwrites the old one.
 	**/
-	public inline function add(callback:ThreadFunction):Void
+	public inline function add(callback:ThreadFunction<T>):Void
 	{
 		this = callback;
 	}
@@ -464,19 +465,35 @@ abstract ThreadFunction(String) to String
 	/**
 		Executes this function on the current thread.
 	**/
-	public inline function dispatch(message:Dynamic):Void
+	public macro function dispatch(self:Expr, args:Array<Expr>):Expr
 	{
-		if (this != null)
+		if (!Context.defined("js"))
 		{
-			#if !js
-			this(message);
-			#else
-			js.Syntax.code("Function({0})()", this);
-			#end
+			return macro $self != null ? (cast $self:haxe.Constraints.Function)($a{args}) : null;
+		}
+		else
+		{
+			var argSyntax:Array<String> = [for (i in 1...(args.length + 1)) '{$i}'];
+			var syntax:String = 'Function.apply(this, {0})(${argSyntax.join(", ")})';
+			args = [macro $v{syntax}, macro paramsAndBody].concat(args);
+
+			return macro if ($self != null)
+			{
+				var paramsAndBody:Array<String> = js.Syntax.code("/function\\((.+?)\\)\\s*\\{\\s*(.+)\\s*\\}/.exec({0})", $self);
+				if (paramsAndBody == null)
+					js.Syntax.code('throw "Malformatted ThreadFunction: " + {0}', $self);
+
+				var body = paramsAndBody.pop();
+				paramsAndBody = paramsAndBody[1].split(js.Syntax.code("/, */"));
+				paramsAndBody.push(body);
+
+				js.Syntax.code($a{args});
+			}
+			else null;
 		}
 	}
 
-	@:noCompletion @:dox(hide) public inline function has(callback:ThreadFunction):Bool
+	@:noCompletion @:dox(hide) public inline function has(callback:ThreadFunction<T>):Bool
 	{
 		#if !js
 		return Reflect.compareMethods(this, callback);
@@ -485,7 +502,7 @@ abstract ThreadFunction(String) to String
 		#end
 	}
 
-	@:noCompletion @:dox(hide) public inline function remove(callback:ThreadFunction):Void
+	@:noCompletion @:dox(hide) public inline function remove(callback:ThreadFunction<T>):Void
 	{
 		if (has(callback))
 		{
@@ -517,11 +534,6 @@ abstract ThreadFunction(String) to String
 		// an unused reference to outside code.
 		this = cast ~/var _g?this = .+?;\s*(.+?postMessage)/gs
 			.replace(this, "$1");
-	}
-	#else
-	public inline function bind(arg)
-	{
-		return this.bind(arg);
 	}
 	#end
 
