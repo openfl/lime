@@ -65,7 +65,7 @@ abstract ThreadFunction<T>(String) to String
 
 			return macro if ($self != null)
 			{
-				var paramsAndBody:Array<String> = js.Syntax.code("/function\\((.+?)\\)\\s*\\{\\s*(.+)\\s*\\}/.exec({0})", $self);
+				var paramsAndBody:Array<String> = js.Syntax.code("/function\\((.*?)\\)\\s*\\{\\s*(.+)\\s*\\}/.exec({0})", $self);
 				if (paramsAndBody == null)
 					js.Syntax.code('throw "Malformatted ThreadFunction: " + {0}', $self);
 
