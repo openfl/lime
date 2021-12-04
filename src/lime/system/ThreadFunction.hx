@@ -109,17 +109,26 @@ abstract ThreadFunction<T>(String) to String
 	**/
 	@:noCompletion @:dox(hide) public inline function checkJS():Void
 	{
-		if (this.indexOf("[native code]") >= 0)
+		// Break the string up so it won't match its own
+		// source code.
+		if (this.indexOf("[" + "native code" + "]") >= 0)
 		{
-			throw "Haxe automatically binds instance functions in JS, making them incompatible with js.html.Worker. ThreadFunction tries to remove this binding; the sooner you convert to ThreadFunction, the more likely it will work. Failing that, try a static function.";
+			js.Syntax.code("throw {0}",
+				"Haxe automatically binds some functions, "
+				+ "making them incompatible with workers. "
+				+ "ThreadFunction tries to undo this, but "
+				+ "successfully undoing it requires "
+				+ "converting to ThreadFunction as soon as "
+				+ "possible. If that isn't an option, try "
+				+ "a static function.");
+
 			// Addendum: explicit casts will NOT work. You
 			// have to use implicit casts or type hints.
 		}
 
 		// Without analyzer-optimize, there's likely to be
 		// an unused reference to outside code.
-		this = cast ~/var _g?this = .+?;\s*(.+?postMessage)/gs
-			.replace(this, "$1");
+		this = js.Syntax.code('{0}.replace(/var _g?this = .+?;\\s*(.+?postMessage)/gs, "$1")', this);
 	}
 	#end
 
