@@ -154,7 +154,9 @@ class BackgroundWorker
 	**/
 	@:noCompletion @:dox(hide) public static var initializeWorker:String =
 		"'use strict';\n"
-		+ 'var haxe_Log = { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };\n';
+		+ 'var haxe_Log = { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };\n'
+		+ "var StringTools = { startsWith: (s, start) => s.startsWith(start), endsWith: (s, end) => s.endsWith(end), trim: s => s.trim() };\n"
+		+ "var HxOverrides = { substr: (s, pos, len) => s.substr(pos, len) };\n";
 
 	@:noCompletion private var __worker:Worker;
 	@:noCompletion private var __workerURL:String;
