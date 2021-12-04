@@ -42,7 +42,7 @@ abstract ThreadFunction<T>(String) to String
 		other thread. Unlike with `lime.app.Event`, only one
 		callback can exist; `add()` overwrites the old one.
 	**/
-	public inline function add(callback:ThreadFunction<T>):Void
+	@:noCompletion @:dox(hide) public inline function add(callback:ThreadFunction<T>):Void
 	{
 		this = callback;
 	}
