@@ -27,7 +27,6 @@ abstract ThreadFunction<T>(String) to String
 {
 	#if (js || macro)
 	private static inline var TAG:String = "/* lime.system.ThreadFunction */";
-	private static var TAG_ESCAPED:String = EReg.escape(TAG);
 
 	// Other macros can call this statically, if needed.
 	@:noCompletion @:dox(hide) #if !macro @:from #end
@@ -164,10 +163,11 @@ abstract ThreadFunction<T>(String) to String
 		{
 			var outputFile:String = Compiler.getOutput();
 			var outputContent:String = File.getContent(outputFile);
+			var escapedTag:String = EReg.escape(TAG);
 
-			outputContent = new EReg(TAG_ESCAPED + "\\$bind\\(this,(.+?)\\)\\.toString\\(\\)" + TAG_ESCAPED, "gm")
+			outputContent = new EReg(escapedTag + "\\$bind\\(this,(.+?)\\)\\.toString\\(\\)" + escapedTag, "gm")
 				.replace(outputContent, "$1.toString()");
-			outputContent = new EReg(TAG_ESCAPED, "g").replace(outputContent, "");
+			outputContent = new EReg(escapedTag, "g").replace(outputContent, "");
 
 			File.saveContent(outputFile, outputContent);
 		});
