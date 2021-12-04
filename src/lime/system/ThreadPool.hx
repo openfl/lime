@@ -24,15 +24,77 @@ import js.Syntax;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+/**
+	A simple way to distribute tasks across a pre-defined
+	number of background threads. If threads aren't
+	available, `ThreadPool` falls back to synchronous code,
+	running each function immediately.
+
+	The background threads can return data in a thread-safe
+	manner using the `sendProgress()`, `sendError()`, and
+	`sendComplete()` functions. The main thread receives
+	this data via the `onProgress`, `onError`, and
+	`onComplete` events.
+
+	For a working example, see `lime.app.Future.FutureWork`.
+**/
 class ThreadPool
 {
+	/**
+		The number of threads in this pool, including both
+		active and idle ones.
+
+		Setting this value will actually create or destroy
+		threads, and will ignore both `minThreads` and
+		`maxThreads`. (Active threads will be allowed to
+		finish before being cleaned up.)
+
+		Only the main thread should set this value.
+	**/
 	public var currentThreads(default, set):Int;
-	public var doWork:ThreadFunction;
+	/**
+		The function that handles tasks in the background.
+		This is public for backwards compatibility, but it
+		should now be set via the constructor.
+	**/
+	@:noCompletion @:dox(hide) public var doWork:ThreadFunction;
+	/**
+		The maximum number of threads this pool will create.
+
+		Only the main thread should set this value.
+	**/
 	public var maxThreads(default, set):Int;
+	/**
+		The number of threads that will be kept active at
+		all times, even if there's no work to do. This never
+		adds new threads, just keeps existing ones running.
+
+		Only the main thread should set this value.
+	**/
 	public var minThreads:Int;
+	/**
+		Dispatched on the main thread when any background
+		thread calls `sendComplete()`. For best results, add
+		all listeners before calling `queue()`.
+	**/
 	public var onComplete = new Event<Dynamic->Void>();
+	/**
+		Dispatched on the main thread when any background
+		thread calls `sendError()`. For best results, add
+		all listeners before calling `queue()`.
+	**/
 	public var onError = new Event<Dynamic->Void>();
+	/**
+		Dispatched on the main thread when any background
+		thread calls `sendProgress()`. For best results, add
+		all listeners before calling `queue()`.
+	**/
 	public var onProgress = new Event<Dynamic->Void>();
+	/**
+		Dispatched on the main thread when any background
+		thread begins working on a new task. For best
+		results, add all listeners before calling `queue()`.
+	**/
 	public var onRun = new Event<Dynamic->Void>();
 
 	#if (target.threaded || cpp || neko)
@@ -47,23 +109,40 @@ class ThreadPool
 	@:noCompletion private var __workersToTerminate:Int = 0;
 	#end
 
-	public function new(minThreads:Int = 0, maxThreads:Int = 1)
+	/**
+		@param doWork The function that handles tasks in the
+		background. It will run once for each time `queue()`
+		is called, each time receiving a different argument.
+	**/
+	public function new(?doWork:ThreadFunction, minThreads:Int = 0, maxThreads:Int = 1)
 	{
+		this.doWork = doWork;
 		this.minThreads = minThreads;
 		@:bypassAccessor this.maxThreads = maxThreads;
 		@:bypassAccessor currentThreads = 0;
 	}
 
-	// public function cancel (id:String):Void {
-	//
-	//
-	//
-	// }
-	// public function isCanceled (id:String):Bool {
-	//
-	//
-	//
-	// }
+	/**
+		[Call this from the main thread.]
+
+		Queues a task for the next background thread that
+		becomes available. The thread will receive `state`
+		as an argument.
+
+		**Caution:** in HTML5, workers are almost completely
+		isolated from the main thread. They will have
+		access to three main things: (1) certain JavaScript
+		functions (see `DedicatedWorkerGlobalScope`), (2)
+		inline Haxe functions (including all three "send"
+		functions), and (3) the contents of `state`. To
+		inline as much as possible, turn on DCE and tag the
+		function with `@:analyzer(optimize)`.
+		@param state Data to pass to the background thread.
+		HTML5 imposes several restrictions on this data:
+		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+		If you need a function, try a `ThreadFunction`,
+		keeping in mind that it will be isolated.
+	**/
 	public function queue(state:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -102,6 +181,14 @@ class ThreadPool
 		#end
 	}
 
+	/**
+		[Call this from a background thread.]
+
+		Dispatches `onComplete` on the main thread, with the
+		given argument. The background function should
+		return promptly after calling this, freeing up the
+		thread for more work.
+	**/
 	#if js inline #end
 	public function sendComplete(state:Dynamic = null):Void
 	{
@@ -120,6 +207,14 @@ class ThreadPool
 		#end
 	}
 
+	/**
+		[Call this from a background thread.]
+
+		Dispatches `onError` on the main thread, with the
+		given argument. The background function should
+		return promptly after calling this, freeing up the
+		thread for more work.
+	**/
 	#if js inline #end
 	public function sendError(state:Dynamic = null):Void
 	{
@@ -138,6 +233,12 @@ class ThreadPool
 		#end
 	}
 
+	/**
+		[Call this from a background thread.]
+
+		Dispatches `onProgress` on the main thread, with the
+		given argument.
+	**/
 	#if js inline #end
 	public function sendProgress(state:Dynamic = null):Void
 	{
@@ -157,6 +258,12 @@ class ThreadPool
 	}
 
 	#if !js
+	/**
+		[Call this from a background thread, or the main
+		thread in synchronous mode.]
+
+		Runs a single job on the calling thread.
+	**/
 	@:noCompletion private function __runWork(state:Dynamic = null):Void
 	{
 		#if (target.threaded || cpp || neko)
@@ -174,6 +281,12 @@ class ThreadPool
 	#end
 
 	#if (target.threaded || cpp || neko)
+	/**
+		[Pass this as an argument to `Thread.create()`.]
+
+		Executes jobs one by one as they arrive. Returns
+		once an `EXIT` message is received.
+	**/
 	@:noCompletion private function __doWork():Void
 	{
 		while (true)
@@ -241,6 +354,11 @@ class ThreadPool
 		}
 	}
 	#elseif js
+	/**
+		[Call this from the main thread.]
+
+		Assigns pending jobs to available workers.
+	**/
 	@:noCompletion private function __startIdleWorkers():Void
 	{
 		while (__idleWorkers.length > 0 && !__workIncoming.isEmpty())
