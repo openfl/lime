@@ -3,7 +3,6 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
-import lime.system.BackgroundWorker.ThreadFunction;
 #if target.threaded
 import sys.thread.Deque;
 import sys.thread.Thread;
