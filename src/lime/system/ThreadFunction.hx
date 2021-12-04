@@ -6,6 +6,8 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
 import sys.io.File;
+
+using haxe.macro.TypeTools;
 #end
 
 /**
@@ -54,7 +56,14 @@ abstract ThreadFunction<T>(String) to String
 	{
 		if (!Context.defined("js"))
 		{
-			return macro $self != null ? (cast $self:haxe.Constraints.Function)($a{args}) : null;
+			var type = Context.follow(Context.typeof(self)).toComplexType();
+			switch (type)
+			{
+				case TPath({ name: "ThreadFunction", params: [TPType(t)] }):
+					return macro $self != null ? ($self:$t)($a{args}) : null;
+				default:
+					throw "Underlying function type not found.";
+			}
 		}
 		else
 		{
@@ -64,12 +73,18 @@ abstract ThreadFunction<T>(String) to String
 
 			return macro if ($self != null)
 			{
-				var paramsAndBody:Array<String> = js.Syntax.code("/function\\((.*?)\\)\\s*\\{\\s*(.+)\\s*\\}/.exec({0})", $self);
+				var paramsAndBody:Array<String> = js.Syntax.code("/function\\((.*?)\\)\\s*\\{\\s*(.+)\\s*\\}/s.exec({0})", $self);
 				if (paramsAndBody == null)
 					js.Syntax.code('throw "Malformatted ThreadFunction: " + {0}', $self);
 
 				var body = paramsAndBody.pop();
 				paramsAndBody = paramsAndBody[1].split(js.Syntax.code("/, */"));
+
+				var params = paramsAndBody[0].length > 0 ? paramsAndBody.length : 0;
+				if (params != $v{args.length - 2})
+					js.Syntax.code('throw "Wrong number of arguments. Expected " + {0} + ", got " + {1} + "."',
+						params, $v{args.length - 2});
+
 				paramsAndBody.push(body);
 
 				js.Syntax.code($a{args});
