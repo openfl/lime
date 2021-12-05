@@ -1,6 +1,7 @@
 package lime.app;
 
 import lime.system.System;
+import lime.system.ThreadFunction;
 import lime.system.ThreadPool;
 import lime.utils.Log;
 
@@ -66,11 +67,12 @@ import lime.utils.Log;
 	@:noCompletion private var __progressListeners:Array<Int->Int->Void>;
 
 	/**
-		Create a new `Future` instance
-		@param	work	(Optional) A function to execute
-		@param	async	(Optional) If a function is specified, whether to execute it asynchronously where supported
+		Create a new `Future` instance.
+		@param	work	A function to execute. This comes with the usual limitations in JavaScript.
+		See `ThreadFunction.dispatch()` for details.
+		@param	async	Whether to run `work` on a background thread, assuming threads are supported.
 	**/
-	public function new(work:Void->T = null, async:Bool = false)
+	public function new(work:ThreadFunction<Void->T> = null, async:Bool = false)
 	{
 		if (work != null)
 		{
@@ -79,13 +81,13 @@ import lime.utils.Log;
 				var promise = new Promise<T>();
 				promise.future = this;
 
-				FutureWork.queue({promise: promise, work: work});
+				FutureWork.queue(promise, work);
 			}
 			else
 			{
 				try
 				{
-					value = work();
+					value = work.dispatch();
 					isComplete = true;
 				}
 				catch (e:Dynamic)
@@ -322,43 +324,50 @@ import lime.utils.Log;
 	private static var threadPool:ThreadPool;
 	public static var minThreads(get, set):Int;
 	public static var maxThreads(get, set):Int;
+	private static var promiseCount:Int = 0;
+	private static var promises:Map<Int, Promise<Dynamic>>;
 
 	@:allow(lime.app.Future)
-	private static function queue(state:Dynamic = null):Void
+	private static function queue<T>(promise:Promise<T>, work:ThreadFunction<() -> T>):Void
 	{
 		if (threadPool == null)
 		{
 			threadPool = new ThreadPool();
-			threadPool.doWork.add(threadPool_doWork);
+			threadPool.doWork = threadPool_doWork;
 			threadPool.onComplete.add(threadPool_onComplete);
 			threadPool.onError.add(threadPool_onError);
+			promises = new Map();
 		}
 
-		threadPool.queue(state);
+		promises[promiseCount] = cast promise;
+		threadPool.queue({ id: promiseCount, work: work });
+		promiseCount++;
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:Dynamic):Void
+	private static function threadPool_doWork(state:{ id:Int, work:ThreadFunction<() -> Dynamic> }):Void
 	{
 		try
 		{
-			var result = state.work();
-			threadPool.sendComplete({promise: state.promise, result: result});
+			var result = state.work.dispatch();
+			threadPool.sendComplete({id: state.id, result: result});
 		}
 		catch (e:Dynamic)
 		{
-			threadPool.sendError({promise: state.promise, error: e});
+			threadPool.sendError({id: state.id, error: e});
 		}
 	}
 
 	private static function threadPool_onComplete(state:Dynamic):Void
 	{
-		state.promise.complete(state.result);
+		promises[state.id].complete(state.result);
+		promises.remove(state.id);
 	}
 
 	private static function threadPool_onError(state:Dynamic):Void
 	{
-		state.promise.error(state.error);
+		promises[state.id].error(state.error);
+		promises.remove(state.id);
 	}
 
 	// Getters & Setters

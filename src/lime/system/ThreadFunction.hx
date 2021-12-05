@@ -88,8 +88,14 @@ abstract ThreadFunction<T>(String) to String
 	/**
 		Executes this function on the current thread.
 
-		Note: the JavaScript implementation requires all
-		arguments, even optional ones.
+		Note: the JavaScript implementation has multiple
+		limitations.
+
+		- The function can only access the global scope,
+		even if run on the main thread.
+		- On background threads, it's further limited to
+		inline variables and whatever arguments it receives.
+		- You must supply all arguments, even optional ones.
 	**/
 	public macro function dispatch(self:Expr, args:Array<Expr>):Expr
 	{
