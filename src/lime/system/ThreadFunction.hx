@@ -16,6 +16,9 @@ using haxe.macro.TypeTools;
 	as a perfectly normal function on most targets, but in
 	JavaScript it will convert to string and back.
 
+	Since it is stored as a string in JavaScript, you can
+	print the value at runtime to see the JavaScript code.
+
 	`ThreadFunction` also provides an `Event`-like API for
 	backwards compatibility. Unlike `Event`, it can only
 	represent a single function at a time; `add()`
@@ -29,13 +32,41 @@ abstract ThreadFunction<T>(String) to String
 #end
 {
 	#if (js || macro)
+	/**
+		A distinctive comment used to mark sections of the
+		output code for `cleanAfterGenerate()`. Because it's
+		a comment, it won't break anything if not cleaned.
+	**/
 	private static inline var TAG:String = "/* lime.system.ThreadFunction */";
 
 	#if macro
+	/**
+		An `Expr` of `js.Syntax.code` (not including
+		parentheses) or its Haxe 3 equivalent.
+	**/
 	private static var SYNTAX:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
 	#end
 
-	// Other macros can call this statically, if needed.
+	/**
+		Calls `func.toString()`, converting the JavaScript
+		function back into JavaScript source code.
+
+		However, Haxe may turn "`func.toString()`" into
+		"`$bind(this, func).toString()`", and `$bind()`
+		makes it impossible to extract the source code.
+
+		For multiple reasons, it isn't possible to solve
+		this during the code generation step. However, it
+		is possible to modify the generated JavaScript file,
+		which is what `cleanAfterGenerate()` does.
+
+		`cleanAfterGenerate()` needs to know which calls to
+		`$bind()` to remove, so `fromFunction()` also adds a
+		comment that `cleanAfterGenerate()` will recognize.
+	**/
+	// `@:from` would cause errors during the macro phase.
+	// Disabling `macro` during the macro phase allows other
+	// macros to call this statically.
 	@:noCompletion @:dox(hide) #if !macro @:from #end
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
@@ -56,6 +87,9 @@ abstract ThreadFunction<T>(String) to String
 
 	/**
 		Executes this function on the current thread.
+
+		Note: the JavaScript implementation requires all
+		arguments, even optional ones.
 	**/
 	public macro function dispatch(self:Expr, args:Array<Expr>):Expr
 	{
@@ -95,6 +129,9 @@ abstract ThreadFunction<T>(String) to String
 		}
 	}
 
+	/**
+		Backwards compatibility function
+	**/
 	@:noCompletion @:dox(hide) public inline function has(callback:ThreadFunction<T>):Bool
 	{
 		#if !js
@@ -104,6 +141,9 @@ abstract ThreadFunction<T>(String) to String
 		#end
 	}
 
+	/**
+		Backwards compatibility function
+	**/
 	@:noCompletion @:dox(hide) public inline function remove(callback:ThreadFunction<T>):Void
 	{
 		if (has(callback))
@@ -112,6 +152,9 @@ abstract ThreadFunction<T>(String) to String
 		}
 	}
 
+	/**
+		Backwards compatibility function
+	**/
 	@:noCompletion @:dox(hide) public inline function removeAll():Void
 	{
 		this = null;
@@ -153,6 +196,8 @@ abstract ThreadFunction<T>(String) to String
 	#if macro
 	private static var callbacksRegistered:Bool = false;
 
+	// Haxe 4 automatically resets static variables, but in
+	// Haxe 3 it requires a callback.
 	#if !haxe4
 	private static function resetCallbacksRegistered():Bool
 	{
@@ -162,8 +207,17 @@ abstract ThreadFunction<T>(String) to String
 	#end
 
 	/**
-		Adds an `onAfterGenerate()` listener to read the JS
-		file and clean up any bound functions.
+		Adds a listener to read the generated JS file and
+		remove tagged `$bind()` operations.
+
+		`fromFunction()` needs to get "`func.toString()`",
+		but Haxe may convert this into
+		"`$bind(this, func).toString()`", making it
+		impossible to extract the source code.
+
+		For multiple reasons, it isn't possible to solve
+		this during the code generation step, which is why
+		we add a listener for the `onAfterGenerate()` step.
 	**/
 	private static function cleanAfterGenerate():Void
 	{
@@ -180,12 +234,18 @@ abstract ThreadFunction<T>(String) to String
 		#if !lime_suppress_onAfterGenerate
 		Context.onAfterGenerate(function():Void
 		{
+			// Load the big JavaScript file Haxe generated.
+			// Compilation has finished, so Haxe won't make
+			// any more changes, and we're free to edit it.
 			var outputFile:String = Compiler.getOutput();
 			var outputContent:String = File.getContent(outputFile);
-			var escapedTag:String = EReg.escape(TAG);
 
+			// Find and remove tagged `$bind()` calls.
+			var escapedTag:String = EReg.escape(TAG);
 			outputContent = new EReg(escapedTag + "\\$bind\\(\\w*this,(.+?)\\)\\.toString\\(\\)" + escapedTag, "gs")
 				.replace(outputContent, "$1.toString()");
+
+			// Clean up any remaining tags.
 			outputContent = new EReg(escapedTag, "g").replace(outputContent, "");
 
 			File.saveContent(outputFile, outputContent);
