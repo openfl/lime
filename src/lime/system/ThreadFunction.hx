@@ -24,7 +24,7 @@ using haxe.macro.TypeTools;
 	represent a single function at a time; `add()`
 	overwrites the old function.
 **/
-#if !js
+#if (!js || display)
 abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
 #else
 // Excluding "from String" to help `run()` disambiguate.
@@ -67,7 +67,7 @@ abstract ThreadFunction<T>(String) to String
 	// `@:from` would cause errors during the macro phase.
 	// Disabling `macro` during the macro phase allows other
 	// macros to call this statically.
-	@:noCompletion @:dox(hide) #if !macro @:from #end
+	@:noCompletion @:dox(hide) #if (!macro && !display) @:from #end
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
 		cleanAfterGenerate();
@@ -179,6 +179,7 @@ abstract ThreadFunction<T>(String) to String
 	**/
 	@:noCompletion @:dox(hide) public inline function checkJS():Void
 	{
+		#if !display
 		// Break the string up so it won't match its own
 		// source code.
 		if (this.indexOf("[" + "native code" + "]") >= 0)
@@ -204,6 +205,7 @@ abstract ThreadFunction<T>(String) to String
 
 		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
 			('{0}.replace(/haxe_NativeStackTrace\\.lastError = \\w+;\\s*var (\\w+) = haxe_Exception\\.caught\\((\\w+)\\)\\.unwrap\\(\\);/gs, "var $1 = \'\' + $2;")', this);
+		#end
 	}
 	#end
 
