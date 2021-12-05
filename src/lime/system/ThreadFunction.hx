@@ -115,6 +115,8 @@ abstract ThreadFunction<T>(String) to String
 
 			return macro if ($self != null)
 			{
+				$self.checkJS();
+
 				var paramsAndBody:Array<String> = $SYNTAX($v{'/$regex/s.exec({0})'}, $self);
 				if (paramsAndBody == null)
 					$SYNTAX('throw "Wrong number of arguments. Attempting to pass " + {0} + " arguments to this function:\\n" + {1}', $v{args.length}, $self);
@@ -165,6 +167,9 @@ abstract ThreadFunction<T>(String) to String
 		Makes sure the JS string is suitable for making a
 		`Worker`. Fixes issues when possible and throws
 		errors if not.
+
+		This is automatically called by `dispatch()`, so
+		you typically don't need to call it yourself.
 	**/
 	@:noCompletion @:dox(hide) public inline function checkJS():Void
 	{
