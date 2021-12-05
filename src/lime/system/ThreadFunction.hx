@@ -180,7 +180,7 @@ abstract ThreadFunction<T>(String) to String
 			var outputContent:String = File.getContent(outputFile);
 			var escapedTag:String = EReg.escape(TAG);
 
-			outputContent = new EReg(escapedTag + "\\$bind\\(this,(.+?)\\)\\.toString\\(\\)" + escapedTag, "gm")
+			outputContent = new EReg(escapedTag + "\\$bind\\(\\w*this,(.+?)\\)\\.toString\\(\\)" + escapedTag, "gs")
 				.replace(outputContent, "$1.toString()");
 			outputContent = new EReg(escapedTag, "g").replace(outputContent, "");
 
