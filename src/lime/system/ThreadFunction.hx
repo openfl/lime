@@ -195,6 +195,9 @@ abstract ThreadFunction<T>(String) to String
 		// an unused reference to outside code.
 		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
 			('{0}.replace(/var _g?this = .+?;\\s*(.+?postMessage)/gs, "$1")', this);
+
+		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
+			('{0}.replace(/haxe_NativeStackTrace\\.lastError = \\w+;\\s*var (\\w+) = haxe_Exception\\.caught\\((\\w+)\\)\\.unwrap\\(\\);/gs, "var $1 = \'\' + $2;")', this);
 	}
 	#end
 
