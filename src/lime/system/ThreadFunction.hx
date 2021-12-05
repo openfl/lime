@@ -30,12 +30,16 @@ abstract ThreadFunction<T>(String) to String
 	#if (js || macro)
 	private static inline var TAG:String = "/* lime.system.ThreadFunction */";
 
+	#if macro
+	private static var SYNTAX:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
+	#end
+
 	// Other macros can call this statically, if needed.
 	@:noCompletion @:dox(hide) #if !macro @:from #end
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
 		cleanAfterGenerate();
-		return macro js.Syntax.code($v{TAG + "{0}.toString()" + TAG}, $func);
+		return macro $SYNTAX($v{TAG + "{0}.toString()" + TAG}, $func);
 	}
 	#end
 
@@ -73,21 +77,21 @@ abstract ThreadFunction<T>(String) to String
 
 			return macro if ($self != null)
 			{
-				var paramsAndBody:Array<String> = js.Syntax.code("/function\\((.*?)\\)\\s*\\{\\s*(.+)\\s*\\}/s.exec({0})", $self);
+				var paramsAndBody:Array<String> = $SYNTAX("/function\\((.*?)\\)\\s*\\{\\s*(.+)\\s*\\}/s.exec({0})", $self);
 				if (paramsAndBody == null)
-					js.Syntax.code('throw "Malformatted ThreadFunction: " + {0}', $self);
+					$SYNTAX('throw "Malformatted ThreadFunction: " + {0}', $self);
 
 				var body = paramsAndBody.pop();
-				paramsAndBody = paramsAndBody[1].split(js.Syntax.code("/, */"));
+				paramsAndBody = paramsAndBody[1].split($SYNTAX("/, */"));
 
 				var params = paramsAndBody[0].length > 0 ? paramsAndBody.length : 0;
 				if (params != $v{args.length - 2})
-					js.Syntax.code('throw "Wrong number of arguments. Expected " + {0} + ", got " + {1} + "."',
+					$SYNTAX('throw "Wrong number of arguments. Expected " + {0} + ", got " + {1} + "."',
 						params, $v{args.length - 2});
 
 				paramsAndBody.push(body);
 
-				js.Syntax.code($a{args});
+				$SYNTAX($a{args});
 			}
 			else null;
 		}
@@ -127,7 +131,8 @@ abstract ThreadFunction<T>(String) to String
 		// source code.
 		if (this.indexOf("[" + "native code" + "]") >= 0)
 		{
-			js.Syntax.code("throw {0}",
+			#if haxe4 js.Syntax.code #else untyped __js__ #end
+			("throw {0}",
 				"Haxe automatically binds some functions, "
 				+ "making them incompatible with workers. "
 				+ "ThreadFunction tries to undo this, but "
@@ -142,7 +147,8 @@ abstract ThreadFunction<T>(String) to String
 
 		// Without analyzer-optimize, there's likely to be
 		// an unused reference to outside code.
-		this = js.Syntax.code('{0}.replace(/var _g?this = .+?;\\s*(.+?postMessage)/gs, "$1")', this);
+		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
+			('{0}.replace(/var _g?this = .+?;\\s*(.+?postMessage)/gs, "$1")', this);
 	}
 	#end
 
