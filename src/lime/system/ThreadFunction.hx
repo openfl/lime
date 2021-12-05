@@ -7,6 +7,7 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 import sys.io.File;
 
+using haxe.macro.Context;
 using haxe.macro.TypeTools;
 #end
 
@@ -60,7 +61,7 @@ abstract ThreadFunction<T>(String) to String
 	{
 		if (!Context.defined("js"))
 		{
-			var type = Context.follow(Context.typeof(self)).toComplexType();
+			var type = self.typeof().follow().toComplexType();
 			switch (type)
 			{
 				case TPath({ name: "ThreadFunction", params: [TPType(t)] }):
@@ -71,27 +72,24 @@ abstract ThreadFunction<T>(String) to String
 		}
 		else
 		{
-			var argSyntax:Array<String> = [for (i in 1...(args.length + 1)) '{$i}'];
-			var syntax:String = 'Function.apply(this, {0})(${argSyntax.join(", ")})';
-			args = [macro $v{syntax}, macro paramsAndBody].concat(args);
+			// The `Function()` constructor is the preferred
+			// method of executing strings. It requires
+			// parameters and a body, which can be extracted
+			// using a regex.
+			var regex:String = [for (i in 0...args.length) "(\\w*)"].join(",\\s*");
+			regex = 'function\\($regex\\)\\s*\\{\\s*(.+)\\s*\\}';
 
 			return macro if ($self != null)
 			{
-				var paramsAndBody:Array<String> = $SYNTAX("/function\\((.*?)\\)\\s*\\{\\s*(.+)\\s*\\}/s.exec({0})", $self);
+				var paramsAndBody:Array<String> = $SYNTAX($v{'/$regex/s.exec({0})'}, $self);
 				if (paramsAndBody == null)
-					$SYNTAX('throw "Malformatted ThreadFunction: " + {0}', $self);
+					$SYNTAX('throw "Wrong number of arguments. Attempting to pass " + {0} + " arguments to this function:\\n" + {1}', $v{args.length}, $self);
+				paramsAndBody.shift();
 
-				var body = paramsAndBody.pop();
-				paramsAndBody = paramsAndBody[1].split($SYNTAX("/, */"));
-
-				var params = paramsAndBody[0].length > 0 ? paramsAndBody.length : 0;
-				if (params != $v{args.length - 2})
-					$SYNTAX('throw "Wrong number of arguments. Expected " + {0} + ", got " + {1} + "."',
-						params, $v{args.length - 2});
-
-				paramsAndBody.push(body);
-
-				$SYNTAX($a{args});
+				// Construct the function and then call it.
+				// Use `apply()` because both sets of
+				// arguments are in array form.
+				$SYNTAX("Function.apply(this, {0}).apply(this, {1})", paramsAndBody, $a{args});
 			}
 			else null;
 		}
