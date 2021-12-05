@@ -251,7 +251,7 @@ class BackgroundWorker
 		__worker.onmessage = __handleMessage;
 		__worker.postMessage(message);
 		#else
-		doWork(message);
+		doWork.dispatch(message);
 		#end
 	}
 
