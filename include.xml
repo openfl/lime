@@ -57,6 +57,8 @@
 	<target name="console-pc" handler="lime-console-pc" />
 	<haxelib name="lime-console-pc" if="console-pc" />
 
+	<haxedef name="force_synchronous" if="emscripten || display" />
+
 	<section if="hxp" unless="lime-tools">
 
 		<target name="air" path="tools/platforms/AIRPlatform.hx" />

@@ -24,21 +24,13 @@ using haxe.macro.TypeTools;
 	represent a single function at a time; `add()`
 	overwrites the old function.
 **/
-#if (!js || display)
+#if (!js || force_synchronous)
 abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
 #else
 // Excluding "from String" to help `run()` disambiguate.
 abstract ThreadFunction<T>(String) to String
 #end
 {
-	#if (js || macro)
-	/**
-		A distinctive comment used to mark sections of the
-		output code for `cleanAfterGenerate()`. Because it's
-		a comment, it won't break anything if not cleaned.
-	**/
-	private static inline var TAG:String = "/* lime.system.ThreadFunction */";
-
 	#if macro
 	/**
 		An `Expr` of `js.Syntax.code` (not including
@@ -46,6 +38,14 @@ abstract ThreadFunction<T>(String) to String
 	**/
 	private static var SYNTAX:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
 	#end
+
+	#if ((js || macro) && !force_synchronous)
+	/**
+		A distinctive comment used to mark sections of the
+		output code for `cleanAfterGenerate()`. Because it's
+		a comment, it won't break anything if not cleaned.
+	**/
+	private static inline var TAG:String = "/* lime.system.ThreadFunction */";
 
 	/**
 		Calls `func.toString()`, converting the JavaScript
@@ -67,7 +67,7 @@ abstract ThreadFunction<T>(String) to String
 	// `@:from` would cause errors during the macro phase.
 	// Disabling `macro` during the macro phase allows other
 	// macros to call this statically.
-	@:noCompletion @:dox(hide) #if (!macro && !display) @:from #end
+	@:noCompletion @:dox(hide) #if !macro @:from #end
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
 		cleanAfterGenerate();
@@ -99,7 +99,7 @@ abstract ThreadFunction<T>(String) to String
 	**/
 	public macro function dispatch(self:Expr, args:Array<Expr>):Expr
 	{
-		if (!Context.defined("js"))
+		if (!Context.defined("js") || Context.defined("force_synchronous"))
 		{
 			var type = self.typeof().follow().toComplexType();
 			switch (type)
@@ -142,7 +142,7 @@ abstract ThreadFunction<T>(String) to String
 	**/
 	@:noCompletion @:dox(hide) public inline function has(callback:ThreadFunction<T>):Bool
 	{
-		#if !js
+		#if (!js || force_synchronous)
 		return Reflect.compareMethods(this, callback);
 		#else
 		return this == callback;
@@ -168,7 +168,7 @@ abstract ThreadFunction<T>(String) to String
 		this = null;
 	}
 
-	#if js
+	#if (js && !force_synchronous)
 	/**
 		Makes sure the JS string is suitable for making a
 		`Worker`. Fixes issues when possible and throws
@@ -179,7 +179,6 @@ abstract ThreadFunction<T>(String) to String
 	**/
 	@:noCompletion @:dox(hide) public inline function checkJS():Void
 	{
-		#if !display
 		// Break the string up so it won't match its own
 		// source code.
 		if (this.indexOf("[" + "native code" + "]") >= 0)
@@ -205,11 +204,10 @@ abstract ThreadFunction<T>(String) to String
 
 		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
 			('{0}.replace(/haxe_NativeStackTrace\\.lastError = \\w+;\\s*var (\\w+) = haxe_Exception\\.caught\\((\\w+)\\)\\.unwrap\\(\\);/gs, "var $1 = \'\' + $2;")', this);
-		#end
 	}
 	#end
 
-	#if macro
+	#if (macro && !force_synchronous)
 	private static var callbacksRegistered:Bool = false;
 
 	// Haxe 4 automatically resets static variables, but in

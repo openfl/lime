@@ -4,6 +4,7 @@
 -D html5
 -D doc_gen
 -D lime-doc-gen
+-D force_synchronous
 ImportAll
 -lib lime
 --no-output

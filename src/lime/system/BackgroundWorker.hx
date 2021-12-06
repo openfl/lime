@@ -2,6 +2,7 @@ package lime.system;
 
 import lime.app.Application;
 import lime.app.Event;
+#if !force_synchronous
 #if target.threaded
 import sys.thread.Deque;
 import sys.thread.Thread;
@@ -17,6 +18,7 @@ import js.html.MessageEvent;
 import js.html.URL;
 import js.html.Worker;
 import js.Syntax;
+#end
 #end
 
 /**
@@ -130,6 +132,7 @@ class BackgroundWorker
 	**/
 	public var onProgress = new Event<Dynamic->Void>();
 
+	#if !force_synchronous
 	#if (target.threaded || cpp || neko)
 	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
 	@:noCompletion private var __workerThread:Thread;
@@ -151,6 +154,7 @@ class BackgroundWorker
 	@:noCompletion private var __worker:Worker;
 	@:noCompletion private var __workerURL:String;
 	#end
+	#end
 
 	public function new() {}
 
@@ -170,6 +174,7 @@ class BackgroundWorker
 	{
 		canceled = true;
 
+		#if !force_synchronous
 		#if (target.threaded || cpp || neko)
 		Application.current.onUpdate.remove(__update);
 
@@ -186,6 +191,7 @@ class BackgroundWorker
 			URL.revokeObjectURL(__workerURL);
 			__workerURL = null;
 		}
+		#end
 		#end
 	}
 
@@ -223,7 +229,7 @@ class BackgroundWorker
 		cancel();
 		canceled = false;
 
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		__messageQueue = new Deque();
 		__workerThread = Thread.create(function():Void {
 			doWork.dispatch(message);
@@ -235,7 +241,7 @@ class BackgroundWorker
 		{
 			Application.current.onUpdate.add(__update);
 		}
-		#elseif js
+		#elseif (js && !force_synchronous)
 		doWork.checkJS();
 
 		__workerURL = URL.createObjectURL(new Blob([
@@ -265,7 +271,7 @@ class BackgroundWorker
 	#if js inline #end
 	public function sendComplete(message:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread) return;
 
 		if (__messageQueue != null)
@@ -275,7 +281,7 @@ class BackgroundWorker
 				message: message
 			});
 		}
-		#elseif js
+		#elseif (js && !force_synchronous)
 		Syntax.code("postMessage({0})", {
 			event: MESSAGE_COMPLETE,
 			message: message
@@ -301,7 +307,7 @@ class BackgroundWorker
 	#if js inline #end
 	public function sendError(message:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread) return;
 
 		if (__messageQueue != null)
@@ -311,7 +317,7 @@ class BackgroundWorker
 				message: message
 			});
 		}
-		#elseif js
+		#elseif (js && !force_synchronous)
 		Syntax.code("postMessage({0})", {
 			event: MESSAGE_ERROR,
 			message: message
@@ -334,7 +340,7 @@ class BackgroundWorker
 	#if js inline #end
 	public function sendProgress(message:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread) return;
 
 		if (__messageQueue != null)
@@ -343,7 +349,7 @@ class BackgroundWorker
 				message: message
 			});
 		}
-		#elseif js
+		#elseif (js && !force_synchronous)
 		Syntax.code("postMessage({0})", {
 			message: message
 		});
@@ -355,9 +361,9 @@ class BackgroundWorker
 		#end
 	}
 
+	#if ((target.threaded || cpp || neko) && !force_synchronous)
 	@:noCompletion private function __update(deltaTime:Int):Void
 	{
-		#if (target.threaded || cpp || neko)
 		var data = __messageQueue.pop(false);
 
 		if (data != null)
@@ -378,10 +384,10 @@ class BackgroundWorker
 				onProgress.dispatch(data.message);
 			}
 		}
-		#end
 	}
+	#end
 
-	#if js
+	#if (js && !force_synchronous)
 	@:noCompletion private function __handleMessage(event:MessageEvent):Void
 	{
 		if (canceled)

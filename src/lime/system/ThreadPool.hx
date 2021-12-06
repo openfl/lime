@@ -3,6 +3,7 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
+#if !force_synchronous
 #if target.threaded
 import sys.thread.Deque;
 import sys.thread.Thread;
@@ -18,6 +19,7 @@ import js.html.MessageEvent;
 import js.html.URL;
 import js.html.Worker;
 import js.Syntax;
+#end
 #end
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -96,9 +98,9 @@ class ThreadPool
 	**/
 	public var onRun = new Event<Dynamic->Void>();
 
+	#if !force_synchronous
 	#if (target.threaded || cpp || neko)
-	@:noCompletion private var __synchronous:Bool =
-		#if (emscripten || force_synchronous) true #else false #end;
+	@:noCompletion private var __synchronous:Bool = false;
 	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
 	@:noCompletion private var __workQueued:Int = 0;
 	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
@@ -106,6 +108,7 @@ class ThreadPool
 	@:noCompletion private var __idleWorkers = new Array<WorkerWithURL>();
 	@:noCompletion private var __workIncoming = new List<Dynamic>();
 	@:noCompletion private var __workersToTerminate:Int = 0;
+	#end
 	#end
 
 	/**
@@ -144,7 +147,7 @@ class ThreadPool
 	**/
 	public function queue(state:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		// TODO: Better way to handle this?
 
 		if (Application.current != null && Application.current.window != null && !__synchronous)
@@ -167,7 +170,7 @@ class ThreadPool
 			__synchronous = true;
 			__runWork(state);
 		}
-		#elseif js
+		#elseif (js && !force_synchronous)
 		if (currentThreads < maxThreads && __idleWorkers.length == 0)
 		{
 			currentThreads++;
@@ -191,7 +194,7 @@ class ThreadPool
 	#if js inline #end
 	public function sendComplete(state:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(COMPLETE, state));
@@ -199,7 +202,7 @@ class ThreadPool
 		}
 		#end
 
-		#if js
+		#if (js && !force_synchronous)
 		Syntax.code("postMessage({0})", new ThreadPoolMessage(COMPLETE, state));
 		#else
 		onComplete.dispatch(state);
@@ -217,7 +220,7 @@ class ThreadPool
 	#if js inline #end
 	public function sendError(state:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(ERROR, state));
@@ -225,7 +228,7 @@ class ThreadPool
 		}
 		#end
 
-		#if js
+		#if (js && !force_synchronous)
 		Syntax.code("postMessage({0})", new ThreadPoolMessage(ERROR, state));
 		#else
 		onError.dispatch(state);
@@ -241,7 +244,7 @@ class ThreadPool
 	#if js inline #end
 	public function sendProgress(state:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(PROGRESS, state));
@@ -249,14 +252,14 @@ class ThreadPool
 		}
 		#end
 
-		#if js
+		#if (js && !force_synchronous)
 		Syntax.code("postMessage({0})", new ThreadPoolMessage(PROGRESS, state));
 		#else
 		onProgress.dispatch(state);
 		#end
 	}
 
-	#if !js
+	#if (!js || force_synchronous)
 	/**
 		[Call this from a background thread, or the main
 		thread in synchronous mode.]
@@ -265,7 +268,7 @@ class ThreadPool
 	**/
 	@:noCompletion private function __runWork(state:Dynamic = null):Void
 	{
-		#if (target.threaded || cpp || neko)
+		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(WORK, state));
@@ -279,7 +282,7 @@ class ThreadPool
 	}
 	#end
 
-	#if (target.threaded || cpp || neko)
+	#if ((target.threaded || cpp || neko) && !force_synchronous)
 	/**
 		[Pass this as an argument to `Thread.create()`.]
 
@@ -352,7 +355,7 @@ class ThreadPool
 			}
 		}
 	}
-	#elseif js
+	#elseif (js && !force_synchronous)
 	/**
 		[Call this from the main thread.]
 
@@ -412,6 +415,9 @@ class ThreadPool
 
 	private function set_currentThreads(value:Int):Int
 	{
+		#if force_synchronous
+		return currentThreads = value;
+		#else
 		while (currentThreads < value)
 		{
 			currentThreads++;
@@ -453,6 +459,7 @@ class ThreadPool
 		}
 
 		return currentThreads;
+		#end
 	}
 
 	private function set_maxThreads(value:Int):Int
@@ -486,7 +493,7 @@ private abstract ThreadPoolMessage({ state:Dynamic, type:ThreadPoolMessageType }
 	}
 }
 
-#if js
+#if (js && !force_synchronous)
 private class WorkerWithURL {
 	public var url:String;
 	public var worker:Worker;
