@@ -49,13 +49,17 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Linux-NDLL
-          path: ndll/Linux/
+          path: |
+            ndll/Linux/
+            !.gitignore
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v2
         with:
           name: Linux64-NDLL
-          path: ndll/Linux64/
+          path: |
+            ndll/Linux64/
+            !.gitignore
           if-no-files-found: error
 
   macos-ndll:
@@ -98,7 +102,9 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Mac64-NDLL
-          path: ndll/Mac64/
+          path: |
+            ndll/Mac64/
+            !.gitignore
           if-no-files-found: error
 
   windows-ndll:
@@ -143,12 +149,17 @@ jobs:
         with:
           name: Windows-NDLL
           path: ndll/Windows/
+          path: |
+            ndll/Windows/
+            !.gitignore
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v2
         with:
           name: Windows64-NDLL
-          path: ndll/Windows64/
+          path: |
+            ndll/Windows64/
+            !.gitignore
           if-no-files-found: error
 
   android-ndll:
@@ -214,7 +225,9 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Android-NDLL
-          path: ndll/Android/
+          path: |
+            ndll/Android/
+            !.gitignore
           if-no-files-found: error
 
   ios-ndll:
@@ -262,7 +275,9 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: iPhone-NDLL
-          path: ndll/iPhone/
+          path: |
+            ndll/iPhone/
+            !.gitignore
           if-no-files-found: error
 
   package-haxelib:
