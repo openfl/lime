@@ -844,7 +844,7 @@ jobs:
   notify:
     runs-on: ubuntu-18.04
     needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
-    if: always()
+    if: ${{ github.repository == 'haxelime/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
         uses: nobrayner/discord-webhook@v1
