@@ -148,7 +148,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Windows-NDLL
-          path: ndll/Windows/
           path: |
             ndll/Windows/
             !.gitignore
