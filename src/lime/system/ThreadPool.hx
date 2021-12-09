@@ -3,6 +3,7 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
+import lime.utils.ArrayBuffer;
 #if !force_synchronous
 #if target.threaded
 import sys.thread.Deque;
@@ -190,9 +191,13 @@ class ThreadPool
 		given argument. The background function should
 		return promptly after calling this, freeing up the
 		thread for more work.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `state`.
 	**/
 	#if js inline #end
-	public function sendComplete(state:Dynamic = null):Void
+	public function sendComplete(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
@@ -203,7 +208,7 @@ class ThreadPool
 		#end
 
 		#if (js && !force_synchronous)
-		Syntax.code("postMessage({0})", new ThreadPoolMessage(COMPLETE, state));
+		Syntax.code("postMessage({0}, {1})", new ThreadPoolMessage(COMPLETE, state), transferList);
 		#else
 		onComplete.dispatch(state);
 		#end
@@ -216,9 +221,13 @@ class ThreadPool
 		given argument. The background function should
 		return promptly after calling this, freeing up the
 		thread for more work.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `state`.
 	**/
 	#if js inline #end
-	public function sendError(state:Dynamic = null):Void
+	public function sendError(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
@@ -229,7 +238,7 @@ class ThreadPool
 		#end
 
 		#if (js && !force_synchronous)
-		Syntax.code("postMessage({0})", new ThreadPoolMessage(ERROR, state));
+		Syntax.code("postMessage({0}, {1})", new ThreadPoolMessage(ERROR, state), transferList);
 		#else
 		onError.dispatch(state);
 		#end
@@ -240,9 +249,15 @@ class ThreadPool
 
 		Dispatches `onProgress` on the main thread, with the
 		given argument.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `state`. Once
+		transferred, they will become inaccessible to the
+		background thread.
 	**/
 	#if js inline #end
-	public function sendProgress(state:Dynamic = null):Void
+	public function sendProgress(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
@@ -253,7 +268,7 @@ class ThreadPool
 		#end
 
 		#if (js && !force_synchronous)
-		Syntax.code("postMessage({0})", new ThreadPoolMessage(PROGRESS, state));
+		Syntax.code("postMessage({0}, {1})", new ThreadPoolMessage(PROGRESS, state), transferList);
 		#else
 		onProgress.dispatch(state);
 		#end

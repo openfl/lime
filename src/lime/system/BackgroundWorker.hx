@@ -2,6 +2,7 @@ package lime.system;
 
 import lime.app.Application;
 import lime.app.Event;
+import lime.utils.ArrayBuffer;
 #if !force_synchronous
 #if target.threaded
 import sys.thread.Deque;
@@ -264,12 +265,16 @@ class BackgroundWorker
 	/**
 		[Call this from the background thread.]
 
-		Dispatches `onComplete` on the main thread, with the
-		given argument. After completion, all further
+		Dispatches `onComplete` on the main thread, passing
+		`message` along. After completion, all further
 		messages will be ignored.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `message`.
 	**/
 	#if js inline #end
-	public function sendComplete(message:Dynamic = null):Void
+	public function sendComplete(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread) return;
@@ -282,10 +287,10 @@ class BackgroundWorker
 			});
 		}
 		#elseif (js && !force_synchronous)
-		Syntax.code("postMessage({0})", {
+		Syntax.code("postMessage({0}, {1})", {
 			event: MESSAGE_COMPLETE,
 			message: message
-		});
+		}, transferList);
 		#else
 		completed = true;
 
@@ -300,12 +305,16 @@ class BackgroundWorker
 	/**
 		[Call this from the background thread.]
 
-		Dispatches `onError` on the main thread, with the
-		given argument. After an error, all further messages
-		will be ignored.
+		Dispatches `onError` on the main thread, passing
+		`message` along. After an error, all further
+		messages will be ignored.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `message`.
 	**/
 	#if js inline #end
-	public function sendError(message:Dynamic = null):Void
+	public function sendError(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread) return;
@@ -318,10 +327,10 @@ class BackgroundWorker
 			});
 		}
 		#elseif (js && !force_synchronous)
-		Syntax.code("postMessage({0})", {
+		Syntax.code("postMessage({0}, {1})", {
 			event: MESSAGE_ERROR,
 			message: message
-		});
+		}, transferList);
 		#else
 		if (!canceled)
 		{
@@ -334,11 +343,17 @@ class BackgroundWorker
 	/**
 		[Call this from the background thread.]
 
-		Dispatches `onProgress` on the main thread, with the
-		given argument.
+		Dispatches `onProgress` on the main thread, passing
+		`message` along.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `message`. Once
+		transferred, they will become inaccessible to the
+		background thread.
 	**/
 	#if js inline #end
-	public function sendProgress(message:Dynamic = null):Void
+	public function sendProgress(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread) return;
@@ -350,9 +365,9 @@ class BackgroundWorker
 			});
 		}
 		#elseif (js && !force_synchronous)
-		Syntax.code("postMessage({0})", {
+		Syntax.code("postMessage({0}, {1})", {
 			message: message
-		});
+		}, transferList);
 		#else
 		if (!canceled)
 		{
