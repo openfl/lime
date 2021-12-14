@@ -281,7 +281,7 @@ class IconHelper
 
 		for (icon in icons)
 		{
-			if (icon.width == width && icon.height == height && (match == null || match.priority < icon.priority))
+			if (icon.width == width && icon.height == height && (match == null || match.priority <= icon.priority))
 			{
 				match = icon;
 			}
@@ -303,7 +303,7 @@ class IconHelper
 				iconDifference = 0;
 			}
 
-			if (iconDifference < matchDifference || iconDifference == matchDifference && icon.priority > match.priority)
+			if (iconDifference < matchDifference || iconDifference == matchDifference && icon.priority >= match.priority)
 			{
 				match = icon;
 				matchDifference = iconDifference;
