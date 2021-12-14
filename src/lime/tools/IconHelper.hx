@@ -281,7 +281,7 @@ class IconHelper
 
 		for (icon in icons)
 		{
-			if ((icon.width == 0 && icon.height == 0) || (icon.width == width && icon.height == height))
+			if (icon.width == width && icon.height == height && (match == null || match.priority < icon.priority))
 			{
 				match = icon;
 			}
@@ -292,33 +292,21 @@ class IconHelper
 
 	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int):Icon
 	{
-		var match = null;
+		var match:Icon = null;
+		var matchDifference = Math.POSITIVE_INFINITY;
 
 		for (icon in icons)
 		{
-			if (icon.width > width / 2 && icon.height > height / 2)
+			var iconDifference = Math.abs(icon.width - width) + Math.abs(icon.height - height);
+			if (Path.extension(icon.path) == "svg")
 			{
-				if (match == null)
-				{
-					match = icon;
-				}
-				else
-				{
-					if (icon.width > match.width && icon.height > match.height)
-					{
-						if (match.width < width || match.height < height)
-						{
-							match = icon;
-						}
-					}
-					else
-					{
-						if (icon.width > width && icon.height > height)
-						{
-							match = icon;
-						}
-					}
-				}
+				iconDifference = 0;
+			}
+
+			if (iconDifference < matchDifference || iconDifference == matchDifference && icon.priority > match.priority)
+			{
+				match = icon;
+				matchDifference = iconDifference;
 			}
 		}
 
