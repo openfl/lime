@@ -256,11 +256,10 @@ abstract ThreadFunction<T>(String) to String
 
 			// Find and remove tagged `$bind()` calls.
 			var escapedTag:String = EReg.escape(TAG);
-			outputContent = new EReg(escapedTag + "\\$bind\\(\\w*this,(.+?)\\)\\.toString\\(\\)" + escapedTag, "gs")
-				.replace(outputContent, "$1.toString()");
-
-			// Clean up any remaining tags.
-			outputContent = new EReg(escapedTag, "g").replace(outputContent, "");
+			outputContent = new EReg(escapedTag + "(.+?)" + escapedTag, "gs")
+				.map(outputContent, function(match) {
+					return ~/\$bind\(.+?,(.+?)\)/s.replace(match.matched(1), "$1");
+				});
 
 			File.saveContent(outputFile, outputContent);
 		});
