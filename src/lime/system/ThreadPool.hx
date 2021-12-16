@@ -459,7 +459,8 @@ class ThreadPool
 			currentThreads--;
 
 			#if (target.threaded || cpp || neko)
-			__workIncoming.add(new ThreadPoolMessage(EXIT, null));
+			// `EXIT` messages take priority over `WORK`.
+			__workIncoming.push(new ThreadPoolMessage(EXIT, null));
 			#elseif js
 			var worker = __idleWorkers.pop();
 			if (worker != null)
