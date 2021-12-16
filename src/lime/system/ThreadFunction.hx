@@ -31,14 +31,6 @@ abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
 abstract ThreadFunction<T>(String) to String
 #end
 {
-	#if macro
-	/**
-		An `Expr` of `js.Syntax.code` (not including
-		parentheses) or its Haxe 3 equivalent.
-	**/
-	private static var SYNTAX:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
-	#end
-
 	#if ((js || macro) && !force_synchronous)
 	/**
 		A distinctive comment used to mark sections of the
@@ -71,7 +63,12 @@ abstract ThreadFunction<T>(String) to String
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
 		cleanAfterGenerate();
-		return macro $SYNTAX($v{TAG + "{0}.toString()" + TAG}, $func);
+		var syntax:String = TAG + "{0}.toString()" + TAG;
+		#if haxe4
+		return macro js.Syntax.code($v{syntax}, $func);
+		#else
+		return macro untyped __js__($v{syntax}, $func);
+		#end
 	}
 	#end
 
@@ -119,19 +116,21 @@ abstract ThreadFunction<T>(String) to String
 			var regex:String = [for (i in 0...args.length) "(\\w*)"].join(",\\s*");
 			regex = 'function\\($regex\\)\\s*\\{\\s*(.+)\\s*\\}';
 
+			var jsCode:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
+
 			return macro if ($self != null)
 			{
 				$self.checkJS();
 
-				var paramsAndBody:Array<String> = $SYNTAX($v{'/$regex/s.exec({0})'}, $self);
+				var paramsAndBody:Array<String> = $jsCode($v{'/$regex/s.exec({0})'}, $self);
 				if (paramsAndBody == null)
-					$SYNTAX('throw "Wrong number of arguments. Attempting to pass " + {0} + " arguments to this function:\\n" + {1}', $v{args.length}, $self);
+					$jsCode('throw "Wrong number of arguments. Attempting to pass " + {0} + " arguments to this function:\\n" + {1}', $v{args.length}, $self);
 				paramsAndBody.shift();
 
 				// Construct the function and then call it.
 				// Use `apply()` because both sets of
 				// arguments are in array form.
-				$SYNTAX("Function.apply(this, {0}).apply(this, {1})", paramsAndBody, $a{args});
+				$jsCode("Function.apply(this, {0}).apply(this, {1})", paramsAndBody, $a{args});
 			}
 			else null;
 		}
