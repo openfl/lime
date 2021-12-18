@@ -111,12 +111,12 @@ class AudioSource
 		return __backend.setLoops(value);
 	}
 
-	private function get_pitch():Float
+	@:noCompletion private function get_pitch():Float
 	{
 		return __backend.getPitch();
 	}
 
-	private function set_pitch(value:Float):Float
+	@:noCompletion private function set_pitch(value:Float):Float
 	{
 		return __backend.setPitch(value);
 	}

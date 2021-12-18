@@ -211,9 +211,10 @@ class HTML5AudioSource
 
 	public function setPitch(value:Float):Float
 	{
-
+		#if lime_howlerjs
 		parent.buffer.__srcHowl.rate(value);
-
+		#end
+		
 		return getPitch();
 	}
 	
