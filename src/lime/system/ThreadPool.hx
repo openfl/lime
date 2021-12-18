@@ -107,7 +107,7 @@ class ThreadPool
 	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
 	#elseif js
 	@:noCompletion private var __idleWorkers = new Array<WorkerWithURL>();
-	@:noCompletion private var __workIncoming = new List<Dynamic>();
+	@:noCompletion private var __workIncoming = new List<{state:Dynamic, ?transferList:Array<ArrayBuffer>}>();
 	@:noCompletion private var __workersToTerminate:Int = 0;
 	#end
 	#end
@@ -145,8 +145,12 @@ class ThreadPool
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 		If you need a function, try a `ThreadFunction`,
 		keeping in mind that it will be isolated.
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The main thread will only receive these
+		if they're also included in `state`.
 	**/
-	public function queue(state:Dynamic = null):Void
+	public function queue(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		// TODO: Better way to handle this?
@@ -177,7 +181,7 @@ class ThreadPool
 			currentThreads++;
 		}
 
-		__workIncoming.add(state);
+		__workIncoming.add({ state: state, transferList: transferList });
 		__startIdleWorkers();
 		#else
 		__runWork(state);
@@ -380,7 +384,8 @@ class ThreadPool
 	{
 		while (__idleWorkers.length > 0 && !__workIncoming.isEmpty())
 		{
-			__idleWorkers.pop().postMessage(__workIncoming.pop());
+			var work = __workIncoming.pop();
+			__idleWorkers.pop().postMessage(work.state, work.transferList);
 		}
 	}
 

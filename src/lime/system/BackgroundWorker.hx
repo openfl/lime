@@ -218,8 +218,12 @@ class BackgroundWorker
 		@param message Data to pass to `doWork`. HTML5
 		imposes several restrictions on this data:
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+		@param transferList (JavaScript only) Zero or more
+		buffers to transfer using an efficient zero-copy
+		operation. The worker thread will only receive these
+		if they're also included in `message`.
 	**/
-	public function run(?doWork:ThreadFunction<Dynamic->Void>, ?message:Dynamic):Void
+	public function run(?doWork:ThreadFunction<Dynamic->Void>, ?message:Dynamic, transferList:Array<ArrayBuffer> = null):Void
 	{
 		if (doWork == null)
 		{
@@ -256,7 +260,7 @@ class BackgroundWorker
 
 		__worker = new Worker(__workerURL);
 		__worker.onmessage = __handleMessage;
-		__worker.postMessage(message);
+		__worker.postMessage(message, transferList);
 		#else
 		doWork.dispatch(message);
 		#end
