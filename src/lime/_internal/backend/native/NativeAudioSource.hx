@@ -505,6 +505,18 @@ class NativeAudioSource
 		return loops = value;
 	}
 
+	public function getPitch():Float
+	{
+		return AL.getSourcef(handle, AL.PITCH);
+	}
+
+	public function setPitch(value:Float):Float
+	{
+		AL.sourcef(handle, AL.PITCH, value);
+
+		return getPitch();
+	}
+
 	public function getPosition():Vector4
 	{
 		if (handle != null)
