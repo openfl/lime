@@ -204,6 +204,20 @@ class HTML5AudioSource
 		return loops = value;
 	}
 
+	public function getPitch():Float
+	{
+		return parent.buffer.__srcHowl.rate();
+	}
+
+	public function setPitch(value:Float):Float
+	{
+
+		parent.buffer.__srcHowl.rate(value);
+
+		return getPitch();
+	}
+	
+
 	public function getPosition():Vector4
 	{
 		#if lime_howlerjs
