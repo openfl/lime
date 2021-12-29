@@ -117,6 +117,16 @@ class FlashAudioSource
 		return loops = value;
 	}
 
+	public function getPitch():Float
+	{
+		return 1;
+	}
+
+	public function setPitch(value:Float):Float
+	{
+		return getPitch();
+	}
+
 	public function getPosition():Vector4
 	{
 		position.x = channel.soundTransform.pan;
