@@ -424,7 +424,7 @@ class NativeAudioSource
 				timer.stop();
 			}
 
-			var timeRemaining = getLength() - value;
+			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
 
 			if (timeRemaining > 0)
 			{
@@ -483,7 +483,7 @@ class NativeAudioSource
 				timer.stop();
 			}
 
-			var timeRemaining = value - getCurrentTime();
+			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
 
 			if (timeRemaining > 0)
 			{
@@ -513,6 +513,22 @@ class NativeAudioSource
 	public function setPitch(value:Float):Float
 	{
 		AL.sourcef(handle, AL.PITCH, value);
+
+		if (playing)
+		{
+			if (timer != null)
+			{
+				timer.stop();
+			}
+
+			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
+
+			if (timeRemaining > 0)
+			{
+				timer = new Timer(timeRemaining);
+				timer.run = timer_onRun;
+			}
+		}
 
 		return getPitch();
 	}
