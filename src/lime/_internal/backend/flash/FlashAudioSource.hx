@@ -123,7 +123,7 @@ class FlashAudioSource
 
 	public function setPitch(value:Float):Float
 	{
-		return getPitch;
+		return getPitch();
 	}
 
 	public function getPosition():Vector4
