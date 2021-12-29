@@ -40,6 +40,7 @@ class NativeAudioSource
 	private var stream:Bool;
 	private var streamTimer:Timer;
 	private var timer:Timer;
+	@:noCompletion private var initialPitch:Float;
 
 	public function new(parent:AudioSource)
 	{
@@ -515,6 +516,19 @@ class NativeAudioSource
 			position.y = value[1];
 			position.z = value[2];
 			#end
+		}
+
+		if (playing && getPitch() != initialPitch)
+		{
+			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
+			timer.stop();
+
+			if (timeRemaining > 0)
+			{
+				timer = new Timer(timeRemaining);
+				timer.run = timer_onRun;
+			}
+			initialPitch = getPitch();
 		}
 
 		return position;
