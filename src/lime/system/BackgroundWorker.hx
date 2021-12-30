@@ -204,21 +204,21 @@ class BackgroundWorker
 		it can call `sendComplete()`, `sendError()`, and/or
 		`sendProgress()` to send data.
 
-		**Caution:** in HTML5, workers are almost completely
-		isolated from the main thread. They will have
-		access to three main things: (1) certain JavaScript
-		functions (see `DedicatedWorkerGlobalScope`), (2)
-		inline Haxe functions (including all three "send"
-		functions), and (3) the contents of `message`. To
-		inline as much as possible, turn on DCE and tag the
-		function with `@:analyzer(optimize)`.
+		**Caution:** if web workers are enabled, `doWork`
+		will be almost completely isolated from the main
+		thread. It will have access to three main things:
+		(1) common JavaScript functions, (2) inline
+		variables and functions (including all three "send"
+		functions), and (3) the contents of `message`. For
+		best results, tag your inline functions with the
+		`@:analyzer(optimize)` metadata.
 		@param doWork A `Dynamic -> Void` function to run in
 		the background. (Optional only for backwards
 		compatibility. Treat this as a required argument.)
-		@param message Data to pass to `doWork`. HTML5
-		imposes several restrictions on this data:
+		@param message Data to pass to `doWork`. Web workers
+		impose several restrictions on this data:
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The worker thread will only receive these
 		if they're also included in `message`.
@@ -272,7 +272,7 @@ class BackgroundWorker
 		Dispatches `onComplete` on the main thread, passing
 		`message` along. After completion, all further
 		messages will be ignored.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `message`.
@@ -312,7 +312,7 @@ class BackgroundWorker
 		Dispatches `onError` on the main thread, passing
 		`message` along. After an error, all further
 		messages will be ignored.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `message`.
@@ -349,7 +349,7 @@ class BackgroundWorker
 
 		Dispatches `onProgress` on the main thread, passing
 		`message` along.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `message`. Once

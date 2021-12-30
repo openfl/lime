@@ -132,20 +132,20 @@ class ThreadPool
 		becomes available. The thread will receive `state`
 		as an argument.
 
-		**Caution:** in HTML5, workers are almost completely
-		isolated from the main thread. They will have
-		access to three main things: (1) certain JavaScript
-		functions (see `DedicatedWorkerGlobalScope`), (2)
-		inline Haxe functions (including all three "send"
-		functions), and (3) the contents of `state`. To
-		inline as much as possible, turn on DCE and tag the
-		function with `@:analyzer(optimize)`.
+		**Caution:** if web workers are enabled, `doWork`
+		will be almost completely isolated from the main
+		thread. It will have access to three main things:
+		(1) common JavaScript functions, (2) inline
+		variables and functions (including all three "send"
+		functions), and (3) the contents of `message`. For
+		best results, tag your inline functions with the
+		`@:analyzer(optimize)` metadata.
 		@param state Data to pass to the background thread.
 		HTML5 imposes several restrictions on this data:
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
 		If you need a function, try a `ThreadFunction`,
 		keeping in mind that it will be isolated.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `state`.
@@ -195,7 +195,7 @@ class ThreadPool
 		given argument. The background function should
 		return promptly after calling this, freeing up the
 		thread for more work.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `state`.
@@ -225,7 +225,7 @@ class ThreadPool
 		given argument. The background function should
 		return promptly after calling this, freeing up the
 		thread for more work.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `state`.
@@ -253,7 +253,7 @@ class ThreadPool
 
 		Dispatches `onProgress` on the main thread, with the
 		given argument.
-		@param transferList (JavaScript only) Zero or more
+		@param transferList (Web workers only) Zero or more
 		buffers to transfer using an efficient zero-copy
 		operation. The main thread will only receive these
 		if they're also included in `state`. Once

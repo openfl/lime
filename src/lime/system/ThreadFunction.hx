@@ -13,16 +13,29 @@ using haxe.macro.TypeTools;
 
 /**
 	A function to be called on another thread. This behaves
-	as a perfectly normal function on most targets, but in
-	JavaScript it will convert to string and back.
+	as a perfectly normal function on most targets, but it
+	also provides an `Event`-like API for compatibility,
+	offering functions like `add()` and `dispatch()`.
+	Unlike `Event`, it can only represent a single function
+	at a time; `add()` overwrites the old function.
 
-	Since it is stored as a string in JavaScript, you can
-	print the value at runtime to see the JavaScript code.
+	In JavaScript, web workers can be enabled in two ways:
 
-	`ThreadFunction` also provides an `Event`-like API for
-	backwards compatibility. Unlike `Event`, it can only
-	represent a single function at a time; `add()`
-	overwrites the old function.
+	```xml
+	<!-- Option 1: before including Lime -->
+	<haxedef name="lime-web-workers" />
+
+	<haxelib name="lime" />
+
+	<!-- Option 2: after including Lime -->
+	<unset name="force_synchronous" if="html5" />
+	```
+
+	If web workers are enabled, `ThreadFunction`s will be
+	stored as strings, making it easier to pass them to
+	worker threads. You can also print their value at
+	runtime to see the JavaScript source code.
+
 **/
 #if (!js || force_synchronous)
 abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
