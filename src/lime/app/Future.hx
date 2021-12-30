@@ -328,7 +328,7 @@ import lime.utils.Log;
 	private static var promises:Map<Int, Promise<Dynamic>>;
 
 	@:allow(lime.app.Future)
-	private static function queue<T>(promise:Promise<T>, work:ThreadFunction<() -> T>):Void
+	private static function queue<T>(promise:Promise<T>, work:ThreadFunction<Void -> T>):Void
 	{
 		if (threadPool == null)
 		{
@@ -345,7 +345,7 @@ import lime.utils.Log;
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:{ id:Int, work:ThreadFunction<() -> Dynamic> }):Void
+	private static function threadPool_doWork(state:{ id:Int, work:ThreadFunction<Void -> Dynamic> }):Void
 	{
 		try
 		{
