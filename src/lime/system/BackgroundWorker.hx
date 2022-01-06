@@ -254,7 +254,6 @@ class BackgroundWorker
 			"this.onmessage = function(messageEvent) {\n",
 			"    this.onmessage = null;\n",
 			'    ($doWork)(messageEvent.data);\n',
-			"    this.close();\n",
 			"};"
 		]));
 
@@ -415,20 +414,14 @@ class BackgroundWorker
 		}
 		else if (event.data.event == MESSAGE_ERROR)
 		{
-			canceled = true;
+			cancel();
 			onError.dispatch(event.data.message);
-
-			URL.revokeObjectURL(__workerURL);
-			__workerURL = null;
 		}
 		else if (event.data.event == MESSAGE_COMPLETE)
 		{
 			completed = true;
-			canceled = true;
+			cancel();
 			onComplete.dispatch(event.data.message);
-
-			URL.revokeObjectURL(__workerURL);
-			__workerURL = null;
 		}
 		else
 		{
