@@ -260,13 +260,25 @@ abstract ThreadFunction<T>(String) to String
 		{
 			#if haxe4 js.Syntax.code #else untyped __js__ #end
 			("throw {0}",
-				"Haxe automatically binds some functions, "
-				+ "making them incompatible with workers. "
-				+ "ThreadFunction tries to undo this, but "
-				+ "successfully undoing it requires "
-				+ "converting to ThreadFunction as soon as "
-				+ "possible. If that isn't an option, try "
-				+ "a static function.");
+				"error: Could not extract function source "
+				+ "code. This can have multiple causes:\n"
+				+ "1. If your previous build targeted "
+				+ "anything other than JavaScript, this "
+				+ "JavaScript build may have skipped "
+				+ "important macros. To solve this, modify "
+				+ "any file and retry.\n"
+				+ "2. If you call .bind() on a function, "
+				+ "it becomes impossible to extract source "
+				+ "code. Try declaring a new function "
+				+ "instead.\n"
+				+ "3. If you assign an instance function "
+				+ "to a variable, it may become impossible "
+				+ "to extract source code. To avoid this, "
+				+ "the variable must be of type "
+				+ "ThreadFunction.\n"
+				+ "4. As a last resort, use static "
+				+ "functions instead of instance functions."
+			);
 
 			// Addendum: explicit casts will NOT work. You
 			// have to use implicit casts or type hints.
