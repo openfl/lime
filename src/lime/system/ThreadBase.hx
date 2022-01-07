@@ -129,7 +129,7 @@ class ThreadBase {
 		than copied to the main thread. For details, see
 		https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
-	#if js inline #end
+	#if (js && !force_synchronous) inline #end
 	public function sendComplete(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
@@ -159,7 +159,7 @@ class ThreadBase {
 		than copied to the main thread. For details, see
 		https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
-	#if js inline #end
+	#if (js && !force_synchronous) inline #end
 	public function sendError(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
@@ -187,7 +187,7 @@ class ThreadBase {
 		than copied to the main thread. For details, see
 		https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
-	#if js inline #end
+	#if (js && !force_synchronous) inline #end
 	public function sendProgress(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
