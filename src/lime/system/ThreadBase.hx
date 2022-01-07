@@ -29,9 +29,8 @@ import js.Syntax;
 	@see `lime.system.ThreadBase.HeaderCode`
 **/
 class ThreadBase {
-	#if (js && !force_synchronous)
 	/**
-		(Only available if using web workers.)
+		(No effect if web workers inactive)
 
 		The default value for `headerCode`, applied when
 		creating a new `BackgroundWorker` or `ThreadPool`.
@@ -40,6 +39,7 @@ class ThreadBase {
 	**/
 	public static var defaultHeaderCode(get, default):HeaderCode;
 	private static function get_defaultHeaderCode():HeaderCode {
+		#if (js && !force_synchronous)
 		if(defaultHeaderCode == null) {
 			defaultHeaderCode = [
 				'"use strict";',
@@ -50,12 +50,13 @@ class ThreadBase {
 			defaultHeaderCode.addClass(StringTools);
 			defaultHeaderCode.addClass(HxOverrides);
 		}
+		#end
 
 		return defaultHeaderCode;
 	}
 
 	/**
-		(Only available if using web workers.)
+		(No effect if web workers inactive)
 
 		Whenever this `BackgroundWorker` or `ThreadPool`
 		creates a new web worker, it will insert this code
@@ -66,7 +67,6 @@ class ThreadBase {
 		can be extended by calling `headerCode.addClass()`.
 	**/
 	public var headerCode:HeaderCode;
-	#end
 
 	/**
 		Dispatched on the main thread when any background
@@ -111,9 +111,7 @@ class ThreadBase {
 	**/
 	public function new(doWork:ThreadFunction<Dynamic->Void>)
 	{
-		#if js
 		headerCode = defaultHeaderCode.copy();
-		#end
 
 		this.doWork = doWork;
 	}
@@ -227,15 +225,19 @@ abstract ThreadEvent({ message:Dynamic, event:ThreadEventType })
 	}
 }
 
-#if (js && !force_synchronous)
 /**
 	JavaScript code to be run when a web worker starts. The
 	variables and functions declared here will be available
 	to the `doWork` function.
+
+	The simplest way to add code is one class at a time, by
+	calling `addClass()`.
+
+	If web workers aren't enabled, all functions are no-ops.
 **/
-@:forward
-abstract HeaderCode(Array<String>) from Array<String> to Array<String>
+abstract HeaderCode(Array<String>) from Array<String>
 {
+	#if (js && !force_synchronous)
 	/**
 		An extension of `Json.stringify()` that outputs
 		JavaScript source code, including function code.
@@ -295,11 +297,17 @@ abstract HeaderCode(Array<String>) from Array<String> to Array<String>
 			}
 		);
 	}
+	#end
 
-	public inline function pushUnique(value:String):Void
+	/**
+		Adds a JavaScript snippet that wasn't already added.
+	**/
+	public inline function add(code:String):Void
 	{
-		if (this.indexOf(value) < 0)
-			this.push(value);
+		#if (js && !force_synchronous)
+		if (this.indexOf(code) < 0)
+			this.push(code);
+		#end
 	}
 
 	/**
@@ -317,6 +325,7 @@ abstract HeaderCode(Array<String>) from Array<String> to Array<String>
 	**/
 	public function addClass(cls:Class<Dynamic>, ?include:Array<String>, ?exclude:Array<String>):Void
 	{
+		#if (js && !force_synchronous)
 		var cls:Function = cast cls;
 
 		var classDef:String = 'var ${cls.name} = ${cls.toString()};\n';
@@ -328,7 +337,7 @@ abstract HeaderCode(Array<String>) from Array<String> to Array<String>
 			classDef += '${cls.name}.__super__ = ${superClass.name};\n';
 		}
 
-		pushUnique(classDef);
+		add(classDef);
 
 		for (entry in Object.entries(cls))
 		{
@@ -345,36 +354,51 @@ abstract HeaderCode(Array<String>) from Array<String> to Array<String>
 				continue;
 			}
 
-			pushUnique('${cls.name}.${entry.key} = $value;\n');
+			add('${cls.name}.${entry.key} = $value;\n');
 
 			if (entry.key == "__init__")
 			{
-				pushUnique('${cls.name}.__init__();\n');
+				add('${cls.name}.__init__();\n');
 			}
 		}
 
 		var prototype:{} = (cast cls).prototype;
-		pushUnique('${cls.name}.prototype = '
+		add('${cls.name}.prototype = '
 			+ (superClass != null ? '$$extend(${superClass.name}.prototype,' : "")
 			+ stringify(prototype, include, exclude)
 			+ (superClass != null ? ");\n" : ";\n"));
+		#end
 	}
 
 	public function contains(cls:Class<Dynamic>):Bool
 	{
+		#if (js && !force_synchronous)
 		var searchString:String = "var " + (cast cls:Function).name + " =";
 		for (code in this)
 		{
 			if (StringTools.startsWith(code, searchString))
 				return true;
 		}
+		#end
 
 		return false;
 	}
 
+	public inline function copy():HeaderCode
+	{
+		#if (js && !force_synchronous)
+		return this.copy();
+		#else
+		return null;
+		#end
+	}
+
 	public inline function toString():String
 	{
+		#if (js && !force_synchronous)
 		return this.join("\n") + "\n";
+		#else
+		return "";
+		#end
 	}
 }
-#end
