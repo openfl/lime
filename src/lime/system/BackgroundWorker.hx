@@ -252,7 +252,7 @@ class BackgroundWorker extends ThreadBase
 
 	#if (!js || force_synchronous)
 	@:inheritDoc
-	public function sendError(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
+	public override function sendError(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() == __workerThread)
@@ -271,7 +271,7 @@ class BackgroundWorker extends ThreadBase
 
 	#if (!js || force_synchronous)
 	@:inheritDoc
-	public function sendProgress(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
+	public override function sendProgress(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (Thread.current() != __workerThread)
@@ -294,19 +294,19 @@ class BackgroundWorker extends ThreadBase
 
 		if (threadEvent != null)
 		{
-			switch (threadEvent.type)
+			switch (threadEvent.event)
 			{
 				case ERROR:
 					cancel();
-					onError.dispatch(data.message);
+					onError.dispatch(threadEvent.message);
 
 				case COMPLETE:
 					completed = true;
 					cancel();
-					onComplete.dispatch(data.message);
+					onComplete.dispatch(threadEvent.message);
 
 				case PROGRESS:
-					onProgress.dispatch(data.message);
+					onProgress.dispatch(threadEvent.message);
 
 				default:
 			}
