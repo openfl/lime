@@ -4,6 +4,7 @@ package lime.system;
 import haxe.macro.Compiler;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Printer;
 import haxe.macro.Type;
 import sys.io.File;
 
@@ -35,6 +36,10 @@ using haxe.macro.TypeTools;
 	stored as strings, making it easier to pass them to
 	worker threads. You can also print their value at
 	runtime to see the JavaScript source code.
+
+	If any of the function's arguments are instances of a
+	class with instance methods, make sure to call
+	`restoreInstanceMethods()` on them.
 **/
 #if (!js || force_synchronous)
 abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
@@ -83,6 +88,65 @@ abstract ThreadFunction<T>(String) to String
 		#end
 	}
 	#end
+
+	/**
+		(Web workers only; returns harmlessly otherwise)
+
+		If you pass a class instance to a web worker, its
+		instance methods will be lost. This function tries
+		to restore these methods, relying on the class
+		definition in the worker's `headerCode`.
+
+		Sample usage:
+
+		```haxe
+		private function myThreadFunction(message:{ sourceImage:Image, destImage:Image }):Void
+		{
+			ThreadFunction.restoreInstanceMethods(message.sourceImage, message.destImage);
+
+			message.destImage.copyPixels(message.sourceImage,
+				new Rectangle(0, 0, sourceImage.width, sourceImage.height),
+				new Vector2());
+
+			bgWorker.sendComplete(destImage);
+		}
+		```
+	**/
+	public static macro function restoreInstanceMethods(objects:Array<Expr>):Expr
+	{
+		if (!Context.defined("js") || Context.defined("force_synchronous")) return macro null;
+
+		var exprs:Array<Expr> = [];
+
+		for (object in objects)
+		{
+			var type:Type = Context.typeof(object).followWithAbstracts();
+			switch (type)
+			{
+				case TInst(_, _):
+					// All set
+				default:
+					Context.warning(new Printer().printExpr(object) + " is not a class instance.", Context.currentPos());
+					continue;
+			}
+
+			switch (type.toComplexType())
+			{
+				case TPath(p):
+					var path:Array<String> = p.pack.copy();
+					path.push(p.name);
+					if (p.sub != null)
+					{
+						path.push(p.sub);
+					}
+
+					exprs.push(macro cast js.lib.Object.setPrototypeOf(cast $object,  (cast $p{path}).prototype));
+				default:
+			}
+		}
+
+		return macro $b{exprs};
+	}
 
 	/**
 		Adds the given callback function, to be run on the
