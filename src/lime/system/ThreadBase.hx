@@ -45,10 +45,10 @@ class ThreadBase {
 				'"use strict";',
 				Syntax.code("$extend.toString()"),
 				'var haxe_Log = { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };',
-				"var haxe_Exception = { caught: (value) => value, thrown: (value) => (value.get_native) ? value.get_native() : value };",
-				"var StringTools = { startsWith: (s, start) => s.startsWith(start), endsWith: (s, end) => s.endsWith(end), trim: s => s.trim() };",
-				"var HxOverrides = { substr: (s, pos, len) => s.substr(pos, len) };"
+				"var haxe_Exception = { caught: (value) => value, thrown: (value) => (value.get_native) ? value.get_native() : value };"
 			];
+			defaultHeaderCode.addClass(StringTools);
+			defaultHeaderCode.addClass(HxOverrides);
 		}
 
 		return defaultHeaderCode;
@@ -61,6 +61,9 @@ class ThreadBase {
 		creates a new web worker, it will insert this code
 		at the beginning of the JavaScript file, making the
 		functions available to the worker.
+
+		Starts with the code from `defaultHeaderCode`, and
+		can be extended by calling `headerCode.addClass()`.
 	**/
 	public var headerCode:HeaderCode;
 	#end
@@ -233,6 +236,142 @@ abstract ThreadEvent({ message:Dynamic, event:ThreadEventType })
 @:forward
 abstract HeaderCode(Array<String>) from Array<String> to Array<String>
 {
+	/**
+		An extension of `Json.stringify()` that outputs
+		JavaScript source code, including function code.
+	**/
+	private static function stringify(obj:Dynamic, ?include:Array<String>, ?exclude:Array<String>):String
+	{
+		// A (hopefully) unique substring.
+		var marker:String = "[lime.system.ThreadBase]";
+
+		// Convert to JSON, converting functions to string,
+		// marking these strings for more processing.
+		var objString:String = Json.stringify(obj, function(key:String, value:Dynamic):Dynamic
+		{
+			if (key == "__class__")
+			{
+				return marker + (value:Function).name;
+			}
+			else if (include != null && include.indexOf(key) < 0
+				|| exclude != null && exclude.indexOf(key) >= 0)
+			{
+				return Lib.undefined;
+			}
+			else if (Syntax.typeof(value) == "function")
+			{
+				var func:String = marker + cast value;
+				if (func.indexOf("[native code]") < 0)
+				{
+					return func;
+				}
+				else
+				{
+					return Lib.undefined;
+				}
+			}
+			else
+			{
+				return value;
+			}
+		}, "\t");
+
+		// Not used currently, but prevents an error in
+		// cases like `stringify(Std.parseInt.bind("1"))`.
+		if (objString == null)
+			return null;
+
+		// https://stackoverflow.com/a/5696141/804200
+		return new EReg('"' + EReg.escape(marker) + '([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"', "gs")
+			.map(objString, function(regex:EReg)
+			{
+				var markedString:String = regex.matched(1);
+				markedString = StringTools.replace(markedString, "\\r", "\r");
+				markedString = StringTools.replace(markedString, "\\n", "\n");
+				markedString = StringTools.replace(markedString, "\\t", "\t");
+				markedString = StringTools.replace(markedString, '\\"', '"');
+				markedString = StringTools.replace(markedString, "\\\\", "\\");
+				return markedString;
+			}
+		);
+	}
+
+	public inline function pushUnique(value:String):Void
+	{
+		if (this.indexOf(value) < 0)
+			this.push(value);
+	}
+
+	/**
+		Adds a Haxe class and its superclasses into the
+		header. If `cls` refers to any other classes, they
+		must be added separately.
+
+		**Caution:** this will fail to initialize most
+		static variables, which can cause errors. (Static
+		functions and instance variables are both fine.)
+		@param cls The class to copy from.
+		@param include If not null, only these properties
+		will be included.
+		@param exclude These properties will be left out.
+	**/
+	public function addClass(cls:Class<Dynamic>, ?include:Array<String>, ?exclude:Array<String>):Void
+	{
+		var cls:Function = cast cls;
+
+		var classDef:String = 'var ${cls.name} = ${cls.toString()};\n';
+
+		var superClass:Function = (cast cls).__super__;
+		if (superClass != null)
+		{
+			addClass(cast superClass, include, exclude);
+			classDef += '${cls.name}.__super__ = ${superClass.name};\n';
+		}
+
+		pushUnique(classDef);
+
+		for (entry in Object.entries(cls))
+		{
+			if (entry.key == "__super__" || entry.key == "__interfaces__")
+				continue;
+
+			var value:String = "" + cast entry.value;
+			if (Syntax.typeof(entry.value) == "string")
+			{
+				value = '"$value"';
+			}
+			else if (value.indexOf("[native code]") >= 0 || value.indexOf("[object Object]") >= 0)
+			{
+				continue;
+			}
+
+			pushUnique('${cls.name}.${entry.key} = $value;\n');
+
+			if (entry.key == "__init__")
+			{
+				pushUnique('${cls.name}.__init__();\n');
+			}
+		}
+
+		var prototype:{} = (cast cls).prototype;
+		pushUnique('${cls.name}.prototype = '
+			+ (superClass != null ? '$$extend(${superClass.name}.prototype,' : "")
+			+ stringify(prototype, include, exclude)
+			+ (superClass != null ? ");\n" : ";\n"));
+	}
+
+	public function contains(cls:Class<Dynamic>):Bool
+	{
+		var searchString:String = "var " + (cast cls:Function).name + " =";
+		for (code in this)
+		{
+			if (StringTools.startsWith(code, searchString))
+				return true;
+		}
+
+		return false;
+	}
+
 	public inline function toString():String
 	{
 		return this.join("\n") + "\n";
