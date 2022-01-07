@@ -2,6 +2,7 @@ package lime.system;
 
 import lime.app.Application;
 import lime.app.Event;
+import lime.system.ThreadBase.ThreadEvent;
 import lime.utils.ArrayBuffer;
 #if !force_synchronous
 #if target.threaded
@@ -87,7 +88,7 @@ import js.Syntax;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class BackgroundWorker
+class BackgroundWorker extends ThreadBase
 {
 	private static inline var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static inline var MESSAGE_ERROR = "__ERROR__";
@@ -110,54 +111,19 @@ class BackgroundWorker
 	**/
 	public var completed(default, null):Bool;
 
-	@:noCompletion public var doWork:ThreadFunction<Dynamic->Void>;
-
-	/**
-		Dispatched on the main thread when the background
-		thread calls `sendComplete()`. For best results, add
-		all listeners before calling `run()`.
-	**/
-	public var onComplete = new Event<Dynamic->Void>();
-
-	/**
-		Dispatched on the main thread when the background
-		thread calls `sendError()`. For best results, add
-		all listeners before calling `run()`.
-	**/
-	public var onError = new Event<Dynamic->Void>();
-
-	/**
-		Dispatched on the main thread when the background
-		thread calls `sendProgress()`. For best results, add
-		all listeners before calling `run()`.
-	**/
-	public var onProgress = new Event<Dynamic->Void>();
-
 	#if !force_synchronous
 	#if (target.threaded || cpp || neko)
-	@:noCompletion private var __messageQueue:Deque<{ ?event:String, message:Dynamic }>;
 	@:noCompletion private var __workerThread:Thread;
 	#elseif js
-	/**
-		Any `Worker` created by `BackgroundWorker` or
-		`ThreadPool` will run this JavaScript code first.
-
-		This is intended to declare functions that workers
-		might try to access, such as `trace()`, that are
-		normally only available on the main thread.
-	**/
-	@:noCompletion @:dox(hide) public static var initializeWorker:String =
-		"'use strict';\n"
-		+ 'var haxe_Log = { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };\n'
-		+ "var StringTools = { startsWith: (s, start) => s.startsWith(start), endsWith: (s, end) => s.endsWith(end), trim: s => s.trim() };\n"
-		+ "var HxOverrides = { substr: (s, pos, len) => s.substr(pos, len) };\n";
-
 	@:noCompletion private var __worker:Worker;
 	@:noCompletion private var __workerURL:String;
 	#end
 	#end
 
-	public function new() {}
+	public function new()
+	{
+		super(null);
+	}
 
 	/**
 		[Call this from the main thread.]
@@ -182,7 +148,7 @@ class BackgroundWorker
 		if (__workerThread != null)
 		{
 			__workerThread = null;
-			__messageQueue = null;
+			__workResult = null;
 		}
 		#elseif js
 		if (__worker != null)
@@ -209,19 +175,17 @@ class BackgroundWorker
 		thread. It will have access to three main things:
 		(1) common JavaScript functions, (2) inline
 		variables and functions (including all three "send"
-		functions), and (3) the contents of `message`. For
-		best results, tag your inline functions with the
-		`@:analyzer(optimize)` metadata.
+		functions), and (3) the contents of `message`.
 		@param doWork A `Dynamic -> Void` function to run in
 		the background. (Optional only for backwards
 		compatibility. Treat this as a required argument.)
 		@param message Data to pass to `doWork`. Web workers
 		impose several restrictions on this data:
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The worker thread will only receive these
-		if they're also included in `message`.
+		@param transferList (Web workers only) A list of
+		buffers in `message` that should be moved rather
+		than copied to the background thread. For details,
+		see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	public function run(?doWork:ThreadFunction<Dynamic->Void>, ?message:Dynamic, transferList:Array<ArrayBuffer> = null):Void
 	{
@@ -235,7 +199,7 @@ class BackgroundWorker
 		canceled = false;
 
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		__messageQueue = new Deque();
+		__workResult = new Deque();
 		__workerThread = Thread.create(function():Void {
 			doWork.dispatch(message);
 		});
@@ -250,12 +214,12 @@ class BackgroundWorker
 		doWork.checkJS();
 
 		__workerURL = URL.createObjectURL(new Blob([
-			initializeWorker,
+			headerCode.toString(),
 			"this.onmessage = function(messageEvent) {\n",
 			"    this.onmessage = null;\n",
 			'    ($doWork)(messageEvent.data);\n',
 			"};"
-		]));
+		], {type: "text/javascript"}));
 
 		__worker = new Worker(__workerURL);
 		__worker.onmessage = __handleMessage;
@@ -265,35 +229,15 @@ class BackgroundWorker
 		#end
 	}
 
-	/**
-		[Call this from the background thread.]
-
-		Dispatches `onComplete` on the main thread, passing
-		`message` along. After completion, all further
-		messages will be ignored.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `message`.
-	**/
-	#if js inline #end
-	public function sendComplete(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
+	#if (!js || force_synchronous)
+	@:inheritDoc
+	public override function sendComplete(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		if (Thread.current() != __workerThread) return;
-
-		if (__messageQueue != null)
+		if (Thread.current() == __workerThread)
 		{
-			__messageQueue.add({
-				event: MESSAGE_COMPLETE,
-				message: message
-			});
+			super.sendComplete(message, transferList);
 		}
-		#elseif (js && !force_synchronous)
-		Syntax.code("postMessage({0}, {1})", {
-			event: MESSAGE_COMPLETE,
-			message: message
-		}, transferList);
 		#else
 		completed = true;
 
@@ -304,36 +248,17 @@ class BackgroundWorker
 		}
 		#end
 	}
+	#end
 
-	/**
-		[Call this from the background thread.]
-
-		Dispatches `onError` on the main thread, passing
-		`message` along. After an error, all further
-		messages will be ignored.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `message`.
-	**/
-	#if js inline #end
+	#if (!js || force_synchronous)
+	@:inheritDoc
 	public function sendError(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		if (Thread.current() != __workerThread) return;
-
-		if (__messageQueue != null)
+		if (Thread.current() == __workerThread)
 		{
-			__messageQueue.add({
-				event: MESSAGE_ERROR,
-				message: message
-			});
+			super.sendError(message, transferList);
 		}
-		#elseif (js && !force_synchronous)
-		Syntax.code("postMessage({0}, {1})", {
-			event: MESSAGE_ERROR,
-			message: message
-		}, transferList);
 		#else
 		if (!canceled)
 		{
@@ -342,35 +267,17 @@ class BackgroundWorker
 		}
 		#end
 	}
+	#end
 
-	/**
-		[Call this from the background thread.]
-
-		Dispatches `onProgress` on the main thread, passing
-		`message` along.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `message`. Once
-		transferred, they will become inaccessible to the
-		background thread.
-	**/
-	#if js inline #end
+	#if (!js || force_synchronous)
+	@:inheritDoc
 	public function sendProgress(message:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		if (Thread.current() != __workerThread) return;
-
-		if (__messageQueue != null)
+		if (Thread.current() != __workerThread)
 		{
-			__messageQueue.add({
-				message: message
-			});
+			super.sendProgress(message, transferList);
 		}
-		#elseif (js && !force_synchronous)
-		Syntax.code("postMessage({0}, {1})", {
-			message: message
-		}, transferList);
 		#else
 		if (!canceled)
 		{
@@ -378,28 +285,30 @@ class BackgroundWorker
 		}
 		#end
 	}
+	#end
 
 	#if ((target.threaded || cpp || neko) && !force_synchronous)
 	@:noCompletion private function __update(deltaTime:Int):Void
 	{
-		var data = __messageQueue.pop(false);
+		var threadEvent = __workResult.pop(false);
 
-		if (data != null)
+		if (threadEvent != null)
 		{
-			if (data.event == MESSAGE_ERROR)
+			switch (threadEvent.type)
 			{
-				cancel();
-				onError.dispatch(data.message);
-			}
-			else if (data.event == MESSAGE_COMPLETE)
-			{
-				completed = true;
-				cancel();
-				onComplete.dispatch(data.message);
-			}
-			else
-			{
-				onProgress.dispatch(data.message);
+				case ERROR:
+					cancel();
+					onError.dispatch(data.message);
+
+				case COMPLETE:
+					completed = true;
+					cancel();
+					onComplete.dispatch(data.message);
+
+				case PROGRESS:
+					onProgress.dispatch(data.message);
+
+				default:
 			}
 		}
 	}
@@ -412,20 +321,24 @@ class BackgroundWorker
 		{
 			return;
 		}
-		else if (event.data.event == MESSAGE_ERROR)
+
+		var threadEvent:ThreadEvent = event.data;
+
+		switch (threadEvent.event)
 		{
-			cancel();
-			onError.dispatch(event.data.message);
-		}
-		else if (event.data.event == MESSAGE_COMPLETE)
-		{
-			completed = true;
-			cancel();
-			onComplete.dispatch(event.data.message);
-		}
-		else
-		{
-			onProgress.dispatch(event.data.message);
+			case ERROR:
+				cancel();
+				onError.dispatch(threadEvent.message);
+
+			case COMPLETE:
+				completed = true;
+				cancel();
+				onComplete.dispatch(threadEvent.message);
+
+			case PROGRESS:
+				onProgress.dispatch(threadEvent.message);
+
+			default:
 		}
 	}
 	#end

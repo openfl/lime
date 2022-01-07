@@ -35,7 +35,6 @@ using haxe.macro.TypeTools;
 	stored as strings, making it easier to pass them to
 	worker threads. You can also print their value at
 	runtime to see the JavaScript source code.
-
 **/
 #if (!js || force_synchronous)
 abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T

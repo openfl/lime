@@ -3,6 +3,7 @@ package lime.system;
 import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
+import lime.system.ThreadBase.ThreadEvent;
 import lime.utils.ArrayBuffer;
 #if !force_synchronous
 #if target.threaded
@@ -40,7 +41,7 @@ import js.Syntax;
 
 	For a working example, see `lime.app.Future.FutureWork`.
 **/
-class ThreadPool
+class ThreadPool extends ThreadBase
 {
 	/**
 		The number of threads in this pool, including both
@@ -54,12 +55,6 @@ class ThreadPool
 		Only the main thread should set this value.
 	**/
 	public var currentThreads(default, set):Int;
-	/**
-		The function that handles tasks in the background.
-		This is public for backwards compatibility, but it
-		should now be set via the constructor.
-	**/
-	@:noCompletion @:dox(hide) public var doWork:ThreadFunction<Dynamic->Void>;
 	/**
 		The maximum number of threads this pool will create.
 
@@ -76,24 +71,6 @@ class ThreadPool
 	public var minThreads:Int;
 	/**
 		Dispatched on the main thread when any background
-		thread calls `sendComplete()`. For best results, add
-		all listeners before calling `queue()`.
-	**/
-	public var onComplete = new Event<Dynamic->Void>();
-	/**
-		Dispatched on the main thread when any background
-		thread calls `sendError()`. For best results, add
-		all listeners before calling `queue()`.
-	**/
-	public var onError = new Event<Dynamic->Void>();
-	/**
-		Dispatched on the main thread when any background
-		thread calls `sendProgress()`. For best results, add
-		all listeners before calling `queue()`.
-	**/
-	public var onProgress = new Event<Dynamic->Void>();
-	/**
-		Dispatched on the main thread when any background
 		thread begins working on a new task. For best
 		results, add all listeners before calling `queue()`.
 	**/
@@ -101,10 +78,8 @@ class ThreadPool
 
 	#if !force_synchronous
 	#if (target.threaded || cpp || neko)
-	@:noCompletion private var __synchronous:Bool = false;
-	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
+	@:noCompletion private var __workIncoming = new Deque<ThreadEvent>();
 	@:noCompletion private var __workQueued:Int = 0;
-	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
 	#elseif js
 	@:noCompletion private var __idleWorkers = new Array<WorkerWithURL>();
 	@:noCompletion private var __workIncoming = new List<{state:Dynamic, ?transferList:Array<ArrayBuffer>}>();
@@ -119,7 +94,7 @@ class ThreadPool
 	**/
 	public function new(?doWork:ThreadFunction<Dynamic->Void>, minThreads:Int = 0, maxThreads:Int = 1)
 	{
-		this.doWork = doWork;
+		super(doWork);
 		this.minThreads = minThreads;
 		@:bypassAccessor this.maxThreads = maxThreads;
 		@:bypassAccessor currentThreads = 0;
@@ -137,18 +112,17 @@ class ThreadPool
 		thread. It will have access to three main things:
 		(1) common JavaScript functions, (2) inline
 		variables and functions (including all three "send"
-		functions), and (3) the contents of `message`. For
-		best results, tag your inline functions with the
-		`@:analyzer(optimize)` metadata.
-		@param state Data to pass to the background thread.
-		HTML5 imposes several restrictions on this data:
+		functions), and (3) the contents of `state`.
+		@param state Data to pass to `doWork`. Web workers
+		impose several restrictions on this data:
 		https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
-		If you need a function, try a `ThreadFunction`,
-		keeping in mind that it will be isolated.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `state`.
+		If this is a function, make sure to convert to
+		`ThreadFunction` first, keeping in mind the above
+		restrictions on functions.
+		@param transferList (Web workers only) A list of
+		buffers in `state` that should be moved rather than
+		copied to the background thread. For details, see
+		https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	public function queue(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
 	{
@@ -157,7 +131,7 @@ class ThreadPool
 
 		if (Application.current != null && Application.current.window != null && !__synchronous)
 		{
-			__workIncoming.add(new ThreadPoolMessage(WORK, state));
+			__workIncoming.add(new ThreadEvent(WORK, state));
 			__workQueued++;
 
 			if (currentThreads < maxThreads && currentThreads < __workQueued)
@@ -188,96 +162,6 @@ class ThreadPool
 		#end
 	}
 
-	/**
-		[Call this from a background thread.]
-
-		Dispatches `onComplete` on the main thread, with the
-		given argument. The background function should
-		return promptly after calling this, freeing up the
-		thread for more work.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `state`.
-	**/
-	#if js inline #end
-	public function sendComplete(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
-	{
-		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		if (!__synchronous)
-		{
-			__workResult.add(new ThreadPoolMessage(COMPLETE, state));
-			return;
-		}
-		#end
-
-		#if (js && !force_synchronous)
-		Syntax.code("postMessage({0}, {1})", new ThreadPoolMessage(COMPLETE, state), transferList);
-		#else
-		onComplete.dispatch(state);
-		#end
-	}
-
-	/**
-		[Call this from a background thread.]
-
-		Dispatches `onError` on the main thread, with the
-		given argument. The background function should
-		return promptly after calling this, freeing up the
-		thread for more work.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `state`.
-	**/
-	#if js inline #end
-	public function sendError(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
-	{
-		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		if (!__synchronous)
-		{
-			__workResult.add(new ThreadPoolMessage(ERROR, state));
-			return;
-		}
-		#end
-
-		#if (js && !force_synchronous)
-		Syntax.code("postMessage({0}, {1})", new ThreadPoolMessage(ERROR, state), transferList);
-		#else
-		onError.dispatch(state);
-		#end
-	}
-
-	/**
-		[Call this from a background thread.]
-
-		Dispatches `onProgress` on the main thread, with the
-		given argument.
-		@param transferList (Web workers only) Zero or more
-		buffers to transfer using an efficient zero-copy
-		operation. The main thread will only receive these
-		if they're also included in `state`. Once
-		transferred, they will become inaccessible to the
-		background thread.
-	**/
-	#if js inline #end
-	public function sendProgress(state:Dynamic = null, transferList:Array<ArrayBuffer> = null):Void
-	{
-		#if ((target.threaded || cpp || neko) && !force_synchronous)
-		if (!__synchronous)
-		{
-			__workResult.add(new ThreadPoolMessage(PROGRESS, state));
-			return;
-		}
-		#end
-
-		#if (js && !force_synchronous)
-		Syntax.code("postMessage({0}, {1})", new ThreadPoolMessage(PROGRESS, state), transferList);
-		#else
-		onProgress.dispatch(state);
-		#end
-	}
-
 	#if (!js || force_synchronous)
 	/**
 		[Call this from a background thread, or the main
@@ -290,7 +174,7 @@ class ThreadPool
 		#if ((target.threaded || cpp || neko) && !force_synchronous)
 		if (!__synchronous)
 		{
-			__workResult.add(new ThreadPoolMessage(WORK, state));
+			__workResult.add(new ThreadEvent(WORK, state));
 			doWork.dispatch(state);
 			return;
 		}
@@ -312,13 +196,13 @@ class ThreadPool
 	{
 		while (true)
 		{
-			var message = __workIncoming.pop(true);
+			var threadEvent = __workIncoming.pop(true);
 
-			if (message.type == WORK)
+			if (threadEvent.event == WORK)
 			{
-				__runWork(message.state);
+				__runWork(threadEvent.message);
 			}
-			else if (message.type == EXIT)
+			else if (threadEvent.event == EXIT)
 			{
 				break;
 			}
@@ -329,17 +213,17 @@ class ThreadPool
 	{
 		if (__workQueued > 0)
 		{
-			var message = __workResult.pop(false);
+			var threadEvent = __workResult.pop(false);
 
-			while (message != null)
+			while (threadEvent != null)
 			{
-				switch (message.type)
+				switch (threadEvent.event)
 				{
 					case WORK:
-						onRun.dispatch(message.state);
+						onRun.dispatch(threadEvent.message);
 
 					case PROGRESS:
-						onProgress.dispatch(message.state);
+						onProgress.dispatch(threadEvent.message);
 
 					case COMPLETE, ERROR:
 						__workQueued--;
@@ -349,19 +233,19 @@ class ThreadPool
 							currentThreads--;
 						}
 
-						if (message.type == COMPLETE)
+						if (threadEvent.event == COMPLETE)
 						{
-							onComplete.dispatch(message.state);
+							onComplete.dispatch(threadEvent.message);
 						}
 						else
 						{
-							onError.dispatch(message.state);
+							onError.dispatch(threadEvent.message);
 						}
 
 					default:
 				}
 
-				message = __workResult.pop(false);
+				threadEvent = __workResult.pop(false);
 			}
 		}
 		else
@@ -391,15 +275,15 @@ class ThreadPool
 
 	@:noCompletion private function __handleMessage(worker:WorkerWithURL, event:MessageEvent):Void
 	{
-		var message:ThreadPoolMessage = event.data;
+		var threadEvent:ThreadEvent = event.data;
 
-		switch (message.type)
+		switch (threadEvent.event)
 		{
 			case WORK:
-				onRun.dispatch(message.state);
+				onRun.dispatch(threadEvent.message);
 
 			case PROGRESS:
-				onProgress.dispatch(message.state);
+				onProgress.dispatch(threadEvent.message);
 
 			case COMPLETE, ERROR:
 				if (__workersToTerminate > 0)
@@ -416,16 +300,17 @@ class ThreadPool
 					__idleWorkers.push(worker);
 				}
 
-				if (message.type == COMPLETE)
+				if (threadEvent.event == COMPLETE)
 				{
-					onComplete.dispatch(message.state);
+					onComplete.dispatch(threadEvent.message);
 				}
 				else
 				{
-					onError.dispatch(message.state);
+					onError.dispatch(threadEvent.message);
 				}
 
 				__startIdleWorkers();
+
 			default:
 		}
 	}
@@ -448,11 +333,11 @@ class ThreadPool
 			doWork.checkJS();
 
 			var worker = new WorkerWithURL(new Blob([
-				BackgroundWorker.initializeWorker,
+				headerCode.toString(),
 				"this.onmessage = function(messageEvent) {\n",
 				'    ($doWork)(messageEvent.data);\n',
 				"};"
-			]));
+			], {type: "text/javascript"}));
 
 			worker.onmessage = __handleMessage.bind(worker);
 			__idleWorkers.push(worker);
@@ -465,7 +350,7 @@ class ThreadPool
 
 			#if (target.threaded || cpp || neko)
 			// `EXIT` messages take priority over `WORK`.
-			__workIncoming.push(new ThreadPoolMessage(EXIT, null));
+			__workIncoming.push(new ThreadEvent(EXIT, null));
 			#elseif js
 			var worker = __idleWorkers.pop();
 			if (worker != null)
@@ -490,27 +375,6 @@ class ThreadPool
 			currentThreads = value;
 		}
 		return maxThreads = value;
-	}
-}
-
-@:enum private abstract ThreadPoolMessageType(String)
-{
-	var COMPLETE = "COMPLETE";
-	var ERROR = "ERROR";
-	var EXIT = "EXIT";
-	var PROGRESS = "PROGRESS";
-	var WORK = "WORK";
-}
-
-@:forward
-private abstract ThreadPoolMessage({ state:Dynamic, type:ThreadPoolMessageType })
-{
-	public inline function new(type:ThreadPoolMessageType, state:Dynamic)
-	{
-		this = {
-			type: type,
-			state: state
-		};
 	}
 }
 
