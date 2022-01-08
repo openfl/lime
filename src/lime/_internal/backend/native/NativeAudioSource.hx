@@ -386,6 +386,11 @@ class NativeAudioSource
 
 	public function setCurrentTime(value:Int):Int
 	{
+		if (value == getCurrentTime())
+		{
+			return value;
+		}
+
 		if (handle != null)
 		{
 			if (stream)
@@ -424,7 +429,7 @@ class NativeAudioSource
 				timer.stop();
 			}
 
-			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
+			var timeRemaining = Std.int((getLength() - value) / getPitch());
 
 			if (timeRemaining > 0)
 			{
@@ -483,7 +488,7 @@ class NativeAudioSource
 				timer.stop();
 			}
 
-			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
+			var timeRemaining = Std.int((value - getCurrentTime()) / getPitch());
 
 			if (timeRemaining > 0)
 			{
@@ -512,16 +517,14 @@ class NativeAudioSource
 
 	public function setPitch(value:Float):Float
 	{
-		AL.sourcef(handle, AL.PITCH, value);
-
-		if (playing)
+		if (playing && value != getPitch())
 		{
 			if (timer != null)
 			{
 				timer.stop();
 			}
 
-			var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
+			var timeRemaining = Std.int((getLength() - getCurrentTime()) / value);
 
 			if (timeRemaining > 0)
 			{
@@ -530,7 +533,9 @@ class NativeAudioSource
 			}
 		}
 
-		return getPitch();
+		AL.sourcef(handle, AL.PITCH, value);
+
+		return value;
 	}
 
 	public function getPosition():Vector4
