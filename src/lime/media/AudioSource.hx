@@ -42,82 +42,137 @@ class AudioSource
 		}
 	}
 
+	
 	public function dispose():Void
 	{
-		__backend.dispose();
+		if (__backend != null)
+			__backend.dispose();
 	}
 
 	@:noCompletion private function init():Void
 	{
-		__backend.init();
+		if (__backend != null)
+			__backend.init();
 	}
 
 	public function play():Void
 	{
-		__backend.play();
+		if (__backend != null)
+			__backend.play();
 	}
 
 	public function pause():Void
 	{
-		__backend.pause();
+		if (__backend != null)
+			__backend.pause();
 	}
 
 	public function stop():Void
 	{
-		__backend.stop();
+		if (__backend != null)
+			__backend.stop();
 	}
 
 	// Get & Set Methods
 	@:noCompletion private function get_currentTime():Int
 	{
-		return __backend.getCurrentTime();
+		if (__backend != null)
+		{
+			return __backend.getCurrentTime();
+		}
+
+		return 0;
 	}
 
 	@:noCompletion private function set_currentTime(value:Int):Int
 	{
-		return __backend.setCurrentTime(value);
+		if (__backend != null)
+		{
+			return __backend.setCurrentTime(value);
+		}
+
+		return get_currentTime();
 	}
 
 	@:noCompletion private function get_gain():Float
 	{
-		return __backend.getGain();
+		if (__backend != null)
+		{
+			return __backend.getGain();
+		}
+
+		return 1;
 	}
 
 	@:noCompletion private function set_gain(value:Float):Float
 	{
-		return __backend.setGain(value);
+		if (__backend != null)
+		{
+			return __backend.setGain(value);
+		}
+
+		return get_gain();
 	}
 
 	@:noCompletion private function get_length():Int
 	{
-		return __backend.getLength();
+		if (__backend != null)
+		{
+			return __backend.getLength();
+		}
+
+		return 0;
 	}
 
 	@:noCompletion private function set_length(value:Int):Int
 	{
-		return __backend.setLength(value);
+		if (__backend != null)
+		{
+			return __backend.setLength(value);
+		}
+
+		return get_length();
 	}
 
 	@:noCompletion private function get_loops():Int
 	{
-		return __backend.getLoops();
+		if (__backend != null)
+		{
+			return __backend.getLoops();
+		}
+
+		return 0;
 	}
 
 	@:noCompletion private function set_loops(value:Int):Int
 	{
-		return __backend.setLoops(value);
+		if (__backend != null)
+		{
+			return __backend.setLoops(value);
+		}
+
+		return get_loops();
 	}
 
 	@:noCompletion private function get_position():Vector4
 	{
-		return __backend.getPosition();
+		if (__backend != null)
+		{
+			return __backend.getPosition();
+		}
+
+		return 0;
 	}
 
 	@:noCompletion private function set_position(value:Vector4):Vector4
 	{
-		return __backend.setPosition(value);
+		if (__backend != null)
+		{
+			return __backend.setPosition(value);
+		}
+
+		return get_position();
 	}
-}
 
 #if flash
 @:noCompletion private typedef AudioSourceBackend = lime._internal.backend.flash.FlashAudioSource;
