@@ -512,7 +512,14 @@ class NativeAudioSource
 
 	public function getPitch():Float
 	{
-		return AL.getSourcef(handle, AL.PITCH);
+		if (handle != null)
+		{
+			return AL.getSourcef(handle, AL.PITCH);
+		}
+		else
+		{
+			return 1;
+		}
 	}
 
 	public function setPitch(value:Float):Float
@@ -533,7 +540,10 @@ class NativeAudioSource
 			}
 		}
 
-		AL.sourcef(handle, AL.PITCH, value);
+		if (handle != null)
+		{
+			AL.sourcef(handle, AL.PITCH, value);
+		}
 
 		return value;
 	}
