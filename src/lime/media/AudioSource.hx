@@ -37,8 +37,6 @@ class AudioSource
 
 		this.loops = loops;
 
-		pitch = 1;
-
 		if (buffer != null)
 		{
 			init();
