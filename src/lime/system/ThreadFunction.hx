@@ -6,6 +6,7 @@ import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Printer;
 import haxe.macro.Type;
+import sys.FileSystem;
 import sys.io.File;
 
 using haxe.macro.Context;
@@ -37,9 +38,10 @@ using haxe.macro.TypeTools;
 	worker threads. You can also print their value at
 	runtime to see the JavaScript source code.
 
-	If any of the function's arguments are instances of a
-	class with instance methods, make sure to call
-	`restoreInstanceMethods()` on them.
+	If using web workers, you will also have to call
+	`restoreInstanceMethods()` on any class instance that
+	gets copied across threads. (At least, if you want to
+	use that object's instance methods.)
 **/
 #if (!js || force_synchronous)
 abstract ThreadFunction<T:haxe.Constraints.Function>(T) from T to T
@@ -79,7 +81,6 @@ abstract ThreadFunction<T>(String) to String
 	@:noCompletion @:dox(hide) #if !macro @:from #end
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
-		cleanAfterGenerate();
 		var syntax:String = TAG + "{0}.toString()" + TAG;
 		#if haxe4
 		return macro js.Syntax.code($v{syntax}, $func);
@@ -100,13 +101,16 @@ abstract ThreadFunction<T>(String) to String
 		Sample usage:
 
 		```haxe
-		private function myThreadFunction(message:{ sourceImage:Image, destImage:Image }):Void
+		private function myThreadFunction(message:{ sourceImage:Image, destImage:Image, rectangle:Rectangle }):Void
 		{
-			ThreadFunction.restoreInstanceMethods(message.sourceImage, message.destImage);
+			// Restore needed methods, skipping
+			// `message.sourceImage` for performance.
+			ThreadFunction.restoreInstanceMethods(message.destImage, message.rectangle);
 
-			message.destImage.copyPixels(message.sourceImage,
-				new Rectangle(0, 0, sourceImage.width, sourceImage.height),
-				new Vector2());
+			if (message.rectangle.isEmpty())
+				message.rectangle.setTo(0, 0, message.sourceImage.width, message.sourceImage.height);
+
+			message.destImage.copyPixels(message.sourceImage, rectangle, new Vector2());
 
 			bgWorker.sendComplete(destImage);
 		}
@@ -262,21 +266,16 @@ abstract ThreadFunction<T>(String) to String
 			("throw {0}",
 				"error: Could not extract function source "
 				+ "code. This can have multiple causes:\n"
-				+ "1. If your previous build targeted "
-				+ "anything other than JavaScript, this "
-				+ "JavaScript build may have skipped "
-				+ "important macros. To solve this, modify "
-				+ "any file and retry.\n"
-				+ "2. If you call .bind() on a function, "
+				+ "1. If you call .bind() on a function, "
 				+ "it becomes impossible to extract source "
 				+ "code. Try declaring a new function "
 				+ "instead.\n"
-				+ "3. If you assign an instance function "
+				+ "2. If you assign an instance function "
 				+ "to a variable, it may become impossible "
 				+ "to extract source code. To avoid this, "
 				+ "the variable must be of type "
 				+ "ThreadFunction.\n"
-				+ "4. As a last resort, use static "
+				+ "3. As a last resort, use static "
 				+ "functions instead of instance functions."
 			);
 
@@ -295,21 +294,8 @@ abstract ThreadFunction<T>(String) to String
 	#end
 
 	#if (macro && !force_synchronous)
-	private static var callbacksRegistered:Bool = false;
-
-	// Haxe 4 automatically resets static variables, but in
-	// Haxe 3 it requires a callback.
-	#if !haxe4
-	private static function resetCallbacksRegistered():Bool
-	{
-		callbacksRegistered = false;
-		return true;
-	}
-	#end
-
 	/**
-		Adds a listener to read the generated JS file and
-		remove tagged `$bind()` operations.
+		[Call this only from `ThreadBase.processOutput()`]
 
 		`fromFunction()` needs to get "`func.toString()`",
 		but Haxe may convert this into
@@ -317,40 +303,27 @@ abstract ThreadFunction<T>(String) to String
 		impossible to extract the source code.
 
 		For multiple reasons, it isn't possible to solve
-		this during the code generation step, which is why
-		we add a listener for the `onAfterGenerate()` step.
+		this during the code generation step.
 	**/
+	@:allow(lime.system.ThreadBase)
 	private static function cleanAfterGenerate():Void
 	{
-		if (callbacksRegistered || !Context.defined("js") || Context.defined("display"))
-		{
+		// Load the big JavaScript file Haxe generated.
+		// Compilation has finished, so Haxe won't make
+		// any more changes, and we're free to edit it.
+		var outputFile:String = Compiler.getOutput();
+		if (!FileSystem.exists(outputFile))
 			return;
-		}
-		callbacksRegistered = true;
+		var outputContent:String = File.getContent(outputFile);
 
-		#if !haxe4
-		Context.onMacroContextReused(resetCallbacksRegistered);
-		#end
+		// Find and remove tagged `$bind()` calls.
+		var escapedTag:String = EReg.escape(ThreadFunction.TAG);
+		outputContent = new EReg(escapedTag + "(.+?)" + escapedTag, "gs")
+			.map(outputContent, function(match) {
+				return ~/\$bind\(.+?,(.+?)\)/s.replace(match.matched(1), "$1");
+			});
 
-		#if !lime_suppress_onAfterGenerate
-		Context.onAfterGenerate(function():Void
-		{
-			// Load the big JavaScript file Haxe generated.
-			// Compilation has finished, so Haxe won't make
-			// any more changes, and we're free to edit it.
-			var outputFile:String = Compiler.getOutput();
-			var outputContent:String = File.getContent(outputFile);
-
-			// Find and remove tagged `$bind()` calls.
-			var escapedTag:String = EReg.escape(TAG);
-			outputContent = new EReg(escapedTag + "(.+?)" + escapedTag, "gs")
-				.map(outputContent, function(match) {
-					return ~/\$bind\(.+?,(.+?)\)/s.replace(match.matched(1), "$1");
-				});
-
-			File.saveContent(outputFile, outputContent);
-		});
-		#end
+		File.saveContent(outputFile, outputContent);
 	}
 	#end
 }

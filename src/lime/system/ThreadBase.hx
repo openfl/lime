@@ -22,6 +22,14 @@ import js.Syntax;
 #end
 #end
 
+#if macro
+import haxe.Json;
+import haxe.macro.Compiler;
+import haxe.macro.Context;
+import sys.FileSystem;
+import sys.io.File;
+#end
+
 /**
 	Common functionality between `BackgroundWorker` and
 	`ThreadPool`.
@@ -202,6 +210,139 @@ class ThreadBase {
 		onProgress.dispatch(message);
 		#end
 	}
+
+	/**
+		[Call this only from Lime's include.xml file]
+
+		Adds a listener to read the generated JS file and
+		perform various operations to help facilitate web
+		workers. These operations include:
+
+		- Removing `$bind()` from `ThreadFunction`s.
+		- Modifying how static variables are initialized.
+	**/
+	private static function processOutput():Void
+	{
+		#if (macro && !force_synchronous)
+		if (!Context.defined("js") || Context.defined("force_synchronous")
+			|| Context.defined("lime_suppress_onAfterGenerate"))
+		{
+			return;
+		}
+
+		// `--macro` flags like the one in include.xml have
+		// to refer to classes like `ThreadBase`, not
+		// abstracts like `ThreadFunction`. But `ThreadBase`
+		// can pass it along.
+		Context.onAfterGenerate(ThreadFunction.cleanAfterGenerate);
+
+		Context.onAfterGenerate(function():Void
+		{
+			// Load the big JavaScript file Haxe generated.
+			// Compilation has finished, so Haxe won't make
+			// any more changes, and we're free to edit it.
+			var outputFile:String = Compiler.getOutput();
+			if (!FileSystem.exists(outputFile))
+				return;
+			var outputContent:String = File.getContent(outputFile);
+
+			var newline:String = outputContent.indexOf("\r\n") >= 0 ? "\r\n" : "\n";
+
+			/**
+				Utility function that should have been in
+				`EReg` to begin with.
+			**/
+			function forEach(regex:EReg, string:String, callback:EReg -> Void):Void
+			{
+				while (regex.match(string))
+				{
+					callback(regex);
+					string = regex.matchedRight();
+				}
+			}
+
+			// Find each class that will be added to a
+			// header, including superclasses.
+			var classNames:Array<String> = [];
+			var classNameVerifier:EReg = ~/^(?:[a-z][a-zA-Z0-9]*_)*[A-Z][a-zA-Z0-9]*$/;
+			function addClassName(classRegex:EReg):Void
+			{
+				var className:String = classRegex.matched(1);
+				if (!classNameVerifier.match(className))
+				{
+					// Class name wasn't hard-coded, such as
+					// in `HeaderCode`'s own recursive call.
+					return;
+				}
+				classNames.push(className);
+
+				// Recursively find superclasses.
+				var superRegex:EReg = new EReg('^$className.__super__ = (\\w+?);$$', "m");
+				if (superRegex.match(outputContent))
+				{
+					addClassName(superRegex);
+				}
+			}
+			forEach(~/lime_system_HeaderCode\.addClass\([\w\.]+(?:\([\w\.]*\))*,\s*(\w+)/gs, outputContent, addClassName);
+
+			for (className in classNames)
+			{
+				// Start constructing the function.
+				var __initStatics__:String = '$className.__initStatics__ = function() {$newline';
+
+				var declarations:Int = 0;
+
+				// Search the JS file for this class's
+				// static variable declarations.
+				var varsToSkip:Array<String> = ["prototype", "__name__", "__super__", "__interfaces__"];
+				outputContent = new EReg('^$className\\.(\\w+) = ([^{};]*(?:\\{[^{}]*\\}[^{};]*)*);$$', "gm")
+					.map(outputContent, function(staticRegex:EReg):String
+					{
+						var varName:String = staticRegex.matched(1);
+						if (varsToSkip.indexOf(varName) >= 0
+							|| StringTools.startsWith(staticRegex.matched(2), "function"))
+						{
+							// Leave it as-is.
+							return staticRegex.matched(0);
+						}
+						else
+						{
+							// Move the declaration into the
+							// function.
+							__initStatics__ += "\t"
+								+ StringTools.replace(staticRegex.matched(0), "\n", "\n\t")
+								+ newline;
+
+							// Remove the original, leaving
+							// a comment for later.
+							declarations++;
+							return '/* $className.__initStatics__ */';
+						}
+					});
+
+				__initStatics__ += "};" + newline;
+
+				// Insert the function in place of the final
+				// comment, cleaning up the others.
+				outputContent = new EReg('^/\\* $className\\.__initStatics__ \\*/\r?\n', "gm")
+					.map(outputContent, function(commentRegex:EReg):String
+					{
+						if (--declarations == 0)
+						{
+							return __initStatics__
+								+ '$className.__initStatics__();$newline';
+						}
+						else
+						{
+							return "";
+						}
+					});
+			}
+
+			File.saveContent(outputFile, outputContent);
+		});
+		#end
+	}
 }
 
 @:enum abstract ThreadEventType(String)
@@ -233,7 +374,8 @@ abstract ThreadEvent({ message:Dynamic, event:ThreadEventType })
 	The simplest way to add code is one class at a time, by
 	calling `addClass()`.
 
-	If web workers aren't enabled, all functions are no-ops.
+	If web workers aren't enabled, all functions will
+	perform a no-op.
 **/
 abstract HeaderCode(Array<String>) from Array<String>
 {
@@ -314,11 +456,10 @@ abstract HeaderCode(Array<String>) from Array<String>
 		Adds a Haxe class and its superclasses into the
 		header. If `cls` refers to any other classes, they
 		must be added separately.
-
-		**Caution:** this will fail to initialize most
-		static variables, which can cause errors. (Static
-		functions and instance variables are both fine.)
-		@param cls The class to copy from.
+		@param cls The class to copy from. For best results,
+		hard-code the class name: `addClass(DisplayObject)`
+		will work, but `var x = DisplayObject; addClass(x)`
+		could lead to errors.
 		@param include If not null, only these properties
 		will be included.
 		@param exclude These properties will be left out.
@@ -356,9 +497,9 @@ abstract HeaderCode(Array<String>) from Array<String>
 
 			add('${cls.name}.${entry.key} = $value;\n');
 
-			if (entry.key == "__init__")
+			if (entry.key == "__init__" || entry.key == "__initStatics__")
 			{
-				add('${cls.name}.__init__();\n');
+				add('${cls.name}.${entry.key}();\n');
 			}
 		}
 

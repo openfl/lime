@@ -59,6 +59,7 @@
 
 	<haxedef name="force_synchronous" if="emscripten || display" />
 	<haxedef name="force_synchronous" if="html5" unless="lime-web-workers" />
+	<haxeflag name="--macro" value="lime.system.ThreadBase.processOutput()" if="html5" unless="force_synchronous" />
 
 	<section if="hxp" unless="lime-tools">
 
