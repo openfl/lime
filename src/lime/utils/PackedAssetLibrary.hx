@@ -182,11 +182,17 @@ import flash.media.Sound;
 
 				switch (types.get(id))
 				{
-					case BINARY, FONT, IMAGE, MUSIC, SOUND, TEXT:
+					case BINARY, FONT, IMAGE, TEXT:
 						assetsTotal++;
 
 					case MUSIC, SOUND:
+						Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
 						assetsTotal++;
+
+						var future = loadAudioBuffer(id);
+						future.onProgress(load_onProgress.bind(id));
+						future.onError(loadAudioBuffer_onError.bind(id));
+						future.onComplete(loadAudioBuffer_onComplete.bind(id));
 
 					default:
 				}
@@ -203,35 +209,31 @@ import flash.media.Sound;
 				{
 					if (!preload.get(id)) continue;
 
-					Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
-
 					switch (types.get(id))
 					{
 						case BINARY:
+							Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
 							var future = loadBytes(id);
 							// future.onProgress (load_onProgress.bind (id));
 							future.onError(load_onError.bind(id));
 							future.onComplete(loadBytes_onComplete.bind(id));
 
 						case FONT:
+							Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
 							var future = loadFont(id);
 							// future.onProgress (load_onProgress.bind (id));
 							future.onError(load_onError.bind(id));
 							future.onComplete(loadFont_onComplete.bind(id));
 
 						case IMAGE:
+							Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
 							var future = loadImage(id);
 							// future.onProgress (load_onProgress.bind (id));
 							future.onError(load_onError.bind(id));
 							future.onComplete(loadImage_onComplete.bind(id));
 
-						case MUSIC, SOUND:
-							var future = loadAudioBuffer(id);
-							// future.onProgress (load_onProgress.bind (id));
-							future.onError(load_onError.bind(id));
-							future.onComplete(loadAudioBuffer_onComplete.bind(id));
-
 						case TEXT:
+							Log.verbose("Preloading asset: " + id + " [" + types.get(id) + "]");
 							var future = loadText(id);
 							// future.onProgress (load_onProgress.bind (id));
 							future.onError(load_onError.bind(id));
