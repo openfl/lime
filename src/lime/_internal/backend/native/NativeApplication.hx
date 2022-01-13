@@ -254,7 +254,8 @@ class NativeApplication
 		if (window != null)
 		{
 			var type:KeyEventType = keyEventInfo.type;
-			var keyCode:KeyCode = keyEventInfo.keyCode;
+			var int32:Float = keyEventInfo.keyCode;
+			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
 
 			switch (type)
@@ -738,12 +739,12 @@ class NativeApplication
 
 @:keep /*private*/ class KeyEventInfo
 {
-	public var keyCode:Int;
+	public var keyCode:Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
