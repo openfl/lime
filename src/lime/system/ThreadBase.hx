@@ -501,15 +501,12 @@ abstract HeaderCode(Array<String>) from Array<String>
 
 		for (entry in Object.entries(cls))
 		{
-			if (entry.key == "__super__" || entry.key == "__interfaces__")
+			if (entry.key == "__super__" || entry.key == "__interfaces__"
+				|| Syntax.typeof(entry.value) != "function")
 				continue;
 
-			var value:String = "" + cast entry.value;
-			if (Syntax.typeof(entry.value) == "string")
-			{
-				value = '"$value"';
-			}
-			else if (value.indexOf("[native code]") >= 0 || value.indexOf("[object Object]") >= 0)
+			var value:String = (entry.value:Function).toString();
+			if (value.indexOf("[native code]") >= 0)
 			{
 				continue;
 			}
