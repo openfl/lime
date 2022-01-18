@@ -249,12 +249,8 @@ abstract ThreadFunction<T>(String) to String
 
 	#if (js && !force_synchronous)
 	/**
-		Makes sure the JS string is suitable for making a
-		`Worker`. Fixes issues when possible and throws
-		errors if not.
-
-		This is automatically called by `dispatch()`, so
-		you typically don't need to call it yourself.
+		Makes sure the JS string can be turned back into a
+		function, and throws an informative error if not.
 	**/
 	@:noCompletion @:dox(hide) public inline function checkJS():Void
 	{
@@ -282,14 +278,6 @@ abstract ThreadFunction<T>(String) to String
 			// Addendum: explicit casts will NOT work. You
 			// have to use implicit casts or type hints.
 		}
-
-		// Without analyzer-optimize, there's likely to be
-		// an unused reference to outside code.
-		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
-			('{0}.replace(/var _g?this = .+?;\\s*(.+?postMessage)/gs, "$1")', this);
-
-		this = #if haxe4 js.Syntax.code #else untyped __js__ #end
-			('{0}.replace(/haxe_NativeStackTrace\\.lastError = \\w+;\\s*var (\\w+) = haxe_Exception\\.caught\\((\\w+)\\)\\.unwrap\\(\\);/gs, "var $1 = \'\' + $2;")', this);
 	}
 	#end
 

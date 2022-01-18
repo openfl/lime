@@ -52,8 +52,9 @@ class ThreadBase {
 			defaultHeaderCode = [
 				'"use strict";',
 				Syntax.code("$extend.toString()"),
-				'var haxe_Log = { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };',
-				"var haxe_Exception = { caught: (value) => value, thrown: (value) => (value.get_native) ? value.get_native() : value };"
+				"var haxe_NativeStackTrace = haxe_NativeStackTrace || {};",
+				'var haxe_Log = haxe_Log || { trace: (v, infos) => console.log(infos.fileName + ":" + infos.lineNumber + ": " + v) };',
+				"var haxe_Exception = haxe_Exception || { caught: (value) => value, thrown: (value) => (value.get_native) ? value.get_native() : value };"
 			];
 			defaultHeaderCode.addClass(StringTools);
 			defaultHeaderCode.addClass(HxOverrides);
@@ -130,6 +131,12 @@ class ThreadBase {
 		Dispatches `onComplete` on the main thread, with the
 		given message. The background function should send
 		no further messages after calling this.
+
+		If using web workers, you can call this despite not
+		having access to the `BackgroundWorker` or
+		`ThreadPool` instance. However, to avoid causing an
+		error, you must enable `@:analyzer(optimize)` on the
+		function calling this.
 		@param transferList (Web workers only) A list of
 		buffers in `message` that should be moved rather
 		than copied to the main thread. For details, see
@@ -160,6 +167,12 @@ class ThreadBase {
 		given message. The background function should
 		return promptly after calling this, freeing up the
 		thread for more work.
+
+		If using web workers, you can call this despite not
+		having access to the `BackgroundWorker` or
+		`ThreadPool` instance. However, to avoid causing an
+		error, you must enable `@:analyzer(optimize)` on the
+		function calling this.
 		@param transferList (Web workers only) A list of
 		buffers in `message` that should be moved rather
 		than copied to the main thread. For details, see
@@ -188,6 +201,12 @@ class ThreadBase {
 
 		Dispatches `onProgress` on the main thread, with the
 		given message.
+
+		If using web workers, you can call this despite not
+		having access to the `BackgroundWorker` or
+		`ThreadPool` instance. However, to avoid causing an
+		error, you must enable `@:analyzer(optimize)` on the
+		function calling this.
 		@param transferList (Web workers only) A list of
 		buffers in `message` that should be moved rather
 		than copied to the main thread. For details, see
