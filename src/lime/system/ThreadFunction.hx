@@ -165,27 +165,52 @@ abstract ThreadFunction<T>(String) to String
 	/**
 		Executes this function on the current thread.
 
-		Note: the JavaScript implementation has multiple
-		limitations.
-
-		- The function can only access the global scope,
-		even if run on the main thread.
-		- On background threads, it's further limited to
-		inline variables and whatever arguments it receives.
-		- You must supply all arguments, even optional ones.
+		Note: if using web workers, this will first
+		recompile the function, which is a slow operation.
+		If you plan to run the function many times, call
+		`compile()` instead and store the result.
 	**/
 	public macro function dispatch(self:Expr, args:Array<Expr>):Expr
 	{
+		var compiled:Expr = compile(self);
+
 		if (!Context.defined("js") || Context.defined("force_synchronous"))
 		{
-			var type = self.typeof().follow().toComplexType();
-			switch (type)
-			{
-				case TPath({ name: "ThreadFunction", params: [TPType(t)] }):
-					return macro $self != null ? ($self:$t)($a{args}) : null;
-				default:
-					throw "Underlying function type not found.";
-			}
+			return macro $self != null ? $compiled($a{args}) : null;
+		}
+		else
+		{
+			var jsCode:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
+
+			// Dispatch using `apply()` because we have the
+			// args in array form.
+			return macro $self != null
+				? $jsCode("{0}.apply(this, {1})", $compiled, $a{args})
+				: null;
+		}
+	}
+
+	/**
+		Converts back to type `T`.
+	**/
+	#if macro static #else macro #end
+	public function compile(self:Expr):Expr
+	{
+		var underlyingType:ComplexType;
+		var args:Array<ComplexType>;
+
+		switch (self.typeof().follow().toComplexType())
+		{
+			case TPath({ name: "ThreadFunction", params: [TPType(t = TFunction(a, _))] }):
+				underlyingType = t;
+				args = a;
+			default:
+				throw "Underlying function type not found.";
+		}
+
+		if (!Context.defined("js") || Context.defined("force_synchronous"))
+		{
+			return macro ($self:$underlyingType);
 		}
 		else
 		{
@@ -195,6 +220,7 @@ abstract ThreadFunction<T>(String) to String
 			// using a regex.
 			var regex:String = [for (i in 0...args.length) "(\\w*)"].join(",\\s*");
 			regex = 'function\\($regex\\)\\s*\\{\\s*(.+)\\s*\\}';
+			regex = '/$regex/s.exec({0})';
 
 			var jsCode:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
 
@@ -202,17 +228,39 @@ abstract ThreadFunction<T>(String) to String
 			{
 				$self.checkJS();
 
-				var paramsAndBody:Array<String> = $jsCode($v{'/$regex/s.exec({0})'}, $self);
+				var paramsAndBody:Array<String> = $jsCode($v{regex}, $self);
 				if (paramsAndBody == null)
 					$jsCode('throw "Wrong number of arguments. Attempting to pass " + {0} + " arguments to this function:\\n" + {1}', $v{args.length}, $self);
 				paramsAndBody.shift();
 
-				// Construct the function and then call it.
-				// Use `apply()` because both sets of
-				// arguments are in array form.
-				$jsCode("Function.apply(this, {0}).apply(this, {1})", paramsAndBody, $a{args});
+				// Construct the function, using `apply()`
+				// because we have the params in array form.
+				$jsCode("Function.apply(this, {0})", paramsAndBody);
 			}
 			else null;
+		}
+	}
+
+	/**
+		Acts as `compile()`, but sets the function up so
+		that it will access the correct instance variables.
+		@param instance The class instance to which this
+		instance function belongs.
+		@return A function of type `T`.
+	**/
+	#if macro static #else macro #end
+	public function compileInstanceFunction(self:Expr, instance:Expr):Expr
+	{
+		var compiledFunction:Expr = compile(self);
+		if (!Context.defined("js") || Context.defined("force_synchronous"))
+		{
+			return compiledFunction;
+		}
+		else
+		{
+			var jsCode:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
+
+			return macro $jsCode("{0}.bind({1})", $compiledFunction, $instance);
 		}
 	}
 
