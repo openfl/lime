@@ -363,3 +363,27 @@ abstract ThreadFunction<T>(String) to String
 	}
 	#end
 }
+
+/**
+	As with functions, if you try to pass an enum to or from
+	a web worker, you'll get a "could not be cloned" error.
+	Converting to `ThreadEnum` fixes this.
+
+	This only applies to standard enums; abstracts are fine.
+**/
+abstract ThreadEnum<T:EnumValue>(T) to T
+{
+	/**
+		Permanently deletes this enum value's `toString()`
+		function, making it safe to pass to a web worker. If
+		you still need to get the name, call `Std.string()`
+		instead of `toString()`.
+	**/
+	@:from public static inline function convert<T:EnumValue>(enumValue:T):ThreadEnum<T>
+	{
+		#if (js && !force_synchronous)
+		js.Syntax.code("delete {0}.toString", enumValue);
+		#end
+		return cast enumValue;
+	}
+}
