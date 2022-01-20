@@ -25,14 +25,14 @@ class ImageHelper
 
 		try
 		{
-			System.runCommand("", "neko", [
+			System.runCommand("", "neko " + [
 				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), "svg.n"),
 				"process",
-				path,
+				'"$path"',
 				Std.string(width),
 				Std.string(height),
-				temp
-			], true, true);
+				'"$temp"'
+			].join(" "), null, true, true);
 
 			if (FileSystem.exists(temp))
 			{

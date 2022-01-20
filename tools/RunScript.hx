@@ -7,15 +7,16 @@ import sys.FileSystem;
 
 class RunScript
 {
-	private static function rebuildTools(rebuildBinaries = true):Void
+	private static function buildTools(targetDirectory:String = null, rebuildBinaries = true):Void
 	{
-		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
-		var toolsDirectory = Path.combine(limeDirectory, "tools");
+		var toolsHxmlPath = getToolsHxmlPath();
 
-		if (!FileSystem.exists(toolsDirectory))
+		if (targetDirectory == null)
 		{
-			toolsDirectory = Path.combine(limeDirectory, "../tools");
+			targetDirectory = Path.directory(toolsHxmlPath);
 		}
+
+		Haxelib.workingDirectory = targetDirectory;
 
 		/*var extendedToolsDirectory = Haxelib.getPath (new Haxelib ("lime-extended"), false);
 
@@ -29,7 +30,7 @@ class RunScript
 
 		} else {*/
 
-		System.runCommand(toolsDirectory, "haxe", ["tools.hxml"]);
+		HXML.buildFile(toolsHxmlPath, targetDirectory);
 
 		// }
 
@@ -39,12 +40,12 @@ class RunScript
 
 		for (platform in platforms)
 		{
-			var source = Path.combine(limeDirectory, "ndll/" + platform + "/lime.ndll");
+			var source = Path.combine(targetDirectory, "ndll/" + platform + "/lime.ndll");
 			// var target = Path.combine (toolsDirectory, "ndll/" + platform + "/lime.ndll");
 
 			if (!FileSystem.exists(source))
 			{
-				var args = ["tools/tools.n", "rebuild", "lime", "-release", "-nocffi"];
+				var args = [Path.combine(targetDirectory, "tools.n"), "rebuild", "lime", "-release", "-nocffi"];
 
 				if (Log.verbose)
 				{
@@ -61,25 +62,25 @@ class RunScript
 					case "Windows":
 						if (System.hostPlatform == WINDOWS)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["windows", toolsDirectory]));
+							System.runCommand(targetDirectory, "neko", args.concat(["windows", targetDirectory]));
 						}
 
 					case "Mac", "Mac64":
 						if (System.hostPlatform == MAC)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["mac", toolsDirectory]));
+							System.runCommand(targetDirectory, "neko", args.concat(["mac", targetDirectory]));
 						}
 
 					case "Linux":
 						if (System.hostPlatform == LINUX && System.hostArchitecture != X64)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["linux", "-32", toolsDirectory]));
+							System.runCommand(targetDirectory, "neko", args.concat(["linux", "-32", targetDirectory]));
 						}
 
 					case "Linux64":
 						if (System.hostPlatform == LINUX && System.hostArchitecture == X64)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["linux", "-64", toolsDirectory]));
+							System.runCommand(targetDirectory, "neko", args.concat(["linux", "-64", targetDirectory]));
 						}
 				}
 			}
@@ -135,10 +136,11 @@ class RunScript
 	{
 		var args = Sys.args();
 
-		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
+		var cacheDirectory = Sys.getCwd();
+
+		if (args.length > 0)
 		{
 			var lastArgument = new Path(args[args.length - 1]).toString();
-			var cacheDirectory = Sys.getCwd();
 
 			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\"))
 				&& !StringTools.endsWith(lastArgument, ":\\"))
@@ -150,8 +152,12 @@ class RunScript
 			{
 				Sys.setCwd(lastArgument);
 			}
+		}
 
-			Haxelib.workingDirectory = Sys.getCwd();
+		var workingDirectory = Sys.getCwd();
+
+		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
+		{
 			var rebuildBinaries = true;
 
 			for (arg in args)
@@ -187,7 +193,7 @@ class RunScript
 				}
 			}
 
-			rebuildTools(rebuildBinaries);
+			rebuildTools(workingDirectory, rebuildBinaries);
 
 			if (args.indexOf("-openfl") > -1)
 			{
@@ -198,13 +204,84 @@ class RunScript
 				Sys.exit(0);
 			}
 		}
-
-		if (!FileSystem.exists("tools/tools.n") || args.indexOf("-rebuild") > -1)
+		else if (args.length > 1 && args[0] == "scope")
 		{
-			rebuildTools();
+			switch args[1]
+			{
+				case "create":
+					System.makeDirectory(".lime");
+
+				case "delete":
+					System.removeDirectory(".lime");
+
+				default:
+					Log.error("Incorrect arguments for command 'scope'");
+			}
+
+			return;
 		}
 
-		var args = ["tools/tools.n"].concat(args);
-		Sys.exit(runCommand("", "neko", args));
+		var toolsPath:String = checkTools(workingDirectory, args);
+		var args = [Path.withoutDirectory(toolsPath)].concat(args);
+		Sys.exit(runCommand(Path.directory(toolsPath), "neko", args));
+
+	}
+
+	private static function checkTools(workingDirectory:String, args:Array<String>):String
+	{
+		var toolsPath:String = getToolsPath(workingDirectory);
+		var toolsDest = Path.directory(toolsPath);
+
+		if (!hasTools(toolsDest) || args.indexOf("-rebuild") > -1)
+		{
+			buildTools(toolsDest);
+		}
+
+		return toolsPath;
+	}
+
+	private static function rebuildTools(workingDirectory:String, rebuildBinaries = true):String
+	{
+		var toolsPath = getToolsPath(workingDirectory);
+		var toolsDest = Path.directory(toolsPath);
+
+		buildTools(toolsDest, rebuildBinaries);
+
+		return toolsPath;
+	}
+
+	private static function hasTools(directory:String):Bool
+	{
+		return FileSystem.exists(directory + "/tools.n");
+	}
+
+	private static function getToolsHxmlPath():String
+	{
+		var toolsDirectory:String = Path.combine(Haxelib.getPath(new Haxelib("lime"), true), "tools");
+
+		if (!FileSystem.exists(toolsDirectory))
+		{
+			toolsDirectory = Path.combine(toolsDirectory, "../../tools");
+		}
+
+		return toolsDirectory + "/tools.hxml";
+	}
+
+	private static function getToolsPath(workingDirectory:String):String
+	{
+		var scopeDirectory:String = workingDirectory + "/.lime";
+
+		var targetDirectory:String;
+
+		if (FileSystem.exists(scopeDirectory) && FileSystem.isDirectory(scopeDirectory))
+		{
+			targetDirectory = scopeDirectory;
+		}
+		else
+		{
+			targetDirectory = Path.directory(getToolsHxmlPath());
+		}
+
+		return targetDirectory + "/tools.n";
 	}
 }

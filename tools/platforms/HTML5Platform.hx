@@ -66,7 +66,7 @@ class HTML5Platform extends PlatformTarget
 			}
 
 			var hxml = targetDirectory + "/haxe/" + type + ".hxml";
-			System.runCommand("", "haxe", [hxml]);
+			System.runCommand("", 'haxe "$hxml"', null);
 
 			if (noOutput) return;
 

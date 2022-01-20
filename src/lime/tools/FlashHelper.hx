@@ -743,13 +743,13 @@ class FlashHelper
 			// Have to daisy-chain it to fix Haxe compiler issue
 
 			args.push ("-swf-lib");
-			args.push (destination + "/.assets.swf");
+			args.push ("\"" + destination + "/.assets.swf\"");
 			args.push ("-D");
 			args.push ("flash-use-stage");
 
 		}
 
-		System.runCommand ("", "haxe", args);
+		System.runCommand ("", "haxe " + args.join(" "), null);
 
 		if (FileSystem.exists (destination + "/.assets.swf")) {
 
