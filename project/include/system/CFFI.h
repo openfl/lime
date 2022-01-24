@@ -2,7 +2,7 @@
 #define LIME_SYSTEM_CFFI_H
 
 
-#define HL_NAME(n) hl_##n
+#define HL_NAME(n) lime_##n
 #include <hl.h>
 
 typedef vdynamic hl_vdynamic;
