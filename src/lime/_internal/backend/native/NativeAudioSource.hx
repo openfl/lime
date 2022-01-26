@@ -386,10 +386,11 @@ class NativeAudioSource
 
 	public function setCurrentTime(value:Int):Int
 	{
-		if (value == getCurrentTime())
+		// `setCurrentTime()` has side effects and is never safe to skip.
+		/* if (value == getCurrentTime())
 		{
 			return value;
-		}
+		} */
 
 		if (handle != null)
 		{
