@@ -119,6 +119,7 @@ class FlashAudioSource
 
 	public function getPitch():Float
 	{
+		lime.utils.Log.verbose("Pitch is not supported in Flash.");
 		return 1;
 	}
 
