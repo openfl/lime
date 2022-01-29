@@ -325,8 +325,7 @@ import lime.utils.Log;
 	{
 		if (threadPool == null)
 		{
-			threadPool = new ThreadPool();
-			threadPool.doWork.add(threadPool_doWork);
+			threadPool = new ThreadPool(threadPool_doWork);
 			threadPool.onComplete.add(threadPool_onComplete);
 			threadPool.onError.add(threadPool_onError);
 		}

@@ -272,8 +272,7 @@ class NativeHTTPRequest
 		{
 			if (localThreadPool == null)
 			{
-				localThreadPool = new ThreadPool(0, 1);
-				localThreadPool.doWork.add(localThreadPool_doWork);
+				localThreadPool = new ThreadPool(localThreadPool_doWork, 0, 1);
 				localThreadPool.onProgress.add(localThreadPool_onProgress);
 				localThreadPool.onComplete.add(localThreadPool_onComplete);
 				localThreadPool.onError.add(localThreadPool_onError);
@@ -306,8 +305,7 @@ class NativeHTTPRequest
 
 				if (multiThreadPool == null)
 				{
-					multiThreadPool = new ThreadPool(0, 1);
-					multiThreadPool.doWork.add(multiThreadPool_doWork);
+					multiThreadPool = new ThreadPool(multiThreadPool_doWork, 0, 1);
 					multiThreadPool.onProgress.add(multiThreadPool_onProgress);
 					multiThreadPool.onComplete.add(multiThreadPool_onComplete);
 				}

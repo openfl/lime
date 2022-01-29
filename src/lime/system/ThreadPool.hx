@@ -1,244 +1,350 @@
 package lime.system;
 
-import haxe.Constraints.Function;
 import lime.app.Application;
 import lime.app.Event;
-#if sys
-#if haxe4
+import lime.system.BackgroundWorker;
+import lime.utils.Log;
+#if !force_synchronous
+#if target.threaded
 import sys.thread.Deque;
 import sys.thread.Thread;
+import sys.thread.Tls;
+import sys.thread.IThreadPool;
 #elseif cpp
 import cpp.vm.Deque;
 import cpp.vm.Thread;
+import cpp.vm.Tls;
 #elseif neko
 import neko.vm.Deque;
 import neko.vm.Thread;
+import neko.vm.Tls;
 #end
 #end
+/**
+	A variant of `BackgroundWorker` designed to manage simultaneous jobs. It can
+	run up to `maxThreads` jobs at a time and will keep excess jobs in a queue
+	until a slot frees up to run them.
+
+	It can also keep a certain number of threads (configurable via `minThreads`)
+	running in the background even when no jobs are available. This avoids the
+	not-insignificant overhead of stopping and restarting threads.
+
+	Like `BackgroundWorker`, it also offers a single-threaded mode on targets
+	that lack threads.
+
+	@see `lime.app.Future.FutureWork` for a working example.
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class ThreadPool
+class ThreadPool extends BackgroundWorker
 {
-	public var currentThreads(default, null):Int;
-	public var doWork = new Event<Dynamic->Void>();
-	public var maxThreads:Int;
-	public var minThreads:Int;
-	public var onComplete = new Event<Dynamic->Void>();
-	public var onError = new Event<Dynamic->Void>();
-	public var onProgress = new Event<Dynamic->Void>();
-	public var onRun = new Event<Dynamic->Void>();
+	private static inline function clearDeque<T>(deque:Deque<T>):Void
+	{
+		while (deque.pop(false) != null) {}
+	}
 
-	#if (cpp || neko)
-	@:noCompletion private var __synchronous:Bool;
-	@:noCompletion private var __workCompleted:Int;
-	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
-	@:noCompletion private var __workQueued:Int;
-	@:noCompletion private var __workResult = new Deque<ThreadPoolMessage>();
+	/**
+		The number of live threads in this pool, including both active and idle
+		threads. Does not count threads that have been instructed to shut down.
+
+		In single-threaded mode, this will equal `activeThreads`.
+	**/
+	public var currentThreads(get, never):Int;
+
+	#if (!force_synchronous && (target.threaded || cpp || neko))
+	/**
+		__Set this only from the main thread.__
+	**/
+	private var __currentThreads:Int = 0;
 	#end
 
-	public function new(minThreads:Int = 0, maxThreads:Int = 1)
+	/**
+		The number of threads in this pool that are currently working on a job.
+		Does not count threads that have been instructed to shut down.
+
+		In single-threaded mode, this instead indicates the number of jobs
+		currently being executed.
+	**/
+	// __Set this only from the main thread.__
+	public var activeThreads(default, null):Int = 0;
+
+	/**
+		The number of live threads in this pool that aren't currently working on
+		anything. In single-threaded mode, this will always be 0.
+	**/
+	public var idleThreads(get, never):Int;
+
+	/**
+		__Set this only from the main thread.__
+
+		The maximum number of live threads this pool can create at once. In
+		single-threaded mode, indicates the maximum number of active jobs.
+
+		If this value decreases, active jobs will still be allowed to finish.
+	**/
+	public var maxThreads:Int;
+
+	/**
+		__Set this only from the main thread.__
+
+		The number of threads that will be kept alive at all times, even if
+		there's no work to do. Setting this won't add new threads, it'll just
+		keep existing ones running.
+
+		Has no effect in single-threaded mode.
+	**/
+	public var minThreads:Int;
+
+	/**
+		Dispatched on the main thread when a new job begins. Dispatched once per
+		job. For best results, add all listeners before scheduling jobs.
+	**/
+	public var onRun = new Event<Dynamic->Void>();
+
+	/**
+		__Add jobs only from the main thread.__
+	**/
+	private var __pendingJobs = new Deque<ThreadEvent>();
+	/**
+		__Modify this only from the main thread.__
+
+		The expected length of `__pendingJobs`. Will sometimes be greater than
+		the actual length, temporarily.
+	**/
+	private var __numPendingJobs:Int = 0;
+	/**
+		Active jobs (single-threaded mode only).
+	**/
+	private var __singleThreadedJobs:Array<Dynamic>;
+
+	/**
+		@param doWork A single function capable of performing all of this pool's
+		jobs. Treat this parameter as though it wasn't optional.
+	**/
+	public function new(?doWork:Dynamic->Void, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = MULTI_THREADED)
 	{
+		super(mode);
+
+		#if debug
+		if (doWork == null)
+		{
+			Log.warn("doWork argument should not be omitted.");
+		}
+		#end
+		this.doWork = doWork;
+
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
 
-		currentThreads = 0;
+		if (mode == SINGLE_THREADED)
+		{
+			__singleThreadedJobs = [];
+		}
 
-		#if (cpp || neko)
-		__workQueued = 0;
-		__workCompleted = 0;
-		#end
-
-		#if (emscripten || force_synchronous)
-		__synchronous = true;
-		#end
+		// Indirectly set `canceled` to false.
+		__state = true;
 	}
 
-	// public function cancel (id:String):Void {
-	//
-	//
-	//
-	// }
-	// public function isCanceled (id:String):Bool {
-	//
-	//
-	//
-	// }
+	/**
+		Permanently shuts down this `ThreadPool`.
+	**/
+	public override function cancel():Void
+	{
+		super.cancel();
+
+		clearDeque(__pendingJobs);
+		__singleThreadedJobs = null;
+
+		for (i in 0...currentThreads)
+		{
+			__pendingJobs.push(new ThreadEvent(EXIT, null));
+		}
+	}
+
+	/**
+		Queues a new job, to be run once a thread becomes available.
+	**/
 	public function queue(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
-		// TODO: Better way to handle this?
-
-		if (Application.current != null && Application.current.window != null && !__synchronous)
+		if (canceled)
 		{
-			__workIncoming.add(new ThreadPoolMessage(WORK, state));
-			__workQueued++;
-
-			if (currentThreads < maxThreads && currentThreads < (__workQueued - __workCompleted))
-			{
-				currentThreads++;
-				Thread.create(__doWork);
-			}
-
-			if (!Application.current.onUpdate.has(__update))
-			{
-				Application.current.onUpdate.add(__update);
-			}
+			throw "This ThreadPool has been shut down.";
 		}
-		else
+		if (doWork == null)
 		{
-			__synchronous = true;
-			runWork(state);
+			throw "ThreadPool constructor requires doWork argument.";
 		}
-		#else
-		runWork(state);
-		#end
-	}
 
-	public function sendComplete(state:Dynamic = null):Void
-	{
-		#if (cpp || neko)
-		if (!__synchronous)
+		__pendingJobs.add(new ThreadEvent(WORK, state));
+		__numPendingJobs++;
+
+		if (!Application.current.onUpdate.has(__update))
 		{
-			__workResult.add(new ThreadPoolMessage(COMPLETE, state));
-			return;
-		}
-		#end
-
-		onComplete.dispatch(state);
-	}
-
-	public function sendError(state:Dynamic = null):Void
-	{
-		#if (cpp || neko)
-		if (!__synchronous)
-		{
-			__workResult.add(new ThreadPoolMessage(ERROR, state));
-			return;
-		}
-		#end
-
-		onError.dispatch(state);
-	}
-
-	public function sendProgress(state:Dynamic = null):Void
-	{
-		#if (cpp || neko)
-		if (!__synchronous)
-		{
-			__workResult.add(new ThreadPoolMessage(PROGRESS, state));
-			return;
-		}
-		#end
-
-		onProgress.dispatch(state);
-	}
-
-	@:noCompletion private function runWork(state:Dynamic = null):Void
-	{
-		#if (cpp || neko)
-		if (!__synchronous)
-		{
-			__workResult.add(new ThreadPoolMessage(WORK, state));
-			doWork.dispatch(state);
-			return;
-		}
-		#end
-
-		onRun.dispatch(state);
-		doWork.dispatch(state);
-	}
-
-	#if (cpp || neko)
-	@:noCompletion private function __doWork():Void
-	{
-		while (true)
-		{
-			var message = __workIncoming.pop(true);
-
-			if (message.type == WORK)
-			{
-				runWork(message.state);
-			}
-			else if (message.type == EXIT)
-			{
-				break;
-			}
+			Application.current.onUpdate.add(__update);
 		}
 	}
 
-	@:noCompletion private function __update(deltaTime:Int):Void
+	/**
+		Alias for `queue()`.
+		@param doWork Ignored; set `doWork` via the constructor instead.
+	**/
+	public override function run(?doWork:Dynamic->Void, ?state:Dynamic):Void
 	{
-		if (__workQueued > __workCompleted)
+		queue(state);
+	}
+
+	#if (!force_synchronous && (target.threaded || cpp || neko))
+	/**
+		__Run this only on a background thread.__
+
+		Retrieves pending jobs, runs them until complete, and repeats.
+	**/
+	private function __workLoop():Void
+	{
+		while (!canceled)
 		{
-			var message = __workResult.pop(false);
+			// Get a job.
+			var job:ThreadEvent = __pendingJobs.pop(true);
 
-			while (message != null)
+			if (job.event == EXIT)
 			{
-				switch (message.type)
-				{
-					case WORK:
-						onRun.dispatch(message.state);
-
-					case PROGRESS:
-						onProgress.dispatch(message.state);
-
-					case COMPLETE, ERROR:
-						__workCompleted++;
-
-						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads)
-							|| currentThreads > maxThreads)
-						{
-							currentThreads--;
-							__workIncoming.add(new ThreadPoolMessage(EXIT, null));
-						}
-
-						if (message.type == COMPLETE)
-						{
-							onComplete.dispatch(message.state);
-						}
-						else
-						{
-							onError.dispatch(message.state);
-						}
-
-					default:
-				}
-
-				message = __workResult.pop(false);
+				return;
 			}
-		}
-		else
-		{
-			// TODO: Add sleep if keeping minThreads running with no work?
 
-			if (currentThreads == 0 && minThreads <= 0 && Application.current != null)
+			if (job.event != WORK)
 			{
-				Application.current.onUpdate.remove(__update);
+				continue;
 			}
+
+			// Let the main thread know which job is starting.
+			__messageQueue.add(job);
+
+			// Get to work.
+			__jobComplete.value = false;
+			while (!__jobComplete.value && !canceled)
+			{
+				doWork.dispatch(job.state);
+			}
+
+			// Do it all again.
 		}
 	}
 	#end
-}
 
-private enum ThreadPoolMessageType
-{
-	COMPLETE;
-	ERROR;
-	EXIT;
-	PROGRESS;
-	WORK;
-}
-
-private class ThreadPoolMessage
-{
-	public var state:Dynamic;
-	public var type:ThreadPoolMessageType;
-
-	public function new(type:ThreadPoolMessageType, state:Dynamic)
+	private override function __update(deltaTime:Int):Void
 	{
-		this.type = type;
-		this.state = state;
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (mode == MULTI_THREADED)
+		{
+			while (__numPendingJobs > idleThreads && currentThreads < maxThreads)
+			{
+				Thread.create(__workLoop);
+				__currentThreads++; // This implicitly increments `idleThreads`.
+			}
+		}
+		else
+		#end
+		{
+			while (__singleThreadedJobs.length < maxThreads)
+			{
+				var job = __pendingJobs.pop(false);
+				if (job == null)
+				{
+					break;
+				}
+
+				__singleThreadedJobs.push(job);
+				__messageQueue.push(job);
+			}
+
+			var completedCount:Int = 0;
+			for (i in 0...activeThreads)
+			{
+				__jobComplete.value = false;
+
+				doWork.dispatch(__singleThreadedJobs[i - completedCount].state);
+
+				if (__jobComplete.value)
+				{
+					__singleThreadedJobs.splice(i - completedCount, 1);
+					completedCount++;
+				}
+			}
+
+			// `activeThreads` hasn't yet been updated.
+			for (i in (activeThreads - completedCount)...maxThreads)
+			{
+				if (i >= __singleThreadedJobs.length)
+				{
+					break;
+				}
+
+				__messageQueue.add(__singleThreadedJobs[i]);
+			}
+		}
+
+		var threadEvent:ThreadEvent;
+		while ((threadEvent = __messageQueue.pop(false)) != null)
+		{
+			switch (threadEvent.event)
+			{
+				case WORK:
+					__numPendingJobs--;
+					activeThreads++;
+
+					onRun.dispatch(threadEvent.state);
+
+				case PROGRESS:
+					onProgress.dispatch(threadEvent.state);
+
+				case COMPLETE, ERROR:
+					activeThreads--;
+
+					#if (!force_synchronous && (target.threaded || cpp || neko))
+					if (mode == MULTI_THREADED
+						&& ((__numPendingJobs > idleThreads && currentThreads > minThreads)
+						|| currentThreads > maxThreads))
+					{
+						__currentThreads--;
+						__pendingJobs.push(new ThreadEvent(EXIT, null));
+					}
+					#end
+
+					if (threadEvent.event == COMPLETE)
+					{
+						onComplete.dispatch(threadEvent.state);
+					}
+					else
+					{
+						onError.dispatch(threadEvent.state);
+					}
+
+				default:
+			}
+		}
+
+		if (currentThreads == 0)
+		{
+			Application.current.onUpdate.remove(__update);
+		}
+	}
+
+	// Getters & Setters
+
+	private inline function get_idleThreads():Int
+	{
+		return currentThreads - activeThreads;
+	}
+
+	private inline function get_currentThreads():Int
+	{
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (mode == MULTI_THREADED)
+			return __currentThreads;
+		else
+		#end
+			return activeThreads;
 	}
 }

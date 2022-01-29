@@ -148,7 +148,8 @@ class BackgroundWorker
 	private var __state:Dynamic;
 
 	/**
-		__Add to this only from a background thread.__
+		__Add messages only from `sendProgress()`, `sendError()`, or__
+		__`sendComplete()`.__
 	**/
 	private var __messageQueue:Deque<ThreadEvent> = new Deque();
 	/**
@@ -336,7 +337,7 @@ class BackgroundWorker
 @:enum abstract ThreadMode(Bool)
 {
 	/**
-		Work will be done on the main thread, during `Application.onUpdate`.
+		All work will be done on the main thread, during `Application.onUpdate`.
 
 		To avoid lag spikes, `doWork` should return after completing one frame's
 		worth of work, storing its progress in `state`. It will be called again
@@ -345,12 +346,12 @@ class BackgroundWorker
 	var SINGLE_THREADED = false;
 
 	/**
-		Work will be done on a background thread.
+		All work will be done on a background thread.
 
-		`doWork` can execute for arbitrarily long without causing lag spikes,
-		though for best results it should return periodically, storing its
-		progress in `state`. As long as the job wasn't canceled, `doWork` will
-		be called again immediately with the same `state`.
+		Unlike single-threaded mode, there is no risk of causing lag spikes.
+		Even so, `doWork` should return at regular intervals, storing its
+		progress in `state`. This will make it easier to cancel the thread. If
+		not canceled, `doWork` will be called again immediately.
 	**/
 	var MULTI_THREADED = true;
 }
@@ -405,6 +406,7 @@ abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
 	var ERROR = "ERROR";
 	var PROGRESS = "PROGRESS";
 	var WORK = "WORK";
+	var EXIT = "EXIT";
 }
 
 class ThreadEvent
@@ -437,12 +439,10 @@ abstract Deque<T>(List<T>) from List<T> to List<T>
 	}
 }
 
-@:forward
-abstract Tls<T>({ value:Null<T> })
+class Tls<T>
 {
-	public inline function new()
-	{
-		this = cast { value: null };
-	}
+	public var value:T;
+
+	public inline function new() {}
 }
 #end
