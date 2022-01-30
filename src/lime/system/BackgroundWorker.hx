@@ -211,17 +211,18 @@ class BackgroundWorker
 		}
 		#end
 
-		if (doWork != null)
+		if (doWork == null)
 		{
-			this.doWork = doWork;
-			if (this.doWork == null)
+			doWork = this.doWork;
+			if (doWork == null)
 			{
-				throw "doWork argument should not be omitted.";
+				throw "doWork argument omitted from call to run().";
 			}
 		}
 
 		completed = false;
 		__jobComplete.value = false;
+		this.doWork = doWork;
 		__state = state;
 
 		#if (!force_synchronous && (target.threaded || cpp || neko))
@@ -237,7 +238,7 @@ class BackgroundWorker
 
 				while (!__jobComplete.value && thisThread == __latestThread)
 				{
-					doWork(__state);
+					doWork(state);
 				}
 			});
 			__latestThread.sendMessage(ThreadEventType.WORK);
