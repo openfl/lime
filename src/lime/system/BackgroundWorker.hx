@@ -91,6 +91,10 @@ import lime.app.Application;
 #end
 class BackgroundWorker
 {
+	#if (!force_synchronous && (target.threaded || cpp || neko))
+	private static var __mainThread:Thread = Thread.current();
+	#end
+
 	/**
 		Indicates that no further events will be dispatched.
 	**/
@@ -164,13 +168,18 @@ class BackgroundWorker
 	}
 
 	/**
-		__Call this only from the main thread.__
-
 		Cancels all events and begins the process of closing background threads,
 		though the thread won't actually shut down until `doWork` returns.
 	**/
 	public function cancel():Void
 	{
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (Thread.current() != __mainThread)
+		{
+			throw "Call cancel() only from the main thread.";
+		}
+		#end
+
 		#if !macro
 		Application.current.onUpdate.remove(__update);
 		#end
@@ -184,18 +193,24 @@ class BackgroundWorker
 	}
 
 	/**
-		__Call this only from the main thread.__
-
 		Begins work on a job, running `doWork` repeatedly with the given `state`
 		until it either finishes or encounters an error.
 
-		The main thread should avoid accessing `state` while the job is active.
+		In multi-threaded mode, the main thread should avoid modifying `state`
+		until the job completes.
 
 		@param doWork The function to execute. Treat this parameter as though it
 		wasn't optional.
 	**/
 	public function run(?doWork:Dynamic->Void, ?state:Dynamic):Void
 	{
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (Thread.current() != __mainThread)
+		{
+			throw "Call run() only from the main thread.";
+		}
+		#end
+
 		if (doWork != null)
 		{
 			this.doWork = doWork;

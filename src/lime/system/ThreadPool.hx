@@ -168,6 +168,13 @@ class ThreadPool extends BackgroundWorker
 	**/
 	public function queue(state:Dynamic = null):Void
 	{
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (Thread.current() != BackgroundWorker.__mainThread)
+		{
+			throw "Call queue() only from the main thread.";
+		}
+		#end
+
 		if (canceled)
 		{
 			throw "This ThreadPool has been shut down.";
