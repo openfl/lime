@@ -34,11 +34,12 @@ import lime.app.Application;
 	events, respectively.
 
 	For best results, `doWork` shouldn't complete the job all at once. Instead,
-	it should return after doing about one frame's worth of work. It will
-	automatically run again with the same argument. This argument (often called
-	`state`) can store persistent information. Once the entire job is done,
-	`doWork` can exit the loop by calling `sendComplete()`. (`onError()` will
-	also exit the loop.)
+	it can expect to be called multiple times, each time doing a fraction of the
+	total work. After doing one frame's worth of work, it should return, at
+	which point `BackgroundWorker` will schedule it to run again with the same
+	argument. This argument (often called `state`) can store persistent
+	information. Once the entire job is done, `doWork` can exit the loop by
+	calling `sendComplete()`. (`sendError()` will also exit the loop.)
 
 	Sample usage:
 
@@ -104,12 +105,13 @@ class BackgroundWorker
 		Indicates that the latest job finished successfully, and no other job
 		has been started/is ongoing.
 	**/
+	// __Set this only from the main thread.__
 	public var completed(default, null):Bool;
 
 	/**
 		This is public for backwards compatibility only.
 
-		__Set this via the constructor or as an argument to `run()`.__
+		__Set this by passing it as an argument to `run()`.__
 	**/
 	@:noCompletion @:dox(hide) public var doWork:WorkFunction<Dynamic->Void>;
 
@@ -157,7 +159,8 @@ class BackgroundWorker
 	**/
 	private var __messageQueue:Deque<ThreadEvent> = new Deque();
 	/**
-		On the main thread, serves as the value for
+		Thread-local storage. Tracks whether `sendError()` or `sendComplete()`
+		was called on this thread. If it was, there's no need to rerun `doWork`.
 	**/
 	private var __jobComplete:Tls<Bool> = new Tls();
 
@@ -395,7 +398,8 @@ abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
 
 	// Backwards compatibility functions
 
-	@:deprecated @:noCompletion @:dox(hide) public inline function add(callback:WorkFunction<T>):Void
+	@:deprecated("Instead, pass doWork to BackgroundWorker.run() or ThreadPool's constructor.")
+	@:noCompletion @:dox(hide) public inline function add(callback:WorkFunction<T>):Void
 	{
 		this = callback;
 	}
