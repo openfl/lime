@@ -138,7 +138,7 @@ class ThreadPool extends BackgroundWorker
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
 
-		if (mode == SINGLE_THREADED)
+		if (this.mode == SINGLE_THREADED)
 		{
 			__singleThreadedJobs = [];
 		}
@@ -266,29 +266,17 @@ class ThreadPool extends BackgroundWorker
 				__messageQueue.push(job);
 			}
 
-			var completedCount:Int = 0;
-			for (i in 0...activeThreads)
+			var i:Int = __singleThreadedJobs.length;
+			while (--i >= 0)
 			{
 				__jobComplete.value = false;
 
-				doWork.dispatch(__singleThreadedJobs[i - completedCount].state);
+				doWork.dispatch(__singleThreadedJobs[i].state);
 
 				if (__jobComplete.value)
 				{
-					__singleThreadedJobs.splice(i - completedCount, 1);
-					completedCount++;
+					__singleThreadedJobs.splice(i, 1);
 				}
-			}
-
-			// `activeThreads` hasn't yet been updated.
-			for (i in (activeThreads - completedCount)...maxThreads)
-			{
-				if (i >= __singleThreadedJobs.length)
-				{
-					break;
-				}
-
-				__messageQueue.add(__singleThreadedJobs[i]);
 			}
 		}
 
