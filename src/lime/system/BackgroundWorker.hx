@@ -307,32 +307,30 @@ class BackgroundWorker
 			doWork.dispatch(__state);
 		}
 
-		var threadEvent:ThreadEvent = __messageQueue.pop(false);
+		var threadEvent:ThreadEvent;
 
-		if (threadEvent == null)
+		while ((threadEvent = __messageQueue.pop(false)) != null)
 		{
-			return;
-		}
+			#if (target.threaded || cpp || neko)
+			if (mode == MULTI_THREADED && threadEvent.sourceThread != __latestThread)
+			{
+				continue;
+			}
+			#end
 
-		#if (target.threaded || cpp || neko)
-		if (mode == MULTI_THREADED && threadEvent.sourceThread != __latestThread)
-		{
-			return;
-		}
-		#end
-
-		switch (threadEvent.event)
-		{
-			case ERROR:
-				cancel();
-				onError.dispatch(threadEvent.state);
-			case COMPLETE:
-				cancel();
-				completed = true;
-				onComplete.dispatch(threadEvent.state);
-			case PROGRESS:
-				onProgress.dispatch(threadEvent.state);
-			default:
+			switch (threadEvent.event)
+			{
+				case ERROR:
+					cancel();
+					onError.dispatch(threadEvent.state);
+				case COMPLETE:
+					cancel();
+					completed = true;
+					onComplete.dispatch(threadEvent.state);
+				case PROGRESS:
+					onProgress.dispatch(threadEvent.state);
+				default:
+			}
 		}
 	}
 
