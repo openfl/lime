@@ -33,6 +33,7 @@ import neko.vm.Tls;
 	that lack threads.
 
 	@see `lime.app.Future.FutureWork` for a working example.
+	@see https://player03.com/openfl/threads-guide/ for a tutorial.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')

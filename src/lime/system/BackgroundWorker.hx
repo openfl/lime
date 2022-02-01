@@ -85,6 +85,7 @@ import lime.app.Application;
 
 			bgWorker.run(doWork, { total: 3000 });
 		}
+	@see https://player03.com/openfl/threads-guide/ for a tutorial.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
