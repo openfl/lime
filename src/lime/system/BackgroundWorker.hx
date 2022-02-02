@@ -41,7 +41,8 @@ import lime.app.Application;
 	exit the loop by calling `sendComplete()` or `sendError()`.
 
 	In single-threaded mode, `doWork`'s exact duration matters. Specifically, it
-	should be short enough that `workIterations.value >= 3`.
+	should be short enough that it runs at least three times per frame (see
+	`workIterations` for details).
 
 	Sample usage:
 
@@ -400,11 +401,13 @@ class BackgroundWorker
 	/**
 		All work will be done on the main thread, during `Application.onUpdate`.
 
-		To avoid lag spikes, `doWork` should return after completing one frame's
-		worth of work, storing its progress in `state`. It will be called again
-		with the same `state` next frame.
+		To avoid lag spikes, `doWork` should return after completing a fraction
+		of a frame's worth of work, storing its progress in `state`. It will be
+		called again with the same `state` next frame, or this frame if there's
+		still time.
 
 		@see https://en.wikipedia.org/wiki/Green_threads
+		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
 	**/
 	var SINGLE_THREADED = false;
 
