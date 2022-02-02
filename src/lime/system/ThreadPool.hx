@@ -80,10 +80,10 @@ class ThreadPool extends BackgroundWorker
 	/**
 		__Set this only from the main thread.__
 
-		The maximum number of live threads this pool can create at once. In
-		single-threaded mode, indicates the maximum number of active jobs.
+		The maximum number of live threads this pool can create at once. If this
+		value decreases, active jobs will still be allowed to finish.
 
-		If this value decreases, active jobs will still be allowed to finish.
+		Has no effect in single-threaded mode; use `workPerFrame` instead.
 	**/
 	public var maxThreads:Int;
 
@@ -115,18 +115,19 @@ class ThreadPool extends BackgroundWorker
 		the actual length, temporarily.
 	**/
 	private var __numPendingJobs:Int = 0;
-	/**
-		Active jobs (single-threaded mode only).
-	**/
-	private var __singleThreadedJobs:Array<Dynamic>;
 
 	/**
 		@param doWork A single function capable of performing all of this pool's
 		jobs. Treat this parameter as though it wasn't optional.
+		@param workLoad (Single-threaded mode only) A rough estimate of how much
+		of the app's time should be spent on this `ThreadPool`. For instance,
+		the default value of 1/2 means this pool will take up about half the
+		app's available time every frame. To increase the accuracy of this
+		estimate, increase `workIterations`.
 	**/
-	public function new(?doWork:Dynamic->Void, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = MULTI_THREADED)
+	public function new(?doWork:Dynamic->Void, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = MULTI_THREADED, ?workLoad:Float = 1/2)
 	{
-		super(mode);
+		super(mode, workLoad);
 
 		#if debug
 		if (doWork == null)
@@ -138,14 +139,6 @@ class ThreadPool extends BackgroundWorker
 
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
-
-		if (this.mode == SINGLE_THREADED)
-		{
-			__singleThreadedJobs = [];
-		}
-
-		// Indirectly set `canceled` to false.
-		__state = true;
 	}
 
 	/**
@@ -156,7 +149,6 @@ class ThreadPool extends BackgroundWorker
 		super.cancel();
 
 		clearDeque(__pendingJobs);
-		__singleThreadedJobs = null;
 
 		for (i in 0...currentThreads)
 		{
@@ -231,8 +223,10 @@ class ThreadPool extends BackgroundWorker
 
 			// Get to work.
 			__jobComplete.value = false;
+			workIterations.value = 0;
 			while (!__jobComplete.value && !canceled)
 			{
+				workIterations.value++;
 				doWork.dispatch(job.state);
 			}
 
@@ -255,29 +249,35 @@ class ThreadPool extends BackgroundWorker
 		else
 		#end
 		{
-			while (__singleThreadedJobs.length < maxThreads)
+			if (__state == null)
 			{
 				var job = __pendingJobs.pop(false);
-				if (job == null)
+				if (job != null)
 				{
-					break;
+					__messageQueue.push(job);
+					__state = job.state;
 				}
-
-				__singleThreadedJobs.push(job);
-				__messageQueue.push(job);
 			}
 
-			var i:Int = __singleThreadedJobs.length;
-			while (--i >= 0)
+			if (__state != null)
 			{
 				__jobComplete.value = false;
+				workIterations.value = 0;
 
-				doWork.dispatch(__singleThreadedJobs[i].state);
-
-				if (__jobComplete.value)
+				var endTime:Float = timestamp() + __workPerFrame;
+				do
 				{
-					__singleThreadedJobs.splice(i, 1);
+					workIterations.value++;
+					doWork.dispatch(__state);
+
+					if (__jobComplete.value)
+					{
+						__state = null;
+						break;
+					}
 				}
+				while (timestamp() < endTime);
+
 			}
 		}
 

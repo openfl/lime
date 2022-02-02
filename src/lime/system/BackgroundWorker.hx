@@ -35,11 +35,13 @@ import lime.app.Application;
 
 	For best results, `doWork` shouldn't complete the job all at once. Instead,
 	it can expect to be called multiple times, each time doing a fraction of the
-	total work. After doing one frame's worth of work, it should return, at
-	which point `BackgroundWorker` will schedule it to run again with the same
-	argument. This argument (often called `state`) can store persistent
-	information. Once the entire job is done, `doWork` can exit the loop by
-	calling `sendComplete()`. (`sendError()` will also exit the loop.)
+	total work. After it returns, `BackgroundWorker` will schedule it to run
+	again with the same argument. This argument (often called `state`) can store
+	persistent information, such as a loop iterator. Once done, `doWork` can
+	exit the loop by calling `sendComplete()` or `sendError()`.
+
+	In single-threaded mode, `doWork`'s exact duration matters. Specifically, it
+	should be short enough that `workIterations.value >= 3`.
 
 	Sample usage:
 
@@ -100,14 +102,15 @@ class BackgroundWorker
 	/**
 		Indicates that no further events will be dispatched.
 	**/
-	public var canceled(get, never):Bool;
+	// __Set this only from the main thread.__
+	public var canceled(default, null):Bool = false;
 
 	/**
 		Indicates that the latest job finished successfully, and no other job
 		has been started/is ongoing.
 	**/
 	// __Set this only from the main thread.__
-	public var completed(default, null):Bool;
+	public var completed(default, null):Bool = false;
 
 	/**
 		This is public for backwards compatibility only.
@@ -149,6 +152,19 @@ class BackgroundWorker
 	private var __latestThread:Thread;
 	#end
 
+	private var __workPerFrame:Float;
+
+	/**
+		Thread-local storage. Tracks how many times `doWork` has been called for
+		the current job, including (if applicable) the ongoing call.
+
+		Resets every frame in single-threaded mode, meaning it only counts the
+		number of calls this frame. Typically, you want to adjust `doWork` until
+		`workIterations` falls between 3 and 20 every frame. Higher values mean
+		more overhead, but better timing accuracy.
+	**/
+	public var workIterations(default, null):Tls<Int> = new Tls();
+
 	/**
 		The argument to pass to `doWork`.
 	**/
@@ -165,9 +181,20 @@ class BackgroundWorker
 	**/
 	private var __jobComplete:Tls<Bool> = new Tls();
 
-	public function new(?mode:ThreadMode = MULTI_THREADED) {
+	/**
+		@param workLoad (Single-threaded mode only) A rough estimate of how much
+		of the app's time should be spent on this `BackgroundWorker`. For
+		instance, the default value of 1/2 means this worker will take up about
+		half the app's available time every frame. To increase the accuracy of
+		this estimate, increase `workIterations`.
+	**/
+	public function new(?mode:ThreadMode = MULTI_THREADED, ?workLoad:Float = 1/2) {
 		#if (!force_synchronous && (target.threaded || cpp || neko))
 		this.__mode = mode;
+		#end
+
+		#if !macro
+		__workPerFrame = workLoad / Application.current.window.frameRate;
 		#end
 	}
 
@@ -194,6 +221,7 @@ class BackgroundWorker
 
 		__state = null;
 		completed = false;
+		canceled = true;
 	}
 
 	/**
@@ -239,9 +267,11 @@ class BackgroundWorker
 
 				var thisThread:Thread = Thread.current();
 				__jobComplete.value = false;
+				workIterations.value = 0;
 
 				while (!__jobComplete.value && thisThread == __latestThread)
 				{
+					workIterations.value++;
 					doWork(state);
 				}
 			});
@@ -301,11 +331,29 @@ class BackgroundWorker
 		}
 	}
 
+	private inline function timestamp():Float
+	{
+		#if sys
+		return Sys.cpuTime();
+		#else
+		return haxe.Timer.stamp();
+		#end
+	}
+
 	private function __update(deltaTime:Int):Void
 	{
 		if (mode == SINGLE_THREADED && doWork != null && __state != null)
 		{
-			doWork.dispatch(__state);
+			var endTime:Float = timestamp() + __workPerFrame;
+			__jobComplete.value = false;
+			workIterations.value = 0;
+
+			do
+			{
+				workIterations.value++;
+				doWork.dispatch(__state);
+			}
+			while (!__jobComplete.value && timestamp() < endTime);
 		}
 
 		var threadEvent:ThreadEvent;
@@ -337,11 +385,6 @@ class BackgroundWorker
 
 	// Getters & Setters
 
-	private function get_canceled():Bool
-	{
-		return __state == null;
-	}
-
 	private inline function get_mode():ThreadMode
 	{
 		#if (!force_synchronous && (target.threaded || cpp || neko))
@@ -360,6 +403,8 @@ class BackgroundWorker
 		To avoid lag spikes, `doWork` should return after completing one frame's
 		worth of work, storing its progress in `state`. It will be called again
 		with the same `state` next frame.
+
+		@see https://en.wikipedia.org/wiki/Green_threads
 	**/
 	var SINGLE_THREADED = false;
 
