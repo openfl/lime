@@ -1,5 +1,6 @@
 package lime.app;
 
+import lime.system.BackgroundWorker.ThreadMode;
 import lime.system.System;
 import lime.system.ThreadPool;
 import lime.utils.Log;
@@ -67,33 +68,19 @@ import lime.utils.Log;
 
 	/**
 		Create a new `Future` instance
-		@param	work	(Optional) A function to execute
-		@param	async	(Optional) If a function is specified, whether to execute it asynchronously where supported
+		@param	work	(Optional) A function to execute, returning `value` once finished, or `null` to
+		indicate it's unfinished and needs to run again (`null` is comparable to a "yield" instruction)
+		@param async	Deprecated; call `FutureWork.recreateThreadPool()` instead
+		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
 	**/
-	public function new(work:Void->T = null, async:Bool = false)
+	public function new(work:Void->Null<T> = null, async:Bool = true)
 	{
 		if (work != null)
 		{
-			if (async)
-			{
-				var promise = new Promise<T>();
-				promise.future = this;
+			var promise = new Promise<T>();
+			promise.future = this;
 
-				FutureWork.queue({promise: promise, work: work});
-			}
-			else
-			{
-				try
-				{
-					value = work();
-					isComplete = true;
-				}
-				catch (e:Dynamic)
-				{
-					error = e;
-					isError = true;
-				}
-			}
+			FutureWork.queue({promise: promise, work: work}, cast async);
 		}
 	}
 
@@ -313,47 +300,101 @@ import lime.utils.Log;
 	}
 }
 
+/**
+	The class that handles asynchronous `work` functions passed to `new Future()`.
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:dox(hide) private class FutureWork
+@:dox(hide) class FutureWork
 {
 	private static var threadPool:ThreadPool;
+	private static var states:Array<{work:Void->Dynamic, promise:Promise<Dynamic>}>;
+	public static var minThreads(default, set):Int = 0;
+	public static var maxThreads(default, set):Int = 1;
 
-	public static function queue(state:Dynamic = null):Void
+	@:allow(lime.app.Future)
+	private static function queue<T>(state:{work:Void->Null<T>, promise:Promise<T>}, mode:ThreadMode = MULTI_THREADED):Void
 	{
 		if (threadPool == null)
 		{
-			threadPool = new ThreadPool(threadPool_doWork);
-			threadPool.onComplete.add(threadPool_onComplete);
-			threadPool.onError.add(threadPool_onError);
+			recreateThreadPool(mode);
 		}
 
 		threadPool.queue(state);
+		states.push(cast state);
+	}
+
+	/**
+		Shuts down the current thread pool and makes a new one with the given settings
+	**/
+	public static function recreateThreadPool(mode:ThreadMode = MULTI_THREADED, workLoad:Float = 1/2):Void
+	{
+		if (threadPool != null)
+		{
+			threadPool.cancel();
+			for (state in states)
+			{
+				state.promise.error("Canceled");
+			}
+		}
+
+		threadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, mode, workLoad);
+		threadPool.onComplete.add(threadPool_onComplete);
+		threadPool.onError.add(threadPool_onError);
+
+		states = [];
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:Dynamic):Void
+	private static function threadPool_doWork(state:{work:Void->Dynamic, promise:Promise<Dynamic>, ?result:Dynamic, ?error:Dynamic}):Void
 	{
 		try
 		{
-			var result = state.work();
-			threadPool.sendComplete({promise: state.promise, result: result});
+			state.result = state.work();
+			if (state.result != null)
+			{
+				threadPool.sendComplete(state);
+			}
 		}
 		catch (e:Dynamic)
 		{
-			threadPool.sendError({promise: state.promise, error: e});
+			state.error = e;
+			threadPool.sendError(state);
 		}
 	}
 
-	private static function threadPool_onComplete(state:Dynamic):Void
+	private static function threadPool_onComplete(state:{work:Void->Dynamic, promise:Promise<Dynamic>, result:Dynamic}):Void
 	{
 		state.promise.complete(state.result);
+		states.remove(state);
 	}
 
-	private static function threadPool_onError(state:Dynamic):Void
+	private static function threadPool_onError(state:{work:Void->Dynamic, promise:Promise<Dynamic>, error:Dynamic}):Void
 	{
 		state.promise.error(state.error);
+		states.remove(state);
+	}
+
+	// Getters & Setters
+	@:noCompletion private static inline function set_minThreads(value:Int):Int
+	{
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (threadPool != null)
+			return threadPool.minThreads = minThreads = value;
+		else
+		#end
+			return minThreads = value;
+	}
+
+	@:noCompletion private static inline function set_maxThreads(value:Int):Int
+	{
+		#if (!force_synchronous && (target.threaded || cpp || neko))
+		if (threadPool != null)
+			return threadPool.maxThreads = maxThreads = value;
+		else
+		#end
+			return maxThreads = value;
 	}
 }
