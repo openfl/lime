@@ -313,6 +313,17 @@ class ThreadPool extends BackgroundWorker
 				case COMPLETE, ERROR:
 					activeThreads--;
 
+					// Call `onComplete` before closing threads, in case the
+					// listener queues a new job.
+					if (threadEvent.event == COMPLETE)
+					{
+						onComplete.dispatch(threadEvent.state);
+					}
+					else
+					{
+						onError.dispatch(threadEvent.state);
+					}
+
 					#if (!force_synchronous && (target.threaded || cpp || neko))
 					if (mode == MULTI_THREADED
 						&& ((__numPendingJobs > idleThreads && currentThreads > minThreads)
@@ -322,15 +333,6 @@ class ThreadPool extends BackgroundWorker
 						__pendingJobs.push(new ThreadEvent(EXIT, null));
 					}
 					#end
-
-					if (threadEvent.event == COMPLETE)
-					{
-						onComplete.dispatch(threadEvent.state);
-					}
-					else
-					{
-						onError.dispatch(threadEvent.state);
-					}
 
 				default:
 			}
