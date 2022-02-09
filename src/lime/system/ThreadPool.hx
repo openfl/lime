@@ -83,7 +83,7 @@ class ThreadPool extends BackgroundWorker
 		The maximum number of live threads this pool can create at once. If this
 		value decreases, active jobs will still be allowed to finish.
 
-		Has no effect in single-threaded mode; use `workPerFrame` instead.
+		Has no effect in single-threaded mode; use `workLoad` instead.
 	**/
 	public var maxThreads:Int;
 
@@ -123,7 +123,7 @@ class ThreadPool extends BackgroundWorker
 		of the app's time should be spent on this `ThreadPool`. For instance,
 		the default value of 1/2 means this pool will take up about half the
 		app's available time every frame. To increase the accuracy of this
-		estimate, increase `workIterations`.
+		estimate, adjust `doWork` to increase `workIterations`.
 	**/
 	public function new(?doWork:Dynamic->Void, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = MULTI_THREADED, ?workLoad:Float = 1/2)
 	{
@@ -248,6 +248,9 @@ class ThreadPool extends BackgroundWorker
 		#if (!force_synchronous && (target.threaded || cpp || neko))
 		if (mode == MULTI_THREADED)
 		{
+			// Add idle threads until there are enough to perform all pending
+			// jobs. This doesn't instantly decrease the number of pending jobs;
+			// the new threads will handle that by reading from the deque.
 			while (__numPendingJobs > idleThreads && currentThreads < maxThreads)
 			{
 				Thread.create(__workLoop);
@@ -325,8 +328,9 @@ class ThreadPool extends BackgroundWorker
 					}
 
 					#if (!force_synchronous && (target.threaded || cpp || neko))
+					// Close idle threads for which there's no pending job.
 					if (mode == MULTI_THREADED
-						&& ((__numPendingJobs > idleThreads && currentThreads > minThreads)
+						&& ((__numPendingJobs < idleThreads && currentThreads > minThreads)
 						|| currentThreads > maxThreads))
 					{
 						__currentThreads--;
