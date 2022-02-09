@@ -224,10 +224,18 @@ class ThreadPool extends BackgroundWorker
 			// Get to work.
 			__jobComplete.value = false;
 			workIterations.value = 0;
-			while (!__jobComplete.value && !canceled)
+
+			try
 			{
-				workIterations.value++;
-				doWork.dispatch(job.state);
+				while (!__jobComplete.value && !canceled)
+				{
+					workIterations.value++;
+					doWork.dispatch(job.state);
+				}
+			}
+			catch (e)
+			{
+				sendError(e);
 			}
 
 			// Do it all again.
@@ -264,20 +272,27 @@ class ThreadPool extends BackgroundWorker
 				__jobComplete.value = false;
 				workIterations.value = 0;
 
-				var endTime:Float = timestamp() + __workPerFrame;
-				do
+				try
 				{
-					workIterations.value++;
-					doWork.dispatch(__state);
-
-					if (__jobComplete.value)
+					var endTime:Float = timestamp() + __workPerFrame;
+					do
 					{
-						__state = null;
-						break;
-					}
-				}
-				while (timestamp() < endTime);
+						workIterations.value++;
+						doWork.dispatch(__state);
 
+						if (__jobComplete.value)
+						{
+							__state = null;
+							break;
+						}
+					}
+					while (timestamp() < endTime);
+				}
+				catch (e)
+				{
+					__state = null;
+					sendError(e);
+				}
 			}
 		}
 

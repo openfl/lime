@@ -266,14 +266,23 @@ class BackgroundWorker
 				// Don't jump the gun, or `__latestThread` could still be null.
 				Thread.readMessage(true);
 
+				// Init thread-local storage.
 				var thisThread:Thread = Thread.current();
 				__jobComplete.value = false;
 				workIterations.value = 0;
 
-				while (!__jobComplete.value && thisThread == __latestThread)
+				// Go to work.
+				try
 				{
-					workIterations.value++;
-					doWork(state);
+					while (!__jobComplete.value && thisThread == __latestThread)
+					{
+						workIterations.value++;
+						doWork(state);
+					}
+				}
+				catch (e)
+				{
+					sendError(e);
 				}
 			});
 			__latestThread.sendMessage(ThreadEventType.WORK);
@@ -349,12 +358,19 @@ class BackgroundWorker
 			__jobComplete.value = false;
 			workIterations.value = 0;
 
-			do
+			try
 			{
-				workIterations.value++;
-				doWork.dispatch(__state);
+				do
+				{
+					workIterations.value++;
+					doWork.dispatch(__state);
+				}
+				while (!__jobComplete.value && timestamp() < endTime);
 			}
-			while (!__jobComplete.value && timestamp() < endTime);
+			catch (e)
+			{
+				sendError(e);
+			}
 		}
 
 		var threadEvent:ThreadEvent;
