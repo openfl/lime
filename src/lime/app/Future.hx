@@ -67,20 +67,22 @@ import lime.utils.Log;
 	@:noCompletion private var __progressListeners:Array<Int->Int->Void>;
 
 	/**
-		Create a new `Future` instance
-		@param	work	(Optional) A function to execute, returning `value` once finished, or `null` to
-		indicate it's unfinished and needs to run again (`null` is comparable to a "yield" instruction)
-		@param async	Deprecated; call `FutureWork.recreateThreadPool()` instead
+		@param work 	(Optional) A function to execute, returning `value` once finished. If it returns
+		`null`, the function will run again once there's time, until it returns a non-null value. If
+		running in single-threaded mode, the main thread will block until this function returns, so it
+		should periodically yield (by returning `null`) to allow the screen to update.
+		@param useThreads	Whether `work` should be executed in multi-threaded mode. However, this value
+		will be ignored after the first time. To change it, use `FutureWork.recreateThreadPool()`.
 		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
 	**/
-	public function new(work:Void->Null<T> = null, async:Bool = true)
+	public function new(work:Void->Null<T> = null, useThreads:Bool = true)
 	{
 		if (work != null)
 		{
 			var promise = new Promise<T>();
 			promise.future = this;
 
-			FutureWork.queue({promise: promise, work: work}, cast async);
+			FutureWork.queue({promise: promise, work: work}, cast useThreads);
 		}
 	}
 
