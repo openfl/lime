@@ -179,6 +179,7 @@ class ThreadPool extends BackgroundWorker
 
 		__pendingJobs.add(new ThreadEvent(WORK, state));
 		__numPendingJobs++;
+		completed = false;
 
 		if (!Application.current.onUpdate.has(__update))
 		{
@@ -321,6 +322,11 @@ class ThreadPool extends BackgroundWorker
 					if (threadEvent.event == COMPLETE)
 					{
 						onComplete.dispatch(threadEvent.state);
+
+						if (activeThreads == 0 && __numPendingJobs == 0)
+						{
+							completed = true;
+						}
 					}
 					else
 					{
