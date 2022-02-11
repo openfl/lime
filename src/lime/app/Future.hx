@@ -187,17 +187,6 @@ import lime.utils.Log;
 	**/
 	public function ready(waitTime:Int = -1):Future<T>
 	{
-		#if js
-		if (isComplete || isError)
-		{
-			return this;
-		}
-		else
-		{
-			Log.warn("Cannot block thread in JavaScript");
-			return this;
-		}
-		#else
 		if (isComplete || isError)
 		{
 			return this;
@@ -205,20 +194,34 @@ import lime.utils.Log;
 		else
 		{
 			var time = System.getTimer();
+			var prevTime = time;
 			var end = time + waitTime;
 
 			while (!isComplete && !isError && time <= end)
 			{
-				#if sys
-				Sys.sleep(0.01);
-				#end
+				if (FutureWork.threadPool.activeThreads < 1 && @:privateAccess FutureWork.threadPool.__numPendingJobs < 1)
+				{
+					Log.error('Cannot block for a Future without a "work" function.');
+					return this;
+				}
 
+				if (FutureWork.threadPool.mode == SINGLE_THREADED)
+				{
+					@:privateAccess FutureWork.threadPool.__update(time - prevTime);
+				}
+				else
+				{
+					#if sys
+					Sys.sleep(0.01);
+					#end
+				}
+
+				prevTime = time;
 				time = System.getTimer();
 			}
 
 			return this;
 		}
-		#end
 	}
 
 	/**
@@ -311,6 +314,7 @@ import lime.utils.Log;
 #end
 @:dox(hide) class FutureWork
 {
+	@:allow(lime.app.Future)
 	private static var threadPool:ThreadPool;
 	private static var states:Array<{work:Void->Dynamic, promise:Promise<Dynamic>}>;
 	public static var minThreads(default, set):Int = 0;
