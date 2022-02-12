@@ -82,7 +82,7 @@ import lime.utils.Log;
 			var promise = new Promise<T>();
 			promise.future = this;
 
-			FutureWork.queue({promise: promise, work: work}, cast useThreads);
+			FutureWork.queue(work, promise, cast useThreads);
 		}
 	}
 
@@ -321,13 +321,14 @@ import lime.utils.Log;
 	public static var maxThreads(default, set):Int = 1;
 
 	@:allow(lime.app.Future)
-	private static function queue<T>(state:{work:Void->Null<T>, promise:Promise<T>}, mode:ThreadMode = MULTI_THREADED):Void
+	private static function queue<T>(work:Void->Null<T>, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
 	{
 		if (threadPool == null)
 		{
 			recreateThreadPool(mode);
 		}
 
+		var state = {work: work, promise: promise, pool: threadPool};
 		threadPool.queue(state);
 		states.push(cast state);
 	}
@@ -354,20 +355,20 @@ import lime.utils.Log;
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:{work:Void->Dynamic, promise:Promise<Dynamic>, ?result:Dynamic, ?error:Dynamic}):Void
+	private static function threadPool_doWork(state:{work:Void->Dynamic, promise:Promise<Dynamic>, pool:ThreadPool, ?result:Dynamic, ?error:Dynamic}):Void
 	{
 		try
 		{
 			state.result = state.work();
 			if (state.result != null)
 			{
-				threadPool.sendComplete(state);
+				state.pool.sendComplete(state);
 			}
 		}
 		catch (e:Dynamic)
 		{
 			state.error = e;
-			threadPool.sendError(state);
+			state.pool.sendError(state);
 		}
 	}
 
