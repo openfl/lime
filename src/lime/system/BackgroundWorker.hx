@@ -8,11 +8,11 @@ import sys.thread.Tls;
 #elseif cpp
 import cpp.vm.Deque;
 import cpp.vm.Thread;
-import cpp.thread.Tls;
+import cpp.vm.Tls;
 #elseif neko
 import neko.vm.Deque;
 import neko.vm.Thread;
-import neko.thread.Tls;
+import neko.vm.Tls;
 #end
 
 #if macro
