@@ -74,6 +74,9 @@
 
 	<section unless="display">
 
+		<!-- TODO: use target.threaded keyword, add html5 to the list. -->
+		<define name="lime-threads" if="cs || neko || cpp || java || python || hl" unless="force-synchronous || force_synchronous || emscripten" />
+
 		<section if="cpp ${${haxe_ver} < 3.3}" unless="static_link">
 			<ndll name="std" haxelib="hxcpp" />
 			<ndll name="regexp" haxelib="hxcpp" />

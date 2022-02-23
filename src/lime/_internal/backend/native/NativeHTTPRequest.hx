@@ -13,6 +13,7 @@ import lime.net.HTTPRequest;
 import lime.net.HTTPRequestHeader;
 import lime.net.HTTPRequestMethod;
 import lime.system.ThreadPool;
+import lime.system.WorkOutput;
 #if sys
 #if haxe4
 import sys.thread.Deque;
@@ -396,7 +397,7 @@ class NativeHTTPRequest
 		return output.length;
 	}
 
-	private static function localThreadPool_doWork(state:Dynamic):Void
+	private static function localThreadPool_doWork(state:Dynamic, output:WorkOutput):Void
 	{
 		var instance:NativeHTTPRequest = state.instance;
 		var path:String = state.uri;
@@ -417,7 +418,7 @@ class NativeHTTPRequest
 
 		if (path == null #if (sys && !android) || !FileSystem.exists(path) #end)
 		{
-			localThreadPool.sendError({instance: instance, promise: instance.promise, error: "Cannot load file: " + path});
+			output.sendError({instance: instance, promise: instance.promise, error: "Cannot load file: " + path});
 		}
 		else
 		{
@@ -425,18 +426,18 @@ class NativeHTTPRequest
 
 			if (instance.bytes != null)
 			{
-				localThreadPool.sendProgress(
+				output.sendProgress(
 					{
 						instance: instance,
 						promise: instance.promise,
 						bytesLoaded: instance.bytes.length,
 						bytesTotal: instance.bytes.length
 					});
-				localThreadPool.sendComplete({instance: instance, promise: instance.promise, result: instance.bytes});
+				output.sendComplete({instance: instance, promise: instance.promise, result: instance.bytes});
 			}
 			else
 			{
-				localThreadPool.sendError({instance: instance, promise: instance.promise, error: "Cannot load file: " + path});
+				output.sendError({instance: instance, promise: instance.promise, error: "Cannot load file: " + path});
 			}
 		}
 	}
@@ -489,7 +490,7 @@ class NativeHTTPRequest
 		promise.progress(state.bytesLoaded, state.bytesTotal);
 	}
 
-	private static function multiThreadPool_doWork(_):Void
+	private static function multiThreadPool_doWork(_, output:WorkOutput):Void
 	{
 		while (true)
 		{
@@ -507,7 +508,7 @@ class NativeHTTPRequest
 
 				if (message == null && multi.runningHandles == 0)
 				{
-					multiThreadPool.sendComplete();
+					output.sendComplete();
 					break;
 				}
 
@@ -519,7 +520,7 @@ class NativeHTTPRequest
 					multi.removeHandle(curl);
 					curl.cleanup();
 
-					multiThreadPool.sendProgress({curl: curl, result: message.result, status: status});
+					output.sendProgress({curl: curl, result: message.result, status: status});
 					message = multi.infoRead();
 				}
 			}

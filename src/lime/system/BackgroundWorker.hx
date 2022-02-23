@@ -1,531 +1,147 @@
 package lime.system;
 
-import lime.app.Event;
-#if target.threaded
-import sys.thread.Deque;
-import sys.thread.Thread;
-import sys.thread.Tls;
-#elseif cpp
-import cpp.vm.Deque;
-import cpp.vm.Thread;
-import cpp.vm.Tls;
-#elseif neko
-import neko.vm.Deque;
-import neko.vm.Thread;
-import neko.vm.Tls;
-#end
-
-#if macro
-import haxe.macro.Expr;
-
-using haxe.macro.Context;
-#else
-// Application imports non-macro-safe classes on some targets.
-import lime.app.Application;
-#end
+import lime.system.WorkOutput;
 
 /**
-	A simple way to run a job on another thread. If threads aren't available,
-	it will fall back to single-threaded mode, running jobs on the main thread.
-
-	The worker function (often called `doWork`) can return data using the
-	`sendProgress()`, `sendError()`, and `sendComplete()` functions. The main
-	thread receives this data via the `onProgress`, `onError`, and `onComplete`
-	events, respectively.
-
-	For best results, `doWork` shouldn't complete the job all at once. Instead,
-	it can expect to be called multiple times, each time doing a fraction of the
-	total work. After it returns, `BackgroundWorker` will schedule it to run
-	again with the same argument. This argument (often called `state`) can store
-	persistent information, such as a loop iterator. Once done, `doWork` can
-	exit the loop by calling `sendComplete()` or `sendError()`.
-
-	In single-threaded mode, `doWork`'s exact duration matters. Specifically, it
-	should be short enough that it runs at least three times per frame (see
-	`workIterations` for details).
+	A simple and thread-safe way to run a one or more asynchronous jobs. Unlike
+	`ThreadPool`, each job in the queue can use a different function.
 
 	Sample usage:
 
-		private var bgWorker:BackgroundWorker;
+		var bgWorker:BackgroundWorker = new BackgroundWorker();
+		bgWorker.onComplete.add(onDataProcessed);
 
-		private static function doWork(state:{ ?items:Array<Item>, total:Int }):Void {
-			if (state.items == null)
-			{
-				state.items = [];
-			}
-
-			var end:Int = state.items.length + 500;
-			if (end > state.total)
-			{
-				end = state.total;
-			}
-
-			for (i in state.items.length...end)
-			{
-				state.items.push(Item.generateRandomItem());
-			}
-
-			if (state.items.length >= state.total)
-			{
-				bgWorker.sendComplete(state.items);
-			}
-			else
-			{
-				bgWorker.sendProgress(state.items.length);
-			}
+		bgWorker.run(processFile, url);
+		for (text in textStrings)
+		{
+			bgWorker.run(processText, text);
 		}
+		bgWorker.run(processImage, image);
 
-		public function new() {
-			bgWorker = new BackgroundWorker();
+	For thread safety, each worker function should only give output through the
+	`WorkOutput` object it receives. Calling `output.sendComplete()` will
+	trigger an `onComplete` event on the main thread.
 
-			bgWorker.onProgress(function(count:Int) {
-				trace(count + " items done!");
-			});
-			bgWorker.onComplete(function(items:Array<Item>) {
-				this.items = items;
-				trace('Finished creating ${items.length} items!');
-			});
-
-			bgWorker.run(doWork, { total: 3000 });
-		}
 	@see https://player03.com/openfl/threads-guide/ for a tutorial.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class BackgroundWorker
+@:forward(canceled, completed, currentThreads, activeJobs, idleThreads,
+	onComplete, onError, onProgress, onRun, cancel)
+abstract BackgroundWorker(ThreadPool)
 {
-	#if (!force_synchronous && (target.threaded || cpp || neko))
-	private static var __mainThread:Thread = Thread.current();
-	#end
+	private static var doWorkWrapper:WorkFunction<State->WorkOutput->Void>;
+
+	private static function doWorkImpl(state:State, output:WorkOutput):Void
+	{
+		// `dispatch()` will check if it's really a `WorkFunction`.
+		(state.doWork:WorkFunction<State->WorkOutput->Void>).dispatch(state.state, output);
+	}
+
+	@:deprecated("Instead pass the callback to BackgroundWorker.run().")
+	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
 
 	/**
-		Indicates that no further events will be dispatched.
-	**/
-	// __Set this only from the main thread.__
-	public var canceled(default, null):Bool = false;
+		__Call this only from the main thread.__
 
-	/**
-		Indicates that the latest job finished successfully, and no other job
-		has been started/is ongoing.
-	**/
-	// __Set this only from the main thread.__
-	public var completed(default, null):Bool = false;
-
-	/**
-		This is public for backwards compatibility only.
-
-		__Set this by passing it as an argument to `run()`.__
-	**/
-	@:noCompletion @:dox(hide) public var doWork:WorkFunction<Dynamic->Void>;
-
-	/**
-		Dispatched on the main thread when `doWork` calls `sendComplete()`.
-		Dispatched at most once per job. For best results, add all listeners
-		before starting the new thread.
-	**/
-	public var onComplete = new Event<Dynamic->Void>();
-	/**
-		Dispatched on the main thread when `doWork` calls `sendError()`.
-		Dispatched at most once per job. For best results, add all listeners
-		before starting the new thread.
-	**/
-	public var onError = new Event<Dynamic->Void>();
-	/**
-		Dispatched on the main thread when `doWork` calls `sendProgress()`. May
-		be dispatched any number of times per job. For best results, add all
-		listeners before starting the new thread.
-	**/
-	public var onProgress = new Event<Dynamic->Void>();
-
-	/**
-		Whether background threads are being/will be used. If threads aren't
-		available on this target, `mode` will always be `SINGLE_THREADED`.
-	**/
-	public var mode(get, never):ThreadMode;
-	#if (!force_synchronous && (target.threaded || cpp || neko))
-	/**
-		__Set this only via the constructor.__
-	**/
-	private var __mode:ThreadMode;
-
-	private var __latestThread:Thread;
-	#end
-
-	private var __workPerFrame:Float;
-
-	/**
-		Thread-local storage. Tracks how many times `doWork` has been called for
-		the current job, including (if applicable) the ongoing call.
-
-		Resets every frame in single-threaded mode, meaning it only counts the
-		number of calls this frame. Typically, you want to adjust `doWork` until
-		`workIterations` falls between 3 and 20 every frame. Higher values mean
-		more overhead, but better timing accuracy.
-	**/
-	public var workIterations(default, null):Tls<Int> = new Tls();
-
-	/**
-		The argument to pass to `doWork`.
-	**/
-	private var __state:Dynamic;
-
-	/**
-		__Add messages only from `sendProgress()`, `sendError()`, or__
-		__`sendComplete()`.__
-	**/
-	private var __messageQueue:Deque<ThreadEvent> = new Deque();
-	/**
-		Thread-local storage. Tracks whether `sendError()` or `sendComplete()`
-		was called on this thread. If it was, there's no need to rerun `doWork`.
-	**/
-	private var __jobComplete:Tls<Bool> = new Tls();
-
-	/**
+		@param mode Defaults to `MULTI_THREAEDED` on most targets, but
+		`SINGLE_THREADED` in HTML5. In HTML5, `MULTI_THREADED` mode uses web
+		workers, which impose additional restrictions.
 		@param workLoad (Single-threaded mode only) A rough estimate of how much
 		of the app's time should be spent on this `BackgroundWorker`. For
 		instance, the default value of 1/2 means this worker will take up about
-		half the app's available time every frame. To increase the accuracy of
-		this estimate, increase `workIterations`.
+		half the app's available time every frame. See `workIterations` for
+		instructions to improve the accuracy of this estimate.
 	**/
-	public function new(?mode:ThreadMode = MULTI_THREADED, ?workLoad:Float = 1/2) {
-		#if (!force_synchronous && (target.threaded || cpp || neko))
-		this.__mode = mode;
-		#end
-
-		#if !macro
-		__workPerFrame = workLoad / Application.current.window.frameRate;
-		#end
-	}
-
-	/**
-		Cancels all events and begins the process of closing background threads,
-		though the thread won't actually shut down until `doWork` returns.
-	**/
-	public function cancel():Void
+	public function new(mode:ThreadMode = null, workLoad:Float = 1/2)
 	{
-		#if (!force_synchronous && (target.threaded || cpp || neko))
-		if (Thread.current() != __mainThread)
+		if (doWorkWrapper == null)
 		{
-			throw "Call cancel() only from the main thread.";
+			doWorkWrapper = doWorkImpl;
 		}
-		#end
-
-		#if !macro
-		Application.current.onUpdate.remove(__update);
-		#end
-
-		#if (!force_synchronous && (target.threaded || cpp || neko))
-		__latestThread = null;
-		#end
-
-		__state = null;
-		completed = false;
-		canceled = true;
+		this = new ThreadPool(doWorkWrapper, mode, workLoad);
 	}
 
 	/**
-		Begins work on a job, running `doWork` repeatedly with the given `state`
-		until it either finishes or encounters an error.
+		Cancels one active or queued job.
+	**/
+	// A copy of `ThreadPool.cancelJob()` with replacements:
+	// - Find "__activeJobs", replace with "this.__activeJobs".
+	// - Find "__idleThreads", replace with "this.__idleThreads".
+	// - Find "__jobQueue", replace with "this.__jobQueue".
+	// - Find ".state", replace with ".state.state".
+	// Other than that, keep the functions exactly in sync.
+	public function cancelJob(state:State):Bool
+	{
+		for (job in this.__activeJobs)
+		{
+			if (job.workEvent.state.state == state)
+			{
+				#if lime_threads
+				if (job.thread != null)
+				{
+					job.thread.sendMessage(new ThreadEvent(WORK, null));
+					this.__idleThreads.push(job.thread);
+				}
+				#end
+
+				return this.__activeJobs.remove(job);
+			}
+		}
+		for (job in this.__jobQueue)
+		{
+			if (job.state.state == state)
+			{
+				return this.__jobQueue.remove(job);
+			}
+		}
+
+		return false;
+	}
+
+	/**
+		Adds the given job to the queue.
 
 		In multi-threaded mode, the main thread should avoid modifying `state`
 		until the job completes.
 
 		@param doWork The function to execute. Treat this parameter as though it
-		wasn't optional.
+		was required.
+		@param state The argument to pass to `doWork`. Defaults to `{}`.
 	**/
-	public function run(?doWork:Dynamic->Void, ?state:Dynamic):Void
+	public function run(doWork:WorkFunction<State->WorkOutput->Void> = null, state:State = null):Void
 	{
-		#if (!force_synchronous && (target.threaded || cpp || neko))
-		if (Thread.current() != __mainThread)
+		// Undo the below hack, if possible.
+		if (doWork != null && this.__doWork != doWorkWrapper)
 		{
-			throw "Call run() only from the main thread.";
-		}
-		#end
-
-		if (doWork == null)
-		{
-			doWork = this.doWork;
-			if (doWork == null)
-			{
-				throw "doWork argument omitted from call to run().";
-			}
+			this.__doWork = doWorkWrapper;
 		}
 
-		completed = false;
-		__jobComplete.value = false;
-		this.doWork = doWork;
-		__state = state;
-
-		#if (!force_synchronous && (target.threaded || cpp || neko))
-		if (mode == MULTI_THREADED)
-		{
-			__latestThread = Thread.create(function():Void
-			{
-				// Don't jump the gun, or `__latestThread` could still be null.
-				Thread.readMessage(true);
-
-				// Init thread-local storage.
-				var thisThread:Thread = Thread.current();
-				__jobComplete.value = false;
-				workIterations.value = 0;
-
-				// Go to work.
-				try
-				{
-					while (!__jobComplete.value && thisThread == __latestThread)
-					{
-						workIterations.value++;
-						doWork(state);
-					}
-				}
-				catch (e)
-				{
-					sendError(e);
-				}
-			});
-			__latestThread.sendMessage(ThreadEventType.WORK);
-		}
-		#end
-
-		#if !macro
-		if (!Application.current.onUpdate.has(__update))
-		{
-			Application.current.onUpdate.add(__update);
-		}
-		#end
-	}
-
-	/**
-		__Call this only from `doWork`.__
-
-		Dispatches `onComplete` on the main thread, with the given message.
-		`doWork` should return after calling this.
-	**/
-	public function sendComplete(message:Dynamic = null):Void
-	{
-		if (!__jobComplete.value)
-		{
-			__jobComplete.value = true;
-			__messageQueue.add(new ThreadEvent(COMPLETE, message));
-		}
-	}
-
-	/**
-		__Call this only from `doWork`.__
-
-		Dispatches `onError` on the main thread, with the given message.
-		`doWork` should return after calling this.
-	**/
-	public function sendError(message:Dynamic = null):Void
-	{
-		if (!__jobComplete.value)
-		{
-			__jobComplete.value = true;
-			__messageQueue.add(new ThreadEvent(ERROR, message));
-		}
-	}
-
-	/**
-		__Call this only from `doWork`.__
-
-		Dispatches `onProgress` on the main thread, with the given message. This
-		can be called any number of times per job.
-	**/
-	public function sendProgress(message:Dynamic = null):Void
-	{
-		if (!__jobComplete.value)
-		{
-			__messageQueue.add(new ThreadEvent(PROGRESS, message));
-		}
-	}
-
-	private inline function timestamp():Float
-	{
-		#if sys
-		return Sys.cpuTime();
-		#else
-		return haxe.Timer.stamp();
-		#end
-	}
-
-	private function __update(deltaTime:Int):Void
-	{
-		if (mode == SINGLE_THREADED && doWork != null && __state != null)
-		{
-			var endTime:Float = timestamp() + __workPerFrame;
-			__jobComplete.value = false;
-			workIterations.value = 0;
-
-			try
-			{
-				do
-				{
-					workIterations.value++;
-					doWork.dispatch(__state);
-				}
-				while (!__jobComplete.value && timestamp() < endTime);
-			}
-			catch (e)
-			{
-				sendError(e);
-			}
-		}
-
-		var threadEvent:ThreadEvent;
-
-		while ((threadEvent = __messageQueue.pop(false)) != null)
-		{
-			#if (target.threaded || cpp || neko)
-			if (mode == MULTI_THREADED && threadEvent.sourceThread != __latestThread)
-			{
-				continue;
-			}
-			#end
-
-			switch (threadEvent.event)
-			{
-				case ERROR:
-					cancel();
-					onError.dispatch(threadEvent.state);
-				case COMPLETE:
-					cancel();
-					completed = true;
-					onComplete.dispatch(threadEvent.state);
-				case PROGRESS:
-					onProgress.dispatch(threadEvent.state);
-				default:
-			}
-		}
+		this.queue({
+			state: state,
+			doWork: doWork
+		});
 	}
 
 	// Getters & Setters
 
-	private inline function get_mode():ThreadMode
+	private function get_doWork():{ add: (Dynamic->Void) -> Void }
 	{
-		#if (!force_synchronous && (target.threaded || cpp || neko))
-		return __mode;
-		#else
-		return SINGLE_THREADED;
-		#end
+		return {
+			add: function(callback:Dynamic->Void)
+			{
+				// Hack: overwrite `__doWork` just for this one function.
+				this.__doWork = function(state:State, output:WorkOutput):Void
+				{
+					#if html5
+					if (this.mode == MULTI_THREADED)
+						throw "Unsupported operation; instead pass the callback to BackgroundWorker.run().";
+					#end
+					callback(state.state);
+				};
+			}
+		};
 	}
 }
-
-@:enum abstract ThreadMode(Bool)
-{
-	/**
-		All work will be done on the main thread, during `Application.onUpdate`.
-
-		To avoid lag spikes, `doWork` should return after completing a fraction
-		of a frame's worth of work, storing its progress in `state`. It will be
-		called again with the same `state` next frame, or this frame if there's
-		still time.
-
-		@see https://en.wikipedia.org/wiki/Green_threads
-		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
-	**/
-	var SINGLE_THREADED = false;
-
-	/**
-		All work will be done on a background thread.
-
-		Unlike single-threaded mode, there is no risk of causing lag spikes.
-		Even so, `doWork` should return at regular intervals, storing its
-		progress in `state`. This will make it easier to cancel the thread. If
-		not canceled, `doWork` will be called again immediately.
-	**/
-	var MULTI_THREADED = true;
-}
-
-/**
-	A function that performs asynchronous work. Emulates the `lime.app.Event`
-	API for backwards compatibility. Most of this API can be ignored, but
-	calling the function requires using `dispatch()`.
-**/
-abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
-{
-	/**
-		Executes this function with the given arguments.
-	**/
-	public macro function dispatch(self:Expr, args:Array<Expr>):Expr
-	{
-		switch (self.typeof().follow().toComplexType())
-		{
-			case TPath({ sub: "WorkFunction", params: [TPType(t)] }):
-				return macro ($self:$t)($a{args});
-			default:
-				throw "Underlying function type not found.";
-		}
-	}
-
-	// Backwards compatibility functions
-
-	@:deprecated("Instead, pass doWork to BackgroundWorker.run() or ThreadPool's constructor.")
-	@:noCompletion @:dox(hide) public inline function add(callback:WorkFunction<T>):Void
-	{
-		this = callback;
-	}
-
-	@:noCompletion @:dox(hide) public inline function has(callback:T):Bool
-	{
-		return Reflect.compareMethods(this, callback);
-	}
-
-	@:noCompletion @:dox(hide) public inline function remove(callback:T):Void
-	{
-		if (has(callback)) this = null;
-	}
-
-	@:noCompletion @:dox(hide) public inline function removeAll():Void
-	{
-		this = null;
-	}
-}
-
-@:enum abstract ThreadEventType(String)
-{
-	var COMPLETE = "COMPLETE";
-	var ERROR = "ERROR";
-	var PROGRESS = "PROGRESS";
-	var WORK = "WORK";
-	var EXIT = "EXIT";
-}
-
-class ThreadEvent
-{
-	public var event(default, null):ThreadEventType;
-	public var state(default, null):Dynamic;
-
-	#if (target.threaded || cpp || neko)
-	public var sourceThread(default, null):Thread;
-	#end
-
-	public inline function new(event:ThreadEventType, state:Dynamic)
-	{
-		this.event = event;
-		this.state = state;
-
-		#if (target.threaded || cpp || neko)
-		sourceThread = Thread.current();
-		#end
-	}
-}
-
-#if !(target.threaded || cpp || neko)
-@:forward(push, add) @:forward.new
-abstract Deque<T>(List<T>) from List<T> to List<T>
-{
-	public inline function pop(block:Bool):Null<T>
-	{
-		return this.pop();
-	}
-}
-
-class Tls<T>
-{
-	public var value:T;
-
-	public inline function new() {}
-}
-#end

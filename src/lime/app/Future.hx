@@ -1,8 +1,8 @@
 package lime.app;
 
-import lime.system.BackgroundWorker.ThreadMode;
 import lime.system.System;
 import lime.system.ThreadPool;
+import lime.system.WorkOutput;
 import lime.utils.Log;
 
 /**
@@ -199,7 +199,7 @@ import lime.utils.Log;
 
 			while (!isComplete && !isError && time <= end)
 			{
-				if (FutureWork.threadPool.activeThreads < 1 && @:privateAccess FutureWork.threadPool.__numPendingJobs < 1)
+				if (FutureWork.threadPool.activeJobs < 1)
 				{
 					Log.error('Cannot block for a Future without a "work" function.');
 					return this;
@@ -316,7 +316,6 @@ import lime.utils.Log;
 {
 	@:allow(lime.app.Future)
 	private static var threadPool:ThreadPool;
-	private static var states:Array<{work:Void->Dynamic, promise:Promise<Dynamic>}>;
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
 
@@ -328,9 +327,8 @@ import lime.utils.Log;
 			recreateThreadPool(mode);
 		}
 
-		var state = {work: work, promise: promise, pool: threadPool};
+		var state = {work: work, promise: promise};
 		threadPool.queue(state);
-		states.push(cast state);
 	}
 
 	/**
@@ -340,68 +338,55 @@ import lime.utils.Log;
 	{
 		if (threadPool != null)
 		{
-			threadPool.cancel();
-			for (state in states)
-			{
-				state.promise.error("Canceled");
-			}
+			threadPool.cancel("Canceled");
 		}
 
 		threadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, mode, workLoad);
 		threadPool.onComplete.add(threadPool_onComplete);
 		threadPool.onError.add(threadPool_onError);
-
-		states = [];
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:{work:Void->Dynamic, promise:Promise<Dynamic>, pool:ThreadPool, ?result:Dynamic, ?error:Dynamic}):Void
+	private static function threadPool_doWork(state:{work:Void->Dynamic, promise:Promise<Dynamic>, ?result:Dynamic, ?error:Dynamic}, output:WorkOutput):Void
 	{
 		try
 		{
-			state.result = state.work();
-			if (state.result != null)
+			var result = state.work();
+			if (result != null)
 			{
-				state.pool.sendComplete(state);
+				output.sendComplete(result);
 			}
 		}
 		catch (e:Dynamic)
 		{
-			state.error = e;
-			state.pool.sendError(state);
+			output.sendError(e);
 		}
 	}
 
-	private static function threadPool_onComplete(state:{work:Void->Dynamic, promise:Promise<Dynamic>, result:Dynamic}):Void
+	private static function threadPool_onComplete(result:Dynamic):Void
 	{
-		state.promise.complete(state.result);
-		states.remove(state);
+		threadPool.eventSource.promise.complete(result);
 	}
 
-	private static function threadPool_onError(state:{work:Void->Dynamic, promise:Promise<Dynamic>, error:Dynamic}):Void
+	private static function threadPool_onError(error:Dynamic):Void
 	{
-		state.promise.error(state.error);
-		states.remove(state);
+		threadPool.eventSource.promise.error(error);
 	}
 
 	// Getters & Setters
 	@:noCompletion private static inline function set_minThreads(value:Int):Int
 	{
-		#if (!force_synchronous && (target.threaded || cpp || neko))
 		if (threadPool != null)
 			return threadPool.minThreads = minThreads = value;
 		else
-		#end
 			return minThreads = value;
 	}
 
 	@:noCompletion private static inline function set_maxThreads(value:Int):Int
 	{
-		#if (!force_synchronous && (target.threaded || cpp || neko))
 		if (threadPool != null)
 			return threadPool.maxThreads = maxThreads = value;
 		else
-		#end
 			return maxThreads = value;
 	}
 }
