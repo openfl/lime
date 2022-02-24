@@ -2072,6 +2072,10 @@ class CommandLineTools
 					{
 						overrides.dependencies.push(new Dependency(argValue, ""));
 					}
+					else if (field == "template")
+					{
+						overrides.templatePaths.push(argValue);
+					}
 					else if (StringTools.startsWith(field, "certificate-"))
 					{
 						if (overrides.keystore == null)
