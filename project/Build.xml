@@ -8,7 +8,7 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
-	<set name="LIME_CAIRO" value="1"/>
+	<set name="LIME_CAIRO" value="1" />
 	<set name="LIME_CURL" value="1" unless="emscripten || winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
@@ -63,10 +63,10 @@
 		<section if="LIME_CAIRO">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux"/>
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux"/>
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows"/>
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac"/>
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac" />
 			<compilerflag value="-DLIME_CAIRO" />
 			<compilerflag value="-DHAVE_CONFIG_H" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
@@ -121,6 +121,8 @@
 			</section>
 
 		</section>
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/hashlink/src" />
 
 		<section if="LIME_HASHLINK">
 
@@ -216,12 +218,12 @@
 			<section unless="emscripten">
 
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" unless="winrt"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi"/>
-				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt"/>
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" unless="winrt" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt" />
 
 				<compilerflag value="-DHAVE_LIBC" />
 
@@ -229,9 +231,9 @@
 
 			<section if="rpi">
 
-				<compilerflag value="-I/opt/vc/include"/>
-				<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads"/>
-				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux"/>
+				<compilerflag value="-I/opt/vc/include" />
+				<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
+				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
 				<compilerflag value="-lbrcmGLESv2" />
 				<compilerflag value="-lbrcmEGL" />
 				<compilerflag value="-Wl,--no-undefined -lm -L/opt/vc/lib -lbcm_host -ldl -lpthread -lrt" />
@@ -323,7 +325,7 @@
 
 	<files id="android-cpufeatures">
 
-		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android"/>
+		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
 		<file name="${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.c" />
 
 	</files>
@@ -420,7 +422,7 @@
 				<lib name="Xinput.lib" if="winrt" />
 				<lib name="DXGI.lib" if="winrt" />
 
-				<lib name="-libpath:../templates/bin/hl/windows" if="LIME_HASHLINK" />
+				<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
 
@@ -434,14 +436,14 @@
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L../templates/bin/hl/linux" if="LIME_HASHLINK" />
+				<lib name="-L${OUTPUT_DIR}/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>
 
 			<section if="mac">
 
-				<vflag name="-l" value="iconv"/>
+				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
@@ -453,12 +455,12 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
-				<vflag name="-framework" value="OpenAL"/>
+				<vflag name="-framework" value="OpenAL" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L../templates/bin/hl/mac" if="LIME_HASHLINK" />
+				<lib name="-L${OUTPUT_DIR}/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>
@@ -498,8 +500,8 @@
 				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL"/>
-				<vflag name="-framework" value="GameController"/>
+				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="GameController" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
 				<lib name="-ldl" />
@@ -517,9 +519,9 @@
 				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL"/>
-				<vflag name="-framework" value="CoreMotion"/>
-				<vflag name="-framework" value="CoreText"/>
+				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="CoreMotion" />
+				<vflag name="-framework" value="CoreText" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
 				<lib name="-ldl" />

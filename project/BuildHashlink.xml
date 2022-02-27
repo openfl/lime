@@ -1,0 +1,241 @@
+<xml>
+
+	<set name="PLATFORM" value="android-16" if="android" unless="HXCPP_ARM64 || HXCPP_X86_64" />
+	<set name="PLATFORM" value="android-21" if="android HXCPP_ARM64" />
+	<set name="PLATFORM" value="android-21" if="android HXCPP_X86_64" />
+	<set name="HXCPP_CPP11" value="1" />
+
+	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
+
+	<set name="ios" value="1" if="iphone" />
+	<set name="tvos" value="1" if="appletv" />
+
+	<set name="HASHLINK_PATH" value="lib/hashlink" unless="HASHLINK_PATH" />
+
+	<files id="hl">
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+
+		<file name="${HASHLINK_PATH}/src/code.c" />
+		<file name="${HASHLINK_PATH}/src/debugger.c" />
+		<file name="${HASHLINK_PATH}/src/jit.c" />
+		<file name="${HASHLINK_PATH}/src/main.c" />
+		<file name="${HASHLINK_PATH}/src/module.c" />
+		<file name="${HASHLINK_PATH}/src/profile.c" />
+	</files>
+
+	<files id="libhl">
+		<compilerflag value="-std=c11" unless="windows" />
+
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-I${HASHLINK_PATH}/include" />
+		<compilerflag value="-I${HASHLINK_PATH}/include/pcre" />
+
+		<file name="${HASHLINK_PATH}/src/gc.c" />
+		<file name="${HASHLINK_PATH}/src/std/array.c" />
+		<file name="${HASHLINK_PATH}/src/std/bytes.c" />
+		<file name="${HASHLINK_PATH}/src/std/date.c" />
+		<file name="${HASHLINK_PATH}/src/std/error.c" />
+		<file name="${HASHLINK_PATH}/src/std/fun.c" />
+		<file name="${HASHLINK_PATH}/src/std/obj.c" />
+		<file name="${HASHLINK_PATH}/src/std/random.c" />
+		<file name="${HASHLINK_PATH}/src/std/socket.c" />
+		<file name="${HASHLINK_PATH}/src/std/string.c" />
+		<file name="${HASHLINK_PATH}/src/std/sys.c" />
+		<file name="${HASHLINK_PATH}/src/std/thread.c" />
+		<file name="${HASHLINK_PATH}/src/std/types.c" />
+		<file name="${HASHLINK_PATH}/src/std/buffer.c" />
+		<file name="${HASHLINK_PATH}/src/std/cast.c" />
+		<file name="${HASHLINK_PATH}/src/std/debug.c" />
+		<file name="${HASHLINK_PATH}/src/std/file.c" />
+		<file name="${HASHLINK_PATH}/src/std/maps.c" />
+		<file name="${HASHLINK_PATH}/src/std/math.c" />
+		<file name="${HASHLINK_PATH}/src/std/process.c" />
+		<file name="${HASHLINK_PATH}/src/std/regexp.c" />
+		<file name="${HASHLINK_PATH}/src/std/sys_android.c" if="android" />
+		<file name="${HASHLINK_PATH}/src/std/sys_ios.m " if="ios" />
+		<file name="${HASHLINK_PATH}/src/std/track.c" />
+		<file name="${HASHLINK_PATH}/src/std/ucs2.c" />
+
+		<!-- PCRE -->
+		<file name="${HASHLINK_PATH}/include/pcre/pcre16_ord2utf16.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_globals.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre16_valid_utf16.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_newline.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_chartables.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_string_utils.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_compile.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_tables.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_dfa_exec.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_ucd.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_exec.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_xclass.c" />
+		<file name="${HASHLINK_PATH}/include/pcre/pcre_fullinfo.c" />
+
+		<!-- macOS debugging -->
+		<file name="${HASHLINK_PATH}/include/mdbg/mdbg.c" if="mac" />
+		<file name="${HASHLINK_PATH}/include/mdbg/mach_excServer.c" if="mac" />
+		<file name="${HASHLINK_PATH}/include/mdbg/mach_excUser.c" if="mac" />
+	</files>
+
+	<files id="ssl">
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-I${HASHLINK_PATH}/include/mbedtls/include" />
+
+		<file name="${HASHLINK_PATH}/libs/ssl/ssl.c" />
+
+		<section if="windows">
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/aes.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/aesni.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/arc4.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/asn1parse.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/asn1write.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/base64.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/bignum.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/blowfish.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/camellia.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ccm.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/certs.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/cipher.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/cipher_wrap.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ctr_drbg.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/debug.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/des.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/dhm.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecdh.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecdsa.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecjpake.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecp.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecp_curves.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/entropy.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/entropy_poll.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/error.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/gcm.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/havege.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/hmac_drbg.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/md.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/md2.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/md4.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/md5.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/md_wrap.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/memory_buffer_alloc.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/oid.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/padlock.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pem.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pk.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkcs11.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkcs12.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkcs5.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkparse.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkwrite.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/pk_wrap.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/platform.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ripemd160.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/rsa.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/rsa_internal.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/sha1.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/sha256.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/sha512.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_cache.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_ciphersuites.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_cli.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_cookie.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_srv.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_ticket.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_tls.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/threading.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/timing.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/version.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/version_features.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509write_crt.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509write_csr.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_create.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_crl.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_crt.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_csr.c" />
+			<file name="${HASHLINK_PATH}/include/mbedtls/library/xtea.c" />
+		</section>
+	</files>
+
+	<files id="mysql">
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+
+		<file name="${HASHLINK_PATH}/libs/mysql/socket.c" />
+		<file name="${HASHLINK_PATH}/libs/mysql/sha1.c" />
+		<file name="${HASHLINK_PATH}/libs/mysql/my_proto.c" />
+		<file name="${HASHLINK_PATH}/libs/mysql/my_api.c" />
+		<file name="${HASHLINK_PATH}/libs/mysql/mysql.c" />
+	</files>
+
+	<!-- <files id="fmt">
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<file name="${HASHLINK_PATH}/libs/fmt/fmt.o" />
+		<file name="${HASHLINK_PATH}/libs/fmt/sha1.o" />
+		<file name="${HASHLINK_PATH}/include/mikktspace/mikktspace.o" />
+		<file name="${HASHLINK_PATH}/libs/fmt/mikkt.o" />
+		<file name="${HASHLINK_PATH}/libs/fmt/dxt.o" />
+	</files>
+	<files id="ui">
+		<file name="${HASHLINK_PATH}/libs/ui/ui_stub.c" unless="windows" />
+		<file name="${HASHLINK_PATH}/libs/ui/ui_win32.c" if="windows" />
+	</files>
+	<files id="uv"></files> -->
+	<set name="LIBSUFFIX" value="lib" if="windows" />
+	<set name="LIBSUFFIX" value="dylib" if="mac || ios || tvos" />
+	<set name="LIBSUFFIX" value="so" unless="LIBSUFFIX" />
+	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
+
+	<target id="libhl" output="libhl" tool="linker" toolid="dll">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<files id="libhl" />
+		<ext value=".${LIBSUFFIX}" />
+
+		<section if="windows">
+			<lib name="user32.lib" />
+			<lib name="ws2_32.lib" />
+		</section>
+	</target>
+
+	<target id="ssl" output="ssl" tool="linker" toolid="dll">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<ext value=".hdll" />
+		<files id="ssl" />
+
+		<lib name="-lhl" unless="windows" />
+		<lib name="libhl.lib" if="windows" />
+
+		<lib name="-lmbedtls" unless="windows" />
+		<lib name="-lmbedx509" unless="windows" />
+		<lib name="-lmbedcrypto" unless="windows" />
+
+		<vflag name="-framework" value="Security" if="max || ios || tvos" />
+		<vflag name="-framework" value="CoreFoundation" if="max || ios || tvos" />
+	</target>
+
+	<target id="mysql" output="mysql" tool="linker" toolid="dll">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<ext value=".hdll" />
+		<files id="mysql" />
+
+		<lib name="-lhl" unless="windows" />
+		<lib name="libhl.lib" if="windows" />
+
+	</target>
+
+	<target id="hl" output="hl" tool="linker" toolid="exe">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<files id="hl" />
+
+		<lib name="-lhl" unless="windows" />
+		<lib name="libhl.lib" if="windows" />
+	</target>
+
+	<target id="default">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+
+		<target id="libhl" />
+		<target id="ssl" />
+		<target id="mysql" />
+		<target id="hl" />
+	</target>
+</xml>

@@ -58,3 +58,6 @@
 [submodule "project/lib/mojoal"]
 	path = project/lib/mojoal
 	url = https://github.com/native-toolkit/mojoal
+[submodule "project/lib/hashlink"]
+	path = project/lib/hashlink
+	url = https://github.com/HaxeFoundation/hashlink

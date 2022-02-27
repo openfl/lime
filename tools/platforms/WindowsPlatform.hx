@@ -685,6 +685,11 @@ class WindowsPlatform extends PlatformTarget
 				}
 			}
 
+			if (targetFlags.exists("hl"))
+			{
+				CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
+			}
+
 			CPPHelper.rebuild(project, commands);
 		}
 	}
