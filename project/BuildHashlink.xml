@@ -191,7 +191,7 @@
 		<files id="libhl" />
 		<ext value=".${LIBSUFFIX}" />
 
-		<lib name="-fvisibility=default" unless="windows" />
+		<lib name="-lpthread" if="linux"/>
 
 		<section if="windows">
 			<lib name="user32.lib" />
