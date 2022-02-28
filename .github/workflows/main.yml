@@ -84,6 +84,10 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          pushd project/lib/hashlink
+          brew update
+          brew bundle
+          popd
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet

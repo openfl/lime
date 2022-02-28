@@ -181,7 +181,7 @@
 		<file name="${HASHLINK_PATH}/libs/ui/ui_win32.c" if="windows" />
 	</files>
 	<files id="uv"></files> -->
-	<set name="LIBSUFFIX" value="lib" if="windows" />
+	<set name="LIBSUFFIX" value="dll" if="windows" />
 	<set name="LIBSUFFIX" value="dylib" if="mac || ios || tvos" />
 	<set name="LIBSUFFIX" value="so" unless="LIBSUFFIX" />
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
@@ -209,6 +209,10 @@
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
 
+		<lib name="Advapi32.lib" if="windows"/>
+		<lib name="Crypt32.lib" if="windows"/>
+		<lib name="ws2_32.lib" if="windows"/>
+
 		<lib name="-lmbedtls" unless="windows" />
 		<lib name="-lmbedx509" unless="windows" />
 		<lib name="-lmbedcrypto" unless="windows" />
@@ -226,7 +230,7 @@
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
-
+		<lib name="ws2_32.lib" if="windows"/>
 	</target>
 
 	<target id="hl" output="hl" tool="linker" toolid="exe">
@@ -247,4 +251,6 @@
 		<target id="mysql" />
 		<target id="hl" />
 	</target>
+
+	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll"/>
 </xml>
