@@ -25,6 +25,7 @@
 
 	<files id="libhl">
 		<compilerflag value="-std=c11" unless="windows" />
+		<compilerflag value="-DLIBHL_EXPORTS" />
 
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${HASHLINK_PATH}/include" />
@@ -190,6 +191,8 @@
 		<files id="libhl" />
 		<ext value=".${LIBSUFFIX}" />
 
+		<lib name="-fvisibility=default" unless="windows" />
+
 		<section if="windows">
 			<lib name="user32.lib" />
 			<lib name="ws2_32.lib" />
@@ -202,6 +205,8 @@
 		<files id="ssl" />
 
 		<lib name="-lhl" unless="windows" />
+		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
+		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
 
 		<lib name="-lmbedtls" unless="windows" />
@@ -218,6 +223,8 @@
 		<files id="mysql" />
 
 		<lib name="-lhl" unless="windows" />
+		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
+		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
 
 	</target>
@@ -227,6 +234,8 @@
 		<files id="hl" />
 
 		<lib name="-lhl" unless="windows" />
+		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
+		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
 	</target>
 
