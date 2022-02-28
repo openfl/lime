@@ -252,5 +252,5 @@
 		<target id="hl" />
 	</target>
 
-	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll"/>
+	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows"/>
 </xml>
