@@ -102,6 +102,37 @@ class HTML5Thread {
 	}
 
 	/**
+		Reads a message from the thread queue. Returns `null` if no argument is
+		available.
+
+		@param block If true, uses the `await` keyword to wait for the next
+		message. Requires the calling function to be `async`.
+		@see `lime.system.WorkOutput.JSAsync.async()`
+	**/
+	public static macro function readMessage(block:ExprOf<Bool>):Dynamic
+	{
+		var blockFalseExpr:Expr = macro @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.pop();
+		switch (block.expr)
+		{
+			case EConst(CIdent("false")):
+				return blockFalseExpr;
+			default:
+				return macro if ($block && @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.isEmpty())
+				{
+					js.Syntax.code("await {0}", new js.lib.Promise(function(resolve, _)
+						{
+							@:privateAccess lime._internal.backend.html5.HTML5Thread.__resolveMethods.add(resolve);
+						}
+					));
+				}
+				else
+				{
+					$blockFalseExpr;
+				};
+		}
+	}
+
+	/**
 		Sends a message back to the thread that spawned this worker. Has no
 		effect if called from the main thread.
 
@@ -226,37 +257,6 @@ class HTML5Thread {
 	public inline function isWorker():Bool
 	{
 		return __worker != null || __isWorker;
-	}
-
-	/**
-		Reads a message from the thread queue. Returns `null` if no argument is
-		available.
-
-		@param block If true, uses the `await` keyword to wait for the next
-		message. Requires the calling function to be `async`.
-		@see `lime.system.WorkOutput.JSAsync.async()`
-	**/
-	public static macro function readMessage(block:ExprOf<Bool>):Dynamic
-	{
-		var blockFalseExpr:Expr = macro @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.pop();
-		switch (block.expr)
-		{
-			case EConst(CIdent("false")):
-				return blockFalseExpr;
-			default:
-				return macro if ($block && @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.isEmpty())
-				{
-					js.Syntax.code("await {0}", new js.lib.Promise(function(resolve, _)
-						{
-							@:privateAccess lime._internal.backend.html5.HTML5Thread.__resolveMethods.add(resolve);
-						}
-					));
-				}
-				else
-				{
-					$blockFalseExpr;
-				};
-		}
 	}
 }
 
@@ -427,6 +427,25 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 	private static inline var SKIP_FIELD:String = "__skipPrototype__";
 	private static inline var RESTORE_FIELD:String = "__restoreFlag__";
 
+	#if !macro
+	/**
+		Makes sure this object is appropriate for `preserveClasses()` and
+		`restoreClasses()`. If not, don't interact with the object or recurse.
+	**/
+	private static inline function safeToModify(object:Dynamic):Bool
+	{
+		// `null` is unsafe.
+		return object != null
+			// There's no need (or option) to modify primitives.
+			&& Std.isOfType(object, Object)
+			// Check for indications that this is a `Uint8Array` or similar. If
+			// so, there's a good chance it has thousands or millions of fields,
+			// which could take entire seconds to process.
+			&& (object.byteLength == null || object.byteOffset == null
+				|| object.buffer == null || !Std.isOfType(object.buffer, lime.utils.ArrayBuffer));
+	}
+	#end
+
 	/**
 		Prevents `preserveClasses()` from working on the given object.
 
@@ -438,11 +457,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 	public static function disablePreserveClasses(object:Dynamic, recursive:Bool = false):Void
 	{
 		#if !macro
-		if (object == null
-			// Avoid looping.
-			|| Reflect.hasField(object, SKIP_FIELD)
-			// Skip primitive types.
-			|| !Std.isOfType(object, Object))
+		if (!safeToModify(object) || Reflect.hasField(object, SKIP_FIELD))
 		{
 			return;
 		}
@@ -472,14 +487,10 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		survive being passed across threads. "Children" are the values returned
 		by `Object.values()`.
 	**/
-	public function preserveClasses():Void
+	public function preserveClasses(?startTime:Float = null, ?debug:Bool = false):Void
 	{
 		#if !macro
-		if (this == null
-			// Avoid looping.
-			|| Reflect.hasField(this, PROTOTYPE_FIELD)
-			// Skip primitive types.
-			|| !Std.isOfType(this, Object))
+		if (!safeToModify(this) || Reflect.hasField(this, PROTOTYPE_FIELD))
 		{
 			return;
 		}
@@ -499,9 +510,9 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		}
 
 		// Recurse.
-		for (sub in Object.values(this))
+		for (child in Object.values(this))
 		{
-			(sub:Message).preserveClasses();
+			(child:Message).preserveClasses();
 		}
 		#end
 	}
@@ -525,10 +536,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 			}
 		}
 
-		// Avoid looping.
-		if (Reflect.field(this, RESTORE_FIELD) == flag
-			// Skip primitive types.
-			|| !Std.isOfType(this, Object))
+		if (!safeToModify(this) || Reflect.field(this, RESTORE_FIELD) == flag)
 		{
 			return;
 		}
@@ -556,9 +564,9 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		}
 
 		// Recurse.
-		for (sub in Object.values(this))
+		for (child in Object.values(this))
 		{
-			(sub:Message).restoreClasses(flag);
+			(child:Message).restoreClasses(flag);
 		}
 		#end
 	}
