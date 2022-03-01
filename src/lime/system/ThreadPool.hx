@@ -222,11 +222,13 @@ class ThreadPool extends WorkOutput
 		}
 		__activeJobs.clear();
 
+		#if lime_threads
 		// Cancel idle threads if there are more than the minimum.
 		while (idleThreads > minThreads)
 		{
 			__idleThreads.pop().sendMessage(new ThreadEvent(EXIT, null));
 		}
+		#end
 
 		// Clear the job queue.
 		if (error != null)

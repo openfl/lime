@@ -442,7 +442,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 			// so, there's a good chance it has thousands or millions of fields,
 			// which could take entire seconds to process.
 			&& (object.byteLength == null || object.byteOffset == null
-				|| object.buffer == null || !Std.isOfType(object.buffer, lime.utils.ArrayBuffer));
+				|| object.buffer == null || !Std.isOfType(object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end));
 	}
 	#end
 
