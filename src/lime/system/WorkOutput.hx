@@ -12,8 +12,11 @@ import cpp.vm.Tls;
 import neko.vm.Deque;
 import neko.vm.Thread;
 import neko.vm.Tls;
-#elseif html5
+#end
+
+#if html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
+import lime._internal.backend.html5.HTML5Thread.Transferable;
 #end
 
 #if macro
@@ -75,12 +78,15 @@ class WorkOutput
 	private var __activeJobs:ActiveJobs = new ActiveJobs();
 
 	/**
-		Single-threaded mode only; the `state` provided to the active job. If
-		available, should be included in new `ThreadEvent`s.
+		The `state` provided to the active job. Will only have a value during
+		`__update()` in single-threaded mode, and will otherwise be `null`.
+
+		Include this when creating new `ThreadEvent`s.
 	**/
 	private var __activeJob:Null<State> = null;
 
-	private inline function new(mode:ThreadMode) {
+	private inline function new(mode:Null<ThreadMode>)
+	{
 		workIterations.value = 0;
 		__jobComplete.value = false;
 
@@ -97,7 +103,7 @@ class WorkOutput
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	#if (lime_threads && html5) inline #end
-	public function sendComplete(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Dynamic> = null #end):Void
+	public function sendComplete(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Transferable> = null #end):Void
 	{
 		if (!__jobComplete.value)
 		{
@@ -120,7 +126,7 @@ class WorkOutput
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	#if (lime_threads && html5) inline #end
-	public function sendError(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Dynamic> = null #end):Void
+	public function sendError(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Transferable> = null #end):Void
 	{
 		if (!__jobComplete.value)
 		{
@@ -143,7 +149,7 @@ class WorkOutput
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	#if (lime_threads && html5) inline #end
-	public function sendProgress(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Dynamic> = null #end):Void
+	public function sendProgress(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Transferable> = null #end):Void
 	{
 		if (!__jobComplete.value)
 		{
@@ -167,25 +173,21 @@ class WorkOutput
 	{
 		var thread:Thread = Thread.create(executeThread);
 
-		// Platform-dependent initialization.
 		#if html5
 		thread.onMessage.add(onMessageFromWorker.bind(thread));
-		#else
-		thread.sendMessage(this);
 		#end
 
 		return thread;
 	}
 
 	#if html5
-	private function onMessageFromWorker(thread:Thread, message:Dynamic):Void
+	private function onMessageFromWorker(thread:Thread, threadEvent:ThreadEvent):Void
 	{
-		if (!Std.isOfType(message, ThreadEvent))
+		if (threadEvent.event == null)
 		{
 			return;
 		}
 
-		var threadEvent:ThreadEvent = message;
 		threadEvent.associatedJob = __activeJobs.getByThread(thread);
 
 		__jobOutput.add(threadEvent);
@@ -363,6 +365,26 @@ class ThreadEvent
 		#if (lime_threads && !html5)
 		sourceThread = Thread.current();
 		#end
+	}
+}
+
+class JSAsync
+{
+	/**
+		In JavaScript, runs the given block of code within an `async` function,
+		enabling the `await` keyword. On other targets, runs the code normally.
+	**/
+	public static macro function async(code:Expr):Expr
+	{
+		if (Context.defined("js"))
+		{
+			var jsCode:Expr = #if haxe4 macro js.Syntax.code #else macro untyped __js__ #end;
+			return macro $jsCode("(async {0})()", function() $code);
+		}
+		else
+		{
+			return code;
+		}
 	}
 }
 

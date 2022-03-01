@@ -293,7 +293,7 @@ import lime.utils.Log;
 
 	/**
 		Creates a `Future` instance which has finished with a completion value
-		@param	error	The completion value to set
+		@param	value	The completion value to set
 		@return	A new `Future` instance
 	**/
 	public static function withValue<T>(value:T):Future<T>

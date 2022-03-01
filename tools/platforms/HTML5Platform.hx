@@ -93,6 +93,10 @@ class HTML5Platform extends PlatformTarget
 					if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
 					{
 						var script = File.getContent(dependency.path);
+						if (!dependency.webWorker)
+						{
+							script = 'if(typeof window != "undefined") {\n' + script + "\n}";
+						}
 						context.embeddedLibraries.push(script);
 					}
 				}

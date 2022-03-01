@@ -29,16 +29,10 @@ import lime.system.WorkOutput;
 @:noDebug
 #end
 @:forward(canceled, completed, currentThreads, activeJobs, idleThreads,
-	onComplete, onError, onProgress, onRun, cancel)
+	minThreads, maxThreads, onComplete, onError, onProgress, onRun, cancel)
 abstract BackgroundWorker(ThreadPool)
 {
 	private static var doWorkWrapper:WorkFunction<State->WorkOutput->Void>;
-
-	private static function doWorkImpl(state:State, output:WorkOutput):Void
-	{
-		// `dispatch()` will check if it's really a `WorkFunction`.
-		(state.doWork:WorkFunction<State->WorkOutput->Void>).dispatch(state.state, output);
-	}
 
 	@:deprecated("Instead pass the callback to BackgroundWorker.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
@@ -59,7 +53,7 @@ abstract BackgroundWorker(ThreadPool)
 	{
 		if (doWorkWrapper == null)
 		{
-			doWorkWrapper = doWorkImpl;
+			doWorkWrapper = BackgroundWorkerFunctions.__doWork;
 		}
 		this = new ThreadPool(doWorkWrapper, mode, workLoad);
 	}
@@ -119,6 +113,13 @@ abstract BackgroundWorker(ThreadPool)
 			this.__doWork = doWorkWrapper;
 		}
 
+		#if html5
+		if (this.mode == MULTI_THREADED)
+		{
+			doWork.makePortable();
+		}
+		#end
+
 		this.queue({
 			state: state,
 			doWork: doWork
@@ -127,21 +128,34 @@ abstract BackgroundWorker(ThreadPool)
 
 	// Getters & Setters
 
-	private function get_doWork():{ add: (Dynamic->Void) -> Void }
+	private function get_doWork()
 	{
 		return {
 			add: function(callback:Dynamic->Void)
 			{
-				// Hack: overwrite `__doWork` just for this one function.
-				this.__doWork = function(state:State, output:WorkOutput):Void
-				{
-					#if html5
-					if (this.mode == MULTI_THREADED)
-						throw "Unsupported operation; instead pass the callback to BackgroundWorker.run().";
-					#end
-					callback(state.state);
-				};
+				#if html5
+				if (this.mode == MULTI_THREADED)
+					throw "Unsupported operation; instead pass the callback to BackgroundWorker.run().";
+				#end
+				// Hack: overwrite `__doWork` just for this one function. Hope
+				// it wasn't in use!
+				this.__doWork = #if html5 { func: #end
+					function(state:State, output:WorkOutput):Void
+					{
+						callback(state.state);
+					}
+				#if html5 } #end;
 			}
 		};
+	}
+}
+
+@:allow(lime.system.BackgroundWorker)
+private class BackgroundWorkerFunctions
+{
+	private static function __doWork(state:State, output:WorkOutput):Void
+	{
+		// `dispatch()` will check if it's really a `WorkFunction`.
+		(state.doWork:WorkFunction<State->WorkOutput->Void>).dispatch(state.state, output);
 	}
 }

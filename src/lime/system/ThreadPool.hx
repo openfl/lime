@@ -167,7 +167,7 @@ class ThreadPool extends WorkOutput
 		app's available time every frame. See `workIterations` for instructions
 		to improve the accuracy of this estimate.
 	**/
-	public function new(?doWork:State->WorkOutput->Void, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = null, ?workLoad:Float = 1/2)
+	public function new(?doWork:WorkFunction<State->WorkOutput->Void>, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = null, ?workLoad:Float = 1/2)
 	{
 		super(mode);
 
@@ -194,20 +194,20 @@ class ThreadPool extends WorkOutput
 
 		Application.current.onUpdate.remove(__update);
 
-		#if lime_threads
-		for (thread in __idleThreads)
-		{
-			thread.sendMessage(new ThreadEvent(EXIT, null));
-		}
-		__idleThreads.clear();
-		#end
-
 		for (job in __activeJobs)
 		{
 			#if lime_threads
 			if (job.thread != null)
 			{
-				job.thread.sendMessage(new ThreadEvent(EXIT, null));
+				if (idleThreads < minThreads)
+				{
+					job.thread.sendMessage(new ThreadEvent(WORK, null));
+					__idleThreads.push(job.thread);
+				}
+				else
+				{
+					job.thread.sendMessage(new ThreadEvent(EXIT, null));
+				}
 			}
 			#end
 
@@ -299,80 +299,78 @@ class ThreadPool extends WorkOutput
 	/**
 		__Run this only on a background thread.__
 
-		Retrieves pending jobs, runs them until complete, and repeats.
+		Retrieves jobs using `Thread.readMessage()`, runs them until complete,
+		and repeats.
 
-		On all targets except HTML5, the first thread message must be a
-		`WorkOutput` instance. Other than that, all thread messages should be
-		`WORK` or `EXIT` `ThreadEvent` instances.
+		Before any jobs, this function requires, in order:
+
+		1. A `WorkOutput` instance. (Omit this message in HTML5.)
+		2. The `doWork` function.
 	**/
 	private static function __executeThread():Void
 	{
-		#if html5
-		// HTML5 requires the `async` keyword, which is easiest to do inline.
-		#if haxe4 js.Syntax.code #else untyped __js__ #end ("(async {0})()",
-		function() {
-		#end
+		JSAsync.async({
+			var output:WorkOutput = #if html5 new WorkOutput(MULTI_THREADED) #else cast(Thread.readMessage(true), WorkOutput) #end;
+			var doWork:WorkFunction<State->WorkOutput->Void> = Thread.readMessage(true);
+			var job:ThreadEvent = null;
 
-		var output:WorkOutput = #if html5 new WorkOutput(MULTI_THREADED) #else cast(Thread.readMessage(true), WorkOutput) #end;
-		var doWork:WorkFunction<State->WorkOutput->Void> = Thread.readMessage(true);
-		var job:ThreadEvent = null;
-
-		while (true)
-		{
-			// Get a job.
-			if (job == null)
+			while (true)
 			{
-				job = cast(Thread.readMessage(true), ThreadEvent);
-
-				output.resetJobProgress();
-			}
-
-			if (job.event == EXIT)
-			{
-				return;
-			}
-
-			if (job.event != WORK || job.state == null)
-			{
-				job = null;
-				continue;
-			}
-
-			// Get to work.
-			var interruption:Dynamic = null;
-			try
-			{
-				while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
+				// Get a job.
+				if (job == null)
 				{
-					output.workIterations.value++;
-					doWork.dispatch(job.state, output);
+					do
+					{
+						job = Thread.readMessage(true);
+					}
+					while (!Std.isOfType(job, ThreadEvent));
+
+					output.resetJobProgress();
 				}
-			}
-			catch (e)
-			{
-				output.sendError(e);
-			}
 
-			if (interruption == null || output.__jobComplete.value)
-			{
-				job = null;
-			}
-			else if(Std.isOfType(interruption, ThreadEvent))
-			{
-				job = interruption;
-				output.resetJobProgress();
-			}
-			else
-			{
-				// Ignore interruption and keep current job.
-			}
+				if (job.event == EXIT)
+				{
+					return;
+				}
 
-			// Do it all again.
-		}
+				if (job.event != WORK || job.state == null)
+				{
+					job = null;
+					continue;
+				}
 
-		#if html5
+				// Get to work.
+				var interruption:Dynamic = null;
+				try
+				{
+					while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
+					{
+						output.workIterations.value++;
+						doWork.dispatch(job.state, output);
+					}
+				}
+				catch (e)
+				{
+					output.sendError(e);
+				}
+
+				if (interruption == null || output.__jobComplete.value)
+				{
+					job = null;
+				}
+				else if(Std.isOfType(interruption, ThreadEvent))
+				{
+					job = interruption;
+					output.resetJobProgress();
+				}
+				else
+				{
+					// Ignore interruption and keep working.
+				}
+
+				// Do it all again.
+			}
 		});
-		#end
 	}
 	#end
 
@@ -399,7 +397,7 @@ class ThreadPool extends WorkOutput
 		#end
 
 		// Process the queue.
-		while (__jobQueue.length > 0 && currentThreads < maxThreads)
+		while (!__jobQueue.isEmpty() && activeJobs < maxThreads)
 		{
 			var job:ThreadEvent = __jobQueue.pop();
 			if (job.event != WORK)
@@ -498,8 +496,6 @@ class ThreadPool extends WorkOutput
 					#if lime_threads
 					if (mode == MULTI_THREADED)
 					{
-						__activeJobs.remove(threadEvent.associatedJob);
-
 						if (currentThreads > maxThreads || __jobQueue.isEmpty() && currentThreads > minThreads)
 						{
 							threadEvent.associatedJob.thread.sendMessage(new ThreadEvent(EXIT, null));
@@ -508,6 +504,8 @@ class ThreadPool extends WorkOutput
 						{
 							__idleThreads.push(threadEvent.associatedJob.thread);
 						}
+
+						__activeJobs.removeThread(threadEvent.associatedJob.thread);
 					}
 					#end
 
@@ -517,11 +515,24 @@ class ThreadPool extends WorkOutput
 			eventSource = null;
 		}
 
-		if (currentThreads == 0)
+		if (completed)
 		{
 			Application.current.onUpdate.remove(__update);
 		}
 	}
+
+	#if lime_threads
+	private override function createThread(executeThread:WorkFunction<Void->Void>):Thread
+	{
+		var thread:Thread = super.createThread(executeThread);
+		#if !html5
+		thread.sendMessage(this);
+		#end
+		thread.sendMessage(__doWork);
+
+		return thread;
+	}
+	#end
 
 	// Getters & Setters
 
@@ -540,20 +551,23 @@ class ThreadPool extends WorkOutput
 		return activeJobs + idleThreads;
 	}
 
-	// Note the distinction between `doWork` and `__doWork`.
+	// Note the distinction between `doWork` and `__doWork`: the former is for
+	// backwards compatibility, while the latter is always used.
 	private function get_doWork():{ add: (Dynamic->Void) -> Void }
 	{
 		return {
 			add: function(callback:Dynamic->Void)
 			{
-				__doWork = function(state:State, output:WorkOutput):Void
-				{
-					#if html5
-					if (mode == MULTI_THREADED)
-						throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
-					#end
-					callback(state);
-				};
+				#if html5
+				if (mode == MULTI_THREADED)
+					throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
+				#end
+				__doWork = #if html5 { func: #end
+					function(state:State, output:WorkOutput):Void
+					{
+						callback(state);
+					}
+				#if html5 } #end;
 			}
 		};
 	}

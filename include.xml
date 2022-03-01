@@ -74,8 +74,11 @@
 
 	<section unless="display">
 
-		<!-- TODO: use target.threaded keyword, add html5 to the list. -->
-		<define name="lime-threads" if="cs || neko || cpp || java || python || hl" unless="force-synchronous || force_synchronous || emscripten" />
+		<section unless="force-synchronous || force_synchronous">
+			<haxedef name="lime-threads" if="neko || cpp || html5" unless="emscripten" />
+			<!-- `target.threaded` isn't available, so enumerate the targets instead. -->
+			<haxedef name="lime-threads" if="cs || java || python || hl" unless="${${haxe_ver} < 4}" />
+		</section>
 
 		<section if="cpp ${${haxe_ver} < 3.3}" unless="static_link">
 			<ndll name="std" haxelib="hxcpp" />
@@ -86,11 +89,13 @@
 		<ndll name="lime" if="native" unless="lime-console static_link || lime-switch static_link" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
-		<dependency path="dependencies/pako.min.js" if="html5" embed="true" />
+		<dependency path="dependencies/pako.min.js" if="html5" embed="true" web-worker="true" />
 		<dependency path="dependencies/FileSaver.min.js" if="html5" embed="true" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="true" />
 		<dependency path="dependencies/stats.min.js" if="html5 stats" embed="true" />
+
 		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
