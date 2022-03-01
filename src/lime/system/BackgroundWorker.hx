@@ -28,8 +28,7 @@ import lime.system.WorkOutput;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:forward(canceled, completed, currentThreads, activeJobs, idleThreads,
-	minThreads, maxThreads, onComplete, onError, onProgress, onRun, cancel)
+@:forward
 abstract BackgroundWorker(ThreadPool)
 {
 	private static var doWorkWrapper:WorkFunction<State->WorkOutput->Void>;
@@ -113,7 +112,7 @@ abstract BackgroundWorker(ThreadPool)
 			this.__doWork = doWorkWrapper;
 		}
 
-		#if html5
+		#if (lime_threads && html5)
 		if (this.mode == MULTI_THREADED)
 		{
 			doWork.makePortable();
@@ -139,12 +138,12 @@ abstract BackgroundWorker(ThreadPool)
 				#end
 				// Hack: overwrite `__doWork` just for this one function. Hope
 				// it wasn't in use!
-				this.__doWork = #if html5 { func: #end
+				this.__doWork = #if (lime_threads && html5) { func: #end
 					function(state:State, output:WorkOutput):Void
 					{
 						callback(state.state);
 					}
-				#if html5 } #end;
+					#if (lime_threads && html5) } #end;
 			}
 		};
 	}

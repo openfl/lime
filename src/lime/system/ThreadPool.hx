@@ -167,7 +167,7 @@ class ThreadPool extends WorkOutput
 		app's available time every frame. See `workIterations` for instructions
 		to improve the accuracy of this estimate.
 	**/
-	public function new(?doWork:WorkFunction<State->WorkOutput->Void>, minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = null, ?workLoad:Float = 1/2)
+	public function new(?doWork:WorkFunction<State->WorkOutput->Void>, ?minThreads:Int = 0, ?maxThreads:Int = 1, mode:ThreadMode = null, ?workLoad:Float = 1/2)
 	{
 		super(mode);
 
@@ -562,12 +562,12 @@ class ThreadPool extends WorkOutput
 				if (mode == MULTI_THREADED)
 					throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
 				#end
-				__doWork = #if html5 { func: #end
+				__doWork = #if (lime_threads && html5) { func: #end
 					function(state:State, output:WorkOutput):Void
 					{
 						callback(state);
 					}
-				#if html5 } #end;
+				#if (lime_threads && html5) } #end;
 			}
 		};
 	}
