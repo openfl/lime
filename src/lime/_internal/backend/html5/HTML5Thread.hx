@@ -55,8 +55,8 @@ class HTML5Thread {
 
 				try
 				{
-					job.dispatch();
 					Lib.global.onmessage = __current.dispatchMessage;
+					job.dispatch();
 				}
 				catch (e:Dynamic)
 				{
@@ -317,7 +317,6 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 			{
 				if (Context.defined("lime-warn-portability"))
 				{
-					trace(qualifiedFunc);
 					Context.warning("Value doesn't appear to be a static function.", func.pos);
 				}
 				return defaultOutput;
@@ -602,6 +601,6 @@ class Lib
 // specification only uses the former.
 @:forward
 abstract Transferable(Dynamic) #if macro from Dynamic
-	#else from js.lib.ArrayBuffer from js.html.MessagePort from js.html.ImageBitmap #end
+	#else from lime.utils.ArrayBuffer from js.html.MessagePort from js.html.ImageBitmap #end
 {
 }

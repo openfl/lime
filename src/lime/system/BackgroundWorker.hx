@@ -36,6 +36,8 @@ abstract BackgroundWorker(ThreadPool)
 	@:deprecated("Instead pass the callback to BackgroundWorker.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
 
+	public var eventSource(get, never):Dynamic;
+
 	/**
 		__Call this only from the main thread.__
 
@@ -126,6 +128,11 @@ abstract BackgroundWorker(ThreadPool)
 	}
 
 	// Getters & Setters
+
+	private inline function get_eventSource():Dynamic
+	{
+		return this.eventSource != null ? this.eventSource.state : null;
+	}
 
 	private function get_doWork()
 	{

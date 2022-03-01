@@ -330,6 +330,9 @@ class ThreadPool extends WorkOutput
 
 				if (job.event == EXIT)
 				{
+					#if html5
+					Thread.current().destroy();
+					#end
 					return;
 				}
 
