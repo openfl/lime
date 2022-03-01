@@ -180,8 +180,10 @@ class ThreadPool extends WorkOutput
 	}
 
 	/**
-		Cancels all active and queued jobs.
-		@param error If not null, this error will be dispatched for each.
+		Cancels all active and queued jobs. In multi-threaded mode, leaves
+		`minThreads` idle threads running.
+		@param error If not null, this error will be dispatched for each active
+		or queued job.
 	**/
 	public function cancel(error:Dynamic = null):Void
 	{
@@ -194,6 +196,7 @@ class ThreadPool extends WorkOutput
 
 		Application.current.onUpdate.remove(__update);
 
+		// Cancel active jobs, leaving `minThreads` idle threads.
 		for (job in __activeJobs)
 		{
 			#if lime_threads
@@ -219,6 +222,13 @@ class ThreadPool extends WorkOutput
 		}
 		__activeJobs.clear();
 
+		// Cancel idle threads if there are more than the minimum.
+		while (idleThreads > minThreads)
+		{
+			__idleThreads.pop().sendMessage(new ThreadEvent(EXIT, null));
+		}
+
+		// Clear the job queue.
 		if (error != null)
 		{
 			for (job in __jobQueue)
