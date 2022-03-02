@@ -103,7 +103,7 @@ class WorkOutput
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	#if (lime_threads && html5) inline #end
-	public function sendComplete(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Transferable> = null #end):Void
+	public function sendComplete(message:Dynamic = null, transferList:Array<Transferable> = null):Void
 	{
 		if (!__jobComplete.value)
 		{
@@ -126,7 +126,7 @@ class WorkOutput
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	#if (lime_threads && html5) inline #end
-	public function sendError(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Transferable> = null #end):Void
+	public function sendError(message:Dynamic = null, transferList:Array<Transferable> = null):Void
 	{
 		if (!__jobComplete.value)
 		{
@@ -149,7 +149,7 @@ class WorkOutput
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
 	#if (lime_threads && html5) inline #end
-	public function sendProgress(message:Dynamic = null #if (lime_threads && html5) , transferList:Array<Transferable> = null #end):Void
+	public function sendProgress(message:Dynamic = null, transferList:Array<Transferable> = null):Void
 	{
 		if (!__jobComplete.value)
 		{
@@ -388,6 +388,8 @@ class JSAsync
 	}
 }
 
+// Define platform-specific types
+
 #if !(target.threaded || cpp || neko)
 @:forward(push, add) @:forward.new
 abstract Deque<T>(List<T>) from List<T> to List<T>
@@ -404,4 +406,8 @@ class Tls<T>
 
 	public inline function new() {}
 }
+#end
+
+#if !html5
+typedef Transferable = Dynamic;
 #end
