@@ -428,21 +428,19 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 	private static inline var RESTORE_FIELD:String = "__restoreFlag__";
 
 	#if !macro
-	/**
-		Makes sure this object is appropriate for `preserveClasses()` and
-		`restoreClasses()`. If not, don't interact with the object or recurse.
-	**/
-	private static inline function safeToModify(object:Dynamic):Bool
+	private static inline function skip(object:Dynamic):Bool
 	{
-		// `null` is unsafe.
-		return object != null
-			// There's no need (or option) to modify primitives.
-			&& Std.isOfType(object, Object)
-			// Check for indications that this is a `Uint8Array` or similar. If
-			// so, there's a good chance it has thousands or millions of fields,
-			// which could take entire seconds to process.
-			&& (object.byteLength == null || object.byteOffset == null
-				|| object.buffer == null || !Std.isOfType(object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end));
+		// Skip `null` for obvious reasons.
+		return object == null
+			// No need to preserve a primitive type.
+			|| !Std.isOfType(object, Object)
+			// Objects with this field have been deliberately excluded.
+			|| Reflect.field(object, SKIP_FIELD) == true
+			// A `Uint8Array` (the type used by `haxe.io.Bytes`) can have
+			// thousands or millions of fields, which can take entire seconds to
+			// enumerate. This also applies to `Int8Array`, `Float64Array`, etc.
+			|| object.byteLength != null && object.byteOffset != null
+				&& object.buffer != null && Std.isOfType(object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end);
 	}
 	#end
 
@@ -451,34 +449,16 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 
 		Note: if its class isn't preserved, `cast(object, Foo)` will fail with
 		the unhelpful message "uncaught exception: Object" and no line number.
-
-		@param recursive Whether to apply this to the object's children as well.
 	**/
-	public static function disablePreserveClasses(object:Dynamic, recursive:Bool = false):Void
+	public static function disablePreserveClasses(object:Dynamic):Void
 	{
 		#if !macro
-		if (!safeToModify(object) || Reflect.hasField(object, SKIP_FIELD))
+		if (skip(object))
 		{
 			return;
 		}
 
-		try
-		{
-			Reflect.setField(object, Message.SKIP_FIELD, true);
-		}
-		catch (e:Dynamic)
-		{
-			// Probably a frozen object; no need to recurse.
-			return;
-		}
-
-		if (recursive)
-		{
-			for (sub in Object.values(object))
-			{
-				disablePreserveClasses(sub, true);
-			}
-		}
+		Reflect.setField(object, Message.SKIP_FIELD, true);
 		#end
 	}
 
@@ -487,16 +467,16 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		survive being passed across threads. "Children" are the values returned
 		by `Object.values()`.
 	**/
-	public function preserveClasses(?startTime:Float = null, ?debug:Bool = false):Void
+	public function preserveClasses():Void
 	{
 		#if !macro
-		if (!safeToModify(this) || Reflect.hasField(this, PROTOTYPE_FIELD))
+		if (skip(this) || Reflect.hasField(this, PROTOTYPE_FIELD))
 		{
 			return;
 		}
 
 		// Preserve this object's class.
-		if (!Reflect.hasField(this, SKIP_FIELD) && !Std.isOfType(this, Array))
+		if (!Std.isOfType(this, Array))
 		{
 			try
 			{
@@ -536,13 +516,13 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 			}
 		}
 
-		if (!safeToModify(this) || Reflect.field(this, RESTORE_FIELD) == flag)
+		if (skip(this) || Reflect.field(this, RESTORE_FIELD) == flag)
 		{
 			return;
 		}
 
 		// Restore this object's class.
-		if (!Reflect.hasField(this, SKIP_FIELD) && Reflect.field(this, PROTOTYPE_FIELD) != null)
+		if (Reflect.field(this, PROTOTYPE_FIELD) != null)
 		{
 			try
 			{
