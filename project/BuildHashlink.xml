@@ -213,6 +213,9 @@
 		<lib name="Crypt32.lib" if="windows"/>
 		<lib name="ws2_32.lib" if="windows"/>
 
+		<!-- Find homebrews mbedtls -->
+		<lib name="-L/usr/local/lib" if="mac"/>
+
 		<lib name="-lmbedtls" unless="windows" />
 		<lib name="-lmbedx509" unless="windows" />
 		<lib name="-lmbedcrypto" unless="windows" />
