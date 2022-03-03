@@ -487,6 +487,14 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 				// Probably a frozen object; no need to recurse.
 				return;
 			}
+
+			// While usually it's the user's job not to include any functions,
+			// enums come with a built-in `toString` function that needs to be
+			// removed, and it isn't fair to ask the user to know that.
+			if (#if haxe4 Syntax.code #else untyped __js__ #end ('typeof {0}.toString == "function"', this))
+			{
+				Reflect.deleteField(this, "toString");
+			}
 		}
 
 		// Recurse.
