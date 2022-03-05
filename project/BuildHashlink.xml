@@ -191,7 +191,7 @@
 		<files id="libhl" />
 		<ext value=".${LIBSUFFIX}" />
 
-		<lib name="-lpthread" if="linux"/>
+		<lib name="-pthread" if="linux"/>
 
 		<section if="windows">
 			<lib name="user32.lib" />
@@ -220,8 +220,8 @@
 		<lib name="-lmbedx509" unless="windows" />
 		<lib name="-lmbedcrypto" unless="windows" />
 
-		<vflag name="-framework" value="Security" if="max || ios || tvos" />
-		<vflag name="-framework" value="CoreFoundation" if="max || ios || tvos" />
+		<vflag name="-framework" value="Security" if="mac || ios || tvos" />
+		<vflag name="-framework" value="CoreFoundation" if="mac || ios || tvos" />
 	</target>
 
 	<target id="mysql" output="mysql" tool="linker" toolid="dll">
