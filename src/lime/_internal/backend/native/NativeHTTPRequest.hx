@@ -40,6 +40,7 @@ class NativeHTTPRequest
 	#if (cpp || neko || hl)
 	private static var multiAddHandle:Deque<CURL>;
 	#end
+	private static var cookieList:Array<String>;
 
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
@@ -235,11 +236,17 @@ class NativeHTTPRequest
 			curl.setOption(HEADERFUNCTION, curl_onHeader);
 		}
 
-		// TODO: Add support for cookies: https://curl.haxx.se/docs/http-cookies.html
-
 		if (parent.withCredentials)
 		{
-			// TODO: Send cookies with request
+			// an empty string means store cookies in memory
+			// cookies are stored only for the current session
+			curl.setOption(COOKIEFILE, "");
+			if (cookieList != null) {
+				for(cookie in cookieList) {
+					// pass in each stored cookie individually
+					curl.setOption(COOKIELIST, cookie);
+				}
+			}
 		}
 
 		curl.setOption(SSL_VERIFYPEER, false);
@@ -517,6 +524,9 @@ class NativeHTTPRequest
 				{
 					var curl = message.curl;
 					var status = curl.getInfo(RESPONSE_CODE);
+
+					// returns an array of cookie values
+					cookieList = curl.getInfo(COOKIELIST);
 
 					multi.removeHandle(curl);
 					curl.cleanup();
