@@ -867,8 +867,22 @@ namespace lime {
 				return alloc_float (floatValue);
 				break;
 
-			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_COOKIELIST:
+			{
+				struct curl_slist *cookies;
+				code = curl_easy_getinfo(handle, CURLINFO_COOKIELIST, &cookies);
+				struct curl_slist *each = cookies;
+				value result = alloc_array(0);
+				while (each) {
+					val_array_push(result, alloc_string(each->data));
+					each = each->next;
+				}
+				curl_slist_free_all(cookies);
+				return result;
+				break;
+			}
+
+			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_CERTINFO:
 			case CURLINFO_TLS_SESSION:
 			case CURLINFO_TLS_SSL_PTR:
