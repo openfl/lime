@@ -319,7 +319,7 @@ jobs:
           haxelib dev lime $GITHUB_WORKSPACE
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
-
+          cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
       - uses: actions/download-artifact@v2
         with:
           name: Android-NDLL

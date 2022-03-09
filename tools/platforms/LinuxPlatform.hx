@@ -225,6 +225,14 @@ class LinuxPlatform extends PlatformTarget
 			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/linux", applicationDirectory);
 			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
+			// let's not keep around hxcpp's hash files
+			for (file in System.readDirectory(applicationDirectory))
+			{
+				if (Path.extension(file) == "hash")
+				{
+					System.deleteFile(file);
+				}
+			}
 		}
 		else if (targetType == "nodejs")
 		{
@@ -417,7 +425,8 @@ class LinuxPlatform extends PlatformTarget
 			}
 		}
 
-		if(targetFlags.exists("hl")) {
+		if (targetFlags.exists("hl"))
+		{
 			CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
 		}
 

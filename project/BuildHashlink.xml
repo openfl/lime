@@ -181,14 +181,18 @@
 	<set name="LIBSUFFIX" value="dll" if="windows" />
 	<set name="LIBSUFFIX" value="dylib" if="mac || ios || tvos" />
 	<set name="LIBSUFFIX" value="so" unless="LIBSUFFIX" />
-	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
+	<set name="BINDIR" value="linux" if="linux" />
+	<set name="BINDIR" value="mac" if="mac" />
+	<set name="BINDIR" value="windows" if="windows" />
+
+	<set name="OUTPUT_DIR" value="../templates/bin/hl" unless="OUTPUT_DIR" />
 
 	<target id="libhl" output="libhl" tool="linker" toolid="dll">
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<files id="libhl" />
 		<ext value=".${LIBSUFFIX}" />
 
-		<lib name="-pthread" if="linux"/>
+		<lib name="-pthread" if="linux" />
 
 		<section if="windows">
 			<lib name="user32.lib" />
@@ -206,12 +210,12 @@
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
 
-		<lib name="Advapi32.lib" if="windows"/>
-		<lib name="Crypt32.lib" if="windows"/>
-		<lib name="ws2_32.lib" if="windows"/>
+		<lib name="Advapi32.lib" if="windows" />
+		<lib name="Crypt32.lib" if="windows" />
+		<lib name="ws2_32.lib" if="windows" />
 
 		<!-- Find homebrews mbedtls -->
-		<lib name="-L/usr/local/lib" if="mac"/>
+		<lib name="-L/usr/local/lib" if="mac" />
 
 		<lib name="-lmbedtls" unless="windows" />
 		<lib name="-lmbedx509" unless="windows" />
@@ -230,14 +234,17 @@
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
-		<lib name="ws2_32.lib" if="windows"/>
+		<lib name="ws2_32.lib" if="windows" />
 	</target>
 
 	<target id="hl" output="hl" tool="linker" toolid="exe">
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<files id="hl" />
 
-		<lib name="-pthread" if="linux"/>
+		<lib name="-pthread" if="linux" />
+
+		<!-- Make hashlink pick up binaries in the same directory as itself -->
+		<lib name="-Wl,-rpath=$ORIGIN" if="linux"/>
 
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
@@ -254,5 +261,5 @@
 		<target id="hl" />
 	</target>
 
-	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows"/>
+	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows" />
 </xml>

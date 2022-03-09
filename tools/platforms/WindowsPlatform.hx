@@ -345,6 +345,14 @@ class WindowsPlatform extends PlatformTarget
 				System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
 				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
 				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
+				// let's not keep around hxcpp's hash files
+				for (file in System.readDirectory(applicationDirectory))
+				{
+					if (Path.extension(file) == "hash")
+					{
+						System.deleteFile(file);
+					}
+				}
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 

@@ -1185,21 +1185,49 @@ class PlatformSetup
 
 	public static function setupHL():Void
 	{
-		Log.println("\x1b[1mIn order to build HashLink executables you must have");
-		Log.println("HashLink binaries installed.");
-		Log.println("We recommend using version \"1.10.0\"");
-		Log.println("available as a free download from Github.\x1b[0m");
-
-		var answer = CLIHelper.ask("Would you like to visit the download page now?");
-
-		if (answer == YES || answer == ALWAYS)
+		if (System.hostPlatform == MAC)
 		{
-			System.openURL(hashlinkURL);
-		}
+			Log.println("To use the hashlink debugger on macOS, the hl executable needs to be signed.");
+			var answer = CLIHelper.ask("Would you like to do this now? (Requires sudo.)");
 
-		getDefineValue("HL_PATH", "Path to Hashlink binaries.");
-		Log.println("");
-		Log.println("Setup completed");
+			if (answer == YES || answer == ALWAYS)
+			{
+				final openSSLConf = System.getTemporaryFile("cnf");
+				final key = System.getTemporaryFile("pem");
+				final cert = System.getTemporaryFile("cer");
+				final limePath = Haxelib.getPath(new Haxelib("lime"));
+				final hlPath = limePath + "/templates/bin/hl/mac/hl";
+				final entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
+					"/project/lib/hashlink/other/osx/entitlements.xml") : (limePath
+					+ "/templates/bin/hl/entitlements.xml");
+				System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, false, true);
+				sys.io.File.saveContent(openSSLConf, [
+					"[req]",
+					"distinguished_name=codesign_dn",
+					"[codesign_dn]",
+					"commonName=hl-cert",
+					"[v3_req]",
+					"keyUsage=critical,digitalSignature",
+					"extendedKeyUsage=critical,codeSigning",
+				].join("\n"));
+				System.runCommand("", "openssl", [
+					"req", "-x509", "-newkey", "rsa:4096", "-keyout", key, "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out", cert,
+					"-extensions", "v3_req", "-config", openSSLConf
+				], true, false, true);
+				System.runCommand("", "sudo", [
+					"security",
+					"add-trusted-cert",
+					"-d",
+					"-k /Library/Keychains/System.keychain",
+					cert
+				], true, false, true);
+				System.runCommand("", "sudo", ["security", "import", key, "-k", "/Library/Keychains/System.keychain", "-A"], true, false, true);
+				System.runCommand("", "codesign", ["--entitlements", entitlementsPath, "-fs", "hl-cert", hlPath], true, false, true);
+				for (f in [key, cert, openSSLConf])
+					sys.FileSystem.deleteFile(f);
+				Log.println("\nIf you update lime, yo will have to run this again to sign the new hl executable");
+			}
+		}
 	}
 
 	private static function throwPermissionsError()
