@@ -240,6 +240,8 @@
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<files id="hl" />
 
+		<lib name="-pthread" if="linux"/>
+
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />

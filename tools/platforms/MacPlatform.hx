@@ -382,6 +382,25 @@ class MacPlatform extends PlatformTarget
 		if (targetFlags.exists("hl"))
 		{
 			CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
+			// TODO
+
+			// Sys.command("sudo", ["security", "delete-identity", "-c", "hl-cert"]);
+			// sys.io.File.saveContent("openssl.cnf", "[req]\ndistinguished_name=codesign_dn\n[codesign_dn]\ncommonName=hl-cert\n[v3_req]\nkeyUsage=critical,digitalSignature\nextendedKeyUsage=critical,codeSigning");
+			// Sys.command("openssl", [
+			// 	"req", "-x509", "-newkey", "rsa:4096", "-keyout", "key.pem", "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out",
+			// 	"cert.cer", "-extensions", "v3_req", "-config", "openssl.cnf"
+			// ]);
+			// Sys.command("sudo", [
+			// 	"security",
+			// 	"add-trusted-cert",
+			// 	"-d",
+			// 	"-k /Library/Keychains/System.keychain",
+			// 	"cert.cer"
+			// ]);
+			// Sys.command("sudo", ["security", "import", "key.pem", "-k", "/Library/Keychains/System.keychain", "-A"]);
+			// Sys.command("codesign", ["--entitlements", "other/osx/entitlements.xml", "-fs", "hl-cert", "hl"]);
+			// for (f in ["key.pem", "cert.cer", "openssl.cnf"])
+			// 	sys.FileSystem.deleteFile(f);
 		}
 
 		CPPHelper.rebuild(project, commands);
