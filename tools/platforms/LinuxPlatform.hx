@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Path;
@@ -220,19 +221,7 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(applicationDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/linux", applicationDirectory);
-			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
-			// let's not keep around hxcpp's hash files
-			for (file in System.readDirectory(applicationDirectory))
-			{
-				if (Path.extension(file) == "hash")
-				{
-					System.deleteFile(file);
-				}
-			}
+			HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath);
 		}
 		else if (targetType == "nodejs")
 		{

@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Log;
@@ -341,10 +342,12 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
+				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath);
+
 				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, project.app.file + ".hl"));
-				System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
-				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
+				// System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
+				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
+				// System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
 				// let's not keep around hxcpp's hash files
 				for (file in System.readDirectory(applicationDirectory))
 				{
