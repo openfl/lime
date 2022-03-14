@@ -29,12 +29,13 @@ using haxe.macro.Context;
 // abstracts, and classes used by all of Lime's threading classes.
 
 /**
-	Functions and variables available on background threads. `doWork` functions
-	receive a `WorkOutput` instance as an argument, and can safely interact with
-	any of its public variables and methods.
+	Functions and variables available to the `doWork` function. For instance,
+	the `sendProgress()`, `sendComplete()`, and `sendError()` functions allow
+	returning output.
 
-	Notably, `WorkOutput` provides the `sendProgress()`, `sendComplete()`, and
-	`sendError()` functions as a means to return output.
+	`doWork` should exclusively use `WorkOutput` to communicate with the main
+	thread. On many targets it's also possible to access static or instance
+	variables, but this isn't thread safe and won't work in HTML5.
 **/
 @:allow(lime.system.BackgroundWorker)
 @:allow(lime.system.ThreadPool)
@@ -102,7 +103,6 @@ class WorkOutput
 		If using web workers, you can also pass a list of transferable objects.
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
-	#if (lime_threads && html5) inline #end
 	public function sendComplete(message:Dynamic = null, transferList:Array<Transferable> = null):Void
 	{
 		if (!__jobComplete.value)
@@ -125,7 +125,6 @@ class WorkOutput
 		If using web workers, you can also pass a list of transferable objects.
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
-	#if (lime_threads && html5) inline #end
 	public function sendError(message:Dynamic = null, transferList:Array<Transferable> = null):Void
 	{
 		if (!__jobComplete.value)
@@ -148,7 +147,6 @@ class WorkOutput
 		If using web workers, you can also pass a list of transferable objects.
 		@see https://developer.mozilla.org/en-US/docs/Glossary/Transferable_objects
 	**/
-	#if (lime_threads && html5) inline #end
 	public function sendProgress(message:Dynamic = null, transferList:Array<Transferable> = null):Void
 	{
 		if (!__jobComplete.value)

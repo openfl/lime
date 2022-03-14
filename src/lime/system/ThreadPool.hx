@@ -157,8 +157,8 @@ class ThreadPool extends WorkOutput
 		__Call this only from the main thread.__
 
 		@param doWork A single function capable of performing all of this pool's
-		jobs. Always provide this function, even though it's marked as optional.
-		@param mode Defaults to `MULTI_THREAEDED` on most targets, but
+		jobs. Always provide `doWork`, even though it's marked as optional.
+		@param mode Defaults to `MULTI_THREADED` on most targets, but
 		`SINGLE_THREADED` in HTML5. In HTML5, `MULTI_THREADED` mode uses web
 		workers, which impose additional restrictions.
 		@param workLoad (Single-threaded mode only) A rough estimate of how much

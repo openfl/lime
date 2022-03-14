@@ -419,6 +419,16 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 	}
 }
 
+/**
+	Stores the class path and function name of a function, so that it can be
+	found again in the background thread.
+**/
+typedef WorkFunctionData<T:haxe.Constraints.Function> = {
+	@:optional var classPath:String;
+	@:optional var functionName:String;
+	@:optional var func:T;
+};
+
 @:forward
 @:allow(lime._internal.backend.html5.HTML5Thread)
 abstract Message(Dynamic) from Dynamic to Dynamic
@@ -559,16 +569,6 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		#end
 	}
 }
-
-/**
-	Stores the class path and function name of a function, so that it can be
-	found again in the background thread.
-**/
-typedef WorkFunctionData<T:haxe.Constraints.Function> = {
-	@:optional var classPath:String;
-	@:optional var functionName:String;
-	@:optional var func:T;
-};
 
 #if macro
 typedef Worker = Dynamic;
