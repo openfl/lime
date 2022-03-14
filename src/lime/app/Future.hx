@@ -75,7 +75,7 @@ import lime.utils.Log;
 		will be ignored after the first time. To change it, use `FutureWork.recreateThreadPool()`.
 		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
 	**/
-	public function new(work:Void->Null<T> = null, useThreads:Bool = true)
+	public function new(work:WorkFunction<Void->Null<T>> = null, useThreads:Bool = true)
 	{
 		if (work != null)
 		{
@@ -320,7 +320,7 @@ import lime.utils.Log;
 	public static var maxThreads(default, set):Int = 1;
 
 	@:allow(lime.app.Future)
-	private static function queue<T>(work:Void->Null<T>, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
+	private static function queue<T>(work:WorkFunction<Void->Null<T>>, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
 	{
 		if (threadPool == null)
 		{
@@ -347,11 +347,11 @@ import lime.utils.Log;
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:{work:Void->Dynamic, promise:Promise<Dynamic>, ?result:Dynamic, ?error:Dynamic}, output:WorkOutput):Void
+	private static function threadPool_doWork(state:{work:WorkFunction<Void->Dynamic>}, output:WorkOutput):Void
 	{
 		try
 		{
-			var result = state.work();
+			var result = state.work.dispatch();
 			if (result != null)
 			{
 				output.sendComplete(result);
