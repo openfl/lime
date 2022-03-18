@@ -58,7 +58,7 @@ class Build extends Script
 
 		System.runCommand("", "haxelib", [
 			"run", "dox", "-i", "xml", "-in", "lime", "--title", "Lime API Reference", "-D", "source-path",
-			"https://github.com/openfl/lime/tree/develop/src/", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor",
+			"https://github.com/haxelime/lime/tree/develop/src/", "-D", "website", "http://lime.software", "-D", "logo", "/images/logo.png", "-D", "textColor",
 			"0x777777", "-theme", "../assets/docs-theme", "--toplevel-package", "lime"
 		]);
 	}

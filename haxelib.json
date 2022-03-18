@@ -1,6 +1,6 @@
 {
 	"name": "lime",
-	"url": "https://github.com/openfl/lime",
+	"url": "https://github.com/haxelime/lime",
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
