@@ -236,7 +236,7 @@ class NativeHTTPRequest
 			curl.setOption(HEADERFUNCTION, curl_onHeader);
 		}
 
-		if (parent.withCredentials)
+		if (parent.manageCookies)
 		{
 			// an empty string means store cookies in memory
 			// cookies are stored only for the current session
