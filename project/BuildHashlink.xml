@@ -165,19 +165,166 @@
 		<file name="${HASHLINK_PATH}/libs/mysql/mysql.c" />
 	</files>
 
-	<!-- <files id="fmt">
+	<files id="fmt">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<file name="${HASHLINK_PATH}/libs/fmt/fmt.o" />
-		<file name="${HASHLINK_PATH}/libs/fmt/sha1.o" />
-		<file name="${HASHLINK_PATH}/include/mikktspace/mikktspace.o" />
-		<file name="${HASHLINK_PATH}/libs/fmt/mikkt.o" />
-		<file name="${HASHLINK_PATH}/libs/fmt/dxt.o" />
+		<compilerflag value="-I${HASHLINK_PATH}/include/mikktspace" />
+		<compilerflag value="-I${HASHLINK_PATH}/include/minimp3" />
+
+
+		<file name="${HASHLINK_PATH}/libs/fmt/fmt.c" />
+		<file name="${HASHLINK_PATH}/libs/fmt/sha1.c" />
+		<file name="${HASHLINK_PATH}/libs/fmt/dxt.c" />
+		<file name="${HASHLINK_PATH}/libs/fmt/mikkt.c" />
+		<file name="${HASHLINK_PATH}/include/mikktspace/mikktspace.c" />
+		<section if="windows">
+			<file name="${HASHLINK_PATH}/include/png/png.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngerror.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngget.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngmem.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngpread.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngread.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngrio.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngrtran.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngrutil.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngset.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngtrans.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngwio.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngwrite.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngwtran.c" />
+			<file name="${HASHLINK_PATH}/include/png/pngwutil.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jaricom.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcapimin.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcapistd.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcarith.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jccoefct.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jccolor.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcdctmgr.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jchuff.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcinit.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcmainct.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcmarker.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcmaster.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcomapi.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcparam.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcphuff.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcprepct.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jcsample.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jctrans.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdapimin.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdapistd.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdarith.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdatadst-tj.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdatadst.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdatasrc-tj.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdatasrc.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdcoefct.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdcolor.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jddctmgr.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdhuff.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdinput.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdmainct.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdmarker.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdmaster.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdmerge.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdphuff.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdpostct.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdsample.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jdtrans.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jerror.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jfdctflt.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jfdctfst.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jfdctint.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jidctflt.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jidctfst.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jidctint.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jidctred.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jmemmgr.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jmemnobs.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jquant1.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jquant2.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jsimd.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/jutils.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/transupp.c" />
+			<file name="${HASHLINK_PATH}/include/turbojpeg/turbojpeg.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/adler32.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/crc32.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/deflate.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/inffast.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/inflate.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/inftrees.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/trees.c" />
+			<file name="${HASHLINK_PATH}/include/zlib/zutil.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/bitrate.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/bitwise.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/block.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/codebook.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/envelope.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/floor0.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/floor1.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/framing.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/info.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/lookup.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/lpc.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/lsp.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/mapping0.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/mdct.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/psy.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/registry.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/res0.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/sharedbook.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/smallft.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/synthesis.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/vorbisfile.c" />
+			<file name="${HASHLINK_PATH}/include/vorbis/window.c" />
+
+		</section>
 	</files>
 	<files id="ui">
 		<file name="${HASHLINK_PATH}/libs/ui/ui_stub.c" unless="windows" />
 		<file name="${HASHLINK_PATH}/libs/ui/ui_win32.c" if="windows" />
 	</files>
-	<files id="uv"></files> -->
+	<files id="uv">
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+
+		<file name="${HASHLINK_PATH}/libs/uv/uv.c"/>
+
+		<section if="windows">
+			<compilerflag value="-I${HASHLINK_PATH}/include/libuv/include"/>
+			<compilerflag value="-DUV_EXPORTS"/>
+			<compilerflag value="-DBUILDING_UV_SHARED"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/fs-poll.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/inet.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/threadpool.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/uv-common.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/version.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/async.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/core.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/dl.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/error.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/fs-event.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/fs.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/getaddrinfo.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/getnameinfo.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/handle.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/loop-watcher.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/pipe.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/poll.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/process-stdio.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/process.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/req.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/signal.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/snprintf.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/stream.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/tcp.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/thread.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/timer.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/tty.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/udp.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/util.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/winapi.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/winsock.c"/>
+		</section>
+	</files>
 	<set name="LIBSUFFIX" value="dll" if="windows" />
 	<set name="LIBSUFFIX" value="dylib" if="mac || ios || tvos" />
 	<set name="LIBSUFFIX" value="so" unless="LIBSUFFIX" />
@@ -237,6 +384,57 @@
 		<lib name="ws2_32.lib" if="windows" />
 	</target>
 
+	<target id="fmt" output="fmt" tool="linker" toolid="dll">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<ext value=".hdll" />
+		<files id="fmt" />
+
+		<lib name="-lz" unless="windows" />
+		<lib name="-lvorbis" unless="windows" />
+		<lib name="-lvorbisfile" unless="windows" />
+		<lib name="-lpng" unless="windows" />
+
+		<lib name="-lturbojpeg" unless="windows" />
+
+		<lib name="-lhl" unless="windows" />
+		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
+		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
+		<lib name="libhl.lib" if="windows" />
+	</target>
+
+	<target id="ui" output="ui" tool="linker" toolid="dll">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<ext value=".hdll" />
+		<files id="ui" />
+
+		<lib name="-lhl" unless="windows" />
+		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
+		<section if="windows">
+			<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" />
+			<lib name="libhl.lib" />
+			<lib name="user32.lib"/>
+			<lib name="gdi32.lib" />
+			<lib name="comdlg32.lib" />
+		</section>
+	</target>
+
+	<target id="uv" output="uv" tool="linker" toolid="dll">
+		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
+		<ext value=".hdll" />
+		<files id="uv" />
+
+		<lib name="-luv" unless="windows" />
+		<lib name="-lhl" unless="windows" />
+		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
+		<section if="windows">
+			<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" />
+			<lib name="libhl.lib" />
+			<lib name="psapi.lib"/>
+			<lib name="iphlpapi.lib" />
+			<lib name="userenv.lib" />
+		</section>
+	</target>
+
 	<target id="hl" output="hl" tool="linker" toolid="exe">
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<files id="hl" />
@@ -244,7 +442,7 @@
 		<lib name="-pthread" if="linux" />
 
 		<!-- Make hashlink pick up binaries in the same directory as itself -->
-		<lib name="-Wl,-rpath=$ORIGIN" if="linux"/>
+		<lib name="-Wl,-rpath=$ORIGIN" if="linux" />
 
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
@@ -259,6 +457,9 @@
 		<target id="ssl" />
 		<target id="mysql" />
 		<target id="hl" />
+		<target id="fmt"/>
+		<target id="ui"/>
+		<target id="uv"/>
 	</target>
 
 	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows" />
