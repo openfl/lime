@@ -432,10 +432,6 @@ class AssetHelper
 			library = new Library(null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push(library);
 		}
-		if(project.assets.length == 0)
-		{
-			project.haxedefs.set("disable_preloader_assets", "1");
-		}
 
 		var handlers = new Array<String>();
 		var hasPackedLibraries = false;
@@ -542,6 +538,11 @@ class AssetHelper
 		if (hasPackedLibraries)
 		{
 			processPackedLibraries(project, targetDirectory);
+		}
+
+		if (project.assets.length == 0)
+		{
+			project.haxedefs.set("disable_preloader_assets", "1");
 		}
 
 		var manifest, embed, asset;
