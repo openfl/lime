@@ -285,10 +285,11 @@
 			<file name="${HASHLINK_PATH}/include/vorbis/synthesis.c" />
 			<file name="${HASHLINK_PATH}/include/vorbis/vorbisfile.c" />
 			<file name="${HASHLINK_PATH}/include/vorbis/window.c" />
-
 		</section>
 	</files>
 	<files id="ui">
+		<compilerflag value="-I${HASHLINK_PATH}/src" />
+
 		<file name="${HASHLINK_PATH}/libs/ui/ui_stub.c" unless="windows" />
 		<file name="${HASHLINK_PATH}/libs/ui/ui_win32.c" if="windows" />
 	</files>
@@ -409,7 +410,8 @@
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
-		<lib name="${HASHLINK_PATH}/include/turbojpeg/x64/simd.lib" if="windows"/>
+		<lib name="${HASHLINK_PATH}/include/turbojpeg/x64/simd.lib" if="windows HXCPP_M64"/>
+		<lib name="${HASHLINK_PATH}/include/turbojpeg/x86/simd.lib" if="windows" unless="HXCPP_M64"/>
 	</target>
 
 	<target id="ui" output="ui" tool="linker" toolid="dll">
