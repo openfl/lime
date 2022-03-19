@@ -177,6 +177,15 @@
 		<file name="${HASHLINK_PATH}/libs/fmt/mikkt.c" />
 		<file name="${HASHLINK_PATH}/include/mikktspace/mikktspace.c" />
 		<section if="windows">
+			<compilerflag value="-I${HASHLINK_PATH}/include/png"/>
+			<compilerflag value="-I${HASHLINK_PATH}/include/turbojpeg"/>
+			<!-- TODO: arm64 windows -->
+			<compilerflag value="-I${HASHLINK_PATH}/include/turbojpeg/x64"/>
+
+			<compilerflag value="-I${HASHLINK_PATH}/include/zlib"/>
+			<compilerflag value="-I${HASHLINK_PATH}/include/vorbis"/>
+
+
 			<file name="${HASHLINK_PATH}/include/png/png.c" />
 			<file name="${HASHLINK_PATH}/include/png/pngerror.c" />
 			<file name="${HASHLINK_PATH}/include/png/pngget.c" />
@@ -400,6 +409,7 @@
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
 		<lib name="libhl.lib" if="windows" />
+		<lib name="${HASHLINK_PATH}/include/turbojpeg/x64/simd.lib" if="windows"/>
 	</target>
 
 	<target id="ui" output="ui" tool="linker" toolid="dll">
