@@ -291,7 +291,7 @@
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 
 		<file name="${HASHLINK_PATH}/libs/ui/ui_stub.c" unless="windows" />
-		<file name="${HASHLINK_PATH}/libs/ui/ui_win32.c" if="windows" />
+		<file name="${HASHLINK_PATH}/libs/ui/ui_win.c" if="windows" />
 	</files>
 	<files id="uv">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
