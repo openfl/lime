@@ -208,7 +208,6 @@ class HXProject extends Script
 				defaultWindow.width = 0;
 				defaultWindow.height = 0;
 				defaultWindow.fps = 60;
-				defaultWindow.allowHighDPI = false;
 
 			case EMSCRIPTEN:
 				platformType = PlatformType.WEB;
