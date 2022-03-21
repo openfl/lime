@@ -100,7 +100,7 @@ class HTML5Window
 
 		var element = parent.element;
 
-		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
+		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI)
 		{
 			scale = Browser.window.devicePixelRatio;
 		}
