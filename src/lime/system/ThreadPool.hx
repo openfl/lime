@@ -132,10 +132,11 @@ class ThreadPool extends WorkOutput
 	public var onRun(default, null) = new Event<State->Void>();
 
 	/**
-		The `state` representing the job that triggered the active `onComplete`,
-		`onError`, or `onProgress` event. Will be null if no event is active.
+		Additional information about the job that triggered the current
+		`onComplete`, `onError`, or `onProgress` event. Think of this as an
+		additional argument to the event listener.
 	**/
-	public var eventSource(default, null):Null<State> = null;
+	public var eventData(default, null):EventData = new EventData();
 
 	@:deprecated("Instead pass the callback to ThreadPool's constructor.")
 	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
@@ -216,7 +217,7 @@ class ThreadPool extends WorkOutput
 
 			if (error != null)
 			{
-				eventSource = job.workEvent.state;
+				eventData.state = job.workEvent.state;
 				onError.dispatch(error);
 			}
 		}
@@ -235,14 +236,14 @@ class ThreadPool extends WorkOutput
 		{
 			for (job in __jobQueue)
 			{
-				eventSource = job.state;
+				eventData.state = job.state;
 				onError.dispatch(error);
 			}
 		}
 		__jobQueue.clear();
 
 		__jobComplete.value = false;
-		eventSource = null;
+		eventData.clear();
 		completed = false;
 		canceled = true;
 	}
@@ -436,35 +437,39 @@ class ThreadPool extends WorkOutput
 		// Run the next single-threaded job.
 		if (mode == SINGLE_THREADED && activeJobs > 0)
 		{
-			__activeJob = __activeJobs.pop();
+			var activeJob:ActiveJob = __activeJobs.pop();
+			__activeJobState = activeJob.workEvent.state;
 
 			__jobComplete.value = false;
 			workIterations.value = 0;
 
+			var startTime:Float = timestamp();
+			var timeElapsed:Float = 0;
 			try
 			{
-				var endTime:Float = timestamp() + __workPerFrame;
 				do
 				{
 					workIterations.value++;
-					__doWork.dispatch(__activeJob.workEvent.state, this);
+					__doWork.dispatch(__activeJobState, this);
+					timeElapsed = timestamp() - startTime;
 				}
-				while (!__jobComplete.value && timestamp() < endTime);
+				while (!__jobComplete.value && timeElapsed < __workPerFrame);
 			}
 			catch (e)
 			{
 				sendError(e);
 			}
 
+			activeJob.workTime += timeElapsed;
+
 			// Add this job to the end of the list, to cycle through. (Not
-			// optimal for performance, but the user might have a reason for
-			// scheduling multiple at once.)
+			// optimal for performance, but the user may have a good reason.)
 			if (!__jobComplete.value)
 			{
-				__activeJobs.add(__activeJob);
+				__activeJobs.add(activeJob);
 			}
 
-			__activeJob = null;
+			__activeJobState = null;
 		}
 
 		var threadEvent:ThreadEvent;
@@ -483,7 +488,8 @@ class ThreadPool extends WorkOutput
 				continue;
 			}
 
-			eventSource = threadEvent.associatedJob.workEvent.state;
+			eventData.state = threadEvent.associatedJob.workEvent.state;
+			eventData.duration = threadEvent.jobStartTime != 0 ? timestamp() - threadEvent.jobStartTime : threadEvent.associatedJob.workTime;
 
 			switch (threadEvent.event)
 			{
@@ -527,7 +533,7 @@ class ThreadPool extends WorkOutput
 				default:
 			}
 
-			eventSource = null;
+			eventData.clear();
 		}
 
 		if (completed)
@@ -604,5 +610,32 @@ class ThreadPool extends WorkOutput
 		{
 			throw "Cannot change doWork function " + (activeJobs > 0 ? "with jobs active." : "while threads exist.");
 		}
+	}
+}
+
+/**
+	Additional data related to a job that dispatched an event.
+**/
+@:allow(lime.system.ThreadPool)
+@:allow(lime.system.BackgroundWorker)
+class EventData
+{
+	/**
+		The original `State` object passed to the job.
+	**/
+	public var state(default, null):State;
+
+	/**
+		The total time spent on this job. Will be unavailable during error
+		events caused by `ThreadPool.cancel()`.
+	**/
+	public var duration(default, null):Float = 0;
+
+	private inline function new() {}
+
+	private inline function clear():Void
+	{
+		state = null;
+		duration = 0;
 	}
 }

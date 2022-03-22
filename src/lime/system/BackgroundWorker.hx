@@ -1,6 +1,7 @@
 package lime.system;
 
 import lime.system.WorkOutput;
+import lime.system.ThreadPool;
 
 /**
 	A simple and thread-safe way to run a one or more asynchronous jobs. Unlike
@@ -31,12 +32,13 @@ import lime.system.WorkOutput;
 @:forward
 abstract BackgroundWorker(ThreadPool)
 {
-	private static var doWorkWrapper:WorkFunction<State->WorkOutput->Void>;
+	private static var __doWorkWrapper:WorkFunction<State->WorkOutput->Void>;
+	private static var __eventData:EventData = new EventData();
 
 	@:deprecated("Instead pass the callback to BackgroundWorker.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
 
-	public var eventSource(get, never):Dynamic;
+	public var eventData(get, never):EventData;
 
 	/**
 		__Call this only from the main thread.__
@@ -52,11 +54,11 @@ abstract BackgroundWorker(ThreadPool)
 	**/
 	public function new(mode:ThreadMode = null, workLoad:Float = 1/2)
 	{
-		if (doWorkWrapper == null)
+		if (__doWorkWrapper == null)
 		{
-			doWorkWrapper = BackgroundWorkerFunctions.__doWork;
+			__doWorkWrapper = BackgroundWorkerFunctions.__doWork;
 		}
-		this = new ThreadPool(doWorkWrapper, mode, workLoad);
+		this = new ThreadPool(__doWorkWrapper, mode, workLoad);
 	}
 
 	/**
@@ -109,9 +111,9 @@ abstract BackgroundWorker(ThreadPool)
 	public function run(doWork:WorkFunction<State->WorkOutput->Void> = null, state:State = null):Void
 	{
 		// Undo the below hack, if possible.
-		if (doWork != null && this.__doWork != doWorkWrapper)
+		if (doWork != null && this.__doWork != __doWorkWrapper)
 		{
-			this.__doWork = doWorkWrapper;
+			this.__doWork = __doWorkWrapper;
 		}
 
 		#if (lime_threads && html5)
@@ -129,9 +131,15 @@ abstract BackgroundWorker(ThreadPool)
 
 	// Getters & Setters
 
-	private inline function get_eventSource():Dynamic
+	private function get_eventData():EventData
 	{
-		return this.eventSource != null ? this.eventSource.state : null;
+		if (this.eventData.state != null)
+		{
+			__eventData.state = this.eventData.state.state;
+		}
+		__eventData.duration = this.eventData.duration;
+
+		return __eventData;
 	}
 
 	private function get_doWork()

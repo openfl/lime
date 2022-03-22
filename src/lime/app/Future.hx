@@ -82,7 +82,7 @@ import lime.utils.Log;
 			var promise = new Promise<T>();
 			promise.future = this;
 
-			FutureWork.queue(work, promise, cast useThreads);
+			FutureWork.queue(work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED);
 		}
 	}
 
@@ -365,12 +365,12 @@ import lime.utils.Log;
 
 	private static function threadPool_onComplete(result:Dynamic):Void
 	{
-		threadPool.eventSource.promise.complete(result);
+		threadPool.eventData.state.promise.complete(result);
 	}
 
 	private static function threadPool_onError(error:Dynamic):Void
 	{
-		threadPool.eventSource.promise.error(error);
+		threadPool.eventData.state.promise.error(error);
 	}
 
 	// Getters & Setters

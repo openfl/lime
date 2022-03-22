@@ -74,6 +74,12 @@ class WorkOutput
 	private var __jobComplete:Tls<Bool> = new Tls();
 
 	/**
+		Thread-local storage. In multi-threaded mode, tracks when this thread's
+		job began.
+	**/
+	private var __jobStartTime:Tls<Float> = new Tls();
+
+	/**
 		A list of active jobs, including associated threads if applicable.
 	**/
 	private var __activeJobs:ActiveJobs = new ActiveJobs();
@@ -84,7 +90,7 @@ class WorkOutput
 
 		Include this when creating new `ThreadEvent`s.
 	**/
-	private var __activeJob:Null<State> = null;
+	private var __activeJobState:Null<State> = null;
 
 	private inline function new(mode:Null<ThreadMode>)
 	{
@@ -111,10 +117,10 @@ class WorkOutput
 
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(COMPLETE, message, __activeJob), transferList);
+				Thread.returnMessage(new ThreadEvent(COMPLETE, message, __activeJobState, __jobStartTime.value), transferList);
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(COMPLETE, message, __activeJob));
+			__jobOutput.add(new ThreadEvent(COMPLETE, message, __activeJobState, __jobStartTime.value));
 		}
 	}
 
@@ -133,10 +139,10 @@ class WorkOutput
 
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(ERROR, message, __activeJob), transferList);
+				Thread.returnMessage(new ThreadEvent(ERROR, message, __activeJobState, __jobStartTime.value), transferList);
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(ERROR, message, __activeJob));
+			__jobOutput.add(new ThreadEvent(ERROR, message, __activeJobState, __jobStartTime.value));
 		}
 	}
 
@@ -153,10 +159,10 @@ class WorkOutput
 		{
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(PROGRESS, message, __activeJob), transferList);
+				Thread.returnMessage(new ThreadEvent(PROGRESS, message, __activeJobState, __jobStartTime.value), transferList);
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(PROGRESS, message, __activeJob));
+			__jobOutput.add(new ThreadEvent(PROGRESS, message, __activeJobState, __jobStartTime.value));
 		}
 	}
 
@@ -306,12 +312,13 @@ abstract ActiveJobs(List<ActiveJob>)
 }
 
 @:forward
-abstract ActiveJob({ #if lime_threads ?thread:Thread, #end workEvent:ThreadEvent })
+abstract ActiveJob({ #if lime_threads ?thread:Thread, #end workEvent:ThreadEvent, workTime:Float })
 {
 	public inline function new(workEvent:ThreadEvent)
 	{
 		this = {
-			workEvent: workEvent
+			workEvent: workEvent,
+			workTime: 0
 		};
 	}
 }
@@ -353,12 +360,14 @@ class ThreadEvent
 	#end
 
 	public var associatedJob:Null<ActiveJob>;
+	public var jobStartTime:Float;
 
-	public inline function new(event:ThreadEventType, state:Dynamic, activeJob:ActiveJob = null)
+	public inline function new(event:ThreadEventType, state:Dynamic, activeJob:ActiveJob = null, jobStartTime:Float = 0)
 	{
 		this.event = event;
 		this.state = state;
 		associatedJob = activeJob;
+		this.jobStartTime = jobStartTime;
 
 		#if (lime_threads && !html5)
 		sourceThread = Thread.current();
