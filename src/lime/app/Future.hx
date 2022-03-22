@@ -68,14 +68,12 @@ import lime.utils.Log;
 
 	/**
 		@param work 	(Optional) A function to execute, returning `value` once finished. If it returns
-		`null`, the function will run again once there's time, until it returns a non-null value. If
-		running in single-threaded mode, the main thread will block until this function returns, so it
-		should periodically yield (by returning `null`) to allow the screen to update.
-		@param useThreads	Whether `work` should be executed in multi-threaded mode. However, this value
-		will be ignored after the first time. To change it, use `FutureWork.recreateThreadPool()`.
+		`null`, the function will run again once there's time, until it returns a non-null value. This is
+		useful when `useThreads` is false, to avoid blocking the main thread.
+		@param useThreads	Whether `work` should be executed in multi-threaded mode.
 		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
 	**/
-	public function new(work:WorkFunction<Void->Null<T>> = null, useThreads:Bool = true)
+	public function new(work:WorkFunction<Void->Null<T>> = null, useThreads:Bool = #if html5 false #else true #end)
 	{
 		if (work != null)
 		{
@@ -199,15 +197,15 @@ import lime.utils.Log;
 
 			while (!isComplete && !isError && time <= end)
 			{
-				if (FutureWork.threadPool.activeJobs < 1)
+				if (FutureWork.activeJobs < 1)
 				{
 					Log.error('Cannot block for a Future without a "work" function.');
 					return this;
 				}
 
-				if (FutureWork.threadPool.mode == SINGLE_THREADED)
+				if (FutureWork.singleThreadPool != null && FutureWork.singleThreadPool.activeJobs > 0)
 				{
-					@:privateAccess FutureWork.threadPool.__update(time - prevTime);
+					@:privateAccess FutureWork.singleThreadPool.__update(time - prevTime);
 				}
 				else
 				{
@@ -315,35 +313,38 @@ import lime.utils.Log;
 @:dox(hide) class FutureWork
 {
 	@:allow(lime.app.Future)
-	private static var threadPool:ThreadPool;
+	private static var singleThreadPool:ThreadPool;
+	#if lime_threads
+	private static var multiThreadPool:ThreadPool;
+	#end
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
+	public static var activeJobs(get, never):Int;
+
+	private static function getPool(mode:ThreadMode):ThreadPool
+	{
+		#if lime_threads
+		if (mode == MULTI_THREADED) {
+			if(multiThreadPool == null) {
+				multiThreadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, MULTI_THREADED);
+				multiThreadPool.onComplete.add(multiThreadPool_onComplete);
+				multiThreadPool.onError.add(multiThreadPool_onError);
+			}
+			return multiThreadPool;
+		}
+		#end
+		if(singleThreadPool == null) {
+			singleThreadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, SINGLE_THREADED);
+			singleThreadPool.onComplete.add(singleThreadPool_onComplete);
+			singleThreadPool.onError.add(singleThreadPool_onError);
+		}
+		return singleThreadPool;
+	}
 
 	@:allow(lime.app.Future)
 	private static function queue<T>(work:WorkFunction<Void->Null<T>>, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
 	{
-		if (threadPool == null)
-		{
-			recreateThreadPool(mode);
-		}
-
-		var state = {work: work, promise: promise};
-		threadPool.queue(state);
-	}
-
-	/**
-		Shuts down the current thread pool and makes a new one with the given settings
-	**/
-	public static function recreateThreadPool(mode:ThreadMode = MULTI_THREADED, workLoad:Float = 1/2):Void
-	{
-		if (threadPool != null)
-		{
-			threadPool.cancel("Canceled");
-		}
-
-		threadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, mode, workLoad);
-		threadPool.onComplete.add(threadPool_onComplete);
-		threadPool.onError.add(threadPool_onError);
+		getPool(mode).queue({work: work, promise: promise});
 	}
 
 	// Event Handlers
@@ -363,30 +364,72 @@ import lime.utils.Log;
 		}
 	}
 
-	private static function threadPool_onComplete(result:Dynamic):Void
+	private static function singleThreadPool_onComplete(result:Dynamic):Void
 	{
-		threadPool.eventData.state.promise.complete(result);
+		singleThreadPool.eventData.state.promise.complete(result);
 	}
 
-	private static function threadPool_onError(error:Dynamic):Void
+	private static function singleThreadPool_onError(error:Dynamic):Void
 	{
-		threadPool.eventData.state.promise.error(error);
+		singleThreadPool.eventData.state.promise.error(error);
 	}
+
+	#if lime_threads
+	private static function multiThreadPool_onComplete(result:Dynamic):Void
+	{
+		multiThreadPool.eventData.state.promise.complete(result);
+	}
+
+	private static function multiThreadPool_onError(error:Dynamic):Void
+	{
+		multiThreadPool.eventData.state.promise.error(error);
+	}
+	#end
 
 	// Getters & Setters
 	@:noCompletion private static inline function set_minThreads(value:Int):Int
 	{
-		if (threadPool != null)
-			return threadPool.minThreads = minThreads = value;
-		else
-			return minThreads = value;
+		if (singleThreadPool != null)
+		{
+			singleThreadPool.minThreads = value;
+		}
+		#if lime_threads
+		if (multiThreadPool != null)
+		{
+			multiThreadPool.minThreads = value;
+		}
+		#end
+		return minThreads = value;
 	}
 
 	@:noCompletion private static inline function set_maxThreads(value:Int):Int
 	{
-		if (threadPool != null)
-			return threadPool.maxThreads = maxThreads = value;
-		else
-			return maxThreads = value;
+		if (singleThreadPool != null)
+		{
+			singleThreadPool.maxThreads = value;
+		}
+		#if lime_threads
+		if (multiThreadPool != null)
+		{
+			multiThreadPool.maxThreads = value;
+		}
+		#end
+		return maxThreads = value;
+	}
+
+	@:noCompletion private static function get_activeJobs():Int
+	{
+		var sum:Int = 0;
+		if (singleThreadPool != null)
+		{
+			sum += singleThreadPool.activeJobs;
+		}
+		#if lime_threads
+		if (multiThreadPool != null)
+		{
+			sum += multiThreadPool.activeJobs;
+		}
+		#end
+		return sum;
 	}
 }
