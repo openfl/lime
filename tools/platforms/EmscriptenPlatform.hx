@@ -29,55 +29,56 @@ class EmscriptenPlatform extends PlatformTarget
 
 		var defaults = new HXProject();
 
-		defaults.meta = {
-			title: "MyApplication",
-			description: "",
-			packageName: "com.example.myapp",
-			version: "1.0.0",
-			company: "",
-			companyUrl: "",
-			buildNumber: null,
-			companyId: ""
-		};
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
 
 		defaults.app =
-		{
-			main: "Main",
-			file: "MyApplication",
-			path: "bin",
-			preloader: "",
-			swfVersion: 17,
-			url: "",
-			init: null
-		};
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
 
 		defaults.window =
-		{
-			width: 800,
-			height: 600,
-			parameters: "{}",
-			background: 0xFFFFFF,
-			fps: 30,
-			hardware: true,
-			display: 0,
-			resizable: true,
-			borderless: false,
-			orientation: Orientation.AUTO,
-			vsync: false,
-			fullscreen: false,
-			allowHighDPI: true,
-			alwaysOnTop: false,
-			antialiasing: 0,
-			allowShaders: true,
-			requireShaders: false,
-			depthBuffer: true,
-			stencilBuffer: true,
-			colorDepth: 32,
-			maximized: false,
-			minimized: false,
-			hidden: false,
-			title: ""
-		};
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
 
 		defaults.window.fps = 60;
 		defaults.window.allowHighDPI = false;

@@ -241,8 +241,10 @@ class NativeHTTPRequest
 			// an empty string means store cookies in memory
 			// cookies are stored only for the current session
 			curl.setOption(COOKIEFILE, "");
-			if (cookieList != null) {
-				for(cookie in cookieList) {
+			if (cookieList != null)
+			{
+				for (cookie in cookieList)
+				{
 					// pass in each stored cookie individually
 					curl.setOption(COOKIELIST, cookie);
 				}

@@ -298,7 +298,8 @@ class NativeAudioSource
 			// of data, which typically happens if an operation (such as
 			// resizing a window) freezes the main thread.
 			// If AL is supposed to be playing but isn't, restart it here.
-			if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED){
+			if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED)
+			{
 				AL.sourcePlay(handle);
 			}
 		}
@@ -323,7 +324,7 @@ class NativeAudioSource
 		{
 			timer.stop();
 		}
-		
+
 		setCurrentTime(0);
 	}
 

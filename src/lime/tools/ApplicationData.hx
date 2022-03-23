@@ -13,13 +13,14 @@ typedef ApplicationData =
 
 @:dox(hide) class _ApplicationDataType
 {
-	public static var fields:ApplicationData = {
-		file: "",
-		init: "",
-		main: "",
-		path: "",
-		preloader: "",
-		swfVersion: 0.0,
-		url: ""
-	}
+	public static var fields:ApplicationData =
+		{
+			file: "",
+			init: "",
+			main: "",
+			path: "",
+			preloader: "",
+			swfVersion: 0.0,
+			url: ""
+		}
 }

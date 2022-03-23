@@ -739,7 +739,7 @@ class NativeApplication
 
 @:keep /*private*/ class KeyEventInfo
 {
-	public var keyCode: #if neko Float #else Int #end;
+	public var keyCode:#if neko Float #else Int #end;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;

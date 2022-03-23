@@ -14,14 +14,15 @@ typedef MetaData =
 
 @:dox(hide) class _MetaDataType
 {
-	public static var fields:MetaData = {
-		buildNumber: "",
-		company: "",
-		companyId: "",
-		companyUrl: "",
-		description: "",
-		packageName: "",
-		title: "",
-		version: ""
-	}
+	public static var fields:MetaData =
+		{
+			buildNumber: "",
+			company: "",
+			companyId: "",
+			companyUrl: "",
+			description: "",
+			packageName: "",
+			title: "",
+			version: ""
+		}
 }

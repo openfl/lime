@@ -1858,7 +1858,7 @@ class CommandLineTools
 				if (Reflect.hasField(project, field))
 				{
 					var fieldValue = Reflect.field(project, field);
-					var typeValue:Dynamic = switch(field)
+					var typeValue:Dynamic = switch (field)
 					{
 						case "app": ApplicationData._ApplicationDataType.fields;
 						case "meta": MetaData._MetaDataType.fields;
@@ -2128,7 +2128,7 @@ class CommandLineTools
 						if (field == "meta-build-number") property = "buildNumber";
 
 						var fieldReference = Reflect.field(overrides, fieldName);
-						var typeValue:Dynamic = switch(fieldName)
+						var typeValue:Dynamic = switch (fieldName)
 						{
 							case "app": ApplicationData._ApplicationDataType.fields;
 							case "meta": MetaData._MetaDataType.fields;

@@ -382,8 +382,19 @@ class HXProject extends Script
 
 		#if lime
 		var args = [
-			name, "-main", "lime.tools.HXProject", "-cp", tempDirectory, "-neko", nekoOutput, "-cp", Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src"),
-			"-lib", "lime", "-lib", "hxp"
+			name,
+			"-main",
+			"lime.tools.HXProject",
+			"-cp",
+			tempDirectory,
+			"-neko",
+			nekoOutput,
+			"-cp",
+			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src"),
+			"-lib",
+			"lime",
+			"-lib",
+			"hxp"
 		];
 		#else
 		var args = [

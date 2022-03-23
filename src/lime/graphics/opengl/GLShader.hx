@@ -33,8 +33,9 @@ public static function fromSource(gl:WebGLRenderContext, source:String, type:Int
 	{
 		var message;
 
-		if (compileStatus == 0)	message = "Error ";
-		else message = "Info ";
+		if (compileStatus == 0) message = "Error ";
+		else
+			message = "Info ";
 
 		if (type == gl.VERTEX_SHADER) message = "compiling vertex shader";
 		else if (type == gl.FRAGMENT_SHADER) message = "compiling fragment shader";
@@ -43,10 +44,8 @@ public static function fromSource(gl:WebGLRenderContext, source:String, type:Int
 
 		message += "\n" + shaderInfoLog;
 
-		if(compileStatus == 0)
-			Log.error(message);
-		else if(shaderInfoLog != null)
-			Log.debug(message);
+		if (compileStatus == 0) Log.error(message);
+		else if (shaderInfoLog != null) Log.debug(message);
 	}
 
 	return shader;
