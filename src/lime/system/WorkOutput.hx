@@ -85,12 +85,12 @@ class WorkOutput
 	private var __activeJobs:ActiveJobs = new ActiveJobs();
 
 	/**
-		The `state` provided to the active job. Will only have a value during
-		`__update()` in single-threaded mode, and will otherwise be `null`.
+		In single-threaded mode while a job is active, the currently-active job.
+		Will otherwise be `null`.
 
 		Include this when creating new `ThreadEvent`s.
 	**/
-	private var __activeJobState:Null<State> = null;
+	private var __activeJob:Null<ActiveJob> = null;
 
 	private inline function new(mode:Null<ThreadMode>)
 	{
@@ -117,10 +117,10 @@ class WorkOutput
 
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(COMPLETE, message, __activeJobState, __jobStartTime.value), transferList);
+				Thread.returnMessage(new ThreadEvent(COMPLETE, message, __activeJob, __jobStartTime.value), transferList);
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(COMPLETE, message, __activeJobState, __jobStartTime.value));
+			__jobOutput.add(new ThreadEvent(COMPLETE, message, __activeJob, __jobStartTime.value));
 		}
 	}
 
@@ -139,10 +139,10 @@ class WorkOutput
 
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(ERROR, message, __activeJobState, __jobStartTime.value), transferList);
+				Thread.returnMessage(new ThreadEvent(ERROR, message, __activeJob, __jobStartTime.value), transferList);
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(ERROR, message, __activeJobState, __jobStartTime.value));
+			__jobOutput.add(new ThreadEvent(ERROR, message, __activeJob, __jobStartTime.value));
 		}
 	}
 
@@ -159,10 +159,10 @@ class WorkOutput
 		{
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(PROGRESS, message, __activeJobState, __jobStartTime.value), transferList);
+				Thread.returnMessage(new ThreadEvent(PROGRESS, message, __activeJob, __jobStartTime.value), transferList);
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(PROGRESS, message, __activeJobState, __jobStartTime.value));
+			__jobOutput.add(new ThreadEvent(PROGRESS, message, __activeJob, __jobStartTime.value));
 		}
 	}
 

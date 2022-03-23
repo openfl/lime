@@ -437,8 +437,8 @@ class ThreadPool extends WorkOutput
 		// Run the next single-threaded job.
 		if (mode == SINGLE_THREADED && activeJobs > 0)
 		{
-			var activeJob:ActiveJob = __activeJobs.pop();
-			__activeJobState = activeJob.workEvent.state;
+			__activeJob = __activeJobs.pop();
+			var state:State = __activeJob.workEvent.state;
 
 			__jobComplete.value = false;
 			workIterations.value = 0;
@@ -450,7 +450,7 @@ class ThreadPool extends WorkOutput
 				do
 				{
 					workIterations.value++;
-					__doWork.dispatch(__activeJobState, this);
+					__doWork.dispatch(state, this);
 					timeElapsed = timestamp() - startTime;
 				}
 				while (!__jobComplete.value && timeElapsed < __workPerFrame);
@@ -460,16 +460,15 @@ class ThreadPool extends WorkOutput
 				sendError(e);
 			}
 
-			activeJob.workTime += timeElapsed;
+			__activeJob.workTime += timeElapsed;
 
-			// Add this job to the end of the list, to cycle through. (Not
-			// optimal for performance, but the user may have a good reason.)
+			// Add this job to the end of the list, to cycle through.
 			if (!__jobComplete.value)
 			{
-				__activeJobs.add(activeJob);
+				__activeJobs.add(__activeJob);
 			}
 
-			__activeJobState = null;
+			__activeJob = null;
 		}
 
 		var threadEvent:ThreadEvent;
@@ -489,7 +488,7 @@ class ThreadPool extends WorkOutput
 			}
 
 			eventData.state = threadEvent.associatedJob.workEvent.state;
-			eventData.duration = threadEvent.jobStartTime != 0 ? timestamp() - threadEvent.jobStartTime : threadEvent.associatedJob.workTime;
+			eventData.duration = mode == MULTI_THREADED ? timestamp() - threadEvent.jobStartTime : threadEvent.associatedJob.workTime;
 
 			switch (threadEvent.event)
 			{
