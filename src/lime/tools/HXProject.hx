@@ -32,6 +32,7 @@ class HXProject extends Script
 	// public var defines:Map<String, Dynamic>;
 	public var dependencies:Array<Dependency>;
 	public var environment:Map<String, String>;
+	public var excludeArchitectures:Array<Architecture>;
 	public var haxedefs:Map<String, Dynamic>;
 	public var haxeflags:Array<String>;
 	public var haxelibs:Array<Haxelib>;
@@ -60,10 +61,6 @@ class HXProject extends Script
 	@:isVar public var window(get, set):WindowData;
 	public var windows:Array<WindowData>;
 
-	private var defaultApp:ApplicationData;
-	private var defaultArchitectures:Array<Architecture>;
-	private var defaultMeta:MetaData;
-	private var defaultWindow:WindowData;
 	private var needRerun:Bool;
 
 	public static var _command:String;
@@ -73,6 +70,7 @@ class HXProject extends Script
 	public static var _targetFlags:Map<String, String>;
 	public static var _templatePaths:Array<String>;
 	public static var _userDefines:Map<String, Dynamic>;
+
 	private static var initialized:Bool;
 
 	public static function main()
@@ -128,184 +126,38 @@ class HXProject extends Script
 		targetFlags = MapTools.copy(_targetFlags);
 		templatePaths = _templatePaths.copy();
 
-		defaultMeta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			}
-		defaultApp =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			}
-		defaultWindow =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			}
-
 		platformType = PlatformType.DESKTOP;
 		architectures = [];
+		excludeArchitectures = [];
 
-		switch (target)
+		platformType = switch (target)
 		{
-			case AIR:
-				if (targetFlags.exists("ios") || targetFlags.exists("android"))
-				{
-					platformType = PlatformType.MOBILE;
+			case AIR if (targetFlags.exists("ios") || targetFlags.exists("android")):
+				PlatformType.MOBILE;
 
-					defaultWindow.width = 0;
-					defaultWindow.height = 0;
-				}
-				else
-				{
-					platformType = PlatformType.DESKTOP;
-				}
-
-				architectures = [];
-
-			case FLASH:
-				platformType = PlatformType.WEB;
-				architectures = [];
-
-			case HTML5, FIREFOX:
-				platformType = PlatformType.WEB;
-				architectures = [];
-
-				defaultWindow.width = 0;
-				defaultWindow.height = 0;
-				defaultWindow.fps = 60;
-
-			case EMSCRIPTEN:
-				platformType = PlatformType.WEB;
-				architectures = [];
-
-				defaultWindow.fps = 60;
-				defaultWindow.allowHighDPI = false;
+			case FLASH, HTML5, FIREFOX, EMSCRIPTEN:
+				PlatformType.WEB;
 
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
-				platformType = PlatformType.MOBILE;
+				PlatformType.MOBILE;
 
-				if (target == Platform.IOS)
-				{
-					architectures = [Architecture.ARMV7, Architecture.ARM64];
-				}
-				else if (target == Platform.ANDROID)
-				{
-					if (targetFlags.exists("simulator") || targetFlags.exists("emulator"))
-					{
-						architectures = [Architecture.X86];
-					}
-					else
-					{
-						architectures = [Architecture.ARMV7];
-						if (target == ANDROID) architectures.push(Architecture.ARM64);
-					}
-				}
-				else if (target == Platform.TVOS)
-				{
-					architectures = [Architecture.ARM64];
-				}
-				else
-				{
-					architectures = [Architecture.ARMV6];
-				}
-
-				defaultWindow.width = 0;
-				defaultWindow.height = 0;
-				defaultWindow.fullscreen = true;
-				defaultWindow.requireShaders = true;
-
-			case WINDOWS:
-				platformType = PlatformType.DESKTOP;
-
-				if (targetFlags.exists("uwp") || targetFlags.exists("winjs"))
-				{
-					architectures = [];
-
-					targetFlags.set("uwp", "");
-					targetFlags.set("winjs", "");
-
-					defaultWindow.width = 0;
-					defaultWindow.height = 0;
-					defaultWindow.fps = 60;
-				}
-				else
-				{
-					switch (System.hostArchitecture)
-					{
-						case ARMV6: architectures = [ARMV6];
-						case ARMV7: architectures = [ARMV7];
-						case X86: architectures = [X86];
-						case X64: architectures = [X64];
-						default: architectures = [];
-					}
-				}
-
-				defaultWindow.allowHighDPI = false;
-
-			case MAC, LINUX:
-				platformType = PlatformType.DESKTOP;
-				switch (System.hostArchitecture)
-				{
-					case ARMV6: architectures = [ARMV6];
-					case ARMV7: architectures = [ARMV7];
-					case X86: architectures = [X86];
-					case X64: architectures = [X64];
-					default: architectures = [];
-				}
-
-				defaultWindow.allowHighDPI = false;
+			case WINDOWS, MAC, LINUX, AIR:
+				PlatformType.DESKTOP;
 
 			default:
 				// TODO: Better handling of platform type for pluggable targets
-
-				platformType = PlatformType.CONSOLE;
-
-				defaultWindow.width = 0;
-				defaultWindow.height = 0;
-				defaultWindow.fps = 60;
-				defaultWindow.fullscreen = true;
+				PlatformType.CONSOLE;
 		}
 
-		defaultArchitectures = architectures.copy();
+		if (target == WINDOWS && targetFlags.exists("uwp") || targetFlags.exists("winjs"))
+		{
+			targetFlags.set("uwp", "");
+			targetFlags.set("winjs", "");
+		}
 
-		meta = ObjectTools.copyFields(defaultMeta, {});
-		app = ObjectTools.copyFields(defaultApp, {});
-		window = ObjectTools.copyFields(defaultWindow, {});
+		meta = {};
+		app = {};
+		window = {};
 		windows = [window];
 		assets = new Array<Asset>();
 
@@ -378,6 +230,8 @@ class HXProject extends Script
 		{
 			project.environment.set(key, environment.get(key));
 		}
+
+		project.excludeArchitectures = excludeArchitectures.copy();
 
 		for (key in haxedefs.keys())
 		{
@@ -834,14 +688,14 @@ class HXProject extends Script
 	{
 		if (project != null)
 		{
-			ObjectTools.copyUniqueFields(project.meta, meta, project.defaultMeta);
-			ObjectTools.copyUniqueFields(project.app, app, project.defaultApp);
+			ObjectTools.copyFields(project.meta, meta);
+			ObjectTools.copyFields(project.app, app);
 
 			for (i in 0...project.windows.length)
 			{
 				if (i < windows.length)
 				{
-					ObjectTools.copyUniqueFields(project.windows[i], windows[i], project.defaultWindow);
+					ObjectTools.copyFields(project.windows[i], windows[i]);
 				}
 				else
 				{
@@ -853,31 +707,15 @@ class HXProject extends Script
 			MapTools.copyUniqueKeys(project.environment, environment);
 			MapTools.copyUniqueKeysDynamic(project.haxedefs, haxedefs);
 			MapTools.copyUniqueKeys(project.libraryHandlers, libraryHandlers);
+			MapTools.copyUniqueKeys(project.targetFlags, targetFlags);
 			MapTools.copyUniqueKeys(project.targetHandlers, targetHandlers);
 
 			config.merge(project.config);
 
-			for (architecture in project.architectures)
-			{
-				if (defaultArchitectures.indexOf(architecture) == -1)
-				{
-					architectures.push(architecture);
-				}
-			}
-
-			if (project.architectures.length > 0)
-			{
-				for (architecture in defaultArchitectures)
-				{
-					if (project.architectures.indexOf(architecture) == -1)
-					{
-						architectures.remove(architecture);
-					}
-				}
-			}
-
+			architectures = ArrayTools.concatUnique(architectures, project.architectures);
 			assets = ArrayTools.concatUnique(assets, project.assets);
 			dependencies = ArrayTools.concatUnique(dependencies, project.dependencies, true);
+			excludeArchitectures = ArrayTools.concatUnique(excludeArchitectures, project.excludeArchitectures);
 			haxeflags = ArrayTools.concatUnique(haxeflags, project.haxeflags);
 			haxelibs = ArrayTools.concatUnique(haxelibs, project.haxelibs, true, "name");
 			icons = ArrayTools.concatUnique(icons, project.icons);
@@ -1044,14 +882,6 @@ class HXProject extends Script
 		{
 			window = {};
 			windows = [window];
-		}
-
-		ObjectTools.copyMissingFields(defaultApp, app);
-		ObjectTools.copyMissingFields(defaultMeta, meta);
-
-		for (item in windows)
-		{
-			ObjectTools.copyMissingFields(defaultWindow, item);
 		}
 
 		// config.populate ();
@@ -1398,7 +1228,7 @@ class HXProject extends Script
 
 		if (main == null)
 		{
-			main = defaultApp.main;
+			main = "Main";
 		}
 
 		var indexOfPeriod = main.lastIndexOf(".");

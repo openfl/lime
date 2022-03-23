@@ -22,6 +22,7 @@ import lime.tools.JavaHelper;
 import lime.tools.ModuleHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -40,6 +41,91 @@ class WindowsPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
+
+		defaults.app =
+		{
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
+
+		defaults.window =
+		{
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
+
+		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
+		{
+			defaults.window.width = 0;
+			defaults.window.height = 0;
+			defaults.window.fps = 60;
+		}
+		else
+		{
+			switch (System.hostArchitecture)
+			{
+				case ARMV6: defaults.architectures = [ARMV6];
+				case ARMV7: defaults.architectures = [ARMV7];
+				case X86: defaults.architectures = [X86];
+				case X64: defaults.architectures = [X64];
+				default: defaults.architectures = [];
+			}
+		}
+
+		defaults.window.allowHighDPI = false;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
 		{

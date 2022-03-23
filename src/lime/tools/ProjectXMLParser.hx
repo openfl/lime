@@ -439,11 +439,11 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(app, name))
+					if (Reflect.hasField(ApplicationData._ApplicationDataType.fields, name))
 					{
 						Reflect.setField(app, name, value);
 					}
-					else if (Reflect.hasField(meta, name))
+					else if (Reflect.hasField(MetaData._MetaDataType.fields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -856,7 +856,7 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(meta, name))
+					if (Reflect.hasField(MetaData._MetaDataType.fields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -1336,7 +1336,7 @@ class ProjectXMLParser extends HXProject
 
 							if (Reflect.hasField(Architecture, exclude.toUpperCase()))
 							{
-								architectures.remove(Reflect.field(Architecture, exclude.toUpperCase()));
+								ArrayTools.addUnique(excludeArchitectures, Reflect.field(Architecture, exclude.toUpperCase()));
 							}
 						}
 
@@ -1954,7 +1954,7 @@ class ProjectXMLParser extends HXProject
 
 		while (id >= windows.length)
 		{
-			windows.push(ObjectTools.copyFields(defaultWindow, {}));
+			windows.push({});
 		}
 
 		for (attribute in element.x.attributes())
@@ -1994,35 +1994,23 @@ class ProjectXMLParser extends HXProject
 					}
 
 				case "height", "width", "fps", "antialiasing":
-					if (Reflect.hasField(windows[id], name))
-					{
-						Reflect.setField(windows[id], name, Std.parseInt(value));
-					}
+					Reflect.setField(windows[id], name, Std.parseInt(value));
 
 				case "parameters", "title":
-					if (Reflect.hasField(windows[id], name))
-					{
-						Reflect.setField(windows[id], name, Std.string(value));
-					}
+					Reflect.setField(windows[id], name, Std.string(value));
 
 				case "allow-high-dpi":
-					if (Reflect.hasField(windows[id], "allowHighDPI"))
-					{
-						Reflect.setField(windows[id], "allowHighDPI", value == "true");
-					}
+					Reflect.setField(windows[id], "allowHighDPI", value == "true");
 
 				case "color-depth":
-					if (Reflect.hasField(windows[id], "colorDepth"))
-					{
-						Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
-					}
+					Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
 
 				default:
-					if (Reflect.hasField(windows[id], name))
+					if (Reflect.hasField(WindowData._WindowDataType.fields, name))
 					{
 						Reflect.setField(windows[id], name, value == "true");
 					}
-					else if (Reflect.hasField(windows[id], formatAttributeName(name)))
+					else if (Reflect.hasField(WindowData._WindowDataType.fields, formatAttributeName(name)))
 					{
 						Reflect.setField(windows[id], formatAttributeName(name), value == "true");
 					}

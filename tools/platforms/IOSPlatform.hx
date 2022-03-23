@@ -25,6 +25,7 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -36,6 +37,77 @@ class IOSPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
+
+		defaults.app =
+		{
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
+
+		defaults.window =
+		{
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
+
+		defaults.architectures = [Architecture.ARMV7, Architecture.ARM64];
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("ios.output-directory", "ios"));
 	}
