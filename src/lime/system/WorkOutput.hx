@@ -233,6 +233,9 @@ class WorkOutput
 		Even so, `doWork` should return at regular intervals, storing its
 		progress in `state`. This will make it easier to cancel the thread. If
 		not canceled, `doWork` will be called again immediately.
+
+		In HTML5, web workers will be used to achieve this. This means `doWork`
+		must be a static function, and you can't use `bind()`.
 	**/
 	var MULTI_THREADED = true;
 }

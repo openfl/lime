@@ -67,20 +67,24 @@ import lime.utils.Log;
 	@:noCompletion private var __progressListeners:Array<Int->Int->Void>;
 
 	/**
-		@param work 	(Optional) A function to execute, returning `value` once finished. If it returns
-		`null`, the function will run again once there's time, until it returns a non-null value. This is
-		useful when `useThreads` is false, to avoid blocking the main thread.
-		@param useThreads	Whether `work` should be executed in multi-threaded mode.
-		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
+		@param work 	Deprecated; use `Future.withEventualValue()` instead.
+		@param useThreads 	Deprecated; use `Future.withEventualValue()` instead.
 	**/
-	public function new(work:WorkFunction<Void->Null<T>> = null, useThreads:Bool = #if html5 false #else true #end)
+	public function new(work:WorkFunction<Void->T> = null, useThreads:Bool = false)
 	{
 		if (work != null)
 		{
 			var promise = new Promise<T>();
 			promise.future = this;
 
-			FutureWork.queue(work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED);
+			#if (lime_threads && html5)
+			if (useThreads)
+			{
+				work.makePortable();
+			}
+			#end
+
+			FutureWork.queue(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED);
 		}
 	}
 
@@ -301,6 +305,39 @@ import lime.utils.Log;
 		future.value = value;
 		return future;
 	}
+
+	/**
+		Creates a `Future` instance which will asynchronously compute a value.
+
+		Once `work()` returns a non-null value, the `Future` will finish with that value.
+		If `work()` throws an error, the `Future` will finish with that error instead.
+		@param	work 	A function that computes a value of type `T`.
+		@param  state   An argument to pass to `work()`. As this may be used on another thread, the
+		main thread must not access or modify `state` until the `Future` finishes.
+		@param  mode 	Whether to use real threads as opposed to virtual threads. Virtual threads rely
+		on cooperative multitasking, meaning `work()` must return periodically to allow other code
+		enough time to run. In these cases, `work()` should return null to signal that it isn't finished.
+		@return	A new `Future` instance.
+		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
+	**/
+	public static function withEventualValue<T>(work:WorkFunction<State -> Null<T>>, state:State, mode:ThreadMode = #if html5 SINGLE_THREADED #else MULTI_THREADED #end):Future<T>
+	{
+		var future = new Future<T>();
+		var promise = new Promise<T>();
+		promise.future = future;
+
+		FutureWork.queue(work, state, promise, mode);
+
+		return future;
+	}
+
+	/**
+		(For backwards compatibility.) Dispatches the given zero-argument function.
+	**/
+	@:noCompletion private static function dispatchWorkFunction<T>(work:WorkFunction<Void -> T>):Null<T>
+	{
+		return work.dispatch();
+	}
 }
 
 /**
@@ -342,17 +379,17 @@ import lime.utils.Log;
 	}
 
 	@:allow(lime.app.Future)
-	private static function queue<T>(work:WorkFunction<Void->Null<T>>, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
+	private static function queue<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
 	{
-		getPool(mode).queue({work: work, promise: promise});
+		getPool(mode).queue({work: work, state: state, promise: promise});
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:{work:WorkFunction<Void->Dynamic>}, output:WorkOutput):Void
+	private static function threadPool_doWork(state:{work:WorkFunction<State->Dynamic>, state:State}, output:WorkOutput):Void
 	{
 		try
 		{
-			var result = state.work.dispatch();
+			var result = state.work.dispatch(state.state);
 			if (result != null)
 			{
 				output.sendComplete(result);
