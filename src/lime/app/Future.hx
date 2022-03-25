@@ -353,6 +353,8 @@ import lime.utils.Log;
 	private static var singleThreadPool:ThreadPool;
 	#if lime_threads
 	private static var multiThreadPool:ThreadPool;
+	// It isn't safe to pass a promise object to a web worker.
+	private static var promises:Map<{}, Promise<Dynamic>> = new Map();
 	#end
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
@@ -381,7 +383,21 @@ import lime.utils.Log;
 	@:allow(lime.app.Future)
 	private static function queue<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
 	{
-		getPool(mode).queue({work: work, state: state, promise: promise});
+		var bundle = {work: work, state: state, promise: promise};
+
+		#if lime_threads
+		if (mode == MULTI_THREADED)
+		{
+			#if html5
+			work.makePortable();
+			#end
+
+			promises[bundle] = promise;
+			bundle.promise = null;
+		}
+		#end
+
+		getPool(mode).queue(bundle);
 	}
 
 	// Event Handlers
@@ -414,12 +430,16 @@ import lime.utils.Log;
 	#if lime_threads
 	private static function multiThreadPool_onComplete(result:Dynamic):Void
 	{
-		multiThreadPool.eventData.state.promise.complete(result);
+		var promise:Promise<Dynamic> = promises[multiThreadPool.eventData.state];
+		promises.remove(multiThreadPool.eventData.state);
+		promise.complete(result);
 	}
 
 	private static function multiThreadPool_onError(error:Dynamic):Void
 	{
-		multiThreadPool.eventData.state.promise.error(error);
+		var promise:Promise<Dynamic> = promises[multiThreadPool.eventData.state];
+		promises.remove(multiThreadPool.eventData.state);
+		promise.error(error);
 	}
 	#end
 

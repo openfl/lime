@@ -499,12 +499,9 @@ class ThreadPool extends WorkOutput
 					onProgress.dispatch(threadEvent.state);
 
 				case COMPLETE, ERROR:
-					// Remember that the listener could queue a new job.
 					if (threadEvent.event == COMPLETE)
 					{
 						onComplete.dispatch(threadEvent.state);
-
-						completed = activeJobs == 0 && __jobQueue.isEmpty();
 					}
 					else
 					{
@@ -528,6 +525,8 @@ class ThreadPool extends WorkOutput
 						__activeJobs.removeThread(threadEvent.associatedJob.thread);
 					}
 					#end
+
+					completed = threadEvent.event == COMPLETE && activeJobs == 0 && __jobQueue.isEmpty();
 
 				default:
 			}
