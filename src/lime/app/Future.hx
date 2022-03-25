@@ -419,26 +419,26 @@ import lime.utils.Log;
 
 	private static function singleThreadPool_onComplete(result:Dynamic):Void
 	{
-		singleThreadPool.eventData.state.promise.complete(result);
+		singleThreadPool.jobData.state.promise.complete(result);
 	}
 
 	private static function singleThreadPool_onError(error:Dynamic):Void
 	{
-		singleThreadPool.eventData.state.promise.error(error);
+		singleThreadPool.jobData.state.promise.error(error);
 	}
 
 	#if lime_threads
 	private static function multiThreadPool_onComplete(result:Dynamic):Void
 	{
-		var promise:Promise<Dynamic> = promises[multiThreadPool.eventData.state];
-		promises.remove(multiThreadPool.eventData.state);
+		var promise:Promise<Dynamic> = promises[multiThreadPool.jobData.state];
+		promises.remove(multiThreadPool.jobData.state);
 		promise.complete(result);
 	}
 
 	private static function multiThreadPool_onError(error:Dynamic):Void
 	{
-		var promise:Promise<Dynamic> = promises[multiThreadPool.eventData.state];
-		promises.remove(multiThreadPool.eventData.state);
+		var promise:Promise<Dynamic> = promises[multiThreadPool.jobData.state];
+		promises.remove(multiThreadPool.jobData.state);
 		promise.error(error);
 	}
 	#end

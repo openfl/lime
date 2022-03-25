@@ -33,17 +33,22 @@ import lime.system.ThreadPool;
 abstract BackgroundWorker(ThreadPool)
 {
 	private static var __doWorkWrapper:WorkFunction<State->WorkOutput->Void>;
-	private static var __eventData:EventData = new EventData();
+	private static var __jobData:JobData = new JobData();
 
 	@:deprecated("Instead pass the callback to BackgroundWorker.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
 
-	public var eventData(get, never):EventData;
+	/**
+		Additional information about the job that triggered the current
+		`onComplete`, `onError`, or `onProgress` event. Will only be available
+		when one of those events is ongoing.
+	**/
+	public var jobData(get, never):JobData;
 
 	/**
 		__Call this only from the main thread.__
 
-		@param mode Defaults to `MULTI_THREAEDED` on most targets, but
+		@param mode Defaults to `MULTI_THREADED` on most targets, but
 		`SINGLE_THREADED` in HTML5. In HTML5, `MULTI_THREADED` mode uses web
 		workers, which impose additional restrictions.
 		@param workLoad (Single-threaded mode only) A rough estimate of how much
@@ -65,10 +70,8 @@ abstract BackgroundWorker(ThreadPool)
 		Cancels one active or queued job.
 	**/
 	// A copy of `ThreadPool.cancelJob()` with replacements:
-	// - Find "__activeJobs", replace with "this.__activeJobs".
-	// - Find "__idleThreads", replace with "this.__idleThreads".
-	// - Find "__jobQueue", replace with "this.__jobQueue".
-	// - Find ".state", replace with ".state.state".
+	// - Find the string "__", replace with "this.__".
+	// - Find the string ".state", replace with ".state.state".
 	// Other than that, keep the functions exactly in sync.
 	public function cancelJob(state:State):Bool
 	{
@@ -131,15 +134,15 @@ abstract BackgroundWorker(ThreadPool)
 
 	// Getters & Setters
 
-	private function get_eventData():EventData
+	private function get_jobData():JobData
 	{
-		if (this.eventData.state != null)
+		if (this.jobData.state != null)
 		{
-			__eventData.state = this.eventData.state.state;
+			__jobData.state = this.jobData.state.state;
 		}
-		__eventData.duration = this.eventData.duration;
+		__jobData.duration = this.jobData.duration;
 
-		return __eventData;
+		return __jobData;
 	}
 
 	private function get_doWork()

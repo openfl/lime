@@ -133,10 +133,10 @@ class ThreadPool extends WorkOutput
 
 	/**
 		Additional information about the job that triggered the current
-		`onComplete`, `onError`, or `onProgress` event. Think of this as an
-		additional argument to the event listener.
+		`onComplete`, `onError`, or `onProgress` event. Will only be available
+		when one of those events is ongoing.
 	**/
-	public var eventData(default, null):EventData = new EventData();
+	public var jobData(default, null):JobData = new JobData();
 
 	@:deprecated("Instead pass the callback to ThreadPool's constructor.")
 	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void) -> Void };
@@ -144,8 +144,8 @@ class ThreadPool extends WorkOutput
 
 	#if lime_threads
 	/**
-		A list of idle threads. Not to be confused with `idleThreads`, which is
-		`__idleThreads.length`.
+		A list of idle threads. Not to be confused with `idleThreads`, a public
+		variable equal to `__idleThreads.length`.
 	**/
 	private var __idleThreads:List<Thread> = new List();
 	#end
@@ -217,7 +217,7 @@ class ThreadPool extends WorkOutput
 
 			if (error != null)
 			{
-				eventData.state = job.workEvent.state;
+				jobData.state = job.workEvent.state;
 				onError.dispatch(error);
 			}
 		}
@@ -236,14 +236,14 @@ class ThreadPool extends WorkOutput
 		{
 			for (job in __jobQueue)
 			{
-				eventData.state = job.state;
+				jobData.state = job.state;
 				onError.dispatch(error);
 			}
 		}
 		__jobQueue.clear();
 
 		__jobComplete.value = false;
-		eventData.clear();
+		jobData.clear();
 		completed = false;
 		canceled = true;
 	}
@@ -487,8 +487,8 @@ class ThreadPool extends WorkOutput
 				continue;
 			}
 
-			eventData.state = threadEvent.associatedJob.workEvent.state;
-			eventData.duration = mode == MULTI_THREADED ? timestamp() - threadEvent.jobStartTime : threadEvent.associatedJob.workTime;
+			jobData.state = threadEvent.associatedJob.workEvent.state;
+			jobData.duration = mode == MULTI_THREADED ? timestamp() - threadEvent.jobStartTime : threadEvent.associatedJob.workTime;
 
 			switch (threadEvent.event)
 			{
@@ -531,7 +531,7 @@ class ThreadPool extends WorkOutput
 				default:
 			}
 
-			eventData.clear();
+			jobData.clear();
 		}
 
 		if (completed)
@@ -616,7 +616,7 @@ class ThreadPool extends WorkOutput
 **/
 @:allow(lime.system.ThreadPool)
 @:allow(lime.system.BackgroundWorker)
-class EventData
+class JobData
 {
 	/**
 		The original `State` object passed to the job.
