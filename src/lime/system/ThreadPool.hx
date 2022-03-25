@@ -338,7 +338,7 @@ class ThreadPool extends WorkOutput
 					}
 					while (!Std.isOfType(job, ThreadEvent));
 
-					output.resetJobProgress();
+					output.resetJobProgress(timestamp());
 				}
 
 				if (job.event == EXIT)
@@ -377,7 +377,7 @@ class ThreadPool extends WorkOutput
 				else if(Std.isOfType(interruption, ThreadEvent))
 				{
 					job = interruption;
-					output.resetJobProgress();
+					output.resetJobProgress(timestamp());
 				}
 				else
 				{
@@ -390,7 +390,7 @@ class ThreadPool extends WorkOutput
 	}
 	#end
 
-	private inline function timestamp():Float
+	private static inline function timestamp():Float
 	{
 		#if sys
 		return Sys.cpuTime();

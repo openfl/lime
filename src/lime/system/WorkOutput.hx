@@ -166,9 +166,14 @@ class WorkOutput
 		}
 	}
 
-	private inline function resetJobProgress():Void
+	/**
+		@param now `WorkOutput` won't compile if it includes any references to
+		`haxe.Timer`, so the child class must supply the current time instead.
+	**/
+	private inline function resetJobProgress(now:Float):Void
 	{
 		__jobComplete.value = false;
+		__jobStartTime.value = now;
 		workIterations.value = 0;
 	}
 
