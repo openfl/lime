@@ -84,7 +84,7 @@ import lime.utils.Log;
 			}
 			#end
 
-			FutureWork.run(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED);
+			FutureWork.run(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED, true);
 		}
 	}
 
@@ -381,9 +381,9 @@ import lime.utils.Log;
 	}
 
 	@:allow(lime.app.Future)
-	private static function run<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
+	private static function run<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED, legacyCode:Bool = false):Void
 	{
-		var bundle = {work: work, state: state, promise: promise};
+		var bundle = {work: work, state: state, promise: promise, legacyCode: legacyCode};
 
 		#if lime_threads
 		if (mode == MULTI_THREADED)
@@ -401,12 +401,12 @@ import lime.utils.Log;
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(bundle:{work:WorkFunction<State->Dynamic>, state:State}, output:WorkOutput):Void
+	private static function threadPool_doWork(bundle:{work:WorkFunction<State->Dynamic>, state:State, legacyCode:Bool}, output:WorkOutput):Void
 	{
 		try
 		{
 			var result = bundle.work.dispatch(bundle.state);
-			if (result != null)
+			if (result != null || bundle.legacyCode)
 			{
 				#if (lime_threads && html5)
 				bundle.work.makePortable();
