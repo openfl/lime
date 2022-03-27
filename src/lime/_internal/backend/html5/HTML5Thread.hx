@@ -19,6 +19,7 @@ import js.html.Worker;
 import js.Lib;
 import js.lib.Function;
 import js.lib.Object;
+import js.lib.Promise;
 import js.Syntax;
 // Same with classes that import lots of other things.
 import lime.app.Application;
@@ -101,34 +102,46 @@ class HTML5Thread {
 		#end
 	}
 
-	/**
-		Reads a message from the thread queue. Returns `null` if no argument is
-		available.
+	#if !macro
+	private static inline function zeroDelay():Promise<Dynamic>
+	{
+		return new Promise<Dynamic>(function(resolve, _):Void
+			{
+				js.Lib.global.setTimeout(resolve);
+			});
+	}
+	#end
 
-		@param block If true, uses the `await` keyword to wait for the next
-		message. Requires the calling function to be `async`.
+	/**
+		Reads a message from the thread queue. Returns `null` if no message is
+		available. This may only be called inside an `async` function.
+		@param block If true, waits for the next message before returning.
 		@see `lime.system.WorkOutput.JSAsync.async()`
 	**/
 	public static macro function readMessage(block:ExprOf<Bool>):Dynamic
 	{
-		var blockFalseExpr:Expr = macro @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.pop();
+		// `onmessage` events are only received when the main function is
+		// suspended, so we must insert `await` even if `block` is false.
+		// TODO: find a more efficient way to read messages.
+		var zeroDelayExpr:Expr = macro @:privateAccess {
+			js.Syntax.code("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay());
+			lime._internal.backend.html5.HTML5Thread.__messages.pop();
+		};
 		switch (block.expr)
 		{
 			case EConst(CIdent("false")):
-				return blockFalseExpr;
+				return zeroDelayExpr;
 			default:
 				return macro if ($block && @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.isEmpty())
 				{
-					js.Syntax.code("await {0}", new js.lib.Promise(function(resolve, _)
+					js.Syntax.code("await {0}", new js.lib.Promise(function(resolve, _):Void
 						{
 							@:privateAccess lime._internal.backend.html5.HTML5Thread.__resolveMethods.add(resolve);
 						}
 					));
 				}
 				else
-				{
-					$blockFalseExpr;
-				};
+					$zeroDelayExpr;
 		}
 	}
 
@@ -186,8 +199,8 @@ class HTML5Thread {
 	}
 
 	/**
-		Send a message to the thread queue. This message can be read by
-		listening for the `onMessage` event.
+		Send a message to the thread queue. This message can be read using
+		`readMessage()` or by listening for the `onMessage` event.
 
 		@param preserveClasses Whether to call `preserveClasses()` first.
 	**/

@@ -225,12 +225,13 @@ class WorkOutput
 		All work will be done on a background thread.
 
 		Unlike single-threaded mode, there is no risk of causing lag spikes.
-		Even so, `doWork` should return at regular intervals, storing its
-		progress in `state`. This will make it easier to cancel the thread. If
-		not canceled, `doWork` will be called again immediately.
+		Even so, `doWork` should return periodically, to allow canceling the
+		thread. If not canceled, `doWork` will be called again immediately.
 
 		In HTML5, web workers will be used to achieve this. This means `doWork`
-		must be a static function, and you can't use `bind()`.
+		must be a static function, and you can't use `bind()`. Web workers also
+		impose a longer delay each time `doWork` returns, so it shouldn't return
+		as often in multi-threaded mode as in single-threaded mode.
 	**/
 	var MULTI_THREADED = true;
 }
