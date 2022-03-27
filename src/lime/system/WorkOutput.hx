@@ -307,6 +307,10 @@ class JobData
 
 	/**
 		The total time spent on this job.
+
+		In multi-threaded mode, this includes the overhead for sending messages,
+		plus any time spent waiting for a canceled job to return. The latter
+		delay can be reduced by returning at regular intervals.
 	**/
 	@:allow(lime.system.WorkOutput)
 	public var duration(default, null):Float = 0;
