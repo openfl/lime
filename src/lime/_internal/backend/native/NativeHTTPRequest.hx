@@ -273,13 +273,13 @@ class NativeHTTPRequest
 		{
 			if (localThreadPool == null)
 			{
-				localThreadPool = new ThreadPool(localThreadPool_doWork, 0, 1);
+				localThreadPool = new ThreadPool(0, 1);
 				localThreadPool.onProgress.add(localThreadPool_onProgress);
 				localThreadPool.onComplete.add(localThreadPool_onComplete);
 				localThreadPool.onError.add(localThreadPool_onError);
 			}
 
-			localThreadPool.queue({instance: this, uri: uri});
+			localThreadPool.run(localThreadPool_doWork, {instance: this, uri: uri});
 		}
 		else
 		{
@@ -306,7 +306,7 @@ class NativeHTTPRequest
 
 				if (multiThreadPool == null)
 				{
-					multiThreadPool = new ThreadPool(multiThreadPool_doWork, 0, 1);
+					multiThreadPool = new ThreadPool(0, 1);
 					multiThreadPool.onProgress.add(multiThreadPool_onProgress);
 					multiThreadPool.onComplete.add(multiThreadPool_onComplete);
 				}
@@ -314,7 +314,7 @@ class NativeHTTPRequest
 				if (!multiThreadPoolRunning)
 				{
 					multiThreadPoolRunning = true;
-					multiThreadPool.queue();
+					multiThreadPool.run(multiThreadPool_doWork, multi);
 				}
 
 				if (multiProgressTimer == null)
@@ -490,7 +490,7 @@ class NativeHTTPRequest
 		promise.progress(state.bytesLoaded, state.bytesTotal);
 	}
 
-	private static function multiThreadPool_doWork(_, output:WorkOutput):Void
+	private static function multiThreadPool_doWork(multi:CURLMulti, output:WorkOutput):Void
 	{
 		while (true)
 		{
@@ -535,7 +535,7 @@ class NativeHTTPRequest
 		if (curl != null)
 		{
 			multiAddHandle.push(curl);
-			multiThreadPool.queue();
+			multiThreadPool.run(multiThreadPool_doWork, multi);
 		}
 		else
 		{

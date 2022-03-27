@@ -62,7 +62,7 @@ class HTML5Thread {
 				{
 					__current.destroy();
 				}
-			}
+			};
 		}
 		#end
 	}

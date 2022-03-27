@@ -84,7 +84,7 @@ import lime.utils.Log;
 			}
 			#end
 
-			FutureWork.queue(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED);
+			FutureWork.run(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED);
 		}
 	}
 
@@ -326,7 +326,7 @@ import lime.utils.Log;
 		var promise = new Promise<T>();
 		promise.future = future;
 
-		FutureWork.queue(work, state, promise, mode);
+		FutureWork.run(work, state, promise, mode);
 
 		return future;
 	}
@@ -365,7 +365,7 @@ import lime.utils.Log;
 		#if lime_threads
 		if (mode == MULTI_THREADED) {
 			if(multiThreadPool == null) {
-				multiThreadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, MULTI_THREADED);
+				multiThreadPool = new ThreadPool(minThreads, maxThreads, MULTI_THREADED);
 				multiThreadPool.onComplete.add(multiThreadPool_onComplete);
 				multiThreadPool.onError.add(multiThreadPool_onError);
 			}
@@ -373,7 +373,7 @@ import lime.utils.Log;
 		}
 		#end
 		if(singleThreadPool == null) {
-			singleThreadPool = new ThreadPool(threadPool_doWork, minThreads, maxThreads, SINGLE_THREADED);
+			singleThreadPool = new ThreadPool(minThreads, maxThreads, SINGLE_THREADED);
 			singleThreadPool.onComplete.add(singleThreadPool_onComplete);
 			singleThreadPool.onError.add(singleThreadPool_onError);
 		}
@@ -381,7 +381,7 @@ import lime.utils.Log;
 	}
 
 	@:allow(lime.app.Future)
-	private static function queue<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
+	private static function run<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED):Void
 	{
 		var bundle = {work: work, state: state, promise: promise};
 
@@ -397,48 +397,54 @@ import lime.utils.Log;
 		}
 		#end
 
-		getPool(mode).queue(bundle);
+		getPool(mode).run(threadPool_doWork, bundle);
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:{work:WorkFunction<State->Dynamic>, state:State}, output:WorkOutput):Void
+	private static function threadPool_doWork(bundle:{work:WorkFunction<State->Dynamic>, state:State}, output:WorkOutput):Void
 	{
 		try
 		{
-			var result = state.work.dispatch(state.state);
+			var result = bundle.work.dispatch(bundle.state);
 			if (result != null)
 			{
+				#if (lime_threads && html5)
+				bundle.work.makePortable();
+				#end
 				output.sendComplete(result);
 			}
 		}
 		catch (e:Dynamic)
 		{
+			#if (lime_threads && html5)
+			bundle.work.makePortable();
+			#end
 			output.sendError(e);
 		}
 	}
 
 	private static function singleThreadPool_onComplete(result:Dynamic):Void
 	{
-		singleThreadPool.jobData.state.promise.complete(result);
+		singleThreadPool.activeJob.state.promise.complete(result);
 	}
 
 	private static function singleThreadPool_onError(error:Dynamic):Void
 	{
-		singleThreadPool.jobData.state.promise.error(error);
+		singleThreadPool.activeJob.state.promise.error(error);
 	}
 
 	#if lime_threads
 	private static function multiThreadPool_onComplete(result:Dynamic):Void
 	{
-		var promise:Promise<Dynamic> = promises[multiThreadPool.jobData.state];
-		promises.remove(multiThreadPool.jobData.state);
+		var promise:Promise<Dynamic> = promises[multiThreadPool.activeJob.state];
+		promises.remove(multiThreadPool.activeJob.state);
 		promise.complete(result);
 	}
 
 	private static function multiThreadPool_onError(error:Dynamic):Void
 	{
-		var promise:Promise<Dynamic> = promises[multiThreadPool.jobData.state];
-		promises.remove(multiThreadPool.jobData.state);
+		var promise:Promise<Dynamic> = promises[multiThreadPool.activeJob.state];
+		promises.remove(multiThreadPool.activeJob.state);
 		promise.error(error);
 	}
 	#end

@@ -74,23 +74,12 @@ class WorkOutput
 	private var __jobComplete:Tls<Bool> = new Tls();
 
 	/**
-		Thread-local storage. In multi-threaded mode, tracks when this thread's
-		job began.
+		The job that is currently running on this thread, or the job that
+		triggered the ongoing `onComplete`, `onError`, or `onProgress` event.
+		Will be null in all other cases.
 	**/
-	private var __jobStartTime:Tls<Float> = new Tls();
-
-	/**
-		A list of active jobs, including associated threads if applicable.
-	**/
-	private var __activeJobs:ActiveJobs = new ActiveJobs();
-
-	/**
-		In single-threaded mode while a job is active, the currently-active job.
-		Will otherwise be `null`.
-
-		Include this when creating new `ThreadEvent`s.
-	**/
-	private var __activeJob:Null<ActiveJob> = null;
+	public var activeJob(get, set):Null<JobData>;
+	@:noCompletion private var __activeJob:Tls<JobData> = new Tls();
 
 	private inline function new(mode:Null<ThreadMode>)
 	{
@@ -117,10 +106,13 @@ class WorkOutput
 
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(COMPLETE, message, __activeJob, __jobStartTime.value), transferList);
+			{
+				activeJob.doWork.makePortable();
+				Thread.returnMessage(new ThreadEvent(COMPLETE, message, activeJob), transferList);
+			}
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(COMPLETE, message, __activeJob, __jobStartTime.value));
+			__jobOutput.add(new ThreadEvent(COMPLETE, message, activeJob));
 		}
 	}
 
@@ -139,10 +131,13 @@ class WorkOutput
 
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(ERROR, message, __activeJob, __jobStartTime.value), transferList);
+			{
+				activeJob.doWork.makePortable();
+				Thread.returnMessage(new ThreadEvent(ERROR, message, activeJob), transferList);
+			}
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(ERROR, message, __activeJob, __jobStartTime.value));
+			__jobOutput.add(new ThreadEvent(ERROR, message, activeJob));
 		}
 	}
 
@@ -159,21 +154,19 @@ class WorkOutput
 		{
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
-				Thread.returnMessage(new ThreadEvent(PROGRESS, message, __activeJob, __jobStartTime.value), transferList);
+			{
+				activeJob.doWork.makePortable();
+				Thread.returnMessage(new ThreadEvent(PROGRESS, message, activeJob), transferList);
+			}
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(PROGRESS, message, __activeJob, __jobStartTime.value));
+			__jobOutput.add(new ThreadEvent(PROGRESS, message, activeJob));
 		}
 	}
 
-	/**
-		@param now `WorkOutput` won't compile if it includes any references to
-		`haxe.Timer`, so the child class must supply the current time instead.
-	**/
-	private inline function resetJobProgress(now:Float):Void
+	private inline function resetJobProgress():Void
 	{
 		__jobComplete.value = false;
-		__jobStartTime.value = now;
 		workIterations.value = 0;
 	}
 
@@ -183,25 +176,13 @@ class WorkOutput
 		var thread:Thread = Thread.create(executeThread);
 
 		#if html5
-		thread.onMessage.add(onMessageFromWorker.bind(thread));
+		thread.onMessage.add(function(event:ThreadEvent) {
+			__jobOutput.add(event);
+		});
 		#end
 
 		return thread;
 	}
-
-	#if html5
-	private function onMessageFromWorker(thread:Thread, threadEvent:ThreadEvent):Void
-	{
-		if (threadEvent.event == null)
-		{
-			return;
-		}
-
-		threadEvent.associatedJob = __activeJobs.getByThread(thread);
-
-		__jobOutput.add(threadEvent);
-	}
-	#end
 	#end
 
 	// Getters & Setters
@@ -213,6 +194,15 @@ class WorkOutput
 		#else
 		return SINGLE_THREADED;
 		#end
+	}
+
+	private inline function get_activeJob():JobData
+	{
+		return __activeJob.value;
+	}
+	private inline function set_activeJob(value:JobData):JobData
+	{
+		return __activeJob.value = value;
 	}
 }
 
@@ -296,38 +286,40 @@ abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
 **/
 typedef State = Dynamic;
 
-@:forward @:forward.new
-abstract ActiveJobs(List<ActiveJob>)
+class JobData
 {
-	#if lime_threads
-	public function getByThread(thread:Thread):ActiveJob
-	{
-		for (job in this)
-		{
-			if (job.thread == thread)
-			{
-				return job;
-			}
-		}
-		return null;
-	}
+	private static var nextID:Int = 0;
+	/**
+		`JobData` instances will regularly be copied in HTML5, so checking
+		equality won't work. Instead, compare identifiers.
+	**/
+	public var id(default, null):Int;
 
-	public inline function removeThread(thread:Thread):Bool
-	{
-		return this.remove(getByThread(thread));
-	}
-	#end
-}
+	/**
+		The function responsible for carrying out the job.
+	**/
+	public var doWork(default, null):WorkFunction<State->WorkOutput->Void>;
 
-@:forward
-abstract ActiveJob({ #if lime_threads ?thread:Thread, #end workEvent:ThreadEvent, workTime:Float })
-{
-	public inline function new(workEvent:ThreadEvent)
+	/**
+		The original `State` object passed to the job.
+	**/
+	public var state(default, null):State;
+
+	/**
+		The total time spent on this job.
+	**/
+	@:allow(lime.system.WorkOutput)
+	public var duration(default, null):Float = 0;
+
+	@:allow(lime.system.WorkOutput)
+	private var startTime:Float = 0;
+
+	@:allow(lime.system.WorkOutput)
+	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State)
 	{
-		this = {
-			workEvent: workEvent,
-			workTime: 0
-		};
+		id = nextID++;
+		this.doWork = doWork;
+		this.state = state;
 	}
 }
 
@@ -361,25 +353,14 @@ abstract ActiveJob({ #if lime_threads ?thread:Thread, #end workEvent:ThreadEvent
 class ThreadEvent
 {
 	public var event(default, null):ThreadEventType;
-	public var state(default, null):Dynamic;
+	public var message(default, null):State;
+	public var job(default, null):JobData;
 
-	#if (lime_threads && !html5)
-	public var sourceThread:Thread;
-	#end
-
-	public var associatedJob:Null<ActiveJob>;
-	public var jobStartTime:Float;
-
-	public inline function new(event:ThreadEventType, state:Dynamic, activeJob:ActiveJob = null, jobStartTime:Float = 0)
+	public inline function new(event:ThreadEventType, message:State, job:JobData)
 	{
 		this.event = event;
-		this.state = state;
-		associatedJob = activeJob;
-		this.jobStartTime = jobStartTime;
-
-		#if (lime_threads && !html5)
-		sourceThread = Thread.current();
-		#end
+		this.message = message;
+		this.job = job;
 	}
 }
 
