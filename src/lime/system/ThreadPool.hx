@@ -518,7 +518,10 @@ class ThreadPool extends WorkOutput
 				continue;
 			}
 
-			activeJob = threadEvent.job;
+			// Get by ID because in HTML5, the object will have been cloned,
+			// which will interfere with attempts to test equality.
+			activeJob = __activeJobs.getByID(threadEvent.job.id);
+
 			if (mode == MULTI_THREADED)
 			{
 				activeJob.duration = timestamp() - activeJob.startTime;
@@ -630,27 +633,25 @@ class ThreadPool extends WorkOutput
 @:forward @:forward.new
 abstract ActiveJobs(List<JobData>)
 {
-	public function exists(job:JobData):Bool
+	public inline function exists(job:JobData):Bool
 	{
-		for (j in this)
-		{
-			if (j.id == job.id)
-			{
-				return true;
-			}
-		}
-		return false;
+		return getByID(job.id) != null;
 	}
 
-	public function remove(job:JobData):Bool
+	public inline function remove(job:JobData):Bool
+	{
+		return this.remove(getByID(job.id));
+	}
+
+	public function getByID(id:Int):JobData
 	{
 		for (j in this)
 		{
-			if (j.id == job.id)
+			if (j.id == id)
 			{
-				return this.remove(j);
+				return j;
 			}
 		}
-		return false;
+		return null;
 	}
 }
