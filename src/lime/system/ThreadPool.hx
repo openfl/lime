@@ -2,7 +2,6 @@ package lime.system;
 
 import lime.app.Application;
 import lime.app.Event;
-import lime.system.BackgroundWorker;
 import lime.system.WorkOutput;
 import lime.utils.Log;
 #if target.threaded
@@ -45,7 +44,6 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:allow(lime.system.BackgroundWorker)
 class ThreadPool extends WorkOutput
 {
 	#if lime_threads

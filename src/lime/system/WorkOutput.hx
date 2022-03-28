@@ -37,7 +37,6 @@ using haxe.macro.Context;
 	thread. On many targets it's also possible to access static or instance
 	variables, but this isn't thread safe and won't work in HTML5.
 **/
-@:allow(lime.system.BackgroundWorker)
 @:allow(lime.system.ThreadPool)
 class WorkOutput
 {
@@ -243,15 +242,13 @@ class WorkOutput
 
 	In single-threaded mode, the work function shouldn't complete the job all at
 	once, as the main thread would lock up. Instead, it should perform a
-	fraction of the job each time it's called. `BackgroundWorker` and
-	`ThreadPool` each provide the function with a persistent `State` argument,
-	which can be used to track progress. In other contexts, you may be able to
-	`bind` your own `State` argument.
+	fraction of the job each time it's called. `ThreadPool` provides the
+	function with a persistent `State` argument that can track progress.
+	Alternatively, you may be able to bind your own `State` argument.
 
-	If using multi-threaded mode in HTML5, instance methods and `bind()` are
-	both forbidden. Inline functions may work as long as they don't try to
-	access `this`, but static functions are preferred. (All of these are fine in
-	single-threaded mode.)
+	Caution: if using multi-threaded mode in HTML5, this must be a static
+	function and binding arguments is forbidden. Compile with
+	`-Dlime-warn-portability` to highlight functions that won't work.
 
 	The exact length of `doWork` can vary, but single-threaded mode will run
 	more smoothly if it's short enough to run several times per frame.

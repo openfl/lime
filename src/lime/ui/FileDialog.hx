@@ -5,7 +5,7 @@ import haxe.io.Path;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Event;
 import lime.graphics.Image;
-import lime.system.BackgroundWorker;
+import lime.system.ThreadPool;
 import lime.utils.ArrayBuffer;
 import lime.utils.Resource;
 #if hl
@@ -101,7 +101,7 @@ class FileDialog
 		if (type == null) type = FileDialogType.OPEN;
 
 		#if desktop
-		var worker = new BackgroundWorker();
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(result)
 		{
@@ -139,7 +139,7 @@ class FileDialog
 			}
 		});
 
-		worker.run(function(_)
+		worker.run(function(_, __)
 		{
 			switch (type)
 			{
@@ -233,7 +233,7 @@ class FileDialog
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
 		#if desktop
-		var worker = new BackgroundWorker();
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
 		{
@@ -251,7 +251,7 @@ class FileDialog
 			onCancel.dispatch();
 		});
 
-		worker.run(function(_)
+		worker.run(function(_, __)
 		{
 			#if linux
 			if (title == null) title = "Open File";
@@ -299,7 +299,7 @@ class FileDialog
 		}
 
 		#if desktop
-		var worker = new BackgroundWorker();
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
 		{
@@ -317,7 +317,7 @@ class FileDialog
 			onCancel.dispatch();
 		});
 
-		worker.run(function(_)
+		worker.run(function(_, __)
 		{
 			#if linux
 			if (title == null) title = "Save File";
