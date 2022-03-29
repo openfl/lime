@@ -37,7 +37,6 @@ using haxe.macro.Context;
 	thread. On many targets it's also possible to access static or instance
 	variables, but this isn't thread safe and won't work in HTML5.
 **/
-@:allow(lime.system.ThreadPool)
 class WorkOutput
 {
 	/**
@@ -275,12 +274,28 @@ abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
 #end
 
 /**
-	An argument to pass to the `doWork` function. `doWork`'s parameter can be
-	`Dynamic`; this is only called `State` for clarity of documentation.
+	An argument of any type to pass to the `doWork` function. Though `doWork`
+	only accepts a single argument, you can pass multiple values as part of an
+	anonymous structure. (Or an array, or a class.)
 
-	Any changes made to this object will persist if `doWork` is called multiple
-	times for the same job. This provides an easy way to store information and
-	track progress.
+	    // Does not work: too many arguments.
+	    // threadPool.run(doWork, argument0, argument1, argument2);
+
+		// Works: all arguments are combined into one `State` object.
+		threadPool.run(doWork, { arg0: argument0, arg1: argument1, arg2: argument2 });
+
+		// Alternatives that also work, if everything is the correct type.
+		threadPool.run(doWork, [argument0, argument1, argument2]);
+		threadPool.run(doWork, new DoWorkArgs(argument0, argument1, argument2));
+
+	Any changes made to this object will persist if and when `doWork` is called
+	again for the same job. (See `WorkFunction` for instructions on how to do
+	this.) This is the recommended way to store `doWork`'s progress.
+
+	Caution: after passing an object to `doWork`, avoid accessing or modifying
+	that object from the main thread, and avoid passing it to other threads.
+	Doing either may lead to race conditions. If you need to store an object,
+	pass a clone of that object to `doWork`.
 **/
 typedef State = Dynamic;
 
@@ -299,7 +314,8 @@ class JobData
 	public var doWork(default, null):WorkFunction<State->WorkOutput->Void>;
 
 	/**
-		The original `State` object passed to the job.
+		The original `State` object passed to the job. Avoid modifying this
+		object if the job is running in multi-threaded mode.
 	**/
 	public var state(default, null):State;
 
