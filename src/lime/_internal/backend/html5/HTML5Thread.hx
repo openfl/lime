@@ -88,12 +88,17 @@ class HTML5Thread {
 		url.hash += __workerCount;
 		__workerCount++;
 
+
+		// Prepare to send the job.
+		job.makePortable();
+
+
 		// Create the worker. Because the worker's scope will not include a
 		// `window`, `HTML5Thread.__init__()` will add a listener.
 		var thread:HTML5Thread = new HTML5Thread(url.href, new Worker(url.href));
 
 		// Send a message to the listener.
-		thread.sendMessage(job.toMessage());
+		thread.sendMessage(job);
 
 		return thread;
 		#else
@@ -357,13 +362,6 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 	}
 
 	#if haxe4 @:to #end
-	public inline function toMessage():Message
-	{
-		makePortable();
-		return this;
-	}
-
-	#if haxe4 @:to #end
 	public function toFunction():T
 	{
 		if (this.func != null)
@@ -457,7 +455,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Skip `null` for obvious reasons.
 		return object == null
 			// No need to preserve a primitive type.
-			|| #if (haxe_ver >= 4.2) !Std.isOfType(object, Object) #else untyped __js__('typeof {0} != "object" && typeof {0} != "function"', object) #end
+			|| !#if (haxe_ver >= 4.2) Std.isOfType #else untyped __js__ #end (object, Object)
 			// Objects with this field have been deliberately excluded.
 			|| Reflect.field(object, SKIP_FIELD) == true
 			// A `Uint8Array` (the type used by `haxe.io.Bytes`) can have
@@ -546,17 +544,11 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 
 		@param flag Leave this `null`.
 	**/
-	private function restoreClasses(flag:Int = null, depth:Int = 0):Void
+	private function restoreClasses(flag:Int = null):Void
 	{
 		#if !macro
-		if (depth > 10)
-		{
-			untyped __js__("console.log({0})", this);
-			return;
-		}
-
 		// Attempt to choose a unique flag.
-		if (flag == null #if !haxe4 || flag == 0 #end)
+		if (flag == null)
 		{
 			// JavaScript's limit is 2^53; Haxe 3's limit is much lower.
 			flag = Std.int(Math.random() * 0x7FFFFFFF);
@@ -596,7 +588,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Recurse.
 		for (child in Object.values(this))
 		{
-			(child:Message).restoreClasses(flag, depth + 1);
+			(child:Message).restoreClasses(flag);
 		}
 		#end
 	}
