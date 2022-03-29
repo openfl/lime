@@ -483,7 +483,7 @@ class ThreadPool extends WorkOutput
 				do
 				{
 					workIterations.value++;
-					__doWork.dispatch(state, this);
+					activeJob.doWork.dispatch(state, this);
 					timeElapsed = timestamp() - startTime;
 				}
 				while (!__jobComplete.value && timeElapsed < __workPerFrame);
@@ -496,10 +496,7 @@ class ThreadPool extends WorkOutput
 			activeJob.duration += timeElapsed;
 
 			// Add this job to the end of the list, to cycle through.
-			if (!__jobComplete.value)
-			{
-				__activeJobs.add(activeJob);
-			}
+			__activeJobs.add(activeJob);
 
 			activeJob = null;
 		}
@@ -540,14 +537,13 @@ class ThreadPool extends WorkOutput
 						onError.dispatch(threadEvent.message);
 					}
 
-					// The single-threaded code removes from `__activeJobs`, so
-					// we only have to address multi-threaded here.
+					__activeJobs.remove(activeJob);
+
 					#if lime_threads
 					if (mode == MULTI_THREADED)
 					{
 						var thread:Thread = __activeThreads[activeJob.id];
 						__activeThreads.remove(activeJob.id);
-						__activeJobs.remove(activeJob);
 
 						if (currentThreads > maxThreads || __jobQueue.isEmpty() && currentThreads > minThreads)
 						{
