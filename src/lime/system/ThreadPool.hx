@@ -46,10 +46,12 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 #end
 class ThreadPool extends WorkOutput
 {
-	#if lime_threads
+	#if (haxe4 && lime_threads)
 	/**
 		A thread or null value to be compared against `Thread.current()`. Don't
 		do anything with this other than check for equality.
+
+		Unavailable in Haxe 3 as thread equality checking doesn't work there.
 	**/
 	private static var __mainThread:Thread =
 		#if html5
@@ -191,7 +193,7 @@ class ThreadPool extends WorkOutput
 	**/
 	public function cancel(error:Dynamic = null):Void
 	{
-		#if lime_threads
+		#if (haxe4 && lime_threads)
 		if (Thread.current() != __mainThread)
 		{
 			throw "Call cancel() only from the main thread.";
@@ -300,7 +302,7 @@ class ThreadPool extends WorkOutput
 	**/
 	public function run(doWork:WorkFunction<State->WorkOutput->Void> = null, state:State = null):Int
 	{
-		#if lime_threads
+		#if (haxe4 && lime_threads)
 		if (Thread.current() != __mainThread)
 		{
 			throw "Call run() only from the main thread.";
@@ -361,7 +363,7 @@ class ThreadPool extends WorkOutput
 					{
 						event = Thread.readMessage(true);
 					}
-					while (!Std.isOfType(event, ThreadEvent));
+					while (!#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (event, ThreadEvent));
 
 					output.resetJobProgress();
 				}
@@ -394,7 +396,7 @@ class ThreadPool extends WorkOutput
 						event.job.doWork.dispatch(event.job.state, output);
 					}
 				}
-				catch (e)
+				catch (e:Dynamic)
 				{
 					output.sendError(e);
 				}
@@ -406,7 +408,7 @@ class ThreadPool extends WorkOutput
 					// Work is done; wait for more.
 					event = null;
 				}
-				else if(Std.isOfType(interruption, ThreadEvent))
+				else if(#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (interruption, ThreadEvent))
 				{
 					// Work on the new job.
 					event = interruption;
@@ -438,7 +440,7 @@ class ThreadPool extends WorkOutput
 	**/
 	private function __update(deltaTime:Int):Void
 	{
-		#if lime_threads
+		#if (haxe4 && lime_threads)
 		if (Thread.current() != __mainThread)
 		{
 			return;
@@ -488,7 +490,7 @@ class ThreadPool extends WorkOutput
 				}
 				while (!__jobComplete.value && timeElapsed < __workPerFrame);
 			}
-			catch (e)
+			catch (e:Dynamic)
 			{
 				sendError(e);
 			}
@@ -621,9 +623,14 @@ class ThreadPool extends WorkOutput
 	}
 }
 
-@:forward @:forward.new
+@:forward
 abstract JobList(List<JobData>)
 {
+	public inline function new()
+	{
+		this = new List<JobData>();
+	}
+
 	public inline function exists(job:JobData):Bool
 	{
 		return getByID(job.id) != null;

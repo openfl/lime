@@ -404,10 +404,17 @@ class JSAsync
 
 // Define platform-specific types
 
-#if !(target.threaded || cpp || neko)
-@:forward(push, add) @:forward.new
+#if target.threaded
+// Haxe 3 compatibility: "target.threaded" can't go in parentheses.
+#elseif !(cpp || neko)
+@:forward(push, add)
 abstract Deque<T>(List<T>) from List<T> to List<T>
 {
+	public inline function new()
+	{
+		this = new List<T>();
+	}
+
 	public inline function pop(block:Bool):Null<T>
 	{
 		return this.pop();

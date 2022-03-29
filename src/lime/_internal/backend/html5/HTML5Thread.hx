@@ -13,14 +13,16 @@ using haxe.macro.TypedExprTools;
 #else
 // Not safe to import js package during macros.
 import js.Browser;
-import js.html.MessageEvent;
-import js.html.URL;
-import js.html.Worker;
+import js.html.*;
 import js.Lib;
+#if haxe4
 import js.lib.Function;
 import js.lib.Object;
 import js.lib.Promise;
 import js.Syntax;
+#else
+import js.Promise;
+#end
 // Same with classes that import lots of other things.
 import lime.app.Application;
 #end
@@ -86,15 +88,12 @@ class HTML5Thread {
 		url.hash += __workerCount;
 		__workerCount++;
 
-		// Prepare to send the job.
-		job.makePortable();
-
 		// Create the worker. Because the worker's scope will not include a
 		// `window`, `HTML5Thread.__init__()` will add a listener.
-		var thread:HTML5Thread = new HTML5Thread(url.href, new Worker(url.href, {name: url.hash}));
+		var thread:HTML5Thread = new HTML5Thread(url.href, new Worker(url.href));
 
 		// Send a message to the listener.
-		thread.sendMessage(job);
+		thread.sendMessage(job.toMessage());
 
 		return thread;
 		#else
@@ -120,13 +119,15 @@ class HTML5Thread {
 	**/
 	public static macro function readMessage(block:ExprOf<Bool>):Dynamic
 	{
+		var jsCode:Expr = macro #if haxe4 js.Syntax.code #else untyped __js__ #end;
+
 		// `onmessage` events are only received when the main function is
 		// suspended, so we must insert `await` even if `block` is false.
 		// TODO: find a more efficient way to read messages.
-		var zeroDelayExpr:Expr = macro @:privateAccess {
-			js.Syntax.code("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay());
-			lime._internal.backend.html5.HTML5Thread.__messages.pop();
-		};
+		var zeroDelayExpr:Expr = macro @:privateAccess
+			$jsCode("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay())
+			.then(function(_) return lime._internal.backend.html5.HTML5Thread.__messages.pop());
+
 		switch (block.expr)
 		{
 			case EConst(CIdent("false")):
@@ -134,7 +135,8 @@ class HTML5Thread {
 			default:
 				return macro if ($block && @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.isEmpty())
 				{
-					js.Syntax.code("await {0}", new js.lib.Promise(function(resolve, _):Void
+					$jsCode("await {0}", new #if haxe4 js.lib.Promise #else js.Promise #end
+						(function(resolve, _):Void
 						{
 							@:privateAccess lime._internal.backend.html5.HTML5Thread.__resolveMethods.add(resolve);
 						}
@@ -351,19 +353,18 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 	**/
 	public macro function dispatch(self:ExprOf<WorkFunction<Dynamic>>, args:Array<Expr>):Expr
 	{
-		var underlyingType:ComplexType;
-		switch (self.typeof().follow().toComplexType())
-		{
-			case TPath({ sub: "WorkFunction", params: [TPType(t = TFunction(_, _))] }):
-				underlyingType = t;
-			default:
-				throw "Underlying function type not found.";
-		}
-
-		return macro ($self:$underlyingType)($a{args});
+		return macro $self.toFunction()($a{args});
 	}
 
-	@:to private function toFunction():T
+	#if haxe4 @:to #end
+	public inline function toMessage():Message
+	{
+		makePortable();
+		return this;
+	}
+
+	#if haxe4 @:to #end
+	public function toFunction():T
 	{
 		if (this.func != null)
 		{
@@ -456,14 +457,15 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Skip `null` for obvious reasons.
 		return object == null
 			// No need to preserve a primitive type.
-			|| !Std.isOfType(object, Object)
+			|| #if (haxe_ver >= 4.2) !Std.isOfType(object, Object) #else untyped __js__('typeof {0} != "object" && typeof {0} != "function"', object) #end
 			// Objects with this field have been deliberately excluded.
 			|| Reflect.field(object, SKIP_FIELD) == true
 			// A `Uint8Array` (the type used by `haxe.io.Bytes`) can have
 			// thousands or millions of fields, which can take entire seconds to
 			// enumerate. This also applies to `Int8Array`, `Float64Array`, etc.
 			|| object.byteLength != null && object.byteOffset != null
-				&& object.buffer != null && Std.isOfType(object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end);
+				&& object.buffer != null
+				&& #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end);
 	}
 	#end
 
@@ -499,11 +501,22 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		}
 
 		// Preserve this object's class.
-		if (!Std.isOfType(this, Array))
+		if (!#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (this, Array))
 		{
 			try
 			{
-				Reflect.setField(this, PROTOTYPE_FIELD, this.__class__ != null ? this.__class__.__name__ : null);
+				if (this.__class__ != null)
+				{
+					#if haxe4
+					Reflect.setField(this, PROTOTYPE_FIELD, this.__class__.__name__);
+					#else
+					Reflect.setField(this, PROTOTYPE_FIELD, this.__class__.__name__.join("."));
+					#end
+				}
+				else
+				{
+					Reflect.setField(this, PROTOTYPE_FIELD, null);
+				}
 			}
 			catch (e:Dynamic)
 			{
@@ -533,14 +546,20 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 
 		@param flag Leave this `null`.
 	**/
-	private function restoreClasses(flag:Int = null):Void
+	private function restoreClasses(flag:Int = null, depth:Int = 0):Void
 	{
 		#if !macro
-		// Attempt to choose a unique flag.
-		if (flag == null)
+		if (depth > 10)
 		{
-			// Stay well below 2^53.
-			flag = Std.int(Math.random() * 0xFFFFFFFF);
+			untyped __js__("console.log({0})", this);
+			return;
+		}
+
+		// Attempt to choose a unique flag.
+		if (flag == null #if !haxe4 || flag == 0 #end)
+		{
+			// JavaScript's limit is 2^53; Haxe 3's limit is much lower.
+			flag = Std.int(Math.random() * 0x7FFFFFFF);
 			if (Reflect.field(this, RESTORE_FIELD) == flag)
 			{
 				flag++;
@@ -552,19 +571,19 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 			return;
 		}
 
+		try
+		{
+			Reflect.setField(this, RESTORE_FIELD, flag);
+		}
+		catch (e:Dynamic)
+		{
+			// Probably a frozen object; no need to continue.
+			return;
+		}
+
 		// Restore this object's class.
 		if (Reflect.field(this, PROTOTYPE_FIELD) != null)
 		{
-			try
-			{
-				Reflect.setField(this, RESTORE_FIELD, flag);
-			}
-			catch (e:Dynamic)
-			{
-				// Probably a frozen object; no need to continue.
-				return;
-			}
-
 			try
 			{
 				Object.setPrototypeOf(this,
@@ -577,7 +596,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Recurse.
 		for (child in Object.values(this))
 		{
-			(child:Message).restoreClasses(flag);
+			(child:Message).restoreClasses(flag, depth + 1);
 		}
 		#end
 	}
@@ -613,3 +632,12 @@ abstract Transferable(Dynamic) #if macro from Dynamic
 	#else from lime.utils.ArrayBuffer from js.html.MessagePort from js.html.ImageBitmap #end
 {
 }
+
+#if (!haxe4 && !macro)
+@:native("Object")
+extern class Object {
+	static function setPrototypeOf<T:{}>(obj:T, prototype:Null<{}>):T;
+	@:pure static function values(obj:{}):Array<Dynamic>;
+	static var prototype(default, never):Dynamic;
+}
+#end
