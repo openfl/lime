@@ -88,16 +88,14 @@ class HTML5Thread {
 		url.hash += __workerCount;
 		__workerCount++;
 
-
 		// Prepare to send the job.
 		job.makePortable();
-
 
 		// Create the worker. Because the worker's scope will not include a
 		// `window`, `HTML5Thread.__init__()` will add a listener.
 		var thread:HTML5Thread = new HTML5Thread(url.href, new Worker(url.href));
 
-		// Send a message to the listener.
+		// Run `job` on the new thread.
 		thread.sendMessage(job);
 
 		return thread;
