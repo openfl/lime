@@ -349,8 +349,8 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var armv5 = (command == "rebuild"
-			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
+		var armv5 = (/*command == "rebuild" ||*/
+			ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
 			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV6));
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
