@@ -81,6 +81,8 @@
 
 		<file name="${HASHLINK_PATH}/libs/ssl/ssl.c" />
 
+		<compilerflag value="-I/usr/local/include" if="mac"/>
+
 		<section if="windows">
 			<file name="${HASHLINK_PATH}/include/mbedtls/library/aes.c" />
 			<file name="${HASHLINK_PATH}/include/mbedtls/library/aesni.c" />
@@ -157,6 +159,7 @@
 
 	<files id="mysql">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-I/usr/local/include" if="mac"/>
 
 		<file name="${HASHLINK_PATH}/libs/mysql/socket.c" />
 		<file name="${HASHLINK_PATH}/libs/mysql/sha1.c" />
@@ -169,6 +172,10 @@
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${HASHLINK_PATH}/include/mikktspace" />
 		<compilerflag value="-I${HASHLINK_PATH}/include/minimp3" />
+		<compilerflag value="-I/usr/local/include" if="mac"/>
+		<compilerflag value="-I/usr/local/opt/libjpeg-turbo/include" if="mac"/>
+		<compilerflag value="-I/usr/local/opt/jpeg-turbo/include" if="mac"/>
+		<compilerflag value="-I/usr/local/opt/libvorbis/include" if="mac"/>
 
 
 		<file name="${HASHLINK_PATH}/libs/fmt/fmt.c" />
@@ -295,6 +302,7 @@
 	</files>
 	<files id="uv">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-I/usr/local/include" if="mac"/>
 
 		<file name="${HASHLINK_PATH}/libs/uv/uv.c"/>
 
@@ -399,6 +407,11 @@
 		<ext value=".hdll" />
 		<files id="fmt" />
 
+		<lib name="-L/usr/local/lib" if="mac" />
+		<lib name="-L/usr/local/opt/libjpeg-turbo/lib" if="mac" />
+		<lib name="-L/usr/local/opt/jpeg-turbo/lib" if="mac" />
+		<lib name="-L/usr/local/opt/libvorbis/lib" if="mac" />
+
 		<lib name="-lz" unless="windows" />
 		<lib name="-lvorbis" unless="windows" />
 		<lib name="-lvorbisfile" unless="windows" />
@@ -434,6 +447,8 @@
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<ext value=".hdll" />
 		<files id="uv" />
+
+		<lib name="-L/usr/local/lib" if="mac" />
 
 		<lib name="-luv" unless="windows" />
 		<lib name="-lhl" unless="windows" />
