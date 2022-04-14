@@ -444,6 +444,8 @@
 			<lib name="psapi.lib"/>
 			<lib name="iphlpapi.lib" />
 			<lib name="userenv.lib" />
+			<lib name="advapi32.lib" if="windows" />
+			<lib name="ws2_32.lib" if="windows" />
 		</section>
 	</target>
 
