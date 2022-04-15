@@ -659,12 +659,16 @@ class WindowsPlatform extends PlatformTarget
 
 			if (!targetFlags.exists("32")
 				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt")
-				&& targetType != "hl")
+				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
 			{
 				if (targetType == "winrt")
 				{
 					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
+				}
+				else if (targetType == "hl")
+				{
+					// TODO: Support single binary
+					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
 				}
 				else
 				{

@@ -66,6 +66,13 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Linux64-Hashlink
+          path: |
+            templates/bin/hl/linux
+          if-no-files-found: error
+
   macos-ndll:
     runs-on: macos-10.15
     steps:
@@ -113,6 +120,13 @@ jobs:
           path: |
             ndll/Mac64/
             !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Mac64-Hashlink
+          path: |
+            templates/bin/hl/mac
           if-no-files-found: error
 
   windows-ndll:
@@ -167,6 +181,13 @@ jobs:
           path: |
             ndll/Windows64/
             !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Windows-Hashlink
+          path: |
+            templates/bin/hl/windows
           if-no-files-found: error
 
   android-ndll:
@@ -354,6 +375,21 @@ jobs:
         with:
           name: Windows64-NDLL
           path: ndll/Windows64/
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Windows-Hashlink
+          path: templates/bin/hl/windows
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Mac64-Hashlink
+          path: templates/bin/hl/mac
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Linux64-Hashlink
+          path: templates/bin/hl/linux
 
       - uses: actions/upload-artifact@v2
         with:
