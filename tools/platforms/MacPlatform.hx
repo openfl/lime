@@ -207,20 +207,6 @@ class MacPlatform extends PlatformTarget
 			if (noOutput) return;
 
 			HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath);
-
-			// // System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// // 	Path.combine(executableDirectory, project.app.file + ".hl"));
-			// System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", executableDirectory);
-			// // let's not keep around hxcpp's hash files
-			// for (file in System.readDirectory(applicationDirectory))
-			// {
-			// 	if (Path.extension(file) == "hash")
-			// 	{
-			// 		System.deleteFile(file);
-			// 	}
-			// }
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
-			// System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
 		}
 		else if (targetType == "java")
 		{

@@ -297,17 +297,6 @@ class WindowsPlatform extends PlatformTarget
 					{
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
-
-						if (!project.environment.exists("HL_PATH"))
-						{
-							var command = #if lime "lime" #else "hxp" #end;
-
-							Log.warn("You must define HL_PATH to copy HashLink dependencies, please run '" + command + " setup hl' first");
-						}
-						else
-						{
-							System.copyFile(project.environment.get("HL_PATH") + '/ssl.hdll', applicationDirectory + '/ssl.hdll');
-						}
 					}
 					else
 					{
@@ -343,19 +332,6 @@ class WindowsPlatform extends PlatformTarget
 				if (noOutput) return;
 
 				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath);
-
-				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, project.app.file + ".hl"));
-				// System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
-				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-				// System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
-				// let's not keep around hxcpp's hash files
-				for (file in System.readDirectory(applicationDirectory))
-				{
-					if (Path.extension(file) == "hash")
-					{
-						System.deleteFile(file);
-					}
-				}
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 

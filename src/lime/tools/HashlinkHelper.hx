@@ -16,6 +16,7 @@ class HashlinkHelper
 		if (hlPath == null)
 		{
 			System.recursiveCopyTemplate(project.templatePaths, 'bin/hl/$platform', applicationDirectory);
+			System.renameFile(Path.combine(applicationDirectory, "hl" + (platform == WINDOWS ? ".exe" : "")), executablePath);
 		}
 		else
 		{
@@ -43,13 +44,15 @@ class HashlinkHelper
 			}
 		}
 
-		// make sure no hxcpp hash files remain
+		// make sure no hxcpp hash files or MSVC build artifacts remain
 
 		for (file in System.readDirectory(applicationDirectory))
 		{
-			if (Path.extension(file) == "hash")
+			switch Path.extension(file)
 			{
-				System.deleteFile(file);
+				case "hash", "lib", "pdb", "ilk", "exp":
+					System.deleteFile(file);
+				default:
 			}
 		}
 		System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
