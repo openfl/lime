@@ -11,18 +11,3 @@ typedef MetaData =
 	@:optional var title:String;
 	@:optional var version:String;
 }
-
-@:dox(hide) class _MetaDataType
-{
-	public static var fields:MetaData =
-		{
-			buildNumber: "",
-			company: "",
-			companyId: "",
-			companyUrl: "",
-			description: "",
-			packageName: "",
-			title: "",
-			version: ""
-		}
-}

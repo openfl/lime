@@ -1860,9 +1860,9 @@ class CommandLineTools
 					var fieldValue = Reflect.field(project, field);
 					var typeValue:Dynamic = switch (field)
 					{
-						case "app": ApplicationData._ApplicationDataType.fields;
-						case "meta": MetaData._MetaDataType.fields;
-						case "window": WindowData._WindowDataType.fields;
+						case "app": ApplicationDataDefaults.fields;
+						case "meta": MetaDataDefaults.fields;
+						case "window": WindowDataDefaults.fields;
 						default: fieldValue;
 					};
 
@@ -2130,9 +2130,9 @@ class CommandLineTools
 						var fieldReference = Reflect.field(overrides, fieldName);
 						var typeValue:Dynamic = switch (fieldName)
 						{
-							case "app": ApplicationData._ApplicationDataType.fields;
-							case "meta": MetaData._MetaDataType.fields;
-							case "window": WindowData._WindowDataType.fields;
+							case "app": ApplicationDataDefaults.fields;
+							case "meta": MetaDataDefaults.fields;
+							case "window": WindowDataDefaults.fields;
 							default: fieldReference;
 						};
 

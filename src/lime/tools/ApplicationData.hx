@@ -10,17 +10,3 @@ typedef ApplicationData =
 	@:optional var swfVersion:Float;
 	@:optional var url:String;
 }
-
-@:dox(hide) class _ApplicationDataType
-{
-	public static var fields:ApplicationData =
-		{
-			file: "",
-			init: "",
-			main: "",
-			path: "",
-			preloader: "",
-			swfVersion: 0.0,
-			url: ""
-		}
-}
