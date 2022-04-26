@@ -5,6 +5,9 @@ jobs:
 
   linux-ndll:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
     steps:
 
       - uses: actions/checkout@v2
@@ -18,7 +21,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: ${{ matrix.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -47,6 +50,7 @@ jobs:
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux-NDLL
           path: |
@@ -72,7 +76,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -117,7 +121,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -182,7 +186,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -240,7 +244,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -290,7 +294,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -368,7 +372,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -407,7 +411,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -461,7 +465,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -503,7 +507,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -567,7 +571,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -606,7 +610,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -657,7 +661,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -703,7 +707,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -752,7 +756,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -816,7 +820,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
