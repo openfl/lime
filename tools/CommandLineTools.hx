@@ -10,6 +10,9 @@ import hxp.*;
 import lime.system.CFFI;
 import lime.tools.HXProject;
 import lime.tools.*;
+import lime.tools._types.ApplicationDataType;
+import lime.tools._types.MetaDataType;
+import lime.tools._types.WindowDataType;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
@@ -1860,9 +1863,9 @@ class CommandLineTools
 					var fieldValue = Reflect.field(project, field);
 					var typeValue:Dynamic = switch (field)
 					{
-						case "app": ApplicationDataDefaults.fields;
-						case "meta": MetaDataDefaults.fields;
-						case "window": WindowDataDefaults.fields;
+						case "app": ApplicationDataType.fields;
+						case "meta": MetaDataType.fields;
+						case "window": WindowDataType.fields;
 						default: fieldValue;
 					};
 
@@ -2130,9 +2133,9 @@ class CommandLineTools
 						var fieldReference = Reflect.field(overrides, fieldName);
 						var typeValue:Dynamic = switch (fieldName)
 						{
-							case "app": ApplicationDataDefaults.fields;
-							case "meta": MetaDataDefaults.fields;
-							case "window": WindowDataDefaults.fields;
+							case "app": ApplicationDataType.fields;
+							case "meta": MetaDataType.fields;
+							case "window": WindowDataType.fields;
 							default: fieldReference;
 						};
 

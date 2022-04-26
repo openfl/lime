@@ -7,6 +7,9 @@ import lime.tools.Asset;
 import lime.tools.AssetType;
 import lime.tools.Dependency;
 import lime.tools.HXProject;
+import lime.tools._types.ApplicationDataType;
+import lime.tools._types.MetaDataType;
+import lime.tools._types.WindowDataType;
 #if lime
 import lime.utils.AssetManifest;
 #end
@@ -439,11 +442,11 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(ApplicationDataDefaults.fields, name))
+					if (Reflect.hasField(ApplicationDataType.fields, name))
 					{
 						Reflect.setField(app, name, value);
 					}
-					else if (Reflect.hasField(MetaDataDefaults.fields, name))
+					else if (Reflect.hasField(MetaDataType.fields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -856,7 +859,7 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(MetaDataDefaults.fields, name))
+					if (Reflect.hasField(MetaDataType.fields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -2006,11 +2009,11 @@ class ProjectXMLParser extends HXProject
 					Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
 
 				default:
-					if (Reflect.hasField(WindowDataDefaults.fields, name))
+					if (Reflect.hasField(WindowDataType.fields, name))
 					{
 						Reflect.setField(windows[id], name, value == "true");
 					}
-					else if (Reflect.hasField(WindowDataDefaults.fields, formatAttributeName(name)))
+					else if (Reflect.hasField(WindowDataType.fields, formatAttributeName(name)))
 					{
 						Reflect.setField(windows[id], formatAttributeName(name), value == "true");
 					}

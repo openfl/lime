@@ -1,7 +1,8 @@
-package lime.tools;
+package lime.tools._types;
 
-@:dox(hide)
-class MetaDataDefaults
+import lime.tools.MetaData;
+
+class MetaDataType
 {
 	public static var fields:MetaData =
 		{

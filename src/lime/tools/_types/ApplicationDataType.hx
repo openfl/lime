@@ -1,7 +1,8 @@
-package lime.tools;
+package lime.tools._types;
 
-@:dox(hide)
-class ApplicationDataDefaults
+import lime.tools.ApplicationData;
+
+class ApplicationDataType
 {
 	public static var fields:ApplicationData =
 		{

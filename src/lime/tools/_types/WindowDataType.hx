@@ -1,7 +1,8 @@
-package lime.tools;
+package lime.tools._types;
 
-@:dox(hide)
-class WindowDataDefaults
+import lime.tools.WindowData;
+
+class WindowDataType
 {
 	public static var fields:WindowData =
 		{
