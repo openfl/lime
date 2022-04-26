@@ -67,7 +67,7 @@ class Build extends Script
 			"Lime API Reference",
 			"-D",
 			"source-path",
-			"https://github.com/haxelime/lime/tree/develop/src/",
+			"https://github.com/openfl/lime/tree/develop/src/",
 			"-D",
 			"website",
 			"http://lime.software",

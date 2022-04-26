@@ -422,7 +422,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -473,7 +473,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v2
         with:
@@ -530,7 +530,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -579,7 +579,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v2
         with:
@@ -621,7 +621,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -672,7 +672,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -718,7 +718,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -779,7 +779,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -831,7 +831,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -862,7 +862,7 @@ jobs:
   notify:
     runs-on: ubuntu-18.04
     needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
-    if: ${{ github.repository == 'haxelime/lime' && github.event_name != 'pull_request' }}
+    if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
         uses: nobrayner/discord-webhook@v1
