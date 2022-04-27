@@ -439,11 +439,11 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(ApplicationData.defaults, name))
+					if (Reflect.hasField(ApplicationData.expectedFields, name))
 					{
 						Reflect.setField(app, name, value);
 					}
-					else if (Reflect.hasField(MetaData.defaults, name))
+					else if (Reflect.hasField(MetaData.expectedFields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -856,7 +856,7 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(MetaData.defaults, name))
+					if (Reflect.hasField(MetaData.expectedFields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -2006,11 +2006,11 @@ class ProjectXMLParser extends HXProject
 					Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
 
 				default:
-					if (Reflect.hasField(WindowData.defaults, name))
+					if (Reflect.hasField(WindowData.expectedFields, name))
 					{
 						Reflect.setField(windows[id], name, value == "true");
 					}
-					else if (Reflect.hasField(WindowData.defaults, formatAttributeName(name)))
+					else if (Reflect.hasField(WindowData.expectedFields, formatAttributeName(name)))
 					{
 						Reflect.setField(windows[id], formatAttributeName(name), value == "true");
 					}

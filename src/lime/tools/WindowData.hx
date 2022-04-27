@@ -33,7 +33,8 @@ abstract WindowData({
 	@:optional var hidden:Bool;
 }) from Dynamic
 {
-	public static var defaults = {
+	@:noCompletion
+	public static var expectedFields:WindowData = {
 		width: 0,
 		height: 0,
 		x: 0.0,

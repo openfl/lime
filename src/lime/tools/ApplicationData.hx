@@ -11,7 +11,8 @@ abstract ApplicationData({
 	@:optional var url:String;
 }) from Dynamic
 {
-	public static var defaults = {
+	@:noCompletion
+	public static var expectedFields:ApplicationData = {
 		file: "",
 		init: "",
 		main: "",

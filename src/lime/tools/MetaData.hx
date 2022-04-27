@@ -12,7 +12,8 @@ abstract MetaData({
 	@:optional var version:String;
 }) from Dynamic
 {
-	public static var defaults = {
+	@:noCompletion
+	public static var expectedFields:MetaData = {
 		buildNumber: "",
 		company: "",
 		companyId: "",
