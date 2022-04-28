@@ -925,6 +925,10 @@ class HTML5Window
 		{
 			Browser.document.execCommand("copy");
 		}
+		Timer.delay(function()
+		{
+			if (textInputEnabled) textInput.focus();
+		}, 20);
 	}
 
 	public function setCursor(value:MouseCursor):MouseCursor
