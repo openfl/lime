@@ -339,6 +339,13 @@ class HTML5Window
 
 	public function focus():Void {}
 
+	public function focusTextInputWithDelay():Void {
+		Timer.delay(function()
+		{
+			if (textInputEnabled) textInput.focus();
+		}, 20);
+	}
+
 	public function getCursor():MouseCursor
 	{
 		return cursor;
@@ -457,10 +464,7 @@ class HTML5Window
 		{
 			if (event.relatedTarget == null || isDescendent(cast event.relatedTarget))
 			{
-				Timer.delay(function()
-				{
-					if (textInputEnabled) textInput.focus();
-				}, 20);
+				focusTextInputWithDelay();
 			}
 		}
 	}
@@ -925,10 +929,7 @@ class HTML5Window
 		{
 			Browser.document.execCommand("copy");
 		}
-		Timer.delay(function()
-		{
-			if (textInputEnabled) textInput.focus();
-		}, 20);
+		focusTextInputWithDelay();
 	}
 
 	public function setCursor(value:MouseCursor):MouseCursor
