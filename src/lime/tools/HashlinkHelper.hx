@@ -36,7 +36,7 @@ class HashlinkHelper
 			}
 
 			for (file in System.readDirectory(hlPath)
-				.filter(f -> Path.extension(f) == "hdll"
+				.filter(function (f) return Path.extension(f) == "hdll"
 					&& Path.withoutDirectory(f) != "sdl.hdll"
 					&& Path.withoutDirectory(f) != "openal.hdll"))
 			{
