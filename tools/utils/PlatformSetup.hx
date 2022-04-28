@@ -1199,12 +1199,12 @@ class PlatformSetup
 
 				if (answer == YES || answer == ALWAYS)
 				{
-					final openSSLConf = System.getTemporaryFile("cnf");
-					final key = System.getTemporaryFile("pem");
-					final cert = System.getTemporaryFile("cer");
-					final limePath = Haxelib.getPath(new Haxelib("lime"));
-					final hlPath = limePath + "/templates/bin/hl/mac/hl";
-					final entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
+					var openSSLConf = System.getTemporaryFile("cnf");
+					var key = System.getTemporaryFile("pem");
+					var cert = System.getTemporaryFile("cer");
+					var limePath = Haxelib.getPath(new Haxelib("lime"));
+					var hlPath = limePath + "/templates/bin/hl/mac/hl";
+					var entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
 						"/project/lib/hashlink/other/osx/entitlements.xml") : (limePath
 						+ "/templates/bin/hl/entitlements.xml");
 					System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, false, true);

@@ -10,9 +10,9 @@ class HashlinkHelper
 {
 	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String)
 	{
-		final platform = project.target;
+		var platform = project.target;
 
-		final hlPath = ConfigHelper.getConfigValue("HL_PATH");
+		var hlPath = ConfigHelper.getConfigValue("HL_PATH");
 		if (hlPath == null)
 		{
 			System.recursiveCopyTemplate(project.templatePaths, 'bin/hl/$platform', applicationDirectory);
