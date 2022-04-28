@@ -419,7 +419,11 @@ class HTML5Window
 
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
-		event.clipboardData.setData("text/plain", Clipboard.text);
+		var text = "";
+		if (Clipboard.text != null) {
+			text = Clipboard.text;
+		}
+		event.clipboardData.setData("text/plain", text);
 		if (event.cancelable) event.preventDefault();
 	}
 
