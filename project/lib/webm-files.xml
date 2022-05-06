@@ -1,0 +1,17 @@
+<xml>
+	
+	<!-- <set name="HXCPP_CPP11" value="1" /> -->
+	
+	<files id="native-toolkit-webm" >
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/vttreader.cc" />
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/webvttparser.cc" />
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/mkvmuxer.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/mkvmuxerutil.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/mkvparser.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/mkvreader.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/mkvwriter.cpp" />
+		
+	</files>
+	
+</xml>

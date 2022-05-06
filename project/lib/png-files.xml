@@ -1,0 +1,50 @@
+<xml>
+	
+	<files id="native-toolkit-png-depends">
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/png.h"/>
+	</files>
+
+	<files id="native-toolkit-png" tags="" >
+		
+		<cache value="1" />
+		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+
+      <depend files="native-toolkit-png-depends" />
+
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/pngstruct.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/pnginfo.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/pnglibconf.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/pngpriv.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/pngconf.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/png/pngdebug.h"/>
+
+
+		<file name="${NATIVE_TOOLKIT_PATH}/png/png.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngerror.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngget.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngmem.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngpread.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngread.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngrio.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngrtran.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngrutil.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngset.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngtrans.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngwio.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngwrite.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngwtran.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/png/pngwutil.c" />
+		
+		<section if="ios || tvos">
+			
+			<file name="${NATIVE_TOOLKIT_PATH}/png/arm/arm_init.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/png/arm/filter_neon_intrinsics.c" />
+			
+		</section>
+		
+	</files>
+	
+</xml>

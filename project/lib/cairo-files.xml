@@ -1,0 +1,130 @@
+<xml>
+	
+	<files id="native-toolkit-cairo" >
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/include" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
+		
+		<compilerflag value="-DNDEBUG" unless="debug" />
+		<compilerflag value="-DHAVE_CONFIG_H" />
+		<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
+		
+		<compilerflag value="-Wno-attributes" unless="windows" />
+		<compilerflag value="-Wno-enum-conversion" if="mac || ios || emscripten || tvos" />
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-analysis-surface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-arc.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-array.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-atomic.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-base64-stream.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-base85-stream.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-bentley-ottmann.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-bentley-ottmann-rectangular.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-bentley-ottmann-rectilinear.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-botor-scan-converter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-boxes.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-boxes-intersect.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-cache.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-clip.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-clip-boxes.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-clip-polygon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-clip-region.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-clip-surface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-color.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-composite-rectangles.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-contour.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-damage.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-debug.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-default-context.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-device.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-error.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-fallback-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-fixed.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-ft-font.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-font-face.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-font-face-twin.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-font-face-twin-data.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-font-options.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-freelist.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-freed-pool.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-gstate.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-hash.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-hull.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-image-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-image-info.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-image-source.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-image-surface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-line.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-lzw.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-matrix.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mask-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mesh-pattern-rasterizer.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mempool.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-misc.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mono-scan-converter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mutex.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-no-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-observer.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-output-stream.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-paginated-surface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-bounds.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-fill.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-fixed.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-in-fill.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-stroke.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-stroke-boxes.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-stroke-polygon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-stroke-traps.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-path-stroke-tristrip.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-pattern.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-pen.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-polygon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-polygon-intersect.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-polygon-reduce.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-raster-source-pattern.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-recording-surface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-rectangle.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-rectangular-scan-converter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-region.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-rtree.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-scaled-font.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-shape-mask-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-slope.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-spans.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-spans-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-spline.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-stroke-dash.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-stroke-style.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-clipper.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-fallback.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-observer.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-offset.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-snapshot.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-subsurface.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-surface-wrapper.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-time.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-tor-scan-converter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-tor22-scan-converter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-clip-tor-scan-converter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-toy-font-face.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-traps.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-tristrip.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-traps-compositor.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-unicode.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-user-font.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-version.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-wideint.c" />
+		
+	</files>
+	
+</xml>

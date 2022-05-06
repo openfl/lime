@@ -1,0 +1,75 @@
+<xml>
+	
+	<files id="native-toolkit-jpeg-depends" >
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jpeglib.h"/>
+	</files>
+	
+	<files id="native-toolkit-jpeg" tags="">
+		<cache value="1" />
+		
+		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+		
+		<depend files="native-toolkit-jpeg-depends"/>
+		
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/transupp.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jversion.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jmemsys.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jmorecfg.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jpegint.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jinclude.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jerror.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jdct.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jconfig.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/cdjpeg.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/cderror.h"/>
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcapimin.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcapistd.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jctrans.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcparam.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdatadst.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcinit.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcmaster.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcmarker.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcmainct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcprepct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jccoefct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jccolor.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcsample.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jchuff.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcdctmgr.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jfdctfst.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jfdctflt.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jfdctint.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdapimin.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdapistd.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdtrans.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdatasrc.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdmaster.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdinput.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdmarker.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdhuff.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdmainct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdcoefct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdpostct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jddctmgr.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jidctfst.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jidctflt.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jidctint.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdsample.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdcolor.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jquant1.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jquant2.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdmerge.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcomapi.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jutils.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jerror.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jmemmgr.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jmemnobs.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jaricom.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcarith.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jdarith.c"/>
+		
+	</files>
+	
+</xml>

@@ -1,0 +1,66 @@
+<xml>
+	
+	<!-- <set name="HXCPP_CPP11" value="1" /> -->
+	
+	<files id="native-toolkit-vpx" >
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/lib" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vpx" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vpx/vpx-ports" />
+		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/cpufeatures" if="android"/>
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_ports/arm_cpudetect.c" if="ios || android" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx/src/vpx_decoder.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx/src/vpx_encoder.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx/src/vpx_codec.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx/src/vpx_image.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_dsp/vpx_dsp_rtcd.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_mem/vpx_mem.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_scale/vpx_scale_rtcd.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_scale/generic/vpx_scale.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_scale/generic/yv12config.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_scale/generic/yv12extend.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_scale/generic/gen_scalers.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/alloccommon.c" />
+		<!-- <file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/asm_com_offsets.c" /> -->
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/blockd.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/debugmodes.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/dequantize.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/entropy.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/entropymode.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/entropymv.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/extend.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/filter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/findnearmv.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/generic/systemdependent.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/idct_blk.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/idctllm.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/rtcd.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/vp8_loopfilter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/loopfilter_filters.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/mbpitch.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/modecont.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/quant_common.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/reconinter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/reconintra.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/reconintra4x4.c" />
+		<!-- <file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/sad_c.c" /> -->
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/setupintrarecon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/swapyv12buffer.c" />
+		<!-- <file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/variance_c.c" /> -->
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/common/treecoder.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/vp8_dx_iface.c" />
+		<!-- <file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/asm_dec_offsets.c" /> -->
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/dboolhuff.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/decodemv.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/decodeframe.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/detokenize.c" />
+		<!-- <file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/error_concealment.c" /> -->
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vp8/decoder/onyxd_if.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/vpx/vpx_config.c" />
+		
+	</files>
+	
+</xml>

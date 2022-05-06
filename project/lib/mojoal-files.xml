@@ -1,0 +1,19 @@
+<xml>
+	
+	<files id="native-toolkit-mojoal" >
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows"/>
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac"/>
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi"/>
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mojoal/" />
+		<compilerflag value="-DAL_LIBTYPE_STATIC" if="native_toolkit_mojoal_static" />
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/mojoal/mojoal.c" />
+		
+	</files>
+	
+</xml>

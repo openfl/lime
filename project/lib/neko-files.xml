@@ -1,0 +1,37 @@
+<xml>
+	
+	<files id="native-toolkit-neko">
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/neko/vm/"/>
+		<compilerflag value="-DNEKO_STANDALONE=1"/>
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/buffer.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/date.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/file.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/init.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/int32.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/math.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/string.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/random.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/serialize.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/socket.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/sys.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/misc.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/thread.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/libs/std/process.c"/>
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/alloc.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/builtins.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/callback.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/interp.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/load.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/objtable.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/others.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/hash.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/module.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/jit_x86.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/neko/vm/threads.c"/>
+		
+	</files>
+	
+</xml>

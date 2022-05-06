@@ -1,0 +1,69 @@
+<xml>
+
+	<files id="native-toolkit-vorbis-depends">
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/include/vorbis/codec.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/include/vorbis/vorbisenc.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/include/vorbis/vorbisfile.h"/>
+	</files>
+	
+	<files id="native-toolkit-vorbis" tags="" >
+		
+		<cache value="1" />
+		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+
+		<depend files="native-toolkit-vorbis-depends"/>
+
+		<depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/config_types.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/ogg.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/os_types.h"/>
+
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/window.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/smallft.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/scales.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/registry.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/psy.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/os.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/misc.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/mdct.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/masking.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lsp.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lpc.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lookup_data.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lookup.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/highlevel.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/envelope.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/codec_internal.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/codebook.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/bitrate.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/backends.h"/>
+
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/"/>
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/"/>
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/mdct.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/smallft.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/block.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/envelope.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/window.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lsp.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lpc.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/analysis.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/synthesis.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/psy.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/info.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/floor1.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/floor0.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/res0.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/mapping0.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/registry.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/codebook.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/sharedbook.c"/>
+		<!--<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/lookup.c"/>-->
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/bitrate.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/vorbisfile.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/vorbisenc.c"/>
+		
+	</files>
+	
+</xml>

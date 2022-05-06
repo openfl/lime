@@ -1,0 +1,17 @@
+<xml>
+
+    <files id="native-toolkit-lzma">
+
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/lzma/include/" if="NATIVE_TOOLKIT_LZMA_BINDING" />
+        <compilerflag value="-D_7ZIP_ST" unless="windows"/>
+
+        <file name="${NATIVE_TOOLKIT_PATH}/lzma/src/LzmaBinding.cpp" if="NATIVE_TOOLKIT_LZMA_BINDING" />
+        <file name="${NATIVE_TOOLKIT_PATH}/lzma/src/LzFind.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/lzma/src/LzmaDec.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/lzma/src/LzmaEnc.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/lzma/src/LzFindMt.c"            if="windows" />
+        <file name="${NATIVE_TOOLKIT_PATH}/lzma/src/Threads.c"             if="windows" />
+
+    </files>
+
+</xml>

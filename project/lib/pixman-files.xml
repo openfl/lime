@@ -1,0 +1,73 @@
+<xml>
+
+	<!-- TODO: ARM64 NEON -->
+
+	<!-- <set name="PIXMAN_ARM_SIMD" value="1" if="android || rpi" unless="HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_ARM64 || HXCPP_X86" /> -->
+	<set name="PIXMAN_ARM_NEON" value="1" if="HXCPP_ARMV7 || HXCPP_ARMV7S || rpi" unless="ios" />
+
+	<files id="native-toolkit-pixman" >
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/src" />
+		<compilerflag value="-DHAVE_CONFIG_H" />
+		<compilerflag value="-DPIXMAN_NO_TLS" if="windows" />
+
+		<compilerflag value="-DNATIVE_TOOLKIT_HAVE_PNG" if="NATIVE_TOOLKIT_HAVE_PNG" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png" if="NATIVE_TOOLKIT_HAVE_PNG" />
+
+		<compilerflag value="-DUSE_ARM_NEON=1" if="PIXMAN_ARM_NEON" />
+		<compilerflag value="-DUSE_ARM_SIMD=1" if="PIXMAN_ARM_SIMD" />
+
+		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android"/>
+
+		<compilerflag value="-mmmx" if="linux || mac" unless="rpi"/>
+		<compilerflag value="-msse" if="linux || mac" unless="rpi"/>
+		<compilerflag value="-msse2" if="linux || mac" unless="rpi"/>
+		<compilerflag value="-msse3" if="linux || mac" unless="rpi"/>
+		<compilerflag value="-mssse3" if="linux || mac" unless="rpi"/>
+
+		<compilerflag value="-Wno-attributes" if="android" />
+		<compilerflag value="-Wno-tautological-constant-out-of-range-compare" if="mac || ios || tvos" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-access.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-access-accessors.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm-neon.c" if="PIXMAN_ARM_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm-neon-asm-bilinear.S" if="PIXMAN_ARM_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm-neon-asm.S" if="PIXMAN_ARM_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm-simd.c" if="PIXMAN_ARM_SIMD" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm-simd-asm.S" if="PIXMAN_ARM_SIMD" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-arm-simd-asm-scaled.S" if="PIXMAN_ARM_SIMD" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-bits-image.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-combine32.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-combine-float.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-conical-gradient.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-edge.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-edge-accessors.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-fast-path.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-filter.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-glyph.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-general.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-gradient-walker.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-image.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-implementation.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-linear-gradient.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-matrix.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-mips.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-mmx.c" if="windows || mac || linux" unless="rpi"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-noop.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-ppc.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-radial-gradient.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-region16.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-region32.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-solid-fill.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-sse2.c" if="windows || mac || linux" unless="rpi"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-ssse3.c" if="windows || mac || linux" unless="rpi"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-timer.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-trap.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-utils.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/src/pixman-x86.c" />
+
+	</files>
+
+</xml>

@@ -1,0 +1,25 @@
+<xml>
+	
+	<files id="native-toolkit-zlib">
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/adler32.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/crc32.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/infback.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/inflate.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/uncompr.c"/>
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/compress.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/deflate.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzread.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzwrite.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzclose.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzlib.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/inffast.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/inftrees.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/trees.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib/zutil.c" />
+		
+	</files>
+	
+</xml>

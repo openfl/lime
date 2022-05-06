@@ -1,0 +1,55 @@
+<xml>
+	
+	<files id="native-toolkit-efsw">
+		
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/efsw/include" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/efsw/src" />
+		
+		<!-- Define for macOS <= 10.6 support -->
+		<!-- <compilerflag value="-DEFSW_FSEVENTS_NOT_SUPPORTED" if="mac" /> -->
+		
+		<!-- Define if sys/inotify.h doesn't exist -->
+		<!-- <compilerflag value="-DEFSW_INOTIFY_NOSYS" if="linux" /> -->
+		
+		<compilerflag value="-D_SCL_SECURE_NO_WARNINGS" if="windows" />
+		<compilerflag value="-DNDEBUG" unless="debug" />
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/Debug.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/DirectorySnapshot.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/DirectorySnapshotDiff.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/DirWatcherGeneric.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileInfo.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileSystem.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcher.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherCWrapper.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherFSEvents.cpp" if="mac" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherGeneric.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherImpl.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherInotify.cpp" if="linux" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherKqueue.cpp" if="mac" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/FileWatcherWin32.cpp" if="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/Log.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/Mutex.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/String.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/System.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/Thread.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/Watcher.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/WatcherFSEvents.cpp" if="mac" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/WatcherGeneric.cpp" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/WatcherInotify.cpp" if="linux" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/WatcherKqueue.cpp" if="mac" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/WatcherWin32.cpp" if="windows" />
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/win/FileSystemImpl.cpp" if="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/win/MutexImpl.cpp" if="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/win/SystemImpl.cpp" if="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/win/ThreadImpl.cpp" if="windows" />
+		
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/posix/FileSystemImpl.cpp" unless="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/posix/MutexImpl.cpp" unless="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/posix/SystemImpl.cpp" unless="windows" />
+		<file name="${NATIVE_TOOLKIT_PATH}/efsw/src/efsw/platform/posix/ThreadImpl.cpp" unless="windows" />
+		
+	</files>
+	
+</xml>

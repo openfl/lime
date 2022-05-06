@@ -1,0 +1,601 @@
+<xml>
+
+    <section unless="SDL_CONFIG_PATH" >
+       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi" />
+       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
+       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" unless="winrt" />
+       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt" />
+       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac" />
+       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi" />
+    </section>
+
+
+    <files id="native-toolkit-sdl-depends">
+        <depend name="${SDL_CONFIG_PATH}/SDL_config.h" if="SDL_CONFIG_PATH" />
+
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_android.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/begin_code.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/close_code.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_test_random.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_thread.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_timer.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_touch.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_types.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_version.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_video.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_surface.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_system.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_syswm.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_test.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_test_assert.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_test_common.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_render.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_revision.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_rwops.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_scancode.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_shape.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_stdinc.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengles2_gl2platform.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengles2_khrplatform.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_pixels.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_platform.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_power.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_quit.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_rect.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengl_glext.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengles.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengles2.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengles2_gl2.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengles2_gl2ext.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_mouse.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_mutex.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_name.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_opengl.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_hints.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_joystick.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_keyboard.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_keycode.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_loadso.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_log.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_main.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_messagebox.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_error.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_events.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_filesystem.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_gamecontroller.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_gesture.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_haptic.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_winrt.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_wiz.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_copying.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_cpuinfo.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_egl.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_endian.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_iphoneos.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_macosx.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_minimal.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_pandora.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_psp.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_windows.h" unless="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_assert.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_atomic.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_audio.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_bits.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_blendmode.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_clipboard.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL.h"/>
+        <!--
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_gamecontrollerdb.h" if="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_windows.h" if="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_xinput.h" if="winrt"/>
+    -->
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_common.h" if="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_direct3d.h" if="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_xaml.h" if="winrt"/>
+
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi.h" if="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi_overrides.h" if="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi_procs.h" if="winrt"/>
+
+    </files>
+
+
+
+
+    <files id="native-toolkit-sdl" tags="" >
+
+        <cache value="1" />
+        <tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+
+        <depend files="native-toolkit-sdl-depends"/>
+
+        <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android"/>
+
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
+        <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
+
+        <compilerflag value="-DGL_GLEXT_PROTOTYPES" if="android || rpi" />
+        <compilerflag value="-DHAVE_LIBC" />
+
+        <compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
+        <compilerflag value="-D__TVOS__" if="tvos" />
+
+        <section if="windows">
+
+            <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
+            <compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
+            <compilerflag value="-DNATIVE_TOOLKIT_STATIC_ANGLE" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
+            <compilerflag value="-DSDL_VIDEO_STATIC_ANGLE" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
+
+        </section>
+
+        <section if="winrt">
+
+            <compilerflag value="-D__WINRT__"/>
+            <compilerflag value="-DUNICODE"/>
+            <compilerflag value="-DSDL_BUILDING_WINRT=1"/>
+
+        </section>
+
+        <section if="linux">
+
+            <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
+            <compilerflag value="-DHAVE_LINUX_VERSION_H" />
+            <compilerflag value="-D_REENTRANT" />
+            <compilerflag value="-mmmx" unless="rpi" />
+            <compilerflag value="-msse" unless="rpi" />
+            <compilerflag value="-msse2" unless="rpi" />
+            <compilerflag value="-msse3" unless="rpi" />
+            <compilerflag value="-mssse3" unless="rpi" />
+
+            <compilerflag value="-mfpu=neon" if="rpi" />
+            <compilerflag value="-mfloat-abi=hard" if="rpi" />
+            <compilerflag value="-I-abi=hard" if="rpi" />
+            <compilerflag value="-I/opt/vc/include" if="rpi" />
+            <compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" if="rpi" />
+            <compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" if="rpi" />
+            <compilerflag value="-I/usr/include/interface/vcos/pthreads" if="rpi" />
+            <compilerflag value="-I/usr/include/interface/vmcs_host/linux" if="rpi" />
+
+            <set name="XINPUT2" value="${NATIVE_TOOLKIT_SDL_X11_XINPUT2}"/>
+            <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2=${XINPUT2}" if="XINPUT2" />
+            <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2_SUPPORTS_MULTITOUCH=${XINPUT2}" if="XINPUT2"/>
+            <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2=0" unless="XINPUT2" />
+            <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2_SUPPORTS_MULTITOUCH=0" unless="XINPUT2"/>
+
+        </section>
+
+        <section if="mac">
+
+            <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
+            <compilerflag value="-DTARGET_API_MAC_CARBON" />
+            <compilerflag value="-DTARGET_API_MAC_OSX" />
+            <compilerflag value="-D_THREAD_SAFE" />
+            <compilerflag value="-mmmx" />
+            <compilerflag value="-msse" />
+            <compilerflag value="-msse2" />
+            <compilerflag value="-msse3" />
+            <compilerflag value="-mssse3" />
+
+        </section>
+
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_assert.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_dataqueue.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_error.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_hints.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_log.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/atomic/SDL_atomic.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/atomic/SDL_spinlock.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_audio.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_audiocvt.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_audiotypecvt.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_mixer.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_wave.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/cpuinfo/SDL_cpuinfo.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_clipboardevents.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_displayevents.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_dropevents.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_events.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_gesture.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_keyboard.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_mouse.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_quit.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_touch.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_windowevents.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/SDL_rwops.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/SDL_haptic.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/steam/SDL_steamcontroller.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/SDL_gamecontroller.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/SDL_joystick.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_atan2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_exp.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_fmod.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_log.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_log10.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_pow.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_rem_pio2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_sqrt.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/k_cos.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/k_rem_pio2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/k_sin.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/k_tan.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_atan.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_copysign.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_cos.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_fabs.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_floor.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_scalbn.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_sin.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_tan.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/SDL_power.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/SDL_render.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/SDL_yuv_sw.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/dummy/SDL_dummysensor.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/SDL_sensor.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_getenv.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_iconv.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_malloc.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_qsort.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_stdlib.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_string.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_strtokr.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/SDL_thread.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/timer/SDL_timer.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/yuv2rgb/yuv_rgb.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_RLEaccel.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_0.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_1.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_A.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_N.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_auto.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_copy.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_blit_slow.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_bmp.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_clipboard.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_fillrect.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_pixels.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_rect.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_shape.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_stretch.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_surface.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_video.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_vulkan_utils.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_yuv.c" />
+
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/disk/SDL_diskaudio.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/loadso/dlopen/SDL_sysloadso.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengl/SDL_render_gl.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengl/SDL_shaders_gl.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_blendfillrect.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_blendline.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_blendpoint.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_drawline.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_drawpoint.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_render_sw.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_rotate.c" />
+
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/dummy/SDL_nullevents.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/dummy/SDL_nullframebuffer.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/dummy/SDL_nullvideo.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/dummy/SDL_dummyaudio.c" />
+
+        <section unless="windows">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/pthread/SDL_syscond.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/pthread/SDL_sysmutex.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/pthread/SDL_syssem.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/pthread/SDL_systhread.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/pthread/SDL_systls.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/timer/unix/SDL_systimer.c" />
+
+        </section>
+
+        <section if="android || ios || windows || rpi || tvos" >
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/SDL_egl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles/SDL_render_gles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles2/SDL_render_gles2.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles2/SDL_shaders_gles2.c" />
+
+        </section>
+
+        <section if="windows || mac || ios || android || tvos">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_gamecube.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_ps4.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_rumble.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_steam.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_switch.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_xbox360.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_xbox360w.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_xboxone.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapijoystick.c" />
+
+        </section>
+
+        <section if="LIBSDL_DIRECTFB">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_WM.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_dyn.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_events.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_modes.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_mouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_opengl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_render.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_shape.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_video.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/directfb/SDL_DirectFB_window.c" />
+
+        </section>
+
+        <section if="LIBSDL_WAYLAND">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandclipboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylanddatamanager.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylanddyn.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandevents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandmouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandopengles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandtouch.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvideo.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvulkan.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandwindow.c" />
+
+        </section>
+
+        <section if="LIBSDL_PANDORA">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/pandora/SDL_pandora.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/pandora/SDL_pandora_events.c" />
+
+        </section>
+
+        <section if="LIBSDL_RPI || rpi">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpievents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpimouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpiopengles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/raspberry/SDL_rpivideo.c" />
+
+        </section>
+
+        <section if="LIBSDL_PSP">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/psp/SDL_pspaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/psp/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/psp/SDL_psp_main.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/psp/SDL_syspower.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/psp/SDL_render_psp.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_syscond.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_sysmutex.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_syssem.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_systhread.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/timer/psp/SDL_systimer.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/psp/SDL_pspevents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/psp/SDL_pspgl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/psp/SDL_pspmouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/psp/SDL_pspvideo.c" />
+
+        </section>
+
+        <section if="linux">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_audiodev.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/alsa/SDL_alsa_audio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/arts/SDL_artsaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/esd/SDL_esdaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/fusionsound/SDL_fsaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/nas/SDL_nasaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/paudio/SDL_paudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/pulseaudio/SDL_pulseaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/qsa/SDL_qsa_audio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/sndio/SDL_sndioaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/sun/SDL_sunaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/dsp/SDL_dspaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/linux/SDL_syshaptic.c" />
+            <!-- <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/linux/hid.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/linux/hidraw.cpp" /> -->
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/bsd/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/linux/SDL_syspower.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev_kbd.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_udev.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_dbus.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_ibus.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_ime.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_threadprio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/unix/SDL_poll.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/linux/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11clipboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11dyn.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11events.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11framebuffer.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11keyboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11messagebox.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11modes.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11mouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11opengl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11opengles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11shape.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11touch.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11video.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11vulkan.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11window.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xinput2.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/edid-parse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/imKStoUCS.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/unix/SDL_sysfilesystem.c" />
+
+        </section>
+
+        <section if="windows">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/generic/SDL_syscond.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/directsound/SDL_directsound.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/winmm/SDL_winmm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/windows/SDL_windows.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/windows/SDL_xinput.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_mmjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_dinputjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_windowsjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_xinputjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/windows/SDL_dinputhaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/windows/SDL_windowshaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/windows/SDL_xinputhaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/windows/hid.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/loadso/windows/SDL_sysloadso.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_d3d11.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/SDL_d3dmath.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/windows/SDL_sysmutex.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/windows/SDL_syssem.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/windows/SDL_systhread.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/windows/SDL_systls.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/timer/windows/SDL_systimer.c" />
+
+            <section unless="winrt">
+
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/wasapi/SDL_wasapi_win32.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/windows/SDL_sysfilesystem.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/windows/SDL_syspower.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d/SDL_render_d3d.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsclipboard.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsevents.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsframebuffer.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowskeyboard.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmessagebox.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmodes.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmouse.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsopengl.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsopengles.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsshape.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsvideo.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsvulkan.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowswindow.c" />
+
+            </section>
+
+        </section>
+
+        <section if="winrt">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/wasapi/SDL_wasapi_winrt.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_common.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_direct3d.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_xaml.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/winrt/SDL_sysfilesystem.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/winrt/SDL_syspower.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_d3d11.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_winrt.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_shaders_d3d11.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtevents.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtkeyboard.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtmessagebox.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtmouse.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtopengles.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtpointerinput.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtvideo.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/winrt/SDL_winrtgamebar.cpp" />
+
+        </section>
+
+        <section if="mac">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/coreaudio/SDL_coreaudio.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/darwin/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/darwin/SDL_syshaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/mac/hid.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/macosx/SDL_syspower.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/cocoa/SDL_rwopsbundlesupport.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/cocoa/SDL_sysfilesystem.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoaclipboard.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoaevents.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoakeyboard.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamessagebox.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoametalview.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamodes.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamouse.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamousetap.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoaopengl.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoaopengles.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoashape.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoavideo.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoavulkan.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoawindow.m" />
+
+        </section>
+
+        <section if="ios || tvos">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/coreaudio/SDL_coreaudio.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/cocoa/SDL_rwopsbundlesupport.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/cocoa/SDL_sysfilesystem.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/iphoneos/SDL_sysjoystick.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/dummy/SDL_syshaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/ios/hid.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/uikit/SDL_uikit_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/uikit/SDL_syspower.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/metal/SDL_render_metal.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/coremotion/SDL_coremotionsensor.m" if="ios" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitappdelegate.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitclipboard.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitevents.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitmessagebox.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitmetalview.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitmodes.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitopengles.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitopenglview.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitvideo.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitview.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitviewcontroller.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitvulkan.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitwindow.m" />
+
+            <compilerflag value="-fobjc-arc" />
+
+        </section>
+
+        <section if="android">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/android/SDL_androidaudio.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/openslES/SDL_openslES.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/android/SDL_android.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/android/SDL_syshaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/android/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/android/SDL_sysfilesystem.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/android/hid.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/android/SDL_android_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/android/SDL_syspower.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/android/SDL_androidsensor.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidclipboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidevents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidgl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidkeyboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidtouch.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidvideo.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidvulkan.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidwindow.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidmessagebox.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/android/SDL_androidmouse.c" />
+
+        </section>
+
+        <section if="emscripten">
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenevents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenframebuffer.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenmouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenopengles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenvideo.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/emscripten/SDL_syspower.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/emscripten/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/emscripten/SDL_sysfilesystem.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/emscripten/SDL_emscriptenaudio.c" />
+        </section>
+
+    </files>
+
+</xml>

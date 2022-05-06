@@ -328,27 +328,27 @@
 
 	</files>
 
-	<include name="lib/cairo/files.xml" />
-	<include name="lib/curl/files.xml" />
-	<include name="lib/efsw/files.xml" />
-	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
-	<include name="lib/freetype/files.xml" />
-	<include name="lib/harfbuzz/files.xml" />
-	<include name="lib/jpeg/files.xml" />
-	<include name="lib/lzma/files.xml" />
-	<include name="lib/mbedtls/files.xml" />
-	<include name="lib/mojoal/files.xml" />
-	<include name="lib/neko/files.xml" />
-	<include name="lib/ogg/files.xml" />
-	<include name="lib/openal/files.xml" />
-	<include name="lib/pixman/files.xml" />
-	<include name="lib/png/files.xml" />
-	<include name="lib/sdl/files.xml" />
-	<include name="lib/tinyfiledialogs/files.xml" />
-	<include name="lib/vorbis/files.xml" />
-	<include name="lib/vpx/files.xml" />
-	<include name="lib/webm/files.xml" />
-	<include name="lib/zlib/files.xml" />
+	<include name="lib/cairo-files.xml" />
+	<include name="lib/curl-files.xml" />
+	<include name="lib/efsw-files.xml" />
+	<include name="lib/faudio-files.xml" if="LIME_FAUDIO" />
+	<include name="lib/freetype-files.xml" />
+	<include name="lib/harfbuzz-files.xml" />
+	<include name="lib/jpeg-files.xml" />
+	<include name="lib/lzma-files.xml" />
+	<include name="lib/mbedtls-files.xml" />
+	<include name="lib/mojoal-files.xml" />
+	<include name="lib/neko-files.xml" />
+	<include name="lib/ogg-files.xml" />
+	<include name="lib/openal-files.xml" />
+	<include name="lib/pixman-files.xml" />
+	<include name="lib/png-files.xml" />
+	<include name="lib/sdl-files.xml" />
+	<include name="lib/tinyfiledialogs-files.xml" />
+	<include name="lib/vorbis-files.xml" />
+	<include name="lib/vpx-files.xml" />
+	<include name="lib/webm-files.xml" />
+	<include name="lib/zlib-files.xml" />
 
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
