@@ -7,7 +7,7 @@
 
 	<files id="native-toolkit-pixman" >
 
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/include/pixman" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/pixman" />
 		<compilerflag value="-DHAVE_CONFIG_H" />
 		<compilerflag value="-DPIXMAN_NO_TLS" if="windows" />

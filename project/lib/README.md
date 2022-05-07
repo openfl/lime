@@ -40,3 +40,30 @@ libvpx: [homepage](https://www.webmproject.org/tools/) | [repo](https://chromium
 libwebm: [homepage](https://www.webmproject.org/about/) | [repo](https://chromium.googlesource.com/webm/libwebm) | [GitHub mirror](https://github.com/webmproject/libwebm)
 
 zlib: [homepage](https://zlib.net/) | [repo](https://github.com/madler/zlib)
+
+Overrides
+---------
+
+The overrides folder contains a number of customized headers and source files, to be used instead of the equivalent file(s) in the submodule. (Or in addition to: some submodules intentionally omit files, expecting the user to generate them.)
+
+All cases require updating the corresponding files.xml file.
+
+- To add or override a header, include the overrides folder first (if not already included).
+
+   ```diff
+   +<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/" />
+   <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+   ```
+
+- To add a source file, insert a `<file />` tag.
+
+   ```diff
+   +<file name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/SDL_extra.c" />
+   ```
+
+- To override a source file, replace the `<file />` tag.
+
+   ```diff
+   -<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_log.c" />
+   +<file name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/SDL_log.c" />
+   ```
