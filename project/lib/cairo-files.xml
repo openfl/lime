@@ -1,23 +1,24 @@
 <xml>
-	
+
 	<files id="native-toolkit-cairo" >
-		
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/include" />
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/pixman/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/include/pixman/" /> <!-- Pixman's config.h must come after Cairo's. -->
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
-		
+
 		<compilerflag value="-DNDEBUG" unless="debug" />
 		<compilerflag value="-DHAVE_CONFIG_H" />
 		<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
-		
+
 		<compilerflag value="-Wno-attributes" unless="windows" />
 		<compilerflag value="-Wno-enum-conversion" if="mac || ios || emscripten || tvos" />
-		
+
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-analysis-surface.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-arc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-array.c" />
@@ -124,7 +125,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-user-font.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-version.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-wideint.c" />
-		
+
 	</files>
-	
+
 </xml>
