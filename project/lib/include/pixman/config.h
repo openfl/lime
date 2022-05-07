@@ -1,4 +1,19 @@
-/* config.h.in.  Generated from configure.ac by autoheader.  */
+/**
+   Modified version of config.h, customized for OpenFL/Lime. The conditional
+   compilation blocks allow this same file to be used across machines.
+
+   Run autogen.sh to generate a new version of this file, but be warned that the
+   new version will lack any conditional compilation blocks, making it
+   machine-specific. (To run autogen.sh on Windows, see
+   https://docs.microsoft.com/en-us/windows/wsl/about .)
+
+   With the new version generated:
+
+   1. Compare this file to project/lib/pixman/config.h.
+   2. If you find a new `#define`, copy it to this file, placing it in a
+      conditional compilation block. Use the existing blocks as a guide.
+   3. Update the version number(s) if they've changed.
+**/
 
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
