@@ -2,7 +2,7 @@
 
 	<files id="native-toolkit-curl-depends"  >
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/curl.h"/>
-		<depend name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_config.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/curl/lib/curl_config.h"/>
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/curlver.h"/>
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/easy.h"/>
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/mprintf.h"/>
@@ -17,6 +17,7 @@
 		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
 		<depend files="native-toolkit-curl-depends" />
 
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/curl/lib/"/>
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/"/>
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/lib/"/>
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/"/>

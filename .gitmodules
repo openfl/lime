@@ -9,7 +9,7 @@
 	url = https://github.com/openfl/libopenal
 [submodule "project/lib/curl"]
 	path = project/lib/curl
-	url = https://github.com/openfl/libcurl
+	url = https://github.com/curl/curl
 [submodule "project/lib/ogg"]
 	path = project/lib/ogg
 	url = https://github.com/openfl/libogg
