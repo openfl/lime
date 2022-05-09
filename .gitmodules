@@ -27,7 +27,7 @@
 	url = https://github.com/openfl/libjpeg
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype
-	url = https://github.com/openfl/libfreetype
+	url = https://gitlab.freedesktop.org/freetype/freetype.git
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
 	url = https://github.com/openfl/libharfbuzz

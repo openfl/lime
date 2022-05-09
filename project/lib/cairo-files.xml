@@ -7,10 +7,11 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/linux/" if="linux" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/windows/" if="windows" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/mac/" if="mac" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src/" />
 
-		<!-- Include Pixman's headers last so Cairo's headers will override them. -->
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/freetype/include/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include/" />
+
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/pixman/" />
 
