@@ -21,7 +21,7 @@
 	url = https://github.com/HaxeFoundation/neko
 [submodule "project/lib/png"]
 	path = project/lib/png
-	url = https://github.com/openfl/libpng
+	url = https://git.code.sf.net/p/libpng/code
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
 	url = https://github.com/openfl/libjpeg
