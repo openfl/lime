@@ -8,6 +8,7 @@
 
     <files id="native-toolkit-ogg" tags="" >
 
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/ogg/include/"/>
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/"/>
         <cache value="1" />
 

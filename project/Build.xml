@@ -164,6 +164,7 @@
 
 		<section if="LIME_OGG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
@@ -197,6 +198,7 @@
 
 		<section if="LIME_PNG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />
