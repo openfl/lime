@@ -27,16 +27,16 @@
 	url = https://github.com/openfl/libjpeg
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype
-	url = https://gitlab.freedesktop.org/freetype/freetype.git
+	url = https://github.com/freetype/freetype
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
 	url = https://github.com/harfbuzz/harfbuzz
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
-	url = https://gitlab.freedesktop.org/cairo/cairo.git
+	url = https://github.com/freedesktop/cairo
 [submodule "project/lib/pixman"]
 	path = project/lib/pixman
-	url = https://gitlab.freedesktop.org/pixman/pixman.git
+	url = https://github.com/freedesktop/pixman
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
 	url = https://github.com/openfl/liblzma

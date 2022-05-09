@@ -1,6 +1,10 @@
 Submodule projects
 ==================
 
+Where possible, Lime prefers to use GitHub repositories as submodules, as this makes browsing easier. (GitHub refuses to link to non-GitHub repos.) However, several of these repositories are mirrored from elsewhere, and will ignore issues and pull requests submitted on GitHub.
+
+**Always submit issues and pull requests to the primary repo, not to a GitHub mirror.**
+
 Cairo: [homepage](https://www.cairographics.org/) | [repo](https://gitlab.freedesktop.org/cairo/cairo) | [GitHub mirror](https://github.com/freedesktop/cairo)
 
 cURL: [homepage](https://curl.se/) | [repo](https://github.com/curl/curl)
