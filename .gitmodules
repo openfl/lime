@@ -42,7 +42,7 @@
 	url = https://github.com/openfl/liblzma
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
-	url = https://github.com/openfl/libtinyfiledialogs
+	url = https://git.code.sf.net/p/tinyfiledialogs/code
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
 	url = https://github.com/SpartanJ/efsw
