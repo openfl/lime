@@ -1,7 +1,7 @@
 <xml>
 
    <files id="native-toolkit-ogg-depends">
-      <depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/config_types.h"/>
+      <depend name="${NATIVE_TOOLKIT_PATH}/overrides/ogg/include/ogg/config_types.h"/>
       <depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/ogg.h"/>
       <depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/os_types.h"/>
    </files>

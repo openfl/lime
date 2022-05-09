@@ -12,7 +12,7 @@
 	url = https://github.com/curl/curl
 [submodule "project/lib/ogg"]
 	path = project/lib/ogg
-	url = https://github.com/openfl/libogg
+	url = https://github.com/xiph/ogg
 [submodule "project/lib/zlib"]
 	path = project/lib/zlib
 	url = https://github.com/openfl/libzlib

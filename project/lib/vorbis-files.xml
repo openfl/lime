@@ -5,15 +5,15 @@
 		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/include/vorbis/vorbisenc.h"/>
 		<depend name="${NATIVE_TOOLKIT_PATH}/vorbis/include/vorbis/vorbisfile.h"/>
 	</files>
-	
+
 	<files id="native-toolkit-vorbis" tags="" >
-		
+
 		<cache value="1" />
 		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
 
 		<depend files="native-toolkit-vorbis-depends"/>
 
-		<depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/config_types.h"/>
+		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/ogg/include/ogg/config_types.h"/>
 		<depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/ogg.h"/>
 		<depend name="${NATIVE_TOOLKIT_PATH}/ogg/include/ogg/os_types.h"/>
 
@@ -40,7 +40,7 @@
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/"/>
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/"/>
-		
+
 		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/mdct.c"/>
 		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/smallft.c"/>
 		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/block.c"/>
@@ -63,7 +63,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/bitrate.c"/>
 		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/vorbisfile.c"/>
 		<file name="${NATIVE_TOOLKIT_PATH}/vorbis/lib/vorbisenc.c"/>
-		
+
 	</files>
-	
+
 </xml>
