@@ -30,7 +30,7 @@
 	url = https://gitlab.freedesktop.org/freetype/freetype.git
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
-	url = https://github.com/openfl/libharfbuzz
+	url = https://github.com/harfbuzz/harfbuzz
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
 	url = https://gitlab.freedesktop.org/cairo/cairo.git
