@@ -57,4 +57,4 @@
 	url = https://github.com/Mbed-TLS/mbedtls
 [submodule "project/lib/mojoal"]
 	path = project/lib/mojoal
-	url = https://github.com/openfl/libmojoal
+	url = https://github.com/icculus/mojoAL
