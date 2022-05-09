@@ -18,7 +18,7 @@
 	url = https://github.com/openfl/libzlib
 [submodule "project/lib/neko"]
 	path = project/lib/neko
-	url = https://github.com/openfl/libneko
+	url = https://github.com/HaxeFoundation/neko
 [submodule "project/lib/png"]
 	path = project/lib/png
 	url = https://github.com/openfl/libpng
