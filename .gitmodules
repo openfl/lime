@@ -45,7 +45,7 @@
 	url = https://github.com/openfl/libtinyfiledialogs
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
-	url = https://github.com/openfl/libefsw
+	url = https://github.com/SpartanJ/efsw
 [submodule "project/lib/vpx"]
 	path = project/lib/vpx
 	url = https://github.com/openfl/libvpx

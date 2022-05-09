@@ -5,7 +5,7 @@ Cairo: [homepage](https://www.cairographics.org/) | [repo](https://gitlab.freede
 
 cURL: [homepage](https://curl.se/) | [repo](https://github.com/curl/curl)
 
-EFSW: [repo](https://github.com/SpartanJ/efsw)
+efsw: [repo](https://github.com/SpartanJ/efsw)
 
 FreeType: [homepage](https://freetype.org/) | [repo](https://gitlab.freedesktop.org/freetype/freetype) | [GitHub mirror](https://github.com/freetype/freetype)
 
