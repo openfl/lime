@@ -54,7 +54,7 @@
 	url = https://github.com/openfl/libwebm
 [submodule "project/lib/mbedtls"]
 	path = project/lib/mbedtls
-	url = https://github.com/openfl/libmbedtls
+	url = https://github.com/Mbed-TLS/mbedtls
 [submodule "project/lib/mojoal"]
 	path = project/lib/mojoal
 	url = https://github.com/openfl/libmojoal

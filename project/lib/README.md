@@ -15,7 +15,7 @@ libjpeg: [homepage](https://ijg.org/) | [download](https://ijg.org/files/) | [un
 
 LZMA: [homepage + download](https://www.7-zip.org/sdk.html) | [unofficial GitHub mirror](https://github.com/openfl/liblzma)
 
-Mbed TLS: [homepage](https://tls.mbed.org/) | [repo](https://github.com/Mbed-TLS/mbedtls)
+mbed TLS: [homepage](https://tls.mbed.org/) | [repo](https://github.com/Mbed-TLS/mbedtls)
 
 MojoAL: [homepage](https://icculus.org/mojoAL/) | [repo](https://github.com/icculus/mojoAL/)
 
