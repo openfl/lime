@@ -51,19 +51,19 @@ All cases require updating the corresponding files.xml file.
 - To add or override a header, include the overrides folder first (if not already included).
 
    ```diff
-   +<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/" />
+   +<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/" />
    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
    ```
 
 - To add a source file, insert a `<file />` tag.
 
    ```diff
-   +<file name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/SDL_extra.c" />
+   +<file name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/src/SDL_extra.c" />
    ```
 
 - To override a source file, replace the `<file />` tag.
 
    ```diff
    -<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_log.c" />
-   +<file name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/SDL_log.c" />
+   +<file name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/src/SDL_log.c" />
    ```

@@ -2,7 +2,7 @@
 
 	<files id="native-toolkit-cairo" >
 
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/src/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/default/" unless="windows || mac || linux" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/linux/" if="linux" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/windows/" if="windows" />
@@ -12,7 +12,7 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/freetype/include/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/freetype/include/" />
 
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman/pixman/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/pixman/" />
 
 		<compilerflag value="-DNDEBUG" unless="debug" />
