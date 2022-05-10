@@ -59,7 +59,8 @@
 	shallow = true
 [submodule "project/lib/vpx"]
 	path = project/lib/vpx
-	url = https://chromium.googlesource.com/webm/libvpx
+	url = https://github.com/webmproject/libvpx
+	shallow = true
 [submodule "project/lib/webm"]
 	path = project/lib/webm
 	url = https://github.com/openfl/libwebm
