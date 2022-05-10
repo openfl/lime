@@ -39,6 +39,7 @@
 
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/"/>
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/lib/"/>
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/ogg/include/"/>
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/"/>
 

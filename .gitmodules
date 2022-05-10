@@ -1,6 +1,6 @@
 [submodule "project/lib/vorbis"]
 	path = project/lib/vorbis
-	url = https://github.com/openfl/libvorbis
+	url = https://github.com/xiph/vorbis
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
 	url = https://github.com/openfl/libsdl
