@@ -47,6 +47,12 @@ libwebm: [homepage](https://www.webmproject.org/about/) | [primary repo](https:/
 
 zlib: [homepage](https://zlib.net/) | [primary repo](https://github.com/madler/zlib)
 
+Shallow submodules
+------------------
+To save space, submodules use "shallow" mode, meaning you'll only download the single commit that you're using.
+
+To download a submodule's entire commit history, use `git fetch --unshallow`, but be warned that the download may take a while. For instance, cURL has over 20,000 commits.
+
 Overrides
 ---------
 

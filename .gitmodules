@@ -1,6 +1,7 @@
 [submodule "project/lib/vorbis"]
 	path = project/lib/vorbis
 	url = https://github.com/xiph/vorbis
+	shallow = true
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
 	url = https://github.com/openfl/libsdl
@@ -10,42 +11,52 @@
 [submodule "project/lib/curl"]
 	path = project/lib/curl
 	url = https://github.com/curl/curl
+	shallow = true
 [submodule "project/lib/ogg"]
 	path = project/lib/ogg
 	url = https://github.com/xiph/ogg
+	shallow = true
 [submodule "project/lib/zlib"]
 	path = project/lib/zlib
 	url = https://github.com/openfl/libzlib
 [submodule "project/lib/neko"]
 	path = project/lib/neko
 	url = https://github.com/HaxeFoundation/neko
+	shallow = true
 [submodule "project/lib/png"]
 	path = project/lib/png
 	url = https://git.code.sf.net/p/libpng/code
+	shallow = true
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
 	url = https://github.com/openfl/libjpeg
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype
 	url = https://github.com/freetype/freetype
+	shallow = true
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
 	url = https://github.com/harfbuzz/harfbuzz
+	shallow = true
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
 	url = https://github.com/freedesktop/cairo
+	shallow = true
 [submodule "project/lib/pixman"]
 	path = project/lib/pixman
 	url = https://github.com/freedesktop/pixman
+	shallow = true
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
 	url = https://github.com/openfl/liblzma
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
 	url = https://git.code.sf.net/p/tinyfiledialogs/code
+	shallow = true
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
 	url = https://github.com/SpartanJ/efsw
+	shallow = true
 [submodule "project/lib/vpx"]
 	path = project/lib/vpx
 	url = https://github.com/openfl/libvpx
@@ -55,6 +66,8 @@
 [submodule "project/lib/mbedtls"]
 	path = project/lib/mbedtls
 	url = https://github.com/Mbed-TLS/mbedtls
+	shallow = true
 [submodule "project/lib/mojoal"]
 	path = project/lib/mojoal
 	url = https://github.com/icculus/mojoAL
+	shallow = true
