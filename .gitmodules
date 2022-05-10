@@ -68,7 +68,7 @@
 	shallow = true
 [submodule "project/lib/webm"]
 	path = project/lib/webm
-	url = https://github.com/openfl/libwebm
+	url = https://github.com/webmproject/libwebm
 	shallow = true
 [submodule "project/lib/mbedtls"]
 	path = project/lib/mbedtls
