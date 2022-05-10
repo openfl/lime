@@ -5,9 +5,11 @@
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
 	url = https://github.com/openfl/libsdl
+	shallow = true
 [submodule "project/lib/openal"]
 	path = project/lib/openal
 	url = https://github.com/openfl/libopenal
+	shallow = true
 [submodule "project/lib/curl"]
 	path = project/lib/curl
 	url = https://github.com/curl/curl
@@ -19,6 +21,7 @@
 [submodule "project/lib/zlib"]
 	path = project/lib/zlib
 	url = https://github.com/madler/zlib
+	shallow = true
 [submodule "project/lib/neko"]
 	path = project/lib/neko
 	url = https://github.com/HaxeFoundation/neko
@@ -30,6 +33,7 @@
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
 	url = https://github.com/openfl/libjpeg
+	shallow = true
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype
 	url = https://github.com/freetype/freetype
@@ -49,6 +53,7 @@
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
 	url = https://github.com/openfl/liblzma
+	shallow = true
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
 	url = https://git.code.sf.net/p/tinyfiledialogs/code
@@ -64,6 +69,7 @@
 [submodule "project/lib/webm"]
 	path = project/lib/webm
 	url = https://github.com/openfl/libwebm
+	shallow = true
 [submodule "project/lib/mbedtls"]
 	path = project/lib/mbedtls
 	url = https://github.com/Mbed-TLS/mbedtls
