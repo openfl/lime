@@ -2,11 +2,12 @@
 
     <files id="native-toolkit-openal">
 
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/Alc" />
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/build/"/>
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/Alc/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/build/"/>
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/common/"/>
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/include/"/>
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/OpenAL32/include/"/>
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/OpenAL32/Include/"/>
         <compilerflag value="-DAL_LIBTYPE_STATIC" if="native_toolkit_openal_static" />
 
         <compilerflag value="-DAL_ALEXT_PROTOTYPES"/>
@@ -72,6 +73,7 @@
 
         <section if="NATIVE_TOOLKIT_HAVE_SDL">
 
+            <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/" />
             <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
             <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi"/>
             <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>

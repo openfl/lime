@@ -29,7 +29,7 @@ Neko: [homepage](https://nekovm.org/) | [primary repo](https://github.com/HaxeFo
 
 Ogg: [homepage](https://www.xiph.org/ogg/) | [primary repo](https://github.com/xiph/ogg)
 
-OpenAL soft: [homepage](https://openal-soft.org/) | [primary repo](https://github.com/kcat/openal-soft)
+OpenAL Soft: [homepage](https://openal-soft.org/) | [primary repo](https://github.com/kcat/openal-soft)
 
 Pixman: [homepage](http://pixman.org/) | [primary repo](https://gitlab.freedesktop.org/pixman/pixman) | [GitHub mirror](https://github.com/freedesktop/pixman)
 

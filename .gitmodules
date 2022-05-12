@@ -8,7 +8,7 @@
 	shallow = true
 [submodule "project/lib/openal"]
 	path = project/lib/openal
-	url = https://github.com/openfl/libopenal
+	url = https://github.com/kcat/openal-soft
 	shallow = true
 [submodule "project/lib/curl"]
 	path = project/lib/curl
