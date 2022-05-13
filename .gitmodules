@@ -4,7 +4,7 @@
 	shallow = true
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
-	url = https://github.com/openfl/libsdl
+	url = https://github.com/libsdl-org/SDL
 	shallow = true
 [submodule "project/lib/openal"]
 	path = project/lib/openal

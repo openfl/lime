@@ -3,9 +3,7 @@ Submodule projects
 
 Lime's native target uses code from several C/C++ projects, each of which is treated as a [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
 
-Where possible, Lime prefers to use GitHub repositories as submodules, as this makes browsing easier. (GitHub refuses to link to non-GitHub repos.) However, several of these repositories are mirrored from elsewhere, and will ignore issues and pull requests submitted on GitHub.
-
-**Always submit issues and pull requests to the primary repo, not to a GitHub mirror.**
+Lime prefers to use GitHub repositories as submodules, as this makes browsing easier. However, several of these repositories are mirrors, meaning they don't accept input. **Always submit issues and pull requests to the primary repo, not to a GitHub mirror.**
 
 Cairo: [homepage](https://www.cairographics.org/) | [primary repo](https://gitlab.freedesktop.org/cairo/cairo) | [GitHub mirror](https://github.com/freedesktop/cairo)
 

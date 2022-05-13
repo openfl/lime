@@ -571,9 +571,11 @@ namespace lime {
 		switch (((SDL_RWops*)handle)->type) {
 
 			case SDL_RWOPS_STDFILE:
-
+			{
+				#ifdef HAVE_STDIO_H
 				return ((SDL_RWops*)handle)->hidden.stdio.fp;
-
+				#endif
+			}
 			case SDL_RWOPS_JNIFILE:
 			{
 				#ifdef ANDROID

@@ -1,17 +1,6 @@
 <xml>
 
-    <section unless="SDL_CONFIG_PATH" >
-       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi" />
-       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi"/>
-       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/" if="windows" unless="winrt" />
-       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt" />
-       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac" />
-       <set name="SDL_CONFIG_PATH" value="${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi" />
-    </section>
-
-
     <files id="native-toolkit-sdl-depends">
-        <depend name="${SDL_CONFIG_PATH}/SDL_config.h" if="SDL_CONFIG_PATH" />
 
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_android.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/begin_code.h"/>
@@ -72,11 +61,11 @@
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_egl.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_endian.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_iphoneos.h"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_macosx.h"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/SDL_config_macosx.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_minimal.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_pandora.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_psp.h"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_windows.h" unless="winrt"/>
+        <depend name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/SDL_config_windows.h" unless="winrt"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_assert.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_atomic.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_audio.h"/>
@@ -107,10 +96,12 @@
         <cache value="1" />
         <tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
 
+        <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
         <depend files="native-toolkit-sdl-depends"/>
 
         <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android"/>
 
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
         <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
@@ -123,7 +114,6 @@
 
         <section if="windows">
 
-            <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
             <compilerflag value="-DNATIVE_TOOLKIT_STATIC_ANGLE" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
             <compilerflag value="-DSDL_VIDEO_STATIC_ANGLE" if="NATIVE_TOOLKIT_STATIC_ANGLE" />
@@ -140,7 +130,6 @@
 
         <section if="linux">
 
-            <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
             <compilerflag value="-DHAVE_LINUX_VERSION_H" />
             <compilerflag value="-D_REENTRANT" />
             <compilerflag value="-mmmx" unless="rpi" />
@@ -168,15 +157,14 @@
 
         <section if="mac">
 
-            <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
             <compilerflag value="-DTARGET_API_MAC_CARBON" />
             <compilerflag value="-DTARGET_API_MAC_OSX" />
             <compilerflag value="-D_THREAD_SAFE" />
-            <compilerflag value="-mmmx" />
-            <compilerflag value="-msse" />
-            <compilerflag value="-msse2" />
-            <compilerflag value="-msse3" />
-            <compilerflag value="-mssse3" />
+            <compilerflag value="-mmmx" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
 
         </section>
 
