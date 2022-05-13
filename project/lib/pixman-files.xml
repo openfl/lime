@@ -7,6 +7,8 @@
 
 	<files id="native-toolkit-pixman" >
 
+		<compilerflag value="-fno-integrated-as" if="NDKV20+" />
+
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/pixman/pixman" />

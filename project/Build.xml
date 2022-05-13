@@ -331,6 +331,10 @@
 
 	</files>
 
+	<!-- Run setup now so the submodule projects can determine whether clang or GCC will be used. -->
+	<!-- TODO: if https://github.com/HaxeFoundation/hxcpp/issues/930 ever gets resolved, use that instead. -->
+	<setup name="androidNdk" if="android" />
+
 	<include name="lib/cairo-files.xml" />
 	<include name="lib/curl-files.xml" />
 	<include name="lib/efsw-files.xml" />
