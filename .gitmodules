@@ -32,7 +32,7 @@
 	shallow = true
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
-	url = https://github.com/openfl/libjpeg
+	url = https://github.com/libjpeg-turbo/libjpeg-turbo
 	shallow = true
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype

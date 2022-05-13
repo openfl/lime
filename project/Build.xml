@@ -137,6 +137,7 @@
 
 		<section if="LIME_JPEG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/jpeg/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
 
