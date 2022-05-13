@@ -33,6 +33,9 @@
 /* Define a built-in call indicating an aligned data pointer */
 #define ASSUME_ALIGNED(x, y) x
 
+/* Define a restrict macro for non-aliased pointers */
+#define RESTRICT __restrict
+
 /* Define if HRTF data is embedded in the library */
 #define ALSOFT_EMBED_HRTF_DATA
 
