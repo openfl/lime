@@ -1,10 +1,10 @@
 # C++ backend project
-Lime uses this C/C++ code to build its ndlls (shared object files) for native targets. These shared objects only need to be compiled once, and can then be cached in the [ndll directory](https://github.com/openfl/lime/tree/develop/ndll), and can then be reused across arbitrarily many C++ apps.
+Lime uses this C/C++ code to build its ndlls (shared object files) for native targets. Each target requires its own set of ndlls. Ndlls for common targets are included in the Haxelib download (stored in the [ndll directory](https://github.com/openfl/lime/tree/develop/ndll)), so you won't need to build those yourself unless you modify this directory's contents.
 
-Because these ndlls are included in the Haxelib download, you don't normally need to build them yourself. Even if you install Lime from Git, you can simply copy the ndlls from Lime's latest Haxelib release. You would only need to rebuild if you modify the C/C++ code, or you're targeting an unusual target.
+Tip: if you install Lime from Git, you can still copy the ndlls from Lime's latest Haxelib release.
 
 ## Project overview
-The backend project consists of two categories of code: Lime-specific code, and included libraries such as Cairo, SDL, and OpenAL. For more on these libraries, view [submodule projects](#submodule-projects).
+The backend project consists of two categories of code: Lime-specific code, and [included libraries](#submodule-projects) such as Cairo, SDL, and OpenAL.
 
 Lime-specific headers and source files can be found under [include](include) and [src](src), respectively. Of particular note is [`ExternalInterface`](src/ExternalInterface.cpp), as that exposes functions for use by [`NativeCFFI`](https://github.com/openfl/lime/blob/develop/src/lime/_internal/backend/native/NativeCFFI.hx).
 
