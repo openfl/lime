@@ -5,7 +5,13 @@
 #undef inline
 
 /* How to obtain function inlining. */
-#define INLINE  __inline__ __attribute__((always_inline))
+#if defined(__has_attribute)
+#define INLINE __inline__ __attribute__((always_inline))
+#elif defined(_MSC_VER)
+#define INLINE __forceinline
+#else
+#define INLINE
+#endif
 
 /* How to obtain thread-local storage */
 #define THREAD_LOCAL  __thread
