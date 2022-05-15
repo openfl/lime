@@ -7,7 +7,7 @@
 
 	<files id="native-toolkit-pixman" >
 
-		<compilerflag value="-fno-integrated-as" if="HXCPP_CLANG || NDKV20+" />
+		<compilerflag value="-fno-integrated-as" if="HXCPP_CLANG || NDKV20+" unless="mac || ios" />
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pixman/pixman" />
