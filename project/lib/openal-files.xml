@@ -5,13 +5,13 @@
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/"/>
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/alc/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/alc/" />
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/build/"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/common/"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/include/"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/"/>
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/build/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/common/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/openal/include/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" />
         <compilerflag value="-DAL_LIBTYPE_STATIC" if="native_toolkit_openal_static" />
 
-        <compilerflag value="-DAL_ALEXT_PROTOTYPES"/>
+        <compilerflag value="-DAL_ALEXT_PROTOTYPES" />
         <compilerflag value="-D_LARGEFILE_SOURCE" />
         <compilerflag value="-D_LARGE_FILES" />
 
@@ -100,6 +100,8 @@
             <compilerflag value="-mssse3" unless="rpi" />
             <compilerflag value="-mfpu=neon" if="rpi" />
             <compilerflag value="-fcommon" />
+
+            <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pulse/src/" />
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/pulseaudio.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/alsa.cpp" />

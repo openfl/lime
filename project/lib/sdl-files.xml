@@ -99,7 +99,7 @@
         <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
         <depend files="native-toolkit-sdl-depends"/>
 
-        <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android"/>
+        <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
 
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
@@ -371,6 +371,8 @@
         </section>
 
         <section if="linux">
+
+            <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pulse/src/" />
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_audiodev.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/alsa/SDL_alsa_audio.c" />
