@@ -372,8 +372,6 @@
 
         <section if="linux">
 
-            <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pulse/src/" />
-
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/SDL_audiodev.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/alsa/SDL_alsa_audio.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/arts/SDL_artsaudio.c" />

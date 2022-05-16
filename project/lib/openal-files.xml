@@ -102,8 +102,6 @@
             <compilerflag value="-mfpu=neon" if="rpi" />
             <compilerflag value="-fcommon" />
 
-            <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/pulse/src/" />
-
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/pulseaudio.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/alsa.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/oss.cpp" />
