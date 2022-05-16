@@ -26,7 +26,9 @@
 #define SIZEOF_SIZE_T  8
 
 /* Define if your compiler has __builtin_ctzl() and sizeof(unsigned long) == sizeof(size_t). */
+#ifndef HX_WINDOWS
 #define HAVE_BUILTIN_CTZL
+#endif
 
 /* Define to 1 if you have the <intrin.h> header file. */
 /* #undef HAVE_INTRIN_H */

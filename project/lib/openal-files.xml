@@ -58,6 +58,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/voice.cpp"/>
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alcomplex.cpp"/>
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alexcpt.cpp" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alfstream.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/almalloc.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alstring.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/dynload.cpp" />

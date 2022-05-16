@@ -425,6 +425,7 @@
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/generic/SDL_syscond.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/directsound/SDL_directsound.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/wasapi/SDL_wasapi.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/winmm/SDL_winmm.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/windows/SDL_windows.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/windows/SDL_xinput.c" />
