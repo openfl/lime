@@ -14,6 +14,7 @@
         <compilerflag value="-DAL_ALEXT_PROTOTYPES" />
         <compilerflag value="-D_LARGEFILE_SOURCE" />
         <compilerflag value="-D_LARGE_FILES" />
+        <compilerflag value="-DNOMINMAX" />
 
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/base.cpp"/>
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/loopback.cpp"/>
