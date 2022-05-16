@@ -126,6 +126,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/winmm.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/dsound.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/wasapi.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/uiddefs.cpp" />
 
             <compilerflag value="-DWIN32"/>
             <compilerflag value="-D_WINDOWS" />
