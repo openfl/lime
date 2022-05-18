@@ -12,6 +12,7 @@
 	<files id="hl">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 
+		<file name="src/hashlink_main.c" tag="main"/>
 		<file name="${HASHLINK_PATH}/src/code.c" />
 		<file name="${HASHLINK_PATH}/src/debugger.c" />
 		<file name="${HASHLINK_PATH}/src/jit.c" />
@@ -357,6 +358,7 @@
 		<files id="libhl" />
 		<ext value=".${LIBSUFFIX}" />
 
+		<vflag name="-install_name" value="@executable_path/libhl.dylib" if="mac"/>
 		<lib name="-pthread" if="linux" />
 
 		<section if="windows">

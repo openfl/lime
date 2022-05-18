@@ -659,7 +659,7 @@ class WindowsPlatform extends PlatformTarget
 
 			if (!targetFlags.exists("32")
 				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+				&& (command != "rebuild" || targetType == "cpp" || targetType == "hl" || targetType == "winrt"))
 			{
 				if (targetType == "winrt")
 				{

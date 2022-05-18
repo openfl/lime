@@ -1207,7 +1207,7 @@ class PlatformSetup
 					var entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
 						"/project/lib/hashlink/other/osx/entitlements.xml") : (limePath
 						+ "/templates/bin/hl/entitlements.xml");
-					System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, false, true);
+					System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, true, true);
 					sys.io.File.saveContent(openSSLConf, [
 						"[req]",
 						"distinguished_name=codesign_dn",
@@ -1232,7 +1232,7 @@ class PlatformSetup
 					System.runCommand("", "codesign", ["--entitlements", entitlementsPath, "-fs", "hl-cert", hlPath], true, false, true);
 					for (f in [key, cert, openSSLConf])
 						sys.FileSystem.deleteFile(f);
-					Log.println("\nIf you update lime, yo will have to run this again to sign the new hl executable");
+					Log.println("\nIf you update lime, you will have to run this again to sign the new hl executable");
 				}
 			}
 		}
