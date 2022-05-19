@@ -597,20 +597,6 @@ namespace lime {
 				#endif
 			}
 
-			case SDL_RWOPS_WINFILE:
-			{
-				/*#ifdef HX_WINDOWS
-				printf("SDKFLJDSLFKJ\n");
-				int fd = _open_osfhandle ((uintptr_t)((SDL_RWops*)handle)->hidden.windowsio.h, _O_RDONLY);
-
-				if (fd != -1) {
-					printf("SDKFLJDSLFKJ\n");
-					return ::fdopen (fd, "rb");
-
-				}
-				#endif*/
-			}
-
 		}
 
 		return NULL;
