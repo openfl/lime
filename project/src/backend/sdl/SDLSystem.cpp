@@ -578,6 +578,8 @@ namespace lime {
 			{
 				#ifdef HAVE_STDIO_H
 				return ((SDL_RWops*)handle)->hidden.stdio.fp;
+				#else
+				#error Lime requires HAVE_STDIO_H
 				#endif
 			}
 			case SDL_RWOPS_JNIFILE:
