@@ -347,9 +347,9 @@
 	<set name="LIBSUFFIX" value="dll" if="windows" />
 	<set name="LIBSUFFIX" value="dylib" if="mac || ios || tvos" />
 	<set name="LIBSUFFIX" value="so" unless="LIBSUFFIX" />
-	<set name="BINDIR" value="linux" if="linux" />
+	<!-- <set name="BINDIR" value="linux" if="linux" />
 	<set name="BINDIR" value="mac" if="mac" />
-	<set name="BINDIR" value="windows" if="windows" />
+	<set name="BINDIR" value="windows" if="windows" /> -->
 
 	<set name="OUTPUT_DIR" value="../templates/bin/hl" unless="OUTPUT_DIR" />
 

@@ -145,7 +145,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = false;
+			is64 = !project.flags.exists("32");
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -331,7 +331,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
-				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath);
+				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
@@ -634,45 +634,49 @@ class WindowsPlatform extends PlatformTarget
 			// }
 
 			var commands = [];
-
-			if (!targetFlags.exists("64")
-				&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+			if (targetType == "hl")
 			{
-				if (targetType == "winrt")
+				// default to 64 bit, just like upstream Hashlink releases
+				if (!targetFlags.exists("32") && (System.hostArchitecture == X64 || targetFlags.exists("64")))
 				{
-					commands.push(["-Dwinrt", "-DHXCPP_M32"]);
-				}
-				else if (targetType == "hl")
-				{
-					// TODO: Support single binary
-					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
-				}
-				else
-				{
-					commands.push(["-Dwindows", "-DHXCPP_M32"]);
-				}
-			}
-
-			// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
-			// as previous Windows builds. For now, force -64 to be done last
-			// so that it can be debugged in a default "rebuild"
-
-			if (!targetFlags.exists("32")
-				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "hl" || targetType == "winrt"))
-			{
-				if (targetType == "winrt")
-				{
-					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
-				}
-				else if (targetType == "hl")
-				{
-					// TODO: Support single binary
 					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
 				}
 				else
 				{
-					commands.push(["-Dwindows", "-DHXCPP_M64"]);
+					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
+				}
+			}
+			else
+			{
+				if (!targetFlags.exists("64")
+					&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_M32"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_M32"]);
+					}
+				}
+
+				// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
+				// as previous Windows builds. For now, force -64 to be done last
+				// so that it can be debugged in a default "rebuild"
+
+				if (!targetFlags.exists("32")
+					&& System.hostArchitecture == X64
+					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_M64"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_M64"]);
+					}
 				}
 			}
 

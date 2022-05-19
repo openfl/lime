@@ -11,10 +11,7 @@ ndll/*/*.dylib
 ndll/*/*.lib
 ndll/*/hl*
 ndll/*/*.dll
-templates/bin/hl/windows
-!templates/bin/hl/windows/msvcr120.dll
-templates/bin/hl/mac
-templates/bin/hl/linux
+templates/bin/hl/*
 project/all_objs
 project/obj
 project/vc*.pdb

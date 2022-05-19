@@ -221,7 +221,7 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath);
+			HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 		}
 		else if (targetType == "nodejs")
 		{
