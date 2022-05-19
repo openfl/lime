@@ -55,7 +55,6 @@
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_gesture.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_haptic.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_winrt.h"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_wiz.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_copying.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_cpuinfo.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_egl.h"/>
@@ -64,7 +63,6 @@
         <depend name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/SDL_config_macosx.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_minimal.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_pandora.h"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_psp.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/SDL_config_windows.h" unless="winrt"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_assert.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_atomic.h"/>
@@ -73,18 +71,22 @@
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_blendmode.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_clipboard.h"/>
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL.h"/>
-        <!--
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_gamecontrollerdb.h" if="winrt"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_windows.h" if="winrt"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_xinput.h" if="winrt"/>
-    -->
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_common.h" if="winrt"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_direct3d.h" if="winrt"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_xaml.h" if="winrt"/>
 
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi.h" if="winrt"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi_overrides.h" if="winrt"/>
-        <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi_procs.h" if="winrt"/>
+        <section if="winrt">
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_common.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_direct3d.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_xaml.h" />
+
+            <!--
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_gamecontrollerdb.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_windows.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_xinput.h" />
+            -->
+
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi_overrides.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl/src/dynapi/SDL_dynapi_procs.h" />
+        </section>
 
     </files>
 
@@ -173,6 +175,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_dataqueue.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_error.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_hints.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_list.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/SDL_log.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/atomic/SDL_atomic.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/atomic/SDL_spinlock.c" />
@@ -195,6 +198,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/SDL_windowevents.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/SDL_rwops.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/SDL_haptic.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/SDL_hidapi.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/steam/SDL_steamcontroller.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/SDL_gamecontroller.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/SDL_joystick.c" />
@@ -218,11 +222,14 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_scalbn.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_sin.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/s_tan.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/SDL_locale.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/SDL_url.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/SDL_power.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/SDL_render.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/SDL_yuv_sw.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/dummy/SDL_dummysensor.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/SDL_sensor.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_crc32.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_getenv.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_iconv.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/stdlib/SDL_malloc.c" />
@@ -265,6 +272,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_drawpoint.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_render_sw.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_rotate.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/software/SDL_triangle.c" />
 
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/dummy/SDL_nullevents.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/dummy/SDL_nullframebuffer.c" />
@@ -387,18 +395,19 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/linux/SDL_syshaptic.c" />
             <!-- <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/linux/hid.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/linux/hidraw.cpp" /> -->
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/bsd/SDL_sysjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/linux/SDL_syspower.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev_capabilities.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_evdev_kbd.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_udev.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_dbus.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_ibus.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_ime.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_threadprio.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/unix/SDL_poll.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/linux/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/unix/SDL_syslocale.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/unix/SDL_sysurl.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11clipboard.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11dyn.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11events.c" />
@@ -416,7 +425,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11window.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xinput2.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/edid-parse.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/imKStoUCS.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/events/imKStoUCS.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/unix/SDL_sysfilesystem.c" />
 
         </section>
@@ -450,6 +459,8 @@
 
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/wasapi/SDL_wasapi_win32.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/windows/SDL_sysfilesystem.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/windows/SDL_syslocale.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/windows/SDL_sysurl.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/windows/SDL_syspower.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d/SDL_render_d3d.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsclipboard.c" />
@@ -477,6 +488,8 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_direct3d.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_xaml.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/winrt/SDL_sysfilesystem.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/winrt/SDL_syslocale.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/winrt/SDL_sysurl.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/winrt/SDL_syspower.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_d3d11.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_winrt.cpp" />
@@ -498,6 +511,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/darwin/SDL_sysjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/darwin/SDL_syshaptic.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/mac/hid.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/macosx/SDL_syslocale.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/macosx/SDL_syspower.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/cocoa/SDL_rwopsbundlesupport.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/cocoa/SDL_sysfilesystem.m" />
@@ -526,6 +540,8 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/iphoneos/SDL_sysjoystick.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/dummy/SDL_syshaptic.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/ios/hid.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/dummy/SDL_syslocale.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/dummy/SDL_sysurl.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/uikit/SDL_uikit_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/uikit/SDL_syspower.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/metal/SDL_render_metal.m" />
@@ -557,6 +573,8 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/android/SDL_sysjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/android/SDL_sysfilesystem.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/android/hid.cpp" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/android/SDL_syslocale.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/android/SDL_sysurl.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/android/SDL_android_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/android/SDL_syspower.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/android/SDL_androidsensor.c" />
@@ -580,6 +598,8 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenopengles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/emscripten/SDL_emscriptenvideo.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/emscripten/SDL_syspower.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/emscripten/SDL_sysurl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/emscripten/SDL_syslocale.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/emscripten/SDL_sysjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/emscripten/SDL_sysfilesystem.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/emscripten/SDL_emscriptenaudio.c" />

@@ -53,6 +53,8 @@
 #define HAVE_LIBC 1
 #if HAVE_LIBC
 
+#define HAVE_INOTIFY 1
+
 /* Useful headers */
 #define HAVE_ALLOCA_H 1
 #define HAVE_SYS_TYPES_H 1
