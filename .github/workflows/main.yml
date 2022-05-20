@@ -59,6 +59,7 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-NDLL
           path: |
@@ -67,10 +68,11 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-Hashlink
           path: |
-            templates/bin/hl/linux
+            templates/bin/hl/Linux64
           if-no-files-found: error
 
   macos-ndll:
@@ -126,7 +128,7 @@ jobs:
         with:
           name: Mac64-Hashlink
           path: |
-            templates/bin/hl/mac
+            templates/bin/hl/Mac64
           if-no-files-found: error
 
   windows-ndll:
@@ -187,7 +189,13 @@ jobs:
         with:
           name: Windows-Hashlink
           path: |
-            templates/bin/hl/windows
+            templates/bin/hl/Windows
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Windows64-Hashlink
+          path: |
+            templates/bin/hl/Windows64
           if-no-files-found: error
 
   android-ndll:
@@ -379,17 +387,22 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: Windows-Hashlink
-          path: templates/bin/hl/windows
+          path: templates/bin/hl/Windows
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Windows64-Hashlink
+          path: templates/bin/hl/Windows64
 
       - uses: actions/download-artifact@v2
         with:
           name: Mac64-Hashlink
-          path: templates/bin/hl/mac
+          path: templates/bin/hl/Mac64
 
       - uses: actions/download-artifact@v2
         with:
           name: Linux64-Hashlink
-          path: templates/bin/hl/linux
+          path: templates/bin/hl/Linux64
 
       - uses: actions/upload-artifact@v2
         with:
