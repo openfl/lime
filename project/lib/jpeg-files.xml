@@ -20,9 +20,9 @@
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jmorecfg.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jpegint.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jpeglib.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/jpeg/jversion.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/simd/jsimd.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/transupp.h" />
-		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/jpeg/jversion.h" />
 
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jaricom.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jcapimin.c" />
@@ -70,9 +70,9 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jidctred.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jmemmgr.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jmemnobs.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jsimd_none.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jquant1.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jquant2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jsimd_none.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/jpeg/jutils.c" />
 
 	</files>
