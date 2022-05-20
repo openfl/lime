@@ -190,7 +190,7 @@ jobs:
       #     name: Windows-Hashlink
       #     path: |
       #       templates/bin/hl/Windows
-          if-no-files-found: error
+      #     if-no-files-found: error
       - uses: actions/upload-artifact@v2
         with:
           name: Windows64-Hashlink
