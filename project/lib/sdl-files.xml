@@ -114,6 +114,8 @@
         <compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
         <compilerflag value="-D__TVOS__" if="tvos" />
 
+        <compilerflag value="-DSDL_HIDAPI_DISABLED" />
+
         <section if="windows">
 
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_ANGLE" if="NATIVE_TOOLKIT_SDL_ANGLE" />
@@ -202,6 +204,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/steam/SDL_steamcontroller.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/SDL_gamecontroller.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/SDL_joystick.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/virtual/SDL_virtualjoystick.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_atan2.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_exp.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/libm/e_fmod.c" />
@@ -302,8 +305,11 @@
         <section if="windows || mac || ios || android || tvos">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_gamecube.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_luna.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_ps4.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_ps5.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_rumble.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_stadia.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_steam.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_switch.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_xbox360.c" />
@@ -566,6 +572,7 @@
 
         <section if="android">
 
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/aaudio/SDL_aaudio.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/android/SDL_androidaudio.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/openslES/SDL_openslES.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/android/SDL_android.c" />
