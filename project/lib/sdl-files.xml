@@ -444,7 +444,6 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/winmm/SDL_winmm.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/windows/SDL_windows.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/windows/SDL_xinput.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_mmjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_dinputjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_windowsjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/windows/SDL_xinputjoystick.c" />
@@ -495,7 +494,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/winrt/SDL_winrtapp_xaml.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/winrt/SDL_sysfilesystem.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/winrt/SDL_syslocale.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/winrt/SDL_sysurl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/misc/winrt/SDL_sysurl.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/winrt/SDL_syspower.cpp" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_d3d11.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/direct3d11/SDL_render_winrt.cpp" />
@@ -514,7 +513,7 @@
         <section if="mac">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/coreaudio/SDL_coreaudio.m" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/darwin/SDL_sysjoystick.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/darwin/SDL_iokitjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/darwin/SDL_syshaptic.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/mac/hid.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/macosx/SDL_syslocale.m" />
@@ -528,7 +527,6 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoametalview.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamodes.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamouse.m" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoamousetap.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoaopengl.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoaopengles.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/cocoa/SDL_cocoashape.m" />
@@ -543,7 +541,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/coreaudio/SDL_coreaudio.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/cocoa/SDL_rwopsbundlesupport.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/cocoa/SDL_sysfilesystem.m" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/iphoneos/SDL_sysjoystick.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/iphoneos/SDL_mfijoystick.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/haptic/dummy/SDL_syshaptic.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/ios/hid.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/dummy/SDL_syslocale.c" />
