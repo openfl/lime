@@ -185,11 +185,11 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Windows-Hashlink
-          path: |
-            templates/bin/hl/Windows
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: |
+      #       templates/bin/hl/Windows
           if-no-files-found: error
       - uses: actions/upload-artifact@v2
         with:
@@ -384,10 +384,10 @@ jobs:
           name: Windows64-NDLL
           path: ndll/Windows64/
 
-      - uses: actions/download-artifact@v2
-        with:
-          name: Windows-Hashlink
-          path: templates/bin/hl/Windows
+      # - uses: actions/download-artifact@v2
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: templates/bin/hl/Windows
 
       - uses: actions/download-artifact@v2
         with:

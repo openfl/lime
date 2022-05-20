@@ -13,16 +13,19 @@ class HashlinkHelper
 	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true)
 	{
 		var platform = project.target;
-		var bindir = (switch project.target
+		var bindir = switch project.target
 		{
 			case LINUX: "Linux";
 			case MAC: "Mac";
 			case WINDOWS: "Windows";
-			case var target:
-				Log.error('Hashlink is not supported on $target (Supported: Windows, Mac and Linux)');
+			default:
+				Log.error('Hashlink is not supported on ${project.target} (Supported: Windows, Mac and Linux)');
 				Sys.exit(1);
 				"";
-		}) + (is64 ? "64" : "");
+		};
+		if(is64) {
+			bindir += "64";
+		}
 
 		var hlPath = ConfigHelper.getConfigValue("HL_PATH");
 		if (hlPath == null)
