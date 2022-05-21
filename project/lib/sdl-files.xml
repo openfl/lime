@@ -107,7 +107,7 @@
         <compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
         <compilerflag value="-D__TVOS__" if="tvos" />
 
-        <compilerflag value="-DSDL_HIDAPI_DISABLED" />
+        <compilerflag value="-DSDL_HIDAPI_DISABLED" unless="ios || tvos" />
 
         <section if="windows">
 
