@@ -102,11 +102,7 @@
 #define HAVE_MODFF
 
 /* Define if we have the log2f function */
-#if defined(HXCPP_ARM64) || defined(HXCPP_CPP11) // Not supporting in Android NDK platform < 18, define when increasing platform
 #define HAVE_LOG2F
-#else
-/* undef HAVE_LOG2F */
-#endif
 
 /* Define if we have the cbrtf function */
 #define HAVE_CBRTF

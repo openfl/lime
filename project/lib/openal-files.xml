@@ -155,7 +155,7 @@
 
         <section if="android">
 
-            <compilerflag value="-Wno-psabi" unless="HXCPP_CLANG || NDKV20+" />
+            <error value="NDK version 20 or higher is required." unless="NDKV20+" />
             <compilerflag value="-fsigned-char" />
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/opensl.cpp" />
