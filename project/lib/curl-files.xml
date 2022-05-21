@@ -49,24 +49,31 @@
 
 		</section>
 
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/altsvc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-ares.c" if="windows" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-thread.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/base64.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/bufref.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/conncache.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/connect.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/content_encoding.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/cookie.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_addrinfo.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_ctype.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_des.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_endian.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_fnmatch.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_get_line.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_gethostname.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_memrchr.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_ntlm_core.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_range.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_sasl.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_threads.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/dict.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/doh.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/dotdot.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/dynbuf.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/easy.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/escape.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/file.c" />
@@ -80,11 +87,12 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hash.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hmac.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostasyn.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostcheck.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostip.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostip4.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostip6.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostsyn.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hsts.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_aws_sigv4.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_chunks.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_digest.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_ntlm.c" />
@@ -97,18 +105,21 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/md5.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/mime.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/mprintf.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/mqtt.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/multi.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/netrc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/nonblock.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/parsedate.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/pingpong.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/pipeline.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/pop3.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/progress.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/rand.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/rename.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/rtsp.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/select.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/sendf.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/setopt.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/sha256.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/share.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/slist.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/smb.c" />
@@ -123,9 +134,11 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/system_win32.c" if="windows" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/telnet.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/tftp.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/timediff.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/timeval.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/transfer.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/url.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/urlapi.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/cleartext.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/cram.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/digest_sspi.c" />
@@ -139,6 +152,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/spnego_sspi.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/vauth.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/version.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/hostcheck.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/vtls.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/warnless.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/wildcard.c" />
@@ -146,7 +160,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/axtls.c" if="NATIVE_TOOLKIT_HAVE_AXTLS" />
 
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/mbedtls.c" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
-		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/polarssl_threadlock.c" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/mbedtls_threadlock.c" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
 
 	</files>
 
