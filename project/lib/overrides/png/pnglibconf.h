@@ -218,4 +218,8 @@
 #define PNG_sCAL_PRECISION 5
 #define PNG_sRGB_PROFILE_CHECKS 2
 /* end of settings */
+#ifdef HX_WINRT
+/* Prevent pngpriv.h from attempting to reference EndProcess */
+#define PNG_ABORT() abort()
+#endif /* HX_WINRT */
 #endif /* PNGLCONF_H */
