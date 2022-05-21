@@ -23,8 +23,3 @@ Lime includes code from several other C/C++ libraries, listed below. Lime prefer
 - [**libvpx**](https://www.webmproject.org/tools/) | [primary repo](https://chromium.googlesource.com/webm/libvpx/) | [GitHub mirror](https://github.com/webmproject/libvpx/)
 - [**libwebm**](https://www.webmproject.org/about/) | [primary repo](https://chromium.googlesource.com/webm/libwebm) | [GitHub mirror](https://github.com/webmproject/libwebm)
 - [**zlib**](https://zlib.net/) | [primary repo](https://github.com/madler/zlib)
-
-## Non-submodule libraries
-In some cases, we use such a small fraction of a library that it isn't worth creating a submodule. This reduces download time but increases the difficulty of performing updates.
-
-- [**PulseAudio**](http://pulseaudio.org/) | [primary repo](https://gitlab.freedesktop.org/pulseaudio/pulseaudio) | [GitHub mirror](https://github.com/pulseaudio/pulseaudio) | Reason: only used on Linux, and only a few headers are used.
