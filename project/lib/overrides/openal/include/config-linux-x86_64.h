@@ -2,29 +2,14 @@
 #define AL_API  __attribute__((visibility("protected")))
 #define ALC_API __attribute__((visibility("protected")))
 
-#ifdef IN_IDE_PARSER
-/* KDevelop's parser doesn't recognize the C99-standard restrict keyword, but
- * recent versions (at least 4.5.1) do recognize GCC's __restrict. */
-#define restrict __restrict
-#endif
-
 /* Define any available alignment declaration */
 #define ALIGN(x) __attribute__((aligned(x)))
-
-/* Define a built-in call indicating an aligned data pointer */
-#define ASSUME_ALIGNED(x, y) x
 
 /* Define a restrict macro for non-aliased pointers */
 #define RESTRICT __restrict
 
 /* Define if HRTF data is embedded in the library */
 #define ALSOFT_EMBED_HRTF_DATA
-
-/* Define if we have the sysconf function */
-/* #undef HAVE_SYSCONF */
-
-/* Define if we have the C11 aligned_alloc function */
-/* #undef HAVE_ALIGNED_ALLOC */
 
 /* Define if we have the posix_memalign function */
 #define HAVE_POSIX_MEMALIGN
@@ -99,67 +84,11 @@
 /* Define if we have the stat function */
 #define HAVE_STAT
 
-/* Define if we have the lrintf function */
-#define HAVE_LRINTF
-
-/* Define if we have the modff function */
-#define HAVE_MODFF
-
-/* Define if we have the log2f function */
-#define HAVE_LOG2F
-
-/* Define if we have the cbrtf function */
-#define HAVE_CBRTF
-
-/* Define if we have the copysignf function */
-#define HAVE_COPYSIGNF
-
-/* Define if we have the strtof function */
-#define HAVE_STRTOF
-
-/* Define if we have the strnlen function */
-/* #undef HAVE_STRNLEN */
-
-/* Define if we have the __int64 type */
-/* #undef HAVE___INT64 */
-
 /* Define to the size of a long int type */
 #define SIZEOF_LONG 8
 
-/* Define to the size of a long long int type */
-#define SIZEOF_LONG_LONG 8
-
-#if __cplusplus > 199711L
-/* Define if we have C99 _Bool support */
-#define HAVE_C99_BOOL
-
-/* Define if we have C11 _Static_assert support */
-#define HAVE_C11_STATIC_ASSERT
-
-/* Define if we have C11 _Alignas support */
-#define HAVE_C11_ALIGNAS
-
-/* Define if we have C11 _Atomic support */
-#define HAVE_C11_ATOMIC
-#endif
-
-/* Define if we have GCC's destructor attribute */
-#define HAVE_GCC_DESTRUCTOR
-
 /* Define if we have GCC's format attribute */
 #define HAVE_GCC_FORMAT
-
-/* Define if we have stdint.h */
-#define HAVE_STDINT_H
-
-/* Define if we have stdbool.h */
-#define HAVE_STDBOOL_H
-
-/* Define if we have stdalign.h */
-#define HAVE_STDALIGN_H
-
-/* Define if we have windows.h */
-/* #undef HAVE_WINDOWS_H */
 
 /* Define if we have dlfcn.h */
 #define HAVE_DLFCN_H
@@ -172,9 +101,6 @@
 
 /* Define if we have dirent.h */
 #define HAVE_DIRENT_H
-
-/* Define if we have strings.h */
-#define HAVE_STRINGS_H
 
 /* Define if we have cpuid.h */
 #ifndef RASPBERRYPI
@@ -193,15 +119,6 @@
 /* Define if we have initguid.h */
 /* #undef HAVE_INITGUID_H */
 
-/* Define if we have ieeefp.h */
-/* #undef HAVE_IEEEFP_H */
-
-/* Define if we have float.h */
-#define HAVE_FLOAT_H
-
-/* Define if we have fenv.h */
-#define HAVE_FENV_H
-
 /* Define if we have GCC's __get_cpuid() */
 #define HAVE_GCC_GET_CPUID
 
@@ -213,12 +130,6 @@
 
 /* Define if we have the _BitScanForward() intrinsic */
 /* #undef HAVE_BITSCANFORWARD_INTRINSIC */
-
-/* Define if we have _controlfp() */
-/* #undef HAVE__CONTROLFP */
-
-/* Define if we have __control87_2() */
-/* #undef HAVE___CONTROL87_2 */
 
 /* Define if we have pthread_setschedparam() */
 #define HAVE_PTHREAD_SETSCHEDPARAM
@@ -234,9 +145,3 @@
 
 /* Define if we have pthread_set_name_np() */
 /* #undef HAVE_PTHREAD_SET_NAME_NP */
-
-/* Define if we have pthread_mutexattr_setkind_np() */
-/* #undef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP */
-
-/* Define if we have pthread_mutex_timedlock() */
-#define HAVE_PTHREAD_MUTEX_TIMEDLOCK
