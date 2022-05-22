@@ -391,6 +391,8 @@
 		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 
+		<vflag name="-framework" value="CoreHaptics" if="ios" />
+
 		<section unless="static_link">
 
 			<ext value=".so" />
@@ -524,7 +526,6 @@
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreHaptics" />
 				<vflag name="-framework" value="CoreMotion" />
 				<vflag name="-framework" value="CoreText" />
 				<vflag name="-framework" value="CoreVideo" />
