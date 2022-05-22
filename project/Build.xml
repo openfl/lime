@@ -452,16 +452,16 @@
 				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />
-				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="Cocoa" />
-				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="Carbon" />
-				<vflag name="-framework" value="AppKit" />
+				<vflag name="-framework" value="Cocoa" />
+				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
+				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGL" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
@@ -501,13 +501,13 @@
 
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
-				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="GameController" />
+				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGLES" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
 				<lib name="-ldl" />
@@ -520,14 +520,15 @@
 
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
-				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreHaptics" />
 				<vflag name="-framework" value="CoreMotion" />
 				<vflag name="-framework" value="CoreText" />
+				<vflag name="-framework" value="CoreVideo" />
+				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGLES" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
 				<lib name="-ldl" />
