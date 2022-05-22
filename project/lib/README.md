@@ -8,7 +8,7 @@ Lime includes code from several other C/C++ libraries, listed below. Lime prefer
 - **efsw** | [primary repo](https://github.com/SpartanJ/efsw)
 - [**FreeType**](https://freetype.org/) | [primary repo](https://gitlab.freedesktop.org/freetype/freetype) | [GitHub mirror](https://github.com/freetype/freetype)
 - [**HarfBuzz**](https://harfbuzz.github.io/) | [primary repo](https://github.com/harfbuzz/harfbuzz)
-- [**libjpeg**](https://ijg.org/) | [download](https://ijg.org/files/) | [unofficial GitHub mirror](https://github.com/openfl/libjpeg)
+- [**libjpeg-turbo**](https://www.libjpeg-turbo.org/) | [primary repo](https://github.com/libjpeg-turbo/libjpeg-turbo)
 - **LZMA** | [download](https://www.7-zip.org/sdk.html) | [unofficial GitHub mirror](https://github.com/openfl/liblzma)
 - [**mbed TLS**](https://tls.mbed.org/) | [primary repo](https://github.com/Mbed-TLS/mbedtls)
 - [**MojoAL**](https://icculus.org/mojoAL/) | [primary repo](https://github.com/icculus/mojoAL/)
