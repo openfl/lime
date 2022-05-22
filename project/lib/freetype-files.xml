@@ -71,6 +71,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/png" if="NATIVE_TOOLKIT_HAVE_PNG" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png" if="NATIVE_TOOLKIT_HAVE_PNG" />
 
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib" /> <!-- To go with FT_CONFIG_OPTION_SYSTEM_ZLIB -->
+
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/autofit/autofit.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftadvanc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftbbox.c" />
