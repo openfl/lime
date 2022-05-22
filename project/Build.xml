@@ -391,8 +391,6 @@
 		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 
-		<vflag name="-framework" value="CoreHaptics" if="ios" />
-
 		<section unless="static_link">
 
 			<ext value=".so" />
