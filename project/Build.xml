@@ -462,6 +462,7 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
