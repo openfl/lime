@@ -39,18 +39,22 @@
 
 		<section if="windows">
 
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-ares.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_multibyte.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/idn_win32.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/inet_ntop.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/inet_pton.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/krb5.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/ldap.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/openldap.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/socketpair.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strtok.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/system_win32.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/version_win32.c" />
 
 		</section>
 
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/altsvc.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-ares.c" if="windows" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-thread.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/base64.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/bufref.c" />
@@ -131,7 +135,6 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strdup.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strerror.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strtoofft.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/system_win32.c" if="windows" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/telnet.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/tftp.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/timediff.c" />
