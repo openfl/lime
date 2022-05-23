@@ -12,10 +12,10 @@
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_clipboard.h" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_android.h" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_iphoneos.h" />
-        <depend name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/SDL_config_macosx.h" />
+        <depend name="${NATIVE_TOOLKIT_PATH}/custom/sdl/include/SDL_config_macosx.h" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_minimal.h" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_pandora.h" />
-        <depend name="${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/SDL_config_windows.h" unless="winrt" />
+        <depend name="${NATIVE_TOOLKIT_PATH}/custom/sdl/include/SDL_config_windows.h" unless="winrt" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_config_winrt.h" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_copying.h" />
         <depend name="${NATIVE_TOOLKIT_PATH}/sdl/include/SDL_cpuinfo.h" />
@@ -96,7 +96,7 @@
 
         <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
 
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/sdl/include/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
         <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />

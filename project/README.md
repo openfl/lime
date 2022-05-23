@@ -57,19 +57,12 @@ Common problems and their solutions:
 See also [submodule troubleshooting](#submodule-troubleshooting).
 
 ## Submodule projects
-Lime includes code from several other C/C++ libraries, each of which is treated as a [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules). For more details about the libraries, see [lib/README.md](lib/README.md).
+Lime includes code from several other C/C++ libraries, each of which is treated as a [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules). For more information on the individual libraries, see [lib/README.md](lib/README.md).
 
-### Overrides
-The [overrides folder](lib/overrides) contains a number of customized headers and source files, to be used instead of the equivalent file(s) in the submodule.
+### Custom headers and source files
+All submodules are used as-is, meaning Lime never modifies the contents of the submodule folder. When Lime needs to modify or add a file, the file goes in [lib/custom](lib/custom).
 
-Caution: overridden files require extra maintenance. Avoid overriding if possible, and instead use `-D` flags to make the customizations you need.
-
-When overriding a header, always include the overrides folder first.
-
-```xml
-<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/sdl/include/" />
-<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
-```
+Caution: overriding a file requires extra maintenance. Always try to find a different solution first. lib/custom should contain as few files as possible.
 
 ### Updating a submodule
 Submodules are Git repositories in their own right, and are typically kept in "detached HEAD" state. Lime never modifies its submodules directly, but instead changes which commit the HEAD points to.
@@ -92,7 +85,7 @@ To update to a more recent version of a submodule:
 6. If you exit the submodule and run `git status`, you'll find an unstaged change representing the update. Once you [finish testing](#rebuilding), you can commit this change and submit it as a pull request.
 
 ### Submodule troubleshooting
-Here are some problems you might run into while attempting to build these submodules, and their solutions.
+Here are some submodule-specific problems you might run into while rebuilding.
 
 - All submodules are empty:
 
@@ -101,24 +94,32 @@ Here are some problems you might run into while attempting to build these submod
    git submodule update
    ```
 
+- Rebuilding fails after `git pull`, and `git status` reports changes to the submodules:
+
+   ```bash
+   git submodule update
+   ```
+
 - The project is missing a crucial header file, or has `[header].h.in` instead of the header you need:
 
    1. Look for an `autogen.sh` file. If it exists, run it. (On Windows, you may need [WSL](https://docs.microsoft.com/en-us/windows/wsl/about), or you might be able to find a .bat file that does what you need.)
    2. If step 1 fails, look for instructions on how to configure the project. This will often involving using `make`, `cmake`, and/or `./configure`. (Again, Windows users may need WSL.)
-   3. One of the above steps should hopefully generate the missing header. Place the generated file inside [the overrides folder](#overrides).
+   3. One of the above steps should hopefully generate the missing header. Place the generated file inside [the custom folder](#custom-headers-and-source-files).
 
-- The compiler ignores a header in the overrides folder:
+- The compiler uses the submodule's original header instead of Lime's custom header:
 
-   1. Make sure the overrides folder is included first.
+   1. Make sure the custom folder is included first.
 
       ```xml
-      <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/src/" />
+      <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/src/" />
       <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src/" />
       ```
 
-   2. If the header is in the same directory as the corresponding source files, find a different option. You simply can't override headers in that case. Instead, try setting compiler flags to make the changes you need.
+   2. If the header is in the same directory as the corresponding source files, you cannot override it. Try setting compiler flags to get the result you want, or look for a different file to override.
 
       ```xml
       <compilerflag value="-DDISABLE_FEATURE" />
       <compilerflag value="-DENABLE_OTHER_FEATURE" />
       ```
+
+   3. Approach the problem from a different angle. Upgrade or downgrade the submodule, or open an issue.

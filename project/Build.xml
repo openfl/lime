@@ -62,11 +62,11 @@
 
 		<section if="LIME_CAIRO">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/src/" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/default/" unless="windows || mac || linux" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/linux/" if="linux" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/windows/" if="windows" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/cairo/configs/mac/" if="mac" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/src/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/default/" unless="windows || mac || linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/linux/" if="linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/windows/" if="windows" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/mac/" if="mac" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src/" />
 			<compilerflag value="-DLIME_CAIRO" />
 			<compilerflag value="-DHAVE_CONFIG_H" />
@@ -137,7 +137,7 @@
 
 		<section if="LIME_JPEG">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/jpeg/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/jpeg/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
 
@@ -165,7 +165,7 @@
 
 		<section if="LIME_OGG">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/ogg/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
@@ -199,7 +199,7 @@
 
 		<section if="LIME_PNG">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/png/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />

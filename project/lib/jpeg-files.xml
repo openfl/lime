@@ -6,13 +6,13 @@
 
 		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
 
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/overrides/jpeg/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/jpeg/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/cderror.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/cdjpeg.h" />
-		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/jpeg/jconfig.h" />
-		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/jpeg/jconfigint.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/custom/jpeg/jconfig.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/custom/jpeg/jconfigint.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jdct.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jerror.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jinclude.h" />
@@ -20,7 +20,7 @@
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jmorecfg.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jpegint.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/jpeglib.h" />
-		<depend name="${NATIVE_TOOLKIT_PATH}/overrides/jpeg/jversion.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/custom/jpeg/jversion.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/simd/jsimd.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/jpeg/transupp.h" />
 
