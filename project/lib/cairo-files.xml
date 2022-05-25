@@ -20,7 +20,7 @@
 		<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
 
 		<compilerflag value="-Wno-attributes" unless="windows" />
-		<compilerflag value="-Wno-enum-conversion" if="mac || ios || emscripten || tvos" />
+		<compilerflag value="-Wno-enum-conversion" />
 
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-analysis-surface.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-arc.c" />
