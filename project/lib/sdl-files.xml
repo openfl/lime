@@ -530,7 +530,7 @@
 
         <section if="ios || tvos">
 
-            <compilerflag value="-fobjc-arc" />
+            <compilerflag value="-fobjc-arc" unless="OBJC_ARC" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/coreaudio/SDL_coreaudio.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/cocoa/SDL_rwopsbundlesupport.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/cocoa/SDL_sysfilesystem.m" />
