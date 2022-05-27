@@ -39,10 +39,12 @@
 #include "SDL_config_iphoneos.h"
 #elif defined(__ANDROID__)
 #include "SDL_config_android.h"
-#elif defined(__PSP__)
-#include "SDL_config_psp.h"
 #elif defined(__OS2__)
 #include "SDL_config_os2.h"
+#elif defined(__EMSCRIPTEN__)
+#include "SDL_config_emscripten.h"
+#elif defined(__NGAGE__)
+#include "SDL_config_ngage.h"
 #elif defined(RASPBERRYPI)
 #include "SDL_config_rpi.h"
 #elif defined(HX_LINUX)

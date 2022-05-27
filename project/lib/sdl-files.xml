@@ -91,7 +91,7 @@
         <cache value="1" />
         <tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
 
-        <compilerflag value="-DUSING_GENERATED_CONFIG_H" />
+        <compilerflag value="-DUSING_GENERATED_CONFIG_H" if="linux || rpi" /> <!-- For other targets, it doesn't matter which header is included. -->
         <depend files="native-toolkit-sdl-depends" />
 
         <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
