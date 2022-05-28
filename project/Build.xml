@@ -238,7 +238,15 @@
 				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
 				<compilerflag value="-lbrcmGLESv2" />
 				<compilerflag value="-lbrcmEGL" />
-				<compilerflag value="-Wl,--no-undefined -lm -L/opt/vc/lib -lbcm_host -ldl -lpthread -lrt" />
+				<compilerflag value="-I/usr/include/libdrm" />
+				<compilerflag value="-I/usr/include/dbus-1.0" />
+				<compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" />
+				<compilerflag value="-I/usr/local/include" />
+
+				<compilerflag value="-ldrm" />
+				<compilerflag value="-lgbm" />
+
+				<compilerflag value="-Wl,--no-undefined -lm -ldl -ldrm -lpthread -lrt" />
 
 			</section>
 
@@ -489,12 +497,11 @@
 
 			<section if="rpi">
 
-				<lib name="-lbcm_host" />
 				<lib name="-ldl" />
+				<lib name="-ldrm" />
 				<lib name="-lm" />
-				<lib name="-lbrcmGLESv2" />
-				<lib name="-lbrcmEGL" />
-				<lib name="-L/opt/vc/lib" />
+				<lib name="-lEGL" />
+				<lib name="-lGLESv2" />
 
 			</section>
 

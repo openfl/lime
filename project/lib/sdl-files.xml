@@ -135,15 +135,6 @@
             <compilerflag value="-msse3" unless="rpi" />
             <compilerflag value="-mssse3" unless="rpi" />
 
-            <compilerflag value="-mfpu=neon" if="rpi" />
-            <compilerflag value="-mfloat-abi=hard" if="rpi" />
-            <compilerflag value="-I-abi=hard" if="rpi" />
-            <compilerflag value="-I/opt/vc/include" if="rpi" />
-            <compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" if="rpi" />
-            <compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" if="rpi" />
-            <compilerflag value="-I/usr/include/interface/vcos/pthreads" if="rpi" />
-            <compilerflag value="-I/usr/include/interface/vmcs_host/linux" if="rpi" />
-
             <set name="XINPUT2" value="${NATIVE_TOOLKIT_SDL_X11_XINPUT2}" />
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2=${XINPUT2}" if="XINPUT2" />
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2_SUPPORTS_MULTITOUCH=${XINPUT2}" if="XINPUT2" />
@@ -151,6 +142,24 @@
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2_SUPPORTS_MULTITOUCH=0" unless="XINPUT2" />
 
         </section>
+
+            <section if="rpi">
+
+                <compilerflag value="-mfpu=neon" />
+                <compilerflag value="-mfloat-abi=hard" />
+                <compilerflag value="-I-abi=hard" />
+
+                <compilerflag value="-I/opt/vc/include" />
+                <compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/dbus-1.0" />
+                <compilerflag value="-I/usr/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/usr/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/libdrm" />
+                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" />
+                <compilerflag value="-I/usr/local/include" />
+
+            </section>
 
         <section if="mac">
 
@@ -293,7 +302,7 @@
 
         </section>
 
-        <section if="windows || mac || android">
+        <section if="windows || mac || android || rpi">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_gamecube.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_luna.c" />
@@ -422,6 +431,19 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11vulkan.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11window.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xinput2.c" />
+
+        </section>
+
+        <section if="rpi">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmopengles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmevents.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmmouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmdyn.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmvideo.c" />
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xfixes.c" />
 
         </section>
 
