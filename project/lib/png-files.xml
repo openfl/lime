@@ -38,10 +38,12 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/png/pngwtran.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/png/pngwutil.c" />
 
-		<section if="ios || tvos">
+		<!-- Files required only if PNG_ARM_NEON_IMPLEMENTATION == 1 (see pngpriv.h) -->
+		<section if="ios || tvos || HXCPP_ARM64">
 
 			<file name="${NATIVE_TOOLKIT_PATH}/png/arm/arm_init.c" />
 			<file name="${NATIVE_TOOLKIT_PATH}/png/arm/filter_neon_intrinsics.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/png/arm/palette_neon_intrinsics.c" />
 
 		</section>
 
