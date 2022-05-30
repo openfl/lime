@@ -600,6 +600,16 @@ class NativeApplication
 				});
 			}
 		}
+
+		#if target.threaded
+		sys.thread.Thread.current().events.progress();
+		#elseif cpp
+		cpp.vm.Thread.current().events.progress();
+		#elseif neko
+		neko.vm.Thread.current().events.progress();
+		#else
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
 		#end
 	}
 }
