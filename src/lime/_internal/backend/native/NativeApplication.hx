@@ -601,12 +601,8 @@ class NativeApplication
 			}
 		}
 
-		#if target.threaded
+		#if (haxe_ver > "4.1.5" && target.threaded)
 		sys.thread.Thread.current().events.progress();
-		#elseif cpp
-		cpp.vm.Thread.current().events.progress();
-		#elseif neko
-		neko.vm.Thread.current().events.progress();
 		#else
 		@:privateAccess haxe.EntryPoint.processEvents();
 		#end
