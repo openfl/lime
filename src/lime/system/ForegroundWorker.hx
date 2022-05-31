@@ -162,6 +162,8 @@ class ForegroundWorkerBuilder
 		switch (field.kind)
 		{
 			case FFun(f):
+				field.access.remove(AInline);
+
 				var qualifiedIdent:Array<String>;
 				if (field.access.indexOf(AStatic) >= 0)
 				{
