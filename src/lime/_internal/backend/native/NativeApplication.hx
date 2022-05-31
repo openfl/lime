@@ -601,8 +601,14 @@ class NativeApplication
 			}
 		}
 
-		#if (haxe_ver > "4.1.5" && target.threaded)
+		#if (haxe_ver > "4.1.5")
+		#if target.threaded
 		sys.thread.Thread.current().events.progress();
+		#else
+		// Duplicate code required because Haxe 3 can't handle
+		// #if (haxe_ver > "4.1.5" && target.threaded)
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
 		#else
 		@:privateAccess haxe.EntryPoint.processEvents();
 		#end
