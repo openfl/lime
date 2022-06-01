@@ -164,7 +164,7 @@ class FileDialog
 					var path = null;
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
-					path = @:privateAccess String.fromUTF8(cast bytes);
+					if (bytes != null) path = @:privateAccess String.fromUTF8(cast bytes);
 					#else
 					path = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
 					#end
@@ -243,7 +243,7 @@ class FileDialog
 			var path = null;
 			#if hl
 			var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
-			path = @:privateAccess String.fromUTF8(cast bytes);
+			if (bytes != null) path = @:privateAccess String.fromUTF8(cast bytes);
 			#else
 			path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
 			#end
