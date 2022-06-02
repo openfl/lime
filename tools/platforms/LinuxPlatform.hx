@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Path;
@@ -220,11 +221,7 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(applicationDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/linux", applicationDirectory);
-			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-			System.renameFile(Path.combine(applicationDirectory, "hl"), executablePath);
+			HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 		}
 		else if (targetType == "nodejs")
 		{
@@ -415,6 +412,11 @@ class LinuxPlatform extends PlatformTarget
 			{
 				commands.push(["-Dlinux", "-DHXCPP_M32"]);
 			}
+		}
+
+		if (targetFlags.exists("hl"))
+		{
+			CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
 		}
 
 		CPPHelper.rebuild(project, commands);

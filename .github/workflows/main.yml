@@ -17,7 +17,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -59,11 +59,20 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-NDLL
           path: |
             ndll/Linux64/
             !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
+        with:
+          name: Linux64-Hashlink
+          path: |
+            templates/bin/hl/Linux64
           if-no-files-found: error
 
   macos-ndll:
@@ -84,6 +93,10 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          pushd project/lib/hashlink
+          brew update
+          brew bundle
+          popd
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -109,6 +122,13 @@ jobs:
           path: |
             ndll/Mac64/
             !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Mac64-Hashlink
+          path: |
+            templates/bin/hl/Mac64
           if-no-files-found: error
 
   windows-ndll:
@@ -163,6 +183,19 @@ jobs:
           path: |
             ndll/Windows64/
             !**/.gitignore
+          if-no-files-found: error
+
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: |
+      #       templates/bin/hl/Windows
+      #     if-no-files-found: error
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Windows64-Hashlink
+          path: |
+            templates/bin/hl/Windows64
           if-no-files-found: error
 
   android-ndll:
@@ -315,7 +348,7 @@ jobs:
           haxelib dev lime $GITHUB_WORKSPACE
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
-
+          cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
       - uses: actions/download-artifact@v2
         with:
           name: Android-NDLL
@@ -350,6 +383,26 @@ jobs:
         with:
           name: Windows64-NDLL
           path: ndll/Windows64/
+
+      # - uses: actions/download-artifact@v2
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: templates/bin/hl/Windows
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Windows64-Hashlink
+          path: templates/bin/hl/Windows64
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Mac64-Hashlink
+          path: templates/bin/hl/Mac64
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Linux64-Hashlink
+          path: templates/bin/hl/Linux64
 
       - uses: actions/upload-artifact@v2
         with:
