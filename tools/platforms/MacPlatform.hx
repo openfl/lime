@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Log;
@@ -205,11 +206,7 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".hl",
-			// 	Path.combine(executableDirectory, project.app.file + ".hl"));
-			System.recursiveCopyTemplate(project.templatePaths, "bin/hl/mac", executableDirectory);
-			System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(executableDirectory, "hlboot.dat"));
-			System.renameFile(Path.combine(executableDirectory, "hl"), executablePath);
+			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, is64);
 		}
 		else if (targetType == "java")
 		{
@@ -377,6 +374,11 @@ class MacPlatform extends PlatformTarget
 			{
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
 			}
+		}
+
+		if (targetFlags.exists("hl"))
+		{
+			CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
 		}
 
 		CPPHelper.rebuild(project, commands);

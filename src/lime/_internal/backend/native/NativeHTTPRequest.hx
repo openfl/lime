@@ -1,6 +1,7 @@
 package lime._internal.backend.native;
 
 import haxe.io.Bytes;
+import haxe.io.BytesBuffer;
 import haxe.Timer;
 import lime.app.Future;
 import lime.app.Promise;
@@ -41,7 +42,8 @@ class NativeHTTPRequest
 	private static var multiAddHandle:Deque<CURL>;
 	#end
 	private static var cookieList:Array<String>;
-
+	
+	private var buffer:BytesBuffer = new BytesBuffer();
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
 	private var bytesTotal:Int;
@@ -51,7 +53,6 @@ class NativeHTTPRequest
 	private var promise:Promise<Bytes>;
 	private var writeBytesLoaded:Int;
 	private var writeBytesTotal:Int;
-	private var writePosition:Int;
 	private var timeout:Timer;
 
 	public function new()
@@ -94,7 +95,6 @@ class NativeHTTPRequest
 		bytesTotal = 0;
 		writeBytesLoaded = 0;
 		writeBytesTotal = 0;
-		writePosition = 0;
 
 		if (curl == null)
 		{
@@ -349,6 +349,7 @@ class NativeHTTPRequest
 
 		future.onComplete(function(bytes)
 		{
+			bytes = buildBuffer();
 			if (bytes == null)
 			{
 				promise.complete(null);
@@ -361,17 +362,12 @@ class NativeHTTPRequest
 
 		return promise.future;
 	}
-
-	private function growBuffer(length:Int)
-	{
-		if (length > bytes.length)
-		{
-			var cacheBytes = bytes;
-			bytes = Bytes.alloc(length);
-			bytes.blit(0, cacheBytes, 0, cacheBytes.length);
-		}
+	
+	private function buildBuffer()	{
+		bytes = buffer.getBytes();
+		return bytes;
 	}
-
+	
 	// Event Handlers
 	private function curl_onHeader(curl:CURL, header:String):Void
 	{
@@ -399,11 +395,7 @@ class NativeHTTPRequest
 
 	private function curl_onWrite(curl:CURL, output:Bytes):Int
 	{
-		growBuffer(writePosition + output.length);
-		bytes.blit(writePosition, output, 0, output.length);
-
-		writePosition += output.length;
-
+		buffer.add(output);
 		return output.length;
 	}
 

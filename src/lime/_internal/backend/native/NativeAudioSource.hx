@@ -387,6 +387,12 @@ class NativeAudioSource
 
 	public function setCurrentTime(value:Int):Int
 	{
+		// `setCurrentTime()` has side effects and is never safe to skip.
+		/* if (value == getCurrentTime())
+		{
+			return value;
+		} */
+
 		if (handle != null)
 		{
 			if (stream)
@@ -425,7 +431,7 @@ class NativeAudioSource
 				timer.stop();
 			}
 
-			var timeRemaining = getLength() - value;
+			var timeRemaining = Std.int((getLength() - value) / getPitch());
 
 			if (timeRemaining > 0)
 			{
@@ -484,7 +490,7 @@ class NativeAudioSource
 				timer.stop();
 			}
 
-			var timeRemaining = value - getCurrentTime();
+			var timeRemaining = Std.int((value - getCurrentTime()) / getPitch());
 
 			if (timeRemaining > 0)
 			{
@@ -504,6 +510,44 @@ class NativeAudioSource
 	public function setLoops(value:Int):Int
 	{
 		return loops = value;
+	}
+
+	public function getPitch():Float
+	{
+		if (handle != null)
+		{
+			return AL.getSourcef(handle, AL.PITCH);
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	public function setPitch(value:Float):Float
+	{
+		if (playing && value != getPitch())
+		{
+			if (timer != null)
+			{
+				timer.stop();
+			}
+
+			var timeRemaining = Std.int((getLength() - getCurrentTime()) / value);
+
+			if (timeRemaining > 0)
+			{
+				timer = new Timer(timeRemaining);
+				timer.run = timer_onRun;
+			}
+		}
+
+		if (handle != null)
+		{
+			AL.sourcef(handle, AL.PITCH, value);
+		}
+
+		return value;
 	}
 
 	public function getPosition():Vector4

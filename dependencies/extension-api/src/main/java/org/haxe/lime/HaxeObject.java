@@ -10,6 +10,15 @@ import java.lang.Long;
 import java.lang.Float;
 import java.lang.Double;
 
+/**
+   An object that was originally created by Haxe code. You can call its
+   functions using `callX("functionName")`, where X is the number of arguments.
+
+   Caution: the Haxe function will run on the thread you called it from. In many
+   cases, this will be the UI thread, which is _not_ the same as Haxe's main
+   thread. To avoid unpredictable thread-related errors, consider using a
+   `lime.system.ForegroundWorker` as your `HaxeObject`.
+**/
 public class HaxeObject
 {
    public long __haxeHandle;

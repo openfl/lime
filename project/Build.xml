@@ -123,6 +123,8 @@
 
 		</section>
 
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/hashlink/src" />
+
 		<section if="LIME_HASHLINK">
 
 			<compilerflag value="-DLIME_HASHLINK" />
@@ -436,7 +438,7 @@
 				<lib name="Xinput.lib" if="winrt" />
 				<lib name="DXGI.lib" if="winrt" />
 
-				<lib name="-libpath:../templates/bin/hl/windows" if="LIME_HASHLINK" />
+				<lib name="-libpath:../templates/bin/hl/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />
 				<!-- <lib name="-delayload:libhl.dll" /> -->
 
@@ -450,7 +452,7 @@
 				<lib name="-lgc" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L../templates/bin/hl/linux" if="LIME_HASHLINK" />
+				<lib name="-L../templates/bin/hl/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>
@@ -475,7 +477,7 @@
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
 
-				<lib name="-L../templates/bin/hl/mac" if="LIME_HASHLINK" />
+				<lib name="-L../templates/bin/hl/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="-lhl" if="LIME_HASHLINK" />
 
 			</section>

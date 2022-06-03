@@ -600,6 +600,18 @@ class NativeApplication
 				});
 			}
 		}
+
+		#if (haxe_ver >= 4.2)
+		#if target.threaded
+		sys.thread.Thread.current().events.progress();
+		#else
+		// Duplicate code required because Haxe 3 can't handle
+		// #if (haxe_ver >= 4.2 && target.threaded)
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
+		#else
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
 		#end
 	}
 }
@@ -739,12 +751,12 @@ class NativeApplication
 
 @:keep /*private*/ class KeyEventInfo
 {
-	public var keyCode:#if neko Float #else Int #end;
+	public var keyCode: Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:#if neko Float #else Int #end = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
