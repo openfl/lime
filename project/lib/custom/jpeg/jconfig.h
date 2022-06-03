@@ -66,6 +66,11 @@
 /* #undef __CHAR_UNSIGNED__ */
 #endif
 
+/* If rpcndr.h has defined boolean, jmorecfg.h should not. */
+#ifdef __RPCNDR_H__
+#define HAVE_BOOLEAN
+#endif
+
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
 
