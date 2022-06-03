@@ -14,6 +14,8 @@ import neko.vm.Thread;
 /**
 	An object whose instance functions always run on the main thread. If called
 	from any other thread, they'll switch to the main thread before proceeding.
+	This is important for Android apps that use JNI, as most times a Java class
+	calls a Haxe function, it does so on the UI thread.
 
 	Usage:
 

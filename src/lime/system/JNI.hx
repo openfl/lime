@@ -3,6 +3,24 @@ package lime.system;
 #if (!lime_doc_gen || android)
 import lime._internal.backend.native.NativeCFFI;
 
+/**
+	The Java Native Interface (JNI) allows C++ code to call Java functions, and
+	vice versa. On Android, Haxe code compiles to C++, but only Java code can
+	access the Android system API, so it's often necessary to use both.
+
+	For a working example, run `lime create extension MyExtension`, then look at
+	MyExtension.hx and MyExtension.java.
+
+	You can pass Haxe objects to Java, much like any other data. In Java,
+	they'll have type `org.haxe.lime.HaxeObject`, meaning the method that
+	receives them might have signature `(Lorg/haxe/lime/HaxeObject;)V`. Once
+	sent, the Java class can store the object and call its functions.
+
+	Note that most Java code runs on a different thread than Haxe, meaning that
+	you can get thread-related errors in both directions. Java functions can
+	use `Extension.callbackHandler.post()` to switch to the UI thread, while
+	Haxe code can avoid the problem using `lime.system.ForegroundWorker`.
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
