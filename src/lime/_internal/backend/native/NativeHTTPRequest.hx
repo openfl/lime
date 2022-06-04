@@ -571,7 +571,7 @@ class NativeHTTPRequest
 				{
 					if (!instance.promise.isError)
 					{
-						instance.promise.complete(instance.bytes);
+						instance.promise.complete(instance.buildBuffer());
 					}
 				}
 				else if (instance.bytes != null)

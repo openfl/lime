@@ -110,10 +110,6 @@ public function load(uri:String = null):Future<T>
 
 		future.onComplete(function(bytes)
 		{
-			#if sys
-			bytes = @:privateAccess __backend.buildBuffer();
-			#end
-			
 			responseData = fromBytes(bytes);
 			promise.complete(responseData);
 		});
