@@ -42,7 +42,7 @@ class NativeHTTPRequest
 	private static var multiAddHandle:Deque<CURL>;
 	#end
 	private static var cookieList:Array<String>;
-	
+
 	private var buffer:BytesBuffer = new BytesBuffer();
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
@@ -362,12 +362,12 @@ class NativeHTTPRequest
 
 		return promise.future;
 	}
-	
+
 	private function buildBuffer()	{
 		bytes = buffer.getBytes();
 		return bytes;
 	}
-	
+
 	// Event Handlers
 	private function curl_onHeader(curl:CURL, header:String):Void
 	{
