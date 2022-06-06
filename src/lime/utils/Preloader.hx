@@ -309,8 +309,8 @@ class Preloader #if flash extends Sprite #end
 		}
 		#end
 
-		if (!simulateProgress #if flash && loadedStage #end
-			#if !disable_preloader_assets && loadedLibraries == (libraries.length + libraryNames.length) #end)
+		if (!simulateProgress #if flash && loadedStage #end#if !disable_preloader_assets
+			&& loadedLibraries == (libraries.length + libraryNames.length) #end)
 		{
 			if (!preloadComplete)
 			{

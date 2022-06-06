@@ -1,6 +1,7 @@
 package lime._internal.backend.native;
 
 import haxe.io.Bytes;
+import haxe.io.BytesBuffer;
 import haxe.Timer;
 import lime.app.Future;
 import lime.app.Promise;
@@ -41,7 +42,9 @@ class NativeHTTPRequest
 	#if (cpp || neko || hl)
 	private static var multiAddHandle:Deque<CURL>;
 	#end
+	private static var cookieList:Array<String>;
 
+	private var buffer:BytesBuffer = new BytesBuffer();
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
 	private var bytesTotal:Int;
@@ -51,7 +54,6 @@ class NativeHTTPRequest
 	private var promise:Promise<Bytes>;
 	private var writeBytesLoaded:Int;
 	private var writeBytesTotal:Int;
-	private var writePosition:Int;
 	private var timeout:Timer;
 
 	public function new()
@@ -94,7 +96,6 @@ class NativeHTTPRequest
 		bytesTotal = 0;
 		writeBytesLoaded = 0;
 		writeBytesTotal = 0;
-		writePosition = 0;
 
 		if (curl == null)
 		{
@@ -236,11 +237,19 @@ class NativeHTTPRequest
 			curl.setOption(HEADERFUNCTION, curl_onHeader);
 		}
 
-		// TODO: Add support for cookies: https://curl.haxx.se/docs/http-cookies.html
-
-		if (parent.withCredentials)
+		if (parent.manageCookies)
 		{
-			// TODO: Send cookies with request
+			// an empty string means store cookies in memory
+			// cookies are stored only for the current session
+			curl.setOption(COOKIEFILE, "");
+			if (cookieList != null)
+			{
+				for (cookie in cookieList)
+				{
+					// pass in each stored cookie individually
+					curl.setOption(COOKIELIST, cookie);
+				}
+			}
 		}
 
 		curl.setOption(SSL_VERIFYPEER, false);
@@ -339,6 +348,7 @@ class NativeHTTPRequest
 
 		future.onComplete(function(bytes)
 		{
+			bytes = buildBuffer();
 			if (bytes == null)
 			{
 				promise.complete(null);
@@ -352,14 +362,9 @@ class NativeHTTPRequest
 		return promise.future;
 	}
 
-	private function growBuffer(length:Int)
-	{
-		if (length > bytes.length)
-		{
-			var cacheBytes = bytes;
-			bytes = Bytes.alloc(length);
-			bytes.blit(0, cacheBytes, 0, cacheBytes.length);
-		}
+	private function buildBuffer()	{
+		bytes = buffer.getBytes();
+		return bytes;
 	}
 
 	// Event Handlers
@@ -389,11 +394,7 @@ class NativeHTTPRequest
 
 	private function curl_onWrite(curl:CURL, output:Bytes):Int
 	{
-		growBuffer(writePosition + output.length);
-		bytes.blit(writePosition, output, 0, output.length);
-
-		writePosition += output.length;
-
+		buffer.add(output);
 		return output.length;
 	}
 
@@ -517,6 +518,9 @@ class NativeHTTPRequest
 					var curl = message.curl;
 					var status = curl.getInfo(RESPONSE_CODE);
 
+					// returns an array of cookie values
+					cookieList = curl.getInfo(COOKIELIST);
+
 					multi.removeHandle(curl);
 					curl.cleanup();
 
@@ -566,7 +570,7 @@ class NativeHTTPRequest
 				{
 					if (!instance.promise.isError)
 					{
-						instance.promise.complete(instance.bytes);
+						instance.promise.complete(instance.buildBuffer());
 					}
 				}
 				else if (instance.bytes != null)

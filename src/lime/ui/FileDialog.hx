@@ -41,7 +41,6 @@ import js.html.Blob;
 	Availability note: most file dialog operations are only available on desktop targets, though
 	`save()` is also available in HTML5.
 **/
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -50,7 +49,6 @@ import js.html.Blob;
 @:access(lime.graphics.Image)
 class FileDialog
 {
-
 	/**
 		Triggers when the user clicks "Cancel" during any operation, or when a function is unsupported
 		(such as `open()` on HTML5).
@@ -79,7 +77,6 @@ class FileDialog
 		`Array<String>` contains all selected file paths.
 	**/
 	public var onSelectMultiple = new Event<Array<String>->Void>();
-
 
 	public function new() {}
 
@@ -203,7 +200,7 @@ class FileDialog
 					var path = null;
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
-					path = @:privateAccess String.fromUTF8(cast bytes);
+					if (bytes != null) path = @:privateAccess String.fromUTF8(cast bytes);
 					#else
 					path = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
 					#end
@@ -260,7 +257,7 @@ class FileDialog
 			var path = null;
 			#if hl
 			var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
-			path = @:privateAccess String.fromUTF8(cast bytes);
+			if (bytes != null) path = @:privateAccess String.fromUTF8(cast bytes);
 			#else
 			path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
 			#end

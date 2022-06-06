@@ -187,27 +187,27 @@ class CreateTemplate
 
 				if (overrides != null)
 				{
-					if (overrides.meta.packageName != overrides.defaultMeta.packageName)
+					if (Reflect.hasField(overrides.meta, "packageName"))
 					{
 						packageName = overrides.meta.packageName;
 					}
 
-					if (overrides.meta.title != overrides.defaultMeta.title)
+					if (Reflect.hasField(overrides.meta, "title"))
 					{
 						title = overrides.meta.title;
 					}
 
-					if (overrides.meta.version != overrides.defaultMeta.version)
+					if (Reflect.hasField(overrides.meta, "version"))
 					{
 						version = overrides.meta.version;
 					}
 
-					if (overrides.meta.company != overrides.defaultMeta.company)
+					if (Reflect.hasField(overrides.meta, "company"))
 					{
 						company = overrides.meta.company;
 					}
 
-					if (overrides.app.file != overrides.defaultApp.file)
+					if (Reflect.hasField(overrides.app, "file"))
 					{
 						file = overrides.app.file;
 					}

@@ -5,6 +5,9 @@ jobs:
 
   linux-ndll:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
     steps:
 
       - uses: actions/checkout@v2
@@ -14,11 +17,11 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: ${{ matrix.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -47,6 +50,7 @@ jobs:
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux-NDLL
           path: |
@@ -55,11 +59,20 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-NDLL
           path: |
             ndll/Linux64/
             !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
+        with:
+          name: Linux64-Hashlink
+          path: |
+            templates/bin/hl/Linux64
           if-no-files-found: error
 
   macos-ndll:
@@ -72,7 +85,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -80,6 +93,10 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          pushd project/lib/hashlink
+          brew update
+          brew bundle
+          popd
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -107,6 +124,13 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Mac64-Hashlink
+          path: |
+            templates/bin/hl/Mac64
+          if-no-files-found: error
+
   windows-ndll:
     runs-on: windows-latest
     steps:
@@ -117,7 +141,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -161,6 +185,19 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: |
+      #       templates/bin/hl/Windows
+      #     if-no-files-found: error
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Windows64-Hashlink
+          path: |
+            templates/bin/hl/Windows64
+          if-no-files-found: error
+
   android-ndll:
     needs: macos-ndll
     runs-on: macos-10.15
@@ -182,7 +219,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -240,7 +277,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -290,7 +327,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -311,7 +348,7 @@ jobs:
           haxelib dev lime $GITHUB_WORKSPACE
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
-
+          cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
       - uses: actions/download-artifact@v2
         with:
           name: Android-NDLL
@@ -347,6 +384,26 @@ jobs:
           name: Windows64-NDLL
           path: ndll/Windows64/
 
+      # - uses: actions/download-artifact@v2
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: templates/bin/hl/Windows
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Windows64-Hashlink
+          path: templates/bin/hl/Windows64
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Mac64-Hashlink
+          path: templates/bin/hl/Mac64
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Linux64-Hashlink
+          path: templates/bin/hl/Linux64
+
       - uses: actions/upload-artifact@v2
         with:
           name: lime-haxelib
@@ -368,7 +425,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -407,7 +464,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -418,7 +475,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -461,7 +518,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -469,7 +526,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v2
         with:
@@ -503,7 +560,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -526,7 +583,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -567,7 +624,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -575,7 +632,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v2
         with:
@@ -606,7 +663,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -617,7 +674,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -657,7 +714,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -668,7 +725,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -703,7 +760,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -714,7 +771,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -752,7 +809,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -775,7 +832,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache (Windows)
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -816,7 +873,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -827,7 +884,7 @@ jobs:
           haxelib install hxcpp --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          haxelib git lime-samples https://github.com/haxelime/lime-samples --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -858,7 +915,7 @@ jobs:
   notify:
     runs-on: ubuntu-18.04
     needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
-    if: ${{ github.repository == 'haxelime/lime' && github.event_name != 'pull_request' }}
+    if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
         uses: nobrayner/discord-webhook@v1

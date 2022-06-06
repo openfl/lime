@@ -54,7 +54,6 @@ class CommandLineTools
 		words = new Array<String>();
 
 		overrides = new HXProject();
-		overrides.architectures = [];
 
 		// Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (Haxelib.getPath (new Haxelib ("lime")), "tools"));
 
@@ -1859,18 +1858,25 @@ class CommandLineTools
 				if (Reflect.hasField(project, field))
 				{
 					var fieldValue = Reflect.field(project, field);
-
-					if (Reflect.hasField(fieldValue, attribute))
+					var typeValue:Dynamic = switch (field)
 					{
-						if ((Reflect.field(fieldValue, attribute) is String))
+						case "app": ApplicationData.expectedFields;
+						case "meta": MetaData.expectedFields;
+						case "window": WindowData.expectedFields;
+						default: fieldValue;
+					};
+
+					if (Reflect.hasField(typeValue, attribute))
+					{
+						if ((Reflect.field(typeValue, attribute) is String))
 						{
 							Reflect.setField(fieldValue, attribute, projectDefines.get(key));
 						}
-						else if ((Reflect.field(fieldValue, attribute) is Float))
+						else if ((Reflect.field(typeValue, attribute) is Float))
 						{
 							Reflect.setField(fieldValue, attribute, Std.parseFloat(projectDefines.get(key)));
 						}
-						else if ((Reflect.field(fieldValue, attribute) is Bool))
+						else if ((Reflect.field(typeValue, attribute) is Bool))
 						{
 							Reflect.setField(fieldValue, attribute, (projectDefines.get(key).toLowerCase() == "true"
 								|| projectDefines.get(key) == "1"));
@@ -2072,6 +2078,10 @@ class CommandLineTools
 					{
 						overrides.dependencies.push(new Dependency(argValue, ""));
 					}
+					else if (field == "template")
+					{
+						overrides.templatePaths.push(argValue);
+					}
 					else if (StringTools.startsWith(field, "certificate-"))
 					{
 						if (overrides.keystore == null)
@@ -2118,10 +2128,17 @@ class CommandLineTools
 						if (field == "meta-build-number") property = "buildNumber";
 
 						var fieldReference = Reflect.field(overrides, fieldName);
-
-						if (Reflect.hasField(fieldReference, property))
+						var typeValue:Dynamic = switch (fieldName)
 						{
-							var propertyReference = Reflect.field(fieldReference, property);
+							case "app": ApplicationData.expectedFields;
+							case "meta": MetaData.expectedFields;
+							case "window": WindowData.expectedFields;
+							default: fieldReference;
+						};
+
+						if (Reflect.hasField(typeValue, property))
+						{
+							var propertyReference = Reflect.field(typeValue, property);
 
 							if ((propertyReference is Bool))
 							{

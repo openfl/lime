@@ -1347,8 +1347,8 @@ class ImageDataUtil
 
 			var srcPosition,
 				destPosition,
-				srcPixel:RGBA  = 0,
-				destPixel:RGBA  = 0,
+				srcPixel:RGBA = 0,
+				destPixel:RGBA = 0,
 				pixelMask:UInt,
 				test:Bool,
 				value:Int;
@@ -1414,7 +1414,7 @@ class ImageDataUtil
 		{
 			var format = image.buffer.format;
 			var length = Std.int(data.length / 4);
-			var pixel:RGBA  = 0;
+			var pixel:RGBA = 0;
 
 			for (i in 0...length)
 			{

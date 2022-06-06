@@ -176,7 +176,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_arc (HL_CFFIPointer* handle, double xc, double yc, double radius, double angle1, double angle2) {
+	HL_PRIM void HL_NAME(hl_cairo_arc) (HL_CFFIPointer* handle, double xc, double yc, double radius, double angle1, double angle2) {
 
 		cairo_arc ((cairo_t*)handle->ptr, xc, yc, radius, angle1, angle2);
 
@@ -190,7 +190,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_arc_negative (HL_CFFIPointer* handle, double xc, double yc, double radius, double angle1, double angle2) {
+	HL_PRIM void HL_NAME(hl_cairo_arc_negative) (HL_CFFIPointer* handle, double xc, double yc, double radius, double angle1, double angle2) {
 
 		cairo_arc_negative ((cairo_t*)handle->ptr, xc, yc, radius, angle1, angle2);
 
@@ -204,7 +204,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_clip (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_clip) (HL_CFFIPointer* handle) {
 
 		cairo_clip ((cairo_t*)handle->ptr);
 
@@ -218,7 +218,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_clip_extents (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
+	HL_PRIM void HL_NAME(hl_cairo_clip_extents) (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
 
 		cairo_clip_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
 
@@ -232,7 +232,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_clip_preserve (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_clip_preserve) (HL_CFFIPointer* handle) {
 
 		cairo_clip_preserve ((cairo_t*)handle->ptr);
 
@@ -246,7 +246,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_close_path (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_close_path) (HL_CFFIPointer* handle) {
 
 		cairo_close_path ((cairo_t*)handle->ptr);
 
@@ -260,7 +260,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_copy_page (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_copy_page) (HL_CFFIPointer* handle) {
 
 		cairo_copy_page ((cairo_t*)handle->ptr);
 
@@ -280,7 +280,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_create (HL_CFFIPointer* surface) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_create) (HL_CFFIPointer* surface) {
 
 		cairo_t* cairo = cairo_create ((cairo_surface_t*)surface->ptr);
 
@@ -300,7 +300,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_curve_to (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2, double x3, double y3) {
+	HL_PRIM void HL_NAME(hl_cairo_curve_to) (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2, double x3, double y3) {
 
 		cairo_curve_to ((cairo_t*)handle->ptr, x1, y1, x2, y2, x3, y3);
 
@@ -314,7 +314,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_fill (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_fill) (HL_CFFIPointer* handle) {
 
 		cairo_fill ((cairo_t*)handle->ptr);
 
@@ -328,7 +328,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_fill_extents (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
+	HL_PRIM void HL_NAME(hl_cairo_fill_extents) (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
 
 		cairo_fill_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
 
@@ -342,7 +342,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_fill_preserve (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_fill_preserve) (HL_CFFIPointer* handle) {
 
 		cairo_fill_preserve ((cairo_t*)handle->ptr);
 
@@ -356,7 +356,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_font_face_status (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_font_face_status) (HL_CFFIPointer* handle) {
 
 		return cairo_font_face_status ((cairo_font_face_t*)handle->ptr);
 
@@ -371,7 +371,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_font_options_create () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_font_options_create) () {
 
 		cairo_font_options_t* options = cairo_font_options_create ();
 		return HLCFFIPointer (options, (hl_finalizer)hl_gc_cairo_font_options);
@@ -386,7 +386,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_font_options_get_antialias (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_font_options_get_antialias) (HL_CFFIPointer* handle) {
 
 		return cairo_font_options_get_antialias ((cairo_font_options_t*)handle->ptr);
 
@@ -400,7 +400,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_font_options_get_hint_metrics (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_font_options_get_hint_metrics) (HL_CFFIPointer* handle) {
 
 		return cairo_font_options_get_hint_metrics ((cairo_font_options_t*)handle->ptr);
 
@@ -414,7 +414,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_font_options_get_hint_style (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_font_options_get_hint_style) (HL_CFFIPointer* handle) {
 
 		return cairo_font_options_get_hint_style ((cairo_font_options_t*)handle->ptr);
 
@@ -428,7 +428,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_font_options_get_subpixel_order (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_font_options_get_subpixel_order) (HL_CFFIPointer* handle) {
 
 		return cairo_font_options_get_subpixel_order ((cairo_font_options_t*)handle->ptr);
 
@@ -442,7 +442,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_font_options_set_antialias (HL_CFFIPointer* handle, int v) {
+	HL_PRIM void HL_NAME(hl_cairo_font_options_set_antialias) (HL_CFFIPointer* handle, int v) {
 
 		cairo_font_options_set_antialias ((cairo_font_options_t*)handle->ptr, (cairo_antialias_t)v);
 
@@ -456,7 +456,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_font_options_set_hint_metrics (HL_CFFIPointer* handle, int v) {
+	HL_PRIM void HL_NAME(hl_cairo_font_options_set_hint_metrics) (HL_CFFIPointer* handle, int v) {
 
 		cairo_font_options_set_hint_metrics ((cairo_font_options_t*)handle->ptr, (cairo_hint_metrics_t)v);
 
@@ -470,7 +470,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_font_options_set_hint_style (HL_CFFIPointer* handle, int v) {
+	HL_PRIM void HL_NAME(hl_cairo_font_options_set_hint_style) (HL_CFFIPointer* handle, int v) {
 
 		cairo_font_options_set_hint_style ((cairo_font_options_t*)handle->ptr, (cairo_hint_style_t)v);
 
@@ -484,7 +484,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_font_options_set_subpixel_order (HL_CFFIPointer* handle, int v) {
+	HL_PRIM void HL_NAME(hl_cairo_font_options_set_subpixel_order) (HL_CFFIPointer* handle, int v) {
 
 		cairo_font_options_set_subpixel_order ((cairo_font_options_t*)handle->ptr, (cairo_subpixel_order_t)v);
 
@@ -512,7 +512,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_ft_font_face_create (HL_CFFIPointer* face, int flags) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_ft_font_face_create) (HL_CFFIPointer* face, int flags) {
 
 		#ifdef LIME_FREETYPE
 		Font* font = (Font*)face->ptr;
@@ -540,7 +540,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_get_antialias (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_get_antialias) (HL_CFFIPointer* handle) {
 
 		return cairo_get_antialias ((cairo_t*)handle->ptr);
 
@@ -557,7 +557,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Vector2* hl_lime_cairo_get_current_point (HL_CFFIPointer* handle, Vector2* out) {
+	HL_PRIM Vector2* HL_NAME(hl_cairo_get_current_point) (HL_CFFIPointer* handle, Vector2* out) {
 
 		cairo_get_current_point ((cairo_t*)handle->ptr, &out->x, &out->y);
 		return out;
@@ -588,7 +588,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_cairo_get_dash (HL_CFFIPointer* handle) {
+	HL_PRIM varray* HL_NAME(hl_cairo_get_dash) (HL_CFFIPointer* handle) {
 
 		int length = cairo_get_dash_count ((cairo_t*)handle->ptr);
 		varray* result = hl_alloc_array (&hlt_f64, length);
@@ -609,7 +609,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_get_dash_count (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_get_dash_count) (HL_CFFIPointer* handle) {
 
 		return cairo_get_dash_count ((cairo_t*)handle->ptr);
 
@@ -623,7 +623,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_get_fill_rule (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_get_fill_rule) (HL_CFFIPointer* handle) {
 
 		return cairo_get_fill_rule ((cairo_t*)handle->ptr);
 
@@ -653,7 +653,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_get_font_face (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_font_face) (HL_CFFIPointer* handle) {
 
 		cairo_font_face_t* face = cairo_get_font_face ((cairo_t*)handle->ptr);
 
@@ -685,7 +685,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_get_font_options (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_font_options) (HL_CFFIPointer* handle) {
 
 		cairo_font_options_t* options = 0;
 		cairo_get_font_options ((cairo_t*)handle->ptr, options);
@@ -717,7 +717,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_get_group_target (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_group_target) (HL_CFFIPointer* handle) {
 
 		cairo_surface_t* surface = cairo_get_group_target ((cairo_t*)handle->ptr);
 
@@ -747,7 +747,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_get_line_cap (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_get_line_cap) (HL_CFFIPointer* handle) {
 
 		return cairo_get_line_cap ((cairo_t*)handle->ptr);
 
@@ -761,7 +761,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_get_line_join (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_get_line_join) (HL_CFFIPointer* handle) {
 
 		return cairo_get_line_join ((cairo_t*)handle->ptr);
 
@@ -775,7 +775,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_cairo_get_line_width (HL_CFFIPointer* handle) {
+	HL_PRIM double HL_NAME(hl_cairo_get_line_width) (HL_CFFIPointer* handle) {
 
 		return cairo_get_line_width ((cairo_t*)handle->ptr);
 
@@ -792,7 +792,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Matrix3* hl_lime_cairo_get_matrix (HL_CFFIPointer* handle, Matrix3* out) {
+	HL_PRIM Matrix3* HL_NAME(hl_cairo_get_matrix) (HL_CFFIPointer* handle, Matrix3* out) {
 
 		// cairo_matrix_t cm;
 		// cairo_get_matrix ((cairo_t*)handle->ptr, &cm);
@@ -815,7 +815,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_cairo_get_miter_limit (HL_CFFIPointer* handle) {
+	HL_PRIM double HL_NAME(hl_cairo_get_miter_limit) (HL_CFFIPointer* handle) {
 
 		return cairo_get_miter_limit ((cairo_t*)handle->ptr);
 
@@ -829,7 +829,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_get_operator (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_get_operator) (HL_CFFIPointer* handle) {
 
 		return cairo_get_operator ((cairo_t*)handle->ptr);
 
@@ -859,7 +859,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_get_source (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_source) (HL_CFFIPointer* handle) {
 
 		cairo_pattern_t* pattern = cairo_get_source ((cairo_t*)handle->ptr);
 
@@ -905,7 +905,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_get_target (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_target) (HL_CFFIPointer* handle) {
 
 		cairo_surface_t* surface = cairo_get_target ((cairo_t*)handle->ptr);
 
@@ -935,7 +935,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_cairo_get_tolerance (HL_CFFIPointer* handle) {
+	HL_PRIM double HL_NAME(hl_cairo_get_tolerance) (HL_CFFIPointer* handle) {
 
 		return cairo_get_tolerance ((cairo_t*)handle->ptr);
 
@@ -949,7 +949,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_cairo_has_current_point (HL_CFFIPointer* handle) {
+	HL_PRIM bool HL_NAME(hl_cairo_has_current_point) (HL_CFFIPointer* handle) {
 
 		return cairo_has_current_point ((cairo_t*)handle->ptr);
 
@@ -963,7 +963,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_identity_matrix (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_identity_matrix) (HL_CFFIPointer* handle) {
 
 		cairo_identity_matrix ((cairo_t*)handle->ptr);
 
@@ -983,7 +983,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_image_surface_create (int format, int width, int height) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_image_surface_create) (int format, int width, int height) {
 
 		cairo_surface_t* surface = cairo_image_surface_create ((cairo_format_t)format, width, height);
 
@@ -1009,7 +1009,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_image_surface_create_for_data) (double data, int format, int width, int height, int stride) {
 
 		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
 
@@ -1029,7 +1029,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_cairo_image_surface_get_data (HL_CFFIPointer* handle) {
+	HL_PRIM double HL_NAME(hl_cairo_image_surface_get_data) (HL_CFFIPointer* handle) {
 
 		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)handle->ptr);
 
@@ -1043,7 +1043,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_image_surface_get_format (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_image_surface_get_format) (HL_CFFIPointer* handle) {
 
 		return (int)cairo_image_surface_get_format ((cairo_surface_t*)handle->ptr);
 
@@ -1057,7 +1057,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_image_surface_get_height (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_image_surface_get_height) (HL_CFFIPointer* handle) {
 
 		return cairo_image_surface_get_height ((cairo_surface_t*)handle->ptr);
 
@@ -1071,7 +1071,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_image_surface_get_stride (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_image_surface_get_stride) (HL_CFFIPointer* handle) {
 
 		return cairo_image_surface_get_stride ((cairo_surface_t*)handle->ptr);
 
@@ -1085,7 +1085,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_image_surface_get_width (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_image_surface_get_width) (HL_CFFIPointer* handle) {
 
 		return cairo_image_surface_get_width ((cairo_surface_t*)handle->ptr);
 
@@ -1099,7 +1099,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_cairo_in_clip (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM bool HL_NAME(hl_cairo_in_clip) (HL_CFFIPointer* handle, double x, double y) {
 
 		return cairo_in_clip ((cairo_t*)handle->ptr, x, y);
 
@@ -1113,7 +1113,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_cairo_in_fill (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM bool HL_NAME(hl_cairo_in_fill) (HL_CFFIPointer* handle, double x, double y) {
 
 		return cairo_in_fill ((cairo_t*)handle->ptr, x, y);
 
@@ -1127,7 +1127,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_cairo_in_stroke (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM bool HL_NAME(hl_cairo_in_stroke) (HL_CFFIPointer* handle, double x, double y) {
 
 		return cairo_in_stroke ((cairo_t*)handle->ptr, x, y);
 
@@ -1141,7 +1141,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_line_to (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM void HL_NAME(hl_cairo_line_to) (HL_CFFIPointer* handle, double x, double y) {
 
 		cairo_line_to ((cairo_t*)handle->ptr, x, y);
 
@@ -1155,7 +1155,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_mask (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
+	HL_PRIM void HL_NAME(hl_cairo_mask) (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
 
 		cairo_mask ((cairo_t*)handle->ptr, (cairo_pattern_t*)pattern->ptr);
 
@@ -1169,7 +1169,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_mask_surface (HL_CFFIPointer* handle, HL_CFFIPointer* surface, double x, double y) {
+	HL_PRIM void HL_NAME(hl_cairo_mask_surface) (HL_CFFIPointer* handle, HL_CFFIPointer* surface, double x, double y) {
 
 		cairo_mask_surface ((cairo_t*)handle->ptr, (cairo_surface_t*)surface->ptr, x, y);
 
@@ -1183,7 +1183,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_move_to (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM void HL_NAME(hl_cairo_move_to) (HL_CFFIPointer* handle, double x, double y) {
 
 		cairo_move_to ((cairo_t*)handle->ptr, x, y);
 
@@ -1197,7 +1197,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_new_path (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_new_path) (HL_CFFIPointer* handle) {
 
 		cairo_new_path ((cairo_t*)handle->ptr);
 
@@ -1211,7 +1211,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_paint (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_paint) (HL_CFFIPointer* handle) {
 
 		cairo_paint ((cairo_t*)handle->ptr);
 
@@ -1225,7 +1225,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_paint_with_alpha (HL_CFFIPointer* handle, double alpha) {
+	HL_PRIM void HL_NAME(hl_cairo_paint_with_alpha) (HL_CFFIPointer* handle, double alpha) {
 
 		cairo_paint_with_alpha ((cairo_t*)handle->ptr, alpha);
 
@@ -1239,7 +1239,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_pattern_add_color_stop_rgb (HL_CFFIPointer* handle, double offset, double red, double green, double blue) {
+	HL_PRIM void HL_NAME(hl_cairo_pattern_add_color_stop_rgb) (HL_CFFIPointer* handle, double offset, double red, double green, double blue) {
 
 		cairo_pattern_add_color_stop_rgb ((cairo_pattern_t*)handle->ptr, offset, red, green, blue);
 
@@ -1253,7 +1253,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_pattern_add_color_stop_rgba (HL_CFFIPointer* handle, double offset, double red, double green, double blue, double alpha) {
+	HL_PRIM void HL_NAME(hl_cairo_pattern_add_color_stop_rgba) (HL_CFFIPointer* handle, double offset, double red, double green, double blue, double alpha) {
 
 		cairo_pattern_add_color_stop_rgba ((cairo_pattern_t*)handle->ptr, offset, red, green, blue, alpha);
 
@@ -1273,7 +1273,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_pattern_create_for_surface (HL_CFFIPointer* surface) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_pattern_create_for_surface) (HL_CFFIPointer* surface) {
 
 		cairo_pattern_t* pattern = cairo_pattern_create_for_surface ((cairo_surface_t*)surface->ptr);
 
@@ -1299,7 +1299,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_pattern_create_linear (double x0, double y0, double x1, double y1) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_pattern_create_linear) (double x0, double y0, double x1, double y1) {
 
 		cairo_pattern_t* pattern = cairo_pattern_create_linear (x0, y0, x1, y1);
 
@@ -1325,7 +1325,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_pattern_create_radial (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_pattern_create_radial) (double cx0, double cy0, double radius0, double cx1, double cy1, double radius1) {
 
 		cairo_pattern_t* pattern = cairo_pattern_create_radial (cx0, cy0, radius0, cx1, cy1, radius1);
 
@@ -1351,7 +1351,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_pattern_create_rgb (double r, double g, double b) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_pattern_create_rgb) (double r, double g, double b) {
 
 		cairo_pattern_t* pattern = cairo_pattern_create_rgb (r, g, b);
 
@@ -1377,7 +1377,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_pattern_create_rgba (double r, double g, double b, double a) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_pattern_create_rgba) (double r, double g, double b, double a) {
 
 		cairo_pattern_t* pattern = cairo_pattern_create_rgba (r, g, b, a);
 
@@ -1399,7 +1399,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_pattern_get_color_stop_count (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_pattern_get_color_stop_count) (HL_CFFIPointer* handle) {
 
 		int count;
 		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)handle->ptr, &count);
@@ -1415,7 +1415,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_pattern_get_extend (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_pattern_get_extend) (HL_CFFIPointer* handle) {
 
 		return cairo_pattern_get_extend ((cairo_pattern_t*)handle->ptr);
 
@@ -1429,7 +1429,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_pattern_get_filter (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_pattern_get_filter) (HL_CFFIPointer* handle) {
 
 		return cairo_pattern_get_filter ((cairo_pattern_t*)handle->ptr);
 
@@ -1446,7 +1446,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Matrix3* hl_lime_cairo_pattern_get_matrix (HL_CFFIPointer* handle, Matrix3* out) {
+	HL_PRIM Matrix3* HL_NAME(hl_cairo_pattern_get_matrix) (HL_CFFIPointer* handle, Matrix3* out) {
 
 		// cairo_matrix_t cm;
 		// cairo_pattern_get_matrix ((cairo_pattern_t*)handle->ptr, &cm);
@@ -1469,7 +1469,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_pattern_set_extend (HL_CFFIPointer* handle, int extend) {
+	HL_PRIM void HL_NAME(hl_cairo_pattern_set_extend) (HL_CFFIPointer* handle, int extend) {
 
 		cairo_pattern_set_extend ((cairo_pattern_t*)handle->ptr, (cairo_extend_t)extend);
 
@@ -1483,7 +1483,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_pattern_set_filter (HL_CFFIPointer* handle, int filter) {
+	HL_PRIM void HL_NAME(hl_cairo_pattern_set_filter) (HL_CFFIPointer* handle, int filter) {
 
 		cairo_pattern_set_filter ((cairo_pattern_t*)handle->ptr, (cairo_filter_t)filter);
 
@@ -1502,7 +1502,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_pattern_set_matrix (HL_CFFIPointer* handle, Matrix3* matrix) {
+	HL_PRIM void HL_NAME(hl_cairo_pattern_set_matrix) (HL_CFFIPointer* handle, Matrix3* matrix) {
 
 		// cairo_matrix_t cm;
 		// cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
@@ -1537,7 +1537,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_cairo_pop_group (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_pop_group) (HL_CFFIPointer* handle) {
 
 		cairo_pattern_t* pattern = cairo_pop_group ((cairo_t*)handle->ptr);
 
@@ -1567,7 +1567,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_pop_group_to_source (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_pop_group_to_source) (HL_CFFIPointer* handle) {
 
 		cairo_pop_group_to_source ((cairo_t*)handle->ptr);
 
@@ -1581,7 +1581,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_push_group (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_push_group) (HL_CFFIPointer* handle) {
 
 		cairo_push_group ((cairo_t*)handle->ptr);
 
@@ -1595,7 +1595,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_push_group_with_content (HL_CFFIPointer* handle, int content) {
+	HL_PRIM void HL_NAME(hl_cairo_push_group_with_content) (HL_CFFIPointer* handle, int content) {
 
 		cairo_push_group_with_content ((cairo_t*)handle->ptr, (cairo_content_t)content);
 
@@ -1609,7 +1609,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_rectangle (HL_CFFIPointer* handle, double x, double y, double width, double height) {
+	HL_PRIM void HL_NAME(hl_cairo_rectangle) (HL_CFFIPointer* handle, double x, double y, double width, double height) {
 
 		cairo_rectangle ((cairo_t*)handle->ptr, x, y, width, height);
 
@@ -1623,7 +1623,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_rel_curve_to (HL_CFFIPointer* handle, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
+	HL_PRIM void HL_NAME(hl_cairo_rel_curve_to) (HL_CFFIPointer* handle, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3) {
 
 		cairo_rel_curve_to ((cairo_t*)handle->ptr, dx1, dy1, dx2, dy2, dx3, dy3);
 
@@ -1637,7 +1637,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_rel_line_to (HL_CFFIPointer* handle, double dx, double dy) {
+	HL_PRIM void HL_NAME(hl_cairo_rel_line_to) (HL_CFFIPointer* handle, double dx, double dy) {
 
 		cairo_rel_line_to ((cairo_t*)handle->ptr, dx, dy);
 
@@ -1651,7 +1651,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_rel_move_to (HL_CFFIPointer* handle, double dx, double dy) {
+	HL_PRIM void HL_NAME(hl_cairo_rel_move_to) (HL_CFFIPointer* handle, double dx, double dy) {
 
 		cairo_rel_move_to ((cairo_t*)handle->ptr, dx, dy);
 
@@ -1665,7 +1665,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_reset_clip (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_reset_clip) (HL_CFFIPointer* handle) {
 
 		cairo_reset_clip ((cairo_t*)handle->ptr);
 
@@ -1679,7 +1679,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_restore (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_restore) (HL_CFFIPointer* handle) {
 
 		cairo_restore ((cairo_t*)handle->ptr);
 
@@ -1693,7 +1693,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_rotate (HL_CFFIPointer* handle, double amount) {
+	HL_PRIM void HL_NAME(hl_cairo_rotate) (HL_CFFIPointer* handle, double amount) {
 
 		cairo_rotate ((cairo_t*)handle->ptr, amount);
 
@@ -1707,7 +1707,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_save (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_save) (HL_CFFIPointer* handle) {
 
 		cairo_save ((cairo_t*)handle->ptr);
 
@@ -1721,7 +1721,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_scale (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM void HL_NAME(hl_cairo_scale) (HL_CFFIPointer* handle, double x, double y) {
 
 		cairo_scale ((cairo_t*)handle->ptr, x, y);
 
@@ -1735,7 +1735,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_antialias (HL_CFFIPointer* handle, int cap) {
+	HL_PRIM void HL_NAME(hl_cairo_set_antialias) (HL_CFFIPointer* handle, int cap) {
 
 		cairo_set_antialias ((cairo_t*)handle->ptr, (cairo_antialias_t)cap);
 
@@ -1760,7 +1760,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_dash (HL_CFFIPointer* handle, varray* dash) {
+	HL_PRIM void HL_NAME(hl_cairo_set_dash) (HL_CFFIPointer* handle, varray* dash) {
 
 		cairo_set_dash ((cairo_t*)handle->ptr, hl_aptr (dash, double), dash->size, 0);
 
@@ -1774,7 +1774,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_fill_rule (HL_CFFIPointer* handle, int cap) {
+	HL_PRIM void HL_NAME(hl_cairo_set_fill_rule) (HL_CFFIPointer* handle, int cap) {
 
 		cairo_set_fill_rule ((cairo_t*)handle->ptr, (cairo_fill_rule_t)cap);
 
@@ -1788,7 +1788,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_font_face (HL_CFFIPointer* handle, HL_CFFIPointer* face) {
+	HL_PRIM void HL_NAME(hl_cairo_set_font_face) (HL_CFFIPointer* handle, HL_CFFIPointer* face) {
 
 		cairo_set_font_face ((cairo_t*)handle->ptr, (cairo_font_face_t*)face->ptr);
 
@@ -1802,7 +1802,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_font_options (HL_CFFIPointer* handle, HL_CFFIPointer* options) {
+	HL_PRIM void HL_NAME(hl_cairo_set_font_options) (HL_CFFIPointer* handle, HL_CFFIPointer* options) {
 
 		cairo_set_font_options ((cairo_t*)handle->ptr, (cairo_font_options_t*)options->ptr);
 
@@ -1837,7 +1837,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_font_size (HL_CFFIPointer* handle, double size) {
+	HL_PRIM void HL_NAME(hl_cairo_set_font_size) (HL_CFFIPointer* handle, double size) {
 
 		cairo_font_face_t* face = cairo_get_font_face ((cairo_t*)handle->ptr);
 
@@ -1872,7 +1872,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_line_cap (HL_CFFIPointer* handle, int cap) {
+	HL_PRIM void HL_NAME(hl_cairo_set_line_cap) (HL_CFFIPointer* handle, int cap) {
 
 		cairo_set_line_cap ((cairo_t*)handle->ptr, (cairo_line_cap_t)cap);
 
@@ -1886,7 +1886,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_line_join (HL_CFFIPointer* handle, int join) {
+	HL_PRIM void HL_NAME(hl_cairo_set_line_join) (HL_CFFIPointer* handle, int join) {
 
 		cairo_set_line_join ((cairo_t*)handle->ptr, (cairo_line_join_t)join);
 
@@ -1900,7 +1900,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_line_width (HL_CFFIPointer* handle, double width) {
+	HL_PRIM void HL_NAME(hl_cairo_set_line_width) (HL_CFFIPointer* handle, double width) {
 
 		cairo_set_line_width ((cairo_t*)handle->ptr, width);
 
@@ -1917,7 +1917,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_matrix (HL_CFFIPointer* handle, Matrix3* matrix) {
+	HL_PRIM void HL_NAME(hl_cairo_set_matrix) (HL_CFFIPointer* handle, Matrix3* matrix) {
 
 		// cairo_matrix_t cm;
 		// cairo_matrix_init (&cm, a, b, c, d, tx, ty);
@@ -1946,7 +1946,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_miter_limit (HL_CFFIPointer* handle, double miterLimit) {
+	HL_PRIM void HL_NAME(hl_cairo_set_miter_limit) (HL_CFFIPointer* handle, double miterLimit) {
 
 		cairo_set_miter_limit ((cairo_t*)handle->ptr, miterLimit);
 
@@ -1960,7 +1960,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_operator (HL_CFFIPointer* handle, int op) {
+	HL_PRIM void HL_NAME(hl_cairo_set_operator) (HL_CFFIPointer* handle, int op) {
 
 		cairo_set_operator ((cairo_t*)handle->ptr, (cairo_operator_t)op);
 
@@ -1974,7 +1974,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_source (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
+	HL_PRIM void HL_NAME(hl_cairo_set_source) (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
 
 		cairo_set_source ((cairo_t*)handle->ptr, (cairo_pattern_t*)pattern->ptr);
 
@@ -1988,7 +1988,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_source_rgb (HL_CFFIPointer* handle, double r, double g, double b) {
+	HL_PRIM void HL_NAME(hl_cairo_set_source_rgb) (HL_CFFIPointer* handle, double r, double g, double b) {
 
 		cairo_set_source_rgb ((cairo_t*)handle->ptr, r, g, b);
 
@@ -2002,7 +2002,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_source_rgba (HL_CFFIPointer* handle, double r, double g, double b, double a) {
+	HL_PRIM void HL_NAME(hl_cairo_set_source_rgba) (HL_CFFIPointer* handle, double r, double g, double b, double a) {
 
 		cairo_set_source_rgba ((cairo_t*)handle->ptr, r, g, b, a);
 
@@ -2016,7 +2016,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_source_surface (HL_CFFIPointer* handle, HL_CFFIPointer* surface, double x, double y) {
+	HL_PRIM void HL_NAME(hl_cairo_set_source_surface) (HL_CFFIPointer* handle, HL_CFFIPointer* surface, double x, double y) {
 
 		cairo_set_source_surface ((cairo_t*)handle->ptr, (cairo_surface_t*)surface->ptr, x, y);
 
@@ -2030,7 +2030,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_set_tolerance (HL_CFFIPointer* handle, double tolerance) {
+	HL_PRIM void HL_NAME(hl_cairo_set_tolerance) (HL_CFFIPointer* handle, double tolerance) {
 
 		cairo_set_tolerance ((cairo_t*)handle->ptr, tolerance);
 
@@ -2067,7 +2067,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_show_glyphs (HL_CFFIPointer* handle, varray* glyphs) {
+	HL_PRIM void HL_NAME(hl_cairo_show_glyphs) (HL_CFFIPointer* handle, varray* glyphs) {
 
 		const int id_index = hl_hash_utf8 ("index");
 		const int id_x = hl_hash_utf8 ("x");
@@ -2101,7 +2101,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_show_page (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_show_page) (HL_CFFIPointer* handle) {
 
 		cairo_show_page ((cairo_t*)handle->ptr);
 
@@ -2115,7 +2115,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_show_text (HL_CFFIPointer* handle, hl_vstring* text) {
+	HL_PRIM void HL_NAME(hl_cairo_show_text) (HL_CFFIPointer* handle, hl_vstring* text) {
 
 		cairo_show_text ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 
@@ -2129,7 +2129,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_status (HL_CFFIPointer* handle) {
+	HL_PRIM int HL_NAME(hl_cairo_status) (HL_CFFIPointer* handle) {
 
 		return cairo_status ((cairo_t*)handle->ptr);
 
@@ -2143,7 +2143,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_stroke (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_stroke) (HL_CFFIPointer* handle) {
 
 		cairo_stroke ((cairo_t*)handle->ptr);
 
@@ -2157,7 +2157,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_stroke_extents (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
+	HL_PRIM void HL_NAME(hl_cairo_stroke_extents) (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
 
 		cairo_stroke_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
 
@@ -2171,7 +2171,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_stroke_preserve (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_stroke_preserve) (HL_CFFIPointer* handle) {
 
 		cairo_stroke_preserve ((cairo_t*)handle->ptr);
 
@@ -2185,7 +2185,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_surface_flush (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_cairo_surface_flush) (HL_CFFIPointer* handle) {
 
 		cairo_surface_flush ((cairo_surface_t*)handle->ptr);
 
@@ -2199,7 +2199,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_text_path (HL_CFFIPointer* handle, hl_vstring* text) {
+	HL_PRIM void HL_NAME(hl_cairo_text_path) (HL_CFFIPointer* handle, hl_vstring* text) {
 
 		cairo_text_path ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 
@@ -2218,7 +2218,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_transform (HL_CFFIPointer* handle, Matrix3* matrix) {
+	HL_PRIM void HL_NAME(hl_cairo_transform) (HL_CFFIPointer* handle, Matrix3* matrix) {
 
 		// cairo_matrix_t cm;
 		// cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
@@ -2237,7 +2237,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_cairo_translate (HL_CFFIPointer* handle, double x, double y) {
+	HL_PRIM void HL_NAME(hl_cairo_translate) (HL_CFFIPointer* handle, double x, double y) {
 
 		cairo_translate ((cairo_t*)handle->ptr, x, y);
 
@@ -2251,7 +2251,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_cairo_version () {
+	HL_PRIM int HL_NAME(hl_cairo_version) () {
 
 		return cairo_version ();
 
@@ -2266,7 +2266,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_cairo_version_string () {
+	HL_PRIM vbyte* HL_NAME(hl_cairo_version_string) () {
 
 		const char* version = cairo_version_string ();
 		int length = strlen (version);
@@ -2400,122 +2400,122 @@ namespace lime {
 	#define _TMATRIX3 _OBJ (_F64 _F64 _F64 _F64 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 
-	DEFINE_HL_PRIM (_VOID, lime_cairo_arc, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_arc_negative, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_clip, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_clip_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_clip_preserve, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_close_path, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_copy_page, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_create, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_curve_to, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_fill, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_fill_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_fill_preserve, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_ft_font_face_create, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32, lime_cairo_font_face_status, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_font_options_create, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_cairo_font_options_get_antialias, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_font_options_get_subpixel_order, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_font_options_get_hint_style, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_font_options_get_hint_metrics, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_antialias, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_subpixel_order, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_hint_style, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_font_options_set_hint_metrics, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32, lime_cairo_get_antialias, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TVECTOR2, lime_cairo_get_current_point, _TCFFIPOINTER _TVECTOR2);
-	DEFINE_HL_PRIM (_ARR, lime_cairo_get_dash, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_get_dash_count, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_get_fill_rule, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_font_face, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_font_options, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_group_target, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_get_line_cap, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_get_line_join, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64, lime_cairo_get_line_width, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TMATRIX3, lime_cairo_get_matrix, _TCFFIPOINTER _TMATRIX3);
-	DEFINE_HL_PRIM (_F64, lime_cairo_get_miter_limit, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_get_operator, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_source, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_get_target, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64, lime_cairo_get_tolerance, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_cairo_has_current_point, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_identity_matrix, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_image_surface_create, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_image_surface_create_for_data, _F64 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_F64, lime_cairo_image_surface_get_data, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_image_surface_get_format, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_image_surface_get_height, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_image_surface_get_stride, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_image_surface_get_width, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_cairo_in_clip, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_BOOL, lime_cairo_in_fill, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_BOOL, lime_cairo_in_stroke, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_line_to, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_mask, _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_mask_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_move_to, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_new_path, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_paint, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_paint_with_alpha, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_add_color_stop_rgb, _TCFFIPOINTER _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_add_color_stop_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_pattern_create_for_surface, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_pattern_create_linear, _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_pattern_create_radial, _F64 _F64 _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_pattern_create_rgb, _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_pattern_create_rgba, _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_I32, lime_cairo_pattern_get_color_stop_count, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_pattern_get_extend, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_cairo_pattern_get_filter, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TMATRIX3, lime_cairo_pattern_get_matrix, _TCFFIPOINTER _TMATRIX3);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_set_extend, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_set_filter, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_pattern_set_matrix, _TCFFIPOINTER _TMATRIX3);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_cairo_pop_group, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_pop_group_to_source, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_push_group, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_push_group_with_content, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_rectangle, _TCFFIPOINTER _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_rel_curve_to, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_rel_line_to, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_rel_move_to, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_reset_clip, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_restore, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_rotate, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_save, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_scale, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_antialias, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_dash, _TCFFIPOINTER _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_fill_rule, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_font_face, _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_font_size, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_font_options, _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_line_cap, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_line_join, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_line_width, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_matrix, _TCFFIPOINTER _TMATRIX3);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_miter_limit, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_operator, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source, _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source_rgb, _TCFFIPOINTER _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_source_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_set_tolerance, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_show_glyphs, _TCFFIPOINTER _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_show_page, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_show_text, _TCFFIPOINTER _STRING);
-	DEFINE_HL_PRIM (_I32, lime_cairo_status, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_stroke, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_stroke_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_stroke_preserve, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_surface_flush, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_text_path, _TCFFIPOINTER _STRING);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_transform, _TCFFIPOINTER _TMATRIX3);
-	DEFINE_HL_PRIM (_VOID, lime_cairo_translate, _TCFFIPOINTER _F64 _F64);
-	DEFINE_HL_PRIM (_I32, lime_cairo_version, _NO_ARG);
-	DEFINE_HL_PRIM (_BYTES, lime_cairo_version_string, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_arc, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_arc_negative, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_clip, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_clip_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_clip_preserve, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_close_path, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_copy_page, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_create, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_curve_to, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_fill, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_fill_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_fill_preserve, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_ft_font_face_create, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_cairo_font_face_status, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_font_options_create, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_cairo_font_options_get_antialias, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_font_options_get_subpixel_order, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_font_options_get_hint_style, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_font_options_get_hint_metrics, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_font_options_set_antialias, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_font_options_set_subpixel_order, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_font_options_set_hint_style, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_font_options_set_hint_metrics, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_cairo_get_antialias, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TVECTOR2, hl_cairo_get_current_point, _TCFFIPOINTER _TVECTOR2);
+	DEFINE_HL_PRIM (_ARR, hl_cairo_get_dash, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_get_dash_count, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_get_fill_rule, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_get_font_face, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_get_font_options, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_get_group_target, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_get_line_cap, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_get_line_join, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, hl_cairo_get_line_width, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TMATRIX3, hl_cairo_get_matrix, _TCFFIPOINTER _TMATRIX3);
+	DEFINE_HL_PRIM (_F64, hl_cairo_get_miter_limit, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_get_operator, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_get_source, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_get_target, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, hl_cairo_get_tolerance, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_cairo_has_current_point, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_identity_matrix, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_image_surface_create, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_image_surface_create_for_data, _F64 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_F64, hl_cairo_image_surface_get_data, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_image_surface_get_format, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_image_surface_get_height, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_image_surface_get_stride, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_image_surface_get_width, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_cairo_in_clip, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_BOOL, hl_cairo_in_fill, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_BOOL, hl_cairo_in_stroke, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_line_to, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_mask, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_mask_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_move_to, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_new_path, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_paint, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_paint_with_alpha, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_pattern_add_color_stop_rgb, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_pattern_add_color_stop_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_pattern_create_for_surface, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_pattern_create_linear, _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_pattern_create_radial, _F64 _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_pattern_create_rgb, _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_pattern_create_rgba, _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_I32, hl_cairo_pattern_get_color_stop_count, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_pattern_get_extend, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_cairo_pattern_get_filter, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TMATRIX3, hl_cairo_pattern_get_matrix, _TCFFIPOINTER _TMATRIX3);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_pattern_set_extend, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_pattern_set_filter, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_pattern_set_matrix, _TCFFIPOINTER _TMATRIX3);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_pop_group, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_pop_group_to_source, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_push_group, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_push_group_with_content, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_rectangle, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_rel_curve_to, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_rel_line_to, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_rel_move_to, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_reset_clip, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_restore, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_rotate, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_save, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_scale, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_antialias, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_dash, _TCFFIPOINTER _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_fill_rule, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_font_face, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_font_size, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_font_options, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_line_cap, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_line_join, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_line_width, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_matrix, _TCFFIPOINTER _TMATRIX3);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_miter_limit, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_operator, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_rgb, _TCFFIPOINTER _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_set_tolerance, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_show_glyphs, _TCFFIPOINTER _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_show_page, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_show_text, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_I32, hl_cairo_status, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke_preserve, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_surface_flush, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_text_path, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_transform, _TCFFIPOINTER _TMATRIX3);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_translate, _TCFFIPOINTER _F64 _F64);
+	DEFINE_HL_PRIM (_I32, hl_cairo_version, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_cairo_version_string, _NO_ARG);
 
 
 }
