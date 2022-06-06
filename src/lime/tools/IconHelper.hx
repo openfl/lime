@@ -277,7 +277,7 @@ class IconHelper
 
 	public static function findMatch(icons:Array<Icon>, width:Int, height:Int):Icon
 	{
-		var match = null;
+		var match:Icon = null;
 
 		for (icon in icons)
 		{
