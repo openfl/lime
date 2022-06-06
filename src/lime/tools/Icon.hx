@@ -12,7 +12,7 @@ class Icon
 	{
 		this.path = path;
 		this.size = height = width = size;
-		this.priority = 0;
+		this.priority = priority;
 	}
 
 	public function clone():Icon
