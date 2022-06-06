@@ -290,27 +290,41 @@ class IconHelper
 		return match;
 	}
 
-	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int):Icon
+	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int, ?acceptSmaller:Bool = false):Icon
 	{
 		var match:Icon = null;
 		var matchDifference = Math.POSITIVE_INFINITY;
 
 		for (icon in icons)
 		{
-			var iconDifference = Math.abs(icon.width - width) + Math.abs(icon.height - height);
+			var iconDifference = icon.width - width + icon.height - height;
 			if (Path.extension(icon.path) == "svg")
 			{
 				iconDifference = 0;
 			}
 
-			if (iconDifference < matchDifference || iconDifference == matchDifference && icon.priority >= match.priority)
+			if (iconDifference < 0 && !acceptSmaller)
+			{
+				continue;
+			}
+
+			if (Math.abs(iconDifference) < Math.abs(matchDifference)
+				|| iconDifference == matchDifference && icon.priority >= match.priority)
 			{
 				match = icon;
 				matchDifference = iconDifference;
 			}
 		}
 
-		return match;
+		if (match == null && !acceptSmaller)
+		{
+			// Try again but accept any icon
+			return findNearestMatch(icons, width, height, true);
+		}
+		else
+		{
+			return match;
+		}
 	}
 
 	private static function getIconImage(icons:Array<Icon>, width:Int, height:Int,
