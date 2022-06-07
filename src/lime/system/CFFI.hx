@@ -1,6 +1,7 @@
 package lime.system;
 
 #if (!lime_doc_gen || lime_cffi)
+import haxe.io.Path;
 import lime._internal.macros.CFFIMacro;
 #if (sys && !macro)
 import sys.io.Process;
@@ -135,11 +136,16 @@ class CFFI
 
 			__moduleNames.set(library, library);
 
-			result = __tryLoad("./" + library, library, method, args);
+			var programPath:String = ".";
+			#if sys
+			programPath = Path.directory(Sys.programPath());
+			#end
+
+			result = __tryLoad(programPath + "/" + library, library, method, args);
 
 			if (result == null)
 			{
-				result = __tryLoad(".\\" + library, library, method, args);
+				result = __tryLoad(programPath + "\\" + library, library, method, args);
 			}
 
 			if (result == null)
