@@ -3,6 +3,8 @@ package lime.system;
 #if (!lime_doc_gen || android)
 import lime._internal.backend.native.NativeCFFI;
 
+using StringTools;
+
 /**
 	The Java Native Interface (JNI) allows C++ code to call Java functions, and
 	vice versa. On Android, Haxe code compiles to C++, but only Java code can
@@ -30,6 +32,19 @@ class JNI
 {
 	private static var alreadyCreated = new Map<String, Bool>();
 	private static var initialized = false;
+
+	private static function transformClassName(className:String):String
+	{
+		var parts:Array<String> = className.split(".");
+		if (parts.length <= 1)
+			return className;
+
+		var nestedClassName:String = "";
+		if (~/^[A-Z]/.match(parts[parts.length - 2]))
+			nestedClassName = "$" + parts.pop();
+
+		return parts.join("/") + nestedClassName;
+	}
 
 	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic
 	{
@@ -86,6 +101,7 @@ class JNI
 		init();
 
 		#if (android && lime_cffi && !macro)
+		className = transformClassName(className);
 		return new JNIMemberField(NativeCFFI.lime_jni_create_field(className, memberName, signature, false));
 		#else
 		return null;
@@ -97,7 +113,7 @@ class JNI
 		init();
 
 		#if (android && lime_cffi && !macro)
-		className = className.split(".").join("/");
+		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, false, quietFail);
 
 		if (handle == null)
@@ -122,6 +138,7 @@ class JNI
 		init();
 
 		#if (android && lime_cffi && !macro)
+		className = transformClassName(className);
 		return new JNIStaticField(NativeCFFI.lime_jni_create_field(className, memberName, signature, true));
 		#else
 		return null;
@@ -133,7 +150,7 @@ class JNI
 		init();
 
 		#if (android && lime_cffi && !macro)
-		className = className.split(".").join("/");
+		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, true, quietFail);
 
 		if (handle == null)
