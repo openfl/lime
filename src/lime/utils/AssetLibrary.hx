@@ -334,9 +334,7 @@ class AssetLibrary
 			return true;
 		}
 
-		var requestedType = type != null ? cast(type, AssetType) : null;
-
-		return switch (requestedType)
+		return switch (cast(type, AssetType))
 		{
 			case IMAGE:
 				cachedImages.exists(id);
