@@ -96,6 +96,14 @@ class JNI
 		}
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The member field's name.
+		@param signature A Java VM type signature.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createMemberField(className:String, memberName:String, signature:String):JNIMemberField
 	{
 		init();
@@ -108,6 +116,17 @@ class JNI
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The member method's name.
+		@param signature A Java VM type signature.
+		@param useArray Set this to create a function that takes a single
+		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
+		@param quietFail Set this to suppress the "method not found" error.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createMemberMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
 	{
 		init();
@@ -133,6 +152,14 @@ class JNI
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The static field's name.
+		@param signature A Java VM type signature.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createStaticField(className:String, memberName:String, signature:String):JNIStaticField
 	{
 		init();
@@ -145,6 +172,17 @@ class JNI
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The static method's name.
+		@param signature A Java VM type signature.
+		@param useArray Set this to create a function that takes a single
+		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
+		@param quietFail Set this to suppress the "method not found" error.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createStaticMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
 	{
 		init();
