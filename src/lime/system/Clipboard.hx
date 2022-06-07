@@ -56,6 +56,14 @@ class Clipboard
 
 		#if (flash || js || html5)
 		__update();
+		#elseif linux
+		// Hack: SDL won't start calling __update until set_text()
+		// is called once.
+		if (_text == null)
+		{
+			__update();
+			set_text(_text);
+		}
 		#end
 
 		return _text;
