@@ -24,17 +24,23 @@ This directory contains two categories of code.
 Use `lime rebuild <target>` to build or rebuild a set of binaries. Once finished, you can find them in the [ndll directory](https://github.com/openfl/lime/tree/develop/ndll).
 
 ```bash
-lime rebuild windows #Recompile the Windows binaries.
-lime rebuild android -clean #Compile the Android binaries from scratch, even if no changes are detected.
-lime rebuild mac -64 #Recompile only the x86-64 binary for Mac.
+lime rebuild windows #Recompile the Windows binary (lime.ndll).
+lime rebuild android -clean #Compile the Android binaries (liblime-##.so) from scratch, even if no changes are detected.
+lime rebuild mac -64 #Recompile only the x86-64 binary (lime.ndll) for Mac.
+lime rebuild hl #Recompile the HashLink binaries (lime.hdll and others).
 ```
 
 See `lime help rebuild` for details and additional options.
 
-> Note: even without an explicit `rebuild` command, running `lime` will automatically build a binary for your machine. Even if you don't use it, this binary will help with small tasks such as rendering icons.
+> Note: even without an explicit `rebuild` command, running `lime` will automatically build lime.ndll for your machine. Even if you never target C++ or Neko, this binary will help with small tasks such as rendering icons.
 
 ### Build troubleshooting
-Most build errors can be fixed by updating the appropriate configuration file for that directory. [Build.xml](Build.xml) manages the [src](src) and [include](include) directories, while each submodule within [lib](lib) has its own xml file. So for instance, if the error message points to lib/cairo/src/cairo.c, you most likely need to edit [cairo-files.xml](lib/cairo-files.xml). (Though there are exceptions due to libraries referencing one another.)
+Most build errors can be fixed by running `git submodule update` and `lime rebuild tools` before retrying.
+
+If that doesn't work, the error can usually be fixed by updating one of the build configuration files.
+
+- Errors in the [src](src) and [include](include) directories usually require updating [Build.xml](Build.xml).
+- Errors in the [lib](lib) directory usually require updating that submodule's xml file. So for instance, if the error message points to lib/cairo/src/cairo.c, you most likely need to edit [cairo-files.xml](lib/cairo-files.xml). If the error message points to lib/hashlink/src/main.c, look at [BuildHashlink.xml](BuildHashlink.xml). (Though libraries do reference one another sometimes, so this isn't a hard rule.)
 
 Common problems and their solutions:
 
