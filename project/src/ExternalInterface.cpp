@@ -48,12 +48,14 @@
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
 
-#ifdef HX_WINDOWS
 #include <locale>
+#ifndef ANDROID
 #include <codecvt>
 #endif
+#include <memory>
 
 #include <cstdlib>
+#include <cstring>
 
 DEFINE_KIND (k_finalizer);
 
@@ -133,15 +135,38 @@ namespace lime {
 	}
 
 
+	std::string wstring_utf8 (const std::wstring& val) {
+
+		#ifdef ANDROID
+		struct codecvt : public std::codecvt<wchar_t, char, std::mbstate_t> {
+			~codecvt () = default;
+		};
+		return std::wstring_convert<codecvt> ().to_bytes (val);
+		#else
+		return std::wstring_convert<std::codecvt_utf8<wchar_t>> ().to_bytes (val);
+		#endif
+
+	}
+
+
+	vbyte* hl_wstring_to_utf8_bytes (const std::wstring& val) {
+
+		const std::string utf8 (wstring_utf8 (val));
+		vbyte* const bytes = hl_alloc_bytes (utf8.size () + 1);
+		std::memcpy(bytes, utf8.c_str (), utf8.size () + 1);
+		return bytes;
+
+	}
+
+
 	std::wstring* hxstring_to_wstring (HxString val) {
 
 		if (val.c_str ()) {
 
-			std::string _val = std::string (val.c_str ());
 			#ifdef HX_WINDOWS
-			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-			return new std::wstring (converter.from_bytes (_val));
+			return new std::wstring (hxs_wchar (val, nullptr));
 			#else
+			const std::string _val (hxs_utf8 (val, nullptr));
 			return new std::wstring (_val.begin (), _val.end ());
 			#endif
 
@@ -473,7 +498,7 @@ namespace lime {
 	value lime_bytes_read_file (HxString path, value bytes) {
 
 		Bytes data (bytes);
-		data.ReadFile (path.c_str ());
+		data.ReadFile (hxs_utf8 (path, nullptr));
 		return data.Value (bytes);
 
 	}
@@ -573,7 +598,7 @@ namespace lime {
 
 	void lime_clipboard_set_text (HxString text) {
 
-		Clipboard::SetText (text.c_str ());
+		Clipboard::SetText (hxs_utf8 (text, nullptr));
 
 	}
 
@@ -720,13 +745,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*path);
 			delete path;
-
-			return (vbyte*)result;
+			return result;
 
 		} else {
 
@@ -790,13 +811,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*path);
 			delete path;
-
-			return (vbyte*)result;
+			return result;
 
 		} else {
 
@@ -864,12 +881,7 @@ namespace lime {
 
 		for (int i = 0; i < files.size (); i++) {
 
-			int size = std::wcslen (files[i]->c_str ());
-			char* _file = (char*)malloc (size + 1);
-			std::wcstombs (_file, files[i]->c_str (), size);
-			_file[size] = '\0';
-
-			*resultData++ = (vbyte*)_file;
+			*resultData++ = hl_wstring_to_utf8_bytes (*files[i]);
 			delete files[i];
 
 		}
@@ -932,13 +944,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*path);
 			delete path;
-
-			return (vbyte*)result;
+			return result;
 
 		} else {
 
@@ -1109,12 +1117,11 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
 		wchar_t *name = font->GetFamilyName ();
-		int size = std::wcslen (name);
-		char* result = (char*)malloc (size + 1);
-		std::wcstombs (result, name, size);
-		result[size] = '\0';
+		if (!name)
+			return nullptr;
+		vbyte* const result = hl_wstring_to_utf8_bytes (name);
 		delete name;
-		return (vbyte*)result;
+		return result;
 		#else
 		return 0;
 		#endif
@@ -1126,7 +1133,10 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return font->GetGlyphIndex ((char*)character.c_str ());
+		const std::string str (hxs_utf8 (character, nullptr));
+		const std::unique_ptr<char[]> buff (new char[str.size() + 1]);
+		std::memcpy (buff.get (), str.c_str (), str.size () + 1);
+		return font->GetGlyphIndex (buff.get ());
 		#else
 		return -1;
 		#endif
@@ -1150,7 +1160,10 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		return (value)font->GetGlyphIndices (true, (char*)characters.c_str ());
+		const std::string str (hxs_utf8 (characters, nullptr));
+		const std::unique_ptr<char[]> buff (new char[str.size() + 1]);
+		std::memcpy (buff.get (), str.c_str (), str.size () + 1);
+		return (value)font->GetGlyphIndices (true, buff.get ());
 		#else
 		return alloc_null ();
 		#endif
@@ -2327,7 +2340,7 @@ namespace lime {
 	value lime_jpeg_decode_file (HxString path, bool decodeData, value buffer) {
 
 		ImageBuffer imageBuffer (buffer);
-		Resource resource = Resource (path.c_str ());
+		Resource resource = Resource (hxs_utf8 (path, nullptr));
 
 		#ifdef LIME_JPEG
 		if (JPEG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -2565,7 +2578,7 @@ namespace lime {
 	value lime_png_decode_file (HxString path, bool decodeData, value buffer) {
 
 		ImageBuffer imageBuffer (buffer);
-		Resource resource = Resource (path.c_str ());
+		Resource resource = Resource (hxs_utf8 (path, nullptr));
 
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer, decodeData)) {
@@ -2670,13 +2683,9 @@ namespace lime {
 
 		if (model) {
 
-			int size = std::wcslen (model->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, model->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*model);
 			delete model;
-
-			return (vbyte*)result;
+			return result;
 
 		}
 
@@ -2714,13 +2723,9 @@ namespace lime {
 
 		if (vendor) {
 
-			int size = std::wcslen (vendor->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, vendor->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*vendor);
 			delete vendor;
-
-			return (vbyte*)result;
+			return result;
 
 		}
 
@@ -2733,7 +2738,7 @@ namespace lime {
 
 	value lime_system_get_directory (int type, HxString company, HxString title) {
 
-		std::wstring* path = System::GetDirectory ((SystemDirectory)type, company.c_str (), title.c_str ());
+		std::wstring* path = System::GetDirectory ((SystemDirectory)type, hxs_utf8 (company, nullptr), hxs_utf8 (title, nullptr));
 
 		if (path) {
 
@@ -2758,13 +2763,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*path);
 			delete path;
-
-			return (vbyte*)result;
+			return result;
 
 		}
 
@@ -2852,13 +2853,9 @@ namespace lime {
 
 		if (label) {
 
-			int size = std::wcslen (label->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, label->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*label);
 			delete label;
-
-			return (vbyte*)result;
+			return result;
 
 		}
 
@@ -2896,13 +2893,9 @@ namespace lime {
 
 		if (name) {
 
-			int size = std::wcslen (name->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, name->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*name);
 			delete name;
-
-			return (vbyte*)result;
+			return result;
 
 		}
 
@@ -2940,14 +2933,9 @@ namespace lime {
 
 		if (version) {
 
-			int size = std::wcslen (version->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, version->c_str (), size);
-			result[size] = '\0';
+			vbyte* const result = hl_wstring_to_utf8_bytes (*version);
 			delete version;
-
-			return (vbyte*)result;
-
+			return result;
 		}
 
 		#endif
@@ -3100,7 +3088,7 @@ namespace lime {
 	void lime_window_alert (value window, HxString message, HxString title) {
 
 		Window* targetWindow = (Window*)val_data (window);
-		targetWindow->Alert (message.c_str (), title.c_str ());
+		targetWindow->Alert (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
 
 	}
 
@@ -3108,7 +3096,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_window_alert) (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		targetWindow->Alert (message ? (const char*)hl_to_utf8 ((const uchar*)message) : NULL, title ? (const char*)hl_to_utf8 ((const uchar*)title) : NULL);
+		targetWindow->Alert (message ? hl_to_utf8 (message->bytes) : nullptr, title ? hl_to_utf8 (title->bytes) : nullptr);
 
 	}
 
@@ -3187,7 +3175,7 @@ namespace lime {
 
 	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 
-		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, title.c_str ());
+		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr));
 		return CFFIPointer (window, gc_window);
 
 	}
@@ -3688,13 +3676,14 @@ namespace lime {
 	value lime_window_set_title (value window, HxString title) {
 
 		Window* targetWindow = (Window*)val_data (window);
-		const char* result = targetWindow->SetTitle (title.c_str ());
+		const char* titleUtf8 = hxs_utf8 (title, nullptr);
+		const char* result = targetWindow->SetTitle (titleUtf8);
 
 		if (result) {
 
 			value _result = alloc_string (result);
 
-			if (result != title.c_str ()) {
+			if (result != titleUtf8) {
 
 				free ((char*) result);
 
