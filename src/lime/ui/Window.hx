@@ -544,6 +544,11 @@ class Window
 		return __backend.setTextInputEnabled(value);
 	}
 
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		return __backend.setTextInputRect(value);
+	}
+
 	@:noCompletion private inline function get_title():String
 	{
 		return __title;

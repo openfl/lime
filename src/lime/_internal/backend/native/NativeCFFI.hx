@@ -341,6 +341,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_text_input_enabled(handle:Dynamic, enabled:Bool):Void;
 
+	@:cffi private static function lime_window_set_text_input_rect(handle:Dynamic, rect:Dynamic):Void;
+
 	@:cffi private static function lime_window_set_title(handle:Dynamic, title:String):Dynamic;
 
 	@:cffi private static function lime_window_warp_mouse(handle:Dynamic, x:Int, y:Int):Void;
@@ -593,6 +595,8 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_text_input_enabled = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_window_set_text_input_enabled", "obv", false));
+	private static var lime_window_set_text_input_rect = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_text_input_rect", "oov", false));
 	private static var lime_window_set_title = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_set_title", "oso",
 		false));
 	private static var lime_window_warp_mouse = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_warp_mouse",
@@ -747,6 +751,7 @@ class NativeCFFI
 	private static var lime_window_set_mouse_lock = CFFI.load("lime", "lime_window_set_mouse_lock", 2);
 	private static var lime_window_set_resizable = CFFI.load("lime", "lime_window_set_resizable", 2);
 	private static var lime_window_set_text_input_enabled = CFFI.load("lime", "lime_window_set_text_input_enabled", 2);
+	private static var lime_window_set_text_input_rect = CFFI.load("lime", "lime_window_set_text_input_rect", 2);
 	private static var lime_window_set_title = CFFI.load("lime", "lime_window_set_title", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
@@ -1341,6 +1346,9 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_set_text_input_enabled") private static function lime_window_set_text_input_enabled(handle:CFFIPointer,
 		enabled:Bool):Void {}
+
+	@:hlNative("lime", "hl_window_set_text_input_rect") private static function lime_window_set_text_input_rect(handle:CFFIPointer,
+		rect:Rectangle):Void {}
 
 	@:hlNative("lime", "hl_window_set_title") private static function lime_window_set_title(handle:CFFIPointer, title:String):String
 	{

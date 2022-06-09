@@ -546,6 +546,18 @@ class NativeWindow
 		return value;
 	}
 
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_text_input_rect(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function setFrameRate(value:Float):Float
 	{
 		// TODO: Support multiple independent frame rates per window
