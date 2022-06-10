@@ -87,19 +87,6 @@ class TVOSHelper
 		}
 
 		var iphoneVersion = project.environment.get("TVOS_VER");
-		var commands = [
-			"-configuration",
-			configuration,
-			"PLATFORM_NAME=" + platformName,
-			"SDKROOT=" + platformName + iphoneVersion
-		];
-
-		if (project.targetFlags.exists("simulator"))
-		{
-			commands.push("-arch");
-			commands.push("x86_64");
-		}
-
 		project.setenv("PLATFORM_NAME", platformName);
 		project.setenv("CONFIGURATION", configuration);
 
