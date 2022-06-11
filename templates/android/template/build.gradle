@@ -58,7 +58,6 @@ configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('bui
 	}
 
 	dependencies {
-		api fileTree(dir: 'libs', include: ['*.jar'])
 		api project(':deps:extension-api')
 	}
 }
