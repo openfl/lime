@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 		google()
 	}
-	
+
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::::if (1 == 1)::ANDROID_GRADLE_PLUGIN::end::::'
 	}
