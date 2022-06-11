@@ -48,8 +48,8 @@
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
 
+#ifdef HX_WINDOWS
 #include <locale>
-#ifndef ANDROID
 #include <codecvt>
 #endif
 #include <memory>
@@ -137,14 +137,58 @@ namespace lime {
 
 	std::string wstring_utf8 (const std::wstring& val) {
 
-		#ifdef ANDROID
-		struct codecvt : public std::codecvt<wchar_t, char, std::mbstate_t> {
-			~codecvt () = default;
-		};
-		return std::wstring_convert<codecvt> ().to_bytes (val);
-		#else
-		return std::wstring_convert<std::codecvt_utf8<wchar_t>> ().to_bytes (val);
-		#endif
+		std::string out;
+		unsigned int codepoint = 0;
+
+		for (const wchar_t chr : val) {
+
+			if (chr >= 0xd800 && chr <= 0xdbff) {
+
+				codepoint = ((chr - 0xd800) << 10) + 0x10000;
+
+			} else {
+
+				if (chr >= 0xdc00 && chr <= 0xdfff) {
+
+					codepoint |= chr - 0xdc00;
+
+				} else {
+
+					codepoint = chr;
+
+				}
+
+				if (codepoint <= 0x7f) {
+
+					out.append (1, static_cast<char> (codepoint));
+
+				} else if (codepoint <= 0x7ff) {
+
+					out.append (1, static_cast<char> (0xc0 | ((codepoint >> 6) & 0x1f)));
+					out.append (1, static_cast<char> (0x80 | (codepoint & 0x3f)));
+
+				} else if (codepoint <= 0xffff) {
+
+					out.append (1, static_cast<char> (0xe0 | ((codepoint >> 12) & 0x0f)));
+					out.append (1, static_cast<char> (0x80 | ((codepoint >> 6) & 0x3f)));
+					out.append (1, static_cast<char> (0x80 | (codepoint & 0x3f)));
+
+				} else {
+
+					out.append (1, static_cast<char> (0xf0 | ((codepoint >> 18) & 0x07)));
+					out.append (1, static_cast<char> (0x80 | ((codepoint >> 12) & 0x3f)));
+					out.append (1, static_cast<char> (0x80 | ((codepoint >> 6) & 0x3f)));
+					out.append (1, static_cast<char> (0x80 | (codepoint & 0x3f)));
+
+				}
+
+				codepoint = 0;
+
+			}
+
+		}
+
+		return out;
 
 	}
 
