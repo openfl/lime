@@ -83,8 +83,8 @@ android {
 }
 
 dependencies {
-	api fileTree(dir: 'libs', include: ['*.jar'])
-	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::api project(':deps:::name::')
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::implementation project(':deps:::name::')
 	::end::::end::
 }
 

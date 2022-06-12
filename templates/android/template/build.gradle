@@ -58,6 +58,6 @@ configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('bui
 	}
 
 	dependencies {
-		api project(':deps:extension-api')
+		implementation project(':deps:extension-api')
 	}
 }
