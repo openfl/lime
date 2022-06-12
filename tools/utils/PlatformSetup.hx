@@ -589,7 +589,7 @@ class PlatformSetup
 		Log.println("\x1b[1mIn order to build applications for Android, you must have recent");
 		Log.println("versions of the Android SDK, Android NDK and Java JDK installed.");
 		Log.println("");
-		Log.println("You must also install the Android SDK Platform-tools and API 19 using");
+		Log.println("You must also install the Android SDK Platform-tools and API 30 using");
 		Log.println("the SDK manager from Android Studio.\x1b[0m");
 		Log.println("");
 
