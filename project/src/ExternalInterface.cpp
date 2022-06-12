@@ -3668,6 +3668,23 @@ namespace lime {
 	}
 
 
+	void lime_window_set_text_input_rect (value window, value rect) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		Rectangle _rect = Rectangle (rect);
+		targetWindow->SetTextInputRect (&_rect);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_text_input_rect) (HL_CFFIPointer* window, Rectangle* rect) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetTextInputRect (rect);
+
+	}
+
+
 	value lime_window_set_title (value window, HxString title) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3931,6 +3948,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
 	DEFINE_PRIME2 (lime_window_set_resizable);
 	DEFINE_PRIME2v (lime_window_set_text_input_enabled);
+	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME2 (lime_zlib_compress);
@@ -4114,6 +4132,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_resizable, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_enabled, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
