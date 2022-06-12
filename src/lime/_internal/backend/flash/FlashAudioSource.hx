@@ -114,6 +114,15 @@ class FlashAudioSource
 		return loops = value;
 	}
 
+	public function setPan(value:Float):Float
+	{
+		var soundTransform = channel.soundTransform;
+		soundTransform.pan = value;
+		channel.soundTransform = soundTransform;
+
+		return value;
+	}
+
 	public function getPitch():Float
 	{
 		lime.utils.Log.verbose("Pitch is not supported in Flash.");

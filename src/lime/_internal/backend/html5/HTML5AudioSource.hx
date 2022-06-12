@@ -48,6 +48,7 @@ class HTML5AudioSource
 		untyped parent.buffer.__srcHowl._volume = cacheVolume;
 		// setGain (parent.gain);
 
+		if(parent.pan != null) setPan(parent.pan);
 		if(parent.position != null) setPosition(parent.position);
 
 		parent.buffer.__srcHowl.on("end", howl_onEnd, id);
@@ -200,6 +201,15 @@ class HTML5AudioSource
 	public function setLoops(value:Int):Int
 	{
 		return loops = value;
+	}
+
+	public function setPan(value:Float):Float
+	{
+		#if lime_howlerjs
+		if (parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.stereo != null) parent.buffer.__srcHowl.stereo(value, id);
+		#end
+
+		return value;
 	}
 
 	public function getPitch():Float

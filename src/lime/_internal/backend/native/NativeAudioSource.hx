@@ -518,6 +518,17 @@ class NativeAudioSource
 		return loops = value;
 	}
 
+	public function setPan(value:Float):Float
+	{
+		if (handle != null)
+		{
+			AL.distanceModel(AL.NONE);
+			AL.source3f(handle, AL.POSITION, value, 0, -1 * Math.sqrt(1 - Math.pow(value, 2)));
+		}
+
+		return value;
+	}
+
 	public function getPitch():Float
 	{
 		if (handle != null)
