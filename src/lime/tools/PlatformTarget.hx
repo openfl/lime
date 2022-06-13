@@ -96,6 +96,10 @@ class PlatformTarget
 			// AssetHelper.processLibraries (project, targetDirectory);
 			// #end
 			update();
+
+			#if (hxp > "1.2.2")
+			System.deleteStaleTemplates(targetDirectory);
+			#end
 		}
 
 		if ((!Reflect.hasField(metaFields, "build") || !Reflect.hasField(metaFields.build, "ignore"))
