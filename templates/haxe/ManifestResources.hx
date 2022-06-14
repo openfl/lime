@@ -12,7 +12,7 @@ import sys.FileSystem;
 
 #if disable_preloader_assets
 @:dox(hide) class ManifestResources {
-	public static var preloadLibraries:Array<AssetLibrary>;
+	public static var preloadLibraries:Array<Dynamic>;
 	public static var preloadLibraryNames:Array<String>;
 	public static var rootPath:String;
 
