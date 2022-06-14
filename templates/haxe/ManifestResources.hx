@@ -1,6 +1,4 @@
-#if !disable_preloader_assets
 package;
-
 
 import haxe.io.Bytes;
 import lime.utils.AssetBundle;
@@ -12,6 +10,18 @@ import lime.utils.Assets;
 import sys.FileSystem;
 #end
 
+#if disable_preloader_assets
+@:dox(hide) class ManifestResources {
+	public static var preloadLibraries:Array<AssetLibrary>;
+	public static var preloadLibraryNames:Array<String>;
+	public static var rootPath:String;
+
+	public static function init (config:Dynamic):Void {
+		preloadLibraries = new Array ();
+		preloadLibraryNames = new Array ();
+	}
+}
+#else
 @:access(lime.utils.Assets)
 
 
