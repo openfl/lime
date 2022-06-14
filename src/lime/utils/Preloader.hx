@@ -35,18 +35,14 @@ class Preloader #if flash extends Sprite #end
 	public var onProgress = new Event<Int->Int->Void>();
 
 	@:noCompletion private var bytesLoaded:Int;
-	#if !disable_preloader_assets
-	@:noCompletion private var bytesLoadedCache = new Map<AssetLibrary, Int>();
-	#end
+	@:noCompletion private var bytesLoadedCache = new Map<#if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
 	@:noCompletion private var bytesLoadedCache2 = new Map<String, Int>();
 	@:noCompletion private var bytesTotal:Int;
 	@:noCompletion private var bytesTotalCache = new Map<String, Int>();
 	@:noCompletion private var initLibraryNames:Bool;
-	#if !disable_preloader_assets
-	@:noCompletion private var libraries:Array<AssetLibrary>;
+	@:noCompletion private var libraries:Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>;
 	@:noCompletion private var libraryNames:Array<String>;
 	@:noCompletion private var loadedLibraries:Int;
-	#end
 	@:noCompletion private var loadedStage:Bool;
 	@:noCompletion private var preloadComplete:Bool;
 	@:noCompletion private var preloadStarted:Bool;
@@ -63,10 +59,8 @@ class Preloader #if flash extends Sprite #end
 		bytesLoaded = 0;
 		bytesTotal = 0;
 
-		#if !disable_preloader_assets
-		libraries = new Array<AssetLibrary>();
+		libraries = new Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>();
 		libraryNames = new Array<String>();
-		#end
 
 		onProgress.add(update);
 
@@ -111,8 +105,7 @@ class Preloader #if flash extends Sprite #end
 		#end
 	}
 
-	#if !disable_preloader_assets
-	public function addLibrary(library:AssetLibrary):Void
+	public function addLibrary(library:#if !disable_preloader_assets AssetLibrary #else Dynamic #end):Void
 	{
 		libraries.push(library);
 	}
@@ -124,21 +117,17 @@ class Preloader #if flash extends Sprite #end
 			libraryNames.push(name);
 		}
 	}
-	#end
 
 	public function load():Void
 	{
-		#if !disable_preloader_assets
 		for (library in libraries)
 		{
 			bytesTotal += library.bytesTotal;
 		}
 
 		loadedLibraries = -1;
-		#end
 		preloadStarted = false;
 
-		#if !disable_preloader_assets
 		for (library in libraries)
 		{
 			Log.verbose("Preloading asset library");
@@ -170,7 +159,7 @@ class Preloader #if flash extends Sprite #end
 					}
 					else
 					{
-						bytesLoaded += library.bytesTotal - bytesLoadedCache.get(library);
+						bytesLoaded += Std.int(library.bytesTotal) - bytesLoadedCache.get(library);
 					}
 
 					loadedAssetLibrary();
@@ -189,12 +178,10 @@ class Preloader #if flash extends Sprite #end
 		}
 
 		loadedLibraries++;
-		#end
 		preloadStarted = true;
 		updateProgress();
 	}
 
-	#if !disable_preloader_assets
 	@:noCompletion private function loadedAssetLibrary(name:String = null):Void
 	{
 		loadedLibraries++;
@@ -215,7 +202,6 @@ class Preloader #if flash extends Sprite #end
 
 		updateProgress();
 	}
-	#end
 
 	@:noCompletion private function start():Void
 	{
@@ -309,8 +295,8 @@ class Preloader #if flash extends Sprite #end
 		}
 		#end
 
-		if (!simulateProgress #if flash && loadedStage #end#if !disable_preloader_assets
-			&& loadedLibraries == (libraries.length + libraryNames.length) #end)
+		if (!simulateProgress #if flash && loadedStage #end
+			&& loadedLibraries == (libraries.length + libraryNames.length))
 		{
 			if (!preloadComplete)
 			{
