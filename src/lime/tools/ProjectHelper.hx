@@ -111,8 +111,10 @@ class ProjectHelper
 		{
 			return project.environment.get(string);
 		}
+		// TODO: Should we start phasing this out?
 		else if (string == "projectDirectory")
 		{
+			Log.info("", "Consider using ${project.workingDirectory} instead of ${projectDirectory}.");
 			return project.workingDirectory;
 		}
 		else
@@ -164,18 +166,18 @@ class ProjectHelper
 			}
 			else if (substring.indexOf(".") > -1)
 			{
-				var index = substring.indexOf(".");
-				var fieldName = substring.substr(0, index);
-				var subField = substring.substr(index + 1);
+				var fields = substring.split(".");
+				if (fields[0] == "project") fields.shift();
 
-				if (Reflect.hasField(project, fieldName))
+				var object:Dynamic = project;
+				while (object != null && fields.length > 0)
 				{
-					var field = Reflect.field(project, fieldName);
+					object = Reflect.field(object, fields.shift());
+				}
 
-					if (Reflect.hasField(field, subField))
-					{
-						return Std.string(Reflect.field(field, subField));
-					}
+				if (object != null && object != project)
+				{
+					return Std.string(object);
 				}
 			}
 		}
