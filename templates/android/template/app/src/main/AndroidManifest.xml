@@ -19,7 +19,7 @@
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value=  "LandscapeLeft LandscapeRight" />
 		::end::
 
-		<activity android:name="MainActivity" android:exported="true" android:launchMode="singleTask" android:label="::APP_TITLE::" android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"::if (WIN_ORIENTATION=="portrait"):: android:screenOrientation="sensorPortrait"::end::::if (WIN_ORIENTATION=="landscape"):: android:screenOrientation="sensorLandscape"::end::>
+		<activity android:name="MainActivity" android:exported="true" android:launchMode="singleTask" android:label="::APP_TITLE::" android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|uiMode"::if (WIN_ORIENTATION=="portrait"):: android:screenOrientation="sensorPortrait"::end::::if (WIN_ORIENTATION=="landscape"):: android:screenOrientation="sensorLandscape"::end::>
 			
 			<intent-filter>
 				
