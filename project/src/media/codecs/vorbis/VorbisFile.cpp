@@ -81,7 +81,7 @@ namespace lime {
 
 	static int VorbisFile_BufferClose (VorbisFile_Buffer* src) {
 
-		free (src);
+		delete src;
 		return 0;
 
 	}
@@ -154,8 +154,8 @@ namespace lime {
 
 		if (ov_open_callbacks (buffer, vorbisFile, NULL, 0, VORBIS_FILE_BUFFER_CALLBACKS) != 0) {
 
-			free (buffer);
-			free (vorbisFile);
+			delete buffer;
+			delete vorbisFile;
 			return 0;
 
 		}
@@ -178,7 +178,7 @@ namespace lime {
 
 				if (ov_open_callbacks (file, vorbisFile, NULL, 0, VORBIS_FILE_FILE_CALLBACKS) != 0) {
 
-					free (vorbisFile);
+					delete vorbisFile;
 					lime::fclose (file);
 					return 0;
 
