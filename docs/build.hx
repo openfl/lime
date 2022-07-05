@@ -70,7 +70,7 @@ class Build extends Script
 			"https://github.com/openfl/lime/tree/develop/src/",
 			"-D",
 			"website",
-			"http://lime.software",
+			"http://openfl.github.io/lime.software",
 			"-D",
 			"textColor",
 			"0x777777",
