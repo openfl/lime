@@ -257,14 +257,15 @@ class NativeApplication
 			var int32:Float = keyEventInfo.keyCode;
 			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
+			var timestamp:Int = keyEventInfo.timestamp;
 
 			switch (type)
 			{
 				case KEY_DOWN:
-					window.onKeyDown.dispatch(keyCode, modifier);
+					window.onKeyDown.dispatch(keyCode, modifier, timestamp);
 
 				case KEY_UP:
-					window.onKeyUp.dispatch(keyCode, modifier);
+					window.onKeyUp.dispatch(keyCode, modifier, timestamp);
 			}
 
 			#if (windows || linux)
@@ -755,18 +756,20 @@ class NativeApplication
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
+	public var timestamp:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0, timestamp:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():KeyEventInfo
 	{
-		return new KeyEventInfo(type, windowID, keyCode, modifier);
+		return new KeyEventInfo(type, windowID, keyCode, modifier, timestamp);
 	}
 }
 

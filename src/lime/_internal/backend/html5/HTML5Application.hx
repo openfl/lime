@@ -412,10 +412,11 @@ class HTML5Application
 
 			var keyCode = cast convertKeyCode(event.keyCode != null ? event.keyCode : event.which);
 			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0) | (event.metaKey ? (KeyModifier.META) : 0);
+			var timestamp = event.timeStamp;
 
 			if (event.type == "keydown")
 			{
-				parent.window.onKeyDown.dispatch(keyCode, modifier);
+				parent.window.onKeyDown.dispatch(keyCode, modifier, timestamp);
 
 				if (parent.window.onKeyDown.canceled && event.cancelable)
 				{
@@ -424,7 +425,7 @@ class HTML5Application
 			}
 			else
 			{
-				parent.window.onKeyUp.dispatch(keyCode, modifier);
+				parent.window.onKeyUp.dispatch(keyCode, modifier, timestamp);
 
 				if (parent.window.onKeyUp.canceled && event.cancelable)
 				{

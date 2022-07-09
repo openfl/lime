@@ -62,8 +62,8 @@ class Window
 	public var onFocusIn(default, null) = new Event<Void->Void>();
 	public var onFocusOut(default, null) = new Event<Void->Void>();
 	public var onFullscreen(default, null) = new Event<Void->Void>();
-	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
-	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
+	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Int->Void>();
+	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Int->Void>();
 	public var onLeave(default, null) = new Event<Void->Void>();
 	public var onMaximize(default, null) = new Event<Void->Void>();
 	public var onMinimize(default, null) = new Event<Void->Void>();
