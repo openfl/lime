@@ -47,7 +47,7 @@ When there are changes, Lime is built nightly. Builds are available for download
 
 To install a development build, use the "haxelib local" command:
 
-    haxelib local filename.zip
+    haxelib local lime-haxelib.zip
 
 
 Building from Source
