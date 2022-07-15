@@ -176,8 +176,10 @@ class JNI
 		@param className A string in the format `"com/package/ClassName"` or
 		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
 		will attempt to replace them with the correct symbols.
-		@param memberName The static method's name.
-		@param signature A Java VM type signature.
+		@param memberName The static method's name. To get a constructor, use
+		`<init>` as the method name.
+		@param signature A Java VM type signature. To get a constructor, use `V`
+		as the function's return value.
 		@param useArray Set this to create a function that takes a single
 		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
 		@param quietFail Set this to suppress the "method not found" error.
