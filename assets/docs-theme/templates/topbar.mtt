@@ -1,6 +1,11 @@
 <style>
 ::raw "
-a, code .type, .dark-theme a, .dark-theme code .type {
+a,
+code a,
+code .type,
+.dark-theme a,
+.dark-theme code a,
+.dark-theme code .type {
 	color: #6fac17;
 }
 .navbar .brand {
@@ -11,8 +16,12 @@ a, code .type, .dark-theme a, .dark-theme code .type {
 .navbar .brand img {
 	max-width: 75px;
 }
-.nav-list>.active>a.treeLink, .nav-list>.active>a.treeLink:hover, .nav-list>.active>a.treeLink:focus,
-.dark-theme .nav-list>.active>a.treeLink, .dark-theme .nav-list>.active>a.treeLink:hover, .dark-theme .nav-list>.active>a.treeLink:focus {
+.nav-list>.active>a.treeLink,
+.nav-list>.active>a.treeLink:hover,
+.nav-list>.active>a.treeLink:focus,
+.dark-theme .nav-list>.active>a.treeLink,
+.dark-theme .nav-list>.active>a.treeLink:hover,
+.dark-theme .nav-list>.active>a.treeLink:focus {
 	background: #6fac17;
 	color: #ffffff;
 	text-shadow: 0 0 0 transparent;
