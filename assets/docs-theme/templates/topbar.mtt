@@ -1,6 +1,6 @@
 <style>
 ::raw "
-a, code .type {
+a, code .type, .dark-theme a, .dark-theme code .type {
 	color: #6fac17;
 }
 .navbar .brand {
@@ -11,7 +11,8 @@ a, code .type {
 .navbar .brand img {
 	max-width: 75px;
 }
-.nav-list>.active>a.treeLink, .nav-list>.active>a.treeLink:hover, .nav-list>.active>a.treeLink:focus {
+.nav-list>.active>a.treeLink, .nav-list>.active>a.treeLink:hover, .nav-list>.active>a.treeLink:focus,
+.dark-theme .nav-list>.active>a.treeLink, .dark-theme .nav-list>.active>a.treeLink:hover, .dark-theme .nav-list>.active>a.treeLink:focus {
 	background: #6fac17;
 	color: #ffffff;
 	text-shadow: 0 0 0 transparent;
@@ -45,6 +46,7 @@ a, code .type {
 			<div class="container">
 				<a ::cond api.isDefined("logo"):: ::attr href if(api.isDefined("website")) api.getValue("website") else api.config.rootPath:: class="brand"><img alt="" ::attr src api.getValue("logo"):: /></a>
 				<a ::attr href api.config.rootPath:: class="brand" style="color:$$getHexValue(::textColor::)">::if api.config.pageTitle!=null::::api.config.pageTitle::::else::Lime API Documentation::end::</a>
+				<a href="#" id="theme-toggle" style="color:$$getHexValue(::textColor::)" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fa fa-moon-o"></i></a>
 			</div>
 		</div>
 	</div>
