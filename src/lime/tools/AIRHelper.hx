@@ -286,7 +286,12 @@ class AIRHelper
 			var extDirs:Array<String> = getExtDirs(project);
 
 			var profile:String;
-			if (targetPlatform == ANDROID)
+
+			if (project.config.exists("air.profile"))
+			{
+				profile = project.config.getString("air.profile");
+			}
+			else if (targetPlatform == ANDROID)
 			{
 				profile = "mobileDevice";
 			}
