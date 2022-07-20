@@ -1,5 +1,6 @@
 package lime.utils;
 
+import haxe.ds.ObjectMap;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import haxe.macro.Compiler;
@@ -35,7 +36,7 @@ class Preloader #if flash extends Sprite #end
 	public var onProgress = new Event<Int->Int->Void>();
 
 	@:noCompletion private var bytesLoaded:Int;
-	@:noCompletion private var bytesLoadedCache = new Map<#if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
+	@:noCompletion private var bytesLoadedCache = new ObjectMap<#if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
 	@:noCompletion private var bytesLoadedCache2 = new Map<String, Int>();
 	@:noCompletion private var bytesTotal:Int;
 	@:noCompletion private var bytesTotalCache = new Map<String, Int>();
