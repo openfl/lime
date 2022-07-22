@@ -349,7 +349,6 @@ class NativeHTTPRequest
 
 		future.onComplete(function(bytes)
 		{
-			bytes = buildBuffer();
 			if (bytes == null)
 			{
 				promise.complete(null);
