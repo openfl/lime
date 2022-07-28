@@ -361,12 +361,7 @@ class NativeHTTPRequest
 
 		return promise.future;
 	}
-
-	//TODO: BytesBuffer provides relief from the slowdown we were facing with the prior implementation of the "growBuffer" method that
-	//existed previously. While this is now solved, we still face the issue of excess memory usage by a factor of 2 in relation to
-	//the total total file size, meaning a file with the size of 2GB, requires 4GB of RAM to put together succcessfully. To solve this, 
-	//we essentially create our own similar BytesBuffer type that will build the final allocation in smaller increments that reduce the 
-	//total memory footprint to a small fraction of this. For reference, search for the "NativeHTTPRequest" thread in OpenFL Discord > Lime.
+	
 	private function buildBuffer()	{
 		bytes = buffer.getBytes();
 		return bytes;
