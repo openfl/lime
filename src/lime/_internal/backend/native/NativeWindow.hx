@@ -663,6 +663,27 @@ class NativeWindow
 		NativeCFFI.lime_window_warp_mouse(handle, x, y);
 		#end
 	}
+
+	public function getOpacity():Float
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_opacity(handle);
+			#end
+		}
+		return 1.0;
+	}
+
+	public function setOpacity(value:Float):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_opacity(handle, value);
+			#end
+		}
+	}
 }
 
 @:enum private abstract MouseCursorType(Int) from Int to Int

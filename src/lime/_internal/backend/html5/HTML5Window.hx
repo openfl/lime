@@ -1291,4 +1291,8 @@ class HTML5Window
 	}
 
 	public function warpMouse(x:Int, y:Int):Void {}
+
+	public function getOpacity():Float { return 1.0; }
+
+	public function setOpacity(value:Float):Void {}
 }

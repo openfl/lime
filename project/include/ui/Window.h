@@ -60,6 +60,8 @@ namespace lime {
 			virtual void SetTextInputRect (Rectangle *rect) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
+			virtual float GetOpacity();
+			virtual void SetOpacity(float opacity);
 
 			Application* currentApplication;
 			int flags;

@@ -54,7 +54,8 @@ namespace lime {
 			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
 			virtual void WarpMouse (int x, int y);
-
+			virtual float GetOpacity();
+			virtual void SetOpacity(float opacity);
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;

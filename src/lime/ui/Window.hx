@@ -413,6 +413,14 @@ class Window
 		__backend.warpMouse(x, y);
 	}
 
+	public function getOpacity():Float {
+		return __backend.getOpacity();
+	}
+
+	public function setOpacity(opacity:Float):Void {
+		__backend.setOpacity(opacity);
+	}
+
 	// Get & Set Methods
 	@:noCompletion private function get_cursor():MouseCursor
 	{

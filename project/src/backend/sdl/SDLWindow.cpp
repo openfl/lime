@@ -1082,6 +1082,17 @@ namespace lime {
 
 	}
 
+	float SDLWindow::GetOpacity() {
+		float opacity = 1.0;
+		if(SDL_GetWindowOpacity(sdlWindow, &opacity) != 0) {
+			return 1.0;
+		}
+		return opacity;
+	}
+
+	void SDLWindow::SetOpacity(float opacity) {
+		SDL_SetWindowOpacity(sdlWindow, opacity);
+	}
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 
