@@ -1367,9 +1367,9 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_warp_mouse") private static function lime_window_warp_mouse(handle:CFFIPointer, x:Int, y:Int):Void {}
 
-	@:hlNative("lime", "hl_window_get_opacity") private static function lime_window_get_opacity(handle:CFFIPointer):Float;
+	@:hlNative("lime", "hl_window_get_opacity") private static function lime_window_get_opacity(handle:CFFIPointer):Float { return 0.0; }
 
-	@:hlNative("lime", "hl_window_set_opacity") private static function lime_window_set_opacity(handle:CFFIPointer, value:Float):Void;
+	@:hlNative("lime", "hl_window_set_opacity") private static function lime_window_set_opacity(handle:CFFIPointer, value:Float):Void {}
 
 	@:hlNative("lime", "hl_window_event_manager_register") private static function lime_window_event_manager_register(callback:Void->Void,
 		eventObject:WindowEventInfo):Void {}
