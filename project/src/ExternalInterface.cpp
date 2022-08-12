@@ -3744,26 +3744,36 @@ namespace lime {
 
 	}
 
+
 	double lime_window_get_opacity (value window) {
+
 		Window* targetWindow = (Window*)val_data (window);
 		return (float)targetWindow->GetOpacity ();
+
 	}
 
 
 	HL_PRIM double HL_NAME(hl_window_get_opacity) (HL_CFFIPointer* window) {
+
 		Window* targetWindow = (Window*)window->ptr;
 		return (float)targetWindow->GetOpacity ();
+
 	}
 
+
 	void lime_window_set_opacity (value window, double opacity) {
+
 		Window* targetWindow = (Window*)val_data (window);
-        targetWindow->SetOpacity((float)opacity);
+		targetWindow->SetOpacity ((float)opacity);
+
         }
 
 
 	HL_PRIM void HL_NAME(hl_window_set_opacity) (HL_CFFIPointer* window, double opacity) {
+
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->SetOpacity ((float)opacity);
+
 	}
 
 
