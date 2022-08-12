@@ -496,9 +496,6 @@ namespace lime {
 	}
 
 
-
-
-
 	const char* SDLWindow::GetContextType () {
 
 		if (context) {
@@ -588,6 +585,17 @@ namespace lime {
 	bool SDLWindow::GetMouseLock () {
 
 		return SDL_GetRelativeMouseMode ();
+
+	}
+
+
+	float SDLWindow::GetOpacity () {
+
+		float opacity = 1.0f;
+
+		SDL_GetWindowOpacity (sdlWindow, &opacity);
+
+		return opacity;
 
 	}
 
@@ -1010,6 +1018,13 @@ namespace lime {
 	}
 
 
+	void SDLWindow::SetOpacity (float opacity) {
+
+		SDL_SetWindowOpacity (sdlWindow, opacity);
+
+	}
+
+
 	bool SDLWindow::SetResizable (bool resizable) {
 
 		#ifndef EMSCRIPTEN
@@ -1076,23 +1091,12 @@ namespace lime {
 	}
 
 
-	void SDLWindow::WarpMouse (int x, int y){
+	void SDLWindow::WarpMouse (int x, int y) {
 
 		SDL_WarpMouseInWindow (sdlWindow, x, y);
 
 	}
 
-	float SDLWindow::GetOpacity() {
-		float opacity = 1.0;
-		if(SDL_GetWindowOpacity(sdlWindow, &opacity) != 0) {
-			return 1.0;
-		}
-		return opacity;
-	}
-
-	void SDLWindow::SetOpacity(float opacity) {
-		SDL_SetWindowOpacity(sdlWindow, opacity);
-	}
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 
