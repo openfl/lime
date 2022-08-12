@@ -3766,7 +3766,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		targetWindow->SetOpacity ((float)opacity);
 
-        }
+	}
 
 
 	HL_PRIM void HL_NAME(hl_window_set_opacity) (HL_CFFIPointer* window, double opacity) {
