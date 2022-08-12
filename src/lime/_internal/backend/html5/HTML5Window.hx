@@ -378,6 +378,11 @@ class HTML5Window
 		return false;
 	}
 
+	public function getOpacity():Float
+	{
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		return textInputEnabled;
@@ -1085,6 +1090,8 @@ class HTML5Window
 
 	public function setMouseLock(value:Bool):Void {}
 
+	public function setOpacity(value:Float):Void {}
+
 	public function setResizable(value:Bool):Bool
 	{
 		return value;
@@ -1291,8 +1298,4 @@ class HTML5Window
 	}
 
 	public function warpMouse(x:Int, y:Int):Void {}
-
-	public function getOpacity():Float { return 1.0; }
-
-	public function setOpacity(value:Float):Void {}
 }
