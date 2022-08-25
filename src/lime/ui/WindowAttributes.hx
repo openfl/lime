@@ -22,4 +22,5 @@ typedef WindowAttributes =
 	@:optional public var width:Int;
 	@:optional public var x:Int;
 	@:optional public var y:Int;
+	@:optional public var style:WindowStyle;
 }

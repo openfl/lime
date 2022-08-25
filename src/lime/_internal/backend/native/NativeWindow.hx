@@ -21,6 +21,7 @@ import lime.system.JNI;
 import lime.system.System;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
+import lime.ui.WindowStyle;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -86,7 +87,8 @@ class NativeWindow
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
 		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
 		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
-
+		if (Reflect.hasField(attributes, "style") && attributes.style == WindowStyle.SKIP_TASKBAR) flags |= cast WindowFlags.WINDOW_FLAG_SKIP_TASKBAR;
+		
 		if (contextAttributes.antialiasing >= 4)
 		{
 			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
@@ -701,4 +703,5 @@ class NativeWindow
 	var WINDOW_FLAG_MAXIMIZED = 0x00004000;
 	var WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000;
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
+	var WINDOW_FLAG_SKIP_TASKBAR = 0x00020000;
 }
