@@ -43,11 +43,11 @@ First install the latest version of [Haxe](http://www.haxe.org/download).
 Development Builds
 ==================
 
-When there are changes, Lime is built nightly. Builds are available for download [here](https://github.com/openfl/lime/actions?query=branch%3Adevelop).
+When there are changes, Lime is built nightly. Builds are available for download [here](https://github.com/openfl/lime/actions?query=branch%3Adevelop+is%3Asuccess).
 
 To install a development build, use the "haxelib local" command:
 
-    haxelib local filename.zip
+    haxelib local lime-haxelib.zip
 
 
 Building from Source

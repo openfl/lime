@@ -5,7 +5,11 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "8.0.0",
-	"releasenote": "",
-	"contributors": [ "singmajesty" ],
+	"releasenote": "Update HashLink, iOS and Android build fixes, and ongoing improvements",
+	"contributors": [
+		"singmajesty",
+		"bowlerhat",
+		"Dimensionscape"
+	],
 	"classPath": "src"
 }
