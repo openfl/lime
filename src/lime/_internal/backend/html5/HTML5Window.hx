@@ -73,6 +73,7 @@ class HTML5Window
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var textInputEnabled:Bool;
+	private var textInputRect:Rectangle;
 	private var unusedTouchesPool = new List<Touch>();
 
 	public function new(parent:Window)
@@ -419,7 +420,11 @@ class HTML5Window
 
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
-		event.clipboardData.setData("text/plain", Clipboard.text);
+		var text = Clipboard.text;
+		if (text == null) {
+			text = "";
+		}
+		event.clipboardData.setData("text/plain", text);
 		if (event.cancelable) event.preventDefault();
 	}
 
@@ -536,8 +541,7 @@ class HTML5Window
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
 
-		if(inputing)
-			return;
+		if (inputing) return;
 
 		if (textInput.value != dummyCharacter)
 		{
@@ -1162,17 +1166,23 @@ class HTML5Window
 		return textInputEnabled = value;
 	}
 
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		return textInputRect = value;
+	}
+
 	private var inputing = false;
 
-	public function handleCompositionstartEvent(e):Void{
+	public function handleCompositionstartEvent(e):Void
+	{
 		inputing = true;
 	}
 
-	public function handleCompositionendEvent(e):Void{
+	public function handleCompositionendEvent(e):Void
+	{
 		inputing = false;
 		handleInputEvent(e);
 	}
-
 
 	public function setTitle(value:String):String
 	{

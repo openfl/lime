@@ -9,10 +9,12 @@ import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint32Array as JSUInt32Array;
 #end
 @:forward
+@:transitive
 abstract UInt32Array(JSUInt32Array) from JSUInt32Array to JSUInt32Array
 {
-	@:to inline function toArrayBufferView ():ArrayBufferView return this;
-	
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
@@ -84,6 +86,7 @@ abstract UInt32Array(JSUInt32Array) from JSUInt32Array to JSUInt32Array
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
@@ -91,7 +94,9 @@ abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	public var length(get, never):Int;
 
+	#if (haxe_ver < 4.2)
 	@:generic
+	#end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{

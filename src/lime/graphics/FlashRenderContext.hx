@@ -26,6 +26,7 @@ abstract FlashRenderContext(Sprite) from Sprite to Sprite
 }
 #else
 @:forward
+@:transitive
 abstract FlashRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):FlashRenderContext

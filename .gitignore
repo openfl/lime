@@ -4,6 +4,14 @@
 Export/
 ndll/*/lime*
 ndll/*/liblime*
+ndll/*/*.hdll
+ndll/*/*.hash
+ndll/*/*.so
+ndll/*/*.dylib
+ndll/*/*.lib
+ndll/*/hl*
+ndll/*/*.dll
+templates/bin/hl/*
 project/all_objs
 project/obj
 project/vc*.pdb

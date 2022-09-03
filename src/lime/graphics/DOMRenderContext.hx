@@ -26,6 +26,7 @@ abstract DOMRenderContext(Element) from Element to Element
 }
 #else
 @:forward
+@:transitive
 abstract DOMRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):DOMRenderContext

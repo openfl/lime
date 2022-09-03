@@ -1,3 +1,57 @@
+8.0.0 (08/30/2022)
+------------------
+
+* Updated HashLink to version 1.12
+* Updated Android minimum SDK version to 21
+* Updated Electron template to version 18
+* Updated HTML5 to high DPI by default
+* Added `--template` command line option to Lime tools
+* Added `--appstore` and `--adhoc` command line options for AIR on iOS to Lime tools (to match iOS native)
+* Added `-air-simulator` command line option for AIR to Lime tools (avoids packaging full AIR app)
+* Added `<config:air profile="value"/>` to optionally support custom AIR profiles in simulator
+* Added `setTextInputRect` to `Window` to specify a rectangle that has focus for text input
+* Added `JNISafety` to improve JNI communication on Android
+* Added `manageCookies` to `HTTPRequest` to support cookies on native platforms (only session for now)
+* Added `pitch` property to `AudioSource`
+* Added `-Delectron` flag to Electron builds so that it's possible to use `#if electron`
+* Added icon priorities to allow a library to provide a default icon that the user can override
+* Improved HashLink _.app_ file generation on macOS
+* Improved performance of `HTTPRequest` on native platforms with better buffer management
+* Improved support for Android 12 (SDK 31) and newer
+* Improved output file size if no assets are defined (sets `disable_preloader_assets` define)
+* Improved stage sizing on Electron (defaults to `0` for fluid width/height, same as regular browsers)
+* Fixed garbage collector crash issue on iOS 12
+* Fixed iOS build that failed because of missing _Metal.framework_ dependency
+* Fixed switching between light and dark modes on Android destroying the Lime activity
+* Fixed `getCurrentTime` on `AudioSource` for streaming sounds on native platforms
+* Fixed wrong types on `NativeMenuItem` Flash externs
+* Fixed set clipboard when `null` is passed (now changes to an empty string automatically)
+* Fixed warnings for deprecated "devicemotion" events on Firefox
+* Fixed incompatibility with "genes" Haxelib to allow generating JS Modules
+
+7.9.0 (03/10/2021)
+------------------
+
+_Notice: We are moving from our custom build server to Github Actions for releases._
+_As a result, official releases support only current macOS versions. Earlier macOS_
+_releases are still supported when building Lime from the source._
+
+* Updated support for Haxe 4.2
+* Updated the default iOS deployment to 9.0
+* Updated `ios-deploy` tool to support newer iOS and Xcode versions
+* Added `failIfMajorPerformanceCaveat` setting for window (default false)
+* Added bindings for OGG Vorbis on the HashLink target
+* Improved iOS target to exclude Core Bluetooth framework
+* Improved the performance for AIR application boot times
+* Improved error message when attempting to use HashLink target on Haxe 3
+* Fixed support for Android screen orientation
+* Fixed touch support on Android hardware that return unusual touch IDs
+* Fixed an issue with excess bytes saved from `FileDialog` on HTML5
+* Fixed null-termination issues on strings returned from `lime.system.System`
+* Fixed support for IEM input text on HTML5
+* Fixed audio stutter on HTML5 when `force-html-audio` is defined
+
+
 7.8.0 (06/24/2020)
 ------------------
 

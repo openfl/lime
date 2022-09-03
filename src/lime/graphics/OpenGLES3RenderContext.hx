@@ -41,10 +41,12 @@ import lime.utils.Int32Array;
 	```
 **/
 @:forward
+@:transitive
 #if (lime_doc_gen)
 abstract OpenGLES3RenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext
 {
 #else
+@:transitive
 abstract OpenGLES3RenderContext(OpenGLRenderContext) from OpenGLRenderContext
 {
 #end
@@ -4865,6 +4867,7 @@ public inline function waitSync(sync:GLSync, flags:Int, timeout:Int64):Void
 import lime.graphics.opengl.GL;
 
 @:forward()
+@:transitive
 abstract OpenGLES3RenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):OpenGLES3RenderContext

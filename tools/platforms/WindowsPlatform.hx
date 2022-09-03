@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Log;
@@ -22,6 +23,7 @@ import lime.tools.JavaHelper;
 import lime.tools.ModuleHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -41,6 +43,97 @@ class WindowsPlatform extends PlatformTarget
 	{
 		super(command, _project, targetFlags);
 
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
+		{
+			defaults.window.width = 0;
+			defaults.window.height = 0;
+			defaults.window.fps = 60;
+		}
+		else
+		{
+			switch (System.hostArchitecture)
+			{
+				case ARMV6:
+					defaults.architectures = [ARMV6];
+				case ARMV7:
+					defaults.architectures = [ARMV7];
+				case X86:
+					defaults.architectures = [X86];
+				case X64:
+					defaults.architectures = [X64];
+				default:
+					defaults.architectures = [];
+			}
+		}
+
+		defaults.window.allowHighDPI = false;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
+
 		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
 		{
 			targetType = "winjs";
@@ -52,7 +145,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = false;
+			is64 = !project.flags.exists("32");
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -204,16 +297,6 @@ class WindowsPlatform extends PlatformTarget
 					{
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
-
-						if (!project.environment.exists("HL_PATH"))
-						{
-							var command = #if lime "lime" #else "hxp" #end;
-
-							Log.error("You must define HL_PATH to copy HashLink dependencies, please run '" + command + " setup hl' first");
-
-						}else{
-							System.copyFile(project.environment.get("HL_PATH") + '/ssl.hdll', applicationDirectory + '/ssl.hdll');
-						}
 					}
 					else
 					{
@@ -248,10 +331,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
-				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, project.app.file + ".hl"));
-				System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
-				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
+				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
@@ -554,42 +634,55 @@ class WindowsPlatform extends PlatformTarget
 			// }
 
 			var commands = [];
-
-			if (!targetFlags.exists("64")
-				&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+			if (targetType == "hl")
 			{
-				if (targetType == "winrt")
+				// default to 64 bit, just like upstream Hashlink releases
+				if (!targetFlags.exists("32") && (System.hostArchitecture == X64 || targetFlags.exists("64")))
 				{
-					commands.push(["-Dwinrt", "-DHXCPP_M32"]);
-				}
-				else if (targetType == "hl")
-				{
-					// TODO: Support single binary
-					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
+					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
 				}
 				else
 				{
-					commands.push(["-Dwindows", "-DHXCPP_M32"]);
+					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
+				}
+			}
+			else
+			{
+				if (!targetFlags.exists("64")
+					&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_M32"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_M32"]);
+					}
+				}
+
+				// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
+				// as previous Windows builds. For now, force -64 to be done last
+				// so that it can be debugged in a default "rebuild"
+
+				if (!targetFlags.exists("32")
+					&& System.hostArchitecture == X64
+					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_M64"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_M64"]);
+					}
 				}
 			}
 
-			// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
-			// as previous Windows builds. For now, force -64 to be done last
-			// so that it can be debugged in a default "rebuild"
-
-			if (!targetFlags.exists("32")
-				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt")
-				&& targetType != "hl")
+			if (targetFlags.exists("hl"))
 			{
-				if (targetType == "winrt")
-				{
-					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
-				}
-				else
-				{
-					commands.push(["-Dwindows", "-DHXCPP_M64"]);
-				}
+				CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
 			}
 
 			CPPHelper.rebuild(project, commands);

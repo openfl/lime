@@ -56,11 +56,10 @@ class HTML5AudioSource
 
 		// Calling setCurrentTime causes html5 audio to replay from this position on next frame
 		#if force_html5_audio
-		if(time == 0) setCurrentTime(time);
+		if (time == 0) setCurrentTime(time);
 		#else
 		setCurrentTime(time);
 		#end
-
 		#end
 	}
 
@@ -204,6 +203,25 @@ class HTML5AudioSource
 	{
 		return loops = value;
 	}
+
+	public function getPitch():Float
+	{
+		#if lime_howlerjs
+		return parent.buffer.__srcHowl.rate();
+		#else
+		return 1;
+		#end
+	}
+
+	public function setPitch(value:Float):Float
+	{
+		#if lime_howlerjs
+		parent.buffer.__srcHowl.rate(value);
+		#end
+		
+		return getPitch();
+	}
+	
 
 	public function getPosition():Vector4
 	{

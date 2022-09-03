@@ -1855,7 +1855,7 @@ class NativeOpenGLRenderContext
 			case GL.FRAMEBUFFER_BINDING:
 				var data:GLFramebuffer = getInteger(pname);
 				return data;
-			
+
 			case GL.RENDERBUFFER_BINDING:
 				var data:GLRenderbuffer = getInteger(pname);
 				return data;
@@ -2040,7 +2040,7 @@ class NativeOpenGLRenderContext
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		var result = NativeCFFI.lime_gl_get_shader_info_log(__getObjectID(shader));
 		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
+		var result = (result != null) ? @:privateAccess String.fromUTF8(result) : null;
 		#end
 		return result;
 		#else

@@ -25,6 +25,7 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -36,6 +37,78 @@ class IOSPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		defaults.architectures = [Architecture.ARMV7, Architecture.ARM64];
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("ios.output-directory", "ios"));
 	}
@@ -482,12 +555,27 @@ class IOSPlatform extends PlatformTarget
 		System.mkdir(projectDirectory + "/haxe/lime/installer");
 
 		var iconSizes:Array<IconSize> = [
-			{name: "Icon-20.png", size: 20}, {name: "Icon-Small.png", size: 29}, {name: "Icon-Small-40.png", size: 40}, {name: "Icon-20@2x.png", size: 40},
-			{name: "Icon-Small-50.png", size: 50}, {name: "Icon.png", size: 57}, {name: "Icon-Small@2x.png", size: 58}, {name: "Icon-20@3x.png", size: 60},
-			{name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80}, {name: "Icon-Small@3x.png", size: 87},
-			{name: "Icon-Small-50@2x.png", size: 100}, {name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
-			{name: "Icon-Small-40@3x.png", size: 120}, {name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152},
-			{name: "Icon-83.5@2x.png", size: 167}, {name: "Icon-60@3x.png", size: 180}, {name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-20.png", size: 20},
+			{name: "Icon-Small.png", size: 29},
+			{name: "Icon-Small-40.png", size: 40},
+			{name: "Icon-20@2x.png", size: 40},
+			{name: "Icon-Small-50.png", size: 50},
+			{name: "Icon.png", size: 57},
+			{name: "Icon-Small@2x.png", size: 58},
+			{name: "Icon-20@3x.png", size: 60},
+			{name: "Icon-72.png", size: 72},
+			{name: "Icon-76.png", size: 76},
+			{name: "Icon-Small-40@2x.png", size: 80},
+			{name: "Icon-Small@3x.png", size: 87},
+			{name: "Icon-Small-50@2x.png", size: 100},
+			{name: "Icon@2x.png", size: 114},
+			{name: "Icon-60@2x.png", size: 120},
+			{name: "Icon-Small-40@3x.png", size: 120},
+			{name: "Icon-72@2x.png", size: 144},
+			{name: "Icon-76@2x.png", size: 152},
+			{name: "Icon-83.5@2x.png", size: 167},
+			{name: "Icon-60@3x.png", size: 180},
+			{name: "Icon-Marketing.png", size: 1024}
 		];
 
 		context.HAS_ICON = true;
@@ -682,12 +770,19 @@ class IOSPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context, true,
 			false);
 
-		//Merge plist files
-		var plistFiles = System.readDirectory(projectDirectory).filter(function(fileName:String){
+		// Merge plist files
+		var plistFiles = System.readDirectory(projectDirectory).filter(function(fileName:String)
+		{
 			return fileName.substr(-11) == "-Info.plist" && fileName != projectDirectory + "/" + project.app.file + "-Info.plist";
 		});
-		for(plist in plistFiles){
-			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", ["-x", "-c", "Merge " + plist, projectDirectory + "/" + project.app.file + "-Info.plist"]);
+		for (plist in plistFiles)
+		{
+			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", [
+				"-x",
+				"-c",
+				"Merge '" + plist + "'",
+				projectDirectory + "/" + project.app.file + "-Info.plist"
+			]);
 		}
 
 		System.mkdir(projectDirectory + "/lib");
