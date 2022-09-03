@@ -343,6 +343,7 @@ class HTML5Window
 
 	private function focusTextInput():Void
 	{
+		// Avoid changing focus multiple times per frame.
 		if (__focusPending) return;
 		__focusPending = true;
 
