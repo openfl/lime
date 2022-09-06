@@ -52,16 +52,20 @@ class Clipboard
 	// Get & Set Methods
 	private static function get_text():String
 	{
-		// Native clipboard calls __update when clipboard changes
+		// Native clipboard (except Xorg) calls __update when clipboard changes.
 
 		#if (flash || js || html5)
 		__update();
 		#elseif linux
-		// Hack: SDL won't start calling __update until set_text()
-		// is called once.
+		// Xorg won't call __update until we call set_text at least once.
+		// Details: SDL_x11clipboard.c calls X11_XSetSelectionOwner,
+		// registering this app to receive clipboard events.
 		if (_text == null)
 		{
 			__update();
+
+			// Call set_text while changing as little as possible. (Rich text
+			// formatting will unavoidably be lost.)
 			set_text(_text);
 		}
 		#end
