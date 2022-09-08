@@ -36,7 +36,6 @@ class NativeAudioSource
 	private var loops:Int;
 	private var parent:AudioSource;
 	private var playing:Bool;
-	private var position:Vector4;
 	private var samples:Int;
 	private var stream:Bool;
 	private var streamTimer:Timer;
@@ -45,8 +44,6 @@ class NativeAudioSource
 	public function new(parent:AudioSource)
 	{
 		this.parent = parent;
-
-		position = new Vector4();
 	}
 
 	public function dispose():Void
@@ -520,6 +517,17 @@ class NativeAudioSource
 		return loops = value;
 	}
 
+	public function setPan(value:Float):Float
+	{
+		if (handle != null)
+		{
+			AL.distanceModel(AL.NONE);
+			AL.source3f(handle, AL.POSITION, value, 0, -1 * Math.sqrt(1 - Math.pow(value, 2)));
+		}
+
+		return value;
+	}
+
 	public function getPitch():Float
 	{
 		if (handle != null)
@@ -558,34 +566,14 @@ class NativeAudioSource
 		return value;
 	}
 
-	public function getPosition():Vector4
-	{
-		if (handle != null)
-		{
-			#if !emscripten
-			var value = AL.getSource3f(handle, AL.POSITION);
-			position.x = value[0];
-			position.y = value[1];
-			position.z = value[2];
-			#end
-		}
-
-		return position;
-	}
-
 	public function setPosition(value:Vector4):Vector4
 	{
-		position.x = value.x;
-		position.y = value.y;
-		position.z = value.z;
-		position.w = value.w;
-
 		if (handle != null)
 		{
 			AL.distanceModel(AL.NONE);
-			AL.source3f(handle, AL.POSITION, position.x, position.y, position.z);
+			AL.source3f(handle, AL.POSITION, value.x, value.y, value.z);
 		}
 
-		return position;
+		return value;
 	}
 }

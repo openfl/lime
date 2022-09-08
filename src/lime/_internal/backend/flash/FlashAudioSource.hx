@@ -14,13 +14,10 @@ class FlashAudioSource
 	private var parent:AudioSource;
 	private var pauseTime:Int;
 	private var playing:Bool;
-	private var position:Vector4;
 
 	public function new(parent:AudioSource)
 	{
 		this.parent = parent;
-
-		position = new Vector4();
 	}
 
 	public function dispose():Void {}
@@ -117,6 +114,15 @@ class FlashAudioSource
 		return loops = value;
 	}
 
+	public function setPan(value:Float):Float
+	{
+		var soundTransform = channel.soundTransform;
+		soundTransform.pan = value;
+		channel.soundTransform = soundTransform;
+
+		return value;
+	}
+
 	public function getPitch():Float
 	{
 		lime.utils.Log.verbose("Pitch is not supported in Flash.");
@@ -128,24 +134,12 @@ class FlashAudioSource
 		return getPitch();
 	}
 
-	public function getPosition():Vector4
-	{
-		position.x = channel.soundTransform.pan;
-
-		return position;
-	}
-
 	public function setPosition(value:Vector4):Vector4
 	{
-		position.x = value.x;
-		position.y = value.y;
-		position.z = value.z;
-		position.w = value.w;
-
 		var soundTransform = channel.soundTransform;
-		soundTransform.pan = position.x;
+		soundTransform.pan = value.x;
 		channel.soundTransform = soundTransform;
 
-		return position;
+		return value;
 	}
 }

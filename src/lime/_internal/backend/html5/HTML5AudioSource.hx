@@ -13,7 +13,6 @@ class HTML5AudioSource
 	private var loops:Int;
 	private var parent:AudioSource;
 	private var playing:Bool;
-	private var position:Vector4;
 
 	public function new(parent:AudioSource)
 	{
@@ -21,7 +20,6 @@ class HTML5AudioSource
 
 		id = -1;
 		gain = 1;
-		position = new Vector4();
 	}
 
 	public function dispose():Void {}
@@ -50,7 +48,8 @@ class HTML5AudioSource
 		untyped parent.buffer.__srcHowl._volume = cacheVolume;
 		// setGain (parent.gain);
 
-		setPosition(parent.position);
+		if(parent.pan != null) setPan(parent.pan);
+		if(parent.position != null) setPosition(parent.position);
 
 		parent.buffer.__srcHowl.on("end", howl_onEnd, id);
 
@@ -204,6 +203,15 @@ class HTML5AudioSource
 		return loops = value;
 	}
 
+	public function setPan(value:Float):Float
+	{
+		#if lime_howlerjs
+		if (parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.stereo != null) parent.buffer.__srcHowl.stereo(value, id);
+		#end
+
+		return value;
+	}
+
 	public function getPitch():Float
 	{
 		#if lime_howlerjs
@@ -221,35 +229,14 @@ class HTML5AudioSource
 		
 		return getPitch();
 	}
-	
-
-	public function getPosition():Vector4
-	{
-		#if lime_howlerjs
-		// This should work, but it returns null (But checking the inside of the howl, the _pos is actually null... so ¯\_(ツ)_/¯)
-		/*
-			var arr = parent.buffer.__srcHowl.pos())
-			position.x = arr[0];
-			position.y = arr[1];
-			position.z = arr[2];
-		 */
-		#end
-
-		return position;
-	}
 
 	public function setPosition(value:Vector4):Vector4
 	{
-		position.x = value.x;
-		position.y = value.y;
-		position.z = value.z;
-		position.w = value.w;
-
 		#if lime_howlerjs
-		if (parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(position.x, position.y, position.z, id);
+		if (parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(value.x, value.y, value.z, id);
 		// There are more settings to the position of the sound on the "pannerAttr()" function of howler. Maybe somebody who understands sound should look into it?
 		#end
 
-		return position;
+		return value;
 	}
 }
