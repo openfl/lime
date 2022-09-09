@@ -36,13 +36,42 @@ class AIRHelper
 				}
 				else
 				{
+					var supportedExportMethods = ["adhoc", "appstore"];
+					var exportMethod:String = null;
+					for (m in supportedExportMethods)
+					{
+						if (project.targetFlags.exists(m))
+						{
+							if (exportMethod != null)
+							{
+								Log.error("Must not specify multiple export methods. Found: " + exportMethod + " and " + m);
+							}
+							exportMethod = m;
+						}
+					}
+					if (exportMethod == null && project.targetFlags.exists("final")) {
+						exportMethod = "appstore";
+					}
+
 					if (project.debug)
 					{
+						if (exportMethod != null)
+						{
+							Log.error("Must not specify export method for a debug build. Found: " + exportMethod);
+						}
 						airTarget = "ipa-debug";
 					}
 					else
 					{
-						airTarget = "ipa-test";
+						switch (exportMethod)
+						{
+							case "appstore":
+								airTarget = "ipa-app-store";
+							case "adhoc":
+								airTarget = "ipa-ad-hoc";
+							default:
+								airTarget = "ipa-test";
+						}
 					}
 				}
 
@@ -288,7 +317,12 @@ class AIRHelper
 			var extDirs:Array<String> = getExtDirs(project);
 
 			var profile:String;
-			if (targetPlatform == ANDROID)
+
+			if (project.config.exists("air.profile"))
+			{
+				profile = project.config.getString("air.profile");
+			}
+			else if (targetPlatform == ANDROID)
 			{
 				profile = "mobileDevice";
 			}

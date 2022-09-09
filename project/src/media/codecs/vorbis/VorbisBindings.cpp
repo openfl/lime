@@ -122,7 +122,7 @@ namespace lime {
 
 
 	void lime_vorbis_file_clear (value vorbisFile);
-	HL_PRIM void hl_lime_vorbis_file_clear (HL_CFFIPointer* vorbisFile);
+	HL_PRIM void HL_NAME(hl_vorbis_file_clear) (HL_CFFIPointer* vorbisFile);
 
 
 	void gc_vorbis_file (value vorbisFile) {
@@ -133,7 +133,7 @@ namespace lime {
 
 	void hl_gc_vorbis_file (HL_CFFIPointer* vorbisFile) {
 
-		hl_lime_vorbis_file_clear (vorbisFile);
+		lime_hl_vorbis_file_clear (vorbisFile);
 
 	}
 
@@ -146,7 +146,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_bitrate (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_bitrate) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_bitrate (file, bitstream);
@@ -162,7 +162,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_bitrate_instant (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_bitrate_instant) (HL_CFFIPointer* vorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_bitrate_instant (file);
@@ -183,7 +183,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_vorbis_file_clear (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM void HL_NAME(hl_vorbis_file_clear) (HL_CFFIPointer* vorbisFile) {
 
 		if (vorbisFile) {
 
@@ -203,7 +203,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_comment (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_comment) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		return NULL;
 
@@ -219,7 +219,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_crosslap (HL_CFFIPointer* vorbisFile, HL_CFFIPointer* otherVorbisFile) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_crosslap) (HL_CFFIPointer* vorbisFile, HL_CFFIPointer* otherVorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		OggVorbis_File* otherFile = (OggVorbis_File*)(uintptr_t)otherVorbisFile->ptr;
@@ -253,7 +253,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_info (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_info) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		vorbis_info *info = ov_info (file, bitstream);
@@ -296,7 +296,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_vorbis_file_from_bytes (Bytes* data) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_vorbis_file_from_bytes) (Bytes* data) {
 
 		OggVorbis_File* vorbisFile = VorbisFile::FromBytes (data);
 
@@ -326,7 +326,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_vorbis_file_from_file (hl_vstring* path) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_vorbis_file_from_file) (hl_vstring* path) {
 
 		OggVorbis_File* vorbisFile = VorbisFile::FromFile (path ? hl_to_utf8 (path->bytes) : NULL);
 
@@ -350,7 +350,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_pcm_seek (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_pcm_seek) (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		ogg_int64_t pos = ((ogg_int64_t)posHigh << 32) | (ogg_int64_t)posLow;
@@ -368,7 +368,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_pcm_seek_lap (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_pcm_seek_lap) (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		ogg_int64_t pos = ((ogg_int64_t)posHigh << 32) | (ogg_int64_t)posLow;
@@ -386,7 +386,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_pcm_seek_page (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_pcm_seek_page) (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		ogg_int64_t pos = ((ogg_int64_t)posHigh << 32) | (ogg_int64_t)posLow;
@@ -404,7 +404,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_pcm_seek_page_lap (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_pcm_seek_page_lap) (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		ogg_int64_t pos = ((ogg_int64_t)posHigh << 32) | (ogg_int64_t)posLow;
@@ -421,7 +421,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_pcm_tell (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_pcm_tell) (HL_CFFIPointer* vorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return hl_allocInt64 (ov_pcm_tell (file));
@@ -437,7 +437,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_pcm_total (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_pcm_total) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return hl_allocInt64 (ov_pcm_total (file, bitstream));
@@ -454,7 +454,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_raw_seek (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_raw_seek) (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		ogg_int64_t pos = ((ogg_int64_t)posHigh << 32) | (ogg_int64_t)posLow;
@@ -472,7 +472,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_raw_seek_lap (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_raw_seek_lap) (HL_CFFIPointer* vorbisFile, int posLow, int posHigh) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		ogg_int64_t pos = ((ogg_int64_t)posHigh << 32) | (ogg_int64_t)posLow;
@@ -489,7 +489,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_raw_tell (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_raw_tell) (HL_CFFIPointer* vorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return hl_allocInt64 (ov_raw_tell (file));
@@ -505,7 +505,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_raw_total (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_raw_total) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return hl_allocInt64 (ov_raw_total (file, bitstream));
@@ -539,7 +539,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_read (HL_CFFIPointer* vorbisFile, Bytes* buffer, int position, int length, bool bigendianp, int word, bool sgned) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_read) (HL_CFFIPointer* vorbisFile, Bytes* buffer, int position, int length, bool bigendianp, int word, bool sgned) {
 
 		if (!buffer) {
 
@@ -582,7 +582,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_vorbis_file_read_float (HL_CFFIPointer* vorbisFile, Bytes* pcmChannels, int samples) {
+	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_read_float) (HL_CFFIPointer* vorbisFile, Bytes* pcmChannels, int samples) {
 
 		return NULL;
 
@@ -597,7 +597,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_vorbis_file_seekable (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM bool HL_NAME(hl_vorbis_file_seekable) (HL_CFFIPointer* vorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_seekable (file);
@@ -613,7 +613,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_serial_number (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_serial_number) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_serialnumber (file, bitstream);
@@ -629,7 +629,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_streams (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_streams) (HL_CFFIPointer* vorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_streams (file);
@@ -645,7 +645,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_time_seek (HL_CFFIPointer* vorbisFile, double s) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_time_seek) (HL_CFFIPointer* vorbisFile, double s) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_time_seek (file, s);
@@ -661,7 +661,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_time_seek_lap (HL_CFFIPointer* vorbisFile, double s) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_time_seek_lap) (HL_CFFIPointer* vorbisFile, double s) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_time_seek_lap (file, s);
@@ -677,7 +677,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_time_seek_page (HL_CFFIPointer* vorbisFile, double s) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_time_seek_page) (HL_CFFIPointer* vorbisFile, double s) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_time_seek_page (file, s);
@@ -693,7 +693,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_vorbis_file_time_seek_page_lap (HL_CFFIPointer* vorbisFile, double s) {
+	HL_PRIM int HL_NAME(hl_vorbis_file_time_seek_page_lap) (HL_CFFIPointer* vorbisFile, double s) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_time_seek_page_lap (file, s);
@@ -709,7 +709,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_vorbis_file_time_tell (HL_CFFIPointer* vorbisFile) {
+	HL_PRIM double HL_NAME(hl_vorbis_file_time_tell) (HL_CFFIPointer* vorbisFile) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_time_tell (file);
@@ -725,7 +725,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_vorbis_file_time_total (HL_CFFIPointer* vorbisFile, int bitstream) {
+	HL_PRIM double HL_NAME(hl_vorbis_file_time_total) (HL_CFFIPointer* vorbisFile, int bitstream) {
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
 		return ov_time_total (file, bitstream);
@@ -767,36 +767,36 @@ namespace lime {
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_bitrate,            _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_bitrate_instant,    _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID,         lime_vorbis_file_clear,              _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_comment,            _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_crosslap,           _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_info,               _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_vorbis_file_from_bytes,         _TBYTES);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_vorbis_file_from_file,          _STRING);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_pcm_seek,           _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_pcm_seek_lap,       _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_pcm_seek_page,      _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_pcm_seek_page_lap,  _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_pcm_tell,           _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_pcm_total,          _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_raw_seek,           _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_raw_seek_lap,       _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_raw_tell,           _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_raw_total,          _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_read,               _TCFFIPOINTER _TBYTES _I32 _I32 _BOOL _I32 _BOOL);
-	DEFINE_HL_PRIM (_DYN,          lime_vorbis_file_read_float,         _TCFFIPOINTER _TBYTES _I32);
-	DEFINE_HL_PRIM (_BOOL,         lime_vorbis_file_seekable,           _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_serial_number,      _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_streams,            _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_time_seek,          _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_time_seek_lap,      _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_time_seek_page,     _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_I32,          lime_vorbis_file_time_seek_page_lap, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_F64,          lime_vorbis_file_time_tell,          _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_F64,          lime_vorbis_file_time_total,         _TCFFIPOINTER _I32);
-	
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_bitrate,            _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_bitrate_instant,    _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID,         hl_vorbis_file_clear,              _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_comment,            _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_crosslap,           _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_info,               _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_vorbis_file_from_bytes,         _TBYTES);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_vorbis_file_from_file,          _STRING);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_pcm_seek,           _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_pcm_seek_lap,       _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_pcm_seek_page,      _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_pcm_seek_page_lap,  _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_pcm_tell,           _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_pcm_total,          _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_raw_seek,           _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_raw_seek_lap,       _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_raw_tell,           _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_raw_total,          _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_read,               _TCFFIPOINTER _TBYTES _I32 _I32 _BOOL _I32 _BOOL);
+	DEFINE_HL_PRIM (_DYN,          hl_vorbis_file_read_float,         _TCFFIPOINTER _TBYTES _I32);
+	DEFINE_HL_PRIM (_BOOL,         hl_vorbis_file_seekable,           _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_serial_number,      _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_streams,            _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_time_seek,          _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_time_seek_lap,      _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_time_seek_page,     _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_I32,          hl_vorbis_file_time_seek_page_lap, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_F64,          hl_vorbis_file_time_tell,          _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64,          hl_vorbis_file_time_total,         _TCFFIPOINTER _I32);
+
 
 }
 

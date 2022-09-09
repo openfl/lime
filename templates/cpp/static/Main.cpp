@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#ifdef HX_WINDOWS
+#if defined(HX_WINDOWS) && !defined(HXCPP_DEBUG)
 #include <windows.h>
 #endif
 
@@ -14,7 +14,7 @@ extern "C" int lime_openal_register_prims ();
 extern "C" int ::nameSafe::_register_prims ();::end::::end::
 
 
-#ifdef HX_WINDOWS
+#if defined(HX_WINDOWS) && !defined(HXCPP_DEBUG)
 int __stdcall WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 #else
 extern "C" int main(int argc, char *argv[]) {

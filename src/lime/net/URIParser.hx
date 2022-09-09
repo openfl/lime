@@ -1,6 +1,5 @@
 package lime.net;
 
-
 /**
 	Class used for parsing URIs and URLs.
 	Based on http://blog.stevenlevithan.com/archives/parseuri
@@ -126,7 +125,7 @@ class URIParser
 		var uri = new URIParser("https://example.com/index.php?action=upload&token=12345#header");
 		for( q in uri.queryArray )
 			trace( q.k + " = " + q.v); // action = upload
-			                           // token = 12345
+									   // token = 12345
 		```
 	**/
 	public var queryArray:Array<KVPair>;

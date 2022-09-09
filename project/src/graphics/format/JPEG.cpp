@@ -1,3 +1,4 @@
+#include <system/System.h>
 extern "C" {
 
 	#include <sys/types.h>
@@ -8,7 +9,6 @@ extern "C" {
 
 #include <setjmp.h>
 #include <graphics/format/JPEG.h>
-#include <system/System.h>
 
 
 namespace lime {

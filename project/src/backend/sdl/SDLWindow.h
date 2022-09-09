@@ -51,6 +51,7 @@ namespace lime {
 			virtual void SetMouseLock (bool mouseLock);
 			virtual bool SetResizable (bool resizable);
 			virtual void SetTextInputEnabled (bool enabled);
+			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
 			virtual void WarpMouse (int x, int y);
 

@@ -1050,6 +1050,23 @@ namespace lime {
 	}
 
 
+	void SDLWindow::SetTextInputRect (Rectangle * rect) {
+
+		SDL_Rect bounds = { 0, 0, 0, 0 };
+
+		if (rect) {
+
+			bounds.x = rect->x;
+			bounds.y = rect->y;
+			bounds.w = rect->width;
+			bounds.h = rect->height;
+
+		}
+
+		SDL_SetTextInputRect(&bounds);
+	}
+
+
 	const char* SDLWindow::SetTitle (const char* title) {
 
 		SDL_SetWindowTitle (sdlWindow, title);

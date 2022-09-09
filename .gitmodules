@@ -1,60 +1,64 @@
 [submodule "project/lib/vorbis"]
 	path = project/lib/vorbis
-	url = https://github.com/native-toolkit/vorbis
+	url = https://github.com/openfl/libvorbis
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
-	url = https://github.com/native-toolkit/sdl
+	url = https://github.com/openfl/libsdl
 [submodule "project/lib/openal"]
 	path = project/lib/openal
-	url = https://github.com/native-toolkit/openal
+	url = https://github.com/openfl/libopenal
 [submodule "project/lib/curl"]
 	path = project/lib/curl
-	url = https://github.com/native-toolkit/curl
+	url = https://github.com/openfl/libcurl
 [submodule "project/lib/ogg"]
 	path = project/lib/ogg
-	url = https://github.com/native-toolkit/ogg
+	url = https://github.com/openfl/libogg
 [submodule "project/lib/zlib"]
 	path = project/lib/zlib
-	url = https://github.com/native-toolkit/zlib
+	url = https://github.com/openfl/libzlib
 [submodule "project/lib/neko"]
 	path = project/lib/neko
-	url = https://github.com/native-toolkit/neko
+	url = https://github.com/openfl/libneko
 [submodule "project/lib/png"]
 	path = project/lib/png
-	url = https://github.com/native-toolkit/png
+	url = https://github.com/openfl/libpng
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
-	url = https://github.com/native-toolkit/jpeg
+	url = https://github.com/openfl/libjpeg
 [submodule "project/lib/freetype"]
 	path = project/lib/freetype
-	url = https://github.com/native-toolkit/freetype
+	url = https://github.com/openfl/libfreetype
 [submodule "project/lib/harfbuzz"]
 	path = project/lib/harfbuzz
-	url = https://github.com/native-toolkit/harfbuzz
+	url = https://github.com/openfl/libharfbuzz
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
-	url = https://github.com/native-toolkit/cairo
+	url = https://github.com/openfl/libcairo
 [submodule "project/lib/pixman"]
 	path = project/lib/pixman
-	url = https://github.com/native-toolkit/pixman
+	url = https://github.com/openfl/libpixman
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
-	url = https://github.com/native-toolkit/lzma
+	url = https://github.com/openfl/liblzma
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
-	url = https://github.com/native-toolkit/tinyfiledialogs
+	url = https://github.com/openfl/libtinyfiledialogs
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
-	url = https://github.com/native-toolkit/efsw
+	url = https://github.com/openfl/libefsw
 [submodule "project/lib/vpx"]
 	path = project/lib/vpx
-	url = https://github.com/native-toolkit/vpx
+	url = https://github.com/openfl/libvpx
 [submodule "project/lib/webm"]
 	path = project/lib/webm
-	url = https://github.com/native-toolkit/webm
+	url = https://github.com/openfl/libwebm
 [submodule "project/lib/mbedtls"]
 	path = project/lib/mbedtls
-	url = https://github.com/native-toolkit/mbedtls
+	url = https://github.com/openfl/libmbedtls
 [submodule "project/lib/mojoal"]
 	path = project/lib/mojoal
-	url = https://github.com/native-toolkit/mojoal
+	url = https://github.com/openfl/libmojoal
+[submodule "project/lib/hashlink"]
+	path = project/lib/hashlink
+	url = https://github.com/HaxeFoundation/hashlink
+  

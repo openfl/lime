@@ -334,10 +334,12 @@ class AssetLibrary
 			return true;
 		}
 
-		var requestedType = type != null ? cast(type, AssetType) : null;
-
-		return switch (requestedType)
+		return switch (cast(type, AssetType))
 		{
+			case null:
+				cachedBytes.exists(id) || cachedText.exists(id) || cachedImages.exists(id)
+					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
+
 			case IMAGE:
 				cachedImages.exists(id);
 
@@ -347,7 +349,8 @@ class AssetLibrary
 			case FONT:
 				cachedFonts.exists(id);
 
-			default: cachedBytes.exists(id) || cachedText.exists(id);
+			default:
+				cachedBytes.exists(id) || cachedText.exists(id);
 		}
 		#end
 	}
@@ -464,7 +467,7 @@ class AssetLibrary
 		}
 		else if (classTypes.exists(id))
 		{
-			return Future.withValue(Type.createInstance(classTypes.get(id), []));
+			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
 		}
 		else
 		{
