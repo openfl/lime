@@ -58,7 +58,11 @@ namespace lime {
 				if (event->type != MOUSE_WHEEL) {
 
 					alloc_field (object, id_button, alloc_int (event->button));
-					alloc_field (object, id_clickCount, alloc_int (event->clickCount))
+				}
+
+				if (event->type != MOUSE_WHEEL && event->type != MOUSE_MOVE) {
+
+					alloc_field (object, id_clickCount, alloc_int (event->clickCount));
 				}
 
 				alloc_field (object, id_movementX, alloc_float (event->movementX));
