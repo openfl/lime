@@ -613,7 +613,7 @@ class HTML5Window
 						Browser.window.addEventListener("mouseup", handleMouseEvent);
 					}
 
-					parent.onMouseDown.dispatch(x, y, event.button);
+					parent.onMouseDown.dispatch(x, y, event.button, event.detail);
 
 					if (parent.onMouseDown.canceled && event.cancelable)
 					{
@@ -650,7 +650,7 @@ class HTML5Window
 						event.stopPropagation();
 					}
 
-					parent.onMouseUp.dispatch(x, y, event.button);
+					parent.onMouseUp.dispatch(x, y, event.button, event.detail);
 
 					if (parent.onMouseUp.canceled && event.cancelable)
 					{

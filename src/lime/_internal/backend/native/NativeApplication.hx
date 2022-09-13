@@ -802,7 +802,7 @@ class NativeApplication
 
 	public function clone():MouseEventInfo
 	{
-		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY);
+		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount);
 	}
 }
 
