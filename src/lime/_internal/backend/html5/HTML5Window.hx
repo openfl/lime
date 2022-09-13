@@ -76,6 +76,8 @@ class HTML5Window
 	private var textInputRect:Rectangle;
 	private var unusedTouchesPool = new List<Touch>();
 
+	private var __focusPending:Bool;
+
 	public function new(parent:Window)
 	{
 		this.parent = parent;
@@ -340,6 +342,19 @@ class HTML5Window
 
 	public function focus():Void {}
 
+	private function focusTextInput():Void
+	{
+		// Avoid changing focus multiple times per frame.
+		if (__focusPending) return;
+		__focusPending = true;
+
+		Timer.delay(function()
+		{
+			__focusPending = false;
+			if (textInputEnabled) textInput.focus();
+		}, 20);
+	}
+
 	public function getCursor():MouseCursor
 	{
 		return cursor;
@@ -462,10 +477,7 @@ class HTML5Window
 		{
 			if (event.relatedTarget == null || isDescendent(cast event.relatedTarget))
 			{
-				Timer.delay(function()
-				{
-					if (textInputEnabled) textInput.focus();
-				}, 20);
+				focusTextInput();
 			}
 		}
 	}
@@ -929,6 +941,10 @@ class HTML5Window
 		if (Browser.document.queryCommandEnabled("copy"))
 		{
 			Browser.document.execCommand("copy");
+		}
+		if (textInputEnabled)
+		{
+			focusTextInput();
 		}
 	}
 

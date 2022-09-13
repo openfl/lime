@@ -260,7 +260,7 @@ class Application extends Module
 		@param	y	The current y coordinate of the mouse
 		@param	button	The ID of the mouse button that was pressed
 	**/
-	public function onMouseDown(x:Float, y:Float, button:MouseButton):Void {}
+	public function onMouseDown(x:Float, y:Float, button:MouseButton, clickCount:Int):Void {}
 
 	/**
 		Called when a mouse move event is fired on the primary window
@@ -282,7 +282,7 @@ class Application extends Module
 		@param	y	The current y coordinate of the mouse
 		@param	button	The ID of the button that was released
 	**/
-	public function onMouseUp(x:Float, y:Float, button:MouseButton):Void {}
+	public function onMouseUp(x:Float, y:Float, button:MouseButton, clickCount:Int):Void {}
 
 	/**
 		Called when a mouse wheel event is fired on the primary window

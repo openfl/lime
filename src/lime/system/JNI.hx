@@ -367,7 +367,7 @@ class JNIMethod
 	```
 **/
 // Haxe 3 can't parse "target.threaded" inside parentheses.
-#if !lime_doc_gen
+#if !doc_gen
 #if target.threaded
 @:autoBuild(lime.system.JNI.JNISafetyTools.build())
 #elseif (cpp || neko)
@@ -376,7 +376,7 @@ class JNIMethod
 #end
 interface JNISafety {}
 
-#if !lime_doc_gen
+#if !doc_gen
 class JNISafetyTools
 {
 	#if target.threaded
