@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import haxe.Int64;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
@@ -335,10 +336,10 @@ class NativeApplication
 			switch (mouseEventInfo.type)
 			{
 				case MOUSE_DOWN:
-					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button, mouseEventInfo.clickCount);
 
 				case MOUSE_UP:
-					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button, mouseEventInfo.clickCount);
 
 				case MOUSE_MOVE:
 					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
@@ -779,6 +780,7 @@ class NativeApplication
 @:keep /*private*/ class MouseEventInfo
 {
 	public var button:Int;
+	public var clickCount:Int;
 	public var movementX:Float;
 	public var movementY:Float;
 	public var type:MouseEventType;
@@ -786,7 +788,7 @@ class NativeApplication
 	public var x:Float;
 	public var y:Float;
 
-	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0)
+	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0)
 	{
 		this.type = type;
 		this.windowID = 0;
@@ -795,6 +797,7 @@ class NativeApplication
 		this.button = button;
 		this.movementX = movementX;
 		this.movementY = movementY;
+		this.clickCount = clickCount;
 	}
 
 	public function clone():MouseEventInfo
