@@ -77,13 +77,14 @@ namespace lime {
 				MouseEvent* eventObject = (MouseEvent*)MouseEvent::eventObject->Get ();
 
 				eventObject->button = event->button;
-				eventObject->clickCount = event->clickCount;
 				eventObject->movementX = event->movementX;
 				eventObject->movementY = event->movementY;
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;
 				eventObject->x = event->x;
 				eventObject->y = event->y;
+				eventObject->clickCount = event->clickCount;
+
 
 			}
 

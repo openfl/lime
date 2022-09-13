@@ -803,7 +803,7 @@ class HTML5Window
 
 				if (touch == primaryTouch)
 				{
-					parent.onMouseDown.dispatch(x, y, 0);
+					parent.onMouseDown.dispatch(x, y, 0, event.detail);
 				}
 			}
 			else
@@ -839,7 +839,7 @@ class HTML5Window
 
 							if (touch == primaryTouch)
 							{
-								parent.onMouseUp.dispatch(x, y, 0);
+								parent.onMouseUp.dispatch(x, y, 0, event.detail);
 								primaryTouch = null;
 							}
 

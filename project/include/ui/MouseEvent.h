@@ -24,13 +24,13 @@ namespace lime {
 
 		hl_type* t;
 		int button;
-		int clickCount;
 		double movementX;
 		double movementY;
 		MouseEventType type;
 		int windowID;
 		double x;
 		double y;
+		int clickCount;
 
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;

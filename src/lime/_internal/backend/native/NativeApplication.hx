@@ -780,13 +780,14 @@ class NativeApplication
 @:keep /*private*/ class MouseEventInfo
 {
 	public var button:Int;
-	public var clickCount:Int;
 	public var movementX:Float;
 	public var movementY:Float;
 	public var type:MouseEventType;
 	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
+	public var clickCount:Int;
+
 
 	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0)
 	{
