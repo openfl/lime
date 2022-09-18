@@ -67,10 +67,10 @@ class Window
 	public var onLeave(default, null) = new Event<Void->Void>();
 	public var onMaximize(default, null) = new Event<Void->Void>();
 	public var onMinimize(default, null) = new Event<Void->Void>();
-	public var onMouseDown(default, null) = new Event<Float->Float->MouseButton->Int->Void>();
+	public var onMouseDown(default, null) = new Event<Float->Float->MouseButton->Void>();
 	public var onMouseMove(default, null) = new Event<Float->Float->Void>();
 	public var onMouseMoveRelative(default, null) = new Event<Float->Float->Void>();
-	public var onMouseUp(default, null) = new Event<Float->Float->Int->Int->Void>();
+	public var onMouseUp(default, null) = new Event<Float->Float->Int->Void>();
 	public var onMouseWheel(default, null) = new Event<Float->Float->MouseWheelMode->Void>();
 	public var onMove(default, null) = new Event<Float->Float->Void>();
 	public var onRender(default, null) = new Event<RenderContext->Void>();
@@ -91,6 +91,10 @@ class Window
 	public var width(get, set):Int;
 	public var x(get, set):Int;
 	public var y(get, set):Int;
+
+	@:allow(openfl.display.Stage)
+	@:allow(lime.app.Application)
+	private var clickCount:Int = 0;
 
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
