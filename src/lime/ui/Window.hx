@@ -94,6 +94,7 @@ class Window
 
 	@:allow(openfl.display.Stage)
 	@:allow(lime.app.Application)
+	@:allow(lime._internal.backend.html5.HTML5Window)
 	private var clickCount:Int = 0;
 
 	@:noCompletion private var __attributes:WindowAttributes;
