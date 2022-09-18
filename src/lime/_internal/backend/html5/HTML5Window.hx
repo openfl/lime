@@ -613,7 +613,7 @@ class HTML5Window
 						Browser.window.addEventListener("mouseup", handleMouseEvent);
 					}
 
-					window.clickCount = event.detail;
+					parent.clickCount = event.detail;
 					parent.onMouseDown.dispatch(x, y, event.button);
 
 					if (parent.onMouseDown.canceled && event.cancelable)
@@ -651,7 +651,7 @@ class HTML5Window
 						event.stopPropagation();
 					}
 
-					window.clickCount = event.detail;
+					parent.clickCount = event.detail;
 					parent.onMouseUp.dispatch(x, y, event.button);
 
 					if (parent.onMouseUp.canceled && event.cancelable)
@@ -805,7 +805,8 @@ class HTML5Window
 
 				if (touch == primaryTouch)
 				{
-					parent.onMouseDown.dispatch(x, y, 0, event.detail);
+					parent.clickCount = event.detail;
+					parent.onMouseDown.dispatch(x, y, 0);
 				}
 			}
 			else
@@ -841,7 +842,8 @@ class HTML5Window
 
 							if (touch == primaryTouch)
 							{
-								parent.onMouseUp.dispatch(x, y, 0, event.detail);
+								parent.clickCount = event.detail;
+								parent.onMouseUp.dispatch(x, y, 0);
 								primaryTouch = null;
 							}
 
