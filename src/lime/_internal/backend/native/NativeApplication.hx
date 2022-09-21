@@ -346,11 +346,9 @@ class NativeApplication
 				case MOUSE_MOVE:
 					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
 					window.onMouseMoveRelative.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY);
-					window.clickCount = mouseEventInfo.clickCount;
 
 				case MOUSE_WHEEL:
 					window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
-					window.clickCount = mouseEventInfo.clickCount;
 				default:
 			}
 		}
