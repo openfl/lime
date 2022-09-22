@@ -57,6 +57,9 @@ class Window
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
 	public var onDropFile(default, null) = new Event<String->Void>();
+	public var onDropText(default, null) = new Event<String->Void>();
+	public var onDropStart(default, null) = new Event<Void->Void>();
+	public var onDropEnd(default, null) = new Event<Void->Void>();
 	public var onEnter(default, null) = new Event<Void->Void>();
 	public var onExpose(default, null) = new Event<Void->Void>();
 	public var onFocusIn(default, null) = new Event<Void->Void>();
