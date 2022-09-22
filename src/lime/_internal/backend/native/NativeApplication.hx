@@ -679,6 +679,9 @@ class NativeApplication
 @:enum private abstract DropEventType(Int)
 {
 	var DROP_FILE = 0;
+	var DROP_TEXT = 1;
+	var DROP_BEGIN = 2;
+	var DROP_COMPLETE = 3;
 }
 
 @:keep /*private*/ class GamepadEventInfo
