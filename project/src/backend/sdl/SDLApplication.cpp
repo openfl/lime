@@ -365,10 +365,13 @@ namespace lime {
 					break;
 				case SDL_DROPTEXT:
 					dropEvent.type = DROP_TEXT;
+					break;
 				case SDL_DROPBEGIN:
 					dropEvent.type = DROP_BEGIN;
+					break;
 				case SDL_DROPCOMPLETE:
 					dropEvent.type = DROP_COMPLETE;
+					break;
 				default:
 					break;
 			}
