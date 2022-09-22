@@ -189,7 +189,7 @@ class NativeApplication
 		{
 			switch dropEventInfo.type {
 				case DROP_FILE: window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
-				case DROP_TEXT: window.onDropText.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
+				case DROP_TEXT: //window.onDropText.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
 				case DROP_BEGIN: window.onDropStart.dispatch();
 				case DROP_COMPLETE: window.onDropEnd.dispatch();
 			}
