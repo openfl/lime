@@ -373,7 +373,7 @@ namespace lime {
 					break;
 			}
 
-			ropEvent.file = (vbyte*)event->drop.file;
+			dropEvent.file = (vbyte*)event->drop.file;
 
 			DropEvent::Dispatch (&dropEvent);
 			SDL_free (dropEvent.file);
