@@ -362,21 +362,23 @@ namespace lime {
 			{
 				case SDL_DROPFILE:
 					dropEvent.type = DROP_FILE;
+					dropEvent.file = (vbyte*)event->drop.file;
 					break;
 				case SDL_DROPTEXT:
 					dropEvent.type = DROP_TEXT;
+					dropEvent.file = (vbyte*)event->drop.file;
 					break;
 				case SDL_DROPBEGIN:
 					dropEvent.type = DROP_BEGIN;
+					dropEvent.file = 0;
 					break;
 				case SDL_DROPCOMPLETE:
 					dropEvent.type = DROP_COMPLETE;
+					dropEvent.file = 0;
 					break;
 				default:
 					break;
 			}
-
-			dropEvent.file = (vbyte*)event->drop.file;
 
 			DropEvent::Dispatch (&dropEvent);
 			SDL_free (dropEvent.file);
