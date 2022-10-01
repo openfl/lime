@@ -1,6 +1,5 @@
 package lime._internal.backend.native;
 
-import haxe.Int64;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
