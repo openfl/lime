@@ -789,7 +789,6 @@ class NativeApplication
 	public var y:Float;
 	public var clickCount:Int;
 
-
 	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0)
 	{
 		this.type = type;
