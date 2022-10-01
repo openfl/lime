@@ -805,7 +805,10 @@ class HTML5Window
 
 				if (touch == primaryTouch)
 				{
-					parent.clickCount = event.detail;
+					// touches shouldn't raise clickCounts value
+					// but they also indicate the end of a click sequence 
+					// (you expect click count to reset after you stop clicking with the mouse)
+					parent.clickCount = 0;
 					parent.onMouseDown.dispatch(x, y, 0);
 				}
 			}
@@ -842,7 +845,7 @@ class HTML5Window
 
 							if (touch == primaryTouch)
 							{
-								parent.clickCount = event.detail;
+								parent.clickCount = 0;
 								parent.onMouseUp.dispatch(x, y, 0);
 								primaryTouch = null;
 							}
