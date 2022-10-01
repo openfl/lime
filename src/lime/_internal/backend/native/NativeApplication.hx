@@ -335,12 +335,13 @@ class NativeApplication
 			switch (mouseEventInfo.type)
 			{
 				case MOUSE_DOWN:
-					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 					window.clickCount = mouseEventInfo.clickCount;
+					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 
 				case MOUSE_UP:
-					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 					window.clickCount = mouseEventInfo.clickCount;
+					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+
 
 				case MOUSE_MOVE:
 					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
