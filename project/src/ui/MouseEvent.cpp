@@ -85,7 +85,6 @@ namespace lime {
 				eventObject->y = event->y;
 				eventObject->clickCount = event->clickCount;
 
-
 			}
 
 			MouseEvent::callback->Call ();
