@@ -615,6 +615,7 @@ class HTML5Window
 
 					parent.clickCount = event.detail;
 					parent.onMouseDown.dispatch(x, y, event.button);
+					parent.clickCount = 0;
 
 					if (parent.onMouseDown.canceled && event.cancelable)
 					{
@@ -653,6 +654,7 @@ class HTML5Window
 
 					parent.clickCount = event.detail;
 					parent.onMouseUp.dispatch(x, y, event.button);
+					parent.clickCount = 0;
 
 					if (parent.onMouseUp.canceled && event.cancelable)
 					{
