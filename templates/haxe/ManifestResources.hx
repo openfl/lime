@@ -1,6 +1,7 @@
 package;
 
 import haxe.io.Bytes;
+import haxe.io.Path;
 import lime.utils.AssetBundle;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
@@ -60,6 +61,8 @@ import sys.FileSystem;
 			rootPath = "";
 			#elseif console
 			rootPath = lime.system.System.applicationDirectory;
+			#elseif sys
+			rootPath = Path.directory(Sys.programPath()) + "/";
 			#else
 			rootPath = "./";
 			#end
