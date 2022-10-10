@@ -33,6 +33,7 @@ namespace lime {
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
 			virtual bool GetMouseLock ();
+			virtual float GetOpacity ();
 			virtual double GetScale ();
 			virtual bool GetTextInputEnabled ();
 			virtual int GetWidth ();
@@ -49,12 +50,12 @@ namespace lime {
 			virtual bool SetMaximized (bool maximized);
 			virtual bool SetMinimized (bool minimized);
 			virtual void SetMouseLock (bool mouseLock);
+			virtual void SetOpacity (float opacity);
 			virtual bool SetResizable (bool resizable);
 			virtual void SetTextInputEnabled (bool enabled);
 			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
 			virtual void WarpMouse (int x, int y);
-
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;

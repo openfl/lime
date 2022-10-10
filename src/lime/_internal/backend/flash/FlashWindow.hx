@@ -572,6 +572,11 @@ class FlashWindow
 		return false;
 	}
 
+	public function getOpacity():Float
+	{
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		return textInputEnabled;
@@ -612,6 +617,8 @@ class FlashWindow
 	}
 
 	public function setMouseLock(value:Bool):Void {}
+
+	public function setOpacity(value:Float):Void {}
 
 	public function setResizable(value:Bool):Bool
 	{

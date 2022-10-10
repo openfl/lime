@@ -3350,6 +3350,22 @@ namespace lime {
 	}
 
 
+	double lime_window_get_opacity (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return (float)targetWindow->GetOpacity ();
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_window_get_opacity) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return (float)targetWindow->GetOpacity ();
+
+	}
+
+
 	double lime_window_get_scale (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3632,6 +3648,22 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->SetMouseLock (mouseLock);
+
+	}
+
+
+	void lime_window_set_opacity (value window, double opacity) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetOpacity ((float)opacity);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_opacity) (HL_CFFIPointer* window, double opacity) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetOpacity ((float)opacity);
 
 	}
 
@@ -3951,6 +3983,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
+	DEFINE_PRIME1 (lime_window_get_opacity);
+	DEFINE_PRIME2v (lime_window_set_opacity);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
 
@@ -4135,6 +4169,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
 

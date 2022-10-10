@@ -80,6 +80,7 @@ class Window
 	public var onRestore(default, null) = new Event<Void->Void>();
 	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
 	public var onTextInput(default, null) = new Event<String->Void>();
+	public var opacity(get, set):Float;
 	public var parameters:Dynamic;
 	public var resizable(get, set):Bool;
 	public var scale(get, null):Float;
@@ -515,6 +516,17 @@ class Window
 	@:noCompletion private function set_mouseLock(value:Bool):Bool
 	{
 		__backend.setMouseLock(value);
+		return value;
+	}
+
+	@:noCompletion private function get_opacity():Float
+	{
+		return __backend.getOpacity();
+	}
+
+	@:noCompletion private function set_opacity(value:Float):Float
+	{
+		__backend.setOpacity(value);
 		return value;
 	}
 
