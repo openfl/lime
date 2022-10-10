@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "8.0.0",
+	"version": "8.1.0",
 	"releasenote": "Update HashLink, iOS and Android build fixes, and ongoing improvements",
 	"contributors": [
 		"singmajesty",
