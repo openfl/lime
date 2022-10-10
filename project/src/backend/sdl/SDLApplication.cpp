@@ -622,6 +622,7 @@ namespace lime {
 					mouseEvent.button = event->button.button - 1;
 					mouseEvent.x = event->button.x;
 					mouseEvent.y = event->button.y;
+					mouseEvent.clickCount = event->button.clicks;
 					break;
 
 				case SDL_MOUSEBUTTONUP:
@@ -632,6 +633,7 @@ namespace lime {
 					mouseEvent.button = event->button.button - 1;
 					mouseEvent.x = event->button.x;
 					mouseEvent.y = event->button.y;
+					mouseEvent.clickCount = event->button.clicks;
 					break;
 
 				case SDL_MOUSEWHEEL:

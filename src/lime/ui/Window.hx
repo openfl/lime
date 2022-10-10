@@ -93,6 +93,11 @@ class Window
 	public var x(get, set):Int;
 	public var y(get, set):Int;
 
+	@:allow(openfl.display.Stage)
+	@:allow(lime.app.Application)
+	@:allow(lime._internal.backend.html5.HTML5Window)
+	private var clickCount:Int = 0;
+
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
