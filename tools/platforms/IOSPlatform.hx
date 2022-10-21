@@ -734,7 +734,8 @@ class IOSPlatform extends PlatformTarget
 						#if (lime && lime_cffi && !macro)
 						Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 
-						var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+						var background = project.window.background != null ? project.window.background & 0xFFFFFF : 0x000000;
+						var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | background);
 						var bytes = image.encode(PNG);
 
 						File.saveBytes(imagePath, bytes);
