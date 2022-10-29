@@ -57,7 +57,6 @@
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
 	url = https://git.code.sf.net/p/tinyfiledialogs/code
-	shallow = true
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
 	url = https://github.com/SpartanJ/efsw
@@ -81,3 +80,4 @@
 [submodule "project/lib/hashlink"]
 	path = project/lib/hashlink
 	url = https://github.com/HaxeFoundation/hashlink
+	shallow = true
