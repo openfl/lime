@@ -56,7 +56,8 @@
 	shallow = true
 [submodule "project/lib/tinyfiledialogs"]
 	path = project/lib/tinyfiledialogs
-	url = https://git.code.sf.net/p/tinyfiledialogs/code
+	url = https://github.com/openfl/libtinyfiledialogs
+	shallow = true
 [submodule "project/lib/efsw"]
 	path = project/lib/efsw
 	url = https://github.com/SpartanJ/efsw
