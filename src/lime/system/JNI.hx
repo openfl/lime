@@ -48,52 +48,13 @@ class JNI
 
 	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic
 	{
-		switch (a.length)
-		{
-			case 0:
-				return method(jobject);
-			case 1:
-				return method(jobject, a[0]);
-			case 2:
-				return method(jobject, a[0], a[1]);
-			case 3:
-				return method(jobject, a[0], a[1], a[2]);
-			case 4:
-				return method(jobject, a[0], a[1], a[2], a[3]);
-			case 5:
-				return method(jobject, a[0], a[1], a[2], a[3], a[4]);
-			case 6:
-				return method(jobject, a[0], a[1], a[2], a[3], a[4], a[5]);
-			case 7:
-				return method(jobject, a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
-			default:
-				return null;
-		}
+		a.insert(0, jobject);
+		return Reflect.callMethod(null, method, a);
 	}
 
 	public static function callStatic(method:Dynamic, a:Array<Dynamic>):Dynamic
 	{
-		switch (a.length)
-		{
-			case 0:
-				return method();
-			case 1:
-				return method(a[0]);
-			case 2:
-				return method(a[0], a[1]);
-			case 3:
-				return method(a[0], a[1], a[2]);
-			case 4:
-				return method(a[0], a[1], a[2], a[3]);
-			case 5:
-				return method(a[0], a[1], a[2], a[3], a[4]);
-			case 6:
-				return method(a[0], a[1], a[2], a[3], a[4], a[5]);
-			case 7:
-				return method(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
-			default:
-				return null;
-		}
+		return Reflect.callMethod(null, method, a);
 	}
 
 	public static function createMemberField(className:String, memberName:String, signature:String):JNIMemberField
