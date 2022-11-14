@@ -261,9 +261,7 @@ class System
 
 	public static function getTimer():Int
 	{
-		#if (kha && !macro)
-		return Std.int(kha.System.time * 1000);
-		#elseif flash
+		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		return Std.int(Browser.window.performance.now());

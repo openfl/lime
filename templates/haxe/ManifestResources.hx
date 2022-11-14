@@ -73,17 +73,6 @@ import sys.FileSystem;
 
 		var data, manifest, library, bundle;
 
-		#if kha
-
-		::manifest::
-		library = AssetLibrary.fromManifest (manifest);
-		Assets.registerLibrary ("::library::", library);
-
-		if (library != null) preloadLibraries.push (library);
-		else preloadLibraryNames.push ("::library::");
-
-		#else
-
 		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
@@ -101,19 +90,10 @@ import sys.FileSystem;
 		else preloadLibraryNames.push ("::name::");
 		::end::::end::
 
-		#end
-
 	}
 
 
 }
-
-
-#if kha
-
-::images::
-
-#else
 
 #if !display
 #if flash
@@ -150,8 +130,6 @@ import sys.FileSystem;
 #end
 
 #end
-#end
-
 #end
 
 #end
