@@ -459,8 +459,8 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.VIBRATE",
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
-		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "5.6.3");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "3.5.1");
+		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "7.5.1");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "7.3.1");
 
 		context.ANDROID_LIBRARY_PROJECTS = [];
 
