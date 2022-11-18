@@ -633,9 +633,7 @@ class Application extends Module
 	}
 }
 
-#if kha
-@:noCompletion private typedef ApplicationBackend = lime._internal.backend.kha.KhaApplication;
-#elseif air
+#if air
 @:noCompletion private typedef ApplicationBackend = lime._internal.backend.air.AIRApplication;
 #elseif flash
 @:noCompletion private typedef ApplicationBackend = lime._internal.backend.flash.FlashApplication;

@@ -1287,6 +1287,13 @@ namespace lime {
 
 	}
 
+	static int seek_callback (void *userp, curl_off_t offset, int origin) {
+		if (origin == SEEK_SET)  {
+			readBytesPosition[userp] = offset;
+			return CURL_SEEKFUNC_OK;
+		}
+		return CURL_SEEKFUNC_CANTSEEK;
+	}
 
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 
@@ -1634,6 +1641,9 @@ namespace lime {
 				readBytesPosition[handle] = 0;
 				readBytesRoot[handle] = new ValuePointer (bytes);
 
+				// seek function is needed to support redirects
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKFUNCTION, seek_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKDATA, handle);
 				code = curl_easy_setopt (easy_handle, CURLOPT_READFUNCTION, read_callback);
 				curl_easy_setopt (easy_handle, CURLOPT_READDATA, handle);
 
@@ -2061,6 +2071,8 @@ namespace lime {
 				readBytesPosition[handle] = 0;
 				readBytesRoot[handle] = new ValuePointer ((vobj*)bytes);
 
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKFUNCTION, seek_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKDATA, handle);
 				code = curl_easy_setopt (easy_handle, CURLOPT_READFUNCTION, read_callback);
 				curl_easy_setopt (easy_handle, CURLOPT_READDATA, handle);
 
