@@ -289,8 +289,8 @@ class AIRHelper
 				System.runCommand("", "killall", ["iPhone Simulator"], true, true);
 			}
 
-			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt",
-				["-uninstallApp"].concat(args).concat(["-appid", project.meta.packageName]), true, true);
+//			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt",
+//				["-uninstallApp"].concat(args).concat(["-appid", project.meta.packageName]), true, true);
 			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-installApp"].concat(args).concat(["-package",
 				FileSystem.fullPath(workingDirectory)
 				+ "/"
