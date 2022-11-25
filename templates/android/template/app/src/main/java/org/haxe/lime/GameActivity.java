@@ -38,7 +38,11 @@ public class GameActivity extends SDLActivity {
 		if (metrics == null) {
 
 			metrics = new DisplayMetrics ();
-			Extension.mainActivity.getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+				Extension.mainActivity.getWindowManager ().getDefaultDisplay ().getRealMetrics (metrics);
+			} else {
+				Extension.mainActivity.getWindowManager ().getDefaultDisplay ().getMetrics (metrics);
+			}
 
 		}
 
