@@ -17,7 +17,7 @@ Lime includes code from several other C/C++ libraries, listed below. Lime prefer
 - [**Ogg**](https://www.xiph.org/ogg/) | [primary repo](https://github.com/xiph/ogg)
 - [**OpenAL Soft**](https://openal-soft.org/) | [primary repo](https://github.com/kcat/openal-soft)
 - [**Pixman**](http://pixman.org/) | [primary repo](https://gitlab.freedesktop.org/pixman/pixman) | [GitHub mirror](https://github.com/freedesktop/pixman)
-- [**libpng**](http://www.libpng.org/pub/png/libpng.html) | [primary repo](https://sourceforge.net/p/libpng/code)
+- [**libpng**](http://www.libpng.org/pub/png/libpng.html) | [primary repo](https://sourceforge.net/p/libpng/code) | [GitHub mirror](https://github.com/glennrp/libpng)[^1]
 - [**SDL**](https://www.libsdl.org/) | [primary repo](https://github.com/libsdl-org/SDL)
 - [**tiny file dialogs**](https://sourceforge.net/projects/tinyfiledialogs/) | [primary repo](https://sourceforge.net/p/tinyfiledialogs/code) | [unofficial GitHub mirror](https://github.com/openfl/libtinyfiledialogs)[^1]
 - [**Vorbis**](https://www.xiph.org/vorbis/) | [primary repo](https://github.com/xiph/vorbis)
@@ -25,4 +25,4 @@ Lime includes code from several other C/C++ libraries, listed below. Lime prefer
 - [**libwebm**](https://www.webmproject.org/about/) | [primary repo](https://chromium.googlesource.com/webm/libwebm) | [GitHub mirror](https://github.com/webmproject/libwebm)
 - [**zlib**](https://zlib.net/) | [primary repo](https://github.com/madler/zlib)
 
-[^1]: Attempting to make a shallow clone of tiny file dialogs' SourceForge repo (as GitHub Actions does) usually produces the error "Server does not allow request for unadvertised object." Only the most recent commit is "advertised," and all others cause the error. As long as this is the case, Lime will use the unofficial mirror as a workaround.
+[^1]: Attempting to make a shallow clone of a SourceForge repo (as GitHub Actions does) usually produces the error "Server does not allow request for unadvertised object." Only the most recent commit is "advertised," and all others cause the error. As long as this is the case, Lime will have to use GitHub mirrors of SourceForge repos.

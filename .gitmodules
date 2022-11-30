@@ -28,7 +28,7 @@
 	shallow = true
 [submodule "project/lib/png"]
 	path = project/lib/png
-	url = https://git.code.sf.net/p/libpng/code
+	url = https://github.com/glennrp/libpng
 	shallow = true
 [submodule "project/lib/jpeg"]
 	path = project/lib/jpeg
