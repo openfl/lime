@@ -1072,6 +1072,7 @@ class CommandLineTools
 				Log.println("  \x1b[1m--haxelib\x1b[0;3m=value\x1b[0m -- Add an additional <haxelib/> value");
 				Log.println("  \x1b[1m--haxelib-\x1b[0;3mname=value\x1b[0m -- Override the path to a haxelib");
 				Log.println("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source/> value");
+				Log.println("  \x1b[1m--template\x1b[0;3m=value\x1b[0m -- Add an additional <template/> value");
 				Log.println("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate/> setting");
 			}
 

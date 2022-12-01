@@ -1478,6 +1478,11 @@ class ProjectXMLParser extends HXProject
 							icon.height = Std.parseInt(substitute(element.att.height));
 						}
 
+						if (element.has.priority)
+						{
+							icon.priority = Std.parseInt(substitute(element.att.priority));
+						}
+
 						icons.push(icon);
 
 					case "source", "classpath":

@@ -277,11 +277,11 @@ class IconHelper
 
 	public static function findMatch(icons:Array<Icon>, width:Int, height:Int):Icon
 	{
-		var match = null;
+		var match:Icon = null;
 
 		for (icon in icons)
 		{
-			if ((icon.width == 0 && icon.height == 0) || (icon.width == width && icon.height == height))
+			if (icon.width == width && icon.height == height && (match == null || match.priority <= icon.priority))
 			{
 				match = icon;
 			}
@@ -290,39 +290,43 @@ class IconHelper
 		return match;
 	}
 
-	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int):Icon
+	public static function findNearestMatch(icons:Array<Icon>, width:Int, height:Int, ?acceptSmaller:Bool = false):Icon
 	{
-		var match = null;
+		var match:Icon = null;
+		var matchDifference = Math.POSITIVE_INFINITY;
 
 		for (icon in icons)
 		{
-			if (icon.width > width / 2 && icon.height > height / 2)
+			var iconDifference = icon.width - width + icon.height - height;
+
+			// If size is unspecified, accept it as an almost-perfect match
+			if (icon.width == 0 && icon.height == 0)
 			{
-				if (match == null)
-				{
-					match = icon;
-				}
-				else
-				{
-					if (icon.width > match.width && icon.height > match.height)
-					{
-						if (match.width < width || match.height < height)
-						{
-							match = icon;
-						}
-					}
-					else
-					{
-						if (icon.width > width && icon.height > height)
-						{
-							match = icon;
-						}
-					}
-				}
+				iconDifference = 1;
+			}
+
+			if (iconDifference < 0 && !acceptSmaller)
+			{
+				continue;
+			}
+
+			if (Math.abs(iconDifference) < Math.abs(matchDifference)
+				|| iconDifference == matchDifference && icon.priority >= match.priority)
+			{
+				match = icon;
+				matchDifference = iconDifference;
 			}
 		}
 
-		return match;
+		if (match == null && !acceptSmaller)
+		{
+			// Try again but accept any icon
+			return findNearestMatch(icons, width, height, true);
+		}
+		else
+		{
+			return match;
+		}
 	}
 
 	private static function getIconImage(icons:Array<Icon>, width:Int, height:Int,
