@@ -142,11 +142,6 @@ class WindowsPlatform extends PlatformTarget
 		{
 			targetType = "neko";
 		}
-		else if (project.targetFlags.exists("hl"))
-		{
-			targetType = "hl";
-			is64 = !project.flags.exists("32");
-		}
 		else if (project.targetFlags.exists("cppia"))
 		{
 			targetType = "cppia";
@@ -168,9 +163,10 @@ class WindowsPlatform extends PlatformTarget
 		{
 			targetType = "winrt";
 		}
-		else if (project.target != (cast System.hostPlatform))
+		else if (project.targetFlags.exists("hl") || project.target != (cast System.hostPlatform))
 		{
 			targetType = "hl";
+			is64 = !project.flags.exists("32");
 		}
 		else
 		{

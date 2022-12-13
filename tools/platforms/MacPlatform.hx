@@ -134,11 +134,6 @@ class MacPlatform extends PlatformTarget
 		{
 			targetType = "neko";
 		}
-		else if (project.targetFlags.exists("hl"))
-		{
-			targetType = "hl";
-			is64 = true;
-		}
 		else if (project.targetFlags.exists("java"))
 		{
 			targetType = "java";
@@ -151,9 +146,10 @@ class MacPlatform extends PlatformTarget
 		{
 			targetType = "cs";
 		}
-		else if (project.target != (cast System.hostPlatform))
+		else if (project.targetFlags.exists("hl") || project.target != (cast System.hostPlatform))
 		{
 			targetType = "hl";
+			is64 = true;
 		}
 		else
 		{
