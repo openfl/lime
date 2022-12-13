@@ -1557,6 +1557,12 @@ class CommandLineTools
 			case "mac", "macos":
 				target = Platform.MAC;
 				overrides.haxedefs.set("macos", "");
+			case "windows":
+				target = Platform.WINDOWS;
+				overrides.haxedefs.set("windows", "");
+			case "linux":
+				target = Platform.LINUX;
+				overrides.haxedefs.set("linux", "");
 
 			case "rpi", "raspberrypi":
 				target = Platform.LINUX;
