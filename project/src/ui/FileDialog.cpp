@@ -95,7 +95,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? numFilters : 0, filter ? filters : NULL, NULL, 0);
 
-		delete filters;
+		delete[] filters;
 
 		if (path && std::wcslen(path) > 0) {
 
@@ -133,7 +133,7 @@ namespace lime {
 
 		const char* path = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? numFilters : 0, _filter ? filters : NULL, NULL, 0);
 
-		delete filters;
+		delete[] filters;
 
 		if (_title) delete _title;
 		if (_filter) delete _filter;
@@ -183,7 +183,7 @@ namespace lime {
 
 		const wchar_t* paths = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? numFilters : 0, filter ? filters : NULL, NULL, 1);
 
-		delete filters;
+		delete[] filters;
 
 		if (paths) {
 
@@ -220,7 +220,7 @@ namespace lime {
 
 		const char* paths = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? numFilters : 0, _filter ? filters : NULL, NULL, 1);
 
-		delete filters;
+		delete[] filters;
 
 		if (_title) delete _title;
 		if (_filter) delete _filter;
