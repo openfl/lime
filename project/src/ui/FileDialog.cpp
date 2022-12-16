@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
 
 #include <tinyfiledialogs.h>
 
@@ -71,10 +72,30 @@ namespace lime {
 
 		#ifdef HX_WINDOWS
 
-		std::wstring temp (L"*.");
-		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
+		std::vector<std::wstring> filters_vec;
+		if (filter) {
+			std::wstring temp (L"*.");
+			std::wstring line;
+			std::wstringstream ss(*filter);
+			while(std::getline(ss, line, L',')) {
+				filters_vec.push_back(temp + line);
+			}
+		}
 
-		const wchar_t* path = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 0);
+		const int numFilters = filter ? filters_vec.size() : 1;
+		const wchar_t **filters = new const wchar_t*[numFilters];
+		if (numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<wchar_t*>(filters_vec[index].c_str());
+			}
+		}
+		else {
+			filters[0] = NULL;
+		}
+
+		const wchar_t* path = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? numFilters : 0, filter ? filters : NULL, NULL, 0);
+
+		delete filters;
 
 		if (path && std::wcslen(path) > 0) {
 
@@ -125,10 +146,30 @@ namespace lime {
 
 		#ifdef HX_WINDOWS
 
-		std::wstring temp (L"*.");
-		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
+		std::vector<std::wstring> filters_vec;
+		if (filter) {
+			std::wstring temp (L"*.");
+			std::wstring line;
+			std::wstringstream ss(*filter);
+			while(std::getline(ss, line, L',')) {
+				filters_vec.push_back(temp + line);
+			}
+		}
 
-		const wchar_t* paths = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 1);
+		const int numFilters = filter ? filters_vec.size() : 1;
+		const wchar_t **filters = new const wchar_t*[numFilters];
+		if (numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<wchar_t*>(filters_vec[index].c_str());
+			}
+		}
+		else {
+			filters[0] = NULL;
+		}
+
+		const wchar_t* paths = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? numFilters : 0, filter ? filters : NULL, NULL, 1);
+
+		delete filters;
 
 		if (paths) {
 
