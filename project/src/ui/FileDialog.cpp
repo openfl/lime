@@ -110,16 +110,30 @@ namespace lime {
 		std::string* _filter = wstring_to_string (filter);
 		std::string* _defaultPath = wstring_to_string (defaultPath);
 
-		const char* filters[] = { NULL };
-
+		std::vector<std::string> filters_vec;
 		if (_filter) {
-
-			_filter->insert (0, "*.");
-			filters[0] = _filter->c_str ();
-
+			std::string line;
+			std::stringstream ss(*_filter);
+			while(std::getline(ss, line, ',')) {
+				line.insert (0, "*.");
+				filters_vec.push_back(line);
+			}
 		}
 
-		const char* path = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? 1 : 0, _filter ? filters : NULL, NULL, 0);
+		const int numFilters = filter ? filters_vec.size() : 1;
+		const char **filters = new const char*[numFilters];
+		if (numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<char*>(filters_vec[index].c_str());
+			}
+		}
+		else {
+			filters[0] = NULL;
+		}
+
+		const char* path = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? numFilters : 0, _filter ? filters : NULL, NULL, 0);
+
+		delete filters;
 
 		if (_title) delete _title;
 		if (_filter) delete _filter;
@@ -183,16 +197,30 @@ namespace lime {
 		std::string* _filter = wstring_to_string (filter);
 		std::string* _defaultPath = wstring_to_string (defaultPath);
 
-		const char* filters[] = { NULL };
-
+		std::vector<std::string> filters_vec;
 		if (_filter) {
-
-			_filter->insert (0, "*.");
-			filters[0] = _filter->c_str ();
-
+			std::string line;
+			std::stringstream ss(*_filter);
+			while(std::getline(ss, line, ',')) {
+				line.insert (0, "*.");
+				filters_vec.push_back(line);
+			}
 		}
 
-		const char* paths = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? 1 : 0, _filter ? filters : NULL, NULL, 1);
+		const int numFilters = filter ? filters_vec.size() : 1;
+		const char **filters = new const char*[numFilters];
+		if (numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<char*>(filters_vec[index].c_str());
+			}
+		}
+		else {
+			filters[0] = NULL;
+		}
+
+		const char* paths = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? numFilters : 0, _filter ? filters : NULL, NULL, 1);
+
+		delete filters;
 
 		if (_title) delete _title;
 		if (_filter) delete _filter;
