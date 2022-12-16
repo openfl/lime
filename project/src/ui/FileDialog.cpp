@@ -84,12 +84,11 @@ namespace lime {
 
 		const int numFilters = filter ? filters_vec.size() : 1;
 		const wchar_t **filters = new const wchar_t*[numFilters];
-		if (numFilters > 0) {
+		if (filter && numFilters > 0) {
 			for (int index = 0; index < numFilters; index++) {
 				filters[index] = const_cast<wchar_t*>(filters_vec[index].c_str());
 			}
-		}
-		else {
+		} else {
 			filters[0] = NULL;
 		}
 
@@ -120,14 +119,13 @@ namespace lime {
 			}
 		}
 
-		const int numFilters = filter ? filters_vec.size() : 1;
+		const int numFilters = _filter ? filters_vec.size() : 1;
 		const char **filters = new const char*[numFilters];
-		if (numFilters > 0) {
+		if (_filter && numFilters > 0) {
 			for (int index = 0; index < numFilters; index++) {
 				filters[index] = const_cast<char*>(filters_vec[index].c_str());
 			}
-		}
-		else {
+		} else {
 			filters[0] = NULL;
 		}
 
@@ -172,12 +170,11 @@ namespace lime {
 
 		const int numFilters = filter ? filters_vec.size() : 1;
 		const wchar_t **filters = new const wchar_t*[numFilters];
-		if (numFilters > 0) {
+		if (filter && numFilters > 0) {
 			for (int index = 0; index < numFilters; index++) {
 				filters[index] = const_cast<wchar_t*>(filters_vec[index].c_str());
 			}
-		}
-		else {
+		} else {
 			filters[0] = NULL;
 		}
 
@@ -207,14 +204,13 @@ namespace lime {
 			}
 		}
 
-		const int numFilters = filter ? filters_vec.size() : 1;
+		const int numFilters = _filter ? filters_vec.size() : 1;
 		const char **filters = new const char*[numFilters];
-		if (numFilters > 0) {
+		if (_filter && numFilters > 0) {
 			for (int index = 0; index < numFilters; index++) {
 				filters[index] = const_cast<char*>(filters_vec[index].c_str());
 			}
-		}
-		else {
+		} else {
 			filters[0] = NULL;
 		}
 
