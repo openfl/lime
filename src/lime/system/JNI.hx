@@ -48,8 +48,7 @@ class JNI
 
 	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic
 	{
-		a.insert(0, jobject);
-		return Reflect.callMethod(null, method, a);
+		return Reflect.callMethod(null, method, [jobject].concat(a));
 	}
 
 	public static function callStatic(method:Dynamic, a:Array<Dynamic>):Dynamic
