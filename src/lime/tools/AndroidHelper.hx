@@ -395,6 +395,7 @@ class AndroidHelper
 
 	public static function uninstall(packageName:String, deviceID:String = null):Void
 	{
+		return;
 		var args = ["uninstall", packageName];
 
 		if (deviceID != null && deviceID != "")
