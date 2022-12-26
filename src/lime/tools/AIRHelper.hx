@@ -210,33 +210,35 @@ class AIRHelper
 		if (targetPlatform == ANDROID)
 		{
 			Sys.putEnv("AIR_NOANDROIDFLAIR", "true");
+
+            if(project.config.getString("air.android_package", "apk") == "aab"){		// build aab
+                args.push("-platformsdk");
+                args.push(project.defines.get("ANDROID_SDK"));
+
+                System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
+            } else {	// build apk x32 and/or x64
+                if(hasARM64)
+                    System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
+
+                if(hasARMV7 || project.architectures.length == 0){
+                    if(hasARM64){
+                        var x64Path = StringTools.replace(targetPath, project.app.file, project.app.file + "_x64");
+                        FileSystem.rename(workingDirectory + "/" + targetPath, workingDirectory + "/" + x64Path);
+                    }
+
+                    args.remove("-arch");
+                    args.remove("armv8");
+
+                    System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
+                }
+            }
 		}
 
 		if (targetPlatform == IOS)
 		{
 			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project));
-		}
 
-		if(project.config.getString("air.android_package", "apk") == "aab"){		// build aab
-			args.push("-platformsdk");
-			args.push(project.defines.get("ANDROID_SDK"));
-
-			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
-		} else {	// build apk x32 and/or x64
-			if(hasARM64)
-				System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
-
-			if(hasARMV7 || project.architectures.length == 0){
-				if(hasARM64){
-					var x64Path = StringTools.replace(targetPath, project.app.file, project.app.file + "_x64");
-					FileSystem.rename(workingDirectory + "/" + targetPath, workingDirectory + "/" + x64Path);
-				}
-
-				args.remove("-arch");
-				args.remove("armv8");
-
-				System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
-			}
+            System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
 		}
 
 		return targetPath + extension;
