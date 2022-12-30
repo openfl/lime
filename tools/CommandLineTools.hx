@@ -436,7 +436,7 @@ class CommandLineTools
 
 		var path = "";
 
-		if (FileSystem.exists("tools.n"))
+		if (FileSystem.exists("tools.hl"))
 		{
 			path = Path.combine(Sys.getCwd(), "../ndll/");
 		}
@@ -1974,7 +1974,7 @@ class CommandLineTools
 		{
 			var path = null;
 
-			if (FileSystem.exists("tools.n"))
+			if (FileSystem.exists("tools.hl"))
 			{
 				path = Path.combine(Sys.getCwd(), "../");
 			}

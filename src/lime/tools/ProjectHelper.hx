@@ -67,7 +67,7 @@ class ProjectHelper
 		{
 			var tools = Haxelib.pathOverrides.get("lime-tools");
 
-			return "neko " + tools + "/tools.n " + args.join(" ");
+			return "hl " + tools + "/tools.hl " + args.join(" ");
 		}
 		else
 		{

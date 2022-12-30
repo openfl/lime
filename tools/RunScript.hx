@@ -44,7 +44,7 @@ class RunScript
 
 			if (!FileSystem.exists(source))
 			{
-				var args = ["tools/tools.n", "rebuild", "lime", "-release", "-nocffi"];
+				var args = ["tools/tools.hl", "rebuild", "lime", "-release", "-nocffi"];
 
 				if (Log.verbose)
 				{
@@ -61,25 +61,25 @@ class RunScript
 					case "Windows":
 						if (System.hostPlatform == WINDOWS)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["windows", toolsDirectory]));
+							System.runCommand(limeDirectory, "hl", args.concat(["windows", toolsDirectory]));
 						}
 
 					case "Mac", "Mac64":
 						if (System.hostPlatform == MAC)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["mac", toolsDirectory]));
+							System.runCommand(limeDirectory, "hl", args.concat(["mac", toolsDirectory]));
 						}
 
 					case "Linux":
 						if (System.hostPlatform == LINUX && System.hostArchitecture != X64)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["linux", "-32", toolsDirectory]));
+							System.runCommand(limeDirectory, "hl", args.concat(["linux", "-32", toolsDirectory]));
 						}
 
 					case "Linux64":
 						if (System.hostPlatform == LINUX && System.hostArchitecture == X64)
 						{
-							System.runCommand(limeDirectory, "neko", args.concat(["linux", "-64", toolsDirectory]));
+							System.runCommand(limeDirectory, "hl", args.concat(["linux", "-64", toolsDirectory]));
 						}
 				}
 			}
@@ -199,12 +199,12 @@ class RunScript
 			}
 		}
 
-		if (!FileSystem.exists("tools/tools.n") || args.indexOf("-rebuild") > -1)
+		if (!FileSystem.exists("tools/tools.hl") || args.indexOf("-rebuild") > -1)
 		{
 			rebuildTools();
 		}
 
-		var args = ["tools/tools.n"].concat(args);
-		Sys.exit(runCommand("", "neko", args));
+		var args = ["tools/tools.hl"].concat(args);
+		Sys.exit(runCommand("", "hl", args));
 	}
 }

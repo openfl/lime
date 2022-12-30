@@ -1,5 +1,5 @@
 -main CommandLineTools
--neko tools.n
+-hl tools.hl
 -D lime-curl
 -D lime-cffi
 -D lime

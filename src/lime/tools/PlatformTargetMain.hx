@@ -55,7 +55,7 @@ class PlatformTargetMain
 
 		if (!runFromHaxelib)
 		{
-			if (FileSystem.exists("tools.n"))
+			if (FileSystem.exists("tools.hl"))
 			{
 				Haxelib.setOverridePath(new Haxelib("lime"), Path.combine(Sys.getCwd(), "../"));
 			}
