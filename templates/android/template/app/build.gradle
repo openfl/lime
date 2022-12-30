@@ -1,16 +1,22 @@
 import groovy.swing.SwingBuilder
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.border.EmptyBorder;
+import java.awt.GridBagLayout
+import java.awt.GridBagConstraints
+import javax.swing.border.EmptyBorder
 
 apply plugin: 'com.android.application'
 
 System.setProperty('java.awt.headless','false')
 
+//Uncomment to debug deprecation warnings.
+/* tasks.withType(JavaCompile) {
+	options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+} */
+
 android {
 	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-	
+	::if (ANDROID_GRADLE_PLUGIN>="4.0")::ndkPath '::ANDROID_NDK_ROOT_ESCAPED::'::end::
+
 	defaultConfig {
 		applicationId "::META_PACKAGE_NAME::"
 		minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
@@ -19,7 +25,7 @@ android {
 		versionName project.VERSION_NAME
 		::if (languages != null)::resConfigs ::foreach languages::"::__current__::", ::end::""::end::
 	}
-	
+
 	::if KEY_STORE::
 	signingConfigs {
 		if (project.KEY_STORE_PASSWORD == 'null') {
@@ -27,11 +33,11 @@ android {
 			keyStoreFile = keyStoreFile[keyStoreFile.length - 1]
 			project.KEY_STORE_PASSWORD = getPassword('\nPlease enter key password for ' + keyStoreFile + ':');
 		}
-		
+
 		if (project.KEY_STORE_ALIAS_PASSWORD == 'null') {
 			project.KEY_STORE_ALIAS_PASSWORD = getPassword("\nPlease enter key alias password for alias " + project.KEY_STORE_ALIAS + ":")
 		}
-		
+
 		release {
 			storeFile file(project.KEY_STORE)
 			storePassword project.KEY_STORE_PASSWORD
@@ -44,7 +50,7 @@ android {
 	if(signingFile.exists()) {
 		Properties signing = new Properties()
 		signing.load(new FileInputStream(signingFile))
-		
+
 		signingConfigs {
 			release {
 				storeFile file(signing["KEY_STORE"])
@@ -59,14 +65,14 @@ android {
 		}
 	}
 	::end::
-	
+
 	buildTypes {
 		release {
 			minifyEnabled false
 			signingConfig signingConfigs.release
 		}
 	}
-	
+
 	android.applicationVariants.all { variant ->
 		variant.outputs.all { output ->
 			if (outputFileName != null && outputFileName.endsWith('.apk')) {
@@ -77,8 +83,8 @@ android {
 }
 
 dependencies {
-	api fileTree(dir: 'libs', include: ['*.jar'])
-	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::api project(':deps:::name::')
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	::if (ANDROID_LIBRARY_PROJECTS)::::foreach (ANDROID_LIBRARY_PROJECTS)::implementation project(':deps:::name::')
 	::end::::end::
 }
 
@@ -97,11 +103,11 @@ def getPassword(message) {
 				show: true
 			) {
 				lookAndFeel('system')
-				
+
 				panel(border: new EmptyBorder(10, 10, 10, 10)) {
 					gridBagLayout()
 					def gbc = new GridBagConstraints();
-					
+
 					gbc.gridx = 0
 					gbc.gridy = 0
 					gbc.fill = GridBagConstraints.HORIZONTAL
@@ -113,10 +119,10 @@ def getPassword(message) {
 						'</body>' +
 						'</html>',
 						constraints: gbc)
-					
+
 					gbc.gridy = 1
 					input = passwordField(constraints: gbc)
-					
+
 					gbc.gridy = 2
 					gbc.fill = GridBagConstraints.NONE
 					gbc.insets = [0, 0, 0, 0]
