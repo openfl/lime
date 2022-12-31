@@ -1278,7 +1278,10 @@ class HXProject extends Script
 
 		if (keystore != null)
 		{
-			context.KEY_STORE = Path.tryFullPath(keystore.path);
+			if (keystore.path != null)
+			{
+				context.KEY_STORE = Path.tryFullPath(keystore.path);
+			}
 
 			if (keystore.password != null)
 			{
