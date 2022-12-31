@@ -20,6 +20,7 @@ project/vc*.pdb
 .idea/
 *.iml
 tools/*.n
+tools/*.hl
 tools/*.exe
 tools/obj
 haxedoc.xml
