@@ -9,4 +9,4 @@
 -lib hxp
 #-lib svg
 -D optional-cffi
--D no-inline
+#-D no-inline
