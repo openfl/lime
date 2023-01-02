@@ -7,6 +7,8 @@ import sys.FileSystem;
 
 class RunScript
 {
+	private static var hlBinary:String;
+
 	private static function rebuildTools(rebuildBinaries = true):Void
 	{
 		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
@@ -61,25 +63,25 @@ class RunScript
 					case "Windows":
 						if (System.hostPlatform == WINDOWS)
 						{
-							System.runCommand(limeDirectory, "hl", args.concat(["windows", toolsDirectory]));
+							System.runCommand(limeDirectory, hlBinary, args.concat(["windows", toolsDirectory]));
 						}
 
 					case "Mac", "Mac64":
 						if (System.hostPlatform == MAC)
 						{
-							System.runCommand(limeDirectory, "hl", args.concat(["mac", toolsDirectory]));
+							System.runCommand(limeDirectory, hlBinary, args.concat(["mac", toolsDirectory]));
 						}
 
 					case "Linux":
 						if (System.hostPlatform == LINUX && System.hostArchitecture != X64)
 						{
-							System.runCommand(limeDirectory, "hl", args.concat(["linux", "-32", toolsDirectory]));
+							System.runCommand(limeDirectory, hlBinary, args.concat(["linux", "-32", toolsDirectory]));
 						}
 
 					case "Linux64":
 						if (System.hostPlatform == LINUX && System.hostArchitecture == X64)
 						{
-							System.runCommand(limeDirectory, "hl", args.concat(["linux", "-64", toolsDirectory]));
+							System.runCommand(limeDirectory, hlBinary, args.concat(["linux", "-64", toolsDirectory]));
 						}
 				}
 			}
@@ -131,8 +133,61 @@ class RunScript
 		return result;
 	}
 
+	private static function findHLBinary():String
+	{
+		var parts = ["templates", "bin", "hl"];
+		var hostIndex = parts.length;
+		if (System.hostPlatform == WINDOWS)
+		{
+			parts.push("windows");
+			parts.push("hl.exe");
+		}
+		else if (System.hostPlatform == MAC)
+		{
+			parts.push("mac");
+			parts.push("hl");
+		}
+		else if (System.hostPlatform == LINUX)
+		{
+			parts.push("linux");
+			parts.push("hl");
+		}
+		else
+		{
+			return "hl";
+		}
+
+		var path = Path.join(parts);
+		if (FileSystem.exists(path))
+		{
+			return path;
+		}
+
+		if (System.hostArchitecture == X64)
+		{
+			parts[hostIndex] += "64";
+
+			if (FileSystem.exists(path = Path.join(parts)))
+			{
+				return path;
+			}
+		}
+
+		parts[hostIndex] = parts[hostIndex].charAt(0).toUpperCase()
+			+ parts[hostIndex].substr(1);
+
+		if (FileSystem.exists(path = Path.join(parts)))
+		{
+			return path;
+		}
+
+		return "hl";
+	}
+
 	public static function main()
 	{
+		hlBinary = findHLBinary();
+
 		var args = Sys.args();
 
 		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
@@ -205,6 +260,6 @@ class RunScript
 		}
 
 		var args = ["tools/tools.hl"].concat(args);
-		Sys.exit(runCommand("", "hl", args));
+		Sys.exit(runCommand("", hlBinary, args));
 	}
 }
