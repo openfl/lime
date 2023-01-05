@@ -95,11 +95,11 @@ jobs:
         run: |
           pushd project/lib/hashlink
           brew update
-          export HOMEBREW_BUNDLE_BREW_SKIP=python python@3.10
-          export HOMEBREW_BUNDLE_CASK_SKIP=python python@3.10
-          export HOMEBREW_BUNDLE_MAS_SKIP=python python@3.10
-          export HOMEBREW_BUNDLE_WHALEBREW_SKIP=python python@3.11
-          export HOMEBREW_BUNDLE_TAP_SKIP=python python@3.11
+          export HOMEBREW_BUNDLE_BREW_SKIP='python python@3.10'
+          export HOMEBREW_BUNDLE_CASK_SKIP='python python@3.10'
+          export HOMEBREW_BUNDLE_MAS_SKIP='python python@3.10'
+          export HOMEBREW_BUNDLE_WHALEBREW_SKIP='python python@3.11'
+          export HOMEBREW_BUNDLE_TAP_SKIP='python python@3.11'
           brew bundle
           popd
           haxelib install hxcpp --quiet
