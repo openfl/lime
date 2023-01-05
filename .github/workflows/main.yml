@@ -95,9 +95,9 @@ jobs:
         run: |
           pushd project/lib/hashlink
           brew update
-          rm /usr/local/bin/2to3*
-          rm /usr/local/bin/idle3*
-          rm /usr/local/bin/pydoc3*
+          # `brew bundle` is going to install these versions of python without specifying `--overwrite`
+          brew install --overwrite python@3.10
+          brew install --overwrite python@3.11
           brew bundle
           popd
           haxelib install hxcpp --quiet
