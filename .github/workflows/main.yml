@@ -94,9 +94,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           pushd project/lib/hashlink
-          rm /usr/local/bin/2to3*
-          rm /usr/local/bin/idle3*
-          brew update
+          brew update --force
           brew bundle
           popd
           haxelib install hxcpp --quiet
