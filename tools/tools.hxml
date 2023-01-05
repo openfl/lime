@@ -5,5 +5,3 @@
 -cp ../src
 -lib format
 -lib hxp
-#-lib svg
-#-D no-inline
