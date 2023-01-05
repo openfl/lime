@@ -95,6 +95,10 @@ jobs:
         run: |
           pushd project/lib/hashlink
           brew update
+          rm /usr/local/bin/2to3*
+          rm /usr/local/bin/idle3*
+          rm /usr/local/bin/pydoc3*
+          rm /usr/local/bin/python3*
           brew bundle
           popd
           haxelib install hxcpp --quiet
