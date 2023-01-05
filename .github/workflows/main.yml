@@ -94,6 +94,8 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           pushd project/lib/hashlink
+          rm /usr/local/bin/2to3
+          rm /usr/local/bin/2to3-3.11
           brew update
           brew bundle
           popd
