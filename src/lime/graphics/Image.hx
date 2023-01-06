@@ -1056,7 +1056,7 @@ class Image
 		@param	redMultiplier	A red multiplier to use when blitting
 		@param	greenMultiplier	A green multiplier to use when blitting
 		@param	blueMultiplier	A blue multiplier to use when blitting
-		@param	alphaMultiplier	A alpha multiplier to use when blitting
+		@param	alphaMultiplier	An alpha multiplier to use when blitting
 	**/
 	public function merge(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int,
 			alphaMultiplier:Int):Void
