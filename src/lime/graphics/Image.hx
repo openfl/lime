@@ -370,11 +370,7 @@ class Image
 			case FLASH:
 				var srcChannel = switch (sourceChannel)
 				{
-					case 
-				
-				
-				
-				: 1;
+					case RED: 1;
 					case GREEN: 2;
 					case BLUE: 4;
 					case ALPHA: 8;
