@@ -1126,7 +1126,8 @@ class HTML5Window
 			if (textInput == null)
 			{
 				textInput = cast Browser.document.createElement('input');
-				textInput.type = 'text';
+				// use password instead of text to avoid IME issues on Android
+				textInput.type = 'password';
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
 				textInput.style.color = "transparent";
