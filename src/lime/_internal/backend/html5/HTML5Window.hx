@@ -1178,6 +1178,10 @@ class HTML5Window
 		{
 			if (textInput != null)
 			{
+				// call blur() before removing the compositionend listener
+				// to ensure that incomplete IME input is committed
+				textInput.blur();
+
 				textInput.removeEventListener('input', handleInputEvent, true);
 				textInput.removeEventListener('blur', handleFocusEvent, true);
 				textInput.removeEventListener('cut', handleCutOrCopyEvent, true);
@@ -1186,7 +1190,6 @@ class HTML5Window
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
 
-				textInput.blur();
 			}
 		}
 
