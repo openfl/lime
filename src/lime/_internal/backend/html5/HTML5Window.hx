@@ -555,11 +555,13 @@ class HTML5Window
 
 	private function handleInputEvent(event:InputEvent):Void
 	{
+		if (imeCompositionActive)
+		{
+			return;
+		}
+
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
-
-		if (inputing) return;
-
 		if (textInput.value != dummyCharacter)
 		{
 			var value = StringTools.replace(textInput.value, dummyCharacter, "");
@@ -1201,16 +1203,16 @@ class HTML5Window
 		return textInputRect = value;
 	}
 
-	private var inputing = false;
+	private var imeCompositionActive = false;
 
 	public function handleCompositionstartEvent(e):Void
 	{
-		inputing = true;
+		imeCompositionActive = true;
 	}
 
 	public function handleCompositionendEvent(e):Void
 	{
-		inputing = false;
+		imeCompositionActive = false;
 		handleInputEvent(e);
 	}
 
