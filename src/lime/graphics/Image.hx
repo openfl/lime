@@ -994,7 +994,7 @@ class Image
 
 		return promise.future;
 		#else
-		return new Future<Image>(function() return fromBytes(bytes), true);
+		return Future.withEventualValue(fromBytes, bytes, MULTI_THREADED);
 		#end
 	}
 

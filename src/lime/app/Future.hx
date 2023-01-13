@@ -2,6 +2,7 @@ package lime.app;
 
 import lime.system.System;
 import lime.system.ThreadPool;
+import lime.system.WorkOutput;
 import lime.utils.Log;
 
 /**
@@ -66,34 +67,17 @@ import lime.utils.Log;
 	@:noCompletion private var __progressListeners:Array<Int->Int->Void>;
 
 	/**
-		Create a new `Future` instance
-		@param	work	(Optional) A function to execute
-		@param	async	(Optional) If a function is specified, whether to execute it asynchronously where supported
+		@param work 	Deprecated; use `Future.withEventualValue()` instead.
+		@param useThreads 	Deprecated; use `Future.withEventualValue()` instead.
 	**/
-	public function new(work:Void->T = null, async:Bool = false)
+	public function new(work:WorkFunction<Void->T> = null, useThreads:Bool = false)
 	{
 		if (work != null)
 		{
-			if (async)
-			{
-				var promise = new Promise<T>();
-				promise.future = this;
+			var promise = new Promise<T>();
+			promise.future = this;
 
-				FutureWork.queue({promise: promise, work: work});
-			}
-			else
-			{
-				try
-				{
-					value = work();
-					isComplete = true;
-				}
-				catch (e:Dynamic)
-				{
-					error = e;
-					isError = true;
-				}
-			}
+			FutureWork.run(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED, true);
 		}
 	}
 
@@ -104,9 +88,9 @@ import lime.utils.Log;
 	{
 		var promise = new Promise<T>();
 
-		onComplete.add(function(data) promise.complete(data), true);
-		if (onError != null) onError.add(function(error) promise.error(error), true);
-		if (onProgress != null) onProgress.add(function(progress, total) promise.progress(progress, total), true);
+		onComplete.add(promise.complete, true);
+		if (onError != null) onError.add(promise.error, true);
+		if (onProgress != null) onProgress.add(promise.progress, true);
 
 		return promise.future;
 	}
@@ -198,17 +182,6 @@ import lime.utils.Log;
 	**/
 	public function ready(waitTime:Int = -1):Future<T>
 	{
-		#if js
-		if (isComplete || isError)
-		{
-			return this;
-		}
-		else
-		{
-			Log.warn("Cannot block thread in JavaScript");
-			return this;
-		}
-		#else
 		if (isComplete || isError)
 		{
 			return this;
@@ -216,20 +189,34 @@ import lime.utils.Log;
 		else
 		{
 			var time = System.getTimer();
+			var prevTime = time;
 			var end = time + waitTime;
 
 			while (!isComplete && !isError && time <= end)
 			{
-				#if sys
-				Sys.sleep(0.01);
-				#end
+				if (FutureWork.activeJobs < 1)
+				{
+					Log.error('Cannot block for a Future without a "work" function.');
+					return this;
+				}
 
+				if (FutureWork.singleThreadPool != null && FutureWork.singleThreadPool.activeJobs > 0)
+				{
+					@:privateAccess FutureWork.singleThreadPool.__update(time - prevTime);
+				}
+				else
+				{
+					#if sys
+					Sys.sleep(0.01);
+					#end
+				}
+
+				prevTime = time;
 				time = System.getTimer();
 			}
 
 			return this;
 		}
-		#end
 	}
 
 	/**
@@ -301,7 +288,7 @@ import lime.utils.Log;
 
 	/**
 		Creates a `Future` instance which has finished with a completion value
-		@param	error	The completion value to set
+		@param	value	The completion value to set
 		@return	A new `Future` instance
 	**/
 	public static function withValue<T>(value:T):Future<T>
@@ -311,50 +298,200 @@ import lime.utils.Log;
 		future.value = value;
 		return future;
 	}
+
+	/**
+		Creates a `Future` instance which will asynchronously compute a value.
+
+		Once `work()` returns a non-null value, the `Future` will finish with that value.
+		If `work()` throws an error, the `Future` will finish with that error instead.
+		@param	work 	A function that computes a value of type `T`.
+		@param  state   An argument to pass to `work()`. As this may be used on another thread, the
+		main thread must not access or modify `state` until the `Future` finishes.
+		@param  mode 	Whether to use real threads as opposed to virtual threads. Virtual threads rely
+		on cooperative multitasking, meaning `work()` must return periodically to allow other code
+		enough time to run. In these cases, `work()` should return null to signal that it isn't finished.
+		@return	A new `Future` instance.
+		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
+	**/
+	public static function withEventualValue<T>(work:WorkFunction<State -> Null<T>>, state:State, mode:ThreadMode = #if html5 SINGLE_THREADED #else MULTI_THREADED #end):Future<T>
+	{
+		var future = new Future<T>();
+		var promise = new Promise<T>();
+		promise.future = future;
+
+		FutureWork.run(work, state, promise, mode);
+
+		return future;
+	}
+
+	/**
+		(For backwards compatibility.) Dispatches the given zero-argument function.
+	**/
+	@:noCompletion private static function dispatchWorkFunction<T>(work:WorkFunction<Void -> T>):Null<T>
+	{
+		return work.dispatch();
+	}
 }
 
+/**
+	The class that handles asynchronous `work` functions passed to `new Future()`.
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:dox(hide) private class FutureWork
+@:dox(hide) class FutureWork
 {
-	private static var threadPool:ThreadPool;
+	@:allow(lime.app.Future)
+	private static var singleThreadPool:ThreadPool;
+	#if lime_threads
+	private static var multiThreadPool:ThreadPool;
+	// It isn't safe to pass a promise object to a web worker.
+	private static var promises:Map<Int, Promise<Dynamic>> = new Map();
+	#end
+	public static var minThreads(default, set):Int = 0;
+	public static var maxThreads(default, set):Int = 1;
+	public static var activeJobs(get, never):Int;
 
-	public static function queue(state:Dynamic = null):Void
+	private static function getPool(mode:ThreadMode):ThreadPool
 	{
-		if (threadPool == null)
-		{
-			threadPool = new ThreadPool();
-			threadPool.doWork.add(threadPool_doWork);
-			threadPool.onComplete.add(threadPool_onComplete);
-			threadPool.onError.add(threadPool_onError);
+		#if lime_threads
+		if (mode == MULTI_THREADED) {
+			if(multiThreadPool == null) {
+				multiThreadPool = new ThreadPool(minThreads, maxThreads, MULTI_THREADED);
+				multiThreadPool.onComplete.add(multiThreadPool_onComplete);
+				multiThreadPool.onError.add(multiThreadPool_onError);
+			}
+			return multiThreadPool;
 		}
+		#end
+		if(singleThreadPool == null) {
+			singleThreadPool = new ThreadPool(minThreads, maxThreads, SINGLE_THREADED);
+			singleThreadPool.onComplete.add(singleThreadPool_onComplete);
+			singleThreadPool.onError.add(singleThreadPool_onError);
+		}
+		return singleThreadPool;
+	}
 
-		threadPool.queue(state);
+	@:allow(lime.app.Future)
+	private static function run<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED, legacyCode:Bool = false):Void
+	{
+		var bundle = {work: work, state: state, promise: promise, legacyCode: legacyCode};
+
+		#if lime_threads
+		if (mode == MULTI_THREADED)
+		{
+			#if html5
+			work.makePortable();
+			#end
+
+			bundle.promise = null;
+		}
+		#end
+
+		var jobID:Int = getPool(mode).run(threadPool_doWork, bundle);
+
+		#if lime_threads
+		if (mode == MULTI_THREADED)
+		{
+			promises[jobID] = (cast promise:Promise<Dynamic>);
+		}
+		#end
 	}
 
 	// Event Handlers
-	private static function threadPool_doWork(state:Dynamic):Void
+	private static function threadPool_doWork(bundle:{work:WorkFunction<State->Dynamic>, state:State, legacyCode:Bool}, output:WorkOutput):Void
 	{
 		try
 		{
-			var result = state.work();
-			threadPool.sendComplete({promise: state.promise, result: result});
+			var result = bundle.work.dispatch(bundle.state);
+			if (result != null || bundle.legacyCode)
+			{
+				#if (lime_threads && html5)
+				bundle.work.makePortable();
+				#end
+				output.sendComplete(result);
+			}
 		}
 		catch (e:Dynamic)
 		{
-			threadPool.sendError({promise: state.promise, error: e});
+			#if (lime_threads && html5)
+			bundle.work.makePortable();
+			#end
+			output.sendError(e);
 		}
 	}
 
-	private static function threadPool_onComplete(state:Dynamic):Void
+	private static function singleThreadPool_onComplete(result:Dynamic):Void
 	{
-		state.promise.complete(state.result);
+		singleThreadPool.activeJob.state.promise.complete(result);
 	}
 
-	private static function threadPool_onError(state:Dynamic):Void
+	private static function singleThreadPool_onError(error:Dynamic):Void
 	{
-		state.promise.error(state.error);
+		singleThreadPool.activeJob.state.promise.error(error);
+	}
+
+	#if lime_threads
+	private static function multiThreadPool_onComplete(result:Dynamic):Void
+	{
+		var promise:Promise<Dynamic> = promises[multiThreadPool.activeJob.id];
+		promises.remove(multiThreadPool.activeJob.id);
+		promise.complete(result);
+	}
+
+	private static function multiThreadPool_onError(error:Dynamic):Void
+	{
+		var promise:Promise<Dynamic> = promises[multiThreadPool.activeJob.id];
+		promises.remove(multiThreadPool.activeJob.id);
+		promise.error(error);
+	}
+	#end
+
+	// Getters & Setters
+	@:noCompletion private static inline function set_minThreads(value:Int):Int
+	{
+		if (singleThreadPool != null)
+		{
+			singleThreadPool.minThreads = value;
+		}
+		#if lime_threads
+		if (multiThreadPool != null)
+		{
+			multiThreadPool.minThreads = value;
+		}
+		#end
+		return minThreads = value;
+	}
+
+	@:noCompletion private static inline function set_maxThreads(value:Int):Int
+	{
+		if (singleThreadPool != null)
+		{
+			singleThreadPool.maxThreads = value;
+		}
+		#if lime_threads
+		if (multiThreadPool != null)
+		{
+			multiThreadPool.maxThreads = value;
+		}
+		#end
+		return maxThreads = value;
+	}
+
+	@:noCompletion private static function get_activeJobs():Int
+	{
+		var sum:Int = 0;
+		if (singleThreadPool != null)
+		{
+			sum += singleThreadPool.activeJobs;
+		}
+		#if lime_threads
+		if (multiThreadPool != null)
+		{
+			sum += multiThreadPool.activeJobs;
+		}
+		#end
+		return sum;
 	}
 }
