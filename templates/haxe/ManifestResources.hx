@@ -59,10 +59,8 @@ import sys.FileSystem;
 			rootPath = "assets/";
 			#elseif android
 			rootPath = "";
-			#elseif console
+			#elseif (console || sys)
 			rootPath = lime.system.System.applicationDirectory;
-			#elseif sys
-			rootPath = Path.directory(Sys.programPath()) + "/";
 			#else
 			rootPath = "./";
 			#end
