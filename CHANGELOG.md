@@ -927,7 +927,7 @@ _releases are still supported when building Lime from the source._
 * Fixed playback of a single audio buffer multiple times on HTML5
 * Fixed initial volume level in AudioSource on HTML5
 * Fixed a regression in the default architecture list for iOS
-* Fixed merging of multiple <architecture /> tags in project files
+* Fixed merging of multiple `<architecture />` tags in project files
 * Fixed a possible crash when retrieving OpenGL strings
 * Fixed the default template for HTML5 when multiple projects are embedded
 * Fixed support for non-preloaded assets on HTML5
