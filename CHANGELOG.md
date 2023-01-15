@@ -2033,7 +2033,7 @@ _releases are still supported when building Lime from the source._
 * Fixed cURL to support larger header sizes
 * Updated the SDL2 backend to support initialization without AA if not supported
 * Added support for Android "immersive mode"
-* Improved default _sans,_serif and _typewriter font matching for Mac and iOS
+* Improved default \_sans, \_serif and \_typewriter font matching for Mac and iOS
 * Multiple improvements to Android JNI support
 * Added "count" support for drawTiles rendering
 * Optimized renderer to perform more with a single draw array
