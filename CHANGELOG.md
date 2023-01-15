@@ -1,6 +1,29 @@
 Changelog
 =========
 
+8.0.1 (??/??/2023)
+------------------
+
+* Fixed error where low-priority SVG icons (such as the Flixel icon) would override normal- or high-priority PNGs
+* Fixed `NativeHTTPRequest` buffer management for neko
+* Fixed text field losing focus after copying in HTML5
+* Fixed extra or missing slashes in certain cases when loading assets
+* Fixed `Assets.isLocal(null)` not checking all asset types
+* Fixed getting `Clipboard.text` on Linux
+* Fixed building `-static -debug` Windows apps
+* Fixed sounds playing twice on iOS
+* Fixed command line arguments not being passed to HashLink on macOS
+* Fixed a null pointer exception when setting sound position in HTML5
+* Fixed cURL not resending data if there's a redirect
+* Fixed `FileDialog` behavior when filtering by multiple file extensions, or 0 file extensions
+* Fixed error when importing `JNI` during a macro while building for Android
+* Fixed building `-static` Linux apps
+* Fixed crash when compiling iOS apps with no background color
+* Fixed `System.openFile()` on Linux
+* Fixed requiring a keystore to sign AIR apps
+* Fixed requiring a path to create a keystore
+* Fixed HTML5 text fields not updating promptly on Android devices
+
 8.0.0 (08/30/2022)
 ------------------
 
