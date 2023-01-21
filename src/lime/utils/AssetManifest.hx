@@ -167,6 +167,8 @@ class AssetManifest
 		{
 			basePath = basePath.substr(0, basePath.length - 1);
 		}
+		
+		basePath = haxe.io.Path.join([Sys.programPath(),basePath]);
 
 		if (StringTools.endsWith(basePath, ".bundle"))
 		{
@@ -181,13 +183,13 @@ class AssetManifest
 		}
 		else
 		{
-			return path;
+			return haxe.io.Path.join([haxe.io.Path.directory(Sys.programPath()),path]);
 		}
 	}
 
 	private static function __resolveRootPath(rootPath:String, path:String):String
 	{
-		if (rootPath != null) return rootPath;
+		if (rootPath != null) return haxe.io.Path.join([haxe.io.Path.directory(Sys.programPath()),rootPath]);
 
 		var queryIndex = path.indexOf("?");
 
