@@ -76,6 +76,8 @@ class HTML5Window
 	private var textInputRect:Rectangle;
 	private var unusedTouchesPool = new List<Touch>();
 
+	private var __focusPending:Bool;
+
 	public function new(parent:Window)
 	{
 		this.parent = parent;
@@ -340,6 +342,19 @@ class HTML5Window
 
 	public function focus():Void {}
 
+	private function focusTextInput():Void
+	{
+		// Avoid changing focus multiple times per frame.
+		if (__focusPending) return;
+		__focusPending = true;
+
+		Timer.delay(function()
+		{
+			__focusPending = false;
+			if (textInputEnabled) textInput.focus();
+		}, 20);
+	}
+
 	public function getCursor():MouseCursor
 	{
 		return cursor;
@@ -462,10 +477,7 @@ class HTML5Window
 		{
 			if (event.relatedTarget == null || isDescendent(cast event.relatedTarget))
 			{
-				Timer.delay(function()
-				{
-					if (textInputEnabled) textInput.focus();
-				}, 20);
+				focusTextInput();
 			}
 		}
 	}
@@ -538,11 +550,13 @@ class HTML5Window
 
 	private function handleInputEvent(event:InputEvent):Void
 	{
+		if (imeCompositionActive)
+		{
+			return;
+		}
+
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
-
-		if (inputing) return;
-
 		if (textInput.value != dummyCharacter)
 		{
 			var value = StringTools.replace(textInput.value, dummyCharacter, "");
@@ -930,6 +944,10 @@ class HTML5Window
 		{
 			Browser.document.execCommand("copy");
 		}
+		if (textInputEnabled)
+		{
+			focusTextInput();
+		}
 	}
 
 	public function setCursor(value:MouseCursor):MouseCursor
@@ -1097,7 +1115,12 @@ class HTML5Window
 			if (textInput == null)
 			{
 				textInput = cast Browser.document.createElement('input');
+				#if lime_enable_html5_ime
 				textInput.type = 'text';
+				#else
+				// use password instead of text to avoid IME issues on Android
+				textInput.type = 'password';
+				#end
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
 				textInput.style.color = "transparent";
@@ -1151,6 +1174,10 @@ class HTML5Window
 		{
 			if (textInput != null)
 			{
+				// call blur() before removing the compositionend listener
+				// to ensure that incomplete IME input is committed
+				textInput.blur();
+
 				textInput.removeEventListener('input', handleInputEvent, true);
 				textInput.removeEventListener('blur', handleFocusEvent, true);
 				textInput.removeEventListener('cut', handleCutOrCopyEvent, true);
@@ -1159,7 +1186,6 @@ class HTML5Window
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
 
-				textInput.blur();
 			}
 		}
 
@@ -1171,16 +1197,16 @@ class HTML5Window
 		return textInputRect = value;
 	}
 
-	private var inputing = false;
+	private var imeCompositionActive = false;
 
 	public function handleCompositionstartEvent(e):Void
 	{
-		inputing = true;
+		imeCompositionActive = true;
 	}
 
 	public function handleCompositionendEvent(e):Void
 	{
-		inputing = false;
+		imeCompositionActive = false;
 		handleInputEvent(e);
 	}
 

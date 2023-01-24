@@ -11,13 +11,54 @@ import java.lang.Float;
 import java.lang.Double;
 
 /**
-   An object that was originally created by Haxe code. You can call its
-   functions using `callX("functionName")`, where X is the number of arguments.
+   A placeholder for an object created in Haxe. You can call the object's
+   functions using `callN("functionName")`, where N is the number of arguments.
 
-   Caution: the Haxe function will run on the thread you called it from. In many
-   cases, this will be the UI thread, which is _not_ the same as Haxe's main
-   thread. To avoid unpredictable thread-related errors, consider using a
-   `lime.system.ForegroundWorker` as your `HaxeObject`.
+   Caution: the Haxe function will run on whichever thread you call it from.
+   Java code typically runs on the UI thread, not Haxe's main thread, which can
+   easily cause thread-related errors. This cannot be easily remedied using Java
+   code, but is fixable in Haxe using `lime.system.JNI.JNISafety`.
+
+   Sample usage:
+
+   ```haxe
+   // MyHaxeObject.hx
+   import lime.system.JNI;
+
+   class MyHaxeObject implements JNISafety
+   {
+      @:runOnMainThread
+      public function onActivityResult(requestCode:Int, resultCode:Int):Void
+      {
+         // Insert code to process the result. This code will safely run on the
+         // main Haxe thread.
+      }
+   }
+   ```
+
+   ```java
+   // MyJavaTool.java
+   import android.content.Intent;
+   import org.haxe.extension.Extension;
+   import org.haxe.lime.HaxeObject;
+
+   public class MyJavaTool extends Extension
+   {
+      private static var haxeObject:HaxeObject;
+
+      public static function registerHaxeObject(object:HaxeObject)
+      {
+         haxeObject = object;
+      }
+
+      // onActivityResult() always runs on the Android UI thread.
+      @Override public boolean onActivityResult(int requestCode, int resultCode, Intent data)
+      {
+         haxeObject.call2(requestCode, resultCode);
+         return true;
+      }
+   }
+   ```
 **/
 public class HaxeObject
 {

@@ -1,7 +1,22 @@
 package lime.system;
 
 #if (!lime_doc_gen || android)
+#if macro
+import haxe.macro.Context;
+import haxe.macro.Expr;
+import haxe.macro.Type;
+#else
 import lime._internal.backend.native.NativeCFFI;
+#end
+#if !lime_doc_gen
+#if target.threaded
+import sys.thread.Thread;
+#elseif cpp
+import cpp.vm.Thread;
+#elseif neko
+import neko.vm.Thread;
+#end
+#end
 
 /**
 	The Java Native Interface (JNI) allows C++ code to call Java functions, and
@@ -19,7 +34,7 @@ import lime._internal.backend.native.NativeCFFI;
 	Note that most Java code runs on a different thread than Haxe, meaning that
 	you can get thread-related errors in both directions. Java functions can
 	use `Extension.callbackHandler.post()` to switch to the UI thread, while
-	Haxe code can avoid the problem using `lime.system.ForegroundWorker`.
+	Haxe code can avoid the problem using `lime.system.JNI.JNISafety`.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -88,7 +103,7 @@ class JNI
 		#if (android && lime_cffi && !macro)
 		return new JNIMemberField(NativeCFFI.lime_jni_create_field(className, memberName, signature, false));
 		#else
-		return null;
+		return new JNIMemberField(null);
 		#end
 	}
 
@@ -124,7 +139,7 @@ class JNI
 		#if (android && lime_cffi && !macro)
 		return new JNIStaticField(NativeCFFI.lime_jni_create_field(className, memberName, signature, true));
 		#else
-		return null;
+		return new JNIStaticField(null);
 		#end
 	}
 
@@ -170,7 +185,7 @@ class JNI
 		{
 			initialized = true;
 
-			#if android
+			#if (android && !macro)
 			var method = System.load("lime", "lime_jni_init_callback", 1);
 			method(onCallback);
 			#end
@@ -325,4 +340,126 @@ class JNIMethod
 		}
 	}
 }
+
+/**
+	Most times a Java class calls a Haxe function, it does so on the UI thread,
+	which can lead to thread-related errors. These errors can be avoided by
+	switching back to the main thread before executing any code.
+
+	Usage:
+
+	```haxe
+	class MyClass implements JNISafety
+	{
+		@:runOnMainThread
+		public function callbackFunction(data:Dynamic):Void
+		{
+			// Code here is guaranteed to run on Haxe's main thread. It's safe
+			// to call `callbackFunction` via JNI.
+		}
+
+		public function notACallbackFunction():Void
+		{
+			// Code here will run on whichever thread calls the function. It may
+			// not be safe to call `notACallbackFunction` via JNI.
+		}
+	}
+	```
+**/
+// Haxe 3 can't parse "target.threaded" inside parentheses.
+#if !doc_gen
+#if target.threaded
+@:autoBuild(lime.system.JNI.JNISafetyTools.build())
+#elseif (cpp || neko)
+@:autoBuild(lime.system.JNI.JNISafetyTools.build())
+#end
+#end
+interface JNISafety {}
+
+#if !doc_gen
+class JNISafetyTools
+{
+	#if target.threaded
+	private static var mainThread:Thread = Thread.current();
+	#elseif (cpp || neko)
+	private static var mainThread:Thread = Thread.current();
+	#end
+
+	/**
+		@return Whether the calling function is being run on the main thread.
+	**/
+	public static inline function onMainThread():Bool
+	{
+		#if target.threaded
+		return Thread.current() == mainThread;
+		#elseif (cpp || neko)
+		return Thread.current() == mainThread;
+		#else
+		return true;
+		#end
+	}
+
+	public static macro function build():Array<Field>
+	{
+		var fields:Array<Field> = Context.getBuildFields();
+
+		#if macro
+		for (field in fields)
+		{
+			// Don't modify constructors.
+			if (field.name == "new")
+			{
+				continue;
+			}
+
+			// Don't modify functions lacking `@:runOnMainThread`.
+			if (field.meta == null || !Lambda.exists(field.meta,
+				function(meta) return meta.name == ":runOnMainThread"))
+			{
+				continue;
+			}
+
+			switch (field.kind)
+			{
+				case FFun(f):
+					// The function needs to call itself and can't be inline.
+					field.access.remove(AInline);
+
+					// Make sure there's no return value.
+					switch (f.ret)
+					{
+						case macro:Void:
+							// Good to go.
+						case null:
+							f.ret = macro:Void;
+						default:
+							Context.error("Expected return type Void, got "
+								+ new haxe.macro.Printer().printComplexType(f.ret) + ".", field.pos);
+					}
+
+					var args:Array<Expr> = [];
+					for (arg in f.args)
+					{
+						args.push(macro $i{arg.name});
+
+						// Account for an unlikely edge case.
+						if (arg.name == field.name)
+							Context.error('${field.name}() should not take an argument named ${field.name}.', field.pos);
+					}
+
+					// Check the thread before running the function.
+					f.expr = macro
+						if (!lime.system.JNI.JNISafetyTools.onMainThread())
+							haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args}))
+						else
+							${f.expr};
+				default:
+			}
+		}
+		#end
+
+		return fields;
+	}
+}
+#end
 #end

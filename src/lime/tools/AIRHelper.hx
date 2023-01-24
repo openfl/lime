@@ -93,13 +93,16 @@ class AIRHelper
 
 		if (project.keystore != null)
 		{
-			var keystore = Path.tryFullPath(project.keystore.path);
 			var keystoreType = project.keystore.type != null ? project.keystore.type : "pkcs12";
-
 			signingOptions.push("-storetype");
 			signingOptions.push(keystoreType);
-			signingOptions.push("-keystore");
-			signingOptions.push(keystore);
+
+			if (project.keystore.path != null)
+			{
+				var keystore = Path.tryFullPath(project.keystore.path);
+				signingOptions.push("-keystore");
+				signingOptions.push(keystore);
+			}
 
 			if (project.keystore.alias != null)
 			{
@@ -286,7 +289,12 @@ class AIRHelper
 			var extDirs:Array<String> = getExtDirs(project);
 
 			var profile:String;
-			if (targetPlatform == ANDROID)
+
+			if (project.config.exists("air.profile"))
+			{
+				profile = project.config.getString("air.profile");
+			}
+			else if (targetPlatform == ANDROID)
 			{
 				profile = "mobileDevice";
 			}

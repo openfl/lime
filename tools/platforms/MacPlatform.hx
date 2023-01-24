@@ -207,6 +207,20 @@ class MacPlatform extends PlatformTarget
 			if (noOutput) return;
 
 			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, is64);
+
+			// HashLink looks for hlboot.dat and libraries in the current
+			// working directory, so the .app file won't work properly if it
+			// tries to run the HashLink executable directly.
+			// when the .app file is launched, we can tell it to run a shell
+			// script instead of the HashLink executable. the shell script will
+			// adjusts the working directory before running the HL executable.
+
+			// unlike other platforms, we want to use the original "hl" name
+			var hlExecutablePath = Path.combine(executableDirectory, "hl");
+			System.renameFile(executablePath, hlExecutablePath);
+			System.runCommand("", "chmod", ["755", hlExecutablePath]);
+			// then we can use the executable name for the shell script
+			System.copyFileTemplate(project.templatePaths, 'hl/mac-launch.sh', executablePath);
 		}
 		else if (targetType == "java")
 		{
