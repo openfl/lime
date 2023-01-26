@@ -35,16 +35,21 @@ See `lime help rebuild` for details and additional options.
 > Note: even without an explicit `rebuild` command, running `lime` will automatically build lime.ndll for your machine. Even if you never target C++ or Neko, this binary will help with small tasks such as rendering icons.
 
 ### Build troubleshooting
-Most build errors can be fixed by running `git submodule update` and `lime rebuild tools` before retrying.
+If errors appeared after updating Lime, the update process may not be complete. Run these commands:
 
-If that doesn't work, the error can usually be fixed by updating one of the build configuration files.
+```bash
+git submodule update --init
+lime rebuild tools
+```
+
+For errors that appeared after changing a source file, you may need to update the build configuration.
 
 - Errors in the [src](src) and [include](include) directories usually require updating [Build.xml](Build.xml).
 - Errors in the [lib](lib) directory usually require updating that submodule's xml file. So for instance, if the error message points to lib/cairo/src/cairo.c, you most likely need to edit [cairo-files.xml](lib/cairo-files.xml). If the error message points to lib/hashlink/src/main.c, look at [BuildHashlink.xml](BuildHashlink.xml). (Though libraries do reference one another sometimes, so this isn't a hard rule.)
 
-Common problems and their solutions:
+Common errors and their solutions:
 
-- `[header].h: No such file or directory`: Include the header.
+- `[header].h: No such file or directory`: Include the header if it exists. If not, run `git status` to confirm that your submodules are up to date.
 
    ```xml
    <compilerflag value="-Iinclude/path/to/header/" />
@@ -92,19 +97,6 @@ To update to a more recent version of a submodule:
 
 ### Submodule troubleshooting
 Here are some submodule-specific problems you might run into while rebuilding.
-
-- All submodules are empty:
-
-   ```bash
-   git submodule init
-   git submodule update
-   ```
-
-- Rebuilding fails after `git pull`, and `git status` reports changes to the submodules:
-
-   ```bash
-   git submodule update
-   ```
 
 - The project is missing a crucial header file, or has `[header].h.in` instead of the header you need:
 
