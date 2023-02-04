@@ -394,7 +394,7 @@ import lime.utils.Log;
 		#if lime_threads
 		if (mode == MULTI_THREADED)
 		{
-			promises[jobID] = (cast promise:Promise<Dynamic>);
+			promises[jobID] = cast promise;
 		}
 		#end
 	}
