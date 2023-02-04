@@ -307,7 +307,7 @@ import lime.utils.Log;
 		@param	work 	A function that computes a value of type `T`.
 		@param  state   An argument to pass to `work()`. As this may be used on another thread, the
 		main thread must not access or modify `state` until the `Future` finishes.
-		@param  mode 	Whether to use real threads as opposed to virtual threads. Virtual threads rely
+		@param  mode 	Whether to use real threads as opposed to green threads. Green threads rely
 		on cooperative multitasking, meaning `work()` must return periodically to allow other code
 		enough time to run. In these cases, `work()` should return null to signal that it isn't finished.
 		@return	A new `Future` instance.
