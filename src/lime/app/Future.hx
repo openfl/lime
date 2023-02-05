@@ -346,8 +346,10 @@ import lime.utils.Log;
 	private static var singleThreadPool:ThreadPool;
 	#if lime_threads
 	private static var multiThreadPool:ThreadPool;
-	// It isn't safe to pass a promise object to a web worker.
-	private static var promises:Map<Int, Promise<Dynamic>> = new Map();
+	// It isn't safe to pass a promise object to a web worker, but since it's
+	// `@:generic` we can't store it as `Promise<Dynamic>`. Instead, we'll store
+	// the two methods we need.
+	private static var promises:Map<Int, {complete:Dynamic -> Dynamic, error:Dynamic -> Dynamic}> = new Map();
 	#end
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
@@ -394,7 +396,7 @@ import lime.utils.Log;
 		#if lime_threads
 		if (mode == MULTI_THREADED)
 		{
-			promises[jobID] = cast promise;
+			promises[jobID] = {complete: promise.complete, error: promise.error};
 		}
 		#end
 	}
@@ -435,14 +437,14 @@ import lime.utils.Log;
 	#if lime_threads
 	private static function multiThreadPool_onComplete(result:Dynamic):Void
 	{
-		var promise:Promise<Dynamic> = promises[multiThreadPool.activeJob.id];
+		var promise = promises[multiThreadPool.activeJob.id];
 		promises.remove(multiThreadPool.activeJob.id);
 		promise.complete(result);
 	}
 
 	private static function multiThreadPool_onError(error:Dynamic):Void
 	{
-		var promise:Promise<Dynamic> = promises[multiThreadPool.activeJob.id];
+		var promise = promises[multiThreadPool.activeJob.id];
 		promises.remove(multiThreadPool.activeJob.id);
 		promise.error(error);
 	}
