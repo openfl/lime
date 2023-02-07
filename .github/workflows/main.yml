@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
 
   linux-ndll:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
@@ -558,7 +558,8 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11, windows-latest]
+        os: [ubuntu-20.04
+        , macos-11, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -708,7 +709,7 @@ jobs:
 
   linux-samples:
     needs: package-haxelib
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
 
       - name: Install system dependencies
@@ -807,7 +808,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11, windows-latest]
+        os: [ubuntu-20.04, macos-11, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -917,7 +918,7 @@ jobs:
           lime build SimpleAudio windows -release -verbose -nocolor
 
   notify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
