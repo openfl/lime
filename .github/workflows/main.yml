@@ -10,7 +10,7 @@ jobs:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -49,7 +49,7 @@ jobs:
           lime rebuild linux -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux-NDLL
@@ -58,7 +58,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-NDLL
@@ -67,7 +67,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-Hashlink
@@ -79,7 +79,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -120,7 +120,7 @@ jobs:
           lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Mac64-NDLL
           path: |
@@ -128,7 +128,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Mac64-Hashlink
           path: |
@@ -139,7 +139,7 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -173,7 +173,7 @@ jobs:
           lime rebuild windows -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Windows-NDLL
           path: |
@@ -181,7 +181,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Windows64-NDLL
           path: |
@@ -189,13 +189,13 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      # - uses: actions/upload-artifact@v2
+      # - uses: actions/upload-artifact@v3
       #   with:
       #     name: Windows-Hashlink
       #     path: |
       #       templates/bin/hl/Windows
       #     if-no-files-found: error
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Windows64-Hashlink
           path: |
@@ -207,7 +207,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -245,7 +245,7 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
@@ -262,7 +262,7 @@ jobs:
         run: |
           lime rebuild android -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Android-NDLL
           path: |
@@ -275,7 +275,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -303,7 +303,7 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
@@ -312,7 +312,7 @@ jobs:
         run: |
           lime rebuild ios -clean -release -verbose -nocolor
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: iPhone-NDLL
           path: |
@@ -325,7 +325,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -353,62 +353,62 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Android-NDLL
           path: ndll/Android/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: iPhone-NDLL
           path: ndll/iPhone/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Linux-NDLL
           path: ndll/Linux/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Linux64-NDLL
           path: ndll/Linux64/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Windows-NDLL
           path: ndll/Windows/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Windows64-NDLL
           path: ndll/Windows64/
 
-      # - uses: actions/download-artifact@v2
+      # - uses: actions/download-artifact@v3
       #   with:
       #     name: Windows-Hashlink
       #     path: templates/bin/hl/Windows
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Windows64-Hashlink
           path: templates/bin/hl/Windows64
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-Hashlink
           path: templates/bin/hl/Mac64
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Linux64-Hashlink
           path: templates/bin/hl/Linux64
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: lime-haxelib
           path: |
@@ -423,7 +423,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -445,7 +445,7 @@ jobs:
         run: |
           haxe build.hxml
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: lime-docs
           path: docs/pages
@@ -485,7 +485,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -532,7 +532,7 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -599,7 +599,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -638,7 +638,7 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -684,7 +684,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -735,7 +735,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -781,7 +781,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -848,7 +848,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -894,7 +894,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
