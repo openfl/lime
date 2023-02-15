@@ -51,6 +51,7 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HIDDEN) sdlWindowFlags |= SDL_WINDOW_HIDDEN;
 		if (flags & WINDOW_FLAG_MINIMIZED) sdlWindowFlags |= SDL_WINDOW_MINIMIZED;
 		if (flags & WINDOW_FLAG_MAXIMIZED) sdlWindowFlags |= SDL_WINDOW_MAXIMIZED;
+		if (flags & WINDOW_FLAG_OPENGL) sdlWindowFlags |= SDL_WINDOW_OPENGL;
 
 		#ifndef EMSCRIPTEN
 		if (flags & WINDOW_FLAG_ALWAYS_ON_TOP) sdlWindowFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
@@ -78,8 +79,6 @@ namespace lime {
 		#endif
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
-
-			sdlWindowFlags |= SDL_WINDOW_OPENGL;
 
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 

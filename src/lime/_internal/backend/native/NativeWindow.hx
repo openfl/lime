@@ -76,7 +76,6 @@ class NativeWindow
 		#if (cairo || (!lime_opengl && !lime_opengles))
 		contextAttributes.type = CAIRO;
 		#end
-		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == CAIRO) contextAttributes.hardware = false;
 
 		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
 		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
@@ -86,6 +85,14 @@ class NativeWindow
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
 		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
 		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
+
+		switch (contextAttributes.type)
+		{
+			case CAIRO:
+				contextAttributes.hardware = false;
+			default:
+				flags |= cast WindowFlags.WINDOW_FLAG_OPENGL;
+		}
 
 		if (contextAttributes.antialiasing >= 4)
 		{
@@ -701,4 +708,5 @@ class NativeWindow
 	var WINDOW_FLAG_MAXIMIZED = 0x00004000;
 	var WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000;
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
+	var WINDOW_FLAG_OPENGL = 0x00000002;
 }
