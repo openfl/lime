@@ -28,6 +28,7 @@ class ImageHelper
 			System.runCommand("", "neko", [
 				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), "svg.n"),
 				"process",
+				#if rpi "-rpi", #end
 				path,
 				Std.string(width),
 				Std.string(height),

@@ -140,7 +140,7 @@ class SVGExport
 			{
 				Log.verbose = true;
 			}
-			else
+			else if (arg != "-rpi")
 			{
 				words.push(arg);
 			}
