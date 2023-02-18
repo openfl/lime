@@ -51,6 +51,7 @@ namespace lime {
 		if (flags & WINDOW_FLAG_HIDDEN) sdlWindowFlags |= SDL_WINDOW_HIDDEN;
 		if (flags & WINDOW_FLAG_MINIMIZED) sdlWindowFlags |= SDL_WINDOW_MINIMIZED;
 		if (flags & WINDOW_FLAG_MAXIMIZED) sdlWindowFlags |= SDL_WINDOW_MAXIMIZED;
+		if (flags & WINDOW_FLAG_OPENGL) sdlWindowFlags |= SDL_WINDOW_OPENGL;
 
 		#ifndef EMSCRIPTEN
 		if (flags & WINDOW_FLAG_ALWAYS_ON_TOP) sdlWindowFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
@@ -79,69 +80,71 @@ namespace lime {
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
-			sdlWindowFlags |= SDL_WINDOW_OPENGL;
-
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 
 				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
 			}
 
-			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-			#endif
+			if (flags & WINDOW_FLAG_OPENGL) {
 
-			#if defined (RASPBERRYPI)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
-			#endif
+				#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+				#endif
 
-			#if defined (IPHONE) || defined (APPLETV)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-			#endif
+				#if defined (RASPBERRYPI)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
+				#endif
 
-			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+				#if defined (IPHONE) || defined (APPLETV)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+				#endif
 
-				SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+				if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
 
-			if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+				if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
 
-			if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+				if (flags & WINDOW_FLAG_HW_AA_HIRES) {
 
-			} else if (flags & WINDOW_FLAG_HW_AA) {
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+				} else if (flags & WINDOW_FLAG_HW_AA) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
 
-			if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
+				if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
 
-			} else {
+					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+				} else {
+
+					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
+					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
+					SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+
+				}
 
 			}
 
@@ -213,57 +216,61 @@ namespace lime {
 
 			// }
 
-			context = SDL_GL_CreateContext (sdlWindow);
+			if (flags & WINDOW_FLAG_OPENGL) {
 
-			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
+				context = SDL_GL_CreateContext (sdlWindow);
 
-				if (flags & WINDOW_FLAG_VSYNC) {
+				if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
 
-					SDL_GL_SetSwapInterval (1);
+					if (flags & WINDOW_FLAG_VSYNC) {
+
+						SDL_GL_SetSwapInterval (1);
+
+					} else {
+
+						SDL_GL_SetSwapInterval (0);
+
+					}
+
+					OpenGLBindings::Init ();
+
+					#ifndef LIME_GLES
+
+					int version = 0;
+					glGetIntegerv (GL_MAJOR_VERSION, &version);
+
+					if (version == 0) {
+
+						float versionScan = 0;
+						sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
+						version = versionScan;
+
+					}
+
+					if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
+
+						SDL_GL_DeleteContext (context);
+						context = 0;
+
+					}
+
+					#elif defined(IPHONE) || defined(APPLETV)
+
+					// SDL_SysWMinfo windowInfo;
+					// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
+					// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
+					// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
+					glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
+					glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
+
+					#endif
 
 				} else {
 
-					SDL_GL_SetSwapInterval (0);
-
-				}
-
-				OpenGLBindings::Init ();
-
-				#ifndef LIME_GLES
-
-				int version = 0;
-				glGetIntegerv (GL_MAJOR_VERSION, &version);
-
-				if (version == 0) {
-
-					float versionScan = 0;
-					sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
-					version = versionScan;
-
-				}
-
-				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
-
 					SDL_GL_DeleteContext (context);
-					context = 0;
+					context = NULL;
 
 				}
-
-				#elif defined(IPHONE) || defined(APPLETV)
-
-				// SDL_SysWMinfo windowInfo;
-				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
-				// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
-				// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
-				glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
-				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
-
-				#endif
-
-			} else {
-
-				SDL_GL_DeleteContext (context);
-				context = NULL;
 
 			}
 
