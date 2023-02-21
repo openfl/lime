@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.0.1 (??/??/2023)
+8.0.1 (02/21/2023)
 ------------------
 
 * Fixed error where low-priority SVG icons (such as the Flixel icon) would override normal- or high-priority PNGs
