@@ -127,7 +127,7 @@ class JNI
 		className = transformClassName(className);
 		return new JNIMemberField(NativeCFFI.lime_jni_create_field(className, memberName, signature, false));
 		#else
-		return null;
+		return new JNIMemberField(null);
 		#end
 	}
 
@@ -183,7 +183,7 @@ class JNI
 		className = transformClassName(className);
 		return new JNIStaticField(NativeCFFI.lime_jni_create_field(className, memberName, signature, true));
 		#else
-		return null;
+		return new JNIStaticField(null);
 		#end
 	}
 
@@ -242,7 +242,7 @@ class JNI
 		{
 			initialized = true;
 
-			#if android
+			#if (android && !macro)
 			var method = System.load("lime", "lime_jni_init_callback", 1);
 			method(onCallback);
 			#end

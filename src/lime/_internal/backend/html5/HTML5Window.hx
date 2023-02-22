@@ -555,11 +555,13 @@ class HTML5Window
 
 	private function handleInputEvent(event:InputEvent):Void
 	{
+		if (imeCompositionActive)
+		{
+			return;
+		}
+
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
-
-		if (inputing) return;
-
 		if (textInput.value != dummyCharacter)
 		{
 			var value = StringTools.replace(textInput.value, dummyCharacter, "");
@@ -1124,7 +1126,12 @@ class HTML5Window
 			if (textInput == null)
 			{
 				textInput = cast Browser.document.createElement('input');
+				#if lime_enable_html5_ime
 				textInput.type = 'text';
+				#else
+				// use password instead of text to avoid IME issues on Android
+				textInput.type = 'password';
+				#end
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
 				textInput.style.color = "transparent";
@@ -1178,6 +1185,10 @@ class HTML5Window
 		{
 			if (textInput != null)
 			{
+				// call blur() before removing the compositionend listener
+				// to ensure that incomplete IME input is committed
+				textInput.blur();
+
 				textInput.removeEventListener('input', handleInputEvent, true);
 				textInput.removeEventListener('blur', handleFocusEvent, true);
 				textInput.removeEventListener('cut', handleCutOrCopyEvent, true);
@@ -1186,7 +1197,6 @@ class HTML5Window
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
 
-				textInput.blur();
 			}
 		}
 
@@ -1198,16 +1208,16 @@ class HTML5Window
 		return textInputRect = value;
 	}
 
-	private var inputing = false;
+	private var imeCompositionActive = false;
 
 	public function handleCompositionstartEvent(e):Void
 	{
-		inputing = true;
+		imeCompositionActive = true;
 	}
 
 	public function handleCompositionendEvent(e):Void
 	{
-		inputing = false;
+		imeCompositionActive = false;
 		handleInputEvent(e);
 	}
 

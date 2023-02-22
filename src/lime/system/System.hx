@@ -296,7 +296,7 @@ class System
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);
 			#elseif linux
-			Sys.command("/usr/bin/xdg-open", [path, "&"]);
+			Sys.command("/usr/bin/xdg-open", [path]);
 			#elseif (js && html5)
 			Browser.window.open(path, "_blank");
 			#elseif flash

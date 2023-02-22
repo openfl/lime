@@ -93,13 +93,16 @@ class AIRHelper
 
 		if (project.keystore != null)
 		{
-			var keystore = Path.tryFullPath(project.keystore.path);
 			var keystoreType = project.keystore.type != null ? project.keystore.type : "pkcs12";
-
 			signingOptions.push("-storetype");
 			signingOptions.push(keystoreType);
-			signingOptions.push("-keystore");
-			signingOptions.push(keystore);
+
+			if (project.keystore.path != null)
+			{
+				var keystore = Path.tryFullPath(project.keystore.path);
+				signingOptions.push("-keystore");
+				signingOptions.push(keystore);
+			}
 
 			if (project.keystore.alias != null)
 			{
