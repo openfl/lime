@@ -186,6 +186,8 @@ class NativeAudioSource
 		else
 		{
 			var time = completed ? 0 : getCurrentTime();
+			
+			AL.sourcePlay(handle);
 
 			setCurrentTime(time);
 		}
