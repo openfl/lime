@@ -186,6 +186,8 @@ class NativeAudioSource
 		else
 		{
 			var time = completed ? 0 : getCurrentTime();
+			
+			AL.sourcePlay(handle);
 
 			setCurrentTime(time);
 		}
@@ -416,7 +418,7 @@ class NativeAudioSource
 			{
 				AL.sourceRewind(handle);
 
-				// AL.sourcef (handle, AL.SEC_OFFSET, (value + parent.offset) / 1000);
+				if (playing) AL.sourcePlay(handle);
 
 				var secondOffset = (value + parent.offset) / 1000;
 				var totalSeconds = samples / parent.buffer.sampleRate;
@@ -428,7 +430,6 @@ class NativeAudioSource
 				var totalOffset = Std.int(dataLength * ratio);
 
 				AL.sourcei(handle, AL.BYTE_OFFSET, totalOffset);
-				if (playing) AL.sourcePlay(handle);
 			}
 		}
 
