@@ -38,6 +38,7 @@ See `lime help rebuild` for details and additional options.
 If errors appeared after updating Lime, the update process may not be complete. Run these commands:
 
 ```bash
+git submodule deinit --all
 git submodule update --init
 lime rebuild tools
 ```
