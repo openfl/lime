@@ -263,9 +263,18 @@ class LinuxPlatform extends PlatformTarget
 
 			if (is64)
 			{
-				haxeArgs.push("-D");
-				haxeArgs.push("HXCPP_M64");
-				flags.push("-DHXCPP_M64");
+				if (isRaspberryPi)
+				{
+					haxeArgs.push("-D");
+					haxeArgs.push("HXCPP_ARM64");
+					flags.push("-DHXCPP_ARM64");
+				}
+				else
+				{
+					haxeArgs.push("-D");
+					haxeArgs.push("HXCPP_M64");
+					flags.push("-DHXCPP_M64");
+				}
 			}
 			else
 			{
