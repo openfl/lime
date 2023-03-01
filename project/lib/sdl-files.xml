@@ -145,8 +145,8 @@
 
             <section if="rpi">
 
-                <compilerflag value="-mfpu=neon" />
-                <compilerflag value="-mfloat-abi=hard" />
+                <compilerflag value="-mfpu=neon" unless="HXCPP_ARM64" />
+                <compilerflag value="-mfloat-abi=hard" unless="HXCPP_ARM64" />
                 <compilerflag value="-I-abi=hard" />
 
                 <compilerflag value="-I/opt/vc/include" />
@@ -156,7 +156,8 @@
                 <compilerflag value="-I/usr/include/interface/vcos/pthreads" />
                 <compilerflag value="-I/usr/include/interface/vmcs_host/linux" />
                 <compilerflag value="-I/usr/include/libdrm" />
-                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" />
+                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
                 <compilerflag value="-I/usr/local/include" />
 
             </section>

@@ -99,7 +99,7 @@
             <compilerflag value="-msse2" unless="rpi" />
             <compilerflag value="-msse3" unless="rpi" />
             <compilerflag value="-mssse3" unless="rpi" />
-            <compilerflag value="-mfpu=neon" if="rpi" />
+            <compilerflag value="-mfpu=neon" if="rpi" unless="HXCPP_ARM64" />
             <compilerflag value="-fcommon" />
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/alsa.cpp" />

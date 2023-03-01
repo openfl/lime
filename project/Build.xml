@@ -240,7 +240,8 @@
 				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
 				<compilerflag value="-I/usr/include/libdrm" />
 				<compilerflag value="-I/usr/include/dbus-1.0" />
-				<compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" />
+				<compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+				<compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
 				<compilerflag value="-I/usr/local/include" />
 
 				<compilerflag value="-ldrm" />
