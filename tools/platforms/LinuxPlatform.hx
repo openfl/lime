@@ -135,7 +135,7 @@ class LinuxPlatform extends PlatformTarget
 		if (project.targetFlags.exists("rpi"))
 		{
 			isRaspberryPi = true;
-			is64 = !targetFlags.exists("64");
+			is64 = targetFlags.exists("64");
 		}
 
 		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
