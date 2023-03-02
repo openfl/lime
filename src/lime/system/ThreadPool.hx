@@ -609,8 +609,13 @@ class ThreadPool extends WorkOutput
 	}
 }
 
-@:access(lime.system.ThreadPool)
+@:access(lime.system.ThreadPool) @:forward(canceled)
 private abstract PseudoEvent(ThreadPool) from ThreadPool {
+	@:noCompletion @:dox(hide) public var __listeners(get, never):Array<Dynamic>;
+	private inline function get___listeners():Array<Dynamic> { return []; };
+	@:noCompletion @:dox(hide) public var __repeat(get, never):Array<Bool>;
+	private inline function get___repeat():Array<Bool> { return []; };
+
 	public function add(callback:Dynamic -> Void):Void {
 		function callCallback(state:State, output:WorkOutput):Void
 		{
