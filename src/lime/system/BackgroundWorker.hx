@@ -18,9 +18,10 @@ import neko.vm.Thread;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:deprecated("lime.system.BackgroundWorker is being deprecated since Lime 8.2.0, and it is recommended to use the lime.system.ThreadPool class instead.")
+
 class BackgroundWorker
 {
-@:deprecated("Lime.system.BackgroundWorker is being deprecated since Lime 8.2.0, and it is recommended to use the Lime.system.ThreadPool class instead.")
 	private static var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static var MESSAGE_ERROR = "__ERROR__";
 
