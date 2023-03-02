@@ -139,7 +139,7 @@ class ThreadPool extends WorkOutput
 	public var onRun(default, null) = new Event<State->Void>();
 
 	@:deprecated("Instead pass the callback to ThreadPool.run().")
-	@:noCompletion @:dox(hide) public var doWork(get, never):{ add: (Dynamic->Void)->Void };
+	@:noCompletion @:dox(hide) public var doWork(get, never):PseudoEvent;
 	private var __doWork:WorkFunction<State->WorkOutput->Void>;
 
 	private var __activeJobs:JobList = new JobList();
@@ -603,24 +603,35 @@ class ThreadPool extends WorkOutput
 
 	// Note the distinction between `doWork` and `__doWork`: the former is for
 	// backwards compatibility, while the latter is always used.
-	private function get_doWork():{ add: (Dynamic->Void) -> Void }
+	private function get_doWork():PseudoEvent
 	{
-		return {
-			add: function(callback:Dynamic->Void)
-			{
-				#if html5
-				if (mode == MULTI_THREADED)
-					throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
-				#end
-				__doWork = #if (lime_threads && html5) { func: #end
-					function(state:State, output:WorkOutput):Void
-					{
-						callback(state);
-					}
-				#if (lime_threads && html5) } #end;
-			}
-		};
+		return this;
 	}
+}
+
+@:access(lime.system.ThreadPool)
+private abstract PseudoEvent(ThreadPool) from ThreadPool {
+	public function add(callback:Dynamic -> Void):Void {
+		function callCallback(state:State, output:WorkOutput):Void
+		{
+			callback(state);
+		}
+
+		#if (lime_threads && html5)
+		if (this.mode == MULTI_THREADED)
+			throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
+		else
+			this.__doWork = { func: callCallback };
+		#else
+		this.__doWork = callCallback;
+		#end
+	}
+
+	public inline function cancel():Void {}
+	public inline function dispatch():Void {}
+	public inline function has(callback:Dynamic -> Void):Bool { return this.__doWork != null; }
+	public inline function remove(callback:Dynamic -> Void):Void { this.__doWork = null; }
+	public inline function removeAll():Void { this.__doWork = null; }
 }
 
 @:forward
