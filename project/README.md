@@ -19,6 +19,11 @@ This directory contains two categories of code.
    ```bash
    sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev
    ```
+- Raspberry Pi OS requires a slightly different set of packages.
+
+   ```bash
+   sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libxcursor-dev libdbus-1-dev libdrm-dev libgbm-dev libudev-dev
+   ```
 
 ### Rebuilding
 Use `lime rebuild <target>` to build or rebuild a set of binaries. Once finished, you can find them in the [ndll directory](https://github.com/openfl/lime/tree/develop/ndll).
