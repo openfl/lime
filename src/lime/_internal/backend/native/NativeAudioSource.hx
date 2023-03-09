@@ -187,7 +187,7 @@ class NativeAudioSource
 		{
 			var time = completed ? 0 : getCurrentTime();
 
-			#if !ios AL.sourcePlay(handle) #end
+			#if !ios AL.sourcePlay(handle); #end
 
 			setCurrentTime(time);
 		}
