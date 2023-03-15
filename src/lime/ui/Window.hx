@@ -153,7 +153,7 @@ class Window
 		__scale = 1;
 		__x = 0;
 		__y = 0;
-		__title = "";
+		__title = Reflect.hasField(__attributes, "title") ? __attributes.title : "";
 		id = -1;
 
 		__backend = new WindowBackend(this);
