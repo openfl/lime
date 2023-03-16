@@ -1231,6 +1231,11 @@ class HTML5Window
 		return value;
 	}
 
+	public function setVisible(value:Bool):Bool
+	{
+		return value;
+	}
+
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;
