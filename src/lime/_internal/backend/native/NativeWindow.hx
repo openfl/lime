@@ -679,6 +679,18 @@ class NativeWindow
 		return value;
 	}
 
+	public function setVisible(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_visible(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void
 	{
 		#if (!macro && lime_cffi)

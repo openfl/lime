@@ -3761,6 +3761,22 @@ namespace lime {
 	}
 
 
+	bool lime_window_set_visible (value window, bool visible) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetVisible (visible);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_visible) (HL_CFFIPointer* window, bool visible) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetVisible (visible);
+
+	}
+
+
 	void lime_window_warp_mouse (value window, int x, int y) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3982,6 +3998,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_enabled);
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_PRIME2 (lime_window_set_visible);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
@@ -4168,6 +4185,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_enabled, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);

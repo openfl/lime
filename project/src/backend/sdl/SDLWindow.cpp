@@ -358,6 +358,23 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::SetVisible (bool visible) {
+
+		if (visible) {
+
+			SDL_ShowWindow (sdlWindow);
+
+		} else {
+
+			SDL_HideWindow (sdlWindow);
+
+		}
+
+		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_SHOWN);
+
+	}
+
+
 	void SDLWindow::ContextFlip () {
 
 		if (context && !sdlRenderer) {

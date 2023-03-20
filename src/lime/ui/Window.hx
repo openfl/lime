@@ -89,6 +89,7 @@ class Window
 	#end
 	public var textInputEnabled(get, set):Bool;
 	public var title(get, set):String;
+	public var visible(get, set):Bool;
 	public var width(get, set):Int;
 	public var x(get, set):Int;
 	public var y(get, set):Int;
@@ -109,6 +110,7 @@ class Window
 	@:noCompletion private var __resizable:Bool;
 	@:noCompletion private var __scale:Float;
 	@:noCompletion private var __title:String;
+	@:noCompletion private var __visible:Bool;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
@@ -133,6 +135,7 @@ class Window
 				"scale": {get: p.get_scale},
 				"textInputEnabled": {get: p.get_textInputEnabled, set: p.set_textInputEnabled},
 				"title": {get: p.get_title, set: p.set_title},
+				"visible": {get: p.get_visible, set: p.set_visible},
 				"width": {get: p.get_width, set: p.set_width},
 				"x": {get: p.get_x, set: p.set_y},
 				"y": {get: p.get_x, set: p.set_y}
@@ -153,7 +156,7 @@ class Window
 		__scale = 1;
 		__x = 0;
 		__y = 0;
-		__title = "";
+		__title = Reflect.hasField(__attributes, "title") ? __attributes.title : "";
 		id = -1;
 
 		__backend = new WindowBackend(this);
@@ -574,6 +577,17 @@ class Window
 	@:noCompletion private function set_title(value:String):String
 	{
 		return __title = __backend.setTitle(value);
+	}
+
+	@:noCompletion private inline function get_visible():Bool
+	{
+		return __visible;
+	}
+
+	@:noCompletion private function set_visible(value:Bool):Bool
+	{
+		__visible = __backend.setVisible(value);
+		return __visible;
 	}
 
 	@:noCompletion private inline function get_width():Int
