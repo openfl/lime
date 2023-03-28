@@ -54,6 +54,7 @@
 #endif
 
 #include <cstdlib>
+#include <cstring>
 
 DEFINE_KIND (k_finalizer);
 
