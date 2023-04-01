@@ -285,7 +285,7 @@ class CFFI
 			{
 				init = load("lime", "neko_init", 5);
 			}
-			catch (e)
+			catch (e:Dynamic)
 			{
 			}
 
