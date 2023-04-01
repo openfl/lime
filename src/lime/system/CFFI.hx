@@ -280,7 +280,7 @@ class CFFI
 	{
 		if (!__loadedNekoAPI)
 		{
-			var init:Dynamic;
+			var init:Dynamic = null;
 			try
 			{
 				init = load("lime", "neko_init", 5);
