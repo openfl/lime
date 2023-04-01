@@ -280,34 +280,35 @@ class CFFI
 	{
 		if (!__loadedNekoAPI)
 		{
+			var init:Dynamic;
 			try
 			{
-				var init = load("lime", "neko_init", 5);
-
-				if (init != null)
-				{
-					__loaderTrace("Found nekoapi @ " + __moduleNames.get("lime"));
-					init(function(s) return new String(s), function(len:Int)
-					{
-						var r = [];
-						if (len > 0) r[len - 1] = null;
-						return r;
-					}, null, true, false);
-				}
-				else if (!lazy)
-				{
-					throw("Could not find NekoAPI interface.");
-				}
+				init = load("lime", "neko_init", 5);
 			}
-			catch (e:Dynamic)
+			catch (e)
 			{
-				if (!lazy)
-				{
-					throw("Could not find NekoAPI interface.");
-				}
 			}
 
-			__loadedNekoAPI = true;
+			if (init != null)
+			{
+				__loaderTrace("Found nekoapi @ " + __moduleNames.get("lime"));
+				init(function(s) return new String(s), function(len:Int)
+				{
+					var r = [];
+					if (len > 0) r[len - 1] = null;
+					return r;
+				}, null, true, false);
+
+				__loadedNekoAPI = true;
+			}
+			else if (!lazy)
+			{
+				var ndllFolder = __findHaxelib("lime") + "/ndll/" + __sysName();
+				throw "Could not find lime.ndll. This file is provided with Lime's Haxelib releases, but not via Git. "
+					+ "Please copy it from Lime's latest Haxelib release into either "
+					+ ndllFolder + " or " + ndllFolder + "64, as appropriate for your system. "
+					+ "Advanced users may run `lime rebuild cpp` instead.";
+			}
 		}
 	}
 	#end
