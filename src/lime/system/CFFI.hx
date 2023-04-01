@@ -149,16 +149,15 @@ class CFFI
 
 			if (result == null)
 			{
-				var slash = (__sysName().substr(7).toLowerCase() == "windows") ? "\\" : "/";
 				var haxelib = __findHaxelib("lime");
 
 				if (haxelib != "")
 				{
-					result = __tryLoad(haxelib + slash + "ndll" + slash + __sysName() + slash + library, library, method, args);
+					result = __tryLoad(haxelib + "/ndll/" + __sysName() + "/" + library, library, method, args);
 
 					if (result == null)
 					{
-						result = __tryLoad(haxelib + slash + "ndll" + slash + __sysName() + "64" + slash + library, library, method, args);
+						result = __tryLoad(haxelib + "/ndll/" + __sysName() + "64/" + library, library, method, args);
 					}
 				}
 			}
