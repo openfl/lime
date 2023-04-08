@@ -8,16 +8,25 @@ class AIRHelper
 	public static function build(project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String,
 			files:Array<String>, fileDirectory:String = null):String
 	{
-		// var airTarget = "air";
-		// var extension = ".air";
-		var airTarget = "bundle";
-		var extension = "";
+		var airTarget:String = "air";
+		var extension:String = ".air";
 
 		switch (targetPlatform)
 		{
 			case MAC:
-
+				if (project.targetFlags.exists("captive"))
+				{
+					airTarget = "bundle";
+					extension = ".app";
+				}
 			// extension = ".app";
+
+			case WINDOWS:
+				if (project.targetFlags.exists("captive"))
+					{
+						airTarget = "bundle";
+						extension = "";
+					}
 
 			case IOS:
 				if (project.targetFlags.exists("simulator"))
