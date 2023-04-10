@@ -487,7 +487,7 @@ class IOSPlatform extends PlatformTarget
 
 		var commands = [];
 
-		if (armv6) commands.push(["-Dios", "-DHXCPP_CPP11"]);
+		if (armv6) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV6"]);
 		if (armv7) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7"]);
 		if (armv7s) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S"]);
 		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
