@@ -555,12 +555,15 @@ class Application extends Module
 
 	@:noCompletion private function __checkForAllWindowsClosed():Void
 	{
+		// air handles this automatically with NativeApplication.autoExit
+		#if !air
 		if (__windows.length == 0)
 		{
 			#if !lime_doc_gen
 			System.exit(0);
 			#end
 		}
+		#end
 	}
 
 	@:noCompletion private function __onGamepadConnect(gamepad:Gamepad):Void
