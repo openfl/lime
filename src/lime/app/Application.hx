@@ -591,6 +591,10 @@ class Application extends Module
 	@:noCompletion private function __onModuleExit(code:Int):Void
 	{
 		__backend.exit();
+		if (Application.current == this)
+		{
+			Application.current = null;
+		}
 	}
 
 	@:noCompletion private function __onWindowClose(window:Window):Void
