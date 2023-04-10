@@ -594,6 +594,8 @@ class Application extends Module
 		{
 			return;
 		}
+
+		__unregisterLimeModule(this);
 		__backend.exit();
 		if (Application.current == this)
 		{
@@ -623,8 +625,6 @@ class Application extends Module
 		Touch.onStart.remove(onTouchStart);
 		Touch.onMove.remove(onTouchMove);
 		Touch.onEnd.remove(onTouchEnd);
-
-		onModuleExit(0);
 	}
 
 	// Get & Set Methods
