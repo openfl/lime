@@ -514,7 +514,7 @@ class Application extends Module
 	{
 		application.onUpdate.add(update);
 		application.onExit.add(onModuleExit, false, 0);
-		application.onExit.add(__onModuleExit, false, 0);
+		application.onExit.add(__onModuleExit, false, -1000);
 
 		for (gamepad in Gamepad.devices)
 		{
@@ -590,6 +590,10 @@ class Application extends Module
 
 	@:noCompletion private function __onModuleExit(code:Int):Void
 	{
+		if (onExit.canceled)
+		{
+			return;
+		}
 		__backend.exit();
 		if (Application.current == this)
 		{
