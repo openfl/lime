@@ -91,7 +91,7 @@ class IOSPlatform extends PlatformTarget
 				title: ""
 			};
 
-		defaults.architectures = [Architecture.ARMV7, Architecture.ARM64];
+		defaults.architectures = [Architecture.ARM64];
 		defaults.window.width = 0;
 		defaults.window.height = 0;
 		defaults.window.fullscreen = true;
@@ -250,7 +250,7 @@ class IOSPlatform extends PlatformTarget
 
 		if (architectures == null || architectures.length == 0)
 		{
-			architectures = [Architecture.ARMV7, Architecture.ARM64];
+			architectures = [Architecture.ARM64];
 		}
 
 		if (project.config.getString("ios.device", "universal") == "universal" || project.config.getString("ios.device") == "iphone")
