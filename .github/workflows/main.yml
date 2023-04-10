@@ -215,7 +215,7 @@ jobs:
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r15c
+          ndk-version: r21e
 
       - uses: actions/setup-java@v1
         with:
