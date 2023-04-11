@@ -204,7 +204,7 @@ class AIRHelper
 			Sys.putEnv("AIR_NOANDROIDFLAIR", "true");
 		}
 
-		if (targetPlatform == IOS)
+		if (targetPlatform == IOS && System.hostPlatform == MAC)
 		{
 			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project));
 		}
