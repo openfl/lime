@@ -206,7 +206,15 @@ class AIRHelper
 
 		if (targetPlatform == IOS && System.hostPlatform == MAC)
 		{
-			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project));
+			var simulatorName = XCodeHelper.getSimulatorName(project);
+			if (simulatorName == null)
+			{
+				Log.warn("Skipping AIR_IOS_SIMULATOR_DEVICE environment variable because default simulator not found");
+			}
+			else
+			{
+				Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", simulatorName);
+			}
 		}
 
 		System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
