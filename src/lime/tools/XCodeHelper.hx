@@ -101,12 +101,22 @@ class XCodeHelper
 
 	public static function getSimulatorID(project:HXProject):String
 	{
-		return getSelectedSimulator(project).id;
+		var simulator = getSelectedSimulator(project);
+		if (simulator == null)
+		{
+			return null;
+		}
+		return simulator.id;
 	}
 
 	public static function getSimulatorName(project:HXProject):String
 	{
-		return getSelectedSimulator(project).name;
+		var simulator = getSelectedSimulator(project);
+		if (simulator == null)
+		{
+			return null;
+		}
+		return simulator.name;
 	}
 
 	private static function getSimulators():String
