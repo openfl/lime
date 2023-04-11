@@ -966,6 +966,10 @@ class HTML5Window
 
 	public function resize(width:Int, height:Int):Void {}
 
+	public function setMinSize(width:Int, height:Int):Void {}
+
+	public function setMaxSize(width:Int, height:Int):Void {}
+
 	public function setBorderless(value:Bool):Bool
 	{
 		return value;

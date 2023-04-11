@@ -461,6 +461,26 @@ class NativeWindow
 		}
 	}
 
+	public function setMinSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_minimum_size(handle, width, height);
+			#end
+		}
+	}
+
+	public function setMaxSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_maximum_size(handle, width, height);
+			#end
+		}
+	}
+
 	public function setBorderless(value:Bool):Bool
 	{
 		if (handle != null)

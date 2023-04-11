@@ -50,8 +50,12 @@ class Window
 	public var height(get, set):Int;
 	public var hidden(get, null):Bool;
 	public var id(default, null):Int;
+	public var maxHeight(get, set):Int;
 	public var maximized(get, set):Bool;
+	public var maxWidth(get, set):Int;
+	public var minHeight(get, set):Int;
 	public var minimized(get, set):Bool;
+	public var minWidth(get, set):Int;
 	public var mouseLock(get, set):Bool;
 	public var onActivate(default, null) = new Event<Void->Void>();
 	public var onClose(default, null) = new Event<Void->Void>();
@@ -114,6 +118,10 @@ class Window
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
+	@:noCompletion private var __minWidth:Int;
+	@:noCompletion private var __minHeight:Int;
+	@:noCompletion private var __maxWidth:Int;
+	@:noCompletion private var __maxHeight:Int;
 
 	#if commonjs
 	private static function __init__()
@@ -128,8 +136,12 @@ class Window
 				"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
 				"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
 				"height": {get: p.get_height, set: p.set_height},
+				"maxHeight": {get: p.get_maxHeight, set: p.set_maxHeight},
 				"maximized": {get: p.get_maximized, set: p.set_maximized},
+				"maxWidth": {get: p.get_maxWidth, set: p.set_maxWidth},
+				"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
 				"minimized": {get: p.get_minimized, set: p.set_minimized},
+				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
 				"resizable": {get: p.get_resizable, set: p.set_resizable},
 				"scale": {get: p.get_scale},
@@ -396,10 +408,55 @@ class Window
 
 	public function resize(width:Int, height:Int):Void
 	{
+		if (width < __minWidth)
+		{
+			width = __minWidth;
+		}
+		else if (width > __maxWidth)
+		{
+			width = __maxWidth;
+		}
+		if (height < __minHeight)
+		{
+			height = __minHeight;
+		}
+		else if (height > __maxHeight)
+		{
+			height = __maxHeight;
+		}
+
 		__backend.resize(width, height);
 
 		__width = width;
 		__height = height;
+	}
+
+	public function setMinSize(width:Int, height:Int):Void
+	{
+		__backend.setMinSize(width, height);
+
+		__minWidth = width;
+		__minHeight = height;
+		if (__width < __minWidth) {
+			__width = __minWidth;
+		}
+		if (__height < __minHeight) {
+			__height = __minHeight;
+		}
+	}
+
+	public function setMaxSize(width:Int, height:Int):Void
+	{
+		__backend.setMaxSize(width, height);
+
+		__maxWidth = width;
+		__maxHeight = height;
+		if (__width > __maxWidth) {
+			__width = __maxWidth;
+		}
+		if (__height > __maxHeight) {
+			__height = __maxHeight;
+		}
 	}
 
 	public function setIcon(image:Image):Void
@@ -494,6 +551,17 @@ class Window
 		return __hidden;
 	}
 
+	@:noCompletion private inline function get_maxHeight():Int
+	{
+		return __maxHeight;
+	}
+
+	@:noCompletion private function set_maxHeight(value:Int):Int
+	{
+		setMaxSize(__maxWidth, value);
+		return __maxHeight;
+	}
+
 	@:noCompletion private inline function get_maximized():Bool
 	{
 		return __maximized;
@@ -505,6 +573,28 @@ class Window
 		return __maximized = __backend.setMaximized(value);
 	}
 
+	@:noCompletion private inline function get_maxWidth():Int
+	{
+		return __maxWidth;
+	}
+
+	@:noCompletion private function set_maxWidth(value:Int):Int
+	{
+		setMinSize(value, __maxHeight);
+		return __maxWidth;
+	}
+
+	@:noCompletion private inline function get_minHeight():Int
+	{
+		return __minHeight;
+	}
+
+	@:noCompletion private function set_minHeight(value:Int):Int
+	{
+		setMinSize(__minWidth, value);
+		return __minHeight;
+	}
+
 	@:noCompletion private inline function get_minimized():Bool
 	{
 		return __minimized;
@@ -514,6 +604,17 @@ class Window
 	{
 		__maximized = false;
 		return __minimized = __backend.setMinimized(value);
+	}
+
+	@:noCompletion private inline function get_minWidth():Int
+	{
+		return __minWidth;
+	}
+
+	@:noCompletion private function set_minWidth(value:Int):Int
+	{
+		setMinSize(value, __minHeight);
+		return __minWidth;
 	}
 
 	@:noCompletion private function get_mouseLock():Bool
