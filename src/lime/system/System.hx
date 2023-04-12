@@ -32,9 +32,9 @@ import sys.io.Process;
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.system.Display)
 @:access(lime.system.DisplayMode)
-#if (cpp && windows && !HXCPP_MINGW && !lime_disable_gpu_hint)
+#if (cpp && windows && !lime_disable_gpu_hint)
 @:cppFileCode('
-#if defined(HX_WINDOWS)
+#if defined(HX_WINDOWS) && !defined(__MINGW32__)
 extern "C" {
 	_declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
