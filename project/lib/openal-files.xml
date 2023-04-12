@@ -134,7 +134,7 @@
             <compilerflag value="-Drestrict=" />
             <compilerflag value="-D_CRT_SECURE_NO_WARNINGS" />
             <compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" />
-            <compilerflag value="/wd4098" />
+            <compilerflag value="/wd4098" unless="mingw"/>
             <compilerflag value="-Dstrcasecmp=_stricmp" />
             <compilerflag value="-Dstrncasecmp=_strnicmp" />
 
