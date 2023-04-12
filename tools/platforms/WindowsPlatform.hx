@@ -138,7 +138,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			targetType = "winjs";
 		}
-		else if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		else if (project.targetFlags.exists("neko"))
 		{
 			targetType = "neko";
 		}
