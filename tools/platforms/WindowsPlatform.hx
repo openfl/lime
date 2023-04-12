@@ -496,6 +496,24 @@ class WindowsPlatform extends PlatformTarget
 					CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
 					System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+
+					if (project.targetFlags.exists("mingw"))
+					{
+						var libraries = ["libwinpthread-1.dll", "libstdc++-6.dll"];
+						if (is64)
+						{
+							libraries.push("libgcc_s_seh-1.dll");
+						}
+						else
+						{
+							libraries.push("libgcc_s_dw2-1.dll");
+						}
+
+						for (library in libraries)
+						{
+							System.copyIfNewer(targetDirectory + "/obj/" + library, Path.combine(applicationDirectory, library));
+						}
+					}
 				}
 				else
 				{
