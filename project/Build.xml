@@ -430,7 +430,7 @@
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
 				<lib name="dwrite.lib" if="LIME_HARFBUZZ" />
 
-				<lib name="comsuppw.lib" unless="winrt" />
+				<lib name="comsuppw.lib" unless="winrt || mingw" />
 
 				<lib name="D3D11.lib" if="winrt" />
 				<lib name="RuntimeObject.lib" if="winrt" />
