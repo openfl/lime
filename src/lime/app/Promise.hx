@@ -44,7 +44,7 @@ package lime.app;
 @:noDebug
 #end
 @:allow(lime.app.Future)
-#if (!hl && !js)
+#if (!hl && !js && !macro)
 @:generic
 #end
 class Promise<T>
