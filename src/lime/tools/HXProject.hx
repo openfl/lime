@@ -518,37 +518,48 @@ class HXProject extends Script
 		return HXProject.fromPath(path, userDefines);
 	}
 
-	public static function fromPath(path:String, userDefines:Map<String, Dynamic> = null):HXProject
+	public static function fromPath(directory:String, userDefines:Map<String, Dynamic> = null):HXProject
 	{
-		if (!FileSystem.exists(path) || !FileSystem.isDirectory(path))
+		if (!FileSystem.exists(directory) || !FileSystem.isDirectory(directory))
 		{
 			return null;
 		}
 
-		var files = ["include.lime", "include.nmml", "include.xml"];
+		var files = ["include.lime", "include.nmml", "include.xml", "include.hxp"];
 		var projectFile = null;
 
 		for (file in files)
 		{
-			if (projectFile == null && FileSystem.exists(Path.combine(path, file)))
+			if (FileSystem.exists(Path.combine(directory, file)))
 			{
-				projectFile = Path.combine(path, file);
+				projectFile = Path.combine(directory, file);
+				break;
 			}
 		}
+
+		var project = null;
 
 		if (projectFile != null)
 		{
-			var project = new ProjectXMLParser(projectFile, userDefines);
+			if (StringTools.endsWith(projectFile, ".hxp"))
+			{
+				var cwd = Sys.getCwd();
+				Sys.setCwd(directory);
+				project = HXProject.fromFile(projectFile, userDefines);
+				Sys.setCwd(cwd);
+			}
+			else
+			{
+				project = new ProjectXMLParser(projectFile, userDefines);
+			}
 
 			if (project.config.get("project.rebuild.path") == null)
 			{
-				project.config.set("project.rebuild.path", Path.combine(path, "project"));
+				project.config.set("project.rebuild.path", Path.combine(directory, "project"));
 			}
-
-			return project;
 		}
 
-		return null;
+		return project;
 	}
 
 	private function getHaxelibVersion(haxelib:Haxelib):String
