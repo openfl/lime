@@ -492,6 +492,11 @@ class Assets
 
 	public static function registerLibrary(name:String, library:AssetLibrary):Void
 	{
+		if (name == null || name == "")
+		{
+			name = "default";
+		}
+
 		if (libraries.exists(name))
 		{
 			if (libraries.get(name) == library)
