@@ -444,7 +444,11 @@ class HTML5HTTPRequest
 
 	private static function __loadImage(uri:String, promise:Promise<Image>, options:Int):Void
 	{
+		#if (openfljs || genes)
+		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
+		#else
 		var image = new JSImage();
+		#end
 
 		if (!__isSameOrigin(uri))
 		{
