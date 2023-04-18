@@ -1670,20 +1670,21 @@ class ProjectXMLParser extends HXProject
 						parseXML(element, "", extensionPath);
 
 					case "certificate":
-						var path = null;
-
-						if (element.has.path)
+						if (element.has.path || element.has.type)
 						{
-							path = element.att.path;
-						}
-						else if (element.has.keystore)
-						{
-							path = element.att.keystore;
+							keystore = new Keystore();
 						}
 
-						if (path != null)
+						if (keystore != null)
 						{
-							keystore = new Keystore(Path.combine(extensionPath, substitute(element.att.path)));
+							if (element.has.path)
+							{
+								keystore.path = Path.combine(extensionPath, substitute(element.att.path));
+							}
+							else if (element.has.keystore)
+							{
+								keystore.path = Path.combine(extensionPath, substitute(element.att.keystore));
+							}
 
 							if (element.has.type)
 							{
@@ -1755,6 +1756,11 @@ class ProjectXMLParser extends HXProject
 						if (element.has.resolve("force-load"))
 						{
 							dependency.forceLoad = parseBool(element.att.resolve("force-load"));
+						}
+
+						if (element.has.resolve("web-worker"))
+						{
+							dependency.webWorker = parseBool(element.att.resolve("web-worker"));
 						}
 
 						var i = dependencies.length;

@@ -126,14 +126,16 @@ class LinuxPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.ARMV7)
 			{
+				// TODO: can we assume this is actually a Pi? probably not. -JT
 				isRaspberryPi = true;
+				is64 = false;
 			}
 		}
 
 		if (project.targetFlags.exists("rpi"))
 		{
 			isRaspberryPi = true;
-			is64 = false;
+			is64 = targetFlags.exists("64");
 		}
 
 		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
@@ -183,7 +185,7 @@ class LinuxPlatform extends PlatformTarget
 				}
 				else if (isRaspberryPi)
 				{
-					ProjectHelper.copyLibrary(project, ndll, "RPi", "",
+					ProjectHelper.copyLibrary(project, ndll, "RPi" + (is64 ? "64" : ""), "",
 						(ndll.haxelib != null
 							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory,
 						project.debug, targetSuffix);
@@ -261,9 +263,18 @@ class LinuxPlatform extends PlatformTarget
 
 			if (is64)
 			{
-				haxeArgs.push("-D");
-				haxeArgs.push("HXCPP_M64");
-				flags.push("-DHXCPP_M64");
+				if (isRaspberryPi)
+				{
+					haxeArgs.push("-D");
+					haxeArgs.push("HXCPP_ARM64");
+					flags.push("-DHXCPP_ARM64");
+				}
+				else
+				{
+					haxeArgs.push("-D");
+					haxeArgs.push("HXCPP_M64");
+					flags.push("-DHXCPP_M64");
+				}
 			}
 			else
 			{
@@ -384,17 +395,34 @@ class LinuxPlatform extends PlatformTarget
 
 		if (targetFlags.exists("rpi"))
 		{
-			commands.push([
-				"-Dlinux",
-				"-Drpi",
-				"-Dtoolchain=linux",
-				"-DBINDIR=RPi",
-				"-DCXX=arm-linux-gnueabihf-g++",
-				"-DHXCPP_M32",
-				"-DHXCPP_STRIP=arm-linux-gnueabihf-strip",
-				"-DHXCPP_AR=arm-linux-gnueabihf-ar",
-				"-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib"
-			]);
+			if (is64)
+			{
+				commands.push([
+					"-Dlinux",
+					"-Drpi",
+					"-Dtoolchain=linux",
+					"-DBINDIR=RPi64",
+					"-DHXCPP_ARM64",
+					"-DCXX=aarch64-linux-gnu-g++",
+					"-DHXCPP_STRIP=aarch64-linux-gnu-strip",
+					"-DHXCPP_AR=aarch64-linux-gnu-ar",
+					"-DHXCPP_RANLIB=aarch64-linux-gnu-ranlib"
+				]);
+			}
+			else
+			{
+				commands.push([
+					"-Dlinux",
+					"-Drpi",
+					"-Dtoolchain=linux",
+					"-DBINDIR=RPi",
+					"-DHXCPP_M32",
+					"-DCXX=arm-linux-gnueabihf-g++",
+					"-DHXCPP_STRIP=arm-linux-gnueabihf-strip",
+					"-DHXCPP_AR=arm-linux-gnueabihf-ar",
+					"-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib"
+				]);
+			}
 		}
 		else if (targetFlags.exists("hl") && System.hostArchitecture == X64)
 		{
@@ -482,7 +510,7 @@ class LinuxPlatform extends PlatformTarget
 				{
 					if (isRaspberryPi)
 					{
-						context.ndlls[i].path = NDLL.getLibraryPath(ndll, "RPi", "lib", ".a", project.debug);
+						context.ndlls[i].path = NDLL.getLibraryPath(ndll, "RPi" + (is64 ? "64" : ""), "lib", ".a", project.debug);
 					}
 					else
 					{

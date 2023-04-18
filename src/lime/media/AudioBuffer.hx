@@ -309,9 +309,9 @@ class AudioBuffer
 
 	public static function loadFromFiles(paths:Array<String>):Future<AudioBuffer>
 	{
+		#if (js && html5 && lime_howlerjs)
 		var promise = new Promise<AudioBuffer>();
 
-		#if (js && html5 && lime_howlerjs)
 		var audioBuffer = AudioBuffer.fromFiles(paths);
 
 		if (audioBuffer != null)
@@ -332,11 +332,11 @@ class AudioBuffer
 		{
 			promise.error(null);
 		}
-		#else
-		promise.completeWith(new Future<AudioBuffer>(function() return fromFiles(paths), true));
-		#end
 
 		return promise.future;
+		#else
+		return Future.withEventualValue(fromFiles, paths, MULTI_THREADED);
+		#end
 	}
 
 	private static function __getCodec(bytes:Bytes):String

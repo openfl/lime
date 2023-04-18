@@ -301,6 +301,18 @@ class NativeWindow
 		return mouseLock;
 	}
 
+	public function getOpacity():Float
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_opacity(handle);
+			#end
+		}
+
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		if (handle != null)
@@ -630,6 +642,16 @@ class NativeWindow
 		return value;
 	}
 
+	public function setOpacity(value:Float):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_opacity(handle, value);
+			#end
+		}
+	}
+
 	public function setResizable(value:Bool):Bool
 	{
 		if (handle != null)
@@ -653,6 +675,18 @@ class NativeWindow
 		{
 			#if (!macro && lime_cffi)
 			return NativeCFFI.lime_window_set_title(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
+	public function setVisible(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_visible(handle, value);
 			#end
 		}
 

@@ -39,6 +39,7 @@ namespace lime {
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
 			virtual bool GetMouseLock () = 0;
+			virtual float GetOpacity () = 0;
 			virtual double GetScale () = 0;
 			virtual bool GetTextInputEnabled () = 0;
 			virtual int GetWidth () = 0;
@@ -55,10 +56,12 @@ namespace lime {
 			virtual bool SetMaximized (bool minimized) = 0;
 			virtual bool SetMinimized (bool minimized) = 0;
 			virtual void SetMouseLock (bool mouseLock) = 0;
+			virtual void SetOpacity (float opacity) = 0;
 			virtual bool SetResizable (bool resizable) = 0;
 			virtual void SetTextInputEnabled (bool enable) = 0;
 			virtual void SetTextInputRect (Rectangle *rect) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
+			virtual bool SetVisible (bool visible) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
 
 			Application* currentApplication;

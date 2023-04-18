@@ -261,9 +261,7 @@ class System
 
 	public static function getTimer():Int
 	{
-		#if (kha && !macro)
-		return Std.int(kha.System.time * 1000);
-		#elseif flash
+		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		return Std.int(Browser.window.performance.now());
@@ -298,7 +296,7 @@ class System
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);
 			#elseif linux
-			Sys.command("/usr/bin/xdg-open", [path, "&"]);
+			Sys.command("/usr/bin/xdg-open", [path]);
 			#elseif (js && html5)
 			Browser.window.open(path, "_blank");
 			#elseif flash

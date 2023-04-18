@@ -1,6 +1,7 @@
 package;
 
 import haxe.io.Bytes;
+import haxe.io.Path;
 import lime.utils.AssetBundle;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
@@ -44,6 +45,12 @@ import sys.FileSystem;
 
 			rootPath = Reflect.field (config, "rootPath");
 
+			if(!StringTools.endsWith (rootPath, "/")) {
+
+				rootPath += "/";
+
+			}
+
 		}
 
 		if (rootPath == null) {
@@ -52,7 +59,7 @@ import sys.FileSystem;
 			rootPath = "assets/";
 			#elseif android
 			rootPath = "";
-			#elseif console
+			#elseif (console || sys)
 			rootPath = lime.system.System.applicationDirectory;
 			#else
 			rootPath = "./";
@@ -67,26 +74,15 @@ import sys.FileSystem;
 
 		var data, manifest, library, bundle;
 
-		#if kha
-
-		::manifest::
-		library = AssetLibrary.fromManifest (manifest);
-		Assets.registerLibrary ("::library::", library);
-
-		if (library != null) preloadLibraries.push (library);
-		else preloadLibraryNames.push ("::library::");
-
-		#else
-
 		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("::library::", library);
 		::else::Assets.libraryPaths["::library::"] = rootPath + "::resourceName::";
 		::end::::end::::if (type == "bundle")::::if (embed)::
-		bundle = AssetBundle.fromBytes(#if flash Bytes.ofData(new __ASSET__::flatName::() #else new __ASSET__::flatName::() #end));
-		library = AssetLibrary.fromBundle(bundle);
-		Assets.registerLibrary("::library::", library);
+		bundle = AssetBundle.fromBytes (#if flash Bytes.ofData (new __ASSET__::flatName:: () #else new __ASSET__::flatName:: () #end));
+		library = AssetLibrary.fromBundle (bundle);
+		Assets.registerLibrary ("::library::", library);
 		::else::Assets.bundlePaths["::library::"] = rootPath + "::resourceName::";
 		::end::::end::::end::::end::
 
@@ -95,19 +91,10 @@ import sys.FileSystem;
 		else preloadLibraryNames.push ("::name::");
 		::end::::end::
 
-		#end
-
 	}
 
 
 }
-
-
-#if kha
-
-::images::
-
-#else
 
 #if !display
 #if flash
@@ -144,8 +131,6 @@ import sys.FileSystem;
 #end
 
 #end
-#end
-
 #end
 
 #end

@@ -255,7 +255,7 @@ class IOSPlatform extends PlatformTarget
 
 		if (project.config.getString("ios.device", "universal") == "universal" || project.config.getString("ios.device") == "iphone")
 		{
-			if (project.config.getFloat("ios.deployment", 9) < 5)
+			if (project.config.getFloat("ios.deployment", 13) < 5)
 			{
 				ArrayTools.addUnique(architectures, Architecture.ARMV6);
 			}
@@ -315,14 +315,14 @@ class IOSPlatform extends PlatformTarget
 			case "ipad": "2";
 			default: "1,2";
 		}
-		context.DEPLOYMENT = project.config.getString("ios.deployment", "9.0");
+		context.DEPLOYMENT = project.config.getString("ios.deployment", "13.6");
 
 		if (project.config.getString("ios.compiler") == "llvm" || project.config.getString("ios.compiler", "clang") == "clang")
 		{
 			context.OBJC_ARC = true;
 		}
 
-		// context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 9) >= 6);
+		// context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 13) >= 6);
 		context.ENABLE_BITCODE = project.config.getBool("ios.enable-bitcode", false);
 		context.IOS_COMPILER = project.config.getString("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString("cpp.buildLibrary", "hxcpp");
@@ -734,7 +734,8 @@ class IOSPlatform extends PlatformTarget
 						#if (lime && lime_cffi && !macro)
 						Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
 
-						var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
+						var background = project.window.background != null ? project.window.background & 0xFFFFFF : 0x000000;
+						var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | background);
 						var bytes = image.encode(PNG);
 
 						File.saveBytes(imagePath, bytes);

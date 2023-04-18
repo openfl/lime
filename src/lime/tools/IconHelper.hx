@@ -298,9 +298,11 @@ class IconHelper
 		for (icon in icons)
 		{
 			var iconDifference = icon.width - width + icon.height - height;
-			if (Path.extension(icon.path) == "svg")
+
+			// If size is unspecified, accept it as an almost-perfect match
+			if (icon.width == 0 && icon.height == 0)
 			{
-				iconDifference = 0;
+				iconDifference = 1;
 			}
 
 			if (iconDifference < 0 && !acceptSmaller)
