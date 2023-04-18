@@ -519,8 +519,8 @@ class LinuxPlatform extends PlatformTarget
 		
 		if (targetType == "cppia")
 		{
-			FileHelper.copyFileTemplate(project.templatePaths, "cppia/bin/host-linux" + (is64 ? "64" : ""), executablePath);
-			FileHelper.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/host-linux" + (is64 ? "64" : ""), executablePath);
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
 		}
 
 		// context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, Path.combine (applicationDirectory, "icon.png"));

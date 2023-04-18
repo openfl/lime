@@ -892,8 +892,8 @@ class WindowsPlatform extends PlatformTarget
 		
 		if (targetType == "cppia")
 		{
-			FileHelper.copyFileTemplate(project.templatePaths, "cppia/bin/host-windows", executablePath);
-			FileHelper.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/host-windows", executablePath);
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
 		}
 
 		/*if (IconHelper.createIcon (project.icons, 32, 32, Path.combine (applicationDirectory, "icon.png"))) {

@@ -488,8 +488,8 @@ class MacPlatform extends PlatformTarget
 		
 		if (targetType == "cppia")
 		{
-			FileHelper.copyFileTemplate(project.templatePaths, "cppia/bin/host-mac" + (is64 ? "64" : ""), executablePath);
-			FileHelper.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/host-mac" + (is64 ? "64" : ""), executablePath);
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
 		}
 
 		System.copyFileTemplate(project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
