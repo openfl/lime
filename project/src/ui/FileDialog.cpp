@@ -9,6 +9,11 @@
 
 namespace lime {
 
+	template<typename T>
+	static bool is_empty (const T* str) {
+		return str[0] == 0;
+	}
+
 	#ifdef HX_WINDOWS
 
 	const wchar_t* FileDialog::OpenDirectory (const wchar_t* title, const wchar_t* filter, const wchar_t* defaultPath) {
@@ -17,7 +22,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_selectFolderDialogW (title, defaultPath);
 
-		if (path && std::wcslen(path) > 0) {
+		if (path && !is_empty(path)) {
 
 			return path;
 
@@ -53,7 +58,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (path && std::wcslen(path) > 0) {
+		if (path && !is_empty(path)) {
 
 			return path;
 
@@ -90,7 +95,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (paths && std::wcslen(paths) > 0) {
+		if (paths && !is_empty(paths)) {
 
 			return paths;
 
@@ -113,7 +118,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_saveFileDialogW (title, defaultPath, filter ? 1 : 0, filter ? filters : NULL, NULL);
 
-		if (path && std::wcslen(path) > 0) {
+		if (path && !is_empty(path)) {
 
 			return path;
 
@@ -131,7 +136,7 @@ namespace lime {
 
 		const char* path = tinyfd_selectFolderDialog (title, defaultPath);
 
-		if (path && std::strlen(path) > 0) {
+		if (path && !is_empty(path)) {
 
 			return path;
 
@@ -167,7 +172,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (path && std::strlen(path) > 0) {
+		if (path && !is_empty(path)) {
 
 			return path;
 
@@ -204,7 +209,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (paths && std::strlen(paths) > 0) {
+		if (paths && !is_empty(paths)) {
 
 			return paths;
 
@@ -226,7 +231,7 @@ namespace lime {
 
 		const char* path = tinyfd_saveFileDialog (title, defaultPath, filter ? 1 : 0, filter ? filters : NULL, NULL);
 
-		if (path && std::strlen(path) > 0) {
+		if (path && !is_empty(path)) {
 
 			return path;
 
