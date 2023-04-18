@@ -18,7 +18,4 @@
     },
     "files.trimTrailingWhitespace": true,
     "C_Cpp.autoAddFileAssociations": false,
-    "cSpell.enableFiletypes": [
-        "!cpp"
-    ],
 }
