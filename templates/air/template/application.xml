@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application xmlns="http://ns.adobe.com/air/application/::AIR_SDK_VERSION::">
+	<id>::APP_PACKAGE::</id>
+	<versionLabel>::APP_VERSION::</versionLabel>
+	<versionNumber>::APP_BUILD_NUMBER_SPLIT::</versionNumber>
+	<filename>::APP_FILE::</filename>
+	<name>::APP_TITLE::</name>
+	<description>::APP_DESCRIPTION::</description>
+	<!-- <copyright>????</copyright> -->
+	<initialWindow>
+		<title>::APP_TITLE::</title>
+		<content>::APP_FILE::.swf</content>
+		<systemChrome>::if (WIN_BORDERLESS)::none::else::standard::end::</systemChrome>
+		<transparent>false</transparent>
+		<visible>::if (LIB_MUNIT)::false::else::::if (WIN_HIDDEN)::false::else::true::end::::end::</visible>
+		<minimizable>true</minimizable>
+		<maximizable>true</maximizable>
+		<resizable>::WIN_RESIZABLE::</resizable>
+		::if (WIN_WIDTH != 0)::<width>::WIN_WIDTH::</width>::end::
+		::if (WIN_HEIGHT != 0)::<height>::WIN_HEIGHT::</height>::end::
+		<!-- <minSize>320 240</minSize>
+		<maxSize>1280 960</maxSize> -->
+		<renderMode>::if (WIN_HARDWARE)::direct::else::cpu::end::</renderMode>
+		::if (WIN_ORIENTATION == "auto")::
+		<autoOrients>true</autoOrients>
+		<aspectRatio>any</aspectRatio>
+		::else::
+		<autoOrients>false</autoOrients>
+		<aspectRatio>::if (WIN_ORIENTATION == "portrait")::portrait::else::landscape::end::</aspectRatio>
+		::end::
+		<fullScreen>::WIN_FULLSCREEN::</fullScreen>
+		::if (WIN_HARDWARE)::<depthAndStencil>true</depthAndStencil>::end::
+		::if WIN_ALLOW_HIGH_DPI::<requestedDisplayResolution>high</requestedDisplayResolution>::end::
+	</initialWindow>
+	<installFolder>::if (APP_COMPANY != "")::::APP_COMPANY::/::APP_TITLE::::else::::APP_TITLE::::end::</installFolder>
+	<programMenuFolder>::APP_TITLE::</programMenuFolder>
+	::if (icons != null)::<icon>::foreach icons::
+		<image::size::x::size::>::path::</image::size::x::size::>::end::
+	</icon>::end::
+	::if (languages != null)::<supportedLanguages>::foreach languages::::__current__:: ::end::</supportedLanguages>::end::
+	<customUpdateUI>false</customUpdateUI>
+	<allowBrowserInvocation>false</allowBrowserInvocation>
+	<!-- <fileTypes>
+		<fileType>
+			<name>adobe.VideoFile</name>
+			<extension>avf</extension>
+			<description>Adobe Video File</description>
+			<contentType>application/vnd.adobe.video-file</contentType>
+			<icon>
+				<image16x16>icons/avfIcon_16.png</image16x16>
+				<image32x32>icons/avfIcon_32.png</image32x32>
+				<image48x48>icons/avfIcon_48.png</image48x48>
+				<image128x128>icons/avfIcon_128.png</image128x128>
+			</icon>
+		</fileType>
+	</fileTypes> -->
+	<android>
+		<manifestAdditions>
+			<![CDATA[
+				<manifest>
+					<uses-permission android:name="android.permission.WAKE_LOCK" />
+					<uses-permission android:name="android.permission.INTERNET" />
+					<uses-permission android:name="android.permission.VIBRATE" />
+					<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+				</manifest>
+			]]>
+		</manifestAdditions>
+	</android>
+	<iPhone>
+		<InfoAdditions>
+			<![CDATA[
+				::if (IOS_TARGET_DEVICES != null)::<key>UIDeviceFamily</key>
+				<array>::foreach IOS_TARGET_DEVICES::
+					<string>::__current__::</string>::end::
+				</array>::end::
+			]]>
+		</InfoAdditions>
+		<requestedDisplayResolution>::if WIN_ALLOW_HIGH_DPI::high::else::standard::end::</requestedDisplayResolution>
+	</iPhone>
+	::if (extensions != null)::<extensions>::foreach extensions::
+		<extensionID>::name::</extensionID>::end::
+	</extensions>::end::
+</application>

@@ -1,22 +1,21 @@
 <xml>
-	
+
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
-	
+
 	<files id="main">
-		
+
 		<file name="Main.cpp" />
-		
+
 	</files>
-	
+
 	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
-		
+
 		<files id="main" />
-		
 		::foreach ndlls::
 		<lib name="::path::" />::end::
-		
+
 		<section if="windows">
-			
+
 			<lib name="gdi32.lib" />
 			<lib name="opengl32.lib" />
 			<lib name="user32.lib" />
@@ -31,22 +30,26 @@
 			<lib name="wldap32.lib" />
 			<lib name="shell32.lib" />
 			<lib name="comdlg32.lib" />
-			
+			<lib name="comsuppw.lib" />
+			<lib name="usp10.lib" />
+			<lib name="rpcrt4.lib" />
+			<lib name="dwrite.lib" />
+			<lib name="setupapi.lib" />
+
 		</section>
-		
+
 		<section if="linux">
-			
-			<lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
+
 			<lib name="-lpthread" />
 			<lib name="-lrt" />
-			
+
 			<lib name="-lgc" if="LIME_NEKO" />
 			<lib name="-lm" if="LIME_NEKO" />
-			
+
 		</section>
-		
+
 		<section if="mac">
-			
+
 			<vflag name="-l" value="iconv"/>
 			<vflag name="-framework" value="IOKit" />
 			<vflag name="-framework" value="Foundation" />
@@ -60,14 +63,14 @@
 			<vflag name="-framework" value="Carbon" />
 			<vflag name="-framework" value="AppKit" />
 			<vflag name="-framework" value="OpenAL"/>
-			
+
 			<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 			<lib name="-lm" if="LIME_NEKO" />
-			
+
 		</section>
-		
+
 		<section if="android">
-			
+
 			<lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="LIME_SDL"/>
 			<lib name="-ldl" />
 			<lib name="-llog" />
@@ -76,17 +79,17 @@
 			<lib name="-lGLESv2" />
 			<lib name="-lGLESv1_CM" />
 			<lib name="-lOpenSLES" />
-			
+
 		</section>
-		
+
 		<lib name="libApplicationMain${DBG}${LIBEXT}" />
-		
+
 	</target>
-	
+
 	<target id="default">
-		
+
 		<target id="main" />
-		
+
 	</target>
-	
+
 </xml>

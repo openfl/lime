@@ -2,36 +2,36 @@
 #define LIME_UI_DROP_EVENT_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
+#include <system/ValuePointer.h>
 
 
 namespace lime {
-	
-	
+
+
 	enum DropEventType {
-		
+
 		DROP_FILE
-		
+
 	};
-	
-	
-	class DropEvent {
-		
-		public:
-			
-			static AutoGCRoot* callback;
-			static AutoGCRoot* eventObject;
-			
-			DropEvent ();
-			
-			static void Dispatch (DropEvent* event);
-			
-			char* file;
-			DropEventType type;
-		
+
+
+	struct DropEvent {
+
+		hl_type* t;
+		vbyte* file;
+		DropEventType type;
+
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
+
+		DropEvent ();
+
+		static void Dispatch (DropEvent* event);
+
 	};
-	
-	
+
+
 }
 
 

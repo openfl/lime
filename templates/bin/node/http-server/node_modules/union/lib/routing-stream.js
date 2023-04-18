@@ -2,7 +2,7 @@
  * routing-stream.js: A Stream focused on connecting an arbitrary RequestStream and
  * ResponseStream through a given Router.
  *
- * (C) 2011, Nodejitsu Inc.
+ * (C) 2011, Charlie Robbins & the Contributors
  * MIT LICENSE
  *
  */

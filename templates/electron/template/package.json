@@ -1,0 +1,11 @@
+{
+    "name": "::meta.packageName::",
+    "version": "::meta.version::",
+    "main": "ElectronSetup.js",
+    "scripts": {
+        "start": "electron ElectronSetup.js"
+    },
+    "devDependencies": {
+        "electron": "^18.0.4"
+    }
+}

@@ -1,6 +1,6 @@
 -main ApplicationMain ::HAXE_FLAGS::
--cpp ::OUTPUT_DIR::/bin/game.cppia
 -cp ::OUTPUT_DIR::/haxe
+-cppia ::CPPIA_FILE::
 --macro keep("::APP_MAIN::")
 -D final
 -D cppia

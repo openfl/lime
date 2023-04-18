@@ -1,0 +1,6 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-cpp ::CPP_DIR::
+-cp ::OUTPUT_DIR::/haxe
+--macro keep("::APP_MAIN::")
+-D winrt
+-debug

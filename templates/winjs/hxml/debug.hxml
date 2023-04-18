@@ -1,0 +1,9 @@
+-main ApplicationMain ::HAXE_FLAGS::
+-js ::OUTPUT_FILE::
+-cp ::OUTPUT_DIR::/haxe
+-D html5
+-D html
+-D windows
+-D winjs
+-D uwp
+-debug

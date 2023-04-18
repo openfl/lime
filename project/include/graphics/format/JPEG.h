@@ -8,20 +8,20 @@
 
 
 namespace lime {
-	
-	
+
+
 	class JPEG {
-		
-		
+
+
 		public:
-			
+
 			static bool Decode (Resource *resource, ImageBuffer *imageBuffer, bool decodeData = true);
 			static bool Encode (ImageBuffer *imageBuffer, Bytes *bytes, int quality);
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

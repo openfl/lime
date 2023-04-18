@@ -2,40 +2,40 @@
 #define LIME_UI_KEY_EVENT_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
+#include <system/ValuePointer.h>
 #include <stdint.h>
 
 
 namespace lime {
-	
-	
+
+
 	enum KeyEventType {
-		
+
 		KEY_DOWN,
 		KEY_UP
-		
+
 	};
-	
-	
-	class KeyEvent {
-		
-		public:
-			
-			static AutoGCRoot* callback;
-			static AutoGCRoot* eventObject;
-			
-			KeyEvent ();
-			
-			static void Dispatch (KeyEvent* event);
-			
-			double keyCode;
-			int modifier;
-			KeyEventType type;
-			uint32_t windowID;
-		
+
+
+	struct KeyEvent {
+
+		hl_type* t;
+		double keyCode;
+		int modifier;
+		KeyEventType type;
+		int windowID;
+
+		static ValuePointer* callback;
+		static ValuePointer* eventObject;
+
+		KeyEvent ();
+
+		static void Dispatch (KeyEvent* event);
+
 	};
-	
-	
+
+
 }
 
 

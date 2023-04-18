@@ -1,0 +1,24 @@
+--each
+
+--next
+-js ::OUTPUT_FILE::
+-cp ::OUTPUT_DIR::/haxe
+-main ApplicationMain ::HAXE_FLAGS::
+
+-D electron
+-D html5
+-D html
+
+--next
+-js ::OUTPUT_DIR::/bin/ElectronSetup.js
+-cp ::OUTPUT_DIR::/haxe
+-main ElectronSetup
+-lib hxnodejs
+-dce full
+
+-D electron
+-D html5
+-D html
+-D final
+-D js-flatten
+-dce full

@@ -1,0 +1,40 @@
+<xml>
+
+	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
+
+	<files id="main">
+
+		<file name="Main.cpp" />
+
+	</files>
+
+	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
+
+		<files id="main" />
+
+		::foreach ndlls::
+		<lib name="::path::" />::end::
+
+		<section if="winrt">
+		        <lib name="kernel32.lib" />
+		        <lib name="d3d11.lib" />
+		        <lib name="Xaudio2.lib" />
+		        <lib name="Xinput.lib" />
+		        <lib name="DXGI.lib" />
+		        <lib name="Dwrite.lib" />
+		        <lib name="D3dcompiler.lib" />
+
+		</section>
+
+
+		<lib name="libApplicationMain${DBG}${LIBEXT}" />
+
+	</target>
+
+	<target id="default">
+
+		<target id="main" />
+
+	</target>
+
+</xml>

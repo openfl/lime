@@ -1,0 +1,9 @@
+-xml xml/HTML5.xml
+-js obj/docs
+-D display
+-D html5
+-D doc_gen
+-D lime-doc-gen
+ImportAll
+-lib lime
+--no-output

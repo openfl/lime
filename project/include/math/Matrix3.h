@@ -2,34 +2,32 @@
 #define LIME_MATH_MATRIX_3_H
 
 
-#include <hx/CFFI.h>
+#include <system/CFFI.h>
 
 
 namespace lime {
-	
-	
-	class Matrix3 {
-		
-		
-		public:
-			
-			Matrix3 ();
-			Matrix3 (double a, double b, double c, double d, double tx, double ty);
-			Matrix3 (value matrix3);
-			
-			value Value ();
-			
-			double a;
-			double b;
-			double c;
-			double d;
-			double tx;
-			double ty;
-		
-		
+
+
+	struct Matrix3 {
+
+		hl_type* t;
+		double a;
+		double b;
+		double c;
+		double d;
+		double tx;
+		double ty;
+
+		Matrix3 (double a, double b, double c, double d, double tx, double ty);
+		Matrix3 (value matrix3);
+
+		void SetTo (double a, double b, double c, double d, double tx, double ty);
+		value Value ();
+		value Value (value matrix3);
+
 	};
-	
-	
+
+
 }
 
 

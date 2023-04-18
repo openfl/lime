@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp build" xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
+  <Identity Name="::meta.packageName::" Publisher="CN=::meta.company::" Version="::meta.version::.0" ProcessorArchitecture="x64" />
+  <!--<mp:PhoneIdentity PhoneProductId="3b8b2495-3f10-49e7-8eaa-23a7f45cd13d" PhonePublisherId="00000000-0000-0000-0000-000000000000" />-->
+  <Properties>
+    <DisplayName>::meta.title::</DisplayName>
+    <PublisherDisplayName>::meta.company::</PublisherDisplayName>
+    <Logo>assetspkg\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.14393.0" MaxVersionTested="10.0.15063.400" />
+    <PackageDependency Name="Microsoft.VCLibs.140.00" MinVersion="10.0.14393.0" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" />
+    
+  </Dependencies>
+  <Resources>
+    <Resource Language="EN-US" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="::APP_FILE::.exe" EntryPoint="::APP_FILE::.App">
+      <uap:VisualElements DisplayName="::meta.title::" Square150x150Logo="assetspkg\Square150x150Logo.scale-200.png" Square44x44Logo="assetspkg\Square44x44Logo.scale-200.png" Description="Displaying a Bitmap" BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="assetspkg\Wide310x150Logo.scale-200.png" />
+        <uap:SplashScreen Image="assetspkg\SplashScreen.scale-200.png" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    
+  </Capabilities>
+</Package>

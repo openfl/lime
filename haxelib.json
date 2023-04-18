@@ -3,8 +3,13 @@
 	"url": "https://github.com/openfl/lime",
 	"license": "MIT",
 	"tags": [],
-	"description": "A flexible lightweight layer for Haxe cross-platform developers",
-	"version": "3.0.3",
-	"releasenote": "Improved flash -web behavior, Neko bytes fix",
-	"contributors": [ "singmajesty" ]
+	"description": "A foundational Haxe framework for cross-platform development",
+	"version": "8.0.1",
+	"releasenote": "Various bug fixes",
+	"contributors": [
+		"singmajesty",
+		"bowlerhat",
+		"Dimensionscape"
+	],
+	"classPath": "src"
 }

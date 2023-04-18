@@ -8,46 +8,46 @@
 
 
 namespace lime {
-	
-	
+
+
 	template<typename T>
 	void DoDelete(T &item) { }
-	
+
 	template<typename T>
 	void DoDelete(T *&item) {
 		delete item;
 		item = 0;
 	}
-	
-	
+
+
 	// Little vector/set class, optimised for small data and not using many malloc calls.
 	// Data are allocated with "malloc", so they should not rely on constructors etc.
 	template<typename T_,int QBUF_SIZE_=16>
 	class QuickVec {
-		
-		
+
+
 		enum { QBufSize = QBUF_SIZE_ };
-		
-		
+
+
 		public:
-			
+
 			typedef T_ *iterator;
 			typedef const T_ * const_iterator;
-		
-		
+
+
 		public:
-			
+
 			QuickVec () {
-				
+
 				mPtr = QBUF_SIZE_==0 ? 0 : mQBuf;
 				mAlloc = QBufSize;
 				mSize = 0;
-				
+
 			}
-			
-			
+
+
 			QuickVec (const QuickVec<T_,QBUF_SIZE_> &inRHS) {
-				
+
 				if (QBUF_SIZE_!=0 && inRHS.mSize<=QBufSize) {
 					mAlloc = QBufSize;
 					mPtr = mQBuf;
@@ -55,49 +55,49 @@ namespace lime {
 					mAlloc = inRHS.mAlloc;
 					mPtr = (T_ *)malloc(mAlloc * sizeof(T_));
 				}
-				
+
 				mSize = inRHS.mSize;
 				memcpy (mPtr,inRHS.mPtr,sizeof(T_)*mSize);
-				
+
 			}
-			
-			
+
+
 			int Mem() const { return mAlloc * sizeof(T_); }
-			
-			
+
+
 			QuickVec (const T_ *inData,int inLen) {
-				
+
 				mPtr = QBUF_SIZE_==0 ? 0 : mQBuf;
 				mAlloc = QBufSize;
 				mSize = 0;
-				
+
 				resize(inLen);
 				memcpy(mPtr,inData,sizeof(T_)*inLen);
-				
+
 			}
-			
-			
+
+
 			QuickVec (int inLen) {
-				
+
 				mPtr = QBUF_SIZE_==0 ? 0 : mQBuf;
 				mAlloc = QBufSize;
 				mSize = 0;
-				
+
 				resize(inLen);
-				
+
 			}
-			
-			
+
+
 			~QuickVec () {
-				
+
 				if (QBUF_SIZE_==0 || mPtr!=mQBuf){
 					if (mPtr) {
 						free(mPtr);
 					}
 				}
 			}
-			
-			
+
+
 			void clear () {
 
 				if (QBUF_SIZE_==0) {
@@ -120,24 +120,24 @@ namespace lime {
 				mSize = 0;
 
 			}
-			
-			
+
+
 			void Set(const T_ *inData,int inN) {
 
 				resize(inN);
 				if (inN) {
 					memcpy(mPtr,inData,inN*sizeof(T_));
 				}
-				
+
 			}
-			
-			
+
+
 			void Zero() {
 				if (mPtr && mSize)
 					memset(mPtr,0,mSize*sizeof(T_));
 			}
-			
-			
+
+
 			// This assumes the values in the array are sorted.
 			template<typename X_, typename D_>
 			void Change(X_ inValue,D_ inDiff) {
@@ -195,8 +195,8 @@ namespace lime {
 					}
 				}
 			}
-			
-			
+
+
 			// This assumes the values in the array are sorted.
 			void Toggle(T_ inValue) {
 				if (mSize==0)
@@ -253,8 +253,8 @@ namespace lime {
 					}
 				}
 			}
-			
-			
+
+
 			inline void Grow() {
 				if (mSize>=mAlloc)
 				{
@@ -274,8 +274,8 @@ namespace lime {
 					}
 				}
 			}
-			
-			
+
+
 			void reserve(int inSize) {
 				if (mAlloc<inSize && (QBUF_SIZE_==0 || inSize>QBufSize) )
 				{
@@ -293,8 +293,8 @@ namespace lime {
 					}
 				}
 			}
-			
-			
+
+
 			void resize(int inSize) {
 				if (mAlloc<inSize)
 				{
@@ -313,31 +313,31 @@ namespace lime {
 				}
 				mSize = inSize;
 			}
-			
-			
+
+
 			inline void push_back(const T_ &inVal) {
 				Grow();
 				mPtr[mSize++] = inVal;
 			}
-			
-			
+
+
 			inline T_ qpop() {
 				return mPtr[--mSize];
 			}
-			
-			
+
+
 			inline void EraseAt(int inPos) {
 				memmove(mPtr + inPos, mPtr + inPos + 1, (mSize-inPos-1) * sizeof(T_) );
 				--mSize;
 			}
-			
-			
+
+
 			inline void EraseAt(int inFirst,int inLast) {
 				memmove(mPtr + inFirst, mPtr + inLast, (mSize-inLast) * sizeof(T_) );
 				mSize -= inLast-inFirst;
 			}
-			
-			
+
+
 			void erase(int inFirst,int inLen) {
 				if (inFirst>mSize || inFirst<0)
 					return;
@@ -349,27 +349,27 @@ namespace lime {
 					mSize -= inLen;
 				}
 			}
-			
-			
+
+
 			inline void InsertAt(int inPos,const T_ &inValue) {
 				Grow();
 				memmove(mPtr + inPos + 1, mPtr + inPos, (mSize-inPos) * sizeof(T_) );
 				memcpy(mPtr+inPos,&inValue, sizeof(T_));
 				++mSize;
 			}
-			
-			
+
+
 			inline void InsertAt(int inPos,const T_ *inValues,int inN) {
 				resize(mSize+inN);
 				memmove(mPtr + inPos + inN, mPtr + inPos, (mSize-inPos-inN) * sizeof(T_) );
 				memcpy(mPtr+inPos,inValues,inN*sizeof(T_));
 			}
-			
-			
+
+
 			bool operator == (const QuickVec<T_,QBUF_SIZE_> &inRHS) { return (*mPtr == *(inRHS.mPtr)); }
 			bool operator != (const QuickVec<T_,QBUF_SIZE_> &inRHS) { return !(*mPtr == *(inRHS.mPtr)); }
-			
-			
+
+
 			inline int size() const { return mSize; }
 			inline bool empty() const { return mSize==0; }
 			inline T_& operator[](int inIndex) { return mPtr[inIndex]; }
@@ -381,8 +381,8 @@ namespace lime {
 			inline const_iterator begin() const { return mPtr; }
 			inline const_iterator rbegin() const { return mPtr + mSize - 1; }
 			inline const_iterator end() const { return mPtr + mSize; }
-			
-			
+
+
 			void swap( QuickVec<T_,QBUF_SIZE_> &inRHS ) {
 				if (QBUF_SIZE_==0)
 				{
@@ -432,8 +432,8 @@ namespace lime {
 				std::swap(mAlloc,inRHS.mAlloc);
 				std::swap(mSize,inRHS.mSize);
 			}
-			
-			
+
+
 			QuickVec<T_,QBUF_SIZE_> &operator=(const QuickVec<T_,QBUF_SIZE_> &inRHS) {
 				if ( (QBUF_SIZE_==0 || mPtr!=mQBuf) && mPtr )
 					free(mPtr);
@@ -453,40 +453,40 @@ namespace lime {
 					memcpy(mPtr,inRHS.mPtr,mSize*sizeof(T_));
 				return *this;
 			}
-			
-			
+
+
 			void DeleteAll() {
 				for(int i=0;i<mSize;i++)
 					DoDelete( mPtr[i] );
 				resize(0);
 			}
-			
-			
+
+
 			void append(const QuickVec<T_> &inOther) {
 				int s = mSize;
 				resize(mSize+inOther.mSize);
 				for(int i=0;i<inOther.mSize;i++)
 					mPtr[s+i] = inOther[i];
 			}
-			
-			
+
+
 			void append(const T_ *inOther,int inLen) {
 				int s = mSize;
 				resize(mSize+inLen);
 				for(int i=0;i<inLen;i++)
 					mPtr[s+i] = inOther[i];
 			}
-			
-			
+
+
 			T_  *mPtr;
 			T_  mQBuf[QBufSize==0?1:QBufSize];
 			int mAlloc;
 			int mSize;
-		
-		
+
+
 	};
-	
-	
+
+
 }
 
 

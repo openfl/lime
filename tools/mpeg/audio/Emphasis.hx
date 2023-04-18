@@ -1,7 +1,8 @@
 package mpeg.audio;
 
-enum Emphasis {
-    None;
-    RedBook;
-    J17;
+enum Emphasis
+{
+	None;
+	RedBook;
+	J17;
 }

@@ -3,9 +3,9 @@
 
 
 #include <graphics/ImageBuffer.h>
+#include <system/CFFI.h>
 #include <system/System.h>
 #include <utils/Resource.h>
-#include <hx/CFFI.h>
 
 #ifdef HX_WINDOWS
 #undef GetGlyphIndices
@@ -13,45 +13,45 @@
 
 
 namespace lime {
-	
-	
+
+
 	typedef struct {
-		
+
 		unsigned long codepoint;
 		size_t size;
 		int index;
 		int height;
-		
+
 	} GlyphInfo;
-	
-	
+
+
 	typedef struct {
-		
+
 		uint32_t index;
 		uint32_t width;
 		uint32_t height;
 		uint32_t x;
 		uint32_t y;
 		unsigned char data;
-		
+
 	} GlyphImage;
-	
-	
+
+
 	class Font {
-		
-		
+
+
 		public:
-			
+
 			Font (Resource *resource, int faceIndex = 0);
 			~Font ();
-			
-			value Decompose (int em);
+
+			void* Decompose (bool useCFFIValue, int em);
 			int GetAscender ();
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
 			int GetGlyphIndex (char* character);
-			value GetGlyphIndices (char* characters);
-			value GetGlyphMetrics (int index);
+			void* GetGlyphIndices (bool useCFFIValue, char* characters);
+			void* GetGlyphMetrics (bool useCFFIValue, int index);
 			int GetHeight ();
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();
@@ -60,18 +60,18 @@ namespace lime {
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
 			void SetSize (size_t size);
-			
+
 			void* library;
 			void* face;
 			void* faceMemory;
-			
+
 		private:
-			
+
 			size_t mSize;
-		
+
 	};
-	
-	
+
+
 }
 
 

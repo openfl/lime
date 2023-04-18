@@ -1,0 +1,26 @@
+{
+  "name": "::META_PACKAGE::",
+  "version": "::META_VERSION::",
+  "private": true,
+  "devDependencies": {
+    "haxe": "^5.0.10",
+    "haxe-loader": "^0.10.0",
+    "uglifyjs-webpack-plugin": "^1.3.0",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9",
+    "webpack-merge": "^4.1.4"
+  },
+  "haxeDependencies": {
+    "haxe": "3.4.7"
+  },
+  "scripts": {
+    "build": "npm run build:prod",
+    "build:dev": "webpack --config webpack.dev.js",
+    "build:prod": "webpack --config webpack.prod.js",
+    "start": "npm run start:dev",
+    "start:dev": "webpack-dev-server --open --config webpack.dev.js",
+    "start:prod": "webpack-dev-server --open --config webpack.prod.js"
+  },
+  "dependencies": {}
+}

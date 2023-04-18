@@ -1,7 +1,8 @@
 package mpeg.audio;
 
-enum Layer {
-    Layer1;
-    Layer2;
-    Layer3;
+enum Layer
+{
+	Layer1;
+	Layer2;
+	Layer3;
 }

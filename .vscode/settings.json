@@ -1,0 +1,21 @@
+{
+    "haxe.configurations": [
+        [ "--cwd", "tools", "tools.hxml" ]
+    ],
+    "editor.insertSpaces": false,
+    "editor.trimAutoWhitespace": true,
+    "codedox": {
+        "commentprefix": "    ",
+        "commentdescription": "",
+        "commentend": "**/",
+        "alwaysMultiline": false,
+        "paramFormat": "",
+        "returnFormat": "",
+        "neverAskTemplate": true
+    },
+    "files.watcherExclude": {
+        "**/project/lib/**": true
+    },
+    "files.trimTrailingWhitespace": true,
+    "C_Cpp.autoAddFileAssociations": false,
+}

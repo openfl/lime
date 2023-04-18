@@ -1,113 +1,16 @@
-# Generate platform-specific XML for documentation output
-
--xml Flash.xml
-#-swf obj/docs
--cpp obj/docs
--D display
-ImportAll
--lib lime
-#-swf-version 11
---no-output
-
+hxml/flash.hxml
+--next
+hxml/windows.hxml
+--next
+hxml/mac.hxml
+--next
+hxml/linux.hxml
+--next
+hxml/ios.hxml
+--next
+hxml/android.hxml
+--next
+hxml/html5.hxml
 --next
 
--xml Windows.xml
--cpp obj/docs
--D display
--D native
--D windows
-ImportAll
--lib lime
---no-output
-
---next
-
--xml Mac.xml
--cpp obj/docs
--D display
--D native
--D mac
-ImportAll
--lib lime
---no-output
-
---next
-
--xml Linux.xml
--cpp obj/docs
--D display
--D native
--D linux
-ImportAll
--lib lime
---no-output
-
-#--next
-#
-#-xml iOS.xml
-#-cpp obj/docs
-#-D display
-#-D native
-#-D ios
-#ImportAll
-#-lib openfl
-#--no-output
-#
-#--next
-#
-#-xml Android.xml
-#-cpp obj/docs
-#-D display
-#-D native
-#-D android
-#ImportAll
-#-lib lime
-#--no-output
-#
-#--next
-#
-#-xml BlackBerry.xml
-#-cpp obj/docs
-#-D display
-#-D native
-#-D blackberry
-#ImportAll
-#-lib lime
-#--no-output
-#
-#--next
-#
-#-xml Tizen.xml
-#-cpp obj/docs
-#-D display
-#-D native
-#-D tizen
-#ImportAll
-#-lib lime
-#--no-output
-#
-#--next
-#
-#-xml Firefox OS.xml
-#-cpp obj/docs
-#-D display
-#-D html5
-#-D firefoxos
-#ImportAll
-#-lib lime
-#--no-output
-#
---next
-
--xml HTML5.xml
-#-js obj/docs
--cpp obj/docs
--D display
--D html5
-ImportAll
--lib lime
---no-output
-
---next
-
--cmd haxelib run dox -i . -in lime -theme flambe --title "Lime Documentation"
+-cmd haxelib run dox -i xml -in lime --title "Lime API Reference" -D website "https://lime.openfl.org" -D source-path "https://github.com/openfl/lime/tree/develop/src/" -D textColor 0x777777 -theme ../assets/docs-theme --toplevel-package lime
