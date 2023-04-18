@@ -2,13 +2,16 @@ package lime._internal.backend.html5;
 
 import haxe.io.Bytes;
 import js.html.AnchorElement;
+import js.html.Blob;
 import js.html.ErrorEvent;
 import js.html.Event;
 import js.html.Image as JSImage;
 import js.html.ProgressEvent;
+import js.html.URL;
 import js.html.XMLHttpRequest;
 import js.html.XMLHttpRequestResponseType;
 import js.Browser;
+import lime._internal.format.Base64;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.graphics.Image;
@@ -21,6 +24,8 @@ import lime.utils.AssetType;
 @:access(lime.graphics.Image)
 class HTML5HTTPRequest
 {
+	private static inline var OPTION_REVOKE_URL:Int = 1 << 0;
+
 	private static var activeRequests = 0;
 	private static var originElement:AnchorElement;
 	private static var originHostname:String;
@@ -75,7 +80,19 @@ class HTML5HTTPRequest
 			for (key in parent.formData.keys())
 			{
 				if (query.length > 0) query += "&";
-				query += StringTools.urlEncode(key) + "=" + StringTools.urlEncode(Std.string(parent.formData.get(key)));
+				var value:Dynamic = parent.formData.get(key);
+				if (key.indexOf("[]") > -1 && (value is Array))
+				{
+					var arrayValue:String = Lambda.map(value, function(v:String)
+					{
+						return StringTools.urlEncode(v);
+					}).join('&amp;${key}=');
+					query += StringTools.urlEncode(key) + "=" + arrayValue;
+				}
+				else
+				{
+					query += StringTools.urlEncode(key) + "=" + StringTools.urlEncode(Std.string(value));
+				}
 			}
 
 			if (parent.method == GET && query != "")
@@ -172,7 +189,8 @@ class HTML5HTTPRequest
 					instance: this,
 					uri: uri,
 					promise: promise,
-					type: AssetType.BINARY
+					type: AssetType.BINARY,
+					options: 0
 				});
 		}
 
@@ -186,7 +204,7 @@ class HTML5HTTPRequest
 		if (activeRequests < requestLimit)
 		{
 			activeRequests++;
-			__loadImage(uri, promise);
+			__loadImage(uri, promise, 0);
 		}
 		else
 		{
@@ -195,11 +213,44 @@ class HTML5HTTPRequest
 					instance: null,
 					uri: uri,
 					promise: promise,
-					type: AssetType.IMAGE
+					type: AssetType.IMAGE,
+					options: 0
 				});
 		}
 
 		return promise.future;
+	}
+
+	private static function loadImageFromBytes(bytes:Bytes, type:String):Future<Image>
+	{
+		var uri = __createBlobURIFromBytes(bytes, type);
+		if (uri != null)
+		{
+			var promise = new Promise<Image>();
+
+			if (activeRequests < requestLimit)
+			{
+				activeRequests++;
+				__loadImage(uri, promise, OPTION_REVOKE_URL);
+			}
+			else
+			{
+				requestQueue.add(
+					{
+						instance: null,
+						uri: uri,
+						promise: promise,
+						type: AssetType.IMAGE,
+						options: OPTION_REVOKE_URL
+					});
+			}
+
+			return promise.future;
+		}
+		else
+		{
+			return loadImage("data:" + type + ";base64," + Base64.encode(bytes));
+		}
 	}
 
 	public function loadText(uri:String):Future<String>
@@ -218,7 +269,8 @@ class HTML5HTTPRequest
 					instance: this,
 					uri: uri,
 					promise: promise,
-					type: AssetType.TEXT
+					type: AssetType.TEXT,
+					options: 0
 				});
 		}
 
@@ -236,7 +288,7 @@ class HTML5HTTPRequest
 			switch (queueItem.type)
 			{
 				case IMAGE:
-					__loadImage(queueItem.uri, queueItem.promise);
+					__loadImage(queueItem.uri, queueItem.promise, queueItem.options);
 
 				case TEXT:
 					queueItem.instance.__loadText(queueItem.uri, queueItem.promise);
@@ -272,6 +324,11 @@ class HTML5HTTPRequest
 		parent.responseStatus = request.status;
 	}
 
+	private static inline function __createBlobURIFromBytes(bytes:Bytes, type:String):String
+	{
+		return URL.createObjectURL(new Blob([bytes.getData()], {type: type}));
+	}
+
 	private static function __fixHostname(hostname:String):String
 	{
 		return hostname == null ? "" : hostname;
@@ -301,8 +358,16 @@ class HTML5HTTPRequest
 		return (protocol == null || protocol == "") ? "http:" : protocol;
 	}
 
+	private static function __isInMemoryURI(uri:String):Bool
+	{
+		return StringTools.startsWith(uri, "data:") || StringTools.startsWith(uri, "blob:");
+	}
+
 	private static function __isSameOrigin(path:String):Bool
 	{
+		if (path == null || path == "") return true;
+		if (__isInMemoryURI(path)) return true;
+
 		if (originElement == null)
 		{
 			originElement = Browser.document.createAnchorElement();
@@ -377,7 +442,7 @@ class HTML5HTTPRequest
 		load(uri, progress, readyStateChange);
 	}
 
-	private static function __loadImage(uri:String, promise:Promise<Image>):Void
+	private static function __loadImage(uri:String, promise:Promise<Image>, options:Int):Void
 	{
 		var image = new JSImage();
 
@@ -388,13 +453,14 @@ class HTML5HTTPRequest
 
 		if (supportsImageProgress == null)
 		{
-			supportsImageProgress = untyped __js__("'onprogress' in image");
+			supportsImageProgress = untyped #if haxe4 js.Syntax.code #else __js__ #end ("'onprogress' in image");
 		}
 
-		if (supportsImageProgress || StringTools.startsWith(uri, "data:"))
+		if (supportsImageProgress || __isInMemoryURI(uri))
 		{
 			image.addEventListener("load", function(event)
 			{
+				__revokeBlobURI(uri, options);
 				var buffer = new ImageBuffer(null, image.width, image.height);
 				buffer.__srcImage = cast image;
 
@@ -411,6 +477,8 @@ class HTML5HTTPRequest
 
 			image.addEventListener("error", function(event)
 			{
+				__revokeBlobURI(uri, options);
+
 				activeRequests--;
 				processQueue();
 
@@ -486,6 +554,14 @@ class HTML5HTTPRequest
 		binary = false;
 		load(uri, progress, readyStateChange);
 	}
+
+	private static function __revokeBlobURI(uri:String, options:Int):Void
+	{
+		if ((options & OPTION_REVOKE_URL) != 0)
+		{
+			URL.revokeObjectURL(uri);
+		}
+	}
 }
 
 @:dox(hide) typedef QueueItem =
@@ -494,4 +570,5 @@ class HTML5HTTPRequest
 	var type:AssetType;
 	var promise:Dynamic;
 	var uri:String;
+	var options:Int;
 }

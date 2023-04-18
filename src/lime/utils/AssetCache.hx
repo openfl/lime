@@ -62,12 +62,12 @@ class AssetCache
 				font.set(id, asset);
 
 			case IMAGE:
-				if (!Std.is(asset, Image)) throw "Cannot cache non-Image asset: " + asset + " as Image";
+				if (!(asset is Image)) throw "Cannot cache non-Image asset: " + asset + " as Image";
 
 				image.set(id, asset);
 
 			case SOUND, MUSIC:
-				if (!Std.is(asset, AudioBuffer)) throw "Cannot cache non-AudioBuffer asset: " + asset + " as AudioBuffer";
+				if (!(asset is AudioBuffer)) throw "Cannot cache non-AudioBuffer asset: " + asset + " as AudioBuffer";
 
 				audio.set(id, asset);
 

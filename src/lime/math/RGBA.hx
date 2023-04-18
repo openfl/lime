@@ -19,6 +19,7 @@ import lime.utils.UInt8Array;
 	```
 **/
 @:allow(lime.math)
+@:transitive
 abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt
 {
 	private static var __alpha16:UInt32Array;

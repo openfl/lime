@@ -479,7 +479,21 @@ class Matrix3
 
 		if (roundPixels)
 		{
-			return "matrix3d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + Std.int(tx) + ", " + Std.int(ty) + ", 0, 1)";
+			return "matrix3d("
+				+ a
+				+ ", "
+				+ b
+				+ ", "
+				+ "0, 0, "
+				+ c
+				+ ", "
+				+ d
+				+ ", "
+				+ "0, 0, 0, 0, 1, 0, "
+				+ Std.int(tx)
+				+ ", "
+				+ Std.int(ty)
+				+ ", 0, 1)";
 		}
 		else
 		{

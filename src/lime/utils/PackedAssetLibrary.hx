@@ -241,11 +241,10 @@ import flash.media.Sound;
 			}
 			else
 			{
-				var basePath = rootPath;
-				if (basePath == null) basePath = "";
-				if (basePath != "") basePath += "/";
+				var basePath = rootPath == null || rootPath == "" ?  "" : Path.addTrailingSlash(rootPath);
+				var libPath = paths.exists(id) ? paths.get(id) : id;
 
-				var path = basePath + (paths.exists(id) ? paths.get(id) : id);
+				var path = Path.join([basePath, libPath]);
 				path = __cacheBreak(path);
 
 				Bytes.loadFromFile(path).onError(promise.error).onComplete(packedData_onComplete);

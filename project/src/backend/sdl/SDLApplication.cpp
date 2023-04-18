@@ -116,6 +116,13 @@ namespace lime {
 
 	void SDLApplication::HandleEvent (SDL_Event* event) {
 
+		#if defined(IPHONE) || defined(EMSCRIPTEN)
+
+		int top = 0;
+		gc_set_top_of_stack(&top,false);
+
+		#endif
+
 		switch (event->type) {
 
 			case SDL_USEREVENT:
@@ -185,9 +192,7 @@ namespace lime {
 			case SDL_FINGERDOWN:
 			case SDL_FINGERUP:
 
-				#ifndef HX_MACOS
 				ProcessTouchEvent (event);
-				#endif
 				break;
 
 			case SDL_JOYAXISMOTION:
@@ -906,7 +911,7 @@ namespace lime {
 
 			if (currentUpdate >= nextUpdate) {
 
-				SDL_RemoveTimer (timerID);
+				if (timerActive) SDL_RemoveTimer (timerID);
 				OnTimer (0, 0);
 
 			} else if (!timerActive) {
@@ -941,7 +946,7 @@ namespace lime {
 
 	int SDLApplication::WaitEvent (SDL_Event *event) {
 
-		#ifdef HX_MACOS
+		#if defined(HX_MACOS) || defined(ANDROID)
 
 		System::GCEnterBlocking ();
 		int result = SDL_WaitEvent (event);

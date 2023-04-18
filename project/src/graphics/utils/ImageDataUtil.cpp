@@ -131,7 +131,7 @@ namespace lime {
 		int destBytesPerPixel = image->buffer->bitsPerPixel / 8;
 
 		bool useAlphaImage = (alphaImage && alphaImage->buffer->transparent);
-		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent));
+		bool blend = (mergeAlpha || (useAlphaImage && !image->buffer->transparent) || (!mergeAlpha && !image->buffer->transparent && sourceImage->buffer->transparent));
 
 		if (!useAlphaImage) {
 
@@ -214,7 +214,7 @@ namespace lime {
 			int alphaPosition;
 			RGBA alphaPixel;
 
-			Rectangle alphaRect = Rectangle (alphaPoint->x, alphaPoint->y, alphaImage->width, alphaImage->height);
+			Rectangle alphaRect = Rectangle (sourceView.x + alphaPoint->x, sourceView.y + alphaPoint->y, sourceView.width, sourceView.height);
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 
 			destView.Clip (destPoint->x, destPoint->y, alphaView.width, alphaView.height);

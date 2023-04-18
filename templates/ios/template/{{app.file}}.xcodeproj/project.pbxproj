@@ -22,8 +22,10 @@
 		1EEEBB00121BE2B30048A9DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBAFF121BE2B30048A9DF /* Foundation.framework */; };
 		1EF0A83A121ADB8E003F2F59 /* Main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1EF0A839121ADB8E003F2F59 /* Main.mm */; };
 		4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4257533E1A5EFD8C004AA45B /* Images.xcassets */; };
+		6892FA0E263B5BC100EA2669 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6892FA0D263B5BC100EA2669 /* Metal.framework */; };
 		792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE0 /* GameController.framework */; };
 		792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE1 /* CoreText.framework */; };
+		::if (IOS_LAUNCH_STORYBOARD != null)::D099CA9021A64C87003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */; };::end::
 		::ADDL_PBX_BUILD_FILE::
 
 /* End PBXBuildFile section */
@@ -56,8 +58,10 @@
 		1EF0A839121ADB8E003F2F59 /* Main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.mm; path = "::APP_FILE::/Classes/Main.mm"; sourceTree = SOURCE_ROOT; };
 		4257533E1A5EFD8C004AA45B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "::APP_FILE::/Images.xcassets"; sourceTree = "<group>"; };
 		6662F3920A0E282007F4E3E /* ::APP_FILE::.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = "::APP_FILE::.entitlements"; path = "::APP_FILE::/::APP_FILE::.entitlements"; sourceTree = "<group>"; };
+		6892FA0D263B5BC100EA2669 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		792E75C81C6C876900D01DE0 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		792E75C81C6C876900D01DE1 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		::if (IOS_LAUNCH_STORYBOARD != null)::D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "::APP_FILE::/::IOS_LAUNCH_STORYBOARD::.storyboard"; sourceTree = "<group>"; };::end::
 		::ADDL_PBX_FILE_REFERENCE::
 
 		8D1107310486CEB800E47090 /* ::APP_FILE::-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "::APP_FILE::/::APP_FILE::-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
@@ -73,6 +77,7 @@
 				::if ARMV7::1EF0A888121AE2F0003F2F5A /* lib/ApplicationMain-v7.a in lib */,::end::
 				792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */,
 				792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */,
+				6892FA0E263B5BC100EA2669 /* Metal.framework in Frameworks */,
 				1EEEBA9B121AF1C60048A9DF /* UIKit.framework in Frameworks */,
 				1EEEBAA3121AF2210048A9DF /* OpenAL.framework in Frameworks */,
 				1EEEBAA5121AF2210048A9DF /* OpenGLES.framework in Frameworks */,
@@ -110,6 +115,7 @@
 		1EEEBA99121AF18B0048A9DF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6892FA0D263B5BC100EA2669 /* Metal.framework */,
 				792E75C81C6C876900D01DE0 /* GameController.framework */,
 				792E75C81C6C876900D01DE1 /* CoreText.framework */,
 				1EEEBA9A121AF1C60048A9DF /* UIKit.framework */,
@@ -153,6 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				4257533E1A5EFD8C004AA45B /* Images.xcassets */,
+				::if (IOS_LAUNCH_STORYBOARD != null)::D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */,::end::
 				8D1107310486CEB800E47090 /* ::APP_FILE::/::APP_FILE::-Info.plist */,
 				1E2E17A5131E8B5D0048F3C7 /* ::APP_FILE::/assets */,
 			);
@@ -229,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1E2E17AD131E8B5D0048F3C7 /* ::APP_FILE::/assets in Resources */,
+				::if (IOS_LAUNCH_STORYBOARD != null)::D099CA9021A64C87003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard in Resources */,::end::
 				4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -255,7 +263,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		C01FCF4F08A954540054247B /* Debug */ = {/* Build configuration list for PBXProject "::APP_TITLE::" */ 
+		C01FCF4F08A954540054247B /* Debug */ = {/* Build configuration list for PBXProject "::APP_TITLE::" */
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -300,7 +308,7 @@
 			};
 			name = Debug;
 		};
-		C01FCF5008A954540054247B /* Release */ = {/* Build configuration list for PBXProject "::APP_TITLE::" */ 
+		C01FCF5008A954540054247B /* Release */ = {/* Build configuration list for PBXProject "::APP_TITLE::" */
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -345,7 +353,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				::if (IOS_LAUNCH_STORYBOARD == null)::ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;::end::
 				CODE_SIGN_ENTITLEMENTS = "::APP_FILE::/::APP_FILE::.entitlements";
 				::if DEVELOPMENT_TEAM_ID::DEVELOPMENT_TEAM = ::DEVELOPMENT_TEAM_ID::;::end::
 				ENABLE_BITCODE = ::if (ENABLE_BITCODE)::YES::else::NO::end::;
@@ -401,7 +409,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				::if (IOS_LAUNCH_STORYBOARD == null)::ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;::end::
 				CODE_SIGN_ENTITLEMENTS = "::APP_FILE::/::APP_FILE::.entitlements";
 				::if DEVELOPMENT_TEAM_ID::DEVELOPMENT_TEAM = ::DEVELOPMENT_TEAM_ID::;::end::
 				ENABLE_BITCODE = ::if (ENABLE_BITCODE)::YES::else::NO::end::;

@@ -33,6 +33,7 @@ import lime._internal.backend.native.NativeOpenGLRenderContext;
 **/
 @:access(lime.graphics.RenderContext)
 @:forward()
+@:transitive
 abstract OpenGLRenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderContext to NativeOpenGLRenderContext
 {
 	@:from private static function fromRenderContext(context:RenderContext):OpenGLRenderContext
@@ -42,6 +43,7 @@ abstract OpenGLRenderContext(NativeOpenGLRenderContext) from NativeOpenGLRenderC
 }
 #else
 @:forward()
+@:transitive
 abstract OpenGLRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):OpenGLRenderContext

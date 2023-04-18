@@ -154,11 +154,11 @@ class CFFI
 
 				if (haxelib != "")
 				{
-					result = __tryLoad(haxelib + slash + "lib" + slash + __sysName() + slash + library, library, method, args);
+					result = __tryLoad(haxelib + slash + "ndll" + slash + __sysName() + slash + library, library, method, args);
 
 					if (result == null)
 					{
-						result = __tryLoad(haxelib + slash + "lib" + slash + __sysName() + "64" + slash + library, library, method, args);
+						result = __tryLoad(haxelib + slash + "ndll" + slash + __sysName() + "64" + slash + library, library, method, args);
 					}
 				}
 			}

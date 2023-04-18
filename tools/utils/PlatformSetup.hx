@@ -24,6 +24,7 @@ class PlatformSetup
 	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
 	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var visualStudioURL = "https://www.visualstudio.com/downloads/";
+	private static var hashlinkURL = "https://github.com/HaxeFoundation/hashlink/releases";
 	private static var triedSudo:Bool = false;
 	private static var userDefines:Map<String, Dynamic>;
 	private static var targetFlags:Map<String, Dynamic>;
@@ -410,8 +411,11 @@ class PlatformSetup
 						setupWindows();
 					}
 
-				case "neko", "hl", "hashlink", "cs", "uwp", "winjs", "nodejs", "java":
+				case "neko", "cs", "uwp", "winjs", "nodejs", "java":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+
+				case "hl", "hashlink":
+					setupHL();
 
 				case "lime":
 					setupLime();
@@ -865,18 +869,35 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-				try
+				if (System.hostPlatform == MAC)
 				{
-					System.runCommand("", "sudo", [
-						"cp",
-						"-f",
-						Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-						"/usr/local/bin/lime"
-					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
-					installedCommand = true;
+					try
+					{
+						System.runCommand("", "cp", [
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
 				}
-				catch (e:Dynamic) {}
+				else
+				{
+					try
+					{
+						System.runCommand("", "sudo", [
+							"cp",
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
+				}
 			}
 
 			if (!installedCommand)
@@ -1082,7 +1103,27 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-				try
+				if (System.hostPlatform == MAC)
+				{
+					try
+					{
+						System.runCommand("", "cp", [
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+						System.runCommand("", "cp", [
+							"-f",
+							System.findTemplate(project.templatePaths, "bin/openfl.sh"),
+							"/usr/local/bin/openfl"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/openfl"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
+				}
+				else
 				{
 					System.runCommand("", "sudo", [
 						"cp",
@@ -1100,7 +1141,6 @@ class PlatformSetup
 					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
 					installedCommand = true;
 				}
-				catch (e:Dynamic) {}
 			}
 
 			if (!installedCommand)
@@ -1140,6 +1180,61 @@ class PlatformSetup
 		if (answer == YES || answer == ALWAYS)
 		{
 			System.openURL(visualStudioURL);
+		}
+	}
+
+	public static function setupHL():Void
+	{
+		getDefineValue("HL_PATH", "Path to a custom version of Hashlink. Leave empty to use lime's default version.");
+		if (System.hostPlatform == MAC)
+		{
+			Log.println("To use the hashlink debugger on macOS, the hl executable needs to be signed.");
+			if (ConfigHelper.getConfigValue("HL_PATH") != null)
+			{
+				Log.println("When building HL from source, make sure to have run `make codesign_osx` before installing.");
+			}
+			else
+			{
+				var answer = CLIHelper.ask("Would you like to do this now? (Requires sudo.)");
+
+				if (answer == YES || answer == ALWAYS)
+				{
+					var openSSLConf = System.getTemporaryFile("cnf");
+					var key = System.getTemporaryFile("pem");
+					var cert = System.getTemporaryFile("cer");
+					var limePath = Haxelib.getPath(new Haxelib("lime"));
+					var hlPath = limePath + "/templates/bin/hl/mac/hl";
+					var entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
+						"/project/lib/hashlink/other/osx/entitlements.xml") : (limePath
+						+ "/templates/bin/hl/entitlements.xml");
+					System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, true, true);
+					sys.io.File.saveContent(openSSLConf, [
+						"[req]",
+						"distinguished_name=codesign_dn",
+						"[codesign_dn]",
+						"commonName=hl-cert",
+						"[v3_req]",
+						"keyUsage=critical,digitalSignature",
+						"extendedKeyUsage=critical,codeSigning",
+					].join("\n"));
+					System.runCommand("", "openssl", [
+						"req", "-x509", "-newkey", "rsa:4096", "-keyout", key, "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out",
+						cert, "-extensions", "v3_req", "-config", openSSLConf
+					], true, false, true);
+					System.runCommand("", "sudo", [
+						"security",
+						"add-trusted-cert",
+						"-d",
+						"-k /Library/Keychains/System.keychain",
+						cert
+					], true, false, true);
+					System.runCommand("", "sudo", ["security", "import", key, "-k", "/Library/Keychains/System.keychain", "-A"], true, false, true);
+					System.runCommand("", "codesign", ["--entitlements", entitlementsPath, "-fs", "hl-cert", hlPath], true, false, true);
+					for (f in [key, cert, openSSLConf])
+						sys.FileSystem.deleteFile(f);
+					Log.println("\nIf you update lime, you will have to run this again to sign the new hl executable");
+				}
+			}
 		}
 	}
 
@@ -1219,7 +1314,7 @@ class Progress extends haxe.io.Output
 {
 	var o:haxe.io.Output;
 	var cur:Int;
-	var max:Int;
+	var max:Null<Int>;
 	var start:Float;
 
 	public function new(o)
@@ -1267,7 +1362,7 @@ class Progress extends haxe.io.Output
 		}
 	}
 
-	public override function prepare(m)
+	public override function prepare(m:Int)
 	{
 		max = m;
 	}

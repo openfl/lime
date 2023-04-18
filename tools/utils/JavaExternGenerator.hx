@@ -4,14 +4,13 @@ import haxe.crypto.BaseCode;
 import haxe.io.Bytes;
 import haxe.io.Input;
 import haxe.io.Output;
+import haxe.zip.Compress;
 import haxe.zip.Reader;
 import hxp.*;
 import lime.tools.HXProject;
 import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
-import neko.Lib;
-import neko.zip.Compress;
 
 class JavaExternGenerator
 {
@@ -145,7 +144,7 @@ class JavaExternGenerator
 
 	private function generate(inClass:String, inMembers:Map<String, String>)
 	{
-		Lib.println(inClass);
+		Sys.println(inClass);
 
 		var parts = Path.withoutExtension(inClass).split("/");
 		var old_type = mCurrentType;
@@ -499,8 +498,11 @@ class JavaExternGenerator
 			java_out.writeString("   long __haxeHandle;\n");
 			java_out.writeString("   public " + impl_name + "(long inHandle) { __haxeHandle=inHandle; }\n");
 
-			output("   public function new() { __jobject = openfl.utils.JNI.createInterface(this,\"" + dir_parts
-				.join(".") + "." + impl_name + "\", classDef ); }\n	\n");
+			output("   public function new() { __jobject = openfl.utils.JNI.createInterface(this,\""
+				+ dir_parts.join(".")
+				+ "."
+				+ impl_name
+				+ "\", classDef ); }\n	\n");
 		}
 
 		var field_count = src.readUInt16();
@@ -664,8 +666,8 @@ class JavaExternGenerator
 					func_name = "_" + uniq_name + "_func";
 					output("		if (" + func_name + " == null)\n");
 					output("			" + func_name + " = openfl.utils.JNI." + (is_static ? "createStaticMethod" : "createMemberMethod"));
-					output("(\"" + StringTools
-						.replace(mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref] + "\", true);\n");
+					output("(\"" + StringTools.replace(mCurrentType, ".", "/") + "\", \"" + mConstants[name_ref] + "\", \"" + mConstants[desc_ref]
+						+ "\", true);\n");
 
 					output("		var a = new Array<Dynamic>();\n");
 

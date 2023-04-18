@@ -24,10 +24,15 @@ class Clipboard
 	private static function __update():Void
 	{
 		var cacheText = _text;
+		_text = null;
 
 		#if (lime_cffi && !macro)
 		#if hl
-		_text = @:privateAccess String.fromUTF8(NativeCFFI.lime_clipboard_get_text());
+		var utf = NativeCFFI.lime_clipboard_get_text();
+		if (utf != null)
+		{
+			_text = @:privateAccess String.fromUTF8(utf);
+		}
 		#else
 		_text = NativeCFFI.lime_clipboard_get_text();
 		#end
@@ -36,7 +41,6 @@ class Clipboard
 		{
 			_text = FlashClipboard.generalClipboard.getData(TEXT_FORMAT);
 		}
-		_text = null;
 		#end
 
 		if (_text != cacheText)
@@ -48,10 +52,22 @@ class Clipboard
 	// Get & Set Methods
 	private static function get_text():String
 	{
-		// Native clipboard calls __update when clipboard changes
+		// Native clipboard (except Xorg) calls __update when clipboard changes.
 
 		#if (flash || js || html5)
 		__update();
+		#elseif linux
+		// Xorg won't call __update until we call set_text at least once.
+		// Details: SDL_x11clipboard.c calls X11_XSetSelectionOwner,
+		// registering this app to receive clipboard events.
+		if (_text == null)
+		{
+			__update();
+
+			// Call set_text while changing as little as possible. (Rich text
+			// formatting will unavoidably be lost.)
+			set_text(_text);
+		}
 		#end
 
 		return _text;

@@ -28,6 +28,8 @@
 	<string>::APP_BUILD_NUMBER::</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	::if (IOS_LAUNCH_STORYBOARD != null)::<key>UILaunchStoryboardName</key>
+	<string>::IOS_LAUNCH_STORYBOARD::</string>::end::
 	<key>UIRequiredDeviceCapabilities</key>
 	<dict>
 		::foreach REQUIRED_CAPABILITY::<key>::name::</key>

@@ -22,6 +22,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.Keystore;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -34,6 +35,78 @@ class TVOSPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		defaults.architectures = [Architecture.ARM64];
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("tvos.output-directory", "tvos"));
 	}
@@ -78,7 +151,7 @@ class TVOSPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -118,7 +191,8 @@ class TVOSPlatform extends PlatformTarget
 		{
 			if (!StringTools.endsWith(dependency.name, ".framework")
 				&& !StringTools.endsWith(dependency.name, ".tbd")
-				&& !StringTools.endsWith(dependency.path, ".framework"))
+				&& !StringTools.endsWith(dependency.path, ".framework")
+				&& !StringTools.endsWith(dependency.path, ".xcframework"))
 			{
 				if (dependency.path != "")
 				{
@@ -148,16 +222,6 @@ class TVOSPlatform extends PlatformTarget
 		{
 			architectures = [Architecture.ARM64];
 		}
-
-		/*if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
-
-			if (project.config.getFloat ("ios.deployment", 5.1) < 5) {
-
-				ArrayTools.addUnique (architectures, Architecture.ARMV6);
-
-			}
-
-		}*/
 
 		for (architecture in project.architectures)
 		{
@@ -221,19 +285,15 @@ class TVOSPlatform extends PlatformTarget
 		switch (project.window.orientation)
 		{
 			case PORTRAIT:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			case LANDSCAPE:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>";
 			case ALL:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			// case "allButUpsideDown":
 			// context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string></array>";
 			default:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 		}
 
 		context.ADDL_PBX_BUILD_FILE = "";
@@ -267,6 +327,12 @@ class TVOSPlatform extends PlatformTarget
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
 			}
+			else if (Path.extension(dependency.path) == "xcframework")
+			{
+				name = Path.withoutDirectory(dependency.path);
+				path = Path.tryFullPath(dependency.path);
+				fileType = "wrapper.xcframework";
+			}
 
 			if (name != null)
 			{
@@ -275,10 +341,10 @@ class TVOSPlatform extends PlatformTarget
 
 				ArrayTools.addUnique(context.frameworkSearchPaths, Path.directory(path));
 
-				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " +
-					name + " */; };\n";
-				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType +
-					"\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
+				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* "
+					+ name + " */; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType
+					+ "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
 			}
@@ -301,7 +367,7 @@ class TVOSPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
@@ -324,7 +390,8 @@ class TVOSPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var arm64 = (command == "rebuild" || (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
+		var arm64 = (command == "rebuild"
+			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (command == "rebuild" || project.targetFlags.exists("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
 
@@ -401,10 +468,20 @@ class TVOSPlatform extends PlatformTarget
 		System.mkdir(projectDirectory + "/haxe/lime/installer");
 
 		var iconSizes:Array<IconSize> = [
-			{name: "Icon-Small.png", size: 29}, {name: "Icon-Small-40.png", size: 40}, {name: "Icon-Small-50.png", size: 50}, {name: "Icon.png", size: 57},
-			{name: "Icon-Small@2x.png", size: 58}, {name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80},
-			{name: "Icon-Small-50@2x.png", size: 100}, {name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
-			{name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152}, {name: "Icon-60@3x.png", size: 180},
+			{name: "Icon-Small.png", size: 29},
+			{name: "Icon-Small-40.png", size: 40},
+			{name: "Icon-Small-50.png", size: 50},
+			{name: "Icon.png", size: 57},
+			{name: "Icon-Small@2x.png", size: 58},
+			{name: "Icon-72.png", size: 72},
+			{name: "Icon-76.png", size: 76},
+			{name: "Icon-Small-40@2x.png", size: 80},
+			{name: "Icon-Small-50@2x.png", size: 100},
+			{name: "Icon@2x.png", size: 114},
+			{name: "Icon-60@2x.png", size: 120},
+			{name: "Icon-72@2x.png", size: 144},
+			{name: "Icon-76@2x.png", size: 152},
+			{name: "Icon-60@3x.png", size: 180},
 		];
 
 		context.HAS_ICON = true;
@@ -428,12 +505,16 @@ class TVOSPlatform extends PlatformTarget
 		}
 
 		var splashSizes:Array<SplashSize> = [
-			{name: "Default.png", w: 320, h: 480}, // iPhone, portrait {name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
-			{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait {name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait
-			{name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape {name: "Default-Portrait@2x.png", w: 1536, h: 2048}, // iPad Retina, portrait
-			{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape {name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
-			{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait {name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242},
-			// iPhone 6 Plus, landscape
+			{name: "Default.png", w: 320, h: 480}, // iPhone, portrait
+			{name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
+			{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait
+			{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait
+			{name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
+			{name: "Default-Portrait@2x.png", w: 1536, h: 2048}, // iPad Retina, portrait
+			{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape
+			{name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
+			{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait
+			{name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242}, // iPhone 6 Plus, landscape
 		];
 
 		var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
@@ -445,9 +526,7 @@ class TVOSPlatform extends PlatformTarget
 
 			for (splashScreen in project.splashScreens)
 			{
-				if (splashScreen.width == size.w
-					&& splashScreen.height == size.h
-					&& Path.extension(splashScreen.path) == "png")
+				if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
 				{
 					System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
 					match = true;
@@ -482,7 +561,10 @@ class TVOSPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", projectDirectory + "/haxe", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "tvos/PROJ/Classes", projectDirectory + "/Classes", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "tvos/PROJ/Images.xcassets", projectDirectory + "/Images.xcassets", context);
-		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Entitlements.plist", projectDirectory + "/" + project.app.file + "-Entitlements.plist",
+		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Entitlements.plist", projectDirectory
+			+ "/"
+			+ project.app.file
+			+ "-Entitlements.plist",
 			context);
 		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Info.plist", projectDirectory + "/" + project.app.file + "-Info.plist", context);
 		System.copyFileTemplate(project.templatePaths, "tvos/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context);
@@ -603,7 +685,15 @@ class TVOSPlatform extends PlatformTarget
 	}*/
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

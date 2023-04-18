@@ -11,18 +11,22 @@ import lime.app.Promise;
 @:noDebug
 #end
 #if doc_gen
-class HTTPRequest<T> {
+class HTTPRequest<T>
+{
 #else
 #if !macro
 @:genericBuild(lime._internal.macros.HTTPRequestMacro.build())
 #end
 class HTTPRequest<T> extends AbstractHTTPRequest<T> {}
+
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-private class AbstractHTTPRequest<T> implements _IHTTPRequest {
+private class AbstractHTTPRequest<T> implements _IHTTPRequest
+{
 #end
+
 public var contentType:String;
 public var data:Bytes;
 public var enableResponseHeaders:Bool;
@@ -37,6 +41,7 @@ public var timeout:Int;
 public var uri:String;
 public var userAgent:String;
 public var withCredentials:Bool;
+public var manageCookies:Bool;
 #if !doc_gen
 @:noCompletion private var __backend:HTTPRequestBackend;
 #end
@@ -53,6 +58,7 @@ public function new(uri:String = null)
 	method = GET;
 	timeout = #if lime_default_timeout Std.parseInt(Compiler.getDefine("lime-default-timeout")) #else 30000 #end;
 	withCredentials = false;
+	manageCookies = true;
 
 	#if !doc_gen
 	__backend = new HTTPRequestBackend();
@@ -162,6 +168,7 @@ public function load(uri:String = null):Future<T>
 	public var uri:String;
 	public var userAgent:String;
 	public var withCredentials:Bool;
+	public var manageCookies:Bool;
 	public function cancel():Void;
 }
 

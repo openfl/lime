@@ -2,8 +2,10 @@
 #define LIME_SYSTEM_CFFI_H
 
 
-#define HL_NAME(n) hl_##n
+#define HL_NAME(n) lime_##n
 #include <hl.h>
+#undef DEFINE_PRIM
+#define DEFINE_HL_PRIM(t, name, args) DEFINE_PRIM_WITH_NAME(t, name, args, name)
 
 typedef vdynamic hl_vdynamic;
 typedef vobj hl_vobj;

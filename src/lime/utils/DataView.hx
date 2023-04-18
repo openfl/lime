@@ -8,7 +8,7 @@ import js.lib.DataView as JSDataView;
 import js.html.DataView as JSDataView;
 #end
 @:forward
-abstract DataView(JSDataView) from JSDataView to JSDataView
+abstract DataView(JSDataView) from JSDataView to JSDataView to ArrayBufferView
 {
 	public inline function new(buffer:ArrayBuffer, byteOffset:Null<Int> = null, byteLength:Null<Int> = null)
 	{

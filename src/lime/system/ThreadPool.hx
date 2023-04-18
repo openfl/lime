@@ -15,7 +15,6 @@ import neko.vm.Deque;
 import neko.vm.Thread;
 #end
 #end
-
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -188,7 +187,8 @@ class ThreadPool
 					case COMPLETE, ERROR:
 						__workCompleted++;
 
-						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads) || currentThreads > maxThreads)
+						if ((currentThreads > (__workQueued - __workCompleted) && currentThreads > minThreads)
+							|| currentThreads > maxThreads)
 						{
 							currentThreads--;
 							__workIncoming.add(new ThreadPoolMessage(EXIT, null));

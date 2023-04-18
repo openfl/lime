@@ -1304,7 +1304,7 @@ class AL
 		var res = NativeCFFI.lime_al_source_unqueue_buffers(source, 1);
 		return res[0];
 		#else
-		return 0;
+		return cast 0;
 		#end
 	}
 

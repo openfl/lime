@@ -3,6 +3,8 @@
 
 	<log error="Lime ${lime} is not compatible with Haxe ${haxe} (version 3.2.0 or higher is required)" if="${haxe < 3.2.0}" />
 
+	<log error="Lime ${lime} requires Haxe 4 to target HashLink (version ${haxe} found)" if="hl ${${haxe} < 4.0}" />
+
 	<set name="lime" />
 
 	<define name="native" if="cpp || neko || nodejs || cs || java || hl" />
@@ -89,6 +91,9 @@
 		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
+
+		<!-- TODO: Move to template or move all template dependencies to XML? -->
+		<!-- <dependency name="CoreBluetooth.framework" if="ios" /> -->
 
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
 		<define name="fdb" if="flash debug" unless="nofdb" />

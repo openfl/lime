@@ -392,7 +392,8 @@ class ProjectXMLParser extends HXProject
 		return segments.join("");
 	}
 
-	public static function fromFile(path:String, defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false):ProjectXMLParser
+	public static function fromFile(path:String, defines:Map<String, Dynamic> = null, includePaths:Array<String> = null,
+			useExtensionPath:Bool = false):ProjectXMLParser
 	{
 		if (path == null) return null;
 
@@ -438,11 +439,11 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(app, name))
+					if (Reflect.hasField(ApplicationData.expectedFields, name))
 					{
 						Reflect.setField(app, name, value);
 					}
-					else if (Reflect.hasField(meta, name))
+					else if (Reflect.hasField(MetaData.expectedFields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -761,9 +762,8 @@ class ProjectXMLParser extends HXProject
 				if (manifest != null)
 				{
 					library = targetPath;
-					manifest.rootPath = targetPath;
 
-					var asset = new Asset("", Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
+					var asset = new Asset(jsonPath, Path.combine(targetPath, "library.json"), AssetType.MANIFEST);
 					asset.id = "libraries/" + library + ".json";
 					asset.library = library;
 					asset.data = manifest.serialize();
@@ -856,7 +856,7 @@ class ProjectXMLParser extends HXProject
 						name = "packageName";
 					}
 
-					if (Reflect.hasField(meta, name))
+					if (Reflect.hasField(MetaData.expectedFields, name))
 					{
 						Reflect.setField(meta, name, value);
 					}
@@ -1222,8 +1222,8 @@ class ProjectXMLParser extends HXProject
 
 						if (version != "" && defines.exists(name) && !haxelib.versionMatches(defines.get(name)))
 						{
-							Log.warn("Ignoring requested haxelib \"" + name + "\" version \"" + version + "\" (version \"" + defines
-								.get(name) + "\" was already included)");
+							Log.warn("Ignoring requested haxelib \"" + name + "\" version \"" + version + "\" (version \"" + defines.get(name)
+								+ "\" was already included)");
 							continue;
 						}
 
@@ -1336,7 +1336,7 @@ class ProjectXMLParser extends HXProject
 
 							if (Reflect.hasField(Architecture, exclude.toUpperCase()))
 							{
-								architectures.remove(Reflect.field(Architecture, exclude.toUpperCase()));
+								ArrayTools.addUnique(excludeArchitectures, Reflect.field(Architecture, exclude.toUpperCase()));
 							}
 						}
 
@@ -1366,6 +1366,89 @@ class ProjectXMLParser extends HXProject
 
 						splashScreens.push(splashScreen);
 
+					case "launchStoryboard":
+						if (launchStoryboard == null)
+						{
+							launchStoryboard = new LaunchStoryboard();
+						}
+
+						if (element.has.path)
+						{
+							launchStoryboard.path = Path.combine(extensionPath, substitute(element.att.path));
+						}
+						else if (element.has.name)
+						{
+							launchStoryboard.path = Path.combine(extensionPath, substitute(element.att.name));
+						}
+						else if (element.has.template)
+						{
+							launchStoryboard.template = substitute(element.att.template);
+							launchStoryboard.templateContext = {};
+
+							for (attr in element.x.attributes())
+							{
+								if (attr == "assetsPath") continue;
+
+								var valueType = "String";
+								var valueName = attr;
+
+								if (valueName.indexOf("-") != -1)
+								{
+									valueType = valueName.substring(valueName.lastIndexOf("-") + 1);
+									valueName = valueName.substring(0, valueName.lastIndexOf("-"));
+								}
+								else if (valueName.indexOf(":") != -1)
+								{
+									valueType = valueName.substring(valueName.lastIndexOf(":") + 1);
+									valueName = valueName.substring(0, valueName.lastIndexOf(":"));
+								}
+
+								var stringValue = element.x.get(attr);
+								var value:Dynamic;
+
+								switch (valueType)
+								{
+									case "Int":
+										value = Std.parseInt(stringValue);
+									case "RGB":
+										var rgb:lime.math.ARGB = Std.parseInt(stringValue);
+										value = {r: rgb.r / 255, g: rgb.g / 255, b: rgb.b / 255};
+									case "String":
+										value = stringValue;
+									default:
+										Log.warn("Ignoring unknown value type \"" + valueType + "\" in storyboard configuration.");
+										value = "";
+								}
+
+								Reflect.setField(launchStoryboard.templateContext, valueName, value);
+							}
+						}
+
+						if (element.has.assetsPath)
+						{
+							launchStoryboard.assetsPath = Path.combine(extensionPath, substitute(element.att.assetsPath));
+						}
+
+						for (childElement in element.elements)
+						{
+							var isValid = isValidElement(childElement, "");
+
+							if (isValid)
+							{
+								switch (childElement.name)
+								{
+									case "imageset":
+										var name = substitute(childElement.att.name);
+										var imageset = new LaunchStoryboard.ImageSet(name);
+
+										if (childElement.has.width) imageset.width = Std.parseInt(substitute(childElement.att.width));
+										if (childElement.has.height) imageset.height = Std.parseInt(substitute(childElement.att.height));
+
+										launchStoryboard.assets.push(imageset);
+								}
+							}
+						}
+
 					case "icon":
 						var path = "";
 
@@ -1393,6 +1476,11 @@ class ProjectXMLParser extends HXProject
 						if (element.has.height)
 						{
 							icon.height = Std.parseInt(substitute(element.att.height));
+						}
+
+						if (element.has.priority)
+						{
+							icon.priority = Std.parseInt(substitute(element.att.priority));
 						}
 
 						icons.push(icon);
@@ -1582,20 +1670,21 @@ class ProjectXMLParser extends HXProject
 						parseXML(element, "", extensionPath);
 
 					case "certificate":
-						var path = null;
-
-						if (element.has.path)
+						if (element.has.path || element.has.type)
 						{
-							path = element.att.path;
-						}
-						else if (element.has.keystore)
-						{
-							path = element.att.keystore;
+							keystore = new Keystore();
 						}
 
-						if (path != null)
+						if (keystore != null)
 						{
-							keystore = new Keystore(Path.combine(extensionPath, substitute(element.att.path)));
+							if (element.has.path)
+							{
+								keystore.path = Path.combine(extensionPath, substitute(element.att.path));
+							}
+							else if (element.has.keystore)
+							{
+								keystore.path = Path.combine(extensionPath, substitute(element.att.keystore));
+							}
 
 							if (element.has.type)
 							{
@@ -1871,7 +1960,7 @@ class ProjectXMLParser extends HXProject
 
 		while (id >= windows.length)
 		{
-			windows.push(ObjectTools.copyFields(defaultWindow, {}));
+			windows.push({});
 		}
 
 		for (attribute in element.x.attributes())
@@ -1911,35 +2000,23 @@ class ProjectXMLParser extends HXProject
 					}
 
 				case "height", "width", "fps", "antialiasing":
-					if (Reflect.hasField(windows[id], name))
-					{
-						Reflect.setField(windows[id], name, Std.parseInt(value));
-					}
+					Reflect.setField(windows[id], name, Std.parseInt(value));
 
 				case "parameters", "title":
-					if (Reflect.hasField(windows[id], name))
-					{
-						Reflect.setField(windows[id], name, Std.string(value));
-					}
+					Reflect.setField(windows[id], name, Std.string(value));
 
 				case "allow-high-dpi":
-					if (Reflect.hasField(windows[id], "allowHighDPI"))
-					{
-						Reflect.setField(windows[id], "allowHighDPI", value == "true");
-					}
+					Reflect.setField(windows[id], "allowHighDPI", value == "true");
 
 				case "color-depth":
-					if (Reflect.hasField(windows[id], "colorDepth"))
-					{
-						Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
-					}
+					Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
 
 				default:
-					if (Reflect.hasField(windows[id], name))
+					if (Reflect.hasField(WindowData.expectedFields, name))
 					{
 						Reflect.setField(windows[id], name, value == "true");
 					}
-					else if (Reflect.hasField(windows[id], formatAttributeName(name)))
+					else if (Reflect.hasField(WindowData.expectedFields, formatAttributeName(name)))
 					{
 						Reflect.setField(windows[id], formatAttributeName(name), value == "true");
 					}

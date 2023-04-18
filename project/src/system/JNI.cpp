@@ -931,7 +931,7 @@ namespace lime {
 
 					outType = JNIType (jniObjectString, inDepth);
 
-				} else if (!strncmp(src,"org/haxe/lime/HaxeObject;", 24)) {
+				} else if (!strncmp(src,"org/haxe/lime/HaxeObject;", 25)) {
 
 					outType = JNIType (jniObjectHaxe, inDepth);
 
