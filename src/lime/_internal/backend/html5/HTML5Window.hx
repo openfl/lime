@@ -1119,7 +1119,7 @@ class HTML5Window
 				textInput.type = 'text';
 				#else
 				// use password instead of text to avoid IME issues on Android
-				textInput.type = 'password';
+				textInput.type = Browser.navigator.userAgent.indexOf("Android") >= 0 ? 'password' : 'text';
 				#end
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
