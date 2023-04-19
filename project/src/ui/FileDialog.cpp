@@ -10,8 +10,8 @@
 namespace lime {
 
 	template<typename T>
-	static bool is_empty (const T* str) {
-		return str[0] == 0;
+	static bool is_null_or_empty (const T* str) {
+		return str == nullptr || str[0] == 0;
 	}
 
 	#ifdef HX_WINDOWS
@@ -22,7 +22,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_selectFolderDialogW (title, defaultPath);
 
-		if (path && !is_empty(path)) {
+		if (!is_null_or_empty(path)) {
 
 			return path;
 
@@ -58,7 +58,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (path && !is_empty(path)) {
+		if (!is_null_or_empty(path)) {
 
 			return path;
 
@@ -95,7 +95,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (paths && !is_empty(paths)) {
+		if (!is_null_or_empty(paths)) {
 
 			return paths;
 
@@ -118,7 +118,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_saveFileDialogW (title, defaultPath, filter ? 1 : 0, filter ? filters : NULL, NULL);
 
-		if (path && !is_empty(path)) {
+		if (!is_null_or_empty(path)) {
 
 			return path;
 
@@ -136,7 +136,7 @@ namespace lime {
 
 		const char* path = tinyfd_selectFolderDialog (title, defaultPath);
 
-		if (path && !is_empty(path)) {
+		if (!is_null_or_empty(path)) {
 
 			return path;
 
@@ -172,7 +172,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (path && !is_empty(path)) {
+		if (!is_null_or_empty(path)) {
 
 			return path;
 
@@ -209,7 +209,7 @@ namespace lime {
 
 		delete[] filters;
 
-		if (paths && !is_empty(paths)) {
+		if (!is_null_or_empty(paths)) {
 
 			return paths;
 
@@ -231,7 +231,7 @@ namespace lime {
 
 		const char* path = tinyfd_saveFileDialog (title, defaultPath, filter ? 1 : 0, filter ? filters : NULL, NULL);
 
-		if (path && !is_empty(path)) {
+		if (!is_null_or_empty(path)) {
 
 			return path;
 
