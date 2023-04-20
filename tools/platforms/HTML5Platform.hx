@@ -430,6 +430,10 @@ class HTML5Platform extends PlatformTarget
 					context.linkedLibraries.push("./" + dependencyPath + "/" + name);
 					System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
 				}
+				else if (StringTools.startsWith(dependency.path, 'http') && StringTools.endsWith(dependency.path, '.js'))
+				{
+					context.linkedLibraries.push(dependency.path);
+				}
 			}
 		}
 
