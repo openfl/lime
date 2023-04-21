@@ -444,7 +444,7 @@ class HTML5HTTPRequest
 
 	private static function __loadImage(uri:String, promise:Promise<Image>, options:Int):Void
 	{
-		var image = new JSImage();
+		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
 
 		if (!__isSameOrigin(uri))
 		{
@@ -534,7 +534,7 @@ class HTML5HTTPRequest
 		{
 			if (request.readyState != 4) return;
 
-			if (request.status != null && ((request.status >= 200 && request.status <= 400) || (validStatus0 && request.status == 0)))
+			if (request.status != null && ((request.status >= 200 && request.status < 400) || (validStatus0 && request.status == 0)))
 			{
 				processResponse();
 				promise.complete(request.responseText);
