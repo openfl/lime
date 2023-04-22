@@ -422,31 +422,20 @@ class HTML5Platform extends PlatformTarget
 				continue;
 			}
 
-			var path:String;
-
-			if (StringTools.endsWith(dependency.name, ".js"))
+			if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
 			{
-				path = dependency.name;
-			}
-			else if (StringTools.endsWith(dependency.path, ".js"))
-			{
-				path = dependency.path;
-			}
-			else
-			{
-				continue;
-			}
-
-			if (FileSystem.exists(path))
-			{
-				var name = Path.withoutDirectory(path);
+				var name = Path.withoutDirectory(dependency.path);
 
 				context.linkedLibraries.push("./" + dependencyPath + "/" + name);
 				System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
 			}
-			else
+			else if (StringTools.endsWith(dependency.path, '.js'))
 			{
-				context.linkedLibraries.push(path);
+				context.linkedLibraries.push(dependency.path);
+			}
+			else if (StringTools.endsWith(dependency.name, ".js"))
+			{
+				context.linkedLibraries.push(dependency.name);
 			}
 		}
 
