@@ -220,7 +220,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "zulu"
-          java-version: 8
+          java-version: 11
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -466,7 +466,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "zulu"
-          java-version: 8
+          java-version: 11
 
       - uses: krdlab/setup-haxe@v1
         with:
