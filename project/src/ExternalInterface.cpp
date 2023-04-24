@@ -54,6 +54,7 @@
 #endif
 
 #include <cstdlib>
+#include <cstring>
 
 DEFINE_KIND (k_finalizer);
 
@@ -164,6 +165,54 @@ namespace lime {
 			return new std::wstring (converter.from_bytes (_val));
 			#else
 			return new std::wstring (_val.begin (), _val.end ());
+			#endif
+
+		} else {
+
+			return 0;
+
+		}
+
+	}
+
+
+	value wstring_to_value (std::wstring* val) {
+
+		if (val) {
+
+			#ifdef HX_WINDOWS
+			return alloc_wstring (val->c_str ());
+			#else
+			std::string _val = std::string (val->begin (), val->end ());
+			return alloc_string (_val.c_str ());
+			#endif
+
+		} else {
+
+			return 0;
+
+		}
+
+	}
+
+
+	vbyte* wstring_to_vbytes (std::wstring* val) {
+
+		if (val) {
+
+			#ifdef HX_WINDOWS
+			int size = std::wcslen (val->c_str ());
+			char* result = (char*)malloc (size + 1);
+			std::wcstombs (result, val->c_str (), size);
+			result[size] = '\0';
+			return (vbyte*)result;
+			#else
+			std::string _val = std::string (val->begin (), val->end ());
+			int size = std::strlen (_val.c_str ());
+			char* result = (char*)malloc (size + 1);
+			std::strncpy (result, _val.c_str (), size);
+			result[size] = '\0';
+			return (vbyte*)result;
 			#endif
 
 		} else {
@@ -687,7 +736,7 @@ namespace lime {
 
 		if (path) {
 
-			value _path = alloc_wstring (path->c_str ());
+			value _path = wstring_to_value (path);
 			delete path;
 			return _path;
 
@@ -720,13 +769,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* _path = wstring_to_vbytes (path);
 			delete path;
-
-			return (vbyte*)result;
+			return _path;
 
 		} else {
 
@@ -757,7 +802,7 @@ namespace lime {
 
 		if (path) {
 
-			value _path = alloc_wstring (path->c_str ());
+			value _path = wstring_to_value (path);
 			delete path;
 			return _path;
 
@@ -790,13 +835,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* _path = wstring_to_vbytes (path);
 			delete path;
-
-			return (vbyte*)result;
+			return _path;
 
 		} else {
 
@@ -830,7 +871,8 @@ namespace lime {
 
 		for (int i = 0; i < files.size (); i++) {
 
-			val_array_set_i (result, i, alloc_wstring (files[i]->c_str ()));
+			value _file = wstring_to_value (files[i]);
+			val_array_set_i (result, i, _file);
 			delete files[i];
 
 		}
@@ -864,12 +906,8 @@ namespace lime {
 
 		for (int i = 0; i < files.size (); i++) {
 
-			int size = std::wcslen (files[i]->c_str ());
-			char* _file = (char*)malloc (size + 1);
-			std::wcstombs (_file, files[i]->c_str (), size);
-			_file[size] = '\0';
-
-			*resultData++ = (vbyte*)_file;
+			vbyte* _file = wstring_to_vbytes (files[i]);
+			*resultData++ = _file;
 			delete files[i];
 
 		}
@@ -899,7 +937,7 @@ namespace lime {
 
 		if (path) {
 
-			value _path = alloc_wstring (path->c_str ());
+			value _path = wstring_to_value (path);
 			delete path;
 			return _path;
 
@@ -932,13 +970,9 @@ namespace lime {
 
 		if (path) {
 
-			int size = std::wcslen (path->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, path->c_str (), size);
-			result[size] = '\0';
+			vbyte* _path = wstring_to_vbytes (path);
 			delete path;
-
-			return (vbyte*)result;
+			return _path;
 
 		} else {
 
@@ -3518,6 +3552,38 @@ namespace lime {
 	}
 
 
+	void lime_window_set_minimum_size (value window, int width, int height) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMinimumSize (width, height);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_minimum_size) (HL_CFFIPointer* window, int width, int height) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMinimumSize (width, height);
+
+	}
+
+
+	void lime_window_set_maximum_size (value window, int width, int height) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMaximumSize (width, height);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_maximum_size) (HL_CFFIPointer* window, int width, int height) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMaximumSize (width, height);
+
+	}
+
+
 	bool lime_window_set_borderless (value window, bool borderless) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3986,6 +4052,8 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_move);
 	DEFINE_PRIME3 (lime_window_read_pixels);
 	DEFINE_PRIME3v (lime_window_resize);
+	DEFINE_PRIME3v (lime_window_set_minimum_size);
+	DEFINE_PRIME3v (lime_window_set_maximum_size);
 	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2v (lime_window_set_cursor);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
@@ -4173,6 +4241,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_move, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_window_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, hl_window_resize, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_minimum_size, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_maximum_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_borderless, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_cursor, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE _TDISPLAYMODE);

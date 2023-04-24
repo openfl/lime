@@ -745,6 +745,20 @@ namespace lime {
 	}
 
 
+	void SDLWindow::SetMinimumSize (int width, int height) {
+
+		SDL_SetWindowMinimumSize (sdlWindow, width, height);
+
+	}
+
+
+	void SDLWindow::SetMaximumSize (int width, int height) {
+
+		SDL_SetWindowMaximumSize (sdlWindow, width, height);
+
+	}
+
+
 	bool SDLWindow::SetBorderless (bool borderless) {
 
 		if (borderless) {

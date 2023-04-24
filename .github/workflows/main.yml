@@ -29,7 +29,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -101,7 +101,7 @@ jobs:
           rm /usr/local/bin/python3*
           brew bundle
           popd
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -153,7 +153,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -217,8 +217,9 @@ jobs:
         with:
           ndk-version: r21e
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
+          distribution: "zulu"
           java-version: 11
 
       - uses: krdlab/setup-haxe@v1
@@ -231,7 +232,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -289,7 +290,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -339,7 +340,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -462,8 +463,9 @@ jobs:
         with:
           ndk-version: r15c
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
+          distribution: "zulu"
           java-version: 11
 
       - uses: krdlab/setup-haxe@v1
@@ -476,7 +478,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -585,7 +587,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -637,6 +639,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v3
@@ -661,6 +664,12 @@ jobs:
           lime build SimpleImage html5 -release -verbose -nocolor
           lime build SimpleAudio html5 -release -verbose -nocolor
 
+      - name: Build Lime samples with Genes
+        run: |
+          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
+
   ios-samples:
     needs: package-haxelib
     runs-on: macos-11
@@ -676,7 +685,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -727,7 +736,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -773,7 +782,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -834,7 +843,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -886,7 +895,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
