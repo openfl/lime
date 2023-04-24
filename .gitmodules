@@ -44,11 +44,11 @@
 	shallow = true
 [submodule "project/lib/cairo"]
 	path = project/lib/cairo
-	url = https://gitlab.freedesktop.org/cairo/cairo
+	url = https://gitlab.freedesktop.org/cairo/cairo.git
 	shallow = true
 [submodule "project/lib/pixman"]
 	path = project/lib/pixman
-	url = https://gitlab.freedesktop.org/pixman/pixman
+	url = https://gitlab.freedesktop.org/pixman/pixman.git
 	shallow = true
 [submodule "project/lib/lzma"]
 	path = project/lib/lzma
