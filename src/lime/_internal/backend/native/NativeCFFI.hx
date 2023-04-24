@@ -2308,7 +2308,7 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "hl_al_filteri") private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void {}
+	@:hlNative("lime", "hl_al_filteri") private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Int):Void {}
 
 	@:hlNative("lime", "hl_al_filterf") private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:hl.F32):Void {}
 
