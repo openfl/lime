@@ -437,11 +437,8 @@ class Window
 
 		__minWidth = width;
 		__minHeight = height;
-		if (__width < __minWidth) {
-			__width = __minWidth;
-		}
-		if (__height < __minHeight) {
-			__height = __minHeight;
+		if (__width < __minWidth || __height < __minHeight) {
+			resize(__width, __height);
 		}
 	}
 
@@ -451,11 +448,8 @@ class Window
 
 		__maxWidth = width;
 		__maxHeight = height;
-		if (__width > __maxWidth) {
-			__width = __maxWidth;
-		}
-		if (__height > __maxHeight) {
-			__height = __maxHeight;
+		if (__width > __maxWidth || __height > __maxHeight) {
+			resize(__width, __height);
 		}
 	}
 
