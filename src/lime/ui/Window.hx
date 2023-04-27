@@ -118,10 +118,10 @@ class Window
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	@:noCompletion private var __minWidth:Int;
-	@:noCompletion private var __minHeight:Int;
-	@:noCompletion private var __maxWidth:Int;
-	@:noCompletion private var __maxHeight:Int;
+	@:noCompletion private var __minWidth:Int = 0;
+	@:noCompletion private var __minHeight:Int = 0;
+	@:noCompletion private var __maxWidth:Int = 0x7FFFFFFF;
+	@:noCompletion private var __maxHeight:Int = 0x7FFFFFFF;
 
 	#if commonjs
 	private static function __init__()
