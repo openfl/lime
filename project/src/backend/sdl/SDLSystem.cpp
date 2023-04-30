@@ -326,7 +326,7 @@ namespace lime {
 			alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
 
 			float dpi = 72.0;
-			const SDL_DisplayMode* dpiDisplayMode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+			const SDL_DisplayMode* dpiDisplayMode = SDL_GetDesktopDisplayMode(id);
 			#ifdef IPHONE
 			dpi = dpiDisplayMode->display_scale * 160.0;
 			#elifdef ANDROID
@@ -339,7 +339,7 @@ namespace lime {
 
 			DisplayMode mode;
 
-			const SDL_DisplayMode* displayMode = SDL_GetDesktopDisplayMode (SDL_GetPrimaryDisplay());
+			const SDL_DisplayMode* displayMode = SDL_GetDesktopDisplayMode (id);
 
 			mode.height = displayMode->pixel_h;
 
@@ -368,7 +368,7 @@ namespace lime {
 			alloc_field (display, id_currentMode, (value)mode.Value ());
 
 			int numDisplayModes = 0;
-			const SDL_DisplayMode** modes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &numDisplayModes);
+			const SDL_DisplayMode** modes = SDL_GetFullscreenDisplayModes(id, &numDisplayModes);
 
 			value supportedModes = alloc_array (numDisplayModes);
 
@@ -448,7 +448,7 @@ namespace lime {
 			hl_dyn_setp (display, id_bounds, &hlt_dynobj, _bounds);
 
 			float dpi = 72.0;
-			const SDL_DisplayMode* dpiDisplayMode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+			const SDL_DisplayMode* dpiDisplayMode = SDL_GetDesktopDisplayMode(id);
 			#ifdef IPHONE
 			dpi = dpiDisplayMode->display_scale * 160.0;
 			#elifdef ANDROID
@@ -495,7 +495,7 @@ namespace lime {
 			hl_dyn_setp (display, id_currentMode, &hlt_dynobj, _displayMode);
 
 			int numDisplayModes = 0;
-        	const SDL_DisplayMode** displayModes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &numDisplayModes);
+        	const SDL_DisplayMode** displayModes = SDL_GetFullscreenDisplayModes(id, &numDisplayModes);
 
 			hl_varray* supportedModes = (hl_varray*)hl_alloc_array (&hlt_dynobj, numDisplayModes);
 			vdynamic** supportedModesData = hl_aptr (supportedModes, vdynamic*);

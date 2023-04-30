@@ -3,7 +3,7 @@
 	url = https://github.com/openfl/libvorbis
 [submodule "project/lib/sdl"]
 	path = project/lib/sdl
-	url = https://github.com/openfl/libsdl
+	url = https://github.com/libsdl-org/SDL
 [submodule "project/lib/openal"]
 	path = project/lib/openal
 	url = https://github.com/openfl/libopenal
