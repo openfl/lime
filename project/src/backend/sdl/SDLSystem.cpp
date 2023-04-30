@@ -31,7 +31,7 @@
 #endif
 #endif
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <string>
 
 #ifdef HX_WINDOWS
@@ -89,7 +89,7 @@ namespace lime {
 
 	bool System::GetAllowScreenTimeout () {
 
-		return SDL_IsScreenSaverEnabled ();
+		return SDL_ScreenSaverEnabled ();
 
 	}
 
@@ -326,19 +326,24 @@ namespace lime {
 			alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
 
 			float dpi = 72.0;
-			#ifndef EMSCRIPTEN
-			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+			const SDL_DisplayMode* dpiDisplayMode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+			#ifdef IPHONE
+			dpi = dpiDisplayMode->display_scale * 160.0;
+			#elifdef ANDROID
+			dpi = dpiDisplayMode->display_scale * 160.0;
+			#else
+			dpi = dpiDisplayMode->display_scale * 96.0;
 			#endif
+
 			alloc_field (display, id_dpi, alloc_float (dpi));
 
-			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 			DisplayMode mode;
 
-			SDL_GetDesktopDisplayMode (id, &displayMode);
+			const SDL_DisplayMode* displayMode = SDL_GetDesktopDisplayMode (SDL_GetPrimaryDisplay());
 
-			mode.height = displayMode.h;
+			mode.height = displayMode->pixel_h;
 
-			switch (displayMode.format) {
+			switch (displayMode->format) {
 
 				case SDL_PIXELFORMAT_ARGB8888:
 
@@ -357,21 +362,23 @@ namespace lime {
 
 			}
 
-			mode.refreshRate = displayMode.refresh_rate;
-			mode.width = displayMode.w;
+			mode.refreshRate = displayMode->refresh_rate;
+			mode.width = displayMode->pixel_w;
 
 			alloc_field (display, id_currentMode, (value)mode.Value ());
 
-			int numDisplayModes = SDL_GetNumDisplayModes (id);
+			int numDisplayModes = 0;
+			const SDL_DisplayMode** modes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &numDisplayModes);
+
 			value supportedModes = alloc_array (numDisplayModes);
 
 			for (int i = 0; i < numDisplayModes; i++) {
 
-				SDL_GetDisplayMode (id, i, &displayMode);
+				displayMode = modes[i];
 
-				mode.height = displayMode.h;
+				mode.height = displayMode->pixel_h;
 
-				switch (displayMode.format) {
+				switch (displayMode->format) {
 
 					case SDL_PIXELFORMAT_ARGB8888:
 
@@ -390,8 +397,8 @@ namespace lime {
 
 				}
 
-				mode.refreshRate = displayMode.refresh_rate;
-				mode.width = displayMode.w;
+				mode.refreshRate = displayMode->refresh_rate;
+				mode.width = displayMode->pixel_w;
 
 				val_array_set_i (supportedModes, i, (value)mode.Value ());
 
@@ -441,19 +448,24 @@ namespace lime {
 			hl_dyn_setp (display, id_bounds, &hlt_dynobj, _bounds);
 
 			float dpi = 72.0;
-			#ifndef EMSCRIPTEN
-			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
+			const SDL_DisplayMode* dpiDisplayMode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+			#ifdef IPHONE
+			dpi = dpiDisplayMode->display_scale * 160.0;
+			#elifdef ANDROID
+			dpi = dpiDisplayMode->display_scale * 160.0;
+			#else
+			dpi = dpiDisplayMode->display_scale * 96.0;
 			#endif
+
 			hl_dyn_setf (display, id_dpi, dpi);
 
-			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
 			DisplayMode mode;
 
-			SDL_GetDesktopDisplayMode (id, &displayMode);
+			const SDL_DisplayMode* displayMode = SDL_GetDesktopDisplayMode (id);
 
-			mode.height = displayMode.h;
+			mode.height = displayMode->pixel_h;
 
-			switch (displayMode.format) {
+			switch (displayMode->format) {
 
 				case SDL_PIXELFORMAT_ARGB8888:
 
@@ -472,8 +484,8 @@ namespace lime {
 
 			}
 
-			mode.refreshRate = displayMode.refresh_rate;
-			mode.width = displayMode.w;
+			mode.refreshRate = displayMode->refresh_rate;
+			mode.width = displayMode->pixel_w;
 
 			vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
 			hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
@@ -482,18 +494,19 @@ namespace lime {
 			hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
 			hl_dyn_setp (display, id_currentMode, &hlt_dynobj, _displayMode);
 
-			int numDisplayModes = SDL_GetNumDisplayModes (id);
+			int numDisplayModes = 0;
+        	const SDL_DisplayMode** displayModes = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &numDisplayModes);
 
 			hl_varray* supportedModes = (hl_varray*)hl_alloc_array (&hlt_dynobj, numDisplayModes);
 			vdynamic** supportedModesData = hl_aptr (supportedModes, vdynamic*);
 
 			for (int i = 0; i < numDisplayModes; i++) {
 
-				SDL_GetDisplayMode (id, i, &displayMode);
+				displayMode = displayModes[i];
 
-				mode.height = displayMode.h;
+				mode.height = displayMode->pixel_h;
 
-				switch (displayMode.format) {
+				switch (displayMode->format) {
 
 					case SDL_PIXELFORMAT_ARGB8888:
 
@@ -512,8 +525,8 @@ namespace lime {
 
 				}
 
-				mode.refreshRate = displayMode.refresh_rate;
-				mode.width = displayMode.w;
+				mode.refreshRate = displayMode->refresh_rate;
+				mode.width = displayMode->pixel_w;
 
 				vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
 				hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
@@ -534,9 +547,10 @@ namespace lime {
 
 
 	int System::GetNumDisplays () {
+		int num_displays = 0;
+        SDL_GetDisplays(&num_displays);
 
-		return SDL_GetNumVideoDisplays ();
-
+		return num_displays;
 	}
 
 

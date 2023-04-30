@@ -2307,20 +2307,6 @@ namespace lime {
 	}
 
 
-	int lime_joystick_get_num_trackballs (int id) {
-
-		return Joystick::GetNumTrackballs (id);
-
-	}
-
-
-	HL_PRIM int HL_NAME(hl_joystick_get_num_trackballs) (int id) {
-
-		return Joystick::GetNumTrackballs (id);
-
-	}
-
-
 	value lime_jpeg_decode_bytes (value data, bool decodeData, value buffer) {
 
 		ImageBuffer imageBuffer (buffer);
@@ -3915,7 +3901,6 @@ namespace lime {
 	DEFINE_PRIME1 (lime_joystick_get_num_axes);
 	DEFINE_PRIME1 (lime_joystick_get_num_buttons);
 	DEFINE_PRIME1 (lime_joystick_get_num_hats);
-	DEFINE_PRIME1 (lime_joystick_get_num_trackballs);
 	DEFINE_PRIME3 (lime_jpeg_decode_bytes);
 	DEFINE_PRIME3 (lime_jpeg_decode_file);
 	DEFINE_PRIME1 (lime_key_code_from_scan_code);
@@ -4099,7 +4084,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_axes, _I32);
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_buttons, _I32);
 	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_hats, _I32);
-	DEFINE_HL_PRIM (_I32, hl_joystick_get_num_trackballs, _I32);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_jpeg_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_jpeg_decode_file, _STRING _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_F32, hl_key_code_from_scan_code, _F32);

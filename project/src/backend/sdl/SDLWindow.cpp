@@ -5,7 +5,7 @@
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
-#include <SDL_syswm.h>
+#include <SDL3/SDL_syswm.h>
 #include <Windows.h>
 #undef CreateWindow
 #endif
@@ -45,7 +45,6 @@ namespace lime {
 
 		int sdlWindowFlags = 0;
 
-		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlWindowFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlWindowFlags |= SDL_WINDOW_BORDERLESS;
 		if (flags & WINDOW_FLAG_HIDDEN) sdlWindowFlags |= SDL_WINDOW_HIDDEN;
@@ -81,11 +80,7 @@ namespace lime {
 
 			sdlWindowFlags |= SDL_WINDOW_OPENGL;
 
-			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
-
-				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
-
-			}
+			// SDL_WINDOW_ALLOW_HIGHDPI is no longer used. Windows are now automatically high DPI aware.
 
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -147,7 +142,9 @@ namespace lime {
 
 		}
 
-		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+		sdlWindow = SDL_CreateWindow (title, width, height, sdlWindowFlags);
+		SDL_SetWindowFullscreenMode(sdlWindow, NULL);
+		SDL_SetWindowFullscreen(sdlWindow, (flags & WINDOW_FLAG_FULLSCREEN) ? SDL_TRUE : SDL_FALSE);
 
 		#if defined (IPHONE) || defined (APPLETV)
 		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
@@ -155,7 +152,7 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+			sdlWindow = SDL_CreateWindow (title, width, height, sdlWindowFlags);
 
 		}
 		#endif
@@ -175,9 +172,8 @@ namespace lime {
 		if (icon != nullptr) {
 
 			SDL_SysWMinfo wminfo;
-			SDL_VERSION (&wminfo.version);
 
-			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
+			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo, SDL_SYSWM_CURRENT_VERSION) == 1) {
 
 				HWND hwnd = wminfo.info.win.window;
 
@@ -276,7 +272,7 @@ namespace lime {
 
 			sdlRendererFlags |= SDL_RENDERER_SOFTWARE;
 
-			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlRendererFlags);
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, NULL, sdlRendererFlags);
 
 		}
 
@@ -324,8 +320,7 @@ namespace lime {
 		bool stopOnForeground = true;
 
 		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
+		SDL_GetWindowWMInfo (sdlWindow, &info, SDL_SYSWM_CURRENT_VERSION );
 
 		FLASHWINFO fi;
 		fi.cbSize = sizeof (FLASHWINFO);
@@ -380,7 +375,7 @@ namespace lime {
 			int width;
 			int height;
 
-			SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+			SDL_GetCurrentRenderOutputSize (sdlRenderer, &width, &height);
 
 			if (width != contextWidth || height != contextHeight) {
 
@@ -475,7 +470,7 @@ namespace lime {
 
 			SDL_UnlockTexture (sdlTexture);
 			SDL_RenderClear (sdlRenderer);
-			SDL_RenderCopy (sdlRenderer, sdlTexture, NULL, NULL);
+			SDL_RenderTexture (sdlRenderer, sdlTexture, NULL, NULL);
 
 		}
 
@@ -529,20 +524,19 @@ namespace lime {
 
 	int SDLWindow::GetDisplay () {
 
-		return SDL_GetWindowDisplayIndex (sdlWindow);
+		return SDL_GetDisplayForWindow (sdlWindow);
 
 	}
 
 
 	void SDLWindow::GetDisplayMode (DisplayMode* displayMode) {
 
-		SDL_DisplayMode mode;
-		SDL_GetWindowDisplayMode (sdlWindow, &mode);
+		const SDL_DisplayMode* mode = SDL_GetWindowFullscreenMode (sdlWindow);
 
-		displayMode->width = mode.w;
-		displayMode->height = mode.h;
+		displayMode->width = mode->pixel_w;
+		displayMode->height = mode->pixel_h;
 
-		switch (mode.format) {
+		switch (mode->format) {
 
 			case SDL_PIXELFORMAT_ARGB8888:
 
@@ -561,7 +555,7 @@ namespace lime {
 
 		}
 
-		displayMode->refreshRate = mode.refresh_rate;
+		displayMode->refreshRate = mode->refresh_rate;
 
 	}
 
@@ -599,7 +593,7 @@ namespace lime {
 			int outputWidth;
 			int outputHeight;
 
-			SDL_GetRendererOutputSize (sdlRenderer, &outputWidth, &outputHeight);
+			SDL_GetCurrentRenderOutputSize (sdlRenderer, &outputWidth, &outputHeight);
 
 			int width;
 			int height;
@@ -614,7 +608,7 @@ namespace lime {
 			int outputWidth;
 			int outputHeight;
 
-			SDL_GL_GetDrawableSize (sdlWindow, &outputWidth, &outputHeight);
+			SDL_GetWindowSizeInPixels (sdlWindow, &outputWidth, &outputHeight);
 
 			int width;
 			int height;
@@ -633,7 +627,7 @@ namespace lime {
 
 	bool SDLWindow::GetTextInputEnabled () {
 
-		return SDL_IsTextInputActive ();
+		return SDL_TextInputActive ();
 
 	}
 
@@ -743,7 +737,7 @@ namespace lime {
 
 			if (currentCursor == HIDDEN) {
 
-				SDL_ShowCursor (SDL_ENABLE);
+				SDL_ShowCursor();
 
 			}
 
@@ -751,7 +745,7 @@ namespace lime {
 
 				case HIDDEN:
 
-					SDL_ShowCursor (SDL_DISABLE);
+					SDL_HideCursor();
 
 				case CROSSHAIR:
 
@@ -907,15 +901,9 @@ namespace lime {
 
 		SDL_DisplayMode mode = { pixelFormat, displayMode->width, displayMode->height, displayMode->refreshRate, 0 };
 
-		if (SDL_SetWindowDisplayMode (sdlWindow, &mode) == 0) {
+		if (SDL_SetWindowFullscreenMode (sdlWindow, &mode) == 0) {
 
 			displayModeSet = true;
-
-			if (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
-
-				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
-
-			}
 
 		}
 
@@ -924,23 +912,7 @@ namespace lime {
 
 	bool SDLWindow::SetFullscreen (bool fullscreen) {
 
-		if (fullscreen) {
-
-			if (displayModeSet) {
-
-				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
-
-			} else {
-
-				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
-			}
-
-		} else {
-
-			SDL_SetWindowFullscreen (sdlWindow, 0);
-
-		}
+		SDL_SetWindowFullscreen (sdlWindow, fullscreen ? SDL_TRUE : SDL_FALSE);
 
 		return fullscreen;
 
@@ -949,12 +921,12 @@ namespace lime {
 
 	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
 
-		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->buffer->b, imageBuffer->width, imageBuffer->height, imageBuffer->bitsPerPixel, imageBuffer->Stride (), 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SDL_Surface* surface = SDL_CreateSurfaceFrom(imageBuffer->data->buffer->b, imageBuffer->width, imageBuffer->height, imageBuffer->Stride (), SDL_GetPixelFormatEnumForMasks(imageBuffer->bitsPerPixel, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000));
 
 		if (surface) {
 
 			SDL_SetWindowIcon (sdlWindow, surface);
-			SDL_FreeSurface (surface);
+			SDL_DestroySurface (surface);
 
 		}
 
