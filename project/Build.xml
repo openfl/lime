@@ -211,7 +211,7 @@
 			<section if="emscripten">
 
 				<compilerflag value="-s" />
-				<compilerflag value="USE_SDL=2" />
+				<compilerflag value="USE_SDL=3" />
 
 			</section>
 
