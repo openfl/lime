@@ -40,7 +40,6 @@
 
 		<section if="linux">
 
-			<lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
 			<lib name="-lpthread" />
 			<lib name="-lrt" />
 

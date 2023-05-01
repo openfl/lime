@@ -140,7 +140,7 @@ namespace lime {
 
 				char folderPath[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				WIN_StringToUTF8 (folderPath);
+				//WIN_StringToUTF8 (folderPath);
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 				result = new std::wstring (converter.from_bytes (folderPath));
 
@@ -177,7 +177,7 @@ namespace lime {
 
 				char folderPath[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				WIN_StringToUTF8 (folderPath);
+				//WIN_StringToUTF8 (folderPath);
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 				result = new std::wstring (converter.from_bytes (folderPath));
 
@@ -215,7 +215,7 @@ namespace lime {
 
 				char folderPath[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				WIN_StringToUTF8 (folderPath);
+				//WIN_StringToUTF8 (folderPath);
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 				result = new std::wstring (converter.from_bytes (folderPath));
 
@@ -255,7 +255,7 @@ namespace lime {
 
 				char folderPath[MAX_PATH] = "";
 				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				WIN_StringToUTF8 (folderPath);
+				//WIN_StringToUTF8 (folderPath);
 				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 				result = new std::wstring (converter.from_bytes (folderPath));
 

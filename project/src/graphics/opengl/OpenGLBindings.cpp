@@ -135,7 +135,7 @@ namespace lime {
 
 					case TYPE_RENDERBUFFER:
 
-						if (glIsProgram (id)) glDeleteRenderbuffers (1, &id);
+						if (glIsRenderbuffer (id)) glDeleteRenderbuffers (1, &id);
 						break;
 
 					#ifdef LIME_GLES3_API
@@ -209,7 +209,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_active_texture (int texture) {
+	HL_PRIM void HL_NAME(hl_gl_active_texture) (int texture) {
 
 		glActiveTexture (texture);
 
@@ -223,7 +223,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_attach_shader (int program, int shader) {
+	HL_PRIM void HL_NAME(hl_gl_attach_shader) (int program, int shader) {
 
 		glAttachShader (program, shader);
 
@@ -239,7 +239,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_begin_query (int target, int query) {
+	HL_PRIM void HL_NAME(hl_gl_begin_query) (int target, int query) {
 
 		#ifdef LIME_GLES3_API
 		glBeginQuery (target, query);
@@ -257,7 +257,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_begin_transform_feedback (int primitiveNode) {
+	HL_PRIM void HL_NAME(hl_gl_begin_transform_feedback) (int primitiveNode) {
 
 		#ifdef LIME_GLES3_API
 		glBeginTransformFeedback (primitiveNode);
@@ -273,7 +273,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_attrib_location (int program, int index, hl_vstring* name) {
+	HL_PRIM void HL_NAME(hl_gl_bind_attrib_location) (int program, int index, hl_vstring* name) {
 
 		glBindAttribLocation (program, index, name ? hl_to_utf8 (name->bytes) : NULL);
 
@@ -287,7 +287,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_buffer (int target, int buffer) {
+	HL_PRIM void HL_NAME(hl_gl_bind_buffer) (int target, int buffer) {
 
 		glBindBuffer (target, buffer);
 
@@ -303,7 +303,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_buffer_base (int target, int index, int buffer) {
+	HL_PRIM void HL_NAME(hl_gl_bind_buffer_base) (int target, int index, int buffer) {
 
 		#ifdef LIME_GLES3_API
 		glBindBufferBase (target, index, buffer);
@@ -322,7 +322,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_buffer_range (int target, int index, int buffer, double offset, int size) {
+	HL_PRIM void HL_NAME(hl_gl_bind_buffer_range) (int target, int index, int buffer, double offset, int size) {
 
 		#ifdef LIME_GLES3_API
 		glBindBufferRange (target, index, buffer, (GLintptr)(uintptr_t)offset, size);
@@ -345,7 +345,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_framebuffer (int target, int framebuffer) {
+	HL_PRIM void HL_NAME(hl_gl_bind_framebuffer) (int target, int framebuffer) {
 
 		if (!framebuffer) {
 
@@ -371,7 +371,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_renderbuffer (int target, int renderbuffer) {
+	HL_PRIM void HL_NAME(hl_gl_bind_renderbuffer) (int target, int renderbuffer) {
 
 		if (!renderbuffer) {
 
@@ -393,7 +393,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_sampler (int unit, int sampler) {
+	HL_PRIM void HL_NAME(hl_gl_bind_sampler) (int unit, int sampler) {
 
 		#ifdef LIME_GLES3_API
 		glBindSampler (unit, sampler);
@@ -409,7 +409,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_texture (int target, int texture) {
+	HL_PRIM void HL_NAME(hl_gl_bind_texture) (int target, int texture) {
 
 		glBindTexture (target, texture);
 
@@ -425,7 +425,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_transform_feedback (int target, int transformFeedback) {
+	HL_PRIM void HL_NAME(hl_gl_bind_transform_feedback) (int target, int transformFeedback) {
 
 		#ifdef LIME_GLES3_API
 		glBindTransformFeedback (target, transformFeedback);
@@ -443,7 +443,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_bind_vertex_array (int vertexArray) {
+	HL_PRIM void HL_NAME(hl_gl_bind_vertex_array) (int vertexArray) {
 
 		#ifdef LIME_GLES3_API
 		glBindVertexArray (vertexArray);
@@ -459,7 +459,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_blend_color (float r, float g, float b, float a) {
+	HL_PRIM void HL_NAME(hl_gl_blend_color) (float r, float g, float b, float a) {
 
 		glBlendColor (r, g, b, a);
 
@@ -473,7 +473,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_blend_equation (int mode) {
+	HL_PRIM void HL_NAME(hl_gl_blend_equation) (int mode) {
 
 		glBlendEquation (mode);
 
@@ -487,7 +487,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_blend_equation_separate (int rgb, int a) {
+	HL_PRIM void HL_NAME(hl_gl_blend_equation_separate) (int rgb, int a) {
 
 		glBlendEquationSeparate (rgb, a);
 
@@ -501,7 +501,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_blend_func (int sfactor, int dfactor) {
+	HL_PRIM void HL_NAME(hl_gl_blend_func) (int sfactor, int dfactor) {
 
 		glBlendFunc (sfactor, dfactor);
 
@@ -515,7 +515,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_blend_func_separate (int srcRGB, int destRGB, int srcAlpha, int destAlpha) {
+	HL_PRIM void HL_NAME(hl_gl_blend_func_separate) (int srcRGB, int destRGB, int srcAlpha, int destAlpha) {
 
 		glBlendFuncSeparate (srcRGB, destRGB, srcAlpha, destAlpha);
 
@@ -531,7 +531,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_blit_framebuffer (int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
+	HL_PRIM void HL_NAME(hl_gl_blit_framebuffer) (int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
 
 		#ifdef LIME_GLES3_API
 		glBlitFramebuffer (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
@@ -547,7 +547,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_buffer_data (int target, int size, double data, int usage) {
+	HL_PRIM void HL_NAME(hl_gl_buffer_data) (int target, int size, double data, int usage) {
 
 		glBufferData (target, size, (void*)(uintptr_t)data, usage);
 
@@ -561,7 +561,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_buffer_sub_data (int target, int offset, int size, double data) {
+	HL_PRIM void HL_NAME(hl_gl_buffer_sub_data) (int target, int offset, int size, double data) {
 
 		glBufferSubData (target, offset, size, (void*)(uintptr_t)data);
 
@@ -575,7 +575,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_check_framebuffer_status (int target) {
+	HL_PRIM int HL_NAME(hl_gl_check_framebuffer_status) (int target) {
 
 		return glCheckFramebufferStatus (target);
 
@@ -590,7 +590,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear (int mask) {
+	HL_PRIM void HL_NAME(hl_gl_clear) (int mask) {
 
 		gc_gl_run ();
 		glClear (mask);
@@ -607,7 +607,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_bufferfi (int buffer, int drawBuffer, float depth, int stencil) {
+	HL_PRIM void HL_NAME(hl_gl_clear_bufferfi) (int buffer, int drawBuffer, float depth, int stencil) {
 
 		#ifdef LIME_GLES3_API
 		glClearBufferfi (buffer, drawBuffer, depth, stencil);
@@ -625,7 +625,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_bufferfv (int buffer, int drawBuffer, double data) {
+	HL_PRIM void HL_NAME(hl_gl_clear_bufferfv) (int buffer, int drawBuffer, double data) {
 
 		#ifdef LIME_GLES3_API
 		glClearBufferfv (buffer, drawBuffer, (GLfloat*)(uintptr_t)data);
@@ -643,7 +643,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_bufferiv (int buffer, int drawBuffer, double data) {
+	HL_PRIM void HL_NAME(hl_gl_clear_bufferiv) (int buffer, int drawBuffer, double data) {
 
 		#ifdef LIME_GLES3_API
 		glClearBufferiv (buffer, drawBuffer, (GLint*)(uintptr_t)data);
@@ -661,7 +661,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_bufferuiv (int buffer, int drawBuffer, double data) {
+	HL_PRIM void HL_NAME(hl_gl_clear_bufferuiv) (int buffer, int drawBuffer, double data) {
 
 		#ifdef LIME_GLES3_API
 		glClearBufferuiv (buffer, drawBuffer, (GLuint*)(uintptr_t)data);
@@ -677,7 +677,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_color (float red, float green, float blue, float alpha) {
+	HL_PRIM void HL_NAME(hl_gl_clear_color) (float red, float green, float blue, float alpha) {
 
 		glClearColor (red, green, blue, alpha);
 
@@ -695,7 +695,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_depthf (float depth) {
+	HL_PRIM void HL_NAME(hl_gl_clear_depthf) (float depth) {
 
 		#ifdef LIME_GLES
 		glClearDepthf (depth);
@@ -713,7 +713,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_clear_stencil (int stencil) {
+	HL_PRIM void HL_NAME(hl_gl_clear_stencil) (int stencil) {
 
 		glClearStencil (stencil);
 
@@ -732,7 +732,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_client_wait_sync (HL_CFFIPointer* sync, int flags, int timeoutA, int timeoutB) {
+	HL_PRIM int HL_NAME(hl_gl_client_wait_sync) (HL_CFFIPointer* sync, int flags, int timeoutA, int timeoutB) {
 
 		#ifdef LIME_GLES3_API
 		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
@@ -751,7 +751,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_color_mask (bool red, bool green, bool blue, bool alpha) {
+	HL_PRIM void HL_NAME(hl_gl_color_mask) (bool red, bool green, bool blue, bool alpha) {
 
 		glColorMask (red, green, blue, alpha);
 
@@ -765,7 +765,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_compile_shader (int shader) {
+	HL_PRIM void HL_NAME(hl_gl_compile_shader) (int shader) {
 
 		glCompileShader (shader);
 
@@ -779,7 +779,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_compressed_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int imageSize, double data) {
+	HL_PRIM void HL_NAME(hl_gl_compressed_tex_image_2d) (int target, int level, int internalformat, int width, int height, int border, int imageSize, double data) {
 
 		glCompressedTexImage2D (target, level, internalformat, width, height, border, imageSize, (void*)(uintptr_t)data);
 
@@ -795,7 +795,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_compressed_tex_image_3d (int target, int level, int internalformat, int width, int height, int depth, int border, int imageSize, double data) {
+	HL_PRIM void HL_NAME(hl_gl_compressed_tex_image_3d) (int target, int level, int internalformat, int width, int height, int depth, int border, int imageSize, double data) {
 
 		#ifdef LIME_GLES3_API
 		glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
@@ -811,7 +811,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_compressed_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int imageSize, double data) {
+	HL_PRIM void HL_NAME(hl_gl_compressed_tex_sub_image_2d) (int target, int level, int xoffset, int yoffset, int width, int height, int format, int imageSize, double data) {
 
 		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)(uintptr_t)data);
 
@@ -827,7 +827,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_compressed_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, double data) {
+	HL_PRIM void HL_NAME(hl_gl_compressed_tex_sub_image_3d) (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, double data) {
 
 		#ifdef LIME_GLES3_API
 		glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
@@ -845,7 +845,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_copy_buffer_sub_data (int readTarget, int writeTarget, double readOffset, double writeOffset, int size) {
+	HL_PRIM void HL_NAME(hl_gl_copy_buffer_sub_data) (int readTarget, int writeTarget, double readOffset, double writeOffset, int size) {
 
 		#ifdef LIME_GLES3_API
 		glCopyBufferSubData (readTarget, writeTarget, (GLintptr)(uintptr_t)readOffset, (GLintptr)(uintptr_t)writeOffset, size);
@@ -861,7 +861,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_copy_tex_image_2d (int target, int level, int internalformat, int x, int y, int width, int height, int border) {
+	HL_PRIM void HL_NAME(hl_gl_copy_tex_image_2d) (int target, int level, int internalformat, int x, int y, int width, int height, int border) {
 
 		glCopyTexImage2D (target, level, internalformat, x, y, width, height, border);
 
@@ -875,7 +875,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_copy_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int x, int y, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_copy_tex_sub_image_2d) (int target, int level, int xoffset, int yoffset, int x, int y, int width, int height) {
 
 		glCopyTexSubImage2D (target, level, xoffset, yoffset, x, y, width, height);
 
@@ -891,7 +891,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_copy_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_copy_tex_sub_image_3d) (int target, int level, int xoffset, int yoffset, int zoffset, int x, int y, int width, int height) {
 
 		#ifdef LIME_GLES3_API
 		glCopyTexSubImage3D (target, level, xoffset, yoffset, zoffset, x, y, width, height);
@@ -909,7 +909,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_buffer () {
+	HL_PRIM int HL_NAME(hl_gl_create_buffer) () {
 
 		GLuint id = 0;
 		glGenBuffers (1, &id);
@@ -927,7 +927,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_framebuffer () {
+	HL_PRIM int HL_NAME(hl_gl_create_framebuffer) () {
 
 		GLuint id = 0;
 		glGenFramebuffers (1, &id);
@@ -943,7 +943,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_program () {
+	HL_PRIM int HL_NAME(hl_gl_create_program) () {
 
 		return glCreateProgram ();
 
@@ -961,7 +961,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_query () {
+	HL_PRIM int HL_NAME(hl_gl_create_query) () {
 
 		GLuint id = 0;
 		#ifdef LIME_GLES3_API
@@ -981,7 +981,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_renderbuffer () {
+	HL_PRIM int HL_NAME(hl_gl_create_renderbuffer) () {
 
 		GLuint id = 0;
 		glGenRenderbuffers (1, &id);
@@ -1001,7 +1001,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_sampler () {
+	HL_PRIM int HL_NAME(hl_gl_create_sampler) () {
 
 		GLuint id = 0;
 		#ifdef LIME_GLES3_API
@@ -1019,7 +1019,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_shader (int type) {
+	HL_PRIM int HL_NAME(hl_gl_create_shader) (int type) {
 
 		return glCreateShader (type);
 
@@ -1035,7 +1035,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_texture () {
+	HL_PRIM int HL_NAME(hl_gl_create_texture) () {
 
 		GLuint id = 0;
 		glGenTextures (1, &id);
@@ -1055,7 +1055,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_transform_feedback () {
+	HL_PRIM int HL_NAME(hl_gl_create_transform_feedback) () {
 
 		GLuint id = 0;
 		#ifdef LIME_GLES3_API
@@ -1077,7 +1077,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_create_vertex_array () {
+	HL_PRIM int HL_NAME(hl_gl_create_vertex_array) () {
 
 		GLuint id = 0;
 		#ifdef LIME_GLES3_API
@@ -1095,7 +1095,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_cull_face (int mode) {
+	HL_PRIM void HL_NAME(hl_gl_cull_face) (int mode) {
 
 		glCullFace (mode);
 
@@ -1109,7 +1109,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_buffer (int buffer) {
+	HL_PRIM void HL_NAME(hl_gl_delete_buffer) (int buffer) {
 
 		glDeleteBuffers (1, (GLuint*)&buffer);
 
@@ -1123,7 +1123,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_framebuffer (int framebuffer) {
+	HL_PRIM void HL_NAME(hl_gl_delete_framebuffer) (int framebuffer) {
 
 		glDeleteFramebuffers (1, (GLuint*)&framebuffer);
 
@@ -1137,7 +1137,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_program (int program) {
+	HL_PRIM void HL_NAME(hl_gl_delete_program) (int program) {
 
 		glDeleteProgram (program);
 
@@ -1153,7 +1153,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_query (int query) {
+	HL_PRIM void HL_NAME(hl_gl_delete_query) (int query) {
 
 		#ifdef LIME_GLES3_API
 		glDeleteQueries (1, (GLuint*)&query);
@@ -1169,7 +1169,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_renderbuffer (int renderbuffer) {
+	HL_PRIM void HL_NAME(hl_gl_delete_renderbuffer) (int renderbuffer) {
 
 		glDeleteRenderbuffers (1, (GLuint*)&renderbuffer);
 
@@ -1185,7 +1185,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_sampler (int sampler) {
+	HL_PRIM void HL_NAME(hl_gl_delete_sampler) (int sampler) {
 
 		#ifdef LIME_GLES3_API
 		glDeleteSamplers (1, (GLuint*)&sampler);
@@ -1201,7 +1201,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_shader (int shader) {
+	HL_PRIM void HL_NAME(hl_gl_delete_shader) (int shader) {
 
 		glDeleteShader (shader);
 
@@ -1218,7 +1218,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_sync (HL_CFFIPointer* sync) {
+	HL_PRIM void HL_NAME(hl_gl_delete_sync) (HL_CFFIPointer* sync) {
 
 		#ifdef LIME_GLES3_API
 		if (!sync) return;
@@ -1235,7 +1235,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_texture (int texture) {
+	HL_PRIM void HL_NAME(hl_gl_delete_texture) (int texture) {
 
 		glDeleteTextures (1, (GLuint*)&texture);
 
@@ -1251,7 +1251,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_transform_feedback (int transformFeedback) {
+	HL_PRIM void HL_NAME(hl_gl_delete_transform_feedback) (int transformFeedback) {
 
 		#ifdef LIME_GLES3_API
 		glDeleteTransformFeedbacks (1, (GLuint*)&transformFeedback);
@@ -1269,7 +1269,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_delete_vertex_array (int vertexArray) {
+	HL_PRIM void HL_NAME(hl_gl_delete_vertex_array) (int vertexArray) {
 
 		#ifdef LIME_GLES3_API
 		glDeleteVertexArrays (1, (GLuint*)&vertexArray);
@@ -1285,7 +1285,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_depth_func (int func) {
+	HL_PRIM void HL_NAME(hl_gl_depth_func) (int func) {
 
 		glDepthFunc (func);
 
@@ -1299,7 +1299,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_depth_mask (bool flag) {
+	HL_PRIM void HL_NAME(hl_gl_depth_mask) (bool flag) {
 
 		glDepthMask (flag);
 
@@ -1317,7 +1317,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_depth_rangef (float zNear, float zFar) {
+	HL_PRIM void HL_NAME(hl_gl_depth_rangef) (float zNear, float zFar) {
 
 		#ifdef LIME_GLES
 		glDepthRangef (zNear, zFar);
@@ -1335,7 +1335,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_detach_shader (int program, int shader) {
+	HL_PRIM void HL_NAME(hl_gl_detach_shader) (int program, int shader) {
 
 		glDetachShader (program, shader);
 
@@ -1349,7 +1349,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_disable (int cap) {
+	HL_PRIM void HL_NAME(hl_gl_disable) (int cap) {
 
 		glDisable (cap);
 
@@ -1363,7 +1363,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_disable_vertex_attrib_array (int index) {
+	HL_PRIM void HL_NAME(hl_gl_disable_vertex_attrib_array) (int index) {
 
 		glDisableVertexAttribArray (index);
 
@@ -1377,7 +1377,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_draw_arrays (int mode, int first, int count) {
+	HL_PRIM void HL_NAME(hl_gl_draw_arrays) (int mode, int first, int count) {
 
 		glDrawArrays (mode, first, count);
 
@@ -1393,7 +1393,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_draw_arrays_instanced (int mode, int first, int count, int instanceCount) {
+	HL_PRIM void HL_NAME(hl_gl_draw_arrays_instanced) (int mode, int first, int count, int instanceCount) {
 
 		#ifdef LIME_GLES3_API
 		glDrawArraysInstanced (mode, first, count, instanceCount);
@@ -1420,7 +1420,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_draw_buffers (hl_varray* buffers) {
+	HL_PRIM void HL_NAME(hl_gl_draw_buffers) (hl_varray* buffers) {
 
 		#ifdef LIME_GLES3_API
 		GLsizei size = buffers->size;
@@ -1437,7 +1437,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_draw_elements (int mode, int count, int type, double offset) {
+	HL_PRIM void HL_NAME(hl_gl_draw_elements) (int mode, int count, int type, double offset) {
 
 		glDrawElements (mode, count, type, (void*)(uintptr_t)offset);
 
@@ -1453,7 +1453,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_draw_elements_instanced (int mode, int count, int type, double offset, int instanceCount) {
+	HL_PRIM void HL_NAME(hl_gl_draw_elements_instanced) (int mode, int count, int type, double offset, int instanceCount) {
 
 		#ifdef LIME_GLES3_API
 		glDrawElementsInstanced (mode, count, type, (void*)(uintptr_t)offset, instanceCount);
@@ -1471,7 +1471,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_draw_range_elements (int mode, int start, int end, int count, int type, double offset) {
+	HL_PRIM void HL_NAME(hl_gl_draw_range_elements) (int mode, int start, int end, int count, int type, double offset) {
 
 		#ifdef LIME_GLES3_API
 		glDrawRangeElements (mode, start, end, count, type, (void*)(uintptr_t)offset);
@@ -1487,7 +1487,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_enable (int cap) {
+	HL_PRIM void HL_NAME(hl_gl_enable) (int cap) {
 
 		glEnable (cap);
 
@@ -1501,7 +1501,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_enable_vertex_attrib_array (int index) {
+	HL_PRIM void HL_NAME(hl_gl_enable_vertex_attrib_array) (int index) {
 
 		glEnableVertexAttribArray (index);
 
@@ -1517,7 +1517,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_end_query (int target) {
+	HL_PRIM void HL_NAME(hl_gl_end_query) (int target) {
 
 		#ifdef LIME_GLES3_API
 		glEndQuery (target);
@@ -1535,7 +1535,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_end_transform_feedback () {
+	HL_PRIM void HL_NAME(hl_gl_end_transform_feedback) () {
 
 		#ifdef LIME_GLES3_API
 		glEndTransformFeedback ();
@@ -1558,7 +1558,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_gl_fence_sync (int condition, int flags) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_gl_fence_sync) (int condition, int flags) {
 
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
@@ -1579,7 +1579,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_finish () {
+	HL_PRIM void HL_NAME(hl_gl_finish) () {
 
 		glFinish ();
 
@@ -1593,7 +1593,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_flush () {
+	HL_PRIM void HL_NAME(hl_gl_flush) () {
 
 		glFlush ();
 
@@ -1607,7 +1607,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_framebuffer_renderbuffer (int target, int attachment, int renderbuffertarget, int renderbuffer) {
+	HL_PRIM void HL_NAME(hl_gl_framebuffer_renderbuffer) (int target, int attachment, int renderbuffertarget, int renderbuffer) {
 
 		glFramebufferRenderbuffer (target, attachment, renderbuffertarget, renderbuffer);
 
@@ -1621,7 +1621,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_framebuffer_texture2D (int target, int attachment, int textarget, int texture, int level) {
+	HL_PRIM void HL_NAME(hl_gl_framebuffer_texture2D) (int target, int attachment, int textarget, int texture, int level) {
 
 		glFramebufferTexture2D (target, attachment, textarget, texture, level);
 
@@ -1637,7 +1637,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_framebuffer_texture_layer (int target, int attachment, int texture, int level, int layer) {
+	HL_PRIM void HL_NAME(hl_gl_framebuffer_texture_layer) (int target, int attachment, int texture, int level, int layer) {
 
 		#ifdef LIME_GLES3_API
 		glFramebufferTextureLayer (target, attachment, texture, level, layer);
@@ -1653,7 +1653,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_front_face (int face) {
+	HL_PRIM void HL_NAME(hl_gl_front_face) (int face) {
 
 		glFrontFace (face);
 
@@ -1667,7 +1667,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_generate_mipmap (int target) {
+	HL_PRIM void HL_NAME(hl_gl_generate_mipmap) (int target) {
 
 		glGenerateMipmap (target);
 
@@ -1696,7 +1696,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_active_attrib (int program, int index) {
+	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_attrib) (int program, int index) {
 
 		char buffer[GL_ACTIVE_ATTRIBUTE_MAX_LENGTH];
 		GLsizei outLen = 0;
@@ -1744,7 +1744,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_active_uniform (int program, int index) {
+	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_uniform) (int program, int index) {
 
 		char* buffer[GL_ACTIVE_UNIFORM_MAX_LENGTH];
 		GLsizei outLen = 0;
@@ -1782,7 +1782,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_active_uniform_blocki (int program, int uniformBlockIndex, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_active_uniform_blocki) (int program, int uniformBlockIndex, int pname) {
 
 		GLint param = 0;
 		#ifdef LIME_GLES3_API
@@ -1802,7 +1802,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_active_uniform_blockiv (int program, int uniformBlockIndex, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_active_uniform_blockiv) (int program, int uniformBlockIndex, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, (GLint*)(uintptr_t)params);
@@ -1829,7 +1829,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_gl_get_active_uniform_block_name (int program, int uniformBlockIndex) {
+	HL_PRIM vbyte* HL_NAME(hl_gl_get_active_uniform_block_name) (int program, int uniformBlockIndex) {
 
 		#ifdef LIME_GLES3_API
 		GLint length;
@@ -1866,7 +1866,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_active_uniformsiv (int program, hl_varray* uniformIndices, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_active_uniformsiv) (int program, hl_varray* uniformIndices, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		GLsizei size = uniformIndices->size;
@@ -1906,7 +1906,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_gl_get_attached_shaders (int program) {
+	HL_PRIM varray* HL_NAME(hl_gl_get_attached_shaders) (int program) {
 
 		GLsizei maxCount = 0;
 		glGetProgramiv (program, GL_ATTACHED_SHADERS, &maxCount);
@@ -1934,7 +1934,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_attrib_location (int program, hl_vstring* name) {
+	HL_PRIM int HL_NAME(hl_gl_get_attrib_location) (int program, hl_vstring* name) {
 
 		return glGetAttribLocation (program, name ? hl_to_utf8 (name->bytes) : NULL);
 
@@ -1950,7 +1950,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_get_boolean (int pname) {
+	HL_PRIM bool HL_NAME(hl_gl_get_boolean) (int pname) {
 
 		unsigned char params;
 		glGetBooleanv (pname, &params);
@@ -1966,7 +1966,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_booleanv (int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_booleanv) (int pname, double params) {
 
 		glGetBooleanv (pname, (unsigned char*)(uintptr_t)params);
 
@@ -1982,7 +1982,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_buffer_parameteri (int target, int index) {
+	HL_PRIM int HL_NAME(hl_gl_get_buffer_parameteri) (int target, int index) {
 
 		GLint params = 0;
 		glGetBufferParameteriv (target, index, &params);
@@ -2000,7 +2000,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_buffer_parameteri64v (int target, int index, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_buffer_parameteri64v) (int target, int index, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetBufferParameteri64v (target, index, (GLint64*)(uintptr_t)params);
@@ -2016,7 +2016,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_buffer_parameteriv (int target, int index, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_buffer_parameteriv) (int target, int index, double params) {
 
 		glGetBufferParameteriv (target, index, (GLint*)(uintptr_t)params);
 
@@ -2034,7 +2034,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_gl_get_buffer_pointerv (int target, int pname) {
+	HL_PRIM double HL_NAME(hl_gl_get_buffer_pointerv) (int target, int pname) {
 
 		uintptr_t result = 0;
 		#ifdef LIME_GLES3_API
@@ -2054,7 +2054,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_buffer_sub_data (int target, double offset, int size, double data) {
+	HL_PRIM void HL_NAME(hl_gl_get_buffer_sub_data) (int target, double offset, int size, double data) {
 
 		#ifndef LIME_GLES
 		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
@@ -2077,7 +2077,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_context_attributes () {
+	HL_PRIM vdynamic* HL_NAME(hl_gl_get_context_attributes) () {
 
 		const int id_alpha = hl_hash_utf8 ("alpha");
 		const int id_depth = hl_hash_utf8 ("depth");
@@ -2104,7 +2104,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_error () {
+	HL_PRIM int HL_NAME(hl_gl_get_error) () {
 
 		return glGetError ();
 
@@ -2160,7 +2160,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_extension (hl_vstring* name) {
+	HL_PRIM vdynamic* HL_NAME(hl_gl_get_extension) (hl_vstring* name) {
 
 		if (name == NULL) return NULL;
 
@@ -2220,7 +2220,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_gl_get_float (int pname) {
+	HL_PRIM float HL_NAME(hl_gl_get_float) (int pname) {
 
 		GLfloat params;
 		glGetFloatv (pname, &params);
@@ -2236,7 +2236,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_floatv (int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_floatv) (int pname, double params) {
 
 		glGetFloatv (pname, (GLfloat*)(uintptr_t)params);
 
@@ -2254,7 +2254,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_frag_data_location (int program, hl_vstring* name) {
+	HL_PRIM int HL_NAME(hl_gl_get_frag_data_location) (int program, hl_vstring* name) {
 
 		#ifdef LIME_GLES3_API
 		return glGetFragDataLocation (program, name ? hl_to_utf8 (name->bytes) : NULL);
@@ -2274,7 +2274,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_framebuffer_attachment_parameteri (int target, int attachment, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_framebuffer_attachment_parameteri) (int target, int attachment, int pname) {
 
 		GLint params = 0;
 		glGetFramebufferAttachmentParameteriv (target, attachment, pname, &params);
@@ -2290,7 +2290,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_framebuffer_attachment_parameteriv (int target, int attachment, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_framebuffer_attachment_parameteriv) (int target, int attachment, int pname, double params) {
 
 		glGetFramebufferAttachmentParameteriv (target, attachment, pname, (GLint*)(uintptr_t)params);
 
@@ -2306,7 +2306,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_integer (int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_integer) (int pname) {
 
 		GLint params;
 		glGetIntegerv (pname, &params);
@@ -2324,7 +2324,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_integer64v (int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_integer64v) (int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetInteger64v (pname, (GLint64*)(uintptr_t)params);
@@ -2342,7 +2342,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_integer64i_v (int pname, int index, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_integer64i_v) (int pname, int index, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetInteger64i_v (pname, index, (GLint64*)(uintptr_t)params);
@@ -2358,7 +2358,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_integerv (int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_integerv) (int pname, double params) {
 
 		glGetIntegerv (pname, (GLint*)(uintptr_t)params);
 
@@ -2374,7 +2374,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_integeri_v (int pname, int index, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_integeri_v) (int pname, int index, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetIntegeri_v (pname, index, (GLint*)(uintptr_t)params);
@@ -2392,7 +2392,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_internalformativ (int target, int internalformat, int pname, int bufSize, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_internalformativ) (int target, int internalformat, int pname, int bufSize, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)(uintptr_t)params);
@@ -2420,7 +2420,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_program_binary (int program, int binaryFormat, Bytes* bytes) {
+	HL_PRIM void HL_NAME(hl_gl_get_program_binary) (int program, int binaryFormat, Bytes* bytes) {
 
 		#ifdef LIME_GLES3_API
 		GLint size = 0;
@@ -2460,7 +2460,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_gl_get_program_info_log (int handle) {
+	HL_PRIM vbyte* HL_NAME(hl_gl_get_program_info_log) (int handle) {
 
 		GLuint program = handle;
 
@@ -2492,7 +2492,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_programi (int program, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_programi) (int program, int pname) {
 
 		GLint params = 0;
 		glGetProgramiv (program, pname, &params);
@@ -2508,7 +2508,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_programiv (int program, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_programiv) (int program, int pname, double params) {
 
 		glGetProgramiv (program, pname, (GLint*)(uintptr_t)params);
 
@@ -2526,7 +2526,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_queryi (int target, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_queryi) (int target, int pname) {
 
 		GLint param = 0;
 		#ifdef LIME_GLES3_API
@@ -2546,7 +2546,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_queryiv (int target, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_queryiv) (int target, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetQueryiv (target, pname, (GLint*)(uintptr_t)params);
@@ -2566,7 +2566,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_query_objectui (int query, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_query_objectui) (int query, int pname) {
 
 		GLuint param = 0;
 		#ifdef LIME_GLES3_API
@@ -2586,7 +2586,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_query_objectuiv (int query, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_query_objectuiv) (int query, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetQueryObjectuiv (query, pname, (GLuint*)(uintptr_t)params);
@@ -2604,7 +2604,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_renderbuffer_parameteri (int target, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_renderbuffer_parameteri) (int target, int pname) {
 
 		GLint param = 0;
 		glGetRenderbufferParameteriv (target, pname, &param);
@@ -2620,7 +2620,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_renderbuffer_parameteriv (int target, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_renderbuffer_parameteriv) (int target, int pname, double params) {
 
 		glGetRenderbufferParameteriv (target, pname, (GLint*)(uintptr_t)params);
 
@@ -2638,7 +2638,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_gl_get_sampler_parameterf (int sampler, int pname) {
+	HL_PRIM float HL_NAME(hl_gl_get_sampler_parameterf) (int sampler, int pname) {
 
 		GLfloat param = 0;
 		#ifdef LIME_GLES3_API
@@ -2658,7 +2658,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_sampler_parameterfv (int sampler, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_sampler_parameterfv) (int sampler, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetSamplerParameterfv (sampler, pname, (GLfloat*)(uintptr_t)params);
@@ -2678,7 +2678,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_sampler_parameteri (int sampler, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_sampler_parameteri) (int sampler, int pname) {
 
 		GLint param = 0;
 		#ifdef LIME_GLES3_API
@@ -2698,7 +2698,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_sampler_parameteriv (int sampler, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_sampler_parameteriv) (int sampler, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetSamplerParameteriv (sampler, pname, (GLint*)(uintptr_t)params);
@@ -2729,7 +2729,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_gl_get_shader_info_log (int handle) {
+	HL_PRIM vbyte* HL_NAME(hl_gl_get_shader_info_log) (int handle) {
 
 		GLuint shader = handle;
 
@@ -2761,7 +2761,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_shaderi (int shader, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_shaderi) (int shader, int pname) {
 
 		GLint params = 0;
 		glGetShaderiv (shader, pname, &params);
@@ -2777,7 +2777,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_shaderiv (int shader, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_shaderiv) (int shader, int pname, double params) {
 
 		glGetShaderiv (shader, pname, (GLint*)(uintptr_t)params);
 
@@ -2808,7 +2808,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_shader_precision_format (int shadertype, int precisiontype) {
+	HL_PRIM vdynamic* HL_NAME(hl_gl_get_shader_precision_format) (int shadertype, int precisiontype) {
 
 		#ifdef LIME_GLES
 
@@ -2858,7 +2858,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_gl_get_shader_source (int shader) {
+	HL_PRIM vbyte* HL_NAME(hl_gl_get_shader_source) (int shader) {
 
 		GLint len = 0;
 		glGetShaderiv (shader, GL_SHADER_SOURCE_LENGTH, &len);
@@ -2895,7 +2895,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_gl_get_string (int pname) {
+	HL_PRIM vbyte* HL_NAME(hl_gl_get_string) (int pname) {
 
 		const char* val = (const char*)glGetString (pname);
 
@@ -2937,7 +2937,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_gl_get_stringi (int pname, int index) {
+	HL_PRIM vbyte* HL_NAME(hl_gl_get_stringi) (int pname, int index) {
 
 		#ifdef LIME_GLES3_API
 		const char* val = (const char*)glGetStringi (pname, index);
@@ -2973,7 +2973,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_sync_parameteri (HL_CFFIPointer* sync, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_sync_parameteri) (HL_CFFIPointer* sync, int pname) {
 
 		// TODO
 
@@ -2993,7 +2993,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_sync_parameteriv (HL_CFFIPointer* sync, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_sync_parameteriv) (HL_CFFIPointer* sync, int pname, double params) {
 
 		// TODO
 
@@ -3011,7 +3011,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_gl_get_tex_parameterf (int target, int pname) {
+	HL_PRIM float HL_NAME(hl_gl_get_tex_parameterf) (int target, int pname) {
 
 		GLfloat params = 0;
 		glGetTexParameterfv (target, pname, &params);
@@ -3027,7 +3027,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_tex_parameterfv (int target, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_tex_parameterfv) (int target, int pname, double params) {
 
 		glGetTexParameterfv (target, pname, (GLfloat*)(uintptr_t)params);
 
@@ -3043,7 +3043,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_tex_parameteri (int target, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_tex_parameteri) (int target, int pname) {
 
 		GLint params = 0;
 		glGetTexParameteriv (target, pname, &params);
@@ -3059,7 +3059,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_tex_parameteriv (int target, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_tex_parameteriv) (int target, int pname, double params) {
 
 		glGetTexParameteriv (target, pname, (GLint*)(uintptr_t)params);
 
@@ -3096,7 +3096,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_gl_get_transform_feedback_varying (int program, int index) {
+	HL_PRIM vdynamic* HL_NAME(hl_gl_get_transform_feedback_varying) (int program, int index) {
 
 		#ifdef LIME_GLES3_API
 		GLint maxLength = 0;
@@ -3140,7 +3140,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_gl_get_uniformf (int program, int location) {
+	HL_PRIM float HL_NAME(hl_gl_get_uniformf) (int program, int location) {
 
 		GLfloat params = 0;
 		glGetUniformfv (program, location, &params);
@@ -3156,7 +3156,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_uniformfv (int program, int location, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_uniformfv) (int program, int location, double params) {
 
 		glGetUniformfv (program, location, (GLfloat*)(uintptr_t)params);
 
@@ -3172,7 +3172,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_uniformi (int program, int location) {
+	HL_PRIM int HL_NAME(hl_gl_get_uniformi) (int program, int location) {
 
 		GLint params = 0;
 		glGetUniformiv (program, location, &params);
@@ -3188,7 +3188,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_uniformiv (int program, int location, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_uniformiv) (int program, int location, double params) {
 
 		glGetUniformiv (program, location, (GLint*)(uintptr_t)params);
 
@@ -3206,7 +3206,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_uniformui (int program, int location) {
+	HL_PRIM int HL_NAME(hl_gl_get_uniformui) (int program, int location) {
 
 		GLuint params = 0;
 		#ifdef LIME_GLES3_API
@@ -3226,7 +3226,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_uniformuiv (int program, int location, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_uniformuiv) (int program, int location, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetUniformuiv (program, location, (GLuint*)(uintptr_t)params);
@@ -3246,7 +3246,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_uniform_block_index (int program, hl_vstring* uniformBlockName) {
+	HL_PRIM int HL_NAME(hl_gl_get_uniform_block_index) (int program, hl_vstring* uniformBlockName) {
 
 		#ifdef LIME_GLES3_API
 		return glGetUniformBlockIndex (program, uniformBlockName ? hl_to_utf8 (uniformBlockName->bytes) : NULL);
@@ -3264,7 +3264,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_uniform_location (int program, hl_vstring* name) {
+	HL_PRIM int HL_NAME(hl_gl_get_uniform_location) (int program, hl_vstring* name) {
 
 		return glGetUniformLocation (program, name ? hl_to_utf8 (name->bytes) : NULL);
 
@@ -3280,7 +3280,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_gl_get_vertex_attribf (int index, int pname) {
+	HL_PRIM float HL_NAME(hl_gl_get_vertex_attribf) (int index, int pname) {
 
 		GLfloat params = 0;
 		glGetVertexAttribfv (index, pname, &params);
@@ -3296,7 +3296,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_vertex_attribfv (int index, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribfv) (int index, int pname, double params) {
 
 		glGetVertexAttribfv (index, pname, (GLfloat*)(uintptr_t)params);
 
@@ -3312,7 +3312,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_vertex_attribi (int index, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_vertex_attribi) (int index, int pname) {
 
 		GLint params = 0;
 		glGetVertexAttribiv (index, pname, &params);
@@ -3328,7 +3328,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_vertex_attribiv (int index, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribiv) (int index, int pname, double params) {
 
 		glGetVertexAttribiv (index, pname, (GLint*)(uintptr_t)params);
 
@@ -3346,7 +3346,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_vertex_attribii (int index, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_vertex_attribii) (int index, int pname) {
 
 		GLint params = 0;
 		#ifdef LIME_GLES3_API
@@ -3366,7 +3366,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_vertex_attribiiv (int index, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribiiv) (int index, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetVertexAttribIiv (index, pname, (GLint*)(uintptr_t)params);
@@ -3386,7 +3386,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_gl_get_vertex_attribiui (int index, int pname) {
+	HL_PRIM int HL_NAME(hl_gl_get_vertex_attribiui) (int index, int pname) {
 
 		GLuint params = 0;
 		#ifdef LIME_GLES3_API
@@ -3406,7 +3406,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_get_vertex_attribiuiv (int index, int pname, double params) {
+	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribiuiv) (int index, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
 		glGetVertexAttribIuiv (index, pname, (GLuint*)(uintptr_t)params);
@@ -3424,7 +3424,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_gl_get_vertex_attrib_pointerv (int index, int pname) {
+	HL_PRIM double HL_NAME(hl_gl_get_vertex_attrib_pointerv) (int index, int pname) {
 
 		uintptr_t result = 0;
 		glGetVertexAttribPointerv (index, pname, (void**)result);
@@ -3440,7 +3440,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_hint (int target, int mode) {
+	HL_PRIM void HL_NAME(hl_gl_hint) (int target, int mode) {
 
 		glHint (target, mode);
 
@@ -3465,7 +3465,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_invalidate_framebuffer (int target, varray* attachments) {
+	HL_PRIM void HL_NAME(hl_gl_invalidate_framebuffer) (int target, varray* attachments) {
 
 		#ifdef LIME_GLES3_API
 		GLint size = attachments->size;
@@ -3493,7 +3493,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_invalidate_sub_framebuffer (int target, varray* attachments, int x, int y, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_invalidate_sub_framebuffer) (int target, varray* attachments, int x, int y, int width, int height) {
 
 		#ifdef LIME_GLES3_API
 		GLint size = attachments->size;
@@ -3510,7 +3510,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_buffer (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_buffer) (int handle) {
 
 		return glIsBuffer (handle);
 
@@ -3524,7 +3524,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_enabled (int cap) {
+	HL_PRIM bool HL_NAME(hl_gl_is_enabled) (int cap) {
 
 		return glIsEnabled (cap);
 
@@ -3538,7 +3538,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_framebuffer (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_framebuffer) (int handle) {
 
 		return glIsFramebuffer (handle);
 
@@ -3552,7 +3552,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_program (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_program) (int handle) {
 
 		return glIsProgram (handle);
 
@@ -3570,7 +3570,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_query (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_query) (int handle) {
 
 		#ifdef LIME_GLES3_API
 		return glIsQuery (handle);
@@ -3588,7 +3588,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_renderbuffer (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_renderbuffer) (int handle) {
 
 		return glIsRenderbuffer (handle);
 
@@ -3606,7 +3606,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_sampler (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_sampler) (int handle) {
 
 		#ifdef LIME_GLES3_API
 		return glIsSampler (handle);
@@ -3624,7 +3624,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_shader (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_shader) (int handle) {
 
 		return glIsShader (handle);
 
@@ -3643,7 +3643,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_sync (HL_CFFIPointer* handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_sync) (HL_CFFIPointer* handle) {
 
 		#ifdef LIME_GLES3_API
 		if (!handle) return false;
@@ -3662,7 +3662,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_texture (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_texture) (int handle) {
 
 		return glIsTexture (handle);
 
@@ -3680,7 +3680,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_transform_feedback (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_transform_feedback) (int handle) {
 
 		#ifdef LIME_GLES3_API
 		return glIsTransformFeedback (handle);
@@ -3702,7 +3702,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_is_vertex_array (int handle) {
+	HL_PRIM bool HL_NAME(hl_gl_is_vertex_array) (int handle) {
 
 		#ifdef LIME_GLES3_API
 		return glIsQuery (handle);
@@ -3720,7 +3720,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_line_width (float width) {
+	HL_PRIM void HL_NAME(hl_gl_line_width) (float width) {
 
 		glLineWidth (width);
 
@@ -3734,7 +3734,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_link_program (int program) {
+	HL_PRIM void HL_NAME(hl_gl_link_program) (int program) {
 
 		glLinkProgram (program);
 
@@ -3753,7 +3753,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_gl_map_buffer_range (int target, double offset, int length, int access) {
+	HL_PRIM double HL_NAME(hl_gl_map_buffer_range) (int target, double offset, int length, int access) {
 
 		#ifdef LIME_GLES3_API
 		uintptr_t result = (uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
@@ -3789,7 +3789,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_object_deregister (void* object) {
+	HL_PRIM void HL_NAME(hl_gl_object_deregister) (void* object) {
 
 		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
 
@@ -3831,7 +3831,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void* hl_lime_gl_object_from_id (int id, int type) {
+	HL_PRIM void* HL_NAME(hl_gl_object_from_id) (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
 
@@ -3875,7 +3875,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_gl_object_register (int id, int type, void* object) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_gl_object_register) (int id, int type, void* object) {
 
 		GLObjectType _type = (GLObjectType)type;
 		HL_CFFIPointer* handle = HLCFFIPointer ((vobj*)object, (hl_finalizer)gc_gl_object);
@@ -3911,7 +3911,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_pause_transform_feedback () {
+	HL_PRIM void HL_NAME(hl_gl_pause_transform_feedback) () {
 
 		#ifdef LIME_GLES3_API
 		glPauseTransformFeedback ();
@@ -3927,7 +3927,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_pixel_storei (int pname, int param) {
+	HL_PRIM void HL_NAME(hl_gl_pixel_storei) (int pname, int param) {
 
 		glPixelStorei (pname, param);
 
@@ -3941,7 +3941,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_polygon_offset (float factor, float units) {
+	HL_PRIM void HL_NAME(hl_gl_polygon_offset) (float factor, float units) {
 
 		glPolygonOffset (factor, units);
 
@@ -3957,7 +3957,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_program_binary (int program, int binaryFormat, double binary, int length) {
+	HL_PRIM void HL_NAME(hl_gl_program_binary) (int program, int binaryFormat, double binary, int length) {
 
 		#ifdef LIME_GLES3_API
 		glProgramBinary (program, binaryFormat, (void*)(uintptr_t)binary, length);
@@ -3975,7 +3975,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_program_parameteri (int program, int pname, int value) {
+	HL_PRIM void HL_NAME(hl_gl_program_parameteri) (int program, int pname, int value) {
 
 		#ifdef LIME_GLES3_API
 		glProgramParameteri (program, pname, value);
@@ -3993,7 +3993,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_read_buffer (int src) {
+	HL_PRIM void HL_NAME(hl_gl_read_buffer) (int src) {
 
 		#ifdef LIME_GLES3_API
 		glReadBuffer (src);
@@ -4009,7 +4009,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, double pixels) {
+	HL_PRIM void HL_NAME(hl_gl_read_pixels) (int x, int y, int width, int height, int format, int type, double pixels) {
 
 		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
 
@@ -4025,7 +4025,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_release_shader_compiler () {
+	HL_PRIM void HL_NAME(hl_gl_release_shader_compiler) () {
 
 		#ifdef LIME_GLES3_API
 		glReleaseShaderCompiler ();
@@ -4041,7 +4041,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_renderbuffer_storage (int target, int internalformat, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_renderbuffer_storage) (int target, int internalformat, int width, int height) {
 
 		glRenderbufferStorage (target, internalformat, width, height);
 
@@ -4057,7 +4057,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_renderbuffer_storage_multisample (int target, int samples, int internalformat, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_renderbuffer_storage_multisample) (int target, int samples, int internalformat, int width, int height) {
 
 		#ifdef LIME_GLES3_API
 		glRenderbufferStorageMultisample (target, samples, internalformat, width, height);
@@ -4075,7 +4075,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_resume_transform_feedback () {
+	HL_PRIM void HL_NAME(hl_gl_resume_transform_feedback) () {
 
 		#ifdef LIME_GLES3_API
 		glResumeTransformFeedback ();
@@ -4093,7 +4093,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_sample_coverage (float val, bool invert) {
+	HL_PRIM void HL_NAME(hl_gl_sample_coverage) (float val, bool invert) {
 
 		#ifdef LIME_GLES3_API
 		glSampleCoverage (val, invert);
@@ -4111,7 +4111,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_sampler_parameterf (int sampler, int pname, float param) {
+	HL_PRIM void HL_NAME(hl_gl_sampler_parameterf) (int sampler, int pname, float param) {
 
 		#ifdef LIME_GLES3_API
 		glSamplerParameterf (sampler, pname, param);
@@ -4129,7 +4129,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_sampler_parameteri (int sampler, int pname, int param) {
+	HL_PRIM void HL_NAME(hl_gl_sampler_parameteri) (int sampler, int pname, int param) {
 
 		#ifdef LIME_GLES3_API
 		glSamplerParameteri (sampler, pname, param);
@@ -4145,7 +4145,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_scissor (int x, int y, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_scissor) (int x, int y, int width, int height) {
 
 		glScissor (x, y, width, height);
 
@@ -4170,7 +4170,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_shader_binary (varray* shaders, int binaryformat, double binary, int length) {
+	HL_PRIM void HL_NAME(hl_gl_shader_binary) (varray* shaders, int binaryformat, double binary, int length) {
 
 		#ifdef LIME_GLES3_API
 		GLsizei size = shaders->size;
@@ -4187,7 +4187,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_shader_source (int handle, hl_vstring* source) {
+	HL_PRIM void HL_NAME(hl_gl_shader_source) (int handle, hl_vstring* source) {
 
 		const char* _source = source ? hl_to_utf8 (source->bytes) : NULL;
 		glShaderSource (handle, 1, (const char**)&_source, 0);
@@ -4202,7 +4202,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_stencil_func (int func, int ref, int mask) {
+	HL_PRIM void HL_NAME(hl_gl_stencil_func) (int func, int ref, int mask) {
 
 		glStencilFunc (func, ref, mask);
 
@@ -4216,7 +4216,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_stencil_func_separate (int face, int func, int ref, int mask) {
+	HL_PRIM void HL_NAME(hl_gl_stencil_func_separate) (int face, int func, int ref, int mask) {
 
 		glStencilFuncSeparate (face, func, ref, mask);
 
@@ -4230,7 +4230,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_stencil_mask (int mask) {
+	HL_PRIM void HL_NAME(hl_gl_stencil_mask) (int mask) {
 
 		glStencilMask (mask);
 
@@ -4244,7 +4244,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_stencil_mask_separate (int face, int mask) {
+	HL_PRIM void HL_NAME(hl_gl_stencil_mask_separate) (int face, int mask) {
 
 		glStencilMaskSeparate (face, mask);
 
@@ -4258,7 +4258,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_stencil_op (int sfail, int dpfail, int dppass) {
+	HL_PRIM void HL_NAME(hl_gl_stencil_op) (int sfail, int dpfail, int dppass) {
 
 		glStencilOp (sfail, dpfail, dppass);
 
@@ -4272,7 +4272,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_stencil_op_separate (int face, int sfail, int dpfail, int dppass) {
+	HL_PRIM void HL_NAME(hl_gl_stencil_op_separate) (int face, int sfail, int dpfail, int dppass) {
 
 		glStencilOpSeparate (face, sfail, dpfail, dppass);
 
@@ -4286,7 +4286,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int format, int type, double data) {
+	HL_PRIM void HL_NAME(hl_gl_tex_image_2d) (int target, int level, int internalformat, int width, int height, int border, int format, int type, double data) {
 
 		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)(uintptr_t)data);
 
@@ -4302,7 +4302,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_image_3d (int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, double data) {
+	HL_PRIM void HL_NAME(hl_gl_tex_image_3d) (int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, double data) {
 
 		#ifdef LIME_GLES3_API
 		glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
@@ -4318,7 +4318,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_parameterf (int target, int pname, float param) {
+	HL_PRIM void HL_NAME(hl_gl_tex_parameterf) (int target, int pname, float param) {
 
 		glTexParameterf (target, pname, param);
 
@@ -4332,7 +4332,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_parameteri (int target, int pname, int param) {
+	HL_PRIM void HL_NAME(hl_gl_tex_parameteri) (int target, int pname, int param) {
 
 		glTexParameterf (target, pname, param);
 
@@ -4348,7 +4348,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_storage_2d (int target, int level, int internalformat, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_tex_storage_2d) (int target, int level, int internalformat, int width, int height) {
 
 		#ifdef LIME_GLES3_API
 		glTexStorage2D (target, level, internalformat, width, height);
@@ -4366,7 +4366,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_storage_3d (int target, int level, int internalformat, int width, int height, int depth) {
+	HL_PRIM void HL_NAME(hl_gl_tex_storage_3d) (int target, int level, int internalformat, int width, int height, int depth) {
 
 		#ifdef LIME_GLES3_API
 		glTexStorage3D (target, level, internalformat, width, height, depth);
@@ -4382,7 +4382,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double data) {
+	HL_PRIM void HL_NAME(hl_gl_tex_sub_image_2d) (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double data) {
 
 		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)data);
 
@@ -4398,7 +4398,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, double data) {
+	HL_PRIM void HL_NAME(hl_gl_tex_sub_image_3d) (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, double data) {
 
 		#ifdef LIME_GLES3_API
 		glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
@@ -4425,7 +4425,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_transform_feedback_varyings (int program, varray* varyings, int bufferMode) {
+	HL_PRIM void HL_NAME(hl_gl_transform_feedback_varyings) (int program, varray* varyings, int bufferMode) {
 
 		#ifdef LIME_GLES3_API
 		GLsizei size = varyings->size;
@@ -4442,7 +4442,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform1f (int location, float v0) {
+	HL_PRIM void HL_NAME(hl_gl_uniform1f) (int location, float v0) {
 
 		glUniform1f (location, v0);
 
@@ -4456,7 +4456,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform1fv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform1fv) (int location, int count, double _value) {
 
 		glUniform1fv (location, count, (GLfloat*)(uintptr_t)_value);
 
@@ -4470,7 +4470,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform1i (int location, int v0) {
+	HL_PRIM void HL_NAME(hl_gl_uniform1i) (int location, int v0) {
 
 		glUniform1i (location, v0);
 
@@ -4484,7 +4484,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform1iv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform1iv) (int location, int count, double _value) {
 
 		glUniform1iv (location, count, (GLint*)(uintptr_t)_value);
 
@@ -4500,7 +4500,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform1ui (int location, int v0) {
+	HL_PRIM void HL_NAME(hl_gl_uniform1ui) (int location, int v0) {
 
 		#ifdef LIME_GLES3_API
 		glUniform1ui (location, v0);
@@ -4518,7 +4518,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform1uiv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform1uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniform1uiv (location, count, (GLuint*)(uintptr_t)_value);
@@ -4534,7 +4534,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform2f (int location, float v0, float v1) {
+	HL_PRIM void HL_NAME(hl_gl_uniform2f) (int location, float v0, float v1) {
 
 		glUniform2f (location, v0, v1);
 
@@ -4548,7 +4548,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform2fv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform2fv) (int location, int count, double _value) {
 
 		glUniform2fv (location, count, (GLfloat*)(uintptr_t)_value);
 
@@ -4562,7 +4562,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform2i (int location, int v0, int v1) {
+	HL_PRIM void HL_NAME(hl_gl_uniform2i) (int location, int v0, int v1) {
 
 		glUniform2i (location, v0, v1);
 
@@ -4576,7 +4576,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform2iv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform2iv) (int location, int count, double _value) {
 
 		glUniform2iv (location, count, (GLint*)(uintptr_t)_value);
 
@@ -4592,7 +4592,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform2ui (int location, int v0, int v1) {
+	HL_PRIM void HL_NAME(hl_gl_uniform2ui) (int location, int v0, int v1) {
 
 		#ifdef LIME_GLES3_API
 		glUniform2ui (location, v0, v1);
@@ -4610,7 +4610,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform2uiv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform2uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniform2uiv (location, count, (GLuint*)(uintptr_t)_value);
@@ -4626,7 +4626,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform3f (int location, float v0, float v1, float v2) {
+	HL_PRIM void HL_NAME(hl_gl_uniform3f) (int location, float v0, float v1, float v2) {
 
 		glUniform3f (location, v0, v1, v2);
 
@@ -4640,7 +4640,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform3fv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform3fv) (int location, int count, double _value) {
 
 		glUniform3fv (location, count, (GLfloat*)(uintptr_t)_value);
 
@@ -4654,7 +4654,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform3i (int location, int v0, int v1, int v2) {
+	HL_PRIM void HL_NAME(hl_gl_uniform3i) (int location, int v0, int v1, int v2) {
 
 		glUniform3i (location, v0, v1, v2);
 
@@ -4668,7 +4668,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform3iv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform3iv) (int location, int count, double _value) {
 
 		glUniform3iv (location, count, (GLint*)(uintptr_t)_value);
 
@@ -4684,7 +4684,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform3ui (int location, int v0, int v1, int v2) {
+	HL_PRIM void HL_NAME(hl_gl_uniform3ui) (int location, int v0, int v1, int v2) {
 
 		#ifdef LIME_GLES3_API
 		glUniform3ui (location, v0, v1, v2);
@@ -4702,7 +4702,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform3uiv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform3uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniform3uiv (location, count, (GLuint*)(uintptr_t)_value);
@@ -4718,7 +4718,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform4f (int location, float v0, float v1, float v2, float v3) {
+	HL_PRIM void HL_NAME(hl_gl_uniform4f) (int location, float v0, float v1, float v2, float v3) {
 
 		glUniform4f (location, v0, v1, v2, v3);
 
@@ -4732,7 +4732,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform4fv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform4fv) (int location, int count, double _value) {
 
 		glUniform4fv (location, count, (GLfloat*)(uintptr_t)_value);
 
@@ -4746,7 +4746,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform4i (int location, int v0, int v1, int v2, int v3) {
+	HL_PRIM void HL_NAME(hl_gl_uniform4i) (int location, int v0, int v1, int v2, int v3) {
 
 		glUniform4i (location, v0, v1, v2, v3);
 
@@ -4760,7 +4760,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform4iv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform4iv) (int location, int count, double _value) {
 
 		glUniform4iv (location, count, (GLint*)(uintptr_t)_value);
 
@@ -4776,7 +4776,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform4ui (int location, int v0, int v1, int v2, int v3) {
+	HL_PRIM void HL_NAME(hl_gl_uniform4ui) (int location, int v0, int v1, int v2, int v3) {
 
 		#ifdef LIME_GLES3_API
 		glUniform4ui (location, v0, v1, v2, v3);
@@ -4794,7 +4794,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform4uiv (int location, int count, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform4uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniform4uiv (location, count, (GLuint*)(uintptr_t)_value);
@@ -4812,7 +4812,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_block_binding (int program, int uniformBlockIndex, int uniformBlockBinding) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_block_binding) (int program, int uniformBlockIndex, int uniformBlockBinding) {
 
 		#ifdef LIME_GLES3_API
 		glUniformBlockBinding (program, uniformBlockIndex, uniformBlockBinding);
@@ -4828,7 +4828,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix2fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix2fv) (int location, int count, bool transpose, double _value) {
 
 		glUniformMatrix2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
 
@@ -4844,7 +4844,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix2x3fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix2x3fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniformMatrix2x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
@@ -4862,7 +4862,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix2x4fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix2x4fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniformMatrix2x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
@@ -4878,7 +4878,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix3fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix3fv) (int location, int count, bool transpose, double _value) {
 
 		glUniformMatrix3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
 
@@ -4894,7 +4894,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix3x2fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix3x2fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniformMatrix3x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
@@ -4912,7 +4912,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix3x4fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix3x4fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniformMatrix3x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
@@ -4928,7 +4928,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix4fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix4fv) (int location, int count, bool transpose, double _value) {
 
 		glUniformMatrix4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
 
@@ -4944,7 +4944,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix4x2fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix4x2fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniformMatrix4x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
@@ -4962,7 +4962,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_uniform_matrix4x3fv (int location, int count, bool transpose, double _value) {
+	HL_PRIM void HL_NAME(hl_gl_uniform_matrix4x3fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
 		glUniformMatrix4x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
@@ -4982,7 +4982,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_gl_unmap_buffer (int target) {
+	HL_PRIM bool HL_NAME(hl_gl_unmap_buffer) (int target) {
 
 		#ifdef LIME_GLES3_API
 		return glUnmapBuffer (target);
@@ -5000,7 +5000,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_use_program (int handle) {
+	HL_PRIM void HL_NAME(hl_gl_use_program) (int handle) {
 
 		glUseProgram (handle);
 
@@ -5014,7 +5014,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_validate_program (int handle) {
+	HL_PRIM void HL_NAME(hl_gl_validate_program) (int handle) {
 
 		glValidateProgram (handle);
 
@@ -5030,7 +5030,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib_divisor (int index, int divisor) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_divisor) (int index, int divisor) {
 
 		#ifdef LIME_GLES3_API
 		glVertexAttribDivisor (index, divisor);
@@ -5048,7 +5048,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib_ipointer (int index, int size, int type, int stride, double offset) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_ipointer) (int index, int size, int type, int stride, double offset) {
 
 		#ifdef LIME_GLES3_API
 		glVertexAttribIPointer (index, size, type, stride, (void*)(uintptr_t)offset);
@@ -5064,7 +5064,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib_pointer (int index, int size, int type, bool normalized, int stride, double offset) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_pointer) (int index, int size, int type, bool normalized, int stride, double offset) {
 
 		glVertexAttribPointer (index, size, type, normalized, stride, (void*)(uintptr_t)offset);
 
@@ -5080,7 +5080,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attribi4i (int index, int v0, int v1, int v2, int v3) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attribi4i) (int index, int v0, int v1, int v2, int v3) {
 
 		#ifdef LIME_GLES3_API
 		glVertexAttribI4i (index, v0, v1, v2, v3);
@@ -5098,7 +5098,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attribi4iv (int index, double v) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attribi4iv) (int index, double v) {
 
 		#ifdef LIME_GLES3_API
 		glVertexAttribI4iv (index, (GLint*)(uintptr_t)v);
@@ -5116,7 +5116,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attribi4ui (int index, int v0, int v1, int v2, int v3) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attribi4ui) (int index, int v0, int v1, int v2, int v3) {
 
 		#ifdef LIME_GLES3_API
 		glVertexAttribI4ui (index, v0, v1, v2, v3);
@@ -5134,7 +5134,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attribi4uiv (int index, double v) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attribi4uiv) (int index, double v) {
 
 		#ifdef LIME_GLES3_API
 		glVertexAttribI4uiv (index, (GLuint*)(uintptr_t)v);
@@ -5150,7 +5150,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib1f (int index, float v0) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib1f) (int index, float v0) {
 
 		glVertexAttrib1f (index, v0);
 
@@ -5164,7 +5164,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib1fv (int index, double v) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib1fv) (int index, double v) {
 
 		glVertexAttrib1fv (index, (GLfloat*)(uintptr_t)v);
 
@@ -5178,7 +5178,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib2f (int index, float v0, float v1) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib2f) (int index, float v0, float v1) {
 
 		glVertexAttrib2f (index, v0, v1);
 
@@ -5192,7 +5192,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib2fv (int index, double v) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib2fv) (int index, double v) {
 
 		glVertexAttrib2fv (index, (GLfloat*)(uintptr_t)v);
 
@@ -5206,7 +5206,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib3f (int index, float v0, float v1, float v2) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib3f) (int index, float v0, float v1, float v2) {
 
 		glVertexAttrib3f (index, v0, v1, v2);
 
@@ -5220,7 +5220,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib3fv (int index, double v) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib3fv) (int index, double v) {
 
 		glVertexAttrib3fv (index, (GLfloat*)(uintptr_t)v);
 
@@ -5234,7 +5234,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib4f (int index, float v0, float v1, float v2, float v3) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib4f) (int index, float v0, float v1, float v2, float v3) {
 
 		glVertexAttrib4f (index, v0, v1, v2, v3);
 
@@ -5248,7 +5248,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_vertex_attrib4fv (int index, double v) {
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib4fv) (int index, double v) {
 
 		glVertexAttrib4fv (index, (GLfloat*)(uintptr_t)v);
 
@@ -5262,7 +5262,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_viewport (int x, int y, int width, int height) {
+	HL_PRIM void HL_NAME(hl_gl_viewport) (int x, int y, int width, int height) {
 
 		glViewport (x, y, width, height);
 
@@ -5279,7 +5279,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_gl_wait_sync (HL_CFFIPointer* sync, int flags, int timeoutA, int timeoutB) {
+	HL_PRIM void HL_NAME(hl_gl_wait_sync) (HL_CFFIPointer* sync, int flags, int timeoutA, int timeoutB) {
 
 		#ifdef LIME_GLES3_API
 		GLuint64 timeout = (GLuint64) timeoutA << 32 | timeoutB;
@@ -5620,278 +5620,278 @@ namespace lime {
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 
-	#define _TGLOBJECT _OBJ (_I32 _TCFFIPOINTER _OBJ (_ARR))
+	#define _TGLOBJECT _OBJ (_I32 _TCFFIPOINTER _OBJ (_I32 _ARR))
 
 
-	DEFINE_HL_PRIM (_VOID, lime_gl_active_texture, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_attach_shader, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_begin_query, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_begin_transform_feedback, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_attrib_location, _I32 _I32 _STRING);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_buffer, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_buffer_base, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_buffer_range, _I32 _I32 _I32 _F64 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_framebuffer, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_renderbuffer, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_sampler, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_texture, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_transform_feedback, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_bind_vertex_array, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_blend_color, _F32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_blend_equation, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_blend_equation_separate, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_blend_func, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_blend_func_separate, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_blit_framebuffer, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_buffer_data, _I32 _I32 _F64 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_buffer_sub_data, _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_check_framebuffer_status, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_bufferfi, _I32 _I32 _F32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_bufferfv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_bufferiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_bufferuiv,  _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_color, _F32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_depthf, _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_clear_stencil, _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_client_wait_sync, _TCFFIPOINTER _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_color_mask, _BOOL _BOOL _BOOL _BOOL);
-	DEFINE_HL_PRIM (_VOID, lime_gl_compile_shader, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_compressed_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_compressed_tex_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_compressed_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_compressed_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_copy_buffer_sub_data, _I32 _I32 _F64 _F64 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_copy_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_copy_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_copy_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_buffer, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_framebuffer, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_program, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_query, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_renderbuffer, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_sampler, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_shader, _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_texture, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_transform_feedback, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_create_vertex_array, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_gl_cull_face, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_buffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_framebuffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_program, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_query, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_renderbuffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_sampler, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_shader, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_sync, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_texture, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_transform_feedback, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_delete_vertex_array, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_depth_func, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_depth_mask, _BOOL);
-	DEFINE_HL_PRIM (_VOID, lime_gl_depth_rangef, _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_detach_shader, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_disable, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_disable_vertex_attrib_array, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_draw_arrays, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_draw_arrays_instanced, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_draw_buffers, _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_gl_draw_elements, _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_draw_elements_instanced, _I32 _I32 _I32 _F64 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_draw_range_elements, _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_enable, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_enable_vertex_attrib_array, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_end_query, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_end_transform_feedback, _NO_ARG);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_gl_fence_sync, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_finish, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_gl_flush, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_gl_framebuffer_renderbuffer, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_framebuffer_texture_layer, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_framebuffer_texture2D, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_front_face, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_generate_mipmap, _I32);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_active_attrib, _I32 _I32);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_active_uniform, _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_active_uniform_blocki, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_active_uniform_blockiv, _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_BYTES, lime_gl_get_active_uniform_block_name, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_active_uniformsiv, _I32 _ARR _I32 _F64);
-	DEFINE_HL_PRIM (_ARR, lime_gl_get_attached_shaders, _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_attrib_location, _I32 _STRING);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_get_boolean, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_booleanv, _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_buffer_parameteri, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_buffer_parameteriv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_buffer_parameteri64v, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_F64, lime_gl_get_buffer_pointerv, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_buffer_sub_data, _I32 _F64 _I32 _F64);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_context_attributes, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_error, _NO_ARG);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_extension, _STRING);
-	DEFINE_HL_PRIM (_F32, lime_gl_get_float, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_floatv, _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_frag_data_location, _I32 _STRING);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_framebuffer_attachment_parameteri, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_framebuffer_attachment_parameteriv, _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_integer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_integerv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_integer64v, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_integer64i_v, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_integeri_v, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_internalformativ, _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_programi, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_programiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_program_binary, _I32 _I32 _TBYTES);
-	DEFINE_HL_PRIM (_BYTES, lime_gl_get_program_info_log, _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_queryi, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_queryiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_query_objectui, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_query_objectuiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_renderbuffer_parameteri, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_renderbuffer_parameteriv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_F32, lime_gl_get_sampler_parameterf, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_sampler_parameterfv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_sampler_parameteri, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_sampler_parameteriv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_BYTES, lime_gl_get_shader_info_log, _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_shaderi, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_shaderiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_shader_precision_format, _I32 _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_gl_get_shader_source, _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_gl_get_string, _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_gl_get_stringi, _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_sync_parameteri, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_sync_parameteriv, _TCFFIPOINTER _I32 _F64);
-	DEFINE_HL_PRIM (_F32, lime_gl_get_tex_parameterf, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_tex_parameterfv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_tex_parameteri, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_tex_parameteriv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_DYN, lime_gl_get_transform_feedback_varying, _I32 _I32);
-	DEFINE_HL_PRIM (_F32, lime_gl_get_uniformf, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_uniformfv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_uniformi, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_uniformiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_uniformui, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_uniformuiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_uniform_block_index, _I32 _STRING);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_uniform_location, _I32 _STRING);
-	DEFINE_HL_PRIM (_F32, lime_gl_get_vertex_attribf, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_vertex_attribfv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_vertex_attribi, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_vertex_attribiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_vertex_attribii, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_vertex_attribiiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_I32, lime_gl_get_vertex_attribiui, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_get_vertex_attribiuiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_F64, lime_gl_get_vertex_attrib_pointerv, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_hint, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_invalidate_framebuffer, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_gl_invalidate_sub_framebuffer, _I32 _ARR _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_buffer, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_enabled, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_framebuffer, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_program, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_query, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_renderbuffer, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_sampler, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_shader, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_sync, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_texture, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_transform_feedback, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_is_vertex_array, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_line_width, _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_link_program, _I32);
-	DEFINE_HL_PRIM (_F64, lime_gl_map_buffer_range, _I32 _F64 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_object_deregister, _TGLOBJECT);
-	DEFINE_HL_PRIM (_TGLOBJECT, lime_gl_object_from_id, _I32 _I32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_gl_object_register, _I32 _I32 _TGLOBJECT);
-	DEFINE_HL_PRIM (_VOID, lime_gl_pause_transform_feedback, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_gl_pixel_storei, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_polygon_offset, _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_program_binary, _I32 _I32 _F64 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_program_parameteri, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_read_buffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_read_pixels, _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_release_shader_compiler, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_gl_renderbuffer_storage, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_renderbuffer_storage_multisample, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_resume_transform_feedback, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_gl_sample_coverage, _F32 _BOOL);
-	DEFINE_HL_PRIM (_VOID, lime_gl_sampler_parameterf, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_sampler_parameteri, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_scissor, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_shader_binary, _ARR _I32 _F64 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_shader_source, _I32 _STRING);
-	DEFINE_HL_PRIM (_VOID, lime_gl_stencil_func, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_stencil_func_separate, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_stencil_mask, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_stencil_mask_separate, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_stencil_op, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_stencil_op_separate, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_parameterf, _I32 _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_parameteri, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_storage_2d, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_storage_3d, _I32 _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_transform_feedback_varyings, _I32 _ARR _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform1f, _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform1fv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform1i, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform1iv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform1ui, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform1uiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform2f, _I32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform2fv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform2i, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform2iv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform2ui, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform2uiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform3f, _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform3fv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform3i, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform3iv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform3ui, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform3uiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform4f, _I32 _F32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform4fv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform4i, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform4iv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform4ui, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform4uiv, _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_block_binding, _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix2fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix2x3fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix2x4fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix3fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix3x2fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix3x4fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix4fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix4x2fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_uniform_matrix4x3fv, _I32 _I32 _BOOL _F64);
-	DEFINE_HL_PRIM (_BOOL, lime_gl_unmap_buffer, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_use_program, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_validate_program, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib_divisor, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib_ipointer, _I32 _I32 _I32 _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib_pointer, _I32 _I32 _I32 _BOOL _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attribi4i, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attribi4iv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attribi4ui, _I32 _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attribi4uiv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib1f, _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib1fv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib2f, _I32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib2fv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib3f, _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib3fv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib4f, _I32 _F32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_vertex_attrib4fv, _I32 _F64);
-	DEFINE_HL_PRIM (_VOID, lime_gl_viewport, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_gl_wait_sync, _TCFFIPOINTER _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_active_texture, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_attach_shader, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_begin_query, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_begin_transform_feedback, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_attrib_location, _I32 _I32 _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_buffer, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_buffer_base, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_buffer_range, _I32 _I32 _I32 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_framebuffer, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_renderbuffer, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_sampler, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_texture, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_transform_feedback, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_vertex_array, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_blend_color, _F32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_blend_equation, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_blend_equation_separate, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_blend_func, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_blend_func_separate, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_blit_framebuffer, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_buffer_data, _I32 _I32 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_buffer_sub_data, _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_check_framebuffer_status, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_bufferfi, _I32 _I32 _F32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_bufferfv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_bufferiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_bufferuiv,  _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_color, _F32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_depthf, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_clear_stencil, _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_client_wait_sync, _TCFFIPOINTER _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_color_mask, _BOOL _BOOL _BOOL _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_gl_compile_shader, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_compressed_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_compressed_tex_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_compressed_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_compressed_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_copy_buffer_sub_data, _I32 _I32 _F64 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_copy_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_copy_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_copy_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_buffer, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_framebuffer, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_program, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_query, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_renderbuffer, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_sampler, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_shader, _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_texture, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_transform_feedback, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_create_vertex_array, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gl_cull_face, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_buffer, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_framebuffer, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_program, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_query, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_renderbuffer, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_sampler, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_shader, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_sync, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_texture, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_transform_feedback, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_delete_vertex_array, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_depth_func, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_depth_mask, _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_gl_depth_rangef, _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_detach_shader, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_disable, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_disable_vertex_attrib_array, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_draw_arrays, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_draw_arrays_instanced, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_draw_buffers, _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_gl_draw_elements, _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_draw_elements_instanced, _I32 _I32 _I32 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_draw_range_elements, _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_enable, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_enable_vertex_attrib_array, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_end_query, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_end_transform_feedback, _NO_ARG);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_gl_fence_sync, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_finish, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gl_flush, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gl_framebuffer_renderbuffer, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_framebuffer_texture_layer, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_framebuffer_texture2D, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_front_face, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_generate_mipmap, _I32);
+	DEFINE_HL_PRIM (_DYN, hl_gl_get_active_attrib, _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_gl_get_active_uniform, _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_active_uniform_blocki, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_active_uniform_blockiv, _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_BYTES, hl_gl_get_active_uniform_block_name, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_active_uniformsiv, _I32 _ARR _I32 _F64);
+	DEFINE_HL_PRIM (_ARR, hl_gl_get_attached_shaders, _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_attrib_location, _I32 _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_get_boolean, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_booleanv, _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_buffer_parameteri, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_buffer_parameteriv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_buffer_parameteri64v, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_F64, hl_gl_get_buffer_pointerv, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_buffer_sub_data, _I32 _F64 _I32 _F64);
+	DEFINE_HL_PRIM (_DYN, hl_gl_get_context_attributes, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_error, _NO_ARG);
+	DEFINE_HL_PRIM (_DYN, hl_gl_get_extension, _STRING);
+	DEFINE_HL_PRIM (_F32, hl_gl_get_float, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_floatv, _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_frag_data_location, _I32 _STRING);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_framebuffer_attachment_parameteri, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_framebuffer_attachment_parameteriv, _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_integer, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_integerv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_integer64v, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_integer64i_v, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_integeri_v, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_internalformativ, _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_programi, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_programiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_program_binary, _I32 _I32 _TBYTES);
+	DEFINE_HL_PRIM (_BYTES, hl_gl_get_program_info_log, _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_queryi, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_queryiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_query_objectui, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_query_objectuiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_renderbuffer_parameteri, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_renderbuffer_parameteriv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_F32, hl_gl_get_sampler_parameterf, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_sampler_parameterfv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_sampler_parameteri, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_sampler_parameteriv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_BYTES, hl_gl_get_shader_info_log, _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_shaderi, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_shaderiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_DYN, hl_gl_get_shader_precision_format, _I32 _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_gl_get_shader_source, _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_gl_get_string, _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_gl_get_stringi, _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_sync_parameteri, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_sync_parameteriv, _TCFFIPOINTER _I32 _F64);
+	DEFINE_HL_PRIM (_F32, hl_gl_get_tex_parameterf, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_tex_parameterfv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_tex_parameteri, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_tex_parameteriv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_DYN, hl_gl_get_transform_feedback_varying, _I32 _I32);
+	DEFINE_HL_PRIM (_F32, hl_gl_get_uniformf, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_uniformfv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_uniformi, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_uniformiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_uniformui, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_uniformuiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_uniform_block_index, _I32 _STRING);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_uniform_location, _I32 _STRING);
+	DEFINE_HL_PRIM (_F32, hl_gl_get_vertex_attribf, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_vertex_attribfv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_vertex_attribi, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_vertex_attribiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_vertex_attribii, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_vertex_attribiiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_I32, hl_gl_get_vertex_attribiui, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_get_vertex_attribiuiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_F64, hl_gl_get_vertex_attrib_pointerv, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_hint, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_invalidate_framebuffer, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_gl_invalidate_sub_framebuffer, _I32 _ARR _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_buffer, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_enabled, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_framebuffer, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_program, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_query, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_renderbuffer, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_sampler, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_shader, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_sync, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_texture, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_transform_feedback, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_is_vertex_array, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_line_width, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_link_program, _I32);
+	DEFINE_HL_PRIM (_F64, hl_gl_map_buffer_range, _I32 _F64 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_object_deregister, _TGLOBJECT);
+	DEFINE_HL_PRIM (_TGLOBJECT, hl_gl_object_from_id, _I32 _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_gl_object_register, _I32 _I32 _TGLOBJECT);
+	DEFINE_HL_PRIM (_VOID, hl_gl_pause_transform_feedback, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gl_pixel_storei, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_polygon_offset, _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_program_binary, _I32 _I32 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_program_parameteri, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_read_buffer, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_read_pixels, _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_release_shader_compiler, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gl_renderbuffer_storage, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_renderbuffer_storage_multisample, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_resume_transform_feedback, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gl_sample_coverage, _F32 _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_gl_sampler_parameterf, _I32 _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_sampler_parameteri, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_scissor, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_shader_binary, _ARR _I32 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_shader_source, _I32 _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_gl_stencil_func, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_stencil_func_separate, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_stencil_mask, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_stencil_mask_separate, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_stencil_op, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_stencil_op_separate, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_parameterf, _I32 _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_parameteri, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_storage_2d, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_storage_3d, _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_transform_feedback_varyings, _I32 _ARR _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform1f, _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform1fv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform1i, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform1iv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform1ui, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform1uiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform2f, _I32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform2fv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform2i, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform2iv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform2ui, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform2uiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform3f, _I32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform3fv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform3i, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform3iv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform3ui, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform3uiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform4f, _I32 _F32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform4fv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform4i, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform4iv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform4ui, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform4uiv, _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_block_binding, _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix2fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix2x3fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix2x4fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix3fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix3x2fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix3x4fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix4fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix4x2fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_uniform_matrix4x3fv, _I32 _I32 _BOOL _F64);
+	DEFINE_HL_PRIM (_BOOL, hl_gl_unmap_buffer, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_use_program, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_validate_program, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_divisor, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_ipointer, _I32 _I32 _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_pointer, _I32 _I32 _I32 _BOOL _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attribi4i, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attribi4iv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attribi4ui, _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attribi4uiv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib1f, _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib1fv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib2f, _I32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib2fv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib3f, _I32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib3fv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib4f, _I32 _F32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib4fv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_viewport, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_wait_sync, _TCFFIPOINTER _I32 _I32 _I32);
 
 
 }

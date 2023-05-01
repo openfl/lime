@@ -21,8 +21,11 @@ import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
+import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
+import lime.tools.LaunchStoryboard;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -34,6 +37,78 @@ class IOSPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		defaults.architectures = [Architecture.ARMV7, Architecture.ARM64];
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("ios.output-directory", "ios"));
 	}
@@ -78,7 +153,7 @@ class IOSPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -139,7 +214,8 @@ class IOSPlatform extends PlatformTarget
 		{
 			if (!StringTools.endsWith(dependency.name, ".framework")
 				&& !StringTools.endsWith(dependency.name, ".tbd")
-				&& !StringTools.endsWith(dependency.path, ".framework"))
+				&& !StringTools.endsWith(dependency.path, ".framework")
+				&& !StringTools.endsWith(dependency.path, ".xcframework"))
 			{
 				if (dependency.path != "")
 				{
@@ -179,7 +255,7 @@ class IOSPlatform extends PlatformTarget
 
 		if (project.config.getString("ios.device", "universal") == "universal" || project.config.getString("ios.device") == "iphone")
 		{
-			if (project.config.getFloat("ios.deployment", 8) < 5)
+			if (project.config.getFloat("ios.deployment", 9) < 5)
 			{
 				ArrayTools.addUnique(architectures, Architecture.ARMV6);
 			}
@@ -239,14 +315,14 @@ class IOSPlatform extends PlatformTarget
 			case "ipad": "2";
 			default: "1,2";
 		}
-		context.DEPLOYMENT = project.config.getString("ios.deployment", "8.0");
+		context.DEPLOYMENT = project.config.getString("ios.deployment", "9.0");
 
 		if (project.config.getString("ios.compiler") == "llvm" || project.config.getString("ios.compiler", "clang") == "clang")
 		{
 			context.OBJC_ARC = true;
 		}
 
-		// context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 8) >= 6);
+		// context.ENABLE_BITCODE = (project.config.getFloat ("ios.deployment", 9) >= 6);
 		context.ENABLE_BITCODE = project.config.getBool("ios.enable-bitcode", false);
 		context.IOS_COMPILER = project.config.getString("ios.compiler", "clang");
 		context.CPP_BUILD_LIBRARY = project.config.getString("cpp.buildLibrary", "hxcpp");
@@ -274,19 +350,15 @@ class IOSPlatform extends PlatformTarget
 		switch (project.window.orientation)
 		{
 			case PORTRAIT:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			case LANDSCAPE:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string></array>";
 			case ALL:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 			// case "allButUpsideDown":
 			// context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string></array>";
 			default:
-				context
-					.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
+				context.IOS_APP_ORIENTATION = "<array><string>UIInterfaceOrientationLandscapeLeft</string><string>UIInterfaceOrientationLandscapeRight</string><string>UIInterfaceOrientationPortrait</string><string>UIInterfaceOrientationPortraitUpsideDown</string></array>";
 		}
 
 		context.ADDL_PBX_BUILD_FILE = "";
@@ -320,6 +392,12 @@ class IOSPlatform extends PlatformTarget
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
 			}
+			else if (Path.extension(dependency.path) == "xcframework")
+			{
+				name = Path.withoutDirectory(dependency.path);
+				path = Path.tryFullPath(dependency.path);
+				fileType = "wrapper.xcframework";
+			}
 
 			if (name != null)
 			{
@@ -328,10 +406,10 @@ class IOSPlatform extends PlatformTarget
 
 				ArrayTools.addUnique(context.frameworkSearchPaths, Path.directory(path));
 
-				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* " +
-					name + " */; };\n";
-				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType +
-					"\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
+				context.ADDL_PBX_BUILD_FILE += "		" + frameworkID + " /* " + name + " in Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* "
+					+ name + " */; };\n";
+				context.ADDL_PBX_FILE_REFERENCE += "		" + fileID + " /* " + name + " */ = {isa = PBXFileReference; lastKnownFileType = \"" + fileType
+					+ "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
 			}
@@ -374,7 +452,7 @@ class IOSPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
@@ -397,9 +475,11 @@ class IOSPlatform extends PlatformTarget
 	public override function rebuild():Void
 	{
 		var armv6 = (project.architectures.indexOf(Architecture.ARMV6) > -1 && !project.targetFlags.exists("simulator"));
-		var armv7 = (command == "rebuild" || (project.architectures.indexOf(Architecture.ARMV7) > -1 && !project.targetFlags.exists("simulator")));
+		var armv7 = (command == "rebuild"
+			|| (project.architectures.indexOf(Architecture.ARMV7) > -1 && !project.targetFlags.exists("simulator")));
 		var armv7s = (project.architectures.indexOf(Architecture.ARMV7S) > -1 && !project.targetFlags.exists("simulator"));
-		var arm64 = (command == "rebuild" || (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
+		var arm64 = (command == "rebuild"
+			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (command == "rebuild" || project.targetFlags.exists("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
 
@@ -475,12 +555,27 @@ class IOSPlatform extends PlatformTarget
 		System.mkdir(projectDirectory + "/haxe/lime/installer");
 
 		var iconSizes:Array<IconSize> = [
-			{name: "Icon-20.png", size: 20}, {name: "Icon-Small.png", size: 29}, {name: "Icon-Small-40.png", size: 40}, {name: "Icon-20@2x.png", size: 40},
-			{name: "Icon-Small-50.png", size: 50}, {name: "Icon.png", size: 57}, {name: "Icon-Small@2x.png", size: 58}, {name: "Icon-20@3x.png", size: 60},
-			{name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80}, {name: "Icon-Small@3x.png", size: 87},
-			{name: "Icon-Small-50@2x.png", size: 100}, {name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
-			{name: "Icon-Small-40@3x.png", size: 120}, {name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152},
-			{name: "Icon-83.5@2x.png", size: 167}, {name: "Icon-60@3x.png", size: 180}, {name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-20.png", size: 20},
+			{name: "Icon-Small.png", size: 29},
+			{name: "Icon-Small-40.png", size: 40},
+			{name: "Icon-20@2x.png", size: 40},
+			{name: "Icon-Small-50.png", size: 50},
+			{name: "Icon.png", size: 57},
+			{name: "Icon-Small@2x.png", size: 58},
+			{name: "Icon-20@3x.png", size: 60},
+			{name: "Icon-72.png", size: 72},
+			{name: "Icon-76.png", size: 76},
+			{name: "Icon-Small-40@2x.png", size: 80},
+			{name: "Icon-Small@3x.png", size: 87},
+			{name: "Icon-Small-50@2x.png", size: 100},
+			{name: "Icon@2x.png", size: 114},
+			{name: "Icon-60@2x.png", size: 120},
+			{name: "Icon-Small-40@3x.png", size: 120},
+			{name: "Icon-72@2x.png", size: 144},
+			{name: "Icon-76@2x.png", size: 152},
+			{name: "Icon-83.5@2x.png", size: 167},
+			{name: "Icon-60@3x.png", size: 180},
+			{name: "Icon-Marketing.png", size: 1024}
 		];
 
 		context.HAS_ICON = true;
@@ -503,55 +598,154 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		var splashSizes:Array<SplashSize> = [
-			{name: "Default.png", w: 320, h: 480}, // iPhone, portrait {name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
-			{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait {name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
-			{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait {name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
-			{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape {name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242},
-			// iPhone 6 Plus, landscape
-			{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait {name: "Default-Portrait@2x.png", w: 1536, h: 2048},
-			// iPad Retina, portrait
-			{name: "Default-812h@3x.png", w: 1125, h: 2436}, // iPhone X, portrait
-			{name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125} // iPhone X, landscape
-		];
-
-		var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
-		System.mkdir(splashScreenPath);
-
-		for (size in splashSizes)
+		if (project.launchStoryboard != null)
 		{
-			var match = false;
+			var sb = project.launchStoryboard;
 
-			for (splashScreen in project.splashScreens)
+			var assetsPath = sb.assetsPath;
+			var imagesets = [];
+
+			for (asset in sb.assets)
 			{
-				if (splashScreen.width == size.w
-					&& splashScreen.height == size.h
-					&& Path.extension(splashScreen.path) == "png")
+				switch (asset.type)
 				{
-					System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
-					match = true;
+					case "imageset":
+						var imageset = cast(asset, ImageSet);
+						imagesets.push(imageset);
+
+						var imagesetPath = Path.combine(projectDirectory, "Images.xcassets/" + imageset.name + ".imageset");
+						System.mkdir(imagesetPath);
+
+						var baseImageName = Path.withoutExtension(imageset.name);
+
+						var imageScales = ["1x", "2x", "3x"];
+						var images = [];
+						for (scale in imageScales)
+						{
+							var filename = baseImageName + (scale == "1x" ? "" : "@" + scale) + ".png";
+							if (FileSystem.exists(Path.combine(assetsPath, filename)))
+							{
+								images.push({idiom: "universal", filename: filename, scale: scale});
+								System.copyFile(Path.combine(assetsPath, filename), Path.combine(imagesetPath, filename));
+
+								if (imageset.width == 0 || imageset.height == 0)
+								{
+									var dim = ImageHelper.readPNGImageSize(Path.combine(assetsPath, filename));
+									var scaleValue = Std.parseInt(scale.charAt(0));
+									imageset.width = Std.int(dim.width / scaleValue);
+									imageset.height = Std.int(dim.height / scaleValue);
+								}
+							}
+						}
+
+						var contents =
+							{
+								images: images,
+								info:
+									{
+										version: "1",
+										author: "xcode"
+									}
+							};
+
+						File.saveContent(Path.combine(imagesetPath, "Contents.json"), Json.stringify(contents));
+
+					default:
 				}
 			}
 
-			if (!match)
+			if (sb.template != null)
 			{
-				var imagePath = Path.combine(splashScreenPath, size.name);
+				sb.templateContext.imagesets = [];
 
-				if (!FileSystem.exists(imagePath))
+				for (imageset in imagesets)
 				{
-					#if (lime && lime_cffi && !macro)
-					Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
-
-					var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | (project.window.background & 0xFFFFFF));
-					var bytes = image.encode(PNG);
-
-					File.saveBytes(imagePath, bytes);
-					#end
+					sb.templateContext.imagesets.push(
+						{
+							name: imageset.name,
+							width: imageset.width,
+							height: imageset.height,
+						});
 				}
+
+				var deployment:String = context.DEPLOYMENT;
+				var parts = deployment.split(".");
+				var major = Std.parseInt(parts[0]);
+				var minor = parts.length >= 2 ? Std.parseInt(parts[1]) : 0;
+				var patch = parts.length >= 3 ? Std.parseInt(parts[2]) : 0;
+
+				Reflect.setField(sb.templateContext, "deploymentVersion",
+					{
+						major: major,
+						minor: minor,
+						patch: patch,
+						code: Std.parseInt("0x" + major + minor + patch)
+					});
+
+				System.copyFileTemplate(project.templatePaths, "ios/storyboards/" + sb.template, projectDirectory + sb.template, sb.templateContext, true,
+					true);
+				context.IOS_LAUNCH_STORYBOARD = Path.withoutExtension(sb.template);
+			}
+			else
+			{
+				System.copyFile(sb.path, projectDirectory + Path.withoutDirectory(sb.path));
+				context.IOS_LAUNCH_STORYBOARD = Path.withoutDirectory(Path.withoutExtension(sb.path));
 			}
 		}
+		else
+		{
+			var splashSizes:Array<SplashSize> = [
+				{name: "Default.png", w: 320, h: 480}, // iPhone, portrait
+				{name: "Default@2x.png", w: 640, h: 960}, // iPhone Retina, portrait
+				{name: "Default-568h@2x.png", w: 640, h: 1136}, // iPhone 5, portrait
+				{name: "Default-667h@2x.png", w: 750, h: 1334}, // iPhone 6, portrait
+				{name: "Default-736h@3x.png", w: 1242, h: 2208}, // iPhone 6 Plus, portrait
+				{name: "Default-Landscape.png", w: 1024, h: 768}, // iPad, landscape
+				{name: "Default-Landscape@2x.png", w: 2048, h: 1536}, // iPad Retina, landscape
+				{name: "Default-736h-Landscape@3x.png", w: 2208, h: 1242}, // iPhone 6 Plus, landscape
+				{name: "Default-Portrait.png", w: 768, h: 1024}, // iPad, portrait
+				{name: "Default-Portrait@2x.png", w: 1536, h: 2048}, // iPad Retina, portrait
+				{name: "Default-812h@3x.png", w: 1125, h: 2436}, // iPhone X, portrait
+				{name: "Default-Landscape-812h@3x.png", w: 2436, h: 1125} // iPhone X, landscape
+			];
 
-		context.HAS_LAUNCH_IMAGE = true;
+			var splashScreenPath = Path.combine(projectDirectory, "Images.xcassets/LaunchImage.launchimage");
+			System.mkdir(splashScreenPath);
+
+			for (size in splashSizes)
+			{
+				var match = false;
+
+				for (splashScreen in project.splashScreens)
+				{
+					if (splashScreen.width == size.w && splashScreen.height == size.h && Path.extension(splashScreen.path) == "png")
+					{
+						System.copyFile(splashScreen.path, Path.combine(splashScreenPath, size.name));
+						match = true;
+					}
+				}
+
+				if (!match)
+				{
+					var imagePath = Path.combine(splashScreenPath, size.name);
+
+					if (!FileSystem.exists(imagePath))
+					{
+						#if (lime && lime_cffi && !macro)
+						Log.info("", " - \x1b[1mGenerating image:\x1b[0m " + imagePath);
+
+						var background = project.window.background != null ? project.window.background & 0xFFFFFF : 0x000000;
+						var image = new Image(null, 0, 0, size.w, size.h, (0xFF << 24) | background);
+						var bytes = image.encode(PNG);
+
+						File.saveBytes(imagePath, bytes);
+						#end
+					}
+				}
+			}
+
+			context.HAS_LAUNCH_IMAGE = true;
+		}
 
 		System.mkdir(projectDirectory + "/resources");
 		System.mkdir(projectDirectory + "/haxe/build");
@@ -574,8 +768,23 @@ class IOSPlatform extends PlatformTarget
 			true, false);
 		System.copyFileTemplate(project.templatePaths, "iphone/PROJ/PROJ-Prefix.pch", projectDirectory + "/" + project.app.file + "-Prefix.pch", context,
 			true, false);
-		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ.xcodeproj", targetDirectory + "/" + project.app
-			.file + ".xcodeproj", context, true, false);
+		ProjectHelper.recursiveSmartCopyTemplate(project, "iphone/PROJ.xcodeproj", targetDirectory + "/" + project.app.file + ".xcodeproj", context, true,
+			false);
+
+		// Merge plist files
+		var plistFiles = System.readDirectory(projectDirectory).filter(function(fileName:String)
+		{
+			return fileName.substr(-11) == "-Info.plist" && fileName != projectDirectory + "/" + project.app.file + "-Info.plist";
+		});
+		for (plist in plistFiles)
+		{
+			System.runCommand(project.workingDirectory, "/usr/libexec/PlistBuddy", [
+				"-x",
+				"-c",
+				"Merge '" + plist + "'",
+				projectDirectory + "/" + project.app.file + "-Info.plist"
+			]);
+		}
 
 		System.mkdir(projectDirectory + "/lib");
 
@@ -700,7 +909,15 @@ class IOSPlatform extends PlatformTarget
 	}*/
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

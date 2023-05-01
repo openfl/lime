@@ -77,10 +77,33 @@ class AssetManifest
 		var manifestData = Json.parse(data);
 		var manifest = new AssetManifest();
 
-		manifest.name = manifestData.name;
-		manifest.libraryType = manifestData.libraryType;
-		manifest.libraryArgs = manifestData.libraryArgs;
-		manifest.assets = Unserializer.run(manifestData.assets);
+		if (Reflect.hasField(manifestData, "name"))
+		{
+			manifest.name = manifestData.name;
+		}
+
+		if (Reflect.hasField(manifestData, "libraryType"))
+		{
+			manifest.libraryType = manifestData.libraryType;
+		}
+
+		if (Reflect.hasField(manifestData, "libraryArgs"))
+		{
+			manifest.libraryArgs = manifestData.libraryArgs;
+		}
+
+		if (Reflect.hasField(manifestData, "assets"))
+		{
+			var assets:Dynamic = manifestData.assets;
+			if (Reflect.hasField(manifestData, "version") && manifestData.version <= 2)
+			{
+				manifest.assets = Unserializer.run(assets);
+			}
+			else
+			{
+				manifest.assets = assets;
+			}
+		}
 
 		if (Reflect.hasField(manifestData, "rootPath"))
 		{
@@ -138,7 +161,7 @@ class AssetManifest
 			basePath = path;
 		}
 
-		StringTools.replace(basePath, "\\", "/");
+		basePath = StringTools.replace(basePath, "\\", "/");
 
 		while (StringTools.endsWith(basePath, "/"))
 		{
@@ -177,7 +200,7 @@ class AssetManifest
 			rootPath = path;
 		}
 
-		StringTools.replace(rootPath, "\\", "/");
+		rootPath = StringTools.replace(rootPath, "\\", "/");
 
 		while (StringTools.endsWith(rootPath, "/"))
 		{

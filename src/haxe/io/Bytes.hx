@@ -659,6 +659,7 @@ import js.html.compat.DataView;
 import js.html.Uint8Array;
 import js.html.DataView;
 #end
+
 #if !macro
 @:autoBuild(lime._internal.macros.AssetsMacro.embedBytes()) // Enable @:bytes embed metadata
 #end
@@ -671,6 +672,7 @@ class Bytes
 	#else
 	public var length(default, null):Int;
 	#end
+
 	var b:Uint8Array;
 	var data:DataView;
 
@@ -679,11 +681,11 @@ class Bytes
 		this.length = data.byteLength;
 		this.b = new Uint8Array(data);
 		untyped
-			{
-				b.bufferValue = data; // some impl does not return the same instance in .buffer
-				data.hxBytes = this;
-				data.bytes = this.b;
-			}
+		{
+			b.bufferValue = data; // some impl does not return the same instance in .buffer
+			data.hxBytes = this;
+			data.bytes = this.b;
+		}
 	}
 
 	public inline function get(pos:Int):Int
@@ -965,7 +967,7 @@ class Bytes
 
 	inline function outRange(pos:Int, len:Int):Bool
 	{
-		return pos < 0 || len < 0 || ((pos + len):UInt) > (length : UInt);
+		return pos < 0 || len < 0 || ((pos + len) : UInt) > (length : UInt);
 	}
 
 	public function get(pos:Int):Int
@@ -1009,14 +1011,14 @@ class Bytes
 	{
 		return if (out(pos + 7)) 0.
 		else
-				b.getF64(pos);
+			b.getF64(pos);
 	}
 
 	public function getFloat(pos:Int):Float
 	{
 		return if (out(pos + 3)) 0.
 		else
-				b.getF32(pos);
+			b.getF32(pos);
 	}
 
 	public function setDouble(pos:Int, v:Float):Void
@@ -1115,7 +1117,8 @@ class Bytes
 		return new Bytes(b, length);
 	}
 
-	public static function ofString(s:String #if (!hl || haxe_ver >= 4) , ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end #end):Bytes@:privateAccess {
+	public static function ofString(s:String
+			#if (!hl || haxe_ver >= 4), ?encoding:#if (haxe_ver >= 4) haxe.io.Encoding #else Dynamic #end #end):Bytes @:privateAccess {
 		var size = 0;
 		var b = s.bytes.utf16ToUtf8(0, size);
 		return new Bytes(b, size);

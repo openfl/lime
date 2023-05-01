@@ -53,8 +53,22 @@ class CreateTemplate
 
 		if (FileSystem.exists(title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java"))
 		{
-			FileSystem.rename(title + "/dependencies/android/src/main/java/org/haxe/extension/Extension.java",
-				title + "/dependencies/android/src/main/java/org/haxe/extension/" + file + ".java");
+			FileSystem.rename(title
+				+ "/dependencies/android/src/main/java/org/haxe/extension/Extension.java",
+				title
+				+ "/dependencies/android/src/main/java/org/haxe/extension/"
+				+ file
+				+ ".java");
+		}
+
+		if (FileSystem.exists(title))
+		{
+			System.mkdir(title + "/ndll");
+			System.mkdir(title + "/ndll/Linux");
+			System.mkdir(title + "/ndll/Linux64");
+			System.mkdir(title + "/ndll/Mac");
+			System.mkdir(title + "/ndll/Mac64");
+			System.mkdir(title + "/ndll/Windows");
 		}
 	}
 
@@ -109,7 +123,6 @@ class CreateTemplate
 		if (projectName != null && projectName != "")
 		{
 			var defines = new Map<String, Dynamic>();
-			defines.set("create", 1);
 			var project = HXProject.fromHaxelib(new Haxelib(projectName), defines);
 
 			if (project != null)
@@ -174,27 +187,27 @@ class CreateTemplate
 
 				if (overrides != null)
 				{
-					if (overrides.meta.packageName != overrides.defaultMeta.packageName)
+					if (Reflect.hasField(overrides.meta, "packageName"))
 					{
 						packageName = overrides.meta.packageName;
 					}
 
-					if (overrides.meta.title != overrides.defaultMeta.title)
+					if (Reflect.hasField(overrides.meta, "title"))
 					{
 						title = overrides.meta.title;
 					}
 
-					if (overrides.meta.version != overrides.defaultMeta.version)
+					if (Reflect.hasField(overrides.meta, "version"))
 					{
 						version = overrides.meta.version;
 					}
 
-					if (overrides.meta.company != overrides.defaultMeta.company)
+					if (Reflect.hasField(overrides.meta, "company"))
 					{
 						company = overrides.meta.company;
 					}
 
-					if (overrides.app.file != overrides.defaultApp.file)
+					if (Reflect.hasField(overrides.app, "file"))
 					{
 						file = overrides.app.file;
 					}
@@ -401,8 +414,13 @@ class CreateTemplate
 			Log.println(" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create extension (directory)");
 		}
 
-		Log.println(" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + CommandLineTools.commandName + "\x1b[0m create " + (projectName != CommandLineTools
-				.commandName ? projectName + " " : "") + "<sample> (directory)");
+		Log.println(" "
+			+ Log.accentColor
+			+ "Usage:\x1b[0m \x1b[1m"
+			+ CommandLineTools.commandName
+			+ "\x1b[0m create "
+			+ (projectName != CommandLineTools.commandName ? projectName + " " : "")
+			+ "<sample> (directory)");
 
 		if (templates.length > 0)
 		{

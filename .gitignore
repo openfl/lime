@@ -4,8 +4,14 @@
 Export/
 ndll/*/lime*
 ndll/*/liblime*
-lib/*/lime*
-lib/*/liblime*
+ndll/*/*.hdll
+ndll/*/*.hash
+ndll/*/*.so
+ndll/*/*.dylib
+ndll/*/*.lib
+ndll/*/hl*
+ndll/*/*.dll
+templates/bin/hl/*
 project/all_objs
 project/obj
 project/vc*.pdb
@@ -15,6 +21,7 @@ project/vc*.pdb
 *.iml
 tools/*.n
 tools/*.exe
+tools/obj
 haxedoc.xml
 docs/*.xml
 docs/xml

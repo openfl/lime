@@ -9,12 +9,16 @@ import js.html.Int32Array as JSInt32Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
+@:transitive
 abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
 {
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
-	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end?view:ArrayBufferView, ?buffer:ArrayBuffer,
+	public inline function new<T>(?elements:Int, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView, ?buffer:ArrayBuffer,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -24,13 +28,17 @@ abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
 		else if (array != null)
 		{
 			this = new JSInt32Array(untyped array);
-			#if (openfl && commonjs)
-			}
-			else if (vector != null) {this = new JSInt32Array(untyped (vector));
-			#elseif openfl
-			}
-			else if (vector != null) {this = new JSInt32Array(untyped untyped (vector).__array);
-			#end
+		#if (openfl && commonjs)
+		}
+		else if (vector != null)
+		{
+			this = new JSInt32Array(untyped (vector));
+		#elseif openfl
+		}
+		else if (vector != null)
+		{
+			this = new JSInt32Array(untyped untyped (vector).__array);
+		#end
 		}
 		else if (view != null)
 		{
@@ -78,6 +86,7 @@ abstract Int32Array(JSInt32Array) from JSInt32Array to JSInt32Array
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
@@ -85,8 +94,10 @@ abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	public var length(get, never):Int;
 
+	#if (haxe_ver < 4.2)
 	@:generic
-	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end?view:ArrayBufferView,
+	#end
+	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
 		if (elements != null)
@@ -96,10 +107,12 @@ abstract Int32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		else if (array != null)
 		{
 			this = new ArrayBufferView(0, Int32).initArray(array);
-			#if openfl
-			}
-			else if (vector != null) {this = new ArrayBufferView(0, Int32).initArray(untyped (vector).__array);
-			#end
+		#if openfl
+		}
+		else if (vector != null)
+		{
+			this = new ArrayBufferView(0, Int32).initArray(untyped (vector).__array);
+		#end
 		}
 		else if (view != null)
 		{

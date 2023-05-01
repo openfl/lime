@@ -1,13 +1,12 @@
-import electron.main.App;
-import electron.main.BrowserWindow;
+package;
 
 class ElectronSetup
 {
-	public static var window:BrowserWindow;
+	public static var window:ElectronBrowserWindow;
 
 	static function main()
 	{
-		electron.main.App.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
+		ElectronApp.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
 
 		var windows:Array<OpenFLWindow> = [
 			::foreach windows::
@@ -46,12 +45,15 @@ class ElectronSetup
 			if (height == 0) height = 600;
 			var frame:Bool = window.borderless == false;
 
-			electron.main.App.commandLine.appendSwitch('--autoplay-policy', 'no-user-gesture-required');
+			ElectronApp.commandLine.appendSwitch('--autoplay-policy', 'no-user-gesture-required');
 
-			electron.main.App.on('ready', function(e)
+			ElectronApp.on('ready', function(e)
 			{
 				var config:Dynamic =
 					{
+						webPreferences:{
+							nodeIntegration:true
+						},
 						fullscreen: window.fullscreen,
 						frame: frame,
 						resizable: window.resizable,
@@ -60,13 +62,13 @@ class ElectronSetup
 						height: height,
 						webgl: window.hardware
 					};
-				ElectronSetup.window = new BrowserWindow(config);
+				ElectronSetup.window = new ElectronBrowserWindow(config);
 
-				ElectronSetup.window.on(closed, function()
+				ElectronSetup.window.on('closed', function()
 				{
 					if (js.Node.process.platform != 'darwin')
 					{
-						electron.main.App.quit();
+						ElectronApp.quit();
 					}
 				});
 
@@ -103,4 +105,21 @@ typedef OpenFLWindow =
 	width:Int,
 	x:Int,
 	y:Int
+}
+
+// Externs to compile without requiring hxelectron
+
+@:jsRequire("electron", "app") extern class ElectronApp
+{
+	public static var commandLine:Dynamic;
+	public static function on(type:Dynamic, callback:Dynamic):Dynamic;
+	public static function quit():Void;
+}
+
+@:jsRequire("electron", "BrowserWindow") extern class ElectronBrowserWindow
+{
+	public var webContents:Dynamic;
+	public function new(?options:Dynamic);
+	public function loadURL(url:String, ?options:Dynamic):Dynamic;
+	public function on(type:Dynamic, callback:Dynamic):Dynamic;
 }

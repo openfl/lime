@@ -70,6 +70,7 @@ class RenderContext
 		The type of the current `RenderContext`
 	**/
 	public var type(default, null):RenderContextType;
+
 	public var version(default, null):String;
 
 	/**

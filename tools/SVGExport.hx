@@ -24,7 +24,7 @@ class SVGExport
 
 		if (FileSystem.exists("svg.n"))
 		{
-			path = Path.combine(Sys.getCwd(), "../lib/");
+			path = Path.combine(Sys.getCwd(), "../ndll/");
 		}
 
 		if (path == "")
@@ -37,21 +37,9 @@ class SVGExport
 				{
 					var line = StringTools.trim(process.stdout.readLine());
 
-					if (line.length > 0 && !StringTools.startsWith(line, "-"))
+					if (StringTools.startsWith(line, "-L "))
 					{
-						path = StringTools.trim(line);
-						if (FileSystem.exists(Path.combine(path, "../lib")))
-						{
-							path = Path.combine(path, "../lib");
-						}
-						else
-						{
-							path = Path.combine(path, "../ndll");
-						}
-						if (!StringTools.endsWith(path, "/"))
-						{
-							path += "/";
-						}
+						path = StringTools.trim(line.substr(2));
 						break;
 					}
 				}
@@ -64,7 +52,19 @@ class SVGExport
 		switch (System.hostPlatform)
 		{
 			case WINDOWS:
+				// var is64 = neko.Lib.load("std", "sys_is64", 0)();
 				untyped $loader.path = $array(path + "Windows/", $loader.path);
+				// if (CFFI.enabled)
+				// {
+				try
+				{
+					neko.Lib.load("lime", "lime_application_create", 0);
+				}
+				catch (e:Dynamic)
+				{
+					untyped $loader.path = $array(path + "Windows64/", $loader.path);
+				}
+			// }
 
 			case MAC:
 				untyped $loader.path = $array(path + "Mac/", $loader.path);

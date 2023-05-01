@@ -192,7 +192,12 @@ class IOSHelper
 			directory = "/Applications/Xcode.app/Contents/Developer";
 		}
 
-		directory += "/Platforms/" + platformName + ".platform/Developer/SDKs/" + platformName + project.environment.get("IPHONE_VER") + ".sdk";
+		directory += "/Platforms/"
+			+ platformName
+			+ ".platform/Developer/SDKs/"
+			+ platformName
+			+ project.environment.get("IPHONE_VER")
+			+ ".sdk";
 		return directory;
 	}
 
@@ -326,7 +331,7 @@ class IOSHelper
 			waitForDeviceState("xcrun", ["simctl", "install", currentDeviceID, applicationPath]);
 			waitForDeviceState("xcrun", ["simctl", "launch", currentDeviceID, project.meta.packageName]);
 
-			System.runCommand("", "tail", ["-F", "~/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
+			System.runCommand("", "tail", ["-F", "$HOME/Library/Logs/CoreSimulator/" + currentDeviceID + "/system.log"]);
 		}
 		else
 		{

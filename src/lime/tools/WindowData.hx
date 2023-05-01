@@ -1,7 +1,7 @@
 package lime.tools;
 
-typedef WindowData =
-{
+@:forward
+abstract WindowData({
 	@:optional var width:Int;
 	@:optional var height:Int;
 	@:optional var x:Float;
@@ -31,4 +31,38 @@ typedef WindowData =
 	@:optional var minimized:Bool;
 	@:optional var maximized:Bool;
 	@:optional var hidden:Bool;
+}) from Dynamic
+{
+	@:noCompletion
+	public static var expectedFields:WindowData = {
+		width: 0,
+		height: 0,
+		x: 0.0,
+		y: 0.0,
+		background: 0,
+		parameters: "",
+		fps: 0,
+		hardware: false,
+		display: 0,
+		resizable: false,
+		borderless: false,
+		vsync: false,
+		fullscreen: false,
+		allowHighDPI: false,
+		alwaysOnTop: false,
+		antialiasing: 0,
+		orientation: Orientation.AUTO,
+		allowShaders: false,
+		requireShaders: false,
+		depthBuffer: false,
+		stencilBuffer: false,
+		title: "",
+		#if (js && html5)
+		element: null,
+		#end
+		colorDepth: 0,
+		minimized: false,
+		maximized: false,
+		hidden: false
+	};
 }

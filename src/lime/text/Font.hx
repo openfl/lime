@@ -59,29 +59,29 @@ class Font
 
 		if (!__init)
 		{
-			#if js if (ascender == untyped __js__("undefined")) #end ascender = 0;
+			#if js if (ascender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined")) #end ascender = 0;
 			#if js
-			if (descender == untyped __js__("undefined"))
+			if (descender == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			descender = 0;
 			#if js
-			if (height == untyped __js__("undefined"))
+			if (height == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			height = 0;
 			#if js
-			if (numGlyphs == untyped __js__("undefined"))
+			if (numGlyphs == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			numGlyphs = 0;
 			#if js
-			if (underlinePosition == untyped __js__("undefined"))
+			if (underlinePosition == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			underlinePosition = 0;
 			#if js
-			if (underlineThickness == untyped __js__("undefined"))
+			if (underlineThickness == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			underlineThickness = 0;
 			#if js
-			if (unitsPerEM == untyped __js__("undefined"))
+			if (unitsPerEM == untyped #if haxe4 js.Syntax.code #else __js__ #end ("undefined"))
 			#end
 			unitsPerEM = 0;
 
@@ -105,7 +105,8 @@ class Font
 		if (src == null) throw "Uninitialized font handle.";
 		var data:Dynamic = NativeCFFI.lime_font_outline_decompose(src, 1024 * 20);
 		#if hl
-		if (data != null) {
+		if (data != null)
+		{
 			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}

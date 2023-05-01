@@ -24,8 +24,8 @@ class InternalEncoding
 	**/
 	public static var internalEncoding(get, never):String;
 
-	static inline function get_internalEncoding():String
-		#if (neko || php || cpp || lua || macro) return "UTF-8"; #elseif python return "UTF-32"; #else return "UTF-16"; #end
+	static inline function get_internalEncoding():String #if (neko || php || cpp || lua || macro) return "UTF-8"; #elseif python return "UTF-32"; #else return
+		"UTF-16"; #end
 
 	/**
 		Returns the UTF-8/16/32 code unit at position `index` of

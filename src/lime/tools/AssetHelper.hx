@@ -5,6 +5,7 @@ import haxe.io.Bytes as HaxeBytes;
 import haxe.Serializer;
 import haxe.Unserializer;
 import hxp.*;
+import lime._internal.format.Base64;
 import lime.tools.AssetType;
 import lime.tools.Asset;
 import lime.tools.HXProject;
@@ -27,9 +28,9 @@ class AssetHelper
 			"jpg" => IMAGE, "jpeg" => IMAGE, "png" => IMAGE, "gif" => IMAGE, "webp" => IMAGE, "bmp" => IMAGE, "tiff" => IMAGE, "jfif" => IMAGE, "otf" => FONT,
 			"ttf" => FONT, "wav" => SOUND, "wave" => SOUND, "mp3" => MUSIC, "mp2" => MUSIC, "exe" => BINARY, "bin" => BINARY, "so" => BINARY, "pch" => BINARY,
 			"dll" => BINARY, "zip" => BINARY, "tar" => BINARY, "gz" => BINARY, "fla" => BINARY, "swf" => BINARY, "atf" => BINARY, "psd" => BINARY,
-			"awd" => BINARY, "txt" => TEXT, "text" => TEXT, "xml" => TEXT, "java" => TEXT, "hx" => TEXT, "cpp" => TEXT, "c" => TEXT, "h" => TEXT, "cs" => TEXT,
-			"js" => TEXT, "mm" => TEXT, "hxml" => TEXT, "html" => TEXT, "json" => TEXT, "css" => TEXT, "gpe" => TEXT, "pbxproj" => TEXT, "plist" => TEXT,
-			"properties" => TEXT, "ini" => TEXT, "hxproj" => TEXT, "nmml" => TEXT, "lime" => TEXT, "svg" => TEXT,
+			"awd" => BINARY, "txt" => TEXT, "text" => TEXT, "xml" => TEXT, "java" => TEXT, "hx" => TEXT, "cpp" => TEXT, "c" => TEXT, "h" => TEXT,
+			"cs" => TEXT, "js" => TEXT, "mm" => TEXT, "hxml" => TEXT, "html" => TEXT, "json" => TEXT, "css" => TEXT, "gpe" => TEXT, "pbxproj" => TEXT,
+			"plist" => TEXT, "properties" => TEXT, "ini" => TEXT, "hxproj" => TEXT, "nmml" => TEXT, "lime" => TEXT, "svg" => TEXT,
 
 		];
 	}
@@ -46,9 +47,9 @@ class AssetHelper
 			{
 				if (asset.encoding == AssetEncoding.BASE64)
 				{
-					File.saveBytes(destination, StringTools.base64Decode(asset.data));
+					File.saveBytes(destination, Base64.decode(asset.data));
 				}
-				else if (Std.is(asset.data, HaxeBytes))
+				else if ((asset.data is HaxeBytes))
 				{
 					File.saveBytes(destination, cast asset.data);
 				}
@@ -83,9 +84,9 @@ class AssetHelper
 			{
 				if (asset.encoding == AssetEncoding.BASE64)
 				{
-					File.saveBytes(destination, StringTools.base64Decode(asset.data));
+					File.saveBytes(destination, Base64.decode(asset.data));
 				}
-				else if (Std.is(asset.data, HaxeBytes))
+				else if ((asset.data is HaxeBytes))
 				{
 					File.saveBytes(destination, cast asset.data);
 				}
@@ -294,6 +295,13 @@ class AssetHelper
 		if (asset.type == TEMPLATE) return null;
 		if (asset.library == library.name || (asset.library == null && library.name == DEFAULT_LIBRARY_NAME))
 		{
+			if (output.tell() == 0)
+			{
+				// write some dummy text at the start of the packed asset file just to prevent
+				// the file from beginning with a packed file header.
+				output.writeString("lime-asset-pack");
+			}
+
 			var assetData:Dynamic =
 				{
 					id: asset.id,
@@ -419,7 +427,7 @@ class AssetHelper
 			}
 		}
 
-		if (!libraryMap.exists(DEFAULT_LIBRARY_NAME))
+		if (project.assets.length > 0 && !libraryMap.exists(DEFAULT_LIBRARY_NAME))
 		{
 			library = new Library(null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push(library);
@@ -532,7 +540,12 @@ class AssetHelper
 			processPackedLibraries(project, targetDirectory);
 		}
 
-		var manifest, asset;
+		if (project.assets.length == 0)
+		{
+			project.haxedefs.set("disable_preloader_assets", "1");
+		}
+
+		var manifest, embed, asset;
 
 		for (library in project.libraries)
 		{
@@ -549,14 +562,11 @@ class AssetHelper
 				if (!hasManifest.exists(library.name))
 				{
 					manifest = createManifest(project, library.name != DEFAULT_LIBRARY_NAME ? library.name : null);
-
-					asset = new Asset("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
-					asset.library = library.name;
-					asset.data = manifest.serialize();
+					embed = false;
 
 					if (manifest.assets.length == 0 || (project.target == HTML5 && library.name == DEFAULT_LIBRARY_NAME))
 					{
-						asset.embed = true;
+						embed = true;
 					}
 					else
 					{
@@ -573,8 +583,23 @@ class AssetHelper
 							}
 						}
 
-						if (allEmbedded) asset.embed = true;
+						if (allEmbedded) embed = true;
 					}
+
+					asset = new Asset("", "manifest/" + library.name + ".json", AssetType.MANIFEST);
+
+					if (embed)
+					{
+						asset.embed = true;
+					}
+					else
+					{
+						asset.embed = false;
+						manifest.rootPath = "../";
+					}
+
+					asset.library = library.name;
+					asset.data = manifest.serialize();
 
 					project.assets.push(asset);
 				}
@@ -663,6 +688,7 @@ class AssetHelper
 					data.library = library.name;
 					manifest.libraryType = "lime.utils.PackedAssetLibrary";
 					manifest.libraryArgs = ["lib/" + filename, type];
+					// manifest.rootPath = "../";
 					data.data = manifest.serialize();
 					data.embed = true;
 

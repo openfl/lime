@@ -407,7 +407,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_curl_easy_cleanup (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_curl_easy_cleanup) (HL_CFFIPointer* handle) {
 
 		hl_gc_curl (handle);
 
@@ -482,7 +482,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_curl_easy_duphandle (HL_CFFIPointer* handle) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_curl_easy_duphandle) (HL_CFFIPointer* handle) {
 
 		curl_gc_mutex.Lock ();
 
@@ -553,7 +553,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_curl_easy_escape (HL_CFFIPointer* curl, hl_vstring* url, int length) {
+	HL_PRIM vbyte* HL_NAME(hl_curl_easy_escape) (HL_CFFIPointer* curl, hl_vstring* url, int length) {
 
 		char* result = curl_easy_escape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, length);
 		return (vbyte*)result;
@@ -665,7 +665,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_curl_easy_flush (HL_CFFIPointer* easy_handle) {
+	HL_PRIM void HL_NAME(hl_curl_easy_flush) (HL_CFFIPointer* easy_handle) {
 
 		curl_gc_mutex.Lock ();
 		int code;
@@ -714,8 +714,11 @@ namespace lime {
 					// writeBufferSize[easy_handle] = 0;
 					writeBufferPosition[easy_handle] = 0;
 
+					vdynamic* pos = hl_alloc_dynamic (&hlt_i32);
+					pos->v.i = position;
+
 					curl_gc_mutex.Unlock ();
-					length = *((int*)writeCallback->Call (bytes, &position));
+					length = *((int*)writeCallback->Call (bytes, pos));
 					curl_gc_mutex.Lock ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
@@ -864,8 +867,22 @@ namespace lime {
 				return alloc_float (floatValue);
 				break;
 
-			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_COOKIELIST:
+			{
+				struct curl_slist *cookies;
+				code = curl_easy_getinfo(handle, CURLINFO_COOKIELIST, &cookies);
+				struct curl_slist *each = cookies;
+				value result = alloc_array(0);
+				while (each) {
+					val_array_push(result, alloc_string(each->data));
+					each = each->next;
+				}
+				curl_slist_free_all(cookies);
+				return result;
+				break;
+			}
+
+			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_CERTINFO:
 			case CURLINFO_TLS_SESSION:
 			case CURLINFO_TLS_SSL_PTR:
@@ -890,7 +907,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_curl_easy_getinfo (HL_CFFIPointer* curl, int info) {
+	HL_PRIM vdynamic* HL_NAME(hl_curl_easy_getinfo) (HL_CFFIPointer* curl, int info) {
 
 		CURLcode code = CURLE_OK;
 		CURL* handle = (CURL*)curl->ptr;
@@ -1061,7 +1078,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_curl_easy_init () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_curl_easy_init) () {
 
 		curl_gc_mutex.Lock ();
 
@@ -1119,7 +1136,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_easy_pause (HL_CFFIPointer* handle, int bitmask) {
+	HL_PRIM int HL_NAME(hl_curl_easy_pause) (HL_CFFIPointer* handle, int bitmask) {
 
 		return curl_easy_pause ((CURL*)handle->ptr, bitmask);
 
@@ -1142,7 +1159,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_easy_perform (HL_CFFIPointer* easy_handle) {
+	HL_PRIM int HL_NAME(hl_curl_easy_perform) (HL_CFFIPointer* easy_handle) {
 
 		int code;
 		System::GCEnterBlocking ();
@@ -1151,7 +1168,7 @@ namespace lime {
 
 		System::GCExitBlocking ();
 
-		hl_lime_curl_easy_flush (easy_handle);
+		lime_hl_curl_easy_flush (easy_handle);
 
 		return code;
 
@@ -1167,7 +1184,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_easy_recv (HL_CFFIPointer* curl, double buffer, int buflen, int n) {
+	HL_PRIM int HL_NAME(hl_curl_easy_recv) (HL_CFFIPointer* curl, double buffer, int buflen, int n) {
 
 		// TODO
 
@@ -1183,7 +1200,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_curl_easy_reset (HL_CFFIPointer* curl) {
+	HL_PRIM void HL_NAME(hl_curl_easy_reset) (HL_CFFIPointer* curl) {
 
 		curl_easy_reset ((CURL*)curl->ptr);
 
@@ -1199,7 +1216,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_easy_send (HL_CFFIPointer* curl, double buffer, int buflen, int n) {
+	HL_PRIM int HL_NAME(hl_curl_easy_send) (HL_CFFIPointer* curl, double buffer, int buflen, int n) {
 
 		// TODO
 
@@ -1270,6 +1287,13 @@ namespace lime {
 
 	}
 
+	static int seek_callback (void *userp, curl_off_t offset, int origin) {
+		if (origin == SEEK_SET)  {
+			readBytesPosition[userp] = offset;
+			return CURL_SEEKFUNC_OK;
+		}
+		return CURL_SEEKFUNC_CANTSEEK;
+	}
 
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 
@@ -1617,6 +1641,9 @@ namespace lime {
 				readBytesPosition[handle] = 0;
 				readBytesRoot[handle] = new ValuePointer (bytes);
 
+				// seek function is needed to support redirects
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKFUNCTION, seek_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKDATA, handle);
 				code = curl_easy_setopt (easy_handle, CURLOPT_READFUNCTION, read_callback);
 				curl_easy_setopt (easy_handle, CURLOPT_READDATA, handle);
 
@@ -1748,7 +1775,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_easy_setopt (HL_CFFIPointer* handle, int option, vdynamic* parameter, Bytes* bytes) {
+	HL_PRIM int HL_NAME(hl_curl_easy_setopt) (HL_CFFIPointer* handle, int option, vdynamic* parameter, Bytes* bytes) {
 
 		CURLcode code = CURLE_OK;
 		CURL* easy_handle = (CURL*)handle->ptr;
@@ -2044,6 +2071,8 @@ namespace lime {
 				readBytesPosition[handle] = 0;
 				readBytesRoot[handle] = new ValuePointer ((vobj*)bytes);
 
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKFUNCTION, seek_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKDATA, handle);
 				code = curl_easy_setopt (easy_handle, CURLOPT_READFUNCTION, read_callback);
 				curl_easy_setopt (easy_handle, CURLOPT_READDATA, handle);
 
@@ -2185,7 +2214,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_curl_easy_strerror (int errornum) {
+	HL_PRIM vbyte* HL_NAME(hl_curl_easy_strerror) (int errornum) {
 
 		const char* result = curl_easy_strerror ((CURLcode)errornum);
 		int length = strlen (result);
@@ -2204,7 +2233,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_curl_easy_unescape (HL_CFFIPointer* curl, hl_vstring* url, int inlength, int outlength) {
+	HL_PRIM vbyte* HL_NAME(hl_curl_easy_unescape) (HL_CFFIPointer* curl, hl_vstring* url, int inlength, int outlength) {
 
 		char* result = curl_easy_unescape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, inlength, &outlength);
 		int length = strlen (result);
@@ -2228,7 +2257,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_curl_getdate (hl_vstring* datestring, double now) {
+	HL_PRIM double HL_NAME(hl_curl_getdate) (hl_vstring* datestring, double now) {
 
 		time_t time = (time_t)now;
 		return curl_getdate (datestring ? hl_to_utf8 (datestring->bytes) : NULL, &time);
@@ -2243,7 +2272,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_curl_global_cleanup () {
+	HL_PRIM void HL_NAME(hl_curl_global_cleanup) () {
 
 		curl_global_cleanup ();
 
@@ -2257,7 +2286,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_global_init (int flags) {
+	HL_PRIM int HL_NAME(hl_curl_global_init) (int flags) {
 
 		return curl_global_init (flags);
 
@@ -2278,7 +2307,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_cleanup (HL_CFFIPointer* multi_handle) {
+	HL_PRIM int HL_NAME(hl_curl_multi_cleanup) (HL_CFFIPointer* multi_handle) {
 
 		// curl_gc_mutex.Lock ();
 
@@ -2315,7 +2344,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_curl_multi_init () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_curl_multi_init) () {
 
 		curl_gc_mutex.Lock ();
 
@@ -2359,7 +2388,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_add_handle (HL_CFFIPointer* multi_handle, vdynamic* curl_object, HL_CFFIPointer* curl_handle) {
+	HL_PRIM int HL_NAME(hl_curl_multi_add_handle) (HL_CFFIPointer* multi_handle, vdynamic* curl_object, HL_CFFIPointer* curl_handle) {
 
 		curl_gc_mutex.Lock ();
 
@@ -2387,7 +2416,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_get_running_handles (HL_CFFIPointer* multi_handle) {
+	HL_PRIM int HL_NAME(hl_curl_multi_get_running_handles) (HL_CFFIPointer* multi_handle) {
 
 		return curlMultiRunningHandles[multi_handle];
 
@@ -2432,7 +2461,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_curl_multi_info_read (HL_CFFIPointer* multi_handle, vdynamic* result) {
+	HL_PRIM vdynamic* HL_NAME(hl_curl_multi_info_read) (HL_CFFIPointer* multi_handle, vdynamic* result) {
 
 		int msgs_in_queue;
 		CURLMsg* msg = curl_multi_info_read ((CURLM*)multi_handle->ptr, &msgs_in_queue);
@@ -2495,7 +2524,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_perform (HL_CFFIPointer* multi_handle) {
+	HL_PRIM int HL_NAME(hl_curl_multi_perform) (HL_CFFIPointer* multi_handle) {
 
 		curl_gc_mutex.Lock ();
 
@@ -2507,7 +2536,7 @@ namespace lime {
 		for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
 
 			curl_gc_mutex.Unlock ();
-			hl_lime_curl_easy_flush ((HL_CFFIPointer*)*it);
+			lime_hl_curl_easy_flush ((HL_CFFIPointer*)*it);
 			curl_gc_mutex.Lock ();
 
 		}
@@ -2559,7 +2588,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_remove_handle (HL_CFFIPointer* multi_handle, HL_CFFIPointer* curl_handle) {
+	HL_PRIM int HL_NAME(hl_curl_multi_remove_handle) (HL_CFFIPointer* multi_handle, HL_CFFIPointer* curl_handle) {
 
 		curl_gc_mutex.Lock ();
 
@@ -2647,7 +2676,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_setopt (HL_CFFIPointer* multi_handle, int option, vdynamic* parameter) {
+	HL_PRIM int HL_NAME(hl_curl_multi_setopt) (HL_CFFIPointer* multi_handle, int option, vdynamic* parameter) {
 
 		CURLMcode code = CURLM_OK;
 		CURLM* multi = (CURLM*)multi_handle->ptr;
@@ -2710,7 +2739,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_curl_multi_wait (HL_CFFIPointer* multi_handle, int timeout_ms) {
+	HL_PRIM int HL_NAME(hl_curl_multi_wait) (HL_CFFIPointer* multi_handle, int timeout_ms) {
 
 		System::GCEnterBlocking ();
 
@@ -2754,7 +2783,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_curl_version () {
+	HL_PRIM vbyte* HL_NAME(hl_curl_version) () {
 
 		char* result = curl_version ();
 		int length = strlen (result);
@@ -2776,7 +2805,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_curl_version_info (int type) {
+	HL_PRIM vdynamic* HL_NAME(hl_curl_version_info) (int type) {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
@@ -2820,34 +2849,34 @@ namespace lime {
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 
-	DEFINE_HL_PRIM (_VOID, lime_curl_easy_cleanup, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_curl_easy_duphandle, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BYTES, lime_curl_easy_escape, _TCFFIPOINTER _STRING _I32);
-	DEFINE_HL_PRIM (_DYN, lime_curl_easy_getinfo, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_curl_easy_init, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_curl_easy_flush, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_curl_easy_pause, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_I32, lime_curl_easy_perform, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_curl_easy_recv, _TCFFIPOINTER _F64 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_curl_easy_reset, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_curl_easy_send, _TCFFIPOINTER _F64 _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_curl_easy_setopt, _TCFFIPOINTER _I32 _DYN _TBYTES);
-	DEFINE_HL_PRIM (_BYTES, lime_curl_easy_strerror, _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_curl_easy_unescape, _TCFFIPOINTER _STRING _I32 _I32);
-	DEFINE_HL_PRIM (_F64, lime_curl_getdate, _STRING _F64);
-	DEFINE_HL_PRIM (_VOID, lime_curl_global_cleanup, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_curl_global_init, _I32);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_cleanup, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_curl_multi_init, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_add_handle, _TCFFIPOINTER _DYN _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_get_running_handles, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, lime_curl_multi_info_read, _TCFFIPOINTER _DYN);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_perform, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_remove_handle, _TCFFIPOINTER _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_setopt, _TCFFIPOINTER _I32 _DYN);
-	DEFINE_HL_PRIM (_I32, lime_curl_multi_wait, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_curl_version, _NO_ARG);
-	DEFINE_HL_PRIM (_DYN, lime_curl_version_info, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_curl_easy_cleanup, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_easy_duphandle, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_escape, _TCFFIPOINTER _STRING _I32);
+	DEFINE_HL_PRIM (_DYN, hl_curl_easy_getinfo, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_easy_init, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_curl_easy_flush, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_curl_easy_pause, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_curl_easy_perform, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_curl_easy_recv, _TCFFIPOINTER _F64 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_curl_easy_reset, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_curl_easy_send, _TCFFIPOINTER _F64 _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_curl_easy_setopt, _TCFFIPOINTER _I32 _DYN _TBYTES);
+	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_strerror, _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_unescape, _TCFFIPOINTER _STRING _I32 _I32);
+	DEFINE_HL_PRIM (_F64, hl_curl_getdate, _STRING _F64);
+	DEFINE_HL_PRIM (_VOID, hl_curl_global_cleanup, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_curl_global_init, _I32);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_cleanup, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_multi_init, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_add_handle, _TCFFIPOINTER _DYN _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_get_running_handles, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, hl_curl_multi_info_read, _TCFFIPOINTER _DYN);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_perform, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_remove_handle, _TCFFIPOINTER _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_setopt, _TCFFIPOINTER _I32 _DYN);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_wait, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_curl_version, _NO_ARG);
+	DEFINE_HL_PRIM (_DYN, hl_curl_version_info, _I32);
 
 
 }

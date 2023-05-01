@@ -84,7 +84,7 @@ class System
 		{
 			var htmlElement:Element = null;
 
-			if (Std.is(element, String))
+			if ((element is String))
 			{
 				htmlElement = cast Browser.document.getElementById(element);
 			}
@@ -115,7 +115,7 @@ class System
 
 			if (config == null) config = {};
 
-			if (Reflect.hasField(config, "background") && Std.is(config.background, String))
+			if (Reflect.hasField(config, "background") && (config.background is String))
 			{
 				var background = StringTools.replace(Std.string(config.background), "#", "");
 
@@ -298,7 +298,7 @@ class System
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);
 			#elseif linux
-			Sys.command("/usr/bin/xdg-open", [path, "&"]);
+			Sys.command("/usr/bin/xdg-open", [path]);
 			#elseif (js && html5)
 			Browser.window.open(path, "_blank");
 			#elseif flash

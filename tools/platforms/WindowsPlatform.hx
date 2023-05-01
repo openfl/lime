@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Log;
@@ -22,10 +23,12 @@ import lime.tools.JavaHelper;
 import lime.tools.ModuleHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
 import sys.io.File;
+import sys.io.Process;
 import sys.FileSystem;
 
 class WindowsPlatform extends PlatformTarget
@@ -40,6 +43,97 @@ class WindowsPlatform extends PlatformTarget
 	{
 		super(command, _project, targetFlags);
 
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
+		{
+			defaults.window.width = 0;
+			defaults.window.height = 0;
+			defaults.window.fps = 60;
+		}
+		else
+		{
+			switch (System.hostArchitecture)
+			{
+				case ARMV6:
+					defaults.architectures = [ARMV6];
+				case ARMV7:
+					defaults.architectures = [ARMV7];
+				case X86:
+					defaults.architectures = [X86];
+				case X64:
+					defaults.architectures = [X64];
+				default:
+					defaults.architectures = [];
+			}
+		}
+
+		defaults.window.allowHighDPI = false;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
+
 		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
 		{
 			targetType = "winjs";
@@ -51,7 +145,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = false;
+			is64 = !project.flags.exists("32");
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -81,9 +175,31 @@ class WindowsPlatform extends PlatformTarget
 
 		for (architecture in project.architectures)
 		{
-			if ((targetType == "cpp" || targetType == "winrt") && architecture == Architecture.X64)
+			if (architecture == Architecture.X64)
 			{
-				is64 = true;
+				if ((targetType == "cpp" || targetType == "winrt"))
+				{
+					is64 = true;
+				}
+				else if (targetType == "neko")
+				{
+					try
+					{
+						var process = new Process("haxe", ["-version"]);
+						var haxeVersion = StringTools.trim(process.stderr.readAll().toString());
+						if (haxeVersion == "")
+						{
+							haxeVersion = StringTools.trim(process.stdout.readAll().toString());
+						}
+						process.close();
+
+						if (Std.parseInt(haxeVersion.split(".")[0]) >= 4)
+						{
+							is64 = true;
+						}
+					}
+					catch (e:Dynamic) {}
+				}
 			}
 		}
 
@@ -179,8 +295,8 @@ class WindowsPlatform extends PlatformTarget
 					// TODO: Support single binary for HashLink
 					if (targetType == "hl")
 					{
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project
-							.debug, targetSuffix);
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
+							targetSuffix);
 					}
 					else
 					{
@@ -215,17 +331,13 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
-				// System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, project.app.file + ".hl"));
-				System.recursiveCopyTemplate(project.templatePaths, "bin/hl/windows", applicationDirectory);
-				System.copyFile(targetDirectory + "/obj/ApplicationMain.hl", Path.combine(applicationDirectory, "hlboot.dat"));
-				System.renameFile(Path.combine(applicationDirectory, "hl.exe"), executablePath);
+				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
-						+ "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -242,8 +354,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
-						+ "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -402,8 +513,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
 				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end))
-						+ "/templates"].concat(project.templatePaths);
+					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
 					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
 				}
 			}
@@ -431,7 +541,7 @@ class WindowsPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -479,7 +589,7 @@ class WindowsPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -524,42 +634,55 @@ class WindowsPlatform extends PlatformTarget
 			// }
 
 			var commands = [];
-
-			if (!targetFlags.exists("64")
-				&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+			if (targetType == "hl")
 			{
-				if (targetType == "winrt")
+				// default to 64 bit, just like upstream Hashlink releases
+				if (!targetFlags.exists("32") && (System.hostArchitecture == X64 || targetFlags.exists("64")))
 				{
-					commands.push(["-Dwinrt", "-DHXCPP_M32"]);
-				}
-				else if (targetType == "hl")
-				{
-					// TODO: Support single binary
-					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
+					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
 				}
 				else
 				{
-					commands.push(["-Dwindows", "-DHXCPP_M32"]);
+					commands.push(["-Dwindows", "-DHXCPP_M32", "-Dhashlink"]);
+				}
+			}
+			else
+			{
+				if (!targetFlags.exists("64")
+					&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_M32"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_M32"]);
+					}
+				}
+
+				// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
+				// as previous Windows builds. For now, force -64 to be done last
+				// so that it can be debugged in a default "rebuild"
+
+				if (!targetFlags.exists("32")
+					&& System.hostArchitecture == X64
+					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_M64"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_M64"]);
+					}
 				}
 			}
 
-			// TODO: Compiling with -Dfulldebug overwrites the same "-debug.pdb"
-			// as previous Windows builds. For now, force -64 to be done last
-			// so that it can be debugged in a default "rebuild"
-
-			if (!targetFlags.exists("32")
-				&& System.hostArchitecture == X64
-				&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt")
-				&& targetType != "hl")
+			if (targetFlags.exists("hl"))
 			{
-				if (targetType == "winrt")
-				{
-					commands.push(["-Dwinrt", "-DHXCPP_M64"]);
-				}
-				else
-				{
-					commands.push(["-Dwindows", "-DHXCPP_M64"]);
-				}
+				CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
 			}
 
 			CPPHelper.rebuild(project, commands);
@@ -582,7 +705,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (targetType == "cppia")
 		{
 			// arguments = arguments.concat(["-livereload"]);
-			arguments = ["script.cppia"]; //.concat(arguments);
+			arguments = ["script.cppia"]; // .concat(arguments);
 			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);
 		}
 		else if (targetType == "winjs")
@@ -644,8 +767,16 @@ class WindowsPlatform extends PlatformTarget
 			// var test = '"& ""' + targetDirectory + '/bin/PowerShell_Set_Unrestricted.reg"""';
 			// Sys.command ('powershell & ""' + targetDirectory + '/bin/source/AppPackages/' + project.app.file + '_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1""');
 			var version = project.meta.version + "." + project.meta.buildNumber;
-			System.openFile(targetDirectory + "/source/AppPackages/" + project.app.file + "_" + version + "_AnyCPU_Test", project.app
-				.file + "_" + version + "_AnyCPU.appx");
+			System.openFile(targetDirectory
+				+ "/source/AppPackages/"
+				+ project.app.file
+				+ "_"
+				+ version
+				+ "_AnyCPU_Test",
+				project.app.file
+				+ "_"
+				+ version
+				+ "_AnyCPU.appx");
 
 			// source/AppPackages/uwp-project_1.0.0.0_AnyCPU_Test/Add-AppDevPackage.ps1
 
@@ -720,8 +851,8 @@ class WindowsPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix, project
-						.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix,
+						project.debug);
 				}
 			}
 		}
@@ -976,7 +1107,15 @@ class WindowsPlatform extends PlatformTarget
 
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}
@@ -1094,8 +1233,7 @@ class WindowsPlatform extends PlatformTarget
 
 			Log.info("run: " + appxAUMID);
 			Log.info(kitsRoot10 + 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe ' + appxAUMID);
-			var process4 = new sys.io.Process(kitsRoot10
-				+ 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe', [appxAUMID]);
+			var process4 = new sys.io.Process(kitsRoot10 + 'App Certification Kit\\microsoft.windows.softwarelogo.appxlauncher.exe', [appxAUMID]);
 		}
 	}
 
@@ -1286,7 +1424,8 @@ class WindowsPlatform extends PlatformTarget
 					var message = process4.stderr.readAll().toString();
 					Log.error("Error signing appx. " + message);
 				}
-				Log.info("\n\n***Double click " + pfxPath
+				Log.info("\n\n***Double click "
+					+ pfxPath
 					+ " to setup certificate (Local machine, Place all certificates in the following store->Trusted People)\n");
 				process4.close();
 			}

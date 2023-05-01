@@ -78,7 +78,7 @@ class Application extends Module
 
 	private static function __init__()
 	{
-		var init = ApplicationBackend;
+		var _init = ApplicationBackend;
 		#if commonjs
 		var p = untyped Application.prototype;
 		untyped Object.defineProperties(p,
@@ -128,7 +128,7 @@ class Application extends Module
 
 	/**
 		Creates a new Window and adds it to the Application
-		@param	window	A Window object to add
+		@param	attributes	A set of parameters to initialize the window
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{

@@ -6,7 +6,7 @@ import lime.tools.HXProject;
 class XCodeHelper
 {
 	private static inline var DEFAULT_IPAD_SIMULATOR = "ipad-air";
-	private static inline var DEFAULT_IPHONE_SIMULATOR = "iphone-6";
+	private static inline var DEFAULT_IPHONE_SIMULATOR = "iphone-11";
 
 	private static function extractSimulatorFlagName(line:String):String
 	{

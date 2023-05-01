@@ -39,9 +39,7 @@ import lime.utils.Log;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-@:allow(lime.app.Promise)
-/*@:generic*/
-class Future<T>
+@:allow(lime.app.Promise) /*@:generic*/ class Future<T>
 {
 	/**
 		If the `Future` has finished with an error state, the `error` value

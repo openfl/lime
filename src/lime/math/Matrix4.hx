@@ -42,7 +42,38 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	public function append(lhs:Matrix4):Void
 	{
-		var m111:Float = this[0], m121:Float = this[4], m131:Float = this[8], m141:Float = this[12], m112:Float = this[1], m122:Float = this[5], m132:Float = this[9], m142:Float = this[13], m113:Float = this[2], m123:Float = this[6], m133:Float = this[10], m143:Float = this[14], m114:Float = this[3], m124:Float = this[7], m134:Float = this[11], m144:Float = this[15], m211:Float = lhs[0], m221:Float = lhs[4], m231:Float = lhs[8], m241:Float = lhs[12], m212:Float = lhs[1], m222:Float = lhs[5], m232:Float = lhs[9], m242:Float = lhs[13], m213:Float = lhs[2], m223:Float = lhs[6], m233:Float = lhs[10], m243:Float = lhs[14], m214:Float = lhs[3], m224:Float = lhs[7], m234:Float = lhs[11], m244:Float = lhs[15];
+		var m111:Float = this[0],
+			m121:Float = this[4],
+			m131:Float = this[8],
+			m141:Float = this[12],
+			m112:Float = this[1],
+			m122:Float = this[5],
+			m132:Float = this[9],
+			m142:Float = this[13],
+			m113:Float = this[2],
+			m123:Float = this[6],
+			m133:Float = this[10],
+			m143:Float = this[14],
+			m114:Float = this[3],
+			m124:Float = this[7],
+			m134:Float = this[11],
+			m144:Float = this[15],
+			m211:Float = lhs[0],
+			m221:Float = lhs[4],
+			m231:Float = lhs[8],
+			m241:Float = lhs[12],
+			m212:Float = lhs[1],
+			m222:Float = lhs[5],
+			m232:Float = lhs[9],
+			m242:Float = lhs[13],
+			m213:Float = lhs[2],
+			m223:Float = lhs[6],
+			m233:Float = lhs[10],
+			m243:Float = lhs[14],
+			m214:Float = lhs[3],
+			m224:Float = lhs[7],
+			m234:Float = lhs[11],
+			m244:Float = lhs[15];
 
 		this[0] = m111 * m211 + m112 * m221 + m113 * m231 + m114 * m241;
 		this[1] = m111 * m212 + m112 * m222 + m113 * m232 + m114 * m242;
@@ -201,7 +232,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	public function copyFrom(other:Matrix4):Void
 	{
-		this.set(other);
+		this.set(cast other);
 	}
 
 	/**
@@ -650,7 +681,38 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	public function prepend(rhs:Matrix4):Void
 	{
-		var m111:Float = rhs[0], m121:Float = rhs[4], m131:Float = rhs[8], m141:Float = rhs[12], m112:Float = rhs[1], m122:Float = rhs[5], m132:Float = rhs[9], m142:Float = rhs[13], m113:Float = rhs[2], m123:Float = rhs[6], m133:Float = rhs[10], m143:Float = rhs[14], m114:Float = rhs[3], m124:Float = rhs[7], m134:Float = rhs[11], m144:Float = rhs[15], m211:Float = this[0], m221:Float = this[4], m231:Float = this[8], m241:Float = this[12], m212:Float = this[1], m222:Float = this[5], m232:Float = this[9], m242:Float = this[13], m213:Float = this[2], m223:Float = this[6], m233:Float = this[10], m243:Float = this[14], m214:Float = this[3], m224:Float = this[7], m234:Float = this[11], m244:Float = this[15];
+		var m111:Float = rhs[0],
+			m121:Float = rhs[4],
+			m131:Float = rhs[8],
+			m141:Float = rhs[12],
+			m112:Float = rhs[1],
+			m122:Float = rhs[5],
+			m132:Float = rhs[9],
+			m142:Float = rhs[13],
+			m113:Float = rhs[2],
+			m123:Float = rhs[6],
+			m133:Float = rhs[10],
+			m143:Float = rhs[14],
+			m114:Float = rhs[3],
+			m124:Float = rhs[7],
+			m134:Float = rhs[11],
+			m144:Float = rhs[15],
+			m211:Float = this[0],
+			m221:Float = this[4],
+			m231:Float = this[8],
+			m241:Float = this[12],
+			m212:Float = this[1],
+			m222:Float = this[5],
+			m232:Float = this[9],
+			m242:Float = this[13],
+			m213:Float = this[2],
+			m223:Float = this[6],
+			m233:Float = this[10],
+			m243:Float = this[14],
+			m214:Float = this[3],
+			m224:Float = this[7],
+			m234:Float = this[11],
+			m244:Float = this[15];
 
 		this[0] = m111 * m211 + m112 * m221 + m113 * m231 + m114 * m241;
 		this[1] = m111 * m212 + m112 * m222 + m113 * m232 + m114 * m242;

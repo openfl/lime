@@ -38,7 +38,8 @@ class Assets
 {
 	public static var cache:AssetCache = new AssetCache();
 	public static var onChange = new Event<Void->Void>();
-	private static var defaultRootPath:String;
+
+	private static var bundlePaths = new Map<String, String>();
 	private static var libraries(default, null) = new Map<String, AssetLibrary>();
 	private static var libraryPaths = new Map<String, String>();
 
@@ -406,45 +407,79 @@ class Assets
 		var path = id;
 		var rootPath = null;
 
-		if (libraryPaths.exists(id))
+		if (bundlePaths.exists(id))
 		{
-			path = libraryPaths[id];
-			rootPath = defaultRootPath;
+			AssetBundle.loadFromFile(bundlePaths.get(id)).onComplete(function(bundle)
+			{
+				if (bundle == null)
+				{
+					promise.error("Cannot load bundle for library \"" + id + "\"");
+					return;
+				}
+
+				var library = AssetLibrary.fromBundle(bundle);
+
+				if (library == null)
+				{
+					promise.error("Cannot open library \"" + id + "\"");
+				}
+				else
+				{
+					libraries.set(id, library);
+					library.onChange.add(onChange.dispatch);
+					promise.completeWith(library.load());
+				}
+			}).onError(function(_)
+			{
+					promise.error("There is no asset library with an ID of \"" + id + "\"");
+			});
 		}
 		else
 		{
-			if (StringTools.endsWith(path, ".bundle"))
+			if (libraryPaths.exists(id))
 			{
-				path += "/library.json";
-			}
-
-			path = __cacheBreak(path);
-		}
-
-		AssetManifest.loadFromFile(path, rootPath).onComplete(function(manifest)
-		{
-			if (manifest == null)
-			{
-				promise.error("Cannot parse asset manifest for library \"" + id + "\"");
-				return;
-			}
-
-			var library = AssetLibrary.fromManifest(manifest);
-
-			if (library == null)
-			{
-				promise.error("Cannot open library \"" + id + "\"");
+				path = libraryPaths[id];
+				rootPath = Path.directory(path);
 			}
 			else
 			{
-				libraries.set(id, library);
-				library.onChange.add(onChange.dispatch);
-				promise.completeWith(library.load());
+				if (StringTools.endsWith(path, ".bundle"))
+				{
+					rootPath = path;
+					path += "/library.json";
+				}
+				else
+				{
+					rootPath = Path.directory(path);
+				}
+				path = __cacheBreak(path);
 			}
-		}).onError(function(_)
-		{
-			promise.error("There is no asset library with an ID of \"" + id + "\"");
-		});
+
+			AssetManifest.loadFromFile(path, rootPath).onComplete(function(manifest)
+			{
+				if (manifest == null)
+				{
+					promise.error("Cannot parse asset manifest for library \"" + id + "\"");
+					return;
+				}
+
+				var library = AssetLibrary.fromManifest(manifest);
+
+				if (library == null)
+				{
+					promise.error("Cannot open library \"" + id + "\"");
+				}
+				else
+				{
+					libraries.set(id, library);
+					library.onChange.add(onChange.dispatch);
+					promise.completeWith(library.load());
+				}
+			}).onError(function(_)
+			{
+					promise.error("There is no asset library with an ID of \"" + id + "\"");
+			});
+		}
 		#end
 
 		return promise.future;
@@ -480,6 +515,11 @@ class Assets
 	public static function unloadLibrary(name:String):Void
 	{
 		#if (tools && !display)
+		if (name == null || name == "")
+		{
+			name = "default";
+		}
+
 		var library = libraries.get(name);
 
 		if (library != null)

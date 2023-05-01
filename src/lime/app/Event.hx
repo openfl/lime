@@ -29,6 +29,7 @@ class Event<T>
 		Whether the event was canceled during the previous dispatch
 	**/
 	public var canceled(default, null):Bool;
+
 	@:noCompletion @:dox(hide) public var __listeners:Array<T>;
 	@:noCompletion @:dox(hide) public var __repeat:Array<Bool>;
 
@@ -152,6 +153,20 @@ class Event<T>
 				__repeat.splice(i, 1);
 			}
 		}
+		#end
+	}
+
+	/**
+		Removes all event listeners
+	**/
+	public function removeAll():Void
+	{
+		#if !macro
+		var len = __listeners.length;
+
+		__listeners.splice(0, len);
+		__priorities.splice(0, len);
+		__repeat.splice(0, len);
 		#end
 	}
 }

@@ -139,8 +139,8 @@ class ImageCanvasUtil
 
 			// TODO: use faster method
 
-			var tempData = image.clone();
-			tempData.copyChannel(alphaImage, new Rectangle(alphaPoint.x, alphaPoint.y, sourceRect.width, sourceRect.height),
+			var tempData = sourceImage.clone();
+			tempData.copyChannel(alphaImage, new Rectangle(sourceRect.x + alphaPoint.x, sourceRect.y + alphaPoint.y, sourceRect.width, sourceRect.height),
 				new Vector2(sourceRect.x, sourceRect.y), ImageChannel.ALPHA, ImageChannel.ALPHA);
 			sourceImage = tempData;
 		}
@@ -151,8 +151,12 @@ class ImageCanvasUtil
 		{
 			if (image.transparent && sourceImage.transparent)
 			{
-				image.buffer.__srcContext.clearRect(destPoint.x + image.offsetX, destPoint.y + image.offsetY, sourceRect.width + image.offsetX,
-					sourceRect.height + image.offsetY);
+				image.buffer.__srcContext.clearRect(destPoint.x
+					+ image.offsetX, destPoint.y
+					+ image.offsetY, sourceRect.width
+					+ image.offsetX,
+					sourceRect.height
+					+ image.offsetY);
 			}
 		}
 
@@ -186,7 +190,7 @@ class ImageCanvasUtil
 			if (!image.transparent)
 			{
 				if (!image.transparent) buffer.__srcCanvas.setAttribute("moz-opaque", "true");
-				buffer.__srcContext = untyped __js__('buffer.__srcCanvas.getContext ("2d", { alpha: false })');
+				buffer.__srcContext = untyped #if haxe4 js.Syntax.code #else __js__ #end ('buffer.__srcCanvas.getContext ("2d", { alpha: false })');
 			}
 			else
 			{

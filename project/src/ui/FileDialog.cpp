@@ -1,6 +1,8 @@
 #include <ui/FileDialog.h>
 #include <stdio.h>
 #include <cstdlib>
+#include <cstring>
+#include <sstream>
 
 #include <tinyfiledialogs.h>
 
@@ -13,8 +15,9 @@ namespace lime {
 		if (!source) return NULL;
 
 		int size = std::wcslen (source->c_str ());
-		char* temp = (char*)malloc (size);
+		char* temp = (char*)malloc (size + 1);
 		std::wcstombs (temp, source->c_str (), size);
+		temp[size] = '\0';
 
 		std::string* data = new std::string (temp);
 		free (temp);
@@ -31,7 +34,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_selectFolderDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0);
 
-		if (path) {
+		if (path && std::wcslen(path) > 0) {
 
 			std::wstring* _path = new std::wstring (path);
 			return _path;
@@ -50,7 +53,7 @@ namespace lime {
 		//if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 
-		if (path) {
+		if (path && std::strlen(path) > 0) {
 
 			std::string _path = std::string (path);
 			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
@@ -69,12 +72,31 @@ namespace lime {
 
 		#ifdef HX_WINDOWS
 
-		std::wstring temp (L"*.");
-		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
+		std::vector<std::wstring> filters_vec;
+		if (filter) {
+			std::wstring temp (L"*.");
+			std::wstring line;
+			std::wstringstream ss(*filter);
+			while(std::getline(ss, line, L',')) {
+				filters_vec.push_back(temp + line);
+			}
+		}
 
-		const wchar_t* path = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 0);
+		const int numFilters = filter ? filters_vec.size() : 1;
+		const wchar_t **filters = new const wchar_t*[numFilters];
+		if (filter && numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<wchar_t*>(filters_vec[index].c_str());
+			}
+		} else {
+			filters[0] = NULL;
+		}
 
-		if (path) {
+		const wchar_t* path = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? numFilters : 0, filter ? filters : NULL, NULL, 0);
+
+		delete[] filters;
+
+		if (path && std::wcslen(path) > 0) {
 
 			std::wstring* _path = new std::wstring (path);
 			return _path;
@@ -87,22 +109,35 @@ namespace lime {
 		std::string* _filter = wstring_to_string (filter);
 		std::string* _defaultPath = wstring_to_string (defaultPath);
 
-		const char* filters[] = { NULL };
-
+		std::vector<std::string> filters_vec;
 		if (_filter) {
-
-			_filter->insert (0, "*.");
-			filters[0] = _filter->c_str ();
-
+			std::string line;
+			std::stringstream ss(*_filter);
+			while(std::getline(ss, line, ',')) {
+				line.insert (0, "*.");
+				filters_vec.push_back(line);
+			}
 		}
 
-		const char* path = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? 1 : 0, _filter ? filters : NULL, NULL, 0);
+		const int numFilters = _filter ? filters_vec.size() : 1;
+		const char **filters = new const char*[numFilters];
+		if (_filter && numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<char*>(filters_vec[index].c_str());
+			}
+		} else {
+			filters[0] = NULL;
+		}
+
+		const char* path = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? numFilters : 0, _filter ? filters : NULL, NULL, 0);
+
+		delete[] filters;
 
 		if (_title) delete _title;
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 
-		if (path) {
+		if (path && std::strlen(path) > 0) {
 
 			std::string _path = std::string (path);
 			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());
@@ -123,10 +158,29 @@ namespace lime {
 
 		#ifdef HX_WINDOWS
 
-		std::wstring temp (L"*.");
-		const wchar_t* filters[] = { filter ? (temp + *filter).c_str () : NULL };
+		std::vector<std::wstring> filters_vec;
+		if (filter) {
+			std::wstring temp (L"*.");
+			std::wstring line;
+			std::wstringstream ss(*filter);
+			while(std::getline(ss, line, L',')) {
+				filters_vec.push_back(temp + line);
+			}
+		}
 
-		const wchar_t* paths = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL, 1);
+		const int numFilters = filter ? filters_vec.size() : 1;
+		const wchar_t **filters = new const wchar_t*[numFilters];
+		if (filter && numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<wchar_t*>(filters_vec[index].c_str());
+			}
+		} else {
+			filters[0] = NULL;
+		}
+
+		const wchar_t* paths = tinyfd_openFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? numFilters : 0, filter ? filters : NULL, NULL, 1);
+
+		delete[] filters;
 
 		if (paths) {
 
@@ -140,16 +194,29 @@ namespace lime {
 		std::string* _filter = wstring_to_string (filter);
 		std::string* _defaultPath = wstring_to_string (defaultPath);
 
-		const char* filters[] = { NULL };
-
+		std::vector<std::string> filters_vec;
 		if (_filter) {
-
-			_filter->insert (0, "*.");
-			filters[0] = _filter->c_str ();
-
+			std::string line;
+			std::stringstream ss(*_filter);
+			while(std::getline(ss, line, ',')) {
+				line.insert (0, "*.");
+				filters_vec.push_back(line);
+			}
 		}
 
-		const char* paths = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? 1 : 0, _filter ? filters : NULL, NULL, 1);
+		const int numFilters = _filter ? filters_vec.size() : 1;
+		const char **filters = new const char*[numFilters];
+		if (_filter && numFilters > 0) {
+			for (int index = 0; index < numFilters; index++) {
+				filters[index] = const_cast<char*>(filters_vec[index].c_str());
+			}
+		} else {
+			filters[0] = NULL;
+		}
+
+		const char* paths = tinyfd_openFileDialog (_title ? _title->c_str () : NULL, _defaultPath ? _defaultPath->c_str () : NULL, _filter ? numFilters : 0, _filter ? filters : NULL, NULL, 1);
+
+		delete[] filters;
 
 		if (_title) delete _title;
 		if (_filter) delete _filter;
@@ -193,7 +260,7 @@ namespace lime {
 
 		const wchar_t* path = tinyfd_saveFileDialogW (title ? title->c_str () : 0, defaultPath ? defaultPath->c_str () : 0, filter ? 1 : 0, filter ? filters : NULL, NULL);
 
-		if (path) {
+		if (path && std::wcslen(path) > 0) {
 
 			std::wstring* _path = new std::wstring (path);
 			return _path;
@@ -221,7 +288,7 @@ namespace lime {
 		if (_filter) delete _filter;
 		if (_defaultPath) delete _defaultPath;
 
-		if (path) {
+		if (path && std::strlen(path) > 0) {
 
 			std::string _path = std::string (path);
 			std::wstring* __path = new std::wstring (_path.begin (), _path.end ());

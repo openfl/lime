@@ -45,7 +45,7 @@ abstract Locale(String) from String to String
 	}
 
 	#if hl
-	@:hlNative("lime", "lime_locale_get_system_locale") private static function lime_locale_get_system_locale():hl.Bytes
+	@:hlNative("lime", "hl_locale_get_system_locale") private static function lime_locale_get_system_locale():hl.Bytes
 	{
 		return null;
 	}

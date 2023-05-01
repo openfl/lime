@@ -3,6 +3,7 @@ package;
 import hxp.HXML;
 import hxp.Path;
 import hxp.System;
+import lime.tools.Architecture;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
@@ -23,6 +24,79 @@ class TizenPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		defaults.architectures = [Architecture.ARMV6];
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+		= defaults.window.allowHighDPI = false;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("tizen.output-directory", "tizen"));
 	}
@@ -57,8 +131,14 @@ class TizenPlatform extends PlatformTarget
 		}
 
 		CPPHelper.compile(project, targetDirectory + "/obj", args);
-		System.copyIfNewer(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe",
-			targetDirectory + "/bin/CommandLineBuild/" + project.app.file + ".exe");
+		System.copyIfNewer(targetDirectory
+			+ "/obj/ApplicationMain"
+			+ (project.debug ? "-debug" : "")
+			+ ".exe",
+			targetDirectory
+			+ "/bin/CommandLineBuild/"
+			+ project.app.file
+			+ ".exe");
 		TizenHelper.createPackage(project, targetDirectory + "/bin/CommandLineBuild", "");
 	}
 

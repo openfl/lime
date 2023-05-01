@@ -2,9 +2,8 @@
 
 buildscript {
 	repositories {
-		jcenter {
-			url "http://jcenter.bintray.com/"
-		}
+		jcenter()
+		google()
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
@@ -16,12 +15,8 @@ buildscript {
 
 allprojects {
 	repositories {
-		jcenter {
-			url "http://jcenter.bintray.com/"
-		}
-		maven {
-			url "https://maven.google.com"
-		}
+		jcenter()
+		google()
 	}::if ANDROID_GRADLE_BUILD_DIRECTORY::
 	buildDir = "::ANDROID_GRADLE_BUILD_DIRECTORY::/::APP_FILE::/${project.name}"::end::
 }
@@ -30,16 +25,15 @@ task clean(type: Delete) {
 	delete rootProject.buildDir
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
 	gradleVersion = '::ANDROID_GRADLE_VERSION::'
 }
 
 configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('build.xml').exists()}) {
 	buildscript {
 		repositories {
-			maven {
-				url "http://repo1.maven.org/maven2/"
-			}
+			jcenter()
+			google()
 		}
 		
 		dependencies {
@@ -63,7 +57,7 @@ configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('bui
 	}
 	
 	dependencies {
-		compile fileTree(dir: 'libs', include: ['*.jar'])
-		compile project(':deps:extension-api')
+		api fileTree(dir: 'libs', include: ['*.jar'])
+		api project(':deps:extension-api')
 	}
 }

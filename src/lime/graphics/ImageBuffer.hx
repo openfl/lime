@@ -201,11 +201,11 @@ class ImageBuffer
 	@:noCompletion private function set_src(value:Dynamic):Dynamic
 	{
 		#if (js && html5)
-		if (Std.is(value, HTMLImage))
+		if ((value is HTMLImage))
 		{
 			__srcImage = cast value;
 		}
-		else if (Std.is(value, CanvasElement))
+		else if ((value is CanvasElement))
 		{
 			__srcCanvas = cast value;
 			__srcContext = cast __srcCanvas.getContext("2d");
