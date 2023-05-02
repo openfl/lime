@@ -5,9 +5,6 @@ jobs:
 
   linux-ndll:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
     steps:
 
       - uses: actions/checkout@v3
@@ -21,7 +18,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ matrix.haxe-version }}
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -50,7 +47,6 @@ jobs:
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux-NDLL
           path: |
@@ -59,7 +55,6 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-NDLL
           path: |
@@ -68,7 +63,6 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-Hashlink
           path: |
