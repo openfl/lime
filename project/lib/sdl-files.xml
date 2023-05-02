@@ -36,6 +36,7 @@
 
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/sdl/include/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
         <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
 

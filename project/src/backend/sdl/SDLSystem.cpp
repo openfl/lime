@@ -12,8 +12,8 @@
 #ifdef HX_WINDOWS
 #include <shlobj.h>
 #include <stdio.h>
-//#include <io.h>
-//#include <fcntl.h>
+// #include <io.h>
+// #include <fcntl.h>
 #ifdef __MINGW32__
 #ifndef CSIDL_MYDOCUMENTS
 #define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
@@ -23,11 +23,11 @@
 #endif
 #endif
 #if UNICODE
-#define WIN_StringToUTF8(S) SDL_iconv_string("UTF-8", "UTF-16LE", (char *)(S), (SDL_wcslen(S)+1)*sizeof(WCHAR))
-#define WIN_UTF8ToString(S) (WCHAR *)SDL_iconv_string("UTF-16LE", "UTF-8", (char *)(S), SDL_strlen(S)+1)
+#define WIN_StringToUTF8(S) SDL_iconv_string("UTF-8", "UTF-16LE", (char *)(S), (SDL_wcslen(S) + 1) * sizeof(WCHAR))
+#define WIN_UTF8ToString(S) (WCHAR *)SDL_iconv_string("UTF-16LE", "UTF-8", (char *)(S), SDL_strlen(S) + 1)
 #else
-#define WIN_StringToUTF8(S) SDL_iconv_string("UTF-8", "ASCII", (char *)(S), (SDL_strlen(S)+1))
-#define WIN_UTF8ToString(S) SDL_iconv_string("ASCII", "UTF-8", (char *)(S), SDL_strlen(S)+1)
+#define WIN_StringToUTF8(S) SDL_iconv_string("UTF-8", "ASCII", (char *)(S), (SDL_strlen(S) + 1))
+#define WIN_UTF8ToString(S) SDL_iconv_string("ASCII", "UTF-8", (char *)(S), SDL_strlen(S) + 1)
 #endif
 #endif
 
@@ -43,9 +43,8 @@
 #include <codecvt>
 #endif
 
-
-namespace lime {
-
+namespace lime
+{
 
 	static int id_bounds;
 	static int id_currentMode;
@@ -58,406 +57,328 @@ namespace lime {
 	static int id_width;
 	static bool init = false;
 
+	const char *Clipboard::GetText()
+	{
 
-	const char* Clipboard::GetText () {
-
-		return SDL_GetClipboardText ();
-
+		return SDL_GetClipboardText();
 	}
 
+	bool Clipboard::HasText()
+	{
 
-	bool Clipboard::HasText () {
-
-		return SDL_HasClipboardText ();
-
+		return SDL_HasClipboardText();
 	}
 
+	bool Clipboard::SetText(const char *text)
+	{
 
-	bool Clipboard::SetText (const char* text) {
-
-		return (SDL_SetClipboardText (text) == 0);
-
+		return (SDL_SetClipboardText(text) == 0);
 	}
 
+	void *JNI::GetEnv()
+	{
 
-	void *JNI::GetEnv () {
-
-		#ifdef ANDROID
-		return SDL_AndroidGetJNIEnv ();
-		#else
+#ifdef ANDROID
+		return SDL_AndroidGetJNIEnv();
+#else
 		return 0;
-		#endif
-
+#endif
 	}
 
+	bool System::GetAllowScreenTimeout()
+	{
 
-	bool System::GetAllowScreenTimeout () {
-
-		return SDL_ScreenSaverEnabled ();
-
+		return SDL_ScreenSaverEnabled();
 	}
 
-
-	std::wstring* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
-
-		std::wstring* result = 0;
-		System::GCEnterBlocking ();
-
-		switch (type) {
-
-			case APPLICATION: {
-
-				char* path = SDL_GetBasePath ();
-				#ifdef HX_WINDOWS
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes(path));
-				#else
-				result = new std::wstring (path, path + strlen (path));
-				#endif
-				SDL_free (path);
-				break;
-
-			}
-
-			case APPLICATION_STORAGE: {
-
-				char* path = SDL_GetPrefPath (company, title);
-				#ifdef HX_WINDOWS
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes(path));
-				#else
-				result = new std::wstring (path, path + strlen (path));
-				#endif
-				SDL_free (path);
-				break;
-
-			}
-
-			case DESKTOP: {
-
-				#if defined (HX_WINRT)
-
-				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::HomeGroup;
-				result = new std::wstring (folder->Path->Data ());
-
-				#elif defined (HX_WINDOWS)
-
-				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
-
-				#elif defined (IPHONE)
-
-				result = System::GetIOSDirectory (type);
-
-				#elif !defined (ANDROID)
-
-				char const* home = getenv ("HOME");
-
-				if (home == NULL) {
-
-					return 0;
-
-				}
-
-				std::string path = std::string (home) + std::string ("/Desktop");
-				result = new std::wstring (path.begin (), path.end ());
-
-				#endif
-				break;
-
-			}
-
-			case DOCUMENTS: {
-
-				#if defined (HX_WINRT)
-
-				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::DocumentsLibrary;
-				result = new std::wstring (folder->Path->Data ());
-
-				#elif defined (HX_WINDOWS)
-
-				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
-
-				#elif defined (IPHONE)
-
-				result = System::GetIOSDirectory (type);
-
-				#elif defined (ANDROID)
-
-				result = new std::wstring (L"/mnt/sdcard/Documents");
-
-				#else
-
-				char const* home = getenv ("HOME");
-
-				if (home != NULL) {
-
-					std::string path = std::string (home) + std::string ("/Documents");
-					result = new std::wstring (path.begin (), path.end ());
-
-				}
-
-				#endif
-				break;
-
-			}
-
-			case FONTS: {
-
-				#if defined (HX_WINRT)
-
-				// TODO
-
-				#elif defined (HX_WINDOWS)
-
-				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
-
-				#elif defined (HX_MACOS)
-
-				result = new std::wstring (L"/Library/Fonts");
-
-				#elif defined (IPHONE)
-
-				result = new std::wstring (L"/System/Library/Fonts");
-
-				#elif defined (ANDROID)
-
-				result = new std::wstring (L"/system/fonts");
-
-				#elif defined (BLACKBERRY)
-
-				result = new std::wstring (L"/usr/fonts/font_repository/monotype");
-
-				#else
-
-				result = new std::wstring (L"/usr/share/fonts/truetype");
-
-				#endif
-				break;
-
-			}
-
-			case USER: {
-
-				#if defined (HX_WINRT)
-
-				Windows::Storage::StorageFolder^ folder = Windows::Storage::ApplicationData::Current->RoamingFolder;
-				result = new std::wstring (folder->Path->Data ());
-
-				#elif defined (HX_WINDOWS)
-
-				char folderPath[MAX_PATH] = "";
-				SHGetFolderPath (NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath);
-				//WIN_StringToUTF8 (folderPath);
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes (folderPath));
-
-				#elif defined (IPHONE)
-
-				result = System::GetIOSDirectory (type);
-
-				#elif defined (ANDROID)
-
-				result = new std::wstring (L"/mnt/sdcard");
-
-				#else
-
-				char const* home = getenv ("HOME");
-
-				if (home != NULL) {
-
-					std::string path = std::string (home);
-					result = new std::wstring (path.begin (), path.end ());
-
-				}
-
-				#endif
-				break;
-
-			}
-
+	std::wstring *System::GetDirectory(SystemDirectory type, const char *company, const char *title)
+	{
+
+		std::wstring *result = 0;
+		System::GCEnterBlocking();
+
+		switch (type)
+		{
+
+		case APPLICATION:
+		{
+
+			char *path = SDL_GetBasePath();
+#ifdef HX_WINDOWS
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			result = new std::wstring(converter.from_bytes(path));
+#else
+			result = new std::wstring(path, path + strlen(path));
+#endif
+			SDL_free(path);
+			break;
 		}
 
-		System::GCExitBlocking ();
-		return result;
+		case APPLICATION_STORAGE:
+		{
 
-	}
+			char *path = SDL_GetPrefPath(company, title);
+#ifdef HX_WINDOWS
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			result = new std::wstring(converter.from_bytes(path));
+#else
+			result = new std::wstring(path, path + strlen(path));
+#endif
+			SDL_free(path);
+			break;
+		}
 
+		case DESKTOP:
+		{
 
-	void* System::GetDisplay (bool useCFFIValue, int id) {
+#if defined(HX_WINRT)
 
-		if (useCFFIValue) {
+			Windows::Storage::StorageFolder ^ folder = Windows::Storage::KnownFolders::HomeGroup;
+			result = new std::wstring(folder->Path->Data());
 
-			if (!init) {
+#elif defined(HX_WINDOWS)
 
-				id_bounds = val_id ("bounds");
-				id_currentMode = val_id ("currentMode");
-				id_dpi = val_id ("dpi");
-				id_height = val_id ("height");
-				id_name = val_id ("name");
-				id_pixelFormat = val_id ("pixelFormat");
-				id_refreshRate = val_id ("refreshRate");
-				id_supportedModes = val_id ("supportedModes");
-				id_width = val_id ("width");
-				init = true;
+			char folderPath[MAX_PATH] = "";
+			SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, folderPath);
+			// WIN_StringToUTF8 (folderPath);
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			result = new std::wstring(converter.from_bytes(folderPath));
 
-			}
+#elif defined(IPHONE)
 
-			int numDisplays = GetNumDisplays ();
+			result = System::GetIOSDirectory(type);
 
-			if (id < 0 || id >= numDisplays) {
+#elif !defined(ANDROID)
 
-				return alloc_null ();
+			char const *home = getenv("HOME");
 
-			}
-
-			value display = alloc_empty_object ();
-			alloc_field (display, id_name, alloc_string (SDL_GetDisplayName (id)));
-
-			SDL_Rect bounds = { 0, 0, 0, 0 };
-			SDL_GetDisplayBounds (id, &bounds);
-			alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
-
-			float dpi = 72.0;
-			#ifndef EMSCRIPTEN
-			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
-			#endif
-			alloc_field (display, id_dpi, alloc_float (dpi));
-
-			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
-			DisplayMode mode;
-
-			SDL_GetDesktopDisplayMode (id, &displayMode);
-
-			mode.height = displayMode.h;
-
-			switch (displayMode.format) {
-
-				case SDL_PIXELFORMAT_ARGB8888:
-
-					mode.pixelFormat = ARGB32;
-					break;
-
-				case SDL_PIXELFORMAT_BGRA8888:
-				case SDL_PIXELFORMAT_BGRX8888:
-
-					mode.pixelFormat = BGRA32;
-					break;
-
-				default:
-
-					mode.pixelFormat = RGBA32;
-
-			}
-
-			mode.refreshRate = displayMode.refresh_rate;
-			mode.width = displayMode.w;
-
-			alloc_field (display, id_currentMode, (value)mode.Value ());
-
-			int numDisplayModes = SDL_GetNumDisplayModes (id);
-			value supportedModes = alloc_array (numDisplayModes);
-
-			for (int i = 0; i < numDisplayModes; i++) {
-
-				SDL_GetDisplayMode (id, i, &displayMode);
-
-				mode.height = displayMode.h;
-
-				switch (displayMode.format) {
-
-					case SDL_PIXELFORMAT_ARGB8888:
-
-						mode.pixelFormat = ARGB32;
-						break;
-
-					case SDL_PIXELFORMAT_BGRA8888:
-					case SDL_PIXELFORMAT_BGRX8888:
-
-						mode.pixelFormat = BGRA32;
-						break;
-
-					default:
-
-						mode.pixelFormat = RGBA32;
-
-				}
-
-				mode.refreshRate = displayMode.refresh_rate;
-				mode.width = displayMode.w;
-
-				val_array_set_i (supportedModes, i, (value)mode.Value ());
-
-			}
-
-			alloc_field (display, id_supportedModes, supportedModes);
-			return display;
-
-		} else {
-
-			const int id_bounds = hl_hash_utf8 ("bounds");
-			const int id_currentMode = hl_hash_utf8 ("currentMode");
-			const int id_dpi = hl_hash_utf8 ("dpi");
-			const int id_height = hl_hash_utf8 ("height");
-			const int id_name = hl_hash_utf8 ("name");
-			const int id_pixelFormat = hl_hash_utf8 ("pixelFormat");
-			const int id_refreshRate = hl_hash_utf8 ("refreshRate");
-			const int id_supportedModes = hl_hash_utf8 ("supportedModes");
-			const int id_width = hl_hash_utf8 ("width");
-			const int id_x = hl_hash_utf8 ("x");
-			const int id_y = hl_hash_utf8 ("y");
-
-			int numDisplays = GetNumDisplays ();
-
-			if (id < 0 || id >= numDisplays) {
+			if (home == NULL)
+			{
 
 				return 0;
-
 			}
 
-			vdynamic* display = (vdynamic*)hl_alloc_dynobj ();
+			std::string path = std::string(home) + std::string("/Desktop");
+			result = new std::wstring(path.begin(), path.end());
 
-			const char* displayName = SDL_GetDisplayName (id);
-			char* _displayName = (char*)malloc(strlen(displayName) + 1);
-			strcpy (_displayName, displayName);
-			hl_dyn_setp (display, id_name, &hlt_bytes, _displayName);
+#endif
+			break;
+		}
 
-			SDL_Rect bounds = { 0, 0, 0, 0 };
-			SDL_GetDisplayBounds (id, &bounds);
+		case DOCUMENTS:
+		{
 
-			vdynamic* _bounds = (vdynamic*)hl_alloc_dynobj ();
-			hl_dyn_seti (_bounds, id_x, &hlt_i32, bounds.x);
-			hl_dyn_seti (_bounds, id_y, &hlt_i32, bounds.y);
-			hl_dyn_seti (_bounds, id_width, &hlt_i32, bounds.w);
-			hl_dyn_seti (_bounds, id_height, &hlt_i32, bounds.h);
+#if defined(HX_WINRT)
 
-			hl_dyn_setp (display, id_bounds, &hlt_dynobj, _bounds);
+			Windows::Storage::StorageFolder ^ folder = Windows::Storage::KnownFolders::DocumentsLibrary;
+			result = new std::wstring(folder->Path->Data());
+
+#elif defined(HX_WINDOWS)
+
+			char folderPath[MAX_PATH] = "";
+			SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
+			// WIN_StringToUTF8 (folderPath);
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			result = new std::wstring(converter.from_bytes(folderPath));
+
+#elif defined(IPHONE)
+
+			result = System::GetIOSDirectory(type);
+
+#elif defined(ANDROID)
+
+			result = new std::wstring(L"/mnt/sdcard/Documents");
+
+#else
+
+			char const *home = getenv("HOME");
+
+			if (home != NULL)
+			{
+
+				std::string path = std::string(home) + std::string("/Documents");
+				result = new std::wstring(path.begin(), path.end());
+			}
+
+#endif
+			break;
+		}
+
+		case FONTS:
+		{
+
+#if defined(HX_WINRT)
+
+			// TODO
+
+#elif defined(HX_WINDOWS)
+
+			char folderPath[MAX_PATH] = "";
+			SHGetFolderPath(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, folderPath);
+			// WIN_StringToUTF8 (folderPath);
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			result = new std::wstring(converter.from_bytes(folderPath));
+
+#elif defined(HX_MACOS)
+
+			result = new std::wstring(L"/Library/Fonts");
+
+#elif defined(IPHONE)
+
+			result = new std::wstring(L"/System/Library/Fonts");
+
+#elif defined(ANDROID)
+
+			result = new std::wstring(L"/system/fonts");
+
+#elif defined(BLACKBERRY)
+
+			result = new std::wstring(L"/usr/fonts/font_repository/monotype");
+
+#else
+
+			result = new std::wstring(L"/usr/share/fonts/truetype");
+
+#endif
+			break;
+		}
+
+		case USER:
+		{
+
+#if defined(HX_WINRT)
+
+			Windows::Storage::StorageFolder ^ folder = Windows::Storage::ApplicationData::Current->RoamingFolder;
+			result = new std::wstring(folder->Path->Data());
+
+#elif defined(HX_WINDOWS)
+
+			char folderPath[MAX_PATH] = "";
+			SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, folderPath);
+			// WIN_StringToUTF8 (folderPath);
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			result = new std::wstring(converter.from_bytes(folderPath));
+
+#elif defined(IPHONE)
+
+			result = System::GetIOSDirectory(type);
+
+#elif defined(ANDROID)
+
+			result = new std::wstring(L"/mnt/sdcard");
+
+#else
+
+			char const *home = getenv("HOME");
+
+			if (home != NULL)
+			{
+
+				std::string path = std::string(home);
+				result = new std::wstring(path.begin(), path.end());
+			}
+
+#endif
+			break;
+		}
+		}
+
+		System::GCExitBlocking();
+		return result;
+	}
+
+	void *System::GetDisplay(bool useCFFIValue, int id)
+	{
+
+		if (useCFFIValue)
+		{
+
+			if (!init)
+			{
+
+				id_bounds = val_id("bounds");
+				id_currentMode = val_id("currentMode");
+				id_dpi = val_id("dpi");
+				id_height = val_id("height");
+				id_name = val_id("name");
+				id_pixelFormat = val_id("pixelFormat");
+				id_refreshRate = val_id("refreshRate");
+				id_supportedModes = val_id("supportedModes");
+				id_width = val_id("width");
+				init = true;
+			}
+
+			int numDisplays = GetNumDisplays();
+
+			if (id < 0 || id >= numDisplays)
+			{
+
+				return alloc_null();
+			}
+
+			value display = alloc_empty_object();
+			alloc_field(display, id_name, alloc_string(SDL_GetDisplayName(id)));
+
+			SDL_Rect bounds = {0, 0, 0, 0};
+			SDL_GetDisplayBounds(id, &bounds);
+			alloc_field(display, id_bounds, Rectangle(bounds.x, bounds.y, bounds.w, bounds.h).Value());
 
 			float dpi = 72.0;
-			#ifndef EMSCRIPTEN
-			SDL_GetDisplayDPI (id, &dpi, NULL, NULL);
-			#endif
-			hl_dyn_setf (display, id_dpi, dpi);
+			const SDL_DisplayMode *dpiDisplayMode = SDL_GetDesktopDisplayMode(id);
+#ifdef IPHONE
+			dpi = dpiDisplayMode->display_scale * 160.0;
+#elifdef ANDROID
+			dpi = dpiDisplayMode->display_scale * 160.0;
+#else
+			dpi = dpiDisplayMode->display_scale * 96.0;
+#endif
 
-			SDL_DisplayMode displayMode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
+			alloc_field(display, id_dpi, alloc_float(dpi));
+
 			DisplayMode mode;
 
-			SDL_GetDesktopDisplayMode (id, &displayMode);
+			const SDL_DisplayMode *displayMode = SDL_GetDesktopDisplayMode(id);
 
-			mode.height = displayMode.h;
+			mode.height = displayMode->pixel_h;
 
-			switch (displayMode.format) {
+			switch (displayMode->format)
+			{
+
+			case SDL_PIXELFORMAT_ARGB8888:
+
+				mode.pixelFormat = ARGB32;
+				break;
+
+			case SDL_PIXELFORMAT_BGRA8888:
+			case SDL_PIXELFORMAT_BGRX8888:
+
+				mode.pixelFormat = BGRA32;
+				break;
+
+			default:
+
+				mode.pixelFormat = RGBA32;
+			}
+
+			mode.refreshRate = displayMode->refresh_rate;
+			mode.width = displayMode->pixel_w;
+
+			alloc_field(display, id_currentMode, (value)mode.Value());
+
+			int numDisplayModes = 0;
+			const SDL_DisplayMode **displayModes = SDL_GetFullscreenDisplayModes(id, &numDisplayModes);
+
+			value supportedModes = alloc_array(numDisplayModes);
+
+			for (int i = 0; i < numDisplayModes; i++)
+			{
+
+				displayMode = displayModes[i];
+
+				mode.height = displayMode->pixel_h;
+
+				switch (displayMode->format)
+				{
 
 				case SDL_PIXELFORMAT_ARGB8888:
 
@@ -473,409 +394,483 @@ namespace lime {
 				default:
 
 					mode.pixelFormat = RGBA32;
-
-			}
-
-			mode.refreshRate = displayMode.refresh_rate;
-			mode.width = displayMode.w;
-
-			vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
-			hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
-			hl_dyn_seti (_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
-			hl_dyn_seti (_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
-			hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
-			hl_dyn_setp (display, id_currentMode, &hlt_dynobj, _displayMode);
-
-			int numDisplayModes = SDL_GetNumDisplayModes (id);
-
-			hl_varray* supportedModes = (hl_varray*)hl_alloc_array (&hlt_dynobj, numDisplayModes);
-			vdynamic** supportedModesData = hl_aptr (supportedModes, vdynamic*);
-
-			for (int i = 0; i < numDisplayModes; i++) {
-
-				SDL_GetDisplayMode (id, i, &displayMode);
-
-				mode.height = displayMode.h;
-
-				switch (displayMode.format) {
-
-					case SDL_PIXELFORMAT_ARGB8888:
-
-						mode.pixelFormat = ARGB32;
-						break;
-
-					case SDL_PIXELFORMAT_BGRA8888:
-					case SDL_PIXELFORMAT_BGRX8888:
-
-						mode.pixelFormat = BGRA32;
-						break;
-
-					default:
-
-						mode.pixelFormat = RGBA32;
-
 				}
 
-				mode.refreshRate = displayMode.refresh_rate;
-				mode.width = displayMode.w;
+				mode.refreshRate = displayMode->refresh_rate;
+				mode.width = displayMode->pixel_w;
 
-				vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
-				hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
-				hl_dyn_seti (_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
-				hl_dyn_seti (_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
-				hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
-
-				*supportedModesData++ = _displayMode;
-
+				val_array_set_i(supportedModes, i, (value)mode.Value());
 			}
 
-			hl_dyn_setp (display, id_supportedModes, &hlt_array, supportedModes);
+			alloc_field(display, id_supportedModes, supportedModes);
 			return display;
-
 		}
+		else
+		{
 
+			const int id_bounds = hl_hash_utf8("bounds");
+			const int id_currentMode = hl_hash_utf8("currentMode");
+			const int id_dpi = hl_hash_utf8("dpi");
+			const int id_height = hl_hash_utf8("height");
+			const int id_name = hl_hash_utf8("name");
+			const int id_pixelFormat = hl_hash_utf8("pixelFormat");
+			const int id_refreshRate = hl_hash_utf8("refreshRate");
+			const int id_supportedModes = hl_hash_utf8("supportedModes");
+			const int id_width = hl_hash_utf8("width");
+			const int id_x = hl_hash_utf8("x");
+			const int id_y = hl_hash_utf8("y");
+
+			int numDisplays = GetNumDisplays();
+
+			if (id < 0 || id >= numDisplays)
+			{
+
+				return 0;
+			}
+
+			vdynamic *display = (vdynamic *)hl_alloc_dynobj();
+
+			const char *displayName = SDL_GetDisplayName(id);
+			char *_displayName = (char *)malloc(strlen(displayName) + 1);
+			strcpy(_displayName, displayName);
+			hl_dyn_setp(display, id_name, &hlt_bytes, _displayName);
+
+			SDL_Rect bounds = {0, 0, 0, 0};
+			SDL_GetDisplayBounds(id, &bounds);
+
+			vdynamic *_bounds = (vdynamic *)hl_alloc_dynobj();
+			hl_dyn_seti(_bounds, id_x, &hlt_i32, bounds.x);
+			hl_dyn_seti(_bounds, id_y, &hlt_i32, bounds.y);
+			hl_dyn_seti(_bounds, id_width, &hlt_i32, bounds.w);
+			hl_dyn_seti(_bounds, id_height, &hlt_i32, bounds.h);
+
+			hl_dyn_setp(display, id_bounds, &hlt_dynobj, _bounds);
+
+			float dpi = 72.0;
+			const SDL_DisplayMode *dpiDisplayMode = SDL_GetDesktopDisplayMode(id);
+#ifdef IPHONE
+			dpi = dpiDisplayMode->display_scale * 160.0;
+#elifdef ANDROID
+			dpi = dpiDisplayMode->display_scale * 160.0;
+#else
+			dpi = dpiDisplayMode->display_scale * 96.0;
+#endif
+
+			hl_dyn_setf(display, id_dpi, dpi);
+
+			DisplayMode mode;
+
+			const SDL_DisplayMode *displayMode = SDL_GetDesktopDisplayMode(id);
+
+			mode.height = displayMode->pixel_h;
+
+			switch (displayMode->format)
+			{
+
+			case SDL_PIXELFORMAT_ARGB8888:
+
+				mode.pixelFormat = ARGB32;
+				break;
+
+			case SDL_PIXELFORMAT_BGRA8888:
+			case SDL_PIXELFORMAT_BGRX8888:
+
+				mode.pixelFormat = BGRA32;
+				break;
+
+			default:
+
+				mode.pixelFormat = RGBA32;
+			}
+
+			mode.refreshRate = displayMode->refresh_rate;
+			mode.width = displayMode->pixel_w;
+
+			vdynamic *_displayMode = (vdynamic *)hl_alloc_dynobj();
+			hl_dyn_seti(_displayMode, id_height, &hlt_i32, mode.height);
+			hl_dyn_seti(_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
+			hl_dyn_seti(_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
+			hl_dyn_seti(_displayMode, id_width, &hlt_i32, mode.width);
+			hl_dyn_setp(display, id_currentMode, &hlt_dynobj, _displayMode);
+
+			int numDisplayModes = 0;
+			const SDL_DisplayMode **displayModes = SDL_GetFullscreenDisplayModes(id, &numDisplayModes);
+
+			hl_varray *supportedModes = (hl_varray *)hl_alloc_array(&hlt_dynobj, numDisplayModes);
+			vdynamic **supportedModesData = hl_aptr(supportedModes, vdynamic *);
+
+			for (int i = 0; i < numDisplayModes; i++)
+			{
+
+				displayMode = displayModes[i];
+
+				mode.height = displayMode->pixel_h;
+
+				switch (displayMode->format)
+				{
+
+				case SDL_PIXELFORMAT_ARGB8888:
+
+					mode.pixelFormat = ARGB32;
+					break;
+
+				case SDL_PIXELFORMAT_BGRA8888:
+				case SDL_PIXELFORMAT_BGRX8888:
+
+					mode.pixelFormat = BGRA32;
+					break;
+
+				default:
+
+					mode.pixelFormat = RGBA32;
+				}
+
+				mode.refreshRate = displayMode->refresh_rate;
+				mode.width = displayMode->pixel_w;
+
+				vdynamic *_displayMode = (vdynamic *)hl_alloc_dynobj();
+				hl_dyn_seti(_displayMode, id_height, &hlt_i32, mode.height);
+				hl_dyn_seti(_displayMode, id_pixelFormat, &hlt_i32, mode.pixelFormat);
+				hl_dyn_seti(_displayMode, id_refreshRate, &hlt_i32, mode.refreshRate);
+				hl_dyn_seti(_displayMode, id_width, &hlt_i32, mode.width);
+
+				*supportedModesData++ = _displayMode;
+			}
+
+			hl_dyn_setp(display, id_supportedModes, &hlt_array, supportedModes);
+			return display;
+		}
 	}
 
+	int System::GetNumDisplays()
+	{
+		int num_displays = 0;
+		SDL_GetDisplays(&num_displays);
 
-	int System::GetNumDisplays () {
-
-		return SDL_GetNumVideoDisplays ();
-
+		return num_displays;
 	}
 
+	double System::GetTimer()
+	{
 
-	double System::GetTimer () {
-
-		return SDL_GetTicks ();
-
+		return SDL_GetTicks();
 	}
 
+	bool System::SetAllowScreenTimeout(bool allow)
+	{
 
-	bool System::SetAllowScreenTimeout (bool allow) {
+		if (allow)
+		{
 
-		if (allow) {
+			SDL_EnableScreenSaver();
+		}
+		else
+		{
 
-			SDL_EnableScreenSaver ();
-
-		} else {
-
-			SDL_DisableScreenSaver ();
-
+			SDL_DisableScreenSaver();
 		}
 
 		return allow;
-
 	}
 
+	FILE *FILE_HANDLE::getFile()
+	{
 
-	FILE* FILE_HANDLE::getFile () {
+#ifndef HX_WINDOWS
 
-		#ifndef HX_WINDOWS
+		switch (((SDL_RWops *)handle)->type)
+		{
 
-		switch (((SDL_RWops*)handle)->type) {
-
-			case SDL_RWOPS_STDFILE:
-			{
-				#ifdef HAVE_STDIO_H
-				return ((SDL_RWops*)handle)->hidden.stdio.fp;
-				#else
-				#error Lime requires HAVE_STDIO_H
-				#endif
-			}
-			case SDL_RWOPS_JNIFILE:
-			{
-				#ifdef ANDROID
-				System::GCEnterBlocking ();
-				int fd;
-				off_t outStart;
-				off_t outLength;
-				fd = AAsset_openFileDescriptor ((AAsset*)(((SDL_RWops*)handle)->hidden.androidio.asset), &outStart, &outLength);
-				FILE* file = ::fdopen (fd, "rb");
-				::fseek (file, outStart, 0);
-				System::GCExitBlocking ();
-				return file;
-				#endif
-			}
-
+		case SDL_RWOPS_STDFILE:
+		{
+#ifdef HAVE_STDIO_H
+			return ((SDL_RWops *)handle)->hidden.stdio.fp;
+#else
+#error Lime requires HAVE_STDIO_H
+#endif
+		}
+		case SDL_RWOPS_JNIFILE:
+		{
+#ifdef ANDROID
+			System::GCEnterBlocking();
+			int fd;
+			off_t outStart;
+			off_t outLength;
+			fd = AAsset_openFileDescriptor((AAsset *)(((SDL_RWops *)handle)->hidden.androidio.asset), &outStart, &outLength);
+			FILE *file = ::fdopen(fd, "rb");
+			::fseek(file, outStart, 0);
+			System::GCExitBlocking();
+			return file;
+#endif
+		}
 		}
 
 		return NULL;
 
-		#else
+#else
 
-		return (FILE*)handle;
+		return (FILE *)handle;
 
-		#endif
-
+#endif
 	}
 
+	int FILE_HANDLE::getLength()
+	{
 
-	int FILE_HANDLE::getLength () {
+#ifndef HX_WINDOWS
 
-		#ifndef HX_WINDOWS
-
-		System::GCEnterBlocking ();
-		int size = SDL_RWsize (((SDL_RWops*)handle));
-		System::GCExitBlocking ();
+		System::GCEnterBlocking();
+		int size = SDL_RWsize(((SDL_RWops *)handle));
+		System::GCExitBlocking();
 		return size;
 
-		#else
+#else
 
 		return 0;
 
-		#endif
-
+#endif
 	}
 
+	bool FILE_HANDLE::isFile()
+	{
 
-	bool FILE_HANDLE::isFile () {
+#ifndef HX_WINDOWS
 
-		#ifndef HX_WINDOWS
+		return ((SDL_RWops *)handle)->type == SDL_RWOPS_STDFILE;
 
-		return ((SDL_RWops*)handle)->type == SDL_RWOPS_STDFILE;
-
-		#else
+#else
 
 		return true;
 
-		#endif
-
+#endif
 	}
 
+	int fclose(FILE_HANDLE *stream)
+	{
 
-	int fclose (FILE_HANDLE *stream) {
+#ifndef HX_WINDOWS
 
-		#ifndef HX_WINDOWS
+		if (stream)
+		{
 
-		if (stream) {
-
-			System::GCEnterBlocking ();
-			int code = SDL_RWclose ((SDL_RWops*)stream->handle);
+			System::GCEnterBlocking();
+			int code = SDL_RWclose((SDL_RWops *)stream->handle);
 			delete stream;
-			System::GCExitBlocking ();
+			System::GCExitBlocking();
 			return code;
-
 		}
 
 		return 0;
 
-		#else
+#else
 
-		if (stream) {
+		if (stream)
+		{
 
-			System::GCEnterBlocking ();
-			int code = ::fclose ((FILE*)stream->handle);
+			System::GCEnterBlocking();
+			int code = ::fclose((FILE *)stream->handle);
 			delete stream;
-			System::GCExitBlocking ();
+			System::GCExitBlocking();
 			return code;
-
 		}
 
 		return 0;
 
-		#endif
-
+#endif
 	}
 
+	FILE_HANDLE *fdopen(int fd, const char *mode)
+	{
 
-	FILE_HANDLE *fdopen (int fd, const char *mode) {
+#ifndef HX_WINDOWS
 
-		#ifndef HX_WINDOWS
+		System::GCEnterBlocking();
+		FILE *fp = ::fdopen(fd, mode);
+		SDL_RWops *result = SDL_RWFromFP(fp, SDL_TRUE);
+		System::GCExitBlocking();
 
-		System::GCEnterBlocking ();
-		FILE* fp = ::fdopen (fd, mode);
-		SDL_RWops *result = SDL_RWFromFP (fp, SDL_TRUE);
-		System::GCExitBlocking ();
+		if (result)
+		{
 
-		if (result) {
-
-			return new FILE_HANDLE (result);
-
+			return new FILE_HANDLE(result);
 		}
 
 		return NULL;
 
-		#else
+#else
 
-		FILE* result;
+		FILE *result;
 
-		System::GCEnterBlocking ();
-		result = ::fdopen (fd, mode);
-		System::GCExitBlocking ();
+		System::GCEnterBlocking();
+		result = ::fdopen(fd, mode);
+		System::GCExitBlocking();
 
-		if (result) {
+		if (result)
+		{
 
-			return new FILE_HANDLE (result);
-
+			return new FILE_HANDLE(result);
 		}
 
 		return NULL;
 
-		#endif
-
+#endif
 	}
 
+	FILE_HANDLE *fopen(const char *filename, const char *mode)
+	{
 
-	FILE_HANDLE *fopen (const char *filename, const char *mode) {
-
-		#ifndef HX_WINDOWS
+#ifndef HX_WINDOWS
 
 		SDL_RWops *result;
 
-		System::GCEnterBlocking ();
+		System::GCEnterBlocking();
 
-		#ifdef HX_MACOS
+#ifdef HX_MACOS
 
-		result = SDL_RWFromFile (filename, "rb");
+		result = SDL_RWFromFile(filename, "rb");
 
-		if (!result) {
+		if (!result)
+		{
 
-			CFStringRef str = CFStringCreateWithCString (NULL, filename, kCFStringEncodingUTF8);
-			CFURLRef path = CFBundleCopyResourceURL (CFBundleGetMainBundle (), str, NULL, NULL);
-			CFRelease (str);
+			CFStringRef str = CFStringCreateWithCString(NULL, filename, kCFStringEncodingUTF8);
+			CFURLRef path = CFBundleCopyResourceURL(CFBundleGetMainBundle(), str, NULL, NULL);
+			CFRelease(str);
 
-			if (path) {
+			if (path)
+			{
 
-				str = CFURLCopyPath (path);
-				CFIndex maxSize = CFStringGetMaximumSizeForEncoding (CFStringGetLength (str), kCFStringEncodingUTF8);
-				char *buffer = (char *)malloc (maxSize);
+				str = CFURLCopyPath(path);
+				CFIndex maxSize = CFStringGetMaximumSizeForEncoding(CFStringGetLength(str), kCFStringEncodingUTF8);
+				char *buffer = (char *)malloc(maxSize);
 
-				if (CFStringGetCString (str, buffer, maxSize, kCFStringEncodingUTF8)) {
+				if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8))
+				{
 
-					result = SDL_RWFromFP (::fopen (buffer, "rb"), SDL_TRUE);
-					free (buffer);
-
+					result = SDL_RWFromFP(::fopen(buffer, "rb"), SDL_TRUE);
+					free(buffer);
 				}
 
-				CFRelease (str);
-				CFRelease (path);
-
+				CFRelease(str);
+				CFRelease(path);
 			}
-
 		}
-		#else
-		result = SDL_RWFromFile (filename, mode);
-		#endif
+#else
+		result = SDL_RWFromFile(filename, mode);
+#endif
 
-		System::GCExitBlocking ();
+		System::GCExitBlocking();
 
-		if (result) {
+		if (result)
+		{
 
-			return new FILE_HANDLE (result);
-
+			return new FILE_HANDLE(result);
 		}
 
 		return NULL;
 
-		#else
+#else
 
-		FILE* result;
+		FILE *result;
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		std::wstring* wfilename = new std::wstring (converter.from_bytes (filename));
-		std::wstring* wmode = new std::wstring (converter.from_bytes (mode));
+		std::wstring *wfilename = new std::wstring(converter.from_bytes(filename));
+		std::wstring *wmode = new std::wstring(converter.from_bytes(mode));
 
-		System::GCEnterBlocking ();
-		result = ::_wfopen (wfilename->c_str(), wmode->c_str());
-		System::GCExitBlocking ();
+		System::GCEnterBlocking();
+		result = ::_wfopen(wfilename->c_str(), wmode->c_str());
+		System::GCExitBlocking();
 
 		delete wfilename;
 		delete wmode;
 
-		if (result) {
+		if (result)
+		{
 
-			return new FILE_HANDLE (result);
-
+			return new FILE_HANDLE(result);
 		}
 
 		return NULL;
 
-		#endif
-
+#endif
 	}
 
-
-	size_t fread (void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
+	size_t fread(void *ptr, size_t size, size_t count, FILE_HANDLE *stream)
+	{
 
 		size_t nmem;
-		System::GCEnterBlocking ();
+		System::GCEnterBlocking();
 
-		#ifndef HX_WINDOWS
+#ifndef HX_WINDOWS
 
-		nmem = SDL_RWread (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
+		nmem = SDL_RWread(stream ? (SDL_RWops *)stream->handle : NULL, ptr, size, count);
 
-		#else
+#else
 
-		nmem = ::fread (ptr, size, count, (FILE*)stream->handle);
+		nmem = ::fread(ptr, size, count, (FILE *)stream->handle);
 
-		#endif
+#endif
 
-		System::GCExitBlocking ();
+		System::GCExitBlocking();
 		return nmem;
-
 	}
 
-
-	int fseek (FILE_HANDLE *stream, long int offset, int origin) {
+	int fseek(FILE_HANDLE *stream, long int offset, int origin)
+	{
 
 		int success;
-		System::GCEnterBlocking ();
+		System::GCEnterBlocking();
 
-		#ifndef HX_WINDOWS
+#ifndef HX_WINDOWS
 
-		success = SDL_RWseek (stream ? (SDL_RWops*)stream->handle : NULL, offset, origin);
+		success = SDL_RWseek(stream ? (SDL_RWops *)stream->handle : NULL, offset, origin);
 
-		#else
+#else
 
-		success = ::fseek ((FILE*)stream->handle, offset, origin);
+		success = ::fseek((FILE *)stream->handle, offset, origin);
 
-		#endif
+#endif
 
-		System::GCExitBlocking ();
+		System::GCExitBlocking();
 		return success;
-
 	}
 
-
-	long int ftell (FILE_HANDLE *stream) {
+	long int ftell(FILE_HANDLE *stream)
+	{
 
 		long int pos;
-		System::GCEnterBlocking ();
+		System::GCEnterBlocking();
 
-		#ifndef HX_WINDOWS
+#ifndef HX_WINDOWS
 
-		pos = SDL_RWtell (stream ? (SDL_RWops*)stream->handle : NULL);
+		pos = SDL_RWtell(stream ? (SDL_RWops *)stream->handle : NULL);
 
-		#else
+#else
 
-		pos = ::ftell ((FILE*)stream->handle);
+		pos = ::ftell((FILE *)stream->handle);
 
-		#endif
+#endif
 
-		System::GCExitBlocking ();
+		System::GCExitBlocking();
 		return pos;
-
 	}
 
-
-	size_t fwrite (const void *ptr, size_t size, size_t count, FILE_HANDLE *stream) {
+	size_t fwrite(const void *ptr, size_t size, size_t count, FILE_HANDLE *stream)
+	{
 
 		size_t nmem;
-		System::GCEnterBlocking ();
+		System::GCEnterBlocking();
 
-		#ifndef HX_WINDOWS
+#ifndef HX_WINDOWS
 
-		nmem = SDL_RWwrite (stream ? (SDL_RWops*)stream->handle : NULL, ptr, size, count);
+		nmem = SDL_RWwrite(stream ? (SDL_RWops *)stream->handle : NULL, ptr, size, count);
 
-		#else
+#else
 
-		nmem = ::fwrite (ptr, size, count, (FILE*)stream->handle);
+		nmem = ::fwrite(ptr, size, count, (FILE *)stream->handle);
 
-		#endif
+#endif
 
-		System::GCExitBlocking ();
+		System::GCExitBlocking();
 		return nmem;
-
 	}
-
 
 }
