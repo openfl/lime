@@ -400,7 +400,7 @@ class ArrayBufferView
 	RangeError;
 }
 
-@:noCompletion @:dox(hide) @:enum
+@:noCompletion @:dox(hide) #if (haxe_ver >= 4.0) enum #else @:enum #end
 abstract TypedArrayType(Int) from Int to Int
 {
 	var None = 0;
