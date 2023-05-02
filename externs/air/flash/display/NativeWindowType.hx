@@ -1,7 +1,7 @@
 package flash.display;
 
 @:native("flash.display.NativeWindowType")
-@:enum extern abstract NativeWindowType(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract NativeWindowType(String)
 {
 	var LIGHTWEIGHT;
 	var NORMAL;

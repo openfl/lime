@@ -1,7 +1,7 @@
 package flash.display3D;
 
 @:native("flash.display3D.Context3DProfile")
-@:enum extern abstract Context3DProfile(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract Context3DProfile(String)
 {
 	var BASELINE;
 	var BASELINE_CONSTRAINED;

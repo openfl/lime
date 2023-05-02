@@ -1,7 +1,7 @@
 package flash.display;
 
 @:native("flash.display.NativeWindowSystemChrome")
-@:enum extern abstract NativeWindowSystemChrome(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract NativeWindowSystemChrome(String)
 {
 	var ALTERNATE;
 	var NONE;
