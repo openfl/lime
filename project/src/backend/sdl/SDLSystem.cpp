@@ -35,7 +35,7 @@
 #include <android/asset_manager_jni.h>
 #endif
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <string>
 
 #ifdef HX_WINDOWS
@@ -93,7 +93,7 @@ namespace lime {
 
 	bool System::GetAllowScreenTimeout () {
 
-		return SDL_IsScreenSaverEnabled ();
+		return SDL_ScreenSaverEnabled ();
 
 	}
 
