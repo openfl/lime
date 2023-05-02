@@ -665,7 +665,7 @@ class NativeWindow
 	}
 }
 
-@:enum private abstract MouseCursorType(Int) from Int to Int
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseCursorType(Int) from Int to Int
 {
 	var HIDDEN = 0;
 	var ARROW = 1;
@@ -682,7 +682,7 @@ class NativeWindow
 	var WAIT_ARROW = 12;
 }
 
-@:enum private abstract WindowFlags(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowFlags(Int)
 {
 	var WINDOW_FLAG_FULLSCREEN = 0x00000001;
 	var WINDOW_FLAG_BORDERLESS = 0x00000002;
