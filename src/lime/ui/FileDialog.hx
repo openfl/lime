@@ -110,6 +110,7 @@ class FileDialog
 					#end
 
 					var path = null;
+					#if (!macro && lime_cffi)
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
 					if (bytes != null)
@@ -118,6 +119,7 @@ class FileDialog
 					}
 					#else
 					path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
+					#end
 					#end
 
 					worker.sendComplete(path);
@@ -128,6 +130,7 @@ class FileDialog
 					#end
 
 					var paths = null;
+					#if (!macro && lime_cffi)
 					#if hl
 					var bytes:NativeArray<HLBytes> = cast NativeCFFI.lime_file_dialog_open_files(title, filter, defaultPath);
 					if (bytes != null)
@@ -141,6 +144,7 @@ class FileDialog
 					#else
 					paths = NativeCFFI.lime_file_dialog_open_files(title, filter, defaultPath);
 					#end
+					#end
 
 					worker.sendComplete(paths);
 
@@ -150,6 +154,7 @@ class FileDialog
 					#end
 
 					var path = null;
+					#if (!macro && lime_cffi)
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_open_directory(title, filter, defaultPath);
 					if (bytes != null)
@@ -158,6 +163,7 @@ class FileDialog
 					}
 					#else
 					path = NativeCFFI.lime_file_dialog_open_directory(title, filter, defaultPath);
+					#end
 					#end
 
 					worker.sendComplete(path);
@@ -168,6 +174,7 @@ class FileDialog
 					#end
 
 					var path = null;
+					#if (!macro && lime_cffi)
 					#if hl
 					var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
 					if (bytes != null)
@@ -176,6 +183,7 @@ class FileDialog
 					}
 					#else
 					path = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
+					#end
 					#end
 
 					worker.sendComplete(path);
@@ -250,11 +258,13 @@ class FileDialog
 			#end
 
 			var path = null;
+			#if (!macro && lime_cffi)
 			#if hl
 			var bytes = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
 			if (bytes != null) path = @:privateAccess String.fromUTF8(cast bytes);
 			#else
 			path = NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath);
+			#end
 			#end
 
 			worker.sendComplete(path);
@@ -318,11 +328,13 @@ class FileDialog
 			#end
 
 			var path = null;
+			#if (!macro && lime_cffi)
 			#if hl
 			var bytes = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
 			path = @:privateAccess String.fromUTF8(cast bytes);
 			#else
 			path = NativeCFFI.lime_file_dialog_save_file(title, filter, defaultPath);
+			#end
 			#end
 
 			worker.sendComplete(path);
