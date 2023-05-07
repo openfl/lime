@@ -3847,345 +3847,345 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	}
 
 	#if !lime_webgl
-			public function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView,
-				srcOffset:Int = 0,
-					?srcLengthOverride:Int):Void
+	public function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView,
+		srcOffset:Int = 0,
+			?srcLengthOverride:Int):Void
 	#else
-			public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic,
-				?srcOffset:Int,
-					?srcLengthOverride:Int):Void
+	public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic,
+		?srcOffset:Int,
+			?srcLengthOverride:Int):Void
 	#end
-			{
-				var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
 
-				__tempPointer.set(srcData, srcOffset);
-				this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, __tempPointer);
-				}
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, __tempPointer);
+	}
 
-				public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
-					srcData:ArrayBufferView,
-						srcOffset:Int = 0, ?srcLengthOverride:Int):Void
-				{
-					var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-					__tempPointer.set(srcData, srcOffset);
-					this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
-				}
+	public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
+		srcData:ArrayBufferView,
+			srcOffset:Int = 0, ?srcLengthOverride:Int):Void
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
+	}
 
 	#if !lime_webgl
-				public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-					srcData:ArrayBufferView,
-						srcOffset:Int = 0, ?srcLengthOverride:Int):Void
+	public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
+		srcData:ArrayBufferView,
+			srcOffset:Int = 0, ?srcLengthOverride:Int):Void
 	#else
-				public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-					srcData:Dynamic,
-						?srcOffset:Int, ?srcLengthOverride:Int):Void
+	public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
+		srcData:Dynamic,
+			?srcOffset:Int, ?srcLengthOverride:Int):Void
 	#end
-				{
-					var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
 
-					__tempPointer.set(srcData, srcOffset);
-					this.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, __tempPointer);
-					}
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, __tempPointer);
+	}
 
-					public inline function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
-						depth:Int, format:Int,
-							srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void
-					{
-						var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-						__tempPointer.set(srcData, srcOffset);
-						this.compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __tempPointer);
-					}
+	public inline function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
+		depth:Int, format:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __tempPointer);
+	}
 
-					public inline function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void
-					{
-						this.copyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
-					}
+	public inline function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void
+	{
+		this.copyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
+	}
 
-					public inline function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
-					{
-						this.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
-					}
+	public inline function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
+	{
+		this.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
+	}
 
-					public inline function copyTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void
-					{
-						this.copyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
-					}
+	public inline function copyTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.copyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
+	}
 
-					public inline function copyTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int,
-						height:Int):Void
-					{
-						this.copyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
-					}
+	public inline function copyTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int,
+		height:Int):Void
+	{
+		this.copyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+	}
 
-					public inline function createBuffer():GLBuffer
-					{
-						return this.createBuffer();
-					}
+	public inline function createBuffer():GLBuffer
+	{
+		return this.createBuffer();
+	}
 
-					public inline function createFramebuffer():GLFramebuffer
-					{
-						return this.createFramebuffer();
-					}
+	public inline function createFramebuffer():GLFramebuffer
+	{
+		return this.createFramebuffer();
+	}
 
-					public inline function createProgram():GLProgram
-					{
-						return this.createProgram();
-					}
+	public inline function createProgram():GLProgram
+	{
+		return this.createProgram();
+	}
 
-					public inline function createQuery():GLQuery
-					{
-						return this.createQuery();
-					}
+	public inline function createQuery():GLQuery
+	{
+		return this.createQuery();
+	}
 
-					public inline function createRenderbuffer():GLRenderbuffer
-					{
-						return this.createRenderbuffer();
-					}
+	public inline function createRenderbuffer():GLRenderbuffer
+	{
+		return this.createRenderbuffer();
+	}
 
-					public inline function createSampler():GLSampler
-					{
-						return this.createSampler();
-					}
+	public inline function createSampler():GLSampler
+	{
+		return this.createSampler();
+	}
 
-					public inline function createShader(type:Int):GLShader
-					{
-						return this.createShader(type);
-					}
+	public inline function createShader(type:Int):GLShader
+	{
+		return this.createShader(type);
+	}
 
-					public inline function createTexture():GLTexture
-					{
-						return this.createTexture();
-					}
+	public inline function createTexture():GLTexture
+	{
+		return this.createTexture();
+	}
 
-					public inline function createTransformFeedback():GLTransformFeedback
-					{
-						return this.createTransformFeedback();
-					}
+	public inline function createTransformFeedback():GLTransformFeedback
+	{
+		return this.createTransformFeedback();
+	}
 
-					public inline function createVertexArray():GLVertexArrayObject
-					{
-						return this.createVertexArray();
-					}
+	public inline function createVertexArray():GLVertexArrayObject
+	{
+		return this.createVertexArray();
+	}
 
-					public inline function cullFace(mode:Int):Void
-					{
-						this.cullFace(mode);
-					}
+	public inline function cullFace(mode:Int):Void
+	{
+		this.cullFace(mode);
+	}
 
-					public inline function deleteBuffer(buffer:GLBuffer):Void
-					{
-						this.deleteBuffer(buffer);
-					}
+	public inline function deleteBuffer(buffer:GLBuffer):Void
+	{
+		this.deleteBuffer(buffer);
+	}
 
-					public inline function deleteFramebuffer(framebuffer:GLFramebuffer):Void
-					{
-						this.deleteFramebuffer(framebuffer);
-					}
+	public inline function deleteFramebuffer(framebuffer:GLFramebuffer):Void
+	{
+		this.deleteFramebuffer(framebuffer);
+	}
 
-					public inline function deleteProgram(program:GLProgram):Void
-					{
-						this.deleteProgram(program);
-					}
+	public inline function deleteProgram(program:GLProgram):Void
+	{
+		this.deleteProgram(program);
+	}
 
-					public inline function deleteQuery(query:GLQuery):Void
-					{
-						this.deleteQuery(query);
-					}
+	public inline function deleteQuery(query:GLQuery):Void
+	{
+		this.deleteQuery(query);
+	}
 
-					public inline function deleteRenderbuffer(renderbuffer:GLRenderbuffer):Void
-					{
-						this.deleteRenderbuffer(renderbuffer);
-					}
+	public inline function deleteRenderbuffer(renderbuffer:GLRenderbuffer):Void
+	{
+		this.deleteRenderbuffer(renderbuffer);
+	}
 
-					public inline function deleteSampler(sampler:GLSampler):Void
-					{
-						this.deleteSampler(sampler);
-					}
+	public inline function deleteSampler(sampler:GLSampler):Void
+	{
+		this.deleteSampler(sampler);
+	}
 
-					public inline function deleteShader(shader:GLShader):Void
-					{
-						this.deleteShader(shader);
-					}
+	public inline function deleteShader(shader:GLShader):Void
+	{
+		this.deleteShader(shader);
+	}
 
-					public inline function deleteSync(sync:GLSync):Void
-					{
-						this.deleteSync(sync);
-					}
+	public inline function deleteSync(sync:GLSync):Void
+	{
+		this.deleteSync(sync);
+	}
 
-					public inline function deleteTexture(texture:GLTexture):Void
-					{
-						this.deleteTexture(texture);
-					}
+	public inline function deleteTexture(texture:GLTexture):Void
+	{
+		this.deleteTexture(texture);
+	}
 
-					public inline function deleteTransformFeedback(transformFeedback:GLTransformFeedback):Void
-					{
-						this.deleteTransformFeedback(transformFeedback);
-					}
+	public inline function deleteTransformFeedback(transformFeedback:GLTransformFeedback):Void
+	{
+		this.deleteTransformFeedback(transformFeedback);
+	}
 
-					public inline function deleteVertexArray(vertexArray:GLVertexArrayObject):Void
-					{
-						this.deleteVertexArray(vertexArray);
-					}
+	public inline function deleteVertexArray(vertexArray:GLVertexArrayObject):Void
+	{
+		this.deleteVertexArray(vertexArray);
+	}
 
-					public inline function depthFunc(func:Int):Void
-					{
-						this.depthFunc(func);
-					}
+	public inline function depthFunc(func:Int):Void
+	{
+		this.depthFunc(func);
+	}
 
-					public inline function depthMask(flag:Bool):Void
-					{
-						this.depthMask(flag);
-					}
+	public inline function depthMask(flag:Bool):Void
+	{
+		this.depthMask(flag);
+	}
 
-					public inline function depthRange(zNear:Float, zFar:Float):Void
-					{
-						this.depthRangef(zNear, zFar);
-					}
+	public inline function depthRange(zNear:Float, zFar:Float):Void
+	{
+		this.depthRangef(zNear, zFar);
+	}
 
-					public inline function detachShader(program:GLProgram, shader:GLShader):Void
-					{
-						this.detachShader(program, shader);
-					}
+	public inline function detachShader(program:GLProgram, shader:GLShader):Void
+	{
+		this.detachShader(program, shader);
+	}
 
-					public inline function disable(cap:Int):Void
-					{
-						this.disable(cap);
-					}
+	public inline function disable(cap:Int):Void
+	{
+		this.disable(cap);
+	}
 
-					public inline function disableVertexAttribArray(index:Int):Void
-					{
-						this.disableVertexAttribArray(index);
-					}
+	public inline function disableVertexAttribArray(index:Int):Void
+	{
+		this.disableVertexAttribArray(index);
+	}
 
-					public inline function drawArrays(mode:Int, first:Int, count:Int):Void
-					{
-						this.drawArrays(mode, first, count);
-					}
+	public inline function drawArrays(mode:Int, first:Int, count:Int):Void
+	{
+		this.drawArrays(mode, first, count);
+	}
 
-					public inline function drawArraysInstanced(mode:Int, first:Int, count:Int, instanceCount:Int):Void
-					{
-						this.drawArraysInstanced(mode, first, count, instanceCount);
-					}
+	public inline function drawArraysInstanced(mode:Int, first:Int, count:Int, instanceCount:Int):Void
+	{
+		this.drawArraysInstanced(mode, first, count, instanceCount);
+	}
 
-					public inline function drawBuffers(buffers:Array<Int>):Void
-					{
-						this.drawBuffers(buffers);
-					}
+	public inline function drawBuffers(buffers:Array<Int>):Void
+	{
+		this.drawBuffers(buffers);
+	}
 
-					public inline function drawElements(mode:Int, count:Int, type:Int, offset:DataPointer):Void
-					{
-						this.drawElements(mode, count, type, offset);
-					}
+	public inline function drawElements(mode:Int, count:Int, type:Int, offset:DataPointer):Void
+	{
+		this.drawElements(mode, count, type, offset);
+	}
 
-					public inline function drawElementsInstanced(mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void
-					{
-						this.drawElementsInstanced(mode, count, type, offset, instanceCount);
-					}
+	public inline function drawElementsInstanced(mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void
+	{
+		this.drawElementsInstanced(mode, count, type, offset, instanceCount);
+	}
 
-					public inline function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void
-					{
-						this.drawRangeElements(mode, start, end, count, type, offset);
-					}
+	public inline function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void
+	{
+		this.drawRangeElements(mode, start, end, count, type, offset);
+	}
 
-					public inline function enable(cap:Int):Void
-					{
-						this.enable(cap);
-					}
+	public inline function enable(cap:Int):Void
+	{
+		this.enable(cap);
+	}
 
-					public inline function enableVertexAttribArray(index:Int):Void
-					{
-						this.enableVertexAttribArray(index);
-					}
+	public inline function enableVertexAttribArray(index:Int):Void
+	{
+		this.enableVertexAttribArray(index);
+	}
 
-					public inline function endQuery(target:Int):Void
-					{
-						this.endQuery(target);
-					}
+	public inline function endQuery(target:Int):Void
+	{
+		this.endQuery(target);
+	}
 
-					public inline function endTransformFeedback():Void
-					{
-						this.endTransformFeedback();
-					}
+	public inline function endTransformFeedback():Void
+	{
+		this.endTransformFeedback();
+	}
 
-					public inline function fenceSync(condition:Int, flags:Int):GLSync
-					{
-						return this.fenceSync(condition, flags);
-					}
+	public inline function fenceSync(condition:Int, flags:Int):GLSync
+	{
+		return this.fenceSync(condition, flags);
+	}
 
-					public inline function finish():Void
-					{
-						this.finish();
-					}
+	public inline function finish():Void
+	{
+		this.finish();
+	}
 
-					public inline function flush():Void
-					{
-						this.flush();
-					}
+	public inline function flush():Void
+	{
+		this.flush();
+	}
 
-					public inline function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void
-					{
-						this.framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
-					}
+	public inline function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void
+	{
+		this.framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+	}
 
-					public inline function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void
-					{
-						this.framebufferTexture2D(target, attachment, textarget, texture, level);
-					}
+	public inline function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void
+	{
+		this.framebufferTexture2D(target, attachment, textarget, texture, level);
+	}
 
-					public inline function framebufferTextureLayer(target:Int, attachment:Int, texture:GLTexture, level:Int, layer:Int):Void
-					{
-						this.framebufferTextureLayer(target, attachment, texture, level, layer);
-					}
+	public inline function framebufferTextureLayer(target:Int, attachment:Int, texture:GLTexture, level:Int, layer:Int):Void
+	{
+		this.framebufferTextureLayer(target, attachment, texture, level, layer);
+	}
 
-					public inline function frontFace(mode:Int):Void
-					{
-						this.frontFace(mode);
-					}
+	public inline function frontFace(mode:Int):Void
+	{
+		this.frontFace(mode);
+	}
 
-					public inline function generateMipmap(target:Int):Void
-					{
-						this.generateMipmap(target);
-					}
+	public inline function generateMipmap(target:Int):Void
+	{
+		this.generateMipmap(target);
+	}
 
-					public inline function getActiveAttrib(program:GLProgram, index:Int):GLActiveInfo
-					{
-						return this.getActiveAttrib(program, index);
-					}
+	public inline function getActiveAttrib(program:GLProgram, index:Int):GLActiveInfo
+	{
+		return this.getActiveAttrib(program, index);
+	}
 
-					public inline function getActiveUniform(program:GLProgram, index:Int):GLActiveInfo
-					{
-						return this.getActiveUniform(program, index);
-					}
+	public inline function getActiveUniform(program:GLProgram, index:Int):GLActiveInfo
+	{
+		return this.getActiveUniform(program, index);
+	}
 
-					public inline function getActiveUniformBlockName(program:GLProgram, uniformBlockIndex:Int):String
-					{
-						return this.getActiveUniformBlockName(program, uniformBlockIndex);
-					}
+	public inline function getActiveUniformBlockName(program:GLProgram, uniformBlockIndex:Int):String
+	{
+		return this.getActiveUniformBlockName(program, uniformBlockIndex);
+	}
 
-					public inline function getActiveUniformBlockParameter(program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic
-					{
-						return this.getActiveUniformBlockParameter(program, uniformBlockIndex, pname);
-					}
+	public inline function getActiveUniformBlockParameter(program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic
+	{
+		return this.getActiveUniformBlockParameter(program, uniformBlockIndex, pname);
+	}
 
-					public inline function getActiveUniforms(program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic
-					{
-						return this.getActiveUniforms(program, uniformIndices, pname);
-					}
+	public inline function getActiveUniforms(program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic
+	{
+		return this.getActiveUniforms(program, uniformIndices, pname);
+	}
 
-					public inline function getAttachedShaders(program:GLProgram):Array<GLShader>
-					{
-						return this.getAttachedShaders(program);
-					}
+	public inline function getAttachedShaders(program:GLProgram):Array<GLShader>
+	{
+		return this.getAttachedShaders(program);
+	}
 
-					public inline function getAttribLocation(program:GLProgram, name:String):Int
-					{
-						return this.getAttribLocation(program, name);
-					}
+	public inline function getAttribLocation(program:GLProgram, name:String):Int
+	{
+		return this.getAttribLocation(program, name);
+	}
 
-					public inline function getBufferParameter(target:Int, pname:Int):Dynamic
-					{
-						return this.getBufferParameter(target, pname);
-					}
+	public inline function getBufferParameter(target:Int, pname:Int):Dynamic
+	{
+		return this.getBufferParameter(target, pname);
+	}
 
 	#if !lime_webgl
 					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void
