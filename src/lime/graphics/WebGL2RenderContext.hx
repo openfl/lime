@@ -4532,132 +4532,132 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	}
 
 	#if !lime_webgl
-							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int,
-								type:Int, srcData:ArrayBufferView,
-									srcOffset:Int = 0):Void
+	public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int,
+		type:Int, srcData:ArrayBufferView,
+			srcOffset:Int = 0):Void
 	#else
-							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int,
-								?type:Int, ?srcData:Dynamic,
-									?srcOffset:Int):Void
+	public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int,
+		?type:Int, ?srcData:Dynamic,
+			?srcOffset:Int):Void
 	#end
-							{
+	{
 		#if !lime_webgl
-								__tempPointer.set(srcData, srcOffset);
-								this.texImage2D(target, level, internalformat, width, height, border, format, type, __tempPointer);
+		__tempPointer.set(srcData, srcOffset);
+		this.texImage2D(target, level, internalformat, width, height, border, format, type, __tempPointer);
 		#end
-								}
+	}
 
-								public inline function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
-									format:Int, type:Int,
-										srcData:ArrayBufferView, srcOffset:Int = 0):Void
-								{
-									__tempPointer.set(srcData, srcOffset);
-									this.texImage3D(target, level, internalformat, width, height, depth, border, format, type, __tempPointer);
-								}
+	public inline function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
+		format:Int, type:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0):Void
+	{
+		__tempPointer.set(srcData, srcOffset);
+		this.texImage3D(target, level, internalformat, width, height, depth, border, format, type, __tempPointer);
+	}
 
-								public inline function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void
-								{
-									this.texStorage2D(target, level, internalformat, width, height);
-								}
+	public inline function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void
+	{
+		this.texStorage2D(target, level, internalformat, width, height);
+	}
 
-								public inline function texStorage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void
-								{
-									this.texStorage3D(target, level, internalformat, width, height, depth);
-								}
+	public inline function texStorage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void
+	{
+		this.texStorage3D(target, level, internalformat, width, height, depth);
+	}
 
-								public inline function texParameterf(target:Int, pname:Int, param:Float):Void
-								{
-									this.texParameterf(target, pname, param);
-								}
+	public inline function texParameterf(target:Int, pname:Int, param:Float):Void
+	{
+		this.texParameterf(target, pname, param);
+	}
 
-								public inline function texParameteri(target:Int, pname:Int, param:Int):Void
-								{
-									this.texParameteri(target, pname, param);
-								}
-
-	#if !lime_webgl
-								public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-									type:Int, srcData:ArrayBufferView,
-										srcOffset:Int = 0):Void
-	#else
-								public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic,
-									?type:Int, ?srcData:Dynamic,
-										?srcOffset:Int):Void
-	#end
-								{
-									__tempPointer.set(srcData, srcOffset);
-									this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
-									}
-
-									public inline function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
-										depth:Int, format:Int, type:Int,
-											srcData:ArrayBufferView, srcOffset:Int = 0):Void
-									{
-										__tempPointer.set(srcData, srcOffset);
-										this.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __tempPointer);
-									}
-
-									public inline function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void
-									{
-										this.transformFeedbackVaryings(program, varyings, bufferMode);
-									}
-
-									public inline function uniform1f(location:GLUniformLocation, v0:Float):Void
-									{
-										this.uniform1f(location, v0);
-									}
+	public inline function texParameteri(target:Int, pname:Int, param:Int):Void
+	{
+		this.texParameteri(target, pname, param);
+	}
 
 	#if !lime_webgl
-									public inline function uniform1fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
+		type:Int, srcData:ArrayBufferView,
+			srcOffset:Int = 0):Void
 	#else
-									public inline function uniform1fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic,
+		?type:Int, ?srcData:Dynamic,
+			?srcOffset:Int):Void
 	#end
-									{
-										this.uniform1fv(location, v != null ? v.length : 0, v);
-										}
+	{
+		__tempPointer.set(srcData, srcOffset);
+		this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
+	}
 
-										public inline function uniform1i(location:GLUniformLocation, v0:Int):Void
-										{
-											this.uniform1i(location, v0);
-										}
+	public inline function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
+		depth:Int, format:Int, type:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0):Void
+	{
+		__tempPointer.set(srcData, srcOffset);
+		this.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __tempPointer);
+	}
+
+	public inline function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void
+	{
+		this.transformFeedbackVaryings(program, varyings, bufferMode);
+	}
+
+	public inline function uniform1f(location:GLUniformLocation, v0:Float):Void
+	{
+		this.uniform1f(location, v0);
+	}
 
 	#if !lime_webgl
-										public inline function uniform1iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniform1fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	#else
-										public inline function uniform1iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniform1fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
-										{
-											this.uniform1iv(location, v != null ? v.length : 0, v);
-											}
+	{
+		this.uniform1fv(location, v != null ? v.length : 0, v);
+	}
 
-											public inline function uniform1ui(location:GLUniformLocation, v0:Int):Void
-											{
-												this.uniform1ui(location, v0);
-											}
-
-											public inline function uniform1uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
-											{
-												this.uniform1uiv(location, v != null ? v.length : 0, v);
-											}
-
-											public inline function uniform2f(location:GLUniformLocation, v0:Float, v1:Float):Void
-											{
-												this.uniform2f(location, v0, v1);
-											}
+	public inline function uniform1i(location:GLUniformLocation, v0:Int):Void
+	{
+		this.uniform1i(location, v0);
+	}
 
 	#if !lime_webgl
-											public inline function uniform2fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniform1iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	#else
-											public function uniform2fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniform1iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
-											{
-												this.uniform2fv(location, v != null ? v.length >> 1 : 0, v);
-												}
+	{
+		this.uniform1iv(location, v != null ? v.length : 0, v);
+	}
 
-												public inline function uniform2i(location:GLUniformLocation, v0:Int, v1:Int):Void
-												{
-													this.uniform2i(location, v0, v1);
-												}
+	public inline function uniform1ui(location:GLUniformLocation, v0:Int):Void
+	{
+		this.uniform1ui(location, v0);
+	}
+
+	public inline function uniform1uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	{
+		this.uniform1uiv(location, v != null ? v.length : 0, v);
+	}
+
+	public inline function uniform2f(location:GLUniformLocation, v0:Float, v1:Float):Void
+	{
+		this.uniform2f(location, v0, v1);
+	}
+
+	#if !lime_webgl
+	public inline function uniform2fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	#else
+	public function uniform2fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		this.uniform2fv(location, v != null ? v.length >> 1 : 0, v);
+	}
+
+	public inline function uniform2i(location:GLUniformLocation, v0:Int, v1:Int):Void
+	{
+		this.uniform2i(location, v0, v1);
+	}
 
 	#if !lime_webgl
 												public inline function uniform2iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
