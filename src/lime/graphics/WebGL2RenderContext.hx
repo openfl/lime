@@ -3770,11 +3770,12 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 		__tempPointer.set(srcData, srcOffset);
 		this.bufferData(target, size, __tempPointer, usage);
 		}
-		#if !lime_webgl
+
+	#if !lime_webgl
 		public inline function bufferSubData(target:Int, offset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?length:Int):Void
-		#else
+	#else
 		public inline function bufferSubData(target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void
-		#end
+	#end
 		{
 			var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
 
@@ -3845,15 +3846,15 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 				this.compileShader(shader);
 			}
 
-			#if !lime_webgl
+	#if !lime_webgl
 			public function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView,
 				srcOffset:Int = 0,
 					?srcLengthOverride:Int):Void
-			#else
+	#else
 			public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic,
 				?srcOffset:Int,
 					?srcLengthOverride:Int):Void
-			#end
+	#end
 			{
 				var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
 
@@ -3870,15 +3871,15 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 					this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
 				}
 
-				#if !lime_webgl
+	#if !lime_webgl
 				public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
 					srcData:ArrayBufferView,
 						srcOffset:Int = 0, ?srcLengthOverride:Int):Void
-				#else
+	#else
 				public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
 					srcData:Dynamic,
 						?srcOffset:Int, ?srcLengthOverride:Int):Void
-				#end
+	#end
 				{
 					var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
 
@@ -4186,17 +4187,17 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 						return this.getBufferParameter(target, pname);
 					}
 
-					#if !lime_webgl
+	#if !lime_webgl
 					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void
-					#else
+	#else
 					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void
-					#end
+	#end
 					{
-						#if !js
+	#if !js
 						var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
 
 						this.getBufferSubData(target, srcByteOffset + srcOffset, size, dstData);
-						#end
+	#end
 						}
 
 						public inline function getContextAttributes():GLContextAttributes
@@ -4449,12 +4450,12 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 							this.readBuffer(src);
 						}
 
-						#if !lime_webgl
+	#if !lime_webgl
 						public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView,
 							dstOffset:Int = 0):Void
-						#else
+	#else
 						public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void
-						#end
+	#end
 						{
 							__tempPointer.set(pixels, dstOffset);
 							this.readPixels(x, y, width, height, format, type, __tempPointer);
@@ -4530,20 +4531,20 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 								this.stencilOpSeparate(face, fail, zfail, zpass);
 							}
 
-							#if !lime_webgl
+	#if !lime_webgl
 							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int,
 								type:Int, srcData:ArrayBufferView,
 									srcOffset:Int = 0):Void
-							#else
+	#else
 							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int,
 								?type:Int, ?srcData:Dynamic,
 									?srcOffset:Int):Void
-							#end
+	#end
 							{
-								#if !lime_webgl
+		#if !lime_webgl
 								__tempPointer.set(srcData, srcOffset);
 								this.texImage2D(target, level, internalformat, width, height, border, format, type, __tempPointer);
-								#end
+		#end
 								}
 
 								public inline function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
@@ -4574,15 +4575,15 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 									this.texParameteri(target, pname, param);
 								}
 
-								#if !lime_webgl
+	#if !lime_webgl
 								public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
 									type:Int, srcData:ArrayBufferView,
 										srcOffset:Int = 0):Void
-								#else
+	#else
 								public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic,
 									?type:Int, ?srcData:Dynamic,
 										?srcOffset:Int):Void
-								#end
+	#end
 								{
 									__tempPointer.set(srcData, srcOffset);
 									this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
@@ -4606,11 +4607,11 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 										this.uniform1f(location, v0);
 									}
 
-									#if !lime_webgl
+	#if !lime_webgl
 									public inline function uniform1fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
-									#else
+	#else
 									public inline function uniform1fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-									#end
+	#end
 									{
 										this.uniform1fv(location, v != null ? v.length : 0, v);
 										}
@@ -4620,11 +4621,11 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 											this.uniform1i(location, v0);
 										}
 
-										#if !lime_webgl
+	#if !lime_webgl
 										public inline function uniform1iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
-										#else
+	#else
 										public inline function uniform1iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-										#end
+	#end
 										{
 											this.uniform1iv(location, v != null ? v.length : 0, v);
 											}
@@ -4644,11 +4645,11 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 												this.uniform2f(location, v0, v1);
 											}
 
-											#if !lime_webgl
+	#if !lime_webgl
 											public inline function uniform2fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
-											#else
+	#else
 											public function uniform2fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-											#end
+	#end
 											{
 												this.uniform2fv(location, v != null ? v.length >> 1 : 0, v);
 												}
@@ -4658,11 +4659,11 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 													this.uniform2i(location, v0, v1);
 												}
 
-												#if !lime_webgl
+	#if !lime_webgl
 												public inline function uniform2iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
-												#else
+	#else
 												public inline function uniform2iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-												#end
+	#end
 												{
 													this.uniform2iv(location, v != null ? v.length >> 1 : 0, v);
 													}
@@ -4683,13 +4684,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 														this.uniform3f(location, v0, v1, v2);
 													}
 
-													#if !lime_webgl
+	#if !lime_webgl
 													public inline function uniform3fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
 														?srcLength:Int):Void
-													#else
+	#else
 													public inline function uniform3fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
 														?srcLength:Int):Void
-													#end
+	#end
 													{
 														this.uniform3fv(location, v != null ? Std.int(v.length / 3) : 0, v);
 														}
@@ -4699,13 +4700,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 															this.uniform3i(location, v0, v1, v2);
 														}
 
-														#if !lime_webgl
+	#if !lime_webgl
 														public inline function uniform3iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
 															?srcLength:Int):Void
-														#else
+	#else
 														public inline function uniform3iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
 															?srcLength:Int):Void
-														#end
+	#end
 														{
 															this.uniform3iv(location, v != null ? Std.int(v.length / 3) : 0, v);
 															}
@@ -4727,13 +4728,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 																this.uniform4f(location, v0, v1, v2, v3);
 															}
 
-															#if !lime_webgl
+	#if !lime_webgl
 															public inline function uniform4fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
 																?srcLength:Int):Void
-															#else
+	#else
 															public inline function uniform4fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
 																?srcLength:Int):Void
-															#end
+	#end
 															{
 																this.uniform4fv(location, v != null ? v.length >> 2 : 0, v);
 																}
@@ -4744,13 +4745,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 																	this.uniform4i(location, v0, v1, v2, v3);
 																}
 
-																#if !lime_webgl
+	#if !lime_webgl
 																public inline function uniform4iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
 																	?srcLength:Int):Void
-																#else
+	#else
 																public inline function uniform4iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
 																	?srcLength:Int):Void
-																#end
+	#end
 																{
 																	this.uniform4iv(location, v != null ? v.length >> 2 : 0, v);
 																	}
@@ -4773,13 +4774,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 																		this.uniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
 																	}
 
-																	#if !lime_webgl
+	#if !lime_webgl
 																	public function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
 																		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																	#else
+	#else
 																	public inline function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
 																		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-																	#end
+	#end
 																	{
 																		var count = 0;
 
@@ -4813,13 +4814,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 																			this.uniformMatrix2x4fv(location, count, transpose, __tempPointer);
 																		}
 
-																		#if !lime_webgl
+	#if !lime_webgl
 																		public function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
 																			v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																		#else
+	#else
 																		public inline function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
 																			v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-																		#end
+	#end
 																		{
 																			var count = 0;
 
@@ -4853,13 +4854,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 																				this.uniformMatrix3x4fv(location, count, transpose, __tempPointer);
 																			}
 
-																			#if !lime_webgl
+	#if !lime_webgl
 																			public function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool,
 																				v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																			#else
+	#else
 																			public inline function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool,
 																				v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-																			#end
+	#end
 																			{
 																				var count = 0;
 
@@ -5004,12 +5005,12 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 																					return context.webgl2;
 																				}
 
-																				#if (!doc_gen && (lime_opengl || lime_opengles))
+	#if (!doc_gen && (lime_opengl || lime_opengles))
 																				@:from private static function fromOpenGLES3RenderContext(gl:OpenGLES3RenderContext):WebGL2RenderContext
 																				{
 																					return cast gl;
 																				}
-																				#end
+	#end
 
 																				@:from private static function fromGL(gl:Class<GL>):WebGL2RenderContext
 																				{
