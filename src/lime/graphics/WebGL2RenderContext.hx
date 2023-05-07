@@ -3772,79 +3772,79 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 		}
 
 	#if !lime_webgl
-		public inline function bufferSubData(target:Int, offset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?length:Int):Void
+	public inline function bufferSubData(target:Int, offset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?length:Int):Void
 	#else
-		public inline function bufferSubData(target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void
+	public inline function bufferSubData(target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void
 	#end
-		{
-			var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
+	{
+		var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
 
-			__tempPointer.set(srcData, srcOffset);
-			this.bufferSubData(target, offset, size, __tempPointer);
-			}
+		__tempPointer.set(srcData, srcOffset);
+		this.bufferSubData(target, offset, size, __tempPointer);
+	}
 
-			public inline function checkFramebufferStatus(target:Int):Int
-			{
-				return this.checkFramebufferStatus(target);
-			}
+	public inline function checkFramebufferStatus(target:Int):Int
+	{
+		return this.checkFramebufferStatus(target);
+	}
 
-			public inline function clear(mask:Int):Void
-			{
-				this.clear(mask);
-			}
+	public inline function clear(mask:Int):Void
+	{
+		this.clear(mask);
+	}
 
-			public inline function clearBufferfi(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void
-			{
-				this.clearBufferfi(buffer, drawbuffer, depth, stencil);
-			}
+	public inline function clearBufferfi(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void
+	{
+		this.clearBufferfi(buffer, drawbuffer, depth, stencil);
+	}
 
-			public function clearBufferfv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, srcOffset:Int = 0):Void
-			{
-				__tempPointer.set(values, srcOffset);
-				this.clearBufferfv(buffer, drawbuffer, __tempPointer);
-			}
+	public function clearBufferfv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, srcOffset:Int = 0):Void
+	{
+		__tempPointer.set(values, srcOffset);
+		this.clearBufferfv(buffer, drawbuffer, __tempPointer);
+	}
 
-			public function clearBufferiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
-			{
-				__tempPointer.set(values, srcOffset);
-				this.clearBufferiv(buffer, drawbuffer, __tempPointer);
-			}
+	public function clearBufferiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
+	{
+		__tempPointer.set(values, srcOffset);
+		this.clearBufferiv(buffer, drawbuffer, __tempPointer);
+	}
 
-			public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
-			{
-				__tempPointer.set(values, srcOffset);
-				this.clearBufferuiv(buffer, drawbuffer, __tempPointer);
-			}
+	public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
+	{
+		__tempPointer.set(values, srcOffset);
+		this.clearBufferuiv(buffer, drawbuffer, __tempPointer);
+	}
 
-			public inline function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void
-			{
-				this.clearColor(red, green, blue, alpha);
-			}
+	public inline function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void
+	{
+		this.clearColor(red, green, blue, alpha);
+	}
 
-			public inline function clearDepth(depth:Float):Void
-			{
-				this.clearDepthf(depth);
-			}
+	public inline function clearDepth(depth:Float):Void
+	{
+		this.clearDepthf(depth);
+	}
 
-			public inline function clearStencil(s:Int):Void
-			{
-				this.clearStencil(s);
-			}
+	public inline function clearStencil(s:Int):Void
+	{
+		this.clearStencil(s);
+	}
 
-			public inline function clientWaitSync(sync:GLSync, flags:Int, timeout:Int64):Int
-			{
-				return this.clientWaitSync(sync, flags, timeout);
-			}
+	public inline function clientWaitSync(sync:GLSync, flags:Int, timeout:Int64):Int
+	{
+		return this.clientWaitSync(sync, flags, timeout);
+	}
 
-			public inline function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void
-			{
-				this.colorMask(red, green, blue, alpha);
-			}
+	public inline function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void
+	{
+		this.colorMask(red, green, blue, alpha);
+	}
 
-			public inline function compileShader(shader:GLShader):Void
-			{
-				this.compileShader(shader);
-			}
+	public inline function compileShader(shader:GLShader):Void
+	{
+		this.compileShader(shader);
+	}
 
 	#if !lime_webgl
 			public function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView,
