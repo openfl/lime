@@ -4188,348 +4188,348 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	}
 
 	#if !lime_webgl
-					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void
+	public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void
 	#else
-					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void
+	public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void
 	#end
-					{
-	#if !js
-						var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
+	{
+		#if !js
+		var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
 
-						this.getBufferSubData(target, srcByteOffset + srcOffset, size, dstData);
-	#end
-						}
+		this.getBufferSubData(target, srcByteOffset + srcOffset, size, dstData);
+		#end
+	}
 
-						public inline function getContextAttributes():GLContextAttributes
-						{
-							return this.getContextAttributes();
-						}
+	public inline function getContextAttributes():GLContextAttributes
+	{
+		return this.getContextAttributes();
+	}
 
-						public inline function getError():Int
-						{
-							return this.getError();
-						}
+	public inline function getError():Int
+	{
+		return this.getError();
+	}
 
-						public inline function getExtension(name:String):Dynamic
-						{
-							return this.getExtension(name);
-						}
+	public inline function getExtension(name:String):Dynamic
+	{
+		return this.getExtension(name);
+	}
 
-						public inline function getFragDataLocation(program:GLProgram, name:String):Int
-						{
-							return this.getFragDataLocation(program, name);
-						}
+	public inline function getFragDataLocation(program:GLProgram, name:String):Int
+	{
+		return this.getFragDataLocation(program, name);
+	}
 
-						public inline function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic
-						{
-							return this.getFramebufferAttachmentParameter(target, attachment, pname);
-						}
+	public inline function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic
+	{
+		return this.getFramebufferAttachmentParameter(target, attachment, pname);
+	}
 
-						public inline function getIndexedParameter(target:Int, index:Int):Dynamic
-						{
-							return this.getIndexedParameter(target, index);
-						}
+	public inline function getIndexedParameter(target:Int, index:Int):Dynamic
+	{
+		return this.getIndexedParameter(target, index);
+	}
 
-						public inline function getInternalformatParameter(target:Int, internalformat:Int, pname:Int):Dynamic
-						{
-							return this.getInternalformatParameter(target, internalformat, pname);
-						}
+	public inline function getInternalformatParameter(target:Int, internalformat:Int, pname:Int):Dynamic
+	{
+		return this.getInternalformatParameter(target, internalformat, pname);
+	}
 
-						public inline function getParameter(pname:Int):Dynamic
-						{
-							return this.getParameter(pname);
-						}
+	public inline function getParameter(pname:Int):Dynamic
+	{
+		return this.getParameter(pname);
+	}
 
-						public inline function getProgramInfoLog(program:GLProgram):String
-						{
-							return this.getProgramInfoLog(program);
-						}
+	public inline function getProgramInfoLog(program:GLProgram):String
+	{
+		return this.getProgramInfoLog(program);
+	}
 
-						public inline function getProgramParameter(program:GLProgram, pname:Int):Dynamic
-						{
-							return this.getProgramParameter(program, pname);
-						}
+	public inline function getProgramParameter(program:GLProgram, pname:Int):Dynamic
+	{
+		return this.getProgramParameter(program, pname);
+	}
 
-						public inline function getQuery(target:Int, pname:Int):GLQuery
-						{
-							return this.getQuery(target, pname);
-						}
+	public inline function getQuery(target:Int, pname:Int):GLQuery
+	{
+		return this.getQuery(target, pname);
+	}
 
-						public inline function getQueryParameter(query:GLQuery, pname:Int):Dynamic
-						{
-							return this.getQueryParameter(query, pname);
-						}
+	public inline function getQueryParameter(query:GLQuery, pname:Int):Dynamic
+	{
+		return this.getQueryParameter(query, pname);
+	}
 
-						public inline function getRenderbufferParameter(target:Int, pname:Int):Dynamic
-						{
-							return this.getRenderbufferParameter(target, pname);
-						}
+	public inline function getRenderbufferParameter(target:Int, pname:Int):Dynamic
+	{
+		return this.getRenderbufferParameter(target, pname);
+	}
 
-						public inline function getSamplerParameter(sampler:GLSampler, pname:Int):Dynamic
-						{
-							return this.getSamplerParameter(sampler, pname);
-						}
+	public inline function getSamplerParameter(sampler:GLSampler, pname:Int):Dynamic
+	{
+		return this.getSamplerParameter(sampler, pname);
+	}
 
-						public inline function getShaderInfoLog(shader:GLShader):String
-						{
-							return this.getShaderInfoLog(shader);
-						}
+	public inline function getShaderInfoLog(shader:GLShader):String
+	{
+		return this.getShaderInfoLog(shader);
+	}
 
-						public inline function getShaderParameter(shader:GLShader, pname:Int):Dynamic
-						{
-							return this.getShaderParameter(shader, pname);
-						}
+	public inline function getShaderParameter(shader:GLShader, pname:Int):Dynamic
+	{
+		return this.getShaderParameter(shader, pname);
+	}
 
-						public inline function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat
-						{
-							return this.getShaderPrecisionFormat(shadertype, precisiontype);
-						}
+	public inline function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat
+	{
+		return this.getShaderPrecisionFormat(shadertype, precisiontype);
+	}
 
-						public inline function getShaderSource(shader:GLShader):String
-						{
-							return this.getShaderSource(shader);
-						}
+	public inline function getShaderSource(shader:GLShader):String
+	{
+		return this.getShaderSource(shader);
+	}
 
-						public inline function getSupportedExtensions():Array<String>
-						{
-							return this.getSupportedExtensions();
-						}
+	public inline function getSupportedExtensions():Array<String>
+	{
+		return this.getSupportedExtensions();
+	}
 
-						public inline function getSyncParameter(sync:GLSync, pname:Int):Dynamic
-						{
-							return this.getSyncParameter(sync, pname);
-						}
+	public inline function getSyncParameter(sync:GLSync, pname:Int):Dynamic
+	{
+		return this.getSyncParameter(sync, pname);
+	}
 
-						public inline function getTexParameter(target:Int, pname:Int):Dynamic
-						{
-							return this.getTexParameter(target, pname);
-						}
+	public inline function getTexParameter(target:Int, pname:Int):Dynamic
+	{
+		return this.getTexParameter(target, pname);
+	}
 
-						public inline function getTransformFeedbackVarying(program:GLProgram, index:Int):GLActiveInfo
-						{
-							return this.getTransformFeedbackVarying(program, index);
-						}
+	public inline function getTransformFeedbackVarying(program:GLProgram, index:Int):GLActiveInfo
+	{
+		return this.getTransformFeedbackVarying(program, index);
+	}
 
-						public inline function getUniform(program:GLProgram, location:GLUniformLocation):Dynamic
-						{
-							return this.getUniform(program, location);
-						}
+	public inline function getUniform(program:GLProgram, location:GLUniformLocation):Dynamic
+	{
+		return this.getUniform(program, location);
+	}
 
-						public inline function getUniformBlockIndex(program:GLProgram, uniformBlockName:String):Int
-						{
-							return this.getUniformBlockIndex(program, uniformBlockName);
-						}
+	public inline function getUniformBlockIndex(program:GLProgram, uniformBlockName:String):Int
+	{
+		return this.getUniformBlockIndex(program, uniformBlockName);
+	}
 
-						public inline function getUniformIndices(program:GLProgram, uniformNames:Array<String>):Array<Int>
-						{
-							return this.getUniformIndices(program, uniformNames);
-						}
+	public inline function getUniformIndices(program:GLProgram, uniformNames:Array<String>):Array<Int>
+	{
+		return this.getUniformIndices(program, uniformNames);
+	}
 
-						public inline function getUniformLocation(program:GLProgram, name:String):GLUniformLocation
-						{
-							return this.getUniformLocation(program, name);
-						}
+	public inline function getUniformLocation(program:GLProgram, name:String):GLUniformLocation
+	{
+		return this.getUniformLocation(program, name);
+	}
 
-						public inline function getVertexAttrib(index:Int, pname:Int):Dynamic
-						{
-							return this.getVertexAttrib(index, pname);
-						}
+	public inline function getVertexAttrib(index:Int, pname:Int):Dynamic
+	{
+		return this.getVertexAttrib(index, pname);
+	}
 
-						public inline function getVertexAttribOffset(index:Int, pname:Int):DataPointer
-						{
-							return this.getVertexAttribPointerv(index, pname);
-						}
+	public inline function getVertexAttribOffset(index:Int, pname:Int):DataPointer
+	{
+		return this.getVertexAttribPointerv(index, pname);
+	}
 
-						public inline function hint(target:Int, mode:Int):Void
-						{
-							this.hint(target, mode);
-						}
+	public inline function hint(target:Int, mode:Int):Void
+	{
+		this.hint(target, mode);
+	}
 
-						public inline function invalidateFramebuffer(target:Int, attachments:Array<Int>):Void
-						{
-							this.invalidateFramebuffer(target, attachments);
-						}
+	public inline function invalidateFramebuffer(target:Int, attachments:Array<Int>):Void
+	{
+		this.invalidateFramebuffer(target, attachments);
+	}
 
-						public inline function invalidateSubFramebuffer(target:Int, attachments:Array<Int>, x:Int, y:Int, width:Int, height:Int):Void
-						{
-							this.invalidateSubFramebuffer(target, attachments, x, y, width, height);
-						}
+	public inline function invalidateSubFramebuffer(target:Int, attachments:Array<Int>, x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.invalidateSubFramebuffer(target, attachments, x, y, width, height);
+	}
 
-						public inline function isBuffer(buffer:GLBuffer):Bool
-						{
-							return this.isBuffer(buffer);
-						}
+	public inline function isBuffer(buffer:GLBuffer):Bool
+	{
+		return this.isBuffer(buffer);
+	}
 
-						public inline function isContextLost():Bool
-						{
-							return this.isContextLost();
-						}
+	public inline function isContextLost():Bool
+	{
+		return this.isContextLost();
+	}
 
-						public inline function isEnabled(cap:Int):Bool
-						{
-							return this.isEnabled(cap);
-						}
+	public inline function isEnabled(cap:Int):Bool
+	{
+		return this.isEnabled(cap);
+	}
 
-						public inline function isFramebuffer(framebuffer:GLFramebuffer):Bool
-						{
-							return this.isFramebuffer(framebuffer);
-						}
+	public inline function isFramebuffer(framebuffer:GLFramebuffer):Bool
+	{
+		return this.isFramebuffer(framebuffer);
+	}
 
-						public inline function isProgram(program:GLProgram):Bool
-						{
-							return this.isProgram(program);
-						}
+	public inline function isProgram(program:GLProgram):Bool
+	{
+		return this.isProgram(program);
+	}
 
-						public inline function isQuery(query:GLQuery):Bool
-						{
-							return this.isQuery(query);
-						}
+	public inline function isQuery(query:GLQuery):Bool
+	{
+		return this.isQuery(query);
+	}
 
-						public inline function isRenderbuffer(renderbuffer:GLRenderbuffer):Bool
-						{
-							return this.isRenderbuffer(renderbuffer);
-						}
+	public inline function isRenderbuffer(renderbuffer:GLRenderbuffer):Bool
+	{
+		return this.isRenderbuffer(renderbuffer);
+	}
 
-						public inline function isSampler(sampler:GLSampler):Bool
-						{
-							return this.isSampler(sampler);
-						}
+	public inline function isSampler(sampler:GLSampler):Bool
+	{
+		return this.isSampler(sampler);
+	}
 
-						public inline function isShader(shader:GLShader):Bool
-						{
-							return this.isShader(shader);
-						}
+	public inline function isShader(shader:GLShader):Bool
+	{
+		return this.isShader(shader);
+	}
 
-						public inline function isSync(sync:GLSync):Bool
-						{
-							return this.isSync(sync);
-						}
+	public inline function isSync(sync:GLSync):Bool
+	{
+		return this.isSync(sync);
+	}
 
-						public inline function isTexture(texture:GLTexture):Bool
-						{
-							return this.isTexture(texture);
-						}
+	public inline function isTexture(texture:GLTexture):Bool
+	{
+		return this.isTexture(texture);
+	}
 
-						public inline function isTransformFeedback(transformFeedback:GLTransformFeedback):Bool
-						{
-							return this.isTransformFeedback(transformFeedback);
-						}
+	public inline function isTransformFeedback(transformFeedback:GLTransformFeedback):Bool
+	{
+		return this.isTransformFeedback(transformFeedback);
+	}
 
-						public inline function isVertexArray(vertexArray:GLVertexArrayObject):Bool
-						{
-							return this.isVertexArray(vertexArray);
-						}
+	public inline function isVertexArray(vertexArray:GLVertexArrayObject):Bool
+	{
+		return this.isVertexArray(vertexArray);
+	}
 
-						public inline function lineWidth(width:Float):Void
-						{
-							this.lineWidth(width);
-						}
+	public inline function lineWidth(width:Float):Void
+	{
+		this.lineWidth(width);
+	}
 
-						public inline function linkProgram(program:GLProgram):Void
-						{
-							this.linkProgram(program);
-						}
+	public inline function linkProgram(program:GLProgram):Void
+	{
+		this.linkProgram(program);
+	}
 
-						public inline function pauseTransformFeedback():Void
-						{
-							this.pauseTransformFeedback();
-						}
+	public inline function pauseTransformFeedback():Void
+	{
+		this.pauseTransformFeedback();
+	}
 
-						public inline function pixelStorei(pname:Int, param:Int):Void
-						{
-							this.pixelStorei(pname, param);
-						}
+	public inline function pixelStorei(pname:Int, param:Int):Void
+	{
+		this.pixelStorei(pname, param);
+	}
 
-						public inline function polygonOffset(factor:Float, units:Float):Void
-						{
-							this.polygonOffset(factor, units);
-						}
+	public inline function polygonOffset(factor:Float, units:Float):Void
+	{
+		this.polygonOffset(factor, units);
+	}
 
-						public inline function readBuffer(src:Int):Void
-						{
-							this.readBuffer(src);
-						}
+	public inline function readBuffer(src:Int):Void
+	{
+		this.readBuffer(src);
+	}
 
 	#if !lime_webgl
-						public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView,
-							dstOffset:Int = 0):Void
+	public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView,
+		dstOffset:Int = 0):Void
 	#else
-						public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void
+	public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void
 	#end
-						{
-							__tempPointer.set(pixels, dstOffset);
-							this.readPixels(x, y, width, height, format, type, __tempPointer);
-							}
+	{
+		__tempPointer.set(pixels, dstOffset);
+		this.readPixels(x, y, width, height, format, type, __tempPointer);
+	}
 
-							public inline function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
-							{
-								this.renderbufferStorage(target, internalformat, width, height);
-							}
+	public inline function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
+	{
+		this.renderbufferStorage(target, internalformat, width, height);
+	}
 
-							public inline function renderbufferStorageMultisample(target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void
-							{
-								this.renderbufferStorageMultisample(target, samples, internalformat, width, height);
-							}
+	public inline function renderbufferStorageMultisample(target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void
+	{
+		this.renderbufferStorageMultisample(target, samples, internalformat, width, height);
+	}
 
-							public inline function resumeTransformFeedback():Void
-							{
-								this.resumeTransformFeedback();
-							}
+	public inline function resumeTransformFeedback():Void
+	{
+		this.resumeTransformFeedback();
+	}
 
-							public inline function sampleCoverage(value:Float, invert:Bool):Void
-							{
-								this.sampleCoverage(value, invert);
-							}
+	public inline function sampleCoverage(value:Float, invert:Bool):Void
+	{
+		this.sampleCoverage(value, invert);
+	}
 
-							public inline function samplerParameterf(sampler:GLSampler, pname:Int, param:Float):Void
-							{
-								this.samplerParameterf(sampler, pname, param);
-							}
+	public inline function samplerParameterf(sampler:GLSampler, pname:Int, param:Float):Void
+	{
+		this.samplerParameterf(sampler, pname, param);
+	}
 
-							public inline function samplerParameteri(sampler:GLSampler, pname:Int, param:Int):Void
-							{
-								this.samplerParameteri(sampler, pname, param);
-							}
+	public inline function samplerParameteri(sampler:GLSampler, pname:Int, param:Int):Void
+	{
+		this.samplerParameteri(sampler, pname, param);
+	}
 
-							public inline function scissor(x:Int, y:Int, width:Int, height:Int):Void
-							{
-								this.scissor(x, y, width, height);
-							}
+	public inline function scissor(x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.scissor(x, y, width, height);
+	}
 
-							public inline function shaderSource(shader:GLShader, source:String):Void
-							{
-								this.shaderSource(shader, source);
-							}
+	public inline function shaderSource(shader:GLShader, source:String):Void
+	{
+		this.shaderSource(shader, source);
+	}
 
-							public inline function stencilFunc(func:Int, ref:Int, mask:Int):Void
-							{
-								this.stencilFunc(func, ref, mask);
-							}
+	public inline function stencilFunc(func:Int, ref:Int, mask:Int):Void
+	{
+		this.stencilFunc(func, ref, mask);
+	}
 
-							public inline function stencilFuncSeparate(face:Int, func:Int, ref:Int, mask:Int):Void
-							{
-								this.stencilFuncSeparate(face, func, ref, mask);
-							}
+	public inline function stencilFuncSeparate(face:Int, func:Int, ref:Int, mask:Int):Void
+	{
+		this.stencilFuncSeparate(face, func, ref, mask);
+	}
 
-							public inline function stencilMask(mask:Int):Void
-							{
-								this.stencilMask(mask);
-							}
+	public inline function stencilMask(mask:Int):Void
+	{
+		this.stencilMask(mask);
+	}
 
-							public inline function stencilMaskSeparate(face:Int, mask:Int):Void
-							{
-								this.stencilMaskSeparate(face, mask);
-							}
+	public inline function stencilMaskSeparate(face:Int, mask:Int):Void
+	{
+		this.stencilMaskSeparate(face, mask);
+	}
 
-							public inline function stencilOp(fail:Int, zfail:Int, zpass:Int):Void
-							{
-								this.stencilOp(fail, zfail, zpass);
-							}
+	public inline function stencilOp(fail:Int, zfail:Int, zpass:Int):Void
+	{
+		this.stencilOp(fail, zfail, zpass);
+	}
 
-							public inline function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:Int):Void
-							{
-								this.stencilOpSeparate(face, fail, zfail, zpass);
-							}
+	public inline function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:Int):Void
+	{
+		this.stencilOpSeparate(face, fail, zfail, zpass);
+	}
 
 	#if !lime_webgl
 							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int,
