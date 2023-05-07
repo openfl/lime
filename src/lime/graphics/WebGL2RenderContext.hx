@@ -4660,159 +4660,159 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	}
 
 	#if !lime_webgl
-												public inline function uniform2iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniform2iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	#else
-												public inline function uniform2iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniform2iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
-												{
-													this.uniform2iv(location, v != null ? v.length >> 1 : 0, v);
-													}
+	{
+		this.uniform2iv(location, v != null ? v.length >> 1 : 0, v);
+	}
 
-													public inline function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void
-													{
-														this.uniform2ui(location, v0, v1);
-													}
+	public inline function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void
+	{
+		this.uniform2ui(location, v0, v1);
+	}
 
-													public inline function uniform2uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
-														?srcLength:Int):Void
-													{
-														this.uniform2uiv(location, v != null ? v.length >> 1 : 0, v);
-													}
+	public inline function uniform2uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	{
+		this.uniform2uiv(location, v != null ? v.length >> 1 : 0, v);
+	}
 
-													public inline function uniform3f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void
-													{
-														this.uniform3f(location, v0, v1, v2);
-													}
+	public inline function uniform3f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void
+	{
+		this.uniform3f(location, v0, v1, v2);
+	}
 
 	#if !lime_webgl
-													public inline function uniform3fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
-														?srcLength:Int):Void
+	public inline function uniform3fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#else
-													public inline function uniform3fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-														?srcLength:Int):Void
+	public inline function uniform3fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#end
-													{
-														this.uniform3fv(location, v != null ? Std.int(v.length / 3) : 0, v);
-														}
+	{
+		this.uniform3fv(location, v != null ? Std.int(v.length / 3) : 0, v);
+	}
 
-														public inline function uniform3i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
-														{
-															this.uniform3i(location, v0, v1, v2);
-														}
+	public inline function uniform3i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
+	{
+		this.uniform3i(location, v0, v1, v2);
+	}
 
 	#if !lime_webgl
-														public inline function uniform3iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
-															?srcLength:Int):Void
+	public inline function uniform3iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#else
-														public inline function uniform3iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-															?srcLength:Int):Void
+	public inline function uniform3iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#end
-														{
-															this.uniform3iv(location, v != null ? Std.int(v.length / 3) : 0, v);
-															}
+	{
+		this.uniform3iv(location, v != null ? Std.int(v.length / 3) : 0, v);
+	}
 
-															public inline function uniform3ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
-															{
-																this.uniform3ui(location, v0, v1, v2);
-															}
+	public inline function uniform3ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
+	{
+		this.uniform3ui(location, v0, v1, v2);
+	}
 
-															public inline function uniform3uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
-																?srcLength:Int):Void
-															{
-																this.uniform3uiv(location, v != null ? Std.int(v.length / 3) : 0, v);
-															}
+	public inline function uniform3uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	{
+		this.uniform3uiv(location, v != null ? Std.int(v.length / 3) : 0, v);
+	}
 
-															public inline function uniform4f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float,
-																v3:Float):Void
-															{
-																this.uniform4f(location, v0, v1, v2, v3);
-															}
+	public inline function uniform4f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float,
+		v3:Float):Void
+	{
+		this.uniform4f(location, v0, v1, v2, v3);
+	}
 
 	#if !lime_webgl
-															public inline function uniform4fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
-																?srcLength:Int):Void
+	public inline function uniform4fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#else
-															public inline function uniform4fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-																?srcLength:Int):Void
+	public inline function uniform4fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#end
-															{
-																this.uniform4fv(location, v != null ? v.length >> 2 : 0, v);
-																}
+	{
+		this.uniform4fv(location, v != null ? v.length >> 2 : 0, v);
+	}
 
-																public inline function uniform4i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
-																	v3:Int):Void
-																{
-																	this.uniform4i(location, v0, v1, v2, v3);
-																}
+	public inline function uniform4i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
+		v3:Int):Void
+	{
+		this.uniform4i(location, v0, v1, v2, v3);
+	}
 
 	#if !lime_webgl
-																public inline function uniform4iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
-																	?srcLength:Int):Void
+	public inline function uniform4iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#else
-																public inline function uniform4iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-																	?srcLength:Int):Void
+	public inline function uniform4iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
 	#end
-																{
-																	this.uniform4iv(location, v != null ? v.length >> 2 : 0, v);
-																	}
+	{
+		this.uniform4iv(location, v != null ? v.length >> 2 : 0, v);
+	}
 
-																	public inline function uniform4ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
-																		v3:Int):Void
-																	{
-																		this.uniform4ui(location, v0, v1, v2, v3);
-																	}
+	public inline function uniform4ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
+		v3:Int):Void
+	{
+		this.uniform4ui(location, v0, v1, v2, v3);
+	}
 
-																	public inline function uniform4uiv(location:GLUniformLocation, v:UInt32Array,
-																		?srcOffset:Int, ?srcLength:Int):Void
-																	{
-																		this.uniform4uiv(location, v != null ? v.length >> 2 : 0, v);
-																	}
+	public inline function uniform4uiv(location:GLUniformLocation, v:UInt32Array,
+		?srcOffset:Int, ?srcLength:Int):Void
+	{
+		this.uniform4uiv(location, v != null ? v.length >> 2 : 0, v);
+	}
 
-																	public inline function uniformBlockBinding(program:GLProgram, uniformBlockIndex:Int,
-																		uniformBlockBinding:Int):Void
-																	{
-																		this.uniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
-																	}
+	public inline function uniformBlockBinding(program:GLProgram, uniformBlockIndex:Int,
+		uniformBlockBinding:Int):Void
+	{
+		this.uniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+	}
 
 	#if !lime_webgl
-																	public function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
-																		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	public function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	#else
-																	public inline function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
-																		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	public inline function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
+		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
-																	{
-																		var count = 0;
+	{
+		var count = 0;
 
-																		if (srcLength != null) count = srcLength;
-																		else if (v != null) count = v.length >> 2;
-																		__tempPointer.set(v, srcOffset);
-																		this.uniformMatrix2fv(location, count, transpose, __tempPointer);
-																		}
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = v.length >> 2;
+		__tempPointer.set(v, srcOffset);
+		this.uniformMatrix2fv(location, count, transpose, __tempPointer);
+	}
 
-																		public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool,
-																			v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																		{
-																			var count = 0;
-																			if (srcLength != null) count = srcLength;
-																			else if (v != null) count = Std.int(v.length / 6);
+	public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 6);
 
-																			__tempPointer.set(v, srcOffset);
+		__tempPointer.set(v, srcOffset);
 
-																			this.uniformMatrix2x3fv(location, count, transpose, __tempPointer);
-																		}
+		this.uniformMatrix2x3fv(location, count, transpose, __tempPointer);
+	}
 
-																		public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool,
-																			v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																		{
-																			var count = 0;
-																			if (srcLength != null) count = srcLength;
-																			else if (v != null) count = Std.int(v.length / 8);
+	public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 8);
 
-																			__tempPointer.set(v, srcOffset);
+		__tempPointer.set(v, srcOffset);
 
-																			this.uniformMatrix2x4fv(location, count, transpose, __tempPointer);
-																		}
+		this.uniformMatrix2x4fv(location, count, transpose, __tempPointer);
+	}
 
 	#if !lime_webgl
 																		public function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
