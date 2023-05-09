@@ -2,6 +2,7 @@ package lime.math;
 
 import lime.utils.Float32Array;
 import lime.utils.Log;
+import haxe.Math;
 
 /**
 	`Matrix4` is a 4x4 matrix, useful for 3D calculations
