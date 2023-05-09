@@ -380,27 +380,48 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	}
 	
 	/**
-		Initializes this matrix with values for a perspective projection
-		@param	fov     The field of view
-		@param	width   The width
-		@param	height  The height
+		Initializes this matrix with values for a perspective projection (Zero to One mode)
+		@param	fovy    The field of view
+		@param	aspect  The aspect ratio
 		@param	zNear	The near depth-clipping plane position
 		@param	zFar	The far depth-clipping plane position
 	**/
 	
-	public function createPerspective(fov:Float, width:Float, height:Float, zNear:Float, zFar:Float):Void {
-		if (width > 0.0 && height > 0.0 && fov > 0.0 ) {
-			var rad = fov;
-			var h = haxe.Math.cos(0.5 * rad) / haxe.Math.sin(0.5 * rad);
-			var w = h * height / width;
-			this[0] = w;
-			this[6] = h;
+	public function createPerspectiveZO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
+		if (haxe.Math.abs(aspect - (haxe.Math.pow(2, -23))) > 0.0) {
+			var tanHalfFovy = haxe.Math.tan(fovy / 2.0);
+			this[0] = 1.0 / (aspect * tanHalfFovy); 
+			this[6] = 1.0 / (tanHalfFovy);
 			this[11] = zFar / (zNear - zFar);
 			this[12] = -1.0;
 			this[15] = -(zFar * zNear) / (zFar - zNear);
 		} else {
-			throw new Error("Divison by zero is not permitted");
+			throw new Error("aspect greater than epsilson for Float");
 		}
+			
+		
+	}
+	
+	/**
+		Initializes this matrix with values for a perspective projection (-One to One mode)
+		@param	fovy    The field of view
+		@param	aspect  The aspect ratio
+		@param	zNear	The near depth-clipping plane position
+		@param	zFar	The far depth-clipping plane position
+	**/
+	
+	public function createPerspectiveNO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
+		if (haxe.Math.abs(aspect - (haxe.Math.pow(2, -23))) > 0.0) {
+			var tanHalfFovy = haxe.Math.tan(fovy / 2.0);
+			this[0]  = 1.0 / (aspect * tanHalfFovy); 
+			this[6]  = 1.0 / (tanHalfFovy);
+			this[11] = - (zFar + zNear) / (zFar - zNear);
+			this[12] = -1.0;
+			this[15] = - (2.0 * zFar * zNear) / (zFar - zNear);
+		} else {
+			throw new Error("aspect greater than epsilson for Float");
+		}
+			
 		
 	}
 
