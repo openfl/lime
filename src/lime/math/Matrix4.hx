@@ -2,7 +2,7 @@ package lime.math;
 
 import lime.utils.Float32Array;
 import lime.utils.Log;
-import haxe.Math;
+
 
 /**
 	`Matrix4` is a 4x4 matrix, useful for 3D calculations
@@ -389,8 +389,8 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	
 	public function createPerspectiveZO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
-		if (haxe.Math.abs(aspect - (haxe.Math.pow(2, -23))) > 0.0) {
-			var tanHalfFovy = haxe.Math.tan(fovy / 2.0);
+		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0) {
+			var tanHalfFovy = Math.tan(fovy / 2.0);
 			this[0] = 1.0 / (aspect * tanHalfFovy); 
 			this[6] = 1.0 / (tanHalfFovy);
 			this[11] = zFar / (zNear - zFar);
@@ -412,8 +412,8 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	
 	public function createPerspectiveNO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
-		if (haxe.Math.abs(aspect - (haxe.Math.pow(2, -23))) > 0.0) {
-			var tanHalfFovy = haxe.Math.tan(fovy / 2.0);
+		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0) {
+			var tanHalfFovy = .Math.tan(fovy / 2.0);
 			this[0]  = 1.0 / (aspect * tanHalfFovy); 
 			this[6]  = 1.0 / (tanHalfFovy);
 			this[11] = - (zFar + zNear) / (zFar - zNear);
