@@ -379,6 +379,15 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		this[15] = 1;
 	}
 	
+	/**
+		Initializes this matrix with values for a perspective projection
+		@param	fov     The field of view
+		@param	width   The width
+		@param	height  The height
+		@param	zNear	The near depth-clipping plane position
+		@param	zFar	The far depth-clipping plane position
+	**/
+	
 	public function createPerspective(fov:Float, width:Float, height:Float, zNear:Float, zFar:Float):Void {
 		if (width > 0.0 && height > 0.0 && fov > 0.0 ) {
 			var rad = fov;
