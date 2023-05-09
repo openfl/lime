@@ -397,7 +397,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 			this[12] = -1.0;
 			this[15] = -(zFar * zNear) / (zFar - zNear);
 		} else {
-			throw new "aspect greater than epsilson for Float";
+			throw "aspect greater than epsilson for Float";
 		}
 			
 		
@@ -420,7 +420,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 			this[12] = -1.0;
 			this[15] = - (2.0 * zFar * zNear) / (zFar - zNear);
 		} else {
-			throw new "aspect greater than epsilson for Float";
+			throw "aspect greater than epsilson for Float";
 		}
 			
 		
