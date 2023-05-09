@@ -413,7 +413,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	
 	public function createPerspectiveNO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
 		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0) {
-			var tanHalfFovy = .Math.tan(fovy / 2.0);
+			var tanHalfFovy = Math.tan(fovy / 2.0);
 			this[0]  = 1.0 / (aspect * tanHalfFovy); 
 			this[6]  = 1.0 / (tanHalfFovy);
 			this[11] = - (zFar + zNear) / (zFar - zNear);
