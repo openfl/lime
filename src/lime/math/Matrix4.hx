@@ -381,8 +381,11 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	
 	public function createPerspective(fov:Float, width:Float, height:Float, zNear:Float, zFar:Float):Void {
 		if (width > 0.0 && height > 0.0 && fov > 0.0 ) {
-			this[0] = width;
-			this[6] = height;
+			var rad = fov;
+			var h = haxe.Math.cos(0.5 * rad) / haxe.Math.sin(0.5 * rad);
+			var w = h * height / width;
+			this[0] = w;
+			this[6] = h;
 			this[11] = zFar / (zNear - zFar);
 			this[12] = -1.0;
 			this[15] = -(zFar * zNear) / (zFar - zNear);
