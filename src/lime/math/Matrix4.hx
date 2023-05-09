@@ -378,6 +378,19 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		this[14] = -(zNear + zFar) * sz;
 		this[15] = 1;
 	}
+	
+	public function createPerspective(fov:Float, width:Float, height:Float, zNear:Float, zFar:Float):Void {
+		if (width > 0.0 && height > 0.0 && fov > 0.0 ) {
+			this[0] = width;
+			this[6] = height;
+			this[11] = zFar / (zNear - zFar);
+			this[12] = -1.0;
+			this[15] = -(zFar * zNear) / (zFar - zNear);
+		} else {
+			throw new Error("Divison by zero is not permitted");
+		}
+		
+	}
 
 	/**
 	 * Returns the transformation matrix's translation, rotation, and scale settings as a Vector of three Vector4 objects.
