@@ -396,11 +396,23 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 			var left = -right;
 
 			this[0] = 2.0 * zNear / (right - left);
+			this[1] = 0;
+			this[2] = 0;
+			this[3] = 0;
+
+			this[4] = 0;
 			this[5] = 2.0 * zNear / (top - bottom);
+			this[6] = 0;
+			this[7] = 0;
+
 			this[8] = (right + left) / (right - left);
 			this[9] = (top + bottom) / (top - bottom);
 			this[10] = -(zFar + zNear) / (zFar - zNear);
 			this[11] = -1.0;
+
+			this[12] = 0;
+			this[13] = 0;
+			this[14] = 0;
 			this[14] = -2 * zFar * zNear / (zFar - zNear);
 		}
 		else
