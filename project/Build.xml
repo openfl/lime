@@ -331,14 +331,14 @@
 	</files>
 
 	<include name="lib/cairo/files.xml" />
-	<include name="lib/curl/files.xml" />
+	<include name="lib/curl-files.xml" />
 	<include name="lib/efsw/files.xml" />
 	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
 	<include name="lib/freetype/files.xml" />
 	<include name="lib/harfbuzz/files.xml" />
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/lzma/files.xml" />
-	<include name="lib/mbedtls/files.xml" />
+	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
@@ -456,6 +456,7 @@
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
