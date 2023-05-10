@@ -381,50 +381,32 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	}
 	
 	/**
-		Initializes this matrix with values for a perspective projection (Zero to One mode)
+		Initializes this matrix with values for a perspective projection 
 		@param	fovy    The field of view
 		@param	aspect  The aspect ratio
 		@param	zNear	The near depth-clipping plane position
 		@param	zFar	The far depth-clipping plane position
 	**/
 	
-	public function createPerspectiveZO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
+	function createPerspective(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
 		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0) {
-			var tanHalfFovy = Math.tan(fovy / 2.0);
-			this[0] = 1.0 / (aspect * tanHalfFovy); 
-			this[6] = 1.0 / (tanHalfFovy);
-			this[11] = zFar / (zNear - zFar);
-			this[12] = -1.0;
-			this[15] = -(zFar * zNear) / (zFar - zNear);
+			var top = fovy * zNear;
+			var bottom = -top;
+			var right = top * aspect;
+			var left = -right;
+
+			this[0] = 2.0 * zNear / (right - left);
+			this[5] = 2.0 * zNear / (top - bottom);
+			this[8] = (right + left) / (right - left);
+			this[9] = (top + bottom) / (top - bottom);
+			this[10] = -(zFar + zNear) / (zFar - zNear);
+			this[11] = -1.0;
+			this[14] = -2 * zFar * zNear / (zFar - zNear);
 		} else {
-			throw "aspect greater than epsilson for Float";
+			throw "aspect greater than epsillion of float";
 		}
-			
-		
 	}
 	
-	/**
-		Initializes this matrix with values for a perspective projection (-One to One mode)
-		@param	fovy    The field of view
-		@param	aspect  The aspect ratio
-		@param	zNear	The near depth-clipping plane position
-		@param	zFar	The far depth-clipping plane position
-	**/
-	
-	public function createPerspectiveNO(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
-		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0) {
-			var tanHalfFovy = Math.tan(fovy / 2.0);
-			this[0]  = 1.0 / (aspect * tanHalfFovy); 
-			this[6]  = 1.0 / (tanHalfFovy);
-			this[11] = - (zFar + zNear) / (zFar - zNear);
-			this[12] = -1.0;
-			this[15] = - (2.0 * zFar * zNear) / (zFar - zNear);
-		} else {
-			throw "aspect greater than epsilson for Float";
-		}
-			
-		
-	}
 
 	/**
 	 * Returns the transformation matrix's translation, rotation, and scale settings as a Vector of three Vector4 objects.
