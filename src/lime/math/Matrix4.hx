@@ -3,7 +3,6 @@ package lime.math;
 import lime.utils.Float32Array;
 import lime.utils.Log;
 
-
 /**
 	`Matrix4` is a 4x4 matrix, useful for 3D calculations
 **/
@@ -382,14 +381,15 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	
 	/**
 		Initializes this matrix with values for a perspective projection 
-		@param	fovy    The field of view
-		@param	aspect  The aspect ratio
+		@param	fov	The field of view
+		@param	aspect	The aspect ratio
 		@param	zNear	The near depth-clipping plane position
 		@param	zFar	The far depth-clipping plane position
 	**/
-	
-	function createPerspective(fovy:Float, aspect:Float, zNear:Float, zFar:Float):Void {
-		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0) {
+	function createPerspective(fov:Float, aspect:Float, zNear:Float, zFar:Float):Void
+	{
+		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0)
+		{
 			var top = fovy * zNear;
 			var bottom = -top;
 			var right = top * aspect;
@@ -402,11 +402,12 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 			this[10] = -(zFar + zNear) / (zFar - zNear);
 			this[11] = -1.0;
 			this[14] = -2 * zFar * zNear / (zFar - zNear);
-		} else {
+		}
+		else
+		{
 			throw "aspect greater than epsillion of float";
 		}
 	}
-	
 
 	/**
 	 * Returns the transformation matrix's translation, rotation, and scale settings as a Vector of three Vector4 objects.
