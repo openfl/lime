@@ -388,9 +388,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	function createPerspective(fov:Float, aspect:Float, zNear:Float, zFar:Float):Void
 	{
-		if (Math.abs(aspect - (Math.pow(2, -23))) > 0.0)
+		if (aspect < -0.0000001 || aspect > 0.0000001)
 		{
-			var top = fovy * zNear;
+			var top = fov * zNear;
 			var bottom = -top;
 			var right = top * aspect;
 			var left = -right;
@@ -405,7 +405,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		}
 		else
 		{
-			throw "aspect greater than epsillion of float";
+			throw "Aspect ratio may not be 0";
 		}
 	}
 
