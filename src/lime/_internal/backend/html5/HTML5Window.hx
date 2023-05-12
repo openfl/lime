@@ -109,6 +109,7 @@ class HTML5Window
 		}
 
 		parent.__scale = scale;
+		parent.__dpiScale = 1.0;
 
 		setWidth = Reflect.hasField(attributes, "width") ? attributes.width : 0;
 		setHeight = Reflect.hasField(attributes, "height") ? attributes.height : 0;

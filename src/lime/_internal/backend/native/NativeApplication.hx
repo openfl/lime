@@ -345,8 +345,14 @@ class NativeApplication
 					window.clickCount = 0;
 
 				case MOUSE_MOVE:
-					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
-					window.onMouseMoveRelative.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY);
+					// Correct for DPI scaling
+					var correctedMouseX = mouseEventInfo.x * window.__dpiScale;
+					var correctedMouseY = mouseEventInfo.y * window.__dpiScale;
+					var correctedMouseMovementX = mouseEventInfo.movementX * window.__dpiScale;
+					var correctedMouseMovementY = mouseEventInfo.movementY * window.__dpiScale;
+
+					window.onMouseMove.dispatch(correctedMouseX, correctedMouseY);
+					window.onMouseMoveRelative.dispatch(correctedMouseMovementX, correctedMouseMovementY);
 
 				case MOUSE_WHEEL:
 					window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);

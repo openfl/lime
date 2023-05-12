@@ -118,7 +118,8 @@ class NativeWindow
 			parent.id = NativeCFFI.lime_window_get_id(handle);
 		}
 
-		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
+		parent.__scale = 1.0;
+		parent.__dpiScale = NativeCFFI.lime_window_get_scale(handle);
 
 		var context = new RenderContext();
 		context.window = parent;
