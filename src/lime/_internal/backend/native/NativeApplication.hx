@@ -742,7 +742,6 @@ class NativeApplication
 {
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
-	// var TRACKBALL_MOVE = 2;
 	var BUTTON_DOWN = 3;
 	var BUTTON_UP = 4;
 	var CONNECT = 5;
