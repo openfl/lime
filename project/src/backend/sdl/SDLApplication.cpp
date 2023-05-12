@@ -371,25 +371,25 @@ namespace lime {
 
 				case SDL_EVENT_GAMEPAD_AXIS_MOTION:
 
-					if (gamepadsAxisMap[event->caxis.which].empty ()) {
+					if (gamepadsAxisMap[event->gaxis.which].empty ()) {
 
-						gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
+						gamepadsAxisMap[event->gaxis.which][event->gaxis.axis] = event->gaxis.value;
 
-					} else if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] == event->caxis.value) {
+					} else if (gamepadsAxisMap[event->gaxis.which][event->gaxis.axis] == event->gaxis.value) {
 
 						break;
 
 					}
 
 					gamepadEvent.type = GAMEPAD_AXIS_MOVE;
-					gamepadEvent.axis = event->caxis.axis;
-					gamepadEvent.id = event->caxis.which;
+					gamepadEvent.axis = event->gaxis.axis;
+					gamepadEvent.id = event->gaxis.which;
 
-					if (event->caxis.value > -analogAxisDeadZone && event->caxis.value < analogAxisDeadZone) {
+					if (event->gaxis.value > -analogAxisDeadZone && event->gaxis.value < analogAxisDeadZone) {
 
-						if (gamepadsAxisMap[event->caxis.which][event->caxis.axis] != 0) {
+						if (gamepadsAxisMap[event->gaxis.which][event->gaxis.axis] != 0) {
 
-							gamepadsAxisMap[event->caxis.which][event->caxis.axis] = 0;
+							gamepadsAxisMap[event->gaxis.which][event->gaxis.axis] = 0;
 							gamepadEvent.axisValue = 0;
 							GamepadEvent::Dispatch (&gamepadEvent);
 
@@ -399,8 +399,8 @@ namespace lime {
 
 					}
 
-					gamepadsAxisMap[event->caxis.which][event->caxis.axis] = event->caxis.value;
-					gamepadEvent.axisValue = event->caxis.value / (event->caxis.value > 0 ? 32767.0 : 32768.0);
+					gamepadsAxisMap[event->gaxis.which][event->gaxis.axis] = event->gaxis.value;
+					gamepadEvent.axisValue = event->gaxis.value / (event->gaxis.value > 0 ? 32767.0 : 32768.0);
 
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
@@ -408,8 +408,8 @@ namespace lime {
 				case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 
 					gamepadEvent.type = GAMEPAD_BUTTON_DOWN;
-					gamepadEvent.button = event->cbutton.button;
-					gamepadEvent.id = event->cbutton.which;
+					gamepadEvent.button = event->gbutton.button;
+					gamepadEvent.id = event->gbutton.which;
 
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
@@ -417,18 +417,18 @@ namespace lime {
 				case SDL_EVENT_GAMEPAD_BUTTON_UP:
 
 					gamepadEvent.type = GAMEPAD_BUTTON_UP;
-					gamepadEvent.button = event->cbutton.button;
-					gamepadEvent.id = event->cbutton.which;
+					gamepadEvent.button = event->gbutton.button;
+					gamepadEvent.id = event->gbutton.which;
 
 					GamepadEvent::Dispatch (&gamepadEvent);
 					break;
 
 				case SDL_EVENT_GAMEPAD_ADDED:
 
-					if (SDLGamepad::Connect (event->cdevice.which)) {
+					if (SDLGamepad::Connect (event->gdevice.which)) {
 
 						gamepadEvent.type = GAMEPAD_CONNECT;
-						gamepadEvent.id = SDLGamepad::GetInstanceID (event->cdevice.which);
+						gamepadEvent.id = SDLGamepad::GetInstanceID (event->gdevice.which);
 
 						GamepadEvent::Dispatch (&gamepadEvent);
 
@@ -439,10 +439,10 @@ namespace lime {
 				case SDL_EVENT_GAMEPAD_REMOVED: {
 
 					gamepadEvent.type = GAMEPAD_DISCONNECT;
-					gamepadEvent.id = event->cdevice.which;
+					gamepadEvent.id = event->gdevice.which;
 
 					GamepadEvent::Dispatch (&gamepadEvent);
-					SDLGamepad::Disconnect (event->cdevice.which);
+					SDLGamepad::Disconnect (event->gdevice.which);
 					break;
 
 				}
