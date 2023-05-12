@@ -575,6 +575,7 @@ namespace lime {
 			keyEvent.keyCode = event->key.keysym.sym;
 			keyEvent.modifier = event->key.keysym.mod;
 			keyEvent.windowID = event->key.windowID;
+			keyEvent.timestamp = event->key.timestamp;
 
 			if (keyEvent.type == KEY_DOWN) {
 

@@ -250,6 +250,22 @@ class Application extends Module
 	public function onKeyUp(keyCode:KeyCode, modifier:KeyModifier):Void {}
 
 	/**
+		Called when a key down event is fired on the primary window
+		@param	keyCode	The code of the key that was pressed
+		@param	modifier	The modifier of the key that was pressed
+		@param	timestamp 	The timestamp of the event
+	**/
+	public function onKeyDownPrecise(keyCode:KeyCode, modifier:KeyModifier):Void {}
+
+	/**
+		Called when a key up event is fired on the primary window
+		@param	keyCode	The code of the key that was released
+		@param	modifier	The modifier of the key that was released
+		@param	timestamp 	The timestamp of the event
+	**/
+	public function onKeyUpPrecise(keyCode:KeyCode, modifier:KeyModifier):Void {}
+
+	/**
 		Called when the module is exiting
 	**/
 	public function onModuleExit(code:Int):Void {}
