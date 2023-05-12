@@ -227,15 +227,6 @@ class Application extends Module
 	public function onJoystickHatMove(joystick:Joystick, hat:Int, position:JoystickHatPosition):Void {}
 
 	/**
-		Called when a joystick axis move event is fired
-		@param	joystick	The current joystick
-		@param	trackball	The trackball that was moved
-		@param	x	The x movement of the trackball (between 0 and 1)
-		@param	y	The y movement of the trackball (between 0 and 1)
-	**/
-	public function onJoystickTrackballMove(joystick:Joystick, trackball:Int, x:Float, y:Float):Void {}
-
-	/**
 		Called when a key down event is fired on the primary window
 		@param	keyCode	The code of the key that was pressed
 		@param	modifier	The modifier of the key that was pressed
@@ -585,7 +576,6 @@ class Application extends Module
 		joystick.onButtonUp.add(onJoystickButtonUp.bind(joystick));
 		joystick.onDisconnect.add(onJoystickDisconnect.bind(joystick));
 		joystick.onHatMove.add(onJoystickHatMove.bind(joystick));
-		joystick.onTrackballMove.add(onJoystickTrackballMove.bind(joystick));
 	}
 
 	@:noCompletion private function __onModuleExit(code:Int):Void

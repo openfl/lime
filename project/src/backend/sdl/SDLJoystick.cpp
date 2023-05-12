@@ -116,12 +116,4 @@ namespace lime {
 
 	}
 
-
-	int Joystick::GetNumTrackballs (int id) {
-
-		return 0;
-
-	}
-
-
 }
