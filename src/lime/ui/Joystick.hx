@@ -20,13 +20,11 @@ class Joystick
 	public var numAxes(get, never):Int;
 	public var numButtons(get, never):Int;
 	public var numHats(get, never):Int;
-	public var numTrackballs(get, never):Int;
 	public var onAxisMove = new Event<Int->Float->Void>();
 	public var onButtonDown = new Event<Int->Void>();
 	public var onButtonUp = new Event<Int->Void>();
 	public var onDisconnect = new Event<Void->Void>();
 	public var onHatMove = new Event<Int->JoystickHatPosition->Void>();
-	public var onTrackballMove = new Event<Int->Float->Float->Void>();
 
 	public function new(id:Int)
 	{
@@ -121,15 +119,6 @@ class Joystick
 	{
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_joystick_get_num_hats(this.id);
-		#else
-		return 0;
-		#end
-	}
-
-	@:noCompletion private inline function get_numTrackballs():Int
-	{
-		#if (lime_cffi && !macro)
-		return NativeCFFI.lime_joystick_get_num_trackballs(this.id);
 		#else
 		return 0;
 		#end
