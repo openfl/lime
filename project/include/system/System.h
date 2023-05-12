@@ -28,6 +28,7 @@ namespace lime {
 
 			static void GCEnterBlocking ();
 			static void GCExitBlocking ();
+			static long GetTicks ();
 			static bool GetAllowScreenTimeout ();
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();

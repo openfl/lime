@@ -2663,6 +2663,20 @@ namespace lime {
 	}
 
 
+	long lime_sdl_get_ticks () {
+
+		return System::GetTicks ();
+
+	}
+
+
+	HL_PRIM long HL_NAME(hl_sdl_get_ticks) () {
+
+		return System::GetTicks ();
+
+	}
+
+
 	bool lime_system_get_allow_screen_timeout () {
 
 		return System::GetAllowScreenTimeout ();
@@ -3929,6 +3943,7 @@ namespace lime {
 	DEFINE_PRIME3 (lime_png_decode_bytes);
 	DEFINE_PRIME3 (lime_png_decode_file);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
+	DEFINE_PRIME0 (lime_sdl_get_ticks);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
 	DEFINE_PRIME0 (lime_system_get_device_model);
@@ -4113,6 +4128,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_png_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_png_decode_file, _STRING _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, hl_render_event_manager_register, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
+	DEFINE_HL_PRIM (_I64, hl_sdl_get_ticks, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_sensor_event_manager_register, _FUN (_VOID, _NO_ARG) _TSENSOR_EVENT);
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_allow_screen_timeout, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_device_model, _NO_ARG);
