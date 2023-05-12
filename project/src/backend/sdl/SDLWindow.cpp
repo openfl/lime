@@ -5,7 +5,7 @@
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
-#include <SDL_syswm.h>
+#include <SDL3/SDL_syswm.h>
 #include <Windows.h>
 #undef CreateWindow
 #endif
@@ -397,7 +397,7 @@ namespace lime {
 			int width;
 			int height;
 
-			SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+			SDL_GetCurrentRenderOutputSize (sdlRenderer, &width, &height);
 
 			if (width != contextWidth || height != contextHeight) {
 
@@ -492,7 +492,7 @@ namespace lime {
 
 			SDL_UnlockTexture (sdlTexture);
 			SDL_RenderClear (sdlRenderer);
-			SDL_RenderCopy (sdlRenderer, sdlTexture, NULL, NULL);
+			SDL_RenderTexture (sdlRenderer, sdlTexture, NULL, NULL);
 
 		}
 
@@ -543,7 +543,7 @@ namespace lime {
 
 	int SDLWindow::GetDisplay () {
 
-		return SDL_GetWindowDisplayIndex (sdlWindow);
+		return SDL_GetDisplayForWindow (sdlWindow);
 
 	}
 
@@ -551,7 +551,7 @@ namespace lime {
 	void SDLWindow::GetDisplayMode (DisplayMode* displayMode) {
 
 		SDL_DisplayMode mode;
-		SDL_GetWindowDisplayMode (sdlWindow, &mode);
+		SDL_GetWindowFullscreenMode (sdlWindow, &mode);
 
 		displayMode->width = mode.w;
 		displayMode->height = mode.h;
@@ -624,7 +624,7 @@ namespace lime {
 			int outputWidth;
 			int outputHeight;
 
-			SDL_GetRendererOutputSize (sdlRenderer, &outputWidth, &outputHeight);
+			SDL_GetCurrentRenderOutputSize (sdlRenderer, &outputWidth, &outputHeight);
 
 			int width;
 			int height;
@@ -658,7 +658,7 @@ namespace lime {
 
 	bool SDLWindow::GetTextInputEnabled () {
 
-		return SDL_IsTextInputActive ();
+		return SDL_TextInputActive ();
 
 	}
 
@@ -946,7 +946,7 @@ namespace lime {
 
 		SDL_DisplayMode mode = { pixelFormat, displayMode->width, displayMode->height, displayMode->refreshRate, 0 };
 
-		if (SDL_SetWindowDisplayMode (sdlWindow, &mode) == 0) {
+		if (SDL_SetWindowFullscreenMode (sdlWindow, &mode) == 0) {
 
 			displayModeSet = true;
 
@@ -993,7 +993,7 @@ namespace lime {
 		if (surface) {
 
 			SDL_SetWindowIcon (sdlWindow, surface);
-			SDL_FreeSurface (surface);
+			SDL_DestroySurface (surface);
 
 		}
 

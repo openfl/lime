@@ -4,20 +4,20 @@
 namespace lime {
 
 
-	std::map<int, SDL_GameController*> gameControllers = std::map<int, SDL_GameController*> ();
+	std::map<int, SDL_Gamepad*> gameControllers = std::map<int, SDL_Gamepad*> ();
 	std::map<int, int> gameControllerIDs = std::map<int, int> ();
 
 
 	bool SDLGamepad::Connect (int deviceID) {
 
-		if (SDL_IsGameController (deviceID)) {
+		if (SDL_IsGamepad (deviceID)) {
 
-			SDL_GameController *gameController = SDL_GameControllerOpen (deviceID);
+			SDL_Gamepad *gameController = SDL_OpenGamepad (deviceID);
 
 			if (gameController) {
 
-				SDL_Joystick *joystick = SDL_GameControllerGetJoystick (gameController);
-				int id = SDL_JoystickInstanceID (joystick);
+				SDL_Joystick *joystick = SDL_GetGamepadJoystick (gameController);
+				int id = SDL_GetJoystickInstanceID (joystick);
 
 				gameControllers[id] = gameController;
 				gameControllerIDs[deviceID] = id;
@@ -37,8 +37,8 @@ namespace lime {
 
 		if (gameControllers.find (id) != gameControllers.end ()) {
 
-			SDL_GameController *gameController = gameControllers[id];
-			SDL_GameControllerClose (gameController);
+			SDL_Gamepad *gameController = gameControllers[id];
+			SDL_CloseGamepad (gameController);
 			gameControllers.erase (id);
 
 			return true;
@@ -59,19 +59,19 @@ namespace lime {
 
 	void Gamepad::AddMapping (const char* content) {
 
-		SDL_GameControllerAddMapping (content);
+		SDL_AddGamepadMapping (content);
 
 	}
 
 
 	const char* Gamepad::GetDeviceGUID (int id) {
 
-		SDL_Joystick* joystick = SDL_GameControllerGetJoystick (gameControllers[id]);
+		SDL_Joystick* joystick = SDL_GetGamepadJoystick (gameControllers[id]);
 
 		if (joystick) {
 
 			char* guid = new char[64];
-			SDL_JoystickGetGUIDString (SDL_JoystickGetGUID (joystick), guid, 64);
+			SDL_GetJoystickGUIDString (SDL_GetJoystickGUID (joystick), guid, 64);
 			return guid;
 
 		}
@@ -83,7 +83,7 @@ namespace lime {
 
 	const char* Gamepad::GetDeviceName (int id) {
 
-		return SDL_GameControllerName (gameControllers[id]);
+		return SDL_GetGamepadName (gameControllers[id]);
 
 	}
 

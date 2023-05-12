@@ -2,7 +2,7 @@
 #define LIME_SDL_GAMEPAD_H
 
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <ui/Gamepad.h>
 #include <map>
 

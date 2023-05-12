@@ -2,7 +2,7 @@
 #define LIME_SDL_WINDOW_H
 
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <graphics/ImageBuffer.h>
 #include <ui/Cursor.h>
 #include <ui/Window.h>
