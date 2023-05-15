@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import haxe.Int64;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
@@ -257,7 +258,7 @@ class NativeApplication
 			var int32:Float = keyEventInfo.keyCode;
 			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
-			var timestamp:Int = keyEventInfo.timestamp;
+			var timestamp:Int64 = keyEventInfo.timestamp;
 
 			switch (type)
 			{
@@ -758,18 +759,25 @@ class NativeApplication
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
+	/**
+	 * The timestamp, in milliseconds, of when the event occurred.
+	 * Relative to `lime_sdl_get_ticks()`
+	 * May be `0` if timestamp could not be determined.
+	 */
+	public var timestamp:Int64;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0, timestamp:Null<Int64> = null)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
+		this.timestamp = timestamp == null ? Int64.ofInt(0) : timestamp;
 	}
 
 	public function clone():KeyEventInfo
 	{
-		return new KeyEventInfo(type, windowID, keyCode, modifier);
+		return new KeyEventInfo(type, windowID, keyCode, modifier, timestamp);
 	}
 }
 

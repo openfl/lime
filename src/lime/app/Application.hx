@@ -1,5 +1,6 @@
 package lime.app;
 
+import haxe.Int64;
 import lime.graphics.RenderContext;
 import lime.system.System;
 import lime.ui.Gamepad;
@@ -255,7 +256,7 @@ class Application extends Module
 		@param	modifier	The modifier of the key that was pressed
 		@param	timestamp 	The timestamp of the event
 	**/
-	public function onKeyDownPrecise(keyCode:KeyCode, modifier:KeyModifier):Void {}
+	public function onKeyDownPrecise(keyCode:KeyCode, modifier:KeyModifier, timestamp:Int64):Void {}
 
 	/**
 		Called when a key up event is fired on the primary window
@@ -263,7 +264,7 @@ class Application extends Module
 		@param	modifier	The modifier of the key that was released
 		@param	timestamp 	The timestamp of the event
 	**/
-	public function onKeyUpPrecise(keyCode:KeyCode, modifier:KeyModifier):Void {}
+	public function onKeyUpPrecise(keyCode:KeyCode, modifier:KeyModifier, timestamp:Int64):Void {}
 
 	/**
 		Called when the module is exiting

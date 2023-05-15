@@ -1,5 +1,6 @@
 package lime.ui;
 
+import haxe.Int64;
 import lime.app.Application;
 import lime.app.Event;
 import lime.graphics.Image;
@@ -65,8 +66,8 @@ class Window
 	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	// TODO: Deprecate and supercede onKeyDown and onKeyUp to include timestamps.
-	public var onKeyDownPrecise(default, null) = new Event<KeyCode->KeyModifier->Int->Void>();
-	public var onKeyUpPrecise(default, null) = new Event<KeyCode->KeyModifier->Int->Void>();
+	public var onKeyDownPrecise(default, null) = new Event<KeyCode->KeyModifier->Int64->Void>();
+	public var onKeyUpPrecise(default, null) = new Event<KeyCode->KeyModifier->Int64->Void>();
 	public var onLeave(default, null) = new Event<Void->Void>();
 	public var onMaximize(default, null) = new Event<Void->Void>();
 	public var onMinimize(default, null) = new Event<Void->Void>();
