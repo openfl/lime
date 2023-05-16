@@ -229,20 +229,33 @@ class HTML5Helper
 			}
 			else
 			{
-				var templatePaths = [
-					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-				].concat(project.templatePaths);
-				var args = [
-					"-Dapple.awt.UIElement=true",
-					"-jar",
-					System.findTemplate(templatePaths, "bin/compiler.jar"),
-					"--strict_mode_input",
-					"false",
-					"--js",
-					sourceFile,
-					"--js_output_file",
-					tempFile
-				];
+				var executable:String;
+				var args:Array<String>;
+				if (project.targetFlags.exists("npx"))
+				{
+					executable = "npx";
+					args = [
+						"google-closure-compiler"
+					];
+				}
+				else
+				{
+					executable = "java";
+					var templatePaths = [
+						Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
+					].concat(project.templatePaths);
+					args = [
+						"-Dapple.awt.UIElement=true",
+						"-jar",
+						System.findTemplate(templatePaths, "bin/compiler.jar"),
+					];
+				}
+				args.push("--strict_mode_input");
+				args.push("false");
+				args.push("--js");
+				args.push(sourceFile);
+				args.push("--js_output_file");
+				args.push(tempFile);
 
 				if (project.targetFlags.exists("advanced"))
 				{
@@ -267,7 +280,7 @@ class HTML5Helper
 					args.push("--jscomp_off=suspiciousCode"); // avoid warnings caused by the embedded minified libraries
 				}
 
-				System.runCommand("", "java", args);
+				System.runCommand("", executable, args);
 
 				if (FileSystem.exists(tempFile + ".map"))
 				{
