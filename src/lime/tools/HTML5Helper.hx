@@ -164,7 +164,26 @@ class HTML5Helper
 		{
 			var tempFile = System.getTemporaryFile(".js");
 
-			if (project.targetFlags.exists("yui"))
+			if (project.targetFlags.exists("terser"))
+			{
+				var args = [
+					"terser",
+					sourceFile,
+					"-c",
+					"-m",
+					"-o",
+					tempFile
+				];
+
+				if (FileSystem.exists(sourceFile + ".map"))
+				{
+					args.push("--source-map");
+					args.push('content=\'${sourceFile}.map\'');
+				}
+
+				System.runCommand("", "npx", args);
+			}
+			else if (project.targetFlags.exists("yui"))
 			{
 				var templatePaths = [
 					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
