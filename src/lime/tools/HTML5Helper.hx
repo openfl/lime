@@ -166,8 +166,38 @@ class HTML5Helper
 
 			if (project.targetFlags.exists("terser"))
 			{
+				var executable = "npx";
+				var terser = "terser";
+				if (!project.targetFlags.exists("npx")) {
+					var suffix = switch (System.hostPlatform)
+					{
+						case WINDOWS: "-windows.exe";
+						case MAC: "-mac";
+						case LINUX: "-linux";
+						default: return false;
+					}
+
+					if (suffix == "-linux")
+					{
+						if (System.hostArchitecture == X86)
+						{
+							suffix += "32";
+						}
+						else
+						{
+							suffix += "64";
+						}
+					}
+
+					var templatePaths = [
+						Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
+					].concat(project.templatePaths);
+					executable = System.findTemplate(templatePaths, "bin/node/node" + suffix);
+					terser = System.findTemplate(templatePaths, "bin/node/terser/bin/terser");
+				}
+
 				var args = [
-					"terser",
+					terser,
 					sourceFile,
 					"-c",
 					"-m",
@@ -181,7 +211,7 @@ class HTML5Helper
 					args.push('content=\'${sourceFile}.map\'');
 				}
 
-				System.runCommand("", "npx", args);
+				System.runCommand("", executable, args);
 			}
 			else if (project.targetFlags.exists("yui"))
 			{
