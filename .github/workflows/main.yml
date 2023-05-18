@@ -670,6 +670,12 @@ jobs:
           lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
 
+      - name: Build Lime samples with Terser minification
+        run: |
+          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
+
   ios-samples:
     needs: package-haxelib
     runs-on: macos-11
