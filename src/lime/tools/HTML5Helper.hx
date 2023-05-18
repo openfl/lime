@@ -194,6 +194,11 @@ class HTML5Helper
 					].concat(project.templatePaths);
 					executable = System.findTemplate(templatePaths, "bin/node/node" + suffix);
 					terser = System.findTemplate(templatePaths, "bin/node/terser/bin/terser");
+
+					if (System.hostPlatform != WINDOWS)
+					{
+						Sys.command("chmod", ["+x", executable]);
+					}
 				}
 
 				var args = [
