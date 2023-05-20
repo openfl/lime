@@ -191,13 +191,13 @@ class EmscriptenPlatform extends PlatformTarget
 		if (project.targetFlags.exists("final"))
 		{
 			args.push("-s");
-			args.push("DISABLE_EXCEPTION_CATCHING=0");
+			args.push("DISABLE_EXCEPTION_CATCHING=1");
 			args.push("-O3");
 		}
 		else if (!project.debug)
 		{
 			args.push("-s");
-			args.push("DISABLE_EXCEPTION_CATCHING=0");
+			args.push("DISABLE_EXCEPTION_CATCHING=1");
 			// args.push ("-s");
 			// args.push ("OUTLINING_LIMIT=70000");
 			args.push("-O2");
@@ -205,7 +205,9 @@ class EmscriptenPlatform extends PlatformTarget
 		else
 		{
 			args.push("-s");
-			args.push("DISABLE_EXCEPTION_CATCHING=2");
+			args.push("DISABLE_EXCEPTION_CATCHING=0");
+			args.push("-s");
+			args.push("NO_DISABLE_EXCEPTION_CATCHING=1");
 			args.push("-s");
 			args.push("ASSERTIONS=1");
 			args.push("-O1");
