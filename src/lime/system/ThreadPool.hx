@@ -7,7 +7,7 @@ import lime.app.Event;
 #if haxe4
 import sys.thread.Deque;
 import sys.thread.Thread;
-#elseif cpp
+#elseif (cpp || emscripten)
 import cpp.vm.Deque;
 import cpp.vm.Thread;
 #elseif neko
@@ -30,7 +30,7 @@ class ThreadPool
 	public var onProgress = new Event<Dynamic->Void>();
 	public var onRun = new Event<Dynamic->Void>();
 
-	#if (cpp || neko)
+	#if (cpp || neko || emscripten)
 	@:noCompletion private var __synchronous:Bool;
 	@:noCompletion private var __workCompleted:Int;
 	@:noCompletion private var __workIncoming = new Deque<ThreadPoolMessage>();
@@ -45,7 +45,7 @@ class ThreadPool
 
 		currentThreads = 0;
 
-		#if (cpp || neko)
+		#if (cpp || neko || emscripten)
 		__workQueued = 0;
 		__workCompleted = 0;
 		#end
@@ -67,7 +67,7 @@ class ThreadPool
 	// }
 	public function queue(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (cpp || neko || emscripten)
 		// TODO: Better way to handle this?
 
 		if (Application.current != null && Application.current.window != null && !__synchronous)
@@ -98,7 +98,7 @@ class ThreadPool
 
 	public function sendComplete(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (cpp || neko || emscripten)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(COMPLETE, state));
@@ -111,7 +111,7 @@ class ThreadPool
 
 	public function sendError(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (cpp || neko || emscripten)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(ERROR, state));
@@ -124,7 +124,7 @@ class ThreadPool
 
 	public function sendProgress(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (cpp || neko || emscripten)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(PROGRESS, state));
@@ -137,7 +137,7 @@ class ThreadPool
 
 	@:noCompletion private function runWork(state:Dynamic = null):Void
 	{
-		#if (cpp || neko)
+		#if (cpp || neko || emscripten)
 		if (!__synchronous)
 		{
 			__workResult.add(new ThreadPoolMessage(WORK, state));
@@ -150,7 +150,7 @@ class ThreadPool
 		doWork.dispatch(state);
 	}
 
-	#if (cpp || neko)
+	#if (cpp || neko || emscripten)
 	@:noCompletion private function __doWork():Void
 	{
 		while (true)

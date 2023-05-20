@@ -127,10 +127,11 @@ class EmscriptenPlatform extends PlatformTarget
 		if (noOutput) return;
 
 		CPPHelper.compile(project, targetDirectory + "/obj", ["-Demscripten", "-Dwebgl", "-Dstatic_link"]);
+		// CPPHelper.compile(project, targetDirectory + "/obj", ["-Demscripten", "-Dwebgl", "-Dstatic_link"], "BuildMain.xml");
 
 		project.path(sdkPath);
 
-		System.runCommand("", "emcc", [targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o"], true, false, true);
+		System.runCommand("", "emcc", ["-c", targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o"], true, false, true);
 
 		args = ["Main.o"];
 
@@ -159,11 +160,8 @@ class EmscriptenPlatform extends PlatformTarget
 			"-o",
 			"ApplicationMain.o"
 		]);
-		System.runCommand(targetDirectory + "/obj", "emcc", args, true, false, true);
 
-		args = ["ApplicationMain.o"];
-
-		if (project.targetFlags.exists("webassembly") || project.targetFlags.exists("wasm"))
+		if (project.targetFlags.exists("webassembly") || project.targetFlags.exists("wasm") || !project.targetFlags.exists("asmjs"))
 		{
 			args.push("-s");
 			args.push("WASM=1");
@@ -404,7 +402,8 @@ class EmscriptenPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/template", destination, context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/hxml", targetDirectory + "/haxe", context);
-		ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/cpp", targetDirectory + "/obj", context);
+		// ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/cpp", targetDirectory + "/obj", context);
+		ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 
 		for (asset in project.assets)
 		{
