@@ -120,13 +120,20 @@ else if (chalk) {
   };
 }
 
+// CHANGE: Always show logger info
+if (!logger) logger = {};
+logger.info = console.log;
+// END CHANGE
+
 if (version) {
   logger.info('v' + require('../package.json').version);
   process.exit();
 }
 
 if (!port) {
-  portfinder.basePort = 8080;
+  // CHANGE: Start finding ports beginning at port 3000
+  portfinder.basePort = 3000;
+  // END CHANGE
   portfinder.getPort(function (err, port) {
     if (err) { throw err; }
     listen(port);

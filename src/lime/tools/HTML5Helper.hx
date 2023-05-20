@@ -85,7 +85,7 @@ class HTML5Helper
 		}
 	}
 
-	public static function launch(project:HXProject, path:String, port:Int = 3000):Void
+	public static function launch(project:HXProject, path:String, port:Int = 0):Void
 	{
 		if (project.app.url != null && project.app.url != "")
 		{
@@ -124,27 +124,25 @@ class HTML5Helper
 				Sys.command("chmod", ["+x", node]);
 			}
 
+			var args = [server, path, "-c-1", "--cors"];
+
 			if (project.targetFlags.exists("port"))
 			{
 				port = Std.parseInt(project.targetFlags.get("port"));
 			}
 
-			Log.info("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
-
-			/*Thread.create (function () {
-
-				Sys.sleep (0.5);
-				System.openURL ("http://localhost:" + port);
-
-			});*/
-
-			var args = ["--no-deprecation", server, path, "-p", Std.string(port), "-c-1", "--cors"];
-
-			if (project.targetFlags.exists("nolaunch"))
+			if (port != 0)
 			{
-				Log.info("\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
+				args.push("-p");
+				args.push(Std.string(port));
+				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
 			}
 			else
+			{
+				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
+			}
+
+			if (!project.targetFlags.exists("nolaunch"))
 			{
 				args.push("-o");
 			}
