@@ -204,6 +204,7 @@ class EmscriptenPlatform extends PlatformTarget
 		}
 		else
 		{
+			args.push("-gsource-map");
 			args.push("-s");
 			args.push("DISABLE_EXCEPTION_CATCHING=0");
 			args.push("-s");
