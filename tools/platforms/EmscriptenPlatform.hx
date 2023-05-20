@@ -23,6 +23,7 @@ import sys.FileSystem;
 
 class EmscriptenPlatform extends PlatformTarget
 {
+	private var dependencyPath:String;
 	private var outputFile:String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
@@ -94,6 +95,7 @@ class EmscriptenPlatform extends PlatformTarget
 		project = defaults;
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("emscripten.output-directory", "emscripten"));
+		dependencyPath = project.config.getString("emscripten.dependency-path", "lib");
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 	}
 
@@ -262,6 +264,24 @@ class EmscriptenPlatform extends PlatformTarget
 
 		System.runCommand(targetDirectory + "/obj", "emcc", args, true, false, true);
 
+		if (FileSystem.exists(outputFile))
+		{
+			var context = project.templateContext;
+			context.SOURCE_FILE = File.getContent(outputFile);
+			context.embeddedLibraries = [];
+
+			for (dependency in project.dependencies)
+			{
+				if (dependency.embed && StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
+				{
+					var script = File.getContent(dependency.path);
+					context.embeddedLibraries.push(script);
+				}
+			}
+
+			System.copyFileTemplate(project.templatePaths, "emscripten/output.js", outputFile, context);
+		}
+
 		if (project.targetFlags.exists("minify"))
 		{
 			HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
@@ -407,6 +427,24 @@ class EmscriptenPlatform extends PlatformTarget
 		if (IconHelper.createIcon(icons, 192, 192, Path.combine(destination, "favicon.png")))
 		{
 			context.favicons.push({rel: "shortcut icon", type: "image/png", href: "./favicon.png"});
+		}
+
+		for (dependency in project.dependencies)
+		{
+			if (!dependency.embed)
+			{
+				if (StringTools.endsWith(dependency.name, ".js"))
+				{
+					context.linkedLibraries.push(dependency.name);
+				}
+				else if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
+				{
+					var name = Path.withoutDirectory(dependency.path);
+
+					context.linkedLibraries.push("./" + dependencyPath + "/" + name);
+					System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
+				}
+			}
 		}
 
 		for (asset in project.assets)
