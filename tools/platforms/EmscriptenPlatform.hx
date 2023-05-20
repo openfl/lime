@@ -13,6 +13,8 @@ import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.HTML5Helper;
 import lime.tools.HXProject;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
 import lime.tools.Orientation;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -383,6 +385,26 @@ class EmscriptenPlatform extends PlatformTarget
 		context.OUTPUT_FILE = outputFile;
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.USE_COMPRESSION = project.targetFlags.exists("compress");
+
+		context.favicons = [];
+
+		var icons = project.icons;
+
+		if (icons.length == 0)
+		{
+			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+		}
+
+		// if (IconHelper.createWindowsIcon (icons, Path.combine (destination, "favicon.ico"))) {
+		//
+		// context.favicons.push ({ rel: "icon", type: "image/x-icon", href: "./favicon.ico" });
+		//
+		// }
+
+		if (IconHelper.createIcon(icons, 192, 192, Path.combine(destination, "favicon.png")))
+		{
+			context.favicons.push({rel: "shortcut icon", type: "image/png", href: "./favicon.png"});
+		}
 
 		for (asset in project.assets)
 		{
