@@ -80,8 +80,13 @@ else if (colors) {
   };
 }
 
+// CHANGE: Always show logger info
+if (!logger) logger = {};
+logger.info = console.log;
+
 if (!port) {
-  portfinder.basePort = 8080;
+  // CHANGE: Start finding ports beginning at port 3000
+  portfinder.basePort = 3000;
   portfinder.getPort(function (err, port) {
     if (err) { throw err; }
     listen(port);
