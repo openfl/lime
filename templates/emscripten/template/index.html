@@ -9,6 +9,9 @@
 	<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta name="apple-mobile-web-app-capable" content="yes">
 
+	::if favicons::::foreach (favicons)::
+	<link rel="::__current__.rel::" type="::__current__.type::" href="::__current__.href::">::end::::end::
+
 	::if linkedLibraries::::foreach (linkedLibraries)::
 	<script type="text/javascript" src="::__current__::"></script>::end::::end::
 
@@ -46,7 +49,6 @@
 	</div>
 
 	<script type="text/javascript">
-
 		var Module = {};
 		Module.canvas = document.getElementById ("canvas");
 		//::if DEBUG::Module.setStatus = function (msg) { console.log (msg); };::else::Module.setStatus = function(_) {};::end::
@@ -56,17 +58,14 @@
 		Module.canvas.width = container.clientWidth;
 		Module.canvas.height = container.clientHeight;
 
-		window.addEventListener ("resize", function (e) {
-
+		window.addEventListener ("resize", function (e)
+		{
 			Module.canvas.width = container.clientWidth;
 			Module.canvas.height = container.clientHeight;
-
 		}, true);::end::::end::
-
 	</script>
 
 	::if DEBUG::<script type="text/javascript" src="./webgl-debug.js"></script>::end::
-
 	<script type="text/javascript" src="./::APP_FILE::.js"></script>
 
 </body>
