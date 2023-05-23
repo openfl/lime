@@ -21,7 +21,7 @@ import lime.tools.ProjectHelper;
 import sys.io.File;
 import sys.FileSystem;
 
-class EmscriptenPlatform extends PlatformTarget
+class WebAssemblyPlatform extends PlatformTarget
 {
 	private var dependencyPath:String;
 	private var outputFile:String;
@@ -94,8 +94,8 @@ class EmscriptenPlatform extends PlatformTarget
 		defaults.merge(project);
 		project = defaults;
 
-		targetDirectory = Path.combine(project.app.path, project.config.getString("emscripten.output-directory", "emscripten"));
-		dependencyPath = project.config.getString("emscripten.dependency-path", "lib");
+		targetDirectory = Path.combine(project.app.path, project.config.getString("webassembly.output-directory", "webassembly"));
+		dependencyPath = project.config.getString("webassembly.dependency-path", "lib");
 		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 	}
 
@@ -114,11 +114,11 @@ class EmscriptenPlatform extends PlatformTarget
 
 		if (sdkPath == null)
 		{
-			Log.error("You must define EMSCRIPTEN_SDK with the path to your Emscripten SDK");
+			Log.error("You must define EMSCRIPTEN_SDK with the path to your Emscripten SDK.");
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-		var args = [hxml, "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
+		var args = [hxml, "-D", "webassembly", "-D", "wasm", "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
 
 		if (Log.verbose)
 		{
@@ -130,7 +130,7 @@ class EmscriptenPlatform extends PlatformTarget
 
 		if (noOutput) return;
 
-		CPPHelper.compile(project, targetDirectory + "/obj", ["-Demscripten", "-Dwebgl", "-Dstatic_link"]);
+		CPPHelper.compile(project, targetDirectory + "/obj", ["-Dwebassembly", "-Dwasm", "-Demscripten", "-Dwebgl", "-Dstatic_link"]);
 		// CPPHelper.compile(project, targetDirectory + "/obj", ["-Demscripten", "-Dwebgl", "-Dstatic_link"], "BuildMain.xml");
 
 		project.path(sdkPath);
@@ -165,7 +165,7 @@ class EmscriptenPlatform extends PlatformTarget
 			"ApplicationMain.o"
 		]);
 
-		if (project.targetFlags.exists("webassembly") || project.targetFlags.exists("wasm") || !project.targetFlags.exists("asmjs"))
+		if (!project.targetFlags.exists("asmjs"))
 		{
 			args.push("-s");
 			args.push("WASM=1");
@@ -190,19 +190,10 @@ class EmscriptenPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("final"))
+		if (project.targetFlags.exists("final") || project.defines.exists("disable-exception-catching") || project.targetFlags.exists("disable-exception-catching"))
 		{
 			args.push("-s");
 			args.push("DISABLE_EXCEPTION_CATCHING=1");
-			args.push("-O3");
-		}
-		else if (!project.debug)
-		{
-			args.push("-s");
-			args.push("DISABLE_EXCEPTION_CATCHING=1");
-			// args.push ("-s");
-			// args.push ("OUTLINING_LIMIT=70000");
-			args.push("-O2");
 		}
 		else
 		{
@@ -213,6 +204,20 @@ class EmscriptenPlatform extends PlatformTarget
 			args.push("NO_DISABLE_EXCEPTION_CATCHING=1");
 			args.push("-s");
 			args.push("ASSERTIONS=1");
+		}
+
+		if (project.targetFlags.exists("final"))
+		{
+			args.push("-O3");
+		}
+		else if (!project.debug)
+		{
+			// args.push ("-s");
+			// args.push ("OUTLINING_LIMIT=70000");
+			args.push("-O2");
+		}
+		else
+		{
 			args.push("-O1");
 		}
 
@@ -279,7 +284,7 @@ class EmscriptenPlatform extends PlatformTarget
 				}
 			}
 
-			System.copyFileTemplate(project.templatePaths, "emscripten/output.js", outputFile, context);
+			System.copyFileTemplate(project.templatePaths, "webassembly/output.js", outputFile, context);
 		}
 
 		if (project.targetFlags.exists("minify"))
@@ -316,7 +321,7 @@ class EmscriptenPlatform extends PlatformTarget
 
 	public override function deploy():Void
 	{
-		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Emscripten");
+		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "WebAssembly");
 	}
 
 	public override function display():Void
@@ -353,7 +358,7 @@ class EmscriptenPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		CPPHelper.rebuild(project, [["-Demscripten", "-Dstatic_link"]]);
+		CPPHelper.rebuild(project, [["-Dwebassembly", "-Dwasm", "-Demscripten", "-Dstatic_link"]]);
 	}
 
 	public override function run():Void
@@ -378,10 +383,10 @@ class EmscriptenPlatform extends PlatformTarget
 			}
 		}
 
-		for (asset in project.assets)
-		{
-			asset.resourceName = "assets/" + asset.resourceName;
-		}
+		// for (asset in project.assets)
+		// {
+		// 	asset.resourceName = "assets/" + asset.resourceName;
+		// }
 
 		var destination = targetDirectory + "/bin/";
 		System.mkdir(destination);
@@ -462,10 +467,10 @@ class EmscriptenPlatform extends PlatformTarget
 			}
 		}
 
-		ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/template", destination, context);
+		ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/template", destination, context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
-		ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/hxml", targetDirectory + "/haxe", context);
-		// ProjectHelper.recursiveSmartCopyTemplate(project, "emscripten/cpp", targetDirectory + "/obj", context);
+		ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/hxml", targetDirectory + "/haxe", context);
+		// ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/cpp", targetDirectory + "/obj", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 
 		for (asset in project.assets)

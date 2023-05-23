@@ -145,7 +145,7 @@ class NativeApplication
 		#elseif lime_cffi
 		var result = NativeCFFI.lime_application_exec(handle);
 
-		#if (!emscripten && !ios && !nodejs)
+		#if (!webassembly && !ios && !nodejs)
 		parent.onExit.dispatch(result);
 		#end
 
