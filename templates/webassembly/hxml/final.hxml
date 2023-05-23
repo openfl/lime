@@ -2,6 +2,8 @@
 -cp ::OUTPUT_DIR::/haxe
 -cpp ::CPP_DIR::
 --macro keep("::APP_MAIN::")
+-D webassembly
+-D wasm
 -D emscripten
 -D webgl
 -D final
