@@ -206,6 +206,10 @@ class WebAssemblyPlatform extends PlatformTarget
 			args.push("ASSERTIONS=1");
 		}
 
+		// set initial size
+		args.push("-s");
+		args.push("TOTAL_MEMORY=32MB");
+
 		if (project.targetFlags.exists("final"))
 		{
 			args.push("-O3");

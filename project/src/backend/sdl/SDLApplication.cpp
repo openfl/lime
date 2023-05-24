@@ -928,7 +928,15 @@ namespace lime {
 
 	void SDLApplication::UpdateFrame () {
 
+		#ifdef EMSCRIPTEN
+		System::GCTryExitBlocking ();
+		#endif
+
 		currentApplication->Update ();
+
+		#ifdef EMSCRIPTEN
+		System::GCTryEnterBlocking ();
+		#endif
 
 	}
 

@@ -201,7 +201,9 @@ namespace lime {
 
 			// if (window->flags & WINDOW_FLAG_VSYNC) {
 
-			// 	sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+			#ifdef EMSCRIPTEN
+			sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+			#endif
 
 			// }
 
