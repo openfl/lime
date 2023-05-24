@@ -9,7 +9,7 @@
 	<set name="tvos" value="1" if="appletv" />
 
 	<set name="LIME_CAIRO" value="1" />
-	<set name="LIME_CURL" value="1" unless="emscripten || winrt" />
+	<set name="LIME_CURL" value="1" unless="winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
 	<!-- <set name="LIME_FAUDIO" value="1" /> -->
@@ -18,11 +18,11 @@
 	<!-- <set name="LIME_HASHLINK" value="1" if="windows || mac || linux" /> -->
 	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
-	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
+	<set name="LIME_MBEDTLS" value="1" unless="winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="iphone || emscripten || tvos" />
+	<set name="LIME_OPENAL" value="1" if="iphone || tvos" />
 	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
 	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
@@ -175,7 +175,7 @@
 
 		<section if="LIME_OPENAL">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="LIME_MOJOAL || emscripten" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/include/" unless="LIME_MOJOAL" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mojoal/" if="LIME_MOJOAL" />
 			<compilerflag value="-DLIME_OPENAL" />
 			<compilerflag value="-DLIME_OPENALSOFT" if="LIME_OPENALSOFT" />
