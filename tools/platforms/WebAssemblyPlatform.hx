@@ -204,26 +204,41 @@ class WebAssemblyPlatform extends PlatformTarget
 			args.push("NO_DISABLE_EXCEPTION_CATCHING=1");
 			args.push("-s");
 			args.push("ASSERTIONS=1");
+			// args.push("-s");
+			// args.push("ASSERTIONS=2");
+			// args.push("-s");
+			// args.push("STACK_OVERFLOW_CHECK=2");
+			// args.push("-s");
+			// args.push("DEMANGLE_SUPPORT=1");
 		}
 
 		// set initial size
-		args.push("-s");
-		args.push("TOTAL_MEMORY=32MB");
+		// args.push("-s");
+		// args.push("INITIAL_MEMORY=32MB");
 
-		if (project.targetFlags.exists("final"))
-		{
-			args.push("-O3");
-		}
-		else if (!project.debug)
-		{
-			// args.push ("-s");
-			// args.push ("OUTLINING_LIMIT=70000");
-			args.push("-O2");
-		}
-		else
-		{
-			args.push("-O1");
-		}
+		args.push("-s");
+		args.push("STACK_SIZE=1MB");
+
+		// args.push("-s");
+		// args.push("SAFE_HEAP=1");
+
+		// if (project.targetFlags.exists("final"))
+		// {
+		// 	args.push("-O3");
+		// }
+		// else if (!project.debug)
+		// {
+		// 	// args.push ("-s");
+		// 	// args.push ("OUTLINING_LIMIT=70000");
+		// 	args.push("-O2");
+		// }
+		// else
+		// {
+		// 	args.push("-O1");
+		// }
+
+		// https://github.com/HaxeFoundation/hxcpp/issues/987
+		args.push("-O0");
 
 		args.push("-s");
 		args.push("ALLOW_MEMORY_GROWTH=1");
