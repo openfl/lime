@@ -140,17 +140,9 @@ class ProjectXMLParser extends HXProject
 				defines.set("neko", "1");
 			}
 		}
-		else if (target == Platform.WEB_ASSEMBLY)
-		{
-			defines.set("webassembly", "1");
-			defines.set("wasm", "1");
-			defines.set("emscripten", "1");
-			defines.set("targetType", "cpp");
-			defines.set("native", "1");
-			defines.set("cpp", "1");
-		}
 		else if (targetFlags.exists("cpp")
-			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
+			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5"))
+			|| target == Platform.EMSCRIPTEN)
 		{
 			defines.set("targetType", "cpp");
 			defines.set("native", "1");

@@ -49,11 +49,8 @@ class DefineMacro
 					Compiler.define("mobile");
 					if (cffi) Compiler.define("lime-opengles");
 				}
-				else if (Context.defined("webassembly") || Context.defined("wasm") || Context.defined("emscripten"))
+				else if (Context.defined("emscripten"))
 				{
-					Compiler.define("webassembly");
-					Compiler.define("wasm");
-					Compiler.define("emscripten");
 					Compiler.define("web");
 					if (cffi) Compiler.define("lime-opengles");
 				}

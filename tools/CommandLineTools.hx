@@ -287,8 +287,8 @@ class CommandLineTools
 							target = Platform.LINUX;
 							targetFlags.set("rpi", "");
 
-						case "webassembly", "wasm", "emscripten":
-							target = Platform.WEB_ASSEMBLY;
+						case "webassembly", "wasm":
+							target = Platform.EMSCRIPTEN;
 							targetFlags.set("webassembly", "");
 
 						default:
@@ -622,8 +622,8 @@ class CommandLineTools
 
 				// 	platform = new FirefoxPlatform (command, project, targetFlags);
 
-				case WEB_ASSEMBLY:
-					platform = new WebAssemblyPlatform(command, project, targetFlags);
+				case EMSCRIPTEN:
+					platform = new EmscriptenPlatform(command, project, targetFlags);
 
 				case TVOS:
 					platform = new TVOSPlatform(command, project, targetFlags);
@@ -916,6 +916,7 @@ class CommandLineTools
 			Log.println("  \x1b[1mair\x1b[0m -- Create an AIR application");
 			Log.println("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 			// Log.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
+			Log.println("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
 			Log.println("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
 			Log.println("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 application");
 			Log.println("  \x1b[1mios\x1b[0m -- Create an iOS application");
@@ -924,7 +925,6 @@ class CommandLineTools
 			// Log.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
 			Log.println("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
 			// Log.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
-			Log.println("  \x1b[1mwebassembly\x1b[0m -- Create a WebAssembly application");
 			Log.println("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 
 			Log.println("");
@@ -947,7 +947,7 @@ class CommandLineTools
 			// Log.println ("  \x1b[1mappletvsim\x1b[0m -- Alias for \x1b[1mtvos -simulator\x1b[0m");
 			Log.println("  \x1b[1mrpi\x1b[0;3m/\x1b[0m\x1b[1mraspberrypi\x1b[0m -- Alias for \x1b[1mlinux -rpi\x1b[0m");
 			Log.println("  \x1b[1melectron\x1b[0m -- Alias for \x1b[1mhtml5 -electron\x1b[0m");
-			Log.println("  \x1b[1mwasm/emscripten\x1b[0m -- Alias for \x1b[1mwebassembly\x1b[0m");
+			Log.println("  \x1b[1mwebassembly\x1b[0;3m/\x1b[0m\x1b[1mwasm\x1b[0m -- Alias for \x1b[1memscripten -webassembly\x1b[0m");
 		}
 
 		Log.println("");
@@ -1030,15 +1030,16 @@ class CommandLineTools
 
 			if (command != "run" && command != "trace")
 			{
-				Log.println("  \x1b[3m(html5|webassembly)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
+				Log.println("  \x1b[3m(emscripten)\x1b[0m \x1b[1m-webassembly\x1b[0m -- Compile for WebAssembly instead of asm.js");
+				Log.println("  \x1b[3m(emscripten|html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
 			}
 
 			if (command == "run" || command == "test")
 			{
-				Log.println("  \x1b[3m(html5|flash|webassembly)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
+				Log.println("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
 				// Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
 				// Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
-				Log.println("  \x1b[3m(html5|flash|webassembly)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
+				Log.println("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
 			}
 
 			Log.println("");
@@ -1561,8 +1562,8 @@ class CommandLineTools
 				target = Platform.LINUX;
 				targetFlags.set("rpi", "");
 
-			case "webassembly", "wasm", "emscripten":
-				target = Platform.WEB_ASSEMBLY;
+			case "webassembly", "wasm":
+				target = Platform.EMSCRIPTEN;
 				targetFlags.set("webassembly", "");
 
 			case "winjs", "uwp":

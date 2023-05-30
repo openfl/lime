@@ -31,9 +31,6 @@ class Log
 
 			if (throwErrors)
 			{
-				#if webassembly
-				println(message);
-				#end
 				throw message;
 			}
 			else
