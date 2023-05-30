@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "8.0.2",
-	"releasenote": "Various bug fixes",
+	"releasenote": "Haxe 4.3 compatibility, Various bug fixes",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",
