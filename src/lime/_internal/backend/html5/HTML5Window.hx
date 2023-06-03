@@ -190,6 +190,7 @@ class HTML5Window
 		if ((Reflect.hasField(attributes, "resizable") && attributes.resizable)
 			|| (!Reflect.hasField(attributes, "width") && setWidth == 0 && setHeight == 0))
 		{
+			resizeElement = true;
 			parent.__resizable = true;
 		}
 
