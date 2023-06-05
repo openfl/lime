@@ -1,7 +1,7 @@
 package flash.display;
 
 @:native("flash.display.StageOrientation")
-@:enum extern abstract StageOrientation(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract StageOrientation(String)
 {
 	var DEFAULT;
 	var ROTATED_LEFT;
