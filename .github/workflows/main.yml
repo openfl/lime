@@ -550,6 +550,50 @@ jobs:
           lime build SimpleImage flash -release -verbose -nocolor
           lime build SimpleAudio flash -release -verbose -nocolor
 
+  air-samples:
+    needs: package-haxelib
+    runs-on: windows-latest
+    steps:
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+
+      - uses: joshtynjala/setup-adobe-air-action@v2
+        with:
+          air-version: "33.1"
+          accept-license: true
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: lime-haxelib
+          path: lime-haxelib
+
+      - name: Prepare lime
+        run: |
+          haxelib dev lime lime-haxelib
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Create Lime samples
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor
+
+      - name: Build Lime samples
+        run: |
+          lime build HelloWorld air -release -verbose -nocolor
+          lime build SimpleImage air -release -verbose -nocolor
+          lime build SimpleAudio air -release -verbose -nocolor
+
   hashlink-samples:
     needs: package-haxelib
     runs-on: ubuntu-20.04
@@ -868,7 +912,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-20.04
-    needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
+    needs: [package-haxelib, docs, android-samples, flash-samples, air-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
