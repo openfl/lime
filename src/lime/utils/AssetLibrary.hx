@@ -611,7 +611,13 @@ class AssetLibrary
 		}
 	}
 
-	public function unload():Void {}
+	public function unload():Void {
+		cachedBytes.clear();
+		cachedFonts.clear();
+		cachedImages.clear();
+		cachedAudioBuffers.clear();
+		cachedText.clear();
+	}
 
 	@:noCompletion private function __assetLoaded(id:String):Void
 	{
