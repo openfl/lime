@@ -553,6 +553,9 @@ jobs:
   air-samples:
     needs: package-haxelib
     runs-on: windows-latest
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
     steps:
 
       - uses: krdlab/setup-haxe@v1
