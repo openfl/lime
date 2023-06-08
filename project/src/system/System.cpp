@@ -46,7 +46,8 @@ namespace lime {
 
 		if (!_isHL) {
 
-			gc_try_blocking ();
+			// TODO: Only supported in HXCPP 4.3
+			// gc_try_blocking ();
 
 		}
 
@@ -57,7 +58,8 @@ namespace lime {
 
 		if (!_isHL) {
 
-			gc_try_unblocking ();
+			// TODO: Only supported in HXCPP 4.3
+			//gc_try_unblocking ();
 
 		}
 
