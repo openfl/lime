@@ -20,6 +20,7 @@ class Clipboard
 	public static var onUpdate = new Event<Void->Void>();
 	public static var text(get, set):String;
 	private static var _text:String;
+	@:noCompletion private static var __updated = false;
 
 	private static function __update():Void
 	{
@@ -42,6 +43,7 @@ class Clipboard
 			_text = FlashClipboard.generalClipboard.getData(TEXT_FORMAT);
 		}
 		#end
+		__updated = true;
 
 		if (_text != cacheText)
 		{
@@ -67,6 +69,14 @@ class Clipboard
 			// Call set_text while changing as little as possible. (Rich text
 			// formatting will unavoidably be lost.)
 			set_text(_text);
+		}
+		#elseif (windows || mac)
+		if (!__updated)
+		{
+			// Lime listens for clipboard updates automatically, but if the
+			// clipboard has never been updated since before the app started,
+			// we need to populate the initial contents manually
+			__update();
 		}
 		#end
 
