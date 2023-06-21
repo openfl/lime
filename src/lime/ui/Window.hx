@@ -63,6 +63,7 @@ class Window
 	public var onFocusIn(default, null) = new Event<Void->Void>();
 	public var onFocusOut(default, null) = new Event<Void->Void>();
 	public var onFullscreen(default, null) = new Event<Void->Void>();
+	public var onHide(default, null) = new Event<Void->Void>();
 	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	// TODO: Deprecate and supercede onKeyDown and onKeyUp to include timestamps.
@@ -82,6 +83,7 @@ class Window
 	public var onRenderContextRestored(default, null) = new Event<RenderContext->Void>();
 	public var onResize(default, null) = new Event<Int->Int->Void>();
 	public var onRestore(default, null) = new Event<Void->Void>();
+	public var onShow(default, null) = new Event<Void->Void>();
 	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
 	public var onTextInput(default, null) = new Event<String->Void>();
 	public var parameters:Dynamic;

@@ -706,7 +706,7 @@ class ProjectXMLParser extends HXProject
 
 		for (file in files)
 		{
-			if (FileSystem.isDirectory(path + "/" + file))
+			if (FileSystem.exists(path + "/" + file) && FileSystem.isDirectory(path + "/" + file))
 			{
 				if (Path.extension(file) == "bundle")
 				{

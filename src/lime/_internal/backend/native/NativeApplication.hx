@@ -565,6 +565,12 @@ class NativeApplication
 					window.__fullscreen = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();
+
+				case WINDOW_SHOW:
+					window.onShow.dispatch();
+
+				case WINDOW_HIDE:
+					window.onHide.dispatch();
 			}
 		}
 	}
@@ -978,4 +984,6 @@ class NativeApplication
 	var WINDOW_MOVE = 10;
 	var WINDOW_RESIZE = 11;
 	var WINDOW_RESTORE = 12;
+	var WINDOW_SHOW = 13;
+	var WINDOW_HIDE = 14;
 }

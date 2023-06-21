@@ -1,6 +1,28 @@
 Changelog
 =========
 
+8.0.2 (05/31/2023)
+------------------
+
+* Resolve new `@:enum abstract` warnings for Haxe 4.3 by replacing with `enum abstract`, if current Haxe version supports it
+* Resolve new `@:extern` warnings for Haxe 4.3 by replacing with `extern`, if current Haxe version supports it
+* Fixed HTTPS requests failing on macOS by updating cURL and mbedtls dependencies
+* Fixed calling `JNI.callMember()` and `JNI.callStatic()` with more than 7 arguments
+* Fixed DPI detection on Android by using `getDisplayMetrics()`
+* Fixed passing `null` or empty string for default library to `Assets.registerLibrary()` to be more consistent with other APIs
+* Fixed failed Lime tools build with some Haxe versions by removing `-D no-inline`
+* Fixed Haxe argument type of OpenAL `alFilteri` wrapper that should be `Int` instead of `Dynamic`
+* Fixed bad UTF string conversion for `FileDialog` that sometimes displayed incorrect characters on some platforms
+* Fixed HTTP request status 400 being incorrectly treated as successful on html5 target
+* Fixed failed Adobe AIR for iOS build on Windows by removing check for simulators, which are available on macOS only
+* Fixed detection of default iPhone simulator to avoid exceptions and support future versions of Xcode
+* Fixed conflict between `window.Image` and `lime.graphics.Image` when using Genes on html5 target
+* Fixed exception in Lime tools if assets directory does not exist
+* Removed legacy `armv7` from default iOS target architectures because it now results in an error (now defaults to `arm64`)
+* AIR for iOS or Android may specify `listen="port"` in `<config:air/>` element to use USB debugging instead of wifi debugging
+* Improved fix for text fields updating properly on Android devices with html5 target
+* Replaced "Could not find Neko API interface" error message with more detailed explanation and instructions
+
 8.0.1 (02/21/2023)
 ------------------
 
