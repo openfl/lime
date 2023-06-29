@@ -17,7 +17,10 @@ class AIRHelper
 		{
 			case MAC:
 
-			// extension = ".app";
+				if (airTarget == "bundle")
+				{
+					extension = ".app";
+				}
 
 			case IOS:
 				if (project.targetFlags.exists("simulator"))
