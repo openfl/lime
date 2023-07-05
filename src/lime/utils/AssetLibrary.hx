@@ -611,7 +611,8 @@ class AssetLibrary
 		}
 	}
 
-	public function unload():Void {
+	public function unload():Void
+	{
 		#if haxe4
 		cachedBytes.clear();
 		cachedFonts.clear();
