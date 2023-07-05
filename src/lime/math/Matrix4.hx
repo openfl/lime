@@ -386,7 +386,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		@param	zNear	The near depth-clipping plane position
 		@param	zFar	The far depth-clipping plane position
 	**/
-	function createPerspective(fov:Float, aspect:Float, zNear:Float, zFar:Float):Void
+	public function createPerspective(fov:Float, aspect:Float, zNear:Float, zFar:Float):Void
 	{
 		if (aspect > -0.0000001 && aspect < 0.0000001)
 		{
