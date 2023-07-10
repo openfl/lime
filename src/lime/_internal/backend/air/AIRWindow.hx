@@ -274,9 +274,4 @@ class AIRWindow extends FlashWindow
 
 		return value;
 	}
-
-	public function setVSync(value:Bool):Bool
-	{
-		return false;
-	}
 }
