@@ -90,6 +90,7 @@ class Window
 	#end
 	public var textInputEnabled(get, set):Bool;
 	public var title(get, set):String;
+	public var vsync(get, set):Bool;
 	public var width(get, set):Int;
 	public var x(get, set):Int;
 	public var y(get, set):Int;
@@ -105,6 +106,7 @@ class Window
 	@:noCompletion private var __resizable:Bool;
 	@:noCompletion private var __scale:Float;
 	@:noCompletion private var __title:String;
+	@:noCompletion private var __vsync:Bool;
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
@@ -147,6 +149,7 @@ class Window
 		__height = 0;
 		__fullscreen = false;
 		__scale = 1;
+		__vsync = ((__attributes.context != null && Reflect.hasField(__attributes.context, "vsync")) ? __attributes.context.vsync : false);
 		__x = 0;
 		__y = 0;
 		__title = "";
@@ -559,6 +562,16 @@ class Window
 	@:noCompletion private function set_title(value:String):String
 	{
 		return __title = __backend.setTitle(value);
+	}
+
+	@:noCompletion private inline function get_vsync():Bool
+	{
+		return __vsync;
+	}
+
+	@:noCompletion private inline function set_vsync(value:Bool):Bool
+	{
+		return __vsync = __backend.setVSync(value);
 	}
 
 	@:noCompletion private inline function get_width():Int
