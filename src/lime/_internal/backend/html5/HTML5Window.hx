@@ -1220,6 +1220,11 @@ class HTML5Window
 		return value;
 	}
 
+	public function setVSync(value:Bool):Bool
+	{
+		return false;
+	}
+
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;

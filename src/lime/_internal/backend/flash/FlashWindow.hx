@@ -633,5 +633,10 @@ class FlashWindow
 		return value;
 	}
 
+	public function setVSync(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void {}
 }
