@@ -400,7 +400,6 @@
 			<section if="windows">
 
 				<lib name="gdi32.lib" />
-				<lib name="opengl32.lib" />
 				<lib name="user32.lib" />
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
@@ -418,6 +417,7 @@
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
 				<lib name="dwrite.lib" if="LIME_HARFBUZZ" />
+				<lib name="opengl32.lib" if="LIME_OPENGL" />
 
 				<lib name="comsuppw.lib" unless="winrt" />
 
@@ -453,7 +453,6 @@
 				<vflag name="-framework" value="CoreAudio" />
 				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="Cocoa" />
-				<vflag name="-framework" value="OpenGL" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="ForceFeedback" />
@@ -461,6 +460,8 @@
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="SystemConfiguration" />
+
+				<vflag name="-framework" value="OpenGL" if="LIME_OPENGL" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />
@@ -478,10 +479,13 @@
 				<lib name="-llog" />
 				<lib name="-landroid" />
 				<lib name="-lm" />
-				<lib name="-lEGL" />
-				<lib name="-lGLESv2" />
-				<lib name="-lGLESv1_CM" />
 				<lib name="-lOpenSLES" />
+
+				<section if="LIME_OPENGL">
+					<lib name="-lEGL" />
+					<lib name="-lGLESv2" />
+					<lib name="-lGLESv1_CM" />
+				</section>
 
 			</section>
 
@@ -490,9 +494,12 @@
 				<lib name="-lbcm_host" />
 				<lib name="-ldl" />
 				<lib name="-lm" />
-				<lib name="-lbrcmGLESv2" />
-				<lib name="-lbrcmEGL" />
 				<lib name="-L/opt/vc/lib" />
+
+				<section if="LIME_OPENGL">
+					<lib name="-lbrcmGLESv2" />
+					<lib name="-lbrcmEGL" />
+				</section>
 
 			</section>
 
@@ -502,16 +509,19 @@
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
 				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="GameController" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
-				<lib name="-ldl" />
-				<lib name="-lEGL" />
-				<lib name="-lGLESv3" />
+				<vflag name="-framework" value="OpenGLES" if="LIME_OPENGL" />
+
+				<section if="LIME_OPENGL">
+					<lib name="-ldl" />
+					<lib name="-lEGL" />
+					<lib name="-lGLESv3" />
+				</section>
 
 			</section>
 
@@ -521,7 +531,6 @@
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="CoreAudio" />
 				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
 				<vflag name="-framework" value="OpenAL" />
@@ -529,9 +538,13 @@
 				<vflag name="-framework" value="CoreText" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
-				<lib name="-ldl" />
-				<lib name="-lEGL" />
-				<lib name="-lGLESv3" />
+				<vflag name="-framework" value="OpenGLES" if="LIME_OPENGL" />
+
+				<section if="LIME_OPENGL">
+					<lib name="-ldl" />
+					<lib name="-lEGL" />
+					<lib name="-lGLESv3" />
+				</section>
 
 			</section>
 
