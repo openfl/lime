@@ -1,7 +1,7 @@
 package flash.filesystem;
 
 @:native("flash.filesystem.FileMode")
-@:enum extern abstract FileMode(String)
+#if (haxe_ver >= 4.0) extern #else @:extern #end enum abstract FileMode(String)
 {
 	var APPEND;
 	var READ;

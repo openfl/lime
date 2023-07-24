@@ -1,7 +1,7 @@
 package flash.security;
 
 @:native("flash.security.RevocationCheckSettings")
-@:enum extern abstract RevocationCheckSettings(String)
+#if (haxe_ver >= 4.0) extern #else @:extern #end enum abstract RevocationCheckSettings(String)
 {
 	var ALWAYS_REQUIRED;
 	var BEST_EFFORT;

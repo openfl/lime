@@ -1,7 +1,7 @@
 package flash.media;
 
 @:native("flash.media.MediaType")
-@:enum extern abstract MediaType(String)
+#if (haxe_ver >= 4.0) extern #else @:extern #end enum abstract MediaType(String)
 {
 	var IMAGE;
 	var VIDEO;

@@ -1,7 +1,7 @@
 package flash.text;
 
 @:native("flash.text.ReturnKeyLabel")
-@:enum extern abstract ReturnKeyLabel(String)
+#if (haxe_ver >= 4.0) extern #else @:extern #end enum abstract ReturnKeyLabel(String)
 {
 	var DEFAULT;
 	var DONE;

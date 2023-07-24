@@ -6,7 +6,7 @@ import lime.tools.HXProject;
 class XCodeHelper
 {
 	private static inline var DEFAULT_IPAD_SIMULATOR = "ipad-air";
-	private static inline var DEFAULT_IPHONE_SIMULATOR = "iphone-11";
+	private static var DEFAULT_IPHONE_SIMULATOR_REGEX = ~/iphone-\d+/g;
 
 	private static function extractSimulatorFlagName(line:String):String
 	{
@@ -92,7 +92,14 @@ class XCodeHelper
 			}
 			else
 			{
-				currentDevice = devices.get(DEFAULT_IPHONE_SIMULATOR);
+				for (device in devices.keys())
+				{
+					if (DEFAULT_IPHONE_SIMULATOR_REGEX.match(device))
+					{
+						currentDevice = devices.get(device);
+						break;
+					}
+				}
 			}
 		}
 
@@ -101,12 +108,22 @@ class XCodeHelper
 
 	public static function getSimulatorID(project:HXProject):String
 	{
-		return getSelectedSimulator(project).id;
+		var simulator = getSelectedSimulator(project);
+		if (simulator == null)
+		{
+			return null;
+		}
+		return simulator.id;
 	}
 
 	public static function getSimulatorName(project:HXProject):String
 	{
-		return getSelectedSimulator(project).name;
+		var simulator = getSelectedSimulator(project);
+		if (simulator == null)
+		{
+			return null;
+		}
+		return simulator.name;
 	}
 
 	private static function getSimulators():String

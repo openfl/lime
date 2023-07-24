@@ -1,7 +1,7 @@
 package flash.data;
 
 @:native("flash.data.SQLMode")
-@:enum extern abstract SQLMode(String)
+#if (haxe_ver >= 4.0) extern #else @:extern #end enum abstract SQLMode(String)
 {
 	var CREATE;
 	var READ;
