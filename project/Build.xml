@@ -27,7 +27,7 @@
 	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
 	<set name="LIME_OPENAL" value="1" if="LIME_MOJOAL" />
-	<set name="LIME_OPENGL" value="1" />
+	<!--<set name="LIME_OPENGL" value="1" />-->
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
 	<set name="LIME_SDL" value="1" />
