@@ -3,7 +3,7 @@ package lime.graphics;
 /**
 	An enum for possible render context types
 **/
-@:enum abstract RenderContextType(String) from String to String
+#if haxe4 enum #else @:enum #end abstract RenderContextType(String) from String to String
 {
 	/**
 		Describes a Cairo render context

@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 #if (!lime_doc_gen || lime_curl)
-@:enum abstract CURLVersion(Int) from Int to Int from UInt to UInt
+#if haxe4 enum #else @:enum #end abstract CURLVersion(Int) from Int to Int from UInt to UInt
 {
 	var FIRST = 0;
 	var SECOND = 1;

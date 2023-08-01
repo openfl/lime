@@ -59,10 +59,10 @@ abstract UInt8Array(JSUInt8Array) from JSUInt8Array to JSUInt8Array
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:UInt):UInt
+	@:arrayAccess #if haxe4 extern #else @:extern #end inline function __set(idx:Int, val:UInt):UInt
 		return this[idx] = val;
 
-	@:arrayAccess @:extern inline function __get(idx:Int):UInt
+	@:arrayAccess #if haxe4 extern #else @:extern #end inline function __get(idx:Int):UInt
 		return this[idx];
 
 	// non spec haxe conversions
@@ -149,14 +149,14 @@ abstract UInt8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if haxe4 extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
 		return ArrayBufferIO.getUint8(this.buffer, this.byteOffset + idx);
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if haxe4 extern #else @:extern #end
 	public inline function __set(idx:Int, val:UInt)
 	{
 		ArrayBufferIO.setUint8(this.buffer, this.byteOffset + idx, val);

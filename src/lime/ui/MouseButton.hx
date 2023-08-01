@@ -1,6 +1,6 @@
 package lime.ui;
 
-@:enum abstract MouseButton(Int) from Int to Int
+#if haxe4 enum #else @:enum #end abstract MouseButton(Int) from Int to Int
 {
 	var LEFT = 0;
 	var MIDDLE = 1;

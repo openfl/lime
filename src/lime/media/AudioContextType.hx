@@ -1,6 +1,6 @@
 package lime.media;
 
-@:enum abstract AudioContextType(String) from String to String
+#if haxe4 enum #else @:enum #end abstract AudioContextType(String) from String to String
 {
 	var FLASH = "flash";
 	var HTML5 = "html5";

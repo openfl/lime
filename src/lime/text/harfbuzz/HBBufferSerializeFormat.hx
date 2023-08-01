@@ -1,7 +1,7 @@
 package lime.text.harfbuzz;
 
 #if (!lime_doc_gen || lime_harfbuzz)
-@:enum abstract HBBufferSerializeFormat(Int) from Int to Int
+#if haxe4 enum #else @:enum #end abstract HBBufferSerializeFormat(Int) from Int to Int
 {
 	// public var HB_BUFFER_SERIALIZE_FORMAT_TEXT = HB_TAG('T', 'E', 'X', 'T');
 	// public var JSON = HB_TAG('J', 'S', 'O', 'N');

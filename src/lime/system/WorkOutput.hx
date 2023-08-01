@@ -204,7 +204,7 @@ class WorkOutput
 	}
 }
 
-@:enum abstract ThreadMode(Bool)
+#if haxe4 enum #else @:enum #end abstract ThreadMode(Bool)
 {
 	/**
 		All work will be done on the main thread, during `Application.onUpdate`.
@@ -341,7 +341,7 @@ class JobData
 	}
 }
 
-@:enum abstract ThreadEventType(String)
+#if haxe4 enum #else @:enum #end abstract ThreadEventType(String)
 {
 	/**
 		Sent by the background thread, indicating completion.

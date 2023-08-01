@@ -749,7 +749,7 @@ class MarketplaceAPI
 	}
 }
 
-@:enum abstract DeviceType(String)
+#if haxe4 enum #else @:enum #end abstract DeviceType(String)
 {
 	var FIREFOXOS = "firefoxos";
 	var DESKTOP = "desktop";
@@ -757,7 +757,7 @@ class MarketplaceAPI
 	var TABLET = "tablet";
 }
 
-@:enum abstract PremiumType(String)
+#if haxe4 enum #else @:enum #end abstract PremiumType(String)
 {
 	var FREE = "free";
 	var FREE_INAPP = "free-inapp";

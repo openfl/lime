@@ -3,7 +3,7 @@ package lime.graphics;
 /**
 	An enum containing different pixel encoding formats for image data
 **/
-@:enum abstract PixelFormat(Int) from Int to Int from UInt to UInt
+#if haxe4 enum #else @:enum #end abstract PixelFormat(Int) from Int to Int from UInt to UInt
 {
 	/**
 		An image encoded in 32-bit RGBA color order

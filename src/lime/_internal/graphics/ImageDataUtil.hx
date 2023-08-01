@@ -1748,7 +1748,8 @@ private class ImageDataView
 	}
 }
 
-@:noCompletion @:dox(hide) @:enum private abstract ThresholdOperation(Int) from Int to Int
+@:noCompletion @:dox(hide) #if haxe4 private enum #else @:enum private #end
+abstract ThresholdOperation(Int) from Int to Int
 {
 	var NOT_EQUALS = 0;
 	var EQUALS = 1;

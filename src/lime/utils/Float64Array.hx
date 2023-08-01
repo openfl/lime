@@ -61,10 +61,10 @@ abstract Float64Array(JSFloat64Array) from JSFloat64Array to JSFloat64Array
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:Float):Float
+	@:arrayAccess #if haxe4 extern #else @:extern #end inline function __set(idx:Int, val:Float):Float
 		return this[idx] = val;
 
-	@:arrayAccess @:extern inline function __get(idx:Int):Float
+	@:arrayAccess #if haxe4 extern #else @:extern #end inline function __get(idx:Int):Float
 		return this[idx];
 
 	// non spec haxe conversions
@@ -148,14 +148,14 @@ abstract Float64Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if haxe4 extern #else @:extern #end
 	public inline function __get(idx:Int):Float
 	{
 		return ArrayBufferIO.getFloat64(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if haxe4 extern #else @:extern #end
 	public inline function __set(idx:Int, val:Float):Float
 	{
 		ArrayBufferIO.setFloat64(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);

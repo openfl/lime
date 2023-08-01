@@ -61,10 +61,10 @@ abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUI
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:UInt):UInt
+	@:arrayAccess #if haxe4 extern #else @:extern #end inline function __set(idx:Int, val:UInt):UInt
 		return this[idx] = _clamp(val);
 
-	@:arrayAccess @:extern inline function __get(idx:Int):UInt
+	@:arrayAccess #if haxe4 extern #else @:extern #end inline function __get(idx:Int):UInt
 		return this[idx];
 
 	// non spec haxe conversions
@@ -158,14 +158,14 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if haxe4 extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
 		return ArrayBufferIO.getUint8(this.buffer, this.byteOffset + idx);
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if haxe4 extern #else @:extern #end
 	public inline function __set(idx:Int, val:UInt)
 	{
 		ArrayBufferIO.setUint8Clamped(this.buffer, this.byteOffset + idx, val);
