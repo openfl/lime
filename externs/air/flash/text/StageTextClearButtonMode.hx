@@ -1,7 +1,7 @@
 package flash.text;
 
 @:native("flash.text.StageTextClearButtonMode")
-@:enum extern abstract StageTextClearButtonMode(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract StageTextClearButtonMode(String)
 {
 	var ALWAYS;
 	var NEVER;

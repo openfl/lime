@@ -633,7 +633,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract ApplicationEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int)
 {
 	var UPDATE = 0;
 	var EXIT = 1;
@@ -654,7 +654,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract ClipboardEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int)
 {
 	var UPDATE = 0;
 }
@@ -676,7 +676,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract DropEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
 {
 	var DROP_FILE = 0;
 }
@@ -704,7 +704,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract GamepadEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int)
 {
 	var AXIS_MOVE = 0;
 	var BUTTON_DOWN = 1;
@@ -738,7 +738,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract JoystickEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int)
 {
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
@@ -769,7 +769,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract KeyEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int)
 {
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
@@ -804,7 +804,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract MouseEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int)
 {
 	var MOUSE_DOWN = 0;
 	var MOUSE_UP = 1;
@@ -827,7 +827,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract RenderEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int)
 {
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
@@ -857,7 +857,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract SensorEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int)
 {
 	var ACCELEROMETER = 0;
 }
@@ -886,7 +886,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract TextEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int)
 {
 	var TEXT_INPUT = 0;
 	var TEXT_EDIT = 1;
@@ -921,7 +921,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract TouchEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int)
 {
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
@@ -953,7 +953,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract WindowEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int)
 {
 	var WINDOW_ACTIVATE = 0;
 	var WINDOW_CLOSE = 1;

@@ -5,9 +5,6 @@ jobs:
 
   linux-ndll:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
     steps:
 
       - uses: actions/checkout@v3
@@ -21,7 +18,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ matrix.haxe-version }}
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -50,7 +47,6 @@ jobs:
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux-NDLL
           path: |
@@ -59,7 +55,6 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-NDLL
           path: |
@@ -68,7 +63,6 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
         with:
           name: Linux64-Hashlink
           path: |
@@ -558,49 +552,20 @@ jobs:
 
   hashlink-samples:
     needs: package-haxelib
-    strategy:
-      matrix:
-        os: [ubuntu-20.04
-        , macos-11, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     steps:
 
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
 
-      - name: Set HAXEPATH (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
-
-      - name: Set HAXEPATH (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
+      - name: Set HAXEPATH
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
-      - name: Install system dependencies (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp 4.2.1 --quiet
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
-      - name: Enable HXCPP compile cache (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
-
-      - name: Enable HXCPP compile cache (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v3
         with:
@@ -815,48 +780,23 @@ jobs:
 
   neko-samples:
     needs: package-haxelib
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11, windows-latest]
-    runs-on: ${{ matrix.os }}
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
     steps:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.5
+          haxe-version: ${{ matrix.haxe-version }}
 
-      - name: Set HAXEPATH (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
-
-      - name: Set HAXEPATH (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
+      - name: Set HAXEPATH
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
-      - name: Install system dependencies (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp 4.2.1 --quiet
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
-
-      - name: Enable HXCPP compile cache (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
-
-      - name: Enable HXCPP compile cache (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
       - uses: actions/download-artifact@v3
         with:
