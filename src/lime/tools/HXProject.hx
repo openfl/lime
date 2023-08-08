@@ -374,7 +374,7 @@ class HXProject extends Script
 		var name = Path.withoutDirectory(Path.withoutExtension(projectFile));
 		name = name.substr(0, 1).toUpperCase() + name.substr(1);
 
-		var tempDirectory = System.getTemporaryDirectory();
+		var tempDirectory = FileSystem.fullPath(System.getTemporaryDirectory());
 		var classFile = Path.combine(tempDirectory, name + ".hx");
 
 		System.copyFile(path, classFile);
@@ -434,7 +434,7 @@ class HXProject extends Script
 		try
 		{
 			#if (lime && !eval)
-			var nekoOutput = FileSystem.fullPath(Path.combine(tempDirectory, name + ".n"));
+			var nekoOutput = Path.combine(tempDirectory, name + ".n");
 			System.runCommand("", "haxe", args.concat(["--main", "lime.tools.HXProject", "-neko", nekoOutput]));
 			System.runCommand("", "neko", [nekoOutput, inputFile, outputFile]);
 			#else
@@ -443,6 +443,7 @@ class HXProject extends Script
 		}
 		catch (e:Dynamic)
 		{
+			Log.error(Std.string(e));
 			FileSystem.deleteFile(inputFile);
 			Sys.exit(1);
 		}
