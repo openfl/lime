@@ -13,9 +13,9 @@
 #include "OpenGLBindings.h"
 
 #ifdef LIME_SDL
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #ifdef NATIVE_TOOLKIT_SDL_ANGLE
-#include <SDL_egl.h>
+#include <SDL3/SDL_egl.h>
 #endif
 #endif
 

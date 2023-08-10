@@ -23,7 +23,7 @@
 #endif
 
 #ifdef LIME_SDL
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #endif
 
 

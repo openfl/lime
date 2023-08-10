@@ -4,7 +4,7 @@
 #include <jni.h>
 #include <pthread.h>
 #include <android/log.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <map>
 #include <string>
 
