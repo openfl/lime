@@ -1,6 +1,19 @@
 Changelog
 =========
 
+8.1.0 (??/??/2023)
+------------------
+
+* Added new `onShow` and `onHide` events to `Window`
+* Fixed unpopulated `responseData` on `HTTPRequest` when server returns error status code
+* Fixed `Clipboard` contents being empty when app starts up on Windows and macOS
+* Fixed Unicode string conversion for `alert()` method on `Window` on HashLink target
+* Fixed asset cache clearing when unloading asset library
+* Fixed incorrect timer pause and resume behavior when window goes into background and back to foreground
+* Fixed _.app_ file extension for macOS when building Adobe AIR captive runtime bundle
+* Fixed expired Adobe AIR debug certificate
+* Fixed Haxe 3 compatibility for enum abstracts
+
 8.0.2 (05/31/2023)
 ------------------
 
