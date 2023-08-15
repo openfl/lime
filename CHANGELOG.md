@@ -4,15 +4,37 @@ Changelog
 8.1.0 (??/??/2023)
 ------------------
 
+* Added `visible` property to `Window` to allow it to be shown and hidden
+* Added `opacity` property to `Window`
+* Added `minWidth`, `minHeight`, `maxWidth`, `maxHeight`, `setMinSize()`, and `setMaxSize()` to `Window`
 * Added new `onShow` and `onHide` events to `Window`
+* Added support for _include.hxp_ file in libraries, similar to _include.xml_
+* Added support for multiple file extension filters on `FileDialog` operations
+* Added `-eval` option to run Lime tools without Neko
+* Added `-terser` option to Lime tools for html5 builds to optionally use Terser minifier
+* Added `-npx` option to Lime tools to run minifiers, or Electron, using `npx` instead of the bundled versions
+* Updated the bundled version of Node.js to 18 LTS for the html5 target's HTTP server
+* Modernized Android Gradle build options
+* Exposed more information to _project.xml_, including `${project.platformType}` and `${config.android.target-sdk-version}`
+* Added click count for mouse events, for use by OpenFL
+* Disabled pointer tagging on Android
+* Fixed issues in `emscripten` target and renamed it to `webassembly`
 * Fixed unpopulated `responseData` on `HTTPRequest` when server returns error status code
 * Fixed `Clipboard` contents being empty when app starts up on Windows and macOS
 * Fixed Unicode string conversion for `alert()` method on `Window` on HashLink target
 * Fixed asset cache clearing when unloading asset library
 * Fixed incorrect timer pause and resume behavior when window goes into background and back to foreground
 * Fixed _.app_ file extension for macOS when building Adobe AIR captive runtime bundle
+* Fixed incorrect "Lime Application" window title for Adobe AIR applications
+* Fixed null check when opening file with `FileDialog`
 * Fixed expired Adobe AIR debug certificate
 * Fixed Haxe 3 compatibility for enum abstracts
+* Fixed running native apps with current working directory that does not match the program directory
+* Fixed assets being incorrectly located from `Sys.programPath()` instead of `System.applicationDirectory`
+* Fixed timing on html5 target by using `performance.now()` so that system clock changes don't cause issues
+* Fixed parsing of JNI class names
+* Fixed cleanup when windows are closed and the Lime application exits
+* Removed the defunct Kha backend
 
 8.0.2 (05/31/2023)
 ------------------
