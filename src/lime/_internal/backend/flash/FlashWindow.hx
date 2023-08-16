@@ -572,6 +572,11 @@ class FlashWindow
 		return false;
 	}
 
+	public function getOpacity():Float
+	{
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		return textInputEnabled;
@@ -580,6 +585,10 @@ class FlashWindow
 	public function move(x:Int, y:Int):Void {}
 
 	public function resize(width:Int, height:Int):Void {}
+
+	public function setMinSize(width:Int, height:Int):Void {}
+
+	public function setMaxSize(width:Int, height:Int):Void {}
 
 	public function setBorderless(value:Bool):Bool
 	{
@@ -613,6 +622,8 @@ class FlashWindow
 
 	public function setMouseLock(value:Bool):Void {}
 
+	public function setOpacity(value:Float):Void {}
+
 	public function setResizable(value:Bool):Bool
 	{
 		return value;
@@ -636,6 +647,11 @@ class FlashWindow
 	public function setVSync(value:Bool):Bool
 	{
 		return false;
+  }
+
+	public function setVisible(value:Bool):Bool
+	{
+		return value;
 	}
 
 	public function warpMouse(x:Int, y:Int):Void {}

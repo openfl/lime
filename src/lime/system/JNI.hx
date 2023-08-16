@@ -18,6 +18,8 @@ import neko.vm.Thread;
 #end
 #end
 
+using StringTools;
+
 /**
 	The Java Native Interface (JNI) allows C++ code to call Java functions, and
 	vice versa. On Android, Haxe code compiles to C++, but only Java code can
@@ -46,6 +48,19 @@ class JNI
 	private static var alreadyCreated = new Map<String, Bool>();
 	private static var initialized = false;
 
+	private static function transformClassName(className:String):String
+	{
+		var parts:Array<String> = className.split(".");
+		if (parts.length <= 1)
+			return className;
+
+		var nestedClassName:String = "";
+		if (~/^[A-Z]/.match(parts[parts.length - 2]))
+			nestedClassName = "$" + parts.pop();
+
+		return parts.join("/") + nestedClassName;
+	}
+
 	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic
 	{
 		return Reflect.callMethod(null, method, [jobject].concat(a));
@@ -56,23 +71,43 @@ class JNI
 		return Reflect.callMethod(null, method, a);
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The member field's name.
+		@param signature A Java VM type signature.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createMemberField(className:String, memberName:String, signature:String):JNIMemberField
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
+		className = transformClassName(className);
 		return new JNIMemberField(NativeCFFI.lime_jni_create_field(className, memberName, signature, false));
 		#else
 		return new JNIMemberField(null);
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The member method's name.
+		@param signature A Java VM type signature.
+		@param useArray Set this to create a function that takes a single
+		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
+		@param quietFail Set this to suppress the "method not found" error.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createMemberMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
-		className = className.split(".").join("/");
+		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, false, quietFail);
 
 		if (handle == null)
@@ -92,23 +127,45 @@ class JNI
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The static field's name.
+		@param signature A Java VM type signature.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createStaticField(className:String, memberName:String, signature:String):JNIStaticField
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
+		className = transformClassName(className);
 		return new JNIStaticField(NativeCFFI.lime_jni_create_field(className, memberName, signature, true));
 		#else
 		return new JNIStaticField(null);
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The static method's name. To get a constructor, use
+		`<init>` as the method name.
+		@param signature A Java VM type signature. To get a constructor, use `V`
+		as the function's return value.
+		@param useArray Set this to create a function that takes a single
+		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
+		@param quietFail Set this to suppress the "method not found" error.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createStaticMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
-		className = className.split(".").join("/");
+		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, true, quietFail);
 
 		if (handle == null)

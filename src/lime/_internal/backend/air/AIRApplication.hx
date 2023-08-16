@@ -21,7 +21,7 @@ class AIRApplication extends FlashApplication
 	{
 		System.exit(0);
 
-		if (Application.current.onExit.canceled)
+		if (Application.current != null && Application.current.onExit.canceled)
 		{
 			event.preventDefault();
 			event.stopImmediatePropagation();

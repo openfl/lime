@@ -85,7 +85,7 @@ class HTML5Helper
 		}
 	}
 
-	public static function launch(project:HXProject, path:String, port:Int = 3000):Void
+	public static function launch(project:HXProject, path:String, port:Int = 0):Void
 	{
 		if (project.app.url != null && project.app.url != "")
 		{
@@ -124,27 +124,25 @@ class HTML5Helper
 				Sys.command("chmod", ["+x", node]);
 			}
 
+			var args = [server, path, "-c-1", "--cors"];
+
 			if (project.targetFlags.exists("port"))
 			{
 				port = Std.parseInt(project.targetFlags.get("port"));
 			}
 
-			Log.info("", " - \x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
-
-			/*Thread.create (function () {
-
-				Sys.sleep (0.5);
-				System.openURL ("http://localhost:" + port);
-
-			});*/
-
-			var args = [server, path, "-p", Std.string(port), "-c-1", "--cors"];
-
-			if (project.targetFlags.exists("nolaunch"))
+			if (port != 0)
 			{
-				Log.info("\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
+				args.push("-p");
+				args.push(Std.string(port));
+				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
 			}
 			else
+			{
+				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
+			}
+
+			if (!project.targetFlags.exists("nolaunch"))
 			{
 				args.push("-o");
 			}
@@ -164,7 +162,61 @@ class HTML5Helper
 		{
 			var tempFile = System.getTemporaryFile(".js");
 
-			if (project.targetFlags.exists("yui"))
+			if (project.targetFlags.exists("terser"))
+			{
+				var executable = "npx";
+				var terser = "terser";
+				if (!project.targetFlags.exists("npx")) {
+					var suffix = switch (System.hostPlatform)
+					{
+						case WINDOWS: "-windows.exe";
+						case MAC: "-mac";
+						case LINUX: "-linux";
+						default: return false;
+					}
+
+					if (suffix == "-linux")
+					{
+						if (System.hostArchitecture == X86)
+						{
+							suffix += "32";
+						}
+						else
+						{
+							suffix += "64";
+						}
+					}
+
+					var templatePaths = [
+						Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
+					].concat(project.templatePaths);
+					executable = System.findTemplate(templatePaths, "bin/node/node" + suffix);
+					terser = System.findTemplate(templatePaths, "bin/node/terser/bin/terser");
+
+					if (System.hostPlatform != WINDOWS)
+					{
+						Sys.command("chmod", ["+x", executable]);
+					}
+				}
+
+				var args = [
+					terser,
+					sourceFile,
+					"-c",
+					"-m",
+					"-o",
+					tempFile
+				];
+
+				if (FileSystem.exists(sourceFile + ".map"))
+				{
+					args.push("--source-map");
+					args.push('content=\'${sourceFile}.map\'');
+				}
+
+				System.runCommand("", executable, args);
+			}
+			else if (project.targetFlags.exists("yui"))
 			{
 				var templatePaths = [
 					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
@@ -180,20 +232,33 @@ class HTML5Helper
 			}
 			else
 			{
-				var templatePaths = [
-					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-				].concat(project.templatePaths);
-				var args = [
-					"-Dapple.awt.UIElement=true",
-					"-jar",
-					System.findTemplate(templatePaths, "bin/compiler.jar"),
-					"--strict_mode_input",
-					"false",
-					"--js",
-					sourceFile,
-					"--js_output_file",
-					tempFile
-				];
+				var executable:String;
+				var args:Array<String>;
+				if (project.targetFlags.exists("npx"))
+				{
+					executable = "npx";
+					args = [
+						"google-closure-compiler"
+					];
+				}
+				else
+				{
+					executable = "java";
+					var templatePaths = [
+						Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
+					].concat(project.templatePaths);
+					args = [
+						"-Dapple.awt.UIElement=true",
+						"-jar",
+						System.findTemplate(templatePaths, "bin/compiler.jar"),
+					];
+				}
+				args.push("--strict_mode_input");
+				args.push("false");
+				args.push("--js");
+				args.push(sourceFile);
+				args.push("--js_output_file");
+				args.push(tempFile);
 
 				if (project.targetFlags.exists("advanced"))
 				{
@@ -218,7 +283,7 @@ class HTML5Helper
 					args.push("--jscomp_off=suspiciousCode"); // avoid warnings caused by the embedded minified libraries
 				}
 
-				System.runCommand("", "java", args);
+				System.runCommand("", executable, args);
 
 				if (FileSystem.exists(tempFile + ".map"))
 				{
