@@ -711,7 +711,7 @@ class NativeWindow
 		return value;
 	}
 
-  public function setVSync(value:Bool):Bool
+	public function setVSync(value:Bool):Bool
 	{
 		if (handle != null)
 		{

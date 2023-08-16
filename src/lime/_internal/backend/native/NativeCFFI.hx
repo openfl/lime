@@ -355,7 +355,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
 
-  @:cffi private static function lime_window_set_vsync(handle:Dynamic, vsync:Bool):Bool;
+	@:cffi private static function lime_window_set_vsync(handle:Dynamic, vsync:Bool):Bool;
 
 	@:cffi private static function lime_window_warp_mouse(handle:Dynamic, x:Int, y:Int):Void;
 
@@ -1394,7 +1394,7 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_vsync") private static function lime_window_set_vsync(handle:CFFIPointer, vsync:Bool):Bool
-  {
+	{
 		return false;
 	}
 

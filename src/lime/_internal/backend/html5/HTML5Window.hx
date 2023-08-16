@@ -1277,7 +1277,7 @@ class HTML5Window
 	public function setVSync(value:Bool):Bool
 	{
 		return false;
-  }
+	}
 
 	public function setVisible(value:Bool):Bool
 	{

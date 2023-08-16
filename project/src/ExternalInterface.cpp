@@ -3850,15 +3850,15 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data(window);
 		return targetWindow->SetVSync (vsync);
 
-  }
+	}
 
 
-  HL_PRIM bool HL_NAME(hl_window_set_vsync) (HL_CFFIPointer* window, bool vsync) {
+	HL_PRIM bool HL_NAME(hl_window_set_vsync) (HL_CFFIPointer* window, bool vsync) {
 
 		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->SetVSync (vsync);
 
-  }
+	}
 
 
 	void lime_window_warp_mouse (value window, int x, int y) {
