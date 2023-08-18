@@ -135,7 +135,7 @@ class HXProject extends Script
 			case AIR if (targetFlags.exists("ios") || targetFlags.exists("android")):
 				PlatformType.MOBILE;
 
-			case FLASH, HTML5, FIREFOX, EMSCRIPTEN:
+			case FLASH, HTML5, FIREFOX, WEB_ASSEMBLY:
 				PlatformType.WEB;
 
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:

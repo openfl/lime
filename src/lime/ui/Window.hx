@@ -66,6 +66,7 @@ class Window
 	public var onFocusIn(default, null) = new Event<Void->Void>();
 	public var onFocusOut(default, null) = new Event<Void->Void>();
 	public var onFullscreen(default, null) = new Event<Void->Void>();
+	public var onHide(default, null) = new Event<Void->Void>();
 	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	public var onLeave(default, null) = new Event<Void->Void>();
@@ -82,6 +83,7 @@ class Window
 	public var onRenderContextRestored(default, null) = new Event<RenderContext->Void>();
 	public var onResize(default, null) = new Event<Int->Int->Void>();
 	public var onRestore(default, null) = new Event<Void->Void>();
+	public var onShow(default, null) = new Event<Void->Void>();
 	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
 	public var onTextInput(default, null) = new Event<String->Void>();
 	public var opacity(get, set):Float;
@@ -118,10 +120,10 @@ class Window
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	@:noCompletion private var __minWidth:Int;
-	@:noCompletion private var __minHeight:Int;
-	@:noCompletion private var __maxWidth:Int;
-	@:noCompletion private var __maxHeight:Int;
+	@:noCompletion private var __minWidth:Int = 0;
+	@:noCompletion private var __minHeight:Int = 0;
+	@:noCompletion private var __maxWidth:Int = 0x7FFFFFFF;
+	@:noCompletion private var __maxHeight:Int = 0x7FFFFFFF;
 
 	#if commonjs
 	private static function __init__()
@@ -437,11 +439,8 @@ class Window
 
 		__minWidth = width;
 		__minHeight = height;
-		if (__width < __minWidth) {
-			__width = __minWidth;
-		}
-		if (__height < __minHeight) {
-			__height = __minHeight;
+		if (__width < __minWidth || __height < __minHeight) {
+			resize(__width, __height);
 		}
 	}
 
@@ -451,11 +450,8 @@ class Window
 
 		__maxWidth = width;
 		__maxHeight = height;
-		if (__width > __maxWidth) {
-			__width = __maxWidth;
-		}
-		if (__height > __maxHeight) {
-			__height = __maxHeight;
+		if (__width > __maxWidth || __height > __maxHeight) {
+			resize(__width, __height);
 		}
 	}
 

@@ -6,13 +6,14 @@ import lime.system.WorkOutput;
 import lime.utils.Log;
 #if target.threaded
 import sys.thread.Thread;
-#elseif cpp
+#elseif (cpp || webassembly)
 import cpp.vm.Thread;
 #elseif neko
 import neko.vm.Thread;
 #elseif html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
 #end
+
 /**
 	A simple and thread-safe way to run a one or more asynchronous jobs. It
 	manages a queue of jobs, starting new ones once the old ones are done.

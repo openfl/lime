@@ -25,6 +25,8 @@ namespace lime {
 		WINDOW_MOVE,
 		WINDOW_RESIZE,
 		WINDOW_RESTORE,
+		WINDOW_SHOW,
+		WINDOW_HIDE
 
 	};
 

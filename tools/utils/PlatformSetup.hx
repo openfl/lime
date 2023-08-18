@@ -369,9 +369,6 @@ class PlatformSetup
 
 				// setupBlackBerry ();
 
-				case "emscripten", "webassembly", "wasm":
-					setupEmscripten();
-
 				case "html5":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
 				// setupHTML5 ();
@@ -397,6 +394,9 @@ class PlatformSetup
 				case "tizen":
 
 				// setupTizen ();
+
+				case "webassembly", "wasm", "emscripten":
+					setupWebAssembly();
 
 				case "webos":
 
@@ -620,18 +620,6 @@ class PlatformSetup
 
 		Log.println("");
 		Haxelib.runCommand("", ["install", "electron"], true, true);
-
-		Log.println("");
-		Log.println("Setup complete.");
-	}
-
-	public static function setupEmscripten():Void
-	{
-		Log.println("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
-		Log.println("and install the Emscripten SDK.");
-		Log.println("");
-
-		getDefineValue("EMSCRIPTEN_SDK", "Path to Emscripten SDK");
 
 		Log.println("");
 		Log.println("Setup complete.");
@@ -1163,6 +1151,20 @@ class PlatformSetup
 		{
 			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
+	}
+
+	public static function setupWebAssembly():Void
+	{
+		Log.println("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
+		Log.println("and install the Emscripten SDK.");
+		Log.println("");
+		Log.println("After install, the SDK path may be at \"emsdk/upstream/emscripten\"");
+		Log.println("");
+
+		getDefineValue("EMSCRIPTEN_SDK", "Path to Emscripten SDK");
+
+		Log.println("");
+		Log.println("Setup complete.");
 	}
 
 	public static function setupWindows():Void

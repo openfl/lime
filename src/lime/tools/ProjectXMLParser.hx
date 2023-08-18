@@ -140,9 +140,17 @@ class ProjectXMLParser extends HXProject
 				defines.set("neko", "1");
 			}
 		}
+		else if (target == Platform.WEB_ASSEMBLY)
+		{
+			defines.set("webassembly", "1");
+			defines.set("wasm", "1");
+			defines.set("emscripten", "1");
+			defines.set("targetType", "cpp");
+			defines.set("native", "1");
+			defines.set("cpp", "1");
+		}
 		else if (targetFlags.exists("cpp")
-			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5"))
-			|| target == Platform.EMSCRIPTEN)
+			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
 		{
 			defines.set("targetType", "cpp");
 			defines.set("native", "1");
@@ -706,7 +714,7 @@ class ProjectXMLParser extends HXProject
 
 		for (file in files)
 		{
-			if (FileSystem.isDirectory(path + "/" + file))
+			if (FileSystem.exists(path + "/" + file) && FileSystem.isDirectory(path + "/" + file))
 			{
 				if (Path.extension(file) == "bundle")
 				{

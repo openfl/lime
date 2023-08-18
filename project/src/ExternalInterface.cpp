@@ -3128,7 +3128,9 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_window_alert) (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		targetWindow->Alert (message ? (const char*)hl_to_utf8 ((const uchar*)message) : NULL, title ? (const char*)hl_to_utf8 ((const uchar*)title) : NULL);
+		const char *cmessage = message ? hl_to_utf8(message->bytes) : NULL;
+		const char *ctitle = title ? hl_to_utf8(title->bytes) : NULL;
+		targetWindow->Alert (cmessage, ctitle);
 
 	}
 
