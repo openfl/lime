@@ -14,9 +14,8 @@ Changelog
 * Added `-terser` option to Lime tools for html5 builds to optionally use Terser minifier
 * Added `-npx` option to Lime tools to run minifiers, or Electron, using `npx` instead of the bundled versions
 * Updated the bundled version of Node.js to 18 LTS for the html5 target's HTTP server
-* Modernized Android Gradle build options
-* Exposed more information to _project.xml_, including `${project.platformType}` and `${config.android.target-sdk-version}`
-* Added click count for mouse events, for use by OpenFL
+* Exposed more information to _project.xml_, such as `${project.host}` and `${config.android.target-sdk-version}`
+* Updated the Android Gradle plugin
 * Disabled pointer tagging on Android
 * Fixed issues in `emscripten` target and renamed it to `webassembly`
 * Fixed unpopulated `responseData` on `HTTPRequest` when server returns error status code
