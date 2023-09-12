@@ -1,9 +1,11 @@
 package sys.io;
 
-import openfl.utils.ByteArray;
+import flash.utils.ByteArray;
 import flash.filesystem.File in FlashFile;
 import flash.filesystem.FileMode;
 import flash.filesystem.FileStream;
+import lime.utils.Log;
+import haxe.io.Bytes;
 
 @:dce
 @:coreApi
@@ -36,13 +38,12 @@ class File
 		var byteArray = new ByteArray();
 		stream.readBytes(byteArray, 0, stream.bytesAvailable);
 		stream.close();
-		var bytes:haxe.io.Bytes = byteArray;
-		return bytes;
+		return Bytes.ofData(byteArray);
 	}
 
 	public static function saveBytes(path:String, bytes:haxe.io.Bytes):Void
 	{
-		var byteArray:ByteArray = bytes;
+		var byteArray:ByteArray = bytes.getData();
 		var file = new FlashFile(path);
 		var stream = new FileStream();
 		stream.open(file, FileMode.WRITE);
@@ -52,25 +53,25 @@ class File
 
 	public static function read(path:String, binary:Bool = true):FileInput
 	{
-		openfl.Lib.notImplemented();
+		Log.warn("read is not implemented");
 		return null;
 	}
 
 	public static function write(path:String, binary:Bool = true):FileOutput
 	{
-		openfl.Lib.notImplemented();
+		Log.warn("write is not implemented");
 		return null;
 	}
 
 	public static function append(path:String, binary:Bool = true):FileOutput
 	{
-		openfl.Lib.notImplemented();
+		Log.warn("append is not implemented");
 		return null;
 	}
 
 	public static function update(path:String, binary:Bool = true):FileOutput
 	{
-		openfl.Lib.notImplemented();
+		Log.warn("update is not implemented");
 		return null;
 	}
 

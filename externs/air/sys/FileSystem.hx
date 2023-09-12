@@ -1,6 +1,7 @@
 package sys;
 
 import flash.filesystem.File in FlashFile;
+import lime.utils.Log;
 
 @:dce
 @:coreApi
@@ -18,7 +19,7 @@ class FileSystem
 
 	public static function stat(path:String):sys.FileStat
 	{
-		openfl.Lib.notImplemented();
+		Log.warn("stat is not implemented");
 		return null;
 	}
 
