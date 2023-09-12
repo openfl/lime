@@ -1,44 +1,64 @@
 package sys;
 
+import flash.filesystem.File in FlashFile;
+
 @:dce
 @:coreApi
 class FileSystem
 {
 	public static function exists(path:String):Bool
 	{
-		return false;
+		return new FlashFile(path).exists;
 	}
 
-	public static function rename(path:String, newPath:String):Void {}
+	public static function rename(path:String, newPath:String):Void
+	{
+		new FlashFile(path).moveTo(new FlashFile(newPath));
+	}
 
 	public static function stat(path:String):sys.FileStat
 	{
+		openfl.Lib.notImplemented();
 		return null;
 	}
 
 	public static function fullPath(relPath:String):String
 	{
-		return null;
+		var flashFile = new FlashFile(relPath);
+		flashFile.canonicalize();
+		return flashFile.nativePath;
 	}
 
 	public static function absolutePath(relPath:String):String
 	{
-		return null;
+		return new FlashFile(relPath).nativePath;
 	}
 
 	public static function isDirectory(path:String):Bool
 	{
-		return false;
+		return new FlashFile(path).isDirectory;
 	}
 
-	public static function createDirectory(path:String):Void {}
+	public static function createDirectory(path:String):Void
+	{
+		new FlashFile(path).createDirectory();
+	}
 
-	public static function deleteFile(path:String):Void {}
+	public static function deleteFile(path:String):Void
+	{
+		new FlashFile(path).deleteFile();
+	}
 
-	public static function deleteDirectory(path:String):Void {}
+	public static function deleteDirectory(path:String):Void
+	{
+		new FlashFile(path).deleteDirectory(false);
+	}
 
 	public static function readDirectory(path:String):Array<String>
 	{
-		return null;
+		return new FlashFile(path).getDirectoryListing().map(function(f:FlashFile):String
+		{
+			return f.name;
+		});
 	}
 }
