@@ -201,7 +201,9 @@ namespace lime {
 
 			// if (window->flags & WINDOW_FLAG_VSYNC) {
 
-			// 	sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+			#ifdef EMSCRIPTEN
+			sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+			#endif
 
 			// }
 
@@ -362,6 +364,23 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::SetVisible (bool visible) {
+
+		if (visible) {
+
+			SDL_ShowWindow (sdlWindow);
+
+		} else {
+
+			SDL_HideWindow (sdlWindow);
+
+		}
+
+		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_SHOWN);
+
+	}
+
+
 	void SDLWindow::ContextFlip () {
 
 		if (context && !sdlRenderer) {
@@ -500,9 +519,6 @@ namespace lime {
 	}
 
 
-
-
-
 	const char* SDLWindow::GetContextType () {
 
 		if (context) {
@@ -592,6 +608,17 @@ namespace lime {
 	bool SDLWindow::GetMouseLock () {
 
 		return SDL_GetRelativeMouseMode ();
+
+	}
+
+
+	float SDLWindow::GetOpacity () {
+
+		float opacity = 1.0f;
+
+		SDL_GetWindowOpacity (sdlWindow, &opacity);
+
+		return opacity;
 
 	}
 
@@ -720,6 +747,20 @@ namespace lime {
 	void SDLWindow::Resize (int width, int height) {
 
 		SDL_SetWindowSize (sdlWindow, width, height);
+
+	}
+
+
+	void SDLWindow::SetMinimumSize (int width, int height) {
+
+		SDL_SetWindowMinimumSize (sdlWindow, width, height);
+
+	}
+
+
+	void SDLWindow::SetMaximumSize (int width, int height) {
+
+		SDL_SetWindowMaximumSize (sdlWindow, width, height);
 
 	}
 
@@ -1014,6 +1055,13 @@ namespace lime {
 	}
 
 
+	void SDLWindow::SetOpacity (float opacity) {
+
+		SDL_SetWindowOpacity (sdlWindow, opacity);
+
+	}
+
+
 	bool SDLWindow::SetResizable (bool resizable) {
 
 		#ifndef EMSCRIPTEN
@@ -1080,7 +1128,7 @@ namespace lime {
 	}
 
 
-	void SDLWindow::WarpMouse (int x, int y){
+	void SDLWindow::WarpMouse (int x, int y) {
 
 		SDL_WarpMouseInWindow (sdlWindow, x, y);
 

@@ -214,7 +214,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "zulu"
-          java-version: 8
+          java-version: 11
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -458,7 +458,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "zulu"
-          java-version: 8
+          java-version: 11
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -680,6 +680,12 @@ jobs:
           lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
+
+      - name: Build Lime samples with Terser minification
+        run: |
+          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
 
   ios-samples:
     needs: package-haxelib

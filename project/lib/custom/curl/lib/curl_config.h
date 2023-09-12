@@ -684,7 +684,7 @@
 #define HAVE_SYS_SOCKET_H 1
 
 /* Define to 1 if you have the <sys/sockio.h> header file. */
-#if !defined(ANDROID) && !defined(HX_LINUX) && !defined(WEBOS) && !defined(BLACKBERRY) && !defined(TIZEN)
+#if !defined(ANDROID) && !defined(HX_LINUX) && !defined(WEBOS) && !defined(BLACKBERRY) && !defined(TIZEN) && !defined(EMSCRIPTEN)
 #define HAVE_SYS_SOCKIO_H 1
 #endif
 

@@ -264,7 +264,7 @@ class AssetHelper
 		}
 		else
 		{
-			if (project.target == EMSCRIPTEN
+			if (project.target == WEB_ASSEMBLY
 				&& (asset.embed != false
 					|| (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload)))
 			{

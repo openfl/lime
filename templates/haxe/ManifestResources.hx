@@ -1,6 +1,7 @@
 package;
 
 import haxe.io.Bytes;
+import haxe.io.Path;
 import lime.utils.AssetBundle;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
@@ -54,11 +55,11 @@ import sys.FileSystem;
 
 		if (rootPath == null) {
 
-			#if (ios || tvos || emscripten)
+			#if (ios || tvos || webassembly)
 			rootPath = "assets/";
 			#elseif android
 			rootPath = "";
-			#elseif console
+			#elseif (console || sys)
 			rootPath = lime.system.System.applicationDirectory;
 			#else
 			rootPath = "./";
@@ -72,17 +73,6 @@ import sys.FileSystem;
 		#end
 
 		var data, manifest, library, bundle;
-
-		#if kha
-
-		::manifest::
-		library = AssetLibrary.fromManifest (manifest);
-		Assets.registerLibrary ("::library::", library);
-
-		if (library != null) preloadLibraries.push (library);
-		else preloadLibraryNames.push ("::library::");
-
-		#else
 
 		::if (assets != null)::::foreach assets::::if (type == "manifest")::::if (embed)::data = '::data::';
 		manifest = AssetManifest.parse (data, rootPath);
@@ -101,19 +91,10 @@ import sys.FileSystem;
 		else preloadLibraryNames.push ("::name::");
 		::end::::end::
 
-		#end
-
 	}
 
 
 }
-
-
-#if kha
-
-::images::
-
-#else
 
 #if !display
 #if flash
@@ -150,8 +131,6 @@ import sys.FileSystem;
 #end
 
 #end
-#end
-
 #end
 
 #end

@@ -263,7 +263,8 @@ class HTML5Platform extends PlatformTarget
 		}
 		else if (targetFlags.exists("electron"))
 		{
-			ElectronHelper.launch(project, targetDirectory + "/bin");
+			var npx = targetFlags.exists("npx");
+			ElectronHelper.launch(project, targetDirectory + "/bin", npx);
 		}
 		else
 		{
