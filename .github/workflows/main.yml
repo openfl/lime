@@ -317,7 +317,7 @@ jobs:
 
   package-haxelib:
     needs: [linux-ndll, macos-ndll, windows-ndll, android-ndll, ios-ndll]
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: actions/checkout@v3
@@ -415,7 +415,7 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: actions/checkout@v3
@@ -511,7 +511,7 @@ jobs:
 
   flash-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: krdlab/setup-haxe@v1
@@ -637,7 +637,7 @@ jobs:
 
   html5-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: krdlab/setup-haxe@v1
