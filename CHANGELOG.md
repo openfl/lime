@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.1.0 (??/??/2023)
+8.1.0 (10/16/2023)
 ------------------
 
 * Added `visible` property to `Window` to allow it to be shown and hidden
