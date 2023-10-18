@@ -457,6 +457,7 @@
 			</section>
 
 			<section if="mac">
+				<vflag name="-install_name" value="@executable_path/lime.hdll" if="LIME_HASHLINK"/>
 
 				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
