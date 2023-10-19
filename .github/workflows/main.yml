@@ -348,6 +348,10 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
+          mkdir templates/bin/hl/include
+          cp project/lib/hashlink/src/hlc.h templates/bin/hl/include/hlc.h
+          cp project/lib/hashlink/src/hl.h templates/bin/hl/include/hl.h
+          cp project/lib/hashlink/src/hlc_main.c templates/bin/hl/include/hlc_main.c
       - uses: actions/download-artifact@v3
         with:
           name: Android-NDLL
