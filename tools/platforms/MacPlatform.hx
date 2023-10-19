@@ -208,19 +208,59 @@ class MacPlatform extends PlatformTarget
 
 			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, is64);
 
-			// HashLink looks for hlboot.dat and libraries in the current
-			// working directory, so the .app file won't work properly if it
-			// tries to run the HashLink executable directly.
-			// when the .app file is launched, we can tell it to run a shell
-			// script instead of the HashLink executable. the shell script will
-			// adjusts the working directory before running the HL executable.
+			if (project.targetFlags.exists("hlc"))
+			{
+				// the libraries were compiled as x86_64, so if the build is
+				// happening on ARM64 instead, we need to ensure that the
+				// same architecture is used for the executable, so we wrap our
+				// compiler command with the `arch -x86_64` command.
+				// if we ever support ARM or Universal binaries, this will
+				// need to be handled differently.
+				var command = ["arch", "-x86_64", "gcc", "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				for (file in System.readDirectory(executableDirectory))
+				{
+					switch Path.extension(file)
+					{
+						case "dylib", "hdll":
+							// ensure the executable knows about every library
+							command.push(file);
+						default:
+					}
+				}
+				System.runCommand("", command.shift(), command);
 
-			// unlike other platforms, we want to use the original "hl" name
-			var hlExecutablePath = Path.combine(executableDirectory, "hl");
-			System.renameFile(executablePath, hlExecutablePath);
-			System.runCommand("", "chmod", ["755", hlExecutablePath]);
-			// then we can use the executable name for the shell script
-			System.copyFileTemplate(project.templatePaths, 'hl/mac-launch.sh', executablePath);
+				for (file in System.readDirectory(executableDirectory))
+				{
+					switch Path.extension(file)
+					{
+						case "dylib", "hdll":
+							// when launched inside an .app file, the executable
+							// can't find the library files unless we tell
+							// it to search specifically from @executable_path
+							System.runCommand("", "install_name_tool", ["-change", Path.withoutDirectory(file), "@executable_path/" + Path.withoutDirectory(file), executablePath]);
+						default:
+					}
+				}
+			}
+			else
+			{
+				// HashLink JIT looks for hlboot.dat and libraries in the current
+				// working directory, so the .app file won't work properly if it
+				// tries to run the HashLink executable directly.
+				// when the .app file is launched, we can tell it to run a shell
+				// script instead of the HashLink executable. the shell script
+				// tells the HL where to find everything.
+
+				// we want to keep the original "hl" file name because our
+				// shell script will use the app name
+				var hlExecutablePath = Path.combine(executableDirectory, "hl");
+				System.renameFile(executablePath, hlExecutablePath);
+				System.runCommand("", "chmod", ["755", hlExecutablePath]);
+
+				// then we can use the executable name for the shell script
+				System.copyFileTemplate(project.templatePaths, 'hl/mac-launch.sh', executablePath);
+				System.runCommand("", "chmod", ["755", executablePath]);
+			}
 		}
 		else if (targetType == "java")
 		{
@@ -294,7 +334,7 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java")
+		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java" && sys.FileSystem.exists(executablePath))
 		{
 			System.runCommand("", "chmod", ["755", executablePath]);
 		}
@@ -330,7 +370,7 @@ class MacPlatform extends PlatformTarget
 		var context = project.templateContext;
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.NODE_FILE = executableDirectory + "/ApplicationMain.js";
-		context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
+		context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
 
