@@ -493,6 +493,11 @@ class AndroidPlatform extends PlatformTarget
 		var escaped = ~/([ #!=\\:])/g;
 		context.ANDROID_SDK_ESCAPED = escaped.replace(context.ENV_ANDROID_SDK, "\\$1");
 		context.ANDROID_NDK_ROOT_ESCAPED = escaped.replace(context.ENV_ANDROID_NDK_ROOT, "\\$1");
+		if(project.host == WINDOWS) {
+			var drive = ~/^([A-Z])\\:/;
+			context.ANDROID_SDK_ESCAPED = drive.replace(context.ANDROID_SDK_ESCAPED, "$1:");
+			context.ANDROID_NDK_ROOT_ESCAPED = drive.replace(context.ANDROID_NDK_ROOT_ESCAPED, "$1:");
+		}
 
 		if (Reflect.hasField(context, "KEY_STORE")) context.KEY_STORE = StringTools.replace(context.KEY_STORE, "\\", "\\\\");
 		if (Reflect.hasField(context, "KEY_STORE_ALIAS")) context.KEY_STORE_ALIAS = StringTools.replace(context.KEY_STORE_ALIAS, "\\", "\\\\");
