@@ -115,12 +115,33 @@ class HashlinkHelper
 			var index = appMainCText.indexOf("#ifndef HL_MAKE");
 			appMainCText = appMainCText.substr(0, index) + "
 // --------- START LIME HL/C INJECTED CODE --------- //
-#ifdef BIG_ENDIAN
+// undefine things to avoid Haxe field name conflicts
 #undef BIG_ENDIAN
-#endif
-#ifdef LITTLE_ENDIAN
 #undef LITTLE_ENDIAN
-#endif
+#undef TRUE
+#undef FALSE
+#undef BOOLEAN
+#undef ERROR
+#undef NO_ERROR
+#undef DELETE
+#undef OPTIONS
+#undef IN
+#undef OUT
+#undef ALTERNATE
+#undef OPTIONAL
+#undef DOUBLE_CLICK
+#undef DIFFERENCE
+#undef POINT
+#undef RECT
+#undef OVERFLOW
+#undef UNDERFLOW
+#undef DOMAIN
+#undef TRANSPARENT
+#undef CONST
+#undef CopyFile
+#undef COLOR_HIGHLIGHT
+#undef __valid
+#undef WAIT_FAILED
 // ---------- END LIME HL/C INJECTED CODE ---------- //
 " + appMainCText.substr(index);
 			System.writeText(appMainCText, appMainCPath);

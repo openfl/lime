@@ -333,6 +333,22 @@ class WindowsPlatform extends PlatformTarget
 
 				HashlinkHelper.copyHashlink(project, targetDirectory, applicationDirectory, executablePath, is64);
 
+				if (project.targetFlags.exists("hlc"))
+				{
+					var command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
+					for (file in System.readDirectory(applicationDirectory))
+					{
+						switch Path.extension(file)
+						{
+							case "dll", "hdll":
+								// ensure the executable knows about every library
+								command.push(file);
+							default:
+						}
+					}
+					System.runCommand("", command.shift(), command);
+				}
+
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
 
 				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
@@ -580,7 +596,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 			context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
-			context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
+			context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
 			context.CPPIA_FILE = targetDirectory + "/obj/ApplicationMain.cppia";
 			context.CPP_DIR = targetDirectory + "/obj";
 			context.BUILD_DIR = project.app.path + "/windows" + (is64 ? "64" : "");
