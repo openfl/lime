@@ -335,7 +335,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (project.targetFlags.exists("hlc"))
 				{
-					var command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
+					var command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-Wl,-subsystem,windows", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
 					for (file in System.readDirectory(applicationDirectory))
 					{
 						switch Path.extension(file)
