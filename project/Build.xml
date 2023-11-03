@@ -561,5 +561,6 @@
 		<target id="lime-legacy" if="lime-legacy" />
 
 	</target>
+	<copyFile name="lime.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows LIME_HASHLINK" />
 
 </xml>
