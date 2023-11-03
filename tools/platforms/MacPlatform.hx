@@ -210,13 +210,14 @@ class MacPlatform extends PlatformTarget
 
 			if (project.targetFlags.exists("hlc"))
 			{
+				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
 				// the libraries were compiled as x86_64, so if the build is
 				// happening on ARM64 instead, we need to ensure that the
 				// same architecture is used for the executable, so we wrap our
 				// compiler command with the `arch -x86_64` command.
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
-				var command = ["arch", "-x86_64", "gcc", "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
 				for (file in System.readDirectory(executableDirectory))
 				{
 					switch Path.extension(file)
