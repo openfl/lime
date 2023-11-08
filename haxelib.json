@@ -4,8 +4,8 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "8.1.0",
-	"releasenote": "New Window properties, webassembly target, project.hxp, -eval and -terser options",
+	"version": "8.1.1",
+	"releasenote": "Various bug fixes",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",
