@@ -297,6 +297,8 @@ class WindowsPlatform extends PlatformTarget
 					{
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".lib", applicationDirectory, project.debug,
+							".lib");
 					}
 					else
 					{
@@ -335,18 +337,49 @@ class WindowsPlatform extends PlatformTarget
 
 				if (project.targetFlags.exists("hlc"))
 				{
-					var command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-Wl,-subsystem,windows", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
-					for (file in System.readDirectory(applicationDirectory))
+					var command:Array<String> = null;
+					if (project.targetFlags.exists("gcc"))
 					{
-						switch Path.extension(file)
+						command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-Wl,-subsystem,windows", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
+						for (file in System.readDirectory(applicationDirectory))
 						{
-							case "dll", "hdll":
-								// ensure the executable knows about every library
-								command.push(file);
-							default:
+							switch Path.extension(file)
+							{
+								case "dll", "hdll":
+									// ensure the executable knows about every library
+									command.push(file);
+								default:
+							}
 						}
 					}
+					else
+					{
+						command = ["cl.exe", "/Ox", "/Fe:" + executablePath, "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+						for (file in System.readDirectory(applicationDirectory))
+						{
+							switch Path.extension(file)
+							{
+								case "lib":
+									// ensure the executable knows about every library
+									command.push(file);
+								default:
+							}
+						}
+						command.push("/link");
+						command.push("/subsystem:windows");
+					}
 					System.runCommand("", command.shift(), command);
+				}
+
+				for (file in System.readDirectory(applicationDirectory))
+				{
+					switch Path.extension(file)
+					{
+						case "lib":
+							// lib files required only for hlc compilation
+							System.deleteFile(file);
+						default:
+					}
 				}
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");

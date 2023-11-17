@@ -98,8 +98,13 @@ class HashlinkHelper
 		{
 			switch Path.extension(file)
 			{
-				case "hash", "lib", "pdb", "ilk", "exp":
+				case "hash", "pdb", "ilk", "exp":
 					System.deleteFile(file);
+				case "lib":
+					if (platform != WINDOWS)
+					{
+						System.deleteFile(file);
+					}
 				default:
 			}
 		}
