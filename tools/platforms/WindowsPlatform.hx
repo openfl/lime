@@ -354,19 +354,31 @@ class WindowsPlatform extends PlatformTarget
 					}
 					else
 					{
-						command = ["cl.exe", "/Ox", "/Fe:" + executablePath, "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+						// start by finding visual studio
+						var programFilesX86 = Sys.getEnv("ProgramFiles(x86)");
+						var vswhereCommand = programFilesX86 + "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
+						var vswhereOutput = System.runProcess("", vswhereCommand, ["-latest", "-products", "*", "-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64", "-property", "installationPath"]);
+						var visualStudioPath = StringTools.trim(vswhereOutput);
+						var vcvarsallPath = visualStudioPath + "\\VC\\Auxiliary\\Build\\vcvarsall.bat";
+						// this command sets up the environment variables and things that visual studio requires
+						var vcvarsallCommand = [vcvarsallPath, "x64"].map(arg -> ~/([&|\(\)<>\^ ])/g.replace(arg, "^$1"));
+						// this command runs the cl.exe c compiler from visual studio
+						var clCommand = ["cl.exe", "/Ox", "/Fe:" + executablePath, "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
 						for (file in System.readDirectory(applicationDirectory))
 						{
 							switch Path.extension(file)
 							{
 								case "lib":
 									// ensure the executable knows about every library
-									command.push(file);
+									clCommand.push(file);
 								default:
 							}
 						}
-						command.push("/link");
-						command.push("/subsystem:windows");
+						clCommand.push("/link");
+						clCommand.push("/subsystem:windows");
+						clCommand = clCommand.map(arg -> ~/([&|\(\)<>\^ ])/g.replace(arg, "^$1"));
+						// combine both commands into one
+						command = ["cmd.exe", "/s", "/c", vcvarsallCommand.join(" ") + " && " + clCommand.join(" ")];
 					}
 					System.runCommand("", command.shift(), command);
 				}
