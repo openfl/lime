@@ -937,6 +937,7 @@ class CommandLineTools
 			Log.println("  \x1b[1mjava\x1b[0m -- Alias for host platform (using \x1b[1m-java\x1b[0m)");
 			Log.println("  \x1b[1mcs\x1b[0m -- Alias for host platform (using \x1b[1m-cs\x1b[0m)");
 			Log.println("  \x1b[1mhl/hashlink\x1b[0m -- Alias for host platform (using \x1b[1m-hl\x1b[0m)");
+			Log.println("  \x1b[1mhlc\x1b[0m -- Alias for host platform (using \x1b[1m-hlc\x1b[0m)");
 			#if (lime >= "7.6.0")
 			// Log.println("  \x1b[1mcppia\x1b[0m -- Alias for host platform (using \x1b[1m-cppia\x1b[0m)");
 			#end
@@ -1049,7 +1050,8 @@ class CommandLineTools
 			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-java\x1b[0m -- Build for Java instead of C++");
 			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-nodejs\x1b[0m -- Build for Node.js instead of C++");
 			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-cs\x1b[0m -- Build for C# instead of C++");
-			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hl\x1b[0m -- Build for HashLink instead of C++");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hl\x1b[0m -- Build for HashLink/JIT instead of C++");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hlc\x1b[0m -- Build for HashLink/C instead of C++");
 			#if (lime >= "7.6.0")
 			// Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-cppia\x1b[0m -- Build for CPPIA instead of C++");
 			#end
