@@ -633,11 +633,17 @@ jobs:
           lime create SimpleImage -verbose -nocolor
           lime create SimpleAudio -verbose -nocolor
 
-      - name: Build Lime samples
+      - name: Build Lime samples (HL/JIT)
         run: |
           lime build HelloWorld hl -release -verbose -nocolor
           lime build SimpleImage hl -release -verbose -nocolor
           lime build SimpleAudio hl -release -verbose -nocolor
+
+      - name: Build Lime samples (HL/C)
+        run: |
+          lime build HelloWorld hlc -release -verbose -nocolor
+          lime build SimpleImage hlc -release -verbose -nocolor
+          lime build SimpleAudio hlc -release -verbose -nocolor
 
   html5-samples:
     needs: package-haxelib
