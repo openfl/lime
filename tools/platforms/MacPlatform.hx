@@ -134,7 +134,7 @@ class MacPlatform extends PlatformTarget
 		{
 			targetType = "neko";
 		}
-		else if (project.targetFlags.exists("hl"))
+		else if (project.targetFlags.exists("hl") || project.targetFlags.exists("hlc"))
 		{
 			targetType = "hl";
 			is64 = true;
