@@ -1522,6 +1522,11 @@ class CommandLineTools
 				target = cast System.hostPlatform;
 				targetFlags.set("hl", "");
 
+			case "hlc":
+				target = cast System.hostPlatform;
+				targetFlags.set("hl", "");
+				targetFlags.set("hlc", "");
+
 			case "cppia":
 				target = cast System.hostPlatform;
 				targetFlags.set("cppia", "");
