@@ -168,6 +168,7 @@ import flash.media.Sound;
 		if (promise == null)
 		{
 			promise = new Promise<AssetLibrary>();
+			bytesLoadedCache = new Map();
 
 			// TODO: Handle `preload` for individual assets
 			// TODO: Do not preload bytes on native, if we can read from it instead (all non-Android targets?)
@@ -247,7 +248,7 @@ import flash.media.Sound;
 				var path = Path.join([basePath, libPath]);
 				path = __cacheBreak(path);
 
-				Bytes.loadFromFile(path).onError(promise.error).onComplete(packedData_onComplete);
+				Bytes.loadFromFile(path).onError(promise.error).onComplete(packedData_onComplete).onProgress(load_onProgress.bind(id));
 			}
 		}
 
@@ -397,7 +398,9 @@ import flash.media.Sound;
 	@:noCompletion private override function __fromManifest(manifest:AssetManifest):Void
 	{
 		rootPath = manifest.rootPath;
-
+		
+		var total:Int = 0;
+		
 		super.__fromManifest(manifest);
 
 		for (asset in manifest.assets)
@@ -410,52 +413,10 @@ import flash.media.Sound;
 			if (Reflect.hasField(asset, "length"))
 			{
 				lengths.set(asset.id, Reflect.field(asset, "length"));
+				total+=Reflect.field(asset, "length");
 			}
 		}
-	}
-
-	@:noCompletion private override function __assetLoaded(id:String):Void
-	{
-		assetsLoaded++;
-
-		if (id != null)
-		{
-			Log.verbose("Loaded asset: " + id + " [" + types.get(id) + "] (" + (assetsLoaded - 1) + "/" + (assetsTotal - 1) + ")");
-		}
-
-		// if (id != null) {
-
-		// 	var size = sizes.get (id);
-
-		// 	if (!bytesLoadedCache.exists (id)) {
-
-		// 		bytesLoaded += size;
-
-		// 	} else {
-
-		// 		var cache = bytesLoadedCache.get (id);
-
-		// 		if (cache < size) {
-
-		// 			bytesLoaded += (size - cache);
-
-		// 		}
-
-		// 	}
-
-		// 	bytesLoadedCache.set (id, size);
-
-		// }
-
-		if (assetsLoaded < assetsTotal)
-		{
-			// promise.progress (bytesLoaded, bytesTotal);
-		}
-		else
-		{
-			loaded = true;
-			// promise.progress (bytesTotal, bytesTotal);
-			promise.complete(this);
-		}
+		
+		sizes.set(id, total);
 	}
 }
