@@ -63,7 +63,8 @@ class Joystick
 		}
 		catch (err:Dynamic)
 		{
-			trace("Gamepad access issue");
+			// if something went wrong, treat it the same as when navigator.getGamepads doesn't exist
+			// we probably don't have permission to use this feature
 		}
 		
 		return res;
