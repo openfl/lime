@@ -450,7 +450,7 @@ class AndroidPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString("android.install-location", "auto");
-		context.ANDROID_APP_CATEGORY = project.config.getString("android.appCategory", "");
+		context.ANDROID_APP_CATEGORY = project.config.getString("android.appCategory", null);
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 30);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
@@ -464,7 +464,6 @@ class AndroidPlatform extends PlatformTarget
 		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "7.3.1");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
-
 		context.ANDROID_LIBRARY_PROJECTS = [];
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
