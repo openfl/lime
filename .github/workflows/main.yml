@@ -337,6 +337,8 @@ jobs:
           haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install svg --quiet
+          haxelib install openfl --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -348,6 +350,7 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
+
       - uses: actions/download-artifact@v3
         with:
           name: Android-NDLL
@@ -402,6 +405,11 @@ jobs:
         with:
           name: Linux64-Hashlink
           path: templates/bin/hl/Linux64
+
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
 
       - uses: actions/upload-artifact@v3
         with:
