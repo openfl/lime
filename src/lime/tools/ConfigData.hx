@@ -373,7 +373,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		}
 	}
 
-	public function push(id:String, value:Dynamic):Void
+	public function push(id:String, value:Dynamic, ?unique:Bool = false):Void
 	{
 		var tree = id.split(".");
 		var current = this;
@@ -399,13 +399,18 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 		if (Reflect.hasField(current, field))
 		{
-			if (!Reflect.hasField(current, field + ARRAY))
+			var array:Array<Dynamic> = Reflect.field(current, field + ARRAY);
+
+			if (array == null)
 			{
-				Reflect.setField(current, field + ARRAY, Reflect.hasField(current, field) ? [ObjectTools.deepCopy(Reflect.field(current, field))] : []);
+				array = [ObjectTools.deepCopy(Reflect.field(current, field))];
+				Reflect.setField(current, field + ARRAY, array);
 			}
 
-			var array:Array<Dynamic> = Reflect.field(current, field + ARRAY);
-			array.push(value);
+			if (array.indexOf(value) == -1)
+			{
+				array.push(value);
+			}
 		}
 
 		Reflect.setField(current, field, value);
