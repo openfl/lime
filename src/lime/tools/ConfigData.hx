@@ -9,6 +9,8 @@ import haxe.xml.Fast as Access;
 
 abstract ConfigData(Dynamic) to Dynamic from Dynamic
 {
+	private static inline var ARRAY:String = "___array";
+
 	public function new()
 	{
 		this = {};
@@ -87,7 +89,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 		if (tree.length <= 1)
 		{
-			array = Reflect.field(this, id + "___array");
+			array = Reflect.field(this, id + ARRAY);
 
 			if (array == null && Reflect.hasField(this, id))
 			{
@@ -111,7 +113,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 			if (current != null)
 			{
-				array = Reflect.field(current, field + "___array");
+				array = Reflect.field(current, field + ARRAY);
 
 				if (array == null && Reflect.hasField(current, field))
 				{
@@ -227,7 +229,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 	{
 		for (field in Reflect.fields(source))
 		{
-			if (StringTools.endsWith(field, "___array"))
+			if (StringTools.endsWith(field, ARRAY))
 			{
 				continue;
 			}
@@ -257,17 +259,17 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 				if (doCopy && Reflect.field(source, field) != Reflect.field(destination, field) && typeSource != "TObject")
 				{
-					if (!Reflect.hasField(destination, field + "___array"))
+					if (!Reflect.hasField(destination, field + ARRAY))
 					{
-						Reflect.setField(destination, field + "___array", [ObjectTools.deepCopy(Reflect.field(destination, field))]);
+						Reflect.setField(destination, field + ARRAY, [ObjectTools.deepCopy(Reflect.field(destination, field))]);
 					}
 
-					var array:Array<Dynamic> = Reflect.field(destination, field + "___array");
+					var array:Array<Dynamic> = Reflect.field(destination, field + ARRAY);
 
-					if (Reflect.hasField(source, field + "___array"))
+					if (Reflect.hasField(source, field + ARRAY))
 					{
-						array = array.concat(Reflect.field(source, field + "___array"));
-						Reflect.setField(destination, field + "___array", array);
+						array = array.concat(Reflect.field(source, field + ARRAY));
+						Reflect.setField(destination, field + ARRAY, array);
 					}
 					else
 					{
@@ -289,9 +291,9 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				{
 					Reflect.setField(destination, field, Reflect.field(source, field));
 
-					if (Reflect.hasField(source, field + "___array"))
+					if (Reflect.hasField(source, field + ARRAY))
 					{
-						Reflect.setField(destination, field + "___array", Reflect.field(source, field + "___array"));
+						Reflect.setField(destination, field + ARRAY, Reflect.field(source, field + ARRAY));
 					}
 				}
 			}
@@ -353,12 +355,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 				if (Reflect.hasField(bucket, child.name))
 				{
-					if (!Reflect.hasField(bucket, child.name + "___array"))
+					if (!Reflect.hasField(bucket, child.name + ARRAY))
 					{
-						Reflect.setField(bucket, child.name + "___array", [ObjectTools.deepCopy(Reflect.field(bucket, child.name))]);
+						Reflect.setField(bucket, child.name + ARRAY, [ObjectTools.deepCopy(Reflect.field(bucket, child.name))]);
 					}
 
-					var array:Array<Dynamic> = Reflect.field(bucket, child.name + "___array");
+					var array:Array<Dynamic> = Reflect.field(bucket, child.name + ARRAY);
 					var arrayBucket = {};
 					array.push(arrayBucket);
 
@@ -418,12 +420,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		{
 			if (Reflect.hasField(this, id))
 			{
-				if (!Reflect.hasField(this, id + "___array"))
+				if (!Reflect.hasField(this, id + ARRAY))
 				{
-					Reflect.setField(this, id + "___array", Reflect.hasField(this, id) ? [ObjectTools.deepCopy(Reflect.field(this, id))] : []);
+					Reflect.setField(this, id + ARRAY, Reflect.hasField(this, id) ? [ObjectTools.deepCopy(Reflect.field(this, id))] : []);
 				}
 
-				var array:Array<Dynamic> = Reflect.field(this, id + "___array");
+				var array:Array<Dynamic> = Reflect.field(this, id + ARRAY);
 				array.push(value);
 			}
 
@@ -454,12 +456,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 		if (Reflect.hasField(current, field))
 		{
-			if (!Reflect.hasField(current, field + "___array"))
+			if (!Reflect.hasField(current, field + ARRAY))
 			{
-				Reflect.setField(current, field + "___array", Reflect.hasField(current, field) ? [ObjectTools.deepCopy(Reflect.field(current, field))] : []);
+				Reflect.setField(current, field + ARRAY, Reflect.hasField(current, field) ? [ObjectTools.deepCopy(Reflect.field(current, field))] : []);
 			}
 
-			var array:Array<Dynamic> = Reflect.field(current, field + "___array");
+			var array:Array<Dynamic> = Reflect.field(current, field + ARRAY);
 			array.push(value);
 		}
 
@@ -525,12 +527,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			{
 				if (typeSource != "TObject")
 				{
-					if (!Reflect.hasField(bucket, node + "___array"))
+					if (!Reflect.hasField(bucket, node + ARRAY))
 					{
-						Reflect.setField(bucket, node + "___array", [ObjectTools.deepCopy(Reflect.field(bucket, node))]);
+						Reflect.setField(bucket, node + ARRAY, [ObjectTools.deepCopy(Reflect.field(bucket, node))]);
 					}
 
-					cast(Reflect.field(bucket, node + "___array"), Array<Dynamic>).push(value);
+					cast(Reflect.field(bucket, node + ARRAY), Array<Dynamic>).push(value);
 				}
 
 				Reflect.setField(bucket, node, value);
