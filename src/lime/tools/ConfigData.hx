@@ -34,7 +34,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	public function exists(id:String):Bool
 	{
-		var tree = id.split('.');
+		var tree = id.split(".");
 
 		if (tree.length <= 1)
 		{
@@ -60,7 +60,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	public function get(id:String):ConfigData
 	{
-		var tree = id.split('.');
+		var tree = id.split(".");
 
 		if (tree.length <= 1)
 		{
@@ -84,7 +84,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	public function getArray(id:String, defaultValue:Array<Dynamic> = null):Array<Dynamic>
 	{
-		var tree = id.split('.');
+		var tree = id.split(".");
 		var array:Array<Dynamic> = null;
 
 		if (tree.length <= 1)
@@ -307,7 +307,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 		if (StringTools.startsWith(elem.name, "config:"))
 		{
-			var items = elem.name.split(':');
+			var items = elem.name.split(":");
 			bucketType = items[1];
 		}
 
@@ -414,7 +414,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	public function push(id:String, value:Dynamic):Void
 	{
-		var tree = id.split('.');
+		var tree = id.split(".");
 
 		if (tree.length <= 1)
 		{
@@ -470,7 +470,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	public function set(id:String, value:Dynamic):Void
 	{
-		var tree = id.split('.');
+		var tree = id.split(".");
 
 		if (tree.length <= 1)
 		{
