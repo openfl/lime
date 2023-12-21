@@ -34,39 +34,12 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	public function exists(id:String):Bool
 	{
-		var tree = id.split(".");
-
-		if (tree.length <= 1)
-		{
-			return Reflect.hasField(this, id);
-		}
-
-		var current = this;
-
-		for (leaf in tree)
-		{
-			if (Reflect.hasField(current, leaf))
-			{
-				current = Reflect.field(current, leaf);
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return get(id) != null;
 	}
 
 	public function get(id:String):ConfigData
 	{
 		var tree = id.split(".");
-
-		if (tree.length <= 1)
-		{
-			return Reflect.field(this, id);
-		}
-
 		var current = this;
 
 		for (leaf in tree)
@@ -87,38 +60,26 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		var tree = id.split(".");
 		var array:Array<Dynamic> = null;
 
-		if (tree.length <= 1)
-		{
-			array = Reflect.field(this, id + ARRAY);
+		var current = this;
+		var field = tree.pop();
 
-			if (array == null && Reflect.hasField(this, id))
+		for (leaf in tree)
+		{
+			current = Reflect.field(current, leaf);
+
+			if (current == null)
 			{
-				array = [Reflect.field(this, id)];
+				break;
 			}
 		}
-		else
+
+		if (current != null)
 		{
-			var current = this;
-			var field = tree.pop();
+			array = Reflect.field(current, field + ARRAY);
 
-			for (leaf in tree)
+			if (array == null && Reflect.hasField(current, field))
 			{
-				current = Reflect.field(current, leaf);
-
-				if (current == null)
-				{
-					break;
-				}
-			}
-
-			if (current != null)
-			{
-				array = Reflect.field(current, field + ARRAY);
-
-				if (array == null && Reflect.hasField(current, field))
-				{
-					array = [Reflect.field(current, field)];
-				}
+				array = [Reflect.field(current, field)];
 			}
 		}
 
@@ -415,24 +376,6 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 	public function push(id:String, value:Dynamic):Void
 	{
 		var tree = id.split(".");
-
-		if (tree.length <= 1)
-		{
-			if (Reflect.hasField(this, id))
-			{
-				if (!Reflect.hasField(this, id + ARRAY))
-				{
-					Reflect.setField(this, id + ARRAY, Reflect.hasField(this, id) ? [ObjectTools.deepCopy(Reflect.field(this, id))] : []);
-				}
-
-				var array:Array<Dynamic> = Reflect.field(this, id + ARRAY);
-				array.push(value);
-			}
-
-			Reflect.setField(this, id, value);
-			return;
-		}
-
 		var current = this;
 		var field = tree.pop();
 
@@ -471,13 +414,6 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 	public function set(id:String, value:Dynamic):Void
 	{
 		var tree = id.split(".");
-
-		if (tree.length <= 1)
-		{
-			Reflect.setField(this, id, value);
-			return;
-		}
-
 		var current = this;
 		var field = tree.pop();
 
