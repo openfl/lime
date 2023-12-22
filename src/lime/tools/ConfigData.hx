@@ -316,12 +316,13 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 				if (Reflect.hasField(bucket, child.name))
 				{
-					if (!Reflect.hasField(bucket, child.name + ARRAY))
+					var array:Array<Dynamic> = Reflect.field(bucket, child.name + ARRAY);
+					if (array == null)
 					{
-						Reflect.setField(bucket, child.name + ARRAY, [ObjectTools.deepCopy(Reflect.field(bucket, child.name))]);
+						array = [ObjectTools.deepCopy(Reflect.field(bucket, child.name))];
+						Reflect.setField(bucket, child.name + ARRAY, array);
 					}
 
-					var array:Array<Dynamic> = Reflect.field(bucket, child.name + ARRAY);
 					var arrayBucket = {};
 					array.push(arrayBucket);
 
@@ -468,12 +469,14 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			{
 				if (typeSource != "TObject")
 				{
-					if (!Reflect.hasField(bucket, node + ARRAY))
+					var array:Array<Dynamic> = Reflect.field(bucket, node + ARRAY);
+					if (array == null)
 					{
-						Reflect.setField(bucket, node + ARRAY, [ObjectTools.deepCopy(Reflect.field(bucket, node))]);
+						array = [ObjectTools.deepCopy(Reflect.field(bucket, node))];
+						Reflect.setField(bucket, node + ARRAY, array);
 					}
 
-					cast(Reflect.field(bucket, node + ARRAY), Array<Dynamic>).push(value);
+					array.push(value);
 				}
 
 				Reflect.setField(bucket, node, value);
