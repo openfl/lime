@@ -1678,6 +1678,20 @@ namespace lime {
 	}
 
 
+	void lime_gamepad_rumble (int id, int duration, float largeStrength, float smallStrength) {
+
+		Gamepad::Rumble (id, duration, largeStrength, smallStrength);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_lime_gamepad_rumble) (int id, int duration, float largeStrength, float smallStrength) {
+
+		Gamepad::Rumble (id, duration, largeStrength, smallStrength);
+
+	}
+
+
 	value lime_gzip_compress (value buffer, value bytes) {
 
 		#ifdef LIME_ZLIB

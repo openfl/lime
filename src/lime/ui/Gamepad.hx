@@ -92,4 +92,17 @@ class Gamepad
 		return null;
 		#end
 	}
+	
+	// Rumble
+	@:noCompletion private inline function rumble(duration:Int, largeStrength:Double, smallStrength:Double):Void
+	{
+		#if (lime_cffi && !macro)
+		NativeCFFI.lime_gamepad_rumble(this.id, duration, largeStrength, smallStrength);
+		#elseif (js && html5)
+		// TODO: HTML5 Rumble
+		return null;
+		#else
+		return null;
+		#end
+	}
 }
