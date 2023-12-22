@@ -4,8 +4,8 @@
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-	::if (ANDROID_PERMISSIONS != null)::::foreach ANDROID_PERMISSIONS::<uses-permission android:name="::__current__::" />
-	::end::::end::
+	::foreach ANDROID_PERMISSIONS::<uses-permission android:name="::__current__::" />
+	::end::
 
 	<application android:label="::APP_TITLE::" ::if (HAS_ICON):: android:icon="@drawable/icon"::end:: android:allowBackup="true" android:theme="@android:style/Theme.NoTitleBar::if (WIN_FULLSCREEN)::.Fullscreen::end::" android:hardwareAccelerated="true" ::if (ANDROID_TARGET_SDK_VERSION>=30):: android:allowNativeHeapPointerTagging="false" ::end::>
 
