@@ -7,7 +7,7 @@
 	::foreach ANDROID_PERMISSIONS::<uses-permission android:name="::__current__::" />
 	::end::
 
-	<application ::foreach ANDROID_APPLICATION::::if (value)::::key::="::value::" ::end::::end::>
+	<application ::foreach ANDROID_APPLICATION::::if ((value != null) && (value != ""))::::key::="::value::" ::end::::end::>
 
 		::if (WIN_ORIENTATION=="portrait")::
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value=  "Portrait PortraitUpsideDown" />
@@ -17,7 +17,7 @@
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value=  "LandscapeLeft LandscapeRight" />
 		::end::
 
-		<activity ::foreach ANDROID_ACTIVITY::::if (value)::::key::="::value::" ::end::::end::>
+		<activity ::foreach ANDROID_ACTIVITY::::if ((value != null) && (value != ""))::::key::="::value::" ::end::::end::>
 
 			<intent-filter>
 
