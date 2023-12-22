@@ -480,8 +480,6 @@ class AndroidPlatform extends PlatformTarget
 			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
 		});
 
-		context.ANDROID_LIBRARY_PROJECTS = [];
-
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
 		{
 			var command = #if lime "lime" #else "hxp" #end;
@@ -516,6 +514,7 @@ class AndroidPlatform extends PlatformTarget
 			"KEY_STORE_ALIAS_PASSWORD")) context.KEY_STORE_ALIAS_PASSWORD = StringTools.replace(context.KEY_STORE_ALIAS_PASSWORD, "\\", "\\\\");
 
 		var index = 1;
+		context.ANDROID_LIBRARY_PROJECTS = [];
 
 		for (dependency in project.dependencies)
 		{
