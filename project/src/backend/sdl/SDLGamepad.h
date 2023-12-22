@@ -13,11 +13,15 @@ namespace lime {
 	class SDLGamepad {
 		public:
 			SDL_GameController *gameController = nullptr;
-			SDL_Joystick *joystick = nullptr;
 			
 			SDLGamepad() {}
-			SDLGamepad(SDL_GameController *_gameController);
-			~SDLGamepad();
+			SDLGamepad(SDL_GameController *_gameController) : gameController(_gameController) {}
+			
+			~SDLGamepad() {
+				// Close controller if opened
+				if (gameController != nullptr)
+					SDL_GameControllerClose(gameController);
+			}
 
 			void Rumble(int duration, double largeStrength, double smallStrength);
 
@@ -25,6 +29,13 @@ namespace lime {
 			static int GetInstanceID (int deviceID);
 			static bool Disconnect (int id);
 
+			SDLGamepad &operator=(SDLGamepad &&other)
+			{
+				SDL_GameController *temp = gameController;
+				gameController = other.gameController;
+				other.gameController = temp;
+				return *this;
+			}
 	};
 
 

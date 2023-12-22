@@ -5,22 +5,6 @@ namespace lime {
 	std::map<int, SDLGamepad> gameControllers;
 	std::map<int, int> gameControllerIDs;
 	
-	SDLGamepad::SDLGamepad(SDL_GameController *_gameController) : gameController(_gameController) {
-		// Get joystick from controller
-		joystick = SDL_GameControllerGetJoystick(gameController);
-		if (!joystick) {
-			// Close joystick, since something has to be seriously wrong at this point
-			SDL_GameControllerClose(gameController);
-			gameController = nullptr;
-			return;
-		}
-	}
-	
-	SDLGamepad::~SDLGamepad() {
-		if (gameController != nullptr)
-			SDL_GameControllerClose(gameController);
-	}
-	
 	void SDLGamepad::Rumble(int duration, double largeStrength, double smallStrength) {
 		// Make sure game controller is open
 		if (gameController == nullptr)
@@ -42,7 +26,7 @@ namespace lime {
 		else if (duration > 0xFFFF)
 			duration = 0xFFFF;
 		
-		SDL_GameControllerRumble(gameController, smallStrength * 0xFFFF, largeStrength * 0xFFFF, duration);
+		SDL_GameControllerRumble(gameController, largeStrength * 0xFFFF, smallStrength * 0xFFFF, duration);
 	}
 
 	// SDL static gamepad API
@@ -54,7 +38,7 @@ namespace lime {
 				SDL_Joystick *joystick = SDL_GameControllerGetJoystick(gameController);
 				int id = SDL_JoystickInstanceID(joystick);
 
-				gameControllers.emplace(std::pair<int, SDLGamepad>(id, SDLGamepad(gameController)));
+				gameControllers[id] = std::move(SDLGamepad(gameController));
 				gameControllerIDs[deviceID] = id;
 				return true;
 			}
@@ -86,24 +70,36 @@ namespace lime {
 
 
 	const char* Gamepad::GetDeviceGUID (int id) {
-		SDL_Joystick* joystick = SDL_GameControllerGetJoystick (gameControllers[id].gameController);
+		auto it = gameControllers.find(id);
+		if (it == gameControllers.end())
+			return nullptr;
+		
+		SDL_Joystick* joystick = SDL_GameControllerGetJoystick (it->second.gameController);
 
 		if (joystick) {
 			char* guid = new char[64];
 			SDL_JoystickGetGUIDString (SDL_JoystickGetGUID (joystick), guid, 64);
 			return guid;
 		}
-
-		return 0;
+		
+		return nullptr;
 
 	}
 
 
 	const char* Gamepad::GetDeviceName (int id) {
-		return SDL_GameControllerName (gameControllers[id].gameController);
+		auto it = gameControllers.find(id);
+		if (it == gameControllers.end())
+			return nullptr;
+		
+		return SDL_GameControllerName(it->second.gameController);
 	}
 
 	void Gamepad::Rumble (int id, int duration, double largeStrength, double smallStrength) {
-		gameControllers[id].Rumble(duration, largeStrength, smallStrength);
+		auto it = gameControllers.find(id);
+		if (it == gameControllers.end())
+			return;
+		
+		it->second.Rumble(duration, largeStrength, smallStrength);
 	}
 }
