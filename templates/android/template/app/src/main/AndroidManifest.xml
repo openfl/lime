@@ -7,7 +7,7 @@
 	::foreach ANDROID_PERMISSIONS::<uses-permission android:name="::__current__::" />
 	::end::
 
-	<application android:label="::APP_TITLE::" ::if (HAS_ICON):: android:icon="@drawable/icon"::end:: android:allowBackup="true" android:theme="@android:style/Theme.NoTitleBar::if (WIN_FULLSCREEN)::.Fullscreen::end::" android:hardwareAccelerated="true" ::if (ANDROID_TARGET_SDK_VERSION>=30):: android:allowNativeHeapPointerTagging="false" ::end::>
+	<application ::foreach ANDROID_APPLICATION::::if (value)::::key::="::value::" ::end::::end::>
 
 		::if (WIN_ORIENTATION=="portrait")::
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value=  "Portrait PortraitUpsideDown" />
@@ -17,7 +17,7 @@
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value=  "LandscapeLeft LandscapeRight" />
 		::end::
 
-		<activity android:name="MainActivity" android:exported="true" android:launchMode="singleTask" android:label="::APP_TITLE::" android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|uiMode"::if (WIN_ORIENTATION=="portrait"):: android:screenOrientation="sensorPortrait"::end::::if (WIN_ORIENTATION=="landscape"):: android:screenOrientation="sensorLandscape"::end::>
+		<activity ::foreach ANDROID_ACTIVITY::::if (value)::::key::="::value::" ::end::::end::>
 
 			<intent-filter>
 

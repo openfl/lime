@@ -464,6 +464,22 @@ class AndroidPlatform extends PlatformTarget
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 
+		context.ANDROID_APPLICATION = project.config.getKeyValueArray("android.application", {
+			"android:label": project.meta.title,
+			"android:allowBackup": "true",
+			"android:theme": "@android:style/Theme.NoTitleBar" + (project.window.fullscreen ? ".Fullscreen" : null),
+			"android:hardwareAccelerated": "true",
+			"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
+		});
+		context.ANDROID_ACTIVITY = project.config.getKeyValueArray("android.activity", {
+			"android:name": "MainActivity",
+			"android:exported": "true",
+			"android:launchMode": "singleTask",
+			"android:label": project.meta.title,
+			"android:configChanges": project.config.getArrayString("android.configChanges", ["keyboardHidden", "orientation", "screenSize", "screenLayout", "uiMode"]).join("|"),
+			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
+		});
+
 		context.ANDROID_LIBRARY_PROJECTS = [];
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
@@ -531,12 +547,24 @@ class AndroidPlatform extends PlatformTarget
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
-
 		for (i in 0...iconTypes.length)
 		{
-			if (IconHelper.createIcon(icons, iconSizes[i], iconSizes[i], sourceSet + "/res/drawable-" + iconTypes[i] + "/icon.png"))
+			if (IconHelper.createIcon(icons, iconSizes[i], iconSizes[i], sourceSet + "/res/drawable-" + iconTypes[i] + "/icon.png") && context.HAS_ICON == null)
 			{
-				context.HAS_ICON = true;
+				for (attribute in context.ANDROID_APPLICATION)
+				{
+					if (attribute.key == "android:icon")
+					{
+						context.HAS_ICON = false;
+						break;
+					}
+				}
+
+				if (context.HAS_ICON == null)
+				{
+					context.HAS_ICON = true;
+					context.ANDROID_APPLICATION.push({ key: "android:icon", value: "@drawable/icon" });
+				}
 			}
 		}
 
