@@ -2,6 +2,7 @@ package lime.ui;
 
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Event;
+import lime.system.CFFI;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -62,11 +63,7 @@ class Joystick
 	@:noCompletion private inline function get_guid():String
 	{
 		#if (lime_cffi && !macro)
-		#if hl
-		return @:privateAccess String.fromUTF8(NativeCFFI.lime_joystick_get_device_guid(this.id));
-		#else
-		return NativeCFFI.lime_joystick_get_device_guid(this.id);
-		#end
+		return CFFI.stringValue(NativeCFFI.lime_joystick_get_device_guid(this.id));
 		#elseif (js && html5)
 		var devices = __getDeviceData();
 		return devices[this.id].id;
@@ -78,11 +75,7 @@ class Joystick
 	@:noCompletion private inline function get_name():String
 	{
 		#if (lime_cffi && !macro)
-		#if hl
-		return @:privateAccess String.fromUTF8(NativeCFFI.lime_joystick_get_device_name(this.id));
-		#else
-		return NativeCFFI.lime_joystick_get_device_name(this.id);
-		#end
+		return CFFI.stringValue(NativeCFFI.lime_joystick_get_device_name(this.id));
 		#elseif (js && html5)
 		var devices = __getDeviceData();
 		return devices[this.id].id;

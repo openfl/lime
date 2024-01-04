@@ -204,6 +204,15 @@ class CFFI
 		#end
 	}
 
+	@:dox(hide) #if !hl inline #end public static function stringValue(#if hl value:hl.Bytes #else value:String #end):String
+	{
+		#if hl
+		return value != null ? @:privateAccess String.fromUTF8(value) : null;
+		#else
+		return value;
+		#end
+	}
+
 	private static function __findHaxelib(library:String):String
 	{
 		#if (sys && !macro && !html5)
