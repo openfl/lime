@@ -1720,6 +1720,11 @@ class CommandLineTools
 					return null;
 				}
 			}
+
+			if (project != null)
+			{
+				project.projectFilePath = projectFile;
+			}
 		}
 
 		if (project != null && project.needRerun && !project.targetFlags.exists("norerun"))

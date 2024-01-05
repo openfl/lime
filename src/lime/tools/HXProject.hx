@@ -60,6 +60,7 @@ class HXProject extends Script
 	public var templatePaths:Array<String>;
 	@:isVar public var window(get, set):WindowData;
 	public var windows:Array<WindowData>;
+	public var projectFilePath:String;
 
 	private var needRerun:Bool;
 
@@ -738,6 +739,11 @@ class HXProject extends Script
 			else
 			{
 				launchStoryboard.merge(project.launchStoryboard);
+			}
+
+			if (projectFilePath == null)
+			{
+				projectFilePath = project.projectFilePath;
 			}
 
 			languages = ArrayTools.concatUnique(languages, project.languages, true);
