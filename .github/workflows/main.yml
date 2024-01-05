@@ -4,13 +4,10 @@ on: [push, pull_request]
 jobs:
 
   linux-ndll:
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5]
+    runs-on: ubuntu-20.04
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -21,7 +18,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ matrix.haxe-version }}
+          haxe-version: 4.2.5
 
       - name: Set HAXEPATH
         run: |
@@ -29,7 +26,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -49,8 +46,7 @@ jobs:
           lime rebuild linux -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
+      - uses: actions/upload-artifact@v3
         with:
           name: Linux-NDLL
           path: |
@@ -58,8 +54,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
+      - uses: actions/upload-artifact@v3
         with:
           name: Linux64-NDLL
           path: |
@@ -67,8 +62,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
-        if: ${{ matrix.haxe-version == '4.2.5' }} # upload for only one version of Haxe
+      - uses: actions/upload-artifact@v3
         with:
           name: Linux64-Hashlink
           path: |
@@ -79,7 +73,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -101,7 +95,7 @@ jobs:
           rm /usr/local/bin/python3*
           brew bundle
           popd
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -120,7 +114,7 @@ jobs:
           lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Mac64-NDLL
           path: |
@@ -128,7 +122,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Mac64-Hashlink
           path: |
@@ -139,7 +133,7 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -153,7 +147,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -173,7 +167,7 @@ jobs:
           lime rebuild windows -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Windows-NDLL
           path: |
@@ -181,7 +175,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Windows64-NDLL
           path: |
@@ -189,13 +183,13 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      # - uses: actions/upload-artifact@v2
+      # - uses: actions/upload-artifact@v3
       #   with:
       #     name: Windows-Hashlink
       #     path: |
       #       templates/bin/hl/Windows
       #     if-no-files-found: error
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Windows64-Hashlink
           path: |
@@ -207,7 +201,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -217,9 +211,10 @@ jobs:
         with:
           ndk-version: r15c
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
-          java-version: 8
+          distribution: "zulu"
+          java-version: 11
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -231,7 +226,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -245,7 +240,7 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
@@ -262,7 +257,7 @@ jobs:
         run: |
           lime rebuild android -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: Android-NDLL
           path: |
@@ -275,7 +270,7 @@ jobs:
     runs-on: macos-11
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -289,7 +284,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -303,7 +298,7 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
@@ -312,7 +307,7 @@ jobs:
         run: |
           lime rebuild ios -clean -release -verbose -nocolor
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: iPhone-NDLL
           path: |
@@ -322,10 +317,10 @@ jobs:
 
   package-haxelib:
     needs: [linux-ndll, macos-ndll, windows-ndll, android-ndll, ios-ndll]
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -339,9 +334,11 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install svg --quiet
+          haxelib install openfl --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -353,62 +350,68 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
-      - uses: actions/download-artifact@v2
+
+      - uses: actions/download-artifact@v3
         with:
           name: Android-NDLL
           path: ndll/Android/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: iPhone-NDLL
           path: ndll/iPhone/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Linux-NDLL
           path: ndll/Linux/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Linux64-NDLL
           path: ndll/Linux64/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Windows-NDLL
           path: ndll/Windows/
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Windows64-NDLL
           path: ndll/Windows64/
 
-      # - uses: actions/download-artifact@v2
+      # - uses: actions/download-artifact@v3
       #   with:
       #     name: Windows-Hashlink
       #     path: templates/bin/hl/Windows
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Windows64-Hashlink
           path: templates/bin/hl/Windows64
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Mac64-Hashlink
           path: templates/bin/hl/Mac64
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: Linux64-Hashlink
           path: templates/bin/hl/Linux64
 
-      - uses: actions/upload-artifact@v2
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
+      - uses: actions/upload-artifact@v3
         with:
           name: lime-haxelib
           path: |
@@ -420,12 +423,10 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -445,7 +446,7 @@ jobs:
         run: |
           haxe build.hxml
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: lime-docs
           path: docs/pages
@@ -462,9 +463,10 @@ jobs:
         with:
           ndk-version: r15c
 
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v3
         with:
-          java-version: 8
+          distribution: "zulu"
+          java-version: 11
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -476,7 +478,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -485,7 +487,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -517,7 +519,7 @@ jobs:
 
   flash-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: krdlab/setup-haxe@v1
@@ -532,7 +534,7 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -554,52 +556,72 @@ jobs:
           lime build SimpleImage flash -release -verbose -nocolor
           lime build SimpleAudio flash -release -verbose -nocolor
 
-  hashlink-samples:
+  air-samples:
     needs: package-haxelib
+    runs-on: windows-latest
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11, windows-latest]
-    runs-on: ${{ matrix.os }}
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
     steps:
 
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
 
-      - name: Set HAXEPATH (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
+      - uses: joshtynjala/setup-adobe-air-action@v2
+        with:
+          air-version: "33.1"
+          accept-license: true
+
+      - name: Set HAXEPATH
         run: |
           echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
 
-      - name: Set HAXEPATH (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: lime-haxelib
+          path: lime-haxelib
+
+      - name: Prepare lime
+        run: |
+          haxelib dev lime lime-haxelib
+          haxelib run lime setup -alias -y -nocffi
+          haxelib run lime config AIR_SDK ${{ env.AIR_HOME }}
+
+      - name: Create Lime samples
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor
+
+      - name: Build Lime samples
+        run: |
+          lime build HelloWorld air -release -verbose -nocolor
+          lime build SimpleImage air -release -verbose -nocolor
+          lime build SimpleAudio air -release -verbose -nocolor
+
+  hashlink-samples:
+    needs: package-haxelib
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+
+      - name: Set HAXEPATH
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
-      - name: Install system dependencies (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - name: Enable HXCPP compile cache (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
-
-      - name: Enable HXCPP compile cache (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -623,7 +645,7 @@ jobs:
 
   html5-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: krdlab/setup-haxe@v1
@@ -636,9 +658,10 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -660,6 +683,18 @@ jobs:
           lime build SimpleImage html5 -release -verbose -nocolor
           lime build SimpleAudio html5 -release -verbose -nocolor
 
+      - name: Build Lime samples with Genes
+        run: |
+          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
+
+      - name: Build Lime samples with Terser minification
+        run: |
+          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
+
   ios-samples:
     needs: package-haxelib
     runs-on: macos-11
@@ -675,7 +710,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -684,7 +719,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -708,7 +743,7 @@ jobs:
 
   linux-samples:
     needs: package-haxelib
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
 
       - name: Install system dependencies
@@ -726,7 +761,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -735,7 +770,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -772,7 +807,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -781,7 +816,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -805,50 +840,25 @@ jobs:
 
   neko-samples:
     needs: package-haxelib
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        os: [ubuntu-18.04, macos-11, windows-latest]
-    runs-on: ${{ matrix.os }}
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
     steps:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.2.5
+          haxe-version: ${{ matrix.haxe-version }}
 
-      - name: Set HAXEPATH (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
-
-      - name: Set HAXEPATH (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
+      - name: Set HAXEPATH
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
-      - name: Install system dependencies (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - name: Enable HXCPP compile cache (Windows)
-        if: ${{ startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
-
-      - name: Enable HXCPP compile cache (macOS/Linux)
-        if: ${{ !startsWith(matrix.os, 'windows-') }}
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -885,7 +895,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install hxcpp --quiet
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -894,7 +904,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -917,8 +927,8 @@ jobs:
           lime build SimpleAudio windows -release -verbose -nocolor
 
   notify:
-    runs-on: ubuntu-18.04
-    needs: [package-haxelib, docs, android-samples, flash-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
+    runs-on: ubuntu-20.04
+    needs: [package-haxelib, docs, android-samples, flash-samples, air-samples, hashlink-samples, html5-samples, ios-samples, linux-samples, macos-samples, neko-samples, windows-samples]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord

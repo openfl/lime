@@ -135,7 +135,7 @@ class HXProject extends Script
 			case AIR if (targetFlags.exists("ios") || targetFlags.exists("android")):
 				PlatformType.MOBILE;
 
-			case FLASH, HTML5, FIREFOX, EMSCRIPTEN:
+			case FLASH, HTML5, FIREFOX, WEB_ASSEMBLY:
 				PlatformType.WEB;
 
 			case ANDROID, BLACKBERRY, IOS, TIZEN, WEBOS, TVOS:
@@ -376,38 +376,18 @@ class HXProject extends Script
 
 		var tempDirectory = System.getTemporaryDirectory();
 		var classFile = Path.combine(tempDirectory, name + ".hx");
-		var nekoOutput = Path.combine(tempDirectory, name + ".n");
 
 		System.copyFile(path, classFile);
 
-		#if lime
 		var args = [
 			name,
-			"-main",
-			"lime.tools.HXProject",
-			"-cp",
-			tempDirectory,
-			"-neko",
-			nekoOutput,
-			"-cp",
-			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src"),
-			"-lib",
-			"lime",
-			"-lib",
-			"hxp"
+			#if lime
+			"-lib", "lime",
+			"-lib", "hxp",
+			#end
+			"-cp", tempDirectory,
+			"-cp", Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
 		];
-		#else
-		var args = [
-			name,
-			"--interp",
-			"-main",
-			"lime.tools.HXProject",
-			"-cp",
-			tempDirectory,
-			"-cp",
-			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
-		];
-		#end
 		var input = File.read(classFile, false);
 		var tag = "@:compiler(";
 
@@ -429,10 +409,6 @@ class HXProject extends Script
 
 		var cacheDryRun = System.dryRun;
 		System.dryRun = false;
-
-		#if lime
-		System.runCommand("", "haxe", args);
-		#end
 
 		var inputFile = Path.combine(tempDirectory, "input.dat");
 		var outputFile = Path.combine(tempDirectory, "output.dat");
@@ -457,10 +433,12 @@ class HXProject extends Script
 
 		try
 		{
-			#if lime
-			System.runCommand("", "neko", [FileSystem.fullPath(nekoOutput), inputFile, outputFile]);
+			#if (lime && !eval)
+			var nekoOutput = FileSystem.fullPath(Path.combine(tempDirectory, name + ".n"));
+			System.runCommand("", "haxe", args.concat(["--main", "lime.tools.HXProject", "-neko", nekoOutput]));
+			System.runCommand("", "neko", [nekoOutput, inputFile, outputFile]);
 			#else
-			System.runCommand("", "haxe", args.concat(["--", inputFile, outputFile]));
+			System.runCommand("", "haxe", args.concat(["--run", "lime.tools.HXProject", inputFile, outputFile]));
 			#end
 		}
 		catch (e:Dynamic)
@@ -540,37 +518,48 @@ class HXProject extends Script
 		return HXProject.fromPath(path, userDefines);
 	}
 
-	public static function fromPath(path:String, userDefines:Map<String, Dynamic> = null):HXProject
+	public static function fromPath(directory:String, userDefines:Map<String, Dynamic> = null):HXProject
 	{
-		if (!FileSystem.exists(path) || !FileSystem.isDirectory(path))
+		if (!FileSystem.exists(directory) || !FileSystem.isDirectory(directory))
 		{
 			return null;
 		}
 
-		var files = ["include.lime", "include.nmml", "include.xml"];
+		var files = ["include.lime", "include.nmml", "include.xml", "include.hxp"];
 		var projectFile = null;
 
 		for (file in files)
 		{
-			if (projectFile == null && FileSystem.exists(Path.combine(path, file)))
+			if (FileSystem.exists(Path.combine(directory, file)))
 			{
-				projectFile = Path.combine(path, file);
+				projectFile = Path.combine(directory, file);
+				break;
 			}
 		}
+
+		var project = null;
 
 		if (projectFile != null)
 		{
-			var project = new ProjectXMLParser(projectFile, userDefines);
+			if (StringTools.endsWith(projectFile, ".hxp"))
+			{
+				var cwd = Sys.getCwd();
+				Sys.setCwd(directory);
+				project = HXProject.fromFile(projectFile, userDefines);
+				Sys.setCwd(cwd);
+			}
+			else
+			{
+				project = new ProjectXMLParser(projectFile, userDefines);
+			}
 
 			if (project.config.get("project.rebuild.path") == null)
 			{
-				project.config.set("project.rebuild.path", Path.combine(path, "project"));
+				project.config.set("project.rebuild.path", Path.combine(directory, "project"));
 			}
-
-			return project;
 		}
 
-		return null;
+		return project;
 	}
 
 	private function getHaxelibVersion(haxelib:Haxelib):String

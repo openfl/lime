@@ -244,6 +244,54 @@ namespace lime {
 	}
 
 
+	value wstring_to_value (std::wstring* val) {
+
+		if (val) {
+
+			#ifdef HX_WINDOWS
+			return alloc_wstring (val->c_str ());
+			#else
+			std::string _val = std::string (val->begin (), val->end ());
+			return alloc_string (_val.c_str ());
+			#endif
+
+		} else {
+
+			return 0;
+
+		}
+
+	}
+
+
+	vbyte* wstring_to_vbytes (std::wstring* val) {
+
+		if (val) {
+
+			#ifdef HX_WINDOWS
+			int size = std::wcslen (val->c_str ());
+			char* result = (char*)malloc (size + 1);
+			std::wcstombs (result, val->c_str (), size);
+			result[size] = '\0';
+			return (vbyte*)result;
+			#else
+			std::string _val = std::string (val->begin (), val->end ());
+			int size = std::strlen (_val.c_str ());
+			char* result = (char*)malloc (size + 1);
+			std::strncpy (result, _val.c_str (), size);
+			result[size] = '\0';
+			return (vbyte*)result;
+			#endif
+
+		} else {
+
+			return 0;
+
+		}
+
+	}
+
+
 	value lime_application_create () {
 
 		Application* application = CreateApplication ();
@@ -756,7 +804,7 @@ namespace lime {
 
 		if (path) {
 
-			value _path = alloc_wstring (path->c_str ());
+			value _path = wstring_to_value (path);
 			delete path;
 			return _path;
 
@@ -822,7 +870,7 @@ namespace lime {
 
 		if (path) {
 
-			value _path = alloc_wstring (path->c_str ());
+			value _path = wstring_to_value (path);
 			delete path;
 			return _path;
 
@@ -891,7 +939,8 @@ namespace lime {
 
 		for (int i = 0; i < files.size (); i++) {
 
-			val_array_set_i (result, i, alloc_wstring (files[i]->c_str ()));
+			value _file = wstring_to_value (files[i]);
+			val_array_set_i (result, i, _file);
 			delete files[i];
 
 		}
@@ -955,7 +1004,7 @@ namespace lime {
 
 		if (path) {
 
-			value _path = alloc_wstring (path->c_str ());
+			value _path = wstring_to_value (path);
 			delete path;
 			return _path;
 
@@ -3382,6 +3431,22 @@ namespace lime {
 	}
 
 
+	double lime_window_get_opacity (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return (float)targetWindow->GetOpacity ();
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_window_get_opacity) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return (float)targetWindow->GetOpacity ();
+
+	}
+
+
 	double lime_window_get_scale (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3534,6 +3599,38 @@ namespace lime {
 	}
 
 
+	void lime_window_set_minimum_size (value window, int width, int height) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMinimumSize (width, height);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_minimum_size) (HL_CFFIPointer* window, int width, int height) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMinimumSize (width, height);
+
+	}
+
+
+	void lime_window_set_maximum_size (value window, int width, int height) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMaximumSize (width, height);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_maximum_size) (HL_CFFIPointer* window, int width, int height) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMaximumSize (width, height);
+
+	}
+
+
 	bool lime_window_set_borderless (value window, bool borderless) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3668,6 +3765,22 @@ namespace lime {
 	}
 
 
+	void lime_window_set_opacity (value window, double opacity) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetOpacity ((float)opacity);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_opacity) (HL_CFFIPointer* window, double opacity) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetOpacity ((float)opacity);
+
+	}
+
+
 	bool lime_window_set_resizable (value window, bool resizable) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -3758,6 +3871,22 @@ namespace lime {
 			return 0;
 
 		}
+
+	}
+
+
+	bool lime_window_set_visible (value window, bool visible) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetVisible (visible);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_visible) (HL_CFFIPointer* window, bool visible) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetVisible (visible);
 
 	}
 
@@ -3971,6 +4100,8 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_move);
 	DEFINE_PRIME3 (lime_window_read_pixels);
 	DEFINE_PRIME3v (lime_window_resize);
+	DEFINE_PRIME3v (lime_window_set_minimum_size);
+	DEFINE_PRIME3v (lime_window_set_maximum_size);
 	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2v (lime_window_set_cursor);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
@@ -3983,7 +4114,10 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_enabled);
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_PRIME2 (lime_window_set_visible);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
+	DEFINE_PRIME1 (lime_window_get_opacity);
+	DEFINE_PRIME2v (lime_window_set_opacity);
 	DEFINE_PRIME2 (lime_zlib_compress);
 	DEFINE_PRIME2 (lime_zlib_decompress);
 
@@ -3999,7 +4133,7 @@ namespace lime {
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32)
-	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64)
+	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TRENDER_EVENT _OBJ (_I32)
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
@@ -4155,6 +4289,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_move, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_window_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, hl_window_resize, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_minimum_size, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_maximum_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_borderless, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_cursor, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE _TDISPLAYMODE);
@@ -4167,7 +4303,10 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_enabled, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
 

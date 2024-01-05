@@ -13,9 +13,9 @@
 #elif defined (EMSCRIPTEN)
 
 #define LIME_GLES
-#define LIME_GLES3_API
-#include <GLES3/gl3.h>
-#include <GLES3/gl2ext.h>
+// #define LIME_GLES3_API
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #elif defined (TIZEN)
 

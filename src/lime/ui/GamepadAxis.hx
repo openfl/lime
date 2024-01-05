@@ -1,6 +1,6 @@
 package lime.ui;
 
-@:enum abstract GamepadAxis(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract GamepadAxis(Int) from Int to Int from UInt to UInt
 {
 	var LEFT_X = 0;
 	var LEFT_Y = 1;

@@ -9,7 +9,7 @@
 	<set name="tvos" value="1" if="appletv" />
 
 	<set name="LIME_CAIRO" value="1" />
-	<set name="LIME_CURL" value="1" unless="emscripten || winrt" />
+	<set name="LIME_CURL" value="1" unless="winrt" />
 	<set name="LIME_EFSW" value="1" if="windows || mac || linux" unless="winrt" />
 	<set name="LIME_JPEG" value="1" />
 	<!-- <set name="LIME_FAUDIO" value="1" /> -->
@@ -22,7 +22,7 @@
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="iphone || emscripten || tvos" />
+	<set name="LIME_OPENAL" value="1" if="iphone || webassembly || tvos" />
 	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
 	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
 	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
@@ -331,14 +331,14 @@
 	</files>
 
 	<include name="lib/cairo/files.xml" />
-	<include name="lib/curl/files.xml" />
+	<include name="lib/curl-files.xml" />
 	<include name="lib/efsw/files.xml" />
 	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
 	<include name="lib/freetype/files.xml" />
 	<include name="lib/harfbuzz/files.xml" />
 	<include name="lib/jpeg/files.xml" />
 	<include name="lib/lzma/files.xml" />
-	<include name="lib/mbedtls/files.xml" />
+	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal/files.xml" />
 	<include name="lib/neko/files.xml" />
 	<include name="lib/ogg/files.xml" />
@@ -456,6 +456,7 @@
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
 				<lib name="-lm" if="LIME_NEKO" />

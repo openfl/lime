@@ -141,12 +141,13 @@ class System
 	#if (!lime_doc_gen || sys)
 	public static function exit(code:Int):Void
 	{
-		#if ((sys || air) && !macro)
-		if (Application.current != null)
+		var currentApp = Application.current;
+		#if ((sys || (js && html5) || air) && !macro)
+		if (currentApp != null)
 		{
-			Application.current.onExit.dispatch(code);
+			currentApp.onExit.dispatch(code);
 
-			if (Application.current.onExit.canceled)
+			if (currentApp.onExit.canceled)
 			{
 				return;
 			}
@@ -155,6 +156,11 @@ class System
 
 		#if sys
 		Sys.exit(code);
+		#elseif (js && html5)
+		if (currentApp != null && currentApp.window != null)
+		{
+			currentApp.window.close();
+		}
 		#elseif air
 		NativeApplication.nativeApplication.exit(code);
 		#end
@@ -261,9 +267,7 @@ class System
 
 	public static function getTimer():Int
 	{
-		#if (kha && !macro)
-		return Std.int(kha.System.time * 1000);
-		#elseif flash
+		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		return Std.int(Browser.window.performance.now());
@@ -814,7 +818,7 @@ class System
 	}
 }
 
-@:enum private abstract SystemDirectory(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
 {
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;
