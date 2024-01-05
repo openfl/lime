@@ -264,34 +264,6 @@ namespace lime {
 	}
 
 
-	vbyte* wstring_to_vbytes (std::wstring* val) {
-
-		if (val) {
-
-			#ifdef HX_WINDOWS
-			int size = std::wcslen (val->c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::wcstombs (result, val->c_str (), size);
-			result[size] = '\0';
-			return (vbyte*)result;
-			#else
-			std::string _val = std::string (val->begin (), val->end ());
-			int size = std::strlen (_val.c_str ());
-			char* result = (char*)malloc (size + 1);
-			std::strncpy (result, _val.c_str (), size);
-			result[size] = '\0';
-			return (vbyte*)result;
-			#endif
-
-		} else {
-
-			return 0;
-
-		}
-
-	}
-
-
 	value lime_application_create () {
 
 		Application* application = CreateApplication ();
@@ -3189,7 +3161,9 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_window_alert) (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		targetWindow->Alert (message ? hl_to_utf8 (message->bytes) : nullptr, title ? hl_to_utf8 (title->bytes) : nullptr);
+		const char *cmessage = message ? hl_to_utf8(message->bytes) : nullptr;
+		const char *ctitle = title ? hl_to_utf8(title->bytes) : nullptr;
+		targetWindow->Alert (cmessage, ctitle);
 
 	}
 
