@@ -38,7 +38,7 @@ namespace lime {
 		if (SDL_IsGameController (deviceID)) {
 
 			SDL_GameController *gameController = SDL_GameControllerOpen(deviceID);
-			
+
 			if (gameController != nullptr) {
 
 				SDL_Joystick *joystick = SDL_GameControllerGetJoystick(gameController);
@@ -101,7 +101,7 @@ namespace lime {
 			return guid;
 
 		}
-		
+
 		return nullptr;
 
 	}
