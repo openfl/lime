@@ -2,6 +2,8 @@
 
 
 namespace lime {
+
+
 	std::map<int, SDLGamepad> gameControllers;
 	std::map<int, int> gameControllerIDs;
 	
@@ -30,42 +32,58 @@ namespace lime {
 	}
 
 	// SDL static gamepad API
+
 	bool SDLGamepad::Connect (int deviceID) {
+
 		if (SDL_IsGameController (deviceID)) {
+
 			SDL_GameController *gameController = SDL_GameControllerOpen(deviceID);
 			
 			if (gameController != nullptr) {
+
 				SDL_Joystick *joystick = SDL_GameControllerGetJoystick(gameController);
 				int id = SDL_JoystickInstanceID(joystick);
 
 				gameControllers[id] = std::move(SDLGamepad(gameController));
 				gameControllerIDs[deviceID] = id;
+
 				return true;
+
 			}
+
 		}
+
 		return false;
 
 	}
 
 
 	bool SDLGamepad::Disconnect (int id) {
+
 		if (gameControllers.find(id) != gameControllers.end()) {
+
 			gameControllers.erase(id);
 			return true;
+
 		}
+
 		return false;
 
 	}
 
 
 	int SDLGamepad::GetInstanceID (int deviceID) {
+
 		return gameControllerIDs[deviceID];
+
 	}
 
 
 	// Gamepad API
 	void Gamepad::AddMapping (const char* content) {
+
 		SDL_GameControllerAddMapping (content);
+
 	}
 
 
@@ -77,9 +95,11 @@ namespace lime {
 		SDL_Joystick* joystick = SDL_GameControllerGetJoystick (it->second.gameController);
 
 		if (joystick) {
+
 			char* guid = new char[64];
 			SDL_JoystickGetGUIDString (SDL_JoystickGetGUID (joystick), guid, 64);
 			return guid;
+
 		}
 		
 		return nullptr;

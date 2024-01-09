@@ -11,6 +11,7 @@ namespace lime {
 
 
 	class SDLGamepad {
+
 		public:
 			SDL_GameController *gameController = nullptr;
 			
