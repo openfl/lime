@@ -197,8 +197,8 @@ jobs:
           if-no-files-found: error
 
   android-ndll:
-    needs: macos-ndll
-    runs-on: macos-11
+    needs: linux-ndll
+    runs-on: ubuntu-20.04
     steps:
 
       - uses: actions/checkout@v3
