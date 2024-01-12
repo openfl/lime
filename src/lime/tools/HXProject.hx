@@ -87,7 +87,7 @@ class HXProject extends Script
 		var outputFile = args[1];
 
 		HXProject._command = inputData.command;
-		HXProject._target = cast inputData.target;
+		HXProject._target = inputData.target;
 		HXProject._debug = inputData.debug;
 		HXProject._targetFlags = inputData.targetFlags;
 		HXProject._templatePaths = inputData.templatePaths;
@@ -742,7 +742,7 @@ class HXProject extends Script
 			defines.set("uwp", "1");
 			defines.set("winjs", "1");
 		}
-		else if (platformType == DESKTOP && target != cast System.hostPlatform)
+		else if (platformType == DESKTOP && target != System.hostPlatform)
 		{
 			defines.set("native", "1");
 
@@ -834,7 +834,7 @@ class HXProject extends Script
 		{
 			if (_target == null)
 			{
-				_target = cast System.hostPlatform;
+				_target = System.hostPlatform;
 			}
 
 			if (_targetFlags == null)
@@ -1040,7 +1040,7 @@ class HXProject extends Script
 	// Getters & Setters
 	private function get_host():Platform
 	{
-		return cast System.hostPlatform;
+		return System.hostPlatform;
 	}
 
 	private function get_templateContext():Dynamic
