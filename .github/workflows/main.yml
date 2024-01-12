@@ -266,7 +266,6 @@ jobs:
           if-no-files-found: error
 
   ios-ndll:
-    needs: macos-ndll
     runs-on: macos-11
     steps:
 
@@ -295,17 +294,11 @@ jobs:
       - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-          haxelib run lime setup -alias -y -nocffi
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: Mac64-NDLL
-          path: ndll/Mac64/
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Rebuild Lime (iOS)
         run: |
-          lime rebuild ios -clean -release -verbose -nocolor
+          lime rebuild ios -clean -release -verbose -nocolor -eval
 
       - uses: actions/upload-artifact@v3
         with:
