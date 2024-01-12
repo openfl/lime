@@ -85,7 +85,7 @@ jobs:
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
-      - name: Install Haxe dependencies
+      - name: Install HashLink dependencies
         run: |
           pushd project/lib/hashlink
           brew update
@@ -95,6 +95,9 @@ jobs:
           rm /usr/local/bin/python3*
           brew bundle
           popd
+
+      - name: Install Haxe dependencies
+        run: |
           haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
