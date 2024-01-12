@@ -197,7 +197,6 @@ jobs:
           if-no-files-found: error
 
   android-ndll:
-    needs: linux-ndll
     runs-on: ubuntu-20.04
     steps:
 
@@ -237,25 +236,19 @@ jobs:
       - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
-          haxelib run lime setup -alias -y -nocffi
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: Mac64-NDLL
-          path: ndll/Mac64/
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Configure Android support
         run: |
-          lime config ANDROID_SDK $ANDROID_HOME
-          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
-          lime config JAVA_HOME $JAVA_HOME
-          lime config ANDROID_SETUP true
-          lime config
+          lime config ANDROID_SDK $ANDROID_HOME -eval
+          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }} -eval
+          lime config JAVA_HOME $JAVA_HOME -eval
+          lime config ANDROID_SETUP true -eval
+          lime config -eval
 
       - name: Rebuild Lime (Android)
         run: |
-          lime rebuild android -release -nocolor -verbose -nocffi
+          lime rebuild android -release -nocolor -verbose -nocffi -eval
 
       - uses: actions/upload-artifact@v3
         with:
