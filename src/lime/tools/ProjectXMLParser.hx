@@ -128,7 +128,7 @@ class ProjectXMLParser extends HXProject
 		{
 			defines.set("native", "1");
 
-			if (target == Platform.WINDOWS)
+			if (target == Platform.WINDOWS && targetFlags.exists("mingw"))
 			{
 				defines.set("targetType", "cpp");
 				defines.set("cpp", "1");
