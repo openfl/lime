@@ -61,10 +61,10 @@ abstract Int16Array(JSInt16Array) from JSInt16Array to JSInt16Array
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:Int):Int
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __set(idx:Int, val:Int):Int
 		return this[idx] = val;
 
-	@:arrayAccess @:extern inline function __get(idx:Int):Int
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __get(idx:Int):Int
 		return this[idx];
 
 	// non spec haxe conversions
@@ -148,14 +148,14 @@ abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
 		return ArrayBufferIO.getInt16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:Int)
 	{
 		ArrayBufferIO.setInt16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);

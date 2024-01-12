@@ -1421,11 +1421,7 @@ class Image
 	@:noCompletion private function __fromBase64(base64:String, type:String, onload:Image->Void = null):Void
 	{
 		#if (js && html5)
-		#if (openfljs || genes)
 		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
-		#else
-		var image = new JSImage();
-		#end
 
 		var image_onLoaded = function(event)
 		{
@@ -1513,11 +1509,7 @@ class Image
 	@:noCompletion private function __fromFile(path:String, onload:Image->Void = null, onerror:Void->Void = null):Bool
 	{
 		#if (js && html5)
-		#if (openfljs || genes)
 		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
-		#else
-		var image = new JSImage();
-		#end
 
 		#if !display
 		if (!HTML5HTTPRequest.__isSameOrigin(path))

@@ -762,11 +762,7 @@ class Cairo
 	private static function get_versionString():String
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		#if hl
-		return @:privateAccess String.fromUTF8(NativeCFFI.lime_cairo_version_string());
-		#else
-		return NativeCFFI.lime_cairo_version_string();
-		#end
+		return CFFI.stringValue(NativeCFFI.lime_cairo_version_string());
 		#else
 		return "";
 		#end

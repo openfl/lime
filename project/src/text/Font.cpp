@@ -25,7 +25,7 @@
 #define IS_IN_RANGE(c, f, l) (((c) >= (f)) && ((c) <= (l)))
 
 
-unsigned long readNextChar (char*& p)
+unsigned long readNextChar (const char*& p)
 {
 	 // TODO: since UTF-8 is a variable-length
 	 // encoding, you should pass in the input
@@ -33,7 +33,8 @@ unsigned long readNextChar (char*& p)
 	 // can determine if a malformed UTF-8
 	 // sequence would exceed the end of the buffer...
 
-	 unsigned char c1, c2, *ptr = (unsigned char*) p;
+	 const unsigned char* ptr = (const unsigned char*) p;
+	 unsigned char c1, c2;
 	 unsigned long uc = 0;
 	 int seqlen;
 
@@ -792,7 +793,7 @@ namespace lime {
 	}
 
 
-	int Font::GetGlyphIndex (char* character) {
+	int Font::GetGlyphIndex (const char* character) {
 
 		long charCode = readNextChar (character);
 
@@ -801,7 +802,7 @@ namespace lime {
 	}
 
 
-	void* Font::GetGlyphIndices (bool useCFFIValue, char* characters) {
+	void* Font::GetGlyphIndices (bool useCFFIValue, const char* characters) {
 
 		if (useCFFIValue) {
 

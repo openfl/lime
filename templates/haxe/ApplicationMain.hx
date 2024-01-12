@@ -125,7 +125,7 @@ import ::APP_MAIN::;
 
 		var result = app.exec();
 
-		#if (sys && !ios && !nodejs && !emscripten)
+		#if (sys && !ios && !nodejs && !webassembly)
 		lime.system.System.exit(result);
 		#end
 

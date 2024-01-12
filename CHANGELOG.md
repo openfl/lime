@@ -1,6 +1,63 @@
 Changelog
 =========
 
+8.1.0 (??/??/2023)
+------------------
+
+* Added `visible` property to `Window` to allow it to be shown and hidden
+* Added `opacity` property to `Window`
+* Added `minWidth`, `minHeight`, `maxWidth`, `maxHeight`, `setMinSize()`, and `setMaxSize()` to `Window`
+* Added new `onShow` and `onHide` events to `Window`
+* Added support for _include.hxp_ file in libraries, similar to _include.xml_
+* Added support for multiple file extension filters on `FileDialog` operations
+* Added `-eval` option to run Lime tools without Neko
+* Added `-terser` option to Lime tools for html5 builds to optionally use Terser minifier
+* Added `-npx` option to Lime tools to run minifiers, or Electron, using `npx` instead of the bundled versions
+* Updated the bundled version of Node.js to 18 LTS for the html5 target's HTTP server
+* Modernized Android Gradle build options
+* Exposed more information to _project.xml_, including `${project.platformType}` and `${config.android.target-sdk-version}`
+* Added click count for mouse events, for use by OpenFL
+* Disabled pointer tagging on Android
+* Fixed issues in `emscripten` target and renamed it to `webassembly`
+* Fixed unpopulated `responseData` on `HTTPRequest` when server returns error status code
+* Fixed `Clipboard` contents being empty when app starts up on Windows and macOS
+* Fixed Unicode string conversion for `alert()` method on `Window` on HashLink target
+* Fixed asset cache clearing when unloading asset library
+* Fixed incorrect timer pause and resume behavior when window goes into background and back to foreground
+* Fixed _.app_ file extension for macOS when building Adobe AIR captive runtime bundle
+* Fixed incorrect "Lime Application" window title for Adobe AIR applications
+* Fixed null check when opening file with `FileDialog`
+* Fixed expired Adobe AIR debug certificate
+* Fixed Haxe 3 compatibility for enum abstracts
+* Fixed running native apps with current working directory that does not match the program directory
+* Fixed assets being incorrectly located from `Sys.programPath()` instead of `System.applicationDirectory`
+* Fixed timing on html5 target by using `performance.now()` so that system clock changes don't cause issues
+* Fixed parsing of JNI class names
+* Fixed cleanup when windows are closed and the Lime application exits
+* Removed the defunct Kha backend
+
+8.0.2 (05/31/2023)
+------------------
+
+* Resolve new `@:enum abstract` warnings for Haxe 4.3 by replacing with `enum abstract`, if current Haxe version supports it
+* Resolve new `@:extern` warnings for Haxe 4.3 by replacing with `extern`, if current Haxe version supports it
+* Fixed HTTPS requests failing on macOS by updating cURL and mbedtls dependencies
+* Fixed calling `JNI.callMember()` and `JNI.callStatic()` with more than 7 arguments
+* Fixed DPI detection on Android by using `getDisplayMetrics()`
+* Fixed passing `null` or empty string for default library to `Assets.registerLibrary()` to be more consistent with other APIs
+* Fixed failed Lime tools build with some Haxe versions by removing `-D no-inline`
+* Fixed Haxe argument type of OpenAL `alFilteri` wrapper that should be `Int` instead of `Dynamic`
+* Fixed bad UTF string conversion for `FileDialog` that sometimes displayed incorrect characters on some platforms
+* Fixed HTTP request status 400 being incorrectly treated as successful on html5 target
+* Fixed failed Adobe AIR for iOS build on Windows by removing check for simulators, which are available on macOS only
+* Fixed detection of default iPhone simulator to avoid exceptions and support future versions of Xcode
+* Fixed conflict between `window.Image` and `lime.graphics.Image` when using Genes on html5 target
+* Fixed exception in Lime tools if assets directory does not exist
+* Removed legacy `armv7` from default iOS target architectures because it now results in an error (now defaults to `arm64`)
+* AIR for iOS or Android may specify `listen="port"` in `<config:air/>` element to use USB debugging instead of wifi debugging
+* Improved fix for text fields updating properly on Android devices with html5 target
+* Replaced "Could not find Neko API interface" error message with more detailed explanation and instructions
+
 8.0.1 (02/21/2023)
 ------------------
 

@@ -562,7 +562,7 @@ class NativeAudioSource
 	{
 		if (handle != null)
 		{
-			#if !emscripten
+			#if !webassembly
 			var value = AL.getSource3f(handle, AL.POSITION);
 			position.x = value[0];
 			position.y = value[1];

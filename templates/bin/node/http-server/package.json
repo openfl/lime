@@ -1,57 +1,44 @@
 {
-  "_args": [
-    [
-      "http-server",
-      "/home/joshua/Development/Haxe/test"
-    ]
+  "name": "http-server",
+  "version": "14.1.1",
+  "description": "A simple zero-configuration command-line http server",
+  "main": "./lib/http-server",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/http-party/http-server.git"
+  },
+  "keywords": [
+    "cli",
+    "command",
+    "static",
+    "http",
+    "https",
+    "http-server",
+    "https-server",
+    "server"
   ],
-  "_from": "http-server@latest",
-  "_id": "http-server@0.10.0",
-  "_inCache": true,
-  "_installable": true,
-  "_location": "/http-server",
-  "_nodeVersion": "6.9.1",
-  "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/http-server-0.10.0.tgz_1493660651691_0.8026745738461614"
+  "scripts": {
+    "start": "node ./bin/http-server",
+    "test": "tap --reporter=spec test/*.test.js",
+    "test-watch": "tap --reporter=spec --watch test/*.test.js"
   },
-  "_npmUser": {
-    "email": "byoung@bigbluehat.com",
-    "name": "bigbluehat"
-  },
-  "_npmVersion": "3.10.8",
-  "_phantomChildren": {},
-  "_requested": {
-    "name": "http-server",
-    "raw": "http-server",
-    "rawSpec": "",
-    "scope": null,
-    "spec": "latest",
-    "type": "tag"
-  },
-  "_requiredBy": [
-    "/"
+  "files": [
+    "lib",
+    "bin",
+    "doc"
   ],
-  "_resolved": "https://registry.npmjs.org/http-server/-/http-server-0.10.0.tgz",
-  "_shasum": "b2a446b16a9db87ed3c622ba9beb1b085b1234a7",
-  "_shrinkwrap": null,
-  "_spec": "http-server",
-  "_where": "/home/joshua/Development/Haxe/test",
-  "bin": {
-    "hs": "./bin/http-server",
-    "http-server": "./bin/http-server"
-  },
-  "bugs": {
-    "url": "https://github.com/nodeapps/http-server/issues"
+  "man": "./doc/http-server.1",
+  "engines": {
+    "node": ">=12"
   },
   "contributors": [
     {
-      "name": "Matthew Bergman",
-      "email": "mzbphoto@gmail.com"
-    },
-    {
       "name": "Charlie Robbins",
       "email": "charlie.robbins@gmail.com"
+    },
+    {
+      "name": "Marak Squires",
+      "email": "marak.squires@gmail.com"
     },
     {
       "name": "Charlie McConnell",
@@ -66,8 +53,8 @@
       "email": "maciej.malecki@notimplemented.org"
     },
     {
-      "name": "Marak Squires",
-      "email": "marak.squires@gmail.com"
+      "name": "Matthew Bergman",
+      "email": "mzbphoto@gmail.com"
     },
     {
       "name": "brad dunbar",
@@ -87,59 +74,45 @@
     {
       "name": "BigBlueHat",
       "email": "byoung@bigbluehat.com"
+    },
+    {
+      "name": "Daniel Dalton",
+      "email": "daltond2@hawkmail.newpaltz.edu"
+    },
+    {
+      "name": "Jade Michael Thornton",
+      "email": "jademichael@jmthornton.net"
     }
   ],
   "dependencies": {
-    "colors": "1.0.3",
-    "corser": "~2.0.0",
-    "ecstatic": "^2.0.0",
-    "http-proxy": "^1.8.1",
-    "opener": "~1.4.0",
-    "optimist": "0.6.x",
-    "portfinder": "^1.0.13",
-    "union": "~0.4.3"
+    "basic-auth": "^2.0.1",
+    "chalk": "^4.1.2",
+    "corser": "^2.0.1",
+    "he": "^1.2.0",
+    "html-encoding-sniffer": "^3.0.0",
+    "http-proxy": "^1.18.1",
+    "mime": "^1.6.0",
+    "minimist": "^1.2.6",
+    "opener": "^1.5.1",
+    "portfinder": "^1.0.28",
+    "secure-compare": "3.0.1",
+    "union": "~0.5.0",
+    "url-join": "^4.0.1"
   },
-  "description": "A simple zero-configuration command-line http server",
   "devDependencies": {
-    "common-style": "^3.0.0",
-    "request": ">=2.68.0",
-    "vows": "0.7.x"
+    "eol": "^0.9.1",
+    "eslint": "^4.19.1",
+    "eslint-config-populist": "^4.2.0",
+    "express": "^4.17.1",
+    "request": "^2.88.2",
+    "tap": "^14.11.0"
   },
-  "directories": {},
-  "dist": {
-    "shasum": "b2a446b16a9db87ed3c622ba9beb1b085b1234a7",
-    "tarball": "https://registry.npmjs.org/http-server/-/http-server-0.10.0.tgz"
+  "bugs": {
+    "url": "https://github.com/http-party/http-server/issues"
   },
-  "gitHead": "a2003c1d37ea049c788d2ab3d0c7d64ea97e88da",
-  "homepage": "https://github.com/indexzero/http-server#readme",
-  "keywords": [
-    "cli",
-    "command"
-  ],
   "license": "MIT",
-  "main": "./lib/http-server",
-  "maintainers": [
-    {
-      "name": "bigbluehat",
-      "email": "byoung@bigbluehat.com"
-    },
-    {
-      "name": "indexzero",
-      "email": "charlie.robbins@gmail.com"
-    }
-  ],
-  "name": "http-server",
-  "optionalDependencies": {},
-  "preferGlobal": "true",
-  "readme": "ERROR: No README data found!",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/indexzero/http-server.git"
-  },
-  "scripts": {
-    "pretest": "common bin/http-server lib/ test",
-    "start": "node ./bin/http-server",
-    "test": "vows --spec --isolate"
-  },
-  "version": "0.10.0"
+  "preferGlobal": true,
+  "bin": {
+    "http-server": "./bin/http-server"
+  }
 }

@@ -2,6 +2,7 @@ package flash.display;
 
 extern class NativeWindow extends flash.events.EventDispatcher
 {
+	#if (haxe_ver < 4.3)
 	var active(default, never):Bool;
 	var alwaysInFront:Bool;
 	var bounds:flash.geom.Rectangle;
@@ -25,6 +26,44 @@ extern class NativeWindow extends flash.events.EventDispatcher
 	var width:Float;
 	var x:Float;
 	var y:Float;
+	static var isSupported(default, never):Bool;
+	static var supportsMenu(default, never):Bool;
+	static var supportsNotification(default, never):Bool;
+	static var supportsTransparency(default, never):Bool;
+	static var systemMaxSize(default, never):flash.geom.Point;
+	static var systemMinSize(default, never):flash.geom.Point;
+	#else
+	@:flash.property var active(get, never):Bool;
+	@:flash.property var alwaysInFront(get, set):Bool;
+	@:flash.property var bounds(get, set):flash.geom.Rectangle;
+	@:flash.property var closed(get, never):Bool;
+	@:flash.property var displayState(get, never):NativeWindowDisplayState;
+	@:flash.property var height(get, set):Float;
+	@:flash.property var maxSize(get, set):flash.geom.Point;
+	@:flash.property var maximizable(get, never):Bool;
+	@:flash.property var menu(get, set):NativeMenu;
+	@:flash.property var minSize(get, set):flash.geom.Point;
+	@:flash.property var minimizable(get, never):Bool;
+	@:flash.property var owner(get, never):NativeWindow;
+	@:flash.property var renderMode(get, never):NativeWindowRenderMode;
+	@:flash.property var resizable(get, never):Bool;
+	@:flash.property var stage(get, never):Stage;
+	@:flash.property var systemChrome(get, never):NativeWindowSystemChrome;
+	@:flash.property var title(get, set):String;
+	@:flash.property var transparent(get, never):Bool;
+	@:flash.property var type(get, never):NativeWindowType;
+	@:flash.property var visible(get, set):Bool;
+	@:flash.property var width(get, set):Float;
+	@:flash.property var x(get, set):Float;
+	@:flash.property var y(get, set):Float;
+	@:flash.property static var isSupported(get, never):Bool;
+	@:flash.property static var supportsMenu(get, never):Bool;
+	@:flash.property static var supportsNotification(get, never):Bool;
+	@:flash.property static var supportsTransparency(get, never):Bool;
+	@:flash.property static var systemMaxSize(get, never):flash.geom.Point;
+	@:flash.property static var systemMinSize(get, never):flash.geom.Point;
+	#end
+
 	function new(initOptions:NativeWindowInitOptions):Void;
 	function activate():Void;
 	function close():Void;
@@ -40,10 +79,49 @@ extern class NativeWindow extends flash.events.EventDispatcher
 	function restore():Void;
 	function startMove():Bool;
 	function startResize(?edgeOrCorner:NativeWindowResize = NativeWindowResize.BOTTOM_RIGHT):Bool;
-	static var isSupported(default, never):Bool;
-	static var supportsMenu(default, never):Bool;
-	static var supportsNotification(default, never):Bool;
-	static var supportsTransparency(default, never):Bool;
-	static var systemMaxSize(default, never):flash.geom.Point;
-	static var systemMinSize(default, never):flash.geom.Point;
+
+	#if (haxe_ver >= 4.3)
+	private function get_active():Bool;
+	private function get_alwaysInFront():Bool;
+	private function get_bounds():flash.geom.Rectangle;
+	private function get_closed():Bool;
+	private function get_displayState():NativeWindowDisplayState;
+	private function get_height():Float;
+	private function get_maxSize():flash.geom.Point;
+	private function get_maximizable():Bool;
+	private function get_menu():NativeMenu;
+	private function get_minSize():flash.geom.Point;
+	private function get_minimizable():Bool;
+	private function get_owner():NativeWindow;
+	private function get_renderMode():NativeWindowRenderMode;
+	private function get_resizable():Bool;
+	private function get_stage():Stage;
+	private function get_systemChrome():NativeWindowSystemChrome;
+	private function get_title():String;
+	private function get_transparent():Bool;
+	private function get_type():NativeWindowType;
+	private function get_visible():Bool;
+	private function get_width():Float;
+	private function get_x():Float;
+	private function get_y():Float;
+	private function set_alwaysInFront(value:Bool):Bool;
+	private function set_bounds(value:flash.geom.Rectangle):flash.geom.Rectangle;
+	private function set_height(value:Float):Float;
+	private function set_maxSize(value:flash.geom.Point):flash.geom.Point;
+	private function set_maximizable(value:Bool):Bool;
+	private function set_menu(value:NativeMenu):NativeMenu;
+	private function set_minSize(value:flash.geom.Point):flash.geom.Point;
+	private function set_minimizable(value:Bool):Bool;
+	private function set_title(value:String):String;
+	private function set_visible(value:Bool):Bool;
+	private function set_width(value:Float):Float;
+	private function set_x(value:Float):Float;
+	private function set_y(value:Float):Float;
+	private static function get_isSupported():Bool;
+	private static function get_supportsMenu():Bool;
+	private static function get_supportsNotification():Bool;
+	private static function get_supportsTransparency():Bool;
+	private static function get_systemMaxSize():flash.geom.Point;
+	private static function get_systemMinSize():flash.geom.Point;
+	#end
 }

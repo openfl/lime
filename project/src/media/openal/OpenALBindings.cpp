@@ -3659,7 +3659,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_al_effecti, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_al_effectiv, _TCFFIPOINTER _I32 _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_al_enable, _I32);
-	DEFINE_HL_PRIM (_VOID, hl_al_filteri, _TCFFIPOINTER _I32 _DYN);
+	DEFINE_HL_PRIM (_VOID, hl_al_filteri, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_al_filterf, _TCFFIPOINTER _I32 _F32);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_aux, _NO_ARG);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_buffer, _NO_ARG);

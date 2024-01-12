@@ -42,6 +42,30 @@ namespace lime {
 	}
 
 
+	void System::GCTryEnterBlocking () {
+
+		if (!_isHL) {
+
+			// TODO: Only supported in HXCPP 4.3
+			// gc_try_blocking ();
+
+		}
+
+	}
+
+
+	void System::GCTryExitBlocking () {
+
+		if (!_isHL) {
+
+			// TODO: Only supported in HXCPP 4.3
+			//gc_try_unblocking ();
+
+		}
+
+	}
+
+
 	#if defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (__MINGW32__)
 	std::wstring* GetWMIValue (BSTR query, BSTR field) {
 

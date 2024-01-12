@@ -42,6 +42,8 @@ namespace lime {
 			virtual void Move (int x, int y);
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
 			virtual void Resize (int width, int height);
+			virtual void SetMinimumSize (int width, int height);
+			virtual void SetMaximumSize (int width, int height);
 			virtual bool SetBorderless (bool borderless);
 			virtual void SetCursor (Cursor cursor);
 			virtual void SetDisplayMode (DisplayMode* displayMode);

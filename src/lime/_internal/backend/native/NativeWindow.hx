@@ -15,6 +15,7 @@ import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
 import lime.math.Rectangle;
 import lime.math.Vector2;
+import lime.system.CFFI;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
@@ -123,11 +124,7 @@ class NativeWindow
 		var context = new RenderContext();
 		context.window = parent;
 
-		#if hl
-		var contextType = @:privateAccess String.fromUTF8(NativeCFFI.lime_window_get_context_type(handle));
-		#else
-		var contextType:String = NativeCFFI.lime_window_get_context_type(handle);
-		#end
+		var contextType:String = CFFI.stringValue(NativeCFFI.lime_window_get_context_type(handle));
 
 		switch (contextType)
 		{
@@ -461,6 +458,26 @@ class NativeWindow
 		}
 	}
 
+	public function setMinSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_minimum_size(handle, width, height);
+			#end
+		}
+	}
+
+	public function setMaxSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_maximum_size(handle, width, height);
+			#end
+		}
+	}
+
 	public function setBorderless(value:Bool):Bool
 	{
 		if (handle != null)
@@ -699,7 +716,7 @@ class NativeWindow
 	}
 }
 
-@:enum private abstract MouseCursorType(Int) from Int to Int
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseCursorType(Int) from Int to Int
 {
 	var HIDDEN = 0;
 	var ARROW = 1;
@@ -716,7 +733,7 @@ class NativeWindow
 	var WAIT_ARROW = 12;
 }
 
-@:enum private abstract WindowFlags(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowFlags(Int)
 {
 	var WINDOW_FLAG_FULLSCREEN = 0x00000001;
 	var WINDOW_FLAG_BORDERLESS = 0x00000002;

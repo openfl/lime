@@ -611,7 +611,22 @@ class AssetLibrary
 		}
 	}
 
-	public function unload():Void {}
+	public function unload():Void
+	{
+		#if haxe4
+		cachedBytes.clear();
+		cachedFonts.clear();
+		cachedImages.clear();
+		cachedAudioBuffers.clear();
+		cachedText.clear();
+		#else
+		cachedBytes = new Map<String, Bytes>();
+		cachedFonts = new Map<String, Font>();
+		cachedImages = new Map<String, Image>();
+		cachedText = new Map<String, String>();
+		classTypes = new Map<String, Class<Dynamic>>();
+		#end
+	}
 
 	@:noCompletion private function __assetLoaded(id:String):Void
 	{

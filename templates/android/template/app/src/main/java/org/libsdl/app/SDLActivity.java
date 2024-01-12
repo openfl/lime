@@ -80,15 +80,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if ((s & InputDevice.SOURCE_CLASS_JOYSTICK) != 0)   cls += " JOYSTICK";
         if ((s & InputDevice.SOURCE_CLASS_POINTER) != 0)    cls += " POINTER";
         if ((s & InputDevice.SOURCE_CLASS_POSITION) != 0)   cls += " POSITION";
-        if ((s & InputDevice.SOURCE_CLASS_TRACKBALL) != 0)  cls += " TRACKBALL";
 
 
         int s2 = s_copy & ~InputDevice.SOURCE_ANY; // keep class bits
         s2 &= ~(  InputDevice.SOURCE_CLASS_BUTTON
                 | InputDevice.SOURCE_CLASS_JOYSTICK
                 | InputDevice.SOURCE_CLASS_POINTER
-                | InputDevice.SOURCE_CLASS_POSITION
-                | InputDevice.SOURCE_CLASS_TRACKBALL);
+                | InputDevice.SOURCE_CLASS_POSITION);
 
         if (s2 != 0) cls += "Some_Unkown";
 
@@ -145,10 +143,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         tst = InputDevice.SOURCE_TOUCH_NAVIGATION;
         if ((s & tst) == tst) src += " TOUCH_NAVIGATION";
-        s2 &= ~tst;
-
-        tst = InputDevice.SOURCE_TRACKBALL;
-        if ((s & tst) == tst) src += " TRACKBALL";
         s2 &= ~tst;
 
         tst = InputDevice.SOURCE_ANY;

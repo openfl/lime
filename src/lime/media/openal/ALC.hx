@@ -2,6 +2,7 @@ package lime.media.openal;
 
 #if (!lime_doc_gen || lime_openal)
 import lime._internal.backend.native.NativeCFFI;
+import lime.system.CFFI;
 import lime.system.CFFIPointer;
 
 #if !lime_debug
@@ -144,10 +145,7 @@ class ALC
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		var result = NativeCFFI.lime_alc_get_string(device, param);
-		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
-		#end
-		return result;
+		return CFFI.stringValue(result);
 		#else
 		return null;
 		#end

@@ -49,8 +49,8 @@ namespace lime {
 			int GetAscender ();
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
-			int GetGlyphIndex (char* character);
-			void* GetGlyphIndices (bool useCFFIValue, char* characters);
+			int GetGlyphIndex (const char* character);
+			void* GetGlyphIndices (bool useCFFIValue, const char* characters);
 			void* GetGlyphMetrics (bool useCFFIValue, int index);
 			int GetHeight ();
 			int GetNumGlyphs ();

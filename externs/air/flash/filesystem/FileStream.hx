@@ -2,9 +2,16 @@ package flash.filesystem;
 
 extern class FileStream extends flash.events.EventDispatcher implements flash.utils.IDataInput implements flash.utils.IDataOutput
 {
+	#if (haxe_ver < 4.3)
 	var bytesAvailable(default, never):UInt;
 	var endian:flash.utils.Endian;
 	var objectEncoding:#if openfl openfl.net.ObjectEncoding #else UInt #end;
+	#else
+	@:flash.property var bytesAvailable(get, never):UInt;
+	@:flash.property var endian(get, set):flash.utils.Endian;
+	@:flash.property var objectEncoding(get, set):#if openfl openfl.net.ObjectEncoding #else UInt #end;
+	#end
+
 	var position:Float;
 	var readAhead:Float;
 	function new():Void;
@@ -38,4 +45,12 @@ extern class FileStream extends flash.events.EventDispatcher implements flash.ut
 	function writeUTF(value:String):Void;
 	function writeUTFBytes(value:String):Void;
 	function writeUnsignedInt(value:UInt):Void;
+
+	#if (haxe_ver >= 4.3)
+	private function get_bytesAvailable():UInt;
+	private function get_endian():flash.utils.Endian;
+	private function get_objectEncoding():#if openfl openfl.net.ObjectEncoding #else UInt #end;
+	private function set_endian(value:flash.utils.Endian):flash.utils.Endian;
+	private function set_objectEncoding(value:#if openfl openfl.net.ObjectEncoding #else UInt #end):#if openfl openfl.net.ObjectEncoding #else UInt #end;
+	#end
 }

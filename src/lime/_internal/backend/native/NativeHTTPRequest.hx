@@ -377,7 +377,7 @@ class NativeHTTPRequest
 		}
 	}
 
-	private function curl_onProgress(curl:CURL, dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Void
+	private function curl_onProgress(curl:CURL, dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int
 	{
 		if (upnow > writeBytesLoaded || dlnow > writeBytesLoaded || uptotal > writeBytesTotal || dltotal > writeBytesTotal)
 		{
@@ -389,6 +389,8 @@ class NativeHTTPRequest
 			// Wrong thread
 			// promise.progress (bytesLoaded, bytesTotal);
 		}
+
+		return 0;
 	}
 
 	private function curl_onWrite(curl:CURL, output:Bytes):Int
@@ -464,7 +466,7 @@ class NativeHTTPRequest
 	private static function localThreadPool_onError(state:{instance:NativeHTTPRequest, promise:Promise<Bytes>, error:String}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
-		promise.error(state.error);
+		promise.error(new _HTTPRequestErrorResponse(state.error, null));
 
 		var instance = state.instance;
 
@@ -575,16 +577,21 @@ class NativeHTTPRequest
 				}
 				else if (instance.bytes != null)
 				{
-					instance.promise.error(instance.bytes.getString(0, instance.bytes.length));
+					var error = instance.bytes.getString(0, instance.bytes.length);
+					var responseData = instance.buildBuffer();
+					instance.promise.error(new _HTTPRequestErrorResponse(error, responseData));
 				}
 				else
 				{
-					instance.promise.error('Status ${state.status}');
+					var error = 'Status ${state.status}';
+					var responseData = instance.buildBuffer();
+					instance.promise.error(new _HTTPRequestErrorResponse(error, responseData));
 				}
 			}
 			else
 			{
-				instance.promise.error(CURL.strerror(state.result));
+				var error = CURL.strerror(state.result);
+				instance.promise.error(new _HTTPRequestErrorResponse(error, null));
 			}
 
 			if (instance.timeout != null)

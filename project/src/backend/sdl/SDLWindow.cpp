@@ -201,7 +201,9 @@ namespace lime {
 
 			// if (window->flags & WINDOW_FLAG_VSYNC) {
 
-			// 	sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+			#ifdef EMSCRIPTEN
+			sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+			#endif
 
 			// }
 
@@ -741,6 +743,20 @@ namespace lime {
 	void SDLWindow::Resize (int width, int height) {
 
 		SDL_SetWindowSize (sdlWindow, width, height);
+
+	}
+
+
+	void SDLWindow::SetMinimumSize (int width, int height) {
+
+		SDL_SetWindowMinimumSize (sdlWindow, width, height);
+
+	}
+
+
+	void SDLWindow::SetMaximumSize (int width, int height) {
+
+		SDL_SetWindowMaximumSize (sdlWindow, width, height);
 
 	}
 

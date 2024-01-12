@@ -77,6 +77,13 @@ import lime.utils.Log;
 			var promise = new Promise<T>();
 			promise.future = this;
 
+			#if (lime_threads && html5)
+			if (useThreads)
+			{
+				work.makePortable();
+			}
+			#end
+
 			FutureWork.run(dispatchWorkFunction, work, promise, useThreads ? MULTI_THREADED : SINGLE_THREADED, true);
 		}
 	}

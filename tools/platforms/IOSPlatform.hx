@@ -91,7 +91,7 @@ class IOSPlatform extends PlatformTarget
 				title: ""
 			};
 
-		defaults.architectures = [Architecture.ARMV7, Architecture.ARM64];
+		defaults.architectures = [Architecture.ARM64];
 		defaults.window.width = 0;
 		defaults.window.height = 0;
 		defaults.window.fullscreen = true;
@@ -250,7 +250,7 @@ class IOSPlatform extends PlatformTarget
 
 		if (architectures == null || architectures.length == 0)
 		{
-			architectures = [Architecture.ARMV7, Architecture.ARM64];
+			architectures = [Architecture.ARM64];
 		}
 
 		if (project.config.getString("ios.device", "universal") == "universal" || project.config.getString("ios.device") == "iphone")
@@ -456,7 +456,12 @@ class IOSPlatform extends PlatformTarget
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
-		if (FileSystem.exists(path))
+		// try to use the existing .hxml file. however, if the project file was
+		// modified more recently than the .hxml, then the .hxml cannot be
+		// considered valid anymore. it may cause errors in editors like vscode.
+		if (FileSystem.exists(path)
+			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
 		}
@@ -487,11 +492,11 @@ class IOSPlatform extends PlatformTarget
 
 		var commands = [];
 
-		if (armv6) commands.push(["-Dios", "-DHXCPP_CPP11"]);
+		if (armv6) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV6"]);
 		if (armv7) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7"]);
 		if (armv7s) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARMV7S"]);
 		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
-		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_CPP11"]);
+		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M32", "-DHXCPP_CPP11"]);
 		if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11"]);
 
 		if (arc)

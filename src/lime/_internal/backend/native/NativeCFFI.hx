@@ -213,8 +213,6 @@ class NativeCFFI
 
 	@:cffi private static function lime_joystick_get_num_hats(id:Int):Int;
 
-	@:cffi private static function lime_joystick_get_num_trackballs(id:Int):Int;
-
 	@:cffi private static function lime_joystick_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_jpeg_decode_bytes(data:Dynamic, decodeData:Bool, buffer:Dynamic):Dynamic;
@@ -322,6 +320,10 @@ class NativeCFFI
 	@:cffi private static function lime_window_read_pixels(handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
 
 	@:cffi private static function lime_window_resize(handle:Dynamic, width:Int, height:Int):Void;
+
+	@:cffi private static function lime_window_set_minimum_size(handle:Dynamic, width:Int, height:Int):Void;
+
+	@:cffi private static function lime_window_set_maximum_size(handle:Dynamic, width:Int, height:Int):Void;
 
 	@:cffi private static function lime_window_set_borderless(handle:Dynamic, borderless:Bool):Bool;
 
@@ -491,8 +493,6 @@ class NativeCFFI
 	private static var lime_joystick_get_num_axes = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_axes", "ii", false));
 	private static var lime_joystick_get_num_buttons = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_buttons", "ii", false));
 	private static var lime_joystick_get_num_hats = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_hats", "ii", false));
-	private static var lime_joystick_get_num_trackballs = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_joystick_get_num_trackballs", "ii",
-		false));
 	private static var lime_joystick_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_joystick_event_manager_register", "oov", false));
 	private static var lime_jpeg_decode_bytes = new cpp.Callable<cpp.Object->Bool->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
@@ -581,6 +581,10 @@ class NativeCFFI
 	private static var lime_window_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_window_read_pixels", "oooo", false));
 	private static var lime_window_resize = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_resize", "oiiv",
+		false));
+	private static var lime_window_set_minimum_size = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_minimum_size", "oiiv",
+		false));
+	private static var lime_window_set_maximum_size = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_maximum_size", "oiiv",
 		false));
 	private static var lime_window_set_borderless = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_borderless", "obb",
 		false));
@@ -698,7 +702,6 @@ class NativeCFFI
 	private static var lime_joystick_get_num_axes = CFFI.load("lime", "lime_joystick_get_num_axes", 1);
 	private static var lime_joystick_get_num_buttons = CFFI.load("lime", "lime_joystick_get_num_buttons", 1);
 	private static var lime_joystick_get_num_hats = CFFI.load("lime", "lime_joystick_get_num_hats", 1);
-	private static var lime_joystick_get_num_trackballs = CFFI.load("lime", "lime_joystick_get_num_trackballs", 1);
 	private static var lime_joystick_event_manager_register = CFFI.load("lime", "lime_joystick_event_manager_register", 2);
 	private static var lime_jpeg_decode_bytes = CFFI.load("lime", "lime_jpeg_decode_bytes", 3);
 	private static var lime_jpeg_decode_file = CFFI.load("lime", "lime_jpeg_decode_file", 3);
@@ -753,6 +756,8 @@ class NativeCFFI
 	private static var lime_window_move = CFFI.load("lime", "lime_window_move", 3);
 	private static var lime_window_read_pixels = CFFI.load("lime", "lime_window_read_pixels", 3);
 	private static var lime_window_resize = CFFI.load("lime", "lime_window_resize", 3);
+	private static var lime_window_set_minimum_size = CFFI.load("lime", "lime_window_set_minimum_size", 3);
+	private static var lime_window_set_maximum_size = CFFI.load("lime", "lime_window_set_maximum_size", 3);
 	private static var lime_window_set_borderless = CFFI.load("lime", "lime_window_set_borderless", 2);
 	private static var lime_window_set_cursor = CFFI.load("lime", "lime_window_set_cursor", 2);
 	private static var lime_window_set_display_mode = CFFI.load("lime", "lime_window_set_display_mode", 2);
@@ -1103,11 +1108,6 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_joystick_get_num_trackballs") private static function lime_joystick_get_num_trackballs(id:Int):Int
-	{
-		return 0;
-	}
-
 	@:hlNative("lime", "hl_joystick_event_manager_register") private static function lime_joystick_event_manager_register(callback:Void->Void,
 		eventObject:JoystickEventInfo):Void {}
 
@@ -1323,6 +1323,10 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_resize") private static function lime_window_resize(handle:CFFIPointer, width:Int, height:Int):Void {}
+
+	@:hlNative("lime", "hl_window_set_minimum_size") private static function lime_window_set_minimum_size(handle:CFFIPointer, width:Int, height:Int):Void {}
+
+	@:hlNative("lime", "hl_window_set_maximum_size") private static function lime_window_set_maximum_size(handle:CFFIPointer, width:Int, height:Int):Void {}
 
 	@:hlNative("lime", "hl_window_set_borderless") private static function lime_window_set_borderless(handle:CFFIPointer, borderless:Bool):Bool
 	{
@@ -2294,7 +2298,7 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "hl_al_filteri") private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Dynamic):Void {}
+	@:hlNative("lime", "hl_al_filteri") private static function lime_al_filteri(filter:CFFIPointer, param:Int, value:Int):Void {}
 
 	@:hlNative("lime", "hl_al_filterf") private static function lime_al_filterf(filter:CFFIPointer, param:Int, value:hl.F32):Void {}
 

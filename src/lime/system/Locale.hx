@@ -68,8 +68,7 @@ abstract Locale(String) from String to String
 			locale = toString(getDefault());
 			#elseif (lime_cffi && !macro)
 			#if hl
-			var _locale = lime_locale_get_system_locale();
-			locale = _locale != null ? @:privateAccess String.fromUTF8(_locale) : null;
+			locale = CFFI.stringValue(lime_locale_get_system_locale());
 			#else
 			locale = CFFI.load("lime", "lime_locale_get_system_locale", 0)();
 			#end

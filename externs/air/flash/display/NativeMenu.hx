@@ -2,10 +2,20 @@ package flash.display;
 
 @:require(flash10_1) extern class NativeMenu extends flash.events.EventDispatcher
 {
+	#if (haxe_ver < 4.3)
 	#if air
 	var items:Array<NativeMenuItem>;
 	var numItems(default, never):Int;
 	var parent(default, never):NativeMenu;
+	static var isSupported(default, never):Bool;
+	#end
+	#else
+	#if air
+	@:flash.property var items(get, set):Array<NativeMenuItem>;
+	@:flash.property var numItems(get, never):Int;
+	@:flash.property var parent(get, never):NativeMenu;
+	@:flash.property static var isSupported(get, never):Bool;
+	#end
 	#end
 	function new():Void;
 	#if air
@@ -24,6 +34,15 @@ package flash.display;
 	function removeItem(item:NativeMenuItem):NativeMenuItem;
 	function removeItemAt(index:Int):NativeMenuItem;
 	function setItemIndex(item:NativeMenuItem, index:Int):Void;
-	static var isSupported(default, never):Bool;
+	#end
+
+	#if (haxe_ver >= 4.3)
+	#if air
+	private function get_items():Array<NativeMenuItem>;
+	private function get_numItems():Int;
+	private function get_parent():NativeMenu;
+	private function set_items(value:Array<NativeMenuItem>):Array<NativeMenuItem>;
+	private static function get_isSupported():Bool;
+	#end
 	#end
 }

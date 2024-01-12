@@ -1,9 +1,9 @@
 package flash.data;
 
 @:native("flash.data.SQLTransactionLockType")
-@:enum extern abstract SQLTransactionLockType(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract SQLTransactionLockType(String)
 {
-	var DEFERRED;
-	var EXCLUSIVE;
-	var IMMEDIATE;
+	var DEFERRED = "deferred";
+	var EXCLUSIVE = "exclusive";
+	var IMMEDIATE = "immediate";
 }
