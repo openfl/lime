@@ -130,14 +130,9 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		if (project.targetFlags.exists("neko"))
 		{
 			targetType = "neko";
-		}
-		else if (project.targetFlags.exists("hl"))
-		{
-			targetType = "hl";
-			is64 = true;
 		}
 		else if (project.targetFlags.exists("java"))
 		{
@@ -150,6 +145,11 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("cs"))
 		{
 			targetType = "cs";
+		}
+		else if (project.targetFlags.exists("hl") || project.target != (cast System.hostPlatform))
+		{
+			targetType = "hl";
+			is64 = true;
 		}
 		else
 		{

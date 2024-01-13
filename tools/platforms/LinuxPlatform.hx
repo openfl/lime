@@ -138,14 +138,9 @@ class LinuxPlatform extends PlatformTarget
 			is64 = targetFlags.exists("64");
 		}
 
-		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		if (project.targetFlags.exists("neko"))
 		{
 			targetType = "neko";
-		}
-		else if (project.targetFlags.exists("hl"))
-		{
-			targetType = "hl";
-			is64 = true;
 		}
 		else if (project.targetFlags.exists("nodejs"))
 		{
@@ -154,6 +149,11 @@ class LinuxPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("java"))
 		{
 			targetType = "java";
+		}
+		else if (project.targetFlags.exists("hl") || project.target != (cast System.hostPlatform))
+		{
+			targetType = "hl";
+			is64 = true;
 		}
 		else
 		{
