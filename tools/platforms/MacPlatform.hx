@@ -130,7 +130,7 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		if (project.targetFlags.exists("neko") || project.target != System.hostPlatform)
 		{
 			targetType = "neko";
 		}
@@ -420,7 +420,7 @@ class MacPlatform extends PlatformTarget
 		{
 			System.runCommand(executableDirectory, "java", ["-jar", project.app.file + ".jar"].concat(arguments));
 		}
-		else if (project.target == cast System.hostPlatform)
+		else if (project.target == System.hostPlatform)
 		{
 			arguments = arguments.concat(["-livereload"]);
 			System.runCommand(executableDirectory, "./" + Path.withoutDirectory(executablePath), arguments);

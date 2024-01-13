@@ -813,7 +813,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			winrtRun(arguments);
 		}
-		else if (project.target == cast System.hostPlatform)
+		else if (project.target == System.hostPlatform)
 		{
 			arguments = arguments.concat(["-livereload"]);
 			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);
