@@ -1632,21 +1632,8 @@ class ProjectXMLParser extends HXProject
 							case "install-location":
 								config.set("android.install-location", value);
 
-							case "extension":
-								var extensions = config.getArrayString("android.extension");
-
-								if (extensions == null || extensions.indexOf(value) == -1)
-								{
-									config.push("android.extension", value);
-								}
-
-							case "permission":
-								var permissions = config.getArrayString("android.permission");
-
-								if (permissions == null || permissions.indexOf(value) == -1)
-								{
-									config.push("android.permission", value);
-								}
+							case "extension", "permission":
+									config.push("android." + name, value, true);
 
 							case "gradle-version":
 								config.set("android.gradle-version", value);
