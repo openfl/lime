@@ -1118,21 +1118,25 @@ class PlatformSetup
 					}
 					else
 					{
-						System.runCommand("", "sudo", [
-							"cp",
-							"-f",
-							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-							"/usr/local/bin/lime"
-						], false);
-						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
-						System.runCommand("", "sudo", [
-							"cp",
-							"-f",
-							System.findTemplate(project.templatePaths, "bin/openfl.sh"),
-							"/usr/local/bin/openfl"
-						], false);
-						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
-						installedCommand = true;
+						try
+						{
+							System.runCommand("", "sudo", [
+								"cp",
+								"-f",
+								Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+								"/usr/local/bin/lime"
+							], false);
+							System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
+							System.runCommand("", "sudo", [
+								"cp",
+								"-f",
+								System.findTemplate(project.templatePaths, "bin/openfl.sh"),
+								"/usr/local/bin/openfl"
+							], false);
+							System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
+							installedCommand = true;
+						}
+						catch (e:Dynamic) {}
 					}
 				}
 

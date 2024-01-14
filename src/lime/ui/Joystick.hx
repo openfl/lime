@@ -54,8 +54,19 @@ class Joystick
 	#if (js && html5)
 	@:noCompletion private static function __getDeviceData():Array<Dynamic>
 	{
-		return
-			(untyped navigator.getGamepads) ? untyped navigator.getGamepads() : (untyped navigator.webkitGetGamepads) ? untyped navigator.webkitGetGamepads() : null;
+		var res:Dynamic = null;
+		
+		try 
+		{
+			res = (untyped navigator.getGamepads) ? untyped navigator.getGamepads() : (untyped navigator.webkitGetGamepads) ? untyped navigator.webkitGetGamepads() : null;
+		}
+		catch (err:Dynamic)
+		{
+			// if something went wrong, treat it the same as when navigator.getGamepads doesn't exist
+			// we probably don't have permission to use this feature
+		}
+		
+		return res;
 	}
 	#end
 

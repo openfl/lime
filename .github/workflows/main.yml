@@ -36,7 +36,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -105,7 +105,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -157,7 +157,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $Env:GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -236,7 +236,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -294,7 +294,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -317,7 +317,7 @@ jobs:
 
   package-haxelib:
     needs: [linux-ndll, macos-ndll, windows-ndll, android-ndll, ios-ndll]
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: actions/checkout@v3
@@ -337,6 +337,8 @@ jobs:
           haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install svg --quiet
+          haxelib install openfl --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -344,10 +346,11 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
+
       - uses: actions/download-artifact@v3
         with:
           name: Android-NDLL
@@ -403,6 +406,11 @@ jobs:
           name: Linux64-Hashlink
           path: templates/bin/hl/Linux64
 
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
       - uses: actions/upload-artifact@v3
         with:
           name: lime-haxelib
@@ -415,7 +423,7 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: actions/checkout@v3
@@ -431,7 +439,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install dox --quiet
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
 
       - name: Build docs
         working-directory: docs
@@ -511,7 +519,7 @@ jobs:
 
   flash-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: krdlab/setup-haxe@v1
@@ -637,7 +645,7 @@ jobs:
 
   html5-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - uses: krdlab/setup-haxe@v1
