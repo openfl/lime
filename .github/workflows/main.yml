@@ -70,7 +70,7 @@ jobs:
           if-no-files-found: error
 
   macos-ndll:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
 
       - uses: actions/checkout@v3
@@ -262,7 +262,7 @@ jobs:
           if-no-files-found: error
 
   ios-ndll:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
 
       - uses: actions/checkout@v3
@@ -718,7 +718,7 @@ jobs:
 
   ios-samples:
     needs: ios-ndll
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
 
       - uses: actions/checkout@v3
@@ -825,7 +825,7 @@ jobs:
 
   macos-samples:
     needs: macos-ndll
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
 
       - uses: actions/checkout@v3
