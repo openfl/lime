@@ -560,6 +560,8 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -955,22 +957,22 @@ jobs:
       - name: Prepare Lime
         run: |
           haxelib dev lime ${{ github.workspace }}
-          haxelib run lime setup -alias -y -nocffi
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor
-          lime build HelloWorld windows -release -verbose -nocolor
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld windows -release -verbose -nocolor -eval
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage windows -release -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage windows -release -verbose -nocolor -eval
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio windows -release -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio windows -release -verbose -nocolor -eval
 
   notify:
     runs-on: ubuntu-20.04
