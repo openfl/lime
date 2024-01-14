@@ -434,7 +434,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				Reflect.setField(current, field + ARRAY, array);
 			}
 
-			if (array.indexOf(value) == -1)
+			if (!unique || array.indexOf(value) == -1)
 			{
 				array.push(value);
 			}
