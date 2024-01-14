@@ -443,7 +443,7 @@ jobs:
 
   android-samples:
     needs: package-haxelib
-    runs-on: macos-11
+    runs-on: ubuntu-latest
     steps:
 
       - name: Install Android NDK
