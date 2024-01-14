@@ -236,7 +236,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - name: Rebuild Lime tools
+      - name: Prepare Lime
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi -eval
@@ -287,7 +287,7 @@ jobs:
         run: |
           echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
-      - name: Rebuild Lime tools
+      - name: Prepare Lime
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi -eval
@@ -481,7 +481,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -528,7 +528,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -575,7 +575,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -615,7 +615,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -655,7 +655,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -713,7 +713,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -764,7 +764,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -810,7 +810,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -852,7 +852,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
@@ -898,7 +898,7 @@ jobs:
           name: lime-haxelib
           path: lime-haxelib
 
-      - name: Prepare lime
+      - name: Prepare Lime
         run: |
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
