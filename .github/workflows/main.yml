@@ -527,6 +527,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install format --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Prepare Lime
@@ -574,6 +575,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install format --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v3
@@ -667,6 +669,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install format --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
