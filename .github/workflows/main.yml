@@ -14,7 +14,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -105,7 +105,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -157,7 +157,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $Env:GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -209,7 +209,7 @@ jobs:
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r15c
+          ndk-version: r21e
 
       - uses: actions/setup-java@v3
         with:
@@ -236,7 +236,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -294,7 +294,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
@@ -346,7 +346,7 @@ jobs:
 
       - name: Rebuild Lime tools
         run: |
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
@@ -439,7 +439,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install dox --quiet
-          haxelib dev lime $GITHUB_WORKSPACE
+          haxelib dev lime ${{ github.workspace }}
 
       - name: Build docs
         working-directory: docs

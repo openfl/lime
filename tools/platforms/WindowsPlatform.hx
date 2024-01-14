@@ -138,7 +138,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			targetType = "winjs";
 		}
-		else if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		else if (project.targetFlags.exists("neko"))
 		{
 			targetType = "neko";
 		}
@@ -496,6 +496,24 @@ class WindowsPlatform extends PlatformTarget
 					CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
 					System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+
+					if (project.targetFlags.exists("mingw"))
+					{
+						var libraries = ["libwinpthread-1.dll", "libstdc++-6.dll"];
+						if (is64)
+						{
+							libraries.push("libgcc_s_seh-1.dll");
+						}
+						else
+						{
+							libraries.push("libgcc_s_dw2-1.dll");
+						}
+
+						for (library in libraries)
+						{
+							System.copyIfNewer(targetDirectory + "/obj/" + library, Path.combine(applicationDirectory, library));
+						}
+					}
 				}
 				else
 				{
@@ -593,7 +611,12 @@ class WindowsPlatform extends PlatformTarget
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		if (FileSystem.exists(path))
+		// try to use the existing .hxml file. however, if the project file was
+		// modified more recently than the .hxml, then the .hxml cannot be
+		// considered valid anymore. it may cause errors in editors like vscode.
+		if (FileSystem.exists(path)
+			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
 		}
@@ -790,7 +813,7 @@ class WindowsPlatform extends PlatformTarget
 		{
 			winrtRun(arguments);
 		}
-		else if (project.target == cast System.hostPlatform)
+		else if (project.target == System.hostPlatform)
 		{
 			arguments = arguments.concat(["-livereload"]);
 			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);

@@ -62,11 +62,12 @@
 
 		<section if="LIME_CAIRO">
 
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/default/" unless="windows || mac || linux" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/linux/" if="linux" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/windows/" if="windows" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/include/configs/mac/" if="mac" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/src/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/default/" unless="windows || mac || linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/linux/" if="linux" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/windows/" if="windows" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/mac/" if="mac" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/cairo/src/" />
 			<compilerflag value="-DLIME_CAIRO" />
 			<compilerflag value="-DHAVE_CONFIG_H" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
@@ -138,6 +139,7 @@
 
 		<section if="LIME_JPEG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/jpeg/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/jpeg/" />
 			<compilerflag value="-DLIME_JPEG" />
 
@@ -165,6 +167,7 @@
 
 		<section if="LIME_OGG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
 			<compilerflag value="-DLIME_OGG" />
@@ -198,6 +201,7 @@
 
 		<section if="LIME_PNG">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 			<compilerflag value="-DLIME_PNG" />
@@ -234,9 +238,16 @@
 				<compilerflag value="-I/opt/vc/include" />
 				<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
 				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
-				<compilerflag value="-lbrcmGLESv2" />
-				<compilerflag value="-lbrcmEGL" />
-				<compilerflag value="-Wl,--no-undefined -lm -L/opt/vc/lib -lbcm_host -ldl -lpthread -lrt" />
+				<compilerflag value="-I/usr/include/libdrm" />
+				<compilerflag value="-I/usr/include/dbus-1.0" />
+				<compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+				<compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
+				<compilerflag value="-I/usr/local/include" />
+
+				<compilerflag value="-ldrm" />
+				<compilerflag value="-lgbm" />
+
+				<compilerflag value="-Wl,--no-undefined -lm -ldl -ldrm -lpthread -lrt" />
 
 			</section>
 
@@ -245,6 +256,7 @@
 			<compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
 			<compilerflag value="-D__APPLETVOS__" if="tvos" />
 			<compilerflag value="-DAPPLETV" if="tvos" />
+			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
 
 			<file name="src/backend/sdl/SDLApplication.cpp" />
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
@@ -286,16 +298,17 @@
 		</section>
 
 		<file name="src/app/ApplicationEvent.cpp" />
-		<file name="src/graphics/utils/ImageDataUtil.cpp" />
 		<file name="src/graphics/Image.cpp" />
 		<file name="src/graphics/ImageBuffer.cpp" />
 		<file name="src/graphics/RenderEvent.cpp" />
+		<file name="src/graphics/utils/ImageDataUtil.cpp" />
+		<file name="src/hx/CFFIExt.cpp" />
 		<file name="src/math/ColorMatrix.cpp" />
 		<file name="src/math/Matrix3.cpp" />
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
-		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
+		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
@@ -319,8 +332,6 @@
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
 
-		<file name="src/hx/CFFIExt.cpp" />
-
 	</files>
 
 	<files id="android-cpufeatures">
@@ -330,27 +341,31 @@
 
 	</files>
 
-	<include name="lib/cairo/files.xml" />
+	<!-- Run setup now so the submodule projects can determine whether clang or GCC will be used. -->
+	<!-- TODO: if https://github.com/HaxeFoundation/hxcpp/issues/930 ever gets resolved, use that instead. -->
+	<setup name="androidNdk" if="android" />
+
+	<include name="lib/cairo-files.xml" />
 	<include name="lib/curl-files.xml" />
-	<include name="lib/efsw/files.xml" />
-	<include name="lib/faudio/files.xml" if="LIME_FAUDIO" />
-	<include name="lib/freetype/files.xml" />
-	<include name="lib/harfbuzz/files.xml" />
-	<include name="lib/jpeg/files.xml" />
-	<include name="lib/lzma/files.xml" />
+	<include name="lib/efsw-files.xml" />
+	<include name="lib/faudio-files.xml" if="LIME_FAUDIO" />
+	<include name="lib/freetype-files.xml" />
+	<include name="lib/harfbuzz-files.xml" />
+	<include name="lib/jpeg-files.xml" />
+	<include name="lib/lzma-files.xml" />
 	<include name="lib/mbedtls-files.xml" />
-	<include name="lib/mojoal/files.xml" />
-	<include name="lib/neko/files.xml" />
-	<include name="lib/ogg/files.xml" />
-	<include name="lib/openal/files.xml" />
-	<include name="lib/pixman/files.xml" />
-	<include name="lib/png/files.xml" />
-	<include name="lib/sdl/files.xml" />
-	<include name="lib/tinyfiledialogs/files.xml" />
-	<include name="lib/vorbis/files.xml" />
-	<include name="lib/vpx/files.xml" />
-	<include name="lib/webm/files.xml" />
-	<include name="lib/zlib/files.xml" />
+	<include name="lib/mojoal-files.xml" />
+	<include name="lib/neko-files.xml" />
+	<include name="lib/ogg-files.xml" />
+	<include name="lib/openal-files.xml" />
+	<include name="lib/pixman-files.xml" />
+	<include name="lib/png-files.xml" />
+	<include name="lib/sdl-files.xml" />
+	<include name="lib/tinyfiledialogs-files.xml" />
+	<include name="lib/vorbis-files.xml" />
+	<include name="lib/vpx-files.xml" />
+	<include name="lib/webm-files.xml" />
+	<include name="lib/zlib-files.xml" />
 
 	<set name="DEBUGEXTRA" value="-debug" if="fulldebug" />
 	<set name="LIBSUFFIX" value="${HX_TARGET_SUFFIX}" if="HX_TARGET_SUFFIX" />
@@ -442,20 +457,21 @@
 			</section>
 
 			<section if="mac">
+				<vflag name="-install_name" value="@executable_path/lime.hdll" if="LIME_HASHLINK"/>
 
 				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />
-				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="Cocoa" />
-				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="Carbon" />
-				<vflag name="-framework" value="AppKit" />
+				<vflag name="-framework" value="Cocoa" />
+				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
+				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGL" />
 				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
@@ -483,11 +499,13 @@
 
 			<section if="rpi">
 
-				<lib name="-lbcm_host" />
 				<lib name="-ldl" />
+				<lib name="-ldrm" />
 				<lib name="-lm" />
-				<lib name="-lbrcmGLESv2" />
-				<lib name="-lbrcmEGL" />
+				<lib name="-lEGL" />
+				<lib name="-lGLESv2" />
+				<!-- For legacy Pi driver support -->
+				<lib name="-lbcm_host" />
 				<lib name="-L/opt/vc/lib" />
 
 			</section>
@@ -496,13 +514,13 @@
 
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
-				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="GameController" />
+				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGLES" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
 				<lib name="-ldl" />
@@ -515,14 +533,14 @@
 
 				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
-				<vflag name="-framework" value="CoreAudio" />
-				<vflag name="-framework" value="CoreVideo" />
-				<vflag name="-framework" value="OpenGLES" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
-				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="CoreAudio" />
 				<vflag name="-framework" value="CoreMotion" />
 				<vflag name="-framework" value="CoreText" />
+				<vflag name="-framework" value="CoreVideo" />
+				<vflag name="-framework" value="OpenAL" />
+				<vflag name="-framework" value="OpenGLES" />
 				<!-- <vflag name="-framework" value="CoreBluetooth" /> -->
 
 				<lib name="-ldl" />
