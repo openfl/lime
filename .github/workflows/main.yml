@@ -576,6 +576,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install hxcpp 4.2.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -619,6 +620,8 @@ jobs:
 
       - name: Set HAXEPATH
         run: |
+          haxelib install format --quiet
+          haxelib install hxp --quiet
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
@@ -852,22 +855,22 @@ jobs:
       - name: Prepare Lime
         run: |
           haxelib dev lime ${{ github.workspace }}
-          haxelib run lime setup -alias -y -nocffi
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor
-          lime build HelloWorld macos -release -verbose -nocolor
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld macos -release -verbose -nocolor -eval
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage macos -release -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage macos -release -verbose -nocolor -eval
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio macos -release -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio macos -release -verbose -nocolor -eval
 
   neko-samples:
     needs: linux-ndll
@@ -889,6 +892,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
+          haxelib install format --quiet
+          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v3
@@ -920,6 +925,8 @@ jobs:
     needs: windows-ndll
     runs-on: windows-latest
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
