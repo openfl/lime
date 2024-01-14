@@ -442,9 +442,11 @@ jobs:
           if-no-files-found: error
 
   android-samples:
-    needs: package-haxelib
+    needs: android-ndll
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v3
 
       - name: Install Android NDK
         uses: nttld/setup-ndk@v1
@@ -478,36 +480,36 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Android-NDLL
+          path: ndll/Android/
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
-          haxelib run lime setup -alias -y -nocffi
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Configure Android support
         run: |
-          lime config ANDROID_SDK $ANDROID_HOME
-          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
-          lime config JAVA_HOME $JAVA_HOME
-          lime config ANDROID_SETUP true
-          lime config
+          lime config ANDROID_SDK $ANDROID_HOME -eval
+          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }} -eval
+          lime config JAVA_HOME $JAVA_HOME -eval
+          lime config ANDROID_SETUP true -eval
+          lime config -eval
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor
-          lime build HelloWorld android -release -verbose -nocolor
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld android -release -verbose -nocolor -eval
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage android -release -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage android -release -verbose -nocolor -eval
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio android -release -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio android -release -verbose -nocolor -eval
 
   flash-samples:
     needs: package-haxelib
