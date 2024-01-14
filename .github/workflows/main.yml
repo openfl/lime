@@ -494,16 +494,19 @@ jobs:
           lime config ANDROID_SETUP true
           lime config
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld android -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage android -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio android -release -verbose -nocolor
 
   flash-samples:
@@ -533,16 +536,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld flash -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage flash -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio flash -release -verbose -nocolor
 
   air-samples:
@@ -581,16 +587,19 @@ jobs:
           haxelib run lime setup -alias -y -nocffi
           haxelib run lime config AIR_SDK ${{ env.AIR_HOME }}
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld air -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage air -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio air -release -verbose -nocolor
 
   hashlink-samples:
@@ -620,16 +629,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld hl -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage hl -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio hl -release -verbose -nocolor
 
   html5-samples:
@@ -660,28 +672,34 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld html5 -release -verbose -nocolor
-          lime build SimpleImage html5 -release -verbose -nocolor
-          lime build SimpleAudio html5 -release -verbose -nocolor
 
-      - name: Build Lime samples with Genes
+      - name: Build HelloWorld variants
         run: |
           lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes
-          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
-          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
-
-      - name: Build Lime samples with Terser minification
-        run: |
           lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage html5 -release -verbose -nocolor
+
+      - name: Build SimpleImage variants
+        run: |
+          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio html5 -release -verbose -nocolor
+
+      - name: Build SimpleAudio variants
+        run: |
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
 
   ios-samples:
@@ -718,16 +736,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld ios -simulator -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage ios -simulator -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio ios -simulator -release -verbose -nocolor
 
   linux-samples:
@@ -769,16 +790,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld linux -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage linux -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
 
   macos-samples:
@@ -815,16 +839,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld macos -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage macos -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -release -verbose -nocolor
 
   neko-samples:
@@ -857,16 +884,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld neko -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage neko -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio neko -release -verbose -nocolor
 
   windows-samples:
@@ -903,16 +933,19 @@ jobs:
           haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
-      - name: Create Lime samples
+      - name: Build HelloWorld sample
         run: |
           lime create HelloWorld -verbose -nocolor
-          lime create SimpleImage -verbose -nocolor
-          lime create SimpleAudio -verbose -nocolor
-
-      - name: Build Lime samples
-        run: |
           lime build HelloWorld windows -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
           lime build SimpleImage windows -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio windows -release -verbose -nocolor
 
   notify:
