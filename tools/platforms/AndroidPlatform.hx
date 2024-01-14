@@ -543,36 +543,38 @@ class AndroidPlatform extends PlatformTarget
 			}
 		}
 
-		var iconTypes = ["ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"];
-		var iconSizes = [36, 48, 72, 96, 144, 192];
-		var icons = project.icons;
-
-		if (icons.length == 0)
+		for (attribute in context.ANDROID_APPLICATION)
 		{
-			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
-		}
-		for (i in 0...iconTypes.length)
-		{
-			if (IconHelper.createIcon(icons, iconSizes[i], iconSizes[i], sourceSet + "/res/drawable-" + iconTypes[i] + "/icon.png") && context.HAS_ICON == null)
+			if (attribute.key == "android:icon")
 			{
-				for (attribute in context.ANDROID_APPLICATION)
-				{
-					if (attribute.key == "android:icon")
-					{
-						context.HAS_ICON = false;
-						break;
-					}
-				}
+				context.HAS_ICON = true;
+				break;
+			}
+		}
 
-				if (context.HAS_ICON == null)
+		if (context.HAS_ICON == null)
+		{
+			var iconTypes = ["ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"];
+			var iconSizes = [36, 48, 72, 96, 144, 192];
+			var icons = project.icons;
+
+			if (icons.length == 0)
+			{
+				icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+			}
+			for (i in 0...iconTypes.length)
+			{
+				// create multiple icons, only set "android:icon" once
+				if (IconHelper.createIcon(icons, iconSizes[i], iconSizes[i], sourceSet + "/res/drawable-" + iconTypes[i] + "/icon.png")
+					&& !context.HAS_ICON)
 				{
 					context.HAS_ICON = true;
 					context.ANDROID_APPLICATION.push({ key: "android:icon", value: "@drawable/icon" });
 				}
 			}
-		}
 
-		IconHelper.createIcon(icons, 732, 412, sourceSet + "/res/drawable-xhdpi/ouya_icon.png");
+			IconHelper.createIcon(icons, 732, 412, sourceSet + "/res/drawable-xhdpi/ouya_icon.png");
+		}
 
 		var packageDirectory = project.meta.packageName;
 		packageDirectory = sourceSet + "/java/" + packageDirectory.split(".").join("/");
