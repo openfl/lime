@@ -512,9 +512,10 @@ jobs:
           lime build SimpleAudio android -release -verbose -nocolor -eval
 
   flash-samples:
-    needs: package-haxelib
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -528,38 +529,35 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: lime-haxelib
-          path: lime-haxelib
-
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
-          haxelib run lime setup -alias -y -nocffi
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor
-          lime build HelloWorld flash -release -verbose -nocolor
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld flash -release -verbose -nocolor -eval
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage flash -release -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage flash -release -verbose -nocolor -eval
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio flash -release -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio flash -release -verbose -nocolor -eval
 
   air-samples:
-    needs: package-haxelib
+    needs: windows-ndll
     runs-on: windows-latest
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -580,12 +578,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Windows64-NDLL
+          path: ndll/Windows64
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi
           haxelib run lime config AIR_SDK ${{ env.AIR_HOME }}
 
@@ -605,9 +603,11 @@ jobs:
           lime build SimpleAudio air -release -verbose -nocolor
 
   hashlink-samples:
-    needs: package-haxelib
+    needs: linux-ndll
     runs-on: ubuntu-20.04
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -623,12 +623,17 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Linux64-NDLL
+          path: ndll/Linux64
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Linux64-Hashlink
+          path: templates/bin/hl/Linux64
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
@@ -647,9 +652,10 @@ jobs:
           lime build SimpleAudio hl -release -verbose -nocolor
 
   html5-samples:
-    needs: package-haxelib
     runs-on: ubuntu-latest
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -664,50 +670,47 @@ jobs:
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: lime-haxelib
-          path: lime-haxelib
-
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
-          haxelib run lime setup -alias -y -nocffi
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor
-          lime build HelloWorld html5 -release -verbose -nocolor
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld html5 -release -verbose -nocolor -eval
 
       - name: Build HelloWorld variants
         run: |
-          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes
-          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser
+          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes -eval
+          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser -eval
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage html5 -release -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage html5 -release -verbose -nocolor -eval
 
       - name: Build SimpleImage variants
         run: |
-          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
-          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes -eval
+          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser -eval
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio html5 -release -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio html5 -release -verbose -nocolor -eval
 
       - name: Build SimpleAudio variants
         run: |
-          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
-          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes -eval
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser -eval
 
   ios-samples:
-    needs: package-haxelib
+    needs: ios-ndll
     runs-on: macos-11
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -730,33 +733,35 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: iPhone-NDLL
+          path: ndll/iPhone
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
-          haxelib run lime setup -alias -y -nocffi
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor
-          lime build HelloWorld ios -simulator -release -verbose -nocolor
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld ios -simulator -release -verbose -nocolor -eval
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage ios -simulator -release -verbose -nocolor
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage ios -simulator -release -verbose -nocolor -eval
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio ios -simulator -release -verbose -nocolor
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio ios -simulator -release -verbose -nocolor -eval
 
   linux-samples:
-    needs: package-haxelib
+    needs: linux-ndll
     runs-on: ubuntu-20.04
     steps:
+
+      - uses: actions/checkout@v3
 
       - name: Install system dependencies
         run: |
@@ -784,12 +789,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Linux64-NDLL
+          path: ndll/Linux64
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
@@ -808,9 +813,11 @@ jobs:
           lime build SimpleAudio linux -release -verbose -nocolor
 
   macos-samples:
-    needs: package-haxelib
+    needs: macos-ndll
     runs-on: macos-11
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -833,12 +840,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Mac64-NDLL
+          path: ndll/Mac64
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
@@ -857,12 +864,14 @@ jobs:
           lime build SimpleAudio macos -release -verbose -nocolor
 
   neko-samples:
-    needs: package-haxelib
+    needs: linux-ndll
     runs-on: ubuntu-20.04
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
     steps:
+
+      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -878,12 +887,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Linux64-NDLL
+          path: ndll/Linux64
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
@@ -902,7 +911,7 @@ jobs:
           lime build SimpleAudio neko -release -verbose -nocolor
 
   windows-samples:
-    needs: package-haxelib
+    needs: windows-ndll
     runs-on: windows-latest
     steps:
 
@@ -927,12 +936,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: lime-haxelib
-          path: lime-haxelib
+          name: Windows64-NDLL
+          path: ndll/Windows64
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime lime-haxelib
+          haxelib dev lime ${{ github.workspace }}
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
