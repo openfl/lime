@@ -145,7 +145,7 @@ class AndroidPlatform extends PlatformTarget
 		var architectures = [];
 
 		if (hasARMV5) architectures.push(Architecture.ARMV5);
-		if (hasARMV7 || (!hasARMV5 && !hasX86)) architectures.push(Architecture.ARMV7);
+		if (hasARMV7) architectures.push(Architecture.ARMV7);
 		if (hasARM64) architectures.push(Architecture.ARM64);
 		if (hasX86) architectures.push(Architecture.X86);
 		if (hasX64) architectures.push(Architecture.X64);
