@@ -10,6 +10,8 @@ jobs:
       windows-version: windows-latest
       macos-version: macos-12
       linux-version: ubuntu-20.04
+    steps:
+      - run: echo init
 
   linux:
     needs: init
