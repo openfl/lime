@@ -1,16 +1,19 @@
 name: CI
 on: [push, pull_request]
 
-env:
-  HAXE_VERSION: 4.2.5
-  WINDOWS_VERSION: windows-latest
-  MACOS_VERSION: macos-12
-  LINUX_VERSION: ubuntu-20.04
-
 jobs:
 
+  init:
+    runs-on: ubuntu-latest
+    outputs:
+      haxe-version: 4.2.5
+      windows-version: windows-latest
+      macos-version: macos-12
+      linux-version: ubuntu-20.04
+
   linux:
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.linux-version }}
     steps:
 
       - uses: actions/checkout@v3
@@ -24,7 +27,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -95,7 +98,8 @@ jobs:
           lime build SimpleAudio linux -release -verbose -nocolor
 
   macos:
-    runs-on: ${{ env.MACOS_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.macos-version }}
     steps:
 
       - uses: actions/checkout@v3
@@ -104,7 +108,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -177,7 +181,8 @@ jobs:
           lime build SimpleAudio macos -release -verbose -nocolor
 
   windows:
-    runs-on: ${{ env.WINDOWS_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.windows-version }}
     steps:
 
       - uses: actions/checkout@v3
@@ -186,7 +191,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -263,7 +268,8 @@ jobs:
           lime build SimpleAudio windows -release -verbose -nocolor
 
   android:
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.linux-version }}
     steps:
 
       - uses: actions/checkout@v3
@@ -283,7 +289,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -343,7 +349,8 @@ jobs:
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio android -release -verbose -nocolor -eval
   ios:
-    runs-on: ${{ env.MACOS_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.macos-version }}
     steps:
 
       - uses: actions/checkout@v3
@@ -352,7 +359,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -405,8 +412,8 @@ jobs:
           lime build SimpleAudio ios -simulator -release -verbose -nocolor -eval
 
   package-haxelib:
-    needs: [linux, macos, windows, android, ios]
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: [init, linux, macos, windows, android, ios]
+    runs-on: ${{ needs.init.outputs.linux-version }}
     steps:
 
       - uses: actions/checkout@v3
@@ -415,7 +422,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -512,14 +519,15 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.linux-version }}
     steps:
 
       - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -542,14 +550,15 @@ jobs:
           if-no-files-found: error
 
   flash-samples:
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.linux-version }}
     steps:
 
       - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -582,7 +591,8 @@ jobs:
           lime build SimpleAudio flash -release -verbose -nocolor -eval
 
   air-samples:
-    runs-on: ${{ env.WINDOWS_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.windows-version }}
     strategy:
       matrix:
         haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.1]
@@ -634,16 +644,16 @@ jobs:
           lime build SimpleAudio air -release -verbose -nocolor -eval
 
   hashlink-samples:
-    needs: package-haxelib
+    needs: [init, package-haxelib]
     strategy:
       matrix:
-        os: [${{ env.WINDOWS_VERSION }}, ${{ env.LINUX_VERSION }}, ${{ env.MACOS_VERSION }}]
+        os: [needs.init.outputs.windows-version, needs.init.outputs.linux-version, needs.init.outputs.macos-version]
     runs-on: ${{ matrix.os }}
     steps:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH (Windows)
         if: runner.os == 'Windows'
@@ -684,14 +694,15 @@ jobs:
           lime build SimpleAudio hl -release -verbose -nocolor
 
   html5-samples:
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: init
+    runs-on: ${{ needs.init.outputs.linux-version }}
     steps:
 
       - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ needs.init.outputs.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -740,11 +751,11 @@ jobs:
           lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser -eval
 
   neko-samples:
-    needs: package-haxelib
+    needs: [init, package-haxelib]
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
-        os: [${{ env.WINDOWS_VERSION }}, ${{ env.LINUX_VERSION }}, ${{ env.MACOS_VERSION }}]
+        os: [needs.init.outputs.windows-version, needs.init.outputs.linux-version, needs.init.outputs.macos-version]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -791,8 +802,8 @@ jobs:
           lime build SimpleAudio neko -release -verbose -nocolor
 
   notify:
-    runs-on: ${{ env.LINUX_VERSION }}
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, html5-samples, ios, linux, macos, neko-samples, windows]
+    runs-on: ${{ needs.init.outputs.linux-version }}
+    needs: [init, package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, html5-samples, ios, linux, macos, neko-samples, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
