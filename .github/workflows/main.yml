@@ -756,7 +756,7 @@ jobs:
     needs: [init, package-haxelib]
     strategy:
       matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
+        haxe-version: [3.4.7, "${{ needs.init.outputs.haxe-version }}"]
         os: ["${{ needs.init.outputs.windows-version }}", "${{ needs.init.outputs.linux-version }}", "${{ needs.init.outputs.macos-version }}"]
     runs-on: ${{ matrix.os }}
     steps:
