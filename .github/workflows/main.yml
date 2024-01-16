@@ -646,11 +646,11 @@ jobs:
           haxe-version: 4.2.5
 
       - name: Set HAXEPATH (Windows)
-        if: runner.os == "Windows"
+        if: runner.os == 'Windows'
         run: |
           echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
       - name: Set HAXEPATH (Mac/Linux)
-        if: runner.os != "Windows"
+        if: runner.os != 'Windows'
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
