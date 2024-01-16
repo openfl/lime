@@ -634,20 +634,24 @@ jobs:
           lime build SimpleAudio air -release -verbose -nocolor
 
   hashlink-samples:
-    needs: linux
-    runs-on: ubuntu-20.04
+    needs: package-haxelib
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-20.04, macos-12]
+    runs-on: ${{ matrix.os }}
     steps:
-
-      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.2.5
 
-      - name: Set HAXEPATH
+      - name: Set HAXEPATH (Windows)
+        if: runner.os == "Windows"
         run: |
-          haxelib install format --quiet
-          haxelib install hxp --quiet
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+      - name: Set HAXEPATH (Mac/Linux)
+        if: runner.os != "Windows"
+        run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
@@ -656,17 +660,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: Linux64-NDLL
-          path: ndll/Linux64
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: Linux64-Hashlink
-          path: templates/bin/hl/Linux64
+          name: lime-haxelib
+          path: lime-haxelib
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
+          haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
