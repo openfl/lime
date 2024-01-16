@@ -746,37 +746,39 @@ jobs:
           lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser -eval
 
   neko-samples:
-    needs: linux
-    runs-on: ${{ env.LINUX_VERSION }}
+    needs: package-haxelib
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.1]
+        os: [${{ env.WINDOWS_VERSION }}, ${{ env.LINUX_VERSION }}, ${{ env.MACOS_VERSION }}]
+    runs-on: ${{ matrix.os }}
     steps:
-
-      - uses: actions/checkout@v3
 
       - uses: krdlab/setup-haxe@v1
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
-      - name: Set HAXEPATH
+      - name: Set HAXEPATH (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+      - name: Set HAXEPATH (Mac/Linux)
+        if: runner.os != 'Windows'
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v3
         with:
-          name: Linux64-NDLL
-          path: ndll/Linux64
+          name: lime-haxelib
+          path: lime-haxelib
 
       - name: Prepare Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
+          haxelib dev lime lime-haxelib
           haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
