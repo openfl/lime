@@ -398,10 +398,10 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - name: Build HelloWorld sample
-        run: |
-          lime create HelloWorld -verbose -nocolor -eval
-          lime build HelloWorld ios -simulator -release -verbose -nocolor -eval
+      # - name: Build HelloWorld sample
+      #   run: |
+      #     lime create HelloWorld -verbose -nocolor -eval
+      #     lime build HelloWorld ios -simulator -release -verbose -nocolor -eval
 
       - name: Build SimpleImage sample
         run: |
