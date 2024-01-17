@@ -150,6 +150,8 @@ class AndroidPlatform extends PlatformTarget
 		if (hasX86) architectures.push(Architecture.X86);
 		if (hasX64) architectures.push(Architecture.X64);
 
+		if (architectures.length == 0) architectures.push(Architecture.ARM64);
+
 		for (architecture in architectures)
 		{
 			var haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
