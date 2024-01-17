@@ -740,7 +740,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        haxe-version: [3.4.7, env.HAXE_VERSION]
+        haxe-version: [3.4.7, 4.2.5]
         os: [windows-latest, ubuntu-20.04, macos-12]
     runs-on: ${{ matrix.os }}
     steps:
