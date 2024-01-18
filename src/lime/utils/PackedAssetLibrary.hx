@@ -242,7 +242,7 @@ import flash.media.Sound;
 			else
 			{
 				var basePath = rootPath == null || rootPath == "" ?  "" : Path.addTrailingSlash(rootPath);
-				var libPath = paths.exists(id) ? paths.get(id) : id;
+				var libPath = paths.exists(id) ? getPath(id) : id;
 
 				var path = Path.join([basePath, libPath]);
 				path = __cacheBreak(path);
