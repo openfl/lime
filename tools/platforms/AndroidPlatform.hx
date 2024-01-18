@@ -152,7 +152,7 @@ class AndroidPlatform extends PlatformTarget
 
 		if (architectures.length == 0)
 		{
-			Log.warn("No architecture selected, resorting to arm64.");
+			Log.warn("No architecture selected, defaulting to ARM64.");
 
 			hasARM64 = true;
 
