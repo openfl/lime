@@ -200,7 +200,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return AudioBuffer.fromFile(paths.get(id));
+			return AudioBuffer.fromFile(getPath(id));
 		}
 	}
 
@@ -239,7 +239,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Bytes.fromFile(paths.get(id));
+			return Bytes.fromFile(getPath(id));
 		}
 	}
 
@@ -263,7 +263,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Font.fromFile(paths.get(id));
+			return Font.fromFile(getPath(id));
 		}
 	}
 
@@ -283,7 +283,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Image.fromFile(paths.get(id));
+			return Image.fromFile(getPath(id));
 		}
 	}
 
@@ -498,7 +498,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Bytes.loadFromFile(paths.get(id));
+			return Bytes.loadFromFile(getPath(id));
 		}
 	}
 
@@ -521,9 +521,9 @@ class AssetLibrary
 		else
 		{
 			#if (js && html5)
-			return Font.loadFromName(paths.get(id));
+			return Font.loadFromName(getPath(id));
 			#else
-			return Font.loadFromFile(paths.get(id));
+			return Font.loadFromFile(getPath(id));
 			#end
 		}
 	}
@@ -579,7 +579,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Image.loadFromFile(paths.get(id));
+			return Image.loadFromFile(getPath(id));
 		}
 	}
 
@@ -607,7 +607,7 @@ class AssetLibrary
 		else
 		{
 			var request = new HTTPRequest<String>();
-			return request.load(paths.get(id));
+			return request.load(getPath(id));
 		}
 	}
 
