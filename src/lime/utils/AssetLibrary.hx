@@ -477,7 +477,7 @@ class AssetLibrary
 			}
 			else
 			{
-				return AudioBuffer.loadFromFile(getPath(id));
+				return AudioBuffer.loadFromFile(paths.get(id));
 			}
 		}
 	}
