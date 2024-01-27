@@ -3,12 +3,12 @@ package lime._internal.backend.native;
 import haxe.Int64;
 import haxe.Timer;
 import lime.math.Vector4;
+import lime.media.AudioManager;
+import lime.media.AudioSource;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALSource;
 import lime.media.vorbis.VorbisFile;
-import lime.media.AudioManager;
-import lime.media.AudioSource;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -377,15 +377,30 @@ class NativeAudioSource
 			}
 			else
 			{
-				var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
-				var ratio = (offset / dataLength);
-				var totalSeconds = samples / parent.buffer.sampleRate;
+				// var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
+				// var ratio = (offset / dataLength);
+				// var totalSeconds = samples / parent.buffer.sampleRate;
 
-				var time = Std.int(totalSeconds * ratio * 1000) - parent.offset;
-
+				// var sampleTime = AL.getSourcef(handle, AL.SAMPLE_OFFSET);
+				// var time = (sampleTime / parent.buffer.sampleRate * 1000) - parent.offset;
+				// var time = Std.int(totalSeconds * ratio * 1000) - parent.offset;
 				// var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
-				if (time < 0) return 0;
-				return time;
+				try
+				{
+					var value = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT);
+					var deviceOffset:Float = value[1];
+					var realOffset:Float = value[0];
+					var time:Float = ((realOffset - deviceOffset) * 1000) - parent.offset;
+
+					if (time < 0) return 0;
+					return Math.round(time);
+				}
+				catch (e:Dynamic)
+				{
+					trace(e.messsage);
+					trace(e.stack);
+				}
+
 			}
 		}
 
