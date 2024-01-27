@@ -34,6 +34,7 @@ class MacPlatform extends PlatformTarget
 	private var executableDirectory:String;
 	private var executablePath:String;
 	private var is64:Bool;
+	private var isArm64:Bool;
 	private var targetType:String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
@@ -103,6 +104,8 @@ class MacPlatform extends PlatformTarget
 				defaults.architectures = [X86];
 			case X64:
 				defaults.architectures = [X64];
+			case ARM64:
+				defaults.architectures = [ARM64];
 			default:
 				defaults.architectures = [];
 		}
@@ -127,6 +130,10 @@ class MacPlatform extends PlatformTarget
 			if (architecture == Architecture.X64)
 			{
 				is64 = true;
+			}
+			if (architecture == Architecture.ARM64)
+			{
+				isArm64 = true;
 			}
 		}
 
@@ -270,6 +277,12 @@ class MacPlatform extends PlatformTarget
 				haxeArgs.push("HXCPP_M64");
 				flags.push("-DHXCPP_M64");
 			}
+			else if (isArm64)
+			{
+				haxeArgs.push("-D");
+				haxeArgs.push("HXCPP_ARM64");
+				flags.push("-DHXCPP_ARM64");
+			}
 
 			if (!project.targetFlags.exists("static"))
 			{
@@ -379,9 +392,14 @@ class MacPlatform extends PlatformTarget
 		}
 		else
 		{
-			if (!targetFlags.exists("32") && (command == "rebuild" || System.hostArchitecture == X64))
+			if (!targetFlags.exists("32") && System.hostArchitecture == X64)
 			{
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
+			}
+
+			if (!targetFlags.exists("32") && System.hostArchitecture == ARM64)
+			{
+				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
 			}
 
 			if (!targetFlags.exists("64") && (targetFlags.exists("32") || System.hostArchitecture == X86))
