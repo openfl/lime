@@ -178,6 +178,7 @@ class NativeAudioSource
 
 		if (stream)
 		{
+
 			setCurrentTime(getCurrentTime());
 
 			streamTimer = new Timer(STREAM_TIMER_FREQUENCY);

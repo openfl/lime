@@ -1572,6 +1572,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_al_get_sourcefv(source:CFFIPointer, param:Int, count:Int):Array<Float>;
 
+	@:cffi private static function lime_al_get_sourcedv_SOFT(source:CFFIPointer, param:Int, count:Int):Array<Float>;
+
 	@:cffi private static function lime_al_get_sourcei(source:CFFIPointer, param:Int):Dynamic;
 
 	@:cffi private static function lime_al_get_sourceiv(source:CFFIPointer, param:Int, count:Int):Array<Int>;
@@ -1762,6 +1764,8 @@ class NativeCFFI
 	private static var lime_al_get_sourcef = new cpp.Callable<cpp.Object->Int->cpp.Float32>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcef", "oif", false));
 	private static var lime_al_get_sourcefv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcefv", "oiio",
 		false));
+	private static var lime_al_get_sourcedv_SOFT = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcedv_SOFT",
+		"oiio", false));
 	private static var lime_al_get_sourcei = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcei", "oio", false));
 	private static var lime_al_get_sourceiv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourceiv", "oiio",
 		false));
@@ -1903,6 +1907,7 @@ class NativeCFFI
 	private static var lime_al_get_source3i = CFFI.load("lime", "lime_al_get_source3i", 2);
 	private static var lime_al_get_sourcef = CFFI.load("lime", "lime_al_get_sourcef", 2);
 	private static var lime_al_get_sourcefv = CFFI.load("lime", "lime_al_get_sourcefv", 3);
+	private static var lime_al_get_sourcedv_SOFT = CFFI.load("lime", "lime_al_get_sourcedv_SOFT", 3);
 	private static var lime_al_get_sourcei = CFFI.load("lime", "lime_al_get_sourcei", 2);
 	private static var lime_al_get_sourceiv = CFFI.load("lime", "lime_al_get_sourceiv", 3);
 	private static var lime_al_get_string = CFFI.load("lime", "lime_al_get_string", 1);

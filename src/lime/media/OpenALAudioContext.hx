@@ -378,6 +378,11 @@ class OpenALAudioContext
 		return AL.getProcAddress(fname);
 	}
 
+	public function getSourcedvSOFT(source:ALSource, param:Int, count:Int = 1):Array<Float>
+	{
+		return AL.getSourcedvSOFT(source, param, count);
+	}
+
 	public function getSource3f(source:ALSource, param:Int):Array<Float>
 	{
 		return AL.getSource3f(source, param);

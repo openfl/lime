@@ -2098,6 +2098,24 @@ namespace lime {
 
 	}
 
+	value lime_al_get_sourcedv_SOFT (value source, int param, int count)
+	{
+		ALuint id = (ALuint)(uintptr_t)val_data (source);
+		ALdouble* values = new ALdouble[count];
+		alGetSourcedvSOFT(id, param, values);
+
+		value result = alloc_array (count);
+
+		for (int i = 0; i < count; i++)
+		{
+			val_array_set_i(result, i, alloc_float(values[i]));
+		}
+
+		delete[] values;
+		return result;
+
+	}
+
 
 	value lime_al_get_sourcei (value source, int param) {
 
@@ -2191,6 +2209,7 @@ namespace lime {
 		return result;
 
 	}
+
 
 
 	value lime_al_get_string (int param) {
@@ -3571,6 +3590,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_al_get_source3f);
 	DEFINE_PRIME2 (lime_al_get_source3i);
 	DEFINE_PRIME2 (lime_al_get_sourcef);
+	DEFINE_PRIME3 (lime_al_get_sourcedv_SOFT);
 	DEFINE_PRIME3 (lime_al_get_sourcefv);
 	DEFINE_PRIME2 (lime_al_get_sourcei);
 	DEFINE_PRIME3 (lime_al_get_sourceiv);
