@@ -33,9 +33,10 @@ class MacPlatform extends PlatformTarget
 	private var contentDirectory:String;
 	private var executableDirectory:String;
 	private var executablePath:String;
-	private var is64:Bool;
-	private var isArm64:Bool;
+	private var targetArchitecture:Architecture;
 	private var targetType:String;
+
+	private var dirSuffix(get, never):String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
@@ -127,11 +128,15 @@ class MacPlatform extends PlatformTarget
 
 		if (project.architectures.indexOf(X64) != -1)
 		{
-			is64 = true;
+			targetArchitecture = X64;
 		}
 		else if (project.architectures.indexOf(ARM64) != -1)
 		{
-			isArm64 = true;
+			targetArchitecture = ARM64;
+		}
+		else
+		{
+			targetArchitecture = X86;
 		}
 
 		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
@@ -141,7 +146,7 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			is64 = true;
+			targetArchitecture = X64;
 		}
 		else if (project.targetFlags.exists("java"))
 		{
@@ -161,7 +166,7 @@ class MacPlatform extends PlatformTarget
 		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
-		targetDirectory = StringTools.replace(targetDirectory, "arch64", is64 ? "64" : "");
+		targetDirectory = StringTools.replace(targetDirectory, "arch64", dirSuffix);
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";
 		executableDirectory = applicationDirectory + "/Contents/MacOS";
@@ -183,11 +188,11 @@ class MacPlatform extends PlatformTarget
 				// TODO: Support single binary for HashLink
 				if (targetType == "hl")
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", executableDirectory, project.debug, targetSuffix);
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + dirSuffix, "", ".hdll", executableDirectory, project.debug, targetSuffix);
 				}
 				else
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + dirSuffix, "",
 						(ndll.haxelib != null
 							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", executableDirectory,
 						project.debug, targetSuffix);
@@ -201,8 +206,8 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			NekoHelper.createExecutable(project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries(project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
+			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix, targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix, executableDirectory);
 		}
 		else if (targetType == "hl")
 		{
@@ -210,7 +215,7 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, is64);
+			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
 
 			// HashLink looks for hlboot.dat and libraries in the current
 			// working directory, so the .app file won't work properly if it
@@ -238,7 +243,7 @@ class MacPlatform extends PlatformTarget
 			System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(executableDirectory, "lib"));
 			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
 				Path.combine(executableDirectory, project.app.file + ".jar"));
-			JavaHelper.copyLibraries(project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			JavaHelper.copyLibraries(project.templatePaths, "Mac" + dirSuffix, executableDirectory);
 		}
 		else if (targetType == "nodejs")
 		{
@@ -246,8 +251,8 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			// NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			// NekoHelper.createExecutable (project.templatePaths, "Mac" + dirSuffix, targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			// NekoHelper.copyLibraries (project.templatePaths, "Mac" + dirSuffix, executableDirectory);
 		}
 		else if (targetType == "cs")
 		{
@@ -268,13 +273,13 @@ class MacPlatform extends PlatformTarget
 			var haxeArgs = [hxml, "-D", "HXCPP_CLANG"];
 			var flags = ["-DHXCPP_CLANG"];
 
-			if (is64)
+			if (targetArchitecture == X64)
 			{
 				haxeArgs.push("-D");
 				haxeArgs.push("HXCPP_M64");
 				flags.push("-DHXCPP_M64");
 			}
-			else if (isArm64)
+			else if (targetArchitecture == ARM64)
 			{
 				haxeArgs.push("-D");
 				haxeArgs.push("HXCPP_ARM64");
@@ -342,7 +347,7 @@ class MacPlatform extends PlatformTarget
 		context.NODE_FILE = executableDirectory + "/ApplicationMain.js";
 		context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
 		context.CPP_DIR = targetDirectory + "/obj/";
-		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
+		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix;
 
 		return context;
 	}
@@ -470,7 +475,7 @@ class MacPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + (is64 ? "64" : ""), "lib", ".a", project.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + dirSuffix, "lib", ".a", project.debug);
 				}
 			}
 		}
@@ -545,4 +550,11 @@ class MacPlatform extends PlatformTarget
 	@ignore public override function trace():Void {}
 
 	@ignore public override function uninstall():Void {}
+
+	// Getters & Setters
+
+	private inline function get_dirSuffix():String
+	{
+		return targetArchitecture == X64 ? "64" : "";
+	}
 }
