@@ -125,16 +125,13 @@ class MacPlatform extends PlatformTarget
 			project.architectures.remove(excludeArchitecture);
 		}
 
-		for (architecture in project.architectures)
+		if (project.architectures.indexOf(X64) != -1)
 		{
-			if (architecture == Architecture.X64)
-			{
-				is64 = true;
-			}
-			if (architecture == Architecture.ARM64)
-			{
-				isArm64 = true;
-			}
+			is64 = true;
+		}
+		else if (project.architectures.indexOf(ARM64) != -1)
+		{
+			isArm64 = true;
 		}
 
 		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
