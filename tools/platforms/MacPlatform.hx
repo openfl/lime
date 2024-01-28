@@ -385,27 +385,27 @@ class MacPlatform extends PlatformTarget
 	{
 		var commands = [];
 
-		if (targetFlags.exists("hl") && System.hostArchitecture == X64)
+		switch (System.hostArchitecture)
 		{
-			// TODO: Support single binary
-			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
-		}
-		else
-		{
-			if (!targetFlags.exists("32") && System.hostArchitecture == X64)
-			{
-				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
-			}
-
-			if (!targetFlags.exists("32") && System.hostArchitecture == ARM64)
-			{
-				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
-			}
-
-			if (!targetFlags.exists("64") && (targetFlags.exists("32") || System.hostArchitecture == X86))
-			{
+			case X64:
+				if (targetFlags.exists("hl"))
+				{
+					// TODO: Support single binary
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+				}
+				else if (!targetFlags.exists("32"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
+				}
+				else
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
+				}
+			case X86:
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
-			}
+			case ARM64:
+				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+			default:
 		}
 
 		if (targetFlags.exists("hl"))
