@@ -1074,17 +1074,10 @@ class HXProject extends Script
 			{
 				var cache = Log.verbose;
 				Log.verbose = Haxelib.debug;
-				var output = "";
-
-				try
-				{
-					output = Haxelib.runProcess("", ["path", name], true, true, true);
-				}
-				catch (e:Dynamic) {}
-
+				var output = Haxelib.runProcess("", ["path", name], true, true, true);
 				Log.verbose = cache;
 
-				var split = output.split("\n");
+				var split = output != null ? output.split("\n") : [];
 				var haxelibName = null;
 
 				for (arg in split)
