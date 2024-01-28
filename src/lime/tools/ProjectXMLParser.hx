@@ -1330,21 +1330,21 @@ class ProjectXMLParser extends HXProject
 					case "architecture":
 						if (element.has.name)
 						{
-							var name = substitute(element.att.name);
+							var name:Architecture = substitute(element.att.name).toUpperCase();
 
-							if (Reflect.hasField(Architecture, name.toUpperCase()))
+							if (name != null)
 							{
-								ArrayTools.addUnique(architectures, Reflect.field(Architecture, name.toUpperCase()));
+								ArrayTools.addUnique(architectures, name);
 							}
 						}
 
 						if (element.has.exclude)
 						{
-							var exclude = substitute(element.att.exclude);
+							var exclude:Architecture = substitute(element.att.exclude).toUpperCase();
 
-							if (Reflect.hasField(Architecture, exclude.toUpperCase()))
+							if (exclude != null)
 							{
-								ArrayTools.addUnique(excludeArchitectures, Reflect.field(Architecture, exclude.toUpperCase()));
+								ArrayTools.addUnique(excludeArchitectures, exclude);
 							}
 						}
 
