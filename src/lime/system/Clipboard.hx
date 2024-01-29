@@ -9,6 +9,9 @@ import flash.desktop.Clipboard as FlashClipboard;
 import lime._internal.backend.html5.HTML5Window;
 #end
 
+/**
+	Reads and writes text on the system clipboard.
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -17,8 +20,16 @@ import lime._internal.backend.html5.HTML5Window;
 @:access(lime.ui.Window)
 class Clipboard
 {
+	/**
+		Dispatched when the clipboard text changes.
+	**/
 	public static var onUpdate = new Event<Void->Void>();
+
+	/**
+		The text currently stored in the clipboard.
+	**/
 	public static var text(get, set):String;
+
 	private static var _text:String;
 	@:noCompletion private static var __updated = false;
 
