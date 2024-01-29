@@ -95,22 +95,6 @@ class MacPlatform extends PlatformTarget
 				title: ""
 			};
 
-		switch (System.hostArchitecture)
-		{
-			case ARMV6:
-				defaults.architectures = [ARMV6];
-			case ARMV7:
-				defaults.architectures = [ARMV7];
-			case X86:
-				defaults.architectures = [X86];
-			case X64:
-				defaults.architectures = [X64];
-			case ARM64:
-				defaults.architectures = [ARM64];
-			default:
-				defaults.architectures = [];
-		}
-
 		defaults.window.allowHighDPI = false;
 
 		for (i in 1...project.windows.length)
@@ -126,17 +110,14 @@ class MacPlatform extends PlatformTarget
 			project.architectures.remove(excludeArchitecture);
 		}
 
-		if (project.architectures.indexOf(X64) != -1)
+		targetArchitecture = Type.createEnum(Architecture, Type.enumConstructor(System.hostArchitecture));
+		for (architecture in project.architectures)
 		{
-			targetArchitecture = X64;
-		}
-		else if (project.architectures.indexOf(ARM64) != -1)
-		{
-			targetArchitecture = ARM64;
-		}
-		else
-		{
-			targetArchitecture = X86;
+			if (architecture.match(X86 | X64 | ARMV6 | ARMV7 | ARM64))
+			{
+				targetArchitecture = architecture;
+				break;
+			}
 		}
 
 		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
