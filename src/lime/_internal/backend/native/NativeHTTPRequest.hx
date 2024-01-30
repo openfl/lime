@@ -377,7 +377,7 @@ class NativeHTTPRequest
 		}
 	}
 
-	private function curl_onProgress(curl:CURL, dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Void
+	private function curl_onProgress(curl:CURL, dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int
 	{
 		if (upnow > writeBytesLoaded || dlnow > writeBytesLoaded || uptotal > writeBytesTotal || dltotal > writeBytesTotal)
 		{
@@ -389,6 +389,8 @@ class NativeHTTPRequest
 			// Wrong thread
 			// promise.progress (bytesLoaded, bytesTotal);
 		}
+
+		return 0;
 	}
 
 	private function curl_onWrite(curl:CURL, output:Bytes):Int

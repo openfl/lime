@@ -172,7 +172,7 @@ class ProjectHelper
 				var object:Dynamic = project;
 				while (object != null && fields.length > 0)
 				{
-					object = Reflect.field(object, fields.shift());
+					object = Reflect.getProperty(object, fields.shift());
 				}
 
 				if (object != null && object != project)

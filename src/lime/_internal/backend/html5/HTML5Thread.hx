@@ -374,6 +374,14 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 			#end
 			return this.func;
 		}
+		else if (this.sourceCode != null)
+		{
+			#if !macro
+			this.func = #if !haxe4 untyped __js__ #else Syntax.code #end
+				('new Function("return " + {0})()', this.sourceCode);
+			#end
+			return this.func;
+		}
 
 		throw 'Object is not a valid WorkFunction: $this';
 	}
@@ -401,11 +409,26 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 				{
 					// All set.
 					this.func = null;
+					return true;
 				}
 				#end
 			}
 			else
 			{
+				#if !macro
+				this.sourceCode = (cast this.func:Function).toString();
+				if (this.sourceCode.indexOf("[native code]") < 0)
+				{
+					// All set.
+					this.func = null;
+					return true;
+				}
+				else
+				{
+					this.sourceCode = null;
+				}
+				#end
+
 				// If you aren't sure why you got this message, make sure your
 				// variables are of type `WorkFunction`.
 				// This won't work:
@@ -436,6 +459,7 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 typedef WorkFunctionData<T:haxe.Constraints.Function> = {
 	@:optional var classPath:String;
 	@:optional var functionName:String;
+	@:optional var sourceCode:String;
 	@:optional var func:T;
 };
 

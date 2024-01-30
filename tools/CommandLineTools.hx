@@ -231,31 +231,31 @@ class CommandLineTools
 					switch (targetName)
 					{
 						case "cpp":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("cpp", "");
 
 						case "neko":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("neko", "");
 
 						case "hl", "hashlink":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("hl", "");
 
 						case "cppia":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("cppia", "");
 
 						case "java":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("java", "");
 
 						case "nodejs":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("nodejs", "");
 
 						case "cs":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("cs", "");
 
 						case "iphone", "iphoneos":
@@ -1513,15 +1513,15 @@ class CommandLineTools
 		switch (targetName)
 		{
 			case "cpp":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("cpp", "");
 
 			case "neko":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("neko", "");
 
 			case "hl", "hashlink":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("hl", "");
 
 			case "hlc":
@@ -1530,19 +1530,19 @@ class CommandLineTools
 				targetFlags.set("hlc", "");
 
 			case "cppia":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("cppia", "");
 
 			case "java":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("java", "");
 
 			case "nodejs":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("nodejs", "");
 
 			case "cs":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("cs", "");
 
 			case "iphone", "iphoneos":
@@ -1726,6 +1726,11 @@ class CommandLineTools
 					Log.error("Could not process \"" + projectFile + "\"");
 					return null;
 				}
+			}
+
+			if (project != null)
+			{
+				project.projectFilePath = projectFile;
 			}
 		}
 
