@@ -127,7 +127,6 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl"))
 		{
 			targetType = "hl";
-			targetArchitecture = X64;
 		}
 		else if (project.targetFlags.exists("java"))
 		{
