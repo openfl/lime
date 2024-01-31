@@ -1198,10 +1198,7 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
-		const std::string str (hxs_utf8 (character, nullptr));
-		const std::unique_ptr<char[]> buff (new char[str.size() + 1]);
-		std::memcpy (buff.get (), str.c_str (), str.size () + 1);
-		return font->GetGlyphIndex (buff.get ());
+		return font->GetGlyphIndex (character.c_str ());
 		#else
 		return -1;
 		#endif
