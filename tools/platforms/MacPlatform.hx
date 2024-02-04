@@ -186,8 +186,8 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix, targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix, executableDirectory);
+			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix.toLowerCase(), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix.toLowerCase(), executableDirectory);
 		}
 		else if (targetType == "hl")
 		{
@@ -327,7 +327,7 @@ class MacPlatform extends PlatformTarget
 		context.NODE_FILE = executableDirectory + "/ApplicationMain.js";
 		context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
 		context.CPP_DIR = targetDirectory + "/obj/";
-		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix;
+		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
 		return context;
 	}
