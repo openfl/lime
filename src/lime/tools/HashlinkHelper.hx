@@ -44,7 +44,7 @@ class HashlinkHelper
 				{
 					System.copyFile(msvcrPath, Path.combine(applicationDirectory, "msvcr120.dll"));
 				}
-				var vcruntimePath = Path.combine(hlPath, "vcruntime.dll.dll");
+				var vcruntimePath = Path.combine(hlPath, "vcruntime.dll");
 				if (FileSystem.exists(vcruntimePath))
 				{
 					System.copyFile(vcruntimePath, Path.combine(applicationDirectory, "vcruntime.dll"));
