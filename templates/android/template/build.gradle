@@ -2,12 +2,12 @@
 
 buildscript {
 	repositories {
-		jcenter()
+		mavenCentral()
 		google()
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
-		
+
 		// NOTE: Do not place your application dependencies here; they belong
 		// in the individual module build.gradle files
 	}
@@ -15,7 +15,7 @@ buildscript {
 
 allprojects {
 	repositories {
-		jcenter()
+		mavenCentral()
 		google()
 	}::if ANDROID_GRADLE_BUILD_DIRECTORY::
 	buildDir = "::ANDROID_GRADLE_BUILD_DIRECTORY::/::APP_FILE::/${project.name}"::end::
@@ -32,21 +32,22 @@ wrapper {
 configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('build.xml').exists()}) {
 	buildscript {
 		repositories {
-			jcenter()
+			mavenCentral()
 			google()
 		}
-		
+
 		dependencies {
 			classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
 		}
 	}
-	
+
 	apply plugin: 'android-library'
-	
+
 	android {
 		compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 		buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-		
+		::if (ANDROID_GRADLE_PLUGIN>="4.0")::ndkPath '::ANDROID_NDK_ROOT_ESCAPED::'::end::
+
 		sourceSets {
 			main {
 				manifest.srcFile 'AndroidManifest.xml'
@@ -55,9 +56,8 @@ configure(subprojects.findAll {!it.file('build.gradle').exists() && it.file('bui
 			}
 		}
 	}
-	
+
 	dependencies {
-		api fileTree(dir: 'libs', include: ['*.jar'])
-		api project(':deps:extension-api')
+		implementation project(':deps:extension-api')
 	}
 }

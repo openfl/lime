@@ -25,6 +25,7 @@
 		6892FA0E263B5BC100EA2669 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6892FA0D263B5BC100EA2669 /* Metal.framework */; };
 		792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE0 /* GameController.framework */; };
 		792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE1 /* CoreText.framework */; };
+		7C1D3D2F27403D7800CFEBE5 /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C1D3D2E27403D7800CFEBE5 /* CoreHaptics.framework */; };
 		::if (IOS_LAUNCH_STORYBOARD != null)::D099CA9021A64C87003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */; };::end::
 		::ADDL_PBX_BUILD_FILE::
 
@@ -61,6 +62,7 @@
 		6892FA0D263B5BC100EA2669 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		792E75C81C6C876900D01DE0 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		792E75C81C6C876900D01DE1 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		7C1D3D2E27403D7800CFEBE5 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
 		::if (IOS_LAUNCH_STORYBOARD != null)::D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "::APP_FILE::/::IOS_LAUNCH_STORYBOARD::.storyboard"; sourceTree = "<group>"; };::end::
 		::ADDL_PBX_FILE_REFERENCE::
 
@@ -77,6 +79,7 @@
 				::if ARMV7::1EF0A888121AE2F0003F2F5A /* lib/ApplicationMain-v7.a in lib */,::end::
 				792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */,
 				792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */,
+				7C1D3D2F27403D7800CFEBE5 /* CoreHaptics.framework in Frameworks */,
 				6892FA0E263B5BC100EA2669 /* Metal.framework in Frameworks */,
 				1EEEBA9B121AF1C60048A9DF /* UIKit.framework in Frameworks */,
 				1EEEBAA3121AF2210048A9DF /* OpenAL.framework in Frameworks */,
@@ -118,6 +121,7 @@
 				6892FA0D263B5BC100EA2669 /* Metal.framework */,
 				792E75C81C6C876900D01DE0 /* GameController.framework */,
 				792E75C81C6C876900D01DE1 /* CoreText.framework */,
+				7C1D3D2E27403D7800CFEBE5 /* CoreHaptics.framework */,
 				1EEEBA9A121AF1C60048A9DF /* UIKit.framework */,
 				1EEEBAA2121AF2210048A9DF /* OpenAL.framework */,
 				1EEEBAA4121AF2210048A9DF /* OpenGLES.framework */,
@@ -365,6 +369,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
 				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-debug\"",
@@ -421,6 +426,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
 				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",

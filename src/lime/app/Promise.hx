@@ -7,7 +7,7 @@ package lime.app;
 	`Future` values.
 
 	While `Future` is meant to be read-only, `Promise` can be used to set the state of a future
-	for receipients of it's `Future` object. For example:
+	for recipients of it's `Future` object. For example:
 
 	```haxe
 	function examplePromise ():Future<String> {
@@ -44,7 +44,7 @@ package lime.app;
 @:noDebug
 #end
 @:allow(lime.app.Future)
-#if (!hl && !js)
+#if (!hl && !js && !macro)
 @:generic
 #end
 class Promise<T>

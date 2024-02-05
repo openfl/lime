@@ -32,9 +32,9 @@ import sys.io.Process;
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.system.Display)
 @:access(lime.system.DisplayMode)
-#if (cpp && windows && !HXCPP_MINGW && !lime_disable_gpu_hint)
+#if (cpp && windows && !lime_disable_gpu_hint)
 @:cppFileCode('
-#if defined(HX_WINDOWS)
+#if defined(HX_WINDOWS) && !defined(__MINGW32__)
 extern "C" {
 	_declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
@@ -141,12 +141,13 @@ class System
 	#if (!lime_doc_gen || sys)
 	public static function exit(code:Int):Void
 	{
-		#if ((sys || air) && !macro)
-		if (Application.current != null)
+		var currentApp = Application.current;
+		#if ((sys || (js && html5) || air) && !macro)
+		if (currentApp != null)
 		{
-			Application.current.onExit.dispatch(code);
+			currentApp.onExit.dispatch(code);
 
-			if (Application.current.onExit.canceled)
+			if (currentApp.onExit.canceled)
 			{
 				return;
 			}
@@ -155,6 +156,11 @@ class System
 
 		#if sys
 		Sys.exit(code);
+		#elseif (js && html5)
+		if (currentApp != null && currentApp.window != null)
+		{
+			currentApp.window.close();
+		}
 		#elseif air
 		NativeApplication.nativeApplication.exit(code);
 		#end
@@ -170,11 +176,7 @@ class System
 		{
 			var display = new Display();
 			display.id = id;
-			#if hl
-			display.name = @:privateAccess String.fromUTF8(displayInfo.name);
-			#else
-			display.name = displayInfo.name;
-			#end
+			display.name = CFFI.stringValue(displayInfo.name);
 			display.bounds = new Rectangle(displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
 
 			#if ios
@@ -261,9 +263,7 @@ class System
 
 	public static function getTimer():Int
 	{
-		#if (kha && !macro)
-		return Std.int(kha.System.time * 1000);
-		#elseif flash
+		#if flash
 		return flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		return Std.int(Browser.window.performance.now());
@@ -373,19 +373,11 @@ class System
 					}
 				}
 
-				#if hl
-				path = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_directory(type, company, file));
-				#else
-				path = NativeCFFI.lime_system_get_directory(type, company, file);
-				#end
+				path = CFFI.stringValue(NativeCFFI.lime_system_get_directory(type, company, file));
 			}
 			else
 			{
-				#if hl
-				path = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_directory(type, null, null));
-				#else
-				path = NativeCFFI.lime_system_get_directory(type, null, null);
-				#end
+				path = CFFI.stringValue(NativeCFFI.lime_system_get_directory(type, null, null));
 			}
 
 			#if windows
@@ -597,11 +589,7 @@ class System
 		if (__deviceModel == null)
 		{
 			#if (lime_cffi && !macro && (windows || ios || tvos))
-			#if hl
-			__deviceModel = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_device_model());
-			#else
-			__deviceModel = NativeCFFI.lime_system_get_device_model();
-			#end
+			__deviceModel = CFFI.stringValue(NativeCFFI.lime_system_get_device_model());
 			#elseif android
 			var manufacturer:String = JNI.createStaticField("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get();
 			var model:String = JNI.createStaticField("android/os/Build", "MODEL", "Ljava/lang/String;").get();
@@ -632,11 +620,7 @@ class System
 		if (__deviceVendor == null)
 		{
 			#if (lime_cffi && !macro && windows && !html5)
-			#if hl
-			__deviceVendor = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_device_vendor());
-			#else
-			__deviceVendor = NativeCFFI.lime_system_get_device_vendor();
-			#end
+			__deviceVendor = CFFI.stringValue(NativeCFFI.lime_system_get_device_vendor());
 			#elseif android
 			var vendor:String = JNI.createStaticField("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get();
 			if (vendor != null)
@@ -718,11 +702,7 @@ class System
 		if (__platformLabel == null)
 		{
 			#if (lime_cffi && !macro && windows && !html5)
-			#if hl
-			var label:String = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_platform_label());
-			#else
-			var label:String = NativeCFFI.lime_system_get_platform_label();
-			#end
+			var label:String = CFFI.stringValue(NativeCFFI.lime_system_get_platform_label());
 			if (label != null) __platformLabel = StringTools.trim(label);
 			#elseif linux
 			__platformLabel = __runProcess("lsb_release", ["-ds"]);
@@ -780,11 +760,7 @@ class System
 		if (__platformVersion == null)
 		{
 			#if (lime_cffi && !macro && windows && !html5)
-			#if hl
-			__platformVersion = @:privateAccess String.fromUTF8(NativeCFFI.lime_system_get_platform_version());
-			#else
-			__platformVersion = NativeCFFI.lime_system_get_platform_version();
-			#end
+			__platformVersion = CFFI.stringValue(NativeCFFI.lime_system_get_platform_version());
 			#elseif android
 			var release = JNI.createStaticField("android/os/Build$VERSION", "RELEASE", "Ljava/lang/String;").get();
 			var api = JNI.createStaticField("android/os/Build$VERSION", "SDK_INT", "I").get();

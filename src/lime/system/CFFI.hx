@@ -1,6 +1,7 @@
 package lime.system;
 
 #if (!lime_doc_gen || lime_cffi)
+import haxe.io.Path;
 import lime._internal.macros.CFFIMacro;
 #if (sys && !macro)
 import sys.io.Process;
@@ -89,7 +90,7 @@ class CFFI
 		}
 		else
 		{
-			#if (cpp && (iphone || emscripten || android || static_link || tvos))
+			#if (cpp && (iphone || webassembly || android || static_link || tvos))
 			return cpp.Lib.load(library, method, args);
 			#end
 
@@ -135,11 +136,16 @@ class CFFI
 
 			__moduleNames.set(library, library);
 
-			result = __tryLoad("./" + library, library, method, args);
+			var programPath:String = ".";
+			#if sys
+			programPath = Path.directory(Sys.programPath());
+			#end
+
+			result = __tryLoad(programPath + "/" + library, library, method, args);
 
 			if (result == null)
 			{
-				result = __tryLoad(".\\" + library, library, method, args);
+				result = __tryLoad(programPath + "\\" + library, library, method, args);
 			}
 
 			if (result == null)
@@ -195,6 +201,15 @@ class CFFI
 		}
 
 		return {call: CFFI.load(library, method, args, lazy)};
+		#end
+	}
+
+	@:dox(hide) #if !hl inline #end public static function stringValue(#if hl value:hl.Bytes #else value:String #end):String
+	{
+		#if hl
+		return value != null ? @:privateAccess String.fromUTF8(value) : null;
+		#else
+		return value;
 		#end
 	}
 

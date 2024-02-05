@@ -1,11 +1,11 @@
 package flash.text;
 
 @:native("flash.text.ReturnKeyLabel")
-#if (haxe_ver >= 4.0) extern #else @:extern #end enum abstract ReturnKeyLabel(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract ReturnKeyLabel(String)
 {
-	var DEFAULT;
-	var DONE;
-	var GO;
-	var NEXT;
-	var SEARCH;
+	var DEFAULT = "default";
+	var DONE = "done";
+	var GO = "go";
+	var NEXT = "next";
+	var SEARCH = "search";
 }

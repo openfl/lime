@@ -372,6 +372,8 @@
 		<ext value=".hdll" />
 		<files id="ssl" />
 
+		<vflag name="-install_name" value="@executable_path/ssl.hdll" if="mac"/>
+
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
@@ -397,6 +399,8 @@
 		<ext value=".hdll" />
 		<files id="mysql" />
 
+		<vflag name="-install_name" value="@executable_path/mysql.hdll" if="mac"/>
+
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
@@ -408,6 +412,8 @@
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<ext value=".hdll" />
 		<files id="fmt" />
+
+		<vflag name="-install_name" value="@executable_path/fmt.hdll" if="mac"/>
 
 		<lib name="-L/usr/local/lib" if="mac" />
 		<lib name="-L/usr/local/opt/libjpeg-turbo/lib" if="mac" />
@@ -434,6 +440,8 @@
 		<ext value=".hdll" />
 		<files id="ui" />
 
+		<vflag name="-install_name" value="@executable_path/ui.hdll" if="mac"/>
+
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<section if="windows">
@@ -449,6 +457,8 @@
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<ext value=".hdll" />
 		<files id="uv" />
+
+		<vflag name="-install_name" value="@executable_path/uv.hdll" if="mac"/>
 
 		<lib name="-L/usr/local/lib" if="mac" />
 
@@ -494,4 +504,9 @@
 	</target>
 
 	<copyFile name="libhl.lib" from="obj/lib/" overwrite="true" toolId="dll" if="windows" />
+	<copyFile name="ssl.lib" from="obj/lib/" allowMissing="true" overwrite="true" toolid="dll" if="windows" />
+	<copyFile name="mysql.lib" from="obj/lib/" allowMissing="true" overwrite="true" toolId="dll" if="windows" />
+	<copyFile name="fmt.lib" from="obj/lib/" allowMissing="true" overwrite="true" toolId="dll" if="windows" />
+	<copyFile name="ui.lib" from="obj/lib/" allowMissing="true" overwrite="true" toolId="dll" if="windows" />
+	<copyFile name="uv.lib" from="obj/lib/" allowMissing="true" overwrite="true" toolId="dll" if="windows" />
 </xml>
