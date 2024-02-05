@@ -60,4 +60,20 @@ import hxp.HostArchitecture;
 			return null;
 		}
 	}
+
+	public inline function is64():Bool {
+		return this == ARM64 || this == X64;
+	}
+
+	public inline function isARM():Bool {
+		return this.indexOf("ARM") == 0;
+	}
+
+	public inline function isMIPS():Bool {
+		return this == MIPS || this == MIPSEL;
+	}
+
+	public inline function isX():Bool {
+		return this == X86 || this == X64;
+	}
 }
