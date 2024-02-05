@@ -1,0 +1,170 @@
+<xml>
+
+	<files id="native-toolkit-curl-depends"  >
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/curl.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/custom/curl/lib/curl_config.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/curlver.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/easy.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/mprintf.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/multi.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/stdcheaders.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/typecheck-gcc.h" />
+ 	</files>
+
+	<files id="native-toolkit-curl" tags="">
+
+		<cache value="1" />
+		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+		<depend files="native-toolkit-curl-depends" />
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/curl/lib/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/lib/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/axtls" if="NATIVE_TOOLKIT_HAVE_AXTLS" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
+
+		<compilerflag value="-DBUILDING_LIBCURL" />
+		<compilerflag value="-DCURL_STATICLIB" />
+		<compilerflag value="-DUSE_AXTLS=1" if="NATIVE_TOOLKIT_HAVE_AXTLS" />
+		<compilerflag value="-DUSE_MBEDTLS=1" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
+		<compilerflag value="-DNATIVE_TOOLKIT_CURL_DISABLE_AXTLS_NONBLOCKING" if="NATIVE_TOOLKIT_CURL_DISABLE_AXTLS_NONBLOCKING" />
+		<compilerflag value="-DHAVE_CONFIG_H" unless="windows" />
+		<compilerflag value="-DWIN32" if="windows" unless="winrt" />
+		<compilerflag value="-DALLOW_MSVC6_WITHOUT_PSDK" if="windows" />
+		<compilerflag value="-DENABLE_IPV6=1" />
+		<compilerflag value="-DNEED_THREAD_SAFE=1" />
+		<compilerflag value="-DCURL_DISABLE_LDAP" if="winrt" />
+
+		<section if="windows">
+
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-ares.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_multibyte.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/idn_win32.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/inet_ntop.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/inet_pton.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/krb5.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/ldap.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/openldap.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/socketpair.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strtok.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/system_win32.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/version_win32.c" />
+
+		</section>
+
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/altsvc.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/asyn-thread.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/base64.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/bufref.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/conncache.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/connect.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/content_encoding.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/cookie.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_addrinfo.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_ctype.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_des.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_endian.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_fnmatch.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_get_line.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_gethostname.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_memrchr.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_ntlm_core.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_range.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_sasl.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/curl_threads.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/dict.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/doh.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/dotdot.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/dynbuf.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/easy.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/escape.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/file.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/fileinfo.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/formdata.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/ftp.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/ftplistparser.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/getenv.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/getinfo.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/gopher.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hash.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hmac.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostasyn.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostip.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostip4.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostip6.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hostsyn.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/hsts.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_aws_sigv4.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_chunks.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_digest.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_ntlm.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http_proxy.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/http.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/if2ip.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/imap.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/llist.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/md4.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/md5.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/mime.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/mprintf.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/mqtt.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/multi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/netrc.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/nonblock.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/parsedate.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/pingpong.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/pop3.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/progress.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/rand.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/rename.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/rtsp.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/select.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/sendf.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/setopt.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/sha256.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/share.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/slist.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/smb.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/smtp.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/socks.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/speedcheck.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/splay.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strcase.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strdup.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strerror.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/strtoofft.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/telnet.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/tftp.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/timediff.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/timeval.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/transfer.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/url.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/urlapi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/cleartext.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/cram.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/digest_sspi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/digest.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/krb5_gssapi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/krb5_sspi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/ntlm_sspi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/ntlm.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/oauth2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/spnego_gssapi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/spnego_sspi.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vauth/vauth.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/version.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/hostcheck.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/vtls.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/warnless.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/wildcard.c" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/axtls.c" if="NATIVE_TOOLKIT_HAVE_AXTLS" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/mbedtls.c" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
+		<file name="${NATIVE_TOOLKIT_PATH}/curl/lib/vtls/mbedtls_threadlock.c" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
+
+	</files>
+
+</xml>

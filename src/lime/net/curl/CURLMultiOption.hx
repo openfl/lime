@@ -1,7 +1,7 @@
 package lime.net.curl;
 
 #if (!lime_doc_gen || lime_curl)
-@:enum abstract CURLMultiOption(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract CURLMultiOption(Int) from Int to Int from UInt to UInt
 {
 	/* This is the socket callback function pointer */
 	var SOCKETFUNCTION = 200001;

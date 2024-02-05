@@ -90,11 +90,11 @@ import ::APP_MAIN::;
 
 		app.createWindow(attributes);
 		::end::
-		#elseif !air
-
+		#elseif air
+		app.window.title = "::meta.title::";
+		#else
 		app.window.context.attributes.background = ::WIN_BACKGROUND::;
 		app.window.frameRate = ::WIN_FPS::;
-
 		#end
 		#end
 
@@ -125,7 +125,7 @@ import ::APP_MAIN::;
 
 		var result = app.exec();
 
-		#if (sys && !ios && !nodejs && !emscripten)
+		#if (sys && !ios && !nodejs && !webassembly)
 		lime.system.System.exit(result);
 		#end
 

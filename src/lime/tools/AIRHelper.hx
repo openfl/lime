@@ -17,7 +17,10 @@ class AIRHelper
 		{
 			case MAC:
 
-			// extension = ".app";
+				if (airTarget == "bundle")
+				{
+					extension = ".app";
+				}
 
 			case IOS:
 				if (project.targetFlags.exists("simulator"))
@@ -93,13 +96,16 @@ class AIRHelper
 
 		if (project.keystore != null)
 		{
-			var keystore = Path.tryFullPath(project.keystore.path);
 			var keystoreType = project.keystore.type != null ? project.keystore.type : "pkcs12";
-
 			signingOptions.push("-storetype");
 			signingOptions.push(keystoreType);
-			signingOptions.push("-keystore");
-			signingOptions.push(keystore);
+
+			if (project.keystore.path != null)
+			{
+				var keystore = Path.tryFullPath(project.keystore.path);
+				signingOptions.push("-keystore");
+				signingOptions.push(keystore);
+			}
 
 			if (project.keystore.alias != null)
 			{
@@ -146,11 +152,19 @@ class AIRHelper
 
 			if (project.debug)
 			{
-				args.push("-connect");
-
 				if (project.config.exists("air.connect"))
 				{
+					args.push("-connect");
 					args.push(project.config.getString("air.connect"));
+				}
+				else if (project.config.exists("air.listen"))
+				{
+					args.push("-listen");
+					args.push(project.config.getString("air.listen"));
+				}
+				else
+				{
+					args.push("-connect");
 				}
 			}
 
@@ -201,9 +215,17 @@ class AIRHelper
 			Sys.putEnv("AIR_NOANDROIDFLAIR", "true");
 		}
 
-		if (targetPlatform == IOS)
+		if (targetPlatform == IOS && System.hostPlatform == MAC)
 		{
-			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project));
+			var simulatorName = XCodeHelper.getSimulatorName(project);
+			if (simulatorName == null)
+			{
+				Log.warn("Skipping AIR_IOS_SIMULATOR_DEVICE environment variable because default simulator not found");
+			}
+			else
+			{
+				Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", simulatorName);
+			}
 		}
 
 		System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);

@@ -251,6 +251,45 @@ class HTML5Window
 
 	public function close():Void
 	{
+		var element = parent.element;
+		if (element != null)
+		{
+			if (canvas != null)
+			{
+				if (element != cast canvas)
+				{
+					element.removeChild(canvas);
+				}
+				canvas = null;
+			}
+			else if (div != null)
+			{
+				element.removeChild(div);
+				div = null;
+			}
+
+			var events = ["mousedown", "mouseenter", "mouseleave", "mousemove", "mouseup", "wheel"];
+
+			for (event in events)
+			{
+				element.removeEventListener(event, handleMouseEvent, true);
+			}
+
+			element.removeEventListener("contextmenu", handleContextMenuEvent, true);
+
+			element.removeEventListener("dragstart", handleDragEvent, true);
+			element.removeEventListener("dragover", handleDragEvent, true);
+			element.removeEventListener("drop", handleDragEvent, true);
+
+			element.removeEventListener("touchstart", handleTouchEvent, true);
+			element.removeEventListener("touchmove", handleTouchEvent, true);
+			element.removeEventListener("touchend", handleTouchEvent, true);
+			element.removeEventListener("touchcancel", handleTouchEvent, true);
+
+			element.removeEventListener("gamepadconnected", handleGamepadEvent, true);
+			element.removeEventListener("gamepaddisconnected", handleGamepadEvent, true);
+		}
+
 		parent.application.__removeWindow(parent);
 	}
 
@@ -392,6 +431,11 @@ class HTML5Window
 	public function getMouseLock():Bool
 	{
 		return false;
+	}
+
+	public function getOpacity():Float
+	{
+		return 1.0;
 	}
 
 	public function getTextInputEnabled():Bool
@@ -554,11 +598,13 @@ class HTML5Window
 
 	private function handleInputEvent(event:InputEvent):Void
 	{
+		if (imeCompositionActive)
+		{
+			return;
+		}
+
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
-
-		if (inputing) return;
-
 		if (textInput.value != dummyCharacter)
 		{
 			var value = StringTools.replace(textInput.value, dummyCharacter, "");
@@ -617,7 +663,9 @@ class HTML5Window
 						Browser.window.addEventListener("mouseup", handleMouseEvent);
 					}
 
+					parent.clickCount = event.detail;
 					parent.onMouseDown.dispatch(x, y, event.button);
+					parent.clickCount = 0;
 
 					if (parent.onMouseDown.canceled && event.cancelable)
 					{
@@ -654,7 +702,9 @@ class HTML5Window
 						event.stopPropagation();
 					}
 
+					parent.clickCount = event.detail;
 					parent.onMouseUp.dispatch(x, y, event.button);
+					parent.clickCount = 0;
 
 					if (parent.onMouseUp.canceled && event.cancelable)
 					{
@@ -920,6 +970,10 @@ class HTML5Window
 
 	public function resize(width:Int, height:Int):Void {}
 
+	public function setMinSize(width:Int, height:Int):Void {}
+
+	public function setMaxSize(width:Int, height:Int):Void {}
+
 	public function setBorderless(value:Bool):Bool
 	{
 		return value;
@@ -1105,6 +1159,8 @@ class HTML5Window
 
 	public function setMouseLock(value:Bool):Void {}
 
+	public function setOpacity(value:Float):Void {}
+
 	public function setResizable(value:Bool):Bool
 	{
 		return value;
@@ -1117,7 +1173,12 @@ class HTML5Window
 			if (textInput == null)
 			{
 				textInput = cast Browser.document.createElement('input');
+				#if lime_enable_html5_ime
 				textInput.type = 'text';
+				#else
+				// use password instead of text to avoid IME issues on Android
+				textInput.type = Browser.navigator.userAgent.indexOf("Android") >= 0 ? 'password' : 'text';
+				#end
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
 				textInput.style.color = "transparent";
@@ -1171,6 +1232,10 @@ class HTML5Window
 		{
 			if (textInput != null)
 			{
+				// call blur() before removing the compositionend listener
+				// to ensure that incomplete IME input is committed
+				textInput.blur();
+
 				textInput.removeEventListener('input', handleInputEvent, true);
 				textInput.removeEventListener('blur', handleFocusEvent, true);
 				textInput.removeEventListener('cut', handleCutOrCopyEvent, true);
@@ -1179,7 +1244,6 @@ class HTML5Window
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
 
-				textInput.blur();
 			}
 		}
 
@@ -1191,16 +1255,16 @@ class HTML5Window
 		return textInputRect = value;
 	}
 
-	private var inputing = false;
+	private var imeCompositionActive = false;
 
 	public function handleCompositionstartEvent(e):Void
 	{
-		inputing = true;
+		imeCompositionActive = true;
 	}
 
 	public function handleCompositionendEvent(e):Void
 	{
-		inputing = false;
+		imeCompositionActive = false;
 		handleInputEvent(e);
 	}
 
@@ -1211,6 +1275,11 @@ class HTML5Window
 			Browser.document.title = value;
 		}
 
+		return value;
+	}
+
+	public function setVisible(value:Bool):Bool
+	{
 		return value;
 	}
 
