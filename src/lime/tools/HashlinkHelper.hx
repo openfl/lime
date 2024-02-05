@@ -60,10 +60,10 @@ class HashlinkHelper
 				{
 					System.copyFile(msvcrPath, Path.combine(applicationDirectory, "msvcr120.dll"));
 				}
-				var vcruntimePath = Path.combine(hlPath, "vcruntime.dll.dll");
+				var vcruntimePath = Path.combine(hlPath, "vcruntime140.dll");
 				if (FileSystem.exists(vcruntimePath))
 				{
-					System.copyFile(vcruntimePath, Path.combine(applicationDirectory, "vcruntime.dll"));
+					System.copyFile(vcruntimePath, Path.combine(applicationDirectory, "vcruntime140.dll"));
 				}
 			}
 			else if (platform == MAC || platform == IOS)

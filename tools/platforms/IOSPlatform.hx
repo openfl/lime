@@ -480,8 +480,7 @@ class IOSPlatform extends PlatformTarget
 	public override function rebuild():Void
 	{
 		var armv6 = (project.architectures.indexOf(Architecture.ARMV6) > -1 && !project.targetFlags.exists("simulator"));
-		var armv7 = (command == "rebuild"
-			|| (project.architectures.indexOf(Architecture.ARMV7) > -1 && !project.targetFlags.exists("simulator")));
+		var armv7 = (project.architectures.indexOf(Architecture.ARMV7) > -1 && !project.targetFlags.exists("simulator"));
 		var armv7s = (project.architectures.indexOf(Architecture.ARMV7S) > -1 && !project.targetFlags.exists("simulator"));
 		var arm64 = (command == "rebuild"
 			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));

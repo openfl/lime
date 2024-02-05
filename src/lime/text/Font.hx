@@ -190,7 +190,9 @@ class Font
 	{
 		#if (lime_cffi && !macro)
 		var glyphs:Dynamic = NativeCFFI.lime_font_get_glyph_indices(src, characters);
-		return glyphs;
+		// lime_font_get_glyph_indices returns Array<Int>
+		// cast it to Array<Glyph> instead (Glyph is an abstract)
+		return cast glyphs;
 		#else
 		return null;
 		#end
