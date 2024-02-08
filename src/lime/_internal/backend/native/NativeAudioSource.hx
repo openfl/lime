@@ -391,6 +391,8 @@ class NativeAudioSource
 					var value = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
 					var deviceOffset:Float = value[1];
 					var realOffset:Float = value[0];
+					trace("deviceOffset: " + deviceOffset);
+					trace("realOffset: " + realOffset);
 					var time:Float = ((realOffset - deviceOffset) * 1000) - parent.offset;
 
 					if (time < 0) return 0;
