@@ -386,23 +386,13 @@ class NativeAudioSource
 				// var time = (sampleTime / parent.buffer.sampleRate * 1000) - parent.offset;
 				// var time = Std.int(totalSeconds * ratio * 1000) - parent.offset;
 				// var time = Std.int (AL.getSourcef (handle, AL.SEC_OFFSET) * 1000) - parent.offset;
-				try
-				{
-					var value = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
-					var deviceOffset:Float = value[1];
-					var realOffset:Float = value[0];
-					trace("deviceOffset: " + deviceOffset);
-					trace("realOffset: " + realOffset);
-					var time:Float = ((realOffset - deviceOffset) * 1000) - parent.offset;
+				var value = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
+				var deviceOffset:Float = value[1];
+				var realOffset:Float = value[0];
+				var time:Float = ((realOffset - deviceOffset) * 1000) - parent.offset;
 
-					if (time < 0) return 0;
-					return Math.round(time);
-				}
-				catch (e:Dynamic)
-				{
-					trace(e.messsage);
-					trace(e.stack);
-				}
+				if (time < 0) return 0;
+				return Std.int(time);
 
 			}
 		}
