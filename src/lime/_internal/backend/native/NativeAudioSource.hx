@@ -3,12 +3,12 @@ package lime._internal.backend.native;
 import haxe.Int64;
 import haxe.Timer;
 import lime.math.Vector4;
-import lime.media.AudioManager;
-import lime.media.AudioSource;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALSource;
 import lime.media.vorbis.VorbisFile;
+import lime.media.AudioManager;
+import lime.media.AudioSource;
 import lime.utils.UInt8Array;
 
 #if !lime_debug

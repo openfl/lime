@@ -91,12 +91,6 @@ class OpenALAudioContext
 	public var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
 	public var ALL_DEVICES_SPECIFIER:Int = 0x1013;
 
-	public var DEVICE_CLOCK_SOFT:Int = 0x1600;
-	public var DEVICE_LATENCY_SOFT:Int = 0x1601;
-	public var DEVICE_CLOCK_LATENCY_SOFT:Int = 0x1602;
-
-	public var SEC_OFFSET_LATENCY_SOFT:Int = 0x1201;
-	public var SEC_OFFSET_CLOCK_SOFT:Int = 0x1203;
 
 	@:noCompletion private function new() {}
 

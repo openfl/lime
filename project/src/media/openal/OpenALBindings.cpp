@@ -2118,7 +2118,7 @@ namespace lime {
 	}
 
 	HL_PRIM varray* HL_NAME(hl_al_get_sourcedv_soft) (HL_CFFIPointer* source, int param, int count)
-	{	
+	{
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array(&hlt_f64, count);
@@ -2220,7 +2220,6 @@ namespace lime {
 		return result;
 
 	}
-
 
 
 	value lime_al_get_string (int param) {
