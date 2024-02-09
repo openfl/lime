@@ -91,7 +91,6 @@ class OpenALAudioContext
 	public var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
 	public var ALL_DEVICES_SPECIFIER:Int = 0x1013;
 
-
 	@:noCompletion private function new() {}
 
 	public function bufferData(buffer:ALBuffer, format:Int, data:ArrayBufferView, size:Int, freq:Int):Void
