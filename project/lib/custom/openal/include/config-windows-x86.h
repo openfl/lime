@@ -12,11 +12,6 @@
 
 #include <math.h>
 
-#ifndef isfinite
-	#include <float.h>
-	#define isfinite _finite
-#endif
-
 /* Define a restrict macro for non-aliased pointers */
 #define RESTRICT __restrict
 
