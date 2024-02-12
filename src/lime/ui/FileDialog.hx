@@ -248,7 +248,7 @@ class FileDialog
 	**/
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
-		#if desktop
+		#if (desktop && sys)
 		var worker = new BackgroundWorker();
 
 		worker.doWork.add(function(_)
@@ -318,7 +318,7 @@ class FileDialog
 			return false;
 		}
 
-		#if desktop
+		#if (desktop && sys)
 		var worker = new BackgroundWorker();
 
 		worker.doWork.add(function(_)
