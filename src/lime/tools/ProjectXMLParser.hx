@@ -676,20 +676,17 @@ class ProjectXMLParser extends HXProject
 							}
 					}
 
-					var id = "";
-
+					var asset = new Asset(path + childPath, targetPath + childTargetPath, childType, childEmbed);
+					asset.library = childLibrary;
+					
 					if (childElement.has.id)
 					{
-						id = substitute(childElement.att.id);
+						asset.id = substitute(childElement.att.id);
 					}
 					else if (childElement.has.name)
 					{
-						id = substitute(childElement.att.name);
+						asset.id = substitute(childElement.att.name);
 					}
-
-					var asset = new Asset(path + childPath, targetPath + childTargetPath, childType, childEmbed);
-					asset.library = childLibrary;
-					asset.id = id;
 
 					if (childGlyphs != null)
 					{
