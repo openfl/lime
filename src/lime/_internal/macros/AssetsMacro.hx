@@ -30,7 +30,9 @@ class AssetsMacro
 		if (fields != null)
 		{
 			#if !display
-			var constructor = macro
+			var definition = macro class Temp
+			{
+				public function new(?length:Int, ?bytesData:haxe.io.BytesData)
 				{
 					var bytes = haxe.Resource.getBytes(resourceName);
 					#if html5
@@ -40,25 +42,10 @@ class AssetsMacro
 					#else
 					super(bytes.length, bytes.b);
 					#end
-				};
+				}
+			};
 
-			var args = [
-				{name: "length", opt: true, type: macro:Int},
-				{name: "bytesData", opt: true, type: macro:haxe.io.BytesData}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			fields.push(definition.fields[0]);
 			#end
 		}
 
@@ -72,29 +59,16 @@ class AssetsMacro
 		if (fields != null)
 		{
 			#if !display
-			var constructor = macro
+			var definition = macro class Temp
+			{
+				public function new(?length:Int, ?bytesData:haxe.io.BytesData)
 				{
 					var bytes = haxe.Resource.getBytes(resourceName);
 					super(bytes.b, bytes.length);
-				};
+				}
+			};
 
-			var args = [
-				{name: "length", opt: true, type: macro:Int},
-				{name: "bytesData", opt: true, type: macro:haxe.io.BytesData}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			fields.push(definition.fields[0]);
 			#end
 		}
 
@@ -108,35 +82,18 @@ class AssetsMacro
 		if (fields != null)
 		{
 			#if !display
-			var constructor = macro
+			var definition = macro class Temp
+			{
+				public function new(?length:Int = 0)
 				{
 					super();
 
 					var bytes = haxe.Resource.getBytes(resourceName);
 					__fromBytes(bytes);
-				};
-
-			var args = [
-				{
-					name: "length",
-					opt: true,
-					type: macro:Int,
-					value: macro 0
 				}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			};
+
+			fields.push(definition.fields[0]);
 			#end
 		}
 
@@ -200,14 +157,12 @@ class AssetsMacro
 									resourceType = "image/gif";
 								}
 
-								var fieldValue = {pos: position, expr: EConst(CString(resourceType))};
-								fields.push(
-									{
-										kind: FVar(macro:String, fieldValue),
-										name: "resourceType",
-										access: [APrivate, AStatic],
-										pos: position
-									});
+								var definition = macro class Temp
+								{
+									private static var resourceType:String = $v{ resourceType };
+								};
+
+								fields.push(definition.fields[0]);
 
 								var base64 = Base64.encode(bytes);
 								Context.addResource(resourceName, Bytes.ofString(base64));
@@ -217,14 +172,12 @@ class AssetsMacro
 								Context.addResource(resourceName, bytes);
 							}
 
-							var fieldValue = {pos: position, expr: EConst(CString(resourceName))};
-							fields.push(
-								{
-									kind: FVar(macro:String, fieldValue),
-									name: "resourceName",
-									access: [APrivate, AStatic],
-									pos: position
-								});
+							var definition = macro class Temp
+							{
+								private static var resourceName:String = $v{ resourceName };
+							};
+
+							fields.push(definition.fields[0]);
 
 							return fields;
 
@@ -294,35 +247,20 @@ class AssetsMacro
 				}
 			}
 
-			var fieldValue = {pos: position, expr: EConst(CString(resourceName))};
-			fields.push(
-				{
-					kind: FVar(macro:String, fieldValue),
-					name: "resourceName",
-					access: [APublic, AStatic],
-					pos: position
-				});
+			var definition = macro class Temp
+			{
+				private static var resourceName:String = $v{ resourceName };
 
-			var constructor = macro
+				public function new()
 				{
 					super();
 
 					__fromBytes(haxe.Resource.getBytes(resourceName));
-				};
+				}
+			};
 
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: [],
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			fields.push(definition.fields[0]);
+			fields.push(definition.fields[1]);
 
 			return fields;
 		}
@@ -342,7 +280,12 @@ class AssetsMacro
 		if (fields != null)
 		{
 			#if !display
-			var constructor = macro
+			var definition = macro class Temp
+			{
+				public function new(?buffer:lime.graphics.ImageBuffer,
+					?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
+					?color:Null<Int>, ?type:lime.graphics.ImageType
+					#if html5 , ?onload:Dynamic = true #end)
 				{
 					#if html5
 					super();
@@ -376,85 +319,18 @@ class AssetsMacro
 
 					__fromBytes(haxe.Resource.getBytes(resourceName), null);
 					#end
-				};
-
-			var args = [
-				{
-					name: "buffer",
-					opt: true,
-					type: macro:lime.graphics.ImageBuffer,
-					value: null
-				},
-				{
-					name: "offsetX",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "offsetY",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "width",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "height",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "color",
-					opt: true,
-					type: macro:Null<Int>,
-					value: null
-				},
-				{
-					name: "type",
-					opt: true,
-					type: macro:lime.graphics.ImageType,
-					value: null
 				}
-			];
+
+				#if html5
+				public static var preload:js.html.Image;
+				#end
+			};
 
 			#if html5
-			args.push(
-				{
-					name: "onload",
-					opt: true,
-					type: macro:Dynamic,
-					value: null
-				});
-			fields.push(
-				{
-					kind: FVar(macro:js.html.Image, null),
-					name: "preload",
-					doc: null,
-					meta: [],
-					access: [APublic, AStatic],
-					pos: Context.currentPos()
-				});
+			fields.push(definition.fields[1]);
 			#end
 
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			fields.push(definition.fields[0]);
 			#end
 		}
 
@@ -468,48 +344,20 @@ class AssetsMacro
 		if (fields != null)
 		{
 			#if (openfl && !html5 && !display) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
-
-			var constructor = macro
+			var definition = macro class Temp
+			{
+				public function new(?stream:openfl.net.URLRequest,
+					?context:openfl.media.SoundLoaderContext,
+					?forcePlayAsMusic:Bool = false)
 				{
 					super();
 
 					var byteArray = openfl.utils.ByteArray.fromBytes(haxe.Resource.getBytes(resourceName));
 					loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
-				};
-
-			var args = [
-				{
-					name: "stream",
-					opt: true,
-					type: macro:openfl.net.URLRequest,
-					value: null
-				},
-				{
-					name: "context",
-					opt: true,
-					type: macro:openfl.media.SoundLoaderContext,
-					value: null
-				},
-				{
-					name: "forcePlayAsMusic",
-					opt: true,
-					type: macro:Bool,
-					value: macro false
 				}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			};
+
+			fields.push(definition.fields[0]);
 			#end
 		}
 
