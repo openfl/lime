@@ -26,28 +26,24 @@ class AssetsMacro
 	macro public static function embedBytes():Array<Field>
 	{
 		var fields = embedData(":file");
+		if (fields == null) return null;
 
-		if (fields != null)
+		var definition = macro class Temp
 		{
-			#if !display
-			var definition = macro class Temp
+			public function new(?length:Int, ?bytesData:haxe.io.BytesData)
 			{
-				public function new(?length:Int, ?bytesData:haxe.io.BytesData)
-				{
-					var bytes = haxe.Resource.getBytes(resourceName);
-					#if html5
-					super(bytes.b.buffer);
-					#elseif hl
-					super(bytes.b, bytes.length);
-					#else
-					super(bytes.length, bytes.b);
-					#end
-				}
-			};
+				var bytes = haxe.Resource.getBytes(resourceName);
+				#if html5
+				super(bytes.b.buffer);
+				#elseif hl
+				super(bytes.b, bytes.length);
+				#else
+				super(bytes.length, bytes.b);
+				#end
+			}
+		};
 
-			fields.push(definition.fields[0]);
-			#end
-		}
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}
@@ -55,22 +51,18 @@ class AssetsMacro
 	macro public static function embedBytesHL():Array<Field>
 	{
 		var fields = embedData(":file");
+		if (fields == null) return null;
 
-		if (fields != null)
+		var definition = macro class Temp
 		{
-			#if !display
-			var definition = macro class Temp
+			public function new(?length:Int, ?bytesData:haxe.io.BytesData)
 			{
-				public function new(?length:Int, ?bytesData:haxe.io.BytesData)
-				{
-					var bytes = haxe.Resource.getBytes(resourceName);
-					super(bytes.b, bytes.length);
-				}
-			};
+				var bytes = haxe.Resource.getBytes(resourceName);
+				super(bytes.b, bytes.length);
+			}
+		};
 
-			fields.push(definition.fields[0]);
-			#end
-		}
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}
@@ -78,31 +70,28 @@ class AssetsMacro
 	macro public static function embedByteArray():Array<Field>
 	{
 		var fields = embedData(":file");
+		if (fields == null) return null;
 
-		if (fields != null)
+		var definition = macro class Temp
 		{
-			#if !display
-			var definition = macro class Temp
+			public function new(?length:Int = 0)
 			{
-				public function new(?length:Int = 0)
-				{
-					super();
+				super();
 
-					var bytes = haxe.Resource.getBytes(resourceName);
-					__fromBytes(bytes);
-				}
-			};
+				var bytes = haxe.Resource.getBytes(resourceName);
+				__fromBytes(bytes);
+			}
+		};
 
-			fields.push(definition.fields[0]);
-			#end
-		}
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}
 
 	private static function embedData(metaName:String, encode:Bool = false):Array<Field>
 	{
-		#if !display
+		if (Context.defined("display")) return null;
+
 		var classType = Context.getLocalClass().get();
 		var metaData = classType.meta.get();
 		var position = Context.currentPos();
@@ -186,13 +175,14 @@ class AssetsMacro
 				}
 			}
 		}
-		#end
 
 		return null;
 	}
 
 	macro public static function embedFont():Array<Field>
 	{
+		if (Context.defined("display")) return Context.getBuildFields();
+
 		var fields = null;
 
 		var classType = Context.getLocalClass().get();
@@ -203,7 +193,6 @@ class AssetsMacro
 		var path = "";
 		var glyphs = "32-255";
 
-		#if !display
 		for (meta in metaData)
 		{
 			if (meta.name == ":font")
@@ -264,7 +253,6 @@ class AssetsMacro
 
 			return fields;
 		}
-		#end
 
 		return fields;
 	}
@@ -276,63 +264,59 @@ class AssetsMacro
 		#else
 		var fields = embedData(":image");
 		#end
+		if (fields == null) return null;
 
-		if (fields != null)
+		var definition = macro class Temp
 		{
-			#if !display
-			var definition = macro class Temp
+			public function new(?buffer:lime.graphics.ImageBuffer,
+				?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
+				?color:Null<Int>, ?type:lime.graphics.ImageType
+				#if html5 , ?onload:Dynamic = true #end)
 			{
-				public function new(?buffer:lime.graphics.ImageBuffer,
-					?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
-					?color:Null<Int>, ?type:lime.graphics.ImageType
-					#if html5 , ?onload:Dynamic = true #end)
-				{
-					#if html5
-					super();
-
-					if (preload != null)
-					{
-						var buffer = new lime.graphics.ImageBuffer();
-						buffer.__srcImage = preload;
-						buffer.width = preload.width;
-						buffer.width = preload.height;
-
-						__fromImageBuffer(buffer);
-					}
-					else
-					{
-						__fromBase64(haxe.Resource.getString(resourceName), resourceType, function(image)
-						{
-							if (preload == null)
-							{
-								preload = image.buffer.__srcImage;
-							}
-
-							if (onload != null)
-							{
-								onload(image);
-							}
-						});
-					}
-					#else
-					super();
-
-					__fromBytes(haxe.Resource.getBytes(resourceName), null);
-					#end
-				}
-
 				#if html5
-				public static var preload:js.html.Image;
+				super();
+
+				if (preload != null)
+				{
+					var buffer = new lime.graphics.ImageBuffer();
+					buffer.__srcImage = preload;
+					buffer.width = preload.width;
+					buffer.width = preload.height;
+
+					__fromImageBuffer(buffer);
+				}
+				else
+				{
+					__fromBase64(haxe.Resource.getString(resourceName), resourceType, function(image)
+					{
+						if (preload == null)
+						{
+							preload = image.buffer.__srcImage;
+						}
+
+						if (onload != null)
+						{
+							onload(image);
+						}
+					});
+				}
+				#else
+				super();
+
+				__fromBytes(haxe.Resource.getBytes(resourceName), null);
 				#end
-			};
+			}
 
 			#if html5
-			fields.push(definition.fields[1]);
+			public static var preload:js.html.Image;
 			#end
+		};
 
-			fields.push(definition.fields[0]);
-			#end
-		}
+		#if html5
+		fields.push(definition.fields[1]);
+		#end
+
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}
@@ -340,26 +324,24 @@ class AssetsMacro
 	macro public static function embedSound():Array<Field>
 	{
 		var fields = embedData(":sound");
+		if (fields == null) return null;
 
-		if (fields != null)
+		#if (openfl && !html5) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
+		var definition = macro class Temp
 		{
-			#if (openfl && !html5 && !display) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
-			var definition = macro class Temp
+			public function new(?stream:openfl.net.URLRequest,
+				?context:openfl.media.SoundLoaderContext,
+				?forcePlayAsMusic:Bool = false)
 			{
-				public function new(?stream:openfl.net.URLRequest,
-					?context:openfl.media.SoundLoaderContext,
-					?forcePlayAsMusic:Bool = false)
-				{
-					super();
+				super();
 
-					var byteArray = openfl.utils.ByteArray.fromBytes(haxe.Resource.getBytes(resourceName));
-					loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
-				}
-			};
+				var byteArray = openfl.utils.ByteArray.fromBytes(haxe.Resource.getBytes(resourceName));
+				loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
+			}
+		};
 
-			fields.push(definition.fields[0]);
-			#end
-		}
+		fields.push(definition.fields[0]);
+		#end
 
 		return fields;
 	}
