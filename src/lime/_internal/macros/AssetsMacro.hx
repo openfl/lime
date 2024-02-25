@@ -144,7 +144,7 @@ class AssetsMacro
 
 						var definition = macro class Temp
 						{
-							private static var resourceType:String = $v{ resourceType };
+							private static inline var resourceType:String = $v{ resourceType };
 						};
 
 						fields.push(definition.fields[0]);
@@ -159,7 +159,7 @@ class AssetsMacro
 
 					var definition = macro class Temp
 					{
-						private static var resourceName:String = $v{ resourceName };
+						private static inline var resourceName:String = $v{ resourceName };
 					};
 
 					fields.push(definition.fields[0]);
