@@ -15,8 +15,11 @@ import sys.FileSystem;
 
 class AssetsMacro
 {
-	#if !macro
-	macro public static function cacheVersion() {}
+	#if (!macro || display)
+	macro public static function cacheVersion()
+	{
+		return macro 0;
+	}
 	#else
 	macro public static function cacheVersion()
 	{
