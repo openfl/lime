@@ -46,25 +46,6 @@ class AssetsMacro
 		return fields;
 	}
 
-	macro public static function embedBytesHL():Array<Field>
-	{
-		var fields = embedData(":file");
-		if (fields == null) return null;
-
-		var definition = macro class Temp
-		{
-			public function new(?length:Int, ?bytesData:haxe.io.BytesData)
-			{
-				var bytes = haxe.Resource.getBytes(resourceName);
-				super(bytes.b, bytes.length);
-			}
-		};
-
-		fields.push(definition.fields[0]);
-
-		return fields;
-	}
-
 	macro public static function embedByteArray():Array<Field>
 	{
 		var fields = embedData(":file");
