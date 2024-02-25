@@ -28,18 +28,16 @@ class AssetsMacro
 		var fields = embedData(":file");
 		if (fields == null) return null;
 
+		var superCall = Context.defined("html5") ? macro super(bytes.b.buffer)
+			: Context.defined("hl") ? macro super(bytes.b, bytes.length)
+			: macro super(bytes.length, bytes.b);
+
 		var definition = macro class Temp
 		{
 			public function new(?length:Int, ?bytesData:haxe.io.BytesData)
 			{
 				var bytes = haxe.Resource.getBytes(resourceName);
-				#if html5
-				super(bytes.b.buffer);
-				#elseif hl
-				super(bytes.b, bytes.length);
-				#else
-				super(bytes.length, bytes.b);
-				#end
+				$superCall;
 			}
 		};
 
@@ -217,10 +215,11 @@ class AssetsMacro
 
 		if (path != null && path != "")
 		{
-			#if html5
-			Sys.command("haxelib", ["run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path)]);
-			path += ".hash";
-			#end
+			if (Context.defined("html5"))
+			{
+				Sys.command("haxelib", ["run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path)]);
+				path += ".hash";
+			}
 
 			var bytes = File.getBytes(path);
 			var resourceName = "LIME_font_" + (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "") + classType.name;
@@ -259,64 +258,69 @@ class AssetsMacro
 
 	macro public static function embedImage():Array<Field>
 	{
-		#if html5
-		var fields = embedData(":image", true);
-		#else
-		var fields = embedData(":image");
-		#end
+		var fields = embedData(":image", Context.defined("html5"));
 		if (fields == null) return null;
 
-		var definition = macro class Temp
+		var definition:TypeDefinition;
+		if (Context.defined("html5"))
 		{
-			public function new(?buffer:lime.graphics.ImageBuffer,
-				?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
-				?color:Null<Int>, ?type:lime.graphics.ImageType
-				#if html5 , ?onload:Dynamic = true #end)
+			definition = macro class Temp
 			{
-				#if html5
-				super();
+				public static var preload:js.html.Image;
 
-				if (preload != null)
+				public function new(?buffer:lime.graphics.ImageBuffer,
+					?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
+					?color:Null<Int>, ?type:lime.graphics.ImageType,
+					?onload:Dynamic = true)
 				{
-					var buffer = new lime.graphics.ImageBuffer();
-					buffer.__srcImage = preload;
-					buffer.width = preload.width;
-					buffer.width = preload.height;
+					super();
 
-					__fromImageBuffer(buffer);
-				}
-				else
-				{
-					__fromBase64(haxe.Resource.getString(resourceName), resourceType, function(image)
+					if (preload != null)
 					{
-						if (preload == null)
-						{
-							preload = image.buffer.__srcImage;
-						}
+						var buffer = new lime.graphics.ImageBuffer();
+						buffer.__srcImage = preload;
+						buffer.width = preload.width;
+						buffer.width = preload.height;
 
-						if (onload != null)
+						__fromImageBuffer(buffer);
+					}
+					else
+					{
+						__fromBase64(haxe.Resource.getString(resourceName), resourceType, function(image)
 						{
-							onload(image);
-						}
-					});
+							if (preload == null)
+							{
+								preload = image.buffer.__srcImage;
+							}
+
+							if (onload != null)
+							{
+								onload(image);
+							}
+						});
+					}
 				}
-				#else
-				super();
+			};
+		}
+		else
+		{
+			definition = macro class Temp
+			{
+				public function new(?buffer:lime.graphics.ImageBuffer,
+					?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
+					?color:Null<Int>, ?type:lime.graphics.ImageType)
+				{
+					super();
 
-				__fromBytes(haxe.Resource.getBytes(resourceName), null);
-				#end
-			}
+					__fromBytes(haxe.Resource.getBytes(resourceName), null);
+				}
+			};
+		}
 
-			#if html5
-			public static var preload:js.html.Image;
-			#end
-		};
-
-		#if html5
-		fields.push(definition.fields[1]);
-		#end
-
-		fields.push(definition.fields[0]);
+		for (field in definition.fields)
+		{
+			fields.push(field);
+		}
 
 		return fields;
 	}
@@ -324,9 +328,10 @@ class AssetsMacro
 	macro public static function embedSound():Array<Field>
 	{
 		var fields = embedData(":sound");
-		if (fields == null) return null;
+		// CFFILoader.h(248) : NOT Implemented:api_buffer_data
+		if (fields == null || Context.defined("html5") || !Context.defined("openfl"))
+			return null;
 
-		#if (openfl && !html5) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
 		var definition = macro class Temp
 		{
 			public function new(?stream:openfl.net.URLRequest,
@@ -341,7 +346,6 @@ class AssetsMacro
 		};
 
 		fields.push(definition.fields[0]);
-		#end
 
 		return fields;
 	}
