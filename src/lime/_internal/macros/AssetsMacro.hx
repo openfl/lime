@@ -91,86 +91,82 @@ class AssetsMacro
 		if (Context.defined("display")) return null;
 
 		var classType = Context.getLocalClass().get();
-		var metaData = classType.meta.get();
+		var metaData = classType.meta;
 		var position = Context.currentPos();
 		var fields = Context.getBuildFields();
 
-		for (meta in metaData)
+		for (meta in metaData.extract(metaName))
 		{
-			if (meta.name == metaName)
+			if (meta.params.length == 0) continue;
+
+			switch (meta.params[0].expr)
 			{
-				if (meta.params.length > 0)
-				{
-					switch (meta.params[0].expr)
+				case EConst(CString("" | null)):
+					return null;
+
+				case EConst(CString(filePath)):
+					var path = filePath;
+
+					if (!FileSystem.exists(filePath))
 					{
-						case EConst(CString(filePath)):
-							var path = filePath;
-
-							if (path == "") return null;
-							if (path == null) return null;
-
-							if (!FileSystem.exists(filePath))
-							{
-								path = Context.resolvePath(filePath);
-							}
-
-							if (!FileSystem.exists(path) || FileSystem.isDirectory(path))
-							{
-								return null;
-							}
-
-							var bytes = File.getBytes(path);
-							var resourceName = "__ASSET__"
-								+ metaName
-								+ "_"
-								+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
-								+ classType.name;
-
-							if (Context.getResources().exists(resourceName))
-							{
-								return null;
-							}
-
-							if (encode)
-							{
-								var resourceType = "image/png";
-
-								if (bytes.get(0) == 0xFF && bytes.get(1) == 0xD8)
-								{
-									resourceType = "image/jpg";
-								}
-								else if (bytes.get(0) == 0x47 && bytes.get(1) == 0x49 && bytes.get(2) == 0x46)
-								{
-									resourceType = "image/gif";
-								}
-
-								var definition = macro class Temp
-								{
-									private static var resourceType:String = $v{ resourceType };
-								};
-
-								fields.push(definition.fields[0]);
-
-								var base64 = Base64.encode(bytes);
-								Context.addResource(resourceName, Bytes.ofString(base64));
-							}
-							else
-							{
-								Context.addResource(resourceName, bytes);
-							}
-
-							var definition = macro class Temp
-							{
-								private static var resourceName:String = $v{ resourceName };
-							};
-
-							fields.push(definition.fields[0]);
-
-							return fields;
-
-						default:
+						path = Context.resolvePath(filePath);
 					}
-				}
+
+					if (!FileSystem.exists(path) || FileSystem.isDirectory(path))
+					{
+						return null;
+					}
+
+					var bytes = File.getBytes(path);
+					var resourceName = "__ASSET__"
+						+ metaName
+						+ "_"
+						+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
+						+ classType.name;
+
+					if (Context.getResources().exists(resourceName))
+					{
+						return null;
+					}
+
+					if (encode)
+					{
+						var resourceType = "image/png";
+
+						if (bytes.get(0) == 0xFF && bytes.get(1) == 0xD8)
+						{
+							resourceType = "image/jpg";
+						}
+						else if (bytes.get(0) == 0x47 && bytes.get(1) == 0x49 && bytes.get(2) == 0x46)
+						{
+							resourceType = "image/gif";
+						}
+
+						var definition = macro class Temp
+						{
+							private static var resourceType:String = $v{ resourceType };
+						};
+
+						fields.push(definition.fields[0]);
+
+						var base64 = Base64.encode(bytes);
+						Context.addResource(resourceName, Bytes.ofString(base64));
+					}
+					else
+					{
+						Context.addResource(resourceName, bytes);
+					}
+
+					var definition = macro class Temp
+					{
+						private static var resourceName:String = $v{ resourceName };
+					};
+
+					fields.push(definition.fields[0]);
+
+					return fields;
+
+				default:
 			}
 		}
 
