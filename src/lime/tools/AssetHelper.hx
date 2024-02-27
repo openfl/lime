@@ -43,6 +43,7 @@ class AssetHelper
 		}
 		else
 		{
+			System.markFileAsTouched(destination);
 			try
 			{
 				if (asset.encoding == AssetEncoding.BASE64)
@@ -73,12 +74,18 @@ class AssetHelper
 			{
 				System.copyFile(asset.sourcePath, destination, null, asset.type == TEMPLATE);
 			}
+			else
+			{
+				System.markFileAsTouched(destination);
+			}
 		}
 		else
 		{
 			System.mkdir(Path.directory(destination));
 
 			Log.info("", " - \x1b[1mWriting file:\x1b[0m " + destination);
+			
+			System.markFileAsTouched(destination);
 
 			try
 			{
@@ -129,6 +136,7 @@ class AssetHelper
 
 		if (targetPath != null)
 		{
+			System.markFileAsTouched(targetPath);
 			System.mkdir(Path.directory(targetPath));
 			Log.info("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
 			File.saveContent(targetPath, manifest.serialize());
@@ -184,6 +192,7 @@ class AssetHelper
 			{
 				targetPath = Path.combine(targetDirectory, manifest.name + ".json");
 				Log.info("", " - \x1b[1mWriting asset manifest:\x1b[0m " + targetPath);
+				System.markFileAsTouched(targetPath);
 				File.saveContent(targetPath, manifest.serialize());
 			}
 		}
@@ -466,6 +475,8 @@ class AssetHelper
 
 		if (handlers.length > 0)
 		{
+			System.markAllFilesStateAsUnknown();
+
 			var projectData = Serializer.run(project);
 			var temporaryFile = System.getTemporaryFile();
 
