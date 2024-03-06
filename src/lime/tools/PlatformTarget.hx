@@ -103,6 +103,10 @@ class PlatformTarget
 			// AssetHelper.processLibraries (project, targetDirectory);
 			// #end
 			update();
+
+			#if (hxp > "1.2.2")
+			System.deleteStaleTemplates(targetDirectory);
+			#end
 		}
 
 		if (command == "build" || command == "test")
