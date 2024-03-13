@@ -35,7 +35,7 @@ class RunScript
 
 		if (!rebuildBinaries) return;
 
-		var platforms = ["Windows", "Mac", "Mac64", "Linux", "Linux64"];
+		var platforms = ["Windows", "Mac", "Mac64", "MacArm64", "Linux", "Linux64"];
 
 		for (platform in platforms)
 		{
@@ -64,7 +64,7 @@ class RunScript
 							System.runCommand(limeDirectory, "neko", args.concat(["windows", toolsDirectory]));
 						}
 
-					case "Mac", "Mac64":
+					case "Mac", "Mac64", "MacArm64":
 						if (System.hostPlatform == MAC)
 						{
 							System.runCommand(limeDirectory, "neko", args.concat(["mac", toolsDirectory]));

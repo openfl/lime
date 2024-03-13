@@ -535,6 +535,6 @@ class MacPlatform extends PlatformTarget
 
 	private inline function get_dirSuffix():String
 	{
-		return targetArchitecture == X64 ? "64" : "";
+		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
 	}
 }
