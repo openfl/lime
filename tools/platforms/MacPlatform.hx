@@ -136,6 +136,10 @@ class MacPlatform extends PlatformTarget
 		{
 			targetType = "nodejs";
 		}
+		else if (project.targetFlags.exists("cppia"))
+		{
+			targetType = "cppia";
+		}
 		else if (project.targetFlags.exists("cs"))
 		{
 			targetType = "cs";
@@ -233,6 +237,12 @@ class MacPlatform extends PlatformTarget
 
 			// NekoHelper.createExecutable (project.templatePaths, "Mac" + dirSuffix, targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			// NekoHelper.copyLibraries (project.templatePaths, "Mac" + dirSuffix, executableDirectory);
+		}
+		else if (targetType == "cppia")
+		{
+			System.runCommand("", "haxe", [hxml]);
+
+			if (noOutput) return;
 		}
 		else if (targetType == "cs")
 		{
@@ -474,6 +484,12 @@ class MacPlatform extends PlatformTarget
 		if (targetType == "cpp" && project.targetFlags.exists("static"))
 		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
+		}
+		
+		if (targetType == "cppia")
+		{
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/host-mac" + (is64 ? "64" : ""), executablePath);
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
 		}
 
 		System.copyFileTemplate(project.templatePaths, "mac/Info.plist", targetDirectory + "/bin/" + project.app.file + ".app/Contents/Info.plist", context);
