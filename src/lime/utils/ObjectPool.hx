@@ -45,7 +45,7 @@ import haxe.ds.ObjectMap;
 
 	public function add(object:T):Void
 	{
-		if (!__pool.exists(object))
+		if (object != null && !__pool.exists(object))
 		{
 			__pool.set(object, false);
 			clean(object);
@@ -97,7 +97,7 @@ import haxe.ds.ObjectMap;
 	public function release(object:T):Void
 	{
 		#if debug
-		if (!__pool.exists(object))
+		if (object == null || !__pool.exists(object))
 		{
 			Log.error("Object is not a member of the pool");
 		}
@@ -122,7 +122,7 @@ import haxe.ds.ObjectMap;
 
 	public function remove(object:T):Void
 	{
-		if (__pool.exists(object))
+		if (object != null && __pool.exists(object))
 		{
 			__pool.remove(object);
 
