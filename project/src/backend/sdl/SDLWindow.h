@@ -2,6 +2,9 @@
 #define LIME_SDL_WINDOW_H
 
 
+#include "../Definitions.h"
+
+
 #include <SDL.h>
 #include <graphics/ImageBuffer.h>
 #include <ui/Cursor.h>
@@ -65,7 +68,7 @@ namespace lime {
 
 		private:
 
-			SDL_GLContext context;
+			Context context;
 			int contextHeight;
 			int contextWidth;
 

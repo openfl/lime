@@ -79,7 +79,7 @@ namespace lime {
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
-			sdlWindowFlags |= SDL_WINDOW_OPENGL;
+			sdlWindowFlags |= WINDOW_GRAPHICS;
 
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 
@@ -88,16 +88,16 @@ namespace lime {
 			}
 
 			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+			SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+			SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
 			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
 			#endif
 
-			#if defined (RASPBERRYPI)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+			#if defined (RASPBERRYPI) && defined (LIME_OPENGL)
+			SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+			SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
 			SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
 			#endif
 
@@ -108,40 +108,40 @@ namespace lime {
 
 			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 
-				SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+				SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
 
 			}
 
 			if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
 
-				SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+				SetAttribute (SDL_GL_STENCIL_SIZE, 8);
 
 			}
 
 			if (flags & WINDOW_FLAG_HW_AA_HIRES) {
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+				SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+				SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
 
 			} else if (flags & WINDOW_FLAG_HW_AA) {
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+				SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+				SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
 
 			}
 
 			if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
+				SetAttribute (SDL_GL_RED_SIZE, 8);
+				SetAttribute (SDL_GL_GREEN_SIZE, 8);
+				SetAttribute (SDL_GL_BLUE_SIZE, 8);
+				SetAttribute (SDL_GL_ALPHA_SIZE, 8);
 
 			} else {
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+				SetAttribute (SDL_GL_RED_SIZE, 5);
+				SetAttribute (SDL_GL_GREEN_SIZE, 6);
+				SetAttribute (SDL_GL_BLUE_SIZE, 5);
 
 			}
 
@@ -150,10 +150,10 @@ namespace lime {
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 
 		#if defined (IPHONE) || defined (APPLETV)
-		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
+		if (sdlWindow && !CreateContext (sdlWindow)) {
 
 			SDL_DestroyWindow (sdlWindow);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+			SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
 			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 
@@ -211,27 +211,31 @@ namespace lime {
 
 			// if (sdlRenderer) {
 
-			// 	context = SDL_GL_GetCurrentContext ();
+			// 	context = GetCurrentContext ();
 
 			// }
 
-			context = SDL_GL_CreateContext (sdlWindow);
+			context = CreateContext (sdlWindow);
 
-			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
+			if (context && MakeCurrent (sdlWindow, context) == 0) {
 
 				if (flags & WINDOW_FLAG_VSYNC) {
 
-					SDL_GL_SetSwapInterval (1);
+					SetSwapInterval (1);
 
 				} else {
 
-					SDL_GL_SetSwapInterval (0);
+					SetSwapInterval (0);
 
 				}
 
+				#if defined (LIME_OPENGL)
+
 				OpenGLBindings::Init ();
 
-				#ifndef LIME_GLES
+				#endif
+
+				#if !defined (LIME_GLES) && defined (LIME_OPENGL)
 
 				int version = 0;
 				glGetIntegerv (GL_MAJOR_VERSION, &version);
@@ -246,12 +250,12 @@ namespace lime {
 
 				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
 
-					SDL_GL_DeleteContext (context);
+					DeleteContext (context);
 					context = 0;
 
 				}
 
-				#elif defined(IPHONE) || defined(APPLETV)
+				#elif (defined (IPHONE) || defined (APPLETV)) && defined (LIME_OPENGL)
 
 				// SDL_SysWMinfo windowInfo;
 				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
@@ -264,7 +268,7 @@ namespace lime {
 
 			} else {
 
-				SDL_GL_DeleteContext (context);
+				DeleteContext (context);
 				context = NULL;
 
 			}
@@ -310,7 +314,7 @@ namespace lime {
 
 		} else if (context) {
 
-			SDL_GL_DeleteContext (context);
+			DeleteContext (context);
 
 		}
 
@@ -381,7 +385,7 @@ namespace lime {
 
 		if (context && !sdlRenderer) {
 
-			SDL_GL_SwapWindow (sdlWindow);
+			SwapWindow (sdlWindow);
 
 		} else if (sdlRenderer) {
 
@@ -481,7 +485,7 @@ namespace lime {
 
 		if (sdlWindow && context) {
 
-			SDL_GL_MakeCurrent (sdlWindow, context);
+			MakeCurrent (sdlWindow, context);
 
 		}
 
@@ -641,7 +645,7 @@ namespace lime {
 			int outputWidth;
 			int outputHeight;
 
-			SDL_GL_GetDrawableSize (sdlWindow, &outputWidth, &outputHeight);
+			GetDrawableSize (sdlWindow, &outputWidth, &outputHeight);
 
 			int width;
 			int height;
