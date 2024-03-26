@@ -165,8 +165,11 @@ class ThreadPool extends WorkOutput
 	/**
 		__Call this only from the main thread.__
 
-		@param doWork A single function capable of performing all of this pool's
-		jobs. Always provide `doWork`, even though it's marked as optional.
+		@param minThreads The number of threads that will be kept alive at all
+		times, even if there's no work to do. The threads won't spin up
+		immediately; only after enough calls to `run()`. Only applies in
+		multi-threaded mode.
+		@param maxThreads The maximum number of threads that will run at once.
 		@param mode Defaults to `MULTI_THREADED` on most targets, but
 		`SINGLE_THREADED` in HTML5. In HTML5, `MULTI_THREADED` mode uses web
 		workers, which impose additional restrictions.
