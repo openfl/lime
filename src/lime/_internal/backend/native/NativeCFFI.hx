@@ -353,6 +353,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
 
+	@:cffi private static function lime_window_set_vsync(handle:Dynamic, vsync:Bool):Bool;
+
 	@:cffi private static function lime_window_warp_mouse(handle:Dynamic, x:Int, y:Int):Void;
 
 	@:cffi private static function lime_window_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
@@ -614,6 +616,8 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_visible = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_visible", "obb",
 		false));
+	private static var lime_window_set_vsync = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_vsync", "obb",
+		false));
 	private static var lime_window_warp_mouse = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_warp_mouse",
 		"oiiv", false));
 	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -772,6 +776,7 @@ class NativeCFFI
 	private static var lime_window_set_text_input_rect = CFFI.load("lime", "lime_window_set_text_input_rect", 2);
 	private static var lime_window_set_title = CFFI.load("lime", "lime_window_set_title", 2);
 	private static var lime_window_set_visible = CFFI.load("lime", "lime_window_set_visible", 2);
+	private static var lime_window_set_vsync = CFFI.load("lime", "lime_window_set_vsync", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
 	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 2);
@@ -1374,6 +1379,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_visible") private static function lime_window_set_visible(handle:CFFIPointer, visible:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_set_vsync") private static function lime_window_set_vsync(handle:CFFIPointer, vsync:Bool):Bool
 	{
 		return false;
 	}
