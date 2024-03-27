@@ -57,10 +57,10 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/hrtf.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mastering.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_c.cpp" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_neon.cpp" if="rpi" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse.cpp" unless="rpi || android" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse2.cpp" unless="rpi || android" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse3.cpp" unless="rpi || android" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_neon.cpp" if="rpi || HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse.cpp" unless="rpi || android || HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse2.cpp" unless="rpi || android || HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse3.cpp" unless="rpi || android || HXCPP_ARM64" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/panning.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/ringbuffer.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/uhjfilter.cpp" />
@@ -112,11 +112,11 @@
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/coreaudio.cpp" />
 
-            <compilerflag value="-mmmx" />
-            <compilerflag value="-msse" />
-            <compilerflag value="-msse2" />
-            <compilerflag value="-msse3" />
-            <compilerflag value="-mssse3" />
+            <compilerflag value="-mmmx" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
 
         </section>
 
