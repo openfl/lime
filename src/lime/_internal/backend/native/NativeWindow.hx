@@ -173,6 +173,13 @@ class NativeWindow
 
 		setFrameRate(Reflect.hasField(attributes, "frameRate") ? attributes.frameRate : 60);
 		#end
+
+		// SDL 2 enables text input events by default, but we want them only
+		// when requested. otherwise, we might get weird behavior like IME
+		// candidate windows appearing unexpectedly when holding down a key.
+		// See, for example: openfl/openfl#2697
+		// it appears that SDL 3 may behave differently, if we ever upgrade.
+		setTextInputEnabled(false);
 	}
 
 	public function alert(message:String, title:String):Void
