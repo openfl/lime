@@ -707,7 +707,11 @@ class JobList
 
 	public inline function clear():Void
 	{
+		#if haxe4
 		__jobs.resize(0);
+		#else
+		__jobs = [];
+		#end
 		__addingWorkPriority = false;
 	}
 
