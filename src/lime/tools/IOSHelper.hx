@@ -369,19 +369,19 @@ class IOSHelper
 		initialize(project);
 		if (project.config.exists("ios.provisioning-profile")) {
 			var configuration = "Release";
-			
+
 			if (project.debug) {
 				configuration = "Debug";
 			}
-			
-			var commands = [""];
-		
+
 			var identity = project.config.getString("ios.identity", "iPhone Developer");
-			commands.push("-s", identity, "CODE_SIGN_IDENTITY=" + identity + "PROVISIONING_PROFILE=" + project.config.getString("ios.provisioning-profile"));
-			
+			var commands = ["-s", identity, "CODE_SIGN_IDENTITY=" + identity];
+
+			commands.push("PROVISIONING_PROFILE=" + project.config.getString("ios.provisioning-profile"));
+
 			var applicationPath = "build/" + configuration + "-iphoneos/" + project.app.file + ".app";
 			commands.push(applicationPath);
-			
+
 			System.runCommand(workingDirectory, "codesign", commands, true, true);
 		}
 	}
