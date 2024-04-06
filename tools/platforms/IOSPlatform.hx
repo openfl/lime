@@ -125,7 +125,7 @@ class IOSPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			if (!project.targetFlags.exists("simulator"))
+			if (!project.targetFlags.exists("simulator") && project.config.exists("ios.provisioning-profile"))
 			{
 				IOSHelper.sign(project, targetDirectory + "/bin");
 			}
@@ -175,7 +175,7 @@ class IOSPlatform extends PlatformTarget
 			project.haxedefs.set("final", "");
 		}
 
-		if (!project.config.exists("ios.identity"))
+		if (project.config.exists("ios.identity"))
 		{
 			project.config.set("ios.identity", "iPhone Developer");
 		}
@@ -196,7 +196,11 @@ class IOSPlatform extends PlatformTarget
 		context.HAS_ICON = false;
 		context.HAS_LAUNCH_IMAGE = false;
 		context.OBJC_ARC = false;
-		context.KEY_STORE_IDENTITY = project.config.getString("ios.identity");
+
+		if (project.config.exists("ios.identity"))
+		{
+			context.KEY_STORE_IDENTITY = project.config.getString("ios.identity");
+		}
 
 		if (project.config.exists("ios.provisioning-profile"))
 		{
