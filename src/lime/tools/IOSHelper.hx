@@ -367,27 +367,23 @@ class IOSHelper
 	public static function sign(project:HXProject, workingDirectory:String):Void
 	{
 		initialize(project);
-
-		var configuration = "Release";
-
-		if (project.debug)
-		{
-			configuration = "Debug";
+		if (project.config.exists("ios.provisioning-profile")) {
+			var configuration = "Release";
+			
+			if (project.debug) {
+				configuration = "Debug";
+			}
+			
+			var commands = [""];
+		
+			var identity = project.config.getString("ios.identity", "iPhone Developer");
+			commands.push("-s", identity, "CODE_SIGN_IDENTITY=" + identity + "PROVISIONING_PROFILE=" + project.config.getString("ios.provisioning-profile"));
+			
+			var applicationPath = "build/" + configuration + "-iphoneos/" + project.app.file + ".app";
+			commands.push(applicationPath);
+			
+			System.runCommand(workingDirectory, "codesign", commands, true, true);
 		}
-
-		var identity = project.config.getString("ios.identity", "iPhone Developer");
-
-		var commands = ["-s", identity, "CODE_SIGN_IDENTITY=" + identity];
-
-		if (project.config.exists("ios.provisioning-profile"))
-		{
-			commands.push("PROVISIONING_PROFILE=" + project.config.getString("ios.provisioning-profile"));
-		}
-
-		var applicationPath = "build/" + configuration + "-iphoneos/" + project.app.file + ".app";
-		commands.push(applicationPath);
-
-		System.runCommand(workingDirectory, "codesign", commands, true, true);
 	}
 
 	private static function waitForDeviceState(command:String, args:Array<String>):Void
