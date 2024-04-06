@@ -26,11 +26,6 @@ class IOSHelper
 			commands.push(project.app.file);
 			commands.push("-archivePath");
 			commands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
-			if (!project.config.exists("ios.provisioning-profile"))
-			{
-				commands.push("CODE_SIGNING_REQUIRED=\"NO\"");
-				commands.push("CODE_SIGNING_ALLOWED=\"NO\"");
-			}
 		}
 		else
 		{
