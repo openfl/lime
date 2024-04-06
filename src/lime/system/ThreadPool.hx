@@ -13,6 +13,9 @@ import neko.vm.Thread;
 #elseif html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
 #end
+#if (haxe_ver >= 4.1)
+import haxe.Exception;
+#end
 
 /**
 	A simple and thread-safe way to run a one or more asynchronous jobs. It
@@ -138,6 +141,15 @@ class ThreadPool extends WorkOutput
 		once per job.
 	**/
 	public var onRun(default, null) = new Event<State->Void>();
+	#if (haxe_ver >= 4.1)
+	/**
+		Dispatched on the main thread when `doWork` throws an error. Dispatched
+		at most once per job.
+
+		If no listeners have been added, instead the error will be rethrown.
+	**/
+	public var onUncaughtError(default, null) = new Event<Exception->Void>();
+	#end
 
 	@:deprecated("Instead pass the callback to ThreadPool.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):PseudoEvent;
@@ -400,9 +412,9 @@ class ThreadPool extends WorkOutput
 						event.job.doWork.dispatch(event.job.state, output);
 					}
 				}
-				catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
+				catch (e:#if (haxe_ver >= 4.1) Exception #else Dynamic #end)
 				{
-					output.sendError(e);
+					output.sendUncaughtError(e);
 				}
 
 				output.activeJob = null;
@@ -494,9 +506,9 @@ class ThreadPool extends WorkOutput
 				}
 				while (!__jobComplete.value && timeElapsed < __workPerFrame);
 			}
-			catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
+			catch (e:#if (haxe_ver >= 4.1) Exception #else Dynamic #end)
 			{
-				sendError(e);
+				sendUncaughtError(e);
 			}
 
 			activeJob.duration += timeElapsed;
@@ -533,16 +545,7 @@ class ThreadPool extends WorkOutput
 				case PROGRESS:
 					onProgress.dispatch(threadEvent.message);
 
-				case COMPLETE, ERROR:
-					if (threadEvent.event == COMPLETE)
-					{
-						onComplete.dispatch(threadEvent.message);
-					}
-					else
-					{
-						onError.dispatch(threadEvent.message);
-					}
-
+				case COMPLETE, ERROR, UNCAUGHT_ERROR:
 					__activeJobs.remove(activeJob);
 
 					#if lime_threads
@@ -563,6 +566,44 @@ class ThreadPool extends WorkOutput
 					#end
 
 					completed = threadEvent.event == COMPLETE && activeJobs == 0 && __jobQueue.isEmpty();
+
+					if (threadEvent.event == COMPLETE)
+					{
+						onComplete.dispatch(threadEvent.message);
+					}
+					else if (threadEvent.event == ERROR)
+					{
+						onError.dispatch(threadEvent.message);
+					}
+					else
+					{
+						var message:String;
+
+						#if (haxe_ver >= 4.1)
+						if (Std.isOfType(threadEvent.message, Exception))
+						{
+							if (onUncaughtError.__listeners.length > 0)
+							{
+								onUncaughtError.dispatch(threadEvent.message);
+								message = null;
+							}
+							else
+							{
+								message = (threadEvent.message:Exception).details();
+							}
+						}
+						else
+						#end
+						{
+							message = Std.string(threadEvent.message);
+						}
+
+						if (message != null)
+						{
+							activeJob = null;
+							Log.error(message);
+						}
+					}
 
 				default:
 			}
