@@ -30,6 +30,13 @@ class IOSHelper
 		else
 		{
 			commands.push("build");
+			if (!project.config.exists("ios.provisioning-profile"))
+			{
+				commands.push("CODE_SIGN_IDENTITY=\"\"");
+				commands.push("CODE_SIGNING_REQUIRED=\"NO\"");
+				commands.push("CODE_SIGN_ENTITLEMENTS=\"\"");
+				commands.push("CODE_SIGNING_ALLOWED=\"NO\"");
+			}
 		}
 
 		if (additionalArguments != null)
