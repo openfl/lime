@@ -26,15 +26,18 @@ class IOSHelper
 			commands.push(project.app.file);
 			commands.push("-archivePath");
 			commands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
+			if (!project.config.exists("ios.provisioning-profile"))
+			{
+				commands.push("CODE_SIGNING_REQUIRED=\"NO\"");
+				commands.push("CODE_SIGNING_ALLOWED=\"NO\"");
+			}
 		}
 		else
 		{
 			commands.push("build");
 			if (!project.config.exists("ios.provisioning-profile"))
 			{
-				commands.push("CODE_SIGN_IDENTITY=\"\"");
 				commands.push("CODE_SIGNING_REQUIRED=\"NO\"");
-				commands.push("CODE_SIGN_ENTITLEMENTS=\"\"");
 				commands.push("CODE_SIGNING_ALLOWED=\"NO\"");
 			}
 		}
@@ -164,7 +167,7 @@ class IOSHelper
 			return ver != null ? ver : 0;
 		});
 
-		if (xcodeVersions[0] >= 9)
+		if (xcodeVersions[0] >= 9 && project.config.exists("ios.provisioning-profile"))
 		{
 			if (project.config.getBool('ios.allow-provisioning-updates', true))
 			{
