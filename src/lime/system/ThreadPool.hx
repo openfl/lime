@@ -570,7 +570,7 @@ class ThreadPool extends WorkOutput
 			activeJob = null;
 		}
 
-		if (completed)
+		if (activeJobs == 0 && __jobQueue.isEmpty())
 		{
 			Application.current.onUpdate.remove(__update);
 		}
