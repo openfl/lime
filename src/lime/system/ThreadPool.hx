@@ -658,7 +658,8 @@ abstract JobList(List<JobData>)
 
 	public inline function remove(job:JobData):Bool
 	{
-		return this.remove(job) || removeByID(job.id);
+		return this.remove(job)
+			|| job != null && removeByID(job.id);
 	}
 
 	public inline function removeByID(id:Int):Bool
