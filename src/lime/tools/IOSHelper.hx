@@ -372,7 +372,7 @@ class IOSHelper
 	public static function sign(project:HXProject, workingDirectory:String):Void
 	{
 		initialize(project);
-		if (project.config.exists("ios.provisioning-profile") /*&& project.config.exists("ios.team-id")*/) {
+		if (project.config.exists("ios.provisioning-profile") || project.config.exists("ios.team-id")) {
 			var configuration = "Release";
 
 			if (project.debug) {
