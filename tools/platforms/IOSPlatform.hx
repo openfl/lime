@@ -125,7 +125,7 @@ class IOSPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			if (!project.targetFlags.exists("simulator") && project.config.exists("ios.provisioning-profile"))
+			if (!project.targetFlags.exists("simulator"))
 			{
 				IOSHelper.sign(project, targetDirectory + "/bin");
 			}
