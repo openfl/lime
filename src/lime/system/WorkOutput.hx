@@ -149,7 +149,7 @@ class WorkOutput
 			if (mode == MULTI_THREADED)
 			{
 				activeJob.doWork.makePortable();
-				Thread.returnMessage(new ThreadEvent(UNCAUGHT_ERROR, message, activeJob), transferList);
+				Thread.returnMessage(new ThreadEvent(UNCAUGHT_ERROR, message, activeJob));
 			}
 			else
 			#end
