@@ -391,15 +391,15 @@ jobs:
       #     lime create HelloWorld -verbose -nocolor -eval
       #     lime build HelloWorld ios -simulator -release -verbose -nocolor -eval
 
-      - name: Build SimpleImage sample
+      - name: Build SimpleImage sample (Simulator)
         run: |
           lime create SimpleImage -verbose -nocolor -eval
           lime build SimpleImage ios -simulator -release -verbose -nocolor -eval
 
-      - name: Build SimpleAudio sample
+      - name: Build SimpleAudio sample (Device)
         run: |
           lime create SimpleAudio -verbose -nocolor -eval
-          lime build SimpleAudio ios -simulator -release -verbose -nocolor -eval
+          lime build SimpleAudio ios -release -nosign -verbose -nocolor -eval
 
   package-haxelib:
     needs: [linux, macos, windows, android, ios]
