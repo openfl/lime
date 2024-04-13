@@ -821,7 +821,7 @@ class PlatformSetup
 			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 
-		if (!targetFlags.exists("noalias"))
+		if (targetFlags.exists("noalias"))
 		{
 			return;
 		}
