@@ -19,9 +19,9 @@ import lime.utils.UInt8Array;
 @:access(lime.media.vorbis.VorbisFile)
 class NativeAudioSource
 {
-	private static var STREAM_BUFFER_SIZE:Int = 16000;
-	private static var STREAM_NUM_BUFFERS:Int = 8;
-	private static var STREAM_TIMER_FREQUENCY:Int = 120;
+	private static var STREAM_BUFFER_SIZE:Int = 12000;
+	private static var STREAM_NUM_BUFFERS:Int = 20;
+	private static var STREAM_TIMER_FREQUENCY:Int = 100;
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
