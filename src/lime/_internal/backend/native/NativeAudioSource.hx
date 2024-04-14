@@ -186,8 +186,8 @@ class NativeAudioSource
 		#end
 	}
 
-	inline function int64ToFloat(i:haxe.Int64):Float
-		return Std.parseFloat(haxe.Int64.toStr(i));
+	inline function int64ToFloat(i:Int64):Float
+		return Std.parseFloat(Int64.toStr(i));
 
 	private function refillBuffers(buffers:Array<ALBuffer> = null):Void
 	{
