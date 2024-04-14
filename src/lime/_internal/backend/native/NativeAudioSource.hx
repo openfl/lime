@@ -8,7 +8,7 @@ import lime.media.openal.ALBuffer;
 import lime.media.openal.ALSource;
 import lime.media.vorbis.VorbisFile;
 import lime.media.AudioManager;
-import zenith.system.AudioSource;
+import lime.media.AudioSource;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -46,22 +46,19 @@ class NativeAudioSource
 		position = new Vector4();
 	}
 
-	public function dispose():Void
-	{
-		if (handle != null)
-		{
+	public function dispose():Void {
+		disposed = true;
+
+		if (handle != null) {
 			stop();
 			AL.sourcei(handle, AL.BUFFER, null);
 			AL.deleteSource(handle);
-			if (buffers != null)
-			{
-				for (buffer in buffers)
-				{
-					AL.deleteBuffer(buffer);
-				}
-				buffers = null;
-			}
 			handle = null;
+		}
+
+		if (buffers != null) {
+			AL.deleteBuffers(buffers);
+			buffers = null;
 		}
 	}
 
@@ -103,6 +100,9 @@ class NativeAudioSource
 		}
 		else
 		{
+			if (handle != null)
+				AL.sourcei(handle, AL.BUFFER, parent.buffer.__srcBuffer);
+
 			if (parent.buffer.__srcBuffer == null)
 			{
 				parent.buffer.__srcBuffer = AL.createBuffer();
@@ -252,7 +252,7 @@ class NativeAudioSource
 		#end
 	}
 
-	public function stop():Void
+	inline public function stop():Void
 	{
 		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
 			AL.sourceStop(handle);
@@ -376,7 +376,7 @@ class NativeAudioSource
 		return value;
 	}
 
-	public function getGain():Float
+	inline public function getGain():Float
 	{
 		if (handle != null)
 			return AL.getSourcef(handle, AL.GAIN);
@@ -384,7 +384,7 @@ class NativeAudioSource
 			return 1.0;
 	}
 
-	public function setGain(value:Float):Float
+	inline public function setGain(value:Float):Float
 	{
 		if (handle != null)
 			AL.sourcef(handle, AL.GAIN, value);
@@ -392,7 +392,7 @@ class NativeAudioSource
 		return value;
 	}
 
-	public function getLength():Float
+	inline public function getLength():Float
 	{
 		if (length != null)
 			return length;
@@ -419,17 +419,17 @@ class NativeAudioSource
 		return length = value;
 	}
 
-	public function getLoops():Int
+	inline public function getLoops():Int
 	{
 		return loops;
 	}
 
-	public function setLoops(value:Int):Int
+	inline public function setLoops(value:Int):Int
 	{
 		return loops = value;
 	}
 
-	public function getPitch():Float
+	inline public function getPitch():Float
 	{
 		if (handle != null)
 			return AL.getSourcef(handle, AL.PITCH);
@@ -461,7 +461,7 @@ class NativeAudioSource
 		return value;
 	}
 
-	public function getPosition():Vector4
+	inline public function getPosition():Vector4
 	{
 		if (handle != null)
 		{
@@ -476,7 +476,7 @@ class NativeAudioSource
 		return position;
 	}
 
-	public function setPosition(value:Vector4):Vector4
+	inline public function setPosition(value:Vector4):Vector4
 	{
 		position.x = value.x;
 		position.y = value.y;
