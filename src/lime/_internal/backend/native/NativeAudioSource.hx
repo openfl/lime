@@ -47,8 +47,6 @@ class NativeAudioSource
 	}
 
 	public function dispose():Void {
-		disposed = true;
-
 		if (handle != null) {
 			stop();
 			AL.sourcei(handle, AL.BUFFER, null);
