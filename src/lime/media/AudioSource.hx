@@ -24,7 +24,7 @@ class AudioSource
 
 	@:noCompletion private var __backend:AudioSourceBackend;
 
-	inline public function new(buffer:AudioBuffer = null, offset:Int = 0, length:Null<Float> = null, loops:Int = 0)
+	public function new(buffer:AudioBuffer = null, offset:Int = 0, length:Null<Float> = null, loops:Int = 0)
     {
 		this.buffer = buffer;
 		this.offset = offset;
@@ -40,56 +40,56 @@ class AudioSource
 		    init();
     }
 
-	inline public function dispose():Void
+	public function dispose():Void
 	    __backend.dispose();
 
-	@:noCompletion inline private function init():Void
+	@:noCompletion private function init():Void
 	    __backend.init();
 
-	inline public function play():Void
+	public function play():Void
 		__backend.play();
 
-	inline public function pause():Void
+	public function pause():Void
 		__backend.pause();
 
-	inline public function stop():Void
+	public function stop():Void
 		__backend.stop();
 
 	// Get & Set Methods
-	@:noCompletion inline private function get_currentTime():Float
+	@:noCompletion private function get_currentTime():Float
 		return __backend.getCurrentTime();
 
-	@:noCompletion inline private function set_currentTime(value:Float):Float
+	@:noCompletion private function set_currentTime(value:Float):Float
 		return __backend.setCurrentTime(value);
 
-	@:noCompletion inline private function get_gain():Float
+	@:noCompletion private function get_gain():Float
 		return __backend.getGain();
 
-	@:noCompletion inline private function set_gain(value:Float):Float
+	@:noCompletion private function set_gain(value:Float):Float
 		return __backend.setGain(value);
 
-	@:noCompletion inline private function get_length():Float
+	@:noCompletion private function get_length():Float
 		return __backend.getLength();
 
-	@:noCompletion inline private function set_length(value:Float):Float
+	@:noCompletion private function set_length(value:Float):Float
 		return __backend.setLength(value);
 
-	@:noCompletion inline private function get_loops():Int
+	@:noCompletion private function get_loops():Int
 		return __backend.getLoops();
 
-	@:noCompletion inline private function set_loops(value:Int):Int
+	@:noCompletion private function set_loops(value:Int):Int
 		return __backend.setLoops(value);
 
-	@:noCompletion inline private function get_pitch():Float
+	@:noCompletion private function get_pitch():Float
 		return __backend.getPitch();
 
-	@:noCompletion inline private function set_pitch(value:Float):Float
+	@:noCompletion private function set_pitch(value:Float):Float
 		return __backend.setPitch(value);
 
-	@:noCompletion inline private function get_position():Vector4
+	@:noCompletion private function get_position():Vector4
 		return __backend.getPosition();
 
-	@:noCompletion inline private function set_position(value:Vector4):Vector4
+	@:noCompletion private function set_position(value:Vector4):Vector4
 		return __backend.setPosition(value);
 }
 

@@ -19,9 +19,9 @@ import lime.utils.UInt8Array;
 @:access(lime.media.vorbis.VorbisFile)
 class NativeAudioSource
 {
-	private static var STREAM_BUFFER_SIZE:Int = 12000;
-	private static var STREAM_NUM_BUFFERS:Int = 20;
-	private static var STREAM_TIMER_FREQUENCY:Int = 100;
+	private static var STREAM_BUFFER_SIZE:Int = 4096;
+	private static var STREAM_NUM_BUFFERS:Int = #if (native_audio_buffers && !macro) Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers")) #else 4 #end ;
+	private static var STREAM_TIMER_FREQUENCY:Int = 60;
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
@@ -186,7 +186,7 @@ class NativeAudioSource
 		#end
 	}
 
-	inline function int64ToFloat(i:Int64):Float
+	function int64ToFloat(i:Int64):Float
 		return Std.parseFloat(Int64.toStr(i));
 
 	private function refillBuffers(buffers:Array<ALBuffer> = null):Void
@@ -250,7 +250,7 @@ class NativeAudioSource
 		#end
 	}
 
-	inline public function stop():Void
+	public function stop():Void
 	{
 		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
 			AL.sourceStop(handle);
@@ -374,7 +374,7 @@ class NativeAudioSource
 		return value;
 	}
 
-	inline public function getGain():Float
+	public function getGain():Float
 	{
 		if (handle != null)
 			return AL.getSourcef(handle, AL.GAIN);
@@ -382,7 +382,7 @@ class NativeAudioSource
 			return 1.0;
 	}
 
-	inline public function setGain(value:Float):Float
+	public function setGain(value:Float):Float
 	{
 		if (handle != null)
 			AL.sourcef(handle, AL.GAIN, value);
@@ -390,7 +390,7 @@ class NativeAudioSource
 		return value;
 	}
 
-	inline public function getLength():Float
+	public function getLength():Float
 	{
 		if (length != null)
 			return length;
@@ -417,17 +417,17 @@ class NativeAudioSource
 		return length = value;
 	}
 
-	inline public function getLoops():Int
+	public function getLoops():Int
 	{
 		return loops;
 	}
 
-	inline public function setLoops(value:Int):Int
+	public function setLoops(value:Int):Int
 	{
 		return loops = value;
 	}
 
-	inline public function getPitch():Float
+	public function getPitch():Float
 	{
 		if (handle != null)
 			return AL.getSourcef(handle, AL.PITCH);
@@ -459,7 +459,7 @@ class NativeAudioSource
 		return value;
 	}
 
-	inline public function getPosition():Vector4
+	public function getPosition():Vector4
 	{
 		if (handle != null)
 		{
@@ -474,7 +474,7 @@ class NativeAudioSource
 		return position;
 	}
 
-	inline public function setPosition(value:Vector4):Vector4
+	public function setPosition(value:Vector4):Vector4
 	{
 		position.x = value.x;
 		position.y = value.y;
