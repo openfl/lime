@@ -2,14 +2,29 @@ package lime.utils;
 
 import haxe.ds.ObjectMap;
 
+
+/**
+ 	A generic object pool for reusing objects.
+ **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
 #if !js @:generic #end class ObjectPool<T>
 {
+	/**
+  		The number of active objects in the pool.
+  	**/
 	public var activeObjects(default, null):Int;
+
+	/**
+   		The number of inactive objects in the pool.
+   	**/
 	public var inactiveObjects(default, null):Int;
+
+	/**
+ 		The total size of the object pool (both active and inactive objects).
+  	**/
 	public var size(get, set):Null<Int>;
 
 	@:noCompletion private var __inactiveObject0:T;
@@ -18,6 +33,13 @@ import haxe.ds.ObjectMap;
 	@:noCompletion private var __pool:Map<T, Bool>;
 	@:noCompletion private var __size:Null<Int>;
 
+	/**
+   		Creates a new ObjectPool instance.
+   
+   		@param create A function that creates a new instance of type T.
+   		@param clean A function that cleans up an instance of type T before it is reused.
+   		@param size The maximum size of the object pool.
+   	**/
 	public function new(create:Void->T = null, clean:T->Void = null, size:Null<Int> = null)
 	{
 		__pool = cast new ObjectMap();
@@ -42,7 +64,11 @@ import haxe.ds.ObjectMap;
 			this.size = size;
 		}
 	}
-
+	/**
+   		Adds an object to the object pool.
+   
+   		@param object The object to add to the pool.
+   	**/
 	public function add(object:T):Void
 	{
 		if (object != null && !__pool.exists(object))
@@ -53,8 +79,18 @@ import haxe.ds.ObjectMap;
 		}
 	}
 
+	/**
+		Dynamic function.
+
+   		Cleans up an object before returning it to the pool.
+   
+   		@param object The object to clean up.
+  	**/
 	public dynamic function clean(object:T):Void {}
 
+	/**
+  		Clears the object pool, removing all objects.
+  	**/
 	public function clear():Void
 	{
 		__pool = cast new ObjectMap();
@@ -67,11 +103,21 @@ import haxe.ds.ObjectMap;
 		__inactiveObjectList.clear();
 	}
 
+	/**
+		Dynamic function.
+
+   		Creates a new Object.
+     	**/
 	public dynamic function create():T
 	{
 		return null;
 	}
 
+	/**
+   		Creates a new object and adds it to the pool, or returns an existing inactive object from the pool.
+   
+   		@return The object retrieved from the pool, or null if the pool is full and no new objects can be created.
+  	**/
 	public function get():T
 	{
 		var object = null;
@@ -94,6 +140,11 @@ import haxe.ds.ObjectMap;
 		return object;
 	}
 
+	/**
+   		Releases an active object back into the pool.
+   
+   		@param object The object to release.
+   	**/
 	public function release(object:T):Void
 	{
 		#if debug
@@ -120,6 +171,11 @@ import haxe.ds.ObjectMap;
 		}
 	}
 
+	/**
+   		Removes an object from the pool.
+    
+   		@param object The object to remove from the pool.
+   	**/
 	public function remove(object:T):Void
 	{
 		if (object != null && __pool.exists(object))
