@@ -28,8 +28,8 @@ namespace lime {
 		#endif
 
 		int bitStream;
-		float bytes = 1;
-		float totalBytes = 0.0;
+		long long bytes = 1;
+		long long totalBytes = 0;
 
 		#define BUFFER_SIZE 4096
 
@@ -47,7 +47,7 @@ namespace lime {
 
 		audioBuffer->bitsPerSample = 16;
 
-		float dataLength = double(ov_pcm_total (oggFile, -1)) * audioBuffer->channels * audioBuffer->bitsPerSample * 0.125;
+		long long dataLength = ov_pcm_total (oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
 		audioBuffer->data->Resize (dataLength);
 
 		while (bytes > 0) {

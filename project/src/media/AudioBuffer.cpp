@@ -6,7 +6,7 @@ namespace lime {
 
 	static int id_bitsPerSample;
 	static int id_channels;
-	static int id_data;
+	static long long id_data;
 	static int id_sampleRate;
 	static bool init = false;
 

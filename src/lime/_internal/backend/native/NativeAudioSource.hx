@@ -187,7 +187,9 @@ class NativeAudioSource
 	}
 
 	function int64ToFloat(i:Int64):Float
+	{
 		return Std.parseFloat(Int64.toStr(i));
+	}
 
 	private function refillBuffers(buffers:Array<ALBuffer> = null):Void
 	{
