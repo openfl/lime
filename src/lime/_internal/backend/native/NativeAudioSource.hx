@@ -20,8 +20,8 @@ import lime.utils.UInt8Array;
 class NativeAudioSource
 {
 	private static var STREAM_BUFFER_SIZE:Int = 8192;
-	private static var STREAM_NUM_BUFFERS:Int = #if (native_audio_buffers && !macro) Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers")) #else 16 #end ;
-	private static var STREAM_TIMER_FREQUENCY:Int = 80;
+	private static var STREAM_NUM_BUFFERS:Int = #if (native_audio_buffers && !macro) Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers")) #else 32 #end ;
+	private static var STREAM_TIMER_FREQUENCY:Int = 50;
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
@@ -161,11 +161,9 @@ class NativeAudioSource
 		var buffer = new UInt8Array(Math.floor(length));
 		var read = 0.0, total = 0.0, readMax = 0.0;
 
-		var num_buffers:Int = Std.int(STREAM_NUM_BUFFERS * getPitch());
-
-		for (i in 0...num_buffers-1)
+		for (i in 0...STREAM_NUM_BUFFERS-1)
 			bufferTimeBlocks[i] = bufferTimeBlocks[i + 1];
-		bufferTimeBlocks[num_buffers-1] = vorbisFile.timeTell();
+		bufferTimeBlocks[STREAM_NUM_BUFFERS-1] = vorbisFile.timeTell();
 
 		while (total < length)
 		{
@@ -331,7 +329,7 @@ class NativeAudioSource
 				AL.sourceStop(handle);
 
 				parent.buffer.__srcVorbisFile.timeSeek((value + parent.offset) * 0.001);
-				AL.sourceUnqueueBuffers(handle, Std.int(STREAM_NUM_BUFFERS * getPitch()));
+				AL.sourceUnqueueBuffers(handle, STREAM_NUM_BUFFERS);
 				refillBuffers(buffers);
 
 				if (playing)
@@ -436,7 +434,7 @@ class NativeAudioSource
 		if (handle != null)
 			return AL.getSourcef(handle, AL.PITCH);
 		else
-			return 0.0;
+			return 1;
 	}
 
 	public function setPitch(value:Float):Float
