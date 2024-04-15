@@ -325,7 +325,7 @@ class HTML5Application
 
 			if (!window.requestAnimationFrame)
 				window.requestAnimationFrame = function(callback, element) {
-					var currTime = new Date().getTime();
+					var currTime = window.performance.now();
 					var timeToCall = Math.max(0, 16 - (currTime - lastTime));
 					var id = window.setTimeout(function() { callback(currTime + timeToCall); },
 					  timeToCall);
@@ -341,7 +341,7 @@ class HTML5Application
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
 
-		lastUpdate = Date.now().getTime();
+		lastUpdate = Browser.window.performance.now();
 
 		handleApplicationEvent();
 
@@ -361,7 +361,7 @@ class HTML5Application
 
 		updateGameDevices();
 
-		currentUpdate = Date.now().getTime();
+		currentUpdate = Browser.window.performance.now();
 
 		if (currentUpdate >= nextUpdate)
 		{

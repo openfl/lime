@@ -8,6 +8,7 @@ import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.math.Vector2;
 import lime.net.HTTPRequest;
+import lime.system.CFFI;
 import lime.system.System;
 import lime.utils.Assets;
 import lime.utils.Log;
@@ -189,7 +190,9 @@ class Font
 	{
 		#if (lime_cffi && !macro)
 		var glyphs:Dynamic = NativeCFFI.lime_font_get_glyph_indices(src, characters);
-		return glyphs;
+		// lime_font_get_glyph_indices returns Array<Int>
+		// cast it to Array<Glyph> instead (Glyph is an abstract)
+		return cast glyphs;
 		#else
 		return null;
 		#end
@@ -472,11 +475,7 @@ class Font
 		{
 			if (name == null)
 			{
-				#if hl
-				name = @:privateAccess String.fromUTF8(NativeCFFI.lime_font_get_family_name(src));
-				#else
-				name = cast NativeCFFI.lime_font_get_family_name(src);
-				#end
+				name = CFFI.stringValue(cast NativeCFFI.lime_font_get_family_name(src));
 			}
 
 			ascender = NativeCFFI.lime_font_get_ascender(src);

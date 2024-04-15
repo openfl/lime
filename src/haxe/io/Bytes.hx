@@ -55,7 +55,7 @@ class Bytes
 		return untyped $sget(b, pos);
 		#elseif flash
 		return b[pos];
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		return untyped b[pos];
 		#elseif java
 		return untyped b[pos] & 0xFF;
@@ -72,7 +72,7 @@ class Bytes
 		untyped $sset(b, pos, v);
 		#elseif flash
 		b[pos] = v;
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		untyped b[pos] = v;
 		#elseif java
 		b[pos] = cast v;
@@ -104,7 +104,7 @@ class Bytes
 		cs.system.Array.Copy(src.b, srcpos, b, pos, len);
 		#elseif python
 		python.Syntax.code("self.b[{0}:{0}+{1}] = src.b[srcpos:srcpos+{1}]", pos, len);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		b.blit(pos, src.b, srcpos, len);
 		#else
 		var b1 = b;
@@ -136,7 +136,7 @@ class Bytes
 		pos += len & ~3;
 		for (i in 0...len & 3)
 			set(pos++, value);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		untyped __global__.__hxcpp_memory_memset(b, pos, len, value);
 		#else
 		for (i in 0...len)
@@ -206,7 +206,7 @@ class Bytes
 		return length - other.length;
 		// #elseif cs
 		// TODO: memcmp if unsafe flag is on
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		return b.memcmp(other.b);
 		#else
 		var b1 = b;
@@ -232,7 +232,7 @@ class Bytes
 		#elseif flash
 		b.position = pos;
 		return b.readDouble();
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		if (pos < 0 || pos + 8 > length) throw Error.OutsideBounds;
 		return untyped __global__.__hxcpp_memory_get_double(b, pos);
 		#else
@@ -254,7 +254,7 @@ class Bytes
 		#elseif flash
 		b.position = pos;
 		return b.readFloat();
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		if (pos < 0 || pos + 4 > length) throw Error.OutsideBounds;
 		return untyped __global__.__hxcpp_memory_get_float(b, pos);
 		#else
@@ -278,7 +278,7 @@ class Bytes
 		#elseif flash
 		b.position = pos;
 		b.writeDouble(v);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		if (pos < 0 || pos + 8 > length) throw Error.OutsideBounds;
 		untyped __global__.__hxcpp_memory_set_double(b, pos, v);
 		#else
@@ -304,7 +304,7 @@ class Bytes
 		#elseif flash
 		b.position = pos;
 		b.writeFloat(v);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		if (pos < 0 || pos + 4 > length) throw Error.OutsideBounds;
 		untyped __global__.__hxcpp_memory_set_float(b, pos, v);
 		#else
@@ -398,7 +398,7 @@ class Bytes
 		#elseif flash
 		b.position = pos;
 		return b.readUTFBytes(len);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		var result:String = "";
 		untyped __global__.__hxcpp_string_of_bytes(b, result, pos, len);
 		return result;
@@ -510,7 +510,7 @@ class Bytes
 		var b = new flash.utils.ByteArray();
 		b.length = length;
 		return new Bytes(length, b);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		var a = new BytesData();
 		if (length > 0) cpp.NativeArray.setSize(a, length);
 		return new Bytes(length, a);
@@ -540,7 +540,7 @@ class Bytes
 		var b = new flash.utils.ByteArray();
 		b.writeUTFBytes(s);
 		return new Bytes(b.length, b);
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		var a = new BytesData();
 		untyped __global__.__hxcpp_bytes_of_string(a, s);
 		return new Bytes(a.length, a);
@@ -638,7 +638,7 @@ class Bytes
 		return untyped __dollar__sget(b, pos);
 		#elseif flash
 		return b[pos];
-		#elseif cpp
+		#elseif (cpp || webassembly)
 		return untyped b.unsafeGet(pos);
 		#elseif java
 		return untyped b[pos] & 0xFF;
@@ -945,7 +945,7 @@ class Bytes
 }
 #elseif hl
 #if !macro
-@:autoBuild(lime._internal.macros.AssetsMacro.embedBytesHL()) // Enable @:bytes embed metadata
+@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes()) // Enable @:bytes embed metadata
 #end
 @:coreApi
 class Bytes

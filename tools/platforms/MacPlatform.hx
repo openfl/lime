@@ -33,8 +33,10 @@ class MacPlatform extends PlatformTarget
 	private var contentDirectory:String;
 	private var executableDirectory:String;
 	private var executablePath:String;
-	private var is64:Bool;
+	private var targetArchitecture:Architecture;
 	private var targetType:String;
+
+	private var dirSuffix(get, never):String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
@@ -93,20 +95,6 @@ class MacPlatform extends PlatformTarget
 				title: ""
 			};
 
-		switch (System.hostArchitecture)
-		{
-			case ARMV6:
-				defaults.architectures = [ARMV6];
-			case ARMV7:
-				defaults.architectures = [ARMV7];
-			case X86:
-				defaults.architectures = [X86];
-			case X64:
-				defaults.architectures = [X64];
-			default:
-				defaults.architectures = [];
-		}
-
 		defaults.window.allowHighDPI = false;
 
 		for (i in 1...project.windows.length)
@@ -122,22 +110,23 @@ class MacPlatform extends PlatformTarget
 			project.architectures.remove(excludeArchitecture);
 		}
 
+		targetArchitecture = Type.createEnum(Architecture, Type.enumConstructor(System.hostArchitecture));
 		for (architecture in project.architectures)
 		{
-			if (architecture == Architecture.X64)
+			if (architecture.match(X86 | X64 | ARMV6 | ARMV7 | ARM64))
 			{
-				is64 = true;
+				targetArchitecture = architecture;
+				break;
 			}
 		}
 
-		if (project.targetFlags.exists("neko") || project.target != cast System.hostPlatform)
+		if (project.targetFlags.exists("neko") || project.target != System.hostPlatform)
 		{
 			targetType = "neko";
 		}
-		else if (project.targetFlags.exists("hl"))
+		else if (project.targetFlags.exists("hl") || project.targetFlags.exists("hlc"))
 		{
 			targetType = "hl";
-			is64 = true;
 		}
 		else if (project.targetFlags.exists("java"))
 		{
@@ -157,7 +146,7 @@ class MacPlatform extends PlatformTarget
 		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
-		targetDirectory = StringTools.replace(targetDirectory, "arch64", is64 ? "64" : "");
+		targetDirectory = StringTools.replace(targetDirectory, "arch64", dirSuffix);
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";
 		executableDirectory = applicationDirectory + "/Contents/MacOS";
@@ -179,11 +168,11 @@ class MacPlatform extends PlatformTarget
 				// TODO: Support single binary for HashLink
 				if (targetType == "hl")
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "", ".hdll", executableDirectory, project.debug, targetSuffix);
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + dirSuffix, "", ".hdll", executableDirectory, project.debug, targetSuffix);
 				}
 				else
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Mac" + (is64 ? "64" : ""), "",
+					ProjectHelper.copyLibrary(project, ndll, "Mac" + dirSuffix, "",
 						(ndll.haxelib != null
 							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", executableDirectory,
 						project.debug, targetSuffix);
@@ -197,8 +186,8 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			NekoHelper.createExecutable(project.templatePaths, "mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			NekoHelper.copyLibraries(project.templatePaths, "mac" + (is64 ? "64" : ""), executableDirectory);
+			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix.toLowerCase(), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix.toLowerCase(), executableDirectory);
 		}
 		else if (targetType == "hl")
 		{
@@ -206,21 +195,62 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, is64);
+			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
 
-			// HashLink looks for hlboot.dat and libraries in the current
-			// working directory, so the .app file won't work properly if it
-			// tries to run the HashLink executable directly.
-			// when the .app file is launched, we can tell it to run a shell
-			// script instead of the HashLink executable. the shell script will
-			// adjusts the working directory before running the HL executable.
+			if (project.targetFlags.exists("hlc"))
+			{
+				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
+				// the libraries were compiled as x86_64, so if the build is
+				// happening on ARM64 instead, we need to ensure that the
+				// same architecture is used for the executable, so we wrap our
+				// compiler command with the `arch -x86_64` command.
+				// if we ever support ARM or Universal binaries, this will
+				// need to be handled differently.
+				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				for (file in System.readDirectory(executableDirectory))
+				{
+					switch Path.extension(file)
+					{
+						case "dylib", "hdll":
+							// ensure the executable knows about every library
+							command.push(file);
+						default:
+					}
+				}
+				System.runCommand("", command.shift(), command);
 
-			// unlike other platforms, we want to use the original "hl" name
-			var hlExecutablePath = Path.combine(executableDirectory, "hl");
-			System.renameFile(executablePath, hlExecutablePath);
-			System.runCommand("", "chmod", ["755", hlExecutablePath]);
-			// then we can use the executable name for the shell script
-			System.copyFileTemplate(project.templatePaths, 'hl/mac-launch.sh', executablePath);
+				for (file in System.readDirectory(executableDirectory))
+				{
+					switch Path.extension(file)
+					{
+						case "dylib", "hdll":
+							// when launched inside an .app file, the executable
+							// can't find the library files unless we tell
+							// it to search specifically from @executable_path
+							System.runCommand("", "install_name_tool", ["-change", Path.withoutDirectory(file), "@executable_path/" + Path.withoutDirectory(file), executablePath]);
+						default:
+					}
+				}
+			}
+			else
+			{
+				// HashLink JIT looks for hlboot.dat and libraries in the current
+				// working directory, so the .app file won't work properly if it
+				// tries to run the HashLink executable directly.
+				// when the .app file is launched, we can tell it to run a shell
+				// script instead of the HashLink executable. the shell script
+				// tells the HL where to find everything.
+
+				// we want to keep the original "hl" file name because our
+				// shell script will use the app name
+				var hlExecutablePath = Path.combine(executableDirectory, "hl");
+				System.renameFile(executablePath, hlExecutablePath);
+				System.runCommand("", "chmod", ["755", hlExecutablePath]);
+
+				// then we can use the executable name for the shell script
+				System.copyFileTemplate(project.templatePaths, 'hl/mac-launch.sh', executablePath);
+				System.runCommand("", "chmod", ["755", executablePath]);
+			}
 		}
 		else if (targetType == "java")
 		{
@@ -234,7 +264,7 @@ class MacPlatform extends PlatformTarget
 			System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(executableDirectory, "lib"));
 			System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
 				Path.combine(executableDirectory, project.app.file + ".jar"));
-			JavaHelper.copyLibraries(project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			JavaHelper.copyLibraries(project.templatePaths, "Mac" + dirSuffix, executableDirectory);
 		}
 		else if (targetType == "nodejs")
 		{
@@ -242,8 +272,8 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			// NekoHelper.createExecutable (project.templatePaths, "Mac" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-			// NekoHelper.copyLibraries (project.templatePaths, "Mac" + (is64 ? "64" : ""), executableDirectory);
+			// NekoHelper.createExecutable (project.templatePaths, "Mac" + dirSuffix, targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			// NekoHelper.copyLibraries (project.templatePaths, "Mac" + dirSuffix, executableDirectory);
 		}
 		else if (targetType == "cs")
 		{
@@ -264,11 +294,17 @@ class MacPlatform extends PlatformTarget
 			var haxeArgs = [hxml, "-D", "HXCPP_CLANG"];
 			var flags = ["-DHXCPP_CLANG"];
 
-			if (is64)
+			if (targetArchitecture == X64)
 			{
 				haxeArgs.push("-D");
 				haxeArgs.push("HXCPP_M64");
 				flags.push("-DHXCPP_M64");
+			}
+			else if (targetArchitecture == ARM64)
+			{
+				haxeArgs.push("-D");
+				haxeArgs.push("HXCPP_ARM64");
+				flags.push("-DHXCPP_ARM64");
 			}
 
 			if (!project.targetFlags.exists("static"))
@@ -294,7 +330,7 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java")
+		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java" && sys.FileSystem.exists(executablePath))
 		{
 			System.runCommand("", "chmod", ["755", executablePath]);
 		}
@@ -330,9 +366,9 @@ class MacPlatform extends PlatformTarget
 		var context = project.templateContext;
 		context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 		context.NODE_FILE = executableDirectory + "/ApplicationMain.js";
-		context.HL_FILE = targetDirectory + "/obj/ApplicationMain.hl";
+		context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
 		context.CPP_DIR = targetDirectory + "/obj/";
-		context.BUILD_DIR = project.app.path + "/mac" + (is64 ? "64" : "");
+		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
 		return context;
 	}
@@ -341,7 +377,12 @@ class MacPlatform extends PlatformTarget
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
-		if (FileSystem.exists(path))
+		// try to use the existing .hxml file. however, if the project file was
+		// modified more recently than the .hxml, then the .hxml cannot be
+		// considered valid anymore. it may cause errors in editors like vscode.
+		if (FileSystem.exists(path)
+			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
 		}
@@ -372,22 +413,27 @@ class MacPlatform extends PlatformTarget
 	{
 		var commands = [];
 
-		if (targetFlags.exists("hl") && System.hostArchitecture == X64)
+		switch (System.hostArchitecture)
 		{
-			// TODO: Support single binary
-			commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
-		}
-		else
-		{
-			if (!targetFlags.exists("32") && (command == "rebuild" || System.hostArchitecture == X64))
-			{
-				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
-			}
-
-			if (!targetFlags.exists("64") && (targetFlags.exists("32") || System.hostArchitecture == X86))
-			{
+			case X64:
+				if (targetFlags.exists("hl"))
+				{
+					// TODO: Support single binary
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+				}
+				else if (!targetFlags.exists("32"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
+				}
+				else
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
+				}
+			case X86:
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
-			}
+			case ARM64:
+				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+			default:
 		}
 
 		if (targetFlags.exists("hl"))
@@ -415,7 +461,7 @@ class MacPlatform extends PlatformTarget
 		{
 			System.runCommand(executableDirectory, "java", ["-jar", project.app.file + ".jar"].concat(arguments));
 		}
-		else if (project.target == cast System.hostPlatform)
+		else if (project.target == System.hostPlatform)
 		{
 			arguments = arguments.concat(["-livereload"]);
 			System.runCommand(executableDirectory, "./" + Path.withoutDirectory(executablePath), arguments);
@@ -455,7 +501,7 @@ class MacPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + (is64 ? "64" : ""), "lib", ".a", project.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + dirSuffix, "lib", ".a", project.debug);
 				}
 			}
 		}
@@ -530,4 +576,11 @@ class MacPlatform extends PlatformTarget
 	@ignore public override function trace():Void {}
 
 	@ignore public override function uninstall():Void {}
+
+	// Getters & Setters
+
+	private inline function get_dirSuffix():String
+	{
+		return targetArchitecture == X64 ? "64" : "";
+	}
 }

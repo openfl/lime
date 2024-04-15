@@ -117,12 +117,13 @@ class FlashHTTPRequest
 
 		urlLoader.addEventListener(IOErrorEvent.IO_ERROR, function(event)
 		{
-			promise.error(event.errorID);
+			var bytes = Bytes.ofData(cast(urlLoader.data, ByteArray));
+			promise.error(new _HTTPRequestErrorResponse(event.errorID, bytes));
 		});
 
 		urlLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(event)
 		{
-			promise.error(403);
+			promise.error(new _HTTPRequestErrorResponse(403, null));
 		});
 
 		urlLoader.addEventListener(Event.COMPLETE, function(event)
@@ -156,12 +157,13 @@ class FlashHTTPRequest
 
 		urlLoader.addEventListener(IOErrorEvent.IO_ERROR, function(event)
 		{
-			promise.error(event.errorID);
+			var responseData = cast(urlLoader.data, String);
+			promise.error(new _HTTPRequestErrorResponse(event.errorID, responseData));
 		});
 
 		urlLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, function(event)
 		{
-			promise.error(403);
+			promise.error(new _HTTPRequestErrorResponse(403, null));
 		});
 
 		urlLoader.addEventListener(Event.COMPLETE, function(event)

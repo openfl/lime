@@ -718,7 +718,8 @@ namespace lime {
 					pos->v.i = position;
 
 					curl_gc_mutex.Unlock ();
-					length = *((int*)writeCallback->Call (bytes, pos));
+					vdynamic* _length = (vdynamic*)writeCallback->Call (bytes, pos);
+					length = (_length != NULL ? _length->v.i : 0);
 					curl_gc_mutex.Lock ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
@@ -749,7 +750,8 @@ namespace lime {
 			ulnow->v.d = progress->ulnow;
 
 			curl_gc_mutex.Unlock ();
-			code = *((int*)progressCallback->Call (dltotal, dlnow, ultotal, ulnow));
+			vdynamic* _code = (vdynamic*)progressCallback->Call (dltotal, dlnow, ultotal, ulnow);
+			code = (_code != NULL ? _code->v.i : 0);
 			curl_gc_mutex.Lock ();
 
 			if (code != 0) { // CURLE_OK
@@ -776,7 +778,8 @@ namespace lime {
 			ulnow->v.i = xferInfo->ulnow;
 
 			curl_gc_mutex.Unlock ();
-			code = *((int*)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow));
+			vdynamic* _code = (vdynamic*)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow);
+			code = (_code != NULL ? _code->v.i : 0);
 			curl_gc_mutex.Lock ();
 
 			if (code != 0) {
@@ -1287,6 +1290,13 @@ namespace lime {
 
 	}
 
+	static int seek_callback (void *userp, curl_off_t offset, int origin) {
+		if (origin == SEEK_SET)  {
+			readBytesPosition[userp] = offset;
+			return CURL_SEEKFUNC_OK;
+		}
+		return CURL_SEEKFUNC_CANTSEEK;
+	}
 
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 
@@ -1634,6 +1644,9 @@ namespace lime {
 				readBytesPosition[handle] = 0;
 				readBytesRoot[handle] = new ValuePointer (bytes);
 
+				// seek function is needed to support redirects
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKFUNCTION, seek_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKDATA, handle);
 				code = curl_easy_setopt (easy_handle, CURLOPT_READFUNCTION, read_callback);
 				curl_easy_setopt (easy_handle, CURLOPT_READDATA, handle);
 
@@ -1696,7 +1709,7 @@ namespace lime {
 
 				}
 
-				progressCallbacks[handle] = new ValuePointer (parameter);;
+				progressCallbacks[handle] = new ValuePointer (parameter);
 				progressValues[handle] = new CURL_Progress ();
 
 				code = curl_easy_setopt (easy_handle, type, progress_callback);
@@ -2061,6 +2074,8 @@ namespace lime {
 				readBytesPosition[handle] = 0;
 				readBytesRoot[handle] = new ValuePointer ((vobj*)bytes);
 
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKFUNCTION, seek_callback);
+				curl_easy_setopt (easy_handle, CURLOPT_SEEKDATA, handle);
 				code = curl_easy_setopt (easy_handle, CURLOPT_READFUNCTION, read_callback);
 				curl_easy_setopt (easy_handle, CURLOPT_READDATA, handle);
 
