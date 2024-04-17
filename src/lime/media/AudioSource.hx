@@ -41,56 +41,90 @@ class AudioSource
     }
 
 	public function dispose():Void
+	{
 	    __backend.dispose();
+	}
 
 	@:noCompletion private function init():Void
+	{
 	    __backend.init();
+	}
 
 	public function play():Void
+	{
 		__backend.play();
+	}
 
 	public function pause():Void
+	{
 		__backend.pause();
+	}
 
 	public function stop():Void
+	{
 		__backend.stop();
+	}
 
 	// Get & Set Methods
 	@:noCompletion private function get_currentTime():Float
+	{
 		return __backend.getCurrentTime();
+	}
 
 	@:noCompletion private function set_currentTime(value:Float):Float
+	{
 		return __backend.setCurrentTime(value);
+	}
 
 	@:noCompletion private function get_gain():Float
+	{
 		return __backend.getGain();
+	}
 
 	@:noCompletion private function set_gain(value:Float):Float
+	{
 		return __backend.setGain(value);
+	}
 
 	@:noCompletion private function get_length():Float
+	{
 		return __backend.getLength();
+	}
 
 	@:noCompletion private function set_length(value:Float):Float
+	{
 		return __backend.setLength(value);
+	}
 
 	@:noCompletion private function get_loops():Int
+	{
 		return __backend.getLoops();
+	}
 
 	@:noCompletion private function set_loops(value:Int):Int
+	{
 		return __backend.setLoops(value);
+	}
 
 	@:noCompletion private function get_pitch():Float
+	{
 		return __backend.getPitch();
+	}
 
 	@:noCompletion private function set_pitch(value:Float):Float
+	{
 		return __backend.setPitch(value);
+	}
 
 	@:noCompletion private function get_position():Vector4
+	{
 		return __backend.getPosition();
+	}
 
 	@:noCompletion private function set_position(value:Vector4):Vector4
+	{
 		return __backend.setPosition(value);
+	}
 }
 
 #if flash
