@@ -19,9 +19,10 @@ import lime.utils.UInt8Array;
 @:access(lime.media.vorbis.VorbisFile)
 class NativeAudioSource
 {
-	private static var STREAM_BUFFER_SIZE:Int = 8192;
-	private static var STREAM_NUM_BUFFERS:Int = #if (native_audio_buffers && !macro) Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers")) #else 32 #end ;
-	private static var STREAM_TIMER_FREQUENCY:Int = 50;
+	// TODO: Fix a bug where the length decreases when the main thread is paused.
+	private static var STREAM_BUFFER_SIZE:Int = 48000;
+	private static var STREAM_NUM_BUFFERS:Int = #if (native_audio_buffers && !macro) Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers")) #else 2 #end;
+	private static var STREAM_TIMER_FREQUENCY:Float = 19.987;
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
@@ -125,13 +126,20 @@ class NativeAudioSource
 		if (playing || handle == null)
 			return;
 
+		// Fix current time issue when a sound stream is complete
+		if (completed)
+		{
+			setCurrentTime(0);
+			completed = false;
+		}
+
 		playing = true;
 
 		if (stream)
 		{
 			setCurrentTime(getCurrentTime());
 
-			streamTimer = new Timer(STREAM_TIMER_FREQUENCY);
+			streamTimer = new Timer(Math.max(STREAM_TIMER_FREQUENCY / getPitch(), 0.07)); // Bugfix on higher pitches where parts of the audio buffer stop.
 			streamTimer.run = streamTimer_onRun;
 		}
 		else
@@ -328,6 +336,14 @@ class NativeAudioSource
 			{
 				AL.sourceStop(handle);
 
+				// Bugfix. The sound no longer continues playing even when finishing.
+				if (value > getLength() && loops < 1)
+				{
+					stop();
+					completed = true;
+					return value = getLength();
+				}
+
 				parent.buffer.__srcVorbisFile.timeSeek((value + parent.offset) * 0.001);
 				AL.sourceUnqueueBuffers(handle, STREAM_NUM_BUFFERS);
 				refillBuffers(buffers);
@@ -349,7 +365,8 @@ class NativeAudioSource
 				var totalOffset = dataLength * ratio;
 
 				AL.sourcei(handle, AL.BYTE_OFFSET, totalOffset);
-				if (playing) AL.sourcePlay(handle);
+				if (playing)
+					AL.sourcePlay(handle);
 			}
 		}
 
