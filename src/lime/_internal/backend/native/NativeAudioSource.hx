@@ -166,7 +166,8 @@ class NativeAudioSource
 	private function readVorbisFileBuffer(vorbisFile:VorbisFile, length:Float):UInt8Array
 	{
 		#if lime_vorbis
-		var buffer = new UInt8Array(Math.floor(length));
+		var len:Int = Math.floor(length);
+		var buffer = new UInt8Array(len);
 		var read = 0.0, total = 0.0, readMax = 0.0;
 
 		for (i in 0...STREAM_NUM_BUFFERS-1)
@@ -180,7 +181,7 @@ class NativeAudioSource
 			if (readMax > length - total)
 				readMax = length - total;
 
-			read = vorbisFile.read(buffer.buffer, Math.floor(total), Math.floor(readMax));
+			read = vorbisFile.read(buffer.buffer, len, Math.floor(readMax));
 
 			if (read > 0)
 				total += read;
