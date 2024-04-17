@@ -22,7 +22,7 @@ class NativeAudioSource
 	// TODO: Fix a bug where the length decreases when the main thread is paused.
 	private static var STREAM_BUFFER_SIZE:Int = 48000;
 	private static var STREAM_NUM_BUFFERS:Int = #if (native_audio_buffers && !macro) Std.parseInt(haxe.macro.Compiler.getDefine("native_audio_buffers")) #else 2 #end;
-	private static var STREAM_TIMER_FREQUENCY:Float = 19.987;
+	private static var STREAM_TIMER_FREQUENCY:Float = 100;
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
