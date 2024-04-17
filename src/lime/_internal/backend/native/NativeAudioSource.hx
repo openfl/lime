@@ -126,17 +126,17 @@ class NativeAudioSource
 		if (playing || handle == null)
 			return;
 
-		// Fix current time issue when a sound stream is complete
-		if (completed)
-		{
-			setCurrentTime(0);
-			completed = false;
-		}
-
 		playing = true;
 
 		if (stream)
 		{
+			// Fix current time issue when a sound stream is complete
+			if (completed)
+			{
+				setCurrentTime(0);
+				completed = false;
+			}
+
 			setCurrentTime(getCurrentTime());
 
 			streamTimer = new Timer(Math.max(STREAM_TIMER_FREQUENCY / getPitch(), 0.07)); // Bugfix on higher pitches where parts of the audio buffer stop.
