@@ -750,7 +750,12 @@ class HXProject extends Script
 		{
 			defines.set("native", "1");
 
-			if (target == Platform.WINDOWS && targetFlags.exists("mingw"))
+			if (target == Platform.LINUX && targetFlags.exists("cpp"))
+			{
+				defines.set("targetType", "cpp");
+				defines.set("cpp", "1");
+			}
+			else if (target == Platform.WINDOWS && targetFlags.exists("mingw"))
 			{
 				defines.set("targetType", "cpp");
 				defines.set("cpp", "1");
