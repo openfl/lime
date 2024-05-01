@@ -119,10 +119,11 @@ class System
 	@:noCompletion private static var __documentsDirectory:String;
 	@:noCompletion private static var __endianness:Endian;
 	@:noCompletion private static var __fontsDirectory:String;
-	@:noCompletion private static inline var __milliseconds:Int = 1000;
 	@:noCompletion private static var __platformLabel:String;
 	@:noCompletion private static var __platformName:String;
 	@:noCompletion private static var __platformVersion:String;
+	@:noCompletion private static var __sleepAccuracyThreshold:Float = 0.0;
+	@:noCompletion private static var __sleepIsAccurate:Bool = false;
 	@:noCompletion private static var __userDirectory:String;
 		
 	#if (js && html5)
@@ -403,32 +404,62 @@ class System
 	/**
 		Blocks the thread for a given duration specified in seconds
 	**/
-	#if (sys)
-	public static function spinlock(seconds:Float):Void{
-		var dt:Float = 0.0;
-		var pTime:Float = Sys.cpuTime();
-		
-		while (dt < seconds){
-			var cTime:Float = Sys.cpuTime();
-			dt = cTime -  pTime;
+	#if sys
+	public static function spinlock(seconds:Float):Void
+	{
+		var pTime = timestamp();
 
-			pTime = cTime;
+		while (timestamp() - pTime < seconds)
+		{
+			Sys.sleep(0);
 		}
 	}
 	#end
 
 	/**
+		Provides a high resolution timestamp in seconds, with fractions.
+	**/
+	#if sys
+	public static function timestamp():Float
+	{
+		//we need to pass this from cffi for hl and neko
+		return untyped __global__.__time_stamp();
+	}
+	#end
+		
+	/**
 		Sleep with high resolution accuracy on most platforms
 	**/	
-	#if (sys)
-	public static function usleep(seconds:Float):Void{
-		var milliseconds:Int = Std.int(seconds * __milliseconds);
-       		var floorSeconds:Float = milliseconds / __milliseconds;
-        	var remainder:Float = seconds - floorSeconds;
-        
-        	Sys.sleep(floorSeconds);
-        
-        	spinlock(remainder);
+	#if sys
+	public static function usleep(seconds:Float):Void
+	{
+		var pTime = timestamp();
+		var threshold:Float = seconds - __sleepAccuracyThreshold;
+		var dt:Float = 0.0;
+
+		while ((dt = timestamp() - pTime) < threshold)
+		{
+			if (__sleepIsAccurate)
+			{
+				Sys.sleep(0.001);
+			}
+			else
+			{
+				__sleepAndImproveAccuracy();
+			}
+		}
+
+		if (dt > seconds)
+		{
+			__sleepIsAccurate = false;
+		}
+
+		var remainder:Float = seconds - dt;
+
+		if (remainder > 0)
+		{
+			spinlock(remainder);
+		}
 	}
 	#end
 
@@ -514,6 +545,17 @@ class System
 		return null;
 	}
 
+	#if sys
+	private static function __sleepAndImproveAccuracy():Void
+	{
+		var pTime:Float = timestamp();
+		Sys.sleep(0.001);
+		var newThreshold:Float = __sleepAccuracyThreshold + (timestamp() - pTime);
+		__sleepAccuracyThreshold = newThreshold / 2;
+		__sleepIsAccurate = true;
+	}
+	#end
+		
 	#if sys
 	private static function __parseArguments(attributes:WindowAttributes):Void
 	{
