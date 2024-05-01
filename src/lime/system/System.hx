@@ -403,7 +403,7 @@ class System
 	/**
 		Blocks the thread for a given duration specified in seconds
 	**/
-	#if (!lime_doc_gen || sys)
+	#if (sys)
 	public static function spinlock(seconds:Float):Void{
 		var dt:Float = 0.0;
 		var pTime:Float = Sys.cpuTime();
@@ -420,7 +420,7 @@ class System
 	/**
 		Sleep with high resolution accuracy on most platforms
 	**/	
-	#if (!lime_doc_gen || sys)
+	#if (sys)
 	public static function usleep(seconds:Float):Void{
 		var milliseconds:Int = Std.int(seconds * __milliseconds);
        		var floorSeconds:Float = milliseconds / __milliseconds;
