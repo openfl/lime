@@ -119,11 +119,12 @@ class System
 	@:noCompletion private static var __documentsDirectory:String;
 	@:noCompletion private static var __endianness:Endian;
 	@:noCompletion private static var __fontsDirectory:String;
+	@:noCompletion private static inline var __milliseconds:Int = 1000;
 	@:noCompletion private static var __platformLabel:String;
 	@:noCompletion private static var __platformName:String;
 	@:noCompletion private static var __platformVersion:String;
 	@:noCompletion private static var __userDirectory:String;
-
+		
 	#if (js && html5)
 	@:keep @:expose("lime.embed")
 	public static function embed(projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void
@@ -398,6 +399,38 @@ class System
 			#end
 		}
 	}
+
+	/**
+		Blocks the thread for a given duration specified in seconds
+	**/
+	#if (!lime_doc_gen || sys)
+	public static function spinlock(seconds:Float):Void{
+		var dt:Float = 0.0;
+		var pTime:Float = Sys.cpuTime();
+		
+		while (dt < seconds){
+			var cTime:Float = Sys.cpuTime();
+			dt = cTime -  pTime;
+
+			pTime = cTime;
+		}
+	}
+	#end
+
+	/**
+		Sleep with high resolution accuracy on most platforms
+	**/	
+	#if (!lime_doc_gen || sys)
+	public static function usleep(seconds:Float):Void{
+		var milliseconds:Int = Std.int(seconds * __milliseconds);
+       		var floorSeconds:Float = milliseconds / __milliseconds;
+        	var remainder:Float = seconds - floorSeconds;
+        
+        	Sys.sleep(floorSeconds);
+        
+        	spinlock(remainder);
+	}
+	#end
 
 	@:noCompletion private static function __copyMissingFields(target:Dynamic, source:Dynamic):Void
 	{
