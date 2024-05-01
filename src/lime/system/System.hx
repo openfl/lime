@@ -423,7 +423,17 @@ class System
 	public static function timestamp():Float
 	{
 		//we need to pass this from cffi for hl and neko
+		#if cpp
 		return untyped __global__.__time_stamp();
+		#end
+		//we need to pass this from cffi for hl and neko	
+		#if hl
+		//TODO: hashlink cffi
+		#end
+		#if neko
+		//TODO: Neko cffi
+		#end		
+		return 0.0;
 	}
 	#end
 		
