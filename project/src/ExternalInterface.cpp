@@ -3861,6 +3861,22 @@ namespace lime {
 	}
 
 
+	int lime_window_get_native_flags (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->sdlWindowFlags;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_window_get_native_flags) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->sdlWindowFlags;
+
+	}
+
+
 	value lime_zlib_compress (value buffer, value bytes) {
 
 		#ifdef LIME_ZLIB
