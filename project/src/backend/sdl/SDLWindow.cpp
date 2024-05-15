@@ -42,8 +42,7 @@ namespace lime {
 
 		currentApplication = application;
 		this->flags = flags;
-
-		int sdlWindowFlags = 0;
+		this->sdlWindowFlags = 0;
 
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlWindowFlags |= SDL_WINDOW_RESIZABLE;

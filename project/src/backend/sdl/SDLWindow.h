@@ -62,6 +62,7 @@ namespace lime {
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
+			SDL_WindowFlags sdlWindowFlags
 
 		private:
 
