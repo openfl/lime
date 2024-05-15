@@ -245,18 +245,6 @@ class NativeWindow
 		return cursor;
 	}
 
-	public function getFlags():Int
-	{
-		if (handle != null)
-		{
-			#if (!macro && lime_cffi)
-			return NativeCFFI.lime_window_get_native_flags(handle);
-			#end
-		}
-
-		return 0;
-	}
-
 	public function getDisplay():Display
 	{
 		if (handle != null)
@@ -272,6 +260,18 @@ class NativeWindow
 		}
 
 		return null;
+	}
+
+	public function getFlags():Int
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_native_flags(handle);
+			#end
+		}
+
+		return 0;
 	}
 
 	public function getDisplayMode():DisplayMode
