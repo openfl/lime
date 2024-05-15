@@ -3864,7 +3864,7 @@ namespace lime {
 	int lime_window_get_native_flags (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
-		return targetWindow->sdlWindowFlags;
+		return targetWindow->nativeWindowFlags;
 
 	}
 
@@ -3872,7 +3872,7 @@ namespace lime {
 	HL_PRIM int HL_NAME(hl_window_get_native_flags) (HL_CFFIPointer* window) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		return targetWindow->sdlWindowFlags;
+		return targetWindow->nativeWindowFlags;
 
 	}
 
