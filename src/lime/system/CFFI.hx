@@ -207,12 +207,12 @@ class CFFI
 	private static function __findHaxelib(library:String):String
 	{
 		#if (sys && !macro && !html5)
-		var proc:Process;
+		var proc:Process = null;
 		try
 		{
 			proc = new Process("haxelib", ["libpath", library]);
-			if (proc == null) return "";
 		} catch (e:Dynamic) {}
+		if (proc == null) return "";
 
 		var stream = proc.stdout;
 		var path:String = "";
