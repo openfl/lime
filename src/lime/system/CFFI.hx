@@ -155,15 +155,15 @@ class CFFI
 
 			if (result == null)
 			{
-				var haxelib = __findHaxelib("lime");
+				var ndllFolder = __findNDLLFolder();
 
-				if (haxelib != "")
+				if (ndllFolder != "")
 				{
-					result = __tryLoad(haxelib + "/ndll/" + __sysName() + "/" + library, library, method, args);
+					result = __tryLoad(ndllFolder + __sysName() + "/" + library, library, method, args);
 
 					if (result == null)
 					{
-						result = __tryLoad(haxelib + "/ndll/" + __sysName() + "64/" + library, library, method, args);
+						result = __tryLoad(ndllFolder + __sysName() + "64/" + library, library, method, args);
 					}
 				}
 			}
@@ -204,32 +204,30 @@ class CFFI
 		#end
 	}
 
-	private static function __findHaxelib(library:String):String
+	private static function __findNDLLFolder():String
 	{
 		#if (sys && !macro && !html5)
-		var proc:Process = null;
-		try
-		{
-			proc = new Process("haxelib", ["libpath", library]);
-		} catch (e:Dynamic) {}
-		if (proc == null) return "";
-
-		var stream = proc.stdout;
-		var path:String = "";
+		var process = new Process("haxelib", ["path", "lime"]);
 
 		try
 		{
-			path = stream.readLine();
-			__loaderTrace("Found haxelib " + path);
-		} catch (e:Dynamic) {}
+			while (true)
+			{
+				var line = StringTools.trim(process.stdout.readLine());
 
-		stream.close();
-		proc.close();
+				if (StringTools.startsWith(line, "-L "))
+				{
+					process.close();
+					return Path.addTrailingSlash(line.substr(3));
+				}
+			}
+		}
+		catch (e:Dynamic) {}
 
-		return path;
-		#else
-		return "";
+		process.close();
 		#end
+
+		return "";
 	}
 
 	private static function __loaderTrace(message:String)
@@ -298,7 +296,7 @@ class CFFI
 			}
 			else if (!lazy)
 			{
-				var ndllFolder = __findHaxelib("lime") + "/ndll/" + __sysName();
+				var ndllFolder = __findNDLLFolder() + __sysName();
 				throw "Could not find lime.ndll. This file is provided with Lime's Haxelib releases, but not via Git. "
 					+ "Please copy it from Lime's latest Haxelib release into either "
 					+ ndllFolder + " or " + ndllFolder + "64, as appropriate for your system. "
