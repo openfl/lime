@@ -39,7 +39,7 @@ class HTML5AudioSource
 				maxDistance: 10000,
 				refDistance: 1,
 				rolloffFactor: 1,
-				panningModel: "equalpower" // Default to equalpower for crisp sound
+				panningModel: "equalpower" // Default to equalpower for better performance
 			});
 		#end
 	}
