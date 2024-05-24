@@ -672,8 +672,9 @@ class Window
 	}
 
 	@:noCompletion private function set_title(value:String):String
-	{
-		return __title = __backend.setTitle(value);
+	{	
+		__backend.setTitle(value);
+		return __title = value;
 	}
 
 	@:noCompletion private inline function get_visible():Bool
