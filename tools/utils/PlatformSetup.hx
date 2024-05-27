@@ -816,6 +816,16 @@ class PlatformSetup
 			setupHaxelib(new Haxelib("lime"));
 		}
 
+		if (System.hostPlatform == MAC)
+		{
+			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
+		}
+
+		if (targetFlags.exists("noalias"))
+		{
+			return;
+		}
+
 		var haxePathEnv = Sys.getEnv("HAXEPATH");
 		var haxePath = haxePathEnv;
 
@@ -938,11 +948,6 @@ class PlatformSetup
 				Sys.println("sudo chmod 755 /usr/local/bin/lime");
 				Sys.println("");
 			}
-		}
-
-		if (System.hostPlatform == MAC)
-		{
-			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 	}
 
@@ -1074,6 +1079,16 @@ class PlatformSetup
 			setupHaxelib(new Haxelib("openfl"));
 		}
 
+		if (System.hostPlatform == MAC)
+		{
+			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
+		}
+
+		if (targetFlags.exists("noalias"))
+		{
+			return;
+		}
+
 		var haxePath = Sys.getEnv("HAXEPATH");
 		var project = null;
 
@@ -1187,11 +1202,6 @@ class PlatformSetup
 				Sys.println("sudo chmod 755 /usr/local/bin/openfl");
 				Sys.println("");
 			}
-		}
-
-		if (System.hostPlatform == MAC)
-		{
-			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 	}
 

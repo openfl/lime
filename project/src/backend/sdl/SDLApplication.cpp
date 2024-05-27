@@ -474,20 +474,6 @@ namespace lime {
 					}
 					break;
 
-				case SDL_JOYBALLMOTION:
-
-					if (!SDLJoystick::IsAccelerometer (event->jball.which)) {
-
-						joystickEvent.type = JOYSTICK_TRACKBALL_MOVE;
-						joystickEvent.index = event->jball.ball;
-						joystickEvent.x = event->jball.xrel / (event->jball.xrel > 0 ? 32767.0 : 32768.0);
-						joystickEvent.y = event->jball.yrel / (event->jball.yrel > 0 ? 32767.0 : 32768.0);
-						joystickEvent.id = event->jball.which;
-
-						JoystickEvent::Dispatch (&joystickEvent);
-
-					}
-					break;
 
 				case SDL_JOYBUTTONDOWN:
 
