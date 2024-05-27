@@ -15,8 +15,11 @@ import sys.FileSystem;
 
 class AssetsMacro
 {
-	#if !macro
-	macro public static function cacheVersion() {}
+	#if (!macro || display)
+	macro public static function cacheVersion()
+	{
+		return macro 0;
+	}
 	#else
 	macro public static function cacheVersion()
 	{
@@ -26,77 +29,22 @@ class AssetsMacro
 	macro public static function embedBytes():Array<Field>
 	{
 		var fields = embedData(":file");
+		if (fields == null) return null;
 
-		if (fields != null)
+		var superCall = Context.defined("html5") ? macro super(bytes.b.buffer)
+			: Context.defined("hl") ? macro super(bytes.b, bytes.length)
+			: macro super(bytes.length, bytes.b);
+
+		var definition = macro class Temp
 		{
-			#if !display
-			var constructor = macro
-				{
-					var bytes = haxe.Resource.getBytes(resourceName);
-					#if html5
-					super(bytes.b.buffer);
-					#elseif hl
-					super(bytes.b, bytes.length);
-					#else
-					super(bytes.length, bytes.b);
-					#end
-				};
+			public function new(?length:Int, ?bytesData:haxe.io.BytesData)
+			{
+				var bytes = haxe.Resource.getBytes(resourceName);
+				$superCall;
+			}
+		};
 
-			var args = [
-				{name: "length", opt: true, type: macro:Int},
-				{name: "bytesData", opt: true, type: macro:haxe.io.BytesData}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
-			#end
-		}
-
-		return fields;
-	}
-
-	macro public static function embedBytesHL():Array<Field>
-	{
-		var fields = embedData(":file");
-
-		if (fields != null)
-		{
-			#if !display
-			var constructor = macro
-				{
-					var bytes = haxe.Resource.getBytes(resourceName);
-					super(bytes.b, bytes.length);
-				};
-
-			var args = [
-				{name: "length", opt: true, type: macro:Int},
-				{name: "bytesData", opt: true, type: macro:haxe.io.BytesData}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
-			#end
-		}
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}
@@ -104,142 +52,115 @@ class AssetsMacro
 	macro public static function embedByteArray():Array<Field>
 	{
 		var fields = embedData(":file");
+		if (fields == null) return null;
 
-		if (fields != null)
+		var definition = macro class Temp
 		{
-			#if !display
-			var constructor = macro
-				{
-					super();
+			public function new(?length:Int = 0)
+			{
+				super();
 
-					var bytes = haxe.Resource.getBytes(resourceName);
-					__fromBytes(bytes);
-				};
+				var bytes = haxe.Resource.getBytes(resourceName);
+				__fromBytes(bytes);
+			}
+		};
 
-			var args = [
-				{
-					name: "length",
-					opt: true,
-					type: macro:Int,
-					value: macro 0
-				}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
-			#end
-		}
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}
 
 	private static function embedData(metaName:String, encode:Bool = false):Array<Field>
 	{
-		#if !display
+		if (Context.defined("display")) return null;
+
 		var classType = Context.getLocalClass().get();
-		var metaData = classType.meta.get();
+		var metaData = classType.meta;
 		var position = Context.currentPos();
 		var fields = Context.getBuildFields();
 
-		for (meta in metaData)
+		for (meta in metaData.extract(metaName))
 		{
-			if (meta.name == metaName)
+			if (meta.params.length == 0) continue;
+
+			switch (meta.params[0].expr)
 			{
-				if (meta.params.length > 0)
-				{
-					switch (meta.params[0].expr)
+				case EConst(CString("" | null)):
+					return null;
+
+				case EConst(CString(filePath)):
+					var path = filePath;
+
+					if (!FileSystem.exists(filePath))
 					{
-						case EConst(CString(filePath)):
-							var path = filePath;
-
-							if (path == "") return null;
-							if (path == null) return null;
-
-							if (!FileSystem.exists(filePath))
-							{
-								path = Context.resolvePath(filePath);
-							}
-
-							if (!FileSystem.exists(path) || FileSystem.isDirectory(path))
-							{
-								return null;
-							}
-
-							var bytes = File.getBytes(path);
-							var resourceName = "__ASSET__"
-								+ metaName
-								+ "_"
-								+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
-								+ classType.name;
-
-							if (Context.getResources().exists(resourceName))
-							{
-								return null;
-							}
-
-							if (encode)
-							{
-								var resourceType = "image/png";
-
-								if (bytes.get(0) == 0xFF && bytes.get(1) == 0xD8)
-								{
-									resourceType = "image/jpg";
-								}
-								else if (bytes.get(0) == 0x47 && bytes.get(1) == 0x49 && bytes.get(2) == 0x46)
-								{
-									resourceType = "image/gif";
-								}
-
-								var fieldValue = {pos: position, expr: EConst(CString(resourceType))};
-								fields.push(
-									{
-										kind: FVar(macro:String, fieldValue),
-										name: "resourceType",
-										access: [APrivate, AStatic],
-										pos: position
-									});
-
-								var base64 = Base64.encode(bytes);
-								Context.addResource(resourceName, Bytes.ofString(base64));
-							}
-							else
-							{
-								Context.addResource(resourceName, bytes);
-							}
-
-							var fieldValue = {pos: position, expr: EConst(CString(resourceName))};
-							fields.push(
-								{
-									kind: FVar(macro:String, fieldValue),
-									name: "resourceName",
-									access: [APrivate, AStatic],
-									pos: position
-								});
-
-							return fields;
-
-						default:
+						path = Context.resolvePath(filePath);
 					}
-				}
+
+					if (!FileSystem.exists(path) || FileSystem.isDirectory(path))
+					{
+						return null;
+					}
+
+					var bytes = File.getBytes(path);
+					var resourceName = "__ASSET__"
+						+ metaName
+						+ "_"
+						+ (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "")
+						+ classType.name;
+
+					if (Context.getResources().exists(resourceName))
+					{
+						return null;
+					}
+
+					if (encode)
+					{
+						var resourceType = "image/png";
+
+						if (bytes.get(0) == 0xFF && bytes.get(1) == 0xD8)
+						{
+							resourceType = "image/jpg";
+						}
+						else if (bytes.get(0) == 0x47 && bytes.get(1) == 0x49 && bytes.get(2) == 0x46)
+						{
+							resourceType = "image/gif";
+						}
+
+						var definition = macro class Temp
+						{
+							private static inline var resourceType:String = $v{ resourceType };
+						};
+
+						fields.push(definition.fields[0]);
+
+						var base64 = Base64.encode(bytes);
+						Context.addResource(resourceName, Bytes.ofString(base64));
+					}
+					else
+					{
+						Context.addResource(resourceName, bytes);
+					}
+
+					var definition = macro class Temp
+					{
+						private static inline var resourceName:String = $v{ resourceName };
+					};
+
+					fields.push(definition.fields[0]);
+
+					return fields;
+
+				default:
 			}
 		}
-		#end
 
 		return null;
 	}
 
 	macro public static function embedFont():Array<Field>
 	{
+		if (Context.defined("display")) return Context.getBuildFields();
+
 		var fields = null;
 
 		var classType = Context.getLocalClass().get();
@@ -250,7 +171,6 @@ class AssetsMacro
 		var path = "";
 		var glyphs = "32-255";
 
-		#if !display
 		for (meta in metaData)
 		{
 			if (meta.name == ":font")
@@ -275,10 +195,11 @@ class AssetsMacro
 
 		if (path != null && path != "")
 		{
-			#if html5
-			Sys.command("haxelib", ["run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path)]);
-			path += ".hash";
-			#end
+			if (Context.defined("html5"))
+			{
+				Sys.command("haxelib", ["run", "lime", "generate", "-font-hash", sys.FileSystem.fullPath(path)]);
+				path += ".hash";
+			}
 
 			var bytes = File.getBytes(path);
 			var resourceName = "LIME_font_" + (classType.pack.length > 0 ? classType.pack.join("_") + "_" : "") + classType.name;
@@ -294,57 +215,44 @@ class AssetsMacro
 				}
 			}
 
-			var fieldValue = {pos: position, expr: EConst(CString(resourceName))};
-			fields.push(
-				{
-					kind: FVar(macro:String, fieldValue),
-					name: "resourceName",
-					access: [APublic, AStatic],
-					pos: position
-				});
+			var definition = macro class Temp
+			{
+				private static var resourceName:String = $v{ resourceName };
 
-			var constructor = macro
+				public function new()
 				{
 					super();
 
 					__fromBytes(haxe.Resource.getBytes(resourceName));
-				};
+				}
+			};
 
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: [],
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
+			fields.push(definition.fields[0]);
+			fields.push(definition.fields[1]);
 
 			return fields;
 		}
-		#end
 
 		return fields;
 	}
 
 	macro public static function embedImage():Array<Field>
 	{
-		#if html5
-		var fields = embedData(":image", true);
-		#else
-		var fields = embedData(":image");
-		#end
+		var fields = embedData(":image", Context.defined("html5"));
+		if (fields == null) return null;
 
-		if (fields != null)
+		var definition:TypeDefinition;
+		if (Context.defined("html5"))
 		{
-			#if !display
-			var constructor = macro
+			definition = macro class Temp
+			{
+				public static var preload:js.html.Image;
+
+				public function new(?buffer:lime.graphics.ImageBuffer,
+					?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
+					?color:Null<Int>, ?type:lime.graphics.ImageType,
+					?onload:Dynamic = true)
 				{
-					#if html5
 					super();
 
 					if (preload != null)
@@ -371,91 +279,27 @@ class AssetsMacro
 							}
 						});
 					}
-					#else
+				}
+			};
+		}
+		else
+		{
+			definition = macro class Temp
+			{
+				public function new(?buffer:lime.graphics.ImageBuffer,
+					?offsetX:Int, ?offsetY:Int, ?width:Int, ?height:Int,
+					?color:Null<Int>, ?type:lime.graphics.ImageType)
+				{
 					super();
 
 					__fromBytes(haxe.Resource.getBytes(resourceName), null);
-					#end
-				};
-
-			var args = [
-				{
-					name: "buffer",
-					opt: true,
-					type: macro:lime.graphics.ImageBuffer,
-					value: null
-				},
-				{
-					name: "offsetX",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "offsetY",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "width",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "height",
-					opt: true,
-					type: macro:Int,
-					value: null
-				},
-				{
-					name: "color",
-					opt: true,
-					type: macro:Null<Int>,
-					value: null
-				},
-				{
-					name: "type",
-					opt: true,
-					type: macro:lime.graphics.ImageType,
-					value: null
 				}
-			];
+			};
+		}
 
-			#if html5
-			args.push(
-				{
-					name: "onload",
-					opt: true,
-					type: macro:Dynamic,
-					value: null
-				});
-			fields.push(
-				{
-					kind: FVar(macro:js.html.Image, null),
-					name: "preload",
-					doc: null,
-					meta: [],
-					access: [APublic, AStatic],
-					pos: Context.currentPos()
-				});
-			#end
-
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
-			#end
+		for (field in definition.fields)
+		{
+			fields.push(field);
 		}
 
 		return fields;
@@ -464,54 +308,24 @@ class AssetsMacro
 	macro public static function embedSound():Array<Field>
 	{
 		var fields = embedData(":sound");
+		// CFFILoader.h(248) : NOT Implemented:api_buffer_data
+		if (fields == null || Context.defined("html5") || !Context.defined("openfl"))
+			return null;
 
-		if (fields != null)
+		var definition = macro class Temp
 		{
-			#if (openfl && !html5 && !display) // CFFILoader.h(248) : NOT Implemented:api_buffer_data
+			public function new(?stream:openfl.net.URLRequest,
+				?context:openfl.media.SoundLoaderContext,
+				?forcePlayAsMusic:Bool = false)
+			{
+				super();
 
-			var constructor = macro
-				{
-					super();
+				var byteArray = openfl.utils.ByteArray.fromBytes(haxe.Resource.getBytes(resourceName));
+				loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
+			}
+		};
 
-					var byteArray = openfl.utils.ByteArray.fromBytes(haxe.Resource.getBytes(resourceName));
-					loadCompressedDataFromByteArray(byteArray, byteArray.length, forcePlayAsMusic);
-				};
-
-			var args = [
-				{
-					name: "stream",
-					opt: true,
-					type: macro:openfl.net.URLRequest,
-					value: null
-				},
-				{
-					name: "context",
-					opt: true,
-					type: macro:openfl.media.SoundLoaderContext,
-					value: null
-				},
-				{
-					name: "forcePlayAsMusic",
-					opt: true,
-					type: macro:Bool,
-					value: macro false
-				}
-			];
-			fields.push(
-				{
-					name: "new",
-					access: [APublic],
-					kind: FFun(
-						{
-							args: args,
-							expr: constructor,
-							params: [],
-							ret: null
-						}),
-					pos: Context.currentPos()
-				});
-			#end
-		}
+		fields.push(definition.fields[0]);
 
 		return fields;
 	}

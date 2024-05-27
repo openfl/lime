@@ -3,6 +3,7 @@ package lime.net.curl;
 #if (!lime_doc_gen || lime_curl)
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
+import lime.system.CFFI;
 import lime.system.CFFIPointer;
 
 #if !lime_debug
@@ -57,10 +58,7 @@ class CURL
 	{
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_escape(handle, url, length);
-		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
-		#end
-		return result;
+		return CFFI.stringValue(result);
 		#else
 		return null;
 		#end
@@ -187,17 +185,10 @@ class CURL
 
 			case CURLOption.HEADERFUNCTION:
 				var callback:CURL->String->Void = cast parameter;
-				#if hl
-				parameter = function(header:hl.Bytes)
+				parameter = function(header)
 				{
-					callback(this, @:privateAccess String.fromUTF8(header));
+					callback(this, CFFI.stringValue(header));
 				}
-				#else
-				parameter = function(header:String)
-				{
-					callback(this, header);
-				}
-				#end
 
 			case CURLOption.HTTPHEADER:
 				#if hl
@@ -221,10 +212,7 @@ class CURL
 	{
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_strerror(cast(code, Int));
-		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
-		#end
-		return result;
+		return CFFI.stringValue(result);
 		#else
 		return null;
 		#end
@@ -234,10 +222,7 @@ class CURL
 	{
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_unescape(handle, url, inLength, outLength);
-		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
-		#end
-		return result;
+		return CFFI.stringValue(result);
 		#else
 		return null;
 		#end
@@ -247,10 +232,7 @@ class CURL
 	{
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_version();
-		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
-		#end
-		return result;
+		return CFFI.stringValue(result);
 		#else
 		return null;
 		#end

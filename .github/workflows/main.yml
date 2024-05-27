@@ -17,7 +17,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -271,7 +271,7 @@ jobs:
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r15c
+          ndk-version: r21e
 
       - uses: actions/setup-java@v3
         with:
@@ -391,15 +391,15 @@ jobs:
       #     lime create HelloWorld -verbose -nocolor -eval
       #     lime build HelloWorld ios -simulator -release -verbose -nocolor -eval
 
-      - name: Build SimpleImage sample
+      - name: Build SimpleImage sample (Simulator)
         run: |
           lime create SimpleImage -verbose -nocolor -eval
           lime build SimpleImage ios -simulator -release -verbose -nocolor -eval
 
-      - name: Build SimpleAudio sample
+      - name: Build SimpleAudio sample (Device)
         run: |
           lime create SimpleAudio -verbose -nocolor -eval
-          lime build SimpleAudio ios -simulator -release -verbose -nocolor -eval
+          lime build SimpleAudio ios -release -nosign -verbose -nocolor -eval
 
   package-haxelib:
     needs: [linux, macos, windows, android, ios]
@@ -436,6 +436,10 @@ jobs:
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
+          mkdir templates/bin/hl/include
+          cp project/lib/hashlink/src/hlc.h templates/bin/hl/include/hlc.h
+          cp project/lib/hashlink/src/hl.h templates/bin/hl/include/hl.h
+          cp project/lib/hashlink/src/hlc_main.c templates/bin/hl/include/hlc_main.c
 
       - uses: actions/download-artifact@v3
         with:
@@ -679,6 +683,56 @@ jobs:
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio hl -release -verbose -nocolor
+
+  hashlinkc-samples:
+    needs: package-haxelib
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-20.04, macos-12]
+    runs-on: ${{ matrix.os }}
+    steps:
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.3 # minimum required version for HL/C
+
+      - name: Set HAXEPATH (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+      - name: Set HAXEPATH (Mac/Linux)
+        if: runner.os != 'Windows'
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: lime-haxelib
+          path: lime-haxelib
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime lime-haxelib
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld hlc -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage hlc -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio hlc -release -verbose -nocolor
 
   html5-samples:
     runs-on: ubuntu-20.04

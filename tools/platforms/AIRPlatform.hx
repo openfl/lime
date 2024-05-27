@@ -120,7 +120,7 @@ class AIRPlatform extends FlashPlatform
 		}
 		else
 		{
-			targetPlatform = cast System.hostPlatform;
+			targetPlatform = System.hostPlatform;
 			targetPlatformType = DESKTOP;
 		}
 	}
