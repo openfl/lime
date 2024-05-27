@@ -816,25 +816,59 @@ class PlatformSetup
 			setupHaxelib(new Haxelib("lime"));
 		}
 
-		var haxePath = Sys.getEnv("HAXEPATH");
+		if (System.hostPlatform == MAC)
+		{
+			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
+		}
+
+		if (targetFlags.exists("noalias"))
+		{
+			return;
+		}
+
+		var haxePathEnv = Sys.getEnv("HAXEPATH");
+		var haxePath = haxePathEnv;
 
 		if (System.hostPlatform == WINDOWS)
 		{
+			var usingDefaultHaxePath = false;
 			if (haxePath == null || haxePath == "")
 			{
+				usingDefaultHaxePath = true;
 				haxePath = "C:\\HaxeToolkit\\haxe\\";
 			}
 
+			var copyFailure = false;
+			var exeDestPath = haxePath + "\\lime.exe";
 			try
 			{
-				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe");
+				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.exe", exeDestPath);
 			}
-			catch (e:Dynamic) {}
+			catch (e:Dynamic)
+			{
+				copyFailure = true;
+				if (Log.verbose)
+				{
+					Log.warn("Failed to copy lime.exe alias to destination: " + exeDestPath);
+				}
+			}
+			var shDestPath = haxePath + "\\lime";
 			try
 			{
-				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
+				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.sh", shDestPath);
 			}
-			catch (e:Dynamic) {}
+			catch (e:Dynamic)
+			{
+				copyFailure = true;
+				if (Log.verbose)
+				{
+					Log.warn("Failed to copy lime.sh alias to destination: " + shDestPath);
+				}
+			}
+			if (Log.verbose && copyFailure && usingDefaultHaxePath && !FileSystem.exists(haxePath))
+			{
+				Log.warn("Did you install Haxe to a custom location? Set the HAXEPATH environment variable, and run Lime setup again.");
+			}
 		}
 		else
 		{
@@ -859,32 +893,46 @@ class PlatformSetup
 			{
 				if (System.hostPlatform == MAC)
 				{
+					var aliasDestPath = "/usr/local/bin/lime";
 					try
 					{
 						System.runCommand("", "cp", [
 							"-f",
 							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-							"/usr/local/bin/lime"
+							aliasDestPath
 						], false);
-						System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+						System.runCommand("", "chmod", ["755", aliasDestPath], false);
 						installedCommand = true;
 					}
-					catch (e:Dynamic) {}
+					catch (e:Dynamic)
+					{
+						if (Log.verbose)
+						{
+							Log.warn("Failed to copy Lime alias to destination: " + aliasDestPath);
+						}
+					}
 				}
 				else
 				{
+					var aliasDestPath = "/usr/local/bin/lime";
 					try
 					{
 						System.runCommand("", "sudo", [
 							"cp",
 							"-f",
 							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-							"/usr/local/bin/lime"
+							aliasDestPath
 						], false);
-						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
+						System.runCommand("", "sudo", ["chmod", "755", aliasDestPath], false);
 						installedCommand = true;
 					}
-					catch (e:Dynamic) {}
+					catch (e:Dynamic)
+					{
+						if (Log.verbose)
+						{
+							Log.warn("Failed to copy Lime alias to destination: " + aliasDestPath);
+						}
+					}
 				}
 			}
 
@@ -900,11 +948,6 @@ class PlatformSetup
 				Sys.println("sudo chmod 755 /usr/local/bin/lime");
 				Sys.println("");
 			}
-		}
-
-		if (System.hostPlatform == MAC)
-		{
-			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 	}
 
@@ -1036,6 +1079,16 @@ class PlatformSetup
 			setupHaxelib(new Haxelib("openfl"));
 		}
 
+		if (System.hostPlatform == MAC)
+		{
+			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
+		}
+
+		if (targetFlags.exists("noalias"))
+		{
+			return;
+		}
+
 		var haxePath = Sys.getEnv("HAXEPATH");
 		var project = null;
 
@@ -1149,11 +1202,6 @@ class PlatformSetup
 				Sys.println("sudo chmod 755 /usr/local/bin/openfl");
 				Sys.println("");
 			}
-		}
-
-		if (System.hostPlatform == MAC)
-		{
-			ConfigHelper.writeConfigValue("MAC_USE_CURRENT_SDK", "1");
 		}
 	}
 

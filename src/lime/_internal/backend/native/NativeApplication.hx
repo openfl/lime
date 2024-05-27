@@ -8,6 +8,7 @@ import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
 import lime.math.Rectangle;
 import lime.media.AudioManager;
+import lime.system.CFFI;
 import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
@@ -89,7 +90,7 @@ class NativeApplication
 
 	private function advanceTimer():Void
 	{
-		#if lime_cffi
+		#if (lime_cffi && !macro)
 		if (pauseTimer > -1)
 		{
 			var offset = System.getTimer() - pauseTimer;
@@ -187,7 +188,7 @@ class NativeApplication
 	{
 		for (window in parent.windows)
 		{
-			window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
+			window.onDropFile.dispatch(CFFI.stringValue(dropEventInfo.file));
 		}
 	}
 
@@ -226,10 +227,6 @@ class NativeApplication
 			case HAT_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
-
-			case TRACKBALL_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
 
 			case BUTTON_DOWN:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
@@ -289,7 +286,7 @@ class NativeApplication
 			}
 
 			#if rpi
-			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
+			if (keyCode == ESCAPE && modifier.ctrlKey && type == KEY_DOWN)
 			{
 				System.exit(0);
 			}
@@ -430,10 +427,10 @@ class NativeApplication
 			switch (textEventInfo.type)
 			{
 				case TEXT_INPUT:
-					window.onTextInput.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end);
+					window.onTextInput.dispatch(CFFI.stringValue(textEventInfo.text));
 
 				case TEXT_EDIT:
-					window.onTextEdit.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start,
+					window.onTextEdit.dispatch(CFFI.stringValue(textEventInfo.text), textEventInfo.start,
 						textEventInfo.length);
 
 				default:
@@ -577,7 +574,7 @@ class NativeApplication
 
 	private function updateTimer():Void
 	{
-		#if lime_cffi
+		#if (lime_cffi && !macro)
 		if (Timer.sRunningTimers.length > 0)
 		{
 			var currentTime = System.getTimer();
@@ -752,7 +749,6 @@ class NativeApplication
 {
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
-	var TRACKBALL_MOVE = 2;
 	var BUTTON_DOWN = 3;
 	var BUTTON_UP = 4;
 	var CONNECT = 5;
