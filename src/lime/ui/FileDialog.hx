@@ -223,7 +223,7 @@ class FileDialog
 	**/
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
-		#if desktop
+		#if (desktop && sys)
 		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
@@ -286,7 +286,7 @@ class FileDialog
 			return false;
 		}
 
-		#if desktop
+		#if (desktop && sys)
 		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)

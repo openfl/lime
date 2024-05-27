@@ -428,7 +428,7 @@ class ThreadPool extends WorkOutput
 						event.job.doWork.dispatch(event.job.state, output);
 					}
 				}
-				catch (e:Dynamic)
+				catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
 				{
 					output.sendError(e);
 				}
@@ -526,7 +526,7 @@ class ThreadPool extends WorkOutput
 				}
 				while (!__jobComplete.value && timeElapsed < maxTimeElapsed);
 			}
-			catch (e:Dynamic)
+			catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
 			{
 				sendError(e);
 			}
