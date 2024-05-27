@@ -678,7 +678,7 @@ class ProjectXMLParser extends HXProject
 
 					var asset = new Asset(path + childPath, targetPath + childTargetPath, childType, childEmbed);
 					asset.library = childLibrary;
-					
+
 					if (childElement.has.id)
 					{
 						asset.id = substitute(childElement.att.id);
@@ -1361,12 +1361,28 @@ class ProjectXMLParser extends HXProject
 
 						if (element.has.width)
 						{
-							splashScreen.width = Std.parseInt(substitute(element.att.width));
+							var parsedValue = Std.parseInt(substitute(element.att.width));
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown width=\"" + element.att.width + "\"");
+							}
+							else
+							{
+								splashScreen.width = parsedValue;
+							}
 						}
 
 						if (element.has.height)
 						{
-							splashScreen.height = Std.parseInt(substitute(element.att.height));
+							var parsedValue = Std.parseInt(substitute(element.att.height));
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown height=\"" + element.att.height + "\"");
+							}
+							else
+							{
+								splashScreen.height = parsedValue;
+							}
 						}
 
 						splashScreens.push(splashScreen);
@@ -1446,8 +1462,30 @@ class ProjectXMLParser extends HXProject
 										var name = substitute(childElement.att.name);
 										var imageset = new LaunchStoryboard.ImageSet(name);
 
-										if (childElement.has.width) imageset.width = Std.parseInt(substitute(childElement.att.width));
-										if (childElement.has.height) imageset.height = Std.parseInt(substitute(childElement.att.height));
+										if (childElement.has.width)
+										{
+											var parsedValue = Std.parseInt(substitute(childElement.att.width));
+											if (parsedValue == null)
+											{
+												Log.warn("Ignoring unknown width=\"" + element.att.width + "\"");
+											}
+											else
+											{
+												imageset.width = parsedValue;
+											}
+										}
+										if (childElement.has.height)
+										{
+											var parsedValue = Std.parseInt(substitute(childElement.att.height));
+											if (parsedValue == null)
+											{
+												Log.warn("Ignoring unknown height=\"" + element.att.height + "\"");
+											}
+											else
+											{
+												imageset.height = parsedValue;
+											}
+										}
 
 										launchStoryboard.assets.push(imageset);
 								}
@@ -1470,22 +1508,54 @@ class ProjectXMLParser extends HXProject
 
 						if (element.has.size)
 						{
-							icon.size = icon.width = icon.height = Std.parseInt(substitute(element.att.size));
+							var parsedValue = Std.parseInt(substitute(element.att.size));
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown size=\"" + element.att.size + "\"");
+							}
+							else
+							{
+								icon.size = icon.width = icon.height = parsedValue;
+							}
 						}
 
 						if (element.has.width)
 						{
-							icon.width = Std.parseInt(substitute(element.att.width));
+							var parsedValue = Std.parseInt(substitute(element.att.width));
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown width=\"" + element.att.width + "\"");
+							}
+							else
+							{
+								icon.width = parsedValue;
+							}
 						}
 
 						if (element.has.height)
 						{
-							icon.height = Std.parseInt(substitute(element.att.height));
+							var parsedValue = Std.parseInt(substitute(element.att.height));
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown height=\"" + element.att.height + "\"");
+							}
+							else
+							{
+								icon.height = parsedValue;
+							}
 						}
 
 						if (element.has.priority)
 						{
-							icon.priority = Std.parseInt(substitute(element.att.priority));
+							var parsedValue = Std.parseInt(substitute(element.att.priority));
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown priority=\"" + element.att.priority + "\"");
+							}
+							else
+							{
+								icon.priority = parsedValue;
+							}
 						}
 
 						icons.push(icon);
@@ -1786,10 +1856,26 @@ class ProjectXMLParser extends HXProject
 							switch (name)
 							{
 								case "minimum-sdk-version":
-									config.set("android.minimum-sdk-version", Std.parseInt(value));
+									var parsedValue = Std.parseInt(value);
+									if (parsedValue == null)
+									{
+										Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+									}
+									else
+									{
+										config.set("android.minimum-sdk-version", parsedValue);
+									}
 
 								case "target-sdk-version":
-									config.set("android.target-sdk-version", Std.parseInt(value));
+									var parsedValue = Std.parseInt(value);
+									if (parsedValue == null)
+									{
+										Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+									}
+									else
+									{
+										config.set("android.target-sdk-version", parsedValue);
+									}
 
 								case "install-location":
 									config.set("android.install-location", value);
@@ -1960,7 +2046,15 @@ class ProjectXMLParser extends HXProject
 
 		if (element.has.id)
 		{
-			id = Std.parseInt(substitute(element.att.id));
+			var parsedValue = Std.parseInt(substitute(element.att.id));
+			if (parsedValue == null)
+			{
+				Log.warn("Ignoring unknown id=\"" + element.att.id + "\"");
+			}
+			else
+			{
+				id = parsedValue;
+			}
 		}
 
 		while (id >= windows.length)
@@ -1992,7 +2086,15 @@ class ProjectXMLParser extends HXProject
 						}
 						else
 						{
-							windows[id].background = Std.parseInt(value);
+							var parsedValue = Std.parseInt(value);
+							if (parsedValue == null)
+							{
+								Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+							}
+							else
+							{
+								windows[id].background = parsedValue;
+							}
 						}
 					}
 
@@ -2005,7 +2107,15 @@ class ProjectXMLParser extends HXProject
 					}
 
 				case "height", "width", "fps", "antialiasing":
-					Reflect.setField(windows[id], name, Std.parseInt(value));
+					var parsedValue = Std.parseInt(value);
+					if (parsedValue == null)
+					{
+						Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+					}
+					else
+					{
+						Reflect.setField(windows[id], name, parsedValue);
+					}
 
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
@@ -2014,7 +2124,15 @@ class ProjectXMLParser extends HXProject
 					Reflect.setField(windows[id], "allowHighDPI", value == "true");
 
 				case "color-depth":
-					Reflect.setField(windows[id], "colorDepth", Std.parseInt(value));
+					var parsedValue = Std.parseInt(value);
+					if (parsedValue == null)
+					{
+						Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+					}
+					else
+					{
+						Reflect.setField(windows[id], "colorDepth", parsedValue);
+					}
 
 				default:
 					if (Reflect.hasField(WindowData.expectedFields, name))
