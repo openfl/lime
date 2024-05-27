@@ -67,6 +67,8 @@ namespace lime {
 			virtual void WarpMouse (int x, int y) = 0;
 
 			Application* currentApplication;
+
+			int nativeWindowFlags;
 			int flags;
 
 
