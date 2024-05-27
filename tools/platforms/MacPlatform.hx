@@ -1,6 +1,6 @@
 package;
 
-import lime.tools.HashlinkHelper;
+import haxe.io.Eof;
 import hxp.Haxelib;
 import hxp.HXML;
 import hxp.Log;
@@ -14,6 +14,7 @@ import lime.tools.CPPHelper;
 import lime.tools.CSHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.GUID;
+import lime.tools.HashlinkHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
@@ -25,6 +26,7 @@ import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
 import sys.io.File;
+import sys.io.Process;
 import sys.FileSystem;
 
 class MacPlatform extends PlatformTarget
@@ -439,6 +441,7 @@ class MacPlatform extends PlatformTarget
 		if (targetFlags.exists("hl"))
 		{
 			CPPHelper.rebuild(project, commands, null, "BuildHashlink.xml");
+			copyAndFixHashLinkHomebrewDependencies();
 		}
 
 		CPPHelper.rebuild(project, commands);
@@ -582,5 +585,149 @@ class MacPlatform extends PlatformTarget
 	private inline function get_dirSuffix():String
 	{
 		return targetArchitecture == X64 ? "64" : "";
+	}
+
+	/**
+		Finds and copies all Homebrew dependencies of the HashLink executable,
+		its .hdll files, and its .dylib files. We need to bundle these
+		dependencies, or the resulting .app file won't launch on systems that
+		don't have them installed. We also don't want to have to ask random
+		users to install Homebrew and the dependencies manually.
+
+		This process involves copying the dependencies to the same directory as
+		our bundled HashLink executable. Then, we use install_name_tool to
+		update the paths to those dependencies. We change the paths to use
+		@executable_path so that they can be found in the .app bundle and not at
+		their original locations.
+	**/
+	private function copyAndFixHashLinkHomebrewDependencies():Void
+	{
+		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
+		var bindir = "Mac64";
+		var bundledHLDirectory = Path.combine(limeDirectory, 'templates/bin/hl/$bindir');
+
+		// these are the known directories where Homebrew installs its dependencies
+		// we may need to add more in the future, but this seems to be enough for now
+		var homebrewDirs = [
+			"/usr/local/opt/",
+			"/usr/local/Cellar/"
+		];
+
+		// first, collect all executables, hdlls, and dylibs that were built
+		// by BuildHashlink.xml
+		var bundledPaths:Array<String> = [];
+		for (fileName in FileSystem.readDirectory(bundledHLDirectory))
+		{
+			var ext = Path.extension(fileName);
+			if (ext != "dylib" && ext != "hdll" && fileName != "hl")
+			{
+				// ignore files that aren't executables or libraries
+				continue;
+			}
+			var srcPath = Path.join([bundledHLDirectory, fileName]);
+			bundledPaths.push(srcPath);
+		}
+
+		var homebrewDependencyPaths:Array<String> = [];
+
+		// then find and copy all dependencies of those executables/libraries
+		// that come from Homebrew. keep searching all newly found Homebrew
+		// libraries for additional Homebrew dependendencies too.
+		var pathsToSearchForHomebrewDependencies = bundledPaths.copy();
+		while (pathsToSearchForHomebrewDependencies.length > 0)
+		{
+			var srcPath = pathsToSearchForHomebrewDependencies.shift();
+			var destPath = Path.join([bundledHLDirectory, Path.withoutDirectory(srcPath)]);
+			if (bundledPaths.indexOf(srcPath) == -1)
+			{
+				// copy files that don't exist yet
+				File.copy(srcPath, destPath);
+			}
+
+			var process = new Process("otool", ["-L", destPath]);
+			var exitCode = process.exitCode(true);
+			if (exitCode != 0)
+			{
+				Log.error('otool -L process exited with code: <${exitCode}> for file <${destPath}>');
+				continue;
+			}
+
+			while (true)
+			{
+				try
+				{
+					var line = process.stdout.readLine();
+					var ereg = ~/^\s+(.+?\.\w+?)\s\(/;
+					if (ereg.match(line))
+					{
+						var libPath = StringTools.trim(ereg.matched(1));
+						if (homebrewDependencyPaths.indexOf(libPath) != -1)
+						{
+							// already processed this file
+							continue;
+						}
+						var resolvedLibPath = libPath;
+						if (StringTools.startsWith(libPath, "@rpath/"))
+						{
+							resolvedLibPath = Path.join([Path.directory(srcPath), Path.withoutDirectory(libPath)]);
+							if (!FileSystem.exists(resolvedLibPath))
+							{
+								Log.error("Failed to resolve library to real path: " + libPath);
+								continue;
+							}
+						}
+						if (Lambda.exists(homebrewDirs, dirPath -> StringTools.startsWith(resolvedLibPath, dirPath)))
+						{
+							homebrewDependencyPaths.push(libPath);
+							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);
+						}
+					}
+				}
+				catch (e:Eof)
+				{
+					// no more output
+					break;
+				}
+			}
+		}
+
+		// finally, go through all executables and libraries that were either
+		// built by BuildHashlink.xml or were copied in the previous step,
+		// and replace any Homebrew library paths with @executable_path.
+		for (fileName in FileSystem.readDirectory(bundledHLDirectory))
+		{
+			var ext = Path.extension(fileName);
+			var isLibrary = ext == "dylib" || ext == "hdll";
+
+			if (fileName != "hl" && !isLibrary)
+			{
+				// ignore files that aren't executables or libraries
+				continue;
+			}
+
+			var absoluteFilePath = Path.join([bundledHLDirectory, fileName]);
+
+			if (isLibrary)
+			{
+				var newId = "@executable_path/" + fileName;
+				var process = new Process("install_name_tool", ["-id", newId, absoluteFilePath]);
+				var exitCode = process.exitCode(true);
+				if (exitCode != 0)
+				{
+					Log.error('install_name_tool -id process exited with code: <${exitCode}> for file <${fileName}>');
+				}
+			}
+
+			for (homebrewPath in homebrewDependencyPaths)
+			{
+				var newPath = "@executable_path/" + Path.withoutDirectory(homebrewPath);
+				var process = new Process("install_name_tool", ["-change", homebrewPath, newPath, absoluteFilePath]);
+				var exitCode = process.exitCode(true);
+				if (exitCode != 0)
+				{
+					Log.error('install_name_tool -change process exited with code: <${exitCode}> for file <${Path.withoutDirectory(homebrewPath)}>');
+				}
+			}
+		}
 	}
 }

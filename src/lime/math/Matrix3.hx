@@ -10,10 +10,11 @@ package lime.math;
 
 	```
 	[ a, c, tx ]
-	[ c, d, ty ]
+	[ b, d, ty ]
 	[ 0, 0,  1 ]
 	```
 **/
+import lime.utils.Float32Array;
 #if hl
 @:keep
 #end
@@ -21,37 +22,37 @@ package lime.math;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Matrix3
+abstract Matrix3(Float32Array) from Float32Array to Float32Array
 {
 	/**
 		The matrix a component, used in scaling and skewing (default is 1)
 	**/
-	public var a:Float;
+	public var a(get, set):Float;
 
 	/**
 		The matrix b component, used in rotation and skewing (default is 0)
 	**/
-	public var b:Float;
+	public var b(get, set):Float;
 
 	/**
 		The matrix c component, used in rotation and skewing (default is 0)
 	**/
-	public var c:Float;
+	public var c(get, set):Float;
 
 	/**
 		The matrix d component, used in scaling and skewing (default is 1)
 	**/
-	public var d:Float;
+	public var d(get, set):Float;
 
 	/**
 		The matrix tx component, used in translation (default is 0)
 	**/
-	public var tx:Float;
+	public var tx(get, set):Float;
 
 	/**
 		The matrix ty component, used in translation (default is 0)
 	**/
-	public var ty:Float;
+	public var ty(get, set):Float;
 
 	private static var __identity = new Matrix3();
 
@@ -66,12 +67,11 @@ class Matrix3
 	**/
 	public function new(a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
 	{
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-		this.tx = tx;
-		this.ty = ty;
+		this = new Float32Array([
+			a, c, 0,
+			b, d, 0,
+			tx, ty, 1
+		]);
 	}
 
 	/**
@@ -245,10 +245,10 @@ class Matrix3
 		@param	scaleX	An x scale transformation value
 		@param	scaleY	A y scale transformation value
 		@param	rotation (Optional) A rotation value (default is 0)
-		@param	tx	(Optional) A translate x value (default is 0)
-		@param	ty	(Optional) A translate y value (default is 0)
+		@param	xTranslate	(Optional) A translate x value (default is 0)
+		@param	yTranslate	(Optional) A translate y value (default is 0)
 	**/
-	public function createBox(scaleX:Float, scaleY:Float, rotation:Float = 0, tx:Float = 0, ty:Float = 0):Void
+	public function createBox(scaleX:Float, scaleY:Float, rotation:Float = 0, xTranslate:Float = 0, yTranslate:Float = 0):Void
 	{
 		if (rotation != 0)
 		{
@@ -268,8 +268,8 @@ class Matrix3
 			d = scaleY;
 		}
 
-		this.tx = tx;
-		this.ty = ty;
+		tx = xTranslate;
+		ty = yTranslate;
 	}
 
 	/**
@@ -277,11 +277,11 @@ class Matrix3
 		@param	width	The width of the gradient fill
 		@param	height	The height of the gradient fill
 		@param	rotation	(Optional) A rotation for the gradient fill (default is 0)
-		@param	tx	(Optional) An x offset for the gradient fill (default is 0)
-		@param	ty	(Optional) A y offset for the gradient fill (default is 0)
+		@param	xTranslate	(Optional) An x offset for the gradient fill (default is 0)
+		@param	yTranslate	(Optional) A y offset for the gradient fill (default is 0)
 		@return	A new `Matrix` instance
 	**/
-	public function createGradientBox(width:Float, height:Float, rotation:Float = 0, tx:Float = 0, ty:Float = 0):Void
+	public function createGradientBox(width:Float, height:Float, rotation:Float = 0, xTranslate:Float = 0, yTranslate:Float = 0):Void
 	{
 		a = width / 1638.4;
 		d = height / 1638.4;
@@ -303,8 +303,8 @@ class Matrix3
 			c = 0;
 		}
 
-		this.tx = tx + width / 2;
-		this.ty = ty + height / 2;
+		tx = xTranslate + width / 2;
+		ty = yTranslate + height / 2;
 	}
 
 	/**
@@ -459,12 +459,12 @@ class Matrix3
 	**/
 	public #if !js inline #end function setTo(a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void
 	{
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-		this.tx = tx;
-		this.ty = ty;
+		set_a(a);
+		set_b(b);
+		set_c(c);
+		set_d(d);
+		set_tx(tx);
+		set_ty(ty);
 	}
 
 	@:dox(hide) @:noCompletion public inline function to3DString(roundPixels:Bool = false):String
@@ -573,5 +573,70 @@ class Matrix3
 	{
 		tx += dx;
 		ty += dy;
+	}
+
+	inline function get_a():Float
+	{
+		return this[0];
+	}
+	inline function set_a(value: Float):Float
+	{
+		return this[0] = value;
+	}
+
+	inline function get_b():Float
+	{
+		return this[3];
+	}
+	inline function set_b(value: Float):Float
+	{
+		return this[3] = value;
+	}
+
+	inline function get_c():Float
+	{
+		return this[1];
+	}
+	inline function set_c(value: Float):Float
+	{
+		return this[1] = value;
+	}
+
+	inline function get_d():Float
+	{
+		return this[4];
+	}
+	inline function set_d(value: Float):Float
+	{
+		return this[4] = value;
+	}
+
+	inline function get_tx():Float
+	{
+		return this[6];
+	}
+	inline function set_tx(value: Float):Float
+	{
+		return this[6] = value;
+	}
+
+	inline function get_ty():Float
+	{
+		return this[7];
+	}
+	inline function set_ty(value: Float):Float
+	{
+		return this[7] = value;
+	}
+
+	@:dox(hide) @:noCompletion @:arrayAccess public function get(index:Int):Float
+	{
+		return this[index];
+	}
+
+	@:dox(hide) @:noCompletion @:arrayAccess public function set(index:Int, value:Float):Float
+	{
+		this[index] = value;
+		return value;
 	}
 }

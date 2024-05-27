@@ -183,7 +183,14 @@ class ThreadPool extends WorkOutput
 	{
 		super(mode);
 
-		__workPerFrame = workLoad / Application.current.window.frameRate;
+		if (Application.current != null && Application.current.window != null)
+		{
+			__workPerFrame = workLoad / Application.current.window.frameRate;
+		}
+		else
+		{
+			__workPerFrame = workLoad / 60;
+		}
 
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
@@ -335,7 +342,7 @@ class ThreadPool extends WorkOutput
 		completed = false;
 		canceled = false;
 
-		if (!Application.current.onUpdate.has(__update))
+		if (Application.current != null && !Application.current.onUpdate.has(__update))
 		{
 			Application.current.onUpdate.add(__update);
 		}
@@ -570,7 +577,7 @@ class ThreadPool extends WorkOutput
 			activeJob = null;
 		}
 
-		if (completed)
+		if (completed && Application.current != null)
 		{
 			Application.current.onUpdate.remove(__update);
 		}

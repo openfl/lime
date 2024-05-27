@@ -138,7 +138,7 @@ class LinuxPlatform extends PlatformTarget
 			is64 = targetFlags.exists("64");
 		}
 
-		if (project.targetFlags.exists("neko") || project.target != System.hostPlatform)
+		if (project.targetFlags.exists("neko"))
 		{
 			targetType = "neko";
 		}
@@ -299,6 +299,59 @@ class LinuxPlatform extends PlatformTarget
 				haxeArgs.push("-D");
 				haxeArgs.push("HXCPP_M32");
 				flags.push("-DHXCPP_M32");
+			}
+
+			if (project.target != System.hostPlatform)
+			{
+				var hxcpp_xlinux64_cxx = project.defines.get("HXCPP_XLINUX64_CXX");
+				if (hxcpp_xlinux64_cxx == null)
+				{
+					hxcpp_xlinux64_cxx = "x86_64-unknown-linux-gnu-g++";
+				}
+				var hxcpp_xlinux64_strip = project.defines.get("HXCPP_XLINUX64_STRIP");
+				if (hxcpp_xlinux64_strip == null)
+				{
+					hxcpp_xlinux64_strip = "x86_64-unknown-linux-gnu-strip";
+				}
+				var hxcpp_xlinux64_ranlib = project.defines.get("HXCPP_XLINUX64_RANLIB");
+				if (hxcpp_xlinux64_ranlib == null)
+				{
+					hxcpp_xlinux64_ranlib = "x86_64-unknown-linux-gnu-ranlib";
+				}
+				var hxcpp_xlinux64_ar = project.defines.get("HXCPP_XLINUX64_AR");
+				if (hxcpp_xlinux64_ar == null)
+				{
+					hxcpp_xlinux64_ar = "x86_64-unknown-linux-gnu-ar";
+				}
+				flags.push('-DHXCPP_XLINUX64_CXX=$hxcpp_xlinux64_cxx');
+				flags.push('-DHXCPP_XLINUX64_STRIP=$hxcpp_xlinux64_strip');
+				flags.push('-DHXCPP_XLINUX64_RANLIB=$hxcpp_xlinux64_ranlib');
+				flags.push('-DHXCPP_XLINUX64_AR=$hxcpp_xlinux64_ar');
+
+				var hxcpp_xlinux32_cxx = project.defines.get("HXCPP_XLINUX32_CXX");
+				if (hxcpp_xlinux32_cxx == null)
+				{
+					hxcpp_xlinux32_cxx = "i686-unknown-linux-gnu-g++";
+				}
+				var hxcpp_xlinux32_strip = project.defines.get("HXCPP_XLINUX32_STRIP");
+				if (hxcpp_xlinux32_strip == null)
+				{
+					hxcpp_xlinux32_strip = "i686-unknown-linux-gnu-strip";
+				}
+				var hxcpp_xlinux32_ranlib = project.defines.get("HXCPP_XLINUX32_RANLIB");
+				if (hxcpp_xlinux32_ranlib == null)
+				{
+					hxcpp_xlinux32_ranlib = "i686-unknown-linux-gnu-ranlib";
+				}
+				var hxcpp_xlinux32_ar = project.defines.get("HXCPP_XLINUX32AR");
+				if (hxcpp_xlinux32_ar == null)
+				{
+					hxcpp_xlinux32_ar = "i686-unknown-linux-gnu-ar";
+				}
+				flags.push('-DHXCPP_XLINUX32_CXX=$hxcpp_xlinux32_cxx');
+				flags.push('-DHXCPP_XLINUX32_STRIP=$hxcpp_xlinux32_strip');
+				flags.push('-DHXCPP_XLINUX32_RANLIB=$hxcpp_xlinux32_ranlib');
+				flags.push('-DHXCPP_XLINUX32_AR=$hxcpp_xlinux32_ar');
 			}
 
 			if (!project.targetFlags.exists("static"))
