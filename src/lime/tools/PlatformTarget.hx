@@ -103,6 +103,8 @@ class PlatformTarget
 			// AssetHelper.processLibraries (project, targetDirectory);
 			// #end
 			update();
+
+			AssetHelper.deleteStaleAssets(project, targetDirectory);
 		}
 
 		if (command == "build" || command == "test")
