@@ -710,23 +710,13 @@ class MacPlatform extends PlatformTarget
 			if (isLibrary)
 			{
 				var newId = "@executable_path/" + fileName;
-				var process = new Process("install_name_tool", ["-id", newId, absoluteFilePath]);
-				var exitCode = process.exitCode(true);
-				if (exitCode != 0)
-				{
-					Log.error('install_name_tool -id process exited with code: <${exitCode}> for file <${fileName}>');
-				}
+				System.runCommand("", "install_name_tool", ["-id", newId, absoluteFilePath]);
 			}
 
 			for (homebrewPath in homebrewDependencyPaths)
 			{
 				var newPath = "@executable_path/" + Path.withoutDirectory(homebrewPath);
-				var process = new Process("install_name_tool", ["-change", homebrewPath, newPath, absoluteFilePath]);
-				var exitCode = process.exitCode(true);
-				if (exitCode != 0)
-				{
-					Log.error('install_name_tool -change process exited with code: <${exitCode}> for file <${Path.withoutDirectory(homebrewPath)}>');
-				}
+				System.runCommand("", "install_name_tool", ["-change", homebrewPath, newPath, absoluteFilePath]);
 			}
 		}
 	}
