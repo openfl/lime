@@ -22,7 +22,7 @@ import lime.utils.Float32Array;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-abstract Matrix3(Float32Array) from Float32Array to Float32Array
+abstract Matrix3(Float32Array) to Float32Array
 {
 	/**
 		The matrix a component, used in scaling and skewing (default is 1)
@@ -333,6 +333,16 @@ abstract Matrix3(Float32Array) from Float32Array to Float32Array
 	@:from private static inline function fromCairoMatrix3(matrix:CairoMatrix3):Matrix3
 	{
 		return new Matrix3(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+	}
+
+	@:from private static inline function fromFloat32Array(array:Float32Array):Matrix3
+	{
+		if (array.length != 9)
+		{
+			throw "Expected array of length 9, got " + array.length;
+		}
+
+		return cast array;
 	}
 
 	/**
