@@ -3000,7 +3000,7 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_cairo_get_matrix") private static function lime_cairo_get_matrix(handle:CFFIPointer, out:Matrix3):Matrix3
+	@:hlNative("lime", "hl_cairo_get_matrix") private static function lime_cairo_get_matrix(handle:CFFIPointer, out:CairoMatrix3):CairoMatrix3
 	{
 		return null;
 	}
@@ -3117,7 +3117,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_set_line_width") private static function lime_cairo_set_line_width(handle:CFFIPointer, width:Float):Void {}
 
-	@:hlNative("lime", "hl_cairo_set_matrix") private static function lime_cairo_set_matrix(handle:CFFIPointer, matrix:Matrix3):Void {}
+	@:hlNative("lime", "hl_cairo_set_matrix") private static function lime_cairo_set_matrix(handle:CFFIPointer, matrix:CairoMatrix3):Void {}
 
 	@:hlNative("lime", "hl_cairo_set_miter_limit") private static function lime_cairo_set_miter_limit(handle:CFFIPointer, miterLimit:Float):Void {}
 
@@ -3155,7 +3155,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_text_path") private static function lime_cairo_text_path(handle:CFFIPointer, text:String):Void {}
 
-	@:hlNative("lime", "hl_cairo_transform") private static function lime_cairo_transform(handle:CFFIPointer, matrix:Matrix3):Void {}
+	@:hlNative("lime", "hl_cairo_transform") private static function lime_cairo_transform(handle:CFFIPointer, matrix:CairoMatrix3):Void {}
 
 	@:hlNative("lime", "hl_cairo_translate") private static function lime_cairo_translate(handle:CFFIPointer, x:Float, y:Float):Void {}
 
@@ -3301,7 +3301,7 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_cairo_pattern_get_matrix") private static function lime_cairo_pattern_get_matrix(handle:CFFIPointer, out:Matrix3):Matrix3
+	@:hlNative("lime", "hl_cairo_pattern_get_matrix") private static function lime_cairo_pattern_get_matrix(handle:CFFIPointer, out:CairoMatrix3):CairoMatrix3
 	{
 		return null;
 	}
@@ -3310,7 +3310,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_pattern_set_filter") private static function lime_cairo_pattern_set_filter(handle:CFFIPointer, filter:Int):Void {}
 
-	@:hlNative("lime", "hl_cairo_pattern_set_matrix") private static function lime_cairo_pattern_set_matrix(handle:CFFIPointer, matrix:Matrix3):Void {}
+	@:hlNative("lime", "hl_cairo_pattern_set_matrix") private static function lime_cairo_pattern_set_matrix(handle:CFFIPointer, matrix:CairoMatrix3):Void {}
 
 	@:hlNative("lime", "hl_cairo_surface_flush") private static function lime_cairo_surface_flush(surface:CFFIPointer):Void {}
 	#end
