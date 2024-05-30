@@ -1,5 +1,7 @@
 package lime.math;
 
+import lime.utils.Float32Array;
+
 /**
 	`Matrix3` is a 3x3 transformation matrix particularly useful for
 	two-dimensional transformation. It can be used for rotation, scale
@@ -13,8 +15,9 @@ package lime.math;
 	[ b, d, ty ]
 	[ 0, 0,  1 ]
 	```
+
+	Values are stored in column-major order for GLSL compatibility.
 **/
-import lime.utils.Float32Array;
 #if hl
 @:keep
 #end
@@ -65,10 +68,11 @@ abstract Matrix3(Float32Array) to Float32Array
 	**/
 	public function new(a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
 	{
+		// Column-major order means adjacent values form a column, not a row.
 		this = new Float32Array([
-			a, c, 0,
-			b, d, 0,
-			tx, ty, 1
+			a,  b,  0, // column 0
+			c,  d,  0, // column 1
+			tx, ty, 1  // column 2
 		]);
 	}
 
@@ -396,9 +400,9 @@ abstract Matrix3(Float32Array) to Float32Array
 		/*
 			Rotate object "after" other transforms
 
-			[  a  b   0 ][  ma mb  0 ]
-			[  c  d   0 ][  mc md  0 ]
-			[  tx ty  1 ][  mtx mty 1 ]
+			[  a  c  tx ][  ma  mc  mtx ]
+			[  b  d  ty ][  mb  md  mty ]
+			[  0  0   1 ][   0   0    1 ]
 
 			ma = md = cos
 			mb = sin
@@ -434,9 +438,9 @@ abstract Matrix3(Float32Array) to Float32Array
 
 			Scale object "after" other transforms
 
-			[  a  b   0 ][  sx  0   0 ]
-			[  c  d   0 ][  0   sy  0 ]
-			[  tx ty  1 ][  0   0   1 ]
+			[  a  c  tx ][  sx  0   0 ]
+			[  b  d  ty ][  0   sy  0 ]
+			[  0  0   1 ][  0   0   1 ]
 		 */
 
 		a *= sx;
@@ -481,7 +485,7 @@ abstract Matrix3(Float32Array) to Float32Array
 
 	@:dox(hide) public inline function toString():String
 	{
-		return "matrix(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + ", " + ty + ")";
+		return 'matrix($a, $b, $c, $d, $tx, $ty)';
 	}
 
 	/**
@@ -564,20 +568,20 @@ abstract Matrix3(Float32Array) to Float32Array
 
 	inline function get_b():Float
 	{
-		return this[3];
+		return this[1];
 	}
 	inline function set_b(value: Float):Float
 	{
-		return this[3] = value;
+		return this[1] = value;
 	}
 
 	inline function get_c():Float
 	{
-		return this[1];
+		return this[3];
 	}
 	inline function set_c(value: Float):Float
 	{
-		return this[1] = value;
+		return this[3] = value;
 	}
 
 	inline function get_d():Float
