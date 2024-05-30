@@ -54,8 +54,6 @@ abstract Matrix3(Float32Array) to Float32Array
 	**/
 	public var ty(get, set):Float;
 
-	private static var __identity = new Matrix3();
-
 	/**
 		Creates a new `Matrix` instance
 		@param	a	(Optional) An initial a component value (default is 1)
@@ -389,12 +387,6 @@ abstract Matrix3(Float32Array) to Float32Array
 		return this;
 	}
 
-	// public inline function mult (m:Matrix3) {
-	// 	var result = clone ();
-	// 	result.concat (m);
-	// 	return result;
-	// }
-
 	/**
 		Applies rotation to the current matrix
 		@param	theta	A rotation value in degrees
@@ -480,40 +472,6 @@ abstract Matrix3(Float32Array) to Float32Array
 		set_d(d);
 		set_tx(tx);
 		set_ty(ty);
-	}
-
-	@:dox(hide) @:noCompletion public inline function to3DString(roundPixels:Bool = false):String
-	{
-		// identity matrix
-		//  [a,b,tx,0],
-		//  [c,d,ty,0],
-		//  [0,0,1, 0],
-		//  [0,0,0, 1]
-		//
-		// matrix3d(a,       b, 0, 0, c, d,       0, 0, 0, 0, 1, 0, tx,     ty, 0, 1)
-
-		if (roundPixels)
-		{
-			return "matrix3d("
-				+ a
-				+ ", "
-				+ b
-				+ ", "
-				+ "0, 0, "
-				+ c
-				+ ", "
-				+ d
-				+ ", "
-				+ "0, 0, 0, 0, 1, 0, "
-				+ Std.int(tx)
-				+ ", "
-				+ Std.int(ty)
-				+ ", 0, 1)";
-		}
-		else
-		{
-			return "matrix3d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + tx + ", " + ty + ", 0, 1)";
-		}
 	}
 
 	@:dox(hide) @:noCompletion @:to public inline function toCairoMatrix3():CairoMatrix3
