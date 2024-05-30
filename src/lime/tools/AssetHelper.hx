@@ -191,25 +191,6 @@ class AssetHelper
 		return manifests;
 	}
 
-	public static function deleteStaleAssets(project:HXProject, targetDirectory:String):Void
-	{
-		var newAssets = [for (asset in project.assets) asset.targetPath];
-
-		var recordFile:String = targetDirectory + "/.assets";
-		if (FileSystem.exists(recordFile))
-		{
-			for (oldAsset in File.getContent(recordFile).split("\n"))
-			{
-				if (oldAsset.length > 0 && newAssets.indexOf(oldAsset) < 0)
-				{
-					System.deleteFile(targetDirectory + "/bin/" + oldAsset);
-				}
-			}
-		}
-
-		File.saveContent(recordFile, newAssets.join("\n"));
-	}
-
 	private static function getAssetData(project:HXProject, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:String,
 			asset:Asset):Dynamic
 	{

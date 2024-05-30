@@ -628,7 +628,7 @@ class TVOSPlatform extends PlatformTarget
 						fileName = "lib" + fileName;
 					}
 
-					System.copyIfNewer(dependency.path, projectDirectory + "/lib/" + arch + "/" + fileName);
+					copyIfNewer(dependency.path, projectDirectory + "/lib/" + arch + "/" + fileName);
 				}
 			}
 		}

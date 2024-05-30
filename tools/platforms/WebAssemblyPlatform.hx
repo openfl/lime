@@ -466,7 +466,7 @@ class WebAssemblyPlatform extends PlatformTarget
 					var name = Path.withoutDirectory(dependency.path);
 
 					context.linkedLibraries.push("./" + dependencyPath + "/" + name);
-					System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
+					copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
 				}
 			}
 		}

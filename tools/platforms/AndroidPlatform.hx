@@ -561,17 +561,17 @@ class AndroidPlatform extends PlatformTarget
 			{
 				if (FileSystem.isDirectory(javaPath))
 				{
-					System.recursiveCopy(javaPath, sourceSet + "/java", context, true);
+					recursiveCopy(javaPath, sourceSet + "/java", context, true);
 				}
 				else
 				{
 					if (Path.extension(javaPath) == "jar")
 					{
-						System.copyIfNewer(javaPath, destination + "/app/libs/" + Path.withoutDirectory(javaPath));
+						copyIfNewer(javaPath, destination + "/app/libs/" + Path.withoutDirectory(javaPath));
 					}
 					else
 					{
-						System.copyIfNewer(javaPath, sourceSet + "/java/" + Path.withoutDirectory(javaPath));
+						copyIfNewer(javaPath, sourceSet + "/java/" + Path.withoutDirectory(javaPath));
 					}
 				}
 			}
@@ -584,7 +584,7 @@ class AndroidPlatform extends PlatformTarget
 
 		for (library in cast(context.ANDROID_LIBRARY_PROJECTS, Array<Dynamic>))
 		{
-			System.recursiveCopy(library.source, destination + "/deps/" + library.name, context, true);
+			recursiveCopy(library.source, destination + "/deps/" + library.name, context, true);
 		}
 
 		ProjectHelper.recursiveSmartCopyTemplate(project, "android/template", destination, context);
