@@ -112,7 +112,6 @@ import lime.net.HTTPRequest;
 import lime.net.HTTPRequestHeader;
 import lime.net.HTTPRequestMethod;
 import lime.net.URIParser;
-import lime.system.BackgroundWorker;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
 import lime.system.Clipboard;
