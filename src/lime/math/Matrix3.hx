@@ -330,6 +330,11 @@ abstract Matrix3(Float32Array) from Float32Array to Float32Array
 		return result;
 	}
 
+	@:from private static inline function fromCairoMatrix3(matrix:CairoMatrix3):Matrix3
+	{
+		return new Matrix3(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+	}
+
 	/**
 		Resets the matrix to default identity values
 	**/
@@ -501,6 +506,11 @@ abstract Matrix3(Float32Array) from Float32Array to Float32Array
 		}
 	}
 
+	@:dox(hide) @:noCompletion @:to public inline function toCairoMatrix3():CairoMatrix3
+	{
+		return new CairoMatrix3(a, b, c, d, tx, ty);
+	}
+
 	@:dox(hide) public inline function toString():String
 	{
 		return "matrix(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + ", " + ty + ")";
@@ -638,5 +648,28 @@ abstract Matrix3(Float32Array) from Float32Array to Float32Array
 	{
 		this[index] = value;
 		return value;
+	}
+}
+
+/**
+	An object with the same data as a `Matrix3`, in Cairo's expected format.
+**/
+class CairoMatrix3
+{
+	public var a:Float;
+	public var b:Float;
+	public var c:Float;
+	public var d:Float;
+	public var tx:Float;
+	public var ty:Float;
+
+	public function new(a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
+	{
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.tx = tx;
+		this.ty = ty;
 	}
 }
