@@ -1060,7 +1060,10 @@ class ProjectXMLParser extends HXProject
 					Log.error(substitute(element.att.value));
 
 				case "echo":
-					Log.println(substitute(element.att.value));
+					if (command != "display")
+					{
+						Log.println(substitute(element.att.value));
+					}
 
 				case "log":
 					var verbose = "";
@@ -1074,21 +1077,24 @@ class ProjectXMLParser extends HXProject
 					{
 						Log.error(substitute(element.att.error), verbose);
 					}
-					else if (element.has.warn)
+					else if (command != "display")
 					{
-						Log.warn(substitute(element.att.warn), verbose);
-					}
-					else if (element.has.info)
-					{
-						Log.info(substitute(element.att.info), verbose);
-					}
-					else if (element.has.value)
-					{
-						Log.info(substitute(element.att.value), verbose);
-					}
-					else if (verbose != "")
-					{
-						Log.info("", verbose);
+						if (element.has.warn)
+						{
+							Log.warn(substitute(element.att.warn), verbose);
+						}
+						else if (element.has.info)
+						{
+							Log.info(substitute(element.att.info), verbose);
+						}
+						else if (element.has.value)
+						{
+							Log.info(substitute(element.att.value), verbose);
+						}
+						else if (verbose != "")
+						{
+							Log.info("", verbose);
+						}
 					}
 
 				case "path":
