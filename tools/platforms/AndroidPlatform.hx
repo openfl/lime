@@ -483,6 +483,8 @@ class AndroidPlatform extends PlatformTarget
 			"android:allowBackup": "true",
 			"android:theme": "@android:style/Theme.NoTitleBar" + (project.window.fullscreen ? ".Fullscreen" : null),
 			"android:hardwareAccelerated": "true",
+			"android:requestLegacyExternalStorage": context.ANDROID_TARGET_SDK_VERSION == 29 ? "true" : null,
+			"android:preserveLegacyExternalStorage": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "true" : null,
 			"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
 		});
 		context.ANDROID_ACTIVITY = project.config.getKeyValueArray("android.activity", {
