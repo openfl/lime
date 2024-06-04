@@ -63,6 +63,14 @@ import hxp.HostArchitecture;
 		}
 	}
 
+	/**
+		Returns the given `Architecture` if available, or `null` otherwise.
+	**/
+	public inline function new(name:String)
+	{
+		this = fromString(name.toUpperCase());
+	}
+
 	public inline function is64():Bool
 	{
 		return this == ARM64 || this == X64;

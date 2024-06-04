@@ -2234,7 +2234,7 @@ class CommandLineTools
 				{
 					if (argument.substr(0, 4) == "-arm")
 					{
-						var value:Architecture = argument.substr(1).toUpperCase();
+						var value = new Architecture(argument.substr(1));
 
 						if (value != null)
 						{
