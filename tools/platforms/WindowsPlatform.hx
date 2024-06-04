@@ -286,7 +286,7 @@ class WindowsPlatform extends PlatformTarget
 				if (StringTools.endsWith(dependency.path, ".dll"))
 				{
 					var fileName = Path.withoutDirectory(dependency.path);
-					System.copyIfNewer(dependency.path, applicationDirectory + "/" + fileName);
+					copyIfNewer(dependency.path, applicationDirectory + "/" + fileName);
 				}
 			}
 
@@ -1121,7 +1121,7 @@ class WindowsPlatform extends PlatformTarget
 				var name = Path.withoutDirectory(dependency.path);
 
 				context.linkedLibraries.push("./js/lib/" + name);
-				System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine("js/lib", name)));
+				copyIfNewer(dependency.path, Path.combine(destination, Path.combine("js/lib", name)));
 			}
 		}
 
