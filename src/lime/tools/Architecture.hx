@@ -3,6 +3,7 @@ package lime.tools;
 import hxp.HostArchitecture;
 
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract Architecture(String) to String
+
 {
 	var ARMV5 = "ARMV5";
 	var ARMV6 = "ARMV6";
@@ -61,19 +62,23 @@ import hxp.HostArchitecture;
 		}
 	}
 
-	public inline function is64():Bool {
+	public inline function is64():Bool
+	{
 		return this == ARM64 || this == X64;
 	}
 
-	public inline function isARM():Bool {
+	public inline function isARM():Bool
+	{
 		return this.indexOf("ARM") == 0;
 	}
 
-	public inline function isMIPS():Bool {
+	public inline function isMIPS():Bool
+	{
 		return this == MIPS || this == MIPSEL;
 	}
 
-	public inline function isX():Bool {
+	public inline function isX():Bool
+	{
 		return this == X86 || this == X64;
 	}
 }
