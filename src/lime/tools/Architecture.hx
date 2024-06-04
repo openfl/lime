@@ -1,5 +1,6 @@
 package lime.tools;
 
+import haxe.macro.Expr;
 import hxp.HostArchitecture;
 
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract Architecture(String) to String
@@ -80,5 +81,16 @@ import hxp.HostArchitecture;
 	public inline function isX():Bool
 	{
 		return this == X86 || this == X64;
+	}
+
+	@:noCompletion public macro function match(self:Expr, expr:Expr):Expr
+	{
+		return macro switch ($self)
+		{
+			case $expr:
+				true;
+			default:
+				false;
+		};
 	}
 }
