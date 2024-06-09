@@ -471,6 +471,7 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.WAKE_LOCK",
 			"android.permission.INTERNET",
 			"android.permission.VIBRATE",
+			"android.permission.BLUETOOTH",
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "7.4.2");
