@@ -1,10 +1,7 @@
 (function ($hx_exports, $global) { "use strict"; var $hx_script = (function (exports, global) { ::SOURCE_FILE::
 });
-::if false::
-	If `window` is undefined, it means this script is running as a web worker.
-	In that case, there's no need for exports, and all we need to do is run the
-	static initializers.
-::end::if(typeof window == "undefined") {
+if (typeof self !== "undefined" && self.constructor.name.includes("Worker")) {
+	// No need for exports in a worker context, just initialize statics.
 	$hx_script({}, $global);
 } else {
 	$hx_exports.lime = $hx_exports.lime || {};

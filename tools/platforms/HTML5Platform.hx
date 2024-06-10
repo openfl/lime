@@ -161,7 +161,7 @@ class HTML5Platform extends PlatformTarget
 						var script = File.getContent(dependency.path);
 						if (!dependency.webWorker)
 						{
-							script = 'if(typeof window != "undefined") {\n' + script + "\n}";
+							script = 'if(typeof self === "undefined" || !self.constructor.name.includes("Worker")) { $script }';
 						}
 						context.embeddedLibraries.push(script);
 					}
