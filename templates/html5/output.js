@@ -35,8 +35,8 @@
 		define.__amd = define.amd;
 		define.amd = null;
 	}
-})(typeof exports !== "undefined" ? exports : typeof define === "function" && define.amd ? {} : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : this,
-	typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : this);
+})(typeof exports !== "undefined" ? exports : typeof define === "function" && define.amd ? {} : typeof globalThis !== "undefined" ? globalThis : self,
+	typeof globalThis !== "undefined" ? globalThis : self);
 
 ::if embeddedLibraries::::foreach embeddedLibraries::
 ::__current__::::end::::end::
