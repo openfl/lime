@@ -92,7 +92,7 @@
 
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
 		<dependency path="dependencies/pako.min.js" if="html5" embed="true" web-worker="true" />
-		<dependency path="dependencies/lzma_worker-min.js" if="html5" embed="true" web-worker="true" />
+		<dependency path="dependencies/lzma_worker-min.js" if="html5" embed="true" />
 		<dependency path="dependencies/FileSaver.min.js" if="html5" embed="true" />
 		<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="true" />
 		<dependency path="dependencies/stats.min.js" if="html5 stats" embed="true" />
