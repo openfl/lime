@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import lime.media.openal.ext.EXT_float32;
 import haxe.Int64;
 import haxe.Timer;
 import lime.math.Vector4;
@@ -83,6 +84,10 @@ class NativeAudioSource
 			{
 				format = AL.FORMAT_MONO16;
 			}
+			else
+			{
+				format = EXT_float32.FORMAT_MONO_FLOAT32;
+			}
 		}
 		else if (parent.buffer.channels == 2)
 		{
@@ -93,6 +98,10 @@ class NativeAudioSource
 			else if (parent.buffer.bitsPerSample == 16)
 			{
 				format = AL.FORMAT_STEREO16;
+			}
+			else
+			{
+				format = EXT_float32.FORMAT_STEREO_FLOAT32;
 			}
 		}
 
