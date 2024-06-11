@@ -1,0 +1,181 @@
+<xml>
+
+    <set name="SDLSOUND_DECODER_MODPLUG" value="1" />
+    <set name="SDLSOUND_DECODER_MIDI" value="1" />
+    <set name="SDLSOUND_DECODER_COREAUDIO" value="1" if="mac || ios || tvos" />
+
+    <files id="native-toolkit-sdl_sound-depends">
+
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/dr_flac.h" />
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/dr_mp3.h" />
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound.h" />
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_internal.h" />
+        <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/stb_vorbis.h" />
+
+        <section if="SDLSOUND_DECODER_MODPLUG">
+
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/libmodplug.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/modplug.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/tables.h" />
+
+        </section>
+
+        <section if="SDLSOUND_DECODER_MIDI">
+
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/common.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/instrum.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/mix.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/options.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/output.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/playmidi.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/readmidi.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/resample.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/tables.h" />
+            <depend name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/timidity.h" />
+
+        </section>
+
+    </files>
+
+    <files id="native-toolkit-sdl_sound" tags="">
+
+        <cache value="1" />
+        <tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+
+        <compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
+
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/sdl/include/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
+        <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
+
+        <compilerflag value="-DHAVE_LIBC" />
+        <compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
+        <compilerflag value="-D__TVOS__" if="tvos" />
+
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl_sound/src/" />
+
+        <section if="winrt">
+
+            <compilerflag value="-D__WINRT__" />
+            <compilerflag value="-DUNICODE" />
+
+        </section>
+
+        <section if="linux">
+
+            <compilerflag value="-D_REENTRANT" />
+            <compilerflag value="-mmmx" unless="rpi" />
+            <compilerflag value="-msse" unless="rpi" />
+            <compilerflag value="-msse2" unless="rpi" />
+            <compilerflag value="-msse3" unless="rpi" />
+            <compilerflag value="-mssse3" unless="rpi" />
+
+        </section>
+
+            <section if="rpi">
+
+                <compilerflag value="-mfpu=neon" unless="HXCPP_ARM64" />
+                <compilerflag value="-mfloat-abi=hard" unless="HXCPP_ARM64" />
+                <compilerflag value="-I-abi=hard" />
+
+                <compilerflag value="-I/opt/vc/include" />
+                <compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/dbus-1.0" />
+                <compilerflag value="-I/usr/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/usr/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/libdrm" />
+                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/local/include" />
+
+            </section>
+
+        <section if="mac">
+
+            <compilerflag value="-DTARGET_API_MAC_CARBON" />
+            <compilerflag value="-DTARGET_API_MAC_OSX" />
+            <compilerflag value="-D_THREAD_SAFE" />
+            <compilerflag value="-mmmx" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
+
+            <vflag name="-framework" value="AudioToolbox" if="SDLSOUND_DECODER_COREAUDIO" />
+
+        </section>
+
+        <section if="ios || tvos">
+
+            <vflag name="-framework" value="AudioToolbox" if="SDLSOUND_DECODER_COREAUDIO" />
+
+        </section>
+
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_aiff.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_au.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_coreaudio.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_flac.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_midi.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_modplug.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_mp3.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_raw.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_shn.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_voc.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_vorbis.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_wav.c" />
+
+        <section if="SDLSOUND_DECODER_MODPLUG">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/fastmix.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_669.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_amf.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_ams.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_dbm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_dmf.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_dsm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_far.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_it.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_mdl.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_med.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_mod.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_mt2.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_mtm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_okt.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_gdm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_psm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_ptm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_s3m.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_stm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_ult.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_umx.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/load_xm.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/mmcmp.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/modplug.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/snd_dsp.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/snd_flt.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/snd_fx.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/sndfile.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/libmodplug/sndmix.c" />
+
+        </section>
+
+        <section if="SDLSOUND_DECODER_MIDI">
+
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/common.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/instrum.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/mix.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/output.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/playmidi.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/readmidi.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/resample.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/tables.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/timidity/timidity.c" />
+
+        </section>
+
+    </files>
+
+</xml>

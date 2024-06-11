@@ -19,6 +19,7 @@ Lime includes code from several other C/C++ libraries, listed below. Lime prefer
 - [**Pixman**](http://pixman.org/) | [primary repo](https://gitlab.freedesktop.org/pixman/pixman) | [GitHub mirror](https://github.com/freedesktop/pixman)
 - [**libpng**](http://www.libpng.org/pub/png/libpng.html) | [primary repo](https://sourceforge.net/p/libpng/code) | [GitHub mirror](https://github.com/glennrp/libpng)[^1]
 - [**SDL**](https://www.libsdl.org/) | [primary repo](https://github.com/libsdl-org/SDL)
+- [**SDL_sound**](https://icculus.org/SDL_sound/) | [primary repo](https://github.com/icculus/SDL_sound)
 - [**tiny file dialogs**](https://sourceforge.net/projects/tinyfiledialogs/) | [primary repo](https://sourceforge.net/p/tinyfiledialogs/code) | [unofficial GitHub mirror](https://github.com/openfl/libtinyfiledialogs)[^1]
 - [**Vorbis**](https://www.xiph.org/vorbis/) | [primary repo](https://github.com/xiph/vorbis)
 - [**libvpx**](https://www.webmproject.org/tools/) | [primary repo](https://chromium.googlesource.com/webm/libvpx/) | [GitHub mirror](https://github.com/webmproject/libvpx/)
