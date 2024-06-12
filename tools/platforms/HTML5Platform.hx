@@ -418,19 +418,25 @@ class HTML5Platform extends PlatformTarget
 
 		for (dependency in project.dependencies)
 		{
-			if (!dependency.embed || npm)
+			if (dependency.embed && !npm)
 			{
-				if (StringTools.endsWith(dependency.name, ".js"))
-				{
-					context.linkedLibraries.push(dependency.name);
-				}
-				else if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
-				{
-					var name = Path.withoutDirectory(dependency.path);
+				continue;
+			}
 
-					context.linkedLibraries.push("./" + dependencyPath + "/" + name);
-					System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
-				}
+			if (StringTools.endsWith(dependency.path, ".js") && FileSystem.exists(dependency.path))
+			{
+				var name = Path.withoutDirectory(dependency.path);
+
+				context.linkedLibraries.push("./" + dependencyPath + "/" + name);
+				System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine(dependencyPath, name)));
+			}
+			else if (StringTools.endsWith(dependency.path, '.js'))
+			{
+				context.linkedLibraries.push(dependency.path);
+			}
+			else if (StringTools.endsWith(dependency.name, ".js"))
+			{
+				context.linkedLibraries.push(dependency.name);
 			}
 		}
 
