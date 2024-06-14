@@ -493,6 +493,7 @@ class AndroidPlatform extends PlatformTarget
 			"android:configChanges": project.config.getArrayString("android.configChanges", ["keyboardHidden", "orientation", "screenSize", "screenLayout", "uiMode"]).join("|"),
 			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
 		});
+		context.ANDROID_SUPPORTED_MIME_TYPES = project.config.getArrayString("android.supportedMimeTypes", []);
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
 		{
