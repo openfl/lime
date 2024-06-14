@@ -8,8 +8,6 @@ class AndroidHelper
 {
 	private static var adbName:String;
 	private static var adbPath:String;
-	private static var androidName:String;
-	private static var androidPath:String;
 	private static var emulatorName:String;
 	private static var emulatorPath:String;
 
@@ -159,30 +157,44 @@ class AndroidHelper
 
 	public static function initialize(project:HXProject):Void
 	{
-		adbPath = project.environment.get("ANDROID_SDK") + "/tools/";
-		androidPath = project.environment.get("ANDROID_SDK") + "/tools/";
-		emulatorPath = project.environment.get("ANDROID_SDK") + "/tools/";
+		adbPath = project.environment.get("ANDROID_SDK") + "/platform-tools/";
+		emulatorPath = project.environment.get("ANDROID_SDK") + "/emulator/";
 
 		adbName = "adb";
-		androidName = "android";
 		emulatorName = "emulator";
 
 		if (System.hostPlatform == WINDOWS)
 		{
 			adbName += ".exe";
-			androidName += ".bat";
 			emulatorName += ".exe";
 		}
 
 		if (!FileSystem.exists(adbPath + adbName))
 		{
-			adbPath = project.environment.get("ANDROID_SDK") + "/platform-tools/";
+			// in older SDKs, adb was located in /tools/
+			adbPath = project.environment.get("ANDROID_SDK") + "/tools/";
+
+			// we always need adb, so report an error immediately if it is missing
+			if (!FileSystem.exists(adbPath + adbName))
+			{
+				Log.error("adb not found in Android SDK: " + project.environment.get("ANDROID_SDK"));
+			}
+		}
+
+		if (!FileSystem.exists(emulatorPath + emulatorName))
+		{
+			// in older SDKs, emulator was located in /tools/
+			emulatorPath = project.environment.get("ANDROID_SDK") + "/tools/";
+			// report an error for missing emulator only if we actually need it
+			if (!FileSystem.exists(emulatorPath + emulatorName) && (project.targetFlags.exists("emulator") || project.targetFlags.exists("simulator")))
+			{
+				Log.error("emulator not found in Android SDK: " + project.environment.get("ANDROID_SDK"));
+			}
 		}
 
 		if (System.hostPlatform != WINDOWS)
 		{
 			adbName = "./" + adbName;
-			androidName = "./" + androidName;
 			emulatorName = "./" + emulatorName;
 		}
 
@@ -280,16 +292,13 @@ class AndroidHelper
 	public static function listAVDs():Array<String>
 	{
 		var avds = new Array<String>();
-		var output = System.runProcess(androidPath, androidName, ["list", "avd"]);
-
+		var output = System.runProcess(emulatorPath, emulatorName, ["-list-avds"]);
 		if (output != null && output != "")
 		{
+			// -list-avds returns only the avd names, separated by line breaks
 			for (line in output.split("\n"))
 			{
-				if (line.indexOf("Name") > -1)
-				{
-					avds.push(StringTools.trim(line.substr(line.indexOf("Name") + 6)));
-				}
+				avds.push(StringTools.trim(line));
 			}
 		}
 
