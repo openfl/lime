@@ -25,7 +25,7 @@
 
 			</intent-filter>
 
-			::foreach ANDROID_MIME_TYPES::
+			::foreach ANDROID_ACCEPT_FILE_INTENT::
 			<intent-filter>
 
 				<action android:name="android.intent.action.VIEW" />
