@@ -383,12 +383,12 @@ public class GameActivity extends SDLActivity {
 
 			if (period == 0) {
 
-				v.vibrate (VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE));
+				v.vibrate (VibrationEffect.createOneShot (duration, VibrationEffect.DEFAULT_AMPLITUDE));
 
 			} else {
 
-				int periodMS = Math.max(1, (int) Math.ceil(period / 2.0));
-				int count = Math.max(1, (int) Math.ceil((duration / (double) period) * 2));
+				int periodMS = Math.max (1, (int)Math.ceil (period / 2.0));
+				int count = Math.max (1, (int)Math.ceil ((duration / (double) period) * 2));
 				long[] pattern = new long[count];
 
 				for (int i = 0; i < count; i++) {
@@ -397,7 +397,7 @@ public class GameActivity extends SDLActivity {
 
 				}
 
-				v.vibrate (VibrationEffect.createWaveform(pattern, -1));
+				v.vibrate (VibrationEffect.createWaveform (pattern, -1));
 
 			}
 
