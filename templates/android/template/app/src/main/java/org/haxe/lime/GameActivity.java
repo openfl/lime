@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -372,23 +373,55 @@ public class GameActivity extends SDLActivity {
 
 		Vibrator v = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
 
-		if (period == 0) {
+		if (v == null || !v.hasVibrator()) {
 
-			v.vibrate (duration);
+			return;
 
-		} else {
+		}
 
-			int periodMS = (int)Math.ceil (period / 2);
-			int count = (int)Math.ceil ((duration / period) * 2);
-			long[] pattern = new long[count];
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-			for (int i = 0; i < count; i++) {
+			if (period == 0) {
 
-				pattern[i] = periodMS;
+				v.vibrate (VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE));
+
+			} else {
+
+				int periodMS = Math.max(1, (int) Math.ceil(period / 2.0));
+				int count = Math.max(1, (int) Math.ceil((duration / (double) period) * 2));
+				long[] pattern = new long[count];
+
+				for (int i = 0; i < count; i++) {
+
+					pattern[i] = periodMS;
+
+				}
+
+				v.vibrate (VibrationEffect.createWaveform(pattern, -1));
 
 			}
 
-			v.vibrate (pattern, -1);
+		} else {
+
+			if (period == 0) {
+
+				v.vibrate (duration);
+
+			} else {
+
+				int periodMS = (int)Math.ceil (period / 2);
+				int count = (int)Math.ceil ((duration / period) * 2);
+				long[] pattern = new long[count];
+
+				for (int i = 0; i < count; i++) {
+
+					pattern[i] = periodMS;
+
+				}
+
+				v.vibrate (pattern, -1);
+
+			}
 
 		}
 
