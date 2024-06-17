@@ -30,11 +30,9 @@ public class GameActivity extends SDLActivity {
 	private static AssetManager assetManager;
 	private static List<Extension> extensions;
 	private static DisplayMetrics metrics;
+	private static Vibrator vibrator;
 
 	public Handler handler;
-
-	protected Vibrator vibrator;
-
 
 	public static double getDisplayXDPI () {
 
@@ -110,7 +108,7 @@ public class GameActivity extends SDLActivity {
 	protected void onCreate (Bundle state) {
 
 		vibrator = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
-		
+
 		super.onCreate (state);
 
 		assetManager = getAssets ();
