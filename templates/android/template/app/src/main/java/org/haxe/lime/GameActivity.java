@@ -33,6 +33,8 @@ public class GameActivity extends SDLActivity {
 
 	public Handler handler;
 
+	protected Vibrator vibrator;
+
 
 	public static double getDisplayXDPI () {
 
@@ -107,6 +109,8 @@ public class GameActivity extends SDLActivity {
 
 	protected void onCreate (Bundle state) {
 
+		vibrator = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
+		
 		super.onCreate (state);
 
 		assetManager = getAssets ();
@@ -137,6 +141,14 @@ public class GameActivity extends SDLActivity {
 
 
 	@Override protected void onDestroy () {
+
+		if (vibrator != null) {
+			
+			Log.d ("GameActivity", "Cancelling vibration");
+
+			vibrator.cancel ();
+
+		}
 
 		for (Extension extension : extensions) {
 
@@ -176,6 +188,14 @@ public class GameActivity extends SDLActivity {
 
 
 	@Override protected void onPause () {
+
+		if (vibrator != null) {
+			
+			Log.d ("GameActivity", "Cancelling vibration");
+
+			vibrator.cancel ();
+
+		}
 
 		super.onPause ();
 
@@ -371,9 +391,7 @@ public class GameActivity extends SDLActivity {
 
 	public static void vibrate (int period, int duration) {
 
-		Vibrator v = (Vibrator)mSingleton.getSystemService (Context.VIBRATOR_SERVICE);
-
-		if (v == null || !v.hasVibrator()) {
+		if (vibrator == null || !vibrator.hasVibrator ()) {
 
 			return;
 
@@ -383,7 +401,7 @@ public class GameActivity extends SDLActivity {
 
 			if (period == 0) {
 
-				v.vibrate (VibrationEffect.createOneShot (duration, VibrationEffect.DEFAULT_AMPLITUDE));
+				vibrator.vibrate (VibrationEffect.createOneShot (duration, VibrationEffect.DEFAULT_AMPLITUDE));
 
 			} else {
 
@@ -397,7 +415,7 @@ public class GameActivity extends SDLActivity {
 
 				}
 
-				v.vibrate (VibrationEffect.createWaveform (pattern, -1));
+				vibrator.vibrate (VibrationEffect.createWaveform (pattern, -1));
 
 			}
 
@@ -405,7 +423,7 @@ public class GameActivity extends SDLActivity {
 
 			if (period == 0) {
 
-				v.vibrate (duration);
+				vibrator.vibrate (duration);
 
 			} else {
 
@@ -419,7 +437,7 @@ public class GameActivity extends SDLActivity {
 
 				}
 
-				v.vibrate (pattern, -1);
+				vibrator.vibrate (pattern, -1);
 
 			}
 
