@@ -442,13 +442,6 @@
 			</section>
 
 			<section if="mac">
-				<!--
-					starting in xcode 15, rpath doesn't automatically include
-					/usr/local/lib, but we need it for neko
-				-->
-				<vflag name="-rpath" value="/usr/local/lib" />
-				<vflag name="-rpath" value="/opt/homebrew/lib" if="HXCPP_ARM64"/>
-
 				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
 				<vflag name="-framework" value="Foundation" />

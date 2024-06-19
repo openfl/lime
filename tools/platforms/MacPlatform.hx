@@ -2,6 +2,7 @@ package;
 
 import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
+import hxp.HostArchitecture;
 import hxp.HXML;
 import hxp.Log;
 import hxp.Path;
@@ -188,6 +189,17 @@ class MacPlatform extends PlatformTarget
 
 			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix.toLowerCase(), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix.toLowerCase(), executableDirectory);
+
+			// starting in xcode 15, rpath doesn't automatically include
+			// /usr/local/lib, but we need it for libneko dylib
+			System.runCommand("", "install_name_tool", ["-add_rpath", "/usr/local/lib", Path.join([executableDirectory, "lime.ndll"])]);
+			if (System.hostArchitecture == HostArchitecture.ARM64)
+			{
+				// on Apple Silicon, the user may have installed Neko with
+				// Homebrew, which has a different path. however, if the
+				// Homebrew path doesn't exist, that's okay.
+				System.runCommand("", "install_name_tool", ["-add_rpath", "/opt/homebrew/lib", Path.join([executableDirectory, "lime.ndll"])]);
+			}
 		}
 		else if (targetType == "hl")
 		{
