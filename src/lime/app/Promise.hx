@@ -188,4 +188,111 @@ class Promise<T>
 	{
 		return future.isError;
 	}
+
+	/**
+	 * Create a Promise which fullfills when all the input futures fulfill.
+	 * If any of the input futures errors, the promise will error.
+	 * @param inputs The promises to wait for
+	 * @return The resulting future
+	 */
+	public static function all(inputs:Array<Future<T>>):Future<Array<T>>
+	{
+		var resultPromise = new Promise<Array<T>>();
+		var results = [];
+
+		if (inputs.length == 0) {
+			resultPromise.complete([]);
+			return resultPromise.future;
+		}
+
+		for (promise in inputs) {
+			promise.onComplete(function(data) {
+				results.push(data);
+				if (results.length == inputs.length) {
+					resultPromise.complete(results);
+				}
+			});
+			promise.onError(function(err) {
+				resultPromise.error(err);
+			});
+		}
+
+		return resultPromise.future;
+	}
+
+	/**
+	 * Create a Promise which fullfills when all of the input futures fulfill or reject.
+	 * Results use an object with `success`, `value`, and `error` properties.
+	 * @param promises The promises to wait for
+	 * @return The resulting future
+	 */
+	public static function allSettled(inputs:Array<Future<T>>):Future<Array<PromiseResult<T>>>
+	{
+		var resultPromise = new Promise<T>();
+		var results = [];
+
+		if (inputs.length == 0) {
+			resultPromise.complete([]);
+			return resultPromise.future;
+		}
+
+		for (promise in inputs) {
+			promise.onComplete(function(data) {
+				results.push({success: true, value: data});
+				if (results.length == inputs.length) {
+					resultPromise.complete(results);
+				}
+			});
+			promise.onError(function(err) {
+				results.push({success: false, error: err});
+				if (results.length == inputs.length) {
+					resultPromise.complete(results);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Create a Promise which fulfills when any of the input futures fulfill.
+	 * It only rejects if all of the input futures reject.
+	 * @param inputs The promises to wait for
+	 * @return The resulting future
+	 */
+	public static function any(inputs:Array<Promise<T>>):Future<T> {
+		var resultPromise = new Promise<T>();
+
+		var errors = [];
+
+		if (inputs.length == 0) {
+			resultPromise.complete([]);
+			return resultPromise.future;
+		}
+
+		for (promise in inputs) {
+			promise.onComplete(function(data) {
+				resultPromise.complete(data);
+			});
+			promise.onError(function(err) {
+				errors.push(err);
+				if (errors.length == inputs.length) {
+					resultPromise.error(errors);
+				}
+			});
+		}
+	}
+}
+
+typedef PromiseResult = {
+	/**
+	 * Whether or not the promise succeeded or failed.
+	 */
+	var success:Bool;
+	/**
+	 * If the promise succeeded, this contains the value.
+	 */
+	?var value:T;
+	/**
+	 * If the promise failed, this contains the error.
+	 */
+	?var error:Dynamic;
 }
