@@ -263,14 +263,17 @@ class NativeApplication
 			var int32:Float = keyEventInfo.keyCode;
 			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
+			var timestamp = keyEventInfo.timestamp;
 
 			switch (type)
 			{
 				case KEY_DOWN:
 					window.onKeyDown.dispatch(keyCode, modifier);
+					window.onKeyDownPrecise.dispatch(keyCode, modifier, timestamp);
 
 				case KEY_UP:
 					window.onKeyUp.dispatch(keyCode, modifier);
+					window.onKeyUpPrecise.dispatch(keyCode, modifier, timestamp);
 			}
 
 			#if (windows || linux)
