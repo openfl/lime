@@ -184,6 +184,10 @@ class HXProject extends Script
 		else
 		{
 			environment = Sys.environment();
+			for (conflict in ["air", "android", "cpp", "flash", "hl", "html5", "ios", "linux", "mac", "neko", "webassembly", "windows"])
+			{
+				environment.remove(conflict);
+			}
 		}
 
 		haxedefs = new Map<String, Dynamic>();
