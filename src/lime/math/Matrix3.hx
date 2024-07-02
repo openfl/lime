@@ -1,5 +1,7 @@
 package lime.math;
 
+import lime.utils.Float32Array;
+
 /**
 	`Matrix3` is a 3x3 transformation matrix particularly useful for
 	two-dimensional transformation. It can be used for rotation, scale
@@ -10,9 +12,11 @@ package lime.math;
 
 	```
 	[ a, c, tx ]
-	[ c, d, ty ]
+	[ b, d, ty ]
 	[ 0, 0,  1 ]
 	```
+
+	Values are stored in column-major order for GLSL compatibility.
 **/
 #if hl
 @:keep
@@ -21,39 +25,37 @@ package lime.math;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
-class Matrix3
+abstract Matrix3(Float32Array) to Float32Array
 {
 	/**
 		The matrix a component, used in scaling and skewing (default is 1)
 	**/
-	public var a:Float;
+	public var a(get, set):Float;
 
 	/**
 		The matrix b component, used in rotation and skewing (default is 0)
 	**/
-	public var b:Float;
+	public var b(get, set):Float;
 
 	/**
 		The matrix c component, used in rotation and skewing (default is 0)
 	**/
-	public var c:Float;
+	public var c(get, set):Float;
 
 	/**
 		The matrix d component, used in scaling and skewing (default is 1)
 	**/
-	public var d:Float;
+	public var d(get, set):Float;
 
 	/**
 		The matrix tx component, used in translation (default is 0)
 	**/
-	public var tx:Float;
+	public var tx(get, set):Float;
 
 	/**
 		The matrix ty component, used in translation (default is 0)
 	**/
-	public var ty:Float;
-
-	private static var __identity = new Matrix3();
+	public var ty(get, set):Float;
 
 	/**
 		Creates a new `Matrix` instance
@@ -66,12 +68,12 @@ class Matrix3
 	**/
 	public function new(a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
 	{
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-		this.tx = tx;
-		this.ty = ty;
+		// Column-major order means adjacent values form a column, not a row.
+		this = new Float32Array([
+			a,  b,  0, // column 0
+			c,  d,  0, // column 1
+			tx, ty, 1  // column 2
+		]);
 	}
 
 	/**
@@ -245,10 +247,10 @@ class Matrix3
 		@param	scaleX	An x scale transformation value
 		@param	scaleY	A y scale transformation value
 		@param	rotation (Optional) A rotation value (default is 0)
-		@param	tx	(Optional) A translate x value (default is 0)
-		@param	ty	(Optional) A translate y value (default is 0)
+		@param	xTranslate	(Optional) A translate x value (default is 0)
+		@param	yTranslate	(Optional) A translate y value (default is 0)
 	**/
-	public function createBox(scaleX:Float, scaleY:Float, rotation:Float = 0, tx:Float = 0, ty:Float = 0):Void
+	public function createBox(scaleX:Float, scaleY:Float, rotation:Float = 0, xTranslate:Float = 0, yTranslate:Float = 0):Void
 	{
 		if (rotation != 0)
 		{
@@ -268,8 +270,8 @@ class Matrix3
 			d = scaleY;
 		}
 
-		this.tx = tx;
-		this.ty = ty;
+		tx = xTranslate;
+		ty = yTranslate;
 	}
 
 	/**
@@ -277,11 +279,11 @@ class Matrix3
 		@param	width	The width of the gradient fill
 		@param	height	The height of the gradient fill
 		@param	rotation	(Optional) A rotation for the gradient fill (default is 0)
-		@param	tx	(Optional) An x offset for the gradient fill (default is 0)
-		@param	ty	(Optional) A y offset for the gradient fill (default is 0)
+		@param	xTranslate	(Optional) An x offset for the gradient fill (default is 0)
+		@param	yTranslate	(Optional) A y offset for the gradient fill (default is 0)
 		@return	A new `Matrix` instance
 	**/
-	public function createGradientBox(width:Float, height:Float, rotation:Float = 0, tx:Float = 0, ty:Float = 0):Void
+	public function createGradientBox(width:Float, height:Float, rotation:Float = 0, xTranslate:Float = 0, yTranslate:Float = 0):Void
 	{
 		a = width / 1638.4;
 		d = height / 1638.4;
@@ -303,8 +305,8 @@ class Matrix3
 			c = 0;
 		}
 
-		this.tx = tx + width / 2;
-		this.ty = ty + height / 2;
+		tx = xTranslate + width / 2;
+		ty = yTranslate + height / 2;
 	}
 
 	/**
@@ -328,6 +330,21 @@ class Matrix3
 		result.x = Vector2.x * a + Vector2.y * c;
 		result.y = Vector2.x * b + Vector2.y * d;
 		return result;
+	}
+
+	@:from private static inline function fromCairoMatrix3(matrix:CairoMatrix3):Matrix3
+	{
+		return new Matrix3(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+	}
+
+	@:from private static inline function fromFloat32Array(array:Float32Array):Matrix3
+	{
+		if (array.length != 9)
+		{
+			throw "Expected array of length 9, got " + array.length;
+		}
+
+		return cast array;
 	}
 
 	/**
@@ -374,12 +391,6 @@ class Matrix3
 		return this;
 	}
 
-	// public inline function mult (m:Matrix3) {
-	// 	var result = clone ();
-	// 	result.concat (m);
-	// 	return result;
-	// }
-
 	/**
 		Applies rotation to the current matrix
 		@param	theta	A rotation value in degrees
@@ -389,9 +400,9 @@ class Matrix3
 		/*
 			Rotate object "after" other transforms
 
-			[  a  b   0 ][  ma mb  0 ]
-			[  c  d   0 ][  mc md  0 ]
-			[  tx ty  1 ][  mtx mty 1 ]
+			[  a  c  tx ][  ma  mc  mtx ]
+			[  b  d  ty ][  mb  md  mty ]
+			[  0  0   1 ][   0   0    1 ]
 
 			ma = md = cos
 			mb = sin
@@ -427,9 +438,9 @@ class Matrix3
 
 			Scale object "after" other transforms
 
-			[  a  b   0 ][  sx  0   0 ]
-			[  c  d   0 ][  0   sy  0 ]
-			[  tx ty  1 ][  0   0   1 ]
+			[  a  c  tx ][  sx  0   0 ]
+			[  b  d  ty ][  0   sy  0 ]
+			[  0  0   1 ][  0   0   1 ]
 		 */
 
 		a *= sx;
@@ -459,51 +470,22 @@ class Matrix3
 	**/
 	public #if !js inline #end function setTo(a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void
 	{
-		this.a = a;
-		this.b = b;
-		this.c = c;
-		this.d = d;
-		this.tx = tx;
-		this.ty = ty;
+		set_a(a);
+		set_b(b);
+		set_c(c);
+		set_d(d);
+		set_tx(tx);
+		set_ty(ty);
 	}
 
-	@:dox(hide) @:noCompletion public inline function to3DString(roundPixels:Bool = false):String
+	@:dox(hide) @:noCompletion @:to public inline function toCairoMatrix3():CairoMatrix3
 	{
-		// identity matrix
-		//  [a,b,tx,0],
-		//  [c,d,ty,0],
-		//  [0,0,1, 0],
-		//  [0,0,0, 1]
-		//
-		// matrix3d(a,       b, 0, 0, c, d,       0, 0, 0, 0, 1, 0, tx,     ty, 0, 1)
-
-		if (roundPixels)
-		{
-			return "matrix3d("
-				+ a
-				+ ", "
-				+ b
-				+ ", "
-				+ "0, 0, "
-				+ c
-				+ ", "
-				+ d
-				+ ", "
-				+ "0, 0, 0, 0, 1, 0, "
-				+ Std.int(tx)
-				+ ", "
-				+ Std.int(ty)
-				+ ", 0, 1)";
-		}
-		else
-		{
-			return "matrix3d(" + a + ", " + b + ", " + "0, 0, " + c + ", " + d + ", " + "0, 0, 0, 0, 1, 0, " + tx + ", " + ty + ", 0, 1)";
-		}
+		return new CairoMatrix3(a, b, c, d, tx, ty);
 	}
 
 	@:dox(hide) public inline function toString():String
 	{
-		return "matrix(" + a + ", " + b + ", " + c + ", " + d + ", " + tx + ", " + ty + ")";
+		return 'matrix($a, $b, $c, $d, $tx, $ty)';
 	}
 
 	/**
@@ -573,5 +555,93 @@ class Matrix3
 	{
 		tx += dx;
 		ty += dy;
+	}
+
+	inline function get_a():Float
+	{
+		return this[0];
+	}
+	inline function set_a(value: Float):Float
+	{
+		return this[0] = value;
+	}
+
+	inline function get_b():Float
+	{
+		return this[1];
+	}
+	inline function set_b(value: Float):Float
+	{
+		return this[1] = value;
+	}
+
+	inline function get_c():Float
+	{
+		return this[3];
+	}
+	inline function set_c(value: Float):Float
+	{
+		return this[3] = value;
+	}
+
+	inline function get_d():Float
+	{
+		return this[4];
+	}
+	inline function set_d(value: Float):Float
+	{
+		return this[4] = value;
+	}
+
+	inline function get_tx():Float
+	{
+		return this[6];
+	}
+	inline function set_tx(value: Float):Float
+	{
+		return this[6] = value;
+	}
+
+	inline function get_ty():Float
+	{
+		return this[7];
+	}
+	inline function set_ty(value: Float):Float
+	{
+		return this[7] = value;
+	}
+
+	@:dox(hide) @:noCompletion @:arrayAccess public function get(index:Int):Float
+	{
+		return this[index];
+	}
+
+	@:dox(hide) @:noCompletion @:arrayAccess public function set(index:Int, value:Float):Float
+	{
+		this[index] = value;
+		return value;
+	}
+}
+
+/**
+	An object with the same data as a `Matrix3`, in Cairo's expected format.
+**/
+class CairoMatrix3
+{
+	public var a:Float;
+	public var b:Float;
+	public var c:Float;
+	public var d:Float;
+	public var tx:Float;
+	public var ty:Float;
+
+	public function new(a:Float = 1, b:Float = 0, c:Float = 0, d:Float = 1, tx:Float = 0, ty:Float = 0)
+	{
+		this.a = a;
+		this.b = b;
+		this.c = c;
+		this.d = d;
+		this.tx = tx;
+		this.ty = ty;
 	}
 }

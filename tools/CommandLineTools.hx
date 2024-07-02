@@ -485,15 +485,14 @@ class CommandLineTools
 				}
 
 			case MAC:
-				// if (System.hostArchitecture == X64) {
-
-				untyped $loader.path = $array(path + "Mac64/", $loader.path);
-
-			// } else {
-
-			//	untyped $loader.path = $array (path + "Mac/", $loader.path);
-
-			// }
+				if (System.hostArchitecture == X64)
+				{
+					untyped $loader.path = $array(path + "Mac64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "MacArm64/", $loader.path);
+				}
 
 			case LINUX:
 				var arguments = Sys.args();
@@ -1004,6 +1003,7 @@ class CommandLineTools
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7\x1b[0m -- Compile for ARMv7 instead of the OS defaults");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7s\x1b[0m -- Compile for ARMv7s instead of the OS defaults");
 			Log.println("  \x1b[3m(ios)\x1b[0m \x1b[1m-arm64\x1b[0m -- Compile for ARM64 instead of the OS defaults");
+			Log.println("  \x1b[3m(ios)\x1b[0m \x1b[1m-nosign\x1b[0m -- Compile executable, but skip codesigning");
 		}
 
 		if (isProjectCommand)

@@ -207,7 +207,7 @@
 #define PACKAGE_NAME "pixman"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pixman 0.40.1"
+#define PACKAGE_STRING "pixman 0.42.2"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pixman"
@@ -216,7 +216,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.40.0"
+#define PACKAGE_VERSION "0.42.2"
 
 /* enable output that can be piped to gnuplot */
 /* #undef PIXMAN_GNUPLOT */
@@ -293,14 +293,14 @@
 /* #undef USE_OPENMP */
 
 /* use SSE2 compiler intrinsics */
-#if defined(HX_WINDOWS) || defined(HX_MACOS) || (defined(HX_LINUX) && !defined(RASPBERRYPI))
+#if defined(HX_WINDOWS) || (defined(HX_MACOS) && !defined(HXCPP_ARM64)) || (defined(HX_LINUX) && !defined(RASPBERRYPI))
 #define USE_SSE2 1
 #else
 /* #undef USE_SSE2 */
 #endif
 
 /* use SSSE3 compiler intrinsics */
-#if defined(HX_WINDOWS) || defined(HX_MACOS) || (defined(HX_LINUX) && !defined(RASPBERRYPI))
+#if defined(HX_WINDOWS) || (defined(HX_MACOS) && !defined(HXCPP_ARM64)) || (defined(HX_LINUX) && !defined(RASPBERRYPI))
 #define USE_SSE3 1
 #else
 /* #undef USE_SSE3 */
@@ -317,7 +317,7 @@
 #endif
 
 /* Version number of package */
-#define VERSION "0.40.0"
+#define VERSION "0.42.2"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

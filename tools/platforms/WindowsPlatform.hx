@@ -238,7 +238,23 @@ class WindowsPlatform extends PlatformTarget
 			{
 				System.runCommand("", "haxe", [hxml]);
 
-				var msBuildPath = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\MSBuild\\15.0\\Bin\\MSBuild.exe";
+				// start by finding visual studio
+				var programFilesX86 = Sys.getEnv("ProgramFiles(x86)");
+				var vswhereCommand = programFilesX86 + "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
+				var vswhereOutput = System.runProcess("", vswhereCommand, ["-latest", "-products", "*", "-requires", "Microsoft.Component.MSBuild", "-property", "installationPath"]);
+				var visualStudioPath = StringTools.trim(vswhereOutput);
+				// then, find MSBuild inside visual studio
+				var msBuildPath = visualStudioPath + "\\MSBuild\\Current\\Bin\\MSBuild.exe";
+				if (!FileSystem.exists(msBuildPath))
+				{
+					// fallback for VS 2017, which didn't use Current
+					msBuildPath = visualStudioPath + "\\MSBuild\\15.0\\Bin\\MSBuild.exe";
+					if (!FileSystem.exists(msBuildPath))
+					{
+						Log.error("MSBuild not found");
+						return;
+					}
+				}
 				var args = [
 					Path.tryFullPath(targetDirectory + "/source/" + project.app.file + ".jsproj"),
 					"/p:Configuration=Release"
@@ -270,7 +286,7 @@ class WindowsPlatform extends PlatformTarget
 				if (StringTools.endsWith(dependency.path, ".dll"))
 				{
 					var fileName = Path.withoutDirectory(dependency.path);
-					System.copyIfNewer(dependency.path, applicationDirectory + "/" + fileName);
+					copyIfNewer(dependency.path, applicationDirectory + "/" + fileName);
 				}
 			}
 
@@ -1105,7 +1121,7 @@ class WindowsPlatform extends PlatformTarget
 				var name = Path.withoutDirectory(dependency.path);
 
 				context.linkedLibraries.push("./js/lib/" + name);
-				System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine("js/lib", name)));
+				copyIfNewer(dependency.path, Path.combine(destination, Path.combine("js/lib", name)));
 			}
 		}
 

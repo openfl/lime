@@ -105,6 +105,11 @@ class HXProject extends Script
 		initializeStatics();
 
 		var classRef = Type.resolveClass(inputData.name);
+		if (classRef == null)
+		{
+			Log.error('Unable to find class ${ inputData.name } in ${ inputData.projectFile }');
+			return;
+		}
 		var instance = Type.createInstance(classRef, []);
 
 		var serializer = new Serializer();
@@ -379,7 +384,7 @@ class HXProject extends Script
 
 		var path = FileSystem.fullPath(Path.withoutDirectory(projectFile));
 		var name = Path.withoutDirectory(Path.withoutExtension(projectFile));
-		name = name.substr(0, 1).toUpperCase() + name.substr(1);
+		name = name.charAt(0).toUpperCase() + name.substr(1);
 
 		var tempDirectory = FileSystem.fullPath(System.getTemporaryDirectory());
 		var classFile = Path.combine(tempDirectory, name + ".hx");
@@ -426,6 +431,7 @@ class HXProject extends Script
 				name: name,
 				target: HXProject._target,
 				debug: HXProject._debug,
+				projectFile: projectFile,
 				targetFlags: HXProject._targetFlags,
 				templatePaths: HXProject._templatePaths,
 				userDefines: HXProject._userDefines,
@@ -750,7 +756,12 @@ class HXProject extends Script
 		{
 			defines.set("native", "1");
 
-			if (target == Platform.WINDOWS && targetFlags.exists("mingw"))
+			if (target == Platform.LINUX && targetFlags.exists("cpp"))
+			{
+				defines.set("targetType", "cpp");
+				defines.set("cpp", "1");
+			}
+			else if (target == Platform.WINDOWS && targetFlags.exists("mingw"))
 			{
 				defines.set("targetType", "cpp");
 				defines.set("cpp", "1");

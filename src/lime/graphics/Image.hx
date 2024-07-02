@@ -32,10 +32,11 @@ import lime.utils.UInt8Array;
 #if !display
 import lime._internal.backend.html5.HTML5HTTPRequest;
 #end
-import js.html.CanvasElement;
-import js.html.ImageElement;
-import js.html.Image as JSImage;
 import js.Browser;
+import js.html.CanvasElement;
+import js.html.Image as JSImage;
+import js.html.ImageElement;
+import lime._internal.backend.html5.HTML5Thread;
 #elseif flash
 import flash.display.Bitmap;
 import flash.display.BitmapData;
@@ -230,6 +231,13 @@ class Image
 		{
 			#if (js && html5)
 			type = CANVAS;
+
+			#if lime_threads
+			if (HTML5Thread.current().isWorker())
+			{
+				type = DATA;
+			}
+			#end
 			#elseif flash
 			type = FLASH;
 			#else
