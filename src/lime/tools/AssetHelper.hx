@@ -49,7 +49,7 @@ class AssetHelper
 				{
 					File.saveBytes(destination, Base64.decode(asset.data));
 				}
-				else if (Std.is(asset.data, HaxeBytes))
+				else if ((asset.data is HaxeBytes))
 				{
 					File.saveBytes(destination, cast asset.data);
 				}
@@ -86,7 +86,7 @@ class AssetHelper
 				{
 					File.saveBytes(destination, Base64.decode(asset.data));
 				}
-				else if (Std.is(asset.data, HaxeBytes))
+				else if ((asset.data is HaxeBytes))
 				{
 					File.saveBytes(destination, cast asset.data);
 				}
@@ -264,7 +264,7 @@ class AssetHelper
 		}
 		else
 		{
-			if (project.target == EMSCRIPTEN
+			if (project.target == WEB_ASSEMBLY
 				&& (asset.embed != false
 					|| (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload)))
 			{
@@ -295,6 +295,13 @@ class AssetHelper
 		if (asset.type == TEMPLATE) return null;
 		if (asset.library == library.name || (asset.library == null && library.name == DEFAULT_LIBRARY_NAME))
 		{
+			if (output.tell() == 0)
+			{
+				// write some dummy text at the start of the packed asset file just to prevent
+				// the file from beginning with a packed file header.
+				output.writeString("lime-asset-pack");
+			}
+
 			var assetData:Dynamic =
 				{
 					id: asset.id,
@@ -420,7 +427,7 @@ class AssetHelper
 			}
 		}
 
-		if (!libraryMap.exists(DEFAULT_LIBRARY_NAME))
+		if (project.assets.length > 0 && !libraryMap.exists(DEFAULT_LIBRARY_NAME))
 		{
 			library = new Library(null, DEFAULT_LIBRARY_NAME);
 			project.libraries.push(library);
@@ -531,6 +538,11 @@ class AssetHelper
 		if (hasPackedLibraries)
 		{
 			processPackedLibraries(project, targetDirectory);
+		}
+
+		if (project.assets.length == 0)
+		{
+			project.haxedefs.set("disable_preloader_assets", "1");
 		}
 
 		var manifest, embed, asset;

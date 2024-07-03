@@ -22,6 +22,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.Keystore;
+import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -34,6 +35,78 @@ class TVOSPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		defaults.architectures = [Architecture.ARM64];
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		targetDirectory = Path.combine(project.app.path, project.config.getString("tvos.output-directory", "tvos"));
 	}
@@ -78,7 +151,7 @@ class TVOSPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
@@ -118,7 +191,8 @@ class TVOSPlatform extends PlatformTarget
 		{
 			if (!StringTools.endsWith(dependency.name, ".framework")
 				&& !StringTools.endsWith(dependency.name, ".tbd")
-				&& !StringTools.endsWith(dependency.path, ".framework"))
+				&& !StringTools.endsWith(dependency.path, ".framework")
+				&& !StringTools.endsWith(dependency.path, ".xcframework"))
 			{
 				if (dependency.path != "")
 				{
@@ -148,16 +222,6 @@ class TVOSPlatform extends PlatformTarget
 		{
 			architectures = [Architecture.ARM64];
 		}
-
-		/*if (project.config.getString ("ios.device", "universal") == "universal" || project.config.getString ("ios.device") == "iphone") {
-
-			if (project.config.getFloat ("ios.deployment", 5.1) < 5) {
-
-				ArrayTools.addUnique (architectures, Architecture.ARMV6);
-
-			}
-
-		}*/
 
 		for (architecture in project.architectures)
 		{
@@ -263,6 +327,12 @@ class TVOSPlatform extends PlatformTarget
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
 			}
+			else if (Path.extension(dependency.path) == "xcframework")
+			{
+				name = Path.withoutDirectory(dependency.path);
+				path = Path.tryFullPath(dependency.path);
+				fileType = "wrapper.xcframework";
+			}
 
 			if (name != null)
 			{
@@ -297,7 +367,7 @@ class TVOSPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
@@ -398,10 +468,20 @@ class TVOSPlatform extends PlatformTarget
 		System.mkdir(projectDirectory + "/haxe/lime/installer");
 
 		var iconSizes:Array<IconSize> = [
-			{name: "Icon-Small.png", size: 29}, {name: "Icon-Small-40.png", size: 40}, {name: "Icon-Small-50.png", size: 50}, {name: "Icon.png", size: 57},
-			{name: "Icon-Small@2x.png", size: 58}, {name: "Icon-72.png", size: 72}, {name: "Icon-76.png", size: 76}, {name: "Icon-Small-40@2x.png", size: 80},
-			{name: "Icon-Small-50@2x.png", size: 100}, {name: "Icon@2x.png", size: 114}, {name: "Icon-60@2x.png", size: 120},
-			{name: "Icon-72@2x.png", size: 144}, {name: "Icon-76@2x.png", size: 152}, {name: "Icon-60@3x.png", size: 180},
+			{name: "Icon-Small.png", size: 29},
+			{name: "Icon-Small-40.png", size: 40},
+			{name: "Icon-Small-50.png", size: 50},
+			{name: "Icon.png", size: 57},
+			{name: "Icon-Small@2x.png", size: 58},
+			{name: "Icon-72.png", size: 72},
+			{name: "Icon-76.png", size: 76},
+			{name: "Icon-Small-40@2x.png", size: 80},
+			{name: "Icon-Small-50@2x.png", size: 100},
+			{name: "Icon@2x.png", size: 114},
+			{name: "Icon-60@2x.png", size: 120},
+			{name: "Icon-72@2x.png", size: 144},
+			{name: "Icon-76@2x.png", size: 152},
+			{name: "Icon-60@3x.png", size: 180},
 		];
 
 		context.HAS_ICON = true;
@@ -605,7 +685,15 @@ class TVOSPlatform extends PlatformTarget
 	}*/
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

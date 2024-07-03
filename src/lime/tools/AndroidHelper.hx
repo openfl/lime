@@ -8,8 +8,6 @@ class AndroidHelper
 {
 	private static var adbName:String;
 	private static var adbPath:String;
-	private static var androidName:String;
-	private static var androidPath:String;
 	private static var emulatorName:String;
 	private static var emulatorPath:String;
 
@@ -159,30 +157,33 @@ class AndroidHelper
 
 	public static function initialize(project:HXProject):Void
 	{
-		adbPath = project.environment.get("ANDROID_SDK") + "/tools/";
-		androidPath = project.environment.get("ANDROID_SDK") + "/tools/";
-		emulatorPath = project.environment.get("ANDROID_SDK") + "/tools/";
+		adbPath = project.environment.get("ANDROID_SDK") + "/platform-tools/";
+		emulatorPath = project.environment.get("ANDROID_SDK") + "/emulator/";
 
 		adbName = "adb";
-		androidName = "android";
 		emulatorName = "emulator";
 
 		if (System.hostPlatform == WINDOWS)
 		{
 			adbName += ".exe";
-			androidName += ".bat";
 			emulatorName += ".exe";
 		}
 
 		if (!FileSystem.exists(adbPath + adbName))
 		{
-			adbPath = project.environment.get("ANDROID_SDK") + "/platform-tools/";
+			// in older SDKs, adb was located in /tools/
+			adbPath = project.environment.get("ANDROID_SDK") + "/tools/";
+		}
+
+		if (!FileSystem.exists(emulatorPath + emulatorName))
+		{
+			// in older SDKs, emulator was located in /tools/
+			emulatorPath = project.environment.get("ANDROID_SDK") + "/tools/";
 		}
 
 		if (System.hostPlatform != WINDOWS)
 		{
 			adbName = "./" + adbName;
-			androidName = "./" + androidName;
 			emulatorName = "./" + emulatorName;
 		}
 
@@ -194,8 +195,18 @@ class AndroidHelper
 
 	public static function install(project:HXProject, targetPath:String, deviceID:String = null):String
 	{
+		if (!FileSystem.exists(adbPath + adbName))
+		{
+			Log.error("adb not found in Android SDK: " + project.environment.get("ANDROID_SDK"));
+		}
+
 		if (project.targetFlags.exists("emulator") || project.targetFlags.exists("simulator"))
 		{
+			if (!FileSystem.exists(emulatorPath + emulatorName))
+			{
+				Log.error("emulator not found in Android SDK: " + project.environment.get("ANDROID_SDK"));
+			}
+
 			Log.info("", "Searching for Android emulator");
 
 			var devices = listDevices();
@@ -280,16 +291,13 @@ class AndroidHelper
 	public static function listAVDs():Array<String>
 	{
 		var avds = new Array<String>();
-		var output = System.runProcess(androidPath, androidName, ["list", "avd"]);
-
+		var output = System.runProcess(emulatorPath, emulatorName, ["-list-avds"]);
 		if (output != null && output != "")
 		{
+			// -list-avds returns only the avd names, separated by line breaks
 			for (line in output.split("\n"))
 			{
-				if (line.indexOf("Name") > -1)
-				{
-					avds.push(StringTools.trim(line.substr(line.indexOf("Name") + 6)));
-				}
+				avds.push(StringTools.trim(line));
 			}
 		}
 
@@ -303,20 +311,14 @@ class AndroidHelper
 
 		if (System.hostPlatform != WINDOWS)
 		{
-			var tempFile = System.getTemporaryFile();
-
-			System.runCommand(adbPath, adbName, ["devices", ">", tempFile], true, true);
-
-			if (FileSystem.exists(tempFile))
-			{
-				output = File.getContent(tempFile);
-				FileSystem.deleteFile(tempFile);
-			}
+			/*
+			 * using System.runProcess on *NIX platforms for `adb devices` usually
+			 * hangs when adb also starts the server.
+			 * To avoid this, we start the server beforehand
+			 */
+			System.runCommand(adbPath, adbName, ["start-server"], true);
 		}
-		else
-		{
-			output = System.runProcess(adbPath, adbName, ["devices"], true, true);
-		}
+		output = System.runProcess(adbPath, adbName, ["devices"], true, true);
 
 		if (output != null && output != "")
 		{
@@ -349,6 +351,11 @@ class AndroidHelper
 
 	public static function trace(project:HXProject, debug:Bool, deviceID:String = null, customFilter:String = null):Void
 	{
+		if (!FileSystem.exists(adbPath + adbName))
+		{
+			Log.error("adb not found in Android SDK: " + project.environment.get("ANDROID_SDK"));
+		}
+
 		// Use -DFULL_LOGCAT or  <set name="FULL_LOGCAT" /> if you do not want to filter log messages
 
 		var args = ["logcat"];
@@ -401,6 +408,11 @@ class AndroidHelper
 
 	public static function uninstall(packageName:String, deviceID:String = null):Void
 	{
+		if (!FileSystem.exists(adbPath + adbName))
+		{
+			Log.error("adb not found in Android SDK");
+		}
+
 		var args = ["uninstall", packageName];
 
 		if (deviceID != null && deviceID != "")

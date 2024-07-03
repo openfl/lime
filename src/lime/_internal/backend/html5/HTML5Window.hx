@@ -73,7 +73,10 @@ class HTML5Window
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var textInputEnabled:Bool;
+	private var textInputRect:Rectangle;
 	private var unusedTouchesPool = new List<Touch>();
+
+	private var __focusPending:Bool;
 
 	public function new(parent:Window)
 	{
@@ -114,7 +117,7 @@ class HTML5Window
 
 		parent.id = windowID++;
 
-		if (Std.is(element, CanvasElement))
+		if ((element is CanvasElement))
 		{
 			canvas = cast element;
 		}
@@ -247,6 +250,45 @@ class HTML5Window
 
 	public function close():Void
 	{
+		var element = parent.element;
+		if (element != null)
+		{
+			if (canvas != null)
+			{
+				if (element != cast canvas)
+				{
+					element.removeChild(canvas);
+				}
+				canvas = null;
+			}
+			else if (div != null)
+			{
+				element.removeChild(div);
+				div = null;
+			}
+
+			var events = ["mousedown", "mouseenter", "mouseleave", "mousemove", "mouseup", "wheel"];
+
+			for (event in events)
+			{
+				element.removeEventListener(event, handleMouseEvent, true);
+			}
+
+			element.removeEventListener("contextmenu", handleContextMenuEvent, true);
+
+			element.removeEventListener("dragstart", handleDragEvent, true);
+			element.removeEventListener("dragover", handleDragEvent, true);
+			element.removeEventListener("drop", handleDragEvent, true);
+
+			element.removeEventListener("touchstart", handleTouchEvent, true);
+			element.removeEventListener("touchmove", handleTouchEvent, true);
+			element.removeEventListener("touchend", handleTouchEvent, true);
+			element.removeEventListener("touchcancel", handleTouchEvent, true);
+
+			element.removeEventListener("gamepadconnected", handleGamepadEvent, true);
+			element.removeEventListener("gamepaddisconnected", handleGamepadEvent, true);
+		}
+
 		parent.application.__removeWindow(parent);
 	}
 
@@ -287,7 +329,7 @@ class HTML5Window
 						premultipliedAlpha: true,
 						stencil: Reflect.hasField(contextAttributes, "stencil") ? contextAttributes.stencil : false,
 						preserveDrawingBuffer: false,
-						failIfMajorPerformanceCaveat: true
+						failIfMajorPerformanceCaveat: false
 					};
 
 				var glContextType = ["webgl", "experimental-webgl"];
@@ -339,6 +381,19 @@ class HTML5Window
 
 	public function focus():Void {}
 
+	private function focusTextInput():Void
+	{
+		// Avoid changing focus multiple times per frame.
+		if (__focusPending) return;
+		__focusPending = true;
+
+		Timer.delay(function()
+		{
+			__focusPending = false;
+			if (textInputEnabled) textInput.focus();
+		}, 20);
+	}
+
 	public function getCursor():MouseCursor
 	{
 		return cursor;
@@ -375,6 +430,11 @@ class HTML5Window
 	public function getMouseLock():Bool
 	{
 		return false;
+	}
+
+	public function getOpacity():Float
+	{
+		return 1.0;
 	}
 
 	public function getTextInputEnabled():Bool
@@ -419,7 +479,11 @@ class HTML5Window
 
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
-		event.clipboardData.setData("text/plain", Clipboard.text);
+		var text = Clipboard.text;
+		if (text == null) {
+			text = "";
+		}
+		event.clipboardData.setData("text/plain", text);
 		if (event.cancelable) event.preventDefault();
 	}
 
@@ -457,10 +521,7 @@ class HTML5Window
 		{
 			if (event.relatedTarget == null || isDescendent(cast event.relatedTarget))
 			{
-				Timer.delay(function()
-				{
-					if (textInputEnabled) textInput.focus();
-				}, 20);
+				focusTextInput();
 			}
 		}
 	}
@@ -533,9 +594,13 @@ class HTML5Window
 
 	private function handleInputEvent(event:InputEvent):Void
 	{
+		if (imeCompositionActive)
+		{
+			return;
+		}
+
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
 		// Therefore, `value` cannot be "".
-
 		if (textInput.value != dummyCharacter)
 		{
 			var value = StringTools.replace(textInput.value, dummyCharacter, "");
@@ -594,7 +659,9 @@ class HTML5Window
 						Browser.window.addEventListener("mouseup", handleMouseEvent);
 					}
 
+					parent.clickCount = event.detail;
 					parent.onMouseDown.dispatch(x, y, event.button);
+					parent.clickCount = 0;
 
 					if (parent.onMouseDown.canceled && event.cancelable)
 					{
@@ -631,7 +698,9 @@ class HTML5Window
 						event.stopPropagation();
 					}
 
+					parent.clickCount = event.detail;
 					parent.onMouseUp.dispatch(x, y, event.button);
+					parent.clickCount = 0;
 
 					if (parent.onMouseUp.canceled && event.cancelable)
 					{
@@ -897,6 +966,10 @@ class HTML5Window
 
 	public function resize(width:Int, height:Int):Void {}
 
+	public function setMinSize(width:Int, height:Int):Void {}
+
+	public function setMaxSize(width:Int, height:Int):Void {}
+
 	public function setBorderless(value:Bool):Bool
 	{
 		return value;
@@ -922,6 +995,10 @@ class HTML5Window
 		if (Browser.document.queryCommandEnabled("copy"))
 		{
 			Browser.document.execCommand("copy");
+		}
+		if (textInputEnabled)
+		{
+			focusTextInput();
 		}
 	}
 
@@ -1078,6 +1155,8 @@ class HTML5Window
 
 	public function setMouseLock(value:Bool):Void {}
 
+	public function setOpacity(value:Float):Void {}
+
 	public function setResizable(value:Bool):Bool
 	{
 		return value;
@@ -1090,7 +1169,12 @@ class HTML5Window
 			if (textInput == null)
 			{
 				textInput = cast Browser.document.createElement('input');
+				#if lime_enable_html5_ime
 				textInput.type = 'text';
+				#else
+				// use password instead of text to avoid IME issues on Android
+				textInput.type = Browser.navigator.userAgent.indexOf("Android") >= 0 ? 'password' : 'text';
+				#end
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
 				textInput.style.color = "transparent";
@@ -1133,6 +1217,8 @@ class HTML5Window
 				textInput.addEventListener('cut', handleCutOrCopyEvent, true);
 				textInput.addEventListener('copy', handleCutOrCopyEvent, true);
 				textInput.addEventListener('paste', handlePasteEvent, true);
+				textInput.addEventListener('compositionstart', handleCompositionstartEvent, true);
+				textInput.addEventListener('compositionend', handleCompositionendEvent, true);
 			}
 
 			textInput.focus();
@@ -1142,17 +1228,40 @@ class HTML5Window
 		{
 			if (textInput != null)
 			{
+				// call blur() before removing the compositionend listener
+				// to ensure that incomplete IME input is committed
+				textInput.blur();
+
 				textInput.removeEventListener('input', handleInputEvent, true);
 				textInput.removeEventListener('blur', handleFocusEvent, true);
 				textInput.removeEventListener('cut', handleCutOrCopyEvent, true);
 				textInput.removeEventListener('copy', handleCutOrCopyEvent, true);
 				textInput.removeEventListener('paste', handlePasteEvent, true);
+				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
+				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
 
-				textInput.blur();
 			}
 		}
 
 		return textInputEnabled = value;
+	}
+
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		return textInputRect = value;
+	}
+
+	private var imeCompositionActive = false;
+
+	public function handleCompositionstartEvent(e):Void
+	{
+		imeCompositionActive = true;
+	}
+
+	public function handleCompositionendEvent(e):Void
+	{
+		imeCompositionActive = false;
+		handleInputEvent(e);
 	}
 
 	public function setTitle(value:String):String
@@ -1162,6 +1271,11 @@ class HTML5Window
 			Browser.document.title = value;
 		}
 
+		return value;
+	}
+
+	public function setVisible(value:Bool):Bool
+	{
 		return value;
 	}
 

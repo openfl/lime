@@ -5,6 +5,7 @@ import flash.display.NativeWindow;
 import flash.display.NativeWindowInitOptions;
 import flash.display.NativeWindowRenderMode;
 import flash.display.NativeWindowSystemChrome;
+import flash.geom.Point;
 import flash.events.Event;
 import flash.events.NativeWindowBoundsEvent;
 import flash.html.HTMLLoader;
@@ -126,7 +127,11 @@ class AIRWindow extends FlashWindow
 			// nativeWindow.addEventListener (Event.RESIZE, handleWindowEvent);
 			nativeWindow.addEventListener(NativeWindowBoundsEvent.MOVE, handleNativeWindowEvent);
 
-			nativeWindow.visible = !hidden;
+			if (hidden)
+			{
+				nativeWindow.visible = false;
+			}
+
 			// nativeWindow.activate ();
 			nativeWindow.alwaysInFront = alwaysOnTop;
 			nativeWindow.title = title;
@@ -224,6 +229,22 @@ class AIRWindow extends FlashWindow
 		{
 			nativeWindow.width = width;
 			nativeWindow.height = height;
+		}
+	}
+
+	public override function setMinSize(width:Int, height:Int):Void
+	{
+		if (nativeWindow != null)
+		{
+			nativeWindow.minSize = new Point(width, height);
+		}
+	}
+
+	public override function setMaxSize(width:Int, height:Int):Void
+	{
+		if (nativeWindow != null)
+		{
+			nativeWindow.maxSize = new Point(width, height);
 		}
 	}
 

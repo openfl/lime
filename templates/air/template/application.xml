@@ -30,6 +30,7 @@
 		::end::
 		<fullScreen>::WIN_FULLSCREEN::</fullScreen>
 		::if (WIN_HARDWARE)::<depthAndStencil>true</depthAndStencil>::end::
+		::if WIN_ALLOW_HIGH_DPI::<requestedDisplayResolution>high</requestedDisplayResolution>::end::
 	</initialWindow>
 	<installFolder>::if (APP_COMPANY != "")::::APP_COMPANY::/::APP_TITLE::::else::::APP_TITLE::::end::</installFolder>
 	<programMenuFolder>::APP_TITLE::</programMenuFolder>

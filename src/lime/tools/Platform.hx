@@ -1,6 +1,6 @@
 package lime.tools;
 
-@:enum abstract Platform(String)
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract Platform(String)
 {
 	var AIR = "air";
 	var ANDROID = "android";
@@ -16,6 +16,7 @@ package lime.tools;
 	var PS4 = "ps4";
 	var TIZEN = "tizen";
 	var VITA = "vita";
+	var WEB_ASSEMBLY = "webassembly";
 	var WINDOWS = "windows";
 	var WEBOS = "webos";
 	var WIIU = "wiiu";

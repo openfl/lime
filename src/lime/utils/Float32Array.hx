@@ -10,8 +10,12 @@ import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
 @:arrayAccess
-abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array to ArrayBufferView
+@:transitive
+abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array
 {
+	@:to function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
 
 	@:generic
@@ -58,10 +62,10 @@ abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array to A
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:Float):Float
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __set(idx:Int, val:Float):Float
 		return this[idx] = val;
 
-	@:arrayAccess @:extern inline function __get(idx:Int):Float
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __get(idx:Int):Float
 		return this[idx];
 
 	// non spec haxe conversions
@@ -84,15 +88,17 @@ abstract Float32Array(JSFloat32Array) from JSFloat32Array to JSFloat32Array to A
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
 	public inline static var BYTES_PER_ELEMENT:Int = 4;
-	public static var hello:Int;
 
 	public var length(get, never):Int;
 
+	#if (haxe_ver < 4.2)
 	@:generic
+	#end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Float>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
@@ -143,18 +149,18 @@ abstract Float32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	inline function toString()
 		return this != null ? 'Float32Array [byteLength:${this.byteLength}, length:${this.length}]' : null;
 
-	@:extern inline function get_length()
+	#if (haxe_ver >= 4.0) extern #else @:extern #end inline function get_length()
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int):Float
 	{
 		return ArrayBufferIO.getFloat32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:Float):Float
 	{
 		ArrayBufferIO.setFloat32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);

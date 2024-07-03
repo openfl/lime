@@ -15,6 +15,7 @@ import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
+import lime.tools.Orientation;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
 import sys.io.File;
@@ -27,6 +28,86 @@ class AndroidPlatform extends PlatformTarget
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
 	{
 		super(command, _project, targetFlags);
+
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		if (project.targetFlags.exists("simulator") || project.targetFlags.exists("emulator"))
+		{
+			defaults.architectures = [Architecture.X86];
+		}
+		else
+		{
+			defaults.architectures = [Architecture.ARMV7, Architecture.ARM64];
+		}
+
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fullscreen = true;
+		defaults.window.requireShaders = true;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		for (excludeArchitecture in project.excludeArchitectures)
+		{
+			project.architectures.remove(excludeArchitecture);
+		}
 
 		if (command != "display" && command != "clean")
 		{
@@ -64,15 +145,24 @@ class AndroidPlatform extends PlatformTarget
 		var architectures = [];
 
 		if (hasARMV5) architectures.push(Architecture.ARMV5);
-		if (hasARMV7 || (!hasARMV5 && !hasX86)) architectures.push(Architecture.ARMV7);
+		if (hasARMV7) architectures.push(Architecture.ARMV7);
 		if (hasARM64) architectures.push(Architecture.ARM64);
 		if (hasX86) architectures.push(Architecture.X86);
 		if (hasX64) architectures.push(Architecture.X64);
 
+		if (architectures.length == 0)
+		{
+			Log.warn("No architecture selected, defaulting to ARM64.");
+
+			hasARM64 = true;
+
+			architectures.push(Architecture.ARM64);
+		}
+
 		for (architecture in architectures)
 		{
-			var haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-16"];
-			var cppParams = ["-Dandroid", "-DPLATFORM=android-16"];
+			var haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
+			var cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
 			var path = sourceSet + "/jniLibs/armeabi";
 			var suffix = ".so";
 
@@ -86,9 +176,6 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.ARM64)
 			{
-				haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
-				cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
-
 				haxeParams.push("-D");
 				haxeParams.push("HXCPP_ARM64");
 				cppParams.push("-DHXCPP_ARM64");
@@ -105,9 +192,6 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else if (architecture == Architecture.X64)
 			{
-				haxeParams = [hxml, "-D", "android", "-D", "PLATFORM=android-21"];
-				cppParams = ["-Dandroid", "-DPLATFORM=android-21"];
-
 				haxeParams.push("-D");
 				haxeParams.push("HXCPP_X86_64");
 				cppParams.push("-DHXCPP_X86_64");
@@ -211,11 +295,11 @@ class AndroidPlatform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -280,14 +364,14 @@ class AndroidPlatform extends PlatformTarget
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
 		var x86 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.X86));
-		var x64 = ( /*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.X64));
+		var x64 = (/*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.X64));
 
 		var commands = [];
 
-		if (armv5) commands.push(["-Dandroid", "-DPLATFORM=android-16"]);
-		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-16"]);
+		if (armv5) commands.push(["-Dandroid", "-DPLATFORM=android-21"]);
+		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", "-DHXCPP_ARM7", "-DPLATFORM=android-21"]);
 		if (arm64) commands.push(["-Dandroid", "-DHXCPP_ARM64", "-DPLATFORM=android-21"]);
-		if (x86) commands.push(["-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-16"]);
+		if (x86) commands.push(["-Dandroid", "-DHXCPP_X86", "-DPLATFORM=android-21"]);
 		if (x64) commands.push(["-Dandroid", "-DHXCPP_X86_64", "-DPLATFORM=android-21"]);
 
 		CPPHelper.rebuild(project, commands);
@@ -375,8 +459,8 @@ class AndroidPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_INSTALL_LOCATION = project.config.getString("android.install-location", "auto");
-		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 16);
-		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 28);
+		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
+		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 30);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString("android.permission", [
 			"android.permission.WAKE_LOCK",
@@ -384,8 +468,10 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.VIBRATE",
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
-		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "5.6.3");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "3.5.1");
+		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "7.4.2");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "7.3.1");
+		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
+		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 
 		context.ANDROID_LIBRARY_PROJECTS = [];
 
@@ -413,9 +499,8 @@ class AndroidPlatform extends PlatformTarget
 			context.ANDROID_BUILD_TOOLS_VERSION = AndroidHelper.getBuildToolsVersion(project);
 		}
 
-		var escaped = ~/([ #!=\\:])/g;
-		context.ANDROID_SDK_ESCAPED = escaped.replace(context.ENV_ANDROID_SDK, "\\$1");
-		context.ANDROID_NDK_ROOT_ESCAPED = escaped.replace(context.ENV_ANDROID_NDK_ROOT, "\\$1");
+		context.ANDROID_SDK_ESCAPED = StringTools.replace(context.ENV_ANDROID_SDK, "\\", "\\\\");
+		context.ANDROID_NDK_ROOT_ESCAPED = StringTools.replace(context.ENV_ANDROID_NDK_ROOT, "\\", "\\\\");
 
 		if (Reflect.hasField(context, "KEY_STORE")) context.KEY_STORE = StringTools.replace(context.KEY_STORE, "\\", "\\\\");
 		if (Reflect.hasField(context, "KEY_STORE_ALIAS")) context.KEY_STORE_ALIAS = StringTools.replace(context.KEY_STORE_ALIAS, "\\", "\\\\");
@@ -497,7 +582,7 @@ class AndroidPlatform extends PlatformTarget
 			// }
 		}
 
-		for (library in context.ANDROID_LIBRARY_PROJECTS)
+		for (library in cast(context.ANDROID_LIBRARY_PROJECTS, Array<Dynamic>))
 		{
 			System.recursiveCopy(library.source, destination + "/deps/" + library.name, context, true);
 		}
@@ -520,7 +605,15 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function watch():Void
 	{
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

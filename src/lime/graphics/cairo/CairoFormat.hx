@@ -1,7 +1,7 @@
 package lime.graphics.cairo;
 
 #if (!lime_doc_gen || lime_cairo)
-@:enum abstract CairoFormat(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract CairoFormat(Int) from Int to Int from UInt to UInt
 {
 	public var INVALID = -1;
 	public var ARGB32 = 0;

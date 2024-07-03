@@ -1,8 +1,8 @@
 package flash.desktop;
 
 @:native("flash.desktop.SystemIdleMode")
-@:enum extern abstract SystemIdleMode(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract SystemIdleMode(String)
 {
-	var KEEP_AWAKE;
-	var NORMAL;
+	var KEEP_AWAKE = "keepAwake";
+	var NORMAL = "normal";
 }

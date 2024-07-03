@@ -1,142 +1,799 @@
 name: CI
+on: [push, pull_request]
 
-on: [push]
+env:
+  HAXE_VERSION: 4.2.5
 
 jobs:
 
-  build-linux:
-    runs-on: ubuntu-16.04
-    
+  linux:
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-        
-    - name: Setup environment
-      run: |
-        sudo apt-get install -y haxe libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev
-        #sudo apt-get install -y build-essential git curl python
-        #curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
-        #sudo pip install awscli awsebcli
-      
-    - name: Install dependencies
-      run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp > /dev/null
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover > /dev/null
-        haxelib install hamcrest > /dev/null
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format > /dev/null
-        haxelib install hxp > /dev/null
-       
-    - name: Install "lime" command alias
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
-        
-    - name: Rebuild Lime tools
-      run: |
-        lime rebuild hxcpp linux -static
-        lime rebuild tools -nocolor -verbose
-      
-    - name: Rebuild Lime binaries
-      run: |
-        lime rebuild linux -64 -release -verbose -nocolor
-        lime rebuild linux -32 -release -verbose -nocolor
-        #lime rebuild android -release -verbose -nocolor
-        lime rebuild hl -64 -release -verbose -nocolor
-        
-  build-macos:
-    runs-on: macOS-10.14
-    #env:
-      #MACOSX_VER: 10.13
-      #MACOSX_DEPLOYMENT_TARGET: 10.9 
-    
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-        
-    - name: Setup environment
-      run: |
-        brew install haxe
-      
-    - name: Install dependencies
-      run: |
-        mkdir $GITHUB_WORKSPACE/.haxelib
-        haxelib setup $GITHUB_WORKSPACE/.haxelib
-        haxelib install hxcpp > /dev/null
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover > /dev/null
-        haxelib install hamcrest > /dev/null
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool && haxe build.hxml
-        haxelib install format > /dev/null
-        haxelib install hxp > /dev/null
-       
-    - name: Install "lime" command alias
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
-        
-    - name: Rebuild Lime tools
-      run: |
-        lime rebuild tools -nocolor -verbose
-      
-    - name: Rebuild Lime binaries
-      run: |
-        #lime rebuild mac -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-        #lime rebuild hl -release -verbose -nocolor -DMACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-        lime rebuild mac -release -verbose -nocolor
-        lime rebuild hl -release -verbose -nocolor
-        lime rebuild ios -release -verbose -nocolor
 
-  build-windows:
-    runs-on: windows-latest
-    
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (Linux)
+        run: |
+          lime rebuild linux -32 -release -nocolor -verbose -nocffi
+          lime rebuild linux -64 -release -nocolor -verbose -nocffi
+          lime rebuild hl -clean -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux-NDLL
+          path: |
+            ndll/Linux/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux64-NDLL
+          path: |
+            ndll/Linux64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux64-Hashlink
+          path: |
+            templates/bin/hl/Linux64
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld linux -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage linux -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio linux -release -verbose -nocolor
+
+  macos:
+    runs-on: macos-12
     steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-        
-    - name: Setup environment
-      run: |
-        choco install haxe
-      
-    - name: Install dependencies
-      run: |
-        haxelib install hxcpp
-        git clone https://github.com/jgranick/format $GITHUB_WORKSPACE/format --depth 1
-        haxelib dev format $GITHUB_WORKSPACE/format
-        haxelib install mcover
-        haxelib install hamcrest
-        git clone https://github.com/openfl/munit $GITHUB_WORKSPACE/munit --depth 1
-        haxelib dev munit $GITHUB_WORKSPACE/munit/src
-        cd $GITHUB_WORKSPACE/munit/tool
-        haxe build.hxml
-        haxelib install format
-        haxelib install hxp
-       
-    - name: Install "lime" command alias
-      run: |
-        haxelib dev lime $GITHUB_WORKSPACE
-        haxelib run lime setup -alias -y
-        
-    - name: Rebuild Lime tools
-      run: |
-        lime rebuild tools -nocolor -verbose
-      
-    - name: Rebuild Lime binaries
-      run: |
-        REM set HXCPP_MSVC=%env.VS100COMNTOOLS%
-        lime rebuild windows -32 -release -verbose -nocolor
-        lime rebuild hl -32 -release -verbose -nocolor
-        REM set HXCPP_MSVC=
-        lime rebuild windows -64 -release -verbose -nocolor
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install HashLink dependencies
+        run: |
+          pushd project/lib/hashlink
+          brew update
+          rm /usr/local/bin/2to3*
+          rm /usr/local/bin/idle3*
+          rm /usr/local/bin/pydoc3*
+          rm /usr/local/bin/python3*
+          brew bundle
+          popd
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (macOS)
+        run: |
+          lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
+          lime rebuild hl -clean -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mac64-NDLL
+          path: |
+            ndll/Mac64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Mac64-Hashlink
+          path: |
+            templates/bin/hl/Mac64
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      # - name: Build HelloWorld sample
+      #   run: |
+      #     lime create HelloWorld -verbose -nocolor
+      #     lime build HelloWorld macos -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage macos -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio macos -release -verbose -nocolor
+
+  windows:
+    runs-on: windows-latest
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (Windows)
+        run: |
+          lime rebuild windows -32 -release -nocolor -verbose -nocffi
+          lime rebuild windows -64 -release -nocolor -verbose -nocffi
+          lime rebuild hl -clean -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows-NDLL
+          path: |
+            ndll/Windows/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows64-NDLL
+          path: |
+            ndll/Windows64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: |
+      #       templates/bin/hl/Windows
+      #     if-no-files-found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Windows64-Hashlink
+          path: |
+            templates/bin/hl/Windows64
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld windows -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage windows -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio windows -release -verbose -nocolor
+
+  android:
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r15c
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: 11
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Configure Android support
+        run: |
+          lime config ANDROID_SDK $ANDROID_HOME -eval
+          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }} -eval
+          lime config JAVA_HOME $JAVA_HOME -eval
+          lime config ANDROID_SETUP true -eval
+          lime config -eval
+
+      - name: Rebuild Lime (Android)
+        run: |
+          lime rebuild android -release -nocolor -verbose -nocffi -eval
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Android-NDLL
+          path: |
+            ndll/Android/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld android -release -verbose -nocolor -eval
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage android -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio android -release -verbose -nocolor -eval
+  ios:
+    runs-on: macos-12
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Rebuild Lime (iOS)
+        run: |
+          lime rebuild ios -clean -release -verbose -nocolor -eval
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: iPhone-NDLL
+          path: |
+            ndll/iPhone/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      # - name: Build HelloWorld sample
+      #   run: |
+      #     lime create HelloWorld -verbose -nocolor -eval
+      #     lime build HelloWorld ios -simulator -release -verbose -nocolor -eval
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage ios -simulator -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio ios -simulator -release -verbose -nocolor -eval
+
+  package-haxelib:
+    needs: [linux, macos, windows, android, ios]
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install svg --quiet
+          haxelib install openfl --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+          cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Android-NDLL
+          path: ndll/Android/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: iPhone-NDLL
+          path: ndll/iPhone/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Linux-NDLL
+          path: ndll/Linux/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Linux64-NDLL
+          path: ndll/Linux64/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Mac64-NDLL
+          path: ndll/Mac64/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Windows-NDLL
+          path: ndll/Windows/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Windows64-NDLL
+          path: ndll/Windows64/
+
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: Windows-Hashlink
+      #     path: templates/bin/hl/Windows
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Windows64-Hashlink
+          path: templates/bin/hl/Windows64
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Mac64-Hashlink
+          path: templates/bin/hl/Mac64
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Linux64-Hashlink
+          path: templates/bin/hl/Linux64
+
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: lime-haxelib
+          path: |
+            ./
+            !project/
+            !haxe-*-*/
+            !neko-*-*/
+            !.git/
+          if-no-files-found: error
+
+  docs:
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install dox --quiet
+          haxelib dev lime ${{ github.workspace }}
+
+      - name: Build docs
+        working-directory: docs
+        run: |
+          haxe build.hxml
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: lime-docs
+          path: docs/pages
+          if-no-files-found: error
+
+  flash-samples:
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld flash -release -verbose -nocolor -eval
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage flash -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio flash -release -verbose -nocolor -eval
+
+  air-samples:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.1]
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+
+      - uses: joshtynjala/setup-adobe-air-action@v2
+        with:
+          air-version: "33.1"
+          accept-license: true
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install hxcpp 4.2.1 --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+          haxelib run lime config AIR_SDK ${{ env.AIR_HOME }} -eval
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld air -release -verbose -nocolor -eval
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage air -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio air -release -verbose -nocolor -eval
+
+  hashlink-samples:
+    needs: package-haxelib
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-20.04, macos-12]
+    runs-on: ${{ matrix.os }}
+    steps:
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+      - name: Set HAXEPATH (Mac/Linux)
+        if: runner.os != 'Windows'
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: lime-haxelib
+          path: lime-haxelib
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime lime-haxelib
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld hl -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage hl -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio hl -release -verbose -nocolor
+
+  html5-samples:
+    runs-on: ubuntu-20.04
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install genes --quiet
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor -eval
+          lime build HelloWorld html5 -release -verbose -nocolor -eval
+
+      - name: Build HelloWorld variants
+        run: |
+          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes -eval
+          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser -eval
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage html5 -release -verbose -nocolor -eval
+
+      - name: Build SimpleImage variants
+        run: |
+          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes -eval
+          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio html5 -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio variants
+        run: |
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes -eval
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser -eval
+
+  neko-samples:
+    needs: package-haxelib
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.2.5]
+        os: [windows-latest, ubuntu-20.04, macos-12]
+    runs-on: ${{ matrix.os }}
+    steps:
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+
+      - name: Set HAXEPATH (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
+      - name: Set HAXEPATH (Mac/Linux)
+        if: runner.os != 'Windows'
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: lime-haxelib
+          path: lime-haxelib
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime lime-haxelib
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld neko -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage neko -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio neko -release -verbose -nocolor
+
+  notify:
+    runs-on: ubuntu-20.04
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, html5-samples, ios, linux, macos, neko-samples, windows]
+    if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
+    steps:
+      - name: Notify Discord
+        uses: nobrayner/discord-webhook@v1
+        with:
+          github-token: ${{ secrets.github_token }}
+          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}

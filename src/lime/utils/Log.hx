@@ -16,7 +16,7 @@ class Log
 		if (level >= LogLevel.DEBUG)
 		{
 			#if js
-			untyped __js__("console").debug("[" + info.className + "] " + message);
+			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").debug("[" + info.className + "] " + message);
 			#else
 			println("[" + info.className + "] " + Std.string(message));
 			#end
@@ -31,12 +31,15 @@ class Log
 
 			if (throwErrors)
 			{
+				#if webassembly
+				println(message);
+				#end
 				throw message;
 			}
 			else
 			{
 				#if js
-				untyped __js__("console").error(message);
+				untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").error(message);
 				#else
 				println(message);
 				#end
@@ -49,7 +52,7 @@ class Log
 		if (level >= LogLevel.INFO)
 		{
 			#if js
-			untyped __js__("console").info("[" + info.className + "] " + message);
+			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").info("[" + info.className + "] " + message);
 			#else
 			println("[" + info.className + "] " + Std.string(message));
 			#end
@@ -63,7 +66,7 @@ class Log
 		#elseif flash
 		untyped __global__["trace"](Std.string(message));
 		#elseif js
-		untyped __js__("console").log(message);
+		untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log(message);
 		#else
 		trace(message);
 		#end
@@ -76,7 +79,7 @@ class Log
 		#elseif flash
 		untyped __global__["trace"](Std.string(message));
 		#elseif js
-		untyped __js__("console").log(message);
+		untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log(message);
 		#else
 		trace(Std.string(message));
 		#end
@@ -95,7 +98,7 @@ class Log
 		if (level >= LogLevel.WARN)
 		{
 			#if js
-			untyped __js__("console").warn("[" + info.className + "] WARNING: " + message);
+			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").warn("[" + info.className + "] WARNING: " + message);
 			#else
 			println("[" + info.className + "] WARNING: " + Std.string(message));
 			#end
@@ -127,13 +130,13 @@ class Log
 		#end
 
 		#if js
-		if (untyped __js__("typeof console") == "undefined")
+		if (untyped #if haxe4 js.Syntax.code #else __js__ #end ("typeof console") == "undefined")
 		{
-			untyped __js__("console = {}");
+			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console = {}");
 		}
-		if (untyped __js__("console").log == null)
+		if (untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log == null)
 		{
-			untyped __js__("console").log = function() {};
+			untyped #if haxe4 js.Syntax.code #else __js__ #end ("console").log = function() {};
 		}
 		#end
 	}

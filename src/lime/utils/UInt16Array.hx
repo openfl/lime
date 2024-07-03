@@ -9,8 +9,12 @@ import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint16Array as JSUInt16Array;
 #end
 @:forward
-abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array to ArrayBufferView
+@:transitive
+abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array
 {
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 2;
 
 	@:generic
@@ -57,10 +61,10 @@ abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array to Array
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:UInt):UInt
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __set(idx:Int, val:UInt):UInt
 		return this[idx] = val;
 
-	@:arrayAccess @:extern inline function __get(idx:Int):UInt
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __get(idx:Int):UInt
 		return this[idx];
 
 	// non spec haxe conversions
@@ -82,6 +86,7 @@ abstract UInt16Array(JSUInt16Array) from JSUInt16Array to JSUInt16Array to Array
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract UInt16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
@@ -89,7 +94,9 @@ abstract UInt16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	public var length(get, never):Int;
 
+	#if (haxe_ver < 4.2)
 	@:generic
+	#end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
@@ -141,14 +148,14 @@ abstract UInt16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
 		return ArrayBufferIO.getUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:UInt)
 	{
 		ArrayBufferIO.setUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);

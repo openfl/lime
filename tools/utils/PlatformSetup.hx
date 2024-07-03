@@ -24,6 +24,7 @@ class PlatformSetup
 	private static var linuxPacman32Packages = "multilib-devel mesa mesa-libgl glu";
 	private static var linuxPacman64Packages = "multilib-devel lib32-mesa lib32-mesa-libgl lib32-glu";
 	private static var visualStudioURL = "https://www.visualstudio.com/downloads/";
+	private static var hashlinkURL = "https://github.com/HaxeFoundation/hashlink/releases";
 	private static var triedSudo:Bool = false;
 	private static var userDefines:Map<String, Dynamic>;
 	private static var targetFlags:Map<String, Dynamic>;
@@ -368,9 +369,6 @@ class PlatformSetup
 
 				// setupBlackBerry ();
 
-				case "emscripten", "webassembly", "wasm":
-					setupEmscripten();
-
 				case "html5":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
 				// setupHTML5 ();
@@ -397,6 +395,9 @@ class PlatformSetup
 
 				// setupTizen ();
 
+				case "webassembly", "wasm", "emscripten":
+					setupWebAssembly();
+
 				case "webos":
 
 				// setupWebOS ();
@@ -410,8 +411,11 @@ class PlatformSetup
 						setupWindows();
 					}
 
-				case "neko", "hl", "hashlink", "cs", "uwp", "winjs", "nodejs", "java":
+				case "neko", "cs", "uwp", "winjs", "nodejs", "java":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
+
+				case "hl", "hashlink":
+					setupHL();
 
 				case "lime":
 					setupLime();
@@ -585,7 +589,7 @@ class PlatformSetup
 		Log.println("\x1b[1mIn order to build applications for Android, you must have recent");
 		Log.println("versions of the Android SDK, Android NDK and Java JDK installed.");
 		Log.println("");
-		Log.println("You must also install the Android SDK Platform-tools and API 19 using");
+		Log.println("You must also install the Android SDK Platform-tools and API 30 using");
 		Log.println("the SDK manager from Android Studio.\x1b[0m");
 		Log.println("");
 
@@ -616,18 +620,6 @@ class PlatformSetup
 
 		Log.println("");
 		Haxelib.runCommand("", ["install", "electron"], true, true);
-
-		Log.println("");
-		Log.println("Setup complete.");
-	}
-
-	public static function setupEmscripten():Void
-	{
-		Log.println("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
-		Log.println("and install the Emscripten SDK.");
-		Log.println("");
-
-		getDefineValue("EMSCRIPTEN_SDK", "Path to Emscripten SDK");
 
 		Log.println("");
 		Log.println("Setup complete.");
@@ -824,25 +816,49 @@ class PlatformSetup
 			setupHaxelib(new Haxelib("lime"));
 		}
 
-		var haxePath = Sys.getEnv("HAXEPATH");
+		var haxePathEnv = Sys.getEnv("HAXEPATH");
+		var haxePath = haxePathEnv;
 
 		if (System.hostPlatform == WINDOWS)
 		{
+			var usingDefaultHaxePath = false;
 			if (haxePath == null || haxePath == "")
 			{
+				usingDefaultHaxePath = true;
 				haxePath = "C:\\HaxeToolkit\\haxe\\";
 			}
 
+			var copyFailure = false;
+			var exeDestPath = haxePath + "\\lime.exe";
 			try
 			{
-				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.exe", haxePath + "\\lime.exe");
+				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.exe", exeDestPath);
 			}
-			catch (e:Dynamic) {}
+			catch (e:Dynamic)
+			{
+				copyFailure = true;
+				if (Log.verbose)
+				{
+					Log.warn("Failed to copy lime.exe alias to destination: " + exeDestPath);
+				}
+			}
+			var shDestPath = haxePath + "\\lime";
 			try
 			{
-				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.sh", haxePath + "\\lime");
+				File.copy(Haxelib.getPath(new Haxelib("lime")) + "\\templates\\\\bin\\lime.sh", shDestPath);
 			}
-			catch (e:Dynamic) {}
+			catch (e:Dynamic)
+			{
+				copyFailure = true;
+				if (Log.verbose)
+				{
+					Log.warn("Failed to copy lime.sh alias to destination: " + shDestPath);
+				}
+			}
+			if (Log.verbose && copyFailure && usingDefaultHaxePath && !FileSystem.exists(haxePath))
+			{
+				Log.warn("Did you install Haxe to a custom location? Set the HAXEPATH environment variable, and run Lime setup again.");
+			}
 		}
 		else
 		{
@@ -865,18 +881,49 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-				try
+				if (System.hostPlatform == MAC)
 				{
-					System.runCommand("", "sudo", [
-						"cp",
-						"-f",
-						Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-						"/usr/local/bin/lime"
-					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
-					installedCommand = true;
+					var aliasDestPath = "/usr/local/bin/lime";
+					try
+					{
+						System.runCommand("", "cp", [
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							aliasDestPath
+						], false);
+						System.runCommand("", "chmod", ["755", aliasDestPath], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic)
+					{
+						if (Log.verbose)
+						{
+							Log.warn("Failed to copy Lime alias to destination: " + aliasDestPath);
+						}
+					}
 				}
-				catch (e:Dynamic) {}
+				else
+				{
+					var aliasDestPath = "/usr/local/bin/lime";
+					try
+					{
+						System.runCommand("", "sudo", [
+							"cp",
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							aliasDestPath
+						], false);
+						System.runCommand("", "sudo", ["chmod", "755", aliasDestPath], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic)
+					{
+						if (Log.verbose)
+						{
+							Log.warn("Failed to copy Lime alias to destination: " + aliasDestPath);
+						}
+					}
+				}
 			}
 
 			if (!installedCommand)
@@ -1082,25 +1129,48 @@ class PlatformSetup
 
 			if (answer == YES || answer == ALWAYS)
 			{
-				try
+				if (System.hostPlatform == MAC)
 				{
-					System.runCommand("", "sudo", [
-						"cp",
-						"-f",
-						Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
-						"/usr/local/bin/lime"
-					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
-					System.runCommand("", "sudo", [
-						"cp",
-						"-f",
-						System.findTemplate(project.templatePaths, "bin/openfl.sh"),
-						"/usr/local/bin/openfl"
-					], false);
-					System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
-					installedCommand = true;
+					try
+					{
+						System.runCommand("", "cp", [
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/lime"], false);
+						System.runCommand("", "cp", [
+							"-f",
+							System.findTemplate(project.templatePaths, "bin/openfl.sh"),
+							"/usr/local/bin/openfl"
+						], false);
+						System.runCommand("", "chmod", ["755", "/usr/local/bin/openfl"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
 				}
-				catch (e:Dynamic) {}
+				else
+				{
+					try
+					{
+						System.runCommand("", "sudo", [
+							"cp",
+							"-f",
+							Haxelib.getPath(new Haxelib("lime")) + "/templates/bin/lime.sh",
+							"/usr/local/bin/lime"
+						], false);
+						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/lime"], false);
+						System.runCommand("", "sudo", [
+							"cp",
+							"-f",
+							System.findTemplate(project.templatePaths, "bin/openfl.sh"),
+							"/usr/local/bin/openfl"
+						], false);
+						System.runCommand("", "sudo", ["chmod", "755", "/usr/local/bin/openfl"], false);
+						installedCommand = true;
+					}
+					catch (e:Dynamic) {}
+				}
 			}
 
 			if (!installedCommand)
@@ -1125,6 +1195,20 @@ class PlatformSetup
 		}
 	}
 
+	public static function setupWebAssembly():Void
+	{
+		Log.println("\x1b[1mIn order to build for WebAssembly or asm.js, you must download");
+		Log.println("and install the Emscripten SDK.");
+		Log.println("");
+		Log.println("After install, the SDK path may be at \"emsdk/upstream/emscripten\"");
+		Log.println("");
+
+		getDefineValue("EMSCRIPTEN_SDK", "Path to Emscripten SDK");
+
+		Log.println("");
+		Log.println("Setup complete.");
+	}
+
 	public static function setupWindows():Void
 	{
 		Log.println("\x1b[1mIn order to build native executables for Windows, you must have a");
@@ -1140,6 +1224,61 @@ class PlatformSetup
 		if (answer == YES || answer == ALWAYS)
 		{
 			System.openURL(visualStudioURL);
+		}
+	}
+
+	public static function setupHL():Void
+	{
+		getDefineValue("HL_PATH", "Path to a custom version of Hashlink. Leave empty to use lime's default version.");
+		if (System.hostPlatform == MAC)
+		{
+			Log.println("To use the hashlink debugger on macOS, the hl executable needs to be signed.");
+			if (ConfigHelper.getConfigValue("HL_PATH") != null)
+			{
+				Log.println("When building HL from source, make sure to have run `make codesign_osx` before installing.");
+			}
+			else
+			{
+				var answer = CLIHelper.ask("Would you like to do this now? (Requires sudo.)");
+
+				if (answer == YES || answer == ALWAYS)
+				{
+					var openSSLConf = System.getTemporaryFile("cnf");
+					var key = System.getTemporaryFile("pem");
+					var cert = System.getTemporaryFile("cer");
+					var limePath = Haxelib.getPath(new Haxelib("lime"));
+					var hlPath = limePath + "/templates/bin/hl/mac/hl";
+					var entitlementsPath = sys.FileSystem.exists(limePath + "/project") ? (limePath +
+						"/project/lib/hashlink/other/osx/entitlements.xml") : (limePath
+						+ "/templates/bin/hl/entitlements.xml");
+					System.runCommand("", "sudo", ["security", "delete-identity", "-c", "hl-cert"], true, true, true);
+					sys.io.File.saveContent(openSSLConf, [
+						"[req]",
+						"distinguished_name=codesign_dn",
+						"[codesign_dn]",
+						"commonName=hl-cert",
+						"[v3_req]",
+						"keyUsage=critical,digitalSignature",
+						"extendedKeyUsage=critical,codeSigning",
+					].join("\n"));
+					System.runCommand("", "openssl", [
+						"req", "-x509", "-newkey", "rsa:4096", "-keyout", key, "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out",
+						cert, "-extensions", "v3_req", "-config", openSSLConf
+					], true, false, true);
+					System.runCommand("", "sudo", [
+						"security",
+						"add-trusted-cert",
+						"-d",
+						"-k /Library/Keychains/System.keychain",
+						cert
+					], true, false, true);
+					System.runCommand("", "sudo", ["security", "import", key, "-k", "/Library/Keychains/System.keychain", "-A"], true, false, true);
+					System.runCommand("", "codesign", ["--entitlements", entitlementsPath, "-fs", "hl-cert", hlPath], true, false, true);
+					for (f in [key, cert, openSSLConf])
+						sys.FileSystem.deleteFile(f);
+					Log.println("\nIf you update lime, you will have to run this again to sign the new hl executable");
+				}
+			}
 		}
 	}
 

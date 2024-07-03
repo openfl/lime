@@ -232,7 +232,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	public function copyFrom(other:Matrix4):Void
 	{
-		this.set(other);
+		this.set(cast other);
 	}
 
 	/**

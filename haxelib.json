@@ -4,8 +4,12 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "7.7.0",
-	"releasenote": "Asset library improvements, continued platform updates",
-	"contributors": [ "singmajesty" ],
+	"version": "8.1.2",
+	"releasenote": "Various bug fixes",
+	"contributors": [
+		"singmajesty",
+		"bowlerhat",
+		"Dimensionscape"
+	],
 	"classPath": "src"
 }

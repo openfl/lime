@@ -6,9 +6,10 @@ typedef ArrayBuffer = #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #en
 import haxe.io.Bytes;
 
 @:forward
+@:transitive
 abstract ArrayBuffer(Bytes) from Bytes to Bytes
-#if doc_gen from Dynamic to Dynamic
-#end
+	#if doc_gen from Dynamic to Dynamic
+	#end
 {
 	public var byteLength(get, never):Int;
 
@@ -24,7 +25,7 @@ abstract ArrayBuffer(Bytes) from Bytes to Bytes
 
 	public static inline function isView(arg:Dynamic):Bool
 	{
-		return (arg != null && Std.is(arg, ArrayBufferView));
+		return (arg != null && (arg is ArrayBufferView));
 	}
 
 	public inline function slice(begin:Int, end:Null<Int> = null)

@@ -47,6 +47,7 @@ class FlashWindow
 	private var mouseLeft:Bool;
 	private var parent:Window;
 	private var textInputEnabled:Bool;
+	private var textInputRect:Rectangle;
 	private var unusedTouchesPool = new List<Touch>();
 
 	public function new(parent:Window)
@@ -571,6 +572,11 @@ class FlashWindow
 		return false;
 	}
 
+	public function getOpacity():Float
+	{
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		return textInputEnabled;
@@ -579,6 +585,10 @@ class FlashWindow
 	public function move(x:Int, y:Int):Void {}
 
 	public function resize(width:Int, height:Int):Void {}
+
+	public function setMinSize(width:Int, height:Int):Void {}
+
+	public function setMaxSize(width:Int, height:Int):Void {}
 
 	public function setBorderless(value:Bool):Bool
 	{
@@ -612,6 +622,8 @@ class FlashWindow
 
 	public function setMouseLock(value:Bool):Void {}
 
+	public function setOpacity(value:Float):Void {}
+
 	public function setResizable(value:Bool):Bool
 	{
 		return value;
@@ -622,7 +634,17 @@ class FlashWindow
 		return textInputEnabled = value;
 	}
 
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		return textInputRect = value;
+	}
+
 	public function setTitle(value:String):String
+	{
+		return value;
+	}
+
+	public function setVisible(value:Bool):Bool
 	{
 		return value;
 	}

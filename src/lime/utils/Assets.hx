@@ -431,7 +431,7 @@ class Assets
 				}
 			}).onError(function(_)
 			{
-				promise.error("There is no asset library with an ID of \"" + id + "\"");
+					promise.error("There is no asset library with an ID of \"" + id + "\"");
 			});
 		}
 		else
@@ -477,7 +477,7 @@ class Assets
 				}
 			}).onError(function(_)
 			{
-				promise.error("There is no asset library with an ID of \"" + id + "\"");
+					promise.error("There is no asset library with an ID of \"" + id + "\"");
 			});
 		}
 		#end
@@ -492,6 +492,11 @@ class Assets
 
 	public static function registerLibrary(name:String, library:AssetLibrary):Void
 	{
+		if (name == null || name == "")
+		{
+			name = "default";
+		}
+
 		if (libraries.exists(name))
 		{
 			if (libraries.get(name) == library)

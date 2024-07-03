@@ -155,4 +155,18 @@ class Event<T>
 		}
 		#end
 	}
+
+	/**
+		Removes all event listeners
+	**/
+	public function removeAll():Void
+	{
+		#if !macro
+		var len = __listeners.length;
+
+		__listeners.splice(0, len);
+		__priorities.splice(0, len);
+		__repeat.splice(0, len);
+		#end
+	}
 }

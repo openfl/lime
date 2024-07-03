@@ -299,6 +299,18 @@ class NativeWindow
 		return mouseLock;
 	}
 
+	public function getOpacity():Float
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_opacity(handle);
+			#end
+		}
+
+		return 1.0;
+	}
+
 	public function getTextInputEnabled():Bool
 	{
 		if (handle != null)
@@ -449,6 +461,26 @@ class NativeWindow
 		}
 	}
 
+	public function setMinSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_minimum_size(handle, width, height);
+			#end
+		}
+	}
+
+	public function setMaxSize(width:Int, height:Int):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_maximum_size(handle, width, height);
+			#end
+		}
+	}
+
 	public function setBorderless(value:Bool):Bool
 	{
 		if (handle != null)
@@ -541,16 +573,17 @@ class NativeWindow
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_text_input_enabled(handle, value);
 			#end
+		}
 
-			#if android
-			if (!value)
-			{
-				var updateSystemUI = JNI.createStaticMethod("org/haxe/lime/GameActivity", "updateSystemUI", "()V");
-				JNI.postUICallback(function()
-				{
-					updateSystemUI();
-				});
-			}
+		return value;
+	}
+
+	public function setTextInputRect(value:Rectangle):Rectangle
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_text_input_rect(handle, value);
 			#end
 		}
 
@@ -627,6 +660,16 @@ class NativeWindow
 		return value;
 	}
 
+	public function setOpacity(value:Float):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_opacity(handle, value);
+			#end
+		}
+	}
+
 	public function setResizable(value:Bool):Bool
 	{
 		if (handle != null)
@@ -656,6 +699,18 @@ class NativeWindow
 		return value;
 	}
 
+	public function setVisible(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_visible(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void
 	{
 		#if (!macro && lime_cffi)
@@ -664,7 +719,7 @@ class NativeWindow
 	}
 }
 
-@:enum private abstract MouseCursorType(Int) from Int to Int
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseCursorType(Int) from Int to Int
 {
 	var HIDDEN = 0;
 	var ARROW = 1;
@@ -681,7 +736,7 @@ class NativeWindow
 	var WAIT_ARROW = 12;
 }
 
-@:enum private abstract WindowFlags(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowFlags(Int)
 {
 	var WINDOW_FLAG_FULLSCREEN = 0x00000001;
 	var WINDOW_FLAG_BORDERLESS = 0x00000002;

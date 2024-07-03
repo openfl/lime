@@ -9,8 +9,12 @@ import js.html.Int8Array as JSInt8Array;
 import js.html.Uint8Array as JSUInt8Array;
 #end
 @:forward
-abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array to ArrayBufferView
+@:transitive
+abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array
 {
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 
 	@:generic
@@ -57,10 +61,10 @@ abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array to ArrayBufferVi
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:Int):Int
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __set(idx:Int, val:Int):Int
 		return this[idx] = val;
 
-	@:arrayAccess @:extern inline function __get(idx:Int):Int
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __get(idx:Int):Int
 		return this[idx];
 
 	// non spec haxe conversions
@@ -80,6 +84,7 @@ abstract Int8Array(JSInt8Array) from JSInt8Array to JSInt8Array to ArrayBufferVi
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 {
@@ -87,7 +92,9 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 
 	public var length(get, never):Int;
 
+	#if (haxe_ver < 4.2)
 	@:generic
+	#end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
@@ -141,14 +148,14 @@ abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
 		return ArrayBufferIO.getInt8(this.buffer, this.byteOffset + idx);
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:Int)
 	{
 		ArrayBufferIO.setInt8(this.buffer, this.byteOffset + idx, val);

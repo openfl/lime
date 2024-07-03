@@ -17,6 +17,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.ModuleHelper;
+import lime.tools.Orientation;
 import lime.tools.ProjectHelper;
 import lime.tools.PlatformTarget;
 import sys.io.File;
@@ -32,7 +33,72 @@ class HTML5Platform extends PlatformTarget
 	{
 		super(command, _project, targetFlags);
 
-		initialize(command, _project);
+		var defaults = new HXProject();
+
+		defaults.meta =
+			{
+				title: "MyApplication",
+				description: "",
+				packageName: "com.example.myapp",
+				version: "1.0.0",
+				company: "",
+				companyUrl: "",
+				buildNumber: null,
+				companyId: ""
+			};
+
+		defaults.app =
+			{
+				main: "Main",
+				file: "MyApplication",
+				path: "bin",
+				preloader: "",
+				swfVersion: 17,
+				url: "",
+				init: null
+			};
+
+		defaults.window =
+			{
+				width: 800,
+				height: 600,
+				parameters: "{}",
+				background: 0xFFFFFF,
+				fps: 30,
+				hardware: true,
+				display: 0,
+				resizable: true,
+				borderless: false,
+				orientation: Orientation.AUTO,
+				vsync: false,
+				fullscreen: false,
+				allowHighDPI: true,
+				alwaysOnTop: false,
+				antialiasing: 0,
+				allowShaders: true,
+				requireShaders: false,
+				depthBuffer: true,
+				stencilBuffer: true,
+				colorDepth: 32,
+				maximized: false,
+				minimized: false,
+				hidden: false,
+				title: ""
+			};
+
+		defaults.window.width = 0;
+		defaults.window.height = 0;
+		defaults.window.fps = 60;
+
+		for (i in 1...project.windows.length)
+		{
+			defaults.windows.push(defaults.window);
+		}
+
+		defaults.merge(project);
+		project = defaults;
+
+		initialize(command, project);
 	}
 
 	public override function build():Void
@@ -135,11 +201,11 @@ class HTML5Platform extends PlatformTarget
 		}
 		else
 		{
-			Sys.println(getDisplayHXML());
+			Sys.println(getDisplayHXML().toString());
 		}
 	}
 
-	private function getDisplayHXML():String
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -197,7 +263,8 @@ class HTML5Platform extends PlatformTarget
 		}
 		else if (targetFlags.exists("electron"))
 		{
-			ElectronHelper.launch(project, targetDirectory + "/bin");
+			var npx = targetFlags.exists("npx");
+			ElectronHelper.launch(project, targetDirectory + "/bin", npx);
 		}
 		else
 		{
@@ -376,7 +443,7 @@ class HTML5Platform extends PlatformTarget
 
 			if (asset.type != AssetType.TEMPLATE)
 			{
-				if ( /*asset.embed != true &&*/ asset.type != AssetType.FONT)
+				if (/*asset.embed != true &&*/ asset.type != AssetType.FONT)
 				{
 					dir = Path.directory(path);
 					if (!createdDirectories.exists(dir))
@@ -502,7 +569,15 @@ class HTML5Platform extends PlatformTarget
 	{
 		// TODO: Use a custom live reload HTTP server for test/run instead
 
-		var dirs = []; // WatchHelper.processHXML (getDisplayHXML (), project.app.path);
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
 		var command = ProjectHelper.getCurrentCommand();
 		System.watch(command, dirs);
 	}

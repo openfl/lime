@@ -1007,24 +1007,7 @@ class Image
 	{
 		if (path == null) return Future.withValue(null);
 
-		#if kha
-		var promise = new Promise<Image>();
-
-		function fromFileAsync(path:String, onload:Image->Void)
-		{
-			if (path == null) return null;
-			var image = new Image();
-			image.__fromFile(path, onload);
-			return image;
-		}
-
-		fromFileAsync(path.substring(path.lastIndexOf('/') + 1), function(image:Image)
-		{
-			promise.complete(image);
-		});
-
-		return promise.future;
-		#elseif (js && html5 && !display)
+		#if (js && html5 && !display)
 		return HTML5HTTPRequest.loadImage(path);
 		#elseif flash
 		var promise = new Promise<Image>();
@@ -1071,9 +1054,9 @@ class Image
 		@param	sourceRect	The source rectangle to use when copying
 		@param	destPoint	The destination point in this `Image` to copy into
 		@param	redMultiplier	A red multiplier to use when blitting
-		@param	greenMultiplier	A red multiplier to use when blitting
-		@param	blueMultiplier	A red multiplier to use when blitting
-		@param	alphaMultiplier	A red multiplier to use when blitting
+		@param	greenMultiplier	A green multiplier to use when blitting
+		@param	blueMultiplier	A blue multiplier to use when blitting
+		@param	alphaMultiplier	An alpha multiplier to use when blitting
 	**/
 	public function merge(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int,
 			alphaMultiplier:Int):Void
@@ -1438,11 +1421,7 @@ class Image
 	@:noCompletion private function __fromBase64(base64:String, type:String, onload:Image->Void = null):Void
 	{
 		#if (js && html5)
-		#if openfljs
-		var image:JSImage = untyped __js__('new window.Image ()');
-		#else
-		var image = new JSImage();
-		#end
+		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
 
 		var image_onLoaded = function(event)
 		{
@@ -1529,56 +1508,8 @@ class Image
 
 	@:noCompletion private function __fromFile(path:String, onload:Image->Void = null, onerror:Void->Void = null):Bool
 	{
-		#if (kha && !macro)
-		kha.Assets.loadBlobFromPath(path, function(blob:kha.Blob)
-		{
-			try
-			{
-				var bytes = blob.bytes;
-				var input = new BytesInput(bytes, 0, bytes.length);
-				var png = new Reader(input).read();
-				var data = Tools.extract32(png);
-				var header = Tools.getHeader(png);
-
-				var data = new js.html.Uint8Array(data.getData());
-				var length = header.width * header.height;
-				var b, g, r, a;
-
-				for (i in 0...length)
-				{
-					var b = data[i * 4];
-					var g = data[i * 4 + 1];
-					var r = data[i * 4 + 2];
-					var a = data[i * 4 + 3];
-
-					data[i * 4] = r;
-					data[i * 4 + 1] = g;
-					data[i * 4 + 2] = b;
-					data[i * 4 + 3] = a;
-				}
-
-				buffer = new ImageBuffer(data, header.width, header.height);
-
-				if (buffer != null)
-				{
-					__fromImageBuffer(buffer);
-
-					if (onload != null)
-					{
-						onload(this);
-					}
-
-					return true;
-				}
-			}
-			catch (e:Dynamic) {}
-		});
-		#elseif (js && html5)
-		#if openfljs
-		var image:JSImage = untyped __js__('new window.Image ()');
-		#else
-		var image = new JSImage();
-		#end
+		#if (js && html5)
+		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
 
 		#if !display
 		if (!HTML5HTTPRequest.__isSameOrigin(path))

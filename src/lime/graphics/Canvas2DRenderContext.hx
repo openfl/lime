@@ -26,6 +26,7 @@ abstract Canvas2DRenderContext(CanvasRenderingContext2D) from CanvasRenderingCon
 }
 #else
 @:forward()
+@:transitive
 abstract Canvas2DRenderContext(Dynamic) from Dynamic to Dynamic
 {
 	@:from private static function fromRenderContext(context:RenderContext):Canvas2DRenderContext

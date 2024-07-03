@@ -17,16 +17,19 @@ class AIRHelper
 				if (project.targetFlags.exists("captive"))
 				{
 					airTarget = "bundle";
+				}
+
+				if (airTarget == "bundle")
+				{
 					extension = ".app";
 				}
-			// extension = ".app";
 
 			case WINDOWS:
 				if (project.targetFlags.exists("captive"))
-					{
-						airTarget = "bundle";
-						extension = "";
-					}
+				{
+					airTarget = "bundle";
+					extension = "";
+				}
 
 			case IOS:
 				if (project.targetFlags.exists("simulator"))
@@ -42,13 +45,42 @@ class AIRHelper
 				}
 				else
 				{
+					var supportedExportMethods = ["adhoc", "appstore"];
+					var exportMethod:String = null;
+					for (m in supportedExportMethods)
+					{
+						if (project.targetFlags.exists(m))
+						{
+							if (exportMethod != null)
+							{
+								Log.error("Must not specify multiple export methods. Found: " + exportMethod + " and " + m);
+							}
+							exportMethod = m;
+						}
+					}
+					if (exportMethod == null && project.targetFlags.exists("final")) {
+						exportMethod = "appstore";
+					}
+
 					if (project.debug)
 					{
+						if (exportMethod != null)
+						{
+							Log.error("Must not specify export method for a debug build. Found: " + exportMethod);
+						}
 						airTarget = "ipa-debug";
 					}
 					else
 					{
-						airTarget = "ipa-test";
+						switch (exportMethod)
+						{
+							case "appstore":
+								airTarget = "ipa-app-store";
+							case "adhoc":
+								airTarget = "ipa-ad-hoc";
+							default:
+								airTarget = "ipa-test";
+						}
 					}
 				}
 
@@ -73,13 +105,16 @@ class AIRHelper
 
 		if (project.keystore != null)
 		{
-			var keystore = Path.tryFullPath(project.keystore.path);
 			var keystoreType = project.keystore.type != null ? project.keystore.type : "pkcs12";
-
 			signingOptions.push("-storetype");
 			signingOptions.push(keystoreType);
-			signingOptions.push("-keystore");
-			signingOptions.push(keystore);
+
+			if (project.keystore.path != null)
+			{
+				var keystore = Path.tryFullPath(project.keystore.path);
+				signingOptions.push("-keystore");
+				signingOptions.push(keystore);
+			}
 
 			if (project.keystore.alias != null)
 			{
@@ -126,11 +161,19 @@ class AIRHelper
 
 			if (project.debug)
 			{
-				args.push("-connect");
-
 				if (project.config.exists("air.connect"))
 				{
+					args.push("-connect");
 					args.push(project.config.getString("air.connect"));
+				}
+				else if (project.config.exists("air.listen"))
+				{
+					args.push("-listen");
+					args.push(project.config.getString("air.listen"));
+				}
+				else
+				{
+					args.push("-connect");
 				}
 			}
 
@@ -181,9 +224,17 @@ class AIRHelper
 			Sys.putEnv("AIR_NOANDROIDFLAIR", "true");
 		}
 
-		if (targetPlatform == IOS)
+		if (targetPlatform == IOS && System.hostPlatform == MAC)
 		{
-			Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", XCodeHelper.getSimulatorName(project));
+			var simulatorName = XCodeHelper.getSimulatorName(project);
+			if (simulatorName == null)
+			{
+				Log.warn("Skipping AIR_IOS_SIMULATOR_DEVICE environment variable because default simulator not found");
+			}
+			else
+			{
+				Sys.putEnv("AIR_IOS_SIMULATOR_DEVICE", simulatorName);
+			}
 		}
 
 		System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
@@ -210,8 +261,10 @@ class AIRHelper
 
 	public static function run(project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null):Void
 	{
-		if (targetPlatform == ANDROID)
+		var runInAdl = true;
+		if (targetPlatform == ANDROID && !project.targetFlags.exists("air-simulator"))
 		{
+			runInAdl = false;
 			AndroidHelper.initialize(project);
 			AndroidHelper.install(project,
 				FileSystem.fullPath(workingDirectory)
@@ -221,8 +274,9 @@ class AIRHelper
 				+ ".apk");
 			AndroidHelper.run(project.meta.packageName + "/.AppEntry");
 		}
-		else if (targetPlatform == IOS)
+		else if (targetPlatform == IOS && !project.targetFlags.exists("air-simulator"))
 		{
+			runInAdl = false;
 			var args = ["-platform", "ios"];
 
 			if (project.targetFlags.exists("simulator"))
@@ -235,16 +289,16 @@ class AIRHelper
 				System.runCommand("", "killall", ["iPhone Simulator"], true, true);
 			}
 
-			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-uninstallApp"]
-				.concat(args).concat(["-appid", project.meta.packageName]), true, true);
+			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt",
+				["-uninstallApp"].concat(args).concat(["-appid", project.meta.packageName]), true, true);
 			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-installApp"].concat(args).concat(["-package",
 				FileSystem.fullPath(workingDirectory)
 				+ "/"
 				+ (rootDirectory != null ? rootDirectory + "/" : "")
 				+ project.app.file
 				+ ".ipa"]));
-			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", ["-launchApp"]
-				.concat(args).concat(["-appid", project.meta.packageName]), true, true);
+			System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt",
+				["-launchApp"].concat(args).concat(["-appid", project.meta.packageName]), true, true);
 
 			if (project.targetFlags.exists("simulator"))
 			{
@@ -258,13 +312,50 @@ class AIRHelper
 				System.runCommand("", "open", [simulatorAppPath]);
 			}
 		}
-		else
+		if (runInAdl)
 		{
 			var extDirs:Array<String> = getExtDirs(project);
 
-			var profile:String = extDirs.length > 0 ? "extendedDesktop" : "desktop";
+			var profile:String;
+
+			if (project.config.exists("air.profile"))
+			{
+				profile = project.config.getString("air.profile");
+			}
+			else if (targetPlatform == ANDROID)
+			{
+				profile = "mobileDevice";
+			}
+			else if (targetPlatform == IOS)
+			{
+				profile = "mobileDevice";
+			}
+			else
+			{
+				profile = extDirs.length > 0 ? "extendedDesktop" : "desktop";
+			}
 
 			var args = ["-profile", profile];
+
+			if (targetPlatform == ANDROID || targetPlatform == IOS)
+			{
+				// these are just generic default dimensions that are a bit
+				// larger than AIR's defaults for the simulator
+				args.push("-XscreenDPI");
+				args.push("252");
+				args.push("-screensize");
+				args.push("480x762:480x800");
+			}
+			if (targetPlatform == ANDROID)
+			{
+				args.push("-XversionPlatform");
+				args.push("AND");
+			}
+			else if (targetPlatform == IOS)
+			{
+				args.push("-XversionPlatform");
+				args.push("IOS");
+			}
 
 			if (!project.debug)
 			{
@@ -299,7 +390,7 @@ class AIRHelper
 
 	public static function trace(project:HXProject, workingDirectory:String, targetPlatform:Platform, applicationXML:String, rootDirectory:String = null)
 	{
-		if (targetPlatform == ANDROID)
+		if (targetPlatform == ANDROID && !project.targetFlags.exists("air-simulator"))
 		{
 			AndroidHelper.initialize(project);
 			var deviceID = null;

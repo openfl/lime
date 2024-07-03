@@ -284,10 +284,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return;
         }
 
-        if (mHIDDeviceManager != null) {
-            mHIDDeviceManager.setFrozen(true);
-        }
-
         SDLActivity.handleNativeState();
     }
 
@@ -299,10 +295,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
            return;
         }
 
-        if (mHIDDeviceManager != null) {
-            mHIDDeviceManager.setFrozen(false);
-        }
-
         SDLActivity.handleNativeState();
     }
 
@@ -311,6 +303,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void onPause() {
         Log.v(TAG, "onPause()");
         super.onPause();
+
+        if (mHIDDeviceManager != null) {
+            mHIDDeviceManager.setFrozen(true);
+        }
         if (!mHasMultiWindow) {
             pauseNativeThread();
         }
@@ -320,6 +316,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void onResume() {
         Log.v(TAG, "onResume()");
         super.onResume();
+
+        if (mHIDDeviceManager != null) {
+            mHIDDeviceManager.setFrozen(false);
+        }
         if (!mHasMultiWindow) {
             resumeNativeThread();
         }
@@ -454,7 +454,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         // Default system back button behavior.
-        super.onBackPressed();
+        if (!isFinishing()) {
+            super.onBackPressed();
+        }
     }
 
     // Called by JNI from SDL.
@@ -467,7 +469,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                SDLActivity.this.superOnBackPressed();
+                if (!SDLActivity.this.isFinishing()) {
+                    SDLActivity.this.superOnBackPressed();
+                }
             }
         });
     }
@@ -634,6 +638,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     imm.hideSoftInputFromWindow(mTextEdit.getWindowToken(), 0);
 
                     mScreenKeyboardShown = false;
+
+                    mSurface.requestFocus();
                 }
                 break;
             case COMMAND_SET_KEEP_SCREEN_ON:
@@ -725,7 +731,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 }
             }
 
-            if (bShouldWait) {
+            if (bShouldWait && (SDLActivity.getContext() != null)) {
                 // We'll wait for the surfaceChanged() method, which will notify us
                 // when called.  That way, we know our current size is really the
                 // size we need, instead of grabbing a size that's still got
@@ -778,6 +784,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static native void nativeSetenv(String name, String value);
     public static native void onNativeOrientationChanged(int orientation);
     public static native void nativeAddTouch(int touchId, String name);
+    public static native void nativePermissionResult(int requestCode, boolean result);
 
     /**
      * This method is called by SDL using JNI.
@@ -812,39 +819,62 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public void setOrientationBis(int w, int h, boolean resizable, String hint)
     {
-        int orientation = -1;
+        int orientation_landscape = -1;
+        int orientation_portrait = -1;
 
+        /* If set, hint "explicitly controls which UI orientations are allowed". */
         if (hint.contains("LandscapeRight") && hint.contains("LandscapeLeft")) {
-            orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+            orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
         } else if (hint.contains("LandscapeRight")) {
-            orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         } else if (hint.contains("LandscapeLeft")) {
-            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-        } else if (hint.contains("Portrait") && hint.contains("PortraitUpsideDown")) {
-            orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
-        } else if (hint.contains("Portrait")) {
-            orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        } else if (hint.contains("PortraitUpsideDown")) {
-            orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+            orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
         }
 
-        /* no valid hint */
-        if (orientation == -1) {
+        if (hint.contains("Portrait") && hint.contains("PortraitUpsideDown")) {
+            orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+        } else if (hint.contains("Portrait")) {
+            orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        } else if (hint.contains("PortraitUpsideDown")) {
+            orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+        }
+
+        boolean is_landscape_allowed = (orientation_landscape == -1 ? false : true);
+        boolean is_portrait_allowed = (orientation_portrait == -1 ? false : true);
+        int req = -1; /* Requested orientation */
+
+        /* No valid hint, nothing is explicitly allowed */
+        if (!is_portrait_allowed && !is_landscape_allowed) {
             if (resizable) {
-                /* no fixed orientation */
+                /* All orientations are allowed */
+                req = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
             } else {
-                if (w > h) {
-                    orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+                /* Fixed window and nothing specified. Get orientation from w/h of created window */
+                req = (w > h ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+            }
+        } else {
+            /* At least one orientation is allowed */
+            if (resizable) {
+                if (is_portrait_allowed && is_landscape_allowed) {
+                    /* hint allows both landscape and portrait, promote to full sensor */
+                    req = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
                 } else {
-                    orientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+                    /* Use the only one allowed "orientation" */
+                    req = (is_landscape_allowed ? orientation_landscape : orientation_portrait);
+                }
+            } else {
+                /* Fixed window and both orientations are allowed. Choose one. */
+                if (is_portrait_allowed && is_landscape_allowed) {
+                    req = (w > h ? orientation_landscape : orientation_portrait);
+                } else {
+                    /* Use the only one allowed "orientation" */
+                    req = (is_landscape_allowed ? orientation_landscape : orientation_portrait);
                 }
             }
         }
 
-        Log.v("SDL", "setOrientation() orientation=" + orientation + " width=" + w +" height="+ h +" resizable=" + resizable + " hint=" + hint);
-        if (orientation != -1) {
-            mSingleton.setRequestedOrientation(orientation);
-        }
+        Log.v("SDL", "setOrientation() requestedOrientation=" + req + " width=" + w +" height="+ h +" resizable=" + resizable + " hint=" + hint);
+        mSingleton.setRequestedOrientation(req);
     }
 
     /**
@@ -971,6 +1001,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (Build.MANUFACTURER.equals("Amlogic") && Build.MODEL.equals("X96-W")) {
             return true;
         }
+        if (Build.MANUFACTURER.equals("Amlogic") && Build.MODEL.startsWith("TV")) {
+            return true;
+        }
         return false;
     }
 
@@ -980,6 +1013,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     public static boolean isTablet() {
         DisplayMetrics metrics = new DisplayMetrics();
         Activity activity = (Activity)getContext();
+        if (activity == null) {
+            return false;
+        }
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         double dWidthInches = metrics.widthPixels / (double)metrics.xdpi;
@@ -995,6 +1031,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static boolean isChromebook() {
+        if (getContext() == null) {
+            return false;
+        }
         return getContext().getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
     }
 
@@ -1566,6 +1605,32 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
         return true;
     }
+
+    /**
+     * This method is called by SDL using JNI.
+     */
+    public static void requestPermission(String permission, int requestCode) {
+        if (Build.VERSION.SDK_INT < 23) {
+            nativePermissionResult(requestCode, true);
+            return;
+        }
+
+        Activity activity = (Activity)getContext();
+        if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(new String[]{permission}, requestCode);
+        } else {
+            nativePermissionResult(requestCode, true);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            nativePermissionResult(requestCode, true);
+        } else {
+            nativePermissionResult(requestCode, false);
+        }
+    }
 }
 
 /**
@@ -1591,7 +1656,7 @@ class SDLMain implements Runnable {
 
         Log.v("SDL", "Finished main function");
 
-        if (SDLActivity.mSingleton.isFinishing()) {
+        if (SDLActivity.mSingleton == null || SDLActivity.mSingleton.isFinishing()) {
             // Activity is already being destroyed
         } else {
             // Let's finish the Activity
@@ -1826,10 +1891,9 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         if (source == InputDevice.SOURCE_UNKNOWN) {
             InputDevice device = InputDevice.getDevice(deviceId);
-			if ( device != null )
-			{
-				source = device.getSources();
-			}
+            if (device != null) {
+                source = device.getSources();
+            }
         }
 
         if ((source & InputDevice.SOURCE_KEYBOARD) != 0) {
@@ -1869,13 +1933,23 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         /* Ref: http://developer.android.com/training/gestures/multi.html */
-        final int touchDevId = event.getDeviceId();
+        int touchDevId = event.getDeviceId();
         final int pointerCount = event.getPointerCount();
         int action = event.getActionMasked();
         int pointerFingerId;
         int mouseButton;
         int i = -1;
         float x,y,p;
+		
+		/**
+		* Prevent id to be -1, since it's used in SDL internal for synthetic events
+		* Appears when using Android emulator, eg:
+		*  adb shell input mouse tap 100 100
+		*  adb shell input touchscreen tap 100 100
+		*/
+		if (touchDevId < 0) {
+			touchDevId -= 1;
+		}
 
         // 12290 = Samsung DeX mode desktop mouse
         // 12290 = 0x3002 = 0x2002 | 0x1002 = SOURCE_MOUSE | SOURCE_TOUCHSCREEN

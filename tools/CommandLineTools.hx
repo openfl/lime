@@ -54,7 +54,6 @@ class CommandLineTools
 		words = new Array<String>();
 
 		overrides = new HXProject();
-		overrides.architectures = [];
 
 		// Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (Haxelib.getPath (new Haxelib ("lime")), "tools"));
 
@@ -288,8 +287,8 @@ class CommandLineTools
 							target = Platform.LINUX;
 							targetFlags.set("rpi", "");
 
-						case "webassembly", "wasm":
-							target = Platform.EMSCRIPTEN;
+						case "webassembly", "wasm", "emscripten":
+							target = Platform.WEB_ASSEMBLY;
 							targetFlags.set("webassembly", "");
 
 						default:
@@ -486,15 +485,14 @@ class CommandLineTools
 				}
 
 			case MAC:
-				// if (System.hostArchitecture == X64) {
-
-				untyped $loader.path = $array(path + "Mac64/", $loader.path);
-
-			// } else {
-
-			//	untyped $loader.path = $array (path + "Mac/", $loader.path);
-
-			// }
+				if (System.hostArchitecture == X64)
+				{
+					untyped $loader.path = $array(path + "Mac64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "MacArm64/", $loader.path);
+				}
 
 			case LINUX:
 				var arguments = Sys.args();
@@ -623,8 +621,8 @@ class CommandLineTools
 
 				// 	platform = new FirefoxPlatform (command, project, targetFlags);
 
-				case EMSCRIPTEN:
-					platform = new EmscriptenPlatform(command, project, targetFlags);
+				case WEB_ASSEMBLY:
+					platform = new WebAssemblyPlatform(command, project, targetFlags);
 
 				case TVOS:
 					platform = new TVOSPlatform(command, project, targetFlags);
@@ -917,7 +915,6 @@ class CommandLineTools
 			Log.println("  \x1b[1mair\x1b[0m -- Create an AIR application");
 			Log.println("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 			// Log.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
-			Log.println("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
 			Log.println("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
 			Log.println("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 application");
 			Log.println("  \x1b[1mios\x1b[0m -- Create an iOS application");
@@ -926,6 +923,7 @@ class CommandLineTools
 			// Log.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
 			Log.println("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
 			// Log.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
+			Log.println("  \x1b[1mwebassembly\x1b[0m -- Create a WebAssembly application");
 			Log.println("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 
 			Log.println("");
@@ -948,7 +946,7 @@ class CommandLineTools
 			// Log.println ("  \x1b[1mappletvsim\x1b[0m -- Alias for \x1b[1mtvos -simulator\x1b[0m");
 			Log.println("  \x1b[1mrpi\x1b[0;3m/\x1b[0m\x1b[1mraspberrypi\x1b[0m -- Alias for \x1b[1mlinux -rpi\x1b[0m");
 			Log.println("  \x1b[1melectron\x1b[0m -- Alias for \x1b[1mhtml5 -electron\x1b[0m");
-			Log.println("  \x1b[1mwebassembly\x1b[0;3m/\x1b[0m\x1b[1mwasm\x1b[0m -- Alias for \x1b[1memscripten -webassembly\x1b[0m");
+			Log.println("  \x1b[1mwasm/emscripten\x1b[0m -- Alias for \x1b[1mwebassembly\x1b[0m");
 		}
 
 		Log.println("");
@@ -1026,19 +1024,20 @@ class CommandLineTools
 			Log.println("  \x1b[3m(flash)\x1b[0m \x1b[1m-web\x1b[0m -- Test Flash target using a web template");
 			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-ios\x1b[0m -- Target iOS instead of AIR desktop");
 			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-android\x1b[0m -- Target Android instead of AIR desktop");
+			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-ios -air-simulator\x1b[0m -- Target AIR simulator as iOS");
+			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-android -air-simulator\x1b[0m -- Target AIR simulator as Android");
 
 			if (command != "run" && command != "trace")
 			{
-				Log.println("  \x1b[3m(emscripten)\x1b[0m \x1b[1m-webassembly\x1b[0m -- Compile for WebAssembly instead of asm.js");
-				Log.println("  \x1b[3m(emscripten|html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
+				Log.println("  \x1b[3m(html5|webassembly)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
 			}
 
 			if (command == "run" || command == "test")
 			{
-				Log.println("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
+				Log.println("  \x1b[3m(html5|flash|webassembly)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
 				// Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
 				// Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
-				Log.println("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
+				Log.println("  \x1b[3m(html5|flash|webassembly)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
 			}
 
 			Log.println("");
@@ -1071,6 +1070,7 @@ class CommandLineTools
 				Log.println("  \x1b[1m--haxelib\x1b[0;3m=value\x1b[0m -- Add an additional <haxelib/> value");
 				Log.println("  \x1b[1m--haxelib-\x1b[0;3mname=value\x1b[0m -- Override the path to a haxelib");
 				Log.println("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source/> value");
+				Log.println("  \x1b[1m--template\x1b[0;3m=value\x1b[0m -- Add an additional <template/> value");
 				Log.println("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate/> setting");
 			}
 
@@ -1178,7 +1178,7 @@ class CommandLineTools
 					if ((extension == "lime" && file != "include.lime")
 						|| (extension == "nmml" && file != "include.nmml")
 						|| (extension == "xml" && file != "include.xml")
-						|| extension == "hxp")
+						|| (extension == "hxp" && file != "include.hxp"))
 					{
 						matches.get(extension).push(path);
 					}
@@ -1257,7 +1257,7 @@ class CommandLineTools
 			buildNumber = getBuildNumber_SVN(project, increment);
 		}
 
-		if (buildNumber == null)
+		if (buildNumber == null || buildNumber == ".build")
 		{
 			var versionFile = Path.combine(project.app.path, ".build");
 			var version = 1;
@@ -1560,8 +1560,8 @@ class CommandLineTools
 				target = Platform.LINUX;
 				targetFlags.set("rpi", "");
 
-			case "webassembly", "wasm":
-				target = Platform.EMSCRIPTEN;
+			case "webassembly", "wasm", "emscripten":
+				target = Platform.WEB_ASSEMBLY;
 				targetFlags.set("webassembly", "");
 
 			case "winjs", "uwp":
@@ -1857,18 +1857,25 @@ class CommandLineTools
 				if (Reflect.hasField(project, field))
 				{
 					var fieldValue = Reflect.field(project, field);
-
-					if (Reflect.hasField(fieldValue, attribute))
+					var typeValue:Dynamic = switch (field)
 					{
-						if (Std.is(Reflect.field(fieldValue, attribute), String))
+						case "app": ApplicationData.expectedFields;
+						case "meta": MetaData.expectedFields;
+						case "window": WindowData.expectedFields;
+						default: fieldValue;
+					};
+
+					if (Reflect.hasField(typeValue, attribute))
+					{
+						if ((Reflect.field(typeValue, attribute) is String))
 						{
 							Reflect.setField(fieldValue, attribute, projectDefines.get(key));
 						}
-						else if (Std.is(Reflect.field(fieldValue, attribute), Float))
+						else if ((Reflect.field(typeValue, attribute) is Float))
 						{
 							Reflect.setField(fieldValue, attribute, Std.parseFloat(projectDefines.get(key)));
 						}
-						else if (Std.is(Reflect.field(fieldValue, attribute), Bool))
+						else if ((Reflect.field(typeValue, attribute) is Bool))
 						{
 							Reflect.setField(fieldValue, attribute, (projectDefines.get(key).toLowerCase() == "true"
 								|| projectDefines.get(key) == "1"));
@@ -2070,6 +2077,10 @@ class CommandLineTools
 					{
 						overrides.dependencies.push(new Dependency(argValue, ""));
 					}
+					else if (field == "template")
+					{
+						overrides.templatePaths.push(argValue);
+					}
 					else if (StringTools.startsWith(field, "certificate-"))
 					{
 						if (overrides.keystore == null)
@@ -2116,24 +2127,31 @@ class CommandLineTools
 						if (field == "meta-build-number") property = "buildNumber";
 
 						var fieldReference = Reflect.field(overrides, fieldName);
-
-						if (Reflect.hasField(fieldReference, property))
+						var typeValue:Dynamic = switch (fieldName)
 						{
-							var propertyReference = Reflect.field(fieldReference, property);
+							case "app": ApplicationData.expectedFields;
+							case "meta": MetaData.expectedFields;
+							case "window": WindowData.expectedFields;
+							default: fieldReference;
+						};
 
-							if (Std.is(propertyReference, Bool))
+						if (Reflect.hasField(typeValue, property))
+						{
+							var propertyReference = Reflect.field(typeValue, property);
+
+							if ((propertyReference is Bool))
 							{
 								Reflect.setField(fieldReference, property, argValue == "true");
 							}
-							else if (Std.is(propertyReference, Int))
+							else if ((propertyReference is Int))
 							{
 								Reflect.setField(fieldReference, property, Std.parseInt(argValue));
 							}
-							else if (Std.is(propertyReference, Float))
+							else if ((propertyReference is Float))
 							{
 								Reflect.setField(fieldReference, property, Std.parseFloat(argValue));
 							}
-							else if (Std.is(propertyReference, String))
+							else if ((propertyReference is String))
 							{
 								Reflect.setField(fieldReference, property, argValue);
 							}

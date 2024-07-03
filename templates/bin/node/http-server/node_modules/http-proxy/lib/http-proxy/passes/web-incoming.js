@@ -1,11 +1,14 @@
-var http   = require('http'),
-    https  = require('https'),
+var httpNative   = require('http'),
+    httpsNative  = require('https'),
     web_o  = require('./web-outgoing'),
-    common = require('../common');
+    common = require('../common'),
+    followRedirects = require('follow-redirects');
 
 web_o = Object.keys(web_o).map(function(pass) {
   return web_o[pass];
 });
+
+var nativeAgents = { http: httpNative, https: httpsNative };
 
 /*!
  * Array of passes.
@@ -79,7 +82,7 @@ module.exports = {
         values[header];
     });
 
-    req.headers['x-forwarded-host'] = req.headers['host'] || '';
+    req.headers['x-forwarded-host'] = req.headers['x-forwarded-host'] || req.headers['host'] || '';
   },
 
   /**
@@ -98,6 +101,10 @@ module.exports = {
 
     // And we begin!
     server.emit('start', req, res, options.target || options.forward);
+
+    var agents = options.followRedirects ? followRedirects : nativeAgents;
+    var http = agents.http;
+    var https = agents.https;
 
     if(options.forward) {
       // If forward enable, so just pipe the request
@@ -122,7 +129,9 @@ module.exports = {
 
     // Enable developers to modify the proxyReq before headers are sent
     proxyReq.on('socket', function(socket) {
-      if(server) { server.emit('proxyReq', proxyReq, req, res, options); }
+      if(server && !proxyReq.getHeader('expect')) {
+        server.emit('proxyReq', proxyReq, req, res, options);
+      }
     });
 
     // allow outgoing socket to timeout so that we could
@@ -162,19 +171,24 @@ module.exports = {
 
     proxyReq.on('response', function(proxyRes) {
       if(server) { server.emit('proxyRes', proxyRes, req, res); }
-      for(var i=0; i < web_o.length; i++) {
-        if(web_o[i](req, res, proxyRes, options)) { break; }
+
+      if(!res.headersSent && !options.selfHandleResponse) {
+        for(var i=0; i < web_o.length; i++) {
+          if(web_o[i](req, res, proxyRes, options)) { break; }
+        }
       }
 
-      // Allow us to listen when the proxy has completed
-      proxyRes.on('end', function () {
-        server.emit('end', req, res, proxyRes);
-      });
-
-      proxyRes.pipe(res);
+      if (!res.finished) {
+        // Allow us to listen when the proxy has completed
+        proxyRes.on('end', function () {
+          if (server) server.emit('end', req, res, proxyRes);
+        });
+        // We pipe to the response unless its expected to be handled by the user
+        if (!options.selfHandleResponse) proxyRes.pipe(res);
+      } else {
+        if (server) server.emit('end', req, res, proxyRes);
+      }
     });
-
-    //proxyReq.end();
   }
 
 };

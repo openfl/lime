@@ -18,6 +18,7 @@ import lime.utils.UInt8Array;
 	var convert:BGRA = color; // 0x003388FF
 	```
 **/
+@:transitive
 abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int from UInt to UInt
 {
 	private static var a16:Int;
