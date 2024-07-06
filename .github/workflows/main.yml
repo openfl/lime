@@ -137,6 +137,7 @@ jobs:
       - name: Rebuild Lime (macOS)
         run: |
           lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
+          lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v3
@@ -144,6 +145,14 @@ jobs:
           name: Mac64-NDLL
           path: |
             ndll/Mac64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: MacArm64-NDLL
+          path: |
+            ndll/MacArm64/
             !**/.gitignore
           if-no-files-found: error
 
@@ -465,6 +474,11 @@ jobs:
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: MacArm64-NDLL
+          path: ndll/MacArm64/
 
       - uses: actions/download-artifact@v3
         with:
