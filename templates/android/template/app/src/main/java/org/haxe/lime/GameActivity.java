@@ -386,45 +386,35 @@ public class GameActivity extends SDLActivity {
 
 		}
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+		if (period == 0) {
 
-			if (period == 0) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
 				vibrator.vibrate (VibrationEffect.createOneShot (duration, VibrationEffect.DEFAULT_AMPLITUDE));
 
 			} else {
 
-				int periodMS = Math.max (1, (int)Math.ceil (period / 2.0));
-				int count = Math.max (1, (int)Math.ceil ((duration / (double) period) * 2));
-				long[] pattern = new long[count];
-
-				for (int i = 0; i < count; i++) {
-
-					pattern[i] = periodMS;
-
-				}
-
-				vibrator.vibrate (VibrationEffect.createWaveform (pattern, -1));
+				vibrator.vibrate (duration);
 
 			}
 
 		} else {
 
-			if (period == 0) {
+			int periodMS = Math.max (1, (int)Math.ceil (period / 2.0));
+			int count = Math.max (1, (int)Math.ceil ((duration / (double) period) * 2));
+			long[] pattern = new long[count];
 
-				vibrator.vibrate (duration);
+			for (int i = 0; i < count; i++) {
+
+				pattern[i] = periodMS;
+
+			}
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+				vibrator.vibrate (VibrationEffect.createWaveform (pattern, -1));
 
 			} else {
-
-				int periodMS = (int)Math.ceil (period / 2);
-				int count = (int)Math.ceil ((duration / period) * 2);
-				long[] pattern = new long[count];
-
-				for (int i = 0; i < count; i++) {
-
-					pattern[i] = periodMS;
-
-				}
 
 				vibrator.vibrate (pattern, -1);
 
