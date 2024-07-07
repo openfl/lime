@@ -380,7 +380,7 @@ public class GameActivity extends SDLActivity {
 
 	public static void vibrate (int period, int duration) {
 
-		if (vibrator == null || !vibrator.hasVibrator ()) {
+		if (vibrator == null || !vibrator.hasVibrator () || period < 0 || duration <= 0) {
 
 			return;
 
@@ -400,8 +400,9 @@ public class GameActivity extends SDLActivity {
 
 		} else {
 
-			int periodMS = Math.max (1, (int)Math.ceil (period / 2.0));
-			int count = Math.max (1, (int)Math.ceil ((duration / (double) period) * 2));
+			// each period has two halves (vibrator off/vibrator on), and each half requires a separate entry in the array
+			int periodMS = (int)Math.ceil (period / 2.0);
+			int count = (int)Math.ceil (duration / (double) periodMS);
 			long[] pattern = new long[count];
 
 			for (int i = 0; i < count; i++) {
