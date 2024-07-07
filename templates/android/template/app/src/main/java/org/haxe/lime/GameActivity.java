@@ -179,8 +179,6 @@ public class GameActivity extends SDLActivity {
 	@Override protected void onPause () {
 
 		if (vibrator != null) {
-			
-			Log.d ("GameActivity", "Cancelling vibration");
 
 			vibrator.cancel ();
 
