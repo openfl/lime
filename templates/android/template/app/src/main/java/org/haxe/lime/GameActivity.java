@@ -139,14 +139,6 @@ public class GameActivity extends SDLActivity {
 
 	@Override protected void onDestroy () {
 
-		if (vibrator != null) {
-			
-			Log.d ("GameActivity", "Cancelling vibration");
-
-			vibrator.cancel ();
-
-		}
-
 		for (Extension extension : extensions) {
 
 			extension.onDestroy ();
