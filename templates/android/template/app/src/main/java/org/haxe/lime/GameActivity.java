@@ -403,7 +403,8 @@ public class GameActivity extends SDLActivity {
 			int count = (int)Math.ceil (duration / (double) periodMS);
 			long[] pattern = new long[count];
 
-			for (int i = 0; i < count; i++) {
+			// the first entry is the delay before vibration starts, so leave it as 0
+			for (int i = 1; i < count; i++) {
 
 				pattern[i] = periodMS;
 
