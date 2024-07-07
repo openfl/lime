@@ -188,10 +188,11 @@ class Font
 	public function getGlyphs(characters:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):Array<Glyph>
 	{
 		#if (lime_cffi && !macro)
-		var glyphs:Dynamic = NativeCFFI.lime_font_get_glyph_indices(src, characters);
-		// lime_font_get_glyph_indices returns Array<Int>
-		// cast it to Array<Glyph> instead (Glyph is an abstract)
-		return cast glyphs;
+		#if hl
+		return [for (index in NativeCFFI.lime_font_get_glyph_indices(src, characters)) new Glyph(index)];
+		#else
+		return NativeCFFI.lime_font_get_glyph_indices(src, characters);
+		#end
 		#else
 		return null;
 		#end
