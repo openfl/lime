@@ -423,6 +423,10 @@ class MacPlatform extends PlatformTarget
 					// TODO: Support single binary
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
 				}
+				else if (targetFlags.exists("arm64"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				}
 				else if (!targetFlags.exists("32"))
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
@@ -584,7 +588,7 @@ class MacPlatform extends PlatformTarget
 
 	private inline function get_dirSuffix():String
 	{
-		return targetArchitecture == X64 ? "64" : "";
+		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
 	}
 
 	/**
