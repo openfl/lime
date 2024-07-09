@@ -181,7 +181,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		var data = get(id);
 		for (key in Reflect.fields(data))
 		{
-			if (!StringTools.endsWith (key, ARRAY))
+			if (!StringTools.endsWith (key, ARRAY) && !StringTools.startsWith(key, "config:"))
 			{
 				Reflect.setField(values, key, Reflect.field(data, key));
 			}
@@ -302,6 +302,10 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		{
 			bucketType = elem.att.type;
 		}
+		else if (elem.x.exists("config:type"))
+		{
+			bucketType = elem.x.get("config:type");
+		}
 
 		if (bucketType != "")
 		{
@@ -318,7 +322,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 	{
 		for (attrName in elem.x.attributes())
 		{
-			if (attrName != "type")
+			if (attrName != "type" && attrName != "config:type")
 			{
 				var attrValue = elem.x.get(attrName);
 				if (substitute != null) attrValue = substitute(attrValue);
