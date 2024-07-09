@@ -221,8 +221,6 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				continue;
 			}
 
-			var doCopy = true;
-
 			var valueSource = Reflect.field(source, field);
 			var valueDest = Reflect.field(destination, field);
 			var typeSource = Type.typeof(valueSource).getName();
@@ -231,16 +229,10 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			// if trying to copy a non object over an object, don't
 			if (typeSource != "TObject" && typeDest == "TObject")
 			{
-				doCopy = false;
-
-				// if (Log.verbose) {
-				//
-				// Log.println (field + " not merged by preference");
-				//
-				// }
+				continue;
 			}
 
-			if (doCopy && valueSource != valueDest && valueDest != null && typeSource != "TObject")
+			if (valueSource != valueDest && valueDest != null && typeSource != "TObject")
 			{
 				if (!Reflect.hasField(destination, ARRAY + field))
 				{
@@ -260,23 +252,20 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				}
 
 				Reflect.setField(destination, field, Reflect.field(source, field));
-				doCopy = false;
+				continue;
 			}
 
-			if (doCopy)
+			if (typeDest == "TObject")
 			{
-				if (typeDest == "TObject")
-				{
-					mergeValues(valueSource, valueDest);
-				}
-				else
-				{
-					Reflect.setField(destination, field, Reflect.field(source, field));
+				mergeValues(valueSource, valueDest);
+			}
+			else
+			{
+				Reflect.setField(destination, field, Reflect.field(source, field));
 
-					if (Reflect.hasField(source, ARRAY + field))
-					{
-						Reflect.setField(destination, ARRAY + field, Reflect.field(source, ARRAY + field));
-					}
+				if (Reflect.hasField(source, ARRAY + field))
+				{
+					Reflect.setField(destination, ARRAY + field, Reflect.field(source, ARRAY + field));
 				}
 			}
 		}
