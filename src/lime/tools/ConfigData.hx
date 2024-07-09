@@ -240,7 +240,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				// }
 			}
 
-			if (doCopy && valueSource != valueDest && typeSource != "TObject")
+			if (doCopy && valueSource != valueDest && valueDest != null && typeSource != "TObject")
 			{
 				if (!Reflect.hasField(destination, ARRAY + field))
 				{
