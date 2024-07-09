@@ -222,57 +222,52 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			}
 
 			var doCopy = true;
-			var exists = Reflect.hasField(destination, field);
-			var typeDest = null;
 
-			if (exists)
+			var valueSource = Reflect.field(source, field);
+			var valueDest = Reflect.field(destination, field);
+			var typeSource = Type.typeof(valueSource).getName();
+			var typeDest = Type.typeof(valueDest).getName();
+
+			// if trying to copy a non object over an object, don't
+			if (typeSource != "TObject" && typeDest == "TObject")
 			{
-				var valueSource = Reflect.field(source, field);
-				var valueDest = Reflect.field(destination, field);
-				var typeSource = Type.typeof(valueSource).getName();
-				typeDest = Type.typeof(valueDest).getName();
+				doCopy = false;
 
-				// if trying to copy a non object over an object, don't
-				if (typeSource != "TObject" && typeDest == "TObject")
+				// if (Log.verbose) {
+				//
+				// Log.println (field + " not merged by preference");
+				//
+				// }
+			}
+
+			if (doCopy && valueSource != valueDest && typeSource != "TObject")
+			{
+				if (!Reflect.hasField(destination, ARRAY + field))
 				{
-					doCopy = false;
-
-					// if (Log.verbose) {
-					//
-					// Log.println (field + " not merged by preference");
-					//
-					// }
+					Reflect.setField(destination, ARRAY + field, [ObjectTools.deepCopy(Reflect.field(destination, field))]);
 				}
 
-				if (doCopy && Reflect.field(source, field) != Reflect.field(destination, field) && typeSource != "TObject")
+				var array:Array<Dynamic> = Reflect.field(destination, ARRAY + field);
+
+				if (Reflect.hasField(source, ARRAY + field))
 				{
-					if (!Reflect.hasField(destination, ARRAY + field))
-					{
-						Reflect.setField(destination, ARRAY + field, [ObjectTools.deepCopy(Reflect.field(destination, field))]);
-					}
-
-					var array:Array<Dynamic> = Reflect.field(destination, ARRAY + field);
-
-					if (Reflect.hasField(source, ARRAY + field))
-					{
-						array = array.concat(Reflect.field(source, ARRAY + field));
-						Reflect.setField(destination, ARRAY + field, array);
-					}
-					else
-					{
-						array.push(Reflect.field(source, field));
-					}
-
-					Reflect.setField(destination, field, Reflect.field(source, field));
-					doCopy = false;
+					array = array.concat(Reflect.field(source, ARRAY + field));
+					Reflect.setField(destination, ARRAY + field, array);
 				}
+				else
+				{
+					array.push(Reflect.field(source, field));
+				}
+
+				Reflect.setField(destination, field, Reflect.field(source, field));
+				doCopy = false;
 			}
 
 			if (doCopy)
 			{
 				if (typeDest == "TObject")
 				{
-					mergeValues(Reflect.field(source, field), Reflect.field(destination, field));
+					mergeValues(valueSource, valueDest);
 				}
 				else
 				{
