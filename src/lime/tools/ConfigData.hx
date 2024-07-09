@@ -237,7 +237,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				continue;
 			}
 
-			if (valueSource != valueDest && valueDest != null && typeSource != "TObject" && !Std.isOfType(valueSource, Array))
+			if (valueSource != valueDest && valueDest != null && typeSource != "TObject" && !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(valueSource, Array))
 			{
 				if (!Reflect.hasField(destination, ARRAY + field))
 				{
@@ -264,7 +264,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			{
 				mergeValues(valueSource, valueDest);
 			}
-			else if (typeDest == "TClass" && Std.isOfType(valueSource, Array) && Std.isOfType(valueDest, Array))
+			else if (typeDest == "TClass" && #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (valueSource, Array) && #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(valueDest, Array))
 			{
 				for (item in (cast valueSource:Array<Dynamic>))
 				{
