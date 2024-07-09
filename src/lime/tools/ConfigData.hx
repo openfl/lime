@@ -331,60 +331,62 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 	{
 		for (child in elem.elements)
 		{
-			if (child.name != "config")
+			if (child.name == "config")
 			{
-				// log("config data > child : " + child.name);
+				continue;
+			}
 
-				var d = depth + 1;
+			// log("config data > child : " + child.name);
 
-				var hasChildren = child.x.elements().hasNext();
-				var hasAttributes = child.x.attributes().hasNext();
+			var d = depth + 1;
 
-				if (Reflect.hasField(bucket, child.name))
+			var hasChildren = child.x.elements().hasNext();
+			var hasAttributes = child.x.attributes().hasNext();
+
+			if (Reflect.hasField(bucket, child.name))
+			{
+				var array:Array<Dynamic> = Reflect.field(bucket, child.name + ARRAY);
+				if (array == null)
 				{
-					var array:Array<Dynamic> = Reflect.field(bucket, child.name + ARRAY);
-					if (array == null)
-					{
-						array = [ObjectTools.deepCopy(Reflect.field(bucket, child.name))];
-						Reflect.setField(bucket, child.name + ARRAY, array);
-					}
+					array = [ObjectTools.deepCopy(Reflect.field(bucket, child.name))];
+					Reflect.setField(bucket, child.name + ARRAY, array);
+				}
 
-					var arrayBucket = {};
-					array.push(arrayBucket);
+				var arrayBucket = {};
+				array.push(arrayBucket);
 
-					if (hasAttributes)
-					{
-						parseAttributes(child, arrayBucket, substitute);
-					}
+				if (hasAttributes)
+				{
+					parseAttributes(child, arrayBucket, substitute);
+				}
 
-					if (hasChildren)
-					{
-						parseChildren(child, arrayBucket, d, substitute);
-					}
-
-					if (!hasChildren && !hasAttributes)
-					{
-						parseValue(child, arrayBucket, substitute);
-					}
+				if (hasChildren)
+				{
+					parseChildren(child, arrayBucket, d, substitute);
 				}
 
 				if (!hasChildren && !hasAttributes)
 				{
-					parseValue(child, bucket, substitute);
+					parseValue(child, arrayBucket, substitute);
 				}
-				else
+			}
+
+			if (!hasChildren && !hasAttributes)
+			{
+				parseValue(child, bucket, substitute);
+			}
+			else
+			{
+				var childBucket = addBucket(child.name, bucket);
+
+				if (hasAttributes)
 				{
-					var childBucket = addBucket(child.name, bucket);
+					parseAttributes(child, childBucket, substitute);
+				}
 
-					if (hasAttributes)
-					{
-						parseAttributes(child, childBucket, substitute);
-					}
-
-					if (hasChildren)
-					{
-						parseChildren(child, childBucket, d, substitute);
-					}
+				if (hasChildren)
+				{
+					parseChildren(child, childBucket, d, substitute);
 				}
 			}
 		}
