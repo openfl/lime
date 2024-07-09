@@ -11,6 +11,11 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 {
 	private static inline var ARRAY:String = "config:array_";
 
+	/**
+		If set, `parse()` will add child nodes to this array instead of parsing them.
+	**/
+	@:noCompletion public var xmlChildren(get, set):Array<String>;
+
 	public function new()
 	{
 		this = {};
@@ -232,7 +237,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				continue;
 			}
 
-			if (valueSource != valueDest && valueDest != null && typeSource != "TObject")
+			if (valueSource != valueDest && valueDest != null && typeSource != "TObject" && !Std.isOfType(valueSource, Array))
 			{
 				if (!Reflect.hasField(destination, ARRAY + field))
 				{
@@ -258,6 +263,13 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			if (typeDest == "TObject")
 			{
 				mergeValues(valueSource, valueDest);
+			}
+			else if (typeDest == "TClass" && Std.isOfType(valueSource, Array) && Std.isOfType(valueDest, Array))
+			{
+				for (item in (cast valueSource:Array<Dynamic>))
+				{
+					(cast valueDest:Array<Dynamic>).push(item);
+				}
 			}
 			else
 			{
@@ -315,8 +327,19 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		}
 	}
 
-	private function parseChildren(elem:Access, bucket:Dynamic, depth:Int = 0, substitute:String->String = null):Void
+	private function parseChildren(elem:Access, bucket:ConfigData, depth:Int = 0, substitute:String->String = null):Void
 	{
+		if (bucket.xmlChildren != null)
+		{
+			var children:Array<String> = bucket.xmlChildren;
+			for (child in elem.elements)
+			{
+				children.push(child.x.toString());
+			}
+
+			return;
+		}
+
 		for (child in elem.elements)
 		{
 			if (child.name == "config")
@@ -502,5 +525,16 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		{
 			Reflect.setField(bucket, node, value);
 		}
+	}
+
+	// Getters & Setters
+
+	private inline function get_xmlChildren():Array<String> {
+		return Reflect.field(this, "config:xml_children");
+	}
+
+	private inline function set_xmlChildren(value:Array<String>):Array<String> {
+		Reflect.setField(this, "config:xml_children", value);
+		return value;
 	}
 }

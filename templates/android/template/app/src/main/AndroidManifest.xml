@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="::APP_BUILD_NUMBER::" android:versionName="::APP_VERSION::" android:installLocation="::ANDROID_INSTALL_LOCATION::">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" ::foreach ANDROID_MANIFEST::::if ((value != null) && (value != ""))::::key::="::value::" ::end::::end::>
 
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
 	::foreach ANDROID_PERMISSIONS::<uses-permission android:name="::__current__::" />
+	::end::
+	::foreach ANDROID_MANIFEST_CHILDREN::::__current__::
 	::end::
 
 	<application ::foreach ANDROID_APPLICATION::::if ((value != null) && (value != ""))::::key::="::value::" ::end::::end::>
@@ -13,6 +15,8 @@
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value="Portrait PortraitUpsideDown" />
 		::elseif (WIN_ORIENTATION=="landscape")::
 		<meta-data android:name="SDL_ENV.SDL_IOS_ORIENTATIONS" android:value="LandscapeLeft LandscapeRight" />
+		::end::
+		::foreach ANDROID_APPLICATION_CHILDREN::::__current__::
 		::end::
 
 		<activity ::foreach ANDROID_ACTIVITY::::if ((value != null) && (value != ""))::::key::="::value::" ::end::::end::>
@@ -33,6 +37,9 @@
 				<data android:mimeType="::__current__::" />
 
 			</intent-filter>
+			::end::
+
+			::foreach ANDROID_ACTIVITY_CHILDREN::::__current__::
 			::end::
 
 		</activity>

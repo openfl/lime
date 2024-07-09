@@ -208,6 +208,11 @@ class HXProject extends Script
 		splashScreens = new Array<SplashScreen>();
 		targetHandlers = new Map<String, String>();
 
+		config.set("android", { manifest:{}, application:{}, activity:{} });
+		config.get("android.manifest").xmlChildren = [];
+		config.get("android.application").xmlChildren = [];
+		config.get("android.activity").xmlChildren = [];
+
 		initializeDefines();
 	}
 
