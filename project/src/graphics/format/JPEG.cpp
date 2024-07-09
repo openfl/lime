@@ -25,9 +25,19 @@ namespace lime {
 	static void OnOutput (j_common_ptr cinfo) {}
 
 
+	// #ifdef NDEBUG
+	// char errorMessage[JMSG_LENGTH_MAX];
+	// #endif
+
 	static void OnError (j_common_ptr cinfo) {
 
 		ErrorData * err = (ErrorData *)cinfo->err;
+
+		// #ifdef NDEBUG
+		// ( *(cinfo->err->format_message) ) (cinfo, errorMessage);
+		// fprintf(stderr, "%s\n", errorMessage);
+		// #endif
+
 		longjmp (err->on_error, 1);
 
 	}
