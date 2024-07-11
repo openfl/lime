@@ -1,4 +1,5 @@
 <xml>
+	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" />
 
 	<files id="native-toolkit-curl-depends"  >
 		<depend name="${NATIVE_TOOLKIT_PATH}/curl/include/curl/curl.h" />
@@ -23,7 +24,15 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/axtls" if="NATIVE_TOOLKIT_HAVE_AXTLS" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" if="NATIVE_TOOLKIT_HAVE_MBEDTLS"  unless="static_link"/>
+		<section if="static_link">
+
+			<compilerflag value="-I${MBEDTLS_DIR}/include" />
+			<compilerflag value="-I${HXCPP}/src/hx/libs/ssl" />
+			<compilerflag value="-DMBEDTLS_USER_CONFIG_FILE=&lt;mbedtls_config.h&gt;" />
+
+		</section>
 
 		<compilerflag value="-DBUILDING_LIBCURL" />
 		<compilerflag value="-DCURL_STATICLIB" />
