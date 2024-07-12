@@ -30,6 +30,7 @@
 
 			<compilerflag value="-I${MBEDTLS_DIR}/include" />
 			<compilerflag value="-I${HXCPP}/src/hx/libs/ssl" />
+			<compilerflag value="-I${this_dir}/custom/mbedtls_hxcpp" />
 			<compilerflag value="-DMBEDTLS_USER_CONFIG_FILE=&lt;mbedtls_config.h&gt;" />
 
 		</section>
