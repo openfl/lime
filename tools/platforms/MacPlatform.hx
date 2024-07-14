@@ -438,7 +438,14 @@ class MacPlatform extends PlatformTarget
 			case X86:
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
 			case ARM64:
-				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				if (targetFlags.exists("64"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64"]);
+				}
+				else
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				}
 			default:
 		}
 
