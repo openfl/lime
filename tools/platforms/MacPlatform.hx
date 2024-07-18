@@ -600,6 +600,11 @@ class MacPlatform extends PlatformTarget
 
 	private inline function get_dirSuffix():String
 	{
+		if (targetFlags.exists("hl"))
+		{
+			// hashlink doesn't support arm64 macs yet
+			return "64";
+		}
 		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
 	}
 
