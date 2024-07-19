@@ -120,7 +120,7 @@ class LinuxPlatform extends PlatformTarget
 
 		for (architecture in project.architectures)
 		{
-			if (!targetFlags.exists("32") && architecture == Architecture.X64)
+			if (!targetFlags.exists("32") && !targetFlags.exists("x86_32") && architecture == Architecture.X64)
 			{
 				is64 = true;
 			}
@@ -507,12 +507,12 @@ class LinuxPlatform extends PlatformTarget
 		}
 		else
 		{
-			if (!targetFlags.exists("32") && System.hostArchitecture == X64)
+			if (!targetFlags.exists("32") && !targetFlags.exists("x86_32") && System.hostArchitecture == X64)
 			{
 				commands.push(["-Dlinux", "-DHXCPP_M64"]);
 			}
 
-			if (!targetFlags.exists("64") && (command == "rebuild" || System.hostArchitecture == X86))
+			if (!targetFlags.exists("64") && !targetFlags.exists("x86_64") && (command == "rebuild" || System.hostArchitecture == X86))
 			{
 				commands.push(["-Dlinux", "-DHXCPP_M32"]);
 			}

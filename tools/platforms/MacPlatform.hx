@@ -427,7 +427,7 @@ class MacPlatform extends PlatformTarget
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
 				}
-				else if (!targetFlags.exists("32"))
+				else if (!targetFlags.exists("32") && !targetFlags.exists("x86_32"))
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
 				}
@@ -443,7 +443,7 @@ class MacPlatform extends PlatformTarget
 					// hashlink doesn't support arm64 macs yet
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
 				}
-				else if (targetFlags.exists("64"))
+				else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64"]);
 				}
