@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "8.1.2",
+	"version": "8.1.3",
 	"releasenote": "Various bug fixes",
 	"contributors": [
 		"singmajesty",
