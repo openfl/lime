@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.1.3 (??/??/2024)
+8.1.3 (07/22/2024)
 ------------------
 
 * Fixed Unicode conversion issues with various APIs, including as clipboard, window text, file dialogs, and fonts.
