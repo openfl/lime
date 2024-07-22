@@ -22,6 +22,9 @@ class Gamepad
 	public var onAxisMove = new Event<GamepadAxis->Float->Void>();
 	public var onButtonDown = new Event<GamepadButton->Void>();
 	public var onButtonUp = new Event<GamepadButton->Void>();
+	public var onAxisMovePrecise = new Event<GamepadAxis->Float->haxe.Int64->Void>();
+	public var onButtonDownPrecise = new Event<GamepadButton->haxe.Int64->Void>();
+	public var onButtonUpPrecise = new Event<GamepadButton->haxe.Int64->Void>();
 	public var onDisconnect = new Event<Void->Void>();
 
 	public function new(id:Int)

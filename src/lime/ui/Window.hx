@@ -69,6 +69,8 @@ class Window
 	public var onHide(default, null) = new Event<Void->Void>();
 	public var onKeyDown(default, null) = new Event<KeyCode->KeyModifier->Void>();
 	public var onKeyUp(default, null) = new Event<KeyCode->KeyModifier->Void>();
+	public var onKeyDownPrecise(default, null) = new Event<KeyCode->KeyModifier->haxe.Int64->Void>();
+	public var onKeyUpPrecise(default, null) = new Event<KeyCode->KeyModifier->haxe.Int64->Void>();
 	public var onLeave(default, null) = new Event<Void->Void>();
 	public var onMaximize(default, null) = new Event<Void->Void>();
 	public var onMinimize(default, null) = new Event<Void->Void>();

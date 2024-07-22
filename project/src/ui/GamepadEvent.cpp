@@ -13,6 +13,7 @@ namespace lime {
 	static int id_id;
 	static int id_type;
 	static int id_value;
+	static int id_timestamp;
 	static bool init = false;
 
 
@@ -23,6 +24,7 @@ namespace lime {
 		button = 0;
 		id = 0;
 		type = GAMEPAD_AXIS_MOVE;
+		timestamp = 0;
 
 	}
 
@@ -40,6 +42,7 @@ namespace lime {
 					id_id = val_id ("id");
 					id_type = val_id ("type");
 					id_value = val_id ("axisValue");
+					id_timestamp = val_id ("timestamp");
 					init = true;
 
 				}
@@ -51,6 +54,7 @@ namespace lime {
 				alloc_field (object, id_id, alloc_int (event->id));
 				alloc_field (object, id_type, alloc_int (event->type));
 				alloc_field (object, id_value, alloc_float (event->axisValue));
+				alloc_field (object, id_timestamp, alloc_int (event->timestamp));
 
 			} else {
 
@@ -61,6 +65,7 @@ namespace lime {
 				eventObject->id = event->id;
 				eventObject->type = event->type;
 				eventObject->axisValue = event->axisValue;
+				eventObject->timestamp = event->timestamp;
 
 			}
 
