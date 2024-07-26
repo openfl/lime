@@ -644,6 +644,11 @@ class FlashWindow
 		return value;
 	}
 
+	public function setVSync(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function setVisible(value:Bool):Bool
 	{
 		return value;
