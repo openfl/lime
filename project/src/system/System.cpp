@@ -4,7 +4,7 @@
 #include <wbemidl.h>
 #include <comutil.h>
 #pragma comment(lib, "wbemuuid.lib")
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <system/System.h>
@@ -66,7 +66,7 @@ namespace lime {
 	}
 
 
-	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+	#if defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (__MINGW32__)
 	std::wstring* GetWMIValue (BSTR query, BSTR field) {
 
 		HRESULT hres = 0;
@@ -163,7 +163,7 @@ namespace lime {
 
 	std::wstring* System::GetDeviceModel () {
 
-		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (__MINGW32__)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Version");
 		#endif
 
@@ -174,7 +174,7 @@ namespace lime {
 
 	std::wstring* System::GetDeviceVendor () {
 
-		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (__MINGW32__)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Vendor");
 		#endif
 
@@ -185,7 +185,7 @@ namespace lime {
 
 	std::wstring* System::GetPlatformLabel () {
 
-		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (__MINGW32__)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Caption");
 		#endif
 
@@ -203,7 +203,7 @@ namespace lime {
 
 	std::wstring* System::GetPlatformVersion () {
 
-		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (__MINGW32__)
 		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Version");
 		#endif
 
