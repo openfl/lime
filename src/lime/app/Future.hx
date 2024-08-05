@@ -326,7 +326,7 @@ import lime.utils.Log;
 		var promise = new Promise<T>();
 		promise.future = future;
 
-		FutureWork.run(work, state, promise, mode);
+		FutureWork.run(work, state, promise, mode, true);
 
 		return future;
 	}
