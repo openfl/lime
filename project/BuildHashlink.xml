@@ -99,7 +99,9 @@
 	<files id="ssl">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" />
-
+		<compilerflag value="-D_UNICODE"/>
+		<compilerflag value="-DUNICODE"/>
+		<compilerflag value="/std:c11" if="windows"/>
 		<file name="${HASHLINK_PATH}/libs/ssl/ssl.c" />
 	</files>
 
