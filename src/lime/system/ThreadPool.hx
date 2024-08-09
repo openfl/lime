@@ -438,7 +438,7 @@ class ThreadPool extends WorkOutput
 				if (interruption == null || output.__jobComplete.value)
 				{
 					// Work is done; wait for more.
-					event = null;
+					event = interruption;
 				}
 				else if(#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (interruption, ThreadEvent))
 				{
