@@ -105,12 +105,11 @@ class WorkOutput
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
 			{
-				activeJob.doWork.makePortable();
-				Thread.returnMessage(new ThreadEvent(COMPLETE, message, activeJob), transferList);
+				Thread.returnMessage({event: COMPLETE, message: message, jobID: activeJob.id}, transferList);
 			}
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(COMPLETE, message, activeJob));
+			__jobOutput.add({event: COMPLETE, message: message, jobID: activeJob.id});
 		}
 	}
 
@@ -130,12 +129,11 @@ class WorkOutput
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
 			{
-				activeJob.doWork.makePortable();
-				Thread.returnMessage(new ThreadEvent(ERROR, message, activeJob), transferList);
+				Thread.returnMessage({event: ERROR, message: message, jobID: activeJob.id}, transferList);
 			}
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(ERROR, message, activeJob));
+			__jobOutput.add({event: ERROR, message: message, jobID: activeJob.id});
 		}
 	}
 
@@ -153,12 +151,11 @@ class WorkOutput
 			#if (lime_threads && html5)
 			if (mode == MULTI_THREADED)
 			{
-				activeJob.doWork.makePortable();
-				Thread.returnMessage(new ThreadEvent(PROGRESS, message, activeJob), transferList);
+				Thread.returnMessage({event: PROGRESS, message: message, jobID: activeJob.id}, transferList);
 			}
 			else
 			#end
-			__jobOutput.add(new ThreadEvent(PROGRESS, message, activeJob));
+			__jobOutput.add({event: PROGRESS, message: message, jobID: activeJob.id});
 		}
 	}
 
@@ -343,43 +340,22 @@ class JobData
 
 #if haxe4 enum #else @:enum #end abstract ThreadEventType(String)
 {
-	/**
-		Sent by the background thread, indicating completion.
-	**/
+	// Events sent from a worker thread to the main thread
 	var COMPLETE = "COMPLETE";
-	/**
-		Sent by the background thread, indicating failure.
-	**/
 	var ERROR = "ERROR";
-	/**
-		Sent by the background thread.
-	**/
 	var PROGRESS = "PROGRESS";
-	/**
-		Sent by the main thread, indicating that the provided job should begin
-		in place of any ongoing job. If `state == null`, the existing job will
-		stop and the thread will go idle. (To run a job with no argument, set
-		`state = {}` instead.)
-	**/
+
+	// Commands sent from the main thread to a worker thread
 	var WORK = "WORK";
-	/**
-		Sent by the main thread to shut down a thread.
-	**/
+	var CANCEL = "CANCEL";
 	var EXIT = "EXIT";
 }
 
-class ThreadEvent
-{
-	public var event(default, null):ThreadEventType;
-	public var message(default, null):State;
-	public var job(default, null):JobData;
-
-	public inline function new(event:ThreadEventType, message:State, job:JobData)
-	{
-		this.event = event;
-		this.message = message;
-		this.job = job;
-	}
+typedef ThreadEvent = {
+	var event:ThreadEventType;
+	@:optional var message:Dynamic;
+	@:optional var job:JobData;
+	@:optional var jobID:Int;
 }
 
 class JSAsync
