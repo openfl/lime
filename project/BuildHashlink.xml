@@ -98,6 +98,7 @@
 
 	<files id="ssl">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/hl-ssl" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" />
 		<compilerflag value="-D_UNICODE"/>
 		<compilerflag value="-DUNICODE"/>
