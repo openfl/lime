@@ -48,7 +48,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/memory_buffer_alloc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/mps_reader.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/mps_trace.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/net_sockets.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/net_sockets.c" unless="HASHLINK_PATH" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/nist_kw.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/oid.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/padlock.c" />
