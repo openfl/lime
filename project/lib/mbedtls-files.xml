@@ -5,6 +5,9 @@
 		<compilerflag value="-std=c11" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+		<compilerflag value="-DMBEDTLS_THREADING_C" if="HASHLINK_PATH"/>
+		<compilerflag value="-DMBEDTLS_THREADING_PTHREAD" unless="windows" if="HASHLINK_PATH"/>
+		<compilerflag value="-DMBEDTLS_THREADING_ALT" if="windows HASHLINK_PATH"/>
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/aes.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/aesni.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/mbedtls/library/arc4.c" />
