@@ -211,7 +211,7 @@ class ThreadPool extends WorkOutput
 		`SINGLE_THREADED` in HTML5. In HTML5, `MULTI_THREADED` mode uses web
 		workers, which impose additional restrictions.
 	**/
-	public function new(minThreads:Int = 0, maxThreads:Int = 1, mode:ThreadMode = null)
+	public function new(?minThreads:Int = 0, ?maxThreads:Int = 1, ?mode:ThreadMode = null)
 	{
 		super(mode);
 
