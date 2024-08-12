@@ -188,13 +188,13 @@ class ThreadPool extends WorkOutput
 	/**
 		The set of threads actively running a job.
 	**/
-	private var __activeThreads:Map<Int, Thread> = new Map();
+	private var __activeThreads:Map<Int, Thread>;
 
 	/**
 		A list of idle threads. Not to be confused with `idleThreads`, a public
 		variable equal to `__idleThreads.length`.
 	**/
-	private var __idleThreads:List<Thread> = new List();
+	private var __idleThreads:Array<Thread>;
 	#end
 
 	private var __jobQueue:JobList = new JobList();
@@ -219,6 +219,14 @@ class ThreadPool extends WorkOutput
 
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
+
+		#if lime_threads
+		if (this.mode == MULTI_THREADED)
+		{
+			__activeThreads = new Map();
+			__idleThreads = [];
+		}
+		#end
 	}
 
 	/**
@@ -409,7 +417,7 @@ class ThreadPool extends WorkOutput
 					return;
 				}
 
-				if (event.event != WORK || !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (event.job, JobData))
+				if (event.event != WORK || event.job == null)
 				{
 					// Go idle.
 					event = null;
@@ -492,7 +500,7 @@ class ThreadPool extends WorkOutput
 				job.doWork.makePortable();
 				#end
 
-				var thread:Thread = __idleThreads.isEmpty() ? createThread(__executeThread) : __idleThreads.pop();
+				var thread:Thread = __idleThreads.length == 0 ? createThread(__executeThread) : __idleThreads.pop();
 				__activeThreads[job.id] = thread;
 				thread.sendMessage({event: WORK, job: job});
 			}
