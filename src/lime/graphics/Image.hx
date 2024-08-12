@@ -1002,7 +1002,7 @@ class Image
 
 		return promise.future;
 		#else
-		return Future.withEventualValue(fromBytes, bytes, MULTI_THREADED);
+		return new Future(fromBytes.bind(bytes), true);
 		#end
 	}
 
