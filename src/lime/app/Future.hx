@@ -388,9 +388,26 @@ enum FutureStatus<T>
 #end
 @:dox(hide) class FutureWork
 {
-	public static var singleThread(default, null):FutureWork = new FutureWork(SINGLE_THREADED);
+	public static var singleThread(get, null):FutureWork;
+	private static inline function get_singleThread():FutureWork
+	{
+		if (singleThread == null)
+		{
+			singleThread = new FutureWork(SINGLE_THREADED);
+		}
+		return singleThread;
+	}
+
 	#if lime_threads
-	public static var multiThread(default, null):FutureWork = new FutureWork(MULTI_THREADED);
+	public static var multiThread(get, null):FutureWork;
+	private static inline function get_multiThread():FutureWork
+	{
+		if (multiThread == null)
+		{
+			multiThread = new FutureWork(MULTI_THREADED);
+		}
+		return multiThread;
+	}
 	#end
 
 	public static var totalActiveJobs(get, never):Int;
