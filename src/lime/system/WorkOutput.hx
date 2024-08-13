@@ -13,12 +13,10 @@ import neko.vm.Deque;
 import neko.vm.Thread;
 import neko.vm.Tls;
 #end
-
 #if html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
 import lime._internal.backend.html5.HTML5Thread.Transferable;
 #end
-
 #if macro
 import haxe.macro.Expr;
 
@@ -54,6 +52,7 @@ class WorkOutput
 		available on this target, `mode` will always be `SINGLE_THREADED`.
 	**/
 	public var mode(get, never):ThreadMode;
+
 	#if lime_threads
 	/**
 		__Set this only via the constructor.__
@@ -65,6 +64,7 @@ class WorkOutput
 		Messages sent by active jobs, received by the main thread.
 	**/
 	private var __jobOutput:Deque<ThreadEvent> = new Deque();
+
 	/**
 		Thread-local storage. Tracks whether `sendError()` or `sendComplete()`
 		was called by this job.
@@ -77,6 +77,7 @@ class WorkOutput
 		Will be null in all other cases.
 	**/
 	public var activeJob(get, set):Null<JobData>;
+
 	@:noCompletion private var __activeJob:Tls<JobData> = new Tls();
 
 	private inline function new(mode:Null<ThreadMode>)
@@ -171,7 +172,8 @@ class WorkOutput
 		var thread:Thread = Thread.create(executeThread);
 
 		#if html5
-		thread.onMessage.add(function(event:ThreadEvent) {
+		thread.onMessage.add(function(event:ThreadEvent)
+		{
 			__jobOutput.add(event);
 		});
 		#end
@@ -195,6 +197,7 @@ class WorkOutput
 	{
 		return __activeJob.value;
 	}
+
 	private inline function set_activeJob(value:JobData):JobData
 	{
 		return __activeJob.value = value;
@@ -261,8 +264,8 @@ abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
 	{
 		switch (self.typeof().follow().toComplexType())
 		{
-			case TPath({ sub: "WorkFunction", params: [TPType(t)] }):
-				return macro ($self:$t)($a{args});
+			case TPath({sub: "WorkFunction", params: [TPType(t)]}):
+				return macro($self : $t)($a{args});
 			default:
 				throw "Underlying function type not found.";
 		}
@@ -275,8 +278,8 @@ abstract WorkFunction<T:haxe.Constraints.Function>(T) from T to T
 	only accepts a single argument, you can pass multiple values as part of an
 	anonymous structure. (Or an array, or a class.)
 
-	    // Does not work: too many arguments.
-	    // threadPool.run(doWork, argument0, argument1, argument2);
+		// Does not work: too many arguments.
+		// threadPool.run(doWork, argument0, argument1, argument2);
 
 		// Works: all arguments are combined into one `State` object.
 		threadPool.run(doWork, { arg0: argument0, arg1: argument1, arg2: argument2 });
@@ -299,6 +302,7 @@ typedef State = Dynamic;
 class JobData
 {
 	private static var nextID:Int = 0;
+
 	/**
 		`JobData` instances will regularly be copied in HTML5, so checking
 		equality won't work. Instead, compare identifiers.
@@ -351,7 +355,8 @@ class JobData
 	var EXIT = "EXIT";
 }
 
-typedef ThreadEvent = {
+typedef ThreadEvent =
+{
 	var event:ThreadEventType;
 	@:optional var message:Dynamic;
 	@:optional var job:JobData;
@@ -379,7 +384,6 @@ class JSAsync
 }
 
 // Define platform-specific types
-
 #if target.threaded
 // Haxe 3 compatibility: "target.threaded" can't go in parentheses.
 #elseif !(cpp || neko)

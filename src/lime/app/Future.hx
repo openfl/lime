@@ -84,8 +84,7 @@ import lime.utils.Log;
 			}
 			#end
 
-			FutureWork.forMode(useThreads ? MULTI_THREADED : SINGLE_THREADED)
-				.run(dispatchWorkFunction, doWork, promise);
+			FutureWork.forMode(useThreads ? MULTI_THREADED : SINGLE_THREADED).run(dispatchWorkFunction, doWork, promise);
 		}
 	}
 
@@ -331,7 +330,8 @@ import lime.utils.Log;
 		@return	A new `Future` instance.
 		@see lime.system.ThreadPool
 	**/
-	public static function withEventualValue<T>(doWork:WorkFunction<State -> WorkOutput -> Void>, ?state:State, mode:ThreadMode = #if html5 SINGLE_THREADED #else MULTI_THREADED #end):Future<T>
+	public static function withEventualValue<T>(doWork:WorkFunction<State->WorkOutput->Void>, ?state:State,
+			mode:ThreadMode = #if html5 SINGLE_THREADED #else MULTI_THREADED #end):Future<T>
 	{
 		var future = new Future<T>();
 		var promise = new Promise<T>();
@@ -345,7 +345,7 @@ import lime.utils.Log;
 	/**
 		(For backwards compatibility.) Dispatches the given zero-argument function.
 	**/
-	@:noCompletion private static function dispatchWorkFunction<T>(doWork:WorkFunction<Void -> T>, output:WorkOutput):Void
+	@:noCompletion private static function dispatchWorkFunction<T>(doWork:WorkFunction<Void->T>, output:WorkOutput):Void
 	{
 		output.sendComplete(doWork.dispatch());
 	}
@@ -389,6 +389,7 @@ enum FutureStatus<T>
 @:dox(hide) class FutureWork
 {
 	public static var singleThread(get, null):FutureWork;
+
 	private static inline function get_singleThread():FutureWork
 	{
 		if (singleThread == null)
@@ -400,6 +401,7 @@ enum FutureStatus<T>
 
 	#if lime_threads
 	public static var multiThread(get, null):FutureWork;
+
 	private static inline function get_multiThread():FutureWork
 	{
 		if (multiThread == null)
@@ -411,6 +413,7 @@ enum FutureStatus<T>
 	#end
 
 	public static var totalActiveJobs(get, never):Int;
+
 	private static inline function get_totalActiveJobs():Int
 	{
 		return singleThread.activeJobs #if lime_threads + multiThread.activeJobs #end;
@@ -420,7 +423,8 @@ enum FutureStatus<T>
 	private static function forMode(mode:ThreadMode):FutureWork
 	{
 		#if lime_threads
-		if (mode == MULTI_THREADED) {
+		if (mode == MULTI_THREADED)
+		{
 			return multiThread;
 		}
 		#end
@@ -431,7 +435,7 @@ enum FutureStatus<T>
 
 	// Because `Promise` is `@:generic`, we can't always store it as `Promise<Dynamic>`.
 	// Instead, we'll store the specific methods we need.
-	private var promises:Map<Int, {complete:Dynamic -> Dynamic, error:Dynamic -> Dynamic, progress:Int -> Int -> Dynamic}> = new Map();
+	private var promises:Map<Int, {complete:Dynamic->Dynamic, error:Dynamic->Dynamic, progress:Int->Int->Dynamic}> = new Map();
 
 	public var minThreads(get, set):Int;
 	public var maxThreads(get, set):Int;
@@ -480,6 +484,7 @@ enum FutureStatus<T>
 	{
 		return threadPool.minThreads;
 	}
+
 	private inline function set_minThreads(value:Int):Int
 	{
 		return threadPool.minThreads = value;
@@ -489,6 +494,7 @@ enum FutureStatus<T>
 	{
 		return threadPool.maxThreads;
 	}
+
 	private inline function set_maxThreads(value:Int):Int
 	{
 		return threadPool.maxThreads = value;
