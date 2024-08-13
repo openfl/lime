@@ -2502,7 +2502,8 @@ namespace lime {
 
 
 	int lime_curl_multi_perform (value multi_handle) {
-
+		
+		hx::EnterGCFreeZone();
 		curl_gc_mutex.Lock ();
 
 		int runningHandles = 0;
@@ -2521,7 +2522,8 @@ namespace lime {
 		curlMultiRunningHandles[multi_handle] = runningHandles;
 
 		curl_gc_mutex.Unlock ();
-
+		hx::ExitGCFreeZone();
+		
 		return result;
 
 	}
