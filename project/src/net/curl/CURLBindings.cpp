@@ -8,7 +8,7 @@
 #include <string.h>
 #include <map>
 #include <vector>
-
+#include <hx/GC.h>
 
 namespace lime {
 
