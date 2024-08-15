@@ -335,7 +335,7 @@ class AudioBuffer
 
 		return promise.future;
 		#else
-		return Future.withEventualValue(fromFiles, paths, MULTI_THREADED);
+		return new Future(fromFiles.bind(paths), true);
 		#end
 	}
 
