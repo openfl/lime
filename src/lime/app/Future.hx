@@ -201,6 +201,7 @@ import lime.utils.Log;
 	**/
 	public function ready(waitTime:Int = -1):Future<T>
 	{
+		#if (lime_threads && !html5)
 		if (isComplete || isError)
 		{
 			return this;
@@ -221,6 +222,9 @@ import lime.utils.Log;
 
 			return this;
 		}
+		#else
+		return this;
+		#end
 	}
 
 	/**
