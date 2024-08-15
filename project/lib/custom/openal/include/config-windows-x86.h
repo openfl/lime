@@ -17,9 +17,6 @@
 	#define isfinite _finite
 #endif
 
-/* Define a restrict macro for non-aliased pointers */
-#define RESTRICT __restrict
-
 /* Define if HRTF data is embedded in the library */
 #define ALSOFT_EMBED_HRTF_DATA
 

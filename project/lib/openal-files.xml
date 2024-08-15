@@ -17,6 +17,7 @@
         <compilerflag value="-D_LARGEFILE_SOURCE" />
         <compilerflag value="-D_LARGE_FILES" />
         <compilerflag value="-DNOMINMAX" />
+        <compilerflag value="-DRESTRICT=" />
 
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/auxeffectslot.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/buffer.cpp" />
@@ -31,6 +32,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/alc.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/context.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/device.cpp" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/core/device.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/alconfig.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/alu.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/core/ambdec.cpp" />
@@ -46,6 +48,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/autowah.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/chorus.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/compressor.cpp" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/convolution.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/dedicated.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/distortion.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/effects/echo.cpp" />
@@ -59,6 +62,7 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/autowah.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/chorus.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/compressor.cpp" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/convolution.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/dedicated.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/distortion.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/al/effects/echo.cpp" />
