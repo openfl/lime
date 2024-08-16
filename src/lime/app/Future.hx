@@ -416,17 +416,11 @@ import lime.utils.Log;
 			var result = bundle.work.dispatch(bundle.state);
 			if (result != null || bundle.legacyCode)
 			{
-				#if (lime_threads && html5)
-				bundle.work.makePortable();
-				#end
 				output.sendComplete(result);
 			}
 		}
 		catch (e:Dynamic)
 		{
-			#if (lime_threads && html5)
-			bundle.work.makePortable();
-			#end
 			output.sendError(e);
 		}
 	}

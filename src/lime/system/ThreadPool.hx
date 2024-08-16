@@ -188,13 +188,13 @@ class ThreadPool extends WorkOutput
 	/**
 		The set of threads actively running a job.
 	**/
-	private var __activeThreads:Map<Int, Thread> = new Map();
+	private var __activeThreads:Map<Int, Thread>;
 
 	/**
 		A list of idle threads. Not to be confused with `idleThreads`, a public
 		variable equal to `__idleThreads.length`.
 	**/
-	private var __idleThreads:List<Thread> = new List();
+	private var __idleThreads:Array<Thread>;
 	#end
 
 	private var __jobQueue:JobList = new JobList();
@@ -219,6 +219,14 @@ class ThreadPool extends WorkOutput
 
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
+
+		#if lime_threads
+		if (this.mode == MULTI_THREADED)
+		{
+			__activeThreads = new Map();
+			__idleThreads = [];
+		}
+		#end
 	}
 
 	/**
@@ -245,12 +253,12 @@ class ThreadPool extends WorkOutput
 				var thread:Thread = __activeThreads[job.id];
 				if (idleThreads < minThreads)
 				{
-					thread.sendMessage(new ThreadEvent(WORK, null, null));
+					thread.sendMessage({event: CANCEL});
 					__idleThreads.push(thread);
 				}
 				else
 				{
-					thread.sendMessage(new ThreadEvent(EXIT, null, null));
+					thread.sendMessage({event: EXIT});
 				}
 			}
 			#end
@@ -270,10 +278,10 @@ class ThreadPool extends WorkOutput
 		__activeJobs.clear();
 
 		#if lime_threads
-		// Cancel idle threads if there are more than the minimum.
+		// Exit idle threads if there are more than the minimum.
 		while (idleThreads > minThreads)
 		{
-			__idleThreads.pop().sendMessage(new ThreadEvent(EXIT, null, null));
+			__idleThreads.pop().sendMessage({event: EXIT});
 		}
 		#end
 
@@ -310,7 +318,7 @@ class ThreadPool extends WorkOutput
 			var thread:Thread = __activeThreads[data.id];
 			if (thread != null)
 			{
-				thread.sendMessage(new ThreadEvent(WORK, null, null));
+				thread.sendMessage({event: CANCEL});
 				__activeThreads.remove(data.id);
 				__idleThreads.push(thread);
 			}
@@ -395,7 +403,7 @@ class ThreadPool extends WorkOutput
 					{
 						event = Thread.readMessage(true);
 					}
-					while (!#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (event, ThreadEvent));
+					while (event == null || !Reflect.hasField(event, "event"));
 
 					output.resetJobProgress();
 				}
@@ -438,9 +446,9 @@ class ThreadPool extends WorkOutput
 				if (interruption == null || output.__jobComplete.value)
 				{
 					// Work is done; wait for more.
-					event = null;
+					event = interruption;
 				}
-				else if(#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (interruption, ThreadEvent))
+				else if(Reflect.hasField(interruption, "event"))
 				{
 					// Work on the new job.
 					event = interruption;
@@ -492,9 +500,9 @@ class ThreadPool extends WorkOutput
 				job.doWork.makePortable();
 				#end
 
-				var thread:Thread = __idleThreads.isEmpty() ? createThread(__executeThread) : __idleThreads.pop();
+				var thread:Thread = __idleThreads.length == 0 ? createThread(__executeThread) : __idleThreads.pop();
 				__activeThreads[job.id] = thread;
-				thread.sendMessage(new ThreadEvent(WORK, null, job));
+				thread.sendMessage({event: WORK, job: job});
 			}
 			#end
 		}
@@ -539,15 +547,19 @@ class ThreadPool extends WorkOutput
 		var threadEvent:ThreadEvent;
 		while ((threadEvent = __jobOutput.pop(false)) != null)
 		{
-			if (!__activeJobs.exists(threadEvent.job))
+			if (threadEvent.jobID != null)
 			{
-				// Ignore events from canceled jobs.
-				continue;
+				activeJob = __activeJobs.getByID(threadEvent.jobID);
+			}
+			else
+			{
+				activeJob = threadEvent.job;
 			}
 
-			// Get by ID because in HTML5, the object will have been cloned,
-			// which will interfere with attempts to test equality.
-			activeJob = __activeJobs.getByID(threadEvent.job.id);
+			if (activeJob == null || !__activeJobs.exists(activeJob))
+			{
+				continue;
+			}
 
 			if (mode == MULTI_THREADED)
 			{
@@ -582,7 +594,7 @@ class ThreadPool extends WorkOutput
 
 						if (currentThreads > maxThreads || __jobQueue.length == 0 && currentThreads > minThreads)
 						{
-							thread.sendMessage(new ThreadEvent(EXIT, null, null));
+							thread.sendMessage({event: EXIT});
 						}
 						else
 						{
