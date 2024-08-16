@@ -37,9 +37,7 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 	`WorkOutput` object it receives. Calling `output.sendComplete()` will
 	trigger an `onComplete` event on the main thread.
 
-	@see `lime.system.WorkOutput.WorkFunction` for important information about
-	     `doWork`.
-	@see https://player03.com/openfl/threads-guide/ for a tutorial.
+	@see `lime.system.WorkOutput.WorkFunction` for important information about `doWork`.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
