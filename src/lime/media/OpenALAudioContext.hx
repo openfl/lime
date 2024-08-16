@@ -423,9 +423,16 @@ class OpenALAudioContext
 		return AL.isEnabled(capability);
 	}
 
-	public function isExtensionPresent(extname:String):Bool
+	public function isExtensionPresent(extname:String, device:ALDevice = null):Bool
 	{
-		return AL.isExtensionPresent(extname);
+		if (device == null)
+		{
+			return AL.isExtensionPresent(extname);
+		}
+		else
+		{
+			return ALC.isExtensionPresent(device, extname);
+		}
 	}
 
 	public function isSource(source:ALSource):Bool
