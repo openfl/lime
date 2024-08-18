@@ -15,12 +15,18 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 #end
 
 /**
-	A simple and thread-safe way to run a one or more asynchronous jobs. It
-	manages a queue of jobs, starting new ones once the old ones are done.
+	A thread pool executes one or more functions asynchronously.
 
-	It can also keep a certain number of threads (configurable via `minThreads`)
-	running in the background even when no jobs are available. This avoids the
-	not-insignificant overhead of stopping and restarting threads.
+	In multi-threaded mode, jobs run on background threads. In HTML5, this means
+	using web workers, which impose additional restrictions (see below). In
+	single-threaded mode, jobs run between frames on the main thread. To avoid
+	blocking, these jobs should only do a small amount of work at a time.
+
+	In multi-threaded mode, the pool spins up new threads as jobs arrive (up to
+	`maxThreads`). If too many jobs arrive at once, it places them in a queue to
+	run when threads open up. If you run jobs frequently but not constantly, you
+	can also set `minThreads` to keep a certain number of threads alive,
+	avoiding the overhead of repeatedly spinning them up.
 
 	Sample usage:
 
@@ -33,11 +39,26 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 			threadPool.run(processFile, url);
 		}
 
-	For thread safety, the worker function should only give output through the
-	`WorkOutput` object it receives. Calling `output.sendComplete()` will
-	trigger an `onComplete` event on the main thread.
+	If upgrading from `BackgroundWorker`, you can use `ThreadPool` as a drop-in
+	replacement. It will then display some deprecation warnings indicating which
+	steps to take next.
 
-	@see `lime.system.WorkOutput.WorkFunction` for important information about `doWork`.
+	---
+
+	Guidelines to make your code work on all targets and configurations:
+
+	- For thread safety and web worker compatibility, your work function should
+	  only return data through the `WorkOutput` object it receives.
+	- For web worker compatibility, you should only send data to your work
+	  function via the `State` object. But since this can be any object, you can
+	  put an arbitrary amount of data there.
+	- For web worker compatibility, your work function must be static, and you
+	  can't `bind()` any extra arguments.
+	- For single-threaded performance, your function should only do a small
+	  amount of work at a time. Store progress in the `State` object so you can
+	  pick up where you left off. You don't have to worry about timing: just aim
+	  to take a small fraction of the frame's time, and `ThreadPool` will keep
+	  running the function until enough time passes.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
