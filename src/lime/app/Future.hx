@@ -319,7 +319,7 @@ import lime.utils.Log;
 @:dox(hide) class FutureWork
 {
 	private static var threadPool:ThreadPool;
-	private static var promises:Map<Int, {complete:Dynamic -> Dynamic, error:Dynamic -> Dynamic}>;
+	private static var promises:Map<Int, {complete:Dynamic->Dynamic, error:Dynamic->Dynamic}>;
 
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
@@ -328,7 +328,8 @@ import lime.utils.Log;
 	@:allow(lime.app.Future)
 	private static function run<T>(work:Void->T, promise:Promise<T>):Void
 	{
-		if(threadPool == null) {
+		if (threadPool == null)
+		{
 			threadPool = new ThreadPool(minThreads, maxThreads, MULTI_THREADED);
 			threadPool.onComplete.add(threadPool_onComplete);
 			threadPool.onError.add(threadPool_onError);

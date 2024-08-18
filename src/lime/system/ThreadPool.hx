@@ -88,7 +88,7 @@ class ThreadPool extends WorkOutput
 		frame. See `workIterations` for instructions to improve the accuracy of
 		this estimate.
 	**/
-	public static var workLoad:Float = 1/2;
+	public static var workLoad:Float = 1 / 2;
 
 	/**
 		__Access this only from the main thread.__
@@ -171,16 +171,19 @@ class ThreadPool extends WorkOutput
 		Dispatched at most once per job.
 	**/
 	public var onComplete(default, null) = new Event<Dynamic->Void>();
+
 	/**
 		Dispatched on the main thread when `doWork` calls `sendError()`.
 		Dispatched at most once per job.
 	**/
 	public var onError(default, null) = new Event<Dynamic->Void>();
+
 	/**
 		Dispatched on the main thread when `doWork` calls `sendProgress()`. May
 		be dispatched any number of times per job.
 	**/
 	public var onProgress(default, null) = new Event<Dynamic->Void>();
+
 	/**
 		Dispatched on the main thread when a new job begins. Dispatched exactly
 		once per job.
@@ -199,6 +202,7 @@ class ThreadPool extends WorkOutput
 
 	@:deprecated("Instead pass the callback to ThreadPool.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):PseudoEvent;
+
 	private var __doWork:WorkFunction<State->WorkOutput->Void>;
 
 	private var __activeJobs:JobList;
@@ -409,6 +413,7 @@ class ThreadPool extends WorkOutput
 	**/
 	private static function __executeThread():Void
 	{
+		// @formatter:off
 		JSAsync.async({
 			var output:WorkOutput = #if html5 new WorkOutput(MULTI_THREADED) #else cast(Thread.readMessage(true), WorkOutput) #end;
 			var event:ThreadEvent = null;
@@ -467,7 +472,7 @@ class ThreadPool extends WorkOutput
 					// Work is done; wait for more.
 					event = interruption;
 				}
-				else if(Reflect.hasField(interruption, "event"))
+				else if (Reflect.hasField(interruption, "event"))
 				{
 					// Work on the new job.
 					event = interruption;
@@ -481,6 +486,7 @@ class ThreadPool extends WorkOutput
 				// Do it all again.
 			}
 		});
+		// @formatter:on
 	}
 	#end
 
@@ -538,8 +544,7 @@ class ThreadPool extends WorkOutput
 			// `workLoad / frameRate` is the total time that pools may use per
 			// frame. `workPriority / __totalWorkPriority` is this pool's
 			// fraction of that total.
-			var maxTimeElapsed:Float = workPriority * workLoad
-				/ (__totalWorkPriority * Application.current.window.frameRate);
+			var maxTimeElapsed:Float = workPriority * workLoad / (__totalWorkPriority * Application.current.window.frameRate);
 
 			var startTime:Float = timestamp();
 			var timeElapsed:Float = 0;
@@ -683,33 +688,56 @@ class ThreadPool extends WorkOutput
 }
 
 @:access(lime.system.ThreadPool) @:forward(canceled)
-private abstract PseudoEvent(ThreadPool) from ThreadPool {
+private abstract PseudoEvent(ThreadPool) from ThreadPool
+{
 	@:noCompletion @:dox(hide) public var __listeners(get, never):Array<Dynamic>;
-	private inline function get___listeners():Array<Dynamic> { return []; };
-	@:noCompletion @:dox(hide) public var __repeat(get, never):Array<Bool>;
-	private inline function get___repeat():Array<Bool> { return []; };
 
-	public function add(callback:Dynamic -> Void):Void {
+	private inline function get___listeners():Array<Dynamic>
+	{
+		return [];
+	};
+
+	@:noCompletion @:dox(hide) public var __repeat(get, never):Array<Bool>;
+
+	private inline function get___repeat():Array<Bool>
+	{
+		return [];
+	};
+
+	public function add(callback:Dynamic->Void):Void
+	{
 		function callCallback(state:State, output:WorkOutput):Void
 		{
 			callback(state);
 		}
 
 		#if (lime_threads && html5)
-		if (this.mode == MULTI_THREADED)
-			throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
+		if (this.mode == MULTI_THREADED) throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
 		else
-			this.__doWork = { func: callCallback };
+			this.__doWork = {func: callCallback};
 		#else
 		this.__doWork = callCallback;
 		#end
 	}
 
 	public inline function cancel():Void {}
+
 	public inline function dispatch():Void {}
-	public inline function has(callback:Dynamic -> Void):Bool { return this.__doWork != null; }
-	public inline function remove(callback:Dynamic -> Void):Void { this.__doWork = null; }
-	public inline function removeAll():Void { this.__doWork = null; }
+
+	public inline function has(callback:Dynamic->Void):Bool
+	{
+		return this.__doWork != null;
+	}
+
+	public inline function remove(callback:Dynamic->Void):Void
+	{
+		this.__doWork = null;
+	}
+
+	public inline function removeAll():Void
+	{
+		this.__doWork = null;
+	}
 }
 
 class JobList
@@ -853,7 +881,8 @@ class JobList
 
 	// Getters & Setters
 
-	private inline function set___addingWorkPriority(value:Bool):Bool {
+	private inline function set___addingWorkPriority(value:Bool):Bool
+	{
 		if (pool != null && __addingWorkPriority != value && ThreadPool.isMainThread())
 		{
 			if (value)
@@ -888,17 +917,25 @@ class JobList
 	that's in use by multiple jobs, the wrong job may be selected or canceled.
 **/
 @:forward
-abstract JobIdentifier(JobIdentifierImpl) from JobIdentifierImpl {
-	@:from private static inline function fromJob(job:JobData):JobIdentifier {
+abstract JobIdentifier(JobIdentifierImpl) from JobIdentifierImpl
+{
+	@:from private static inline function fromJob(job:JobData):JobIdentifier
+	{
 		return ID(job.id);
 	}
-	@:from private static inline function fromID(id:Int):JobIdentifier {
+
+	@:from private static inline function fromID(id:Int):JobIdentifier
+	{
 		return ID(id);
 	}
-	@:from private static inline function fromFunction(doWork:WorkFunction<State->WorkOutput->Void>):JobIdentifier {
+
+	@:from private static inline function fromFunction(doWork:WorkFunction<State->WorkOutput->Void>):JobIdentifier
+	{
 		return FUNCTION(doWork);
 	}
-	@:from private static inline function fromState(state:State):JobIdentifier {
+
+	@:from private static inline function fromState(state:State):JobIdentifier
+	{
 		return STATE(state);
 	}
 }
