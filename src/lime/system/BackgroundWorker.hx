@@ -14,10 +14,6 @@ import neko.vm.Deque;
 import neko.vm.Thread;
 #end
 #end
-#if !lime_debug
-@:fileXml('tags="haxe,release"')
-@:noDebug
-#end
 
 /**
 	A background worker executes a single function on a background thread,
@@ -25,6 +21,10 @@ import neko.vm.Thread;
 	have thread support, meaning the function will block on any other target.
 	@see `ThreadPool` for improved thread safety, HTML5 threads, and more.
 **/
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 class BackgroundWorker
 {
 	private static var MESSAGE_COMPLETE = "__COMPLETE__";
