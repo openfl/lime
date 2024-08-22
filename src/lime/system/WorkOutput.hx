@@ -42,8 +42,9 @@ class WorkOutput
 		the current job, including (if applicable) the ongoing call.
 
 		In single-threaded mode, it only counts the number of calls this frame.
-		This helps you adjust `doWork`'s length: too few iterations per frame
-		means `workLoad` may be inaccurate, while too many may add overhead.
+		The lower the number, the less accurate `ThreadPool.workLoad` becomes,
+		but the higher the number, the more overhead there is. As a ballpark
+		estimate, aim for 10-100 iterations.
 	**/
 	public var workIterations(default, null):Tls<Int> = new Tls();
 
@@ -236,21 +237,18 @@ class WorkOutput
 
 /**
 	A function that performs asynchronous work. This can either be work on
-	another thread ("multi-threaded mode"), or it can represent a virtual
-	thread ("single-threaded mode").
+	another thread ("multi-threaded mode"), or it can represent a green thread
+	("single-threaded mode").
 
 	In single-threaded mode, the work function shouldn't complete the job all at
 	once, as the main thread would lock up. Instead, it should perform a
 	fraction of the job each time it's called. `ThreadPool` provides the
-	function with a persistent `State` argument that can track progress.
-	Alternatively, you may be able to bind your own `State` argument.
+	function with a persistent `State` argument for tracking progress, which can
+	be any object of your choice.
 
 	Caution: if using multi-threaded mode in HTML5, this must be a static
 	function and binding arguments is forbidden. Compile with
 	`-Dlime-warn-portability` to highlight functions that won't work.
-
-	The exact length of `doWork` can vary, but single-threaded mode will run
-	more smoothly if it's short enough to run several times per frame.
 **/
 #if (lime_threads && html5)
 typedef WorkFunction<T:haxe.Constraints.Function> = lime._internal.backend.html5.HTML5Thread.WorkFunction<T>;

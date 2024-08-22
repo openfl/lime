@@ -78,9 +78,11 @@ class ThreadPool extends WorkOutput
 	/**
 		A rough estimate of how much of the app's time should be spent on
 		single-threaded `ThreadPool`s. For instance, the default value of 1/2
-		means they will aim to take up about half the app's available time every
-		frame. See `workIterations` for instructions to improve the accuracy of
-		this estimate.
+		means they'll use about half the app's available time every frame.
+
+		The accuracy of this estimate depends on how often your work functions
+		return. If you find that a `ThreadPool` is taking longer than scheduled,
+		try making the work function return more often.
 	**/
 	public static var workLoad:Float = 1 / 2;
 
@@ -128,13 +130,6 @@ class ThreadPool extends WorkOutput
 
 		The maximum number of live threads this pool can have at once. If this
 		value decreases, active jobs will still be allowed to finish.
-
-		You can set this in single-threaded mode, but it's rarely useful. For
-		instance, suppose you have six jobs, each of which takes about a second.
-		If you leave `maxThreads` at 1, then one will finish every second for
-		six seconds. If you set `maxThreads = 6`, then none will finish for five
-		seconds, and then they'll all finish at once. The total duration is
-		unchanged, but none of them finish early.
 	**/
 	public var maxThreads:Int;
 
@@ -142,10 +137,8 @@ class ThreadPool extends WorkOutput
 		__Set this only from the main thread.__
 
 		The number of threads that will be kept alive at all times, even if
-		there's no work to do. Setting this won't add new threads, it'll just
-		keep existing ones running.
-
-		Has no effect in single-threaded mode.
+		there's no work to do. Setting this won't immediately spin up new
+		threads; you must still call `run()` to get them started.
 	**/
 	public var minThreads:Int;
 
@@ -343,7 +336,13 @@ class ThreadPool extends WorkOutput
 	}
 
 	/**
-		Queues a new job, to be run once a thread becomes available.
+		Runs the given function asynchronously, or queues it for later if all
+		threads are busy.
+		@param doWork The function to run. For best results, see the guidelines
+		in the `ThreadPool` class overview. In brief: `doWork` should be static,
+		only access its arguments, and return often.
+		@param state An object to pass to `doWork`, ideally a mutable object so
+		that `doWork` can save its progress.
 		@return The job's unique ID.
 	**/
 	public function run(doWork:WorkFunction<State->WorkOutput->Void> = null, state:State = null):Int
@@ -647,8 +646,6 @@ class ThreadPool extends WorkOutput
 		return activeJobs + idleThreads;
 	}
 
-	// Note the distinction between `doWork` and `__doWork`: the former is for
-	// backwards compatibility, while the latter is always used.
 	private function get_doWork():PseudoEvent
 	{
 		return this;
