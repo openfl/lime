@@ -16,10 +16,17 @@ import neko.vm.Thread;
 #end
 
 /**
-	A background worker executes a single function on a background thread,
-	allowing it to avoid blocking the main thread. However, only system targets
-	have thread support, meaning the function will block on any other target.
-	@see `ThreadPool` for improved thread safety, HTML5 threads, and more.
+	A `BackgroundWorker` allows the execution of a function on a background thread, 
+	avoiding the blocking of the main thread. This is particularly useful for long-running 
+	operations like file I/O, network requests, or computationally intensive tasks.
+
+	### Notes:
+	- **Thread Support:** Only system targets (such as C++, Neko) support threading. 
+	- **Events:** The class uses the `Event` class to dispatch completion, error, 
+	  and progress notifications.
+	
+	@see `ThreadPool` for more advanced threading capabilities, including thread 
+	safety, HTML5 threads, and more robust handling of tasks.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -43,8 +50,15 @@ class BackgroundWorker
 	@:noCompletion private var __workerThread:Thread;
 	#end
 
+	/**
+		Creates a new `BackgroundWorker` instance.
+	**/
 	public function new() {}
 
+	/**
+		Cancels the worker's task if it is still running. This won't stop the thread 
+		immediately.
+	**/
 	public function cancel():Void
 	{
 		canceled = true;
@@ -54,6 +68,10 @@ class BackgroundWorker
 		#end
 	}
 
+	/**
+		Starts the worker's task, optionally passing a message to the task.
+		@param message An optional message to pass to the worker's task.
+	**/
 	public function run(message:Dynamic = null):Void
 	{
 		canceled = false;
@@ -75,6 +93,10 @@ class BackgroundWorker
 		#end
 	}
 
+	/**
+		Sends a completion message, indicating that the worker has finished its task.
+		@param message An optional message to pass to the `onComplete` event.
+	**/
 	public function sendComplete(message:Dynamic = null):Void
 	{
 		completed = true;
@@ -91,6 +113,10 @@ class BackgroundWorker
 		#end
 	}
 
+	/**
+		Sends an error message, indicating that an error occurred during the worker's task.
+		@param message An optional message to pass to the `onError` event.
+	**/
 	public function sendError(message:Dynamic = null):Void
 	{
 		#if (cpp || neko)
@@ -104,7 +130,11 @@ class BackgroundWorker
 		}
 		#end
 	}
-
+	
+	/**
+		Sends a progress update message.
+		@param message An optional message to pass to the `onProgress` event.
+	**/
 	public function sendProgress(message:Dynamic = null):Void
 	{
 		#if (cpp || neko)
