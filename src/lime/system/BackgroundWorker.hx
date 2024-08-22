@@ -37,11 +37,35 @@ class BackgroundWorker
 	private static var MESSAGE_COMPLETE = "__COMPLETE__";
 	private static var MESSAGE_ERROR = "__ERROR__";
 
+	/**
+		Indicates whether the worker has been canceled.
+	**/
 	public var canceled(default, null):Bool;
+
+	/**
+		Indicates whether the worker has completed its task.
+	**/
 	public var completed(default, null):Bool;
+
+	/**
+		Dispatched when the worker is about to perform its task.
+		The function to execute should be added as a listener to this event.
+	**/
 	public var doWork = new Event<Dynamic->Void>();
+
+	/**
+		Dispatched when the worker has successfully completed its task.
+	**/
 	public var onComplete = new Event<Dynamic->Void>();
+
+	/**
+		Dispatched if an error occurs during the execution of the worker's task.
+	**/
 	public var onError = new Event<Dynamic->Void>();
+	
+	/**
+		Dispatched periodically during the worker's task to provide progress updates.
+	**/
 	public var onProgress = new Event<Dynamic->Void>();
 
 	@:noCompletion private var __runMessage:Dynamic;
