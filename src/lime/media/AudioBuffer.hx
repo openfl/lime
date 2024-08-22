@@ -31,12 +31,41 @@ import flash.net.URLRequest;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
+/**
+	The `AudioBuffer` class represents a buffer of audio data that can be played back using an `AudioSource`. 
+	It supports a variety of audio formats and platforms, providing a consistent API for loading and managing audio data.
+
+	Depending on the platform, the audio backend may differ, but the class provides a unified interface for accessing 
+	audio data, whether it's stored in memory, loaded from a file, or streamed.
+
+	@see lime.media.AudioSource
+**/
 class AudioBuffer
 {
+	/**
+		The number of bits per sample in the audio data.
+	**/
 	public var bitsPerSample:Int;
+
+	/**
+		The number of audio channels (e.g., 1 for mono, 2 for stereo).
+	**/
 	public var channels:Int;
+
+	/**
+		The raw audio data stored as a `UInt8Array`.
+	**/
 	public var data:UInt8Array;
+
+	/**
+		The sample rate of the audio data, in Hz.
+	**/
 	public var sampleRate:Int;
+
+	/**
+		The source of the audio data. This can be an `Audio`, `Sound`, `Howl`, or other platform-specific object.
+	**/
 	public var src(get, set):Dynamic;
 
 	@:noCompletion private var __srcAudio:#if (js && html5) Audio #else Dynamic #end;
@@ -57,8 +86,14 @@ class AudioBuffer
 	}
 	#end
 
+	/**
+		Creates a new, empty `AudioBuffer` instance.
+	**/
 	public function new() {}
 
+	/**
+		Disposes of the resources used by this `AudioBuffer`, such as unloading any associated audio data.
+	**/
 	public function dispose():Void
 	{
 		#if (js && html5 && lime_howlerjs)
@@ -66,6 +101,12 @@ class AudioBuffer
 		#end
 	}
 
+	/**
+		Creates an `AudioBuffer` from a Base64-encoded string.
+
+		@param base64String The Base64-encoded audio data.
+		@return An `AudioBuffer` instance with the decoded audio data.
+	**/
 	public static function fromBase64(base64String:String):AudioBuffer
 	{
 		if (base64String == null) return null;
@@ -112,6 +153,12 @@ class AudioBuffer
 		return null;
 	}
 
+	/**
+		Creates an `AudioBuffer` from a `Bytes` object.
+
+		@param bytes The `Bytes` object containing the audio data.
+		@return An `AudioBuffer` instance with the decoded audio data.
+	**/
 	public static function fromBytes(bytes:Bytes):AudioBuffer
 	{
 		if (bytes == null) return null;
@@ -145,6 +192,12 @@ class AudioBuffer
 		return null;
 	}
 
+	/**
+		Creates an `AudioBuffer` from a file.
+
+		@param path The file path to the audio data.
+		@return An `AudioBuffer` instance with the audio data loaded from the file.
+	**/
 	public static function fromFile(path:String):AudioBuffer
 	{
 		if (path == null) return null;
@@ -196,6 +249,12 @@ class AudioBuffer
 		#end
 	}
 
+	/**
+		Creates an `AudioBuffer` from an array of file paths.
+
+		@param paths An array of file paths to search for audio data.
+		@return An `AudioBuffer` instance with the audio data loaded from the first valid file found.
+	**/
 	public static function fromFiles(paths:Array<String>):AudioBuffer
 	{
 		#if (js && html5 && lime_howlerjs)
@@ -221,7 +280,14 @@ class AudioBuffer
 		#end
 	}
 
+	/**
+		Creates an `AudioBuffer` from a `VorbisFile`.
+
+		@param vorbisFile The `VorbisFile` object containing the audio data.
+		@return An `AudioBuffer` instance with the decoded audio data.
+	**/
 	#if lime_vorbis
+		
 	public static function fromVorbisFile(vorbisFile:VorbisFile):AudioBuffer
 	{
 		if (vorbisFile == null) return null;
@@ -243,6 +309,12 @@ class AudioBuffer
 	}
 	#end
 
+	/**
+		Asynchronously loads an `AudioBuffer` from a file.
+
+		@param path The file path to the audio data.
+		@return A `Future` that resolves to the loaded `AudioBuffer`.
+	**/
 	public static function loadFromFile(path:String):Future<AudioBuffer>
 	{
 		#if (flash || (js && html5))
@@ -307,6 +379,12 @@ class AudioBuffer
 		#end
 	}
 
+	/**
+		Asynchronously loads an `AudioBuffer` from multiple files.
+
+		@param paths An array of file paths to search for audio data.
+		@return A `Future` that resolves to the loaded `AudioBuffer`.
+	**/
 	public static function loadFromFiles(paths:Array<String>):Future<AudioBuffer>
 	{
 		#if (js && html5 && lime_howlerjs)
