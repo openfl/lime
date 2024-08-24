@@ -301,30 +301,21 @@ class ThreadPool extends WorkOutput
 
 	/**
 		Cancels one active or queued job. Does not dispatch an error event.
-		@param job A `JobData` object, or a job's unique `id`, `state`, or
-		`doWork` function.
 		@return Whether a job was canceled.
 	**/
-	public function cancelJob(job:JobIdentifier):Bool
+	public function cancelJob(jobID:Int):Bool
 	{
-		var data:JobData = __activeJobs.get(job);
-
-		if (data != null)
+		#if lime_threads
+		var thread:Thread = __activeThreads[jobID];
+		if (thread != null)
 		{
-			#if lime_threads
-			var thread:Thread = __activeThreads[data.id];
-			if (thread != null)
-			{
-				thread.sendMessage({event: CANCEL});
-				__activeThreads.remove(data.id);
-				__idleThreads.push(thread);
-			}
-			#end
-
-			return __activeJobs.remove(data);
+			thread.sendMessage({event: CANCEL});
+			__activeThreads.remove(jobID);
+			__idleThreads.push(thread);
 		}
+		#end
 
-		return __jobQueue.remove(__jobQueue.get(job));
+		return __activeJobs.remove(__activeJobs.get(jobID)) || __jobQueue.remove(__jobQueue.get(jobID));
 	}
 
 	/**
@@ -551,7 +542,7 @@ class ThreadPool extends WorkOutput
 		{
 			if (threadEvent.jobID != null)
 			{
-				activeJob = __activeJobs.getByID(threadEvent.jobID);
+				activeJob = __activeJobs.get(threadEvent.jobID);
 			}
 			else
 			{
@@ -750,7 +741,7 @@ class JobList
 
 	public inline function exists(job:JobData):Bool
 	{
-		return getByID(job.id) != null;
+		return get(job.id) != null;
 	}
 
 	public inline function hasNext():Bool
@@ -798,7 +789,7 @@ class JobList
 
 	public inline function removeByID(id:Int):Bool
 	{
-		if (__jobs.remove(getByID(id)))
+		if (__jobs.remove(get(id)))
 		{
 			__addingWorkPriority = length > 0;
 			return true;
@@ -809,7 +800,7 @@ class JobList
 		}
 	}
 
-	public function getByID(id:Int):JobData
+	public function get(id:Int):JobData
 	{
 		for (job in __jobs)
 		{
@@ -820,33 +811,6 @@ class JobList
 		}
 		return null;
 	}
-
-	public function get(jobIdentifier:JobIdentifier):JobData
-	{
-		switch (jobIdentifier)
-		{
-			case ID(id):
-				return getByID(id);
-			case FUNCTION(doWork):
-				for (job in __jobs)
-				{
-					if (job.doWork == doWork)
-					{
-						return job;
-					}
-				}
-			case STATE(state):
-				for (job in __jobs)
-				{
-					if (job.state == state)
-					{
-						return job;
-					}
-				}
-		}
-		return null;
-	}
-
 	public inline function push(job:JobData):Void
 	{
 		__jobs.push(job);
@@ -879,44 +843,4 @@ class JobList
 	{
 		return __jobs.length;
 	}
-}
-
-/**
-	A piece of data that uniquely represents a job. This can be the integer ID
-	(and integers will be assumed to be such), the `doWork` function, or the
-	`JobData` object itself. Failing any of those, a value will be assumed to be
-	the job's `state`.
-
-	Caution: if the provided data isn't unique, such as a `doWork` function
-	that's in use by multiple jobs, the wrong job may be selected or canceled.
-**/
-@:forward
-abstract JobIdentifier(JobIdentifierImpl) from JobIdentifierImpl
-{
-	@:from private static inline function fromJob(job:JobData):JobIdentifier
-	{
-		return ID(job.id);
-	}
-
-	@:from private static inline function fromID(id:Int):JobIdentifier
-	{
-		return ID(id);
-	}
-
-	@:from private static inline function fromFunction(doWork:WorkFunction<State->WorkOutput->Void>):JobIdentifier
-	{
-		return FUNCTION(doWork);
-	}
-
-	@:from private static inline function fromState(state:State):JobIdentifier
-	{
-		return STATE(state);
-	}
-}
-
-private enum JobIdentifierImpl
-{
-	ID(id:Int);
-	FUNCTION(doWork:WorkFunction<State->WorkOutput->Void>);
-	STATE(state:State);
 }
