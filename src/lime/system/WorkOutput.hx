@@ -67,14 +67,14 @@ class WorkOutput
 	private var __jobOutput:Deque<ThreadEvent> = new Deque();
 	/**
 		Thread-local storage. Tracks whether `sendError()` or `sendComplete()`
-		was called by this job.
+		was called by this job, or if the job threw an "uncaught" error.
 	**/
 	private var __jobComplete:Tls<Bool> = new Tls();
 
 	/**
 		The job that is currently running on this thread, or the job that
-		triggered the ongoing `onComplete`, `onError`, or `onProgress` event.
-		Will be null in all other cases.
+		triggered the ongoing `onComplete`, `onError`, `onUncaughtError`, or
+		`onProgress` event. Will be null in all other cases.
 	**/
 	public var activeJob(get, set):Null<JobData>;
 	@:noCompletion private var __activeJob:Tls<JobData> = new Tls();
@@ -136,6 +136,24 @@ class WorkOutput
 			else
 			#end
 			__jobOutput.add(new ThreadEvent(ERROR, message, activeJob));
+		}
+	}
+
+	private function sendUncaughtError(message:Dynamic):Void
+	{
+		if (!__jobComplete.value)
+		{
+			__jobComplete.value = true;
+
+			#if (lime_threads && html5)
+			if (mode == MULTI_THREADED)
+			{
+				activeJob.doWork.makePortable();
+				Thread.returnMessage(new ThreadEvent(UNCAUGHT_ERROR, message, activeJob));
+			}
+			else
+			#end
+			__jobOutput.add(new ThreadEvent(UNCAUGHT_ERROR, message, activeJob));
 		}
 	}
 
@@ -351,6 +369,10 @@ class JobData
 		Sent by the background thread, indicating failure.
 	**/
 	var ERROR = "ERROR";
+	/**
+		Sent by the background thread, indicating failure.
+	**/
+	var UNCAUGHT_ERROR = "UNCAUGHT_ERROR";
 	/**
 		Sent by the background thread.
 	**/
