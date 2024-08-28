@@ -184,12 +184,7 @@ class ThreadPool extends WorkOutput
 	private var __activeJobs:JobList;
 
 	#if lime_threads
-	/**
-		The set of threads actively running a job.
-	**/
-	private var __activeThreads:Map<Int, Thread>;
-
-	/**
+		/**
 		A list of idle threads. Not to be confused with `idleThreads`, a public
 		variable equal to `__idleThreads.length`.
 	**/
@@ -222,8 +217,7 @@ class ThreadPool extends WorkOutput
 		#if lime_threads
 		if (this.mode == MULTI_THREADED)
 		{
-			__activeThreads = new Map();
-			__idleThreads = [];
+						__idleThreads = [];
 		}
 		#end
 	}
@@ -249,7 +243,7 @@ class ThreadPool extends WorkOutput
 			#if lime_threads
 			if (mode == MULTI_THREADED)
 			{
-				var thread:Thread = __activeThreads[job.id];
+				var thread:Thread = job.thread;
 				if (idleThreads < minThreads)
 				{
 					thread.sendMessage({event: CANCEL});
@@ -306,11 +300,10 @@ class ThreadPool extends WorkOutput
 	public function cancelJob(jobID:Int):Bool
 	{
 		#if lime_threads
-		var thread:Thread = __activeThreads[jobID];
+		var thread:Thread = __activeJobs.get(jobID).thread;
 		if (thread != null)
 		{
 			thread.sendMessage({event: CANCEL});
-			__activeThreads.remove(jobID);
 			__idleThreads.push(thread);
 		}
 		#end
@@ -410,7 +403,7 @@ class ThreadPool extends WorkOutput
 					return;
 				}
 
-				if (event.event != WORK || event.job == null)
+				if (event.event != WORK || event.doWork == null || event.id == null)
 				{
 					// Go idle.
 					event = null;
@@ -418,7 +411,7 @@ class ThreadPool extends WorkOutput
 				}
 
 				// Get to work.
-				output.activeJob = event.job;
+				output.activeJob = new JobData(event.doWork, event.state, event.id);
 
 				var interruption:Dynamic = null;
 				try
@@ -426,7 +419,7 @@ class ThreadPool extends WorkOutput
 					while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
 					{
 						output.workIterations.value++;
-						event.job.doWork.dispatch(event.job.state, output);
+						event.doWork.dispatch(event.state, output);
 					}
 				}
 				catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
@@ -495,8 +488,8 @@ class ThreadPool extends WorkOutput
 				#end
 
 				var thread:Thread = __idleThreads.length == 0 ? createThread(__executeThread) : __idleThreads.pop();
-				__activeThreads[job.id] = thread;
-				thread.sendMessage({event: WORK, job: job});
+				job.thread = thread;
+				thread.sendMessage({event: WORK, jobID: job.id, doWork: job.doWork, state: job.state});
 			}
 			#end
 		}
@@ -582,8 +575,7 @@ class ThreadPool extends WorkOutput
 					#if lime_threads
 					if (mode == MULTI_THREADED)
 					{
-						var thread:Thread = __activeThreads[activeJob.id];
-						__activeThreads.remove(activeJob.id);
+						var thread:Thread = activeJob.thread;
 
 						if (currentThreads > maxThreads || __jobQueue.length == 0 && currentThreads > minThreads)
 						{

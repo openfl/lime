@@ -331,10 +331,15 @@ class JobData
 	@:allow(lime.system.WorkOutput)
 	private var startTime:Float = 0;
 
+	#if lime_threads
 	@:allow(lime.system.WorkOutput)
-	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State)
+	private var thread:Thread;
+	#end
+
+	@:allow(lime.system.WorkOutput)
+	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State, ?id:Int)
 	{
-		id = nextID++;
+		this.id = id != null ? id : nextID++;
 		this.doWork = doWork;
 		this.state = state;
 	}
@@ -358,8 +363,11 @@ typedef ThreadEvent =
 {
 	var event:ThreadEventType;
 	@:optional var message:Dynamic;
-	@:optional var job:JobData;
 	@:optional var jobID:Int;
+
+	// Only for "WORK" events
+	@:optional var doWork:WorkFunction<State->WorkOutput->Void>;
+	@:optional var state:State;
 }
 
 class JSAsync
