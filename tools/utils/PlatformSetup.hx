@@ -366,8 +366,7 @@ class PlatformSetup
 					setupAndroid();
 
 				case "blackberry":
-
-				// setupBlackBerry ();
+					// setupBlackBerry ();
 
 				case "html5":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
@@ -392,15 +391,13 @@ class PlatformSetup
 					}
 
 				case "tizen":
-
-				// setupTizen ();
+					// setupTizen ();
 
 				case "webassembly", "wasm", "emscripten":
 					setupWebAssembly();
 
 				case "webos":
-
-				// setupWebOS ();
+					// setupWebOS ();
 
 				case "electron":
 					setupElectron();

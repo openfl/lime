@@ -224,11 +224,11 @@ class NativeAudioSource
 		var buffer = new UInt8Array(length);
 		var read = 0, total = 0, readMax;
 
-		for (i in 0...STREAM_NUM_BUFFERS-1)
+		for (i in 0...STREAM_NUM_BUFFERS - 1)
 		{
 			bufferTimeBlocks[i] = bufferTimeBlocks[i + 1];
 		}
-		bufferTimeBlocks[STREAM_NUM_BUFFERS-1] = vorbisFile.timeTell();
+		bufferTimeBlocks[STREAM_NUM_BUFFERS - 1] = vorbisFile.timeTell();
 
 		while (total < length)
 		{
@@ -405,9 +405,9 @@ class NativeAudioSource
 	{
 		// `setCurrentTime()` has side effects and is never safe to skip.
 		/* if (value == getCurrentTime())
-		{
-			return value;
-		} */
+			{
+				return value;
+		}*/
 
 		if (handle != null)
 		{

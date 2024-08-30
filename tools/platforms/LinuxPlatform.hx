@@ -228,7 +228,19 @@ class LinuxPlatform extends PlatformTarget
 			if (project.targetFlags.exists("hlc"))
 			{
 				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				var command = [compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,$ORIGIN", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "-L", applicationDirectory];
+				var command = [
+					compiler,
+					"-O3",
+					"-o",
+					executablePath,
+					"-std=c11",
+					"-Wl,-rpath,$ORIGIN",
+					"-I",
+					Path.combine(targetDirectory, "obj"),
+					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+					"-L",
+					applicationDirectory
+				];
 				for (file in System.readDirectory(applicationDirectory))
 				{
 					switch Path.extension(file)
@@ -437,7 +449,8 @@ class LinuxPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);

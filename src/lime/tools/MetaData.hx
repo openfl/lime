@@ -13,14 +13,15 @@ abstract MetaData({
 }) from Dynamic
 {
 	@:noCompletion
-	public static var expectedFields:MetaData = {
-		buildNumber: "",
-		company: "",
-		companyId: "",
-		companyUrl: "",
-		description: "",
-		packageName: "",
-		title: "",
-		version: ""
-	};
+	public static var expectedFields:MetaData =
+		{
+			buildNumber: "",
+			company: "",
+			companyId: "",
+			companyUrl: "",
+			description: "",
+			packageName: "",
+			title: "",
+			version: ""
+		};
 }

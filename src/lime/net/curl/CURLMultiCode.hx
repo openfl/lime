@@ -2,6 +2,7 @@ package lime.net.curl;
 
 #if (!lime_doc_gen || lime_curl)
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract CURLMultiCode(Int) from Int to Int from UInt /*to UInt*/
+
 {
 	/* please call curl_multi_perform() or curl_multi_socket*() soon */
 	var CALL_MULTI_PERFORM = -1;

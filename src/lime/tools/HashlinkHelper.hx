@@ -24,7 +24,8 @@ class HashlinkHelper
 				Sys.exit(1);
 				"";
 		};
-		if(is64) {
+		if (is64)
+		{
 			bindir += "64";
 		}
 
@@ -37,9 +38,8 @@ class HashlinkHelper
 			if (project.targetFlags.exists("hlc"))
 			{
 				var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
-				var includeDirectory = sys.FileSystem.exists(Path.combine(limeDirectory, "project"))
-					? Path.combine(limeDirectory, "project/lib/hashlink/src")
-					: Path.combine(limeDirectory,  "templates/bin/hl/include");
+				var includeDirectory = sys.FileSystem.exists(Path.combine(limeDirectory,
+					"project")) ? Path.combine(limeDirectory, "project/lib/hashlink/src") : Path.combine(limeDirectory, "templates/bin/hl/include");
 
 				System.copyFile(Path.combine(includeDirectory, "hlc.h"), Path.combine(targetDirectory, "obj/hlc.h"), null, false);
 				System.copyFile(Path.combine(includeDirectory, "hl.h"), Path.combine(targetDirectory, "obj/hl.h"), null, false);
@@ -118,7 +118,8 @@ class HashlinkHelper
 			var appMainCPath = Path.combine(targetDirectory, "obj/ApplicationMain.c");
 			var appMainCText = System.readText(appMainCPath);
 			var index = appMainCText.indexOf("#ifndef HL_MAKE");
-			appMainCText = appMainCText.substr(0, index) + "
+			appMainCText = appMainCText.substr(0, index)
+				+ "
 // --------- START LIME HL/C INJECTED CODE --------- //
 // undefine things to avoid Haxe field name conflicts
 #undef BIG_ENDIAN
@@ -148,7 +149,8 @@ class HashlinkHelper
 #undef __valid
 #undef WAIT_FAILED
 // ---------- END LIME HL/C INJECTED CODE ---------- //
-" + appMainCText.substr(index);
+"
+				+ appMainCText.substr(index);
 			System.writeText(appMainCText, appMainCPath);
 		}
 		else

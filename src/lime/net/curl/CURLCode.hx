@@ -2,6 +2,7 @@ package lime.net.curl;
 
 #if (!lime_doc_gen || lime_curl)
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract CURLCode(Int) from Int to Int from UInt to UInt
+
 {
 	var OK = 0;
 	var UNSUPPORTED_PROTOCOL = 1;

@@ -320,7 +320,8 @@ import lime.utils.Log;
 		@return	A new `Future` instance.
 		@see https://en.wikipedia.org/wiki/Cooperative_multitasking
 	**/
-	public static function withEventualValue<T>(work:WorkFunction<State -> Null<T>>, state:State, mode:ThreadMode = #if html5 SINGLE_THREADED #else MULTI_THREADED #end):Future<T>
+	public static function withEventualValue<T>(work:WorkFunction<State->Null<T>>, state:State,
+			mode:ThreadMode = #if html5 SINGLE_THREADED #else MULTI_THREADED #end):Future<T>
 	{
 		var future = new Future<T>();
 		var promise = new Promise<T>();
@@ -334,7 +335,7 @@ import lime.utils.Log;
 	/**
 		(For backwards compatibility.) Dispatches the given zero-argument function.
 	**/
-	@:noCompletion private static function dispatchWorkFunction<T>(work:WorkFunction<Void -> T>):Null<T>
+	@:noCompletion private static function dispatchWorkFunction<T>(work:WorkFunction<Void->T>):Null<T>
 	{
 		return work.dispatch();
 	}
@@ -356,7 +357,7 @@ import lime.utils.Log;
 	// It isn't safe to pass a promise object to a web worker, but since it's
 	// `@:generic` we can't store it as `Promise<Dynamic>`. Instead, we'll store
 	// the two methods we need.
-	private static var promises:Map<Int, {complete:Dynamic -> Dynamic, error:Dynamic -> Dynamic}> = new Map();
+	private static var promises:Map<Int, {complete:Dynamic->Dynamic, error:Dynamic->Dynamic}> = new Map();
 	#end
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
@@ -365,8 +366,10 @@ import lime.utils.Log;
 	private static function getPool(mode:ThreadMode):ThreadPool
 	{
 		#if lime_threads
-		if (mode == MULTI_THREADED) {
-			if(multiThreadPool == null) {
+		if (mode == MULTI_THREADED)
+		{
+			if (multiThreadPool == null)
+			{
 				multiThreadPool = new ThreadPool(minThreads, maxThreads, MULTI_THREADED);
 				multiThreadPool.onComplete.add(multiThreadPool_onComplete);
 				multiThreadPool.onError.add(multiThreadPool_onError);
@@ -374,7 +377,8 @@ import lime.utils.Log;
 			return multiThreadPool;
 		}
 		#end
-		if(singleThreadPool == null) {
+		if (singleThreadPool == null)
+		{
 			singleThreadPool = new ThreadPool(minThreads, maxThreads, SINGLE_THREADED);
 			singleThreadPool.onComplete.add(singleThreadPool_onComplete);
 			singleThreadPool.onError.add(singleThreadPool_onError);
@@ -383,9 +387,16 @@ import lime.utils.Log;
 	}
 
 	@:allow(lime.app.Future)
-	private static function run<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED, legacyCode:Bool = false):Void
+	private static function run<T>(work:WorkFunction<State->Null<T>>, state:State, promise:Promise<T>, mode:ThreadMode = MULTI_THREADED,
+			legacyCode:Bool = false):Void
 	{
-		var bundle = {work: work, state: state, promise: promise, legacyCode: legacyCode};
+		var bundle =
+			{
+				work: work,
+				state: state,
+				promise: promise,
+				legacyCode: legacyCode
+			};
 
 		#if lime_threads
 		if (mode == MULTI_THREADED)

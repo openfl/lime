@@ -378,7 +378,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		this[14] = -(zNear + zFar) * sz;
 		this[15] = 1;
 	}
-	
+
 	/**
 		Initializes this matrix with values for a perspective projection 
 		@param	fov	The field of view

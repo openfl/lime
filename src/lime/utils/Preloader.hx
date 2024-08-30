@@ -36,12 +36,12 @@ class Preloader #if flash extends Sprite #end
 	public var onProgress = new Event<Int->Int->Void>();
 
 	@:noCompletion private var bytesLoaded:Int;
-	@:noCompletion private var bytesLoadedCache = new ObjectMap<#if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
+	@:noCompletion private var bytesLoadedCache = new ObjectMap< #if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
 	@:noCompletion private var bytesLoadedCache2 = new Map<String, Int>();
 	@:noCompletion private var bytesTotal:Int;
 	@:noCompletion private var bytesTotalCache = new Map<String, Int>();
 	@:noCompletion private var initLibraryNames:Bool;
-	@:noCompletion private var libraries:Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>;
+	@:noCompletion private var libraries:Array< #if !disable_preloader_assets AssetLibrary #else Dynamic #end>;
 	@:noCompletion private var libraryNames:Array<String>;
 	@:noCompletion private var loadedLibraries:Int;
 	@:noCompletion private var loadedStage:Bool;
@@ -60,7 +60,7 @@ class Preloader #if flash extends Sprite #end
 		bytesLoaded = 0;
 		bytesTotal = 0;
 
-		libraries = new Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>();
+		libraries = new Array< #if !disable_preloader_assets AssetLibrary #else Dynamic #end>();
 		libraryNames = new Array<String>();
 
 		onProgress.add(update);
@@ -296,8 +296,7 @@ class Preloader #if flash extends Sprite #end
 		}
 		#end
 
-		if (!simulateProgress #if flash && loadedStage #end
-			&& loadedLibraries == (libraries.length + libraryNames.length))
+		if (!simulateProgress #if flash && loadedStage #end && loadedLibraries == (libraries.length + libraryNames.length))
 		{
 			if (!preloadComplete)
 			{

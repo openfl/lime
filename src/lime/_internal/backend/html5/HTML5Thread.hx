@@ -1,7 +1,6 @@
 package lime._internal.backend.html5;
 
 import lime.app.Event;
-
 #if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -30,7 +29,8 @@ import lime.app.Application;
 /**
 	Emulates much of the `sys.thread.Thread` API using web workers.
 **/
-class HTML5Thread {
+class HTML5Thread
+{
 	private static var __current:HTML5Thread = new HTML5Thread(Lib.global.location.href);
 	private static var __isWorker:Bool #if !macro = #if !haxe4 untyped __js__ #else Syntax.code #end ('typeof window == "undefined"') #end;
 	private static var __messages:List<Dynamic> = new List();
@@ -80,8 +80,7 @@ class HTML5Thread {
 		#if !macro
 		// Find the URL of the primary JS file.
 		var url:URL = new URL(__current.__href);
-		url.pathname = url.pathname.substr(0, url.pathname.lastIndexOf("/") + 1)
-			+ Application.current.meta["file"] + ".js";
+		url.pathname = url.pathname.substr(0, url.pathname.lastIndexOf("/") + 1) + Application.current.meta["file"] + ".js";
 
 		// Use the hash to distinguish workers.
 		if (url.hash.length > 0) url.hash += "_";
@@ -108,9 +107,9 @@ class HTML5Thread {
 	private static inline function zeroDelay():Promise<Dynamic>
 	{
 		return new Promise<Dynamic>(function(resolve, _):Void
-			{
-				js.Lib.global.setTimeout(resolve);
-			});
+		{
+			js.Lib.global.setTimeout(resolve);
+		});
 	}
 	#end
 
@@ -128,8 +127,8 @@ class HTML5Thread {
 		// suspended, so we must insert `await` even if `block` is false.
 		// TODO: find a more efficient way to read messages.
 		var zeroDelayExpr:Expr = macro @:privateAccess
-			$jsCode("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay())
-			.then(function(_) return lime._internal.backend.html5.HTML5Thread.__messages.pop());
+			$jsCode("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay()).then(function(_) return
+				lime._internal.backend.html5.HTML5Thread.__messages.pop());
 
 		switch (block.expr)
 		{
@@ -138,15 +137,18 @@ class HTML5Thread {
 			default:
 				return macro if ($block && @:privateAccess lime._internal.backend.html5.HTML5Thread.__messages.isEmpty())
 				{
-					$jsCode("await {0}", new #if haxe4 js.lib.Promise #else js.Promise #end
+					$jsCode("await {0}", new
+						#if haxe4
+						js.lib.Promise
+						#else
+						js.Promise
+						#end
 						(function(resolve, _):Void
 						{
 							@:privateAccess lime._internal.backend.html5.HTML5Thread.__resolveMethods.add(resolve);
-						}
-					));
+						}));
 				}
-				else
-					$zeroDelayExpr;
+				else $zeroDelayExpr;
 		}
 	}
 
@@ -294,29 +296,31 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 		as the `initialExpr`. For instance, `array[i].foo.bar` will result in
 		`chain == ["foo", "bar"]` and `initialExpr == array[i]`.
 	**/
-	private static function parseFieldChain(chain:Expr):{ chain:Array<String>, ?initialExpr:Expr }
+	private static function parseFieldChain(chain:Expr):{chain:Array<String>, ?initialExpr:Expr}
 	{
-		switch(chain.expr)
+		switch (chain.expr)
 		{
 			case EConst(CIdent(ident)):
-				return { chain: [ident] };
+				return {chain: [ident]};
 			case EField(e, field):
 				var out = parseFieldChain(e);
 				out.chain.push(field);
 				return out;
 			default:
-				return { chain: [], initialExpr: chain };
+				return {chain: [], initialExpr: chain};
 		}
 	}
 	#end
 
 	// `@:from` would cause errors during the macro phase.
-	@:noCompletion @:dox(hide) #if !macro @:from #end
+	@:noCompletion
+	@:dox(hide) #if !macro @:from #end
 	public static #if !macro macro #end function fromFunction(func:ExprOf<haxe.Constraints.Function>)
 	{
-		var defaultOutput:Expr = macro {
-			func: $func
-		};
+		var defaultOutput:Expr = macro
+			{
+				func: $func
+			};
 
 		if (!Context.defined("lime-threads"))
 		{
@@ -343,11 +347,12 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 			var classPath:String = matcher.matched(1);
 			var functionName:String = matcher.matched(2);
 
-			return macro {
-				func: $func,
-				classPath: $v{classPath},
-				functionName: $v{functionName}
-			};
+			return macro
+				{
+					func: $func,
+					classPath: $v{classPath},
+					functionName: $v{functionName}
+				};
 		}
 	}
 
@@ -416,7 +421,7 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 			else
 			{
 				#if !macro
-				this.sourceCode = (cast this.func:Function).toString();
+				this.sourceCode = (cast this.func : Function).toString();
 				if (this.sourceCode.indexOf("[native code]") < 0)
 				{
 					// All set.
@@ -456,7 +461,8 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 	Stores the class path and function name of a function, so that it can be
 	found again in the background thread.
 **/
-typedef WorkFunctionData<T:haxe.Constraints.Function> = {
+typedef WorkFunctionData<T:haxe.Constraints.Function> =
+{
 	@:optional var classPath:String;
 	@:optional var functionName:String;
 	@:optional var sourceCode:String;
@@ -475,17 +481,15 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 	private static inline function skip(object:Dynamic):Bool
 	{
 		// Skip `null` for obvious reasons.
-		return object == null
-			// No need to preserve a primitive type.
-			|| !#if (haxe_ver >= 4.2) Std.isOfType #else untyped __js__ #end (object, Object)
-			// Objects with this field have been deliberately excluded.
-			|| Reflect.field(object, SKIP_FIELD) == true
-			// A `Uint8Array` (the type used by `haxe.io.Bytes`) can have
-			// thousands or millions of fields, which can take entire seconds to
-			// enumerate. This also applies to `Int8Array`, `Float64Array`, etc.
-			|| object.byteLength != null && object.byteOffset != null
-				&& object.buffer != null
-				&& #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end);
+		return object == null // No need to preserve a primitive type.
+			|| !#if (haxe_ver >= 4.2) Std.isOfType #else untyped __js__ #end (object, Object) // Objects with this field have been deliberately excluded.
+			|| Reflect.field(object, SKIP_FIELD) == true // A `Uint8Array` (the type used by `haxe.io.Bytes`) can have
+				// thousands or millions of fields, which can take entire seconds to
+				// enumerate. This also applies to `Int8Array`, `Float64Array`, etc.
+			|| object.byteLength != null
+			&& object.byteOffset != null
+			&& object.buffer != null
+			&& #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (object.buffer, #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #end);
 	}
 	#end
 
@@ -556,7 +560,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Recurse.
 		for (child in Object.values(this))
 		{
-			(child:Message).preserveClasses();
+			(child : Message).preserveClasses();
 		}
 		#end
 	}
@@ -600,9 +604,8 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		{
 			try
 			{
-				Object.setPrototypeOf(this,
-					#if haxe4 Syntax.code #else untyped __js__ #end
-						("$hxClasses[{0}].prototype", Reflect.field(this, PROTOTYPE_FIELD)));
+				Object.setPrototypeOf(this, #if haxe4 Syntax.code #else untyped __js__ #end ("$hxClasses[{0}].prototype", Reflect.field(this,
+					PROTOTYPE_FIELD)));
 			}
 			catch (e:Dynamic) {}
 		}
@@ -610,7 +613,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Recurse.
 		for (child in Object.values(this))
 		{
-			(child:Message).restoreClasses(flag);
+			(child : Message).restoreClasses(flag);
 		}
 		#end
 	}
@@ -620,13 +623,15 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 typedef Worker = Dynamic;
 typedef URL = Dynamic;
 class Object {}
+
 class Browser
 {
 	public static var window:Dynamic;
 }
+
 class Lib
 {
-	public static var global:Dynamic = { location: {} };
+	public static var global:Dynamic = {location: {}};
 }
 #end
 
@@ -641,15 +646,19 @@ class Lib
 **/
 // Mozilla uses "transferable" and "transferrable" interchangeably, but the HTML
 // specification only uses the former.
+
 @:forward
-abstract Transferable(Dynamic) #if macro from Dynamic
-	#else from lime.utils.ArrayBuffer from js.html.MessagePort from js.html.ImageBitmap #end
-{
-}
+abstract Transferable(Dynamic)
+	#if macro from Dynamic
+	#else
+	from lime.utils.ArrayBuffer from js.html.MessagePort from js.html.ImageBitmap
+	#end
+{}
 
 #if (!haxe4 && !macro)
 @:native("Object")
-extern class Object {
+extern class Object
+{
 	static function setPrototypeOf<T:{}>(obj:T, prototype:Null<{}>):T;
 	@:pure static function values(obj:{}):Array<Dynamic>;
 	static var prototype(default, never):Dynamic;

@@ -480,7 +480,8 @@ class HTML5Window
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
 		var text = Clipboard.text;
-		if (text == null) {
+		if (text == null)
+		{
 			text = "";
 		}
 		event.clipboardData.setData("text/plain", text);
@@ -1239,7 +1240,6 @@ class HTML5Window
 				textInput.removeEventListener('paste', handlePasteEvent, true);
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
-
 			}
 		}
 

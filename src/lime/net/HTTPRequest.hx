@@ -160,10 +160,13 @@ public function load(uri:String = null):Future<T>
 	}
 }
 
-@:noCompletion class _HTTPRequestErrorResponse<T> {
+@:noCompletion class _HTTPRequestErrorResponse<T>
+{
 	public var error:Dynamic;
 	public var responseData:T;
-	public function new(error:Dynamic, responseData:T) {
+
+	public function new(error:Dynamic, responseData:T)
+	{
 		this.error = error;
 		this.responseData = responseData;
 	}

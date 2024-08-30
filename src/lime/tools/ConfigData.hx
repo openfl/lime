@@ -170,7 +170,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		return defaultValue;
 	}
 
-	public function getKeyValueArray(id:String, defaultValues:Dynamic = null):Array<{ key:Dynamic, value:Dynamic }>
+	public function getKeyValueArray(id:String, defaultValues:Dynamic = null):Array<{key:Dynamic, value:Dynamic}>
 	{
 		var values = {};
 		if (defaultValues != null)
@@ -181,7 +181,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		var data = get(id);
 		for (key in Reflect.fields(data))
 		{
-			if (!StringTools.endsWith (key, ARRAY))
+			if (!StringTools.endsWith(key, ARRAY))
 			{
 				Reflect.setField(values, key, Reflect.field(data, key));
 			}
@@ -190,7 +190,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		var pairs = [];
 		for (key in Reflect.fields(values))
 		{
-			pairs.push({ key: key, value: Reflect.field(values, key) });
+			pairs.push({key: key, value: Reflect.field(values, key)});
 		}
 
 		return pairs;

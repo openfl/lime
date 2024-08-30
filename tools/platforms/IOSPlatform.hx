@@ -464,7 +464,8 @@ class IOSPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);

@@ -858,7 +858,9 @@ class System
 	}
 }
 
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) private enum #else @:enum
+
+private #end abstract SystemDirectory(Int) from Int to Int from UInt to UInt
 {
 	var APPLICATION = 0;
 	var APPLICATION_STORAGE = 1;

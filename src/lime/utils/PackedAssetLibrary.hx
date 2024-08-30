@@ -241,7 +241,7 @@ import flash.media.Sound;
 			}
 			else
 			{
-				var basePath = rootPath == null || rootPath == "" ?  "" : Path.addTrailingSlash(rootPath);
+				var basePath = rootPath == null || rootPath == "" ? "" : Path.addTrailingSlash(rootPath);
 				var libPath = getPath(id);
 				if (libPath == null) libPath = id;
 

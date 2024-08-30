@@ -118,7 +118,9 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-		var args = [hxml, "-D", "webassembly", "-D", "wasm", "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
+		var args = [
+			hxml, "-D", "webassembly", "-D", "wasm", "-D", "emscripten", "-D", "webgl", "-D", "static_link"
+		];
 
 		if (Log.verbose)
 		{
@@ -190,7 +192,9 @@ class WebAssemblyPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("final") || project.defines.exists("disable-exception-catching") || project.targetFlags.exists("disable-exception-catching"))
+		if (project.targetFlags.exists("final")
+			|| project.defines.exists("disable-exception-catching")
+			|| project.targetFlags.exists("disable-exception-catching"))
 		{
 			args.push("-s");
 			args.push("DISABLE_EXCEPTION_CATCHING=1");
@@ -363,7 +367,8 @@ class WebAssemblyPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);

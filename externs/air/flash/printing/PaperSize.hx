@@ -1,7 +1,9 @@
 package flash.printing;
 
 @:native("flash.printing.PaperSize")
-#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract PaperSize(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern
+@:enum #end abstract PaperSize(String)
+
 {
 	var A4 = "a4";
 	var A5 = "a5";

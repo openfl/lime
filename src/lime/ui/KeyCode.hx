@@ -4,6 +4,7 @@ import lime._internal.backend.native.NativeCFFI;
 
 @:access(lime._internal.backend.native.NativeCFFI)
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract KeyCode(Int) from Int to Int from UInt to UInt
+
 {
 	var UNKNOWN = 0x00;
 	var BACKSPACE = 0x08;

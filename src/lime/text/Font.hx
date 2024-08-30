@@ -190,7 +190,9 @@ class Font
 	{
 		#if (lime_cffi && !macro)
 		#if hl
-		return [for (index in NativeCFFI.lime_font_get_glyph_indices(src, characters)) new Glyph(index)];
+		return [
+			for (index in NativeCFFI.lime_font_get_glyph_indices(src, characters)) new Glyph(index)
+		];
 		#else
 		return NativeCFFI.lime_font_get_glyph_indices(src, characters);
 		#end

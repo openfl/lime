@@ -139,7 +139,7 @@ class EventMacro
 							args: args,
 							expr: dispatch,
 							params: [],
-							ret: macro:Void
+							ret: macro :Void
 						}),
 					pos: pos
 				});

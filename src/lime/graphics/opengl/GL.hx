@@ -2636,6 +2636,7 @@ class GL
 }
 
 @:dox(hide) @:noCompletion #if (haxe_ver >= 4.0) enum #else @:enum #end abstract GLObjectType(Int) to Int
+
 {
 	var UNKNOWN = 0;
 	var PROGRAM = 1;

@@ -366,15 +366,12 @@ class ImageDataUtil
 								}
 								else
 								{
-									destPixel.r = RGBA.__clamp[
-										Math.round((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)
-									];
-									destPixel.g = RGBA.__clamp[
-										Math.round((sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)
-									];
-									destPixel.b = RGBA.__clamp[
-										Math.round((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)
-									];
+									destPixel.r = RGBA.__clamp[Math.round((sourcePixel.r * sourceAlpha +
+										destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+									destPixel.g = RGBA.__clamp[Math.round((sourcePixel.g * sourceAlpha +
+										destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+									destPixel.b = RGBA.__clamp[Math.round((sourcePixel.b * sourceAlpha +
+										destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 									destPixel.a = RGBA.__clamp[Math.round(blendAlpha * 255.0)];
 								}
 
@@ -454,15 +451,12 @@ class ImageDataUtil
 									oneMinusSourceAlpha = 1 - sourceAlpha;
 									blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
 
-									destPixel.r = RGBA.__clamp[
-										Math.round((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)
-									];
-									destPixel.g = RGBA.__clamp[
-										Math.round((sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)
-									];
-									destPixel.b = RGBA.__clamp[
-										Math.round((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)
-									];
+									destPixel.r = RGBA.__clamp[Math.round((sourcePixel.r * sourceAlpha +
+										destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+									destPixel.g = RGBA.__clamp[Math.round((sourcePixel.g * sourceAlpha +
+										destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
+									destPixel.b = RGBA.__clamp[Math.round((sourcePixel.b * sourceAlpha +
+										destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 									destPixel.a = RGBA.__clamp[Math.round(blendAlpha * 255.0)];
 
 									destPixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
@@ -1749,7 +1743,9 @@ private class ImageDataView
 }
 
 @:noCompletion @:dox(hide)
-#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ThresholdOperation(Int) from Int to Int
+#if (haxe_ver >= 4.0) private enum #else @:enum
+
+private #end abstract ThresholdOperation(Int) from Int to Int
 {
 	var NOT_EQUALS = 0;
 	var EQUALS = 1;

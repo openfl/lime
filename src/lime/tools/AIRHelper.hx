@@ -16,7 +16,6 @@ class AIRHelper
 		switch (targetPlatform)
 		{
 			case MAC:
-
 				if (airTarget == "bundle")
 				{
 					extension = ".app";
@@ -49,7 +48,8 @@ class AIRHelper
 							exportMethod = m;
 						}
 					}
-					if (exportMethod == null && project.targetFlags.exists("final")) {
+					if (exportMethod == null && project.targetFlags.exists("final"))
+					{
 						exportMethod = "appstore";
 					}
 

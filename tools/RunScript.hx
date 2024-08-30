@@ -202,17 +202,17 @@ class RunScript
 		if (args.indexOf("-eval") >= 0)
 		{
 			args.remove("-eval");
-			Log.info("Experimental: executing `lime " + args.slice(0, args.length - 1).join(" ")
-				+ "` using Eval (https://haxe.org/blog/eval/)");
+			Log.info("Experimental: executing `lime " + args.slice(0, args.length - 1).join(" ") + "` using Eval (https://haxe.org/blog/eval/)");
 
 			var args = [
-				"-D", "lime",
-				"-cp", "tools",
-				"-cp", "tools/platforms",
-				"-cp", "src",
-				"-lib", "format",
-				"-lib", "hxp",
-				"--run", "CommandLineTools"].concat(args);
+				   "-D",            "lime",
+				  "-cp",           "tools",
+				  "-cp", "tools/platforms",
+				  "-cp",             "src",
+				 "-lib",          "format",
+				 "-lib",             "hxp",
+				"--run", "CommandLineTools"
+			].concat(args);
 			Sys.exit(runCommand("", "haxe", args));
 		}
 

@@ -2,6 +2,7 @@ package lime.net.curl;
 
 #if (!lime_doc_gen || lime_curl)
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract CURLInfo(Int) from Int to Int from UInt to UInt
+
 {
 	var NONE = 0;
 	var EFFECTIVE_URL = 0x100000 + 1;

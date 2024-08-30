@@ -1,6 +1,7 @@
 package lime.net;
 
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract HTTPRequestMethod(String) from String to String
+
 {
 	public var DELETE = "DELETE";
 	public var GET = "GET";
