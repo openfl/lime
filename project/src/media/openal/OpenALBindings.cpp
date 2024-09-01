@@ -18,6 +18,7 @@
 #include <utils/ArrayBufferView.h>
 #include <list>
 #include <map>
+#include <system/ValuePointer.h>
 
 
 namespace lime {
@@ -34,6 +35,9 @@ namespace lime {
 	std::map<void*, void*> alcObjects;
 	Mutex al_gc_mutex;
 
+	#ifdef LIME_OPENALSOFT
+	static ValuePointer* alSoftEventCallback;
+	#endif
 
 	#ifdef LIME_OPENALSOFT
 	void lime_al_delete_auxiliary_effect_slot (value aux);
@@ -3504,6 +3508,106 @@ namespace lime {
 
 	}
 
+	void lime_alc_event_control_soft(int count, value events, bool enable) {
+		// val_check_function(callback, 1);
+
+		#ifdef LIME_OPENALSOFT
+		ALCboolean alcEnabled = enable ? ALC_TRUE : ALC_FALSE;
+
+		printf("EVENT CONTROL FUNC CALLED!\n");
+
+		if (!val_is_null (events)) {
+
+			int size = val_array_size (events);
+			ALenum* eventsArray = new ALenum[size];
+
+			for (int i = 0; i < size; ++i) {
+
+				eventsArray[i] = (ALenum)val_int (val_array_i(events, i));
+
+			}
+
+			alcEventControlSOFT ((ALsizei)count, eventsArray, alcEnabled);
+			delete[] eventsArray;
+
+		}
+		#endif
+
+	}
+
+	#ifdef LIME_OPENALSOFT
+	void ALC_APIENTRY event_callback_soft(ALCenum eventType, ALCenum deviceType,
+    	ALCdevice* device, ALCsizei length, const ALCchar* message, void* userParam) ALC_API_NOEXCEPT17 {
+
+		printf("Callback called entry\n");
+
+		if (alSoftEventCallback) {
+
+			printf("alSoftEventCallback exists\n");
+
+			printf("EVENT 1[%d] 2[%d] 4[%d], 5[%s]\n", eventType, deviceType, length, message);
+
+			//alSoftEventCallback->Call ((void*)(uintptr_t)eventType, (void*)(uintptr_t)deviceType, (void*)device,
+			//	(void*)(uintptr_t)length, (void*)message, userParam);
+
+			// somehow need to call this on main thread
+			// TODO:
+			// Perhaps instead of trying to call the function from C++ we can store the event data
+			// That can later get retrieved by haxe
+			// Once an event occurs it gets saved into a variable
+			// Haxe AudioManager (or something else in the lower level that has an update loop)
+			// regularly queues a function to see if theres anything in said variable
+			// If yes then it dispatches the event on the Haxe side and nulls the variable
+			// Otherwise it just ignores it
+
+			alSoftEventCallback->Call ();
+		}
+	}
+	#endif
+
+	void lime_alc_event_callback_soft(value device, value callback) {
+		// val_check_function(callback, 1);
+
+		#ifdef LIME_OPENALSOFT
+		printf("EVENT setup func called!\n");
+
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alSoftEventCallback = new ValuePointer (callback);
+
+		//TODO: What is userParam?
+		alcEventCallbackSOFT (event_callback_soft, NULL);
+		#endif
+
+	}
+
+	// HL_PRIM void HL_NAME(hl_alc_event_callback_soft) (HL_CFFIPointer* device, PENIS fuck) {
+
+	// 	#ifdef LIME_OPENALSOFT
+	// 	ALCdevice* alcDevice = (ALCdevice*) device->ptr;
+	// 	void* alcEventCallbackSOFT = alcGetProcAddress(alcDevice, "alcEventCallbackSOFT");
+
+	// 	alcEventCallbackSOFT(callback, NULL);
+	// 	#endif
+
+	// }
+
+	bool lime_alc_reopen_device_soft(value device, HxString devicename, int attributes) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		//const ALCint* attribs = attributes;
+		// ALCboolean (ALC_APIENTRY* alcReopenDeviceSOFT)(ALCdevice *device, const ALCchar *name, const ALCint *attribs);
+		// alcReopenDeviceSOFT = (ALCboolean (ALC_APIENTRY*)(ALCdevice*, const ALCchar*, const ALCint*)) alcGetProcAddress(alcDevice, "alcReopenDeviceSOFT");
+
+		ALCboolean result = alcReopenDeviceSOFT (alcDevice, devicename.__s, NULL);
+
+		return result == ALC_TRUE;
+		#else
+		return false;
+		#endif
+
+	}
+
 
 
 
@@ -3621,6 +3725,9 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_process_context);
 	DEFINE_PRIME1v (lime_alc_resume_device);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
+	DEFINE_PRIME3v (lime_alc_event_control_soft);
+	DEFINE_PRIME2v (lime_alc_event_callback_soft);
+	DEFINE_PRIME3 (lime_alc_reopen_device_soft);
 
 
 	#define _TBYTES _OBJ (_I32 _BYTES)

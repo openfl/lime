@@ -25,6 +25,7 @@ namespace lime {
 			void* Call (void* arg0, void* arg1, void* arg2);
 			void* Call (void* arg0, void* arg1, void* arg2, void* arg3);
 			void* Call (void* arg0, void* arg1, void* arg2, void* arg3, void* arg4);
+			void* Call (void* arg0, void* arg1, void* arg2, void* arg3, void* arg4, void* arg5);
 			void* Get () const;
 			bool IsCFFIValue ();
 			bool IsHLValue ();

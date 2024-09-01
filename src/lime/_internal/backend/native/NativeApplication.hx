@@ -173,6 +173,8 @@ class NativeApplication
 			case UPDATE:
 				updateTimer();
 
+				AudioManager.update();
+
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 
 			default:

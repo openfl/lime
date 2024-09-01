@@ -176,6 +176,7 @@
             <compilerflag value="-D_CRT_SECURE_NO_WARNINGS" />
             <compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" />
             <compilerflag value="/wd4098" />
+            <compilerflag value="/EHsc" />
             <compilerflag value="-Dstrcasecmp=_stricmp" />
             <compilerflag value="-Dstrncasecmp=_strnicmp" />
             <!-- TODO: I kept getting errors in alnumeric.h and this flag solved it. -->

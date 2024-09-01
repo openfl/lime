@@ -37,6 +37,49 @@ class AudioManager
 					var ctx = alc.createContext(device);
 					alc.makeContextCurrent(ctx);
 					alc.processContext(ctx);
+					trace(device);
+
+					// AL_STOP_SOURCES_ON_DISCONNECT_SOFT
+					alc.disable(AL.STOP_SOURCES_ON_DISCONNECT_SOFT);
+
+					// todo: check if alcExtension ALC_SOFT_system_events is present
+					// alc.eventCallbackSOFT(device, () ->
+					// {
+					// 	Sys.println("what the !");
+					// });
+
+					// var timer = new Timer(100);
+					// timer.run = function()
+					// {
+					// 	// ALC_CONNECTED = 0x313
+					// 	// Checks if device connected
+					// 	var a = alc.getIntegerv(0x313, 1, device);
+					// 	trace(a);
+					// 	if (a[0] == 0)
+					// 	{
+					// 		timer.stop();
+					// 		trace(device);
+					// 		var m = new sys.thread.Mutex();
+					// 		m.acquire();
+					// 		var p = alc.reopenDeviceSOFT(device, null, 0);
+					// 		m.release();
+					// 		trace(device);
+					// 		trace(p);
+					// 	}
+					// }
+
+					// new Timer(1000).run = () ->
+					// {
+					// 	trace("AL: " + alc.getError() + " , " + alc.getErrorString());
+					// 	trace("ALC: " + alc.getError(device) + " , " + alc.getErrorString(device));
+					// }
+
+					ALC.eventControlSOFT(3, [
+						ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+						ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
+						ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
+					], true);
+					ALC.eventCallbackSOFT((device), __temp__SoftCallback);
 				}
 				#end
 			}
@@ -50,6 +93,46 @@ class AudioManager
 				NativeCFFI.lime_al_cleanup();
 			};
 			#end
+		}
+	}
+
+	static function __temp__SoftCallback():Void
+	{
+		trace("Hello from Haxe !!!");
+	}
+
+	static var delayTimer:Float;
+	static var auxDirty:Bool = false;
+	public static function update():Void
+	{
+		if (!auxDirty)
+		{
+
+			var alc = AudioManager.context.openal;
+			var device = alc.getContextsDevice(alc.getCurrentContext());
+			var connected = alc.getIntegerv(0x313, 1, device)[0];
+			if (connected == 0)
+			{
+				trace("Disconnected!");
+				auxDirty = true;
+			}
+
+		}
+		else
+		{
+			delayTimer += 0.016;
+			trace(delayTimer);
+
+			if (delayTimer >= 3.0)
+			{
+				var alc = AudioManager.context.openal;
+				var device = alc.getContextsDevice(alc.getCurrentContext());
+
+				auxDirty = false;
+				delayTimer = 0.0;
+				var p = alc.reopenDeviceSOFT(device, null, 0);
+				trace(p);
+			}
 		}
 	}
 
@@ -73,6 +156,8 @@ class AudioManager
 
 	public static function shutdown():Void
 	{
+		trace("shutdown");
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL)
 		{
@@ -98,6 +183,8 @@ class AudioManager
 
 	public static function suspend():Void
 	{
+		trace("suspend");
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL)
 		{
