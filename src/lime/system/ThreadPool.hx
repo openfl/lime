@@ -15,12 +15,18 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 #end
 
 /**
-	A simple and thread-safe way to run a one or more asynchronous jobs. It
-	manages a queue of jobs, starting new ones once the old ones are done.
+	A thread pool executes one or more functions asynchronously.
 
-	It can also keep a certain number of threads (configurable via `minThreads`)
-	running in the background even when no jobs are available. This avoids the
-	not-insignificant overhead of stopping and restarting threads.
+	In multi-threaded mode, jobs run on background threads. In HTML5, this means
+	using web workers, which impose additional restrictions (see below). In
+	single-threaded mode, jobs run between frames on the main thread. To avoid
+	blocking, these jobs should only do a small amount of work at a time.
+
+	In multi-threaded mode, the pool spins up new threads as jobs arrive (up to
+	`maxThreads`). If too many jobs arrive at once, it places them in a queue to
+	run when threads open up. If you run jobs frequently but not constantly, you
+	can also set `minThreads` to keep a certain number of threads alive,
+	avoiding the overhead of repeatedly spinning them up.
 
 	Sample usage:
 
@@ -33,13 +39,20 @@ import lime._internal.backend.html5.HTML5Thread as Thread;
 			threadPool.run(processFile, url);
 		}
 
-	For thread safety, the worker function should only give output through the
-	`WorkOutput` object it receives. Calling `output.sendComplete()` will
-	trigger an `onComplete` event on the main thread.
+	Guidelines to make your code work on all targets and configurations:
 
-	@see `lime.system.WorkOutput.WorkFunction` for important information about
-	     `doWork`.
-	@see https://player03.com/openfl/threads-guide/ for a tutorial.
+	- For thread safety and web worker compatibility, your work function should
+	  only return data through the `WorkOutput` object it receives.
+	- For web worker compatibility, you should only send data to your work
+	  function via the `State` object. But since this can be any object, you can
+	  put an arbitrary amount of data there.
+	- For web worker compatibility, your work function must be static, and you
+	  can't `bind()` any extra arguments.
+	- For single-threaded performance, your function should only do a small
+	  amount of work at a time. Store progress in the `State` object so you can
+	  pick up where you left off. You don't have to worry about timing: just aim
+	  to take a small fraction of the frame's time, and `ThreadPool` will keep
+	  running the function until enough time passes.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -65,11 +78,13 @@ class ThreadPool extends WorkOutput
 	/**
 		A rough estimate of how much of the app's time should be spent on
 		single-threaded `ThreadPool`s. For instance, the default value of 1/2
-		means they will aim to take up about half the app's available time every
-		frame. See `workIterations` for instructions to improve the accuracy of
-		this estimate.
+		means they'll use about half the app's available time every frame.
+
+		The accuracy of this estimate depends on how often your work functions
+		return. If you find that a `ThreadPool` is taking longer than scheduled,
+		try making the work function return more often.
 	**/
-	public static var workLoad:Float = 1/2;
+	public static var workLoad:Float = 1 / 2;
 
 	/**
 		__Access this only from the main thread.__
@@ -90,17 +105,6 @@ class ThreadPool extends WorkOutput
 		return true;
 		#end
 	}
-
-	/**
-		Indicates that no further events will be dispatched.
-	**/
-	public var canceled(default, null):Bool = false;
-
-	/**
-		Indicates that the latest job finished successfully, and no other job
-		has been started/is ongoing.
-	**/
-	public var completed(default, null):Bool = false;
 
 	/**
 		The number of live threads in this pool, including both active and idle
@@ -126,13 +130,6 @@ class ThreadPool extends WorkOutput
 
 		The maximum number of live threads this pool can have at once. If this
 		value decreases, active jobs will still be allowed to finish.
-
-		You can set this in single-threaded mode, but it's rarely useful. For
-		instance, suppose you have six jobs, each of which takes about a second.
-		If you leave `maxThreads` at 1, then one will finish every second for
-		six seconds. If you set `maxThreads = 6`, then none will finish for five
-		seconds, and then they'll all finish at once. The total duration is
-		unchanged, but none of them finish early.
 	**/
 	public var maxThreads:Int;
 
@@ -140,10 +137,8 @@ class ThreadPool extends WorkOutput
 		__Set this only from the main thread.__
 
 		The number of threads that will be kept alive at all times, even if
-		there's no work to do. Setting this won't add new threads, it'll just
-		keep existing ones running.
-
-		Has no effect in single-threaded mode.
+		there's no work to do. Setting this won't immediately spin up new
+		threads; you must still call `run()` to get them started.
 	**/
 	public var minThreads:Int;
 
@@ -152,16 +147,19 @@ class ThreadPool extends WorkOutput
 		Dispatched at most once per job.
 	**/
 	public var onComplete(default, null) = new Event<Dynamic->Void>();
+
 	/**
 		Dispatched on the main thread when `doWork` calls `sendError()`.
 		Dispatched at most once per job.
 	**/
 	public var onError(default, null) = new Event<Dynamic->Void>();
+
 	/**
 		Dispatched on the main thread when `doWork` calls `sendProgress()`. May
 		be dispatched any number of times per job.
 	**/
 	public var onProgress(default, null) = new Event<Dynamic->Void>();
+
 	/**
 		Dispatched on the main thread when a new job begins. Dispatched exactly
 		once per job.
@@ -180,6 +178,7 @@ class ThreadPool extends WorkOutput
 
 	@:deprecated("Instead pass the callback to ThreadPool.run().")
 	@:noCompletion @:dox(hide) public var doWork(get, never):PseudoEvent;
+
 	private var __doWork:WorkFunction<State->WorkOutput->Void>;
 
 	private var __activeJobs:JobList;
@@ -188,13 +187,13 @@ class ThreadPool extends WorkOutput
 	/**
 		The set of threads actively running a job.
 	**/
-	private var __activeThreads:Map<Int, Thread> = new Map();
+	private var __activeThreads:Map<Int, Thread>;
 
 	/**
 		A list of idle threads. Not to be confused with `idleThreads`, a public
 		variable equal to `__idleThreads.length`.
 	**/
-	private var __idleThreads:List<Thread> = new List();
+	private var __idleThreads:Array<Thread>;
 	#end
 
 	private var __jobQueue:JobList = new JobList();
@@ -219,6 +218,14 @@ class ThreadPool extends WorkOutput
 
 		this.minThreads = minThreads;
 		this.maxThreads = maxThreads;
+
+		#if lime_threads
+		if (this.mode == MULTI_THREADED)
+		{
+			__activeThreads = new Map();
+			__idleThreads = [];
+		}
+		#end
 	}
 
 	/**
@@ -245,12 +252,12 @@ class ThreadPool extends WorkOutput
 				var thread:Thread = __activeThreads[job.id];
 				if (idleThreads < minThreads)
 				{
-					thread.sendMessage(new ThreadEvent(WORK, null, null));
+					thread.sendMessage({event: CANCEL});
 					__idleThreads.push(thread);
 				}
 				else
 				{
-					thread.sendMessage(new ThreadEvent(EXIT, null, null));
+					thread.sendMessage({event: EXIT});
 				}
 			}
 			#end
@@ -270,10 +277,10 @@ class ThreadPool extends WorkOutput
 		__activeJobs.clear();
 
 		#if lime_threads
-		// Cancel idle threads if there are more than the minimum.
+		// Exit idle threads if there are more than the minimum.
 		while (idleThreads > minThreads)
 		{
-			__idleThreads.pop().sendMessage(new ThreadEvent(EXIT, null, null));
+			__idleThreads.pop().sendMessage({event: EXIT});
 		}
 		#end
 
@@ -290,36 +297,25 @@ class ThreadPool extends WorkOutput
 
 		__jobComplete.value = false;
 		activeJob = null;
-		completed = false;
-		canceled = true;
 	}
 
 	/**
 		Cancels one active or queued job. Does not dispatch an error event.
-		@param job A `JobData` object, or a job's unique `id`, `state`, or
-		`doWork` function.
 		@return Whether a job was canceled.
 	**/
-	public function cancelJob(job:JobIdentifier):Bool
+	public function cancelJob(jobID:Int):Bool
 	{
-		var data:JobData = __activeJobs.get(job);
-
-		if (data != null)
+		#if lime_threads
+		var thread:Thread = __activeThreads[jobID];
+		if (thread != null)
 		{
-			#if lime_threads
-			var thread:Thread = __activeThreads[data.id];
-			if (thread != null)
-			{
-				thread.sendMessage(new ThreadEvent(WORK, null, null));
-				__activeThreads.remove(data.id);
-				__idleThreads.push(thread);
-			}
-			#end
-
-			return __activeJobs.remove(data);
+			thread.sendMessage({event: CANCEL});
+			__activeThreads.remove(jobID);
+			__idleThreads.push(thread);
 		}
+		#end
 
-		return __jobQueue.remove(__jobQueue.get(job));
+		return __activeJobs.remove(__activeJobs.get(jobID)) || __jobQueue.remove(__jobQueue.get(jobID));
 	}
 
 	/**
@@ -331,7 +327,13 @@ class ThreadPool extends WorkOutput
 	}
 
 	/**
-		Queues a new job, to be run once a thread becomes available.
+		Runs the given function asynchronously, or queues it for later if all
+		threads are busy.
+		@param doWork The function to run. For best results, see the guidelines
+		in the `ThreadPool` class overview. In brief: `doWork` should be static,
+		only access its arguments, and return often.
+		@param state An object to pass to `doWork`, ideally a mutable object so
+		that `doWork` can save its progress.
 		@return The job's unique ID.
 	**/
 	public function run(doWork:WorkFunction<State->WorkOutput->Void> = null, state:State = null):Int
@@ -360,8 +362,6 @@ class ThreadPool extends WorkOutput
 
 		var job:JobData = new JobData(doWork, state);
 		__jobQueue.push(job);
-		completed = false;
-		canceled = false;
 
 		if (!Application.current.onUpdate.has(__update))
 		{
@@ -382,6 +382,7 @@ class ThreadPool extends WorkOutput
 	**/
 	private static function __executeThread():Void
 	{
+		// @formatter:off
 		JSAsync.async({
 			var output:WorkOutput = #if html5 new WorkOutput(MULTI_THREADED) #else cast(Thread.readMessage(true), WorkOutput) #end;
 			var event:ThreadEvent = null;
@@ -395,7 +396,7 @@ class ThreadPool extends WorkOutput
 					{
 						event = Thread.readMessage(true);
 					}
-					while (!#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (event, ThreadEvent));
+					while (event == null || !Reflect.hasField(event, "event"));
 
 					output.resetJobProgress();
 				}
@@ -438,9 +439,9 @@ class ThreadPool extends WorkOutput
 				if (interruption == null || output.__jobComplete.value)
 				{
 					// Work is done; wait for more.
-					event = null;
+					event = interruption;
 				}
-				else if(#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (interruption, ThreadEvent))
+				else if (Reflect.hasField(interruption, "event"))
 				{
 					// Work on the new job.
 					event = interruption;
@@ -454,6 +455,7 @@ class ThreadPool extends WorkOutput
 				// Do it all again.
 			}
 		});
+		// @formatter:on
 	}
 	#end
 
@@ -492,9 +494,9 @@ class ThreadPool extends WorkOutput
 				job.doWork.makePortable();
 				#end
 
-				var thread:Thread = __idleThreads.isEmpty() ? createThread(__executeThread) : __idleThreads.pop();
+				var thread:Thread = __idleThreads.length == 0 ? createThread(__executeThread) : __idleThreads.pop();
 				__activeThreads[job.id] = thread;
-				thread.sendMessage(new ThreadEvent(WORK, null, job));
+				thread.sendMessage({event: WORK, job: job});
 			}
 			#end
 		}
@@ -511,8 +513,7 @@ class ThreadPool extends WorkOutput
 			// `workLoad / frameRate` is the total time that pools may use per
 			// frame. `workPriority / __totalWorkPriority` is this pool's
 			// fraction of that total.
-			var maxTimeElapsed:Float = workPriority * workLoad
-				/ (__totalWorkPriority * Application.current.window.frameRate);
+			var maxTimeElapsed:Float = workPriority * workLoad / (__totalWorkPriority * Application.current.window.frameRate);
 
 			var startTime:Float = timestamp();
 			var timeElapsed:Float = 0;
@@ -539,15 +540,19 @@ class ThreadPool extends WorkOutput
 		var threadEvent:ThreadEvent;
 		while ((threadEvent = __jobOutput.pop(false)) != null)
 		{
-			if (!__activeJobs.exists(threadEvent.job))
+			if (threadEvent.jobID != null)
 			{
-				// Ignore events from canceled jobs.
-				continue;
+				activeJob = __activeJobs.get(threadEvent.jobID);
+			}
+			else
+			{
+				activeJob = threadEvent.job;
 			}
 
-			// Get by ID because in HTML5, the object will have been cloned,
-			// which will interfere with attempts to test equality.
-			activeJob = __activeJobs.getByID(threadEvent.job.id);
+			if (activeJob == null || !__activeJobs.exists(activeJob))
+			{
+				continue;
+			}
 
 			if (mode == MULTI_THREADED)
 			{
@@ -582,7 +587,7 @@ class ThreadPool extends WorkOutput
 
 						if (currentThreads > maxThreads || __jobQueue.length == 0 && currentThreads > minThreads)
 						{
-							thread.sendMessage(new ThreadEvent(EXIT, null, null));
+							thread.sendMessage({event: EXIT});
 						}
 						else
 						{
@@ -591,15 +596,13 @@ class ThreadPool extends WorkOutput
 					}
 					#end
 
-					completed = threadEvent.event == COMPLETE && activeJobs == 0 && __jobQueue.length == 0;
-
 				default:
 			}
 
 			activeJob = null;
 		}
 
-		if (completed)
+		if (activeJobs == 0 && __jobQueue.length == 0)
 		{
 			Application.current.onUpdate.remove(__update);
 		}
@@ -634,8 +637,6 @@ class ThreadPool extends WorkOutput
 		return activeJobs + idleThreads;
 	}
 
-	// Note the distinction between `doWork` and `__doWork`: the former is for
-	// backwards compatibility, while the latter is always used.
 	private function get_doWork():PseudoEvent
 	{
 		return this;
@@ -651,34 +652,57 @@ class ThreadPool extends WorkOutput
 	}
 }
 
-@:access(lime.system.ThreadPool) @:forward(canceled)
-private abstract PseudoEvent(ThreadPool) from ThreadPool {
+@:access(lime.system.ThreadPool)
+private abstract PseudoEvent(ThreadPool) from ThreadPool
+{
 	@:noCompletion @:dox(hide) public var __listeners(get, never):Array<Dynamic>;
-	private inline function get___listeners():Array<Dynamic> { return []; };
-	@:noCompletion @:dox(hide) public var __repeat(get, never):Array<Bool>;
-	private inline function get___repeat():Array<Bool> { return []; };
 
-	public function add(callback:Dynamic -> Void):Void {
+	private inline function get___listeners():Array<Dynamic>
+	{
+		return [];
+	};
+
+	@:noCompletion @:dox(hide) public var __repeat(get, never):Array<Bool>;
+
+	private inline function get___repeat():Array<Bool>
+	{
+		return [];
+	};
+
+	public function add(callback:Dynamic->Void):Void
+	{
 		function callCallback(state:State, output:WorkOutput):Void
 		{
 			callback(state);
 		}
 
 		#if (lime_threads && html5)
-		if (this.mode == MULTI_THREADED)
-			throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
+		if (this.mode == MULTI_THREADED) throw "Unsupported operation; instead pass the callback to ThreadPool's constructor.";
 		else
-			this.__doWork = { func: callCallback };
+			this.__doWork = {func: callCallback};
 		#else
 		this.__doWork = callCallback;
 		#end
 	}
 
 	public inline function cancel():Void {}
+
 	public inline function dispatch():Void {}
-	public inline function has(callback:Dynamic -> Void):Bool { return this.__doWork != null; }
-	public inline function remove(callback:Dynamic -> Void):Void { this.__doWork = null; }
-	public inline function removeAll():Void { this.__doWork = null; }
+
+	public inline function has(callback:Dynamic->Void):Bool
+	{
+		return this.__doWork != null;
+	}
+
+	public inline function remove(callback:Dynamic->Void):Void
+	{
+		this.__doWork = null;
+	}
+
+	public inline function removeAll():Void
+	{
+		this.__doWork = null;
+	}
 }
 
 class JobList
@@ -717,7 +741,7 @@ class JobList
 
 	public inline function exists(job:JobData):Bool
 	{
-		return getByID(job.id) != null;
+		return get(job.id) != null;
 	}
 
 	public inline function hasNext():Bool
@@ -765,7 +789,7 @@ class JobList
 
 	public inline function removeByID(id:Int):Bool
 	{
-		if (__jobs.remove(getByID(id)))
+		if (__jobs.remove(get(id)))
 		{
 			__addingWorkPriority = length > 0;
 			return true;
@@ -776,7 +800,7 @@ class JobList
 		}
 	}
 
-	public function getByID(id:Int):JobData
+	public function get(id:Int):JobData
 	{
 		for (job in __jobs)
 		{
@@ -787,33 +811,6 @@ class JobList
 		}
 		return null;
 	}
-
-	public function get(jobIdentifier:JobIdentifier):JobData
-	{
-		switch (jobIdentifier)
-		{
-			case ID(id):
-				return getByID(id);
-			case FUNCTION(doWork):
-				for (job in __jobs)
-				{
-					if (job.doWork == doWork)
-					{
-						return job;
-					}
-				}
-			case STATE(state):
-				for (job in __jobs)
-				{
-					if (job.state == state)
-					{
-						return job;
-					}
-				}
-		}
-		return null;
-	}
-
 	public inline function push(job:JobData):Void
 	{
 		__jobs.push(job);
@@ -822,7 +819,8 @@ class JobList
 
 	// Getters & Setters
 
-	private inline function set___addingWorkPriority(value:Bool):Bool {
+	private inline function set___addingWorkPriority(value:Bool):Bool
+	{
 		if (pool != null && __addingWorkPriority != value && ThreadPool.isMainThread())
 		{
 			if (value)
@@ -845,36 +843,4 @@ class JobList
 	{
 		return __jobs.length;
 	}
-}
-
-/**
-	A piece of data that uniquely represents a job. This can be the integer ID
-	(and integers will be assumed to be such), the `doWork` function, or the
-	`JobData` object itself. Failing any of those, a value will be assumed to be
-	the job's `state`.
-
-	Caution: if the provided data isn't unique, such as a `doWork` function
-	that's in use by multiple jobs, the wrong job may be selected or canceled.
-**/
-@:forward
-abstract JobIdentifier(JobIdentifierImpl) from JobIdentifierImpl {
-	@:from private static inline function fromJob(job:JobData):JobIdentifier {
-		return ID(job.id);
-	}
-	@:from private static inline function fromID(id:Int):JobIdentifier {
-		return ID(id);
-	}
-	@:from private static inline function fromFunction(doWork:WorkFunction<State->WorkOutput->Void>):JobIdentifier {
-		return FUNCTION(doWork);
-	}
-	@:from private static inline function fromState(state:State):JobIdentifier {
-		return STATE(state);
-	}
-}
-
-private enum JobIdentifierImpl
-{
-	ID(id:Int);
-	FUNCTION(doWork:WorkFunction<State->WorkOutput->Void>);
-	STATE(state:State);
 }
