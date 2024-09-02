@@ -49,17 +49,10 @@ class WorkOutput
 	public var workIterations(default, null):Tls<Int> = new Tls();
 
 	/**
-		Whether background threads are being/will be used. If threads aren't
-		available on this target, `mode` will always be `SINGLE_THREADED`.
+		The mode jobs will run in by default. If threads aren't available, jobs
+		will always run in `SINGLE_THREADED` mode.
 	**/
-	public var mode(get, never):ThreadMode;
-
-	#if lime_threads
-	/**
-		__Set this only via the constructor.__
-	**/
-	private var __mode:ThreadMode;
-	#end
+	public var mode:ThreadMode;
 
 	/**
 		Messages sent by active jobs, received by the main thread.
@@ -87,7 +80,7 @@ class WorkOutput
 		__jobComplete.value = false;
 
 		#if lime_threads
-		__mode = mode != null ? mode : #if html5 SINGLE_THREADED #else MULTI_THREADED #end;
+		this.mode = mode != null ? mode : #if html5 SINGLE_THREADED #else MULTI_THREADED #end;
 		#end
 	}
 
@@ -184,15 +177,6 @@ class WorkOutput
 	#end
 
 	// Getters & Setters
-
-	private inline function get_mode():ThreadMode
-	{
-		#if lime_threads
-		return __mode;
-		#else
-		return SINGLE_THREADED;
-		#end
-	}
 
 	private inline function get_activeJob():JobData
 	{
@@ -331,10 +315,15 @@ class JobData
 	@:allow(lime.system.WorkOutput)
 	private var startTime:Float = 0;
 
+	#if lime_threads
 	@:allow(lime.system.WorkOutput)
-	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State)
+	private var thread:Thread;
+	#end
+
+	@:allow(lime.system.WorkOutput)
+	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State, ?id:Int)
 	{
-		id = nextID++;
+		this.id = id != null ? id : nextID++;
 		this.doWork = doWork;
 		this.state = state;
 	}
@@ -358,8 +347,11 @@ typedef ThreadEvent =
 {
 	var event:ThreadEventType;
 	@:optional var message:Dynamic;
-	@:optional var job:JobData;
 	@:optional var jobID:Int;
+
+	// Only for "WORK" events
+	@:optional var doWork:WorkFunction<State->WorkOutput->Void>;
+	@:optional var state:State;
 }
 
 class JSAsync
