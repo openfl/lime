@@ -779,7 +779,7 @@ private abstract PseudoEvent(ThreadPool) from ThreadPool
 	}
 }
 
-@:forward.new @:forward
+@:forward
 private abstract JobArray(Array<JobData>) from Array<JobData>
 {
 	public inline function clear():Void
