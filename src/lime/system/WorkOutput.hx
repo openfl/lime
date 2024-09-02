@@ -324,6 +324,10 @@ class JobData
 	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State, ?id:Int)
 	{
 		this.id = id != null ? id : nextID++;
+		if (this.id == -1)
+		{
+			throw "All job IDs have been used!";
+		}
 		this.doWork = doWork;
 		this.state = state;
 	}
