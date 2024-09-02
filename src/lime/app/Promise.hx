@@ -1,5 +1,9 @@
 package lime.app;
 
+import lime.app.Future;
+import lime.system.ThreadPool;
+import lime.system.WorkOutput;
+
 /**
 	`Promise` is an implementation of Futures and Promises, with the exception that
 	in addition to "success" and "failure" states (represented as "complete" and "error"),
@@ -10,18 +14,20 @@ package lime.app;
 	for recipients of it's `Future` object. For example:
 
 	```haxe
-	function examplePromise ():Future<String> {
-
-		var promise = new Promise<String> ();
+	function examplePromise():Future<String>
+	{
+		var promise = new Promise<String>();
 
 		var progress = 0, total = 10;
-		var timer = new Timer (100);
-		timer.run = function () {
+		var timer = new Timer(100);
+		timer.run = function()
+		{
 
 			promise.progress (progress, total);
 			progress++;
 
-			if (progress == total) {
+			if (progress == total)
+			{
 
 				promise.complete ("Done!");
 				timer.stop ();
@@ -31,12 +37,11 @@ package lime.app;
 		};
 
 		return promise.future;
-
 	}
 
-	var future = examplePromise ();
-	future.onComplete (function (message) { trace (message); });
-	future.onProgress (function (loaded, total) { trace ("Progress: " + loaded + ", " + total); });
+	var future = examplePromise();
+	future.onComplete(function(message) { trace(message); });
+	future.onProgress(function(loaded, total) { trace("Progress: " + loaded + ", " + total); });
 	```
 **/
 #if !lime_debug
@@ -69,6 +74,8 @@ class Promise<T>
 	**/
 	public var isError(get, null):Bool;
 
+	private var jobID:Int = -1;
+
 	#if commonjs
 	private static function __init__()
 	{
@@ -96,10 +103,22 @@ class Promise<T>
 	**/
 	public function complete(data:T):Promise<T>
 	{
+		if (!ThreadPool.isMainThread())
+		{
+			haxe.MainLoop.runInMainThread(complete.bind(data));
+			return this;
+		}
+
 		if (!future.isError)
 		{
 			future.isComplete = true;
 			future.value = data;
+
+			if (jobID != -1)
+			{
+				FutureWork.cancelJob(jobID);
+				jobID = -1;
+			}
 
 			if (future.__completeListeners != null)
 			{
@@ -113,6 +132,45 @@ class Promise<T>
 		}
 
 		return this;
+	}
+
+	/**
+		Runs the given function asynchronously, and resolves this `Promise` with
+		the complete, error, and/or progress events sent by that function.
+		Sample usage:
+
+		```haxe
+		function examplePromise():Future<String>
+		{
+			var promise = new Promise<String>();
+			promise.completeAsync(function(state:State, output:WorkOutput):Void
+				{
+					output.sendProgress({progress:state.progress, total:10});
+					state.progress++;
+
+					if (state.progress == 10)
+					{
+						output.sendComplete("Done!");
+					}
+				},
+				{progress: 0}, MULTI_THREADED);
+
+			return promise.future;
+		}
+
+		var future = examplePromise();
+		future.onComplete(function(message) { trace(message); });
+		future.onProgress(function(loaded, total) { trace("Progress: " + loaded + ", " + total); });
+		```
+
+		@param doWork A function to perform work asynchronously. For best results,
+		see the guidelines in the `ThreadPool` class overview.
+		@param state The value to pass to `doWork`.
+		@param mode Which mode to run the job in: `SINGLE_THREADED` or `MULTI_THREADED`.
+	**/
+	public function completeAsync(doWork:WorkFunction<State->WorkOutput->Void>, ?state:State, ?mode:ThreadMode = MULTI_THREADED):Void
+	{
+		jobID = FutureWork.run(doWork, this, state, mode);
 	}
 
 	/**
@@ -137,10 +195,22 @@ class Promise<T>
 	**/
 	public function error(msg:Dynamic):Promise<T>
 	{
+		if (!ThreadPool.isMainThread())
+		{
+			haxe.MainLoop.runInMainThread(error.bind(msg));
+			return this;
+		}
+
 		if (!future.isComplete)
 		{
 			future.isError = true;
 			future.error = msg;
+
+			if (jobID != -1)
+			{
+				FutureWork.cancelJob(jobID);
+				jobID = -1;
+			}
 
 			if (future.__errorListeners != null)
 			{
@@ -164,6 +234,12 @@ class Promise<T>
 	**/
 	public function progress(progress:Int, total:Int):Promise<T>
 	{
+		if (!ThreadPool.isMainThread())
+		{
+			haxe.MainLoop.runInMainThread(this.progress.bind(progress, total));
+			return this;
+		}
+
 		if (!future.isError && !future.isComplete)
 		{
 			if (future.__progressListeners != null)
@@ -179,12 +255,12 @@ class Promise<T>
 	}
 
 	// Get & Set Methods
-	@:noCompletion private function get_isComplete():Bool
+	@:noCompletion private inline function get_isComplete():Bool
 	{
 		return future.isComplete;
 	}
 
-	@:noCompletion private function get_isError():Bool
+	@:noCompletion private inline function get_isError():Bool
 	{
 		return future.isError;
 	}
