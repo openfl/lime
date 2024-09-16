@@ -258,7 +258,7 @@ namespace lime {
 
 	void lime_hb_buffer_add_utf8 (value buffer, HxString text, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf8 ((hb_buffer_t*)val_data (buffer), text.c_str (), text.length, itemOffset, itemLength);
+		hb_buffer_add_utf8 ((hb_buffer_t*)val_data (buffer), hxs_utf8 (text, 0), text.length, itemOffset, itemLength);
 
 	}
 
@@ -696,7 +696,7 @@ namespace lime {
 
 	int lime_hb_buffer_serialize_format_from_string (HxString str) {
 
-		return hb_buffer_serialize_format_from_string (str.c_str (), str.length);
+		return hb_buffer_serialize_format_from_string (hxs_utf8 (str, 0), str.length);
 
 	}
 
@@ -1097,7 +1097,7 @@ namespace lime {
 
 		hb_feature_t feature;
 
-		if (hb_feature_from_string (str.c_str (), str.length, &feature)) {
+		if (hb_feature_from_string (hxs_utf8 (str, 0), str.length, &feature)) {
 
 			// TODO;
 			return alloc_null ();
@@ -1370,7 +1370,7 @@ namespace lime {
 
 		hb_codepoint_t glyph = 0;
 
-		if (hb_font_glyph_from_string ((hb_font_t*)val_data (font), s.c_str (), s.length, &glyph)) {
+		if (hb_font_glyph_from_string ((hb_font_t*)val_data (font), hxs_utf8 (s, 0), s.length, &glyph)) {
 
 			return glyph;
 
@@ -1558,7 +1558,7 @@ namespace lime {
 
 	value lime_hb_language_from_string (HxString str) {
 
-		hb_language_t language = hb_language_from_string (str.c_str (), str.length);
+		hb_language_t language = hb_language_from_string (hxs_utf8 (str, 0), str.length);
 		return CFFIPointer ((void*)language);
 
 	}
