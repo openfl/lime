@@ -598,7 +598,7 @@ class OpenALAudioContext
 		ALC.eventCallbackSOFT(device, callback);
 	}
 
-	public function reopenDeviceSOFT(device:ALDevice, newDeviceName:String, attributes:Int):Bool
+	public function reopenDeviceSOFT(device:ALDevice, newDeviceName:String, attributes:Array<Int>):Bool
 	{
 		return ALC.reopenDeviceSOFT(device, newDeviceName, attributes);
 	}

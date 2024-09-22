@@ -213,6 +213,16 @@ class ALC
 	public static function eventControlSOFT(count:Int, events:Array<Int>, enable:Bool):Void
 	{
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _events = null;
+		if (events != null)
+		{
+			_events = new hl.NativeArray<Int>(events.length);
+			for (i in 0...events.length)
+				_events[i] = events[i];
+		}
+		var events = _events;
+		#end
 		NativeCFFI.lime_alc_event_control_soft(count, events, enable);
 		#end
 	}
@@ -224,9 +234,22 @@ class ALC
 		#end
 	}
 
-	public static function reopenDeviceSOFT(device:ALDevice, newDeviceName:String, attributes:Int):Bool
+	public static function reopenDeviceSOFT(device:ALDevice, newDeviceName:String, attributes:Array<Int>):Bool
 	{
 		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _attributes = null;
+		if (attributes != null)
+		{
+			_attributes = new hl.NativeArray<Int>(attributes.length);
+			for (i in 0...attributes.length)
+				_attributes[i] = attributes[i];
+		}
+		var attributes = _attributes;
+		trace("d" + device);
+		trace("n" + newDeviceName);
+		trace("a" + attributes);
+		#end
 		return NativeCFFI.lime_alc_reopen_device_soft(device, newDeviceName, attributes);
 		#else
 		return false;

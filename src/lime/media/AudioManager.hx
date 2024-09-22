@@ -1,5 +1,7 @@
 package lime.media;
 
+import lime.system.CFFI;
+import lime.app.Application;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.media.openal.AL;
@@ -39,47 +41,26 @@ class AudioManager
 					alc.processContext(ctx);
 					trace(device);
 
-					// AL_STOP_SOURCES_ON_DISCONNECT_SOFT
-					alc.disable(AL.STOP_SOURCES_ON_DISCONNECT_SOFT);
+					var version:String = alc.getString(AL.VERSION);
+					var alSoft:Bool = StringTools.contains(version, "ALSOFT");
 
-					// todo: check if alcExtension ALC_SOFT_system_events is present
-					// alc.eventCallbackSOFT(device, () ->
-					// {
-					// 	Sys.println("what the !");
-					// });
+					// These things are only valid on OpenAL Soft.
+					if (alSoft)
+					{
+						// TODO: Do we need to check if the extension is present?
+						// If so, this needs to be merged beforehand: https://github.com/openfl/lime/pull/1832
+						alc.disable(AL.STOP_SOURCES_ON_DISCONNECT_SOFT);
+						Application.current.onUpdate.add((_) -> {
+							AudioManager.update();
+						});
 
-					// var timer = new Timer(100);
-					// timer.run = function()
-					// {
-					// 	// ALC_CONNECTED = 0x313
-					// 	// Checks if device connected
-					// 	var a = alc.getIntegerv(0x313, 1, device);
-					// 	trace(a);
-					// 	if (a[0] == 0)
-					// 	{
-					// 		timer.stop();
-					// 		trace(device);
-					// 		var m = new sys.thread.Mutex();
-					// 		m.acquire();
-					// 		var p = alc.reopenDeviceSOFT(device, null, 0);
-					// 		m.release();
-					// 		trace(device);
-					// 		trace(p);
-					// 	}
-					// }
-
-					// new Timer(1000).run = () ->
-					// {
-					// 	trace("AL: " + alc.getError() + " , " + alc.getErrorString());
-					// 	trace("ALC: " + alc.getError(device) + " , " + alc.getErrorString(device));
-					// }
-
-					ALC.eventControlSOFT(3, [
-						ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
-						ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
-						ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
-					], true);
-					ALC.eventCallbackSOFT((device), __temp__SoftCallback);
+						alc.eventControlSOFT(3, [
+							ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+							ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
+							ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
+						], true);
+						alc.eventCallbackSOFT(device, __deviceEventCallback);
+					}
 				}
 				#end
 			}
@@ -96,44 +77,27 @@ class AudioManager
 		}
 	}
 
-	static function __temp__SoftCallback():Void
-	{
-		trace("Hello from Haxe !!!");
-	}
-
-	static var delayTimer:Float;
-	static var auxDirty:Bool = false;
 	public static function update():Void
 	{
-		if (!auxDirty)
+		#if !lime_doc_gen
+		if (context != null && context.type == OPENAL)
 		{
-
-			var alc = AudioManager.context.openal;
-			var device = alc.getContextsDevice(alc.getCurrentContext());
-			var connected = alc.getIntegerv(0x313, 1, device)[0];
-			if (connected == 0)
+			if (__audioDeviceChanged)
 			{
-				trace("Disconnected!");
-				auxDirty = true;
-			}
-
-		}
-		else
-		{
-			delayTimer += 0.016;
-			trace(delayTimer);
-
-			if (delayTimer >= 3.0)
-			{
-				var alc = AudioManager.context.openal;
-				var device = alc.getContextsDevice(alc.getCurrentContext());
-
-				auxDirty = false;
-				delayTimer = 0.0;
-				var p = alc.reopenDeviceSOFT(device, null, 0);
-				trace(p);
+				var alc = context.openal;
+				var context = alc.getCurrentContext();
+				if (context != null)
+				{
+					var device = alc.getContextsDevice(context);
+					var reopened = alc.reopenDeviceSOFT(device, null, null);
+					if (reopened)
+					{
+						__audioDeviceChanged = false;
+					}
+				}
 			}
 		}
+		#end
 	}
 
 	public static function resume():Void
@@ -156,8 +120,6 @@ class AudioManager
 
 	public static function shutdown():Void
 	{
-		trace("shutdown");
-
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL)
 		{
@@ -183,8 +145,6 @@ class AudioManager
 
 	public static function suspend():Void
 	{
-		trace("suspend");
-
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL)
 		{
@@ -203,5 +163,24 @@ class AudioManager
 			}
 		}
 		#end
+	}
+
+	@:noCompletion static var __audioDeviceChanged:Bool = false;
+	@:noCompletion static function __deviceEventCallback(eventType:Int, deviceType:Int, device:Dynamic, #if hl message:hl.Bytes #else message:String #end, userParam:Dynamic):Void
+	{
+		#if hl
+		var message = CFFI.stringValue(message);
+		#end
+		trace("Callback received");
+		//trace("Msg: " + message);
+		trace(eventType);
+
+		if (eventType == ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT && deviceType == ALC.PLAYBACK_DEVICE_SOFT)
+		{
+			// We can't make any calls to OpenAL here.
+			// Let's set a flag and then reopen the device in the update() function that gets
+			// called on the main thread.
+			__audioDeviceChanged = true;
+		}
 	}
 }
