@@ -166,14 +166,11 @@ class AudioManager
 	}
 
 	@:noCompletion static var __audioDeviceChanged:Bool = false;
-	@:noCompletion static function __deviceEventCallback(eventType:Int, deviceType:Int, device:Dynamic, #if hl message:hl.Bytes #else message:String #end, userParam:Dynamic):Void
+	@:noCompletion static function __deviceEventCallback(eventType:Int, deviceType:Int, device:Dynamic,#if hl message:hl.Bytes #else message:String #end, userParam:Dynamic):Void
 	{
 		#if hl
 		var message = CFFI.stringValue(message);
 		#end
-		trace("Callback received");
-		//trace("Msg: " + message);
-		trace(eventType);
 
 		if (eventType == ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT && deviceType == ALC.PLAYBACK_DEVICE_SOFT)
 		{

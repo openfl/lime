@@ -3569,30 +3569,27 @@ namespace lime {
 	void ALC_APIENTRY hl_alsoft_callback_function(ALCenum eventType, ALCenum deviceType,
     	ALCdevice* device, ALCsizei length, const ALCchar* message, void* userParam) ALC_API_NOEXCEPT17 {
 
-		//gc_set_top_of_stack((int*)99, true);
 		vdynamic* ret;
 		hl_register_thread (&ret);
 
 		if (alSoftEventCallback) {
 
-			//value devicePtr = HL_CFFIPointer (device);
-			//value userParamPtr = HL_CFFIPointer (userParam);
-
 			al_gc_mutex.Lock ();
-			// alSoftEventCallback->Call ((void*)(int)eventType, (void*)(int)deviceType, (void*)device, (void*)(vbyte*)message, userParam);
 
-			vdynamic* _eventType = hl_alloc_dynamic(&hlt_i32);
+			vdynamic* _eventType = hl_alloc_dynamic (&hlt_i32);
 			_eventType->v.i = (int)eventType;
-			vdynamic* _deviceType = hl_alloc_dynamic(&hlt_i32);
+			vdynamic* _deviceType = hl_alloc_dynamic (&hlt_i32);
 			_deviceType->v.i = (int)deviceType;
-			alSoftEventCallback->Call (_eventType, _deviceType, 0, 0, 0);
+			vdynamic* _message = hl_alloc_dynamic (&hlt_bytes);
+			_message->v.bytes = (vbyte*)message;
+
+			alSoftEventCallback->Call (_eventType, _deviceType, (void*)device, _message, (void*)userParam);
 
 			al_gc_mutex.Unlock ();
 
 		}
 
 		hl_unregister_thread ();
-		//gc_set_top_of_stack((int*)0, true);
 
 	}
 	#endif
