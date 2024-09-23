@@ -1,6 +1,24 @@
 Changelog
 =========
 
+8.1.3 (07/22/2024)
+------------------
+
+* Fixed Unicode conversion issues with various APIs, including as clipboard, window text, file dialogs, and fonts.
+* Fixed Android builds with the `-emulator` flag that broke when using newer Android SDKs.
+* Fixed "Could not link to neko" error message on macOS when lime.ndll is built with Xcode 15.
+* Fixed system environment variables with the same name as common targets conflicting with other targets.
+* Fixed `<echo/>` and `<log/>` output confusing Haxe's completion server. Now skipped when `display` is defined.
+* Fixed `Clipboard.text` incorrectly getting cleared to null when targeting HTML5.
+* Fixed integer value parsing in _project.xml_, including immediately reporting errors for invalid values.
+* Fixed incorrect path discovery for NDLL files that found source directory instead.
+* Fixed missing error message if HXP project class name does not match file name.
+* Fixed unspecified behavior from `null` keys in `ObjectPool`.
+* Fixed some issues when running Haxe built natively for Apple Silicon.
+* Fixed missing cancellation of vibration on Android when app is paused or destroyed.
+* Fixed static linking of native curl library on macOS.
+* Fixed deprecation warnings in Android Gradle builds.
+
 8.1.2 (03/13/2024)
 ------------------
 

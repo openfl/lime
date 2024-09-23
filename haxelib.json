@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "8.2.0",
-	"releasenote": "Update HashLink, iOS and Android build fixes, and ongoing improvements",
+	"releasenote": "Various bug fixes",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",

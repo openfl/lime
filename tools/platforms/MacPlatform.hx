@@ -2,7 +2,6 @@ package;
 
 import haxe.io.Eof;
 import hxp.Haxelib;
-import hxp.HostArchitecture;
 import hxp.HXML;
 import hxp.Log;
 import hxp.Path;
@@ -191,17 +190,6 @@ class MacPlatform extends PlatformTarget
 
 			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix.toLowerCase(), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix.toLowerCase(), executableDirectory);
-
-			// starting in xcode 15, rpath doesn't automatically include
-			// /usr/local/lib, but we need it for libneko dylib
-			System.runCommand("", "install_name_tool", ["-add_rpath", "/usr/local/lib", Path.join([executableDirectory, "lime.ndll"])]);
-			if (System.hostArchitecture == HostArchitecture.ARM64)
-			{
-				// on Apple Silicon, the user may have installed Neko with
-				// Homebrew, which has a different path. however, if the
-				// Homebrew path doesn't exist, that's okay.
-				System.runCommand("", "install_name_tool", ["-add_rpath", "/opt/homebrew/lib", Path.join([executableDirectory, "lime.ndll"])]);
-			}
 		}
 		else if (targetType == "hl")
 		{
@@ -435,7 +423,11 @@ class MacPlatform extends PlatformTarget
 					// TODO: Support single binary
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
 				}
-				else if (!targetFlags.exists("32"))
+				else if (targetFlags.exists("arm64"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				}
+				else if (!targetFlags.exists("32") && !targetFlags.exists("x86_32"))
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
 				}
@@ -446,7 +438,19 @@ class MacPlatform extends PlatformTarget
 			case X86:
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
 			case ARM64:
-				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				if (targetFlags.exists("hl"))
+				{
+					// hashlink doesn't support arm64 macs yet
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+				}
+				else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64"]);
+				}
+				else
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				}
 			default:
 		}
 
@@ -596,6 +600,11 @@ class MacPlatform extends PlatformTarget
 
 	private inline function get_dirSuffix():String
 	{
+		if (targetFlags.exists("hl"))
+		{
+			// hashlink doesn't support arm64 macs yet
+			return "64";
+		}
 		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
 	}
 

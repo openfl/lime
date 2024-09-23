@@ -76,12 +76,13 @@ class ALC
 
 	public static function getContextsDevice(context:ALContext):ALDevice
 	{
-		#if (lime_cffi && lime_openal && !macro) #if !hl var handle:Dynamic = NativeCFFI.lime_alc_get_contexts_device(context);
+		#if (lime_cffi && lime_openal && !macro)
+		var handle:Dynamic = NativeCFFI.lime_alc_get_contexts_device(context);
 
 		if (handle != null)
 		{
 			return new ALDevice(handle);
-		} #else #end
+		}
 		#end
 
 		return null;
