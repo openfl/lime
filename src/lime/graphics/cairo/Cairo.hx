@@ -425,7 +425,7 @@ class Cairo
 	public function transform(matrix:Matrix3):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		NativeCFFI.lime_cairo_transform(handle, matrix);
+		NativeCFFI.lime_cairo_transform(handle, matrix.toCairoMatrix3());
 		#end
 	}
 
@@ -643,7 +643,7 @@ class Cairo
 	{
 		#if (lime_cffi && lime_cairo && !macro)
 		#if hl
-		return NativeCFFI.lime_cairo_get_matrix(handle, new Matrix3());
+		return NativeCFFI.lime_cairo_get_matrix(handle, new CairoMatrix3());
 		#else
 		var m:Dynamic = NativeCFFI.lime_cairo_get_matrix(handle);
 		return new Matrix3(m.a, m.b, m.c, m.d, m.tx, m.ty);
@@ -657,7 +657,7 @@ class Cairo
 	{
 		#if (lime_cffi && lime_cairo && !macro)
 		#if hl
-		NativeCFFI.lime_cairo_set_matrix(handle, value);
+		NativeCFFI.lime_cairo_set_matrix(handle, value.toCairoMatrix3());
 		#else
 		NativeCFFI.lime_cairo_set_matrix(handle, value.a, value.b, value.c, value.d, value.tx, value.ty);
 		// NativeCFFI.lime_cairo_set_matrix (handle, value);

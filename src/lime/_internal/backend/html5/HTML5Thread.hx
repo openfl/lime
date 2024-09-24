@@ -477,7 +477,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Skip `null` for obvious reasons.
 		return object == null
 			// No need to preserve a primitive type.
-			|| !#if (haxe_ver >= 4.2) Std.isOfType #else untyped __js__ #end (object, Object)
+			|| !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (object, Object)
 			// Objects with this field have been deliberately excluded.
 			|| Reflect.field(object, SKIP_FIELD) == true
 			// A `Uint8Array` (the type used by `haxe.io.Bytes`) can have

@@ -46,6 +46,8 @@ class Clipboard
 		{
 			_text = FlashClipboard.generalClipboard.getData(TEXT_FORMAT);
 		}
+		#elseif (js || html5)
+		_text = cacheText;
 		#end
 		__updated = true;
 

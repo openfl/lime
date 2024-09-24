@@ -152,11 +152,11 @@
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/coreaudio.cpp" />
 
-            <compilerflag value="-mmmx" />
-            <compilerflag value="-msse" />
-            <compilerflag value="-msse2" />
-            <compilerflag value="-msse3" />
-            <compilerflag value="-mssse3" />
+            <compilerflag value="-mmmx" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
 
         </section>
 
