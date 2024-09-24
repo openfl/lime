@@ -32,6 +32,13 @@ typedef RenderContextAttributes =
 	**/
 	@:optional var hardware:Bool;
 
+	#if html5
+	/**
+		Whether to preserve the `HTMLCanvas`'s image data after rendering
+	**/
+	@:optional var preserveDrawingBuffer:Bool;
+	#end
+
 	/**
 		Whether a stencil buffer is enabled
 	**/

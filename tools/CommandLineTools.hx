@@ -485,15 +485,14 @@ class CommandLineTools
 				}
 
 			case MAC:
-				// if (System.hostArchitecture == X64) {
-
-				untyped $loader.path = $array(path + "Mac64/", $loader.path);
-
-			// } else {
-
-			//	untyped $loader.path = $array (path + "Mac/", $loader.path);
-
-			// }
+				if (System.hostArchitecture == X64)
+				{
+					untyped $loader.path = $array(path + "Mac64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "MacArm64/", $loader.path);
+				}
 
 			case LINUX:
 				var arguments = Sys.args();
@@ -998,12 +997,12 @@ class CommandLineTools
 		if (isBuildCommand)
 		{
 			Log.println("  \x1b[3m(windows|mac|linux|android)\x1b[0m \x1b[1m-static\x1b[0m -- Compile as a static C++ executable");
-			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
-			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-x86_32\x1b[0m -- Compile for x86_32 instead of the OS default");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-x86_64\x1b[0m -- Compile for x86_64 instead of the OS default");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv6\x1b[0m -- Compile for ARMv6 instead of the OS defaults");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7\x1b[0m -- Compile for ARMv7 instead of the OS defaults");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7s\x1b[0m -- Compile for ARMv7s instead of the OS defaults");
-			Log.println("  \x1b[3m(ios)\x1b[0m \x1b[1m-arm64\x1b[0m -- Compile for ARM64 instead of the OS defaults");
+			Log.println("  \x1b[3m(mac|ios|android)\x1b[0m \x1b[1m-arm64\x1b[0m -- Compile for ARM64 instead of the OS defaults");
 			Log.println("  \x1b[3m(ios)\x1b[0m \x1b[1m-nosign\x1b[0m -- Compile executable, but skip codesigning");
 		}
 
@@ -2241,11 +2240,11 @@ class CommandLineTools
 							overrides.architectures.push(value);
 						}
 					}
-					else if (argument == "-64")
+					else if (argument == "-64" || argument == "-x86_64")
 					{
 						overrides.architectures.push(Architecture.X64);
 					}
-					else if (argument == "-32")
+					else if (argument == "-32" || argument == "-x86_32")
 					{
 						overrides.architectures.push(Architecture.X86);
 					}

@@ -104,6 +104,9 @@ This product bundles FileSaver.js 1.3.3, which is available under an
 This product bundles pako 1.0.2, which is available under an
 "MIT" license. For details, see [dependencies/pako.min.js](dependencies/pako.min.js).
 
+This product bundles LZMA-JS 2.3.2, which is available under an
+"MIT" license. For details, see [dependencies/lzma_worker-min.js](dependencies/lzma_worker-min.js).
+
 This product bundles stats.js r16, which is available under an
 "MIT" license. For details, see [dependencies/stats.min.js](dependencies/stats.min.js).
 

@@ -145,7 +145,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl") || targetFlags.exists("hlc"))
 		{
 			targetType = "hl";
-			is64 = !project.flags.exists("32");
+			is64 = !project.flags.exists("32") && !project.flags.exists("x86_32");
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -286,7 +286,7 @@ class WindowsPlatform extends PlatformTarget
 				if (StringTools.endsWith(dependency.path, ".dll"))
 				{
 					var fileName = Path.withoutDirectory(dependency.path);
-					System.copyIfNewer(dependency.path, applicationDirectory + "/" + fileName);
+					copyIfNewer(dependency.path, applicationDirectory + "/" + fileName);
 				}
 			}
 
@@ -737,7 +737,8 @@ class WindowsPlatform extends PlatformTarget
 			if (targetType == "hl")
 			{
 				// default to 64 bit, just like upstream Hashlink releases
-				if (!targetFlags.exists("32") && (System.hostArchitecture == X64 || targetFlags.exists("64")))
+				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
+					&& (System.hostArchitecture == X64 || targetFlags.exists("64") || targetFlags.exists("x86_64")))
 				{
 					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
 				}
@@ -748,7 +749,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else
 			{
-				if (!targetFlags.exists("64")
+				if (!targetFlags.exists("64") && !targetFlags.exists("x86_64")
 					&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
 				{
 					if (targetType == "winrt")
@@ -765,7 +766,7 @@ class WindowsPlatform extends PlatformTarget
 				// as previous Windows builds. For now, force -64 to be done last
 				// so that it can be debugged in a default "rebuild"
 
-				if (!targetFlags.exists("32")
+				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
 					&& System.hostArchitecture == X64
 					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
 				{
@@ -1121,7 +1122,7 @@ class WindowsPlatform extends PlatformTarget
 				var name = Path.withoutDirectory(dependency.path);
 
 				context.linkedLibraries.push("./js/lib/" + name);
-				System.copyIfNewer(dependency.path, Path.combine(destination, Path.combine("js/lib", name)));
+				copyIfNewer(dependency.path, Path.combine(destination, Path.combine("js/lib", name)));
 			}
 		}
 
