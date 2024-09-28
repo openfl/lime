@@ -14,9 +14,9 @@
 /* #undef HAVE_RTKIT */
 
 /* Define if we have SSE CPU extensions */
-#undef HAVE_SSE
-#undef HAVE_SSE2
-#undef HAVE_SSE3
+/* #define HAVE_SSE */
+/* #define HAVE_SSE2 */
+/* #define HAVE_SSE3 */
 /* #define HAVE_SSE4_1 */
 
 /* Define if we have ARM Neon CPU extensions */
@@ -80,7 +80,7 @@
 /* #undef HAVE_PTHREAD_NP_H */
 
 /* Define if we have cpuid.h */
-#define HAVE_CPUID_H
+/* #define HAVE_CPUID_H */
 
 /* Define if we have intrin.h */
 /* #define HAVE_INTRIN_H */
@@ -89,7 +89,7 @@
 /* #define HAVE_GUIDDEF_H */
 
 /* Define if we have GCC's __get_cpuid() */
-#define HAVE_GCC_GET_CPUID
+/* #define HAVE_GCC_GET_CPUID */
 
 /* Define if we have the __cpuid() intrinsic */
 /* #define HAVE_CPUID_INTRINSIC */
