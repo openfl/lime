@@ -157,6 +157,8 @@
             <compilerflag value="-msse2" unless="HXCPP_ARM64" />
             <compilerflag value="-msse3" unless="HXCPP_ARM64" />
             <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-std=c11" />
+            <compilerflag value="-DFORCE_ALIGN=" />
 
         </section>
 

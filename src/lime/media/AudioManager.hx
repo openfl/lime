@@ -50,6 +50,7 @@ class AudioManager
 						// TODO: Do we need to check if the extension is present?
 						// If so, this needs to be merged beforehand: https://github.com/openfl/lime/pull/1832
 						alc.disable(AL.STOP_SOURCES_ON_DISCONNECT_SOFT);
+
 						Application.current.onUpdate.add((_) -> {
 							AudioManager.update();
 						});
