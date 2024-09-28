@@ -169,6 +169,7 @@ class AudioManager
 	@:noCompletion static var __audioDeviceChanged:Bool = false;
 	@:noCompletion static function __deviceEventCallback(eventType:Int, deviceType:Int, device:Dynamic,#if hl message:hl.Bytes #else message:String #end, userParam:Dynamic):Void
 	{
+		#if !lime_doc_gen
 		#if hl
 		var message = CFFI.stringValue(message);
 		#end
@@ -180,5 +181,6 @@ class AudioManager
 			// called on the main thread.
 			__audioDeviceChanged = true;
 		}
+		#end
 	}
 }
