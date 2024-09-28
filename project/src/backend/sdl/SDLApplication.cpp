@@ -329,7 +329,7 @@ namespace lime {
 	void SDLApplication::Init () {
 
 		active = true;
-		lastUpdate = SDL_GetTicks ();
+		lastUpdate = ((double) SDL_GetPerformanceCounter () / (double) SDL_GetPerformanceFrequency ()) * 1000.0;
 		nextUpdate = lastUpdate;
 
 	}
