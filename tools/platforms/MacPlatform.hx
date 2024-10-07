@@ -147,7 +147,13 @@ class MacPlatform extends PlatformTarget
 			targetType = "cpp";
 		}
 
-		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
+		var defaultTargetDirectory = switch (targetType)
+		{
+			case "cpp": "macos";
+			case "hl": project.targetFlags.exists("hlc") ? "hlc" : targetType;
+			default: targetType;
+		}
+		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", defaultTargetDirectory));
 		targetDirectory = StringTools.replace(targetDirectory, "arch64", dirSuffix);
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";

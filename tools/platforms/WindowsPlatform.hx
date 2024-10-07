@@ -203,7 +203,13 @@ class WindowsPlatform extends PlatformTarget
 			}
 		}
 
-		targetDirectory = Path.combine(project.app.path, project.config.getString("windows.output-directory", targetType == "cpp" ? "windows" : targetType));
+		var defaultTargetDirectory = switch (targetType)
+		{
+			case "cpp": "windows";
+			case "hl": project.targetFlags.exists("hlc") ? "hlc" : targetType;
+			default: targetType;
+		}
+		targetDirectory = Path.combine(project.app.path, project.config.getString("windows.output-directory", defaultTargetDirectory));
 		targetDirectory = StringTools.replace(targetDirectory, "arch64", is64 ? "64" : "");
 
 		if (targetType == "winjs")

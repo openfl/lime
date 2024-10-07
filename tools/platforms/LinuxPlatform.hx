@@ -160,7 +160,13 @@ class LinuxPlatform extends PlatformTarget
 			targetType = "cpp";
 		}
 
-		targetDirectory = Path.combine(project.app.path, project.config.getString("linux.output-directory", targetType == "cpp" ? "linux" : targetType));
+		var defaultTargetDirectory = switch (targetType)
+		{
+			case "cpp": "linux";
+			case "hl": project.targetFlags.exists("hlc") ? "hlc" : targetType;
+			default: targetType;
+		}
+		targetDirectory = Path.combine(project.app.path, project.config.getString("linux.output-directory", defaultTargetDirectory));
 		targetDirectory = StringTools.replace(targetDirectory, "arch64", is64 ? "64" : "");
 		applicationDirectory = targetDirectory + "/bin/";
 		executablePath = Path.combine(applicationDirectory, project.app.file);
