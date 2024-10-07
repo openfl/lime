@@ -1,6 +1,64 @@
 Changelog
 =========
 
+8.2.0 (??/??/2024)
+------------------
+
+* Added Apple Silicon (ARM64) support for macOS target.
+* Added new `hlc` target to support compiling for HashLink/C. Both generates C code and compiles to an executable (requires Haxe 4.3.4 or newer).
+* Added support for inserting attributes into the `<application/>` or `<activity/>` elements of _AndroidManifest.xml_
+* Added `createPerspective()` to `Matrix4`.
+* Added `removeLibrary()` to `lime.utils.Assets`, which removes a library, but makes unloading optional.
+* Added `SINGLE_THREADED` mode to `ThreadPool`, which is used by default when threading is not available.
+* Added `workLoad` property to `ThreadPool` to limit total time spent per frame on green threads.
+* Added optional `-noalias` flag to `lime setup` to skip creating the **lime** executable alias.
+* Added optional `-nosign` flag to `lime build ios` to skip code signing when targeting iOS.
+* Added support for `-64` flag to force compiling for 64-bit Raspberry Pi.without requiring a custom template.
+* Added option to configure `preserveDrawingBuffer` on HTML5 target.
+* Added LZMA compression to HTML5 target.
+* Added automatic deletion of "stale" assets and dependency files.
+* Added `VIEW` intents on Android target.
+* Added support for `-mingw` flag when cross-compiling to Windows from another operating system.
+* Added support for `-cpp` flag when cross-compiling to Linux from another operating system (requires homebrew-macos-cross-toolchains on macOS).
+* Fixed `lime display` command incorrectly printing old _.hxml_ content after _project.xml_ file has been modified, skipping requirement to build project or restart editor to get valid code intelligence.
+* Fixed HashLink _.app_ bundles on macOS to include all Homebrew library dependencies, so that they run on computers without Homebrew.
+* Fixed `@android:style/Theme.NoTitleBarnull` in generated _AndroidManifest.xml_.
+* Fixed `Image` in a web worker by storing it as `DATA` type.
+* Fixed cURL C++ to Haxe callbacks when targeting HashLink.
+* Fixed icon generation for Android target with `accept-file-intent` config.
+* Fixed exception in Lime tools when resolving full path of Neko _.n_ file.
+* Fixed keyboard input incorrectly getting enabled by default when creating a new window, which could show an IME when unexpected.
+* Fixed `ALC.getContextsDevice()` when targeting HashLink.
+* Fixed potentially uninitialized values in `Matrix3`.
+* Fixed wrong type for `Socket.objectEncoding` in Flash/AIR externs.
+* Improved support for Raspberry Pi 64-bit builds.
+* Changed custom `haxe.Timer` to fall back to the original in a macro context.
+* Changed `Promise` to remove `@:generic` when in a macro context.
+* Changed `Matrix3` to be an abstract over `Float32Array`, similar to `Matrix4`.
+* Changed Raspberry Pi keyboard shortcut to exit to Ctrl + Esc.
+* Changed `-64` and `-32` flags for Intel architectures to `-x86_64` and `-x86_32` to make their purpose more clear (the old flags still work, for now).
+* Removed Joystick trackball APIs because they is supported only on Linux, with a single piece of hardware, and will be removed from SDL 3.
+* Removed ARMV5 architecture from Android rebuilds by default because hxcpp doesn't support it with NDK versions >= 20.
+* Removed 32-bit _liblime.iphonesim.a_ as a default binary because 32-bit iOS is no longer supported by Apple.
+* Updated Cairo submodule to version 1.17.6 and point to upstream repository instead of fork.
+* Updated cURL submodule to version 7.83.1 and point to upstream repository instead of fork.
+* Updated efsw submodule to version 1.2.0 and point to upstream repository instead of fork.
+* Updated FreeType submodule to version 2.12.1 and point to upstream repository instead of fork.
+* Updated HarfBuzz submodule to version 6.0.0 and point to upstream repository instead of fork.
+* Updated libpng submodule to version 1.6.37 and point to upstream repository instead of fork.
+* Updated libjpg-turbo submodule to version 2.1.3 and point to upstream repository instead of fork.
+* Updated libvpx submodule to version 1.11.0 and point to upstream repository instead of fork.
+* Updated libwebm submodule to version 1.0.0.28 and point to upstream repository instead of fork.
+* Updated Mbed TLS submodule to version 2.28.7 and point to upstream repository instead of fork.
+* Updated MojoAL submodule to commit e08dbf3 and point to upstream repository instead of fork.
+* Updated Ogg submodule to version 1.3.5 and point to upstream repository instead of fork.
+* Updated OpenAL-Soft submodule to version 1.20.1 and point to upstream repository instead of fork.
+* Updated Pixman submodule to version 0.42.2 and point to upstream repository instead of fork.
+* Updated SDL submodule to version 2.24.0 and point to upstream repository instead of fork.
+* Updated Tinyfiledialogs submodule to version 3.8.8 (still uses fork due to SourceForge limitationss).
+* Updated Vorbis submodule to version 1.3.7 and point to upstream repository instead of fork.
+* Updated zlib submodule to version 1.2.12 and point to upstream repository instead of fork.
+
 8.1.3 (07/22/2024)
 ------------------
 
