@@ -61,13 +61,13 @@ class Promise<T>
 		Whether the `Promise` (and related `Future`) has finished with a completion state.
 		This will be `false` if the `Promise` has not been resolved with a completion or error state.
 	**/
-	public var isComplete(get, null):Bool;
+	public var isComplete(get, never):Bool;
 
 	/**
 		Whether the `Promise` (and related `Future`) has finished with an error state.
 		This will be `false` if the `Promise` has not been resolved with a completion or error state.
 	**/
-	public var isError(get, null):Bool;
+	public var isError(get, never):Bool;
 
 	#if commonjs
 	private static function __init__()
@@ -179,12 +179,12 @@ class Promise<T>
 	}
 
 	// Get & Set Methods
-	@:noCompletion private function get_isComplete():Bool
+	@:noCompletion private inline function get_isComplete():Bool
 	{
 		return future.isComplete;
 	}
 
-	@:noCompletion private function get_isError():Bool
+	@:noCompletion private inline function get_isError():Bool
 	{
 		return future.isError;
 	}
