@@ -496,16 +496,14 @@ class CommandLineTools
 
 			case LINUX:
 				var arguments = Sys.args();
-				var raspberryPi = false;
 
-				for (argument in arguments)
+				if (System.hostArchitecture == ARMV7 )
 				{
-					if (argument == "-rpi") raspberryPi = true;
+					untyped $loader.path = $array(path + "LinuxArm/", $loader.path);
 				}
-
-				if (raspberryPi || System.hostArchitecture == ARMV6 || System.hostArchitecture == ARMV7)
+				else if (System.hostArchitecture == ARM64)
 				{
-					untyped $loader.path = $array(path + "RPi/", $loader.path);
+					untyped $loader.path = $array(path + "LinuxArm64/", $loader.path);
 				}
 				else if (System.hostArchitecture == X64)
 				{
