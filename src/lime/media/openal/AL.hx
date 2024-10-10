@@ -233,6 +233,13 @@ class AL
 	public static inline var FILTER_HIGHPASS:Int = 0x0002;
 	public static inline var FILTER_BANDPASS:Int = 0x0003;
 
+	public static inline var DEVICE_CLOCK_SOFT:Int = 0x1600;
+	public static inline var DEVICE_LATENCY_SOFT:Int = 0x1601;
+	public static inline var DEVICE_CLOCK_LATENCY_SOFT:Int = 0x1602;
+
+	public static inline var SEC_OFFSET_LATENCY_SOFT:Int = 0x1201;
+	public static inline var SEC_OFFSET_CLOCK_SOFT:Int = 0x1203;
+
 	public static function removeDirectFilter(source:ALSource)
 	{
 		#if (lime_cffi && lime_openal && !macro)
@@ -954,6 +961,24 @@ class AL
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		var result = NativeCFFI.lime_al_get_sourcefv(source, param, count);
+		#if hl
+		if (result == null) return [];
+		var _result:Array<Float> = [];
+		for (i in 0...result.length)
+			_result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
+		#else
+		return null;
+		#end
+	}
+
+	public static function getSourcedvSOFT(source:ALSource, param:Int, count:Int = 1):Array<Float>
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		var result = NativeCFFI.lime_al_get_sourcedv_soft(source, param, count);
 		#if hl
 		if (result == null) return [];
 		var _result:Array<Float> = [];
