@@ -209,6 +209,39 @@ namespace lime {
 	}
 
 
+	void* ValuePointer::Call (void* arg0, void* arg1, void* arg2, void* arg3, void* arg4, void* arg5) {
+
+		if (!hlValue) {
+
+			value vals[] = {
+				(value)arg0,
+				(value)arg1,
+				(value)arg2,
+				(value)arg3,
+				(value)arg4,
+				(value)arg5
+			};
+
+			return val_callN ((value)Get (), vals,6);
+
+		} else {
+
+			vdynamic* args[] = {
+				(vdynamic*)arg0,
+				(vdynamic*)arg1,
+				(vdynamic*)arg2,
+				(vdynamic*)arg3,
+				(vdynamic*)arg4,
+				(vdynamic*)arg5,
+			};
+
+			return hl_dyn_call ((vclosure*)hlValue, (vdynamic**)&args, 6);
+
+		}
+
+	}
+
+
 	void* ValuePointer::Get () const {
 
 		if (cffiValue) {
