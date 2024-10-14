@@ -22,10 +22,8 @@ class IOSHelper
 			var platformName = project.environment.get("PLATFORM_NAME");
 
 			commands.push("archive");
-			commands.push("-scheme");
-			commands.push(project.app.file);
 			commands.push("-archivePath");
-			commands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
+			commands.push(Path.combine("DerivedData/Build/Products", Path.combine(configuration + "-" + platformName, project.app.file)));
 		}
 		else
 		{
@@ -59,10 +57,8 @@ class IOSHelper
 		var platformName = project.environment.get("PLATFORM_NAME");
 
 		archiveCommands.push("archive");
-		archiveCommands.push("-scheme");
-		archiveCommands.push(project.app.file);
 		archiveCommands.push("-archivePath");
-		archiveCommands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
+		archiveCommands.push(Path.combine("DerivedData/Build/Products", Path.combine(configuration + "-" + platformName, project.app.file)));
 
 		System.runCommand(workingDirectory, "xcodebuild", archiveCommands);
 
@@ -88,7 +84,7 @@ class IOSHelper
 
 			exportCommands.push("-exportArchive");
 			exportCommands.push("-archivePath");
-			exportCommands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file + ".xcarchive")));
+			exportCommands.push(Path.combine("DerivedData/Build/Products", Path.combine(configuration + "-" + platformName, project.app.file + ".xcarchive")));
 			exportCommands.push("-exportOptionsPlist");
 			exportCommands.push(Path.combine(project.app.file, "exportOptions-" + exportMethod + ".plist"));
 			exportCommands.push("-exportPath");
@@ -123,7 +119,9 @@ class IOSHelper
 			"-configuration",
 			configuration,
 			"PLATFORM_NAME=" + platformName,
-			"SDKROOT=" + platformName + iphoneVersion
+			"SDKROOT=" + platformName + iphoneVersion,
+			"-derivedDataPath",
+			"DerivedData"
 		];
 
 		if (project.targetFlags.exists("simulator"))
@@ -157,7 +155,9 @@ class IOSHelper
 
 		commands.push("-project");
 		commands.push(project.app.file + ".xcodeproj");
-
+		commands.push("-scheme");
+		commands.push(project.app.file);
+		
 		var xcodeVersions = getXcodeVersion().split(".").map(function(i:String)
 		{
 			var ver = Std.parseInt(i);
@@ -319,7 +319,7 @@ class IOSHelper
 			}
 			else
 			{
-				applicationPath = workingDirectory + "/build/" + configuration + "-iphonesimulator/" + project.app.file + ".app";
+				applicationPath = workingDirectory + "/DerivedData/Build/Products/" + configuration + "-iphonesimulator/" + project.app.file + ".app";
 			}
 
 			var currentDeviceID = XCodeHelper.getSimulatorID(project);
@@ -350,7 +350,7 @@ class IOSHelper
 			}
 			else
 			{
-				applicationPath = workingDirectory + "/build/" + configuration + "-iphoneos/" + project.app.file + ".app";
+				applicationPath = workingDirectory + "/DerivedData/Build/Products/" + configuration + "-iphoneos/" + project.app.file + ".app";
 			}
 
 			var templatePaths = [
@@ -391,7 +391,7 @@ class IOSHelper
 			commands.push("PROVISIONING_PROFILE=" + project.config.getString("ios.provisioning-profile"));
 		}
 
-		var applicationPath = "build/" + configuration + "-iphoneos/" + project.app.file + ".app";
+		var applicationPath = "DerivedData/Build/Products/" + configuration + "-iphoneos/" + project.app.file + ".app";
 		commands.push(applicationPath);
 
 		System.runCommand(workingDirectory, "codesign", commands, true, true);
