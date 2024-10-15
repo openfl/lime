@@ -40,21 +40,22 @@ class Promises {
    * @param futures A list of Futures to resolve.
    * @return A Future for a list of result values.
    */
-  public static function allSettled<T>(futures:Array<Future<T>>):Future<Array<PromiseResult<T>>> {
-    var promise:Promise<Array<PromiseResult<T>>> = new Promise<Array<PromiseResult<T>>>();
-    var results:Array<PromiseResult<T>> = [];
+  public static function allSettled<T>(futures:Array<Future<T>>):Future<Array<Future<T>>> {
+    var promise:Promise<Array<Future<T>>> = new Promise<Array<Future<T>>>();
+
+    var resolved:Int = 0;
 
     for (future in futures) {
       future.onComplete(function(value) {
-        results.push(PromiseResult.fulfilled(value));
-        if (results.length == futures.length) {
-          promise.complete(results);
+        resolved += 1;
+        if (resolved == futures.length) {
+          promise.complete(futures);
         }
       });
       future.onError(function(error) {
-        results.push(PromiseResult.rejected(value));
-        if (results.length == futures.length) {
-          promise.complete(results);
+        resolved += 1;
+        if (resolved == futures.length) {
+          promise.complete(futures);
         }
       });
     }
@@ -93,64 +94,16 @@ class Promises {
    * @param futures A list of Futures to resolve.
    * @return A Future for a result value.
    */
-  public static function race<T>(futures:Array<Future<T>>):Future<PromiseResult<T>> {
-    var promise:Promise<PromiseResult<T>> = new Promise<PromiseResult<T>>();
+  public static function race<T>(futures:Array<Future<T>>):Future<T> {
+    var promise:Promise<T> = new Promise<T>();
     for (future in futures) {
       future.onComplete(function(value) {
-        promise.complete(PromiseResult.fulfilled(value));
+        promise.complete(value);
       });
       future.onError(function(error) {
-        promise.complete(PromiseResult.rejected(error));
+        promise.error(error);
       });
     }
     return promise.future;
   }
-}
-
-class PromiseResult<T> {
-  /**
-   * The current state of the promise.
-   */
-  public var state:PromiseState;
-  /**
-   * The value of the promise, if it resolved as Fulfilled.
-   */
-  public var value:Null<T>;
-  /**
-   * The error of the promise, if it resolved as Rejected.
-   */
-  public var error:Null<Dynamic>;
-
-  private function new(state:PromiseState, value:Null<T>, error:Null<Dynamic>):Void {
-    this.state = state;
-    this.value = value;
-    this.error = error;
-  }
-
-  public static function pending<T>():PromiseResult<T> {
-    return new PromiseResult<T>(PromiseState.Pending, null, null);
-  }
-
-  public static function fulfilled<T>(value:T):PromiseResult<T> {
-    return new PromiseResult<T>(PromiseState.Fulfilled, value, null);
-  }
-
-  public static function rejected<T>(error:Dynamic):PromiseResult<T> {
-    return new PromiseResult<T>(PromiseState.Rejected, null, error);
-  }
-}
-
-enum PromiseState {
-  /**
-   * This promise has not yet resolved.
-   */
-  Pending;
-  /**
-   * This promise has resolved with a value.
-   */
-  Fulfilled;
-  /**
-   * This promise has resolved with an error.
-   */
-  Rejected;
 }
