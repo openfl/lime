@@ -7,7 +7,10 @@
 	<set name="ios" value="1" if="iphone" />
 	<set name="tvos" value="1" if="appletv" />
 
+	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH"/>
 	<set name="HASHLINK_PATH" value="lib/hashlink" unless="HASHLINK_PATH" />
+
+	<include name="lib/mbedtls-files.xml"/>
 
 	<files id="hl">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
@@ -24,6 +27,8 @@
 	<files id="libhl">
 		<compilerflag value="-std=c11" unless="windows" />
 		<compilerflag value="-DLIBHL_EXPORTS" />
+		<compilerflag value="-DHAVE_CONFIG_H" />
+		<compilerflag value="-DPCRE2_CODE_UNIT_WIDTH=16" />
 
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${HASHLINK_PATH}/include" />
@@ -56,19 +61,34 @@
 		<file name="${HASHLINK_PATH}/src/std/ucs2.c" />
 
 		<!-- PCRE -->
-		<file name="${HASHLINK_PATH}/include/pcre/pcre16_ord2utf16.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_globals.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre16_valid_utf16.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_newline.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_chartables.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_string_utils.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_compile.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_tables.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_dfa_exec.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_ucd.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_exec.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_xclass.c" />
-		<file name="${HASHLINK_PATH}/include/pcre/pcre_fullinfo.c" />
+		 <file name="${HASHLINK_PATH}/include/pcre/pcre2_auto_possess.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_chartables.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_compile.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_config.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_context.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_convert.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_dfa_match.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_error.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_extuni.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_find_bracket.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_jit_compile.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_maketables.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_match.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_match_data.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_newline.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_ord2utf.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_pattern_info.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_script_run.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_serialize.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_string_utils.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_study.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_substitute.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_substring.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_tables.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_ucd.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_ucptables.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_valid_utf.c"/>
+		<file name="${HASHLINK_PATH}/include/pcre/pcre2_xclass.c"/>
 
 		<!-- macOS debugging -->
 		<file name="${HASHLINK_PATH}/include/mdbg/mdbg.c" if="mac" />
@@ -78,84 +98,15 @@
 
 	<files id="ssl">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<compilerflag value="-I${HASHLINK_PATH}/include/mbedtls/include" />
-
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/hl-ssl" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" />
+		<compilerflag value="-D_UNICODE" if="windows"/>
+		<compilerflag value="-DUNICODE" if="windows"/>
+		<compilerflag value="-DMBEDTLS_THREADING_C"/>
+		<compilerflag value="-DMBEDTLS_THREADING_PTHREAD" unless="windows"/>
+		<compilerflag value="-DMBEDTLS_THREADING_ALT" if="windows"/>
+		<compilerflag value="/std:c11" if="windows"/>
 		<file name="${HASHLINK_PATH}/libs/ssl/ssl.c" />
-
-		<compilerflag value="-I/usr/local/include" if="mac"/>
-
-		<section if="windows">
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/aes.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/aesni.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/arc4.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/asn1parse.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/asn1write.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/base64.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/bignum.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/blowfish.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/camellia.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ccm.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/certs.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/cipher.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/cipher_wrap.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ctr_drbg.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/debug.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/des.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/dhm.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecdh.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecdsa.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecjpake.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecp.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ecp_curves.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/entropy.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/entropy_poll.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/error.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/gcm.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/havege.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/hmac_drbg.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/md.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/md2.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/md4.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/md5.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/md_wrap.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/memory_buffer_alloc.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/oid.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/padlock.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pem.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pk.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkcs11.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkcs12.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkcs5.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkparse.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pkwrite.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/pk_wrap.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/platform.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ripemd160.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/rsa.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/rsa_internal.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/sha1.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/sha256.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/sha512.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_cache.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_ciphersuites.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_cli.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_cookie.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_srv.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_ticket.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/ssl_tls.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/threading.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/timing.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/version.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/version_features.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509write_crt.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509write_csr.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_create.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_crl.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_crt.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/x509_csr.c" />
-			<file name="${HASHLINK_PATH}/include/mbedtls/library/xtea.c" />
-		</section>
 	</files>
 
 	<files id="mysql">
@@ -371,6 +322,7 @@
 		<outdir name="${OUTPUT_DIR}/${BINDIR}" />
 		<ext value=".hdll" />
 		<files id="ssl" />
+		<files id="native-toolkit-mbedtls"/>
 
 		<vflag name="-install_name" value="@executable_path/ssl.hdll" if="mac"/>
 
@@ -382,13 +334,6 @@
 		<lib name="Advapi32.lib" if="windows" />
 		<lib name="Crypt32.lib" if="windows" />
 		<lib name="ws2_32.lib" if="windows" />
-
-		<!-- Find homebrews mbedtls -->
-		<lib name="-L/usr/local/lib" if="mac" />
-
-		<lib name="-lmbedtls" unless="windows" />
-		<lib name="-lmbedx509" unless="windows" />
-		<lib name="-lmbedcrypto" unless="windows" />
 
 		<vflag name="-framework" value="Security" if="mac || ios || tvos" />
 		<vflag name="-framework" value="CoreFoundation" if="mac || ios || tvos" />
