@@ -135,6 +135,12 @@ class AIRHelper
 			signingOptions.push("samplePassword");
 		}
 
+		if (project.config.exists("air.tsa"))
+		{
+			signingOptions.push("-tsa");
+			signingOptions.push(project.config.getString("air.tsa"));
+		}
+
 		var args = ["-package"];
 
 		// TODO: Is this an old workaround fixed in newer AIR SDK?
