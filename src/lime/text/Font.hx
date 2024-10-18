@@ -34,14 +34,47 @@ import haxe.io.Path;
 @:access(lime.text.Glyph)
 class Font
 {
+	/**
+     	* The ascender value of the font.
+     	*/
 	public var ascender:Int;
+	
+	 /**
+     	* The descender value of the font.
+     	*/
 	public var descender:Int;
+	
+	/**
+     	* The height of the font.
+     	*/
 	public var height:Int;
+
+	/**
+     	* The name of the font.
+    	 */
 	public var name(default, null):String;
+
+	/**
+     	* The number of glyphs in the font.
+     	*/
 	public var numGlyphs:Int;
+
+	
 	public var src:Dynamic;
+
+	/**
+    	* The underline position of the font.
+    	*/
 	public var underlinePosition:Int;
+
+	/**
+    	* The underline thickness of the font.
+    	*/
 	public var underlineThickness:Int;
+
+	/**
+     	* The units per EM of the font.
+     	*/
 	public var unitsPerEM:Int;
 
 	@:noCompletion private var __fontID:String;
@@ -51,6 +84,11 @@ class Font
 	#end
 	@:noCompletion private var __init:Bool;
 
+	/**
+     	* Creates a new instance of a Font object.
+     	*
+     	* @param name Optional name of the font.
+     	*/
 	public function new(name:String = null)
 	{
 		if (name != null)
@@ -100,6 +138,11 @@ class Font
 		}
 	}
 
+	/**
+     	* Decomposes the font into outline data.
+     	*
+     	* @return An instance of `NativeFontData` that contains decomposed font outline information.
+     	*/
 	public function decompose():NativeFontData
 	{
 		#if (lime_cffi && !macro)
@@ -118,6 +161,12 @@ class Font
 		#end
 	}
 
+	/**
+     	* Creates a Font instance from byte data.
+     	*
+     	* @param bytes The byte data containing the font.
+     	* @return A `Font` instance.
+     	*/
 	public static function fromBytes(bytes:Bytes):Font
 	{
 		if (bytes == null) return null;
@@ -132,6 +181,12 @@ class Font
 		#end
 	}
 
+	/**
+     	* Creates a Font instance from a file path.
+     	*
+     	* @param path The file path of the font.
+     	* @return A `Font` instance.
+     	*/
 	public static function fromFile(path:String):Font
 	{
 		if (path == null) return null;
@@ -146,11 +201,23 @@ class Font
 		#end
 	}
 
+	/**
+     	* Loads a Font from byte data asynchronously.
+     	*
+     	* @param bytes The byte data containing the font.
+     	* @return A `Future` containing a `Font` instance.
+     	*/
 	public static function loadFromBytes(bytes:Bytes):Future<Font>
 	{
 		return Future.withValue(fromBytes(bytes));
 	}
 
+	/**
+     	* Loads a Font from a file path asynchronously.
+     	*
+     	* @param path The file path of the font.
+     	* @return A `Future` containing a `Font` instance.
+     	*/
 	public static function loadFromFile(path:String):Future<Font>
 	{
 		var request = new HTTPRequest<Font>();
@@ -167,6 +234,12 @@ class Font
 		});
 	}
 
+	/**
+     	* Loads a Font by its name asynchronously.
+     	*
+     	* @param path The name of the font.
+     	* @return A `Future` containing a `Font` instance.
+     	*/
 	public static function loadFromName(path:String):Future<Font>
 	{
 		#if (js && html5)
@@ -177,6 +250,12 @@ class Font
 		#end
 	}
 
+	/**
+     	* Retrieves a glyph from the font by a character.
+     	*
+     	* @param character The character whose glyph to retrieve.
+     	* @return A `Glyph` instance representing the glyph of the character.
+     	*/
 	public function getGlyph(character:String):Glyph
 	{
 		#if (lime_cffi && !macro)
@@ -186,6 +265,12 @@ class Font
 		#end
 	}
 
+	/**
+     	* Retrieves an array of glyphs for a set of characters.
+     	*
+     	* @param characters The string containing characters to retrieve glyphs for.
+     	* @return An array of `Glyph` instances representing the glyphs of the characters.
+     	*/
 	public function getGlyphs(characters:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. "):Array<Glyph>
 	{
 		#if (lime_cffi && !macro)
@@ -199,6 +284,12 @@ class Font
 		#end
 	}
 
+	/**
+     	* Retrieves metrics for a given glyph.
+     	*
+     	* @param glyph The glyph whose metrics to retrieve.
+     	* @return A `GlyphMetrics` instance containing the metrics of the glyph.
+     	*/
 	public function getGlyphMetrics(glyph:Glyph):GlyphMetrics
 	{
 		#if (lime_cffi && !macro)
@@ -216,6 +307,13 @@ class Font
 		#end
 	}
 
+	/**
+     	* Renders a specific glyph to an image.
+     	*
+     	* @param glyph The glyph to render.
+     	* @param fontSize The size to render the glyph at.
+     	* @return An `Image` instance representing the rendered glyph.
+     	*/
 	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
 	{
 		#if (lime_cffi && !macro)
@@ -255,6 +353,13 @@ class Font
 		return null;
 	}
 
+	/**
+     	* Renders a set of glyphs to images.
+     	*
+     	* @param glyphs The glyphs to render.
+     	* @param fontSize The size to render the glyphs at.
+     	* @return A `Map` containing glyphs mapped to their corresponding images.
+     	*/
 	public function renderGlyphs(glyphs:Array<Glyph>, fontSize:Int):Map<Glyph, Image>
 	{
 		#if (lime_cffi && !macro)
@@ -595,6 +700,9 @@ class Font
 	}
 }
 
+/**
+* Represents decomposed font data, containing kerning information, glyphs, and other properties.
+*/
 typedef NativeFontData =
 {
 	var has_kerning:Bool;
@@ -613,6 +721,9 @@ typedef NativeFontData =
 	var kerning:Array<NativeKerningData>;
 }
 
+/**
+* Represents data for an individual glyph, including dimensions and control points.
+*/
 typedef NativeGlyphData =
 {
 	var char_code:Int;
@@ -624,6 +735,9 @@ typedef NativeGlyphData =
 	var points:Array<Int>;
 }
 
+/**
+* Represents kerning information between two glyphs.
+*/
 typedef NativeKerningData =
 {
 	var left_glyph:Int;
