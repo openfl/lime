@@ -29,8 +29,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -121,8 +121,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -202,8 +202,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -300,8 +300,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -370,8 +370,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -434,8 +434,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install svg --quiet
@@ -628,8 +628,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ./hxcpp-4.3.45.zip --quiet
+          curl --output-dir .. -LO https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
