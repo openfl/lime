@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "8.2.0",
-	"releasenote": "Various bug fixes",
+	"releasenote": "Apple Silicon support on macOS, HashLink/C target, upgraded C++ submodules",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",

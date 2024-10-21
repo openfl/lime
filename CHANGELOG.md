@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.2.0 (??/??/2024)
+8.2.0 (10/21/2024)
 ------------------
 
 * Added Apple Silicon (ARM64) support for macOS target.
