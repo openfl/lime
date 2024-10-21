@@ -20,6 +20,7 @@ Changelog
 * Added `VIEW` intents on Android target.
 * Added support for `-mingw` flag when cross-compiling to Windows from another operating system.
 * Added support for `-cpp` flag when cross-compiling to Linux from another operating system (requires homebrew-macos-cross-toolchains on macOS).
+* Added support for `tsa` option in `<config:air>` to pass timestamp URL to Adobe AIR's adt tool.
 * Fixed `lime display` command incorrectly printing old _.hxml_ content after _project.xml_ file has been modified, skipping requirement to build project or restart editor to get valid code intelligence.
 * Fixed HashLink _.app_ bundles on macOS to include all Homebrew library dependencies, so that they run on computers without Homebrew.
 * Fixed `@android:style/Theme.NoTitleBarnull` in generated _AndroidManifest.xml_.
@@ -31,6 +32,7 @@ Changelog
 * Fixed `ALC.getContextsDevice()` when targeting HashLink.
 * Fixed potentially uninitialized values in `Matrix3`.
 * Fixed wrong type for `Socket.objectEncoding` in Flash/AIR externs.
+* Fixed `BackgroundWorker` not using threads on HashLink.
 * Improved support for Raspberry Pi 64-bit builds.
 * Changed custom `haxe.Timer` to fall back to the original in a macro context.
 * Changed `Promise` to remove `@:generic` when in a macro context.
