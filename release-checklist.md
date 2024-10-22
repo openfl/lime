@@ -18,21 +18,20 @@
 	```
 - Download _lime-haxelib_ and _lime-docs_ artifacts for tag from GitHub Actions
 - Submit _.zip_ file to Haxelib with following command:
-		```sh
-		haxelib submit lime-haxelib.zip
-		```
+	```sh
+	haxelib submit lime-haxelib.zip
+	```
 	- Lime releases are sometimes too large for Haxelib. If required, unzip and rezip with higher compresssion
 		- First, unzip _lime-haxelib.zip_
 		- Then, zip with highest compresssion (command for macOS terminal below):
 			```sh
 			cd lime-haxelib/
-			# tested on macOS, but not other platforms
 			zip -r path/to/new/lime-haxelib.zip . -9
 			```
 - Create new release for tag on GitHub
 	- Upload _lime-haxelib.zip_ and _lime-docs.zip_
 	- Link to _CHANGELOG.md_ from tag and to _https://community.openfl.org_ announcement thread)
-		- _CHANGELOG.md_ tag URL: `https://github.com/openfl/lime/blob/x.y.z/CHANGELOG.md`
+		- _CHANGELOG.md_ tag URL format: `https://github.com/openfl/lime/blob/x.y.z/CHANGELOG.md`
 		- It's okay to skip link to announcement at first, and edit the release to add it later
 - Deploy API reference by updating Git ref in _.github/workflows/deploy.yml_ in _openfl/lime.openfl.org_ repo
 	```yaml
