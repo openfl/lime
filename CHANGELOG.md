@@ -1,6 +1,13 @@
 Changelog
 =========
 
+8.2.1 (10/??/2024)
+------------------
+
+* Fixed paths for ndll on Raspberry pi
+* Fixed `BackgroundWorker`conditional on hl to use threads only for haxe4
+
+
 8.2.0 (10/21/2024)
 ------------------
 
