@@ -202,5 +202,14 @@ class ALC
 		NativeCFFI.lime_alc_suspend_context(context);
 		#end
 	}
+
+	public static function isExtensionPresent(device:ALDevice, extname:String):Bool
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_alc_is_extension_present(device, extname);
+		#else
+		return false;
+		#end
+	}
 }
 #end
