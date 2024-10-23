@@ -94,11 +94,11 @@
 
             <compilerflag value="-D_POSIX_C_SOURCE=200112L" />
             <compilerflag value="-D_XOPEN_SOURCE=500" />
-            <compilerflag value="-mmmx" unless="rpi" />
-            <compilerflag value="-msse" unless="rpi" />
-            <compilerflag value="-msse2" unless="rpi" />
-            <compilerflag value="-msse3" unless="rpi" />
-            <compilerflag value="-mssse3" unless="rpi" />
+            <compilerflag value="-mmmx" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="rpi || HXCPP_ARM64" />
             <compilerflag value="-mfpu=neon" if="rpi" unless="HXCPP_ARM64" />
             <compilerflag value="-fcommon" />
 

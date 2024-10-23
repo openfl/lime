@@ -511,6 +511,10 @@ class CommandLineTools
 				{
 					untyped $loader.path = $array(path + "Linux64/", $loader.path);
 				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "LinuxArm64/", $loader.path);
+				}
 				else
 				{
 					untyped $loader.path = $array(path + "Linux/", $loader.path);

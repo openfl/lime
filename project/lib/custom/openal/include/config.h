@@ -16,7 +16,11 @@
 
 #elif defined(HX_LINUX)
 
+#ifdef HXCPP_ARM64
+#include "config-linux-arm64.h"
+#else
 #include "config-linux-x86_64.h"
+#endif
 
 #elif defined (HX_ANDROID)
 

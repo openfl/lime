@@ -101,7 +101,7 @@
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
         <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
 
-        <compilerflag value="-DGL_GLEXT_PROTOTYPES" if="android || rpi" />
+        <compilerflag value="-DGL_GLEXT_PROTOTYPES" if="android || HXCPP_ARM64 || rpi" />
         <compilerflag value="-DHAVE_LIBC" />
 
         <compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
@@ -127,13 +127,17 @@
 
         <section if="linux">
 
+             <compilerflag value="-mfpu=neon" if="HXCPP_ARMV7" />
+             <compilerflag value="-mfloat-abi=hard" if="HXCPP_ARMV7" />
+             <compilerflag value="-I-abi=hard" if="HXCPP_ARMV7 || HXCPP_ARM64" />
+
             <compilerflag value="-DHAVE_LINUX_VERSION_H" />
             <compilerflag value="-D_REENTRANT" />
-            <compilerflag value="-mmmx" unless="rpi" />
-            <compilerflag value="-msse" unless="rpi" />
-            <compilerflag value="-msse2" unless="rpi" />
-            <compilerflag value="-msse3" unless="rpi" />
-            <compilerflag value="-mssse3" unless="rpi" />
+            <compilerflag value="-mmmx" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="rpi || HXCPP_ARM64" />
 
             <set name="XINPUT2" value="${NATIVE_TOOLKIT_SDL_X11_XINPUT2}" />
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2=${XINPUT2}" if="XINPUT2" />
@@ -294,7 +298,7 @@
 
         </section>
 
-        <section if="android || ios || windows || rpi || tvos">
+        <section if="android || ios || windows || rpi || HXCPP_ARM64 || tvos">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles/SDL_render_gles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles2/SDL_render_gles2.c" />
@@ -303,7 +307,7 @@
 
         </section>
 
-        <section if="windows || mac || android || rpi">
+        <section if="windows || mac || android || rpi || HXCPP_ARM64">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_gamecube.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_luna.c" />
