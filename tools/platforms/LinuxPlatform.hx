@@ -308,16 +308,19 @@ class LinuxPlatform extends PlatformTarget
 				}
 			}
 			else
-			if (isArm)
+			{
+				if (isArm)
 				{
 					haxeArgs.push("-D");
 					haxeArgs.push("HXCPP_ARMV7");
 					flags.push("-DHXCPP_ARMV7");
 				}
-			{
-				haxeArgs.push("-D");
-				haxeArgs.push("HXCPP_M32");
-				flags.push("-DHXCPP_M32");
+				else
+				{
+					haxeArgs.push("-D");
+					haxeArgs.push("HXCPP_M32");
+					flags.push("-DHXCPP_M32");
+				}
 			}
 
 			if (project.target != System.hostPlatform)
