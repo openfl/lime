@@ -565,12 +565,12 @@ class LinuxPlatform extends PlatformTarget
 				commands.push(["-Dlinux", "-DHXCPP_M32"]);
 			}
 
-			if (!targetFlags.exists("armv7") && !targetFlags.exists("x86_32") && System.hostArchitecture == ARM64)
+			if (!targetFlags.exists("armv7") && System.hostArchitecture == ARM64)
 			{
 				commands.push(["-Dlinux", "-DHXCPP_ARM64"]);
 			}
 
-			if (!targetFlags.exists("arm64") && !targetFlags.exists("x86_64") && System.hostArchitecture == ARMV7)
+			if (!targetFlags.exists("arm64") && System.hostArchitecture == ARMV7)
 			{
 				commands.push(["-Dlinux", "-DHXCPP_ARMV7"]);
 			}
