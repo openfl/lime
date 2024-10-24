@@ -78,20 +78,18 @@ class SVGExport
 
 			case LINUX:
 				var arguments = Sys.args();
-				var raspberryPi = false;
 
-				for (argument in arguments)
-				{
-					if (argument == "-rpi") raspberryPi = true;
-				}
-
-				if (raspberryPi)
-				{
-					untyped $loader.path = $array(path + "RPi/", $loader.path);
-				}
-				else if (System.hostArchitecture == X64)
+				if (System.hostArchitecture == X64)
 				{
 					untyped $loader.path = $array(path + "Linux64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "LinuxArm64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARMV7)
+				{
+					untyped $loader.path = $array(path + "LinuxArm/", $loader.path);
 				}
 				else
 				{

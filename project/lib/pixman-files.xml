@@ -2,8 +2,9 @@
 
 	<!-- TODO: ARM64 NEON -->
 
-	<!-- <set name="PIXMAN_ARM_SIMD" value="1" if="android || rpi" unless="HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_ARM64 || HXCPP_X86" /> -->
-	<set name="PIXMAN_ARM_NEON" value="1" if="HXCPP_ARMV7 || HXCPP_ARMV7S || rpi" unless="ios || NDKV22+ || HXCPP_ARM64" />
+	<!-- <set name="PIXMAN_ARM_SIMD" value="1" if="android" unless="HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_ARM64 || HXCPP_X86" /> -->
+	<set name="PIXMAN_ARM_NEON" value="1" if="HXCPP_ARMV7 || HXCPP_ARMV7S" unless="ios || NDKV22+ || HXCPP_ARM64" />
+	<set name="PIXMAN_ARM_A64_NEON" value="1" if="HXCPP_ARM64" unless="ios || mac || NDKV22+ || HXCPP_ARMV7 || HXCPP_ARMV7S" />
 
 	<files id="native-toolkit-pixman">
 
@@ -19,15 +20,16 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png" if="NATIVE_TOOLKIT_HAVE_PNG" />
 
 		<compilerflag value="-DUSE_ARM_NEON=1" if="PIXMAN_ARM_NEON" />
+		<compilerflag value="-DUSE_ARM_A64_NEON=1" if="PIXMAN_ARM_A64_NEON" />
 		<compilerflag value="-DUSE_ARM_SIMD=1" if="PIXMAN_ARM_SIMD" />
 
 		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
 
-		<compilerflag value="-mmmx" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse2" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse3" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-mssse3" if="linux || mac" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-mmmx" if="linux || mac" unless="HXCPP_ARM64" />
+		<compilerflag value="-msse" if="linux || mac" unless="HXCPP_ARM64" />
+		<compilerflag value="-msse2" if="linux || mac" unless="HXCPP_ARM64" />
+		<compilerflag value="-msse3" if="linux || mac" unless="HXCPP_ARM64" />
+		<compilerflag value="-mssse3" if="linux || mac" unless="HXCPP_ARM64" />
 
 		<compilerflag value="-Wno-attributes" if="android" />
 		<compilerflag value="-Wno-tautological-constant-out-of-range-compare" if="mac || ios || tvos" />
@@ -36,7 +38,9 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-access.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon-asm-bilinear.S" if="PIXMAN_ARM_NEON" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon-asm.S" if="PIXMAN_ARM_NEON" />
-		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon.c" if="PIXMAN_ARM_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon.c" if="PIXMAN_ARM_NEON || PIXMAN_ARM_A64_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arma64-neon-asm-bilinear.S" if="PIXMAN_ARM_A64_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arma64-neon-asm.S" if="PIXMAN_ARM_A64_NEON" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-simd-asm-scaled.S" if="PIXMAN_ARM_SIMD" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-simd-asm.S" if="PIXMAN_ARM_SIMD" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-simd.c" if="PIXMAN_ARM_SIMD" />
@@ -57,15 +61,15 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-linear-gradient.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-matrix.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-mips.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-mmx.c" if="windows || mac || linux" unless="rpi || HXCPP_ARM64" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-mmx.c" if="windows || mac || linux" unless="HXCPP_ARM64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-noop.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-ppc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-radial-gradient.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-region16.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-region32.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-solid-fill.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-sse2.c" if="windows || mac || linux" unless="rpi || HXCPP_ARM64" />
-		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-ssse3.c" if="windows || mac || linux" unless="rpi || HXCPP_ARM64" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-sse2.c" if="windows || mac || linux" unless="HXCPP_ARM64" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-ssse3.c" if="windows || mac || linux" unless="HXCPP_ARM64" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-timer.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-trap.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-utils.c" />
