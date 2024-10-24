@@ -307,7 +307,7 @@
 
         </section>
 
-        <section if="windows || mac || android || rpi || HXCPP_ARM64">
+        <section if="windows || mac || android || rpi">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_gamecube.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/joystick/hidapi/SDL_hidapi_luna.c" />
