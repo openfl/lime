@@ -101,7 +101,7 @@
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/hidapi/hidapi/" />
         <compilerflag value="-I${SDL_CONFIG_PATH}" if="SDL_CONFIG_PATH" />
 
-        <compilerflag value="-DGL_GLEXT_PROTOTYPES" if="android || HXCPP_ARM64 || rpi" />
+        <compilerflag value="-DGL_GLEXT_PROTOTYPES" if="android || linux HXCPP_ARM64 || rpi" />
         <compilerflag value="-DHAVE_LIBC" />
 
         <compilerflag value="-D__IPHONEOS__" if="ios || tvos" />
