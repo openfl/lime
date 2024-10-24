@@ -522,32 +522,6 @@ class LinuxPlatform extends PlatformTarget
 				]);
 			}
 		}
-		/*else if (!targetFlags.exists("armv7") && System.hostArchitecture == ARM64)
-		{
-			commands.push([
-				"-Dlinux",
-				"-Dtoolchain=linux",
-				"-DBINDIR=LinuxArm64",
-				"-DHXCPP_ARM64",
-				"-DCXX=aarch64-linux-gnu-g++",
-				"-DHXCPP_STRIP=aarch64-linux-gnu-strip",
-				"-DHXCPP_AR=aarch64-linux-gnu-ar",
-				"-DHXCPP_RANLIB=aarch64-linux-gnu-ranlib"
-			]);
-		}
-		else if (!targetFlags.exists("arm64") && System.hostArchitecture == ARMV7)
-		{
-			commands.push([
-				"-Dlinux",
-				"-Dtoolchain=linux",
-				"-DBINDIR=LinuxArm",
-				"-DHXCPP_ARMV7",
-				"-DCXX=arm-linux-gnueabihf-g++",
-				"-DHXCPP_STRIP=arm-linux-gnueabihf-strip",
-				"-DHXCPP_AR=arm-linux-gnueabihf-ar",
-				"-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib"
-			]);
-		}*/
 		else if (targetFlags.exists("hl") && System.hostArchitecture == X64)
 		{
 			// TODO: Support single binary
