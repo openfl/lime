@@ -491,38 +491,7 @@ class LinuxPlatform extends PlatformTarget
 	{
 		var commands = [];
 
-		if (targetFlags.exists("rpi"))
-		{
-			if (is64)
-			{
-				commands.push([
-					"-Dlinux",
-					"-Drpi",
-					"-Dtoolchain=linux",
-					"-DBINDIR=RPi64",
-					"-DHXCPP_ARM64",
-					"-DCXX=aarch64-linux-gnu-g++",
-					"-DHXCPP_STRIP=aarch64-linux-gnu-strip",
-					"-DHXCPP_AR=aarch64-linux-gnu-ar",
-					"-DHXCPP_RANLIB=aarch64-linux-gnu-ranlib"
-				]);
-			}
-			else
-			{
-				commands.push([
-					"-Dlinux",
-					"-Drpi",
-					"-Dtoolchain=linux",
-					"-DBINDIR=RPi",
-					"-DHXCPP_M32",
-					"-DCXX=arm-linux-gnueabihf-g++",
-					"-DHXCPP_STRIP=arm-linux-gnueabihf-strip",
-					"-DHXCPP_AR=arm-linux-gnueabihf-ar",
-					"-DHXCPP_RANLIB=arm-linux-gnueabihf-ranlib"
-				]);
-			}
-		}
-		else if (targetFlags.exists("hl") && System.hostArchitecture == X64)
+		if (targetFlags.exists("hl") && System.hostArchitecture == X64)
 		{
 			// TODO: Support single binary
 			commands.push(["-Dlinux", "-DHXCPP_M64", "-Dhashlink"]);
@@ -548,6 +517,11 @@ class LinuxPlatform extends PlatformTarget
 			{
 				commands.push(["-Dlinux", "-DHXCPP_ARMV7"]);
 			}
+		}
+
+		if (targetFlags.exists("rpi"))
+		{
+			commands.push(["-Drpi", "-DBINDIR=RPi64",]);
 		}
 
 		if (targetFlags.exists("hl"))
