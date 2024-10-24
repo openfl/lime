@@ -270,19 +270,7 @@ class Timer
 
 	public function stop():Void
 	{
-		if (mRunning)
-		{
-			mRunning = false;
-
-			for (i in 0...sRunningTimers.length)
-			{
-				if (sRunningTimers[i] == this)
-				{
-					sRunningTimers[i] = null;
-					break;
-				}
-			}
-		}
+		mRunning = false;
 	}
 
 	@:noCompletion private function __check(inTime:Float)
