@@ -2,6 +2,8 @@
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 
+	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" />
+
 	<files id="main">
 
 		<file name="Main.cpp" />
@@ -11,6 +13,7 @@
 	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
 
 		<files id="main" />
+		<files id="hxcpp_ssl" />
 		::foreach ndlls::
 		<lib name="::path::" />::end::
 
@@ -35,6 +38,7 @@
 			<lib name="rpcrt4.lib" />
 			<lib name="dwrite.lib" />
 			<lib name="setupapi.lib" />
+			<lib name="crypt32.lib" />
 
 		</section>
 
