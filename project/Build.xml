@@ -500,15 +500,6 @@
 
 			</section>
 
-			<section if=" linux HXCPP_ARMV7 || linux HXCPP_ARM64">
-
-				<lib name="-ldl" />
-				<lib name="-ldrm" />
-				<lib name="-lm" />
-				<lib name="-lEGL" />
-				<lib name="-lGLESv2" />
-			</section>
-
 			<section if="tvos">
 
 				<vflag name="-framework" value="UIKit" />
