@@ -189,13 +189,6 @@ class LinuxPlatform extends PlatformTarget
 				{
 					ProjectHelper.copyLibrary(project, ndll, "Linux" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug, targetSuffix);
 				}
-				else if (isRaspberryPi)
-				{
-					ProjectHelper.copyLibrary(project, ndll, "RPi" + (is64 ? "64" : ""), "",
-						(ndll.haxelib != null
-							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dso" : ".ndll", applicationDirectory,
-						project.debug, targetSuffix);
-				}
 				else if (isArm)
 				{
 					ProjectHelper.copyLibrary(project, ndll, "LinuxArm" + (is64 ? "64" : ""), "",
@@ -219,16 +212,8 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			if (isRaspberryPi)
-			{
-				NekoHelper.createExecutable(project.templatePaths, "rpi", targetDirectory + "/obj/ApplicationMain.n", executablePath);
-				NekoHelper.copyLibraries(project.templatePaths, "rpi", applicationDirectory);
-			}
-			else
-			{
-				NekoHelper.createExecutable(project.templatePaths, "linux" + (isArm ? "arm" : "") + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
-				NekoHelper.copyLibraries(project.templatePaths, "linux" + (isArm ? "arm" : "") + (is64 ? "64" : ""), applicationDirectory);
-			}
+			NekoHelper.createExecutable(project.templatePaths, "linux" + (isArm ? "arm" : "") + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.copyLibraries(project.templatePaths, "linux" + (isArm ? "arm" : "") + (is64 ? "64" : ""), applicationDirectory);
 		}
 		else if (targetType == "hl")
 		{
@@ -445,7 +430,7 @@ class LinuxPlatform extends PlatformTarget
 		context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
 		context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
 		context.CPP_DIR = targetDirectory + "/obj/";
-		context.BUILD_DIR = project.app.path + "/linux" + (isArm ? "arm" : "") + (is64 ? "64" : "") + (isRaspberryPi ? "-rpi" : "");
+		context.BUILD_DIR = project.app.path + "/linux" + (isArm ? "arm" : "") + (is64 ? "64" : "");
 		context.WIN_ALLOW_SHADERS = false;
 
 		return context;
@@ -521,7 +506,7 @@ class LinuxPlatform extends PlatformTarget
 
 		if (targetFlags.exists("rpi"))
 		{
-			commands.push(["-Drpi", "-DBINDIR=RPi64",]);
+			commands.push(["-Drpi"]);
 		}
 
 		if (targetFlags.exists("hl"))
@@ -590,14 +575,7 @@ class LinuxPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					if (isRaspberryPi)
-					{
-						context.ndlls[i].path = NDLL.getLibraryPath(ndll, "RPi" + (is64 ? "64" : ""), "lib", ".a", project.debug);
-					}
-					else
-					{
-						context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Linux" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "lib", ".a", project.debug);
-					}
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Linux" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "lib", ".a", project.debug);
 				}
 			}
 		}

@@ -127,17 +127,27 @@
 
         <section if="linux">
 
-             <compilerflag value="-mfpu=neon" if="HXCPP_ARMV7" />
-             <compilerflag value="-mfloat-abi=hard" if="HXCPP_ARMV7" />
-             <compilerflag value="-I-abi=hard" if="HXCPP_ARMV7 || HXCPP_ARM64" />
+             <section if="HXCPP_ARMV7 || HXCPP_ARM64">
+                <compilerflag value="-mfpu=neon" unless="HXCPP_ARM64" />
+                <compilerflag value="-mfloat-abi=hard" unless="HXCPP_ARM64" />
+                <compilerflag value="-I-abi=hard" />
+
+                <compilerflag value="-I/usr/include/dbus-1.0" />
+                <compilerflag value="-I/usr/include/interface/vcos/pthreads" />
+                <compilerflag value="-I/usr/include/interface/vmcs_host/linux" />
+                <compilerflag value="-I/usr/include/libdrm" />
+                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
+                <compilerflag value="-I/usr/local/include" />
+            </section>
 
             <compilerflag value="-DHAVE_LINUX_VERSION_H" />
             <compilerflag value="-D_REENTRANT" />
-            <compilerflag value="-mmmx" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-msse" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-msse2" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-msse3" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-mssse3" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-mmmx" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
 
             <set name="XINPUT2" value="${NATIVE_TOOLKIT_SDL_X11_XINPUT2}" />
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2=${XINPUT2}" if="XINPUT2" />
@@ -146,25 +156,6 @@
             <compilerflag value="-DNATIVE_TOOLKIT_SDL_X11_XINPUT2_SUPPORTS_MULTITOUCH=0" unless="XINPUT2" />
 
         </section>
-
-            <section if="rpi">
-
-                <compilerflag value="-mfpu=neon" unless="HXCPP_ARM64" />
-                <compilerflag value="-mfloat-abi=hard" unless="HXCPP_ARM64" />
-                <compilerflag value="-I-abi=hard" />
-
-                <compilerflag value="-I/opt/vc/include" />
-                <compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
-                <compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
-                <compilerflag value="-I/usr/include/dbus-1.0" />
-                <compilerflag value="-I/usr/include/interface/vcos/pthreads" />
-                <compilerflag value="-I/usr/include/interface/vmcs_host/linux" />
-                <compilerflag value="-I/usr/include/libdrm" />
-                <compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
-                <compilerflag value="-I/usr/lib/aarch64-linux-gnu/dbus-1.0/include" if="HXCPP_ARM64" />
-                <compilerflag value="-I/usr/local/include" />
-
-            </section>
 
         <section if="mac">
 
@@ -298,7 +289,7 @@
 
         </section>
 
-        <section if="android || ios || rpi || tvos || HXCPP_ARM64">
+        <section if="android || ios || tvos || HXCPP_ARM64">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles/SDL_render_gles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles2/SDL_render_gles2.c" />
@@ -391,6 +382,17 @@
 
         <section if="linux">
 
+            <section if="HXCPP_ARMV7 || HXCPP_ARM64">
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmopengles.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmevents.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmmouse.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmdyn.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmvideo.c" />
+
+                <!--<file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
+                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xfixes.c" />-->
+            </section>
+
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/alsa/SDL_alsa_audio.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/arts/SDL_artsaudio.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/dsp/SDL_dspaudio.c" />
@@ -436,19 +438,6 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11vulkan.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11window.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xinput2.c" />
-
-        </section>
-
-        <section if="rpi">
-
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmopengles.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmevents.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmmouse.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmdyn.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/kmsdrm/SDL_kmsdrmvideo.c" />
-
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/core/linux/SDL_fcitx.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/x11/SDL_x11xfixes.c" />
 
         </section>
 

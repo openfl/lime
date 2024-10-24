@@ -233,11 +233,8 @@
 
 			</section>
 
-			<section if="rpi">
+			<section if="linux HXCPP_ARMV7 || linux HXCPP_ARM64">
 
-				<compilerflag value="-I/opt/vc/include" />
-				<compilerflag value="-I/opt/vc/include/interface/vcos/pthreads" />
-				<compilerflag value="-I/opt/vc/include/interface/vmcs_host/linux" />
 				<compilerflag value="-I/usr/include/libdrm" />
 				<compilerflag value="-I/usr/include/dbus-1.0" />
 				<compilerflag value="-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include" unless="HXCPP_ARM64" />
@@ -503,17 +500,13 @@
 
 			</section>
 
-			<section if="rpi">
+			<section if=" linux HXCPP_ARMV7 || linux HXCPP_ARM64">
 
 				<lib name="-ldl" />
 				<lib name="-ldrm" />
 				<lib name="-lm" />
 				<lib name="-lEGL" />
 				<lib name="-lGLESv2" />
-				<!-- For legacy Pi driver support -->
-				<lib name="-lbcm_host" />
-				<lib name="-L/opt/vc/lib" />
-
 			</section>
 
 			<section if="tvos">

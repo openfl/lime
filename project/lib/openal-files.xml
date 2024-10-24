@@ -57,10 +57,10 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/hrtf.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mastering.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_c.cpp" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_neon.cpp" if="rpi || HXCPP_ARM64" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse.cpp" unless="rpi || android || HXCPP_ARM64" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse2.cpp" unless="rpi || android || HXCPP_ARM64" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse3.cpp" unless="rpi || android || HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_neon.cpp" if="HXCPP_ARMV7 || HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse.cpp" unless="HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse2.cpp" unless="HXCPP_ARM64" />
+        <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/mixer/mixer_sse3.cpp" unless="HXCPP_ARM64" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/panning.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/ringbuffer.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/uhjfilter.cpp" />
@@ -94,12 +94,12 @@
 
             <compilerflag value="-D_POSIX_C_SOURCE=200112L" />
             <compilerflag value="-D_XOPEN_SOURCE=500" />
-            <compilerflag value="-mmmx" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-msse" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-msse2" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-msse3" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-mssse3" unless="rpi || HXCPP_ARM64" />
-            <compilerflag value="-mfpu=neon" if="rpi" unless="HXCPP_ARM64" />
+            <compilerflag value="-mmmx" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="HXCPP_ARM64" />
+            <compilerflag value="-mfpu=neon" if="HXCPP_ARMV7" unless="HXCPP_ARM64" />
             <compilerflag value="-fcommon" />
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/alsa.cpp" />
