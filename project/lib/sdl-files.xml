@@ -298,7 +298,7 @@
 
         </section>
 
-        <section if="android || ios|| rpi || tvos || HXCPP_ARM64">
+        <section if="android || ios || rpi || tvos || HXCPP_ARM64">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles/SDL_render_gles.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/opengles2/SDL_render_gles2.c" />
