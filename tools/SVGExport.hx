@@ -78,12 +78,6 @@ class SVGExport
 
 			case LINUX:
 				var arguments = Sys.args();
-				var raspberryPi = false;
-
-				for (argument in arguments)
-				{
-					if (argument == "-rpi") raspberryPi = true;
-				}
 
 				if (System.hostArchitecture == X64)
 				{
