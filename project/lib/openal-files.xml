@@ -71,7 +71,6 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/almalloc.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alstring.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/dynload.cpp" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/common/polyphase_resampler.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/strutils.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/threads.cpp" />
 
