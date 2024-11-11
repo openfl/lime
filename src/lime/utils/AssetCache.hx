@@ -1,6 +1,7 @@
 package lime.utils;
 
 import haxe.macro.Compiler;
+import haxe.Constraints.IMap;
 import lime.media.AudioBuffer;
 import lime.graphics.Image;
 #if !(macro || commonjs)
@@ -13,10 +14,10 @@ import lime._internal.macros.AssetsMacro;
 #end
 class AssetCache
 {
-	public var audio:Map<String, AudioBuffer>;
+	public var audio:IMap<String, AudioBuffer>;
 	public var enabled:Bool = true;
-	public var image:Map<String, Image>;
-	public var font:Map<String, Dynamic /*Font*/>;
+	public var image:IMap<String, Image>;
+	public var font:IMap<String, Dynamic /*Font*/>;
 	public var version:Int;
 
 	public function new()
