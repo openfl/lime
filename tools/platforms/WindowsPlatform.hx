@@ -986,12 +986,12 @@ class WindowsPlatform extends PlatformTarget
 
 			var msvc19 = true;
 
-			if ((!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
+			if (project.defines.exists("mingw") || (!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
 			{
 				msvc19 = false;
 			}
 
-			var suffix = (msvc19 ? "-19.lib" : ".lib");
+			var suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
 
 			for (i in 0...project.ndlls.length)
 			{
