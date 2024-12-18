@@ -23,11 +23,11 @@
 
 		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
 
-		<compilerflag value="-mmmx" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse2" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse3" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-mssse3" if="linux || mac" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-mmmx" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-msse" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-msse2" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-msse3" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-mssse3" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
 
 		<compilerflag value="-Wno-attributes" if="android" />
 		<compilerflag value="-Wno-tautological-constant-out-of-range-compare" if="mac || ios || tvos" />
