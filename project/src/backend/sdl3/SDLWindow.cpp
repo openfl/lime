@@ -170,13 +170,10 @@ namespace lime {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 
-		HINSTANCE handle = ::GetModuleHandle (nullptr);
+	HINSTANCE handle = ::GetModuleHandle (nullptr);
 		HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
 
 		if (icon != nullptr) {
-
-			SDL_SysWMinfo wminfo;
-			SDL_VERSION (&wminfo.version);
 			HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(sdlWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 			if (hwnd) {
 				#ifdef _WIN64
@@ -315,9 +312,6 @@ namespace lime {
 		int count = 0;
 		int speed = 0;
 		bool stopOnForeground = true;
-
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
 
 		FLASHWINFO fi;
 		fi.cbSize = sizeof (FLASHWINFO);
