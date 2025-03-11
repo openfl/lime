@@ -23,7 +23,7 @@
 /* Define if we have SSE CPU extensions */
 #define HAVE_SSE 1
 #define HAVE_SSE2 1
-#define FORCE_ALIGN __attribute__((force_align_arg_pointer))
+#define FORCE_ALIGN
 #define HAVE_SSE3 0
 #define HAVE_SSE4_1 0
 
