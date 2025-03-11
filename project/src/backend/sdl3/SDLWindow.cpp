@@ -932,7 +932,7 @@ namespace lime {
 
 		}
 
-		SDL_DisplayMode mode = { GetDisplay(), pixelFormat, displayMode->width, displayMode->height, (float)(SDL_GetDesktopDisplayMode(1)->pixel_density), (float)(displayMode->refreshRate), 0, 0 };
+		SDL_DisplayMode mode = { static_cast<SDL_DisplayID>(GetDisplay()), pixelFormat, displayMode->width, displayMode->height, (float)(SDL_GetDesktopDisplayMode(1)->pixel_density), (float)(displayMode->refreshRate), 0, 0 };
 
 		if (SDL_SetWindowFullscreenMode (sdlWindow, &mode)) {
 
