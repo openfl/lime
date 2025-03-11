@@ -6,7 +6,7 @@
 #include <SDL3/SDL_render.h>
 
 #ifdef HX_WINDOWS
-#include <SDL3/SDL_syswm.h>
+#include <SDL3/SDL_properties.h>
 #include <Windows.h>
 #undef CreateWindow
 #endif
@@ -177,11 +177,8 @@ namespace lime {
 
 			SDL_SysWMinfo wminfo;
 			SDL_VERSION (&wminfo.version);
-
-			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
-
-				HWND hwnd = wminfo.info.win.window;
-
+			HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(sdlWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+			if (hwnd) {
 				#ifdef _WIN64
 				::SetClassLongPtr (hwnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(icon));
 				#else
@@ -321,11 +318,10 @@ namespace lime {
 
 		SDL_SysWMinfo info;
 		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
 
 		FLASHWINFO fi;
 		fi.cbSize = sizeof (FLASHWINFO);
-		fi.hwnd = info.info.win.window;
+		fi.hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(sdlWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
 		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
 		fi.uCount = count;
 		fi.dwTimeout = speed;
