@@ -1052,6 +1052,10 @@ namespace lime {
 			while (*characters != 0) {
 
 				character = readNextChar (characters);
+
+				if (character == -1)
+					break;
+
 				index = FT_Get_Char_Index ((FT_Face)face, character);
 				val_array_push (indices, alloc_int (index));
 
@@ -1064,22 +1068,30 @@ namespace lime {
 			unsigned long character;
 			int index;
 			int count = 0;
-
-			// TODO: Determine array size first
+			const char* characters_start = characters;
 
 			while (*characters != 0) {
 
 				character = readNextChar (characters);
+
+				if (character == -1)
+					break;
+
 				count++;
 
 			}
 
 			hl_varray* indices = (hl_varray*)hl_alloc_array (&hlt_i32, count);
 			int* indicesData = hl_aptr (indices, int);
+			characters = characters_start;
 
 			while (*characters != 0) {
 
 				character = readNextChar (characters);
+
+				if (character == -1)
+					break;
+
 				*indicesData++ = FT_Get_Char_Index ((FT_Face)face, character);
 
 			}
