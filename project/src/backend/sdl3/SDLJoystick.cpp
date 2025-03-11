@@ -58,9 +58,9 @@ namespace lime {
 	void SDLJoystick::Init () {
 
 		#if defined(IPHONE) || defined(ANDROID) || defined(TVOS)
-		for (int i = 0; i < SDL_NumJoysticks (); i++) {
+		for (int i = 1; i <= (sizeof(SDL_GetJoysticks(NULL)) / sizeof(SDL_GetJoysticks(NULL)[0])); i++) {
 
-			if (strstr (SDL_JoystickNameForIndex (i), "Accelerometer")) {
+			if (strstr (SDL_JoystickNameForID (i), "Accelerometer")) {
 
 				accelerometer = SDL_OpenJoystick (i);
 				accelerometerID = SDL_GetJoystickID (accelerometer);
