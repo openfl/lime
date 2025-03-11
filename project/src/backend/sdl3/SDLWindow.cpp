@@ -3,7 +3,7 @@
 #include "SDLApplication.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
-#include <SDL2/SDL_render.h>
+#include <SDL3/SDL_render.h>
 
 #ifdef HX_WINDOWS
 #include <SDL3/SDL_syswm.h>
