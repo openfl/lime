@@ -73,6 +73,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-trap.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-utils.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-x86.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-riscv.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman.c" />
 
 	</files>

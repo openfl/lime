@@ -15,9 +15,6 @@
    3. Update the version number(s) if they've changed.
 **/
 
-/* Define if building universal (internal helper macro) */
-/* #undef AC_APPLE_UNIVERSAL_BUILD */
-
 /* Whether we have alarm() */
 #ifdef HX_LINUX
 #define HAVE_ALARM 1
@@ -30,13 +27,6 @@
 #define HAVE_BUILTIN_CLZ /**/
 #else
 /* #undef HAVE_BUILTIN_CLZ */
-#endif
-
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#ifndef HX_WINDOWS
-#define HAVE_DLFCN_H 1
-#else
-/* #undef HAVE_DLFCN_H */
 #endif
 
 /* Whether we have FE_DIVBYZERO */
@@ -106,13 +96,6 @@
 #define HAVE_LIBPNG 1
 #else
 /* #undef HAVE_LIBPNG */
-#endif
-
-/* Define to 1 if you have the <memory.h> header file. */
-#ifdef HX_LINUX
-#define HAVE_MEMORY_H 1
-#else
-/* #undef HAVE_MEMORY_H */
 #endif
 
 /* Whether we have mmap() */
@@ -199,24 +182,6 @@
 
 /* Name of package */
 #define PACKAGE "pixman"
-
-/* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "pixman@lists.freedesktop.org"
-
-/* Define to the full name of this package. */
-#define PACKAGE_NAME "pixman"
-
-/* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pixman 0.42.2"
-
-/* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "pixman"
-
-/* Define to the home page for this package. */
-#define PACKAGE_URL ""
-
-/* Define to the version of this package. */
-#define PACKAGE_VERSION "0.42.2"
 
 /* enable output that can be piped to gnuplot */
 /* #undef PIXMAN_GNUPLOT */
@@ -316,9 +281,6 @@
 /* #undef USE_X86_MMX */
 #endif
 
-/* Version number of package */
-#define VERSION "0.42.2"
-
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
@@ -336,6 +298,3 @@
 #ifndef __cplusplus
 /* #undef inline */
 #endif
-
-/* Define to sqrt if you do not have the `sqrtf' function. */
-/* #undef sqrtf */
