@@ -7,8 +7,8 @@
 
 	<files id="native-toolkit-pixman">
 
-		<section if="android HXCPP_CLANG || NDKV20+" unless="NDKV22+">
-			<compilerflag value="-fno-integrated-as" if="HXCPP_ARMV7" />
+		<section if="PIXMAN_ARM_NEON HXCPP_CLANG || PIXMAN_ARM_NEON NDKV20+">
+			<compilerflag value="-fno-integrated-as" />
 			<compilerflag value="-march=armv7-a" if="HXCPP_ARMV7" />
 		</section>
 
