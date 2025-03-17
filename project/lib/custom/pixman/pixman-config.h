@@ -217,6 +217,8 @@
 /* #undef TOOLCHAIN_SUPPORTS_ATTRIBUTE_CONSTRUCTOR */
 #endif
 
+#define ASM_HAVE_SYNTAX_UNIFIED
+
 /* use ARM A64_NEON assembly optimizations */
 /* #undef USE_ARM_A64_NEON */
 
