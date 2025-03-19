@@ -152,6 +152,7 @@ class Window
 				"textInputEnabled": {get: p.get_textInputEnabled, set: p.set_textInputEnabled},
 				"title": {get: p.get_title, set: p.set_title},
 				"visible": {get: p.get_visible, set: p.set_visible},
+				"alwaysOnTop": {get: p.get_alwaysOnTop, set: p.set_alwaysOnTop},
 				"width": {get: p.get_width, set: p.set_width},
 				"x": {get: p.get_x, set: p.set_y},
 				"y": {get: p.get_x, set: p.set_y}
