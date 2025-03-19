@@ -717,6 +717,18 @@ class NativeWindow
 		return value;
 	}
 
+	public function setAlwaysOnTop(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_always_on_top(handle, value);
+			#end
+		}
+
+		return value;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void
 	{
 		#if (!macro && lime_cffi)
