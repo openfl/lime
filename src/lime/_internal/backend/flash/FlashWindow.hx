@@ -649,5 +649,10 @@ class FlashWindow
 		return value;
 	}
 
+	public function setAlwaysOnTop(value:Bool):Bool
+	{
+		return value;
+	}
+
 	public function warpMouse(x:Int, y:Int):Void {}
 }
