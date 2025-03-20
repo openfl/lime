@@ -171,6 +171,12 @@ class Window
 		__x = 0;
 		__y = 0;
 		__title = Reflect.hasField(__attributes, "title") ? __attributes.title : "";
+		__visible = true;
+		__borderless = Reflect.hasField(__attributes, "borderless") ? __attributes.borderless : false;
+		__resizable = Reflect.hasField(__attributes, "resizable") ? __attributes.resizable : false;
+		__maximized = Reflect.hasField(__attributes, "maximized") ? __attributes.maximized : false;
+		__minimized = Reflect.hasField(__attributes, "minimized") ? __attributes.minimized : false;
+
 		id = -1;
 
 		__backend = new WindowBackend(this);
