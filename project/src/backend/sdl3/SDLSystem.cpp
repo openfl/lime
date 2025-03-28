@@ -916,9 +916,11 @@ namespace lime {
 		System::GCEnterBlocking ();
 
 		#ifndef HX_WINDOWS
-  if(size > 0 && count > 0)
-	  	nmem = SDL_ReadIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size * count) / size;
-  else nmem = 0;
+		
+        if(size > 0 && count > 0)
+	  	    nmem = SDL_ReadIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size * count) / size;
+        else
+		    nmem = 0;
 
 		#else
 
@@ -980,9 +982,11 @@ namespace lime {
 		System::GCEnterBlocking ();
 
 		#ifndef HX_WINDOWS
-  if(size > 0 && count > 0)
-		  nmem = SDL_WriteIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size *count) / size;
-  else nmem = 0;
+		
+  		if(size > 0 && count > 0)
+            nmem = SDL_WriteIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size * count) / size;
+        else 
+		    nmem = 0;
 
 		#else
 
