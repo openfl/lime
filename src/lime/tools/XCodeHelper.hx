@@ -54,6 +54,21 @@ class XCodeHelper
 		return id;
 	}
 
+	public static function getBootedSimulatorID():String 
+	{
+		// attempts to find a simulator which is currently booted and running
+		var result = System.runProcess("", "xcrun", ["simctl", "list", "devices", "booted"]);
+		var lines = result.split("\n");
+		for (line in lines) {
+			// Match a line like: "    iPhone 15 Pro (E5B048F6-BE70-498E-B5F6-B84B8594DDBF) (Booted)"
+			var match = ~/.*\(([A-F0-9\-]{36})\)\s+\(Booted\)/;
+			if (match.match(line)) {
+				return match.matched(1);
+			}
+		}
+		return null;
+	}
+	
 	public static function getSelectedSimulator(project:HXProject):SimulatorInfo
 	{
 		var output = getSimulators();
@@ -173,6 +188,15 @@ class XCodeHelper
 
 	public static function getSimulatorID(project:HXProject):String
 	{
+		// try and get the simulator which is currently open and running
+		// if there are none running then fall back to getting the selected simulator
+		var booted = getBootedSimulatorID();
+		if (booted != null) 
+		{
+			// we found a running simulator, so use that
+			return booted;
+		}
+
 		var simulator = getSelectedSimulator(project);
 		if (simulator == null)
 		{
