@@ -917,7 +917,7 @@ namespace lime {
 
 		#ifndef HX_WINDOWS
 
-		nmem = SDL_ReadIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size);
+		nmem = SDL_ReadIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size*count);
 
 		#else
 
@@ -980,7 +980,7 @@ namespace lime {
 
 		#ifndef HX_WINDOWS
 
-		nmem = SDL_WriteIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size);
+		nmem = SDL_WriteIO (stream ? (SDL_IOStream*)stream->handle : NULL, ptr, size*count);
 
 		#else
 
