@@ -447,6 +447,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/core/windows/SDL_windows.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/core/windows/SDL_xinput.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/core/windows/SDL_immdevice.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/core/windows/SDL_gameinput.c" />
             <!--<file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/joystick/windows/SDL_mmjoystick.c" />-->
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/joystick/windows/SDL_dinputjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/joystick/windows/SDL_windowsjoystick.c" />
