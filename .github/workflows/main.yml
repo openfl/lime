@@ -53,6 +53,8 @@ jobs:
       - name: Rebuild Lime svg.n
         working-directory: tools
         run: |
+          haxelib install openfl
+          haxelib install svg
           haxe svg.hxml
 
       - uses: actions/upload-artifact@v4
@@ -150,6 +152,8 @@ jobs:
       - name: Rebuild Lime svg.n
         working-directory: tools
         run: |
+          haxelib install openfl
+          haxelib install svg
           haxe svg.hxml
 
       - uses: actions/upload-artifact@v4
@@ -236,6 +240,8 @@ jobs:
       - name: Rebuild Lime svg.n
         working-directory: tools
         run: |
+          haxelib install openfl
+          haxelib install svg
           haxe svg.hxml
 
       - uses: actions/upload-artifact@v4
@@ -344,6 +350,8 @@ jobs:
       - name: Rebuild Lime svg.n
         working-directory: tools
         run: |
+          haxelib install openfl
+          haxelib install svg
           haxe svg.hxml
 
       - uses: actions/upload-artifact@v4
@@ -411,6 +419,8 @@ jobs:
       - name: Rebuild Lime svg.n
         working-directory: tools
         run: |
+          haxelib install openfl
+          haxelib install svg
           haxe svg.hxml
 
       - uses: actions/upload-artifact@v4
