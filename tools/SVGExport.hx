@@ -1,5 +1,6 @@
 package;
 
+import haxe.Exception;
 import format.SVG;
 import hxp.*;
 import lime.tools.Architecture;
@@ -172,9 +173,7 @@ class SVGExport
 			}
 			catch (e:Dynamic)
 			{
-				if(e!=null && e.message!=null && Log.verbose)
-					Log.println(e.message);
-				Log.error(e);
+				Log.error(e.message ? e.message : null, e.details ? e.details : null, e);
 			}
 		}
 	}
