@@ -632,7 +632,25 @@ namespace lime {
 		#ifndef HX_WINDOWS
 
 		SDL_PropertiesID properties = SDL_GetIOProperties((SDL_IOStream*)handle);
-		return (FILE*)SDL_GetPointerProperty(properties, SDL_PROP_IOSTREAM_STDIO_FILE_POINTER, NULL);
+
+		FILE* filePointer = (FILE*)SDL_GetPointerProperty(properties, SDL_PROP_IOSTREAM_STDIO_FILE_POINTER, NULL);
+
+		if(filePointer != NULL)
+			return filePointer
+
+		#ifdef ANDROID
+			System::GCEnterBlocking ();
+			int fd;
+			off_t outStart;
+			off_t outLength;
+			fd = AAsset_openFileDescriptor ((AAsset*)SDL_GetPointerProperty(properties, SDL_PROP_IOSTREAM_ANDROID_AASSET_POINTER, NULL), &outStart, &outLength);
+			FILE* file = ::fdopen (fd, "rb");
+			::fseek (file, outStart, 0);
+			System::GCExitBlocking ();
+			return file;
+		#endif
+
+		return NULL;
 
 		#else
 
