@@ -374,7 +374,6 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-          brew install sdl3 # Building iOS apps needs SDL_main.h
 
       - name: Enable HXCPP compile cache
         run: |
