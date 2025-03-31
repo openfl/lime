@@ -172,6 +172,8 @@ class SVGExport
 			}
 			catch (e:Dynamic)
 			{
+				if(e!=null && e.message!=null && Log.verbose)
+					Log.println(e.message);
 				Log.error(e);
 			}
 		}
