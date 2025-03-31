@@ -636,7 +636,7 @@ namespace lime {
 		FILE* filePointer = (FILE*)SDL_GetPointerProperty(properties, SDL_PROP_IOSTREAM_STDIO_FILE_POINTER, NULL);
 
 		if(filePointer != NULL)
-			return filePointer
+			return filePointer;
 
 		#ifdef ANDROID
 			System::GCEnterBlocking ();
