@@ -536,7 +536,6 @@
 
 				<vflag name="-l" value="iconv" />
 				<vflag name="-framework" value="IOKit" />
-				<vflag name="-framework" value="UIKit" />
 				<vflag name="-framework" value="Foundation" />
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="AudioToolbox" />
