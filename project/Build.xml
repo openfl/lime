@@ -31,8 +31,8 @@
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
-	<!-- <set name="LIME_SDL" value="1" /> -->
-	<set name="LIME_SDL3" value="1" />
+	<set name="LIME_SDL" value="1" if="mojoal || winrt || switch" />
+	<set name="LIME_SDL3" value="1" unless="LIME_SDL" />
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
