@@ -628,9 +628,17 @@ namespace lime {
 
 
 	FILE* FILE_HANDLE::getFile () {
+
+		#ifndef HX_WINDOWS
+
 		SDL_PropertiesID properties = SDL_GetIOProperties((SDL_IOStream*)handle);
 		return (FILE*)SDL_GetPointerProperty(properties, SDL_PROP_IOSTREAM_STDIO_FILE_POINTER, NULL);
 
+		#else
+
+		return (FILE*)handle;
+
+		#endif
 	}
 
 
