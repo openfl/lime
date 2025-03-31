@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <SDL3/SDL_main.h>
+#include "SDL3/SDL_main.h"
 
 extern "C" const char *hxRunLibrary ();
 extern "C" void hxcpp_set_top_of_stack ();
