@@ -579,9 +579,11 @@
         <section if="ios || tvos">
 
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/audio/coreaudio/SDL_coreaudio.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/camera/coremedia/SDL_camera_coremedia.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/filesystem/cocoa/SDL_sysfilesystem.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/joystick/apple/SDL_mfijoystick.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/haptic/dummy/SDL_syshaptic.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/tray/dummy/SDL_tray.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/hidapi/ios/hid.m" />
             <!-- <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/main/uikit/SDL_uikit_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" /> -->
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/power/uikit/SDL_syspower.m" />
@@ -596,11 +598,15 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitopengles.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitopenglview.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitvideo.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitpen.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitview.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitviewcontroller.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitvulkan.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/uikit/SDL_uikitwindow.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/misc/ios/SDL_sysurl.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/gpu/vulkan/SDL_gpu_vulkan.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/gpu/metal/SDL_gpu_metal.m" />
+
 
             <compilerflag value="-fobjc-arc" />
 
