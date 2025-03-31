@@ -492,7 +492,7 @@
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
 				<lib name="setupapi.lib" />
-				
+
 				<lib name="avrt.lib" if ="LIME_OPENALSOFT"/>
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
@@ -546,11 +546,13 @@
 				<vflag name="-framework" value="Cocoa" />
 				<vflag name="-framework" value="CoreAudio" />
 				<vflag name="-framework" value="CoreVideo" />
-     				<vflag name="-framework" value="CoreHaptics" />
+				<vflag name="-framework" value="CoreMedia" />
+     			<vflag name="-framework" value="CoreHaptics" />
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="GameController" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="Metal" />
 				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
