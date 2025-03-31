@@ -547,6 +547,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/haptic/darwin/SDL_syshaptic.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/joystick/darwin/SDL_iokitjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/filesystem/cocoa/SDL_sysfilesystem.m" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/metal/SDL_render_metal.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/cocoa/SDL_cocoaclipboard.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/cocoa/SDL_cocoaevents.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/cocoa/SDL_cocoakeyboard.m" />
