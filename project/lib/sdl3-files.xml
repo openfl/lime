@@ -615,7 +615,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/joystick/android/SDL_sysjoystick.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/filesystem/android/SDL_sysfilesystem.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/hidapi/android/hid.cpp" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/main/android/SDL_android_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" />
+            <!-- <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/main/android/SDL_android_main.c" if="NATIVE_TOOLKIT_SDL_STATIC" /> -->
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/power/android/SDL_syspower.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/sensor/android/SDL_androidsensor.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidclipboard.c" />
