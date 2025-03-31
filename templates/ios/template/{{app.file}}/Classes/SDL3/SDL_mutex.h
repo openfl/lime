@@ -40,10 +40,10 @@
  * threads might try to use for the first time simultaneously.
  */
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_atomic.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_thread.h>
+#include "SDL_stdinc.h"
+#include "SDL_atomic.h"
+#include "SDL_error.h"
+#include "SDL_thread.h"
 
 #ifdef SDL_WIKI_DOCUMENTATION_SECTION
 
@@ -270,7 +270,7 @@
 /******************************************************************************/
 
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -1068,6 +1068,6 @@ extern SDL_DECLSPEC void SDLCALL SDL_SetInitialized(SDL_InitState *state, bool i
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_mutex_h_ */

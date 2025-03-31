@@ -117,11 +117,11 @@
 #ifndef SDL_haptic_h_
 #define SDL_haptic_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_joystick.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_joystick.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -1436,6 +1436,6 @@ extern SDL_DECLSPEC bool SDLCALL SDL_StopHapticRumble(SDL_Haptic *haptic);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_haptic_h_ */

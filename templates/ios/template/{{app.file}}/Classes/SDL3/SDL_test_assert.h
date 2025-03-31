@@ -34,9 +34,9 @@
 #ifndef SDL_test_assert_h_
 #define SDL_test_assert_h_
 
-#include <SDL3/SDL_stdinc.h>
+#include "SDL_stdinc.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -93,6 +93,6 @@ int SDLCALL SDLTest_AssertSummaryToTestResult(void);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_test_assert_h_ */

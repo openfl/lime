@@ -243,12 +243,12 @@
 #ifndef SDL_storage_h_
 #define SDL_storage_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_filesystem.h>
-#include <SDL3/SDL_properties.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_filesystem.h"
+#include "SDL_properties.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
@@ -677,6 +677,6 @@ extern SDL_DECLSPEC char ** SDLCALL SDL_GlobStorageDirectory(SDL_Storage *storag
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_storage_h_ */

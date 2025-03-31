@@ -23,7 +23,7 @@
  * This is a simple file to encapsulate the OpenGL ES 2.0 API headers.
  */
 
-#include <SDL3/SDL_platform_defines.h>
+#include "SDL_platform_defines.h"
 
 #if !defined(_MSC_VER) && !defined(SDL_USE_BUILTIN_OPENGL_DEFINITIONS)
 
@@ -39,10 +39,10 @@
 #else /* _MSC_VER */
 
 /* OpenGL ES2 headers for Visual Studio */
-#include <SDL3/SDL_opengles2_khrplatform.h>
-#include <SDL3/SDL_opengles2_gl2platform.h>
-#include <SDL3/SDL_opengles2_gl2.h>
-#include <SDL3/SDL_opengles2_gl2ext.h>
+#include "SDL_opengles2_khrplatform.h"
+#include "SDL_opengles2_gl2platform.h"
+#include "SDL_opengles2_gl2.h"
+#include "SDL_opengles2_gl2ext.h"
 
 #endif /* _MSC_VER */
 

@@ -39,9 +39,9 @@
 #ifndef SDL_pen_h_
 #define SDL_pen_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_mouse.h>
-#include <SDL3/SDL_touch.h>
+#include "SDL_stdinc.h"
+#include "SDL_mouse.h"
+#include "SDL_touch.h"
 
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus

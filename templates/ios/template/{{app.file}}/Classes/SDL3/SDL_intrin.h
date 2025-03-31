@@ -49,7 +49,7 @@
 #ifndef SDL_intrin_h_
 #define SDL_intrin_h_
 
-#include <SDL3/SDL_stdinc.h>
+#include "SDL_stdinc.h"
 
 #ifdef SDL_WIKI_DOCUMENTATION_SECTION
 

@@ -46,7 +46,7 @@
 #ifndef SDL_stdinc_h_
 #define SDL_stdinc_h_
 
-#include <SDL3/SDL_platform_defines.h>
+#include "SDL_platform_defines.h"
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -1188,7 +1188,7 @@ SDL_COMPILE_TIME_ASSERT(enum, sizeof(SDL_DUMMY_ENUM) == sizeof(int));
 #endif /* DOXYGEN_SHOULD_IGNORE_THIS */
 /** \endcond */
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -6116,6 +6116,6 @@ typedef void (*SDL_FunctionPointer)(void);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_stdinc_h_ */

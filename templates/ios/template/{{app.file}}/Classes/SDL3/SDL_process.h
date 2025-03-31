@@ -43,12 +43,12 @@
 #ifndef SDL_process_h_
 #define SDL_process_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_iostream.h>
-#include <SDL3/SDL_properties.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_iostream.h"
+#include "SDL_properties.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -425,6 +425,6 @@ extern SDL_DECLSPEC void SDLCALL SDL_DestroyProcess(SDL_Process *process);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_process_h_ */

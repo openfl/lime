@@ -53,15 +53,15 @@
 #ifndef SDL_joystick_h_
 #define SDL_joystick_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_guid.h>
-#include <SDL3/SDL_mutex.h>
-#include <SDL3/SDL_power.h>
-#include <SDL3/SDL_properties.h>
-#include <SDL3/SDL_sensor.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_guid.h"
+#include "SDL_mutex.h"
+#include "SDL_power.h"
+#include "SDL_properties.h"
+#include "SDL_sensor.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -1197,6 +1197,6 @@ extern SDL_DECLSPEC SDL_PowerState SDLCALL SDL_GetJoystickPowerInfo(SDL_Joystick
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_joystick_h_ */

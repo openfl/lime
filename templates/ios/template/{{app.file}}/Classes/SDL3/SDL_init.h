@@ -49,11 +49,11 @@
 #ifndef SDL_init_h_
 #define SDL_init_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_events.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_events.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -492,6 +492,6 @@ extern SDL_DECLSPEC const char * SDLCALL SDL_GetAppMetadataProperty(const char *
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_init_h_ */

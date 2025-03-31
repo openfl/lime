@@ -32,12 +32,12 @@
 #ifndef SDL_tray_h_
 #define SDL_tray_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_surface.h>
-#include <SDL3/SDL_video.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_surface.h"
+#include "SDL_video.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -539,6 +539,6 @@ extern SDL_DECLSPEC void SDLCALL SDL_UpdateTrays(void);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_tray_h_ */

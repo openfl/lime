@@ -33,15 +33,15 @@
 #ifndef SDL_keyboard_h_
 #define SDL_keyboard_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_keycode.h>
-#include <SDL3/SDL_properties.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_scancode.h>
-#include <SDL3/SDL_video.h>
+#include "SDL_stdinc.h"
+#include "SDL_error.h"
+#include "SDL_keycode.h"
+#include "SDL_properties.h"
+#include "SDL_rect.h"
+#include "SDL_scancode.h"
+#include "SDL_video.h"
 
-#include <SDL3/SDL_begin_code.h>
+#include "SDL_begin_code.h"
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {
@@ -604,6 +604,6 @@ extern SDL_DECLSPEC bool SDLCALL SDL_ScreenKeyboardShown(SDL_Window *window);
 #ifdef __cplusplus
 }
 #endif
-#include <SDL3/SDL_close_code.h>
+#include "SDL_close_code.h"
 
 #endif /* SDL_keyboard_h_ */

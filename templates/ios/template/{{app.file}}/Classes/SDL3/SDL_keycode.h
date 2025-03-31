@@ -33,8 +33,8 @@
 #ifndef SDL_keycode_h_
 #define SDL_keycode_h_
 
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_scancode.h>
+#include "SDL_stdinc.h"
+#include "SDL_scancode.h"
 
 /**
  * The SDL virtual key representation.

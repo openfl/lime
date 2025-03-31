@@ -33,7 +33,7 @@
 #ifndef SDL_scancode_h_
 #define SDL_scancode_h_
 
-#include <SDL3/SDL_stdinc.h>
+#include "SDL_stdinc.h"
 
 /**
  * The SDL keyboard scancode representation.
