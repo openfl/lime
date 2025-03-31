@@ -50,6 +50,11 @@ jobs:
           lime rebuild linux -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
       - uses: actions/upload-artifact@v4
         with:
           name: Linux-NDLL
@@ -142,6 +147,11 @@ jobs:
           lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
       - uses: actions/upload-artifact@v4
         with:
           name: Mac64-NDLL
@@ -223,6 +233,11 @@ jobs:
           lime rebuild windows -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-NDLL
@@ -256,10 +271,10 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      #- name: Build HelloWorld sample
-      #  run: |
-      #    lime create HelloWorld -verbose -nocolor
-      #    lime build HelloWorld windows -release -verbose -nocolor
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld windows -release -verbose -nocolor
 
       - name: Build SimpleImage sample
         run: |
@@ -326,6 +341,11 @@ jobs:
         run: |
           lime rebuild android -release -nocolor -verbose -nocffi -eval
 
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
+
       - uses: actions/upload-artifact@v4
         with:
           name: Android-NDLL
@@ -387,6 +407,11 @@ jobs:
       - name: Rebuild Lime (iOS)
         run: |
           lime rebuild ios -clean -release -verbose -nocolor -eval
+
+      - name: Rebuild Lime svg.n
+        working-directory: tools
+        run: |
+          haxe svg.hxml
 
       - uses: actions/upload-artifact@v4
         with:
