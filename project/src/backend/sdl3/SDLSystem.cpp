@@ -397,16 +397,16 @@ namespace lime {
 
 			alloc_field (display, id_currentMode, (value)mode.Value ());
 
-			SDL_DisplayMode **displayModes = SDL_GetFullscreenDisplayModes (id, NULL);
-			int numDisplayModes = sizeof(displayModes) / sizeof(displayModes[0]);
+			int numDisplayModes;
+			SDL_DisplayMode **displayModes = SDL_GetFullscreenDisplayModes (id, &numDisplayModes);
 			value supportedModes = alloc_array (numDisplayModes);
 
 			for (int i = 0; i < numDisplayModes; i++) {
 
-				displayMode = displayModes[i];
-				mode.height = displayMode->h;
+				SDL_DisplayMode *sdlDisplayMode = displayModes[i];
+				mode.height = sdlDisplayMode->h;
 
-				switch (displayMode->format) {
+				switch (sdlDisplayMode->format) {
 
 					case SDL_PIXELFORMAT_ARGB8888:
 
@@ -425,8 +425,8 @@ namespace lime {
 
 				}
 
-				mode.refreshRate = displayMode->refresh_rate;
-				mode.width = displayMode->w;
+				mode.refreshRate = sdlDisplayMode->refresh_rate;
+				mode.width = sdlDisplayMode->w;
 
 				val_array_set_i (supportedModes, i, (value)mode.Value ());
 
@@ -544,19 +544,19 @@ namespace lime {
 			hl_dyn_seti (_displayMode, id_width, &hlt_i32, mode.width);
 			hl_dyn_setp (display, id_currentMode, &hlt_dynobj, _displayMode);
 
-			SDL_DisplayMode **displayModes = SDL_GetFullscreenDisplayModes (id, NULL);
-			int numDisplayModes = sizeof(displayModes) / sizeof(displayModes[0]);
+			int numDisplayModes;
+			SDL_DisplayMode **displayModes = SDL_GetFullscreenDisplayModes (id, &numDisplayModes);
 
 			hl_varray* supportedModes = (hl_varray*)hl_alloc_array (&hlt_dynobj, numDisplayModes);
 			vdynamic** supportedModesData = hl_aptr (supportedModes, vdynamic*);
 
 			for (int i = 0; i < numDisplayModes; i++) {
 
-				displayModes[i];
+				SDL_DisplayMode *sdlDisplayMode = displayModes[i];
 
-				mode.height = displayMode->h;
+				mode.height = sdlDisplayMode->h;
 
-				switch (displayMode->format) {
+				switch (sdlDisplayMode->format) {
 
 					case SDL_PIXELFORMAT_ARGB8888:
 
@@ -575,8 +575,8 @@ namespace lime {
 
 				}
 
-				mode.refreshRate = displayMode->refresh_rate;
-				mode.width = displayMode->w;
+				mode.refreshRate = sdlDisplayMode->refresh_rate;
+				mode.width = sdlDisplayMode->w;
 
 				vdynamic* _displayMode = (vdynamic*)hl_alloc_dynobj ();
 				hl_dyn_seti (_displayMode, id_height, &hlt_i32, mode.height);
@@ -597,8 +597,9 @@ namespace lime {
 
 
 	int System::GetNumDisplays () {
-
-		return (sizeof(SDL_GetDisplays(NULL)) / sizeof(SDL_GetDisplays(NULL)[0]));
+		int numDisplays;
+		SDL_GetDisplays(&numDisplays);
+		return numDisplays;
 
 	}
 
