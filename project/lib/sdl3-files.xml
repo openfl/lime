@@ -221,6 +221,9 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/loadso/dlopen/SDL_sysloadso.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/opengl/SDL_render_gl.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/opengl/SDL_shaders_gl.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/vulkan/SDL_render_vulkan.c" if="android" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/vulkan/SDL_shaders_vulkan.c" if="android" />
+        <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/SDL_d3dmath.c" if="android" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/software/SDL_blendfillrect.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/software/SDL_blendline.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/render/software/SDL_blendpoint.c" />
@@ -628,12 +631,18 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidevents.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidgl.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidkeyboard.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidmessagebox.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidmouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidpen.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidtouch.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidvideo.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidvulkan.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidwindow.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidmessagebox.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/video/android/SDL_androidmouse.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/gpu/vulkan/SDL_gpu_vulkan.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/tray/dummy/SDL_tray.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/dialog/android/SDL_androiddialog.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/camera/android/SDL_camera_android.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/process/dummy/SDL_dummyprocess.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl3/src/misc/android/SDL_sysurl.c" />
 
         </section>

@@ -58,11 +58,13 @@ namespace lime {
 	void SDLJoystick::Init () {
 
 		#if defined(IPHONE) || defined(ANDROID) || defined(TVOS)
-		for (int i = 1; i <= (sizeof(SDL_GetJoysticks(NULL))/sizeof(SDL_GetJoysticks(NULL)[0])); i++) {
+		int joystickCount;
+		SDL_JoystickID * joysticks = SDL_GetJoysticks(&joystickCount);
+		for (int i = 1; i <= joystickCount; i++) {
 
-			if (strstr (SDL_GetJoystickNameForID (i), "Accelerometer")) {
+			if (strstr (SDL_GetJoystickNameForID (joysticks[i]), "Accelerometer")) {
 
-				accelerometer = SDL_OpenJoystick (i);
+				accelerometer = SDL_OpenJoystick (joysticks[i]);
 				accelerometerID = SDL_GetJoystickID (accelerometer);
 
 			}
