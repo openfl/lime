@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-var argv = require('minimist')(process.argv.slice(2))
-var execshell = require('exec-sh')
-var cp = require('child_process');
-var path = require('path')
-var watch = require('./main.js')
+const argv = require('minimist')(process.argv.slice(2));
+const execshell = require('exec-sh');
+const cp = require('child_process');
+const path = require('path');
+const watch = require('./main.js');
+const ws = require('ws');
 
-if(argv._.length === 0) {
+
+if (argv._.length === 0) {
   console.error([
     'Usage: watch <command> [...directory]',
     '[--wait=<seconds>]',
@@ -16,70 +18,83 @@ if(argv._.length === 0) {
     '[--ignoreUnreadable]',
     '[--ignoreDirectoryPattern]',
     '[--exit]'
-  ].join(' '))
-  process.exit()
+  ].join(' '));
+  process.exit();
 }
 
-var watchTreeOpts = {}
-var command = argv._[0]
-var dirs = []
+let command = argv._[0];
+const watchTreeOpts = {};
+const dirs = [];
 
-var i
-var argLen = argv._.length
+let reloadCommand = null;
+let wsServer = null;
+let firstRun = true;
+
+// Only start the websocket server for the html5 target.
+if (command.endsWith(' -html5-reload')) {
+  useWebSocket = true;
+  command = command.replace(/ -html5-reload$/, '');
+
+	// Change `lime [run or test] html5` to `lime build html5` as command to run when files change.
+  reloadCommand = command.replace(/(run|test) html5/, 'build html5')
+  wsServer = new ws.WebSocketServer({ port: 8080 });
+}
+
+const argLen = argv._.length
 if (argLen > 1) {
-  for(i = 1; i< argLen; i++) {
+  for(let i = 1; i< argLen; i++) {
       dirs.push(argv._[i])
   }
 } else {
   dirs.push(process.cwd())
 }
 
-var waitTime = Number(argv.wait || argv.w)
+const waitTime = Number(argv.wait || argv.w)
 if (argv.interval || argv.i) {
   watchTreeOpts.interval = Number(argv.interval || argv.i || 0.2);
 }
 
-var exitShell = (argv.exit || argv.e);
+const exitShell = (argv.exit || argv.e);
 
 if(argv.ignoreDotFiles || argv.d)
-  watchTreeOpts.ignoreDotFiles = true
+  watchTreeOpts.ignoreDotFiles = true;
 
 if(argv.ignoreUnreadable || argv.u)
-  watchTreeOpts.ignoreUnreadableDir = true
+  watchTreeOpts.ignoreUnreadableDir = true;
 
 if(argv.ignoreDirectoryPattern || argv.p) {
-  var match = (argv.ignoreDirectoryPattern || argv.p).match(/^\/(.*)\/([gimuy]*)$/);
-  watchTreeOpts.ignoreDirectoryPattern = new RegExp(match[1], match[2])
+  const match = (argv.ignoreDirectoryPattern || argv.p).match(/^\/(.*)\/([gimuy]*)$/);
+  watchTreeOpts.ignoreDirectoryPattern = new RegExp(match[1], match[2]);
 }
 
 if(argv.filter || argv.f) {
   try {
     watchTreeOpts.filter = require(path.resolve(process.cwd(), argv.filter || argv.f));
   } catch (e) {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   }
 }
 
-watchTreeOpts.filter = function (file, stat) {
-	var ext = path.extname(file);
+watchTreeOpts.filter = (file, stat) => {
+	const ext = path.extname(file);
 	return (ext == "" || ext == ".hx");
 };
 
-var wait = false
-var shell = null;
+let wait = false;
+let shell = null;
 
-var dirLen = dirs.length
-var skip = dirLen - 1
-for(i = 0; i < dirLen; i++) {
-  var dir = dirs[i]
-  console.error('> Watching', dir)
-  watch.watchTree(dir, watchTreeOpts, function (f, curr, prev) {
+const dirLen = dirs.length;
+let skip = dirLen - 1;
+for(let i = 0; i < dirLen; i++) {
+  const dir = dirs[i];
+  console.error('> Watching', dir);
+  watch.watchTree(dir, watchTreeOpts, (f, curr, prev) => {
     if(skip) {
-        skip--
-        return
+        skip--;
+        return;
     }
-    if(wait) return
+    if(wait) return;
 
     if(exitShell && shell != null) {
       try {
@@ -87,22 +102,44 @@ for(i = 0; i < dirLen; i++) {
         if(!isWin) {
             shell.kill('SIGKILL');
         } else {
-            cp.exec('taskkill /PID ' + shell.pid + ' /T /F', function(error, stdout, stderr) {
+            cp.exec('taskkill /PID ' + shell.pid + ' /T /F', (error, stdout, stderr) => {
             });
         }
       } catch (e) {}
     }
     try {
-      console.error('> Rebuilding...')
-      shell = execshell(command)
+      console.error('> Rebuilding...');
+
+      if (wsServer) {
+				// The first time run the original command to start the web server.
+        if (firstRun) {
+          firstRun = false;
+          shell = execshell(command);
+        } else {
+					// Run build and then send a reload command to the browser when the build in complete.
+          shell = execshell(reloadCommand, undefined, (err) => {
+            if (err) {
+              console.error('Error during build:', err);
+            } else {
+              wsServer.clients.forEach(client => {
+                if (client.readyState === ws.OPEN) {
+                  client.send('reload');
+                }
+              });
+            }
+          });
+        }
+      } else {
+        shell = execshell(command);
+      }
     } catch (e) {
       console.error (e);
     }
 
     if(waitTime > 0) {
-      wait = true
-      setTimeout(function () {
-        wait = false
+      wait = true;
+      setTimeout(() => {
+        wait = false;
       }, waitTime * 1000)
     }
   })

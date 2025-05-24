@@ -217,7 +217,8 @@ class HTML5Platform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -576,8 +577,6 @@ class HTML5Platform extends PlatformTarget
 
 	public override function watch():Void
 	{
-		// TODO: Use a custom live reload HTTP server for test/run instead
-
 		var hxml = getDisplayHXML();
 		var dirs = hxml.getClassPaths(true);
 
@@ -587,7 +586,7 @@ class HTML5Platform extends PlatformTarget
 			return (!Path.startsWith(dir, outputPath));
 		});
 
-		var command = ProjectHelper.getCurrentCommand();
+		var command = ProjectHelper.getCurrentCommand() + ' -html5-reload';
 		System.watch(command, dirs);
 	}
 

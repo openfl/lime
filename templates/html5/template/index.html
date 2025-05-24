@@ -40,6 +40,22 @@
 	<script type="text/javascript">
 		lime.embed ("::APP_FILE::", "content", ::WIN_WIDTH::, ::WIN_HEIGHT::);
 	</script>
-
+ 	::if (!RELEASE && !FINAL)::
+	<script type="text/javascript">
+		const websocket = new WebSocket("ws://localhost:8080");
+		websocket.onopen = function (event) {
+			console.log("Reload server connected");
+		};
+		websocket.onmessage = function (event) {
+			if (event.data === "reload") {
+				console.log("Reloading application...");
+				window.location.reload();
+			}
+		};
+		websocket.onclose = function (event) {
+			console.log("Reload server disconnected");
+		};
+	</script>
+	::end::
 </body>
 </html>
