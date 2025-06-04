@@ -587,7 +587,7 @@ namespace lime {
 		int width;
 		int height;
 
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
 
 		return height;
 
@@ -670,7 +670,7 @@ namespace lime {
 		int width;
 		int height;
 
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GL_GetDrawableSize (sdlWindow, &width, &height);
 
 		return width;
 
