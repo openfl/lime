@@ -1824,7 +1824,7 @@ namespace lime {
 				if (fontReference) {
 
 					Font* font = (Font*)val_data ((value)fontReference->Get ());
-					font->SetSize (size);
+					font->SetSize (size, 72);
 
 				}
 
@@ -1852,7 +1852,7 @@ namespace lime {
 				if (fontReference) {
 
 					Font* font = (Font*)((HL_CFFIPointer*)fontReference->Get ())->ptr;
-					font->SetSize (size);
+					font->SetSize (size, 72);
 
 				}
 

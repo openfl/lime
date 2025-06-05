@@ -9,20 +9,71 @@ import lime.math.Vector4;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+/**
+	The `AudioSource` class provides a way to control audio playback in a Lime application. 
+	It allows for playing, pausing, and stopping audio, as well as controlling various 
+	audio properties such as gain, pitch, and looping.
+
+	Depending on the platform, the audio backend may vary, but the API remains consistent.
+
+	@see lime.media.AudioBuffer
+**/
 class AudioSource
 {
+	/**
+		An event that is dispatched when the audio playback is complete.
+	**/
 	public var onComplete = new Event<Void->Void>();
+	
+	/**
+		The `AudioBuffer` associated with this `AudioSource`.
+	**/
 	public var buffer:AudioBuffer;
+
+	/**
+		The current playback position of the audio, in milliseconds.
+	**/
 	public var currentTime(get, set):Int;
+
+	/**
+		The gain (volume) of the audio. A value of `1.0` represents the default volume.
+	**/
 	public var gain(get, set):Float;
+
+	/**
+		The length of the audio, in milliseconds.
+	**/
 	public var length(get, set):Int;
+
+	/**
+		The number of times the audio will loop. A value of `0` means the audio will not loop.
+	**/
 	public var loops(get, set):Int;
+
+	/**
+		The pitch of the audio. A value of `1.0` represents the default pitch.
+	**/
 	public var pitch(get, set):Float;
+
+	/**
+		The offset within the audio buffer to start playback, in samples.
+	**/
 	public var offset:Int;
+
+	/**
+		The 3D position of the audio source, represented as a `Vector4`.
+	**/
 	public var position(get, set):Vector4;
 
 	@:noCompletion private var __backend:AudioSourceBackend;
 
+	/**
+		Creates a new `AudioSource` instance.
+		@param buffer The `AudioBuffer` to associate with this `AudioSource`.
+		@param offset The starting offset within the audio buffer, in samples.
+		@param length The length of the audio to play, in milliseconds. If `null`, the full buffer is used.
+		@param loops The number of times to loop the audio. `0` means no looping.
+	**/
 	public function new(buffer:AudioBuffer = null, offset:Int = 0, length:Null<Int> = null, loops:Int = 0)
 	{
 		this.buffer = buffer;
@@ -43,6 +94,9 @@ class AudioSource
 		}
 	}
 
+	/**
+		Releases any resources used by this `AudioSource`.
+	**/
 	public function dispose():Void
 	{
 		__backend.dispose();
@@ -53,16 +107,25 @@ class AudioSource
 		__backend.init();
 	}
 
+	/**
+		Starts or resumes audio playback.
+	**/
 	public function play():Void
 	{
 		__backend.play();
 	}
 
+	/**
+		Pauses audio playback.
+	**/
 	public function pause():Void
 	{
 		__backend.pause();
 	}
 
+	/**
+		Stops audio playback and resets the playback position to the beginning.
+	**/
 	public function stop():Void
 	{
 		__backend.stop();

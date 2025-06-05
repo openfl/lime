@@ -16,6 +16,7 @@
 		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/ftcache.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/ftchapters.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/ftcid.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/ftcolor.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/ftdriver.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/fterrdef.h" />
 		<depend name="${NATIVE_TOOLKIT_PATH}/freetype/include/freetype/fterrors.h" />
@@ -79,6 +80,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftbitmap.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftcalc.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftcid.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftcolor.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftdbgmem.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftdebug.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/freetype/src/base/ftfntfmt.c" />

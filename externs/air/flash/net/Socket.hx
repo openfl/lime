@@ -7,7 +7,7 @@ extern class Socket extends flash.events.EventDispatcher implements flash.utils.
 	@:require(flash11) var bytesPending(default, never):UInt;
 	var connected(default, never):Bool;
 	var endian:flash.utils.Endian;
-	var objectEncoding:UInt;
+	var objectEncoding:#if openfl openfl.net.ObjectEncoding #else UInt #end;
 	@:require(flash10) var timeout:UInt;
 	#if air
 	var localAddress(default, never):String;
@@ -20,7 +20,7 @@ extern class Socket extends flash.events.EventDispatcher implements flash.utils.
 	@:flash.property @:require(flash11) var bytesPending(get, never):UInt;
 	@:flash.property var connected(get, never):Bool;
 	@:flash.property var endian(get, set):flash.utils.Endian;
-	@:flash.property var objectEncoding(get, set):UInt;
+	@:flash.property var objectEncoding(get, set):#if openfl openfl.net.ObjectEncoding #else UInt #end;
 	@:flash.property @:require(flash10) var timeout(get, set):UInt;
 	#if air
 	@:flash.property var localAddress(get, never):String;
@@ -65,7 +65,7 @@ extern class Socket extends flash.events.EventDispatcher implements flash.utils.
 	private function get_bytesPending():UInt;
 	private function get_connected():Bool;
 	private function get_endian():flash.utils.Endian;
-	private function get_objectEncoding():UInt;
+	private function get_objectEncoding():#if openfl openfl.net.ObjectEncoding #else UInt #end;
 	private function get_timeout():UInt;
 	#if air
 	private function get_localAddress():String;
@@ -74,7 +74,7 @@ extern class Socket extends flash.events.EventDispatcher implements flash.utils.
 	private function get_remotePort():Int;
 	#end
 	private function set_endian(value:flash.utils.Endian):flash.utils.Endian;
-	private function set_objectEncoding(value:UInt):UInt;
+	private function set_objectEncoding(value:#if openfl openfl.net.ObjectEncoding #else UInt #end):#if openfl openfl.net.ObjectEncoding #else UInt #end;
 	private function set_timeout(value:UInt):UInt;
 	#end
 }

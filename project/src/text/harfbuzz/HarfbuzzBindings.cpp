@@ -242,6 +242,28 @@ namespace lime {
 	}
 
 
+	void lime_hb_buffer_add_hxstring(value buffer, HxString text, int itemOffset, int itemLength) {
+
+		if (hxs_encoding (text) == hx::StringUtf16) {
+
+			hb_buffer_add_utf16 ((hb_buffer_t*)val_data(buffer), (const uint16_t*)text.c_str (), text.length, itemOffset, itemLength);
+
+		} else {
+
+			hb_buffer_add_utf8 ((hb_buffer_t*)val_data(buffer), text.c_str (), text.length, itemOffset, itemLength);
+
+		}
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_hb_buffer_add_hxstring) (HL_CFFIPointer* buffer, hl_vstring* text, int itemOffset, int itemLength) {
+
+		hb_buffer_add_utf16 ((hb_buffer_t*)buffer->ptr, text ? (const uint16_t*)text->bytes : NULL, text ? text->length : 0, itemOffset, itemLength);
+
+	}
+
+
 	void lime_hb_buffer_add_codepoints (value buffer, double text, int textLength, int itemOffset, int itemLength) {
 
 		hb_buffer_add_codepoints ((hb_buffer_t*)val_data (buffer), (const hb_codepoint_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
@@ -258,14 +280,20 @@ namespace lime {
 
 	void lime_hb_buffer_add_utf8 (value buffer, HxString text, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf8 ((hb_buffer_t*)val_data (buffer), text.c_str (), text.length, itemOffset, itemLength);
+		int textLength = text.length;
+		if (hxs_encoding (text) == hx::StringUtf16) {
+			// hxs_utf8 doesn't give us the length, so treat it as null terminated
+			textLength = -1;
+		}
+
+		hb_buffer_add_utf8 ((hb_buffer_t*)val_data (buffer), hxs_utf8 (text, nullptr), textLength, itemOffset, itemLength);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_hb_buffer_add_utf8) (HL_CFFIPointer* buffer, hl_vstring* text, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf8 ((hb_buffer_t*)buffer->ptr, text ? hl_to_utf8 (text->bytes) : NULL, text ? text->length : 0, itemOffset, itemLength);
+		hb_buffer_add_utf8 ((hb_buffer_t*)buffer->ptr, text ? hl_to_utf8 (text->bytes) : NULL, -1, itemOffset, itemLength);
 
 	}
 
@@ -2058,6 +2086,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_hb_blob_is_immutable);
 	DEFINE_PRIME1v (lime_hb_blob_make_immutable);
 	DEFINE_PRIME3v (lime_hb_buffer_add);
+	DEFINE_PRIME4v (lime_hb_buffer_add_hxstring);
 	DEFINE_PRIME5v (lime_hb_buffer_add_codepoints);
 	DEFINE_PRIME4v (lime_hb_buffer_add_utf8);
 	DEFINE_PRIME5v (lime_hb_buffer_add_utf16);
@@ -2175,6 +2204,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_hb_blob_is_immutable, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_hb_blob_make_immutable, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_hb_buffer_add, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_hb_buffer_add_hxstring, _TCFFIPOINTER _STRING _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_hb_buffer_add_codepoints, _TCFFIPOINTER _F64 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_hb_buffer_add_utf8, _TCFFIPOINTER _STRING _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_hb_buffer_add_utf16, _TCFFIPOINTER _F64 _I32 _I32 _I32);

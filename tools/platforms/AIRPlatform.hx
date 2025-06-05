@@ -258,7 +258,7 @@ class AIRPlatform extends FlashPlatform
 
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
-		context.AIR_SDK_VERSION = project.config.getString("air.sdk-version", "28.0");
+		context.AIR_SDK_VERSION = project.config.getString("air.sdk-version", "32.0");
 
 		var buildNumber = Std.string(context.APP_BUILD_NUMBER);
 

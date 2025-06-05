@@ -139,6 +139,11 @@ class FlashPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		if (Log.verbose)
 		{
 			project.haxedefs.set("verbose", 1);

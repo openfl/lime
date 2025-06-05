@@ -1074,6 +1074,11 @@ namespace lime {
 		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
 
+		CURLcode setopt_result = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		if(setopt_result != CURLE_OK) {
+			printf("Failed to set CURLOPT_ACCEPT_ENCODING: %s\n", curl_easy_strerror(setopt_result));
+		}
+
 		curl_gc_mutex.Unlock ();
 
 		return handle;
@@ -1124,6 +1129,11 @@ namespace lime {
 		writeBuffers[handle] = NULL;
 		writeBufferPosition[handle] = 0;
 		writeBufferSize[handle] = 0;
+
+		CURLcode setopt_result = curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
+		if(setopt_result != CURLE_OK) {
+			printf("Failed to set CURLOPT_ACCEPT_ENCODING: %s\n", curl_easy_strerror(setopt_result));
+		}
 
 		curl_gc_mutex.Unlock ();
 

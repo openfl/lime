@@ -335,6 +335,7 @@
 					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64\"",
 				);
 				OTHER_LDFLAGS = (
+					"-lmbedtls_hxcpp",
 					::foreach ndlls:: "-l::name::",
 					::end::
 					::foreach linkedLibraries:: "-l::__current__::",
@@ -383,6 +384,7 @@
 					"\"$(SRCROOT)/::APP_FILE::/lib/x86_64\"",
 				);
 				OTHER_LDFLAGS = (
+					"-lmbedtls_hxcpp",
 					::foreach ndlls:: "-l::name::",
 					::end::
 					::foreach linkedLibraries:: "-l::__current__::",

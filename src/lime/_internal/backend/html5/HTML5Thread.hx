@@ -96,7 +96,7 @@ class HTML5Thread {
 		var thread:HTML5Thread = new HTML5Thread(url.href, new Worker(url.href));
 
 		// Run `job` on the new thread.
-		thread.sendMessage(job);
+		thread.sendMessage(#if !haxe4 cast #end job);
 
 		return thread;
 		#else
@@ -416,7 +416,7 @@ abstract WorkFunction<T:haxe.Constraints.Function>(WorkFunctionData<T>) from Wor
 			else
 			{
 				#if !macro
-				this.sourceCode = (cast this.func:Function).toString();
+				this.sourceCode = (cast this.func #if haxe4 :Function #end).toString();
 				if (this.sourceCode.indexOf("[native code]") < 0)
 				{
 					// All set.
@@ -477,7 +477,7 @@ abstract Message(Dynamic) from Dynamic to Dynamic
 		// Skip `null` for obvious reasons.
 		return object == null
 			// No need to preserve a primitive type.
-			|| !#if (haxe_ver >= 4.2) Std.isOfType #else untyped __js__ #end (object, Object)
+			|| !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (object, Object)
 			// Objects with this field have been deliberately excluded.
 			|| Reflect.field(object, SKIP_FIELD) == true
 			// A `Uint8Array` (the type used by `haxe.io.Bytes`) can have

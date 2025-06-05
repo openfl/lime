@@ -20,7 +20,7 @@ class HashlinkHelper
 			case MAC: "Mac";
 			case WINDOWS: "Windows";
 			default:
-				Log.error('Hashlink is not supported on ${project.target} (Supported: Windows, Mac and Linux)');
+				Log.error('HashLink is not supported on ${project.target} (Supported: Windows, Mac and Linux)');
 				Sys.exit(1);
 				"";
 		};

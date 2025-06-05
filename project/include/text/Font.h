@@ -59,7 +59,7 @@ namespace lime {
 			int GetUnitsPerEM ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
-			void SetSize (size_t size);
+			void SetSize (size_t size, size_t dpi);
 
 			void* library;
 			void* face;

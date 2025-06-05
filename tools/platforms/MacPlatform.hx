@@ -2,7 +2,6 @@ package;
 
 import haxe.io.Eof;
 import hxp.Haxelib;
-import hxp.HostArchitecture;
 import hxp.HXML;
 import hxp.Log;
 import hxp.Path;
@@ -148,7 +147,13 @@ class MacPlatform extends PlatformTarget
 			targetType = "cpp";
 		}
 
-		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", targetType == "cpp" ? "macos" : targetType));
+		var defaultTargetDirectory = switch (targetType)
+		{
+			case "cpp": "macos";
+			case "hl": project.targetFlags.exists("hlc") ? "hlc" : targetType;
+			default: targetType;
+		}
+		targetDirectory = Path.combine(project.app.path, project.config.getString("mac.output-directory", defaultTargetDirectory));
 		targetDirectory = StringTools.replace(targetDirectory, "arch64", dirSuffix);
 		applicationDirectory = targetDirectory + "/bin/" + project.app.file + ".app";
 		contentDirectory = applicationDirectory + "/Contents/Resources";
@@ -191,23 +196,15 @@ class MacPlatform extends PlatformTarget
 
 			NekoHelper.createExecutable(project.templatePaths, "mac" + dirSuffix.toLowerCase(), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries(project.templatePaths, "mac" + dirSuffix.toLowerCase(), executableDirectory);
-
-			// starting in xcode 15, rpath doesn't automatically include
-			// /usr/local/lib, but we need it for libneko dylib
-			System.runCommand("", "install_name_tool", ["-add_rpath", "/usr/local/lib", Path.join([executableDirectory, "lime.ndll"])]);
-			if (System.hostArchitecture == HostArchitecture.ARM64)
-			{
-				// on Apple Silicon, the user may have installed Neko with
-				// Homebrew, which has a different path. however, if the
-				// Homebrew path doesn't exist, that's okay.
-				System.runCommand("", "install_name_tool", ["-add_rpath", "/opt/homebrew/lib", Path.join([executableDirectory, "lime.ndll"])]);
-			}
 		}
 		else if (targetType == "hl")
 		{
 			System.runCommand("", "haxe", [hxml]);
 
 			if (noOutput) return;
+
+			// ensure that the shell script is replaced by the template executable
+			System.deleteFile(executablePath);
 
 			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
 
@@ -220,7 +217,7 @@ class MacPlatform extends PlatformTarget
 				// compiler command with the `arch -x86_64` command.
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
-				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,@executable_path", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
 				for (file in System.readDirectory(executableDirectory))
 				{
 					switch Path.extension(file)
@@ -439,7 +436,7 @@ class MacPlatform extends PlatformTarget
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
 				}
-				else if (!targetFlags.exists("32"))
+				else if (!targetFlags.exists("32") && !targetFlags.exists("x86_32"))
 				{
 					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64"]);
 				}
@@ -450,7 +447,19 @@ class MacPlatform extends PlatformTarget
 			case X86:
 				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M32"]);
 			case ARM64:
-				commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				if (targetFlags.exists("hl"))
+				{
+					// hashlink doesn't support arm64 macs yet
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+				}
+				else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64"]);
+				}
+				else
+				{
+					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64"]);
+				}
 			default:
 		}
 
@@ -496,6 +505,11 @@ class MacPlatform extends PlatformTarget
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
+		}
+
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
 		for (asset in project.assets)
@@ -600,6 +614,11 @@ class MacPlatform extends PlatformTarget
 
 	private inline function get_dirSuffix():String
 	{
+		if (targetFlags.exists("hl"))
+		{
+			// hashlink doesn't support arm64 macs yet
+			return "64";
+		}
 		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
 	}
 
@@ -692,7 +711,7 @@ class MacPlatform extends PlatformTarget
 								continue;
 							}
 						}
-						if (Lambda.exists(homebrewDirs, dirPath -> StringTools.startsWith(resolvedLibPath, dirPath)))
+						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool { return StringTools.startsWith(resolvedLibPath, dirPath); }))
 						{
 							homebrewDependencyPaths.push(libPath);
 							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);

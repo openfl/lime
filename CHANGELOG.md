@@ -1,6 +1,115 @@
 Changelog
 =========
 
+8.2.2 (12/19/2024)
+------------------
+
+* Fixed broken breakpoints in HTML5 debug builds.
+* Fixed unecessary operations in `Promise` by inlining some getter functions.
+* Fixed failure to read `gradle-plugin` attribute in `<config:android>` tag.
+* Fixed failed installation of app on iOS Simulator by choosing only simulators that are considered available.
+* Fixed `lime test ios` to install and launch on a device when using Xcode 16 or newer.
+* Fixed reported version of OpenAL library.
+* Fixed memory cleanup when encoding PNG and JPEG images.
+* Fixed error reporting `@rpath/libhl.dylib` not found on macOS when using HashLink nightly build.
+* Fixed building HashLink on macOS that required cleaning between compiles.
+* Fixed `embedBytes()` macro incorrectly running when `embedByteArray()` macro was also running.
+* Fixed `ImageDataUtil.copyPixels()` causing crash on HashLink.
+* Fixed missing `neko` target flag when cross-compiling to Windows without `-mingw` or `-cpp` flags.
+* Fixed occasional failure running Lime tools by switching certain paths from relative to absolute.
+* Fixed missing warning when `lime rebuild` commands fail because C++ source is not available from Haxelib.
+* Fixed command instructions to specify requirement for absolute paths when setting up a platform.
+* Added detection of `-cpp` flag when cross-compiling to Windows, which works like `-mingw`.
+* Updated FreeType submodule to version 2.12.1 again. Resolved issues encountered when using this version in Lime 8.2.0.
+
+8.2.1 (11/01/2024)
+------------------
+
+* Fixed `Sys.exit()` causing hang instead of exiting application.
+* Fixed paths for _.ndll_ files when targeting Raspberry Pi.
+* Fixed compiling `BackgroundWorker` when targeting HashLink before Haxe 4.
+* Fixed errors compiling `ThreadPool` for HashLink with Haxe 4.0 and 4.1.
+* Fixed `Font.renderGlyph` to support 32-bit colors, including alpha.
+* Fixed OpenFL line height issues by rolling back FreeType submodule to version 2.9.1.
+
+8.2.0 (10/21/2024)
+------------------
+
+* Added Apple Silicon (ARM64) support for macOS target.
+* Added new `hlc` target to support compiling for HashLink/C. Both generates C code and compiles to an executable (requires Haxe 4.3.4 or newer).
+* Added support for inserting attributes into the `<application/>` or `<activity/>` elements of _AndroidManifest.xml_
+* Added `createPerspective()` to `Matrix4`.
+* Added `removeLibrary()` to `lime.utils.Assets`, which removes a library, but makes unloading optional.
+* Added `SINGLE_THREADED` mode to `ThreadPool`, which is used by default when threading is not available.
+* Added `workLoad` property to `ThreadPool` to limit total time spent per frame on green threads.
+* Added optional `-noalias` flag to `lime setup` to skip creating the **lime** executable alias.
+* Added optional `-nosign` flag to `lime build ios` to skip code signing when targeting iOS.
+* Added support for `-64` flag to force compiling for 64-bit Raspberry Pi.without requiring a custom template.
+* Added option to configure `preserveDrawingBuffer` on HTML5 target.
+* Added LZMA compression to HTML5 target.
+* Added automatic deletion of "stale" assets and dependency files.
+* Added `VIEW` intents on Android target.
+* Added support for `-mingw` flag when cross-compiling to Windows from another operating system.
+* Added support for `-cpp` flag when cross-compiling to Linux from another operating system (requires homebrew-macos-cross-toolchains on macOS).
+* Added support for `tsa` option in `<config:air>` to pass timestamp URL to Adobe AIR's adt tool.
+* Fixed `lime display` command incorrectly printing old _.hxml_ content after _project.xml_ file has been modified, skipping requirement to build project or restart editor to get valid code intelligence.
+* Fixed HashLink _.app_ bundles on macOS to include all Homebrew library dependencies, so that they run on computers without Homebrew.
+* Fixed `@android:style/Theme.NoTitleBarnull` in generated _AndroidManifest.xml_.
+* Fixed `Image` in a web worker by storing it as `DATA` type.
+* Fixed cURL C++ to Haxe callbacks when targeting HashLink.
+* Fixed icon generation for Android target with `accept-file-intent` config.
+* Fixed exception in Lime tools when resolving full path of Neko _.n_ file.
+* Fixed keyboard input incorrectly getting enabled by default when creating a new window, which could show an IME when unexpected.
+* Fixed `ALC.getContextsDevice()` when targeting HashLink.
+* Fixed potentially uninitialized values in `Matrix3`.
+* Fixed wrong type for `Socket.objectEncoding` in Flash/AIR externs.
+* Fixed `BackgroundWorker` not using threads on HashLink.
+* Improved support for Raspberry Pi 64-bit builds.
+* Changed custom `haxe.Timer` to fall back to the original in a macro context.
+* Changed `Promise` to remove `@:generic` when in a macro context.
+* Changed `Matrix3` to be an abstract over `Float32Array`, similar to `Matrix4`.
+* Changed Raspberry Pi keyboard shortcut to exit to Ctrl + Esc.
+* Changed `-64` and `-32` flags for Intel architectures to `-x86_64` and `-x86_32` to make their purpose more clear (the old flags still work, for now).
+* Removed Joystick trackball APIs because they is supported only on Linux, with a single piece of hardware, and will be removed from SDL 3.
+* Removed ARMV5 architecture from Android rebuilds by default because hxcpp doesn't support it with NDK versions >= 20.
+* Removed 32-bit _liblime.iphonesim.a_ as a default binary because 32-bit iOS is no longer supported by Apple.
+* Updated Cairo submodule to version 1.17.6 and point to upstream repository instead of fork.
+* Updated cURL submodule to version 7.83.1 and point to upstream repository instead of fork.
+* Updated efsw submodule to version 1.2.0 and point to upstream repository instead of fork.
+* Updated FreeType submodule to version 2.12.1 and point to upstream repository instead of fork.
+* Updated HarfBuzz submodule to version 6.0.0 and point to upstream repository instead of fork.
+* Updated libpng submodule to version 1.6.37 and point to upstream repository instead of fork.
+* Updated libjpg-turbo submodule to version 2.1.3 and point to upstream repository instead of fork.
+* Updated libvpx submodule to version 1.11.0 and point to upstream repository instead of fork.
+* Updated libwebm submodule to version 1.0.0.28 and point to upstream repository instead of fork.
+* Updated Mbed TLS submodule to version 2.28.7 and point to upstream repository instead of fork.
+* Updated MojoAL submodule to commit e08dbf3 and point to upstream repository instead of fork.
+* Updated Ogg submodule to version 1.3.5 and point to upstream repository instead of fork.
+* Updated OpenAL-Soft submodule to version 1.20.1 and point to upstream repository instead of fork.
+* Updated Pixman submodule to version 0.42.2 and point to upstream repository instead of fork.
+* Updated SDL submodule to version 2.24.0 and point to upstream repository instead of fork.
+* Updated Tinyfiledialogs submodule to version 3.8.8 (still uses fork due to SourceForge limitationss).
+* Updated Vorbis submodule to version 1.3.7 and point to upstream repository instead of fork.
+* Updated zlib submodule to version 1.2.12 and point to upstream repository instead of fork.
+
+8.1.3 (07/22/2024)
+------------------
+
+* Fixed Unicode conversion issues with various APIs, including as clipboard, window text, file dialogs, and fonts.
+* Fixed Android builds with the `-emulator` flag that broke when using newer Android SDKs.
+* Fixed "Could not link to neko" error message on macOS when lime.ndll is built with Xcode 15.
+* Fixed system environment variables with the same name as common targets conflicting with other targets.
+* Fixed `<echo/>` and `<log/>` output confusing Haxe's completion server. Now skipped when `display` is defined.
+* Fixed `Clipboard.text` incorrectly getting cleared to null when targeting HTML5.
+* Fixed integer value parsing in _project.xml_, including immediately reporting errors for invalid values.
+* Fixed incorrect path discovery for NDLL files that found source directory instead.
+* Fixed missing error message if HXP project class name does not match file name.
+* Fixed unspecified behavior from `null` keys in `ObjectPool`.
+* Fixed some issues when running Haxe built natively for Apple Silicon.
+* Fixed missing cancellation of vibration on Android when app is paused or destroyed.
+* Fixed static linking of native curl library on macOS.
+* Fixed deprecation warnings in Android Gradle builds.
+
 8.1.2 (03/13/2024)
 ------------------
 

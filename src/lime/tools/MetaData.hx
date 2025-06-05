@@ -10,6 +10,7 @@ abstract MetaData({
 	@:optional var packageName:String;
 	@:optional var title:String;
 	@:optional var version:String;
+	@:optional var copyrightYears:String;
 }) from Dynamic
 {
 	@:noCompletion
@@ -21,6 +22,7 @@ abstract MetaData({
 		description: "",
 		packageName: "",
 		title: "",
-		version: ""
+		version: "",
+		copyrightYears: ""
 	};
 }

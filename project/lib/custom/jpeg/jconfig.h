@@ -19,7 +19,9 @@
 #define MEM_SRCDST_SUPPORTED 1
 
 /* Use accelerated SIMD routines. */
+#ifndef __ANDROID__
 #define WITH_SIMD 1
+#endif
 
 /*
  * Define BITS_IN_JSAMPLE as either
@@ -67,9 +69,10 @@
 #endif
 
 /* If rpcndr.h has defined boolean, jmorecfg.h should not. */
-#ifdef __RPCNDR_H__
-#define HAVE_BOOLEAN
+#ifndef __RPCNDR_H__		/* don't conflict if rpcndr.h already read */
+typedef unsigned char boolean;
 #endif
+#define HAVE_BOOLEAN		/* prevent jmorecfg.h from redefining it */
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

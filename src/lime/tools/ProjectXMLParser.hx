@@ -683,7 +683,7 @@ class ProjectXMLParser extends HXProject
 		{
 			switch (attribute)
 			{
-				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url":
+				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url", "copyright-years":
 					var value = substitute(element.att.resolve(attribute));
 
 					defines.set("APP_" + StringTools.replace(attribute, "-", "_").toUpperCase(), value);
@@ -1738,6 +1738,9 @@ class ProjectXMLParser extends HXProject
 
 							case "gradle-version":
 								config.set("android.gradle-version", value);
+
+							case "gradle-plugin":
+								config.set("android.gradle-plugin", value);
 
 							default:
 								name = formatAttributeName(attribute);

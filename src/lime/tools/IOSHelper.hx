@@ -128,7 +128,7 @@ class IOSHelper
 
 		if (project.targetFlags.exists("simulator"))
 		{
-			if (project.targetFlags.exists("i386") || project.targetFlags.exists("32"))
+			if (project.targetFlags.exists("i386") || project.targetFlags.exists("32") || project.targetFlags.exists("x86_32"))
 			{
 				commands.push("-arch");
 				commands.push("i386");
@@ -324,6 +324,12 @@ class IOSHelper
 
 			var currentDeviceID = XCodeHelper.getSimulatorID(project);
 
+			if (Log.verbose)
+			{
+				var currentSimulatorName = XCodeHelper.getSimulatorName(project);
+				Log.info("Using iOS simulator: " + currentSimulatorName);
+			}
+
 			try
 			{
 				System.runProcess("", "open", ["-Ra", "iOS Simulator"], true, false);
@@ -334,6 +340,7 @@ class IOSHelper
 				System.runCommand("", "open", ["-a", "Simulator", "--args", "-CurrentDeviceUDID", currentDeviceID]);
 			}
 
+			waitForDeviceState("xcrun", ["simctl", "boot", currentDeviceID]);
 			waitForDeviceState("xcrun", ["simctl", "uninstall", currentDeviceID, project.meta.packageName]);
 			waitForDeviceState("xcrun", ["simctl", "install", currentDeviceID, applicationPath]);
 			waitForDeviceState("xcrun", ["simctl", "launch", currentDeviceID, project.meta.packageName]);
@@ -353,22 +360,77 @@ class IOSHelper
 				applicationPath = workingDirectory + "/build/" + configuration + "-iphoneos/" + project.app.file + ".app";
 			}
 
-			var templatePaths = [
-				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-			].concat(project.templatePaths);
-			var launcher = System.findTemplate(templatePaths, "bin/ios-deploy");
-			Sys.command("chmod", ["+x", launcher]);
+			var xcodeVersion = Std.parseFloat(getXcodeVersion());
+			if (!Math.isNaN(xcodeVersion) && xcodeVersion >= 16) {
+				// ios-deploy doesn't work with newer iOS SDKs where it can't
+				// find DeveloperDiskImage.dmg. however, Xcode 16 adds new
+				// commands for installing and launching apps on connected
+				// devices, so we'll prefer those, if available.
+				var deviceUUID:String = null;
+				// prefer an iOS device with State == 'connected'
+				// Note: Platform == 'iOS' includes iPadOS
+				var listDevicesOutput = System.runProcess("", "xcrun", ["devicectl", "list", "devices", "--hide-default-columns", "--columns", "Identifier", "--filter", "Platform == 'iOS' AND State == 'connected'"]);
+				var ready = false;
+				for (line in listDevicesOutput.split("\n")) {
+					if (!ready) {
+						ready = StringTools.startsWith(line, "----");
+						continue;
+					}
+					deviceUUID = line;
+					break;
+				}
+				if (deviceUUID == null || deviceUUID.length == 0) {
+					// preferred fallback is an iOS device that is both
+					// available and wired
+					var listDevicesOutput = System.runProcess("", "xcrun", ["devicectl", "list", "devices", "--hide-default-columns", "--columns", "Identifier", "--filter", "Platform == 'iOS' AND State == 'available (paired)' AND connectionProperties.transportType == 'wired'"]);
+					ready = false;
+					for (line in listDevicesOutput.split("\n")) {
+						if (!ready) {
+							ready = StringTools.startsWith(line, "----");
+							continue;
+						}
+						deviceUUID = line;
+						break;
+					}
+				}
+				if (deviceUUID == null || deviceUUID.length == 0) {
+					// devices running iOS 16 and older don't support
+					// xcrun devicectl, so if no device was found, try falling
+					// back to ios-deploy
+					fallbackLaunch(project, applicationPath);
+					// Log.error("No device connected");
+					return;
+				}
 
-			// var xcodeVersion = getXcodeVersion ();
+				if (Log.verbose)
+				{
+					Log.info("Detected iOS device UUID: " + deviceUUID);
+				}
 
-			System.runCommand("", launcher, [
-				"install",
-				"--noninteractive",
-				"--debug",
-				"--bundle",
-				FileSystem.fullPath(applicationPath)
-			]);
+				System.runCommand("", "xcrun", ["devicectl", "device", "install", "app", "--device", deviceUUID, FileSystem.fullPath(applicationPath)]);
+				System.runCommand("", "xcrun", ["devicectl", "device", "process", "launch", "--console", "--device", deviceUUID, project.meta.packageName]);
+			} else {
+				// continue using ios-deploy if Xcode version is 15 or older
+				fallbackLaunch(project, applicationPath);
+			}
 		}
+	}
+
+	private static function fallbackLaunch(project:HXProject, applicationPath:String):Void
+	{
+		var templatePaths = [
+			Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
+		].concat(project.templatePaths);
+		var launcher = System.findTemplate(templatePaths, "bin/ios-deploy");
+		Sys.command("chmod", ["+x", launcher]);
+
+		System.runCommand("", launcher, [
+			"install",
+			"--noninteractive",
+			"--debug",
+			"--bundle",
+			FileSystem.fullPath(applicationPath)
+		]);
 	}
 
 	public static function sign(project:HXProject, workingDirectory:String):Void

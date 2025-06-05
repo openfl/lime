@@ -37,7 +37,12 @@ Lime is free, open-source software under the [MIT license](LICENSE.md).
 Installation
 ============
 
-First install the latest version of [Haxe](http://www.haxe.org/download).
+First, install the latest version of [Haxe](http://www.haxe.org/download).
+
+Then, install Lime from Haxelib and run Lime's setup command.
+
+    haxelib install lime
+    haxelib run lime setup
 
 
 Development Builds
@@ -102,3 +107,12 @@ Lime currently supports the following targets:
     lime test hl
 
 Desktop builds are currently designed to be built on the same host OS
+
+
+Join the Community
+==================
+
+Have a question? Want a new place to hang out?
+
+ * [Forums](https://community.openfl.org/c/lime/19)
+ * [Discord](https://discordapp.com/invite/tDgq8EE)
