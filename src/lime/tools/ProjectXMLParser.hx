@@ -1742,9 +1742,6 @@ class ProjectXMLParser extends HXProject
 							case "gradle-plugin":
 								config.set("android.gradle-plugin", value);
 
-							case "gradle-jvmargs":
-								config.set("android.gradle-jvmargs", value);
-
 							default:
 								name = formatAttributeName(attribute);
 						}
