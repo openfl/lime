@@ -467,7 +467,7 @@ class ThreadPool extends WorkOutput
 		{
 			return;
 		}
-		else if (#if (haxe4 || html5) isMainThread() && #end activeJob == __singleThreadedJob)
+		else if (isMainThread() && activeJob == __singleThreadedJob)
 		{
 			__jobComplete.value = true;
 			__dispatchJobOutput({event: COMPLETE, message: message, jobID: activeJob.id});
@@ -484,7 +484,7 @@ class ThreadPool extends WorkOutput
 		{
 			return;
 		}
-		else if (#if (haxe4 || html5) isMainThread() && #end activeJob == __singleThreadedJob)
+		else if (isMainThread() && activeJob == __singleThreadedJob)
 		{
 			__jobComplete.value = true;
 			__dispatchJobOutput({event: ERROR, message: message, jobID: activeJob.id});
@@ -501,7 +501,7 @@ class ThreadPool extends WorkOutput
 		{
 			return;
 		}
-		else if (#if (haxe4 || html5) isMainThread() && #end activeJob == __singleThreadedJob)
+		else if (isMainThread() && activeJob == __singleThreadedJob)
 		{
 			__dispatchJobOutput({event: PROGRESS, message: message, jobID: activeJob.id});
 		}
