@@ -167,7 +167,7 @@ class FlashHelper
 
 				var frameData = frameDataWriter.getBytes();
 
-				var snd:format.swf.Sound =
+				var snd:format.swf.Data.Sound =
 					{
 						sid: cid,
 						format: SFMP3,
@@ -255,7 +255,7 @@ class FlashHelper
 					{
 						var sampleCount = Std.int(wav.data.length / (hdr.bitsPerSample / 8));
 
-						var snd:format.swf.Sound =
+						var snd:format.swf.Data.Sound =
 							{
 								sid: cid,
 								format: SFLittleEndianUncompressed,

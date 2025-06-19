@@ -507,6 +507,11 @@ class MacPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		for (asset in project.assets)
 		{
 			if (asset.embed && asset.sourcePath == "")
@@ -706,7 +711,7 @@ class MacPlatform extends PlatformTarget
 								continue;
 							}
 						}
-						if (Lambda.exists(homebrewDirs, dirPath -> StringTools.startsWith(resolvedLibPath, dirPath)))
+						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool { return StringTools.startsWith(resolvedLibPath, dirPath); }))
 						{
 							homebrewDependencyPaths.push(libPath);
 							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);

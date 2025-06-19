@@ -216,6 +216,40 @@ class Howl
 	{
 		return null;
 	}
+
+	/**
+	 * Get/set the panner node's attributes for a sound or group of sounds. This method can optionally take 0, 1 or 2 arguments.
+	 *   pannerAttr() -> Returns the group's values.
+	 *   pannerAttr(id) -> Returns the sound id's values.
+	 *   pannerAttr(o) -> Set's the values of all sounds in this Howl group.
+	 *   pannerAttr(o, id) -> Set's the values of passed sound id.
+	 *
+	 *   Attributes:
+	 *     coneInnerAngle - (360 by default) A parameter for directional audio sources, this is an angle, in degrees,
+	 *                      inside of which there will be no volume reduction.
+	 *     coneOuterAngle - (360 by default) A parameter for directional audio sources, this is an angle, in degrees,
+	 *                      outside of which the volume will be reduced to a constant value of coneOuterGain.
+	 *     coneOuterGain - (0 by default) A parameter for directional audio sources, this is the gain outside of the
+	 *                     coneOuterAngle. It is a linear value in the range [0, 1].
+	 *     distanceModel - ('inverse' by default) Determines algorithm used to reduce volume as audio moves away from
+	 *                     listener. Can be linear, inverse or `exponential.
+	 *     maxDistance - (10000 by default) The maximum distance between source and listener, after which the volume
+	 *                   will not be reduced any further.
+	 *     refDistance - (1 by default) A reference distance for reducing volume as source moves further from the listener.
+	 *                   This is simply a variable of the distance model and has a different effect depending on which model
+	 *                   is used and the scale of your coordinates. Generally, volume will be equal to 1 at this distance.
+	 *     rolloffFactor - (1 by default) How quickly the volume reduces as source moves from listener. This is simply a
+	 *                     variable of the distance model and can be in the range of [0, 1] with linear and [0, ∞]
+	 *                     with inverse and exponential.
+	 *     panningModel - ('HRTF' by default) Determines which spatialization algorithm is used to position audio.
+	 *                     Can be HRTF or equalpower.
+	 *
+	 * @return Returns self or current panner attributes.
+	 */
+	public function pannerAttr(args:PannerAttr, ?id:Int):Howl
+	{
+		return this;
+	}
 }
 #else
 import haxe.Constraints.Function;
@@ -267,6 +301,7 @@ extern class Howl
 	@:overload(function(x:Float, y:Float, z:Float):Howl {})
 	@:overload(function(x:Float, y:Float, z:Float, id:Int):Howl {})
 	public function pos():Array<Float>;
+	public function pannerAttr(args:PannerAttr, ?id:Int):Howl;
 }
 #end
 
@@ -294,5 +329,17 @@ typedef HowlOptions =
 	?onrate:Function,
 	?onseek:Function,
 	?onfade:Function
+}
+
+typedef PannerAttr =
+{
+	?coneInnerAngle:Float,
+	?coneOuterAngle:Float,
+	?coneOuterGain:Float,
+	?distanceModel:String,
+	?maxDistance:Float,
+	?refDistance:Float,
+	?rolloffFactor:Float,
+	?panningModel:String
 }
 #end

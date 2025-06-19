@@ -7,7 +7,7 @@ env:
 jobs:
 
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -30,6 +30,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -272,7 +273,11 @@ jobs:
           lime build SimpleAudio windows -release -verbose -nocolor
 
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [r21e, stable]
+      fail-fast: false
     steps:
 
       - uses: actions/checkout@v4
@@ -282,13 +287,14 @@ jobs:
       - name: Install Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
+        if: matrix.ndk-version != 'stable'
         with:
-          ndk-version: r21e
+          ndk-version: ${{ matrix.ndk-version }}
 
       - uses: actions/setup-java@v4
         with:
           distribution: "zulu"
-          java-version: 11
+          java-version: 17
 
       - uses: krdlab/setup-haxe@v1
         with:
@@ -317,10 +323,12 @@ jobs:
       - name: Configure Android support
         run: |
           lime config ANDROID_SDK $ANDROID_HOME -eval
-          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }} -eval
+          lime config ANDROID_NDK_ROOT ${{ env.LIME_NDK_ROOT }} -eval
           lime config JAVA_HOME $JAVA_HOME -eval
           lime config ANDROID_SETUP true -eval
           lime config -eval
+        env:
+          LIME_NDK_ROOT: ${{ matrix.ndk-version == 'stable' && '$ANDROID_NDK_ROOT' || steps.setup-ndk.outputs.ndk-path }}
 
       - name: Rebuild Lime (Android)
         run: |
@@ -333,6 +341,7 @@ jobs:
             ndll/Android/
             !**/.gitignore
           if-no-files-found: error
+        if: matrix.ndk-version != 'stable'
 
       - name: Install samples
         run: |
@@ -417,7 +426,7 @@ jobs:
 
   package-haxelib:
     needs: [linux, macos, windows, android, ios]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -466,10 +475,10 @@ jobs:
           name: iPhone-NDLL
           path: ndll/iPhone/
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: Linux-NDLL
-          path: ndll/Linux/
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: Linux-NDLL
+      #     path: ndll/Linux/
 
       - uses: actions/download-artifact@v4
         with:
@@ -533,7 +542,7 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -563,7 +572,7 @@ jobs:
           if-no-files-found: error
 
   flash-samples:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -606,7 +615,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.1]
+        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.6]
     steps:
 
       - uses: actions/checkout@v4
@@ -659,7 +668,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -709,13 +718,13 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: 4.3.3 # minimum required version for HL/C
+          haxe-version: 4.3.3 # minimum required version for HL/C is 4.3.3
 
       - name: Set HAXEPATH (Windows)
         if: runner.os == 'Windows'
@@ -756,14 +765,18 @@ jobs:
           lime build SimpleAudio hlc -release -verbose -nocolor
 
   html5-samples:
-    runs-on: ubuntu-20.04
+    needs: package-haxelib
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.6]
     steps:
 
       - uses: actions/checkout@v4
 
       - uses: krdlab/setup-haxe@v1
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: ${{ matrix.haxe-version }}
 
       - name: Set HAXEPATH
         run: |
@@ -771,52 +784,58 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: lime-haxelib
+          path: lime-haxelib
+
       - name: Prepare Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime setup -alias -y -nocffi -eval
+          haxelib dev lime lime-haxelib
+          haxelib run lime setup -alias -y -nocffi
 
       - name: Build HelloWorld sample
         run: |
-          lime create HelloWorld -verbose -nocolor -eval
-          lime build HelloWorld html5 -release -verbose -nocolor -eval
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld html5 -release -verbose -nocolor
 
       - name: Build HelloWorld variants
+        if: ${{ matrix.haxe-version != '3.4.7' }}
         run: |
-          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes -eval
-          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser -eval
+          lime build HelloWorld html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build HelloWorld html5 -clean -release -verbose -nocolor -minify -terser
 
       - name: Build SimpleImage sample
         run: |
-          lime create SimpleImage -verbose -nocolor -eval
-          lime build SimpleImage html5 -release -verbose -nocolor -eval
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage html5 -release -verbose -nocolor
 
       - name: Build SimpleImage variants
+        if: ${{ matrix.haxe-version != '3.4.7' }}
         run: |
-          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes -eval
-          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser -eval
+          lime build SimpleImage html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleImage html5 -clean -release -verbose -nocolor -minify -terser
 
       - name: Build SimpleAudio sample
         run: |
-          lime create SimpleAudio -verbose -nocolor -eval
-          lime build SimpleAudio html5 -release -verbose -nocolor -eval
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio html5 -release -verbose -nocolor
 
       - name: Build SimpleAudio variants
+        if: ${{ matrix.haxe-version != '3.4.7' }}
         run: |
-          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes -eval
-          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser -eval
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
 
   neko-samples:
     needs: package-haxelib
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.2.5]
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -863,8 +882,8 @@ jobs:
           lime build SimpleAudio neko -release -verbose -nocolor
 
   notify:
-    runs-on: ubuntu-20.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, html5-samples, ios, linux, macos, neko-samples, windows]
+    runs-on: ubuntu-22.04
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, macos, neko-samples, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord

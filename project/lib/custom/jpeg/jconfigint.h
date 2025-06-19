@@ -23,10 +23,10 @@
 #define VERSION  "2.0.7"
 
 /* The size of `size_t', as computed by sizeof. */
-#if defined(RASPBERRYPI)
-#define SIZEOF_SIZE_T  4
-#else
+#if (__WORDSIZE == 64) || defined(_WIN64)
 #define SIZEOF_SIZE_T  8
+#else
+#define SIZEOF_SIZE_T  4
 #endif
 
 /* Define if your compiler has __builtin_ctzl() and sizeof(unsigned long) == sizeof(size_t). */

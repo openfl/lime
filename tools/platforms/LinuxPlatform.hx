@@ -556,6 +556,11 @@ class LinuxPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
