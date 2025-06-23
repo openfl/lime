@@ -97,14 +97,7 @@ class WorkOutput
 		{
 			__jobComplete.value = true;
 
-			#if (lime_threads && html5)
-			if (Thread.current().isWorker())
-			{
-				Thread.returnMessage({event: COMPLETE, message: message, jobID: activeJob.id}, transferList);
-			}
-			else
-			#end
-			__jobOutput.add({event: COMPLETE, message: message, jobID: activeJob.id});
+			sendThreadEvent({event: COMPLETE, message: message, jobID: activeJob.id}, transferList);
 		}
 	}
 
@@ -121,14 +114,7 @@ class WorkOutput
 		{
 			__jobComplete.value = true;
 
-			#if (lime_threads && html5)
-			if (Thread.current().isWorker())
-			{
-				Thread.returnMessage({event: ERROR, message: message, jobID: activeJob.id}, transferList);
-			}
-			else
-			#end
-			__jobOutput.add({event: ERROR, message: message, jobID: activeJob.id});
+			sendThreadEvent({event: ERROR, message: message, jobID: activeJob.id}, transferList);
 		}
 	}
 
@@ -143,15 +129,20 @@ class WorkOutput
 	{
 		if (!__jobComplete.value)
 		{
-			#if (lime_threads && html5)
-			if (Thread.current().isWorker())
-			{
-				Thread.returnMessage({event: PROGRESS, message: message, jobID: activeJob.id}, transferList);
-			}
-			else
-			#end
-			__jobOutput.add({event: PROGRESS, message: message, jobID: activeJob.id});
+			sendThreadEvent({event: PROGRESS, message: message, jobID: activeJob.id}, transferList);
 		}
+	}
+
+	private inline function sendThreadEvent(event:ThreadEvent, transferList:Array<Transferable> = null):Void
+	{
+		#if (lime_threads && html5)
+		if (Thread.current().isWorker())
+		{
+			Thread.returnMessage(event, transferList);
+		}
+		else
+		#end
+		__jobOutput.add(event);
 	}
 
 	private inline function resetJobProgress():Void
@@ -312,13 +303,10 @@ class JobData
 	@:allow(lime.system.WorkOutput)
 	public var duration(default, null):Float = 0;
 
-	@:allow(lime.system.WorkOutput)
-	private var startTime:Float = 0;
+	public var started(get, never):Bool;
 
-	#if lime_threads
 	@:allow(lime.system.WorkOutput)
-	private var thread:Thread;
-	#end
+	private var startTime:Float = -1;
 
 	@:allow(lime.system.WorkOutput)
 	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State, ?id:Int)
@@ -327,19 +315,24 @@ class JobData
 		this.doWork = doWork;
 		this.state = state;
 	}
+
+	private inline function get_started():Bool
+	{
+		return startTime >= 0;
+	}
 }
 
 #if haxe4 enum #else @:enum #end abstract ThreadEventType(String)
-
 {
-	// Events sent from a worker thread to the main thread
+	// Events sent from a worker to the main thread, in any mode
 	var COMPLETE = "COMPLETE";
 	var ERROR = "ERROR";
 	var PROGRESS = "PROGRESS";
 
-	// Commands sent from the main thread to a worker thread
+	// Commands sent from the main thread to a worker thread, and returned by
+	// the worker to confirm the change of state, in multi-threaded mode only
 	var WORK = "WORK";
-	var CANCEL = "CANCEL";
+	var IDLE = "IDLE";
 	var EXIT = "EXIT";
 }
 
@@ -349,7 +342,12 @@ typedef ThreadEvent =
 	@:optional var message:Dynamic;
 	@:optional var jobID:Int;
 
-	// Only for "WORK" events
+	/**
+		Required when a worker thread reports a state change (WORK, IDLE, EXIT).
+	**/
+	@:optional var threadID:Int;
+
+	// Only for WORK events sent by the main thread to a worker
 	@:optional var doWork:WorkFunction<State->WorkOutput->Void>;
 	@:optional var state:State;
 }

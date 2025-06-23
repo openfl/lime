@@ -5,14 +5,21 @@ import lime.app.Event;
 import lime.system.WorkOutput;
 import lime.utils.Log;
 #if target.threaded
+import sys.thread.Deque;
 import sys.thread.Thread;
-#elseif (cpp || webassembly)
+#elseif cpp
+import cpp.vm.Deque;
 import cpp.vm.Thread;
 #elseif neko
+import neko.vm.Deque;
 import neko.vm.Thread;
 #elseif html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
 import lime._internal.backend.html5.HTML5Thread.Transferable;
+
+#if lime_threads_deque
+#error "lime_threads_deque is not yet supported in HTML5"
+#end
 #end
 
 /**
@@ -108,8 +115,13 @@ class ThreadPool extends WorkOutput
 	public var activeJobs(get, never):Int;
 
 	/**
+		The number of jobs currently running on a background thread.
+	**/
+	public var activeThreads(default, null):Int = 0;
+
+	/**
 		The number of background threads in this pool, including both active and
-		idle threads. Excludes threads that have been instructed to shut down.
+		idle threads.
 	**/
 	public var currentThreads(get, never):Int;
 
@@ -117,7 +129,7 @@ class ThreadPool extends WorkOutput
 		The number of background threads in this pool that aren't currently
 		working on anything.
 	**/
-	public var idleThreads(get, never):Int;
+	public var idleThreads(default, null):Int = 0;
 
 	/**
 		__Set this only from the main thread.__
@@ -178,17 +190,31 @@ class ThreadPool extends WorkOutput
 
 	#if lime_threads
 	/**
-		A list of idle threads. Not to be confused with `idleThreads`, a public
-		variable equal to `__idleThreads.length`.
+		Jobs running or queued to run on a background thread.
 	**/
-	private var __idleThreads:Array<Thread> = [];
+	private var __multiThreadedJobs:JobArray = new JobArray();
 
-	private var __multiThreadedJobs:JobArray = [];
-	private var __multiThreadedQueue:JobArray = [];
+	#if lime_threads_deque
+	private var __multiThreadedQueue:JobQueue = new JobQueue();
+	private var __queuedWorkEvents:Int = 0;
 	#end
 
-	private var __singleThreadedJob(default, set):JobData;
-	private var __singleThreadedQueue:JobArray = [];
+	private var __queuedExitEvents:Int = 0;
+
+	private var __threads:Array<ThreadData> = [];
+	#end
+
+	/**
+		Whether a job is running on the main thread, or will run during the next
+		update. As long as this is true, this pool's `workPriority` will be
+		included in `__totalWorkPriority`.
+	**/
+	private var __singleThreadedJobRunning(default, set):Bool = false;
+
+	/**
+		Jobs running or queued to run on the main thread.
+	**/
+	private var __singleThreadedJobs:JobArray = new JobArray();
 
 	/**
 		__Call this only from the main thread.__
@@ -232,23 +258,12 @@ class ThreadPool extends WorkOutput
 		Application.current.onUpdate.remove(__update);
 
 		#if lime_threads
-		// Cancel active jobs, leaving `minThreads` idle threads.
+		// Cancel active and queued jobs, leaving `minThreads` idle threads.
 		for (job in __multiThreadedJobs)
 		{
-			var thread:Thread = job.thread;
-			if (idleThreads < minThreads)
-			{
-				thread.sendMessage({event: CANCEL});
-				__idleThreads.push(thread);
-			}
-			else
-			{
-				thread.sendMessage({event: EXIT});
-			}
-
 			if (error != null)
 			{
-				if (job.duration == 0)
+				if (job.duration == 0 && job.started)
 				{
 					job.duration = timestamp() - job.startTime;
 				}
@@ -260,40 +275,64 @@ class ThreadPool extends WorkOutput
 		}
 		__multiThreadedJobs.clear();
 
-		// Exit idle threads if there are more than the minimum.
-		while (idleThreads > minThreads)
+		// Keep no more than `minThreads` idle threads.
+		idleThreads = 0;
+		activeThreads = 0;
+		for (threadID in 0...__threads.length)
 		{
-			__idleThreads.pop().sendMessage({event: EXIT});
+			var threadData:ThreadData = __threads[threadID];
+			if (threadData == null)
+			{
+				continue;
+			}
+
+			if (idleThreads < minThreads)
+			{
+				idleThreads++;
+
+				if (threadData.jobID != null)
+				{
+					threadData.thread.sendMessage({event: IDLE});
+					threadData.jobID = null;
+				}
+			}
+			else
+			{
+				threadData.thread.sendMessage({event: EXIT});
+				__threads[threadID] = null;
+			}
 		}
 		#end
 
-		if (__singleThreadedJob != null && error != null)
-		{
-			activeJob = __singleThreadedJob;
-			onError.dispatch(error);
-			activeJob = null;
-		}
-		__singleThreadedJob = null;
-
-		// Clear the job queues.
+		// Dispatch events if applicable.
 		if (error != null)
 		{
-			for (job in __singleThreadedQueue)
+			for (job in __singleThreadedJobs)
 			{
 				activeJob = job;
 				onError.dispatch(error);
 			}
+
 			#if lime_threads
-			for (job in __multiThreadedQueue)
+			for (job in __multiThreadedJobs)
 			{
 				activeJob = job;
 				onError.dispatch(error);
 			}
 			#end
 		}
-		__singleThreadedQueue.clear();
+
+		// Clear the queues.
+		__singleThreadedJobs.clear();
+		__singleThreadedJobRunning = false;
+
 		#if lime_threads
+		__multiThreadedJobs.clear();
+		#if lime_threads_deque
 		__multiThreadedQueue.clear();
+		__queuedWorkEvents = 0;
+		#end
+		__queuedExitEvents = 0;
 		#end
 
 		__jobComplete.value = false;
@@ -310,13 +349,9 @@ class ThreadPool extends WorkOutput
 	**/
 	public function cancelJob(jobID:Int):Bool
 	{
-		if (__singleThreadedJob != null && __singleThreadedJob.id == jobID)
+		if (__singleThreadedJobs.removeJob(jobID) != null)
 		{
-			__singleThreadedJob = __singleThreadedQueue.shift();
-			return true;
-		}
-		else if (__singleThreadedQueue.removeJob(jobID) != null)
-		{
+			__singleThreadedJobRunning = __singleThreadedJobs.length > 0;
 			return true;
 		}
 
@@ -324,18 +359,19 @@ class ThreadPool extends WorkOutput
 		var job:JobData = __multiThreadedJobs.removeJob(jobID);
 		if (job != null)
 		{
-			if (job.thread != null)
+			for (threadData in __threads)
 			{
-				job.thread.sendMessage({event: CANCEL});
-				__onThreadIdle(job.thread);
+				if (threadData.jobID == jobID)
+				{
+					threadData.thread.sendMessage({event: IDLE});
+					break;
+				}
 			}
 			return true;
 		}
-
-		return __multiThreadedQueue.removeJob(jobID) != null;
-		#else
-		return false;
 		#end
+
+		return false;
 	}
 
 	/**
@@ -391,18 +427,14 @@ class ThreadPool extends WorkOutput
 		#if lime_threads
 		if (mode == MULTI_THREADED)
 		{
-			__multiThreadedQueue.push(job);
-			__runNextJob();
+			__multiThreadedJobs.push(job);
+			__runMultiThreadedJob(job);
 		}
 		else
 		#end
-		if (__singleThreadedJob == null)
 		{
-			__singleThreadedJob = job;
-		}
-		else
-		{
-			__singleThreadedQueue.push(job);
+			__singleThreadedJobs.push(job);
+			__singleThreadedJobRunning = true;
 		}
 
 		if (!Application.current.onUpdate.has(__update))
@@ -418,41 +450,87 @@ class ThreadPool extends WorkOutput
 
 		Dispatches the given event immediately.
 	**/
-	private inline function __dispatchJobOutput(threadEvent:ThreadEvent):Void
+	private function __dispatchJobOutput(event:ThreadEvent):Void
 	{
 		var oldActiveJob:Null<JobData> = activeJob;
+		activeJob = null;
 
-		if (__singleThreadedJob != null && threadEvent.jobID == __singleThreadedJob.id)
+		if (__singleThreadedJobs.length > 0 && event.jobID == __singleThreadedJobs.first().id)
 		{
-			activeJob = __singleThreadedJob;
+			activeJob = __singleThreadedJobs.first();
 		}
 		#if lime_threads
-		else if ((activeJob = __multiThreadedJobs.getJob(threadEvent.jobID)) != null)
+		else if ((activeJob = __multiThreadedJobs.getJob(event.jobID)) != null)
 		{
-			activeJob.duration = timestamp() - activeJob.startTime;
-
-			if (threadEvent.event == COMPLETE || threadEvent.event == ERROR)
+			if (activeJob.started)
 			{
-				__multiThreadedJobs.remove(activeJob);
-				__onThreadIdle(activeJob.thread);
+				activeJob.duration = timestamp() - activeJob.startTime;
+			}
+
+			if (event.event == COMPLETE || event.event == ERROR)
+			{
+				__multiThreadedJobs.removeJob(activeJob.id);
 			}
 		}
 		#end
-		else
+		else if (event.jobID != null)
 		{
-			threadEvent.event = null;
+			#if (lime_threads && lime_threads_deque)
+			// `cancelJob()` can't remove the job from the queue, so instead it
+			// marks it to be canceled later. (And "later" is now.)
+			if (event.event == WORK && event.threadID != null)
+			{
+				__threads[event.threadID].thread.sendMessage({event: IDLE});
+			}
+			#end
+
+			activeJob = oldActiveJob;
+			return;
 		}
 
-		switch (threadEvent.event)
+		switch (event.event)
 		{
 			case PROGRESS:
-				onProgress.dispatch(threadEvent.message);
+				onProgress.dispatch(event.message);
 
 			case COMPLETE:
-				onComplete.dispatch(threadEvent.message);
+				onComplete.dispatch(event.message);
 
 			case ERROR:
-				onError.dispatch(threadEvent.message);
+				onError.dispatch(event.message);
+
+			case WORK:
+				activeJob.startTime = timestamp();
+				onRun.dispatch(activeJob.state);
+
+				#if lime_threads
+				var threadData = __threads[event.threadID];
+				if (threadData.jobID == null)
+				{
+					idleThreads--;
+					activeThreads++;
+				}
+				threadData.jobID = event.jobID;
+
+				#if lime_threads_deque
+				__queuedWorkEvents--;
+				#end
+				#end
+
+			#if lime_threads
+			case IDLE:
+				__onThreadIdle(event.threadID);
+
+			case EXIT:
+				var threadData = __threads[event.threadID];
+				if (threadData.jobID != null)
+					activeThreads--;
+				else
+					idleThreads--;
+
+				__threads[event.threadID] = null;
+				__queuedExitEvents--;
+			#end
 
 			default:
 		}
@@ -467,7 +545,7 @@ class ThreadPool extends WorkOutput
 		{
 			return;
 		}
-		else if (isMainThread() && activeJob == __singleThreadedJob)
+		else if (isMainThread() && activeJob == __singleThreadedJobs.first())
 		{
 			__jobComplete.value = true;
 			__dispatchJobOutput({event: COMPLETE, message: message, jobID: activeJob.id});
@@ -484,7 +562,7 @@ class ThreadPool extends WorkOutput
 		{
 			return;
 		}
-		else if (isMainThread() && activeJob == __singleThreadedJob)
+		else if (isMainThread() && activeJob == __singleThreadedJobs.first())
 		{
 			__jobComplete.value = true;
 			__dispatchJobOutput({event: ERROR, message: message, jobID: activeJob.id});
@@ -501,7 +579,7 @@ class ThreadPool extends WorkOutput
 		{
 			return;
 		}
-		else if (isMainThread() && activeJob == __singleThreadedJob)
+		else if (isMainThread() && activeJob == __singleThreadedJobs.first())
 		{
 			__dispatchJobOutput({event: PROGRESS, message: message, jobID: activeJob.id});
 		}
@@ -515,27 +593,54 @@ class ThreadPool extends WorkOutput
 		__Run this only on a background thread.__
 
 		Retrieves jobs using `Thread.readMessage()`, runs them until complete,
-		and repeats.
-
-		On all targets besides HTML5, the first message must be a `WorkOutput`.
+		and repeats. The first message must be `ThreadArguments`, and the rest
+		must be `ThreadEvent`s.
 	**/
 	private static function __executeThread():Void
 	{
 		// @formatter:off
 		JSAsync.async({
-			var output:WorkOutput = #if html5 new WorkOutput(MULTI_THREADED) #else cast(Thread.readMessage(true), WorkOutput) #end;
+			var args:ThreadArguments = Thread.readMessage(true);
+			var output:WorkOutput = #if html5 new WorkOutput(MULTI_THREADED) #else args.output #end;
+			#if lime_threads_deque
+			var jobQueue:JobQueue = args.queue;
+			#end
 			var event:ThreadEvent = null;
+			var firstLoop:Bool = true;
 
 			while (true)
 			{
 				// Get a job.
 				if (event == null)
 				{
-					do
+					#if lime_threads_deque
+					event = jobQueue.pop(false);
+					#else
+					event = Thread.readMessage(false);
+					#end
+
+					if (event == null || !Reflect.hasField(event, "event"))
 					{
-						event = Thread.readMessage(true);
+						if (firstLoop)
+						{
+							firstLoop = false;
+						}
+						else
+						{
+							// Let the main thread know this thread is awaiting
+							// work. Not necessary during the first loop.
+							output.sendThreadEvent({event: IDLE, threadID: args.threadID});
+						}
+
+						do {
+							#if lime_threads_deque
+							event = jobQueue.pop(true);
+							#else
+							event = Thread.readMessage(true);
+							#end
+						}
+						while (event == null || !Reflect.hasField(event, "event"));
 					}
-					while (event == null || !Reflect.hasField(event, "event"));
 
 					output.resetJobProgress();
 				}
@@ -543,6 +648,7 @@ class ThreadPool extends WorkOutput
 				if (event.event == EXIT)
 				{
 					// Quit working.
+					output.sendThreadEvent({event: EXIT, threadID: args.threadID});
 					#if html5
 					Thread.current().destroy();
 					#end
@@ -564,6 +670,10 @@ class ThreadPool extends WorkOutput
 				{
 					while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
 					{
+						if (output.workIterations.value == 0)
+						{
+							output.sendThreadEvent({event: WORK, jobID: event.jobID, threadID: args.threadID});
+						}
 						output.workIterations.value = output.workIterations.value + 1;
 						event.doWork.dispatch(event.state, output);
 					}
@@ -635,10 +745,15 @@ class ThreadPool extends WorkOutput
 		}
 
 		var jobStartTime:Float;
-		while (__singleThreadedJob != null && (jobStartTime = timestamp()) < endTime)
+		while (__singleThreadedJobs.length > 0 && (jobStartTime = timestamp()) < endTime)
 		{
-			activeJob = __singleThreadedJob;
-			var state:State = activeJob.state;
+			activeJob = __singleThreadedJobs.first();
+
+			if (!activeJob.started)
+			{
+				activeJob.startTime = jobStartTime;
+				onRun.dispatch(activeJob.state);
+			}
 
 			__jobComplete.value = false;
 			workIterations.value = 0;
@@ -648,7 +763,7 @@ class ThreadPool extends WorkOutput
 				do
 				{
 					workIterations.value = workIterations.value + 1;
-					activeJob.doWork.dispatch(state, this);
+					activeJob.doWork.dispatch(activeJob.state, this);
 				}
 				while (!__jobComplete.value && timestamp() < endTime);
 			}
@@ -665,21 +780,13 @@ class ThreadPool extends WorkOutput
 
 			if (__jobComplete.value)
 			{
-				if (__singleThreadedQueue.length > 0)
-				{
-					__singleThreadedJob = __singleThreadedQueue.shift();
-					__singleThreadedJob.startTime = jobEndTime;
-				}
-				else
-				{
-					__singleThreadedJob = null;
-				}
+				__singleThreadedJobs.shift();
+				__singleThreadedJobRunning = __singleThreadedJobs.length > 0;
 			}
 		}
 
-		#if lime_threads
-		// Run any multi-threaded jobs that fell through the cracks.
-		while (__runNextJob()) {}
+		#if (lime_threads && !lime_threads_deque)
+		__runMultiThreadedJobs();
 		#end
 
 		// Process events.
@@ -689,113 +796,195 @@ class ThreadPool extends WorkOutput
 			__dispatchJobOutput(threadEvent);
 		}
 
-		if (0 == activeJobs + __singleThreadedQueue.length #if lime_threads + __multiThreadedQueue.length #end)
+		if (activeJobs == 0)
 		{
 			Application.current.onUpdate.remove(__update);
 		}
 	}
 
 	#if lime_threads
+
 	/**
 		Handles a thread that just became idle. Depending on the circumstances,
 		this may do one of three things:
 
 		- Start the next queued job, adding it to `__multiThreadedJobs`.
-		- Add the thread to `__idleThreads`, if it isn't already there.
+		- Marks the thread as idle.
 		- Exit the thread if it doesn't need to be kept.
-
-		This will never remove from `__multiThreadedJobs`, so if the thread came
-		from there, the caller is responsible for doing that.
 	**/
-	private inline function __onThreadIdle(thread:Thread):Void
+	private function __onThreadIdle(threadID:Int):Void
 	{
 		if (!isMainThread())
 		{
 			throw "Call __onThreadIdle() only from the main thread.";
 		}
 
-		if (__idleThreads.indexOf(thread) < 0)
+		var threadData:ThreadData = __threads[threadID];
+		if (threadData == null)
 		{
-			__idleThreads.push(thread);
+			return;
 		}
 
-		if (__runNextJob())
+		if (threadData.jobID != null)
 		{
-			// The thread has been removed from `__idleThreads`.
+			threadData.jobID = null;
+			activeThreads--;
+			idleThreads++;
 		}
-		else if (__multiThreadedJobs.length + __idleThreads.length > minThreads)
+
+		#if lime_threads_deque
+		if (idleThreads - __queuedExitEvents - __queuedWorkEvents > minThreads)
+		{
+			__multiThreadedQueue.add({event: EXIT});
+			__queuedExitEvents++;
+		}
+		#else
+		__runMultiThreadedJobs();
+
+		if (idleThreads - __queuedExitEvents > minThreads)
 		{
 			#if html5
-			thread.destroy();
+			threadData.thread.destroy();
+			__threads[threadID] = null;
+			idleThreads--;
 			#else
-			thread.sendMessage({event: EXIT});
+			threadData.thread.sendMessage({event: EXIT});
+			__queuedExitEvents++;
 			#end
-
-			__idleThreads.remove(thread);
 		}
+		#end
 	}
 
-	/**
-		Runs the next job from `__multiThreadedQueue`, if any, unless the thread
-		limit has been reached.
-		@return Whether a job was started. If false, `__multiThreadQueue` will
-		have been left as-is.
-	**/
-	private function __runNextJob():Bool
+	private function __runMultiThreadedJob(job:JobData):Void
 	{
-		if (__multiThreadedQueue.length == 0 || __multiThreadedJobs.length >= maxThreads)
+		if (job.started)
 		{
-			return false;
+			throw "Job " + job.id + " was already started!";
 		}
-
-		var job:JobData = __multiThreadedQueue.shift();
 
 		#if html5
 		job.doWork.makePortable();
 		#end
 
-		job.thread = __idleThreads.length > 0 ? __idleThreads.pop() : createThread(__executeThread);
-		job.thread.sendMessage(
+		var threadEvent:ThreadEvent = {
+			event: WORK,
+			jobID: job.id,
+			doWork: job.doWork,
+			state: job.state
+		};
+
+		#if lime_threads_deque
+		__multiThreadedQueue.add(threadEvent);
+		__queuedWorkEvents++;
+		if (idleThreads < __queuedWorkEvents && currentThreads < maxThreads)
+		{
+			createThread(__executeThread);
+		}
+		#else
+		var threadData:ThreadData = null;
+		if (idleThreads > 0)
+		{
+			for (data in __threads)
 			{
-				event: WORK,
-				jobID: job.id,
-				doWork: job.doWork,
-				state: job.state
-			});
-		job.startTime = timestamp();
+				if (data != null && data.jobID == null)
+				{
+					threadData = data;
+					break;
+				}
+			}
+		}
+		if (threadData == null)
+		{
+			if (currentThreads >= maxThreads)
+			{
+				return;
+			}
 
-		__multiThreadedJobs.push(job);
+			var thread:Thread = createThread(__executeThread);
+			for (data in __threads)
+			{
+				if (data.thread == thread)
+				{
+					threadData = data;
+					break;
+				}
+			}
+			if (threadData == null)
+			{
+				return;
+			}
+		}
 
-		return true;
+		threadData.jobID = job.id;
+		threadData.thread.sendMessage(threadEvent);
+		idleThreads--;
+		activeThreads++;
+		#end
+
+		// Mark the job as started, even if it's only queued, to prevent
+		// queueing it again. `startTime` will be updated again later, when
+		// confirmation is received.
+		job.startTime = 0;
 	}
+
+	#if !lime_threads_deque
+	private function __runMultiThreadedJobs():Void
+	{
+		if (activeThreads >= maxThreads)
+		{
+			return;
+		}
+		for (job in __multiThreadedJobs)
+		{
+			if (!job.started)
+			{
+				__runMultiThreadedJob(job);
+				if (activeThreads >= maxThreads)
+				{
+					break;
+				}
+			}
+		}
+	}
+	#end
 
 	private override function createThread(executeThread:WorkFunction<Void->Void>):Thread
 	{
 		var thread:Thread = super.createThread(executeThread);
-		#if !html5
-		thread.sendMessage(this);
-		#end
+
+		var index:Int = __threads.indexOf(null);
+		if (index < 0)
+		{
+			index = __threads.length;
+		}
+		__threads[index] = {thread: thread, jobID: null};
+		idleThreads++;
+
+		thread.sendMessage({
+			#if !html5
+			output: this,
+			#end
+			#if lime_threads_deque
+			queue: __multiThreadedQueue,
+			#end
+			threadID: index
+		});
 
 		return thread;
 	}
+
 	#end
 
 	// Getters & Setters
 
 	private inline function get_activeJobs():Int
 	{
-		return #if lime_threads __multiThreadedJobs.length + #end
-			(__singleThreadedJob != null ? 1 : 0);
-	}
-
-	private inline function get_idleThreads():Int
-	{
-		return #if lime_threads __idleThreads.length #else 0 #end;
+		return activeThreads + (__singleThreadedJobs.length > 0 ? 1 : 0);
 	}
 
 	private inline function get_currentThreads():Int
 	{
-		return #if lime_threads __multiThreadedJobs.length + __idleThreads.length #else 0 #end;
+		return activeThreads + idleThreads;
 	}
 
 	private function get_doWork():PseudoEvent
@@ -803,22 +992,25 @@ class ThreadPool extends WorkOutput
 		return this;
 	}
 
-	private inline function set___singleThreadedJob(value:JobData):JobData
+	private inline function set___singleThreadedJobRunning(value:Bool):Bool
 	{
-		if (value != null && __singleThreadedJob == null)
+		if (value != __singleThreadedJobRunning)
 		{
-			__totalWorkPriority += workPriority;
+			if (value)
+			{
+				__totalWorkPriority += workPriority;
+			}
+			else
+			{
+				__totalWorkPriority -= workPriority;
+			}
 		}
-		else if (value == null && __singleThreadedJob != null)
-		{
-			__totalWorkPriority -= workPriority;
-		}
-		return __singleThreadedJob = value;
+		return __singleThreadedJobRunning = value;
 	}
 
 	private function set_workPriority(value:Float):Float
 	{
-		if (__singleThreadedJob != null)
+		if (__singleThreadedJobRunning)
 		{
 			__totalWorkPriority += value - workPriority;
 		}
@@ -877,41 +1069,173 @@ private abstract PseudoEvent(ThreadPool) from ThreadPool
 	}
 }
 
-@:forward
-private abstract JobArray(Array<JobData>) from Array<JobData>
+private class JobArray
 {
+	private var jobs:Array<JobData> = [];
+
+	public var length(get, never):Int;
+
+	/**
+		The first non-null index in `jobs`.
+	**/
+	private var startIndex:Int = 0;
+
+	public inline function new() {}
+
 	public inline function clear():Void
 	{
 		#if haxe4
-		this.resize(0);
+		jobs.resize(0);
 		#else
-		this.splice(0, this.length);
+		jobs.splice(0, jobs.length);
 		#end
+		startIndex = 0;
+	}
+
+	public inline function first():JobData
+	{
+		return jobs[startIndex];
 	}
 
 	public function getJob(id:Int):JobData
 	{
-		for (job in this)
+		for (i in startIndex...jobs.length)
 		{
-			if (job.id == id)
+			if (jobs[i].id == id)
 			{
-				return job;
+				return jobs[i];
 			}
 		}
 		return null;
 	}
 
+	private inline function get_length():Int
+	{
+		return jobs.length - startIndex;
+	}
+
+	public inline function iterator():JobArrayIterator
+	{
+		return new JobArrayIterator(jobs, startIndex);
+	}
+
+	public inline function push(job:JobData):Int
+	{
+		return jobs.push(job);
+	}
+
 	public function removeJob(id:Int):JobData
 	{
-		for (i in 0...this.length)
+		for (i in startIndex...jobs.length)
 		{
-			var job:JobData = this[i];
-			if (job.id == id)
+			var job:JobData = jobs[i];
+			if (job.id != id)
 			{
-				this.splice(i, 1);
-				return job;
+				continue;
 			}
+
+			if ((i - startIndex) * 2 <= length)
+			{
+				// Closer to the start; shift earlier entries +1.
+				var j:Int = i;
+				while (j > startIndex)
+				{
+					jobs[j] = jobs[j - 1];
+					j--;
+				}
+
+				shift();
+			}
+			else
+			{
+				// Closer to the end; shift later entries -1.
+				jobs.splice(i, 1);
+			}
+
+			return job;
 		}
+
 		return null;
 	}
+
+	public function shift():JobData
+	{
+		var job:JobData = jobs[startIndex];
+
+		jobs[startIndex] = null;
+		startIndex++;
+
+		if (startIndex >= jobs.length)
+		{
+			clear();
+		}
+		else if (startIndex >= 100)
+		{
+			jobs.splice(0, startIndex);
+			startIndex = 0;
+		}
+
+		return job;
+	}
 }
+
+private class JobArrayIterator
+{
+	private var index:Int;
+	private var jobs:Array<JobData>;
+
+	public inline function new(jobs:Array<JobData>, startIndex:Int)
+	{
+		this.jobs = jobs;
+		index = startIndex;
+	}
+
+	public inline function hasNext():Bool
+	{
+		return index < jobs.length;
+	}
+
+	public inline function next():JobData
+	{
+		return jobs[index++];
+	}
+}
+
+#if lime_threads_deque
+@:forward
+private abstract JobQueue(Deque<ThreadEvent>) from Deque<ThreadEvent>
+{
+	public inline function new()
+	{
+		this = new Deque<ThreadEvent>();
+	}
+
+	public inline function clear():Void
+	{
+		while (this.pop(false) != null) {}
+	}
+
+	// Only allow adding to the end.
+	public inline function push(event:ThreadEvent):Void
+	{
+		this.add(event);
+	}
+}
+#end
+
+private typedef ThreadArguments = {
+	#if !html5
+	var output:WorkOutput;
+	#end
+
+	#if lime_threads_deque
+	var queue:JobQueue;
+	#end
+
+	var threadID:Int;
+};
+
+private typedef ThreadData = {
+	var thread:Thread;
+	@:optional var jobID:Int;
+};
