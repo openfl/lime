@@ -538,7 +538,6 @@ class ThreadPool extends WorkOutput
 		activeJob = oldActiveJob;
 	}
 
-	#if lime_threads
 	public override function sendComplete(message:Dynamic = null, transferList:Array<Transferable> = null)
 	{
 		if (__jobComplete.value)
@@ -589,6 +588,7 @@ class ThreadPool extends WorkOutput
 		}
 	}
 
+	#if lime_threads
 	/**
 		__Run this only on a background thread.__
 
