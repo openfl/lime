@@ -317,14 +317,6 @@ class ThreadPool extends WorkOutput
 				activeJob = job;
 				onError.dispatch(error);
 			}
-
-			#if lime_threads
-			for (job in __multiThreadedJobs)
-			{
-				activeJob = job;
-				onError.dispatch(error);
-			}
-			#end
 		}
 
 		// Clear the queues.
@@ -332,7 +324,6 @@ class ThreadPool extends WorkOutput
 		__singleThreadedJobRunning = false;
 
 		#if lime_threads
-		__multiThreadedJobs.clear();
 		#if lime_threads_deque
 		__multiThreadedQueue.clear();
 		__queuedWorkEvents = 0;
