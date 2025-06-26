@@ -621,14 +621,11 @@ class ThreadPool extends WorkOutput
 
 					if (event == null || !Reflect.hasField(event, "event"))
 					{
-						if (firstLoop)
-						{
-							firstLoop = false;
-						}
-						else
+						if (!firstLoop)
 						{
 							// Let the main thread know this thread is awaiting
-							// work. Not necessary during the first loop.
+							// work. Threads start out idle, so there's no need
+							// during the first loop.
 							output.sendThreadEvent({event: IDLE, threadID: args.threadID});
 						}
 
@@ -643,6 +640,8 @@ class ThreadPool extends WorkOutput
 					}
 
 					output.resetJobProgress();
+
+					firstLoop = false;
 				}
 
 				if (event.event == EXIT)
