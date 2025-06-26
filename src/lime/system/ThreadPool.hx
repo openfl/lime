@@ -1234,7 +1234,9 @@ private typedef ThreadArguments = {
 	var threadID:Int;
 };
 
+#if lime_threads
 private typedef ThreadData = {
 	var thread:Thread;
 	@:optional var jobID:Int;
 };
+#end
