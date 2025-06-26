@@ -795,7 +795,7 @@ class ThreadPool extends WorkOutput
 			__dispatchJobOutput(threadEvent);
 		}
 
-		if (activeJobs == 0)
+		if (activeJobs == 0 && currentThreads <= minThreads)
 		{
 			Application.current.onUpdate.remove(__update);
 		}
