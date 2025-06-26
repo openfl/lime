@@ -357,7 +357,7 @@ class ThreadPool extends WorkOutput
 		{
 			for (threadData in __threads)
 			{
-				if (threadData.jobID == jobID)
+				if (threadData != null && threadData.jobID == jobID)
 				{
 					threadData.thread.sendMessage({event: IDLE});
 					break;
@@ -518,7 +518,7 @@ class ThreadPool extends WorkOutput
 				__onThreadIdle(event.threadID);
 
 			case EXIT:
-				var threadData = __threads[event.threadID];
+				var threadData:ThreadData = __threads[event.threadID];
 				if (threadData.jobID != null)
 					activeThreads--;
 				else
