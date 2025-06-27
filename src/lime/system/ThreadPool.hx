@@ -260,15 +260,13 @@ class ThreadPool extends WorkOutput
 			throw "Call cancel() only from the main thread.";
 		}
 
-		Application.current.onUpdate.remove(__update);
-
 		#if lime_threads
-		// Cancel active and queued jobs, leaving `minThreads` idle threads.
-		for (job in __multiThreadedJobs)
+		// Dispatch error events.
+		if (error != null)
 		{
-			if (error != null)
+			for (job in __multiThreadedJobs)
 			{
-				if (job.duration == 0 && job.started)
+				if (job.started)
 				{
 					job.duration = timestamp() - job.startTime;
 				}
@@ -280,36 +278,39 @@ class ThreadPool extends WorkOutput
 		}
 		__multiThreadedJobs.clear();
 
-		// Keep no more than `minThreads` idle threads.
-		__idleThreads = 0;
-		activeThreads = 0;
+		#if lime_threads_deque
+		// Clear the queue, then replace the `EXIT` events.
+		var queuedEvent:ThreadEvent = null;
+		while ((queuedEvent = __multiThreadedQueue.pop(false)) != null)
+		{
+			if (queuedEvent.event == EXIT)
+			{
+				__queuedExitEvents--;
+			}
+		}
+		__queuedWorkEvents = 0;
+
+		while (currentThreads > minThreads)
+		{
+			__multiThreadedQueue.add({event: EXIT});
+			__queuedExitEvents++;
+		}
+		#end
+
+		// Make all threads go idle. In `lime_threads_deque` mode, this will
+		// make them check the queue. Otherwise, `__onThreadIdle()` will decide
+		// which should be exited.
 		for (threadID in 0...__threads.length)
 		{
 			var threadData:ThreadData = __threads[threadID];
-			if (threadData == null)
+			if (threadData != null && threadData.jobID != null)
 			{
-				continue;
-			}
-
-			if (__idleThreads < minThreads)
-			{
-				__idleThreads++;
-
-				if (threadData.jobID != null)
-				{
-					threadData.thread.sendMessage({event: IDLE});
-					threadData.jobID = null;
-				}
-			}
-			else
-			{
-				threadData.thread.sendMessage({event: EXIT});
-				__threads[threadID] = null;
+				threadData.thread.sendMessage({event: IDLE});
 			}
 		}
 		#end
 
-		// Dispatch events if applicable.
+		// Clear single-threaded jobs.
 		if (error != null)
 		{
 			for (job in __singleThreadedJobs)
@@ -319,17 +320,8 @@ class ThreadPool extends WorkOutput
 			}
 		}
 
-		// Clear the queues.
 		__singleThreadedJobs.clear();
 		__singleThreadedJobRunning = false;
-
-		#if lime_threads
-		#if lime_threads_deque
-		__multiThreadedQueue.clear();
-		__queuedWorkEvents = 0;
-		#end
-		__queuedExitEvents = 0;
-		#end
 
 		__jobComplete.value = false;
 		activeJob = null;
@@ -477,6 +469,7 @@ class ThreadPool extends WorkOutput
 			if (event.event == WORK && event.threadID != null)
 			{
 				__threads[event.threadID].thread.sendMessage({event: IDLE});
+				__queuedWorkEvents--;
 			}
 			#end
 
@@ -615,25 +608,29 @@ class ThreadPool extends WorkOutput
 					event = Thread.readMessage(false);
 					#end
 
-					if (event == null || !Reflect.hasField(event, "event"))
+					if (event == null && !firstLoop)
 					{
-						if (!firstLoop)
-						{
-							// Let the main thread know this thread is awaiting
-							// work. Threads start out idle, so there's no need
-							// during the first loop.
-							output.sendThreadEvent({event: IDLE, threadID: args.threadID});
-						}
-
-						do {
-							#if lime_threads_deque
-							event = jobQueue.pop(true);
-							#else
-							event = Thread.readMessage(true);
-							#end
-						}
-						while (event == null || !Reflect.hasField(event, "event"));
+						// Let the main thread know this thread is awaiting
+						// work. Threads start out idle, so there's no need
+						// during the first loop.
+						output.sendThreadEvent({event: IDLE, threadID: args.threadID});
 					}
+
+					while (event == null) {
+						#if lime_threads_deque
+						event = jobQueue.pop(true);
+						#else
+						event = Thread.readMessage(true);
+						#end
+					}
+
+					#if lime_threads_deque
+					// Any interruptions sent in `lime_threads_deque` mode are
+					// simply to make the thread check `jobQueue`. If they
+					// arrive while the thread is waiting for `jobQueue.pop()`,
+					// then their job is already done and they can be ignored.
+					while (Thread.readMessage(false) != null) {}
+					#end
 
 					output.resetJobProgress();
 
@@ -660,7 +657,7 @@ class ThreadPool extends WorkOutput
 				// Get to work.
 				output.activeJob = new JobData(event.doWork, event.state, event.jobID);
 
-				var interruption:Dynamic = null;
+				var interruption:ThreadEvent = null;
 				try
 				{
 					while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
@@ -685,15 +682,11 @@ class ThreadPool extends WorkOutput
 					// Work is done; wait for more.
 					event = interruption;
 				}
-				else if (Reflect.hasField(interruption, "event"))
+				else
 				{
 					// Work on the new job.
 					event = interruption;
 					output.resetJobProgress();
-				}
-				else
-				{
-					// Ignore interruption and keep working.
 				}
 
 				// Do it all again.
@@ -1209,11 +1202,6 @@ private abstract JobQueue(Deque<ThreadEvent>) from Deque<ThreadEvent>
 	public inline function new()
 	{
 		this = new Deque<ThreadEvent>();
-	}
-
-	public inline function clear():Void
-	{
-		while (this.pop(false) != null) {}
 	}
 
 	// Only allow adding to the end.
