@@ -121,15 +121,20 @@ class ThreadPool extends WorkOutput
 
 	/**
 		The number of background threads in this pool, including both active and
-		idle threads.
+		idle threads. Does not include threads that are shutting down.
 	**/
 	public var currentThreads(get, never):Int;
 
 	/**
-		The number of background threads in this pool that aren't currently
-		working on anything.
+		The number of background threads in this pool that are currently idle,
+		neither working on a job nor shutting down.
 	**/
-	public var idleThreads(default, null):Int = 0;
+	public var idleThreads(get, never):Int;
+
+	/**
+		`idleThreads + __queuedExitEvents`
+	**/
+	private var __idleThreads:Int = 0;
 
 	/**
 		__Set this only from the main thread.__
@@ -276,7 +281,7 @@ class ThreadPool extends WorkOutput
 		__multiThreadedJobs.clear();
 
 		// Keep no more than `minThreads` idle threads.
-		idleThreads = 0;
+		__idleThreads = 0;
 		activeThreads = 0;
 		for (threadID in 0...__threads.length)
 		{
@@ -286,9 +291,9 @@ class ThreadPool extends WorkOutput
 				continue;
 			}
 
-			if (idleThreads < minThreads)
+			if (__idleThreads < minThreads)
 			{
-				idleThreads++;
+				__idleThreads++;
 
 				if (threadData.jobID != null)
 				{
@@ -507,7 +512,7 @@ class ThreadPool extends WorkOutput
 				var threadData = __threads[event.threadID];
 				if (threadData.jobID == null)
 				{
-					idleThreads--;
+					__idleThreads--;
 					activeThreads++;
 				}
 				threadData.jobID = event.jobID;
@@ -526,7 +531,7 @@ class ThreadPool extends WorkOutput
 				if (threadData.jobID != null)
 					activeThreads--;
 				else
-					idleThreads--;
+					__idleThreads--;
 
 				__threads[event.threadID] = null;
 				__queuedExitEvents--;
@@ -795,7 +800,7 @@ class ThreadPool extends WorkOutput
 			__dispatchJobOutput(threadEvent);
 		}
 
-		if (activeJobs == 0 && currentThreads <= minThreads)
+		if (activeJobs == 0 #if lime_threads && __queuedExitEvents <= 0 #end)
 		{
 			Application.current.onUpdate.remove(__update);
 		}
@@ -828,11 +833,11 @@ class ThreadPool extends WorkOutput
 		{
 			threadData.jobID = null;
 			activeThreads--;
-			idleThreads++;
+			__idleThreads++;
 		}
 
 		#if lime_threads_deque
-		if (idleThreads - __queuedExitEvents - __queuedWorkEvents > minThreads)
+		if (idleThreads - __queuedWorkEvents > minThreads)
 		{
 			__multiThreadedQueue.add({event: EXIT});
 			__queuedExitEvents++;
@@ -840,12 +845,12 @@ class ThreadPool extends WorkOutput
 		#else
 		__runMultiThreadedJobs();
 
-		if (idleThreads - __queuedExitEvents > minThreads)
+		if (idleThreads > minThreads)
 		{
 			#if html5
 			threadData.thread.destroy();
 			__threads[threadID] = null;
-			idleThreads--;
+			__idleThreads--;
 			#else
 			threadData.thread.sendMessage({event: EXIT});
 			__queuedExitEvents++;
@@ -875,7 +880,7 @@ class ThreadPool extends WorkOutput
 		#if lime_threads_deque
 		__multiThreadedQueue.add(threadEvent);
 		__queuedWorkEvents++;
-		if (idleThreads < __queuedWorkEvents && currentThreads < maxThreads)
+		if (idleThreads <= __queuedWorkEvents && currentThreads < maxThreads)
 		{
 			createThread(__executeThread);
 		}
@@ -916,7 +921,7 @@ class ThreadPool extends WorkOutput
 
 		threadData.jobID = job.id;
 		threadData.thread.sendMessage(threadEvent);
-		idleThreads--;
+		__idleThreads--;
 		activeThreads++;
 		#end
 
@@ -957,7 +962,7 @@ class ThreadPool extends WorkOutput
 			index = __threads.length;
 		}
 		__threads[index] = {thread: thread, jobID: null};
-		idleThreads++;
+		__idleThreads++;
 
 		thread.sendMessage({
 			#if !html5
@@ -989,6 +994,12 @@ class ThreadPool extends WorkOutput
 	private function get_doWork():PseudoEvent
 	{
 		return this;
+	}
+
+	private inline function get_idleThreads():Int
+	{
+		return __idleThreads
+			#if lime_threads - __queuedExitEvents #end;
 	}
 
 	private inline function set___singleThreadedJobRunning(value:Bool):Bool
