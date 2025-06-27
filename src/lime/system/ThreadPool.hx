@@ -784,7 +784,8 @@ class ThreadPool extends WorkOutput
 			__dispatchJobOutput(threadEvent);
 		}
 
-		if (activeJobs #if lime_threads + __queuedExitEvents + __queuedWorkEvents #end <= 0)
+		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end
+			<= 0)
 		{
 			Application.current.onUpdate.remove(__update);
 		}
