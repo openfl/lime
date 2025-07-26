@@ -1,5 +1,6 @@
 package lime.media;
 
+import haxe.io.Bytes;
 #if (!lime_doc_gen || lime_openal)
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
@@ -586,6 +587,31 @@ class OpenALAudioContext
 	public function suspendContext(context:ALContext):Void
 	{
 		ALC.suspendContext(context);
+	}
+
+	public function captureOpenDevice(deviceName:String, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	{
+		return ALC.captureOpenDevice(deviceName, frequency, format, bufferSize);
+	}
+
+	public function captureCloseDevice(device:ALDevice):Bool
+	{
+		return ALC.captureCloseDevice(device);
+	}
+
+	public function captureStart(device:ALDevice):Void
+	{
+		ALC.captureStart(device);
+	}
+
+	public function captureStop(device:ALDevice):Void
+	{
+		ALC.captureStop(device);
+	}
+
+	public function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void
+	{
+		ALC.captureSamples(device, buffer, samples);
 	}
 }
 #end
