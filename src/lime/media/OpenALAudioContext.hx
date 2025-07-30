@@ -1,6 +1,5 @@
 package lime.media;
 
-import haxe.io.Bytes;
 #if (!lime_doc_gen || lime_openal)
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
@@ -9,6 +8,7 @@ import lime.media.openal.ALContext;
 import lime.media.openal.ALDevice;
 import lime.media.openal.ALSource;
 import lime.utils.ArrayBufferView;
+import haxe.io.Bytes;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
