@@ -154,14 +154,12 @@ namespace lime {
 
 				char const* home = getenv ("HOME");
 
-				if (home == NULL) {
+				if (home != NULL) {
 
-					return 0;
+					std::string path = std::string (home) + std::string ("/Desktop");
+					result = new std::wstring (path.begin (), path.end ());
 
 				}
-
-				std::string path = std::string (home) + std::string ("/Desktop");
-				result = new std::wstring (path.begin (), path.end ());
 
 				#endif
 				break;
