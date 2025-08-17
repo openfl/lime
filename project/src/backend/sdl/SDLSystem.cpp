@@ -108,13 +108,19 @@ namespace lime {
 			case APPLICATION: {
 
 				char* path = SDL_GetBasePath ();
-				#ifdef HX_WINDOWS
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes(path));
-				#else
-				result = new std::wstring (path, path + strlen (path));
-				#endif
-				SDL_free (path);
+
+				if (path != nullptr) {
+
+					#ifdef HX_WINDOWS
+					std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+					result = new std::wstring (converter.from_bytes(path));
+					#else
+					result = new std::wstring (path, path + strlen (path));
+					#endif
+					SDL_free (path);
+
+				}
+
 				break;
 
 			}
@@ -122,13 +128,17 @@ namespace lime {
 			case APPLICATION_STORAGE: {
 
 				char* path = SDL_GetPrefPath (company, title);
-				#ifdef HX_WINDOWS
-				std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-				result = new std::wstring (converter.from_bytes(path));
-				#else
-				result = new std::wstring (path, path + strlen (path));
-				#endif
-				SDL_free (path);
+
+				if (path != nullptr) {
+					#ifdef HX_WINDOWS
+					std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+					result = new std::wstring (converter.from_bytes(path));
+					#else
+					result = new std::wstring (path, path + strlen (path));
+					#endif
+					SDL_free (path);
+				}
+
 				break;
 
 			}
