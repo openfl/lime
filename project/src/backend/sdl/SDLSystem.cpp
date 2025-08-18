@@ -111,9 +111,9 @@ namespace lime {
 
 				if (path != nullptr) {
 
-						wstring_convert converter;
-						result = new std::wstring (converter.from_bytes(path));
-						SDL_free (path);
+					wstring_convert converter;
+					result = new std::wstring (converter.from_bytes(path));
+					SDL_free (path);
 
 				}
 
@@ -127,11 +127,11 @@ namespace lime {
 
 				if (path != nullptr) {
 
-        		wstring_convert converter;
-						result = new std::wstring (converter.from_bytes(path));
-						SDL_free (path);
+        			wstring_convert converter;
+					result = new std::wstring (converter.from_bytes(path));
+					SDL_free (path);
 
-        }
+				}
 
 				break;
 
@@ -160,9 +160,9 @@ namespace lime {
 
 				if (home != NULL) {
 
-						std::string path = std::string (home) + std::string ("/Desktop");
-						wstring_convert converter;
-						result = new std::wstring (converter.from_bytes(path));
+					std::string path = std::string (home) + std::string ("/Desktop");
+					wstring_convert converter;
+					result = new std::wstring (converter.from_bytes(path));
 
 				}
 
