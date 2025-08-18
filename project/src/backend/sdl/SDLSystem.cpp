@@ -108,9 +108,15 @@ namespace lime {
 			case APPLICATION: {
 
 				char* path = SDL_GetBasePath ();
-				wstring_convert converter;
-				result = new std::wstring (converter.from_bytes(path));
-				SDL_free (path);
+
+				if (path != nullptr) {
+
+						wstring_convert converter;
+						result = new std::wstring (converter.from_bytes(path));
+						SDL_free (path);
+
+				}
+
 				break;
 
 			}
@@ -118,9 +124,15 @@ namespace lime {
 			case APPLICATION_STORAGE: {
 
 				char* path = SDL_GetPrefPath (company, title);
-				wstring_convert converter;
-				result = new std::wstring (converter.from_bytes(path));
-				SDL_free (path);
+
+				if (path != nullptr) {
+
+        		wstring_convert converter;
+						result = new std::wstring (converter.from_bytes(path));
+						SDL_free (path);
+
+        }
+
 				break;
 
 			}
@@ -146,15 +158,13 @@ namespace lime {
 
 				char const* home = getenv ("HOME");
 
-				if (home == NULL) {
+				if (home != NULL) {
 
-					return 0;
+						std::string path = std::string (home) + std::string ("/Desktop");
+						wstring_convert converter;
+						result = new std::wstring (converter.from_bytes(path));
 
 				}
-
-				std::string path = std::string (home) + std::string ("/Desktop");
-				wstring_convert converter;
-				result = new std::wstring (converter.from_bytes(path));
 
 				#endif
 				break;
