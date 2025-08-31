@@ -430,6 +430,11 @@ class WebAssemblyPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("-json " + targetDirectory + "/types.json");
+		}
+
 		var context = project.templateContext;
 
 		context.WIN_FLASHBACKGROUND = StringTools.hex(project.window.background, 6);

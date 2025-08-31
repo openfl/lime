@@ -1,0 +1,15 @@
+<xml>
+
+	<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" noerror="true" />
+	<set name="HAS_HXCPP_MBEDTLS_FILES" value="1" if="MBEDTLS_DIR" />
+	<include name="${HXCPP}/build-tool/BuildCommon.xml" unless="HAS_HXCPP_MBEDTLS_FILES" />
+	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" unless="HAS_HXCPP_MBEDTLS_FILES" />
+
+	<target id="default" output="libmbedtls_hxcpp${DBG}" tool="linker" toolid="static_link">
+
+		<files id="mbedtls" if="HAS_HXCPP_MBEDTLS_FILES" />
+		<files id="hxcpp_ssl" unless="HAS_HXCPP_MBEDTLS_FILES" />
+
+	</target>
+
+</xml>

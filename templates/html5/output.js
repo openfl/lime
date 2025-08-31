@@ -1,10 +1,17 @@
-var $lime_init = (function ($hx_exports, $global) {
-	"use strict";
+var $lime_init = (function ($hx_exports, $global) { "use strict"; var $hx_script = (function (exports, global) { ::SOURCE_FILE::
+});::if false::
+/*
+	Don't insert or remove any line breaks in the code above this line!
 
-	var $hx_script = (function (exports, global) {
-::SOURCE_FILE::
-	});
+	::SOURCE_FILE:: must start on the first line.
 
+	Breakpoints in debug builds won't work if this file's line numbers don't
+	match the .js.map file's expected line numbers exactly.
+
+	Additionally, the }); after ::SOURCE_FILE:: must appear on the next line
+	to avoid it getting ignored in a // comment at the end of ::SOURCE_FILE::.
+*/
+::end::
 	if (typeof self !== "undefined" && self.constructor.name.includes("Worker")) {
 		// No need for exports in a worker context, just initialize statics.
 		$hx_script({}, $global);

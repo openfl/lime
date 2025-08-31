@@ -129,6 +129,19 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl") || project.targetFlags.exists("hlc"))
 		{
 			targetType = "hl";
+			var hlVer = project.haxedefs.get("hl-ver");
+			if (hlVer == null)
+			{
+				var hlPath = project.defines.get("HL_PATH");
+				if (hlPath == null)
+				{
+					// Haxe's default target version for HashLink may be
+					// different (newer even) than the build of HashLink that
+					// is bundled with Lime. if using Lime's bundled HashLink,
+					// set hl-ver to the correct version
+					project.haxedefs.set("hl-ver", HashlinkHelper.BUNDLED_HL_VER);
+				}
+			}
 		}
 		else if (project.targetFlags.exists("java"))
 		{
@@ -203,6 +216,9 @@ class MacPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
+			// ensure that the shell script is replaced by the template executable
+			System.deleteFile(executablePath);
+
 			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
 
 			if (project.targetFlags.exists("hlc"))
@@ -214,7 +230,7 @@ class MacPlatform extends PlatformTarget
 				// compiler command with the `arch -x86_64` command.
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
-				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,@executable_path", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
 				for (file in System.readDirectory(executableDirectory))
 				{
 					switch Path.extension(file)
@@ -504,6 +520,11 @@ class MacPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		for (asset in project.assets)
 		{
 			if (asset.embed && asset.sourcePath == "")
@@ -703,7 +724,7 @@ class MacPlatform extends PlatformTarget
 								continue;
 							}
 						}
-						if (Lambda.exists(homebrewDirs, dirPath -> StringTools.startsWith(resolvedLibPath, dirPath)))
+						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool { return StringTools.startsWith(resolvedLibPath, dirPath); }))
 						{
 							homebrewDependencyPaths.push(libPath);
 							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);

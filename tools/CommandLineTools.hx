@@ -952,6 +952,12 @@ class CommandLineTools
 		Log.println(" " + Log.accentColor + "Options:" + Log.resetColor);
 		Log.println("");
 
+		if (command == "setup")
+		{
+			Log.println("  \x1b[1m-cli\x1b[0;3m/\x1b[0m\x1b[1m-alias\x1b[0m -- Set up " + defaultLibraryName + " alias only, skipping haxelib installs");
+			Log.println("  \x1b[1m-noalias\x1b[0m -- Do not set up " + defaultLibraryName + " alias");
+		}
+
 		if (isBuildCommand)
 		{
 			Log.println("  \x1b[1m-D\x1b[0;3mvalue\x1b[0m -- Specify a define to use when processing other commands");
@@ -1514,6 +1520,11 @@ class CommandLineTools
 				target = System.hostPlatform;
 				targetFlags.set("cpp", "");
 
+				if (target == Platform.MAC)
+				{
+					overrides.haxedefs.set("macos", "");
+				}
+
 			case "neko":
 				target = System.hostPlatform;
 				targetFlags.set("neko", "");
@@ -1813,6 +1824,13 @@ class CommandLineTools
 					}
 
 					args.push("-notoolscheck");
+
+					var projectDirectory = Path.directory(projectFile);
+					var localRepository = Path.combine(projectDirectory, ".haxelib");
+					if (FileSystem.exists(localRepository) && FileSystem.isDirectory(localRepository) && StringTools.startsWith(path, localRepository))
+					{
+						args.push("-nolocalrepocheck");
+					}
 
 					Sys.setCwd(path);
 					var args = [Path.combine(path, "run.n")].concat(args);

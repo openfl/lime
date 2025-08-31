@@ -2,6 +2,8 @@
 
     <files id="native-toolkit-openal">
 
+        <compilerflag value="-std=c++11" if="android" />
+
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/openal/alc/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/alc/" />

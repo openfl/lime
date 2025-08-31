@@ -201,8 +201,14 @@ class CPPHelper
 			path = project.config.get("project.rebuild.path");
 		}
 
-		if (path == null || !FileSystem.exists(path))
+		if (path == null)
 		{
+			return;
+		}
+
+		if (!FileSystem.exists(path))
+		{
+			Log.warn("Skipping rebuild. Path not found: " + path + "\nIf you are using a release from Haxelib, source code for native binaries may not be bundled. To rebuild, you may need to check out the full repository.");
 			return;
 		}
 
@@ -215,6 +221,7 @@ class CPPHelper
 
 		if (!FileSystem.exists(Path.combine(path, buildFile)))
 		{
+			Log.warn("Skipping rebuild. Path not found: " + path + "\nIf you are using a release from Haxelib, source code for native binaries may not be bundled. To rebuild, you may need to check out the full repository.");
 			return;
 		}
 

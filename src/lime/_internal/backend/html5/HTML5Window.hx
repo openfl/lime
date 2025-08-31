@@ -78,6 +78,8 @@ class HTML5Window
 
 	private var __focusPending:Bool;
 
+	private var __stopMousePropagation = false;
+
 	public function new(parent:Window)
 	{
 		this.parent = parent;
@@ -655,9 +657,21 @@ class HTML5Window
 				case "mousedown":
 					if (event.currentTarget == parent.element)
 					{
-						// Release outside browser window
+						// while the mouse button is down, and the mouse has
+						// moved outside the bounds of the parent element, we
+						// want both onMouseMove and onMouseUp to continue to be
+						// dispatched. otherwise, dragging objects around with
+						// the mouse will appear broken.
+						// however, if the mouse button isn't down, and the
+						// mouse is outside the bounds of the parent element,
+						// then onMouseMove and onMouseUp don't need to be
+						// dispatched.
+						// Flash embedded in HTML worked similarly.
 						Browser.window.addEventListener("mouseup", handleMouseEvent);
+						Browser.window.addEventListener("mousemove", handleMouseEvent);
 					}
+					// just to be safe, clear the flag on every mouse down
+					__stopMousePropagation = false;
 
 					parent.clickCount = event.detail;
 					parent.onMouseDown.dispatch(x, y, event.button);
@@ -691,12 +705,19 @@ class HTML5Window
 					}
 
 				case "mouseup":
-					Browser.window.removeEventListener("mouseup", handleMouseEvent);
 
-					if (event.currentTarget == parent.element)
+					// see comment below for mousemove for an explanation of
+					// what the __stopMousePropagation flag is used for.
+					if (__stopMousePropagation && event.currentTarget != parent.element)
 					{
-						event.stopPropagation();
+						__stopMousePropagation = false;
+						return;
 					}
+
+					Browser.window.removeEventListener("mouseup", handleMouseEvent);
+					Browser.window.removeEventListener("mousemove", handleMouseEvent);
+
+					__stopMousePropagation = event.currentTarget == parent.element;
 
 					parent.clickCount = event.detail;
 					parent.onMouseUp.dispatch(x, y, event.button);
@@ -708,6 +729,46 @@ class HTML5Window
 					}
 
 				case "mousemove":
+
+					// this same listener is added to the parent element and to
+					// the browser window for both the mousemove and the mouseup
+					// event types, if mousedown happens first. this allows both
+					// onMouseMove and onMouseUp to be dispatched if the mouse
+					// moves outside the bounds of the parent element.
+
+					// since browser mouse events bubble, this listener will be
+					// called for the parent element first, as long as the mouse
+					// is still over the parent element. in that case, when the
+					// listener is called for the browser window, it should
+					// return early so that onMouseMove or onMouseUp isn't
+					// dispatched twice. this is done by checking the
+					// __stopMousePropagation flag when the current target isn't
+					// the parent element.
+
+					// however, if the mouse isn't over the parent element, the
+					// listener will be called only for the browser window, and
+					// not the parent element. in that case, it can proceed to
+					// dispatch either onMouseMove or onMouseUp, since this
+					// listener was called only once.
+
+					// again, this applies only if the mouse button is down. if
+					// the mouse button isn't down, then the listener won't be
+					// added to the browser window, and event won't be
+					// dispatched outside the bounds of the parent element.
+
+					if (__stopMousePropagation && event.currentTarget != parent.element)
+					{
+						// why not call event.stopPropagation() here? well,
+						// other JS code in the page may still be interested in
+						// the event. listening for the same events on both the
+						// parent element and on the browser window is just an
+						// implementation detail and shouldn't affect other
+						// listeners.
+						__stopMousePropagation = false;
+						return;
+					}
+					__stopMousePropagation = event.currentTarget == parent.element;
+
 					if (x != cacheMouseX || y != cacheMouseY)
 					{
 						parent.onMouseMove.dispatch(x, y);

@@ -31,6 +31,16 @@ class AssetsMacro
 		var fields = embedData(":file");
 		if (fields == null) return null;
 
+		for (autoBuild in Context.getLocalClass().get().meta.extract(":autoBuild"))
+		{
+			switch (autoBuild.params[0])
+			{
+				case macro lime._internal.macros.AssetsMacro.embedByteArray():
+					return null;
+				default:
+			}
+		}
+
 		var superCall = Context.defined("html5") ? macro super(bytes.b.buffer)
 			: Context.defined("hl") ? macro super(bytes.b, bytes.length)
 			: macro super(bytes.length, bytes.b);

@@ -107,3 +107,12 @@ Lime currently supports the following targets:
     lime test hl
 
 Desktop builds are currently designed to be built on the same host OS
+
+
+Join the Community
+==================
+
+Have a question? Want a new place to hang out?
+
+ * [Forums](https://community.openfl.org/c/lime/19)
+ * [Discord](https://discordapp.com/invite/tDgq8EE)

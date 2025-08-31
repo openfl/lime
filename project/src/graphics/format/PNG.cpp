@@ -237,6 +237,8 @@ namespace lime {
 
 		if (!info_ptr) {
 
+			png_destroy_write_struct (&png_ptr, NULL);
+
 			return false;
 
 		}
@@ -309,6 +311,8 @@ namespace lime {
 			memcpy (bytes->b, &out_buffer[0], size);
 
 		}
+
+		png_destroy_write_struct (&png_ptr, &info_ptr);
 
 		return true;
 

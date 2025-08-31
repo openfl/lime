@@ -7,16 +7,8 @@ import sys.FileSystem;
 
 class RunScript
 {
-	private static function rebuildTools(rebuildBinaries = true):Void
+	private static function rebuildTools(limeDirectory:String, toolsDirectory:String, rebuildBinaries = true):Void
 	{
-		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
-		var toolsDirectory = Path.combine(limeDirectory, "tools");
-
-		if (!FileSystem.exists(toolsDirectory))
-		{
-			toolsDirectory = Path.combine(limeDirectory, "../tools");
-		}
-
 		/*var extendedToolsDirectory = Haxelib.getPath (new Haxelib ("lime-extended"), false);
 
 			if (extendedToolsDirectory != null && extendedToolsDirectory != "") {
@@ -135,6 +127,15 @@ class RunScript
 	{
 		var args = Sys.args();
 
+		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
+		var toolsDirectory = Path.combine(limeDirectory, "tools");
+
+		if (!FileSystem.exists(toolsDirectory))
+		{
+			limeDirectory = Path.combine(limeDirectory, "..");
+			toolsDirectory = Path.combine(limeDirectory, "tools");
+		}
+
 		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
 		{
 			var lastArgument = new Path(args[args.length - 1]).toString();
@@ -187,7 +188,7 @@ class RunScript
 				}
 			}
 
-			rebuildTools(rebuildBinaries);
+			rebuildTools(limeDirectory, toolsDirectory, rebuildBinaries);
 
 			if (args.indexOf("-openfl") > -1)
 			{
@@ -207,8 +208,8 @@ class RunScript
 
 			var args = [
 				"-D", "lime",
-				"-cp", "tools",
-				"-cp", "tools/platforms",
+				"-cp", toolsDirectory,
+				"-cp", Path.combine(toolsDirectory, "platforms"),
 				"-cp", "src",
 				"-lib", "format",
 				"-lib", "hxp",
@@ -216,12 +217,13 @@ class RunScript
 			Sys.exit(runCommand("", "haxe", args));
 		}
 
-		if (!FileSystem.exists("tools/tools.n") || args.indexOf("-rebuild") > -1)
+		var tools_n = Path.combine(toolsDirectory, "tools.n");
+		if (!FileSystem.exists(tools_n) || args.indexOf("-rebuild") > -1)
 		{
-			rebuildTools();
+			rebuildTools(limeDirectory, toolsDirectory);
 		}
 
-		var args = ["tools/tools.n"].concat(args);
+		var args = [tools_n].concat(args);
 		Sys.exit(runCommand("", "neko", args));
 	}
 }
