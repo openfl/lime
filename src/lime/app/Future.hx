@@ -306,6 +306,135 @@ import lime.utils.Log;
 		future.value = value;
 		return future;
 	}
+
+	// Aggregation functions
+
+	/**
+	 * Creates a `Future` which completes once all the input `Future`s complete
+	 * successfully. Its completion value will be an array of the input
+	 * `Future`s' completion values, in the order they happened.
+	 *
+	 * If any of the input `Future`s encounter an error, the output `Future`
+	 * fails with the first encountered error message.
+	 */
+	public static function all<T>(futures:Array<Future<T>>):Future<Array<T>>
+	{
+		var promise:Promise<Array<T>> = new Promise<Array<T>>();
+		var results:Array<T> = [];
+
+		if (futures.length == 0)
+		{
+			promise.complete(results);
+			return promise.future;
+		}
+
+		for (future in futures)
+		{
+			future.onComplete(function(result)
+			{
+				results.push(result);
+				if (results.length == futures.length)
+				{
+					promise.complete(results);
+				}
+			});
+			future.onError(promise.error);
+		}
+
+		return promise.future;
+	}
+
+	/**
+	 * Creates a promise which completes when all the input `Future`s resolve
+	 * (whether success or failure). The completion value will be the array of
+	 * resolved `Future`s, whose states can be examined.
+	 */
+	public static function allResolved<T>(futures:Array<Future<T>>):Future<Array<Future<T>>>
+	{
+		var promise:Promise<Array<Future<T>>> = new Promise<Array<Future<T>>>();
+
+		if (futures.length == 0)
+		{
+			promise.complete(futures);
+			return promise.future;
+		}
+
+		var resolved:Int = 0;
+
+		for (future in futures)
+		{
+			future.onComplete(function(value)
+			{
+				resolved += 1;
+				if (resolved == futures.length)
+				{
+					promise.complete(futures);
+				}
+			});
+			future.onError(function(error)
+			{
+				resolved += 1;
+				if (resolved == futures.length)
+				{
+					promise.complete(futures);
+				}
+			});
+		}
+
+		return promise.future;
+	}
+
+	/**
+	 * Creates a `Future` which completes when any of the input `Future`s
+	 * complete, with that `Future`'s completion value. If all input `Future`s
+	 * encounter an error, the output `Future` will be rejected with an array
+	 * containing the error messages.
+	 */
+	public static function any<T>(futures:Array<Future<T>>):Future<T>
+	{
+		var promise:Promise<T> = new Promise<T>();
+		var errors:Array<Dynamic> = [];
+
+		if (futures.length == 0)
+		{
+			promise.error(errors);
+			return promise.future;
+		}
+
+		for (future in futures)
+		{
+			future.onComplete(promise.complete);
+			future.onError(function(error)
+			{
+				errors.push(error);
+				if (errors.length == futures.length)
+				{
+					promise.error(errors);
+				}
+			});
+		}
+
+		return promise.future;
+	}
+
+	/**
+	 * Creates a `Future` that resolves once any of the input `Future`s resolve,
+	 * with the same result as the first one to do so.
+	 *
+	 * If `futures` is empty, the returned `Future` will wait forever.
+	 */
+	public static function race<T>(futures:Array<Future<T>>):Future<T>
+	{
+		var promise:Promise<T> = new Promise<T>();
+
+		for (future in futures)
+		{
+			future.onComplete(promise.complete);
+			future.onError(promise.error);
+		}
+
+		return promise.future;
+	}
 }
 
 #if (lime_threads && !html5)
