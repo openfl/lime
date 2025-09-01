@@ -1,7 +1,7 @@
 package lime.tools;
 
-typedef MetaData =
-{
+@:forward
+abstract MetaData({
 	@:optional var buildNumber:String;
 	@:optional var company:String;
 	@:optional var companyId:String;
@@ -10,4 +10,17 @@ typedef MetaData =
 	@:optional var packageName:String;
 	@:optional var title:String;
 	@:optional var version:String;
+}) from Dynamic
+{
+	@:noCompletion
+	public static var expectedFields:MetaData = {
+		buildNumber: "",
+		company: "",
+		companyId: "",
+		companyUrl: "",
+		description: "",
+		packageName: "",
+		title: "",
+		version: ""
+	};
 }

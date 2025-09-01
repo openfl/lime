@@ -200,7 +200,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return AudioBuffer.fromFile(paths.get(id));
+			return AudioBuffer.fromFile(getPath(id));
 		}
 	}
 
@@ -239,7 +239,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Bytes.fromFile(paths.get(id));
+			return Bytes.fromFile(getPath(id));
 		}
 	}
 
@@ -263,7 +263,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Font.fromFile(paths.get(id));
+			return Font.fromFile(getPath(id));
 		}
 	}
 
@@ -283,7 +283,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Image.fromFile(paths.get(id));
+			return Image.fromFile(getPath(id));
 		}
 	}
 
@@ -334,10 +334,12 @@ class AssetLibrary
 			return true;
 		}
 
-		var requestedType = type != null ? cast(type, AssetType) : null;
-
-		return switch (requestedType)
+		return switch (cast(type, AssetType))
 		{
+			case null:
+				cachedBytes.exists(id) || cachedText.exists(id) || cachedImages.exists(id)
+					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
+
 			case IMAGE:
 				cachedImages.exists(id);
 
@@ -347,7 +349,8 @@ class AssetLibrary
 			case FONT:
 				cachedFonts.exists(id);
 
-			default: cachedBytes.exists(id) || cachedText.exists(id);
+			default:
+				cachedBytes.exists(id) || cachedText.exists(id);
 		}
 		#end
 	}
@@ -464,7 +467,7 @@ class AssetLibrary
 		}
 		else if (classTypes.exists(id))
 		{
-			return Future.withValue(Type.createInstance(classTypes.get(id), []));
+			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
 		}
 		else
 		{
@@ -495,7 +498,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Bytes.loadFromFile(paths.get(id));
+			return Bytes.loadFromFile(getPath(id));
 		}
 	}
 
@@ -518,9 +521,9 @@ class AssetLibrary
 		else
 		{
 			#if (js && html5)
-			return Font.loadFromName(paths.get(id));
+			return Font.loadFromName(getPath(id));
 			#else
-			return Font.loadFromFile(paths.get(id));
+			return Font.loadFromFile(getPath(id));
 			#end
 		}
 	}
@@ -576,7 +579,7 @@ class AssetLibrary
 		}
 		else
 		{
-			return Image.loadFromFile(paths.get(id));
+			return Image.loadFromFile(getPath(id));
 		}
 	}
 
@@ -604,11 +607,26 @@ class AssetLibrary
 		else
 		{
 			var request = new HTTPRequest<String>();
-			return request.load(paths.get(id));
+			return request.load(getPath(id));
 		}
 	}
 
-	public function unload():Void {}
+	public function unload():Void
+	{
+		#if haxe4
+		cachedBytes.clear();
+		cachedFonts.clear();
+		cachedImages.clear();
+		cachedAudioBuffers.clear();
+		cachedText.clear();
+		#else
+		cachedBytes = new Map<String, Bytes>();
+		cachedFonts = new Map<String, Font>();
+		cachedImages = new Map<String, Image>();
+		cachedText = new Map<String, String>();
+		classTypes = new Map<String, Class<Dynamic>>();
+		#end
+	}
 
 	@:noCompletion private function __assetLoaded(id:String):Void
 	{

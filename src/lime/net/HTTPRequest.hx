@@ -41,6 +41,7 @@ public var timeout:Int;
 public var uri:String;
 public var userAgent:String;
 public var withCredentials:Bool;
+public var manageCookies:Bool;
 #if !doc_gen
 @:noCompletion private var __backend:HTTPRequestBackend;
 #end
@@ -57,6 +58,7 @@ public function new(uri:String = null)
 	method = GET;
 	timeout = #if lime_default_timeout Std.parseInt(Compiler.getDefine("lime-default-timeout")) #else 30000 #end;
 	withCredentials = false;
+	manageCookies = true;
 
 	#if !doc_gen
 	__backend = new HTTPRequestBackend();
@@ -104,7 +106,11 @@ public function load(uri:String = null):Future<T>
 		var future = __backend.loadData(this.uri);
 
 		future.onProgress(promise.progress);
-		future.onError(promise.error);
+		future.onError(function(errorResponse:_HTTPRequestErrorResponse<T>)
+		{
+			responseData = errorResponse.responseData;
+			promise.error(errorResponse.error);
+		});
 
 		future.onComplete(function(bytes)
 		{
@@ -138,7 +144,11 @@ public function load(uri:String = null):Future<T>
 		var future = __backend.loadText(this.uri);
 
 		future.onProgress(promise.progress);
-		future.onError(promise.error);
+		future.onError(function(errorResponse:_HTTPRequestErrorResponse<T>)
+		{
+			responseData = errorResponse.responseData;
+			promise.error(errorResponse.error);
+		});
 
 		future.onComplete(function(text)
 		{
@@ -147,6 +157,15 @@ public function load(uri:String = null):Future<T>
 		});
 
 		return promise.future;
+	}
+}
+
+@:noCompletion class _HTTPRequestErrorResponse<T> {
+	public var error:Dynamic;
+	public var responseData:T;
+	public function new(error:Dynamic, responseData:T) {
+		this.error = error;
+		this.responseData = responseData;
 	}
 }
 
@@ -166,6 +185,7 @@ public function load(uri:String = null):Future<T>
 	public var uri:String;
 	public var userAgent:String;
 	public var withCredentials:Bool;
+	public var manageCookies:Bool;
 	public function cancel():Void;
 }
 

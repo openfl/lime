@@ -155,7 +155,7 @@ class Event<T>
 		}
 		#end
 	}
-	
+
 	/**
 		Removes all event listeners
 	**/
@@ -167,7 +167,6 @@ class Event<T>
 		__listeners.splice(0, len);
 		__priorities.splice(0, len);
 		__repeat.splice(0, len);
-		
 		#end
 	}
 }

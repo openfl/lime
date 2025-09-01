@@ -4,6 +4,7 @@ package lime.media.openal;
 import lime.system.CFFIPointer;
 
 @:allow(lime.media.openal.AL)
+@:transitive
 abstract ALBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 {
 	@:noCompletion private inline function new(handle:CFFIPointer)

@@ -73,6 +73,7 @@ import lime.utils.Float32Array;
 	uniform2i, uniform2iv, uniform3f, uniform3fv, uniform3i, uniform3iv, uniform4f, uniform4fv, uniform4i, uniform4iv, useProgram, validateProgram,
 	vertexAttrib1f, vertexAttrib1fv, vertexAttrib2f, vertexAttrib2fv, vertexAttrib3f, vertexAttrib3fv, vertexAttrib4f, vertexAttrib4fv, vertexAttribPointer,
 	viewport)
+@:transitive
 abstract WebGLRenderContext(WebGL2RenderContext)
 {
 	public function bufferData(target:Int, srcData:#if (!js || !html5 || display) ArrayBufferView #else Dynamic #end, usage:Int):Void

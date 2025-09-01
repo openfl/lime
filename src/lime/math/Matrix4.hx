@@ -232,7 +232,7 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	public function copyFrom(other:Matrix4):Void
 	{
-		this.set(other);
+		this.set(cast other);
 	}
 
 	/**
@@ -376,6 +376,46 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		this[12] = -(left + right) * sx;
 		this[13] = -(bottom + top) * sy;
 		this[14] = -(zNear + zFar) * sz;
+		this[15] = 1;
+	}
+	
+	/**
+		Initializes this matrix with values for a perspective projection 
+		@param	fov	The field of view
+		@param	aspect	The aspect ratio
+		@param	zNear	The near depth-clipping plane position
+		@param	zFar	The far depth-clipping plane position
+	**/
+	public function createPerspective(fov:Float, aspect:Float, zNear:Float, zFar:Float):Void
+	{
+		if (aspect > -0.0000001 && aspect < 0.0000001)
+		{
+			throw "Aspect ratio may not be 0";
+		}
+
+		var top = fov * zNear;
+		var bottom = -top;
+		var right = top * aspect;
+		var left = -right;
+
+		this[0] = 2.0 * zNear / (right - left);
+		this[1] = 0;
+		this[2] = 0;
+		this[3] = 0;
+
+		this[4] = 0;
+		this[5] = 2.0 * zNear / (top - bottom);
+		this[6] = 0;
+		this[7] = 0;
+
+		this[8] = (right + left) / (right - left);
+		this[9] = (top + bottom) / (top - bottom);
+		this[10] = -(zFar + zNear) / (zFar - zNear);
+		this[11] = -1.0;
+
+		this[12] = 0;
+		this[13] = 0;
+		this[14] = -2 * zFar * zNear / (zFar - zNear);
 		this[15] = 1;
 	}
 

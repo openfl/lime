@@ -9,10 +9,12 @@ import js.html.Uint8Array as JSUInt8Array;
 import js.html.Uint8ClampedArray as JSUInt8ClampedArray;
 #end
 @:forward
+@:transitive
 abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUInt8ClampedArray
 {
-	@:to inline function toArrayBufferView ():ArrayBufferView return this;
-	
+	@:to inline function toArrayBufferView():ArrayBufferView
+		return this;
+
 	public inline static var BYTES_PER_ELEMENT:Int = 1;
 
 	@:generic
@@ -59,10 +61,10 @@ abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUI
 		}
 	}
 
-	@:arrayAccess @:extern inline function __set(idx:Int, val:UInt):UInt
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __set(idx:Int, val:UInt):UInt
 		return this[idx] = _clamp(val);
 
-	@:arrayAccess @:extern inline function __get(idx:Int):UInt
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end inline function __get(idx:Int):UInt
 		return this[idx];
 
 	// non spec haxe conversions
@@ -93,6 +95,7 @@ abstract UInt8ClampedArray(JSUInt8ClampedArray) from JSUInt8ClampedArray to JSUI
 #else
 import lime.utils.ArrayBufferView;
 
+@:transitive
 @:forward
 @:arrayAccess
 abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferView
@@ -101,7 +104,9 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 
 	public var length(get, never):Int;
 
+	#if (haxe_ver < 4.2)
 	@:generic
+	#end
 	public inline function new<T>(?elements:Int, ?buffer:ArrayBuffer, ?array:Array<T>, #if openfl ?vector:openfl.Vector<Int>, #end ?view:ArrayBufferView,
 			?byteoffset:Int = 0, ?len:Null<Int>)
 	{
@@ -153,14 +158,14 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 		return this.length;
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
 		return ArrayBufferIO.getUint8(this.buffer, this.byteOffset + idx);
 	}
 
 	@:noCompletion
-	@:arrayAccess @:extern
+	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:UInt)
 	{
 		ArrayBufferIO.setUint8Clamped(this.buffer, this.byteOffset + idx, val);

@@ -1,3 +1,4 @@
+#include <system/System.h>
 extern "C" {
 
 	#include <sys/types.h>
@@ -8,7 +9,6 @@ extern "C" {
 
 #include <setjmp.h>
 #include <graphics/format/JPEG.h>
-#include <system/System.h>
 
 
 namespace lime {
@@ -25,9 +25,19 @@ namespace lime {
 	static void OnOutput (j_common_ptr cinfo) {}
 
 
+	// #ifdef NDEBUG
+	// char errorMessage[JMSG_LENGTH_MAX];
+	// #endif
+
 	static void OnError (j_common_ptr cinfo) {
 
 		ErrorData * err = (ErrorData *)cinfo->err;
+
+		// #ifdef NDEBUG
+		// ( *(cinfo->err->format_message) ) (cinfo, errorMessage);
+		// fprintf(stderr, "%s\n", errorMessage);
+		// #endif
+
 		longjmp (err->on_error, 1);
 
 	}
@@ -476,6 +486,8 @@ namespace lime {
 			memcpy (bytes->b, &dest.mOutput[0], size);
 
 		}
+
+		jpeg_destroy_compress (&cinfo);
 
 		return true;
 

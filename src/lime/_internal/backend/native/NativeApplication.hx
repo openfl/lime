@@ -8,6 +8,7 @@ import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
 import lime.math.Rectangle;
 import lime.media.AudioManager;
+import lime.system.CFFI;
 import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
@@ -89,13 +90,13 @@ class NativeApplication
 
 	private function advanceTimer():Void
 	{
-		#if lime_cffi
+		#if (lime_cffi && !macro)
 		if (pauseTimer > -1)
 		{
 			var offset = System.getTimer() - pauseTimer;
-			for (i in 0...Timer.sRunningTimers.length)
+			for (timer in Timer.sRunningTimers)
 			{
-				if (Timer.sRunningTimers[i] != null) Timer.sRunningTimers[i].mFireAt += offset;
+				if (timer.mRunning) timer.mFireAt += offset;
 			}
 			pauseTimer = -1;
 		}
@@ -145,7 +146,7 @@ class NativeApplication
 		#elseif lime_cffi
 		var result = NativeCFFI.lime_application_exec(handle);
 
-		#if (!emscripten && !ios && !nodejs)
+		#if (!webassembly && !ios && !nodejs)
 		parent.onExit.dispatch(result);
 		#end
 
@@ -187,7 +188,7 @@ class NativeApplication
 	{
 		for (window in parent.windows)
 		{
-			window.onDropFile.dispatch(#if hl @:privateAccess String.fromUTF8(dropEventInfo.file) #else dropEventInfo.file #end);
+			window.onDropFile.dispatch(CFFI.stringValue(dropEventInfo.file));
 		}
 	}
 
@@ -227,10 +228,6 @@ class NativeApplication
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
 
-			case TRACKBALL_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
-
 			case BUTTON_DOWN:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onButtonDown.dispatch(joystickEventInfo.index);
@@ -254,7 +251,8 @@ class NativeApplication
 		if (window != null)
 		{
 			var type:KeyEventType = keyEventInfo.type;
-			var keyCode:KeyCode = keyEventInfo.keyCode;
+			var int32:Float = keyEventInfo.keyCode;
+			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
 
 			switch (type)
@@ -288,7 +286,7 @@ class NativeApplication
 			}
 
 			#if rpi
-			if (keyCode == ESCAPE && modifier == KeyModifier.NONE && type == KEY_UP && !window.onKeyUp.canceled)
+			if (keyCode == ESCAPE && modifier.ctrlKey && type == KEY_DOWN)
 			{
 				System.exit(0);
 			}
@@ -334,10 +332,14 @@ class NativeApplication
 			switch (mouseEventInfo.type)
 			{
 				case MOUSE_DOWN:
+					window.clickCount = mouseEventInfo.clickCount;
 					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.clickCount = 0;
 
 				case MOUSE_UP:
+					window.clickCount = mouseEventInfo.clickCount;
 					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.clickCount = 0;
 
 				case MOUSE_MOVE:
 					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
@@ -425,10 +427,10 @@ class NativeApplication
 			switch (textEventInfo.type)
 			{
 				case TEXT_INPUT:
-					window.onTextInput.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end);
+					window.onTextInput.dispatch(CFFI.stringValue(textEventInfo.text));
 
 				case TEXT_EDIT:
-					window.onTextEdit.dispatch(#if hl @:privateAccess String.fromUTF8(textEventInfo.text) #else textEventInfo.text #end, textEventInfo.start,
+					window.onTextEdit.dispatch(CFFI.stringValue(textEventInfo.text), textEventInfo.start,
 						textEventInfo.length);
 
 				default:
@@ -560,26 +562,29 @@ class NativeApplication
 					window.__fullscreen = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();
+
+				case WINDOW_SHOW:
+					window.onShow.dispatch();
+
+				case WINDOW_HIDE:
+					window.onHide.dispatch();
 			}
 		}
 	}
 
 	private function updateTimer():Void
 	{
-		#if lime_cffi
+		#if (lime_cffi && !macro)
 		if (Timer.sRunningTimers.length > 0)
 		{
 			var currentTime = System.getTimer();
-			var foundNull = false;
-			var timer;
+			var foundStopped = false;
 
-			for (i in 0...Timer.sRunningTimers.length)
+			for (timer in Timer.sRunningTimers)
 			{
-				timer = Timer.sRunningTimers[i];
-
-				if (timer != null)
+				if (timer.mRunning)
 				{
-					if (timer.mRunning && currentTime >= timer.mFireAt)
+					if (currentTime >= timer.mFireAt)
 					{
 						timer.mFireAt += timer.mTime;
 						timer.run();
@@ -587,18 +592,30 @@ class NativeApplication
 				}
 				else
 				{
-					foundNull = true;
+					foundStopped = true;
 				}
 			}
 
-			if (foundNull)
+			if (foundStopped)
 			{
 				Timer.sRunningTimers = Timer.sRunningTimers.filter(function(val)
 				{
-					return val != null;
+					return val.mRunning;
 				});
 			}
 		}
+
+		#if (haxe_ver >= 4.2)
+		#if target.threaded
+		sys.thread.Thread.current().events.progress();
+		#else
+		// Duplicate code required because Haxe 3 can't handle
+		// #if (haxe_ver >= 4.2 && target.threaded)
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
+		#else
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
 		#end
 	}
 }
@@ -620,7 +637,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract ApplicationEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ApplicationEventType(Int)
 {
 	var UPDATE = 0;
 	var EXIT = 1;
@@ -641,7 +658,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract ClipboardEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int)
 {
 	var UPDATE = 0;
 }
@@ -663,7 +680,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract DropEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
 {
 	var DROP_FILE = 0;
 }
@@ -691,7 +708,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract GamepadEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract GamepadEventType(Int)
 {
 	var AXIS_MOVE = 0;
 	var BUTTON_DOWN = 1;
@@ -725,11 +742,10 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract JoystickEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract JoystickEventType(Int)
 {
 	var AXIS_MOVE = 0;
 	var HAT_MOVE = 1;
-	var TRACKBALL_MOVE = 2;
 	var BUTTON_DOWN = 3;
 	var BUTTON_UP = 4;
 	var CONNECT = 5;
@@ -738,12 +754,12 @@ class NativeApplication
 
 @:keep /*private*/ class KeyEventInfo
 {
-	public var keyCode:Int;
+	public var keyCode: Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
@@ -757,7 +773,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract KeyEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract KeyEventType(Int)
 {
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
@@ -772,8 +788,9 @@ class NativeApplication
 	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
+	public var clickCount:Int;
 
-	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0)
+	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0, clickCount:Int = 0)
 	{
 		this.type = type;
 		this.windowID = 0;
@@ -782,15 +799,16 @@ class NativeApplication
 		this.button = button;
 		this.movementX = movementX;
 		this.movementY = movementY;
+		this.clickCount = clickCount;
 	}
 
 	public function clone():MouseEventInfo
 	{
-		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY);
+		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount);
 	}
 }
 
-@:enum private abstract MouseEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MouseEventType(Int)
 {
 	var MOUSE_DOWN = 0;
 	var MOUSE_UP = 1;
@@ -813,7 +831,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract RenderEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract RenderEventType(Int)
 {
 	var RENDER = 0;
 	var RENDER_CONTEXT_LOST = 1;
@@ -843,7 +861,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract SensorEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract SensorEventType(Int)
 {
 	var ACCELEROMETER = 0;
 }
@@ -872,7 +890,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract TextEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TextEventType(Int)
 {
 	var TEXT_INPUT = 0;
 	var TEXT_EDIT = 1;
@@ -907,7 +925,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract TouchEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TouchEventType(Int)
 {
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
@@ -939,7 +957,7 @@ class NativeApplication
 	}
 }
 
-@:enum private abstract WindowEventType(Int)
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowEventType(Int)
 {
 	var WINDOW_ACTIVATE = 0;
 	var WINDOW_CLOSE = 1;
@@ -954,4 +972,6 @@ class NativeApplication
 	var WINDOW_MOVE = 10;
 	var WINDOW_RESIZE = 11;
 	var WINDOW_RESTORE = 12;
+	var WINDOW_SHOW = 13;
+	var WINDOW_HIDE = 14;
 }

@@ -21,7 +21,7 @@ namespace lime {
 	struct KeyEvent {
 
 		hl_type* t;
-		int keyCode;
+		double keyCode;
 		int modifier;
 		KeyEventType type;
 		int windowID;

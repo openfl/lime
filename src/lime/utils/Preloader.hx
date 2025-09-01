@@ -1,5 +1,6 @@
 package lime.utils;
 
+import haxe.ds.ObjectMap;
 import haxe.io.Bytes;
 import haxe.io.Path;
 import haxe.macro.Compiler;
@@ -35,12 +36,12 @@ class Preloader #if flash extends Sprite #end
 	public var onProgress = new Event<Int->Int->Void>();
 
 	@:noCompletion private var bytesLoaded:Int;
-	@:noCompletion private var bytesLoadedCache = new Map<AssetLibrary, Int>();
+	@:noCompletion private var bytesLoadedCache = new ObjectMap<#if !disable_preloader_assets AssetLibrary #else Dynamic #end, Int>();
 	@:noCompletion private var bytesLoadedCache2 = new Map<String, Int>();
 	@:noCompletion private var bytesTotal:Int;
 	@:noCompletion private var bytesTotalCache = new Map<String, Int>();
 	@:noCompletion private var initLibraryNames:Bool;
-	@:noCompletion private var libraries:Array<AssetLibrary>;
+	@:noCompletion private var libraries:Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>;
 	@:noCompletion private var libraryNames:Array<String>;
 	@:noCompletion private var loadedLibraries:Int;
 	@:noCompletion private var loadedStage:Bool;
@@ -58,7 +59,8 @@ class Preloader #if flash extends Sprite #end
 
 		bytesLoaded = 0;
 		bytesTotal = 0;
-		libraries = new Array<AssetLibrary>();
+
+		libraries = new Array<#if !disable_preloader_assets AssetLibrary #else Dynamic #end>();
 		libraryNames = new Array<String>();
 
 		onProgress.add(update);
@@ -104,7 +106,7 @@ class Preloader #if flash extends Sprite #end
 		#end
 	}
 
-	public function addLibrary(library:AssetLibrary):Void
+	public function addLibrary(library:#if !disable_preloader_assets AssetLibrary #else Dynamic #end):Void
 	{
 		libraries.push(library);
 	}
@@ -158,7 +160,7 @@ class Preloader #if flash extends Sprite #end
 					}
 					else
 					{
-						bytesLoaded += library.bytesTotal - bytesLoadedCache.get(library);
+						bytesLoaded += Std.int(library.bytesTotal) - bytesLoadedCache.get(library);
 					}
 
 					loadedAssetLibrary();
@@ -227,6 +229,7 @@ class Preloader #if flash extends Sprite #end
 			onProgress.dispatch(bytesLoaded, bytesTotal);
 		}
 
+		#if !disable_preloader_assets
 		if (#if flash loadedStage && #end loadedLibraries == libraries.length && !initLibraryNames)
 		{
 			initLibraryNames = true;
@@ -291,8 +294,10 @@ class Preloader #if flash extends Sprite #end
 					});
 			}
 		}
+		#end
 
-		if (!simulateProgress && #if flash loadedStage && #end loadedLibraries == (libraries.length + libraryNames.length))
+		if (!simulateProgress #if flash && loadedStage #end
+			&& loadedLibraries == (libraries.length + libraryNames.length))
 		{
 			if (!preloadComplete)
 			{

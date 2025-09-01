@@ -7,6 +7,7 @@ import lime.utils.Bytes as LimeBytes;
 @:access(haxe.io.Bytes)
 @:access(lime.utils.BytePointerData)
 @:forward()
+@:transitive
 abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData
 {
 	public inline function new(bytes:Bytes = null, offset:Int = 0):Void

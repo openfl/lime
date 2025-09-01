@@ -2,6 +2,7 @@ package lime.utils;
 
 import haxe.io.Bytes;
 
+@:transitive
 abstract Resource(Bytes) from Bytes to Bytes
 {
 	public function new(size:Int = 0)

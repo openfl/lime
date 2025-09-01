@@ -221,7 +221,16 @@ class CSHelper
 			noCompile:Bool = false)
 	{
 		var args = [
-			"run", project.config.getString("cs.buildLibrary", "hxcs"), buildFile, "--arch", arch, "--platform", platform, "--out", outPath, "--unsafe"
+			"run",
+			project.config.getString("cs.buildLibrary", "hxcs"),
+			buildFile,
+			"--arch",
+			arch,
+			"--platform",
+			platform,
+			"--out",
+			outPath,
+			"--unsafe"
 		];
 		if (noCompile) args.push("--no-compile");
 		var code = Haxelib.runCommand(path, args);

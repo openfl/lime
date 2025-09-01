@@ -1,5 +1,6 @@
-#include <system/FileWatcher.h>
+// include order is important
 #include <efsw/efsw.hpp>
+#include <system/FileWatcher.h>
 
 
 namespace lime {

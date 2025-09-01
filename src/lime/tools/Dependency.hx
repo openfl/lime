@@ -5,6 +5,7 @@ class Dependency
 	// TODO: Is "forceLoad" the best name? Implement "whole-archive" on GCC
 	public var embed:Bool;
 	public var forceLoad:Bool;
+	public var allowWebWorkers:Bool;
 	public var name:String;
 	public var path:String;
 

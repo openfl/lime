@@ -114,7 +114,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 	**/
 	public function copyFrom(other:ColorMatrix):Void
 	{
-		this.set(other);
+		this.set(cast other);
 	}
 
 	/**

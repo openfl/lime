@@ -1,8 +1,43 @@
 package lime.system;
 
 #if (!lime_doc_gen || android)
+#if macro
+import haxe.macro.Context;
+import haxe.macro.Expr;
+import haxe.macro.Type;
+#else
 import lime._internal.backend.native.NativeCFFI;
+#end
+#if !lime_doc_gen
+#if target.threaded
+import sys.thread.Thread;
+#elseif cpp
+import cpp.vm.Thread;
+#elseif neko
+import neko.vm.Thread;
+#end
+#end
 
+using StringTools;
+
+/**
+	The Java Native Interface (JNI) allows C++ code to call Java functions, and
+	vice versa. On Android, Haxe code compiles to C++, but only Java code can
+	access the Android system API, so it's often necessary to use both.
+
+	For a working example, run `lime create extension MyExtension`, then look at
+	MyExtension.hx and MyExtension.java.
+
+	You can pass Haxe objects to Java, much like any other data. In Java,
+	they'll have type `org.haxe.lime.HaxeObject`, meaning the method that
+	receives them might have signature `(Lorg/haxe/lime/HaxeObject;)V`. Once
+	sent, the Java class can store the object and call its functions.
+
+	Note that most Java code runs on a different thread than Haxe, meaning that
+	you can get thread-related errors in both directions. Java functions can
+	use `Extension.callbackHandler.post()` to switch to the UI thread, while
+	Haxe code can avoid the problem using `lime.system.JNI.JNISafety`.
+**/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -13,73 +48,66 @@ class JNI
 	private static var alreadyCreated = new Map<String, Bool>();
 	private static var initialized = false;
 
+	private static function transformClassName(className:String):String
+	{
+		var parts:Array<String> = className.split(".");
+		if (parts.length <= 1)
+			return className;
+
+		var nestedClassName:String = "";
+		if (~/^[A-Z]/.match(parts[parts.length - 2]))
+			nestedClassName = "$" + parts.pop();
+
+		return parts.join("/") + nestedClassName;
+	}
+
 	public static function callMember(method:Dynamic, jobject:Dynamic, a:Array<Dynamic>):Dynamic
 	{
-		switch (a.length)
-		{
-			case 0:
-				return method(jobject);
-			case 1:
-				return method(jobject, a[0]);
-			case 2:
-				return method(jobject, a[0], a[1]);
-			case 3:
-				return method(jobject, a[0], a[1], a[2]);
-			case 4:
-				return method(jobject, a[0], a[1], a[2], a[3]);
-			case 5:
-				return method(jobject, a[0], a[1], a[2], a[3], a[4]);
-			case 6:
-				return method(jobject, a[0], a[1], a[2], a[3], a[4], a[5]);
-			case 7:
-				return method(jobject, a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
-			default:
-				return null;
-		}
+		return Reflect.callMethod(null, method, [jobject].concat(a));
 	}
 
 	public static function callStatic(method:Dynamic, a:Array<Dynamic>):Dynamic
 	{
-		switch (a.length)
-		{
-			case 0:
-				return method();
-			case 1:
-				return method(a[0]);
-			case 2:
-				return method(a[0], a[1]);
-			case 3:
-				return method(a[0], a[1], a[2]);
-			case 4:
-				return method(a[0], a[1], a[2], a[3]);
-			case 5:
-				return method(a[0], a[1], a[2], a[3], a[4]);
-			case 6:
-				return method(a[0], a[1], a[2], a[3], a[4], a[5]);
-			case 7:
-				return method(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
-			default:
-				return null;
-		}
+		return Reflect.callMethod(null, method, a);
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The member field's name.
+		@param signature A Java VM type signature.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createMemberField(className:String, memberName:String, signature:String):JNIMemberField
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
+		className = transformClassName(className);
 		return new JNIMemberField(NativeCFFI.lime_jni_create_field(className, memberName, signature, false));
 		#else
-		return null;
+		return new JNIMemberField(null);
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The member method's name.
+		@param signature A Java VM type signature.
+		@param useArray Set this to create a function that takes a single
+		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
+		@param quietFail Set this to suppress the "method not found" error.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createMemberMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
-		className = className.split(".").join("/");
+		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, false, quietFail);
 
 		if (handle == null)
@@ -99,23 +127,45 @@ class JNI
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The static field's name.
+		@param signature A Java VM type signature.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createStaticField(className:String, memberName:String, signature:String):JNIStaticField
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
+		className = transformClassName(className);
 		return new JNIStaticField(NativeCFFI.lime_jni_create_field(className, memberName, signature, true));
 		#else
-		return null;
+		return new JNIStaticField(null);
 		#end
 	}
 
+	/**
+		@param className A string in the format `"com/package/ClassName"` or
+		`"com/package/ClassName$NestedClass"`. If dots are used instead, `JNI`
+		will attempt to replace them with the correct symbols.
+		@param memberName The static method's name. To get a constructor, use
+		`<init>` as the method name.
+		@param signature A Java VM type signature. To get a constructor, use `V`
+		as the function's return value.
+		@param useArray Set this to create a function that takes a single
+		`Array<Dynamic>` argument, instead of multiple `Dynamic` arguments.
+		@param quietFail Set this to suppress the "method not found" error.
+		@see Java VM type signatures: https://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html#wp16432
+	**/
 	public static function createStaticMethod(className:String, memberName:String, signature:String, useArray:Bool = false, quietFail:Bool = false):Dynamic
 	{
 		init();
 
 		#if (android && lime_cffi && !macro)
-		className = className.split(".").join("/");
+		className = transformClassName(className);
 		var handle = NativeCFFI.lime_jni_create_method(className, memberName, signature, true, quietFail);
 
 		if (handle == null)
@@ -152,7 +202,7 @@ class JNI
 		{
 			initialized = true;
 
-			#if android
+			#if (android && !macro)
 			var method = System.load("lime", "lime_jni_init_callback", 1);
 			method(onCallback);
 			#end
@@ -307,4 +357,126 @@ class JNIMethod
 		}
 	}
 }
+
+/**
+	Most times a Java class calls a Haxe function, it does so on the UI thread,
+	which can lead to thread-related errors. These errors can be avoided by
+	switching back to the main thread before executing any code.
+
+	Usage:
+
+	```haxe
+	class MyClass implements JNISafety
+	{
+		@:runOnMainThread
+		public function callbackFunction(data:Dynamic):Void
+		{
+			// Code here is guaranteed to run on Haxe's main thread. It's safe
+			// to call `callbackFunction` via JNI.
+		}
+
+		public function notACallbackFunction():Void
+		{
+			// Code here will run on whichever thread calls the function. It may
+			// not be safe to call `notACallbackFunction` via JNI.
+		}
+	}
+	```
+**/
+// Haxe 3 can't parse "target.threaded" inside parentheses.
+#if !doc_gen
+#if target.threaded
+@:autoBuild(lime.system.JNI.JNISafetyTools.build())
+#elseif (cpp || neko)
+@:autoBuild(lime.system.JNI.JNISafetyTools.build())
+#end
+#end
+interface JNISafety {}
+
+#if !doc_gen
+class JNISafetyTools
+{
+	#if target.threaded
+	private static var mainThread:Thread = Thread.current();
+	#elseif (cpp || neko)
+	private static var mainThread:Thread = Thread.current();
+	#end
+
+	/**
+		@return Whether the calling function is being run on the main thread.
+	**/
+	public static inline function onMainThread():Bool
+	{
+		#if target.threaded
+		return Thread.current() == mainThread;
+		#elseif (cpp || neko)
+		return Thread.current() == mainThread;
+		#else
+		return true;
+		#end
+	}
+
+	public static macro function build():Array<Field>
+	{
+		var fields:Array<Field> = Context.getBuildFields();
+
+		#if macro
+		for (field in fields)
+		{
+			// Don't modify constructors.
+			if (field.name == "new")
+			{
+				continue;
+			}
+
+			// Don't modify functions lacking `@:runOnMainThread`.
+			if (field.meta == null || !Lambda.exists(field.meta,
+				function(meta) return meta.name == ":runOnMainThread"))
+			{
+				continue;
+			}
+
+			switch (field.kind)
+			{
+				case FFun(f):
+					// The function needs to call itself and can't be inline.
+					field.access.remove(AInline);
+
+					// Make sure there's no return value.
+					switch (f.ret)
+					{
+						case macro:Void:
+							// Good to go.
+						case null:
+							f.ret = macro:Void;
+						default:
+							Context.error("Expected return type Void, got "
+								+ new haxe.macro.Printer().printComplexType(f.ret) + ".", field.pos);
+					}
+
+					var args:Array<Expr> = [];
+					for (arg in f.args)
+					{
+						args.push(macro $i{arg.name});
+
+						// Account for an unlikely edge case.
+						if (arg.name == field.name)
+							Context.error('${field.name}() should not take an argument named ${field.name}.', field.pos);
+					}
+
+					// Check the thread before running the function.
+					f.expr = macro
+						if (!lime.system.JNI.JNISafetyTools.onMainThread())
+							haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args}))
+						else
+							${f.expr};
+				default:
+			}
+		}
+		#end
+
+		return fields;
+	}
+}
+#end
 #end

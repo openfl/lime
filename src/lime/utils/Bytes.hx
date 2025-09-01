@@ -13,6 +13,7 @@ import lime.net.HTTPRequest;
 @:access(haxe.io.Bytes)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:forward()
+@:transitive
 abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes
 {
 	public function new(length:Int, bytesData:BytesData)

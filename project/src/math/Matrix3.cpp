@@ -67,6 +67,18 @@ namespace lime {
 
 	value Matrix3::Value (value matrix3) {
 
+		if (!init) {
+
+			id_a = val_id ("a");
+			id_b = val_id ("b");
+			id_c = val_id ("c");
+			id_d = val_id ("d");
+			id_tx = val_id ("tx");
+			id_ty = val_id ("ty");
+			init = true;
+
+		}
+
 		alloc_field (matrix3, id_a, alloc_float (a));
 		alloc_field (matrix3, id_b, alloc_float (b));
 		alloc_field (matrix3, id_c, alloc_float (c));

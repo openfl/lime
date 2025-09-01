@@ -2,6 +2,7 @@ package lime.text.harfbuzz;
 
 #if (!lime_doc_gen || lime_harfbuzz)
 import lime._internal.backend.native.NativeCFFI;
+import lime.system.CFFI;
 import lime.system.CFFIPointer;
 
 @:access(lime._internal.backend.native.NativeCFFI)
@@ -29,10 +30,7 @@ abstract HBLanguage(CFFIPointer) from CFFIPointer to CFFIPointer
 		if (this != null)
 		{
 			var result = NativeCFFI.lime_hb_language_to_string(this);
-			#if hl
-			var result = @:privateAccess String.fromUTF8(result);
-			#end
-			return result;
+			return CFFI.stringValue(result);
 		}
 		#end
 		return null;

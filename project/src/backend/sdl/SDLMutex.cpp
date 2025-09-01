@@ -23,7 +23,7 @@ namespace lime {
 	}
 
 
-	bool Mutex::Lock () {
+	bool Mutex::Lock () const {
 
 		if (mutex) {
 
@@ -36,7 +36,7 @@ namespace lime {
 	}
 
 
-	bool Mutex::TryLock () {
+	bool Mutex::TryLock () const {
 
 		if (mutex) {
 
@@ -49,7 +49,7 @@ namespace lime {
 	}
 
 
-	bool Mutex::Unlock () {
+	bool Mutex::Unlock () const {
 
 		if (mutex) {
 

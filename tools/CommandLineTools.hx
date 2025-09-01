@@ -54,7 +54,6 @@ class CommandLineTools
 		words = new Array<String>();
 
 		overrides = new HXProject();
-		overrides.architectures = [];
 
 		// Haxelib.setOverridePath (new Haxelib ("lime-tools"), Path.combine (Haxelib.getPath (new Haxelib ("lime")), "tools"));
 
@@ -232,31 +231,31 @@ class CommandLineTools
 					switch (targetName)
 					{
 						case "cpp":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("cpp", "");
 
 						case "neko":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("neko", "");
 
 						case "hl", "hashlink":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("hl", "");
 
 						case "cppia":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("cppia", "");
 
 						case "java":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("java", "");
 
 						case "nodejs":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("nodejs", "");
 
 						case "cs":
-							target = cast System.hostPlatform;
+							target = System.hostPlatform;
 							targetFlags.set("cs", "");
 
 						case "iphone", "iphoneos":
@@ -288,8 +287,8 @@ class CommandLineTools
 							target = Platform.LINUX;
 							targetFlags.set("rpi", "");
 
-						case "webassembly", "wasm":
-							target = Platform.EMSCRIPTEN;
+						case "webassembly", "wasm", "emscripten":
+							target = Platform.WEB_ASSEMBLY;
 							targetFlags.set("webassembly", "");
 
 						default:
@@ -486,28 +485,25 @@ class CommandLineTools
 				}
 
 			case MAC:
-				// if (System.hostArchitecture == X64) {
-
-				untyped $loader.path = $array(path + "Mac64/", $loader.path);
-
-			// } else {
-
-			//	untyped $loader.path = $array (path + "Mac/", $loader.path);
-
-			// }
+				if (System.hostArchitecture == X64)
+				{
+					untyped $loader.path = $array(path + "Mac64/", $loader.path);
+				}
+				else if (System.hostArchitecture == ARM64)
+				{
+					untyped $loader.path = $array(path + "MacArm64/", $loader.path);
+				}
 
 			case LINUX:
 				var arguments = Sys.args();
-				var raspberryPi = false;
 
-				for (argument in arguments)
+				if (System.hostArchitecture == ARMV7 )
 				{
-					if (argument == "-rpi") raspberryPi = true;
+					untyped $loader.path = $array(path + "LinuxArm/", $loader.path);
 				}
-
-				if (raspberryPi || System.hostArchitecture == ARMV6 || System.hostArchitecture == ARMV7)
+				else if (System.hostArchitecture == ARM64)
 				{
-					untyped $loader.path = $array(path + "RPi/", $loader.path);
+					untyped $loader.path = $array(path + "LinuxArm64/", $loader.path);
 				}
 				else if (System.hostArchitecture == X64)
 				{
@@ -623,8 +619,8 @@ class CommandLineTools
 
 				// 	platform = new FirefoxPlatform (command, project, targetFlags);
 
-				case EMSCRIPTEN:
-					platform = new EmscriptenPlatform(command, project, targetFlags);
+				case WEB_ASSEMBLY:
+					platform = new WebAssemblyPlatform(command, project, targetFlags);
 
 				case TVOS:
 					platform = new TVOSPlatform(command, project, targetFlags);
@@ -917,7 +913,6 @@ class CommandLineTools
 			Log.println("  \x1b[1mair\x1b[0m -- Create an AIR application");
 			Log.println("  \x1b[1mandroid\x1b[0m -- Create an Android application");
 			// Log.println ("  \x1b[1mblackberry\x1b[0m -- Create a BlackBerry application");
-			Log.println("  \x1b[1memscripten\x1b[0m -- Create an Emscripten application");
 			Log.println("  \x1b[1mflash\x1b[0m -- Create a Flash SWF application");
 			Log.println("  \x1b[1mhtml5\x1b[0m -- Create an HTML5 application");
 			Log.println("  \x1b[1mios\x1b[0m -- Create an iOS application");
@@ -926,6 +921,7 @@ class CommandLineTools
 			// Log.println ("  \x1b[1mtizen\x1b[0m -- Create a Tizen application");
 			Log.println("  \x1b[1mtvos\x1b[0m -- Create a tvOS application");
 			// Log.println ("  \x1b[1mwebos\x1b[0m -- Create a webOS application");
+			Log.println("  \x1b[1mwebassembly\x1b[0m -- Create a WebAssembly application");
 			Log.println("  \x1b[1mwindows\x1b[0m -- Create a Windows application");
 
 			Log.println("");
@@ -938,6 +934,7 @@ class CommandLineTools
 			Log.println("  \x1b[1mjava\x1b[0m -- Alias for host platform (using \x1b[1m-java\x1b[0m)");
 			Log.println("  \x1b[1mcs\x1b[0m -- Alias for host platform (using \x1b[1m-cs\x1b[0m)");
 			Log.println("  \x1b[1mhl/hashlink\x1b[0m -- Alias for host platform (using \x1b[1m-hl\x1b[0m)");
+			Log.println("  \x1b[1mhlc\x1b[0m -- Alias for host platform (using \x1b[1m-hlc\x1b[0m)");
 			#if (lime >= "7.6.0")
 			// Log.println("  \x1b[1mcppia\x1b[0m -- Alias for host platform (using \x1b[1m-cppia\x1b[0m)");
 			#end
@@ -948,12 +945,18 @@ class CommandLineTools
 			// Log.println ("  \x1b[1mappletvsim\x1b[0m -- Alias for \x1b[1mtvos -simulator\x1b[0m");
 			Log.println("  \x1b[1mrpi\x1b[0;3m/\x1b[0m\x1b[1mraspberrypi\x1b[0m -- Alias for \x1b[1mlinux -rpi\x1b[0m");
 			Log.println("  \x1b[1melectron\x1b[0m -- Alias for \x1b[1mhtml5 -electron\x1b[0m");
-			Log.println("  \x1b[1mwebassembly\x1b[0;3m/\x1b[0m\x1b[1mwasm\x1b[0m -- Alias for \x1b[1memscripten -webassembly\x1b[0m");
+			Log.println("  \x1b[1mwasm/emscripten\x1b[0m -- Alias for \x1b[1mwebassembly\x1b[0m");
 		}
 
 		Log.println("");
 		Log.println(" " + Log.accentColor + "Options:" + Log.resetColor);
 		Log.println("");
+
+		if (command == "setup")
+		{
+			Log.println("  \x1b[1m-cli\x1b[0;3m/\x1b[0m\x1b[1m-alias\x1b[0m -- Set up " + defaultLibraryName + " alias only, skipping haxelib installs");
+			Log.println("  \x1b[1m-noalias\x1b[0m -- Do not set up " + defaultLibraryName + " alias");
+		}
 
 		if (isBuildCommand)
 		{
@@ -998,12 +1001,13 @@ class CommandLineTools
 		if (isBuildCommand)
 		{
 			Log.println("  \x1b[3m(windows|mac|linux|android)\x1b[0m \x1b[1m-static\x1b[0m -- Compile as a static C++ executable");
-			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-32\x1b[0m -- Compile for 32-bit instead of the OS default");
-			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-64\x1b[0m -- Compile for 64-bit instead of the OS default");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-x86_32\x1b[0m -- Compile for x86_32 instead of the OS default");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-x86_64\x1b[0m -- Compile for x86_64 instead of the OS default");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv6\x1b[0m -- Compile for ARMv6 instead of the OS defaults");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7\x1b[0m -- Compile for ARMv7 instead of the OS defaults");
 			Log.println("  \x1b[3m(ios|android)\x1b[0m \x1b[1m-armv7s\x1b[0m -- Compile for ARMv7s instead of the OS defaults");
-			Log.println("  \x1b[3m(ios)\x1b[0m \x1b[1m-arm64\x1b[0m -- Compile for ARM64 instead of the OS defaults");
+			Log.println("  \x1b[3m(mac|ios|android)\x1b[0m \x1b[1m-arm64\x1b[0m -- Compile for ARM64 instead of the OS defaults");
+			Log.println("  \x1b[3m(ios)\x1b[0m \x1b[1m-nosign\x1b[0m -- Compile executable, but skip codesigning");
 		}
 
 		if (isProjectCommand)
@@ -1026,19 +1030,20 @@ class CommandLineTools
 			Log.println("  \x1b[3m(flash)\x1b[0m \x1b[1m-web\x1b[0m -- Test Flash target using a web template");
 			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-ios\x1b[0m -- Target iOS instead of AIR desktop");
 			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-android\x1b[0m -- Target Android instead of AIR desktop");
+			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-ios -air-simulator\x1b[0m -- Target AIR simulator as iOS");
+			Log.println("  \x1b[3m(air)\x1b[0m \x1b[1m-android -air-simulator\x1b[0m -- Target AIR simulator as Android");
 
 			if (command != "run" && command != "trace")
 			{
-				Log.println("  \x1b[3m(emscripten)\x1b[0m \x1b[1m-webassembly\x1b[0m -- Compile for WebAssembly instead of asm.js");
-				Log.println("  \x1b[3m(emscripten|html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
+				Log.println("  \x1b[3m(html5|webassembly)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify application file");
 			}
 
 			if (command == "run" || command == "test")
 			{
-				Log.println("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
+				Log.println("  \x1b[3m(html5|flash|webassembly)\x1b[0m \x1b[1m-nolaunch\x1b[0m -- Begin test server without launching");
 				// Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify\x1b[0m -- Minify output using the Google Closure compiler");
 				// Log.println ("  \x1b[3m(html5)\x1b[0m \x1b[1m-minify -yui\x1b[0m -- Minify output using the YUI compressor");
-				Log.println("  \x1b[3m(emscripten|html5|flash)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
+				Log.println("  \x1b[3m(html5|flash|webassembly)\x1b[0m \x1b[1m--port=\x1b[0;3mvalue\x1b[0m -- Set port for test server");
 			}
 
 			Log.println("");
@@ -1049,7 +1054,8 @@ class CommandLineTools
 			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-java\x1b[0m -- Build for Java instead of C++");
 			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-nodejs\x1b[0m -- Build for Node.js instead of C++");
 			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-cs\x1b[0m -- Build for C# instead of C++");
-			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hl\x1b[0m -- Build for HashLink instead of C++");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hl\x1b[0m -- Build for HashLink/JIT instead of C++");
+			Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-hlc\x1b[0m -- Build for HashLink/C instead of C++");
 			#if (lime >= "7.6.0")
 			// Log.println("  \x1b[3m(windows|mac|linux)\x1b[0m \x1b[1m-cppia\x1b[0m -- Build for CPPIA instead of C++");
 			#end
@@ -1071,6 +1077,7 @@ class CommandLineTools
 				Log.println("  \x1b[1m--haxelib\x1b[0;3m=value\x1b[0m -- Add an additional <haxelib/> value");
 				Log.println("  \x1b[1m--haxelib-\x1b[0;3mname=value\x1b[0m -- Override the path to a haxelib");
 				Log.println("  \x1b[1m--source\x1b[0;3m=value\x1b[0m -- Add an additional <source/> value");
+				Log.println("  \x1b[1m--template\x1b[0;3m=value\x1b[0m -- Add an additional <template/> value");
 				Log.println("  \x1b[1m--certificate-\x1b[0;3moption=value\x1b[0m -- Override a project <certificate/> setting");
 			}
 
@@ -1178,7 +1185,7 @@ class CommandLineTools
 					if ((extension == "lime" && file != "include.lime")
 						|| (extension == "nmml" && file != "include.nmml")
 						|| (extension == "xml" && file != "include.xml")
-						|| extension == "hxp")
+						|| (extension == "hxp" && file != "include.hxp"))
 					{
 						matches.get(extension).push(path);
 					}
@@ -1257,7 +1264,7 @@ class CommandLineTools
 			buildNumber = getBuildNumber_SVN(project, increment);
 		}
 
-		if (buildNumber == null)
+		if (buildNumber == null || buildNumber == ".build")
 		{
 			var versionFile = Path.combine(project.app.path, ".build");
 			var version = 1;
@@ -1510,31 +1517,41 @@ class CommandLineTools
 		switch (targetName)
 		{
 			case "cpp":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("cpp", "");
 
+				if (target == Platform.MAC)
+				{
+					overrides.haxedefs.set("macos", "");
+				}
+
 			case "neko":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("neko", "");
 
 			case "hl", "hashlink":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("hl", "");
 
-			case "cppia":
+			case "hlc":
 				target = cast System.hostPlatform;
+				targetFlags.set("hl", "");
+				targetFlags.set("hlc", "");
+
+			case "cppia":
+				target = System.hostPlatform;
 				targetFlags.set("cppia", "");
 
 			case "java":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("java", "");
 
 			case "nodejs":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("nodejs", "");
 
 			case "cs":
-				target = cast System.hostPlatform;
+				target = System.hostPlatform;
 				targetFlags.set("cs", "");
 
 			case "iphone", "iphoneos":
@@ -1560,8 +1577,8 @@ class CommandLineTools
 				target = Platform.LINUX;
 				targetFlags.set("rpi", "");
 
-			case "webassembly", "wasm":
-				target = Platform.EMSCRIPTEN;
+			case "webassembly", "wasm", "emscripten":
+				target = Platform.WEB_ASSEMBLY;
 				targetFlags.set("webassembly", "");
 
 			case "winjs", "uwp":
@@ -1719,6 +1736,11 @@ class CommandLineTools
 					return null;
 				}
 			}
+
+			if (project != null)
+			{
+				project.projectFilePath = projectFile;
+			}
 		}
 
 		if (project != null && project.needRerun && !project.targetFlags.exists("norerun"))
@@ -1803,6 +1825,13 @@ class CommandLineTools
 
 					args.push("-notoolscheck");
 
+					var projectDirectory = Path.directory(projectFile);
+					var localRepository = Path.combine(projectDirectory, ".haxelib");
+					if (FileSystem.exists(localRepository) && FileSystem.isDirectory(localRepository) && StringTools.startsWith(path, localRepository))
+					{
+						args.push("-nolocalrepocheck");
+					}
+
 					Sys.setCwd(path);
 					var args = [Path.combine(path, "run.n")].concat(args);
 					args.push(workingDirectory);
@@ -1857,18 +1886,25 @@ class CommandLineTools
 				if (Reflect.hasField(project, field))
 				{
 					var fieldValue = Reflect.field(project, field);
-
-					if (Reflect.hasField(fieldValue, attribute))
+					var typeValue:Dynamic = switch (field)
 					{
-						if ((Reflect.field(fieldValue, attribute) is String))
+						case "app": ApplicationData.expectedFields;
+						case "meta": MetaData.expectedFields;
+						case "window": WindowData.expectedFields;
+						default: fieldValue;
+					};
+
+					if (Reflect.hasField(typeValue, attribute))
+					{
+						if ((Reflect.field(typeValue, attribute) is String))
 						{
 							Reflect.setField(fieldValue, attribute, projectDefines.get(key));
 						}
-						else if ((Reflect.field(fieldValue, attribute) is Float))
+						else if ((Reflect.field(typeValue, attribute) is Float))
 						{
 							Reflect.setField(fieldValue, attribute, Std.parseFloat(projectDefines.get(key)));
 						}
-						else if ((Reflect.field(fieldValue, attribute) is Bool))
+						else if ((Reflect.field(typeValue, attribute) is Bool))
 						{
 							Reflect.setField(fieldValue, attribute, (projectDefines.get(key).toLowerCase() == "true"
 								|| projectDefines.get(key) == "1"));
@@ -2070,6 +2106,10 @@ class CommandLineTools
 					{
 						overrides.dependencies.push(new Dependency(argValue, ""));
 					}
+					else if (field == "template")
+					{
+						overrides.templatePaths.push(argValue);
+					}
 					else if (StringTools.startsWith(field, "certificate-"))
 					{
 						if (overrides.keystore == null)
@@ -2116,10 +2156,17 @@ class CommandLineTools
 						if (field == "meta-build-number") property = "buildNumber";
 
 						var fieldReference = Reflect.field(overrides, fieldName);
-
-						if (Reflect.hasField(fieldReference, property))
+						var typeValue:Dynamic = switch (fieldName)
 						{
-							var propertyReference = Reflect.field(fieldReference, property);
+							case "app": ApplicationData.expectedFields;
+							case "meta": MetaData.expectedFields;
+							case "window": WindowData.expectedFields;
+							default: fieldReference;
+						};
+
+						if (Reflect.hasField(typeValue, property))
+						{
+							var propertyReference = Reflect.field(typeValue, property);
 
 							if ((propertyReference is Bool))
 							{
@@ -2214,11 +2261,11 @@ class CommandLineTools
 						}
 						catch (e:Dynamic) {}
 					}
-					else if (argument == "-64")
+					else if (argument == "-64" || argument == "-x86_64")
 					{
 						overrides.architectures.push(Architecture.X64);
 					}
-					else if (argument == "-32")
+					else if (argument == "-32" || argument == "-x86_32")
 					{
 						overrides.architectures.push(Architecture.X86);
 					}

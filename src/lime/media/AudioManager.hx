@@ -34,9 +34,12 @@ class AudioManager
 					var alc = context.openal;
 
 					var device = alc.openDevice();
-					var ctx = alc.createContext(device);
-					alc.makeContextCurrent(ctx);
-					alc.processContext(ctx);
+					if (device != null)
+					{
+						var ctx = alc.createContext(device);
+						alc.makeContextCurrent(ctx);
+						alc.processContext(ctx);
+					}
 				}
 				#end
 			}

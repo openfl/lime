@@ -1,6 +1,6 @@
 package lime.utils;
 
-@:enum abstract LogLevel(Int) from Int to Int from UInt to UInt
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract LogLevel(Int) from Int to Int from UInt to UInt
 {
 	var NONE = 0;
 	var ERROR = 1;

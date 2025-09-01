@@ -18,7 +18,9 @@ import ::APP_MAIN::;
 
 	public static function create(config:Dynamic):Void
 	{
+		#if !disable_preloader_assets
 		ManifestResources.init(config);
+		#end
 
 		#if !munit
 		var app = new ::APP_MAIN::();
@@ -88,16 +90,17 @@ import ::APP_MAIN::;
 
 		app.createWindow(attributes);
 		::end::
-		#elseif !air
-
+		#elseif air
+		app.window.title = "::meta.title::";
+		#else
 		app.window.context.attributes.background = ::WIN_BACKGROUND::;
 		app.window.frameRate = ::WIN_FPS::;
-
 		#end
 		#end
 
 		// preloader.create ();
 
+		#if !disable_preloader_assets
 		for (library in ManifestResources.preloadLibraries)
 		{
 			app.preloader.addLibrary(library);
@@ -107,6 +110,7 @@ import ::APP_MAIN::;
 		{
 			app.preloader.addLibraryName(name);
 		}
+		#end
 
 		app.preloader.load();
 
@@ -121,7 +125,7 @@ import ::APP_MAIN::;
 
 		var result = app.exec();
 
-		#if (sys && !ios && !nodejs && !emscripten)
+		#if (sys && !ios && !nodejs && !webassembly)
 		lime.system.System.exit(result);
 		#end
 

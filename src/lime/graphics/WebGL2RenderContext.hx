@@ -6,6 +6,7 @@ import lime.graphics.opengl.*;
 import lime.utils.DataPointer;
 @:access(lime.graphics.RenderContext)
 @:forward()
+@:transitive
 abstract WebGL2RenderContext(HTML5WebGL2RenderContext) from HTML5WebGL2RenderContext to HTML5WebGL2RenderContext
 {
 	public inline function bufferData(target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void
@@ -300,6 +301,7 @@ import lime.utils.UInt32Array;
 **/
 @:access(lime.graphics.RenderContext)
 #if !doc_gen
+@:transitive
 abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to OpenGLRenderContext
 {
 #else
@@ -3759,1261 +3761,1260 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 
 	#if !lime_webgl
 	public function bufferData(target:Int, srcData:ArrayBufferView, usage:Int, srcOffset:Int = 0, length:Int = 0):Void
-	{
 	#else
 	public inline function bufferData(target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void
-	{
 	#end
-
+	{
 		var size = (srcData != null) ? srcData.byteLength : 0;
 
 		__tempPointer.set(srcData, srcOffset);
 		this.bufferData(target, size, __tempPointer, usage);
 		}
-		#if !lime_webgl
-		public inline function bufferSubData(target:Int, offset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?length:Int):Void
-		{
-		#else
-		public inline function bufferSubData(target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void
-		{
+
+	#if !lime_webgl
+	public inline function bufferSubData(target:Int, offset:Int, srcData:ArrayBufferView, srcOffset:Int = 0, ?length:Int):Void
+	#else
+	public inline function bufferSubData(target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void
+	#end
+	{
+		var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
+
+		__tempPointer.set(srcData, srcOffset);
+		this.bufferSubData(target, offset, size, __tempPointer);
+	}
+
+	public inline function checkFramebufferStatus(target:Int):Int
+	{
+		return this.checkFramebufferStatus(target);
+	}
+
+	public inline function clear(mask:Int):Void
+	{
+		this.clear(mask);
+	}
+
+	public inline function clearBufferfi(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void
+	{
+		this.clearBufferfi(buffer, drawbuffer, depth, stencil);
+	}
+
+	public function clearBufferfv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, srcOffset:Int = 0):Void
+	{
+		__tempPointer.set(values, srcOffset);
+		this.clearBufferfv(buffer, drawbuffer, __tempPointer);
+	}
+
+	public function clearBufferiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
+	{
+		__tempPointer.set(values, srcOffset);
+		this.clearBufferiv(buffer, drawbuffer, __tempPointer);
+	}
+
+	public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
+	{
+		__tempPointer.set(values, srcOffset);
+		this.clearBufferuiv(buffer, drawbuffer, __tempPointer);
+	}
+
+	public inline function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void
+	{
+		this.clearColor(red, green, blue, alpha);
+	}
+
+	public inline function clearDepth(depth:Float):Void
+	{
+		this.clearDepthf(depth);
+	}
+
+	public inline function clearStencil(s:Int):Void
+	{
+		this.clearStencil(s);
+	}
+
+	public inline function clientWaitSync(sync:GLSync, flags:Int, timeout:Int64):Int
+	{
+		return this.clientWaitSync(sync, flags, timeout);
+	}
+
+	public inline function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void
+	{
+		this.colorMask(red, green, blue, alpha);
+	}
+
+	public inline function compileShader(shader:GLShader):Void
+	{
+		this.compileShader(shader);
+	}
+
+	#if !lime_webgl
+	public function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView,
+		srcOffset:Int = 0,
+			?srcLengthOverride:Int):Void
+	#else
+	public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic,
+		?srcOffset:Int,
+			?srcLengthOverride:Int):Void
+	#end
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, __tempPointer);
+	}
+
+	public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
+		srcData:ArrayBufferView,
+			srcOffset:Int = 0, ?srcLengthOverride:Int):Void
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
+	}
+
+	#if !lime_webgl
+	public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
+		srcData:ArrayBufferView,
+			srcOffset:Int = 0, ?srcLengthOverride:Int):Void
+	#else
+	public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
+		srcData:Dynamic,
+			?srcOffset:Int, ?srcLengthOverride:Int):Void
+	#end
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, __tempPointer);
+	}
+
+	public inline function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
+		depth:Int, format:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void
+	{
+		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
+		__tempPointer.set(srcData, srcOffset);
+		this.compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __tempPointer);
+	}
+
+	public inline function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void
+	{
+		this.copyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
+	}
+
+	public inline function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
+	{
+		this.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
+	}
+
+	public inline function copyTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.copyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
+	}
+
+	public inline function copyTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int,
+		height:Int):Void
+	{
+		this.copyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
+	}
+
+	public inline function createBuffer():GLBuffer
+	{
+		return this.createBuffer();
+	}
+
+	public inline function createFramebuffer():GLFramebuffer
+	{
+		return this.createFramebuffer();
+	}
+
+	public inline function createProgram():GLProgram
+	{
+		return this.createProgram();
+	}
+
+	public inline function createQuery():GLQuery
+	{
+		return this.createQuery();
+	}
+
+	public inline function createRenderbuffer():GLRenderbuffer
+	{
+		return this.createRenderbuffer();
+	}
+
+	public inline function createSampler():GLSampler
+	{
+		return this.createSampler();
+	}
+
+	public inline function createShader(type:Int):GLShader
+	{
+		return this.createShader(type);
+	}
+
+	public inline function createTexture():GLTexture
+	{
+		return this.createTexture();
+	}
+
+	public inline function createTransformFeedback():GLTransformFeedback
+	{
+		return this.createTransformFeedback();
+	}
+
+	public inline function createVertexArray():GLVertexArrayObject
+	{
+		return this.createVertexArray();
+	}
+
+	public inline function cullFace(mode:Int):Void
+	{
+		this.cullFace(mode);
+	}
+
+	public inline function deleteBuffer(buffer:GLBuffer):Void
+	{
+		this.deleteBuffer(buffer);
+	}
+
+	public inline function deleteFramebuffer(framebuffer:GLFramebuffer):Void
+	{
+		this.deleteFramebuffer(framebuffer);
+	}
+
+	public inline function deleteProgram(program:GLProgram):Void
+	{
+		this.deleteProgram(program);
+	}
+
+	public inline function deleteQuery(query:GLQuery):Void
+	{
+		this.deleteQuery(query);
+	}
+
+	public inline function deleteRenderbuffer(renderbuffer:GLRenderbuffer):Void
+	{
+		this.deleteRenderbuffer(renderbuffer);
+	}
+
+	public inline function deleteSampler(sampler:GLSampler):Void
+	{
+		this.deleteSampler(sampler);
+	}
+
+	public inline function deleteShader(shader:GLShader):Void
+	{
+		this.deleteShader(shader);
+	}
+
+	public inline function deleteSync(sync:GLSync):Void
+	{
+		this.deleteSync(sync);
+	}
+
+	public inline function deleteTexture(texture:GLTexture):Void
+	{
+		this.deleteTexture(texture);
+	}
+
+	public inline function deleteTransformFeedback(transformFeedback:GLTransformFeedback):Void
+	{
+		this.deleteTransformFeedback(transformFeedback);
+	}
+
+	public inline function deleteVertexArray(vertexArray:GLVertexArrayObject):Void
+	{
+		this.deleteVertexArray(vertexArray);
+	}
+
+	public inline function depthFunc(func:Int):Void
+	{
+		this.depthFunc(func);
+	}
+
+	public inline function depthMask(flag:Bool):Void
+	{
+		this.depthMask(flag);
+	}
+
+	public inline function depthRange(zNear:Float, zFar:Float):Void
+	{
+		this.depthRangef(zNear, zFar);
+	}
+
+	public inline function detachShader(program:GLProgram, shader:GLShader):Void
+	{
+		this.detachShader(program, shader);
+	}
+
+	public inline function disable(cap:Int):Void
+	{
+		this.disable(cap);
+	}
+
+	public inline function disableVertexAttribArray(index:Int):Void
+	{
+		this.disableVertexAttribArray(index);
+	}
+
+	public inline function drawArrays(mode:Int, first:Int, count:Int):Void
+	{
+		this.drawArrays(mode, first, count);
+	}
+
+	public inline function drawArraysInstanced(mode:Int, first:Int, count:Int, instanceCount:Int):Void
+	{
+		this.drawArraysInstanced(mode, first, count, instanceCount);
+	}
+
+	public inline function drawBuffers(buffers:Array<Int>):Void
+	{
+		this.drawBuffers(buffers);
+	}
+
+	public inline function drawElements(mode:Int, count:Int, type:Int, offset:DataPointer):Void
+	{
+		this.drawElements(mode, count, type, offset);
+	}
+
+	public inline function drawElementsInstanced(mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void
+	{
+		this.drawElementsInstanced(mode, count, type, offset, instanceCount);
+	}
+
+	public inline function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void
+	{
+		this.drawRangeElements(mode, start, end, count, type, offset);
+	}
+
+	public inline function enable(cap:Int):Void
+	{
+		this.enable(cap);
+	}
+
+	public inline function enableVertexAttribArray(index:Int):Void
+	{
+		this.enableVertexAttribArray(index);
+	}
+
+	public inline function endQuery(target:Int):Void
+	{
+		this.endQuery(target);
+	}
+
+	public inline function endTransformFeedback():Void
+	{
+		this.endTransformFeedback();
+	}
+
+	public inline function fenceSync(condition:Int, flags:Int):GLSync
+	{
+		return this.fenceSync(condition, flags);
+	}
+
+	public inline function finish():Void
+	{
+		this.finish();
+	}
+
+	public inline function flush():Void
+	{
+		this.flush();
+	}
+
+	public inline function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void
+	{
+		this.framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+	}
+
+	public inline function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void
+	{
+		this.framebufferTexture2D(target, attachment, textarget, texture, level);
+	}
+
+	public inline function framebufferTextureLayer(target:Int, attachment:Int, texture:GLTexture, level:Int, layer:Int):Void
+	{
+		this.framebufferTextureLayer(target, attachment, texture, level, layer);
+	}
+
+	public inline function frontFace(mode:Int):Void
+	{
+		this.frontFace(mode);
+	}
+
+	public inline function generateMipmap(target:Int):Void
+	{
+		this.generateMipmap(target);
+	}
+
+	public inline function getActiveAttrib(program:GLProgram, index:Int):GLActiveInfo
+	{
+		return this.getActiveAttrib(program, index);
+	}
+
+	public inline function getActiveUniform(program:GLProgram, index:Int):GLActiveInfo
+	{
+		return this.getActiveUniform(program, index);
+	}
+
+	public inline function getActiveUniformBlockName(program:GLProgram, uniformBlockIndex:Int):String
+	{
+		return this.getActiveUniformBlockName(program, uniformBlockIndex);
+	}
+
+	public inline function getActiveUniformBlockParameter(program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic
+	{
+		return this.getActiveUniformBlockParameter(program, uniformBlockIndex, pname);
+	}
+
+	public inline function getActiveUniforms(program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic
+	{
+		return this.getActiveUniforms(program, uniformIndices, pname);
+	}
+
+	public inline function getAttachedShaders(program:GLProgram):Array<GLShader>
+	{
+		return this.getAttachedShaders(program);
+	}
+
+	public inline function getAttribLocation(program:GLProgram, name:String):Int
+	{
+		return this.getAttribLocation(program, name);
+	}
+
+	public inline function getBufferParameter(target:Int, pname:Int):Dynamic
+	{
+		return this.getBufferParameter(target, pname);
+	}
+
+	#if !lime_webgl
+	public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void
+	#else
+	public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void
+	#end
+	{
+		#if !js
+		var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
+
+		this.getBufferSubData(target, srcByteOffset + srcOffset, size, dstData);
 		#end
-
-			var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
-
-			__tempPointer.set(srcData, srcOffset);
-			this.bufferSubData(target, offset, size, __tempPointer);
-			} public inline function checkFramebufferStatus(target:Int):Int
-			{
-				return this.checkFramebufferStatus(target);
-			}
-
-			public inline function clear(mask:Int):Void
-			{
-				this.clear(mask);
-			}
-
-			public inline function clearBufferfi(buffer:Int, drawbuffer:Int, depth:Float, stencil:Int):Void
-			{
-				this.clearBufferfi(buffer, drawbuffer, depth, stencil);
-			}
-
-			public function clearBufferfv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, srcOffset:Int = 0):Void
-			{
-				__tempPointer.set(values, srcOffset);
-				this.clearBufferfv(buffer, drawbuffer, __tempPointer);
-			}
-
-			public function clearBufferiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
-			{
-				__tempPointer.set(values, srcOffset);
-				this.clearBufferiv(buffer, drawbuffer, __tempPointer);
-			}
-
-			public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
-			{
-				__tempPointer.set(values, srcOffset);
-				this.clearBufferuiv(buffer, drawbuffer, __tempPointer);
-			}
-
-			public inline function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void
-			{
-				this.clearColor(red, green, blue, alpha);
-			}
-
-			public inline function clearDepth(depth:Float):Void
-			{
-				this.clearDepthf(depth);
-			}
-
-			public inline function clearStencil(s:Int):Void
-			{
-				this.clearStencil(s);
-			}
-
-			public inline function clientWaitSync(sync:GLSync, flags:Int, timeout:Int64):Int
-			{
-				return this.clientWaitSync(sync, flags, timeout);
-			}
-
-			public inline function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void
-			{
-				this.colorMask(red, green, blue, alpha);
-			}
-
-			public inline function compileShader(shader:GLShader):Void
-			{
-				this.compileShader(shader);
-			}
-
-			#if !lime_webgl
-			public function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:ArrayBufferView,
-				srcOffset:Int = 0,
-					?srcLengthOverride:Int):Void
-			{
-			#else
-			public inline function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, srcData:Dynamic,
-				?srcOffset:Int,
-					?srcLengthOverride:Int):Void
-			{
-			#end
-
-				var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-
-				__tempPointer.set(srcData, srcOffset);
-				this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, __tempPointer);
-				} public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
-					srcData:ArrayBufferView,
-						srcOffset:Int = 0, ?srcLengthOverride:Int):Void
-				{
-					var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-					__tempPointer.set(srcData, srcOffset);
-					this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
-				}
-
-				#if !lime_webgl
-				public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-					srcData:ArrayBufferView,
-						srcOffset:Int = 0, ?srcLengthOverride:Int):Void
-				{
-				#else
-				public inline function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-					srcData:Dynamic,
-						?srcOffset:Int, ?srcLengthOverride:Int):Void
-				{
-				#end
-
-					var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-
-					__tempPointer.set(srcData, srcOffset);
-					this.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, __tempPointer);
-					} public inline function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
-						depth:Int, format:Int,
-							srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void
-					{
-						var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-						__tempPointer.set(srcData, srcOffset);
-						this.compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __tempPointer);
-					}
-
-					public inline function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void
-					{
-						this.copyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
-					}
-
-					public inline function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
-					{
-						this.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
-					}
-
-					public inline function copyTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void
-					{
-						this.copyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
-					}
-
-					public inline function copyTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, x:Int, y:Int, width:Int,
-						height:Int):Void
-					{
-						this.copyTexSubImage3D(target, level, xoffset, yoffset, zoffset, x, y, width, height);
-					}
-
-					public inline function createBuffer():GLBuffer
-					{
-						return this.createBuffer();
-					}
-
-					public inline function createFramebuffer():GLFramebuffer
-					{
-						return this.createFramebuffer();
-					}
-
-					public inline function createProgram():GLProgram
-					{
-						return this.createProgram();
-					}
-
-					public inline function createQuery():GLQuery
-					{
-						return this.createQuery();
-					}
-
-					public inline function createRenderbuffer():GLRenderbuffer
-					{
-						return this.createRenderbuffer();
-					}
-
-					public inline function createSampler():GLSampler
-					{
-						return this.createSampler();
-					}
-
-					public inline function createShader(type:Int):GLShader
-					{
-						return this.createShader(type);
-					}
-
-					public inline function createTexture():GLTexture
-					{
-						return this.createTexture();
-					}
-
-					public inline function createTransformFeedback():GLTransformFeedback
-					{
-						return this.createTransformFeedback();
-					}
-
-					public inline function createVertexArray():GLVertexArrayObject
-					{
-						return this.createVertexArray();
-					}
-
-					public inline function cullFace(mode:Int):Void
-					{
-						this.cullFace(mode);
-					}
-
-					public inline function deleteBuffer(buffer:GLBuffer):Void
-					{
-						this.deleteBuffer(buffer);
-					}
-
-					public inline function deleteFramebuffer(framebuffer:GLFramebuffer):Void
-					{
-						this.deleteFramebuffer(framebuffer);
-					}
-
-					public inline function deleteProgram(program:GLProgram):Void
-					{
-						this.deleteProgram(program);
-					}
-
-					public inline function deleteQuery(query:GLQuery):Void
-					{
-						this.deleteQuery(query);
-					}
-
-					public inline function deleteRenderbuffer(renderbuffer:GLRenderbuffer):Void
-					{
-						this.deleteRenderbuffer(renderbuffer);
-					}
-
-					public inline function deleteSampler(sampler:GLSampler):Void
-					{
-						this.deleteSampler(sampler);
-					}
-
-					public inline function deleteShader(shader:GLShader):Void
-					{
-						this.deleteShader(shader);
-					}
-
-					public inline function deleteSync(sync:GLSync):Void
-					{
-						this.deleteSync(sync);
-					}
-
-					public inline function deleteTexture(texture:GLTexture):Void
-					{
-						this.deleteTexture(texture);
-					}
-
-					public inline function deleteTransformFeedback(transformFeedback:GLTransformFeedback):Void
-					{
-						this.deleteTransformFeedback(transformFeedback);
-					}
-
-					public inline function deleteVertexArray(vertexArray:GLVertexArrayObject):Void
-					{
-						this.deleteVertexArray(vertexArray);
-					}
-
-					public inline function depthFunc(func:Int):Void
-					{
-						this.depthFunc(func);
-					}
-
-					public inline function depthMask(flag:Bool):Void
-					{
-						this.depthMask(flag);
-					}
-
-					public inline function depthRange(zNear:Float, zFar:Float):Void
-					{
-						this.depthRangef(zNear, zFar);
-					}
-
-					public inline function detachShader(program:GLProgram, shader:GLShader):Void
-					{
-						this.detachShader(program, shader);
-					}
-
-					public inline function disable(cap:Int):Void
-					{
-						this.disable(cap);
-					}
-
-					public inline function disableVertexAttribArray(index:Int):Void
-					{
-						this.disableVertexAttribArray(index);
-					}
-
-					public inline function drawArrays(mode:Int, first:Int, count:Int):Void
-					{
-						this.drawArrays(mode, first, count);
-					}
-
-					public inline function drawArraysInstanced(mode:Int, first:Int, count:Int, instanceCount:Int):Void
-					{
-						this.drawArraysInstanced(mode, first, count, instanceCount);
-					}
-
-					public inline function drawBuffers(buffers:Array<Int>):Void
-					{
-						this.drawBuffers(buffers);
-					}
-
-					public inline function drawElements(mode:Int, count:Int, type:Int, offset:DataPointer):Void
-					{
-						this.drawElements(mode, count, type, offset);
-					}
-
-					public inline function drawElementsInstanced(mode:Int, count:Int, type:Int, offset:DataPointer, instanceCount:Int):Void
-					{
-						this.drawElementsInstanced(mode, count, type, offset, instanceCount);
-					}
-
-					public inline function drawRangeElements(mode:Int, start:Int, end:Int, count:Int, type:Int, offset:DataPointer):Void
-					{
-						this.drawRangeElements(mode, start, end, count, type, offset);
-					}
-
-					public inline function enable(cap:Int):Void
-					{
-						this.enable(cap);
-					}
-
-					public inline function enableVertexAttribArray(index:Int):Void
-					{
-						this.enableVertexAttribArray(index);
-					}
-
-					public inline function endQuery(target:Int):Void
-					{
-						this.endQuery(target);
-					}
-
-					public inline function endTransformFeedback():Void
-					{
-						this.endTransformFeedback();
-					}
-
-					public inline function fenceSync(condition:Int, flags:Int):GLSync
-					{
-						return this.fenceSync(condition, flags);
-					}
-
-					public inline function finish():Void
-					{
-						this.finish();
-					}
-
-					public inline function flush():Void
-					{
-						this.flush();
-					}
-
-					public inline function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void
-					{
-						this.framebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
-					}
-
-					public inline function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void
-					{
-						this.framebufferTexture2D(target, attachment, textarget, texture, level);
-					}
-
-					public inline function framebufferTextureLayer(target:Int, attachment:Int, texture:GLTexture, level:Int, layer:Int):Void
-					{
-						this.framebufferTextureLayer(target, attachment, texture, level, layer);
-					}
-
-					public inline function frontFace(mode:Int):Void
-					{
-						this.frontFace(mode);
-					}
-
-					public inline function generateMipmap(target:Int):Void
-					{
-						this.generateMipmap(target);
-					}
-
-					public inline function getActiveAttrib(program:GLProgram, index:Int):GLActiveInfo
-					{
-						return this.getActiveAttrib(program, index);
-					}
-
-					public inline function getActiveUniform(program:GLProgram, index:Int):GLActiveInfo
-					{
-						return this.getActiveUniform(program, index);
-					}
-
-					public inline function getActiveUniformBlockName(program:GLProgram, uniformBlockIndex:Int):String
-					{
-						return this.getActiveUniformBlockName(program, uniformBlockIndex);
-					}
-
-					public inline function getActiveUniformBlockParameter(program:GLProgram, uniformBlockIndex:Int, pname:Int):Dynamic
-					{
-						return this.getActiveUniformBlockParameter(program, uniformBlockIndex, pname);
-					}
-
-					public inline function getActiveUniforms(program:GLProgram, uniformIndices:Array<Int>, pname:Int):Dynamic
-					{
-						return this.getActiveUniforms(program, uniformIndices, pname);
-					}
-
-					public inline function getAttachedShaders(program:GLProgram):Array<GLShader>
-					{
-						return this.getAttachedShaders(program);
-					}
-
-					public inline function getAttribLocation(program:GLProgram, name:String):Int
-					{
-						return this.getAttribLocation(program, name);
-					}
-
-					public inline function getBufferParameter(target:Int, pname:Int):Dynamic
-					{
-						return this.getBufferParameter(target, pname);
-					}
-
-					#if !lime_webgl
-					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:ArrayBuffer, srcOffset:Int = 0, ?length:Int):Void
-					{
-					#else
-					public inline function getBufferSubData(target:Int, srcByteOffset:DataPointer, dstData:Dynamic, ?srcOffset:Dynamic, ?length:Int):Void
-					{
-					#end
-
-						#if !js
-						var size = (length != null) ? length : (dstData != null) ? dstData.length : 0;
-
-						this.getBufferSubData(target, srcByteOffset + srcOffset, size, dstData);
-						#end
-						} public inline function getContextAttributes():GLContextAttributes
-						{
-							return this.getContextAttributes();
-						}
-
-						public inline function getError():Int
-						{
-							return this.getError();
-						}
-
-						public inline function getExtension(name:String):Dynamic
-						{
-							return this.getExtension(name);
-						}
-
-						public inline function getFragDataLocation(program:GLProgram, name:String):Int
-						{
-							return this.getFragDataLocation(program, name);
-						}
-
-						public inline function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic
-						{
-							return this.getFramebufferAttachmentParameter(target, attachment, pname);
-						}
-
-						public inline function getIndexedParameter(target:Int, index:Int):Dynamic
-						{
-							return this.getIndexedParameter(target, index);
-						}
-
-						public inline function getInternalformatParameter(target:Int, internalformat:Int, pname:Int):Dynamic
-						{
-							return this.getInternalformatParameter(target, internalformat, pname);
-						}
-
-						public inline function getParameter(pname:Int):Dynamic
-						{
-							return this.getParameter(pname);
-						}
-
-						public inline function getProgramInfoLog(program:GLProgram):String
-						{
-							return this.getProgramInfoLog(program);
-						}
-
-						public inline function getProgramParameter(program:GLProgram, pname:Int):Dynamic
-						{
-							return this.getProgramParameter(program, pname);
-						}
-
-						public inline function getQuery(target:Int, pname:Int):GLQuery
-						{
-							return this.getQuery(target, pname);
-						}
-
-						public inline function getQueryParameter(query:GLQuery, pname:Int):Dynamic
-						{
-							return this.getQueryParameter(query, pname);
-						}
-
-						public inline function getRenderbufferParameter(target:Int, pname:Int):Dynamic
-						{
-							return this.getRenderbufferParameter(target, pname);
-						}
-
-						public inline function getSamplerParameter(sampler:GLSampler, pname:Int):Dynamic
-						{
-							return this.getSamplerParameter(sampler, pname);
-						}
-
-						public inline function getShaderInfoLog(shader:GLShader):String
-						{
-							return this.getShaderInfoLog(shader);
-						}
-
-						public inline function getShaderParameter(shader:GLShader, pname:Int):Dynamic
-						{
-							return this.getShaderParameter(shader, pname);
-						}
-
-						public inline function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat
-						{
-							return this.getShaderPrecisionFormat(shadertype, precisiontype);
-						}
-
-						public inline function getShaderSource(shader:GLShader):String
-						{
-							return this.getShaderSource(shader);
-						}
-
-						public inline function getSupportedExtensions():Array<String>
-						{
-							return this.getSupportedExtensions();
-						}
-
-						public inline function getSyncParameter(sync:GLSync, pname:Int):Dynamic
-						{
-							return this.getSyncParameter(sync, pname);
-						}
-
-						public inline function getTexParameter(target:Int, pname:Int):Dynamic
-						{
-							return this.getTexParameter(target, pname);
-						}
-
-						public inline function getTransformFeedbackVarying(program:GLProgram, index:Int):GLActiveInfo
-						{
-							return this.getTransformFeedbackVarying(program, index);
-						}
-
-						public inline function getUniform(program:GLProgram, location:GLUniformLocation):Dynamic
-						{
-							return this.getUniform(program, location);
-						}
-
-						public inline function getUniformBlockIndex(program:GLProgram, uniformBlockName:String):Int
-						{
-							return this.getUniformBlockIndex(program, uniformBlockName);
-						}
-
-						public inline function getUniformIndices(program:GLProgram, uniformNames:Array<String>):Array<Int>
-						{
-							return this.getUniformIndices(program, uniformNames);
-						}
-
-						public inline function getUniformLocation(program:GLProgram, name:String):GLUniformLocation
-						{
-							return this.getUniformLocation(program, name);
-						}
-
-						public inline function getVertexAttrib(index:Int, pname:Int):Dynamic
-						{
-							return this.getVertexAttrib(index, pname);
-						}
-
-						public inline function getVertexAttribOffset(index:Int, pname:Int):DataPointer
-						{
-							return this.getVertexAttribPointerv(index, pname);
-						}
-
-						public inline function hint(target:Int, mode:Int):Void
-						{
-							this.hint(target, mode);
-						}
-
-						public inline function invalidateFramebuffer(target:Int, attachments:Array<Int>):Void
-						{
-							this.invalidateFramebuffer(target, attachments);
-						}
-
-						public inline function invalidateSubFramebuffer(target:Int, attachments:Array<Int>, x:Int, y:Int, width:Int, height:Int):Void
-						{
-							this.invalidateSubFramebuffer(target, attachments, x, y, width, height);
-						}
-
-						public inline function isBuffer(buffer:GLBuffer):Bool
-						{
-							return this.isBuffer(buffer);
-						}
-
-						public inline function isContextLost():Bool
-						{
-							return this.isContextLost();
-						}
-
-						public inline function isEnabled(cap:Int):Bool
-						{
-							return this.isEnabled(cap);
-						}
-
-						public inline function isFramebuffer(framebuffer:GLFramebuffer):Bool
-						{
-							return this.isFramebuffer(framebuffer);
-						}
-
-						public inline function isProgram(program:GLProgram):Bool
-						{
-							return this.isProgram(program);
-						}
-
-						public inline function isQuery(query:GLQuery):Bool
-						{
-							return this.isQuery(query);
-						}
-
-						public inline function isRenderbuffer(renderbuffer:GLRenderbuffer):Bool
-						{
-							return this.isRenderbuffer(renderbuffer);
-						}
-
-						public inline function isSampler(sampler:GLSampler):Bool
-						{
-							return this.isSampler(sampler);
-						}
-
-						public inline function isShader(shader:GLShader):Bool
-						{
-							return this.isShader(shader);
-						}
-
-						public inline function isSync(sync:GLSync):Bool
-						{
-							return this.isSync(sync);
-						}
-
-						public inline function isTexture(texture:GLTexture):Bool
-						{
-							return this.isTexture(texture);
-						}
-
-						public inline function isTransformFeedback(transformFeedback:GLTransformFeedback):Bool
-						{
-							return this.isTransformFeedback(transformFeedback);
-						}
-
-						public inline function isVertexArray(vertexArray:GLVertexArrayObject):Bool
-						{
-							return this.isVertexArray(vertexArray);
-						}
-
-						public inline function lineWidth(width:Float):Void
-						{
-							this.lineWidth(width);
-						}
-
-						public inline function linkProgram(program:GLProgram):Void
-						{
-							this.linkProgram(program);
-						}
-
-						public inline function pauseTransformFeedback():Void
-						{
-							this.pauseTransformFeedback();
-						}
-
-						public inline function pixelStorei(pname:Int, param:Int):Void
-						{
-							this.pixelStorei(pname, param);
-						}
-
-						public inline function polygonOffset(factor:Float, units:Float):Void
-						{
-							this.polygonOffset(factor, units);
-						}
-
-						public inline function readBuffer(src:Int):Void
-						{
-							this.readBuffer(src);
-						}
-
-						#if !lime_webgl
-						public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView,
-							dstOffset:Int = 0):Void
-						{
-						#else
-						public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void
-						{
-						#end
-
-							__tempPointer.set(pixels, dstOffset);
-							this.readPixels(x, y, width, height, format, type, __tempPointer);
-							} public inline function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
-							{
-								this.renderbufferStorage(target, internalformat, width, height);
-							}
-
-							public inline function renderbufferStorageMultisample(target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void
-							{
-								this.renderbufferStorageMultisample(target, samples, internalformat, width, height);
-							}
-
-							public inline function resumeTransformFeedback():Void
-							{
-								this.resumeTransformFeedback();
-							}
-
-							public inline function sampleCoverage(value:Float, invert:Bool):Void
-							{
-								this.sampleCoverage(value, invert);
-							}
-
-							public inline function samplerParameterf(sampler:GLSampler, pname:Int, param:Float):Void
-							{
-								this.samplerParameterf(sampler, pname, param);
-							}
-
-							public inline function samplerParameteri(sampler:GLSampler, pname:Int, param:Int):Void
-							{
-								this.samplerParameteri(sampler, pname, param);
-							}
-
-							public inline function scissor(x:Int, y:Int, width:Int, height:Int):Void
-							{
-								this.scissor(x, y, width, height);
-							}
-
-							public inline function shaderSource(shader:GLShader, source:String):Void
-							{
-								this.shaderSource(shader, source);
-							}
-
-							public inline function stencilFunc(func:Int, ref:Int, mask:Int):Void
-							{
-								this.stencilFunc(func, ref, mask);
-							}
-
-							public inline function stencilFuncSeparate(face:Int, func:Int, ref:Int, mask:Int):Void
-							{
-								this.stencilFuncSeparate(face, func, ref, mask);
-							}
-
-							public inline function stencilMask(mask:Int):Void
-							{
-								this.stencilMask(mask);
-							}
-
-							public inline function stencilMaskSeparate(face:Int, mask:Int):Void
-							{
-								this.stencilMaskSeparate(face, mask);
-							}
-
-							public inline function stencilOp(fail:Int, zfail:Int, zpass:Int):Void
-							{
-								this.stencilOp(fail, zfail, zpass);
-							}
-
-							public inline function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:Int):Void
-							{
-								this.stencilOpSeparate(face, fail, zfail, zpass);
-							}
-
-							#if !lime_webgl
-							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int,
-								type:Int, srcData:ArrayBufferView,
-									srcOffset:Int = 0):Void
-							{
-							#else
-							public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int,
-								?type:Int, ?srcData:Dynamic,
-									?srcOffset:Int):Void
-							{
-							#end
-
-								#if !lime_webgl
-								__tempPointer.set(srcData, srcOffset);
-								this.texImage2D(target, level, internalformat, width, height, border, format, type, __tempPointer);
-								#end
-								} public inline function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
-									format:Int, type:Int,
-										srcData:ArrayBufferView, srcOffset:Int = 0):Void
-								{
-									__tempPointer.set(srcData, srcOffset);
-									this.texImage3D(target, level, internalformat, width, height, depth, border, format, type, __tempPointer);
-								}
-
-								public inline function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void
-								{
-									this.texStorage2D(target, level, internalformat, width, height);
-								}
-
-								public inline function texStorage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void
-								{
-									this.texStorage3D(target, level, internalformat, width, height, depth);
-								}
-
-								public inline function texParameterf(target:Int, pname:Int, param:Float):Void
-								{
-									this.texParameterf(target, pname, param);
-								}
-
-								public inline function texParameteri(target:Int, pname:Int, param:Int):Void
-								{
-									this.texParameteri(target, pname, param);
-								}
-
-								#if !lime_webgl
-								public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
-									type:Int, srcData:ArrayBufferView,
-										srcOffset:Int = 0):Void
-								{
-								#else
-								public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic,
-									?type:Int, ?srcData:Dynamic,
-										?srcOffset:Int):Void
-								{
-								#end
-
-									__tempPointer.set(srcData, srcOffset);
-									this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
-									} public inline function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
-										depth:Int, format:Int, type:Int,
-											srcData:ArrayBufferView, srcOffset:Int = 0):Void
-									{
-										__tempPointer.set(srcData, srcOffset);
-										this.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __tempPointer);
-									}
-
-									public inline function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void
-									{
-										this.transformFeedbackVaryings(program, varyings, bufferMode);
-									}
-
-									public inline function uniform1f(location:GLUniformLocation, v0:Float):Void
-									{
-										this.uniform1f(location, v0);
-									}
-
-									#if !lime_webgl
-									public inline function uniform1fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
-									{
-									#else
-									public inline function uniform1fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-									{
-									#end
-
-										this.uniform1fv(location, v != null ? v.length : 0, v);
-										} public inline function uniform1i(location:GLUniformLocation, v0:Int):Void
-										{
-											this.uniform1i(location, v0);
-										}
-
-										#if !lime_webgl
-										public inline function uniform1iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
-										{
-										#else
-										public inline function uniform1iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-										{
-										#end
-
-											this.uniform1iv(location, v != null ? v.length : 0, v);
-											} public inline function uniform1ui(location:GLUniformLocation, v0:Int):Void
-											{
-												this.uniform1ui(location, v0);
-											}
-
-											public inline function uniform1uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
-											{
-												this.uniform1uiv(location, v != null ? v.length : 0, v);
-											}
-
-											public inline function uniform2f(location:GLUniformLocation, v0:Float, v1:Float):Void
-											{
-												this.uniform2f(location, v0, v1);
-											}
-
-											#if !lime_webgl
-											public inline function uniform2fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
-											{
-											#else
-											public function uniform2fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-											{
-											#end
-
-												this.uniform2fv(location, v != null ? v.length >> 1 : 0, v);
-												} public inline function uniform2i(location:GLUniformLocation, v0:Int, v1:Int):Void
-												{
-													this.uniform2i(location, v0, v1);
-												}
-
-												#if !lime_webgl
-												public inline function uniform2iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
-												{
-												#else
-												public inline function uniform2iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-												{
-												#end
-
-													this.uniform2iv(location, v != null ? v.length >> 1 : 0, v);
-													} public inline function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void
-													{
-														this.uniform2ui(location, v0, v1);
-													}
-
-													public inline function uniform2uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
-														?srcLength:Int):Void
-													{
-														this.uniform2uiv(location, v != null ? v.length >> 1 : 0, v);
-													}
-
-													public inline function uniform3f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void
-													{
-														this.uniform3f(location, v0, v1, v2);
-													}
-
-													#if !lime_webgl
-													public inline function uniform3fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
-														?srcLength:Int):Void
-													{
-													#else
-													public inline function uniform3fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-														?srcLength:Int):Void
-													{
-													#end
-
-														this.uniform3fv(location, v != null ? Std.int(v.length / 3) : 0, v);
-														} public inline function uniform3i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
-														{
-															this.uniform3i(location, v0, v1, v2);
-														}
-
-														#if !lime_webgl
-														public inline function uniform3iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
-															?srcLength:Int):Void
-														{
-														#else
-														public inline function uniform3iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-															?srcLength:Int):Void
-														{
-														#end
-
-															this.uniform3iv(location, v != null ? Std.int(v.length / 3) : 0, v);
-															} public inline function uniform3ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
-															{
-																this.uniform3ui(location, v0, v1, v2);
-															}
-
-															public inline function uniform3uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
-																?srcLength:Int):Void
-															{
-																this.uniform3uiv(location, v != null ? Std.int(v.length / 3) : 0, v);
-															}
-
-															public inline function uniform4f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float,
-																v3:Float):Void
-															{
-																this.uniform4f(location, v0, v1, v2, v3);
-															}
-
-															#if !lime_webgl
-															public inline function uniform4fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
-																?srcLength:Int):Void
-															{
-															#else
-															public inline function uniform4fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-																?srcLength:Int):Void
-															{
-															#end
-
-																this.uniform4fv(location, v != null ? v.length >> 2 : 0, v);
-																} public inline function uniform4i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
-																	v3:Int):Void
-																{
-																	this.uniform4i(location, v0, v1, v2, v3);
-																}
-
-																#if !lime_webgl
-																public inline function uniform4iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
-																	?srcLength:Int):Void
-																{
-																#else
-																public inline function uniform4iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
-																	?srcLength:Int):Void
-																{
-																#end
-
-																	this.uniform4iv(location, v != null ? v.length >> 2 : 0, v);
-																	} public inline function uniform4ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
-																		v3:Int):Void
-																	{
-																		this.uniform4ui(location, v0, v1, v2, v3);
-																	}
-
-																	public inline function uniform4uiv(location:GLUniformLocation, v:UInt32Array,
-																		?srcOffset:Int, ?srcLength:Int):Void
-																	{
-																		this.uniform4uiv(location, v != null ? v.length >> 2 : 0, v);
-																	}
-
-																	public inline function uniformBlockBinding(program:GLProgram, uniformBlockIndex:Int,
-																		uniformBlockBinding:Int):Void
-																	{
-																		this.uniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
-																	}
-
-																	#if !lime_webgl
-																	public function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
-																		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																	{
-																	#else
-																	public inline function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
-																		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-																	{
-																	#end
-
-																		var count = 0;
-
-																		if (srcLength != null) count = srcLength;
-																		else if (v != null) count = v.length >> 2;
-																		__tempPointer.set(v, srcOffset);
-																		this.uniformMatrix2fv(location, count, transpose, __tempPointer);
-																		} public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool,
-																			v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																		{
-																			var count = 0;
-																			if (srcLength != null) count = srcLength;
-																			else if (v != null) count = Std.int(v.length / 6);
-
-																			__tempPointer.set(v, srcOffset);
-
-																			this.uniformMatrix2x3fv(location, count, transpose, __tempPointer);
-																		}
-
-																		public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool,
-																			v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																		{
-																			var count = 0;
-																			if (srcLength != null) count = srcLength;
-																			else if (v != null) count = Std.int(v.length / 8);
-
-																			__tempPointer.set(v, srcOffset);
-
-																			this.uniformMatrix2x4fv(location, count, transpose, __tempPointer);
-																		}
-
-																		#if !lime_webgl
-																		public function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
-																			v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																		{
-																		#else
-																		public inline function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
-																			v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-																		{
-																		#end
-
-																			var count = 0;
-
-																			if (srcLength != null) count = srcLength;
-																			else if (v != null) count = Std.int(v.length / 9);
-																			__tempPointer.set(v, srcOffset);
-																			this.uniformMatrix3fv(location, count, transpose, __tempPointer);
-																			} public function uniformMatrix3x2fv(location:GLUniformLocation, transpose:Bool,
-																				v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																			{
-																				var count = 0;
-																				if (srcLength != null) count = srcLength;
-																				else if (v != null) count = Std.int(v.length / 6);
-
-																				__tempPointer.set(v, srcOffset);
-
-																				this.uniformMatrix3x2fv(location, count, transpose, __tempPointer);
-																			}
-
-																			public function uniformMatrix3x4fv(location:GLUniformLocation, transpose:Bool,
-																				v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																			{
-																				var count = 0;
-																				if (srcLength != null) count = srcLength;
-																				else if (v != null) count = Std.int(v.length / 12);
-
-																				__tempPointer.set(v, srcOffset);
-
-																				this.uniformMatrix3x4fv(location, count, transpose, __tempPointer);
-																			}
-
-																			#if !lime_webgl
-																			public function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool,
-																				v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																			{
-																			#else
-																			public inline function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool,
-																				v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
-																			{
-																			#end
-
-																				var count = 0;
-
-																				if (srcLength != null) count = srcLength;
-																				else if (v != null) count = v.length >> 4;
-																				__tempPointer.set(v, srcOffset);
-																				this.uniformMatrix4fv(location, count, transpose, __tempPointer);
-																				} public function uniformMatrix4x2fv(location:GLUniformLocation,
-																					transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																				{
-																					var count = 0;
-																					if (srcLength != null) count = srcLength;
-																					else if (v != null) count = Std.int(v.length / 8);
-
-																					__tempPointer.set(v, srcOffset);
-
-																					this.uniformMatrix4x2fv(location, count, transpose, __tempPointer);
-																				}
-
-																				public function uniformMatrix4x3fv(location:GLUniformLocation, transpose:Bool,
-																					v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
-																				{
-																					var count = 0;
-																					if (srcLength != null) count = srcLength;
-																					else if (v != null) count = Std.int(v.length / 12);
-
-																					__tempPointer.set(v, srcOffset);
-
-																					this.uniformMatrix4x3fv(location, count, transpose, __tempPointer);
-																				}
-
-																				public inline function useProgram(program:GLProgram):Void
-																				{
-																					this.useProgram(program);
-																				}
-
-																				public inline function validateProgram(program:GLProgram):Void
-																				{
-																					this.validateProgram(program);
-																				}
-
-																				public inline function vertexAttrib1f(indx:Int, x:Float):Void
-																				{
-																					this.vertexAttrib1f(indx, x);
-																				}
-
-																				public inline function vertexAttrib1fv(indx:Int,
-																					values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
-																				{
-																					this.vertexAttrib1fv(indx, values);
-																				}
-
-																				public inline function vertexAttrib2f(indx:Int, x:Float, y:Float):Void
-																				{
-																					this.vertexAttrib2f(indx, x, y);
-																				}
-
-																				public inline function vertexAttrib2fv(indx:Int,
-																					values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
-																				{
-																					this.vertexAttrib2fv(indx, values);
-																				}
-
-																				public inline function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void
-																				{
-																					this.vertexAttrib3f(indx, x, y, z);
-																				}
-
-																				public inline function vertexAttrib3fv(indx:Int,
-																					values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
-																				{
-																					this.vertexAttrib3fv(indx, values);
-																				}
-
-																				public inline function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float,
-																					w:Float):Void
-																				{
-																					this.vertexAttrib4f(indx, x, y, z, w);
-																				}
-
-																				public inline function vertexAttrib4fv(indx:Int,
-																					values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
-																				{
-																					this.vertexAttrib4fv(indx, values);
-																				}
-
-																				public inline function vertexAttribDivisor(index:Int, divisor:Int):Void
-																				{
-																					this.vertexAttribDivisor(index, divisor);
-																				}
-
-																				public inline function vertexAttribI4i(indx:Int, x:Int, y:Int, z:Int,
-																					w:Int):Void
-																				{
-																					this.vertexAttribI4i(indx, x, y, z, w);
-																				}
-
-																				public inline function vertexAttribI4iv(indx:Int,
-																					values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
-																				{
-																					this.vertexAttribI4iv(indx, values);
-																				}
-
-																				public inline function vertexAttribI4ui(indx:Int, x:Int, y:Int, z:Int,
-																					w:Int):Void
-																				{
-																					this.vertexAttribI4ui(indx, x, y, z, w);
-																				}
-
-																				public inline function vertexAttribI4uiv(indx:Int,
-																					values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
-																				{
-																					this.vertexAttribI4uiv(indx, values);
-																				}
-
-																				public inline function vertexAttribIPointer(index:Int, size:Int, type:Int,
-																					stride:Int, offset:DataPointer):Void
-																				{
-																					this.vertexAttribIPointer(index, size, type, stride, offset);
-																				}
-
-																				public inline function vertexAttribPointer(indx:Int, size:Int, type:Int,
-																					normalized:Bool, stride:Int, offset:DataPointer):Void
-																				{
-																					this.vertexAttribPointer(indx, size, type, normalized, stride, offset);
-																				}
-
-																				public inline function viewport(x:Int, y:Int, width:Int, height:Int):Void
-																				{
-																					this.viewport(x, y, width, height);
-																				}
-
-																				public inline function waitSync(sync:GLSync, flags:Int, timeout:Int64):Void
-																				{
-																					this.waitSync(sync, flags, timeout);
-																				}
-
-																				@:from private static function fromRenderContext(context:RenderContext):WebGL2RenderContext
-																				{
-																					return context.webgl2;
-																				}
-
-																				#if (!doc_gen && (lime_opengl || lime_opengles))
-																				@:from private static function fromOpenGLES3RenderContext(gl:OpenGLES3RenderContext):WebGL2RenderContext
-																				{
-																					return cast gl;
-																				}
-																				#end
-
-																				@:from private static function fromGL(gl:Class<GL>):WebGL2RenderContext
-																				{
-																					return cast GL.context;
-																				}
-																				}
+	}
+
+	public inline function getContextAttributes():GLContextAttributes
+	{
+		return this.getContextAttributes();
+	}
+
+	public inline function getError():Int
+	{
+		return this.getError();
+	}
+
+	public inline function getExtension(name:String):Dynamic
+	{
+		return this.getExtension(name);
+	}
+
+	public inline function getFragDataLocation(program:GLProgram, name:String):Int
+	{
+		return this.getFragDataLocation(program, name);
+	}
+
+	public inline function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic
+	{
+		return this.getFramebufferAttachmentParameter(target, attachment, pname);
+	}
+
+	public inline function getIndexedParameter(target:Int, index:Int):Dynamic
+	{
+		return this.getIndexedParameter(target, index);
+	}
+
+	public inline function getInternalformatParameter(target:Int, internalformat:Int, pname:Int):Dynamic
+	{
+		return this.getInternalformatParameter(target, internalformat, pname);
+	}
+
+	public inline function getParameter(pname:Int):Dynamic
+	{
+		return this.getParameter(pname);
+	}
+
+	public inline function getProgramInfoLog(program:GLProgram):String
+	{
+		return this.getProgramInfoLog(program);
+	}
+
+	public inline function getProgramParameter(program:GLProgram, pname:Int):Dynamic
+	{
+		return this.getProgramParameter(program, pname);
+	}
+
+	public inline function getQuery(target:Int, pname:Int):GLQuery
+	{
+		return this.getQuery(target, pname);
+	}
+
+	public inline function getQueryParameter(query:GLQuery, pname:Int):Dynamic
+	{
+		return this.getQueryParameter(query, pname);
+	}
+
+	public inline function getRenderbufferParameter(target:Int, pname:Int):Dynamic
+	{
+		return this.getRenderbufferParameter(target, pname);
+	}
+
+	public inline function getSamplerParameter(sampler:GLSampler, pname:Int):Dynamic
+	{
+		return this.getSamplerParameter(sampler, pname);
+	}
+
+	public inline function getShaderInfoLog(shader:GLShader):String
+	{
+		return this.getShaderInfoLog(shader);
+	}
+
+	public inline function getShaderParameter(shader:GLShader, pname:Int):Dynamic
+	{
+		return this.getShaderParameter(shader, pname);
+	}
+
+	public inline function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int):GLShaderPrecisionFormat
+	{
+		return this.getShaderPrecisionFormat(shadertype, precisiontype);
+	}
+
+	public inline function getShaderSource(shader:GLShader):String
+	{
+		return this.getShaderSource(shader);
+	}
+
+	public inline function getSupportedExtensions():Array<String>
+	{
+		return this.getSupportedExtensions();
+	}
+
+	public inline function getSyncParameter(sync:GLSync, pname:Int):Dynamic
+	{
+		return this.getSyncParameter(sync, pname);
+	}
+
+	public inline function getTexParameter(target:Int, pname:Int):Dynamic
+	{
+		return this.getTexParameter(target, pname);
+	}
+
+	public inline function getTransformFeedbackVarying(program:GLProgram, index:Int):GLActiveInfo
+	{
+		return this.getTransformFeedbackVarying(program, index);
+	}
+
+	public inline function getUniform(program:GLProgram, location:GLUniformLocation):Dynamic
+	{
+		return this.getUniform(program, location);
+	}
+
+	public inline function getUniformBlockIndex(program:GLProgram, uniformBlockName:String):Int
+	{
+		return this.getUniformBlockIndex(program, uniformBlockName);
+	}
+
+	public inline function getUniformIndices(program:GLProgram, uniformNames:Array<String>):Array<Int>
+	{
+		return this.getUniformIndices(program, uniformNames);
+	}
+
+	public inline function getUniformLocation(program:GLProgram, name:String):GLUniformLocation
+	{
+		return this.getUniformLocation(program, name);
+	}
+
+	public inline function getVertexAttrib(index:Int, pname:Int):Dynamic
+	{
+		return this.getVertexAttrib(index, pname);
+	}
+
+	public inline function getVertexAttribOffset(index:Int, pname:Int):DataPointer
+	{
+		return this.getVertexAttribPointerv(index, pname);
+	}
+
+	public inline function hint(target:Int, mode:Int):Void
+	{
+		this.hint(target, mode);
+	}
+
+	public inline function invalidateFramebuffer(target:Int, attachments:Array<Int>):Void
+	{
+		this.invalidateFramebuffer(target, attachments);
+	}
+
+	public inline function invalidateSubFramebuffer(target:Int, attachments:Array<Int>, x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.invalidateSubFramebuffer(target, attachments, x, y, width, height);
+	}
+
+	public inline function isBuffer(buffer:GLBuffer):Bool
+	{
+		return this.isBuffer(buffer);
+	}
+
+	public inline function isContextLost():Bool
+	{
+		return this.isContextLost();
+	}
+
+	public inline function isEnabled(cap:Int):Bool
+	{
+		return this.isEnabled(cap);
+	}
+
+	public inline function isFramebuffer(framebuffer:GLFramebuffer):Bool
+	{
+		return this.isFramebuffer(framebuffer);
+	}
+
+	public inline function isProgram(program:GLProgram):Bool
+	{
+		return this.isProgram(program);
+	}
+
+	public inline function isQuery(query:GLQuery):Bool
+	{
+		return this.isQuery(query);
+	}
+
+	public inline function isRenderbuffer(renderbuffer:GLRenderbuffer):Bool
+	{
+		return this.isRenderbuffer(renderbuffer);
+	}
+
+	public inline function isSampler(sampler:GLSampler):Bool
+	{
+		return this.isSampler(sampler);
+	}
+
+	public inline function isShader(shader:GLShader):Bool
+	{
+		return this.isShader(shader);
+	}
+
+	public inline function isSync(sync:GLSync):Bool
+	{
+		return this.isSync(sync);
+	}
+
+	public inline function isTexture(texture:GLTexture):Bool
+	{
+		return this.isTexture(texture);
+	}
+
+	public inline function isTransformFeedback(transformFeedback:GLTransformFeedback):Bool
+	{
+		return this.isTransformFeedback(transformFeedback);
+	}
+
+	public inline function isVertexArray(vertexArray:GLVertexArrayObject):Bool
+	{
+		return this.isVertexArray(vertexArray);
+	}
+
+	public inline function lineWidth(width:Float):Void
+	{
+		this.lineWidth(width);
+	}
+
+	public inline function linkProgram(program:GLProgram):Void
+	{
+		this.linkProgram(program);
+	}
+
+	public inline function pauseTransformFeedback():Void
+	{
+		this.pauseTransformFeedback();
+	}
+
+	public inline function pixelStorei(pname:Int, param:Int):Void
+	{
+		this.pixelStorei(pname, param);
+	}
+
+	public inline function polygonOffset(factor:Float, units:Float):Void
+	{
+		this.polygonOffset(factor, units);
+	}
+
+	public inline function readBuffer(src:Int):Void
+	{
+		this.readBuffer(src);
+	}
+
+	#if !lime_webgl
+	public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView,
+		dstOffset:Int = 0):Void
+	#else
+	public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void
+	#end
+	{
+		__tempPointer.set(pixels, dstOffset);
+		this.readPixels(x, y, width, height, format, type, __tempPointer);
+	}
+
+	public inline function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
+	{
+		this.renderbufferStorage(target, internalformat, width, height);
+	}
+
+	public inline function renderbufferStorageMultisample(target:Int, samples:Int, internalformat:Int, width:Int, height:Int):Void
+	{
+		this.renderbufferStorageMultisample(target, samples, internalformat, width, height);
+	}
+
+	public inline function resumeTransformFeedback():Void
+	{
+		this.resumeTransformFeedback();
+	}
+
+	public inline function sampleCoverage(value:Float, invert:Bool):Void
+	{
+		this.sampleCoverage(value, invert);
+	}
+
+	public inline function samplerParameterf(sampler:GLSampler, pname:Int, param:Float):Void
+	{
+		this.samplerParameterf(sampler, pname, param);
+	}
+
+	public inline function samplerParameteri(sampler:GLSampler, pname:Int, param:Int):Void
+	{
+		this.samplerParameteri(sampler, pname, param);
+	}
+
+	public inline function scissor(x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.scissor(x, y, width, height);
+	}
+
+	public inline function shaderSource(shader:GLShader, source:String):Void
+	{
+		this.shaderSource(shader, source);
+	}
+
+	public inline function stencilFunc(func:Int, ref:Int, mask:Int):Void
+	{
+		this.stencilFunc(func, ref, mask);
+	}
+
+	public inline function stencilFuncSeparate(face:Int, func:Int, ref:Int, mask:Int):Void
+	{
+		this.stencilFuncSeparate(face, func, ref, mask);
+	}
+
+	public inline function stencilMask(mask:Int):Void
+	{
+		this.stencilMask(mask);
+	}
+
+	public inline function stencilMaskSeparate(face:Int, mask:Int):Void
+	{
+		this.stencilMaskSeparate(face, mask);
+	}
+
+	public inline function stencilOp(fail:Int, zfail:Int, zpass:Int):Void
+	{
+		this.stencilOp(fail, zfail, zpass);
+	}
+
+	public inline function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:Int):Void
+	{
+		this.stencilOpSeparate(face, fail, zfail, zpass);
+	}
+
+	#if !lime_webgl
+	public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int,
+		type:Int, srcData:ArrayBufferView,
+			srcOffset:Int = 0):Void
+	#else
+	public inline function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Dynamic, ?format:Int,
+		?type:Int, ?srcData:Dynamic,
+			?srcOffset:Int):Void
+	#end
+	{
+		#if !lime_webgl
+		__tempPointer.set(srcData, srcOffset);
+		this.texImage2D(target, level, internalformat, width, height, border, format, type, __tempPointer);
+		#end
+	}
+
+	public inline function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int,
+		format:Int, type:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0):Void
+	{
+		__tempPointer.set(srcData, srcOffset);
+		this.texImage3D(target, level, internalformat, width, height, depth, border, format, type, __tempPointer);
+	}
+
+	public inline function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void
+	{
+		this.texStorage2D(target, level, internalformat, width, height);
+	}
+
+	public inline function texStorage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int):Void
+	{
+		this.texStorage3D(target, level, internalformat, width, height, depth);
+	}
+
+	public inline function texParameterf(target:Int, pname:Int, param:Float):Void
+	{
+		this.texParameterf(target, pname, param);
+	}
+
+	public inline function texParameteri(target:Int, pname:Int, param:Int):Void
+	{
+		this.texParameteri(target, pname, param);
+	}
+
+	#if !lime_webgl
+	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int,
+		type:Int, srcData:ArrayBufferView,
+			srcOffset:Int = 0):Void
+	#else
+	public inline function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Dynamic,
+		?type:Int, ?srcData:Dynamic,
+			?srcOffset:Int):Void
+	#end
+	{
+		__tempPointer.set(srcData, srcOffset);
+		this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
+	}
+
+	public inline function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int,
+		depth:Int, format:Int, type:Int,
+			srcData:ArrayBufferView, srcOffset:Int = 0):Void
+	{
+		__tempPointer.set(srcData, srcOffset);
+		this.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __tempPointer);
+	}
+
+	public inline function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void
+	{
+		this.transformFeedbackVaryings(program, varyings, bufferMode);
+	}
+
+	public inline function uniform1f(location:GLUniformLocation, v0:Float):Void
+	{
+		this.uniform1f(location, v0);
+	}
+
+	#if !lime_webgl
+	public inline function uniform1fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	#else
+	public inline function uniform1fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		this.uniform1fv(location, v != null ? v.length : 0, v);
+	}
+
+	public inline function uniform1i(location:GLUniformLocation, v0:Int):Void
+	{
+		this.uniform1i(location, v0);
+	}
+
+	#if !lime_webgl
+	public inline function uniform1iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	#else
+	public inline function uniform1iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		this.uniform1iv(location, v != null ? v.length : 0, v);
+	}
+
+	public inline function uniform1ui(location:GLUniformLocation, v0:Int):Void
+	{
+		this.uniform1ui(location, v0);
+	}
+
+	public inline function uniform1uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	{
+		this.uniform1uiv(location, v != null ? v.length : 0, v);
+	}
+
+	public inline function uniform2f(location:GLUniformLocation, v0:Float, v1:Float):Void
+	{
+		this.uniform2f(location, v0, v1);
+	}
+
+	#if !lime_webgl
+	public inline function uniform2fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	#else
+	public function uniform2fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		this.uniform2fv(location, v != null ? v.length >> 1 : 0, v);
+	}
+
+	public inline function uniform2i(location:GLUniformLocation, v0:Int, v1:Int):Void
+	{
+		this.uniform2i(location, v0, v1);
+	}
+
+	#if !lime_webgl
+	public inline function uniform2iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int, ?srcLength:Int):Void
+	#else
+	public inline function uniform2iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		this.uniform2iv(location, v != null ? v.length >> 1 : 0, v);
+	}
+
+	public inline function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void
+	{
+		this.uniform2ui(location, v0, v1);
+	}
+
+	public inline function uniform2uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	{
+		this.uniform2uiv(location, v != null ? v.length >> 1 : 0, v);
+	}
+
+	public inline function uniform3f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void
+	{
+		this.uniform3f(location, v0, v1, v2);
+	}
+
+	#if !lime_webgl
+	public inline function uniform3fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#else
+	public inline function uniform3fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#end
+	{
+		this.uniform3fv(location, v != null ? Std.int(v.length / 3) : 0, v);
+	}
+
+	public inline function uniform3i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
+	{
+		this.uniform3i(location, v0, v1, v2);
+	}
+
+	#if !lime_webgl
+	public inline function uniform3iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#else
+	public inline function uniform3iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#end
+	{
+		this.uniform3iv(location, v != null ? Std.int(v.length / 3) : 0, v);
+	}
+
+	public inline function uniform3ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
+	{
+		this.uniform3ui(location, v0, v1, v2);
+	}
+
+	public inline function uniform3uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	{
+		this.uniform3uiv(location, v != null ? Std.int(v.length / 3) : 0, v);
+	}
+
+	public inline function uniform4f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float,
+		v3:Float):Void
+	{
+		this.uniform4f(location, v0, v1, v2, v3);
+	}
+
+	#if !lime_webgl
+	public inline function uniform4fv(location:GLUniformLocation, v:Float32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#else
+	public inline function uniform4fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#end
+	{
+		this.uniform4fv(location, v != null ? v.length >> 2 : 0, v);
+	}
+
+	public inline function uniform4i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
+		v3:Int):Void
+	{
+		this.uniform4i(location, v0, v1, v2, v3);
+	}
+
+	#if !lime_webgl
+	public inline function uniform4iv(location:GLUniformLocation, v:Int32Array, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#else
+	public inline function uniform4iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int,
+		?srcLength:Int):Void
+	#end
+	{
+		this.uniform4iv(location, v != null ? v.length >> 2 : 0, v);
+	}
+
+	public inline function uniform4ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int,
+		v3:Int):Void
+	{
+		this.uniform4ui(location, v0, v1, v2, v3);
+	}
+
+	public inline function uniform4uiv(location:GLUniformLocation, v:UInt32Array,
+		?srcOffset:Int, ?srcLength:Int):Void
+	{
+		this.uniform4uiv(location, v != null ? v.length >> 2 : 0, v);
+	}
+
+	public inline function uniformBlockBinding(program:GLProgram, uniformBlockIndex:Int,
+		uniformBlockBinding:Int):Void
+	{
+		this.uniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+	}
+
+	#if !lime_webgl
+	public function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	#else
+	public inline function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool,
+		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		var count = 0;
+
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = v.length >> 2;
+		__tempPointer.set(v, srcOffset);
+		this.uniformMatrix2fv(location, count, transpose, __tempPointer);
+	}
+
+	public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 6);
+
+		__tempPointer.set(v, srcOffset);
+
+		this.uniformMatrix2x3fv(location, count, transpose, __tempPointer);
+	}
+
+	public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 8);
+
+		__tempPointer.set(v, srcOffset);
+
+		this.uniformMatrix2x4fv(location, count, transpose, __tempPointer);
+	}
+
+	#if !lime_webgl
+	public function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	#else
+	public inline function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool,
+		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		var count = 0;
+
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 9);
+		__tempPointer.set(v, srcOffset);
+		this.uniformMatrix3fv(location, count, transpose, __tempPointer);
+	}
+
+	public function uniformMatrix3x2fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 6);
+
+		__tempPointer.set(v, srcOffset);
+
+		this.uniformMatrix3x2fv(location, count, transpose, __tempPointer);
+	}
+
+	public function uniformMatrix3x4fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 12);
+
+		__tempPointer.set(v, srcOffset);
+
+		this.uniformMatrix3x4fv(location, count, transpose, __tempPointer);
+	}
+
+	#if !lime_webgl
+	public function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	#else
+	public inline function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool,
+		v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
+	#end
+	{
+		var count = 0;
+
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = v.length >> 4;
+		__tempPointer.set(v, srcOffset);
+		this.uniformMatrix4fv(location, count, transpose, __tempPointer);
+	}
+
+	public function uniformMatrix4x2fv(location:GLUniformLocation,
+		transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 8);
+
+		__tempPointer.set(v, srcOffset);
+
+		this.uniformMatrix4x2fv(location, count, transpose, __tempPointer);
+	}
+
+	public function uniformMatrix4x3fv(location:GLUniformLocation, transpose:Bool,
+		v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
+	{
+		var count = 0;
+		if (srcLength != null) count = srcLength;
+		else if (v != null) count = Std.int(v.length / 12);
+
+		__tempPointer.set(v, srcOffset);
+
+		this.uniformMatrix4x3fv(location, count, transpose, __tempPointer);
+	}
+
+	public inline function useProgram(program:GLProgram):Void
+	{
+		this.useProgram(program);
+	}
+
+	public inline function validateProgram(program:GLProgram):Void
+	{
+		this.validateProgram(program);
+	}
+
+	public inline function vertexAttrib1f(indx:Int, x:Float):Void
+	{
+		this.vertexAttrib1f(indx, x);
+	}
+
+	public inline function vertexAttrib1fv(indx:Int,
+		values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
+	{
+		this.vertexAttrib1fv(indx, values);
+	}
+
+	public inline function vertexAttrib2f(indx:Int, x:Float, y:Float):Void
+	{
+		this.vertexAttrib2f(indx, x, y);
+	}
+
+	public inline function vertexAttrib2fv(indx:Int,
+		values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
+	{
+		this.vertexAttrib2fv(indx, values);
+	}
+
+	public inline function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void
+	{
+		this.vertexAttrib3f(indx, x, y, z);
+	}
+
+	public inline function vertexAttrib3fv(indx:Int,
+		values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
+	{
+		this.vertexAttrib3fv(indx, values);
+	}
+
+	public inline function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float,
+		w:Float):Void
+	{
+		this.vertexAttrib4f(indx, x, y, z, w);
+	}
+
+	public inline function vertexAttrib4fv(indx:Int,
+		values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
+	{
+		this.vertexAttrib4fv(indx, values);
+	}
+
+	public inline function vertexAttribDivisor(index:Int, divisor:Int):Void
+	{
+		this.vertexAttribDivisor(index, divisor);
+	}
+
+	public inline function vertexAttribI4i(indx:Int, x:Int, y:Int, z:Int,
+		w:Int):Void
+	{
+		this.vertexAttribI4i(indx, x, y, z, w);
+	}
+
+	public inline function vertexAttribI4iv(indx:Int,
+		values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
+	{
+		this.vertexAttribI4iv(indx, values);
+	}
+
+	public inline function vertexAttribI4ui(indx:Int, x:Int, y:Int, z:Int,
+		w:Int):Void
+	{
+		this.vertexAttribI4ui(indx, x, y, z, w);
+	}
+
+	public inline function vertexAttribI4uiv(indx:Int,
+		values:#if (!lime_webgl && !doc_gen) DataPointer #else Float32Array #end):Void
+	{
+		this.vertexAttribI4uiv(indx, values);
+	}
+
+	public inline function vertexAttribIPointer(index:Int, size:Int, type:Int,
+		stride:Int, offset:DataPointer):Void
+	{
+		this.vertexAttribIPointer(index, size, type, stride, offset);
+	}
+
+	public inline function vertexAttribPointer(indx:Int, size:Int, type:Int,
+		normalized:Bool, stride:Int, offset:DataPointer):Void
+	{
+		this.vertexAttribPointer(indx, size, type, normalized, stride, offset);
+	}
+
+	public inline function viewport(x:Int, y:Int, width:Int, height:Int):Void
+	{
+		this.viewport(x, y, width, height);
+	}
+
+	public inline function waitSync(sync:GLSync, flags:Int, timeout:Int64):Void
+	{
+		this.waitSync(sync, flags, timeout);
+	}
+
+	@:from private static function fromRenderContext(context:RenderContext):WebGL2RenderContext
+	{
+		return context.webgl2;
+	}
+
+	#if (!doc_gen && (lime_opengl || lime_opengles))
+	@:from private static function fromOpenGLES3RenderContext(gl:OpenGLES3RenderContext):WebGL2RenderContext
+	{
+		return cast gl;
+	}
+	#end
+
+	@:from private static function fromGL(gl:Class<GL>):WebGL2RenderContext
+	{
+		return cast GL.context;
+	}
+}
 #end

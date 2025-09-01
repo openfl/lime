@@ -30,6 +30,7 @@ namespace lime {
 		int windowID;
 		double x;
 		double y;
+		int clickCount;
 
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;

@@ -1,9 +1,9 @@
 buildscript {
 	repositories {
-		jcenter()
+		mavenCentral()
 		google()
 	}
-	
+
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
 	}
@@ -12,6 +12,12 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
+	namespace 'org.haxe.extension'
 	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+
+	defaultConfig {
+		minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+		targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
+	}
 }

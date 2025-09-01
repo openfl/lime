@@ -15,6 +15,7 @@ namespace lime {
 	static int id_windowID;
 	static int id_x;
 	static int id_y;
+	static int id_clickCount;
 	static bool init = false;
 
 
@@ -27,6 +28,7 @@ namespace lime {
 		y = 0.0;
 		movementX = 0.0;
 		movementY = 0.0;
+		clickCount = 0;
 
 	}
 
@@ -46,6 +48,7 @@ namespace lime {
 					id_windowID = val_id ("windowID");
 					id_x = val_id ("x");
 					id_y = val_id ("y");
+					id_clickCount = val_id ("clickCount");
 					init = true;
 
 				}
@@ -55,7 +58,11 @@ namespace lime {
 				if (event->type != MOUSE_WHEEL) {
 
 					alloc_field (object, id_button, alloc_int (event->button));
+				}
 
+				if (event->type != MOUSE_WHEEL && event->type != MOUSE_MOVE) {
+
+					alloc_field (object, id_clickCount, alloc_int (event->clickCount));
 				}
 
 				alloc_field (object, id_movementX, alloc_float (event->movementX));
@@ -76,6 +83,7 @@ namespace lime {
 				eventObject->windowID = event->windowID;
 				eventObject->x = event->x;
 				eventObject->y = event->y;
+				eventObject->clickCount = event->clickCount;
 
 			}
 

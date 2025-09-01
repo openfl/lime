@@ -1,7 +1,7 @@
 package lime.tools;
 
-typedef ApplicationData =
-{
+@:forward
+abstract ApplicationData({
 	@:optional var file:String;
 	@:optional var init:String;
 	@:optional var main:String;
@@ -9,4 +9,16 @@ typedef ApplicationData =
 	@:optional var preloader:String;
 	@:optional var swfVersion:Float;
 	@:optional var url:String;
+}) from Dynamic
+{
+	@:noCompletion
+	public static var expectedFields:ApplicationData = {
+		file: "",
+		init: "",
+		main: "",
+		path: "",
+		preloader: "",
+		swfVersion: 0.0,
+		url: ""
+	};
 }

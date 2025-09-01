@@ -127,7 +127,7 @@ abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer
 	{
 		#if (lime_cffi && lime_cairo && !macro)
 		#if hl
-		return NativeCFFI.lime_cairo_pattern_get_matrix(this, new Matrix3());
+		return NativeCFFI.lime_cairo_pattern_get_matrix(this, new CairoMatrix3());
 		#else
 		var m:Dynamic = NativeCFFI.lime_cairo_pattern_get_matrix(this);
 		return new Matrix3(m.a, m.b, m.c, m.d, m.tx, m.ty);
@@ -140,7 +140,7 @@ abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private function set_matrix(value:Matrix3):Matrix3
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		NativeCFFI.lime_cairo_pattern_set_matrix(this, value);
+		NativeCFFI.lime_cairo_pattern_set_matrix(this, value.toCairoMatrix3());
 		#end
 
 		return value;

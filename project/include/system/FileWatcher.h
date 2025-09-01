@@ -1,16 +1,15 @@
 #ifndef LIME_SYSTEM_FILE_WATCHER_H
 #define LIME_SYSTEM_FILE_WATCHER_H
 
-#ifdef RemoveDirectory
-#undef RemoveDirectory
-#endif
-
 #include <system/CFFI.h>
 #include <system/Mutex.h>
 #include <map>
 #include <string>
 #include <vector>
 
+#ifdef RemoveDirectory
+#undef RemoveDirectory
+#endif
 
 namespace lime {
 

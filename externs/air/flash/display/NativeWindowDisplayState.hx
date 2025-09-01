@@ -1,9 +1,9 @@
 package flash.display;
 
 @:native("flash.display.NativeWindowDisplayState")
-@:enum extern abstract NativeWindowDisplayState(String)
+#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract NativeWindowDisplayState(String)
 {
-	var MAXIMIZED;
-	var MINIMIZED;
-	var NORMAL;
+	var MAXIMIZED = "maximized";
+	var MINIMIZED = "minimized";
+	var NORMAL = "normal";
 }

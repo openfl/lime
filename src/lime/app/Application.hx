@@ -227,15 +227,6 @@ class Application extends Module
 	public function onJoystickHatMove(joystick:Joystick, hat:Int, position:JoystickHatPosition):Void {}
 
 	/**
-		Called when a joystick axis move event is fired
-		@param	joystick	The current joystick
-		@param	trackball	The trackball that was moved
-		@param	x	The x movement of the trackball (between 0 and 1)
-		@param	y	The y movement of the trackball (between 0 and 1)
-	**/
-	public function onJoystickTrackballMove(joystick:Joystick, trackball:Int, x:Float, y:Float):Void {}
-
-	/**
 		Called when a key down event is fired on the primary window
 		@param	keyCode	The code of the key that was pressed
 		@param	modifier	The modifier of the key that was pressed
@@ -514,7 +505,7 @@ class Application extends Module
 	{
 		application.onUpdate.add(update);
 		application.onExit.add(onModuleExit, false, 0);
-		application.onExit.add(__onModuleExit, false, 0);
+		application.onExit.add(__onModuleExit, false, -1000);
 
 		for (gamepad in Gamepad.devices)
 		{
@@ -549,13 +540,21 @@ class Application extends Module
 			__windowByID.remove(window.id);
 			window.close();
 
-			if (__windows.length == 0)
-			{
-				#if !lime_doc_gen
-				System.exit(0);
-				#end
-			}
+			__checkForAllWindowsClosed();
 		}
+	}
+
+	@:noCompletion private function __checkForAllWindowsClosed():Void
+	{
+		// air handles this automatically with NativeApplication.autoExit
+		#if !air
+		if (__windows.length == 0)
+		{
+			#if !lime_doc_gen
+			System.exit(0);
+			#end
+		}
+		#end
 	}
 
 	@:noCompletion private function __onGamepadConnect(gamepad:Gamepad):Void
@@ -577,12 +576,21 @@ class Application extends Module
 		joystick.onButtonUp.add(onJoystickButtonUp.bind(joystick));
 		joystick.onDisconnect.add(onJoystickDisconnect.bind(joystick));
 		joystick.onHatMove.add(onJoystickHatMove.bind(joystick));
-		joystick.onTrackballMove.add(onJoystickTrackballMove.bind(joystick));
 	}
 
 	@:noCompletion private function __onModuleExit(code:Int):Void
 	{
+		if (onExit.canceled)
+		{
+			return;
+		}
+
+		__unregisterLimeModule(this);
 		__backend.exit();
+		if (Application.current == this)
+		{
+			Application.current = null;
+		}
 	}
 
 	@:noCompletion private function __onWindowClose(window:Window):Void
@@ -607,8 +615,6 @@ class Application extends Module
 		Touch.onStart.remove(onTouchStart);
 		Touch.onMove.remove(onTouchMove);
 		Touch.onEnd.remove(onTouchEnd);
-
-		onModuleExit(0);
 	}
 
 	// Get & Set Methods
@@ -628,9 +634,7 @@ class Application extends Module
 	}
 }
 
-#if kha
-@:noCompletion private typedef ApplicationBackend = lime._internal.backend.kha.KhaApplication;
-#elseif air
+#if air
 @:noCompletion private typedef ApplicationBackend = lime._internal.backend.air.AIRApplication;
 #elseif flash
 @:noCompletion private typedef ApplicationBackend = lime._internal.backend.flash.FlashApplication;

@@ -128,9 +128,7 @@ class ImageBuffer
 	{
 		var buffer = new ImageBuffer(data, width, height, bitsPerPixel);
 
-		#if kha
-		// TODO
-		#elseif flash
+		#if flash
 		if (__srcBitmapData != null) buffer.__srcBitmapData = __srcBitmapData.clone();
 		#elseif (js && html5)
 		if (data != null)

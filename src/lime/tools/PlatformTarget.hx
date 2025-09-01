@@ -4,6 +4,8 @@ import haxe.rtti.Meta;
 import hxp.*;
 import lime.tools.AssetHelper;
 import lime.tools.CommandHelper;
+import sys.FileSystem;
+import sys.io.File;
 
 class PlatformTarget
 {
@@ -52,31 +54,39 @@ class PlatformTarget
 		this.additionalArguments = additionalArguments;
 		var metaFields = Meta.getFields(Type.getClass(this));
 
-		if ( /*!Reflect.hasField (metaFields.watch, "ignore") && */ (project.targetFlags.exists("watch")))
+		// known issue: this may not log in `-eval` mode on Linux
+		inline function logCommand(command:String):Void
+		{
+			if (!Reflect.hasField(metaFields, command)
+				|| !Reflect.hasField(Reflect.field(metaFields, command), "ignore"))
+			{
+				Log.info("", "\n" + Log.accentColor + "Running command: " + command.toUpperCase() + Log.resetColor);
+			}
+		}
+
+		if (project.targetFlags.exists("watch"))
 		{
 			Log.info("", "\n" + Log.accentColor + "Running command: WATCH" + Log.resetColor);
 			watch();
 			return;
 		}
 
-		if ((!Reflect.hasField(metaFields, "display") || !Reflect.hasField(metaFields.display, "ignore")) && (command == "display"))
+		if (command == "display")
 		{
 			display();
 		}
 
-		// if (!Reflect.hasField (metaFields.clean, "ignore") && (command == "clean" || targetFlags.exists ("clean"))) {
-		if ((!Reflect.hasField(metaFields, "clean") || !Reflect.hasField(metaFields.clean, "ignore"))
-			&& (command == "clean"
-				|| (project.targetFlags.exists("clean") && (command == "update" || command == "build" || command == "test"))))
+		// if (command == "clean" || project.targetFlags.exists ("clean")) {
+		if (command == "clean"
+			|| (project.targetFlags.exists("clean") && (command == "update" || command == "build" || command == "test")))
 		{
-			Log.info("", Log.accentColor + "Running command: CLEAN" + Log.resetColor);
+			logCommand("CLEAN");
 			clean();
 		}
 
-		if ((!Reflect.hasField(metaFields, "rebuild") || !Reflect.hasField(metaFields.rebuild, "ignore"))
-			&& (command == "rebuild" || project.targetFlags.exists("rebuild")))
+		if (command == "rebuild" || project.targetFlags.exists("rebuild"))
 		{
-			Log.info("", "\n" + Log.accentColor + "Running command: REBUILD" + Log.resetColor);
+			logCommand("REBUILD");
 
 			// hack for now, need to move away from project.rebuild.path, probably
 
@@ -88,60 +98,55 @@ class PlatformTarget
 			rebuild();
 		}
 
-		if ((!Reflect.hasField(metaFields, "update") || !Reflect.hasField(metaFields.update, "ignore"))
-			&& (command == "update" || command == "build" || command == "test"))
+		if (command == "update" || command == "build" || command == "test")
 		{
-			Log.info("", "\n" + Log.accentColor + "Running command: UPDATE" + Log.resetColor);
-			// #if lime
-			// AssetHelper.processLibraries (project, targetDirectory);
-			// #end
+			logCommand("update");
+
+			_touchedFiles = [];
 			update();
+
+			deleteStaleFiles(_touchedFiles);
+			_touchedFiles = null;
 		}
 
-		if ((!Reflect.hasField(metaFields, "build") || !Reflect.hasField(metaFields.build, "ignore"))
-			&& (command == "build" || command == "test"))
+		if (command == "build" || command == "test")
 		{
 			CommandHelper.executeCommands(project.preBuildCallbacks);
 
-			Log.info("", "\n" + Log.accentColor + "Running command: BUILD" + Log.resetColor);
+			logCommand("build");
 			build();
 
 			CommandHelper.executeCommands(project.postBuildCallbacks);
 		}
 
-		if ((!Reflect.hasField(metaFields, "deploy") || !Reflect.hasField(metaFields.deploy, "ignore")) && (command == "deploy"))
+		if (command == "deploy")
 		{
-			Log.info("", "\n" + Log.accentColor + "Running command: DEPLOY" + Log.resetColor);
+			logCommand("deploy");
 			deploy();
 		}
 
-		if ((!Reflect.hasField(metaFields, "install") || !Reflect.hasField(metaFields.install, "ignore"))
-			&& (command == "install" || command == "run" || command == "test"))
+		if (command == "install" || command == "run" || command == "test")
 		{
-			Log.info("", "\n" + Log.accentColor + "Running command: INSTALL" + Log.resetColor);
+			logCommand("install");
 			install();
 		}
 
-		if ((!Reflect.hasField(metaFields, "run") || !Reflect.hasField(metaFields.run, "ignore"))
-			&& (command == "run" || command == "rerun" || command == "test"))
+		if (command == "run" || command == "rerun" || command == "test")
 		{
-			Log.info("", "\n" + Log.accentColor + "Running command: RUN" + Log.resetColor);
+			logCommand("run");
 			run();
 		}
 
-		if ((!Reflect.hasField(metaFields, "trace") || !Reflect.hasField(metaFields.trace, "ignore"))
-			&& (command == "test" || command == "trace" || command == "run" || command == "rerun"))
+		if ((command == "test" || command == "trace" || command == "run" || command == "rerun")
+			&& (traceEnabled || command == "trace"))
 		{
-			if (traceEnabled || command == "trace")
-			{
-				Log.info("", "\n" + Log.accentColor + "Running command: TRACE" + Log.resetColor);
-				this.trace();
-			}
+			logCommand("trace");
+			this.trace();
 		}
 
-		if ((!Reflect.hasField(metaFields, "uninstall") || !Reflect.hasField(metaFields.uninstall, "ignore")) && (command == "uninstall"))
+		if (command == "uninstall")
 		{
-			Log.info("", "\n" + Log.accentColor + "Running command: UNINSTALL" + Log.resetColor);
+			logCommand("UNINSTALL");
 			uninstall();
 		}
 	}
@@ -167,4 +172,85 @@ class PlatformTarget
 	@ignore public function update():Void {}
 
 	@ignore public function watch():Void {}
+
+	// Functions to track and delete stale files
+
+	/**
+		Files that were copied into the output directory due to something in
+		project.xml, but which might not be included next time.
+
+		`PlatformTarget` will handle assets and templates, but subclasses are
+		responsible for adding any other files they copy (e.g., dependencies).
+	**/
+	private var _touchedFiles:Array<String> = null;
+
+	/**
+		Calls `System.copyIfNewer()` with the given arguments, then records the
+		file in `_touchedFiles`. See `_touchedFiles` for information about what
+		needs to be recorded.
+	**/
+	private function copyIfNewer(source:String, destination:String):Void
+	{
+		System.copyIfNewer(source, destination);
+
+		if (_touchedFiles != null)
+		{
+			_touchedFiles.push(destination);
+		}
+	}
+
+	private function deleteStaleFiles(touchedFiles:Array<String>):Void
+	{
+		if (project.defines.exists("lime-ignore-stale-files")) return;
+
+		for (asset in project.assets)
+		{
+			touchedFiles.push(targetDirectory + "/bin/" + asset.targetPath);
+		}
+
+		var record:String = targetDirectory + "/.files";
+		if (FileSystem.exists(record))
+		{
+			for (oldFile in File.getContent(record).split("\n"))
+			{
+				if (oldFile.length > 0 && touchedFiles.indexOf(oldFile) < 0)
+				{
+					System.deleteFile(oldFile);
+				}
+			}
+		}
+
+		File.saveContent(record, touchedFiles.join("\n"));
+	}
+
+	/**
+		Calls `System.recursiveCopy()` with the given arguments, then records
+		the files in `_touchedFiles`. See `_touchedFiles` for information about
+		what needs to be recorded.
+	**/
+	private function recursiveCopy(source:String, destination:String, context:Dynamic = null, process:Bool = true):Void
+	{
+		System.recursiveCopy(source, destination, context, process);
+
+		if (_touchedFiles == null || !FileSystem.exists(source)) return;
+
+		function recurse(source:String, destination:String):Void
+		{
+			for (file in FileSystem.readDirectory(source))
+			{
+				if (file.charAt(0) == ".") continue;
+
+				if (FileSystem.isDirectory(source + "/" + file))
+				{
+					recurse(source + "/" + file, destination + "/" + file);
+				}
+				else
+				{
+					_touchedFiles.push(destination + "/" + file);
+				}
+			}
+		}
+
+		recurse(source, destination);
+	}
 }

@@ -15,6 +15,7 @@ import lime._internal.backend.native.NativeCFFI;
 @:access(lime._internal.backend.native.NativeCFFI)
 #end
 @:access(haxe.io.Bytes)
+@:transitive
 abstract DataPointer(DataPointerType) to DataPointerType
 {
 	@:noCompletion private function new(data:#if !doc_gen DataPointerType #else Dynamic #end)

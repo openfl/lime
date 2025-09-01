@@ -3,6 +3,7 @@ package lime.text.harfbuzz;
 #if (!lime_doc_gen || lime_harfbuzz)
 import lime._internal.backend.native.NativeCFFI;
 import lime.math.Vector2;
+import lime.system.CFFI;
 import lime.system.CFFIPointer;
 
 @:access(lime._internal.backend.native.NativeCFFI)
@@ -81,10 +82,7 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
 		var result = NativeCFFI.lime_hb_font_glyph_to_string(this, codepoint);
-		#if hl
-		var result = @:privateAccess String.fromUTF8(result);
-		#end
-		return result;
+		return CFFI.stringValue(result);
 		#else
 		return null;
 		#end

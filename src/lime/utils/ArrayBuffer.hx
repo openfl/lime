@@ -6,9 +6,10 @@ typedef ArrayBuffer = #if haxe4 js.lib.ArrayBuffer #else js.html.ArrayBuffer #en
 import haxe.io.Bytes;
 
 @:forward
+@:transitive
 abstract ArrayBuffer(Bytes) from Bytes to Bytes
-#if doc_gen from Dynamic to Dynamic
-#end
+	#if doc_gen from Dynamic to Dynamic
+	#end
 {
 	public var byteLength(get, never):Int;
 

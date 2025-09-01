@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2020 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2025 Joshua Granick and other Lime contributors
 
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
@@ -103,6 +103,9 @@ This product bundles FileSaver.js 1.3.3, which is available under an
 
 This product bundles pako 1.0.2, which is available under an
 "MIT" license. For details, see [dependencies/pako.min.js](dependencies/pako.min.js).
+
+This product bundles LZMA-JS 2.3.2, which is available under an
+"MIT" license. For details, see [dependencies/lzma_worker-min.js](dependencies/lzma_worker-min.js).
 
 This product bundles stats.js r16, which is available under an
 "MIT" license. For details, see [dependencies/stats.min.js](dependencies/stats.min.js).

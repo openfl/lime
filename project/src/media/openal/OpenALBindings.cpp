@@ -37,17 +37,17 @@ namespace lime {
 
 	#ifdef LIME_OPENALSOFT
 	void lime_al_delete_auxiliary_effect_slot (value aux);
-	HL_PRIM void hl_lime_al_delete_auxiliary_effect_slot (HL_CFFIPointer* aux);
+	HL_PRIM void HL_NAME(hl_al_delete_auxiliary_effect_slot) (HL_CFFIPointer* aux);
 	#endif
 	void lime_al_delete_buffer (value buffer);
 	void lime_al_delete_source (value source);
-	HL_PRIM void hl_lime_al_delete_buffer (HL_CFFIPointer* buffer);
-	HL_PRIM void hl_lime_al_delete_source (HL_CFFIPointer* source);
+	HL_PRIM void HL_NAME(hl_al_delete_buffer) (HL_CFFIPointer* buffer);
+	HL_PRIM void HL_NAME(hl_al_delete_source) (HL_CFFIPointer* source);
 	#ifdef LIME_OPENALSOFT
 	void lime_al_delete_effect (value effect);
 	void lime_al_delete_filter (value filter);
-	HL_PRIM void hl_lime_al_delete_effect (HL_CFFIPointer* effect);
-	HL_PRIM void hl_lime_al_delete_filter (HL_CFFIPointer* filter);
+	HL_PRIM void HL_NAME(hl_al_delete_effect) (HL_CFFIPointer* effect);
+	HL_PRIM void HL_NAME(hl_al_delete_filter) (HL_CFFIPointer* filter);
 	#endif
 
 
@@ -60,7 +60,7 @@ namespace lime {
 
 	void hl_gc_al_buffer (HL_CFFIPointer* buffer) {
 
-		hl_lime_al_delete_buffer (buffer);
+		lime_hl_al_delete_buffer (buffer);
 
 	}
 
@@ -75,7 +75,7 @@ namespace lime {
 
 	void hl_gc_al_auxiliary_effect_slot (HL_CFFIPointer* aux) {
 
-		hl_lime_al_delete_auxiliary_effect_slot (aux);
+		lime_hl_al_delete_auxiliary_effect_slot (aux);
 
 	}
 	#endif
@@ -90,7 +90,7 @@ namespace lime {
 
 	void hl_gc_al_source (HL_CFFIPointer* source) {
 
-		hl_lime_al_delete_source (source);
+		lime_hl_al_delete_source (source);
 
 	}
 
@@ -105,7 +105,7 @@ namespace lime {
 
 	void hl_gc_al_effect (HL_CFFIPointer* effect) {
 
-		hl_lime_al_delete_effect (effect);
+		lime_hl_al_delete_effect (effect);
 
 	}
 
@@ -119,7 +119,7 @@ namespace lime {
 
 	void hl_gc_al_filter (HL_CFFIPointer* filter) {
 
-		hl_lime_al_delete_filter (filter);
+		lime_hl_al_delete_filter (filter);
 
 	}
 	#endif
@@ -142,7 +142,12 @@ namespace lime {
 
 	}
 
-
+	/*This has been removed after updating to openal 1.20.0+ since the cleanup functions involved
+	* lead to deadlocking. See https://github.com/openfl/lime/issues/1803 for more info.
+	* Developers should use lime.system.System.exit() instead of Sys.exit() to clean up any system
+	* resources
+	*/
+	/*
 	void lime_al_atexit () {
 
 		ALCcontext* alcContext = alcGetCurrentContext ();
@@ -163,7 +168,7 @@ namespace lime {
 		}
 
 	}
-
+	*/
 
 	void lime_al_auxf (value aux, int param, float value) {
 
@@ -175,7 +180,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_auxf (HL_CFFIPointer* aux, int param, float value) {
+	HL_PRIM void HL_NAME(hl_al_auxf) (HL_CFFIPointer* aux, int param, float value) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)aux->ptr;
@@ -210,7 +215,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_auxfv (HL_CFFIPointer* aux, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_auxfv) (HL_CFFIPointer* aux, int param, varray* values) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)aux->ptr;
@@ -248,7 +253,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_auxi (HL_CFFIPointer* aux, int param, vdynamic* val) {
+	HL_PRIM void HL_NAME(hl_al_auxi) (HL_CFFIPointer* aux, int param, vdynamic* val) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)aux->ptr;
@@ -295,7 +300,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_auxiv (HL_CFFIPointer* aux, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_auxiv) (HL_CFFIPointer* aux, int param, varray* values) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)aux->ptr;
@@ -319,7 +324,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_buffer_data (HL_CFFIPointer* buffer, int format, ArrayBufferView* data, int size, int freq) {
+	HL_PRIM void HL_NAME(hl_al_buffer_data) (HL_CFFIPointer* buffer, int format, ArrayBufferView* data, int size, int freq) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		alBufferData (id, format, data->buffer->b, size, freq);
@@ -335,7 +340,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_buffer3f (HL_CFFIPointer* buffer, int param, float value1, float value2, float value3) {
+	HL_PRIM void HL_NAME(hl_al_buffer3f) (HL_CFFIPointer* buffer, int param, float value1, float value2, float value3) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		alBuffer3f (id, param, value1, value2, value3);
@@ -351,7 +356,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_buffer3i (HL_CFFIPointer* buffer, int param, int value1, int value2, int value3) {
+	HL_PRIM void HL_NAME(hl_al_buffer3i) (HL_CFFIPointer* buffer, int param, int value1, int value2, int value3) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		alBuffer3i (id, param, value1, value2, value3);
@@ -367,7 +372,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_bufferf (HL_CFFIPointer* buffer, int param, float value) {
+	HL_PRIM void HL_NAME(hl_al_bufferf) (HL_CFFIPointer* buffer, int param, float value) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		alBufferf (id, param, value);
@@ -398,7 +403,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_bufferfv (HL_CFFIPointer* buffer, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_bufferfv) (HL_CFFIPointer* buffer, int param, varray* values) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 
@@ -420,7 +425,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_bufferi (HL_CFFIPointer* buffer, int param, int value) {
+	HL_PRIM void HL_NAME(hl_al_bufferi) (HL_CFFIPointer* buffer, int param, int value) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		alBufferi (id, param, value);
@@ -451,7 +456,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_bufferiv (HL_CFFIPointer* buffer, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_bufferiv) (HL_CFFIPointer* buffer, int param, varray* values) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 
@@ -521,7 +526,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_cleanup () {
+	HL_PRIM void HL_NAME(hl_al_cleanup) () {
 
 		lime_al_cleanup ();
 
@@ -546,7 +551,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_auxiliary_effect_slot (HL_CFFIPointer* aux) {
+	HL_PRIM void HL_NAME(hl_al_delete_auxiliary_effect_slot) (HL_CFFIPointer* aux) {
 
 		#ifdef LIME_OPENALSOFT
 		if (aux) {
@@ -585,7 +590,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_buffer (HL_CFFIPointer* buffer) {
+	HL_PRIM void HL_NAME(hl_al_delete_buffer) (HL_CFFIPointer* buffer) {
 
 		if (buffer) {
 
@@ -653,7 +658,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_buffers (int n, varray* buffers) {
+	HL_PRIM void HL_NAME(hl_al_delete_buffers) (int n, varray* buffers) {
 
 		if (buffers) {
 
@@ -716,7 +721,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_effect (HL_CFFIPointer* effect) {
+	HL_PRIM void HL_NAME(hl_al_delete_effect) (HL_CFFIPointer* effect) {
 
 		#ifdef LIME_OPENALSOFT
 		if (effect) {
@@ -746,7 +751,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_filter (HL_CFFIPointer* filter) {
+	HL_PRIM void HL_NAME(hl_al_delete_filter) (HL_CFFIPointer* filter) {
 
 		#ifdef LIME_OPENALSOFT
 		if (filter) {
@@ -782,7 +787,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_source (HL_CFFIPointer* source) {
+	HL_PRIM void HL_NAME(hl_al_delete_source) (HL_CFFIPointer* source) {
 
 		if (source) {
 
@@ -848,7 +853,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_delete_sources (int n, varray* sources) {
+	HL_PRIM void HL_NAME(hl_al_delete_sources) (int n, varray* sources) {
 
 		if (sources) {
 
@@ -901,7 +906,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_disable (int capability) {
+	HL_PRIM void HL_NAME(hl_al_disable) (int capability) {
 
 		alDisable (capability);
 
@@ -915,7 +920,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_distance_model (int distanceModel) {
+	HL_PRIM void HL_NAME(hl_al_distance_model) (int distanceModel) {
 
 		alDistanceModel (distanceModel);
 
@@ -929,7 +934,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_doppler_factor (float factor) {
+	HL_PRIM void HL_NAME(hl_al_doppler_factor) (float factor) {
 
 		alDopplerFactor (factor);
 
@@ -943,7 +948,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_doppler_velocity (float velocity) {
+	HL_PRIM void HL_NAME(hl_al_doppler_velocity) (float velocity) {
 
 		alDopplerVelocity (velocity);
 
@@ -960,7 +965,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_effectf (HL_CFFIPointer* effect, int param, float value) {
+	HL_PRIM void HL_NAME(hl_al_effectf) (HL_CFFIPointer* effect, int param, float value) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)effect->ptr;
@@ -995,7 +1000,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_effectfv (HL_CFFIPointer* effect, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_effectfv) (HL_CFFIPointer* effect, int param, varray* values) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)effect->ptr;
@@ -1021,7 +1026,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_effecti (HL_CFFIPointer* effect, int param, int value) {
+	HL_PRIM void HL_NAME(hl_al_effecti) (HL_CFFIPointer* effect, int param, int value) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)effect->ptr;
@@ -1056,7 +1061,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_effectiv (HL_CFFIPointer* effect, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_effectiv) (HL_CFFIPointer* effect, int param, varray* values) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)effect->ptr;
@@ -1078,7 +1083,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_enable (int capability) {
+	HL_PRIM void HL_NAME(hl_al_enable) (int capability) {
 
 		alEnable (capability);
 
@@ -1099,7 +1104,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_filteri (HL_CFFIPointer* filter, int param, int val) {
+	HL_PRIM void HL_NAME(hl_al_filteri) (HL_CFFIPointer* filter, int param, int val) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)filter->ptr;
@@ -1123,7 +1128,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_filterf (HL_CFFIPointer* filter, int param, float value) {
+	HL_PRIM void HL_NAME(hl_al_filterf) (HL_CFFIPointer* filter, int param, float value) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)filter->ptr;
@@ -1146,7 +1151,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_aux () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_aux) () {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint aux;
@@ -1183,7 +1188,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_buffer () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_buffer) () {
 
 		alGetError ();
 
@@ -1246,7 +1251,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_gen_buffers (int n) {
+	HL_PRIM varray* HL_NAME(hl_al_gen_buffers) (int n) {
 
 		alGetError ();
 
@@ -1305,7 +1310,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_effect () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_effect) () {
 
 		alGetError ();
 
@@ -1345,7 +1350,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_filter () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_filter) () {
 
 		alGetError ();
 
@@ -1385,7 +1390,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_al_gen_source () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_source) () {
 
 		alGetError ();
 
@@ -1435,7 +1440,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_gen_sources (int n) {
+	HL_PRIM varray* HL_NAME(hl_al_gen_sources) (int n) {
 
 		alGetError ();
 
@@ -1473,7 +1478,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_get_boolean (int param) {
+	HL_PRIM bool HL_NAME(hl_al_get_boolean) (int param) {
 
 		return alGetBoolean (param);
 
@@ -1499,7 +1504,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_booleanv (int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_booleanv) (int param, int count) {
 
 		varray* result = hl_alloc_array (&hlt_bool, count);
 		alGetBooleanv (param, (ALboolean*)hl_aptr (result, bool));
@@ -1524,7 +1529,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_buffer3f (HL_CFFIPointer* buffer, int param) {
+	HL_PRIM varray* HL_NAME(hl_al_get_buffer3f) (HL_CFFIPointer* buffer, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, 3);
@@ -1550,7 +1555,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_buffer3i (HL_CFFIPointer* buffer, int param) {
+	HL_PRIM varray* HL_NAME(hl_al_get_buffer3i) (HL_CFFIPointer* buffer, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
@@ -1571,7 +1576,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_al_get_bufferf (HL_CFFIPointer* buffer, int param) {
+	HL_PRIM float HL_NAME(hl_al_get_bufferf) (HL_CFFIPointer* buffer, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		ALfloat data;
@@ -1601,7 +1606,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_bufferfv (HL_CFFIPointer* buffer, int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_bufferfv) (HL_CFFIPointer* buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, count);
@@ -1621,7 +1626,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_al_get_bufferi (HL_CFFIPointer* buffer, int param) {
+	HL_PRIM int HL_NAME(hl_al_get_bufferi) (HL_CFFIPointer* buffer, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		ALint data;
@@ -1651,7 +1656,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_bufferiv (HL_CFFIPointer* buffer, int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_bufferiv) (HL_CFFIPointer* buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, count);
@@ -1668,7 +1673,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_al_get_double (int param) {
+	HL_PRIM double HL_NAME(hl_al_get_double) (int param) {
 
 		return alGetDouble (param);
 
@@ -1694,7 +1699,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_doublev (int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_doublev) (int param, int count) {
 
 		varray* result = hl_alloc_array (&hlt_f64, count);
 		alGetDoublev (param, hl_aptr (result, double));
@@ -1710,7 +1715,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_al_get_enum_value (hl_vstring* ename) {
+	HL_PRIM int HL_NAME(hl_al_get_enum_value) (hl_vstring* ename) {
 
 		return alGetEnumValue (ename ? hl_to_utf8 (ename->bytes) : NULL);
 
@@ -1724,7 +1729,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_al_get_error () {
+	HL_PRIM int HL_NAME(hl_al_get_error) () {
 
 		return alGetError ();
 
@@ -1745,7 +1750,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_al_get_filteri (HL_CFFIPointer* filter, int param) {
+	HL_PRIM int HL_NAME(hl_al_get_filteri) (HL_CFFIPointer* filter, int param) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)filter->ptr;
@@ -1766,7 +1771,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_al_get_float (int param) {
+	HL_PRIM float HL_NAME(hl_al_get_float) (int param) {
 
 		return alGetFloat (param);
 
@@ -1792,7 +1797,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_floatv (int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_floatv) (int param, int count) {
 
 		varray* result = hl_alloc_array (&hlt_f32, count);
 		alGetFloatv (param, hl_aptr (result, float));
@@ -1808,7 +1813,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_al_get_integer (int param) {
+	HL_PRIM int HL_NAME(hl_al_get_integer) (int param) {
 
 		return alGetInteger (param);
 
@@ -1834,7 +1839,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_integerv (int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_integerv) (int param, int count) {
 
 		varray* result = hl_alloc_array (&hlt_i32, count);
 		alGetIntegerv (param, hl_aptr (result, int));
@@ -1858,7 +1863,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_listener3f (int param) {
+	HL_PRIM varray* HL_NAME(hl_al_get_listener3f) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_f32, 3);
 		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
@@ -1882,7 +1887,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_listener3i (int param) {
+	HL_PRIM varray* HL_NAME(hl_al_get_listener3i) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_i32, 3);
 		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
@@ -1900,7 +1905,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_al_get_listenerf (int param) {
+	HL_PRIM float HL_NAME(hl_al_get_listenerf) (int param) {
 
 		ALfloat data;
 		alGetListenerf (param, &data);
@@ -1928,7 +1933,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_listenerfv (int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_listenerfv) (int param, int count) {
 
 		varray* result = hl_alloc_array (&hlt_f32, count);
 		alGetListenerfv (param, hl_aptr (result, float));
@@ -1946,7 +1951,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_al_get_listeneri (int param) {
+	HL_PRIM int HL_NAME(hl_al_get_listeneri) (int param) {
 
 		ALint data;
 		alGetListeneri (param, &data);
@@ -1974,7 +1979,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_listeneriv (int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_listeneriv) (int param, int count) {
 
 		varray* result = hl_alloc_array (&hlt_i32, count);
 		alGetListeneriv (param, hl_aptr (result, int));
@@ -1990,7 +1995,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM double hl_lime_al_get_proc_address (hl_vstring* fname) {
+	HL_PRIM double HL_NAME(hl_al_get_proc_address) (hl_vstring* fname) {
 
 		return (uintptr_t)alGetProcAddress (fname ? hl_to_utf8 (fname->bytes) : NULL);
 
@@ -2013,7 +2018,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_source3f (HL_CFFIPointer* source, int param) {
+	HL_PRIM varray* HL_NAME(hl_al_get_source3f) (HL_CFFIPointer* source, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, 3);
@@ -2039,7 +2044,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_source3i (HL_CFFIPointer* source, int param) {
+	HL_PRIM varray* HL_NAME(hl_al_get_source3i) (HL_CFFIPointer* source, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
@@ -2059,7 +2064,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM float hl_lime_al_get_sourcef (HL_CFFIPointer* source, int param) {
+	HL_PRIM float HL_NAME(hl_al_get_sourcef) (HL_CFFIPointer* source, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		ALfloat data;
@@ -2089,7 +2094,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_sourcefv (HL_CFFIPointer* source, int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_sourcefv) (HL_CFFIPointer* source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, count);
@@ -2130,7 +2135,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vdynamic* hl_lime_al_get_sourcei (HL_CFFIPointer* source, int param) {
+	HL_PRIM vdynamic* HL_NAME(hl_al_get_sourcei) (HL_CFFIPointer* source, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		ALint data;
@@ -2183,7 +2188,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_get_sourceiv (HL_CFFIPointer* source, int param, int count) {
+	HL_PRIM varray* HL_NAME(hl_al_get_sourceiv) (HL_CFFIPointer* source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, count);
@@ -2201,7 +2206,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_al_get_string (int param) {
+	HL_PRIM vbyte* HL_NAME(hl_al_get_string) (int param) {
 
 		const char* result = alGetString (param);
 		int length = strlen (result);
@@ -2224,7 +2229,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_aux (HL_CFFIPointer* aux) {
+	HL_PRIM bool HL_NAME(hl_al_is_aux) (HL_CFFIPointer* aux) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)aux->ptr;
@@ -2244,7 +2249,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_buffer (HL_CFFIPointer* buffer) {
+	HL_PRIM bool HL_NAME(hl_al_is_buffer) (HL_CFFIPointer* buffer) {
 
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		return alIsBuffer (id);
@@ -2264,7 +2269,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_effect (HL_CFFIPointer* effect) {
+	HL_PRIM bool HL_NAME(hl_al_is_effect) (HL_CFFIPointer* effect) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)effect->ptr;
@@ -2283,7 +2288,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_enabled (int capability) {
+	HL_PRIM bool HL_NAME(hl_al_is_enabled) (int capability) {
 
 		return alIsEnabled (capability);
 
@@ -2301,7 +2306,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_extension_present (hl_vstring* extname) {
+	HL_PRIM bool HL_NAME(hl_al_is_extension_present) (hl_vstring* extname) {
 
 		#ifdef LIME_OPENALSOFT
 		return alIsExtensionPresent (extname ? hl_to_utf8 (extname->bytes) : NULL);
@@ -2324,7 +2329,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_filter (HL_CFFIPointer* filter) {
+	HL_PRIM bool HL_NAME(hl_al_is_filter) (HL_CFFIPointer* filter) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)filter->ptr;
@@ -2344,7 +2349,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_al_is_source (HL_CFFIPointer* source) {
+	HL_PRIM bool HL_NAME(hl_al_is_source) (HL_CFFIPointer* source) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		return alIsSource (id);
@@ -2359,7 +2364,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_listener3f (int param, float value1, float value2, float value3) {
+	HL_PRIM void HL_NAME(hl_al_listener3f) (int param, float value1, float value2, float value3) {
 
 		alListener3f (param, value1, value2, value3);
 
@@ -2373,7 +2378,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_listener3i (int param, int value1, int value2, int value3) {
+	HL_PRIM void HL_NAME(hl_al_listener3i) (int param, int value1, int value2, int value3) {
 
 		alListener3i (param, value1, value2, value3);
 
@@ -2387,7 +2392,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_listenerf (int param, float value1) {
+	HL_PRIM void HL_NAME(hl_al_listenerf) (int param, float value1) {
 
 		alListenerf (param, value1);
 
@@ -2415,7 +2420,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_listenerfv (int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_listenerfv) (int param, varray* values) {
 
 		if (values) {
 
@@ -2434,7 +2439,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_listeneri (int param, int value1) {
+	HL_PRIM void HL_NAME(hl_al_listeneri) (int param, int value1) {
 
 		alListeneri (param, value1);
 
@@ -2462,7 +2467,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_listeneriv (int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_listeneriv) (int param, varray* values) {
 
 		if (values) {
 
@@ -2484,7 +2489,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_remove_direct_filter (HL_CFFIPointer* source) {
+	HL_PRIM void HL_NAME(hl_al_remove_direct_filter) (HL_CFFIPointer* source) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
@@ -2504,7 +2509,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_remove_send (HL_CFFIPointer* source, int index) {
+	HL_PRIM void HL_NAME(hl_al_remove_send) (HL_CFFIPointer* source, int index) {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
@@ -2522,7 +2527,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_pause (HL_CFFIPointer* source) {
+	HL_PRIM void HL_NAME(hl_al_source_pause) (HL_CFFIPointer* source) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alSourcePause (id);
@@ -2551,7 +2556,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_pausev (int n, varray* sources) {
+	HL_PRIM void HL_NAME(hl_al_source_pausev) (int n, varray* sources) {
 
 		if (sources) {
 
@@ -2581,7 +2586,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_play (HL_CFFIPointer* source) {
+	HL_PRIM void HL_NAME(hl_al_source_play) (HL_CFFIPointer* source) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alSourcePlay (id);
@@ -2610,7 +2615,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_playv (int n, varray* sources) {
+	HL_PRIM void HL_NAME(hl_al_source_playv) (int n, varray* sources) {
 
 		if (sources) {
 
@@ -2655,7 +2660,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_queue_buffers (HL_CFFIPointer* source, int nb, varray* buffers) {
+	HL_PRIM void HL_NAME(hl_al_source_queue_buffers) (HL_CFFIPointer* source, int nb, varray* buffers) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 
@@ -2687,7 +2692,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_rewind (HL_CFFIPointer* source) {
+	HL_PRIM void HL_NAME(hl_al_source_rewind) (HL_CFFIPointer* source) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alSourceRewind (id);
@@ -2716,7 +2721,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_rewindv (int n, varray* sources) {
+	HL_PRIM void HL_NAME(hl_al_source_rewindv) (int n, varray* sources) {
 
 		if (sources) {
 
@@ -2746,7 +2751,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_stop (HL_CFFIPointer* source) {
+	HL_PRIM void HL_NAME(hl_al_source_stop) (HL_CFFIPointer* source) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alSourceStop (id);
@@ -2775,7 +2780,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source_stopv (int n, varray* sources) {
+	HL_PRIM void HL_NAME(hl_al_source_stopv) (int n, varray* sources) {
 
 		if (sources) {
 
@@ -2834,7 +2839,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_al_source_unqueue_buffers (HL_CFFIPointer* source, int nb) {
+	HL_PRIM varray* HL_NAME(hl_al_source_unqueue_buffers) (HL_CFFIPointer* source, int nb) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		ALuint* buffers = new ALuint[nb];
@@ -2880,7 +2885,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source3f (HL_CFFIPointer* source, int param, float value1, float value2, float value3) {
+	HL_PRIM void HL_NAME(hl_al_source3f) (HL_CFFIPointer* source, int param, float value1, float value2, float value3) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alSource3f (id, param, value1, value2, value3);
@@ -2912,7 +2917,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_source3i (HL_CFFIPointer* source, int param, vdynamic* value1, int value2, int value3) {
+	HL_PRIM void HL_NAME(hl_al_source3i) (HL_CFFIPointer* source, int param, vdynamic* value1, int value2, int value3) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		ALuint data1;
@@ -2944,7 +2949,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_sourcef (HL_CFFIPointer* source, int param, float value) {
+	HL_PRIM void HL_NAME(hl_al_sourcef) (HL_CFFIPointer* source, int param, float value) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alSourcef (id, param, value);
@@ -2975,7 +2980,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_sourcefv (HL_CFFIPointer* source, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_sourcefv) (HL_CFFIPointer* source, int param, varray* values) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 
@@ -3025,7 +3030,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_sourcei (HL_CFFIPointer* source, int param, vdynamic* val) {
+	HL_PRIM void HL_NAME(hl_al_sourcei) (HL_CFFIPointer* source, int param, vdynamic* val) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		ALuint data = 0;
@@ -3084,7 +3089,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_sourceiv (HL_CFFIPointer* source, int param, varray* values) {
+	HL_PRIM void HL_NAME(hl_al_sourceiv) (HL_CFFIPointer* source, int param, varray* values) {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 
@@ -3105,7 +3110,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_al_speed_of_sound (float speed) {
+	HL_PRIM void HL_NAME(hl_al_speed_of_sound) (float speed) {
 
 		alSpeedOfSound (speed);
 
@@ -3124,7 +3129,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_alc_close_device (HL_CFFIPointer* device) {
+	HL_PRIM bool HL_NAME(hl_alc_close_device) (HL_CFFIPointer* device) {
 
 		al_gc_mutex.Lock ();
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
@@ -3171,7 +3176,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_alc_create_context (HL_CFFIPointer* device, varray* attrlist) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_alc_create_context) (HL_CFFIPointer* device, varray* attrlist) {
 
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
 		ALCcontext* alcContext = alcCreateContext (alcDevice, attrlist ? hl_aptr (attrlist, int) : NULL);
@@ -3208,7 +3213,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_alc_destroy_context (HL_CFFIPointer* context) {
+	HL_PRIM void HL_NAME(hl_alc_destroy_context) (HL_CFFIPointer* context) {
 
 		al_gc_mutex.Lock ();
 		ALCcontext* alcContext = (ALCcontext*)context->ptr;
@@ -3255,7 +3260,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_alc_get_contexts_device (HL_CFFIPointer* context) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_alc_get_contexts_device) (HL_CFFIPointer* context) {
 
 		ALCcontext* alcContext = (ALCcontext*)context->ptr;
 		ALCdevice* alcDevice = alcGetContextsDevice (alcContext);
@@ -3302,7 +3307,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_alc_get_current_context () {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_alc_get_current_context) () {
 
 		ALCcontext* alcContext = alcGetCurrentContext ();
 
@@ -3333,7 +3338,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM int hl_lime_alc_get_error (HL_CFFIPointer* device) {
+	HL_PRIM int HL_NAME(hl_alc_get_error) (HL_CFFIPointer* device) {
 
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
 		return alcGetError (alcDevice);
@@ -3362,7 +3367,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM varray* hl_lime_alc_get_integerv (HL_CFFIPointer* device, int param, int size) {
+	HL_PRIM varray* HL_NAME(hl_alc_get_integerv) (HL_CFFIPointer* device, int param, int size) {
 
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, size);
@@ -3381,7 +3386,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM vbyte* hl_lime_alc_get_string (HL_CFFIPointer* device, int param) {
+	HL_PRIM vbyte* HL_NAME(hl_alc_get_string) (HL_CFFIPointer* device, int param) {
 
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
 		const char* result = alcGetString (alcDevice, param);
@@ -3401,7 +3406,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM bool hl_lime_alc_make_context_current (HL_CFFIPointer* context) {
+	HL_PRIM bool HL_NAME(hl_alc_make_context_current) (HL_CFFIPointer* context) {
 
 		ALCcontext* alcContext = context ? (ALCcontext*)context->ptr : 0;
 		return alcMakeContextCurrent (alcContext);
@@ -3412,7 +3417,8 @@ namespace lime {
 	value lime_alc_open_device (HxString devicename) {
 
 		ALCdevice* alcDevice = alcOpenDevice (devicename.__s);
-		atexit (lime_al_atexit);
+		//TODO: Can we work out our own cleanup for openal?
+		//atexit (lime_al_atexit);
 
 		value ptr = CFFIPointer (alcDevice, gc_alc_object);
 		alcObjects[alcDevice] = ptr;
@@ -3421,10 +3427,11 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* hl_lime_alc_open_device (hl_vstring* devicename) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_alc_open_device) (hl_vstring* devicename) {
 
 		ALCdevice* alcDevice = alcOpenDevice (devicename ? (char*)hl_to_utf8 ((const uchar*)devicename->bytes) : 0);
-		atexit (lime_al_atexit);
+		//TODO: Can we work out our own cleanup for openal?
+		//atexit (lime_al_atexit);
 
 		HL_CFFIPointer* ptr = HLCFFIPointer (alcDevice, (hl_finalizer)hl_gc_alc_object);
 		alcObjects[alcDevice] = ptr;
@@ -3443,7 +3450,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_alc_pause_device (HL_CFFIPointer* device) {
+	HL_PRIM void HL_NAME(hl_alc_pause_device) (HL_CFFIPointer* device) {
 
 		#ifdef LIME_OPENALSOFT
 		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
@@ -3461,7 +3468,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_alc_process_context (HL_CFFIPointer* context) {
+	HL_PRIM void HL_NAME(hl_alc_process_context) (HL_CFFIPointer* context) {
 
 		ALCcontext* alcContext = (ALCcontext*)context->ptr;
 		alcProcessContext (alcContext);
@@ -3479,7 +3486,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_alc_resume_device (HL_CFFIPointer* device) {
+	HL_PRIM void HL_NAME(hl_alc_resume_device) (HL_CFFIPointer* device) {
 
 		#ifdef LIME_OPENALSOFT
 		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
@@ -3497,7 +3504,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM void hl_lime_alc_suspend_context (HL_CFFIPointer* context) {
+	HL_PRIM void HL_NAME(hl_alc_suspend_context) (HL_CFFIPointer* context) {
 
 		ALCcontext* alcContext = context ? (ALCcontext*)context->ptr : NULL;
 		alcSuspendContext (alcContext);
@@ -3631,120 +3638,120 @@ namespace lime {
 	#define _TARRAYBUFFER _TBYTES
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
 
-	DEFINE_HL_PRIM (_VOID, lime_al_auxf, _TCFFIPOINTER _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_auxfv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_auxi, _TCFFIPOINTER _I32 _DYN);
-	DEFINE_HL_PRIM (_VOID, lime_al_auxiv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_buffer_data, _TCFFIPOINTER _I32 _TARRAYBUFFERVIEW _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_buffer3f, _TCFFIPOINTER _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_buffer3i, _TCFFIPOINTER _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferf, _TCFFIPOINTER _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferfv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferi, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_bufferiv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_cleanup, _NO_ARG);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_auxiliary_effect_slot, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_buffer, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_buffers, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_effect, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_filter, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_source, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_delete_sources, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_disable, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_distance_model, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_doppler_factor, _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_doppler_velocity, _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_effectf, _TCFFIPOINTER _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_effectfv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_effecti, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_effectiv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_enable, _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_filteri, _TCFFIPOINTER _I32 _DYN);
-	DEFINE_HL_PRIM (_VOID, lime_al_filterf, _TCFFIPOINTER _I32 _F32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_al_gen_aux, _NO_ARG);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_al_gen_buffer, _NO_ARG);
-	DEFINE_HL_PRIM (_ARR, lime_al_gen_buffers, _I32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_al_gen_effect, _NO_ARG);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_al_gen_filter, _NO_ARG);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_al_gen_source, _NO_ARG);
-	DEFINE_HL_PRIM (_ARR, lime_al_gen_sources, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_get_boolean, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_booleanv, _I32 _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_buffer3f, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_buffer3i, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_F32, lime_al_get_bufferf, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_bufferfv, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_al_get_bufferi, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_bufferiv, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_F64, lime_al_get_double, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_doublev, _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_al_get_enum_value, _STRING);
-	DEFINE_HL_PRIM (_I32, lime_al_get_error, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_al_get_filteri, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_F32, lime_al_get_float, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_floatv, _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_al_get_integer, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_integerv, _I32 _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_listener3f, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_listener3i, _I32);
-	DEFINE_HL_PRIM (_F32, lime_al_get_listenerf, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_listenerfv, _I32 _I32);
-	DEFINE_HL_PRIM (_I32, lime_al_get_listeneri, _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_listeneriv, _I32 _I32);
-	DEFINE_HL_PRIM (_F64, lime_al_get_proc_address, _STRING);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_source3f, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_source3i, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_F32, lime_al_get_sourcef, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_sourcefv, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_DYN, lime_al_get_sourcei, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_ARR, lime_al_get_sourceiv, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_al_get_string, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_aux, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_buffer, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_effect, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_enabled, _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_extension_present, _STRING);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_filter, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, lime_al_is_source, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_listener3f, _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listener3i, _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listenerf, _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listenerfv, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_listeneri, _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_listeneriv, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_remove_direct_filter, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_remove_send, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_pause, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_pausev, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_play, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_playv, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_queue_buffers, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_rewind, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_rewindv, _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_stop, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_al_source_stopv, _I32 _ARR);
-	DEFINE_HL_PRIM (_ARR, lime_al_source_unqueue_buffers, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source3f, _TCFFIPOINTER _I32 _F32 _F32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_source3i, _TCFFIPOINTER _I32 _DYN _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourcef, _TCFFIPOINTER _I32 _F32);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourcefv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourcei, _TCFFIPOINTER _I32 _DYN);
-	DEFINE_HL_PRIM (_VOID, lime_al_sourceiv, _TCFFIPOINTER _I32 _ARR);
-	DEFINE_HL_PRIM (_VOID, lime_al_speed_of_sound, _F32);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_alc_create_context, _TCFFIPOINTER _ARR);
-	DEFINE_HL_PRIM (_BOOL, lime_alc_close_device, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_alc_destroy_context, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_alc_get_contexts_device, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_alc_get_current_context, _NO_ARG);
-	DEFINE_HL_PRIM (_I32, lime_alc_get_error, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_ARR, lime_alc_get_integerv, _TCFFIPOINTER _I32 _I32);
-	DEFINE_HL_PRIM (_BYTES, lime_alc_get_string, _TCFFIPOINTER _I32);
-	DEFINE_HL_PRIM (_BOOL, lime_alc_make_context_current, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, lime_alc_open_device, _STRING);
-	DEFINE_HL_PRIM (_VOID, lime_alc_pause_device, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_alc_process_context, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_alc_resume_device, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_VOID, lime_alc_suspend_context, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_auxf, _TCFFIPOINTER _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_auxfv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_auxi, _TCFFIPOINTER _I32 _DYN);
+	DEFINE_HL_PRIM (_VOID, hl_al_auxiv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_buffer_data, _TCFFIPOINTER _I32 _TARRAYBUFFERVIEW _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_buffer3f, _TCFFIPOINTER _I32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_buffer3i, _TCFFIPOINTER _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_bufferf, _TCFFIPOINTER _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_bufferfv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_bufferi, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_bufferiv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_cleanup, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_auxiliary_effect_slot, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_buffer, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_buffers, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_effect, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_filter, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_source, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_delete_sources, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_disable, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_distance_model, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_doppler_factor, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_doppler_velocity, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_effectf, _TCFFIPOINTER _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_effectfv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_effecti, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_effectiv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_enable, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_filteri, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_filterf, _TCFFIPOINTER _I32 _F32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_aux, _NO_ARG);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_buffer, _NO_ARG);
+	DEFINE_HL_PRIM (_ARR, hl_al_gen_buffers, _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_effect, _NO_ARG);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_filter, _NO_ARG);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_al_gen_source, _NO_ARG);
+	DEFINE_HL_PRIM (_ARR, hl_al_gen_sources, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_al_get_boolean, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_booleanv, _I32 _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_buffer3f, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_buffer3i, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_F32, hl_al_get_bufferf, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_bufferfv, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_al_get_bufferi, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_bufferiv, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_F64, hl_al_get_double, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_doublev, _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_al_get_enum_value, _STRING);
+	DEFINE_HL_PRIM (_I32, hl_al_get_error, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_al_get_filteri, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_F32, hl_al_get_float, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_floatv, _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_al_get_integer, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_integerv, _I32 _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_listener3f, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_listener3i, _I32);
+	DEFINE_HL_PRIM (_F32, hl_al_get_listenerf, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_listenerfv, _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_al_get_listeneri, _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_listeneriv, _I32 _I32);
+	DEFINE_HL_PRIM (_F64, hl_al_get_proc_address, _STRING);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_source3f, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_source3i, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_F32, hl_al_get_sourcef, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_sourcefv, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_al_get_sourcei, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_sourceiv, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_al_get_string, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_aux, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_buffer, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_effect, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_enabled, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_extension_present, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_filter, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_al_is_source, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_listener3f, _I32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_listener3i, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_listenerf, _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_listenerfv, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_listeneri, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_listeneriv, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_remove_direct_filter, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_remove_send, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_pause, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_pausev, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_play, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_playv, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_queue_buffers, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_rewind, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_rewindv, _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_stop, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_al_source_stopv, _I32 _ARR);
+	DEFINE_HL_PRIM (_ARR, hl_al_source_unqueue_buffers, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_source3f, _TCFFIPOINTER _I32 _F32 _F32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_source3i, _TCFFIPOINTER _I32 _DYN _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_al_sourcef, _TCFFIPOINTER _I32 _F32);
+	DEFINE_HL_PRIM (_VOID, hl_al_sourcefv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_sourcei, _TCFFIPOINTER _I32 _DYN);
+	DEFINE_HL_PRIM (_VOID, hl_al_sourceiv, _TCFFIPOINTER _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_al_speed_of_sound, _F32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_create_context, _TCFFIPOINTER _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_close_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_destroy_context, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_get_contexts_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_get_current_context, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_alc_get_error, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_ARR, hl_alc_get_integerv, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_BYTES, hl_alc_get_string, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_make_context_current, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_open_device, _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_alc_pause_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_process_context, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_resume_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_suspend_context, _TCFFIPOINTER);
 
 
 }

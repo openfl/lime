@@ -5,10 +5,15 @@ import lime.tools.HXProject;
 
 class ElectronHelper
 {
-	public static function launch(project:HXProject, path:String):Void
+	public static function launch(project:HXProject, path:String, ?npx:Bool):Void
 	{
-		var electronPath = project.defines.get("ELECTRON_PATH");
+		if (npx)
+		{
+			System.runCommand("", "npx", ["electron", path]);
+			return;
+		}
 
+		var electronPath = project.defines.get("ELECTRON_PATH");
 		if (electronPath == null || electronPath == "")
 		{
 			electronPath = "electron";

@@ -6,11 +6,13 @@ class Icon
 	public var path:String;
 	public var size:Int;
 	public var width:Int;
+	public var priority:Int;
 
-	public function new(path:String, size:Int = 0)
+	public function new(path:String, size:Int = 0, priority:Int = 0)
 	{
 		this.path = path;
 		this.size = height = width = size;
+		this.priority = priority;
 	}
 
 	public function clone():Icon
