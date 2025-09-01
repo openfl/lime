@@ -7,7 +7,7 @@ env:
 jobs:
 
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -30,6 +30,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -116,6 +117,7 @@ jobs:
           rm /usr/local/bin/idle3*
           rm /usr/local/bin/pydoc3*
           rm /usr/local/bin/python3*
+          rm /usr/local/bin/pip3*
           brew bundle
           popd
 
@@ -272,7 +274,11 @@ jobs:
           lime build SimpleAudio windows -release -verbose -nocolor
 
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [r28c, stable]
+      fail-fast: false
     steps:
 
       - uses: actions/checkout@v4
@@ -282,8 +288,9 @@ jobs:
       - name: Install Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
+        if: matrix.ndk-version != 'stable'
         with:
-          ndk-version: r21e
+          ndk-version: ${{ matrix.ndk-version }}
 
       - uses: actions/setup-java@v4
         with:
@@ -317,10 +324,12 @@ jobs:
       - name: Configure Android support
         run: |
           lime config ANDROID_SDK $ANDROID_HOME -eval
-          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }} -eval
+          lime config ANDROID_NDK_ROOT ${{ env.LIME_NDK_ROOT }} -eval
           lime config JAVA_HOME $JAVA_HOME -eval
           lime config ANDROID_SETUP true -eval
           lime config -eval
+        env:
+          LIME_NDK_ROOT: ${{ matrix.ndk-version == 'stable' && '$ANDROID_NDK_ROOT' || steps.setup-ndk.outputs.ndk-path }}
 
       - name: Rebuild Lime (Android)
         run: |
@@ -333,6 +342,7 @@ jobs:
             ndll/Android/
             !**/.gitignore
           if-no-files-found: error
+        if: matrix.ndk-version != 'stable'
 
       - name: Install samples
         run: |
@@ -417,7 +427,7 @@ jobs:
 
   package-haxelib:
     needs: [linux, macos, windows, android, ios]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -533,7 +543,7 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -563,7 +573,7 @@ jobs:
           if-no-files-found: error
 
   flash-samples:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -659,7 +669,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -709,7 +719,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -757,7 +767,7 @@ jobs:
 
   html5-samples:
     needs: package-haxelib
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.6]
@@ -826,7 +836,7 @@ jobs:
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.2.5]
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-13]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -873,7 +883,7 @@ jobs:
           lime build SimpleAudio neko -release -verbose -nocolor
 
   notify:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, macos, neko-samples, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:

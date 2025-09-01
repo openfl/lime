@@ -78,6 +78,9 @@
 			<haxedef name="lime-threads" if="neko || cpp || html5" unless="emscripten" />
 			<!-- `target.threaded` isn't available, so enumerate the targets instead. -->
 			<haxedef name="lime-threads" if="cs || java || python || hl" unless="${${haxe_ver} < 4}" />
+
+			<!-- For internal use; may be removed or renamed without warning. -->
+			<haxedef name="lime-threads-deque" if="neko || cpp || cs || java || python || hl" />
 		</section>
 
 		<section if="cpp ${${haxe_ver} < 3.3}" unless="static_link">

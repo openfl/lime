@@ -280,14 +280,20 @@ namespace lime {
 
 	void lime_hb_buffer_add_utf8 (value buffer, HxString text, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf8 ((hb_buffer_t*)val_data (buffer), text.c_str (), text.length, itemOffset, itemLength);
+		int textLength = text.length;
+		if (hxs_encoding (text) == hx::StringUtf16) {
+			// hxs_utf8 doesn't give us the length, so treat it as null terminated
+			textLength = -1;
+		}
+
+		hb_buffer_add_utf8 ((hb_buffer_t*)val_data (buffer), hxs_utf8 (text, nullptr), textLength, itemOffset, itemLength);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_hb_buffer_add_utf8) (HL_CFFIPointer* buffer, hl_vstring* text, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf8 ((hb_buffer_t*)buffer->ptr, text ? hl_to_utf8 (text->bytes) : NULL, text ? text->length : 0, itemOffset, itemLength);
+		hb_buffer_add_utf8 ((hb_buffer_t*)buffer->ptr, text ? hl_to_utf8 (text->bytes) : NULL, -1, itemOffset, itemLength);
 
 	}
 

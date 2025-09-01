@@ -135,6 +135,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_get_underline_thickness(handle:Dynamic):Int;
 
+	@:cffi private static function lime_font_get_strikethrough_position(handle:Dynamic):Int;
+
+	@:cffi private static function lime_font_get_strikethrough_thickness(handle:Dynamic):Int;
+
 	@:cffi private static function lime_font_get_units_per_em(handle:Dynamic):Int;
 
 	@:cffi private static function lime_font_load(data:Dynamic):Dynamic;
@@ -156,6 +160,8 @@ class NativeCFFI
 	@:cffi private static function lime_gamepad_get_device_guid(id:Int):Dynamic;
 
 	@:cffi private static function lime_gamepad_get_device_name(id:Int):Dynamic;
+
+	@:cffi private static function lime_gamepad_rumble(id:Int, lowFrequencyRumble:Float, highFrequencyRumble:Float, duration:Int):Void;
 
 	@:cffi private static function lime_gamepad_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
@@ -433,6 +439,10 @@ class NativeCFFI
 		"oi", false));
 	private static var lime_font_get_underline_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_underline_thickness",
 		"oi", false));
+	private static var lime_font_get_strikethrough_position = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_strikethrough_position",
+		"oi", false));
+	private static var lime_font_get_strikethrough_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_strikethrough_thickness",
+		"oi", false));
 	private static var lime_font_get_units_per_em = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_units_per_em", "oi", false));
 	private static var lime_font_load = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load", "oo", false));
 	private static var lime_font_load_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_bytes", "oo", false));
@@ -449,6 +459,8 @@ class NativeCFFI
 	private static var lime_gamepad_get_device_guid = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_device_guid", "io",
 		false));
 	private static var lime_gamepad_get_device_name = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_device_name", "io",
+		false));
+	private static var lime_gamepad_rumble = new cpp.Callable<Int->Float->Float->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_rumble", "iddiv",
 		false));
 	private static var lime_gamepad_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_gamepad_event_manager_register", "oov", false));
@@ -672,6 +684,8 @@ class NativeCFFI
 	private static var lime_font_get_num_glyphs = CFFI.load("lime", "lime_font_get_num_glyphs", 1);
 	private static var lime_font_get_underline_position = CFFI.load("lime", "lime_font_get_underline_position", 1);
 	private static var lime_font_get_underline_thickness = CFFI.load("lime", "lime_font_get_underline_thickness", 1);
+	private static var lime_font_get_strikethrough_position = CFFI.load("lime", "lime_font_get_strikethrough_position", 1);
+	private static var lime_font_get_strikethrough_thickness = CFFI.load("lime", "lime_font_get_strikethrough_thickness", 1);
 	private static var lime_font_get_units_per_em = CFFI.load("lime", "lime_font_get_units_per_em", 1);
 	private static var lime_font_load = CFFI.load("lime", "lime_font_load", 1);
 	private static var lime_font_load_bytes = CFFI.load("lime", "lime_font_load_bytes", 1);
@@ -683,6 +697,7 @@ class NativeCFFI
 	private static var lime_gamepad_add_mappings = CFFI.load("lime", "lime_gamepad_add_mappings", 1);
 	private static var lime_gamepad_get_device_guid = CFFI.load("lime", "lime_gamepad_get_device_guid", 1);
 	private static var lime_gamepad_get_device_name = CFFI.load("lime", "lime_gamepad_get_device_name", 1);
+	private static var lime_gamepad_rumble = CFFI.load("lime", "lime_gamepad_rumble", 4);
 	private static var lime_gamepad_event_manager_register = CFFI.load("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_gzip_compress = CFFI.load("lime", "lime_gzip_compress", 2);
 	private static var lime_gzip_decompress = CFFI.load("lime", "lime_gzip_decompress", 2);
@@ -970,6 +985,16 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_font_get_strikethrough_position") private static function lime_font_get_strikethrough_position(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_font_get_strikethrough_thickness") private static function lime_font_get_strikethrough_thickness(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_font_get_units_per_em") private static function lime_font_get_units_per_em(handle:CFFIPointer):Int
 	{
 		return 0;
@@ -1015,6 +1040,8 @@ class NativeCFFI
 	{
 		return null;
 	}
+
+	@:hlNative("lime", "hl_gamepad_rumble") private static function lime_gamepad_rumble(id:Int, lowFrequencyRumble:Float, highFrequencyRumble:Float, duration:Int):Void {}
 
 	@:hlNative("lime", "hl_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register(callback:Void->Void,
 		eventObject:GamepadEventInfo):Void {}

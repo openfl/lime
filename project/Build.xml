@@ -1,7 +1,6 @@
 <xml>
 
-	<set name="HXCPP_NO_CPP11" value="1" unless="mac" />
-	<set name="HXCPP_CPP14" value="1" if="mac" />
+	<set name="HXCPP_CPP11" value="1" />
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 
@@ -56,7 +55,8 @@
 
 	<files id="lime">
 
-		<compilerflag value="-std=c++11" />
+		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
+        <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
 
 		<file name="src/ExternalInterface.cpp" />

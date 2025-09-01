@@ -1363,6 +1363,54 @@ namespace lime {
 	}
 
 
+	int lime_font_get_strikethrough_position (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->GetStrikethroughPosition ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_font_get_strikethrough_position) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->GetStrikethroughPosition ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	int lime_font_get_strikethrough_thickness (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->GetStrikethroughThickness ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_font_get_strikethrough_thickness) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->GetStrikethroughThickness ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
 	int lime_font_get_units_per_em (value fontHandle) {
 
 		#ifdef LIME_FREETYPE
@@ -1713,6 +1761,20 @@ namespace lime {
 	HL_PRIM vbyte* HL_NAME(hl_gamepad_get_device_name) (int id) {
 
 		return (vbyte*)Gamepad::GetDeviceName (id);
+
+	}
+
+
+	void lime_gamepad_rumble (int id, double lowFrequencyRumble, double highFrequencyRumble, int duration) {
+
+		Gamepad::Rumble (id, lowFrequencyRumble, highFrequencyRumble, duration);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gamepad_rumble) (int id, double lowFrequencyRumble, double highFrequencyRumble, int duration) {
+
+		Gamepad::Rumble (id, lowFrequencyRumble, highFrequencyRumble, duration);
 
 	}
 
@@ -4000,6 +4062,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_font_get_num_glyphs);
 	DEFINE_PRIME1 (lime_font_get_underline_position);
 	DEFINE_PRIME1 (lime_font_get_underline_thickness);
+	DEFINE_PRIME1 (lime_font_get_strikethrough_position);
+	DEFINE_PRIME1 (lime_font_get_strikethrough_thickness);
 	DEFINE_PRIME1 (lime_font_get_units_per_em);
 	DEFINE_PRIME1 (lime_font_load);
 	DEFINE_PRIME1 (lime_font_load_bytes);
@@ -4012,6 +4076,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
 	DEFINE_PRIME1 (lime_gamepad_get_device_name);
+	DEFINE_PRIME4v (lime_gamepad_rumble);
 	DEFINE_PRIME2 (lime_gzip_compress);
 	DEFINE_PRIME2 (lime_gzip_decompress);
 	DEFINE_PRIME2v (lime_haptic_vibrate);
@@ -4191,6 +4256,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_font_get_num_glyphs, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_underline_position, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_underline_thickness, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_position, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_thickness, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_units_per_em, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_font_load);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_bytes, _TBYTES);
@@ -4203,6 +4270,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_guid, _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_name, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gamepad_rumble, _I32 _I32 _F64 _F64);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_haptic_vibrate, _I32 _I32);
