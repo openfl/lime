@@ -430,6 +430,8 @@
 				<lib name="comdlg32.lib" />
 				<lib name="setupapi.lib" />
 
+				<lib name="bcrypt.lib" if="LIME_CURL" />
+
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
 				<lib name="dwrite.lib" if="LIME_HARFBUZZ" />
