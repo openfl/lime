@@ -88,4 +88,25 @@ namespace lime {
 	}
 
 
+	void Gamepad::Rumble (int id, double lowFrequencyRumble, double highFrequencyRumble, int duration) {
+
+		auto it = gameControllers.find (id);
+		if (it == gameControllers.end ())
+			return;
+
+		if (highFrequencyRumble < 0.0f)
+			highFrequencyRumble = 0.0f;
+		else if (highFrequencyRumble > 1.0f)
+			highFrequencyRumble = 1.0f;
+
+		if (lowFrequencyRumble < 0.0f)
+			lowFrequencyRumble = 0.0f;
+		else if (lowFrequencyRumble > 1.0f)
+			lowFrequencyRumble = 1.0f;
+
+		SDL_RumbleGamepad (it->second, lowFrequencyRumble * 0xFFFF, highFrequencyRumble * 0xFFFF, duration);
+
+	}
+
+
 }
