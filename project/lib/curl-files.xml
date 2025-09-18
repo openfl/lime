@@ -1,5 +1,5 @@
 <xml>
-	<include name="${HXCPP}/project/thirdparty/mbedtls_files.xml" noerror="true" if="static_link"/>
+	<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" noerror="true" if="static_link" />
 	<set name="HAS_HXCPP_MBEDTLS_FLAGS" value="1" if="MBEDTLS_DIR" />
 	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" unless="MBEDTLS_DIR"/>
 
@@ -30,7 +30,7 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" if="NATIVE_TOOLKIT_HAVE_MBEDTLS"  unless="static_link"/>
 		<section if="static_link">
 
-			<include name="${HXCPP}/project/thirdparty/mbedtls_flags.xml" if="HAS_HXCPP_MBEDTLS_FLAGS" />
+			<include name="${HXCPP}/project/thirdparty/mbedtls-flags.xml" if="HAS_HXCPP_MBEDTLS_FLAGS" />
 
 			<section unless="HAS_HXCPP_MBEDTLS_FLAGS">
 

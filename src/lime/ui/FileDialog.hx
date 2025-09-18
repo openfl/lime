@@ -14,6 +14,7 @@ import hl.Bytes as HLBytes;
 import hl.NativeArray;
 #end
 #if sys
+import sys.FileSystem;
 import sys.io.File;
 #end
 #if (js && html5)
@@ -98,8 +99,31 @@ class FileDialog
 	{
 		if (type == null) type = FileDialogType.OPEN;
 
+		#if sys
+		if (defaultPath != null && defaultPath.length > 0
+			&& FileSystem.exists(defaultPath)
+			&& FileSystem.isDirectory(defaultPath))
+		{
+			// if the default path is a directory, and the default path doesn't
+			// end with a separator, tiny file dialogs may open its parent
+			// directory instead.
+			var lastChar = defaultPath.charAt(defaultPath.length - 1);
+			#if windows
+			if (lastChar != "/" && lastChar != "\\")
+			{
+				defaultPath = defaultPath + "\\";
+			}
+			#else
+			if (lastChar != "/")
+			{
+				defaultPath = defaultPath + "/";
+			}
+			#end
+		}
+		#end
+
 		#if desktop
-		var worker = new ThreadPool(#if (windows && hl) SINGLE_THREADED #end);
+		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
 
 		worker.onComplete.add(function(result)
 		{
@@ -148,6 +172,7 @@ class FileDialog
 
 					var path = null;
 					#if (!macro && lime_cffi)
+					trace(defaultPath);
 					path = CFFI.stringValue(NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath));
 					#end
 
@@ -224,7 +249,7 @@ class FileDialog
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
 		#if (desktop && sys)
-		var worker = new ThreadPool(#if (windows && hl) SINGLE_THREADED #end);
+		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
 
 		worker.onComplete.add(function(path:String)
 		{
@@ -287,7 +312,7 @@ class FileDialog
 		}
 
 		#if (desktop && sys)
-		var worker = new ThreadPool(#if (windows && hl) SINGLE_THREADED #end);
+		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
 
 		worker.onComplete.add(function(path:String)
 		{

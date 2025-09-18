@@ -73,6 +73,16 @@ class Font
 	public var underlineThickness:Int;
 
 	/**
+    	* The underline position of the font.
+    	*/
+	public var strikethroughPosition:Int;
+
+	/**
+    	* The underline thickness of the font.
+    	*/
+	public var strikethroughThickness:Int;
+
+	/**
      	* The units per EM of the font.
      	*/
 	public var unitsPerEM:Int;
@@ -612,6 +622,8 @@ class Font
 			numGlyphs = NativeCFFI.lime_font_get_num_glyphs(src);
 			underlinePosition = NativeCFFI.lime_font_get_underline_position(src);
 			underlineThickness = NativeCFFI.lime_font_get_underline_thickness(src);
+			strikethroughPosition = NativeCFFI.lime_font_get_strikethrough_position(src);
+			strikethroughThickness = NativeCFFI.lime_font_get_strikethrough_thickness(src);
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
 		}
 		#end

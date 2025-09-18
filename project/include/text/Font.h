@@ -56,6 +56,8 @@ namespace lime {
 			int GetNumGlyphs ();
 			int GetUnderlinePosition ();
 			int GetUnderlineThickness ();
+			int GetStrikethroughPosition ();
+			int GetStrikethroughThickness ();
 			int GetUnitsPerEM ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);

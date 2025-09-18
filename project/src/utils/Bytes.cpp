@@ -178,52 +178,45 @@ namespace lime {
 	}
 
 
-	void Bytes::Set (value bytes) {
-
-		mutex.Lock ();
-
-		if (val_is_null (bytes)) {
-
-			if (usingValue.find (this) != usingValue.end ()) {
-
-				usingValue.erase (this);
-
-			}
-
-			length = 0;
-			b = 0;
-
-		} else {
-
-			hadValue[this] = true;
-			usingValue[this] = true;
-
-			length = val_int (val_field (bytes, id_length));
-
-			if (length > 0) {
-
-				value _b = val_field (bytes, id_b);
-
-				if (val_is_string (_b)) {
-
-					b = (unsigned char*)val_string (_b);
-
-				} else {
-
-					b = (unsigned char*)buffer_data (val_to_buffer (_b));
-
-				}
-
-			} else {
-
-				b = 0;
-
-			}
-
-		}
-
-		mutex.Unlock ();
-
+	void Bytes::Set(value bytes) {	
+		
+	    int newLength = 0;
+	    unsigned char* newB = 0;
+	    bool isNull = val_is_null(bytes);
+	
+	    if (!isNull) {
+	
+	        //here we can extract the values before calling our mutex to avoid potential deadlock or contention
+	        value lengthVal = val_field(bytes, id_length);
+	        value bVal = val_field(bytes, id_b);
+	
+	        newLength = val_int(lengthVal);
+	
+	        if (newLength > 0) {
+	
+	            if (val_is_string(bVal)) {
+	                newB = (unsigned char*)val_string(bVal);
+	            } else {
+	                newB = (unsigned char*)buffer_data(val_to_buffer(bVal));
+	            }
+	        }
+	    }
+	
+	    //and now it should be save to lock
+	    mutex.Lock();
+	
+	    if (isNull) {
+	        usingValue.erase(this);
+	        length = 0;
+	        b = 0;
+	    } else {
+	        hadValue[this] = true;
+	        usingValue[this] = true;
+	        length = newLength;
+	        b = newB;
+	    }
+	
+	    mutex.Unlock();
 	}
 
 

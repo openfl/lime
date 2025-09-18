@@ -19,7 +19,9 @@
 	<define name="lime-howlerjs" if="html5" />
 	<define name="lime-html5" if="html5" />
 	<define name="lime-native" if="native" />
-	<define name="lime-openal" unless="lime-console || flash || html5" />
+	<define name="lime-openalsoft" if="windows || linux || mac || android" unless="static_link || lime-mojoal || winrt" />
+	<define name="lime-mojoal" if="lime-switch || static_link || winrt" unless="lime-openalsoft" />
+	<define name="lime-openal" if="ios || tvos || emscripten || lime-openalsoft || lime-mojoal" />
 	<define name="lime-opengl" if="desktop" unless="html5" />
 	<define name="lime-opengles" if="emscripten || mobile" />
 	<define name="lime-vorbis" if="native" />
@@ -78,6 +80,9 @@
 			<haxedef name="lime-threads" if="neko || cpp || html5" unless="emscripten" />
 			<!-- `target.threaded` isn't available, so enumerate the targets instead. -->
 			<haxedef name="lime-threads" if="cs || java || python || hl" unless="${${haxe_ver} < 4}" />
+
+			<!-- For internal use; may be removed or renamed without warning. -->
+			<haxedef name="lime-threads-deque" if="neko || cpp || cs || java || python || hl" />
 		</section>
 
 		<section if="cpp ${${haxe_ver} < 3.3}" unless="static_link">

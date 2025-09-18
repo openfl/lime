@@ -5,8 +5,17 @@ import lime.tools.HXProject;
 
 class XCodeHelper
 {
-	private static inline var DEFAULT_IPAD_SIMULATOR = "ipad-air";
+	// different computers may have different sets of simulators installed
+	// so there isn't necessarily a reasonable default for ipads
+	private static var DEFAULT_IPAD_SIMULATOR_NAMES = [
+		"ipad",
+		"ipad-air"
+	];
+	private static var DEFAULT_IPAD_AIR_SIMULATOR_FALLBACK_REGEX = ~/ipad-air-.+/g;
+	private static var DEFAULT_IPAD_SIMULATOR_FALLBACK_REGEX = ~/ipad-.+/g;
+	// this should be a standard iPhone of a particular generation
 	private static var DEFAULT_IPHONE_SIMULATOR_REGEX = ~/iphone-\d+/g;
+	private static var DEFAULT_IPHONE_SIMULATOR_FALLBACK_REGEX = ~/iphone-.+/g;
 
 	private static function extractSimulatorFlagName(line:String):String
 	{
@@ -90,18 +99,70 @@ class XCodeHelper
 
 		if (currentDevice == null)
 		{
-			if (project.targetFlags.exists("ipad"))
+			if (project.targetFlags.exists("ipad") || project.config.getString("ios.device", "universal") == "ipad")
 			{
-				currentDevice = devices.get(DEFAULT_IPAD_SIMULATOR);
+				for (device in DEFAULT_IPAD_SIMULATOR_NAMES)
+				{
+					// try to find a relatively standard ipad simulator
+					currentDevice = devices.get(device);
+					if (currentDevice != null)
+					{
+						break;
+					}
+				}
+				// if we couldn't find one of the default names, let's try to
+				// find any iPad Air, which should be a reasonable default
+				if (currentDevice == null)
+				{
+					for (device in devices.keys())
+					{
+						if (DEFAULT_IPAD_AIR_SIMULATOR_FALLBACK_REGEX.match(device))
+						{
+							currentDevice = devices.get(device);
+							break;
+						}
+					}
+				}
+				// worst case, if we still haven't found a good name, choose the
+				// first ipad that we find. it could be a mini or pro, which
+				// might not necessarily be ideal, but it's better than nothing.
+				if (currentDevice == null)
+				{
+					for (device in devices.keys())
+					{
+						if (DEFAULT_IPAD_SIMULATOR_FALLBACK_REGEX.match(device))
+						{
+							currentDevice = devices.get(device);
+							break;
+						}
+					}
+				}
 			}
 			else
 			{
 				for (device in devices.keys())
 				{
+					// try to find a standard iphone, which should have an name
+					// like iphone-15 or iphone-16
 					if (DEFAULT_IPHONE_SIMULATOR_REGEX.match(device))
 					{
 						currentDevice = devices.get(device);
 						break;
+					}
+				}
+				// of we can't find a standard iphone for some reason, choose
+				// the first iphone- name that we find. it could be a plus, pro,
+				// se, or something that might not necessarily be ideal, but
+				// it's better than nothing at all.
+				if (currentDevice == null)
+				{
+					for (device in devices.keys())
+					{
+						if (DEFAULT_IPHONE_SIMULATOR_FALLBACK_REGEX.match(device))
+						{
+							currentDevice = devices.get(device);
+							break;
+						}
 					}
 				}
 			}
