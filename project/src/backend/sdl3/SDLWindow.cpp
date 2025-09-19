@@ -148,7 +148,8 @@ namespace lime {
 
 		}
 
-		sdlWindow = SDL_CreateWindow (title, width, height, sdlWindowFlags);
+		float scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+		sdlWindow = SDL_CreateWindow (title, (int)(width * scale), (int)(height * scale), sdlWindowFlags);
 
 		#if defined (IPHONE) || defined (APPLETV)
 		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
@@ -567,9 +568,10 @@ namespace lime {
 		int width;
 		int height;
 
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GetWindowSizeInPixels (sdlWindow, &width, &height);
 
-		return height;
+		float scale = SDL_GetWindowDisplayScale(sdlWindow);
+		return (int)(height / scale);
 
 	}
 
@@ -601,39 +603,7 @@ namespace lime {
 
 	double SDLWindow::GetScale () {
 
-		if (sdlRenderer) {
-
-			int outputWidth;
-			int outputHeight;
-
-			SDL_GetCurrentRenderOutputSize (sdlRenderer, &outputWidth, &outputHeight);
-
-			int width;
-			int height;
-
-			SDL_GetWindowSize (sdlWindow, &width, &height);
-
-			double scale = double (outputWidth) / width;
-			return scale;
-
-		} else if (context) {
-
-			int outputWidth;
-			int outputHeight;
-
-			SDL_GetWindowSizeInPixels (sdlWindow, &outputWidth, &outputHeight);
-
-			int width;
-			int height;
-
-			SDL_GetWindowSize (sdlWindow, &width, &height);
-
-			double scale = double (outputWidth) / width;
-			return scale;
-
-		}
-
-		return 1;
+		return SDL_GetWindowDisplayScale(sdlWindow);
 
 	}
 
@@ -650,9 +620,10 @@ namespace lime {
 		int width;
 		int height;
 
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GetWindowSizeInPixels (sdlWindow, &width, &height);
 
-		return width;
+		float scale = SDL_GetWindowDisplayScale(sdlWindow);
+		return (int)(width / scale);
 
 	}
 
@@ -722,7 +693,8 @@ namespace lime {
 
 	void SDLWindow::Resize (int width, int height) {
 
-		SDL_SetWindowSize (sdlWindow, width, height);
+		float scale = SDL_GetWindowDisplayScale(sdlWindow);
+		SDL_SetWindowSize (sdlWindow, (int)(width * scale), (int)(height * scale));
 
 	}
 
