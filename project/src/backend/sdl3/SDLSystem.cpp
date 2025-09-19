@@ -320,16 +320,21 @@ namespace lime {
 
 			}
 
-			int numDisplays = GetNumDisplays ();
+			if (id == 0) {
 
-			if (id < 0 || id >= numDisplays) {
+				return alloc_null ();
+
+			}
+
+			const char* displayName = SDL_GetDisplayName (id);
+			if (displayName == NULL) {
 
 				return alloc_null ();
 
 			}
 
 			value display = alloc_empty_object ();
-			alloc_field (display, id_name, alloc_string (SDL_GetDisplayName (id)));
+			alloc_field (display, id_name, alloc_string (displayName));
 
 			SDL_Rect bounds = { 0, 0, 0, 0 };
 			SDL_GetDisplayBounds (id, &bounds);
@@ -451,9 +456,14 @@ namespace lime {
 			const int id_x = hl_hash_utf8 ("x");
 			const int id_y = hl_hash_utf8 ("y");
 
-			int numDisplays = GetNumDisplays ();
+			if (id == 0) {
 
-			if (id < 0 || id >= numDisplays) {
+				return 0;
+
+			}
+
+			const char* displayName = SDL_GetDisplayName (id);
+			if (displayName == NULL) {
 
 				return 0;
 
@@ -461,7 +471,6 @@ namespace lime {
 
 			vdynamic* display = (vdynamic*)hl_alloc_dynobj ();
 
-			const char* displayName = SDL_GetDisplayName (id);
 			char* _displayName = (char*)malloc(strlen(displayName) + 1);
 			strcpy (_displayName, displayName);
 			hl_dyn_setp (display, id_name, &hlt_bytes, _displayName);
@@ -598,7 +607,8 @@ namespace lime {
 
 	int System::GetNumDisplays () {
 		int numDisplays;
-		SDL_GetDisplays(&numDisplays);
+		SDL_DisplayID * displays = SDL_GetDisplays(&numDisplays);
+		SDL_free(displays);
 		return numDisplays;
 
 	}
