@@ -693,7 +693,9 @@ namespace lime {
 
 	void SDLWindow::Resize (int width, int height) {
 
-		float scale = SDL_GetWindowDisplayScale(sdlWindow);
+		SDL_DisplayID sdlDisplay = SDL_GetDisplayForWindow(sdlWindow);
+		float scale = SDL_GetDisplayContentScale(sdlDisplay);
+
 		SDL_SetWindowSize (sdlWindow, (int)(width * scale), (int)(height * scale));
 
 	}
