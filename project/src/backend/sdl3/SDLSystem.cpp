@@ -341,7 +341,7 @@ namespace lime {
 			alloc_field (display, id_bounds, Rectangle (bounds.x, bounds.y, bounds.w, bounds.h).Value ());
 
 			Rectangle safeAreaInsets;
-			Display::GetSafeAreaInsets(id, &safeAreaInsets);
+			Display::GetSafeAreaInsets(id - 1, &safeAreaInsets);
 			alloc_field (display, id_safeArea,
 				Rectangle (bounds.x + safeAreaInsets.x,
 					bounds.y + safeAreaInsets.y,
