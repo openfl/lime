@@ -1283,6 +1283,24 @@ class HTML5Window
 	{
 		if (!parent.__resizable) return;
 
+		var attributes = parent.__attributes;
+		var newScale: Float = scale;
+		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
+		{
+			newScale = Browser.window.devicePixelRatio;
+		}
+		if (scale != newScale) {
+			scale = newScale;
+			parent.__scale = scale;
+			if (canvas != null)
+			{
+				canvas.width = Math.floor(parent.__width * scale);
+				canvas.height = Math.floor(parent.__height * scale);
+				canvas.style.width = parent.__width + "px";
+				canvas.style.height = parent.__height + "px";
+			}
+		}
+
 		var elementWidth, elementHeight;
 
 		if (parent.element != null)
