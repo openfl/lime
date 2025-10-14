@@ -12,6 +12,7 @@
 #include <app/ApplicationEvent.h>
 #include <graphics/format/JPEG.h>
 #include <graphics/format/PNG.h>
+#include <graphics/format/WEBP.h>
 #include <graphics/utils/ImageDataUtil.h>
 #include <graphics/Image.h>
 #include <graphics/ImageBuffer.h>
@@ -1882,6 +1883,17 @@ namespace lime {
 				#endif
 				break;
 
+			case 2:
+
+				#ifdef LIME_WEBP
+				if (WEBP::Encode (&imageBuffer, &data, quality)) {
+
+					return data.Value (bytes);
+
+				}
+				#endif
+				break;
+
 			default: break;
 
 		}
@@ -1917,6 +1929,17 @@ namespace lime {
 				#endif
 				break;
 
+			case 2:
+
+				#ifdef LIME_WEBP
+				if (WEBP::Encode (buffer, bytes, quality)) {
+
+					return bytes;
+
+				}
+				#endif
+				break;
+
 			default: break;
 
 		}
@@ -1935,6 +1958,14 @@ namespace lime {
 
 		bytes.Set (data);
 		resource = Resource (&bytes);
+
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, &imageBuffer)) {
+
+			return imageBuffer.Value (buffer);
+
+		}
+		#endif
 
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer)) {
@@ -1960,6 +1991,14 @@ namespace lime {
 	HL_PRIM ImageBuffer* HL_NAME(hl_image_load_bytes) (Bytes* data, ImageBuffer* buffer) {
 
 		Resource resource = Resource (data);
+
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+		#endif
 
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, buffer)) {
@@ -1987,6 +2026,14 @@ namespace lime {
 		Resource resource = Resource (val_string (data));
 		ImageBuffer imageBuffer = ImageBuffer (buffer);
 
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, &imageBuffer)) {
+
+			return imageBuffer.Value (buffer);
+
+		}
+		#endif
+
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, &imageBuffer)) {
 
@@ -2012,6 +2059,14 @@ namespace lime {
 
 		Resource resource = Resource (data);
 
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+		#endif
+
 		#ifdef LIME_PNG
 		if (PNG::Decode (&resource, buffer)) {
 
@@ -2032,6 +2087,77 @@ namespace lime {
 
 	}
 
+
+	value lime_webp_decode_bytes (value data, bool decodeData, value buffer) {
+
+		ImageBuffer imageBuffer (buffer);
+
+		Bytes bytes (data);
+		Resource resource = Resource (&bytes);
+
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, &imageBuffer, decodeData)) {
+
+			return imageBuffer.Value (buffer);
+
+		}
+		#endif
+
+		return alloc_null ();
+
+	}
+
+
+	HL_PRIM ImageBuffer* HL_NAME(hl_webp_decode_bytes) (Bytes* data, bool decodeData, ImageBuffer* buffer) {
+
+		Resource resource = Resource (data);
+
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, buffer, decodeData)) {
+
+			return buffer;
+
+		}
+		#endif
+
+		return 0;
+
+	}
+
+
+	value lime_webp_decode_file (HxString path, bool decodeData, value buffer) {
+
+		ImageBuffer imageBuffer (buffer);
+		Resource resource = Resource (hxs_utf8 (path, nullptr));
+
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, &imageBuffer, decodeData)) {
+
+			return imageBuffer.Value (buffer);
+
+		}
+		#endif
+
+		return alloc_null ();
+
+	}
+
+
+	HL_PRIM ImageBuffer* HL_NAME(hl_webp_decode_file) (hl_vstring* path, bool decodeData, ImageBuffer* buffer) {
+
+		Resource resource = Resource (path);
+
+		#ifdef LIME_WEBP
+		if (WEBP::Decode (&resource, buffer, decodeData)) {
+
+			return buffer;
+
+		}
+		#endif
+
+		return 0;
+
+	}
 
 	value lime_image_load (value data, value buffer) {
 
@@ -4117,6 +4243,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_orientation_event_manager_register);
 	DEFINE_PRIME3 (lime_png_decode_bytes);
 	DEFINE_PRIME3 (lime_png_decode_file);
+	DEFINE_PRIME3 (lime_webp_decode_bytes);
+	DEFINE_PRIME3 (lime_webp_decode_file);
 	DEFINE_PRIME2v (lime_render_event_manager_register);
 	DEFINE_PRIME2v (lime_sensor_event_manager_register);
 	DEFINE_PRIME0 (lime_system_get_allow_screen_timeout);
@@ -4311,6 +4439,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_orientation_event_manager_register, _FUN (_VOID, _NO_ARG) _TORIENTATION_EVENT);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_png_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_png_decode_file, _STRING _BOOL _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_webp_decode_bytes, _TBYTES _BOOL _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_TIMAGEBUFFER, hl_webp_decode_file,  _STRING _BOOL _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, hl_render_event_manager_register, _FUN (_VOID, _NO_ARG) _TRENDER_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_sensor_event_manager_register, _FUN (_VOID, _NO_ARG) _TSENSOR_EVENT);
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_allow_screen_timeout, _NO_ARG);

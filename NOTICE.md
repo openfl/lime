@@ -58,6 +58,10 @@ This product bundles libvorbis 1.3.3, which is available under a
 This product bundles zlib 1.2.8, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
 
+This product bundles libwebp 1.6.0, which is available under a
+BSD-3-Clause license. For details, see [project/lib/webp/](project/lib).
+
+
 -------
 
 Modifications and source-repository versions of Haxe core files are included in the
