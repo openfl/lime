@@ -84,5 +84,5 @@
 	shallow = true
 [submodule "project/lib/webp"]
 	path = project/lib/webp
-	url = https://chromium.googlesource.com/webm/libwebp
+	url = https://github.com/webmproject/libwebp
 	shallow = true
