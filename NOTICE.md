@@ -46,6 +46,9 @@ This product bundles pixman 0.32.8, which is available under an
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
+This product bundles libwebp 1.6.0, which is available under a
+BSD-3-Clause license. For details, see [project/lib/webp/](project/lib).
+
 This product bundles SDL 2.0.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
 
@@ -57,9 +60,6 @@ This product bundles libvorbis 1.3.3, which is available under a
 
 This product bundles zlib 1.2.8, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
-
-This product bundles libwebp 1.6.0, which is available under a
-BSD-3-Clause license. For details, see [project/lib/webp/](project/lib).
 
 
 -------
