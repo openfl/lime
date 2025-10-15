@@ -267,6 +267,23 @@
       <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
     </section>
 
+    <!-- iOS ARM64 -->
+    <section if="ios HXCPP_ARM64">
+      <compilerflag value="-msse2" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+    </section>
+
     <!-- ARM64 -->
     <section if="HXCPP_ARM64">
       <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_neon.c" />
