@@ -80,240 +80,120 @@
       <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_gamma.c" />
     </section>
 
-    <!-- Windows x86/x64: SSE2/SSE4.1 + AVX2 units -->
+    <!-- Windows x86/x64 -->
     <section if="windows">
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
+      <set name="LIME_WEBP_AVX" value="1" />
     </section>
 
     <!-- Linux x64 -->
     <section if="linux HXCPP_M64">
-      <compilerflag value="-msse2" />
-      <compilerflag value="-msse4.1" />
-      <compilerflag value="-mavx" />
-      <compilerflag value="-mavx2" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
+      <set name="LIME_WEBP_AVX" value="1" />
     </section>
 
     <!-- Linux x86 -->
     <section if="linux HXCPP_M32">
-      <compilerflag value="-msse2" />
-      <compilerflag value="-msse4.1" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
     </section>
 
     <!-- macOS x64 -->
     <section if="mac HXCPP_M64">
-      <compilerflag value="-msse2" />
-      <compilerflag value="-msse4.1" />
-      <compilerflag value="-mavx" />
-      <compilerflag value="-mavx2" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
+      <set name="LIME_WEBP_AVX" value="1" />
     </section>
 
     <!-- macOS x86 -->
     <section if="mac HXCPP_M32">
-      <compilerflag value="-msse2" />
-      <compilerflag value="-msse4.1" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
     </section>
 
     <!-- Android x64 -->
     <section if="android HXCPP_M64">
-      <compilerflag value="-msse2" />
-      <compilerflag value="-msse4.1" />
-      <compilerflag value="-mavx" />
-      <compilerflag value="-mavx2" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_avx2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
+      <set name="LIME_WEBP_AVX" value="1" />
     </section>
 
     <!-- Android x86 -->
     <section if="android HXCPP_M32">
-      <compilerflag value="-msse2" />
-      <compilerflag value="-msse4.1" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
     </section>
 
     <!-- iOS ARM64 -->
     <section if="ios HXCPP_ARM64">
-      <compilerflag value="-msse2" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      <set name="LIME_WEBP_SSE2" value="1" />
     </section>
 
     <!-- ARM64 -->
     <section if="HXCPP_ARM64">
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_neon.c" />
+      <set name="LIME_WEBP_NEON" value="1" />
     </section>
 
     <!-- ARMv7 -->
     <section if="HXCPP_ARMV7">
-      <compilerflag value="-mfpu=neon" if="android" />
-      <compilerflag value="-mfpu=neon" if="ios" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_neon.c" />
-      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_neon.c" />
+      <compilerflag value="-mfpu=neon" if="android || ios" />
+      <set name="LIME_WEBP_NEON" value="1" />
+    </section>
+
+    <section>
+      <!-- SSE2 -->
+      <section if="LIME_WEBP_SSE2">
+        <compilerflag value="-msse2" unless="windows" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+      </section>
+  
+      <!-- SSE4.1 -->
+      <section if="LIME_WEBP_SSE41">
+        <compilerflag value="-msse4.1" unless="windows" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
+      </section>
+  
+      <!-- AVX and AVX2 -->
+      <section if="LIME_WEBP_AVX">
+        <compilerflag value="-mavx" unless="windows" />
+        <compilerflag value="-mavx2" unless="windows" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_avx2.c" />
+      </section>
+  
+      <!-- Neon -->
+      <section if="LIME_WEBP_NEON">
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_neon.c" />
+        <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_neon.c" />
+      </section>
     </section>
   </files>
 </xml>
