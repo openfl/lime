@@ -15,8 +15,8 @@ extern "C" {
 
 namespace lime {
 
-	static inline int clampi (int v, int lo, int hi) {
-		return v < lo ? lo : (v > hi ? hi : v);
+	static inline int clampi (int value, int min, int max) {
+		return value < min ? min : (value > max ? max : value);
 	}
 
 	static bool LoadResourceToMemory (Resource* resource, Bytes*& owned, const uint8_t*& src, size_t& len) {
@@ -42,13 +42,13 @@ namespace lime {
 			const bool isWEBP = (sig[8]=='W' && sig[9]=='E' && sig[10]=='B' && sig[11]=='P');
 			if (!isRIFF || !isWEBP) return false;
 
-			Bytes* b = new Bytes ();
-			b->ReadFile (resource->path);
-			if (b->length <= 0) { delete b; return false; }
+			Bytes* bytes = new Bytes ();
+			bytes->ReadFile (resource->path);
+			if (bytes->length <= 0) { delete bytes; return false; }
 
-			owned = b;
-			src = reinterpret_cast<const uint8_t*>(b->b);
-			len = static_cast<size_t>(b->length);
+			owned = bytes;
+			src = reinterpret_cast<const uint8_t*>(bytes->b);
+			len = static_cast<size_t>(bytes->length);
 			return true;
 
 		} else if (resource->data) {
@@ -77,20 +77,20 @@ namespace lime {
 			return false;
 		}
 
-		int w = 0, h = 0;
-		if (!WebPGetInfo (src, len, &w, &h) || w <= 0 || h <= 0) {
+		int width = 0, height = 0;
+		if (!WebPGetInfo (src, len, &width, &height) || width <= 0 || height <= 0) {
 			if (owned) delete owned;
 			return false;
 		}
 
 		if (!decodeData) {
-			imageBuffer->width = w;
-			imageBuffer->height = h;
+			imageBuffer->width = width;
+			imageBuffer->height = height;
 			if (owned) delete owned;
 			return true;
 		}
 
-		imageBuffer->Resize (w, h, 32);
+		imageBuffer->Resize (width, height, 32);
 		unsigned char* dst = imageBuffer->data && imageBuffer->data->buffer
 			? imageBuffer->data->buffer->b : nullptr;
 		if (!dst) {
@@ -99,7 +99,7 @@ namespace lime {
 		}
 
 		const int stride = imageBuffer->Stride ();
-		const size_t dstSize = static_cast<size_t>(h) * static_cast<size_t>(stride);
+		const size_t dstSize = static_cast<size_t>(height) * static_cast<size_t>(stride);
 
 		uint8_t* ok = WebPDecodeRGBAInto (src, len, dst, dstSize, stride);
 		if (!ok) {
@@ -117,9 +117,9 @@ namespace lime {
 
 		if (!imageBuffer || !bytes) return false;
 
-		const int w = imageBuffer->width;
-		const int h = imageBuffer->height;
-		if (w <= 0 || h <= 0) return false;
+		const int width = imageBuffer->width;
+		const int height = imageBuffer->height;
+		if (width <= 0 || height <= 0) return false;
 
 		const int stride = imageBuffer->Stride ();
 		const uint8_t* src = imageBuffer->data && imageBuffer->data->buffer
@@ -128,8 +128,8 @@ namespace lime {
 
 
 		uint8_t* out = nullptr;
-		const float q = static_cast<float>(clampi (quality, 0, 100));
-		size_t out_size = WebPEncodeRGBA (src, w, h, stride, q, &out);
+		const float clampedQuality = static_cast<float>(clampi (quality, 0, 100));
+		size_t out_size = WebPEncodeRGBA (src, width, height, stride, clampedQuality, &out);
 
 		if (!out || out_size == 0) {
 			if (out) WebPFree (out);
