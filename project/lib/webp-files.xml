@@ -81,67 +81,47 @@
     </section>
 
     <!-- Windows x86/x64 -->
-    <section if="windows">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-      <set name="LIME_WEBP_AVX" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="windows" />
+    <set name="LIME_WEBP_SSE41" value="1" if="windows" />
+    <set name="LIME_WEBP_AVX" value="1" if="windows" />
 
     <!-- Linux x64 -->
-    <section if="linux HXCPP_M64">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-      <set name="LIME_WEBP_AVX" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="linux HXCPP_M64" />
+    <set name="LIME_WEBP_SSE41" value="1" if="linux HXCPP_M64" />
+    <set name="LIME_WEBP_AVX" value="1" if="linux HXCPP_M64" />
 
     <!-- Linux x86 -->
-    <section if="linux HXCPP_M32">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="linux HXCPP_M32" />
+    <set name="LIME_WEBP_SSE41" value="1" if="linux HXCPP_M32" />
 
     <!-- macOS x64 -->
-    <section if="mac HXCPP_M64">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-      <set name="LIME_WEBP_AVX" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="mac HXCPP_M64" />
+    <set name="LIME_WEBP_SSE41" value="1" if="mac HXCPP_M64" />
+    <set name="LIME_WEBP_AVX" value="1" if="mac HXCPP_M64" />
 
     <!-- macOS x86 -->
-    <section if="mac HXCPP_M32">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="mac HXCPP_M32" />
+    <set name="LIME_WEBP_SSE41" value="1" if="mac HXCPP_M32" />
 
     <!-- Android x64 -->
-    <section if="android HXCPP_M64">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-      <set name="LIME_WEBP_AVX" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="android HXCPP_M64" />
+    <set name="LIME_WEBP_SSE41" value="1" if="android HXCPP_M64" />
+    <set name="LIME_WEBP_AVX" value="1" if="android HXCPP_M64" />
 
     <!-- Android x86 -->
-    <section if="android HXCPP_M32">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="android HXCPP_M32" />
+    <set name="LIME_WEBP_SSE41" value="1" if="android HXCPP_M32" />
 
     <!-- iOS Simulator -->
-    <section if="ios HXCPP_M64">
-      <set name="LIME_WEBP_SSE2" value="1" />
-      <set name="LIME_WEBP_SSE41" value="1" />
-    </section>
+    <set name="LIME_WEBP_SSE2" value="1" if="ios HXCPP_M64" />
+    <set name="LIME_WEBP_SSE41" value="1" if="ios HXCPP_M64" />
 
     <!-- ARM64 -->
-    <section if="HXCPP_ARM64">
-      <set name="LIME_WEBP_NEON" value="1" />
-    </section>
+    <set name="LIME_WEBP_NEON" value="1" if="HXCPP_ARM64" />
 
     <!-- ARMv7 -->
-    <section if="HXCPP_ARMV7">
-      <compilerflag value="-mfpu=neon" if="android || ios" />
-      <set name="LIME_WEBP_NEON" value="1" />
-    </section>
+    <compilerflag value="-mfpu=neon" if="android HXCPP_ARMV7 || ios HXCPP_ARMV7" />
+    <set name="LIME_WEBP_NEON" value="1" if="HXCPP_ARMV7" />
 
     <section>
       <!-- SSE2 -->
