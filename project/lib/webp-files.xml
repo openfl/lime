@@ -126,9 +126,10 @@
       <set name="LIME_WEBP_SSE41" value="1" />
     </section>
 
-    <!-- iOS ARM64 -->
-    <section if="ios HXCPP_ARM64">
+    <!-- iOS Simulator -->
+    <section if="ios HXCPP_M64">
       <set name="LIME_WEBP_SSE2" value="1" />
+      <set name="LIME_WEBP_SSE41" value="1" />
     </section>
 
     <!-- ARM64 -->
