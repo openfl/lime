@@ -1,20 +1,5 @@
 <xml>
-
-  <!-- x86 32-bit (exclude ARMv7 just in case M32 is set there too) -->
-  <set name="HXCPP_X86_FAMILY" value="1" if="HXCPP_M32" unless="HXCPP_ARMV7" />
-  <!-- x86 64-bit (exclude any ARM) -->
-  <set name="HXCPP_X64_FAMILY" value="1" if="HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7" />
-
-  <!-- ARM family (ARMv7 + ARM64) -->
-  <set name="HXCPP_ARM_FAMILY" value="1" if="HXCPP_ARM64 || HXCPP_ARMV7" />
-
-  <!-- SIMD enables by CPU family -->
-  <set name="LIME_WEBP_NEON"  value="1" if="HXCPP_ARM_FAMILY" />
-  <set name="LIME_WEBP_SSE2"  value="1" if="HXCPP_X86_FAMILY || HXCPP_X64_FAMILY" />
-  <set name="LIME_WEBP_SSE41" value="1" if="HXCPP_X86_FAMILY || HXCPP_X64_FAMILY" />
-  <set name="LIME_WEBP_AVX2"  value="1" if="HXCPP_X64_FAMILY" />
-
-
+  
   <files id="native-toolkit-webp">
 
     <section>
@@ -99,8 +84,8 @@
     </section>
 
 
-    <section if="LIME_WEBP_SSE2">
-      <compilerflag value="-msse2" unless="MSVC" />
+    <section if="HXCPP_M32 || HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-msse2" if="GCC || CLANG" />
       <compilerflag value="/arch:SSE2" if="MSVC HXCPP_M32" />
 
       <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
@@ -118,8 +103,8 @@
     </section>
 
 
-    <section if="LIME_WEBP_SSE41">
-      <compilerflag value="-msse4.1" unless="MSVC" />
+    <section if="HXCPP_M32 || HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-msse4.1" if="GCC || CLANG" />
 
       <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
       <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
@@ -131,9 +116,11 @@
     </section>
 
 
-    <section if="LIME_WEBP_AVX2">
-      <compilerflag value="-mavx"  unless="MSVC" />
-      <compilerflag value="-mavx2" unless="MSVC" />
+    <!-- Enable AVX2 on x86 32-bit *only because* we can’t cleanly disable it (webp/src/dsp/cpu.h redefines WEBP_HAVE_AVX2);
+     without these TUs we hit LNK2019. Runtime CPUID guards execution on non-AVX2 CPUs. -->
+    <section if="HXCPP_M32 || HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-mavx"  if="GCC || CLANG" />
+      <compilerflag value="-mavx2" if="GCC || CLANG" />
       <compilerflag value="/arch:AVX2" if="MSVC" />
 
       <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
@@ -141,7 +128,7 @@
     </section>
 
 
-    <section if="LIME_WEBP_NEON">
+    <section if="HXCPP_ARM64 || HXCPP_ARMV7">
       <compilerflag value="-mfpu=neon" if="android HXCPP_ARMV7" />
 
       <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_neon.c" />
