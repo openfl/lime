@@ -24,10 +24,19 @@ class Gamepad
 	public var onButtonUp = new Event<GamepadButton->Void>();
 	public var onDisconnect = new Event<Void->Void>();
 
+	#if (js && html5)
+	private var __jsGamepad:js.html.Gamepad;
+	#end
+
 	public function new(id:Int)
 	{
 		this.id = id;
 		connected = true;
+
+		#if (js && html5)
+		var devices = Joystick.__getDeviceData();
+		__jsGamepad = devices[this.id];
+		#end
 	}
 
 	public static function addMappings(mappings:Array<String>):Void
@@ -40,6 +49,41 @@ class Gamepad
 		var mappings = _mappings;
 		#end
 		NativeCFFI.lime_gamepad_add_mappings(mappings);
+		#end
+	}
+
+	/**
+		@param	lowFrequencyRumble	The intensity of the low frequency (strong)
+		rumble motor, from 0 to 1.
+		@param	highFrequencyRumble	The intensity of the high frequency (weak)
+		rumble motor, from 0 to 1. Will be ignored in situations where only one
+		motor is available.
+		@param	duration	The duration of the rumble effect, in milliseconds.
+	**/
+	public inline function rumble(lowFrequencyRumble:Float, highFrequencyRumble:Float, duration:Int):Void
+	{
+		#if (lime_cffi && !macro)
+		NativeCFFI.lime_gamepad_rumble(this.id, lowFrequencyRumble, highFrequencyRumble, duration);
+		#elseif (js && html5)
+		var actuator:Dynamic = (untyped __jsGamepad.vibrationActuator) ? untyped __jsGamepad.vibrationActuator
+			: (untyped __jsGamepad.hapticActuators) ? untyped __jsGamepad.hapticActuators[0]
+			: null;
+		if (actuator == null) return;
+
+		if (untyped actuator.playEffect)
+		{
+			untyped actuator.playEffect("dual-rumble", {
+				duration: duration,
+				strongMagnitude: lowFrequencyRumble,
+				weakMagnitude: highFrequencyRumble
+			});
+		}
+		else if (untyped actuator.pulse)
+		{
+			untyped actuator.pulse(lowFrequencyRumble, duration);
+		}
+		#else
+		return;
 		#end
 	}
 
@@ -67,8 +111,7 @@ class Gamepad
 		#if (lime_cffi && !macro)
 		return CFFI.stringValue(NativeCFFI.lime_gamepad_get_device_guid(this.id));
 		#elseif (js && html5)
-		var devices = Joystick.__getDeviceData();
-		return devices[this.id].id;
+		return __jsGamepad.id;
 		#else
 		return null;
 		#end
@@ -79,8 +122,7 @@ class Gamepad
 		#if (lime_cffi && !macro)
 		return CFFI.stringValue(NativeCFFI.lime_gamepad_get_device_name(this.id));
 		#elseif (js && html5)
-		var devices = Joystick.__getDeviceData();
-		return devices[this.id].id;
+		return __jsGamepad.id;
 		#else
 		return null;
 		#end

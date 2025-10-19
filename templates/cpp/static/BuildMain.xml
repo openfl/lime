@@ -2,6 +2,10 @@
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 
+	<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" noerror="true" />
+	<set name="HAS_HXCPP_MBEDTLS_FILES" value="1" if="MBEDTLS_DIR" />
+	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" unless="HAS_HXCPP_MBEDTLS_FILES" />
+
 	<files id="main">
 
 		<file name="Main.cpp" />
@@ -11,6 +15,8 @@
 	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
 
 		<files id="main" />
+		<files id="mbedtls" if="HAS_HXCPP_MBEDTLS_FILES" />
+		<files id="hxcpp_ssl" unless="HAS_HXCPP_MBEDTLS_FILES" />
 		::foreach ndlls::
 		<lib name="::path::" />::end::
 
@@ -35,6 +41,7 @@
 			<lib name="rpcrt4.lib" />
 			<lib name="dwrite.lib" />
 			<lib name="setupapi.lib" />
+			<lib name="crypt32.lib" />
 
 		</section>
 
