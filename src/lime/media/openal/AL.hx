@@ -974,7 +974,7 @@ class AL
 
 	public static function getSourcedvSOFT(source:ALSource, param:Int, count:Int = 1):Array<Float>
 	{
-		#if (lime_cffi && lime_openal && !macro)
+		#if (lime_cffi && lime_openalsoft && !macro)
 		var result = NativeCFFI.lime_al_get_sourcedv_soft(source, param, count);
 		#if hl
 		if (result == null) return [];
