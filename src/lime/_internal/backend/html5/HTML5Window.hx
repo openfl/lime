@@ -1283,6 +1283,11 @@ class HTML5Window
 	{
 		if (!parent.__resizable) return;
 
+		if (canvas != null) {
+			canvas.style.setProperty("outline", "none", null);
+		}
+
+
 		var attributes = parent.__attributes;
 		var newScale: Float = scale;
 		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
