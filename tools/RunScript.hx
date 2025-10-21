@@ -127,19 +127,11 @@ class RunScript
 	{
 		var args = Sys.args();
 
-		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
-		var toolsDirectory = Path.combine(limeDirectory, "tools");
+		var cacheDirectory = Sys.getCwd();
 
-		if (!FileSystem.exists(toolsDirectory))
-		{
-			limeDirectory = Path.combine(limeDirectory, "..");
-			toolsDirectory = Path.combine(limeDirectory, "tools");
-		}
-
-		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
+		if (args.length > 0)
 		{
 			var lastArgument = new Path(args[args.length - 1]).toString();
-			var cacheDirectory = Sys.getCwd();
 
 			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\"))
 				&& !StringTools.endsWith(lastArgument, ":\\"))
@@ -153,6 +145,19 @@ class RunScript
 			}
 
 			Haxelib.workingDirectory = Sys.getCwd();
+		}
+
+		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
+		var toolsDirectory = Path.combine(limeDirectory, "tools");
+
+		if (!FileSystem.exists(toolsDirectory))
+		{
+			limeDirectory = Path.combine(limeDirectory, "..");
+			toolsDirectory = Path.combine(limeDirectory, "tools");
+		}
+
+		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
+		{
 			var rebuildBinaries = true;
 
 			for (arg in args)
