@@ -212,11 +212,10 @@ class RunScript
 				+ "` using Eval (https://haxe.org/blog/eval/)");
 
 			var args = [
-				"--cwd", limeDirectory,
 				"-D", "lime",
 				"-cp", toolsDirectory,
 				"-cp", Path.combine(toolsDirectory, "platforms"),
-				"-cp", "src",
+				"-cp", Path.combine(limeDirectory, "src"),
 				"-lib", "format",
 				"-lib", "hxp",
 				"--run", "CommandLineTools"].concat(args);
