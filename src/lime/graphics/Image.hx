@@ -1483,6 +1483,11 @@ class Image
 		__fromBase64(Base64.encode(bytes), type, onload);
 		return true;
 		#elseif (lime_cffi && !macro)
+		if (bytes == null || bytes.length == 0)
+		{
+			return false;
+		}
+
 		var imageBuffer:ImageBuffer = null;
 
 		#if !cs
@@ -1589,7 +1594,6 @@ class Image
 
 				var data = new UInt8Array(Bytes.ofData(data.getData()));
 				var length = header.width * header.height;
-				var b, g, r, a;
 
 				for (i in 0...length)
 				{

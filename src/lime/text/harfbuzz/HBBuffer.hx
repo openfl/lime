@@ -36,6 +36,13 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 		#end
 	}
 
+	public function addString(text:String, itemOffset:Int, itemLength:Int):Void
+	{
+		#if (lime_cffi && lime_harfbuzz && !macro)
+		NativeCFFI.lime_hb_buffer_add_hxstring(this, text, itemOffset, itemLength);
+		#end
+	}
+
 	public function addCodepoints(text:DataPointer, textLength:Int, itemOffset:Int, itemLength:Int):Void
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)

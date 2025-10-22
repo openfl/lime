@@ -1,6 +1,12 @@
 <xml>
 
+    <section if="android LIME_OPENALSOFT">
+        <error value="NDK version 20 or higher is required." unless="NDKV20+" />
+    </section>
+
     <files id="native-toolkit-openal">
+
+        <compilerflag value="-std=c++11" if="android" />
 
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/openal/" />
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/openal/alc/" />
@@ -155,7 +161,6 @@
 
         <section if="android">
 
-            <error value="NDK version 20 or higher is required." unless="NDKV20+" />
             <compilerflag value="-fsigned-char" />
 
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/opensl.cpp" />

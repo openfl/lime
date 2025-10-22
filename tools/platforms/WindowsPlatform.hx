@@ -146,6 +146,19 @@ class WindowsPlatform extends PlatformTarget
 		{
 			targetType = "hl";
 			is64 = !project.flags.exists("32") && !project.flags.exists("x86_32");
+			var hlVer = project.haxedefs.get("hl-ver");
+			if (hlVer == null)
+			{
+				var hlPath = project.defines.get("HL_PATH");
+				if (hlPath == null)
+				{
+					// Haxe's default target version for HashLink may be
+					// different (newer even) than the build of HashLink that
+					// is bundled with Lime. if using Lime's bundled HashLink,
+					// set hl-ver to the correct version
+					project.haxedefs.set("hl-ver", HashlinkHelper.BUNDLED_HL_VER);
+				}
+			}
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -489,8 +502,8 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "winrt")
 			{
-				var haxeArgs = [hxml];
-				var flags = [];
+				var haxeArgs:Array<String> = [hxml];
+				var flags:Array<String> = [];
 
 				haxeArgs.push("-D");
 				haxeArgs.push("winrt");
@@ -762,7 +775,7 @@ class WindowsPlatform extends PlatformTarget
 
 			// }
 
-			var commands = [];
+			var commands:Array<Array<String>> = [];
 			if (targetType == "hl")
 			{
 				// default to 64 bit, just like upstream Hashlink releases
@@ -1065,7 +1078,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 		}
 
-		var fontPath;
+		var fontPath:String;
 
 		for (asset in project.assets)
 		{
@@ -1209,7 +1222,7 @@ class WindowsPlatform extends PlatformTarget
 			"source/uwp-project.jsproj",
 			"source/uwp-project_TemporaryKey.pfx"
 		];
-		var fullPath;
+		var fullPath:String;
 
 		for (path in renamePaths)
 		{

@@ -65,11 +65,11 @@ class PlatformTargetMain
 			}
 		}
 
-		var additionalArguments = [];
+		var additionalArguments:Array<String> = [];
 		var catchArguments = false;
 		var className = "";
 		var command = "";
-		var words = [];
+		var words:Array<String> = [];
 
 		for (argument in arguments)
 		{

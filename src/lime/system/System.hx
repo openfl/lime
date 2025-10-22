@@ -376,6 +376,7 @@ class System
 
 			display.supportedModes = [display.currentMode];
 			display.bounds = new Rectangle(0, 0, display.currentMode.width, display.currentMode.height);
+			display.safeArea = new Rectangle(0, 0, display.currentMode.width, display.currentMode.height);
 			return display;
 		}
 		#end
@@ -415,7 +416,7 @@ class System
 	#end
 
 	/**
-		Opens a file with the suste, default application.
+		Opens a file with the system default application.
 
 		In a web browser, opens a URL with target `_blank`.
 	**/

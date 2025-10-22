@@ -2,6 +2,14 @@ package lime.ui;
 
 import lime._internal.backend.native.NativeCFFI;
 
+/**
+	May be used to identify the scan code associated with the `KeyCode` passed
+	to keyboard event listeners.
+
+	@see `lime.ui.Window.onKeyDown`
+	@see `lime.ui.Window.onKeyUp`
+	@see `lime.ui.KeyCode`
+**/
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.ui.KeyCode)
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract ScanCode(Int) from Int to Int from UInt to UInt

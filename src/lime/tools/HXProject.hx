@@ -544,7 +544,7 @@ class HXProject extends Script
 		}
 
 		var files = ["include.lime", "include.nmml", "include.xml", "include.hxp"];
-		var projectFile = null;
+		var projectFile:String = null;
 
 		for (file in files)
 		{
@@ -555,7 +555,7 @@ class HXProject extends Script
 			}
 		}
 
-		var project = null;
+		var project:HXProject = null;
 
 		if (projectFile != null)
 		{
@@ -1220,7 +1220,7 @@ class HXProject extends Script
 		// Reflect.setField (context, "sslCaCert", sslCaCert);
 		context.sslCaCert = "";
 
-		var compilerFlags = [];
+		var compilerFlags:Array<String> = [];
 
 		for (haxelib in haxelibs)
 		{
@@ -1271,7 +1271,7 @@ class HXProject extends Script
 				Log.verbose = cache;
 
 				var split = output != null ? output.split("\n") : [];
-				var haxelibName = null;
+				var haxelibName:String = null;
 
 				for (arg in split)
 				{

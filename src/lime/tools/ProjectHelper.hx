@@ -80,13 +80,13 @@ class ProjectHelper
 	public static function recursiveSmartCopyTemplate(project:HXProject, source:String, destination:String, context:Dynamic = null, process:Bool = true,
 			warnIfNotFound:Bool = true)
 	{
-		var destinations = [];
+		var destinations:Array<String> = [];
 		var paths = System.findTemplateRecursive(project.templatePaths, source, warnIfNotFound, destinations);
 
 		if (paths != null)
 		{
 			System.mkdir(destination);
-			var itemDestination;
+			var itemDestination:String;
 
 			for (i in 0...paths.length)
 			{
@@ -120,7 +120,8 @@ class ProjectHelper
 		else
 		{
 			var substring = StringTools.replace(string, " ", "");
-			var index, value;
+			var index:Int;
+			var value:String;
 
 			if (substring.indexOf("==") > -1)
 			{

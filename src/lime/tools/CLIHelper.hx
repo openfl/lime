@@ -51,7 +51,7 @@ class CLIHelper
 		if (passwd)
 		{
 			var s = new StringBuf();
-			var c;
+			var c:Int;
 			while ((c = getChar()) != 13)
 				s.addChar(c);
 

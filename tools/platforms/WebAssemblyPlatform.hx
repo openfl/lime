@@ -101,7 +101,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 	public override function build():Void
 	{
-		var sdkPath = null;
+		var sdkPath:String = null;
 
 		if (project.defines.exists("EMSCRIPTEN_SDK"))
 		{

@@ -482,7 +482,8 @@ class HTML5Window
 	private function handleCutOrCopyEvent(event:ClipboardEvent):Void
 	{
 		var text = Clipboard.text;
-		if (text == null) {
+		if (text == null)
+		{
 			text = "";
 		}
 		event.clipboardData.setData("text/plain", text);
@@ -705,7 +706,6 @@ class HTML5Window
 					}
 
 				case "mouseup":
-
 					// see comment below for mousemove for an explanation of
 					// what the __stopMousePropagation flag is used for.
 					if (__stopMousePropagation && event.currentTarget != parent.element)
@@ -729,7 +729,6 @@ class HTML5Window
 					}
 
 				case "mousemove":
-
 					// this same listener is added to the parent element and to
 					// the browser window for both the mousemove and the mouseup
 					// event types, if mousedown happens first. this allows both
@@ -866,7 +865,11 @@ class HTML5Window
 			}
 		}
 
-		var touch, x, y, cacheX, cacheY;
+		var touch:Touch;
+		var x:Float;
+		var y:Float;
+		var cacheX:Float;
+		var cacheY:Float;
 
 		for (data in event.changedTouches)
 		{
@@ -1300,7 +1303,6 @@ class HTML5Window
 				textInput.removeEventListener('paste', handlePasteEvent, true);
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
-
 			}
 		}
 
@@ -1349,7 +1351,8 @@ class HTML5Window
 	{
 		if (!parent.__resizable) return;
 
-		var elementWidth, elementHeight;
+		var elementWidth:Float;
+		var elementHeight:Float;
 
 		if (parent.element != null)
 		{
@@ -1375,8 +1378,8 @@ class HTML5Window
 				{
 					if (parent.__width != elementWidth || parent.__height != elementHeight)
 					{
-						parent.__width = elementWidth;
-						parent.__height = elementHeight;
+						parent.__width = Std.int(elementWidth);
+						parent.__height = Std.int(elementHeight);
 
 						if (canvas != null)
 						{
@@ -1395,7 +1398,7 @@ class HTML5Window
 							div.style.height = elementHeight + "px";
 						}
 
-						parent.onResize.dispatch(elementWidth, elementHeight);
+						parent.onResize.dispatch(Std.int(elementWidth), Std.int(elementHeight));
 					}
 				}
 				else
