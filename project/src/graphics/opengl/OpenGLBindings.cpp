@@ -1704,7 +1704,7 @@ namespace lime {
 		GLsizei maxLength = 0;
 		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
 
-		char buffer[maxLength];
+		char* buffer = (char*)malloc (maxLength);
 		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum type = 0;
@@ -1714,6 +1714,8 @@ namespace lime {
 		char* _buffer = (char*)malloc (outLen + 1);
 		memcpy (_buffer, &buffer, outLen);
 		_buffer[outLen] = '\0';
+
+		free (buffer);
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
