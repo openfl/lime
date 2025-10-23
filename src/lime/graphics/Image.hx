@@ -176,6 +176,18 @@ class Image
 	**/
 	public var width:Int;
 
+	#if (js && html5)
+	/**
+		Whether this image should be rendered on the CPU. This is slower, but speeds up operations
+		like `copyPixels()` that read from the image. Always set this value immediately after
+		constructing the image, before calling `ImageCanvasUtil.convertToCanvas()`.
+
+		To use this with `openfl.display.BitmapData`, create an instance with `fillColor` set to 0,
+		then immediately set `bitmapData.image.willReadFrequently = true`.
+	**/
+	@:noCompletion public var willReadFrequently:Bool = false;
+	#end
+
 	/**
 		A convenience property, unused internally, which may be helpful for different renderer
 		implementations
