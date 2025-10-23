@@ -11,6 +11,7 @@ import lime.tools.HXProject;
 import lime.utils.AssetManifest;
 #end
 import sys.io.File;
+import sys.io.Process;
 import sys.FileSystem;
 #if (haxe_ver >= 4)
 import haxe.xml.Access;
@@ -1864,6 +1865,22 @@ class ProjectXMLParser extends HXProject
 
 				case "config":
 					config.parse(element, substitute);
+
+				case "execute":
+					var process:Process = new Process(element.att.command);
+					var exitCode:Int = process.exitCode(true);
+
+					if (element.has.output)
+					{
+						defines.set(element.att.output, process.stdout.readAll().toString());
+					}
+
+					if (element.has.exitCode)
+					{
+						defines.set(element.att.exitCode, Std.string(exitCode));
+					}
+
+					process.close();
 
 				case "prebuild":
 					parseCommandElement(element, preBuildCallbacks);
