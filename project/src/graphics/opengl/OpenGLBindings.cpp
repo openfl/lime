@@ -1678,12 +1678,15 @@ namespace lime {
 
 		value result = alloc_empty_object ();
 
-		std::string buffer (GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, 0);
+		GLsizei maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+
+		std::string buffer (maxLength, 0);
 		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum type = 0;
 
-		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (program, index, maxLength, &outLen, &size, &type, &buffer[0]);
 
 		buffer.resize (outLen);
 
@@ -1698,12 +1701,15 @@ namespace lime {
 
 	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_attrib) (int program, int index) {
 
-		char buffer[GL_ACTIVE_ATTRIBUTE_MAX_LENGTH];
+		GLsizei maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+
+		char buffer[maxLength];
 		GLsizei outLen = 0;
 		GLsizei size = 0;
 		GLenum type = 0;
 
-		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (program, index, maxLength, &outLen, &size, &type, &buffer[0]);
 
 		char* _buffer = (char*)malloc (outLen + 1);
 		memcpy (_buffer, &buffer, outLen);
