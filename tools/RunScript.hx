@@ -127,8 +127,6 @@ class RunScript
 	{
 		var args = Sys.args();
 
-		var cacheDirectory = Sys.getCwd();
-
 		if (args.length > 0)
 		{
 			var lastArgument = new Path(args[args.length - 1]).toString();
@@ -141,10 +139,8 @@ class RunScript
 
 			if (FileSystem.exists(lastArgument) && FileSystem.isDirectory(lastArgument))
 			{
-				Sys.setCwd(lastArgument);
+				Haxelib.workingDirectory = lastArgument;
 			}
-
-			Haxelib.workingDirectory = Sys.getCwd();
 		}
 
 		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
@@ -158,6 +154,10 @@ class RunScript
 
 		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
 		{
+			var cacheDirectory = Sys.getCwd();
+			// used for Path.tryFullPath when setting overrides
+			Sys.setCwd(Haxelib.workingDirectory);
+
 			var rebuildBinaries = true;
 
 			for (arg in args)
