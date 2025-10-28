@@ -1283,10 +1283,6 @@ class HTML5Window
 	{
 		if (!parent.__resizable) return;
 
-		if (canvas != null) {
-			canvas.style.setProperty("outline", "none", null);
-		}
-
 
 		var attributes = parent.__attributes;
 		var newScale: Float = scale;
@@ -1306,7 +1302,8 @@ class HTML5Window
 			}
 		}
 
-		var elementWidth, elementHeight;
+		var elementWidth:Float;
+		var elementHeight:Float;
 
 		if (parent.element != null)
 		{
