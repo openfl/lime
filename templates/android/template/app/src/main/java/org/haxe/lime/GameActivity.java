@@ -12,11 +12,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.view.DisplayCutout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
+import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.Manifest;
 import org.haxe.extension.Extension;
@@ -33,9 +37,23 @@ public class GameActivity extends SDLActivity {
 	private static AssetManager assetManager;
 	private static List<Extension> extensions;
 	private static DisplayMetrics metrics;
+	private static DisplayCutout displayCutout;
 	private static Vibrator vibrator;
+	private static OrientationEventListener orientationListener;
+	private static HaxeObject deviceOrientationListener;
+	private static int deviceOrientation = SDL_ORIENTATION_UNKNOWN;
 
 	public Handler handler;
+
+	public static void setDeviceOrientationListener (HaxeObject object) {
+
+		deviceOrientationListener = object;
+		if (deviceOrientationListener != null)
+		{
+			deviceOrientationListener.call1("onOrientationChanged", deviceOrientation);
+		}
+
+	}
 
 	public static double getDisplayXDPI () {
 
@@ -46,6 +64,37 @@ public class GameActivity extends SDLActivity {
 		}
 
 		return metrics.xdpi;
+
+	}
+
+	public static int[] getDisplaySafeAreaInsets () {
+
+		if (displayCutout == null) {
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+
+				WindowInsets windowInsets = ((GameActivity)Extension.mainContext).getWindow().getDecorView().getRootWindowInsets();
+
+				if (windowInsets != null) {
+
+					displayCutout = windowInsets.getDisplayCutout();
+
+				}
+			}
+		}
+
+		int[] result = {0, 0, 0, 0};
+
+		if (displayCutout != null) {
+
+			result[0] = displayCutout.getSafeInsetLeft();
+			result[1] = displayCutout.getSafeInsetTop();
+			result[2] = displayCutout.getSafeInsetRight();
+			result[3] = displayCutout.getSafeInsetBottom();
+
+		}
+
+		return result;
 
 	}
 
@@ -112,6 +161,40 @@ public class GameActivity extends SDLActivity {
 
 		super.onCreate (state);
 
+		orientationListener = new OrientationEventListener(this) {
+
+			public void onOrientationChanged(int degrees) {
+
+				int orientation = SDL_ORIENTATION_UNKNOWN;
+				if (degrees >= 315 || (degrees >= 0 && degrees < 45))
+				{
+					orientation = SDL_ORIENTATION_PORTRAIT;
+				}
+				else if	(degrees >= 45 && degrees < 135)
+				{
+					orientation = SDL_ORIENTATION_LANDSCAPE_FLIPPED;
+				}
+				else if	(degrees >= 135 && degrees < 225)
+				{
+					orientation = SDL_ORIENTATION_PORTRAIT_FLIPPED;
+				}
+				else if	(degrees >= 225 && degrees < 315)
+				{
+					orientation = SDL_ORIENTATION_LANDSCAPE;
+				}
+
+				if (deviceOrientation != orientation) {
+					deviceOrientation = orientation;
+					if (deviceOrientationListener != null)
+					{
+						deviceOrientationListener.call1("onOrientationChanged", deviceOrientation);
+					}
+				}
+
+			}
+
+		};
+
 		assetManager = getAssets ();
 
 		if (checkSelfPermission(Manifest.permission.VIBRATE) == PackageManager.PERMISSION_GRANTED) {
@@ -128,6 +211,34 @@ public class GameActivity extends SDLActivity {
 		Extension.mainContext = this;
 		Extension.mainView = mLayout;
 		Extension.packageName = getApplicationContext ().getPackageName ();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+
+			switch ("::ANDROID_DISPLAY_CUTOUT::") {
+
+				case "always":
+					getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+					break;
+
+				case "never":
+					getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+					break;
+
+				case "shortEdges":
+					getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+					break;
+
+				case "default":
+					getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
+					break;
+
+				default:
+					getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
+					break;
+
+			}
+
+		}
 
 		if (extensions == null) {
 
@@ -193,6 +304,8 @@ public class GameActivity extends SDLActivity {
 
 		}
 
+		orientationListener.disable();
+
 		super.onPause ();
 
 		for (Extension extension : extensions) {
@@ -239,6 +352,8 @@ public class GameActivity extends SDLActivity {
 	@Override protected void onResume () {
 
 		super.onResume ();
+
+		orientationListener.enable();
 
 		for (Extension extension : extensions) {
 

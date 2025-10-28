@@ -70,7 +70,7 @@ class ConfigHelper
 				{
 					System.mkdir(Path.directory(configPath));
 
-					var hxcppConfig = null;
+					var hxcppConfig:String = null;
 
 					if (environment.exists("HXCPP_CONFIG"))
 					{

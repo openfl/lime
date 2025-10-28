@@ -504,9 +504,9 @@ class PlatformSetup
 
 				if (volumePath != "" && FileSystem.exists(volumePath))
 				{
-					var apps = [];
-					var packages = [];
-					var executables = [];
+					var apps:Array<String> = [];
+					var packages:Array<String> = [];
+					var executables:Array<String> = [];
 
 					var files:Array<String> = FileSystem.readDirectory(volumePath);
 
@@ -1083,7 +1083,7 @@ class PlatformSetup
 		}
 
 		var haxePath = Sys.getEnv("HAXEPATH");
-		var project = null;
+		var project:HXProject = null;
 
 		try
 		{

@@ -25,7 +25,7 @@ namespace lime {
 
 	SDLApplication::SDLApplication () {
 
-		Uint32 initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
+		initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
 		#if defined(LIME_MOJOAL) || defined(LIME_OPENALSOFT)
 		initFlags |= SDL_INIT_AUDIO;
 		#endif
@@ -53,6 +53,7 @@ namespace lime {
 		JoystickEvent joystickEvent;
 		KeyEvent keyEvent;
 		MouseEvent mouseEvent;
+		OrientationEvent orientationEvent;
 		RenderEvent renderEvent;
 		SensorEvent sensorEvent;
 		TextEvent textEvent;
@@ -181,6 +182,25 @@ namespace lime {
 			case SDL_CONTROLLERDEVICEREMOVED:
 
 				ProcessGamepadEvent (event);
+				break;
+
+			case SDL_DISPLAYEVENT:
+
+				switch (event->display.event) {
+
+					case SDL_DISPLAYEVENT_ORIENTATION:
+
+						// this is the orientation of what is rendered, which
+						// may not exactly match the orientation of the device,
+						// if the app was locked to portrait or landscape.
+						orientationEvent.type = DISPLAY_ORIENTATION_CHANGE;
+						orientationEvent.orientation = event->display.data1;
+						orientationEvent.display = event->display.display;
+						OrientationEvent::Dispatch (&orientationEvent);
+
+						break;
+
+				}
 				break;
 
 			case SDL_DROPFILE:
@@ -793,6 +813,8 @@ namespace lime {
 
 		applicationEvent.type = EXIT;
 		ApplicationEvent::Dispatch (&applicationEvent);
+
+		SDL_QuitSubSystem (initFlags);
 
 		SDL_Quit ();
 

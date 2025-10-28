@@ -11,6 +11,8 @@ import hxp.System;
 
 class HashlinkHelper
 {
+	public static inline var BUNDLED_HL_VER = "1.14.0";
+
 	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true)
 	{
 		var platform = project.target;

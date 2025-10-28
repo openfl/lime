@@ -223,7 +223,10 @@ class ImageCanvasUtil
 	{
 		convertToCanvas(image);
 
-		var r, g, b, a;
+		var r:Int;
+		var g:Int;
+		var b:Int;
+		var a:Int;
 
 		if (format == ARGB32)
 		{

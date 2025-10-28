@@ -1,6 +1,55 @@
 Changelog
 =========
 
+8.2.3 (10/01/2025)
+------------------
+
+* Fixed JPEG rendering on 32-bit platforms.
+* Fixed application hang in `FileDialog` on Windows by forcing `SINGLE_THREADED` flag.
+* Fixed iOS device installation on versions older than iOS 16.
+* Fixed how iOS 16 and newer devices are selected for testing to support more available devices.
+* Fixed ability to specify the version of a Haxelib when using a local _.haxelib_ repository.
+* Fixed exception when initializing vibration on Android and permission was disabled.
+* Fixed parent directory incorrectly opened in `FileDialog` if the default path is a directory.
+* Fixed Unicode system path conversions on Linux.
+* Fixed `password`, `alias`, and `aliasPassword` being assigned incorrectly in Lime tools.
+* Fixed crash in `AudioManager` when `alc.openDevice()` returns `null`.
+* Fixed references to certain types for stricter rules in Haxe 5.
+* Fixed `FFECT_AUTOWAH` typo by adding correct `EFFECT_AUTOWAH` value.
+* Fixed exception in `HTML5HTTPRequest` in some environments when `request.upload` is `null`.
+* Fixed `EXC_BAD_ACCESS` when decoding PNGs and the bytes are `null` or length is `0`.
+* Fixed iOS app sometimes running in iPhone simulator when `<config:ios device="ipad"/>` is specified.
+* Fixed iOS app sometimes not starting in simulator by recognizing more valid simulator IDs.
+* Fixed incorrect request for confirmation when `-alias` or `-cli` flags are specified.
+* Fixed conversions between key codes and scan codes in both directions.
+* Fixed memory leak in cURL bindings from header values not getting freed.
+* Added `CURLOPT_ACCEPT_ENCODING` option for native HTTP requests.
+* Fixed missing macos define when using cpp target on macOS.
+* Fixed compatibility with Haxe 3 in `HTML5Thread` and Lime tools.
+* Fixed failed static build linking on Windows caused by missing _.lib_ file.
+* Fixed failed static builds caused by conflicts between hxcpp's and Lime's mbedtls versions.
+* Fixed missing UTF-8 conversion in `hb_buffer_add_utf8`.
+* Fixed `Font.getGlyphs()` returning an array of zeroes on HashLink.
+* Fixed `Font.getGlyphs()` getting stuck in an infinite loop on encountering an invalid character.
+* Fixed `System.getDirectory()` UTF-16 encoding.
+* Fixed error not getting displayed when NDK 20 or newer is required for Android.
+* Fixed OpenAL Soft build on Android by adding `-std=c++11` option.
+* Fixed deprecation warning on Android caused by using deprecated no-arg constructor in `android.os.Handler`.
+* Fixed unnecessary `untyped __js__` in `ImageCanvasUtil` because externs are now available.
+* Fixed crashes when SDL functions return `NULL` on some targets.
+* Fixed `Timer.stop()` performing redundant iterations.
+* Added `-cli`, `-alias`, and `-noalias` flags to usage instructions.
+* Added instructions to use `lime config remove HL_PATH` to clear a custom HashLink version.
+* Changed `non-exempt-encryption` default for iOS from `true` to `false`.
+* Removed usage of legacy `MAC_USE_CURRENT_SDK` define in Lime tools when targeting macOS.
+* Updated Cairo submodule to version 1.18.2 from a snapshot release.
+* Updated HarfBuzz submodule to version 10.2.0.
+* Updated cURL submodule to version 7.87.0.
+* Updated zlib submodule to version 1.2.13.
+* Updated png submodule to version 1.6.46.
+* Updated efsw submodule to version 1.4.1.
+* Updated tinyfiledialogs submodule to version 3.19.1 and fix compatibility with zenity.
+
 8.2.2 (12/19/2024)
 ------------------
 

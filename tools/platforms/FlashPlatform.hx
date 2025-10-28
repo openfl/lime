@@ -103,16 +103,6 @@ class FlashPlatform extends PlatformTarget
 		System.runCommand("", "haxe", [targetDirectory + "/haxe/" + buildType + ".hxml"]);
 	}
 
-	public override function clean():Void
-	{
-		var targetPath = targetDirectory + "";
-
-		if (FileSystem.exists(targetPath))
-		{
-			System.removeDirectory(targetPath);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Flash");
@@ -137,6 +127,11 @@ class FlashPlatform extends PlatformTarget
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
+		}
+
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
 		if (Log.verbose)
@@ -170,7 +165,7 @@ class FlashPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -275,7 +270,10 @@ class FlashPlatform extends PlatformTarget
 		if (embedded)
 		{
 			var files = ["debug.hxml", "release.hxml", "final.hxml"];
-			var path, hxml, lines, output;
+			var path:String;
+			var hxml:String;
+			var lines:Array<String>;
+			var output:Array<String>;
 
 			for (file in files)
 			{
@@ -328,20 +326,6 @@ class FlashPlatform extends PlatformTarget
 		}
 
 	}*/
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
-	}
 
 	@ignore public override function install():Void {}
 

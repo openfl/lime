@@ -297,10 +297,10 @@ class ProjectXMLParser extends HXProject
 	{
 		var path = "";
 		var embed:Null<Bool> = null;
-		var library = null;
+		var library:String = null;
 		var targetPath = "";
-		var glyphs = null;
-		var type = null;
+		var glyphs:String = null;
+		var type:AssetType = null;
 
 		if (element.has.path)
 		{
@@ -683,7 +683,7 @@ class ProjectXMLParser extends HXProject
 		{
 			switch (attribute)
 			{
-				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url":
+				case "title", "description", "package", "version", "company", "company-id", "build-number", "company-url", "copyright-years":
 					var value = substitute(element.att.resolve(attribute));
 
 					defines.set("APP_" + StringTools.replace(attribute, "-", "_").toUpperCase(), value);
@@ -948,7 +948,7 @@ class ProjectXMLParser extends HXProject
 				case "include":
 					var path = "";
 					var addSourcePath = true;
-					var haxelib = null;
+					var haxelib:Haxelib = null;
 
 					if (element.has.haxelib)
 					{
@@ -1045,7 +1045,7 @@ class ProjectXMLParser extends HXProject
 					var name = substitute(element.att.name);
 					var version = "";
 					var optional = false;
-					var path = null;
+					var path:String = null;
 
 					if (element.has.version)
 					{
@@ -1125,10 +1125,10 @@ class ProjectXMLParser extends HXProject
 
 				case "ndll":
 					var name = substitute(element.att.name);
-					var haxelib = null;
+					var haxelib:Haxelib = null;
 					var staticLink:Null<Bool> = null;
 					var registerStatics = true;
-					var subdirectory = null;
+					var subdirectory:String = null;
 
 					if (element.has.haxelib)
 					{
@@ -1457,9 +1457,9 @@ class ProjectXMLParser extends HXProject
 					}
 					else
 					{
-						var path = null;
+						var path:String = null;
 						var name = "";
-						var type = null;
+						var type:String = null;
 						var embed:Null<Bool> = null;
 						var preload = false;
 						var generate = false;
@@ -1738,7 +1738,7 @@ class ProjectXMLParser extends HXProject
 
 							case "gradle-version":
 								config.set("android.gradle-version", value);
-							
+
 							case "gradle-plugin":
 								config.set("android.gradle-plugin", value);
 
@@ -1989,7 +1989,7 @@ class ProjectXMLParser extends HXProject
 
 	public function process(projectFile:String, useExtensionPath:Bool):Void
 	{
-		var xml = null;
+		var xml:Access = null;
 		var extensionPath = "";
 
 		try

@@ -129,6 +129,19 @@ class MacPlatform extends PlatformTarget
 		else if (project.targetFlags.exists("hl") || project.targetFlags.exists("hlc"))
 		{
 			targetType = "hl";
+			var hlVer = project.haxedefs.get("hl-ver");
+			if (hlVer == null)
+			{
+				var hlPath = project.defines.get("HL_PATH");
+				if (hlPath == null)
+				{
+					// Haxe's default target version for HashLink may be
+					// different (newer even) than the build of HashLink that
+					// is bundled with Lime. if using Lime's bundled HashLink,
+					// set hl-ver to the correct version
+					project.haxedefs.set("hl-ver", HashlinkHelper.BUNDLED_HL_VER);
+				}
+			}
 		}
 		else if (project.targetFlags.exists("java"))
 		{
@@ -347,14 +360,6 @@ class MacPlatform extends PlatformTarget
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Mac");
@@ -384,7 +389,7 @@ class MacPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -422,7 +427,7 @@ class MacPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var commands = [];
+		var commands:Array<Array<String>> = [];
 
 		switch (System.hostArchitecture)
 		{
@@ -507,15 +512,9 @@ class MacPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
-		for (asset in project.assets)
+		if (project.targetFlags.exists("json"))
 		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
 		var context = generateContext();
@@ -566,37 +565,7 @@ class MacPlatform extends PlatformTarget
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		for (asset in project.assets)
-		{
-			if (asset.embed != true)
-			{
-				if (asset.type != AssetType.TEMPLATE)
-				{
-					System.mkdir(Path.directory(Path.combine(contentDirectory, asset.targetPath)));
-					AssetHelper.copyAssetIfNewer(asset, Path.combine(contentDirectory, asset.targetPath));
-				}
-				else
-				{
-					System.mkdir(Path.directory(Path.combine(targetDirectory, asset.targetPath)));
-					AssetHelper.copyAsset(asset, Path.combine(targetDirectory, asset.targetPath), context);
-				}
-			}
-		}
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
+		copyProjectAssets(targetDirectory, contentDirectory);
 	}
 
 	@ignore public override function install():Void {}
@@ -635,6 +604,16 @@ class MacPlatform extends PlatformTarget
 		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
 		var bindir = "Mac64";
 		var bundledHLDirectory = Path.combine(limeDirectory, 'templates/bin/hl/$bindir');
+		if (!FileSystem.exists(bundledHLDirectory))
+		{
+			Log.error('Directory does not exist: $bundledHLDirectory');
+			return;
+		}
+		if (!FileSystem.isDirectory(bundledHLDirectory))
+		{
+			Log.error('Not a directory: $bundledHLDirectory');
+			return;
+		}
 
 		// these are the known directories where Homebrew installs its dependencies
 		// we may need to add more in the future, but this seems to be enough for now
