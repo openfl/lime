@@ -487,7 +487,7 @@ namespace lime {
 			hl_dyn_setp (display, id_bounds, &hlt_dynobj, _bounds);
 
 			Rectangle safeAreaInsets;
-			Display::GetSafeAreaInsets(id, &safeAreaInsets);
+			Display::GetSafeAreaInsets(id - 1, &safeAreaInsets);
 			vdynamic* _safeArea = (vdynamic*)hl_alloc_dynobj ();
 			hl_dyn_seti (_safeArea, id_x, &hlt_i32, bounds.x + safeAreaInsets.x);
 			hl_dyn_seti (_safeArea, id_y, &hlt_i32, bounds.y + safeAreaInsets.y);
