@@ -1124,9 +1124,9 @@ namespace lime {
 	}
 
 
-	bool SDLWindow::SetAlwaysOnTop (bool enabled) {
+	bool SDLWindow::SetAlwaysOnTop (bool alwaysOnTop) {
 
-		if (enabled) {
+		if (alwaysOnTop) {
 
 			SDL_SetWindowAlwaysOnTop (sdlWindow, SDL_TRUE);
 
@@ -1136,7 +1136,7 @@ namespace lime {
 
 		}
 
-		return enabled;
+		return alwaysOnTop;
 
 	}
 

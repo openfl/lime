@@ -363,7 +363,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
 
-	@:cffi private static function lime_window_set_always_on_top(handle:Dynamic, visible:Bool):Bool;
+	@:cffi private static function lime_window_set_always_on_top(handle:Dynamic, alwaysOnTop:Bool):Bool;
 
 	@:cffi private static function lime_window_warp_mouse(handle:Dynamic, x:Int, y:Int):Void;
 
@@ -1428,7 +1428,7 @@ class NativeCFFI
 		return false;
 	}
 
-	@:hlNative("lime", "hl_window_set_always_on_top") private static function lime_window_set_always_on_top(handle:CFFIPointer, visible:Bool):Bool
+	@:hlNative("lime", "hl_window_set_always_on_top") private static function lime_window_set_always_on_top(handle:CFFIPointer, alwaysOnTop:Bool):Bool
 	{
 		return false;
 	}

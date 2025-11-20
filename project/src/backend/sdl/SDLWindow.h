@@ -58,7 +58,7 @@ namespace lime {
 			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
 			virtual bool SetVisible (bool visible);
-			virtual bool SetAlwaysOnTop (bool enabled);
+			virtual bool SetAlwaysOnTop (bool alwaysOnTop);
 			virtual void WarpMouse (int x, int y);
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;

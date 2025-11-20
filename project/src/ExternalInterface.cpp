@@ -3949,18 +3949,18 @@ namespace lime {
 	}
 
 
-	bool lime_window_set_always_on_top (value window, bool enabled) {
+	bool lime_window_set_always_on_top (value window, bool alwaysOnTop) {
 
 		Window* targetWindow = (Window*)val_data (window);
-		return targetWindow->SetAlwaysOnTop(enabled);
+		return targetWindow->SetAlwaysOnTop(alwaysOnTop);
 
 	}
 
 
-	HL_PRIM bool HL_NAME(hl_window_set_always_on_top) (HL_CFFIPointer* window, bool enabled) {
+	HL_PRIM bool HL_NAME(hl_window_set_always_on_top) (HL_CFFIPointer* window, bool alwaysOnTop) {
 
 		Window* targetWindow = (Window*)window->ptr;
-		return targetWindow->SetAlwaysOnTop (enabled);
+		return targetWindow->SetAlwaysOnTop (alwaysOnTop);
 
 	}
 
