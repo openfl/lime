@@ -26,6 +26,10 @@ class NativeAudioSource
 	#end
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
+	#if lime_openalsoft
+	private static var hasALSoftLatencyExt:Null<Bool>;
+	#end
+
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
 	private var completed:Bool;
@@ -70,6 +74,13 @@ class NativeAudioSource
 
 	public function init():Void
 	{
+		#if lime_openalsoft
+		if (hasALSoftLatencyExt == null)
+		{
+			hasALSoftLatencyExt = AL.isExtensionPresent("AL_SOFT_source_latency");
+		}
+		#end
+
 		dataLength = 0;
 		format = 0;
 
@@ -587,5 +598,21 @@ class NativeAudioSource
 		}
 
 		return position;
+	}
+
+	public function getLatency():Float
+	{
+		#if lime_openalsoft
+		if (hasALSoftLatencyExt)
+		{
+			var offsets = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
+			if (offsets != null)
+			{
+				return offsets[1] * 1000;
+			}
+		}
+		#end
+
+		return 0;
 	}
 }

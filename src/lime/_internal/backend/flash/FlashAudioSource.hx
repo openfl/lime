@@ -148,4 +148,9 @@ class FlashAudioSource
 
 		return position;
 	}
+
+	public function getLatency():Float
+	{
+		return 0;
+	}
 }

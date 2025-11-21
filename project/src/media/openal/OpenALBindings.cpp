@@ -2104,6 +2104,44 @@ namespace lime {
 	}
 
 
+	value lime_al_get_sourcedv_soft (value source, int param, int count) {
+
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)val_data (source);
+		ALdouble* values = new ALdouble[count];
+		alGetSourcedvSOFT (id, param, values);
+
+		value result = alloc_array (count);
+
+		for (int i = 0; i < count; i++) {
+
+			val_array_set_i (result, i, alloc_float (values[i]));
+
+		}
+
+		delete[] values;
+		return result;
+		#else
+		return alloc_null();
+		#endif
+
+	}
+
+
+	HL_PRIM varray* HL_NAME(hl_al_get_sourcedv_soft) (HL_CFFIPointer* source, int param, int count) {
+
+		#ifdef LIME_OPENALSOFT
+		ALuint id = (ALuint)(uintptr_t)source->ptr;
+		varray* result = hl_alloc_array (&hlt_f64, count);
+		alGetSourcedvSOFT (id, param, hl_aptr (result, double));
+		return result;
+		#else
+		return NULL;
+		#endif
+
+	}
+
+
 	value lime_al_get_sourcei (value source, int param) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
@@ -3579,6 +3617,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_al_get_source3i);
 	DEFINE_PRIME2 (lime_al_get_sourcef);
 	DEFINE_PRIME3 (lime_al_get_sourcefv);
+	DEFINE_PRIME3 (lime_al_get_sourcedv_soft);
 	DEFINE_PRIME2 (lime_al_get_sourcei);
 	DEFINE_PRIME3 (lime_al_get_sourceiv);
 	DEFINE_PRIME1 (lime_al_get_string);
@@ -3703,6 +3742,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_ARR, hl_al_get_source3i, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_F32, hl_al_get_sourcef, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_ARR, hl_al_get_sourcefv, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_ARR, hl_al_get_sourcedv_soft, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_al_get_sourcei, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_ARR, hl_al_get_sourceiv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_al_get_string, _I32);
