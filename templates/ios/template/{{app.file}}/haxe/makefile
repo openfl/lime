@@ -55,13 +55,13 @@ $(HAXE_BUILDS): build-haxe-%:
 	@echo "Haxe $(if $(filter $*,$(SIMULATOR_ARCH)),simulator,device) build: $(CONFIG)$(SUFFIX_$*)"
 	haxe Build.hxml $(HXCPP_FLAGS_$*) -cpp build/$(CONFIG)$(SUFFIX_$*) $(DEBUG)
 	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
-		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination=$(CURDIR)/../lib/$*$(LIB_DEST) \
+		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination="$(CURDIR)/../lib/$*$(LIB_DEST)" \
 		-options Options.txt $(DEBUG)
 	touch ../Classes/Main.mm
 	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
-		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: $(CURDIR)/BuildHxcppMbedtls.xml \
-		-Ddestination=$(CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST) \
-		-options $(CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt $(DEBUG)
+		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "$(CURDIR)/BuildHxcppMbedtls.xml" \
+		-Ddestination="$(CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
+		-options "$(CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt" $(DEBUG)
 
 clean:
 	rm -rf build
