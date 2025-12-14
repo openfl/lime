@@ -233,6 +233,10 @@ class WebAssemblyPlatform extends PlatformTarget
 		args.push("-s");
 		args.push("ALLOW_MEMORY_GROWTH=1");
 
+        if(project.targetFlags.exists("websocket")) {
+            args.push("-lwebsocket.js");
+        }
+
 		if (project.targetFlags.exists("minify"))
 		{
 			// 02 enables minification
