@@ -1,2 +1,0 @@
---macro lime._internal.macros.DefineMacro.run()
---macro haxe.macro.Compiler.addMetadata("@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())", "haxe.io.Bytes")

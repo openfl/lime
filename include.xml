@@ -224,4 +224,7 @@
 
 	</section>
 
+	<haxeflag name="--macro" value="lime._internal.macros.DefineMacro.run()" />
+	<haxeflag name="--macro" value="haxe.macro.Compiler.addMetadata('@:autoBuild(lime._internal.macros.AssetsMacro.embedBytes())', 'haxe.io.Bytes')" />
+
 </extension>
