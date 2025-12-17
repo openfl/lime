@@ -1241,7 +1241,7 @@ class HXProject extends Script
 			{
 				var path = Haxelib.pathOverrides.get(name);
 				var jsonPath = Path.combine(path, "haxelib.json");
-				var added = false;
+				var extraParamsPath = Path.combine(path, "extraParams.hxml");
 
 				try
 				{
@@ -1262,6 +1262,18 @@ class HXProject extends Script
 				var param = "-cp " + path;
 				compilerFlags.remove(param);
 				compilerFlags.push(param);
+
+				try
+				{
+					if (FileSystem.exists(extraParamsPath))
+					{
+						var extraParams = Lambda.filter(File.getContent(extraParamsPath).split("\n"),
+							function(param:String) return param.length > 0 && param.charCodeAt(0) != "#".code);
+
+						compilerFlags = ArrayTools.concatUnique(compilerFlags, extraParams);
+					}
+				}
+				catch (e:Dynamic) {}
 			}
 			else
 			{
