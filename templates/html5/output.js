@@ -55,4 +55,11 @@ if (typeof self !== "undefined" && !self.constructor.name.includes("Worker")) {
 		var meta = document.getElementById ("viewport");
 		meta.setAttribute ('content', 'width=device-width, initial-scale=' + (2 / window.devicePixelRatio) + ', user-scalable=no');
 	}
+
+	window.addEventListener ("load", function () {
+		const content = document.getElementById(::if LIB_OPENFL::"openfl-content"::else::"content"::end::);
+		if (content && content.childElementCount === 0) {
+			lime.embed ("::APP_FILE::", content, ::WIN_WIDTH::, ::WIN_HEIGHT::);
+		}
+	});
 }
