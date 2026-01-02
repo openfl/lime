@@ -48,3 +48,11 @@ if (typeof define === "function" && define.__amd) {
 	define.amd = define.__amd;
 	delete define.__amd;
 }
+
+if (typeof self !== "undefined" && !self.constructor.name.includes("Worker")) {
+	window.addEventListener ("touchmove", function (event) { event.preventDefault (); }, { capture: false, passive: false });
+	if (typeof window.devicePixelRatio != 'undefined' && window.devicePixelRatio > 2) {
+		var meta = document.getElementById ("viewport");
+		meta.setAttribute ('content', 'width=device-width, initial-scale=' + (2 / window.devicePixelRatio) + ', user-scalable=no');
+	}
+}
