@@ -219,6 +219,10 @@
 
 #define ASM_HAVE_SYNTAX_UNIFIED
 
+#if defined(__APPLE__)
+#define ASM_LEADING_UNDERSCORE 1
+#endif
+
 /* use ARM A64_NEON assembly optimizations */
 /* #undef USE_ARM_A64_NEON */
 
