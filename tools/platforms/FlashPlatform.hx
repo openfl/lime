@@ -139,6 +139,11 @@ class FlashPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		if (Log.verbose)
 		{
 			project.haxedefs.set("verbose", 1);
@@ -275,7 +280,10 @@ class FlashPlatform extends PlatformTarget
 		if (embedded)
 		{
 			var files = ["debug.hxml", "release.hxml", "final.hxml"];
-			var path, hxml, lines, output;
+			var path:String;
+			var hxml:String;
+			var lines:Array<String>;
+			var output:Array<String>;
 
 			for (file in files)
 			{

@@ -1,6 +1,5 @@
 <xml>
 
-	<set name="PLATFORM" value="android-21" if="android" />
 	<set name="HXCPP_CPP11" value="1" />
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
@@ -21,12 +20,9 @@
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
-	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
-	<set name="LIME_OPENAL" value="1" if="iphone || webassembly || tvos" />
-	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
-	<unset name="LIME_OPENALSOFT" if="LIME_MOJOAL" />
-	<set name="LIME_OPENAL" value="1" if="LIME_OPENALSOFT" />
-	<set name="LIME_OPENAL" value="1" if="LIME_MOJOAL" />
+	<set name="LIME_OPENALSOFT" value="1" if="lime-openalsoft" />
+	<set name="LIME_OPENAL" value="1" if="lime-openal" />
+	<set name="LIME_MOJOAL" value="1" if="lime-mojoal" />
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
@@ -56,6 +52,8 @@
 
 	<files id="lime">
 
+		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
+        <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
 
 		<file name="src/ExternalInterface.cpp" />
@@ -315,10 +313,13 @@
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
+		<file name="src/system/Display.mm" if="mac || ios" />
+		<file name="src/system/Display.cpp" unless="mac || ios" />
 		<file name="src/system/DisplayMode.cpp" />
 		<file name="src/system/JNI.cpp" if="android" />
 		<file name="src/system/Locale.cpp" unless="mac || ios" />
 		<file name="src/system/Locale.mm" if="mac || ios" />
+		<file name="src/system/OrientationEvent.cpp" />
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/system/System.cpp" unless="ios" />
 		<file name="src/system/System.mm" if="ios" />
@@ -429,11 +430,14 @@
 				<lib name="comdlg32.lib" />
 				<lib name="setupapi.lib" />
 
+				<lib name="bcrypt.lib" if="LIME_CURL" />
+
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
 				<lib name="dwrite.lib" if="LIME_HARFBUZZ" />
 
-				<lib name="comsuppw.lib" unless="winrt" />
+				<lib name="comsuppw.lib" unless="winrt || mingw" />
+				<lib name="wbemuuid.lib" />
 
 				<lib name="D3D11.lib" if="winrt" />
 				<lib name="RuntimeObject.lib" if="winrt" />

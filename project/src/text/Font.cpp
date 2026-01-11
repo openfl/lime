@@ -1268,6 +1268,37 @@ namespace lime {
 	}
 
 
+	int Font::GetStrikethroughPosition () {
+
+		TT_OS2* os2 = (TT_OS2*)FT_Get_Sfnt_Table(((FT_Face)face), ft_sfnt_os2);
+
+		if (os2 && os2->version != 0xFFFFU)
+		{
+
+			return os2->yStrikeoutPosition;
+
+		}
+
+		return 0;
+	}
+
+
+	int Font::GetStrikethroughThickness () {
+
+		TT_OS2* os2 = (TT_OS2*)FT_Get_Sfnt_Table(((FT_Face)face), ft_sfnt_os2);
+
+
+		if (os2 && os2->version != 0xFFFFU)
+		{
+
+			return os2->yStrikeoutSize;
+
+		}
+
+		return 0;
+	}
+
+
 	int Font::GetUnitsPerEM () {
 
 		return ((FT_Face)face)->units_per_EM;

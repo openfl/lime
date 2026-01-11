@@ -92,7 +92,7 @@ class AIRHelper
 			default:
 		}
 
-		var signingOptions = [];
+		var signingOptions:Array<String> = [];
 
 		if (project.keystore != null)
 		{
@@ -336,12 +336,28 @@ class AIRHelper
 
 			if (targetPlatform == ANDROID || targetPlatform == IOS)
 			{
-				// these are just generic default dimensions that are a bit
-				// larger than AIR's defaults for the simulator
 				args.push("-XscreenDPI");
-				args.push("252");
+				if (project.config.exists("air.screenDPI"))
+				{
+					var screenDPI = project.config.getString("air.screenDPI");
+					args.push(screenDPI);
+				}
+				else
+				{
+					args.push("252");
+				}
 				args.push("-screensize");
-				args.push("480x762:480x800");
+				if (project.config.exists("air.screensize"))
+				{
+					var screensize = project.config.getString("air.screensize");
+					args.push(screensize);
+				}
+				else
+				{
+					// these are just generic default dimensions that are a bit
+					// larger than AIR's defaults for the simulator
+					args.push("480x762:480x800");
+				}
 			}
 			if (targetPlatform == ANDROID)
 			{
@@ -390,8 +406,8 @@ class AIRHelper
 		if (targetPlatform == ANDROID && !project.targetFlags.exists("air-simulator"))
 		{
 			AndroidHelper.initialize(project);
-			var deviceID = null;
-			var adbFilter = null;
+			var deviceID:String = null;
+			var adbFilter:String = null;
 
 			// if (!Log.verbose) {
 
@@ -415,7 +431,7 @@ class AIRHelper
 		if (targetPlatform == ANDROID)
 		{
 			AndroidHelper.initialize(project);
-			var deviceID = null;
+			var deviceID:String = null;
 			AndroidHelper.uninstall(project.meta.packageName, deviceID);
 		}
 	}

@@ -246,6 +246,23 @@ class System
 			display.id = id;
 			display.name = CFFI.stringValue(displayInfo.name);
 			display.bounds = new Rectangle(displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
+			display.orientation = displayInfo.orientation;
+
+			#if android
+			var getDisplaySafeArea = JNI.createStaticMethod("org/haxe/lime/GameActivity", "getDisplaySafeAreaInsets", "()[I");
+			var result = getDisplaySafeArea();
+			display.safeArea = new Rectangle(
+				display.bounds.x + result[0],
+				display.bounds.y + result[1],
+				display.bounds.width - result[0] - result[2],
+				display.bounds.height - result[1] - result[3]);
+			#else
+			display.safeArea = new Rectangle(
+				displayInfo.safeArea.x,
+				displayInfo.safeArea.y,
+				displayInfo.safeArea.width,
+				displayInfo.safeArea.height);
+			#end
 
 			#if ios
 			var tablet = NativeCFFI.lime_system_get_ios_tablet();
@@ -309,6 +326,23 @@ class System
 			#if flash
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode(Std.int(Capabilities.screenResolutionX), Std.int(Capabilities.screenResolutionY), 60, ARGB32);
+			#if air
+			switch (flash.Lib.current.stage.orientation) {
+				case DEFAULT:
+					display.orientation = PORTRAIT;
+				case UPSIDE_DOWN:
+					display.orientation = PORTRAIT_FLIPPED;
+				case ROTATED_LEFT:
+					display.orientation = LANDSCAPE_FLIPPED;
+				case ROTATED_RIGHT:
+					display.orientation = LANDSCAPE;
+				default:
+					display.orientation = UNKNOWN;
+			}
+
+			#else
+			display.orientation = UNKNOWN;
+			#end
 			#elseif (js && html5)
 			// var div = Browser.document.createElement ("div");
 			// div.style.width = "1in";
@@ -318,10 +352,31 @@ class System
 			// display.dpi = Std.parseFloat (ppi);
 			display.dpi = 96 * Browser.window.devicePixelRatio;
 			display.currentMode = new DisplayMode(Browser.window.screen.width, Browser.window.screen.height, 60, ARGB32);
+			if (Browser.window.screen.orientation != null)
+			{
+				switch (Browser.window.screen.orientation.type)
+				{
+					case PORTRAIT_PRIMARY:
+						display.orientation = PORTRAIT;
+					case PORTRAIT_SECONDARY:
+						display.orientation = PORTRAIT_FLIPPED;
+					case LANDSCAPE_PRIMARY:
+						display.orientation = LANDSCAPE;
+					case LANDSCAPE_SECONDARY:
+						display.orientation = LANDSCAPE_FLIPPED;
+					default:
+						display.orientation = UNKNOWN;
+				}
+			}
+			else
+			{
+				display.orientation = UNKNOWN;
+			}
 			#end
 
 			display.supportedModes = [display.currentMode];
 			display.bounds = new Rectangle(0, 0, display.currentMode.width, display.currentMode.height);
+			display.safeArea = new Rectangle(0, 0, display.currentMode.width, display.currentMode.height);
 			return display;
 		}
 		#end

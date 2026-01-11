@@ -38,12 +38,12 @@ class Font
      	* The ascender value of the font.
      	*/
 	public var ascender:Int;
-	
+
 	 /**
      	* The descender value of the font.
      	*/
 	public var descender:Int;
-	
+
 	/**
      	* The height of the font.
      	*/
@@ -59,7 +59,7 @@ class Font
      	*/
 	public var numGlyphs:Int;
 
-	
+
 	public var src:Dynamic;
 
 	/**
@@ -71,6 +71,16 @@ class Font
     	* The underline thickness of the font.
     	*/
 	public var underlineThickness:Int;
+
+	/**
+    	* The underline position of the font.
+    	*/
+	public var strikethroughPosition:Int;
+
+	/**
+    	* The underline thickness of the font.
+    	*/
+	public var strikethroughThickness:Int;
 
 	/**
      	* The units per EM of the font.
@@ -427,7 +437,8 @@ class Font
 			var offsetY = 0;
 			var maxRows = 0;
 
-			var width, height;
+			var width:Int;
+			var height:Int;
 			var i = 0;
 
 			while (i < count)
@@ -489,7 +500,10 @@ class Font
 			offsetY = 0;
 			maxRows = 0;
 
-			var index, x, y, image;
+			var index:Int;
+			var x:Int;
+			var y:Int;
+			var image:Image;
 
 			for (i in 0...count)
 			{
@@ -612,6 +626,8 @@ class Font
 			numGlyphs = NativeCFFI.lime_font_get_num_glyphs(src);
 			underlinePosition = NativeCFFI.lime_font_get_underline_position(src);
 			underlineThickness = NativeCFFI.lime_font_get_underline_thickness(src);
+			strikethroughPosition = NativeCFFI.lime_font_get_strikethrough_position(src);
+			strikethroughThickness = NativeCFFI.lime_font_get_strikethrough_thickness(src);
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
 		}
 		#end
@@ -653,7 +669,8 @@ class Font
 			var timeout = 3000;
 			var intervalLength = 50;
 			var intervalCount = 0;
-			var loaded, timeExpired;
+			var loaded:Bool;
+			var timeExpired:Bool;
 
 			var checkFont = function()
 			{

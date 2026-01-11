@@ -66,7 +66,7 @@ class CSHelper
 
 	public static function getAndroidNativeLibraryPaths(libPath:String, libraries:Array<NDLL>, architectures:Array<Architecture>):Array<String>
 	{
-		var paths = [];
+		var paths:Array<String> = [];
 
 		for (arch in architectures)
 		{

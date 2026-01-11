@@ -7,7 +7,7 @@ env:
 jobs:
 
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -30,6 +30,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -93,14 +94,14 @@ jobs:
           lime build SimpleAudio linux -release -verbose -nocolor
 
   macos:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
 
       - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -110,13 +111,15 @@ jobs:
 
       - name: Install HashLink dependencies
         run: |
+          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
           pushd project/lib/hashlink
-          brew update
+          arch -x86_64 /usr/local/bin/brew update
           rm /usr/local/bin/2to3*
           rm /usr/local/bin/idle3*
           rm /usr/local/bin/pydoc3*
           rm /usr/local/bin/python3*
-          brew bundle
+          rm /usr/local/bin/pip3*
+          arch -x86_64 /usr/local/bin/brew bundle
           popd
 
       - name: Install Haxe dependencies
@@ -192,7 +195,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -271,8 +274,25 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio windows -release -verbose -nocolor
 
+      - name: Rebuild Lime (Windows, Mingw)
+        run: |
+          rm ndll/Windows64/*
+          lime rebuild windows -Dmingw -D MINGW_ROOT=C:\mingw64 -64 -clean -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows64-MinGW-NDLL
+          path: |
+            ndll/Windows64/
+            !**/.gitignore
+          if-no-files-found: error
+
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [r28c, stable]
+      fail-fast: false
     steps:
 
       - uses: actions/checkout@v4
@@ -282,15 +302,16 @@ jobs:
       - name: Install Android NDK
         uses: nttld/setup-ndk@v1
         id: setup-ndk
+        if: matrix.ndk-version != 'stable'
         with:
-          ndk-version: r21e
+          ndk-version: ${{ matrix.ndk-version }}
 
       - uses: actions/setup-java@v4
         with:
           distribution: "zulu"
-          java-version: 11
+          java-version: 17
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -317,10 +338,12 @@ jobs:
       - name: Configure Android support
         run: |
           lime config ANDROID_SDK $ANDROID_HOME -eval
-          lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }} -eval
+          lime config ANDROID_NDK_ROOT ${{ env.LIME_NDK_ROOT }} -eval
           lime config JAVA_HOME $JAVA_HOME -eval
           lime config ANDROID_SETUP true -eval
           lime config -eval
+        env:
+          LIME_NDK_ROOT: ${{ matrix.ndk-version == 'stable' && '$ANDROID_NDK_ROOT' || steps.setup-ndk.outputs.ndk-path }}
 
       - name: Rebuild Lime (Android)
         run: |
@@ -333,6 +356,7 @@ jobs:
             ndll/Android/
             !**/.gitignore
           if-no-files-found: error
+        if: matrix.ndk-version != 'stable'
 
       - name: Install samples
         run: |
@@ -353,14 +377,14 @@ jobs:
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio android -release -verbose -nocolor -eval
   ios:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
 
       - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -417,14 +441,14 @@ jobs:
 
   package-haxelib:
     needs: [linux, macos, windows, android, ios]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -466,10 +490,10 @@ jobs:
           name: iPhone-NDLL
           path: ndll/iPhone/
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: Linux-NDLL
-          path: ndll/Linux/
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: Linux-NDLL
+      #     path: ndll/Linux/
 
       - uses: actions/download-artifact@v4
         with:
@@ -516,6 +540,11 @@ jobs:
           name: Linux64-Hashlink
           path: templates/bin/hl/Linux64
 
+      - name: Rebuild Lime run.n
+        working-directory: tools
+        run: |
+          haxe run.hxml
+
       - name: Rebuild Lime svg.n
         working-directory: tools
         run: |
@@ -533,12 +562,12 @@ jobs:
           if-no-files-found: error
 
   docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -563,12 +592,12 @@ jobs:
           if-no-files-found: error
 
   flash-samples:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - uses: actions/checkout@v4
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -613,7 +642,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
@@ -659,11 +688,11 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -709,11 +738,11 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: 4.3.3 # minimum required version for HL/C is 4.3.3
 
@@ -757,7 +786,7 @@ jobs:
 
   html5-samples:
     needs: package-haxelib
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.6]
@@ -765,7 +794,7 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
@@ -826,11 +855,11 @@ jobs:
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.2.5]
-        os: [windows-latest, ubuntu-20.04, macos-13]
+        os: [windows-latest, ubuntu-22.04, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
 
-      - uses: krdlab/setup-haxe@v1
+      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
@@ -873,7 +902,7 @@ jobs:
           lime build SimpleAudio neko -release -verbose -nocolor
 
   notify:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, macos, neko-samples, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:

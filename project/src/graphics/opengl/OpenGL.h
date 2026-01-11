@@ -76,10 +76,10 @@
 //#define LIME_GLES3_API
 #include <windows.h>
 #ifndef NATIVE_TOOLKIT_SDL_ANGLE
-#include <gl/GL.h>
+#include <GL/gl.h>
 #endif
 
-typedef ptrdiff_t GLsizeiptrARB;
+// typedef ptrdiff_t GLsizeiptrARB;
 #define NEED_EXTENSIONS
 #define DYNAMIC_OGL
 

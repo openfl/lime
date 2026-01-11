@@ -49,17 +49,10 @@ class WorkOutput
 	public var workIterations(default, null):Tls<Int> = new Tls();
 
 	/**
-		Whether background threads are being/will be used. If threads aren't
-		available on this target, `mode` will always be `SINGLE_THREADED`.
+		The mode jobs will run in by default. If threads aren't available, jobs
+		will always run in `SINGLE_THREADED` mode.
 	**/
-	public var mode(get, never):ThreadMode;
-
-	#if lime_threads
-	/**
-		__Set this only via the constructor.__
-	**/
-	private var __mode:ThreadMode;
-	#end
+	public var mode:ThreadMode;
 
 	/**
 		Messages sent by active jobs, received by the main thread.
@@ -68,14 +61,14 @@ class WorkOutput
 
 	/**
 		Thread-local storage. Tracks whether `sendError()` or `sendComplete()`
-		was called by this job.
+		was called by this job, or if the job threw an error.
 	**/
 	private var __jobComplete:Tls<Bool> = new Tls();
 
 	/**
 		The job that is currently running on this thread, or the job that
-		triggered the ongoing `onComplete`, `onError`, or `onProgress` event.
-		Will be null in all other cases.
+		triggered the ongoing event (`onComplete`, `onProgress`, etc.). Will be
+		null in all other cases.
 	**/
 	public var activeJob(get, set):Null<JobData>;
 
@@ -87,7 +80,7 @@ class WorkOutput
 		__jobComplete.value = false;
 
 		#if lime_threads
-		__mode = mode != null ? mode : #if html5 SINGLE_THREADED #else MULTI_THREADED #end;
+		this.mode = mode != null ? mode : #if html5 SINGLE_THREADED #else MULTI_THREADED #end;
 		#end
 	}
 
@@ -104,14 +97,7 @@ class WorkOutput
 		{
 			__jobComplete.value = true;
 
-			#if (lime_threads && html5)
-			if (mode == MULTI_THREADED)
-			{
-				Thread.returnMessage({event: COMPLETE, message: message, jobID: activeJob.id}, transferList);
-			}
-			else
-			#end
-			__jobOutput.add({event: COMPLETE, message: message, jobID: activeJob.id});
+			sendThreadEvent({event: COMPLETE, message: message, jobID: activeJob.id}, transferList);
 		}
 	}
 
@@ -128,14 +114,7 @@ class WorkOutput
 		{
 			__jobComplete.value = true;
 
-			#if (lime_threads && html5)
-			if (mode == MULTI_THREADED)
-			{
-				Thread.returnMessage({event: ERROR, message: message, jobID: activeJob.id}, transferList);
-			}
-			else
-			#end
-			__jobOutput.add({event: ERROR, message: message, jobID: activeJob.id});
+			sendThreadEvent({event: ERROR, message: message, jobID: activeJob.id}, transferList);
 		}
 	}
 
@@ -150,15 +129,30 @@ class WorkOutput
 	{
 		if (!__jobComplete.value)
 		{
-			#if (lime_threads && html5)
-			if (mode == MULTI_THREADED)
-			{
-				Thread.returnMessage({event: PROGRESS, message: message, jobID: activeJob.id}, transferList);
-			}
-			else
-			#end
-			__jobOutput.add({event: PROGRESS, message: message, jobID: activeJob.id});
+			sendThreadEvent({event: PROGRESS, message: message, jobID: activeJob.id}, transferList);
 		}
+	}
+
+	private function sendUncaughtError(message:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end):Void
+	{
+		if (!__jobComplete.value)
+		{
+			__jobComplete.value = true;
+
+			sendThreadEvent({event: UNCAUGHT_ERROR, message: message, jobID: activeJob.id});
+		}
+	}
+
+	private inline function sendThreadEvent(event:ThreadEvent, transferList:Array<Transferable> = null):Void
+	{
+		#if (lime_threads && html5)
+		if (Thread.current().isWorker())
+		{
+			Thread.returnMessage(event, transferList);
+		}
+		else
+		#end
+		__jobOutput.add(event);
 	}
 
 	private inline function resetJobProgress():Void
@@ -184,15 +178,6 @@ class WorkOutput
 	#end
 
 	// Getters & Setters
-
-	private inline function get_mode():ThreadMode
-	{
-		#if lime_threads
-		return __mode;
-		#else
-		return SINGLE_THREADED;
-		#end
-	}
 
 	private inline function get_activeJob():JobData
 	{
@@ -328,29 +313,37 @@ class JobData
 	@:allow(lime.system.WorkOutput)
 	public var duration(default, null):Float = 0;
 
-	@:allow(lime.system.WorkOutput)
-	private var startTime:Float = 0;
+	public var started(get, never):Bool;
 
 	@:allow(lime.system.WorkOutput)
-	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State)
+	private var startTime:Float = -1;
+
+	@:allow(lime.system.WorkOutput)
+	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State, ?id:Int)
 	{
-		id = nextID++;
+		this.id = id != null ? id : nextID++;
 		this.doWork = doWork;
 		this.state = state;
+	}
+
+	private inline function get_started():Bool
+	{
+		return startTime >= 0;
 	}
 }
 
 #if haxe4 enum #else @:enum #end abstract ThreadEventType(String)
-
 {
-	// Events sent from a worker thread to the main thread
+	// Events sent from a worker to the main thread, in any mode
 	var COMPLETE = "COMPLETE";
 	var ERROR = "ERROR";
 	var PROGRESS = "PROGRESS";
+	var UNCAUGHT_ERROR = "UNCAUGHT_ERROR";
 
-	// Commands sent from the main thread to a worker thread
+	// Commands sent from the main thread to a worker thread, and returned by
+	// the worker to confirm the change of state, in multi-threaded mode only
 	var WORK = "WORK";
-	var CANCEL = "CANCEL";
+	var IDLE = "IDLE";
 	var EXIT = "EXIT";
 }
 
@@ -358,8 +351,16 @@ typedef ThreadEvent =
 {
 	var event:ThreadEventType;
 	@:optional var message:Dynamic;
-	@:optional var job:JobData;
 	@:optional var jobID:Int;
+
+	/**
+		Required when a worker thread reports a state change (WORK, IDLE, EXIT).
+	**/
+	@:optional var threadID:Int;
+
+	// Only for WORK events sent by the main thread to a worker
+	@:optional var doWork:WorkFunction<State->WorkOutput->Void>;
+	@:optional var state:State;
 }
 
 class JSAsync

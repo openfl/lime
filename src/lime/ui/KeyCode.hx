@@ -2,6 +2,14 @@ package lime.ui;
 
 import lime._internal.backend.native.NativeCFFI;
 
+/**
+	Used by keyboard event listeners to identify which key was pressed
+	down or released.
+
+	@see `lime.ui.Window.onKeyDown`
+	@see `lime.ui.Window.onKeyUp`
+	@see `lime.ui.ScanCode`
+**/
 @:access(lime._internal.backend.native.NativeCFFI)
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract KeyCode(Int) from Int to Int from UInt to UInt
 {
@@ -246,7 +254,7 @@ import lime._internal.backend.native.NativeCFFI;
 	{
 		#if (lime_cffi && !macro)
 		var code:Int = scanCode;
-		return Std.int(NativeCFFI.lime_key_code_from_scan_code(code));
+		return NativeCFFI.lime_key_code_from_scan_code(code);
 		#else
 		return KeyCode.UNKNOWN;
 		#end
@@ -256,7 +264,7 @@ import lime._internal.backend.native.NativeCFFI;
 	{
 		#if (lime_cffi && !macro)
 		var code:Int = keyCode;
-		return Std.int(NativeCFFI.lime_key_code_to_scan_code(code));
+		return NativeCFFI.lime_key_code_to_scan_code(code);
 		#else
 		return ScanCode.UNKNOWN;
 		#end

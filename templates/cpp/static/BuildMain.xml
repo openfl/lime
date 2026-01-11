@@ -2,6 +2,8 @@
 
 	<include name="${HXCPP}/build-tool/BuildCommon.xml" />
 
+	<set name="no_shared_libs" value="1" if="mingw" />
+
 	<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" noerror="true" />
 	<set name="HAS_HXCPP_MBEDTLS_FILES" value="1" if="MBEDTLS_DIR" />
 	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" unless="HAS_HXCPP_MBEDTLS_FILES" />
@@ -36,7 +38,8 @@
 			<lib name="wldap32.lib" />
 			<lib name="shell32.lib" />
 			<lib name="comdlg32.lib" />
-			<lib name="comsuppw.lib" />
+			<lib name="wbemuuid.lib" />
+			<lib name="comsuppw.lib" unless="mingw" />
 			<lib name="usp10.lib" />
 			<lib name="rpcrt4.lib" />
 			<lib name="dwrite.lib" />

@@ -146,6 +146,19 @@ class WindowsPlatform extends PlatformTarget
 		{
 			targetType = "hl";
 			is64 = !project.flags.exists("32") && !project.flags.exists("x86_32");
+			var hlVer = project.haxedefs.get("hl-ver");
+			if (hlVer == null)
+			{
+				var hlPath = project.defines.get("HL_PATH");
+				if (hlPath == null)
+				{
+					// Haxe's default target version for HashLink may be
+					// different (newer even) than the build of HashLink that
+					// is bundled with Lime. if using Lime's bundled HashLink,
+					// set hl-ver to the correct version
+					project.haxedefs.set("hl-ver", HashlinkHelper.BUNDLED_HL_VER);
+				}
+			}
 		}
 		else if (project.targetFlags.exists("cppia"))
 		{
@@ -489,8 +502,8 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "winrt")
 			{
-				var haxeArgs = [hxml];
-				var flags = [];
+				var haxeArgs:Array<String> = [hxml];
+				var flags:Array<String> = [];
 
 				haxeArgs.push("-D");
 				haxeArgs.push("winrt");
@@ -549,8 +562,8 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else
 			{
-				var haxeArgs = [hxml];
-				var flags = [];
+				var haxeArgs = [hxml, "-D", "resourceFile=ApplicationMain.rc"];
+				var flags = ["-DresourceFile=ApplicationMain.rc"];
 
 				if (is64)
 				{
@@ -679,6 +692,29 @@ class WindowsPlatform extends PlatformTarget
 		}
 		else
 		{
+			if (targetType == "cpp")
+			{
+				if (context.APP_DESCRIPTION == null || context.APP_DESCRIPTION == "")
+				{
+					context.APP_DESCRIPTION = project.meta.title;
+				}
+
+				if (context.APP_COPYRIGHT_YEARS == null || context.APP_COPYRIGHT_YEARS == "")
+				{
+					context.APP_COPYRIGHT_YEARS = Std.string(Date.now().getFullYear());
+				}
+
+				var versionParts = project.meta.version.split(".");
+
+				if (versionParts.length == 3)
+				{
+					versionParts.push("0");
+				}
+
+				context.FILE_VERSION = versionParts.join(".");
+				context.VERSION_NUMBER = versionParts.join(",");
+			}
+
 			context.NEKO_FILE = targetDirectory + "/obj/ApplicationMain.n";
 			context.NODE_FILE = targetDirectory + "/bin/ApplicationMain.js";
 			context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
@@ -739,7 +775,7 @@ class WindowsPlatform extends PlatformTarget
 
 			// }
 
-			var commands = [];
+			var commands:Array<Array<String>> = [];
 			if (targetType == "hl")
 			{
 				// default to 64 bit, just like upstream Hashlink releases
@@ -774,7 +810,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
 					&& System.hostArchitecture == X64
-					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+					&& (command != "rebuild" || targetType == "cpp" || targetType == "neko" || targetType == "winrt"))
 				{
 					if (targetType == "winrt")
 					{
@@ -921,6 +957,11 @@ class WindowsPlatform extends PlatformTarget
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
 		}
 
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
+		}
+
 		for (asset in project.assets)
 		{
 			if (asset.embed && asset.sourcePath == "")
@@ -945,12 +986,12 @@ class WindowsPlatform extends PlatformTarget
 
 			var msvc19 = true;
 
-			if ((!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
+			if (project.defines.exists("mingw") || (!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
 			{
 				msvc19 = false;
 			}
 
-			var suffix = (msvc19 ? "-19.lib" : ".lib");
+			var suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
 
 			for (i in 0...project.ndlls.length)
 			{
@@ -982,9 +1023,14 @@ class WindowsPlatform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/temp", targetDirectory + "/haxe/temp", context, false, true);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/scripts", targetDirectory + "/scripts", context, true, true);
 		}
-		else if (targetType == "cpp" && project.targetFlags.exists("static"))
+		else if (targetType == "cpp")
 		{
-			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
+			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
+
+			if (project.targetFlags.exists("static"))
+			{
+				ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
+			}
 		}
 
 		/*if (IconHelper.createIcon (project.icons, 32, 32, Path.combine (applicationDirectory, "icon.png"))) {
@@ -1032,7 +1078,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 		}
 
-		var fontPath;
+		var fontPath:String;
 
 		for (asset in project.assets)
 		{
@@ -1065,6 +1111,11 @@ class WindowsPlatform extends PlatformTarget
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
+		}
+
+		if (project.targetFlags.exists("json"))
+		{
+			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
 		if (Log.verbose)
@@ -1171,7 +1222,7 @@ class WindowsPlatform extends PlatformTarget
 			"source/uwp-project.jsproj",
 			"source/uwp-project_TemporaryKey.pfx"
 		];
-		var fullPath;
+		var fullPath:String;
 
 		for (path in renamePaths)
 		{
