@@ -224,4 +224,6 @@
 
 	</section>
 
+	<source path="haxe4" if="${${haxe} < 5.0}" />
+
 </extension>
