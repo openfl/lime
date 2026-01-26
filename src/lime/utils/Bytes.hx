@@ -20,7 +20,8 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes
 	{
 		#if js
 		// bytesData may have extra bytes. See https://github.com/HaxeFoundation/haxe/issues/8974
-		this = new HaxeBytes(bytesData.slice(0, length));
+		this = new HaxeBytes(bytesData);
+		this.length = length;
 		#elseif hl
 		this = new HaxeBytes(bytesData, length);
 		#else
