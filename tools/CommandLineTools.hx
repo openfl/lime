@@ -312,6 +312,17 @@ class CommandLineTools
 								Sys.putEnv("HAXELIB_PATH", cacheValue);
 							}
 						}
+						else
+						{
+							if (haxelib != null)
+							{
+								Log.warn('No rebuild script found for haxelib "${haxelib.name}"');
+							}
+							else
+							{
+								Log.warn('No rebuild script found at "${words[0]}"');
+							}
+						}
 					}
 					else
 					{
