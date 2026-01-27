@@ -137,6 +137,10 @@ class CommandLineTools
 
 					if (haxelibPath != "" && haxelibPath != null)
 					{
+						if (Log.verbose)
+						{
+							Log.println('Rebuilding tools for haxelib: ${words[0]}');
+						}
 						words.push("tools");
 					}
 				}
