@@ -15,15 +15,21 @@ This directory contains two categories of code.
 - Windows requires [Visual Studio C++ components](https://visualstudio.microsoft.com/vs/features/cplusplus/).
 - Mac requires [Xcode](https://developer.apple.com/xcode/).
 - Linux requires several packages (names may vary per distro).
+   - Ubunutu requires the following packages.
 
-   ```bash
-   sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev
-   ```
-- Raspberry Pi OS requires a slightly different set of packages.
+      ```bash
+      sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev
+      ```
+   - While Raspberry Pi OS also uses `apt`, it requires a slightly different set of packages.
 
-   ```bash
-   sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libxcursor-dev libdbus-1-dev libdrm-dev libgbm-dev libudev-dev
-   ```
+      ```bash
+      sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libxcursor-dev libdbus-1-dev libdrm-dev libgbm-dev libudev-dev
+      ```
+   - Fedora requires the following packages.
+
+      ```bash
+      sudo dnf install g++ glibc-devel.i686 libstdc++-devel.i686 alsa-lib-devel pulseaudio-libs-devel libX11-devel libXi-devel libXrandr-devel libglvnd-devel
+      ```
 - Building HashLink requires [additional packages](https://github.com/HaxeFoundation/hashlink#readme).
 
 ### Rebuilding
