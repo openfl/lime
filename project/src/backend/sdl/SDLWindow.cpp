@@ -215,14 +215,7 @@ namespace lime {
 
 			// }
 
-			// Do we want to share a single context or use a context-per-window?
-			// In the case below, we share a single context.
-			// *Note* This will break if windows are ever decoupled from the main
-			// render loop and given indepdenent agency.
-			context = SDL_GL_GetCurrentContext();
-
-			// Todo: context per window?
-			// context = SDL_GL_CreateContext (sdlWindow);
+			context = SDL_GL_CreateContext (sdlWindow);
 
 			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
 
