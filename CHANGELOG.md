@@ -1,6 +1,30 @@
 Changelog
 =========
 
+8.3.1 (02/16/2026)
+------------------
+
+* Added validation for `ANDROID_SDK`, `ANDROID_NDK_ROOT`, `JAVA_HOME` and `AIR_SDK` paths to ensure that they exist and are directories.
+* Added verbose log message when rebuilding a Haxelib's tools to show the name of the Haxelib.
+* Added warning log message when rebuilding a Haxelib's tools when no rebuild script is found.
+* Added warning log message when `<architecture/>` value is unrecognized.
+* Added error when attemping to rebuild HashLink for ARM64.
+* Added internal exception message to error reported when NDLL loading fails.
+* Fixed exception on some targets in `AudioBuffer` when trying to read codec signature string from bytes.
+* Fixed `length` value of `Bytes` on HTML5 target when using `Bytes.fromBytes()`.
+* Fixed _lime.ndll_ build on systems with GCC 15 compiler.
+* Fixed _lime.ndll_ build on ARM64 Linux distributions other than Raspberry Pi OS.
+* Fixed `--no-output` behavior in Android build that exited before all architectures were handled.
+* Fixed `JNISafety` to make it safe for macro context.
+* Fixed warnings when building pixman with Android NDKs before r22.
+* Fixed _lime.ndll_ build when using MinGW compiler.
+* Fixed format of `PLATFORM` define for Android.
+* Fixed support for spaces in paths when building for iOS or tvOS.
+* Fixed DCE incorrectly disabling orientation change listeners on Android.
+* Fixed value of `context.attributes.hardware` for `HTML5Window` when creating context.
+* Fixed SDL submodule build for some Linux distributions including Raspberry Pi OS.
+* Fixed emulated `sys.io.File` on Adobe AIR to use `File.workingDirectory` for relative paths, if available.
+
 8.3.0 (11/11/2025)
 ------------------
 
