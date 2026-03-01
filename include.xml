@@ -171,8 +171,8 @@
 
 			<module name="${lime-module-name}" if="html5" unless="exclude-lime-module">
 
-				<source path="" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*|lime.text.harfbuzz.*" />
-				<source path="" package="lime" include="lime._backend.html5" />
+				<source path="src" package="lime" exclude="lime._backend.*|lime.project.*|lime.tools.*|lime.net.*|lime.graphics.console.*|lime.text.harfbuzz.*" />
+				<source path="src" package="lime" include="lime._backend.html5" />
 
 				<class name="lime.net.HTTPRequest" />
 
