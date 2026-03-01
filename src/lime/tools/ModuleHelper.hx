@@ -69,7 +69,13 @@ class ModuleHelper
 
 				for (haxelib in project.haxelibs)
 				{
-					hxml += "\n-cp " + Haxelib.getPath(haxelib);
+					var libPath:String = Haxelib.getPath(haxelib);
+					var classPath:String = Haxelib.getPathClassPath(libPath);
+					
+					if (classPath != null)
+						libPath = Path.combine(libPath, classPath);
+					
+					hxml += "\n-cp " + libPath;
 				}
 
 				for (key in project.haxedefs.keys())
