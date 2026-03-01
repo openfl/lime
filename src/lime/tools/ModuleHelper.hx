@@ -97,7 +97,11 @@ class ModuleHelper
 
 				hxml += "\n-D html5";
 				hxml += "\n-D html";
+				#if !haxe4
 				hxml += "\n--no-inline";
+				#else
+				hxml += "\n-D no-inline";
+				#end
 				hxml += "\n-dce no";
 				hxml += "\n-js " + outputPath;
 
