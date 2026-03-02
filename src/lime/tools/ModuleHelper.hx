@@ -70,11 +70,18 @@ class ModuleHelper
 				for (haxelib in project.haxelibs)
 				{
 					var libPath:String = Haxelib.getPath(haxelib);
-					var classPath:String = Haxelib.getPathClassPath(libPath);
-					
+					var classPath:String = null;
+					var json:String = Path.combine(libPath, "haxelib.json");
+					if (FileSystem.exists(json))
+						try
+						{
+							classPath = haxe.Json.parse(File.getContent(json)).classPath;
+						}
+						catch (e:Dynamic) {}
+
 					if (classPath != null)
 						libPath = Path.combine(libPath, classPath);
-					
+
 					hxml += "\n-cp " + libPath;
 				}
 
