@@ -95,23 +95,15 @@
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 
-		<section if="lime-modular">
-			<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="false" />
-			<dependency path="dependencies/pako.min.js" if="html5" embed="false" allow-web-workers="true" />
-			<dependency path="dependencies/lzma_worker-min.js" if="html5" embed="false" />
-			<dependency path="dependencies/FileSaver.min.js" if="html5" embed="false" />
-			<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="false" />
-			<dependency path="dependencies/stats.min.js" if="html5 stats" embed="false" />
-		</section>
-		
-		<section unless="lime-modular">
-			<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
-			<dependency path="dependencies/pako.min.js" if="html5" embed="true" allow-web-workers="true" />
-			<dependency path="dependencies/lzma_worker-min.js" if="html5" embed="true" />
-			<dependency path="dependencies/FileSaver.min.js" if="html5" embed="true" />
-			<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="true" />
-			<dependency path="dependencies/stats.min.js" if="html5 stats" embed="true" />
-		</section>
+		<set name="embed-js" value="false" if="lime-modular" />
+		<set name="embed-js" value="true" unless="lime-modular" />
+		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="${embed-js}" />
+		<dependency path="dependencies/pako.min.js" if="html5" embed="${embed-js}" allow-web-workers="true" />
+		<dependency path="dependencies/lzma_worker-min.js" if="html5" embed="${embed-js}" />
+		<dependency path="dependencies/FileSaver.min.js" if="html5" embed="${embed-js}" />
+		<dependency path="dependencies/webgl-debug.js" if="html5 webgl-debug" embed="${embed-js}" />
+		<dependency path="dependencies/stats.min.js" if="html5 stats" embed="${embed-js}" />
+		<unset name="embed-js" />
 
 		<dependency path="dependencies/angle/d3dcompiler_47.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
