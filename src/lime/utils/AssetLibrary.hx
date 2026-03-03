@@ -510,6 +510,9 @@ class AssetLibrary
 		}
 		else if (classTypes.exists(id))
 		{
+			js.Browser.console.log(classTypes);
+			js.Browser.console.log(id);
+			js.Browser.console.log(classTypes.get(id));
 			var font:Font = Type.createInstance(classTypes.get(id), []);
 
 			#if (js && html5)
@@ -765,7 +768,7 @@ class AssetLibrary
 			{
 				classRef = Type.resolveClass(Reflect.field(asset, "className"));
 
-				#if (js && html5 && modular)
+				#if (js && html5 && lime_modular)
 				if (classRef == null)
 				{
 					classRef = untyped $hx_exports[asset.className];
