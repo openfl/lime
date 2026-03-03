@@ -28,6 +28,96 @@ namespace lime {
 	std::map<int, std::map<int, int> > gamepadsAxisMap;
 	bool inBackground = false;
 
+	static double nextFrac = 0.0;
+	static double s_minSleepCostMs = 2.0;  // initial estimate
+    static bool   s_minSleepCalibrated = false;
+
+	static inline bool CanUseDelay1(Uint32 remainingMs)
+	{
+		return remainingMs > (Uint32)(s_minSleepCostMs + 1.0);
+	}
+
+	static inline void CalibrateMinSleep()
+	{
+		Uint32 t0 = SDL_GetTicks();
+		SDL_Delay(1);
+		Uint32 t1 = SDL_GetTicks();
+
+		Uint32 observed = t1 - t0;
+		if (observed < 1) observed = 1;
+
+		double observedD = (double)observed;
+
+		s_minSleepCostMs = (s_minSleepCostMs + observedD) * 0.5;
+		s_minSleepCalibrated = true;
+	}
+
+	static inline Uint32 SleepMinStep()
+	{
+		if (!s_minSleepCalibrated)
+			CalibrateMinSleep();
+		else
+			CalibrateMinSleep();
+
+		return (Uint32)s_minSleepCostMs;
+	}
+
+	static inline Uint32 NextFrameStep(double framePeriod) {
+		Uint32 base = (Uint32)framePeriod;
+		nextFrac += framePeriod - (double)base;
+		if (nextFrac >= 1.0) { base++; nextFrac -= 1.0; }
+		return base;
+	}
+
+	static inline Sint32 GetFrameTimeRemaining(Uint32 nextUpdate)
+	{
+		Uint32 now = SDL_GetTicks();
+		Sint32 remaining = (Sint32)(nextUpdate - now);
+		return remaining > 0 ? remaining : 0;
+	}
+
+	 static double s_delay1CostMs = 2.0;
+    static bool s_delay1Calibrated = false;
+
+    static inline void CalibrateDelay1()
+    {
+        Uint32 t0 = SDL_GetTicks();
+        SDL_Delay(1);
+        Uint32 t1 = SDL_GetTicks();
+
+        double observed = (double)(t1 - t0);
+        if (observed < 1.0) observed = 1.0;
+
+        s_delay1CostMs = (s_delay1CostMs + observed) * 0.5;
+        s_delay1Calibrated = true;
+    }
+
+    static inline Uint32 SleepShortest(Uint32 timeRemainingMs)
+    {
+        if (!s_delay1Calibrated) {
+            CalibrateDelay1();
+            return 0;
+        }
+
+
+        // The "+1" is a small guard because observed delay is quantized and jittery
+        if (timeRemainingMs > (Uint32)(s_delay1CostMs + 1.0)) {
+            Uint32 t0 = SDL_GetTicks();
+            SDL_Delay(1);
+            Uint32 t1 = SDL_GetTicks();
+
+            double observed = (double)(t1 - t0);
+            if (observed < 1.0) observed = 1.0;
+
+            s_delay1CostMs = (s_delay1CostMs + observed) * 0.5;
+            return (Uint32)observed;
+        }
+
+        // Otherwise, we're too close: yield instead of risking a multi-ms overshoot
+        // Yield cost is scheduler-dependent so we don't try to model it here!
+        SDL_Delay(0);
+        return 0;
+    }
 
 	SDLApplication::SDLApplication () {
 
@@ -55,8 +145,8 @@ namespace lime {
 		currentApplication = this;
 
 		framePeriod = 1000.0 / 60.0;
-
 		currentUpdate = 0;
+
 		lastUpdate = 0;
 		nextUpdate = 0;
 
@@ -149,12 +239,10 @@ namespace lime {
 					applicationEvent.deltaTime = currentUpdate - lastUpdate;
 					lastUpdate = currentUpdate;
 
-					nextUpdate += framePeriod;
+					nextUpdate += NextFrameStep(framePeriod);
 
 					while (nextUpdate <= currentUpdate) {
-
-						nextUpdate += framePeriod;
-
+						nextUpdate += NextFrameStep(framePeriod);
 					}
 
 					ApplicationEvent::Dispatch (&applicationEvent);
@@ -1007,9 +1095,23 @@ namespace lime {
 
 					if (!isBlocking) System::GCEnterBlocking ();
 					isBlocking = true;
-					SDL_Delay (1);
-					break;
 
+					Uint32 now = SDL_GetTicks();
+					Sint32 remaining = (Sint32)(nextUpdate - now);
+
+					if (remaining > 0)
+					{
+						if (lime::CanUseDelay1((Uint32)remaining))
+						{
+							lime::SleepMinStep();
+
+						}
+						else
+						{
+							SDL_Delay(0);
+						}
+					}
+					break;
 			}
 
 		}
