@@ -510,9 +510,6 @@ class AssetLibrary
 		}
 		else if (classTypes.exists(id))
 		{
-			js.Browser.console.log(classTypes);
-			js.Browser.console.log(id);
-			js.Browser.console.log(classTypes.get(id));
 			var font:Font = Type.createInstance(classTypes.get(id), []);
 
 			#if (js && html5)
