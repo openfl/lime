@@ -26,6 +26,10 @@ namespace lime
 	static Uint32 s_lastSleepCalibration = 0;
 	static bool s_busyWaitOnly = false;
 	static bool firstTime = true;
+	static SDL_atomic_t s_waitEventBlocking;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	static SDL_atomic_t s_inModalEventWatch;
+#endif
 
 	static inline void CalibrateSleepGuard(bool force = false)
 	{
@@ -119,6 +123,10 @@ namespace lime
 		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
 
 		currentApplication = this;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		modalWatchInstalled = false;
+		mainThreadID = SDL_ThreadID();
+#endif
 
 		framePeriod = 1000.0 / 60.0;
 		currentUpdate = 0;
@@ -142,6 +150,12 @@ namespace lime
 
 		SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
 		SDLJoystick::Init();
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		SDL_AtomicSet(&s_inModalEventWatch, 0);
+		SDL_AtomicSet(&s_waitEventBlocking, 0);
+		SDL_AddEventWatch(ModalEventWatch, this);
+		modalWatchInstalled = true;
+#endif
 
 #ifdef HX_MACOS
 		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
@@ -159,7 +173,82 @@ namespace lime
 
 	SDLApplication::~SDLApplication()
 	{
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (modalWatchInstalled && SDL_WasInit(0))
+		{
+			SDL_DelEventWatch(ModalEventWatch, this);
+			modalWatchInstalled = false;
+		}
+#endif
 	}
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	int SDLApplication::ModalEventWatch(void *userdata, SDL_Event *event)
+	{
+
+		if (!event || event->type != SDL_WINDOWEVENT)
+			return 0;
+
+		const Uint8 windowEvent = event->window.event;
+		if (windowEvent != SDL_WINDOWEVENT_EXPOSED && windowEvent != SDL_WINDOWEVENT_SIZE_CHANGED && windowEvent != SDL_WINDOWEVENT_MOVED)
+			return 0;
+
+		SDLApplication *application = (SDLApplication *)userdata;
+		if (!application || !application->active || inBackground)
+			return 0;
+		if (SDL_AtomicGet(&s_waitEventBlocking) == 0)
+			return 0;
+
+		if (SDL_ThreadID() != application->mainThreadID)
+			return 0;
+
+		// Prevent re-entry if rendering queues another window event.
+		if (!SDL_AtomicCAS(&s_inModalEventWatch, 0, 1))
+			return 0;
+
+		application->PumpOneFrameFromWatch();
+		SDL_AtomicSet(&s_inModalEventWatch, 0);
+		return 0;
+	}
+
+	void SDLApplication::PumpOneFrameFromWatch()
+	{
+
+		if (!active || inBackground)
+			return;
+
+		currentUpdate = SDL_GetTicks();
+		if ((Sint32)(currentUpdate - nextUpdate) < 0)
+			return;
+
+		bool exitedBlocking = false;
+		if (SDL_AtomicGet(&s_waitEventBlocking))
+		{
+			System::GCExitBlocking();
+			SDL_AtomicSet(&s_waitEventBlocking, 0);
+			exitedBlocking = true;
+		}
+
+		applicationEvent.type = UPDATE;
+		applicationEvent.deltaTime = currentUpdate - lastUpdate;
+		lastUpdate = currentUpdate;
+
+		nextUpdate += NextFrameStep(framePeriod);
+		while (nextUpdate <= currentUpdate)
+		{
+			nextUpdate += NextFrameStep(framePeriod);
+		}
+
+		ApplicationEvent::Dispatch(&applicationEvent);
+		RenderEvent::Dispatch(&renderEvent);
+
+		if (exitedBlocking)
+		{
+			System::GCEnterBlocking();
+			SDL_AtomicSet(&s_waitEventBlocking, 1);
+		}
+	}
+#endif
 
 	int SDLApplication::Exec()
 	{
@@ -373,8 +462,31 @@ namespace lime
 
 				if (!inBackground)
 				{
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+					if (SDL_AtomicGet(&s_waitEventBlocking))
+					{
+						PumpOneFrameFromWatch();
+					}
+					else
+#endif
+					{
+						currentUpdate = SDL_GetTicks();
+						if ((Sint32)(currentUpdate - nextUpdate) >= 0)
+						{
+							applicationEvent.type = UPDATE;
+							applicationEvent.deltaTime = currentUpdate - lastUpdate;
+							lastUpdate = currentUpdate;
 
-					RenderEvent::Dispatch(&renderEvent);
+							nextUpdate += NextFrameStep(framePeriod);
+							while (nextUpdate <= currentUpdate)
+							{
+								nextUpdate += NextFrameStep(framePeriod);
+							}
+
+							ApplicationEvent::Dispatch(&applicationEvent);
+							RenderEvent::Dispatch(&renderEvent);
+						}
+					}
 				}
 
 				break;
@@ -385,8 +497,31 @@ namespace lime
 
 				if (!inBackground)
 				{
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+					if (SDL_AtomicGet(&s_waitEventBlocking))
+					{
+						PumpOneFrameFromWatch();
+					}
+					else
+#endif
+					{
+						currentUpdate = SDL_GetTicks();
+						if ((Sint32)(currentUpdate - nextUpdate) >= 0)
+						{
+							applicationEvent.type = UPDATE;
+							applicationEvent.deltaTime = currentUpdate - lastUpdate;
+							lastUpdate = currentUpdate;
 
-					RenderEvent::Dispatch(&renderEvent);
+							nextUpdate += NextFrameStep(framePeriod);
+							while (nextUpdate <= currentUpdate)
+							{
+								nextUpdate += NextFrameStep(framePeriod);
+							}
+
+							ApplicationEvent::Dispatch(&applicationEvent);
+							RenderEvent::Dispatch(&renderEvent);
+						}
+					}
 				}
 
 				break;
@@ -923,6 +1058,13 @@ namespace lime
 
 		applicationEvent.type = EXIT;
 		ApplicationEvent::Dispatch(&applicationEvent);
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (modalWatchInstalled)
+		{
+			SDL_DelEventWatch(ModalEventWatch, this);
+			modalWatchInstalled = false;
+		}
+#endif
 
 		SDL_QuitSubSystem(initFlags);
 
@@ -1116,6 +1258,7 @@ namespace lime
 #else
 
 		bool isBlocking = false;
+		SDL_AtomicSet(&s_waitEventBlocking, 0);
 
 		for (;;)
 		{
@@ -1128,19 +1271,28 @@ namespace lime
 			case -1:
 
 				if (isBlocking)
+				{
+					SDL_AtomicSet(&s_waitEventBlocking, 0);
 					System::GCExitBlocking();
+				}
 				return 0;
 
 			case 1:
 
 				if (isBlocking)
+				{
+					SDL_AtomicSet(&s_waitEventBlocking, 0);
 					System::GCExitBlocking();
+				}
 				return 1;
 
 			default:
 
 				if (!isBlocking)
+				{
 					System::GCEnterBlocking();
+					SDL_AtomicSet(&s_waitEventBlocking, 1);
+				}
 				isBlocking = true;
 
 				Uint32 now = SDL_GetTicks();
@@ -1153,7 +1305,10 @@ namespace lime
 					event->type = SDL_USEREVENT;
 
 					if (isBlocking)
+					{
+						SDL_AtomicSet(&s_waitEventBlocking, 0);
 						System::GCExitBlocking();
+					}
 					return 1;
 				}
 
@@ -1179,14 +1334,20 @@ namespace lime
 						{
 
 							if (isBlocking)
+							{
+								SDL_AtomicSet(&s_waitEventBlocking, 0);
 								System::GCExitBlocking();
+							}
 							return 1;
 						}
 						else if (waitResult == -1)
 						{
 
 							if (isBlocking)
+							{
+								SDL_AtomicSet(&s_waitEventBlocking, 0);
 								System::GCExitBlocking();
+							}
 							return 0;
 						}
 
@@ -1207,13 +1368,19 @@ namespace lime
 					case -1:
 
 						if (isBlocking)
+						{
+							SDL_AtomicSet(&s_waitEventBlocking, 0);
 							System::GCExitBlocking();
+						}
 						return 0;
 
 					case 1:
 
 						if (isBlocking)
+						{
+							SDL_AtomicSet(&s_waitEventBlocking, 0);
 							System::GCExitBlocking();
+						}
 						return 1;
 
 					default:
@@ -1225,7 +1392,10 @@ namespace lime
 							event->type = SDL_USEREVENT;
 
 							if (isBlocking)
+							{
+								SDL_AtomicSet(&s_waitEventBlocking, 0);
 								System::GCExitBlocking();
+							}
 							return 1;
 						}
 
