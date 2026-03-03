@@ -41,6 +41,10 @@ namespace lime {
 		private:
 
 			void HandleEvent (SDL_Event* event);
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			void PumpOneFrameFromWatch ();
+			static int ModalEventWatch (void* userdata, SDL_Event* event);
+#endif
 			void ProcessClipboardEvent (SDL_Event* event);
 			void ProcessDropEvent (SDL_Event* event);
 			void ProcessGamepadEvent (SDL_Event* event);
@@ -51,6 +55,7 @@ namespace lime {
 			void ProcessTextEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event);
+			//void Tick();
 			int WaitEvent (SDL_Event* event);
 
 			static void UpdateFrame ();
@@ -77,6 +82,10 @@ namespace lime {
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			WindowEvent windowEvent;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			bool modalWatchInstalled;
+			Uint32 mainThreadID;
+#endif
 
 	};
 
