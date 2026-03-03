@@ -126,6 +126,8 @@ namespace lime
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		modalWatchInstalled = false;
 		mainThreadID = SDL_ThreadID();
+		pendingResizeDispatchSkips = 0;
+		pendingWatchRenderSkips = 0;
 #endif
 
 		framePeriod = 1000.0 / 60.0;
@@ -190,7 +192,7 @@ namespace lime
 			return 0;
 
 		const Uint8 windowEvent = event->window.event;
-		if (windowEvent != SDL_WINDOWEVENT_EXPOSED && windowEvent != SDL_WINDOWEVENT_SIZE_CHANGED && windowEvent != SDL_WINDOWEVENT_MOVED)
+		if (windowEvent != SDL_WINDOWEVENT_EXPOSED && windowEvent != SDL_WINDOWEVENT_SIZE_CHANGED && windowEvent != SDL_WINDOWEVENT_RESIZED && windowEvent != SDL_WINDOWEVENT_MOVED)
 			return 0;
 
 		SDLApplication *application = (SDLApplication *)userdata;
@@ -206,19 +208,29 @@ namespace lime
 		if (!SDL_AtomicCAS(&s_inModalEventWatch, 0, 1))
 			return 0;
 
-		application->PumpOneFrameFromWatch();
+		application->PumpOneFrameFromWatch(event);
 		SDL_AtomicSet(&s_inModalEventWatch, 0);
 		return 0;
 	}
 
-	void SDLApplication::PumpOneFrameFromWatch()
+	void SDLApplication::PumpOneFrameFromWatch(SDL_Event *watchEvent)
 	{
 
 		if (!active || inBackground)
 			return;
 
+		bool isResizeEvent = false;
+		bool isExposeEvent = false;
+		if (watchEvent && watchEvent->type == SDL_WINDOWEVENT)
+		{
+			isResizeEvent = (watchEvent->window.event == SDL_WINDOWEVENT_SIZE_CHANGED || watchEvent->window.event == SDL_WINDOWEVENT_RESIZED);
+			isExposeEvent = (watchEvent->window.event == SDL_WINDOWEVENT_EXPOSED);
+		}
+
 		currentUpdate = SDL_GetTicks();
-		if ((Sint32)(currentUpdate - nextUpdate) < 0)
+		bool frameDue = ((Sint32)(currentUpdate - nextUpdate) >= 0);
+		bool isResizeOrExposeEvent = (isResizeEvent || isExposeEvent);
+		if (!frameDue && !isResizeEvent)
 			return;
 
 		bool exitedBlocking = false;
@@ -229,18 +241,32 @@ namespace lime
 			exitedBlocking = true;
 		}
 
-		applicationEvent.type = UPDATE;
-		applicationEvent.deltaTime = currentUpdate - lastUpdate;
-		lastUpdate = currentUpdate;
-
-		nextUpdate += NextFrameStep(framePeriod);
-		while (nextUpdate <= currentUpdate)
+		if (isResizeEvent)
 		{
-			nextUpdate += NextFrameStep(framePeriod);
+			ProcessWindowEvent(watchEvent);
+			pendingResizeDispatchSkips++;
 		}
 
-		ApplicationEvent::Dispatch(&applicationEvent);
-		RenderEvent::Dispatch(&renderEvent);
+		if (frameDue)
+		{
+			applicationEvent.type = UPDATE;
+			applicationEvent.deltaTime = currentUpdate - lastUpdate;
+			lastUpdate = currentUpdate;
+
+			nextUpdate += NextFrameStep(framePeriod);
+			while (nextUpdate <= currentUpdate)
+			{
+				nextUpdate += NextFrameStep(framePeriod);
+			}
+
+			ApplicationEvent::Dispatch(&applicationEvent);
+			RenderEvent::Dispatch(&renderEvent);
+
+			if (watchEvent && isResizeOrExposeEvent)
+			{
+				pendingWatchRenderSkips++;
+			}
+		}
 
 		if (exitedBlocking)
 		{
@@ -462,7 +488,14 @@ namespace lime
 
 				if (!inBackground)
 				{
+					bool skipImmediateRender = false;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
+					if (pendingWatchRenderSkips > 0)
+					{
+						pendingWatchRenderSkips--;
+						skipImmediateRender = true;
+					}
+
 					if (SDL_AtomicGet(&s_waitEventBlocking))
 					{
 						PumpOneFrameFromWatch();
@@ -471,7 +504,8 @@ namespace lime
 #endif
 					{
 						currentUpdate = SDL_GetTicks();
-						if ((Sint32)(currentUpdate - nextUpdate) >= 0)
+						bool frameDue = ((Sint32)(currentUpdate - nextUpdate) >= 0);
+						if (frameDue)
 						{
 							applicationEvent.type = UPDATE;
 							applicationEvent.deltaTime = currentUpdate - lastUpdate;
@@ -484,6 +518,10 @@ namespace lime
 							}
 
 							ApplicationEvent::Dispatch(&applicationEvent);
+						}
+
+						if (frameDue && !skipImmediateRender)
+						{
 							RenderEvent::Dispatch(&renderEvent);
 						}
 					}
@@ -492,8 +530,27 @@ namespace lime
 				break;
 
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
+			case SDL_WINDOWEVENT_RESIZED:
+			{
 
-				ProcessWindowEvent(event);
+				bool skipResizeDispatch = false;
+				bool skipImmediateRender = false;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+				if (pendingResizeDispatchSkips > 0)
+				{
+					pendingResizeDispatchSkips--;
+					skipResizeDispatch = true;
+				}
+				if (pendingWatchRenderSkips > 0)
+				{
+					pendingWatchRenderSkips--;
+					skipImmediateRender = true;
+				}
+#endif
+				if (!skipResizeDispatch)
+				{
+					ProcessWindowEvent(event);
+				}
 
 				if (!inBackground)
 				{
@@ -506,7 +563,8 @@ namespace lime
 #endif
 					{
 						currentUpdate = SDL_GetTicks();
-						if ((Sint32)(currentUpdate - nextUpdate) >= 0)
+						bool frameDue = ((Sint32)(currentUpdate - nextUpdate) >= 0);
+						if (frameDue)
 						{
 							applicationEvent.type = UPDATE;
 							applicationEvent.deltaTime = currentUpdate - lastUpdate;
@@ -519,12 +577,17 @@ namespace lime
 							}
 
 							ApplicationEvent::Dispatch(&applicationEvent);
+						}
+
+						if (frameDue && !skipImmediateRender)
+						{
 							RenderEvent::Dispatch(&renderEvent);
 						}
 					}
 				}
 
 				break;
+			}
 
 			case SDL_WINDOWEVENT_CLOSE:
 
@@ -560,7 +623,12 @@ namespace lime
 		active = true;
 		lastUpdate = SDL_GetTicks();
 		nextUpdate = lastUpdate;
+		nextFrac = 0.0;
 		firstTime = true;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		pendingResizeDispatchSkips = 0;
+		pendingWatchRenderSkips = 0;
+#endif
 		CalibrateSleepGuard(true);
 	}
 
@@ -1037,6 +1105,7 @@ namespace lime
 				break;
 
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
+			case SDL_WINDOWEVENT_RESIZED:
 
 				windowEvent.type = WINDOW_RESIZE;
 				windowEvent.width = event->window.data1;
@@ -1098,6 +1167,7 @@ namespace lime
 			framePeriod = 1000.0;
 		}
 
+		nextFrac = 0.0;
 		s_busyWaitOnly = (framePeriod <= 2.0);
 	}
 

@@ -30,6 +30,159 @@ namespace lime {
 
 	static bool displayModeSet = false;
 
+#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+	static const wchar_t* LIME_SDL_OLD_RESIZE_WNDPROC_PROP = L"LimeSDL.OldResizeWndProc";
+	static const wchar_t* LIME_SDL_WINDOW_ID_PROP = L"LimeSDL.WindowID";
+	static const wchar_t* LIME_SDL_LAST_RESIZE_WIDTH_PROP = L"LimeSDL.LastResizeWidth";
+	static const wchar_t* LIME_SDL_LAST_RESIZE_HEIGHT_PROP = L"LimeSDL.LastResizeHeight";
+	static const wchar_t* LIME_SDL_LAST_RESIZE_TICK_PROP = L"LimeSDL.LastResizeTick";
+	static const Uint32 LIME_SDL_MIN_RESIZE_PUSH_INTERVAL_MS = 8;
+
+	static bool ShouldQueueLiveResizeEvent (HWND hwnd, int width, int height, bool throttled) {
+
+		if (width < 1 || height < 1) return false;
+
+		int lastWidth = (int)(INT_PTR)GetPropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
+		int lastHeight = (int)(INT_PTR)GetPropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
+		if (width == lastWidth && height == lastHeight) return false;
+
+		Uint32 now = SDL_GetTicks ();
+		if (throttled) {
+
+			Uint32 lastTick = (Uint32)(UINT_PTR)GetPropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+			if (lastTick != 0 && (Uint32)(now - lastTick) < LIME_SDL_MIN_RESIZE_PUSH_INTERVAL_MS) {
+
+				return false;
+
+			}
+
+		}
+
+		SetPropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP, (HANDLE)(INT_PTR)width);
+		SetPropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP, (HANDLE)(INT_PTR)height);
+		SetPropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP, (HANDLE)(UINT_PTR)now);
+		return true;
+
+	}
+
+	static void PushLiveResizeEvent (HWND hwnd, int width, int height, bool throttled) {
+
+		if (!ShouldQueueLiveResizeEvent (hwnd, width, height, throttled)) return;
+
+		Uint32 windowID = (Uint32)(UINT_PTR)GetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
+		if (!windowID) return;
+
+		SDL_Event event;
+		SDL_zero (event);
+		event.type = SDL_WINDOWEVENT;
+		event.window.event = SDL_WINDOWEVENT_SIZE_CHANGED;
+		event.window.windowID = windowID;
+		event.window.data1 = width;
+		event.window.data2 = height;
+		SDL_PushEvent (&event);
+
+	}
+
+	static void PushLiveResizeEventFromRect (HWND hwnd, const RECT* windowRect) {
+
+		if (!windowRect) return;
+
+		RECT currentWindowRect;
+		RECT currentClientRect;
+		if (!GetWindowRect (hwnd, &currentWindowRect)) return;
+		if (!GetClientRect (hwnd, &currentClientRect)) return;
+
+		POINT currentClientTopLeft = { currentClientRect.left, currentClientRect.top };
+		POINT currentClientBottomRight = { currentClientRect.right, currentClientRect.bottom };
+		if (!ClientToScreen (hwnd, &currentClientTopLeft) || !ClientToScreen (hwnd, &currentClientBottomRight)) return;
+
+		int nonClientWidth = (currentWindowRect.right - currentWindowRect.left) - (currentClientBottomRight.x - currentClientTopLeft.x);
+		int nonClientHeight = (currentWindowRect.bottom - currentWindowRect.top) - (currentClientBottomRight.y - currentClientTopLeft.y);
+		if (nonClientWidth < 0) nonClientWidth = 0;
+		if (nonClientHeight < 0) nonClientHeight = 0;
+
+		int width = (windowRect->right - windowRect->left) - nonClientWidth;
+		int height = (windowRect->bottom - windowRect->top) - nonClientHeight;
+		PushLiveResizeEvent (hwnd, width, height, true);
+
+	}
+
+	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+		if (message == WM_SIZING) {
+
+			PushLiveResizeEventFromRect (hwnd, (const RECT*)lParam);
+
+		} else if (message == WM_SIZE) {
+
+			if (wParam != SIZE_MINIMIZED) {
+
+				// Always send WM_SIZE updates (especially final size) without throttling.
+				PushLiveResizeEvent (hwnd, LOWORD (lParam), HIWORD (lParam), false);
+
+			}
+
+		}
+
+		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
+		if (oldWndProc) {
+
+			return CallWindowProc (oldWndProc, hwnd, message, wParam, lParam);
+
+		}
+
+		return DefWindowProc (hwnd, message, wParam, lParam);
+
+	}
+
+	static void InstallResizeEventHook (SDL_Window* sdlWindow) {
+
+		if (!sdlWindow) return;
+
+		SDL_SysWMinfo wminfo;
+		SDL_VERSION (&wminfo.version);
+		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return;
+
+		HWND hwnd = wminfo.info.win.window;
+		if (!hwnd) return;
+		if (GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP)) return;
+
+		SetLastError (0);
+		LONG_PTR previous = SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)LimeResizeWndProc);
+		if (previous == 0 && GetLastError () != 0) return;
+
+		SetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP, (HANDLE)previous);
+		SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow));
+
+	}
+
+	static void RestoreResizeEventHook (SDL_Window* sdlWindow) {
+
+		if (!sdlWindow) return;
+
+		SDL_SysWMinfo wminfo;
+		SDL_VERSION (&wminfo.version);
+		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return;
+
+		HWND hwnd = wminfo.info.win.window;
+		if (!hwnd) return;
+
+		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
+		if (oldWndProc) {
+
+			SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
+
+		}
+
+		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
+		RemovePropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+
+	}
+#endif
+
 
 	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
 
@@ -168,6 +321,10 @@ namespace lime {
 		}
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		InstallResizeEventHook (sdlWindow);
+		#endif
+
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 
 		HINSTANCE handle = ::GetModuleHandle (nullptr);
 		HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
@@ -299,6 +456,10 @@ namespace lime {
 
 		if (sdlWindow) {
 
+			#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+			RestoreResizeEventHook (sdlWindow);
+			#endif
+
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -351,6 +512,10 @@ namespace lime {
 	void SDLWindow::Close () {
 
 		if (sdlWindow) {
+
+			#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+			RestoreResizeEventHook (sdlWindow);
+			#endif
 
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;

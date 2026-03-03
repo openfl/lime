@@ -42,7 +42,7 @@ namespace lime {
 
 			void HandleEvent (SDL_Event* event);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-			void PumpOneFrameFromWatch ();
+			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
 			static int ModalEventWatch (void* userdata, SDL_Event* event);
 #endif
 			void ProcessClipboardEvent (SDL_Event* event);
@@ -85,6 +85,8 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			bool modalWatchInstalled;
 			Uint32 mainThreadID;
+			int pendingResizeDispatchSkips;
+			int pendingWatchRenderSkips;
 #endif
 
 	};
