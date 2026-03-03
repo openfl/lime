@@ -125,7 +125,7 @@ class System
 	@:noCompletion private static var __userDirectory:String;
 
 	#if (js && html5)
-	@:keep @:expose("lime.embed")
+	@:keep @:expose
 	public static function embed(projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void
 	{
 		if (__applicationEntryPoint == null) return;

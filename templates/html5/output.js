@@ -21,14 +21,11 @@ if (typeof self !== "undefined" && self.constructor.name.includes("Worker")) {
 	$hx_exports.lime.$scripts = $hx_exports.lime.$scripts || {};
 	$hx_exports.lime.$scripts["::APP_FILE::"] = $hx_script;
 	$hx_exports.lime.embed = function (projectName) {
-		var exports = {};
 		var script = $hx_exports.lime.$scripts[projectName];
 		if (!script) throw Error("Cannot find project name \"" + projectName + "\"");
-		script(exports);
-		for (var key in exports) $hx_exports[key] = $hx_exports[key] || exports[key];
-		var lime = exports.lime || window.lime;
-		if (lime && lime.embed && this !== lime.embed) lime.embed.apply(lime, arguments);
-		return exports;
+		script($hx_exports);
+		$hx_exports.lime.system?.System?.embed?.apply(lime, arguments);
+		return $hx_exports;
 	};
 }
 
