@@ -93,6 +93,45 @@ namespace lime {
 	}
 
 
+	void hl_gc_gl_object (HL_CFFIPointer* handle) {
+
+		gc_gl_mutex.Lock ();
+
+		void* object = handle->ptr;
+
+		if (glObjectTypes.find (object) != glObjectTypes.end ()) {
+
+			GLObjectType type = glObjectTypes[object];
+
+			if (type != TYPE_SYNC) {
+
+				GLuint id = glObjectIDs[object];
+
+				gc_gl_id.push_back (id);
+				gc_gl_type.push_back (type);
+
+				glObjects[type].erase (id);
+				glObjectIDs.erase (object);
+				glObjectTypes.erase (object);
+
+			} else {
+
+				void* ptr = glObjectPtrs[object];
+
+				gc_gl_ptr.push_back (ptr);
+
+				glObjectPtrs.erase (object);
+				glObjectTypes.erase (object);
+
+			}
+
+		}
+
+		gc_gl_mutex.Unlock ();
+
+	}
+
+
 	void gc_gl_run () {
 
 		if (gc_gl_id.size () > 0) {
@@ -1562,7 +1601,7 @@ namespace lime {
 
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
-		HL_CFFIPointer* handle = HLCFFIPointer (result, (hl_finalizer)gc_gl_object);
+		HL_CFFIPointer* handle = HLCFFIPointer (result, (hl_finalizer)hl_gc_gl_object);
 		glObjectPtrs[handle] = result;
 		return handle;
 		#else
@@ -3878,7 +3917,7 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_gl_object_register) (int id, int type, void* object) {
 
 		GLObjectType _type = (GLObjectType)type;
-		HL_CFFIPointer* handle = HLCFFIPointer ((vobj*)object, (hl_finalizer)gc_gl_object);
+		HL_CFFIPointer* handle = HLCFFIPointer ((vobj*)object, (hl_finalizer)hl_gc_gl_object);
 
 		//if (glObjects[_type].find (id) != glObjects[_type].end ()) {
 			//
