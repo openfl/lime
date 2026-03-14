@@ -28,7 +28,7 @@ This directory contains two categories of code.
    - Fedora requires the following packages.
 
       ```bash
-      sudo dnf install g++ libstdc++-devel.x86_64 glibc-devel.i686 libstdc++-devel.i686 alsa-lib-devel pulseaudio-libs-devel libX11-devel libXi-devel libXrandr-devel libglvnd-devel
+      sudo dnf install g++ glibc-devel.x86_64 libstdc++-devel.x86_64 glibc-devel.i686 libstdc++-devel.i686 alsa-lib-devel pulseaudio-libs-devel libX11-devel libXi-devel libXrandr-devel libglvnd-devel
       ```
 - Building HashLink requires [additional packages](https://github.com/HaxeFoundation/hashlink#readme).
 
