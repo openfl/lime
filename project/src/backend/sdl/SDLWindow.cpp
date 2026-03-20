@@ -160,6 +160,15 @@ namespace lime {
 		}
 		#endif
 
+		if (!sdlWindow && (flags & (WINDOW_FLAG_HW_AA | WINDOW_FLAG_HW_AA_HIRES))) {
+
+			// Retry without antialiasing — emulators and some devices don't support MSAA
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 0);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 0);
+			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+
+		}
+
 		if (!sdlWindow) {
 
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
@@ -584,8 +593,8 @@ namespace lime {
 
 	int SDLWindow::GetHeight () {
 
-		int width;
-		int height;
+		int width = 0;
+		int height = 0;
 
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 
@@ -667,8 +676,8 @@ namespace lime {
 
 	int SDLWindow::GetWidth () {
 
-		int width;
-		int height;
+		int width = 0;
+		int height = 0;
 
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 
@@ -1133,7 +1142,16 @@ namespace lime {
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 
-		return new SDLWindow (application, width, height, flags, title);
+		SDLWindow* window = new SDLWindow (application, width, height, flags, title);
+
+		if (!window->sdlWindow) {
+
+			delete window;
+			return NULL;
+
+		}
+
+		return window;
 
 	}
 
