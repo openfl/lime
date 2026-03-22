@@ -67,6 +67,7 @@ class HXProject extends Script
 	public static var _command:String;
 	public static var _debug:Bool;
 	public static var _environment:Map<String, String>;
+	public static var _projectFilePath:String;
 	public static var _target:Platform;
 	public static var _targetFlags:Map<String, String>;
 	public static var _templatePaths:Array<String>;
@@ -93,6 +94,7 @@ class HXProject extends Script
 		HXProject._templatePaths = inputData.templatePaths;
 		HXProject._userDefines = inputData.userDefines;
 		HXProject._environment = inputData.environment;
+		HXProject._projectFilePath = inputData.projectFile;
 		Log.verbose = inputData.logVerbose;
 		Log.enableColor = inputData.logEnableColor;
 
@@ -193,6 +195,11 @@ class HXProject extends Script
 			{
 				environment.remove(conflict);
 			}
+		}
+
+		if (_projectFilePath != null)
+		{
+			projectFilePath = _projectFilePath;
 		}
 
 		haxedefs = new Map<String, Dynamic>();
