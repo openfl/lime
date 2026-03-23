@@ -273,6 +273,13 @@ class AssetLibrary
 		{
 			return cachedImages.get(id);
 		}
+		else if (cachedBytes.exists(id))
+		{
+			var image = Image.fromBytes(cachedBytes.get(id));
+			cachedBytes.remove(id);
+			cachedImages.set(id, image);
+			return image;
+		}
 		else if (classTypes.exists(id))
 		{
 			#if flash
@@ -341,7 +348,7 @@ class AssetLibrary
 					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
 
 			case IMAGE:
-				cachedImages.exists(id);
+				cachedImages.exists(id) || cachedBytes.exists(id);
 
 			case MUSIC, SOUND:
 				cachedAudioBuffers.exists(id);
@@ -692,7 +699,7 @@ class AssetLibrary
 					{
 						#if !web
 						case IMAGE:
-							cachedImages.set(id, Image.fromBytes(data));
+							cachedBytes.set(id, data);
 						case MUSIC, SOUND:
 							cachedAudioBuffers.set(id, AudioBuffer.fromBytes(data));
 						case FONT:
