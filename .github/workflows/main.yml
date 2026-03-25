@@ -35,6 +35,7 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
@@ -70,6 +71,13 @@ jobs:
           path: |
             templates/bin/hl/Linux64
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor
+          lime test linux -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -125,6 +133,7 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install utest --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -147,6 +156,12 @@ jobs:
             ndll/LinuxArm64/
             !**/.gitignore
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test linux -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -202,6 +217,7 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
@@ -238,6 +254,13 @@ jobs:
             templates/bin/hl/Mac64
           if-no-files-found: error
 
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor
+          lime test mac -release -verbose -nocolor
+
       - name: Install samples
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -269,6 +292,11 @@ jobs:
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
+      - uses: joshtynjala/setup-adobe-air-action@v2
+        with:
+          air-version: "33.1"
+          accept-license: true
+
       - name: Set HAXEPATH
         run: |
           echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
@@ -279,12 +307,14 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
+          haxelib run lime config AIR_SDK ${{ env.AIR_HOME }} -eval
 
       - name: Rebuild Lime (Windows)
         run: |
@@ -320,6 +350,14 @@ jobs:
           path: |
             templates/bin/hl/Windows64
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor
+          lime test air -release -verbose -nocolor
+          lime test windows -release -verbose -nocolor
 
       - name: Install samples
         run: |
