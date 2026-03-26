@@ -138,7 +138,20 @@ class ArrayBufferView
 	{
 		if (view != null && array == null)
 		{
-			buffer.blit(toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
+			if (offset + view.length > this.length) {
+				throw TAError.RangeError;
+			}
+			if (bytesPerElement == view.bytesPerElement)
+			{
+				buffer.blit(toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
+			}
+			else
+			{
+				for (i in 0...view.length)
+				{
+					transferElement(view, i, this, offset + i);
+				}
+			}
 		}
 		else if (array != null && view == null)
 		{
@@ -173,6 +186,7 @@ class ArrayBufferView
 		if (end == null) end = length;
 		var len = end - begin;
 		if (len < 0) len = 0;
+		if (len > this.length) len = this.length;
 		var byte_offset = toByteLength(begin) + byteOffset;
 
 		var view:ArrayBufferView = switch (type)
@@ -287,6 +301,10 @@ class ArrayBufferView
 		// Ideally, native semantics could be used, like cpp.NativeArray.blit
 		var i = 0, len = array.length;
 
+		if (offset + len > this.length) {
+			throw TAError.RangeError;
+		}
+
 		switch (type)
 		{
 			case Int8:
@@ -399,6 +417,61 @@ class ArrayBufferView
 				throw "copyFromArray on a base type ArrayBuffer";
 		}
 	}
+
+	static function transferElement(fromView:ArrayBufferView, fromIndex:Int, toView:ArrayBufferView, toIndex:Int):Void
+	{
+		var fromValue:Dynamic = null;
+		var fromPos = fromView.byteOffset + (fromIndex * fromView.bytesPerElement);
+		switch (fromView.type)
+		{
+			case Int8:
+				fromValue = ArrayBufferIO.getInt8(fromView.buffer, fromPos);
+			case Int16:
+				fromValue = ArrayBufferIO.getInt16(fromView.buffer, fromPos);
+			case Int32:
+				fromValue = ArrayBufferIO.getInt32(fromView.buffer, fromPos);
+			case Uint8:
+				fromValue = ArrayBufferIO.getUint8(fromView.buffer, fromPos);
+			case Uint16:
+				fromValue = ArrayBufferIO.getUint16(fromView.buffer, fromPos);
+			case Uint32:
+				fromValue = ArrayBufferIO.getUint32(fromView.buffer, fromPos);
+			case Uint8Clamped:
+				fromValue = ArrayBufferIO.getUint8(fromView.buffer, fromPos);
+			case Float32:
+				fromValue = ArrayBufferIO.getFloat32(fromView.buffer, fromPos);
+			case Float64:
+				fromValue = ArrayBufferIO.getFloat64(fromView.buffer, fromPos);
+			case None:
+				throw "transferElement on a base type ArrayBuffer";
+		}
+
+		var toPos = toView.byteOffset + (toIndex * toView.bytesPerElement);
+		switch (toView.type)
+		{
+			case Int8:
+				ArrayBufferIO.setInt8(toView.buffer, toPos, fromValue);
+			case Int16:
+				ArrayBufferIO.setInt16(toView.buffer, toPos, fromValue);
+			case Int32:
+				ArrayBufferIO.setInt32(toView.buffer, toPos, fromValue);
+			case Uint8:
+				ArrayBufferIO.setUint8(toView.buffer, toPos, fromValue);
+			case Uint16:
+				ArrayBufferIO.setUint16(toView.buffer, toPos, fromValue);
+			case Uint32:
+				ArrayBufferIO.setUint32(toView.buffer, toPos, fromValue);
+			case Uint8Clamped:
+				ArrayBufferIO.setUint8Clamped(toView.buffer, toPos, fromValue);
+			case Float32:
+				ArrayBufferIO.setFloat32(toView.buffer, toPos, fromValue);
+			case Float64:
+				ArrayBufferIO.setFloat64(toView.buffer, toPos, fromValue);
+			case None:
+				throw "transferElement on a base type ArrayBuffer";
+		}
+	}
+
 } // ArrayBufferView
 
 #end // !js
