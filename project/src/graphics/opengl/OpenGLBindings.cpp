@@ -1669,8 +1669,10 @@ namespace lime {
 
 	void lime_gl_framebuffer_texture_layer (int target, int attachment, int texture, int level, int layer) {
 
-		#ifdef LIME_GLES3_API
-		glFramebufferTextureLayer (target, attachment, texture, level, layer);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glFramebufferTextureLayer) {
+			glFramebufferTextureLayer (target, attachment, texture, level, layer);
+		}
 		#endif
 
 	}
@@ -1678,8 +1680,10 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_framebuffer_texture_layer) (int target, int attachment, int texture, int level, int layer) {
 
-		#ifdef LIME_GLES3_API
-		glFramebufferTextureLayer (target, attachment, texture, level, layer);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glFramebufferTextureLayer) {
+			glFramebufferTextureLayer (target, attachment, texture, level, layer);
+		}
 		#endif
 
 	}
@@ -4334,8 +4338,10 @@ namespace lime {
 
 	void lime_gl_tex_image_3d (int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, double data) {
 
-		#ifdef LIME_GLES3_API
-		glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glTexImage3D) {
+			glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
@@ -4343,8 +4349,10 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_tex_image_3d) (int target, int level, int internalformat, int width, int height, int depth, int border, int format, int type, double data) {
 
-		#ifdef LIME_GLES3_API
-		glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glTexImage3D) {
+			glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
@@ -4398,8 +4406,10 @@ namespace lime {
 
 	void lime_gl_tex_storage_3d (int target, int level, int internalformat, int width, int height, int depth) {
 
-		#ifdef LIME_GLES3_API
-		glTexStorage3D (target, level, internalformat, width, height, depth);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glTexStorage3D) {
+			glTexStorage3D (target, level, internalformat, width, height, depth);
+		}
 		#endif
 
 	}
@@ -4407,8 +4417,10 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_tex_storage_3d) (int target, int level, int internalformat, int width, int height, int depth) {
 
-		#ifdef LIME_GLES3_API
-		glTexStorage3D (target, level, internalformat, width, height, depth);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glTexStorage3D) {
+			glTexStorage3D (target, level, internalformat, width, height, depth);
+		}
 		#endif
 
 	}
@@ -4430,8 +4442,10 @@ namespace lime {
 
 	void lime_gl_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, double data) {
 
-		#ifdef LIME_GLES3_API
-		glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glTexSubImage3D) {
+			glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
@@ -4439,8 +4453,10 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_tex_sub_image_3d) (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, double data) {
 
-		#ifdef LIME_GLES3_API
-		glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glTexSubImage3D) {
+			glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
