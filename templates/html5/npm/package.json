@@ -2,25 +2,12 @@
   "name": "::META_PACKAGE::",
   "version": "::META_VERSION::",
   "private": true,
-  "devDependencies": {
-    "haxe": "^5.0.10",
-    "haxe-loader": "^0.10.0",
-    "uglifyjs-webpack-plugin": "^1.3.0",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.9",
-    "webpack-merge": "^4.1.4"
-  },
-  "haxeDependencies": {
-    "haxe": "3.4.7"
-  },
   "scripts": {
-    "build": "npm run build:prod",
-    "build:dev": "webpack --config webpack.dev.js",
-    "build:prod": "webpack --config webpack.prod.js",
-    "start": "npm run start:dev",
-    "start:dev": "webpack-dev-server --open --config webpack.dev.js",
-    "start:prod": "webpack-dev-server --open --config webpack.prod.js"
-  },
-  "dependencies": {}
+    "lime:preupdate": "node -e \"/* (Optional) preupdate: Run tasks before Lime tools update (prepare environment, sync assets, etc) */\"",
+    "lime:update": "node -e \"/* (Optional) update: Run tasks after Lime tools update (verify updates, log info, etc) */\"",
+    "lime:prebuild": "node -e \"/* (Optional) prebuild: Run tasks before Lime tools build (codegen, preprocess assets, etc) */\"",
+    "lime:build": "node -e \"/* (Optional) build: Run tasks after Lime tools build (optimize artifacts, copy files, etc) */\"",
+    "lime:run": "node -e \"/* (Required) run: Run build output (vite preview, npx serve, npx http-server) */\"",
+    "lime:test": "node -e \"/* (Required) test: Start dev server/watch mode for non-final builds; replaces build and run lifecycle */\""
+  }
 }
