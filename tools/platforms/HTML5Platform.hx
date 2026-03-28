@@ -103,6 +103,19 @@ class HTML5Platform extends PlatformTarget
 
 	public override function build():Void
 	{
+		if (npm)
+		{
+			if (command == "build")
+			{
+				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
+				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
+			}
+			else
+			{
+				return;
+			}
+		}
+
 		ModuleHelper.buildModules(project, targetDirectory + "/obj", targetDirectory + "/bin");
 
 		if (project.app.main != null)
@@ -160,19 +173,6 @@ class HTML5Platform extends PlatformTarget
 			if (project.targetFlags.exists("minify") || type == "final")
 			{
 				HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
-			}
-		}
-
-		if (npm)
-		{
-			if (command == "build")
-			{
-				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
-				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
-			}
-			else
-			{
-				return;
 			}
 		}
 	}
@@ -246,10 +246,10 @@ class HTML5Platform extends PlatformTarget
 
 		try
 		{
-			if (project.defines.exists("npm") || targetFlags.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron")))
+			if (targetFlags.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron")))
 			{
 				npm = true;
-				// outputFile = project.app.file + ".js";
+				outputFile = project.app.file + ".js";
 			}
 		}
 		catch (e:Dynamic) {}
@@ -280,6 +280,7 @@ class HTML5Platform extends PlatformTarget
 		// project = project.clone ();
 
 		var destination = targetDirectory + "/bin/";
+		if (npm) destination += "dist/";
 		System.mkdir(destination);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
