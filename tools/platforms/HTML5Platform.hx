@@ -27,8 +27,11 @@ import sys.FileSystem;
 
 class HTML5Platform extends PlatformTarget
 {
+	private var assetsDirectory:String;
 	private var dependencyPath:String;
+	private var finalRelease:Bool;
 	private var npm:Bool;
+	private var outputDirectory:String;
 	private var outputFile:String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
@@ -110,7 +113,7 @@ class HTML5Platform extends PlatformTarget
 			runNPMCommand(["run", "lime:prebuild", "--if-present"]);
 		}
 
-		ModuleHelper.buildModules(project, targetDirectory + "/obj", targetDirectory + "/bin");
+		ModuleHelper.buildModules(project, targetDirectory + "/obj", outputDirectory);
 
 		if (project.app.main != null)
 		{
@@ -130,7 +133,7 @@ class HTML5Platform extends PlatformTarget
 
 			if (noOutput) return;
 
-			HTML5Helper.encodeSourceMappingURL(targetDirectory + "/bin/" + project.app.file + ".js");
+			HTML5Helper.encodeSourceMappingURL(outputFile);
 
 			if (project.targetFlags.exists("webgl"))
 			{
@@ -166,11 +169,10 @@ class HTML5Platform extends PlatformTarget
 
 			if (project.targetFlags.exists("minify") || (type == "final" && !npm))
 			{
-				HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
+				HTML5Helper.minify(project, outputFile);
 			}
 		}
 
-		var finalRelease = (!project.debug && project.targetFlags.exists("final"));
 		if (npm && (command == "build" || (command == "test" && finalRelease)))
 		{
 			runNPMCommand(["run", "lime:build", "--if-present"]);
@@ -250,36 +252,39 @@ class HTML5Platform extends PlatformTarget
 		}
 
 		dependencyPath = project.config.getString("html5.dependency-path", "lib");
-		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 
 		try
 		{
-			if (targetFlags.exists("npm") || project.defines.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron"))) {
+			if (targetFlags.exists("npm") || project.defines.exists("npm") || (FileSystem.exists(targetDirectory + "/package.json") && !targetFlags.exists("electron"))) {
 				npm = true;
 			}
 		}
 		catch (e:Dynamic) {}
+
+		finalRelease = (!project.debug && project.targetFlags.exists("final"));
+		assetsDirectory = targetDirectory + (npm ? "/public" : "/bin");
+		outputDirectory = targetDirectory + (npm ? "/build" : "/bin");
+		outputFile = outputDirectory + "/" + project.app.file + ".js";
 	}
 
 	private function ensureNPM():Void
 	{
-		var destination = targetDirectory + "/bin/";
-		System.mkdir(destination);
+		System.mkdir(targetDirectory);
 
 		// Log.info("", Log.accentColor + "Using NPM project: " + Path.combine(Path.tryFullPath(destination), "project.json") + Log.resetColor);
 
 		// Copy template if not present (allows package.json and node_modules to be preserved)
-		if (!FileSystem.exists(targetDirectory + "/bin/package.json"))
+		if (!FileSystem.exists(targetDirectory + "/package.json"))
 		{
 			var context = project.templateContext;
-			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/npm", destination, context);
+			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/npm", targetDirectory, context);
 		}
 
 		// Check if dependencies are okay
 		var needsInstall = true;
 		try
 		{
-			var output = System.runProcess(destination, "npm", ["ls", "--depth=0", "--json"], true, true, true);
+			var output = System.runProcess(targetDirectory, "npm", ["ls", "--depth=0", "--json"], true, true, true);
 			if (output != null)
 			{
 				var json = Json.parse(output);
@@ -302,14 +307,13 @@ class HTML5Platform extends PlatformTarget
 		if (npm)
 		{
 			// If "lime test" and not final, rely on "lime:test" script to start a dev server
-			var finalRelease = (!project.debug && project.targetFlags.exists("final"));
 			if (!finalRelease && command == "test")
 			{
 				runNPMCommand(["run", "lime:test"]);
 			}
 			else
 			{
-				runNPMCommand(["run", "lime:run", "--if-present"]);
+				runNPMCommand(["run", "lime:run"]);
 			}
 		}
 		else
@@ -317,23 +321,22 @@ class HTML5Platform extends PlatformTarget
 			if (targetFlags.exists("electron"))
 			{
 				var npx = targetFlags.exists("npx");
-				ElectronHelper.launch(project, targetDirectory + "/bin", npx);
+				ElectronHelper.launch(project, outputDirectory, npx);
 			}
 			else
 			{
-				HTML5Helper.launch(project, targetDirectory + "/bin");
+				HTML5Helper.launch(project, outputDirectory);
 			}
 		}
 	}
 
 	private function runNPMCommand(args:Array<String>, safeExecute:Bool = true, ignoreErrors:Bool = false):Int
 	{
-		var destination = targetDirectory + "/bin/";
 		if (!project.targetFlags.exists("verbose"))
 		{
 			args.push("--silent");
 		}
-		return System.runCommand(destination, "npm", args, safeExecute, ignoreErrors);
+		return System.runCommand(targetDirectory, "npm", args, safeExecute, ignoreErrors);
 	}
 
 	public override function update():Void
@@ -348,8 +351,8 @@ class HTML5Platform extends PlatformTarget
 
 		// project = project.clone ();
 
-		var destination = targetDirectory + "/bin/";
-		System.mkdir(destination);
+		var destination = assetsDirectory + "/";
+		System.mkdir(assetsDirectory);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
