@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.ObjectHelper;
 import lime.tools.HashlinkHelper;
 import hxp.Haxelib;
 import hxp.HXML;
@@ -38,56 +39,53 @@ class LinuxPlatform extends PlatformTarget
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		switch (System.hostArchitecture)
 		{
@@ -122,7 +120,9 @@ class LinuxPlatform extends PlatformTarget
 
 		for (architecture in project.architectures)
 		{
-			if (!targetFlags.exists("32") && !targetFlags.exists("x86_32") && (architecture == Architecture.X64 || architecture == Architecture.ARM64))
+			if (!targetFlags.exists("32")
+				&& !targetFlags.exists("x86_32")
+				&& (architecture == Architecture.X64 || architecture == Architecture.ARM64))
 			{
 				is64 = true;
 			}
@@ -198,7 +198,8 @@ class LinuxPlatform extends PlatformTarget
 				}
 				else
 				{
-					ProjectHelper.copyLibrary(project, ndll, "Linux" + (( System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64)?"Arm":"") + (is64 ? "64" : ""), "",
+					ProjectHelper.copyLibrary(project, ndll,
+						"Linux" + ((System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "") + (is64 ? "64" : ""), "",
 						(ndll.haxelib != null
 							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory,
 						project.debug, targetSuffix);
@@ -212,9 +213,13 @@ class LinuxPlatform extends PlatformTarget
 
 			if (noOutput) return;
 
-			NekoHelper.createExecutable(project.templatePaths, "linux" + (( System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64)?"Arm":"") + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
+			NekoHelper.createExecutable(project.templatePaths,
+				"linux"
+				+ ((System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "")
+				+ (is64 ? "64" : ""),
+				targetDirectory
+				+ "/obj/ApplicationMain.n", executablePath);
 			NekoHelper.copyLibraries(project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
-
 		}
 		else if (targetType == "hl")
 		{
@@ -227,7 +232,19 @@ class LinuxPlatform extends PlatformTarget
 			if (project.targetFlags.exists("hlc"))
 			{
 				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				var command = [compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,$ORIGIN", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "-L", applicationDirectory];
+				var command = [
+					compiler,
+					"-O3",
+					"-o",
+					executablePath,
+					"-std=c11",
+					"-Wl,-rpath,$ORIGIN",
+					"-I",
+					Path.combine(targetDirectory, "obj"),
+					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+					"-L",
+					applicationDirectory
+				];
 				for (file in System.readDirectory(applicationDirectory))
 				{
 					switch Path.extension(file)
@@ -401,6 +418,17 @@ class LinuxPlatform extends PlatformTarget
 		{
 			Sys.println(executablePath);
 		}
+		else if (project.targetFlags.exists("template-context"))
+		{
+			if (project.targetFlags.exists("json"))
+			{
+				Sys.println(ObjectHelper.formatJson(project.templateContext));
+			}
+			else
+			{
+				Sys.println(ObjectHelper.formatForDisplay(project.templateContext));
+			}
+		}
 		else
 		{
 			Sys.println(getDisplayHXML().toString());
@@ -411,7 +439,7 @@ class LinuxPlatform extends PlatformTarget
 	{
 		// var project = project.clone ();
 
-		if(targetFlags.exists('rpi'))
+		if (targetFlags.exists('rpi'))
 		{
 			project.haxedefs.set("rpi", 1);
 		}
@@ -436,7 +464,8 @@ class LinuxPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -468,7 +497,7 @@ class LinuxPlatform extends PlatformTarget
 	{
 		var commands:Array<Array<String>> = [];
 
-		if (targetFlags.exists('rpi') && System.hostArchitecture == ARM64 )
+		if (targetFlags.exists('rpi') && System.hostArchitecture == ARM64)
 		{
 			commands.push([
 				"-Dlinux",
@@ -501,14 +530,9 @@ class LinuxPlatform extends PlatformTarget
 			// TODO: Support single binary
 			commands.push(["-Dlinux", "-DHXCPP_M64", "-Dhashlink"]);
 		}
-		else if (System.hostArchitecture == ARM64 )
+		else if (System.hostArchitecture == ARM64)
 		{
-			commands.push([
-				"-Dlinux",
-				"-Dtoolchain=linux",
-				"-DBINDIR=LinuxArm64",
-				"-DHXCPP_ARM64",
-			]);
+			commands.push(["-Dlinux", "-Dtoolchain=linux", "-DBINDIR=LinuxArm64", "-DHXCPP_ARM64",]);
 		}
 		else
 		{
@@ -594,7 +618,9 @@ class LinuxPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Linux" + (( System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "") + (is64 ? "64" : ""), "lib", ".a", project.debug);
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll,
+						"Linux" + ((System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "") + (is64 ? "64" : ""), "lib", ".a",
+						project.debug);
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.ObjectHelper;
 import haxe.io.Eof;
 import hxp.Haxelib;
 import hxp.HXML;
@@ -46,56 +47,53 @@ class MacPlatform extends PlatformTarget
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		defaults.window.allowHighDPI = false;
 
@@ -230,7 +228,19 @@ class MacPlatform extends PlatformTarget
 				// compiler command with the `arch -x86_64` command.
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
-				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,@executable_path", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				var command = [
+					"arch",
+					"-x86_64",
+					compiler,
+					"-O3",
+					"-o",
+					executablePath,
+					"-std=c11",
+					"-Wl,-rpath,@executable_path",
+					"-I",
+					Path.combine(targetDirectory, "obj"),
+					Path.combine(targetDirectory, "obj/ApplicationMain.c")
+				];
 				for (file in System.readDirectory(executableDirectory))
 				{
 					switch Path.extension(file)
@@ -251,7 +261,12 @@ class MacPlatform extends PlatformTarget
 							// when launched inside an .app file, the executable
 							// can't find the library files unless we tell
 							// it to search specifically from @executable_path
-							System.runCommand("", "install_name_tool", ["-change", Path.withoutDirectory(file), "@executable_path/" + Path.withoutDirectory(file), executablePath]);
+							System.runCommand("", "install_name_tool", [
+								"-change",
+								Path.withoutDirectory(file),
+								"@executable_path/" + Path.withoutDirectory(file),
+								executablePath
+							]);
 						default:
 					}
 				}
@@ -354,7 +369,10 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java" && sys.FileSystem.exists(executablePath))
+		if (System.hostPlatform != WINDOWS
+			&& targetType != "nodejs"
+			&& targetType != "java"
+			&& sys.FileSystem.exists(executablePath))
 		{
 			System.runCommand("", "chmod", ["755", executablePath]);
 		}
@@ -378,6 +396,17 @@ class MacPlatform extends PlatformTarget
 		if (project.targetFlags.exists("output-file"))
 		{
 			Sys.println(executablePath);
+		}
+		else if (project.targetFlags.exists("template-context"))
+		{
+			if (project.targetFlags.exists("json"))
+			{
+				Sys.println(ObjectHelper.formatJson(project.templateContext));
+			}
+			else
+			{
+				Sys.println(ObjectHelper.formatForDisplay(project.templateContext));
+			}
 		}
 		else
 		{
@@ -405,7 +434,8 @@ class MacPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -666,10 +696,7 @@ class MacPlatform extends PlatformTarget
 
 		// these are the known directories where Homebrew installs its dependencies
 		// we may need to add more in the future, but this seems to be enough for now
-		var homebrewDirs = [
-			"/usr/local/opt/",
-			"/usr/local/Cellar/"
-		];
+		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/"];
 
 		// first, collect all executables, hdlls, and dylibs that were built
 		// by BuildHashlink.xml
@@ -734,7 +761,10 @@ class MacPlatform extends PlatformTarget
 								continue;
 							}
 						}
-						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool { return StringTools.startsWith(resolvedLibPath, dirPath); }))
+						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool
+						{
+							return StringTools.startsWith(resolvedLibPath, dirPath);
+						}))
 						{
 							homebrewDependencyPaths.push(libPath);
 							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);
