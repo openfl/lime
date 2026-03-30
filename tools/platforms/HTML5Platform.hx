@@ -108,10 +108,25 @@ class HTML5Platform extends PlatformTarget
 	{
 		if (npm)
 		{
+<<<<<<< HEAD
 			runNPMCommand(["run", "lime:prebuild", "--if-present"]);
 		}
 
 		ModuleHelper.buildModules(project, targetDirectory + "/obj", outputDirectory);
+=======
+			if (command == "build")
+			{
+				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
+				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
+			}
+			else
+			{
+				return;
+			}
+		}
+
+		ModuleHelper.buildModules(project, targetDirectory + "/obj", targetDirectory + "/bin");
+>>>>>>> develop
 
 		if (project.app.main != null)
 		{
@@ -170,11 +185,14 @@ class HTML5Platform extends PlatformTarget
 				HTML5Helper.minify(project, outputFile);
 			}
 		}
+<<<<<<< HEAD
 
 		if (npm && (command == "build" || (command == "test" && finalRelease)))
 		{
 			runNPMCommand(["run", "lime:build", "--if-present"]);
 		}
+=======
+>>>>>>> develop
 	}
 
 	public override function clean():Void
@@ -265,11 +283,18 @@ class HTML5Platform extends PlatformTarget
 
 		try
 		{
+<<<<<<< HEAD
 			if (targetFlags.exists("npm")
 				|| project.config.get("html5").getBool("npm", false)
 				|| (FileSystem.exists(targetDirectory + "/package.json") && !targetFlags.exists("electron")))
 			{
 				npm = true;
+=======
+			if (targetFlags.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron")))
+			{
+				npm = true;
+				outputFile = project.app.file + ".js";
+>>>>>>> develop
 			}
 		}
 		catch (e:Dynamic) {}
@@ -364,8 +389,14 @@ class HTML5Platform extends PlatformTarget
 
 		// project = project.clone ();
 
+<<<<<<< HEAD
 		var destination = assetsDirectory + "/";
 		System.mkdir(assetsDirectory);
+=======
+		var destination = targetDirectory + "/bin/";
+		if (npm) destination += "dist/";
+		System.mkdir(destination);
+>>>>>>> develop
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
