@@ -3,11 +3,14 @@
   "version": "::META_VERSION::",
   "private": true,
   "scripts": {
-    "lime:preupdate": "node -e \"/* (Optional) preupdate: Run tasks before Lime tools update (prepare environment, sync assets, etc) */\"",
-    "lime:update": "node -e \"/* (Optional) update: Run tasks after Lime tools update (verify updates, log info, etc) */\"",
-    "lime:prebuild": "node -e \"/* (Optional) prebuild: Run tasks before Lime tools build (codegen, preprocess assets, etc) */\"",
-    "lime:build": "node -e \"/* (Optional) build: Run tasks after Lime tools build (optimize artifacts, copy files, etc) */\"",
-    "lime:run": "node -e \"/* (Required) run: Run build output (vite preview, npx serve, npx http-server) */\"",
-    "lime:test": "node -e \"/* (Required) test: Start dev server/watch mode for non-final builds; replaces build and run lifecycle */\""
+    "lime:preupdate": "",
+    "lime:update": "",
+    "lime:prebuild": "",
+    "lime:build": "vite build",
+    "lime:run": "vite preview ::if (FLAG_PORT != null)::-p ::FLAG_PORT::::end:: ::if (FLAG_NOLAUNCH != null)::::else::--open::end::",
+    "lime:test": "vite ::if (FLAG_PORT != null)::-p ::FLAG_PORT::::end:: ::if (FLAG_NOLAUNCH != null)::::else::--open::end::"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
   }
 }
