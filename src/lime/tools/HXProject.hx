@@ -1346,6 +1346,7 @@ class HXProject extends Script
 			// #end
 
 			Reflect.setField(context, "LIB_" + StringTools.formatUppercaseVariable(haxelib.name), true);
+			Reflect.setField(context, "LIB_" + StringTools.formatUppercaseVariable(haxelib.name) + "_PATH", Haxelib.getPath(haxelib));
 
 			if (name == "nme")
 			{
