@@ -266,7 +266,7 @@ class HTML5Platform extends PlatformTarget
 		try
 		{
 			if (targetFlags.exists("npm")
-				|| project.defines.exists("npm")
+				|| project.config.get("html5").getBool("npm", false)
 				|| (FileSystem.exists(targetDirectory + "/package.json") && !targetFlags.exists("electron")))
 			{
 				npm = true;
