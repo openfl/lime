@@ -275,8 +275,8 @@ class HTML5Platform extends PlatformTarget
 		catch (e:Dynamic) {}
 
 		finalRelease = (!project.debug && project.targetFlags.exists("final"));
-		assetsDirectory = targetDirectory + (npm ? "/public" : "/bin");
-		outputDirectory = targetDirectory + (npm ? "/build" : "/bin");
+		outputDirectory = targetDirectory + "/bin";
+		assetsDirectory = outputDirectory;
 		outputFile = outputDirectory + "/" + project.app.file + ".js";
 	}
 
@@ -311,7 +311,8 @@ class HTML5Platform extends PlatformTarget
 
 		if (needsInstall)
 		{
-			runNPMCommand(["install"]);
+			// Show output, even when !verbose
+			System.runCommand(targetDirectory, "npm", ["install"]);
 		}
 	}
 
@@ -453,6 +454,7 @@ class HTML5Platform extends PlatformTarget
 
 		if (npm)
 		{
+			// Ensure all HXML paths are absolute
 			var path:String;
 			for (i in 0...project.sources.length)
 			{
