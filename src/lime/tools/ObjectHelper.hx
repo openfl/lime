@@ -19,37 +19,6 @@ class ObjectHelper
 		return prettyJson(obj, 0, indent);
 	}
 
-	private static function objectToString(value:Dynamic):String
-	{
-		if (value == null) return "null";
-		if (Std.isOfType(value, Bool) || Std.isOfType(value, Int) || Std.isOfType(value, Float)) return Std.string(value);
-		if (Std.isOfType(value, String)) return '"' + StringTools.replace(value, '"', '\\"') + '"';
-
-		// Handle enums
-		var e = Type.getEnum(value);
-		if (e != null) return Type.enumConstructor(value);
-
-		// Handle arrays
-		if (Std.isOfType(value, Array))
-		{
-			var arr:Array<Dynamic> = cast value;
-			return "[" + arr.map(objectToString).join(", ") + "]";
-		}
-
-		// Handle objects/maps recursively
-		var fields = Reflect.fields(value);
-		if (fields.length > 0)
-		{
-			var pairs = fields.map(function(f)
-			{
-				return f + ": " + objectToString(Reflect.field(value, f));
-			});
-			return "{" + pairs.join(", ") + "}";
-		}
-
-		return "<unknown>";
-	}
-
 	private static function prettyJson(value:Dynamic, level:Int, indent:Int):String
 	{
 		var isOfType = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end;
