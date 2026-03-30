@@ -52,20 +52,21 @@ class ObjectHelper
 
 	private static function prettyJson(value:Dynamic, level:Int, indent:Int):String
 	{
+		var isOfType = #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end;
 		var pad = StringTools.lpad("", " ", level * indent);
 		var nextPad = StringTools.lpad("", " ", (level + 1) * indent);
 
 		// Primitive types
 		if (value == null) return "null";
-		if (Std.isOfType(value, Bool) || Std.isOfType(value, Int) || Std.isOfType(value, Float)) return Std.string(value);
-		if (Std.isOfType(value, String)) return '"' + StringTools.replace(value, '"', '\\"') + '"';
+		if (isOfType(value, Bool) || isOfType(value, Int) || isOfType(value, Float)) return Std.string(value);
+		if (isOfType(value, String)) return '"' + StringTools.replace(value, '"', '\\"') + '"';
 
 		// Enums
 		var e = Type.getEnum(value);
 		if (e != null) return '"' + Type.enumConstructor(value) + '"';
 
 		// Arrays
-		if (Std.isOfType(value, Array))
+		if (isOfType(value, Array))
 		{
 			var arr:Array<Dynamic> = cast value;
 			var items = arr.map(function(v) return prettyJson(v, level + 1, indent));
