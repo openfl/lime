@@ -2244,17 +2244,21 @@ class CommandLineTools
 			{
 				targetFlags.set("help", "");
 			}
-			else if (argument == "--output-file")
-			{
-				targetFlags.set("output-file", "");
-			}
 			else if (argument.substr(0, 1) == "-")
 			{
-				if (argument == "-dce" || argument.substr(1, 1) == "-")
+				if (argument == "-dce")
 				{
 					overrides.haxeflags.push(argument);
+					catchHaxeFlag = true;
+				}
+				else if (argument.length > 2 && argument.substr(1, 1) == "-")
+				{
+					targetFlags.set(argument.substr(2), "");
 
-					if (argument == "--remap" || argument == "--connect" || argument == "-dce")
+					// TODO: Should this be more selective?
+					overrides.haxeflags.push(argument);
+
+					if (argument == "--remap" || argument == "--connect")
 					{
 						catchHaxeFlag = true;
 					}
