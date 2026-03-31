@@ -65,7 +65,12 @@ class NativeCFFI
 
 	@:cffi private static function lime_application_quit(handle:Dynamic):Int;
 
+	@:cffi private static function lime_application_set_main_loop(handle:Dynamic, profile:Int, frameRate:Float, timePrecision:Int, busyWait:Int,
+		uncapMode:Int):Void;
+
 	@:cffi private static function lime_application_set_frame_rate(handle:Dynamic, value:Float):Void;
+
+	@:cffi private static function lime_application_set_vsync_mode(handle:Dynamic, value:Int):Void;
 
 	@:cffi private static function lime_application_update(handle:Dynamic):Bool;
 
@@ -377,8 +382,12 @@ class NativeCFFI
 	private static var lime_application_exec = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_exec", "oi", false));
 	private static var lime_application_init = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_application_init", "ov", false));
 	private static var lime_application_quit = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_quit", "oi", false));
+	private static var lime_application_set_main_loop = new cpp.Callable<cpp.Object->Int->Float->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_set_main_loop", "oidiiiv", false));
 	private static var lime_application_set_frame_rate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_set_frame_rate", "odv", false));
+	private static var lime_application_set_vsync_mode = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_set_vsync_mode", "oiv", false));
 	private static var lime_application_update = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_application_update", "ob", false));
 	private static var lime_audio_load = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load", "ooo", false));
 	private static var lime_audio_load_bytes = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load_bytes",
@@ -649,7 +658,9 @@ class NativeCFFI
 	private static var lime_application_exec = CFFI.load("lime", "lime_application_exec", 1);
 	private static var lime_application_init = CFFI.load("lime", "lime_application_init", 1);
 	private static var lime_application_quit = CFFI.load("lime", "lime_application_quit", 1);
+	private static var lime_application_set_main_loop = CFFI.load("lime", "lime_application_set_main_loop", 6);
 	private static var lime_application_set_frame_rate = CFFI.load("lime", "lime_application_set_frame_rate", 2);
+	private static var lime_application_set_vsync_mode = CFFI.load("lime", "lime_application_set_vsync_mode", 2);
 	private static var lime_application_update = CFFI.load("lime", "lime_application_update", 1);
 	private static var lime_audio_load = CFFI.load("lime", "lime_audio_load", 2);
 	private static var lime_audio_load_bytes = CFFI.load("lime", "lime_audio_load_bytes", 2);
@@ -824,6 +835,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_application_set_frame_rate") private static function lime_application_set_frame_rate(handle:CFFIPointer, value:Float):Void {}
+
+	@:hlNative("lime", "hl_application_set_main_loop") private static function lime_application_set_main_loop(handle:CFFIPointer, profile:Int,
+		frameRate:Float, timePrecision:Int, busyWait:Int, uncapMode:Int):Void {}
+
+	@:hlNative("lime", "hl_application_set_vsync_mode") private static function lime_application_set_vsync_mode(handle:CFFIPointer, value:Int):Void {}
 
 	@:hlNative("lime", "hl_application_update") private static function lime_application_update(handle:CFFIPointer):Bool
 	{

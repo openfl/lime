@@ -415,20 +415,7 @@ class HTML5Window
 
 	public function getFrameRate():Float
 	{
-		if (parent.application == null) return 0;
-
-		if (parent.application.__backend.framePeriod < 0)
-		{
-			return 60;
-		}
-		else if (parent.application.__backend.framePeriod == 1000)
-		{
-			return 0;
-		}
-		else
-		{
-			return 1000 / parent.application.__backend.framePeriod;
-		}
+		return (parent.application != null) ? parent.application.__getFrameRate() : 0;
 	}
 
 	public function getMouseLock():Bool
@@ -452,7 +439,6 @@ class HTML5Window
 		{
 			case "webglcontextlost":
 				if (event.cancelable) event.preventDefault();
-
 				// #if !display
 				if (GL.context != null)
 				{
@@ -466,7 +452,6 @@ class HTML5Window
 
 			case "webglcontextrestored":
 				createContext();
-
 				parent.onRenderContextRestored.dispatch(parent.context);
 
 			default:
@@ -506,17 +491,16 @@ class HTML5Window
 			case "dragover":
 				event.preventDefault();
 				return false;
-
 			case "drop":
 				// TODO: Create a formal API that supports HTML5 file objects
 				if (event.dataTransfer != null && event.dataTransfer.files.length > 0)
 				{
 					parent.onDropFile.dispatch(cast event.dataTransfer.files);
+
 					event.preventDefault();
 					return false;
 				}
 		}
-
 		return true;
 	}
 
@@ -540,7 +524,6 @@ class HTML5Window
 		{
 			isFullscreen = true;
 			parent.__fullscreen = true;
-
 			if (requestedFullscreen)
 			{
 				requestedFullscreen = false;
@@ -555,7 +538,6 @@ class HTML5Window
 			// TODO: Handle a different way?
 			parent.onRestore.dispatch();
 			// parent.onResize.dispatch (parent.__width, parent.__height);
-
 			var changeEvents = [
 				"fullscreenchange",
 				"mozfullscreenchange",
@@ -564,14 +546,15 @@ class HTML5Window
 			];
 			var errorEvents = [
 				"fullscreenerror",
+
 				"mozfullscreenerror",
 				"webkitfullscreenerror",
 				"MSFullscreenError"
 			];
-
 			for (i in 0...changeEvents.length)
 			{
 				Browser.document.removeEventListener(changeEvents[i], handleFullscreenEvent, false);
+
 				Browser.document.removeEventListener(errorEvents[i], handleFullscreenEvent, false);
 			}
 		}
@@ -603,8 +586,8 @@ class HTML5Window
 		{
 			return;
 		}
-
 		// In order to ensure that the browser will fire clipboard events, we always need to have something selected.
+
 		// Therefore, `value` cannot be "".
 		if (textInput.value != dummyCharacter)
 		{
@@ -623,7 +606,6 @@ class HTML5Window
 	{
 		var x = 0.0;
 		var y = 0.0;
-
 		if (event.type != "wheel")
 		{
 			if (parent.element != null)
@@ -654,7 +636,6 @@ class HTML5Window
 				x = event.clientX;
 				y = event.clientY;
 			}
-
 			switch (event.type)
 			{
 				case "mousedown":
@@ -671,6 +652,7 @@ class HTML5Window
 						// dispatched.
 						// Flash embedded in HTML worked similarly.
 						Browser.window.addEventListener("mouseup", handleMouseEvent);
+
 						Browser.window.addEventListener("mousemove", handleMouseEvent);
 					}
 					// just to be safe, clear the flag on every mouse down
@@ -689,7 +671,6 @@ class HTML5Window
 					if (event.target == parent.element)
 					{
 						parent.onEnter.dispatch();
-
 						if (parent.onEnter.canceled && event.cancelable)
 						{
 							event.preventDefault();
@@ -700,13 +681,11 @@ class HTML5Window
 					if (event.target == parent.element)
 					{
 						parent.onLeave.dispatch();
-
 						if (parent.onLeave.canceled && event.cancelable)
 						{
 							event.preventDefault();
 						}
 					}
-
 				case "mouseup":
 					// see comment below for mousemove for an explanation of
 					// what the __stopMousePropagation flag is used for.
@@ -718,7 +697,6 @@ class HTML5Window
 
 					Browser.window.removeEventListener("mouseup", handleMouseEvent);
 					Browser.window.removeEventListener("mousemove", handleMouseEvent);
-
 					__stopMousePropagation = event.currentTarget == parent.element;
 
 					parent.clickCount = event.detail;
@@ -729,24 +707,24 @@ class HTML5Window
 					{
 						event.preventDefault();
 					}
-
 				case "mousemove":
 					// this same listener is added to the parent element and to
+
 					// the browser window for both the mousemove and the mouseup
 					// event types, if mousedown happens first. this allows both
 					// onMouseMove and onMouseUp to be dispatched if the mouse
 					// moves outside the bounds of the parent element.
-
 					// since browser mouse events bubble, this listener will be
 					// called for the parent element first, as long as the mouse
 					// is still over the parent element. in that case, when the
 					// listener is called for the browser window, it should
+
 					// return early so that onMouseMove or onMouseUp isn't
 					// dispatched twice. this is done by checking the
 					// __stopMousePropagation flag when the current target isn't
 					// the parent element.
-
 					// however, if the mouse isn't over the parent element, the
+
 					// listener will be called only for the browser window, and
 					// not the parent element. in that case, it can proceed to
 					// dispatch either onMouseMove or onMouseUp, since this
@@ -756,7 +734,6 @@ class HTML5Window
 					// the mouse button isn't down, then the listener won't be
 					// added to the browser window, and event won't be
 					// dispatched outside the bounds of the parent element.
-
 					if (__stopMousePropagation && event.currentTarget != parent.element)
 					{
 						// why not call event.stopPropagation() here? well,
@@ -765,6 +742,7 @@ class HTML5Window
 						// parent element and on the browser window is just an
 						// implementation detail and shouldn't affect other
 						// listeners.
+
 						__stopMousePropagation = false;
 						return;
 					}
@@ -774,16 +752,13 @@ class HTML5Window
 					{
 						parent.onMouseMove.dispatch(x, y);
 						parent.onMouseMoveRelative.dispatch(x - cacheMouseX, y - cacheMouseY);
-
 						if ((parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) && event.cancelable)
 						{
 							event.preventDefault();
 						}
 					}
-
 				default:
 			}
-
 			cacheMouseX = x;
 			cacheMouseY = y;
 		}
@@ -792,13 +767,13 @@ class HTML5Window
 			var deltaMode:MouseWheelMode = switch (untyped event.deltaMode)
 			{
 				case 0: PIXELS;
+
 				case 1: LINES;
 				case 2: PAGES;
+
 				default: UNKNOWN;
 			}
-
 			parent.onMouseWheel.dispatch(untyped event.deltaX, -untyped event.deltaY, deltaMode);
-
 			if (parent.onMouseWheel.canceled && event.cancelable)
 			{
 				event.preventDefault();
@@ -831,9 +806,7 @@ class HTML5Window
 	private function handleTouchEvent(event:TouchEvent):Void
 	{
 		if (event.cancelable) event.preventDefault();
-
 		var rect = null;
-
 		if (parent.element != null)
 		{
 			if (canvas != null)
@@ -849,10 +822,8 @@ class HTML5Window
 				rect = parent.element.getBoundingClientRect();
 			}
 		}
-
 		var windowWidth:Float = setWidth;
 		var windowHeight:Float = setHeight;
-
 		if (windowWidth == 0 || windowHeight == 0)
 		{
 			if (rect != null)
@@ -866,8 +837,8 @@ class HTML5Window
 				windowHeight = 1;
 			}
 		}
-
 		var touch:Touch;
+
 		var x:Float;
 		var y:Float;
 		var cacheX:Float;
@@ -877,7 +848,6 @@ class HTML5Window
 		{
 			x = 0.0;
 			y = 0.0;
-
 			if (rect != null)
 			{
 				x = (data.clientX - rect.left) * (windowWidth / rect.width);
@@ -892,7 +862,6 @@ class HTML5Window
 			if (event.type == "touchstart")
 			{
 				touch = unusedTouchesPool.pop();
-
 				if (touch == null)
 				{
 					touch = new Touch(x / windowWidth, y / windowHeight, data.identifier, 0, 0, data.force, parent.id);
@@ -903,20 +872,20 @@ class HTML5Window
 					touch.y = y / windowHeight;
 					touch.id = data.identifier;
 					touch.dx = 0;
+
 					touch.dy = 0;
 					touch.pressure = data.force;
+
 					touch.device = parent.id;
 				}
 
 				currentTouches.set(data.identifier, touch);
-
 				Touch.onStart.dispatch(touch);
 
 				if (primaryTouch == null)
 				{
 					primaryTouch = touch;
 				}
-
 				if (touch == primaryTouch)
 				{
 					parent.onMouseDown.dispatch(x, y, 0);
@@ -930,8 +899,8 @@ class HTML5Window
 				{
 					cacheX = touch.x;
 					cacheY = touch.y;
-
 					touch.x = x / windowWidth;
+
 					touch.y = y / windowHeight;
 					touch.dx = touch.x - cacheX;
 					touch.dy = touch.y - cacheY;
@@ -946,31 +915,24 @@ class HTML5Window
 							{
 								parent.onMouseMove.dispatch(x, y);
 							}
-
 						case "touchend":
 							Touch.onEnd.dispatch(touch);
-
 							currentTouches.remove(data.identifier);
 							unusedTouchesPool.add(touch);
-
 							if (touch == primaryTouch)
 							{
 								parent.onMouseUp.dispatch(x, y, 0);
 								primaryTouch = null;
 							}
-
 						case "touchcancel":
 							Touch.onCancel.dispatch(touch);
-
 							currentTouches.remove(data.identifier);
 							unusedTouchesPool.add(touch);
-
 							if (touch == primaryTouch)
 							{
 								// parent.onMouseUp.dispatch (x, y, 0);
 								primaryTouch = null;
 							}
-
 						default:
 					}
 				}
@@ -981,14 +943,12 @@ class HTML5Window
 	private function isDescendent(node:Node):Bool
 	{
 		if (node == parent.element) return true;
-
 		while (node != null)
 		{
 			if (node.parentNode == parent.element)
 			{
 				return true;
 			}
-
 			node = node.parentNode;
 		}
 
@@ -1004,7 +964,6 @@ class HTML5Window
 		if (canvas != null)
 		{
 			var stageRect = new Rectangle(0, 0, canvas.width, canvas.height);
-
 			if (rect == null)
 			{
 				rect = stageRect;
@@ -1013,13 +972,12 @@ class HTML5Window
 			{
 				rect.intersection(stageRect, rect);
 			}
-
 			if (rect.width > 0 && rect.height > 0)
 			{
 				var canvas2:CanvasElement = cast Browser.document.createElement("canvas");
 				canvas2.width = Std.int(rect.width);
-				canvas2.height = Std.int(rect.height);
 
+				canvas2.height = Std.int(rect.height);
 				var context = canvas2.getContext("2d");
 				context.drawImage(canvas, -rect.x, -rect.y);
 
@@ -1057,7 +1015,6 @@ class HTML5Window
 		textArea.value = value;
 		textArea.focus();
 		textArea.select();
-
 		if (Browser.document.queryCommandEnabled("copy"))
 		{
 			Browser.document.execCommand("copy");
@@ -1090,14 +1047,13 @@ class HTML5Window
 					case RESIZE_WE: "ew-resize";
 					case TEXT: "text";
 					case WAIT: "wait";
+
 					case WAIT_ARROW: "wait";
 					default: "auto";
 				}
 			}
-
 			cursor = value;
 		}
-
 		return cursor;
 	}
 
@@ -1108,23 +1064,7 @@ class HTML5Window
 
 	public function setFrameRate(value:Float):Float
 	{
-		if (parent.application != null)
-		{
-			if (value >= 60)
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = -1;
-			}
-			else if (value > 0)
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000 / value;
-			}
-			else
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000;
-			}
-		}
-
-		return value;
+		return (parent.application != null) ? parent.application.__setFrameRateFromWindow(value) : value;
 	}
 
 	public function setFullscreen(value:Bool):Bool
@@ -1134,7 +1074,6 @@ class HTML5Window
 			if (!requestedFullscreen && !isFullscreen)
 			{
 				requestedFullscreen = true;
-
 				untyped
 				{
 					if (parent.element.requestFullscreen)
@@ -1159,6 +1098,7 @@ class HTML5Window
 					{
 						document.addEventListener("MSFullscreenChange", handleFullscreenEvent, false);
 						document.addEventListener("MSFullscreenError", handleFullscreenEvent, false);
+
 						parent.element.msRequestFullscreen();
 					}
 				}
@@ -1188,20 +1128,19 @@ class HTML5Window
 		// image = image.clone ();
 
 		// if (image.width != iconWidth || image.height != iconHeight) {
+
 		//
 		// image.resize (iconWidth, iconHeight);
 		//
 		// }
 
 		ImageCanvasUtil.convertToCanvas(image);
-
 		var link:LinkElement = cast Browser.document.querySelector("link[rel*='icon']");
 
 		if (link == null)
 		{
 			link = cast Browser.document.createElement("link");
 		}
-
 		link.type = "image/x-icon";
 		link.rel = "shortcut icon";
 		link.href = image.buffer.src.toDataURL("image/x-icon");
@@ -1241,23 +1180,23 @@ class HTML5Window
 				// use password instead of text to avoid IME issues on Android
 				textInput.type = Browser.navigator.userAgent.indexOf("Android") >= 0 ? 'password' : 'text';
 				#end
+
 				textInput.style.position = 'absolute';
 				textInput.style.opacity = "0";
+
 				textInput.style.color = "transparent";
 				textInput.value = dummyCharacter; // See: handleInputEvent()
 
 				untyped textInput.autocapitalize = "off";
 				untyped textInput.autocorrect = "off";
 				textInput.autocomplete = "off";
-
 				// TODO: Position for mobile browsers better
-
 				textInput.style.left = "0px";
 				textInput.style.top = "50%";
-
 				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match(Browser.window.navigator.userAgent))
 				{
 					textInput.style.fontSize = "0px";
+
 					textInput.style.width = '0px';
 					textInput.style.height = '0px';
 				}
@@ -1270,12 +1209,10 @@ class HTML5Window
 				untyped (textInput.style).pointerEvents = 'none';
 				textInput.style.zIndex = "-10000000";
 			}
-
 			if (textInput.parentNode == null)
 			{
 				parent.element.appendChild(textInput);
 			}
-
 			if (!textInputEnabled)
 			{
 				textInput.addEventListener('input', handleInputEvent, true);
@@ -1286,7 +1223,6 @@ class HTML5Window
 				textInput.addEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.addEventListener('compositionend', handleCompositionendEvent, true);
 			}
-
 			textInput.focus();
 			textInput.select();
 		}
@@ -1297,11 +1233,12 @@ class HTML5Window
 				// call blur() before removing the compositionend listener
 				// to ensure that incomplete IME input is committed
 				textInput.blur();
-
 				textInput.removeEventListener('input', handleInputEvent, true);
+
 				textInput.removeEventListener('blur', handleFocusEvent, true);
 				textInput.removeEventListener('cut', handleCutOrCopyEvent, true);
 				textInput.removeEventListener('copy', handleCutOrCopyEvent, true);
+
 				textInput.removeEventListener('paste', handlePasteEvent, true);
 				textInput.removeEventListener('compositionstart', handleCompositionstartEvent, true);
 				textInput.removeEventListener('compositionend', handleCompositionendEvent, true);
@@ -1347,10 +1284,8 @@ class HTML5Window
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;
-
 		var elementWidth:Float;
 		var elementHeight:Float;
-
 		if (parent.element != null)
 		{
 			elementWidth = parent.element.clientWidth;
@@ -1361,12 +1296,10 @@ class HTML5Window
 			elementWidth = Browser.window.innerWidth;
 			elementHeight = Browser.window.innerHeight;
 		}
-
 		if (elementWidth != cacheElementWidth || elementHeight != cacheElementHeight)
 		{
 			cacheElementWidth = elementWidth;
 			cacheElementHeight = elementHeight;
-
 			var stretch = resizeElement || (setWidth == 0 && setHeight == 0);
 
 			if (parent.element != null && (div == null || (div != null && stretch)))
@@ -1376,16 +1309,16 @@ class HTML5Window
 					if (parent.__width != elementWidth || parent.__height != elementHeight)
 					{
 						parent.__width = Std.int(elementWidth);
-						parent.__height = Std.int(elementHeight);
 
+						parent.__height = Std.int(elementHeight);
 						if (canvas != null)
 						{
 							if (parent.element != cast canvas)
 							{
 								canvas.width = Math.round(elementWidth * scale);
 								canvas.height = Math.round(elementHeight * scale);
-
 								canvas.style.width = elementWidth + "px";
+
 								canvas.style.height = elementHeight + "px";
 							}
 						}
@@ -1402,12 +1335,10 @@ class HTML5Window
 				{
 					var scaleX = (setWidth != 0) ? (elementWidth / setWidth) : 1;
 					var scaleY = (setHeight != 0) ? (elementHeight / setHeight) : 1;
-
 					var targetWidth = elementWidth;
 					var targetHeight = elementHeight;
 					var marginLeft = 0;
 					var marginTop = 0;
-
 					if (scaleX < scaleY)
 					{
 						targetHeight = Math.floor(setHeight * scaleX);
@@ -1418,7 +1349,6 @@ class HTML5Window
 						targetWidth = Math.floor(setWidth * scaleY);
 						marginLeft = Math.floor((elementWidth - targetWidth) / 2);
 					}
-
 					if (canvas != null)
 					{
 						if (parent.element != cast canvas)
@@ -1432,6 +1362,7 @@ class HTML5Window
 					else
 					{
 						div.style.width = targetWidth + "px";
+
 						div.style.height = targetHeight + "px";
 						div.style.marginLeft = marginLeft + "px";
 						div.style.marginTop = marginTop + "px";

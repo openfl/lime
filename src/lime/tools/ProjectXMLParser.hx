@@ -1418,7 +1418,6 @@ class ProjectXMLParser extends HXProject
 					sources.push(path);
 
 				case "extension":
-
 					// deprecated
 
 				case "haxedef":
@@ -1520,7 +1519,6 @@ class ProjectXMLParser extends HXProject
 					parseModuleElement(element, extensionPath);
 
 				case "ssl":
-
 					// if (wantSslCertificate())
 					// parseSsl (element);
 
@@ -1981,7 +1979,17 @@ class ProjectXMLParser extends HXProject
 					{
 						Reflect.setField(windows[id], "colorDepth", parsedValue);
 					}
-
+				case "vsync", "vsync-mode":
+					var parsedVSync = parseVSyncValue(value);
+					if (parsedVSync == null)
+					{
+						Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+					}
+					else
+					{
+						Reflect.setField(windows[id], "vsync", parsedVSync != "off");
+						Reflect.setField(windows[id], "vsyncMode", parsedVSync);
+					}
 				default:
 					if (Reflect.hasField(WindowData.expectedFields, name))
 					{
@@ -2009,14 +2017,12 @@ class ProjectXMLParser extends HXProject
 		{
 			Log.error("\"" + projectFile + "\" contains invalid XML data", e);
 		}
-
 		parseXML(xml, "", extensionPath);
 	}
 
 	private function substitute(string:String):String
 	{
 		var newString = string;
-
 		while (doubleVarMatch.match(newString))
 		{
 			newString = doubleVarMatch.matchedLeft()
@@ -2025,12 +2031,27 @@ class ProjectXMLParser extends HXProject
 				+ "}"
 				+ doubleVarMatch.matchedRight();
 		}
-
 		while (varMatch.match(newString))
 		{
 			newString = varMatch.matchedLeft() + ProjectHelper.replaceVariable(this, varMatch.matched(1)) + varMatch.matchedRight();
 		}
-
 		return newString;
+	}
+
+	private static function parseVSyncValue(value:String):String
+	{
+		switch (value.toLowerCase())
+		{
+			case "true", "on":
+				return "on";
+			case "false", "off":
+				return "off";
+			case "adaptive":
+				return "adaptive";
+			case "auto":
+				return "auto";
+			default:
+				return null;
+		}
 	}
 }

@@ -361,6 +361,38 @@ namespace lime {
 	}
 
 
+	void lime_application_set_main_loop (value application, int profile, double frameRate, int timePrecision, int busyWait, int uncapMode) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetMainLoop (profile, frameRate, timePrecision, busyWait, uncapMode);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_main_loop) (HL_CFFIPointer* application, int profile, double frameRate, int timePrecision, int busyWait, int uncapMode) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetMainLoop (profile, frameRate, timePrecision, busyWait, uncapMode);
+
+	}
+
+
+	void lime_application_set_vsync_mode (value application, int vsyncMode) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetVSyncMode (vsyncMode);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_vsync_mode) (HL_CFFIPointer* application, int vsyncMode) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetVSyncMode (vsyncMode);
+
+	}
+
+
 	bool lime_application_update (value application) {
 
 		Application* app = (Application*)val_data (application);
@@ -4026,7 +4058,9 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_exec);
 	DEFINE_PRIME1v (lime_application_init);
 	DEFINE_PRIME1 (lime_application_quit);
+	DEFINE_PRIME6v (lime_application_set_main_loop);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
+	DEFINE_PRIME2v (lime_application_set_vsync_mode);
 	DEFINE_PRIME1 (lime_application_update);
 	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_audio_load_bytes);

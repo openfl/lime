@@ -3,6 +3,9 @@ package lime._internal.backend.flash;
 import flash.ui.MultitouchInputMode;
 import flash.ui.Multitouch;
 import lime.app.Application;
+import lime.app.FrameOptions;
+import lime.app.FrameProfile;
+import lime.app.VSyncMode;
 import lime.media.AudioManager;
 import lime.system.Orientation;
 import lime.ui.Window;
@@ -20,7 +23,6 @@ class FlashApplication
 		this.parent = parent;
 
 		AudioManager.init();
-
 		createFirstWindow = true;
 		// Initial window is already created
 		parent.createWindow({});
@@ -30,8 +32,15 @@ class FlashApplication
 	public function exec():Int
 	{
 		Multitouch.inputMode = MultitouchInputMode.TOUCH_POINT;
-
 		return 0;
+	}
+
+	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
+	{
+		if (parent.window != null && parent.window.stage != null)
+		{
+			parent.window.stage.frameRate = (frameRate > 0) ? frameRate : 1;
+		}
 	}
 
 	public function exit():Void {}
@@ -40,4 +49,6 @@ class FlashApplication
 	{
 		return UNKNOWN;
 	}
+
+	public function setVSyncMode(mode:VSyncMode):Void {}
 }

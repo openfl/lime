@@ -1,5 +1,7 @@
 package lime.graphics;
 
+import lime.app.VSyncMode;
+
 /**
 	Additional options possible for a render context
 **/
@@ -55,4 +57,9 @@ typedef RenderContextAttributes =
 		Whether vertical-sync (VSync) is enabled
 	**/
 	@:optional var vsync:Bool;
+
+	/**
+		The requested vertical-sync behavior for this context
+	**/
+	@:optional var vsyncMode:VSyncMode;
 }

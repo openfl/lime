@@ -63,7 +63,8 @@ import ::APP_MAIN::;
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
 				type: null,
-				vsync: ::vsync::
+				vsync: ::vsync::::if vsyncMode::,
+				vsyncMode: "::vsyncMode::"::end::
 			};
 
 		if (app.window == null)
