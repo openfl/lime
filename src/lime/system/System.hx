@@ -3,6 +3,7 @@ package lime.system;
 import haxe.Constraints;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.VSyncMode;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.ui.WindowAttributes;
@@ -129,11 +130,9 @@ class System
 	public static function embed(projectName:String, element:Dynamic, width:Null<Int> = null, height:Null<Int> = null, config:Dynamic = null):Void
 	{
 		if (__applicationEntryPoint == null) return;
-
 		if (__applicationEntryPoint.exists(projectName))
 		{
 			var htmlElement:Element = null;
-
 			if ((element is String))
 			{
 				htmlElement = cast Browser.document.getElementById(element);
@@ -164,11 +163,9 @@ class System
 			}
 
 			if (config == null) config = {};
-
 			if (Reflect.hasField(config, "background") && (config.background is String))
 			{
 				var background = StringTools.replace(Std.string(config.background), "#", "");
-
 				if (background.indexOf("0x") > -1)
 				{
 					config.background = Std.parseInt(background);
@@ -178,7 +175,6 @@ class System
 					config.background = Std.parseInt("0x" + background);
 				}
 			}
-
 			config.element = htmlElement;
 			config.width = width;
 			config.height = height;
@@ -211,14 +207,12 @@ class System
 		if (currentApp != null)
 		{
 			currentApp.onExit.dispatch(code);
-
 			if (currentApp.onExit.canceled)
 			{
 				return;
 			}
 		}
 		#end
-
 		#if sys
 		Sys.exit(code);
 		#elseif (js && html5)
@@ -239,7 +233,6 @@ class System
 	{
 		#if (lime_cffi && !macro)
 		var displayInfo:Dynamic = NativeCFFI.lime_system_get_display(id);
-
 		if (displayInfo != null)
 		{
 			var display = new Display();
@@ -247,23 +240,21 @@ class System
 			display.name = CFFI.stringValue(displayInfo.name);
 			display.bounds = new Rectangle(displayInfo.bounds.x, displayInfo.bounds.y, displayInfo.bounds.width, displayInfo.bounds.height);
 			display.orientation = displayInfo.orientation;
-
 			#if android
 			var getDisplaySafeArea = JNI.createStaticMethod("org/haxe/lime/GameActivity", "getDisplaySafeAreaInsets", "()[I");
 			var result = getDisplaySafeArea();
-			display.safeArea = new Rectangle(
-				display.bounds.x + result[0],
-				display.bounds.y + result[1],
-				display.bounds.width - result[0] - result[2],
-				display.bounds.height - result[1] - result[3]);
+			display.safeArea = new Rectangle(display.bounds.x
+				+ result[0], display.bounds.y
+				+ result[1], display.bounds.width
+				- result[0]
+				- result[2],
+				display.bounds.height
+				- result[1]
+				- result[3]);
 			#else
-			display.safeArea = new Rectangle(
-				displayInfo.safeArea.x,
-				displayInfo.safeArea.y,
-				displayInfo.safeArea.width,
-				displayInfo.safeArea.height);
-			#end
+			display.safeArea = new Rectangle(displayInfo.safeArea.x, displayInfo.safeArea.y, displayInfo.safeArea.width, displayInfo.safeArea.height);
 
+			#end
 			#if ios
 			var tablet = NativeCFFI.lime_system_get_ios_tablet();
 			var scale = Application.current.window.scale;
@@ -281,25 +272,22 @@ class System
 			#else
 			display.dpi = displayInfo.dpi;
 			#end
-
 			display.supportedModes = [];
-
 			var displayMode;
-
 			#if hl
 			var supportedModes:hl.NativeArray<Dynamic> = displayInfo.supportedModes;
 			#else
 			var supportedModes:Array<Dynamic> = displayInfo.supportedModes;
 			#end
+
 			for (mode in supportedModes)
 			{
 				displayMode = new DisplayMode(mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
+
 				display.supportedModes.push(displayMode);
 			}
-
 			var mode = displayInfo.currentMode;
 			var currentMode = new DisplayMode(mode.width, mode.height, mode.refreshRate, mode.pixelFormat);
-
 			for (mode in display.supportedModes)
 			{
 				if (currentMode.pixelFormat == mode.pixelFormat
@@ -308,12 +296,11 @@ class System
 					&& currentMode.refreshRate == mode.refreshRate)
 				{
 					currentMode = mode;
+
 					break;
 				}
 			}
-
 			display.currentMode = currentMode;
-
 			return display;
 		}
 		#elseif (flash || html5)
@@ -322,24 +309,24 @@ class System
 			var display = new Display();
 			display.id = 0;
 			display.name = "Generic Display";
-
 			#if flash
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode(Std.int(Capabilities.screenResolutionX), Std.int(Capabilities.screenResolutionY), 60, ARGB32);
 			#if air
-			switch (flash.Lib.current.stage.orientation) {
+			switch (flash.Lib.current.stage.orientation)
+			{
 				case DEFAULT:
 					display.orientation = PORTRAIT;
 				case UPSIDE_DOWN:
 					display.orientation = PORTRAIT_FLIPPED;
 				case ROTATED_LEFT:
 					display.orientation = LANDSCAPE_FLIPPED;
+
 				case ROTATED_RIGHT:
 					display.orientation = LANDSCAPE;
 				default:
 					display.orientation = UNKNOWN;
 			}
-
 			#else
 			display.orientation = UNKNOWN;
 			#end
@@ -373,14 +360,13 @@ class System
 				display.orientation = UNKNOWN;
 			}
 			#end
-
 			display.supportedModes = [display.currentMode];
+
 			display.bounds = new Rectangle(0, 0, display.currentMode.width, display.currentMode.height);
 			display.safeArea = new Rectangle(0, 0, display.currentMode.width, display.currentMode.height);
 			return display;
 		}
 		#end
-
 		return null;
 	}
 
@@ -468,7 +454,6 @@ class System
 	@:noCompletion private static function __copyMissingFields(target:Dynamic, source:Dynamic):Void
 	{
 		if (source == null || target == null) return;
-
 		for (field in Reflect.fields(source))
 		{
 			if (!Reflect.hasField(target, field))
@@ -493,7 +478,6 @@ class System
 			{
 				var company = "MyCompany";
 				var file = "MyApplication";
-
 				if (Application.current != null)
 				{
 					if (Application.current.meta.exists("company"))
@@ -506,7 +490,6 @@ class System
 						file = Application.current.meta.get("file");
 					}
 				}
-
 				path = CFFI.stringValue(NativeCFFI.lime_system_get_directory(type, company, file));
 			}
 			else
@@ -524,7 +507,6 @@ class System
 			{
 				path += seperator;
 			}
-
 			__directories.set(type, path);
 			return path;
 		}
@@ -534,16 +516,15 @@ class System
 			var propertyName = switch (type)
 			{
 				case APPLICATION: "applicationDirectory";
+
 				case APPLICATION_STORAGE: "applicationStorageDirectory";
 				case DESKTOP: "desktopDirectory";
 				case DOCUMENTS: "documentsDirectory";
 				default: "userDirectory";
 			}
-
 			return Reflect.getProperty(Type.resolveClass("flash.filesystem.File"), propertyName).nativePath;
 		}
 		#end
-
 		return null;
 	}
 
@@ -562,7 +543,6 @@ class System
 			for (argument in arguments)
 			{
 				equals = argument.indexOf("=");
-
 				if (equals > 0)
 				{
 					argValue = argument.substr(equals + 1);
@@ -581,12 +561,11 @@ class System
 		if (parameters != null)
 		{
 			if (attributes.parameters == null) attributes.parameters = {};
-			if (attributes.context == null) attributes.context = {};
 
+			if (attributes.context == null) attributes.context = {};
 			for (parameter in parameters.keys())
 			{
 				argValue = parameters.get(parameter);
-
 				if (#if lime_disable_window_override false && #end StringTools.startsWith(parameter, windowParamPrefix))
 				{
 					switch (parameter.substr(windowParamPrefix.length))
@@ -627,8 +606,14 @@ class System
 						case "stencil", "stencil-buffer":
 							attributes.context.stencil = __parseBool(argValue);
 						// case "title": windowConfig.title = argValue;
-						case "vsync":
-							attributes.context.vsync = __parseBool(argValue);
+						case "vsync", "vsync-mode":
+							var vsyncMode = __parseVSyncMode(argValue);
+							if (vsyncMode != null)
+							{
+								attributes.context.vsyncMode = vsyncMode;
+								attributes.context.vsync = (vsyncMode != VSyncMode.Off);
+							}
+
 						case "width":
 							attributes.width = Std.parseInt(argValue);
 						case "x":
@@ -652,13 +637,30 @@ class System
 		return (value == "true");
 	}
 
+	@:noCompletion private static function __parseVSyncMode(value:String):Null<VSyncMode>
+	{
+		switch (value.toLowerCase())
+		{
+			case "true", "on":
+				return VSyncMode.On;
+			case "false", "off":
+				return VSyncMode.Off;
+			case "adaptive":
+				return VSyncMode.Adaptive;
+			case "auto":
+				return VSyncMode.Auto;
+
+			default:
+				return null;
+		}
+	}
+
 	@:noCompletion private static function __registerEntryPoint(projectName:String, entryPoint:Function):Void
 	{
 		if (__applicationEntryPoint == null)
 		{
 			__applicationEntryPoint = new Map();
 		}
-
 		__applicationEntryPoint[projectName] = entryPoint;
 	}
 
@@ -668,7 +670,6 @@ class System
 		try
 		{
 			if (args == null) args = [];
-
 			var process = new Process(command, args);
 			var value = StringTools.trim(process.stdout.readLine().toString());
 			process.close();
@@ -676,6 +677,7 @@ class System
 		}
 		catch (e:Dynamic) {}
 		#end
+
 		return null;
 	}
 
@@ -714,7 +716,6 @@ class System
 		{
 			__applicationStorageDirectory = __getDirectory(APPLICATION_STORAGE);
 		}
-
 		return __applicationStorageDirectory;
 	}
 
@@ -726,6 +727,7 @@ class System
 			__deviceModel = CFFI.stringValue(NativeCFFI.lime_system_get_device_model());
 			#elseif android
 			var manufacturer:String = JNI.createStaticField("android/os/Build", "MANUFACTURER", "Ljava/lang/String;").get();
+
 			var model:String = JNI.createStaticField("android/os/Build", "MODEL", "Ljava/lang/String;").get();
 			if (manufacturer != null && model != null)
 			{
@@ -787,7 +789,6 @@ class System
 		{
 			__documentsDirectory = __getDirectory(DOCUMENTS);
 		}
-
 		return __documentsDirectory;
 	}
 
@@ -818,7 +819,6 @@ class System
 		{
 			__fontsDirectory = __getDirectory(FONTS);
 		}
-
 		return __fontsDirectory;
 	}
 
@@ -885,7 +885,6 @@ class System
 			__platformName = "HTML5";
 			#end
 		}
-
 		return __platformName;
 	}
 
@@ -909,7 +908,6 @@ class System
 			__platformVersion = Capabilities.version;
 			#end
 		}
-
 		return __platformVersion;
 	}
 
@@ -919,7 +917,6 @@ class System
 		{
 			__userDirectory = __getDirectory(USER);
 		}
-
 		return __userDirectory;
 	}
 }

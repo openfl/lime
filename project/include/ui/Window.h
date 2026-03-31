@@ -63,9 +63,12 @@ namespace lime {
 			virtual void SetTextInputEnabled (bool enable) = 0;
 			virtual void SetTextInputRect (Rectangle *rect) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
+			virtual void SetVSyncMode (int vsyncMode) {}
 			virtual bool SetVisible (bool visible) = 0;
 			virtual bool SetAlwaysOnTop (bool alwaysOnTop) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
+			virtual int GetVSyncInterval () const { return 0; }
+			virtual double GetRefreshRate () const { return 60.0; }
 
 			Application* currentApplication;
 			int flags;
@@ -95,8 +98,11 @@ namespace lime {
 		WINDOW_FLAG_MINIMIZED = 0x00002000,
 		WINDOW_FLAG_MAXIMIZED = 0x00004000,
 		WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000,
-		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000
-
+		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000,
+		WINDOW_FLAG_SKIP_TASKBAR = 0x00020000,
+		WINDOW_FLAG_UTILITY = 0x00040000,
+		WINDOW_FLAG_POPUP_MENU = 0x00080000,
+		WINDOW_FLAG_TOOLTIP = 0x00100000
 	};
 
 }

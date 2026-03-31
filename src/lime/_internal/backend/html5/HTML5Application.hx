@@ -4,6 +4,9 @@ import js.html.DeviceMotionEvent;
 import js.html.KeyboardEvent;
 import js.Browser;
 import lime.app.Application;
+import lime.app.FrameOptions;
+import lime.app.FrameProfile;
+import lime.app.VSyncMode;
 import lime.media.AudioManager;
 import lime.system.Orientation;
 import lime.system.Sensor;
@@ -40,14 +43,14 @@ class HTML5Application
 	public inline function new(parent:Application)
 	{
 		this.parent = parent;
-
 		currentUpdate = 0;
 		lastUpdate = 0;
+
 		nextUpdate = 0;
 		framePeriod = -1;
-
 		AudioManager.init();
 		accelerometer = Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
+		updateFramePeriod();
 	}
 
 	private function convertKeyCode(keyCode:Int):KeyCode
@@ -56,7 +59,6 @@ class HTML5Application
 		{
 			return keyCode + 32;
 		}
-
 		switch (keyCode)
 		{
 			case 12:
@@ -255,6 +257,7 @@ class HTML5Application
 				return KeyCode.LEFT_BRACKET;
 			case 220:
 				return KeyCode.BACKSLASH;
+
 			case 221:
 				return KeyCode.RIGHT_BRACKET;
 			case 222:
@@ -266,7 +269,6 @@ class HTML5Application
 			case 226:
 				return KeyCode.BACKSLASH;
 		}
-
 		return keyCode;
 	}
 
@@ -276,21 +278,20 @@ class HTML5Application
 		Browser.window.addEventListener("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener("focus", handleWindowEvent, false);
 		Browser.window.addEventListener("blur", handleWindowEvent, false);
+
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
-
 		if (Reflect.hasField(Browser.window, "Accelerometer"))
 		{
 			Browser.window.addEventListener("devicemotion", handleSensorEvent, false);
 		}
-
 		#if stats
 		stats = untyped #if haxe4 js.Syntax.code #else __js__ #end ("new Stats ()");
 		stats.domElement.style.position = "absolute";
 		stats.domElement.style.top = "0px";
+
 		Browser.document.body.appendChild(stats.domElement);
 		#end
-
 		untyped #if haxe4 js.Syntax.code #else __js__ #end ("
 			if (!CanvasRenderingContext2D.prototype.isPointInStroke) {
 				CanvasRenderingContext2D.prototype.isPointInStroke = function (path, x, y) {
@@ -341,11 +342,8 @@ class HTML5Application
 
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
-
 		lastUpdate = Browser.window.performance.now();
-
 		handleApplicationEvent();
-
 		return 0;
 	}
 
@@ -372,27 +370,32 @@ class HTML5Application
 		return UNKNOWN;
 	}
 
+	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
+	{
+		updateFramePeriod();
+	}
+
+	public function setVSyncMode(mode:VSyncMode):Void
+	{
+		updateFramePeriod();
+	}
+
 	private function handleApplicationEvent(?__):Void
 	{
 		// TODO: Support independent window frame rates
-
 		for (window in parent.__windows)
 		{
 			window.__backend.updateSize();
 		}
-
 		updateGameDevices();
 
 		currentUpdate = Browser.window.performance.now();
-
 		if (currentUpdate >= nextUpdate)
 		{
 			#if stats
 			stats.begin();
 			#end
-
 			deltaTime = currentUpdate - lastUpdate;
-
 			for (window in parent.__windows)
 			{
 				parent.onUpdate.dispatch(Std.int(deltaTime));
@@ -411,10 +414,8 @@ class HTML5Application
 			{
 				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
 			}
-
 			lastUpdate = currentUpdate;
 		}
-
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
@@ -423,22 +424,16 @@ class HTML5Application
 		if (parent.window != null)
 		{
 			// space and arrow keys
-
 			// switch (event.keyCode) {
-
 			// 	case 32, 37, 38, 39, 40: event.preventDefault ();
 
 			// }
-
 			// TODO: Use event.key instead where supported
-
 			var keyCode = cast convertKeyCode(event.keyCode != null ? event.keyCode : event.which);
 			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0) | (event.metaKey ? (KeyModifier.META) : 0);
-
 			if (event.type == "keydown")
 			{
 				parent.window.onKeyDown.dispatch(keyCode, modifier);
-
 				if (parent.window.onKeyDown.canceled && event.cancelable)
 				{
 					event.preventDefault();
@@ -447,7 +442,6 @@ class HTML5Application
 			else
 			{
 				parent.window.onKeyUp.dispatch(keyCode, modifier);
-
 				if (parent.window.onKeyUp.canceled && event.cancelable)
 				{
 					event.preventDefault();
@@ -459,6 +453,33 @@ class HTML5Application
 	private function handleSensorEvent(event:DeviceMotionEvent):Void
 	{
 		accelerometer.onUpdate.dispatch(event.accelerationIncludingGravity.x, event.accelerationIncludingGravity.y, event.accelerationIncludingGravity.z);
+	}
+
+	private function updateFramePeriod():Void
+	{
+		var requestedFrameRate = parent.__frameRate;
+		var shouldUseDisplayDriven = false;
+		switch (parent.__vsyncMode)
+		{
+			case On, Adaptive, Auto:
+				shouldUseDisplayDriven = (requestedFrameRate > 0 && requestedFrameRate >= 60);
+
+			default:
+				shouldUseDisplayDriven = (requestedFrameRate >= 60);
+		}
+
+		if (shouldUseDisplayDriven)
+		{
+			framePeriod = -1;
+		}
+		else if (requestedFrameRate > 0)
+		{
+			framePeriod = 1000 / requestedFrameRate;
+		}
+		else
+		{
+			framePeriod = 1000;
+		}
 	}
 
 	private function handleWindowEvent(event:js.html.Event):Void
@@ -490,6 +511,7 @@ class HTML5Application
 						{
 							parent.window.onFocusOut.dispatch();
 							parent.window.onDeactivate.dispatch();
+
 							hidden = true;
 						}
 					}
@@ -502,7 +524,6 @@ class HTML5Application
 							hidden = false;
 						}
 					}
-
 				case "resize":
 					parent.window.__backend.handleResizeEvent(event);
 
@@ -511,12 +532,11 @@ class HTML5Application
 					// but returns later without reloading the page. This triggers
 					// a window.onClose(), without us creating the window again.
 					//
+
 					// For now, let focus in/out and activate/deactivate trigger
 					// on blur and focus, and do not dispatch a closed window event
 					// since it may actually never close.
-
 					// if (!event.defaultPrevented) {
-
 					// 		parent.window.onClose.dispatch ();
 
 					// 		if (parent.window != null && parent.window.onClose.canceled && event.cancelable) {
@@ -524,7 +544,6 @@ class HTML5Application
 					// 			event.preventDefault ();
 
 					// 		}
-
 					// 	}
 			}
 		}
@@ -534,22 +553,17 @@ class HTML5Application
 	{
 		var devices = Joystick.__getDeviceData();
 		if (devices == null) return;
-
 		var id, gamepad, joystick, data:Dynamic, cache;
-
 		for (i in 0...devices.length)
 		{
 			id = i;
 			data = devices[id];
-
 			if (data == null) continue;
-
 			if (!gameDeviceCache.exists(id))
 			{
 				cache = new GameDeviceData();
 				cache.id = id;
 				cache.connected = data.connected;
-
 				for (i in 0...data.buttons.length)
 				{
 					cache.buttons.push(data.buttons[i].value);
@@ -559,18 +573,14 @@ class HTML5Application
 				{
 					cache.axes.push(data.axes[i]);
 				}
-
 				if (data.mapping == "standard")
 				{
 					cache.isGamepad = true;
 				}
-
 				gameDeviceCache.set(id, cache);
-
 				if (data.connected)
 				{
 					Joystick.__connect(id);
-
 					if (cache.isGamepad)
 					{
 						Gamepad.__connect(id);
@@ -579,10 +589,8 @@ class HTML5Application
 			}
 
 			cache = gameDeviceCache.get(id);
-
 			joystick = Joystick.devices.get(id);
 			gamepad = Gamepad.devices.get(id);
-
 			if (data.connected)
 			{
 				var button:GamepadButton;
@@ -614,13 +622,13 @@ class HTML5Application
 							{
 								joystick.onButtonUp.dispatch(i);
 							}
-
 							if (gamepad != null)
 							{
 								button = switch (i)
 								{
 									case 0: GamepadButton.A;
 									case 1: GamepadButton.B;
+
 									case 2: GamepadButton.X;
 									case 3: GamepadButton.Y;
 									case 4: GamepadButton.LEFT_SHOULDER;
@@ -629,6 +637,7 @@ class HTML5Application
 									case 9: GamepadButton.START;
 									case 10: GamepadButton.LEFT_STICK;
 									case 11: GamepadButton.RIGHT_STICK;
+
 									case 12: GamepadButton.DPAD_UP;
 									case 13: GamepadButton.DPAD_DOWN;
 									case 14: GamepadButton.DPAD_LEFT;
@@ -636,7 +645,6 @@ class HTML5Application
 									case 16: GamepadButton.GUIDE;
 									default: continue;
 								}
-
 								if (value > 0)
 								{
 									gamepad.onButtonDown.dispatch(button);
@@ -647,11 +655,9 @@ class HTML5Application
 								}
 							}
 						}
-
 						cache.buttons[i] = value;
 					}
 				}
-
 				for (i in 0...data.axes.length)
 				{
 					if (data.axes[i] != cache.axes[i])
@@ -665,7 +671,6 @@ class HTML5Application
 			else if (cache.connected)
 			{
 				cache.connected = false;
-
 				Joystick.__disconnect(id);
 				Gamepad.__disconnect(id);
 			}

@@ -225,8 +225,7 @@ class FlashWindow
 				"middleMouseMove",
 				"middleMouseUp"
 				#if ((!openfl && !disable_flash_right_click)
-					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp"
-				#end
+					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp" #end
 			];
 
 			for (event in events)
@@ -274,13 +273,14 @@ class FlashWindow
 				contextAttributes.background = stage.color;
 			}
 
-			setFrameRate(Reflect.hasField(attributes, "frameRate") ? attributes.frameRate : 60);
+			frameRate = parent.application.__resolveFrameRate(attributes);
+
+			if (parent.stage != null) parent.stage.frameRate = frameRate;
 
 			context.attributes = contextAttributes;
 			parent.context = context;
 
 			// TODO: Wait for application.exec?
-
 			cacheTime = Lib.getTimer();
 			// handleApplicationEvent (null);
 
@@ -323,7 +323,6 @@ class FlashWindow
 		if (event.type == KeyboardEvent.KEY_DOWN)
 		{
 			parent.onKeyDown.dispatch(keyCode, modifier);
-
 			if (parent.textInputEnabled)
 			{
 				parent.onTextInput.dispatch(String.fromCharCode(event.charCode));
@@ -348,26 +347,23 @@ class FlashWindow
 		{
 			case "mouseDown", "middleMouseDown", "rightMouseDown":
 				parent.onMouseDown.dispatch(event.stageX, event.stageY, button);
-
 			case "mouseMove":
 				if (mouseLeft)
 				{
 					mouseLeft = false;
 					parent.onEnter.dispatch();
 				}
-
 				var mouseX = event.stageX;
+
 				var mouseY = event.stageY;
-
 				parent.onMouseMove.dispatch(mouseX, mouseY);
+
 				parent.onMouseMoveRelative.dispatch(mouseX - cacheMouseX, mouseY - cacheMouseY);
-
 				cacheMouseX = mouseX;
-				cacheMouseY = mouseY;
 
+				cacheMouseY = mouseY;
 			case "mouseUp", "middleMouseUp", "rightMouseUp":
 				parent.onMouseUp.dispatch(event.stageX, event.stageY, button);
-
 			case "mouseWheel":
 				parent.onMouseWheel.dispatch(0, event.delta, MouseWheelMode.LINES);
 
@@ -384,7 +380,6 @@ class FlashWindow
 		{
 			case TouchEvent.TOUCH_BEGIN:
 				var touch = unusedTouchesPool.pop();
-
 				if (touch == null)
 				{
 					touch = new Touch(x / parent.__width, y / parent.__height, event.touchPointID, 0, 0, event.pressure, parent.id);
@@ -395,20 +390,20 @@ class FlashWindow
 					touch.y = y / parent.__height;
 					touch.id = event.touchPointID;
 					touch.dx = 0;
+
 					touch.dy = 0;
 					touch.pressure = event.pressure;
+
 					touch.device = parent.id;
 				}
 
 				currentTouches.set(event.touchPointID, touch);
-
 				Touch.onStart.dispatch(touch);
 
 				if (event.isPrimaryTouchPoint)
 				{
 					parent.onMouseDown.dispatch(x, y, LEFT);
 				}
-
 			case TouchEvent.TOUCH_END:
 				var touch = currentTouches.get(event.touchPointID);
 
@@ -416,24 +411,22 @@ class FlashWindow
 				{
 					var cacheX = touch.x;
 					var cacheY = touch.y;
-
 					touch.x = x / parent.__width;
+
 					touch.y = y / parent.__height;
 					touch.dx = touch.x - cacheX;
+
 					touch.dy = touch.y - cacheY;
 					touch.pressure = event.pressure;
 
 					Touch.onEnd.dispatch(touch);
-
 					currentTouches.remove(event.touchPointID);
 					unusedTouchesPool.add(touch);
-
 					if (event.isPrimaryTouchPoint)
 					{
 						parent.onMouseUp.dispatch(x, y, 0);
 					}
 				}
-
 			case TouchEvent.TOUCH_MOVE:
 				var touch = currentTouches.get(event.touchPointID);
 
@@ -441,15 +434,14 @@ class FlashWindow
 				{
 					var cacheX = touch.x;
 					var cacheY = touch.y;
-
 					touch.x = x / parent.__width;
+
 					touch.y = y / parent.__height;
 					touch.dx = touch.x - cacheX;
+
 					touch.dy = touch.y - cacheY;
 					touch.pressure = event.pressure;
-
 					Touch.onMove.dispatch(touch);
-
 					if (event.isPrimaryTouchPoint)
 					{
 						parent.onMouseMove.dispatch(x, y);
@@ -464,13 +456,10 @@ class FlashWindow
 		{
 			case Event.ACTIVATE:
 				parent.onActivate.dispatch();
-
 			case Event.DEACTIVATE:
 				parent.onDeactivate.dispatch();
-
 			case FocusEvent.FOCUS_IN:
 				parent.onFocusIn.dispatch();
-
 			case FocusEvent.FOCUS_OUT:
 				parent.onFocusOut.dispatch();
 
@@ -481,7 +470,6 @@ class FlashWindow
 			case Event.RESIZE:
 				parent.__width = parent.stage.stageWidth;
 				parent.__height = parent.stage.stageHeight;
-
 				parent.onResize.dispatch(parent.__width, parent.__height);
 
 			default:
@@ -491,7 +479,6 @@ class FlashWindow
 	public function readPixels(rect:Rectangle):Image
 	{
 		var stageRect = new Rectangle(0, 0, parent.stage.stageWidth, parent.stage.stageHeight);
-
 		if (rect == null)
 		{
 			rect = stageRect;
@@ -506,11 +493,10 @@ class FlashWindow
 			var bitmapData = new BitmapData(Std.int(rect.width), Std.int(rect.height));
 
 			var matrix = new Matrix();
+
 			matrix.tx = -rect.x;
 			matrix.ty = -rect.y;
-
 			bitmapData.draw(parent.stage, matrix);
-
 			return Image.fromBitmapData(bitmapData);
 		}
 		else
@@ -533,7 +519,6 @@ class FlashWindow
 				{
 					Mouse.show();
 				}
-
 				Mouse.cursor = switch (value)
 				{
 					case ARROW: FlashMouseCursor.ARROW;
@@ -546,14 +531,13 @@ class FlashWindow
 					case RESIZE_WE: FlashMouseCursor.HAND;
 					case TEXT: FlashMouseCursor.IBEAM;
 					case WAIT: FlashMouseCursor.ARROW;
+
 					case WAIT_ARROW: FlashMouseCursor.ARROW;
 					default: FlashMouseCursor.AUTO;
 				}
 			}
-
 			cursor = value;
 		}
-
 		return cursor;
 	}
 
@@ -564,7 +548,7 @@ class FlashWindow
 
 	public function getFrameRate():Float
 	{
-		return frameRate;
+		return (parent.application != null) ? parent.application.__getFrameRate() : frameRate;
 	}
 
 	public function getMouseLock():Bool
@@ -597,9 +581,8 @@ class FlashWindow
 
 	public function setFrameRate(value:Float):Float
 	{
-		frameRate = value;
-		if (parent.stage != null) parent.stage.frameRate = value;
-		return value;
+		frameRate = (parent.application != null) ? parent.application.__setFrameRateFromWindow(value) : value;
+		return frameRate;
 	}
 
 	public function setFullscreen(value:Bool):Bool
