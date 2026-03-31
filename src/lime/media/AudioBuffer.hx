@@ -33,10 +33,10 @@ import flash.net.URLRequest;
 #end
 
 /**
-	The `AudioBuffer` class represents a buffer of audio data that can be played back using an `AudioSource`. 
+	The `AudioBuffer` class represents a buffer of audio data that can be played back using an `AudioSource`.
 	It supports a variety of audio formats and platforms, providing a consistent API for loading and managing audio data.
 
-	Depending on the platform, the audio backend may differ, but the class provides a unified interface for accessing 
+	Depending on the platform, the audio backend may differ, but the class provides a unified interface for accessing
 	audio data, whether it's stored in memory, loaded from a file, or streamed.
 
 	@see lime.media.AudioSource
@@ -287,7 +287,7 @@ class AudioBuffer
 		@return An `AudioBuffer` instance with the decoded audio data.
 	**/
 	#if lime_vorbis
-		
+
 	public static function fromVorbisFile(vorbisFile:VorbisFile):AudioBuffer
 	{
 		if (vorbisFile == null) return null;
@@ -419,7 +419,17 @@ class AudioBuffer
 
 	private static function __getCodec(bytes:Bytes):String
 	{
-		var signature = bytes.getString(0, 4);
+		var signature:String = null;
+		try
+		{
+			signature = bytes.getString(0, 4);
+		}
+		catch (e:Dynamic)
+		{
+			// if the bytes don't represent a valid UTF-8 string, getString()
+			// may throw an exception. in that case, we expect to end up in
+			// the default switch case below where it tries to detect MP3.
+		}
 
 		switch (signature)
 		{

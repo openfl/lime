@@ -288,12 +288,14 @@ class CFFI
 		if (!__loadedNekoAPI)
 		{
 			var init:Dynamic = null;
+			var error:Dynamic = null;
 			try
 			{
 				init = load("lime", "neko_init", 5);
 			}
 			catch (e:Dynamic)
 			{
+				error = e;
 			}
 
 			if (init != null)
@@ -311,10 +313,11 @@ class CFFI
 			else if (!lazy)
 			{
 				var ndllFolder = __findNDLLFolder() + __sysName();
-				throw "Could not find lime.ndll. This file is provided with Lime's Haxelib releases, but not via Git. "
+				throw "Could not load lime.ndll. This file is provided with Lime's Haxelib releases, but not via Git. "
 					+ "Please copy it from Lime's latest Haxelib release into either "
 					+ ndllFolder + " or " + ndllFolder + "64, as appropriate for your system. "
-					+ "Advanced users may run `lime rebuild cpp` instead.";
+					+ "Advanced users may run `lime rebuild cpp` instead."
+					+ (error != null ? '\nInternal error: $error' : "");
 			}
 		}
 	}

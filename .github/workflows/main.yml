@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -93,6 +93,83 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
 
+  linux-arm64:
+    runs-on: ubuntu-22.04-arm
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install system dependencies
+        run: |
+          sudo add-apt-repository ppa:haxe/releases -y
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+
+      # krdlab/setup-haxe doesn't support arm64 linux
+      # so this is our workaround for now
+      - name: Install Haxe
+        run: |
+          sudo add-apt-repository ppa:haxe/releases -y
+          sudo apt-get update
+          sudo apt-get install -y haxe
+          mkdir $HOME/haxelib
+          haxelib setup $HOME/haxelib
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib --global update haxelib --quiet
+          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Enable HXCPP compile cache
+        run: |
+          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (Linux ARM64)
+        run: |
+          lime rebuild linux -release -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LinuxArm64-NDLL
+          path: |
+            ndll/LinuxArm64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build HelloWorld sample
+        run: |
+          lime create HelloWorld -verbose -nocolor
+          lime build HelloWorld linux -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage linux -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio linux -release -verbose -nocolor
+
   macos:
     runs-on: macos-14
     steps:
@@ -101,7 +178,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -195,7 +272,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -311,7 +388,7 @@ jobs:
           distribution: "zulu"
           java-version: 17
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -384,7 +461,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -448,7 +525,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -567,7 +644,7 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -597,7 +674,7 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -642,7 +719,7 @@ jobs:
         with:
           submodules: true
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
@@ -692,7 +769,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
@@ -742,7 +819,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: 4.3.3 # minimum required version for HL/C is 4.3.3
 
@@ -794,7 +871,7 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
@@ -859,7 +936,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
 
-      - uses: krdlab/setup-haxe@8f35d1215b93e940a76f9470e22e8a5ba6149598
+      - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ matrix.haxe-version }}
 
