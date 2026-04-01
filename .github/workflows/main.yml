@@ -45,8 +45,8 @@ jobs:
 
       - name: Rebuild Lime (Linux)
         run: |
-          lime rebuild linux -32 -release -nocolor -verbose -nocffi
-          lime rebuild linux -64 -release -nocolor -verbose -nocffi
+          lime rebuild linux -32 -clean -release -nocolor -verbose -nocffi
+          lime rebuild linux -64 -clean -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v7
@@ -147,7 +147,7 @@ jobs:
 
       - name: Rebuild Lime (Linux ARM64)
         run: |
-          lime rebuild linux -release -nocolor -verbose -nocffi
+          lime rebuild linux -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v7
         with:
@@ -318,8 +318,8 @@ jobs:
 
       - name: Rebuild Lime (Windows)
         run: |
-          lime rebuild windows -32 -release -nocolor -verbose -nocffi
-          lime rebuild windows -64 -release -nocolor -verbose -nocffi
+          lime rebuild windows -32 -clean -release -nocolor -verbose -nocffi
+          lime rebuild windows -64 -clean -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v7
