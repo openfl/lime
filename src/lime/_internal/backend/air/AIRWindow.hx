@@ -97,7 +97,10 @@ class AIRWindow extends FlashWindow
 
 		if (FlashApplication.createFirstWindow)
 		{
-			nativeWindow = Lib.current.stage.nativeWindow;
+			if (Lib.current.stage != null)
+			{
+				nativeWindow = Lib.current.stage.nativeWindow;
+			}
 
 			#if munit
 			hidden = true;
@@ -171,7 +174,10 @@ class AIRWindow extends FlashWindow
 			parent.context.attributes.stencil = true;
 		}
 
-		parent.stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE, handleStageOrientationChangeEvent);
+		if (parent.stage != null)
+		{
+			parent.stage.addEventListener(StageOrientationEvent.ORIENTATION_CHANGE, handleStageOrientationChangeEvent);
+		}
 	}
 
 	public override function focus():Void
@@ -184,6 +190,11 @@ class AIRWindow extends FlashWindow
 
 	private function handleStageOrientationChangeEvent(event:StageOrientationEvent):Void
 	{
+		if (parent == null || parent.stage == null || parent.application == null)
+		{
+			return;
+		}
+
 		if (parent.application.window == parent)
 		{
 			var newDeviceOrientation:Orientation = UNKNOWN;

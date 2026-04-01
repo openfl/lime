@@ -36,6 +36,11 @@ class AIRApplication extends FlashApplication
 
 	override public function getDeviceOrientation():Orientation
 	{
+		if (parent == null || parent.window == null || parent.window.stage == null)
+		{
+			return UNKNOWN;
+		}
+
 		switch (parent.window.stage.deviceOrientation)
 		{
 			case DEFAULT:
