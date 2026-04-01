@@ -50,7 +50,18 @@ class Application extends Module
 	**/
 	public var modules(default, null):Array<IModule>;
 
+	/**
+		Advanced frame pacing options for the current application.
+		On native targets, these settings apply to the shared
+		application main loop.
+	**/
 	public var frameOptions(get, set):FrameOptions;
+
+	/**
+		The current frame pacing profile for this application.
+		On native targets, this controls the shared application
+		main loop strategy.
+	**/
 	public var frameProfile(get, set):FrameProfile;
 
 	/**
@@ -92,6 +103,11 @@ class Application extends Module
 	**/
 	public var windows(get, null):Array<Window>;
 
+	/**
+		The requested vertical-sync behavior for this application.
+		On native targets, this applies to the shared application
+		render loop and active windows.
+	**/
 	public var vsyncMode(get, set):VSyncMode;
 
 	@:noCompletion private var __backend:ApplicationBackend;
@@ -192,6 +208,10 @@ class Application extends Module
 		return __backend.exec();
 	}
 
+	/**
+		Configure the frame pacing profile, optional pacing overrides,
+		and optional vertical-sync mode at runtime.
+	**/
 	public function configureFrameTiming(profile:FrameProfile, ?options:FrameOptions, ?vsyncMode:VSyncMode):Void
 	{
 		__applyFrameConfiguration(profile, options, vsyncMode, true);

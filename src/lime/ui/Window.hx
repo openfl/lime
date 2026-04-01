@@ -42,11 +42,19 @@ class Window
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
 	 *
-	 * On some platforms, a frame rate of 60 or greater may imply vsync, which will
-	 * perform more quickly on displays with a higher refresh rate
+	 * On native targets, this forwards to the shared application frame pacing
+	 * value for compatibility. On some platforms, a frame rate of 60 or greater
+	 * may imply vsync, which will perform more quickly on displays with a
+	 * higher refresh rate.
 	**/
 	public var frameRate(get, set):Float;
 
+	/**
+	 * The requested vertical-sync behavior for this window.
+	 *
+	 * On native targets, this is a convenience alias for the shared application
+	 * vertical-sync setting.
+	**/
 	public var vsyncMode(get, set):VSyncMode;
 	public var fullscreen(get, set):Bool;
 	public var height(get, set):Int;
