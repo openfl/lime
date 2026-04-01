@@ -4256,6 +4256,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_application_init, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_vsync_mode, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_application_update, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_file, _STRING _TAUDIOBUFFER);
