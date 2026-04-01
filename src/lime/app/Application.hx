@@ -166,6 +166,8 @@ class Application extends Module
 		__vsyncMode = VSyncMode.Off;
 
 		__backend = new ApplicationBackend(this);
+		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
+		__backend.setVSyncMode(__vsyncMode);
 
 		__registerLimeModule(this);
 
@@ -750,8 +752,11 @@ class Application extends Module
 			__frameConfigured = true;
 		}
 
-		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
-		__backend.setVSyncMode(__vsyncMode);
+		if (__backend != null)
+		{
+			__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
+			__backend.setVSyncMode(__vsyncMode);
+		}
 	}
 
 	@:noCompletion private function __copyFrameOptions(value:FrameOptions):FrameOptions
