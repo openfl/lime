@@ -3,7 +3,7 @@ package lime.app;
 /**
 	Controls how aggressively Lime uncaps the frame loop.
 **/
-enum abstract UncapMode(String) to String
+@:enum abstract UncapMode(String) to String
 {
 	/** Keep normal frame-rate limiting behavior enabled. **/
 	var Off = "off";

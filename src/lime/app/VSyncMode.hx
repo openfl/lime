@@ -3,7 +3,7 @@ package lime.app;
 /**
 	Selects the requested vertical-sync behavior for rendering.
 **/
-enum abstract VSyncMode(String) from String to String
+@:enum abstract VSyncMode(String) from String to String
 {
 	/** Disable vertical sync. **/
 	var Off = "off";
