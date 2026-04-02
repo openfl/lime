@@ -3,7 +3,7 @@ package lime.app;
 /**
 	Controls whether Lime may busy-wait near frame deadlines.
 **/
-enum abstract BusyWaitMode(String) to String
+@:enum abstract BusyWaitMode(String) to String
 {
 	/** Use Lime's default busy-wait behavior for the active profile. **/
 	var Auto = "auto";
