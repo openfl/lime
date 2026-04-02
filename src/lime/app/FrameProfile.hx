@@ -3,7 +3,7 @@ package lime.app;
 /**
 	Built-in frame pacing profiles for Lime applications.
 **/
-@:enum abstract FrameProfile(String) to String
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract FrameProfile(String) to String
 {
 	/** A balanced default profile that preserves Lime's existing pacing behavior. **/
 	var Balanced = "balanced";
