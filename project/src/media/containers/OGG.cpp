@@ -55,6 +55,7 @@ namespace lime {
 		audioBuffer->sampleRate = pInfo->rate;
 
 		audioBuffer->bitsPerSample = 16;
+		audioBuffer->dataFormat = 1;
 
 		int dataLength = ov_pcm_total (oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
 		audioBuffer->data->Resize (dataLength);

@@ -204,6 +204,7 @@ namespace lime {
 		audioBuffer->sampleRate = (int)wave_format.sampleRate;
 		audioBuffer->channels = wave_format.numChannels;
 		audioBuffer->bitsPerSample = wave_format.bitsPerSample;
+		audioBuffer->dataFormat = wave_format.audioFormat;
 
 		return true;
 

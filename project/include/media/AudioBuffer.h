@@ -35,6 +35,7 @@ namespace lime {
 		int bitsPerSample;
 		int channels;
 		ArrayBufferView* data;
+		int dataFormat;
 		int sampleRate;
 
 		vdynamic* __srcAudio;
