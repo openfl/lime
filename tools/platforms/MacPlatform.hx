@@ -360,14 +360,6 @@ class MacPlatform extends PlatformTarget
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Mac");
@@ -397,7 +389,7 @@ class MacPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -525,17 +517,6 @@ class MacPlatform extends PlatformTarget
 			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
-
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
@@ -584,37 +565,7 @@ class MacPlatform extends PlatformTarget
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		for (asset in project.assets)
-		{
-			if (asset.embed != true)
-			{
-				if (asset.type != AssetType.TEMPLATE)
-				{
-					System.mkdir(Path.directory(Path.combine(contentDirectory, asset.targetPath)));
-					AssetHelper.copyAssetIfNewer(asset, Path.combine(contentDirectory, asset.targetPath));
-				}
-				else
-				{
-					System.mkdir(Path.directory(Path.combine(targetDirectory, asset.targetPath)));
-					AssetHelper.copyAsset(asset, Path.combine(targetDirectory, asset.targetPath), context);
-				}
-			}
-		}
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
+		copyProjectAssets(targetDirectory, contentDirectory);
 	}
 
 	@ignore public override function install():Void {}
