@@ -132,14 +132,6 @@ class IOSPlatform extends PlatformTarget
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		IOSHelper.deploy(project, targetDirectory);
@@ -446,7 +438,7 @@ class IOSPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
@@ -523,17 +515,6 @@ class IOSPlatform extends PlatformTarget
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
-
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/" + project.app.file + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
 
 		// var manifest = new Asset ();
 		// manifest.id = "__manifest__";
@@ -857,30 +838,7 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		System.mkdir(projectDirectory + "/assets");
-
-		for (asset in project.assets)
-		{
-			if (asset.type != AssetType.TEMPLATE)
-			{
-				var targetPath = Path.combine(projectDirectory + "/assets/", asset.resourceName);
-
-				// var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
-
-				System.mkdir(Path.directory(targetPath));
-				AssetHelper.copyAssetIfNewer(asset, targetPath);
-
-				// System.mkdir (Path.directory (sourceAssetPath));
-				// System.linkFile (flatAssetPath, sourceAssetPath, true, true);
-			}
-			else
-			{
-				var targetPath = Path.combine(projectDirectory, asset.targetPath);
-
-				System.mkdir(Path.directory(targetPath));
-				AssetHelper.copyAsset(asset, targetPath, context);
-			}
-		}
+		copyProjectAssets(projectDirectory, "assets");
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
 		{
@@ -907,20 +865,6 @@ class IOSPlatform extends PlatformTarget
 		context.HAS_LAUNCH_IMAGE = has_launch_image;
 
 	}*/
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
-	}
 
 	@ignore public override function install():Void {}
 

@@ -330,14 +330,6 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "WebAssembly");
@@ -355,7 +347,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -395,17 +387,6 @@ class WebAssemblyPlatform extends PlatformTarget
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
-
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
 
 		// for (asset in project.assets)
 		// {
@@ -481,37 +462,13 @@ class WebAssemblyPlatform extends PlatformTarget
 			}
 		}
 
-		for (asset in project.assets)
-		{
-			var path = Path.combine(targetDirectory + "/obj/assets", asset.targetPath);
-
-			if (asset.type != AssetType.TEMPLATE)
-			{
-				// if (asset.type != AssetType.FONT) {
-
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAssetIfNewer(asset, path);
-
-				// }
-			}
-		}
-
 		ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/template", destination, context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/hxml", targetDirectory + "/haxe", context);
 		// ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/cpp", targetDirectory + "/obj", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 
-		for (asset in project.assets)
-		{
-			var path = Path.combine(destination, asset.targetPath);
-
-			if (asset.type == AssetType.TEMPLATE)
-			{
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path, context);
-			}
-		}
+		copyProjectAssets(destination, targetDirectory + "/obj/assets");
 	}
 
 	@ignore public override function install():Void {}
@@ -519,4 +476,7 @@ class WebAssemblyPlatform extends PlatformTarget
 	@ignore public override function trace():Void {}
 
 	@ignore public override function uninstall():Void {}
+
+	// TODO: remove this line to enable watching?
+	@ignore public override function watch():Void {}
 }

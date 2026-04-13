@@ -14,6 +14,12 @@
 
 namespace lime
 {
+#ifdef LIME_SDL_SOUND
+#include "media/SDLSound.h"
+#include "SDL_sound.h"
+#endif
+
+
 
 	AutoGCRoot *Application::callback = 0;
 	SDLApplication *SDLApplication::currentApplication = 0;
@@ -47,7 +53,15 @@ namespace lime
 			printf("Could not initialize SDL: %s.\n", SDL_GetError());
 		}
 
-		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
+		#ifdef LIME_SDL_SOUND
+		if (!Sound_Init ()) {
+
+			printf ("Could not initialize SDL_sound: %s.\n", Sound_GetError ());
+
+		}
+		#endif
+
+		SDL_LogSetPriority (SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
 
 		currentApplication = this;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
@@ -1266,7 +1280,11 @@ namespace lime
 		SDL_AtomicSet(&s_nativeModalLoopDepth, 0);
 #endif
 
-		SDL_QuitSubSystem(initFlags);
+		#ifdef LIME_SDL_SOUND
+		Sound_Quit ();
+		#endif
+
+		SDL_QuitSubSystem (initFlags);
 
 		SDL_Quit();
 
