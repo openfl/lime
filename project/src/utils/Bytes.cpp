@@ -64,23 +64,21 @@ namespace lime {
 
 		mutex.Lock ();
 
-		bool usingHaxeValue = (usingValue.find (this) != usingValue.end ());
-
-		if (usingHaxeValue) {
-
-			usingValue.erase (this);
-
-		}
-
-		if (!usingHaxeValue && b) {
-
-			free (b);
-
-		}
-
 		if (hadValue.find (this) != hadValue.end ()) {
 
 			hadValue.erase (this);
+
+			if (usingValue.find (this) == usingValue.end () && b) {
+
+				free (b);
+
+			}
+
+		}
+
+		if (usingValue.find (this) != usingValue.end ()) {
+
+			usingValue.erase (this);
 
 		}
 
@@ -105,11 +103,8 @@ namespace lime {
 
 		if (size > 0) {
 
-			if (TryResize (size)) {
-
-				lime::fread (b, 1, size, file);
-
-			}
+			Resize (size);
+			int status = lime::fread (b, 1, size, file);
 
 		}
 
@@ -118,7 +113,7 @@ namespace lime {
 	}
 
 
-	bool Bytes::TryResize (int size) {
+	void Bytes::Resize (int size) {
 
 		if (size != length || (length > 0 && !b)) {
 
@@ -138,25 +133,14 @@ namespace lime {
 
 					}
 
-				} else if (usingValue.find (this) != usingValue.end ()) {
-
-					usingValue.erase (this);
+					b = 0;
+					length = 0;
 
 				}
-
-				b = 0;
-				length = 0;
 
 			} else {
 
 				unsigned char* data = (unsigned char*)malloc (sizeof (char) * size);
-
-				if (!data) {
-
-					mutex.Unlock ();
-					return false;
-
-				}
 
 				if (b) {
 
@@ -191,15 +175,6 @@ namespace lime {
 
 		}
 
-		return (size == length || (size <= 0 && length == 0));
-
-	}
-
-
-	void Bytes::Resize (int size) {
-
-		TryResize (size);
-
 	}
 
 
@@ -229,30 +204,9 @@ namespace lime {
 	
 	    //and now it should be save to lock
 	    mutex.Lock();
-
-	    bool usingHaxeValue = (usingValue.find(this) != usingValue.end());
-
-	    if (b) {
-
-	        if (usingHaxeValue) {
-
-	            usingValue.erase(this);
-	            usingHaxeValue = false;
-
-	        } else {
-
-	            free(b);
-
-	        }
-
-	    } else if (usingHaxeValue) {
-
-	        usingValue.erase(this);
-	        usingHaxeValue = false;
-
-	    }
 	
 	    if (isNull) {
+	        usingValue.erase(this);
 	        length = 0;
 	        b = 0;
 	    } else {
@@ -272,15 +226,23 @@ namespace lime {
 
 		if (size > 0) {
 
-			if (TryResize (size)) {
-
-				memcpy (b, &data[0], length);
-
-			}
+			Resize (size);
+			memcpy (b, &data[0], length);
 
 		} else {
 
-			TryResize (0);
+			mutex.Lock ();
+
+			if (usingValue.find (this) != usingValue.end ()) {
+
+				usingValue.erase (this);
+
+			}
+
+			mutex.Unlock ();
+
+			b = 0;
+			length = 0;
 
 		}
 

@@ -22,7 +22,6 @@ namespace lime {
 		ArrayBufferView (value arrayBufferView);
 		~ArrayBufferView ();
 
-		bool TryResize (int size);
 		void Resize (int size);
 		void Set (value bytes);
 		void Set (const QuickVec<unsigned char> data);

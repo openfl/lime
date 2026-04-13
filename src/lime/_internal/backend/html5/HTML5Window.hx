@@ -1281,11 +1281,6 @@ class HTML5Window
 		return value;
 	}
 
-	public function setAlwaysOnTop(value:Bool):Bool
-	{
-		return value;
-	}
-
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;

@@ -58,10 +58,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#ifdef LIME_SDL_SOUND
-#include <media/SDLSound.h>
-#endif
-
 DEFINE_KIND (k_finalizer);
 
 
@@ -423,15 +419,6 @@ namespace lime {
 		bytes.Set (data);
 		resource = Resource (&bytes);
 
-		#ifdef LIME_SDL_SOUND
-		if (SDLSound::Decode (&resource, &audioBuffer)) {
-
-			return audioBuffer.Value (buffer);
-
-		}
-		#endif
-	
-
 		if (WAV::Decode (&resource, &audioBuffer)) {
 
 			return audioBuffer.Value (buffer);
@@ -454,14 +441,6 @@ namespace lime {
 	HL_PRIM AudioBuffer* HL_NAME(hl_audio_load_bytes) (Bytes* data, AudioBuffer* buffer) {
 
 		Resource resource = Resource (data);
-
-		#ifdef LIME_SDL_SOUND
-		if (SDLSound::Decode (&resource, buffer)) {
-
-			return buffer;
-
-		}
-		#endif
 
 		if (WAV::Decode (&resource, buffer)) {
 
@@ -490,14 +469,6 @@ namespace lime {
 
 		resource = Resource (val_string (data));
 
-		#ifdef LIME_SDL_SOUND
-		if (SDLSound::Decode (&resource, &audioBuffer)) {
-
-			return audioBuffer.Value (buffer);
-
-		}
-		#endif
-
 		if (WAV::Decode (&resource, &audioBuffer)) {
 
 			return audioBuffer.Value (buffer);
@@ -520,14 +491,6 @@ namespace lime {
 	HL_PRIM AudioBuffer* HL_NAME(hl_audio_load_file) (hl_vstring* data, AudioBuffer* buffer) {
 
 		Resource resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
-
-		#ifdef LIME_SDL_SOUND
-		if (SDLSound::Decode (&resource, buffer)) {
-
-			return buffer;
-
-		}
-		#endif
 
 		if (WAV::Decode (&resource, buffer)) {
 
@@ -4018,22 +3981,6 @@ namespace lime {
 	}
 
 
-	bool lime_window_set_always_on_top (value window, bool alwaysOnTop) {
-
-		Window* targetWindow = (Window*)val_data (window);
-		return targetWindow->SetAlwaysOnTop(alwaysOnTop);
-
-	}
-
-
-	HL_PRIM bool HL_NAME(hl_window_set_always_on_top) (HL_CFFIPointer* window, bool alwaysOnTop) {
-
-		Window* targetWindow = (Window*)window->ptr;
-		return targetWindow->SetAlwaysOnTop (alwaysOnTop);
-
-	}
-
-
 	void lime_window_warp_mouse (value window, int x, int y) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -4264,7 +4211,6 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME2 (lime_window_set_visible);
-	DEFINE_PRIME2 (lime_window_set_always_on_top);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
@@ -4461,7 +4407,6 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
-	DEFINE_HL_PRIM (_BOOL, hl_window_set_always_on_top, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);

@@ -59,7 +59,6 @@ namespace lime {
 			virtual const char* SetTitle (const char* title);
 			virtual void SetVSyncMode (int vsyncMode);
 			virtual bool SetVisible (bool visible);
-			virtual bool SetAlwaysOnTop (bool alwaysOnTop);
 			virtual void WarpMouse (int x, int y);
 			virtual int GetVSyncInterval () const;
 			virtual double GetRefreshRate () const;
