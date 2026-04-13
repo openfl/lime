@@ -634,6 +634,14 @@ class WindowsPlatform extends PlatformTarget
 		}
 	}
 
+	public override function clean():Void
+	{
+		if (FileSystem.exists(targetDirectory))
+		{
+			System.removeDirectory(targetDirectory);
+		}
+	}
+
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Windows" + (is64 ? "64" : ""));
@@ -718,7 +726,7 @@ class WindowsPlatform extends PlatformTarget
 		return context;
 	}
 
-	private override function getDisplayHXML():HXML
+	private function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -954,6 +962,17 @@ class WindowsPlatform extends PlatformTarget
 			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
+		for (asset in project.assets)
+		{
+			if (asset.embed && asset.sourcePath == "")
+			{
+				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
+				System.mkdir(Path.directory(path));
+				AssetHelper.copyAsset(asset, path);
+				asset.sourcePath = path;
+			}
+		}
+
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
@@ -1021,7 +1040,24 @@ class WindowsPlatform extends PlatformTarget
 
 		}*/
 
-		copyProjectAssets(applicationDirectory);
+		for (asset in project.assets)
+		{
+			if (asset.embed != true)
+			{
+				var path = Path.combine(applicationDirectory, asset.targetPath);
+
+				if (asset.type != AssetType.TEMPLATE)
+				{
+					System.mkdir(Path.directory(path));
+					AssetHelper.copyAssetIfNewer(asset, path);
+				}
+				else
+				{
+					System.mkdir(Path.directory(path));
+					AssetHelper.copyAsset(asset, path, context);
+				}
+			}
+		}
 	}
 
 	private function updateUWP():Void
@@ -1225,6 +1261,21 @@ class WindowsPlatform extends PlatformTarget
 				AssetHelper.copyAsset(asset, path, context);
 			}
 		}
+	}
+
+	public override function watch():Void
+	{
+		var hxml = getDisplayHXML();
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
+		var command = ProjectHelper.getCurrentCommand();
+		System.watch(command, dirs);
 	}
 
 	//	@ignore public override function install ():Void {}

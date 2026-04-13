@@ -171,9 +171,22 @@ class AIRPlatform extends FlashPlatform
 				files.push(splashScreen.path);
 			}
 
-			var targetPathWithoutExtension = "bin/" + project.app.file;
+			var targetPath = switch (targetPlatform)
+			{
+				case ANDROID: "bin/" + project.app.file + ".apk";
+				case IOS: "bin/" + project.app.file + ".ipa";
+				default: "bin/" + project.app.file + ".air";
+			}
 
-			AIRHelper.build(project, targetDirectory, targetPlatform, targetPathWithoutExtension, "application.xml", files, "bin");
+			AIRHelper.build(project, targetDirectory, targetPlatform, targetPath, "application.xml", files, "bin");
+		}
+	}
+
+	public override function clean():Void
+	{
+		if (FileSystem.exists(targetDirectory))
+		{
+			System.removeDirectory(targetDirectory);
 		}
 	}
 
@@ -205,19 +218,19 @@ class AIRPlatform extends FlashPlatform
 					name += " (macOS)";
 
 				case IOS:
-					name += " (iOS)";
+					name += " (iOS).ipa";
 
 				case ANDROID:
-					name += " (Android)";
+					name += " (Android).apk";
 
 				default:
 			}
 
-			var outputPathWithoutExtension = "dist/" + name;
+			var outputPath = "dist/" + name;
 
 			System.mkdir(targetDirectory + "/dist");
 
-			var outputPath = AIRHelper.build(project, targetDirectory, targetPlatform, outputPathWithoutExtension, "application.xml", files, "bin");
+			outputPath = AIRHelper.build(project, targetDirectory, targetPlatform, outputPath, "application.xml", files, "bin");
 
 			if (targetPlatformType == DESKTOP)
 			{
@@ -396,6 +409,4 @@ class AIRPlatform extends FlashPlatform
 	}
 
 	@ignore public override function rebuild():Void {}
-
-	@ignore public override function watch():Void {}
 }

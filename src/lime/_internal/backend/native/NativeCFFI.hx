@@ -80,22 +80,6 @@ class NativeCFFI
 
 	@:cffi private static function lime_audio_load_file(path:Dynamic, buffer:Dynamic):Dynamic;
 
-	@:cffi private static function lime_sdl_sound_get_info_from_bytes(bytes:Dynamic):Dynamic;
-
-	@:cffi private static function lime_sdl_sound_get_info_from_file(path:String):Dynamic;
-
-	@:cffi private static function lime_sdl_sound_stream_from_bytes(bytes:Dynamic):CFFIPointer;
-
-	@:cffi private static function lime_sdl_sound_stream_from_file(path:String):CFFIPointer;
-
-	@:cffi private static function lime_sdl_sound_stream_read(stream:CFFIPointer, buffer:Dynamic, length:Int):Int;
-
-	@:cffi private static function lime_sdl_sound_stream_rewind(stream:CFFIPointer):Bool;
-
-	@:cffi private static function lime_sdl_sound_stream_seek(stream:CFFIPointer, ms:Int):Bool;
-
-	@:cffi private static function lime_sdl_sound_stream_clear(stream:CFFIPointer):Void;
-
 	@:cffi private static function lime_bytes_from_data_pointer(data:Float, length:Int, bytes:Dynamic):Dynamic;
 
 	@:cffi private static function lime_bytes_get_data_pointer(data:Dynamic):Float;
@@ -384,8 +368,6 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
 
-	@:cffi private static function lime_window_set_always_on_top(handle:Dynamic, alwaysOnTop:Bool):Bool;
-
 	@:cffi private static function lime_window_warp_mouse(handle:Dynamic, x:Int, y:Int):Void;
 
 	@:cffi private static function lime_window_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
@@ -412,22 +394,6 @@ class NativeCFFI
 		"ooo", false));
 	private static var lime_audio_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load_file", "ooo",
 		false));
-	private static var lime_sdl_sound_get_info_from_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_get_info_from_bytes", "oo", false));
-	private static var lime_sdl_sound_get_info_from_file = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_get_info_from_file", "so", false));
-	private static var lime_sdl_sound_stream_from_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_stream_from_bytes", "oo", false));
-	private static var lime_sdl_sound_stream_from_file = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_stream_from_file", "so", false));
-	private static var lime_sdl_sound_stream_read = new cpp.Callable<cpp.Object->cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_stream_read", "ooii", false));
-	private static var lime_sdl_sound_stream_rewind = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_stream_rewind", "ob", false));
-	private static var lime_sdl_sound_stream_seek = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_stream_seek", "oib", false));
-	private static var lime_sdl_sound_stream_clear = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
-		"lime_sdl_sound_stream_clear", "ov", false));
 	private static var lime_bytes_from_data_pointer = new cpp.Callable<Float->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_bytes_from_data_pointer", "dioo", false));
 	private static var lime_bytes_get_data_pointer = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_bytes_get_data_pointer", "od",
@@ -676,8 +642,6 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_visible = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_visible", "obb",
 		false));
-	private static var lime_window_set_always_on_top = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_always_on_top", "obb",
-		false));
 	private static var lime_window_warp_mouse = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_warp_mouse",
 		"oiiv", false));
 	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -701,14 +665,6 @@ class NativeCFFI
 	private static var lime_audio_load = CFFI.load("lime", "lime_audio_load", 2);
 	private static var lime_audio_load_bytes = CFFI.load("lime", "lime_audio_load_bytes", 2);
 	private static var lime_audio_load_file = CFFI.load("lime", "lime_audio_load_file", 2);
-	private static var lime_sdl_sound_get_info_from_bytes = CFFI.load("lime", "lime_sdl_sound_get_info_from_bytes", 1);
-	private static var lime_sdl_sound_get_info_from_file = CFFI.load("lime", "lime_sdl_sound_get_info_from_file", 1);
-	private static var lime_sdl_sound_stream_from_bytes = CFFI.load("lime", "lime_sdl_sound_stream_from_bytes", 1);
-	private static var lime_sdl_sound_stream_from_file = CFFI.load("lime", "lime_sdl_sound_stream_from_file", 1);
-	private static var lime_sdl_sound_stream_read = CFFI.load("lime", "lime_sdl_sound_stream_read", 3);
-	private static var lime_sdl_sound_stream_rewind = CFFI.load("lime", "lime_sdl_sound_stream_rewind", 1);
-	private static var lime_sdl_sound_stream_seek = CFFI.load("lime", "lime_sdl_sound_stream_seek", 2);
-	private static var lime_sdl_sound_stream_clear = CFFI.load("lime", "lime_sdl_sound_stream_clear", 1);
 	private static var lime_bytes_from_data_pointer = CFFI.load("lime", "lime_bytes_from_data_pointer", 3);
 	private static var lime_bytes_get_data_pointer = CFFI.load("lime", "lime_bytes_get_data_pointer", 1);
 	private static var lime_bytes_get_data_pointer_offset = CFFI.load("lime", "lime_bytes_get_data_pointer_offset", 2);
@@ -851,7 +807,6 @@ class NativeCFFI
 	private static var lime_window_set_text_input_rect = CFFI.load("lime", "lime_window_set_text_input_rect", 2);
 	private static var lime_window_set_title = CFFI.load("lime", "lime_window_set_title", 2);
 	private static var lime_window_set_visible = CFFI.load("lime", "lime_window_set_visible", 2);
-	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
 	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 2);
@@ -901,43 +856,6 @@ class NativeCFFI
 	{
 		return null;
 	}
-
-	@:hlNative("lime", "hl_sdl_sound_get_info_from_bytes") private static function lime_sdl_sound_get_info_from_bytes(bytes:Bytes):Dynamic
-	{
-		return null;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_get_info_from_file") private static function lime_sdl_sound_get_info_from_file(path:String):Dynamic
-	{
-		return null;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_stream_from_bytes") private static function lime_sdl_sound_stream_from_bytes(bytes:Bytes):CFFIPointer
-	{
-		return null;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_stream_from_file") private static function lime_sdl_sound_stream_from_file(path:String):CFFIPointer
-	{
-		return null;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_stream_read") private static function lime_sdl_sound_stream_read(stream:CFFIPointer, buffer:Bytes, length:Int):Int
-	{
-		return 0;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_stream_rewind") private static function lime_sdl_sound_stream_rewind(stream:CFFIPointer):Bool
-	{
-		return false;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_stream_seek") private static function lime_sdl_sound_stream_seek(stream:CFFIPointer, ms:Int):Bool
-	{
-		return false;
-	}
-
-	@:hlNative("lime", "hl_sdl_sound_stream_clear") private static function lime_sdl_sound_stream_clear(stream:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_bytes_from_data_pointer") private static function lime_bytes_from_data_pointer(data:Float, length:Int, bytes:Bytes):Bytes
 	{
@@ -1517,11 +1435,6 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_visible") private static function lime_window_set_visible(handle:CFFIPointer, visible:Bool):Bool
-	{
-		return false;
-	}
-
-	@:hlNative("lime", "hl_window_set_always_on_top") private static function lime_window_set_always_on_top(handle:CFFIPointer, alwaysOnTop:Bool):Bool
 	{
 		return false;
 	}

@@ -49,20 +49,12 @@ namespace lime {
 	}
 
 
-	bool ArrayBufferView::TryResize (int size) {
-
-		bool resized = buffer->TryResize (size);
-
-		byteLength = buffer->length;
-		length = byteLength;
-		return resized;
-
-	}
-
-
 	void ArrayBufferView::Resize (int size) {
 
-		TryResize (size);
+		buffer->Resize (size);
+
+		byteLength = size;
+		length = size;
 
 	}
 

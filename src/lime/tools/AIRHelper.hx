@@ -5,25 +5,21 @@ import sys.FileSystem;
 
 class AIRHelper
 {
-	public static function build(project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPathWithoutExtension:String, applicationXML:String,
+	public static function build(project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPath:String, applicationXML:String,
 			files:Array<String>, fileDirectory:String = null):String
 	{
+		// var airTarget = "air";
+		// var extension = ".air";
 		var airTarget = "bundle";
+		var extension = "";
 
-		switch(targetPlatform)
+		switch (targetPlatform)
 		{
-			case WINDOWS:
-
-				if (project.targetFlags.exists("shared"))
-				{
-					airTarget = "air";
-				}
-
 			case MAC:
 
-				if (project.targetFlags.exists("shared"))
+				if (airTarget == "bundle")
 				{
-					airTarget = "air";
+					extension = ".app";
 				}
 
 			case IOS:
@@ -79,84 +75,19 @@ class AIRHelper
 					}
 				}
 
+			// extension = ".ipa";
+
 			case ANDROID:
-				if (project.targetFlags.exists("aab"))
+				if (project.debug)
 				{
-					if (project.debug)
-					{
-						airTarget = "aab-debug";
-					}
-					else
-					{
-						airTarget = "aab";
-					}
-				}
-				else if (project.targetFlags.exists("android-studio"))
-				{
-					if (project.debug)
-					{
-						airTarget = "android-studio-debug";
-					}
-					else
-					{
-						airTarget = "android-studio";
-					}
+					airTarget = "apk-debug";
 				}
 				else
 				{
-					if (project.debug)
-					{
-						airTarget = "apk-debug";
-					}
-					else
-					{
-						airTarget = "apk";
-					}
+					airTarget = "apk";
 				}
 
-			default:
-		}
-
-		var extension = "";
-
-		switch (targetPlatform)
-		{
-			case WINDOWS:
-
-				if (airTarget == "air")
-				{
-					extension = ".air";
-				}
-
-			case MAC:
-
-				if (airTarget == "bundle")
-				{
-					extension = ".app";
-				}
-				else if (airTarget == "air")
-				{
-					extension = ".air";
-				}
-
-			case ANDROID:
-
-				if (StringTools.startsWith(airTarget, "aab"))
-				{
-					extension = ".aab";
-				}
-				else if (StringTools.startsWith(airTarget, "android-studio"))
-				{
-					// no extension
-				}
-				else
-				{
-					extension = ".apk";
-				}
-
-			case IOS:
-
-				extension = ".ipa";
+			// extension = ".apk";
 
 			default:
 		}
@@ -257,7 +188,7 @@ class AIRHelper
 			}
 		}
 
-		args = args.concat([targetPathWithoutExtension + extension, applicationXML]);
+		args = args.concat([targetPath + extension, applicationXML]);
 
 		if (targetPlatform == IOS && System.hostPlatform == MAC && project.targetFlags.exists("simulator"))
 		{
@@ -305,7 +236,7 @@ class AIRHelper
 
 		System.runCommand(workingDirectory, project.defines.get("AIR_SDK") + "/bin/adt", args);
 
-		return targetPathWithoutExtension + extension;
+		return targetPath + extension;
 	}
 
 	public static function getExtDirs(project:HXProject):Array<String>

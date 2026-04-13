@@ -341,14 +341,4 @@ class AIRWindow extends FlashWindow
 
 		return value;
 	}
-
-	public override function setAlwaysOnTop(value:Bool):Bool
-	{
-		if (nativeWindow != null)
-		{
-			nativeWindow.alwaysInFront = value;
-		}
-
-		return value;
-	}
 }
