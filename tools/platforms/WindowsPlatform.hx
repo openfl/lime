@@ -36,6 +36,7 @@ class WindowsPlatform extends PlatformTarget
 	private var applicationDirectory:String;
 	private var executablePath:String;
 	private var is64:Bool;
+	private var isArm:Bool;
 	private var targetType:String;
 	private var outputFile:String;
 
@@ -110,6 +111,8 @@ class WindowsPlatform extends PlatformTarget
 					defaults.architectures = [ARMV6];
 				case ARMV7:
 					defaults.architectures = [ARMV7];
+				case ARM64:
+					defaults.architectures = [ARM64];
 				case X86:
 					defaults.architectures = [X86];
 				case X64:
@@ -188,7 +191,12 @@ class WindowsPlatform extends PlatformTarget
 
 		for (architecture in project.architectures)
 		{
-			if (architecture == Architecture.X64)
+			if (architecture == Architecture.ARM64)
+			{
+				isArm = true;
+			}
+			
+			if (architecture == Architecture.X64 || architecture == Architecture.ARM64)
 			{
 				if ((targetType == "cpp" || targetType == "winrt"))
 				{
@@ -315,7 +323,7 @@ class WindowsPlatform extends PlatformTarget
 				{
 					for (ndll in project.ndlls)
 					{
-						ProjectHelper.copyLibrary(project, ndll, "WinRT" + (is64 ? "64" : ""), "",
+						ProjectHelper.copyLibrary(project, ndll, "WinRT" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "",
 							(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
 							applicationDirectory, project.debug, null);
 					}
@@ -330,14 +338,14 @@ class WindowsPlatform extends PlatformTarget
 					// TODO: Support single binary for HashLink
 					if (targetType == "hl")
 					{
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".lib", applicationDirectory, project.debug,
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "", ".lib", applicationDirectory, project.debug,
 							".lib");
 					}
 					else
 					{
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "",
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "",
 							(ndll.haxelib != null && (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll",
 							applicationDirectory, project.debug, targetSuffix);
 					}
@@ -360,7 +368,7 @@ class WindowsPlatform extends PlatformTarget
 				}
 
 				NekoHelper.createWindowsExecutable(project.templatePaths, targetDirectory + "/obj/ApplicationMain.n", executablePath, iconPath);
-				NekoHelper.copyLibraries(project.templatePaths, "windows" + (is64 ? "64" : ""), applicationDirectory);
+				NekoHelper.copyLibraries(project.templatePaths, "windows" + (isArm ? "arm" : "") + (is64 ? "64" : ""), applicationDirectory);
 			}
 			else if (targetType == "hl")
 			{
@@ -443,7 +451,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (noOutput) return;
 
-				System.copyFile(Path.combine(Haxelib.getPath(new Haxelib("hxcpp")), "bin/Windows64/Cppia.exe"), executablePath);
+				System.copyFile(Path.combine(Haxelib.getPath(new Haxelib("hxcpp")), "bin/Windows" + (isArm ? "Arm" : "") + "64/Cppia.exe"), executablePath);
 				System.copyFile(targetDirectory + "/obj/ApplicationMain.cppia", Path.combine(applicationDirectory, "script.cppia"));
 
 				var iconPath = Path.combine(applicationDirectory, "icon.ico");
@@ -498,7 +506,7 @@ class WindowsPlatform extends PlatformTarget
 				System.recursiveCopy(targetDirectory + "/obj/lib", Path.combine(applicationDirectory, "lib"));
 				System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-Debug" : "") + ".jar",
 					Path.combine(applicationDirectory, project.app.file + ".jar"));
-				JavaHelper.copyLibraries(project.templatePaths, "Windows" + (is64 ? "64" : ""), applicationDirectory);
+				JavaHelper.copyLibraries(project.templatePaths, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), applicationDirectory);
 			}
 			else if (targetType == "winrt")
 			{
@@ -513,9 +521,18 @@ class WindowsPlatform extends PlatformTarget
 
 				if (is64)
 				{
-					haxeArgs.push("-D");
-					haxeArgs.push("HXCPP_M64");
-					flags.push("-DHXCPP_M64");
+					if (isArm)
+					{
+						haxeArgs.push("-D");
+						haxeArgs.push("HXCPP_ARM64");
+						flags.push("-DHXCPP_ARM64");
+					}
+					else
+					{
+						haxeArgs.push("-D");
+						haxeArgs.push("HXCPP_M64");
+						flags.push("-DHXCPP_M64");
+					}
 				}
 				else
 				{
@@ -567,9 +584,18 @@ class WindowsPlatform extends PlatformTarget
 
 				if (is64)
 				{
-					haxeArgs.push("-D");
-					haxeArgs.push("HXCPP_M64");
-					flags.push("-DHXCPP_M64");
+					if (isArm)
+					{
+						haxeArgs.push("-D");
+						haxeArgs.push("HXCPP_ARM64");
+						flags.push("-DHXCPP_ARM64");
+					}
+					else
+					{
+						haxeArgs.push("-D");
+						haxeArgs.push("HXCPP_M64");
+						flags.push("-DHXCPP_M64");
+					}
 				}
 				else
 				{
@@ -636,7 +662,7 @@ class WindowsPlatform extends PlatformTarget
 
 	public override function deploy():Void
 	{
-		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Windows" + (is64 ? "64" : ""));
+		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""));
 	}
 
 	public override function display():Void
@@ -679,7 +705,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (targetType == "winrt")
 		{
 			context.CPP_DIR = targetDirectory + "/obj";
-			context.BUILD_DIR = project.app.path + "/winrt" + (is64 ? "64" : "");
+			context.BUILD_DIR = project.app.path + "/winrt" + (isArm ? "Arm" : "") + (is64 ? "64" : "");
 			context.DC = "::";
 		}
 		else
@@ -712,7 +738,7 @@ class WindowsPlatform extends PlatformTarget
 			context.HL_FILE = targetDirectory + "/obj/ApplicationMain" + (project.defines.exists("hlc") ? ".c" : ".hl");
 			context.CPPIA_FILE = targetDirectory + "/obj/ApplicationMain.cppia";
 			context.CPP_DIR = targetDirectory + "/obj";
-			context.BUILD_DIR = project.app.path + "/windows" + (is64 ? "64" : "");
+			context.BUILD_DIR = project.app.path + "/windows" + (isArm ? "Arm" : "") + (is64 ? "64" : "");
 		}
 
 		return context;
@@ -771,7 +797,11 @@ class WindowsPlatform extends PlatformTarget
 			if (targetType == "hl")
 			{
 				// default to 64 bit, just like upstream Hashlink releases
-				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
+				if (targetFlags.exists("arm64") || System.hostArchitecture == ARM64)
+				{
+					commands.push(["-Dwindows", "-DHXCPP_ARM64", "-Dhashlink"]);
+				}
+				else if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
 					&& (System.hostArchitecture == X64 || targetFlags.exists("64") || targetFlags.exists("x86_64")))
 				{
 					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
@@ -800,7 +830,18 @@ class WindowsPlatform extends PlatformTarget
 				// as previous Windows builds. For now, force -64 to be done last
 				// so that it can be debugged in a default "rebuild"
 
-				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
+				if (targetFlags.exists("arm64") || System.hostArchitecture == ARM64)
+				{
+					if (targetType == "winrt")
+					{
+						commands.push(["-Dwinrt", "-DHXCPP_ARM64"]);
+					}
+					else
+					{
+						commands.push(["-Dwindows", "-DHXCPP_ARM64"]);
+					}
+				}
+				else if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
 					&& System.hostArchitecture == X64
 					&& (command != "rebuild" || targetType == "cpp" || targetType == "neko" || targetType == "winrt"))
 				{
@@ -980,7 +1021,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (ndll.path == null || ndll.path == "")
 				{
-					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix,
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "lib", suffix,
 						project.debug);
 				}
 			}

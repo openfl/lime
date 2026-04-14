@@ -13,7 +13,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mojoal/AL/" />
 		<compilerflag value="-DAL_LIBTYPE_STATIC" if="native_toolkit_mojoal_static" />
 
-		<file name="${NATIVE_TOOLKIT_PATH}/mojoal/mojoal.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/mojoal/mojoal.c" unless="HXCPP_ARM64" />
+		<file name="${NATIVE_TOOLKIT_PATH}/custom/mojoal/mojoal.c" if="HXCPP_ARM64" />
 
 	</files>
 
