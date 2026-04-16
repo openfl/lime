@@ -1,7 +1,7 @@
 <xml>
 
-	<files id="native-toolkit-mojoal">
-
+	<files id="native-toolkit-mojoal" if="LIME_MOJOAL">
+		
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/" unless="windows || mac || linux || rpi" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/" if="linux" unless="rpi" />
@@ -13,9 +13,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mojoal/AL/" />
 		<compilerflag value="-DAL_LIBTYPE_STATIC" if="native_toolkit_mojoal_static" />
 
-		<file name="${NATIVE_TOOLKIT_PATH}/mojoal/mojoal.c" unless="HXCPP_ARM64" />
-		<file name="${NATIVE_TOOLKIT_PATH}/custom/mojoal/mojoal.c" if="HXCPP_ARM64" />
-
+		<file name="${NATIVE_TOOLKIT_PATH}/mojoal/mojoal.c" />
+		
 	</files>
 
 </xml>
