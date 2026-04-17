@@ -1,0 +1,148 @@
+<xml>
+  
+  <files id="native-toolkit-webp">
+
+    <section>
+      <!-- include paths -->
+      <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/webp" />
+      <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/webp/src" />
+      <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/webp/sharpyuv" />
+
+      <!-- decoder -->
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/alpha_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/buffer_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/frame_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/idec_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/io_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/quant_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/tree_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/vp8_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/vp8l_dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dec/webp_dec.c" />
+
+      <!-- encoder -->
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/alpha_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/analysis_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/backward_references_cost_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/backward_references_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/config_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/cost_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/filter_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/frame_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/histogram_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/iterator_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/near_lossless_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/picture_csp_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/picture_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/picture_psnr_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/picture_rescale_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/picture_tools_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/predictor_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/quant_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/syntax_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/token_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/tree_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/vp8l_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/enc/webp_enc.c" />
+
+      <!-- dsp scalar -->
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cpu.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_clip_tables.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv.c" />
+
+      <!-- utils -->
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/bit_reader_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/bit_writer_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/color_cache_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/filters_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/huffman_encode_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/huffman_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/palette.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/quant_levels_dec_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/quant_levels_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/random_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/rescaler_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/thread_utils.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/utils/utils.c" />
+
+      <!-- SharpyUV base -->
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_cpu.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_csp.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_dsp.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_gamma.c" />
+    </section>
+
+
+    <section if="HXCPP_M32 || HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-msse2" if="GCC || CLANG" />
+      <compilerflag value="/arch:SSE2" if="MSVC HXCPP_M32" />
+
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/ssim_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_sse2.c" />
+    </section>
+
+
+    <section if="HXCPP_M32 || HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-msse4.1" if="GCC || CLANG" />
+
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_sse41.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_sse41.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_sse41.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_sse41.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_sse41.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_sse41.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_sse41.c" />
+    </section>
+
+
+    <!-- Enable AVX2 on x86 32-bit *only because* we can’t cleanly disable it (webp/src/dsp/cpu.h redefines WEBP_HAVE_AVX2);
+     without these TUs we hit LNK2019. Runtime CPUID guards execution on non-AVX2 CPUs. -->
+    <section if="HXCPP_M32 || HXCPP_M64" unless="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-mavx"  if="GCC || CLANG" />
+      <compilerflag value="-mavx2" if="GCC || CLANG" />
+      <compilerflag value="/arch:AVX2" if="MSVC" />
+
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_avx2.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_avx2.c" />
+    </section>
+
+
+    <section if="HXCPP_ARM64 || HXCPP_ARMV7">
+      <compilerflag value="-mfpu=neon" if="android HXCPP_ARMV7" />
+
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/alpha_processing_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/dec_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/enc_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/filters_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/lossless_enc_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/rescaler_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/cost_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/upsampling_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/src/dsp/yuv_neon.c" />
+      <file name="${NATIVE_TOOLKIT_PATH}/webp/sharpyuv/sharpyuv_neon.c" />
+    </section>
+
+  </files>
+</xml>

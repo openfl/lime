@@ -28,6 +28,7 @@
 	<set name="LIME_OPENGL" value="1" />
 	<set name="LIME_PIXMAN" value="1" />
 	<set name="LIME_PNG" value="1" />
+	<set name="LIME_WEBP" value="1" />
 	<set name="LIME_SDL" value="1" />
 	<!-- <set name="LIME_SDL_ANGLE" value="1" if="windows" unless="static_link" /> -->
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
@@ -216,6 +217,13 @@
 
 		</section>
 
+		<section if="LIME_WEBP">
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/webp/src" />
+			<compilerflag value="-DLIME_WEBP" />
+
+			<file name="src/graphics/format/WEBP.cpp" />
+		</section>
+
 		<section if="LIME_SDL">
 
 			<section if="emscripten">
@@ -366,6 +374,7 @@
 	<include name="lib/openal-files.xml" />
 	<include name="lib/pixman-files.xml" />
 	<include name="lib/png-files.xml" />
+	<include name="lib/webp-files.xml" />
 	<include name="lib/sdl-files.xml" />
 	<include name="lib/tinyfiledialogs-files.xml" />
 	<include name="lib/vorbis-files.xml" />
@@ -399,6 +408,7 @@
 		<files id="native-toolkit-openal" if="LIME_OPENALSOFT" />
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
+		<files id="native-toolkit-webp" if="LIME_WEBP" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
 		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />

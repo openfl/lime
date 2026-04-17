@@ -82,3 +82,7 @@
 	path = project/lib/hashlink
 	url = https://github.com/HaxeFoundation/hashlink
 	shallow = true
+[submodule "project/lib/webp"]
+	path = project/lib/webp
+	url = https://github.com/webmproject/libwebp
+	shallow = true
