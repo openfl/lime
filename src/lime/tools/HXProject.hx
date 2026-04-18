@@ -1143,8 +1143,19 @@ class HXProject extends Script
 		{
 			if (StringTools.startsWith(haxeflag, "-lib"))
 			{
-				Reflect.setField(context, "LIB_" + StringTools.formatUppercaseVariable(haxeflag.substr(5)), "true");
+				var haxelibName = StringTools.formatUppercaseVariable(haxeflag.substr(5));
+				Reflect.setField(context, "LIB_" + haxelibName, "true");
+				try
+				{
+					Reflect.setField(context, "LIB_" + haxelibName + "_PATH", Haxelib.getPath(new Haxelib(haxelibName)));
+				}
+				catch(e: Dynamic) {}
 			}
+		}
+
+		for (flag in targetFlags.keys())
+		{
+			Reflect.setField(context, "FLAG_" + StringTools.formatUppercaseVariable(flag), targetFlags.get(flag));
 		}
 
 		context.assets = new Array<Dynamic>();
@@ -1346,6 +1357,7 @@ class HXProject extends Script
 			// #end
 
 			Reflect.setField(context, "LIB_" + StringTools.formatUppercaseVariable(haxelib.name), true);
+			Reflect.setField(context, "LIB_" + StringTools.formatUppercaseVariable(haxelib.name) + "_PATH", Haxelib.getPath(haxelib));
 
 			if (name == "nme")
 			{

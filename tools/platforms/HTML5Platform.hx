@@ -1,5 +1,8 @@
 package;
 
+import lime.tools.ObjectHelper;
+import haxe.Json;
+import sys.io.Process;
 import hxp.HXML;
 import hxp.Log;
 import hxp.Path;
@@ -25,8 +28,11 @@ import sys.FileSystem;
 
 class HTML5Platform extends PlatformTarget
 {
+	private var assetsDirectory:String;
 	private var dependencyPath:String;
+	private var finalRelease:Bool;
 	private var npm:Bool;
+	private var outputDirectory:String;
 	private var outputFile:String;
 
 	public function new(command:String, _project:HXProject, targetFlags:Map<String, String>)
@@ -35,56 +41,53 @@ class HTML5Platform extends PlatformTarget
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		defaults.window.width = 0;
 		defaults.window.height = 0;
@@ -105,18 +108,10 @@ class HTML5Platform extends PlatformTarget
 	{
 		if (npm)
 		{
-			if (command == "build")
-			{
-				var buildCommand = "build:" + (project.targetFlags.exists("final") ? "prod" : "dev");
-				System.runCommand(targetDirectory + "/bin", "npm", ["run", buildCommand, "-s"]);
-			}
-			else
-			{
-				return;
-			}
+			runNPMCommand(["run", "lime:prebuild", "--if-present"]);
 		}
 
-		ModuleHelper.buildModules(project, targetDirectory + "/obj", targetDirectory + "/bin");
+		ModuleHelper.buildModules(project, targetDirectory + "/obj", outputDirectory);
 
 		if (project.app.main != null)
 		{
@@ -136,7 +131,7 @@ class HTML5Platform extends PlatformTarget
 
 			if (noOutput) return;
 
-			HTML5Helper.encodeSourceMappingURL(targetDirectory + "/bin/" + project.app.file + ".js");
+			HTML5Helper.encodeSourceMappingURL(outputFile);
 
 			if (project.targetFlags.exists("webgl"))
 			{
@@ -170,10 +165,15 @@ class HTML5Platform extends PlatformTarget
 				System.copyFileTemplate(project.templatePaths, "html5/output.js", outputFile, context);
 			}
 
-			if (project.targetFlags.exists("minify") || type == "final")
+			if (project.targetFlags.exists("minify"))
 			{
-				HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
+				HTML5Helper.minify(project, outputFile);
 			}
+		}
+
+		if (npm && (command == "build" || (command == "test" && finalRelease)))
+		{
+			runNPMCommand(["run", "lime:build", "--if-present"]);
 		}
 	}
 
@@ -203,6 +203,17 @@ class HTML5Platform extends PlatformTarget
 		{
 			Sys.println(outputFile);
 		}
+		else if (project.targetFlags.exists("template-context"))
+		{
+			if (project.targetFlags.exists("json"))
+			{
+				Sys.println(ObjectHelper.formatJson(project.templateContext));
+			}
+			else
+			{
+				Sys.println(ObjectHelper.formatForDisplay(project.templateContext));
+			}
+		}
 		else
 		{
 			Sys.println(getDisplayHXML().toString());
@@ -217,7 +228,8 @@ class HTML5Platform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -250,46 +262,111 @@ class HTML5Platform extends PlatformTarget
 		}
 
 		dependencyPath = project.config.getString("html5.dependency-path", "lib");
-		outputFile = targetDirectory + "/bin/" + project.app.file + ".js";
 
 		try
 		{
-			if (targetFlags.exists("npm") || (FileSystem.exists(targetDirectory + "/bin/package.json") && !targetFlags.exists("electron")))
+			if (targetFlags.exists("npm")
+				|| project.config.get("html5").getBool("npm", false)
+				|| (FileSystem.exists(targetDirectory + "/package.json") && !targetFlags.exists("electron")))
 			{
 				npm = true;
-				outputFile = project.app.file + ".js";
 			}
 		}
 		catch (e:Dynamic) {}
+
+		finalRelease = (!project.debug && project.targetFlags.exists("final"));
+		outputDirectory = targetDirectory + "/bin";
+		assetsDirectory = outputDirectory;
+		outputFile = outputDirectory + "/" + project.app.file + ".js";
+	}
+
+	private function ensureNPM():Void
+	{
+		System.mkdir(targetDirectory);
+
+		// Log.info("", Log.accentColor + "Using NPM project: " + Path.combine(Path.tryFullPath(destination), "project.json") + Log.resetColor);
+
+		// Copy template if not present (allows package.json and node_modules to be preserved)
+		if (!FileSystem.exists(targetDirectory + "/package.json"))
+		{
+			var context = project.templateContext;
+			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/npm", targetDirectory, context);
+		}
+
+		// Check if dependencies are okay
+		var needsInstall = true;
+		try
+		{
+			var output = System.runProcess(targetDirectory, "npm", ["ls", "--depth=0", "--json"], true, true, true);
+			if (output != null)
+			{
+				var json = Json.parse(output);
+				if (json.problems == null || json.problems.length == 0)
+				{
+					needsInstall = false;
+				}
+			}
+		}
+		catch (e:Dynamic) {}
+
+		if (needsInstall)
+		{
+			// Show output, even when !verbose
+			System.runCommand(targetDirectory, "npm", ["install"]);
+		}
 	}
 
 	public override function run():Void
 	{
 		if (npm)
 		{
-			var runCommand = "start:" + (project.targetFlags.exists("final") ? "prod" : "dev");
-			System.runCommand(targetDirectory + "/bin", "npm", ["run", runCommand, "-s"]);
-		}
-		else if (targetFlags.exists("electron"))
-		{
-			var npx = targetFlags.exists("npx");
-			ElectronHelper.launch(project, targetDirectory + "/bin", npx);
+			// If "lime test" and not final, rely on "lime:test" script to start a dev server
+			if (!finalRelease && command == "test")
+			{
+				runNPMCommand(["run", "lime:test"]);
+			}
+			else
+			{
+				runNPMCommand(["run", "lime:run"]);
+			}
 		}
 		else
 		{
-			HTML5Helper.launch(project, targetDirectory + "/bin");
+			if (targetFlags.exists("electron"))
+			{
+				var npx = targetFlags.exists("npx");
+				ElectronHelper.launch(project, outputDirectory, npx);
+			}
+			else
+			{
+				HTML5Helper.launch(project, outputDirectory);
+			}
 		}
+	}
+
+	private function runNPMCommand(args:Array<String>, safeExecute:Bool = true, ignoreErrors:Bool = false):Int
+	{
+		if (!project.targetFlags.exists("verbose"))
+		{
+			args.push("--silent");
+		}
+		return System.runCommand(targetDirectory, "npm", args, safeExecute, ignoreErrors);
 	}
 
 	public override function update():Void
 	{
+		if (npm)
+		{
+			ensureNPM();
+			runNPMCommand(["run", "lime:preupdate", "--if-present"]);
+		}
+
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
 
-		var destination = targetDirectory + "/bin/";
-		if (npm) destination += "dist/";
-		System.mkdir(destination);
+		var destination = assetsDirectory + "/";
+		System.mkdir(assetsDirectory);
 
 		var webfontDirectory = targetDirectory + "/obj/webfont";
 		var useWebfonts = true;
@@ -377,6 +454,7 @@ class HTML5Platform extends PlatformTarget
 
 		if (npm)
 		{
+			// Ensure all HXML paths are absolute
 			var path:String;
 			for (i in 0...project.sources.length)
 			{
@@ -547,15 +625,6 @@ class HTML5Platform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/hxml", targetDirectory + "/haxe", context);
 		}
 
-		if (npm)
-		{
-			ProjectHelper.recursiveSmartCopyTemplate(project, "html5/npm", targetDirectory + "/bin", context);
-			if (!FileSystem.exists(targetDirectory + "/bin/node_modules"))
-			{
-				System.runCommand(targetDirectory + "/bin", "npm", ["install", "-s"]);
-			}
-		}
-
 		if (targetFlags.exists("electron"))
 		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "electron/template", destination, context);
@@ -576,6 +645,11 @@ class HTML5Platform extends PlatformTarget
 				System.mkdir(Path.directory(path));
 				AssetHelper.copyAsset(asset, path, context);
 			}
+		}
+
+		if (npm)
+		{
+			runNPMCommand(["run", "lime:update", "--if-present"]);
 		}
 	}
 

@@ -1,7 +1,16 @@
 {
+	"excludes": [
+		"\\templates",
+		"/templates",
+		"\\project",
+		"/project"
+	],
 	"lineEnds": {
 		"leftCurly": "both",
-		"rightCurly": "both"
+		"rightCurly": "both",
+		"objectLiteralCurly": {
+			"leftCurly": "after"
+		}
 	},
 	"sameLine": {
 		"ifBody": "same",

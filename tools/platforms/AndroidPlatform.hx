@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.ObjectHelper;
 import hxp.ArrayTools;
 import hxp.Haxelib;
 import hxp.HXML;
@@ -31,56 +32,53 @@ class AndroidPlatform extends PlatformTarget
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		if (project.targetFlags.exists("simulator") || project.targetFlags.exists("emulator"))
 		{
@@ -162,8 +160,16 @@ class AndroidPlatform extends PlatformTarget
 		for (architecture in architectures)
 		{
 			var minSDKVer = project.config.getInt("android.minimum-sdk-version", 21);
-			//PLATFORM define needed for older ndk and gcc toolchain
-			var haxeParams = [hxml, "-D", "android", "-D", 'PLATFORM_NUMBER=$minSDKVer', "-D", 'PLATFORM=android-$minSDKVer'];
+			// PLATFORM define needed for older ndk and gcc toolchain
+			var haxeParams = [
+				hxml,
+				"-D",
+				"android",
+				"-D",
+				'PLATFORM_NUMBER=$minSDKVer',
+				"-D",
+				'PLATFORM=android-$minSDKVer'
+			];
 			var cppParams = ["-Dandroid", '-DPLATFORM_NUMBER=$minSDKVer', '-DPLATFORM=android-$minSDKVer'];
 			var path = sourceSet + "/jniLibs/armeabi";
 			var suffix = ".so";
@@ -295,6 +301,17 @@ class AndroidPlatform extends PlatformTarget
 
 			Sys.println(Path.combine(outputDirectory, project.app.file + build + ".apk"));
 		}
+		else if (project.targetFlags.exists("template-context"))
+		{
+			if (project.targetFlags.exists("json"))
+			{
+				Sys.println(ObjectHelper.formatJson(project.templateContext));
+			}
+			else
+			{
+				Sys.println(ObjectHelper.formatForDisplay(project.templateContext));
+			}
+		}
 		else
 		{
 			Sys.println(getDisplayHXML().toString());
@@ -309,7 +326,8 @@ class AndroidPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -365,8 +383,7 @@ class AndroidPlatform extends PlatformTarget
 
 	public override function rebuild():Void
 	{
-		var armv5 = (/*command == "rebuild" ||*/
-			ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
+		var armv5 = (/*command == "rebuild" ||*/ ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
 			|| ArrayTools.containsValue(project.architectures, Architecture.ARMV6));
 		var armv7 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARMV7));
 		var arm64 = (command == "rebuild" || ArrayTools.containsValue(project.architectures, Architecture.ARM64));
@@ -504,8 +521,18 @@ class AndroidPlatform extends PlatformTarget
 			"android:launchMode": "singleTask",
 			"android:label": project.meta.title,
 			"android:configChanges": project.config.getArrayString("android.configChanges",
-				["layoutDirection", "locale", "orientation", "uiMode", "screenLayout", "screenSize", "smallestScreenSize", "keyboard", "keyboardHidden", "navigation"])
-				.join("|"),
+				[
+					"layoutDirection",
+					"locale",
+					"orientation",
+					"uiMode",
+					"screenLayout",
+					"screenSize",
+					"smallestScreenSize",
+					"keyboard",
+					"keyboardHidden",
+					"navigation"
+				]).join("|"),
 			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
 		});
 		context.ANDROID_ACCEPT_FILE_INTENT = project.config.getArrayString("android.accept-file-intent", []);
@@ -580,9 +607,7 @@ class AndroidPlatform extends PlatformTarget
 					}
 				}
 			}
-			catch (e:Dynamic)
-			{
-			}
+			catch (e:Dynamic) {}
 		}
 
 		if (Reflect.hasField(context, "KEY_STORE")) context.KEY_STORE = StringTools.replace(context.KEY_STORE, "\\", "\\\\");
@@ -605,13 +630,12 @@ class AndroidPlatform extends PlatformTarget
 				var name = dependency.name;
 				if (name == "") name = "project" + index;
 
-				context.ANDROID_LIBRARY_PROJECTS.push(
-					{
-						name: name,
-						index: index,
-						path: "deps/" + name,
-						source: dependency.path
-					});
+				context.ANDROID_LIBRARY_PROJECTS.push({
+					name: name,
+					index: index,
+					path: "deps/" + name,
+					source: dependency.path
+				});
 				index++;
 			}
 		}
@@ -642,7 +666,7 @@ class AndroidPlatform extends PlatformTarget
 					&& !context.HAS_ICON)
 				{
 					context.HAS_ICON = true;
-					context.ANDROID_APPLICATION.push({ key: "android:icon", value: "@drawable/icon" });
+					context.ANDROID_APPLICATION.push({key: "android:icon", value: "@drawable/icon"});
 				}
 			}
 

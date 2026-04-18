@@ -1,5 +1,6 @@
 package;
 
+import lime.tools.ObjectHelper;
 import haxe.Json;
 import hxp.Haxelib;
 import hxp.HXML;
@@ -32,56 +33,53 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		var defaults = new HXProject();
 
-		defaults.meta =
-			{
-				title: "MyApplication",
-				description: "",
-				packageName: "com.example.myapp",
-				version: "1.0.0",
-				company: "",
-				companyUrl: "",
-				buildNumber: null,
-				companyId: ""
-			};
+		defaults.meta = {
+			title: "MyApplication",
+			description: "",
+			packageName: "com.example.myapp",
+			version: "1.0.0",
+			company: "",
+			companyUrl: "",
+			buildNumber: null,
+			companyId: ""
+		};
 
-		defaults.app =
-			{
-				main: "Main",
-				file: "MyApplication",
-				path: "bin",
-				preloader: "",
-				swfVersion: 17,
-				url: "",
-				init: null
-			};
+		defaults.app = {
+			main: "Main",
+			file: "MyApplication",
+			path: "bin",
+			preloader: "",
+			swfVersion: 17,
+			url: "",
+			init: null
+		};
 
-		defaults.window =
-			{
-				width: 800,
-				height: 600,
-				parameters: "{}",
-				background: 0xFFFFFF,
-				fps: 30,
-				hardware: true,
-				display: 0,
-				resizable: true,
-				borderless: false,
-				orientation: Orientation.AUTO,
-				vsync: false,
-				fullscreen: false,
-				allowHighDPI: true,
-				alwaysOnTop: false,
-				antialiasing: 0,
-				allowShaders: true,
-				requireShaders: false,
-				depthBuffer: true,
-				stencilBuffer: true,
-				colorDepth: 32,
-				maximized: false,
-				minimized: false,
-				hidden: false,
-				title: ""
-			};
+		defaults.window = {
+			width: 800,
+			height: 600,
+			parameters: "{}",
+			background: 0xFFFFFF,
+			fps: 30,
+			hardware: true,
+			display: 0,
+			resizable: true,
+			borderless: false,
+			orientation: Orientation.AUTO,
+			vsync: false,
+			fullscreen: false,
+			allowHighDPI: true,
+			alwaysOnTop: false,
+			antialiasing: 0,
+			allowShaders: true,
+			requireShaders: false,
+			depthBuffer: true,
+			stencilBuffer: true,
+			colorDepth: 32,
+			maximized: false,
+			minimized: false,
+			hidden: false,
+			title: ""
+		};
 
 		defaults.window.fps = 60;
 		defaults.window.allowHighDPI = false;
@@ -118,7 +116,19 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-		var args = [hxml, "-D", "webassembly", "-D", "wasm", "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
+		var args = [
+			hxml,
+			"-D",
+			"webassembly",
+			"-D",
+			"wasm",
+			"-D",
+			"emscripten",
+			"-D",
+			"webgl",
+			"-D",
+			"static_link"
+		];
 
 		if (Log.verbose)
 		{
@@ -190,7 +200,9 @@ class WebAssemblyPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("final") || project.defines.exists("disable-exception-catching") || project.targetFlags.exists("disable-exception-catching"))
+		if (project.targetFlags.exists("final")
+			|| project.defines.exists("disable-exception-catching")
+			|| project.targetFlags.exists("disable-exception-catching"))
 		{
 			args.push("-s");
 			args.push("DISABLE_EXCEPTION_CATCHING=1");
@@ -349,6 +361,17 @@ class WebAssemblyPlatform extends PlatformTarget
 		{
 			Sys.println(outputFile);
 		}
+		else if (project.targetFlags.exists("template-context"))
+		{
+			if (project.targetFlags.exists("json"))
+			{
+				Sys.println(ObjectHelper.formatJson(project.templateContext));
+			}
+			else
+			{
+				Sys.println(ObjectHelper.formatForDisplay(project.templateContext));
+			}
+		}
 		else
 		{
 			Sys.println(getDisplayHXML().toString());
@@ -363,7 +386,8 @@ class WebAssemblyPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
