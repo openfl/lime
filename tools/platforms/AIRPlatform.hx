@@ -230,12 +230,7 @@ class AIRPlatform extends FlashPlatform
 
 			System.mkdir(targetDirectory + "/dist");
 
-			outputPath = AIRHelper.build(project, targetDirectory, targetPlatform, outputPath, "application.xml", files, "bin");
-
-			if (targetPlatformType == DESKTOP)
-			{
-				System.compress(Path.combine(targetDirectory, outputPath), Path.combine(targetDirectory, "dist/" + name + ".zip"));
-			}
+			AIRHelper.build(project, targetDirectory, targetPlatform, outputPath, "application.xml", files, "bin");
 		}
 	}
 
