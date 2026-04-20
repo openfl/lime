@@ -136,6 +136,11 @@ namespace lime {
 		lastUpdate = 0;
 		nextUpdate = 0;
 
+		eventQueue = NULL;
+		queueLength = 0;
+		queueMaxLength = 0;
+		isGCBlocking = false;
+
 		ApplicationEvent applicationEvent;
 		ClipboardEvent clipboardEvent;
 		DropEvent dropEvent;
@@ -171,7 +176,12 @@ namespace lime {
 
 	SDLApplication::~SDLApplication () {
 
-
+		if (NULL != eventQueue) {
+			SDL_free (eventQueue);
+			eventQueue = NULL;
+			queueMaxLength = 0;
+			queueLength = 0;
+		}
 
 	}
 
@@ -439,6 +449,8 @@ namespace lime {
 		active = true;
 		lastUpdate = SDL_GetTicks ();
 		nextUpdate = lastUpdate;
+
+		while (20 == BatchUpdate(20));
 
 	}
 
@@ -937,7 +949,6 @@ namespace lime {
 
 	static SDL_TimerID timerID = 0;
 	bool timerActive = false;
-	bool firstTime = true;
 
 	Uint32 OnTimer (Uint32 interval, void *) {
 
@@ -967,9 +978,7 @@ namespace lime {
 
 		#if (!defined (IPHONE) && !defined (EMSCRIPTEN))
 
-		if (active && (firstTime || WaitEvent (&event))) {
-
-			firstTime = false;
+		if (active && WaitEvent (&event)) {
 
 			HandleEvent (&event);
 			event.type = -1;
@@ -1019,6 +1028,83 @@ namespace lime {
 
 		return active;
 
+	}
+
+
+	int SDLApplication::BatchUpdate (int numEvents) {
+
+		SDL_Event* mouseMoved = NULL;
+
+		if (!active) {
+			return -1;
+		}
+		
+		queueLength = numEvents;
+
+		if (queueLength > queueMaxLength) {
+
+			if (NULL != eventQueue) {
+				SDL_free (eventQueue);
+			}
+
+			eventQueue = reinterpret_cast<SDL_Event*> (SDL_malloc (queueLength * sizeof (SDL_Event)));
+			if (NULL == eventQueue) {
+				queueLength = 0;
+				queueMaxLength = 0;
+			} else {
+				queueMaxLength = queueLength;
+			}
+		}
+		
+		int numPending = GetPendingEvents (eventQueue, queueLength);
+
+		// only allow GC free objects while we're handling events
+		if (isGCBlocking) System::GCExitBlocking ();
+		isGCBlocking = false;
+		
+		int nextEvent;
+		for (nextEvent = 0; nextEvent < numPending; ++nextEvent) {
+
+			if (SDL_MOUSEMOTION == eventQueue[nextEvent].type) {
+				// we'll only handle the last motion event in the batch
+				mouseMoved = &eventQueue[nextEvent];
+			} else {
+				HandleEvent (&eventQueue[nextEvent]);
+				eventQueue[nextEvent].type = -1;
+				if (!active) {
+					return -1;
+				}
+			}
+		}
+
+		// handle the mouse motion event if there is one this batch
+		if (NULL != mouseMoved) {
+			HandleEvent (mouseMoved);
+			mouseMoved->type = -1;
+		}
+
+		currentUpdate = SDL_GetTicks ();
+
+		#if (!defined (IPHONE) && !defined (EMSCRIPTEN))
+
+		if (currentUpdate >= nextUpdate) {
+
+			SDL_RemoveTimer (timerID);
+			OnTimer (0, 0);
+
+		} else if (!timerActive) {
+
+			timerActive = true;
+			timerID = SDL_AddTimer (nextUpdate - currentUpdate, OnTimer, 0);
+
+		}
+
+		if (!isGCBlocking) System::GCEnterBlocking ();
+		isGCBlocking = true;
+
+		#endif
+
+		return nextEvent;
 	}
 
 
@@ -1100,6 +1186,16 @@ namespace lime {
 
 		#endif
 
+	}
+
+	
+	int SDLApplication::GetPendingEvents (SDL_Event* events, int maxEvents)
+	{
+		SDL_PumpEvents ();
+
+		int numEvents = SDL_PeepEvents (events, maxEvents, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+
+		return numEvents;
 	}
 
 

@@ -35,6 +35,7 @@ namespace lime {
 			virtual int Quit ();
 			virtual void SetFrameRate (double frameRate);
 			virtual bool Update ();
+			virtual int BatchUpdate(int numEvents);
 
 			void RegisterWindow (SDLWindow *window);
 
@@ -52,6 +53,7 @@ namespace lime {
 			void ProcessTouchEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event);
 			int WaitEvent (SDL_Event* event);
+			int GetPendingEvents (SDL_Event* event, int NumEvents);
 
 			static void UpdateFrame ();
 			static void UpdateFrame (void*);
@@ -59,6 +61,10 @@ namespace lime {
 			static SDLApplication* currentApplication;
 
 			bool active;
+			SDL_Event* eventQueue;
+			int queueLength;
+			int queueMaxLength;
+			bool isGCBlocking;
 			ApplicationEvent applicationEvent;
 			ClipboardEvent clipboardEvent;
 			Uint32 currentUpdate;
