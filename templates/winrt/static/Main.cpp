@@ -58,15 +58,23 @@ extern "C" int lime_cairo_register_prims ();
 ::foreach ndlls::::if (registerStatics)::
 extern "C" int ::nameSafe::_register_prims ();::end::::end::
 
-										
+
 int _main(int argc, char *argv[])
 {
-   //DLOG("HELLO WORLD");
-   //Sleep(10000);  //uncomment to attach here in debugger
-   //DLOG("HELLO WORLD2");
-
    try
    {
+        // Set preferred launch size if specified in project.xml
+        if (::WINDOW_WIDTH:: > 0 && ::WINDOW_HEIGHT:: > 0) {
+            auto view = Windows ::DC:: UI ::DC:: ViewManagement ::DC:: ApplicationView ::DC:: GetForCurrentView();
+            view->SetPreferredMinSize(Windows ::DC:: Foundation ::DC:: Size(::WINDOW_WIDTH::, ::WINDOW_HEIGHT::));
+            Windows ::DC:: UI ::DC:: ViewManagement ::DC:: ApplicationView ::DC:: PreferredLaunchViewSize = Windows ::DC:: Foundation ::DC:: Size(::WINDOW_WIDTH::, ::WINDOW_HEIGHT::);
+            Windows ::DC:: UI ::DC:: ViewManagement ::DC:: ApplicationView ::DC:: PreferredLaunchWindowingMode = Windows ::DC:: UI ::DC:: ViewManagement ::DC:: ApplicationViewWindowingMode ::DC:: PreferredLaunchViewSize;
+        }
+
+        // Redirect Haxe home to a writable location to avoid Access Denied on Xbox/WinRT
+        auto localFolder = Windows ::DC:: Storage ::DC:: ApplicationData ::DC:: Current->LocalFolder->Path;
+        SetEnvironmentVariableW(L"HAXE_ROOT", localFolder->Data());
+
         hxcpp_set_top_of_stack ();  
         zlib_register_prims ();
         lime_cairo_register_prims ();
@@ -77,12 +85,12 @@ int _main(int argc, char *argv[])
         err = hxRunLibrary ();
         if (err) {            
             DLOG("Error: %s\n", err);
+            return -1;
         }
    }
    catch (Dynamic e)
    {
        DLOG("Main Error\n",);
-//      __hx_dump_stack();
        return -1;
    }
    return 0;
@@ -93,4 +101,3 @@ int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
    SDL_WinRTRunApp(_main, NULL);
    return 0;
 }
-

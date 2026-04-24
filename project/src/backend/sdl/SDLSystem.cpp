@@ -144,7 +144,7 @@ namespace lime {
 
 				#if defined (HX_WINRT)
 
-				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::HomeGroup;
+				Windows::Storage::StorageFolder^ folder = Windows::Storage::ApplicationData::Current->LocalFolder;
 				result = new std::wstring (folder->Path->Data ());
 
 				#elif defined (HX_WINDOWS)
@@ -178,7 +178,7 @@ namespace lime {
 
 				#if defined (HX_WINRT)
 
-				Windows::Storage::StorageFolder^ folder = Windows::Storage::KnownFolders::DocumentsLibrary;
+				Windows::Storage::StorageFolder^ folder = Windows::Storage::ApplicationData::Current->LocalFolder;
 				result = new std::wstring (folder->Path->Data ());
 
 				#elif defined (HX_WINDOWS)

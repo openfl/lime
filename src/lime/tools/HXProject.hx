@@ -751,6 +751,14 @@ class HXProject extends Script
 			if (targetFlags.exists("ios")) defines.set("ios", "1");
 			if (targetFlags.exists("android")) defines.set("android", "1");
 		}
+		else if (target == Platform.WINDOWS && targetFlags.exists("winrt"))
+		{
+			defines.set("targetType", "cpp");
+			defines.set("native", "1");
+			defines.set("cpp", "1");
+			defines.set("windows", "1");
+			defines.set("winrt", "1");
+		}
 		else if (target == Platform.WINDOWS && (targetFlags.exists("uwp") || targetFlags.exists("winjs")))
 		{
 			targetFlags.set("uwp", "");

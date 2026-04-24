@@ -5318,9 +5318,7 @@ namespace lime {
 
 			#ifdef NATIVE_TOOLKIT_SDL_ANGLE
 
-			#ifdef HX_WINRT
-			return true;
-			#else
+			#ifndef HX_WINRT
 			OpenGLBindings::eglHandle = LoadLibraryW (L"libegl.dll");
 
 			if (!OpenGLBindings::eglHandle) {

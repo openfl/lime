@@ -58,11 +58,20 @@
 		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
         <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
+		<compilerflag value="-Dgeneric=ft_generic" if="winrt" />
 
 		<file name="src/ExternalInterface.cpp" />
+		<file name="src/backend/sdl/SDLWinRTStubs.c" if="winrt" />
+
+		<section if="LIME_SDL">
+			<compilerflag value="-Iinclude" if="winrt" />
+			<compilerflag value="-D__WINRT__" if="winrt" />
+			<compilerflag value="/FISDLWinRTStubs.h" if="winrt" />
+		</section>
 
 		<section if="LIME_CAIRO">
 
+			<compilerflag value="-Iinclude" if="winrt" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/src/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/default/" unless="windows || mac || linux" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/cairo/configs/linux/" if="linux" />
@@ -73,6 +82,7 @@
 			<compilerflag value="-DHAVE_CONFIG_H" />
 			<compilerflag value="-DCAIRO_WIN32_STATIC_BUILD" if="windows" />
 			<compilerflag value="-DCAIRO_HAS_FT_FONT" />
+			<compilerflag value="/FICairoWinRTStubs.h" if="winrt" />
 
 			<file name="src/graphics/cairo/CairoBindings.cpp" />
 
@@ -462,6 +472,8 @@
 				<lib name="RuntimeObject.lib" if="winrt" />
 				<lib name="Xinput.lib" if="winrt" />
 				<lib name="DXGI.lib" if="winrt" />
+				<lib name="mmdevapi.lib" if="winrt" />
+				<lib name="Synchronization.lib" if="winrt" />
 
 				<lib name="-libpath:../templates/bin/hl/${BINDIR}" if="LIME_HASHLINK" />
 				<lib name="libhl.lib" if="LIME_HASHLINK" />

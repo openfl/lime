@@ -99,9 +99,7 @@ class WindowsPlatform extends PlatformTarget
 
 		if (project.targetFlags.exists("uwp") || project.targetFlags.exists("winjs"))
 		{
-			defaults.window.width = 0;
-			defaults.window.height = 0;
-			defaults.window.fps = 60;
+			if (project.window.fps == 0) defaults.window.fps = 60;
 		}
 		else
 		{
@@ -195,7 +193,7 @@ class WindowsPlatform extends PlatformTarget
 			{
 				isArm = true;
 			}
-			
+
 			if (architecture == Architecture.X64 || architecture == Architecture.ARM64)
 			{
 				if ((targetType == "cpp" || targetType == "winrt"))
@@ -662,7 +660,14 @@ class WindowsPlatform extends PlatformTarget
 
 	public override function deploy():Void
 	{
-		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""));
+		if (targetType == "winrt")
+		{
+			install();
+		}
+		else
+		{
+			DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""));
+		}
 	}
 
 	public override function display():Void
@@ -707,6 +712,22 @@ class WindowsPlatform extends PlatformTarget
 			context.CPP_DIR = targetDirectory + "/obj";
 			context.BUILD_DIR = project.app.path + "/winrt" + (isArm ? "Arm" : "") + (is64 ? "64" : "");
 			context.DC = "::";
+			context.WINRT_ARCH = isArm ? "arm64" : (is64 ? "x64" : "x86");
+			context.APP_FILE = project.app.file;
+
+			if (project.meta.description == null || project.meta.description == "")
+			{
+				project.meta.description = project.meta.title != null ? project.meta.title : "Lime Application";
+			}
+
+			if (project.meta.company == null || project.meta.company == "")
+			{
+				project.meta.company = "MyCompany";
+			}
+
+			context.PUBLISHER_NAME = project.config.get("winrt.publisher") != null ? project.config.get("winrt.publisher") : project.meta.company;
+			context.WINDOW_WIDTH = project.window.width;
+			context.WINDOW_HEIGHT = project.window.height;
 		}
 		else
 		{
@@ -979,11 +1000,23 @@ class WindowsPlatform extends PlatformTarget
 
 		if (targetType == "winjs")
 		{
-			updateUWP();
+			updateWinJS();
 			return;
 		}
 
-		// project = project.clone ();
+		super.update();
+
+		if (project.target == Platform.WINDOWS)
+		{
+			if (project.targetFlags.exists("winrt"))
+			{
+				updateUWP();
+			}
+			else
+			{
+				updateWindows();
+			}
+		}
 
 		if (project.targetFlags.exists("xml"))
 		{
@@ -994,6 +1027,11 @@ class WindowsPlatform extends PlatformTarget
 		{
 			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
+	}
+
+	private function updateUWP():Void
+	{
+		var suffix = ".lib";
 
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
@@ -1013,7 +1051,7 @@ class WindowsPlatform extends PlatformTarget
 				msvc19 = false;
 			}
 
-			var suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
+			suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
 
 			for (i in 0...project.ndlls.length)
 			{
@@ -1037,15 +1075,172 @@ class WindowsPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, targetType + "/hxml", targetDirectory + "/haxe", context);
 
-		if (targetType == "winrt" && project.targetFlags.exists("static"))
+		if (targetType == "winrt")
 		{
-			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/assetspkg", targetDirectory + "/bin/assetspkg", context, false, true);
-			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/appx", targetDirectory + "/bin", context, true, true);
-			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/static", targetDirectory + "/obj", context, true, true);
-			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/temp", targetDirectory + "/haxe/temp", context, false, true);
-			ProjectHelper.recursiveSmartCopyTemplate(project, "winrt/scripts", targetDirectory + "/scripts", context, true, true);
+			var assetspkgTemplate = System.findTemplate(project.templatePaths, "winrt/assetspkg");
+			if (assetspkgTemplate != null) recursiveCopy(assetspkgTemplate, targetDirectory + "/bin/Assets", context);
+
+			var appxTemplate = System.findTemplate(project.templatePaths, "winrt/appx");
+			if (appxTemplate != null) recursiveCopy(appxTemplate, targetDirectory + "/bin", context);
+
+			var tempTemplate = System.findTemplate(project.templatePaths, "winrt/temp");
+			if (tempTemplate != null) recursiveCopy(tempTemplate, targetDirectory + "/haxe/temp", context, false);
+
+			var scriptsTemplate = System.findTemplate(project.templatePaths, "winrt/scripts");
+			if (scriptsTemplate != null) recursiveCopy(scriptsTemplate, targetDirectory + "/scripts", context);
+
+			if (project.targetFlags.exists("static"))
+			{
+				var staticTemplate = System.findTemplate(project.templatePaths, "winrt/static");
+				if (staticTemplate != null) recursiveCopy(staticTemplate, targetDirectory + "/obj", context);
+			}
+
+			var assetsDir = targetDirectory + "/bin/Assets";
+			if (!sys.FileSystem.exists(assetsDir))
+			{
+				System.mkdir(assetsDir);
+			}
+
+			// Icons for WinRT matching the manifest requirements
+			var icons = project.icons;
+
+			if (icons.length == 0)
+			{
+				icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+			}
+
+			var iconNames = [
+				"StoreLogo.scale-200.png",
+				"Square150x150Logo.scale-200.png",
+				"Square44x44Logo.scale-200.png",
+				"Wide310x150Logo.scale-200.png",
+				"SplashScreen.scale-200.png",
+				"LockScreenLogo.scale-200.png",
+				"SmallTile.scale-200.png",
+				"LargeTile.scale-200.png",
+				"Square44x44Logo.targetsize-24_altform-unplated.png",
+				"StoreLogo.png",
+				"Square150x150Logo.png",
+				"Square44x44Logo.png",
+				"Wide310x150Logo.png",
+				"SplashScreen.png",
+				"SmallTile.png",
+				"LargeTile.png"
+			];
+			var iconSizes = [100, 300, 88, 620, 1240, 48, 142, 620, 24, 200, 300, 88, 620, 1240, 142, 620];
+
+			if (Log.verbose) Log.info("", "WinRT: Processing " + icons.length + " project icons...");
+
+			for (i in 0...iconNames.length)
+			{
+				var iconPath = targetDirectory + "/bin/Assets/" + iconNames[i];
+				
+				// Force deletion of template icon to ensure replacement
+				if (sys.FileSystem.exists(iconPath)) sys.FileSystem.deleteFile(iconPath);
+
+				if (Log.verbose)
+				{
+					var sizeLabel = (iconNames[i].indexOf("Wide") != -1) ? "620x300" : (iconNames[i].indexOf("SplashScreen") != -1) ? "1240x600" : (iconSizes[i] + "x" + iconSizes[i]);
+					Log.info("", "Generating icon: " + iconPath + " (" + sizeLabel + ")");
+				}
+
+				var targetW = (iconNames[i].indexOf("Wide") != -1) ? 620 : (iconNames[i].indexOf("SplashScreen") != -1) ? 1240 : iconSizes[i];
+				var targetH = (iconNames[i].indexOf("Wide") != -1) ? 300 : (iconNames[i].indexOf("SplashScreen") != -1) ? 600 : iconSizes[i];
+
+				// Intelligent Selection: Find the best matching icon based on Aspect Ratio AND Size
+				var bestIcon = (icons.length > 0) ? icons[0] : null;
+				if (icons.length > 0)
+				{
+					var targetRatio = targetW / targetH;
+					var bestScore = -1.0;
+					
+					for (icon in icons)
+					{
+						var sourceRatio = icon.width / icon.height;
+						var ratioDiff = Math.abs(sourceRatio - targetRatio);
+						
+						// Score: Lower is better. 
+						// We give high priority to matching aspect ratio (ratioDiff * 2000)
+						// and secondary priority to size matching.
+						var sizeDiff = Math.abs(icon.width - targetW);
+						var score = (ratioDiff * 2000) + sizeDiff; 
+
+						if (bestScore < 0 || score < bestScore)
+						{
+							bestIcon = icon;
+							bestScore = score;
+						}
+					}
+				}
+
+				var success = false;
+				if (bestIcon != null)
+				{
+					// Force IconHelper to use our chosen 'Best Fit' icon
+					success = IconHelper.createIcon([bestIcon], targetW, targetH, iconPath);
+					
+					// Final Fallback: If IconHelper failed to resize, do a direct copy of our best match
+					if (!success && bestIcon.path != null && sys.FileSystem.exists(bestIcon.path))
+					{
+						if (Log.verbose) Log.info("", "  -> Best Fit Fallback (Direct Copy): Using " + bestIcon.width + "x" + bestIcon.height + " for " + iconNames[i]);
+						System.copyFile(bestIcon.path, iconPath);
+					}
+				}
+
+				if (_touchedFiles != null)
+				{
+					_touchedFiles.push(iconPath);
+				}
+			}
 		}
-		else if (targetType == "cpp")
+	}
+
+	private function updateWindows():Void
+	{
+		var suffix = ".lib";
+
+		var context = generateContext();
+		context.OUTPUT_DIR = targetDirectory;
+
+		if (targetType == "cpp" && project.targetFlags.exists("static"))
+		{
+			var programFiles = project.environment.get("ProgramFiles(x86)");
+			var hasVSCommunity = (programFiles != null
+				&& FileSystem.exists(Path.combine(programFiles, "Microsoft Visual Studio/Installer/vswhere.exe")));
+			var hxcppMSVC = project.environment.get("HXCPP_MSVC");
+			var vs140 = project.environment.get("VS140COMNTOOLS");
+
+			var msvc19 = true;
+
+			if (project.defines.exists("mingw") || (!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
+			{
+				msvc19 = false;
+			}
+
+			suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
+
+			for (i in 0...project.ndlls.length)
+			{
+				var ndll = project.ndlls[i];
+
+				if (ndll.path == null || ndll.path == "")
+				{
+					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Windows" + (isArm ? "Arm" : "") + (is64 ? "64" : ""), "lib", suffix, project.debug);
+				}
+			}
+		}
+
+		System.mkdir(targetDirectory);
+		System.mkdir(targetDirectory + "/obj");
+		System.mkdir(targetDirectory + "/haxe");
+		System.mkdir(applicationDirectory);
+
+		// SWFHelper.generateSWFClasses (project, targetDirectory + "/haxe");
+
+		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
+		ProjectHelper.recursiveSmartCopyTemplate(project, "windows/hxml", targetDirectory + "/haxe", context);
+
+		if (targetType == "cpp")
 		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
 
@@ -1065,7 +1260,7 @@ class WindowsPlatform extends PlatformTarget
 		copyProjectAssets(applicationDirectory);
 	}
 
-	private function updateUWP():Void
+	private function updateWinJS():Void
 	{
 		project = project.clone();
 
@@ -1274,7 +1469,7 @@ class WindowsPlatform extends PlatformTarget
 		super.install();
 		if (targetType == "winrt")
 		{
-			if (project.targetFlags.exists("appx"))
+			if (project.targetFlags.exists("appx") || project.targetFlags.exists("msix"))
 			{
 				var context = project.templateContext;
 				buildWinrtPackage(context.KEY_STORE, context.KEY_STORE_PASSWORD);
@@ -1304,7 +1499,7 @@ class WindowsPlatform extends PlatformTarget
 	override public function uninstall():Void
 	{
 		super.uninstall();
-		if (targetType == "winrt" && !project.targetFlags.exists("appx"))
+		if (targetType == "winrt" && !project.targetFlags.exists("appx") && !project.targetFlags.exists("msix"))
 		{
 			var appxName = project.meta.packageName;
 			Log.info("run: Remove previous registered app");
@@ -1327,9 +1522,10 @@ class WindowsPlatform extends PlatformTarget
 	{
 		var dir = applicationDirectory;
 		var haxeDir = targetDirectory + "/haxe";
-		if (project.targetFlags.exists("appx"))
+		if (project.targetFlags.exists("appx") || project.targetFlags.exists("msix"))
 		{
-			Log.info("\n***Double click on " + project.app.file + ".Appx to install Appx");
+			var ext = project.targetFlags.exists("msix") ? ".msix" : ".Appx";
+			Log.info("\n***Double click on " + project.app.file + ext + " to install package");
 		}
 		else
 		{
@@ -1387,7 +1583,7 @@ class WindowsPlatform extends PlatformTarget
 
 	public function buildWinrtPackage(pfxPath:String, certificatePwd:String):Void
 	{
-		if (project.targetFlags.exists("appx"))
+		if (project.targetFlags.exists("appx") || project.targetFlags.exists("msix"))
 		{
 			var kitsRoot10 = "C:\\Program Files (x86)\\Windows Kits\\10\\"; // %WindowsSdkDir%
 			var haxeDir = targetDirectory + "/haxe";
@@ -1429,7 +1625,7 @@ class WindowsPlatform extends PlatformTarget
 			var outputDirectory = Path.combine(FileSystem.fullPath(targetDirectory), "appx");
 			var binPath = Path.combine(FileSystem.fullPath(targetDirectory), "bin");
 
-			pfxPath = Path.combine(outputDirectory, pfxPath);
+			// pfxPath = Path.combine(outputDirectory, pfxPath);
 			// prepare file to make pri
 			try
 			{
@@ -1466,12 +1662,28 @@ class WindowsPlatform extends PlatformTarget
 				"/ConfigXml",
 				resultFilePath + "\\priconfig.xml",
 				"/Manifest",
-				applicationDirectory + "/" + 'AppxManifest.xml',
+				applicationDirectory + 'AppxManifest.xml',
 				"/OutputFile",
 				applicationDirectory + "resources.pri"
 			];
+
+			var priPath = applicationDirectory + "resources.pri";
+			if (sys.FileSystem.exists(priPath))
+			{
+				try
+				{
+					sys.FileSystem.deleteFile(priPath);
+				}
+				catch (e:Dynamic)
+				{
+					Log.warn("Could not delete existing resources.pri: " + e);
+				}
+			}
 			Log.info(makepriPath + " " + makepriParams);
-			var process = new sys.io.Process(makepriPath, makepriParams);
+			if (System.runCommand("", makepriPath, makepriParams) != 0)
+			{
+				Log.error("Error on MakePri");
+			}
 
 			// needs to wait make pri
 			var retry:Int = 10;
@@ -1485,73 +1697,45 @@ class WindowsPlatform extends PlatformTarget
 
 			var appxDir = applicationDirectory + "../";
 
-			Log.info("make " + project.app.file + ".Appx");
-			var makeappParams = ["pack", "/d", applicationDirectory, "/p", appxDir + project.app.file + ".Appx"];
-			var process2 = new sys.io.Process(makeappxPath, makeappParams);
-			Log.info(makeappParams.toString());
-			process.close();
-			process2.close();
+			var packageExt = project.targetFlags.exists("msix") ? ".msix" : ".Appx";
+			var packagePath = sys.FileSystem.absolutePath(appxDir + project.app.file + packageExt);
+			var absAppDir = sys.FileSystem.absolutePath(applicationDirectory);
+
+			Log.info("make " + project.app.file + packageExt);
+			var makeappParams = ["pack", "/o", "/d", absAppDir, "/p", packagePath];
+			Log.info(makeappxPath + " " + makeappParams.join(" "));
+			if (System.runCommand("", makeappxPath, makeappParams) != 0)
+			{
+				Log.error("Error on MakeAppx");
+			}
+
+
 
 			var pfxFileName = project.app.file + ".pfx";
 
-			if (pfxPath != null && pfxPath.length > 0)
+			if (pfxPath == null || pfxPath == "")
 			{
-				if (sys.FileSystem.exists(appxDir + "scripts/" + pfxFileName))
+				var scriptsPath = appxDir + "scripts/";
+				if (sys.FileSystem.exists(scriptsPath + pfxFileName))
 				{
-					// apply certificate
-					Log.info("Pfx cert found: path: " + appxDir + "scripts/" + pfxFileName + ", pwd:" + certificatePwd);
+					pfxPath = scriptsPath + pfxFileName;
+					Log.info("Using certificate from scripts: " + pfxPath);
 				}
 				else
 				{
 					// create certificate
-					Log.warn("Warn: certificate " + pfxPath + " not found, run the following command to create a new one:");
-					// copyTemplateDir( "winrt/scripts", applicationDirectory+"/.." );
-
-					// New certificate, calls powershell script on elevated mode
-					//					var cmd = "Start-Process powershell \"-ExecutionPolicy Bypass -Command `\"cd `\""+sys.FileSystem.absolutePath(applicationDirectory)+"/.."+"`\"; & `\".\\newcertificate.ps1`\"`\"\" -Verb RunAs";
-					//					var cmd = "Start-Process powershell \"-Command `\"cd `\""+sys.FileSystem.absolutePath(applicationDirectory)+"/.."+"`\"; & `\".\\newcertificate.ps1`\"`\"\" -Verb RunAs";
-
-					// var cmd = "\"cd "+sys.FileSystem.absolutePath(applicationDirectory)+"/../scripts;Start-Process powershell -verb runas -ArgumentList \'-file .\\newcertificate.ps1\'\"";
-
-					var cmd = "-Command \"Start-Process powershell \\\"-ExecutionPolicy Bypass -NoProfile -NoExit -Command `\\\"cd \\`\\\"E:/openfl/BunnyMark/Export/winrt/bin/../scripts\\`\\\"; & \\`\\\".\\newcertificate.ps1\\`\\\"`\\\"\\\" -Verb RunAs\"";
+					Log.warn("Warn: No certificate found. Run the following command to create one, or add <certificate path=\"...\" /> to your project.xml:");
+					var scriptsAbsPath = sys.FileSystem.absolutePath(scriptsPath);
+					var cmd = "-Command \"Start-Process powershell \\\"-ExecutionPolicy Bypass -NoProfile -NoExit -Command `\\\"cd \\`\\\""
+						+ scriptsAbsPath + "\\`\\\"; & \\`\\\".\\newcertificate.ps1\\`\\\"`\\\"\\\" -Verb RunAs\"";
 					Log.info("powershell " + cmd);
-
-					#if 0
-					var process3 = new sys.io.Process("powershell", [cmd]);
-					if (process3.exitCode() != 0)
-					{
-						var message = process3.stderr.readAll().toString();
-						Log.error("Error newcertificate. " + message);
-					}
-					process3.close();
-
-					// check pfx
-					retry = 10;
-					while (retry > 0 && !sys.FileSystem.exists(appxDir + "scripts/" + pfxFileName))
-					{
-						Log.info("waiting " + appxDir + "scripts/" + pfxFileName);
-						Sys.sleep(6);
-						retry--;
-					}
-					if (retry <= 0) Log.error("Error creating certificate");
-					#else
 					return;
-					#end
-				}
-
-				if (appxDir + "scripts/" + pfxFileName != pfxPath)
-				{
-					System.copyFile(appxDir + "scripts/" + pfxFileName, pfxPath);
-					if (!sys.FileSystem.exists(pfxPath))
-					{
-						Log.error("could not copy " + appxDir + pfxFileName + " to " + pfxPath);
-					}
 				}
 			}
 
-			if (pfxPath != null && certificatePwd != null && pfxPath.length > 0 && certificatePwd.length > 0)
+			if (pfxPath != null && pfxPath != "")
 			{
-				Log.info("signing " + project.app.file + ".Appx with " + pfxPath);
+				Log.info("signing " + packagePath + " with " + pfxPath);
 
 				var signParams = [
 					"sign",
@@ -1561,21 +1745,19 @@ class WindowsPlatform extends PlatformTarget
 					"/f",
 					pfxPath,
 					"/p",
-					certificatePwd,
-					appxDir + project.app.file + ".Appx"
+					certificatePwd != null ? certificatePwd : "",
+					packagePath
 				];
 
-				Log.info(signToolPath + " " + signParams);
-				var process4 = new sys.io.Process(signToolPath, signParams);
-				if (process4.exitCode() != 0)
+				Log.info(signToolPath + " " + signParams.join(" "));
+				if (System.runCommand("", signToolPath, signParams) != 0)
 				{
-					var message = process4.stderr.readAll().toString();
-					Log.error("Error signing appx. " + message);
+					Log.error("Error signing appx.");
 				}
 				Log.info("\n\n***Double click "
 					+ pfxPath
 					+ " to setup certificate (Local machine, Place all certificates in the following store->Trusted People)\n");
-				process4.close();
+
 			}
 		}
 	}

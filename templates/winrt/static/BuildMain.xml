@@ -23,6 +23,11 @@
 		        <lib name="DXGI.lib" />
 		        <lib name="Dwrite.lib" />
 		        <lib name="D3dcompiler.lib" />
+		        <lib name="mmdevapi.lib" />
+		        <lib name="Synchronization.lib" />
+		        <lib name="WindowsApp.lib" />
+		        <lib name="runtimeobject.lib" />
+		        <lib name="vccorlib.lib" />
 
 		</section>
 
