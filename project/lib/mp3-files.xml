@@ -1,0 +1,10 @@
+<xml>
+
+    <files id="native-toolkit-mp3">
+
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/minimp3/" />
+        <cache value="1" />
+
+    </files>
+
+</xml>

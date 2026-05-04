@@ -20,6 +20,7 @@
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
+	<set name="LIME_MP3" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
 	<set name="LIME_OPENAL" value="1" if="iphone || webassembly || tvos" />
 	<set name="LIME_MOJOAL" value="1" if="switch || static_link || winrt || mojoal" unless="LIME_OPENAL" />
@@ -181,6 +182,15 @@
 			<compilerflag value="-DLIME_OGG" />
 
 			<file name="src/media/containers/OGG.cpp" />
+
+		</section>
+
+		<section if="LIME_MP3">
+
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/minimp3/" />
+			<compilerflag value="-DLIME_MP3" />
+
+			<file name="src/media/containers/MP3.cpp" />
 
 		</section>
 
@@ -379,6 +389,7 @@
 	<include name="lib/mojoal-files.xml" />
 	<include name="lib/neko-files.xml" />
 	<include name="lib/ogg-files.xml" />
+	<include name="lib/mp3-files.xml" />
 	<include name="lib/openal-files.xml" />
 	<include name="lib/pixman-files.xml" />
 	<include name="lib/png-files.xml" />
@@ -413,6 +424,7 @@
 		<files id="native-toolkit-mojoal" if="LIME_MOJOAL" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
+		<files id="native-toolkit-mp3" if="LIME_MP3" />
 		<files id="native-toolkit-openal" if="LIME_OPENALSOFT" />
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />

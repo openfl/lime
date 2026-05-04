@@ -83,5 +83,9 @@
 	url = https://github.com/HaxeFoundation/hashlink
 	shallow = true
 [submodule "project/lib/sdl_sound"]
-	path = project/lib/sdl_sound
-	url = https://github.com/icculus/SDL_sound.git
+    path = project/lib/sdl_sound
+    url = https://github.com/icculus/SDL_sound.git
+[submodule "project/lib/minimp3"]
+    path = project/lib/minimp3
+    url = https://github.com/lieff/minimp3
+    shallow = true

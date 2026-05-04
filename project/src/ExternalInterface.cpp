@@ -18,6 +18,7 @@
 #include <graphics/RenderEvent.h>
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
+#include <media/containers/MP3.h>
 #include <media/AudioBuffer.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
@@ -414,6 +415,13 @@ namespace lime {
 		}
 		#endif
 
+		#ifdef LIME_MP3
+        if (MP3::Decode (&resource, &audioBuffer)) {
+
+            return audioBuffer.Value (buffer);
+        }
+        #endif
+
 		return alloc_null ();
 
 	}
@@ -444,6 +452,13 @@ namespace lime {
 
 		}
 		#endif
+
+		#ifdef LIME_MP3
+        if (MP3::Decode (&resource, buffer)) {
+
+            return buffer;
+        }
+        #endif
 
 		return 0;
 
@@ -480,6 +495,13 @@ namespace lime {
 		}
 		#endif
 
+		#ifdef LIME_MP3
+        if (MP3::Decode (&resource, &audioBuffer)) {
+
+            return audioBuffer.Value (buffer);
+        }
+        #endif
+
 		return alloc_null ();
 
 	}
@@ -510,6 +532,13 @@ namespace lime {
 
 		}
 		#endif
+
+		#ifdef LIME_MP3
+        if (MP3::Decode (&resource, buffer)) {
+
+            return buffer;
+        }
+        #endif
 
 		return 0;
 
