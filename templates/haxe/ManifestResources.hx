@@ -59,6 +59,8 @@ import sys.FileSystem;
 			rootPath = "assets/";
 			#elseif android
 			rootPath = "";
+			#elseif (emscripten || webassembly)
+			rootPath = "";
 			#elseif (console || sys)
 			rootPath = lime.system.System.applicationDirectory;
 			#else

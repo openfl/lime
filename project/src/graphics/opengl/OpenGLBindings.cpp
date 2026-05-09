@@ -26,8 +26,53 @@
 #include <SDL.h>
 #endif
 
+#ifdef EMSCRIPTEN
+#include <stdlib.h>
+#include <string.h>
+#endif
+
 
 namespace lime {
+
+
+	#ifdef EMSCRIPTEN
+	#define LIME_GL_BGRA_EXT 0x80E1
+
+	static unsigned char* sRBSwapBuffer = NULL;
+	static size_t sRBSwapBufferSize = 0;
+
+	static const void* lime_gl_swap_rb (const void* src, size_t pixelCount) {
+
+		size_t bytes = pixelCount * 4;
+		if (bytes > sRBSwapBufferSize) {
+			free (sRBSwapBuffer);
+			sRBSwapBuffer = (unsigned char*) malloc (bytes);
+			sRBSwapBufferSize = bytes;
+		}
+		const unsigned char* s = (const unsigned char*) src;
+		unsigned char* d = sRBSwapBuffer;
+		for (size_t i = 0; i < bytes; i += 4) {
+			d[i] = s[i + 2];
+			d[i + 1] = s[i + 1];
+			d[i + 2] = s[i];
+			d[i + 3] = s[i + 3];
+		}
+		return sRBSwapBuffer;
+
+	}
+
+	static void lime_gl_swap_rb_in_place (void* dest, size_t pixelCount) {
+
+		unsigned char* d = (unsigned char*) dest;
+		size_t bytes = pixelCount * 4;
+		for (size_t i = 0; i < bytes; i += 4) {
+			unsigned char tmp = d[i];
+			d[i] = d[i + 2];
+			d[i + 2] = tmp;
+		}
+
+	}
+	#endif
 
 
 	bool OpenGLBindings::initialized = false;
@@ -4004,6 +4049,17 @@ namespace lime {
 
 	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, double pixels) {
 
+		#ifdef EMSCRIPTEN
+		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
+			void* dest = (void*) (uintptr_t) pixels;
+			if (dest != NULL && width > 0 && height > 0) {
+				glReadPixels (x, y, width, height, GL_RGBA, type, dest);
+				lime_gl_swap_rb_in_place (dest, (size_t) width * (size_t) height);
+				return;
+			}
+		}
+		#endif
+
 		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
 
 	}
@@ -4281,6 +4337,21 @@ namespace lime {
 
 	void lime_gl_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int format, int type, double data) {
 
+		#ifdef EMSCRIPTEN
+		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
+			const void* src = (const void*) (uintptr_t) data;
+			GLint internalRGBA = (internalformat == LIME_GL_BGRA_EXT) ? GL_RGBA : internalformat;
+			if (src != NULL && width > 0 && height > 0) {
+				const void* swapped = lime_gl_swap_rb (src, (size_t) width * (size_t) height);
+				glTexImage2D (target, level, internalRGBA, width, height, border, GL_RGBA, type, swapped);
+			} else {
+				glTexImage2D (target, level, internalRGBA, width, height, border, GL_RGBA, type, NULL);
+			}
+			return;
+		}
+		if (internalformat == LIME_GL_BGRA_EXT) internalformat = GL_RGBA;
+		#endif
+
 		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)(uintptr_t)data);
 
 	}
@@ -4376,6 +4447,17 @@ namespace lime {
 
 
 	void lime_gl_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double data) {
+
+		#ifdef EMSCRIPTEN
+		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
+			const void* src = (const void*) (uintptr_t) data;
+			if (src != NULL && width > 0 && height > 0) {
+				const void* swapped = lime_gl_swap_rb (src, (size_t) width * (size_t) height);
+				glTexSubImage2D (target, level, xoffset, yoffset, width, height, GL_RGBA, type, swapped);
+				return;
+			}
+		}
+		#endif
 
 		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)data);
 
