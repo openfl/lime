@@ -15,6 +15,18 @@ import lime.utils.Bytes;
 import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
+import sys.thread.Lock;
+import sys.thread.Mutex;
+import sys.thread.Thread;
+
+private typedef LibraryHandlerJob = {
+	var handlerProject:HXProject;
+	var temporaryFile:String;
+	var outputFile:String;
+	var args:Array<String>;
+	var types:Array<String>;
+	var error:Dynamic;
+}
 
 class AssetHelper
 {
@@ -490,6 +502,8 @@ class AssetHelper
 					}
 					catch (e:Dynamic) {}
 
+					var jobs:Array<LibraryHandlerJob> = [];
+
 					for (library in handlerLibraries)
 					{
 						// If targetDirectory is set and the .zip cache is already up-to-date,
@@ -608,9 +622,11 @@ class AssetHelper
 						{
 							var singleLibraryProject = baseProject.clone();
 							singleLibraryProject.libraries = [library.clone()];
-							runLibraryHandler(project, singleLibraryProject, handler, targetDirectory);
+							jobs.push(createLibraryHandlerJob(singleLibraryProject, handler, targetDirectory));
 						}
 					}
+
+					runLibraryHandlers(project, jobs, true);
 				}
 				else
 				{
@@ -695,6 +711,12 @@ class AssetHelper
 
 	private static function runLibraryHandler(project:HXProject, handlerProject:HXProject, handler:String, targetDirectory:String = null):Void
 	{
+		var job = createLibraryHandlerJob(handlerProject, handler, targetDirectory);
+		runLibraryHandlers(project, [job], false);
+	}
+
+	private static function createLibraryHandlerJob(handlerProject:HXProject, handler:String, targetDirectory:String = null):LibraryHandlerJob
+	{
 		var temporaryFile = System.getTemporaryFile();
 		var outputFile = System.getTemporaryFile();
 
@@ -712,50 +734,154 @@ class AssetHelper
 			args.push("--targetDirectory=" + Path.tryFullPath(targetDirectory));
 		}
 
-		try
-		{
-			Haxelib.runCommand("", args, false);
-		}
-		catch (e:Dynamic)
-		{
-			var types:Array<String> = [];
+		var types:Array<String> = [];
 
-			for (library in handlerProject.libraries)
+		for (library in handlerProject.libraries)
+		{
+			if (library.type != null && handlerProject.libraryHandlers.exists(library.type) && handlerProject.libraryHandlers.get(library.type) == handler)
 			{
-				if (library.type != null && handlerProject.libraryHandlers.exists(library.type) && handlerProject.libraryHandlers.get(library.type) == handler)
+				types.push(library.type);
+			}
+		}
+
+		return {
+			handlerProject: handlerProject,
+			temporaryFile: temporaryFile,
+			outputFile: outputFile,
+			args: args,
+			types: types,
+			error: null
+		};
+	}
+
+	private static function runLibraryHandlers(project:HXProject, jobs:Array<LibraryHandlerJob>, parallel:Bool):Void
+	{
+		if (jobs.length == 0)
+		{
+			return;
+		}
+
+		if (parallel && jobs.length > 1 && System.processorCores > 1)
+		{
+			var workerCount = jobs.length;
+
+			if (System.processorCores < workerCount)
+			{
+				workerCount = System.processorCores;
+			}
+
+			var nextJob = 0;
+			var remainingWorkers = workerCount;
+			var mutex = new Mutex();
+			var complete = new Lock();
+
+			for (i in 0...workerCount)
+			{
+				Thread.create(function() {
+					while (true)
+					{
+						var job:LibraryHandlerJob = null;
+
+						mutex.acquire();
+
+						if (nextJob < jobs.length)
+						{
+							job = jobs[nextJob];
+							nextJob++;
+						}
+
+						mutex.release();
+
+						if (job == null)
+						{
+							break;
+						}
+
+						runLibraryHandlerJob(job);
+					}
+
+					mutex.acquire();
+					remainingWorkers--;
+					var finished = remainingWorkers == 0;
+					mutex.release();
+
+					if (finished)
+					{
+						complete.release();
+					}
+				});
+			}
+
+			complete.wait();
+		}
+		else
+		{
+			for (job in jobs)
+			{
+				runLibraryHandlerJob(job);
+			}
+		}
+
+		var failedTypes:Array<String> = [];
+		var mergeErrors:Array<Dynamic> = [];
+
+		for (job in jobs)
+		{
+			if (job.error != null)
+			{
+				for (type in job.types)
 				{
-					types.push(library.type);
+					failedTypes.push(type);
+				}
+			}
+			else if (FileSystem.exists(job.outputFile))
+			{
+				try
+				{
+					var output = File.getContent(job.outputFile);
+					var data:HXProject = Unserializer.run(output);
+					project.merge(data);
+				}
+				catch (e:Dynamic)
+				{
+					mergeErrors.push(e);
 				}
 			}
 
-			Log.error("Could not process asset libraries (" + types.join(", ") + ")");
-		}
-
-		if (FileSystem.exists(outputFile))
-		{
 			try
 			{
-				var output = File.getContent(outputFile);
-				var data:HXProject = Unserializer.run(output);
-				project.merge(data);
+				FileSystem.deleteFile(job.outputFile);
 			}
-			catch (e:Dynamic)
+			catch (e:Dynamic) {}
+
+			try
 			{
-				Log.error(e);
+				FileSystem.deleteFile(job.temporaryFile);
 			}
+			catch (e:Dynamic) {}
 		}
 
-		try
+		if (failedTypes.length > 0)
 		{
-			FileSystem.deleteFile(outputFile);
+			Log.error("Could not process asset libraries (" + failedTypes.join(", ") + ")");
 		}
-		catch (e:Dynamic) {}
 
+		if (mergeErrors.length > 0)
+		{
+			Log.error(mergeErrors[0]);
+		}
+	}
+
+	private static function runLibraryHandlerJob(job:LibraryHandlerJob):Void
+	{
 		try
 		{
-			FileSystem.deleteFile(temporaryFile);
+			Haxelib.runCommand("", job.args, false);
 		}
-		catch (e:Dynamic) {}
+		catch (e:Dynamic)
+		{
+			job.error = e;
+		}
 	}
 
 	public static function processPackedLibraries(project:HXProject, targetDirectory:String = null):Void
