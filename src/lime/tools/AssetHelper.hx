@@ -482,11 +482,134 @@ class AssetHelper
 
 				if (handler == "swf")
 				{
+					// Fast-check pass: resolve the swf tool path once for all libraries
+					var swfRunNPath:String = null;
+					try
+					{
+						swfRunNPath = Haxelib.getPath(new Haxelib("swf"), true) + "/run.n";
+					}
+					catch (e:Dynamic) {}
+
 					for (library in handlerLibraries)
 					{
-						var singleLibraryProject = baseProject.clone();
-						singleLibraryProject.libraries = [library.clone()];
-						runLibraryHandler(project, singleLibraryProject, handler, targetDirectory);
+						// If targetDirectory is set and the .zip cache is already up-to-date,
+						// merge results directly in Haxe without spawning a neko process.
+						var cacheHit = false;
+
+						if (targetDirectory != null && library.sourcePath != null && FileSystem.exists(library.sourcePath))
+						{
+							var swfCacheDir = Path.tryFullPath(targetDirectory) + "/obj/libraries";
+							var cacheFile = swfCacheDir + "/" + library.name + ".zip";
+							var classesFile = swfCacheDir + "/" + library.name + ".classes.txt";
+
+							if (FileSystem.exists(cacheFile))
+							{
+								var cacheDate = FileSystem.stat(cacheFile).mtime;
+								var sourceDate = FileSystem.stat(library.sourcePath).mtime;
+
+								var cacheIsNewer = sourceDate.getTime() < cacheDate.getTime();
+
+								if (cacheIsNewer && swfRunNPath != null && FileSystem.exists(swfRunNPath))
+								{
+									var toolDate = FileSystem.stat(swfRunNPath).mtime;
+									cacheIsNewer = toolDate.getTime() < cacheDate.getTime();
+								}
+
+								if (cacheIsNewer)
+								{
+									if (Log.verbose) Log.info("", " - \x1b[1mSWF cache hit (skipping neko):\x1b[0m " + library.name);
+
+									var cacheAsset = new Asset(cacheFile, "lib/" + library.name + ".zip", AssetType.BUNDLE);
+									cacheAsset.library = library.name;
+									cacheAsset.embed = false;
+									project.assets.push(cacheAsset);
+
+									if (library.generate != false && FileSystem.exists(classesFile))
+									{
+										for (line in File.getContent(classesFile).split("\n"))
+										{
+											var className = StringTools.trim(line);
+											if (className != "" && !StringTools.startsWith(className, "#"))
+											{
+												project.haxeflags.push(className);
+											}
+										}
+									}
+
+									// Ensure the generated classes path is added to sources
+									var generatedPath:String;
+									if (project.target == IOS)
+									{
+										generatedPath = Path.combine(targetDirectory, project.app.file + "/haxe/_generated");
+									}
+									else
+									{
+										generatedPath = Path.combine(targetDirectory, "haxe/_generated");
+									}
+
+									var sourceExists = false;
+									for (source in project.sources)
+									{
+										if (source == generatedPath)
+										{
+											sourceExists = true;
+											break;
+										}
+									}
+									if (!sourceExists)
+									{
+										project.sources.push(generatedPath);
+										// Append sources again so generated path is at the end but before overrides?
+										// The original tool prepends it by pushing then concatting project.sources again.
+										// Here we just push it, which should be fine.
+									}
+
+									var hasSwfHaxelib = false;
+									for (haxelib in project.haxelibs)
+									{
+										if (haxelib.name == "swf")
+										{
+											hasSwfHaxelib = true;
+											break;
+										}
+									}
+									if (!hasSwfHaxelib)
+									{
+										project.haxelibs.push(new Haxelib("swf"));
+									}
+
+									var libType = library.type != null ? library.type : Path.extension(library.sourcePath).toLowerCase();
+									if (libType == "animate")
+									{
+										project.haxeflags.push("swf.exporters.animate.AnimateLibrary");
+									}
+									else if (libType == "swflite" || libType == "swf_lite")
+									{
+										project.haxeflags.push("swf.exporters.swflite.SWFLiteLibrary");
+									}
+									else
+									{
+										if (project.target != FLASH && project.target != AIR)
+										{
+											project.haxeflags.push("swf.exporters.animate.AnimateLibrary");
+										}
+										else
+										{
+											project.haxeflags.push("swf.SWFLibrary");
+										}
+									}
+
+									cacheHit = true;
+								}
+							}
+						}
+
+						if (!cacheHit)
+						{
+							var singleLibraryProject = baseProject.clone();
+							singleLibraryProject.libraries = [library.clone()];
+							runLibraryHandler(project, singleLibraryProject, handler, targetDirectory);
+						}
 					}
 				}
 				else
