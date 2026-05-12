@@ -466,73 +466,34 @@ class AssetHelper
 
 		if (handlers.length > 0)
 		{
-			var projectData = Serializer.run(project);
-			var temporaryFile = System.getTemporaryFile();
-
-			File.saveContent(temporaryFile, projectData);
+			var baseProject = project.clone();
 
 			for (handler in handlers)
 			{
-				var outputFile = System.getTemporaryFile();
-				var args = ["run", handler, "process", temporaryFile, outputFile];
+				var handlerLibraries:Array<Library> = [];
 
-				if (Log.verbose)
+				for (library in baseProject.libraries)
 				{
-					args.push("-verbose");
+					if (library.type != null && baseProject.libraryHandlers.exists(library.type) && baseProject.libraryHandlers.get(library.type) == handler)
+					{
+						handlerLibraries.push(library);
+					}
 				}
 
-				if (targetDirectory != null)
+				if (handler == "swf")
 				{
-					args.push("--targetDirectory=" + Path.tryFullPath(targetDirectory));
+					for (library in handlerLibraries)
+					{
+						var singleLibraryProject = baseProject.clone();
+						singleLibraryProject.libraries = [library.clone()];
+						runLibraryHandler(project, singleLibraryProject, handler, targetDirectory);
+					}
 				}
-
-				try
+				else
 				{
-					Haxelib.runCommand("", args, false);
-				}
-				catch (e:Dynamic)
-				{
-					var types:Array<String> = [];
-
-					for (library in project.libraries)
-					{
-						if (library.type != null
-							&& project.libraryHandlers.exists(library.type)
-							&& project.libraryHandlers.get(library.type) == handler)
-						{
-							types.push(library.type);
-						}
-					}
-
-					Log.error("Could not process asset libraries (" + types.join(", ") + ")");
-				}
-
-				if (FileSystem.exists(outputFile))
-				{
-					try
-					{
-						var output = File.getContent(outputFile);
-						var data:HXProject = Unserializer.run(output);
-						project.merge(data);
-					}
-					catch (e:Dynamic)
-					{
-						Log.error(e);
-					}
-
-					try
-					{
-						FileSystem.deleteFile(outputFile);
-					}
-					catch (e:Dynamic) {}
+					runLibraryHandler(project, baseProject, handler, targetDirectory);
 				}
 			}
-
-			try
-			{
-				FileSystem.deleteFile(temporaryFile);
-			}
-			catch (e:Dynamic) {}
 		}
 
 		if (hasPackedLibraries)
@@ -607,6 +568,71 @@ class AssetHelper
 				}
 			}
 		}
+	}
+
+	private static function runLibraryHandler(project:HXProject, handlerProject:HXProject, handler:String, targetDirectory:String = null):Void
+	{
+		var temporaryFile = System.getTemporaryFile();
+		var outputFile = System.getTemporaryFile();
+
+		File.saveContent(temporaryFile, Serializer.run(handlerProject));
+
+		var args = ["run", handler, "process", temporaryFile, outputFile];
+
+		if (Log.verbose)
+		{
+			args.push("-verbose");
+		}
+
+		if (targetDirectory != null)
+		{
+			args.push("--targetDirectory=" + Path.tryFullPath(targetDirectory));
+		}
+
+		try
+		{
+			Haxelib.runCommand("", args, false);
+		}
+		catch (e:Dynamic)
+		{
+			var types:Array<String> = [];
+
+			for (library in handlerProject.libraries)
+			{
+				if (library.type != null && handlerProject.libraryHandlers.exists(library.type) && handlerProject.libraryHandlers.get(library.type) == handler)
+				{
+					types.push(library.type);
+				}
+			}
+
+			Log.error("Could not process asset libraries (" + types.join(", ") + ")");
+		}
+
+		if (FileSystem.exists(outputFile))
+		{
+			try
+			{
+				var output = File.getContent(outputFile);
+				var data:HXProject = Unserializer.run(output);
+				project.merge(data);
+			}
+			catch (e:Dynamic)
+			{
+				Log.error(e);
+			}
+		}
+
+		try
+		{
+			FileSystem.deleteFile(outputFile);
+		}
+		catch (e:Dynamic) {}
+
+		try
+		{
+			FileSystem.deleteFile(temporaryFile);
+		}
+		catch (e:Dynamic) {}
 	}
 
 	public static function processPackedLibraries(project:HXProject, targetDirectory:String = null):Void
