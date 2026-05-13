@@ -13,6 +13,8 @@ import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
+import lime.tools.Icon;
+import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
@@ -627,7 +629,15 @@ class LinuxPlatform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 		}
 
-		// context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, Path.combine (applicationDirectory, "icon.png"));
+		var icons = project.icons;
+
+		if (icons.length == 0)
+		{
+			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+		}
+
+		context.HAS_ICON = IconHelper.createIcon(icons, 256, 256, Path.combine(applicationDirectory, "icon.png"));
+
 		for (asset in project.assets)
 		{
 			var path = Path.combine(applicationDirectory, asset.targetPath);
