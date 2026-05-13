@@ -229,8 +229,8 @@ class HTML5Window
 			element.addEventListener("touchend", handleTouchEvent, true);
 			element.addEventListener("touchcancel", handleTouchEvent, true);
 
-			element.addEventListener("gamepadconnected", handleGamepadEvent, true);
-			element.addEventListener("gamepaddisconnected", handleGamepadEvent, true);
+			Browser.window.addEventListener("gamepadconnected", handleGamepadEvent, true);
+			Browser.window.addEventListener("gamepaddisconnected", handleGamepadEvent, true);
 		}
 
 		createContext();
@@ -287,8 +287,8 @@ class HTML5Window
 			element.removeEventListener("touchend", handleTouchEvent, true);
 			element.removeEventListener("touchcancel", handleTouchEvent, true);
 
-			element.removeEventListener("gamepadconnected", handleGamepadEvent, true);
-			element.removeEventListener("gamepaddisconnected", handleGamepadEvent, true);
+			Browser.window.removeEventListener("gamepadconnected", handleGamepadEvent, true);
+			Browser.window.removeEventListener("gamepaddisconnected", handleGamepadEvent, true);
 		}
 
 		parent.application.__removeWindow(parent);
