@@ -239,6 +239,9 @@ class AL
 	/* AL_SOFT_direct_channels_remix extension */
 	public static inline var DROP_UNMATCHED_SOFT:Int = 0x0001;
 	public static inline var REMIX_UNMATCHED_SOFT:Int = 0x0002;
+	/* AL_SOFT_source_spatialize extension */
+	public static inline var SOURCE_SPATIALIZE_SOFT:Int = 0x1214;
+	public static inline var AUTO_SOFT:Int = 0x0002;
 	#end
 
 	public static function removeDirectFilter(source:ALSource)
