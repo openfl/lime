@@ -356,6 +356,7 @@ namespace lime {
 
 			case SDL_TEXTINPUT:
 			case SDL_TEXTEDITING:
+			case SDL_TEXTEDITING_EXT:
 
 				ProcessTextEvent (event);
 				break;
