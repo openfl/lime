@@ -40,6 +40,7 @@ class ProjectXMLParser extends HXProject
 
 		if (path != "")
 		{
+			projectFilePath = path;
 			process(path, useExtensionPath);
 		}
 	}
