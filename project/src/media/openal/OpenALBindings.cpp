@@ -3398,6 +3398,73 @@ namespace lime {
 	}
 
 
+	value lime_alc_get_string_list (value device, int param) {
+
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		const char* result = alcGetString (alcDevice, param);
+
+		if (!result || *result == '\0') {
+
+			return alloc_null ();
+
+		}
+
+		value list = alloc_array (0);
+
+		while (*result != '\0') {
+
+			val_array_push (list, alloc_string (result));
+			result += strlen (result) + 1;
+
+		}
+
+		return list;
+
+	}
+
+
+	HL_PRIM varray* HL_NAME(hl_alc_get_string_list) (HL_CFFIPointer* device, int param) {
+
+		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : 0;
+		const char* result = alcGetString(alcDevice, param);
+
+		if (!result || *result == '\0') {
+
+			return 0;
+
+		}
+
+		int count = 0;
+		const char* temp = result;
+		while (*temp != '\0') {
+
+			count++;
+			temp += strlen (temp) + 1;
+
+		}
+
+		varray* list = hl_alloc_array (&hlt_bytes, count);
+		vbyte** listData = hl_aptr (list, vbyte*);
+
+		while (*result != '\0') {
+
+			int length = strlen (result) + 1;
+			char* _result = (char*)malloc (length);
+			strcpy (_result, result);
+
+			*listData = (vbyte*)_result;
+			listData++;
+
+			result += length;
+			free(_result);
+
+		}
+
+		return list;
+
+	}
+
+
 	bool lime_alc_make_context_current (value context) {
 
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
@@ -3622,6 +3689,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_alc_get_error);
 	DEFINE_PRIME3 (lime_alc_get_integerv);
 	DEFINE_PRIME2 (lime_alc_get_string);
+	DEFINE_PRIME2 (lime_alc_get_string_list);
 	DEFINE_PRIME1 (lime_alc_make_context_current);
 	DEFINE_PRIME1 (lime_alc_open_device);
 	DEFINE_PRIME1v (lime_alc_pause_device);
@@ -3746,6 +3814,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_alc_get_error, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_ARR, hl_alc_get_integerv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_alc_get_string, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_alc_get_string_list, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_alc_make_context_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_open_device, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_alc_pause_device, _TCFFIPOINTER);

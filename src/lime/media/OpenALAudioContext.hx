@@ -413,6 +413,11 @@ class OpenALAudioContext
 		}
 	}
 
+	public function getStringList(device:ALDevice, param:Int):Array<String>
+	{
+		return ALC.getStringList(device, param);
+	}
+
 	public function isBuffer(buffer:ALBuffer):Bool
 	{
 		return AL.isBuffer(buffer);
