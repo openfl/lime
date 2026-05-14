@@ -1,4 +1,4 @@
-var $lime_init = (function ($hx_exports, $global) { "use strict"; var $hx_script = (function (exports, global) { ::SOURCE_FILE::
+"use strict"; var $hx_script = (function (exports) { ::SOURCE_FILE::
 });::if false::
 /*
 	Don't insert or remove any line breaks in the code above this line!
@@ -12,34 +12,41 @@ var $lime_init = (function ($hx_exports, $global) { "use strict"; var $hx_script
 	to avoid it getting ignored in a // comment at the end of ::SOURCE_FILE::.
 */
 ::end::
-	if (typeof self !== "undefined" && self.constructor.name.includes("Worker")) {
-		// No need for exports in a worker context, just initialize statics.
-		$hx_script({}, $global);
-	} else {
-		$hx_exports.lime = $hx_exports.lime || {};
-		$hx_exports.lime.$scripts = $hx_exports.lime.$scripts || {};
-		$hx_exports.lime.$scripts["::APP_FILE::"] = $hx_script;
-		$hx_exports.lime.embed = function (projectName) {
-			var exports = {};
-			var script = $hx_exports.lime.$scripts[projectName];
-			if (!script) throw Error("Cannot find project name \"" + projectName + "\"");
-			script(exports, $global);
-			for (var key in exports) $hx_exports[key] = $hx_exports[key] || exports[key];
-			var lime = exports.lime || window.lime;
-			if (lime && lime.embed && this !== lime.embed) lime.embed.apply(lime, arguments);
-			return exports;
-		};
+var $hx_exports = typeof exports !== "undefined" ? exports : typeof define === "function" && define.amd ? {} : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : this;
+if (typeof self !== "undefined" && self.constructor.name.includes("Worker")) {
+	// No need for exports in a worker context, just initialize statics.
+	$hx_script({});
+} else {
+	$hx_exports.lime = $hx_exports.lime || {};
+	$hx_exports.lime.$scripts = $hx_exports.lime.$scripts || {};
+	$hx_exports.lime.$scripts["::APP_FILE::"] = $hx_script;
+	$hx_exports.lime.embed = function (projectName) {
+		var script = $hx_exports.lime.$scripts[projectName];
+		if (!script) throw Error("Cannot find project name \"" + projectName + "\"");
+		script($hx_exports);
+		$hx_exports.lime.system?.System?.embed?.apply(lime, arguments);
+		return $hx_exports;
+	};
+
+	window.addEventListener ("touchmove", function (event) { event.preventDefault (); }, { capture: false, passive: false });
+	if (typeof window.devicePixelRatio != 'undefined' && window.devicePixelRatio > 2) {
+		var meta = document.getElementById ("viewport");
+		meta.setAttribute ('content', 'width=device-width, initial-scale=' + (2 / window.devicePixelRatio) + ', user-scalable=no');
 	}
 
-	if (typeof define === "function" && define.amd) {
-		define([], function () { return $hx_exports.lime; });
-		define.__amd = define.amd;
-		define.amd = null;
-	}
-})
+	window.addEventListener ("load", function () {
+		const content = document.getElementById(::if LIB_OPENFL::"openfl-content"::else::"content"::end::);
+		if (content && content.childElementCount === 0) {
+			$hx_exports.lime.embed ("::APP_FILE::", content, ::WIN_WIDTH::, ::WIN_HEIGHT::);
+		}
+	});
+}
 
-$lime_init(typeof exports !== "undefined" ? exports : typeof define === "function" && define.amd ? {} : typeof window !== "undefined" ? window : typeof self !== "undefined" ? self : this,
-typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : this);
+if (typeof define === "function" && define.amd) {
+	define([], function () { return $hx_exports.lime; });
+	define.__amd = define.amd;
+	define.amd = null;
+}
 
 ::if embeddedLibraries::::foreach embeddedLibraries::
 ::__current__::::end::::end::

@@ -855,7 +855,7 @@ class AssetLibrary
 			{
 				classRef = Type.resolveClass(Reflect.field(asset, "className"));
 
-				#if (js && html5 && modular)
+				#if (js && html5 && lime_modular)
 				if (classRef == null)
 				{
 					classRef = untyped $hx_exports[asset.className];
