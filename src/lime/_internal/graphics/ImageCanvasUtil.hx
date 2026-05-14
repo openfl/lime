@@ -192,7 +192,7 @@ class ImageCanvasUtil
 				buffer.__srcCanvas.setAttribute("moz-opaque", "true");
 			}
 
-			buffer.__srcContext = buffer.__srcCanvas.getContext("2d", {alpha: image.transparent});
+			buffer.__srcContext = buffer.__srcCanvas.getContext("2d", {alpha: image.transparent, willReadFrequently: image.willReadFrequently});
 		}
 		#end
 	}
