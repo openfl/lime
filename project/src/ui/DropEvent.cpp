@@ -46,9 +46,11 @@ namespace lime {
 
 				int length = strlen ((const char*)event->file);
 				char* file = (char*)malloc (length + 1);
-				strcpy (file, (const char*)event->file);
-				eventObject->file = (vbyte*)file;
-				eventObject->type = event->type;
+				if (file) {
+					strcpy (file, (const char*)event->file);
+					eventObject->file = (vbyte*)file;
+					eventObject->type = event->type;
+				}
 
 			}
 
