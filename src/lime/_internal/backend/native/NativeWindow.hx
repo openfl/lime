@@ -117,6 +117,7 @@ class NativeWindow
 
 		if (handle == null)
 		{
+			frameRate = resolvedFrameRate;
 			return;
 		}
 
