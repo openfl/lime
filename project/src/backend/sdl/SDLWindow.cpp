@@ -806,10 +806,9 @@ namespace lime {
 
 	int SDLWindow::GetHeight () {
 
-		int width = 0;
 		int height = 0;
 
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GetWindowSize (sdlWindow, NULL, &height);
 
 		return height;
 
@@ -890,9 +889,8 @@ namespace lime {
 	int SDLWindow::GetWidth () {
 
 		int width = 0;
-		int height = 0;
 
-		SDL_GetWindowSize (sdlWindow, &width, &height);
+		SDL_GetWindowSize (sdlWindow, &width, NULL);
 
 		return width;
 
