@@ -162,7 +162,7 @@ namespace lime {
 
 		if (!sdlWindow && (flags & (WINDOW_FLAG_HW_AA | WINDOW_FLAG_HW_AA_HIRES))) {
 
-			// Retry without antialiasing — emulators and some devices don't support MSAA
+			// Retry without antialiasing - emulators and some devices don't support MSAA
 			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 0);
 			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 0);
 			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
@@ -1147,7 +1147,7 @@ namespace lime {
 		if (!window->sdlWindow) {
 
 			delete window;
-			return NULL;
+			return nullptr;
 
 		}
 
