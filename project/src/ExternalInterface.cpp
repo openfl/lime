@@ -58,6 +58,10 @@
 #include <cstdlib>
 #include <cstring>
 
+#ifdef LIME_SDL_SOUND
+#include <media/SDLSound.h>
+#endif
+
 DEFINE_KIND (k_finalizer);
 
 
@@ -361,6 +365,38 @@ namespace lime {
 	}
 
 
+	void lime_application_set_main_loop (value application, int profile, double frameRate, int timePrecision, int busyWait, int uncapMode) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetMainLoop (profile, frameRate, timePrecision, busyWait, uncapMode);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_main_loop) (HL_CFFIPointer* application, int profile, double frameRate, int timePrecision, int busyWait, int uncapMode) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetMainLoop (profile, frameRate, timePrecision, busyWait, uncapMode);
+
+	}
+
+
+	void lime_application_set_vsync_mode (value application, int vsyncMode) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetVSyncMode (vsyncMode);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_vsync_mode) (HL_CFFIPointer* application, int vsyncMode) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetVSyncMode (vsyncMode);
+
+	}
+
+
 	bool lime_application_update (value application) {
 
 		Application* app = (Application*)val_data (application);
@@ -387,6 +423,15 @@ namespace lime {
 		bytes.Set (data);
 		resource = Resource (&bytes);
 
+		#ifdef LIME_SDL_SOUND
+		if (SDLSound::Decode (&resource, &audioBuffer)) {
+
+			return audioBuffer.Value (buffer);
+
+		}
+		#endif
+
+
 		if (WAV::Decode (&resource, &audioBuffer)) {
 
 			return audioBuffer.Value (buffer);
@@ -409,6 +454,14 @@ namespace lime {
 	HL_PRIM AudioBuffer* HL_NAME(hl_audio_load_bytes) (Bytes* data, AudioBuffer* buffer) {
 
 		Resource resource = Resource (data);
+
+		#ifdef LIME_SDL_SOUND
+		if (SDLSound::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+		#endif
 
 		if (WAV::Decode (&resource, buffer)) {
 
@@ -437,6 +490,14 @@ namespace lime {
 
 		resource = Resource (val_string (data));
 
+		#ifdef LIME_SDL_SOUND
+		if (SDLSound::Decode (&resource, &audioBuffer)) {
+
+			return audioBuffer.Value (buffer);
+
+		}
+		#endif
+
 		if (WAV::Decode (&resource, &audioBuffer)) {
 
 			return audioBuffer.Value (buffer);
@@ -459,6 +520,14 @@ namespace lime {
 	HL_PRIM AudioBuffer* HL_NAME(hl_audio_load_file) (hl_vstring* data, AudioBuffer* buffer) {
 
 		Resource resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
+
+		#ifdef LIME_SDL_SOUND
+		if (SDLSound::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+		#endif
 
 		if (WAV::Decode (&resource, buffer)) {
 
@@ -1574,11 +1643,35 @@ namespace lime {
 	}
 
 
+	value lime_font_outline_decompose_no_hint (value fontHandle, int size) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return (value)font->Decompose (true, size, false);
+		#else
+		return alloc_null ();
+		#endif
+
+	}
+
+
 	HL_PRIM vdynamic* HL_NAME(hl_font_outline_decompose) (HL_CFFIPointer* fontHandle, int size) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
 		return (vdynamic*)font->Decompose (false, size);
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	HL_PRIM vdynamic* HL_NAME(hl_font_outline_decompose_no_hint) (HL_CFFIPointer* fontHandle, int size) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return (vdynamic*)font->Decompose (false, size, false);
 		#else
 		return 0;
 		#endif
@@ -1604,12 +1697,47 @@ namespace lime {
 	}
 
 
+	value lime_font_render_glyph_with_flags (value fontHandle, int index, int loadFlags, value data) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		Bytes bytes (data);
+
+		if (font->RenderGlyphWithFlags (index, loadFlags, &bytes)) {
+
+			return bytes.Value (data);
+
+		}
+		#endif
+
+		return alloc_null ();
+
+	}
+
+
 	HL_PRIM Bytes* HL_NAME(hl_font_render_glyph) (HL_CFFIPointer* fontHandle, int index, Bytes* data) {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)fontHandle->ptr;
 
 		if (font->RenderGlyph (index, data)) {
+
+			return data;
+
+		}
+		#endif
+
+		return NULL;
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_font_render_glyph_with_flags) (HL_CFFIPointer* fontHandle, int index, int loadFlags, Bytes* data) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+
+		if (font->RenderGlyphWithFlags (index, loadFlags, data)) {
 
 			return data;
 
@@ -3949,6 +4077,22 @@ namespace lime {
 	}
 
 
+	bool lime_window_set_always_on_top (value window, bool alwaysOnTop) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->SetAlwaysOnTop(alwaysOnTop);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_always_on_top) (HL_CFFIPointer* window, bool alwaysOnTop) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetAlwaysOnTop (alwaysOnTop);
+
+	}
+
+
 	void lime_window_warp_mouse (value window, int x, int y) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -4026,7 +4170,9 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_exec);
 	DEFINE_PRIME1v (lime_application_init);
 	DEFINE_PRIME1 (lime_application_quit);
+	DEFINE_PRIME6v (lime_application_set_main_loop);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
+	DEFINE_PRIME2v (lime_application_set_vsync_mode);
 	DEFINE_PRIME1 (lime_application_update);
 	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_audio_load_bytes);
@@ -4069,7 +4215,9 @@ namespace lime {
 	DEFINE_PRIME1 (lime_font_load_bytes);
 	DEFINE_PRIME1 (lime_font_load_file);
 	DEFINE_PRIME2 (lime_font_outline_decompose);
+	DEFINE_PRIME2 (lime_font_outline_decompose_no_hint);
 	DEFINE_PRIME3 (lime_font_render_glyph);
+	DEFINE_PRIME4 (lime_font_render_glyph_with_flags);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
 	DEFINE_PRIME3v (lime_font_set_size);
 	DEFINE_PRIME1v (lime_gamepad_add_mappings);
@@ -4177,6 +4325,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
 	DEFINE_PRIME2 (lime_window_set_visible);
+	DEFINE_PRIME2 (lime_window_set_always_on_top);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
@@ -4208,7 +4357,7 @@ namespace lime {
 
 	#define _TARRAYBUFFER _TBYTES
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
-	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _DYN _TVORBISFILE)
+	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _BOOL _DYN _TBYTES _BOOL _I32 _STRING _TBYTES _STRING _TVORBISFILE)
 	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define _TIMAGE _OBJ (_TIMAGEBUFFER _BOOL _I32 _I32 _I32 _TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
 
@@ -4221,7 +4370,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_application_exec, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_init, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_vsync_mode, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_application_update, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_file, _STRING _TAUDIOBUFFER);
@@ -4263,7 +4414,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_bytes, _TBYTES);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_file, _STRING);
 	DEFINE_HL_PRIM (_DYN, hl_font_outline_decompose, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_DYN, hl_font_outline_decompose_no_hint, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph_with_flags, _TCFFIPOINTER _I32 _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_add_mappings, _ARR);
@@ -4371,6 +4524,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_always_on_top, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);

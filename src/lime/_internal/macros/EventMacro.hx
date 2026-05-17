@@ -20,8 +20,17 @@ class EventMacro
 				typeArgs = args;
 				typeResult = result;
 
-			case TInst(localType, _):
-				Context.fatalError("Invalid number of type parameters for " + localType.toString(), Context.currentPos());
+			case TInst(_, []):
+				Context.fatalError("Expected type parameter. Did you mean Event<Void -> Void>?", Context.currentPos());
+				return null;
+
+			case TInst(_, [paramType]):
+				Context.fatalError("Expected function type. Did you mean Event<" + paramType.toString() + " -> Void>?", Context.currentPos());
+				return null;
+
+			case TInst(_, paramTypes):
+				Context.fatalError("Expected only one type parameter. Did you mean Event<"
+					+ paramTypes.map(haxe.macro.TypeTools.toString).join(" -> ") + ">?", Context.currentPos());
 				return null;
 
 			default:

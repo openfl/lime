@@ -72,7 +72,14 @@ class AudioBuffer
 	@:noCompletion private var __srcBuffer:#if lime_cffi ALBuffer #else Dynamic #end;
 	@:noCompletion private var __srcCustom:Dynamic;
 	@:noCompletion private var __srcHowl:#if lime_howlerjs Howl #else Dynamic #end;
+	@:noCompletion private var __isDisposed:Bool;
 	@:noCompletion private var __srcSound:#if flash Sound #else Dynamic #end;
+	@:noCompletion private var __srcSDLSoundBytes:#if lime_sdl_sound Bytes #else Dynamic #end;
+	@:noCompletion private var __srcSDLSoundCanSeek:Bool;
+	@:noCompletion private var __srcSDLSoundDuration:Int;
+	@:noCompletion private var __srcSDLSoundPath:String;
+	@:noCompletion private var __srcVorbisBytes:#if lime_vorbis Bytes #else Dynamic #end;
+	@:noCompletion private var __srcVorbisPath:String;
 	@:noCompletion private var __srcVorbisFile:#if lime_vorbis VorbisFile #else Dynamic #end;
 
 	#if commonjs
@@ -96,9 +103,18 @@ class AudioBuffer
 	**/
 	public function dispose():Void
 	{
+		__isDisposed = true;
+
 		#if (js && html5 && lime_howlerjs)
 		__srcHowl.unload();
 		#end
+
+		__srcSDLSoundBytes = null;
+		__srcSDLSoundCanSeek = false;
+		__srcSDLSoundDuration = 0;
+		__srcSDLSoundPath = null;
+		__srcVorbisBytes = null;
+		__srcVorbisPath = null;
 	}
 
 	/**
@@ -193,6 +209,37 @@ class AudioBuffer
 	}
 
 	/**
+		Creates a streamed `AudioBuffer` from a `Bytes` object.
+
+		@param bytes The `Bytes` object containing the compressed audio data.
+		@return An `AudioBuffer` configured for streamed playback when supported.
+	**/
+	public static function fromBytesStream(bytes:Bytes):AudioBuffer
+	{
+		if (bytes == null) return null;
+
+		#if (lime_cffi && !macro && lime_sdl_sound)
+		var streamInfo = NativeCFFI.lime_sdl_sound_get_info_from_bytes(bytes);
+
+		if (streamInfo != null)
+		{
+			return __fromSDLSoundInfo(streamInfo, bytes, null);
+		}
+		#end
+
+		#if lime_vorbis
+		var vorbisFile = VorbisFile.fromBytes(bytes);
+
+		if (vorbisFile != null)
+		{
+			return __fromVorbisSource(vorbisFile, bytes, null);
+		}
+		#end
+
+		return fromBytes(bytes);
+	}
+
+	/**
 		Creates an `AudioBuffer` from a file.
 
 		@param path The file path to the audio data.
@@ -250,6 +297,37 @@ class AudioBuffer
 	}
 
 	/**
+		Creates a streamed `AudioBuffer` from a file.
+
+		@param path The file path to the audio data.
+		@return An `AudioBuffer` configured for streamed playback when supported.
+	**/
+	public static function fromFileStream(path:String):AudioBuffer
+	{
+		if (path == null) return null;
+
+		#if (lime_cffi && !macro && lime_sdl_sound)
+		var streamInfo = NativeCFFI.lime_sdl_sound_get_info_from_file(path);
+
+		if (streamInfo != null)
+		{
+			return __fromSDLSoundInfo(streamInfo, null, path);
+		}
+		#end
+
+		#if lime_vorbis
+		var vorbisFile = VorbisFile.fromFile(path);
+
+		if (vorbisFile != null)
+		{
+			return __fromVorbisSource(vorbisFile, null, path);
+		}
+		#end
+
+		return fromFile(path);
+	}
+
+	/**
 		Creates an `AudioBuffer` from an array of file paths.
 
 		@param paths An array of file paths to search for audio data.
@@ -278,6 +356,25 @@ class AudioBuffer
 
 		return buffer;
 		#end
+	}
+
+	/**
+		Creates a streamed `AudioBuffer` from an array of file paths.
+
+		@param paths An array of file paths to search for audio data.
+		@return An `AudioBuffer` configured for streamed playback when supported.
+	**/
+	public static function fromFilesStream(paths:Array<String>):AudioBuffer
+	{
+		var buffer = null;
+
+		for (path in paths)
+		{
+			buffer = AudioBuffer.fromFileStream(path);
+			if (buffer != null) break;
+		}
+
+		return buffer;
 	}
 
 	/**
@@ -380,6 +477,58 @@ class AudioBuffer
 	}
 
 	/**
+		Asynchronously loads a streamed `AudioBuffer` from a file or URL.
+
+		@param path The file path or URL to the audio data.
+		@return A `Future` that resolves to the loaded `AudioBuffer`.
+	**/
+	public static function loadFromFileStream(path:String):Future<AudioBuffer>
+	{
+		#if (flash || (js && html5))
+		return loadFromFile(path);
+		#else
+		if (path == null)
+		{
+			return cast Future.withError("");
+		}
+
+		if (__isRemotePath(path))
+		{
+			var promise = new Promise<AudioBuffer>();
+			var request = new HTTPRequest<Bytes>();
+
+			request.load(path)
+				.onProgress(promise.progress)
+				.onComplete(function(bytes)
+				{
+					var buffer = fromBytesStream(bytes);
+
+					if (buffer != null)
+					{
+						promise.complete(buffer);
+					}
+					else
+					{
+						promise.error("");
+					}
+				})
+				.onError(promise.error);
+
+			return promise.future;
+		}
+
+		var audioBuffer = fromFileStream(path);
+
+		if (audioBuffer != null)
+		{
+			return Future.withValue(audioBuffer);
+		}
+
+		return cast Future.withError("");
+		#end
+	}
+
+	/**
 		Asynchronously loads an `AudioBuffer` from multiple files.
 
 		@param paths An array of file paths to search for audio data.
@@ -417,6 +566,23 @@ class AudioBuffer
 		#end
 	}
 
+	/**
+		Asynchronously loads a streamed `AudioBuffer` from multiple files or URLs.
+
+		@param paths An array of file paths or URLs to search for audio data.
+		@return A `Future` that resolves to the loaded `AudioBuffer`.
+	**/
+	public static function loadFromFilesStream(paths:Array<String>):Future<AudioBuffer>
+	{
+		#if (js && html5 && lime_howlerjs)
+		return loadFromFiles(paths);
+		#else
+		var promise = new Promise<AudioBuffer>();
+		__loadFromFilesStream(paths, promise, 0);
+		return promise.future;
+		#end
+	}
+
 	private static function __getCodec(bytes:Bytes):String
 	{
 		var signature:String = null;
@@ -449,6 +615,75 @@ class AudioBuffer
 
 		Log.error("Unsupported sound format");
 		return null;
+	}
+
+	@:noCompletion private static function __fromSDLSoundInfo(streamInfo:Dynamic, bytes:Bytes, path:String):AudioBuffer
+	{
+		if (streamInfo == null) return null;
+
+		var audioBuffer = new AudioBuffer();
+		audioBuffer.bitsPerSample = streamInfo.bitsPerSample;
+		audioBuffer.channels = streamInfo.channels;
+		audioBuffer.sampleRate = streamInfo.sampleRate;
+		audioBuffer.__srcSDLSoundBytes = bytes;
+		audioBuffer.__srcSDLSoundCanSeek = streamInfo.canSeek;
+		audioBuffer.__srcSDLSoundDuration = streamInfo.duration;
+		audioBuffer.__srcSDLSoundPath = path;
+		return audioBuffer;
+	}
+
+	#if lime_vorbis
+	@:noCompletion private static function __fromVorbisSource(vorbisFile:VorbisFile, bytes:Bytes, path:String):AudioBuffer
+	{
+		if (vorbisFile == null) return null;
+
+		var info = vorbisFile.info();
+
+		if (info == null)
+		{
+			vorbisFile.clear();
+			return null;
+		}
+
+		var audioBuffer = new AudioBuffer();
+		audioBuffer.channels = info.channels;
+		audioBuffer.sampleRate = info.rate;
+		audioBuffer.bitsPerSample = 16;
+		audioBuffer.__srcVorbisBytes = bytes;
+		audioBuffer.__srcVorbisPath = path;
+
+		vorbisFile.clear();
+		return audioBuffer;
+	}
+	#end
+
+	@:noCompletion private static function __isRemotePath(path:String):Bool
+	{
+		return path != null && (path.indexOf("http://") == 0 || path.indexOf("https://") == 0);
+	}
+
+	@:noCompletion private static function __loadFromFilesStream(paths:Array<String>, promise:Promise<AudioBuffer>, index:Int):Void
+	{
+		if (paths == null || index >= paths.length)
+		{
+			promise.error("");
+			return;
+		}
+
+		loadFromFileStream(paths[index]).onProgress(promise.progress).onComplete(function(buffer)
+		{
+			if (buffer != null)
+			{
+				promise.complete(buffer);
+			}
+			else
+			{
+				__loadFromFilesStream(paths, promise, index + 1);
+			}
+		}).onError(function(_)
+		{
+			__loadFromFilesStream(paths, promise, index + 1);
+		});
 	}
 
 	// Get & Set Methods

@@ -51,6 +51,20 @@ class Application extends Module
 	public var modules(default, null):Array<IModule>;
 
 	/**
+		Advanced frame pacing options for the current application.
+		On native targets, these settings apply to the shared
+		application main loop.
+	**/
+	public var frameOptions(get, set):FrameOptions;
+
+	/**
+		The current frame pacing profile for this application.
+		On native targets, this controls the shared application
+		main loop strategy.
+	**/
+	public var frameProfile(get, set):FrameProfile;
+
+	/**
 		Update events are dispatched each frame (usually just before rendering)
 	**/
 	public var onUpdate = new Event<Int->Void>();
@@ -89,8 +103,20 @@ class Application extends Module
 	**/
 	public var windows(get, null):Array<Window>;
 
+	/**
+		The requested vertical-sync behavior for this application.
+		On native targets, this applies to the shared application
+		render loop and active windows.
+	**/
+	public var vsyncMode(get, set):VSyncMode;
+
 	@:noCompletion private var __backend:ApplicationBackend;
+	@:noCompletion private var __frameRate:Float;
+	@:noCompletion private var __frameConfigured:Bool;
+	@:noCompletion private var __frameOptions:FrameOptions;
+	@:noCompletion private var __frameProfile:FrameProfile;
 	@:noCompletion private var __preloader:Preloader;
+	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
@@ -102,7 +128,10 @@ class Application extends Module
 		var p = untyped Application.prototype;
 		untyped Object.defineProperties(p,
 			{
+				"frameOptions": {get: p.get_frameOptions, set: p.set_frameOptions},
+				"frameProfile": {get: p.get_frameProfile, set: p.set_frameProfile},
 				"preloader": {get: p.get_preloader},
+				"vsyncMode": {get: p.get_vsyncMode, set: p.set_vsyncMode},
 				"window": {get: p.get_window},
 				"windows": {get: p.get_windows}
 			});
@@ -123,10 +152,22 @@ class Application extends Module
 
 		meta = new Map();
 		modules = new Array();
+		__frameRate = 60;
+		__frameConfigured = false;
+		__frameOptions =
+			{
+				timePrecision: TimePrecision.Auto,
+				busyWait: BusyWaitMode.Auto,
+				uncapMode: UncapMode.Off
+			};
+		__frameProfile = FrameProfile.Balanced;
 		__windowByID = new Map();
 		__windows = new Array();
+		__vsyncMode = VSyncMode.Off;
 
 		__backend = new ApplicationBackend(this);
+		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
+		__backend.setVSyncMode(__vsyncMode);
 
 		__registerLimeModule(this);
 
@@ -167,6 +208,15 @@ class Application extends Module
 		Application.current = this;
 
 		return __backend.exec();
+	}
+
+	/**
+		Configure the frame pacing profile, optional pacing overrides,
+		and optional vertical-sync mode at runtime.
+	**/
+	public function configureFrameTiming(profile:FrameProfile, ?options:FrameOptions, ?vsyncMode:VSyncMode):Void
+	{
+		__applyFrameConfiguration(profile, options, vsyncMode, true);
 	}
 
 	/**
@@ -517,6 +567,7 @@ class Application extends Module
 	{
 		var window = new Window(this, attributes);
 		if (window.id == -1) return null;
+		__seedFrameConfiguration(attributes);
 		return window;
 	}
 
@@ -642,6 +693,16 @@ class Application extends Module
 		return __preloader;
 	}
 
+	@:noCompletion private inline function get_frameOptions():FrameOptions
+	{
+		return __copyFrameOptions(__frameOptions);
+	}
+
+	@:noCompletion private inline function get_frameProfile():FrameProfile
+	{
+		return __frameProfile;
+	}
+
 	@:noCompletion private inline function get_window():Window
 	{
 		return __window;
@@ -652,9 +713,187 @@ class Application extends Module
 		return __windows;
 	}
 
+	@:noCompletion private inline function get_vsyncMode():VSyncMode
+	{
+		return __vsyncMode;
+	}
+
+	@:noCompletion private function set_frameOptions(value:FrameOptions):FrameOptions
+	{
+		__applyFrameConfiguration(__frameProfile, value, __vsyncMode, true);
+		return __copyFrameOptions(__frameOptions);
+	}
+
+	@:noCompletion private function set_frameProfile(value:FrameProfile):FrameProfile
+	{
+		__applyFrameConfiguration(value, __frameOptions, __vsyncMode, true);
+		return __frameProfile;
+	}
+
+	@:noCompletion private function set_vsyncMode(value:VSyncMode):VSyncMode
+	{
+		__applyFrameConfiguration(__frameProfile, __frameOptions, value, true);
+		return __vsyncMode;
+	}
+
 	@:noCompletion private function get_deviceOrientation():Orientation
 	{
 		return __backend.getDeviceOrientation();
+	}
+
+	@:noCompletion private function __applyFrameConfiguration(profile:FrameProfile, ?options:FrameOptions, ?vsyncMode:VSyncMode, lock:Bool):Void
+	{
+		__frameProfile = (profile != null) ? profile : __frameProfile;
+		__frameOptions = __normalizeFrameOptions(options, __frameOptions);
+		__vsyncMode = (vsyncMode != null) ? vsyncMode : __vsyncMode;
+
+		if (lock)
+		{
+			__frameConfigured = true;
+		}
+
+		if (__backend != null)
+		{
+			__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
+			__backend.setVSyncMode(__vsyncMode);
+		}
+	}
+
+	@:noCompletion private function __copyFrameOptions(value:FrameOptions):FrameOptions
+	{
+		if (value == null)
+		{
+			return {
+				timePrecision: TimePrecision.Auto,
+				busyWait: BusyWaitMode.Auto,
+				uncapMode: UncapMode.Off
+			};
+		}
+
+		return {
+			timePrecision: value.timePrecision,
+			busyWait: value.busyWait,
+			uncapMode: value.uncapMode
+		};
+	}
+
+	@:noCompletion private function __normalizeFrameOptions(value:FrameOptions, fallback:FrameOptions):FrameOptions
+	{
+		var base = __copyFrameOptions(fallback);
+
+		if (value == null)
+		{
+			return base;
+		}
+
+		if (Reflect.hasField(value, "timePrecision")) base.timePrecision = value.timePrecision;
+		if (Reflect.hasField(value, "busyWait")) base.busyWait = value.busyWait;
+		if (Reflect.hasField(value, "uncapMode")) base.uncapMode = value.uncapMode;
+
+		return base;
+	}
+
+	@:noCompletion private function __resolveFrameRate(attributes:WindowAttributes):Float
+	{
+		if (__frameConfigured)
+		{
+			return __frameRate;
+		}
+
+		if (attributes != null && Reflect.hasField(attributes, "frameRate"))
+		{
+			return __normalizeFrameRate(attributes.frameRate);
+		}
+
+		return __frameRate;
+	}
+
+	@:noCompletion private function __resolveFrameOptions(attributes:WindowAttributes):FrameOptions
+	{
+		if (__frameConfigured)
+		{
+			return __copyFrameOptions(__frameOptions);
+		}
+
+		var options = __copyFrameOptions(__frameOptions);
+
+		if (attributes != null)
+		{
+			if (Reflect.hasField(attributes, "frameOptions") && attributes.frameOptions != null)
+			{
+				options = __normalizeFrameOptions(attributes.frameOptions, options);
+			}
+		}
+
+		return options;
+	}
+
+	@:noCompletion private function __resolveFrameProfile(attributes:WindowAttributes):FrameProfile
+	{
+		if (__frameConfigured)
+		{
+			return __frameProfile;
+		}
+
+		if (attributes != null && Reflect.hasField(attributes, "frameProfile") && attributes.frameProfile != null)
+		{
+			return attributes.frameProfile;
+		}
+
+		return __frameProfile;
+	}
+
+	@:noCompletion private function __resolveVSyncMode(attributes:WindowAttributes):VSyncMode
+	{
+		if (__frameConfigured)
+		{
+			return __vsyncMode;
+		}
+
+		if (attributes != null && Reflect.hasField(attributes, "context") && attributes.context != null)
+		{
+			var context = attributes.context;
+
+			if (Reflect.hasField(context, "vsyncMode") && context.vsyncMode != null)
+			{
+				return context.vsyncMode;
+			}
+
+			if (Reflect.hasField(context, "vsync") && context.vsync)
+			{
+				return VSyncMode.On;
+			}
+		}
+
+		return __vsyncMode;
+	}
+
+	@:noCompletion private function __seedFrameConfiguration(attributes:WindowAttributes):Void
+	{
+		if (__frameConfigured)
+		{
+			return;
+		}
+
+		__frameRate = __resolveFrameRate(attributes);
+		__applyFrameConfiguration(__resolveFrameProfile(attributes), __resolveFrameOptions(attributes), __resolveVSyncMode(attributes), true);
+	}
+
+	@:noCompletion private function __setFrameRateFromWindow(value:Float):Float
+	{
+		__frameRate = __normalizeFrameRate(value);
+		__applyFrameConfiguration(__frameProfile, __frameOptions, __vsyncMode, true);
+		return __frameRate;
+	}
+
+	@:noCompletion private inline function __getFrameRate():Float
+	{
+		return __frameRate;
+	}
+
+	@:noCompletion private inline function __normalizeFrameRate(value:Float):Float
+	{
+		return (value > 10000) ? 10000 : value;
 	}
 }
 

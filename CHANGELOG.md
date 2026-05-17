@@ -1,6 +1,22 @@
 Changelog
 =========
 
+8.3.2 (05/13/2026)
+------------------
+
+- Fixed SDL sleep and refined frame timing.
+- Fixed failing to capture backspace key on Android.
+- Fixed GL objects failing to get garbage collected on HashLink.
+- Fixed clipboard failing to update on Android, iOS, iPadOS, and tvOS.
+- Fixed big endian issues in `ArrayBufferView`.
+- Fixed copying between `ArrayBufferView` instances that have different `bytesPerElement` values.
+- Fixed certain OpenGL functions missing from desktop targets that weren't mobile only.
+- Fixed broken compatibility with Haxe 3 when using HXP project.
+- Fixed default OpenAL backend without include.xml.
+- Fixed RunScript o use local haxelib paths.
+- Fixed incompatible-pointer-types error when compiling for HashLink/C with gcc 14 or clang 22.
+- Fixed webassembly compilation and rendering issues.
+
 8.3.1 (02/16/2026)
 ------------------
 
