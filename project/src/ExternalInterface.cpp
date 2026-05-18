@@ -423,6 +423,12 @@ namespace lime {
 		bytes.Set (data);
 		resource = Resource (&bytes);
 
+		if (WAV::Decode (&resource, &audioBuffer)) {
+
+			return audioBuffer.Value (buffer);
+
+		}
+
 		#ifdef LIME_SDL_SOUND
 		if (SDLSound::Decode (&resource, &audioBuffer)) {
 
@@ -430,13 +436,6 @@ namespace lime {
 
 		}
 		#endif
-
-
-		if (WAV::Decode (&resource, &audioBuffer)) {
-
-			return audioBuffer.Value (buffer);
-
-		}
 
 		#ifdef LIME_OGG
 		if (OGG::Decode (&resource, &audioBuffer)) {
@@ -455,6 +454,12 @@ namespace lime {
 
 		Resource resource = Resource (data);
 
+		if (WAV::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+
 		#ifdef LIME_SDL_SOUND
 		if (SDLSound::Decode (&resource, buffer)) {
 
@@ -462,12 +467,6 @@ namespace lime {
 
 		}
 		#endif
-
-		if (WAV::Decode (&resource, buffer)) {
-
-			return buffer;
-
-		}
 
 		#ifdef LIME_OGG
 		if (OGG::Decode (&resource, buffer)) {
@@ -490,6 +489,12 @@ namespace lime {
 
 		resource = Resource (val_string (data));
 
+		if (WAV::Decode (&resource, &audioBuffer)) {
+
+			return audioBuffer.Value (buffer);
+
+		}
+
 		#ifdef LIME_SDL_SOUND
 		if (SDLSound::Decode (&resource, &audioBuffer)) {
 
@@ -497,12 +502,6 @@ namespace lime {
 
 		}
 		#endif
-
-		if (WAV::Decode (&resource, &audioBuffer)) {
-
-			return audioBuffer.Value (buffer);
-
-		}
 
 		#ifdef LIME_OGG
 		if (OGG::Decode (&resource, &audioBuffer)) {
@@ -521,6 +520,12 @@ namespace lime {
 
 		Resource resource = Resource (data ? hl_to_utf8 ((const uchar*)data->bytes) : NULL);
 
+		if (WAV::Decode (&resource, buffer)) {
+
+			return buffer;
+
+		}
+
 		#ifdef LIME_SDL_SOUND
 		if (SDLSound::Decode (&resource, buffer)) {
 
@@ -528,12 +533,6 @@ namespace lime {
 
 		}
 		#endif
-
-		if (WAV::Decode (&resource, buffer)) {
-
-			return buffer;
-
-		}
 
 		#ifdef LIME_OGG
 		if (OGG::Decode (&resource, buffer)) {
