@@ -135,7 +135,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		project.path(sdkPath);
 
-		System.runCommand("", "emcc", ["-c", targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o"], true, false, true);
+		System.runCommand("", "emcc", ["-c", "-fwasm-exceptions", targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o"], true, false, true);
 
 		args = ["Main.o"];
 
@@ -160,9 +160,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 
 		args = args.concat([
-			prefix + "ApplicationMain" + (project.debug ? "-debug" : "") + ".a",
-			"-o",
-			"ApplicationMain.o"
+			prefix + "ApplicationMain" + (project.debug ? "-debug" : "") + ".a"
 		]);
 
 		if (!project.targetFlags.exists("asmjs"))
@@ -190,27 +188,19 @@ class WebAssemblyPlatform extends PlatformTarget
 			}
 		}
 
-		if (project.targetFlags.exists("final") || project.defines.exists("disable-exception-catching") || project.targetFlags.exists("disable-exception-catching"))
-		{
-			args.push("-s");
-			args.push("DISABLE_EXCEPTION_CATCHING=1");
-		}
-		else
-		{
-			args.push("-gsource-map");
-			args.push("-s");
-			args.push("DISABLE_EXCEPTION_CATCHING=0");
-			args.push("-s");
-			args.push("NO_DISABLE_EXCEPTION_CATCHING=1");
-			args.push("-s");
-			args.push("ASSERTIONS=1");
-			// args.push("-s");
-			// args.push("ASSERTIONS=2");
-			// args.push("-s");
-			// args.push("STACK_OVERFLOW_CHECK=2");
-			// args.push("-s");
-			// args.push("DEMANGLE_SUPPORT=1");
-		}
+        // Fix Rendering
+        args.push("-s");
+        args.push("MIN_WEBGL_VERSION=2");
+        args.push("-s");
+        args.push("MAX_WEBGL_VERSION=2");
+
+        // Fix GC
+        args.push("--Wno-limited-postlink-optimizations");
+        // https://github.com/HaxeFoundation/hxcpp/blob/767fe94d19a041147c4f65dea02c89cb206a0758/toolchain/emscripten-toolchain.xml#L29-L33
+        args.push("-s");
+        args.push("BINARYEN_EXTRA_PASSES='--spill-pointers'");
+
+        args.push("-fwasm-exceptions");
 
 		// set initial size
 		// args.push("-s");
@@ -219,29 +209,31 @@ class WebAssemblyPlatform extends PlatformTarget
 		args.push("-s");
 		args.push("STACK_SIZE=1MB");
 
+        args.push("-s");
+        args.push("FETCH=1");
+
 		// args.push("-s");
 		// args.push("SAFE_HEAP=1");
 
-		// if (project.targetFlags.exists("final"))
-		// {
-		// 	args.push("-O3");
-		// }
-		// else if (!project.debug)
-		// {
-		// 	// args.push ("-s");
-		// 	// args.push ("OUTLINING_LIMIT=70000");
-		// 	args.push("-O2");
-		// }
-		// else
-		// {
-		// 	args.push("-O1");
-		// }
-
-		// https://github.com/HaxeFoundation/hxcpp/issues/987
-		args.push("-O0");
+		if (project.targetFlags.exists("final"))
+		{
+		    args.push("-O3");
+		}
+		else if (!project.debug)
+		{
+		    args.push("-O2");
+		}
+		else
+		{
+		    args.push("-O1");
+		}
 
 		args.push("-s");
 		args.push("ALLOW_MEMORY_GROWTH=1");
+
+        if(project.targetFlags.exists("websocket")) {
+            args.push("-lwebsocket.js");
+        }
 
 		if (project.targetFlags.exists("minify"))
 		{
@@ -257,12 +249,6 @@ class WebAssemblyPlatform extends PlatformTarget
 		// args.push ("1");
 		// args.push ("--jcache");
 		// args.push ("-g");
-
-		if (FileSystem.exists(targetDirectory + "/obj/assets"))
-		{
-			args.push("--preload-file");
-			args.push("assets");
-		}
 
 		if (Log.verbose)
 		{
@@ -313,13 +299,6 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		if (project.targetFlags.exists("compress"))
 		{
-			if (FileSystem.exists(targetDirectory + "/bin/" + project.app.file + ".data"))
-			{
-				// var byteArray = ByteArray.readFile (targetDirectory + "/bin/" + project.app.file + ".data");
-				// byteArray.compress (CompressionAlgorithm.GZIP);
-				// File.saveBytes (targetDirectory + "/bin/" + project.app.file + ".data.compress", byteArray);
-			}
-
 			// var byteArray = ByteArray.readFile (targetDirectory + "/bin/" + project.app.file + ".js");
 			// byteArray.compress (CompressionAlgorithm.GZIP);
 			// File.saveBytes (targetDirectory + "/bin/" + project.app.file + ".js.compress", byteArray);
@@ -468,7 +447,21 @@ class WebAssemblyPlatform extends PlatformTarget
 		// ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/cpp", targetDirectory + "/obj", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 
-		copyProjectAssets(destination, targetDirectory + "/obj/assets");
+		for (asset in project.assets)
+		{
+			var path = Path.combine(destination, asset.targetPath);
+
+			if (asset.type == AssetType.TEMPLATE)
+			{
+				System.mkdir(Path.directory(path));
+				AssetHelper.copyAsset(asset, path, context);
+			}
+            else
+            {
+                System.mkdir(Path.directory(path));
+                AssetHelper.copyAsset(asset, path, context);
+            }
+		}
 	}
 
 	@ignore public override function install():Void {}

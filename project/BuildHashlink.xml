@@ -112,6 +112,7 @@
 	</files>
 
 	<files id="mysql">
+		<compilerflag value="-std=gnu17" unless="windows" />
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I/usr/local/include" if="mac"/>
 

@@ -381,7 +381,20 @@ class WindowsPlatform extends PlatformTarget
 					var command:Array<String> = null;
 					if (project.targetFlags.exists("gcc"))
 					{
-						command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-Wl,-subsystem,windows", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
+						command = [
+							"gcc",
+							"-O3",
+							"-o", executablePath,
+							"-std=c11",
+							"-Wl,-subsystem,windows",
+							"-I", Path.combine(targetDirectory, "obj"),
+							Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+							"C:/Windows/System32/dbghelp.dll",
+							// gcc 14 and clang 22 made incompatible-pointer-types an
+							// error instead of a warning, but it's required for
+							// assignment to Dynamic in Haxe
+							"-Wno-error=incompatible-pointer-types"
+						];
 						for (file in System.readDirectory(applicationDirectory))
 						{
 							switch Path.extension(file)

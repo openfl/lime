@@ -57,18 +57,23 @@ namespace lime {
 			virtual void SetTextInputEnabled (bool enabled);
 			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
-			virtual bool SetVisible (bool visible);
+			virtual void SetVSyncMode (int vsyncMode);
 			virtual bool SetAlwaysOnTop (bool alwaysOnTop);
+			virtual bool SetVisible (bool visible);
 			virtual void WarpMouse (int x, int y);
+			virtual int GetVSyncInterval () const;
+			virtual double GetRefreshRate () const;
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
 
 		private:
 
+			int activeSwapInterval;
 			SDL_GLContext context;
 			int contextHeight;
 			int contextWidth;
+			int requestedVSyncMode;
 
 	};
 

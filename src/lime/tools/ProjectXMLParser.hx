@@ -1998,6 +1998,18 @@ class ProjectXMLParser extends HXProject
 						Reflect.setField(windows[id], "colorDepth", parsedValue);
 					}
 
+				case "vsync", "vsync-mode":
+					var parsedVSync = parseVSyncValue(value);
+					if (parsedVSync == null)
+					{
+						Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+					}
+					else
+					{
+						Reflect.setField(windows[id], "vsync", parsedVSync != "off");
+						Reflect.setField(windows[id], "vsyncMode", parsedVSync);
+					}
+
 				default:
 					if (Reflect.hasField(WindowData.expectedFields, name))
 					{
@@ -2048,5 +2060,22 @@ class ProjectXMLParser extends HXProject
 		}
 
 		return newString;
+	}
+
+	private static function parseVSyncValue(value:String):String
+	{
+		switch (value.toLowerCase())
+		{
+			case "true", "on":
+				return "on";
+			case "false", "off":
+				return "off";
+			case "adaptive":
+				return "adaptive";
+			case "auto":
+				return "auto";
+			default:
+				return null;
+		}
 	}
 }

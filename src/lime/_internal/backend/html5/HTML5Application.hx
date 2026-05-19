@@ -4,6 +4,9 @@ import js.html.DeviceMotionEvent;
 import js.html.KeyboardEvent;
 import js.Browser;
 import lime.app.Application;
+import lime.app.FrameOptions;
+import lime.app.FrameProfile;
+import lime.app.VSyncMode;
 import lime.media.AudioManager;
 import lime.system.Orientation;
 import lime.system.Sensor;
@@ -270,6 +273,11 @@ class HTML5Application
 		return keyCode;
 	}
 
+	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
+	{
+		framePeriod = frameRate > 0 ? (1000.0 / frameRate) : -1;
+	}
+
 	public function exec():Int
 	{
 		Browser.window.addEventListener("keydown", handleKeyEvent, false);
@@ -417,6 +425,8 @@ class HTML5Application
 
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
+
+	public function setVSyncMode(mode:VSyncMode):Void {}
 
 	private function handleKeyEvent(event:KeyboardEvent):Void
 	{

@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 env:
   HAXE_VERSION: 4.2.5
+  HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
 
 jobs:
 
@@ -10,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -34,10 +35,7 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
@@ -51,7 +49,7 @@ jobs:
           lime rebuild linux -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Linux-NDLL
           path: |
@@ -59,7 +57,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Linux64-NDLL
           path: |
@@ -67,12 +65,19 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Linux64-Hashlink
           path: |
             templates/bin/hl/Linux64
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor
+          lime test linux -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -97,7 +102,7 @@ jobs:
     runs-on: ubuntu-22.04-arm
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -128,6 +133,7 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
+          haxelib install utest --quiet
 
       - name: Enable HXCPP compile cache
         run: |
@@ -143,13 +149,19 @@ jobs:
         run: |
           lime rebuild linux -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: LinuxArm64-NDLL
           path: |
             ndll/LinuxArm64/
             !**/.gitignore
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test linux -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -174,7 +186,7 @@ jobs:
     runs-on: macos-14
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -205,10 +217,7 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
+          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
@@ -222,7 +231,7 @@ jobs:
           lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Mac64-NDLL
           path: |
@@ -230,7 +239,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MacArm64-NDLL
           path: |
@@ -238,12 +247,19 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Mac64-Hashlink
           path: |
             templates/bin/hl/Mac64
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor
+          lime test mac -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -268,13 +284,18 @@ jobs:
     runs-on: windows-latest
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
       - uses: krdlab/setup-haxe@v2
         with:
           haxe-version: ${{ env.HAXE_VERSION }}
+
+      - uses: joshtynjala/setup-adobe-air-action@v2
+        with:
+          air-version: "33.1"
+          accept-license: true
 
       - name: Set HAXEPATH
         run: |
@@ -286,16 +307,14 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=C:\.hxcpp" >> $Env:GITHUB_ENV
+          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
           haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
+          haxelib run lime config AIR_SDK ${{ env.AIR_HOME }} -eval
 
       - name: Rebuild Lime (Windows)
         run: |
@@ -303,7 +322,7 @@ jobs:
           lime rebuild windows -64 -release -nocolor -verbose -nocffi
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Windows-NDLL
           path: |
@@ -311,7 +330,7 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Windows64-NDLL
           path: |
@@ -319,18 +338,26 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
-      # - uses: actions/upload-artifact@v4
+      # - uses: actions/upload-artifact@v7
       #   with:
       #     name: Windows-Hashlink
       #     path: |
       #       templates/bin/hl/Windows
       #     if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Windows64-Hashlink
           path: |
             templates/bin/hl/Windows64
           if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor
+          lime test air -release -verbose -nocolor
+          lime test windows -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -356,7 +383,7 @@ jobs:
           rm ndll/Windows64/*
           lime rebuild windows -Dmingw -D MINGW_ROOT=C:\mingw64 -64 -clean -release -nocolor -verbose -nocffi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Windows64-MinGW-NDLL
           path: |
@@ -372,7 +399,7 @@ jobs:
       fail-fast: false
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -383,7 +410,7 @@ jobs:
         with:
           ndk-version: ${{ matrix.ndk-version }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: "zulu"
           java-version: 17
@@ -402,10 +429,6 @@ jobs:
           haxelib install ../hxcpp-4.3.45.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
-
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
       - name: Prepare Lime
         run: |
@@ -426,7 +449,7 @@ jobs:
         run: |
           lime rebuild android -release -nocolor -verbose -nocffi -eval
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Android-NDLL
           path: |
@@ -457,7 +480,7 @@ jobs:
     runs-on: macos-14
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -476,10 +499,6 @@ jobs:
           haxelib install format --quiet
           haxelib install hxp --quiet
 
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-
       - name: Prepare Lime
         run: |
           haxelib dev lime ${{ github.workspace }}
@@ -489,7 +508,7 @@ jobs:
         run: |
           lime rebuild ios -clean -release -verbose -nocolor -eval
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: iPhone-NDLL
           path: |
@@ -521,7 +540,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -542,10 +561,6 @@ jobs:
           haxelib install svg --quiet
           haxelib install openfl --quiet
 
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-
       - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
@@ -557,62 +572,62 @@ jobs:
           cp project/lib/hashlink/src/hl.h templates/bin/hl/include/hl.h
           cp project/lib/hashlink/src/hlc_main.c templates/bin/hl/include/hlc_main.c
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Android-NDLL
           path: ndll/Android/
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: iPhone-NDLL
           path: ndll/iPhone/
 
-      # - uses: actions/download-artifact@v4
+      # - uses: actions/download-artifact@v8
       #   with:
       #     name: Linux-NDLL
       #     path: ndll/Linux/
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Linux64-NDLL
           path: ndll/Linux64/
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Mac64-NDLL
           path: ndll/Mac64/
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: MacArm64-NDLL
           path: ndll/MacArm64/
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Windows-NDLL
           path: ndll/Windows/
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Windows64-NDLL
           path: ndll/Windows64/
 
-      # - uses: actions/download-artifact@v4
+      # - uses: actions/download-artifact@v8
       #   with:
       #     name: Windows-Hashlink
       #     path: templates/bin/hl/Windows
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Windows64-Hashlink
           path: templates/bin/hl/Windows64
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Mac64-Hashlink
           path: templates/bin/hl/Mac64
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Linux64-Hashlink
           path: templates/bin/hl/Linux64
@@ -627,7 +642,7 @@ jobs:
         run: |
           haxe svg.hxml
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: lime-haxelib
           path: |
@@ -636,13 +651,14 @@ jobs:
             !haxe-*-*/
             !neko-*-*/
             !.git/
+          compression-level: 9
           if-no-files-found: error
 
   docs:
     runs-on: ubuntu-22.04
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -662,7 +678,7 @@ jobs:
         run: |
           haxe build.hxml
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: lime-docs
           path: docs/pages
@@ -672,7 +688,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -715,7 +731,7 @@ jobs:
         haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.6]
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -786,7 +802,7 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -836,7 +852,7 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -869,7 +885,7 @@ jobs:
         haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.6]
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -884,7 +900,7 @@ jobs:
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: lime-haxelib
           path: lime-haxelib
@@ -953,7 +969,7 @@ jobs:
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: lime-haxelib
           path: lime-haxelib

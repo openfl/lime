@@ -65,7 +65,12 @@ class NativeCFFI
 
 	@:cffi private static function lime_application_quit(handle:Dynamic):Int;
 
+	@:cffi private static function lime_application_set_main_loop(handle:Dynamic, profile:Int, frameRate:Float, timePrecision:Int, busyWait:Int,
+		uncapMode:Int):Void;
+
 	@:cffi private static function lime_application_set_frame_rate(handle:Dynamic, value:Float):Void;
+
+	@:cffi private static function lime_application_set_vsync_mode(handle:Dynamic, value:Int):Void;
 
 	@:cffi private static function lime_application_update(handle:Dynamic):Bool;
 
@@ -165,7 +170,11 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_outline_decompose(handle:Dynamic, size:Int):Dynamic;
 
+	@:cffi private static function lime_font_outline_decompose_no_hint(handle:Dynamic, size:Int):Dynamic;
+
 	@:cffi private static function lime_font_render_glyph(handle:Dynamic, index:Int, data:Dynamic):Dynamic;
+
+	@:cffi private static function lime_font_render_glyph_with_flags(handle:Dynamic, index:Int, loadFlags:Int, data:Dynamic):Dynamic;
 
 	@:cffi private static function lime_font_render_glyphs(handle:Dynamic, indices:Dynamic, data:Dynamic):Dynamic;
 
@@ -395,8 +404,12 @@ class NativeCFFI
 	private static var lime_application_exec = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_exec", "oi", false));
 	private static var lime_application_init = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_application_init", "ov", false));
 	private static var lime_application_quit = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_quit", "oi", false));
+	private static var lime_application_set_main_loop = new cpp.Callable<cpp.Object->Int->Float->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_set_main_loop", "oidiiiv", false));
 	private static var lime_application_set_frame_rate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_set_frame_rate", "odv", false));
+	private static var lime_application_set_vsync_mode = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_set_vsync_mode", "oiv", false));
 	private static var lime_application_update = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_application_update", "ob", false));
 	private static var lime_audio_load = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load", "ooo", false));
 	private static var lime_audio_load_bytes = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load_bytes",
@@ -483,8 +496,12 @@ class NativeCFFI
 	private static var lime_font_load_file = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_file", "oo", false));
 	private static var lime_font_outline_decompose = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_outline_decompose",
 		"oio", false));
+	private static var lime_font_outline_decompose_no_hint = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_font_outline_decompose_no_hint", "oio", false));
 	private static var lime_font_render_glyph = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyph", "oioo", false));
+	private static var lime_font_render_glyph_with_flags = new cpp.Callable<cpp.Object->Int->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_font_render_glyph_with_flags", "oiioo", false));
 	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyphs", "oooo", false));
 	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiiv", false));
@@ -685,7 +702,9 @@ class NativeCFFI
 	private static var lime_application_exec = CFFI.load("lime", "lime_application_exec", 1);
 	private static var lime_application_init = CFFI.load("lime", "lime_application_init", 1);
 	private static var lime_application_quit = CFFI.load("lime", "lime_application_quit", 1);
+	private static var lime_application_set_main_loop = CFFI.load("lime", "lime_application_set_main_loop", -1);
 	private static var lime_application_set_frame_rate = CFFI.load("lime", "lime_application_set_frame_rate", 2);
+	private static var lime_application_set_vsync_mode = CFFI.load("lime", "lime_application_set_vsync_mode", 2);
 	private static var lime_application_update = CFFI.load("lime", "lime_application_update", 1);
 	private static var lime_audio_load = CFFI.load("lime", "lime_audio_load", 2);
 	private static var lime_audio_load_bytes = CFFI.load("lime", "lime_audio_load_bytes", 2);
@@ -735,7 +754,9 @@ class NativeCFFI
 	private static var lime_font_load_bytes = CFFI.load("lime", "lime_font_load_bytes", 1);
 	private static var lime_font_load_file = CFFI.load("lime", "lime_font_load_file", 1);
 	private static var lime_font_outline_decompose = CFFI.load("lime", "lime_font_outline_decompose", 2);
+	private static var lime_font_outline_decompose_no_hint = CFFI.load("lime", "lime_font_outline_decompose_no_hint", 2);
 	private static var lime_font_render_glyph = CFFI.load("lime", "lime_font_render_glyph", 3);
+	private static var lime_font_render_glyph_with_flags = CFFI.load("lime", "lime_font_render_glyph_with_flags", 4);
 	private static var lime_font_render_glyphs = CFFI.load("lime", "lime_font_render_glyphs", 3);
 	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 3);
 	private static var lime_gamepad_add_mappings = CFFI.load("lime", "lime_gamepad_add_mappings", 1);
@@ -868,7 +889,12 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_application_set_main_loop") private static function lime_application_set_main_loop(handle:CFFIPointer, profile:Int,
+		frameRate:Float, timePrecision:Int, busyWait:Int, uncapMode:Int):Void {}
+
 	@:hlNative("lime", "hl_application_set_frame_rate") private static function lime_application_set_frame_rate(handle:CFFIPointer, value:Float):Void {}
+
+	@:hlNative("lime", "hl_application_set_vsync_mode") private static function lime_application_set_vsync_mode(handle:CFFIPointer, value:Int):Void {}
 
 	@:hlNative("lime", "hl_application_update") private static function lime_application_update(handle:CFFIPointer):Bool
 	{
@@ -1098,7 +1124,18 @@ class NativeCFFI
 		return null;
 	}
 
+	@:hlNative("lime", "hl_font_outline_decompose_no_hint") private static function lime_font_outline_decompose_no_hint(handle:CFFIPointer, size:Int):Dynamic
+	{
+		return null;
+	}
+
 	@:hlNative("lime", "hl_font_render_glyph") private static function lime_font_render_glyph(handle:CFFIPointer, index:Int, data:Bytes):Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_font_render_glyph_with_flags") private static function lime_font_render_glyph_with_flags(handle:CFFIPointer, index:Int,
+			loadFlags:Int, data:Bytes):Bytes
 	{
 		return null;
 	}
@@ -5952,6 +5989,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_hb_ft_font_create_referenced(font:CFFIPointer):CFFIPointer;
 
+	@:cffi private static function lime_hb_ft_font_changed(font:CFFIPointer):Void;
+
 	@:cffi private static function lime_hb_ft_font_get_load_flags(font:CFFIPointer):Int;
 
 	@:cffi private static function lime_hb_ft_font_set_load_flags(font:CFFIPointer, loadFlags:Int):Void;
@@ -6151,6 +6190,7 @@ class NativeCFFI
 	private static var lime_hb_ft_font_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_hb_ft_font_create", "oo", false));
 	private static var lime_hb_ft_font_create_referenced = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_hb_ft_font_create_referenced", "oo", false));
+	private static var lime_hb_ft_font_changed = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_hb_ft_font_changed", "ov", false));
 	private static var lime_hb_ft_font_get_load_flags = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_hb_ft_font_get_load_flags", "oi",
 		false));
 	private static var lime_hb_ft_font_set_load_flags = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -6286,6 +6326,7 @@ class NativeCFFI
 		"lime_hb_font_subtract_glyph_origin_for_direction", 5);
 	private static var lime_hb_ft_font_create:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_ft_font_create", 1);
 	private static var lime_hb_ft_font_create_referenced:Dynamic->Dynamic = CFFI.load("lime", "lime_hb_ft_font_create_referenced", 1);
+	private static var lime_hb_ft_font_changed:Dynamic->Void = CFFI.load("lime", "lime_hb_ft_font_changed", 1);
 	private static var lime_hb_ft_font_get_load_flags:Dynamic->Int = CFFI.load("lime", "lime_hb_ft_font_get_load_flags", 1);
 	private static var lime_hb_ft_font_set_load_flags:Dynamic->Int->Void = CFFI.load("lime", "lime_hb_ft_font_set_load_flags", 2);
 	private static var lime_hb_language_from_string:String->Dynamic = CFFI.load("lime", "lime_hb_language_from_string", 1);
@@ -6646,6 +6687,8 @@ class NativeCFFI
 	{
 		return null;
 	}
+
+	@:hlNative("lime", "hl_hb_ft_font_changed") private static function lime_hb_ft_font_changed(font:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_hb_ft_font_get_load_flags") private static function lime_hb_ft_font_get_load_flags(font:CFFIPointer):Int
 	{
@@ -7062,3 +7105,4 @@ class NativeCFFI
 	#end
 	#end
 }
+

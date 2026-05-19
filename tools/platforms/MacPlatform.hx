@@ -230,7 +230,20 @@ class MacPlatform extends PlatformTarget
 				// compiler command with the `arch -x86_64` command.
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
-				var command = ["arch", "-x86_64", compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,@executable_path", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+				var command = [
+					"arch", "-x86_64",
+					compiler,
+					"-O3",
+					"-o", executablePath,
+					"-std=c11",
+					"-Wl,-rpath,@executable_path",
+					"-I", Path.combine(targetDirectory, "obj"),
+					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+					// gcc 14 and clang 22 made incompatible-pointer-types an
+					// error instead of a warning, but it's required for
+					// assignment to Dynamic in Haxe
+					"-Wno-error=incompatible-pointer-types"
+				];
 				for (file in System.readDirectory(executableDirectory))
 				{
 					switch Path.extension(file)
