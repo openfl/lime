@@ -44,6 +44,12 @@
    #define OGL_EXT(func,ret,args) \
    {\
       *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func);\
+      if (!lime::func) \
+         *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func "OES");\
+      if (!lime::func) \
+         *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func "ARB");\
+      if (!lime::func) \
+         *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func "EXT");\
    }
 
    #define EGL_EXT(func,ret,args) \

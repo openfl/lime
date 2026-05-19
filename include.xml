@@ -7,18 +7,19 @@
 
 	<set name="lime" />
 
-	<define name="native" if="cpp || neko || nodejs || cs || java || hl" />
+	<define name="native" if="cpp || neko || nodejs || cs || java || hl || winrt" />
 	<define name="howlerjs" if="html5" />
 
 	<define name="lime-cairo" if="native" />
 	<define name="lime-canvas" if="html5" />
 	<define name="lime-cffi" if="native" />
-	<define name="lime-curl" unless="lime-console || lime-switch || emscripten || flash || html5" />
+	<define name="lime-curl" unless="lime-console || lime-switch || emscripten || flash || html5 || winrt" />
 	<define name="lime-dom" if="html5" />
-	<define name="lime-harfbuzz" if="native" />
+	<define name="lime-harfbuzz" if="native" unless="winrt" />
 	<define name="lime-howlerjs" if="html5" />
 	<define name="lime-html5" if="html5" />
 	<define name="lime-native" if="native" />
+	<!-- WinRT requires MojoAL (XAudio2-based); OpenAL Soft uses WASAPI/Win32 APIs unavailable in WinRT sandbox -->
 	<define name="lime-openalsoft" if="windows || linux || mac || android" unless="static_link || lime-mojoal || winrt" />
 	<define name="lime-mojoal" if="lime-switch || static_link || winrt" unless="lime-openalsoft" />
 	<define name="lime-openal" if="ios || tvos || emscripten || lime-openalsoft || lime-mojoal" />
@@ -122,6 +123,16 @@
 
 			<dependency name="pthread" />
 			<dependency name="openal" if="lime-openal" />
+
+		</section>
+
+		<section if="winrt">
+
+			<lib name="mmdevapi.lib" />
+			<lib name="Synchronization.lib" />
+			
+			<dependency path="dependencies/angle/winrt/x64/libEGL.dll" embed="true" />
+			<dependency path="dependencies/angle/winrt/x64/libGLESv2.dll" embed="true" />
 
 		</section>
 

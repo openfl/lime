@@ -54,6 +54,7 @@
         <compilerflag value="-D__TVOS__" if="tvos" />
 
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl_sound/src/" />
+        <compilerflag value="/Zp8" if="windows HXCPP_ARM64" />
 
         <section if="winrt">
 

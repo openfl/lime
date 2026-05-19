@@ -405,10 +405,16 @@ class PlatformSetup
 				case "electron":
 					setupElectron();
 
-				case "windows", "winrt":
+				case "windows":
 					if (System.hostPlatform == WINDOWS)
 					{
 						setupWindows();
+					}
+
+				case "winrt":
+					if (System.hostPlatform == WINDOWS)
+					{
+						setupWinRT();
 					}
 
 				case "neko", "cs", "uwp", "winjs", "nodejs", "java":
@@ -1213,6 +1219,79 @@ class PlatformSetup
 
 		Log.println("");
 		Log.println("Setup complete.");
+	}
+
+	public static function setupWinRT():Void
+	{
+		Log.println("\x1b[1mIn order to build native executables for WinRT/UWP, you must have");
+		Log.println("the ANGLE translation layer binaries for OpenGL support.\x1b[0m");
+		Log.println("");
+
+		var limePath = Haxelib.getPath(new Haxelib("lime"));
+		var targetPath = Path.combine(limePath, "dependencies/angle");
+
+		if (!FileSystem.exists(Path.combine(targetPath, "winrt/x64/libEGL.dll")))
+		{
+			var answer = CLIHelper.ask("Would you like to download and install the ANGLE binaries from NuGet now?");
+
+			if (answer == YES || answer == ALWAYS)
+			{
+				var tempPath = Path.combine(limePath, "dependencies/angle_temp");
+				System.mkdir(tempPath);
+				
+				var nupkgPath = Path.combine(tempPath, "angle.zip");
+				var version = "2.1.13";
+				
+				Log.println("Checking for latest ANGLE version...");
+				try {
+					var req = new haxe.Http("https://api.nuget.org/v3-flatcontainer/angle.windowsstore/index.json");
+					var response = "";
+					req.onData = function(data) { response = data; };
+					req.request(false);
+					
+					var json:Dynamic = haxe.Json.parse(response);
+					var versions:Array<String> = json.versions;
+					if (versions != null && versions.length > 0) {
+						version = versions[versions.length - 1];
+					}
+				} catch(e:Dynamic) {}
+				
+				Log.println("Downloading ANGLE v" + version + "...");
+				var nugetUrl = 'https://api.nuget.org/v3-flatcontainer/angle.windowsstore/$version/angle.windowsstore.$version.nupkg';
+				
+				downloadFile(nugetUrl, nupkgPath);
+				
+				Log.println("Extracting ANGLE...");
+				extractFile(nupkgPath, tempPath);
+				
+				var paths = [
+					{ src: "bin/UAP/x64", dest: "winrt/x64" },
+					{ src: "bin/UAP/Win32", dest: "winrt/x86" },
+					{ src: "bin/UAP/ARM", dest: "winrt/arm" },
+					{ src: "bin/UAP/ARM64", dest: "winrt/arm64" }
+				];
+
+				for (p in paths) {
+					var srcDir = Path.combine(tempPath, p.src);
+					if (FileSystem.exists(srcDir)) {
+						System.mkdir(Path.combine(targetPath, p.dest));
+						for (file in ["libEGL.dll", "libEGL.lib", "libGLESv2.dll", "libGLESv2.lib"]) {
+							var srcFile = Path.combine(srcDir, file);
+							if (FileSystem.exists(srcFile)) {
+								File.copy(srcFile, Path.combine(targetPath, p.dest + "/" + file));
+							}
+						}
+					}
+				}
+
+				try { System.runCommand("", "rmdir", ["/S", "/Q", tempPath], false); } catch(e:Dynamic) {}
+				
+				Log.println("ANGLE binaries installed successfully!");
+			}
+		}
+
+		// Fallback to standard Windows setup checks (Visual Studio etc.)
+		setupWindows();
 	}
 
 	public static function setupWindows():Void
