@@ -115,17 +115,20 @@ class NativeWindow
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
-		if (handle != null)
+		if (handle == null)
 		{
-			parent.__width = NativeCFFI.lime_window_get_width(handle);
-
-			parent.__height = NativeCFFI.lime_window_get_height(handle);
-			parent.__x = NativeCFFI.lime_window_get_x(handle);
-			parent.__y = NativeCFFI.lime_window_get_y(handle);
-			parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
-
-			parent.id = NativeCFFI.lime_window_get_id(handle);
+			frameRate = resolvedFrameRate;
+			return;
 		}
+
+		parent.__width = NativeCFFI.lime_window_get_width(handle);
+
+		parent.__height = NativeCFFI.lime_window_get_height(handle);
+		parent.__x = NativeCFFI.lime_window_get_x(handle);
+		parent.__y = NativeCFFI.lime_window_get_y(handle);
+		parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
+
+		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
 
 		var context = new RenderContext();
