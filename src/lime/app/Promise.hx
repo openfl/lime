@@ -1,5 +1,6 @@
 package lime.app;
 
+import lime._internal.utils.MainLoop;
 import lime.app.Future;
 import lime.system.ThreadPool;
 import lime.system.WorkOutput;
@@ -105,7 +106,7 @@ class Promise<T>
 	{
 		if (!ThreadPool.isMainThread())
 		{
-			haxe.MainLoop.runInMainThread(complete.bind(data));
+			MainLoop.runInMainThread(complete.bind(data));
 			return this;
 		}
 
@@ -197,7 +198,7 @@ class Promise<T>
 	{
 		if (!ThreadPool.isMainThread())
 		{
-			haxe.MainLoop.runInMainThread(error.bind(msg));
+			MainLoop.runInMainThread(error.bind(msg));
 			return this;
 		}
 
@@ -236,7 +237,7 @@ class Promise<T>
 	{
 		if (!ThreadPool.isMainThread())
 		{
-			haxe.MainLoop.runInMainThread(this.progress.bind(progress, total));
+			MainLoop.runInMainThread(this.progress.bind(progress, total));
 			return this;
 		}
 
