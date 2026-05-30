@@ -2,7 +2,7 @@ name: CI
 on: [push, pull_request]
 
 env:
-  HAXE_VERSION: 4.2.5
+  HAXE_VERSION: latest
   HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
 
 jobs:
@@ -728,7 +728,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.6]
+        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.7, latest]
     steps:
 
       - uses: actions/checkout@v6
