@@ -135,10 +135,6 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
-
       - name: Rebuild Lime tools
         run: |
           haxelib dev lime ${{ github.workspace }}
@@ -728,7 +724,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.6]
+        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.7]
     steps:
 
       - uses: actions/checkout@v6
@@ -882,7 +878,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.6]
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.7]
     steps:
 
       - uses: actions/checkout@v6
