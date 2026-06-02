@@ -3380,7 +3380,7 @@ namespace lime {
 
 	value lime_alc_get_string (value device, int param) {
 
-		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		ALCdevice* alcDevice = val_is_null (device) ? NULL : (ALCdevice*)val_data (device);
 		const char* result = alcGetString (alcDevice, param);
 		return result ? alloc_string (result) : alloc_null ();
 
@@ -3389,8 +3389,9 @@ namespace lime {
 
 	HL_PRIM vbyte* HL_NAME(hl_alc_get_string) (HL_CFFIPointer* device, int param) {
 
-		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
 		const char* result = alcGetString (alcDevice, param);
+		if (!result) return 0;
 		int length = strlen (result);
 		char* _result = (char*)malloc (length + 1);
 		strcpy (_result, result);

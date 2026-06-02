@@ -207,7 +207,7 @@ class ALC
 		#end
 	}
 
-	public static function captureOpenDevice(deviceName:String, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	public static function captureOpenDevice(deviceName:String = null, frequency:Int, format:Int, bufferSize:Int):ALDevice
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		var handle = NativeCFFI.lime_alc_capture_open_device(deviceName, frequency, format, bufferSize);
