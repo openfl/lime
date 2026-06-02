@@ -297,10 +297,10 @@ class ProjectXMLParser extends HXProject
 	{
 		var path = "";
 		var embed:Null<Bool> = null;
-		var library = null;
+		var library:String = null;
 		var targetPath = "";
-		var glyphs = null;
-		var type = null;
+		var glyphs:String = null;
+		var type:AssetType = null;
 
 		if (element.has.path)
 		{
@@ -948,7 +948,7 @@ class ProjectXMLParser extends HXProject
 				case "include":
 					var path = "";
 					var addSourcePath = true;
-					var haxelib = null;
+					var haxelib:Haxelib = null;
 
 					if (element.has.haxelib)
 					{
@@ -1045,7 +1045,7 @@ class ProjectXMLParser extends HXProject
 					var name = substitute(element.att.name);
 					var version = "";
 					var optional = false;
-					var path = null;
+					var path:String = null;
 
 					if (element.has.version)
 					{
@@ -1125,10 +1125,10 @@ class ProjectXMLParser extends HXProject
 
 				case "ndll":
 					var name = substitute(element.att.name);
-					var haxelib = null;
+					var haxelib:Haxelib = null;
 					var staticLink:Null<Bool> = null;
 					var registerStatics = true;
-					var subdirectory = null;
+					var subdirectory:String = null;
 
 					if (element.has.haxelib)
 					{
@@ -1172,6 +1172,18 @@ class ProjectXMLParser extends HXProject
 						{
 							ArrayTools.addUnique(architectures, Reflect.field(Architecture, name.toUpperCase()));
 						}
+						else if (name.toLowerCase() == "x86_64")
+						{
+							ArrayTools.addUnique(architectures, Architecture.X64);
+						}
+						else if (name.toLowerCase() == "x86_32")
+						{
+							ArrayTools.addUnique(architectures, Architecture.X86);
+						}
+						else
+						{
+							Log.warn("Ignoring unknown architecture: " + name);
+						}
 					}
 
 					if (element.has.exclude)
@@ -1181,6 +1193,18 @@ class ProjectXMLParser extends HXProject
 						if (Reflect.hasField(Architecture, exclude.toUpperCase()))
 						{
 							ArrayTools.addUnique(excludeArchitectures, Reflect.field(Architecture, exclude.toUpperCase()));
+						}
+						else if (exclude.toLowerCase() == "x86_64")
+						{
+							ArrayTools.addUnique(excludeArchitectures, Architecture.X64);
+						}
+						else if (exclude.toLowerCase() == "x86_32")
+						{
+							ArrayTools.addUnique(excludeArchitectures, Architecture.X86);
+						}
+						else
+						{
+							Log.warn("Ignoring unknown architecture: " + exclude);
 						}
 					}
 
@@ -1457,9 +1481,9 @@ class ProjectXMLParser extends HXProject
 					}
 					else
 					{
-						var path = null;
+						var path:String = null;
 						var name = "";
-						var type = null;
+						var type:String = null;
 						var embed:Null<Bool> = null;
 						var preload = false;
 						var generate = false;
@@ -1960,6 +1984,15 @@ class ProjectXMLParser extends HXProject
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
 
+				case "renderer":
+					var renderType = Std.string(value).toLowerCase();
+					Reflect.setField(windows[id], "renderType", renderType);
+					if (renderType == "vulkan")
+					{
+						defines.set("lime-vulkan", "");
+						haxedefs.set("lime-vulkan", "");
+					}
+
 				case "allow-high-dpi":
 					Reflect.setField(windows[id], "allowHighDPI", value == "true");
 
@@ -1972,6 +2005,18 @@ class ProjectXMLParser extends HXProject
 					else
 					{
 						Reflect.setField(windows[id], "colorDepth", parsedValue);
+					}
+
+				case "vsync", "vsync-mode":
+					var parsedVSync = parseVSyncValue(value);
+					if (parsedVSync == null)
+					{
+						Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+					}
+					else
+					{
+						Reflect.setField(windows[id], "vsync", parsedVSync != "off");
+						Reflect.setField(windows[id], "vsyncMode", parsedVSync);
 					}
 
 				default:
@@ -1989,7 +2034,7 @@ class ProjectXMLParser extends HXProject
 
 	public function process(projectFile:String, useExtensionPath:Bool):Void
 	{
-		var xml = null;
+		var xml:Access = null;
 		var extensionPath = "";
 
 		try
@@ -2024,5 +2069,22 @@ class ProjectXMLParser extends HXProject
 		}
 
 		return newString;
+	}
+
+	private static function parseVSyncValue(value:String):String
+	{
+		switch (value.toLowerCase())
+		{
+			case "true", "on":
+				return "on";
+			case "false", "off":
+				return "off";
+			case "adaptive":
+				return "adaptive";
+			case "auto":
+				return "auto";
+			default:
+				return null;
+		}
 	}
 }

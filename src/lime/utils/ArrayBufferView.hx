@@ -2,8 +2,14 @@ package lime.utils;
 
 #if (js && !doc_gen)
 typedef ArrayBufferView = #if haxe4 js.lib.ArrayBufferView #else js.html.ArrayBufferView #end;
-#else #if !lime_debug @:fileXml('tags="haxe,release"')
-@:noDebug #end
+#else
+import lime.system.System;
+import lime.system.Endian;
+
+#if !lime_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
 class ArrayBufferView
 {
 	public var type = TypedArrayType.None;
@@ -132,7 +138,20 @@ class ArrayBufferView
 	{
 		if (view != null && array == null)
 		{
-			buffer.blit(toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
+			if (offset + view.length > this.length) {
+				throw TAError.RangeError;
+			}
+			if (bytesPerElement == view.bytesPerElement)
+			{
+				buffer.blit(toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
+			}
+			else
+			{
+				for (i in 0...view.length)
+				{
+					transferElement(view, i, this, offset + i);
+				}
+			}
 		}
 		else if (array != null && view == null)
 		{
@@ -166,6 +185,8 @@ class ArrayBufferView
 	{
 		if (end == null) end = length;
 		var len = end - begin;
+		if (len < 0) len = 0;
+		if (len > this.length) len = this.length;
 		var byte_offset = toByteLength(begin) + byteOffset;
 
 		var view:ArrayBufferView = switch (type)
@@ -280,6 +301,10 @@ class ArrayBufferView
 		// Ideally, native semantics could be used, like cpp.NativeArray.blit
 		var i = 0, len = array.length;
 
+		if (offset + len > this.length) {
+			throw TAError.RangeError;
+		}
+
 		switch (type)
 		{
 			case Int8:
@@ -392,6 +417,61 @@ class ArrayBufferView
 				throw "copyFromArray on a base type ArrayBuffer";
 		}
 	}
+
+	static function transferElement(fromView:ArrayBufferView, fromIndex:Int, toView:ArrayBufferView, toIndex:Int):Void
+	{
+		var fromValue:Dynamic = null;
+		var fromPos = fromView.byteOffset + (fromIndex * fromView.bytesPerElement);
+		switch (fromView.type)
+		{
+			case Int8:
+				fromValue = ArrayBufferIO.getInt8(fromView.buffer, fromPos);
+			case Int16:
+				fromValue = ArrayBufferIO.getInt16(fromView.buffer, fromPos);
+			case Int32:
+				fromValue = ArrayBufferIO.getInt32(fromView.buffer, fromPos);
+			case Uint8:
+				fromValue = ArrayBufferIO.getUint8(fromView.buffer, fromPos);
+			case Uint16:
+				fromValue = ArrayBufferIO.getUint16(fromView.buffer, fromPos);
+			case Uint32:
+				fromValue = ArrayBufferIO.getUint32(fromView.buffer, fromPos);
+			case Uint8Clamped:
+				fromValue = ArrayBufferIO.getUint8(fromView.buffer, fromPos);
+			case Float32:
+				fromValue = ArrayBufferIO.getFloat32(fromView.buffer, fromPos);
+			case Float64:
+				fromValue = ArrayBufferIO.getFloat64(fromView.buffer, fromPos);
+			case None:
+				throw "transferElement on a base type ArrayBuffer";
+		}
+
+		var toPos = toView.byteOffset + (toIndex * toView.bytesPerElement);
+		switch (toView.type)
+		{
+			case Int8:
+				ArrayBufferIO.setInt8(toView.buffer, toPos, fromValue);
+			case Int16:
+				ArrayBufferIO.setInt16(toView.buffer, toPos, fromValue);
+			case Int32:
+				ArrayBufferIO.setInt32(toView.buffer, toPos, fromValue);
+			case Uint8:
+				ArrayBufferIO.setUint8(toView.buffer, toPos, fromValue);
+			case Uint16:
+				ArrayBufferIO.setUint16(toView.buffer, toPos, fromValue);
+			case Uint32:
+				ArrayBufferIO.setUint32(toView.buffer, toPos, fromValue);
+			case Uint8Clamped:
+				ArrayBufferIO.setUint8Clamped(toView.buffer, toPos, fromValue);
+			case Float32:
+				ArrayBufferIO.setFloat32(toView.buffer, toPos, fromValue);
+			case Float64:
+				ArrayBufferIO.setFloat64(toView.buffer, toPos, fromValue);
+			case None:
+				throw "transferElement on a base type ArrayBuffer";
+		}
+	}
+
 } // ArrayBufferView
 
 #end // !js
@@ -426,7 +506,8 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getInt8(buffer:ArrayBuffer, byteOffset:Int):Int
 	{
 		#if cpp
-		return untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset);
+		var val:Int = untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset) & 0xFF;
+		return ((val & 0x80) != 0) ? (val - 0x100) : val;
 		#else
 		var val:Int = buffer.get(byteOffset);
 		return ((val & 0x80) != 0) ? (val - 0x100) : val;
@@ -440,10 +521,10 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function setInt8(buffer:ArrayBuffer, byteOffset:Int, value:Int)
 	{
 		#if cpp
-		untyped __global__.__hxcpp_memory_set_byte(buffer.getData(), byteOffset, value);
+		untyped __global__.__hxcpp_memory_set_byte(buffer.getData(), byteOffset, value & 0xFF);
 		#elseif neko
 		if (value == null) value = 0;
-		untyped __dollar__sset(buffer.b, byteOffset, value & 0xff);
+		untyped __dollar__sset(buffer.b, byteOffset, value & 0xFF);
 		#else
 		buffer.set(byteOffset, value);
 		#end
@@ -456,7 +537,7 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getUint8(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
 	{
 		#if cpp
-		return untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset) & 0xff;
+		return untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset) & 0xFF;
 		#else
 		return buffer.get(byteOffset);
 		#end
@@ -478,7 +559,7 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function setUint8(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
 	{
 		#if cpp
-		untyped __global__.__hxcpp_memory_set_byte(buffer.getData(), byteOffset, value);
+		untyped __global__.__hxcpp_memory_set_byte(buffer.getData(), byteOffset, value & 0xFF);
 		#else
 		#if neko
 		if (value == null) value = 0;
@@ -505,13 +586,15 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getInt16_BE(buffer:ArrayBuffer, byteOffset:Int):Int
 	{
 		#if cpp
-		untyped return __global__.__hxcpp_memory_get_i16(buffer.getData(), byteOffset);
+		var bufferData = buffer.getData();
+		var ch1:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset) & 0xFF;
+		var ch2:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 1) & 0xFF;
+		var val = ((ch1 << 8) | ch2);
+		return ((val & 0x8000) != 0) ? (val - 0x10000) : (val);
 		#else
 		var ch1 = buffer.get(byteOffset);
 		var ch2 = buffer.get(byteOffset + 1);
-
 		var val = ((ch1 << 8) | ch2);
-
 		return ((val & 0x8000) != 0) ? (val - 0x10000) : (val);
 		#end
 	}
@@ -523,26 +606,28 @@ abstract TypedArrayType(Int) from Int to Int
 		#elseif neko
 		if (value == null) value = 0;
 		untyped var b = buffer.b;
-		untyped __dollar__sset(b, byteOffset, (value) & 0xff);
-		untyped __dollar__sset(b, byteOffset + 1, (value >> 8) & 0xff);
+		untyped __dollar__sset(b, byteOffset, (value) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 1, (value >> 8) & 0xFF);
 		#else
-		buffer.set(byteOffset, (value) & 0xff);
-		buffer.set(byteOffset + 1, (value >> 8) & 0xff);
+		buffer.set(byteOffset, (value) & 0xFF);
+		buffer.set(byteOffset + 1, (value >> 8) & 0xFF);
 		#end
 	}
 
 	public static function setInt16_BE(buffer:ArrayBuffer, byteOffset:Int, value:Int)
 	{
 		#if cpp
-		untyped __global__.__hxcpp_memory_set_i16(buffer.getData(), byteOffset, value);
+		var bufferData = buffer.getData();
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset, (value >> 8) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 1, value & 0xFF);
 		#elseif neko
 		if (value == null) value = 0;
 		untyped var b = buffer.b;
-		untyped __dollar__sset(b, byteOffset, (value >> 8) & 0xff);
-		untyped __dollar__sset(b, byteOffset + 1, (value) & 0xff);
+		untyped __dollar__sset(b, byteOffset, (value >> 8) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 1, (value) & 0xFF);
 		#else
-		buffer.set(byteOffset, (value >> 8) & 0xff);
-		buffer.set(byteOffset + 1, (value) & 0xff);
+		buffer.set(byteOffset, (value >> 8) & 0xFF);
+		buffer.set(byteOffset + 1, (value) & 0xFF);
 		#end
 	} // setInt16_BE
 
@@ -553,7 +638,7 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getUint16(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
 	{
 		#if cpp
-		untyped return __global__.__hxcpp_memory_get_ui16(buffer.getData(), byteOffset) & 0xffff;
+		untyped return __global__.__hxcpp_memory_get_ui16(buffer.getData(), byteOffset) & 0xFFFF;
 		#else
 		var ch1 = buffer.get(byteOffset);
 		var ch2 = buffer.get(byteOffset + 1);
@@ -569,11 +654,13 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getUint16_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
 	{
 		#if cpp
-		untyped return __global__.__hxcpp_memory_get_ui16(buffer.getData(), byteOffset) & 0xffff;
+		var bufferData = buffer.getData();
+		var ch1:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset) & 0xFF;
+		var ch2:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 1) & 0xFF;
+		return ((ch1 << 8) | ch2);
 		#else
 		var ch1 = buffer.get(byteOffset);
 		var ch2 = buffer.get(byteOffset + 1);
-
 		return ((ch1 << 8) | ch2);
 		#end
 	}
@@ -598,10 +685,17 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function setUint16_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
 	{
 		#if cpp
-		// :todo: Big endian ui16
-		untyped __global__.__hxcpp_memory_set_ui16(buffer.getData(), byteOffset, value);
+		var bufferData = buffer.getData();
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset, (value >> 8) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 1, value & 0xFF);
+		#elseif neko
+		if (value == null) value = 0;
+		untyped var b = buffer.b;
+		untyped __dollar__sset(b, byteOffset, (value >> 8) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 1, (value) & 0xFF);
 		#else
-		setInt16_BE(buffer, byteOffset, value);
+		buffer.set(byteOffset, (value >> 8) & 0xFF);
+		buffer.set(byteOffset + 1, (value) & 0xFF);
 		#end
 	}
 
@@ -626,9 +720,18 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getInt32_BE(buffer:ArrayBuffer, byteOffset:Int):Int
 	{
 		#if cpp
-		untyped return __global__.__hxcpp_memory_get_i32(buffer.getData(), byteOffset);
+		var bufferData = buffer.getData();
+		var ch1:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset) & 0xFF;
+		var ch2:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 1) & 0xFF;
+		var ch3:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 2) & 0xFF;
+		var ch4:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 3) & 0xFF;
+		return (ch1 << 24) | (ch2 << 16) | (ch3 << 8) | ch4;
 		#else
-		return buffer.getInt32(byteOffset);
+		var ch1 = buffer.get(byteOffset);
+		var ch2 = buffer.get(byteOffset + 1);
+		var ch3 = buffer.get(byteOffset + 2);
+		var ch4 = buffer.get(byteOffset + 3);
+		return (ch1 << 24) | (ch2 << 16) | (ch3 << 8) | ch4;
 		#end
 	}
 
@@ -656,13 +759,23 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function setInt32_BE(buffer:ArrayBuffer, byteOffset:Int, value:Int)
 	{
 		#if cpp
-		untyped __global__.__hxcpp_memory_set_i32(buffer.getData(), byteOffset, value);
-		#else
-		#if neko
+		var bufferData = buffer.getData();
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset, (value >> 24) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 1, (value >> 16) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 2, (value >> 8) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 3, value & 0xFF);
+		#elseif neko
 		if (value == null) value = 0;
-		#end
-
-		buffer.setInt32(byteOffset, value);
+		untyped var b = buffer.b;
+		untyped __dollar__sset(b, byteOffset, (value >> 24) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 1, (value >> 16) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 2, (value >> 8) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 3, value & 0xFF);
+		#else
+		buffer.set(byteOffset, (value >> 24) & 0xFF);
+		buffer.set(byteOffset + 1, (value >> 16) & 0xFF);
+		buffer.set(byteOffset + 2, (value >> 8) & 0xFF);
+		buffer.set(byteOffset + 3, value & 0xFF);
 		#end
 	}
 
@@ -675,7 +788,11 @@ abstract TypedArrayType(Int) from Int to Int
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui32(buffer.getData(), byteOffset);
 		#else
-		return getInt32(buffer, byteOffset);
+		var ch1:Int = buffer.get(byteOffset);
+		var ch2:Int = buffer.get(byteOffset + 1);
+		var ch3:Int = buffer.get(byteOffset + 2);
+		var ch4:Int = buffer.get(byteOffset + 3);
+		return ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
 		#end
 	}
 
@@ -686,9 +803,18 @@ abstract TypedArrayType(Int) from Int to Int
 	public static function getUint32_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
 	{
 		#if cpp
-		untyped return __global__.__hxcpp_memory_get_ui32(buffer.getData(), byteOffset);
+		var bufferData = buffer.getData();
+		var ch1:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset) & 0xFF;
+		var ch2:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 1) & 0xFF;
+		var ch3:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 2) & 0xFF;
+		var ch4:Int = untyped __global__.__hxcpp_memory_get_byte(bufferData, byteOffset + 3) & 0xFF;
+		return (ch1 << 24) | (ch2 << 16) | (ch3 << 8) | ch4;
 		#else
-		return getInt32_BE(buffer, byteOffset);
+		var ch1 = buffer.get(byteOffset);
+		var ch2 = buffer.get(byteOffset + 1);
+		var ch3 = buffer.get(byteOffset + 2);
+		var ch4 = buffer.get(byteOffset + 3);
+		return (ch1 << 24) | (ch2 << 16) | (ch3 << 8) | ch4;
 		#end
 	}
 
@@ -709,12 +835,26 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint32_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	public static function setUint32_BE(buffer:ArrayBuffer, byteOffset:Int, value:UInt):Void
 	{
 		#if cpp
-		untyped __global__.__hxcpp_memory_set_ui32(buffer.getData(), byteOffset, value);
+		var bufferData = buffer.getData();
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset, (value >> 24) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 1, (value >> 16) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 2, (value >> 8) & 0xFF);
+		untyped __global__.__hxcpp_memory_set_byte(bufferData, byteOffset + 3, value & 0xFF);
+		#elseif neko
+		if (value == null) value = 0;
+		untyped var b = buffer.b;
+		untyped __dollar__sset(b, byteOffset, (value >> 24) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 1, (value >> 16) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 2, (value >> 8) & 0xFF);
+		untyped __dollar__sset(b, byteOffset + 3, value & 0xFF);
 		#else
-		setInt32_BE(buffer, byteOffset, value);
+		buffer.set(byteOffset, (value >> 24) & 0xFF);
+		buffer.set(byteOffset + 1, (value >> 16) & 0xFF);
+		buffer.set(byteOffset + 2, (value >> 8) & 0xFF);
+		buffer.set(byteOffset + 3, value & 0xFF);
 		#end
 	}
 

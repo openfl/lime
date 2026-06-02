@@ -57,6 +57,19 @@ namespace lime {
 	std::map<void*, CURL_XferInfo*> xferInfoValues;
 	Mutex curl_gc_mutex;
 
+	void free_header_values (const std::vector<char*>* values) {
+
+		if (values) {
+
+			for (auto it = values->begin (); it != values->end (); ++it) {
+
+				free (*it);
+
+			}
+
+		}
+
+	}
 
 	void gc_curl (value handle) {
 
@@ -121,6 +134,7 @@ namespace lime {
 				std::vector<char*>* values = headerValues[handle];
 				headerCallbacks.erase (handle);
 				headerValues.erase (handle);
+				free_header_values (values);
 				delete callback;
 				delete values;
 
@@ -254,6 +268,7 @@ namespace lime {
 				std::vector<char*>* values = headerValues[handle];
 				headerCallbacks.erase (handle);
 				headerValues.erase (handle);
+				free_header_values (values);
 				delete callback;
 				delete values;
 
@@ -581,6 +596,7 @@ namespace lime {
 
 				}
 
+				free_header_values (values);
 				values->clear ();
 
 			}
@@ -688,6 +704,7 @@ namespace lime {
 
 				}
 
+				free_header_values (values);
 				values->clear ();
 
 			}
@@ -1691,8 +1708,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 
-				if (headerCallbacks.find (handle) == headerCallbacks.end ()) {
+				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
+					free_header_values (headerValues[handle]);
 					delete headerCallbacks[handle];
 					delete headerValues[handle];
 
@@ -2118,8 +2136,9 @@ namespace lime {
 			{
 				curl_gc_mutex.Lock ();
 
-				if (headerCallbacks.find (handle) == headerCallbacks.end ()) {
+				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
+					free_header_values (headerValues[handle]);
 					delete headerCallbacks[handle];
 					delete headerValues[handle];
 

@@ -375,7 +375,20 @@ class WindowsPlatform extends PlatformTarget
 					var command:Array<String> = null;
 					if (project.targetFlags.exists("gcc"))
 					{
-						command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-Wl,-subsystem,windows", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
+						command = [
+							"gcc",
+							"-O3",
+							"-o", executablePath,
+							"-std=c11",
+							"-Wl,-subsystem,windows",
+							"-I", Path.combine(targetDirectory, "obj"),
+							Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+							"C:/Windows/System32/dbghelp.dll",
+							// gcc 14 and clang 22 made incompatible-pointer-types an
+							// error instead of a warning, but it's required for
+							// assignment to Dynamic in Haxe
+							"-Wno-error=incompatible-pointer-types"
+						];
 						for (file in System.readDirectory(applicationDirectory))
 						{
 							switch Path.extension(file)
@@ -502,8 +515,8 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else if (targetType == "winrt")
 			{
-				var haxeArgs = [hxml];
-				var flags = [];
+				var haxeArgs:Array<String> = [hxml];
+				var flags:Array<String> = [];
 
 				haxeArgs.push("-D");
 				haxeArgs.push("winrt");
@@ -589,6 +602,8 @@ class WindowsPlatform extends PlatformTarget
 
 					if (noOutput) return;
 
+					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
 					System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
@@ -617,28 +632,15 @@ class WindowsPlatform extends PlatformTarget
 
 					if (noOutput) return;
 
+					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags.concat(["-Dstatic_link"]));
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags, "BuildMain.xml");
 
 					System.copyFile(targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 				}
-
-				var iconPath = Path.combine(applicationDirectory, "icon.ico");
-
-				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
-				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
-					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
-				}
 			}
-		}
-	}
-
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
 		}
 	}
 
@@ -726,7 +728,7 @@ class WindowsPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -775,7 +777,7 @@ class WindowsPlatform extends PlatformTarget
 
 			// }
 
-			var commands = [];
+			var commands:Array<Array<String>> = [];
 			if (targetType == "hl")
 			{
 				// default to 64 bit, just like upstream Hashlink releases
@@ -810,7 +812,7 @@ class WindowsPlatform extends PlatformTarget
 
 				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
 					&& System.hostArchitecture == X64
-					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+					&& (command != "rebuild" || targetType == "cpp" || targetType == "neko" || targetType == "winrt"))
 				{
 					if (targetType == "winrt")
 					{
@@ -962,17 +964,6 @@ class WindowsPlatform extends PlatformTarget
 			project.haxeflags.push("--json " + targetDirectory + "/types.json");
 		}
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
-
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
@@ -986,12 +977,12 @@ class WindowsPlatform extends PlatformTarget
 
 			var msvc19 = true;
 
-			if ((!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
+			if (project.defines.exists("mingw") || (!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
 			{
 				msvc19 = false;
 			}
 
-			var suffix = (msvc19 ? "-19.lib" : ".lib");
+			var suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
 
 			for (i in 0...project.ndlls.length)
 			{
@@ -1040,24 +1031,7 @@ class WindowsPlatform extends PlatformTarget
 
 		}*/
 
-		for (asset in project.assets)
-		{
-			if (asset.embed != true)
-			{
-				var path = Path.combine(applicationDirectory, asset.targetPath);
-
-				if (asset.type != AssetType.TEMPLATE)
-				{
-					System.mkdir(Path.directory(path));
-					AssetHelper.copyAssetIfNewer(asset, path);
-				}
-				else
-				{
-					System.mkdir(Path.directory(path));
-					AssetHelper.copyAsset(asset, path, context);
-				}
-			}
-		}
+		copyProjectAssets(applicationDirectory);
 	}
 
 	private function updateUWP():Void
@@ -1078,7 +1052,7 @@ class WindowsPlatform extends PlatformTarget
 			}
 		}
 
-		var fontPath;
+		var fontPath:String;
 
 		for (asset in project.assets)
 		{
@@ -1222,7 +1196,7 @@ class WindowsPlatform extends PlatformTarget
 			"source/uwp-project.jsproj",
 			"source/uwp-project_TemporaryKey.pfx"
 		];
-		var fullPath;
+		var fullPath:String;
 
 		for (path in renamePaths)
 		{
@@ -1261,21 +1235,6 @@ class WindowsPlatform extends PlatformTarget
 				AssetHelper.copyAsset(asset, path, context);
 			}
 		}
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
 	}
 
 	//	@ignore public override function install ():Void {}

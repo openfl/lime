@@ -21,6 +21,9 @@ import lime._internal.backend.html5.HTML5Thread.Transferable;
 #error "lime_threads_deque is not yet supported in HTML5"
 #end
 #end
+#if (haxe_ver >= 4.1)
+import haxe.Exception;
+#end
 
 /**
 	A thread pool executes one or more functions asynchronously.
@@ -176,6 +179,16 @@ class ThreadPool extends WorkOutput
 		once per job.
 	**/
 	public var onRun(default, null) = new Event<State->Void>();
+
+	#if (haxe_ver >= 4.1)
+	/**
+		Dispatched on the main thread when `doWork` throws an error. Dispatched
+		at most once per job.
+
+		If no listeners have been added, instead the error will be rethrown.
+	**/
+	public var onUncaughtError(default, null) = new Event<Exception->Void>();
+	#end
 
 	/**
 		How important this pool's single-threaded jobs are, relative to other
@@ -425,7 +438,7 @@ class ThreadPool extends WorkOutput
 			__singleThreadedJobRunning = true;
 		}
 
-		if (!Application.current.onUpdate.has(__update))
+		if (Application.current != null && !Application.current.onUpdate.has(__update))
 		{
 			Application.current.onUpdate.add(__update);
 		}
@@ -455,7 +468,7 @@ class ThreadPool extends WorkOutput
 				activeJob.duration = timestamp() - activeJob.startTime;
 			}
 
-			if (event.event == COMPLETE || event.event == ERROR)
+			if (event.event == COMPLETE || event.event == ERROR || event.event == UNCAUGHT_ERROR)
 			{
 				__multiThreadedJobs.removeJob(activeJob.id);
 			}
@@ -487,6 +500,34 @@ class ThreadPool extends WorkOutput
 
 			case ERROR:
 				onError.dispatch(event.message);
+
+			case UNCAUGHT_ERROR:
+				var message:String;
+
+				#if (haxe_ver >= 4.1)
+				if (Std.isOfType(event.message, Exception))
+				{
+					if (onUncaughtError.__listeners.length > 0)
+					{
+						onUncaughtError.dispatch(event.message);
+						message = null;
+					}
+					else
+					{
+						message = (event.message:Exception).details();
+					}
+				}
+				else
+				#end
+				{
+					message = Std.string(event.message);
+				}
+
+				if (message != null)
+				{
+					activeJob = null;
+					Log.error(message);
+				}
 
 			case WORK:
 				activeJob.startTime = timestamp();
@@ -670,9 +711,9 @@ class ThreadPool extends WorkOutput
 						event.doWork.dispatch(event.state, output);
 					}
 				}
-				catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
+				catch (e:#if (haxe_ver >= 4.1) Exception #else Dynamic #end)
 				{
-					output.sendError(e);
+					output.sendUncaughtError(e);
 				}
 
 				output.activeJob = null;
@@ -755,9 +796,10 @@ class ThreadPool extends WorkOutput
 				}
 				while (!__jobComplete.value && timestamp() < endTime);
 			}
-			catch (e:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end)
+			catch (e:#if (haxe_ver >= 4.1) Exception #else Dynamic #end)
 			{
-				sendError(e);
+				__jobComplete.value = true;
+				__dispatchJobOutput({event: UNCAUGHT_ERROR, message: e, jobID: activeJob.id});
 			}
 
 			var jobEndTime:Float = timestamp();

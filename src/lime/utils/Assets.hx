@@ -15,6 +15,7 @@ import lime.utils.Log;
 #if !macro
 import haxe.Json;
 #end
+@:access(lime.media.AudioBuffer)
 
 /**
  * <p>The Assets class provides a cross-platform interface to access
@@ -158,6 +159,57 @@ class Assets
 		return cast getAsset(id, SOUND, useCache);
 	}
 
+	public static function getAudioBufferStream(id:String, useCache:Bool = true):AudioBuffer
+	{
+		#if (tools && !display && !macro)
+		var type:AssetType = SOUND;
+
+		if (useCache && cache.enabled)
+		{
+			var audio = cache.audio.get(id);
+
+			if (isValidAudio(audio))
+			{
+				return audio;
+			}
+		}
+
+		var symbol = new LibrarySymbol(id);
+
+		if (symbol.library != null)
+		{
+			if (symbol.exists(type))
+			{
+				if (symbol.isLocal(type))
+				{
+					var asset = symbol.library.getAudioBufferStream(symbol.symbolName);
+
+					if (useCache && cache.enabled)
+					{
+						cache.set(id, type, asset);
+					}
+
+					return asset;
+				}
+				else
+				{
+					Log.error(type + " asset \"" + id + "\" exists, but only asynchronously");
+				}
+			}
+			else
+			{
+				Log.error("There is no " + type + " asset with an ID of \"" + id + "\"");
+			}
+		}
+		else
+		{
+			Log.error(__libraryNotFound(symbol.libraryName));
+		}
+		#end
+
+		return null;
+	}
+
 	/**
 	 * Gets an instance of an embedded binary asset
 	 * @usage		var bytes = Assets.getBytes("file.zip");
@@ -181,7 +233,23 @@ class Assets
 	}
 
 	/**
-	 * Gets an instance of an embedded bitmap
+	 * Gets an instance of an embedded bitmap.
+	 *
+	 * _Note:_ This method may behave differently, depending on the target
+	 * platform. On targets that can quickly create a new image synchronously,
+	 * every call to `Assets.getImage()` with the same ID will return a new
+	 * `Image` instance. However, on other targets where creating images
+	 * synchronously is unacceptably slow, or where images may not be created
+	 * synchronously and must be created asynchronously, every call to
+	 * `Assets.getImage()` with the same ID may return a single, shared `Image`
+	 * instance.
+	 *
+	 * With that in mind, modifying or disposing the contents of the `Image`
+	 * returned by `Assets.getImage()` may affect the results of future calls to
+	 * Assets.getImage()` on some targets. To access an `Image` instance that
+	 * may be modified without affecting future calls to `Assets.getImage()`,
+	 * call the `Image` instance's `clone()` method to manually create a copy.
+	 *
 	 * @usage		var bitmap = new Bitmap(Assets.getBitmapData("image.jpg"));
 	 * @param	id		The ID or asset path for the bitmap
 	 * @param	useCache		(Optional) Whether to use BitmapData from the cache(Default: true)
@@ -271,9 +339,7 @@ class Assets
 
 	private static function isValidAudio(buffer:AudioBuffer):Bool
 	{
-		// TODO: Check disposed
-
-		return buffer != null;
+		return (buffer != null && !buffer.__isDisposed);
 	}
 
 	private static function isValidImage(image:Image):Bool
@@ -375,6 +441,50 @@ class Assets
 	public static function loadAudioBuffer(id:String, useCache:Bool = true):Future<AudioBuffer>
 	{
 		return cast loadAsset(id, SOUND, useCache);
+	}
+
+	public static function loadAudioBufferStream(id:String, useCache:Bool = true):Future<AudioBuffer>
+	{
+		#if (tools && !display && !macro)
+		var type:AssetType = SOUND;
+
+		if (useCache && cache.enabled)
+		{
+			var audio = cache.audio.get(id);
+
+			if (isValidAudio(audio))
+			{
+				return Future.withValue(audio);
+			}
+		}
+
+		var symbol = new LibrarySymbol(id);
+
+		if (symbol.library != null)
+		{
+			if (symbol.exists(type))
+			{
+				var future = symbol.library.loadAudioBufferStream(symbol.symbolName);
+
+				if (useCache && cache.enabled)
+				{
+					future.onComplete(function(asset) cache.set(id, type, asset));
+				}
+
+				return future;
+			}
+			else
+			{
+				return cast Future.withError("There is no " + type + " asset with an ID of \"" + id + "\"");
+			}
+		}
+		else
+		{
+			return cast Future.withError(__libraryNotFound(symbol.libraryName));
+		}
+		#else
+		return null;
+		#end
 	}
 
 	public static function loadBytes(id:String):Future<Bytes>

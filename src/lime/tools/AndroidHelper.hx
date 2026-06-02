@@ -189,6 +189,17 @@ class AndroidHelper
 
 		if (project.environment.exists("JAVA_HOME"))
 		{
+			var javaHome = project.environment.get("JAVA_HOME");
+			if (!FileSystem.exists(javaHome))
+			{
+				Log.error("The path specified for JAVA_HOME does not exist: " + javaHome);
+				Sys.exit(1);
+			}
+			if (!FileSystem.isDirectory(javaHome))
+			{
+				Log.error("The path specified for JAVA_HOME must be a directory: " + javaHome);
+				Sys.exit(1);
+			}
 			Sys.putEnv("JAVA_HOME", project.environment.get("JAVA_HOME"));
 		}
 	}

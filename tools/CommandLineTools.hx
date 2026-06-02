@@ -137,6 +137,10 @@ class CommandLineTools
 
 					if (haxelibPath != "" && haxelibPath != null)
 					{
+						if (Log.verbose)
+						{
+							Log.println('Rebuilding tools for haxelib: ${words[0]}');
+						}
 						words.push("tools");
 					}
 				}
@@ -155,10 +159,9 @@ class CommandLineTools
 
 				var targets = words[1].split(",");
 
-				var haxelib = null;
-				var path = null;
-				var hxmlPath = null;
-				var project = null;
+				var haxelib:Haxelib = null;
+				var path:String = null;
+				var hxmlPath:String = null;
 
 				if (!FileSystem.exists(words[0]))
 				{
@@ -309,6 +312,17 @@ class CommandLineTools
 								Sys.putEnv("HAXELIB_PATH", cacheValue);
 							}
 						}
+						else
+						{
+							if (haxelib != null)
+							{
+								Log.warn('No rebuild script found for haxelib "${haxelib.name}"');
+							}
+							else
+							{
+								Log.warn('No rebuild script found at "${words[0]}"');
+							}
+						}
 					}
 					else
 					{
@@ -319,7 +333,7 @@ class CommandLineTools
 						HXProject._targetFlags = targetFlags;
 						HXProject._userDefines = userDefines;
 
-						var project = null;
+						var project:HXProject = null;
 
 						if (haxelib != null)
 						{
@@ -663,8 +677,8 @@ class CommandLineTools
 		{
 			var colonIndex = words[0].indexOf(":");
 
-			var projectName = null;
-			var sampleName = null;
+			var projectName:String = null;
+			var sampleName:String = null;
 
 			if (colonIndex == -1)
 			{
@@ -1642,7 +1656,7 @@ class CommandLineTools
 			if (environment.get("JAVA_HOME") != null)
 			{
 				var javaPath = Path.combine(environment.get("JAVA_HOME"), "bin");
-				var value;
+				var value:String;
 
 				if (System.hostPlatform == WINDOWS)
 				{
@@ -1825,6 +1839,13 @@ class CommandLineTools
 
 					args.push("-notoolscheck");
 
+					var projectDirectory = Path.directory(projectFile);
+					var localRepository = Path.combine(projectDirectory, ".haxelib");
+					if (FileSystem.exists(localRepository) && FileSystem.isDirectory(localRepository) && StringTools.startsWith(path, localRepository))
+					{
+						args.push("-nolocalrepocheck");
+					}
+
 					Sys.setCwd(path);
 					var args = [Path.combine(path, "run.n")].concat(args);
 					args.push(workingDirectory);
@@ -1992,7 +2013,7 @@ class CommandLineTools
 
 		if (!runFromHaxelib)
 		{
-			var path = null;
+			var path:String = null;
 
 			if (FileSystem.exists("tools.n"))
 			{

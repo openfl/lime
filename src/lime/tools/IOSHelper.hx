@@ -67,7 +67,7 @@ class IOSHelper
 		System.runCommand(workingDirectory, "xcodebuild", archiveCommands);
 
 		var supportedExportMethods = ["adhoc", "development", "enterprise", "appstore"];
-		var exportMethods = [];
+		var exportMethods:Array<String> = [];
 		for (m in supportedExportMethods)
 		{
 			if (project.targetFlags.exists(m))
@@ -360,39 +360,72 @@ class IOSHelper
 				applicationPath = workingDirectory + "/build/" + configuration + "-iphoneos/" + project.app.file + ".app";
 			}
 
+			var requireIPad = project.config.getString("ios.device", "universal") == "ipad";
+			var requireIPhone = project.config.getString("ios.device", "universal") == "iphone";
+
 			var xcodeVersion = Std.parseFloat(getXcodeVersion());
 			if (!Math.isNaN(xcodeVersion) && xcodeVersion >= 16) {
 				// ios-deploy doesn't work with newer iOS SDKs where it can't
 				// find DeveloperDiskImage.dmg. however, Xcode 16 adds new
 				// commands for installing and launching apps on connected
 				// devices, so we'll prefer those, if available.
+
 				var deviceUUID:String = null;
-				// prefer an iOS device with State == 'connected'
-				// Note: Platform == 'iOS' includes iPadOS
-				var listDevicesOutput = System.runProcess("", "xcrun", ["devicectl", "list", "devices", "--hide-default-columns", "--columns", "Identifier", "--filter", "Platform == 'iOS' AND State == 'connected'"]);
-				var ready = false;
-				for (line in listDevicesOutput.split("\n")) {
-					if (!ready) {
-						ready = StringTools.startsWith(line, "----");
-						continue;
-					}
-					deviceUUID = line;
-					break;
+
+				// we'll try various combinations of the following filters to
+				// select an iOS device. there may be multiple devices to choose
+				// from, so these filters help us figure out the best one.
+
+				var filterPlatformIOS = "Platform == 'iOS'"; // includes iPadOS
+				var filterDeveloperModeEnabled = "deviceProperties.developerModeStatus == 'enabled'";
+				var filterStateConnected = "State == 'connected'";
+				var filterStateAvailable = "State == 'available (paired)'";
+				var filterTransportTypeWired = "connectionProperties.transportType == 'wired'";
+				var filterTransportTypeLocalNetwork = "connectionProperties.transportType == 'localNetwork'";
+				var filterDeviceTypeIPhone = "hardwareProperties.deviceType == 'iPhone'";
+				var filterDeviceTypeIPad = "hardwareProperties.deviceType == 'iPad'";
+
+				// first, some strictly required filters:
+				// 1. the platform must always be iOS (which includes iPadOS).
+				// 2. the device must be in developer mode.
+				// 3. if required by the project config, limit to iPhone or iPad only
+				var baseFilters = [
+					filterPlatformIOS,
+					filterDeveloperModeEnabled,
+				];
+				if (requireIPad)
+				{
+					baseFilters.push(filterDeviceTypeIPad);
 				}
-				if (deviceUUID == null || deviceUUID.length == 0) {
-					// preferred fallback is an iOS device that is both
-					// available and wired
-					var listDevicesOutput = System.runProcess("", "xcrun", ["devicectl", "list", "devices", "--hide-default-columns", "--columns", "Identifier", "--filter", "Platform == 'iOS' AND State == 'available (paired)' AND connectionProperties.transportType == 'wired'"]);
-					ready = false;
-					for (line in listDevicesOutput.split("\n")) {
-						if (!ready) {
-							ready = StringTools.startsWith(line, "----");
-							continue;
+				else if (requireIPhone)
+				{
+					baseFilters.push(filterDeviceTypeIPhone);
+				}
+
+				// after that, we have the following preferences, in order:
+				// 1. state: "connected" preferred over "available (paired)"
+				// 2. transportType: "wired" preferred over "localNetwork"
+				var stateFilters = [filterStateConnected, filterStateAvailable];
+				var transportTypeFilters = [filterTransportTypeWired, filterTransportTypeLocalNetwork];
+				for (stateFilter in stateFilters)
+				{
+					for (transportTypeFilter in transportTypeFilters)
+					{
+						deviceUUID = findDeviceUUIDWithFilters(baseFilters.concat([
+							stateFilter,
+							transportTypeFilter
+						]));
+						if (deviceUUID != null && deviceUUID.length > 0)
+						{
+							break;
 						}
-						deviceUUID = line;
+					}
+					if (deviceUUID != null && deviceUUID.length > 0)
+					{
 						break;
 					}
 				}
+
 				if (deviceUUID == null || deviceUUID.length == 0) {
 					// devices running iOS 16 and older don't support
 					// xcrun devicectl, so if no device was found, try falling
@@ -414,6 +447,27 @@ class IOSHelper
 				fallbackLaunch(project, applicationPath);
 			}
 		}
+	}
+
+	private static function findDeviceUUIDWithFilters(filters:Array<String>):String
+	{
+		var listDevicesOutput = System.runProcess("", "xcrun",
+			[
+				"devicectl", "list", "devices",
+				"--hide-default-columns", "--columns", "Identifier",
+				"--filter", filters.join(" AND ")
+			]);
+		var ready = false;
+		for (line in listDevicesOutput.split("\n"))
+		{
+			if (!ready)
+			{
+				ready = StringTools.startsWith(line, "----");
+				continue;
+			}
+			return line;
+		}
+		return null;
 	}
 
 	private static function fallbackLaunch(project:HXProject, applicationPath:String):Void
@@ -461,7 +515,7 @@ class IOSHelper
 
 	private static function waitForDeviceState(command:String, args:Array<String>):Void
 	{
-		var output;
+		var output:String;
 
 		while (true)
 		{

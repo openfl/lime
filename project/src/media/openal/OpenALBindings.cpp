@@ -3389,7 +3389,11 @@ namespace lime {
 
 	HL_PRIM vbyte* HL_NAME(hl_alc_get_string) (HL_CFFIPointer* device, int param) {
 
+<<<<<<< HEAD
 		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
+=======
+		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : 0;
+>>>>>>> origin/develop
 		const char* result = alcGetString (alcDevice, param);
 		if (!result) return 0;
 		int length = strlen (result);

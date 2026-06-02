@@ -133,6 +133,20 @@ class AIRPlatform extends FlashPlatform
 		{
 			Log.error("You must define AIR_SDK with the path to your AIR SDK");
 		}
+		else
+		{
+			var airSdk = project.environment.get("AIR_SDK");
+			if (!FileSystem.exists(airSdk))
+			{
+				Log.error("The path specified for AIR_SDK does not exist: " + airSdk);
+				Sys.exit(1);
+			}
+			if (!FileSystem.isDirectory(airSdk))
+			{
+				Log.error("The path specified for AIR_SDK must be a directory: " + airSdk);
+				Sys.exit(1);
+			}
+		}
 
 		// TODO: Should we package on desktop in "deploy" command instead?
 
@@ -157,22 +171,9 @@ class AIRPlatform extends FlashPlatform
 				files.push(splashScreen.path);
 			}
 
-			var targetPath = switch (targetPlatform)
-			{
-				case ANDROID: "bin/" + project.app.file + ".apk";
-				case IOS: "bin/" + project.app.file + ".ipa";
-				default: "bin/" + project.app.file + ".air";
-			}
+			var targetPathWithoutExtension = "bin/" + project.app.file;
 
-			AIRHelper.build(project, targetDirectory, targetPlatform, targetPath, "application.xml", files, "bin");
-		}
-	}
-
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
+			AIRHelper.build(project, targetDirectory, targetPlatform, targetPathWithoutExtension, "application.xml", files, "bin");
 		}
 	}
 
@@ -186,7 +187,7 @@ class AIRPlatform extends FlashPlatform
 		{
 			var rootDirectory = targetDirectory + "/bin";
 			var paths = System.readDirectory(rootDirectory, [project.app.file + ".apk", project.app.file + ".ipa", project.app.file + ".air"]);
-			var files = [];
+			var files:Array<String> = [];
 
 			for (path in paths)
 			{
@@ -204,19 +205,19 @@ class AIRPlatform extends FlashPlatform
 					name += " (macOS)";
 
 				case IOS:
-					name += " (iOS).ipa";
+					name += " (iOS)";
 
 				case ANDROID:
-					name += " (Android).apk";
+					name += " (Android)";
 
 				default:
 			}
 
-			var outputPath = "dist/" + name;
+			var outputPathWithoutExtension = "dist/" + name;
 
 			System.mkdir(targetDirectory + "/dist");
 
-			outputPath = AIRHelper.build(project, targetDirectory, targetPlatform, outputPath, "application.xml", files, "bin");
+			var outputPath = AIRHelper.build(project, targetDirectory, targetPlatform, outputPathWithoutExtension, "application.xml", files, "bin");
 
 			if (targetPlatformType == DESKTOP)
 			{
@@ -268,7 +269,7 @@ class AIRPlatform extends FlashPlatform
 		}
 		else
 		{
-			var major = null;
+			var major:String = null;
 
 			var patch = buildNumber.substr(-3);
 			buildNumber = buildNumber.substr(0, -3);
@@ -294,7 +295,7 @@ class AIRPlatform extends FlashPlatform
 		}
 
 		var targetDevice = project.config.getString("ios.device", "universal");
-		var targetDevices = [];
+		var targetDevices:Array<Int> = [];
 
 		if (targetDevice != "ipad") targetDevices.push(1); // iphone
 		if (targetDevice != "iphone") targetDevices.push(2); // ipad
@@ -341,7 +342,10 @@ class AIRPlatform extends FlashPlatform
 		if (embedded)
 		{
 			var files = ["debug.hxml", "release.hxml", "final.hxml"];
-			var path, hxml, lines, output;
+			var path:String;
+			var hxml:String;
+			var lines:Array<String>;
+			var output:Array<String>;
 
 			for (file in files)
 			{
@@ -392,4 +396,6 @@ class AIRPlatform extends FlashPlatform
 	}
 
 	@ignore public override function rebuild():Void {}
+
+	@ignore public override function watch():Void {}
 }

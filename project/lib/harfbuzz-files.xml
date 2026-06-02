@@ -15,10 +15,10 @@
 
 		<compilerflag value="-DHAVE_UNISCRIBE" if="windows" />
 		<compilerflag value="-DHAVE_DIRECTWRITE" if="windows HXCPP_M64" /> <!-- Windows 7+ -->
-		<compilerflag value="-wd4244" if="windows" />
-		<compilerflag value="-wd4267" if="windows" />
-		<compilerflag value="-D_CRT_SECURE_NO_WARNINGS" if="windows" />
-		<compilerflag value="-D_CRT_NONSTDC_NO_WARNINGS" if="windows" />
+		<compilerflag value="-wd4244" if="isMsvc" />
+		<compilerflag value="-wd4267" if="isMsvc" />
+		<compilerflag value="-D_CRT_SECURE_NO_WARNINGS" if="isMsvc" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_WARNINGS" if="isMsvc" />
 
 		<compilerflag value="-DHAVE_CORETEXT" if="mac || ios" />
 		<compilerflag value="-Wno-undefined-bool-conversion" if="mac" />

@@ -61,14 +61,14 @@ class WorkOutput
 
 	/**
 		Thread-local storage. Tracks whether `sendError()` or `sendComplete()`
-		was called by this job.
+		was called by this job, or if the job threw an error.
 	**/
 	private var __jobComplete:Tls<Bool> = new Tls();
 
 	/**
 		The job that is currently running on this thread, or the job that
-		triggered the ongoing `onComplete`, `onError`, or `onProgress` event.
-		Will be null in all other cases.
+		triggered the ongoing event (`onComplete`, `onProgress`, etc.). Will be
+		null in all other cases.
 	**/
 	public var activeJob(get, set):Null<JobData>;
 
@@ -130,6 +130,16 @@ class WorkOutput
 		if (!__jobComplete.value)
 		{
 			sendThreadEvent({event: PROGRESS, message: message, jobID: activeJob.id}, transferList);
+		}
+	}
+
+	private function sendUncaughtError(message:#if (haxe_ver >= 4.1) haxe.Exception #else Dynamic #end):Void
+	{
+		if (!__jobComplete.value)
+		{
+			__jobComplete.value = true;
+
+			sendThreadEvent({event: UNCAUGHT_ERROR, message: message, jobID: activeJob.id});
 		}
 	}
 
@@ -312,6 +322,10 @@ class JobData
 	private inline function new(doWork:WorkFunction<State->WorkOutput->Void>, state:State, ?id:Int)
 	{
 		this.id = id != null ? id : nextID++;
+		if (this.id == -1)
+		{
+			throw "All job IDs have been used!";
+		}
 		this.doWork = doWork;
 		this.state = state;
 	}
@@ -328,6 +342,7 @@ class JobData
 	var COMPLETE = "COMPLETE";
 	var ERROR = "ERROR";
 	var PROGRESS = "PROGRESS";
+	var UNCAUGHT_ERROR = "UNCAUGHT_ERROR";
 
 	// Commands sent from the main thread to a worker thread, and returned by
 	// the worker to confirm the change of state, in multi-threaded mode only

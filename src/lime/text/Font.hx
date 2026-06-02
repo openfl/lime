@@ -38,12 +38,12 @@ class Font
      	* The ascender value of the font.
      	*/
 	public var ascender:Int;
-	
+
 	 /**
      	* The descender value of the font.
      	*/
 	public var descender:Int;
-	
+
 	/**
      	* The height of the font.
      	*/
@@ -59,7 +59,7 @@ class Font
      	*/
 	public var numGlyphs:Int;
 
-	
+
 	public var src:Dynamic;
 
 	/**
@@ -71,6 +71,16 @@ class Font
     	* The underline thickness of the font.
     	*/
 	public var underlineThickness:Int;
+
+	/**
+    	* The underline position of the font.
+    	*/
+	public var strikethroughPosition:Int;
+
+	/**
+    	* The underline thickness of the font.
+    	*/
+	public var strikethroughThickness:Int;
 
 	/**
      	* The units per EM of the font.
@@ -141,13 +151,17 @@ class Font
 	/**
      	* Decomposes the font into outline data.
      	*
+     	* @param forceAutoHint When `true`, force auto-hinting for outline decomposition.
+     	* When `false`, preserve the unhinted glyph outlines.
      	* @return An instance of `NativeFontData` that contains decomposed font outline information.
      	*/
-	public function decompose():NativeFontData
+	public function decompose(forceAutoHint:Bool = true):NativeFontData
 	{
 		#if (lime_cffi && !macro)
 		if (src == null) throw "Uninitialized font handle.";
-		var data:Dynamic = NativeCFFI.lime_font_outline_decompose(src, 1024 * 20);
+		var data:Dynamic = forceAutoHint
+			? NativeCFFI.lime_font_outline_decompose(src, 1024 * 20)
+			: NativeCFFI.lime_font_outline_decompose_no_hint(src, 1024 * 20);
 		#if hl
 		if (data != null)
 		{
@@ -314,16 +328,32 @@ class Font
      	* @param fontSize The size to render the glyph at.
      	* @return An `Image` instance representing the rendered glyph.
      	*/
-	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
+	public function renderGlyph(glyph:Glyph, fontSize:Int, dpi:Int = 96):Image
+	{
+		return renderGlyphWithLoadFlags(glyph, fontSize, dpi);
+	}
+
+	/**
+     	* Renders a specific glyph to an image using explicit FreeType load flags.
+     	*
+     	* @param glyph The glyph to render.
+     	* @param fontSize The size to render the glyph at.
+     	* @param dpi The DPI used to size the glyph before rasterization.
+     	* @param loadFlags Additional FreeType load flags to apply when rasterizing.
+     	* @return An `Image` instance representing the rendered glyph.
+     	*/
+	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int):Image
 	{
 		#if (lime_cffi && !macro)
-		__setSize(fontSize, 96);
+		__setSize(fontSize, dpi);
 
 		// Allocate an estimated buffer size - adjust if necessary
 		var bytes:Bytes = Bytes.alloc(0); // Allocate some reasonable initial size
 
 		// Call native function to render glyph and get byte data
-		bytes = NativeCFFI.lime_font_render_glyph(src, glyph, bytes);
+		bytes = loadFlags == null
+			? NativeCFFI.lime_font_render_glyph(src, glyph, bytes)
+			: NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
 
 		if (bytes != null && bytes.length > 0)
 		{
@@ -427,7 +457,8 @@ class Font
 			var offsetY = 0;
 			var maxRows = 0;
 
-			var width, height;
+			var width:Int;
+			var height:Int;
 			var i = 0;
 
 			while (i < count)
@@ -489,7 +520,10 @@ class Font
 			offsetY = 0;
 			maxRows = 0;
 
-			var index, x, y, image;
+			var index:Int;
+			var x:Int;
+			var y:Int;
+			var image:Image;
 
 			for (i in 0...count)
 			{
@@ -612,6 +646,8 @@ class Font
 			numGlyphs = NativeCFFI.lime_font_get_num_glyphs(src);
 			underlinePosition = NativeCFFI.lime_font_get_underline_position(src);
 			underlineThickness = NativeCFFI.lime_font_get_underline_thickness(src);
+			strikethroughPosition = NativeCFFI.lime_font_get_strikethrough_position(src);
+			strikethroughThickness = NativeCFFI.lime_font_get_strikethrough_thickness(src);
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
 		}
 		#end
@@ -653,7 +689,8 @@ class Font
 			var timeout = 3000;
 			var intervalLength = 50;
 			var intervalCount = 0;
-			var loaded, timeExpired;
+			var loaded:Bool;
+			var timeExpired:Bool;
 
 			var checkFont = function()
 			{

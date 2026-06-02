@@ -1594,7 +1594,6 @@ class Image
 
 				var data = new UInt8Array(Bytes.ofData(data.getData()));
 				var length = header.width * header.height;
-				var b, g, r, a;
 
 				for (i in 0...length)
 				{

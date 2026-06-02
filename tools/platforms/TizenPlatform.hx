@@ -142,14 +142,6 @@ class TizenPlatform extends PlatformTarget
 		TizenHelper.createPackage(project, targetDirectory + "/bin/CommandLineBuild", "");
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Tizen");
@@ -178,7 +170,7 @@ class TizenPlatform extends PlatformTarget
 		var device = (command == "rebuild" || !targetFlags.exists("simulator"));
 		var simulator = (command == "rebuild" || targetFlags.exists("simulator"));
 
-		var commands = [];
+		var commands:Array<Array<String>> = [];
 
 		if (device) commands.push(["-Dtizen"]);
 		if (simulator) commands.push(["-Dtizen", "-Dsimulator"]);
@@ -202,17 +194,6 @@ class TizenPlatform extends PlatformTarget
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
-
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
 
 		var destination = targetDirectory + "/bin/";
 		System.mkdir(destination);
@@ -256,33 +237,14 @@ class TizenPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "haxe", targetDirectory + "/haxe", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "tizen/hxml", targetDirectory + "/haxe", context);
 
-		for (asset in project.assets)
-		{
-			var path = Path.combine(destination + "res/", asset.targetPath);
-
-			System.mkdir(Path.directory(path));
-
-			if (asset.type != AssetType.TEMPLATE)
-			{
-				if (asset.targetPath == "/appinfo.json")
-				{
-					AssetHelper.copyAsset(asset, path, context);
-				}
-				else
-				{
-					// going to root directory now, but should it be a forced "assets" folder later?
-
-					AssetHelper.copyAssetIfNewer(asset, path);
-				}
-			}
-			else
-			{
-				AssetHelper.copyAsset(asset, path, context);
-			}
-		}
+		// going to root directory now, but should it be a forced "assets" folder later?
+		copyProjectAssets(destination + "res/", "");
+		// copyProjectAssets(destination + "res/", "assets");
 	}
 
 	@ignore public override function install():Void {}
 
 	@ignore public override function uninstall():Void {}
+
+	@ignore public override function watch():Void {}
 }

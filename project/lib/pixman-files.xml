@@ -7,7 +7,10 @@
 
 	<files id="native-toolkit-pixman">
 
-		<compilerflag value="-fno-integrated-as" if="HXCPP_CLANG || NDKV20+" unless="mac || ios || NDKV22+" />
+		<section if="PIXMAN_ARM_NEON HXCPP_CLANG || PIXMAN_ARM_NEON NDKV20+">
+			<compilerflag value="-fno-integrated-as" />
+			<compilerflag value="-march=armv7-a" if="HXCPP_ARMV7" />
+		</section>
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/pixman/pixman" />
@@ -23,11 +26,11 @@
 
 		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
 
-		<compilerflag value="-mmmx" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse2" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-msse3" if="linux || mac" unless="rpi || HXCPP_ARM64" />
-		<compilerflag value="-mssse3" if="linux || mac" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-mmmx" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-msse" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-msse2" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-msse3" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
+		<compilerflag value="-mssse3" if="linux || mac || mingw" unless="rpi || HXCPP_ARM64" />
 
 		<compilerflag value="-Wno-attributes" if="android" />
 		<compilerflag value="-Wno-tautological-constant-out-of-range-compare" if="mac || ios || tvos" />

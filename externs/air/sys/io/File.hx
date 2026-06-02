@@ -13,7 +13,15 @@ class File
 {
 	public static function getContent(path:String):String
 	{
-		var file = new FlashFile(path);
+		var file:FlashFile = null;
+		if (Reflect.hasField(FlashFile, "workingDirectory"))
+		{
+			file = Reflect.field(FlashFile, "workingDirectory").resolvePath(path);
+		}
+		else
+		{
+			file = new FlashFile(path);
+		}
 		var stream = new FileStream();
 		stream.open(file, FileMode.READ);
 		var content = stream.readUTFBytes(stream.bytesAvailable);
@@ -23,7 +31,15 @@ class File
 
 	public static function saveContent(path:String, content:String):Void
 	{
-		var file = new FlashFile(path);
+		var file:FlashFile = null;
+		if (Reflect.hasField(FlashFile, "workingDirectory"))
+		{
+			file = Reflect.field(FlashFile, "workingDirectory").resolvePath(path);
+		}
+		else
+		{
+			file = new FlashFile(path);
+		}
 		var stream = new FileStream();
 		stream.open(file, FileMode.WRITE);
 		stream.writeUTFBytes(content);
@@ -32,7 +48,15 @@ class File
 
 	public static function getBytes(path:String):haxe.io.Bytes
 	{
-		var file = new FlashFile(path);
+		var file:FlashFile = null;
+		if (Reflect.hasField(FlashFile, "workingDirectory"))
+		{
+			file = Reflect.field(FlashFile, "workingDirectory").resolvePath(path);
+		}
+		else
+		{
+			file = new FlashFile(path);
+		}
 		var stream = new FileStream();
 		stream.open(file, FileMode.READ);
 		var byteArray = new ByteArray();
@@ -44,7 +68,15 @@ class File
 	public static function saveBytes(path:String, bytes:haxe.io.Bytes):Void
 	{
 		var byteArray:ByteArray = bytes.getData();
-		var file = new FlashFile(path);
+		var file:FlashFile = null;
+		if (Reflect.hasField(FlashFile, "workingDirectory"))
+		{
+			file = Reflect.field(FlashFile, "workingDirectory").resolvePath(path);
+		}
+		else
+		{
+			file = new FlashFile(path);
+		}
 		var stream = new FileStream();
 		stream.open(file, FileMode.WRITE);
 		stream.writeBytes(byteArray);
@@ -77,6 +109,18 @@ class File
 
 	public static function copy(srcPath:String, dstPath:String):Void
 	{
-		new FlashFile(srcPath).copyTo(new FlashFile(dstPath));
+		var srcFile:FlashFile = null;
+		var dstFile:FlashFile = null;
+		if (Reflect.hasField(FlashFile, "workingDirectory"))
+		{
+			srcFile = Reflect.field(FlashFile, "workingDirectory").resolvePath(srcPath);
+			dstFile = Reflect.field(FlashFile, "workingDirectory").resolvePath(dstPath);
+		}
+		else
+		{
+			srcFile = new FlashFile(srcPath);
+			dstFile = new FlashFile(dstPath);
+		}
+		srcFile.copyTo(dstFile);
 	}
 }

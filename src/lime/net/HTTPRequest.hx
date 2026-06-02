@@ -193,6 +193,8 @@ public function load(uri:String = null):Future<T>
 private typedef HTTPRequestBackend = lime._internal.backend.flash.FlashHTTPRequest;
 #elseif (js && html5)
 private typedef HTTPRequestBackend = lime._internal.backend.html5.HTML5HTTPRequest;
+#elseif emscripten
+private typedef HTTPRequestBackend = lime._internal.backend.emscripten.EmscriptenHTTPRequest;
 #else
 private typedef HTTPRequestBackend = lime._internal.backend.native.NativeHTTPRequest;
 #end

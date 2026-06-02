@@ -177,14 +177,6 @@ class HTML5Platform extends PlatformTarget
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		var name = "HTML5";
@@ -209,7 +201,7 @@ class HTML5Platform extends PlatformTarget
 		}
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -302,7 +294,7 @@ class HTML5Platform extends PlatformTarget
 			}
 		}
 
-		var fontPath;
+		var fontPath:String;
 
 		for (asset in project.assets)
 		{
@@ -377,7 +369,7 @@ class HTML5Platform extends PlatformTarget
 
 		if (npm)
 		{
-			var path;
+			var path:String;
 			for (i in 0...project.sources.length)
 			{
 				path = project.sources[i];
@@ -449,7 +441,7 @@ class HTML5Platform extends PlatformTarget
 		}
 
 		var createdDirectories = new Map<String, Bool>();
-		var dir = null;
+		var dir:String = null;
 
 		for (asset in project.assets)
 		{
@@ -475,7 +467,7 @@ class HTML5Platform extends PlatformTarget
 
 					var hasFormat = [false, false, false, false];
 					var extensions = [ext, ".eot", ".svg", ".woff"];
-					var extension;
+					var extension:String;
 
 					for (i in 0...extensions.length)
 					{
@@ -513,7 +505,7 @@ class HTML5Platform extends PlatformTarget
 
 							if (shouldEmbedFont)
 							{
-								var urls = [];
+								var urls:Array<String> = [];
 								if (hasFormat[1]) urls.push("url('" + embeddedAsset.targetPath + ".eot?#iefix') format('embedded-opentype')");
 								if (hasFormat[3]) urls.push("url('" + embeddedAsset.targetPath + ".woff') format('woff')");
 								urls.push("url('" + embeddedAsset.targetPath + ext + "') format('truetype')");
@@ -583,17 +575,7 @@ class HTML5Platform extends PlatformTarget
 	{
 		// TODO: Use a custom live reload HTTP server for test/run instead
 
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
+		super.watch();
 	}
 
 	@ignore public override function install():Void {}
