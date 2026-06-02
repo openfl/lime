@@ -19,6 +19,7 @@ abstract WindowData({
 	@:optional var allowHighDPI:Bool;
 	@:optional var alwaysOnTop:Bool;
 	@:optional var antialiasing:Int;
+	@:optional var renderType:String;
 	@:optional var orientation:Orientation;
 	@:optional var allowShaders:Bool;
 	@:optional var requireShaders:Bool;
@@ -53,6 +54,7 @@ abstract WindowData({
 		allowHighDPI: false,
 		alwaysOnTop: false,
 		antialiasing: 0,
+		renderType: null,
 		orientation: Orientation.AUTO,
 		allowShaders: false,
 		requireShaders: false,

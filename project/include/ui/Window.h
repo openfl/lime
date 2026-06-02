@@ -11,7 +11,12 @@
 #include <math/Rectangle.h>
 #include <system/CFFI.h>
 #include <system/DisplayMode.h>
+#include <ui/Cursor.h>
 #include <stdint.h>
+
+#ifdef CreateWindow
+#undef CreateWindow
+#endif
 
 
 namespace lime {
@@ -68,7 +73,17 @@ namespace lime {
 			virtual bool SetAlwaysOnTop (bool alwaysOnTop) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
 			virtual int GetVSyncInterval () const { return 0; }
+			virtual int GetRequestedVSyncMode () const { return 0; }
 			virtual double GetRefreshRate () const { return 60.0; }
+			virtual uint64_t CreateVulkanSurface (uintptr_t instance) { return 0; }
+			virtual void GetVulkanDrawableSize (int* width, int* height) {
+
+				if (width) *width = 0;
+				if (height) *height = 0;
+
+			}
+			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names) { return false; }
+			virtual void* GetVulkanInstanceProcAddr () { return 0; }
 
 			Application* currentApplication;
 			int flags;
@@ -98,7 +113,8 @@ namespace lime {
 		WINDOW_FLAG_MINIMIZED = 0x00002000,
 		WINDOW_FLAG_MAXIMIZED = 0x00004000,
 		WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000,
-		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000
+		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000,
+		WINDOW_FLAG_VULKAN = 0x00020000
 
 	};
 

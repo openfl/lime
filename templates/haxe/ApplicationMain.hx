@@ -62,7 +62,7 @@ import ::APP_MAIN::;
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
-				type: null,
+				type: ::if renderType::"::renderType::"::else::null::end::,
 				vsync: ::vsync::
 			};
 

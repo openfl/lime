@@ -199,6 +199,7 @@ namespace lime {
 		sdlTexture = 0;
 		sdlRenderer = 0;
 		context = 0;
+		useVulkan = (flags & WINDOW_FLAG_VULKAN) != 0;
 
 		contextWidth = 0;
 		contextHeight = 0;
@@ -242,7 +243,15 @@ namespace lime {
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
-			sdlWindowFlags |= SDL_WINDOW_OPENGL;
+			if (useVulkan) {
+
+				sdlWindowFlags |= SDL_WINDOW_VULKAN;
+
+			} else {
+
+				sdlWindowFlags |= SDL_WINDOW_OPENGL;
+
+			}
 
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 
@@ -250,61 +259,65 @@ namespace lime {
 
 			}
 
-			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-			#endif
+			if (!useVulkan) {
 
-			#if defined (RASPBERRYPI)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
-			#endif
+				#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+				#endif
 
-			#if defined (IPHONE) || defined (APPLETV)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-			#endif
+				#if defined (RASPBERRYPI)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
+				#endif
 
-			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+				#if defined (IPHONE) || defined (APPLETV)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+				#endif
 
-				SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+				if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
 
-			if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+				if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
 
-			if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+				if (flags & WINDOW_FLAG_HW_AA_HIRES) {
 
-			} else if (flags & WINDOW_FLAG_HW_AA) {
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+				} else if (flags & WINDOW_FLAG_HW_AA) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
 
-			if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
+				if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
 
-			} else {
+					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+				} else {
+
+					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
+					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
+					SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+
+				}
 
 			}
 
@@ -313,7 +326,7 @@ namespace lime {
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 
 		#if defined (IPHONE) || defined (APPLETV)
-		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
+		if (!useVulkan && sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
 
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -362,7 +375,7 @@ namespace lime {
 
 		int sdlRendererFlags = 0;
 
-		if (flags & WINDOW_FLAG_HARDWARE) {
+		if ((flags & WINDOW_FLAG_HARDWARE) && !useVulkan) {
 
 			sdlRendererFlags |= SDL_RENDERER_ACCELERATED;
 
@@ -430,7 +443,7 @@ namespace lime {
 
 		}
 
-		if (!context) {
+		if (!context && !useVulkan) {
 
 			sdlRendererFlags &= ~SDL_RENDERER_ACCELERATED;
 			sdlRendererFlags &= ~SDL_RENDERER_PRESENTVSYNC;
@@ -441,7 +454,7 @@ namespace lime {
 
 		}
 
-		if (context || sdlRenderer) {
+		if (context || sdlRenderer || useVulkan) {
 
 			((SDLApplication*)currentApplication)->RegisterWindow (this);
 
@@ -462,6 +475,24 @@ namespace lime {
 
 		}
 
+		if (sdlRenderer) {
+
+			SDL_DestroyRenderer (sdlRenderer);
+			sdlRenderer = 0;
+
+		} else if (context) {
+
+			if (SDL_GL_GetCurrentContext () == context) {
+
+				SDL_GL_MakeCurrent (sdlWindow, NULL);
+
+			}
+
+			SDL_GL_DeleteContext (context);
+			context = 0;
+
+		}
+
 		if (sdlWindow) {
 
 			#if defined (HX_WINDOWS) && !defined (HX_WINRT)
@@ -470,16 +501,6 @@ namespace lime {
 
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
-
-		}
-
-		if (sdlRenderer) {
-
-			SDL_DestroyRenderer (sdlRenderer);
-
-		} else if (context) {
-
-			SDL_GL_DeleteContext (context);
 
 		}
 
@@ -531,6 +552,24 @@ namespace lime {
 			RestoreResizeEventHook (sdlWindow);
 			#endif
 
+			if (sdlRenderer) {
+
+				SDL_DestroyRenderer (sdlRenderer);
+				sdlRenderer = 0;
+
+			} else if (context) {
+
+				if (SDL_GL_GetCurrentContext () == context) {
+
+					SDL_GL_MakeCurrent (sdlWindow, NULL);
+
+				}
+
+				SDL_GL_DeleteContext (context);
+				context = 0;
+
+			}
+
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -558,6 +597,12 @@ namespace lime {
 
 	void SDLWindow::ContextFlip () {
 
+		if (useVulkan) {
+
+			return;
+
+		}
+
 		if (context && !sdlRenderer) {
 
 			SDL_GL_SwapWindow (sdlWindow);
@@ -574,6 +619,13 @@ namespace lime {
 	int SDLWindow::GetVSyncInterval () const {
 
 		return activeSwapInterval;
+
+	}
+
+
+	int SDLWindow::GetRequestedVSyncMode () const {
+
+		return requestedVSyncMode;
 
 	}
 
@@ -601,6 +653,72 @@ namespace lime {
 		}
 
 		return 60.0;
+
+	}
+
+
+	uint64_t SDLWindow::CreateVulkanSurface (uintptr_t instance) {
+
+		if (!useVulkan || !instance) {
+
+			return 0;
+
+		}
+
+		SDL_vulkanSurface surface = 0;
+		if (SDL_Vulkan_CreateSurface (sdlWindow, (SDL_vulkanInstance)instance, &surface) != SDL_TRUE) {
+
+			return 0;
+
+		}
+
+		#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+		return (uint64_t)(uintptr_t)surface;
+		#else
+		return (uint64_t)surface;
+		#endif
+
+	}
+
+
+	void SDLWindow::GetVulkanDrawableSize (int* width, int* height) {
+
+		if (!useVulkan) {
+
+			if (width) *width = 0;
+			if (height) *height = 0;
+			return;
+
+		}
+
+		SDL_Vulkan_GetDrawableSize (sdlWindow, width, height);
+
+	}
+
+
+	bool SDLWindow::GetVulkanInstanceExtensions (unsigned int* count, const char** names) {
+
+		if (!useVulkan) {
+
+			if (count) *count = 0;
+			return false;
+
+		}
+
+		return SDL_Vulkan_GetInstanceExtensions (sdlWindow, count, names) == SDL_TRUE;
+
+	}
+
+
+	void* SDLWindow::GetVulkanInstanceProcAddr () {
+
+		if (!useVulkan) {
+
+			return 0;
+
+		}
+
+		return SDL_Vulkan_GetVkGetInstanceProcAddr ();
 
 	}
 
@@ -692,6 +810,12 @@ namespace lime {
 
 	void SDLWindow::ContextMakeCurrent () {
 
+		if (useVulkan) {
+
+			return;
+
+		}
+
 		if (sdlWindow && context) {
 
 			SDL_GL_MakeCurrent (sdlWindow, context);
@@ -723,12 +847,24 @@ namespace lime {
 
 	void* SDLWindow::GetContext () {
 
+		if (useVulkan) {
+
+			return sdlWindow;
+
+		}
+
 		return context;
 
 	}
 
 
 	const char* SDLWindow::GetContextType () {
+
+		if (useVulkan) {
+
+			return "vulkan";
+
+		}
 
 		if (context) {
 
@@ -1333,6 +1469,35 @@ namespace lime {
 		requestedVSyncMode = vsyncMode;
 		activeSwapInterval = 0;
 
+		if (useVulkan) {
+
+			switch (vsyncMode) {
+
+				case 1:
+					activeSwapInterval = 1;
+					flags |= WINDOW_FLAG_VSYNC;
+					break;
+
+				case 2:
+					activeSwapInterval = -1;
+					flags |= WINDOW_FLAG_VSYNC;
+					break;
+
+				case 3:
+					activeSwapInterval = 1;
+					flags |= WINDOW_FLAG_VSYNC;
+					break;
+
+				default:
+					flags &= ~WINDOW_FLAG_VSYNC;
+					break;
+
+			}
+
+			return;
+
+		}
+
 		if (!sdlWindow || !context || sdlRenderer) {
 
 			flags &= ~WINDOW_FLAG_VSYNC;
@@ -1439,7 +1604,16 @@ namespace lime {
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 
-		return new SDLWindow (application, width, height, flags, title);
+		SDLWindow* window = new SDLWindow (application, width, height, flags, title);
+
+		if (!window->sdlWindow) {
+
+			delete window;
+			return 0;
+
+		}
+
+		return window;
 
 	}
 
