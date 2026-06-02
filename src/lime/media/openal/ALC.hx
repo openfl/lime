@@ -4,6 +4,7 @@ package lime.media.openal;
 import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
+import haxe.io.Bytes;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -33,6 +34,9 @@ class ALC
 	public static inline var ENUMERATE_ALL_EXT:Int = 1;
 	public static inline var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
 	public static inline var ALL_DEVICES_SPECIFIER:Int = 0x1013;
+	public static inline var CAPTURE_DEVICE_SPECIFIER:Int = 0x310;
+	public static inline var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
+	public static inline var CAPTURE_SAMPLES:Int = 0x312;
 
 	public static function closeDevice(device:ALDevice):Bool
 	{
@@ -200,6 +204,50 @@ class ALC
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_suspend_context(context);
+		#end
+	}
+
+	public static function captureOpenDevice(deviceName:String = null, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		var handle = NativeCFFI.lime_alc_capture_open_device(deviceName, frequency, format, bufferSize);
+
+		if (handle != null)
+		{
+			return new ALDevice(handle);
+		}
+		#end
+
+		return null;
+	}
+
+	public static function captureCloseDevice(device:ALDevice):Bool
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_alc_capture_close_device(device);
+		#end
+
+		return false;
+	}
+
+	public static function captureStart(device:ALDevice):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_alc_capture_start(device);
+		#end
+	}
+
+	public static function captureStop(device:ALDevice):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_alc_capture_stop(device);
+		#end
+	}
+
+	public static function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_alc_capture_samples(device, buffer, samples);
 		#end
 	}
 }

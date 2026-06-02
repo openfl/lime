@@ -8,6 +8,7 @@ import lime.media.openal.ALContext;
 import lime.media.openal.ALDevice;
 import lime.media.openal.ALSource;
 import lime.utils.ArrayBufferView;
+import haxe.io.Bytes;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -90,6 +91,9 @@ class OpenALAudioContext
 	public var ENUMERATE_ALL_EXT:Int = 1;
 	public var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
 	public var ALL_DEVICES_SPECIFIER:Int = 0x1013;
+	public var CAPTURE_DEVICE_SPECIFIER:Int = 0x310;
+	public var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
+	public var CAPTURE_SAMPLES:Int = 0x312;
 
 	@:noCompletion private function new() {}
 
@@ -403,14 +407,18 @@ class OpenALAudioContext
 
 	public function getString(param:Int, device:ALDevice = null):String
 	{
-		if (device == null)
-		{
-			return AL.getString(param);
-		}
-		else
+		if (device != null)
 		{
 			return ALC.getString(device, param);
 		}
+
+		if (param == DEFAULT_DEVICE_SPECIFIER || param == DEVICE_SPECIFIER || param == ALC.EXTENSIONS || param == DEFAULT_ALL_DEVICES_SPECIFIER
+			|| param == ALL_DEVICES_SPECIFIER || param == CAPTURE_DEVICE_SPECIFIER || param == CAPTURE_DEFAULT_DEVICE_SPECIFIER)
+		{
+			return ALC.getString(cast null, param);
+		}
+
+		return AL.getString(param);
 	}
 
 	public function isBuffer(buffer:ALBuffer):Bool
@@ -586,6 +594,31 @@ class OpenALAudioContext
 	public function suspendContext(context:ALContext):Void
 	{
 		ALC.suspendContext(context);
+	}
+
+	public function captureOpenDevice(deviceName:String = null, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	{
+		return ALC.captureOpenDevice(deviceName, frequency, format, bufferSize);
+	}
+
+	public function captureCloseDevice(device:ALDevice):Bool
+	{
+		return ALC.captureCloseDevice(device);
+	}
+
+	public function captureStart(device:ALDevice):Void
+	{
+		ALC.captureStart(device);
+	}
+
+	public function captureStop(device:ALDevice):Void
+	{
+		ALC.captureStop(device);
+	}
+
+	public function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void
+	{
+		ALC.captureSamples(device, buffer, samples);
 	}
 }
 #end
