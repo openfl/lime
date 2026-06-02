@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<meta title="Lime Tests" package="org.openfl.lime.tests" version="1.0.0" company="OpenFL" />
+	<app file="TestMain" main="TestMain" />
+
+	<source path="src" />
+
+	<haxelib name="lime" />
+	<haxelib name="utest" />
+
+	<template path="templates" if="html5"/>
+</project>

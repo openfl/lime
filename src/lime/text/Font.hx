@@ -151,13 +151,17 @@ class Font
 	/**
      	* Decomposes the font into outline data.
      	*
+     	* @param forceAutoHint When `true`, force auto-hinting for outline decomposition.
+     	* When `false`, preserve the unhinted glyph outlines.
      	* @return An instance of `NativeFontData` that contains decomposed font outline information.
      	*/
-	public function decompose():NativeFontData
+	public function decompose(forceAutoHint:Bool = true):NativeFontData
 	{
 		#if (lime_cffi && !macro)
 		if (src == null) throw "Uninitialized font handle.";
-		var data:Dynamic = NativeCFFI.lime_font_outline_decompose(src, 1024 * 20);
+		var data:Dynamic = forceAutoHint
+			? NativeCFFI.lime_font_outline_decompose(src, 1024 * 20)
+			: NativeCFFI.lime_font_outline_decompose_no_hint(src, 1024 * 20);
 		#if hl
 		if (data != null)
 		{
@@ -324,16 +328,32 @@ class Font
      	* @param fontSize The size to render the glyph at.
      	* @return An `Image` instance representing the rendered glyph.
      	*/
-	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
+	public function renderGlyph(glyph:Glyph, fontSize:Int, dpi:Int = 96):Image
+	{
+		return renderGlyphWithLoadFlags(glyph, fontSize, dpi);
+	}
+
+	/**
+     	* Renders a specific glyph to an image using explicit FreeType load flags.
+     	*
+     	* @param glyph The glyph to render.
+     	* @param fontSize The size to render the glyph at.
+     	* @param dpi The DPI used to size the glyph before rasterization.
+     	* @param loadFlags Additional FreeType load flags to apply when rasterizing.
+     	* @return An `Image` instance representing the rendered glyph.
+     	*/
+	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int):Image
 	{
 		#if (lime_cffi && !macro)
-		__setSize(fontSize, 96);
+		__setSize(fontSize, dpi);
 
 		// Allocate an estimated buffer size - adjust if necessary
 		var bytes:Bytes = Bytes.alloc(0); // Allocate some reasonable initial size
 
 		// Call native function to render glyph and get byte data
-		bytes = NativeCFFI.lime_font_render_glyph(src, glyph, bytes);
+		bytes = loadFlags == null
+			? NativeCFFI.lime_font_render_glyph(src, glyph, bytes)
+			: NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
 
 		if (bytes != null && bytes.length > 0)
 		{

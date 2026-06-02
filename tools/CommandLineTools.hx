@@ -137,6 +137,10 @@ class CommandLineTools
 
 					if (haxelibPath != "" && haxelibPath != null)
 					{
+						if (Log.verbose)
+						{
+							Log.println('Rebuilding tools for haxelib: ${words[0]}');
+						}
 						words.push("tools");
 					}
 				}
@@ -306,6 +310,17 @@ class CommandLineTools
 							if (cacheValue != null)
 							{
 								Sys.putEnv("HAXELIB_PATH", cacheValue);
+							}
+						}
+						else
+						{
+							if (haxelib != null)
+							{
+								Log.warn('No rebuild script found for haxelib "${haxelib.name}"');
+							}
+							else
+							{
+								Log.warn('No rebuild script found at "${words[0]}"');
 							}
 						}
 					}

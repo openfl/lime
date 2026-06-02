@@ -4,6 +4,7 @@
 
 #include <system/CFFI.h>
 #include <utils/ArrayBufferView.h>
+#include <utils/Bytes.h>
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -41,7 +42,14 @@ namespace lime {
 		vdynamic* __srcBuffer;
 		vdynamic* __srcCustom;
 		vdynamic* __srcHowl;
+		bool __isDisposed;
 		vdynamic* __srcSound;
+		Bytes* __srcSoundBytes;
+		bool __srcSDLSoundCanSeek;
+		int __srcSDLSoundDuration;
+		hl_vstring* __srcSDLSoundPath;
+		Bytes* __srcVorbisBytes;
+		hl_vstring* __srcVorbisPath;
 		vdynamic* __srcVorbisFile;
 
 		AudioBuffer (value audioBuffer);

@@ -7,7 +7,10 @@
 
 	<files id="native-toolkit-pixman">
 
-		<compilerflag value="-fno-integrated-as" if="HXCPP_CLANG || NDKV20+" unless="mac || ios || NDKV22+" />
+		<section if="PIXMAN_ARM_NEON HXCPP_CLANG || PIXMAN_ARM_NEON NDKV20+">
+			<compilerflag value="-fno-integrated-as" />
+			<compilerflag value="-march=armv7-a" if="HXCPP_ARMV7" />
+		</section>
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/pixman/pixman" />

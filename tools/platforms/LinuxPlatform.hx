@@ -227,7 +227,20 @@ class LinuxPlatform extends PlatformTarget
 			if (project.targetFlags.exists("hlc"))
 			{
 				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				var command = [compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,$ORIGIN", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "-L", applicationDirectory];
+				var command = [
+					compiler,
+					"-O3",
+					"-o", executablePath,
+					"-std=c11",
+					"-Wl,-rpath,$ORIGIN",
+					"-I", Path.combine(targetDirectory, "obj"),
+					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+					"-L", applicationDirectory,
+					// gcc 14 and clang 22 made incompatible-pointer-types an
+					// error instead of a warning, but it's required for
+					// assignment to Dynamic in Haxe
+					"-Wno-error=incompatible-pointer-types"
+				];
 				for (file in System.readDirectory(applicationDirectory))
 				{
 					switch Path.extension(file)
@@ -382,14 +395,6 @@ class LinuxPlatform extends PlatformTarget
 		}
 	}
 
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Linux " + (is64 ? "64" : "32") + "-bit");
@@ -428,7 +433,7 @@ class LinuxPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -468,7 +473,7 @@ class LinuxPlatform extends PlatformTarget
 	{
 		var commands:Array<Array<String>> = [];
 
-		if (System.hostArchitecture == ARM64 )
+		if (targetFlags.exists('rpi') && System.hostArchitecture == ARM64 )
 		{
 			commands.push([
 				"-Dlinux",
@@ -482,7 +487,7 @@ class LinuxPlatform extends PlatformTarget
 				"-DHXCPP_RANLIB=aarch64-linux-gnu-ranlib"
 			]);
 		}
-		else if (System.hostArchitecture == ARMV7)
+		else if (targetFlags.exists('rpi') && System.hostArchitecture == ARMV7)
 		{
 			commands.push([
 				"-Dlinux",
@@ -500,6 +505,15 @@ class LinuxPlatform extends PlatformTarget
 		{
 			// TODO: Support single binary
 			commands.push(["-Dlinux", "-DHXCPP_M64", "-Dhashlink"]);
+		}
+		else if (System.hostArchitecture == ARM64 )
+		{
+			commands.push([
+				"-Dlinux",
+				"-Dtoolchain=linux",
+				"-DBINDIR=LinuxArm64",
+				"-DHXCPP_ARM64",
+			]);
 		}
 		else
 		{
@@ -553,17 +567,6 @@ class LinuxPlatform extends PlatformTarget
 		// project = project.clone ();
 		// initialize (project);
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
-
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
@@ -606,39 +609,7 @@ class LinuxPlatform extends PlatformTarget
 		}
 
 		// context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, Path.combine (applicationDirectory, "icon.png"));
-		for (asset in project.assets)
-		{
-			var path = Path.combine(applicationDirectory, asset.targetPath);
-
-			if (asset.embed != true)
-			{
-				if (asset.type != AssetType.TEMPLATE)
-				{
-					System.mkdir(Path.directory(path));
-					AssetHelper.copyAssetIfNewer(asset, path);
-				}
-				else
-				{
-					System.mkdir(Path.directory(path));
-					AssetHelper.copyAsset(asset, path, context);
-				}
-			}
-		}
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
+		copyProjectAssets(applicationDirectory);
 	}
 
 	@ignore public override function install():Void {}
