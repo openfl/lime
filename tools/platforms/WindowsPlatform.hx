@@ -1016,6 +1016,12 @@ class WindowsPlatform extends PlatformTarget
 		}
 		else if (targetType == "cpp")
 		{
+			var windowsIcons = project.icons;
+			if (windowsIcons.length == 0)
+			{
+				windowsIcons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+			}
+			context.HAS_ICON = IconHelper.createWindowsIcon(windowsIcons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
 			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
 
 			if (project.targetFlags.exists("static"))
