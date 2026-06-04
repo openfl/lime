@@ -22,6 +22,7 @@
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
 #include <media/AudioBuffer.h>
+#include <media/VideoDecoder.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
@@ -1263,6 +1264,22 @@ namespace lime {
 	}
 
 
+	void gc_video_decoder (value handle) {
+
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		delete decoder;
+
+	}
+
+
+	void hl_gc_video_decoder (HL_CFFIPointer* handle) {
+
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		delete decoder;
+
+	}
+
+
 	void gc_font (value handle) {
 
 		#ifdef LIME_FREETYPE
@@ -1703,6 +1720,307 @@ namespace lime {
 			return lime_audio_load_bytes (data, buffer);
 
 		}
+
+	}
+
+
+	bool lime_video_decoder_is_supported () {
+
+		return VideoDecoder::IsSupported ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_video_decoder_is_supported) () {
+
+		return VideoDecoder::IsSupported ();
+
+	}
+
+
+	value lime_video_decoder_create () {
+
+		VideoDecoder* decoder = new VideoDecoder ();
+		return CFFIPointer (decoder, gc_video_decoder);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_video_decoder_create) () {
+
+		VideoDecoder* decoder = new VideoDecoder ();
+		return HLCFFIPointer (decoder, (hl_finalizer)hl_gc_video_decoder);
+
+	}
+
+
+	void lime_video_decoder_close (value handle) {
+
+		if (val_is_null (handle)) return;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		if (decoder) decoder->Close ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_video_decoder_close) (HL_CFFIPointer* handle) {
+
+		if (!handle) return;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		if (decoder) decoder->Close ();
+
+	}
+
+
+	bool lime_video_decoder_load (value handle, HxString path) {
+
+		if (val_is_null (handle)) return false;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		if (!decoder) return false;
+
+		const char* pathUtf8 = hxs_utf8 (path, nullptr);
+		return decoder->Load (pathUtf8);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_video_decoder_load) (HL_CFFIPointer* handle, hl_vstring* path) {
+
+		if (!handle) return false;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		if (!decoder) return false;
+
+		return decoder->Load (path ? hl_to_utf8 ((const uchar*)path->bytes) : 0);
+
+	}
+
+
+	void lime_video_decoder_set_hardware_decoding_enabled (value handle, bool enabled) {
+
+		if (val_is_null (handle)) return;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		if (decoder) decoder->SetHardwareDecodingEnabled (enabled);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_video_decoder_set_hardware_decoding_enabled) (HL_CFFIPointer* handle, bool enabled) {
+
+		if (!handle) return;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		if (decoder) decoder->SetHardwareDecodingEnabled (enabled);
+
+	}
+
+
+	void lime_video_decoder_seek (value handle, int targetMs) {
+
+		if (val_is_null (handle)) return;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		if (decoder) decoder->Seek (targetMs);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_video_decoder_seek) (HL_CFFIPointer* handle, int targetMs) {
+
+		if (!handle) return;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		if (decoder) decoder->Seek (targetMs);
+
+	}
+
+
+	bool lime_video_decoder_read_rgba_frame (value handle, value buffer, int length) {
+
+		if (val_is_null (handle)) return false;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		if (!decoder) return false;
+
+		Bytes bytes (buffer);
+		int bytesLength = length < bytes.length ? length : bytes.length;
+		return decoder->ReadRGBAFrame (bytes.b, bytesLength);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_video_decoder_read_rgba_frame) (HL_CFFIPointer* handle, Bytes* buffer, int length) {
+
+		if (!handle || !buffer) return false;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		if (!decoder) return false;
+
+		int bytesLength = length < buffer->length ? length : buffer->length;
+		return decoder->ReadRGBAFrame (buffer->b, bytesLength);
+
+	}
+
+
+	int lime_video_decoder_read_audio (value handle, value buffer, int length) {
+
+		if (val_is_null (handle)) return -1;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		if (!decoder) return -1;
+
+		Bytes bytes (buffer);
+		int bytesLength = length < bytes.length ? length : bytes.length;
+		return decoder->ReadAudio (bytes.b, bytesLength);
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_read_audio) (HL_CFFIPointer* handle, Bytes* buffer, int length) {
+
+		if (!handle || !buffer) return -1;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		if (!decoder) return -1;
+
+		int bytesLength = length < buffer->length ? length : buffer->length;
+		return decoder->ReadAudio (buffer->b, bytesLength);
+
+	}
+
+
+	int lime_video_decoder_get_width (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetWidth () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_width) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetWidth () : 0;
+
+	}
+
+
+	int lime_video_decoder_get_height (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetHeight () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_height) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetHeight () : 0;
+
+	}
+
+
+	double lime_video_decoder_get_frame_rate (value handle) {
+
+		if (val_is_null (handle)) return 0.0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetFrameRate () : 0.0;
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_video_decoder_get_frame_rate) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0.0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetFrameRate () : 0.0;
+
+	}
+
+
+	int lime_video_decoder_get_duration (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetDuration () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_duration) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetDuration () : 0;
+
+	}
+
+
+	int lime_video_decoder_get_video_position (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetVideoPosition () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_video_position) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetVideoPosition () : 0;
+
+	}
+
+
+	int lime_video_decoder_get_audio_bits_per_sample (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetAudioBitsPerSample () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_audio_bits_per_sample) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetAudioBitsPerSample () : 0;
+
+	}
+
+
+	int lime_video_decoder_get_audio_channel_count (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetAudioChannelCount () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_audio_channel_count) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetAudioChannelCount () : 0;
+
+	}
+
+
+	int lime_video_decoder_get_audio_sample_rate (value handle) {
+
+		if (val_is_null (handle)) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		return decoder ? decoder->GetAudioSampleRate () : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_video_decoder_get_audio_sample_rate) (HL_CFFIPointer* handle) {
+
+		if (!handle) return 0;
+		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
+		return decoder ? decoder->GetAudioSampleRate () : 0;
 
 	}
 
@@ -13324,6 +13642,22 @@ namespace lime {
 	DEFINE_PRIME2 (lime_audio_load);
 	DEFINE_PRIME2 (lime_audio_load_bytes);
 	DEFINE_PRIME2 (lime_audio_load_file);
+	DEFINE_PRIME0 (lime_video_decoder_is_supported);
+	DEFINE_PRIME0 (lime_video_decoder_create);
+	DEFINE_PRIME1v (lime_video_decoder_close);
+	DEFINE_PRIME2 (lime_video_decoder_load);
+	DEFINE_PRIME2v (lime_video_decoder_set_hardware_decoding_enabled);
+	DEFINE_PRIME2v (lime_video_decoder_seek);
+	DEFINE_PRIME3 (lime_video_decoder_read_rgba_frame);
+	DEFINE_PRIME3 (lime_video_decoder_read_audio);
+	DEFINE_PRIME1 (lime_video_decoder_get_width);
+	DEFINE_PRIME1 (lime_video_decoder_get_height);
+	DEFINE_PRIME1 (lime_video_decoder_get_frame_rate);
+	DEFINE_PRIME1 (lime_video_decoder_get_duration);
+	DEFINE_PRIME1 (lime_video_decoder_get_video_position);
+	DEFINE_PRIME1 (lime_video_decoder_get_audio_bits_per_sample);
+	DEFINE_PRIME1 (lime_video_decoder_get_audio_channel_count);
+	DEFINE_PRIME1 (lime_video_decoder_get_audio_sample_rate);
 	DEFINE_PRIME3 (lime_bytes_from_data_pointer);
 	DEFINE_PRIME1 (lime_bytes_get_data_pointer);
 	DEFINE_PRIME2 (lime_bytes_get_data_pointer_offset);
@@ -13632,6 +13966,22 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_application_update, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_file, _STRING _TAUDIOBUFFER);
+	DEFINE_HL_PRIM (_BOOL, hl_video_decoder_is_supported, _NO_ARG);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_video_decoder_create, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_video_decoder_close, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_video_decoder_load, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_video_decoder_set_hardware_decoding_enabled, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_video_decoder_seek, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_video_decoder_read_rgba_frame, _TCFFIPOINTER _TBYTES _I32);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_read_audio, _TCFFIPOINTER _TBYTES _I32);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_width, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_height, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, hl_video_decoder_get_frame_rate, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_duration, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_video_position, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_audio_bits_per_sample, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_audio_channel_count, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_I32, hl_video_decoder_get_audio_sample_rate, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TBYTES, hl_bytes_from_data_pointer, _F64 _I32 _TBYTES);
 	DEFINE_HL_PRIM (_F64, hl_bytes_get_data_pointer, _TBYTES);
 	DEFINE_HL_PRIM (_F64, hl_bytes_get_data_pointer_offset, _TBYTES _I32);

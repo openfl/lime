@@ -80,6 +80,38 @@ class NativeCFFI
 
 	@:cffi private static function lime_audio_load_file(path:Dynamic, buffer:Dynamic):Dynamic;
 
+	@:cffi private static function lime_video_decoder_is_supported():Bool;
+
+	@:cffi private static function lime_video_decoder_create():CFFIPointer;
+
+	@:cffi private static function lime_video_decoder_close(handle:CFFIPointer):Void;
+
+	@:cffi private static function lime_video_decoder_load(handle:CFFIPointer, path:String):Bool;
+
+	@:cffi private static function lime_video_decoder_set_hardware_decoding_enabled(handle:CFFIPointer, enabled:Bool):Void;
+
+	@:cffi private static function lime_video_decoder_seek(handle:CFFIPointer, targetMs:Int):Void;
+
+	@:cffi private static function lime_video_decoder_read_rgba_frame(handle:CFFIPointer, buffer:Dynamic, length:Int):Bool;
+
+	@:cffi private static function lime_video_decoder_read_audio(handle:CFFIPointer, buffer:Dynamic, length:Int):Int;
+
+	@:cffi private static function lime_video_decoder_get_width(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_video_decoder_get_height(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_video_decoder_get_frame_rate(handle:CFFIPointer):Float;
+
+	@:cffi private static function lime_video_decoder_get_duration(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_video_decoder_get_video_position(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_video_decoder_get_audio_bits_per_sample(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_video_decoder_get_audio_channel_count(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_video_decoder_get_audio_sample_rate(handle:CFFIPointer):Int;
+
 	@:cffi private static function lime_sdl_sound_get_info_from_bytes(bytes:Dynamic):Dynamic;
 
 	@:cffi private static function lime_sdl_sound_get_info_from_file(path:String):Dynamic;
@@ -735,6 +767,37 @@ class NativeCFFI
 		"ooo", false));
 	private static var lime_audio_load_file = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_audio_load_file", "ooo",
 		false));
+	private static var lime_video_decoder_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_video_decoder_is_supported", "b",
+		false));
+	private static var lime_video_decoder_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_video_decoder_create", "o", false));
+	private static var lime_video_decoder_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_video_decoder_close", "ov",
+		false));
+	private static var lime_video_decoder_load = new cpp.Callable<cpp.Object->String->Bool>(cpp.Prime._loadPrime("lime", "lime_video_decoder_load", "osb",
+		false));
+	private static var lime_video_decoder_set_hardware_decoding_enabled = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_set_hardware_decoding_enabled", "obv", false));
+	private static var lime_video_decoder_seek = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_video_decoder_seek", "oiv",
+		false));
+	private static var lime_video_decoder_read_rgba_frame = new cpp.Callable<cpp.Object->cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_read_rgba_frame", "ooib", false));
+	private static var lime_video_decoder_read_audio = new cpp.Callable<cpp.Object->cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_read_audio", "ooii", false));
+	private static var lime_video_decoder_get_width = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_video_decoder_get_width", "oi",
+		false));
+	private static var lime_video_decoder_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_video_decoder_get_height", "oi",
+		false));
+	private static var lime_video_decoder_get_frame_rate = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_video_decoder_get_frame_rate",
+		"od", false));
+	private static var lime_video_decoder_get_duration = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_video_decoder_get_duration",
+		"oi", false));
+	private static var lime_video_decoder_get_video_position = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_get_video_position", "oi", false));
+	private static var lime_video_decoder_get_audio_bits_per_sample = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_get_audio_bits_per_sample", "oi", false));
+	private static var lime_video_decoder_get_audio_channel_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_get_audio_channel_count", "oi", false));
+	private static var lime_video_decoder_get_audio_sample_rate = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_get_audio_sample_rate", "oi", false));
 	private static var lime_sdl_sound_get_info_from_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_sdl_sound_get_info_from_bytes", "oo", false));
 	private static var lime_sdl_sound_get_info_from_file = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime",
@@ -1248,6 +1311,22 @@ class NativeCFFI
 	private static var lime_audio_load = CFFI.load("lime", "lime_audio_load", 2);
 	private static var lime_audio_load_bytes = CFFI.load("lime", "lime_audio_load_bytes", 2);
 	private static var lime_audio_load_file = CFFI.load("lime", "lime_audio_load_file", 2);
+	private static var lime_video_decoder_is_supported = CFFI.load("lime", "lime_video_decoder_is_supported", 0);
+	private static var lime_video_decoder_create = CFFI.load("lime", "lime_video_decoder_create", 0);
+	private static var lime_video_decoder_close = CFFI.load("lime", "lime_video_decoder_close", 1);
+	private static var lime_video_decoder_load = CFFI.load("lime", "lime_video_decoder_load", 2);
+	private static var lime_video_decoder_set_hardware_decoding_enabled = CFFI.load("lime", "lime_video_decoder_set_hardware_decoding_enabled", 2);
+	private static var lime_video_decoder_seek = CFFI.load("lime", "lime_video_decoder_seek", 2);
+	private static var lime_video_decoder_read_rgba_frame = CFFI.load("lime", "lime_video_decoder_read_rgba_frame", 3);
+	private static var lime_video_decoder_read_audio = CFFI.load("lime", "lime_video_decoder_read_audio", 3);
+	private static var lime_video_decoder_get_width = CFFI.load("lime", "lime_video_decoder_get_width", 1);
+	private static var lime_video_decoder_get_height = CFFI.load("lime", "lime_video_decoder_get_height", 1);
+	private static var lime_video_decoder_get_frame_rate = CFFI.load("lime", "lime_video_decoder_get_frame_rate", 1);
+	private static var lime_video_decoder_get_duration = CFFI.load("lime", "lime_video_decoder_get_duration", 1);
+	private static var lime_video_decoder_get_video_position = CFFI.load("lime", "lime_video_decoder_get_video_position", 1);
+	private static var lime_video_decoder_get_audio_bits_per_sample = CFFI.load("lime", "lime_video_decoder_get_audio_bits_per_sample", 1);
+	private static var lime_video_decoder_get_audio_channel_count = CFFI.load("lime", "lime_video_decoder_get_audio_channel_count", 1);
+	private static var lime_video_decoder_get_audio_sample_rate = CFFI.load("lime", "lime_video_decoder_get_audio_sample_rate", 1);
 	private static var lime_sdl_sound_get_info_from_bytes = CFFI.load("lime", "lime_sdl_sound_get_info_from_bytes", 1);
 	private static var lime_sdl_sound_get_info_from_file = CFFI.load("lime", "lime_sdl_sound_get_info_from_file", 1);
 	private static var lime_sdl_sound_stream_from_bytes = CFFI.load("lime", "lime_sdl_sound_stream_from_bytes", 1);
@@ -1560,6 +1639,82 @@ class NativeCFFI
 	@:hlNative("lime", "hl_audio_load_file") private static function lime_audio_load_file(path:String, buffer:AudioBuffer):AudioBuffer
 	{
 		return null;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_is_supported") private static function lime_video_decoder_is_supported():Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_create") private static function lime_video_decoder_create():CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_close") private static function lime_video_decoder_close(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_video_decoder_load") private static function lime_video_decoder_load(handle:CFFIPointer, path:String):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_set_hardware_decoding_enabled") private static function lime_video_decoder_set_hardware_decoding_enabled(
+		handle:CFFIPointer, enabled:Bool):Void {}
+
+	@:hlNative("lime", "hl_video_decoder_seek") private static function lime_video_decoder_seek(handle:CFFIPointer, targetMs:Int):Void {}
+
+	@:hlNative("lime", "hl_video_decoder_read_rgba_frame") private static function lime_video_decoder_read_rgba_frame(handle:CFFIPointer,
+			buffer:Bytes, length:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_read_audio") private static function lime_video_decoder_read_audio(handle:CFFIPointer, buffer:Bytes,
+			length:Int):Int
+	{
+		return -1;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_width") private static function lime_video_decoder_get_width(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_height") private static function lime_video_decoder_get_height(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_frame_rate") private static function lime_video_decoder_get_frame_rate(handle:CFFIPointer):Float
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_duration") private static function lime_video_decoder_get_duration(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_video_position") private static function lime_video_decoder_get_video_position(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_audio_bits_per_sample") private static function lime_video_decoder_get_audio_bits_per_sample(
+		handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_audio_channel_count") private static function lime_video_decoder_get_audio_channel_count(
+		handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_get_audio_sample_rate") private static function lime_video_decoder_get_audio_sample_rate(handle:CFFIPointer):Int
+	{
+		return 0;
 	}
 
 	@:hlNative("lime", "hl_sdl_sound_get_info_from_bytes") private static function lime_sdl_sound_get_info_from_bytes(bytes:Bytes):Dynamic
