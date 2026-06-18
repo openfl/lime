@@ -33,6 +33,7 @@ class AssetLibrary
 	@:noCompletion private var cachedAudioBuffers = new Map<String, AudioBuffer>();
 	@:noCompletion private var cachedBytes = new Map<String, Bytes>();
 	@:noCompletion private var cachedFonts = new Map<String, Font>();
+	@:noCompletion private var cachedImageBytes = new Map<String, Bytes>();
 	@:noCompletion private var cachedImages = new Map<String, Image>();
 	@:noCompletion private var cachedText = new Map<String, String>();
 	@:noCompletion private var classTypes = new Map<String, Class<Dynamic>>();
@@ -317,6 +318,13 @@ class AssetLibrary
 		{
 			return cachedImages.get(id);
 		}
+		else if (cachedImageBytes.exists(id))
+		{
+			var image = Image.fromBytes(cachedImageBytes.get(id));
+			cachedImageBytes.remove(id);
+			cachedImages.set(id, image);
+			return image;
+		}
 		else if (classTypes.exists(id))
 		{
 			#if flash
@@ -381,11 +389,11 @@ class AssetLibrary
 		return switch (cast(type, AssetType))
 		{
 			case null:
-				cachedBytes.exists(id) || cachedText.exists(id) || cachedImages.exists(id)
+				cachedBytes.exists(id) || cachedText.exists(id) || cachedImageBytes.exists(id) || cachedImages.exists(id)
 					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
 
 			case IMAGE:
-				cachedImages.exists(id);
+				cachedImages.exists(id) || cachedImageBytes.exists(id);
 
 			case MUSIC, SOUND:
 				cachedAudioBuffers.exists(id);
@@ -658,11 +666,11 @@ class AssetLibrary
 		{
 			return Future.withValue(Type.createInstance(classTypes.get(id), []));
 		}
-		else if (cachedBytes.exists(id))
+		else if (cachedImageBytes.exists(id))
 		{
-			return Image.loadFromBytes(cachedBytes.get(id)).then(function(image)
+			return Image.loadFromBytes(cachedImageBytes.get(id)).then(function(image)
 			{
-				cachedBytes.remove(id);
+				cachedImageBytes.remove(id);
 				cachedImages.set(id, image);
 				return Future.withValue(image);
 			});
@@ -706,12 +714,14 @@ class AssetLibrary
 		#if haxe4
 		cachedBytes.clear();
 		cachedFonts.clear();
+		cachedImageBytes.clear();
 		cachedImages.clear();
 		cachedAudioBuffers.clear();
 		cachedText.clear();
 		#else
 		cachedBytes = new Map<String, Bytes>();
 		cachedFonts = new Map<String, Font>();
+		cachedImageBytes = new Map<String, Bytes>();
 		cachedImages = new Map<String, Image>();
 		cachedText = new Map<String, String>();
 		classTypes = new Map<String, Class<Dynamic>>();
@@ -782,7 +792,7 @@ class AssetLibrary
 					{
 						#if !web
 						case IMAGE:
-							cachedImages.set(id, Image.fromBytes(data));
+							cachedImageBytes.set(id, data);
 						case MUSIC, SOUND:
 							cachedAudioBuffers.set(id, AudioBuffer.fromBytes(data));
 						case FONT:
