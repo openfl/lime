@@ -1895,6 +1895,12 @@ class ProjectXMLParser extends HXProject
 				case "postbuild":
 					parseCommandElement(element, postBuildCallbacks);
 
+				case "preupdate":
+					parseCommandElement(element, preUpdateCallbacks);
+
+				case "postupdate":
+					parseCommandElement(element, postUpdateCallbacks);
+
 				default:
 					if (StringTools.startsWith(element.name, "config:"))
 					{

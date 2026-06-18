@@ -102,11 +102,15 @@ class PlatformTarget
 		{
 			logCommand("update");
 
+			CommandHelper.executeCommands(project.preUpdateCallbacks);
+
 			_touchedFiles = [];
 			update();
 
 			deleteStaleFiles(_touchedFiles);
 			_touchedFiles = null;
+
+			CommandHelper.executeCommands(project.postUpdateCallbacks);
 		}
 
 		if (command == "build" || command == "test")
