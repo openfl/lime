@@ -249,16 +249,27 @@ jobs:
 
       - name: Install HashLink dependencies
         run: |
-          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-          pushd project/lib/hashlink
-          arch -x86_64 /usr/local/bin/brew update
-          rm /usr/local/bin/2to3*
-          rm /usr/local/bin/idle3*
-          rm /usr/local/bin/pydoc3*
-          rm /usr/local/bin/python3*
-          rm /usr/local/bin/pip3*
-          arch -x86_64 /usr/local/bin/brew bundle
-          popd
+          set -euxo pipefail
+
+          if [ ! -x /usr/local/bin/brew ]; then
+            NONINTERACTIVE=1 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+          fi
+
+          rm -f /usr/local/bin/2to3*
+          rm -f /usr/local/bin/idle3*
+          rm -f /usr/local/bin/pydoc3*
+          rm -f /usr/local/bin/python3*
+          rm -f /usr/local/bin/pip3*
+
+          for attempt in 1 2 3; do
+            if arch -x86_64 /usr/local/bin/brew update && arch -x86_64 /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 30))
+          done
 
       - name: Install Haxe dependencies
         run: |
@@ -278,6 +289,9 @@ jobs:
         run: |
           lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
           lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
+
+      - name: Rebuild Lime (HashLink macOS)
+        run: |
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v7
