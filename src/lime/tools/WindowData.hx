@@ -20,6 +20,7 @@ abstract WindowData({
 	@:optional var alwaysOnTop:Bool;
 	@:optional var antialiasing:Int;
 	@:optional var renderType:String;
+	@:optional var contextVersion:String;
 	@:optional var orientation:Orientation;
 	@:optional var allowShaders:Bool;
 	@:optional var requireShaders:Bool;
@@ -56,6 +57,7 @@ abstract WindowData({
 		alwaysOnTop: false,
 		antialiasing: 0,
 		renderType: null,
+		contextVersion: null,
 		orientation: Orientation.AUTO,
 		allowShaders: false,
 		requireShaders: false,

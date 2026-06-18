@@ -1984,6 +1984,15 @@ class ProjectXMLParser extends HXProject
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
 
+				case "context-version":
+					var contextVersion = Std.string(value);
+					Reflect.setField(windows[id], "contextVersion", contextVersion);
+					if (Std.parseFloat(contextVersion) >= 3 && defines.exists("android"))
+					{
+						defines.set("lime-opengles3", "");
+						haxedefs.set("lime-opengles3", "");
+					}
+
 				case "renderer":
 					var renderType = Std.string(value).toLowerCase();
 					Reflect.setField(windows[id], "renderType", renderType);

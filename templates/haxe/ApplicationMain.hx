@@ -64,6 +64,7 @@ import ::APP_MAIN::;
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
 				type: ::if renderType::"::renderType::"::else::null::end::,
+				::if contextVersion::version: "::contextVersion::",::end::
 				vsync: ::vsync::
 			};
 

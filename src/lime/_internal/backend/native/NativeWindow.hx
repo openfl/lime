@@ -116,6 +116,9 @@ class NativeWindow
 
 		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
 		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) flags |= cast WindowFlags.WINDOW_FLAG_VULKAN;
+		if ((!Reflect.hasField(contextAttributes, "type") || contextAttributes.type != VULKAN)
+			&& Reflect.hasField(contextAttributes, "version")
+			&& Std.parseFloat(Std.string(contextAttributes.version)) >= 3) flags |= cast WindowFlags.WINDOW_FLAG_GLES3;
 		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 
@@ -762,4 +765,5 @@ class NativeWindow
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
 	var WINDOW_FLAG_VULKAN = 0x00020000;
 	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
+	var WINDOW_FLAG_GLES3 = 0x00080000;
 }

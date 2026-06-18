@@ -63,6 +63,7 @@
         <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
 		<compilerflag value="-DLIME_VULKAN" if="LIME_VULKAN" />
+		<compilerflag value="-DLIME_GLES3_API" if="lime-opengles3" />
 		<compilerflag value="-I${VULKAN_SDK}/Include" if="windows VULKAN_SDK LIME_VULKAN" />
 		<compilerflag value="-I${VULKAN_SDK}/include" if="mac VULKAN_SDK LIME_VULKAN" />
 		<compilerflag value="-I${VULKAN_SDK}/include" if="linux VULKAN_SDK LIME_VULKAN" />
@@ -533,7 +534,8 @@
 				<lib name="-landroid" />
 				<lib name="-lm" />
 				<lib name="-lEGL" />
-				<lib name="-lGLESv2" />
+				<lib name="-lGLESv3" if="lime-opengles3" />
+				<lib name="-lGLESv2" unless="lime-opengles3" />
 				<lib name="-lGLESv1_CM" />
 				<lib name="-lOpenSLES" />
 

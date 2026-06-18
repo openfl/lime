@@ -320,6 +320,12 @@ namespace lime {
 				SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
 				#endif
 
+				#if defined (ANDROID)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, (flags & WINDOW_FLAG_GLES3) ? 3 : 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				#endif
+
 				#if defined (IPHONE) || defined (APPLETV)
 				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);

@@ -5,10 +5,13 @@
 #if defined (ANDROID)  || defined (RASPBERRYPI)
 
 #define LIME_GLES
-//#include <GLES3/gl3.h>
-//#define __gl2_h_
+#if defined (ANDROID) && defined (LIME_GLES3_API)
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
+#else
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#endif
 
 #elif defined (EMSCRIPTEN)
 

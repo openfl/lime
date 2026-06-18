@@ -446,6 +446,8 @@ class AndroidPlatform extends PlatformTarget
 		context.ANDROID_VULKAN = project.window.renderType != null && project.window.renderType.toLowerCase() == "vulkan";
 		context.ANDROID_VULKAN_REQUIRED = project.config.getBool("android.vulkan-required", true);
 		context.ANDROID_VULKAN_VERSION = project.config.getString("android.vulkan-version", "0x400003");
+		var contextVersion = project.window.contextVersion != null ? Std.parseFloat(project.window.contextVersion) : 0;
+		context.ANDROID_GLES_VERSION = contextVersion >= 3 ? "0x00030000" : "0x00020000";
 
 		context.ANDROID_MANIFEST = project.config.getKeyValueArray("android.manifest", {
 			"android:versionCode": project.meta.buildNumber,
