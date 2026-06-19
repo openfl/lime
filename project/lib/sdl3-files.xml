@@ -44,7 +44,6 @@
             <compilerflag value="-DNME_DYNAMIC_ANGLE" if="NME_DYNAMIC_ANGLE" />
             <compilerflag value="-DHAVE_MODF=1" />
             <compilerflag value="-DHAVE_WINSDKVER_H=1" />
-            <compilerflag value="-DHAVE_GAMEINPUT_H=1" />
 
         </section>
 
