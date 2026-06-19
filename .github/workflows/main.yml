@@ -468,6 +468,7 @@ jobs:
           lime build SimpleImage macos -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
+        timeout-minutes: 20
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -release -verbose -nocolor
