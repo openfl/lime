@@ -199,10 +199,23 @@ class HTML5Helper
 					var templatePaths = [
 						Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
 					].concat(project.templatePaths);
-					executable = System.findTemplate(templatePaths, "bin/node/node" + suffix);
 					terser = System.findTemplate(templatePaths, "bin/node/terser/bin/terser");
+					var node = "bin/node/node" + suffix;
+					for (templatePath in templatePaths)
+					{
+						var path = Path.combine(templatePath, node);
+						if (FileSystem.exists(path))
+						{
+							executable = path;
+							break;
+						}
+					}
+					if (executable == "npx")
+					{
+						executable = "node";
+					}
 
-					if (System.hostPlatform != WINDOWS)
+					if (System.hostPlatform != WINDOWS && executable != "node")
 					{
 						Sys.command("chmod", ["+x", executable]);
 					}
