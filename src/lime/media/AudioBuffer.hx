@@ -75,7 +75,7 @@ class AudioBuffer
 	@:noCompletion private var __srcHowl:#if lime_howlerjs Howl #else Dynamic #end;
 	@:noCompletion private var __isDisposed:Bool;
 	@:noCompletion private var __srcSound:#if flash Sound #else Dynamic #end;
-	@:noCompletion private var __srcSDLSoundBytes:#if lime_sdl_sound Bytes #else Dynamic #end;
+	@:noCompletion private var __srcSDLSoundBytes:Bytes;
 	@:noCompletion private var __srcSDLSoundCanSeek:Bool;
 	@:noCompletion private var __srcSDLSoundDuration:Int;
 	@:noCompletion private var __srcSDLSoundPath:String;
