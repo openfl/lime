@@ -85,7 +85,12 @@
 [submodule "project/lib/sdl_sound"]
 	path = project/lib/sdl_sound
 	url = https://github.com/icculus/SDL_sound.git
+	shallow = true
 [submodule "project/lib/sdl3"]
 	path = project/lib/sdl3
 	url = https://github.com/libsdl-org/SDL.git
+	shallow = true
+[submodule "project/lib/sdl3_sound"]
+	path = project/lib/sdl3_sound
+	url = https://github.com/icculus/SDL_sound.git
 	shallow = true

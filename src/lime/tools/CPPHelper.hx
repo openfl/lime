@@ -2,7 +2,6 @@ package lime.tools;
 
 import hxp.*;
 import lime.tools.HXProject;
-import lime.tools.Platform;
 import sys.io.File;
 import sys.FileSystem;
 
@@ -13,8 +12,6 @@ class CPPHelper
 
 	public static function compile(project:HXProject, path:String, flags:Array<String> = null, buildFile:String = "Build.xml"):Void
 	{
-		project.normalizeNativeBackendDefines(getNativeTarget(flags));
-
 		if (project.config.getBool("cpp.requireBuild", true))
 		{
 			var args = ["run", project.config.getString("cpp.buildLibrary", "hxcpp"), buildFile];
@@ -73,12 +70,8 @@ class CPPHelper
 
 			if (!foundOptions)
 			{
-				var skipSDLSound = shouldSkipSDLSoundDefine(project, flags);
-
 				for (key in project.haxedefs.keys())
 				{
-					if (skipSDLSound && key == "lime_sdl_sound") continue;
-
 					var value = project.haxedefs.get(key);
 
 					if (value == null || value == "")
@@ -202,8 +195,6 @@ class CPPHelper
 
 	public static function rebuildSingle(project:HXProject, flags:Array<String> = null, path:String = null, buildFile:String = null):Void
 	{
-		project.normalizeNativeBackendDefines(getNativeTarget(flags));
-
 		if (path == null)
 		{
 			path = project.config.get("project.rebuild.path");
@@ -246,12 +237,8 @@ class CPPHelper
 			args = args.concat(flags);
 		}
 
-		var skipSDLSound = shouldSkipSDLSoundDefine(project, flags);
-
 		for (key in project.haxedefs.keys())
 		{
-			if (skipSDLSound && key == "lime_sdl_sound") continue;
-
 			var value = project.haxedefs.get(key);
 
 			if (value == null || value == "")
@@ -303,69 +290,4 @@ class CPPHelper
 		Haxelib.runCommand(path, args);
 	}
 
-	private static function getNativeTarget(flags:Array<String>):Platform
-	{
-		if (flags != null)
-		{
-			for (i in 0...flags.length)
-			{
-				switch (getDefineFromFlag(flags, i))
-				{
-					case "windows":
-						return Platform.WINDOWS;
-					case "mac":
-						return Platform.MAC;
-					case "linux":
-						return Platform.LINUX;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private static function getDefineFromFlag(flags:Array<String>, index:Int):String
-	{
-		var flag = flags[index];
-
-		if (flag == "-D")
-		{
-			return index + 1 < flags.length ? flags[index + 1] : null;
-		}
-
-		if (StringTools.startsWith(flag, "-D"))
-		{
-			return flag.substr(2);
-		}
-
-		return null;
-	}
-
-	private static function hasDefine(project:HXProject, flags:Array<String>, name:String):Bool
-	{
-		if (project.haxedefs.exists(name)) return true;
-
-		if (flags != null)
-		{
-			for (i in 0...flags.length)
-			{
-				if (getDefineFromFlag(flags, i) == name) return true;
-			}
-		}
-
-		return false;
-	}
-
-	private static function shouldSkipSDLSoundDefine(project:HXProject, flags:Array<String>):Bool
-	{
-		var nativeTarget = getNativeTarget(flags);
-		if (nativeTarget == null)
-		{
-			nativeTarget = project.target;
-		}
-
-		return (nativeTarget == Platform.WINDOWS || nativeTarget == Platform.MAC || nativeTarget == Platform.LINUX)
-			&& !hasDefine(project, flags, "lime-sdl2")
-			&& !hasDefine(project, flags, "LIME_SDL2");
-	}
 }

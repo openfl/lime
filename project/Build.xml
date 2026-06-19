@@ -40,8 +40,7 @@
 	<set name="LIME_SDL_ANGLE" value="1" if="windows LIME_SDL_ANGLE" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="windows angle" unless="static_link" />
 	<set name="LIME_SDL_ANGLE" value="1" if="winrt" />
-	<set name="LIME_SDL_SOUND" value="1" if="LIME_SDL" />
-	<error value="LIME_SDL_SOUND is SDL2-only on desktop during the SDL3 migration. Use -Dlime-sdl2 / -DLIME_SDL2 for the transitional SDL2 fallback." if="LIME_SDL3 LIME_SDL_SOUND" />
+	<set name="LIME_SDL_SOUND" value="1" if="LIME_SDL || LIME_SDL3" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
 	<set name="LIME_VULKAN" value="1" if="lime-vulkan" unless="no-vulkan || lime-no-vulkan" />
 	<set name="LIME_VULKAN" value="1" if="windows || linux || android" unless="no-vulkan || lime-no-vulkan || winrt || emscripten" />
@@ -375,7 +374,10 @@
 			<compilerflag value="-D__APPLETVOS__" if="tvos" />
 			<compilerflag value="-DAPPLETV" if="tvos" />
 			<compilerflag value="-DHAVE_STDIO_H" unless="windows" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl_sound/src/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl_sound/src/" if="LIME_SDL" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl3_sound/include/" if="LIME_SDL3" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl3_sound/include/SDL3_sound/" if="LIME_SDL3" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl3_sound/src/" if="LIME_SDL3" />
 
 			<file name="src/media/SDLSoundBindings.cpp" />
 			<file name="src/media/SDLSound.cpp" />
@@ -459,7 +461,8 @@
 	<include name="lib/png-files.xml" />
 	<include name="lib/sdl-files.xml" if="LIME_SDL" />
 	<include name="lib/sdl3-files.xml" if="LIME_SDL3" />
-	<include name="lib/sdl_sound-files.xml" if="LIME_SDL_SOUND" />
+	<include name="lib/sdl_sound-files.xml" if="LIME_SDL_SOUND LIME_SDL" />
+	<include name="lib/sdl3_sound-files.xml" if="LIME_SDL_SOUND LIME_SDL3" />
 	<include name="lib/tinyfiledialogs-files.xml" />
 	<include name="lib/vorbis-files.xml" />
 	<include name="lib/vpx-files.xml" />
@@ -494,7 +497,8 @@
 		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten || LIME_SDL3" />
 		<files id="native-toolkit-sdl3" if="LIME_SDL3" unless="emscripten || LIME_SDL" />
-		<files id="native-toolkit-sdl_sound" if="LIME_SDL_SOUND" />
+		<files id="native-toolkit-sdl_sound" if="LIME_SDL_SOUND LIME_SDL" />
+		<files id="native-toolkit-sdl3_sound" if="LIME_SDL_SOUND LIME_SDL3" />
 		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
 		<files id="native-toolkit-vpx" if="LIME_VPX" />

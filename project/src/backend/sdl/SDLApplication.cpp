@@ -14,7 +14,11 @@
 
 #ifdef LIME_SDL_SOUND
 #include "media/SDLSound.h"
+#ifdef LIME_SDL3
+#include <SDL3_sound/SDL_sound.h>
+#else
 #include "SDL_sound.h"
+#endif
 #endif
 
 namespace lime

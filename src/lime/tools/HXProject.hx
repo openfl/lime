@@ -1085,8 +1085,6 @@ class HXProject extends Script
 
 	private function get_templateContext():Dynamic
 	{
-		normalizeNativeBackendDefines();
-
 		var context:Dynamic = {};
 
 		if (app == null) app = {};
@@ -1506,18 +1504,6 @@ class HXProject extends Script
 		context.config = config;
 
 		return context;
-	}
-
-	public function normalizeNativeBackendDefines(targetOverride:Platform = null):Void
-	{
-		var nativeTarget = targetOverride != null ? targetOverride : target;
-
-		if ((nativeTarget == Platform.WINDOWS || nativeTarget == Platform.MAC || nativeTarget == Platform.LINUX)
-			&& !haxedefs.exists("lime-sdl2")
-			&& !haxedefs.exists("LIME_SDL2"))
-		{
-			haxedefs.remove("lime_sdl_sound");
-		}
 	}
 
 	private function get_window():WindowData

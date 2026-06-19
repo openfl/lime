@@ -28,7 +28,7 @@
 	<define name="lime-vulkan" if="cpp linux" unless="no-vulkan || lime-no-vulkan" />
 	<define name="lime-vorbis" if="native" />
 	<define name="lime-webgl" if="html5" />
-	<haxedef name="lime_sdl_sound" if="native" />
+	<define name="lime_sdl_sound" if="native" />
 
 	<define name="no-typedarray-inline" if="cs" />
 	<haxedef name="no-compilation" />

@@ -58,8 +58,8 @@ jobs:
 
           default_hxml="$(lime display tests/vulkan-smoke/project.xml linux -nocolor -nocffi)"
           echo "$default_hxml" | grep -q '^-D linux$'
-          if echo "$default_hxml" | grep -q '^-D lime_sdl_sound$'; then
-            echo "Default Linux desktop HXML must not define SDL2-only lime_sdl_sound"
+          if ! echo "$default_hxml" | grep -q '^-D lime_sdl_sound$'; then
+            echo "Default Linux desktop HXML must define lime_sdl_sound"
             exit 1
           fi
 
@@ -73,11 +73,6 @@ jobs:
             exit 1
           fi
 
-          if lime rebuild linux -64 -release -nocolor -verbose -nocffi -DLIME_SDL3 -DLIME_SDL_SOUND; then
-            echo "Expected SDL3 + SDL_sound rebuild to fail"
-            exit 1
-          fi
-
       - name: Rebuild Lime (Linux)
         run: |
           set -euo pipefail
@@ -87,7 +82,7 @@ jobs:
           grep -q -- 'lib/sdl_sound-files.xml' linux64-sdl2-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL([[:space:]]|$)' linux64-sdl2-rebuild.log
           grep -q -- 'lib/sdl/include' linux64-sdl2-rebuild.log
-          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3/include' linux64-sdl2-rebuild.log; then
+          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3_sound-files\.xml|lib/sdl3/include' linux64-sdl2-rebuild.log; then
             echo "SDL2 fallback rebuild must not include SDL3 defines or include paths"
             exit 1
           fi
@@ -96,7 +91,7 @@ jobs:
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL2([[:space:]]|$)' linux64-sdl2-define-rebuild.log
           grep -q -- 'lib/sdl-files.xml' linux64-sdl2-define-rebuild.log
           grep -q -- 'lib/sdl_sound-files.xml' linux64-sdl2-define-rebuild.log
-          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3/include' linux64-sdl2-define-rebuild.log; then
+          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3_sound-files\.xml|lib/sdl3/include' linux64-sdl2-define-rebuild.log; then
             echo "LIME_SDL2 fallback rebuild must not include SDL3 defines or include paths"
             exit 1
           fi
@@ -105,7 +100,9 @@ jobs:
 
           lime rebuild linux -64 -clean -release -nocolor -verbose -nocffi 2>&1 | tee linux64-sdl3-rebuild.log
           grep -q -- 'lib/sdl3-files.xml' linux64-sdl3-rebuild.log
+          grep -q -- 'lib/sdl3_sound-files.xml' linux64-sdl3-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)' linux64-sdl3-rebuild.log
+          grep -Eq -- '(^|[[:space:]])-DLIME_SDL_SOUND([[:space:]]|$)' linux64-sdl3-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DSDL_DISABLE_OLD_NAMES([[:space:]]|$)' linux64-sdl3-rebuild.log
           grep -q -- 'lib/sdl3/include' linux64-sdl3-rebuild.log
           if grep -Eq -- '(^|[[:space:]])-DLIME_SDL([[:space:]]|$)|lib/sdl-files\.xml|lib/sdl_sound-files\.xml|lib/sdl/include' linux64-sdl3-rebuild.log; then
@@ -356,8 +353,8 @@ jobs:
           set -euo pipefail
           default_hxml="$(lime display tests/vulkan-smoke/project.xml macos -nocolor -nocffi)"
           echo "$default_hxml" | grep -q '^-D mac$'
-          if echo "$default_hxml" | grep -q '^-D lime_sdl_sound$'; then
-            echo "Default macOS desktop HXML must not define SDL2-only lime_sdl_sound"
+          if ! echo "$default_hxml" | grep -q '^-D lime_sdl_sound$'; then
+            echo "Default macOS desktop HXML must define lime_sdl_sound"
             exit 1
           fi
 
@@ -371,11 +368,6 @@ jobs:
             exit 1
           fi
 
-          if lime rebuild macos -release -64 -nocolor -verbose -nocffi -DLIME_SDL3 -DLIME_SDL_SOUND; then
-            echo "Expected SDL3 + SDL_sound rebuild to fail"
-            exit 1
-          fi
-
       - name: Rebuild Lime (macOS)
         run: |
           set -euo pipefail
@@ -385,7 +377,7 @@ jobs:
           grep -q -- 'lib/sdl_sound-files.xml' macos64-sdl2-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL([[:space:]]|$)' macos64-sdl2-rebuild.log
           grep -q -- 'lib/sdl/include' macos64-sdl2-rebuild.log
-          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3/include' macos64-sdl2-rebuild.log; then
+          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3_sound-files\.xml|lib/sdl3/include' macos64-sdl2-rebuild.log; then
             echo "SDL2 fallback rebuild must not include SDL3 defines or include paths"
             exit 1
           fi
@@ -394,14 +386,16 @@ jobs:
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL2([[:space:]]|$)' macos64-sdl2-define-rebuild.log
           grep -q -- 'lib/sdl-files.xml' macos64-sdl2-define-rebuild.log
           grep -q -- 'lib/sdl_sound-files.xml' macos64-sdl2-define-rebuild.log
-          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3/include' macos64-sdl2-define-rebuild.log; then
+          if grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)|lib/sdl3-files\.xml|lib/sdl3_sound-files\.xml|lib/sdl3/include' macos64-sdl2-define-rebuild.log; then
             echo "LIME_SDL2 fallback rebuild must not include SDL3 defines or include paths"
             exit 1
           fi
 
           lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi 2>&1 | tee macos64-sdl3-rebuild.log
           grep -q -- 'lib/sdl3-files.xml' macos64-sdl3-rebuild.log
+          grep -q -- 'lib/sdl3_sound-files.xml' macos64-sdl3-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)' macos64-sdl3-rebuild.log
+          grep -Eq -- '(^|[[:space:]])-DLIME_SDL_SOUND([[:space:]]|$)' macos64-sdl3-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DSDL_DISABLE_OLD_NAMES([[:space:]]|$)' macos64-sdl3-rebuild.log
           grep -q -- 'lib/sdl3/include' macos64-sdl3-rebuild.log
           if grep -Eq -- '(^|[[:space:]])-DLIME_SDL([[:space:]]|$)|lib/sdl-files\.xml|lib/sdl_sound-files\.xml|lib/sdl/include' macos64-sdl3-rebuild.log; then
@@ -411,7 +405,9 @@ jobs:
 
           lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi 2>&1 | tee macos-arm64-sdl3-rebuild.log
           grep -q -- 'lib/sdl3-files.xml' macos-arm64-sdl3-rebuild.log
+          grep -q -- 'lib/sdl3_sound-files.xml' macos-arm64-sdl3-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DLIME_SDL3([[:space:]]|$)' macos-arm64-sdl3-rebuild.log
+          grep -Eq -- '(^|[[:space:]])-DLIME_SDL_SOUND([[:space:]]|$)' macos-arm64-sdl3-rebuild.log
           grep -Eq -- '(^|[[:space:]])-DSDL_DISABLE_OLD_NAMES([[:space:]]|$)' macos-arm64-sdl3-rebuild.log
           grep -q -- 'lib/sdl3/include' macos-arm64-sdl3-rebuild.log
           if grep -Eq -- '(^|[[:space:]])-DLIME_SDL([[:space:]]|$)|lib/sdl-files\.xml|lib/sdl_sound-files\.xml|lib/sdl/include' macos-arm64-sdl3-rebuild.log; then
@@ -468,7 +464,6 @@ jobs:
           lime build SimpleImage macos -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
-        timeout-minutes: 20
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -release -verbose -nocolor
@@ -518,8 +513,8 @@ jobs:
           if (-not ($defaultHxml | Select-String -Pattern '^-D windows$' -Quiet)) {
             throw "Default Windows HXML did not define windows"
           }
-          if ($defaultHxml | Select-String -Pattern '^-D lime_sdl_sound$' -Quiet) {
-            throw "Default Windows desktop HXML must not define SDL2-only lime_sdl_sound"
+          if (-not ($defaultHxml | Select-String -Pattern '^-D lime_sdl_sound$' -Quiet)) {
+            throw "Default Windows desktop HXML must define lime_sdl_sound"
           }
 
           lime rebuild windows -64 -release -nocolor -verbose -nocffi -Dlime-sdl2 -DLIME_SDL3
@@ -532,10 +527,6 @@ jobs:
             throw "Expected direct LIME_SDL desktop rebuild to fail; use lime-sdl2 / LIME_SDL2"
           }
 
-          lime rebuild windows -64 -release -nocolor -verbose -nocffi -DLIME_SDL3 -DLIME_SDL_SOUND
-          if ($LASTEXITCODE -eq 0) {
-            throw "Expected SDL3 + SDL_sound rebuild to fail"
-          }
           exit 0
 
       - name: Rebuild Lime (Windows)
@@ -561,14 +552,14 @@ jobs:
           Assert-LogContains windows64-sdl2-rebuild.log 'lib[\\/]sdl_sound-files\.xml' "Windows SDL2 fallback rebuild did not include sdl_sound-files.xml"
           Assert-LogContains windows64-sdl2-rebuild.log '(^|\s)-DLIME_SDL(\s|$)' "Windows SDL2 fallback rebuild did not define LIME_SDL"
           Assert-LogContains windows64-sdl2-rebuild.log 'lib[\\/]sdl[\\/]include' "Windows SDL2 fallback rebuild did not include SDL2 headers"
-          Assert-LogMissing windows64-sdl2-rebuild.log '(^|\s)-DLIME_SDL3(\s|$)|lib[\\/]sdl3-files\.xml|lib[\\/]sdl3[\\/]include' "Windows SDL2 fallback rebuild must not include SDL3 defines or include paths"
+          Assert-LogMissing windows64-sdl2-rebuild.log '(^|\s)-DLIME_SDL3(\s|$)|lib[\\/]sdl3-files\.xml|lib[\\/]sdl3_sound-files\.xml|lib[\\/]sdl3[\\/]include' "Windows SDL2 fallback rebuild must not include SDL3 defines or include paths"
 
           lime rebuild windows -64 -release -nocolor -verbose -nocffi -DLIME_SDL2 2>&1 | Tee-Object -FilePath windows64-sdl2-define-rebuild.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Assert-LogContains windows64-sdl2-define-rebuild.log '(^|\s)-DLIME_SDL2(\s|$)' "Windows LIME_SDL2 fallback rebuild did not pass LIME_SDL2"
           Assert-LogContains windows64-sdl2-define-rebuild.log 'lib[\\/]sdl-files\.xml' "Windows LIME_SDL2 fallback rebuild did not include sdl-files.xml"
           Assert-LogContains windows64-sdl2-define-rebuild.log 'lib[\\/]sdl_sound-files\.xml' "Windows LIME_SDL2 fallback rebuild did not include sdl_sound-files.xml"
-          Assert-LogMissing windows64-sdl2-define-rebuild.log '(^|\s)-DLIME_SDL3(\s|$)|lib[\\/]sdl3-files\.xml|lib[\\/]sdl3[\\/]include' "Windows LIME_SDL2 fallback rebuild must not include SDL3 defines or include paths"
+          Assert-LogMissing windows64-sdl2-define-rebuild.log '(^|\s)-DLIME_SDL3(\s|$)|lib[\\/]sdl3-files\.xml|lib[\\/]sdl3_sound-files\.xml|lib[\\/]sdl3[\\/]include' "Windows LIME_SDL2 fallback rebuild must not include SDL3 defines or include paths"
 
           lime rebuild windows -32 -release -nocolor -verbose -nocffi
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -576,7 +567,9 @@ jobs:
           lime rebuild windows -64 -release -nocolor -verbose -nocffi 2>&1 | Tee-Object -FilePath windows64-sdl3-rebuild.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Assert-LogContains windows64-sdl3-rebuild.log 'lib[\\/]sdl3-files\.xml' "Windows default rebuild did not include sdl3-files.xml"
+          Assert-LogContains windows64-sdl3-rebuild.log 'lib[\\/]sdl3_sound-files\.xml' "Windows default rebuild did not include sdl3_sound-files.xml"
           Assert-LogContains windows64-sdl3-rebuild.log '(^|\s)-DLIME_SDL3(\s|$)' "Windows default rebuild did not define LIME_SDL3"
+          Assert-LogContains windows64-sdl3-rebuild.log '(^|\s)-DLIME_SDL_SOUND(\s|$)' "Windows default rebuild did not define LIME_SDL_SOUND"
           Assert-LogContains windows64-sdl3-rebuild.log '(^|\s)-DSDL_DISABLE_OLD_NAMES(\s|$)' "Windows default SDL3 rebuild did not disable old SDL names"
           Assert-LogContains windows64-sdl3-rebuild.log 'lib[\\/]sdl3[\\/]include' "Windows default rebuild did not include SDL3 headers"
           Assert-LogMissing windows64-sdl3-rebuild.log '(^|\s)-DLIME_SDL(\s|$)|lib[\\/]sdl-files\.xml|lib[\\/]sdl_sound-files\.xml|lib[\\/]sdl[\\/]include' "Windows default SDL3 rebuild must not include SDL2 defines or include paths"

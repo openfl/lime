@@ -8,6 +8,36 @@ namespace lime {
 
 	static const Uint32 SDL_SOUND_BUFFER_SIZE = 64 * 1024;
 
+#ifdef LIME_SDL3
+	typedef SDL_AudioSpec LimeSDLSoundAudioInfo;
+	static const SDL_AudioFormat LIME_SDL_SOUND_S16SYS = SDL_AUDIO_S16;
+#else
+	typedef Sound_AudioInfo LimeSDLSoundAudioInfo;
+	static const Uint16 LIME_SDL_SOUND_S16SYS = AUDIO_S16SYS;
+#endif
+
+
+	static int GetSampleRate (const LimeSDLSoundAudioInfo& info) {
+
+#ifdef LIME_SDL3
+		return info.freq;
+#else
+		return info.rate;
+#endif
+
+	}
+
+
+	static void SetSampleRate (LimeSDLSoundAudioInfo& info, int sampleRate) {
+
+#ifdef LIME_SDL3
+		info.freq = sampleRate;
+#else
+		info.rate = sampleRate;
+#endif
+
+	}
+
 
 	static Uint32 AlignBufferSize (Uint32 bufferSize, int bytesPerFrame) {
 
@@ -33,10 +63,10 @@ namespace lime {
 
 	static Sound_Sample* CreateSample (Resource* resource) {
 
-		Sound_AudioInfo want = {};
-		want.format = AUDIO_S16SYS;
+		LimeSDLSoundAudioInfo want = {};
+		want.format = LIME_SDL_SOUND_S16SYS;
 		want.channels = 0;
-		want.rate = 0;
+		SetSampleRate (want, 0);
 
 		Sound_Sample* sample = NULL;
 
@@ -66,19 +96,20 @@ namespace lime {
 
 	static bool PrepareSample (Sound_Sample* sample, SDLSoundStreamInfo* streamInfo = NULL) {
 
-		const Sound_AudioInfo& actual = sample->actual;
-		const Sound_AudioInfo& output = sample->desired.format ? sample->desired : sample->actual;
+		const LimeSDLSoundAudioInfo& actual = sample->actual;
+		const LimeSDLSoundAudioInfo& output = sample->desired.format ? sample->desired : sample->actual;
 		int bitsPerSample = SDL_AUDIO_BITSIZE (output.format);
+		int sampleRate = GetSampleRate (output);
 
 		if (bitsPerSample <= 0) {
 
-			bitsPerSample = SDL_AUDIO_BITSIZE (AUDIO_S16SYS);
+			bitsPerSample = SDL_AUDIO_BITSIZE (LIME_SDL_SOUND_S16SYS);
 
 		}
 
-		if (output.channels < 1 || output.channels > 2 || output.rate <= 0 || bitsPerSample <= 0) {
+		if (output.channels < 1 || output.channels > 2 || sampleRate <= 0 || bitsPerSample <= 0) {
 
-			printf ("SDL_sound: unsupported stream format (channels=%d, rate=%d, bits=%d)\n", output.channels, output.rate, bitsPerSample);
+			printf ("SDL_sound: unsupported stream format (channels=%d, rate=%d, bits=%d)\n", output.channels, sampleRate, bitsPerSample);
 			return false;
 
 		}
@@ -98,7 +129,7 @@ namespace lime {
 			streamInfo->canSeek = ((sample->flags & SOUND_SAMPLEFLAG_CANSEEK) != 0);
 			streamInfo->channels = output.channels;
 			streamInfo->duration = Sound_GetDuration (sample);
-			streamInfo->sampleRate = output.rate;
+			streamInfo->sampleRate = sampleRate;
 
 		}
 
@@ -336,12 +367,12 @@ namespace lime {
 		}
 
 		Sound_Sample* sample = stream->sample;
-		const Sound_AudioInfo& output = sample->desired.format ? sample->desired : sample->actual;
+		const LimeSDLSoundAudioInfo& output = sample->desired.format ? sample->desired : sample->actual;
 		int bitsPerSample = SDL_AUDIO_BITSIZE (output.format);
 
 		if (bitsPerSample <= 0) {
 
-			bitsPerSample = SDL_AUDIO_BITSIZE (AUDIO_S16SYS);
+			bitsPerSample = SDL_AUDIO_BITSIZE (LIME_SDL_SOUND_S16SYS);
 
 		}
 

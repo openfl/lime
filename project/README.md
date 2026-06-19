@@ -59,7 +59,7 @@ lime rebuild windows -DLIME_SDL2
 SDL2 and SDL3 are mutually exclusive in one native build. Lime does not support `sdl2-compat` as a backend or runtime dependency.
 The lower-level `LIME_SDL` native define is internal and is not a supported desktop fallback selector.
 
-The legacy `lime_sdl_sound` bridge is SDL2-only on desktop during this transition. Default SDL3 desktop HXML does not define it; explicit SDL2 fallback builds keep it enabled while media decoding is migrated.
+The `lime_sdl_sound` bridge is enabled for both SDL3 default builds and explicit SDL2 fallback builds. SDL3 builds use the `lib/sdl3_sound` submodule, while SDL2 fallback builds use `lib/sdl_sound`.
 
 ### Build troubleshooting
 If errors appeared after updating Lime, the update process may not be complete. Run these commands:

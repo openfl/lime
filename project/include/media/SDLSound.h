@@ -2,7 +2,11 @@
 #define LIME_MEDIA_DECODERS_SDL_SOUND_H
 
 
+#ifdef LIME_SDL3
+#include <SDL3_sound/SDL_sound.h>
+#else
 #include "SDL_sound.h"
+#endif
 #include <media/AudioBuffer.h>
 #include <utils/Resource.h>
 
