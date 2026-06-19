@@ -24,8 +24,11 @@
 	<define name="lime-openal" if="ios || tvos || emscripten || lime-openalsoft || lime-mojoal" />
 	<define name="lime-opengl" if="desktop" unless="html5" />
 	<define name="lime-opengles" if="emscripten || mobile" />
+	<define name="lime-vulkan" if="cpp windows" unless="no-vulkan || lime-no-vulkan || winrt" />
+	<define name="lime-vulkan" if="cpp linux" unless="no-vulkan || lime-no-vulkan" />
 	<define name="lime-vorbis" if="native" />
 	<define name="lime-webgl" if="html5" />
+	<haxedef name="lime_sdl_sound" if="native" />
 
 	<define name="no-typedarray-inline" if="cs" />
 	<haxedef name="no-compilation" />

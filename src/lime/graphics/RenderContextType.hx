@@ -41,6 +41,11 @@ enum abstract RenderContextType(String) from String to String
 	var WEBGL = "webgl";
 
 	/**
+		Describes a Vulkan render context
+	**/
+	var VULKAN = "vulkan";
+
+	/**
 		Describes a custom render context
 	**/
 	var CUSTOM = "custom";

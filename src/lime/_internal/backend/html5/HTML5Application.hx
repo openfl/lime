@@ -4,10 +4,14 @@ import js.html.DeviceMotionEvent;
 import js.html.KeyboardEvent;
 import js.Browser;
 import lime.app.Application;
+import lime.app.FrameOptions;
+import lime.app.FrameProfile;
+import lime.app.VSyncMode;
 import lime.media.AudioManager;
 import lime.system.Orientation;
 import lime.system.Sensor;
 import lime.system.SensorType;
+import lime.system.System;
 import lime.ui.GamepadAxis;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
@@ -270,6 +274,11 @@ class HTML5Application
 		return keyCode;
 	}
 
+	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
+	{
+		framePeriod = frameRate > 0 ? (1000.0 / frameRate) : -1;
+	}
+
 	public function exec():Int
 	{
 		Browser.window.addEventListener("keydown", handleKeyEvent, false);
@@ -418,6 +427,8 @@ class HTML5Application
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
+	public function setVSyncMode(mode:VSyncMode):Void {}
+
 	private function handleKeyEvent(event:KeyboardEvent):Void
 	{
 		if (parent.window != null)
@@ -434,10 +445,11 @@ class HTML5Application
 
 			var keyCode = cast convertKeyCode(event.keyCode != null ? event.keyCode : event.which);
 			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0) | (event.metaKey ? (KeyModifier.META) : 0);
+			var timestamp = Std.int(event.timeStamp);
 
 			if (event.type == "keydown")
 			{
-				parent.window.onKeyDown.dispatch(keyCode, modifier);
+				@:privateAccess parent.window.onKeyDown.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyDown.canceled && event.cancelable)
 				{
@@ -446,7 +458,7 @@ class HTML5Application
 			}
 			else
 			{
-				parent.window.onKeyUp.dispatch(keyCode, modifier);
+				@:privateAccess parent.window.onKeyUp.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyUp.canceled && event.cancelable)
 				{
@@ -591,18 +603,19 @@ class HTML5Application
 				for (i in 0...data.buttons.length)
 				{
 					value = data.buttons[i].value;
+					var timestamp = System.getTimer();
 
 					if (value != cache.buttons[i])
 					{
 						if (i == 6)
 						{
 							joystick.onAxisMove.dispatch(data.axes.length, value);
-							if (gamepad != null) gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_LEFT, value);
+							if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(timestamp, GamepadAxis.TRIGGER_LEFT, value);
 						}
 						else if (i == 7)
 						{
 							joystick.onAxisMove.dispatch(data.axes.length + 1, value);
-							if (gamepad != null) gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_RIGHT, value);
+							if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(timestamp, GamepadAxis.TRIGGER_RIGHT, value);
 						}
 						else
 						{
@@ -639,11 +652,11 @@ class HTML5Application
 
 								if (value > 0)
 								{
-									gamepad.onButtonDown.dispatch(button);
+									@:privateAccess gamepad.onButtonDown.__dispatchWithTimestamp(timestamp, button);
 								}
 								else
 								{
-									gamepad.onButtonUp.dispatch(button);
+									@:privateAccess gamepad.onButtonUp.__dispatchWithTimestamp(timestamp, button);
 								}
 							}
 						}
@@ -657,7 +670,7 @@ class HTML5Application
 					if (data.axes[i] != cache.axes[i])
 					{
 						joystick.onAxisMove.dispatch(i, data.axes[i]);
-						if (gamepad != null) gamepad.onAxisMove.dispatch(i, data.axes[i]);
+						if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(System.getTimer(), i, data.axes[i]);
 						cache.axes[i] = data.axes[i];
 					}
 				}

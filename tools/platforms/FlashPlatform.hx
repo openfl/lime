@@ -169,7 +169,8 @@ class FlashPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -309,20 +310,19 @@ class FlashPlatform extends PlatformTarget
 
 	/*private function getIcon (size:Int, targetPath:String):Void {
 
-		var icon = icons.findIcon (size, size);
+			var icon = icons.findIcon (size, size);
 
-		if (icon != "") {
+			if (icon != "") {
 
-			System.copyIfNewer (icon, targetPath);
+				System.copyIfNewer (icon, targetPath);
 
-		} else {
+			} else {
 
-			icons.updateIcon (size, size, targetPath);
+				icons.updateIcon (size, size, targetPath);
 
-		}
+			}
 
-	}*/
-
+		}*/
 	@ignore public override function install():Void {}
 
 	@ignore public override function rebuild():Void {}

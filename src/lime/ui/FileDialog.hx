@@ -82,14 +82,43 @@ class FileDialog
 
 	public function new() {}
 
+	private static function __extensionFromFilter(filter:String):String
+	{
+		for (entry in filter.split(","))
+		{
+			if (entry.length == 0) continue;
+
+			var extension = entry;
+
+			if (StringTools.startsWith(extension, "*."))
+			{
+				extension = extension.substr(2);
+			}
+			else if (StringTools.startsWith(extension, "."))
+			{
+				extension = extension.substr(1);
+			}
+
+			if (extension.length == 0 || extension.indexOf("*") != -1 || extension.indexOf("?") != -1 || extension.indexOf("/") != -1
+				|| extension.indexOf("\\") != -1)
+			{
+				continue;
+			}
+
+			return extension;
+		}
+
+		return null;
+	}
+
 	/**
 		Opens a file selection dialog. If successful, either `onSelect` or `onSelectMultiple` will trigger
 		with the result(s).
 
 		This function only works on desktop targets, and will return `false` otherwise.
 		@param type 		Type of the file dialog: `OPEN`, `SAVE`, `OPEN_DIRECTORY` or `OPEN_MULTIPLE`.
-		@param filter 		A filter to use when browsing. Asterisks are treated as wildcards. For example,
-		`"*.jpg"` will match any file ending in `.jpg`.
+		@param filter 		A filter to use when browsing. Use a bare extension such as `"jpg"` or
+		a wildcard pattern such as `"*.jpg"`. Multiple filters may be separated by commas.
 		@param defaultPath 	The directory in which to start browsing and/or the default filename to
 		suggest. Defaults to `Sys.getCwd()`, with no default filename.
 		@param title 		The title to give the dialog window.
@@ -100,9 +129,7 @@ class FileDialog
 		if (type == null) type = FileDialogType.OPEN;
 
 		#if sys
-		if (defaultPath != null && defaultPath.length > 0
-			&& FileSystem.exists(defaultPath)
-			&& FileSystem.isDirectory(defaultPath))
+		if (defaultPath != null && defaultPath.length > 0 && FileSystem.exists(defaultPath) && FileSystem.isDirectory(defaultPath))
 		{
 			// if the default path is a directory, and the default path doesn't
 			// end with a separator, tiny file dialogs may open its parent
@@ -137,7 +164,8 @@ class FileDialog
 						// Makes sure the filename ends with extension
 						if (type == SAVE && filter != null && path.indexOf(".") == -1)
 						{
-							path += "." + filter;
+							var extension = __extensionFromFilter(filter);
+							if (extension != null) path += "." + extension;
 						}
 
 						onSelect.dispatch(path);
@@ -239,8 +267,8 @@ class FileDialog
 		Shows an open file dialog. If successful, `onOpen` will trigger with the file contents.
 
 		This function only works on desktop targets, and will return `false` otherwise.
-		@param filter 		A filter to use when browsing. Asterisks are treated as wildcards. For example,
-		`"*.jpg"` will match any file ending in `.jpg`.
+		@param filter 		A filter to use when browsing. Use a bare extension such as `"jpg"` or
+		a wildcard pattern such as `"*.jpg"`. Multiple filters may be separated by commas.
 		@param defaultPath 	The directory in which to start browsing and/or the default filename to
 		suggest. Defaults to `Sys.getCwd()`, with no default filename.
 		@param title 		The title to give the dialog window.
@@ -293,8 +321,8 @@ class FileDialog
 
 		This function only works on desktop and HMTL5 targets, and will return `false` otherwise.
 		@param data 		The file contents, in `haxe.io.Bytes` format. (Implicit casting possible.)
-		@param filter 		A filter to use when browsing. Asterisks are treated as wildcards. For example,
-		`"*.jpg"` will match any file ending in `.jpg`. Used only if targeting deskop.
+		@param filter 		A filter to use when browsing. Use a bare extension such as `"jpg"` or
+		a wildcard pattern such as `"*.jpg"`. Multiple filters may be separated by commas. Used only if targeting deskop.
 		@param defaultPath 	The directory in which to start browsing and/or the default filename to
 		suggest. When targeting destkop, this defaults to `Sys.getCwd()` with no default filename. When targeting
 		HTML5, this defaults to the browser's download directory, with a default filename based on the MIME type.

@@ -1166,21 +1166,47 @@ class ProjectXMLParser extends HXProject
 				case "architecture":
 					if (element.has.name)
 					{
-						var name = new Architecture(substitute(element.att.name));
+						var nameString = substitute(element.att.name);
+						var name = new Architecture(nameString);
 
 						if (name != null)
 						{
 							ArrayTools.addUnique(architectures, name);
 						}
+						else if (nameString.toLowerCase() == "x86_64")
+						{
+							ArrayTools.addUnique(architectures, Architecture.X64);
+						}
+						else if (nameString.toLowerCase() == "x86_32")
+						{
+							ArrayTools.addUnique(architectures, Architecture.X86);
+						}
+						else
+						{
+							Log.warn("Ignoring unknown architecture: " + nameString);
+						}
 					}
 
 					if (element.has.exclude)
 					{
-						var exclude = new Architecture(substitute(element.att.exclude));
+						var excludeString = substitute(element.att.exclude);
+						var exclude = new Architecture(excludeString);
 
 						if (exclude != null)
 						{
 							ArrayTools.addUnique(excludeArchitectures, exclude);
+						}
+						else if (excludeString.toLowerCase() == "x86_64")
+						{
+							ArrayTools.addUnique(excludeArchitectures, Architecture.X64);
+						}
+						else if (excludeString.toLowerCase() == "x86_32")
+						{
+							ArrayTools.addUnique(excludeArchitectures, Architecture.X86);
+						}
+						else
+						{
+							Log.warn("Ignoring unknown architecture: " + excludeString);
 						}
 					}
 
@@ -1410,7 +1436,6 @@ class ProjectXMLParser extends HXProject
 					sources.push(path);
 
 				case "extension":
-
 					// deprecated
 
 				case "haxedef":
@@ -1512,7 +1537,6 @@ class ProjectXMLParser extends HXProject
 					parseModuleElement(element, extensionPath);
 
 				case "ssl":
-
 					// if (wantSslCertificate())
 					// parseSsl (element);
 
@@ -1960,6 +1984,15 @@ class ProjectXMLParser extends HXProject
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
 
+				case "renderer":
+					var renderType = Std.string(value).toLowerCase();
+					Reflect.setField(windows[id], "renderType", renderType);
+					if (renderType == "vulkan")
+					{
+						defines.set("lime-vulkan", "");
+						haxedefs.set("lime-vulkan", "");
+					}
+
 				case "allow-high-dpi":
 					Reflect.setField(windows[id], "allowHighDPI", value == "true");
 
@@ -1972,6 +2005,18 @@ class ProjectXMLParser extends HXProject
 					else
 					{
 						Reflect.setField(windows[id], "colorDepth", parsedValue);
+					}
+
+				case "vsync", "vsync-mode":
+					var parsedVSync = parseVSyncValue(value);
+					if (parsedVSync == null)
+					{
+						Log.warn("Ignoring unknown " + name + "=\"" + value + "\"");
+					}
+					else
+					{
+						Reflect.setField(windows[id], "vsync", parsedVSync != "off");
+						Reflect.setField(windows[id], "vsyncMode", parsedVSync);
 					}
 
 				default:
@@ -2024,5 +2069,22 @@ class ProjectXMLParser extends HXProject
 		}
 
 		return newString;
+	}
+
+	private static function parseVSyncValue(value:String):String
+	{
+		switch (value.toLowerCase())
+		{
+			case "true", "on":
+				return "on";
+			case "false", "off":
+				return "off";
+			case "adaptive":
+				return "adaptive";
+			case "auto":
+				return "auto";
+			default:
+				return null;
+		}
 	}
 }

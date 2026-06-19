@@ -355,7 +355,8 @@ class NativeHTTPRequest
 		return promise.future;
 	}
 
-	private function buildBuffer()	{
+	private function buildBuffer()
+	{
 		bytes = buffer.getBytes();
 		return bytes;
 	}

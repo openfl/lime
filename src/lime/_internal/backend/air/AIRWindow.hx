@@ -187,7 +187,8 @@ class AIRWindow extends FlashWindow
 		if (parent.application.window == parent)
 		{
 			var newDeviceOrientation:Orientation = UNKNOWN;
-			switch (parent.stage.deviceOrientation) {
+			switch (parent.stage.deviceOrientation)
+			{
 				case DEFAULT:
 					newDeviceOrientation = PORTRAIT;
 				case UPSIDE_DOWN:
@@ -202,7 +203,8 @@ class AIRWindow extends FlashWindow
 			parent.application.onDeviceOrientationChange.dispatch(newDeviceOrientation);
 		}
 		var newDisplayOrientation:Orientation = UNKNOWN;
-		switch (event.afterOrientation) {
+		switch (event.afterOrientation)
+		{
 			case DEFAULT:
 				newDisplayOrientation = PORTRAIT;
 			case UPSIDE_DOWN:

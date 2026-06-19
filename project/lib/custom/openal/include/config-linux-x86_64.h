@@ -24,7 +24,7 @@
 /* #undef HAVE_GETOPT */
 
 /* Define if we have SSE CPU extensions */
-#ifndef RASPBERRYPI
+#if !defined(RASPBERRYPI) && !defined(HXCPP_ARM64)
 #define HAVE_SSE
 #define HAVE_SSE2
 #define HAVE_SSE3
@@ -103,7 +103,7 @@
 #define HAVE_DIRENT_H
 
 /* Define if we have cpuid.h */
-#ifndef RASPBERRYPI
+#if !defined(RASPBERRYPI) && !defined(HXCPP_ARM64)
 #define HAVE_CPUID_H
 #endif
 
