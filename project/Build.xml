@@ -521,6 +521,7 @@
 				<lib name="ole32.lib" />
 				<lib name="oleaut32.lib" />
 				<lib name="version.lib" />
+				<lib name="uuid.lib" />
 				<lib name="ws2_32.lib" />
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
