@@ -41,8 +41,13 @@
 #define NEED_EXTENSIONS
 #define DYNAMIC_OGL
 #define GL_GLEXT_PROTOTYPES
+#ifdef LIME_SDL3
+#include <SDL3/SDL_opengl.h>
+#include <SDL3/SDL_opengl_glext.h>
+#else
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
+#endif
 #define FORCE_NON_PO2
 
 #elif defined (HX_MACOS)
@@ -51,8 +56,13 @@
 #define NEED_EXTENSIONS
 #define DYNAMIC_OGL
 #define GL_GLEXT_PROTOTYPES
+#ifdef LIME_SDL3
+#include <SDL3/SDL_opengl.h>
+#include <SDL3/SDL_opengl_glext.h>
+#else
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
+#endif
 #define FORCE_NON_PO2
 #define glBindFramebuffer glBindFramebufferEXT
 #define glBindRenderbuffer glBindRenderbufferEXT
@@ -88,11 +98,20 @@
 #endif
 
 #ifdef NATIVE_TOOLKIT_SDL_ANGLE
+#ifdef LIME_SDL3
+#include <SDL3/SDL_opengles2.h>
+#else
 #include <SDL_opengles2.h>
+#endif
 #else
 #define GL_GLEXT_PROTOTYPES
+#ifdef LIME_SDL3
+#include <SDL3/SDL_opengl.h>
+#include <SDL3/SDL_opengl_glext.h>
+#else
 #include <SDL_opengl.h>
 #include <SDL_opengl_glext.h>
+#endif
 #endif
 
 #endif

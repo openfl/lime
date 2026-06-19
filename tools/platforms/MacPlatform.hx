@@ -106,6 +106,7 @@ class MacPlatform extends PlatformTarget
 
 		defaults.merge(project);
 		project = defaults;
+		project.normalizeNativeBackendDefines(Platform.MAC);
 
 		for (excludeArchitecture in project.excludeArchitectures)
 		{

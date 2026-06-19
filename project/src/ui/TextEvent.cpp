@@ -52,7 +52,8 @@ namespace lime {
 
 				}
 
-				alloc_field (object, id_text, alloc_string ((const char*)event->text));
+				const char* text = event->text ? (const char*)event->text : "";
+				alloc_field (object, id_text, alloc_string (text));
 				alloc_field (object, id_type, alloc_int (event->type));
 				alloc_field (object, id_windowID, alloc_int (event->windowID));
 
@@ -67,9 +68,10 @@ namespace lime {
 
 				}
 
-				int length = strlen ((const char*)event->text);
+				const char* sourceText = event->text ? (const char*)event->text : "";
+				int length = strlen (sourceText);
 				char* text = (char*)malloc (length + 1);
-				strcpy (text, (const char*)event->text);
+				strcpy (text, sourceText);
 				eventObject->text = (vbyte*)text;
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;

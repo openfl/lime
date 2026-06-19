@@ -114,6 +114,7 @@ class LinuxPlatform extends PlatformTarget
 
 		defaults.merge(project);
 		project = defaults;
+		project.normalizeNativeBackendDefines(Platform.LINUX);
 
 		for (excludeArchitecture in project.excludeArchitectures)
 		{

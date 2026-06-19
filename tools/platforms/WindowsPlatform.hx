@@ -128,6 +128,7 @@ class WindowsPlatform extends PlatformTarget
 
 		defaults.merge(project);
 		project = defaults;
+		project.normalizeNativeBackendDefines(Platform.WINDOWS);
 
 		for (excludeArchitecture in project.excludeArchitectures)
 		{

@@ -22,7 +22,9 @@
 #define APIENTRY GLAPIENTRY
 #endif
 
-#ifdef LIME_SDL
+#ifdef LIME_SDL3
+#include <SDL3/SDL.h>
+#elif defined (LIME_SDL)
 #include <SDL.h>
 #endif
 

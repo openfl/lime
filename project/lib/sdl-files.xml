@@ -389,7 +389,6 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/psp/SDL_psp_main.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/psp/SDL_syspower.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/psp/SDL_render_psp.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_syscond.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_sysmutex.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_syssem.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_systhread.c" />

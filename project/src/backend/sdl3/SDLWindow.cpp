@@ -5,7 +5,7 @@
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
-#include <SDL_syswm.h>
+#include <SDL3/SDL_properties.h>
 #include <windows.h>
 #undef CreateWindow
 #endif
@@ -37,6 +37,13 @@ namespace lime {
 	static const wchar_t* LIME_SDL_LAST_RESIZE_HEIGHT_PROP = L"LimeSDL.LastResizeHeight";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_TICK_PROP = L"LimeSDL.LastResizeTick";
 	static const Uint32 LIME_SDL_MIN_RESIZE_PUSH_INTERVAL_MS = 8;
+
+	static HWND GetWin32Window (SDL_Window* sdlWindow) {
+
+		if (!sdlWindow) return NULL;
+		return (HWND)SDL_GetPointerProperty (SDL_GetWindowProperties (sdlWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+
+	}
 
 	static bool ShouldQueueLiveResizeEvent (HWND hwnd, int width, int height, bool throttled) {
 
@@ -74,8 +81,7 @@ namespace lime {
 
 		SDL_Event event;
 		SDL_zero (event);
-		event.type = SDL_WINDOWEVENT;
-		event.window.event = SDL_WINDOWEVENT_SIZE_CHANGED;
+		event.type = SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED;
 		event.window.windowID = windowID;
 		event.window.data1 = width;
 		event.window.data2 = height;
@@ -147,11 +153,7 @@ namespace lime {
 
 		if (!sdlWindow) return;
 
-		SDL_SysWMinfo wminfo;
-		SDL_VERSION (&wminfo.version);
-		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return;
-
-		HWND hwnd = wminfo.info.win.window;
+		HWND hwnd = GetWin32Window (sdlWindow);
 		if (!hwnd) return;
 		if (GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP)) return;
 
@@ -168,11 +170,7 @@ namespace lime {
 
 		if (!sdlWindow) return;
 
-		SDL_SysWMinfo wminfo;
-		SDL_VERSION (&wminfo.version);
-		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return;
-
-		HWND hwnd = wminfo.info.win.window;
+		HWND hwnd = GetWin32Window (sdlWindow);
 		if (!hwnd) return;
 
 		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
@@ -194,11 +192,7 @@ namespace lime {
 
 		if (!sdlWindow) return false;
 
-		SDL_SysWMinfo wminfo;
-		SDL_VERSION (&wminfo.version);
-		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return false;
-
-		HWND hwnd = wminfo.info.win.window;
+		HWND hwnd = GetWin32Window (sdlWindow);
 		if (!hwnd) return false;
 
 		typedef struct {
@@ -246,7 +240,7 @@ namespace lime {
 
 		int sdlWindowFlags = 0;
 
-		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlWindowFlags |= SDL_WINDOW_RESIZABLE;
 		if (flags & WINDOW_FLAG_BORDERLESS) sdlWindowFlags |= SDL_WINDOW_BORDERLESS;
 		if (flags & WINDOW_FLAG_HIDDEN) sdlWindowFlags |= SDL_WINDOW_HIDDEN;
@@ -300,7 +294,7 @@ namespace lime {
 
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 
-				sdlWindowFlags |= SDL_WINDOW_ALLOW_HIGHDPI;
+				sdlWindowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
 			}
 
@@ -368,7 +362,7 @@ namespace lime {
 
 		}
 
-		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+		sdlWindow = SDL_CreateWindow (title, width, height, sdlWindowFlags);
 
 		#if defined (IPHONE) || defined (APPLETV)
 		if (!useVulkan && sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
@@ -376,7 +370,7 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+			sdlWindow = SDL_CreateWindow (title, width, height, sdlWindowFlags);
 
 		}
 		#endif
@@ -405,12 +399,8 @@ namespace lime {
 
 		if (icon != nullptr) {
 
-			SDL_SysWMinfo wminfo;
-			SDL_VERSION (&wminfo.version);
-
-			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
-
-				HWND hwnd = wminfo.info.win.window;
+			HWND hwnd = GetWin32Window (sdlWindow);
+			if (hwnd) {
 
 				#ifdef _WIN64
 				::SetClassLongPtr (hwnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(icon));
@@ -424,31 +414,11 @@ namespace lime {
 
 		#endif
 
-		int sdlRendererFlags = 0;
-
 		if ((flags & WINDOW_FLAG_HARDWARE) && !useVulkan) {
-
-			sdlRendererFlags |= SDL_RENDERER_ACCELERATED;
-
-			// if (window->flags & WINDOW_FLAG_VSYNC) {
-
-			#ifdef EMSCRIPTEN
-			sdlRendererFlags |= SDL_RENDERER_PRESENTVSYNC;
-			#endif
-
-			// }
-
-			// sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlRendererFlags);
-
-			// if (sdlRenderer) {
-
-			// 	context = SDL_GL_GetCurrentContext ();
-
-			// }
 
 			context = SDL_GL_CreateContext (sdlWindow);
 
-			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
+			if (context && SDL_GL_MakeCurrent (sdlWindow, context)) {
 
 				SetVSyncMode (requestedVSyncMode);
 
@@ -469,7 +439,7 @@ namespace lime {
 
 				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
 
-					SDL_GL_DeleteContext (context);
+					SDL_GL_DestroyContext (context);
 					context = 0;
 
 				}
@@ -487,7 +457,7 @@ namespace lime {
 
 			} else {
 
-				SDL_GL_DeleteContext (context);
+				SDL_GL_DestroyContext (context);
 				context = NULL;
 
 			}
@@ -496,12 +466,13 @@ namespace lime {
 
 		if (!context && !useVulkan) {
 
-			sdlRendererFlags &= ~SDL_RENDERER_ACCELERATED;
-			sdlRendererFlags &= ~SDL_RENDERER_PRESENTVSYNC;
+			sdlRenderer = SDL_CreateRenderer (sdlWindow, "software");
 
-			sdlRendererFlags |= SDL_RENDERER_SOFTWARE;
+			if (!sdlRenderer) {
 
-			sdlRenderer = SDL_CreateRenderer (sdlWindow, -1, sdlRendererFlags);
+				sdlRenderer = SDL_CreateRenderer (sdlWindow, NULL);
+
+			}
 
 		}
 
@@ -539,7 +510,7 @@ namespace lime {
 
 			}
 
-			SDL_GL_DeleteContext (context);
+			SDL_GL_DestroyContext (context);
 			context = 0;
 
 		}
@@ -566,13 +537,9 @@ namespace lime {
 		int speed = 0;
 		bool stopOnForeground = true;
 
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
-
 		FLASHWINFO fi;
 		fi.cbSize = sizeof (FLASHWINFO);
-		fi.hwnd = info.info.win.window;
+		fi.hwnd = GetWin32Window (sdlWindow);
 		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
 		fi.uCount = count;
 		fi.dwTimeout = speed;
@@ -616,7 +583,7 @@ namespace lime {
 
 				}
 
-				SDL_GL_DeleteContext (context);
+				SDL_GL_DestroyContext (context);
 				context = 0;
 
 			}
@@ -641,7 +608,7 @@ namespace lime {
 
 		}
 
-		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_SHOWN);
+		return !(SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_HIDDEN);
 
 	}
 
@@ -689,17 +656,18 @@ namespace lime {
 
 		}
 
-		SDL_DisplayMode displayMode;
-		if (SDL_GetWindowDisplayMode (sdlWindow, &displayMode) == 0 && displayMode.refresh_rate > 0) {
+		const SDL_DisplayMode* displayMode = SDL_GetWindowFullscreenMode (sdlWindow);
+		if (displayMode && displayMode->refresh_rate > 0) {
 
-			return displayMode.refresh_rate;
+			return displayMode->refresh_rate;
 
 		}
 
-		int displayIndex = SDL_GetWindowDisplayIndex (sdlWindow);
-		if (displayIndex >= 0 && SDL_GetCurrentDisplayMode (displayIndex, &displayMode) == 0 && displayMode.refresh_rate > 0) {
+		SDL_DisplayID displayID = SDL_GetDisplayForWindow (sdlWindow);
+		displayMode = SDL_GetCurrentDisplayMode (displayID);
+		if (displayMode && displayMode->refresh_rate > 0) {
 
-			return displayMode.refresh_rate;
+			return displayMode->refresh_rate;
 
 		}
 
@@ -716,8 +684,8 @@ namespace lime {
 
 		}
 
-		SDL_vulkanSurface surface = 0;
-		if (SDL_Vulkan_CreateSurface (sdlWindow, (SDL_vulkanInstance)instance, &surface) != SDL_TRUE) {
+		VkSurfaceKHR surface = 0;
+		if (!SDL_Vulkan_CreateSurface (sdlWindow, (VkInstance)instance, NULL, &surface)) {
 
 			return 0;
 
@@ -742,7 +710,7 @@ namespace lime {
 
 		}
 
-		SDL_Vulkan_GetDrawableSize (sdlWindow, width, height);
+		SDL_GetWindowSizeInPixels (sdlWindow, width, height);
 
 	}
 
@@ -756,7 +724,28 @@ namespace lime {
 
 		}
 
-		return SDL_Vulkan_GetInstanceExtensions (sdlWindow, count, names) == SDL_TRUE;
+		Uint32 extensionCount = 0;
+		char const * const *extensions = SDL_Vulkan_GetInstanceExtensions (&extensionCount);
+
+		if (count) *count = extensionCount;
+
+		if (!extensions) {
+
+			return false;
+
+		}
+
+		if (names) {
+
+			for (Uint32 i = 0; i < extensionCount; i++) {
+
+				names[i] = extensions[i];
+
+			}
+
+		}
+
+		return true;
 
 	}
 
@@ -769,7 +758,7 @@ namespace lime {
 
 		}
 
-		return SDL_Vulkan_GetVkGetInstanceProcAddr ();
+		return reinterpret_cast<void*> (SDL_Vulkan_GetVkGetInstanceProcAddr ());
 
 	}
 
@@ -781,7 +770,7 @@ namespace lime {
 			int width;
 			int height;
 
-			SDL_GetRendererOutputSize (sdlRenderer, &width, &height);
+			SDL_GetCurrentRenderOutputSize (sdlRenderer, &width, &height);
 
 			if (width != contextWidth || height != contextHeight) {
 
@@ -803,7 +792,7 @@ namespace lime {
 
 			if (useCFFIValue) {
 
-				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
+				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch)) {
 
 					value result = alloc_empty_object ();
 					alloc_field (result, val_id ("width"), alloc_int (contextWidth));
@@ -825,7 +814,7 @@ namespace lime {
 				const int id_pixels = hl_hash_utf8 ("pixels");
 				const int id_pitch = hl_hash_utf8 ("pitch");
 
-				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch) == 0) {
+				if (SDL_LockTexture (sdlTexture, NULL, &pixels, &pitch)) {
 
 					vdynamic* result = (vdynamic*)hl_alloc_dynobj();
 					hl_dyn_seti (result, id_width, &hlt_i32, contextWidth);
@@ -882,7 +871,7 @@ namespace lime {
 
 			SDL_UnlockTexture (sdlTexture);
 			SDL_RenderClear (sdlRenderer);
-			SDL_RenderCopy (sdlRenderer, sdlTexture, NULL, NULL);
+			SDL_RenderTexture (sdlRenderer, sdlTexture, NULL, NULL);
 
 		}
 
@@ -923,18 +912,7 @@ namespace lime {
 
 		} else if (sdlRenderer) {
 
-			SDL_RendererInfo info;
-			SDL_GetRendererInfo (sdlRenderer, &info);
-
-			if (info.flags & SDL_RENDERER_SOFTWARE) {
-
-				return "software";
-
-			} else {
-
-				return "opengl";
-
-			}
+			return "software";
 
 		}
 
@@ -945,20 +923,55 @@ namespace lime {
 
 	int SDLWindow::GetDisplay () {
 
-		return SDL_GetWindowDisplayIndex (sdlWindow);
+		SDL_DisplayID* displays = NULL;
+		int displayCount = 0;
+		int displayIndex = 0;
+		SDL_DisplayID displayID = SDL_GetDisplayForWindow (sdlWindow);
+
+		displays = SDL_GetDisplays (&displayCount);
+
+		if (displays) {
+
+			for (int i = 0; i < displayCount; i++) {
+
+				if (displays[i] == displayID) {
+
+					displayIndex = i;
+					break;
+
+				}
+
+			}
+
+			SDL_free (displays);
+
+		}
+
+		return displayIndex;
 
 	}
 
 
 	void SDLWindow::GetDisplayMode (DisplayMode* displayMode) {
 
-		SDL_DisplayMode mode;
-		SDL_GetWindowDisplayMode (sdlWindow, &mode);
+		const SDL_DisplayMode* fullscreenMode = SDL_GetWindowFullscreenMode (sdlWindow);
+		const SDL_DisplayMode* currentMode = SDL_GetCurrentDisplayMode (SDL_GetDisplayForWindow (sdlWindow));
+		const SDL_DisplayMode* mode = fullscreenMode ? fullscreenMode : currentMode;
 
-		displayMode->width = mode.w;
-		displayMode->height = mode.h;
+		if (!mode) {
 
-		switch (mode.format) {
+			displayMode->width = GetWidth ();
+			displayMode->height = GetHeight ();
+			displayMode->pixelFormat = RGBA32;
+			displayMode->refreshRate = 60;
+			return;
+
+		}
+
+		displayMode->width = mode->w;
+		displayMode->height = mode->h;
+
+		switch (mode->format) {
 
 			case SDL_PIXELFORMAT_ARGB8888:
 
@@ -977,15 +990,15 @@ namespace lime {
 
 		}
 
-		displayMode->refreshRate = mode.refresh_rate;
+		displayMode->refreshRate = mode->refresh_rate;
 
 	}
 
 
 	int SDLWindow::GetHeight () {
 
-		int width;
-		int height;
+		int width = 0;
+		int height = 0;
 
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 
@@ -1003,18 +1016,14 @@ namespace lime {
 
 	bool SDLWindow::GetMouseLock () {
 
-		return SDL_GetRelativeMouseMode ();
+		return SDL_GetWindowRelativeMouseMode (sdlWindow);
 
 	}
 
 
 	float SDLWindow::GetOpacity () {
 
-		float opacity = 1.0f;
-
-		SDL_GetWindowOpacity (sdlWindow, &opacity);
-
-		return opacity;
+		return SDL_GetWindowOpacity (sdlWindow);
 
 	}
 
@@ -1026,12 +1035,14 @@ namespace lime {
 			int outputWidth;
 			int outputHeight;
 
-			SDL_GetRendererOutputSize (sdlRenderer, &outputWidth, &outputHeight);
+			SDL_GetCurrentRenderOutputSize (sdlRenderer, &outputWidth, &outputHeight);
 
 			int width;
 			int height;
 
 			SDL_GetWindowSize (sdlWindow, &width, &height);
+
+			if (width <= 0) return 1;
 
 			double scale = double (outputWidth) / width;
 			return scale;
@@ -1041,12 +1052,14 @@ namespace lime {
 			int outputWidth;
 			int outputHeight;
 
-			SDL_GL_GetDrawableSize (sdlWindow, &outputWidth, &outputHeight);
+			SDL_GetWindowSizeInPixels (sdlWindow, &outputWidth, &outputHeight);
 
 			int width;
 			int height;
 
 			SDL_GetWindowSize (sdlWindow, &width, &height);
+
+			if (width <= 0) return 1;
 
 			double scale = double (outputWidth) / width;
 			return scale;
@@ -1060,15 +1073,15 @@ namespace lime {
 
 	bool SDLWindow::GetTextInputEnabled () {
 
-		return SDL_IsTextInputActive ();
+		return SDL_TextInputActive (sdlWindow);
 
 	}
 
 
 	int SDLWindow::GetWidth () {
 
-		int width;
-		int height;
+		int width = 0;
+		int height = 0;
 
 		SDL_GetWindowSize (sdlWindow, &width, &height);
 
@@ -1123,13 +1136,37 @@ namespace lime {
 
 			} else {
 
-				SDL_GetWindowSize (sdlWindow, &bounds.w, &bounds.h);
+				SDL_GetCurrentRenderOutputSize (sdlRenderer, &bounds.w, &bounds.h);
 
 			}
 
 			buffer->Resize (bounds.w, bounds.h, 32);
 
-			SDL_RenderReadPixels (sdlRenderer, &bounds, SDL_PIXELFORMAT_ABGR8888, buffer->data->buffer->b, buffer->Stride ());
+			SDL_Surface* surface = SDL_RenderReadPixels (sdlRenderer, &bounds);
+
+			if (surface) {
+
+				SDL_Surface* converted = SDL_ConvertSurface (surface, SDL_PIXELFORMAT_ABGR8888);
+				SDL_Surface* source = converted ? converted : surface;
+				Uint8* input = (Uint8*)source->pixels;
+				Uint8* output = (Uint8*)buffer->data->buffer->b;
+				int copyPitch = source->pitch < buffer->Stride () ? source->pitch : buffer->Stride ();
+
+				for (int y = 0; y < bounds.h; y++) {
+
+					memcpy (output + y * buffer->Stride (), input + y * source->pitch, copyPitch);
+
+				}
+
+				if (converted) {
+
+					SDL_DestroySurface (converted);
+
+				}
+
+				SDL_DestroySurface (surface);
+
+			}
 
 		} else if (context) {
 
@@ -1165,11 +1202,11 @@ namespace lime {
 
 		if (borderless) {
 
-			SDL_SetWindowBordered (sdlWindow, SDL_FALSE);
+			SDL_SetWindowBordered (sdlWindow, false);
 
 		} else {
 
-			SDL_SetWindowBordered (sdlWindow, SDL_TRUE);
+			SDL_SetWindowBordered (sdlWindow, true);
 
 		}
 
@@ -1184,7 +1221,7 @@ namespace lime {
 
 			if (currentCursor == HIDDEN) {
 
-				SDL_ShowCursor (SDL_ENABLE);
+				SDL_ShowCursor ();
 
 			}
 
@@ -1192,7 +1229,7 @@ namespace lime {
 
 				case HIDDEN:
 
-					SDL_ShowCursor (SDL_DISABLE);
+					SDL_HideCursor ();
 
 				case CROSSHAIR:
 
@@ -1209,7 +1246,7 @@ namespace lime {
 
 					if (!SDLCursor::moveCursor) {
 
-						SDLCursor::moveCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZEALL);
+						SDLCursor::moveCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_MOVE);
 
 					}
 
@@ -1220,7 +1257,7 @@ namespace lime {
 
 					if (!SDLCursor::pointerCursor) {
 
-						SDLCursor::pointerCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_HAND);
+						SDLCursor::pointerCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_POINTER);
 
 					}
 
@@ -1231,7 +1268,7 @@ namespace lime {
 
 					if (!SDLCursor::resizeNESWCursor) {
 
-						SDLCursor::resizeNESWCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENESW);
+						SDLCursor::resizeNESWCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_NESW_RESIZE);
 
 					}
 
@@ -1242,7 +1279,7 @@ namespace lime {
 
 					if (!SDLCursor::resizeNSCursor) {
 
-						SDLCursor::resizeNSCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENS);
+						SDLCursor::resizeNSCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_NS_RESIZE);
 
 					}
 
@@ -1253,7 +1290,7 @@ namespace lime {
 
 					if (!SDLCursor::resizeNWSECursor) {
 
-						SDLCursor::resizeNWSECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZENWSE);
+						SDLCursor::resizeNWSECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_NWSE_RESIZE);
 
 					}
 
@@ -1264,7 +1301,7 @@ namespace lime {
 
 					if (!SDLCursor::resizeWECursor) {
 
-						SDLCursor::resizeWECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_SIZEWE);
+						SDLCursor::resizeWECursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_EW_RESIZE);
 
 					}
 
@@ -1275,7 +1312,7 @@ namespace lime {
 
 					if (!SDLCursor::textCursor) {
 
-						SDLCursor::textCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_IBEAM);
+						SDLCursor::textCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_TEXT);
 
 					}
 
@@ -1297,7 +1334,7 @@ namespace lime {
 
 					if (!SDLCursor::waitArrowCursor) {
 
-						SDLCursor::waitArrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_WAITARROW);
+						SDLCursor::waitArrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_PROGRESS);
 
 					}
 
@@ -1308,7 +1345,7 @@ namespace lime {
 
 					if (!SDLCursor::arrowCursor) {
 
-						SDLCursor::arrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+						SDLCursor::arrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_DEFAULT);
 
 					}
 
@@ -1346,15 +1383,25 @@ namespace lime {
 
 		}
 
-		SDL_DisplayMode mode = { pixelFormat, displayMode->width, displayMode->height, displayMode->refreshRate, 0 };
+		SDL_DisplayMode mode = {
+			SDL_GetDisplayForWindow (sdlWindow),
+			(SDL_PixelFormat)pixelFormat,
+			displayMode->width,
+			displayMode->height,
+			SDL_GetWindowPixelDensity (sdlWindow),
+			(float)displayMode->refreshRate,
+			0,
+			0,
+			NULL
+		};
 
-		if (SDL_SetWindowDisplayMode (sdlWindow, &mode) == 0) {
+		if (SDL_SetWindowFullscreenMode (sdlWindow, &mode)) {
 
 			displayModeSet = true;
 
-			if (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+			if (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN) {
 
-				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
+				SDL_SetWindowFullscreen (sdlWindow, true);
 
 			}
 
@@ -1369,17 +1416,17 @@ namespace lime {
 
 			if (displayModeSet) {
 
-				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN);
+				SDL_SetWindowFullscreen (sdlWindow, true);
 
 			} else {
 
-				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+				SDL_SetWindowFullscreen (sdlWindow, true);
 
 			}
 
 		} else {
 
-			SDL_SetWindowFullscreen (sdlWindow, 0);
+			SDL_SetWindowFullscreen (sdlWindow, false);
 
 		}
 
@@ -1390,12 +1437,12 @@ namespace lime {
 
 	void SDLWindow::SetIcon (ImageBuffer *imageBuffer) {
 
-		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->buffer->b, imageBuffer->width, imageBuffer->height, imageBuffer->bitsPerPixel, imageBuffer->Stride (), 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SDL_Surface *surface = SDL_CreateSurfaceFrom (imageBuffer->width, imageBuffer->height, SDL_GetPixelFormatForMasks (imageBuffer->bitsPerPixel, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000), imageBuffer->data->buffer->b, imageBuffer->Stride ());
 
 		if (surface) {
 
 			SDL_SetWindowIcon (sdlWindow, surface);
-			SDL_FreeSurface (surface);
+			SDL_DestroySurface (surface);
 
 		}
 
@@ -1440,11 +1487,11 @@ namespace lime {
 
 		if (mouseLock) {
 
-			SDL_SetRelativeMouseMode (SDL_TRUE);
+			SDL_SetWindowRelativeMouseMode (sdlWindow, true);
 
 		} else {
 
-			SDL_SetRelativeMouseMode (SDL_FALSE);
+			SDL_SetWindowRelativeMouseMode (sdlWindow, false);
 
 		}
 
@@ -1464,11 +1511,11 @@ namespace lime {
 
 		if (resizable) {
 
-			SDL_SetWindowResizable (sdlWindow, SDL_TRUE);
+			SDL_SetWindowResizable (sdlWindow, true);
 
 		} else {
 
-			SDL_SetWindowResizable (sdlWindow, SDL_FALSE);
+			SDL_SetWindowResizable (sdlWindow, false);
 
 		}
 
@@ -1487,11 +1534,11 @@ namespace lime {
 
 		if (enabled) {
 
-			SDL_StartTextInput ();
+			SDL_StartTextInput (sdlWindow);
 
 		} else {
 
-			SDL_StopTextInput ();
+			SDL_StopTextInput (sdlWindow);
 
 		}
 
@@ -1511,7 +1558,7 @@ namespace lime {
 
 		}
 
-		SDL_SetTextInputRect(&bounds);
+		SDL_SetTextInputArea (sdlWindow, &bounds, 0);
 	}
 
 
@@ -1570,7 +1617,7 @@ namespace lime {
 
 			case 1:
 
-				if (SDL_GL_SetSwapInterval (1) == 0) {
+				if (SDL_GL_SetSwapInterval (1)) {
 
 					activeSwapInterval = 1;
 
@@ -1581,11 +1628,11 @@ namespace lime {
 			case 2:
 			case 3:
 
-				if (SDL_GL_SetSwapInterval (-1) == 0) {
+				if (SDL_GL_SetSwapInterval (-1)) {
 
 					activeSwapInterval = -1;
 
-				} else if (SDL_GL_SetSwapInterval (1) == 0) {
+				} else if (SDL_GL_SetSwapInterval (1)) {
 
 					activeSwapInterval = 1;
 
@@ -1633,11 +1680,11 @@ namespace lime {
 
 		if (alwaysOnTop) {
 
-			SDL_SetWindowAlwaysOnTop (sdlWindow, SDL_TRUE);
+			SDL_SetWindowAlwaysOnTop (sdlWindow, true);
 
 		} else {
 
-			SDL_SetWindowAlwaysOnTop (sdlWindow, SDL_FALSE);
+			SDL_SetWindowAlwaysOnTop (sdlWindow, false);
 
 		}
 

@@ -651,6 +651,9 @@ class NativeApplication
 				case WINDOW_RESIZE:
 					window.__width = windowEventInfo.width;
 					window.__height = windowEventInfo.height;
+					#if (!macro && lime_cffi)
+					window.__scale = NativeCFFI.lime_window_get_scale(window.__backend.handle);
+					#end
 					window.onResize.dispatch(windowEventInfo.width, windowEventInfo.height);
 
 				case WINDOW_RESTORE:

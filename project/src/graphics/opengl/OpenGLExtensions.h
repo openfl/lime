@@ -12,7 +12,12 @@
 
 #include "OpenGLBindings.h"
 
-#ifdef LIME_SDL
+#ifdef LIME_SDL3
+#include <SDL3/SDL.h>
+#ifdef NATIVE_TOOLKIT_SDL_ANGLE
+#include <SDL3/SDL_egl.h>
+#endif
+#elif defined (LIME_SDL)
 #include <SDL.h>
 #ifdef NATIVE_TOOLKIT_SDL_ANGLE
 #include <SDL_egl.h>
@@ -50,7 +55,7 @@
    {\
       *(void **)&lime::func = (void *)GetProcAddress((HMODULE)lime::OpenGLBindings::eglHandle, #func);\
    }
-#elif LIME_SDL
+#elif defined (LIME_SDL) || defined (LIME_SDL3)
    #define OGL_EXT(func,ret,args) \
    {\
       *(void **)&lime::func = (void *)SDL_GL_GetProcAddress(#func);\

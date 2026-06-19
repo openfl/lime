@@ -46,6 +46,21 @@ See `lime help rebuild` for details and additional options.
 
 > Note: even without an explicit `rebuild` command, running `lime` will automatically build lime.ndll for your machine. Even if you never target C++ or Neko, this binary will help with small tasks such as rendering icons.
 
+### SDL backend selection
+Lime 9.0.0 uses SDL3 as the default native SDL backend for Windows, macOS, and Linux desktop builds. The SDL3 source is vendored as the `lib/sdl3` submodule and is built directly against SDL3 headers and APIs.
+
+The SDL2 backend remains available as a transitional desktop fallback using the `lib/sdl` submodule. To force the fallback backend while rebuilding, pass the `lime-sdl2` define, or the equivalent `LIME_SDL2` define for build scripts that use Lime's internal native flags:
+
+```bash
+lime rebuild windows -Dlime-sdl2
+lime rebuild windows -DLIME_SDL2
+```
+
+SDL2 and SDL3 are mutually exclusive in one native build. Lime does not support `sdl2-compat` as a backend or runtime dependency.
+The lower-level `LIME_SDL` native define is internal and is not a supported desktop fallback selector.
+
+The legacy `lime_sdl_sound` bridge is SDL2-only on desktop during this transition. Default SDL3 desktop HXML does not define it; explicit SDL2 fallback builds keep it enabled while media decoding is migrated.
+
 ### Build troubleshooting
 If errors appeared after updating Lime, the update process may not be complete. Run these commands:
 

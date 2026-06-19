@@ -1,7 +1,12 @@
 #include <graphics/vulkan/VKRenderer.h>
 
+#ifdef LIME_SDL3
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
+#else
 #include <SDL.h>
 #include <SDL_vulkan.h>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -252,7 +257,11 @@ namespace lime {
 
 		}
 
+		#ifdef LIME_SDL3
+		if (!SDL_Vulkan_LoadLibrary (NULL)) {
+		#else
 		if (SDL_Vulkan_LoadLibrary (NULL) != 0) {
+		#endif
 
 			SetError (std::string ("SDL_Vulkan_LoadLibrary failed: ") + SDL_GetError ());
 			return false;

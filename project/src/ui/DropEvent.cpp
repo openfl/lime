@@ -37,14 +37,19 @@ namespace lime {
 
 				value object = (value)DropEvent::eventObject->Get ();
 
-				alloc_field (object, id_file, alloc_string ((const char*)event->file));
+				if ((event->type == DROP_FILE || event->type == DROP_TEXT) && event->file) {
+					alloc_field (object, id_file, alloc_string ((const char*)event->file));
+				} else {
+					alloc_field (object, id_file, alloc_null ());
+				}
+
 				alloc_field (object, id_type, alloc_int (event->type));
 
 			} else {
 
 				DropEvent* eventObject = (DropEvent*)DropEvent::eventObject->Get ();
 
-				if (event->type == DROP_FILE || event->type == DROP_TEXT) {
+				if ((event->type == DROP_FILE || event->type == DROP_TEXT) && event->file) {
 					int length = strlen ((const char*)event->file);
 					char* file = (char*)malloc (length + 1);
 					strcpy (file, (const char*)event->file);

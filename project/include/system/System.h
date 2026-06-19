@@ -67,8 +67,9 @@ namespace lime {
 	struct FILE_HANDLE {
 
 		void *handle;
+		bool stdioFile;
 
-		FILE_HANDLE (void* handle) : handle (handle) {}
+		FILE_HANDLE (void* handle, bool stdioFile = false) : handle (handle), stdioFile (stdioFile) {}
 
 		FILE* getFile ();
 		int getLength ();
