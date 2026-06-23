@@ -40,7 +40,9 @@ namespace lime {
 
 	Bytes::Bytes () {
 
+		#ifndef LIME_HASHLINK
 		_initializeBytes ();
+		#endif
 
 		b = 0;
 		length = 0;
@@ -181,22 +183,22 @@ namespace lime {
 	}
 
 
-	void Bytes::Set(value bytes) {	
-		
+	void Bytes::Set(value bytes) {
+
 	    int newLength = 0;
 	    unsigned char* newB = 0;
 	    bool isNull = val_is_null(bytes);
-	
+
 	    if (!isNull) {
-	
+
 	        //here we can extract the values before calling our mutex to avoid potential deadlock or contention
 	        value lengthVal = val_field(bytes, id_length);
 	        value bVal = val_field(bytes, id_b);
-	
+
 	        newLength = val_int(lengthVal);
-	
+
 	        if (newLength > 0) {
-	
+
 	            if (val_is_string(bVal)) {
 	                newB = (unsigned char*)val_string(bVal);
 	            } else {
@@ -204,7 +206,7 @@ namespace lime {
 	            }
 	        }
 	    }
-	
+
 	    //and now it should be save to lock
 	    mutex.Lock();
 
@@ -229,7 +231,7 @@ namespace lime {
 	        usingHaxeValue = false;
 
 	    }
-	
+
 	    if (isNull) {
 	        length = 0;
 	        b = 0;
@@ -239,7 +241,7 @@ namespace lime {
 	        length = newLength;
 	        b = newB;
 	    }
-	
+
 	    mutex.Unlock();
 	}
 
