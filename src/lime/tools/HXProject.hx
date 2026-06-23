@@ -49,7 +49,9 @@ class HXProject extends Script
 	public var ndlls:Array<NDLL>;
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array<CLICommand>;
+	public var postUpdateCallbacks:Array<CLICommand>;
 	public var preBuildCallbacks:Array<CLICommand>;
+	public var preUpdateCallbacks:Array<CLICommand>;
 	public var samplePaths:Array<String>;
 	public var sources:Array<String>;
 	public var splashScreens:Array<SplashScreen>;
@@ -219,7 +221,9 @@ class HXProject extends Script
 		modules = new Map<String, ModuleData>();
 		ndlls = new Array<NDLL>();
 		postBuildCallbacks = new Array<CLICommand>();
+		postUpdateCallbacks = new Array<CLICommand>();
 		preBuildCallbacks = new Array<CLICommand>();
+		preUpdateCallbacks = new Array<CLICommand>();
 		sources = new Array<String>();
 		samplePaths = new Array<String>();
 		splashScreens = new Array<SplashScreen>();
@@ -322,7 +326,9 @@ class HXProject extends Script
 
 		project.platformType = platformType;
 		project.postBuildCallbacks = postBuildCallbacks.copy();
+		project.postUpdateCallbacks = postUpdateCallbacks.copy();
 		project.preBuildCallbacks = preBuildCallbacks.copy();
+		project.preUpdateCallbacks = preUpdateCallbacks.copy();
 		project.samplePaths = samplePaths.copy();
 		project.sources = sources.copy();
 
@@ -968,7 +974,9 @@ class HXProject extends Script
 
 			ndlls = ArrayTools.concatUnique(ndlls, project.ndlls);
 			postBuildCallbacks = postBuildCallbacks.concat(project.postBuildCallbacks);
+			postUpdateCallbacks = postUpdateCallbacks.concat(project.postUpdateCallbacks);
 			preBuildCallbacks = preBuildCallbacks.concat(project.preBuildCallbacks);
+			preUpdateCallbacks = preUpdateCallbacks.concat(project.preUpdateCallbacks);
 			samplePaths = ArrayTools.concatUnique(samplePaths, project.samplePaths, true);
 			sources = ArrayTools.concatUnique(sources, project.sources, true);
 			splashScreens = ArrayTools.concatUnique(splashScreens, project.splashScreens);
