@@ -1152,14 +1152,25 @@ namespace lime {
 		}
 
 		VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		const VkCompositeAlphaFlagBitsKHR compositeAlphaFlags[] = {
+		const bool transparentWindow = targetWindow && ((targetWindow->flags & WINDOW_FLAG_TRANSPARENT) != 0);
+		const VkCompositeAlphaFlagBitsKHR opaqueCompositeAlphaFlags[] = {
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
 			VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
 			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
 		};
+		const VkCompositeAlphaFlagBitsKHR transparentCompositeAlphaFlags[] = {
+			VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+			VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
+		};
+		const VkCompositeAlphaFlagBitsKHR* compositeAlphaFlags = transparentWindow ? transparentCompositeAlphaFlags : opaqueCompositeAlphaFlags;
+		const size_t compositeAlphaFlagCount = transparentWindow
+			? sizeof (transparentCompositeAlphaFlags) / sizeof (transparentCompositeAlphaFlags[0])
+			: sizeof (opaqueCompositeAlphaFlags) / sizeof (opaqueCompositeAlphaFlags[0]);
 
-		for (size_t i = 0; i < sizeof (compositeAlphaFlags) / sizeof (compositeAlphaFlags[0]); ++i) {
+		for (size_t i = 0; i < compositeAlphaFlagCount; ++i) {
 
 			if (capabilities.supportedCompositeAlpha & compositeAlphaFlags[i]) {
 
@@ -13597,9 +13608,9 @@ namespace lime {
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
 	#define _TDISPLAYMODE _OBJ (_I32 _I32 _I32 _I32)
 	#define _TDROP_EVENT _OBJ (_BYTES _I32)
-	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64)
+	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _I32)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
-	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32)
+	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32 _I32)
 	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
 	#define _TORIENTATION_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
@@ -13613,7 +13624,7 @@ namespace lime {
 
 	#define _TARRAYBUFFER _TBYTES
 	#define _TARRAYBUFFERVIEW _OBJ (_I32 _TARRAYBUFFER _I32 _I32 _I32 _I32)
-	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _DYN _DYN _BOOL _DYN _TBYTES _BOOL _I32 _STRING _TBYTES _STRING _TVORBISFILE)
+	#define _TAUDIOBUFFER _OBJ (_I32 _I32 _TARRAYBUFFERVIEW _I32 _DYN _DYN _I32 _DYN _DYN _BOOL _DYN _TBYTES _BOOL _I32 _STRING _TBYTES _STRING _TVORBISFILE)
 	#define _TIMAGEBUFFER _OBJ (_I32 _TARRAYBUFFERVIEW _I32 _I32 _BOOL _BOOL _I32 _DYN _DYN _DYN _DYN _DYN _DYN)
 	#define _TIMAGE _OBJ (_TIMAGEBUFFER _BOOL _I32 _I32 _I32 _TRECTANGLE _ENUM _I32 _I32 _F64 _F64)
 
@@ -13786,6 +13797,23 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_vk_wait_for_fence, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_vk_reset_fence, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_vk_queue_submit, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_allocate_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_free_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_upload_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _TBYTES _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_download_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _TBYTES _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_map_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_unmap_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_write_mapped_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _TBYTES _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_flush_mapped_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_invalidate_mapped_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_buffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_buffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_get_buffer_memory_requirements, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_bind_buffer_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_get_image_memory_requirements, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_bind_image_memory, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_vk_create_swapchain, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_swapchain, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_ARR, hl_vk_get_swapchain_images, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
@@ -13793,6 +13821,55 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_vk_queue_present, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_vk_create_image_view, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_image_view, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_image_view_ex, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_render_pass, _TCFFIPOINTER _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_render_pass, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_framebuffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _ARR _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_framebuffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_shader_module, _TCFFIPOINTER _I32 _I32 _I32 _I32 _TBYTES _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_shader_module, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_sampler, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _BOOL _F64 _I32 _F64 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_sampler, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_descriptor_set_layout, _TCFFIPOINTER _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_descriptor_set_layout, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_descriptor_pool, _TCFFIPOINTER _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_descriptor_pool, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_reset_descriptor_pool, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_allocate_descriptor_set, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_update_descriptor_set_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_update_descriptor_set_buffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_update_descriptor_sets, _TCFFIPOINTER _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_pipeline_layout, _TCFFIPOINTER _I32 _I32 _I32 _I32 _ARR _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_pipeline_layout, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_pipeline_cache, _TCFFIPOINTER _I32 _I32 _I32 _I32 _TBYTES _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_pipeline_cache, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_get_pipeline_cache_data, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _TBYTES);
+	DEFINE_HL_PRIM (_DYN, hl_vk_create_graphics_pipeline, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_VOID, hl_vk_destroy_pipeline, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_queue_submit_synced, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_begin_render_pass, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_end_render_pass, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_bind_pipeline, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_bind_descriptor_set, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_bind_descriptor_set_ex, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_bind_descriptor_set_dynamic_offset, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_bind_vertex_buffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_bind_index_buffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_set_viewport, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _F64 _F64 _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_set_scissor, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_draw, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_draw_indexed, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_draw_indirect, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_draw_indexed_indirect, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_copy_buffer, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_copy_buffer_to_image_region, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_copy_image_to_buffer_region, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_pipeline_barrier_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_clear_color_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_clear_depth_stencil_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_clear_attachments, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _ARR _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_blit_image, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR);
+	DEFINE_HL_PRIM (_BOOL, hl_vk_cmd_push_constants, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _ARR _TBYTES);
 	DEFINE_HL_PRIM (_BYTES, hl_vk_get_last_error, _NO_ARG);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_vulkan_renderer_create, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_vulkan_renderer_destroy, _TCFFIPOINTER);

@@ -34,8 +34,8 @@ class VKDescriptorWrite
 		range = Int64.ofInt(0);
 	}
 
-	public static function forBuffer(descriptorSet:VKDescriptorSet, binding:Int, buffer:VKBuffer, range:Int64 = null,
-			offset:Int64 = null, descriptorType:Int = VK.DESCRIPTOR_TYPE_UNIFORM_BUFFER, arrayElement:Int = 0):VKDescriptorWrite
+	public static function forBuffer(descriptorSet:VKDescriptorSet, binding:Int, buffer:VKBuffer, range:Int64 = null, offset:Int64 = null,
+			descriptorType:Int = VK.DESCRIPTOR_TYPE_UNIFORM_BUFFER, arrayElement:Int = 0):VKDescriptorWrite
 	{
 		var write = new VKDescriptorWrite();
 		write.kind = KIND_BUFFER;
@@ -50,8 +50,8 @@ class VKDescriptorWrite
 	}
 
 	public static function forImage(descriptorSet:VKDescriptorSet, binding:Int, imageView:VKImageView, sampler:VKSampler = null,
-			imageLayout:Int = VK.IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			descriptorType:Int = VK.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, arrayElement:Int = 0):VKDescriptorWrite
+			imageLayout:Int = VK.IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, descriptorType:Int = VK.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			arrayElement:Int = 0):VKDescriptorWrite
 	{
 		var write = new VKDescriptorWrite();
 		write.kind = KIND_IMAGE;

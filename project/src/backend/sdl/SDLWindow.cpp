@@ -189,6 +189,43 @@ namespace lime {
 		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
 
 	}
+
+	static bool EnableTransparentWindow (SDL_Window* sdlWindow) {
+
+		if (!sdlWindow) return false;
+
+		SDL_SysWMinfo wminfo;
+		SDL_VERSION (&wminfo.version);
+		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return false;
+
+		HWND hwnd = wminfo.info.win.window;
+		if (!hwnd) return false;
+
+		typedef struct {
+			int leftWidth;
+			int rightWidth;
+			int topHeight;
+			int bottomHeight;
+		} DwmMargins;
+		typedef HRESULT (WINAPI *DwmExtendFrameIntoClientAreaFunc) (HWND hwnd, const DwmMargins* margins);
+
+		HMODULE dwmapi = LoadLibraryW (L"dwmapi.dll");
+		if (!dwmapi) return false;
+
+		DwmExtendFrameIntoClientAreaFunc extendFrame = (DwmExtendFrameIntoClientAreaFunc)GetProcAddress (dwmapi, "DwmExtendFrameIntoClientArea");
+		bool enabled = false;
+
+		if (extendFrame) {
+
+			DwmMargins margins = { -1, -1, -1, -1 };
+			enabled = SUCCEEDED (extendFrame (hwnd, &margins));
+
+		}
+
+		FreeLibrary (dwmapi);
+		return enabled;
+
+	}
 #endif
 
 
@@ -240,6 +277,14 @@ namespace lime {
 		SDL_SetHint (SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 		SDL_SetHint (SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 		#endif
+
+		if (flags & WINDOW_FLAG_TRANSPARENT) {
+
+			#ifdef SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY
+			SDL_SetHint (SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, "1");
+			#endif
+
+		}
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
@@ -304,7 +349,7 @@ namespace lime {
 
 				}
 
-				if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
+				if (flags & (WINDOW_FLAG_COLOR_DEPTH_32_BIT | WINDOW_FLAG_TRANSPARENT)) {
 
 					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
 					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
@@ -345,6 +390,12 @@ namespace lime {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		InstallResizeEventHook (sdlWindow);
+
+		if ((flags & WINDOW_FLAG_TRANSPARENT) && !useVulkan) {
+
+			EnableTransparentWindow (sdlWindow);
+
+		}
 		#endif
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)

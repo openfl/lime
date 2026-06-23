@@ -1031,14 +1031,25 @@ namespace lime {
 		}
 
 		VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		const VkCompositeAlphaFlagBitsKHR compositeAlphaFlags[] = {
+		const bool transparentWindow = window && ((window->flags & WINDOW_FLAG_TRANSPARENT) != 0);
+		const VkCompositeAlphaFlagBitsKHR opaqueCompositeAlphaFlags[] = {
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
 			VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
 			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
 		};
+		const VkCompositeAlphaFlagBitsKHR transparentCompositeAlphaFlags[] = {
+			VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+			VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
+		};
+		const VkCompositeAlphaFlagBitsKHR* compositeAlphaFlags = transparentWindow ? transparentCompositeAlphaFlags : opaqueCompositeAlphaFlags;
+		const size_t compositeAlphaFlagCount = transparentWindow
+			? sizeof (transparentCompositeAlphaFlags) / sizeof (transparentCompositeAlphaFlags[0])
+			: sizeof (opaqueCompositeAlphaFlags) / sizeof (opaqueCompositeAlphaFlags[0]);
 
-		for (size_t i = 0; i < sizeof (compositeAlphaFlags) / sizeof (compositeAlphaFlags[0]); ++i) {
+		for (size_t i = 0; i < compositeAlphaFlagCount; ++i) {
 
 			if (capabilities.supportedCompositeAlpha & compositeAlphaFlags[i]) {
 

@@ -122,6 +122,8 @@ import lime.media.vorbis.VorbisInfo;
 import lime.media.AudioBuffer;
 import lime.media.AudioContext;
 import lime.media.AudioContextType;
+import lime.media.AudioInput;
+import lime.media.AudioInputDevice;
 import lime.media.AudioManager;
 import lime.media.AudioSource;
 import lime.media.FlashAudioContext;

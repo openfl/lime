@@ -2,7 +2,6 @@ package lime.graphics.vulkan;
 
 import haxe.Int64;
 import haxe.io.Bytes;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -78,9 +77,8 @@ class VKDeviceMemory
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid())
 		{
-			var result = NativeCFFI.lime_vk_map_memory(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, offset.high, offset.low, size.high,
-				size.low, flags);
+			var result = NativeCFFI.lime_vk_map_memory(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, offset.high, offset.low, size.high, size.low, flags);
 			if (result)
 			{
 				mapped = true;
@@ -131,9 +129,8 @@ class VKDeviceMemory
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid())
 		{
-			return NativeCFFI.lime_vk_write_mapped_memory(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, dstOffset.high, dstOffset.low, bytes,
-				srcOffset, length);
+			return NativeCFFI.lime_vk_write_mapped_memory(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, dstOffset.high, dstOffset.low, bytes, srcOffset, length);
 		}
 		#end
 
@@ -158,9 +155,8 @@ class VKDeviceMemory
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid())
 		{
-			return NativeCFFI.lime_vk_flush_mapped_memory(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, offset.high, offset.low, size.high,
-				size.low);
+			return NativeCFFI.lime_vk_flush_mapped_memory(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, offset.high, offset.low, size.high, size.low);
 		}
 		#end
 
@@ -186,8 +182,7 @@ class VKDeviceMemory
 		if (isValid() && device != null && device.isValid())
 		{
 			return NativeCFFI.lime_vk_invalidate_mapped_memory(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, offset.high, offset.low, size.high,
-				size.low);
+				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, offset.high, offset.low, size.high, size.low);
 		}
 		#end
 

@@ -220,7 +220,11 @@ class Main extends Application
 			return;
 		}
 
-		if (!createSourceTexture() || !createGeometry() || !createDescriptorLayouts() || !createOffscreenPass() || !createOnscreenPass())
+		if (!createSourceTexture()
+			|| !createGeometry()
+			|| !createDescriptorLayouts()
+			|| !createOffscreenPass()
+			|| !createOnscreenPass())
 		{
 			return;
 		}
@@ -264,7 +268,8 @@ class Main extends Application
 			return false;
 		}
 
-		if (!commandBuffer.reset() || !commandBuffer.begin(VK.COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)
+		if (!commandBuffer.reset()
+			|| !commandBuffer.begin(VK.COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)
 			|| !commandBuffer.pipelineBarrierImage(sourceTextureImage, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK.PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK.PIPELINE_STAGE_TRANSFER_BIT, 0, VK.ACCESS_TRANSFER_WRITE_BIT, VK.IMAGE_ASPECT_COLOR_BIT)
 			|| !commandBuffer.copyBufferToImage(staging, sourceTextureImage, 2, 2)
@@ -306,8 +311,7 @@ class Main extends Application
 			return false;
 		}
 
-		uniformBuffer = device.createUniformBuffer(Int64.ofInt(64),
-			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		uniformBuffer = device.createUniformBuffer(Int64.ofInt(64), VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT);
 		if (uniformBuffer == null)
 		{
 			fail("Failed to create Vulkan uniform buffer: " + VK.getLastError());
@@ -322,9 +326,9 @@ class Main extends Application
 		var vertices = Bytes.alloc(4 * 32);
 		var data = [
 			-0.72, -0.72, 0.0, 1.0, 1.0, 1.0, 1.0, 0.86,
-			0.72, -0.72, 1.0, 1.0, 1.0, 1.0, 1.0, 0.86,
-			0.72, 0.72, 1.0, 0.0, 1.0, 1.0, 1.0, 0.86,
-			-0.72, 0.72, 0.0, 0.0, 1.0, 1.0, 1.0, 0.86
+			 0.72, -0.72, 1.0, 1.0, 1.0, 1.0, 1.0, 0.86,
+			 0.72,  0.72, 1.0, 0.0, 1.0, 1.0, 1.0, 0.86,
+			-0.72,  0.72, 0.0, 0.0, 1.0, 1.0, 1.0, 0.86
 		];
 		for (i in 0...data.length)
 		{
@@ -338,10 +342,10 @@ class Main extends Application
 			indices.setUInt16(i * 2, indexData[i]);
 		}
 
-		quadVertexBuffer = device.createVertexBuffer(Int64.ofInt(vertices.length),
-			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT, vertices);
-		quadIndexBuffer = device.createIndexBuffer(Int64.ofInt(indices.length),
-			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT, indices);
+		quadVertexBuffer = device.createVertexBuffer(Int64.ofInt(vertices.length), VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			vertices);
+		quadIndexBuffer = device.createIndexBuffer(Int64.ofInt(indices.length), VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			indices);
 
 		if (quadVertexBuffer == null || quadIndexBuffer == null)
 		{
@@ -355,36 +359,36 @@ class Main extends Application
 	private function createCubeGeometry():Bool
 	{
 		var vertexData = [
-			-1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 0.85, 0.55, 1.0,
-			1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 0.85, 0.55, 1.0,
-			1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 0.85, 0.55, 1.0,
-			-1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.85, 0.55, 1.0,
-			1.0, -1.0, -1.0, 0.0, 1.0, 0.55, 0.8, 1.0, 1.0,
-			-1.0, -1.0, -1.0, 1.0, 1.0, 0.55, 0.8, 1.0, 1.0,
-			-1.0, 1.0, -1.0, 1.0, 0.0, 0.55, 0.8, 1.0, 1.0,
-			1.0, 1.0, -1.0, 0.0, 0.0, 0.55, 0.8, 1.0, 1.0,
-			-1.0, -1.0, -1.0, 0.0, 1.0, 0.75, 1.0, 0.65, 1.0,
-			-1.0, -1.0, 1.0, 1.0, 1.0, 0.75, 1.0, 0.65, 1.0,
-			-1.0, 1.0, 1.0, 1.0, 0.0, 0.75, 1.0, 0.65, 1.0,
-			-1.0, 1.0, -1.0, 0.0, 0.0, 0.75, 1.0, 0.65, 1.0,
-			1.0, -1.0, 1.0, 0.0, 1.0, 1.0, 0.75, 0.6, 1.0,
-			1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 0.75, 0.6, 1.0,
-			1.0, 1.0, -1.0, 1.0, 0.0, 1.0, 0.75, 0.6, 1.0,
-			1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.75, 0.6, 1.0,
-			-1.0, 1.0, 1.0, 0.0, 1.0, 0.65, 0.95, 1.0, 1.0,
-			1.0, 1.0, 1.0, 1.0, 1.0, 0.65, 0.95, 1.0, 1.0,
-			1.0, 1.0, -1.0, 1.0, 0.0, 0.65, 0.95, 1.0, 1.0,
-			-1.0, 1.0, -1.0, 0.0, 0.0, 0.65, 0.95, 1.0, 1.0,
-			-1.0, -1.0, -1.0, 0.0, 1.0, 1.0, 0.65, 0.75, 1.0,
-			1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 0.65, 0.75, 1.0,
-			1.0, -1.0, 1.0, 1.0, 0.0, 1.0, 0.65, 0.75, 1.0,
-			-1.0, -1.0, 1.0, 0.0, 0.0, 1.0, 0.65, 0.75, 1.0
+			-1.0, -1.0,  1.0, 0.0, 1.0,  1.0, 0.85, 0.55, 1.0,
+			 1.0, -1.0,  1.0, 1.0, 1.0,  1.0, 0.85, 0.55, 1.0,
+			 1.0,  1.0,  1.0, 1.0, 0.0,  1.0, 0.85, 0.55, 1.0,
+			-1.0,  1.0,  1.0, 0.0, 0.0,  1.0, 0.85, 0.55, 1.0,
+			 1.0, -1.0, -1.0, 0.0, 1.0, 0.55,  0.8,  1.0, 1.0,
+			-1.0, -1.0, -1.0, 1.0, 1.0, 0.55,  0.8,  1.0, 1.0,
+			-1.0,  1.0, -1.0, 1.0, 0.0, 0.55,  0.8,  1.0, 1.0,
+			 1.0,  1.0, -1.0, 0.0, 0.0, 0.55,  0.8,  1.0, 1.0,
+			-1.0, -1.0, -1.0, 0.0, 1.0, 0.75,  1.0, 0.65, 1.0,
+			-1.0, -1.0,  1.0, 1.0, 1.0, 0.75,  1.0, 0.65, 1.0,
+			-1.0,  1.0,  1.0, 1.0, 0.0, 0.75,  1.0, 0.65, 1.0,
+			-1.0,  1.0, -1.0, 0.0, 0.0, 0.75,  1.0, 0.65, 1.0,
+			 1.0, -1.0,  1.0, 0.0, 1.0,  1.0, 0.75,  0.6, 1.0,
+			 1.0, -1.0, -1.0, 1.0, 1.0,  1.0, 0.75,  0.6, 1.0,
+			 1.0,  1.0, -1.0, 1.0, 0.0,  1.0, 0.75,  0.6, 1.0,
+			 1.0,  1.0,  1.0, 0.0, 0.0,  1.0, 0.75,  0.6, 1.0,
+			-1.0,  1.0,  1.0, 0.0, 1.0, 0.65, 0.95,  1.0, 1.0,
+			 1.0,  1.0,  1.0, 1.0, 1.0, 0.65, 0.95,  1.0, 1.0,
+			 1.0,  1.0, -1.0, 1.0, 0.0, 0.65, 0.95,  1.0, 1.0,
+			-1.0,  1.0, -1.0, 0.0, 0.0, 0.65, 0.95,  1.0, 1.0,
+			-1.0, -1.0, -1.0, 0.0, 1.0,  1.0, 0.65, 0.75, 1.0,
+			 1.0, -1.0, -1.0, 1.0, 1.0,  1.0, 0.65, 0.75, 1.0,
+			 1.0, -1.0,  1.0, 1.0, 0.0,  1.0, 0.65, 0.75, 1.0,
+			-1.0, -1.0,  1.0, 0.0, 0.0,  1.0, 0.65, 0.75, 1.0
 		];
 
 		var indexData = [
-			0, 1, 2, 2, 3, 0,
-			4, 5, 6, 6, 7, 4,
-			8, 9, 10, 10, 11, 8,
+			 0,  1,  2,  2,  3,  0,
+			 4,  5,  6,  6,  7,  4,
+			 8,  9, 10, 10, 11,  8,
 			12, 13, 14, 14, 15, 12,
 			16, 17, 18, 18, 19, 16,
 			20, 21, 22, 22, 23, 20
@@ -402,10 +406,10 @@ class Main extends Application
 			indices.setUInt16(i * 2, indexData[i]);
 		}
 
-		cubeVertexBuffer = device.createVertexBuffer(Int64.ofInt(vertices.length),
-			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT, vertices);
-		cubeIndexBuffer = device.createIndexBuffer(Int64.ofInt(indices.length),
-			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT, indices);
+		cubeVertexBuffer = device.createVertexBuffer(Int64.ofInt(vertices.length), VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			vertices);
+		cubeIndexBuffer = device.createIndexBuffer(Int64.ofInt(indices.length), VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			indices);
 
 		if (cubeVertexBuffer == null || cubeIndexBuffer == null)
 		{
@@ -441,13 +445,14 @@ class Main extends Application
 
 	private function createOffscreenPass():Bool
 	{
-		offscreenRenderPass = device.createRenderPass(OFFSCREEN_FORMAT, VK.FORMAT_UNDEFINED, VK.SAMPLE_COUNT_1_BIT,
-			VK.ATTACHMENT_LOAD_OP_CLEAR, VK.ATTACHMENT_STORE_OP_STORE, VK.IMAGE_LAYOUT_UNDEFINED,
-			VK.IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		offscreenRenderPass = device.createRenderPass(OFFSCREEN_FORMAT, VK.FORMAT_UNDEFINED, VK.SAMPLE_COUNT_1_BIT, VK.ATTACHMENT_LOAD_OP_CLEAR,
+			VK.ATTACHMENT_STORE_OP_STORE, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		offscreenImage = device.createImage(OFFSCREEN_SIZE, OFFSCREEN_SIZE, OFFSCREEN_FORMAT,
 			VK.IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK.IMAGE_USAGE_SAMPLED_BIT | VK.IMAGE_USAGE_TRANSFER_SRC_BIT);
 
-		if (offscreenRenderPass == null || offscreenImage == null || offscreenImage.allocateMemory(VK.MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == null)
+		if (offscreenRenderPass == null
+			|| offscreenImage == null
+			|| offscreenImage.allocateMemory(VK.MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == null)
 		{
 			fail("Failed to create Vulkan offscreen render target: " + VK.getLastError());
 			return false;
@@ -462,8 +467,13 @@ class Main extends Application
 		quadVertexShader = device.createShaderModule(Assets.getBytes("Assets/shaders/quad.vert.spv"));
 		quadFragmentShader = device.createShaderModule(Assets.getBytes("Assets/shaders/quad.frag.spv"));
 
-		if (offscreenView == null || offscreenSampler == null || offscreenFramebuffer == null || offscreenDescriptorSet == null
-			|| offscreenPipelineLayout == null || quadVertexShader == null || quadFragmentShader == null
+		if (offscreenView == null
+			|| offscreenSampler == null
+			|| offscreenFramebuffer == null
+			|| offscreenDescriptorSet == null
+			|| offscreenPipelineLayout == null
+			|| quadVertexShader == null
+			|| quadFragmentShader == null
 			|| !offscreenDescriptorSet.updateImage(0, sourceTextureView, sourceTextureSampler))
 		{
 			fail("Failed to create Vulkan offscreen pipeline resources: " + VK.getLastError());
@@ -492,17 +502,15 @@ class Main extends Application
 	{
 		if (msaaSamples != VK.SAMPLE_COUNT_1_BIT)
 		{
-			renderPass = device.createRenderPass(swapchain.format, DEPTH_FORMAT, msaaSamples,
-				VK.ATTACHMENT_LOAD_OP_CLEAR, VK.ATTACHMENT_STORE_OP_DONT_CARE, VK.IMAGE_LAYOUT_UNDEFINED,
-				VK.IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK.IMAGE_LAYOUT_UNDEFINED,
-				VK.IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK.ATTACHMENT_LOAD_OP_CLEAR,
-				VK.ATTACHMENT_STORE_OP_DONT_CARE, swapchain.format, VK.ATTACHMENT_LOAD_OP_DONT_CARE,
-				VK.ATTACHMENT_STORE_OP_STORE, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			renderPass = device.createRenderPass(swapchain.format, DEPTH_FORMAT, msaaSamples, VK.ATTACHMENT_LOAD_OP_CLEAR, VK.ATTACHMENT_STORE_OP_DONT_CARE,
+				VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK.IMAGE_LAYOUT_UNDEFINED,
+				VK.IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK.ATTACHMENT_LOAD_OP_CLEAR, VK.ATTACHMENT_STORE_OP_DONT_CARE, swapchain.format,
+				VK.ATTACHMENT_LOAD_OP_DONT_CARE, VK.ATTACHMENT_STORE_OP_STORE, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_PRESENT_SRC_KHR);
 		}
 		else
 		{
-			renderPass = device.createRenderPass(swapchain.format, DEPTH_FORMAT, VK.SAMPLE_COUNT_1_BIT,
-				VK.ATTACHMENT_LOAD_OP_CLEAR, VK.ATTACHMENT_STORE_OP_STORE, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_PRESENT_SRC_KHR);
+			renderPass = device.createRenderPass(swapchain.format, DEPTH_FORMAT, VK.SAMPLE_COUNT_1_BIT, VK.ATTACHMENT_LOAD_OP_CLEAR,
+				VK.ATTACHMENT_STORE_OP_STORE, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_PRESENT_SRC_KHR);
 		}
 
 		if (renderPass == null || !createColorResources() || !createDepthResources() || !createFramebuffers())
@@ -516,8 +524,12 @@ class Main extends Application
 		cubeVertexShader = device.createShaderModule(Assets.getBytes("Assets/shaders/cube.vert.spv"));
 		cubeFragmentShader = device.createShaderModule(Assets.getBytes("Assets/shaders/cube.frag.spv"));
 
-		if (cubeDescriptorSet == null || cubePipelineLayout == null || cubeVertexShader == null || cubeFragmentShader == null
-			|| !cubeDescriptorSet.updateBuffer(0, uniformBuffer, 64) || !cubeDescriptorSet.updateImage(1, offscreenView, offscreenSampler))
+		if (cubeDescriptorSet == null
+			|| cubePipelineLayout == null
+			|| cubeVertexShader == null
+			|| cubeFragmentShader == null
+			|| !cubeDescriptorSet.updateBuffer(0, uniformBuffer, 64)
+			|| !cubeDescriptorSet.updateImage(1, offscreenView, offscreenSampler))
 		{
 			fail("Failed to create Vulkan cube descriptor resources: " + VK.getLastError());
 			return false;
@@ -555,8 +567,7 @@ class Main extends Application
 		}
 
 		colorImage = device.createImage(swapchain.width, swapchain.height, swapchain.format,
-			VK.IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK.IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, 1, 1, 1, VK.IMAGE_TYPE_2D,
-			VK.IMAGE_TILING_OPTIMAL, msaaSamples);
+			VK.IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK.IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, 1, 1, 1, VK.IMAGE_TYPE_2D, VK.IMAGE_TILING_OPTIMAL, msaaSamples);
 		if (colorImage == null || colorImage.allocateMemory(VK.MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == null)
 		{
 			return false;
@@ -570,8 +581,8 @@ class Main extends Application
 	{
 		disposeDepthResources();
 
-		depthImage = device.createImage(swapchain.width, swapchain.height, DEPTH_FORMAT, VK.IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-			1, 1, 1, VK.IMAGE_TYPE_2D, VK.IMAGE_TILING_OPTIMAL, msaaSamples);
+		depthImage = device.createImage(swapchain.width, swapchain.height, DEPTH_FORMAT, VK.IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 1, 1, 1,
+			VK.IMAGE_TYPE_2D, VK.IMAGE_TILING_OPTIMAL, msaaSamples);
 		if (depthImage == null || depthImage.allocateMemory(VK.MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == null)
 		{
 			return false;
@@ -671,7 +682,8 @@ class Main extends Application
 			return false;
 		}
 
-		if (!fence.reset() || !device.graphicsQueue.submitSynced(commandBuffer, imageAvailable, renderFinished, fence)
+		if (!fence.reset()
+			|| !device.graphicsQueue.submitSynced(commandBuffer, imageAvailable, renderFinished, fence)
 			|| !fence.waitForever())
 		{
 			fail("Failed to submit Vulkan draw commands: " + VK.getLastError());
@@ -933,10 +945,10 @@ class Main extends Application
 	{
 		var f = 1.0 / Math.tan(fovY * 0.5);
 		var result = [
-			f / aspect, 0.0, 0.0, 0.0,
-			0.0, -f, 0.0, 0.0,
-			0.0, 0.0, far / (near - far), -1.0,
-			0.0, 0.0, (far * near) / (near - far), 0.0
+			f / aspect, 0.0,                         0.0,  0.0,
+			       0.0,  -f,                         0.0,  0.0,
+			       0.0, 0.0,          far / (near - far), -1.0,
+			       0.0, 0.0, (far * near) / (near - far),  0.0
 		];
 		return result;
 	}

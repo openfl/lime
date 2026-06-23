@@ -118,7 +118,19 @@ class WebAssemblyPlatform extends PlatformTarget
 		}
 
 		var hxml = targetDirectory + "/haxe/" + buildType + ".hxml";
-		var args = [hxml, "-D", "webassembly", "-D", "wasm", "-D", "emscripten", "-D", "webgl", "-D", "static_link"];
+		var args = [
+			hxml,
+			"-D",
+			"webassembly",
+			"-D",
+			"wasm",
+			"-D",
+			"emscripten",
+			"-D",
+			"webgl",
+			"-D",
+			"static_link"
+		];
 
 		if (Log.verbose)
 		{
@@ -135,7 +147,13 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		project.path(sdkPath);
 
-		System.runCommand("", "emcc", ["-c", "-fwasm-exceptions", targetDirectory + "/obj/Main.cpp", "-o", targetDirectory + "/obj/Main.o"], true, false, true);
+		System.runCommand("", "emcc", [
+			"-c",
+			"-fwasm-exceptions",
+			targetDirectory + "/obj/Main.cpp",
+			"-o",
+			targetDirectory + "/obj/Main.o"
+		], true, false, true);
 
 		args = ["Main.o"];
 
@@ -159,9 +177,7 @@ class WebAssemblyPlatform extends PlatformTarget
 			prefix = "lib";
 		}
 
-		args = args.concat([
-			prefix + "ApplicationMain" + (project.debug ? "-debug" : "") + ".a"
-		]);
+		args = args.concat([prefix + "ApplicationMain" + (project.debug ? "-debug" : "") + ".a"]);
 
 		if (!project.targetFlags.exists("asmjs"))
 		{
@@ -188,19 +204,19 @@ class WebAssemblyPlatform extends PlatformTarget
 			}
 		}
 
-        // Fix Rendering
-        args.push("-s");
-        args.push("MIN_WEBGL_VERSION=2");
-        args.push("-s");
-        args.push("MAX_WEBGL_VERSION=2");
+		// Fix Rendering
+		args.push("-s");
+		args.push("MIN_WEBGL_VERSION=2");
+		args.push("-s");
+		args.push("MAX_WEBGL_VERSION=2");
 
-        // Fix GC
-        args.push("--Wno-limited-postlink-optimizations");
-        // https://github.com/HaxeFoundation/hxcpp/blob/767fe94d19a041147c4f65dea02c89cb206a0758/toolchain/emscripten-toolchain.xml#L29-L33
-        args.push("-s");
-        args.push("BINARYEN_EXTRA_PASSES='--spill-pointers'");
+		// Fix GC
+		args.push("--Wno-limited-postlink-optimizations");
+		// https://github.com/HaxeFoundation/hxcpp/blob/767fe94d19a041147c4f65dea02c89cb206a0758/toolchain/emscripten-toolchain.xml#L29-L33
+		args.push("-s");
+		args.push("BINARYEN_EXTRA_PASSES='--spill-pointers'");
 
-        args.push("-fwasm-exceptions");
+		args.push("-fwasm-exceptions");
 
 		// set initial size
 		// args.push("-s");
@@ -209,31 +225,32 @@ class WebAssemblyPlatform extends PlatformTarget
 		args.push("-s");
 		args.push("STACK_SIZE=1MB");
 
-        args.push("-s");
-        args.push("FETCH=1");
+		args.push("-s");
+		args.push("FETCH=1");
 
 		// args.push("-s");
 		// args.push("SAFE_HEAP=1");
 
 		if (project.targetFlags.exists("final"))
 		{
-		    args.push("-O3");
+			args.push("-O3");
 		}
 		else if (!project.debug)
 		{
-		    args.push("-O2");
+			args.push("-O2");
 		}
 		else
 		{
-		    args.push("-O1");
+			args.push("-O1");
 		}
 
 		args.push("-s");
 		args.push("ALLOW_MEMORY_GROWTH=1");
 
-        if(project.targetFlags.exists("websocket")) {
-            args.push("-lwebsocket.js");
-        }
+		if (project.targetFlags.exists("websocket"))
+		{
+			args.push("-lwebsocket.js");
+		}
 
 		if (project.targetFlags.exists("minify"))
 		{
@@ -334,7 +351,8 @@ class WebAssemblyPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -374,6 +392,8 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		var destination = targetDirectory + "/bin/";
 		System.mkdir(destination);
+
+		prepareEmbeddedAssets();
 
 		// for (asset in project.assets) {
 		//

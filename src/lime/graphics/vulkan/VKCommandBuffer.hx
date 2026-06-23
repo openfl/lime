@@ -1,7 +1,6 @@
 package lime.graphics.vulkan;
 
 import haxe.Int64;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -47,21 +46,19 @@ class VKCommandBuffer
 		}
 	}
 
-	public function beginRenderPass(renderPass:VKRenderPass, framebuffer:VKFramebuffer, width:Int, height:Int,
-			clearRed:Float = 0, clearGreen:Float = 0, clearBlue:Float = 0, clearAlpha:Float = 1,
-			clearDepth:Float = 1, clearStencil:Int = 0, x:Int = 0, y:Int = 0):Bool
+	public function beginRenderPass(renderPass:VKRenderPass, framebuffer:VKFramebuffer, width:Int, height:Int, clearRed:Float = 0, clearGreen:Float = 0,
+			clearBlue:Float = 0, clearAlpha:Float = 1, clearDepth:Float = 1, clearStencil:Int = 0, x:Int = 0, y:Int = 0):Bool
 	{
 		var clearValueCount = renderPass != null && renderPass.depthStencilFormat != VK.FORMAT_UNDEFINED ? 2 : 1;
 		var state = [x, y, width, height, clearStencil, clearValueCount];
 		var clear = [clearRed, clearGreen, clearBlue, clearAlpha, clearDepth];
 
 		#if (!macro && lime_cffi && lime_vulkan)
-		if (isValid() && device != null && device.isValid() && renderPass != null && renderPass.isValid() && framebuffer != null
-			&& framebuffer.isValid())
+		if (isValid() && device != null && device.isValid() && renderPass != null && renderPass.isValid() && framebuffer != null && framebuffer.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_begin_render_pass(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, renderPass.handle.high,
-				renderPass.handle.low, framebuffer.handle.high, framebuffer.handle.low, state, clear);
+			return NativeCFFI.lime_vk_cmd_begin_render_pass(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, renderPass.handle.high, renderPass.handle.low, framebuffer.handle.high,
+				framebuffer.handle.low, state, clear);
 		}
 		#end
 
@@ -86,9 +83,9 @@ class VKCommandBuffer
 					descriptorSet.handle.high, descriptorSet.handle.low, state);
 			}
 
-			return NativeCFFI.lime_vk_cmd_bind_descriptor_set(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, layout.handle.high, layout.handle.low,
-				descriptorSet.handle.high, descriptorSet.handle.low, bindPoint, firstSet);
+			return NativeCFFI.lime_vk_cmd_bind_descriptor_set(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, layout.handle.high, layout.handle.low, descriptorSet.handle.high,
+				descriptorSet.handle.low, bindPoint, firstSet);
 		}
 		#end
 
@@ -120,9 +117,8 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && buffer != null && buffer.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_bind_index_buffer(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low,
-				offset.high, offset.low, indexType);
+			return NativeCFFI.lime_vk_cmd_bind_index_buffer(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low, offset.high, offset.low, indexType);
 		}
 		#end
 
@@ -134,9 +130,8 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && pipeline != null && pipeline.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_bind_pipeline(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, pipeline.handle.high, pipeline.handle.low,
-				bindPoint);
+			return NativeCFFI.lime_vk_cmd_bind_pipeline(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, pipeline.handle.high, pipeline.handle.low, bindPoint);
 		}
 		#end
 
@@ -153,9 +148,8 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && buffer != null && buffer.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_bind_vertex_buffer(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low,
-				binding, offset.high, offset.low);
+			return NativeCFFI.lime_vk_cmd_bind_vertex_buffer(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low, binding, offset.high, offset.low);
 		}
 		#end
 
@@ -170,9 +164,9 @@ class VKCommandBuffer
 
 	public function blitImageRegion(source:VKImage, destination:VKImage, sourceWidth:Int, sourceHeight:Int,
 			sourceLayout:Int = VK.IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, destinationLayout:Int = VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			filter:Int = VK.FILTER_LINEAR, destinationWidth:Int = -1, destinationHeight:Int = -1, sourceX:Int = 0, sourceY:Int = 0,
-			sourceZ:Int = 0, destinationX:Int = 0, destinationY:Int = 0, destinationZ:Int = 0, sourceDepth:Int = 1, destinationDepth:Int = 1,
-			sourceMipLevel:Int = 0, destinationMipLevel:Int = 0, sourceBaseArrayLayer:Int = 0, destinationBaseArrayLayer:Int = 0, layerCount:Int = 1,
+			filter:Int = VK.FILTER_LINEAR, destinationWidth:Int = -1, destinationHeight:Int = -1, sourceX:Int = 0, sourceY:Int = 0, sourceZ:Int = 0,
+			destinationX:Int = 0, destinationY:Int = 0, destinationZ:Int = 0, sourceDepth:Int = 1, destinationDepth:Int = 1, sourceMipLevel:Int = 0,
+			destinationMipLevel:Int = 0, sourceBaseArrayLayer:Int = 0, destinationBaseArrayLayer:Int = 0, layerCount:Int = 1,
 			aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
 	{
 		if (destinationWidth < 0) destinationWidth = sourceWidth;
@@ -213,15 +207,14 @@ class VKCommandBuffer
 		return false;
 	}
 
-	public function clearColorImage(image:VKImage, layout:Int, red:Float, green:Float, blue:Float, alpha:Float,
-			aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
+	public function clearColorImage(image:VKImage, layout:Int, red:Float, green:Float, blue:Float, alpha:Float, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
 	{
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && image != null && image.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_clear_color_image(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, image.handle.high, image.handle.low,
-				layout, aspectMask, [red, green, blue, alpha]);
+			return NativeCFFI.lime_vk_cmd_clear_color_image(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, image.handle.high, image.handle.low, layout, aspectMask,
+				[red, green, blue, alpha]);
 		}
 		#end
 
@@ -229,25 +222,33 @@ class VKCommandBuffer
 	}
 
 	public function clearDepthStencilImage(image:VKImage, layout:Int, depth:Float = 1, stencil:Int = 0,
-			aspectMask:Int = VK.IMAGE_ASPECT_DEPTH_BIT | VK.IMAGE_ASPECT_STENCIL_BIT, baseMipLevel:Int = 0, levelCount:Int = 1,
-			baseArrayLayer:Int = 0, layerCount:Int = 1):Bool
+			aspectMask:Int = VK.IMAGE_ASPECT_DEPTH_BIT | VK.IMAGE_ASPECT_STENCIL_BIT, baseMipLevel:Int = 0, levelCount:Int = 1, baseArrayLayer:Int = 0,
+			layerCount:Int = 1):Bool
 	{
-		var state = [layout, stencil, aspectMask, baseMipLevel, levelCount, baseArrayLayer, layerCount];
+		var state = [
+			layout,
+			stencil,
+			aspectMask,
+			baseMipLevel,
+			levelCount,
+			baseArrayLayer,
+			layerCount
+		];
 
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && image != null && image.isValid())
 		{
 			return NativeCFFI.lime_vk_cmd_clear_depth_stencil_image(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, image.handle.high, image.handle.low,
-				state, [depth]);
+				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, image.handle.high, image.handle.low, state,
+				[depth]);
 		}
 		#end
 
 		return false;
 	}
 
-	public function clearAttachments(color:Bool, depth:Bool, stencil:Bool, x:Int, y:Int, width:Int, height:Int, red:Float = 0,
-			green:Float = 0, blue:Float = 0, alpha:Float = 0, depthValue:Float = 1, stencilValue:Int = 0):Bool
+	public function clearAttachments(color:Bool, depth:Bool, stencil:Bool, x:Int, y:Int, width:Int, height:Int, red:Float = 0, green:Float = 0,
+			blue:Float = 0, alpha:Float = 0, depthValue:Float = 1, stencilValue:Int = 0):Bool
 	{
 		var state = [color ? 1 : 0, depth ? 1 : 0, stencil ? 1 : 0, x, y, width, height, stencilValue];
 		var clear = [red, green, blue, alpha, depthValue];
@@ -255,8 +256,8 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_clear_attachments(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, state, clear);
+			return NativeCFFI.lime_vk_cmd_clear_attachments(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, state, clear);
 		}
 		#end
 
@@ -267,7 +268,14 @@ class VKCommandBuffer
 	{
 		if (sourceOffset == null) sourceOffset = Int64.ofInt(0);
 		if (destinationOffset == null) destinationOffset = Int64.ofInt(0);
-		var state = [size.high, size.low, sourceOffset.high, sourceOffset.low, destinationOffset.high, destinationOffset.low];
+		var state = [
+			size.high,
+			size.low,
+			sourceOffset.high,
+			sourceOffset.low,
+			destinationOffset.high,
+			destinationOffset.low
+		];
 
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && source != null && source.isValid() && destination != null && destination.isValid())
@@ -281,16 +289,14 @@ class VKCommandBuffer
 		return false;
 	}
 
-	public function copyBufferToImage(buffer:VKBuffer, image:VKImage, width:Int, height:Int,
-			layout:Int = VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL):Bool
+	public function copyBufferToImage(buffer:VKBuffer, image:VKImage, width:Int, height:Int, layout:Int = VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL):Bool
 	{
 		return copyBufferToImageRegion(buffer, image, width, height, layout);
 	}
 
-	public function copyBufferToImageRegion(buffer:VKBuffer, image:VKImage, width:Int, height:Int,
-			layout:Int = VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, depth:Int = 1, bufferOffset:Int64 = null, bufferRowLength:Int = 0,
-			bufferImageHeight:Int = 0, imageX:Int = 0, imageY:Int = 0, imageZ:Int = 0, mipLevel:Int = 0, baseArrayLayer:Int = 0,
-			layerCount:Int = 1, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
+	public function copyBufferToImageRegion(buffer:VKBuffer, image:VKImage, width:Int, height:Int, layout:Int = VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			depth:Int = 1, bufferOffset:Int64 = null, bufferRowLength:Int = 0, bufferImageHeight:Int = 0, imageX:Int = 0, imageY:Int = 0, imageZ:Int = 0,
+			mipLevel:Int = 0, baseArrayLayer:Int = 0, layerCount:Int = 1, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
 	{
 		if (bufferOffset == null) bufferOffset = Int64.ofInt(0);
 		var state = [
@@ -312,7 +318,13 @@ class VKCommandBuffer
 		];
 
 		#if (!macro && lime_cffi && lime_vulkan)
-		if (isValid() && device != null && device.isValid() && buffer != null && buffer.isValid() && image != null && image.isValid())
+		if (isValid()
+			&& device != null
+			&& device.isValid()
+			&& buffer != null
+			&& buffer.isValid()
+			&& image != null
+			&& image.isValid())
 		{
 			return NativeCFFI.lime_vk_cmd_copy_buffer_to_image_region(device.instance.context.__windowHandle, device.instance.handle.high,
 				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low,
@@ -323,10 +335,9 @@ class VKCommandBuffer
 		return false;
 	}
 
-	public function copyImageToBufferRegion(image:VKImage, buffer:VKBuffer, width:Int, height:Int,
-			layout:Int = VK.IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, depth:Int = 1, bufferOffset:Int64 = null, bufferRowLength:Int = 0,
-			bufferImageHeight:Int = 0, imageX:Int = 0, imageY:Int = 0, imageZ:Int = 0, mipLevel:Int = 0, baseArrayLayer:Int = 0,
-			layerCount:Int = 1, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
+	public function copyImageToBufferRegion(image:VKImage, buffer:VKBuffer, width:Int, height:Int, layout:Int = VK.IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			depth:Int = 1, bufferOffset:Int64 = null, bufferRowLength:Int = 0, bufferImageHeight:Int = 0, imageX:Int = 0, imageY:Int = 0, imageZ:Int = 0,
+			mipLevel:Int = 0, baseArrayLayer:Int = 0, layerCount:Int = 1, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT):Bool
 	{
 		if (bufferOffset == null) bufferOffset = Int64.ofInt(0);
 		var state = [
@@ -348,7 +359,13 @@ class VKCommandBuffer
 		];
 
 		#if (!macro && lime_cffi && lime_vulkan)
-		if (isValid() && device != null && device.isValid() && image != null && image.isValid() && buffer != null && buffer.isValid())
+		if (isValid()
+			&& device != null
+			&& device.isValid()
+			&& image != null
+			&& image.isValid()
+			&& buffer != null
+			&& buffer.isValid())
 		{
 			return NativeCFFI.lime_vk_cmd_copy_image_to_buffer_region(device.instance.context.__windowHandle, device.instance.handle.high,
 				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, image.handle.high, image.handle.low,
@@ -390,9 +407,9 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && buffer != null && buffer.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_draw_indirect(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low,
-				offset.high, offset.low, drawCount, stride);
+			return NativeCFFI.lime_vk_cmd_draw_indirect(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, buffer.handle.high, buffer.handle.low, offset.high, offset.low, drawCount,
+				stride);
 		}
 		#end
 
@@ -431,8 +448,8 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_end_render_pass(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low);
+			return NativeCFFI.lime_vk_cmd_end_render_pass(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low);
 		}
 		#end
 
@@ -465,8 +482,19 @@ class VKCommandBuffer
 	public function pipelineBarrierImage(image:VKImage, oldLayout:Int, newLayout:Int, srcStageMask:Int, dstStageMask:Int, srcAccessMask:Int,
 			dstAccessMask:Int, aspectMask:Int, baseMipLevel:Int = 0, levelCount:Int = 1, baseArrayLayer:Int = 0, layerCount:Int = 1):Bool
 	{
-		var state = [oldLayout, newLayout, srcStageMask, dstStageMask, srcAccessMask, dstAccessMask, aspectMask, baseMipLevel, levelCount,
-			baseArrayLayer, layerCount];
+		var state = [
+			oldLayout,
+			newLayout,
+			srcStageMask,
+			dstStageMask,
+			srcAccessMask,
+			dstAccessMask,
+			aspectMask,
+			baseMipLevel,
+			levelCount,
+			baseArrayLayer,
+			layerCount
+		];
 
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && image != null && image.isValid())
@@ -479,8 +507,7 @@ class VKCommandBuffer
 		return false;
 	}
 
-	public function pushConstants(layout:VKPipelineLayout, stageFlags:Int, bytes:haxe.io.Bytes, offset:Int = 0, byteOffset:Int = 0,
-			byteLength:Int = -1):Bool
+	public function pushConstants(layout:VKPipelineLayout, stageFlags:Int, bytes:haxe.io.Bytes, offset:Int = 0, byteOffset:Int = 0, byteLength:Int = -1):Bool
 	{
 		if (bytes == null || layout == null)
 		{
@@ -495,9 +522,8 @@ class VKCommandBuffer
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && layout.isValid())
 		{
-			return NativeCFFI.lime_vk_cmd_push_constants(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, layout.handle.high, layout.handle.low, state,
-				bytes);
+			return NativeCFFI.lime_vk_cmd_push_constants(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, layout.handle.high, layout.handle.low, state, bytes);
 		}
 		#end
 

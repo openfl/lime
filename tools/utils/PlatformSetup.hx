@@ -366,8 +366,7 @@ class PlatformSetup
 					setupAndroid();
 
 				case "blackberry":
-
-				// setupBlackBerry ();
+					// setupBlackBerry ();
 
 				case "html5":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
@@ -392,15 +391,13 @@ class PlatformSetup
 					}
 
 				case "tizen":
-
-				// setupTizen ();
+					// setupTizen ();
 
 				case "webassembly", "wasm", "emscripten":
 					setupWebAssembly();
 
 				case "webos":
-
-				// setupWebOS ();
+					// setupWebOS ();
 
 				case "electron":
 					setupElectron();
@@ -1236,9 +1233,12 @@ class PlatformSetup
 	public static function setupHL():Void
 	{
 		var message = "Absolute path to a custom version of HashLink.";
-		if (ConfigHelper.getConfigValue("HL_PATH") == null) {
+		if (ConfigHelper.getConfigValue("HL_PATH") == null)
+		{
 			message += " Leave empty to use Lime's default bundled version.";
-		} else {
+		}
+		else
+		{
 			message += " Leave empty to keep the currently configured version. To restore Lime's default bundled version, run the command: lime config remove HL_PATH";
 		}
 		getDefineValue("HL_PATH", message);
@@ -1274,8 +1274,25 @@ class PlatformSetup
 						"extendedKeyUsage=critical,codeSigning",
 					].join("\n"));
 					System.runCommand("", "openssl", [
-						"req", "-x509", "-newkey", "rsa:4096", "-keyout", key, "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out",
-						cert, "-extensions", "v3_req", "-config", openSSLConf
+						"req",
+						"-x509",
+						"-newkey",
+						"rsa:4096",
+						"-keyout",
+						key,
+						"-nodes",
+						"-days",
+						"365",
+						"-subj",
+						"/CN=hl-cert",
+						"-outform",
+						"der",
+						"-out",
+						cert,
+						"-extensions",
+						"v3_req",
+						"-config",
+						openSSLConf
 					], true, false, true);
 					System.runCommand("", "sudo", [
 						"security",

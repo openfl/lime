@@ -68,9 +68,12 @@ class NativeWindow
 		var resolvedVSyncMode = parent.application.__resolveVSyncMode(attributes);
 		var title = Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
 		var flags = 0;
+		var transparent = Reflect.hasField(attributes, "transparent") && attributes.transparent;
 		if (!Reflect.hasField(contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
-		if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
-		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = 24;
+		if (transparent) contextAttributes.background = null;
+		else if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
+		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = transparent ? 32 : 24;
+		else if (transparent && contextAttributes.colorDepth < 32) contextAttributes.colorDepth = 32;
 		if (!Reflect.hasField(contextAttributes, "depth")) contextAttributes.depth = true;
 		if (!Reflect.hasField(contextAttributes, "hardware")) contextAttributes.hardware = true;
 		if (!Reflect.hasField(contextAttributes, "stencil")) contextAttributes.stencil = true;
@@ -92,6 +95,7 @@ class NativeWindow
 		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
 		if (Reflect.hasField(attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
 		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (transparent) flags |= cast WindowFlags.WINDOW_FLAG_TRANSPARENT;
 
 		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
@@ -169,7 +173,8 @@ class NativeWindow
 				contextAttributes.hardware = true;
 				context.vulkan = new VulkanRenderContext(handle);
 				context.type = VULKAN;
-				context.version = Reflect.hasField(contextAttributes, "version") && contextAttributes.version != null ? contextAttributes.version : "";
+				context.version = Reflect.hasField(contextAttributes, "version")
+					&& contextAttributes.version != null ? contextAttributes.version : "";
 			default:
 				useHardware = false;
 
@@ -757,4 +762,5 @@ class NativeWindow
 	var WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000;
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
 	var WINDOW_FLAG_VULKAN = 0x00020000;
+	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
 }

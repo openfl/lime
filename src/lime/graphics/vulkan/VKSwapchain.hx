@@ -1,7 +1,6 @@
 package lime.graphics.vulkan;
 
 import haxe.Int64;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -56,8 +55,8 @@ class VKSwapchain
 			var semaphoreHandle = (semaphore != null && semaphore.isValid()) ? semaphore.handle : Int64.ofInt(0);
 			var fenceHandle = (fence != null && fence.isValid()) ? fence.handle : Int64.ofInt(0);
 			var data:Dynamic = NativeCFFI.lime_vk_acquire_next_image(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, timeout.high, timeout.low,
-				semaphoreHandle.high, semaphoreHandle.low, fenceHandle.high, fenceHandle.low);
+				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, timeout.high, timeout.low, semaphoreHandle.high,
+				semaphoreHandle.low, fenceHandle.high, fenceHandle.low);
 
 			if (data != null)
 			{

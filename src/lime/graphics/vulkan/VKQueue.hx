@@ -1,7 +1,6 @@
 package lime.graphics.vulkan;
 
 import haxe.Int64;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -80,8 +79,8 @@ class VKQueue
 		This preserves the simple `submit(commandBuffer, fence)` path while
 		exposing the explicit wait/signal pieces renderers need per frame.
 	**/
-	public function submitSynced(commandBuffer:VKCommandBuffer, waitSemaphore:VKSemaphore = null, signalSemaphore:VKSemaphore = null,
-			fence:VKFence = null, waitStageMask:Int = VK.PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT):Bool
+	public function submitSynced(commandBuffer:VKCommandBuffer, waitSemaphore:VKSemaphore = null, signalSemaphore:VKSemaphore = null, fence:VKFence = null,
+			waitStageMask:Int = VK.PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT):Bool
 	{
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && commandBuffer != null && commandBuffer.isValid())
@@ -89,7 +88,15 @@ class VKQueue
 			var waitHandle = waitSemaphore != null && waitSemaphore.isValid() ? waitSemaphore.handle : Int64.ofInt(0);
 			var signalHandle = signalSemaphore != null && signalSemaphore.isValid() ? signalSemaphore.handle : Int64.ofInt(0);
 			var fenceHandle = fence != null && fence.isValid() ? fence.handle : Int64.ofInt(0);
-			var state = [waitHandle.high, waitHandle.low, waitStageMask, signalHandle.high, signalHandle.low, fenceHandle.high, fenceHandle.low];
+			var state = [
+				waitHandle.high,
+				waitHandle.low,
+				waitStageMask,
+				signalHandle.high,
+				signalHandle.low,
+				fenceHandle.high,
+				fenceHandle.low
+			];
 
 			return NativeCFFI.lime_vk_queue_submit_synced(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
 				device.handle.high, device.handle.low, handle.high, handle.low, commandBuffer.handle.high, commandBuffer.handle.low, state);

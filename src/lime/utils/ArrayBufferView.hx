@@ -46,6 +46,7 @@ class ArrayBufferView
 	} // new
 
 	// Constructor helpers
+
 	@:allow(lime.utils)
 	#if !no_typedarray_inline
 	inline
@@ -138,7 +139,8 @@ class ArrayBufferView
 	{
 		if (view != null && array == null)
 		{
-			if (offset + view.length > this.length) {
+			if (offset + view.length > this.length)
+			{
 				throw TAError.RangeError;
 			}
 			if (bytesPerElement == view.bytesPerElement)
@@ -296,12 +298,13 @@ class ArrayBufferView
 	// Non-spec
 	#if !no_typedarray_inline
 	#end
-	function copyFromArray(array:Array<#if hl Dynamic #else Float #end>, offset:Int = 0)
+	function copyFromArray(array:Array< #if hl Dynamic #else Float #end>, offset:Int = 0)
 	{
 		// Ideally, native semantics could be used, like cpp.NativeArray.blit
 		var i = 0, len = array.length;
 
-		if (offset + len > this.length) {
+		if (offset + len > this.length)
+		{
 			throw TAError.RangeError;
 		}
 
@@ -471,7 +474,6 @@ class ArrayBufferView
 				throw "transferElement on a base type ArrayBuffer";
 		}
 	}
-
 } // ArrayBufferView
 
 #end // !js

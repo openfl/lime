@@ -1,7 +1,6 @@
 package flash.errors;
 
-@:native("flash.errors.SQLErrorOperation")
-#if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract SQLErrorOperation(String)
+@:native("flash.errors.SQLErrorOperation") #if (haxe_ver >= 4.0) extern enum #else @:extern @:enum #end abstract SQLErrorOperation(String)
 {
 	var ANALYZE = "analyze";
 	var ATTACH = "attach";

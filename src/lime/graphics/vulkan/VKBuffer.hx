@@ -2,7 +2,6 @@ package lime.graphics.vulkan;
 
 import haxe.Int64;
 import haxe.io.Bytes;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end

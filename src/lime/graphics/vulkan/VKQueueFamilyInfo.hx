@@ -30,8 +30,7 @@ class VKQueueFamilyInfo
 	/**
 		Checks whether this queue family satisfies a requested capability set.
 	**/
-	public inline function matches(requireGraphics:Bool = false, requirePresent:Bool = false, requireCompute:Bool = false,
-		requireTransfer:Bool = false):Bool
+	public inline function matches(requireGraphics:Bool = false, requirePresent:Bool = false, requireCompute:Bool = false, requireTransfer:Bool = false):Bool
 	{
 		if (requireGraphics && !supportsGraphics) return false;
 		if (requirePresent && !supportsPresent) return false;

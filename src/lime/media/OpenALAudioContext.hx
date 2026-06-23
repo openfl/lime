@@ -412,8 +412,13 @@ class OpenALAudioContext
 			return ALC.getString(device, param);
 		}
 
-		if (param == DEFAULT_DEVICE_SPECIFIER || param == DEVICE_SPECIFIER || param == ALC.EXTENSIONS || param == DEFAULT_ALL_DEVICES_SPECIFIER
-			|| param == ALL_DEVICES_SPECIFIER || param == CAPTURE_DEVICE_SPECIFIER || param == CAPTURE_DEFAULT_DEVICE_SPECIFIER)
+		if (param == DEFAULT_DEVICE_SPECIFIER
+			|| param == DEVICE_SPECIFIER
+			|| param == ALC.EXTENSIONS
+			|| param == DEFAULT_ALL_DEVICES_SPECIFIER
+			|| param == ALL_DEVICES_SPECIFIER
+			|| param == CAPTURE_DEVICE_SPECIFIER
+			|| param == CAPTURE_DEFAULT_DEVICE_SPECIFIER)
 		{
 			return ALC.getString(cast null, param);
 		}
@@ -431,9 +436,14 @@ class OpenALAudioContext
 		return AL.isEnabled(capability);
 	}
 
-	public function isExtensionPresent(extname:String):Bool
+	public function isExtensionPresent(extname:String, device:ALDevice = null):Bool
 	{
-		return AL.isExtensionPresent(extname);
+		if (extname == null)
+		{
+			return false;
+		}
+
+		return device != null ? ALC.isExtensionPresent(device, extname) : AL.isExtensionPresent(extname);
 	}
 
 	public function isSource(source:ALSource):Bool

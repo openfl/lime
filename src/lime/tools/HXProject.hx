@@ -107,7 +107,7 @@ class HXProject extends Script
 		var classRef = Type.resolveClass(inputData.name);
 		if (classRef == null)
 		{
-			Log.error('Unable to find class ${ inputData.name } in ${ inputData.projectFile }');
+			Log.error('Unable to find class ${inputData.name} in ${inputData.projectFile}');
 			return;
 		}
 		var instance = Type.createInstance(classRef, []);
@@ -189,7 +189,20 @@ class HXProject extends Script
 		else
 		{
 			environment = Sys.environment();
-			for (conflict in ["air", "android", "cpp", "flash", "hl", "html5", "ios", "linux", "mac", "neko", "webassembly", "windows"])
+			for (conflict in [
+				"air",
+				"android",
+				"cpp",
+				"flash",
+				"hl",
+				"html5",
+				"ios",
+				"linux",
+				"mac",
+				"neko",
+				"webassembly",
+				"windows"
+			])
 			{
 				environment.remove(conflict);
 			}
@@ -212,7 +225,7 @@ class HXProject extends Script
 		splashScreens = new Array<SplashScreen>();
 		targetHandlers = new Map<String, String>();
 
-		config.set("android", { manifest:{}, application:{}, activity:{} });
+		config.set("android", {manifest: {}, application: {}, activity: {}});
 		config.get("android.manifest").xmlChildren = [];
 		config.get("android.application").xmlChildren = [];
 		config.get("android.activity").xmlChildren = [];
@@ -403,11 +416,12 @@ class HXProject extends Script
 		var args = [
 			name,
 			#if lime
-			"-lib", "lime",
-			"-lib", "hxp",
+			"-lib", "lime", "-lib", "hxp",
 			#end
-			"-cp", tempDirectory,
-			"-cp", Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
+			"-cp",
+			tempDirectory,
+			"-cp",
+			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
 		];
 		var input = File.read(classFile, false);
 		var tag = "@:compiler(";
@@ -682,6 +696,7 @@ class HXProject extends Script
 		@:privateAccess projectXML.parseXML(new Access(Xml.parse(xml).firstElement()), "");
 		merge(projectXML);
 	}
+
 	// #end
 
 	private function initializeDefines():Void
@@ -793,8 +808,7 @@ class HXProject extends Script
 			defines.set("native", "1");
 			defines.set("cpp", "1");
 		}
-		else if (targetFlags.exists("cpp")
-			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
+		else if (targetFlags.exists("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
 		{
 			defines.set("targetType", "cpp");
 			defines.set("native", "1");

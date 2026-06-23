@@ -174,7 +174,7 @@ import flash.media.Sound;
 			// TODO: Do not preload bytes on native, if we can read from it instead (all non-Android targets?)
 
 			assetsLoaded = 0;
-			assetsTotal = 2; //for our initial __assetLoaded(null) call and __assetLoaded(this.id)
+			assetsTotal = 2; // for our initial __assetLoaded(null) call and __assetLoaded(this.id)
 
 			for (id in preload.keys())
 			{
@@ -252,7 +252,7 @@ import flash.media.Sound;
 			}
 			else
 			{
-				var basePath = rootPath == null || rootPath == "" ?  "" : Path.addTrailingSlash(rootPath);
+				var basePath = rootPath == null || rootPath == "" ? "" : Path.addTrailingSlash(rootPath);
 				var libPath = getPath(id);
 				if (libPath == null) libPath = id;
 
@@ -261,7 +261,10 @@ import flash.media.Sound;
 
 				var packedData_onProgress = load_onProgress.bind(this.id);
 
-				Bytes.loadFromFile(path).onProgress(packedData_onProgress).onError(promise.error).onComplete(packedData_onComplete);
+				Bytes.loadFromFile(path)
+					.onProgress(packedData_onProgress)
+					.onError(promise.error)
+					.onComplete(packedData_onComplete);
 			}
 		}
 
@@ -431,9 +434,9 @@ import flash.media.Sound;
 				var length = Reflect.field(asset, "length");
 				lengths.set(id, length);
 
-				//for individual packed assets, the size represents the work done unpacking them
-				//since this is likely to be much faster than downloading, set it to something
-				//small like the packed length / 10.
+				// for individual packed assets, the size represents the work done unpacking them
+				// since this is likely to be much faster than downloading, set it to something
+				// small like the packed length / 10.
 				sizes.set(id, Math.floor(length / 10));
 
 				packedBytesTotal += length;
@@ -444,7 +447,7 @@ import flash.media.Sound;
 				bytesTotal += sizes.get(id);
 			}
 		}
-		
+
 		sizes.set(this.id, packedBytesTotal);
 		bytesTotal += packedBytesTotal;
 	}

@@ -37,6 +37,7 @@ class ALC
 	public static inline var CAPTURE_DEVICE_SPECIFIER:Int = 0x310;
 	public static inline var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
 	public static inline var CAPTURE_SAMPLES:Int = 0x312;
+	public static inline var CONNECTED:Int = 0x313;
 
 	public static function closeDevice(device:ALDevice):Bool
 	{
@@ -204,6 +205,20 @@ class ALC
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_suspend_context(context);
+		#end
+	}
+
+	public static function isExtensionPresent(device:ALDevice, extname:String):Bool
+	{
+		if (extname == null)
+		{
+			return false;
+		}
+
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_alc_is_extension_present(device, extname);
+		#else
+		return false;
 		#end
 	}
 

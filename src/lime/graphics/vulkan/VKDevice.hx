@@ -2,7 +2,6 @@ package lime.graphics.vulkan;
 
 import haxe.Int64;
 import haxe.io.Bytes;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -42,8 +41,8 @@ class VKDevice
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && queueFamily != null)
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_command_pool(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, queueFamily.index, flags);
+			var data:Dynamic = NativeCFFI.lime_vk_create_command_pool(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low, queueFamily.index, flags);
 			var commandPoolHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(commandPoolHandle))
 			{
@@ -103,8 +102,8 @@ class VKDevice
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_buffer(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, size.high, size.low, usage);
+			var data:Dynamic = NativeCFFI.lime_vk_create_buffer(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low, size.high, size.low, usage);
 			var bufferHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(bufferHandle))
 			{
@@ -147,8 +146,8 @@ class VKDevice
 
 	public inline function createStagingBuffer(size:Int64, bytes:Bytes = null):VKBuffer
 	{
-		return createBufferWithMemory(size, VK.BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT, bytes);
+		return createBufferWithMemory(size, VK.BUFFER_USAGE_TRANSFER_SRC_BIT, VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			bytes);
 	}
 
 	public inline function createUploadRing(byteCapacity:Int, usage:Int = VK.BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -217,8 +216,8 @@ class VKDevice
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_descriptor_set_layout(instance.context.__windowHandle, instance.handle.high,
-				instance.handle.low, handle.high, handle.low, packed);
+			var data:Dynamic = NativeCFFI.lime_vk_create_descriptor_set_layout(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
+				handle.high, handle.low, packed);
 			var descriptorSetLayoutHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(descriptorSetLayoutHandle))
 			{
@@ -278,8 +277,8 @@ class VKDevice
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_framebuffer(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, renderPass.handle.high, renderPass.handle.low, packed, width, height, layers);
+			var data:Dynamic = NativeCFFI.lime_vk_create_framebuffer(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low, renderPass.handle.high, renderPass.handle.low, packed, width, height, layers);
 			var framebufferHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(framebufferHandle))
 			{
@@ -291,8 +290,8 @@ class VKDevice
 		return null;
 	}
 
-	public function createGraphicsPipeline(renderPass:VKRenderPass, layout:VKPipelineLayout, vertexShader:VKShaderModule,
-			fragmentShader:VKShaderModule, info:VKGraphicsPipelineInfo, cache:VKPipelineCache = null):VKPipeline
+	public function createGraphicsPipeline(renderPass:VKRenderPass, layout:VKPipelineLayout, vertexShader:VKShaderModule, fragmentShader:VKShaderModule,
+			info:VKGraphicsPipelineInfo, cache:VKPipelineCache = null):VKPipeline
 	{
 		if (renderPass == null || layout == null || vertexShader == null || fragmentShader == null)
 		{
@@ -309,8 +308,8 @@ class VKDevice
 		if (isValid() && renderPass.isValid() && layout.isValid() && vertexShader.isValid() && fragmentShader.isValid())
 		{
 			var data:Dynamic = NativeCFFI.lime_vk_create_graphics_pipeline(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, renderPass.handle.high, renderPass.handle.low, layout.handle.high, layout.handle.low,
-				vertexShader.handle.high, vertexShader.handle.low, fragmentShader.handle.high, fragmentShader.handle.low, info.pack(cacheHandle));
+				handle.high, handle.low, renderPass.handle.high, renderPass.handle.low, layout.handle.high, layout.handle.low, vertexShader.handle.high,
+				vertexShader.handle.low, fragmentShader.handle.high, fragmentShader.handle.low, info.pack(cacheHandle));
 			var pipelineHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(pipelineHandle))
 			{
@@ -328,8 +327,8 @@ class VKDevice
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_image(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, width, height, depth, mipLevels, arrayLayers, format, imageType, tiling, usage, samples);
+			var data:Dynamic = NativeCFFI.lime_vk_create_image(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low, width, height, depth, mipLevels, arrayLayers, format, imageType, tiling, usage, samples);
 			var imageHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(imageHandle))
 			{
@@ -397,16 +396,13 @@ class VKDevice
 		return null;
 	}
 
-	public function createRenderPass(colorFormat:Int, depthStencilFormat:Int = VK.FORMAT_UNDEFINED,
-			samples:Int = VK.SAMPLE_COUNT_1_BIT, colorLoadOp:Int = VK.ATTACHMENT_LOAD_OP_CLEAR,
-			colorStoreOp:Int = VK.ATTACHMENT_STORE_OP_STORE, colorInitialLayout:Int = VK.IMAGE_LAYOUT_UNDEFINED,
-			colorFinalLayout:Int = VK.IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-			depthInitialLayout:Int = VK.IMAGE_LAYOUT_UNDEFINED,
-			depthFinalLayout:Int = VK.IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-			depthLoadOp:Int = VK.ATTACHMENT_LOAD_OP_CLEAR, depthStoreOp:Int = VK.ATTACHMENT_STORE_OP_DONT_CARE,
-			resolveFormat:Int = VK.FORMAT_UNDEFINED, resolveLoadOp:Int = VK.ATTACHMENT_LOAD_OP_DONT_CARE,
-			resolveStoreOp:Int = VK.ATTACHMENT_STORE_OP_STORE, resolveInitialLayout:Int = VK.IMAGE_LAYOUT_UNDEFINED,
-			resolveFinalLayout:Int = VK.IMAGE_LAYOUT_PRESENT_SRC_KHR):VKRenderPass
+	public function createRenderPass(colorFormat:Int, depthStencilFormat:Int = VK.FORMAT_UNDEFINED, samples:Int = VK.SAMPLE_COUNT_1_BIT,
+			colorLoadOp:Int = VK.ATTACHMENT_LOAD_OP_CLEAR, colorStoreOp:Int = VK.ATTACHMENT_STORE_OP_STORE,
+			colorInitialLayout:Int = VK.IMAGE_LAYOUT_UNDEFINED, colorFinalLayout:Int = VK.IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+			depthInitialLayout:Int = VK.IMAGE_LAYOUT_UNDEFINED, depthFinalLayout:Int = VK.IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+			depthLoadOp:Int = VK.ATTACHMENT_LOAD_OP_CLEAR, depthStoreOp:Int = VK.ATTACHMENT_STORE_OP_DONT_CARE, resolveFormat:Int = VK.FORMAT_UNDEFINED,
+			resolveLoadOp:Int = VK.ATTACHMENT_LOAD_OP_DONT_CARE, resolveStoreOp:Int = VK.ATTACHMENT_STORE_OP_STORE,
+			resolveInitialLayout:Int = VK.IMAGE_LAYOUT_UNDEFINED, resolveFinalLayout:Int = VK.IMAGE_LAYOUT_PRESENT_SRC_KHR):VKRenderPass
 	{
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
@@ -429,8 +425,8 @@ class VKDevice
 				resolveInitialLayout,
 				resolveFinalLayout
 			];
-			var data:Dynamic = NativeCFFI.lime_vk_create_render_pass(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, state);
+			var data:Dynamic = NativeCFFI.lime_vk_create_render_pass(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low, state);
 			var renderPassHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(renderPassHandle))
 			{
@@ -443,14 +439,14 @@ class VKDevice
 	}
 
 	public function createSampler(filter:Int = VK.FILTER_LINEAR, addressMode:Int = VK.SAMPLER_ADDRESS_MODE_REPEAT,
-			mipmapMode:Int = VK.SAMPLER_MIPMAP_MODE_LINEAR, anisotropyEnable:Bool = false, maxAnisotropy:Float = 1,
-			compareOp:Int = -1, minLod:Float = 0, maxLod:Float = 0):VKSampler
+			mipmapMode:Int = VK.SAMPLER_MIPMAP_MODE_LINEAR, anisotropyEnable:Bool = false, maxAnisotropy:Float = 1, compareOp:Int = -1, minLod:Float = 0,
+			maxLod:Float = 0):VKSampler
 	{
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_sampler(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low, filter, addressMode, mipmapMode, anisotropyEnable, maxAnisotropy, compareOp, minLod, maxLod);
+			var data:Dynamic = NativeCFFI.lime_vk_create_sampler(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low, filter, addressMode, mipmapMode, anisotropyEnable, maxAnisotropy, compareOp, minLod, maxLod);
 			var samplerHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(samplerHandle))
 			{
@@ -467,8 +463,8 @@ class VKDevice
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid())
 		{
-			var data:Dynamic = NativeCFFI.lime_vk_create_semaphore(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				handle.high, handle.low);
+			var data:Dynamic = NativeCFFI.lime_vk_create_semaphore(instance.context.__windowHandle, instance.handle.high, instance.handle.low, handle.high,
+				handle.low);
 			var semaphoreHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(semaphoreHandle))
 			{
@@ -519,8 +515,8 @@ class VKDevice
 		{
 			var oldSwapchainHandle = (oldSwapchain != null && oldSwapchain.isValid()) ? oldSwapchain.handle : Int64.ofInt(0);
 			var data:Dynamic = NativeCFFI.lime_vk_create_swapchain(instance.context.__windowHandle, instance.handle.high, instance.handle.low,
-				physicalDevice.handle.high, physicalDevice.handle.low, handle.high, handle.low, surface.high, surface.low, queueFamily.index, width,
-				height, presentMode, oldSwapchainHandle.high, oldSwapchainHandle.low);
+				physicalDevice.handle.high, physicalDevice.handle.low, handle.high, handle.low, surface.high, surface.low, queueFamily.index, width, height,
+				presentMode, oldSwapchainHandle.high, oldSwapchainHandle.low);
 			var swapchainHandle = VK.__makeHandle(data != null ? data.handle : null);
 			if (!VK.__isZero(swapchainHandle))
 			{

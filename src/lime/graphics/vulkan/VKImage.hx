@@ -1,7 +1,6 @@
 package lime.graphics.vulkan;
 
 import haxe.Int64;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -82,9 +81,8 @@ class VKImage
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid() && memory != null && memory.isValid())
 		{
-			var result = NativeCFFI.lime_vk_bind_image_memory(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, memory.handle.high, memory.handle.low,
-				offset.high, offset.low);
+			var result = NativeCFFI.lime_vk_bind_image_memory(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, memory.handle.high, memory.handle.low, offset.high, offset.low);
 			if (result)
 			{
 				this.memory = memory;
@@ -96,8 +94,8 @@ class VKImage
 		return false;
 	}
 
-	public function createView(format:Int = 0, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT, viewType:Int = VK.IMAGE_VIEW_TYPE_2D,
-			baseMipLevel:Int = 0, levelCount:Int = 1, baseArrayLayer:Int = 0, layerCount:Int = 1):VKImageView
+	public function createView(format:Int = 0, aspectMask:Int = VK.IMAGE_ASPECT_COLOR_BIT, viewType:Int = VK.IMAGE_VIEW_TYPE_2D, baseMipLevel:Int = 0,
+			levelCount:Int = 1, baseArrayLayer:Int = 0, layerCount:Int = 1):VKImageView
 	{
 		if (format == 0)
 		{
@@ -108,8 +106,8 @@ class VKImage
 		if (isValid() && device != null && device.isValid())
 		{
 			var data:Dynamic = NativeCFFI.lime_vk_create_image_view_ex(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, format, aspectMask, viewType,
-				baseMipLevel, levelCount, baseArrayLayer, layerCount);
+				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, format, aspectMask, viewType, baseMipLevel,
+				levelCount, baseArrayLayer, layerCount);
 			var imageViewHandle = VK.__makeHandle(data);
 			if (!VK.__isZero(imageViewHandle))
 			{

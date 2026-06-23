@@ -49,6 +49,7 @@ import ::APP_MAIN::;
 				parameters: ::parameters::,
 				resizable: ::resizable::,
 				title: "::title::",
+				transparent: ::transparent::,
 				width: ::width::,
 				x: ::x::,
 				y: ::y::,

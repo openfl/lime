@@ -9,7 +9,6 @@ import lime.system.CFFI;
 #if (!lime_doc_gen || lime_cffi)
 import lime.system.CFFIPointer;
 #end
-
 #if hl
 import hl.Bytes as HLBytes;
 import hl.NativeArray;

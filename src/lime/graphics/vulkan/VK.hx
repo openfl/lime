@@ -5,7 +5,6 @@ import lime.graphics.VulkanRenderContext;
 #if (!lime_doc_gen || lime_cffi)
 import lime.system.CFFI;
 #end
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -352,8 +351,7 @@ class VK
 		This currently prefers graphics-capable devices, optionally requiring
 		present support, and favors discrete GPUs by default.
 	**/
-	public static function pickPhysicalDevice(devices:Array<VKPhysicalDevice>, requirePresent:Bool = false,
-		preferDiscrete:Bool = true):VKPhysicalDevice
+	public static function pickPhysicalDevice(devices:Array<VKPhysicalDevice>, requirePresent:Bool = false, preferDiscrete:Bool = true):VKPhysicalDevice
 	{
 		if (devices == null || devices.length == 0)
 		{
