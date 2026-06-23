@@ -466,9 +466,9 @@ class JNISafetyTools
 							#else
 							haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args}));
 							#end
-            } else {
+						} else {
 							${f.expr};
-            };
+						};
 				default:
 			}
 		}
