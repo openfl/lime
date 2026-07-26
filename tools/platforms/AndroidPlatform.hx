@@ -403,6 +403,8 @@ class AndroidPlatform extends PlatformTarget
 
 		// initialize (project);
 
+		prepareEmbeddedAssets();
+
 		var destination = targetDirectory + "/bin";
 		var sourceSet = destination + "/app/src/main";
 		System.mkdir(sourceSet);
@@ -441,6 +443,9 @@ class AndroidPlatform extends PlatformTarget
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 		context.ANDROID_GRADLE_PROPERTIES = project.config.getKeyValueArray("android.gradle-properties");
 		context.ANDROID_DISPLAY_CUTOUT = project.config.getString("android.layoutInDisplayCutoutMode", "default");
+		context.ANDROID_VULKAN = project.window.renderType != null && project.window.renderType.toLowerCase() == "vulkan";
+		context.ANDROID_VULKAN_REQUIRED = project.config.getBool("android.vulkan-required", true);
+		context.ANDROID_VULKAN_VERSION = project.config.getString("android.vulkan-version", "0x400003");
 
 		context.ANDROID_MANIFEST = project.config.getKeyValueArray("android.manifest", {
 			"android:versionCode": project.meta.buildNumber,

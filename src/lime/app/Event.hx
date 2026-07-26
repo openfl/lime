@@ -30,10 +30,17 @@ class Event<T>
 	**/
 	public var canceled(default, null):Bool;
 
+	/**
+		The timestamp for the current dispatch, in milliseconds.
+		When read outside of a dispatch, this returns the current timer value.
+	**/
+	public var timestamp(get, never):Int;
+
 	@:noCompletion @:dox(hide) public var __listeners:Array<T>;
 	@:noCompletion @:dox(hide) public var __repeat:Array<Bool>;
 
 	@:noCompletion private var __priorities:Array<Int>;
+	@:noCompletion private var __timestamp:Int;
 
 	/**
 		Creates a new Event instance
@@ -45,6 +52,7 @@ class Event<T>
 		__listeners = new Array();
 		__priorities = new Array<Int>();
 		__repeat = new Array<Bool>();
+		__timestamp = -1;
 		#end
 	}
 
@@ -89,6 +97,7 @@ class Event<T>
 		takes two `Int` arguments, like `dispatch (1, 2);`
 	**/
 	public var dispatch:Dynamic;
+	@:noCompletion @:dox(hide) public var __dispatchWithTimestamp:Dynamic;
 
 	// macro public function dispatch (ethis:Expr, args:Array<Expr>):Void {
 	//
@@ -167,6 +176,15 @@ class Event<T>
 		__listeners.splice(0, len);
 		__priorities.splice(0, len);
 		__repeat.splice(0, len);
+		#end
+	}
+
+	private function get_timestamp():Int
+	{
+		#if (lime_doc_gen || macro)
+		return (__timestamp != -1) ? __timestamp : 0;
+		#else
+		return (__timestamp != -1) ? __timestamp : lime.system.System.getTimer();
 		#end
 	}
 }

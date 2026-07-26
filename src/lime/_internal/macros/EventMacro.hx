@@ -89,30 +89,82 @@ class EventMacro
 
 			var dispatch = macro
 				{
+					var previousTimestamp = __timestamp;
+					__timestamp = lime.system.System.getTimer();
 					canceled = false;
 
-					var listeners = __listeners;
-					var repeat = __repeat;
-					var i = 0;
-
-					while (i < listeners.length)
+					try
 					{
-						listeners[i]($a{argNames});
+						var listeners = __listeners;
+						var repeat = __repeat;
+						var i = 0;
 
-						if (!repeat[i])
+						while (i < listeners.length)
 						{
-							this.remove(cast listeners[i]);
-						}
-						else
-						{
-							i++;
-						}
+							listeners[i]($a{argNames});
 
-						if (canceled)
-						{
-							break;
+							if (!repeat[i])
+							{
+								this.remove(cast listeners[i]);
+							}
+							else
+							{
+								i++;
+							}
+
+							if (canceled)
+							{
+								break;
+							}
 						}
 					}
+					catch (e:Dynamic)
+					{
+						__timestamp = previousTimestamp;
+						throw e;
+					}
+
+					__timestamp = previousTimestamp;
+				}
+
+			var timestampDispatch = macro
+				{
+					var previousTimestamp = __timestamp;
+					__timestamp = timestamp;
+					canceled = false;
+
+					try
+					{
+						var listeners = __listeners;
+						var repeat = __repeat;
+						var i = 0;
+
+						while (i < listeners.length)
+						{
+							listeners[i]($a{argNames});
+
+							if (!repeat[i])
+							{
+								this.remove(cast listeners[i]);
+							}
+							else
+							{
+								i++;
+							}
+
+							if (canceled)
+							{
+								break;
+							}
+						}
+					}
+					catch (e:Dynamic)
+					{
+						__timestamp = previousTimestamp;
+						throw e;
+					}
+
+					__timestamp = previousTimestamp;
 				}
 
 			var i = 0;
@@ -122,7 +174,7 @@ class EventMacro
 			{
 				field = fields[i];
 
-				if (field.name == "__listeners" || field.name == "dispatch")
+				if (field.name == "__listeners" || field.name == "dispatch" || field.name == "__dispatchWithTimestamp")
 				{
 					fields.remove(field);
 				}
@@ -150,6 +202,23 @@ class EventMacro
 							params: [],
 							ret: macro:Void
 						}),
+					pos: pos
+				});
+			fields.push(
+				{
+					name: "__dispatchWithTimestamp",
+					access: [APublic],
+					kind: FFun(
+						{
+							args: [{name: "timestamp", type: macro:Int}].concat(args),
+							expr: timestampDispatch,
+							params: [],
+							ret: macro:Void
+						}),
+					meta: [
+						{name: ":dox", params: [macro hide], pos: pos},
+						{name: ":noCompletion", pos: pos}
+					],
 					pos: pos
 				});
 

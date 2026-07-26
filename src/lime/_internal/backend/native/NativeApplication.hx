@@ -292,13 +292,14 @@ class NativeApplication
 		{
 			case AXIS_MOVE:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onAxisMove.dispatch(gamepadEventInfo.axis, gamepadEventInfo.axisValue);
+				if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.axis,
+					gamepadEventInfo.axisValue);
 			case BUTTON_DOWN:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onButtonDown.dispatch(gamepadEventInfo.button);
+				if (gamepad != null) @:privateAccess gamepad.onButtonDown.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.button);
 			case BUTTON_UP:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onButtonUp.dispatch(gamepadEventInfo.button);
+				if (gamepad != null) @:privateAccess gamepad.onButtonUp.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.button);
 			case CONNECT:
 				Gamepad.__connect(gamepadEventInfo.id);
 
@@ -345,9 +346,9 @@ class NativeApplication
 			switch (type)
 			{
 				case KEY_DOWN:
-					window.onKeyDown.dispatch(keyCode, modifier);
+					@:privateAccess window.onKeyDown.__dispatchWithTimestamp(keyEventInfo.timestamp, keyCode, modifier);
 				case KEY_UP:
-					window.onKeyUp.dispatch(keyCode, modifier);
+					@:privateAccess window.onKeyUp.__dispatchWithTimestamp(keyEventInfo.timestamp, keyCode, modifier);
 			}
 
 			#if (windows || linux)
@@ -466,6 +467,9 @@ class NativeApplication
 			switch (renderEventInfo.type)
 			{
 				case RENDER:
+					#if lime_skip_invisible_windows
+					if (!window.visible) continue;
+					#end
 					if (window.context != null)
 					{
 						window.__backend.render();
@@ -776,19 +780,21 @@ class NativeApplication
 	public var id:Int;
 	public var type:GamepadEventType;
 	public var axisValue:Float;
+	public var timestamp:Int;
 
-	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0)
+	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0, timestamp:Int = 0)
 	{
 		this.type = type;
 		this.id = id;
 		this.button = button;
 		this.axis = axis;
 		this.axisValue = value;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():GamepadEventInfo
 	{
-		return new GamepadEventInfo(type, id, button, axis, axisValue);
+		return new GamepadEventInfo(type, id, button, axis, axisValue, timestamp);
 	}
 }
 
@@ -843,18 +849,20 @@ class NativeApplication
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
+	public var timestamp:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0, timestamp:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():KeyEventInfo
 	{
-		return new KeyEventInfo(type, windowID, keyCode, modifier);
+		return new KeyEventInfo(type, windowID, keyCode, modifier, timestamp);
 	}
 }
 

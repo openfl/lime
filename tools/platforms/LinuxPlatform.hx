@@ -567,6 +567,8 @@ class LinuxPlatform extends PlatformTarget
 		// project = project.clone ();
 		// initialize (project);
 
+		prepareEmbeddedAssets();
+
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");

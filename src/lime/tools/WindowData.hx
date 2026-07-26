@@ -19,12 +19,14 @@ abstract WindowData({
 	@:optional var allowHighDPI:Bool;
 	@:optional var alwaysOnTop:Bool;
 	@:optional var antialiasing:Int;
+	@:optional var renderType:String;
 	@:optional var orientation:Orientation;
 	@:optional var allowShaders:Bool;
 	@:optional var requireShaders:Bool;
 	@:optional var depthBuffer:Bool;
 	@:optional var stencilBuffer:Bool;
 	@:optional var title:String;
+	@:optional var transparent:Bool;
 	#if (js && html5)
 	@:optional var element:js.html.Element;
 	#end
@@ -53,12 +55,14 @@ abstract WindowData({
 		allowHighDPI: false,
 		alwaysOnTop: false,
 		antialiasing: 0,
+		renderType: null,
 		orientation: Orientation.AUTO,
 		allowShaders: false,
 		requireShaders: false,
 		depthBuffer: false,
 		stencilBuffer: false,
 		title: "",
+		transparent: false,
 		#if (js && html5)
 		element: null,
 		#end

@@ -18,7 +18,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -110,7 +110,7 @@ jobs:
         run: |
           sudo add-apt-repository ppa:haxe/releases -y
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
 
       # krdlab/setup-haxe doesn't support arm64 linux
       # so this is our workaround for now
@@ -134,10 +134,6 @@ jobs:
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
-
-      - name: Enable HXCPP compile cache
-        run: |
-          echo "HXCPP_COMPILE_CACHE=~/.hxcpp" >> $GITHUB_ENV
 
       - name: Rebuild Lime tools
         run: |
@@ -181,6 +177,59 @@ jobs:
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
+
+  vulkan-smoke:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libx11-xcb1 libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev mesa-vulkan-drivers xvfb
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib --global update haxelib --quiet
+          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install utest --quiet
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (Linux default Vulkan)
+        run: |
+          lime rebuild linux -64 -release -nocolor -verbose -nocffi
+
+      - name: Build Vulkan smoke test app
+        working-directory: tests/vulkan-smoke
+        run: |
+          lime build linux -release -verbose -nocolor
+
+      - name: Run Vulkan smoke test app
+        working-directory: tests/vulkan-smoke
+        run: |
+          if [ -f /usr/share/vulkan/icd.d/lvp_icd.x86_64.json ]; then
+            export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+          fi
+          SDL_AUDIODRIVER=dummy xvfb-run -a Export/linux/bin/LimeVulkanSmoke
 
   macos:
     runs-on: macos-14
@@ -476,6 +525,11 @@ jobs:
         run: |
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio android -release -verbose -nocolor -eval
+
+      - name: Build Vulkan smoke test app
+        working-directory: tests/vulkan-smoke
+        run: |
+          lime build android -release -verbose -nocolor -eval
   ios:
     runs-on: macos-14
     steps:
@@ -536,7 +590,7 @@ jobs:
           lime build SimpleAudio ios -release -nosign -verbose -nocolor -eval
 
   package-haxelib:
-    needs: [linux, macos, windows, android, ios]
+    needs: [linux, vulkan-smoke, macos, windows, android, ios]
     runs-on: ubuntu-22.04
     steps:
 
@@ -728,7 +782,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.6]
+        haxe-version: [4.0.5, 4.1.5, 4.2.5, 4.3.7]
     steps:
 
       - uses: actions/checkout@v6
@@ -882,7 +936,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.6]
+        haxe-version: [3.4.7, 4.0.5, 4.1.5, 4.2.5, 4.3.7]
     steps:
 
       - uses: actions/checkout@v6
@@ -996,7 +1050,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-22.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, macos, neko-samples, windows]
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, vulkan-smoke, macos, neko-samples, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord

@@ -40,6 +40,7 @@ typedef WindowAttributes =
 	@:optional public var parameters:Dynamic;
 	@:optional public var resizable:Bool;
 	@:optional public var skipTaskbar:Bool;
+	@:optional public var transparent:Bool;
 	@:optional public var utility:Bool;
 	@:optional public var popupMenu:Bool;
 	@:optional public var tooltip:Bool;

@@ -1984,6 +1984,15 @@ class ProjectXMLParser extends HXProject
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
 
+				case "renderer":
+					var renderType = Std.string(value).toLowerCase();
+					Reflect.setField(windows[id], "renderType", renderType);
+					if (renderType == "vulkan")
+					{
+						defines.set("lime-vulkan", "");
+						haxedefs.set("lime-vulkan", "");
+					}
+
 				case "allow-high-dpi":
 					Reflect.setField(windows[id], "allowHighDPI", value == "true");
 

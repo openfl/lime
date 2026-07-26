@@ -32,6 +32,7 @@ class NativeAudioSource
 	#if lime_openalsoft
 	private static var hasDirectChannelsExt:Null<Bool>;
 	#end
+	private static var activeSources:Array<NativeAudioSource> = [];
 
 	private var buffers:Array<ALBuffer>;
 	private var bufferTimeBlocks:Array<Float>;
@@ -46,8 +47,19 @@ class NativeAudioSource
 	private var playing:Bool;
 	private var position:Vector4;
 	private var queuedBufferCount:Int;
+	private var queuedBufferLoopCounts:Array<Int>;
+	private var queuedStreamLoopCount:Int;
 	private var readArray:UInt8Array;
 	private var readBuffer:Bytes;
+	private var recoveryCompleted:Bool;
+	private var recoveryGain:Float;
+	private var recoveryLength:Null<Int>;
+	private var recoveryLoops:Int;
+	private var recoveryPending:Bool;
+	private var recoveryPitch:Float;
+	private var recoveryPlaying:Bool;
+	private var recoveryPosition:Vector4;
+	private var recoveryTime:Int;
 	private var sdlSoundStream:CFFIPointer;
 	private var samples:Int;
 	private var stream:Bool;
@@ -64,10 +76,31 @@ class NativeAudioSource
 		this.parent = parent;
 
 		position = new Vector4();
+		activeSources.push(this);
+	}
+
+	@:allow(lime.media.AudioManager)
+	private static function prepareAudioContextRecovery():Void
+	{
+		for (source in activeSources.copy())
+		{
+			source.prepareAudioContextRecoverySource();
+		}
+	}
+
+	@:allow(lime.media.AudioManager)
+	private static function restoreAudioContextRecovery():Void
+	{
+		for (source in activeSources.copy())
+		{
+			source.restoreAudioContextRecoverySource();
+		}
 	}
 
 	public function dispose():Void
 	{
+		activeSources.remove(this);
+
 		if (handle != null)
 		{
 			stop();
@@ -100,6 +133,8 @@ class NativeAudioSource
 		streamExhausted = false;
 		streamPosition = 0;
 		queuedBufferCount = 0;
+		queuedBufferLoopCounts = [];
+		queuedStreamLoopCount = 0;
 		ownsVorbisStream = false;
 		clearVorbisStream();
 		clearSDLSoundStream();
@@ -195,7 +230,14 @@ class NativeAudioSource
 				if (parent.buffer.__srcBuffer != null)
 				{
 					AL.bufferData(parent.buffer.__srcBuffer, format, parent.buffer.data, parent.buffer.data.length, parent.buffer.sampleRate);
+					parent.buffer.__srcBufferContext = AudioManager.__contextGeneration;
 				}
+			}
+			else if (parent.buffer.__srcBufferContext != AudioManager.__contextGeneration)
+			{
+				parent.buffer.__srcBuffer = null;
+				init();
+				return;
 			}
 
 			dataLength = parent.buffer.data.length;
@@ -487,6 +529,79 @@ class NativeAudioSource
 		return length - (length % frameSize);
 	}
 
+	private function getStreamBytePosition(useSDLSound:Bool, vorbisFile:VorbisFile):Int
+	{
+		if (useSDLSound)
+		{
+			return Std.int(streamPosition * streamByteRate);
+		}
+
+		#if lime_vorbis
+		return (vorbisFile != null) ? Int64.toInt(vorbisFile.pcmTell()) : 0;
+		#else
+		return 0;
+		#end
+	}
+
+	private function shouldLoopStreamInline():Bool
+	{
+		return stream && loops > 0 && length == null;
+	}
+
+	private function resetStreamForLoop(useSDLSound:Bool):Bool
+	{
+		if (!shouldLoopStreamInline() || loops <= queuedStreamLoopCount)
+		{
+			return false;
+		}
+
+		var streamTime = parent.offset;
+		var reset = useSDLSound ? resetSDLSoundStream(streamTime) : resetVorbisStream(streamTime);
+
+		if (!reset)
+		{
+			return false;
+		}
+
+		queuedStreamLoopCount++;
+		streamExhausted = false;
+		return true;
+	}
+
+	private function consumeProcessedStreamLoopCounts(processed:Int):Void
+	{
+		if (queuedBufferLoopCounts == null || processed <= 0)
+		{
+			return;
+		}
+
+		var completedLoops = 0;
+		for (i in 0...processed)
+		{
+			if (queuedBufferLoopCounts.length == 0)
+			{
+				break;
+			}
+
+			completedLoops += queuedBufferLoopCounts.shift();
+		}
+
+		if (completedLoops > 0)
+		{
+			loops -= completedLoops;
+			if (loops < 0)
+			{
+				loops = 0;
+			}
+
+			queuedStreamLoopCount -= completedLoops;
+			if (queuedStreamLoopCount < 0)
+			{
+				queuedStreamLoopCount = 0;
+			}
+		}
+	}
+
 	private function clearQueuedBuffers():Void
 	{
 		if (handle == null)
@@ -503,6 +618,88 @@ class NativeAudioSource
 		}
 
 		queuedBufferCount = 0;
+		queuedBufferLoopCounts = [];
+		queuedStreamLoopCount = 0;
+	}
+
+	private function prepareAudioContextRecoverySource():Void
+	{
+		if (parent.buffer == null)
+		{
+			recoveryPending = false;
+			return;
+		}
+
+		recoveryPending = true;
+		recoveryCompleted = completed;
+		recoveryGain = getGain();
+		recoveryLength = length;
+		recoveryLoops = loops;
+		recoveryPitch = getPitch();
+		recoveryPlaying = playing;
+		recoveryPosition = getPosition().clone();
+		recoveryTime = getCurrentTime();
+
+		if (streamTimer != null)
+		{
+			streamTimer.stop();
+			streamTimer = null;
+		}
+
+		if (timer != null)
+		{
+			timer.stop();
+			timer = null;
+		}
+
+		playing = false;
+		handle = null;
+		buffers = null;
+		bufferTimeBlocks = null;
+		queuedBufferCount = 0;
+		queuedBufferLoopCounts = [];
+		queuedStreamLoopCount = 0;
+
+		if (parent.buffer != null)
+		{
+			parent.buffer.__srcBuffer = null;
+			parent.buffer.__srcBufferContext = 0;
+		}
+
+		clearSDLSoundStream();
+		clearVorbisStream();
+	}
+
+	private function restoreAudioContextRecoverySource():Void
+	{
+		if (!recoveryPending || parent.buffer == null)
+		{
+			return;
+		}
+
+		recoveryPending = false;
+		completed = recoveryCompleted;
+		length = recoveryLength;
+		loops = recoveryLoops;
+		playing = false;
+
+		init();
+
+		if (handle == null)
+		{
+			return;
+		}
+
+		setGain(recoveryGain);
+		setPitch(recoveryPitch);
+		setPosition(recoveryPosition);
+		setCurrentTime(recoveryTime);
+		completed = recoveryCompleted;
+
+		if (recoveryPlaying)
+		{
+			play();
+		}
 	}
 
 	private function ensureReadBuffer(length:Int):Bool
@@ -622,10 +819,12 @@ class NativeAudioSource
 				if (buffers != null)
 				{
 					queuedBufferCount -= buffers.length;
+					consumeProcessedStreamLoopCounts(buffers.length);
 				}
 				else
 				{
 					queuedBufferCount -= buffersProcessed;
+					consumeProcessedStreamLoopCounts(buffersProcessed);
 				}
 
 				if (queuedBufferCount < 0)
@@ -654,13 +853,30 @@ class NativeAudioSource
 
 			var numBuffers = 0;
 			var bytesRead = 0;
+			var newBufferLoopCounts = [];
 
 			for (buffer in buffers)
 			{
+				var bufferLoopCount = 0;
+
 				if (hasKnownStreamLength && position >= dataLength)
 				{
-					streamExhausted = true;
-					break;
+					if (resetStreamForLoop(useSDLSound))
+					{
+						if (!useSDLSound)
+						{
+							#if lime_vorbis
+							vorbisFile = vorbisStream;
+							#end
+						}
+
+						position = getStreamBytePosition(useSDLSound, vorbisFile);
+					}
+					else
+					{
+						streamExhausted = true;
+						break;
+					}
 				}
 
 				var requestLength = hasKnownStreamLength ? (dataLength - position) : STREAM_BUFFER_SIZE;
@@ -687,17 +903,57 @@ class NativeAudioSource
 
 				if (bytesRead <= 0 || readArray == null)
 				{
-					streamExhausted = true;
-					break;
+					if (resetStreamForLoop(useSDLSound))
+					{
+						if (!useSDLSound)
+						{
+							#if lime_vorbis
+							vorbisFile = vorbisStream;
+							#end
+						}
+
+						position = getStreamBytePosition(useSDLSound, vorbisFile);
+						continue;
+					}
+					else
+					{
+						streamExhausted = true;
+						break;
+					}
 				}
 
 				AL.bufferData(buffer, format, readArray, bytesRead, parent.buffer.sampleRate);
 				position += bytesRead;
 				numBuffers++;
 
+				var stopAfterBuffer = false;
+
 				if (bytesRead < requestLength || (hasKnownStreamLength && position >= dataLength))
 				{
-					streamExhausted = true;
+					if (resetStreamForLoop(useSDLSound))
+					{
+						bufferLoopCount++;
+
+						if (!useSDLSound)
+						{
+							#if lime_vorbis
+							vorbisFile = vorbisStream;
+							#end
+						}
+
+						position = getStreamBytePosition(useSDLSound, vorbisFile);
+					}
+					else
+					{
+						streamExhausted = true;
+						stopAfterBuffer = true;
+					}
+				}
+
+				newBufferLoopCounts.push(bufferLoopCount);
+
+				if (stopAfterBuffer)
+				{
 					break;
 				}
 			}
@@ -707,6 +963,11 @@ class NativeAudioSource
 				var buffersToQueue = (numBuffers == buffers.length) ? buffers : buffers.slice(0, numBuffers);
 				AL.sourceQueueBuffers(handle, numBuffers, buffersToQueue);
 				queuedBufferCount += numBuffers;
+
+				for (i in 0...numBuffers)
+				{
+					queuedBufferLoopCounts.push(newBufferLoopCounts[i]);
+				}
 			}
 
 			// OpenAL can unexpectedly stop playback if the buffers run out
@@ -898,13 +1159,13 @@ class NativeAudioSource
 			var totalLength = getLength();
 			var timeRemaining = Std.int((totalLength - value) / getPitch());
 
-			if (timeRemaining > 0)
+			if (timeRemaining > 0 && !shouldLoopStreamInline())
 			{
 				completed = false;
 				timer = new Timer(timeRemaining);
 				timer.run = timer_onRun;
 			}
-			else if (stream && totalLength <= 0)
+			else if (stream && (totalLength <= 0 || shouldLoopStreamInline()))
 			{
 				completed = false;
 				timer = null;

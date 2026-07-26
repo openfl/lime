@@ -627,6 +627,8 @@ class System
 							attributes.resizable = __parseBool(argValue);
 						case "stencil", "stencil-buffer":
 							attributes.context.stencil = __parseBool(argValue);
+						case "transparent":
+							attributes.transparent = __parseBool(argValue);
 						// case "title": windowConfig.title = argValue;
 						case "vsync", "vsync-mode":
 							var vsyncMode = __parseVSyncMode(argValue);

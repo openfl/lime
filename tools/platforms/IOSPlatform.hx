@@ -523,6 +523,8 @@ class IOSPlatform extends PlatformTarget
 		// manifest.type = AssetType.TEXT;
 		// project.assets.push (manifest);
 
+		prepareEmbeddedAssets();
+
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
 
