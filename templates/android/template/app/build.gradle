@@ -4,7 +4,8 @@ import java.awt.GridBagConstraints
 import javax.swing.border.EmptyBorder
 
 apply plugin: 'com.android.application'
-
+::foreach ANDROID_GRADLE_APPLY_PLUGIN::apply plugin: '::__current__::'
+::end::
 System.setProperty('java.awt.headless','false')
 
 //Uncomment to debug deprecation warnings.

@@ -320,7 +320,8 @@ class HTML5Window
 
 			if (forceWebGL || (!forceCanvas && (!Reflect.hasField(contextAttributes, "hardware") || contextAttributes.hardware)))
 			{
-				var transparentBackground = Reflect.hasField(contextAttributes, "background") && contextAttributes.background == null;
+				var transparentBackground = (Reflect.hasField(contextAttributes, "background") && contextAttributes.background == null)
+					|| parent.transparent;
 				var colorDepth = Reflect.hasField(contextAttributes, "colorDepth") ? contextAttributes.colorDepth : 16;
 
 				var options =
@@ -354,6 +355,7 @@ class HTML5Window
 				context.canvas2D = cast canvas.getContext("2d");
 				context.type = CANVAS;
 				context.version = "";
+				context.attributes.hardware = false;
 			}
 			else
 			{
@@ -375,6 +377,7 @@ class HTML5Window
 
 				context.type = WEBGL;
 				context.version = isWebGL2 ? "2" : "1";
+				context.attributes.hardware = true;
 			}
 		}
 

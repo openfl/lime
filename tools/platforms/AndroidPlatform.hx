@@ -163,8 +163,8 @@ class AndroidPlatform extends PlatformTarget
 		{
 			var minSDKVer = project.config.getInt("android.minimum-sdk-version", 21);
 			//PLATFORM define needed for older ndk and gcc toolchain
-			var haxeParams = [hxml, "-D", "android", "-D", 'PLATFORM_NUMBER=$minSDKVer', "-D", 'PLATFORM=$minSDKVer'];
-			var cppParams = ["-Dandroid", '-DPLATFORM_NUMBER=$minSDKVer', '-DPLATFORM=$minSDKVer'];
+			var haxeParams = [hxml, "-D", "android", "-D", 'PLATFORM_NUMBER=$minSDKVer', "-D", 'PLATFORM=android-$minSDKVer'];
+			var cppParams = ["-Dandroid", '-DPLATFORM_NUMBER=$minSDKVer', '-DPLATFORM=android-$minSDKVer'];
 			var path = sourceSet + "/jniLibs/armeabi";
 			var suffix = ".so";
 
@@ -208,7 +208,7 @@ class AndroidPlatform extends PlatformTarget
 
 			System.runCommand("", "haxe", haxeParams);
 
-			if (noOutput) return;
+			if (noOutput) continue;
 
 			CPPHelper.compile(project, targetDirectory + "/obj", cppParams);
 
@@ -369,7 +369,7 @@ class AndroidPlatform extends PlatformTarget
 		var minSDKVer = 21;
 		var platformNumberDefine = '-DPLATFORM_NUMBER=$minSDKVer';
 		// Required for older ndk and gcc toolchain
-		var platformDefine = '-DPLATFORM=$minSDKVer';
+		var platformDefine = '-DPLATFORM=android-$minSDKVer';
 
 		if (armv5) commands.push(["-Dandroid", platformDefine]);
 		if (armv7) commands.push(["-Dandroid", "-DHXCPP_ARMV7", platformDefine, platformNumberDefine]);
@@ -403,6 +403,8 @@ class AndroidPlatform extends PlatformTarget
 
 		// initialize (project);
 
+		prepareEmbeddedAssets();
+
 		var destination = targetDirectory + "/bin";
 		var sourceSet = destination + "/app/src/main";
 		System.mkdir(sourceSet);
@@ -425,7 +427,6 @@ class AndroidPlatform extends PlatformTarget
 
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
-		context.ANDROID_INSTALL_LOCATION = project.config.getString("android.install-location", "auto");
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
 		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 35);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
@@ -437,11 +438,21 @@ class AndroidPlatform extends PlatformTarget
 		]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.9");
 		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.3");
+		context.ANDROID_GRADLE_APPLY_PLUGIN = project.config.getArrayString("android.gradle-apply-plugin");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 		context.ANDROID_GRADLE_PROPERTIES = project.config.getKeyValueArray("android.gradle-properties");
 		context.ANDROID_DISPLAY_CUTOUT = project.config.getString("android.layoutInDisplayCutoutMode", "default");
+		context.ANDROID_VULKAN = project.window.renderType != null && project.window.renderType.toLowerCase() == "vulkan";
+		context.ANDROID_VULKAN_REQUIRED = project.config.getBool("android.vulkan-required", true);
+		context.ANDROID_VULKAN_VERSION = project.config.getString("android.vulkan-version", "0x400003");
 
+		context.ANDROID_MANIFEST = project.config.getKeyValueArray("android.manifest", {
+			"android:versionCode": project.meta.buildNumber,
+			"android:versionName": project.meta.version,
+			"android:installLocation": project.config.getString("android.install-location", "auto")
+		});
+		context.ANDROID_MANIFEST_CHILDREN = project.config.get("android.manifest").xmlChildren;
 		context.ANDROID_APPLICATION = project.config.getKeyValueArray("android.application", {
 			"android:label": project.meta.title,
 			"android:allowBackup": "true",
@@ -449,6 +460,7 @@ class AndroidPlatform extends PlatformTarget
 			"android:hardwareAccelerated": "true",
 			"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
 		});
+		context.ANDROID_APPLICATION_CHILDREN = project.config.get("android.application").xmlChildren;
 		context.ANDROID_ACTIVITY = project.config.getKeyValueArray("android.activity", {
 			"android:name": "MainActivity",
 			"android:exported": "true",
@@ -459,6 +471,7 @@ class AndroidPlatform extends PlatformTarget
 				.join("|"),
 			"android:screenOrientation": project.window.orientation == PORTRAIT ? "sensorPortrait" : (project.window.orientation == LANDSCAPE ? "sensorLandscape" : null)
 		});
+		context.ANDROID_ACTIVITY_CHILDREN = project.config.get("android.activity").xmlChildren;
 		context.ANDROID_ACCEPT_FILE_INTENT = project.config.getArrayString("android.accept-file-intent", []);
 
 		if (!project.environment.exists("ANDROID_SDK") || !project.environment.exists("ANDROID_NDK_ROOT"))
@@ -469,6 +482,31 @@ class AndroidPlatform extends PlatformTarget
 
 			Log.error("You must define ANDROID_SDK and ANDROID_NDK_ROOT to target Android, please run '" + command + " setup android' first");
 			Sys.exit(1);
+		}
+		else
+		{
+			var sdkPath = project.environment.get("ANDROID_SDK");
+			if (!FileSystem.exists(sdkPath))
+			{
+				Log.error("The path specified for ANDROID_SDK does not exist: " + sdkPath);
+				Sys.exit(1);
+			}
+			if (!FileSystem.isDirectory(sdkPath))
+			{
+				Log.error("The path specified for ANDROID_SDK must be a directory: " + sdkPath);
+				Sys.exit(1);
+			}
+			var ndkPath = project.environment.get("ANDROID_NDK_ROOT");
+			if (!FileSystem.exists(ndkPath))
+			{
+				Log.error("The path specified for ANDROID_NDK_ROOT does not exist: " + ndkPath);
+				Sys.exit(1);
+			}
+			if (!FileSystem.isDirectory(ndkPath))
+			{
+				Log.error("The path specified for ANDROID_NDK_ROOT must be a directory: " + ndkPath);
+				Sys.exit(1);
+			}
 		}
 
 		if (project.config.exists("android.gradle-build-directory"))

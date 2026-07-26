@@ -227,7 +227,20 @@ class LinuxPlatform extends PlatformTarget
 			if (project.targetFlags.exists("hlc"))
 			{
 				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				var command = [compiler, "-O3", "-o", executablePath, "-std=c11", "-Wl,-rpath,$ORIGIN", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "-L", applicationDirectory];
+				var command = [
+					compiler,
+					"-O3",
+					"-o", executablePath,
+					"-std=c11",
+					"-Wl,-rpath,$ORIGIN",
+					"-I", Path.combine(targetDirectory, "obj"),
+					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+					"-L", applicationDirectory,
+					// gcc 14 and clang 22 made incompatible-pointer-types an
+					// error instead of a warning, but it's required for
+					// assignment to Dynamic in Haxe
+					"-Wno-error=incompatible-pointer-types"
+				];
 				for (file in System.readDirectory(applicationDirectory))
 				{
 					switch Path.extension(file)
@@ -460,7 +473,7 @@ class LinuxPlatform extends PlatformTarget
 	{
 		var commands:Array<Array<String>> = [];
 
-		if (System.hostArchitecture == ARM64 )
+		if (targetFlags.exists('rpi') && System.hostArchitecture == ARM64 )
 		{
 			commands.push([
 				"-Dlinux",
@@ -474,7 +487,7 @@ class LinuxPlatform extends PlatformTarget
 				"-DHXCPP_RANLIB=aarch64-linux-gnu-ranlib"
 			]);
 		}
-		else if (System.hostArchitecture == ARMV7)
+		else if (targetFlags.exists('rpi') && System.hostArchitecture == ARMV7)
 		{
 			commands.push([
 				"-Dlinux",
@@ -492,6 +505,15 @@ class LinuxPlatform extends PlatformTarget
 		{
 			// TODO: Support single binary
 			commands.push(["-Dlinux", "-DHXCPP_M64", "-Dhashlink"]);
+		}
+		else if (System.hostArchitecture == ARM64 )
+		{
+			commands.push([
+				"-Dlinux",
+				"-Dtoolchain=linux",
+				"-DBINDIR=LinuxArm64",
+				"-DHXCPP_ARM64",
+			]);
 		}
 		else
 		{
@@ -544,6 +566,8 @@ class LinuxPlatform extends PlatformTarget
 
 		// project = project.clone ();
 		// initialize (project);
+
+		prepareEmbeddedAssets();
 
 		if (project.targetFlags.exists("xml"))
 		{

@@ -65,11 +65,11 @@
         <section if="linux">
 
             <compilerflag value="-D_REENTRANT" />
-            <compilerflag value="-mmmx" unless="rpi" />
-            <compilerflag value="-msse" unless="rpi" />
-            <compilerflag value="-msse2" unless="rpi" />
-            <compilerflag value="-msse3" unless="rpi" />
-            <compilerflag value="-mssse3" unless="rpi" />
+            <compilerflag value="-mmmx" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse2" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-msse3" unless="rpi || HXCPP_ARM64" />
+            <compilerflag value="-mssse3" unless="rpi || HXCPP_ARM64" />
 
         </section>
 
