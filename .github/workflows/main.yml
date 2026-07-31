@@ -232,7 +232,7 @@ jobs:
           SDL_AUDIODRIVER=dummy xvfb-run -a Export/linux/bin/LimeVulkanSmoke
 
   macos:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
 
       - uses: actions/checkout@v6
@@ -662,7 +662,7 @@ jobs:
           lime build android -release -verbose -nocolor -eval
 
   ios:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
 
       - uses: actions/checkout@v6
@@ -966,7 +966,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-22.04, macos-14]
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -1016,7 +1016,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-22.04, macos-14]
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -1133,7 +1133,7 @@ jobs:
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.2.5]
-        os: [windows-latest, ubuntu-22.04, macos-14]
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
 
