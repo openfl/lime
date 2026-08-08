@@ -877,6 +877,13 @@ class HXProject extends Script
 			}
 		}
 
+		// Non-native targets leave architecture unset.
+		// Switching on a null enum throws "Invalid field access : index".
+		if (architecture == null)
+		{
+			return;
+		}
+
 		switch (architecture)
 		{
 			case ARM64:
