@@ -866,6 +866,10 @@ class HXProject extends Script
 		{
 			architecture = X86;
 		}
+		else if (targetFlags.exists("armv7"))
+		{
+			architecture = ARMV7;
+		}
 		else if (defines.exists("native"))
 		{
 			architecture = switch (System.hostArchitecture)
@@ -873,6 +877,7 @@ class HXProject extends Script
 				case ARM64: ARM64;
 				case X64: X64;
 				case X86: X86;
+				case ARMV7: ARMV7;
 				default: null;
 			}
 		}
@@ -884,20 +889,17 @@ class HXProject extends Script
 			return;
 		}
 
+		// Target-agnostic architecture defines for include.xml conditions.
 		switch (architecture)
 		{
 			case ARM64:
-				defines.set("64", "1");
 				defines.set("arm64", "1");
-				defines.set("HXCPP_ARM64", "1");
 			case X64:
-				defines.set("64", "1");
 				defines.set("x86_64", "1");
-				defines.set("HXCPP_M64", "1");
 			case X86:
-				defines.set("32", "1");
 				defines.set("x86_32", "1");
-				defines.set("HXCPP_M32", "1");
+			case ARMV7:
+				defines.set("armv7", "1");
 			default:
 		}
 	}
