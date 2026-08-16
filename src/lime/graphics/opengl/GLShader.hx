@@ -21,7 +21,7 @@ import lime.utils.Log;
 }
 #end
 
-public static function fromSource(gl:WebGLRenderContext, source:String, type:Int):GLShader
+public static function fromSource(gl:Dynamic, source:String, type:Int):GLShader
 {
 	var shader = gl.createShader(type);
 	gl.shaderSource(shader, source);
