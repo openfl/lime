@@ -21,7 +21,7 @@ import lime.utils.Log;
 }
 #end
 
-public static function fromSource(gl:Dynamic, source:String, type:Int):GLShader
+public static function fromSource(gl:WebGLRenderContext, source:String, type:Int):GLShader
 {
 	var shader = gl.createShader(type);
 	gl.shaderSource(shader, source);
@@ -55,13 +55,13 @@ public static function fromSource(gl:Dynamic, source:String, type:Int):GLShader
 @:forward abstract GLShader(Dynamic) from Dynamic to Dynamic
 {
 	#if !lime_webgl
-	@:from private static function fromInt(id:Int):GLShader
+	@:noDoc @:from private static function fromInt(id:Int):GLShader
 	{
 		return 0;
 	}
 	#end
 	
-	public static function fromSource(gl:WebGLRenderContext, source:String, type:Int):GLShader
+	public static function fromSource(gl:Dynamic, source:String, type:Int):GLShader
 	{
 		return null;
 	}
