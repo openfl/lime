@@ -2,7 +2,6 @@ package lime._internal.backend.flash;
 
 import flash.display.BitmapData;
 import flash.display.Stage;
-import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.events.FocusEvent;
@@ -210,7 +209,9 @@ class FlashWindow
 			parent.__width = stage.stageWidth;
 			parent.__height = stage.stageHeight;
 
-			stage.align = StageAlign.TOP_LEFT;
+			// Flash/AIR default Stage.align is "" (centered). Haxe's flash.Boot
+			// overwrites that with TOP_LEFT, so restore the runtime default here
+			stage.align = cast "";
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyEvent);
