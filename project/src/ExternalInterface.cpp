@@ -2899,6 +2899,71 @@ namespace lime {
 	}
 
 
+	void lime_font_set_stem_darkening (value fontHandle, bool enable) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		font->SetStemDarkening (enable);
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_font_set_stem_darkening) (HL_CFFIPointer* fontHandle, bool enable) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		font->SetStemDarkening (enable);
+		#endif
+
+	}
+
+
+	void lime_font_set_stem_darkening_parameters (value fontHandle, value params) {
+
+		#ifdef LIME_FREETYPE
+		int length = val_array_size (params);
+		if (length != 8)
+		{
+			return;
+		}
+
+		int darkeningParams[8] = {
+			val_int (val_array_i (params, 0)),
+			val_int (val_array_i (params, 1)),
+			val_int (val_array_i (params, 2)),
+			val_int (val_array_i (params, 3)),
+			val_int (val_array_i (params, 4)),
+			val_int (val_array_i (params, 5)),
+			val_int (val_array_i (params, 6)),
+			val_int (val_array_i (params, 7))
+		};
+
+		Font *font = (Font*)val_data (fontHandle);
+		font->SetStemDarkeningParameters(darkeningParams);
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_font_set_stem_darkening_parameters) (HL_CFFIPointer* fontHandle, hl_varray* params) {
+
+		#ifdef LIME_FREETYPE
+		int length = params->size;
+		if (length != 8)
+		{
+			return;
+		}
+
+		int* paramValues = hl_aptr (params, int);
+
+		Font *font = (Font*)fontHandle->ptr;
+		font->SetStemDarkeningParameters(paramValues);
+		#endif
+
+	}
+
+
 	void lime_gamepad_add_mappings (value mappings) {
 
 		int length = val_array_size (mappings);
@@ -13428,6 +13493,8 @@ namespace lime {
 	DEFINE_PRIME4 (lime_font_render_glyph_with_flags);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
 	DEFINE_PRIME3v (lime_font_set_size);
+	DEFINE_PRIME2v (lime_font_set_stem_darkening);
+	DEFINE_PRIME2v (lime_font_set_stem_darkening_parameters);
 	DEFINE_PRIME1v (lime_gamepad_add_mappings);
 	DEFINE_PRIME2v (lime_gamepad_event_manager_register);
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
@@ -13738,6 +13805,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph_with_flags, _TCFFIPOINTER _I32 _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_font_set_stem_darkening, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_font_set_stem_darkening_parameters, _TCFFIPOINTER _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_add_mappings, _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_event_manager_register, _FUN(_VOID, _NO_ARG) _TGAMEPAD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_guid, _I32);

@@ -65,6 +65,8 @@ namespace lime {
 			int RenderGlyphWithFlags (int index, int loadFlags, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
 			void SetSize (size_t size, size_t dpi);
+			void SetStemDarkening (bool enable);
+			void SetStemDarkeningParameters (int params[]);
 
 			void* library;
 			void* face;

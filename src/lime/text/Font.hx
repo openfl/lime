@@ -96,6 +96,45 @@ class Font
 	 */
 	public var isItalic:Bool;
 
+	public var stemDarkening(default, set):Bool;
+
+	private function set_stemDarkening(enable:Bool):Bool
+	{
+		if (stemDarkening == enable) {
+			return stemDarkening;
+		}
+		stemDarkening = enable;
+		#if (lime_cffi && !macro)
+		NativeCFFI.lime_font_set_stem_darkening(src, enable);
+		#end
+		return stemDarkening;
+	}
+
+	public var stemDarkeningParameters(default, set):Array<Int>;
+
+	private function set_stemDarkeningParameters(params:Array<Int>):Array<Int>
+	{
+		if (params == null || params.length != 8)
+		{
+			throw "Darking parameters length must be exactly 8";
+		}
+		if (stemDarkeningParameters == params)
+		{
+			return stemDarkeningParameters;
+		}
+		stemDarkeningParameters = params;
+		#if (lime_cffi && !macro)
+		#if hl
+		var _params = new hl.NativeArray<Int>(params.length);
+		for (i in 0...params.length)
+			_params[i] = params[i];
+		var params = _params;
+		#end
+		NativeCFFI.lime_font_set_stem_darkening_parameters(src, params);
+		#end
+		return stemDarkeningParameters;
+	}
+
 	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
 	#if lime_cffi
