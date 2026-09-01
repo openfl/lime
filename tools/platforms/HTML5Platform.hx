@@ -136,8 +136,6 @@ class HTML5Platform extends PlatformTarget
 
 			if (noOutput) return;
 
-			HTML5Helper.encodeSourceMappingURL(targetDirectory + "/bin/" + project.app.file + ".js");
-
 			if (project.targetFlags.exists("webgl"))
 			{
 				System.copyFile(targetDirectory + "/obj/ApplicationMain.js", outputFile);

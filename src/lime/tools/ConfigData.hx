@@ -1,11 +1,7 @@
 package lime.tools;
 
 import hxp.*;
-#if (haxe_ver >= 4)
 import haxe.xml.Access;
-#else
-import haxe.xml.Fast as Access;
-#end
 
 abstract ConfigData(Dynamic) to Dynamic from Dynamic
 {

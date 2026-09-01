@@ -70,7 +70,7 @@ import haxe.Exception;
 #end
 class ThreadPool extends WorkOutput
 {
-	#if (haxe4 && lime_threads && !html5)
+	#if (lime_threads && !html5)
 	/**
 		A reference to the app's main thread, for use in `isMainThread()`.
 	**/
@@ -104,7 +104,7 @@ class ThreadPool extends WorkOutput
 	{
 		#if (html5 && lime_threads)
 		return !Thread.current().isWorker();
-		#elseif (haxe4 && lime_threads)
+		#elseif lime_threads
 		return Thread.current() == __mainThread;
 		#else
 		return true;
@@ -1119,11 +1119,7 @@ private class JobArray
 
 	public inline function clear():Void
 	{
-		#if haxe4
 		jobs.resize(0);
-		#else
-		jobs.splice(0, jobs.length);
-		#end
 		startIndex = 0;
 	}
 

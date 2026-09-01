@@ -36,10 +36,10 @@ class UInt32ArrayTest extends Test
 		array[2] = 0xffffffff;
 		array[3] = 0xdeadbeef;
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array[3]);
+		Assert.equals(js.Syntax.code('0xcafebabe'), array[0]);
+		Assert.equals(js.Syntax.code('0xdecafbad'), array[1]);
+		Assert.equals(js.Syntax.code('0xffffffff'), array[2]);
+		Assert.equals(js.Syntax.code('0xdeadbeef'), array[3]);
 		#else
 		Assert.equals(0xcafebabe, array[0]);
 		Assert.equals(0xdecafbad, array[1]);
@@ -61,10 +61,10 @@ class UInt32ArrayTest extends Test
 		Assert.equals(4, four.length);
 		Assert.equals(16, four.byteLength);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array[3]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), array[0]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), array[1]);
+		Assert.equals(js.Syntax.code'0xffffffff'), array[2]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), array[3]);
 		#else
 		Assert.equals(0xcafebabe, four[0]);
 		Assert.equals(0xdecafbad, four[1]);
@@ -76,8 +76,8 @@ class UInt32ArrayTest extends Test
 		Assert.equals(2, twoStart.length);
 		Assert.equals(8, twoStart.byteLength);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), twoStart[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), twoStart[1]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), twoStart[0]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), twoStart[1]);
 		#else
 		Assert.equals(0xcafebabe, twoStart[0]);
 		Assert.equals(0xdecafbad, twoStart[1]);
@@ -87,8 +87,8 @@ class UInt32ArrayTest extends Test
 		Assert.equals(2, twoEnd.length);
 		Assert.equals(8, twoEnd.byteLength);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), twoEnd[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), twoEnd[1]);
+		Assert.equals(js.Syntax.code'0xffffffff'), twoEnd[0]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), twoEnd[1]);
 		#else
 		Assert.equals(0xffffffff, twoEnd[0]);
 		Assert.equals(0xdeadbeef, twoEnd[1]);
@@ -106,10 +106,10 @@ class UInt32ArrayTest extends Test
 		Assert.equals(4, beyondLength.length);
 		Assert.equals(16, beyondLength.byteLength);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array[3]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), array[0]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), array[1]);
+		Assert.equals(js.Syntax.code'0xffffffff'), array[2]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), array[3]);
 		#else
 		Assert.equals(0xcafebabe, beyondLength[0]);
 		Assert.equals(0xdecafbad, beyondLength[1]);
@@ -127,10 +127,10 @@ class UInt32ArrayTest extends Test
 
 		array2.set(array1);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array2[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array2[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array2[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array2[3]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), array2[0]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), array2[1]);
+		Assert.equals(js.Syntax.code'0xffffffff'), array2[2]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), array2[3]);
 		#else
 		Assert.equals(0xcafebabe, array2[0]);
 		Assert.equals(0xdecafbad, array2[1]);
@@ -150,10 +150,10 @@ class UInt32ArrayTest extends Test
 		array2.set(array1, 1);
 		Assert.equals(0x0, array2[0]);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array2[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array2[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array2[3]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array2[4]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), array2[1]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), array2[2]);
+		Assert.equals(js.Syntax.code'0xffffffff'), array2[3]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), array2[4]);
 		#else
 		Assert.equals(0xcafebabe, array2[1]);
 		Assert.equals(0xdecafbad, array2[2]);
@@ -334,10 +334,10 @@ class UInt32ArrayTest extends Test
 
 		array2.set(array1);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array2[0]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array2[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array2[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array2[3]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), array2[0]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), array2[1]);
+		Assert.equals(js.Syntax.code'0xffffffff'), array2[2]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), array2[3]);
 		#else
 		Assert.equals(0xcafebabe, array2[0]);
 		Assert.equals(0xdecafbad, array2[1]);
@@ -358,10 +358,10 @@ class UInt32ArrayTest extends Test
 		array2.set(array1, 1);
 		Assert.equals(0x0, array2[0]);
 		#if js
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array2[1]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdecafbad'), array2[2]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xffffffff'), array2[3]);
-		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xdeadbeef'), array2[4]);
+		Assert.equals(js.Syntax.code'0xcafebabe'), array2[1]);
+		Assert.equals(js.Syntax.code'0xdecafbad'), array2[2]);
+		Assert.equals(js.Syntax.code'0xffffffff'), array2[3]);
+		Assert.equals(js.Syntax.code'0xdeadbeef'), array2[4]);
 		#else
 		Assert.equals(0xcafebabe, array2[1]);
 		Assert.equals(0xdecafbad, array2[2]);
