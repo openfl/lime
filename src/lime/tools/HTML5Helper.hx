@@ -15,27 +15,6 @@ import cpp.vm.Thread;
 
 class HTML5Helper
 {
-	public static function encodeSourceMappingURL(sourceFile:String)
-	{
-		// This is only required for projects with url-unsafe characters built with a Haxe version prior to 4.0.0
-
-		var filename = Path.withoutDirectory(sourceFile);
-
-		if (filename != StringTools.urlEncode(filename))
-		{
-			var output = System.runProcess("", "haxe", ["-version"], true, true, true, false, true);
-			var haxeVer:Version = StringTools.trim(output);
-
-			if (haxeVer < ("4.0.0":Version))
-			{
-				var replaceString = "//# sourceMappingURL=" + filename + ".map";
-				var replacement = "//# sourceMappingURL=" + StringTools.urlEncode(filename) + ".map";
-
-				System.replaceText(sourceFile, replaceString, replacement);
-			}
-		}
-	}
-
 	// public static function generateFontData (project:HXProject, font:Asset):String {
 	// 	var sourcePath = font.sourcePath;
 	// 	if (!FileSystem.exists (FileSystem.fullPath (sourcePath) + ".hash")) {

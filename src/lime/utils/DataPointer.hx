@@ -41,18 +41,6 @@ abstract DataPointer(DataPointerType) to DataPointerType
 	#end
 
 	#if (cpp && !cppia && !doc_gen)
-	#if (haxe_ver < 4)
-	@:from @:noCompletion public static inline function fromCharPointer(pointer:Pointer<Char>):DataPointer
-	{
-		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
-	}
-
-	@:from @:noCompletion public static inline function fromUint8Pointer(pointer:Pointer<UInt8>):DataPointer
-	{
-		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
-	}
-	#end
-
 	@:generic @:from @:noCompletion public static inline function fromPointer<T>(pointer:Pointer<T>):DataPointer
 	{
 		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);

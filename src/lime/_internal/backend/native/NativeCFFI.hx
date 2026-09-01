@@ -46,7 +46,7 @@ typedef CFFIPointer = Dynamic;
 @:noDebug
 #end
 #if (!macro && !lime_doc_gen)
-#if (disable_cffi || haxe_ver < "3.4.0")
+#if disable_cffi
 @:build(lime.system.CFFI.build())
 #end
 #end
@@ -54,7 +54,7 @@ class NativeCFFI
 {
 	#if (lime_cffi && !macro)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_application_create():Dynamic;
 
 	@:cffi private static function lime_application_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
@@ -2828,7 +2828,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && android)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_jni_call_member(jniMethod:Dynamic, jniObject:Dynamic, args:Dynamic):Dynamic;
 
 	@:cffi private static function lime_jni_call_static(jniMethod:Dynamic, args:Dynamic):Dynamic;
@@ -2893,7 +2893,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && lime_openal)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_al_buffer_data(buffer:CFFIPointer, format:Int, data:Dynamic, size:Int, freq:Int):Void;
 
 	@:cffi private static function lime_al_buffer3f(buffer:CFFIPointer, param:Int, value1:Float32, value2:Float32, value3:Float32):Void;
@@ -3823,7 +3823,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && lime_cairo)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_cairo_arc(handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
 
 	@:cffi private static function lime_cairo_arc_negative(handle:CFFIPointer, xc:Float, yc:Float, radius:Float, angle1:Float, angle2:Float):Void;
@@ -4775,7 +4775,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && lime_curl)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_curl_getdate(date:String, now:Float):Float;
 
 	@:cffi private static function lime_curl_global_cleanup():Void;
@@ -5032,7 +5032,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && (lime_opengl || lime_opengles))
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_gl_active_texture(texture:Int):Void;
 
 	@:cffi private static function lime_gl_attach_shader(program:Int, shader:Int):Void;
@@ -7111,7 +7111,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && lime_harfbuzz)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_hb_blob_create(data:DataPointer, length:Int, memoryMode:Int):CFFIPointer;
 
 	@:cffi private static function lime_hb_blob_create_sub_blob(parent:CFFIPointer, offset:Int, length:Int):CFFIPointer;
@@ -8085,7 +8085,7 @@ class NativeCFFI
 	#end
 	#if (lime_cffi && !macro && lime_vorbis)
 	#if (cpp && !cppia)
-	#if (disable_cffi || haxe_ver < "3.4.0")
+	#if disable_cffi
 	@:cffi private static function lime_vorbis_file_bitrate(vorbisFile:Dynamic, bitstream:Int):Int;
 
 	@:cffi private static function lime_vorbis_file_bitrate_instant(vorbisFile:Dynamic):Int;

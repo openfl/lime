@@ -1,7 +1,7 @@
 package lime.utils;
 
 #if (js && !doc_gen)
-typedef ArrayBufferView = #if haxe4 js.lib.ArrayBufferView #else js.html.ArrayBufferView #end;
+typedef ArrayBufferView = js.lib.ArrayBufferView;
 #else
 import lime.system.System;
 import lime.system.Endian;
@@ -482,8 +482,8 @@ class ArrayBufferView
 	RangeError;
 }
 
-@:noCompletion @:dox(hide) #if (haxe_ver >= 4.0) enum #else @:enum #end
-abstract TypedArrayType(Int) from Int to Int
+@:noCompletion @:dox(hide)
+enum abstract TypedArrayType(Int) from Int to Int
 {
 	var None = 0;
 	var Int8 = 1;

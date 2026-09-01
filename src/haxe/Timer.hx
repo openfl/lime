@@ -45,7 +45,7 @@ class Timer
 	#elseif java
 	private var timer:java.util.Timer;
 	private var task:java.util.TimerTask;
-	#elseif (haxe_ver >= "3.4.0")
+	#else
 	private var event:MainLoop.MainEvent;
 	#end
 
@@ -74,7 +74,7 @@ class Timer
 		#elseif java
 		timer = new java.util.Timer();
 		timer.scheduleAtFixedRate(task = new TimerTask(this), haxe.Int64.ofInt(time_ms), haxe.Int64.ofInt(time_ms));
-		#elseif (haxe_ver >= "3.4.0")
+		#else
 		var dt = time_ms / 1000;
 		event = MainLoop.add(function()
 		{
@@ -110,7 +110,7 @@ class Timer
 			timer = null;
 		}
 		task = null;
-		#elseif (haxe_ver >= "3.4.0")
+		#else
 		if (event != null)
 		{
 			event.stop();
