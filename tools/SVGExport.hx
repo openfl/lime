@@ -14,7 +14,7 @@ import sys.FileSystem;
 
 class SVGExport
 {
-	#if (neko && (haxe_210 || haxe3))
+	#if neko
 	public static function __init__()
 	{
 		var haxePath = Sys.getEnv("HAXEPATH");

@@ -336,7 +336,7 @@ class JobData
 	}
 }
 
-#if haxe4 enum #else @:enum #end abstract ThreadEventType(String)
+enum abstract ThreadEventType(String)
 {
 	// Events sent from a worker to the main thread, in any mode
 	var COMPLETE = "COMPLETE";
