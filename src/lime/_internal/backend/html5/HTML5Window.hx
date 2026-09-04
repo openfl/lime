@@ -59,6 +59,7 @@ class HTML5Window
 
 	private var cacheElementHeight:Float;
 	private var cacheElementWidth:Float;
+	private var cacheElementScale:Float;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
@@ -70,6 +71,9 @@ class HTML5Window
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
+	#if !lime_disable_window_scale_change
+	private var devicePixelRatioMediaQuery:js.html.MediaQueryList;
+	#end
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var textInputEnabled:Bool;
@@ -111,6 +115,10 @@ class HTML5Window
 		}
 
 		parent.__scale = scale;
+
+		#if !lime_disable_window_scale_change
+		watchDevicePixelRatio();
+		#end
 
 		setWidth = Reflect.hasField(attributes, "width") ? attributes.width : 0;
 		setHeight = Reflect.hasField(attributes, "height") ? attributes.height : 0;
@@ -171,6 +179,7 @@ class HTML5Window
 
 			cacheElementWidth = parent.__width;
 			cacheElementHeight = parent.__height;
+			cacheElementScale = scale;
 
 			resizeElement = true;
 		}
@@ -1350,6 +1359,27 @@ class HTML5Window
 		return value;
 	}
 
+	#if !lime_disable_window_scale_change
+	private function watchDevicePixelRatio():Void
+	{
+		scale = Browser.window.devicePixelRatio;
+		if (parent.__scale != scale)
+		{
+			parent.__scale = scale;
+			parent.onDisplayScaleChange.dispatch();
+			updateSize();
+		}
+		if (devicePixelRatioMediaQuery != null)
+		{
+			devicePixelRatioMediaQuery.removeEventListener("change", watchDevicePixelRatio);
+			devicePixelRatioMediaQuery = null;
+		}
+		var mediaQueryString = '(resolution: ${scale}dppx)';
+		devicePixelRatioMediaQuery = Browser.window.matchMedia(mediaQueryString);
+		devicePixelRatioMediaQuery.addEventListener("change", watchDevicePixelRatio);
+	}
+	#end
+
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;
@@ -1368,10 +1398,12 @@ class HTML5Window
 			elementHeight = Browser.window.innerHeight;
 		}
 
-		if (elementWidth != cacheElementWidth || elementHeight != cacheElementHeight)
+		var scaleChanged = scale != cacheElementScale;
+		if (elementWidth != cacheElementWidth || elementHeight != cacheElementHeight || scaleChanged)
 		{
 			cacheElementWidth = elementWidth;
 			cacheElementHeight = elementHeight;
+			cacheElementScale = scale;
 
 			var stretch = resizeElement || (setWidth == 0 && setHeight == 0);
 
@@ -1379,7 +1411,7 @@ class HTML5Window
 			{
 				if (stretch)
 				{
-					if (parent.__width != elementWidth || parent.__height != elementHeight)
+					if (parent.__width != elementWidth || parent.__height != elementHeight || scaleChanged)
 					{
 						parent.__width = Std.int(elementWidth);
 						parent.__height = Std.int(elementHeight);
