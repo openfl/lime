@@ -65,18 +65,17 @@ class Gamepad
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_gamepad_rumble(this.id, lowFrequencyRumble, highFrequencyRumble, duration);
 		#elseif (js && html5)
-		var actuator:Dynamic = (untyped __jsGamepad.vibrationActuator) ? untyped __jsGamepad.vibrationActuator
-			: (untyped __jsGamepad.hapticActuators) ? untyped __jsGamepad.hapticActuators[0]
-			: null;
+		var actuator:Dynamic = (untyped __jsGamepad.vibrationActuator) ? untyped __jsGamepad.vibrationActuator : (untyped __jsGamepad.hapticActuators) ? untyped __jsGamepad.hapticActuators[0] : null;
 		if (actuator == null) return;
 
 		if (untyped actuator.playEffect)
 		{
-			untyped actuator.playEffect("dual-rumble", {
-				duration: duration,
-				strongMagnitude: lowFrequencyRumble,
-				weakMagnitude: highFrequencyRumble
-			});
+			untyped actuator.playEffect("dual-rumble",
+				{
+					duration: duration,
+					strongMagnitude: lowFrequencyRumble,
+					weakMagnitude: highFrequencyRumble
+				});
 		}
 		else if (untyped actuator.pulse)
 		{

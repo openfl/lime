@@ -1120,6 +1120,7 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
+						ArrayTools.addUnique(processedHaxelibIncludes, HXProject.getHaxelibIncludeKey(haxelib));
 						merge(includeProject);
 					}
 
@@ -1434,7 +1435,6 @@ class ProjectXMLParser extends HXProject
 					sources.push(path);
 
 				case "extension":
-
 					// deprecated
 
 				case "haxedef":
@@ -1536,7 +1536,6 @@ class ProjectXMLParser extends HXProject
 					parseModuleElement(element, extensionPath);
 
 				case "ssl":
-
 					// if (wantSslCertificate())
 					// parseSsl (element);
 
@@ -1983,6 +1982,15 @@ class ProjectXMLParser extends HXProject
 
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
+
+				case "renderer":
+					var renderType = Std.string(value).toLowerCase();
+					Reflect.setField(windows[id], "renderType", renderType);
+					if (renderType == "vulkan")
+					{
+						defines.set("lime-vulkan", "");
+						haxedefs.set("lime-vulkan", "");
+					}
 
 				case "allow-high-dpi":
 					Reflect.setField(windows[id], "allowHighDPI", value == "true");

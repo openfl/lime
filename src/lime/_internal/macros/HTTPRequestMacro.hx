@@ -129,11 +129,11 @@ class HTTPRequestMacro
 						kind: FFun(
 							{
 								args: [
-									{name: "uri", type: macro:String, opt: true}],
+									{name: "uri", type: macro :String, opt: true}],
 								expr: macro
 								{super(uri);},
 								params: [],
-								ret: macro:Void
+								ret: macro :Void
 							}),
 						pos: Context.currentPos()
 					},
@@ -143,7 +143,7 @@ class HTTPRequestMacro
 						kind: FFun(
 							{
 								args: [
-									{name: "bytes", type: macro:haxe.io.Bytes}],
+									{name: "bytes", type: macro :haxe.io.Bytes}],
 								expr: Context.parse("return " + typeString + ".fromBytes (bytes)", pos),
 								params: [],
 								ret: paramType.toComplexType()

@@ -228,10 +228,13 @@ namespace lime {
 						if (glIsRenderbuffer (id)) glDeleteRenderbuffers (1, &id);
 						break;
 
-					#ifdef LIME_GLES3_API
+					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_SAMPLER:
 
-						if (glIsSampler (id)) glDeleteSamplers (1, &id);
+						if (glIsSampler && glIsSampler (id)) {
+							if (glDeleteSamplers)
+								glDeleteSamplers (1, &id);
+						}
 						break;
 					#endif
 
@@ -245,10 +248,20 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 
-					#ifdef LIME_GLES3_API
+					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_VERTEX_ARRAY_OBJECT:
-
-						if (glIsVertexArray (id)) glDeleteVertexArrays (1, &id);
+					
+						#if defined(HX_MACOS)
+						if (glIsVertexArrayAPPLE && glIsVertexArrayAPPLE (id)) {
+							if (glDeleteVertexArraysAPPLE)
+								glDeleteVertexArraysAPPLE (1, &id);
+						}
+						else
+						#endif
+						if (glIsVertexArray && glIsVertexArray (id)) {
+							if (glDeleteVertexArrays)
+								glDeleteVertexArrays (1, &id);
+						}
 						break;
 					#endif
 
@@ -531,6 +544,12 @@ namespace lime {
 	void lime_gl_bind_vertex_array (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glBindVertexArrayAPPLE) {
+			glBindVertexArrayAPPLE (vertexArray);
+		}
+		else
+		#endif
 		if (glBindVertexArray) {
 			glBindVertexArray (vertexArray);
 		}
@@ -542,6 +561,12 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_bind_vertex_array) (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glBindVertexArrayAPPLE) {
+			glBindVertexArrayAPPLE (vertexArray);
+		}
+		else
+		#endif
 		if (glBindVertexArray) {
 			glBindVertexArray (vertexArray);
 		}
@@ -1200,6 +1225,12 @@ namespace lime {
 
 		GLuint id = 0;
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glGenVertexArraysAPPLE) {
+			glGenVertexArraysAPPLE (1, &id);
+		}
+		else
+		#endif
 		if (glGenVertexArrays) {
 			glGenVertexArrays (1, &id);
 		}
@@ -1213,6 +1244,12 @@ namespace lime {
 
 		GLuint id = 0;
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glGenVertexArraysAPPLE) {
+			glGenVertexArraysAPPLE (1, &id);
+		}
+		else
+		#endif
 		if (glGenVertexArrays) {
 			glGenVertexArrays (1, &id);
 		}
@@ -1401,6 +1438,12 @@ namespace lime {
 	void lime_gl_delete_vertex_array (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glDeleteVertexArraysAPPLE) {
+			glDeleteVertexArraysAPPLE (1, (GLuint*)&vertexArray);
+		}
+		else
+		#endif
 		if (glDeleteVertexArrays) {
 			glDeleteVertexArrays (1, (GLuint*)&vertexArray);
 		}
@@ -1412,6 +1455,12 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_delete_vertex_array) (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glDeleteVertexArraysAPPLE) {
+			glDeleteVertexArraysAPPLE (1, (GLuint*)&vertexArray);
+		}
+		else
+		#endif
 		if (glDeleteVertexArrays) {
 			glDeleteVertexArrays (1, (GLuint*)&vertexArray);
 		}
@@ -3880,7 +3929,17 @@ namespace lime {
 	bool lime_gl_is_vertex_array (int handle) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
-		return glIsVertexArray ? glIsVertexArray (handle) : false;
+		#if defined (HX_MACOS)
+		if (glIsVertexArrayAPPLE) {
+			return glIsVertexArrayAPPLE (handle);
+		}
+		else
+		#endif
+		if (glIsVertexArray) {
+			return glIsVertexArray (handle);
+		}
+
+		return false;
 		#else
 		return false;
 		#endif
@@ -3891,7 +3950,17 @@ namespace lime {
 	HL_PRIM bool HL_NAME(hl_gl_is_vertex_array) (int handle) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
-		return glIsVertexArray ? glIsVertexArray (handle) : false;
+		#if defined (HX_MACOS)
+		if (glIsVertexArrayAPPLE) {
+			return glIsVertexArrayAPPLE (handle);
+		}
+		else
+		#endif
+		if (glIsVertexArray) {
+			return glIsVertexArray (handle);
+		}
+
+		return false;
 		#else
 		return false;
 		#endif

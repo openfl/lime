@@ -5,22 +5,20 @@ import sys.FileSystem;
 
 class AIRHelper
 {
-	public static function build(project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPathWithoutExtension:String, applicationXML:String,
-			files:Array<String>, fileDirectory:String = null):String
+	public static function build(project:HXProject, workingDirectory:String, targetPlatform:Platform, targetPathWithoutExtension:String,
+			applicationXML:String, files:Array<String>, fileDirectory:String = null):String
 	{
 		var airTarget = "bundle";
 
-		switch(targetPlatform)
+		switch (targetPlatform)
 		{
 			case WINDOWS:
-
 				if (project.targetFlags.exists("shared"))
 				{
 					airTarget = "air";
 				}
 
 			case MAC:
-
 				if (project.targetFlags.exists("shared"))
 				{
 					airTarget = "air";
@@ -53,7 +51,8 @@ class AIRHelper
 							exportMethod = m;
 						}
 					}
-					if (exportMethod == null && project.targetFlags.exists("final")) {
+					if (exportMethod == null && project.targetFlags.exists("final"))
+					{
 						exportMethod = "appstore";
 					}
 
@@ -122,14 +121,12 @@ class AIRHelper
 		switch (targetPlatform)
 		{
 			case WINDOWS:
-
 				if (airTarget == "air")
 				{
 					extension = ".air";
 				}
 
 			case MAC:
-
 				if (airTarget == "bundle")
 				{
 					extension = ".app";
@@ -140,7 +137,6 @@ class AIRHelper
 				}
 
 			case ANDROID:
-
 				if (StringTools.startsWith(airTarget, "aab"))
 				{
 					extension = ".aab";
@@ -155,7 +151,6 @@ class AIRHelper
 				}
 
 			case IOS:
-
 				extension = ".ipa";
 
 			default:

@@ -381,8 +381,11 @@ class AssetLibrary
 		return switch (cast(type, AssetType))
 		{
 			case null:
-				cachedBytes.exists(id) || cachedText.exists(id) || cachedImages.exists(id)
-					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
+				cachedBytes.exists(id)
+				|| cachedText.exists(id)
+				|| cachedImages.exists(id)
+				|| cachedAudioBuffers.exists(id)
+				|| cachedFonts.exists(id);
 
 			case IMAGE:
 				cachedImages.exists(id);
@@ -393,8 +396,7 @@ class AssetLibrary
 			case FONT:
 				cachedFonts.exists(id);
 
-			default:
-				cachedBytes.exists(id) || cachedText.exists(id);
+			default: cachedBytes.exists(id) || cachedText.exists(id);
 		}
 		#end
 	}

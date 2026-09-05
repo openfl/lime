@@ -1,16 +1,12 @@
 <xml>
 
-	<!-- TODO: ARM64 NEON -->
-
 	<!-- <set name="PIXMAN_ARM_SIMD" value="1" if="android || rpi" unless="HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_ARM64 || HXCPP_X86" /> -->
-	<set name="PIXMAN_ARM_NEON" value="1" if="HXCPP_ARMV7 || HXCPP_ARMV7S || rpi" unless="ios || NDKV22+ || HXCPP_ARM64" />
+	<set name="PIXMAN_ARM_NEON" value="1" if="HXCPP_ARMV7 || HXCPP_ARMV7S || rpi" unless="ios || HXCPP_ARM64" />
+	<set name="PIXMAN_ARM_A64_NEON" value="1" if="HXCPP_ARM64"/>
 
 	<files id="native-toolkit-pixman">
 
-		<section if="PIXMAN_ARM_NEON HXCPP_CLANG || PIXMAN_ARM_NEON NDKV20+">
-			<compilerflag value="-fno-integrated-as" />
-			<compilerflag value="-march=armv7-a" if="HXCPP_ARMV7" />
-		</section>
+		<compilerflag value="-fno-integrated-as" if="PIXMAN_ARM_A64_NEON NDKV18+" unless="NDKV20+" />
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/pixman" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/pixman/pixman" />
@@ -22,6 +18,7 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png" if="NATIVE_TOOLKIT_HAVE_PNG" />
 
 		<compilerflag value="-DUSE_ARM_NEON=1" if="PIXMAN_ARM_NEON" />
+		<compilerflag value="-DUSE_ARM_A64_NEON=1" if="PIXMAN_ARM_A64_NEON" />
 		<compilerflag value="-DUSE_ARM_SIMD=1" if="PIXMAN_ARM_SIMD" />
 
 		<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures" if="android" />
@@ -39,7 +36,9 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-access.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon-asm-bilinear.S" if="PIXMAN_ARM_NEON" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon-asm.S" if="PIXMAN_ARM_NEON" />
-		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon.c" if="PIXMAN_ARM_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arma64-neon-asm-bilinear.S" if="PIXMAN_ARM_A64_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arma64-neon-asm.S" if="PIXMAN_ARM_A64_NEON" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-neon.c" if="PIXMAN_ARM_NEON || PIXMAN_ARM_A64_NEON" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-simd-asm-scaled.S" if="PIXMAN_ARM_SIMD" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-simd-asm.S" if="PIXMAN_ARM_SIMD" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-arm-simd.c" if="PIXMAN_ARM_SIMD" />
@@ -73,6 +72,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-trap.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-utils.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-x86.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman-riscv.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/pixman/pixman/pixman.c" />
 
 	</files>

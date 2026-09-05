@@ -1,0 +1,138 @@
+name: Bug report
+description: Report a focused, reproducible Lime bug
+title: "[Bug]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please report one specific problem per issue. Reports without enough information to reproduce may be closed until the missing details are provided.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Preflight Checklist
+      options:
+        - label: I searched existing open and closed issues for duplicates.
+          required: true
+        - label: I tested the latest stable Lime release or the current development branch where possible.
+          required: true
+        - label: I reduced this to the smallest project or code sample that still reproduces the issue.
+          required: true
+        - label: This issue describes one specific behavior, not several unrelated observations.
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Problem Description
+      description: Describe the specific behavior that appears to be wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Version Information
+      description: Include exact versions. Do not write "latest" by itself.
+      value: |
+        Lime version:
+        OpenFL version, if applicable:
+        Haxe version:
+        Target/runtime:
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include relevant OS, architecture, hardware and driver details.
+      value: |
+        OS:
+        Architecture:
+        GPU/driver, if relevant:
+        Display refresh rate, if relevant:
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal Reproduction
+      description: Attach or link a minimal project, or paste the smallest code sample that reproduces the problem. Include project.xml or project.hxp.
+      placeholder: |
+        Link to minimal project:
+
+        project.xml / project.hxp:
+
+        Relevant source:
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: List exact steps needed to reproduce the issue from a clean checkout/project.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What happens instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and Output
+      description: Paste relevant console output, stack traces or build logs.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or Videos
+      description: Attach screenshots or videos only if they help demonstrate the reproduced behavior. They do not replace a minimal reproduction.
+    validations:
+      required: false
+
+  - type: textarea
+    id: timing
+    attributes:
+      label: Performance, Timing or Rendering Details
+      description: If this is about frame pacing, timing or rendering, explain how you measured it and list frame rate, vsync, window/fullscreen and display settings.
+      placeholder: |
+        Frame rate:
+        Vsync setting:
+        Window/fullscreen mode:
+        Measurement method:
+        Reproduces on other targets/machines/drivers:
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other focused context that may help reproduce or diagnose this issue.
+    validations:
+      required: false

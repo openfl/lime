@@ -252,17 +252,16 @@ class System
 			#if android
 			var getDisplaySafeArea = JNI.createStaticMethod("org/haxe/lime/GameActivity", "getDisplaySafeAreaInsets", "()[I");
 			var result = getDisplaySafeArea();
-			display.safeArea = new Rectangle(
-				display.bounds.x + result[0],
-				display.bounds.y + result[1],
-				display.bounds.width - result[0] - result[2],
-				display.bounds.height - result[1] - result[3]);
+			display.safeArea = new Rectangle(display.bounds.x
+				+ result[0], display.bounds.y
+				+ result[1], display.bounds.width
+				- result[0]
+				- result[2],
+				display.bounds.height
+				- result[1]
+				- result[3]);
 			#else
-			display.safeArea = new Rectangle(
-				displayInfo.safeArea.x,
-				displayInfo.safeArea.y,
-				displayInfo.safeArea.width,
-				displayInfo.safeArea.height);
+			display.safeArea = new Rectangle(displayInfo.safeArea.x, displayInfo.safeArea.y, displayInfo.safeArea.width, displayInfo.safeArea.height);
 			#end
 
 			#if ios
@@ -328,7 +327,8 @@ class System
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode(Std.int(Capabilities.screenResolutionX), Std.int(Capabilities.screenResolutionY), 60, ARGB32);
 			#if air
-			switch (flash.Lib.current.stage.orientation) {
+			switch (flash.Lib.current.stage.orientation)
+			{
 				case DEFAULT:
 					display.orientation = PORTRAIT;
 				case UPSIDE_DOWN:
@@ -340,7 +340,6 @@ class System
 				default:
 					display.orientation = UNKNOWN;
 			}
-
 			#else
 			display.orientation = UNKNOWN;
 			#end
@@ -627,6 +626,8 @@ class System
 							attributes.resizable = __parseBool(argValue);
 						case "stencil", "stencil-buffer":
 							attributes.context.stencil = __parseBool(argValue);
+						case "transparent":
+							attributes.transparent = __parseBool(argValue);
 						// case "title": windowConfig.title = argValue;
 						case "vsync", "vsync-mode":
 							var vsyncMode = __parseVSyncMode(argValue);

@@ -59,6 +59,8 @@ namespace lime {
 			int GetStrikethroughPosition ();
 			int GetStrikethroughThickness ();
 			int GetUnitsPerEM ();
+			bool IsBold ();
+			bool IsItalic ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphWithFlags (int index, int loadFlags, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);

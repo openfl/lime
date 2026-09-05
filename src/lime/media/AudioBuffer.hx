@@ -70,6 +70,7 @@ class AudioBuffer
 
 	@:noCompletion private var __srcAudio:#if (js && html5) Audio #else Dynamic #end;
 	@:noCompletion private var __srcBuffer:#if lime_cffi ALBuffer #else Dynamic #end;
+	@:noCompletion private var __srcBufferContext:Int;
 	@:noCompletion private var __srcCustom:Dynamic;
 	@:noCompletion private var __srcHowl:#if lime_howlerjs Howl #else Dynamic #end;
 	@:noCompletion private var __isDisposed:Bool;
@@ -135,7 +136,13 @@ class AudioBuffer
 		}
 
 		var audioBuffer = new AudioBuffer();
-		audioBuffer.src = new Howl({src: [base64String], html5: true, preload: false});
+
+		#if force_html5_audio
+		audioBuffer.src = new Howl({src: [base64String], html5: true, preload: true});
+		#else
+		audioBuffer.src = new Howl({src: [base64String], preload: true});
+		#end
+
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)
 		#if !cs
@@ -181,7 +188,12 @@ class AudioBuffer
 
 		#if (js && html5 && lime_howlerjs)
 		var audioBuffer = new AudioBuffer();
-		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], html5: true, preload: false});
+
+		#if force_html5_audio
+		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], html5: true, preload: true});
+		#else
+		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], preload: true});
+		#end
 
 		return audioBuffer;
 		#elseif (lime_cffi && !macro)
@@ -384,7 +396,6 @@ class AudioBuffer
 		@return An `AudioBuffer` instance with the decoded audio data.
 	**/
 	#if lime_vorbis
-
 	public static function fromVorbisFile(vorbisFile:VorbisFile):AudioBuffer
 	{
 		if (vorbisFile == null) return null;
@@ -497,22 +508,19 @@ class AudioBuffer
 			var promise = new Promise<AudioBuffer>();
 			var request = new HTTPRequest<Bytes>();
 
-			request.load(path)
-				.onProgress(promise.progress)
-				.onComplete(function(bytes)
-				{
-					var buffer = fromBytesStream(bytes);
+			request.load(path).onProgress(promise.progress).onComplete(function(bytes)
+			{
+				var buffer = fromBytesStream(bytes);
 
-					if (buffer != null)
-					{
-						promise.complete(buffer);
-					}
-					else
-					{
-						promise.error("");
-					}
-				})
-				.onError(promise.error);
+				if (buffer != null)
+				{
+					promise.complete(buffer);
+				}
+				else
+				{
+					promise.error("");
+				}
+			}).onError(promise.error);
 
 			return promise.future;
 		}
@@ -682,7 +690,7 @@ class AudioBuffer
 			}
 		}).onError(function(_)
 		{
-			__loadFromFilesStream(paths, promise, index + 1);
+				__loadFromFilesStream(paths, promise, index + 1);
 		});
 	}
 
