@@ -1371,12 +1371,20 @@ class HTML5Window
 		}
 		if (devicePixelRatioMediaQuery != null)
 		{
+			#if haxe4
 			devicePixelRatioMediaQuery.removeEventListener("change", watchDevicePixelRatio);
+			#else
+			devicePixelRatioMediaQuery.removeListener(watchDevicePixelRatio);
+			#end
 			devicePixelRatioMediaQuery = null;
 		}
 		var mediaQueryString = '(resolution: ${scale}dppx)';
 		devicePixelRatioMediaQuery = Browser.window.matchMedia(mediaQueryString);
+		#if haxe4
 		devicePixelRatioMediaQuery.addEventListener("change", watchDevicePixelRatio);
+		#else
+		devicePixelRatioMediaQuery.addListener(watchDevicePixelRatio);
+		#end
 	}
 	#end
 
