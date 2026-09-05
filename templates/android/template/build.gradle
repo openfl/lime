@@ -7,6 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
+		::if (ANDROID_GRADLE_PLUGIN>="9.0")::classpath 'org.apache.groovy:groovy-swing:+'::end::
 
 		// NOTE: Do not place your application dependencies here; they belong
 		// in the individual module build.gradle files
