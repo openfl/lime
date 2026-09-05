@@ -1360,7 +1360,7 @@ class HTML5Window
 	}
 
 	#if !lime_disable_window_scale_change
-	private function watchDevicePixelRatio():Void
+	private function watchDevicePixelRatio(?e:Dynamic):Void
 	{
 		scale = Browser.window.devicePixelRatio;
 		if (parent.__scale != scale)
