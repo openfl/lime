@@ -15,6 +15,18 @@ import lime.utils.Bytes;
 import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
+import sys.thread.Lock;
+import sys.thread.Mutex;
+import sys.thread.Thread;
+
+private typedef LibraryHandlerJob = {
+	var handlerProject:HXProject;
+	var temporaryFile:String;
+	var outputFile:String;
+	var args:Array<String>;
+	var types:Array<String>;
+	var error:Dynamic;
+}
 
 class AssetHelper
 {
@@ -519,73 +531,161 @@ class AssetHelper
 
 		if (handlers.length > 0)
 		{
-			var projectData = Serializer.run(project);
-			var temporaryFile = System.getTemporaryFile();
-
-			File.saveContent(temporaryFile, projectData);
+			var baseProject = project.clone();
 
 			for (handler in handlers)
 			{
-				var outputFile = System.getTemporaryFile();
-				var args = ["run", handler, "process", temporaryFile, outputFile];
+				var handlerLibraries:Array<Library> = [];
 
-				if (Log.verbose)
+				for (library in baseProject.libraries)
 				{
-					args.push("-verbose");
-				}
-
-				if (targetDirectory != null)
-				{
-					args.push("--targetDirectory=" + Path.tryFullPath(targetDirectory));
-				}
-
-				try
-				{
-					Haxelib.runCommand("", args, false);
-				}
-				catch (e:Dynamic)
-				{
-					var types:Array<String> = [];
-
-					for (library in project.libraries)
+					if (library.type != null && baseProject.libraryHandlers.exists(library.type) && baseProject.libraryHandlers.get(library.type) == handler)
 					{
-						if (library.type != null
-							&& project.libraryHandlers.exists(library.type)
-							&& project.libraryHandlers.get(library.type) == handler)
+						handlerLibraries.push(library);
+					}
+				}
+
+				if (handler == "swf")
+				{
+					// Fast-check pass: resolve the swf tool path once for all libraries
+					var swfRunNPath:String = null;
+					try
+					{
+						swfRunNPath = Haxelib.getPath(new Haxelib("swf"), true) + "/run.n";
+					}
+					catch (e:Dynamic) {}
+
+					var jobs:Array<LibraryHandlerJob> = [];
+
+					for (library in handlerLibraries)
+					{
+						// If targetDirectory is set and the .zip cache is already up-to-date,
+						// merge results directly in Haxe without spawning a neko process.
+						var cacheHit = false;
+
+						if (targetDirectory != null && library.sourcePath != null && FileSystem.exists(library.sourcePath))
 						{
-							types.push(library.type);
+							var swfCacheDir = Path.tryFullPath(targetDirectory) + "/obj/libraries";
+							var cacheFile = swfCacheDir + "/" + library.name + ".zip";
+							var classesFile = swfCacheDir + "/" + library.name + ".classes.txt";
+
+							if (FileSystem.exists(cacheFile))
+							{
+								var cacheDate = FileSystem.stat(cacheFile).mtime;
+								var sourceDate = FileSystem.stat(library.sourcePath).mtime;
+
+								var cacheIsNewer = sourceDate.getTime() < cacheDate.getTime();
+
+								if (cacheIsNewer && swfRunNPath != null && FileSystem.exists(swfRunNPath))
+								{
+									var toolDate = FileSystem.stat(swfRunNPath).mtime;
+									cacheIsNewer = toolDate.getTime() < cacheDate.getTime();
+								}
+
+								if (cacheIsNewer)
+								{
+									if (Log.verbose) Log.info("", " - \x1b[1mSWF cache hit (skipping neko):\x1b[0m " + library.name);
+
+									var cacheAsset = new Asset(cacheFile, "lib/" + library.name + ".zip", AssetType.BUNDLE);
+									cacheAsset.library = library.name;
+									cacheAsset.embed = false;
+									project.assets.push(cacheAsset);
+
+									if (library.generate != false && FileSystem.exists(classesFile))
+									{
+										for (line in File.getContent(classesFile).split("\n"))
+										{
+											var className = StringTools.trim(line);
+											if (className != "" && !StringTools.startsWith(className, "#"))
+											{
+												project.haxeflags.push(className);
+											}
+										}
+									}
+
+									// Ensure the generated classes path is added to sources
+									var generatedPath:String;
+									if (project.target == IOS)
+									{
+										generatedPath = Path.combine(targetDirectory, project.app.file + "/haxe/_generated");
+									}
+									else
+									{
+										generatedPath = Path.combine(targetDirectory, "haxe/_generated");
+									}
+
+									var sourceExists = false;
+									for (source in project.sources)
+									{
+										if (source == generatedPath)
+										{
+											sourceExists = true;
+											break;
+										}
+									}
+									if (!sourceExists)
+									{
+										project.sources.push(generatedPath);
+										// Append sources again so generated path is at the end but before overrides?
+										// The original tool prepends it by pushing then concatting project.sources again.
+										// Here we just push it, which should be fine.
+									}
+
+									var hasSwfHaxelib = false;
+									for (haxelib in project.haxelibs)
+									{
+										if (haxelib.name == "swf")
+										{
+											hasSwfHaxelib = true;
+											break;
+										}
+									}
+									if (!hasSwfHaxelib)
+									{
+										project.haxelibs.push(new Haxelib("swf"));
+									}
+
+									var libType = library.type != null ? library.type : Path.extension(library.sourcePath).toLowerCase();
+									if (libType == "animate")
+									{
+										project.haxeflags.push("swf.exporters.animate.AnimateLibrary");
+									}
+									else if (libType == "swflite" || libType == "swf_lite")
+									{
+										project.haxeflags.push("swf.exporters.swflite.SWFLiteLibrary");
+									}
+									else
+									{
+										if (project.target != FLASH && project.target != AIR)
+										{
+											project.haxeflags.push("swf.exporters.animate.AnimateLibrary");
+										}
+										else
+										{
+											project.haxeflags.push("swf.SWFLibrary");
+										}
+									}
+
+									cacheHit = true;
+								}
+							}
+						}
+
+						if (!cacheHit)
+						{
+							var singleLibraryProject = baseProject.clone();
+							singleLibraryProject.libraries = [library.clone()];
+							jobs.push(createLibraryHandlerJob(singleLibraryProject, handler, targetDirectory));
 						}
 					}
 
-					Log.error("Could not process asset libraries (" + types.join(", ") + ")");
+					runLibraryHandlers(project, jobs, true);
 				}
-
-				if (FileSystem.exists(outputFile))
+				else
 				{
-					try
-					{
-						var output = File.getContent(outputFile);
-						var data:HXProject = Unserializer.run(output);
-						project.merge(data);
-					}
-					catch (e:Dynamic)
-					{
-						Log.error(e);
-					}
-
-					try
-					{
-						FileSystem.deleteFile(outputFile);
-					}
-					catch (e:Dynamic) {}
+					runLibraryHandler(project, baseProject, handler, targetDirectory);
 				}
 			}
-
-			try
-			{
-				FileSystem.deleteFile(temporaryFile);
-			}
-			catch (e:Dynamic) {}
 		}
 
 		if (hasPackedLibraries)
@@ -659,6 +759,181 @@ class AssetHelper
 					project.assets.push(asset);
 				}
 			}
+		}
+	}
+
+	private static function runLibraryHandler(project:HXProject, handlerProject:HXProject, handler:String, targetDirectory:String = null):Void
+	{
+		var job = createLibraryHandlerJob(handlerProject, handler, targetDirectory);
+		runLibraryHandlers(project, [job], false);
+	}
+
+	private static function createLibraryHandlerJob(handlerProject:HXProject, handler:String, targetDirectory:String = null):LibraryHandlerJob
+	{
+		var temporaryFile = System.getTemporaryFile();
+		var outputFile = System.getTemporaryFile();
+
+		File.saveContent(temporaryFile, Serializer.run(handlerProject));
+
+		var args = ["run", handler, "process", temporaryFile, outputFile];
+
+		if (Log.verbose)
+		{
+			args.push("-verbose");
+		}
+
+		if (targetDirectory != null)
+		{
+			args.push("--targetDirectory=" + Path.tryFullPath(targetDirectory));
+		}
+
+		var types:Array<String> = [];
+
+		for (library in handlerProject.libraries)
+		{
+			if (library.type != null && handlerProject.libraryHandlers.exists(library.type) && handlerProject.libraryHandlers.get(library.type) == handler)
+			{
+				types.push(library.type);
+			}
+		}
+
+		return {
+			handlerProject: handlerProject,
+			temporaryFile: temporaryFile,
+			outputFile: outputFile,
+			args: args,
+			types: types,
+			error: null
+		};
+	}
+
+	private static function runLibraryHandlers(project:HXProject, jobs:Array<LibraryHandlerJob>, parallel:Bool):Void
+	{
+		if (jobs.length == 0)
+		{
+			return;
+		}
+
+		if (parallel && jobs.length > 1 && System.processorCores > 1)
+		{
+			var workerCount = jobs.length;
+
+			if (System.processorCores < workerCount)
+			{
+				workerCount = System.processorCores;
+			}
+
+			var nextJob = 0;
+			var remainingWorkers = workerCount;
+			var mutex = new Mutex();
+			var complete = new Lock();
+
+			for (i in 0...workerCount)
+			{
+				Thread.create(function() {
+					while (true)
+					{
+						var job:LibraryHandlerJob = null;
+
+						mutex.acquire();
+
+						if (nextJob < jobs.length)
+						{
+							job = jobs[nextJob];
+							nextJob++;
+						}
+
+						mutex.release();
+
+						if (job == null)
+						{
+							break;
+						}
+
+						runLibraryHandlerJob(job);
+					}
+
+					mutex.acquire();
+					remainingWorkers--;
+					var finished = remainingWorkers == 0;
+					mutex.release();
+
+					if (finished)
+					{
+						complete.release();
+					}
+				});
+			}
+
+			complete.wait();
+		}
+		else
+		{
+			for (job in jobs)
+			{
+				runLibraryHandlerJob(job);
+			}
+		}
+
+		var failedTypes:Array<String> = [];
+		var mergeErrors:Array<Dynamic> = [];
+
+		for (job in jobs)
+		{
+			if (job.error != null)
+			{
+				for (type in job.types)
+				{
+					failedTypes.push(type);
+				}
+			}
+			else if (FileSystem.exists(job.outputFile))
+			{
+				try
+				{
+					var output = File.getContent(job.outputFile);
+					var data:HXProject = Unserializer.run(output);
+					project.merge(data);
+				}
+				catch (e:Dynamic)
+				{
+					mergeErrors.push(e);
+				}
+			}
+
+			try
+			{
+				FileSystem.deleteFile(job.outputFile);
+			}
+			catch (e:Dynamic) {}
+
+			try
+			{
+				FileSystem.deleteFile(job.temporaryFile);
+			}
+			catch (e:Dynamic) {}
+		}
+
+		if (failedTypes.length > 0)
+		{
+			Log.error("Could not process asset libraries (" + failedTypes.join(", ") + ")");
+		}
+
+		if (mergeErrors.length > 0)
+		{
+			Log.error(mergeErrors[0]);
+		}
+	}
+
+	private static function runLibraryHandlerJob(job:LibraryHandlerJob):Void
+	{
+		try
+		{
+			Haxelib.runCommand("", job.args, false);
+		}
+		catch (e:Dynamic)
+		{
+			job.error = e;
 		}
 	}
 
