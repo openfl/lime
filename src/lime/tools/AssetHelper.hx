@@ -90,6 +90,8 @@ class AssetHelper
 
 	public static function copyAsset(asset:Asset, destination:String, context:Dynamic = null)
 	{
+		System.mkdir(Path.directory(destination));
+
 		if (asset.sourcePath != "")
 		{
 			System.copyFile(asset.sourcePath, destination, context, asset.type == TEMPLATE);
