@@ -780,18 +780,18 @@ class HTML5Window
 					}
 					__stopMousePropagation = event.currentTarget == parent.element;
 
-					if (x != cacheMouseX || y != cacheMouseY)
-					{
-						parent.onMouseMove.dispatch(x, y);
-						parent.onMouseMoveRelative.dispatch(x - cacheMouseX, y - cacheMouseY);
-
-						if ((parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) && event.cancelable)
-						{
-							event.preventDefault();
-						}
-					}
-
 				default:
+			}
+
+			if (x != cacheMouseX || y != cacheMouseY)
+			{
+				parent.onMouseMove.dispatch(x, y);
+				parent.onMouseMoveRelative.dispatch(x - cacheMouseX, y - cacheMouseY);
+
+				if ((parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) && event.cancelable)
+				{
+					event.preventDefault();
+				}
 			}
 
 			cacheMouseX = x;
