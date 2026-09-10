@@ -706,7 +706,11 @@ class NativeApplication
 		}
 		#if (haxe_ver >= 4.2)
 		#if target.threaded
+		#if haxe5
+		sys.thread.Thread.current().events.loopOnce();
+		#else
 		sys.thread.Thread.current().events.progress();
+		#end
 		#else
 		// Duplicate code required because Haxe 3 can't handle
 		// #if (haxe_ver >= 4.2 && target.threaded)
