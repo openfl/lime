@@ -170,6 +170,7 @@ namespace lime {
 	}
 	*/
 
+
 	void lime_al_auxf (value aux, int param, float value) {
 
 		#ifdef LIME_OPENALSOFT
@@ -2317,6 +2318,30 @@ namespace lime {
 	}
 
 
+	bool lime_alc_is_extension_present (value device, HxString extname) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = val_is_null (device) ? NULL : (ALCdevice*)val_data (device);
+		return extname.__s ? alcIsExtensionPresent (alcDevice, extname.__s) : false;
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_alc_is_extension_present) (HL_CFFIPointer* device, hl_vstring* extname) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
+		return extname ? alcIsExtensionPresent (alcDevice, hl_to_utf8 (extname->bytes)) : false;
+		#else
+		return false;
+		#endif
+
+	}
+
+
 	bool lime_al_is_filter (value filter) {
 
 		#ifdef LIME_OPENALSOFT
@@ -3379,7 +3404,7 @@ namespace lime {
 
 	value lime_alc_get_string (value device, int param) {
 
-		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		ALCdevice* alcDevice = val_is_null (device) ? NULL : (ALCdevice*)val_data (device);
 		const char* result = alcGetString (alcDevice, param);
 		return result ? alloc_string (result) : alloc_null ();
 
@@ -3388,8 +3413,9 @@ namespace lime {
 
 	HL_PRIM vbyte* HL_NAME(hl_alc_get_string) (HL_CFFIPointer* device, int param) {
 
-		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : 0;
+		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
 		const char* result = alcGetString (alcDevice, param);
+		if (!result) return 0;
 		int length = strlen (result);
 		char* _result = (char*)malloc (length + 1);
 		strcpy (_result, result);
@@ -3512,6 +3538,101 @@ namespace lime {
 	}
 
 
+	value lime_alc_capture_open_device (HxString devicename, int frequency, int format, int buffersize) {
+
+		ALCdevice* alcDevice = alcCaptureOpenDevice (devicename.__s, frequency, format, buffersize);
+
+		value ptr = CFFIPointer (alcDevice, gc_alc_object);
+		alcObjects[alcDevice] = ptr;
+		return ptr;
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_alc_capture_open_device) (hl_vstring* devicename, int frequency, int format, int buffersize) {
+
+		ALCdevice* alcDevice = alcCaptureOpenDevice (devicename ? (char*)hl_to_utf8 ((const uchar*)devicename->bytes) : 0, frequency, format, buffersize);
+
+		HL_CFFIPointer* ptr = HLCFFIPointer (alcDevice, (hl_finalizer)hl_gc_alc_object);
+		alcObjects[alcDevice] = ptr;
+		return ptr;
+
+	}
+
+
+	bool lime_alc_capture_close_device (value device) {
+
+		al_gc_mutex.Lock ();
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alcObjects.erase (alcDevice);
+		al_gc_mutex.Unlock ();
+
+		return alcCaptureCloseDevice (alcDevice);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_alc_capture_close_device) (HL_CFFIPointer* device) {
+
+		al_gc_mutex.Lock ();
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		alcObjects.erase (alcDevice);
+		al_gc_mutex.Unlock ();
+
+		return alcCaptureCloseDevice (alcDevice);
+
+	}
+
+
+	void lime_alc_capture_start (value device) {
+
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alcCaptureStart (alcDevice);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_alc_capture_start) (HL_CFFIPointer* device) {
+
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		alcCaptureStart (alcDevice);
+
+	}
+
+
+	void lime_alc_capture_stop (value device) {
+
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		alcCaptureStop (alcDevice);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_alc_capture_stop) (HL_CFFIPointer* device) {
+
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		alcCaptureStop (alcDevice);
+
+	}
+
+
+	void lime_alc_capture_samples (value device, value buffer, int samples) {
+
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		Bytes bytes (buffer);
+		alcCaptureSamples (alcDevice, bytes.b, samples);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_alc_capture_samples) (HL_CFFIPointer* device, Bytes* buffer, int samples) {
+
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		alcCaptureSamples (alcDevice, buffer->b, samples);
+
+	}
+
+
 
 
 	DEFINE_PRIME3v (lime_al_auxf);
@@ -3587,6 +3708,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_al_is_effect);
 	DEFINE_PRIME1 (lime_al_is_enabled);
 	DEFINE_PRIME1 (lime_al_is_extension_present);
+	DEFINE_PRIME2 (lime_alc_is_extension_present);
 	DEFINE_PRIME1 (lime_al_is_filter);
 	DEFINE_PRIME1 (lime_al_is_source);
 	DEFINE_PRIME4v (lime_al_listener3f);
@@ -3628,6 +3750,11 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_process_context);
 	DEFINE_PRIME1v (lime_alc_resume_device);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
+	DEFINE_PRIME4 (lime_alc_capture_open_device);
+	DEFINE_PRIME1 (lime_alc_capture_close_device);
+	DEFINE_PRIME1v (lime_alc_capture_start);
+	DEFINE_PRIME1v (lime_alc_capture_stop);
+	DEFINE_PRIME3v (lime_alc_capture_samples);
 
 
 	#define _TBYTES _OBJ (_I32 _BYTES)
@@ -3711,6 +3838,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_effect, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_enabled, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_extension_present, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_is_extension_present, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_filter, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_source, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_al_listener3f, _I32 _F32 _F32 _F32);
@@ -3752,6 +3880,11 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_alc_process_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_alc_resume_device, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_alc_suspend_context, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_capture_open_device, _STRING _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_capture_close_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_capture_start, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_capture_stop, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_alc_capture_samples, _TCFFIPOINTER _TBYTES _I32);
 
 
 }

@@ -26,6 +26,11 @@
 #include <SDL.h>
 #endif
 
+#ifdef EMSCRIPTEN
+#include <stdlib.h>
+#include <string.h>
+#endif
+
 
 namespace lime {
 
@@ -35,6 +40,46 @@ namespace lime {
 	// remaining GLES3-only wrappers and replace this pattern with an explicit
 	// desktop-GL macro/capability gate later, rather than broadening everything
 	// mechanically.
+
+	#ifdef EMSCRIPTEN
+	#define LIME_GL_BGRA_EXT 0x80E1
+
+	static unsigned char* sRBSwapBuffer = NULL;
+	static size_t sRBSwapBufferSize = 0;
+
+	static const void* lime_gl_swap_rb (const void* src, size_t pixelCount) {
+
+		size_t bytes = pixelCount * 4;
+		if (bytes > sRBSwapBufferSize) {
+			free (sRBSwapBuffer);
+			sRBSwapBuffer = (unsigned char*) malloc (bytes);
+			sRBSwapBufferSize = bytes;
+		}
+		const unsigned char* s = (const unsigned char*) src;
+		unsigned char* d = sRBSwapBuffer;
+		for (size_t i = 0; i < bytes; i += 4) {
+			d[i] = s[i + 2];
+			d[i + 1] = s[i + 1];
+			d[i + 2] = s[i];
+			d[i + 3] = s[i + 3];
+		}
+		return sRBSwapBuffer;
+
+	}
+
+	static void lime_gl_swap_rb_in_place (void* dest, size_t pixelCount) {
+
+		unsigned char* d = (unsigned char*) dest;
+		size_t bytes = pixelCount * 4;
+		for (size_t i = 0; i < bytes; i += 4) {
+			unsigned char tmp = d[i];
+			d[i] = d[i + 2];
+			d[i + 2] = tmp;
+		}
+
+	}
+	#endif
+
 
 	bool OpenGLBindings::initialized = false;
 
@@ -183,10 +228,13 @@ namespace lime {
 						if (glIsRenderbuffer (id)) glDeleteRenderbuffers (1, &id);
 						break;
 
-					#ifdef LIME_GLES3_API
+					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_SAMPLER:
 
-						if (glIsSampler (id)) glDeleteSamplers (1, &id);
+						if (glIsSampler && glIsSampler (id)) {
+							if (glDeleteSamplers)
+								glDeleteSamplers (1, &id);
+						}
 						break;
 					#endif
 
@@ -200,10 +248,20 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 
-					#ifdef LIME_GLES3_API
+					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_VERTEX_ARRAY_OBJECT:
-
-						if (glIsVertexArray (id)) glDeleteVertexArrays (1, &id);
+					
+						#if defined(HX_MACOS)
+						if (glIsVertexArrayAPPLE && glIsVertexArrayAPPLE (id)) {
+							if (glDeleteVertexArraysAPPLE)
+								glDeleteVertexArraysAPPLE (1, &id);
+						}
+						else
+						#endif
+						if (glIsVertexArray && glIsVertexArray (id)) {
+							if (glDeleteVertexArrays)
+								glDeleteVertexArrays (1, &id);
+						}
 						break;
 					#endif
 
@@ -486,6 +544,12 @@ namespace lime {
 	void lime_gl_bind_vertex_array (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glBindVertexArrayAPPLE) {
+			glBindVertexArrayAPPLE (vertexArray);
+		}
+		else
+		#endif
 		if (glBindVertexArray) {
 			glBindVertexArray (vertexArray);
 		}
@@ -497,6 +561,12 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_bind_vertex_array) (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glBindVertexArrayAPPLE) {
+			glBindVertexArrayAPPLE (vertexArray);
+		}
+		else
+		#endif
 		if (glBindVertexArray) {
 			glBindVertexArray (vertexArray);
 		}
@@ -1155,6 +1225,12 @@ namespace lime {
 
 		GLuint id = 0;
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glGenVertexArraysAPPLE) {
+			glGenVertexArraysAPPLE (1, &id);
+		}
+		else
+		#endif
 		if (glGenVertexArrays) {
 			glGenVertexArrays (1, &id);
 		}
@@ -1168,6 +1244,12 @@ namespace lime {
 
 		GLuint id = 0;
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glGenVertexArraysAPPLE) {
+			glGenVertexArraysAPPLE (1, &id);
+		}
+		else
+		#endif
 		if (glGenVertexArrays) {
 			glGenVertexArrays (1, &id);
 		}
@@ -1356,6 +1438,12 @@ namespace lime {
 	void lime_gl_delete_vertex_array (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glDeleteVertexArraysAPPLE) {
+			glDeleteVertexArraysAPPLE (1, (GLuint*)&vertexArray);
+		}
+		else
+		#endif
 		if (glDeleteVertexArrays) {
 			glDeleteVertexArrays (1, (GLuint*)&vertexArray);
 		}
@@ -1367,6 +1455,12 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_delete_vertex_array) (int vertexArray) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if defined (HX_MACOS)
+		if (glDeleteVertexArraysAPPLE) {
+			glDeleteVertexArraysAPPLE (1, (GLuint*)&vertexArray);
+		}
+		else
+		#endif
 		if (glDeleteVertexArrays) {
 			glDeleteVertexArrays (1, (GLuint*)&vertexArray);
 		}
@@ -3835,7 +3929,17 @@ namespace lime {
 	bool lime_gl_is_vertex_array (int handle) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
-		return glIsVertexArray ? glIsVertexArray (handle) : false;
+		#if defined (HX_MACOS)
+		if (glIsVertexArrayAPPLE) {
+			return glIsVertexArrayAPPLE (handle);
+		}
+		else
+		#endif
+		if (glIsVertexArray) {
+			return glIsVertexArray (handle);
+		}
+
+		return false;
 		#else
 		return false;
 		#endif
@@ -3846,7 +3950,17 @@ namespace lime {
 	HL_PRIM bool HL_NAME(hl_gl_is_vertex_array) (int handle) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
-		return glIsVertexArray ? glIsVertexArray (handle) : false;
+		#if defined (HX_MACOS)
+		if (glIsVertexArrayAPPLE) {
+			return glIsVertexArrayAPPLE (handle);
+		}
+		else
+		#endif
+		if (glIsVertexArray) {
+			return glIsVertexArray (handle);
+		}
+
+		return false;
 		#else
 		return false;
 		#endif
@@ -4149,6 +4263,17 @@ namespace lime {
 
 	void lime_gl_read_pixels (int x, int y, int width, int height, int format, int type, double pixels) {
 
+		#ifdef EMSCRIPTEN
+		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
+			void* dest = (void*) (uintptr_t) pixels;
+			if (dest != NULL && width > 0 && height > 0) {
+				glReadPixels (x, y, width, height, GL_RGBA, type, dest);
+				lime_gl_swap_rb_in_place (dest, (size_t) width * (size_t) height);
+				return;
+			}
+		}
+		#endif
+
 		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
 
 	}
@@ -4438,6 +4563,21 @@ namespace lime {
 
 	void lime_gl_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int format, int type, double data) {
 
+		#ifdef EMSCRIPTEN
+		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
+			const void* src = (const void*) (uintptr_t) data;
+			GLint internalRGBA = (internalformat == LIME_GL_BGRA_EXT) ? GL_RGBA : internalformat;
+			if (src != NULL && width > 0 && height > 0) {
+				const void* swapped = lime_gl_swap_rb (src, (size_t) width * (size_t) height);
+				glTexImage2D (target, level, internalRGBA, width, height, border, GL_RGBA, type, swapped);
+			} else {
+				glTexImage2D (target, level, internalRGBA, width, height, border, GL_RGBA, type, NULL);
+			}
+			return;
+		}
+		if (internalformat == LIME_GL_BGRA_EXT) internalformat = GL_RGBA;
+		#endif
+
 		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)(uintptr_t)data);
 
 	}
@@ -4545,6 +4685,17 @@ namespace lime {
 
 
 	void lime_gl_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double data) {
+
+		#ifdef EMSCRIPTEN
+		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
+			const void* src = (const void*) (uintptr_t) data;
+			if (src != NULL && width > 0 && height > 0) {
+				const void* swapped = lime_gl_swap_rb (src, (size_t) width * (size_t) height);
+				glTexSubImage2D (target, level, xoffset, yoffset, width, height, GL_RGBA, type, swapped);
+				return;
+			}
+		}
+		#endif
 
 		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)data);
 

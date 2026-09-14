@@ -3,6 +3,7 @@ package lime.system;
 import haxe.Constraints;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.VSyncMode;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.ui.WindowAttributes;
@@ -251,17 +252,16 @@ class System
 			#if android
 			var getDisplaySafeArea = JNI.createStaticMethod("org/haxe/lime/GameActivity", "getDisplaySafeAreaInsets", "()[I");
 			var result = getDisplaySafeArea();
-			display.safeArea = new Rectangle(
-				display.bounds.x + result[0],
-				display.bounds.y + result[1],
-				display.bounds.width - result[0] - result[2],
-				display.bounds.height - result[1] - result[3]);
+			display.safeArea = new Rectangle(display.bounds.x
+				+ result[0], display.bounds.y
+				+ result[1], display.bounds.width
+				- result[0]
+				- result[2],
+				display.bounds.height
+				- result[1]
+				- result[3]);
 			#else
-			display.safeArea = new Rectangle(
-				displayInfo.safeArea.x,
-				displayInfo.safeArea.y,
-				displayInfo.safeArea.width,
-				displayInfo.safeArea.height);
+			display.safeArea = new Rectangle(displayInfo.safeArea.x, displayInfo.safeArea.y, displayInfo.safeArea.width, displayInfo.safeArea.height);
 			#end
 
 			#if ios
@@ -327,7 +327,8 @@ class System
 			display.dpi = Capabilities.screenDPI;
 			display.currentMode = new DisplayMode(Std.int(Capabilities.screenResolutionX), Std.int(Capabilities.screenResolutionY), 60, ARGB32);
 			#if air
-			switch (flash.Lib.current.stage.orientation) {
+			switch (flash.Lib.current.stage.orientation)
+			{
 				case DEFAULT:
 					display.orientation = PORTRAIT;
 				case UPSIDE_DOWN:
@@ -339,7 +340,6 @@ class System
 				default:
 					display.orientation = UNKNOWN;
 			}
-
 			#else
 			display.orientation = UNKNOWN;
 			#end
@@ -626,9 +626,16 @@ class System
 							attributes.resizable = __parseBool(argValue);
 						case "stencil", "stencil-buffer":
 							attributes.context.stencil = __parseBool(argValue);
+						case "transparent":
+							attributes.transparent = __parseBool(argValue);
 						// case "title": windowConfig.title = argValue;
-						case "vsync":
-							attributes.context.vsync = __parseBool(argValue);
+						case "vsync", "vsync-mode":
+							var vsyncMode = __parseVSyncMode(argValue);
+							if (vsyncMode != null)
+							{
+								attributes.context.vsyncMode = vsyncMode;
+								attributes.context.vsync = (vsyncMode != VSyncMode.Off);
+							}
 						case "width":
 							attributes.width = Std.parseInt(argValue);
 						case "x":
@@ -650,6 +657,23 @@ class System
 	@:noCompletion private static inline function __parseBool(value:String):Bool
 	{
 		return (value == "true");
+	}
+
+	@:noCompletion private static function __parseVSyncMode(value:String):Null<VSyncMode>
+	{
+		switch (value.toLowerCase())
+		{
+			case "true", "on":
+				return VSyncMode.On;
+			case "false", "off":
+				return VSyncMode.Off;
+			case "adaptive":
+				return VSyncMode.Adaptive;
+			case "auto":
+				return VSyncMode.Auto;
+			default:
+				return null;
+		}
 	}
 
 	@:noCompletion private static function __registerEntryPoint(projectName:String, entryPoint:Function):Void

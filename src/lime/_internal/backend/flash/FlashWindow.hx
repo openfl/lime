@@ -225,8 +225,7 @@ class FlashWindow
 				"middleMouseMove",
 				"middleMouseUp"
 				#if ((!openfl && !disable_flash_right_click)
-					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp"
-				#end
+					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp" #end
 			];
 
 			for (event in events)
@@ -645,6 +644,11 @@ class FlashWindow
 	}
 
 	public function setVisible(value:Bool):Bool
+	{
+		return value;
+	}
+
+	public function setAlwaysOnTop(value:Bool):Bool
 	{
 		return value;
 	}

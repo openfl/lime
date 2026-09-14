@@ -1,6 +1,55 @@
 Changelog
 =========
 
+8.4.0 (06/18/2026)
+------------------
+
+- Added an experimental Vulkan renderer for native Windows, Linux, and Android targets.
+- Added `VulkanRenderContext` and Haxe Vulkan bindings for instance, device, swapchain, command, descriptor, memory, and pipeline helpers.
+- Added Vulkan bootstrap logging, error details, MSAA resolve support, mapped memory helpers, and descriptor helpers.
+- Added configurable application frame timing with `FrameProfile`, `FrameOptions`, `VSyncMode`, busy-wait, time precision, and uncap controls.
+- Added `AudioInput` and audio input device APIs with native OpenAL, HTML5, and Flash backends.
+- Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
+- Added `Window.alwaysOnTop` and transparent window support.
+- Added input event timestamps without changing listener signatures.
+- Added `Promise.completeAsync()`.
+- Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
+- Added `Font.isBold` and `Font.isItalic`.
+- Added project.xml support for Android manifest tags and Gradle plugin entries.
+- Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
+- Added VAO support on macOS.
+- Changed asset copying and embedding to behave consistently across targets.
+- Changed OpenAL Soft HRTF to be disabled by default.
+- Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
+- Updated MojoAL and gamepad mappings.
+- Fixed an asset embedding regression.
+- Fixed Windows cpp icon resource handling when no icon is generated.
+- Fixed GL cleanup and desktop GL object collection.
+- Fixed native and HashLink `AudioBuffer` layout mismatches.
+- Fixed `AudioBuffer.fromBytes()` and `AudioBuffer.fromBase64()` on HTML5 to avoid forcing HTML5 audio buffers.
+- Fixed OpenAL output device recovery.
+- Fixed perspective camera matrix calculation.
+- Fixed Tizen `appinfo.json` templating.
+- Fixed Android architecture parsing for `x86_64` and `x86_32`.
+- Fixed SDL_sound ARM64 Linux detection outside Raspberry Pi OS.
+- Fixed HTML5 transparent docs generation.
+
+8.3.2 (05/13/2026)
+------------------
+
+- Fixed SDL sleep and refined frame timing.
+- Fixed failing to capture backspace key on Android.
+- Fixed GL objects failing to get garbage collected on HashLink.
+- Fixed clipboard failing to update on Android, iOS, iPadOS, and tvOS.
+- Fixed big endian issues in `ArrayBufferView`.
+- Fixed copying between `ArrayBufferView` instances that have different `bytesPerElement` values.
+- Fixed certain OpenGL functions missing from desktop targets that weren't mobile only.
+- Fixed broken compatibility with Haxe 3 when using HXP project.
+- Fixed default OpenAL backend without include.xml.
+- Fixed RunScript o use local haxelib paths.
+- Fixed incompatible-pointer-types error when compiling for HashLink/C with gcc 14 or clang 22.
+- Fixed webassembly compilation and rendering issues.
+
 8.3.1 (02/16/2026)
 ------------------
 

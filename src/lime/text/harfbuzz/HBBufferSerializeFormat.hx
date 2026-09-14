@@ -12,6 +12,7 @@ package lime.text.harfbuzz;
 	//
 	// }
 }
+
 // @:cffi private static function lime_hb_buffer_serialize_format_from_string (str:String, len:Int):Int;
 // @:cffi private static function lime_hb_buffer_serialize_format_to_string (format:Int):CFFIPointer;
 // @:cffi private static function lime_hb_buffer_serialize_list_formats ():CFFIPointer;

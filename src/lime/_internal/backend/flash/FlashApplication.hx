@@ -3,6 +3,9 @@ package lime._internal.backend.flash;
 import flash.ui.MultitouchInputMode;
 import flash.ui.Multitouch;
 import lime.app.Application;
+import lime.app.FrameOptions;
+import lime.app.FrameProfile;
+import lime.app.VSyncMode;
 import lime.media.AudioManager;
 import lime.system.Orientation;
 import lime.ui.Window;
@@ -36,8 +39,12 @@ class FlashApplication
 
 	public function exit():Void {}
 
+	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void {}
+
 	public function getDeviceOrientation():Orientation
 	{
 		return UNKNOWN;
 	}
+
+	public function setVSyncMode(mode:VSyncMode):Void {}
 }

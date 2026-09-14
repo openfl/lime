@@ -160,10 +160,13 @@ public function load(uri:String = null):Future<T>
 	}
 }
 
-@:noCompletion class _HTTPRequestErrorResponse<T> {
+@:noCompletion class _HTTPRequestErrorResponse<T>
+{
 	public var error:Dynamic;
 	public var responseData:T;
-	public function new(error:Dynamic, responseData:T) {
+
+	public function new(error:Dynamic, responseData:T)
+	{
 		this.error = error;
 		this.responseData = responseData;
 	}
@@ -193,6 +196,8 @@ public function load(uri:String = null):Future<T>
 private typedef HTTPRequestBackend = lime._internal.backend.flash.FlashHTTPRequest;
 #elseif (js && html5)
 private typedef HTTPRequestBackend = lime._internal.backend.html5.HTML5HTTPRequest;
+#elseif emscripten
+private typedef HTTPRequestBackend = lime._internal.backend.emscripten.EmscriptenHTTPRequest;
 #else
 private typedef HTTPRequestBackend = lime._internal.backend.native.NativeHTTPRequest;
 #end

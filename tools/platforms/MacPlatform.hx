@@ -231,13 +231,16 @@ class MacPlatform extends PlatformTarget
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
 				var command = [
-					"arch", "-x86_64",
+					"arch",
+					"-x86_64",
 					compiler,
 					"-O3",
-					"-o", executablePath,
+					"-o",
+					executablePath,
 					"-std=c11",
 					"-Wl,-rpath,@executable_path",
-					"-I", Path.combine(targetDirectory, "obj"),
+					"-I",
+					Path.combine(targetDirectory, "obj"),
 					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
 					// gcc 14 and clang 22 made incompatible-pointer-types an
 					// error instead of a warning, but it's required for
@@ -264,7 +267,12 @@ class MacPlatform extends PlatformTarget
 							// when launched inside an .app file, the executable
 							// can't find the library files unless we tell
 							// it to search specifically from @executable_path
-							System.runCommand("", "install_name_tool", ["-change", Path.withoutDirectory(file), "@executable_path/" + Path.withoutDirectory(file), executablePath]);
+							System.runCommand("", "install_name_tool", [
+								"-change",
+								Path.withoutDirectory(file),
+								"@executable_path/" + Path.withoutDirectory(file),
+								executablePath
+							]);
 						default:
 					}
 				}
@@ -367,17 +375,12 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java" && sys.FileSystem.exists(executablePath))
+		if (System.hostPlatform != WINDOWS
+			&& targetType != "nodejs"
+			&& targetType != "java"
+			&& sys.FileSystem.exists(executablePath))
 		{
 			System.runCommand("", "chmod", ["755", executablePath]);
-		}
-	}
-
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
 		}
 	}
 
@@ -410,7 +413,7 @@ class MacPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -418,7 +421,8 @@ class MacPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -528,6 +532,8 @@ class MacPlatform extends PlatformTarget
 
 		// project = project.clone ();
 
+		prepareEmbeddedAssets();
+
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
@@ -536,17 +542,6 @@ class MacPlatform extends PlatformTarget
 		if (project.targetFlags.exists("json"))
 		{
 			project.haxeflags.push("--json " + targetDirectory + "/types.json");
-		}
-
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
 		}
 
 		var context = generateContext();
@@ -597,37 +592,7 @@ class MacPlatform extends PlatformTarget
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		for (asset in project.assets)
-		{
-			if (asset.embed != true)
-			{
-				if (asset.type != AssetType.TEMPLATE)
-				{
-					System.mkdir(Path.directory(Path.combine(contentDirectory, asset.targetPath)));
-					AssetHelper.copyAssetIfNewer(asset, Path.combine(contentDirectory, asset.targetPath));
-				}
-				else
-				{
-					System.mkdir(Path.directory(Path.combine(targetDirectory, asset.targetPath)));
-					AssetHelper.copyAsset(asset, Path.combine(targetDirectory, asset.targetPath), context);
-				}
-			}
-		}
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
+		copyProjectAssets(targetDirectory, contentDirectory);
 	}
 
 	@ignore public override function install():Void {}
@@ -679,10 +644,7 @@ class MacPlatform extends PlatformTarget
 
 		// these are the known directories where Homebrew installs its dependencies
 		// we may need to add more in the future, but this seems to be enough for now
-		var homebrewDirs = [
-			"/usr/local/opt/",
-			"/usr/local/Cellar/"
-		];
+		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/"];
 
 		// first, collect all executables, hdlls, and dylibs that were built
 		// by BuildHashlink.xml
@@ -747,7 +709,10 @@ class MacPlatform extends PlatformTarget
 								continue;
 							}
 						}
-						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool { return StringTools.startsWith(resolvedLibPath, dirPath); }))
+						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool
+						{
+							return StringTools.startsWith(resolvedLibPath, dirPath);
+						}))
 						{
 							homebrewDependencyPaths.push(libPath);
 							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);

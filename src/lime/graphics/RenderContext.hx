@@ -86,6 +86,13 @@ class RenderContext
 	#if (!lime_doc_gen || native || (js && html5))
 	public var webgl2(default, null):WebGL2RenderContext;
 	#end
+
+	/**
+		Access to the current Vulkan render API bootstrap helpers, if available
+	**/
+	#if (!lime_doc_gen || native)
+	public var vulkan(default, null):VulkanRenderContext;
+	#end
 	public var window(default, null):Window;
 
 	@:noCompletion private function new() {}

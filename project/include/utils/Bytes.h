@@ -20,6 +20,7 @@ namespace lime {
 		~Bytes ();
 
 		void ReadFile (const char* path);
+		bool TryResize (int size);
 		void Resize (int size);
 		void Set (value bytes);
 		void Set (const QuickVec<unsigned char> data);

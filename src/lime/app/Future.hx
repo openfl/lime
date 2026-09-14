@@ -81,7 +81,7 @@ import lime.utils.Log;
 				var promise = new Promise<T>();
 				promise.future = this;
 
-				FutureWork.run(work, promise);
+				FutureWork.runSimpleJob(work, promise);
 			}
 			else
 			#end
@@ -308,7 +308,6 @@ import lime.utils.Log;
 	}
 }
 
-#if (lime_threads && !html5)
 /**
 	The class that handles asynchronous `work` functions passed to `new Future()`.
 **/
@@ -319,26 +318,42 @@ import lime.utils.Log;
 @:dox(hide) class FutureWork
 {
 	private static var threadPool:ThreadPool;
-	private static var promises:Map<Int, {complete:Dynamic->Dynamic, error:Dynamic->Dynamic}>;
+	private static var promises:Map<Int, {complete:Dynamic->Dynamic, error:Dynamic->Dynamic, progress:Int->Int->Dynamic}>;
 
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
 	public static var activeJobs(get, never):Int;
 
+	@:allow(lime.app.Promise)
+	private static inline function cancelJob(id:Int):Void
+	{
+		threadPool.cancelJob(id);
+	}
+
+	#if (lime_threads && !html5)
 	@:allow(lime.app.Future)
-	private static function run<T>(work:Void->T, promise:Promise<T>):Void
+	private static function runSimpleJob<T>(work:Void->T, promise:Promise<T>):Void
+	{
+		run(threadPool_doWork, promise, work, MULTI_THREADED);
+	}
+	#end
+
+	@:allow(lime.app.Promise)
+	private static function run<T>(work:WorkFunction<State->WorkOutput->Void>, promise:Promise<T>, state:State, mode:ThreadMode):Int
 	{
 		if (threadPool == null)
 		{
 			threadPool = new ThreadPool(minThreads, maxThreads, MULTI_THREADED);
 			threadPool.onComplete.add(threadPool_onComplete);
 			threadPool.onError.add(threadPool_onError);
+			threadPool.onProgress.add(threadPool_onProgress);
 
 			promises = new Map();
 		}
 
-		var jobID:Int = threadPool.run(threadPool_doWork, work);
-		promises[jobID] = {complete: promise.complete, error: promise.error};
+		var jobID:Int = threadPool.run(work, state, mode);
+		promises[jobID] = {complete: promise.complete, error: promise.error, progress: promise.progress};
+		return jobID;
 	}
 
 	// Event Handlers
@@ -368,6 +383,15 @@ import lime.utils.Log;
 		promise.error(error);
 	}
 
+	private static function threadPool_onProgress(progress:{progress:Int, total:Int}):Void
+	{
+		// ThreadPool doesn't enforce types, so check manually
+		if (Type.typeof(progress) == TObject && Type.typeof(progress.progress) == TInt && Type.typeof(progress.total) == TInt)
+		{
+			promises[threadPool.activeJob.id].progress(progress.progress, progress.total);
+		}
+	}
+
 	// Getters & Setters
 	@:noCompletion private static inline function set_minThreads(value:Int):Int
 	{
@@ -392,4 +416,3 @@ import lime.utils.Log;
 		return threadPool != null ? threadPool.activeJobs : 0;
 	}
 }
-#end
