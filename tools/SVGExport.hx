@@ -79,7 +79,7 @@ class SVGExport
 			case LINUX:
 				var arguments = Sys.args();
 
-				if ( System.hostArchitecture == ARMV7 )
+				if (System.hostArchitecture == ARMV7)
 				{
 					untyped $loader.path = $array(path + "LinuxArm/", $loader.path);
 				}

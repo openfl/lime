@@ -7,10 +7,7 @@ class XCodeHelper
 {
 	// different computers may have different sets of simulators installed
 	// so there isn't necessarily a reasonable default for ipads
-	private static var DEFAULT_IPAD_SIMULATOR_NAMES = [
-		"ipad",
-		"ipad-air"
-	];
+	private static var DEFAULT_IPAD_SIMULATOR_NAMES = ["ipad", "ipad-air"];
 	private static var DEFAULT_IPAD_AIR_SIMULATOR_FALLBACK_REGEX = ~/ipad-air-.+/g;
 	private static var DEFAULT_IPAD_SIMULATOR_FALLBACK_REGEX = ~/ipad-.+/g;
 	// this should be a standard iPhone of a particular generation

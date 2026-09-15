@@ -31,9 +31,9 @@ class FileOutput extends haxe.io.Output
 		switch (pos)
 		{
 			case SeekBegin:
-			// this.pos = p;
+				// this.pos = p;
 			case SeekEnd:
-			// this.pos = cast Fs.fstatSync(fd).size + p;
+				// this.pos = cast Fs.fstatSync(fd).size + p;
 			case SeekCur:
 				// this.pos += p;
 		}

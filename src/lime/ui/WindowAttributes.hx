@@ -32,6 +32,7 @@ typedef WindowAttributes =
 		shared application frame profile.
 	**/
 	@:optional public var frameProfile:FrameProfile;
+
 	@:optional public var fullscreen:Bool;
 	@:optional public var height:Int;
 	@:optional public var hidden:Bool;
@@ -40,6 +41,7 @@ typedef WindowAttributes =
 	@:optional public var parameters:Dynamic;
 	@:optional public var resizable:Bool;
 	@:optional public var skipTaskbar:Bool;
+	@:optional public var transparent:Bool;
 	@:optional public var utility:Bool;
 	@:optional public var popupMenu:Bool;
 	@:optional public var tooltip:Bool;
