@@ -70,12 +70,13 @@ class HTML5Window
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
-	private var checkScale: Bool = false; // to cache the AllowHighDPI and DOM render check result
 	private var setHeight:Int;
 	private var setWidth:Int;
 	private var textInputEnabled:Bool;
 	private var textInputRect:Rectangle;
 	private var unusedTouchesPool = new List<Touch>();
+
+	private var checkScale: Bool = false; // to cache the AllowHighDPI and DOM render check result
 
 	private var __focusPending:Bool;
 
