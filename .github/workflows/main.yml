@@ -508,6 +508,68 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+  webassembly:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install Emscripten NDK
+        uses: emscripten-core/setup-emsdk@v16
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
+          haxelib install ../hxcpp-4.3.168.zip --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Configure Emscripten support
+        run: |
+          lime config EMSCRIPTEN_SDK $EMSDK/upstream/emscripten -eval
+          lime config -eval
+
+      - name: Rebuild Lime (WebAssembly)
+        run: |
+          lime rebuild webassembly -release -nocolor -verbose -nocffi -eval
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Emscripten-NDLL
+          path: |
+            ndll/Emscripten/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage webassembly -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio webassembly -release -verbose -nocolor -eval
+
   android:
     runs-on: ubuntu-22.04
     strategy:
@@ -598,6 +660,7 @@ jobs:
         working-directory: tests/vulkan-smoke
         run: |
           lime build android -release -verbose -nocolor -eval
+
   ios:
     runs-on: macos-14
     steps:
@@ -1118,7 +1181,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-22.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, vulkan-smoke, macos, macos-intel, neko-samples, windows]
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
