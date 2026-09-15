@@ -721,7 +721,7 @@ jobs:
           lime build SimpleAudio ios -release -nosign -verbose -nocolor -eval
 
   package-haxelib:
-    needs: [linux, vulkan-smoke, macos, macos-intel, windows, android, ios]
+    needs: [linux, macos, macos-intel, windows, android, ios]
     runs-on: ubuntu-22.04
     steps:
 
@@ -1181,7 +1181,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-22.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, linux-arm64, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
