@@ -147,7 +147,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		project.path(sdkPath);
 
-		System.runCommand("", "emcc", [
+		System.runCommand("", "em++", [
 			"-c",
 			"-fwasm-exceptions",
 			targetDirectory + "/obj/Main.cpp",
@@ -289,7 +289,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		// args.push ("../bin/index.html");
 
-		System.runCommand(targetDirectory + "/obj", "emcc", args, true, false, true);
+		System.runCommand(targetDirectory + "/obj", "em++", args, true, false, true);
 
 		if (FileSystem.exists(outputFile))
 		{
