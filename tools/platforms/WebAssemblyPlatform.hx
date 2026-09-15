@@ -215,6 +215,8 @@ class WebAssemblyPlatform extends PlatformTarget
 		// https://github.com/HaxeFoundation/hxcpp/blob/767fe94d19a041147c4f65dea02c89cb206a0758/toolchain/emscripten-toolchain.xml#L29-L33
 		args.push("-s");
 		args.push("BINARYEN_EXTRA_PASSES='--spill-pointers'");
+		// https://github.com/HaxeFoundation/hxcpp/commit/d7781f795158a4b6043138b61507ab99fe1ff2d7
+		args.push("--profiling-funcs");
 
 		args.push("-fwasm-exceptions");
 
