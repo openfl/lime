@@ -1,0 +1,14 @@
+{
+  "name": "hxargs",
+  "url": "https://github.com/Simn/hxargs",
+  "license": "MIT",
+  "tags": [
+    "cli",
+    "cross"
+  ],
+  "description": "A really small command line parser",
+  "version": "4.0.0",
+  "releasenote": "Minor type inference fix.",
+  "contributors": ["Simn", "ypid"],
+  "dependencies": { }
+}

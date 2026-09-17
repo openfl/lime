@@ -1,0 +1,15 @@
+{
+  "name": "snake-server",
+  "url": "https://bowlerhat.dev/",
+  "license": "Public",
+  "tags": ["tcp", "http", "server", "sys", "web"],
+  "description": "Create TCP/HTTP servers in Haxe, or start a simple HTTP static file server from the command line",
+  "version": "2.0.0",
+  "classPath": "src",
+  "main": "snake.Run",
+  "dependencies": {
+    "hxargs": ""
+  },
+  "contributors": ["bowlerhat"],
+  "releasenote": "See CHANGELOG"
+}

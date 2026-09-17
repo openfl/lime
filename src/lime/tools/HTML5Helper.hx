@@ -91,43 +91,98 @@ class HTML5Helper
 		{
 			System.openURL(project.app.url);
 		}
+		else if (project.targetFlags.exists("node"))
+		{
+			launchNodeHttpServer(project, path, port);
+		}
 		else
 		{
-			var templatePaths = [
-				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-			].concat(project.templatePaths);
-			var server = System.findTemplate(templatePaths, "bin/node/http-server/bin/http-server");
-
-			var args = [server, path, "-c-1", "--cors"];
-
-			if (project.targetFlags.exists("port"))
-			{
-				port = Std.parseInt(project.targetFlags.get("port"));
-			}
-
-			if (port != 0)
-			{
-				args.push("-p");
-				args.push(Std.string(port));
-				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
-			}
-			else
-			{
-				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
-			}
-
-			if (!project.targetFlags.exists("nolaunch"))
-			{
-				args.push("-o");
-			}
-
-			if (!Log.verbose)
-			{
-				args.push("--silent");
-			}
-
-			System.runCommand("", "node", args);
+			launchSnakeServer(project, path, port);
 		}
+	}
+
+	private static function launchSnakeServer(project:HXProject, path:String, port:Int = 0):Void
+	{
+		var snakeRoot = System.findTemplate(project.templatePaths, "bin/haxelibs/snake-server");
+		var hxargsRoot = System.findTemplate(project.templatePaths, "bin/haxelibs/hxargs");
+
+		var args = [
+			"-cp", Path.join([snakeRoot, "src"]),
+			"-cp", Path.join([hxargsRoot]),
+			"--main", "snake.Run",
+			"--run", "snake.Run",
+			"--directory", path,
+			"--no-cache",
+			"--cors"
+		];
+
+		if (project.targetFlags.exists("port"))
+		{
+			port = Std.parseInt(project.targetFlags.get("port"));
+		}
+
+		if (port != 0)
+		{
+			args.push("--port");
+			args.push(Std.string(port));
+			Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
+		}
+		else
+		{
+			args.push("--port");
+			args.push("3000");
+			Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
+		}
+
+		if (!project.targetFlags.exists("nolaunch"))
+		{
+			args.push("--open-browser");
+		}
+
+		if (!Log.verbose)
+		{
+			args.push("--silent");
+		}
+
+		System.runCommand("", "haxe", args);
+	}
+
+	private static function launchNodeHttpServer(project:HXProject, path:String, port:Int = 0):Void
+	{
+		var templatePaths = [
+			Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
+		].concat(project.templatePaths);
+		var server = System.findTemplate(templatePaths, "bin/node/http-server/bin/http-server");
+
+		var args = [server, path, "-c-1", "--cors"];
+
+		if (project.targetFlags.exists("port"))
+		{
+			port = Std.parseInt(project.targetFlags.get("port"));
+		}
+
+		if (port != 0)
+		{
+			args.push("-p");
+			args.push(Std.string(port));
+			Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
+		}
+		else
+		{
+			Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
+		}
+
+		if (!project.targetFlags.exists("nolaunch"))
+		{
+			args.push("-o");
+		}
+
+		if (!Log.verbose)
+		{
+			args.push("--silent");
+		}
+
+		System.runCommand("", "node", args);
 	}
 
 	public static function minify(project:HXProject, sourceFile:String):Bool
