@@ -152,18 +152,18 @@ class EmscriptenHTTPRequest
 			switch (context.loadType)
 			{
 				case LoadType.BINARY:
-					cast(context.promise, Promise<Bytes>).complete(bytes);
+					cast(context.promise, Promise<Dynamic>).complete(bytes);
 
 				case LoadType.TEXT:
 					var text = bytes.getString(0, bytes.length, UTF8);
-					cast(context.promise, Promise<String>).complete(text);
+					cast(context.promise, Promise<Dynamic>).complete(text);
 
 				case LoadType.IMAGE:
 					// For images, we need to decode the bytes
 					var img = new Image();
 					img.__fromBytes(bytes, function(image)
 					{
-						cast(context.promise, Promise<Image>).complete(image);
+						cast(context.promise, Promise<Dynamic>).complete(image);
 					});
 			}
 		}
@@ -173,12 +173,12 @@ class EmscriptenHTTPRequest
 			if (context.loadType == LoadType.BINARY)
 			{
 				errorResponse = new _HTTPRequestErrorResponse(fetch.status, bytes);
-				cast(context.promise, Promise<Bytes>).error(errorResponse);
+				cast(context.promise, Promise<Dynamic>).error(errorResponse);
 			}
 			else
 			{
 				errorResponse = new _HTTPRequestErrorResponse(fetch.status, bytes.getString(0, bytes.length, UTF8));
-				cast(context.promise, Promise<String>).error(errorResponse);
+				cast(context.promise, Promise<Dynamic>).error(errorResponse);
 			}
 		}
 	}
@@ -195,8 +195,8 @@ class EmscriptenHTTPRequest
 			var context = activeFetches.get(id);
 			if (fetch.totalBytes > 0)
 			{
-				if (context.loadType == LoadType.BINARY) cast(context.promise, Promise<Bytes>).progress(fetch.dataOffset + fetch.numBytes, fetch.totalBytes);
-				else if (context.loadType == LoadType.TEXT) cast(context.promise, Promise<String>).progress(fetch.dataOffset + fetch.numBytes,
+				if (context.loadType == LoadType.BINARY) cast(context.promise, Promise<Dynamic>).progress(fetch.dataOffset + fetch.numBytes, fetch.totalBytes);
+				else if (context.loadType == LoadType.TEXT) cast(context.promise, Promise<Dynamic>).progress(fetch.dataOffset + fetch.numBytes,
 					fetch.totalBytes);
 			}
 		}
@@ -225,9 +225,9 @@ class EmscriptenHTTPRequest
 		EmscriptenFetch.emscripten_fetch_close(Pointer.fromStar(fetchPtr));
 
 		var errorResponse = new _HTTPRequestErrorResponse(fetch.status, null);
-		if (context.loadType == LoadType.BINARY) cast(context.promise, Promise<Bytes>).error(errorResponse);
+		if (context.loadType == LoadType.BINARY) cast(context.promise, Promise<Dynamic>).error(errorResponse);
 		else
-			cast(context.promise, Promise<String>).error(errorResponse);
+			cast(context.promise, Promise<Dynamic>).error(errorResponse);
 	}
 }
 
