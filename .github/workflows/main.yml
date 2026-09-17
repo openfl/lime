@@ -241,6 +241,73 @@ jobs:
 
       - uses: krdlab/setup-haxe@v2
         with:
+          haxe-version: 4.3.7
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install utest --quiet
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (macOS)
+        run: |
+          lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: MacArm64-NDLL
+          path: |
+            ndll/MacArm64/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        run: |
+          lime test neko -release -verbose -nocolor
+          lime test mac -arm64 -release -verbose -nocolor
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      # - name: Build HelloWorld sample
+      #   run: |
+      #     lime create HelloWorld -verbose -nocolor
+      #     lime build HelloWorld macos -release -verbose -nocolor
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor
+          lime build SimpleImage macos -arm64 -release -verbose -nocolor
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor
+          lime build SimpleAudio macos -arm64 -release -verbose -nocolor
+
+  macos-intel:
+    runs-on: macos-15-intel
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - uses: krdlab/setup-haxe@v2
+        with:
           haxe-version: ${{ env.HAXE_VERSION }}
 
       - name: Set HAXEPATH
@@ -251,10 +318,6 @@ jobs:
         run: |
           set -euxo pipefail
 
-          if [ ! -x /usr/local/bin/brew ]; then
-            NONINTERACTIVE=1 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-          fi
-
           rm -f /usr/local/bin/2to3*
           rm -f /usr/local/bin/idle3*
           rm -f /usr/local/bin/pydoc3*
@@ -262,7 +325,7 @@ jobs:
           rm -f /usr/local/bin/pip3*
 
           for attempt in 1 2 3; do
-            if arch -x86_64 /usr/local/bin/brew update && arch -x86_64 /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
+            if /usr/local/bin/brew update && /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
               break
             fi
             if [ "$attempt" -eq 3 ]; then
@@ -287,8 +350,7 @@ jobs:
 
       - name: Rebuild Lime (macOS)
         run: |
-          lime rebuild macos -clean -release -64 -nocolor -verbose -nocffi
-          lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
+          lime rebuild macos -clean -release -x86_64 -nocolor -verbose -nocffi
 
       - name: Rebuild Lime (HashLink macOS)
         run: |
@@ -304,14 +366,6 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: MacArm64-NDLL
-          path: |
-            ndll/MacArm64/
-            !**/.gitignore
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v7
-        with:
           name: Mac64-Hashlink
           path: |
             templates/bin/hl/Mac64
@@ -322,7 +376,7 @@ jobs:
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
-          lime test mac -release -verbose -nocolor
+          lime test mac -x86_64 -release -verbose -nocolor
 
       - name: Install samples
         run: |
@@ -336,12 +390,12 @@ jobs:
       - name: Build SimpleImage sample
         run: |
           lime create SimpleImage -verbose -nocolor
-          lime build SimpleImage macos -release -verbose -nocolor
+          lime build SimpleImage macos -x86_64 -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
         run: |
           lime create SimpleAudio -verbose -nocolor
-          lime build SimpleAudio macos -release -verbose -nocolor
+          lime build SimpleAudio macos -x86_64 -release -verbose -nocolor
 
   windows:
     runs-on: windows-latest
@@ -454,6 +508,68 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+  webassembly:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install Emscripten NDK
+        uses: emscripten-core/setup-emsdk@v16
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
+          haxelib install ../hxcpp-4.3.168.zip --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Configure Emscripten support
+        run: |
+          lime config EMSCRIPTEN_SDK $EMSDK/upstream/emscripten -eval
+          lime config -eval
+
+      - name: Rebuild Lime (WebAssembly)
+        run: |
+          lime rebuild webassembly -release -nocolor -verbose -nocffi -eval
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Emscripten-NDLL
+          path: |
+            ndll/Emscripten/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage webassembly -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio webassembly -release -verbose -nocolor -eval
+
   android:
     runs-on: ubuntu-22.04
     strategy:
@@ -544,6 +660,7 @@ jobs:
         working-directory: tests/vulkan-smoke
         run: |
           lime build android -release -verbose -nocolor -eval
+
   ios:
     runs-on: macos-14
     steps:
@@ -604,7 +721,7 @@ jobs:
           lime build SimpleAudio ios -release -nosign -verbose -nocolor -eval
 
   package-haxelib:
-    needs: [linux, vulkan-smoke, macos, windows, android, ios]
+    needs: [linux, macos, macos-intel, windows, android, ios]
     runs-on: ubuntu-22.04
     steps:
 
@@ -1064,7 +1181,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-22.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, vulkan-smoke, macos, neko-samples, windows]
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, linux-arm64, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
     if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord

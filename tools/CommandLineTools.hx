@@ -990,6 +990,11 @@ class CommandLineTools
 			Log.println("  \x1b[1m-clean\x1b[0m -- Add a \"clean\" action before running the current command");
 		}
 
+		if (command == "build" || command == "test")
+		{
+			Log.println("  \x1b[1m-noupdate\x1b[0m -- Disable the \"update\" action before running the current command");
+		}
+
 		Log.println("  \x1b[1m-nocolor\x1b[0m -- Disable ANSI format codes in output");
 
 		if (command == "run" || command == "test")
@@ -1783,9 +1788,14 @@ class CommandLineTools
 			return null;
 		}
 
-		if (project == null || (command != "rebuild" && project.sources.length == 0 && !FileSystem.exists(project.app.main + ".hx")))
+		if (project == null)
 		{
 			Log.error("You must have a \"project.xml\" file or specify another valid project file when using the '" + command + "' command");
+			return null;
+		}
+		else if (command != "rebuild" && project.sources.length == 0 && !FileSystem.exists(project.app.main + ".hx"))
+		{
+			Log.error("Main class \"" + project.app.main + "\" not found. Expected: " + Log.accentColor + FileSystem.absolutePath(project.app.main + ".hx") + Log.resetColor + "\nDid you mean to include a <source /> element in your \"project.xml\" file?");
 			return null;
 		}
 

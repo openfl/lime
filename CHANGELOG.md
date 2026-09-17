@@ -14,6 +14,7 @@ Changelog
 - Added input event timestamps without changing listener signatures.
 - Added `Promise.completeAsync()`.
 - Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
+- Added `Font.isBold` and `Font.isItalic`.
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.

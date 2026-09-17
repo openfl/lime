@@ -162,6 +162,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_get_units_per_em(handle:Dynamic):Int;
 
+	@:cffi private static function lime_font_is_bold(handle:Dynamic):Bool;
+
+	@:cffi private static function lime_font_is_italic(handle:Dynamic):Bool;
+
 	@:cffi private static function lime_font_load(data:Dynamic):Dynamic;
 
 	@:cffi private static function lime_font_load_bytes(data:Dynamic):Dynamic;
@@ -802,6 +806,8 @@ class NativeCFFI
 	private static var lime_font_get_strikethrough_thickness = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
 		"lime_font_get_strikethrough_thickness", "oi", false));
 	private static var lime_font_get_units_per_em = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_font_get_units_per_em", "oi", false));
+	private static var lime_font_is_bold = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_font_is_bold", "ob", false));
+	private static var lime_font_is_italic = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_font_is_italic", "ob", false));
 	private static var lime_font_load = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load", "oo", false));
 	private static var lime_font_load_bytes = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_bytes", "oo", false));
 	private static var lime_font_load_file = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_font_load_file", "oo", false));
@@ -1276,6 +1282,8 @@ class NativeCFFI
 	private static var lime_font_get_strikethrough_position = CFFI.load("lime", "lime_font_get_strikethrough_position", 1);
 	private static var lime_font_get_strikethrough_thickness = CFFI.load("lime", "lime_font_get_strikethrough_thickness", 1);
 	private static var lime_font_get_units_per_em = CFFI.load("lime", "lime_font_get_units_per_em", 1);
+	private static var lime_font_is_bold = CFFI.load("lime", "lime_font_is_bold", 1);
+	private static var lime_font_is_italic = CFFI.load("lime", "lime_font_is_italic", 1);
 	private static var lime_font_load = CFFI.load("lime", "lime_font_load", 1);
 	private static var lime_font_load_bytes = CFFI.load("lime", "lime_font_load_bytes", 1);
 	private static var lime_font_load_file = CFFI.load("lime", "lime_font_load_file", 1);
@@ -1740,6 +1748,16 @@ class NativeCFFI
 	@:hlNative("lime", "hl_font_get_units_per_em") private static function lime_font_get_units_per_em(handle:CFFIPointer):Int
 	{
 		return 0;
+	}
+
+	@:hlNative("lime", "hl_font_is_bold") private static function lime_font_is_bold(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_font_is_italic") private static function lime_font_is_italic(handle:CFFIPointer):Bool
+	{
+		return false;
 	}
 
 	// @:hlNative("lime", "") private static function lime_font_load (data:Dynamic):Dynamic { return null; }

@@ -97,7 +97,8 @@ class PlatformTarget
 			rebuild();
 		}
 
-		if (command == "update" || command == "build" || command == "test")
+		if (command == "update"
+				|| ((command == "build" || command == "test") && !targetFlags.exists("noupdate")))
 		{
 			logCommand("update");
 

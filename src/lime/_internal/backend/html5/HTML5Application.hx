@@ -276,7 +276,18 @@ class HTML5Application
 
 	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
 	{
-		framePeriod = frameRate > 0 ? (1000.0 / frameRate) : -1;
+		if (frameRate == 0 || frameRate >= 60)
+		{
+			framePeriod = -1;
+		}
+		else if (frameRate > 0)
+		{
+			framePeriod = 1000.0 / frameRate;
+		}
+		else
+		{
+			framePeriod = 1000;
+		}
 	}
 
 	public function exec():Int

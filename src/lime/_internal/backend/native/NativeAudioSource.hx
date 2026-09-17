@@ -348,7 +348,7 @@ class NativeAudioSource
 
 	private function clearSDLSoundStream():Void
 	{
-		#if lime_sdl_sound
+		#if (lime_sdl_sound && !macro)
 		if (sdlSoundStream != null)
 		{
 			NativeCFFI.lime_sdl_sound_stream_clear(sdlSoundStream);
@@ -383,7 +383,7 @@ class NativeAudioSource
 
 	private function openSDLSoundStream():Bool
 	{
-		#if lime_sdl_sound
+		#if (lime_sdl_sound && !macro)
 		clearSDLSoundStream();
 
 		if (parent.buffer.__srcSDLSoundBytes != null)
@@ -441,7 +441,7 @@ class NativeAudioSource
 
 	private function resetSDLSoundStream(time:Int):Bool
 	{
-		#if lime_sdl_sound
+		#if (lime_sdl_sound && !macro)
 		if (time < 0)
 		{
 			time = 0;
@@ -721,7 +721,7 @@ class NativeAudioSource
 
 	private function readSDLSoundBuffer(length:Int):Int
 	{
-		#if lime_sdl_sound
+		#if (lime_sdl_sound && !macro)
 		if (sdlSoundStream == null || length <= 0 || streamByteRate <= 0)
 		{
 			return 0;

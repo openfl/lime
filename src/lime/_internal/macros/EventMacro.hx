@@ -87,85 +87,46 @@ class EventMacro
 				args.push({name: argName, type: typeArgs[i].t.toComplexType()});
 			}
 
-			var dispatch = macro
+			var dispatchListeners = macro
 				{
-					var previousTimestamp = __timestamp;
-					__timestamp = lime.system.System.getTimer();
-					canceled = false;
+					var listeners = __listeners;
+					var repeat = __repeat;
+					var i = 0;
 
-					try
+					while (i < listeners.length)
 					{
-						var listeners = __listeners;
-						var repeat = __repeat;
-						var i = 0;
+						listeners[i]($a{argNames});
 
-						while (i < listeners.length)
+						if (!repeat[i])
 						{
-							listeners[i]($a{argNames});
+							this.remove(cast listeners[i]);
+						}
+						else
+						{
+							i++;
+						}
 
-							if (!repeat[i])
-							{
-								this.remove(cast listeners[i]);
-							}
-							else
-							{
-								i++;
-							}
-
-							if (canceled)
-							{
-								break;
-							}
+						if (canceled)
+						{
+							break;
 						}
 					}
-					catch (e:Dynamic)
-					{
-						__timestamp = previousTimestamp;
-						throw e;
-					}
+				};
 
-					__timestamp = previousTimestamp;
-				}
+			// Keep listener exceptions on the original dispatch path without a cleanup wrapper.
+			var dispatch = macro
+				{
+					__timestamp = lime.system.System.getTimer();
+					canceled = false;
+					$dispatchListeners;
+				};
 
 			var timestampDispatch = macro
 				{
-					var previousTimestamp = __timestamp;
 					__timestamp = timestamp;
 					canceled = false;
-
-					try
-					{
-						var listeners = __listeners;
-						var repeat = __repeat;
-						var i = 0;
-
-						while (i < listeners.length)
-						{
-							listeners[i]($a{argNames});
-
-							if (!repeat[i])
-							{
-								this.remove(cast listeners[i]);
-							}
-							else
-							{
-								i++;
-							}
-
-							if (canceled)
-							{
-								break;
-							}
-						}
-					}
-					catch (e:Dynamic)
-					{
-						__timestamp = previousTimestamp;
-						throw e;
-					}
-
-					__timestamp = previousTimestamp;
-				}
+					$dispatchListeners;
+				};
 
 			var i = 0;
 			var field;

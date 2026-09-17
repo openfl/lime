@@ -86,6 +86,16 @@ class Font
 	 */
 	public var unitsPerEM:Int;
 
+	/**
+	 * Whether the font style is bold.
+	 */
+	public var isBold:Bool;
+
+	/**
+	 * Whether the font style is italic.
+	 */
+	public var isItalic:Bool;
+
 	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
 	#if lime_cffi
@@ -592,6 +602,8 @@ class Font
 			underlinePosition = other.underlinePosition;
 			underlineThickness = other.underlineThickness;
 			unitsPerEM = other.unitsPerEM;
+			isBold = other.isBold;
+			isItalic = other.isItalic;
 
 			__fontID = other.__fontID;
 			__fontPath = other.__fontPath;
@@ -649,6 +661,8 @@ class Font
 			strikethroughPosition = NativeCFFI.lime_font_get_strikethrough_position(src);
 			strikethroughThickness = NativeCFFI.lime_font_get_strikethrough_thickness(src);
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
+			isBold = NativeCFFI.lime_font_is_bold(src);
+			isItalic = NativeCFFI.lime_font_is_italic(src);
 		}
 		#end
 

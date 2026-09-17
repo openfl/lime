@@ -31,8 +31,8 @@ class Event<T>
 	public var canceled(default, null):Bool;
 
 	/**
-		The timestamp for the current dispatch, in milliseconds.
-		When read outside of a dispatch, this returns the current timer value.
+		The timestamp of the most recent dispatch, in milliseconds.
+		Before the first dispatch, this returns the current timer value.
 	**/
 	public var timestamp(get, never):Int;
 

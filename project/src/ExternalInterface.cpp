@@ -2556,6 +2556,54 @@ namespace lime {
 	}
 
 
+	bool lime_font_is_bold (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->IsBold ();
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_font_is_bold) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->IsBold ();
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	bool lime_font_is_italic (value fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		return font->IsItalic ();
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_font_is_italic) (HL_CFFIPointer* fontHandle) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+		return font->IsItalic ();
+		#else
+		return false;
+		#endif
+
+	}
+
+
 	value lime_font_load_bytes (value data) {
 
 		#ifdef LIME_FREETYPE
@@ -13369,6 +13417,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_font_get_strikethrough_position);
 	DEFINE_PRIME1 (lime_font_get_strikethrough_thickness);
 	DEFINE_PRIME1 (lime_font_get_units_per_em);
+	DEFINE_PRIME1 (lime_font_is_bold);
+	DEFINE_PRIME1 (lime_font_is_italic);
 	DEFINE_PRIME1 (lime_font_load);
 	DEFINE_PRIME1 (lime_font_load_bytes);
 	DEFINE_PRIME1 (lime_font_load_file);
@@ -13677,6 +13727,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_position, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_strikethrough_thickness, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_font_get_units_per_em, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_font_is_bold, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_font_is_italic, _TCFFIPOINTER);
 	// DEFINE_PRIME1 (lime_font_load);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_bytes, _TBYTES);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_font_load_file, _STRING);

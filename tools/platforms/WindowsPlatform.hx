@@ -974,6 +974,11 @@ class WindowsPlatform extends PlatformTarget
 			arguments = arguments.concat(["-livereload"]);
 			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);
 		}
+		else
+		{
+			arguments = [Path.withoutDirectory(executablePath)].concat(arguments.concat(["-livereload"]));
+			System.runCommand(applicationDirectory, "wine", arguments);
+		}
 	}
 
 	public override function update():Void

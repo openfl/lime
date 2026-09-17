@@ -1313,6 +1313,20 @@ namespace lime {
 	}
 
 
+	bool Font::IsBold () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD;
+
+	}
+
+
+	bool Font::IsItalic () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC;
+
+	}
+
+
 	int Font::RenderGlyph(int index, Bytes *bytes, int offset)
 	{
 		if (FT_Load_Glyph((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0)

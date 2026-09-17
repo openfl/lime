@@ -1120,6 +1120,7 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
+						ArrayTools.addUnique(processedHaxelibIncludes, HXProject.getHaxelibIncludeKey(haxelib));
 						merge(includeProject);
 					}
 

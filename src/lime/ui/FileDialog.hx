@@ -200,7 +200,7 @@ class FileDialog
 
 					var path = null;
 					#if (!macro && lime_cffi)
-					trace(defaultPath);
+					// trace(defaultPath);
 					path = CFFI.stringValue(NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath));
 					#end
 
