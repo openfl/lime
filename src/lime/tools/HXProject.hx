@@ -1292,7 +1292,9 @@ class HXProject extends Script
 			{
 				var path = Haxelib.pathOverrides.get(name);
 				var jsonPath = Path.combine(path, "haxelib.json");
+				var extraParamsPath = Path.combine(path, "extraParams.hxml");
 				var added = false;
+				var haxelibName:String = null;
 
 				try
 				{
@@ -1304,11 +1306,38 @@ class HXProject extends Script
 							path = Path.combine(path, json.classPath);
 						}
 
-						var haxelibName = json.name;
+						haxelibName = json.name;
 						compilerFlags = ArrayTools.concatUnique(compilerFlags, ["-D " + haxelibName + "=" + json.version], true);
 					}
 				}
 				catch (e:Dynamic) {}
+
+				// `haxelib path` prepends extraParams.hxml. A path override never
+				// calls it, so those flags (typically --macro) would be dropped.
+				if (FileSystem.exists(extraParamsPath))
+				{
+					for (line in File.getContent(extraParamsPath).split("\n"))
+					{
+						var arg = StringTools.trim(line);
+
+						if (arg != "" && StringTools.startsWith(arg, "-") && !StringTools.startsWith(arg, "-L"))
+						{
+							if (StringTools.startsWith(arg, "-D ") && arg.indexOf("=") == -1)
+							{
+								var defineName = arg.substr(3);
+
+								if (defineName != haxelibName)
+								{
+									compilerFlags = ArrayTools.concatUnique(compilerFlags, ["-D " + defineName], true);
+								}
+							}
+							else
+							{
+								compilerFlags = ArrayTools.concatUnique(compilerFlags, [arg], true);
+							}
+						}
+					}
+				}
 
 				var param = "-cp " + path;
 				compilerFlags.remove(param);
