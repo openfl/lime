@@ -1288,37 +1288,26 @@ class HXProject extends Script
 
 			// #if lime
 
+			var haxelibCwd = "";
+
 			if (Haxelib.pathOverrides.exists(name))
 			{
-				var path = Haxelib.pathOverrides.get(name);
-				var jsonPath = Path.combine(path, "haxelib.json");
-				var added = false;
-
-				try
+				haxelibCwd = app.path != null ? app.path : "bin";
+				if (!FileSystem.exists(haxelibCwd))
 				{
-					if (FileSystem.exists(jsonPath))
-					{
-						var json = Json.parse(File.getContent(jsonPath));
-						if (Reflect.hasField(json, "classPath"))
-						{
-							path = Path.combine(path, json.classPath);
-						}
-
-						var haxelibName = json.name;
-						compilerFlags = ArrayTools.concatUnique(compilerFlags, ["-D " + haxelibName + "=" + json.version], true);
-					}
+					FileSystem.createDirectory(haxelibCwd);
 				}
-				catch (e:Dynamic) {}
-
-				var param = "-cp " + path;
-				compilerFlags.remove(param);
-				compilerFlags.push(param);
+				if (!FileSystem.exists(Path.combine(haxelibCwd, ".haxelib")))
+				{
+					Haxelib.runCommand(haxelibCwd, ["newrepo"], true, true, false);
+				}
+				Haxelib.runProcess(haxelibCwd, ["dev", name, Haxelib.pathOverrides.get(name)], true, true, false);
 			}
-			else
+
 			{
 				var cache = Log.verbose;
 				Log.verbose = Haxelib.debug;
-				var output = Haxelib.runProcess("", ["path", name], true, true, true);
+				var output = Haxelib.runProcess(haxelibCwd, ["path", name], true, true, true);
 				Log.verbose = cache;
 
 				var split = output != null ? output.split("\n") : [];
