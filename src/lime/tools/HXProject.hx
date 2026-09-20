@@ -1305,10 +1305,16 @@ class HXProject extends Script
 			}
 
 			{
+				var cacheCwd = Sys.getCwd();
 				var cache = Log.verbose;
 				Log.verbose = Haxelib.debug;
 				var output = Haxelib.runProcess(haxelibCwd, ["path", name], true, true, true);
 				Log.verbose = cache;
+				// hxp 1.3.1 and earlier isn't guaranteed to restore cwd
+				if (haxelibCwd != "")
+				{
+					Sys.setCwd(cacheCwd);
+				}
 
 				var split = output != null ? output.split("\n") : [];
 				var haxelibName:String = null;
