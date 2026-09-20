@@ -1333,7 +1333,9 @@ class HXProject extends Script
 					}
 					notInstalledName = notInstalled.matched(1);
 					var notInstalledVersion = notInstalled.matched(2); // null if not matched, which is fine
-					var path = Haxelib.getPath(new Haxelib(notInstalledName, notInstalledVersion));
+					var path = Haxelib.pathOverrides.exists(notInstalledName)
+						? Haxelib.pathOverrides.get(notInstalledName)
+						: Haxelib.getPath(new Haxelib(notInstalledName, notInstalledVersion));
 					Haxelib.runCommand(haxelibCwd, ["dev", notInstalledName, path], true, true, false);
 				}
 			}
