@@ -1290,6 +1290,24 @@ class HXProject extends Script
 
 			var haxelibCwd = "";
 
+			function runHaxelibPath():String
+			{
+				var cacheCwd = Sys.getCwd();
+				var cache = Log.verbose;
+				Log.verbose = Haxelib.debug;
+				var output = Haxelib.runProcess(haxelibCwd, ["path", name], true, true, true, false, true);
+				Log.verbose = cache;
+				// hxp 1.3.1 and earlier isn't guaranteed to restore cwd
+				if (haxelibCwd != "")
+				{
+					Sys.setCwd(cacheCwd);
+				}
+
+				return output;
+			}
+
+			var haxelibOutput = null;
+
 			if (Haxelib.pathOverrides.exists(name))
 			{
 				haxelibCwd = app.path != null ? app.path : "bin";
@@ -1302,21 +1320,31 @@ class HXProject extends Script
 					Haxelib.runCommand(haxelibCwd, ["newrepo"], true, true, false);
 				}
 				Haxelib.runProcess(haxelibCwd, ["dev", name, Haxelib.pathOverrides.get(name)], true, true, false);
+
+				var notInstalled = ~/Error: Library (\S+?) (?:version (\d+) )?is not installed/;
+				var notInstalledName:String = null;
+				for (_ in 0...100)
+				{
+					haxelibOutput = runHaxelibPath();
+					if (haxelibOutput == null || !notInstalled.match(haxelibOutput)
+						|| notInstalledName == notInstalled.matched(1))
+					{
+						break;
+					}
+					notInstalledName = notInstalled.matched(1);
+					var notInstalledVersion = notInstalled.matched(2); // null if not matched, which is fine
+					var path = Haxelib.getPath(new Haxelib(notInstalledName, notInstalledVersion));
+					Haxelib.runCommand(haxelibCwd, ["dev", notInstalledName, path], true, true, false);
+				}
 			}
 
 			{
-				var cacheCwd = Sys.getCwd();
-				var cache = Log.verbose;
-				Log.verbose = Haxelib.debug;
-				var output = Haxelib.runProcess(haxelibCwd, ["path", name], true, true, true);
-				Log.verbose = cache;
-				// hxp 1.3.1 and earlier isn't guaranteed to restore cwd
-				if (haxelibCwd != "")
+				if (haxelibOutput == null)
 				{
-					Sys.setCwd(cacheCwd);
+					haxelibOutput = runHaxelibPath();
 				}
 
-				var split = output != null ? output.split("\n") : [];
+				var split = haxelibOutput != null ? haxelibOutput.split("\n") : [];
 				var haxelibName:String = null;
 
 				for (arg in split)
