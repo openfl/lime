@@ -219,21 +219,21 @@ class MacPlatform extends PlatformTarget
 			// ensure that the shell script is replaced by the template executable
 			System.deleteFile(executablePath);
 
-			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
+
+			// hashlink doesn't fully support arm64 yet, so even on
+			// arm64 machines, we're still defaulting to x86_64.
+			var isArm64 = targetFlags.exists("arm64");
+
+			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true, isArm64);
 
 			if (project.targetFlags.exists("hlc"))
 			{
-				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				// the libraries were compiled as x86_64, so if the build is
-				// happening on ARM64 instead, we need to ensure that the
-				// same architecture is used for the executable, so we specify
-				// the `-arch x86_64` option in the compiler command.
-				// if we ever support ARM or Universal binaries, this will
-				// need to be handled differently.
+				var compiler = targetFlags.exists("clang") ? "clang" : "gcc";
+				var arch = isArm64 ? "arm64" : "x86_64";
 				var command = [
 					compiler,
 					"-arch",
-					"x86_64",
+					arch,
 					"-O3",
 					"-o",
 					executablePath,
@@ -459,8 +459,14 @@ class MacPlatform extends PlatformTarget
 			case X64:
 				if (targetFlags.exists("hl"))
 				{
-					// TODO: Support single binary
-					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+					if (targetFlags.exists("arm64"))
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64", "-Dhashlink"]);
+					}
+					else
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+					}
 				}
 				else if (targetFlags.exists("arm64"))
 				{
@@ -479,8 +485,16 @@ class MacPlatform extends PlatformTarget
 			case ARM64:
 				if (targetFlags.exists("hl"))
 				{
-					// hashlink doesn't support arm64 macs yet
-					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+					// hashlink doesn't fully support arm64 yet, so even on
+					// arm64 machines, we're still defaulting to x86_64.
+					if (targetFlags.exists("arm64"))
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64", "-Dhashlink"]);
+					}
+					else
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+					}
 				}
 				else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
 				{
@@ -607,7 +621,12 @@ class MacPlatform extends PlatformTarget
 	{
 		if (targetFlags.exists("hl"))
 		{
-			// hashlink doesn't support arm64 macs yet
+			// hashlink doesn't fully support arm64 yet, so even on
+			// arm64 machines, we're still defaulting to x86_64.
+			if (targetFlags.exists("arm64"))
+			{
+				return "Arm64";
+			}
 			return "64";
 		}
 		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
