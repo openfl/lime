@@ -226,14 +226,14 @@ class MacPlatform extends PlatformTarget
 				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
 				// the libraries were compiled as x86_64, so if the build is
 				// happening on ARM64 instead, we need to ensure that the
-				// same architecture is used for the executable, so we wrap our
-				// compiler command with the `arch -x86_64` command.
+				// same architecture is used for the executable, so we specify
+				// the `-arch x86_64` option in the compiler command.
 				// if we ever support ARM or Universal binaries, this will
 				// need to be handled differently.
 				var command = [
-					"arch",
-					"-x86_64",
 					compiler,
+					"-arch",
+					"x86_64",
 					"-O3",
 					"-o",
 					executablePath,
