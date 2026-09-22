@@ -668,6 +668,10 @@ class HTML5Window
 			switch (event.type)
 			{
 				case "mousedown":
+					// A press reaching this element proves the window is frontmost and in use,
+					// even on a browser that left it marked hidden - see activate()'s doc comment.
+					parent.application.__backend.activate();
+
 					if (event.currentTarget == parent.element)
 					{
 						// while the mouse button is down, and the mouse has
@@ -841,6 +845,17 @@ class HTML5Window
 	private function handleTouchEvent(event:TouchEvent):Void
 	{
 		if (event.cancelable) event.preventDefault();
+
+		if (event.type == "touchstart")
+		{
+			// A touch reaching this element proves the window is frontmost and in use, even on a
+			// browser that left it marked hidden - see activate()'s doc comment. This is the path
+			// that matters most: preventDefault() above stops this touch from ever becoming the
+			// synthetic click some browsers use to notice a backgrounded page regained focus, so
+			// without this a canvas that only ever receives touches - true of most mobile play -
+			// could never leave the hidden state again after the first tab switch away from it.
+			parent.application.__backend.activate();
+		}
 
 		var rect = null;
 

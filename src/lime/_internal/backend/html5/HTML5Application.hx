@@ -490,6 +490,26 @@ class HTML5Application
 		accelerometer.onUpdate.dispatch(event.accelerationIncludingGravity.x, event.accelerationIncludingGravity.y, event.accelerationIncludingGravity.z);
 	}
 
+	/**
+		Dispatches ACTIVATE and clears the `hidden` latch, if it was set. Shared by every path
+		that can tell the window is in front and in use: a real "focus"/visible "visibilitychange"
+		event below, and a "mousedown"/"touchstart" reaching HTML5Window's element, which is
+		`@:access`-called directly on `parent.application.__backend` from there. A press cannot arrive
+		unless the window is frontmost, but some browsers can leave `hidden` stuck true regardless
+		- e.g. WebKit re-focusing a page natively on the first pointer gesture after it was
+		backgrounded, without ever dispatching a "focus" event lime can see - so treat one as proof
+		the window is active even when no "focus" event said so.
+	**/
+	private function activate():Void
+	{
+		if (hidden)
+		{
+			parent.window.onFocusIn.dispatch();
+			parent.window.onActivate.dispatch();
+			hidden = false;
+		}
+	}
+
 	private function handleWindowEvent(event:js.html.Event):Void
 	{
 		if (parent.window != null)
@@ -497,12 +517,7 @@ class HTML5Application
 			switch (event.type)
 			{
 				case "focus":
-					if (hidden)
-					{
-						parent.window.onFocusIn.dispatch();
-						parent.window.onActivate.dispatch();
-						hidden = false;
-					}
+					activate();
 
 				case "blur":
 					if (!hidden)
@@ -524,12 +539,7 @@ class HTML5Application
 					}
 					else
 					{
-						if (hidden)
-						{
-							parent.window.onFocusIn.dispatch();
-							parent.window.onActivate.dispatch();
-							hidden = false;
-						}
+						activate();
 					}
 
 				case "resize":
