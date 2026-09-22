@@ -52,7 +52,7 @@ class HashlinkHelper
 		}
 	}
 
-	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true)
+	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true, ?isArm = false)
 	{
 		var platform = project.target;
 		var bindir = switch project.target
@@ -65,6 +65,10 @@ class HashlinkHelper
 				Sys.exit(1);
 				"";
 		};
+		if (isArm)
+		{
+			bindir += "Arm";
+		}
 		if (is64)
 		{
 			bindir += "64";
