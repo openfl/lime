@@ -7,19 +7,23 @@ import lime.utils.ArrayBuffer;
 import utest.Assert;
 import utest.Test;
 
-class UInt16ArrayTest extends Test {
-	public function new() {
+class UInt16ArrayTest extends Test
+{
+	public function new()
+	{
 		super();
 	}
 
-	public function testByteLength():Void {
+	public function testByteLength():Void
+	{
 		var buffer = new ArrayBuffer(8);
 		var array = new UInt16Array(buffer);
 		Assert.equals(4, array.length);
 		Assert.equals(8, array.byteLength);
 	}
 
-	public function testValues():Void {
+	public function testValues():Void
+	{
 		var buffer = new ArrayBuffer(8);
 		var array = new UInt16Array(buffer);
 		Assert.equals(0x0, array[0]);
@@ -36,7 +40,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0xfbad, array[3]);
 	}
 
-	public function testSubarray():Void {
+	public function testSubarray():Void
+	{
 		var buffer = new ArrayBuffer(8);
 		var array = new UInt16Array(buffer);
 		array[0] = 0xcafe;
@@ -81,12 +86,13 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0xfbad, beyondLength[3]);
 	}
 
-	public function testSetArrayOfInts():Void {
+	public function testSetArrayOfInts():Void
+	{
 		var array1:Array<Int> = [0xcafe, 0xbabe, 0xdeca, 0xfbad];
 
 		var buffer2 = new ArrayBuffer(16);
 		var array2 = new UInt16Array(buffer2);
-		
+
 		array2.set(array1);
 		Assert.equals(0xcafe, array2[0]);
 		Assert.equals(0xbabe, array2[1]);
@@ -97,7 +103,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -111,11 +118,13 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		Assert.equals(0x0, array2[0]);
@@ -128,7 +137,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt8Array():Void {
+	public function testSetUInt8Array():Void
+	{
 		var buffer1 = new ArrayBuffer(4);
 		var array1 = new UInt8Array(buffer1);
 		array1[0] = 0xca;
@@ -150,7 +160,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 
 		// reset the array to all zeros
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -164,12 +175,14 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
 		// if the array can't fit, it throws
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		// in that case, none of the values should have been updated
@@ -183,7 +196,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt16Array():Void {
+	public function testSetUInt16Array():Void
+	{
 		var buffer1 = new ArrayBuffer(8);
 		var array1 = new UInt16Array(buffer1);
 		array1[0] = 0xcafe;
@@ -205,7 +219,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 
 		// reset the array to all zeros
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -219,12 +234,14 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
 		// if the array can't fit, it throws
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		// in that case, none of the values should have been updated
@@ -238,7 +255,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt32Array():Void {
+	public function testSetUInt32Array():Void
+	{
 		var buffer1 = new ArrayBuffer(16);
 		var array1 = new UInt32Array(buffer1);
 		array1[0] = 0xcafebabe;
@@ -260,7 +278,8 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 
 		// reset the array to all zeros
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -274,12 +293,14 @@ class UInt16ArrayTest extends Test {
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
 		// if the array can't fit, it throws
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		// in that case, none of the values should have been updated

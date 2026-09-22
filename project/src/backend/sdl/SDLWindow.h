@@ -3,6 +3,7 @@
 
 
 #include <SDL.h>
+#include <SDL_vulkan.h>
 #include <graphics/ImageBuffer.h>
 #include <ui/Cursor.h>
 #include <ui/Window.h>
@@ -62,7 +63,12 @@ namespace lime {
 			virtual bool SetVisible (bool visible);
 			virtual void WarpMouse (int x, int y);
 			virtual int GetVSyncInterval () const;
+			virtual int GetRequestedVSyncMode () const;
 			virtual double GetRefreshRate () const;
+			virtual uint64_t CreateVulkanSurface (uintptr_t instance);
+			virtual void GetVulkanDrawableSize (int* width, int* height);
+			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names);
+			virtual void* GetVulkanInstanceProcAddr ();
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
@@ -74,6 +80,7 @@ namespace lime {
 			int contextHeight;
 			int contextWidth;
 			int requestedVSyncMode;
+			bool useVulkan;
 
 	};
 

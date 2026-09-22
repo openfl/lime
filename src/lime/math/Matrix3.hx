@@ -70,9 +70,15 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		// Column-major order means adjacent values form a column, not a row.
 		this = new Float32Array([
-			a,  b,  0, // column 0
-			c,  d,  0, // column 1
-			tx, ty, 1  // column 2
+			a,
+			b,
+			0, // column 0
+			c,
+			d,
+			0, // column 1
+			tx,
+			ty,
+			1 // column 2
 		]);
 	}
 
@@ -561,7 +567,8 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		return this[0];
 	}
-	inline function set_a(value: Float):Float
+
+	inline function set_a(value:Float):Float
 	{
 		return this[0] = value;
 	}
@@ -570,7 +577,8 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		return this[1];
 	}
-	inline function set_b(value: Float):Float
+
+	inline function set_b(value:Float):Float
 	{
 		return this[1] = value;
 	}
@@ -579,7 +587,8 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		return this[3];
 	}
-	inline function set_c(value: Float):Float
+
+	inline function set_c(value:Float):Float
 	{
 		return this[3] = value;
 	}
@@ -588,7 +597,8 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		return this[4];
 	}
-	inline function set_d(value: Float):Float
+
+	inline function set_d(value:Float):Float
 	{
 		return this[4] = value;
 	}
@@ -597,7 +607,8 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		return this[6];
 	}
-	inline function set_tx(value: Float):Float
+
+	inline function set_tx(value:Float):Float
 	{
 		return this[6] = value;
 	}
@@ -606,7 +617,8 @@ abstract Matrix3(Float32Array) to Float32Array
 	{
 		return this[7];
 	}
-	inline function set_ty(value: Float):Float
+
+	inline function set_ty(value:Float):Float
 	{
 		return this[7] = value;
 	}

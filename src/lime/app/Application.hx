@@ -868,6 +868,7 @@ class Application extends Module
 		return __vsyncMode;
 	}
 
+	@:allow(lime.ui.Window)
 	@:noCompletion private function __seedFrameConfiguration(attributes:WindowAttributes):Void
 	{
 		if (__frameConfigured)

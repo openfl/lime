@@ -49,6 +49,7 @@ import ::APP_MAIN::;
 				parameters: ::parameters::,
 				resizable: ::resizable::,
 				title: "::title::",
+				transparent: ::transparent::,
 				width: ::width::,
 				x: ::x::,
 				y: ::y::,
@@ -62,7 +63,7 @@ import ::APP_MAIN::;
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
-				type: null,
+				type: ::if renderType::"::renderType::"::else::null::end::,
 				vsync: ::vsync::
 			};
 
