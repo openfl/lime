@@ -290,15 +290,24 @@
 
 		<section if="windows">
 			<compilerflag value="-I${HASHLINK_PATH}/include/libuv/include"/>
+			<compilerflag value="-I${HASHLINK_PATH}/include/libuv/src"/>
 			<compilerflag value="-DUV_EXPORTS"/>
 			<compilerflag value="-DBUILDING_UV_SHARED"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/fs-poll.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/idna.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/inet.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/random.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/strscpy.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/strtok.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/thread-common.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/threadpool.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/timer.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/uv-common.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/uv-data-getter-setters.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/version.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/async.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/core.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/detect-wakeup.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/dl.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/error.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/fs-event.c"/>
@@ -311,13 +320,10 @@
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/poll.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/process-stdio.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/process.c"/>
-			<file name="${HASHLINK_PATH}/include/libuv/src/win/req.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/signal.c"/>
-			<file name="${HASHLINK_PATH}/include/libuv/src/win/snprintf.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/stream.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/tcp.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/thread.c"/>
-			<file name="${HASHLINK_PATH}/include/libuv/src/win/timer.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/tty.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/udp.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/util.c"/>
@@ -345,6 +351,7 @@
 		<section if="windows">
 			<lib name="user32.lib" />
 			<lib name="ws2_32.lib" />
+			<lib name="winmm.lib" />
 		</section>
 	</target>
 
@@ -359,11 +366,13 @@
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
-		<lib name="libhl.lib" if="windows" />
 
-		<lib name="Advapi32.lib" if="windows" />
-		<lib name="Crypt32.lib" if="windows" />
-		<lib name="ws2_32.lib" if="windows" />
+		<section if="windows">
+			<lib name="libhl.lib" />
+			<lib name="Advapi32.lib" />
+			<lib name="Crypt32.lib" />
+			<lib name="ws2_32.lib" />
+		</section>
 
 		<vflag name="-framework" value="Security" if="mac || ios || tvos" />
 		<vflag name="-framework" value="CoreFoundation" if="mac || ios || tvos" />
@@ -379,8 +388,11 @@
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
-		<lib name="libhl.lib" if="windows" />
-		<lib name="ws2_32.lib" if="windows" />
+
+		<section if="windows">
+			<lib name="libhl.lib" />
+			<lib name="ws2_32.lib" />
+		</section>
 	</target>
 
 	<target id="fmt" output="fmt" tool="linker" toolid="dll">
@@ -460,11 +472,15 @@
 		<section if="windows">
 			<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" />
 			<lib name="libhl.lib" />
+			<lib name="ws2_32.lib" />
+			<lib name="advapi32.lib" />
 			<lib name="psapi.lib"/>
+			<lib name="user32.lib"/>
 			<lib name="iphlpapi.lib" />
 			<lib name="userenv.lib" />
-			<lib name="advapi32.lib" if="windows" />
-			<lib name="ws2_32.lib" if="windows" />
+			<lib name="dbghelp.lib" />
+			<lib name="ole32.lib" />
+			<lib name="shell32.lib" />
 		</section>
 	</target>
 
