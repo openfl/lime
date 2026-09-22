@@ -296,6 +296,12 @@ class HTML5Application
 		Browser.window.addEventListener("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener("focus", handleWindowEvent, false);
 		Browser.window.addEventListener("blur", handleWindowEvent, false);
+		// visibilitychange is a document event, not a window event (unlike focus/blur/resize
+		// above) - it is the only signal for a backgrounded tab that never gets its own
+		// focus/blur pair, e.g. switching tabs via a tab overview rather than a direct click.
+		// The "visibilitychange" arm below existed already but nothing dispatched it, so tabs
+		// hidden this way never DEACTIVATEd and could not resume - see issue #1401.
+		Browser.document.addEventListener("visibilitychange", handleWindowEvent, false);
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
 
