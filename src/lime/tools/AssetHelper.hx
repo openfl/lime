@@ -626,6 +626,14 @@ class AssetHelper
 						}
 					}
 
+					// Each swf process mkdirs this same cache directory. Two of them passing
+					// the exists() check together makes the second createDirectory fail
+					// (std@sys_create_dir), which is common on Windows and happens on Linux too.
+					if (targetDirectory != null && jobs.length > 0)
+					{
+						System.mkdir(Path.tryFullPath(targetDirectory) + "/obj/libraries");
+					}
+
 					runLibraryHandlers(project, jobs, true);
 				}
 				else
