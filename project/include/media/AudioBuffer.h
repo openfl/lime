@@ -40,6 +40,7 @@ namespace lime {
 
 		vdynamic* __srcAudio;
 		vdynamic* __srcBuffer;
+		int __srcBufferContext;
 		vdynamic* __srcCustom;
 		vdynamic* __srcHowl;
 		bool __isDisposed;

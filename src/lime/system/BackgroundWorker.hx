@@ -14,7 +14,6 @@ import neko.vm.Deque;
 import neko.vm.Thread;
 #end
 #end
-
 /**
 	A `BackgroundWorker` allows the execution of a function on a background thread, 
 	avoiding the blocking of the main thread. This is particularly useful for long-running 
@@ -24,7 +23,7 @@ import neko.vm.Thread;
 	- **Thread Support:** Only system targets (such as C++, Neko) support threading. 
 	- **Events:** The class uses the `Event` class to dispatch completion, error, 
 	  and progress notifications.
-	
+
 	@see `ThreadPool` for more advanced threading capabilities, including thread 
 	safety, HTML5 threads, and more robust handling of tasks.
 **/
@@ -62,7 +61,7 @@ class BackgroundWorker
 		Dispatched if an error occurs during the execution of the worker's task.
 	**/
 	public var onError = new Event<Dynamic->Void>();
-	
+
 	/**
 		Dispatched periodically during the worker's task to provide progress updates.
 	**/
@@ -154,7 +153,7 @@ class BackgroundWorker
 		}
 		#end
 	}
-	
+
 	/**
 		Sends a progress update message.
 		@param message An optional message to pass to the `onProgress` event.

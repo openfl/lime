@@ -826,6 +826,7 @@ namespace lime
 				gamepadEvent.type = GAMEPAD_AXIS_MOVE;
 				gamepadEvent.axis = event->caxis.axis;
 				gamepadEvent.id = event->caxis.which;
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				if (event->caxis.value > -analogAxisDeadZone && event->caxis.value < analogAxisDeadZone)
 				{
@@ -852,6 +853,7 @@ namespace lime
 				gamepadEvent.type = GAMEPAD_BUTTON_DOWN;
 				gamepadEvent.button = event->cbutton.button;
 				gamepadEvent.id = event->cbutton.which;
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				break;
@@ -861,6 +863,7 @@ namespace lime
 				gamepadEvent.type = GAMEPAD_BUTTON_UP;
 				gamepadEvent.button = event->cbutton.button;
 				gamepadEvent.id = event->cbutton.which;
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				break;
@@ -872,6 +875,7 @@ namespace lime
 
 					gamepadEvent.type = GAMEPAD_CONNECT;
 					gamepadEvent.id = SDLGamepad::GetInstanceID(event->cdevice.which);
+					gamepadEvent.timestamp = event->common.timestamp;
 
 					GamepadEvent::Dispatch(&gamepadEvent);
 				}
@@ -883,6 +887,7 @@ namespace lime
 
 				gamepadEvent.type = GAMEPAD_DISCONNECT;
 				gamepadEvent.id = event->cdevice.which;
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				SDLGamepad::Disconnect(event->cdevice.which);
@@ -1002,6 +1007,7 @@ namespace lime
 
 			keyEvent.keyCode = event->key.keysym.sym;
 			keyEvent.modifier = event->key.keysym.mod;
+			keyEvent.timestamp = event->common.timestamp;
 			keyEvent.windowID = event->key.windowID;
 
 			if (keyEvent.type == KEY_DOWN)

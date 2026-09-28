@@ -225,8 +225,7 @@ class FlashWindow
 				"middleMouseMove",
 				"middleMouseUp"
 				#if ((!openfl && !disable_flash_right_click)
-					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp"
-				#end
+					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp" #end
 			];
 
 			for (event in events)

@@ -35,10 +35,13 @@
 	<set name="LIME_SDL_ANGLE" value="1" if="winrt" />
 	<set name="LIME_SDL_SOUND" value="1" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
+	<set name="LIME_VULKAN" value="1" if="lime-vulkan" unless="no-vulkan || lime-no-vulkan" />
+	<set name="LIME_VULKAN" value="1" if="windows || linux || android" unless="no-vulkan || lime-no-vulkan || winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
 	<!-- <set name="LIME_VPX" value="1" />
 	<set name="LIME_WEBM" value="1" /> -->
 	<set name="LIME_ZLIB" value="1" />
+	<set name="OBJEXT" value="${OBJEXT}-vk" if="LIME_VULKAN" />
 
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
@@ -59,6 +62,10 @@
 		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
         <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
+		<compilerflag value="-DLIME_VULKAN" if="LIME_VULKAN" />
+		<compilerflag value="-I${VULKAN_SDK}/Include" if="windows VULKAN_SDK LIME_VULKAN" />
+		<compilerflag value="-I${VULKAN_SDK}/include" if="mac VULKAN_SDK LIME_VULKAN" />
+		<compilerflag value="-I${VULKAN_SDK}/include" if="linux VULKAN_SDK LIME_VULKAN" />
 
 		<file name="src/ExternalInterface.cpp" />
 
@@ -236,6 +243,7 @@
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/video/khronos/" />
 
 				<compilerflag value="-DHAVE_LIBC" />
 
@@ -270,6 +278,7 @@
 			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
+			<file name="src/graphics/vulkan/VKRenderer.cpp" if="LIME_VULKAN" />
 
 		</section>
 

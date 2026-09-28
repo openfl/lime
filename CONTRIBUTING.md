@@ -5,6 +5,38 @@ We welcome your feedback and input in how to make Lime better!
 
 If you are interested in discussing new features, the direction the project or how to integrate some change, please open an issue so we can talk about.
 
+## Issue Reporting Guidelines
+
+Please keep bug reports focused, reproducible and actionable. A good issue should describe one specific problem and include enough information for maintainers to reproduce it without guessing.
+
+Before opening an issue:
+
+ 1. Search existing open and closed issues to avoid duplicates.
+
+ 2. Test with the latest stable release and, when possible, the current development branch.
+
+ 3. Reduce the problem to the smallest project or code sample that still reproduces it.
+
+Bug reports should include:
+
+ 1. The exact Lime version, OpenFL version if applicable, Haxe version and target/runtime.
+
+ 2. The operating system, architecture and relevant hardware or driver details.
+
+ 3. A minimal project or code sample, including `project.xml` or `project.hxp`.
+
+ 4. Exact steps to reproduce the problem.
+
+ 5. The expected behavior and the actual behavior.
+
+ 6. Any relevant logs, console output, screenshots or videos.
+
+Please do not combine multiple unrelated problems in one issue. Open one issue per behavior so each report can be reproduced, discussed and fixed independently.
+
+Performance, timing and rendering reports need especially clear reproduction material. Include a minimal project, the exact frame rate/vsync/window settings, how the result was measured and whether the behavior reproduces across targets, machines or drivers.
+
+Issues based only on broad observations, speculation, generated code that has not been verified, or project-specific behavior without a minimal reproduction may be closed until enough information is provided.
+
  1. Fork the repository
  
  2. Make the desired change
