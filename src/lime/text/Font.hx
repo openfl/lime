@@ -96,6 +96,17 @@ class Font
 	 */
 	public var isItalic:Bool;
 
+	/**
+		May be used enable stem darkening when rendering this font. Stem
+		darkening is designed to increase legibility of a font. If a font's stem
+		is measured to be narrower than the specified minimum threshold, it will
+		be "darkened" by making it a bit bolder.
+
+		This property enables affects the font rendering engine on native
+		targets only. On other targets, enabling stem darkening has no effect.
+
+		@see `Font.stemDarkeningParameters`
+	**/
 	public var stemDarkening(default, set):Bool;
 
 	private function set_stemDarkening(enable:Bool):Bool
@@ -110,6 +121,22 @@ class Font
 		return stemDarkening;
 	}
 
+	/**
+		Configure the stem darkening parameters, which is an array of exactly
+		eight integers, consisting of four pairs of x and y values. The x value
+		is the stem width, and the y value is the darkening amount. The units of
+		each value is 1/1000th of a pixel (so 0.5 pixel would be passed as a
+		value of `500`).
+
+		All values must be positive. Each stem width (x) value must be larger
+		than the previous stem width value. Each darkening amount (y) value must
+		be smaller than the previous darkening amount value.
+
+		For complete details, see the
+		[FreeType darkening-parameters documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#darkening-parameters).
+
+		@see `Font.stemDarkening`
+	**/
 	public var stemDarkeningParameters(default, set):Array<Int>;
 
 	private function set_stemDarkeningParameters(params:Array<Int>):Array<Int>
