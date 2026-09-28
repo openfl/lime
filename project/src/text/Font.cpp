@@ -28,109 +28,135 @@
 
 unsigned long readNextChar (const char*& p)
 {
-	 // TODO: since UTF-8 is a variable-length
-	 // encoding, you should pass in the input
-	 // buffer's actual byte length so that you
-	 // can determine if a malformed UTF-8
-	 // sequence would exceed the end of the buffer...
+	// TODO: since UTF-8 is a variable-length
+	// encoding, you should pass in the input
+	// buffer's actual byte length so that you
+	// can determine if a malformed UTF-8
+	// sequence would exceed the end of the buffer...
 
-	 const unsigned char* ptr = (const unsigned char*) p;
-	 unsigned char c1, c2;
-	 unsigned long uc = 0;
-	 int seqlen;
+	const unsigned char* ptr = (const unsigned char*) p;
+	unsigned char c1, c2;
+	unsigned long uc = 0;
+	int seqlen;
 
-	 c1 = ptr[0];
+	c1 = ptr[0];
 
-	 if ((c1 & 0x80) == 0) {
+	if ((c1 & 0x80) == 0) {
+		uc = (unsigned long) (c1 & 0x7F);
+		seqlen = 1;
+	} else if ((c1 & 0xE0) == 0xC0) {
 
-		  uc = (unsigned long) (c1 & 0x7F);
-		  seqlen = 1;
+		uc = (unsigned long) (c1 & 0x1F);
+		seqlen = 2;
 
-	 } else if ((c1 & 0xE0) == 0xC0) {
+	} else if ((c1 & 0xF0) == 0xE0) {
 
-		  uc = (unsigned long) (c1 & 0x1F);
-		  seqlen = 2;
+		uc = (unsigned long) (c1 & 0x0F);
+		seqlen = 3;
 
-	 } else if ((c1 & 0xF0) == 0xE0) {
+	} else if ((c1 & 0xF8) == 0xF0) {
 
-		  uc = (unsigned long) (c1 & 0x0F);
-		  seqlen = 3;
+		uc = (unsigned long) (c1 & 0x07);
+		seqlen = 4;
 
-	 } else if ((c1 & 0xF8) == 0xF0) {
+	} else {
 
-		  uc = (unsigned long) (c1 & 0x07);
-		  seqlen = 4;
+		// malformed data, do something !!!
+		return (unsigned long) -1;
 
-	 } else {
+	}
 
-		  // malformed data, do something !!!
-		  return (unsigned long) -1;
+	for (int i = 1; i < seqlen; ++i) {
 
-	 }
+		c1 = ptr[i];
 
-	 for (int i = 1; i < seqlen; ++i) {
+		if ((c1 & 0xC0) != 0x80) {
 
-		  c1 = ptr[i];
+			// malformed data, do something !!!
+			return (unsigned long) -1;
 
-		  if ((c1 & 0xC0) != 0x80) {
+		}
+
+	}
+
+	switch (seqlen) {
+		case 2:
+			c1 = ptr[0];
+
+			if (!IS_IN_RANGE(c1, 0xC2, 0xDF)) {
 
 				// malformed data, do something !!!
 				return (unsigned long) -1;
 
-		  }
+			}
 
-	 }
+			break;
+		case 3:
+			c1 = ptr[0];
+			c2 = ptr[1];
 
-	 switch (seqlen) {
-		  case 2:
-				c1 = ptr[0];
+			switch (c1) {
+				case 0xE0:
+					if (!IS_IN_RANGE(c2, 0xA0, 0xBF)) {
+						// malformed data, do something !!!
+						return (unsigned long) -1;
+					}
+					break;
 
-				if (!IS_IN_RANGE(c1, 0xC2, 0xDF)) {
+				case 0xED:
+					if (!IS_IN_RANGE(c2, 0x80, 0x9F)) {
+						// malformed data, do something !!!
+						return (unsigned long) -1;
+					}
+					break;
 
-					 // malformed data, do something !!!
-					 return (unsigned long) -1;
+				default:
+					if (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF)) {
+						// malformed data, do something !!!
+						return (unsigned long) -1;
+					}
+					break;
+			}
 
-				}
+			break;
+		case 4:
+			c1 = ptr[0];
+			c2 = ptr[1];
 
-				break;
-		  case 3:
-				c1 = ptr[0];
-				c2 = ptr[1];
+			switch (c1) {
+				case 0xF0:
+					if (!IS_IN_RANGE(c2, 0x90, 0xBF)) {
+						// malformed data, do something !!!
+						return (unsigned long) -1;
+					}
+					break;
 
-				if (((c1 == 0xE0) && !IS_IN_RANGE(c2, 0xA0, 0xBF)) ||
-					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F)) ||
-					 (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF))) {
+				case 0xF4:
+					if (!IS_IN_RANGE(c2, 0x80, 0x8F)) {
+						// malformed data, do something !!!
+						return (unsigned long) -1;
+					}
+					break;
 
-					 // malformed data, do something !!!
-					 return (unsigned long) -1;
+				default:
+					if (!IS_IN_RANGE(c1, 0xF1, 0xF3)) {
+						// malformed data, do something !!!
+						return (unsigned long) -1;
+					}
+					break;
+			}
 
-				}
+			break;
+	}
 
-				break;
-		  case 4:
-				c1 = ptr[0];
-				c2 = ptr[1];
+	for (int i = 1; i < seqlen; ++i) {
 
-				if (((c1 == 0xF0) && !IS_IN_RANGE(c2, 0x90, 0xBF)) ||
-					 ((c1 == 0xF4) && !IS_IN_RANGE(c2, 0x80, 0x8F)) ||
-					 !IS_IN_RANGE(c1, 0xF1, 0xF3)) {
+		uc = ((uc << 6) | (unsigned long)(ptr[i] & 0x3F));
 
-					 // malformed data, do something !!!
-					 return (unsigned long) -1;
+	}
 
-				}
-
-				break;
-	 }
-
-	 for (int i = 1; i < seqlen; ++i) {
-
-		  uc = ((uc << 6) | (unsigned long)(ptr[i] & 0x3F));
-
-	 }
-
-	 p += seqlen;
-	 return uc;
+	p += seqlen;
+	return uc;
 }
 
 
