@@ -3,3 +3,4 @@
 -cppia ::CPPIA_FILE::
 --macro keep("::APP_MAIN::")
 -D final
+-D cppia
