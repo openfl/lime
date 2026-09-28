@@ -351,6 +351,9 @@ class IOSPlatform extends PlatformTarget
 		context.ADDL_PBX_FILE_REFERENCE = "";
 		context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE = "";
 		context.ADDL_PBX_FRAMEWORK_GROUP = "";
+		context.ADDL_PBX_COPY_FILES_BUILD_PHASE = "";
+		context.ADDL_PBX_BUILD_PHASE_LIST = "";
+		context.ADDL_PBX_RUNPATH_SEARCH_PATHS = "";
 
 		context.frameworkSearchPaths = [];
 
@@ -398,6 +401,22 @@ class IOSPlatform extends PlatformTarget
 					+ "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
+
+				if (dependency.embed)
+				{
+					var copyID = StringTools.getUniqueID();
+					var copyFileID = "37E717FD2D8D9CDF" + copyID;
+					var copyPhaseID = "37E717FC2D8D9CCB" + copyID;
+					context.ADDL_PBX_BUILD_FILE += "		" + copyFileID + " /* " + name + " in CopyFiles */ = {isa = PBXBuildFile; fileRef = " + fileID + " /* "
+					+ name + " */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };\n";
+
+					context.ADDL_PBX_COPY_FILES_BUILD_PHASE += "		" + copyPhaseID + " /* CopyFiles */ = {\n			isa = PBXCopyFilesBuildPhase;\n			buildActionMask = 2147483647;\n			dstPath = \"\";\n			dstSubfolderSpec = 10;\n			files = (\n				" 
+					+ copyFileID + " /* " + name + " in CopyFiles */,\n			);\n			runOnlyForDeploymentPostprocessing = 0;\n			};\n";
+
+					context.ADDL_PBX_BUILD_PHASE_LIST += "\n				" + copyPhaseID + " /* CopyFiles */,";
+
+					context.ADDL_PBX_RUNPATH_SEARCH_PATHS = "LD_RUNPATH_SEARCH_PATHS = (\n\"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST))\",\n\"@executable_path/Frameworks\",\n);";
+				}
 			}
 		}
 
