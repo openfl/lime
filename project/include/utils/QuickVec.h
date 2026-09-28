@@ -270,7 +270,10 @@ namespace lime {
 							mAlloc *= 2;
 						else
 							mAlloc = 16;
-						mPtr = (T_*)realloc(mPtr, sizeof(T_)*mAlloc);
+						T_ *newPtr = (T_*)realloc(mPtr, sizeof(T_)*mAlloc);
+						if (!newPtr)
+							abort();
+						mPtr = newPtr;
 					}
 				}
 			}
