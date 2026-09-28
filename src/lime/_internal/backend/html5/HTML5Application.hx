@@ -69,8 +69,13 @@ class HTML5Application
 		//
 		// Note: Android behaves more similarly to desktop than to iOS.
 
+		#if haxe4
 		preferVisibilityChange = js.Lib.typeof(Browser.document.visibilityState) == "string"
 			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#else
+		preferVisibilityChange = untyped __js__ ('typeof document.visibilityState === "string"')
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#end
 		if (preferVisibilityChange)
 		{
 			hidden = Browser.document.hidden;
