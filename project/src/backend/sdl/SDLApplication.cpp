@@ -755,7 +755,35 @@ namespace lime
 
 		case SDL_QUIT:
 
-			active = false;
+			// SDL raises SDL_QUIT for exits the application did not initiate itself:
+			// SIGTERM / SIGINT through its default signal handlers, Cmd+Q on macOS.
+			// Stopping the loop here skips the Haxe side entirely: Window.onClose,
+			// Application.onExit (documented as cancelable, but dispatched only after
+			// Exec has already returned) and anything built on them, such as OpenFL's
+			// NativeApplication "exiting". Route the quit as a close request on every
+			// open window instead, so the same cancelable chain runs as for a click on
+			// the close button. Only stop the loop outright when nothing is open; SDL
+			// also raises SDL_QUIT when the last window goes away.
+			if (windows.empty () || !WindowEvent::callback)
+			{
+				active = false;
+				break;
+			}
+
+			{
+				// Closing a window unregisters it, so iterate over a copy.
+				std::vector<SDLWindow*> openWindows (windows);
+
+				for (std::vector<SDLWindow*>::const_iterator iter = openWindows.begin (); iter != openWindows.end (); ++iter)
+				{
+					if (!(*iter)->sdlWindow) continue;
+
+					windowEvent.type = WINDOW_CLOSE;
+					windowEvent.windowID = SDL_GetWindowID ((*iter)->sdlWindow);
+					WindowEvent::Dispatch (&windowEvent);
+				}
+			}
+
 			break;
 		}
 	}
