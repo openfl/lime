@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <exception>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
@@ -46,6 +47,8 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
+			void SetModalCallbacks (ValuePointer* update, ValuePointer* render, ValuePointer* window, ValuePointer* rethrow);
+			void DeferModalException ();
 #endif
 
 		private:
@@ -64,6 +67,7 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
 			static int ModalEventWatch (void* userdata, SDL_Event* event);
+			void CheckModalException (bool blocking = false);
 #endif
 			void ProcessClipboardEvent (SDL_Event* event);
 			void ProcessDropEvent (SDL_Event* event);
@@ -134,6 +138,8 @@ namespace lime {
 			bool busyWaitOnly;
 			ClipboardEvent clipboardEvent;
 			double currentUpdate;
+			double deltaRemainder;
+			Uint64 dispatchedFrames;
 			double displayRefreshRate;
 			double framePeriod;
 			Uint32 initFlags;
@@ -149,6 +155,10 @@ namespace lime {
 			double nextUpdate;
 			OrientationEvent orientationEvent;
 			Uint64 performanceFrequency;
+			Uint64 clockStartCounter;
+			Uint64 clockStartTicks;
+			mutable Uint32 clockLastTicks;
+			mutable Uint64 clockElapsedTicks;
 			bool realVSyncActive;
 			int requestedBusyWaitMode;
 			double requestedFrameRate;
@@ -168,6 +178,9 @@ namespace lime {
 			std::vector<SDLWindow*> windows;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			bool modalWatchInstalled;
+			ValuePointer* modalCallbacks[4];
+			bool modalExceptionPending;
+			std::exception_ptr modalNativeException;
 			Uint32 mainThreadID;
 			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;
 #endif
