@@ -341,6 +341,7 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
 		<file name="src/media/containers/WAV.cpp" />
+		<file name="src/media/video/AVFVideoBackend.mm" if="mac || ios" />
 		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
 		<file name="src/media/video/VideoDecoder.cpp" />
 		<file name="src/media/video/VideoDecoderBindings.cpp" />
@@ -518,9 +519,11 @@
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
+				<vflag name="-framework" value="AVFoundation" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="Cocoa" />
 				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreMedia" />
 				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
