@@ -2,6 +2,7 @@
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
 #include "SDLMenu.h"
+#include "SDLTrayIcon.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -811,8 +812,9 @@ namespace lime
 
 		default:
 
-			// Menu selections queued by SDLMenu use a registered event type
+			// Menu and tray icon events queued by SDLMenu use a registered event type
 			ProcessMenuEvent(event);
+			ProcessTrayIconEvent(event);
 			break;
 		}
 	}
@@ -1319,6 +1321,24 @@ namespace lime
 	}
 #endif
 
+	void SDLApplication::ProcessTrayIconEvent(SDL_Event *event)
+	{
+
+		int id;
+		int type;
+		int itemID;
+
+		if (TrayIconEvent::callback && SDLMenu::GetTrayIconEvent(event, &id, &type, &itemID))
+		{
+
+			trayIconEvent.type = (TrayIconEventType)type;
+			trayIconEvent.id = id;
+			trayIconEvent.itemID = itemID;
+
+			TrayIconEvent::Dispatch(&trayIconEvent);
+		}
+	}
+
 	void SDLApplication::ProcessWindowEvent(SDL_Event *event, bool currentSize)
 	{
 
@@ -1492,6 +1512,8 @@ namespace lime
 
 	bool SDLApplication::Update()
 	{
+
+		SDLTrayIcon::Update();
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		CheckModalException();

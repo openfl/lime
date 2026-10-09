@@ -1,4 +1,6 @@
 #include "SDLMenu.h"
+#include "SDLTrayIcon.h"
+#include <stdint.h>
 
 
 namespace lime {
@@ -11,8 +13,16 @@ namespace lime {
 	//
 	// Labels are UTF-8, with "&" marking the mnemonic and "&&" for a literal ampersand.
 
+	enum MenuEventKind {
+
+		MENU_EVENT_SELECTION = 1,
+		MENU_EVENT_TRAY_ICON = 2
+
+	};
+
+
 	static const int MAX_MENU_DEPTH = 32;
-	static Uint32 selectionEventType = 0;
+	static Uint32 menuEventType = 0;
 
 
 	static bool ReadInt (const unsigned char* data, int length, int* position, int* result) {
@@ -60,6 +70,13 @@ namespace lime {
 		}
 
 		return true;
+
+	}
+
+
+	TrayIcon* CreateTrayIcon () {
+
+		return new SDLTrayIcon ();
 
 	}
 
@@ -115,7 +132,7 @@ namespace lime {
 
 	bool SDLMenu::GetSelection (SDL_Event* event, Uint32* windowID, int* id) {
 
-		if (selectionEventType != 0 && event->type == selectionEventType) {
+		if (menuEventType != 0 && event->type == menuEventType && (intptr_t)event->user.data1 == MENU_EVENT_SELECTION) {
 
 			*windowID = event->user.windowID;
 			*id = event->user.code;
@@ -128,6 +145,18 @@ namespace lime {
 	}
 
 
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* trayIconID, int* type, int* itemID) {
+
+		if (menuEventType == 0 || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_TRAY_ICON) return false;
+
+		*trayIconID = (int)event->user.windowID;
+		*type = event->user.code;
+		*itemID = (int)(intptr_t)event->user.data2;
+		return true;
+
+	}
+
+
 	bool SDLMenu::Parse (const unsigned char* data, int length, std::vector<SDLMenuItem>* items) {
 
 		int position = 0;
@@ -136,18 +165,18 @@ namespace lime {
 	}
 
 
-	void SDLMenu::PushSelection (Uint32 windowID, int id) {
+	void SDLMenu::PushEvent (int kind, Uint32 target, int code, int value) {
 
-		if (selectionEventType == 0) {
+		if (menuEventType == 0) {
 
-			selectionEventType = SDL_RegisterEvents (1);
+			menuEventType = SDL_RegisterEvents (1);
 
 			// SDLApplication treats SDL_USEREVENT as a frame request, so never share it
-			if (selectionEventType == SDL_USEREVENT) selectionEventType = SDL_RegisterEvents (1);
+			if (menuEventType == SDL_USEREVENT) menuEventType = SDL_RegisterEvents (1);
 
-			if (selectionEventType == (Uint32)-1) {
+			if (menuEventType == (Uint32)-1) {
 
-				selectionEventType = 0;
+				menuEventType = 0;
 				return;
 
 			}
@@ -156,10 +185,33 @@ namespace lime {
 
 		SDL_Event event;
 		SDL_zero (event);
-		event.type = selectionEventType;
-		event.user.windowID = windowID;
-		event.user.code = id;
+		event.type = menuEventType;
+		event.user.windowID = target;
+		event.user.code = code;
+		event.user.data1 = (void*)(intptr_t)kind;
+		event.user.data2 = (void*)(intptr_t)value;
 		SDL_PushEvent (&event);
+
+	}
+
+
+	void SDLMenu::PushSelection (Uint32 windowID, int id) {
+
+		PushEvent (MENU_EVENT_SELECTION, windowID, id, 0);
+
+	}
+
+
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {
+
+		PushEvent (MENU_EVENT_TRAY_ICON, (Uint32)trayIconID, type, itemID);
+
+	}
+
+
+	int SDLTrayIcon::GetID () {
+
+		return id;
 
 	}
 
@@ -202,6 +254,50 @@ namespace lime {
 		return false;
 
 	}
+
+
+	bool TrayIcon::IsSupported () {
+
+		return false;
+
+	}
+
+
+	SDLTrayIcon::SDLTrayIcon () {
+
+		id = 0;
+		platform = 0;
+
+	}
+
+
+	SDLTrayIcon::~SDLTrayIcon () {}
+
+
+	void SDLTrayIcon::Close () {}
+
+
+	int SDLTrayIcon::PopupMenu (const unsigned char* data, int length) {
+
+		return 0;
+
+	}
+
+
+	void SDLTrayIcon::SetIcon (ImageBuffer* imageBuffer) {}
+
+
+	bool SDLTrayIcon::SetMenu (const unsigned char* data, int length) {
+
+		return false;
+
+	}
+
+
+	void SDLTrayIcon::SetTooltip (const char* tooltip) {}
+
+
+	void SDLTrayIcon::Update () {}
 
 #endif
 

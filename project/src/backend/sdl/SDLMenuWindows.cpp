@@ -2,9 +2,16 @@
 
 #ifdef LIME_SDL_MENU_WIN32
 
+// Native menus and tray icons for Windows
+
+#include "SDLTrayIcon.h"
+#include <ui/TrayIconEvent.h>
 #include <SDL_syswm.h>
 #include <windows.h>
+#include <windowsx.h>
+#include <shellapi.h>
 #include <map>
+#include <vector>
 #undef CreateWindow
 
 
@@ -293,6 +300,348 @@ namespace lime {
 		return true;
 
 	}
+
+
+	bool TrayIcon::IsSupported () {
+
+		return true;
+
+	}
+
+
+	// Tray icons use Shell_NotifyIcon, with a hidden window that receives their notifications
+	// and owns their context menus. It is a top-level window (not message-only) so that it can
+	// take the foreground, which a tray context menu needs to close when clicking elsewhere.
+
+	struct Win32TrayIcon {
+
+		HICON icon;
+		POINT anchor;
+		bool hasAnchor;
+		std::wstring tooltip;
+
+	};
+
+
+	static const UINT TRAY_ICON_MESSAGE = WM_APP + 1;
+	static const wchar_t* TRAY_ICON_WINDOW_CLASS = L"LimeTrayIconWindow";
+
+	static int nextTrayIconID = 0;
+	static UINT taskbarCreatedMessage = 0;
+	static HWND trayIconWindow = NULL;
+	static std::map<int, SDLTrayIcon*> trayIcons;
+
+
+	static bool UpdateNotifyIcon (SDLTrayIcon* trayIcon, DWORD action);
+
+
+	static LRESULT CALLBACK TrayIconWindowProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
+		if (message == TRAY_ICON_MESSAGE) {
+
+			// With NOTIFYICON_VERSION_4, the event is in the low word and the icon ID in the high word
+			int id = HIWORD (lParam);
+			std::map<int, SDLTrayIcon*>::iterator it = trayIcons.find (id);
+
+			if (it != trayIcons.end () && it->second->platform) {
+
+				Win32TrayIcon* data = (Win32TrayIcon*)it->second->platform;
+
+				switch (LOWORD (lParam)) {
+
+					case NIN_SELECT:
+					case NIN_KEYSELECT:
+
+						SDLMenu::PushTrayIconEvent (id, TRAY_ICON_CLICK, 0);
+						break;
+
+					case WM_CONTEXTMENU:
+
+						data->anchor.x = GET_X_LPARAM (wParam);
+						data->anchor.y = GET_Y_LPARAM (wParam);
+						data->hasAnchor = true;
+						SDLMenu::PushTrayIconEvent (id, TRAY_ICON_RIGHT_CLICK, 0);
+						break;
+
+					default: break;
+
+				}
+
+			}
+
+			return 0;
+
+		}
+
+		if (taskbarCreatedMessage != 0 && message == taskbarCreatedMessage) {
+
+			// Explorer restarted, so the icons have to be added again
+			for (std::map<int, SDLTrayIcon*>::iterator it = trayIcons.begin (); it != trayIcons.end (); ++it) {
+
+				UpdateNotifyIcon (it->second, NIM_ADD);
+
+			}
+
+			return 0;
+
+		}
+
+		return DefWindowProcW (hwnd, message, wParam, lParam);
+
+	}
+
+
+	static HWND GetTrayIconWindow () {
+
+		if (trayIconWindow) return trayIconWindow;
+
+		HINSTANCE instance = NULL;
+		GetModuleHandleExW (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)&TrayIconWindowProc, &instance);
+
+		WNDCLASSEXW windowClass;
+		ZeroMemory (&windowClass, sizeof (windowClass));
+		windowClass.cbSize = sizeof (windowClass);
+		windowClass.lpfnWndProc = TrayIconWindowProc;
+		windowClass.hInstance = instance;
+		windowClass.lpszClassName = TRAY_ICON_WINDOW_CLASS;
+		RegisterClassExW (&windowClass);
+
+		trayIconWindow = CreateWindowExW (WS_EX_TOOLWINDOW, TRAY_ICON_WINDOW_CLASS, L"", WS_POPUP, 0, 0, 0, 0, NULL, NULL, instance, NULL);
+		taskbarCreatedMessage = RegisterWindowMessageW (L"TaskbarCreated");
+
+		return trayIconWindow;
+
+	}
+
+
+	static HICON GetDefaultIcon () {
+
+		int size = GetSystemMetrics (SM_CXSMICON);
+
+		// Lime executables embed the application icon as resource 1
+		HICON icon = (HICON)LoadImageW (GetModuleHandleW (NULL), MAKEINTRESOURCEW (1), IMAGE_ICON, size, size, LR_SHARED);
+		return icon ? icon : LoadIcon (NULL, IDI_APPLICATION);
+
+	}
+
+
+	static HICON CreateIconFromImage (ImageBuffer* imageBuffer) {
+
+		if (!imageBuffer || !imageBuffer->data || !imageBuffer->data->buffer || imageBuffer->width <= 0 || imageBuffer->height <= 0 || imageBuffer->bitsPerPixel != 32) {
+
+			return NULL;
+
+		}
+
+		int width = imageBuffer->width;
+		int height = imageBuffer->height;
+
+		if (imageBuffer->data->buffer->length < imageBuffer->Stride () * height) return NULL;
+
+		BITMAPV5HEADER header;
+		ZeroMemory (&header, sizeof (header));
+		header.bV5Size = sizeof (header);
+		header.bV5Width = width;
+		header.bV5Height = -height;
+		header.bV5Planes = 1;
+		header.bV5BitCount = 32;
+		header.bV5Compression = BI_BITFIELDS;
+		header.bV5RedMask = 0x00FF0000;
+		header.bV5GreenMask = 0x0000FF00;
+		header.bV5BlueMask = 0x000000FF;
+		header.bV5AlphaMask = 0xFF000000;
+
+		void* bits = NULL;
+		HDC dc = GetDC (NULL);
+		HBITMAP color = CreateDIBSection (dc, (BITMAPINFO*)&header, DIB_RGB_COLORS, &bits, NULL, 0);
+		ReleaseDC (NULL, dc);
+
+		if (!color) return NULL;
+
+		// Lime images are RGBA, Windows bitmaps are BGRA
+		const unsigned char* source = imageBuffer->data->buffer->b;
+		unsigned char* dest = (unsigned char*)bits;
+		int stride = imageBuffer->Stride ();
+
+		for (int y = 0; y < height; y++) {
+
+			const unsigned char* sourceRow = source + y * stride;
+			unsigned char* destRow = dest + y * width * 4;
+
+			for (int x = 0; x < width; x++) {
+
+				destRow[x * 4 + 0] = sourceRow[x * 4 + 2];
+				destRow[x * 4 + 1] = sourceRow[x * 4 + 1];
+				destRow[x * 4 + 2] = sourceRow[x * 4 + 0];
+				destRow[x * 4 + 3] = sourceRow[x * 4 + 3];
+
+			}
+
+		}
+
+		// The alpha channel is used for transparency, so the mask only needs to exist
+		std::vector<unsigned char> maskBits (((width + 15) / 16) * 2 * height, 0);
+		HBITMAP mask = CreateBitmap (width, height, 1, 1, &maskBits[0]);
+
+		ICONINFO info;
+		info.fIcon = TRUE;
+		info.xHotspot = 0;
+		info.yHotspot = 0;
+		info.hbmMask = mask;
+		info.hbmColor = color;
+
+		HICON icon = CreateIconIndirect (&info);
+
+		DeleteObject (mask);
+		DeleteObject (color);
+		return icon;
+
+	}
+
+
+	static bool UpdateNotifyIcon (SDLTrayIcon* trayIcon, DWORD action) {
+
+		Win32TrayIcon* data = (Win32TrayIcon*)trayIcon->platform;
+
+		if (!data) return false;
+
+		NOTIFYICONDATAW notifyIcon;
+		ZeroMemory (&notifyIcon, sizeof (notifyIcon));
+		notifyIcon.cbSize = sizeof (notifyIcon);
+		notifyIcon.hWnd = GetTrayIconWindow ();
+		notifyIcon.uID = trayIcon->id;
+		notifyIcon.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP | NIF_SHOWTIP;
+		notifyIcon.uCallbackMessage = TRAY_ICON_MESSAGE;
+		notifyIcon.hIcon = data->icon ? data->icon : GetDefaultIcon ();
+		wcsncpy_s (notifyIcon.szTip, data->tooltip.c_str (), _TRUNCATE);
+
+		if (!Shell_NotifyIconW (action, &notifyIcon)) return false;
+
+		if (action == NIM_ADD) {
+
+			notifyIcon.uVersion = NOTIFYICON_VERSION_4;
+			Shell_NotifyIconW (NIM_SETVERSION, &notifyIcon);
+
+		}
+
+		return true;
+
+	}
+
+
+	SDLTrayIcon::SDLTrayIcon () {
+
+		id = ++nextTrayIconID;
+
+		Win32TrayIcon* data = new Win32TrayIcon ();
+		data->icon = NULL;
+		data->hasAnchor = false;
+		platform = data;
+
+		trayIcons[id] = this;
+		UpdateNotifyIcon (this, NIM_ADD);
+
+	}
+
+
+	SDLTrayIcon::~SDLTrayIcon () {
+
+		Close ();
+
+	}
+
+
+	void SDLTrayIcon::Close () {
+
+		Win32TrayIcon* data = (Win32TrayIcon*)platform;
+
+		if (!data) return;
+
+		NOTIFYICONDATAW notifyIcon;
+		ZeroMemory (&notifyIcon, sizeof (notifyIcon));
+		notifyIcon.cbSize = sizeof (notifyIcon);
+		notifyIcon.hWnd = GetTrayIconWindow ();
+		notifyIcon.uID = id;
+		Shell_NotifyIconW (NIM_DELETE, &notifyIcon);
+
+		if (data->icon) DestroyIcon (data->icon);
+
+		delete data;
+		platform = NULL;
+		trayIcons.erase (id);
+
+	}
+
+
+	int SDLTrayIcon::PopupMenu (const unsigned char* data, int length) {
+
+		Win32TrayIcon* trayData = (Win32TrayIcon*)platform;
+
+		if (!trayData) return 0;
+
+		HMENU menu = CreateMenuFromData (data, length, true);
+
+		if (!menu) return 0;
+
+		HWND hwnd = GetTrayIconWindow ();
+		POINT point = trayData->anchor;
+
+		if (!trayData->hasAnchor) GetCursorPos (&point);
+		trayData->hasAnchor = false;
+
+		// Without the foreground, the menu would stay open when clicking elsewhere
+		SetForegroundWindow (hwnd);
+
+		UINT flags = TPM_RETURNCMD | TPM_NONOTIFY | TPM_RIGHTBUTTON | TPM_BOTTOMALIGN;
+		flags |= GetSystemMetrics (SM_MENUDROPALIGNMENT) ? TPM_RIGHTALIGN : TPM_LEFTALIGN;
+
+		int command = (int)TrackPopupMenuEx (menu, flags, point.x, point.y, hwnd, NULL);
+
+		// Lets the menu close properly after it is dismissed (see TrackPopupMenu)
+		PostMessageW (hwnd, WM_NULL, 0, 0);
+
+		DestroyMenu (menu);
+		return command > MENU_COMMAND_BASE ? command - MENU_COMMAND_BASE : 0;
+
+	}
+
+
+	void SDLTrayIcon::SetIcon (ImageBuffer* imageBuffer) {
+
+		Win32TrayIcon* data = (Win32TrayIcon*)platform;
+
+		if (!data) return;
+
+		HICON previous = data->icon;
+		data->icon = CreateIconFromImage (imageBuffer);
+		UpdateNotifyIcon (this, NIM_MODIFY);
+
+		if (previous) DestroyIcon (previous);
+
+	}
+
+
+	bool SDLTrayIcon::SetMenu (const unsigned char* data, int length) {
+
+		// The menu is shown by PopupMenu when the icon is right-clicked
+		return false;
+
+	}
+
+
+	void SDLTrayIcon::SetTooltip (const char* tooltip) {
+
+		Win32TrayIcon* data = (Win32TrayIcon*)platform;
+
+		if (!data) return;
+
+		data->tooltip = ToWide (tooltip ? std::string (tooltip) : std::string ());
+		UpdateNotifyIcon (this, NIM_MODIFY);
+
+	}
+
+
+	void SDLTrayIcon::Update () {}
 
 
 }

@@ -69,6 +69,7 @@ class NativeCFFI
 		uncapMode:Int):Void;
 
 	@:cffi private static function lime_application_set_modal_callbacks(handle:Dynamic, update:Dynamic, render:Dynamic, window:Dynamic, rethrow:Dynamic):Void;
+
 	@:cffi private static function lime_application_defer_modal_exception(handle:Dynamic):Void;
 
 	@:cffi private static function lime_application_set_frame_rate(handle:Dynamic, value:Float):Void;
@@ -324,6 +325,24 @@ class NativeCFFI
 	@:cffi private static function lime_text_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_touch_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
+
+	@:cffi private static function lime_tray_icon_close(handle:Dynamic):Void;
+
+	@:cffi private static function lime_tray_icon_create():Dynamic;
+
+	@:cffi private static function lime_tray_icon_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
+
+	@:cffi private static function lime_tray_icon_get_id(handle:Dynamic):Int;
+
+	@:cffi private static function lime_tray_icon_is_supported():Bool;
+
+	@:cffi private static function lime_tray_icon_popup_menu(handle:Dynamic, data:Dynamic):Int;
+
+	@:cffi private static function lime_tray_icon_set_icon(handle:Dynamic, buffer:Dynamic):Void;
+
+	@:cffi private static function lime_tray_icon_set_menu(handle:Dynamic, data:Dynamic):Bool;
+
+	@:cffi private static function lime_tray_icon_set_tooltip(handle:Dynamic, tooltip:String):Void;
 
 	@:cffi private static function lime_window_alert(handle:Dynamic, message:String, title:String):Void;
 
@@ -959,6 +978,20 @@ class NativeCFFI
 		"lime_text_event_manager_register", "oov", false));
 	private static var lime_touch_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_touch_event_manager_register", "oov", false));
+	private static var lime_tray_icon_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_tray_icon_close", "ov", false));
+	private static var lime_tray_icon_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_tray_icon_create", "o", false));
+	private static var lime_tray_icon_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_tray_icon_event_manager_register", "oov", false));
+	private static var lime_tray_icon_get_id = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_tray_icon_get_id", "oi", false));
+	private static var lime_tray_icon_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_tray_icon_is_supported", "b", false));
+	private static var lime_tray_icon_popup_menu = new cpp.Callable<cpp.Object->cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_tray_icon_popup_menu",
+		"ooi", false));
+	private static var lime_tray_icon_set_icon = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_tray_icon_set_icon",
+		"oov", false));
+	private static var lime_tray_icon_set_menu = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_tray_icon_set_menu", "oob",
+		false));
+	private static var lime_tray_icon_set_tooltip = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_tray_icon_set_tooltip",
+		"osv", false));
 	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_alert", "ossv",
 		false));
 	private static var lime_window_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_close", "ov", false));
@@ -1393,6 +1426,15 @@ class NativeCFFI
 	private static var lime_system_open_url = CFFI.load("lime", "lime_system_open_url", 2);
 	private static var lime_text_event_manager_register = CFFI.load("lime", "lime_text_event_manager_register", 2);
 	private static var lime_touch_event_manager_register = CFFI.load("lime", "lime_touch_event_manager_register", 2);
+	private static var lime_tray_icon_close = CFFI.load("lime", "lime_tray_icon_close", 1);
+	private static var lime_tray_icon_create = CFFI.load("lime", "lime_tray_icon_create", 0);
+	private static var lime_tray_icon_event_manager_register = CFFI.load("lime", "lime_tray_icon_event_manager_register", 2);
+	private static var lime_tray_icon_get_id = CFFI.load("lime", "lime_tray_icon_get_id", 1);
+	private static var lime_tray_icon_is_supported = CFFI.load("lime", "lime_tray_icon_is_supported", 0);
+	private static var lime_tray_icon_popup_menu = CFFI.load("lime", "lime_tray_icon_popup_menu", 2);
+	private static var lime_tray_icon_set_icon = CFFI.load("lime", "lime_tray_icon_set_icon", 2);
+	private static var lime_tray_icon_set_menu = CFFI.load("lime", "lime_tray_icon_set_menu", 2);
+	private static var lime_tray_icon_set_tooltip = CFFI.load("lime", "lime_tray_icon_set_tooltip", 2);
 	private static var lime_window_alert = CFFI.load("lime", "lime_window_alert", 3);
 	private static var lime_window_close = CFFI.load("lime", "lime_window_close", 1);
 	private static var lime_window_context_flip = CFFI.load("lime", "lime_window_context_flip", 1);
@@ -1578,6 +1620,7 @@ class NativeCFFI
 		frameRate:Float, timePrecision:Int, busyWait:Int, uncapMode:Int):Void {}
 
 	@:hlNative("lime", "hl_application_set_modal_callbacks") private static function lime_application_set_modal_callbacks(handle:CFFIPointer, update:Void->Void, render:Void->Void, window:Void->Void, rethrow:Void->Void):Void {}
+
 	@:hlNative("lime", "hl_application_defer_modal_exception") private static function lime_application_defer_modal_exception(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_application_set_frame_rate") private static function lime_application_set_frame_rate(handle:CFFIPointer, value:Float):Void {}
@@ -2110,6 +2153,40 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_touch_event_manager_register") private static function lime_touch_event_manager_register(callback:Void->Void,
 		eventObject:TouchEventInfo):Void {}
+
+	@:hlNative("lime", "hl_tray_icon_close") private static function lime_tray_icon_close(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_tray_icon_create") private static function lime_tray_icon_create():CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_tray_icon_event_manager_register") private static function lime_tray_icon_event_manager_register(callback:Void->Void,
+		eventObject:TrayIconEventInfo):Void {}
+
+	@:hlNative("lime", "hl_tray_icon_get_id") private static function lime_tray_icon_get_id(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_tray_icon_is_supported") private static function lime_tray_icon_is_supported():Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_tray_icon_popup_menu") private static function lime_tray_icon_popup_menu(handle:CFFIPointer, data:Bytes):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_tray_icon_set_icon") private static function lime_tray_icon_set_icon(handle:CFFIPointer, buffer:ImageBuffer):Void {}
+
+	@:hlNative("lime", "hl_tray_icon_set_menu") private static function lime_tray_icon_set_menu(handle:CFFIPointer, data:Bytes):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_tray_icon_set_tooltip") private static function lime_tray_icon_set_tooltip(handle:CFFIPointer, tooltip:String):Void {}
 
 	@:hlNative("lime", "hl_window_alert") private static function lime_window_alert(handle:CFFIPointer, message:String, title:String):Void {}
 

@@ -49,6 +49,7 @@ import lime.app.Event;
 #end
 @:access(lime.app.Application)
 @:access(lime.ui.MenuItem)
+@:access(lime.ui.TrayIcon)
 @:access(lime.ui.Window)
 class Menu
 {
@@ -82,11 +83,13 @@ class Menu
 
 	@:noCompletion private var __application:Application;
 	@:noCompletion private var __items:Array<MenuItem>;
+	@:noCompletion private var __trayIcons:Array<TrayIcon>;
 	@:noCompletion private var __windows:Array<Window>;
 
 	public function new()
 	{
 		__items = [];
+		__trayIcons = [];
 		__windows = [];
 	}
 
@@ -258,6 +261,11 @@ class Menu
 		if (__application != null)
 		{
 			__application.__backend.setMenu(this);
+		}
+
+		for (trayIcon in __trayIcons)
+		{
+			trayIcon.__backend.setMenu(this);
 		}
 
 		for (window in __windows)

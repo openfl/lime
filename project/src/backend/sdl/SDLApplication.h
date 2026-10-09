@@ -18,6 +18,7 @@
 #include <ui/JoystickEvent.h>
 #include <ui/KeyEvent.h>
 #include <ui/MenuEvent.h>
+#include <ui/TrayIconEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
@@ -81,6 +82,7 @@ namespace lime {
 			void ProcessSensorEvent (SDL_Event* event);
 			void ProcessTextEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
+			void ProcessTrayIconEvent (SDL_Event* event);
 			void ProcessWindowEvent (SDL_Event* event, bool currentSize = false);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			bool PrepareResizeEvent (SDL_Event* event, bool currentSize);
@@ -176,6 +178,7 @@ namespace lime {
 			double sleepGuardMs;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
+			TrayIconEvent trayIconEvent;
 			bool useDisplayDrivenFallback;
 			bool useHighResolutionTimer;
 			WindowEvent windowEvent;

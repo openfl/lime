@@ -67,6 +67,7 @@ class NativeApplication
 	private var sensorEventInfo = new SensorEventInfo();
 	private var textEventInfo = new TextEventInfo();
 	private var touchEventInfo = new TouchEventInfo();
+	private var trayIconEventInfo = new TrayIconEventInfo();
 	private var unusedTouchesPool = new List<Touch>();
 	private var windowEventInfo = new WindowEventInfo();
 	#if (windows && !winrt)
@@ -143,6 +144,7 @@ class NativeApplication
 
 		NativeCFFI.lime_text_event_manager_register(handleTextEvent, textEventInfo);
 		NativeCFFI.lime_touch_event_manager_register(handleTouchEvent, touchEventInfo);
+		NativeCFFI.lime_tray_icon_event_manager_register(handleTrayIconEvent, trayIconEventInfo);
 		NativeCFFI.lime_window_event_manager_register(handleWindowEvent, windowEventInfo);
 		#if (windows && !winrt)
 		NativeCFFI.lime_application_set_modal_callbacks(handle,
@@ -191,6 +193,8 @@ class NativeApplication
 
 	public function exit():Void
 	{
+		// Tray icons would otherwise remain in the notification area on some platforms
+		NativeTrayIcon.closeAll();
 		AudioManager.shutdown();
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_quit(handle);
@@ -680,6 +684,24 @@ class NativeApplication
 		}
 	}
 
+	private function handleTrayIconEvent():Void
+	{
+		var trayIcon = NativeTrayIcon.getTrayIcon(trayIconEventInfo.id);
+
+		if (trayIcon != null)
+		{
+			switch (trayIconEventInfo.type)
+			{
+				case TRAY_ICON_CLICK:
+					trayIcon.handleClick();
+				case TRAY_ICON_MENU_SELECT:
+					trayIcon.handleMenuSelect(trayIconEventInfo.itemID);
+				case TRAY_ICON_RIGHT_CLICK:
+					trayIcon.handleRightClick();
+			}
+		}
+	}
+
 	private function handleWindowEvent():Void
 	{
 		var window = parent.__windowByID.get(windowEventInfo.windowID);
@@ -1146,6 +1168,32 @@ class NativeApplication
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
 	var TOUCH_MOVE = 2;
+}
+
+@:keep /*private*/ class TrayIconEventInfo
+{
+	public var id:Int;
+	public var itemID:Int;
+	public var type:TrayIconEventType;
+
+	public function new(type:TrayIconEventType = null, id:Int = 0, itemID:Int = 0)
+	{
+		this.type = type;
+		this.id = id;
+		this.itemID = itemID;
+	}
+
+	public function clone():TrayIconEventInfo
+	{
+		return new TrayIconEventInfo(type, id, itemID);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TrayIconEventType(Int)
+{
+	var TRAY_ICON_CLICK = 0;
+	var TRAY_ICON_MENU_SELECT = 1;
+	var TRAY_ICON_RIGHT_CLICK = 2;
 }
 
 @:keep /*private*/ class WindowEventInfo

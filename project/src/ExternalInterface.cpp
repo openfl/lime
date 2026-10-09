@@ -51,6 +51,8 @@
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
+#include <ui/TrayIcon.h>
+#include <ui/TrayIconEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
 #include <utils/compress/LZMA.h>
@@ -1295,6 +1297,22 @@ namespace lime {
 		Font* font = (Font*)handle->ptr;
 		delete font;
 		#endif
+
+	}
+
+
+	void gc_tray_icon (value handle) {
+
+		TrayIcon* trayIcon = (TrayIcon*)val_data (handle);
+		delete trayIcon;
+
+	}
+
+
+	void hl_gc_tray_icon (HL_CFFIPointer* handle) {
+
+		TrayIcon* trayIcon = (TrayIcon*)handle->ptr;
+		delete trayIcon;
 
 	}
 
@@ -4599,6 +4617,159 @@ namespace lime {
 
 		TouchEvent::callback = new ValuePointer (callback);
 		TouchEvent::eventObject = new ValuePointer ((vobj*)eventObject);
+
+	}
+
+
+	void lime_tray_icon_close (value trayIcon) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		targetTrayIcon->Close ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_tray_icon_close) (HL_CFFIPointer* trayIcon) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		targetTrayIcon->Close ();
+
+	}
+
+
+	value lime_tray_icon_create () {
+
+		TrayIcon* trayIcon = CreateTrayIcon ();
+		return CFFIPointer (trayIcon, gc_tray_icon);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_tray_icon_create) () {
+
+		TrayIcon* trayIcon = CreateTrayIcon ();
+		return HLCFFIPointer (trayIcon, (hl_finalizer)hl_gc_tray_icon);
+
+	}
+
+
+	void lime_tray_icon_event_manager_register (value callback, value eventObject) {
+
+		TrayIconEvent::callback = new ValuePointer (callback);
+		TrayIconEvent::eventObject = new ValuePointer (eventObject);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_tray_icon_event_manager_register) (vclosure* callback, TrayIconEvent* eventObject) {
+
+		TrayIconEvent::callback = new ValuePointer (callback);
+		TrayIconEvent::eventObject = new ValuePointer ((vobj*)eventObject);
+
+	}
+
+
+	int lime_tray_icon_get_id (value trayIcon) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		return targetTrayIcon->GetID ();
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_tray_icon_get_id) (HL_CFFIPointer* trayIcon) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		return targetTrayIcon->GetID ();
+
+	}
+
+
+	bool lime_tray_icon_is_supported () {
+
+		return TrayIcon::IsSupported ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_tray_icon_is_supported) () {
+
+		return TrayIcon::IsSupported ();
+
+	}
+
+
+	int lime_tray_icon_popup_menu (value trayIcon, value data) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		Bytes bytes (data);
+		return targetTrayIcon->PopupMenu (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_tray_icon_popup_menu) (HL_CFFIPointer* trayIcon, Bytes* data) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		return targetTrayIcon->PopupMenu (data ? data->b : 0, data ? data->length : 0);
+
+	}
+
+
+	void lime_tray_icon_set_icon (value trayIcon, value buffer) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+
+		if (val_is_null (buffer)) {
+
+			targetTrayIcon->SetIcon (NULL);
+			return;
+
+		}
+
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		targetTrayIcon->SetIcon (&imageBuffer);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_tray_icon_set_icon) (HL_CFFIPointer* trayIcon, ImageBuffer* buffer) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		targetTrayIcon->SetIcon (buffer);
+
+	}
+
+
+	bool lime_tray_icon_set_menu (value trayIcon, value data) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		Bytes bytes (data);
+		return targetTrayIcon->SetMenu (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_tray_icon_set_menu) (HL_CFFIPointer* trayIcon, Bytes* data) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		return targetTrayIcon->SetMenu (data ? data->b : 0, data ? data->length : 0);
+
+	}
+
+
+	void lime_tray_icon_set_tooltip (value trayIcon, HxString tooltip) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)val_data (trayIcon);
+		targetTrayIcon->SetTooltip (tooltip.c_str ());
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_tray_icon_set_tooltip) (HL_CFFIPointer* trayIcon, hl_vstring* tooltip) {
+
+		TrayIcon* targetTrayIcon = (TrayIcon*)trayIcon->ptr;
+		targetTrayIcon->SetTooltip (tooltip ? (const char*)hl_to_utf8 ((const uchar*)tooltip->bytes) : NULL);
 
 	}
 
@@ -13676,6 +13847,15 @@ namespace lime {
 	DEFINE_PRIME2 (lime_system_set_windows_console_mode);
 	DEFINE_PRIME2v (lime_text_event_manager_register);
 	DEFINE_PRIME2v (lime_touch_event_manager_register);
+	DEFINE_PRIME1v (lime_tray_icon_close);
+	DEFINE_PRIME0 (lime_tray_icon_create);
+	DEFINE_PRIME2v (lime_tray_icon_event_manager_register);
+	DEFINE_PRIME1 (lime_tray_icon_get_id);
+	DEFINE_PRIME0 (lime_tray_icon_is_supported);
+	DEFINE_PRIME2 (lime_tray_icon_popup_menu);
+	DEFINE_PRIME2v (lime_tray_icon_set_icon);
+	DEFINE_PRIME2 (lime_tray_icon_set_menu);
+	DEFINE_PRIME2v (lime_tray_icon_set_tooltip);
 	DEFINE_PRIME3v (lime_window_alert);
 	DEFINE_PRIME1v (lime_window_close);
 	DEFINE_PRIME1v (lime_window_context_flip);
@@ -13853,6 +14033,7 @@ namespace lime {
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
 	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
+	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
@@ -13996,6 +14177,15 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_windows_console_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_text_event_manager_register, _FUN (_VOID, _NO_ARG) _TTEXT_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_touch_event_manager_register, _FUN (_VOID, _NO_ARG) _TTOUCH_EVENT);
+	DEFINE_HL_PRIM (_VOID, hl_tray_icon_close, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_tray_icon_create, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_tray_icon_event_manager_register, _FUN (_VOID, _NO_ARG) _TTRAY_ICON_EVENT);
+	DEFINE_HL_PRIM (_I32, hl_tray_icon_get_id, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_tray_icon_is_supported, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_tray_icon_popup_menu, _TCFFIPOINTER _TBYTES);
+	DEFINE_HL_PRIM (_VOID, hl_tray_icon_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_BOOL, hl_tray_icon_set_menu, _TCFFIPOINTER _TBYTES);
+	DEFINE_HL_PRIM (_VOID, hl_tray_icon_set_tooltip, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_alert, _TCFFIPOINTER _STRING _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_flip, _TCFFIPOINTER);
