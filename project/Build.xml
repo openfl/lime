@@ -341,6 +341,9 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
 		<file name="src/media/containers/WAV.cpp" />
+		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
+		<file name="src/media/video/VideoDecoder.cpp" />
+		<file name="src/media/video/VideoDecoderBindings.cpp" />
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
