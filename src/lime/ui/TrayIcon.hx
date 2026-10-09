@@ -166,24 +166,10 @@ class TrayIcon
 	}
 }
 
-#if (lime_cffi && !macro)
-@:noCompletion private typedef TrayIconBackend = lime._internal.backend.native.NativeTrayIcon;
+#if flash
+@:noCompletion private typedef TrayIconBackend = lime._internal.backend.flash.FlashTrayIcon;
+#elseif (js && html5)
+@:noCompletion private typedef TrayIconBackend = lime._internal.backend.html5.HTML5TrayIcon;
 #else
-@:noCompletion private class TrayIconBackend
-{
-	public static function isSupported():Bool
-	{
-		return false;
-	}
-
-	public function new(parent:TrayIcon) {}
-
-	public function close():Void {}
-
-	public function setIcon(image:Image):Void {}
-
-	public function setMenu(menu:Menu):Void {}
-
-	public function setTooltip(value:String):Void {}
-}
+@:noCompletion private typedef TrayIconBackend = lime._internal.backend.native.NativeTrayIcon;
 #end

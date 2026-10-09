@@ -102,20 +102,10 @@ class DockIcon
 	}
 }
 
-#if (lime_cffi && !macro)
-@:noCompletion private typedef DockIconBackend = lime._internal.backend.native.NativeDockIcon;
+#if flash
+@:noCompletion private typedef DockIconBackend = lime._internal.backend.flash.FlashDockIcon;
+#elseif (js && html5)
+@:noCompletion private typedef DockIconBackend = lime._internal.backend.html5.HTML5DockIcon;
 #else
-@:noCompletion private class DockIconBackend
-{
-	public static function bounce(critical:Bool):Void {}
-
-	public static function isSupported():Bool
-	{
-		return false;
-	}
-
-	public static function setIcon(image:Image):Void {}
-
-	public static function setMenu(menu:Menu):Void {}
-}
+@:noCompletion private typedef DockIconBackend = lime._internal.backend.native.NativeDockIcon;
 #end
