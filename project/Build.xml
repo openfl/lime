@@ -457,6 +457,7 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
+				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="setupapi.lib" />
 
 				<lib name="bcrypt.lib" if="LIME_CURL" />

@@ -4,6 +4,8 @@
 
 #include <SDL.h>
 #include <vector>
+#include <map>
+#include <utility>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
@@ -72,7 +74,10 @@ namespace lime {
 			void ProcessSensorEvent (SDL_Event* event);
 			void ProcessTextEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
-			void ProcessWindowEvent (SDL_Event* event);
+			void ProcessWindowEvent (SDL_Event* event, bool currentSize = false);
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			bool PrepareResizeEvent (SDL_Event* event, bool currentSize);
+#endif
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
 			int WaitEvent (SDL_Event* event);
 
@@ -140,6 +145,7 @@ namespace lime {
 			double lastUpdate;
 			Uint32 lastSleepCalibration;
 			MouseEvent mouseEvent;
+			bool mouseCaptureRequested;
 			double nextUpdate;
 			OrientationEvent orientationEvent;
 			Uint64 performanceFrequency;
@@ -163,8 +169,7 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			bool modalWatchInstalled;
 			Uint32 mainThreadID;
-			int pendingResizeDispatchSkips;
-			int pendingWatchRenderSkips;
+			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;
 #endif
 
 	};

@@ -7,6 +7,9 @@
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
 #include <windows.h>
+#ifndef HX_WINRT
+#include <commctrl.h>
+#endif
 #undef CreateWindow
 #endif
 
@@ -31,7 +34,10 @@ namespace lime {
 	static bool displayModeSet = false;
 
 #if defined (HX_WINDOWS) && !defined (HX_WINRT)
-	static const wchar_t* LIME_SDL_OLD_RESIZE_WNDPROC_PROP = L"LimeSDL.OldResizeWndProc";
+	static const UINT_PTR LIME_SDL_RESIZE_SUBCLASS_ID = 1;
+	// Outside the documented WM_MOUSEMOVE key/button bits. Never reaches SDL.
+	static const WPARAM LIME_SDL_CAPTION_WAKE_TAG = (WPARAM)0x4C490000;
+	static const wchar_t* LIME_SDL_IN_SIZE_MOVE_PROP = L"LimeSDL.InSizeMove";
 	static const wchar_t* LIME_SDL_WINDOW_ID_PROP = L"LimeSDL.WindowID";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_WIDTH_PROP = L"LimeSDL.LastResizeWidth";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_HEIGHT_PROP = L"LimeSDL.LastResizeHeight";
@@ -107,15 +113,39 @@ namespace lime {
 
 	}
 
-	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	static void ClearResizeEventProperties (HWND hwnd) {
 
-		if (message == WM_ENTERSIZEMOVE) {
+		if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
+		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+	}
 
-			SDLApplication::EnterNativeModalLoop ();
+	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR subclassID, DWORD_PTR referenceData) {
+
+		if (message == WM_MOUSEMOVE && wParam == LIME_SDL_CAPTION_WAKE_TAG && lParam == 0) {
+
+			// This message only wakes Windows' pre-drag mouse wait. Do not turn
+			// it into game input or move the application's remembered pointer.
+			return 0;
+
+		} else if (message == WM_NCLBUTTONDOWN && wParam == HTCAPTION) {
+
+			// DefWindowProc otherwise waits about 500 ms for caption drag intent
+			// before WM_ENTERSIZEMOVE, where SDL's modal timer finally starts.
+			// A posted zero-position move wakes that wait. Tag our message so
+			// the existing window chain never interprets it as physical input.
+			PostMessageW (hwnd, WM_MOUSEMOVE, LIME_SDL_CAPTION_WAKE_TAG, 0);
+
+		} else if (message == WM_ENTERSIZEMOVE) {
+
+			if (!GetPropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP) && SetPropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP, (HANDLE)1))
+				SDLApplication::EnterNativeModalLoop ();
 
 		} else if (message == WM_EXITSIZEMOVE) {
 
-			SDLApplication::ExitNativeModalLoop ();
+			if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
 
 		} else if (message == WM_SIZING) {
 
@@ -132,14 +162,12 @@ namespace lime {
 
 		}
 
-		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		if (oldWndProc) {
-
-			return CallWindowProc (oldWndProc, hwnd, message, wParam, lParam);
-
+		if (message == WM_NCDESTROY) {
+			RemoveWindowSubclass (hwnd, LimeResizeWndProc, subclassID);
+			ClearResizeEventProperties (hwnd);
 		}
 
-		return DefWindowProc (hwnd, message, wParam, lParam);
+		return DefSubclassProc (hwnd, message, wParam, lParam);
 
 	}
 
@@ -153,14 +181,11 @@ namespace lime {
 
 		HWND hwnd = wminfo.info.win.window;
 		if (!hwnd) return;
-		if (GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP)) return;
-
-		SetLastError (0);
-		LONG_PTR previous = SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)LimeResizeWndProc);
-		if (previous == 0 && GetLastError () != 0) return;
-
-		SetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP, (HANDLE)previous);
-		SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow));
+		DWORD_PTR data;
+		if (GetWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID, &data)) return;
+		if (!SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow))) return;
+		if (!SetWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID, 0))
+			ClearResizeEventProperties (hwnd);
 
 	}
 
@@ -175,18 +200,8 @@ namespace lime {
 		HWND hwnd = wminfo.info.win.window;
 		if (!hwnd) return;
 
-		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		if (oldWndProc) {
-
-			SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
-
-		}
-
-		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
-		RemovePropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+		if (RemoveWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID))
+			ClearResizeEventProperties (hwnd);
 
 	}
 
