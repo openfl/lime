@@ -14,6 +14,15 @@
 #include <vector>
 #undef CreateWindow
 
+// SDL_config_windows.h includes sdkddkver.h before _WIN32_WINNT is set, which MinGW
+// then defaults to Windows Server 2003, hiding the Vista notification icon values
+#ifndef NIF_SHOWTIP
+#define NIF_SHOWTIP 0x00000080
+#endif
+#ifndef NOTIFYICON_VERSION_4
+#define NOTIFYICON_VERSION_4 4
+#endif
+
 
 namespace lime {
 
