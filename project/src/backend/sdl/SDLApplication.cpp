@@ -1,6 +1,7 @@
 #include "SDLApplication.h"
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
+#include "SDLMenu.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -739,6 +740,11 @@ namespace lime
 			break;
 #endif
 
+		case SDL_SYSWMEVENT:
+
+			ProcessMenuEvent(event);
+			break;
+
 		case SDL_TEXTINPUT:
 		case SDL_TEXTEDITING:
 
@@ -801,6 +807,12 @@ namespace lime
 		case SDL_QUIT:
 
 			active = false;
+			break;
+
+		default:
+
+			// Menu selections queued by SDLMenu use a registered event type
+			ProcessMenuEvent(event);
 			break;
 		}
 	}
@@ -1083,6 +1095,23 @@ namespace lime
 			}
 
 			KeyEvent::Dispatch(&keyEvent);
+		}
+	}
+
+	void SDLApplication::ProcessMenuEvent(SDL_Event *event)
+	{
+
+		Uint32 windowID;
+		int id;
+
+		if (MenuEvent::callback && SDLMenu::GetSelection(event, &windowID, &id))
+		{
+
+			menuEvent.type = MENU_SELECT;
+			menuEvent.id = id;
+			menuEvent.windowID = windowID;
+
+			MenuEvent::Dispatch(&menuEvent);
 		}
 	}
 
@@ -1437,6 +1466,12 @@ namespace lime
 
 		requestedFrameRate = frameRate;
 		ApplyMainLoopSettings();
+	}
+
+	bool SDLApplication::SetMenu(const unsigned char *data, int length)
+	{
+
+		return SDLMenu::SetApplicationMenu(data, length);
 	}
 
 	void SDLApplication::SetVSyncMode(int vsyncMode)

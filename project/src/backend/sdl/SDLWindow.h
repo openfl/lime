@@ -41,6 +41,7 @@ namespace lime {
 			virtual int GetX ();
 			virtual int GetY ();
 			virtual void Move (int x, int y);
+			virtual int PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor);
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
 			virtual void Resize (int width, int height);
 			virtual void SetMinimumSize (int width, int height);
@@ -51,6 +52,7 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);
 			virtual bool SetMaximized (bool maximized);
+			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual bool SetMinimized (bool minimized);
 			virtual void SetMouseLock (bool mouseLock);
 			virtual void SetOpacity (float opacity);

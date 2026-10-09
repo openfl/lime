@@ -1,6 +1,7 @@
 #include "SDLWindow.h"
 #include "SDLCursor.h"
 #include "SDLApplication.h"
+#include "SDLMenu.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
 
@@ -565,6 +566,7 @@ namespace lime {
 			RestoreResizeEventHook (sdlWindow);
 			#endif
 
+			SDLMenu::Remove (sdlWindow);
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -636,6 +638,7 @@ namespace lime {
 
 			}
 
+			SDLMenu::Remove (sdlWindow);
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -1123,6 +1126,13 @@ namespace lime {
 	}
 
 
+	int SDLWindow::PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor) {
+
+		return SDLMenu::Popup (sdlWindow, data, length, x, y, atCursor);
+
+	}
+
+
 	void SDLWindow::ReadPixels (ImageBuffer *buffer, Rectangle *rect) {
 
 		if (sdlRenderer) {
@@ -1430,6 +1440,13 @@ namespace lime {
 		}
 
 		return maximized;
+
+	}
+
+
+	bool SDLWindow::SetMenu (const unsigned char* data, int length) {
+
+		return SDLMenu::SetWindowMenu (sdlWindow, data, length);
 
 	}
 

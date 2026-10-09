@@ -17,6 +17,7 @@
 #include <ui/GamepadEvent.h>
 #include <ui/JoystickEvent.h>
 #include <ui/KeyEvent.h>
+#include <ui/MenuEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
@@ -39,6 +40,7 @@ namespace lime {
 			virtual int Quit ();
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode);
 			virtual void SetFrameRate (double frameRate);
+			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual void SetVSyncMode (int vsyncMode);
 			virtual bool Update ();
 
@@ -74,6 +76,7 @@ namespace lime {
 			void ProcessGamepadEvent (SDL_Event* event);
 			void ProcessJoystickEvent (SDL_Event* event);
 			void ProcessKeyEvent (SDL_Event* event);
+			void ProcessMenuEvent (SDL_Event* event);
 			void ProcessMouseEvent (SDL_Event* event);
 			void ProcessSensorEvent (SDL_Event* event);
 			void ProcessTextEvent (SDL_Event* event);
@@ -150,6 +153,7 @@ namespace lime {
 			KeyEvent keyEvent;
 			double lastUpdate;
 			Uint32 lastSleepCalibration;
+			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
 			bool mouseCaptureRequested;
 			double nextUpdate;

@@ -73,6 +73,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_application_set_frame_rate(handle:Dynamic, value:Float):Void;
 
+	@:cffi private static function lime_application_set_menu(handle:Dynamic, data:Dynamic):Bool;
+
 	@:cffi private static function lime_application_set_vsync_mode(handle:Dynamic, value:Int):Void;
 
 	@:cffi private static function lime_application_update(handle:Dynamic):Bool;
@@ -270,6 +272,10 @@ class NativeCFFI
 	@:cffi private static function lime_lzma_compress(data:Dynamic, bytes:Dynamic):Dynamic;
 
 	@:cffi private static function lime_lzma_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
+
+	@:cffi private static function lime_menu_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
+
+	@:cffi private static function lime_menu_get_support():Int;
 
 	@:cffi private static function lime_mouse_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
@@ -675,6 +681,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_move(handle:Dynamic, x:Int, y:Int):Void;
 
+	@:cffi private static function lime_window_popup_menu(handle:Dynamic, data:Dynamic, x:Int, y:Int, atCursor:Bool):Int;
+
 	@:cffi private static function lime_window_read_pixels(handle:Dynamic, rect:Dynamic, imageBuffer:Dynamic):Dynamic;
 
 	@:cffi private static function lime_window_resize(handle:Dynamic, width:Int, height:Int):Void;
@@ -694,6 +702,8 @@ class NativeCFFI
 	@:cffi private static function lime_window_set_icon(handle:Dynamic, buffer:Dynamic):Void;
 
 	@:cffi private static function lime_window_set_maximized(handle:Dynamic, maximized:Bool):Bool;
+
+	@:cffi private static function lime_window_set_menu(handle:Dynamic, data:Dynamic):Bool;
 
 	@:cffi private static function lime_window_set_minimized(handle:Dynamic, minimized:Bool):Bool;
 
@@ -734,6 +744,8 @@ class NativeCFFI
 
 	private static var lime_application_set_frame_rate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_set_frame_rate", "odv", false));
+	private static var lime_application_set_menu = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_application_set_menu",
+		"oob", false));
 	private static var lime_application_set_vsync_mode = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_set_vsync_mode", "oiv", false));
 	private static var lime_application_update = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_application_update", "ob", false));
@@ -903,6 +915,9 @@ class NativeCFFI
 		false));
 	private static var lime_lzma_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_decompress", "ooo",
 		false));
+	private static var lime_menu_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_menu_event_manager_register", "oov", false));
+	private static var lime_menu_get_support = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_menu_get_support", "i", false));
 	private static var lime_mouse_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_mouse_event_manager_register", "oov", false));
 	private static var lime_neko_execute = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_neko_execute", "sv", false));
@@ -1193,6 +1208,8 @@ class NativeCFFI
 	private static var lime_window_get_x = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_x", "oi", false));
 	private static var lime_window_get_y = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_y", "oi", false));
 	private static var lime_window_move = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_move", "oiiv", false));
+	private static var lime_window_popup_menu = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Bool->Int>(cpp.Prime._loadPrime("lime",
+		"lime_window_popup_menu", "ooiibi", false));
 	private static var lime_window_read_pixels = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_window_read_pixels", "oooo", false));
 	private static var lime_window_resize = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_resize", "oiiv", false));
@@ -1211,6 +1228,8 @@ class NativeCFFI
 	private static var lime_window_set_icon = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_icon", "oov",
 		false));
 	private static var lime_window_set_maximized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_maximized", "obb",
+		false));
+	private static var lime_window_set_menu = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_menu", "oob",
 		false));
 	private static var lime_window_set_minimized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_minimized", "obb",
 		false));
@@ -1250,6 +1269,7 @@ class NativeCFFI
 	private static var lime_application_set_frame_rate = CFFI.load("lime", "lime_application_set_frame_rate", 2);
 	private static var lime_application_set_modal_callbacks = CFFI.load("lime", "lime_application_set_modal_callbacks", 5);
 	private static var lime_application_defer_modal_exception = CFFI.load("lime", "lime_application_defer_modal_exception", 1);
+	private static var lime_application_set_menu = CFFI.load("lime", "lime_application_set_menu", 2);
 	private static var lime_application_set_vsync_mode = CFFI.load("lime", "lime_application_set_vsync_mode", 2);
 	private static var lime_application_update = CFFI.load("lime", "lime_application_update", 1);
 	private static var lime_audio_load = CFFI.load("lime", "lime_audio_load", 2);
@@ -1347,6 +1367,8 @@ class NativeCFFI
 	private static var lime_key_event_manager_register = CFFI.load("lime", "lime_key_event_manager_register", 2);
 	private static var lime_lzma_compress = CFFI.load("lime", "lime_lzma_compress", 2);
 	private static var lime_lzma_decompress = CFFI.load("lime", "lime_lzma_decompress", 2);
+	private static var lime_menu_event_manager_register = CFFI.load("lime", "lime_menu_event_manager_register", 2);
+	private static var lime_menu_get_support = CFFI.load("lime", "lime_menu_get_support", 0);
 	private static var lime_mouse_event_manager_register = CFFI.load("lime", "lime_mouse_event_manager_register", 2);
 	private static var lime_neko_execute = CFFI.load("lime", "lime_neko_execute", 1);
 	private static var lime_orientation_event_manager_register = CFFI.load("lime", "lime_orientation_event_manager_register", 2);
@@ -1504,6 +1526,7 @@ class NativeCFFI
 	private static var lime_window_get_x = CFFI.load("lime", "lime_window_get_x", 1);
 	private static var lime_window_get_y = CFFI.load("lime", "lime_window_get_y", 1);
 	private static var lime_window_move = CFFI.load("lime", "lime_window_move", 3);
+	private static var lime_window_popup_menu = CFFI.load("lime", "lime_window_popup_menu", 5);
 	private static var lime_window_read_pixels = CFFI.load("lime", "lime_window_read_pixels", 3);
 	private static var lime_window_resize = CFFI.load("lime", "lime_window_resize", 3);
 	private static var lime_window_set_minimum_size = CFFI.load("lime", "lime_window_set_minimum_size", 3);
@@ -1514,6 +1537,7 @@ class NativeCFFI
 	private static var lime_window_set_fullscreen = CFFI.load("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = CFFI.load("lime", "lime_window_set_icon", 2);
 	private static var lime_window_set_maximized = CFFI.load("lime", "lime_window_set_maximized", 2);
+	private static var lime_window_set_menu = CFFI.load("lime", "lime_window_set_menu", 2);
 	private static var lime_window_set_minimized = CFFI.load("lime", "lime_window_set_minimized", 2);
 	private static var lime_window_set_mouse_lock = CFFI.load("lime", "lime_window_set_mouse_lock", 2);
 	private static var lime_window_set_opacity = CFFI.load("lime", "lime_window_set_opacity", 2);
@@ -1557,6 +1581,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_application_defer_modal_exception") private static function lime_application_defer_modal_exception(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_application_set_frame_rate") private static function lime_application_set_frame_rate(handle:CFFIPointer, value:Float):Void {}
+
+	@:hlNative("lime", "hl_application_set_menu") private static function lime_application_set_menu(handle:CFFIPointer, data:Bytes):Bool
+	{
+		return false;
+	}
 
 	@:hlNative("lime", "hl_application_set_vsync_mode") private static function lime_application_set_vsync_mode(handle:CFFIPointer, value:Int):Void {}
 
@@ -1973,6 +2002,14 @@ class NativeCFFI
 	@:hlNative("lime", "hl_lzma_decompress") private static function lime_lzma_decompress(data:Bytes, bytes:Bytes):Bytes
 	{
 		return null;
+	}
+
+	@:hlNative("lime", "hl_menu_event_manager_register") private static function lime_menu_event_manager_register(callback:Void->Void,
+		eventObject:MenuEventInfo):Void {}
+
+	@:hlNative("lime", "hl_menu_get_support") private static function lime_menu_get_support():Int
+	{
+		return 0;
 	}
 
 	@:hlNative("lime", "hl_mouse_event_manager_register") private static function lime_mouse_event_manager_register(callback:Void->Void,
@@ -2761,6 +2798,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_move") private static function lime_window_move(handle:CFFIPointer, x:Int, y:Int):Void {}
 
+	@:hlNative("lime", "hl_window_popup_menu") private static function lime_window_popup_menu(handle:CFFIPointer, data:Bytes, x:Int, y:Int, atCursor:Bool):Int
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_window_read_pixels") private static function lime_window_read_pixels(handle:CFFIPointer, rect:Rectangle,
 			imageBuffer:ImageBuffer):Dynamic
 	{
@@ -2791,6 +2833,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_window_set_icon") private static function lime_window_set_icon(handle:CFFIPointer, buffer:ImageBuffer):Void {}
 
 	@:hlNative("lime", "hl_window_set_maximized") private static function lime_window_set_maximized(handle:CFFIPointer, maximized:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_set_menu") private static function lime_window_set_menu(handle:CFFIPointer, data:Bytes):Bool
 	{
 		return false;
 	}

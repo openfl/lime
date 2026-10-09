@@ -22,6 +22,10 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
+import lime.ui.Menu;
+import lime.ui.MenuItem;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
 import lime.utils.UInt8Array;
@@ -38,6 +42,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+@:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeWindow
 {
@@ -47,6 +52,7 @@ class NativeWindow
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
 	private var frameRate:Float;
+	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;
 	private var parent:Window;
 	private var useHardware:Bool;
@@ -343,12 +349,43 @@ class NativeWindow
 		return false;
 	}
 
+	public function handleMenuKeyEquivalent(keyCode:KeyCode, modifier:KeyModifier):Bool
+	{
+		var item = NativeMenu.getKeyEquivalentItem(menuItems, keyCode, modifier);
+		if (item == null) return false;
+
+		item.__select();
+		return true;
+	}
+
+	public function handleMenuSelect(id:Int):Void
+	{
+		var item = NativeMenu.getItem(menuItems, id);
+		if (item != null) item.__select();
+	}
+
 	public function move(x:Int, y:Int):Void
 	{
 		if (handle != null)
 		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_move(handle, x, y);
+			#end
+		}
+	}
+
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void
+	{
+		if (handle != null && menu != null)
+		{
+			#if (!macro && lime_cffi)
+			var items = [];
+			var data = NativeMenu.encode(menu, items);
+			var atCursor = (x == null || y == null);
+			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
+
+			var item = NativeMenu.getItem(items, id);
+			if (item != null) item.__select();
 			#end
 		}
 	}
@@ -645,6 +682,26 @@ class NativeWindow
 		}
 
 		return value;
+	}
+
+	public function setMenu(menu:Menu):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			if (menu != null)
+			{
+				var items = [];
+				var data = NativeMenu.encode(menu, items);
+				menuItems = NativeCFFI.lime_window_set_menu(handle, data) ? items : null;
+			}
+			else
+			{
+				NativeCFFI.lime_window_set_menu(handle, null);
+				menuItems = null;
+			}
+			#end
+		}
 	}
 
 	public function setMinimized(value:Bool):Bool

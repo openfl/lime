@@ -46,6 +46,8 @@
 #include <ui/JoystickEvent.h>
 #include <ui/KeyCode.h>
 #include <ui/KeyEvent.h>
+#include <ui/Menu.h>
+#include <ui/MenuEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
@@ -1543,6 +1545,23 @@ namespace lime {
 
 		Application* app = (Application*)application->ptr;
 		app->SetFrameRate (frameRate);
+
+	}
+
+
+	bool lime_application_set_menu (value application, value data) {
+
+		Application* app = (Application*)val_data (application);
+		Bytes bytes (data);
+		return app->SetMenu (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_application_set_menu) (HL_CFFIPointer* application, Bytes* data) {
+
+		Application* app = (Application*)application->ptr;
+		return app->SetMenu (data ? data->b : 0, data ? data->length : 0);
 
 	}
 
@@ -3948,6 +3967,36 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	int lime_menu_get_support () {
+
+		return Menu::GetSupport ();
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_menu_get_support) () {
+
+		return Menu::GetSupport ();
+
+	}
+
+
+	void lime_menu_event_manager_register (value callback, value eventObject) {
+
+		MenuEvent::callback = new ValuePointer (callback);
+		MenuEvent::eventObject = new ValuePointer (eventObject);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_event_manager_register) (vclosure* callback, MenuEvent* eventObject) {
+
+		MenuEvent::callback = new ValuePointer (callback);
+		MenuEvent::eventObject = new ValuePointer ((vobj*)eventObject);
 
 	}
 
@@ -13027,6 +13076,23 @@ namespace lime {
 	}
 
 
+	int lime_window_popup_menu (value window, value data, int x, int y, bool atCursor) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		Bytes bytes (data);
+		return targetWindow->PopupMenu (bytes.b, bytes.length, x, y, atCursor);
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_window_popup_menu) (HL_CFFIPointer* window, Bytes* data, int x, int y, bool atCursor) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->PopupMenu (data ? data->b : 0, data ? data->length : 0, x, y, atCursor);
+
+	}
+
+
 	value lime_window_read_pixels (value window, value rect, value imageBuffer) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -13213,6 +13279,23 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		return targetWindow->SetMaximized (maximized);
+
+	}
+
+
+	bool lime_window_set_menu (value window, value data) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		Bytes bytes (data);
+		return targetWindow->SetMenu (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_menu) (HL_CFFIPointer* window, Bytes* data) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetMenu (data ? data->b : 0, data ? data->length : 0);
 
 	}
 
@@ -13472,6 +13555,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME5v (lime_application_set_modal_callbacks);
 	DEFINE_PRIME1v (lime_application_defer_modal_exception);
+	DEFINE_PRIME2 (lime_application_set_menu);
 	DEFINE_PRIME2v (lime_application_set_vsync_mode);
 	DEFINE_PRIME1 (lime_application_update);
 	DEFINE_PRIME2 (lime_audio_load);
@@ -13564,6 +13648,8 @@ namespace lime {
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
 	DEFINE_PRIME2 (lime_lzma_compress);
 	DEFINE_PRIME2 (lime_lzma_decompress);
+	DEFINE_PRIME2v (lime_menu_event_manager_register);
+	DEFINE_PRIME0 (lime_menu_get_support);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME2v (lime_orientation_event_manager_register);
@@ -13721,6 +13807,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_x);
 	DEFINE_PRIME1 (lime_window_get_y);
 	DEFINE_PRIME3v (lime_window_move);
+	DEFINE_PRIME5 (lime_window_popup_menu);
 	DEFINE_PRIME3 (lime_window_read_pixels);
 	DEFINE_PRIME3v (lime_window_resize);
 	DEFINE_PRIME3v (lime_window_set_minimum_size);
@@ -13731,6 +13818,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
 	DEFINE_PRIME2 (lime_window_set_maximized);
+	DEFINE_PRIME2 (lime_window_set_menu);
 	DEFINE_PRIME2 (lime_window_set_minimized);
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
 	DEFINE_PRIME2 (lime_window_set_resizable);
@@ -13757,6 +13845,7 @@ namespace lime {
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _I32)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32 _I32)
+	#define _TMENU_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
 	#define _TORIENTATION_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
@@ -13787,6 +13876,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_modal_callbacks, _TCFFIPOINTER _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG));
 	DEFINE_HL_PRIM (_VOID, hl_application_defer_modal_exception, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_application_set_menu, _TCFFIPOINTER _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_vsync_mode, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_application_update, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TAUDIOBUFFER, hl_audio_load_bytes, _TBYTES _TAUDIOBUFFER);
@@ -13878,6 +13968,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_system_locale, _NO_ARG);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_decompress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
+	DEFINE_HL_PRIM (_I32, hl_menu_get_support, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_VOID, hl_orientation_event_manager_register, _FUN (_VOID, _NO_ARG) _TORIENTATION_EVENT);
@@ -14035,6 +14127,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_window_get_x, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_y, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_move, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_I32, hl_window_popup_menu, _TCFFIPOINTER _TBYTES _I32 _I32 _BOOL);
 	DEFINE_HL_PRIM (_DYN, hl_window_read_pixels, _TCFFIPOINTER _TRECTANGLE _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_VOID, hl_window_resize, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_minimum_size, _TCFFIPOINTER _I32 _I32);
@@ -14045,6 +14138,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_fullscreen, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_maximized, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_menu, _TCFFIPOINTER _TBYTES);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_minimized, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_resizable, _TCFFIPOINTER _BOOL);

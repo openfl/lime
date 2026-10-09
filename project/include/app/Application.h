@@ -22,6 +22,7 @@ namespace lime {
 			virtual int Quit () = 0;
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode) { SetFrameRate (frameRate); }
 			virtual void SetFrameRate (double frameRate) = 0;
+			virtual bool SetMenu (const unsigned char* data, int length) { return false; }
 			virtual void SetVSyncMode (int vsyncMode) {}
 			virtual bool Update () = 0;
 

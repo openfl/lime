@@ -30,6 +30,7 @@ import lime.system.System;
 import lime.system.Clipboard;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
@@ -1007,6 +1008,8 @@ class HTML5Window
 
 	public function move(x:Int, y:Int):Void {}
 
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void {}
+
 	public function readPixels(rect:Rectangle):Image
 	{
 		// TODO: Handle DIV, improve 3D canvas support
@@ -1223,6 +1226,8 @@ class HTML5Window
 	{
 		return false;
 	}
+
+	public function setMenu(menu:Menu):Void {}
 
 	public function setMinimized(value:Bool):Bool
 	{

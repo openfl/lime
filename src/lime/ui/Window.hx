@@ -27,8 +27,17 @@ typedef Stage = Dynamic;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.Menu)
 class Window
 {
+	/**
+	 * Whether windows have their own menu bar, set using `menu`.
+	 *
+	 * This is `true` on Windows. On macOS, the menu bar belongs to the
+	 * application instead (see `Application.supportsMenu`).
+	**/
+	public static var supportsMenu(get, never):Bool;
+
 	public var application(default, null):Application;
 	public var borderless(get, set):Bool;
 	public var context(default, null):RenderContext;
@@ -64,6 +73,19 @@ class Window
 	public var maxHeight(get, set):Int;
 	public var maximized(get, set):Bool;
 	public var maxWidth(get, set):Int;
+
+	/**
+	 * The menu displayed as this window's menu bar, or `null` for none.
+	 *
+	 * Changes to the menu are applied to the menu bar immediately. Adding or
+	 * removing the menu bar keeps the size of the window content the same.
+	 * Menu bar key equivalents are handled before `onKeyDown`, which is not
+	 * dispatched for them.
+	 *
+	 * Has no visible effect where `Window.supportsMenu` is `false`.
+	**/
+	public var menu(get, set):Menu;
+
 	public var minHeight(get, set):Int;
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
@@ -169,6 +191,7 @@ class Window
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __hidden:Bool;
 	@:noCompletion private var __maximized:Bool;
+	@:noCompletion private var __menu:Menu;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
 	@:noCompletion private var __scale:Float;
@@ -199,6 +222,7 @@ class Window
 				"maximized": {get: p.get_maximized, set: p.set_maximized},
 
 				"maxWidth": {get: p.get_maxWidth, set: p.set_maxWidth},
+				"menu": {get: p.get_menu, set: p.set_menu},
 				"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
 				"minimized": {get: p.get_minimized, set: p.set_minimized},
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
@@ -2710,6 +2734,34 @@ class Window
 	{
 		setMinSize(value, __maxHeight);
 		return __maxWidth;
+	}
+
+	@:noCompletion private inline function get_menu():Menu
+	{
+		return __menu;
+	}
+
+	@:noCompletion private static function get_supportsMenu():Bool
+	{
+		#if (lime_cffi && !macro)
+		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_WINDOW) != 0;
+		#else
+		return false;
+		#end
+	}
+
+	@:noCompletion private function set_menu(value:Menu):Menu
+	{
+		if (value != __menu)
+		{
+			if (__menu != null) __menu.__windows.remove(this);
+			__menu = value;
+			if (value != null) value.__windows.push(this);
+
+			__backend.setMenu(value);
+		}
+
+		return value;
 	}
 
 	@:noCompletion private inline function get_minHeight():Int

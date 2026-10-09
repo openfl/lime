@@ -10,6 +10,7 @@ import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
@@ -27,6 +28,7 @@ import lime.utils.Preloader;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.Menu)
 @:access(lime.ui.Window)
 class Application extends Module
 {
@@ -34,6 +36,15 @@ class Application extends Module
 		The current Application instance that is executing
 	**/
 	public static var current(default, null):Application;
+
+	/**
+		Whether the application has its own menu bar, set using `menu`.
+
+		This is `true` on macOS, where the menu bar belongs to the application
+		rather than to its windows. Elsewhere, use `Window.menu` when
+		`Window.supportsMenu` is `true`.
+	**/
+	public static var supportsMenu(get, never):Bool;
 
 	/**
 		The device's orientation.
@@ -44,6 +55,17 @@ class Application extends Module
 		Meta-data values for the application, such as a version or a package name
 	**/
 	public var meta:Map<String, String>;
+
+	/**
+		The menu bar of the application, or `null` for the default menu bar.
+
+		On macOS, the submenu of the first item becomes the application menu,
+		which is titled with the application name. Other top-level items should
+		have submenus. Changes to the menu are applied immediately.
+
+		Has no visible effect where `Application.supportsMenu` is `false`.
+	**/
+	public var menu(get, set):Menu;
 
 	/**
 		A list of currently attached Module instances
@@ -115,6 +137,7 @@ class Application extends Module
 	@:noCompletion private var __frameConfigured:Bool;
 	@:noCompletion private var __frameOptions:FrameOptions;
 	@:noCompletion private var __frameProfile:FrameProfile;
+	@:noCompletion private var __menu:Menu;
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
@@ -130,6 +153,7 @@ class Application extends Module
 			{
 				"frameOptions": {get: p.get_frameOptions, set: p.set_frameOptions},
 				"frameProfile": {get: p.get_frameProfile, set: p.set_frameProfile},
+				"menu": {get: p.get_menu, set: p.set_menu},
 				"preloader": {get: p.get_preloader},
 				"vsyncMode": {get: p.get_vsyncMode, set: p.set_vsyncMode},
 				"window": {get: p.get_window},
@@ -610,6 +634,11 @@ class Application extends Module
 			__windowByID.remove(window.id);
 			window.close();
 
+			if (window.__menu != null)
+			{
+				@:privateAccess window.__menu.__windows.remove(window);
+			}
+
 			__checkForAllWindowsClosed();
 		}
 	}
@@ -703,6 +732,20 @@ class Application extends Module
 		return __frameProfile;
 	}
 
+	@:noCompletion private inline function get_menu():Menu
+	{
+		return __menu;
+	}
+
+	@:noCompletion private static function get_supportsMenu():Bool
+	{
+		#if (lime_cffi && !macro)
+		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_APPLICATION) != 0;
+		#else
+		return false;
+		#end
+	}
+
 	@:noCompletion private inline function get_window():Window
 	{
 		return __window;
@@ -728,6 +771,20 @@ class Application extends Module
 	{
 		__applyFrameConfiguration(value, __frameOptions, __vsyncMode, true);
 		return __frameProfile;
+	}
+
+	@:noCompletion private function set_menu(value:Menu):Menu
+	{
+		if (value != __menu)
+		{
+			if (__menu != null) __menu.__application = null;
+			__menu = value;
+			if (value != null) value.__application = this;
+
+			__backend.setMenu(value);
+		}
+
+		return value;
 	}
 
 	@:noCompletion private function set_vsyncMode(value:VSyncMode):VSyncMode
