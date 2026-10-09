@@ -228,7 +228,9 @@ class NativeApplication
 			// Keep the value rooted in Haxe; do not unwind through SDL/Win32.
 			modalException = exception;
 			modalExceptionPending = true;
+			#if (!macro && lime_cffi)
 			NativeCFFI.lime_application_defer_modal_exception(handle);
+			#end
 		}
 	}
 
