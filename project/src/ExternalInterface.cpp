@@ -37,6 +37,7 @@
 #include <system/System.h>
 #include <text/Font.h>
 #include <ui/Cursor.h>
+#include <ui/DockIcon.h>
 #include <ui/DropEvent.h>
 #include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
@@ -2029,6 +2030,71 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	void lime_dock_icon_bounce (bool critical) {
+
+		DockIcon::Bounce (critical);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_dock_icon_bounce) (bool critical) {
+
+		DockIcon::Bounce (critical);
+
+	}
+
+
+	bool lime_dock_icon_is_supported () {
+
+		return DockIcon::IsSupported ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_dock_icon_is_supported) () {
+
+		return DockIcon::IsSupported ();
+
+	}
+
+
+	void lime_dock_icon_set_icon (value buffer) {
+
+		if (val_is_null (buffer)) {
+
+			DockIcon::SetIcon (NULL);
+			return;
+
+		}
+
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		DockIcon::SetIcon (&imageBuffer);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_dock_icon_set_icon) (ImageBuffer* buffer) {
+
+		DockIcon::SetIcon (buffer);
+
+	}
+
+
+	bool lime_dock_icon_set_menu (value data) {
+
+		Bytes bytes (data);
+		return DockIcon::SetMenu (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_dock_icon_set_menu) (Bytes* data) {
+
+		return DockIcon::SetMenu (data ? data->b : 0, data ? data->length : 0);
 
 	}
 
@@ -13744,6 +13810,10 @@ namespace lime {
 	DEFINE_PRIME2 (lime_data_pointer_offset);
 	DEFINE_PRIME2 (lime_deflate_compress);
 	DEFINE_PRIME2 (lime_deflate_decompress);
+	DEFINE_PRIME1v (lime_dock_icon_bounce);
+	DEFINE_PRIME0 (lime_dock_icon_is_supported);
+	DEFINE_PRIME1v (lime_dock_icon_set_icon);
+	DEFINE_PRIME1 (lime_dock_icon_set_menu);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME3 (lime_file_dialog_open_directory);
 	DEFINE_PRIME3 (lime_file_dialog_open_file);
@@ -14074,6 +14144,10 @@ namespace lime {
 	DEFINE_HL_PRIM (_F64, hl_data_pointer_offset, _F64 _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_decompress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_VOID, hl_dock_icon_bounce, _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_is_supported, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_dock_icon_set_icon, _TIMAGEBUFFER);
+	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_set_menu, _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_drop_event_manager_register, _FUN(_VOID, _NO_ARG) _TDROP_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_file_dialog_open_directory, _STRING _STRING _STRING);
 	DEFINE_HL_PRIM (_BYTES, hl_file_dialog_open_file, _STRING _STRING _STRING);

@@ -45,6 +45,7 @@ namespace lime {
 
 		public:
 
+			static bool GetDockMenuSelection (SDL_Event* event, int* id);
 			static bool GetSelection (SDL_Event* event, Uint32* windowID, int* id);
 			static int GetSupport ();
 			static bool GetTrayIconEvent (SDL_Event* event, int* trayIconID, int* type, int* itemID);
@@ -55,6 +56,7 @@ namespace lime {
 
 			static std::string GetLabel (const std::string& label, char mnemonicPrefix);
 			static bool Parse (const unsigned char* data, int length, std::vector<SDLMenuItem>* items);
+			static void PushDockMenuSelection (int id);
 			static void PushSelection (Uint32 windowID, int id);
 			static void PushTrayIconEvent (int trayIconID, int type, int itemID);
 

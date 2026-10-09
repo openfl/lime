@@ -150,7 +150,7 @@ class NativeTrayIcon
 		}
 	}
 
-	private static function getIconBuffer(image:Image):ImageBuffer
+	public static function getIconBuffer(image:Image):ImageBuffer
 	{
 		if (image == null || image.buffer == null) return null;
 

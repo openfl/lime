@@ -11,7 +11,8 @@ namespace lime {
 
 	enum MenuEventType {
 
-		MENU_SELECT
+		MENU_SELECT,
+		MENU_DOCK_SELECT
 
 	};
 

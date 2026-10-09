@@ -1,5 +1,6 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
+#include <ui/DockIcon.h>
 #include <stdint.h>
 
 
@@ -16,7 +17,8 @@ namespace lime {
 	enum MenuEventKind {
 
 		MENU_EVENT_SELECTION = 1,
-		MENU_EVENT_TRAY_ICON = 2
+		MENU_EVENT_TRAY_ICON = 2,
+		MENU_EVENT_DOCK_SELECTION = 3
 
 	};
 
@@ -130,6 +132,16 @@ namespace lime {
 	}
 
 
+	bool SDLMenu::GetDockMenuSelection (SDL_Event* event, int* id) {
+
+		if (menuEventType == 0 || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_DOCK_SELECTION) return false;
+
+		*id = event->user.code;
+		return true;
+
+	}
+
+
 	bool SDLMenu::GetSelection (SDL_Event* event, Uint32* windowID, int* id) {
 
 		if (menuEventType != 0 && event->type == menuEventType && (intptr_t)event->user.data1 == MENU_EVENT_SELECTION) {
@@ -195,6 +207,13 @@ namespace lime {
 	}
 
 
+	void SDLMenu::PushDockMenuSelection (int id) {
+
+		PushEvent (MENU_EVENT_DOCK_SELECTION, 0, id, 0);
+
+	}
+
+
 	void SDLMenu::PushSelection (Uint32 windowID, int id) {
 
 		PushEvent (MENU_EVENT_SELECTION, windowID, id, 0);
@@ -214,6 +233,32 @@ namespace lime {
 		return id;
 
 	}
+
+
+#ifndef LIME_SDL_MENU_COCOA
+
+	// The Dock only exists on macOS
+
+	void DockIcon::Bounce (bool critical) {}
+
+
+	bool DockIcon::IsSupported () {
+
+		return false;
+
+	}
+
+
+	void DockIcon::SetIcon (ImageBuffer* imageBuffer) {}
+
+
+	bool DockIcon::SetMenu (const unsigned char* data, int length) {
+
+		return false;
+
+	}
+
+#endif
 
 
 #if !defined (LIME_SDL_MENU_WIN32) && !defined (LIME_SDL_MENU_COCOA) && !defined (LIME_SDL_MENU_GTK)

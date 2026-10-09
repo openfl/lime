@@ -480,6 +480,9 @@ class NativeApplication
 	{
 		switch (menuEventInfo.type)
 		{
+			case MENU_DOCK_SELECT:
+				NativeDockIcon.handleMenuSelect(menuEventInfo.id);
+
 			case MENU_SELECT:
 				if (menuEventInfo.windowID == 0)
 				{
@@ -1011,6 +1014,7 @@ class NativeApplication
 #if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MenuEventType(Int)
 {
 	var MENU_SELECT = 0;
+	var MENU_DOCK_SELECT = 1;
 }
 
 @:keep /*private*/ class MouseEventInfo

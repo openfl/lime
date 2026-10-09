@@ -48,6 +48,7 @@ import lime.app.Event;
 @:noDebug
 #end
 @:access(lime.app.Application)
+@:access(lime.ui.DockIcon)
 @:access(lime.ui.MenuItem)
 @:access(lime.ui.TrayIcon)
 @:access(lime.ui.Window)
@@ -82,12 +83,14 @@ class Menu
 	public var parent(default, null):MenuItem;
 
 	@:noCompletion private var __application:Application;
+	@:noCompletion private var __dockIcon:Bool;
 	@:noCompletion private var __items:Array<MenuItem>;
 	@:noCompletion private var __trayIcons:Array<TrayIcon>;
 	@:noCompletion private var __windows:Array<Window>;
 
 	public function new()
 	{
+		__dockIcon = false;
 		__items = [];
 		__trayIcons = [];
 		__windows = [];
@@ -261,6 +264,11 @@ class Menu
 		if (__application != null)
 		{
 			__application.__backend.setMenu(this);
+		}
+
+		if (__dockIcon)
+		{
+			DockIcon.__update();
 		}
 
 		for (trayIcon in __trayIcons)

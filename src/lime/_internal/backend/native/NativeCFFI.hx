@@ -124,6 +124,14 @@ class NativeCFFI
 
 	@:cffi private static function lime_deflate_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
+	@:cffi private static function lime_dock_icon_bounce(critical:Bool):Void;
+
+	@:cffi private static function lime_dock_icon_is_supported():Bool;
+
+	@:cffi private static function lime_dock_icon_set_icon(buffer:Dynamic):Void;
+
+	@:cffi private static function lime_dock_icon_set_menu(data:Dynamic):Bool;
+
 	@:cffi private static function lime_drop_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_file_dialog_open_directory(title:String, filter:String, defaultPath:String):Dynamic;
@@ -809,6 +817,10 @@ class NativeCFFI
 		"ooo", false));
 	private static var lime_deflate_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_decompress",
 		"ooo", false));
+	private static var lime_dock_icon_bounce = new cpp.Callable<Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_dock_icon_bounce", "bv", false));
+	private static var lime_dock_icon_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_dock_icon_is_supported", "b", false));
+	private static var lime_dock_icon_set_icon = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_dock_icon_set_icon", "ov", false));
+	private static var lime_dock_icon_set_menu = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_dock_icon_set_menu", "ob", false));
 	private static var lime_drop_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_drop_event_manager_register", "oov", false));
 	private static var lime_file_dialog_open_directory = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime._loadPrime("lime",
@@ -1327,6 +1339,10 @@ class NativeCFFI
 	private static var lime_data_pointer_offset = CFFI.load("lime", "lime_data_pointer_offset", 2);
 	private static var lime_deflate_compress = CFFI.load("lime", "lime_deflate_compress", 2);
 	private static var lime_deflate_decompress = CFFI.load("lime", "lime_deflate_decompress", 2);
+	private static var lime_dock_icon_bounce = CFFI.load("lime", "lime_dock_icon_bounce", 1);
+	private static var lime_dock_icon_is_supported = CFFI.load("lime", "lime_dock_icon_is_supported", 0);
+	private static var lime_dock_icon_set_icon = CFFI.load("lime", "lime_dock_icon_set_icon", 1);
+	private static var lime_dock_icon_set_menu = CFFI.load("lime", "lime_dock_icon_set_menu", 1);
 	private static var lime_drop_event_manager_register = CFFI.load("lime", "lime_drop_event_manager_register", 2);
 	private static var lime_file_dialog_open_directory = CFFI.load("lime", "lime_file_dialog_open_directory", 3);
 	private static var lime_file_dialog_open_file = CFFI.load("lime", "lime_file_dialog_open_file", 3);
@@ -1733,6 +1749,20 @@ class NativeCFFI
 	@:hlNative("lime", "hl_deflate_decompress") private static function lime_deflate_decompress(data:Bytes, bytes:Bytes):Bytes
 	{
 		return null;
+	}
+
+	@:hlNative("lime", "hl_dock_icon_bounce") private static function lime_dock_icon_bounce(critical:Bool):Void {}
+
+	@:hlNative("lime", "hl_dock_icon_is_supported") private static function lime_dock_icon_is_supported():Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_dock_icon_set_icon") private static function lime_dock_icon_set_icon(buffer:ImageBuffer):Void {}
+
+	@:hlNative("lime", "hl_dock_icon_set_menu") private static function lime_dock_icon_set_menu(data:Bytes):Bool
+	{
+		return false;
 	}
 
 	@:hlNative("lime", "hl_drop_event_manager_register") private static function lime_drop_event_manager_register(callback:Void->Void,

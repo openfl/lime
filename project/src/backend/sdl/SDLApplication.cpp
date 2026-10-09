@@ -1106,12 +1106,24 @@ namespace lime
 		Uint32 windowID;
 		int id;
 
-		if (MenuEvent::callback && SDLMenu::GetSelection(event, &windowID, &id))
+		if (!MenuEvent::callback)
+			return;
+
+		if (SDLMenu::GetSelection(event, &windowID, &id))
 		{
 
 			menuEvent.type = MENU_SELECT;
 			menuEvent.id = id;
 			menuEvent.windowID = windowID;
+
+			MenuEvent::Dispatch(&menuEvent);
+		}
+		else if (SDLMenu::GetDockMenuSelection(event, &id))
+		{
+
+			menuEvent.type = MENU_DOCK_SELECT;
+			menuEvent.id = id;
+			menuEvent.windowID = 0;
 
 			MenuEvent::Dispatch(&menuEvent);
 		}

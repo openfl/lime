@@ -2,10 +2,12 @@
 
 #ifdef LIME_SDL_MENU_COCOA
 
-// Native menus and tray icons for macOS
+// Native menus, tray icons and the Dock icon for macOS
 
 #import <Cocoa/Cocoa.h>
+#import <objc/runtime.h>
 #include "SDLTrayIcon.h"
+#include <ui/DockIcon.h>
 #include <ui/TrayIconEvent.h>
 #include <SDL_syswm.h>
 #include <string.h>
@@ -13,12 +15,14 @@
 #if __has_feature(objc_arc)
 #define LIME_AUTORELEASE(object) (object)
 #define LIME_RETAIN(object) (object)
+#define LIME_RELEASE(object)
 #define LIME_BRIDGE(type, pointer) ((__bridge type)(pointer))
 #define LIME_BRIDGE_RETAIN(object) ((void*)CFBridgingRetain (object))
 #define LIME_BRIDGE_RELEASE(pointer) CFRelease ((CFTypeRef)(pointer))
 #else
 #define LIME_AUTORELEASE(object) [(object) autorelease]
 #define LIME_RETAIN(object) [(object) retain]
+#define LIME_RELEASE(object) [(object) release]
 #define LIME_BRIDGE(type, pointer) ((type)(pointer))
 #define LIME_BRIDGE_RETAIN(object) ((void*)[(object) retain])
 #define LIME_BRIDGE_RELEASE(pointer) [(NSObject*)(pointer) release]
@@ -35,6 +39,7 @@
 
 - (void)clickTrayIcon:(id)sender;
 - (void)selectApplicationMenuItem:(NSMenuItem*)sender;
+- (void)selectDockMenuItem:(NSMenuItem*)sender;
 - (void)selectPopupMenuItem:(NSMenuItem*)sender;
 - (void)selectTrayIconMenuItem:(NSMenuItem*)sender;
 
@@ -56,6 +61,12 @@
 
 	// Called while SDL pumps Cocoa events, so queue the selection for SDLApplication
 	lime::SDLMenu::PushSelection (0, (int)[sender tag]);
+
+}
+
+- (void)selectDockMenuItem:(NSMenuItem*)sender {
+
+	lime::SDLMenu::PushDockMenuSelection ((int)[sender tag]);
 
 }
 
@@ -180,6 +191,40 @@ namespace lime {
 		if (keyModifiers & KMOD_CTRL) mask |= NSEventModifierFlagControl;
 
 		return mask;
+
+	}
+
+
+	static NSImage* CreateImage (ImageBuffer* imageBuffer) {
+
+		if (!imageBuffer || !imageBuffer->data || !imageBuffer->data->buffer || imageBuffer->width <= 0 || imageBuffer->height <= 0 || imageBuffer->bitsPerPixel != 32) {
+
+			return nil;
+
+		}
+
+		int width = imageBuffer->width;
+		int height = imageBuffer->height;
+		int stride = imageBuffer->Stride ();
+
+		if (imageBuffer->data->buffer->length < stride * height) return nil;
+
+		NSBitmapImageRep* bitmap = LIME_AUTORELEASE ([[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:width pixelsHigh:height bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace bitmapFormat:NSBitmapFormatAlphaNonpremultiplied bytesPerRow:width * 4 bitsPerPixel:32]);
+
+		if (!bitmap) return nil;
+
+		const unsigned char* source = imageBuffer->data->buffer->b;
+		unsigned char* dest = [bitmap bitmapData];
+
+		for (int y = 0; y < height; y++) {
+
+			memcpy (dest + y * width * 4, source + y * stride, width * 4);
+
+		}
+
+		NSImage* image = LIME_AUTORELEASE ([[NSImage alloc] initWithSize:NSMakeSize (width, height)]);
+		[image addRepresentation:bitmap];
+		return image;
 
 	}
 
@@ -472,37 +517,12 @@ namespace lime {
 
 	void SDLTrayIcon::SetIcon (ImageBuffer* imageBuffer) {
 
-		if (!platform || !imageBuffer || !imageBuffer->data || !imageBuffer->data->buffer || imageBuffer->width <= 0 || imageBuffer->height <= 0 || imageBuffer->bitsPerPixel != 32) {
-
-			return;
-
-		}
+		if (!platform) return;
 
 		@autoreleasepool {
 
-			int width = imageBuffer->width;
-			int height = imageBuffer->height;
-
-			if (imageBuffer->data->buffer->length < imageBuffer->Stride () * height) return;
-
-			NSBitmapImageRep* bitmap = LIME_AUTORELEASE ([[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:width pixelsHigh:height bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace bitmapFormat:NSBitmapFormatAlphaNonpremultiplied bytesPerRow:width * 4 bitsPerPixel:32]);
-
-			if (!bitmap) return;
-
-			const unsigned char* source = imageBuffer->data->buffer->b;
-			unsigned char* dest = [bitmap bitmapData];
-			int stride = imageBuffer->Stride ();
-
-			for (int y = 0; y < height; y++) {
-
-				memcpy (dest + y * width * 4, source + y * stride, width * 4);
-
-			}
-
-			NSImage* image = LIME_AUTORELEASE ([[NSImage alloc] initWithSize:NSMakeSize (width, height)]);
-			[image addRepresentation:bitmap];
-
-			[[GetStatusItem (this) button] setImage:GetTrayImage (image)];
+			NSImage* image = CreateImage (imageBuffer);
+			[[GetStatusItem (this) button] setImage:GetTrayImage (image ? image : [NSApp applicationIconImage])];
 
 		}
 
@@ -550,6 +570,100 @@ namespace lime {
 
 
 	void SDLTrayIcon::Update () {}
+
+
+	// AppKit asks the application delegate for the Dock menu. SDL's delegate does not provide
+	// one, so the method is added to its class when a Dock menu is first set.
+
+	static NSMenu* dockMenu = nil;
+	static bool dockMenuHandlerInstalled = false;
+
+
+	static NSMenu* GetApplicationDockMenu (id self, SEL command, NSApplication* sender) {
+
+		return dockMenu;
+
+	}
+
+
+	static bool InstallDockMenuHandler () {
+
+		if (dockMenuHandlerInstalled) return true;
+
+		id delegate = [NSApp delegate];
+		SEL selector = @selector(applicationDockMenu:);
+
+		// Another delegate that already provides a Dock menu is left alone
+		if (!delegate || [delegate respondsToSelector:selector]) return false;
+
+		if (!class_addMethod ([delegate class], selector, (IMP)GetApplicationDockMenu, "@@:@")) return false;
+
+		// NSApplication caches which methods its delegate implements, so set it again
+		[NSApp setDelegate:nil];
+		[NSApp setDelegate:delegate];
+
+		dockMenuHandlerInstalled = true;
+		return true;
+
+	}
+
+
+	void DockIcon::Bounce (bool critical) {
+
+		if (NSApp) [NSApp requestUserAttention:(critical ? NSCriticalRequest : NSInformationalRequest)];
+
+	}
+
+
+	bool DockIcon::IsSupported () {
+
+		return NSApp != nil;
+
+	}
+
+
+	void DockIcon::SetIcon (ImageBuffer* imageBuffer) {
+
+		if (!NSApp) return;
+
+		@autoreleasepool {
+
+			// A nil image restores the icon from the application bundle
+			[NSApp setApplicationIconImage:CreateImage (imageBuffer)];
+
+		}
+
+	}
+
+
+	bool DockIcon::SetMenu (const unsigned char* data, int length) {
+
+		if (!NSApp) return false;
+
+		@autoreleasepool {
+
+			NSMenu* menu = nil;
+
+			if (data && length > 0) {
+
+				std::vector<SDLMenuItem> items;
+
+				if (!SDLMenu::Parse (data, length, &items) || !InstallDockMenuHandler ()) return false;
+
+				menu = CreateMenu (@"");
+				AppendMenuItems (menu, items, @selector(selectDockMenuItem:), 0);
+
+			}
+
+			NSMenu* previous = dockMenu;
+			dockMenu = LIME_RETAIN (menu);
+			LIME_RELEASE (previous);
+
+			return menu != nil;
+
+		}
+
+	}
 
 
 }
