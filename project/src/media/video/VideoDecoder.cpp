@@ -291,6 +291,9 @@ namespace lime {
 		VideoStreamInfo streamInfo;
 		memset (&streamInfo, 0, sizeof (streamInfo));
 
+		texturesFailed = false;
+		backend->SetTextureOutput (format == VIDEO_FRAME_FORMAT_TEXTURE);
+
 		if (!backend->Open (path, hardwareDecoding, &streamInfo)) {
 
 			backend->Close ();
