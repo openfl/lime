@@ -336,9 +336,11 @@ class NativeVideoSource
 
 		if (handle != null && bufferTimes.length > 0)
 		{
-			// The time of the sample being heard
+			// The time of the sample being heard. Rounding can put the start of
+			// the first buffer just below zero, which readFrame would take as no
+			// time at all.
 			var offset:Int = AL.getSourcei(handle, AL.SAMPLE_OFFSET);
-			return bufferTimes[0] + offset / decoder.audioSampleRate;
+			return Math.max(0, bufferTimes[0] + offset / decoder.audioSampleRate);
 		}
 
 		if (handle != null && !decoder.audioComplete)
