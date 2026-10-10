@@ -649,6 +649,8 @@ namespace lime {
 		audioCondition.notify_all ();
 		videoCondition.notify_all ();
 
+		backend->Interrupt ();
+
 		if (audioThread.joinable ()) audioThread.join ();
 		if (videoThread.joinable ()) videoThread.join ();
 

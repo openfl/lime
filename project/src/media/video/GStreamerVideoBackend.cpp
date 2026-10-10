@@ -452,6 +452,7 @@ namespace lime {
 			void Close ();
 			GstCaps* GetCaps ();
 			double GetDuration ();
+			void Interrupt ();
 			bool Open (const char* uri, bool video, bool hardware, std::chrono::steady_clock::time_point deadline);
 			void Play ();
 			VideoDecodeResult Pull (GstSample** sample);
@@ -476,6 +477,7 @@ namespace lime {
 			GstElement* bin;
 			GstBus* bus;
 			bool hardware;
+			std::atomic<bool> interrupted;
 			std::atomic<bool> linked;
 			bool video;
 
@@ -490,6 +492,7 @@ namespace lime {
 		bus = NULL;
 		foundAudio = false;
 		hardware = false;
+		interrupted = false;
 		linked = false;
 		pipeline = NULL;
 		triedHardware = false;
@@ -644,6 +647,7 @@ namespace lime {
 
 		foundAudio = false;
 		this->hardware = hardware;
+		interrupted = false;
 		linked = false;
 		triedHardware = false;
 		this->video = video;
@@ -775,6 +779,8 @@ namespace lime {
 			*sample = gst.gst_app_sink_try_pull_sample (appSink, PULL_INTERVAL);
 			if (*sample) return VIDEO_DECODE_OK;
 
+			if (interrupted) return VIDEO_DECODE_ERROR;
+
 			if (gst.gst_app_sink_is_eos (appSink)) return VIDEO_DECODE_END;
 
 			// An error stops the stream without an end of stream
@@ -790,6 +796,13 @@ namespace lime {
 			if (std::chrono::steady_clock::now () >= deadline) return VIDEO_DECODE_ERROR;
 
 		}
+
+	}
+
+
+	void GStreamerStream::Interrupt () {
+
+		interrupted = true;
 
 	}
 
@@ -816,6 +829,7 @@ namespace lime {
 			virtual void Close ();
 			virtual VideoDecodeResult DecodeAudio (std::vector<unsigned char>* pcm, double* time);
 			virtual VideoDecodeResult DecodeVideo (VideoPlanes* planes, double* time, double* duration);
+			virtual void Interrupt ();
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
 			virtual bool Seek (double time);
 
@@ -1002,6 +1016,14 @@ namespace lime {
 		videoPosition = *time + *duration;
 
 		return VIDEO_DECODE_OK;
+
+	}
+
+
+	void GStreamerVideoBackend::Interrupt () {
+
+		audio.Interrupt ();
+		video.Interrupt ();
 
 	}
 

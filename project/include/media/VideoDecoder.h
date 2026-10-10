@@ -129,6 +129,10 @@ namespace lime {
 			// DecodeVideo, Seek or Close.
 			virtual VideoDecodeResult DecodeVideo (VideoPlanes* planes, double* time, double* duration) = 0;
 
+			// Called from another thread before Close, so a stream waiting on a
+			// stalled network source returns from DecodeAudio or DecodeVideo soon.
+			virtual void Interrupt () {}
+
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info) = 0;
 
 			// Seeks both streams to the keyframe at or before time.
