@@ -851,6 +851,7 @@ class HXProject extends Script
 		defines.set(Std.string(target).toLowerCase(), "1");
 		defines.set("target", Std.string(target).toLowerCase());
 		defines.set("platform", defines.get("target"));
+		initializeArchitectureDefines();
 
 		switch (System.hostPlatform)
 		{
@@ -869,6 +870,60 @@ class HXProject extends Script
 		#end
 
 		defines.set("hxp", "1"); // TODO: Version?
+	}
+
+	private function initializeArchitectureDefines():Void
+	{
+		var architecture:Architecture = null;
+
+		if (targetFlags.exists("arm64"))
+		{
+			architecture = ARM64;
+		}
+		else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
+		{
+			architecture = X64;
+		}
+		else if (targetFlags.exists("32") || targetFlags.exists("x86_32"))
+		{
+			architecture = X86;
+		}
+		else if (targetFlags.exists("armv7"))
+		{
+			architecture = ARMV7;
+		}
+		else if (defines.exists("native"))
+		{
+			architecture = switch (System.hostArchitecture)
+			{
+				case ARM64: ARM64;
+				case X64: X64;
+				case X86: X86;
+				case ARMV7: ARMV7;
+				default: null;
+			}
+		}
+
+		// Non-native targets leave architecture unset.
+		// Switching on a null enum throws "Invalid field access : index".
+		if (architecture == null)
+		{
+			return;
+		}
+
+		// Target-agnostic architecture defines for include.xml conditions.
+		switch (architecture)
+		{
+			case ARM64:
+				defines.set("arm64", "1");
+			case X64:
+				defines.set("x86_64", "1");
+			case X86:
+				defines.set("x86_32", "1");
+			case ARMV7:
+				defines.set("armv7", "1");
+			default:
+		}
 	}
 
 	private static function initializeStatics():Void
