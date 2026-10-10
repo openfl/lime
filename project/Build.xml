@@ -343,6 +343,7 @@
 		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/media/video/AVFVideoBackend.mm" if="mac || ios" />
 		<file name="src/media/video/GStreamerVideoBackend.cpp" if="linux" />
+		<file name="src/media/video/MediaCodecVideoBackend.cpp" if="android" />
 		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
 		<file name="src/media/video/VideoDecoder.cpp" />
 		<file name="src/media/video/VideoDecoderBindings.cpp" />
