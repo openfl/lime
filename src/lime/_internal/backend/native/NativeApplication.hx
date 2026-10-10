@@ -70,7 +70,7 @@ class NativeApplication
 	private var trayIconEventInfo = new TrayIconEventInfo();
 	private var unusedTouchesPool = new List<Touch>();
 	private var windowEventInfo = new WindowEventInfo();
-	#if (windows && !winrt)
+	#if (!macro && lime_cffi && windows && !winrt)
 	private var modalException:Dynamic;
 	private var modalExceptionPending = false;
 	#end
@@ -244,7 +244,7 @@ class NativeApplication
 		#end
 	}
 
-	#if (windows && !winrt)
+	#if (!macro && lime_cffi && windows && !winrt)
 	private function runModalCallback(callback:Void->Void):Void
 	{
 		if (modalExceptionPending) return;
@@ -257,9 +257,7 @@ class NativeApplication
 			// Keep the value rooted in Haxe; do not unwind through SDL/Win32.
 			modalException = exception;
 			modalExceptionPending = true;
-			#if (!macro && lime_cffi)
 			NativeCFFI.lime_application_defer_modal_exception(handle);
-			#end
 		}
 	}
 
