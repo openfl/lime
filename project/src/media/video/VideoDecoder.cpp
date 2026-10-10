@@ -522,6 +522,7 @@ namespace lime {
 			// This context cannot use the backend's textures, so decode into
 			// memory and upload from here on
 			texturesFailed = true;
+			backend->SetTextureOutput (false);
 			Seek (resume, true);
 			return VIDEO_READ_NOT_READY;
 

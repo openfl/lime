@@ -152,7 +152,9 @@ namespace lime {
 			virtual void ReleaseTextureFrame (VideoTextureFrame* frame) {}
 
 			// Called before Open with whether frames will be read as textures, for
-			// backends that decode differently for texture output.
+			// backends that decode differently for texture output. When the
+			// application's context cannot use the backend's textures, it is
+			// called with false, followed by a Seek to where reading continues.
 			virtual void SetTextureOutput (bool enabled) {}
 
 			// Deletes the backend's GL objects, with the GL context current.
