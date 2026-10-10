@@ -102,8 +102,25 @@ class HTML5VideoSource
 		}
 		else
 		{
-			element.addEventListener("loadedmetadata", function(_) promise.complete(source), {once: true});
-			element.addEventListener("error", function(_) promise.error("Cannot play " + path), {once: true});
+			var onMetadata:Dynamic = null;
+			var onError:Dynamic = null;
+
+			onMetadata = function(_)
+			{
+				element.removeEventListener("loadedmetadata", onMetadata);
+				element.removeEventListener("error", onError);
+				promise.complete(source);
+			};
+
+			onError = function(_)
+			{
+				element.removeEventListener("loadedmetadata", onMetadata);
+				element.removeEventListener("error", onError);
+				promise.error("Cannot play " + path);
+			};
+
+			element.addEventListener("loadedmetadata", onMetadata);
+			element.addEventListener("error", onError);
 		}
 
 		return promise.future;
