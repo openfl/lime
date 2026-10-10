@@ -618,8 +618,10 @@ namespace lime {
 				off_t outStart;
 				off_t outLength;
 				fd = AAsset_openFileDescriptor ((AAsset*)(((SDL_RWops*)handle)->hidden.androidio.asset), &outStart, &outLength);
-				FILE* file = ::fdopen (fd, "rb");
-				::fseek (file, outStart, 0);
+
+				// Compressed assets have no file descriptor
+				FILE* file = fd >= 0 ? ::fdopen (fd, "rb") : NULL;
+				if (file) ::fseek (file, outStart, 0);
 				System::GCExitBlocking ();
 				return file;
 				#endif
