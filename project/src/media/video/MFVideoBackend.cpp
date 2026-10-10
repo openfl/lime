@@ -1190,6 +1190,7 @@ namespace lime {
 			desc.SampleDesc.Count = 1;
 			desc.Usage = D3D11_USAGE_DEFAULT;
 			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+			desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
 
 			for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
