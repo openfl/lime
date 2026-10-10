@@ -2,6 +2,9 @@ package lime.media;
 
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
+#if (lime_opengl || lime_opengles)
+import lime.graphics.opengl.GL;
+#end
 import lime.utils.Assets;
 import lime.utils.UInt8Array;
 #if sys
@@ -282,12 +285,16 @@ class VideoDecoder
 		if (result > 0)
 		{
 			var info:Dynamic = NativeCFFI.lime_video_decoder_get_frame_info(__handle);
+			#if (lime_opengl || lime_opengles)
+			var texture:Int = info.texture;
+			frame.texture = texture != 0 ? GLObject.fromInt(TEXTURE, texture) : null;
+			#end
 			frame.colorMatrix = info.colorMatrix;
 			frame.duration = info.duration;
 			frame.format = format;
 			frame.fullRange = info.fullRange;
 			frame.height = info.height;
-			frame.length = result;
+			frame.length = format == VideoFrameFormat.TEXTURE ? 0 : result;
 			frame.time = info.time;
 			frame.width = info.width;
 			return true;

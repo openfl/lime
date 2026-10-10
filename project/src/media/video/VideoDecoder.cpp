@@ -1,5 +1,27 @@
 #include <media/VideoDecoder.h>
+#include <stdlib.h>
 #include <string.h>
+
+#if defined (LIME_OPENGL) && !defined (LIME_VIDEO_STANDALONE)
+#define LIME_VIDEO_TEXTURES
+#include "../../graphics/opengl/OpenGL.h"
+#include "../../graphics/opengl/OpenGLBindings.h"
+#ifdef NEED_EXTENSIONS
+#define DECLARE_EXTENSION
+#include "../../graphics/opengl/OpenGLExtensions.h"
+#undef DECLARE_EXTENSION
+#endif
+#endif
+
+#ifndef GL_PIXEL_UNPACK_BUFFER
+#define GL_PIXEL_UNPACK_BUFFER 0x88EC
+#endif
+#ifndef GL_PIXEL_UNPACK_BUFFER_BINDING
+#define GL_PIXEL_UNPACK_BUFFER_BINDING 0x88EF
+#endif
+#ifndef GL_UNPACK_ROW_LENGTH
+#define GL_UNPACK_ROW_LENGTH 0x0CF2
+#endif
 
 
 namespace lime {
@@ -82,12 +104,14 @@ namespace lime {
 		audioQueued = 0;
 		audioQueueEnd = 0;
 		audioTime = 0;
+		currentFrame = 0;
 		format = VIDEO_FRAME_FORMAT_NV12;
 		frameColorMatrix = VIDEO_COLOR_MATRIX_BT709;
 		frameDuration = 0;
 		frameFullRange = false;
 		frameHeight = 0;
 		frameLength = 0;
+		frameTexture = 0;
 		frameTime = 0;
 		frameWidth = 0;
 		memset (&info, 0, sizeof (info));
@@ -96,6 +120,11 @@ namespace lime {
 		seekAccurate = false;
 		seekPending = false;
 		seekTime = 0;
+		texture = 0;
+		textureHeight = 0;
+		texturesFailed = false;
+		textureThreadKnown = false;
+		textureWidth = 0;
 		videoEnded = true;
 		videoError = false;
 
@@ -188,10 +217,29 @@ namespace lime {
 		if (!open) return;
 
 		StopThreads ();
+
+		if (currentFrame) {
+
+			if (currentFrame->texture && IsTextureThread ()) backend->UnlockTexture (currentFrame->texture);
+
+			std::lock_guard<std::mutex> lock (mutex);
+			ReleaseFrame (currentFrame);
+			currentFrame = 0;
+
+		}
+
+		{
+			std::lock_guard<std::mutex> lock (mutex);
+			Flush ();
+		}
+
+		// GL objects can only be deleted where their context is current, so
+		// closing on another thread leaves them
+		if (IsTextureThread ()) ReleaseTextures ();
+
 		backend->Close ();
 
 		std::lock_guard<std::mutex> lock (mutex);
-		Flush ();
 
 		for (size_t i = 0; i < freeChunks.size (); i++) delete freeChunks[i];
 		for (size_t i = 0; i < freeFrames.size (); i++) delete freeFrames[i];
@@ -209,7 +257,7 @@ namespace lime {
 	void VideoDecoder::Flush () {
 
 		for (size_t i = 0; i < audioChunks.size (); i++) freeChunks.push_back (audioChunks[i]);
-		for (size_t i = 0; i < frames.size (); i++) freeFrames.push_back (frames[i]);
+		for (size_t i = 0; i < frames.size (); i++) ReleaseFrame (frames[i]);
 
 		audioChunks.clear ();
 		audioQueued = 0;
@@ -225,7 +273,8 @@ namespace lime {
 		switch (format) {
 
 			case VIDEO_FRAME_FORMAT_NV12: return width * height + ((width + 1) / 2) * 2 * ((height + 1) / 2);
-			case VIDEO_FRAME_FORMAT_RGBA: return width * height * 4;
+			case VIDEO_FRAME_FORMAT_RGBA:
+			case VIDEO_FRAME_FORMAT_TEXTURE: return width * height * 4;
 			default: return 0;
 
 		}
@@ -280,7 +329,8 @@ namespace lime {
 		frameDuration = info.frameRate > 0 ? 1.0 / info.frameRate : 0;
 		frameFullRange = false;
 		frameHeight = info.height;
-		frameLength = GetFrameLength (format, info.width, info.height);
+		frameLength = format == VIDEO_FRAME_FORMAT_TEXTURE ? 0 : GetFrameLength (format, info.width, info.height);
+		frameTexture = 0;
 		frameTime = 0;
 		frameWidth = info.width;
 		seekAccurate = false;
@@ -348,6 +398,8 @@ namespace lime {
 
 	int VideoDecoder::ReadFrame (unsigned char* data, int length, double time) {
 
+		if (format == VIDEO_FRAME_FORMAT_TEXTURE) return ReadTexture (time);
+
 		std::lock_guard<std::mutex> lock (mutex);
 
 		if (!open || !info.hasVideo) return VIDEO_READ_END;
@@ -359,7 +411,7 @@ namespace lime {
 			// Drop frames that a later queued frame replaces by time
 			while (frames.size () > 1 && frames[1]->time <= time) {
 
-				freeFrames.push_back (frames.front ());
+				ReleaseFrame (frames.front ());
 				frames.pop_front ();
 				dropped = true;
 
@@ -393,10 +445,141 @@ namespace lime {
 		memcpy (data, frame->data.data (), frame->length);
 
 		frames.pop_front ();
-		freeFrames.push_back (frame);
+		ReleaseFrame (frame);
 		videoCondition.notify_one ();
 
 		return frameLength;
+
+	}
+
+
+	bool VideoDecoder::IsTextureThread () {
+
+		return textureThreadKnown && textureThread == std::this_thread::get_id ();
+
+	}
+
+
+	int VideoDecoder::ReadTexture (double time) {
+
+		Frame* frame = 0;
+
+		{
+			std::lock_guard<std::mutex> lock (mutex);
+
+			if (!open || !info.hasVideo) return VIDEO_READ_END;
+
+			bool dropped = false;
+
+			if (time >= 0) {
+
+				while (frames.size () > 1 && frames[1]->time <= time) {
+
+					ReleaseFrame (frames.front ());
+					frames.pop_front ();
+					dropped = true;
+
+				}
+
+			}
+
+			if (dropped) videoCondition.notify_one ();
+
+			if (frames.empty ()) {
+
+				if (videoEnded) return videoError ? VIDEO_READ_ERROR : VIDEO_READ_END;
+				return VIDEO_READ_NOT_READY;
+
+			}
+
+			if (time >= 0 && frames.front ()->time > time) return VIDEO_READ_NOT_READY;
+
+			frame = frames.front ();
+			frames.pop_front ();
+			videoCondition.notify_one ();
+		}
+
+		textureThread = std::this_thread::get_id ();
+		textureThreadKnown = true;
+
+		unsigned int name = frame->texture ? backend->LockTexture (frame->texture) : UploadTexture (frame);
+
+		if (!name) {
+
+			bool fallBack = (frame->texture != 0 && !texturesFailed);
+			double resume = frame->time;
+
+			{
+				std::lock_guard<std::mutex> lock (mutex);
+				ReleaseFrame (frame);
+			}
+
+			if (!fallBack) return VIDEO_READ_ERROR;
+
+			// This context cannot use the backend's textures, so decode into
+			// memory and upload from here on
+			texturesFailed = true;
+			Seek (resume, true);
+			return VIDEO_READ_NOT_READY;
+
+		}
+
+		if (currentFrame) {
+
+			if (currentFrame->texture) backend->UnlockTexture (currentFrame->texture);
+
+			std::lock_guard<std::mutex> lock (mutex);
+			ReleaseFrame (currentFrame);
+
+		}
+
+		currentFrame = frame;
+
+		frameColorMatrix = frame->colorMatrix;
+		frameDuration = frame->duration;
+		frameFullRange = frame->fullRange;
+		frameHeight = frame->height;
+		frameLength = 0;
+		frameTexture = name;
+		frameTime = frame->time;
+		frameWidth = frame->width;
+
+		return 1;
+
+	}
+
+
+	void VideoDecoder::ReleaseFrame (Frame* frame) {
+
+		if (frame->texture) {
+
+			backend->ReleaseTextureFrame (frame->texture);
+			frame->texture = 0;
+
+		}
+
+		freeFrames.push_back (frame);
+
+	}
+
+
+	void VideoDecoder::ReleaseTextures () {
+
+		backend->ReleaseTextures ();
+
+		#ifdef LIME_VIDEO_TEXTURES
+		if (texture) {
+
+			glDeleteTextures (1, &texture);
+			texture = 0;
+
+		}
+		#endif
+
+		frameTexture = 0;
+		textureHeight = 0;
+		textureThreadKnown = false;
+		textureWidth = 0;
 
 	}
 
@@ -481,9 +664,24 @@ namespace lime {
 			std::lock_guard<std::mutex> decodeLock (videoDecodeMutex);
 
 			VideoPlanes planes;
+			VideoTextureFrame* textureFrame = 0;
 			double time = 0;
 			double duration = 0;
-			VideoDecodeResult result = backend->DecodeVideo (&planes, &time, &duration);
+			VideoDecodeResult result;
+
+			if (format == VIDEO_FRAME_FORMAT_TEXTURE && !texturesFailed && backend->SupportsTextures ()) {
+
+				result = backend->DecodeVideoTexture (&textureFrame, &time, &duration);
+
+				// A backend that stops supporting textures returns no frame, and the
+				// next one is decoded into memory
+				if (result == VIDEO_DECODE_OK && !textureFrame) continue;
+
+			} else {
+
+				result = backend->DecodeVideo (&planes, &time, &duration);
+
+			}
 
 			if (result != VIDEO_DECODE_OK) {
 
@@ -497,10 +695,12 @@ namespace lime {
 			if (duration <= 0) duration = info.frameRate > 0 ? 1.0 / info.frameRate : 0;
 
 			// Drop the frames that end before an accurate seek target
-			if (seekAccurate && time + duration <= seekTime + 0.0001) continue;
+			if (seekAccurate && time + duration <= seekTime + 0.0001) {
 
-			int length = GetFrameLength (format, planes.width, planes.height);
-			if (length <= 0) continue;
+				if (textureFrame) backend->ReleaseTextureFrame (textureFrame);
+				continue;
+
+			}
 
 			Frame* frame = 0;
 
@@ -517,15 +717,33 @@ namespace lime {
 
 			if (!frame) frame = new Frame ();
 
-			if ((int)frame->data.size () < length) frame->data.resize (length);
-
-			frame->colorMatrix = planes.colorMatrix;
 			frame->duration = duration;
-			frame->fullRange = planes.fullRange;
-			frame->height = planes.height;
-			frame->length = WriteFrame (&planes, format, frame->data.data (), (int)frame->data.size ());
+			frame->texture = textureFrame;
 			frame->time = time;
-			frame->width = planes.width;
+
+			if (textureFrame) {
+
+				// The backend converts to RGB on the GPU
+				frame->colorMatrix = VIDEO_COLOR_MATRIX_BT709;
+				frame->fullRange = true;
+				frame->height = textureFrame->height;
+				frame->length = 1;
+				frame->width = textureFrame->width;
+
+			} else {
+
+				// Texture output without GPU support converts to RGBA here and uploads
+				VideoFrameFormat outputFormat = format == VIDEO_FRAME_FORMAT_TEXTURE ? VIDEO_FRAME_FORMAT_RGBA : format;
+				int length = GetFrameLength (outputFormat, planes.width, planes.height);
+				if ((int)frame->data.size () < length) frame->data.resize (length);
+
+				frame->colorMatrix = planes.colorMatrix;
+				frame->fullRange = planes.fullRange;
+				frame->height = planes.height;
+				frame->length = length > 0 ? WriteFrame (&planes, outputFormat, frame->data.data (), (int)frame->data.size ()) : 0;
+				frame->width = planes.width;
+
+			}
 
 			std::lock_guard<std::mutex> lock (mutex);
 
@@ -535,11 +753,89 @@ namespace lime {
 
 			} else {
 
-				freeFrames.push_back (frame);
+				ReleaseFrame (frame);
 
 			}
 
 		}
+
+	}
+
+
+	unsigned int VideoDecoder::UploadTexture (Frame* frame) {
+
+		#ifdef LIME_VIDEO_TEXTURES
+		if (!OpenGLBindings::Init ()) return 0;
+
+		// Unpack buffers and row lengths exist from OpenGL 3 and OpenGL ES 3
+		static int glVersion = -1;
+
+		if (glVersion < 0) {
+
+			const char* version = (const char*)glGetString (GL_VERSION);
+			if (version && strncmp (version, "OpenGL ES ", 10) == 0) version += 10;
+			glVersion = version ? atoi (version) : 0;
+
+		}
+
+		// Leave the application's GL state as it was
+		GLint previousTexture = 0;
+		GLint previousUnpackBuffer = 0;
+		GLint previousRowLength = 0;
+		glGetIntegerv (GL_TEXTURE_BINDING_2D, &previousTexture);
+
+		if (glVersion >= 3) {
+
+			glGetIntegerv (GL_PIXEL_UNPACK_BUFFER_BINDING, &previousUnpackBuffer);
+			glGetIntegerv (GL_UNPACK_ROW_LENGTH, &previousRowLength);
+			if (previousUnpackBuffer) glBindBuffer (GL_PIXEL_UNPACK_BUFFER, 0);
+			if (previousRowLength) glPixelStorei (GL_UNPACK_ROW_LENGTH, 0);
+
+		}
+
+		if (!texture) {
+
+			glGenTextures (1, &texture);
+			glBindTexture (GL_TEXTURE_2D, texture);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			textureWidth = 0;
+			textureHeight = 0;
+
+		} else {
+
+			glBindTexture (GL_TEXTURE_2D, texture);
+
+		}
+
+		// RGBA rows are always four-byte aligned, so the unpack alignment does not matter
+		if (frame->width != textureWidth || frame->height != textureHeight) {
+
+			glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, frame->width, frame->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, frame->data.data ());
+			textureWidth = frame->width;
+			textureHeight = frame->height;
+
+		} else {
+
+			glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, frame->width, frame->height, GL_RGBA, GL_UNSIGNED_BYTE, frame->data.data ());
+
+		}
+
+		glBindTexture (GL_TEXTURE_2D, previousTexture);
+
+		if (glVersion >= 3) {
+
+			if (previousUnpackBuffer) glBindBuffer (GL_PIXEL_UNPACK_BUFFER, previousUnpackBuffer);
+			if (previousRowLength) glPixelStorei (GL_UNPACK_ROW_LENGTH, previousRowLength);
+
+		}
+
+		return texture;
+		#else
+		return 0;
+		#endif
 
 	}
 

@@ -20,13 +20,24 @@
 #include <windows.h>
 #include <initguid.h>
 #include <d3d11.h>
+#include <d3d11_1.h>
 #include <d3d10.h>
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mferror.h>
 #include <mfreadwrite.h>
+#include <chrono>
+#include <condition_variable>
 #include <deque>
+#include <map>
+#include <mutex>
 #include <string>
+#include <utility>
+
+#ifndef NATIVE_TOOLKIT_SDL_ANGLE
+#include <GL/gl.h>
+#define LIME_VIDEO_WGL_INTEROP
+#endif
 
 #endif
 
@@ -55,6 +66,48 @@ namespace lime {
 	// frames later, so reading them back does not wait for the GPU
 	static const int STAGING_DELAY = 2;
 	static const int STAGING_TEXTURES = 4;
+
+	// Texture output converts frames on the GPU into a ring of RGB textures,
+	// enough for the decoder's queue, the frame on screen and one being written
+	static const int OUTPUT_TEXTURES = 8;
+
+	#ifdef LIME_VIDEO_WGL_INTEROP
+	// WGL_NV_DX_interop2, which shares Direct3D 11 textures with OpenGL
+	typedef BOOL (WINAPI *WGLDXCloseDeviceFunc) (HANDLE);
+	typedef BOOL (WINAPI *WGLDXLockObjectsFunc) (HANDLE, GLint, HANDLE*);
+	typedef HANDLE (WINAPI *WGLDXOpenDeviceFunc) (void*);
+	typedef HANDLE (WINAPI *WGLDXRegisterObjectFunc) (HANDLE, void*, GLuint, GLenum, GLenum);
+	typedef BOOL (WINAPI *WGLDXUnlockObjectsFunc) (HANDLE, GLint, HANDLE*);
+	typedef BOOL (WINAPI *WGLDXUnregisterObjectFunc) (HANDLE, HANDLE);
+
+	static const GLenum WGL_ACCESS_READ_ONLY = 0x0000;
+
+	static WGLDXCloseDeviceFunc _wglDXCloseDeviceNV = 0;
+	static WGLDXLockObjectsFunc _wglDXLockObjectsNV = 0;
+	static WGLDXOpenDeviceFunc _wglDXOpenDeviceNV = 0;
+	static WGLDXRegisterObjectFunc _wglDXRegisterObjectNV = 0;
+	static WGLDXUnlockObjectsFunc _wglDXUnlockObjectsNV = 0;
+	static WGLDXUnregisterObjectFunc _wglDXUnregisterObjectNV = 0;
+	#endif
+
+
+	struct MFOutputTexture {
+
+		GLuint glTexture;
+		HANDLE interop;
+		ID3D11Texture2D* texture;
+		ID3D11VideoProcessorOutputView* view;
+
+	};
+
+
+	class MFTextureFrame : public VideoTextureFrame {
+
+		public:
+
+			int index;
+
+	};
 
 	static PFN_D3D11_CREATE_DEVICE _D3D11CreateDevice = 0;
 	static MFCreateAttributesFunc _MFCreateAttributes = 0;
@@ -154,13 +207,23 @@ namespace lime {
 			void ClearStaging ();
 			bool CopyToStaging (IMFSample* sample, LONGLONG timestamp, LONGLONG sampleDuration);
 			bool CreateDeviceManager ();
+			bool CreateProcessor (UINT inputWidth, UINT inputHeight);
 			void GetPlanes (VideoPlanes* planes, BYTE* data, int pitch, int lumaRows);
 			VideoDecodeResult MapStaging (VideoPlanes* planes, double* time, double* duration);
 			bool OpenAudio ();
 			bool OpenVideo (bool hardware);
 			void ReadVideoFormat ();
 			void ReleaseDeviceManager ();
+			void ReleaseProcessor ();
+			bool SwitchToSoftware ();
 			void UnlockVideo ();
+
+			virtual VideoDecodeResult DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration);
+			virtual unsigned int LockTexture (VideoTextureFrame* frame);
+			virtual void ReleaseTextureFrame (VideoTextureFrame* frame);
+			virtual void ReleaseTextures ();
+			virtual bool SupportsTextures ();
+			virtual void UnlockTexture (VideoTextureFrame* frame);
 
 			int audioChannels;
 			IMFSourceReader* audioReader;
@@ -176,23 +239,39 @@ namespace lime {
 			ID3D11DeviceContext* context;
 			LONG defaultStride;
 			ID3D11Device* device;
+			std::vector<int> freeOutputs;
+			MFTextureFrame outputFrames[OUTPUT_TEXTURES];
+			std::condition_variable outputCondition;
+			std::mutex outputMutex;
+			MFOutputTexture outputs[OUTPUT_TEXTURES];
+			ID3D11VideoProcessor* processor;
+			ID3D11VideoProcessorEnumerator* processorEnumerator;
+			UINT processorHeight;
+			UINT processorWidth;
 			IMFDXGIDeviceManager* deviceManager;
 			double frameRate;
 			bool fullRange;
 			bool hardwareActive;
+			std::map<std::pair<ID3D11Texture2D*, UINT>, ID3D11VideoProcessorInputView*> inputViews;
+			HANDLE interopDevice;
+			bool interopFailed;
 			IMF2DBuffer* locked2D;
 			IMFMediaBuffer* lockedBuffer;
 			ID3D11Texture2D* staging[STAGING_TEXTURES];
 			LONGLONG stagingDurations[STAGING_TEXTURES];
 			bool stagingFailed;
+			bool texturesFailed;
 			UINT stagingHeight;
 			int stagingMapped;
+			bool stagingPrimed;
 			std::deque<int> stagingQueue;
 			LONGLONG stagingTimes[STAGING_TEXTURES];
 			UINT stagingWidth;
 			bool started;
 			std::wstring url;
 			bool videoEnded;
+			ID3D11VideoContext* videoContext;
+			ID3D11VideoDevice* videoDevice;
 			LONGLONG videoPosition;
 			IMFSourceReader* videoReader;
 
@@ -220,17 +299,37 @@ namespace lime {
 		frameRate = 0;
 		fullRange = false;
 		hardwareActive = false;
+		interopDevice = NULL;
+		interopFailed = false;
 		locked2D = NULL;
 		lockedBuffer = NULL;
+		processor = NULL;
+		processorEnumerator = NULL;
+		processorHeight = 0;
+		processorWidth = 0;
 		stagingFailed = false;
 		stagingHeight = 0;
 		stagingMapped = -1;
+		stagingPrimed = false;
 		stagingWidth = 0;
+		texturesFailed = false;
+		videoContext = NULL;
+		videoDevice = NULL;
 		videoEnded = false;
 		videoPosition = 0;
 		videoReader = NULL;
 
 		for (int i = 0; i < STAGING_TEXTURES; i++) staging[i] = NULL;
+
+		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+			outputs[i].glTexture = 0;
+			outputs[i].interop = NULL;
+			outputs[i].texture = NULL;
+			outputs[i].view = NULL;
+			outputFrames[i].index = i;
+
+		}
 
 		InitializeCOM ();
 		started = SUCCEEDED (_MFStartup (MF_VERSION, MFSTARTUP_FULL));
@@ -248,6 +347,23 @@ namespace lime {
 
 
 	void MFVideoBackend::Close () {
+
+		// Closing away from the GL thread leaves the textures it shares with
+		// OpenGL behind, rather than using them with the next device
+		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+			if (outputs[i].interop) {
+
+				outputs[i].glTexture = 0;
+				outputs[i].interop = NULL;
+				outputs[i].texture = NULL;
+
+			}
+
+		}
+
+		interopDevice = NULL;
+		interopFailed = false;
 
 		UnlockVideo ();
 
@@ -272,6 +388,8 @@ namespace lime {
 		audioSourceChannels = 0;
 		hardwareActive = false;
 		stagingFailed = false;
+		stagingPrimed = false;
+		texturesFailed = false;
 		videoEnded = false;
 		videoPosition = 0;
 
@@ -394,7 +512,7 @@ namespace lime {
 
 		static const D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3 };
 
-		UINT flags = D3D11_CREATE_DEVICE_VIDEO_SUPPORT;
+		UINT flags = D3D11_CREATE_DEVICE_VIDEO_SUPPORT | D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 		HRESULT hr = _D3D11CreateDevice (NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, levels, ARRAYSIZE (levels), D3D11_SDK_VERSION, &device, NULL, NULL);
 
 		if (hr == E_INVALIDARG) {
@@ -515,8 +633,11 @@ namespace lime {
 
 		while (true) {
 
-			if (!stagingQueue.empty () && (stagingQueue.size () >= (size_t)STAGING_DELAY || videoEnded)) {
+			// The first frame after opening or seeking is mapped straight away, so
+			// only frames that follow it wait for the pipeline
+			if (!stagingQueue.empty () && (stagingQueue.size () >= (size_t)STAGING_DELAY || videoEnded || !stagingPrimed)) {
 
+				stagingPrimed = true;
 				return MapStaging (planes, time, duration);
 
 			}
@@ -533,27 +654,7 @@ namespace lime {
 
 				if (sample) sample->Release ();
 
-				if (hardwareActive) {
-
-					// Some drivers fail to decode a stream they accepted, so continue
-					// from the same position in software
-					ClearStaging ();
-					videoReader->Release ();
-					videoReader = NULL;
-					ReleaseDeviceManager ();
-
-					if (OpenVideo (false)) {
-
-						PROPVARIANT position;
-						PropVariantInit (&position);
-						position.vt = VT_I8;
-						position.hVal.QuadPart = videoPosition;
-						videoReader->SetCurrentPosition (TIME_FORMAT_100NS, position);
-						continue;
-
-					}
-
-				}
+				if (hardwareActive && SwitchToSoftware ()) continue;
 
 				return VIDEO_DECODE_ERROR;
 
@@ -981,6 +1082,31 @@ namespace lime {
 
 	void MFVideoBackend::ReleaseDeviceManager () {
 
+		ReleaseProcessor ();
+
+		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+			// Textures still shared with OpenGL are left for ReleaseTextures
+			if (outputs[i].interop) continue;
+			if (outputs[i].texture) outputs[i].texture->Release ();
+			outputs[i].texture = NULL;
+
+		}
+
+		if (videoContext) {
+
+			videoContext->Release ();
+			videoContext = NULL;
+
+		}
+
+		if (videoDevice) {
+
+			videoDevice->Release ();
+			videoDevice = NULL;
+
+		}
+
 		if (context) ClearStaging ();
 
 		for (int i = 0; i < STAGING_TEXTURES; i++) {
@@ -1020,6 +1146,7 @@ namespace lime {
 	bool MFVideoBackend::Seek (double time) {
 
 		UnlockVideo ();
+		stagingPrimed = false;
 		stagingQueue.clear ();
 		videoEnded = false;
 
@@ -1040,6 +1167,455 @@ namespace lime {
 		if (audioReader) success = SUCCEEDED (audioReader->SetCurrentPosition (TIME_FORMAT_100NS, position)) && success;
 
 		return success;
+
+	}
+
+
+	bool MFVideoBackend::CreateProcessor (UINT inputWidth, UINT inputHeight) {
+
+		ReleaseProcessor ();
+
+		if (!videoDevice && (FAILED (device->QueryInterface (IID_PPV_ARGS (&videoDevice))) || FAILED (context->QueryInterface (IID_PPV_ARGS (&videoContext))))) return false;
+
+		// The output keeps the size the video opened with, so the textures stay
+		// shared with OpenGL if the stream changes size
+		if (!outputs[0].texture) {
+
+			D3D11_TEXTURE2D_DESC desc = {};
+			desc.Width = cropWidth;
+			desc.Height = cropHeight;
+			desc.MipLevels = 1;
+			desc.ArraySize = 1;
+			desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			desc.SampleDesc.Count = 1;
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+			for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+				if (FAILED (device->CreateTexture2D (&desc, NULL, &outputs[i].texture))) return false;
+
+			}
+
+			std::lock_guard<std::mutex> lock (outputMutex);
+			freeOutputs.clear ();
+			for (int i = 0; i < OUTPUT_TEXTURES; i++) freeOutputs.push_back (i);
+
+		}
+
+		D3D11_TEXTURE2D_DESC outputDesc;
+		outputs[0].texture->GetDesc (&outputDesc);
+
+		D3D11_VIDEO_PROCESSOR_CONTENT_DESC contentDesc = {};
+		contentDesc.InputFrameFormat = D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE;
+		contentDesc.InputWidth = inputWidth;
+		contentDesc.InputHeight = inputHeight;
+		contentDesc.OutputWidth = outputDesc.Width;
+		contentDesc.OutputHeight = outputDesc.Height;
+		contentDesc.Usage = D3D11_VIDEO_USAGE_PLAYBACK_NORMAL;
+
+		UINT support = 0;
+
+		if (FAILED (videoDevice->CreateVideoProcessorEnumerator (&contentDesc, &processorEnumerator))
+			|| FAILED (processorEnumerator->CheckVideoProcessorFormat (DXGI_FORMAT_B8G8R8A8_UNORM, &support))
+			|| !(support & D3D11_VIDEO_PROCESSOR_FORMAT_SUPPORT_OUTPUT)
+			|| FAILED (videoDevice->CreateVideoProcessor (processorEnumerator, 0, &processor))) {
+
+			ReleaseProcessor ();
+			return false;
+
+		}
+
+		D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC viewDesc = {};
+		viewDesc.ViewDimension = D3D11_VPOV_DIMENSION_TEXTURE2D;
+
+		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+			if (FAILED (videoDevice->CreateVideoProcessorOutputView (outputs[i].texture, processorEnumerator, &viewDesc, &outputs[i].view))) {
+
+				ReleaseProcessor ();
+				return false;
+
+			}
+
+		}
+
+		RECT source = { cropX, cropY, cropX + cropWidth, cropY + cropHeight };
+		RECT target = { 0, 0, (LONG)outputDesc.Width, (LONG)outputDesc.Height };
+
+		videoContext->VideoProcessorSetStreamFrameFormat (processor, 0, D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE);
+		videoContext->VideoProcessorSetStreamAutoProcessingMode (processor, 0, FALSE);
+		videoContext->VideoProcessorSetStreamSourceRect (processor, 0, TRUE, &source);
+		videoContext->VideoProcessorSetStreamDestRect (processor, 0, TRUE, &target);
+		videoContext->VideoProcessorSetOutputTargetRect (processor, TRUE, &target);
+
+		ID3D11VideoContext1* videoContext1 = NULL;
+
+		if (colorMatrix == VIDEO_COLOR_MATRIX_BT2020 && SUCCEEDED (videoContext->QueryInterface (IID_PPV_ARGS (&videoContext1)))) {
+
+			// BT.2020 needs the DXGI color spaces from Windows 10
+			videoContext1->VideoProcessorSetStreamColorSpace1 (processor, 0, fullRange ? DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P2020 : DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P2020);
+			videoContext1->VideoProcessorSetOutputColorSpace1 (processor, DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709);
+			videoContext1->Release ();
+
+		} else {
+
+			D3D11_VIDEO_PROCESSOR_COLOR_SPACE inputSpace = {};
+			inputSpace.YCbCr_Matrix = (colorMatrix == VIDEO_COLOR_MATRIX_BT601) ? 0 : 1;
+			inputSpace.Nominal_Range = fullRange ? D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE_0_255 : D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE_16_235;
+			videoContext->VideoProcessorSetStreamColorSpace (processor, 0, &inputSpace);
+
+			D3D11_VIDEO_PROCESSOR_COLOR_SPACE outputSpace = {};
+			outputSpace.RGB_Range = 0;
+			videoContext->VideoProcessorSetOutputColorSpace (processor, &outputSpace);
+
+		}
+
+		processorWidth = inputWidth;
+		processorHeight = inputHeight;
+		return true;
+
+	}
+
+
+	VideoDecodeResult MFVideoBackend::DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration) {
+
+		*frame = NULL;
+		UnlockVideo ();
+
+		if (!videoReader) return VIDEO_DECODE_END;
+
+		InitializeCOM ();
+
+		while (true) {
+
+			DWORD flags = 0;
+			LONGLONG timestamp = 0;
+			IMFSample* sample = NULL;
+
+			HRESULT hr = videoReader->ReadSample (MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, &flags, &timestamp, &sample);
+
+			if (FAILED (hr) || (flags & MF_SOURCE_READERF_ERROR)) {
+
+				if (sample) sample->Release ();
+
+				// Continuing in software means decoding into memory from here on
+				if (hardwareActive && SwitchToSoftware ()) return VIDEO_DECODE_OK;
+
+				return VIDEO_DECODE_ERROR;
+
+			}
+
+			if (flags & MF_SOURCE_READERF_CURRENTMEDIATYPECHANGED) ReadVideoFormat ();
+
+			if (flags & MF_SOURCE_READERF_ENDOFSTREAM) {
+
+				if (sample) sample->Release ();
+				return VIDEO_DECODE_END;
+
+			}
+
+			if (!sample) continue;
+
+			LONGLONG sampleDuration = 0;
+			sample->GetSampleDuration (&sampleDuration);
+
+			IMFMediaBuffer* buffer = NULL;
+			IMFDXGIBuffer* dxgiBuffer = NULL;
+			ID3D11Texture2D* texture = NULL;
+			UINT subresource = 0;
+			int index = -1;
+
+			if (SUCCEEDED (sample->GetBufferByIndex (0, &buffer)) && SUCCEEDED (buffer->QueryInterface (IID_PPV_ARGS (&dxgiBuffer)))
+				&& SUCCEEDED (dxgiBuffer->GetResource (IID_PPV_ARGS (&texture))) && SUCCEEDED (dxgiBuffer->GetSubresourceIndex (&subresource))) {
+
+				D3D11_TEXTURE2D_DESC desc;
+				texture->GetDesc (&desc);
+
+				if (processor || CreateProcessor (desc.Width, desc.Height)) {
+
+					if (desc.Width != processorWidth || desc.Height != processorHeight) CreateProcessor (desc.Width, desc.Height);
+
+				}
+
+				std::pair<ID3D11Texture2D*, UINT> key (texture, subresource);
+				ID3D11VideoProcessorInputView* inputView = NULL;
+
+				if (processor) {
+
+					std::map<std::pair<ID3D11Texture2D*, UINT>, ID3D11VideoProcessorInputView*>::iterator found = inputViews.find (key);
+
+					if (found != inputViews.end ()) {
+
+						inputView = found->second;
+
+					} else {
+
+						D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC inputDesc = {};
+						inputDesc.ViewDimension = D3D11_VPIV_DIMENSION_TEXTURE2D;
+						inputDesc.Texture2D.ArraySlice = subresource;
+
+						if (SUCCEEDED (videoDevice->CreateVideoProcessorInputView (texture, processorEnumerator, &inputDesc, &inputView))) {
+
+							inputViews[key] = inputView;
+
+						}
+
+					}
+
+				}
+
+				if (inputView) {
+
+					// Wait for the reader to give back a texture
+					std::unique_lock<std::mutex> lock (outputMutex);
+					outputCondition.wait_for (lock, std::chrono::seconds (5), [this] { return !freeOutputs.empty (); });
+
+					if (!freeOutputs.empty ()) {
+
+						index = freeOutputs.back ();
+						freeOutputs.pop_back ();
+
+					}
+
+				}
+
+				if (index >= 0) {
+
+					D3D11_VIDEO_PROCESSOR_STREAM stream = {};
+					stream.Enable = TRUE;
+					stream.pInputSurface = inputView;
+
+					if (FAILED (videoContext->VideoProcessorBlt (processor, outputs[index].view, 0, 1, &stream))) {
+
+						ReleaseTextureFrame (&outputFrames[index]);
+						index = -1;
+
+					} else {
+
+						context->Flush ();
+
+					}
+
+				}
+
+			}
+
+			if (texture) texture->Release ();
+			if (dxgiBuffer) dxgiBuffer->Release ();
+			if (buffer) buffer->Release ();
+			sample->Release ();
+
+			if (index < 0) {
+
+				// Frames that cannot be converted here are decoded into memory
+				texturesFailed = true;
+				return VIDEO_DECODE_OK;
+
+			}
+
+			outputFrames[index].width = cropWidth;
+			outputFrames[index].height = cropHeight;
+			*frame = &outputFrames[index];
+
+			videoPosition = timestamp;
+			*time = timestamp / 10000000.0;
+			*duration = sampleDuration > 0 ? sampleDuration / 10000000.0 : (frameRate > 0 ? 1.0 / frameRate : 0);
+
+			return VIDEO_DECODE_OK;
+
+		}
+
+	}
+
+
+	unsigned int MFVideoBackend::LockTexture (VideoTextureFrame* frame) {
+
+		#ifdef LIME_VIDEO_WGL_INTEROP
+		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
+
+		if (!interopDevice) {
+
+			if (interopFailed || !wglGetCurrentContext ()) return 0;
+
+			_wglDXOpenDeviceNV = (WGLDXOpenDeviceFunc)wglGetProcAddress ("wglDXOpenDeviceNV");
+			_wglDXCloseDeviceNV = (WGLDXCloseDeviceFunc)wglGetProcAddress ("wglDXCloseDeviceNV");
+			_wglDXRegisterObjectNV = (WGLDXRegisterObjectFunc)wglGetProcAddress ("wglDXRegisterObjectNV");
+			_wglDXUnregisterObjectNV = (WGLDXUnregisterObjectFunc)wglGetProcAddress ("wglDXUnregisterObjectNV");
+			_wglDXLockObjectsNV = (WGLDXLockObjectsFunc)wglGetProcAddress ("wglDXLockObjectsNV");
+			_wglDXUnlockObjectsNV = (WGLDXUnlockObjectsFunc)wglGetProcAddress ("wglDXUnlockObjectsNV");
+
+			if (_wglDXOpenDeviceNV && _wglDXCloseDeviceNV && _wglDXRegisterObjectNV && _wglDXUnregisterObjectNV && _wglDXLockObjectsNV && _wglDXUnlockObjectsNV) {
+
+				interopDevice = _wglDXOpenDeviceNV (device);
+
+			}
+
+			if (!interopDevice) {
+
+				interopFailed = true;
+				return 0;
+
+			}
+
+		}
+
+		if (!output.interop) {
+
+			glGenTextures (1, &output.glTexture);
+			output.interop = _wglDXRegisterObjectNV (interopDevice, output.texture, output.glTexture, GL_TEXTURE_2D, WGL_ACCESS_READ_ONLY);
+
+			if (!output.interop) {
+
+				glDeleteTextures (1, &output.glTexture);
+				output.glTexture = 0;
+				interopFailed = true;
+				return 0;
+
+			}
+
+			if (!_wglDXLockObjectsNV (interopDevice, 1, &output.interop)) return 0;
+
+			// Without mipmaps, the default minification filter would leave the
+			// texture incomplete
+			GLint previousTexture = 0;
+			glGetIntegerv (GL_TEXTURE_BINDING_2D, &previousTexture);
+			glBindTexture (GL_TEXTURE_2D, output.glTexture);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, 0x812F);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, 0x812F);
+			glBindTexture (GL_TEXTURE_2D, previousTexture);
+
+			return output.glTexture;
+
+		}
+
+		return _wglDXLockObjectsNV (interopDevice, 1, &output.interop) ? output.glTexture : 0;
+		#else
+		return 0;
+		#endif
+
+	}
+
+
+	void MFVideoBackend::ReleaseProcessor () {
+
+		for (std::map<std::pair<ID3D11Texture2D*, UINT>, ID3D11VideoProcessorInputView*>::iterator it = inputViews.begin (); it != inputViews.end (); ++it) {
+
+			it->second->Release ();
+
+		}
+
+		inputViews.clear ();
+
+		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+			if (outputs[i].view) outputs[i].view->Release ();
+			outputs[i].view = NULL;
+
+		}
+
+		if (processor) {
+
+			processor->Release ();
+			processor = NULL;
+
+		}
+
+		if (processorEnumerator) {
+
+			processorEnumerator->Release ();
+			processorEnumerator = NULL;
+
+		}
+
+		processorHeight = 0;
+		processorWidth = 0;
+
+	}
+
+
+	void MFVideoBackend::ReleaseTextureFrame (VideoTextureFrame* frame) {
+
+		{
+			std::lock_guard<std::mutex> lock (outputMutex);
+			freeOutputs.push_back (((MFTextureFrame*)frame)->index);
+		}
+
+		outputCondition.notify_one ();
+
+	}
+
+
+	void MFVideoBackend::ReleaseTextures () {
+
+		#ifdef LIME_VIDEO_WGL_INTEROP
+		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+			if (outputs[i].interop) {
+
+				_wglDXUnregisterObjectNV (interopDevice, outputs[i].interop);
+				outputs[i].interop = NULL;
+
+			}
+
+			if (outputs[i].glTexture) {
+
+				glDeleteTextures (1, &outputs[i].glTexture);
+				outputs[i].glTexture = 0;
+
+			}
+
+		}
+
+		if (interopDevice) {
+
+			_wglDXCloseDeviceNV (interopDevice);
+			interopDevice = NULL;
+
+		}
+		#endif
+
+		interopFailed = false;
+
+	}
+
+
+	bool MFVideoBackend::SupportsTextures () {
+
+		return hardwareActive && device && !texturesFailed;
+
+	}
+
+
+	bool MFVideoBackend::SwitchToSoftware () {
+
+		// Some drivers fail to decode a stream they accepted, so continue from
+		// the same position in software
+		ClearStaging ();
+		videoReader->Release ();
+		videoReader = NULL;
+		ReleaseDeviceManager ();
+
+		if (!OpenVideo (false)) return false;
+
+		PROPVARIANT position;
+		PropVariantInit (&position);
+		position.vt = VT_I8;
+		position.hVal.QuadPart = videoPosition;
+		videoReader->SetCurrentPosition (TIME_FORMAT_100NS, position);
+		return true;
+
+	}
+
+
+	void MFVideoBackend::UnlockTexture (VideoTextureFrame* frame) {
+
+		#ifdef LIME_VIDEO_WGL_INTEROP
+		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
+		if (interopDevice && output.interop) _wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
+		#endif
 
 	}
 

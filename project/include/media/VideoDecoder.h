@@ -2,6 +2,7 @@
 #define LIME_MEDIA_VIDEO_DECODER_H
 
 
+#include <atomic>
 #include <condition_variable>
 #include <deque>
 #include <mutex>
@@ -43,7 +44,8 @@ namespace lime {
 	enum VideoFrameFormat {
 
 		VIDEO_FRAME_FORMAT_NV12 = 0,
-		VIDEO_FRAME_FORMAT_RGBA = 1
+		VIDEO_FRAME_FORMAT_RGBA = 1,
+		VIDEO_FRAME_FORMAT_TEXTURE = 2
 
 	};
 
@@ -73,6 +75,21 @@ namespace lime {
 		int width;
 		const unsigned char* y;
 		int yStride;
+
+	};
+
+
+	// A decoded frame kept on the GPU by a backend that supports texture output
+	class VideoTextureFrame {
+
+
+		public:
+
+			virtual ~VideoTextureFrame () {};
+
+			int height;
+			int width;
+
 
 	};
 
@@ -117,6 +134,26 @@ namespace lime {
 			// Seeks both streams to the keyframe at or before time.
 			virtual bool Seek (double time) = 0;
 
+			// Texture output keeps frames on the GPU, which backends support by
+			// returning true from SupportsTextures once open. DecodeVideoTexture
+			// decodes the next frame like DecodeVideo, on the video thread. It
+			// returns VIDEO_DECODE_OK without a frame when it stops supporting
+			// textures, and the next frame is read with DecodeVideo.
+			virtual VideoDecodeResult DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration) { return VIDEO_DECODE_ERROR; }
+			virtual bool SupportsTextures () { return false; }
+
+			// With the application's GL context current, makes a frame available
+			// as an RGBA GL_TEXTURE_2D until UnlockTexture, and returns its name,
+			// or 0 when this context cannot share the backend's textures.
+			virtual unsigned int LockTexture (VideoTextureFrame* frame) { return 0; }
+			virtual void UnlockTexture (VideoTextureFrame* frame) {}
+
+			// Gives a frame back to the backend, from any thread.
+			virtual void ReleaseTextureFrame (VideoTextureFrame* frame) {}
+
+			// Deletes the backend's GL objects, with the GL context current.
+			virtual void ReleaseTextures () {}
+
 			static VideoBackend* Create ();
 			static bool IsSupported ();
 
@@ -151,6 +188,10 @@ namespace lime {
 			// Returns VIDEO_READ_NOT_READY when no frame is due, VIDEO_READ_END,
 			// VIDEO_READ_ERROR, or VIDEO_READ_BUFFER_TOO_SMALL when the frame needs
 			// frameLength bytes. The frame then stays queued.
+			//
+			// With VIDEO_FRAME_FORMAT_TEXTURE, call it with the GL context current.
+			// It returns 1 for a new frame, which frameTexture shows until the next
+			// call. Close the decoder on that thread too, so it can delete textures.
 			int ReadFrame (unsigned char* data, int length, double time);
 
 			// Seeks both streams. An accurate seek drops the frames and audio
@@ -167,6 +208,7 @@ namespace lime {
 			bool frameFullRange;
 			int frameHeight;
 			int frameLength;
+			unsigned int frameTexture;
 			double frameTime;
 			int frameWidth;
 			VideoStreamInfo info;
@@ -189,6 +231,7 @@ namespace lime {
 				bool fullRange;
 				int height;
 				int length;
+				VideoTextureFrame* texture;
 				double time;
 				int width;
 
@@ -196,8 +239,13 @@ namespace lime {
 
 			void AudioThread ();
 			void Flush ();
+			bool IsTextureThread ();
+			int ReadTexture (double time);
+			void ReleaseFrame (Frame* frame);
+			void ReleaseTextures ();
 			void StartThreads ();
 			void StopThreads ();
+			unsigned int UploadTexture (Frame* frame);
 			void VideoThread ();
 
 			std::deque<AudioChunk*> audioChunks;
@@ -209,6 +257,7 @@ namespace lime {
 			double audioQueueEnd;
 			std::thread audioThread;
 			VideoBackend* backend;
+			Frame* currentFrame;
 			std::vector<AudioChunk*> freeChunks;
 			std::vector<Frame*> freeFrames;
 			std::deque<Frame*> frames;
@@ -218,6 +267,12 @@ namespace lime {
 			bool seekAccurate;
 			bool seekPending;
 			double seekTime;
+			unsigned int texture;
+			int textureHeight;
+			std::atomic<bool> texturesFailed;
+			std::thread::id textureThread;
+			bool textureThreadKnown;
+			int textureWidth;
 			std::condition_variable videoCondition;
 			std::mutex videoDecodeMutex;
 			bool videoEnded;

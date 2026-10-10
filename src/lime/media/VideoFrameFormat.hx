@@ -22,4 +22,18 @@ package lime.media;
 		converted from YUV on the decoding thread.
 	**/
 	var RGBA = 1;
+
+	/**
+		An RGBA texture on the GPU, in `VideoFrame.texture`. Decoders that run
+		on the GPU hand their frames over without copying them through memory,
+		which is the fastest way to play video. Elsewhere frames are converted to
+		RGBA and uploaded.
+
+		Read texture frames in `render`, with the GL context current, and close
+		the decoder there too. The texture belongs to the decoder and is only
+		valid until the next frame is read.
+
+		Availability: native targets rendering with OpenGL or OpenGL ES.
+	**/
+	var TEXTURE = 2;
 }

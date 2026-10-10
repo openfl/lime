@@ -1,5 +1,6 @@
 package lime.media;
 
+import lime.graphics.opengl.GLTexture;
 import lime.utils.UInt8Array;
 
 /**
@@ -70,6 +71,13 @@ class VideoFrame
 		with `texImage2D`. `data` is `null` there. Elsewhere it is `null`.
 	**/
 	public var src:Dynamic;
+
+	/**
+		For a `TEXTURE` frame, the RGBA texture showing it, with the top row of
+		the picture first. It belongs to the decoder, so do not delete it, and it
+		is only valid until the next frame is read.
+	**/
+	public var texture:GLTexture;
 
 	/**
 		The time the frame is displayed on the video's timeline, in seconds.

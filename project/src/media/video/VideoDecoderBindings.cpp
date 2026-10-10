@@ -19,6 +19,7 @@ namespace lime {
 	static int id_hasVideo;
 	static int id_height;
 	static int id_length;
+	static int id_texture;
 	static int id_time;
 	static int id_width;
 	static bool init = false;
@@ -39,6 +40,7 @@ namespace lime {
 			id_hasVideo = val_id ("hasVideo");
 			id_height = val_id ("height");
 			id_length = val_id ("length");
+			id_texture = val_id ("texture");
 			id_time = val_id ("time");
 			id_width = val_id ("width");
 			init = true;
@@ -62,6 +64,7 @@ namespace lime {
 			id_hasVideo = hl_hash_utf8 ("hasVideo");
 			id_height = hl_hash_utf8 ("height");
 			id_length = hl_hash_utf8 ("length");
+			id_texture = hl_hash_utf8 ("texture");
 			id_time = hl_hash_utf8 ("time");
 			id_width = hl_hash_utf8 ("width");
 			hl_init = true;
@@ -159,6 +162,7 @@ namespace lime {
 		alloc_field (info, id_fullRange, alloc_bool (decoder->frameFullRange));
 		alloc_field (info, id_height, alloc_int (decoder->frameHeight));
 		alloc_field (info, id_length, alloc_int (decoder->frameLength));
+		alloc_field (info, id_texture, alloc_int (decoder->frameTexture));
 		alloc_field (info, id_time, alloc_float (decoder->frameTime));
 		alloc_field (info, id_width, alloc_int (decoder->frameWidth));
 		return info;
@@ -178,6 +182,7 @@ namespace lime {
 		hl_dyn_seti (info, id_fullRange, &hlt_bool, decoder->frameFullRange);
 		hl_dyn_seti (info, id_height, &hlt_i32, decoder->frameHeight);
 		hl_dyn_seti (info, id_length, &hlt_i32, decoder->frameLength);
+		hl_dyn_seti (info, id_texture, &hlt_i32, decoder->frameTexture);
 		hl_dyn_setd (info, id_time, decoder->frameTime);
 		hl_dyn_seti (info, id_width, &hlt_i32, decoder->frameWidth);
 		return info;
