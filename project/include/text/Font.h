@@ -59,10 +59,14 @@ namespace lime {
 			int GetStrikethroughPosition ();
 			int GetStrikethroughThickness ();
 			int GetUnitsPerEM ();
+			bool IsBold ();
+			bool IsItalic ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
 			int RenderGlyphWithFlags (int index, int loadFlags, Bytes *bytes, int offset = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
 			void SetSize (size_t size, size_t dpi);
+			void SetStemDarkening (bool enable);
+			void SetStemDarkeningParameters (int params[]);
 
 			void* library;
 			void* face;

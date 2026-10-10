@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<meta title="Lime Vulkan Smoke" package="org.openfl.lime.vulkansmoke" version="1.0.0" company="OpenFL" />
+	<app main="Main" path="Export" file="LimeVulkanSmoke" />
+
+	<source path="Source" />
+	<assets path="Assets" />
+
+	<haxelib name="lime" />
+
+	<window width="64" height="64" fps="60" background="#000000" resizable="false" renderer="vulkan" />
+
+</project>

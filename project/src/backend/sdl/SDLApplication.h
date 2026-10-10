@@ -4,6 +4,9 @@
 
 #include <SDL.h>
 #include <vector>
+#include <map>
+#include <utility>
+#include <exception>
 #include <app/Application.h>
 #include <app/ApplicationEvent.h>
 #include <graphics/RenderEvent.h>
@@ -14,6 +17,8 @@
 #include <ui/GamepadEvent.h>
 #include <ui/JoystickEvent.h>
 #include <ui/KeyEvent.h>
+#include <ui/MenuEvent.h>
+#include <ui/TrayIconEvent.h>
 #include <ui/MouseEvent.h>
 #include <ui/TextEvent.h>
 #include <ui/TouchEvent.h>
@@ -36,6 +41,7 @@ namespace lime {
 			virtual int Quit ();
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode);
 			virtual void SetFrameRate (double frameRate);
+			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual void SetVSyncMode (int vsyncMode);
 			virtual bool Update ();
 
@@ -44,6 +50,8 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
+			void SetModalCallbacks (ValuePointer* update, ValuePointer* render, ValuePointer* window, ValuePointer* rethrow);
+			void DeferModalException ();
 #endif
 
 		private:
@@ -62,17 +70,23 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
 			static int ModalEventWatch (void* userdata, SDL_Event* event);
+			void CheckModalException (bool blocking = false);
 #endif
 			void ProcessClipboardEvent (SDL_Event* event);
 			void ProcessDropEvent (SDL_Event* event);
 			void ProcessGamepadEvent (SDL_Event* event);
 			void ProcessJoystickEvent (SDL_Event* event);
 			void ProcessKeyEvent (SDL_Event* event);
+			void ProcessMenuEvent (SDL_Event* event);
 			void ProcessMouseEvent (SDL_Event* event);
 			void ProcessSensorEvent (SDL_Event* event);
 			void ProcessTextEvent (SDL_Event* event);
 			void ProcessTouchEvent (SDL_Event* event);
-			void ProcessWindowEvent (SDL_Event* event);
+			void ProcessTrayIconEvent (SDL_Event* event);
+			void ProcessWindowEvent (SDL_Event* event, bool currentSize = false);
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			bool PrepareResizeEvent (SDL_Event* event, bool currentSize);
+#endif
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
 			int WaitEvent (SDL_Event* event);
 
@@ -129,6 +143,8 @@ namespace lime {
 			bool busyWaitOnly;
 			ClipboardEvent clipboardEvent;
 			double currentUpdate;
+			double deltaRemainder;
+			Uint64 dispatchedFrames;
 			double displayRefreshRate;
 			double framePeriod;
 			Uint32 initFlags;
@@ -139,10 +155,16 @@ namespace lime {
 			KeyEvent keyEvent;
 			double lastUpdate;
 			Uint32 lastSleepCalibration;
+			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
+			bool mouseCaptureRequested;
 			double nextUpdate;
 			OrientationEvent orientationEvent;
 			Uint64 performanceFrequency;
+			Uint64 clockStartCounter;
+			Uint64 clockStartTicks;
+			mutable Uint32 clockLastTicks;
+			mutable Uint64 clockElapsedTicks;
 			bool realVSyncActive;
 			int requestedBusyWaitMode;
 			double requestedFrameRate;
@@ -156,15 +178,18 @@ namespace lime {
 			double sleepGuardMs;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
+			TrayIconEvent trayIconEvent;
 			bool useDisplayDrivenFallback;
 			bool useHighResolutionTimer;
 			WindowEvent windowEvent;
 			std::vector<SDLWindow*> windows;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			bool modalWatchInstalled;
+			ValuePointer* modalCallbacks[4];
+			bool modalExceptionPending;
+			std::exception_ptr modalNativeException;
 			Uint32 mainThreadID;
-			int pendingResizeDispatchSkips;
-			int pendingWatchRenderSkips;
+			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;
 #endif
 
 	};

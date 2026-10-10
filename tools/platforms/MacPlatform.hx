@@ -219,25 +219,28 @@ class MacPlatform extends PlatformTarget
 			// ensure that the shell script is replaced by the template executable
 			System.deleteFile(executablePath);
 
-			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
+
+			// hashlink doesn't fully support arm64 yet, so even on
+			// arm64 machines, we're still defaulting to x86_64.
+			var isArm64 = targetFlags.exists("arm64");
+
+			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true, isArm64);
 
 			if (project.targetFlags.exists("hlc"))
 			{
-				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				// the libraries were compiled as x86_64, so if the build is
-				// happening on ARM64 instead, we need to ensure that the
-				// same architecture is used for the executable, so we wrap our
-				// compiler command with the `arch -x86_64` command.
-				// if we ever support ARM or Universal binaries, this will
-				// need to be handled differently.
+				var compiler = targetFlags.exists("clang") ? "clang" : "gcc";
+				var arch = isArm64 ? "arm64" : "x86_64";
 				var command = [
-					"arch", "-x86_64",
 					compiler,
+					"-arch",
+					arch,
 					"-O3",
-					"-o", executablePath,
+					"-o",
+					executablePath,
 					"-std=c11",
 					"-Wl,-rpath,@executable_path",
-					"-I", Path.combine(targetDirectory, "obj"),
+					"-I",
+					Path.combine(targetDirectory, "obj"),
 					Path.combine(targetDirectory, "obj/ApplicationMain.c"),
 					// gcc 14 and clang 22 made incompatible-pointer-types an
 					// error instead of a warning, but it's required for
@@ -264,7 +267,12 @@ class MacPlatform extends PlatformTarget
 							// when launched inside an .app file, the executable
 							// can't find the library files unless we tell
 							// it to search specifically from @executable_path
-							System.runCommand("", "install_name_tool", ["-change", Path.withoutDirectory(file), "@executable_path/" + Path.withoutDirectory(file), executablePath]);
+							System.runCommand("", "install_name_tool", [
+								"-change",
+								Path.withoutDirectory(file),
+								"@executable_path/" + Path.withoutDirectory(file),
+								executablePath
+							]);
 						default:
 					}
 				}
@@ -367,7 +375,10 @@ class MacPlatform extends PlatformTarget
 			}
 		}
 
-		if (System.hostPlatform != WINDOWS && targetType != "nodejs" && targetType != "java" && sys.FileSystem.exists(executablePath))
+		if (System.hostPlatform != WINDOWS
+			&& targetType != "nodejs"
+			&& targetType != "java"
+			&& sys.FileSystem.exists(executablePath))
 		{
 			System.runCommand("", "chmod", ["755", executablePath]);
 		}
@@ -410,7 +421,8 @@ class MacPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -447,8 +459,14 @@ class MacPlatform extends PlatformTarget
 			case X64:
 				if (targetFlags.exists("hl"))
 				{
-					// TODO: Support single binary
-					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+					if (targetFlags.exists("arm64"))
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64", "-Dhashlink"]);
+					}
+					else
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+					}
 				}
 				else if (targetFlags.exists("arm64"))
 				{
@@ -467,8 +485,16 @@ class MacPlatform extends PlatformTarget
 			case ARM64:
 				if (targetFlags.exists("hl"))
 				{
-					// hashlink doesn't support arm64 macs yet
-					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+					// hashlink doesn't fully support arm64 yet, so even on
+					// arm64 machines, we're still defaulting to x86_64.
+					if (targetFlags.exists("arm64"))
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64", "-Dhashlink"]);
+					}
+					else
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+					}
 				}
 				else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
 				{
@@ -519,6 +545,8 @@ class MacPlatform extends PlatformTarget
 		AssetHelper.processLibraries(project, targetDirectory);
 
 		// project = project.clone ();
+
+		prepareEmbeddedAssets();
 
 		if (project.targetFlags.exists("xml"))
 		{
@@ -593,7 +621,12 @@ class MacPlatform extends PlatformTarget
 	{
 		if (targetFlags.exists("hl"))
 		{
-			// hashlink doesn't support arm64 macs yet
+			// hashlink doesn't fully support arm64 yet, so even on
+			// arm64 machines, we're still defaulting to x86_64.
+			if (targetFlags.exists("arm64"))
+			{
+				return "Arm64";
+			}
 			return "64";
 		}
 		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
@@ -630,10 +663,7 @@ class MacPlatform extends PlatformTarget
 
 		// these are the known directories where Homebrew installs its dependencies
 		// we may need to add more in the future, but this seems to be enough for now
-		var homebrewDirs = [
-			"/usr/local/opt/",
-			"/usr/local/Cellar/"
-		];
+		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/"];
 
 		// first, collect all executables, hdlls, and dylibs that were built
 		// by BuildHashlink.xml
@@ -698,7 +728,10 @@ class MacPlatform extends PlatformTarget
 								continue;
 							}
 						}
-						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool { return StringTools.startsWith(resolvedLibPath, dirPath); }))
+						if (Lambda.exists(homebrewDirs, function(dirPath:String):Bool
+						{
+							return StringTools.startsWith(resolvedLibPath, dirPath);
+						}))
 						{
 							homebrewDependencyPaths.push(libPath);
 							pathsToSearchForHomebrewDependencies.push(resolvedLibPath);

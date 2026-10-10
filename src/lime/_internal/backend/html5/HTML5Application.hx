@@ -11,12 +11,14 @@ import lime.media.AudioManager;
 import lime.system.Orientation;
 import lime.system.Sensor;
 import lime.system.SensorType;
+import lime.system.System;
 import lime.ui.GamepadAxis;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Gamepad;
 import lime.ui.GamepadButton;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 @:access(lime._internal.backend.html5.HTML5Window)
@@ -36,6 +38,7 @@ class HTML5Application
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
 	private var parent:Application;
+	private var preferVisibilityChange:Bool;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -48,6 +51,36 @@ class HTML5Application
 		lastUpdate = 0;
 		nextUpdate = 0;
 		framePeriod = -1;
+
+		// mobile Safari sometimes dispatches the blur event, but completely
+		// skips the matching focus event. for instance, when opening the tab
+		// switcher and returning to the exact same tab. it may depend on which
+		// type of HTML element has focus, though.
+		//
+		// sometimes, mobile Safari doesn't dispatch the blur and focus events
+		// at all! however, it always dispatches the visibilitychange event when
+		// switching to a different tab, or to a different app, so we prefer to
+		// use visibilitychange instead, but only on iOS.
+		//
+		// on desktop, we should continue to use the blur and focus events
+		// because the page will be considered to remain visible when losing
+		// focus to another app. the visibilitychange event seems to be
+		// dispatched on desktop when changing tabs only. desktop Safari behaves
+		// like other desktop browsers.
+		//
+		// Note: Android behaves more similarly to desktop than to iOS.
+
+		#if haxe4
+		preferVisibilityChange = js.Lib.typeof(Browser.document.visibilityState) == "string"
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#else
+		preferVisibilityChange = untyped __js__ ('typeof document.visibilityState === "string"')
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#end
+		if (preferVisibilityChange)
+		{
+			hidden = Browser.document.hidden;
+		}
 
 		AudioManager.init();
 		accelerometer = Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
@@ -275,7 +308,18 @@ class HTML5Application
 
 	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
 	{
-		framePeriod = frameRate > 0 ? (1000.0 / frameRate) : -1;
+		if (frameRate == 0 || frameRate >= 60)
+		{
+			framePeriod = -1;
+		}
+		else if (frameRate > 0)
+		{
+			framePeriod = 1000.0 / frameRate;
+		}
+		else
+		{
+			framePeriod = 1000;
+		}
 	}
 
 	public function exec():Int
@@ -286,6 +330,7 @@ class HTML5Application
 		Browser.window.addEventListener("blur", handleWindowEvent, false);
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
+		Browser.document.addEventListener("visibilitychange", handleWindowEvent, false);
 
 		if (Reflect.hasField(Browser.window, "Accelerometer"))
 		{
@@ -426,6 +471,8 @@ class HTML5Application
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
+	public function setMenu(menu:Menu):Void {}
+
 	public function setVSyncMode(mode:VSyncMode):Void {}
 
 	private function handleKeyEvent(event:KeyboardEvent):Void
@@ -444,10 +491,11 @@ class HTML5Application
 
 			var keyCode = cast convertKeyCode(event.keyCode != null ? event.keyCode : event.which);
 			var modifier = (event.shiftKey ? (KeyModifier.SHIFT) : 0) | (event.ctrlKey ? (KeyModifier.CTRL) : 0) | (event.altKey ? (KeyModifier.ALT) : 0) | (event.metaKey ? (KeyModifier.META) : 0);
+			var timestamp = Std.int(event.timeStamp);
 
 			if (event.type == "keydown")
 			{
-				parent.window.onKeyDown.dispatch(keyCode, modifier);
+				@:privateAccess parent.window.onKeyDown.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyDown.canceled && event.cancelable)
 				{
@@ -456,7 +504,7 @@ class HTML5Application
 			}
 			else
 			{
-				parent.window.onKeyUp.dispatch(keyCode, modifier);
+				@:privateAccess parent.window.onKeyUp.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyUp.canceled && event.cancelable)
 				{
@@ -478,7 +526,7 @@ class HTML5Application
 			switch (event.type)
 			{
 				case "focus":
-					if (hidden)
+					if (!preferVisibilityChange && hidden)
 					{
 						parent.window.onFocusIn.dispatch();
 						parent.window.onActivate.dispatch();
@@ -486,7 +534,7 @@ class HTML5Application
 					}
 
 				case "blur":
-					if (!hidden)
+					if (!preferVisibilityChange && !hidden)
 					{
 						parent.window.onFocusOut.dispatch();
 						parent.window.onDeactivate.dispatch();
@@ -494,23 +542,17 @@ class HTML5Application
 					}
 
 				case "visibilitychange":
-					if (Browser.document.hidden)
+					if (Browser.document.hidden && !hidden)
 					{
-						if (!hidden)
-						{
-							parent.window.onFocusOut.dispatch();
-							parent.window.onDeactivate.dispatch();
-							hidden = true;
-						}
+						parent.window.onFocusOut.dispatch();
+						parent.window.onDeactivate.dispatch();
+						hidden = true;
 					}
-					else
+					else if (!Browser.document.hidden && hidden)
 					{
-						if (hidden)
-						{
-							parent.window.onFocusIn.dispatch();
-							parent.window.onActivate.dispatch();
-							hidden = false;
-						}
+						parent.window.onFocusIn.dispatch();
+						parent.window.onActivate.dispatch();
+						hidden = false;
 					}
 
 				case "resize":
@@ -601,18 +643,19 @@ class HTML5Application
 				for (i in 0...data.buttons.length)
 				{
 					value = data.buttons[i].value;
+					var timestamp = System.getTimer();
 
 					if (value != cache.buttons[i])
 					{
 						if (i == 6)
 						{
 							joystick.onAxisMove.dispatch(data.axes.length, value);
-							if (gamepad != null) gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_LEFT, value);
+							if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(timestamp, GamepadAxis.TRIGGER_LEFT, value);
 						}
 						else if (i == 7)
 						{
 							joystick.onAxisMove.dispatch(data.axes.length + 1, value);
-							if (gamepad != null) gamepad.onAxisMove.dispatch(GamepadAxis.TRIGGER_RIGHT, value);
+							if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(timestamp, GamepadAxis.TRIGGER_RIGHT, value);
 						}
 						else
 						{
@@ -649,11 +692,11 @@ class HTML5Application
 
 								if (value > 0)
 								{
-									gamepad.onButtonDown.dispatch(button);
+									@:privateAccess gamepad.onButtonDown.__dispatchWithTimestamp(timestamp, button);
 								}
 								else
 								{
-									gamepad.onButtonUp.dispatch(button);
+									@:privateAccess gamepad.onButtonUp.__dispatchWithTimestamp(timestamp, button);
 								}
 							}
 						}
@@ -667,7 +710,7 @@ class HTML5Application
 					if (data.axes[i] != cache.axes[i])
 					{
 						joystick.onAxisMove.dispatch(i, data.axes[i]);
-						if (gamepad != null) gamepad.onAxisMove.dispatch(i, data.axes[i]);
+						if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(System.getTimer(), i, data.axes[i]);
 						cache.axes[i] = data.axes[i];
 					}
 				}

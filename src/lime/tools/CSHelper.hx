@@ -11,8 +11,16 @@ using StringTools;
 class CSHelper
 {
 	public static var ndllSourceFiles:Array<String> = [
-		"cs.ndll.NDLLFunction", "cs.ndll.CFFICSLoader", "cs.ndll.CSAbstract", "cs.ndll.CSHandleContainer", "cs.ndll.CSHandleScope", "cs.ndll.CSPersistent",
-		"cs.ndll.DelegateConverter", "cs.ndll.HandleUtils", "cs.ndll.NativeMethods", "cs.ndll.NDLLFunction",
+		"cs.ndll.NDLLFunction",
+		"cs.ndll.CFFICSLoader",
+		"cs.ndll.CSAbstract",
+		"cs.ndll.CSHandleContainer",
+		"cs.ndll.CSHandleScope",
+		"cs.ndll.CSPersistent",
+		"cs.ndll.DelegateConverter",
+		"cs.ndll.HandleUtils",
+		"cs.ndll.NativeMethods",
+		"cs.ndll.NDLLFunction",
 	];
 
 	private static function getAndroidABIName(arch:Architecture):String

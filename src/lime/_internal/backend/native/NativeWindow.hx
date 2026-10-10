@@ -14,6 +14,7 @@ import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
+import lime.graphics.VulkanRenderContext;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
@@ -21,6 +22,10 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
+import lime.ui.Menu;
+import lime.ui.MenuItem;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
 import lime.utils.UInt8Array;
@@ -37,6 +42,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+@:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeWindow
 {
@@ -46,6 +52,7 @@ class NativeWindow
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
 	private var frameRate:Float;
+	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;
 	private var parent:Window;
 	private var useHardware:Bool;
@@ -67,9 +74,12 @@ class NativeWindow
 		var resolvedVSyncMode = parent.application.__resolveVSyncMode(attributes);
 		var title = Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
 		var flags = 0;
+		var transparent = Reflect.hasField(attributes, "transparent") && attributes.transparent;
 		if (!Reflect.hasField(contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
-		if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
-		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = 24;
+		if (transparent) contextAttributes.background = null;
+		else if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
+		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = transparent ? 32 : 24;
+		else if (transparent && contextAttributes.colorDepth < 32) contextAttributes.colorDepth = 32;
 		if (!Reflect.hasField(contextAttributes, "depth")) contextAttributes.depth = true;
 		if (!Reflect.hasField(contextAttributes, "hardware")) contextAttributes.hardware = true;
 		if (!Reflect.hasField(contextAttributes, "stencil")) contextAttributes.stencil = true;
@@ -79,14 +89,19 @@ class NativeWindow
 		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.Off);
 
 		#if (cairo || (!lime_opengl && !lime_opengles))
-		contextAttributes.type = CAIRO;
+		if (!Reflect.hasField(contextAttributes, "type") || contextAttributes.type != VULKAN)
+		{
+			contextAttributes.type = CAIRO;
+		}
 		#end
 		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == CAIRO) contextAttributes.hardware = false;
+		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) contextAttributes.hardware = true;
 		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
 
 		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
 		if (Reflect.hasField(attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
 		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (transparent) flags |= cast WindowFlags.WINDOW_FLAG_TRANSPARENT;
 
 		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
@@ -106,6 +121,7 @@ class NativeWindow
 		if (contextAttributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
 
 		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
+		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) flags |= cast WindowFlags.WINDOW_FLAG_VULKAN;
 		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
 
@@ -115,17 +131,19 @@ class NativeWindow
 		#if (!macro && lime_cffi)
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
-		if (handle != null)
+		if (handle == null)
 		{
-			parent.__width = NativeCFFI.lime_window_get_width(handle);
-
-			parent.__height = NativeCFFI.lime_window_get_height(handle);
-			parent.__x = NativeCFFI.lime_window_get_x(handle);
-			parent.__y = NativeCFFI.lime_window_get_y(handle);
-			parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
-
-			parent.id = NativeCFFI.lime_window_get_id(handle);
+			return;
 		}
+
+		parent.__width = NativeCFFI.lime_window_get_width(handle);
+
+		parent.__height = NativeCFFI.lime_window_get_height(handle);
+		parent.__x = NativeCFFI.lime_window_get_x(handle);
+		parent.__y = NativeCFFI.lime_window_get_y(handle);
+		parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
+
+		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
 
 		var context = new RenderContext();
@@ -156,6 +174,13 @@ class NativeWindow
 				{
 					GL.context = gl;
 				}
+			case "vulkan":
+				useHardware = true;
+				contextAttributes.hardware = true;
+				context.vulkan = new VulkanRenderContext(handle);
+				context.type = VULKAN;
+				context.version = Reflect.hasField(contextAttributes, "version")
+					&& contextAttributes.version != null ? contextAttributes.version : "";
 			default:
 				useHardware = false;
 
@@ -324,12 +349,43 @@ class NativeWindow
 		return false;
 	}
 
+	public function handleMenuKeyEquivalent(keyCode:KeyCode, modifier:KeyModifier):Bool
+	{
+		var item = NativeMenu.getKeyEquivalentItem(menuItems, keyCode, modifier);
+		if (item == null) return false;
+
+		item.__select();
+		return true;
+	}
+
+	public function handleMenuSelect(id:Int):Void
+	{
+		var item = NativeMenu.getItem(menuItems, id);
+		if (item != null) item.__select();
+	}
+
 	public function move(x:Int, y:Int):Void
 	{
 		if (handle != null)
 		{
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_move(handle, x, y);
+			#end
+		}
+	}
+
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void
+	{
+		if (handle != null && menu != null)
+		{
+			#if (!macro && lime_cffi)
+			var items = [];
+			var data = NativeMenu.encode(menu, items);
+			var atCursor = (x == null || y == null);
+			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
+
+			var item = NativeMenu.getItem(items, id);
+			if (item != null) item.__select();
 			#end
 		}
 	}
@@ -628,6 +684,26 @@ class NativeWindow
 		return value;
 	}
 
+	public function setMenu(menu:Menu):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			if (menu != null)
+			{
+				var items = [];
+				var data = NativeMenu.encode(menu, items);
+				menuItems = NativeCFFI.lime_window_set_menu(handle, data) ? items : null;
+			}
+			else
+			{
+				NativeCFFI.lime_window_set_menu(handle, null);
+				menuItems = null;
+			}
+			#end
+		}
+	}
+
 	public function setMinimized(value:Bool):Bool
 	{
 		if (handle != null)
@@ -742,4 +818,6 @@ class NativeWindow
 	var WINDOW_FLAG_MAXIMIZED = 0x00004000;
 	var WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000;
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
+	var WINDOW_FLAG_VULKAN = 0x00020000;
+	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
 }

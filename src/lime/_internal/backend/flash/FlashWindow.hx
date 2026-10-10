@@ -21,6 +21,7 @@ import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
@@ -225,8 +226,7 @@ class FlashWindow
 				"middleMouseMove",
 				"middleMouseUp"
 				#if ((!openfl && !disable_flash_right_click)
-					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp"
-				#end
+					|| enable_flash_right_click), "rightMouseDown", "rightMouseMove", "rightMouseUp" #end
 			];
 
 			for (event in events)
@@ -584,6 +584,8 @@ class FlashWindow
 
 	public function move(x:Int, y:Int):Void {}
 
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void {}
+
 	public function resize(width:Int, height:Int):Void {}
 
 	public function setMinSize(width:Int, height:Int):Void {}
@@ -614,6 +616,8 @@ class FlashWindow
 	{
 		return false;
 	}
+
+	public function setMenu(menu:Menu):Void {}
 
 	public function setMinimized(value:Bool):Bool
 	{

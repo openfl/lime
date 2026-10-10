@@ -17,6 +17,7 @@
 	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
 
 		<files id="main" />
+		<files id="rc" if="windows" />
 		<files id="mbedtls" if="HAS_HXCPP_MBEDTLS_FILES" />
 		<files id="hxcpp_ssl" unless="HAS_HXCPP_MBEDTLS_FILES" />
 		::foreach ndlls::

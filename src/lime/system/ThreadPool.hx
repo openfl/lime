@@ -16,7 +16,6 @@ import neko.vm.Thread;
 #elseif html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
 import lime._internal.backend.html5.HTML5Thread.Transferable;
-
 #if lime_threads_deque
 #error "lime_threads_deque is not yet supported in HTML5"
 #end
@@ -474,21 +473,21 @@ class ThreadPool extends WorkOutput
 			}
 		}
 		#end
-		else if (event.jobID != null)
+	else if (event.jobID != null)
+	{
+		#if (lime_threads && lime_threads_deque)
+		// `cancelJob()` can't remove the job from the queue, so instead it
+		// marks it to be canceled later. (And "later" is now.)
+		if (event.event == WORK && event.threadID != null)
 		{
-			#if (lime_threads && lime_threads_deque)
-			// `cancelJob()` can't remove the job from the queue, so instead it
-			// marks it to be canceled later. (And "later" is now.)
-			if (event.event == WORK && event.threadID != null)
-			{
-				__threads[event.threadID].thread.sendMessage({event: IDLE});
-				__queuedWorkEvents--;
-			}
-			#end
-
-			activeJob = oldActiveJob;
-			return;
+			__threads[event.threadID].thread.sendMessage({event: IDLE});
+			__queuedWorkEvents--;
 		}
+		#end
+
+		activeJob = oldActiveJob;
+		return;
+	}
 
 		switch (event.event)
 		{
@@ -514,7 +513,7 @@ class ThreadPool extends WorkOutput
 					}
 					else
 					{
-						message = (event.message:Exception).details();
+						message = (event.message : Exception).details();
 					}
 				}
 				else
@@ -553,8 +552,7 @@ class ThreadPool extends WorkOutput
 
 			case EXIT:
 				var threadData:ThreadData = __threads[event.threadID];
-				if (threadData.jobID != null)
-					activeThreads--;
+				if (threadData.jobID != null) activeThreads--;
 				else
 					__idleThreads--;
 
@@ -834,7 +832,6 @@ class ThreadPool extends WorkOutput
 	}
 
 	#if lime_threads
-
 	/**
 		Handles a thread that just became idle. Depending on the circumstances,
 		this may do one of three things:
@@ -897,12 +894,13 @@ class ThreadPool extends WorkOutput
 		job.doWork.makePortable();
 		#end
 
-		var threadEvent:ThreadEvent = {
-			event: WORK,
-			jobID: job.id,
-			doWork: job.doWork,
-			state: job.state
-		};
+		var threadEvent:ThreadEvent =
+			{
+				event: WORK,
+				jobID: job.id,
+				doWork: job.doWork,
+				state: job.state
+			};
 
 		#if lime_threads_deque
 		__multiThreadedQueue.add(threadEvent);
@@ -991,19 +989,19 @@ class ThreadPool extends WorkOutput
 		__threads[index] = {thread: thread, jobID: null};
 		__idleThreads++;
 
-		thread.sendMessage({
-			#if !html5
-			output: this,
-			#end
-			#if lime_threads_deque
-			queue: __multiThreadedQueue,
-			#end
-			threadID: index
-		});
+		thread.sendMessage(
+			{
+				#if !html5
+				output: this,
+				#end
+				#if lime_threads_deque
+				queue: __multiThreadedQueue,
+				#end
+				threadID: index
+			});
 
 		return thread;
 	}
-
 	#end
 
 	// Getters & Setters
@@ -1026,7 +1024,7 @@ class ThreadPool extends WorkOutput
 	private inline function get_idleThreads():Int
 	{
 		return __idleThreads
-			#if lime_threads - __queuedExitEvents #end;
+		#if lime_threads - __queuedExitEvents #end;
 	}
 
 	private inline function set___singleThreadedJobRunning(value:Bool):Bool
@@ -1255,7 +1253,8 @@ private abstract JobQueue(Deque<ThreadEvent>) from Deque<ThreadEvent>
 }
 #end
 
-private typedef ThreadArguments = {
+private typedef ThreadArguments =
+{
 	#if !html5
 	var output:WorkOutput;
 	#end
@@ -1268,7 +1267,8 @@ private typedef ThreadArguments = {
 };
 
 #if lime_threads
-private typedef ThreadData = {
+private typedef ThreadData =
+{
 	var thread:Thread;
 	@:optional var jobID:Int;
 };

@@ -1,5 +1,7 @@
 <xml>
-	<error value="HashLink not supported on ARM" if="rpi || HXCPP_ARM64"/>
+	<section unless="mac">
+		<error value="HashLink not supported on ARM" if="rpi || HXCPP_ARM64"/>
+	</section>
 
 	<set name="PLATFORM" value="android-21" if="android" />
 	<set name="HXCPP_CPP11" value="1" />
@@ -114,7 +116,14 @@
 	<files id="mysql">
 		<compilerflag value="-std=gnu17" unless="windows" />
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<compilerflag value="-I/usr/local/include" if="mac"/>
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<compilerflag value="-I/usr/local/include"/>
+			</section>
+			<section if="HXCPP_ARM64">
+				<compilerflag value="-I/opt/homebrew/include"/>
+			</section>
+		</section>
 
 		<file name="${HASHLINK_PATH}/libs/mysql/socket.c" />
 		<file name="${HASHLINK_PATH}/libs/mysql/sha1.c" />
@@ -127,10 +136,21 @@
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${HASHLINK_PATH}/include/mikktspace" />
 		<compilerflag value="-I${HASHLINK_PATH}/include/minimp3" />
-		<compilerflag value="-I/usr/local/include" if="mac"/>
-		<compilerflag value="-I/usr/local/opt/libjpeg-turbo/include" if="mac"/>
-		<compilerflag value="-I/usr/local/opt/jpeg-turbo/include" if="mac"/>
-		<compilerflag value="-I/usr/local/opt/libvorbis/include" if="mac"/>
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<compilerflag value="-I/usr/local/include"/>
+				<compilerflag value="-I/usr/local/opt/libjpeg-turbo/include"/>
+				<compilerflag value="-I/usr/local/opt/jpeg-turbo/include"/>
+				<compilerflag value="-I/usr/local/opt/libvorbis/include"/>
+			</section>
+			<section if="HXCPP_ARM64">
+				<compilerflag value="-I/opt/homebrew/include"/>
+				<compilerflag value="-I/opt/homebrew/opt/libjpeg-turbo/include"/>
+				<compilerflag value="-I/opt/homebrew/opt/jpeg-turbo/include"/>
+				<compilerflag value="-I/opt/homebrew/opt/libvorbis/include"/>
+			</section>
+		</section>
+
 
 
 		<file name="${HASHLINK_PATH}/libs/fmt/fmt.c" />
@@ -257,7 +277,14 @@
 	</files>
 	<files id="uv">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<compilerflag value="-I/usr/local/include" if="mac"/>
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<compilerflag value="-I/usr/local/include" />
+			</section>
+			<section if="HXCPP_ARM64">
+				<compilerflag value="-I/opt/homebrew/include" />
+			</section>
+		</section>
 
 		<file name="${HASHLINK_PATH}/libs/uv/uv.c"/>
 
@@ -363,10 +390,20 @@
 
 		<vflag name="-install_name" value="@executable_path/fmt.hdll" if="mac"/>
 
-		<lib name="-L/usr/local/lib" if="mac" />
-		<lib name="-L/usr/local/opt/libjpeg-turbo/lib" if="mac" />
-		<lib name="-L/usr/local/opt/jpeg-turbo/lib" if="mac" />
-		<lib name="-L/usr/local/opt/libvorbis/lib" if="mac" />
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<lib name="-L/usr/local/lib" />
+				<lib name="-L/usr/local/opt/libjpeg-turbo/lib" />
+				<lib name="-L/usr/local/opt/jpeg-turbo/lib" />
+				<lib name="-L/usr/local/opt/libvorbis/lib" />
+			</section>
+			<section if="HXCPP_ARM64">
+				<lib name="-L/opt/homebrew/lib" />
+				<lib name="-L/opt/homebrew/opt/libjpeg-turbo/lib" />
+				<lib name="-L/opt/homebrew/opt/jpeg-turbo/lib" />
+				<lib name="-L/opt/homebrew/opt/libvorbis/lib" />
+			</section>
+		</section>
 
 		<lib name="-lz" unless="windows" />
 		<lib name="-lvorbis" unless="windows" />
@@ -408,7 +445,14 @@
 
 		<vflag name="-install_name" value="@executable_path/uv.hdll" if="mac"/>
 
-		<lib name="-L/usr/local/lib" if="mac" />
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<lib name="-L/usr/local/lib" />
+			</section>
+			<section if="HXCPP_ARM64">
+				<lib name="-L/opt/homebrew/lib" />
+			</section>
+		</section>
 
 		<lib name="-luv" unless="windows" />
 		<lib name="-lhl" unless="windows" />

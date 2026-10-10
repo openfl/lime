@@ -1,12 +1,16 @@
 #include "SDLWindow.h"
 #include "SDLCursor.h"
 #include "SDLApplication.h"
+#include "SDLMenu.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
 #include <windows.h>
+#ifndef HX_WINRT
+#include <commctrl.h>
+#endif
 #undef CreateWindow
 #endif
 
@@ -31,7 +35,10 @@ namespace lime {
 	static bool displayModeSet = false;
 
 #if defined (HX_WINDOWS) && !defined (HX_WINRT)
-	static const wchar_t* LIME_SDL_OLD_RESIZE_WNDPROC_PROP = L"LimeSDL.OldResizeWndProc";
+	static const UINT_PTR LIME_SDL_RESIZE_SUBCLASS_ID = 1;
+	// Outside the documented WM_MOUSEMOVE key/button bits. Never reaches SDL.
+	static const WPARAM LIME_SDL_CAPTION_WAKE_TAG = (WPARAM)0x4C490000;
+	static const wchar_t* LIME_SDL_IN_SIZE_MOVE_PROP = L"LimeSDL.InSizeMove";
 	static const wchar_t* LIME_SDL_WINDOW_ID_PROP = L"LimeSDL.WindowID";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_WIDTH_PROP = L"LimeSDL.LastResizeWidth";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_HEIGHT_PROP = L"LimeSDL.LastResizeHeight";
@@ -107,15 +114,39 @@ namespace lime {
 
 	}
 
-	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	static void ClearResizeEventProperties (HWND hwnd) {
 
-		if (message == WM_ENTERSIZEMOVE) {
+		if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
+		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+	}
 
-			SDLApplication::EnterNativeModalLoop ();
+	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR subclassID, DWORD_PTR referenceData) {
+
+		if (message == WM_MOUSEMOVE && wParam == LIME_SDL_CAPTION_WAKE_TAG && lParam == 0) {
+
+			// This message only wakes Windows' pre-drag mouse wait. Do not turn
+			// it into game input or move the application's remembered pointer.
+			return 0;
+
+		} else if (message == WM_NCLBUTTONDOWN && wParam == HTCAPTION) {
+
+			// DefWindowProc otherwise waits about 500 ms for caption drag intent
+			// before WM_ENTERSIZEMOVE, where SDL's modal timer finally starts.
+			// A posted zero-position move wakes that wait. Tag our message so
+			// the existing window chain never interprets it as physical input.
+			PostMessageW (hwnd, WM_MOUSEMOVE, LIME_SDL_CAPTION_WAKE_TAG, 0);
+
+		} else if (message == WM_ENTERSIZEMOVE) {
+
+			if (!GetPropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP) && SetPropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP, (HANDLE)1))
+				SDLApplication::EnterNativeModalLoop ();
 
 		} else if (message == WM_EXITSIZEMOVE) {
 
-			SDLApplication::ExitNativeModalLoop ();
+			if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
 
 		} else if (message == WM_SIZING) {
 
@@ -132,14 +163,12 @@ namespace lime {
 
 		}
 
-		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		if (oldWndProc) {
-
-			return CallWindowProc (oldWndProc, hwnd, message, wParam, lParam);
-
+		if (message == WM_NCDESTROY) {
+			RemoveWindowSubclass (hwnd, LimeResizeWndProc, subclassID);
+			ClearResizeEventProperties (hwnd);
 		}
 
-		return DefWindowProc (hwnd, message, wParam, lParam);
+		return DefSubclassProc (hwnd, message, wParam, lParam);
 
 	}
 
@@ -153,14 +182,11 @@ namespace lime {
 
 		HWND hwnd = wminfo.info.win.window;
 		if (!hwnd) return;
-		if (GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP)) return;
-
-		SetLastError (0);
-		LONG_PTR previous = SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)LimeResizeWndProc);
-		if (previous == 0 && GetLastError () != 0) return;
-
-		SetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP, (HANDLE)previous);
-		SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow));
+		DWORD_PTR data;
+		if (GetWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID, &data)) return;
+		if (!SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow))) return;
+		if (!SetWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID, 0))
+			ClearResizeEventProperties (hwnd);
 
 	}
 
@@ -175,18 +201,45 @@ namespace lime {
 		HWND hwnd = wminfo.info.win.window;
 		if (!hwnd) return;
 
-		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		if (oldWndProc) {
+		if (RemoveWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID))
+			ClearResizeEventProperties (hwnd);
 
-			SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
+	}
+
+	static bool EnableTransparentWindow (SDL_Window* sdlWindow) {
+
+		if (!sdlWindow) return false;
+
+		SDL_SysWMinfo wminfo;
+		SDL_VERSION (&wminfo.version);
+		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != 1) return false;
+
+		HWND hwnd = wminfo.info.win.window;
+		if (!hwnd) return false;
+
+		typedef struct {
+			int leftWidth;
+			int rightWidth;
+			int topHeight;
+			int bottomHeight;
+		} DwmMargins;
+		typedef HRESULT (WINAPI *DwmExtendFrameIntoClientAreaFunc) (HWND hwnd, const DwmMargins* margins);
+
+		HMODULE dwmapi = LoadLibraryW (L"dwmapi.dll");
+		if (!dwmapi) return false;
+
+		DwmExtendFrameIntoClientAreaFunc extendFrame = (DwmExtendFrameIntoClientAreaFunc)GetProcAddress (dwmapi, "DwmExtendFrameIntoClientArea");
+		bool enabled = false;
+
+		if (extendFrame) {
+
+			DwmMargins margins = { -1, -1, -1, -1 };
+			enabled = SUCCEEDED (extendFrame (hwnd, &margins));
 
 		}
 
-		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
-		RemovePropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+		FreeLibrary (dwmapi);
+		return enabled;
 
 	}
 #endif
@@ -199,6 +252,7 @@ namespace lime {
 		sdlTexture = 0;
 		sdlRenderer = 0;
 		context = 0;
+		useVulkan = (flags & WINDOW_FLAG_VULKAN) != 0;
 
 		contextWidth = 0;
 		contextHeight = 0;
@@ -240,9 +294,25 @@ namespace lime {
 		SDL_SetHint (SDL_HINT_TOUCH_MOUSE_EVENTS, "1");
 		#endif
 
+		if (flags & WINDOW_FLAG_TRANSPARENT) {
+
+			#ifdef SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY
+			SDL_SetHint (SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, "1");
+			#endif
+
+		}
+
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
-			sdlWindowFlags |= SDL_WINDOW_OPENGL;
+			if (useVulkan) {
+
+				sdlWindowFlags |= SDL_WINDOW_VULKAN;
+
+			} else {
+
+				sdlWindowFlags |= SDL_WINDOW_OPENGL;
+
+			}
 
 			if (flags & WINDOW_FLAG_ALLOW_HIGHDPI) {
 
@@ -250,61 +320,65 @@ namespace lime {
 
 			}
 
-			#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
-			#endif
+			if (!useVulkan) {
 
-			#if defined (RASPBERRYPI)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
-			SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
-			#endif
+				#if defined (HX_WINDOWS) && defined (NATIVE_TOOLKIT_SDL_ANGLE)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				SDL_SetHint (SDL_HINT_VIDEO_WIN_D3DCOMPILER, "d3dcompiler_47.dll");
+				#endif
 
-			#if defined (IPHONE) || defined (APPLETV)
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-			#endif
+				#if defined (RASPBERRYPI)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 0);
+				SDL_SetHint (SDL_HINT_RENDER_DRIVER, "opengles2");
+				#endif
 
-			if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+				#if defined (IPHONE) || defined (APPLETV)
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+				SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+				#endif
 
-				SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+				if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
 
-			if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+				if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
 
-			if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
+				if (flags & WINDOW_FLAG_HW_AA_HIRES) {
 
-			} else if (flags & WINDOW_FLAG_HW_AA) {
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 4);
 
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
-				SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
+				} else if (flags & WINDOW_FLAG_HW_AA) {
 
-			}
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, true);
+					SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 2);
 
-			if (flags & WINDOW_FLAG_COLOR_DEPTH_32_BIT) {
+				}
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
-				SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
+				if (flags & (WINDOW_FLAG_COLOR_DEPTH_32_BIT | WINDOW_FLAG_TRANSPARENT)) {
 
-			} else {
+					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
+					SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
 
-				SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
-				SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
-				SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+				} else {
+
+					SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 5);
+					SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 6);
+					SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 5);
+
+				}
 
 			}
 
@@ -313,7 +387,7 @@ namespace lime {
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 
 		#if defined (IPHONE) || defined (APPLETV)
-		if (sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
+		if (!useVulkan && sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
 
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -332,6 +406,12 @@ namespace lime {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		InstallResizeEventHook (sdlWindow);
+
+		if ((flags & WINDOW_FLAG_TRANSPARENT) && !useVulkan) {
+
+			EnableTransparentWindow (sdlWindow);
+
+		}
 		#endif
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
@@ -362,7 +442,7 @@ namespace lime {
 
 		int sdlRendererFlags = 0;
 
-		if (flags & WINDOW_FLAG_HARDWARE) {
+		if ((flags & WINDOW_FLAG_HARDWARE) && !useVulkan) {
 
 			sdlRendererFlags |= SDL_RENDERER_ACCELERATED;
 
@@ -430,7 +510,7 @@ namespace lime {
 
 		}
 
-		if (!context) {
+		if (!context && !useVulkan) {
 
 			sdlRendererFlags &= ~SDL_RENDERER_ACCELERATED;
 			sdlRendererFlags &= ~SDL_RENDERER_PRESENTVSYNC;
@@ -441,7 +521,7 @@ namespace lime {
 
 		}
 
-		if (context || sdlRenderer) {
+		if (context || sdlRenderer || useVulkan) {
 
 			((SDLApplication*)currentApplication)->RegisterWindow (this);
 
@@ -462,24 +542,33 @@ namespace lime {
 
 		}
 
+		if (sdlRenderer) {
+
+			SDL_DestroyRenderer (sdlRenderer);
+			sdlRenderer = 0;
+
+		} else if (context) {
+
+			if (SDL_GL_GetCurrentContext () == context) {
+
+				SDL_GL_MakeCurrent (sdlWindow, NULL);
+
+			}
+
+			SDL_GL_DeleteContext (context);
+			context = 0;
+
+		}
+
 		if (sdlWindow) {
 
 			#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 			RestoreResizeEventHook (sdlWindow);
 			#endif
 
+			SDLMenu::Remove (sdlWindow);
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
-
-		}
-
-		if (sdlRenderer) {
-
-			SDL_DestroyRenderer (sdlRenderer);
-
-		} else if (context) {
-
-			SDL_GL_DeleteContext (context);
 
 		}
 
@@ -531,6 +620,25 @@ namespace lime {
 			RestoreResizeEventHook (sdlWindow);
 			#endif
 
+			if (sdlRenderer) {
+
+				SDL_DestroyRenderer (sdlRenderer);
+				sdlRenderer = 0;
+
+			} else if (context) {
+
+				if (SDL_GL_GetCurrentContext () == context) {
+
+					SDL_GL_MakeCurrent (sdlWindow, NULL);
+
+				}
+
+				SDL_GL_DeleteContext (context);
+				context = 0;
+
+			}
+
+			SDLMenu::Remove (sdlWindow);
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -558,6 +666,12 @@ namespace lime {
 
 	void SDLWindow::ContextFlip () {
 
+		if (useVulkan) {
+
+			return;
+
+		}
+
 		if (context && !sdlRenderer) {
 
 			SDL_GL_SwapWindow (sdlWindow);
@@ -574,6 +688,13 @@ namespace lime {
 	int SDLWindow::GetVSyncInterval () const {
 
 		return activeSwapInterval;
+
+	}
+
+
+	int SDLWindow::GetRequestedVSyncMode () const {
+
+		return requestedVSyncMode;
 
 	}
 
@@ -601,6 +722,72 @@ namespace lime {
 		}
 
 		return 60.0;
+
+	}
+
+
+	uint64_t SDLWindow::CreateVulkanSurface (uintptr_t instance) {
+
+		if (!useVulkan || !instance) {
+
+			return 0;
+
+		}
+
+		SDL_vulkanSurface surface = 0;
+		if (SDL_Vulkan_CreateSurface (sdlWindow, (SDL_vulkanInstance)instance, &surface) != SDL_TRUE) {
+
+			return 0;
+
+		}
+
+		#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+		return (uint64_t)(uintptr_t)surface;
+		#else
+		return (uint64_t)surface;
+		#endif
+
+	}
+
+
+	void SDLWindow::GetVulkanDrawableSize (int* width, int* height) {
+
+		if (!useVulkan) {
+
+			if (width) *width = 0;
+			if (height) *height = 0;
+			return;
+
+		}
+
+		SDL_Vulkan_GetDrawableSize (sdlWindow, width, height);
+
+	}
+
+
+	bool SDLWindow::GetVulkanInstanceExtensions (unsigned int* count, const char** names) {
+
+		if (!useVulkan) {
+
+			if (count) *count = 0;
+			return false;
+
+		}
+
+		return SDL_Vulkan_GetInstanceExtensions (sdlWindow, count, names) == SDL_TRUE;
+
+	}
+
+
+	void* SDLWindow::GetVulkanInstanceProcAddr () {
+
+		if (!useVulkan) {
+
+			return 0;
+
+		}
+
+		return SDL_Vulkan_GetVkGetInstanceProcAddr ();
 
 	}
 
@@ -692,6 +879,12 @@ namespace lime {
 
 	void SDLWindow::ContextMakeCurrent () {
 
+		if (useVulkan) {
+
+			return;
+
+		}
+
 		if (sdlWindow && context) {
 
 			SDL_GL_MakeCurrent (sdlWindow, context);
@@ -723,12 +916,24 @@ namespace lime {
 
 	void* SDLWindow::GetContext () {
 
+		if (useVulkan) {
+
+			return sdlWindow;
+
+		}
+
 		return context;
 
 	}
 
 
 	const char* SDLWindow::GetContextType () {
+
+		if (useVulkan) {
+
+			return "vulkan";
+
+		}
 
 		if (context) {
 
@@ -917,6 +1122,13 @@ namespace lime {
 	void SDLWindow::Move (int x, int y) {
 
 		SDL_SetWindowPosition (sdlWindow, x, y);
+
+	}
+
+
+	int SDLWindow::PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor) {
+
+		return SDLMenu::Popup (sdlWindow, data, length, x, y, atCursor);
 
 	}
 
@@ -1232,6 +1444,13 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::SetMenu (const unsigned char* data, int length) {
+
+		return SDLMenu::SetWindowMenu (sdlWindow, data, length);
+
+	}
+
+
 	bool SDLWindow::SetMinimized (bool minimized) {
 
 		if (minimized) {
@@ -1332,6 +1551,35 @@ namespace lime {
 
 		requestedVSyncMode = vsyncMode;
 		activeSwapInterval = 0;
+
+		if (useVulkan) {
+
+			switch (vsyncMode) {
+
+				case 1:
+					activeSwapInterval = 1;
+					flags |= WINDOW_FLAG_VSYNC;
+					break;
+
+				case 2:
+					activeSwapInterval = -1;
+					flags |= WINDOW_FLAG_VSYNC;
+					break;
+
+				case 3:
+					activeSwapInterval = 1;
+					flags |= WINDOW_FLAG_VSYNC;
+					break;
+
+				default:
+					flags &= ~WINDOW_FLAG_VSYNC;
+					break;
+
+			}
+
+			return;
+
+		}
 
 		if (!sdlWindow || !context || sdlRenderer) {
 
@@ -1439,7 +1687,16 @@ namespace lime {
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
 
-		return new SDLWindow (application, width, height, flags, title);
+		SDLWindow* window = new SDLWindow (application, width, height, flags, title);
+
+		if (!window->sdlWindow) {
+
+			delete window;
+			return 0;
+
+		}
+
+		return window;
 
 	}
 

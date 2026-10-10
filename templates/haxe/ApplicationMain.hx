@@ -49,6 +49,7 @@ import ::APP_MAIN::;
 				parameters: ::parameters::,
 				resizable: ::resizable::,
 				title: "::title::",
+				transparent: ::transparent::,
 				width: ::width::,
 				x: ::x::,
 				y: ::y::,
@@ -62,7 +63,7 @@ import ::APP_MAIN::;
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
-				type: null,
+				type: ::if renderType::"::renderType::"::else::null::end::,
 				vsync: ::vsync::
 			};
 
@@ -89,6 +90,17 @@ import ::APP_MAIN::;
 		}
 
 		app.createWindow(attributes);
+		#if (linux && sys)
+		var iconPath = lime.system.System.applicationDirectory + "/icon.png";
+		if (sys.FileSystem.exists(iconPath))
+		{
+			var icon = lime.graphics.Image.fromFile(iconPath);
+			if (icon != null && app.window != null)
+			{
+				app.window.setIcon(icon);
+			}
+		}
+		#end
 		::end::
 		#elseif air
 		app.window.title = "::meta.title::";
