@@ -4,9 +4,35 @@
 #ifdef LIME_VIDEO_AVFOUNDATION
 
 
+// OpenGL, OpenGL ES and the CoreVideo texture caches for them are deprecated
+#ifndef GL_SILENCE_DEPRECATION
+#define GL_SILENCE_DEPRECATION
+#endif
+#ifndef GLES_SILENCE_DEPRECATION
+#define GLES_SILENCE_DEPRECATION
+#endif
+
+// ANGLE contexts are not CGL or EAGL contexts that can share CoreVideo textures
+#ifndef NATIVE_TOOLKIT_SDL_ANGLE
+#define LIME_VIDEO_AVF_TEXTURES
+#endif
+
+#ifdef LIME_VIDEO_AVF_TEXTURES
+#ifdef HX_MACOS
+#import <OpenGL/OpenGL.h>
+#import <OpenGL/gl.h>
+#import <OpenGL/glext.h>
+#else
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+#endif
+#endif
+
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import <CoreVideo/CoreVideo.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if __has_feature(objc_arc)
@@ -105,9 +131,138 @@ namespace lime {
 	}
 
 
+	static bool IsBGRA (CVImageBufferRef image) {
+
+		return CFGetTypeID (image) == CVPixelBufferGetTypeID () && CVPixelBufferGetPixelFormatType (image) == kCVPixelFormatType_32BGRA;
+
+	}
+
+
 	static bool IsNV12 (CVImageBufferRef image) {
 
 		return CFGetTypeID (image) == CVPixelBufferGetTypeID () && CVPixelBufferGetPixelFormatType (image) == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange && CVPixelBufferGetPlaneCount (image) >= 2;
+
+	}
+
+
+	#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+
+	// Framebuffer objects and blits are core from OpenGL 3.0. Legacy 2.1
+	// contexts have them as ARB_framebuffer_object, which uses the same
+	// functions, or as the EXT extensions.
+
+	static void BindFramebuffer (bool ext, GLenum target, GLuint framebuffer) {
+
+		if (ext) glBindFramebufferEXT (target, framebuffer);
+		else glBindFramebuffer (target, framebuffer);
+
+	}
+
+
+	static void BlitFramebuffer (bool ext, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1) {
+
+		if (ext) glBlitFramebufferEXT (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		else glBlitFramebuffer (srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+	}
+
+
+	static void DeleteFramebuffer (bool ext, GLuint framebuffer) {
+
+		if (ext) glDeleteFramebuffersEXT (1, &framebuffer);
+		else glDeleteFramebuffers (1, &framebuffer);
+
+	}
+
+
+	static void FramebufferTexture2D (bool ext, GLenum target, GLenum textureTarget, GLuint texture) {
+
+		if (ext) glFramebufferTexture2DEXT (target, GL_COLOR_ATTACHMENT0, textureTarget, texture, 0);
+		else glFramebufferTexture2D (target, GL_COLOR_ATTACHMENT0, textureTarget, texture, 0);
+
+	}
+
+
+	static GLuint GenFramebuffer (bool ext) {
+
+		GLuint framebuffer = 0;
+
+		if (ext) glGenFramebuffersEXT (1, &framebuffer);
+		else glGenFramebuffers (1, &framebuffer);
+
+		return framebuffer;
+
+	}
+
+
+	static bool HasExtension (const char* extensions, const char* name) {
+
+		if (!extensions) return false;
+
+		size_t length = strlen (name);
+
+		for (const char* match = strstr (extensions, name); match; match = strstr (match + length, name)) {
+
+			if ((match == extensions || match[-1] == ' ') && (match[length] == ' ' || match[length] == '\0')) return true;
+
+		}
+
+		return false;
+
+	}
+
+
+	static bool IsFramebufferComplete (bool ext, GLenum target) {
+
+		return (ext ? glCheckFramebufferStatusEXT (target) : glCheckFramebufferStatus (target)) == GL_FRAMEBUFFER_COMPLETE;
+
+	}
+
+	#endif
+
+
+	#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+	typedef CVOpenGLTextureCacheRef AVFTextureCacheRef;
+	#elif defined (LIME_VIDEO_AVF_TEXTURES)
+	typedef CVOpenGLESTextureCacheRef AVFTextureCacheRef;
+	#else
+	typedef void* AVFTextureCacheRef;
+	#endif
+
+
+	// A BGRA frame that VideoToolbox converted on the GPU, kept in its IOSurface
+	class AVFTextureFrame : public VideoTextureFrame {
+
+
+		public:
+
+			AVFTextureFrame (CVPixelBufferRef pixelBuffer);
+			~AVFTextureFrame ();
+
+			CVPixelBufferRef buffer;
+
+			// The CVOpenGLTextureRef or CVOpenGLESTextureRef made from the
+			// buffer while the frame is locked
+			CVImageBufferRef texture;
+
+
+	};
+
+
+	AVFTextureFrame::AVFTextureFrame (CVPixelBufferRef pixelBuffer) {
+
+		buffer = CVPixelBufferRetain (pixelBuffer);
+		height = (int)CVPixelBufferGetHeight (pixelBuffer);
+		texture = NULL;
+		width = (int)CVPixelBufferGetWidth (pixelBuffer);
+
+	}
+
+
+	AVFTextureFrame::~AVFTextureFrame () {
+
+		if (texture) CFRelease (texture);
+		CVPixelBufferRelease (buffer);
 
 	}
 
@@ -146,16 +301,25 @@ namespace lime {
 			virtual void Close ();
 			virtual VideoDecodeResult DecodeAudio (std::vector<unsigned char>* pcm, double* time);
 			virtual VideoDecodeResult DecodeVideo (VideoPlanes* planes, double* time, double* duration);
+			virtual VideoDecodeResult DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration);
+			virtual unsigned int LockTexture (VideoTextureFrame* frame);
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
+			virtual void ReleaseTextureFrame (VideoTextureFrame* frame);
+			virtual void ReleaseTextures ();
 			virtual bool Seek (double time);
+			virtual void SetTextureOutput (bool enabled);
+			virtual bool SupportsTextures ();
+			virtual void UnlockTexture (VideoTextureFrame* frame);
 
 		private:
 
 			CMSampleBufferRef CopyNextVideoSample ();
+			void ForgetTextures ();
+			void GetSampleTimes (CMSampleBufferRef sample, double* time, double* duration);
 			bool OpenAudio (AVAssetTrack* track);
 			bool OpenVideo (AVAssetTrack* track, int* width, int* height);
 			bool StartAudio (double time);
-			bool StartVideo (double time);
+			bool StartVideo (double time, bool textures);
 			void StopAudio ();
 			void StopVideo ();
 			void UnlockVideo ();
@@ -168,12 +332,22 @@ namespace lime {
 			AVAssetReader* audioReader;
 			int audioSampleRate;
 			AVAssetTrack* audioTrack;
+			unsigned int copyFramebuffer;
+			unsigned int copyTexture;
+			int copyTextureHeight;
+			int copyTextureWidth;
+			bool framebufferEXT;
 			double frameRate;
 			CMSampleBufferRef lockedSample;
 			CMSampleBufferRef pendingSample;
+			unsigned int sourceFramebuffer;
+			AVFTextureCacheRef textureCache;
+			void* textureContext;
+			std::atomic<bool> textureOutput;
 			AVAssetReaderTrackOutput* videoOutput;
 			double videoPosition;
 			AVAssetReader* videoReader;
+			bool videoTextures;
 			AVAssetTrack* videoTrack;
 
 
@@ -190,12 +364,22 @@ namespace lime {
 		audioReader = nil;
 		audioSampleRate = 0;
 		audioTrack = nil;
+		copyFramebuffer = 0;
+		copyTexture = 0;
+		copyTextureHeight = 0;
+		copyTextureWidth = 0;
+		framebufferEXT = false;
 		frameRate = 0;
 		lockedSample = NULL;
 		pendingSample = NULL;
+		sourceFramebuffer = 0;
+		textureCache = NULL;
+		textureContext = NULL;
+		textureOutput = false;
 		videoOutput = nil;
 		videoPosition = 0;
 		videoReader = nil;
+		videoTextures = false;
 		videoTrack = nil;
 
 	}
@@ -308,9 +492,18 @@ namespace lime {
 
 		UnlockVideo ();
 
-		if (!videoOutput) return videoTrack ? VIDEO_DECODE_ERROR : VIDEO_DECODE_END;
-
 		@autoreleasepool {
+
+			// Texture output stopped, and VideoDecoder reads in memory until the
+			// seek that follows, so continue from the next frame as NV12
+			if (videoTextures) {
+
+				StopVideo ();
+				StartVideo (videoPosition, false);
+
+			}
+
+			if (!videoOutput) return videoTrack ? VIDEO_DECODE_ERROR : VIDEO_DECODE_END;
 
 			CMSampleBufferRef sample = CopyNextVideoSample ();
 			if (!sample) return GetEndResult (videoReader);
@@ -350,15 +543,270 @@ namespace lime {
 			planes->uvStride = (int)CVPixelBufferGetBytesPerRowOfPlane (image, 1);
 			planes->uvPixelStride = 2;
 
-			double sampleDuration = GetSeconds (CMSampleBufferGetDuration (sample), 0);
-
-			*time = GetSeconds (CMSampleBufferGetPresentationTimeStamp (sample), videoPosition);
-			*duration = sampleDuration > 0 ? sampleDuration : (frameRate > 0 ? 1.0 / frameRate : 0);
-			videoPosition = *time + *duration;
+			GetSampleTimes (sample, time, duration);
 
 			return VIDEO_DECODE_OK;
 
 		}
+
+	}
+
+
+	VideoDecodeResult AVFVideoBackend::DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration) {
+
+		*frame = NULL;
+
+		// VideoDecoder reads the next frame with DecodeVideo instead
+		if (!SupportsTextures ()) return VIDEO_DECODE_OK;
+
+		@autoreleasepool {
+
+			CMSampleBufferRef sample = CopyNextVideoSample ();
+			if (!sample) return GetEndResult (videoReader);
+
+			CVPixelBufferRef image = CMSampleBufferGetImageBuffer (sample);
+
+			if (!IsBGRA (image)) {
+
+				CFRelease (sample);
+				return VIDEO_DECODE_ERROR;
+
+			}
+
+			GetSampleTimes (sample, time, duration);
+			*frame = new AVFTextureFrame (image);
+			CFRelease (sample);
+
+			return VIDEO_DECODE_OK;
+
+		}
+
+	}
+
+
+	void AVFVideoBackend::ForgetTextures () {
+
+		// Leaves the GL objects, which belong to a context that may be gone
+		if (textureCache) {
+
+			CFRelease (textureCache);
+			textureCache = NULL;
+
+		}
+
+		copyFramebuffer = 0;
+		copyTexture = 0;
+		copyTextureHeight = 0;
+		copyTextureWidth = 0;
+		framebufferEXT = false;
+		sourceFramebuffer = 0;
+		textureContext = NULL;
+
+	}
+
+
+	void AVFVideoBackend::GetSampleTimes (CMSampleBufferRef sample, double* time, double* duration) {
+
+		double sampleDuration = GetSeconds (CMSampleBufferGetDuration (sample), 0);
+
+		*time = GetSeconds (CMSampleBufferGetPresentationTimeStamp (sample), videoPosition);
+		*duration = sampleDuration > 0 ? sampleDuration : (frameRate > 0 ? 1.0 / frameRate : 0);
+		videoPosition = *time + *duration;
+
+	}
+
+
+	unsigned int AVFVideoBackend::LockTexture (VideoTextureFrame* frame) {
+
+		#ifdef LIME_VIDEO_AVF_TEXTURES
+		AVFTextureFrame* textureFrame = (AVFTextureFrame*)frame;
+
+		if (textureFrame->texture) {
+
+			CFRelease (textureFrame->texture);
+			textureFrame->texture = NULL;
+
+		}
+
+		int width = textureFrame->width;
+		int height = textureFrame->height;
+
+		@autoreleasepool {
+
+			#ifdef HX_MACOS
+			CGLContextObj context = CGLGetCurrentContext ();
+			if (!context) return 0;
+
+			if ((void*)context != textureContext) ForgetTextures ();
+			textureContext = (void*)context;
+
+			if (!sourceFramebuffer) {
+
+				const char* version = (const char*)glGetString (GL_VERSION);
+				int major = version ? atoi (version) : 0;
+				const char* extensions = major < 3 ? (const char*)glGetString (GL_EXTENSIONS) : NULL;
+
+				if (major >= 3 || HasExtension (extensions, "GL_ARB_framebuffer_object")) {
+
+					framebufferEXT = false;
+
+				} else if (HasExtension (extensions, "GL_EXT_framebuffer_object") && HasExtension (extensions, "GL_EXT_framebuffer_blit")) {
+
+					framebufferEXT = true;
+
+				} else {
+
+					return 0;
+
+				}
+
+				copyFramebuffer = GenFramebuffer (framebufferEXT);
+				sourceFramebuffer = GenFramebuffer (framebufferEXT);
+
+			}
+
+			if (!textureCache) {
+
+				CGLPixelFormatObj pixelFormat = CGLGetPixelFormat (context);
+
+				if (!pixelFormat || CVOpenGLTextureCacheCreate (kCFAllocatorDefault, NULL, context, pixelFormat, NULL, &textureCache) != kCVReturnSuccess) {
+
+					textureCache = NULL;
+					return 0;
+
+				}
+
+			}
+
+			// OpenFL caches GL state, so everything changed here is restored
+			GLint previousDrawFramebuffer = 0;
+			GLint previousReadFramebuffer = 0;
+			GLint previousRectangleTexture = 0;
+			GLint previousTexture = 0;
+			GLint previousUnpackBuffer = 0;
+			glGetIntegerv (GL_DRAW_FRAMEBUFFER_BINDING, &previousDrawFramebuffer);
+			glGetIntegerv (GL_READ_FRAMEBUFFER_BINDING, &previousReadFramebuffer);
+			glGetIntegerv (GL_TEXTURE_BINDING_2D, &previousTexture);
+			glGetIntegerv (GL_TEXTURE_BINDING_RECTANGLE_ARB, &previousRectangleTexture);
+			glGetIntegerv (GL_PIXEL_UNPACK_BUFFER_BINDING, &previousUnpackBuffer);
+			GLboolean scissorTest = glIsEnabled (GL_SCISSOR_TEST);
+
+			// The cache gives a rectangle texture of the IOSurface, which is copied
+			// into a 2D texture on the GPU
+			CVOpenGLTextureRef texture = NULL;
+			unsigned int name = 0;
+
+			if (CVOpenGLTextureCacheCreateTextureFromImage (kCFAllocatorDefault, textureCache, textureFrame->buffer, NULL, &texture) == kCVReturnSuccess && texture) {
+
+				if (!copyTexture || copyTextureWidth != width || copyTextureHeight != height) {
+
+					if (!copyTexture) glGenTextures (1, &copyTexture);
+
+					glBindTexture (GL_TEXTURE_2D, copyTexture);
+					glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+					// A bound unpack buffer would be read as the initial contents
+					if (previousUnpackBuffer) glBindBuffer (GL_PIXEL_UNPACK_BUFFER, 0);
+					glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					if (previousUnpackBuffer) glBindBuffer (GL_PIXEL_UNPACK_BUFFER, previousUnpackBuffer);
+
+					BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, copyFramebuffer);
+					FramebufferTexture2D (framebufferEXT, GL_DRAW_FRAMEBUFFER, GL_TEXTURE_2D, copyTexture);
+
+					copyTextureWidth = width;
+					copyTextureHeight = height;
+
+				}
+
+				GLenum target = CVOpenGLTextureGetTarget (texture);
+
+				BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, copyFramebuffer);
+				BindFramebuffer (framebufferEXT, GL_READ_FRAMEBUFFER, sourceFramebuffer);
+				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, target, CVOpenGLTextureGetName (texture));
+
+				if (IsFramebufferComplete (framebufferEXT, GL_READ_FRAMEBUFFER) && IsFramebufferComplete (framebufferEXT, GL_DRAW_FRAMEBUFFER)) {
+
+					// Rows of the copy start at the top of the picture, as uploaded
+					// frames do. A flipped CoreVideo texture already starts there.
+					bool topDown = CVOpenGLTextureIsFlipped (texture);
+
+					if (scissorTest) glDisable (GL_SCISSOR_TEST);
+					BlitFramebuffer (framebufferEXT, 0, 0, width, height, 0, topDown ? 0 : height, width, topDown ? height : 0);
+					if (scissorTest) glEnable (GL_SCISSOR_TEST);
+
+					name = copyTexture;
+
+				}
+
+				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, target, 0);
+
+			}
+
+			BindFramebuffer (framebufferEXT, GL_READ_FRAMEBUFFER, previousReadFramebuffer);
+			BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, previousDrawFramebuffer);
+			glBindTexture (GL_TEXTURE_RECTANGLE_ARB, previousRectangleTexture);
+			glBindTexture (GL_TEXTURE_2D, previousTexture);
+
+			if (!name) {
+
+				if (texture) CFRelease (texture);
+				return 0;
+
+			}
+
+			// VideoToolbox can decode into the IOSurface again once the frame is
+			// released, so send the copy to the GPU now
+			glFlush ();
+			#else
+			EAGLContext* context = [EAGLContext currentContext];
+			if (!context) return 0;
+
+			if (LIME_BRIDGE (void*, context) != textureContext) ForgetTextures ();
+			textureContext = LIME_BRIDGE (void*, context);
+
+			if (!textureCache && CVOpenGLESTextureCacheCreate (kCFAllocatorDefault, NULL, context, NULL, &textureCache) != kCVReturnSuccess) {
+
+				textureCache = NULL;
+				return 0;
+
+			}
+
+			GLint previousTexture = 0;
+			glGetIntegerv (GL_TEXTURE_BINDING_2D, &previousTexture);
+
+			// The texture samples the IOSurface directly, swizzling BGRA to RGBA
+			CVOpenGLESTextureRef texture = NULL;
+			CVReturn result = CVOpenGLESTextureCacheCreateTextureFromImage (kCFAllocatorDefault, textureCache, textureFrame->buffer, NULL, GL_TEXTURE_2D, GL_RGBA, width, height, GL_BGRA_EXT, GL_UNSIGNED_BYTE, 0, &texture);
+
+			if (result != kCVReturnSuccess || !texture) {
+
+				if (texture) CFRelease (texture);
+				glBindTexture (GL_TEXTURE_2D, previousTexture);
+				return 0;
+
+			}
+
+			// Without mipmaps, the default minification filter would leave the
+			// texture incomplete
+			GLuint name = CVOpenGLESTextureGetName (texture);
+			glBindTexture (GL_TEXTURE_2D, name);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glBindTexture (GL_TEXTURE_2D, previousTexture);
+			#endif
+
+			textureFrame->texture = texture;
+			return name;
+
+		}
+		#else
+		return 0;
+		#endif
 
 	}
 
@@ -446,17 +894,26 @@ namespace lime {
 		videoTrack = LIME_RETAIN (track);
 		frameRate = [track nominalFrameRate];
 
-		if (StartVideo (0)) {
+		if (StartVideo (0, textureOutput)) {
 
 			// Decode the first frame for its size, which can differ from the
 			// track's natural size
 			pendingSample = CopyNextVideoSample ();
 			CVImageBufferRef image = pendingSample ? CMSampleBufferGetImageBuffer (pendingSample) : NULL;
 
-			if (image && IsNV12 (image)) {
+			if (image && videoTextures && IsBGRA (image)) {
+
+				*width = (int)CVPixelBufferGetWidth (image);
+				*height = (int)CVPixelBufferGetHeight (image);
+
+			} else if (image && !videoTextures && IsNV12 (image)) {
 
 				*width = (int)CVPixelBufferGetWidthOfPlane (image, 0);
 				*height = (int)CVPixelBufferGetHeightOfPlane (image, 0);
+
+			}
+
+			if (*width > 0 && *height > 0) {
 
 				if (frameRate <= 0) {
 
@@ -465,7 +922,7 @@ namespace lime {
 
 				}
 
-				if (*width > 0 && *height > 0) return true;
+				return true;
 
 			}
 
@@ -486,6 +943,33 @@ namespace lime {
 	#pragma clang diagnostic pop
 
 
+	void AVFVideoBackend::ReleaseTextureFrame (VideoTextureFrame* frame) {
+
+		delete frame;
+
+	}
+
+
+	void AVFVideoBackend::ReleaseTextures () {
+
+		#ifdef LIME_VIDEO_AVF_TEXTURES
+		#ifdef HX_MACOS
+		// GL names only mean these objects in the context that made them
+		if (textureContext && (void*)CGLGetCurrentContext () == textureContext) {
+
+			if (copyTexture) glDeleteTextures (1, &copyTexture);
+			if (copyFramebuffer) DeleteFramebuffer (framebufferEXT, copyFramebuffer);
+			if (sourceFramebuffer) DeleteFramebuffer (framebufferEXT, sourceFramebuffer);
+
+		}
+		#endif
+		#endif
+
+		ForgetTextures ();
+
+	}
+
+
 	bool AVFVideoBackend::Seek (double time) {
 
 		@autoreleasepool {
@@ -500,7 +984,7 @@ namespace lime {
 			if (videoTrack) {
 
 				StopVideo ();
-				success = StartVideo (start) && success;
+				success = StartVideo (start, textureOutput) && success;
 
 			}
 
@@ -514,6 +998,17 @@ namespace lime {
 			return success;
 
 		}
+
+	}
+
+
+	void AVFVideoBackend::SetTextureOutput (bool enabled) {
+
+		// This can be called while the video thread decodes, so the video reader
+		// only changes format at the next Open or Seek
+		#ifdef LIME_VIDEO_AVF_TEXTURES
+		textureOutput = enabled;
+		#endif
 
 	}
 
@@ -554,11 +1049,33 @@ namespace lime {
 	}
 
 
-	bool AVFVideoBackend::StartVideo (double time) {
+	bool AVFVideoBackend::StartVideo (double time, bool textures) {
 
 		NSDictionary* settings = @{
 			LIME_BRIDGE (NSString*, kCVPixelBufferPixelFormatTypeKey): @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange)
 		};
+
+		#ifdef LIME_VIDEO_AVF_TEXTURES
+		if (textures) {
+
+			#ifdef HX_MACOS
+			CFStringRef compatibilityKey = kCVPixelBufferOpenGLCompatibilityKey;
+			#else
+			CFStringRef compatibilityKey = kCVPixelBufferOpenGLESCompatibilityKey;
+			#endif
+
+			// VideoToolbox converts to BGRA on the GPU, into IOSurfaces that the
+			// texture caches share with OpenGL
+			settings = @{
+				LIME_BRIDGE (NSString*, kCVPixelBufferPixelFormatTypeKey): @(kCVPixelFormatType_32BGRA),
+				LIME_BRIDGE (NSString*, kCVPixelBufferIOSurfacePropertiesKey): @{},
+				LIME_BRIDGE (NSString*, compatibilityKey): @YES
+			};
+
+		}
+		#else
+		textures = false;
+		#endif
 
 		@try {
 
@@ -570,8 +1087,17 @@ namespace lime {
 
 		videoPosition = time;
 
-		if (!videoReader) StopVideo ();
-		return videoReader != nil;
+		if (!videoReader) {
+
+			StopVideo ();
+
+			// Decode into memory when the texture output is not accepted
+			return textures ? StartVideo (time, false) : false;
+
+		}
+
+		videoTextures = textures;
+		return true;
 
 	}
 
@@ -613,6 +1139,35 @@ namespace lime {
 
 		LIME_RELEASE (videoOutput);
 		videoOutput = nil;
+		videoTextures = false;
+
+	}
+
+
+	bool AVFVideoBackend::SupportsTextures () {
+
+		return videoTextures && textureOutput;
+
+	}
+
+
+	void AVFVideoBackend::UnlockTexture (VideoTextureFrame* frame) {
+
+		AVFTextureFrame* textureFrame = (AVFTextureFrame*)frame;
+
+		if (textureFrame->texture) {
+
+			CFRelease (textureFrame->texture);
+			textureFrame->texture = NULL;
+
+		}
+
+		// Lets the cache reuse the textures of released frames
+		#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+		if (textureCache) CVOpenGLTextureCacheFlush (textureCache, 0);
+		#elif defined (LIME_VIDEO_AVF_TEXTURES)
+		if (textureCache) CVOpenGLESTextureCacheFlush (textureCache, 0);
+		#endif
 
 	}
 
