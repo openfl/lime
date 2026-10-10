@@ -365,6 +365,10 @@ class NativeVideoSource
 		{
 			AL.sourceStop(handle);
 			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_QUEUED));
+
+			// A stopped source counts every buffer queued on it as played, so
+			// return it to its initial state before buffering the new position
+			AL.sourceRewind(handle);
 		}
 
 		clockStamp = Timer.stamp();
