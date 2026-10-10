@@ -243,6 +243,7 @@ namespace lime {
 			MFTextureFrame outputFrames[OUTPUT_TEXTURES];
 			std::condition_variable outputCondition;
 			std::mutex outputMutex;
+			ID3D11Query* outputQuery;
 			MFOutputTexture outputs[OUTPUT_TEXTURES];
 			ID3D11VideoProcessor* processor;
 			ID3D11VideoProcessorEnumerator* processorEnumerator;
@@ -303,6 +304,7 @@ namespace lime {
 		interopFailed = false;
 		locked2D = NULL;
 		lockedBuffer = NULL;
+		outputQuery = NULL;
 		processor = NULL;
 		processorEnumerator = NULL;
 		processorHeight = 0;
@@ -1084,6 +1086,13 @@ namespace lime {
 
 		ReleaseProcessor ();
 
+		if (outputQuery) {
+
+			outputQuery->Release ();
+			outputQuery = NULL;
+
+		}
+
 		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
 			// Textures still shared with OpenGL are left for ReleaseTextures
@@ -1394,7 +1403,28 @@ namespace lime {
 
 					} else {
 
-						context->Flush ();
+						// OpenGL samples the shared texture through another API, so wait
+						// for the GPU to finish writing it before the frame is queued
+						if (!outputQuery) {
+
+							D3D11_QUERY_DESC queryDesc = {};
+							queryDesc.Query = D3D11_QUERY_EVENT;
+							device->CreateQuery (&queryDesc, &outputQuery);
+
+						}
+
+						if (outputQuery) {
+
+							context->End (outputQuery);
+							context->Flush ();
+							BOOL done = FALSE;
+							while (context->GetData (outputQuery, &done, sizeof (done), 0) == S_FALSE) std::this_thread::yield ();
+
+						} else {
+
+							context->Flush ();
+
+						}
 
 					}
 
