@@ -49,6 +49,9 @@ import sys.FileSystem;
 	but H.264 video with AAC audio in an MP4 file works everywhere.
 **/
 @:access(lime._internal.backend.native.NativeCFFI)
+#if (lime_opengl || lime_opengles)
+@:access(lime.graphics.opengl.GLObject)
+#end
 class VideoDecoder
 {
 	@:noCompletion private static inline var READ_END:Int = -1;
@@ -137,6 +140,9 @@ class VideoDecoder
 	public var width(default, null):Int = 0;
 
 	@:noCompletion private var __handle:Dynamic;
+	#if (lime_opengl || lime_opengles)
+	@:noCompletion private var __textures:Map<Int, GLObject>;
+	#end
 
 	/**
 		Creates a decoder. Call `open` to start decoding a video.
@@ -153,6 +159,10 @@ class VideoDecoder
 		{
 			NativeCFFI.lime_video_decoder_close(__handle);
 		}
+		#end
+
+		#if (lime_opengl || lime_opengles)
+		__textures = null;
 		#end
 
 		audioChannels = 0;
@@ -287,7 +297,7 @@ class VideoDecoder
 			var info:Dynamic = NativeCFFI.lime_video_decoder_get_frame_info(__handle);
 			#if (lime_opengl || lime_opengles)
 			var texture:Int = info.texture;
-			frame.texture = texture != 0 ? GLObject.fromInt(TEXTURE, texture) : null;
+			frame.texture = texture != 0 ? __getTexture(texture) : null;
 			#end
 			frame.colorMatrix = info.colorMatrix;
 			frame.duration = info.duration;
@@ -373,6 +383,26 @@ class VideoDecoder
 
 		return resolved;
 	}
+
+	#if (lime_opengl || lime_opengles)
+	@:noCompletion private function __getTexture(id:Int):GLObject
+	{
+		// The decoder owns these textures. GLObject.fromInt would register the
+		// wrappers with Lime, which deletes the texture of any wrapper it garbage
+		// collects, and frames rotate through several textures
+		if (__textures == null) __textures = new Map();
+
+		var texture = __textures.get(id);
+
+		if (texture == null)
+		{
+			texture = new GLObject(id);
+			__textures.set(id, texture);
+		}
+
+		return texture;
+	}
+	#end
 
 	// Get & Set Methods
 	@:noCompletion private function get_audioTime():Float
