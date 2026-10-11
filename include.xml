@@ -110,6 +110,8 @@
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 
 		<!-- TODO: Move to template or move all template dependencies to XML? -->
+		<dependency name="CoreMedia.framework" if="ios" />
+		<dependency name="CoreVideo.framework" if="ios" />
 		<!-- <dependency name="CoreBluetooth.framework" if="ios" /> -->
 
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />

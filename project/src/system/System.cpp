@@ -20,9 +20,14 @@ namespace lime {
 	#endif
 
 
+	// Blocking calls nest, such as opening a file while a video opens, but
+	// hxcpp tracks one level, so only the outermost pair reaches it
+	static thread_local int gcBlockingDepth = 0;
+
+
 	void System::GCEnterBlocking () {
 
-		if (!_isHL) {
+		if (!_isHL && gcBlockingDepth++ == 0) {
 
 			gc_enter_blocking ();
 
@@ -33,7 +38,7 @@ namespace lime {
 
 	void System::GCExitBlocking () {
 
-		if (!_isHL) {
+		if (!_isHL && --gcBlockingDepth == 0) {
 
 			gc_exit_blocking ();
 
