@@ -1223,6 +1223,12 @@ jobs:
           lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
 
+      - name: Build SimpleVideo variants
+        if: ${{ matrix.haxe-version != '3.4.7' }}
+        run: |
+          lime build SimpleVideo html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleVideo html5 -clean -release -verbose -nocolor -minify -terser
+
   neko-samples:
     needs: package-haxelib
     strategy:
