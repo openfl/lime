@@ -21,12 +21,16 @@ import lime.utils.UInt8Array;
 	16 + (frame * 37) % 200, so reading it back shows which frame a texture
 	really holds, and a block at the top right is pure red. This catches
 	textures that stop updating, frames shown out of order or before they are
-	written, black frames, wrong colors and flipped pictures. Platforms without
-	a decoder for the clip skip the test.
+	written, black frames, wrong colors and flipped pictures. Garbage is
+	collected between frames, so textures freed while the decoder still uses
+	them show up too. After the last frame, the test seeks several times in a
+	row and checks the frames from the final position. Platforms without a
+	decoder for the clip skip the test.
 **/
 class Main extends Application
 {
 	private static inline var FRAME_RATE = 30;
+	private static inline var SEEK_TIME = 1.0;
 	private static inline var TIMEOUT = 20.0;
 
 	private var blackFrames:Int;
@@ -42,6 +46,9 @@ class Main extends Application
 	private var mismatches:Array<String>;
 	private var pixel:UInt8Array;
 	private var redChecked:Bool;
+	private var seekFrames:Int;
+	private var seekStartTime:Float;
+	private var seeked:Bool;
 	private var start:Float;
 	private var values:Map<Int, Bool>;
 
@@ -55,6 +62,8 @@ class Main extends Application
 		frames = 0;
 		mismatches = [];
 		pixel = new UInt8Array(4);
+		seekFrames = 0;
+		seekStartTime = -1;
 		values = new Map();
 	}
 
@@ -105,9 +114,35 @@ class Main extends Application
 		{
 			checkFrame(gl);
 			if (finished) return;
+			collectGarbage(gl);
 		}
 
-		if (decoder.videoComplete) finish();
+		if (!decoder.videoComplete) return;
+
+		if (!seeked)
+		{
+			// Seeks that follow each other before a frame is read, as a seek bar
+			// does while it is dragged
+			seeked = true;
+			decoder.seek(0.5);
+			decoder.seek(1.5);
+			decoder.seek(SEEK_TIME);
+			return;
+		}
+
+		finish();
+	}
+
+	private function collectGarbage(gl:WebGLRenderContext):Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
+
+		// Lime deletes the GL objects of the wrappers it collected when clearing
+		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 
 	private function checkFrame(gl:WebGLRenderContext):Void
@@ -142,7 +177,16 @@ class Main extends Application
 		}
 
 		values.set(gray, true);
-		frames++;
+
+		if (seeked)
+		{
+			if (seekStartTime < 0) seekStartTime = frame.time;
+			seekFrames++;
+		}
+		else
+		{
+			frames++;
+		}
 
 		if (!redChecked)
 		{
@@ -173,10 +217,12 @@ class Main extends Application
 		else if (blackFrames > 0) fail(blackFrames + " frames were black");
 		else if (distinct < 30) fail("only " + distinct + " different frames were shown, so textures are not updating");
 		else if (mismatches.length > 1) fail("frames do not match their times: " + mismatches.join("; "));
+		else if (seekFrames < 28) fail("only " + seekFrames + " frames arrived after seeking");
+		else if (seekStartTime > SEEK_TIME + 0.001 || seekStartTime + 1 / FRAME_RATE <= SEEK_TIME) fail("after seeking to " + SEEK_TIME + " s, the first frame was at " + seekStartTime + " s");
 
 		if (finished) return;
 
-		trace("Video smoke passed: " + frames + " frames, " + distinct + " distinct");
+		trace("Video smoke passed: " + frames + " frames, " + distinct + " distinct, " + seekFrames + " after seeking");
 		finished = true;
 		decoder.close();
 		System.exit(0);
