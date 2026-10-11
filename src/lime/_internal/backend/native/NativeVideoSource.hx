@@ -280,6 +280,19 @@ class NativeVideoSource
 		}
 	}
 
+	@:noCompletion private function clearBuffers():Void
+	{
+		// Rewinding stops the source in any state and leaves it initial, where no
+		// buffer counts as played, as a stopped source would count them all. An
+		// initial source cannot unqueue buffers, but removing its buffer releases
+		// the whole queue.
+		AL.sourceRewind(handle);
+		AL.sourcei(handle, AL.BUFFER, null);
+
+		bufferTimes = [];
+		freeBuffers = buffers != null ? buffers.copy() : [];
+	}
+
 	@:noCompletion private function close():Void
 	{
 		stopTimer();
@@ -287,8 +300,7 @@ class NativeVideoSource
 
 		if (handle != null)
 		{
-			AL.sourceStop(handle);
-			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_QUEUED));
+			clearBuffers();
 			AL.deleteSource(handle);
 			handle = null;
 		}
@@ -365,12 +377,7 @@ class NativeVideoSource
 
 		if (handle != null)
 		{
-			AL.sourceStop(handle);
-			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_QUEUED));
-
-			// A stopped source counts every buffer queued on it as played, so
-			// return it to its initial state before buffering the new position
-			AL.sourceRewind(handle);
+			clearBuffers();
 		}
 
 		clockStamp = Timer.stamp();
