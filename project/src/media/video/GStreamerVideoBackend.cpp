@@ -1038,8 +1038,11 @@ namespace lime {
 		planes->uvStride = uvStride;
 		planes->uvPixelStride = 2;
 
+		// A frame without a timestamp follows the one before it. Without a
+		// duration or frame rate either, frames are spaced as at 30 fps, as frames
+		// that all had the same time would play as fast as they are decoded.
 		*time = GetTime (sample, videoPosition);
-		*duration = buffer->duration != GST_CLOCK_TIME_NONE ? (double)buffer->duration / GST_SECOND : (frameRate > 0 ? 1.0 / frameRate : 0);
+		*duration = buffer->duration != GST_CLOCK_TIME_NONE ? (double)buffer->duration / GST_SECOND : (frameRate > 0 ? 1.0 / frameRate : 1.0 / 30);
 		videoPosition = *time + *duration;
 
 		return VIDEO_DECODE_OK;
