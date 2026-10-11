@@ -9,6 +9,7 @@ import lime.media.openal.ALC;
 import lime.media.VideoDecoder;
 import lime.media.VideoFrame;
 import lime.media.VideoSource;
+import lime.system.System;
 import utest.Assert;
 import utest.Test;
 
@@ -139,10 +140,10 @@ class VideoSourceTest extends Test
 		if (video == null) return;
 
 		var frame = new VideoFrame();
-		video.play();
-		run(video, frame, 0.2);
+		startPlaying(video, frame);
 
-		Assert.floatEquals(1, measureRate(video, frame, 1), 0.1, "playback rate");
+		var rate = measureRate(video, frame, 1);
+		Assert.floatEquals(1, rate, 0.1, "the clock ran at " + rate + " times real time");
 		video.dispose();
 	}
 
@@ -152,14 +153,13 @@ class VideoSourceTest extends Test
 		if (video == null) return;
 
 		var frame = new VideoFrame();
-		video.play();
-		run(video, frame, 0.3);
+		startPlaying(video, frame);
 
 		video.currentTime = 1000;
-		run(video, frame, 0.15);
+		waitForTime(video, frame, 1050);
 
-		Assert.isTrue(video.currentTime >= 1000, "playing on from 1000 ms, the clock read " + video.currentTime + " ms");
-		Assert.floatEquals(1, measureRate(video, frame, 0.6), 0.1, "playback rate after seeking");
+		var rate = measureRate(video, frame, 0.6);
+		Assert.floatEquals(1, rate, 0.1, "after seeking, the clock ran at " + rate + " times real time");
 		video.dispose();
 	}
 
@@ -169,8 +169,7 @@ class VideoSourceTest extends Test
 		if (video == null) return;
 
 		var frame = new VideoFrame();
-		video.play();
-		run(video, frame, 0.2);
+		startPlaying(video, frame);
 
 		var frames = 0;
 		var end = Timer.stamp() + 1;
@@ -217,8 +216,7 @@ class VideoSourceTest extends Test
 		}
 
 		var frame = new VideoFrame();
-		video.play();
-		run(video, frame, 0.3);
+		startPlaying(video, frame);
 
 		// A paused device stops taking audio, as a sound server that hangs does
 		var before = video.currentTime;
@@ -244,8 +242,7 @@ class VideoSourceTest extends Test
 		}
 
 		var frame = new VideoFrame();
-		video.play();
-		run(video, frame, 0.3);
+		startPlaying(video, frame);
 
 		// Lime suspends audio while the window is hidden, which is not a stall,
 		// so the video waits for it
@@ -275,8 +272,7 @@ class VideoSourceTest extends Test
 		}
 
 		var frame = new VideoFrame();
-		video.play();
-		run(video, frame, 0.3);
+		startPlaying(video, frame);
 
 		// Lime replaces the OpenAL context when the output device is unplugged or
 		// changes, and the sources move to the new one
@@ -303,13 +299,35 @@ class VideoSourceTest extends Test
 	}
 	#end
 
+	private static function startPlaying(video:VideoSource, frame:VideoFrame):Void
+	{
+		// The clock holds until the first frame and the audio arrive, which can
+		// take a moment after opening
+		video.play();
+		waitForTime(video, frame, 50);
+	}
+
+	private static function waitForTime(video:VideoSource, frame:VideoFrame, time:Int):Void
+	{
+		var end = Timer.stamp() + 5;
+
+		while (video.currentTime < time && Timer.stamp() < end)
+		{
+			video.readFrame(frame);
+			Sys.sleep(0.005);
+		}
+
+		Assert.isTrue(video.currentTime >= time, "the clock did not reach " + time + " ms");
+	}
+
 	private static function measureRate(video:VideoSource, frame:VideoFrame, seconds:Float):Float
 	{
+		// The monotonic clock the video keeps time with
 		var startTime = video.currentTime;
-		var start = Timer.stamp();
+		var start = System.getTimer();
 		run(video, frame, seconds);
 
-		return (video.currentTime - startTime) / 1000 / (Timer.stamp() - start);
+		return (video.currentTime - startTime) / (System.getTimer() - start);
 	}
 
 	private static function nextFrame(video:VideoSource, frame:VideoFrame):Bool

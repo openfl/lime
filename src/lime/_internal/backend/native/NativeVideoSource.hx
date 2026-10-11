@@ -12,6 +12,7 @@ import lime.media.VideoDecoder;
 import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
 import lime.media.VideoSource;
+import lime.system.System;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -197,7 +198,7 @@ class NativeVideoSource
 		if (!playing) return;
 
 		clockTime = getTime();
-		clockStamp = Timer.stamp();
+		clockStamp = getStamp();
 		playing = false;
 
 		if (handle != null)
@@ -217,7 +218,7 @@ class NativeVideoSource
 			seek(0);
 		}
 
-		clockStamp = Timer.stamp();
+		clockStamp = getStamp();
 		playing = true;
 
 		update();
@@ -291,7 +292,7 @@ class NativeVideoSource
 		this.decoder = decoder;
 
 		bufferTimes = [];
-		clockStamp = Timer.stamp();
+		clockStamp = getStamp();
 		clockTime = 0;
 		completed = false;
 		frameEndTime = 0;
@@ -312,7 +313,7 @@ class NativeVideoSource
 
 	@:noCompletion private function checkAudio():Void
 	{
-		var now = Timer.stamp();
+		var now = getStamp();
 
 		// Only an output that has audio to play is checked. Underruns, and Lime
 		// pausing the device while the window is hidden, are not stalls.
@@ -469,6 +470,12 @@ class NativeVideoSource
 		return Math.max(0, bufferTimes[0] + offset / decoder.audioSampleRate);
 	}
 
+	@:noCompletion private static inline function getStamp():Float
+	{
+		// Timer.stamp follows the wall clock on Linux and macOS, which can step
+		return System.getTimer() / 1000;
+	}
+
 	@:noCompletion private function getTime():Float
 	{
 		if (decoder == null) return 0;
@@ -493,7 +500,7 @@ class NativeVideoSource
 			}
 		}
 
-		return playing ? clockTime + (Timer.stamp() - clockStamp) : clockTime;
+		return playing ? clockTime + (getStamp() - clockStamp) : clockTime;
 	}
 
 	@:noCompletion private inline function isWaitingForFrame():Bool
@@ -523,7 +530,7 @@ class NativeVideoSource
 
 		audioCheckStamp = -1;
 		audioSkipping = false;
-		clockStamp = Timer.stamp();
+		clockStamp = getStamp();
 		clockTime = time;
 		completed = false;
 		frameEndTime = 0;
@@ -576,9 +583,9 @@ class NativeVideoSource
 		{
 			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
 
-			if (audioStalled && playing && Timer.stamp() >= audioRetryStamp)
+			if (audioStalled && playing && getStamp() >= audioRetryStamp)
 			{
-				audioRetryStamp = Timer.stamp() + AUDIO_RETRY_SECONDS;
+				audioRetryStamp = getStamp() + AUDIO_RETRY_SECONDS;
 				resyncAudio();
 			}
 
@@ -606,7 +613,7 @@ class NativeVideoSource
 		{
 			// Keep the clock current so it carries on smoothly when the audio ends
 			clockTime = time;
-			clockStamp = Timer.stamp();
+			clockStamp = getStamp();
 
 			var audioDone = handle == null || audioStalled || (decoder.audioComplete && bufferTimes.length == 0);
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
