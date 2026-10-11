@@ -2827,17 +2827,35 @@ namespace lime {
 	}
 
 
+	static int unqueue_al_buffers (ALuint source, int nb, ALuint* buffers) {
+
+		// OpenAL unqueues nothing when it refuses, such as for buffers that have
+		// not played, and leaves the array as it was
+		ALint queued = 0;
+		alGetSourcei (source, AL_BUFFERS_QUEUED, &queued);
+
+		alSourceUnqueueBuffers (source, nb, buffers);
+
+		ALint remaining = queued;
+		alGetSourcei (source, AL_BUFFERS_QUEUED, &remaining);
+
+		int count = queued - remaining;
+		return count < 0 ? 0 : (count > nb ? nb : count);
+
+	}
+
+
 	value lime_al_source_unqueue_buffers (value source, int nb) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
 		ALuint* buffers = new ALuint[nb];
-		alSourceUnqueueBuffers (id, nb, buffers);
+		int count = unqueue_al_buffers (id, nb, buffers);
 
-		value result = alloc_array (nb);
+		value result = alloc_array (count);
 		ALuint buffer;
 		value ptr;
 
-		for (int i = 0; i < nb; i++) {
+		for (int i = 0; i < count; i++) {
 
 			buffer = buffers[i];
 
@@ -2868,14 +2886,14 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		ALuint* buffers = new ALuint[nb];
-		alSourceUnqueueBuffers (id, nb, buffers);
+		int count = unqueue_al_buffers (id, nb, buffers);
 
-		varray* result = hl_alloc_array (&hlt_dyn, nb);
+		varray* result = hl_alloc_array (&hlt_dyn, count);
 		HL_CFFIPointer** resultData = hl_aptr (result, HL_CFFIPointer*);
 		ALuint buffer;
 		HL_CFFIPointer* ptr;
 
-		for (int i = 0; i < nb; i++) {
+		for (int i = 0; i < count; i++) {
 
 			buffer = buffers[i];
 

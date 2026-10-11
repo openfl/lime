@@ -10,6 +10,7 @@ class TestMain extends Application
 
 		var runner = new Runner();
 		runner.addCase(new app.EventTest());
+		runner.addCase(new media.OpenALTest());
 		runner.addCase(new media.VideoDecoderTest());
 		runner.addCase(new media.VideoFrameTest());
 		runner.addCase(new media.VideoSourceTest());
