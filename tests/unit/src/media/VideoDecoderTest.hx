@@ -113,44 +113,17 @@ class VideoDecoderTest extends Test
 
 	public function testReadRGBA():Void
 	{
-		var decoder = open(RGBA);
-		if (decoder == null) return;
-
-		var frame = new VideoFrame();
-		Assert.isTrue(nextFrame(decoder, frame));
-		Assert.equals(VideoFrameFormat.RGBA, frame.format);
-		Assert.equals(640 * 360 * 4, frame.length);
-
-		// The blocks are BT.709, which is only assumed for HD video, so allow for BT.601
-		var tolerance = frame.colorMatrix == VideoColorMatrix.BT709 ? 16 : 40;
-		var red = pixel(frame, 640 - 64, 64);
-		var blue = pixel(frame, 64, 360 - 64);
-
-		Assert.isTrue(red[0] > 255 - tolerance && red[1] < tolerance && red[2] < tolerance, "red block " + red);
-		Assert.isTrue(blue[0] < tolerance && blue[1] < tolerance && blue[2] > 255 - tolerance, "blue block " + blue);
-		Assert.equals(255, red[3]);
-		decoder.close();
+		checkChannels(RGBA, 0, 1, 2, 3);
 	}
 
 	public function testReadBGRA():Void
 	{
-		var decoder = open(BGRA);
-		if (decoder == null) return;
+		checkChannels(BGRA, 2, 1, 0, 3);
+	}
 
-		var frame = new VideoFrame();
-		Assert.isTrue(nextFrame(decoder, frame));
-		Assert.equals(VideoFrameFormat.BGRA, frame.format);
-		Assert.equals(640 * 360 * 4, frame.length);
-
-		// Blue comes first and red third
-		var tolerance = frame.colorMatrix == VideoColorMatrix.BT709 ? 16 : 40;
-		var red = pixel(frame, 640 - 64, 64);
-		var blue = pixel(frame, 64, 360 - 64);
-
-		Assert.isTrue(red[0] < tolerance && red[1] < tolerance && red[2] > 255 - tolerance, "red block " + red);
-		Assert.isTrue(blue[0] > 255 - tolerance && blue[1] < tolerance && blue[2] < tolerance, "blue block " + blue);
-		Assert.equals(255, red[3]);
-		decoder.close();
+	public function testReadARGB():Void
+	{
+		checkChannels(ARGB, 1, 2, 3, 0);
 	}
 
 	public function testReadFrameAtTimeSkipsOlderFrames():Void
@@ -316,6 +289,27 @@ class VideoDecoderTest extends Test
 		Assert.equals(VideoFrameFormat.RGBA, decoder.format);
 		Assert.isTrue(nextFrame(decoder, frame));
 		Assert.equals(VideoFrameFormat.RGBA, frame.format);
+		decoder.close();
+	}
+
+	private static function checkChannels(format:VideoFrameFormat, red:Int, green:Int, blue:Int, alpha:Int):Void
+	{
+		var decoder = open(format);
+		if (decoder == null) return;
+
+		var frame = new VideoFrame();
+		Assert.isTrue(nextFrame(decoder, frame));
+		Assert.equals(format, frame.format);
+		Assert.equals(640 * 360 * 4, frame.length);
+
+		// The blocks are BT.709, which is only assumed for HD video, so allow for BT.601
+		var tolerance = frame.colorMatrix == VideoColorMatrix.BT709 ? 16 : 40;
+		var redBlock = pixel(frame, 640 - 64, 64);
+		var blueBlock = pixel(frame, 64, 360 - 64);
+
+		Assert.isTrue(redBlock[red] > 255 - tolerance && redBlock[green] < tolerance && redBlock[blue] < tolerance, "red block " + redBlock);
+		Assert.isTrue(blueBlock[red] < tolerance && blueBlock[green] < tolerance && blueBlock[blue] > 255 - tolerance, "blue block " + blueBlock);
+		Assert.equals(255, redBlock[alpha]);
 		decoder.close();
 	}
 

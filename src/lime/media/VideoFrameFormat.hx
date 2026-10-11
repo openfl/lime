@@ -40,8 +40,17 @@ package lime.media;
 	/**
 		Interleaved 8-bit blue, green, red and alpha, `width * 4` bytes per row,
 		converted from YUV on the decoding thread. This is the layout of
-		`BGRA32` images, Cairo surfaces and BGRA textures, which would show
-		`RGBA` frames with red and blue swapped.
+		`BGRA32` images, such as OpenFL's bitmaps on native targets, Cairo
+		surfaces and BGRA textures, which would show `RGBA` frames with red and
+		blue swapped.
 	**/
 	var BGRA = 3;
+
+	/**
+		Interleaved 8-bit alpha, red, green and blue, `width * 4` bytes per row,
+		converted from YUV on the decoding thread. This is the layout of `ARGB32`
+		images, and of the big-endian bytes that Flash and OpenFL read with
+		`BitmapData.setPixels`.
+	**/
+	var ARGB = 4;
 }
