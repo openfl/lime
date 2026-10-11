@@ -27,6 +27,7 @@ class NativeVideoSource
 	private static inline var AUDIO_BUFFER_COUNT:Int = 6;
 	private static inline var AUDIO_BUFFER_SECONDS:Float = 0.04;
 	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
+	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 
@@ -35,6 +36,8 @@ class NativeVideoSource
 	private var audioBuffer:Bytes;
 	private var audioCheckPosition:Float;
 	private var audioCheckStamp:Float;
+	private var audioClockStamp:Float;
+	private var audioClockTime:Float;
 	private var audioData:UInt8Array;
 	private var audioFormat:Int;
 	private var audioLastCheck:Float;
@@ -66,6 +69,7 @@ class NativeVideoSource
 		this.parent = parent;
 
 		audioCheckStamp = -1;
+		audioClockStamp = -1;
 		audioSkipping = false;
 		audioStalled = false;
 		bufferTimes = [];
@@ -394,6 +398,7 @@ class NativeVideoSource
 		AL.sourceRewind(handle);
 		AL.sourcei(handle, AL.BUFFER, null);
 
+		audioClockStamp = -1;
 		bufferTimes = [];
 		freeBuffers = buffers != null ? buffers.copy() : [];
 	}
@@ -526,10 +531,10 @@ class NativeVideoSource
 		{
 			if (bufferTimes.length > 0)
 			{
-				return getAudioPosition();
+				var position = getAudioPosition();
+				if (isAudioPositionValid(position)) return position;
 			}
-
-			if (!decoder.audioComplete)
+			else if (!decoder.audioComplete)
 			{
 				// Waiting for audio, so hold the picture too
 				return clockTime;
@@ -537,6 +542,30 @@ class NativeVideoSource
 		}
 
 		return playing ? clockTime + (getStamp() - clockStamp) : clockTime;
+	}
+
+	@:noCompletion private function isAudioPositionValid(position:Float):Bool
+	{
+		// OpenAL can report nonsense, such as for a source whose device went away.
+		// A position that jumps rather than following real time is not used, and
+		// the clock carries on from the last one that was, as for a stall.
+		var now = getStamp();
+
+		if (audioClockStamp >= 0)
+		{
+			var change = position - audioClockTime;
+
+			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 + AUDIO_JUMP_SECONDS)
+			{
+				audioStalled = true;
+				audioRetryStamp = now + AUDIO_RETRY_SECONDS;
+				return false;
+			}
+		}
+
+		audioClockStamp = now;
+		audioClockTime = position;
+		return true;
 	}
 
 	@:noCompletion private inline function isWaitingForFrame():Bool

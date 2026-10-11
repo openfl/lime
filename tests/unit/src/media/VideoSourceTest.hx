@@ -251,6 +251,46 @@ class VideoSourceTest extends Test
 		Assert.isTrue(moved >= 500, "the clock moved " + moved + " ms in 1.6 s while the output was stalled");
 	}
 
+	public function testBadAudioPositionsDoNotMoveTheClock():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (!hasAudioOutput())
+		{
+			video.dispose();
+			return;
+		}
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+
+		// A source whose device went away can report any position, here an hour
+		// past the audio that is queued
+		var before = video.currentTime;
+		var bufferTimes:Array<Float> = @:privateAccess video.__backend.bufferTimes;
+
+		for (i in 0...bufferTimes.length)
+		{
+			bufferTimes[i] += 3600;
+		}
+
+		var latest = 0;
+		var end = Timer.stamp() + 0.4;
+
+		while (Timer.stamp() < end)
+		{
+			video.readFrame(frame);
+			if (video.currentTime > latest) latest = video.currentTime;
+			Sys.sleep(0.005);
+		}
+
+		video.dispose();
+
+		Assert.isTrue(latest < before + 1000, "after a bad audio position at " + before + " ms, the clock reached " + latest + " ms");
+		Assert.isTrue(latest > before, "the clock stopped at " + before + " ms");
+	}
+
 	public function testSuspendedAudioHoldsTheVideo():Void
 	{
 		var video = open();
