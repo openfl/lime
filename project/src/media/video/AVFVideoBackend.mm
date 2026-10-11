@@ -20,6 +20,7 @@
 #ifdef LIME_VIDEO_AVF_TEXTURES
 #ifdef HX_MACOS
 #import <OpenGL/OpenGL.h>
+#import <OpenGL/CGLIOSurface.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/glext.h>
 #else
@@ -221,9 +222,8 @@ namespace lime {
 	#endif
 
 
-	#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
-	typedef CVOpenGLTextureCacheRef AVFTextureCacheRef;
-	#elif defined (LIME_VIDEO_AVF_TEXTURES)
+	// Only iOS uses a CoreVideo texture cache
+	#if defined (LIME_VIDEO_AVF_TEXTURES) && !defined (HX_MACOS)
 	typedef CVOpenGLESTextureCacheRef AVFTextureCacheRef;
 	#else
 	typedef void* AVFTextureCacheRef;
@@ -241,8 +241,8 @@ namespace lime {
 
 			CVPixelBufferRef buffer;
 
-			// The CVOpenGLTextureRef or CVOpenGLESTextureRef made from the
-			// buffer while the frame is locked
+			// The CVOpenGLESTextureRef made from the buffer while the frame is
+			// locked on iOS
 			CVImageBufferRef texture;
 
 
@@ -341,6 +341,7 @@ namespace lime {
 			CMSampleBufferRef lockedSample;
 			CMSampleBufferRef pendingSample;
 			unsigned int sourceFramebuffer;
+			unsigned int sourceTexture;
 			AVFTextureCacheRef textureCache;
 			void* textureContext;
 			std::atomic<bool> textureOutput;
@@ -373,6 +374,7 @@ namespace lime {
 		lockedSample = NULL;
 		pendingSample = NULL;
 		sourceFramebuffer = 0;
+		sourceTexture = 0;
 		textureCache = NULL;
 		textureContext = NULL;
 		textureOutput = false;
@@ -600,6 +602,7 @@ namespace lime {
 		copyTextureWidth = 0;
 		framebufferEXT = false;
 		sourceFramebuffer = 0;
+		sourceTexture = 0;
 		textureContext = NULL;
 
 	}
@@ -665,18 +668,8 @@ namespace lime {
 
 			}
 
-			if (!textureCache) {
-
-				CGLPixelFormatObj pixelFormat = CGLGetPixelFormat (context);
-
-				if (!pixelFormat || CVOpenGLTextureCacheCreate (kCFAllocatorDefault, NULL, context, pixelFormat, NULL, &textureCache) != kCVReturnSuccess) {
-
-					textureCache = NULL;
-					return 0;
-
-				}
-
-			}
+			IOSurfaceRef surface = CVPixelBufferGetIOSurface (textureFrame->buffer);
+			if (!surface) return 0;
 
 			// OpenFL caches GL state, so everything changed here is restored
 			GLint previousDrawFramebuffer = 0;
@@ -691,12 +684,16 @@ namespace lime {
 			glGetIntegerv (GL_PIXEL_UNPACK_BUFFER_BINDING, &previousUnpackBuffer);
 			GLboolean scissorTest = glIsEnabled (GL_SCISSOR_TEST);
 
-			// The cache gives a rectangle texture of the IOSurface, which is copied
-			// into a 2D texture on the GPU
-			CVOpenGLTextureRef texture = NULL;
+			// The IOSurface is bound to a rectangle texture for every frame, and
+			// copied into a 2D texture on the GPU. VideoToolbox reuses surfaces, and
+			// on Apple silicon, the textures CoreVideo's texture cache keeps for a
+			// surface can go on showing an earlier frame.
 			unsigned int name = 0;
 
-			if (CVOpenGLTextureCacheCreateTextureFromImage (kCFAllocatorDefault, textureCache, textureFrame->buffer, NULL, &texture) == kCVReturnSuccess && texture) {
+			if (!sourceTexture) glGenTextures (1, &sourceTexture);
+			glBindTexture (GL_TEXTURE_RECTANGLE_ARB, sourceTexture);
+
+			if (CGLTexImageIOSurface2D (context, GL_TEXTURE_RECTANGLE_ARB, GL_RGBA8, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, surface, 0) == kCGLNoError) {
 
 				if (!copyTexture || copyTextureWidth != width || copyTextureHeight != height) {
 
@@ -721,27 +718,23 @@ namespace lime {
 
 				}
 
-				GLenum target = CVOpenGLTextureGetTarget (texture);
-
 				BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, copyFramebuffer);
 				BindFramebuffer (framebufferEXT, GL_READ_FRAMEBUFFER, sourceFramebuffer);
-				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, target, CVOpenGLTextureGetName (texture));
+				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, GL_TEXTURE_RECTANGLE_ARB, sourceTexture);
 
 				if (IsFramebufferComplete (framebufferEXT, GL_READ_FRAMEBUFFER) && IsFramebufferComplete (framebufferEXT, GL_DRAW_FRAMEBUFFER)) {
 
-					// Rows of the copy start at the top of the picture, as uploaded
-					// frames do. A flipped CoreVideo texture already starts there.
-					bool topDown = CVOpenGLTextureIsFlipped (texture);
-
+					// Rows of an IOSurface start at the top of the picture, as those
+					// of uploaded frames do, so the copy is not flipped
 					if (scissorTest) glDisable (GL_SCISSOR_TEST);
-					BlitFramebuffer (framebufferEXT, 0, 0, width, height, 0, topDown ? 0 : height, width, topDown ? height : 0);
+					BlitFramebuffer (framebufferEXT, 0, 0, width, height, 0, 0, width, height);
 					if (scissorTest) glEnable (GL_SCISSOR_TEST);
 
 					name = copyTexture;
 
 				}
 
-				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, target, 0);
+				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, GL_TEXTURE_RECTANGLE_ARB, 0);
 
 			}
 
@@ -750,16 +743,12 @@ namespace lime {
 			glBindTexture (GL_TEXTURE_RECTANGLE_ARB, previousRectangleTexture);
 			glBindTexture (GL_TEXTURE_2D, previousTexture);
 
-			if (!name) {
-
-				if (texture) CFRelease (texture);
-				return 0;
-
-			}
+			if (!name) return 0;
 
 			// VideoToolbox can decode into the IOSurface again once the frame is
 			// released, so send the copy to the GPU now
 			glFlush ();
+			return name;
 			#else
 			EAGLContext* context = [EAGLContext currentContext];
 			if (!context) return 0;
@@ -798,10 +787,10 @@ namespace lime {
 			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glBindTexture (GL_TEXTURE_2D, previousTexture);
-			#endif
 
 			textureFrame->texture = texture;
 			return name;
+			#endif
 
 		}
 		#else
@@ -958,6 +947,7 @@ namespace lime {
 		if (textureContext && (void*)CGLGetCurrentContext () == textureContext) {
 
 			if (copyTexture) glDeleteTextures (1, &copyTexture);
+			if (sourceTexture) glDeleteTextures (1, &sourceTexture);
 			if (copyFramebuffer) DeleteFramebuffer (framebufferEXT, copyFramebuffer);
 			if (sourceFramebuffer) DeleteFramebuffer (framebufferEXT, sourceFramebuffer);
 
@@ -1064,8 +1054,8 @@ namespace lime {
 			CFStringRef compatibilityKey = kCVPixelBufferOpenGLESCompatibilityKey;
 			#endif
 
-			// VideoToolbox converts to BGRA on the GPU, into IOSurfaces that the
-			// texture caches share with OpenGL
+			// VideoToolbox converts to BGRA on the GPU, into IOSurfaces that OpenGL
+			// can use
 			settings = @{
 				LIME_BRIDGE (NSString*, kCVPixelBufferPixelFormatTypeKey): @(kCVPixelFormatType_32BGRA),
 				LIME_BRIDGE (NSString*, kCVPixelBufferIOSurfacePropertiesKey): @{},
@@ -1163,9 +1153,7 @@ namespace lime {
 		}
 
 		// Lets the cache reuse the textures of released frames
-		#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
-		if (textureCache) CVOpenGLTextureCacheFlush (textureCache, 0);
-		#elif defined (LIME_VIDEO_AVF_TEXTURES)
+		#if defined (LIME_VIDEO_AVF_TEXTURES) && !defined (HX_MACOS)
 		if (textureCache) CVOpenGLESTextureCacheFlush (textureCache, 0);
 		#endif
 
