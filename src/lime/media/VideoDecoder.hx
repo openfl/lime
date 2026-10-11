@@ -86,6 +86,24 @@ class VideoDecoder
 	public var audioTime(get, never):Float;
 
 	/**
+		Whether `readFrame`, given a time, skips the frames that are already
+		late, so playback keeps in step with its clock and drops frames when
+		decoding falls behind. When `false`, every frame is returned in order,
+		each once it is due, so playback slows down instead. `true` by default.
+		It has no effect on `readFrame` without a time, which returns every frame.
+	**/
+	public var dropLateFrames(default, set):Bool = true;
+
+	/**
+		How many frames have been skipped since opening because they were late,
+		as when decoding falls behind or `readFrame` is given a later time.
+		Late frames are dropped before they are converted, so a decoder that
+		falls behind catches up, while still showing one every quarter of a
+		second if it cannot keep up.
+	**/
+	public var droppedFrames(default, null):Int = 0;
+
+	/**
 		The length of the video in seconds, or 0 when it is unknown, such as for
 		a live stream.
 	**/
@@ -211,6 +229,9 @@ class VideoDecoder
 		{
 			__handle = NativeCFFI.lime_video_decoder_create();
 			if (__handle == null) return false;
+
+			// Only set when turned off, so an older native library still plays
+			if (!dropLateFrames) NativeCFFI.lime_video_decoder_set_drop_late_frames(__handle, false);
 		}
 
 		var info:Dynamic = NativeCFFI.lime_video_decoder_open(__handle, __resolvePath(path), hardwareDecoding, format);
@@ -229,6 +250,7 @@ class VideoDecoder
 		videoComplete = !hasVideo;
 		source = path;
 		this.format = format;
+		droppedFrames = 0;
 		return true;
 		#else
 		return false;
@@ -301,6 +323,10 @@ class VideoDecoder
 			#end
 			frame.colorMatrix = info.colorMatrix;
 			frame.duration = info.duration;
+
+			// A native library from before the count leaves it out
+			var dropped:Null<Int> = info.droppedFrames;
+			if (dropped != null) droppedFrames = dropped;
 			frame.format = format;
 			frame.fullRange = info.fullRange;
 			frame.height = info.height;
@@ -405,6 +431,14 @@ class VideoDecoder
 	#end
 
 	// Get & Set Methods
+	@:noCompletion private function set_dropLateFrames(value:Bool):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (__handle != null && value != dropLateFrames) NativeCFFI.lime_video_decoder_set_drop_late_frames(__handle, value);
+		#end
+		return dropLateFrames = value;
+	}
+
 	@:noCompletion private function get_audioTime():Float
 	{
 		#if (lime_cffi && !macro)

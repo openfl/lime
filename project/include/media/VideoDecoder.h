@@ -3,6 +3,7 @@
 
 
 #include <atomic>
+#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <mutex>
@@ -214,6 +215,8 @@ namespace lime {
 			static int WriteFrame (const VideoPlanes* planes, VideoFrameFormat format, unsigned char* data, int length);
 
 			double audioTime;
+			std::atomic<bool> dropLateFrames;
+			std::atomic<int> droppedFrames;
 			VideoFrameFormat format;
 			VideoColorMatrix frameColorMatrix;
 			double frameDuration;
@@ -273,8 +276,10 @@ namespace lime {
 			std::vector<AudioChunk*> freeChunks;
 			std::vector<Frame*> freeFrames;
 			std::deque<Frame*> frames;
+			std::chrono::steady_clock::time_point lastQueued;
 			std::mutex mutex;
 			bool open;
+			double presentationTime;
 			bool quit;
 			bool seekAccurate;
 			bool seekPending;

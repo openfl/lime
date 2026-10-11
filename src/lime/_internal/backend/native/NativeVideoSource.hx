@@ -76,6 +76,7 @@ class NativeVideoSource
 	private var clockTime:Float;
 	private var completed:Bool;
 	private var decoder:VideoDecoder;
+	private var dropLateFrames:Bool;
 	private var freeBuffers:Array<ALBuffer>;
 	private var frameEndTime:Float;
 	private var gain:Float;
@@ -112,6 +113,7 @@ class NativeVideoSource
 		clockStamp = 0;
 		clockTime = 0;
 		completed = false;
+		dropLateFrames = true;
 		frameEndTime = 0;
 		gain = 1;
 		hasFrame = false;
@@ -133,6 +135,16 @@ class NativeVideoSource
 	public function getCurrentTime():Int
 	{
 		return Std.int(getTime() * 1000);
+	}
+
+	public function getDroppedFrames():Int
+	{
+		return decoder != null ? decoder.droppedFrames : 0;
+	}
+
+	public function getDropLateFrames():Bool
+	{
+		return dropLateFrames;
 	}
 
 	public function getGain():Float
@@ -329,6 +341,12 @@ class NativeVideoSource
 		return value;
 	}
 
+	public function setDropLateFrames(value:Bool):Bool
+	{
+		if (decoder != null) decoder.dropLateFrames = value;
+		return dropLateFrames = value;
+	}
+
 	public function setGain(value:Float):Float
 	{
 		gain = value;
@@ -374,6 +392,7 @@ class NativeVideoSource
 		close();
 
 		this.decoder = decoder;
+		decoder.dropLateFrames = dropLateFrames;
 
 		audioDriftStamp = -1;
 		audioReadStamp = -1;

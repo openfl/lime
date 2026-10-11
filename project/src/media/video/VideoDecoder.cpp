@@ -105,6 +105,8 @@ namespace lime {
 		audioQueueEnd = 0;
 		audioTime = 0;
 		currentFrame = 0;
+		dropLateFrames = true;
+		droppedFrames = 0;
 		format = VIDEO_FRAME_FORMAT_NV12;
 		frameColorMatrix = VIDEO_COLOR_MATRIX_BT709;
 		frameDuration = 0;
@@ -116,6 +118,7 @@ namespace lime {
 		frameWidth = 0;
 		memset (&info, 0, sizeof (info));
 		open = false;
+		presentationTime = -1;
 		quit = false;
 		seekAccurate = false;
 		seekPending = false;
@@ -338,6 +341,9 @@ namespace lime {
 		frameTexture = 0;
 		frameTime = 0;
 		frameWidth = info.width;
+		droppedFrames = 0;
+		lastQueued = std::chrono::steady_clock::now ();
+		presentationTime = -1;
 		seekAccurate = false;
 		seekPending = false;
 		seekTime = 0;
@@ -413,11 +419,14 @@ namespace lime {
 
 		if (time >= 0) {
 
+			presentationTime = time;
+
 			// Drop frames that a later queued frame replaces by time
-			while (frames.size () > 1 && frames[1]->time <= time) {
+			while (dropLateFrames && frames.size () > 1 && frames[1]->time <= time) {
 
 				ReleaseFrame (frames.front ());
 				frames.pop_front ();
+				droppedFrames++;
 				dropped = true;
 
 			}
@@ -478,10 +487,13 @@ namespace lime {
 
 			if (time >= 0) {
 
-				while (frames.size () > 1 && frames[1]->time <= time) {
+				presentationTime = time;
+
+				while (dropLateFrames && frames.size () > 1 && frames[1]->time <= time) {
 
 					ReleaseFrame (frames.front ());
 					frames.pop_front ();
+					droppedFrames++;
 					dropped = true;
 
 				}
@@ -618,6 +630,8 @@ namespace lime {
 		audioQueueEnd = time;
 		audioTime = time;
 		frameTime = time;
+		lastQueued = std::chrono::steady_clock::now ();
+		presentationTime = -1;
 		seekAccurate = accurate;
 		seekPending = false;
 		seekTime = time;
@@ -710,10 +724,24 @@ namespace lime {
 
 			}
 
+			// A frame that ends before the time the application last asked for is
+			// late, and is dropped before it is converted or copied, most of the
+			// work for each frame, so a decoder that falls behind catches up. One
+			// is still kept every quarter of a second, so a decoder that cannot keep
+			// up at all still shows something.
+			std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now ();
 			Frame* frame = 0;
 
 			{
 				std::lock_guard<std::mutex> lock (mutex);
+
+				if (dropLateFrames && presentationTime >= 0 && time + duration <= presentationTime && now - lastQueued < std::chrono::milliseconds (250)) {
+
+					if (textureFrame) backend->ReleaseTextureFrame (textureFrame);
+					droppedFrames++;
+					continue;
+
+				}
 
 				if (!freeFrames.empty ()) {
 
@@ -758,6 +786,7 @@ namespace lime {
 			if (frame->length > 0) {
 
 				frames.push_back (frame);
+				lastQueued = now;
 
 			} else {
 

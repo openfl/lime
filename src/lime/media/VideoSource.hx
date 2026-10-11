@@ -65,6 +65,20 @@ class VideoSource
 	public var currentTime(get, set):Int;
 
 	/**
+		How many frames have been skipped because they were late, since the
+		video was opened.
+	**/
+	public var droppedFrames(get, never):Int;
+
+	/**
+		Whether frames that are already late are skipped, so the picture keeps
+		in step with the sound when decoding falls behind. When `false`, every
+		frame is shown, so the picture falls behind instead. `true` by default.
+		Browsers always skip late frames, so this has no effect on HTML5.
+	**/
+	public var dropLateFrames(get, set):Bool;
+
+	/**
 		The volume of the video's sound, from 0 for silent to 1 for full volume.
 	**/
 	public var gain(get, set):Float;
@@ -232,6 +246,21 @@ class VideoSource
 	@:noCompletion private function set_currentTime(value:Int):Int
 	{
 		return __backend.setCurrentTime(value);
+	}
+
+	@:noCompletion private function get_droppedFrames():Int
+	{
+		return __backend.getDroppedFrames();
+	}
+
+	@:noCompletion private function get_dropLateFrames():Bool
+	{
+		return __backend.getDropLateFrames();
+	}
+
+	@:noCompletion private function set_dropLateFrames(value:Bool):Bool
+	{
+		return __backend.setDropLateFrames(value);
 	}
 
 	@:noCompletion private function get_gain():Float

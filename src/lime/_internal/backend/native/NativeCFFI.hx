@@ -370,6 +370,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_video_decoder_seek(handle:Dynamic, time:Float, accurate:Bool):Void;
 
+	@:cffi private static function lime_video_decoder_set_drop_late_frames(handle:Dynamic, value:Bool):Void;
+
 	@:cffi private static function lime_window_alert(handle:Dynamic, message:String, title:String):Void;
 
 	@:cffi private static function lime_window_close(handle:Dynamic):Void;
@@ -1038,6 +1040,8 @@ class NativeCFFI
 		"lime_video_decoder_read_frame", "ooiidi", false));
 	private static var lime_video_decoder_seek = new cpp.Callable<cpp.Object->Float->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_video_decoder_seek",
 		"odbv", false));
+	private static var lime_video_decoder_set_drop_late_frames = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_set_drop_late_frames", "obv", false));
 	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_alert", "ossv",
 		false));
 	private static var lime_window_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_close", "ov", false));
@@ -1494,6 +1498,7 @@ class NativeCFFI
 	private static var lime_video_decoder_read_audio = CFFI.load("lime", "lime_video_decoder_read_audio", 4);
 	private static var lime_video_decoder_read_frame = CFFI.load("lime", "lime_video_decoder_read_frame", 5);
 	private static var lime_video_decoder_seek = CFFI.load("lime", "lime_video_decoder_seek", 3);
+	private static var lime_video_decoder_set_drop_late_frames = CFFI.load("lime", "lime_video_decoder_set_drop_late_frames", 2);
 	private static var lime_window_alert = CFFI.load("lime", "lime_window_alert", 3);
 	private static var lime_window_close = CFFI.load("lime", "lime_window_close", 1);
 	private static var lime_window_context_flip = CFFI.load("lime", "lime_window_context_flip", 1);
@@ -2302,6 +2307,9 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_video_decoder_seek") private static function lime_video_decoder_seek(handle:CFFIPointer, time:Float, accurate:Bool):Void {}
+
+	@:hlNative("lime", "hl_video_decoder_set_drop_late_frames") private static function lime_video_decoder_set_drop_late_frames(handle:CFFIPointer,
+		value:Bool):Void {}
 
 	@:hlNative("lime", "hl_window_alert") private static function lime_window_alert(handle:CFFIPointer, message:String, title:String):Void {}
 

@@ -22,6 +22,16 @@ class FlashVideoSource
 		return 0;
 	}
 
+	public function getDroppedFrames():Int
+	{
+		return 0;
+	}
+
+	public function getDropLateFrames():Bool
+	{
+		return true;
+	}
+
 	public function getGain():Float
 	{
 		return 1;
@@ -92,6 +102,11 @@ class FlashVideoSource
 	}
 
 	public function setCurrentTime(value:Int):Int
+	{
+		return value;
+	}
+
+	public function setDropLateFrames(value:Bool):Bool
 	{
 		return value;
 	}

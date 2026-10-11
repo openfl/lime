@@ -126,6 +126,80 @@ class VideoDecoderTest extends Test
 		checkChannels(ARGB, 1, 2, 3, 0);
 	}
 
+	public function testLateFramesAreSkipped():Void
+	{
+		var decoder = open(RGBA);
+		if (decoder == null) return;
+
+		var frame = new VideoFrame();
+		Assert.isTrue(nextFrame(decoder, frame));
+
+		// A player whose clock is ahead of the decoder, as when decoding falls
+		// behind, is not given each late frame in turn, which would play them in
+		// slow motion. The decoder skips them, keeping one a quarter of a second
+		// at most while it catches up, besides the queued frame and the one being
+		// converted when the later time is first asked for.
+		var start = Timer.stamp();
+		var late = 0;
+		var reached = false;
+
+		while (Timer.stamp() - start < TIMEOUT)
+		{
+			if (decoder.readFrame(frame, 1.5))
+			{
+				if (frame.time + frame.duration > 1.5)
+				{
+					reached = true;
+					break;
+				}
+
+				late++;
+			}
+
+			Sys.sleep(0.001);
+		}
+
+		var elapsed = Timer.stamp() - start;
+		var dropped = decoder.droppedFrames;
+		decoder.close();
+
+		Assert.isTrue(reached, "never reached the frame at 1.5 s");
+		Assert.isTrue(late <= 2 + Std.int(elapsed / 0.25), "showed " + late + " late frames in " + elapsed + " s");
+		Assert.isTrue(dropped >= 30, "counted " + dropped + " dropped frames");
+	}
+
+	public function testLateFramesAreKeptWhenAsked():Void
+	{
+		var decoder = new VideoDecoder();
+		decoder.dropLateFrames = false;
+
+		if (!decoder.open(PATH, RGBA))
+		{
+			Assert.pass();
+			return;
+		}
+
+		var frame = new VideoFrame();
+		Assert.isTrue(nextFrame(decoder, frame));
+
+		// Without dropping, every frame comes in order, however late
+		var count = 1;
+		var lastTime = frame.time;
+
+		while (nextFrame(decoder, frame, 1.5) && frame.time + frame.duration <= 1.5)
+		{
+			Assert.isTrue(frame.time > lastTime, "frame at " + frame.time + " after " + lastTime);
+			lastTime = frame.time;
+			count++;
+		}
+
+		var dropped = decoder.droppedFrames;
+		decoder.close();
+
+		Assert.isTrue(count >= 43, "read " + count + " frames before 1.5 s");
+		Assert.equals(0, dropped);
+	}
+
 	public function testReadFrameAtTimeSkipsOlderFrames():Void
 	{
 		var decoder = open(NV12);

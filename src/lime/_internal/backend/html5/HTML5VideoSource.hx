@@ -15,6 +15,7 @@ class HTML5VideoSource
 {
 	private var clockMode:VideoClockMode;
 	private var completed:Bool;
+	private var dropLateFrames:Bool;
 	private var element:VideoElement;
 	private var frameTime:Float;
 	private var gain:Float;
@@ -29,6 +30,7 @@ class HTML5VideoSource
 
 		clockMode = SMOOTH;
 		completed = false;
+		dropLateFrames = true;
 		frameTime = -1;
 		gain = 1;
 		loops = 0;
@@ -49,6 +51,19 @@ class HTML5VideoSource
 	public function getCurrentTime():Int
 	{
 		return element != null ? Std.int(element.currentTime * 1000) : 0;
+	}
+
+	public function getDroppedFrames():Int
+	{
+		// Browsers that count dropped frames report them in the playback quality
+		if (element == null || untyped element.getVideoPlaybackQuality == null) return 0;
+		var quality:Dynamic = untyped element.getVideoPlaybackQuality();
+		return quality != null ? quality.droppedVideoFrames : 0;
+	}
+
+	public function getDropLateFrames():Bool
+	{
+		return dropLateFrames;
 	}
 
 	public function getGain():Float
@@ -242,6 +257,12 @@ class HTML5VideoSource
 		}
 
 		return value;
+	}
+
+	public function setDropLateFrames(value:Bool):Bool
+	{
+		// Browsers always skip late frames
+		return dropLateFrames = value;
 	}
 
 	public function setGain(value:Float):Float
