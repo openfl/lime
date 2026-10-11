@@ -33,6 +33,7 @@ class NativeVideoSource
 	private static inline var AUDIO_DRIFT_WAIT_SECONDS:Float = 0.25;
 	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
 	private static inline var AUDIO_LEAD_SECONDS:Float = 0.2;
+	private static inline var AUDIO_LEARN_SECONDS:Float = 1.0;
 	private static inline var AUDIO_MIX_SECONDS:Float = 0.0001;
 	private static inline var AUDIO_READ_SECONDS:Float = 0.05;
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
@@ -42,6 +43,7 @@ class NativeVideoSource
 
 	private static var activeSources:Array<NativeVideoSource> = [];
 	private static var latencyExtension:Null<Bool>;
+	private static var timerDrift:Float = 0;
 
 	private var audioBuffer:Bytes;
 	private var audioCheckPosition:Float;
@@ -52,13 +54,15 @@ class NativeVideoSource
 	private var audioDriftStamp:Float;
 	private var audioFormat:Int;
 	private var audioLastCheck:Float;
-	private var audioLatency:Float;
-	private var audioLatencyChanges:Int;
-	private var audioLatencyChangeStamp:Float;
-	private var audioLatencyEstimate:Float;
+	private var audioLatencyBelow:Float;
 	private var audioLatencyMeasured:Bool;
+	private var audioLatencyMost:Float;
 	private var audioMixPosition:Float;
 	private var audioPeriod:Float;
+	private var audioRateCount:Int;
+	private var audioRatePosition:Float;
+	private var audioRateStamp:Float;
+	private var audioRateSums:Array<Float>;
 	private var audioReadPosition:Float;
 	private var audioReadStamp:Float;
 	private var audioRetryStamp:Float;
@@ -95,13 +99,15 @@ class NativeVideoSource
 		audioCheckStamp = -1;
 		audioClockStamp = -1;
 		audioDriftStamp = -1;
-		audioLatency = -1;
-		audioLatencyChanges = 0;
-		audioLatencyChangeStamp = 0;
-		audioLatencyEstimate = 0;
+		audioLatencyBelow = 0;
 		audioLatencyMeasured = false;
+		audioLatencyMost = 0;
 		audioMixPosition = 0;
 		audioPeriod = 0;
+		audioRateCount = 0;
+		audioRatePosition = 0;
+		audioRateStamp = -1;
+		audioRateSums = [0, 0, 0, 0];
 		audioReadPosition = 0;
 		audioReadStamp = -1;
 		audioSkipping = false;
@@ -206,6 +212,9 @@ class NativeVideoSource
 	@:allow(lime.media.AudioManager)
 	private static function restoreAudioContextRecovery():Void
 	{
+		// A new output runs at its own rate
+		timerDrift = 0;
+
 		for (source in activeSources.copy())
 		{
 			source.createAudio();
@@ -323,6 +332,7 @@ class NativeVideoSource
 			clockStamp = getStamp();
 			clockRate = 1;
 			audioDriftStamp = -1;
+			audioRateStamp = -1;
 			audioReadStamp = -1;
 			audioStarting = false;
 			clockMode = value;
@@ -395,6 +405,7 @@ class NativeVideoSource
 		decoder.dropLateFrames = dropLateFrames;
 
 		audioDriftStamp = -1;
+		audioRateStamp = -1;
 		audioReadStamp = -1;
 		audioStarting = decoder.hasAudio;
 		bufferTimes = [];
@@ -572,10 +583,9 @@ class NativeVideoSource
 		var context = ALC.getCurrentContext();
 		var device = context != null ? ALC.getContextsDevice(context) : null;
 		var refresh = device != null ? ALC.getIntegerv(device, ALC.REFRESH, 1)[0] : 0;
-		audioLatency = -1;
-		audioLatencyChanges = 0;
-		audioLatencyEstimate = 0;
+		audioLatencyBelow = 0;
 		audioLatencyMeasured = false;
+		audioLatencyMost = 0;
 		audioPeriod = refresh > 0 ? 1 / refresh : 0;
 	}
 
@@ -640,16 +650,18 @@ class NativeVideoSource
 
 		if (audioStarting)
 		{
-			// After opening or seeking, the clock waits for the sound to be heard
-			if (position <= clockTime)
+			// After opening or seeking, the clock waits for the sound to be heard,
+			// and starts at a mix, where the position is freshest, unless reads are
+			// too far apart to see one
+			if (position <= clockTime || (!timed && position <= clockTime + AUDIO_LEAD_SECONDS))
 			{
 				clockStamp = now;
 				return clockTime;
 			}
 
 			audioStarting = false;
-			clockRate = 1;
-			time = position;
+			clockRate = 1 + timerDrift;
+			time = clockMode == AUDIO || !timed ? position : heard;
 		}
 		else
 		{
@@ -670,16 +682,50 @@ class NativeVideoSource
 					{
 						// The sound moved on without the clock
 						time = heard;
-						clockRate = 1;
+						clockRate = 1 + timerDrift;
+						audioRateStamp = -1;
 					}
 					else
 					{
 						// Each mix sets how much faster or slower the clock runs until
-						// the next, closing the gap without jumping. It never goes
-						// back, or far ahead of an output that stops taking audio.
+						// the next, closing the gap without jumping. Outputs and the
+						// timer run at slightly different rates, several percent apart
+						// in some virtual machines, so the sound's rate against the
+						// timer is fitted to every mix since the clock last held or
+						// jumped, once that is a second ago, and kept for every video.
+						// The clock never goes back, or far ahead of an output that
+						// stops taking audio.
 						if (timed && running)
 						{
-							clockRate = 1 + Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, gap / AUDIO_STEER_SECONDS));
+							if (audioRateStamp < 0)
+							{
+								audioRateCount = 0;
+								audioRatePosition = heard;
+								audioRateStamp = now;
+								audioRateSums = [0, 0, 0, 0];
+							}
+
+							var t = now - audioRateStamp;
+							var h = heard - audioRatePosition;
+							audioRateCount++;
+							audioRateSums[0] += t;
+							audioRateSums[1] += h;
+							audioRateSums[2] += t * t;
+							audioRateSums[3] += t * h;
+
+							var spread = audioRateCount * audioRateSums[2] - audioRateSums[0] * audioRateSums[0];
+
+							if (t >= AUDIO_LEARN_SECONDS && spread > 0)
+							{
+								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread;
+								timerDrift = Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, rate - 1));
+							}
+
+							clockRate = 1 + timerDrift + Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, gap / AUDIO_STEER_SECONDS));
+						}
+						else if (!running)
+						{
+							audioRateStamp = -1;
 						}
 
 						time = Math.max(clockTime, Math.min(time, position + AUDIO_LEAD_SECONDS));
@@ -730,32 +776,21 @@ class NativeVideoSource
 
 	@:noCompletion private function getHeardLatency(reported:Float):Float
 	{
-		// Outputs that measure their latency report it changing all the time, and
-		// the position they give when they mix is what is heard then. The others
-		// report a fixed estimate of all but one period, right just before each
-		// mix but a period short when the position moves, so what is heard then
-		// is a period further back. Until the latency is seen changing often, it
-		// is taken as an estimate. OpenAL Soft takes up to a period off when a mix
-		// lands while it reads, which changes an estimate now and then, so the
-		// largest seen is the estimate.
-		if (!audioLatencyMeasured && audioLatency >= 0 && reported != audioLatency)
-		{
-			var now = getStamp();
+		// Outputs that measure their latency report it falling as they play and
+		// rising as they mix, so most readings are below the most seen, and the
+		// position they give when they mix is what is heard then. The rest report
+		// a fixed estimate of all but one period, right just before each mix but
+		// a period short when the position moves, so what is heard then is a
+		// period further back. OpenAL Soft also takes up to a period off when a
+		// mix lands while it reads, which leaves an estimate below the most seen
+		// now and then. So the latency is taken as an estimate, and the most seen
+		// used, until a third of the readings fall below it.
+		audioLatencyMost = Math.max(audioLatencyMost, reported);
+		var below = reported < audioLatencyMost - AUDIO_MIX_SECONDS ? 1 : 0;
+		audioLatencyBelow += (below - audioLatencyBelow) * 0.05;
+		if (audioLatencyBelow > 0.3) audioLatencyMeasured = true;
 
-			if (audioLatencyChanges == 0 || now - audioLatencyChangeStamp > AUDIO_CHECK_SECONDS)
-			{
-				audioLatencyChanges = 0;
-				audioLatencyChangeStamp = now;
-			}
-
-			if (++audioLatencyChanges >= 3) audioLatencyMeasured = true;
-		}
-
-		audioLatency = reported;
-		if (audioLatencyMeasured) return reported;
-
-		audioLatencyEstimate = Math.max(audioLatencyEstimate, reported);
-		return audioLatencyEstimate + audioPeriod;
+		return audioLatencyMeasured ? reported : audioLatencyMost + audioPeriod;
 	}
 
 	@:noCompletion private static inline function getStamp():Float
@@ -768,8 +803,13 @@ class NativeVideoSource
 	{
 		if (decoder == null) return 0;
 
+		// The clock is carried on from the time and stamp it last had, both set
+		// from the same reading of the timer, so no time is lost between reads
+		var now = getStamp();
+
 		if (isWaitingForFrame())
 		{
+			clockStamp = now;
 			return clockTime;
 		}
 
@@ -785,11 +825,18 @@ class NativeVideoSource
 			else if (!decoder.audioComplete)
 			{
 				// Waiting for audio, so hold the picture too
+				clockStamp = now;
 				return clockTime;
 			}
 		}
 
-		return playing ? clockTime + (getStamp() - clockStamp) : clockTime;
+		if (playing)
+		{
+			clockTime += now - clockStamp;
+			clockStamp = now;
+		}
+
+		return clockTime;
 	}
 
 	@:noCompletion private static function hasLatency():Bool
@@ -866,6 +913,7 @@ class NativeVideoSource
 
 		audioCheckStamp = -1;
 		audioDriftStamp = -1;
+		audioRateStamp = -1;
 		audioReadStamp = -1;
 		audioSkipping = false;
 		audioStarting = handle != null;
@@ -971,10 +1019,6 @@ class NativeVideoSource
 
 		if (playing && !completed)
 		{
-			// Keep the clock current so it carries on smoothly when the audio ends
-			clockTime = time;
-			clockStamp = getStamp();
-
 			var audioDone = handle == null || audioStalled || (decoder.audioComplete && bufferTimes.length == 0);
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
 				|| (decoder.duration > 0 && time >= decoder.duration);
