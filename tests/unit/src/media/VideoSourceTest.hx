@@ -477,7 +477,18 @@ class VideoSourceTest extends Test
 	#if lime_openalsoft
 	public function testClockFollowsTheSoundBeingHeard():Void
 	{
-		var modes:Array<VideoClockMode> = [VideoClockMode.SMOOTH, VideoClockMode.AUDIO];
+		var context = ALC.getCurrentContext();
+		var device = context != null ? ALC.getContextsDevice(context) : null;
+
+		if (device == null)
+		{
+			Assert.warn("There is no audio output here, so following the sound heard was not tested");
+			return;
+		}
+
+		var refresh = ALC.getIntegerv(device, ALC.REFRESH, 1)[0];
+		var period = refresh > 0 ? 1000 / refresh : 0;
+		var modes:Array<VideoClockMode> = [VideoClockMode.SMOOTH, VideoClockMode.AUDIO, VideoClockMode.INTERPOLATED];
 
 		for (mode in modes)
 		{
@@ -489,15 +500,17 @@ class VideoSourceTest extends Test
 			startPlaying(video, frame);
 			run(video, frame, 0.3);
 
-			// The output plays what it has mixed a little later, by the latency
-			// OpenAL Soft reports, and the clock follows what is heard
+			// Each time the position moves, the output has just mixed. Outputs that
+			// measure their latency report what is heard then. The others report a
+			// fixed estimate, all but one period, so what is heard then is a period
+			// further back. Either way, the clock should match it there.
 			var backend = @:privateAccess video.__backend;
-			var toHeard = 0.0;
-			var toMixed = 0.0;
-			var latency = 0.0;
-			var count = 0;
+			var lastMixed = Math.NaN;
+			var lastLatency = Math.NaN;
+			var measured = false;
+			var offsets:Array<Float> = [];
 
-			for (i in 0...100)
+			for (i in 0...300)
 			{
 				video.readFrame(frame);
 				var clock = video.currentTime;
@@ -507,10 +520,13 @@ class VideoSourceTest extends Test
 				{
 					var values = AL.getSourcedvSOFT(@:privateAccess backend.handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
 					var mixed = (bufferTimes[0] + values[0]) * 1000;
-					toHeard += clock - (mixed - values[1] * 1000);
-					toMixed += clock - mixed;
-					latency += values[1] * 1000;
-					count++;
+					var latency = values[1] * 1000;
+
+					if (!Math.isNaN(lastLatency) && latency != lastLatency) measured = true;
+					if (!Math.isNaN(lastMixed) && Math.abs(mixed - lastMixed) > 0.1) offsets.push(clock - (mixed - latency));
+
+					lastMixed = mixed;
+					lastLatency = latency;
 				}
 
 				Sys.sleep(0.005);
@@ -518,28 +534,22 @@ class VideoSourceTest extends Test
 
 			video.dispose();
 
-			if (count == 0 || latency / count < 10)
-			{
-				Assert.warn("This output reports no latency, so following the sound heard was not tested");
-				return;
-			}
-
-			toHeard /= count;
-			toMixed /= count;
-			latency /= count;
-
 			var name = clockModeName(mode);
 
-			if (mode == VideoClockMode.AUDIO)
+			if (offsets.length < 5)
 			{
-				Assert.isTrue(Math.abs(toHeard) < 2, "the audio clock was " + toHeard + " ms from the sound heard");
+				Assert.fail("the position of the " + name + " clock's sound only moved " + offsets.length + " times");
+				continue;
 			}
-			else
-			{
-				Assert.isTrue(Math.abs(toHeard) < Math.abs(toMixed),
-					"the " + name + " clock was " + toHeard + " ms from the sound heard and " + toMixed + " ms from the sound mixed, "
-					+ latency + " ms before it is heard");
-			}
+
+			// The mix is seen up to a read late, by which time a few more
+			// milliseconds have been heard
+			var offset = 0.0;
+			for (value in offsets) offset += value / offsets.length;
+			if (!measured) offset += period;
+
+			Assert.isTrue(Math.abs(offset) < 10, "when the " + name + " clock's sound was mixed, the clock was " + offset + " ms from what was heard ("
+				+ (measured ? "measured latency" : "estimated latency, " + period + " ms periods") + ")");
 		}
 	}
 	#end

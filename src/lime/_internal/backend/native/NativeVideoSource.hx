@@ -7,6 +7,7 @@ import lime.app.Promise;
 import lime.media.AudioManager;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
+import lime.media.openal.ALC;
 import lime.media.openal.ALSource;
 import lime.media.VideoClockMode;
 import lime.media.VideoDecoder;
@@ -31,6 +32,7 @@ class NativeVideoSource
 	private static inline var AUDIO_DRIFT_SECONDS:Float = 0.1;
 	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
 	private static inline var AUDIO_LEAD_SECONDS:Float = 0.2;
+	private static inline var AUDIO_MIX_SECONDS:Float = 0.0001;
 	private static inline var AUDIO_READ_SECONDS:Float = 0.05;
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
@@ -49,7 +51,13 @@ class NativeVideoSource
 	private var audioDriftStamp:Float;
 	private var audioFormat:Int;
 	private var audioLastCheck:Float;
+	private var audioLatency:Float;
+	private var audioLatencyChanges:Int;
+	private var audioLatencyChangeStamp:Float;
+	private var audioLatencyEstimate:Float;
+	private var audioLatencyMeasured:Bool;
 	private var audioMixPosition:Float;
+	private var audioPeriod:Float;
 	private var audioReadPosition:Float;
 	private var audioReadStamp:Float;
 	private var audioRetryStamp:Float;
@@ -85,7 +93,13 @@ class NativeVideoSource
 		audioCheckStamp = -1;
 		audioClockStamp = -1;
 		audioDriftStamp = -1;
+		audioLatency = -1;
+		audioLatencyChanges = 0;
+		audioLatencyChangeStamp = 0;
+		audioLatencyEstimate = 0;
+		audioLatencyMeasured = false;
 		audioMixPosition = 0;
+		audioPeriod = 0;
 		audioReadPosition = 0;
 		audioReadStamp = -1;
 		audioSkipping = false;
@@ -534,6 +548,17 @@ class NativeVideoSource
 		buffers = AL.genBuffers(AUDIO_BUFFER_COUNT);
 		freeBuffers = buffers.copy();
 		bufferTimes = [];
+
+		// The output mixes once a period, and until its latency is seen changing,
+		// it is taken as a fixed estimate
+		var context = ALC.getCurrentContext();
+		var device = context != null ? ALC.getContextsDevice(context) : null;
+		var refresh = device != null ? ALC.getIntegerv(device, ALC.REFRESH, 1)[0] : 0;
+		audioLatency = -1;
+		audioLatencyChanges = 0;
+		audioLatencyEstimate = 0;
+		audioLatencyMeasured = false;
+		audioPeriod = refresh > 0 ? 1 / refresh : 0;
 	}
 
 	@:noCompletion private function deleteAudio():Void
@@ -585,8 +610,9 @@ class NativeVideoSource
 
 		// The audio position moves each time the output mixes, at some point since
 		// the clock last read it, taken as halfway. Reads further apart cannot
-		// place the mix, so the position is used as it is.
-		var moved = audioMixPosition != audioReadPosition;
+		// place the mix, so the position is used as it is. Unqueueing a played
+		// buffer can move it by a rounding error, which is not a mix.
+		var moved = Math.abs(audioMixPosition - audioReadPosition) > AUDIO_MIX_SECONDS;
 		var timed = moved && audioReadStamp >= 0 && now - audioReadStamp <= AUDIO_READ_SECONDS;
 		var heard = position + (timed ? (now - audioReadStamp) / 2 : 0);
 		audioReadPosition = audioMixPosition;
@@ -653,7 +679,7 @@ class NativeVideoSource
 		// How long the output takes to play what it has mixed, where OpenAL Soft
 		// reports it
 		#if lime_openalsoft
-		if (hasLatency()) return AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2)[1];
+		if (hasLatency()) return getHeardLatency(AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2)[1]);
 		#end
 		return 0;
 	}
@@ -672,7 +698,7 @@ class NativeVideoSource
 		{
 			var values = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
 			offset = values[0];
-			latency = values[1];
+			latency = getHeardLatency(values[1]);
 		}
 		else
 		#end
@@ -682,6 +708,36 @@ class NativeVideoSource
 
 		audioMixPosition = bufferTimes[0] + offset;
 		return Math.max(0, audioMixPosition - latency);
+	}
+
+	@:noCompletion private function getHeardLatency(reported:Float):Float
+	{
+		// Outputs that measure their latency report it changing all the time, and
+		// the position they give when they mix is what is heard then. The others
+		// report a fixed estimate of all but one period, right just before each
+		// mix but a period short when the position moves, so what is heard then
+		// is a period further back. Until the latency is seen changing often, it
+		// is taken as an estimate. OpenAL Soft takes up to a period off when a mix
+		// lands while it reads, which changes an estimate now and then, so the
+		// largest seen is the estimate.
+		if (!audioLatencyMeasured && audioLatency >= 0 && reported != audioLatency)
+		{
+			var now = getStamp();
+
+			if (audioLatencyChanges == 0 || now - audioLatencyChangeStamp > AUDIO_CHECK_SECONDS)
+			{
+				audioLatencyChanges = 0;
+				audioLatencyChangeStamp = now;
+			}
+
+			if (++audioLatencyChanges >= 3) audioLatencyMeasured = true;
+		}
+
+		audioLatency = reported;
+		if (audioLatencyMeasured) return reported;
+
+		audioLatencyEstimate = Math.max(audioLatencyEstimate, reported);
+		return audioLatencyEstimate + audioPeriod;
 	}
 
 	@:noCompletion private static inline function getStamp():Float
