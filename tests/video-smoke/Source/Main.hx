@@ -33,7 +33,7 @@ class Main extends Application
 	private static inline var SEEK_TIME = 1.0;
 	private static inline var TIMEOUT = 20.0;
 
-	private var blackFrames:Int;
+	private var blackFrames:Array<String>;
 	private var decoder:VideoDecoder;
 	private var finished:Bool;
 	private var firstTime:Float;
@@ -56,7 +56,7 @@ class Main extends Application
 	{
 		super();
 
-		blackFrames = 0;
+		blackFrames = [];
 		firstTime = -1;
 		frame = new VideoFrame();
 		frames = 0;
@@ -168,12 +168,13 @@ class Main extends Application
 		var expected = Math.round(Math.max(0, Math.min(255, (expectedLuma - 16) * 255 / 219)));
 		var color = sample(gl, 32, 32, 96, 96);
 		var gray = Math.round((color[0] + color[1] + color[2]) / 3);
+		var name = "frame " + index + " at " + Math.round(frame.time * 1000) + " ms" + (seeked ? " after seeking" : "");
 
-		if (color[0] + color[1] + color[2] == 0 && expected > 8) blackFrames++;
+		if (color[0] + color[1] + color[2] == 0 && expected > 8) blackFrames.push(name);
 
 		if (Math.abs(gray - expected) > 10 && mismatches.length < 10)
 		{
-			mismatches.push("frame " + index + " at " + Math.round(frame.time * 1000) + " ms reads " + gray + ", expected " + expected);
+			mismatches.push(name + " reads " + gray + ", expected " + expected);
 		}
 
 		values.set(gray, true);
@@ -212,15 +213,21 @@ class Main extends Application
 	private function finish():Void
 	{
 		var distinct = Lambda.count(values);
+		var problems = [];
 
-		if (frames < 58) fail("only " + frames + " of 60 frames arrived");
-		else if (blackFrames > 0) fail(blackFrames + " frames were black");
-		else if (distinct < 30) fail("only " + distinct + " different frames were shown, so textures are not updating");
-		else if (mismatches.length > 1) fail("frames do not match their times: " + mismatches.join("; "));
-		else if (seekFrames < 28) fail("only " + seekFrames + " frames arrived after seeking");
-		else if (seekStartTime > SEEK_TIME + 0.001 || seekStartTime + 1 / FRAME_RATE <= SEEK_TIME) fail("after seeking to " + SEEK_TIME + " s, the first frame was at " + seekStartTime + " s");
+		// Every problem is reported, as one often explains another
+		if (frames < 58) problems.push("only " + frames + " of 60 frames arrived");
+		if (blackFrames.length > 0) problems.push(blackFrames.length + " frames were black (" + blackFrames.join(", ") + ")");
+		if (distinct < 30) problems.push("only " + distinct + " different frames were shown, so textures are not updating");
+		if (mismatches.length > 1) problems.push("frames do not match their times: " + mismatches.join("; "));
+		if (seekFrames < 28) problems.push("only " + seekFrames + " frames arrived after seeking");
+		if (seekStartTime > SEEK_TIME + 0.001 || seekStartTime + 1 / FRAME_RATE <= SEEK_TIME) problems.push("after seeking to " + SEEK_TIME + " s, the first frame was at " + seekStartTime + " s");
 
-		if (finished) return;
+		if (problems.length > 0)
+		{
+			fail(problems.join("; "));
+			return;
+		}
 
 		trace("Video smoke passed: " + frames + " frames, " + distinct + " distinct, " + seekFrames + " after seeking");
 		finished = true;
