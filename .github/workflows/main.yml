@@ -20,7 +20,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
           # GStreamer decodes video in the unit tests
-          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav xvfb
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -80,6 +80,12 @@ jobs:
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
+
+      - name: Run video smoke test
+        working-directory: tests/video-smoke
+        run: |
+          lime build linux -release -verbose -nocolor
+          SDL_AUDIODRIVER=dummy xvfb-run -a Export/linux/bin/LimeVideoSmoke
 
       - name: Install samples
         run: |
@@ -281,6 +287,11 @@ jobs:
         working-directory: tests/unit
         run: |
           lime test neko -release -verbose -nocolor
+          lime test mac -arm64 -release -verbose -nocolor
+
+      - name: Run video smoke test
+        working-directory: tests/video-smoke
+        run: |
           lime test mac -arm64 -release -verbose -nocolor
 
       - name: Install samples
