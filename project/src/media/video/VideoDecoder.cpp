@@ -274,6 +274,7 @@ namespace lime {
 
 			case VIDEO_FRAME_FORMAT_NV12: return width * height + ((width + 1) / 2) * 2 * ((height + 1) / 2);
 			case VIDEO_FRAME_FORMAT_RGBA:
+			case VIDEO_FRAME_FORMAT_BGRA:
 			case VIDEO_FRAME_FORMAT_TEXTURE: return width * height * 4;
 			default: return 0;
 
@@ -915,6 +916,10 @@ namespace lime {
 		double cScale = planes->fullRange ? 1.0 : 255.0 / 224.0;
 		int yOffset = planes->fullRange ? 0 : 16;
 
+		// BGRA swaps red and blue, as Cairo surfaces and Windows bitmaps lay them out
+		int red = format == VIDEO_FRAME_FORMAT_BGRA ? 2 : 0;
+		int blue = 2 - red;
+
 		int yFactor = (int)(yScale * 65536.0 + 0.5);
 		int rv = (int)(2.0 * (1.0 - kr) * cScale * 65536.0 + 0.5);
 		int gu = (int)(2.0 * kb * (1.0 - kb) / kg * cScale * 65536.0 + 0.5);
@@ -934,9 +939,9 @@ namespace lime {
 				int cv = v[(x / 2) * pixelStride] - 128;
 				int luma = (y[x] - yOffset) * yFactor + 32768;
 
-				out[0] = ClampByte ((luma + rv * cv) >> 16);
+				out[red] = ClampByte ((luma + rv * cv) >> 16);
 				out[1] = ClampByte ((luma - gu * cu - gv * cv) >> 16);
-				out[2] = ClampByte ((luma + bu * cu) >> 16);
+				out[blue] = ClampByte ((luma + bu * cu) >> 16);
 				out[3] = 255;
 				out += 4;
 

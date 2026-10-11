@@ -132,6 +132,27 @@ class VideoDecoderTest extends Test
 		decoder.close();
 	}
 
+	public function testReadBGRA():Void
+	{
+		var decoder = open(BGRA);
+		if (decoder == null) return;
+
+		var frame = new VideoFrame();
+		Assert.isTrue(nextFrame(decoder, frame));
+		Assert.equals(VideoFrameFormat.BGRA, frame.format);
+		Assert.equals(640 * 360 * 4, frame.length);
+
+		// Blue comes first and red third
+		var tolerance = frame.colorMatrix == VideoColorMatrix.BT709 ? 16 : 40;
+		var red = pixel(frame, 640 - 64, 64);
+		var blue = pixel(frame, 64, 360 - 64);
+
+		Assert.isTrue(red[0] < tolerance && red[1] < tolerance && red[2] > 255 - tolerance, "red block " + red);
+		Assert.isTrue(blue[0] > 255 - tolerance && blue[1] < tolerance && blue[2] < tolerance, "blue block " + blue);
+		Assert.equals(255, red[3]);
+		decoder.close();
+	}
+
 	public function testReadFrameAtTimeSkipsOlderFrames():Void
 	{
 		var decoder = open(NV12);

@@ -36,4 +36,12 @@ package lime.media;
 		Availability: native targets rendering with OpenGL or OpenGL ES.
 	**/
 	var TEXTURE = 2;
+
+	/**
+		Interleaved 8-bit blue, green, red and alpha, `width * 4` bytes per row,
+		converted from YUV on the decoding thread. This is the layout of
+		`BGRA32` images, Cairo surfaces and BGRA textures, which would show
+		`RGBA` frames with red and blue swapped.
+	**/
+	var BGRA = 3;
 }
