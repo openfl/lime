@@ -4,6 +4,7 @@ import haxe.io.Bytes;
 import haxe.Timer;
 import lime.app.Future;
 import lime.app.Promise;
+import lime.media.AudioManager;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALSource;
@@ -20,13 +21,25 @@ import lime.utils.UInt8Array;
 @:access(lime.media.VideoSource)
 class NativeVideoSource
 {
+	private static inline var AUDIO_AHEAD_SECONDS:Float = 0.25;
 	private static inline var AUDIO_BUFFER_COUNT:Int = 6;
 	private static inline var AUDIO_BUFFER_SECONDS:Float = 0.04;
+	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
+	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 
+	private static var activeSources:Array<NativeVideoSource> = [];
+
 	private var audioBuffer:Bytes;
+	private var audioCheckPosition:Float;
+	private var audioCheckStamp:Float;
 	private var audioData:UInt8Array;
 	private var audioFormat:Int;
+	private var audioLastCheck:Float;
+	private var audioRetryStamp:Float;
+	private var audioSkipping:Bool;
+	private var audioStalled:Bool;
+	private var blockAlign:Int;
 	private var bufferTimes:Array<Float>;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
@@ -48,6 +61,9 @@ class NativeVideoSource
 	{
 		this.parent = parent;
 
+		audioCheckStamp = -1;
+		audioSkipping = false;
+		audioStalled = false;
 		bufferTimes = [];
 		clockStamp = 0;
 		clockTime = 0;
@@ -107,6 +123,27 @@ class NativeVideoSource
 	public static function isSupported():Bool
 	{
 		return VideoDecoder.isSupported;
+	}
+
+	@:allow(lime.media.AudioManager)
+	private static function prepareAudioContextRecovery():Void
+	{
+		// The OpenAL objects belong to the context being replaced, so they are
+		// deleted while it is still current
+		for (source in activeSources.copy())
+		{
+			source.deleteAudio();
+		}
+	}
+
+	@:allow(lime.media.AudioManager)
+	private static function restoreAudioContextRecovery():Void
+	{
+		for (source in activeSources.copy())
+		{
+			source.createAudio();
+			if (source.handle != null) source.resyncAudio();
+		}
 	}
 
 	public static function loadFromFile(path:String, format:VideoFrameFormat):Future<VideoSource>
@@ -262,22 +299,66 @@ class NativeVideoSource
 
 		if (decoder.hasAudio)
 		{
-			handle = AL.createSource();
+			blockAlign = decoder.audioChannels * 2;
+			audioFormat = decoder.audioChannels == 1 ? AL.FORMAT_MONO16 : AL.FORMAT_STEREO16;
+			audioBuffer = Bytes.alloc(Std.int(decoder.audioSampleRate * AUDIO_BUFFER_SECONDS) * blockAlign);
+			audioData = UInt8Array.fromBytes(audioBuffer);
+			bytesPerSecond = decoder.audioSampleRate * blockAlign;
 
-			if (handle != null)
+			activeSources.push(this);
+			createAudio();
+		}
+	}
+
+	@:noCompletion private function checkAudio():Void
+	{
+		var now = Timer.stamp();
+
+		// Only an output that has audio to play is checked. Underruns, and Lime
+		// pausing the device while the window is hidden, are not stalls.
+		if (!playing || isWaitingForFrame() || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended)
+		{
+			audioCheckStamp = -1;
+			return;
+		}
+
+		var position = getAudioPosition();
+
+		if (audioCheckStamp < 0 || now - audioLastCheck > AUDIO_CHECK_SECONDS / 2)
+		{
+			// Starting, or the application stopped updating for a while
+			audioCheckPosition = position;
+			audioCheckStamp = now;
+			audioLastCheck = now;
+			return;
+		}
+
+		audioLastCheck = now;
+
+		var elapsed = now - audioCheckStamp;
+		if (elapsed < AUDIO_CHECK_SECONDS) return;
+
+		var rate = (position - audioCheckPosition) / elapsed;
+
+		if (!audioStalled)
+		{
+			if (rate < 0.5 || rate > 2)
 			{
-				AL.sourcef(handle, AL.GAIN, gain);
-
-				buffers = AL.genBuffers(AUDIO_BUFFER_COUNT);
-				freeBuffers = buffers.copy();
-
-				var blockAlign = decoder.audioChannels * 2;
-				audioFormat = decoder.audioChannels == 1 ? AL.FORMAT_MONO16 : AL.FORMAT_STEREO16;
-				audioBuffer = Bytes.alloc(Std.int(decoder.audioSampleRate * AUDIO_BUFFER_SECONDS) * blockAlign);
-				audioData = UInt8Array.fromBytes(audioBuffer);
-				bytesPerSecond = decoder.audioSampleRate * blockAlign;
+				// The output stopped playing in real time, such as a sound server
+				// that hangs or a device that was unplugged. The clock carries on
+				// from the last time heard, and the audio is given another try.
+				audioStalled = true;
+				audioRetryStamp = now + AUDIO_RETRY_SECONDS;
 			}
 		}
+		else if (rate > 0.75 && rate < 1.5 && Math.abs(position - getTime()) < 0.1)
+		{
+			// Playing in step again, so the audio leads the clock once more
+			audioStalled = false;
+		}
+
+		audioCheckPosition = position;
+		audioCheckStamp = now;
 	}
 
 	@:noCompletion private function clearBuffers():Void
@@ -298,19 +379,12 @@ class NativeVideoSource
 		stopTimer();
 		playing = false;
 
-		if (handle != null)
-		{
-			clearBuffers();
-			AL.deleteSource(handle);
-			handle = null;
-		}
+		activeSources.remove(this);
+		deleteAudio();
 
-		if (buffers != null)
-		{
-			AL.deleteBuffers(buffers);
-			buffers = null;
-			freeBuffers = null;
-		}
+		audioCheckStamp = -1;
+		audioSkipping = false;
+		audioStalled = false;
 
 		if (decoder != null)
 		{
@@ -337,6 +411,64 @@ class NativeVideoSource
 		parent.onComplete.dispatch();
 	}
 
+	@:noCompletion private function createAudio():Void
+	{
+		handle = AL.createSource();
+		if (handle == null) return;
+
+		AL.sourcef(handle, AL.GAIN, gain);
+
+		buffers = AL.genBuffers(AUDIO_BUFFER_COUNT);
+		freeBuffers = buffers.copy();
+		bufferTimes = [];
+	}
+
+	@:noCompletion private function deleteAudio():Void
+	{
+		if (handle != null)
+		{
+			clearBuffers();
+			AL.deleteSource(handle);
+			handle = null;
+		}
+
+		if (buffers != null)
+		{
+			AL.deleteBuffers(buffers);
+			buffers = null;
+			freeBuffers = null;
+		}
+
+		bufferTimes = [];
+	}
+
+	@:noCompletion private function fillBuffers():Void
+	{
+		// A stalled output is only given audio up to a little past the clock, so
+		// one that drops what it is given does not drain the decoder
+		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS : Math.POSITIVE_INFINITY;
+
+		while (freeBuffers.length > 0 && !decoder.audioComplete && decoder.audioTime < limit)
+		{
+			var length = decoder.readAudio(audioBuffer, 0, audioBuffer.length);
+			if (length <= 0) break;
+
+			var buffer = freeBuffers.pop();
+			AL.bufferData(buffer, audioFormat, audioData, length, decoder.audioSampleRate);
+			AL.sourceQueueBuffer(handle, buffer);
+			bufferTimes.push(decoder.audioTime - length / bytesPerSecond);
+		}
+	}
+
+	@:noCompletion private function getAudioPosition():Float
+	{
+		// The time of the sample being heard. Rounding can put the start of the
+		// first buffer just below zero, which readFrame would take as no time at
+		// all.
+		var offset:Int = AL.getSourcei(handle, AL.SAMPLE_OFFSET);
+		return Math.max(0, bufferTimes[0] + offset / decoder.audioSampleRate);
+	}
+
 	@:noCompletion private function getTime():Float
 	{
 		if (decoder == null) return 0;
@@ -346,19 +478,19 @@ class NativeVideoSource
 			return clockTime;
 		}
 
-		if (handle != null && bufferTimes.length > 0)
+		// The audio leads the clock while its output plays
+		if (handle != null && !audioStalled)
 		{
-			// The time of the sample being heard. Rounding can put the start of
-			// the first buffer just below zero, which readFrame would take as no
-			// time at all.
-			var offset:Int = AL.getSourcei(handle, AL.SAMPLE_OFFSET);
-			return Math.max(0, bufferTimes[0] + offset / decoder.audioSampleRate);
-		}
+			if (bufferTimes.length > 0)
+			{
+				return getAudioPosition();
+			}
 
-		if (handle != null && !decoder.audioComplete)
-		{
-			// Waiting for audio, so hold the picture too
-			return clockTime;
+			if (!decoder.audioComplete)
+			{
+				// Waiting for audio, so hold the picture too
+				return clockTime;
+			}
 		}
 
 		return playing ? clockTime + (Timer.stamp() - clockStamp) : clockTime;
@@ -371,6 +503,15 @@ class NativeVideoSource
 		return !hasFrame && decoder.hasVideo && !decoder.videoComplete;
 	}
 
+	@:noCompletion private function resyncAudio():Void
+	{
+		// Drops the queued audio and the decoded audio before the clock, so the
+		// sound starts again in step with the picture
+		clearBuffers();
+		audioCheckStamp = -1;
+		audioSkipping = true;
+	}
+
 	@:noCompletion private function seek(time:Float):Void
 	{
 		decoder.seek(time, true);
@@ -380,6 +521,8 @@ class NativeVideoSource
 			clearBuffers();
 		}
 
+		audioCheckStamp = -1;
+		audioSkipping = false;
 		clockStamp = Timer.stamp();
 		clockTime = time;
 		completed = false;
@@ -387,6 +530,22 @@ class NativeVideoSource
 		hasFrame = false;
 
 		update();
+	}
+
+	@:noCompletion private function skipAudio(time:Float):Void
+	{
+		while (!decoder.audioComplete)
+		{
+			var length = Std.int((time - decoder.audioTime) * bytesPerSecond);
+			length -= length % blockAlign;
+
+			if (length <= 0) break;
+
+			// Without more audio decoded yet, skipping carries on next update
+			if (decoder.readAudio(audioBuffer, 0, Std.int(Math.min(length, audioBuffer.length))) <= 0) return;
+		}
+
+		audioSkipping = false;
 	}
 
 	@:noCompletion private function stopTimer():Void
@@ -417,21 +576,28 @@ class NativeVideoSource
 		{
 			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
 
-			while (freeBuffers.length > 0 && !decoder.audioComplete)
+			if (audioStalled && playing && Timer.stamp() >= audioRetryStamp)
 			{
-				var length = decoder.readAudio(audioBuffer, 0, audioBuffer.length);
-				if (length <= 0) break;
+				audioRetryStamp = Timer.stamp() + AUDIO_RETRY_SECONDS;
+				resyncAudio();
+			}
 
-				var buffer = freeBuffers.pop();
-				AL.bufferData(buffer, audioFormat, audioData, length, decoder.audioSampleRate);
-				AL.sourceQueueBuffer(handle, buffer);
-				bufferTimes.push(decoder.audioTime - length / bytesPerSecond);
+			if (audioSkipping)
+			{
+				skipAudio(getTime());
+			}
+
+			if (!audioSkipping)
+			{
+				fillBuffers();
 			}
 
 			if (playing && bufferTimes.length > 0 && !isWaitingForFrame() && AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING)
 			{
 				AL.sourcePlay(handle);
 			}
+
+			checkAudio();
 		}
 
 		var time = getTime();
@@ -442,7 +608,7 @@ class NativeVideoSource
 			clockTime = time;
 			clockStamp = Timer.stamp();
 
-			var audioDone = handle == null || (decoder.audioComplete && bufferTimes.length == 0);
+			var audioDone = handle == null || audioStalled || (decoder.audioComplete && bufferTimes.length == 0);
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
 				|| (decoder.duration > 0 && time >= decoder.duration);
 
