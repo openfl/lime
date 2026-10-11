@@ -76,6 +76,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
@@ -165,6 +168,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
@@ -285,6 +291,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test mac -arm64 -release -verbose -nocolor
@@ -388,6 +397,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
@@ -485,6 +497,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
