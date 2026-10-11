@@ -148,8 +148,8 @@ class VideoSourceTest extends Test
 		var frame = new VideoFrame();
 		startPlaying(video, frame);
 
-		var rate = measureRate(video, frame, 1);
-		Assert.floatEquals(1, rate, 0.1, "the clock ran at " + rate + " times real time");
+		var clock = measureRate(video, frame, 1);
+		Assert.floatEquals(1, clock.rate, 0.1, "the clock ran at " + clock.rate + " times real time, standing still for up to " + clock.longestStill + " ms");
 		video.dispose();
 	}
 
@@ -164,8 +164,8 @@ class VideoSourceTest extends Test
 		video.currentTime = 1000;
 		waitForTime(video, frame, 1050);
 
-		var rate = measureRate(video, frame, 0.6);
-		Assert.floatEquals(1, rate, 0.1, "after seeking, the clock ran at " + rate + " times real time");
+		var clock = measureRate(video, frame, 0.6);
+		Assert.floatEquals(1, clock.rate, 0.1, "after seeking, the clock ran at " + clock.rate + " times real time, standing still for up to " + clock.longestStill + " ms");
 		video.dispose();
 	}
 
@@ -436,14 +436,61 @@ class VideoSourceTest extends Test
 		Assert.isTrue(video.currentTime >= time, "the clock did not reach " + time + " ms");
 	}
 
-	private static function measureRate(video:VideoSource, frame:VideoFrame, seconds:Float):Float
+	private static function measureRate(video:VideoSource, frame:VideoFrame, seconds:Float):ClockRate
 	{
-		// The monotonic clock the video keeps time with
-		var startTime = video.currentTime;
+		// The clock steps forward as the audio device mixes, and a busy machine
+		// can delay the mixing, so the rate is fitted to every reading rather
+		// than taken from the first and last. Readings use the monotonic clock
+		// the video keeps time with.
 		var start = System.getTimer();
-		run(video, frame, seconds);
+		var end = Timer.stamp() + seconds;
+		var clocks:Array<Float> = [];
+		var times:Array<Float> = [];
+		var lastClock = video.currentTime;
+		var movedAt = start;
+		var longestStill = 0;
 
-		return (video.currentTime - startTime) / (System.getTimer() - start);
+		while (Timer.stamp() < end)
+		{
+			video.readFrame(frame);
+
+			var now = System.getTimer();
+			var clock = video.currentTime;
+
+			if (clock != lastClock)
+			{
+				lastClock = clock;
+				movedAt = now;
+			}
+			else if (now - movedAt > longestStill)
+			{
+				longestStill = now - movedAt;
+			}
+
+			clocks.push(clock);
+			times.push(now - start);
+			Sys.sleep(0.005);
+		}
+
+		var clockMean = 0.0;
+		var timeMean = 0.0;
+
+		for (i in 0...times.length)
+		{
+			clockMean += clocks[i] / times.length;
+			timeMean += times[i] / times.length;
+		}
+
+		var covariance = 0.0;
+		var variance = 0.0;
+
+		for (i in 0...times.length)
+		{
+			covariance += (times[i] - timeMean) * (clocks[i] - clockMean);
+			variance += (times[i] - timeMean) * (times[i] - timeMean);
+		}
+
+		return {rate: variance > 0 ? covariance / variance : 0, longestStill: longestStill};
 	}
 
 	private static function nextFrame(video:VideoSource, frame:VideoFrame):Bool
@@ -490,4 +537,10 @@ class VideoSourceTest extends Test
 		return video;
 	}
 	#end
+}
+
+private typedef ClockRate =
+{
+	longestStill:Int,
+	rate:Float
 }
