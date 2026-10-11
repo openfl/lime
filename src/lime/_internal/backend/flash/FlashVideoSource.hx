@@ -41,6 +41,11 @@ class FlashVideoSource
 		return 0;
 	}
 
+	public function getPan():Float
+	{
+		return 0;
+	}
+
 	public function getPlaying():Bool
 	{
 		return false;
@@ -86,6 +91,11 @@ class FlashVideoSource
 	}
 
 	public function setLoops(value:Int):Int
+	{
+		return value;
+	}
+
+	public function setPan(value:Float):Float
 	{
 		return value;
 	}

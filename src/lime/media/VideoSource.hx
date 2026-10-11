@@ -82,6 +82,14 @@ class VideoSource
 	public var loops(get, set):Int;
 
 	/**
+		The balance of the video's sound, from -1 for the left speaker only to 1
+		for the right speaker only. A stereo video turns down the channel opposite
+		the pan, which applies to sound buffered from then on, within a quarter
+		of a second. It has no effect on HTML5.
+	**/
+	public var pan(get, set):Float;
+
+	/**
 		Whether the video is playing.
 	**/
 	public var playing(get, never):Bool;
@@ -246,6 +254,16 @@ class VideoSource
 	@:noCompletion private function set_loops(value:Int):Int
 	{
 		return __backend.setLoops(value);
+	}
+
+	@:noCompletion private function get_pan():Float
+	{
+		return __backend.getPan();
+	}
+
+	@:noCompletion private function set_pan(value:Float):Float
+	{
+		return __backend.setPan(value);
 	}
 
 	@:noCompletion private function get_playing():Bool

@@ -17,6 +17,7 @@ class HTML5VideoSource
 	private var frameTime:Float;
 	private var gain:Float;
 	private var loops:Int;
+	private var pan:Float;
 	private var parent:VideoSource;
 	private var playing:Bool;
 
@@ -28,6 +29,7 @@ class HTML5VideoSource
 		frameTime = -1;
 		gain = 1;
 		loops = 0;
+		pan = 0;
 		playing = false;
 	}
 
@@ -66,6 +68,11 @@ class HTML5VideoSource
 	public function getLoops():Int
 	{
 		return loops;
+	}
+
+	public function getPan():Float
+	{
+		return pan;
 	}
 
 	public function getPlaying():Bool
@@ -236,6 +243,12 @@ class HTML5VideoSource
 	public function setLoops(value:Int):Int
 	{
 		return loops = value;
+	}
+
+	public function setPan(value:Float):Float
+	{
+		// A <video> element has no pan of its own
+		return pan = Math.max(-1, Math.min(1, value));
 	}
 
 	public function stop():Void

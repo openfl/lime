@@ -13,6 +13,7 @@ import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
 import lime.media.VideoSource;
 import lime.system.System;
+import lime.utils.Int16Array;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -38,6 +39,7 @@ class NativeVideoSource
 	private var audioFormat:Int;
 	private var audioLastCheck:Float;
 	private var audioRetryStamp:Float;
+	private var audioSamples:Int16Array;
 	private var audioSkipping:Bool;
 	private var audioStalled:Bool;
 	private var blockAlign:Int;
@@ -54,6 +56,7 @@ class NativeVideoSource
 	private var handle:ALSource;
 	private var hasFrame:Bool;
 	private var loops:Int;
+	private var pan:Float;
 	private var parent:VideoSource;
 	private var playing:Bool;
 	private var timer:Timer;
@@ -73,6 +76,7 @@ class NativeVideoSource
 		gain = 1;
 		hasFrame = false;
 		loops = 0;
+		pan = 0;
 		playing = false;
 	}
 
@@ -109,6 +113,11 @@ class NativeVideoSource
 	public function getLoops():Int
 	{
 		return loops;
+	}
+
+	public function getPan():Float
+	{
+		return pan;
 	}
 
 	public function getPlaying():Bool
@@ -275,6 +284,19 @@ class NativeVideoSource
 		return loops = value;
 	}
 
+	public function setPan(value:Float):Float
+	{
+		pan = Math.max(-1, Math.min(1, value));
+
+		// Stereo is balanced as it is buffered, and OpenAL places mono
+		if (handle != null && decoder != null && decoder.audioChannels == 1)
+		{
+			AL.source3f(handle, AL.POSITION, pan, 0, -Math.sqrt(1 - pan * pan));
+		}
+
+		return pan;
+	}
+
 	public function stop():Void
 	{
 		pause();
@@ -304,6 +326,7 @@ class NativeVideoSource
 			audioFormat = decoder.audioChannels == 1 ? AL.FORMAT_MONO16 : AL.FORMAT_STEREO16;
 			audioBuffer = Bytes.alloc(Std.int(decoder.audioSampleRate * AUDIO_BUFFER_SECONDS) * blockAlign);
 			audioData = UInt8Array.fromBytes(audioBuffer);
+			audioSamples = Int16Array.fromBytes(audioBuffer);
 			bytesPerSecond = decoder.audioSampleRate * blockAlign;
 
 			activeSources.push(this);
@@ -395,6 +418,7 @@ class NativeVideoSource
 
 		audioBuffer = null;
 		audioData = null;
+		audioSamples = null;
 		bufferTimes = [];
 	}
 
@@ -418,6 +442,13 @@ class NativeVideoSource
 		if (handle == null) return;
 
 		AL.sourcef(handle, AL.GAIN, gain);
+
+		if (decoder.audioChannels == 1)
+		{
+			// Panned mono is placed around the listener, wherever it is
+			AL.sourcei(handle, AL.SOURCE_RELATIVE, AL.TRUE);
+			setPan(pan);
+		}
 
 		buffers = AL.genBuffers(AUDIO_BUFFER_COUNT);
 		freeBuffers = buffers.copy();
@@ -453,6 +484,11 @@ class NativeVideoSource
 		{
 			var length = decoder.readAudio(audioBuffer, 0, audioBuffer.length);
 			if (length <= 0) break;
+
+			if (pan != 0 && decoder.audioChannels == 2)
+			{
+				panBuffer(length);
+			}
 
 			var buffer = freeBuffers.pop();
 			AL.bufferData(buffer, audioFormat, audioData, length, decoder.audioSampleRate);
@@ -508,6 +544,23 @@ class NativeVideoSource
 		// After opening or seeking, the sound and the clock wait for the first
 		// frame, which takes longer to decode, so both start together
 		return !hasFrame && decoder.hasVideo && !decoder.videoComplete;
+	}
+
+	@:noCompletion private function panBuffer(length:Int):Void
+	{
+		// OpenAL only places mono sources, so stereo is balanced here by turning
+		// down the channel opposite the pan
+		var left = pan > 0 ? 1 - pan : 1;
+		var right = pan < 0 ? 1 + pan : 1;
+		var count = length >> 1;
+		var i = 0;
+
+		while (i < count)
+		{
+			audioSamples[i] = Std.int(audioSamples[i] * left);
+			audioSamples[i + 1] = Std.int(audioSamples[i + 1] * right);
+			i += 2;
+		}
 	}
 
 	@:noCompletion private function resyncAudio():Void

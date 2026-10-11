@@ -10,6 +10,9 @@ import lime.media.VideoDecoder;
 import lime.media.VideoFrame;
 import lime.media.VideoSource;
 import lime.system.System;
+#if (lime_cffi && lime_openal)
+import lime.utils.Int16Array;
+#end
 import utest.Assert;
 import utest.Test;
 
@@ -199,6 +202,21 @@ class VideoSourceTest extends Test
 		video.dispose();
 	}
 
+	public function testPanStaysInRange():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		Assert.equals(0.0, video.pan);
+
+		video.pan = -0.5;
+		Assert.equals(-0.5, video.pan);
+
+		video.pan = 2;
+		Assert.equals(1.0, video.pan);
+		video.dispose();
+	}
+
 	#if (lime_cffi && lime_openal)
 	public function testClockCarriesOnWhenTheAudioOutputStalls():Void
 	{
@@ -260,6 +278,34 @@ class VideoSourceTest extends Test
 		Assert.isTrue(resumed >= 200, "the clock moved " + resumed + " ms in 0.4 s after audio resumed");
 	}
 
+	public function testPanTurnsDownTheOppositeChannel():Void
+	{
+		for (pan in [-1.0, 1.0])
+		{
+			var video = open();
+			if (video == null) return;
+
+			if (!hasAudioOutput())
+			{
+				video.dispose();
+				return;
+			}
+
+			// Both channels of the test video carry a loud tone
+			var frame = new VideoFrame();
+			video.pan = pan;
+			startPlaying(video, frame);
+
+			var peaks = bufferedPeaks(video);
+			video.dispose();
+
+			var opposite = pan < 0 ? peaks[1] : peaks[0];
+			var kept = pan < 0 ? peaks[0] : peaks[1];
+			Assert.equals(0, opposite, "with pan " + pan + ", the opposite channel peaked at " + opposite);
+			Assert.isTrue(kept > 1000, "with pan " + pan + ", the panned channel peaked at " + kept);
+		}
+	}
+
 	public function testVideoPlaysOnWhenTheAudioDeviceIsReplaced():Void
 	{
 		var video = open();
@@ -290,6 +336,21 @@ class VideoSourceTest extends Test
 	#end
 
 	#if (lime_cffi && lime_openal)
+	private static function bufferedPeaks(video:VideoSource):Array<Int>
+	{
+		// The left and right peaks of the audio last given to OpenAL
+		var samples:Int16Array = @:privateAccess video.__backend.audioSamples;
+		var peaks = [0, 0];
+
+		for (i in 0...samples.length)
+		{
+			var value = Std.int(Math.abs(samples[i]));
+			if (value > peaks[i & 1]) peaks[i & 1] = value;
+		}
+
+		return peaks;
+	}
+
 	private static function hasAudioOutput():Bool
 	{
 		if (ALC.getCurrentContext() != null) return true;
