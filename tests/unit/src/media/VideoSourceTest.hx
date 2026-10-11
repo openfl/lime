@@ -169,6 +169,22 @@ class VideoSourceTest extends Test
 		video.dispose();
 	}
 
+	public function testClockMovesEvenly():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+
+		// The audio position only moves when the output mixes, every 20 ms here
+		// and 60 ms or more on some outputs. A clock that followed it would show
+		// frames in uneven bursts.
+		var clock = measureRate(video, frame, 1);
+		Assert.isTrue(clock.longestStill < 10, "the clock stood still for up to " + clock.longestStill + " ms at a time");
+		video.dispose();
+	}
+
 	public function testFramesKeepUpWithTheClock():Void
 	{
 		var video = open();

@@ -28,7 +28,10 @@ class NativeVideoSource
 	private static inline var AUDIO_BUFFER_SECONDS:Float = 0.04;
 	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
 	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
+	private static inline var AUDIO_LEAD_SECONDS:Float = 0.1;
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
+	private static inline var AUDIO_STEER_RATE:Float = 0.1;
+	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 
 	private static var activeSources:Array<NativeVideoSource> = [];
@@ -502,6 +505,35 @@ class NativeVideoSource
 		}
 	}
 
+	@:noCompletion private function followAudio(position:Float):Float
+	{
+		// The audio position only moves when the output mixes, every 20 to 60 ms
+		// or more, and frames timed by it would arrive in uneven bursts. The clock
+		// runs on monotonic time instead, a little faster or slower to stay with
+		// the audio. It holds while the source or Lime's audio is paused, and
+		// does not run far ahead of an output that stops taking audio.
+		var now = getStamp();
+		var running = playing && !AudioManager.__suspended && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
+		var elapsed = running ? now - clockStamp : 0;
+		var time = clockTime + elapsed;
+		var error = position - time;
+
+		if (Math.abs(error) > AUDIO_JUMP_SECONDS)
+		{
+			// Starting, or the audio moved on without the clock
+			time = position;
+		}
+		else
+		{
+			time += Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, error / AUDIO_STEER_SECONDS)) * elapsed;
+			time = Math.max(clockTime, Math.min(time, position + AUDIO_LEAD_SECONDS));
+		}
+
+		clockTime = time;
+		clockStamp = now;
+		return time;
+	}
+
 	@:noCompletion private function getAudioPosition():Float
 	{
 		// The time of the sample being heard. Rounding can put the start of the
@@ -532,7 +564,7 @@ class NativeVideoSource
 			if (bufferTimes.length > 0)
 			{
 				var position = getAudioPosition();
-				if (isAudioPositionValid(position)) return position;
+				if (isAudioPositionValid(position)) return followAudio(position);
 			}
 			else if (!decoder.audioComplete)
 			{
