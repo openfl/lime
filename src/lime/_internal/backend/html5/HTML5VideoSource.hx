@@ -183,7 +183,9 @@ class HTML5VideoSource
 		}
 
 		playing = true;
-		var result:Dynamic = element.play();
+
+		// Haxe 3 types play as Void, from before browsers returned a promise
+		var result:Dynamic = untyped element.play();
 
 		if (result != null)
 		{
