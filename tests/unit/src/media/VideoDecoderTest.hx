@@ -25,6 +25,9 @@ class VideoDecoderTest extends Test
 	private static inline var MISSING = "assets/missing.mp4";
 	private static inline var PATH = "assets/video.mp4";
 
+	// Opening can take seconds on a busy or cold machine, such as a CI runner
+	private static inline var TIMEOUT = 15;
+
 	public function new()
 	{
 		super();
@@ -327,7 +330,7 @@ class VideoDecoderTest extends Test
 
 		while (!decoder.readFrame(frame, time))
 		{
-			if (decoder.videoComplete || Timer.stamp() - start > 5) return false;
+			if (decoder.videoComplete || Timer.stamp() - start > TIMEOUT) return false;
 			Sys.sleep(0.001);
 		}
 
@@ -365,7 +368,7 @@ class VideoDecoderTest extends Test
 		while (true)
 		{
 			var length = decoder.readAudio(buffer, 0, buffer.length);
-			if (length > 0 || decoder.audioComplete || Timer.stamp() - start > 5) return length;
+			if (length > 0 || decoder.audioComplete || Timer.stamp() - start > TIMEOUT) return length;
 			Sys.sleep(0.001);
 		}
 	}

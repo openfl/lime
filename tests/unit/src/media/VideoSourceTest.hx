@@ -20,6 +20,9 @@ class VideoSourceTest extends Test
 {
 	private static inline var PATH = "assets/video.mp4";
 
+	// Opening can take seconds on a busy or cold machine, such as a CI runner
+	private static inline var TIMEOUT = 15;
+
 	public function new()
 	{
 		super();
@@ -370,7 +373,7 @@ class VideoSourceTest extends Test
 
 	private static function waitForTime(video:VideoSource, frame:VideoFrame, time:Int):Void
 	{
-		var end = Timer.stamp() + 5;
+		var end = Timer.stamp() + TIMEOUT;
 
 		while (video.currentTime < time && Timer.stamp() < end)
 		{
@@ -397,7 +400,7 @@ class VideoSourceTest extends Test
 
 		while (!video.readFrame(frame))
 		{
-			if (Timer.stamp() - start > 5) return false;
+			if (Timer.stamp() - start > TIMEOUT) return false;
 			Sys.sleep(0.001);
 		}
 
