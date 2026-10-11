@@ -30,6 +30,7 @@ class NativeVideoSource
 	private static inline var AUDIO_BUFFER_SECONDS:Float = 0.04;
 	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
 	private static inline var AUDIO_DRIFT_SECONDS:Float = 0.1;
+	private static inline var AUDIO_DRIFT_WAIT_SECONDS:Float = 0.25;
 	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
 	private static inline var AUDIO_LEAD_SECONDS:Float = 0.2;
 	private static inline var AUDIO_MIX_SECONDS:Float = 0.0001;
@@ -452,28 +453,26 @@ class NativeVideoSource
 
 	@:noCompletion private function checkDrift():Void
 	{
-		// A clock that runs on the timer alone moves the sound to it when they
-		// drift apart, checking every half second while the sound plays
-		var now = getStamp();
-
+		// A clock that runs on the timer alone moves the sound to it once they
+		// have been more than a tenth of a second apart for a quarter of a
+		// second while the sound plays
 		if (!playing || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
-			|| AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING)
+			|| AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING
+			|| Math.abs(getAudioPosition() - getTime()) <= AUDIO_DRIFT_SECONDS)
 		{
 			audioDriftStamp = -1;
 			return;
 		}
 
+		var now = getStamp();
+
 		if (audioDriftStamp < 0)
 		{
 			audioDriftStamp = now;
-			return;
 		}
-
-		if (now - audioDriftStamp < AUDIO_CHECK_SECONDS) return;
-		audioDriftStamp = now;
-
-		if (Math.abs(getAudioPosition() - getTime()) > AUDIO_DRIFT_SECONDS)
+		else if (now - audioDriftStamp >= AUDIO_DRIFT_WAIT_SECONDS)
 		{
+			audioDriftStamp = -1;
 			resyncAudio();
 		}
 	}

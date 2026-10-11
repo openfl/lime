@@ -205,15 +205,11 @@ class VideoSourceTest extends Test
 			var name = clockModeName(mode);
 			Assert.floatEquals(1, clock.rate, 0.1, "the " + name + " clock ran at " + clock.rate + " times real time");
 
-			// Only the audio clock waits for each mix, and the interpolated one
-			// may be set back a little when the sound moves
-			if (mode != VideoClockMode.AUDIO)
-			{
-				Assert.isTrue(clock.longestStill < 10, "the " + name + " clock stood still for up to " + clock.longestStill + " ms at a time");
-			}
-
+			// The audio clock waits for each mix, and the interpolated one is set
+			// back to the sound at each, so only these two move on evenly
 			if (mode == VideoClockMode.SMOOTH || mode == VideoClockMode.MONOTONIC)
 			{
+				Assert.isTrue(clock.longestStill < 10, "the " + name + " clock stood still for up to " + clock.longestStill + " ms at a time");
 				Assert.equals(0, clock.furthestBack, "the " + name + " clock went back " + clock.furthestBack + " ms");
 			}
 		}
@@ -503,10 +499,13 @@ class VideoSourceTest extends Test
 			// Each time the position moves, the output has just mixed. Outputs that
 			// measure their latency report what is heard then. The others report a
 			// fixed estimate, all but one period, so what is heard then is a period
-			// further back. Either way, the clock should match it there.
+			// further back. The audio clock should match it there. The others run
+			// on to the present, placing the mix halfway since they last read it.
 			var backend = @:privateAccess video.__backend;
 			var lastMixed = Math.NaN;
 			var lastLatency = Math.NaN;
+			var lastRead = -1;
+			var gaps = 0.0;
 			var measured = false;
 			var offsets:Array<Float> = [];
 
@@ -514,6 +513,7 @@ class VideoSourceTest extends Test
 			{
 				video.readFrame(frame);
 				var clock = video.currentTime;
+				var read = System.getTimer();
 				var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
 
 				if (bufferTimes.length > 0)
@@ -523,12 +523,18 @@ class VideoSourceTest extends Test
 					var latency = values[1] * 1000;
 
 					if (!Math.isNaN(lastLatency) && latency != lastLatency) measured = true;
-					if (!Math.isNaN(lastMixed) && Math.abs(mixed - lastMixed) > 0.1) offsets.push(clock - (mixed - latency));
+					if (!Math.isNaN(lastMixed) && Math.abs(mixed - lastMixed) > 0.1)
+					{
+						var gap = lastRead >= 0 ? read - lastRead : 0;
+						offsets.push(clock - (mixed - latency) - (mode == VideoClockMode.AUDIO ? 0 : gap / 2));
+						gaps += gap;
+					}
 
 					lastMixed = mixed;
 					lastLatency = latency;
 				}
 
+				lastRead = read;
 				Sys.sleep(0.005);
 			}
 
@@ -542,14 +548,12 @@ class VideoSourceTest extends Test
 				continue;
 			}
 
-			// The mix is seen up to a read late, by which time a few more
-			// milliseconds have been heard
 			var offset = 0.0;
 			for (value in offsets) offset += value / offsets.length;
 			if (!measured) offset += period;
 
 			Assert.isTrue(Math.abs(offset) < 10, "when the " + name + " clock's sound was mixed, the clock was " + offset + " ms from what was heard ("
-				+ (measured ? "measured latency" : "estimated latency, " + period + " ms periods") + ")");
+				+ (measured ? "measured latency" : "estimated latency, " + period + " ms periods") + ", reads " + Math.round(gaps / offsets.length) + " ms apart)");
 		}
 	}
 	#end
