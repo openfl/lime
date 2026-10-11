@@ -1,6 +1,7 @@
 package lime._internal.backend.flash;
 
 import lime.app.Future;
+import lime.media.VideoClockMode;
 import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
 import lime.media.VideoSource;
@@ -10,6 +11,11 @@ class FlashVideoSource
 	public function new(parent:VideoSource) {}
 
 	public function dispose():Void {}
+
+	public function getClockMode():VideoClockMode
+	{
+		return SMOOTH;
+	}
 
 	public function getCurrentTime():Int
 	{
@@ -78,6 +84,11 @@ class FlashVideoSource
 	public function readFrame(frame:VideoFrame):Bool
 	{
 		return false;
+	}
+
+	public function setClockMode(value:VideoClockMode):VideoClockMode
+	{
+		return value;
 	}
 
 	public function setCurrentTime(value:Int):Int

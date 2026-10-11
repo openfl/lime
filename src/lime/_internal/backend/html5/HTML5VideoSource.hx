@@ -4,6 +4,7 @@ import js.html.VideoElement;
 import js.Browser;
 import lime.app.Future;
 import lime.app.Promise;
+import lime.media.VideoClockMode;
 import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
 import lime.media.VideoSource;
@@ -12,6 +13,7 @@ import lime.utils.Assets;
 @:access(lime.media.VideoSource)
 class HTML5VideoSource
 {
+	private var clockMode:VideoClockMode;
 	private var completed:Bool;
 	private var element:VideoElement;
 	private var frameTime:Float;
@@ -25,6 +27,7 @@ class HTML5VideoSource
 	{
 		this.parent = parent;
 
+		clockMode = SMOOTH;
 		completed = false;
 		frameTime = -1;
 		gain = 1;
@@ -36,6 +39,11 @@ class HTML5VideoSource
 	public function dispose():Void
 	{
 		close();
+	}
+
+	public function getClockMode():VideoClockMode
+	{
+		return clockMode;
 	}
 
 	public function getCurrentTime():Int
@@ -216,6 +224,12 @@ class HTML5VideoSource
 		frame.width = element.videoWidth;
 
 		return true;
+	}
+
+	public function setClockMode(value:VideoClockMode):VideoClockMode
+	{
+		// The browser keeps a <video> element in sync itself
+		return clockMode = value;
 	}
 
 	public function setCurrentTime(value:Int):Int

@@ -13,8 +13,9 @@ import lime.app.Promise;
 	Plays a video file: its sound through the audio device, and its pictures
 	as frames that the application draws.
 
-	The sound drives the timing. Each frame, call `readFrame` and draw the
-	frame it returns, keeping the previous one when it returns `false`.
+	The sound drives the timing, as `clockMode` sets out. Each frame, call
+	`readFrame` and draw the frame it returns, keeping the previous one when it
+	returns `false`.
 
 	Example usage:
 	```haxe
@@ -50,6 +51,13 @@ class VideoSource
 		Dispatched when playback reaches the end and has no loops left.
 	**/
 	public var onComplete = new Event<Void->Void>();
+
+	/**
+		How frames are timed against the sound, `SMOOTH` by default. On HTML5,
+		the browser keeps the `<video>` element in sync itself, and this has no
+		effect.
+	**/
+	public var clockMode(get, set):VideoClockMode;
 
 	/**
 		The playback position in milliseconds. Setting it seeks to that time.
@@ -206,6 +214,16 @@ class VideoSource
 	}
 
 	// Get & Set Methods
+	@:noCompletion private function get_clockMode():VideoClockMode
+	{
+		return __backend.getClockMode();
+	}
+
+	@:noCompletion private function set_clockMode(value:VideoClockMode):VideoClockMode
+	{
+		return __backend.setClockMode(value);
+	}
+
 	@:noCompletion private function get_currentTime():Int
 	{
 		return __backend.getCurrentTime();

@@ -8,6 +8,7 @@ import lime.media.AudioManager;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALSource;
+import lime.media.VideoClockMode;
 import lime.media.VideoDecoder;
 import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
@@ -27,14 +28,17 @@ class NativeVideoSource
 	private static inline var AUDIO_BUFFER_COUNT:Int = 6;
 	private static inline var AUDIO_BUFFER_SECONDS:Float = 0.04;
 	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
+	private static inline var AUDIO_DRIFT_SECONDS:Float = 0.1;
 	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
-	private static inline var AUDIO_LEAD_SECONDS:Float = 0.1;
+	private static inline var AUDIO_LEAD_SECONDS:Float = 0.2;
+	private static inline var AUDIO_READ_SECONDS:Float = 0.05;
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 
 	private static var activeSources:Array<NativeVideoSource> = [];
+	private static var latencyExtension:Null<Bool>;
 
 	private var audioBuffer:Bytes;
 	private var audioCheckPosition:Float;
@@ -42,16 +46,23 @@ class NativeVideoSource
 	private var audioClockStamp:Float;
 	private var audioClockTime:Float;
 	private var audioData:UInt8Array;
+	private var audioDriftStamp:Float;
 	private var audioFormat:Int;
 	private var audioLastCheck:Float;
+	private var audioMixPosition:Float;
+	private var audioReadPosition:Float;
+	private var audioReadStamp:Float;
 	private var audioRetryStamp:Float;
 	private var audioSamples:Int16Array;
 	private var audioSkipping:Bool;
 	private var audioStalled:Bool;
+	private var audioStarting:Bool;
 	private var blockAlign:Int;
 	private var bufferTimes:Array<Float>;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
+	private var clockMode:VideoClockMode;
+	private var clockRate:Float;
 	private var clockStamp:Float;
 	private var clockTime:Float;
 	private var completed:Bool;
@@ -73,9 +84,16 @@ class NativeVideoSource
 
 		audioCheckStamp = -1;
 		audioClockStamp = -1;
+		audioDriftStamp = -1;
+		audioMixPosition = 0;
+		audioReadPosition = 0;
+		audioReadStamp = -1;
 		audioSkipping = false;
 		audioStalled = false;
+		audioStarting = false;
 		bufferTimes = [];
+		clockMode = SMOOTH;
+		clockRate = 1;
 		clockStamp = 0;
 		clockTime = 0;
 		completed = false;
@@ -90,6 +108,11 @@ class NativeVideoSource
 	public function dispose():Void
 	{
 		close();
+	}
+
+	public function getClockMode():VideoClockMode
+	{
+		return clockMode;
 	}
 
 	public function getCurrentTime():Int
@@ -264,6 +287,23 @@ class NativeVideoSource
 		return false;
 	}
 
+	public function setClockMode(value:VideoClockMode):VideoClockMode
+	{
+		if (value != clockMode)
+		{
+			// The new mode carries on from the current time
+			clockTime = getTime();
+			clockStamp = getStamp();
+			clockRate = 1;
+			audioDriftStamp = -1;
+			audioReadStamp = -1;
+			audioStarting = false;
+			clockMode = value;
+		}
+
+		return value;
+	}
+
 	public function setCurrentTime(value:Int):Int
 	{
 		if (decoder != null)
@@ -320,7 +360,11 @@ class NativeVideoSource
 
 		this.decoder = decoder;
 
+		audioDriftStamp = -1;
+		audioReadStamp = -1;
+		audioStarting = decoder.hasAudio;
 		bufferTimes = [];
+		clockRate = 1;
 		clockStamp = getStamp();
 		clockTime = 0;
 		completed = false;
@@ -392,6 +436,34 @@ class NativeVideoSource
 		audioCheckStamp = now;
 	}
 
+	@:noCompletion private function checkDrift():Void
+	{
+		// A clock that runs on the timer alone moves the sound to it when they
+		// drift apart, checking every half second while the sound plays
+		var now = getStamp();
+
+		if (!playing || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
+			|| AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING)
+		{
+			audioDriftStamp = -1;
+			return;
+		}
+
+		if (audioDriftStamp < 0)
+		{
+			audioDriftStamp = now;
+			return;
+		}
+
+		if (now - audioDriftStamp < AUDIO_CHECK_SECONDS) return;
+		audioDriftStamp = now;
+
+		if (Math.abs(getAudioPosition() - getTime()) > AUDIO_DRIFT_SECONDS)
+		{
+			resyncAudio();
+		}
+	}
+
 	@:noCompletion private function clearBuffers():Void
 	{
 		// Rewinding stops the source in any state and leaves it initial, where no
@@ -417,6 +489,7 @@ class NativeVideoSource
 		audioCheckStamp = -1;
 		audioSkipping = false;
 		audioStalled = false;
+		audioStarting = false;
 
 		if (decoder != null)
 		{
@@ -507,26 +580,67 @@ class NativeVideoSource
 
 	@:noCompletion private function followAudio(position:Float):Float
 	{
-		// The audio position only moves when the output mixes, every 20 to 60 ms
-		// or more, and frames timed by it would arrive in uneven bursts. The clock
-		// runs on monotonic time instead, a little faster or slower to stay with
-		// the audio. It holds while the source or Lime's audio is paused, and
-		// does not run far ahead of an output that stops taking audio.
 		var now = getStamp();
 		var running = playing && !AudioManager.__suspended && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
-		var elapsed = running ? now - clockStamp : 0;
-		var time = clockTime + elapsed;
-		var error = position - time;
 
-		if (Math.abs(error) > AUDIO_JUMP_SECONDS)
+		// The audio position moves each time the output mixes, at some point since
+		// the clock last read it, taken as halfway. Reads further apart cannot
+		// place the mix, so the position is used as it is.
+		var moved = audioMixPosition != audioReadPosition;
+		var timed = moved && audioReadStamp >= 0 && now - audioReadStamp <= AUDIO_READ_SECONDS;
+		var heard = position + (timed ? (now - audioReadStamp) / 2 : 0);
+		audioReadPosition = audioMixPosition;
+		audioReadStamp = now;
+
+		var time = running ? clockTime + (now - clockStamp) * clockRate : clockTime;
+
+		if (audioStarting)
 		{
-			// Starting, or the audio moved on without the clock
+			// After opening or seeking, the clock waits for the sound to be heard
+			if (position <= clockTime)
+			{
+				clockStamp = now;
+				return clockTime;
+			}
+
+			audioStarting = false;
+			clockRate = 1;
 			time = position;
 		}
 		else
 		{
-			time += Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, error / AUDIO_STEER_SECONDS)) * elapsed;
-			time = Math.max(clockTime, Math.min(time, position + AUDIO_LEAD_SECONDS));
+			switch (clockMode)
+			{
+				case AUDIO:
+					time = position;
+
+				case INTERPOLATED:
+					// Runs on the timer between mixes, and is set back to the sound
+					// each time it moves
+					if (running && moved) time = heard;
+
+				default:
+					var gap = heard - time;
+
+					if (Math.abs(gap) > AUDIO_JUMP_SECONDS)
+					{
+						// The sound moved on without the clock
+						time = heard;
+						clockRate = 1;
+					}
+					else
+					{
+						// Each mix sets how much faster or slower the clock runs until
+						// the next, closing the gap without jumping. It never goes
+						// back, or far ahead of an output that stops taking audio.
+						if (timed && running)
+						{
+							clockRate = 1 + Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, gap / AUDIO_STEER_SECONDS));
+						}
+
+						time = Math.max(clockTime, Math.min(time, position + AUDIO_LEAD_SECONDS));
+					}
+			}
 		}
 
 		clockTime = time;
@@ -534,13 +648,40 @@ class NativeVideoSource
 		return time;
 	}
 
+	@:noCompletion private function getAudioLatency():Float
+	{
+		// How long the output takes to play what it has mixed, where OpenAL Soft
+		// reports it
+		#if lime_openalsoft
+		if (hasLatency()) return AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2)[1];
+		#end
+		return 0;
+	}
+
 	@:noCompletion private function getAudioPosition():Float
 	{
-		// The time of the sample being heard. Rounding can put the start of the
-		// first buffer just below zero, which readFrame would take as no time at
-		// all.
-		var offset:Int = AL.getSourcei(handle, AL.SAMPLE_OFFSET);
-		return Math.max(0, bufferTimes[0] + offset / decoder.audioSampleRate);
+		// The time of the sample being heard: how far the output has mixed into
+		// the queue, less its latency where OpenAL Soft reports it. Rounding can
+		// put the start of the first buffer just below zero, which readFrame
+		// would take as no time at all.
+		var offset:Float;
+		var latency = 0.0;
+
+		#if lime_openalsoft
+		if (hasLatency())
+		{
+			var values = AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
+			offset = values[0];
+			latency = values[1];
+		}
+		else
+		#end
+		{
+			offset = AL.getSourcei(handle, AL.SAMPLE_OFFSET) / decoder.audioSampleRate;
+		}
+
+		audioMixPosition = bufferTimes[0] + offset;
+		return Math.max(0, audioMixPosition - latency);
 	}
 
 	@:noCompletion private static inline function getStamp():Float
@@ -558,8 +699,9 @@ class NativeVideoSource
 			return clockTime;
 		}
 
-		// The audio leads the clock while its output plays
-		if (handle != null && !audioStalled)
+		// The audio leads the clock while its output plays, unless the clock runs
+		// on the timer alone
+		if (handle != null && !audioStalled && clockMode != MONOTONIC)
 		{
 			if (bufferTimes.length > 0)
 			{
@@ -574,6 +716,12 @@ class NativeVideoSource
 		}
 
 		return playing ? clockTime + (getStamp() - clockStamp) : clockTime;
+	}
+
+	@:noCompletion private static function hasLatency():Bool
+	{
+		if (latencyExtension == null) latencyExtension = AL.isExtensionPresent("AL_SOFT_source_latency");
+		return latencyExtension;
 	}
 
 	@:noCompletion private function isAudioPositionValid(position:Float):Bool
@@ -643,7 +791,11 @@ class NativeVideoSource
 		}
 
 		audioCheckStamp = -1;
+		audioDriftStamp = -1;
+		audioReadStamp = -1;
 		audioSkipping = false;
+		audioStarting = handle != null;
+		clockRate = 1;
 		clockStamp = getStamp();
 		clockTime = time;
 		completed = false;
@@ -705,7 +857,8 @@ class NativeVideoSource
 
 			if (audioSkipping)
 			{
-				skipAudio(getTime());
+				// Far enough ahead that the sound is heard when the clock gets there
+				skipAudio(getTime() + getAudioLatency());
 			}
 
 			if (!audioSkipping)
@@ -713,12 +866,31 @@ class NativeVideoSource
 				fillBuffers();
 			}
 
-			if (playing && bufferTimes.length > 0 && !isWaitingForFrame() && AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING)
+			if (playing && bufferTimes.length > 0 && !isWaitingForFrame())
 			{
-				AL.sourcePlay(handle);
+				var state = AL.getSourcei(handle, AL.SOURCE_STATE);
+
+				if (state == AL.INITIAL && clockMode == MONOTONIC)
+				{
+					// The clock does not wait for the sound, which would be late by the
+					// output's latency, so it starts that much further in
+					var offset = getTime() - bufferTimes[0] + getAudioLatency();
+					var queued = bufferTimes.length * AUDIO_BUFFER_SECONDS;
+					if (offset > 0) AL.sourcef(handle, AL.SEC_OFFSET, Math.min(offset, queued - AUDIO_BUFFER_SECONDS));
+				}
+
+				if (state != AL.PLAYING)
+				{
+					AL.sourcePlay(handle);
+				}
 			}
 
 			checkAudio();
+
+			if (clockMode == MONOTONIC)
+			{
+				checkDrift();
+			}
 		}
 
 		var time = getTime();
