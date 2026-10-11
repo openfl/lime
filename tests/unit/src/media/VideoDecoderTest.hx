@@ -176,6 +176,74 @@ class VideoDecoderTest extends Test
 		decoder.close();
 	}
 
+	public function testRapidSeeks():Void
+	{
+		var decoder = open(NV12);
+		if (decoder == null) return;
+
+		var frame = new VideoFrame();
+		Assert.isTrue(nextFrame(decoder, frame));
+		var firstTime = frame.time;
+
+		var audio = Bytes.alloc(64);
+		var bytesPerSecond = decoder.audioSampleRate * decoder.audioChannels * 2;
+		var mismatches:Array<String> = [];
+
+		// Seeks follow each other while frames are still decoding, as they do
+		// while a seek bar is dragged. Whatever is read in between has to start
+		// at the time sought.
+		for (i in 0...40)
+		{
+			// Seeking before the first frame gives the first frame
+			var target = ((i * 7) % 19) / 10;
+			decoder.seek(target);
+			Sys.sleep(0.01 * (i % 4));
+
+			if (i % 2 == 0)
+			{
+				if (!nextFrame(decoder, frame))
+				{
+					mismatches.push("no frame after seeking to " + target);
+				}
+				else if (frame.time > Math.max(target, firstTime) + 0.001 || frame.time + frame.duration <= target
+					|| Math.abs(lumaBlock(frame) - expectedLuma(frameIndex(frame, firstTime))) > 6)
+				{
+					mismatches.push("seeking to " + target + " gave the frame at " + frame.time);
+				}
+			}
+			else
+			{
+				var length = readAudio(decoder, audio);
+				var audioStart = decoder.audioTime - length / bytesPerSecond;
+
+				if (length <= 0 || Math.abs(audioStart - target) > 0.002)
+				{
+					mismatches.push("seeking to " + target + " gave audio at " + audioStart);
+				}
+			}
+		}
+
+		// The rest of the video then plays in order from the last seek
+		decoder.seek(1);
+		var count = 0;
+		var lastTime = -1.0;
+
+		while (nextFrame(decoder, frame))
+		{
+			if (frame.time <= lastTime || Math.abs(lumaBlock(frame) - expectedLuma(frameIndex(frame, firstTime))) > 6)
+			{
+				mismatches.push("after the last seek, a frame at " + frame.time + " was out of order or wrong");
+			}
+
+			lastTime = frame.time;
+			count++;
+		}
+
+		Assert.equals(0, mismatches.length, mismatches.join("; "));
+		Assert.isTrue(Math.abs(count - 30) <= 1, "read " + count + " frames after the last seek");
+		decoder.close();
+	}
+
 	public function testReadAllAudio():Void
 	{
 		var decoder = open(NV12);
