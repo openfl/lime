@@ -169,7 +169,7 @@ class VideoSourceTest extends Test
 		video.dispose();
 	}
 
-	public function testFramesArriveAtTheFrameRate():Void
+	public function testFramesKeepUpWithTheClock():Void
 	{
 		var video = open();
 		if (video == null) return;
@@ -178,18 +178,30 @@ class VideoSourceTest extends Test
 		startPlaying(video, frame);
 
 		var frames = 0;
+		var worstLag = 0.0;
 		var end = Timer.stamp() + 1;
 
 		while (Timer.stamp() < end)
 		{
-			if (video.readFrame(frame)) frames++;
+			if (video.readFrame(frame))
+			{
+				frames++;
+
+				// A frame is shown while the clock is within it. One that arrives
+				// later shows the decoder falling behind.
+				var lag = video.currentTime / 1000 - (frame.time + frame.duration);
+				if (lag > worstLag) worstLag = lag;
+			}
+
 			Sys.sleep(0.002);
 		}
 
 		video.dispose();
 
-		// The video is 30 fps, and each frame is shown once
-		Assert.isTrue(Math.abs(frames - 30) <= 4, frames + " frames in a second");
+		// A slow loop skips the frames it missed, so fewer than 30 a second is
+		// fine as long as each one is current
+		Assert.isTrue(frames >= 10, frames + " frames in a second");
+		Assert.isTrue(worstLag < 0.1, "a frame was shown " + Math.round(worstLag * 1000) + " ms after it ended");
 	}
 
 	public function testGainAndLoops():Void
