@@ -32,6 +32,14 @@ namespace lime {
 	struct GstStructure;
 
 
+	// Every GObject instance starts with a pointer to its class
+	struct GTypeInstance {
+
+		void* g_class;
+
+	};
+
+
 	// GStreamer 1.x keeps these public structures ABI stable. They follow
 	// gstminiobject.h, gstbuffer.h, gstmemory.h, gstmessage.h, gstquery.h,
 	// gstmeta.h and gstvideometa.h. Only GstMapInfo is allocated here, so the
@@ -166,6 +174,7 @@ namespace lime {
 	struct GStreamerLibrary {
 
 		void (*g_free) (void*);
+		void* (*g_object_class_find_property) (void*, const char*);
 		void (*g_object_set) (void*, const char*, ...);
 		unsigned long (*g_signal_connect_data) (void*, const char*, GCallback, void*, void*, int);
 		gboolean (*gst_app_sink_is_eos) (GstElement*);
@@ -243,6 +252,7 @@ namespace lime {
 			#define LIME_GST_REQUIRE(library, name) gst.name = (decltype (gst.name))dlsym (library, #name); if (!gst.name) return;
 
 			LIME_GST_REQUIRE (glib, g_free);
+			LIME_GST_REQUIRE (gobject, g_object_class_find_property);
 			LIME_GST_REQUIRE (gobject, g_object_set);
 			LIME_GST_REQUIRE (gobject, g_signal_connect_data);
 			LIME_GST_REQUIRE (app, gst_app_sink_is_eos);
@@ -468,6 +478,7 @@ namespace lime {
 			static gboolean AutoplugQuery (GstElement* decodeBin, GstPad* pad, GstElement* element, GstQuery* query, void* data);
 			static int AutoplugSelect (GstElement* decodeBin, GstPad* pad, GstCaps* caps, GstElementFactory* factory, void* data);
 			static int BusSync (GstBus* bus, GstMessage* message, void* data);
+			static void ElementAdded (GstElement* pipeline, GstElement* bin, GstElement* element, void* data);
 			static void PadAdded (GstElement* decodeBin, GstPad* pad, void* data);
 
 			void FlushBus ();
@@ -615,6 +626,21 @@ namespace lime {
 	}
 
 
+	void GStreamerStream::ElementAdded (GstElement* pipeline, GstElement* bin, GstElement* element, void* data) {
+
+		// libav decoders write into buffers that GStreamer allocates. When a
+		// seek changes the output size while their frame threads still hold
+		// buffers, GStreamer 1.24 fails an assertion and aborts the process.
+		// Copying each decoded frame instead avoids that path.
+		if (gst.g_object_class_find_property (((GTypeInstance*)element)->g_class, "direct-rendering")) {
+
+			gst.g_object_set (element, "direct-rendering", false, NULL);
+
+		}
+
+	}
+
+
 	void GStreamerStream::FlushBus () {
 
 		GstMessage* message;
@@ -656,6 +682,7 @@ namespace lime {
 		bin = (GstElement*)gst.gst_object_ref_sink (gst.gst_bin_new (NULL));
 		bus = gst.gst_element_get_bus (pipeline);
 		gst.gst_bus_set_sync_handler (bus, BusSync, NULL, NULL);
+		gst.g_signal_connect_data (pipeline, "deep-element-added", (GCallback)ElementAdded, this, NULL, 0);
 
 		GstElement* decodeBin = AddElement (pipeline, "uridecodebin");
 		GstElement* convert = AddElement (bin, video ? "videoconvert" : "audioconvert");
