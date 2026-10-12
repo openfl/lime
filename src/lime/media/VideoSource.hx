@@ -43,7 +43,7 @@ import lime.app.Promise;
 	with `texImage2D`, and the browser turns and sizes it already.
 
 	Availability: native targets where `VideoDecoder.isSupported` is `true`,
-	and HTML5.
+	and HTML5. On macOS and iOS, only local files play, not URLs.
 
 	@see lime.media.VideoDecoder
 **/

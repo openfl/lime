@@ -55,6 +55,11 @@ import sys.FileSystem;
 	whose picture or sound uses a codec the platform lacks still opens with
 	the stream that can be decoded, and `videoUnsupported` or
 	`audioUnsupported` tells when one was left out.
+
+	URLs are read over HTTP and HTTPS on Windows, Android and Linux. On macOS
+	and iOS, AVFoundation's reader only decodes local files. HDR video is
+	converted to standard range on macOS, iOS and Android 13 and later, and
+	shown as it is elsewhere.
 **/
 @:access(lime._internal.backend.native.NativeCFFI)
 #if (lime_opengl || lime_opengles)
