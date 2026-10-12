@@ -58,6 +58,7 @@
 
 
 struct AHardwareBuffer;
+struct AMediaDataSource;
 
 
 namespace lime {
@@ -128,7 +129,11 @@ namespace lime {
 		media_status_t (*AMediaExtractor_seekTo) (AMediaExtractor*, int64_t, SeekMode);
 		media_status_t (*AMediaExtractor_selectTrack) (AMediaExtractor*, size_t);
 		media_status_t (*AMediaExtractor_setDataSource) (AMediaExtractor*, const char*);
+		media_status_t (*AMediaExtractor_setDataSourceCustom) (AMediaExtractor*, AMediaDataSource*);
 		media_status_t (*AMediaExtractor_setDataSourceFd) (AMediaExtractor*, int, off64_t, off64_t);
+		void (*AMediaDataSource_close) (AMediaDataSource*);
+		void (*AMediaDataSource_delete) (AMediaDataSource*);
+		AMediaDataSource* (*AMediaDataSource_newUri) (const char*, int, const char* const*);
 		media_status_t (*AMediaFormat_delete) (AMediaFormat*);
 		bool (*AMediaFormat_getBuffer) (AMediaFormat*, const char*, void**, size_t*);
 		bool (*AMediaFormat_getFloat) (AMediaFormat*, const char*, float*);
@@ -388,6 +393,12 @@ namespace lime {
 			LIME_MEDIANDK_OPTIONAL (library, AImageReader_setImageListener);
 			LIME_MEDIANDK_OPTIONAL (library, AMediaFormat_getRect);
 			LIME_MEDIANDK_OPTIONAL (library, AMediaFormat_setInt32);
+
+			// API level 28 and 29
+			LIME_MEDIANDK_OPTIONAL (library, AMediaDataSource_close);
+			LIME_MEDIANDK_OPTIONAL (library, AMediaDataSource_delete);
+			LIME_MEDIANDK_OPTIONAL (library, AMediaDataSource_newUri);
+			LIME_MEDIANDK_OPTIONAL (library, AMediaExtractor_setDataSourceCustom);
 
 			void* android = dlopen ("libandroid.so", RTLD_NOW | RTLD_LOCAL);
 			if (android) LIME_MEDIANDK_OPTIONAL (android, AHardwareBuffer_describe);
@@ -831,6 +842,7 @@ namespace lime {
 			bool Seek (int64_t position);
 
 			AMediaCodec* codec;
+			AMediaDataSource* dataSource;
 			bool ended;
 			AMediaExtractor* extractor;
 			ssize_t index;
@@ -851,6 +863,7 @@ namespace lime {
 	MediaCodecStream::MediaCodecStream () {
 
 		codec = NULL;
+		dataSource = NULL;
 		ended = false;
 		extractor = NULL;
 		index = -1;
@@ -879,6 +892,14 @@ namespace lime {
 
 			ndk.AMediaExtractor_delete (extractor);
 			extractor = NULL;
+
+		}
+
+		// The extractor reads from the data source until it is deleted
+		if (dataSource) {
+
+			ndk.AMediaDataSource_delete (dataSource);
+			dataSource = NULL;
 
 		}
 
@@ -1062,7 +1083,7 @@ namespace lime {
 		private:
 
 			AImage* AcquireImage ();
-			AMediaExtractor* CreateExtractor ();
+			AMediaExtractor* CreateExtractor (AMediaDataSource** dataSource);
 			ANativeWindow* CreateImageReader (int width, int height);
 			bool CreateTextures ();
 			AMediaCodec* CreateVideoDecoder (bool hardware, bool surface);
@@ -1322,12 +1343,22 @@ namespace lime {
 	}
 
 
-	AMediaExtractor* MediaCodecVideoBackend::CreateExtractor () {
+	AMediaExtractor* MediaCodecVideoBackend::CreateExtractor (AMediaDataSource** dataSource) {
+
+		*dataSource = NULL;
 
 		AMediaExtractor* extractor = ndk.AMediaExtractor_new ();
 		if (!extractor) return NULL;
 
 		media_status_t status = AMEDIA_ERROR_UNKNOWN;
+		bool url = path.find ("://") != std::string::npos;
+
+		#ifndef LIME_VIDEO_STANDALONE
+		// The extractor opens URLs through Java, so a thread that opens one, such
+		// as one VideoSource.loadFromFile uses, joins the Java VM, which SDL
+		// does for any thread that asks for its environment
+		if (url) SDL_AndroidGetJNIEnv ();
+		#endif
 
 		#ifndef LIME_VIDEO_STANDALONE
 		if (path.compare (0, 10, "content://") == 0) {
@@ -1346,9 +1377,34 @@ namespace lime {
 
 		} else
 		#endif
-		if (path.find ("://") != std::string::npos) {
+		if (url) {
 
-			status = ndk.AMediaExtractor_setDataSource (extractor, path.c_str ());
+			// From Android 10, a URL is read through a data source, which
+			// Interrupt can close, so a stream waiting on a stalled network
+			// returns rather than waiting for the connection to time out
+			if (ndk.AMediaDataSource_newUri && ndk.AMediaDataSource_close && ndk.AMediaDataSource_delete && ndk.AMediaExtractor_setDataSourceCustom) {
+
+				*dataSource = ndk.AMediaDataSource_newUri (path.c_str (), 0, NULL);
+
+				if (*dataSource) {
+
+					status = ndk.AMediaExtractor_setDataSourceCustom (extractor, *dataSource);
+
+					if (status != AMEDIA_OK) {
+
+						ndk.AMediaExtractor_delete (extractor);
+						ndk.AMediaDataSource_delete (*dataSource);
+						*dataSource = NULL;
+						extractor = ndk.AMediaExtractor_new ();
+						if (!extractor) return NULL;
+
+					}
+
+				}
+
+			}
+
+			if (status != AMEDIA_OK) status = ndk.AMediaExtractor_setDataSource (extractor, path.c_str ());
 
 		} else {
 
@@ -1402,6 +1458,14 @@ namespace lime {
 		if (status != AMEDIA_OK) {
 
 			ndk.AMediaExtractor_delete (extractor);
+
+			if (*dataSource) {
+
+				ndk.AMediaDataSource_delete (*dataSource);
+				*dataSource = NULL;
+
+			}
+
 			return NULL;
 
 		}
@@ -1797,6 +1861,10 @@ namespace lime {
 		audio.interrupted = true;
 		video.interrupted = true;
 
+		// Reads waiting on a stalled network fail at once
+		if (audio.dataSource) ndk.AMediaDataSource_close (audio.dataSource);
+		if (video.dataSource) ndk.AMediaDataSource_close (video.dataSource);
+
 		std::lock_guard<std::mutex> lock (imageMutex);
 		imageCondition.notify_all ();
 
@@ -1989,7 +2057,8 @@ namespace lime {
 
 	bool MediaCodecVideoBackend::OpenAudio () {
 
-		AMediaExtractor* extractor = CreateExtractor ();
+		AMediaDataSource* dataSource = NULL;
+		AMediaExtractor* extractor = CreateExtractor (&dataSource);
 		if (!extractor) return false;
 
 		AMediaFormat* format = SelectTrack (extractor, "audio/", &audioTrack);
@@ -1997,6 +2066,7 @@ namespace lime {
 		if (!format) {
 
 			ndk.AMediaExtractor_delete (extractor);
+			if (dataSource) ndk.AMediaDataSource_delete (dataSource);
 			return false;
 
 		}
@@ -2011,6 +2081,7 @@ namespace lime {
 
 		// Hardware decoding only applies to video
 		audio.codec = CreateDecoder (format, false, NULL);
+		audio.dataSource = dataSource;
 		audio.extractor = extractor;
 		ndk.AMediaFormat_delete (format);
 
@@ -2033,7 +2104,8 @@ namespace lime {
 
 	bool MediaCodecVideoBackend::OpenVideo (bool hardware) {
 
-		AMediaExtractor* extractor = CreateExtractor ();
+		AMediaDataSource* dataSource = NULL;
+		AMediaExtractor* extractor = CreateExtractor (&dataSource);
 		if (!extractor) return false;
 
 		AMediaFormat* format = SelectTrack (extractor, "video/", &videoTrack);
@@ -2041,6 +2113,7 @@ namespace lime {
 		if (!format) {
 
 			ndk.AMediaExtractor_delete (extractor);
+			if (dataSource) ndk.AMediaDataSource_delete (dataSource);
 			return false;
 
 		}
@@ -2088,6 +2161,7 @@ namespace lime {
 		// when the decoder cannot use one
 		bool surface = textureOutput && CreateImageReader (trackWidth, trackHeight);
 
+		video.dataSource = dataSource;
 		video.extractor = extractor;
 		videoFormat = format;
 		video.codec = surface ? CreateVideoDecoder (hardware, true) : NULL;
