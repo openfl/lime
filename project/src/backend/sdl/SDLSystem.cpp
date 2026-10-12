@@ -574,7 +574,12 @@ namespace lime {
 
 	double System::GetTimer () {
 
+		// SDL_GetTicks is 32-bit and wraps after 49.7 days
+		#if SDL_VERSION_ATLEAST(2, 0, 18)
+		return SDL_GetTicks64 ();
+		#else
 		return SDL_GetTicks ();
+		#endif
 
 	}
 

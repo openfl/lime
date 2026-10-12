@@ -40,6 +40,7 @@ import lime.utils.Log;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.system.System)
 @:allow(lime.app.Promise) /*@:generic*/ class Future<T>
 {
 	/**
@@ -208,7 +209,8 @@ import lime.utils.Log;
 		}
 		else
 		{
-			var time = System.getTimer();
+			// Compared as Ints, the times would go wrong where System.getTimer wraps
+			var time = System.__getTimer();
 			var end = time + waitTime;
 
 			while (!isComplete && !isError && time <= end && FutureWork.activeJobs > 0)
@@ -217,7 +219,7 @@ import lime.utils.Log;
 				Sys.sleep(0.01);
 				#end
 
-				time = System.getTimer();
+				time = System.__getTimer();
 			}
 
 			return this;

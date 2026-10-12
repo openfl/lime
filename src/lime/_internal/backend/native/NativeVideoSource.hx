@@ -27,6 +27,7 @@ import lime.utils.UInt8Array;
 @:noDebug
 #end
 @:access(lime.media.VideoSource)
+@:access(lime.system.System)
 class NativeVideoSource
 {
 	private static inline var AUDIO_AHEAD_SECONDS:Float = 0.25;
@@ -862,8 +863,9 @@ class NativeVideoSource
 
 	@:noCompletion private static inline function getStamp():Float
 	{
-		// Timer.stamp follows the wall clock on Linux and macOS, which can step
-		return System.getTimer() / 1000;
+		// SDL's monotonic ticks, read as a Float, since System.getTimer wraps
+		// after 24.8 days
+		return System.__getTimer() / 1000;
 	}
 
 	@:noCompletion private function getTime():Float
