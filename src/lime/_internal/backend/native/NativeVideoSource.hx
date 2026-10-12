@@ -40,6 +40,7 @@ class NativeVideoSource
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
 	private static inline var UPDATE_INTERVAL:Int = 10;
+	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
 	private static var activeSources:Array<NativeVideoSource> = [];
 	private static var latencyExtension:Null<Bool>;
@@ -1016,6 +1017,15 @@ class NativeVideoSource
 		}
 
 		var time = getTime();
+
+		// Frames that fall far behind the clock, as when the application stops
+		// reading them for a while or decoding cannot keep up, are caught up by
+		// seeking to the clock rather than shown late
+		if (playing && !completed && hasFrame && decoder.hasVideo && !decoder.videoComplete && time - frameEndTime > VIDEO_BEHIND_SECONDS)
+		{
+			seek(time);
+			return;
+		}
 
 		if (playing && !completed)
 		{

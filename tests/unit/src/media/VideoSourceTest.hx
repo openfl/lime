@@ -217,6 +217,39 @@ class VideoSourceTest extends Test
 		}
 	}
 
+	public function testFramesThatFallFarBehindAreCaughtUp():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+
+		// No frames are read for a while, as when the window is hidden, while the
+		// sound plays on
+		var backend = @:privateAccess video.__backend;
+		var end = Timer.stamp() + 1.2;
+
+		while (Timer.stamp() < end)
+		{
+			@:privateAccess backend.update();
+			Sys.sleep(0.005);
+		}
+
+		// The next frame is from where the sound is, not from where reading stopped
+		var start = Timer.stamp();
+
+		while (!video.readFrame(frame) && Timer.stamp() - start < TIMEOUT)
+		{
+			Sys.sleep(0.005);
+		}
+
+		var behind = video.currentTime - frame.time * 1000;
+		video.dispose();
+
+		Assert.isTrue(Math.abs(behind) < 250, "the first frame after reading again was " + behind + " ms behind the clock");
+	}
+
 	public function testFramesKeepUpWithTheClock():Void
 	{
 		var video = open();
