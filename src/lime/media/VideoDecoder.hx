@@ -43,10 +43,18 @@ import sys.FileSystem;
 	}
 	```
 
+	Frames are decoded as they are stored. A video recorded on a phone held
+	upright is usually stored sideways, with a `rotation` to apply when it is
+	shown, and some videos have pixels that are not square, so draw frames at
+	`displayWidth` by `displayHeight`, turned by `rotation`.
+
 	Availability: native targets, using Media Foundation on Windows,
 	AVFoundation on macOS and iOS, MediaCodec on Android and GStreamer on Linux.
 	Which formats can be decoded depends on the codecs the platform provides,
-	but H.264 video with AAC audio in an MP4 file works everywhere.
+	but H.264 video with AAC audio in an MP4 file works everywhere. A video
+	whose picture or sound uses a codec the platform lacks still opens with
+	the stream that can be decoded, and `videoUnsupported` or
+	`audioUnsupported` tells when one was left out.
 **/
 @:access(lime._internal.backend.native.NativeCFFI)
 #if (lime_opengl || lime_opengles)
@@ -86,6 +94,23 @@ class VideoDecoder
 	public var audioTime(get, never):Float;
 
 	/**
+		Whether the video has sound that cannot be decoded on this platform,
+		such as sound in a codec it lacks. The video then opens without sound,
+		and `hasAudio` is `false`.
+	**/
+	public var audioUnsupported(default, null):Bool = false;
+
+	/**
+		The height to show frames at, after `pixelAspectRatio` and `rotation`.
+	**/
+	public var displayHeight(get, never):Int;
+
+	/**
+		The width to show frames at, after `pixelAspectRatio` and `rotation`.
+	**/
+	public var displayWidth(get, never):Int;
+
+	/**
 		Whether `readFrame`, given a time, skips the frames that are already
 		late, so playback keeps in step with its clock and drops frames when
 		decoding falls behind. When `false`, every frame is returned in order,
@@ -108,6 +133,14 @@ class VideoDecoder
 		a live stream.
 	**/
 	public var duration(default, null):Float = 0;
+
+	/**
+		Whether a stream stopped because it could not be decoded, rather than
+		at its end, such as when the file is damaged. That stream's
+		`audioComplete` or `videoComplete` is then `true`. Seeking or opening
+		again resets it.
+	**/
+	public var error(default, null):Bool = false;
 
 	/**
 		The layout of the frames this decoder returns, chosen when it is opened.
@@ -142,6 +175,20 @@ class VideoDecoder
 	public var height(default, null):Int = 0;
 
 	/**
+		The width of a pixel relative to its height, which is 1 for the square
+		pixels of most videos. Some videos are stored narrower than they are
+		shown, so their frames are stretched to `displayWidth`.
+	**/
+	public var pixelAspectRatio(default, null):Float = 1;
+
+	/**
+		How far to turn frames clockwise to show them upright, in degrees: 0,
+		90, 180 or 270. Phones store video recorded upright as sideways frames
+		with a rotation of 90.
+	**/
+	public var rotation(default, null):Int = 0;
+
+	/**
 		The path or URL that was opened.
 	**/
 	public var source(default, null):String;
@@ -151,6 +198,13 @@ class VideoDecoder
 		decoded. Seeking resets it.
 	**/
 	public var videoComplete(default, null):Bool = true;
+
+	/**
+		Whether the video has a picture that cannot be decoded on this
+		platform, such as one in a codec it lacks. The video then opens with
+		only its sound, and `hasVideo` is `false`.
+	**/
+	public var videoUnsupported(default, null):Bool = false;
 
 	/**
 		The width of the frames in pixels.
@@ -169,6 +223,10 @@ class VideoDecoder
 
 	/**
 		Stops decoding and releases the video. The decoder can be opened again.
+
+		With `TEXTURE` frames, close it on the thread that reads them, with the
+		same GL context current, so it can delete its textures. A decoder that is
+		garbage collected instead leaves them behind.
 	**/
 	public function close():Void
 	{
@@ -186,13 +244,18 @@ class VideoDecoder
 		audioChannels = 0;
 		audioComplete = true;
 		audioSampleRate = 0;
+		audioUnsupported = false;
 		duration = 0;
+		error = false;
 		frameRate = 0;
 		hasAudio = false;
 		hasVideo = false;
 		height = 0;
+		pixelAspectRatio = 1;
+		rotation = 0;
 		source = null;
 		videoComplete = true;
+		videoUnsupported = false;
 		width = 0;
 	}
 
@@ -246,6 +309,16 @@ class VideoDecoder
 		height = info.height;
 		width = info.width;
 
+		// A native library from before these leaves them out
+		var audioUnsupported:Null<Bool> = info.audioUnsupported;
+		var pixelAspectRatio:Null<Float> = info.pixelAspectRatio;
+		var rotation:Null<Int> = info.rotation;
+		var videoUnsupported:Null<Bool> = info.videoUnsupported;
+		this.audioUnsupported = audioUnsupported == true;
+		this.pixelAspectRatio = pixelAspectRatio != null && pixelAspectRatio > 0 ? pixelAspectRatio : 1;
+		this.rotation = rotation != null ? rotation : 0;
+		this.videoUnsupported = videoUnsupported == true;
+
 		audioComplete = !hasAudio;
 		videoComplete = !hasVideo;
 		source = path;
@@ -276,6 +349,7 @@ class VideoDecoder
 
 		if (result < 0)
 		{
+			if (result == READ_ERROR) error = true;
 			audioComplete = true;
 			return 0;
 		}
@@ -338,6 +412,7 @@ class VideoDecoder
 
 		if (result == READ_END || result == READ_ERROR)
 		{
+			if (result == READ_ERROR) error = true;
 			videoComplete = true;
 		}
 
@@ -348,21 +423,29 @@ class VideoDecoder
 	}
 
 	/**
-		Moves both streams to a new time.
+		Moves both streams to a new time. Seeking to the end of the video or
+		past it completes both streams.
 
 		@param	time	The time in seconds
 		@param	accurate	Whether to start exactly at `time`, decoding from the
 		keyframe before it. Otherwise reading starts from that keyframe, which is
 		faster.
+		@return	Whether the streams moved. A video that cannot seek, such as a
+		live stream, carries on from where it was.
 	**/
-	public function seek(time:Float, accurate:Bool = true):Void
+	public function seek(time:Float, accurate:Bool = true):Bool
 	{
 		#if (lime_cffi && !macro)
-		if (__handle == null || source == null) return;
+		if (__handle == null || source == null) return false;
 
-		NativeCFFI.lime_video_decoder_seek(__handle, time, accurate);
+		if (!NativeCFFI.lime_video_decoder_seek(__handle, time, accurate)) return false;
+
 		audioComplete = !hasAudio;
+		error = false;
 		videoComplete = !hasVideo;
+		return true;
+		#else
+		return false;
 		#end
 	}
 
@@ -431,6 +514,21 @@ class VideoDecoder
 	#end
 
 	// Get & Set Methods
+	@:noCompletion private function get_displayHeight():Int
+	{
+		return rotation == 90 || rotation == 270 ? getStretchedWidth() : height;
+	}
+
+	@:noCompletion private function get_displayWidth():Int
+	{
+		return rotation == 90 || rotation == 270 ? height : getStretchedWidth();
+	}
+
+	@:noCompletion private inline function getStretchedWidth():Int
+	{
+		return Math.round(width * pixelAspectRatio);
+	}
+
 	@:noCompletion private function set_dropLateFrames(value:Bool):Bool
 	{
 		#if (lime_cffi && !macro)

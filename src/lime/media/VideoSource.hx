@@ -15,13 +15,18 @@ import lime.app.Promise;
 
 	The sound drives the timing, as `clockMode` sets out. Each frame, call
 	`readFrame` and draw the frame it returns, keeping the previous one when it
-	returns `false`.
+	returns `false`. Draw frames at `displayWidth` by `displayHeight`, turned
+	clockwise by `rotation`, as phones store video recorded upright sideways.
+
+	Call `dispose` when done with a video. Until then it keeps playing, and
+	stays in memory, even when nothing else refers to it.
 
 	Example usage:
 	```haxe
 	var video = new VideoSource("assets/intro.mp4");
 	var frame = new VideoFrame();
 	video.onComplete.add(() -> trace("done"));
+	video.onError.add((message) -> trace(message));
 	video.play();
 
 	// in render ()
@@ -32,8 +37,10 @@ import lime.app.Promise;
 	```
 
 	On native targets, frames are `NV12` by default (see `VideoFrameFormat`),
-	ready for a YUV to RGB shader. On HTML5, `VideoFrame.src` is the playing
-	`<video>` element, which WebGL can upload with `texImage2D`.
+	ready for a YUV to RGB shader. Videos are decoded on background threads,
+	but a `VideoSource` is used from the main thread. On HTML5,
+	`VideoFrame.src` is the playing `<video>` element, which WebGL can upload
+	with `texImage2D`, and the browser turns and sizes it already.
 
 	Availability: native targets where `VideoDecoder.isSupported` is `true`,
 	and HTML5.
@@ -53,6 +60,15 @@ class VideoSource
 	public var onComplete = new Event<Void->Void>();
 
 	/**
+		Dispatched with a message when the video stops because it cannot be
+		decoded, such as when the file is damaged. Playback pauses, and
+		`onComplete` is not dispatched. Calling `play` again tries again from
+		where it stopped. On HTML5, where videos load in the background, it is
+		also dispatched when the video cannot be loaded.
+	**/
+	public var onError = new Event<String->Void>();
+
+	/**
 		How frames are timed against the sound, `SMOOTH` by default. On HTML5,
 		the browser keeps the `<video>` element in sync itself, and this has no
 		effect.
@@ -60,9 +76,20 @@ class VideoSource
 	public var clockMode(get, set):VideoClockMode;
 
 	/**
-		The playback position in milliseconds. Setting it seeks to that time.
+		The playback position in milliseconds. Setting it seeks to that time,
+		which a video that cannot seek, such as a live stream, ignores.
 	**/
 	public var currentTime(get, set):Int;
+
+	/**
+		The height to draw frames at, after `pixelAspectRatio` and `rotation`.
+	**/
+	public var displayHeight(get, never):Int;
+
+	/**
+		The width to draw frames at, after `pixelAspectRatio` and `rotation`.
+	**/
+	public var displayWidth(get, never):Int;
 
 	/**
 		How many frames have been skipped because they were late, since the
@@ -84,9 +111,17 @@ class VideoSource
 	public var gain(get, set):Float;
 
 	/**
-		Whether the video has sound.
+		Whether the video has sound that can be played. A video whose sound
+		uses a codec the platform lacks plays without it.
 	**/
 	public var hasAudio(get, never):Bool;
+
+	/**
+		Whether the video has a picture that can be decoded. A video whose
+		picture uses a codec the platform lacks plays only its sound, so check
+		this when a video must be seen.
+	**/
+	public var hasVideo(get, never):Bool;
 
 	/**
 		The height of the video's frames in pixels.
@@ -112,9 +147,25 @@ class VideoSource
 	public var pan(get, set):Float;
 
 	/**
+		The width of a pixel relative to its height, which is 1 for the square
+		pixels of most videos. Some videos are stored narrower than they are
+		shown, so their frames are stretched to `displayWidth`. It is always 1
+		on HTML5, where the browser sizes frames itself.
+	**/
+	public var pixelAspectRatio(get, never):Float;
+
+	/**
 		Whether the video is playing.
 	**/
 	public var playing(get, never):Bool;
+
+	/**
+		How far to turn frames clockwise to show them upright, in degrees: 0,
+		90, 180 or 270. Phones store video recorded upright as sideways frames
+		with a rotation of 90. It is always 0 on HTML5, where the browser turns
+		frames itself.
+	**/
+	public var rotation(get, never):Int;
 
 	/**
 		The path or URL of the video.
@@ -129,7 +180,8 @@ class VideoSource
 	@:noCompletion private var __backend:VideoSourceBackend;
 
 	/**
-		Creates a video source, opening `path` when one is given.
+		Creates a video source, opening `path` when one is given. When the video
+		cannot be opened, `source` is `null`.
 
 		On native targets opening reads the start of the file, so for a URL
 		prefer `loadFromFile`, which opens it without blocking.
@@ -148,7 +200,8 @@ class VideoSource
 	}
 
 	/**
-		Stops playback and releases the video.
+		Stops playback and releases the video. A source that is not disposed of
+		keeps playing, and stays in memory, as its sound is played on a timer.
 	**/
 	public function dispose():Void
 	{
@@ -248,6 +301,16 @@ class VideoSource
 		return __backend.setCurrentTime(value);
 	}
 
+	@:noCompletion private function get_displayHeight():Int
+	{
+		return __backend.getDisplayHeight();
+	}
+
+	@:noCompletion private function get_displayWidth():Int
+	{
+		return __backend.getDisplayWidth();
+	}
+
 	@:noCompletion private function get_droppedFrames():Int
 	{
 		return __backend.getDroppedFrames();
@@ -276,6 +339,11 @@ class VideoSource
 	@:noCompletion private function get_hasAudio():Bool
 	{
 		return __backend.getHasAudio();
+	}
+
+	@:noCompletion private function get_hasVideo():Bool
+	{
+		return __backend.getHasVideo();
 	}
 
 	@:noCompletion private function get_height():Int
@@ -313,9 +381,19 @@ class VideoSource
 		return __backend.setPan(value);
 	}
 
+	@:noCompletion private function get_pixelAspectRatio():Float
+	{
+		return __backend.getPixelAspectRatio();
+	}
+
 	@:noCompletion private function get_playing():Bool
 	{
 		return __backend.getPlaying();
+	}
+
+	@:noCompletion private function get_rotation():Int
+	{
+		return __backend.getRotation();
 	}
 
 	@:noCompletion private function get_width():Int

@@ -1,4 +1,5 @@
 #include <media/VideoDecoder.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,6 +11,9 @@
 #define DECLARE_EXTENSION
 #include "../../graphics/opengl/OpenGLExtensions.h"
 #undef DECLARE_EXTENSION
+#endif
+#ifdef LIME_SDL
+#include <SDL.h>
 #endif
 #endif
 
@@ -35,6 +39,93 @@ namespace lime {
 	static inline unsigned char ClampByte (int value) {
 
 		return value < 0 ? 0 : (value > 255 ? 255 : (unsigned char)value);
+
+	}
+
+
+	void VideoBackend::ConvertAudio (const short* in, int frames, int channels, int rate, int outChannels, int outRate, VideoAudioConverter* converter, std::vector<unsigned char>* pcm) {
+
+		if (frames <= 0 || channels <= 0 || rate <= 0 || outChannels < 1 || outChannels > 2 || outRate <= 0) return;
+
+		// Mix the channels first, folding surround into stereo
+		std::vector<unsigned char> stereo;
+		std::vector<short> mixed (frames * outChannels);
+
+		if (channels > 2) {
+
+			DownmixToStereo (in, frames, channels, &stereo);
+			in = (const short*)stereo.data ();
+			channels = 2;
+
+		}
+
+		for (int i = 0; i < frames; i++) {
+
+			if (channels == outChannels) {
+
+				for (int c = 0; c < outChannels; c++) mixed[i * outChannels + c] = in[i * channels + c];
+
+			} else if (channels == 1) {
+
+				mixed[i * 2] = mixed[i * 2 + 1] = in[i];
+
+			} else {
+
+				mixed[i] = (short)(((int)in[i * 2] + in[i * 2 + 1]) / 2);
+
+			}
+
+		}
+
+		if (converter->previousChannels != outChannels) {
+
+			// Nothing comes before the first packet, so it starts on its first frame
+			converter->position = 0;
+			converter->previousChannels = outChannels;
+			for (int c = 0; c < outChannels; c++) converter->previous[c] = mixed[c];
+
+		}
+
+		if (rate == outRate) {
+
+			converter->position = 0;
+			for (int c = 0; c < outChannels; c++) converter->previous[c] = mixed[(frames - 1) * outChannels + c];
+			pcm->insert (pcm->end (), (const unsigned char*)mixed.data (), (const unsigned char*)(mixed.data () + mixed.size ()));
+			return;
+
+		}
+
+		// Linear interpolation, where a position below 0 lies between the last
+		// frame of the previous packet and the first of this one
+		double step = (double)rate / outRate;
+		double position = converter->position;
+		size_t offset = pcm->size ();
+		size_t count = position < frames - 1 ? (size_t)((frames - 1 - position) / step) + 1 : 0;
+		pcm->resize (offset + count * outChannels * 2);
+		short* out = (short*)(pcm->data () + offset);
+		size_t written = 0;
+
+		while (position < frames - 1 && written < count) {
+
+			int index = (int)floor (position);
+			double t = position - index;
+
+			for (int c = 0; c < outChannels; c++) {
+
+				double a = index < 0 ? converter->previous[c] : mixed[index * outChannels + c];
+				double b = mixed[(index + 1) * outChannels + c];
+				out[written * outChannels + c] = (short)(a + (b - a) * t);
+
+			}
+
+			written++;
+			position += step;
+
+		}
+
+		pcm->resize (offset + written * outChannels * 2);
+		converter->position = position - frames;
+		for (int c = 0; c < outChannels; c++) converter->previous[c] = mixed[(frames - 1) * outChannels + c];
 
 	}
 
@@ -71,10 +162,31 @@ namespace lime {
 	}
 
 
+	void* VideoBackend::GetCurrentGLContext () {
+
+		// Lime makes its contexts current through SDL, which keeps track of them
+		#if defined (LIME_VIDEO_TEXTURES) && defined (LIME_SDL)
+		return SDL_GL_GetCurrentContext ();
+		#else
+		return 0;
+		#endif
+
+	}
+
+
 	VideoColorMatrix VideoBackend::GetDefaultColorMatrix (int width, int height) {
 
 		// Streams without color information use BT.601 for SD and BT.709 for HD
 		return (width > 1024 || height >= 600) ? VIDEO_COLOR_MATRIX_BT709 : VIDEO_COLOR_MATRIX_BT601;
+
+	}
+
+
+	int VideoBackend::NormalizeRotation (int degrees) {
+
+		// Rounded to the nearest quarter turn
+		degrees = ((degrees % 360) + 360) % 360;
+		return ((degrees + 45) / 90) % 4 * 90;
 
 	}
 
@@ -103,6 +215,7 @@ namespace lime {
 		audioError = false;
 		audioQueued = 0;
 		audioQueueEnd = 0;
+		audioSeekTime = 0;
 		audioTime = 0;
 		currentFrame = 0;
 		dropLateFrames = true;
@@ -122,14 +235,15 @@ namespace lime {
 		quit = false;
 		seekAccurate = false;
 		seekPending = false;
-		seekTime = 0;
 		texture = 0;
+		textureContext = 0;
 		textureHeight = 0;
 		texturesFailed = false;
 		textureThreadKnown = false;
 		textureWidth = 0;
 		videoEnded = true;
 		videoError = false;
+		videoSeekTime = 0;
 
 	}
 
@@ -163,6 +277,8 @@ namespace lime {
 			double time = 0;
 			VideoDecodeResult result = backend->DecodeAudio (&pcm, &time);
 
+			if (result == VIDEO_DECODE_AGAIN) continue;
+
 			if (result != VIDEO_DECODE_OK) {
 
 				std::lock_guard<std::mutex> lock (mutex);
@@ -175,13 +291,13 @@ namespace lime {
 			size_t offset = 0;
 			size_t length = pcm.size () - (pcm.size () % blockAlign);
 
-			if (seekAccurate && time < seekTime) {
+			if (seekAccurate && time < audioSeekTime) {
 
 				// Drop the audio before an accurate seek target
-				size_t skip = (size_t)((seekTime - time) * info.audioSampleRate + 0.5) * blockAlign;
+				size_t skip = (size_t)((audioSeekTime - time) * info.audioSampleRate + 0.5) * blockAlign;
 				if (skip >= length) continue;
 				offset = skip;
-				time = seekTime;
+				time = audioSeekTime;
 
 			}
 
@@ -326,6 +442,9 @@ namespace lime {
 
 		}
 
+		if (!streamInfo.hasVideo || !(streamInfo.pixelAspectRatio > 0.0 && streamInfo.pixelAspectRatio < 100.0)) streamInfo.pixelAspectRatio = 1.0;
+		streamInfo.rotation = streamInfo.hasVideo ? VideoBackend::NormalizeRotation (streamInfo.rotation) : 0;
+
 		info = streamInfo;
 		this->format = format;
 
@@ -344,11 +463,12 @@ namespace lime {
 		droppedFrames = 0;
 		lastQueued = std::chrono::steady_clock::now ();
 		presentationTime = -1;
+		audioSeekTime = 0;
 		seekAccurate = false;
 		seekPending = false;
-		seekTime = 0;
 		videoEnded = !info.hasVideo;
 		videoError = false;
+		videoSeekTime = 0;
 
 		open = true;
 		StartThreads ();
@@ -534,10 +654,11 @@ namespace lime {
 			if (!fallBack) return VIDEO_READ_ERROR;
 
 			// This context cannot use the backend's textures, so decode into
-			// memory and upload from here on
+			// memory and upload from here on. The audio carries on from where it
+			// was read to, as it has already been played.
 			texturesFailed = true;
 			backend->SetTextureOutput (false);
-			Seek (resume, true);
+			SeekStreams (resume, true, true);
 			return VIDEO_READ_NOT_READY;
 
 		}
@@ -586,14 +707,16 @@ namespace lime {
 		backend->ReleaseTextures ();
 
 		#ifdef LIME_VIDEO_TEXTURES
-		if (texture) {
+		// A texture made in a context that has since been replaced went with it
+		if (texture && textureContext == VideoBackend::GetCurrentGLContext ()) {
 
 			glDeleteTextures (1, &texture);
-			texture = 0;
 
 		}
 		#endif
 
+		texture = 0;
+		textureContext = 0;
 		frameTexture = 0;
 		textureHeight = 0;
 		textureThreadKnown = false;
@@ -602,44 +725,83 @@ namespace lime {
 	}
 
 
-	void VideoDecoder::Seek (double time, bool accurate) {
+	bool VideoDecoder::Seek (double time, bool accurate) {
 
-		if (!open) return;
+		return SeekStreams (time, accurate, false);
+
+	}
+
+
+	bool VideoDecoder::SeekStreams (double time, bool accurate, bool keepAudio) {
+
+		if (!open) return false;
 		if (time < 0) time = 0;
 
 		{
 			std::lock_guard<std::mutex> lock (mutex);
 			seekPending = true;
-			Flush ();
 		}
 
 		audioCondition.notify_all ();
 		videoCondition.notify_all ();
 
+		// A stream waiting on a stalled source gives up waiting, so the seek does
+		// not wait for it
+		backend->PrepareSeek ();
+
 		// Wait for the frame or packet in progress, then seek with both streams idle
 		std::lock_guard<std::mutex> videoLock (videoDecodeMutex);
 		std::lock_guard<std::mutex> audioLock (audioDecodeMutex);
 
-		backend->Seek (time);
+		// Audio that is kept carries on from what has been read, and the backend
+		// seeks to whichever stream starts first
+		double audioTarget = time;
+
+		if (keepAudio) {
+
+			std::lock_guard<std::mutex> lock (mutex);
+			audioTarget = audioTime;
+
+		}
+
+		// There is nothing to decode from the end on, and some backends cannot
+		// seek there
+		bool ended = !keepAudio && info.duration > 0 && time >= info.duration;
+
+		if (!ended && !backend->Seek (audioTarget < time ? audioTarget : time)) {
+
+			// Nothing has moved, so what is queued still follows on
+			std::lock_guard<std::mutex> lock (mutex);
+			seekPending = false;
+			audioCondition.notify_all ();
+			videoCondition.notify_all ();
+			return false;
+
+		}
+
+		if (ended) time = audioTarget = info.duration;
 
 		std::lock_guard<std::mutex> lock (mutex);
 		Flush ();
 
-		audioEnded = !info.hasAudio;
+		audioEnded = ended || !info.hasAudio;
 		audioError = false;
-		audioQueueEnd = time;
-		audioTime = time;
+		audioQueueEnd = audioTarget;
+		audioSeekTime = audioTarget;
+		audioTime = audioTarget;
 		frameTime = time;
 		lastQueued = std::chrono::steady_clock::now ();
 		presentationTime = -1;
-		seekAccurate = accurate;
+		seekAccurate = accurate || keepAudio;
 		seekPending = false;
-		seekTime = time;
-		videoEnded = !info.hasVideo;
+		videoEnded = ended || !info.hasVideo;
 		videoError = false;
+		videoSeekTime = time;
 
 		audioCondition.notify_all ();
 		videoCondition.notify_all ();
+
+		return true;
 
 	}
 
@@ -705,6 +867,8 @@ namespace lime {
 
 			}
 
+			if (result == VIDEO_DECODE_AGAIN) continue;
+
 			if (result != VIDEO_DECODE_OK) {
 
 				std::lock_guard<std::mutex> lock (mutex);
@@ -717,7 +881,7 @@ namespace lime {
 			if (duration <= 0) duration = info.frameRate > 0 ? 1.0 / info.frameRate : 0;
 
 			// Drop the frames that end before an accurate seek target
-			if (seekAccurate && time + duration <= seekTime + 0.0001) {
+			if (seekAccurate && time + duration <= videoSeekTime + 0.0001) {
 
 				if (textureFrame) backend->ReleaseTextureFrame (textureFrame);
 				continue;
@@ -804,14 +968,27 @@ namespace lime {
 		#ifdef LIME_VIDEO_TEXTURES
 		if (!OpenGLBindings::Init ()) return 0;
 
-		// Unpack buffers and row lengths exist from OpenGL 3 and OpenGL ES 3
+		// Unpack buffers and row lengths exist from OpenGL 3 and OpenGL ES 3. The
+		// version is only known once a context is current.
 		static int glVersion = -1;
 
 		if (glVersion < 0) {
 
 			const char* version = (const char*)glGetString (GL_VERSION);
-			if (version && strncmp (version, "OpenGL ES ", 10) == 0) version += 10;
-			glVersion = version ? atoi (version) : 0;
+			if (!version) return 0;
+			if (strncmp (version, "OpenGL ES ", 10) == 0) version += 10;
+			glVersion = atoi (version);
+
+		}
+
+		// A texture from a context that has since been replaced, as Android does
+		// after losing it, went with that context, and its name may now belong to
+		// one of the application's textures
+		void* context = VideoBackend::GetCurrentGLContext ();
+
+		if (texture && context != textureContext) {
+
+			texture = 0;
 
 		}
 
@@ -833,6 +1010,7 @@ namespace lime {
 		if (!texture) {
 
 			glGenTextures (1, &texture);
+			textureContext = context;
 			glBindTexture (GL_TEXTURE_2D, texture);
 			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

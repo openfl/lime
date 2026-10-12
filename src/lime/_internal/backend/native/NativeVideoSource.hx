@@ -15,6 +15,10 @@ import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
 import lime.media.VideoSource;
 import lime.system.System;
+#if lime_threads
+import lime.system.ThreadPool;
+import lime.system.WorkOutput;
+#end
 import lime.utils.Int16Array;
 import lime.utils.UInt8Array;
 
@@ -39,11 +43,16 @@ class NativeVideoSource
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
+	private static inline var LOAD_THREADS:Int = 4;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
 	private static var activeSources:Array<NativeVideoSource> = [];
 	private static var latencyExtension:Null<Bool>;
+	#if lime_threads
+	private static var loadJobs:Map<Int, {path:String, promise:Promise<VideoSource>}>;
+	private static var loadThreads:ThreadPool;
+	#end
 	private static var timerDrift:Float = 0;
 
 	private var audioBuffer:Bytes;
@@ -82,6 +91,7 @@ class NativeVideoSource
 	private var completed:Bool;
 	private var decoder:VideoDecoder;
 	private var dropLateFrames:Bool;
+	private var failed:Bool;
 	private var freeBuffers:Array<ALBuffer>;
 	private var frameEndTime:Float;
 	private var gain:Float;
@@ -121,6 +131,7 @@ class NativeVideoSource
 		clockTime = 0;
 		completed = false;
 		dropLateFrames = true;
+		failed = false;
 		frameEndTime = 0;
 		gain = 1;
 		hasFrame = false;
@@ -144,6 +155,16 @@ class NativeVideoSource
 		return Std.int(getTime() * 1000);
 	}
 
+	public function getDisplayHeight():Int
+	{
+		return decoder != null ? decoder.displayHeight : 0;
+	}
+
+	public function getDisplayWidth():Int
+	{
+		return decoder != null ? decoder.displayWidth : 0;
+	}
+
 	public function getDroppedFrames():Int
 	{
 		return decoder != null ? decoder.droppedFrames : 0;
@@ -162,6 +183,11 @@ class NativeVideoSource
 	public function getHasAudio():Bool
 	{
 		return decoder != null && decoder.hasAudio;
+	}
+
+	public function getHasVideo():Bool
+	{
+		return decoder != null && decoder.hasVideo;
 	}
 
 	public function getHeight():Int
@@ -184,9 +210,19 @@ class NativeVideoSource
 		return pan;
 	}
 
+	public function getPixelAspectRatio():Float
+	{
+		return decoder != null ? decoder.pixelAspectRatio : 1;
+	}
+
 	public function getPlaying():Bool
 	{
 		return playing;
+	}
+
+	public function getRotation():Int
+	{
+		return decoder != null ? decoder.rotation : 0;
 	}
 
 	public function getWidth():Int
@@ -227,29 +263,24 @@ class NativeVideoSource
 	{
 		var promise = new Promise<VideoSource>();
 
+		#if lime_threads
 		// Opening reads the start of the file or waits for a server, so it runs
-		// on a worker thread
-		var future = new Future<VideoDecoder>(function()
+		// on threads of its own, where a slow server does not hold up the
+		// futures that share a single thread
+		if (loadThreads == null)
 		{
-			var decoder = new VideoDecoder();
-			return decoder.open(path, format) ? decoder : null;
-		}, true);
+			loadJobs = new Map();
+			loadThreads = new ThreadPool(0, LOAD_THREADS, MULTI_THREADED);
+			loadThreads.onComplete.add(loadThreads_onComplete);
+			loadThreads.onError.add(loadThreads_onError);
+		}
 
-		future.onComplete(function(decoder)
-		{
-			if (decoder == null)
-			{
-				promise.error("Cannot play " + path);
-				return;
-			}
-
-			var source = new VideoSource();
-			source.__backend.attach(decoder);
-			source.source = path;
-			promise.complete(source);
-		});
-
-		future.onError(promise.error);
+		var id = loadThreads.run(loadThreads_doWork, {format: format, path: path});
+		loadJobs.set(id, {path: path, promise: promise});
+		#else
+		var decoder = new VideoDecoder();
+		completeLoad(decoder.open(path, format) ? decoder : null, path, promise);
+		#end
 
 		return promise.future;
 	}
@@ -293,17 +324,27 @@ class NativeVideoSource
 		{
 			seek(0);
 		}
+		else if (failed && !seek(clockTime))
+		{
+			// Playing again after an error tries again from where it stopped
+			return;
+		}
+
+		// Seeking updates, where a handler can dispose of the source
+		if (decoder == null) return;
 
 		clockStamp = getStamp();
 		playing = true;
 
-		update();
-
+		// The timer starts first, so an update that completes playback, or a
+		// handler that disposes of the source, stops it
 		if (timer == null)
 		{
 			timer = new Timer(UPDATE_INTERVAL);
 			timer.run = update;
 		}
+
+		update();
 	}
 
 	public function readFrame(frame:VideoFrame):Bool
@@ -311,6 +352,9 @@ class NativeVideoSource
 		if (decoder == null || frame == null) return false;
 
 		update();
+
+		// Updating can complete playback, and the handler can dispose of the source
+		if (decoder == null) return false;
 
 		// The first frame after opening or seeking is shown straight away, so a
 		// paused video still has a picture
@@ -346,7 +390,7 @@ class NativeVideoSource
 	{
 		if (decoder != null)
 		{
-			seek(Math.max(0, value / 1000));
+			seek(value / 1000);
 		}
 
 		return value;
@@ -405,6 +449,7 @@ class NativeVideoSource
 		this.decoder = decoder;
 		decoder.dropLateFrames = dropLateFrames;
 
+		failed = false;
 		audioDriftStamp = -1;
 		audioRateStamp = -1;
 		audioReadStamp = -1;
@@ -549,16 +594,30 @@ class NativeVideoSource
 
 	@:noCompletion private function complete():Void
 	{
-		if (loops > 0)
+		// A video that cannot seek, such as a live stream, cannot loop
+		if (loops > 0 && seek(0))
 		{
 			loops--;
-			seek(0);
 			return;
 		}
 
 		pause();
 		completed = true;
 		parent.onComplete.dispatch();
+	}
+
+	@:noCompletion private static function completeLoad(decoder:VideoDecoder, path:String, promise:Promise<VideoSource>):Void
+	{
+		if (decoder == null)
+		{
+			promise.error("Cannot play " + path);
+			return;
+		}
+
+		var source = new VideoSource();
+		source.__backend.attach(decoder);
+		source.source = path;
+		promise.complete(source);
 	}
 
 	@:noCompletion private function createAudio():Void
@@ -831,12 +890,14 @@ class NativeVideoSource
 			}
 		}
 
-		if (playing)
+		// Lime pauses the sound while the application is in the background or its
+		// window is inactive, so a clock on the timer alone holds then too
+		if (playing && !AudioManager.__suspended)
 		{
 			clockTime += now - clockStamp;
-			clockStamp = now;
 		}
 
+		clockStamp = now;
 		return clockTime;
 	}
 
@@ -903,9 +964,13 @@ class NativeVideoSource
 		audioSkipping = true;
 	}
 
-	@:noCompletion private function seek(time:Float):Void
+	@:noCompletion private function seek(time:Float):Bool
 	{
-		decoder.seek(time, true);
+		time = Math.max(0, time);
+		if (decoder.duration > 0) time = Math.min(time, decoder.duration);
+
+		// A video that cannot seek carries on as it was
+		if (!decoder.seek(time, true)) return false;
 
 		if (handle != null)
 		{
@@ -922,10 +987,12 @@ class NativeVideoSource
 		clockStamp = getStamp();
 		clockTime = time;
 		completed = false;
+		failed = false;
 		frameEndTime = 0;
 		hasFrame = false;
 
 		update();
+		return true;
 	}
 
 	@:noCompletion private function skipAudio(time:Float):Void
@@ -1020,14 +1087,26 @@ class NativeVideoSource
 
 		// Frames that fall far behind the clock, as when the application stops
 		// reading them for a while or decoding cannot keep up, are caught up by
-		// seeking to the clock rather than shown late
-		if (playing && !completed && hasFrame && decoder.hasVideo && !decoder.videoComplete && time - frameEndTime > VIDEO_BEHIND_SECONDS)
+		// seeking to the clock rather than shown late. A video that cannot seek
+		// is given another second.
+		if (playing && !completed && hasFrame && decoder.hasVideo && !decoder.videoComplete && decoder.duration > 0
+			&& time - frameEndTime > VIDEO_BEHIND_SECONDS)
 		{
-			seek(time);
+			if (seek(time)) return;
+			frameEndTime = time;
+		}
+
+		if (decoder.error && !failed)
+		{
+			// A stream that cannot be decoded stops playback, rather than it
+			// carrying on without that stream or completing
+			failed = true;
+			pause();
+			parent.onError.dispatch("Cannot decode " + parent.source);
 			return;
 		}
 
-		if (playing && !completed)
+		if (playing && !completed && !failed)
 		{
 			var audioDone = handle == null || audioStalled || (decoder.audioComplete && bufferTimes.length == 0);
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
@@ -1039,4 +1118,27 @@ class NativeVideoSource
 			}
 		}
 	}
+
+	// Event Handlers
+	#if lime_threads
+	@:noCompletion private static function loadThreads_doWork(state:Dynamic, output:WorkOutput):Void
+	{
+		var decoder = new VideoDecoder();
+		output.sendComplete(decoder.open(state.path, state.format) ? decoder : null);
+	}
+
+	@:noCompletion private static function loadThreads_onComplete(decoder:Dynamic):Void
+	{
+		var job = loadJobs.get(loadThreads.activeJob.id);
+		loadJobs.remove(loadThreads.activeJob.id);
+		completeLoad(decoder, job.path, job.promise);
+	}
+
+	@:noCompletion private static function loadThreads_onError(error:Dynamic):Void
+	{
+		var job = loadJobs.get(loadThreads.activeJob.id);
+		loadJobs.remove(loadThreads.activeJob.id);
+		job.promise.error(error);
+	}
+	#end
 }

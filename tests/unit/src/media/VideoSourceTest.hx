@@ -414,6 +414,46 @@ class VideoSourceTest extends Test
 		Assert.isTrue(resumed >= 200, "the clock moved " + resumed + " ms in 0.4 s after audio resumed");
 	}
 
+	public function testTimerClocksHoldWhileSuspended():Void
+	{
+		if (!VideoSource.isSupported)
+		{
+			Assert.pass();
+			return;
+		}
+
+		// A video without sound, and a clock on the timer alone, hold while Lime
+		// suspends audio too, rather than running on without it
+		for (setup in [{path: "assets/video-noaudio.mp4", mode: VideoClockMode.SMOOTH}, {path: PATH, mode: VideoClockMode.MONOTONIC}])
+		{
+			var video = new VideoSource();
+
+			if (!video.open(setup.path))
+			{
+				Assert.warn("Cannot decode " + setup.path + " here, so it was not tested");
+				continue;
+			}
+
+			video.clockMode = setup.mode;
+
+			var frame = new VideoFrame();
+			startPlaying(video, frame);
+
+			var before = video.currentTime;
+			AudioManager.suspend();
+			run(video, frame, 0.4);
+			var held = video.currentTime - before;
+			AudioManager.resume();
+			run(video, frame, 0.3);
+			var resumed = video.currentTime - before - held;
+
+			video.dispose();
+
+			Assert.isTrue(held < 100, setup.path + " moved " + held + " ms while audio was suspended");
+			Assert.isTrue(resumed >= 150, setup.path + " moved " + resumed + " ms in 0.3 s after audio resumed");
+		}
+	}
+
 	public function testPanTurnsDownTheOppositeChannel():Void
 	{
 		for (pan in [-1.0, 1.0])
@@ -692,6 +732,125 @@ class VideoSourceTest extends Test
 		// take a moment after opening
 		video.play();
 		waitForTime(video, frame, 50);
+	}
+
+	public function testDisposingInTheCompleteHandler():Void
+	{
+		if (!VideoSource.isSupported)
+		{
+			Assert.pass();
+			return;
+		}
+
+		// As an intro does when it ends, while the frame that ends it is read
+		var video = new VideoSource("assets/video-noaudio.mp4");
+
+		if (video.source == null)
+		{
+			Assert.warn("Cannot decode H.264 here, so it was not tested");
+			return;
+		}
+
+		var completed = false;
+
+		video.onComplete.add(function()
+		{
+			completed = true;
+			video.dispose();
+		});
+
+		video.play();
+
+		var frame = new VideoFrame();
+		var start = Timer.stamp();
+
+		while (!completed && Timer.stamp() - start < TIMEOUT)
+		{
+			video.readFrame(frame);
+			Sys.sleep(0.005);
+		}
+
+		Assert.isTrue(completed, "playback did not complete");
+		Assert.isFalse(video.readFrame(frame));
+		Assert.isFalse(video.playing);
+
+		// Playing a disposed source does nothing
+		video.play();
+		Assert.isFalse(video.playing);
+	}
+
+	public function testSeekingPastTheEndCompletes():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		var completed = false;
+		video.onComplete.add(function() completed = true);
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+
+		var length = video.length;
+		video.currentTime = length + 5000;
+
+		var start = Timer.stamp();
+
+		while (!completed && Timer.stamp() - start < TIMEOUT)
+		{
+			video.readFrame(frame);
+			Sys.sleep(0.005);
+		}
+
+		Assert.isTrue(completed, "playback did not complete");
+		Assert.isTrue(Math.abs(video.currentTime - length) < 50, "the clock is at " + video.currentTime + " ms of " + length);
+		Assert.isFalse(video.playing);
+
+		// Playing again starts over
+		video.play();
+		waitForTime(video, frame, 50);
+		Assert.isTrue(video.currentTime < 1000, "playing again went to " + video.currentTime + " ms");
+		video.dispose();
+	}
+
+	public function testStreamsAndDisplaySize():Void
+	{
+		if (!VideoSource.isSupported)
+		{
+			Assert.pass();
+			return;
+		}
+
+		var video = new VideoSource("assets/video-rotated.mp4");
+
+		if (video.source == null)
+		{
+			Assert.warn("Cannot decode H.264 here, so it was not tested");
+			return;
+		}
+
+		// Shown upright whether the platform turns the frames or reports the turn
+		Assert.isTrue(video.hasVideo);
+		Assert.isFalse(video.hasAudio);
+		Assert.isTrue(video.rotation == 90 && video.width == 320 || video.rotation == 0 && video.width == 180,
+			"rotation " + video.rotation + " for " + video.width + "x" + video.height + " frames");
+		Assert.floatEquals(1, video.pixelAspectRatio);
+		Assert.equals(180, video.displayWidth);
+		Assert.equals(320, video.displayHeight);
+		video.dispose();
+
+		Assert.isFalse(video.hasVideo);
+		Assert.equals(0, video.displayWidth);
+
+		video = new VideoSource("assets/audio-only.m4a");
+
+		if (video.source != null)
+		{
+			Assert.isFalse(video.hasVideo);
+			Assert.isTrue(video.hasAudio);
+			Assert.equals(0, video.rotation);
+			Assert.equals(0, video.displayWidth);
+			video.dispose();
+		}
 	}
 
 	private static function waitForTime(video:VideoSource, frame:VideoFrame, time:Int):Void

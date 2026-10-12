@@ -22,6 +22,16 @@ class FlashVideoSource
 		return 0;
 	}
 
+	public function getDisplayHeight():Int
+	{
+		return 0;
+	}
+
+	public function getDisplayWidth():Int
+	{
+		return 0;
+	}
+
 	public function getDroppedFrames():Int
 	{
 		return 0;
@@ -38,6 +48,11 @@ class FlashVideoSource
 	}
 
 	public function getHasAudio():Bool
+	{
+		return false;
+	}
+
+	public function getHasVideo():Bool
 	{
 		return false;
 	}
@@ -62,9 +77,19 @@ class FlashVideoSource
 		return 0;
 	}
 
+	public function getPixelAspectRatio():Float
+	{
+		return 1;
+	}
+
 	public function getPlaying():Bool
 	{
 		return false;
+	}
+
+	public function getRotation():Int
+	{
+		return 0;
 	}
 
 	public function getWidth():Int

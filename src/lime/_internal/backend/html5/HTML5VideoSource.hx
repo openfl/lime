@@ -22,6 +22,7 @@ class HTML5VideoSource
 	private var loops:Int;
 	private var pan:Float;
 	private var parent:VideoSource;
+	private var path:String;
 	private var playing:Bool;
 
 	public function new(parent:VideoSource)
@@ -53,6 +54,17 @@ class HTML5VideoSource
 		return element != null ? Std.int(element.currentTime * 1000) : 0;
 	}
 
+	public function getDisplayHeight():Int
+	{
+		// The browser sizes and turns the picture itself
+		return getHeight();
+	}
+
+	public function getDisplayWidth():Int
+	{
+		return getWidth();
+	}
+
 	public function getDroppedFrames():Int
 	{
 		// Browsers that count dropped frames report them in the playback quality
@@ -77,6 +89,12 @@ class HTML5VideoSource
 		return element != null;
 	}
 
+	public function getHasVideo():Bool
+	{
+		// Known once the size is, and a picture the browser cannot decode has none
+		return element != null && element.videoWidth > 0;
+	}
+
 	public function getHeight():Int
 	{
 		return element != null ? element.videoHeight : 0;
@@ -98,9 +116,19 @@ class HTML5VideoSource
 		return pan;
 	}
 
+	public function getPixelAspectRatio():Float
+	{
+		return 1;
+	}
+
 	public function getPlaying():Bool
 	{
 		return playing;
+	}
+
+	public function getRotation():Int
+	{
+		return 0;
 	}
 
 	public function getWidth():Int
@@ -177,11 +205,13 @@ class HTML5VideoSource
 		// Play inline on iOS rather than in the full screen player
 		element.setAttribute("playsinline", "");
 		element.addEventListener("ended", element_onEnded);
+		element.addEventListener("error", element_onError);
 		element.src = url;
 		element.load();
 
 		completed = false;
 		frameTime = -1;
+		this.path = path;
 		return true;
 	}
 
@@ -305,6 +335,7 @@ class HTML5VideoSource
 		if (element != null)
 		{
 			element.removeEventListener("ended", element_onEnded);
+			element.removeEventListener("error", element_onError);
 			element.pause();
 			element.removeAttribute("src");
 			element.load();
@@ -328,5 +359,13 @@ class HTML5VideoSource
 		playing = false;
 		completed = true;
 		parent.onComplete.dispatch();
+	}
+
+	@:noCompletion private function element_onError(_):Void
+	{
+		// Older externs leave out the message, which browsers give
+		var error:Dynamic = element.error;
+		playing = false;
+		parent.onError.dispatch("Cannot play " + path + (error != null && error.message != null && error.message != "" ? ": " + error.message : ""));
 	}
 }

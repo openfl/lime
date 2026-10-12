@@ -23,6 +23,15 @@ import sys.io.File;
 	- audio-only.m4a: a second of AAC stereo, without video
 	- video-odd.mp4: 330x186, so its size is not a multiple of 16
 	- video-51.mp4: 320x180 with six channel AAC, which is mixed down to stereo
+	- video-anamorphic.mp4: 320x180 with pixels 4:3 as wide as tall, which the
+	  encoder wrote into the stream, given a matching pasp box by hand
+
+	These were then edited box by box:
+
+	- video-rotated.mp4: video-noaudio.mp4 with its track turned a quarter
+	  clockwise, as phones store video recorded upright
+	- video-unsupported.mp4: video.mp4 with its picture marked as a codec that
+	  nothing decodes, as for a codec the platform lacks
 **/
 class VideoInputTest extends Test
 {
@@ -312,6 +321,110 @@ class VideoInputTest extends Test
 		Assert.isTrue(peaks[0] > 500 && peaks[1] > 500, "the stereo mix peaks at " + peaks);
 	}
 
+	public function testRotatedVideoReportsItsRotation():Void
+	{
+		// Stored sideways, to be shown turned a quarter clockwise. Some platforms
+		// turn the frames as they decode them, and then report no rotation.
+		for (hardware in [true, false])
+		{
+			var decoder = openWith("assets/video-rotated.mp4", hardware);
+			if (decoder == null) return;
+
+			var described = (hardware ? "hardware" : "software") + " decoding gave rotation " + decoder.rotation + " for " + decoder.width + "x"
+				+ decoder.height + " frames";
+			Assert.equals(180, decoder.displayWidth, described);
+			Assert.equals(320, decoder.displayHeight, described);
+			Assert.isTrue(decoder.rotation == 90 && decoder.width == 320 || decoder.rotation == 0 && decoder.width == 180, described);
+
+			// Frames have the size reported
+			var frame = new VideoFrame();
+			Assert.isTrue(nextFrame(decoder, frame), "no frame");
+			Assert.equals(decoder.width, frame.width, described);
+			Assert.equals(decoder.height, frame.height, described);
+			decoder.close();
+		}
+
+		var decoder = open("assets/video-noaudio.mp4");
+		if (decoder == null) return;
+
+		Assert.equals(0, decoder.rotation);
+		Assert.equals(320, decoder.displayWidth);
+		Assert.equals(180, decoder.displayHeight);
+		decoder.close();
+	}
+
+	public function testAnamorphicVideoReportsItsPixelShape():Void
+	{
+		// 320 pixels that are each 4:3 as wide as tall are shown 427 wide. Some
+		// platforms stretch the frames as they decode them, and then report
+		// square pixels.
+		for (hardware in [true, false])
+		{
+			var decoder = openWith("assets/video-anamorphic.mp4", hardware);
+			if (decoder == null) return;
+
+			var described = (hardware ? "hardware" : "software") + " decoding gave pixels " + decoder.pixelAspectRatio + " wide for "
+				+ decoder.width + "x" + decoder.height + " frames";
+			Assert.isTrue(Math.abs(decoder.displayWidth - 427) <= 2, described + ", shown " + decoder.displayWidth + " wide");
+			Assert.equals(180, decoder.displayHeight, described);
+			Assert.isTrue(Math.abs(decoder.pixelAspectRatio - 4 / 3) < 0.01 && decoder.width == 320
+				|| decoder.pixelAspectRatio == 1 && Math.abs(decoder.width - 427) <= 2, described);
+			decoder.close();
+		}
+
+		var decoder = open("assets/video-noaudio.mp4");
+		if (decoder == null) return;
+
+		Assert.floatEquals(1, decoder.pixelAspectRatio);
+		decoder.close();
+	}
+
+	public function testVideoInAMissingCodecPlaysItsSound():Void
+	{
+		var decoder = open("assets/video-unsupported.mp4");
+		if (decoder == null) return;
+
+		Assert.isFalse(decoder.hasVideo, "the picture was decoded");
+		Assert.isTrue(decoder.hasAudio, "the sound was left out");
+
+		// Android's extractor gives a track in a codec it does not know no type,
+		// so only a known codec that the device cannot decode is reported there
+		#if android
+		Assert.pass();
+		#else
+		Assert.isTrue(decoder.videoUnsupported, "the picture that cannot be decoded was not reported");
+		#end
+		Assert.isFalse(decoder.audioUnsupported);
+
+		var frames = readToTheEnd(decoder);
+		decoder.close();
+
+		Assert.isTrue(frames.ended, "decoding did not finish");
+		Assert.equals(0, frames.count);
+
+		decoder = open(PATH);
+		if (decoder == null) return;
+
+		Assert.isFalse(decoder.videoUnsupported);
+		Assert.isFalse(decoder.audioUnsupported);
+		decoder.close();
+	}
+
+	public function testSeekingReportsWhetherItMoved():Void
+	{
+		var decoder = open(PATH);
+		if (decoder == null) return;
+
+		var frame = new VideoFrame();
+		Assert.isTrue(decoder.seek(1), "seeking a file failed");
+		Assert.isTrue(nextFrame(decoder, frame), "no frame after seeking");
+		Assert.isTrue(frame.time > 0.9 && frame.time < 1.1, "after seeking to 1 s, the first frame was at " + frame.time + " s");
+		Assert.isFalse(decoder.error);
+		decoder.close();
+
+		Assert.isFalse(decoder.seek(1), "a closed decoder seeked");
+	}
+
 	public function testVideoSourceWithoutSoundPlaysToTheEnd():Void
 	{
 		if (!canDecode()) return;
@@ -403,6 +516,26 @@ class VideoInputTest extends Test
 		return decoder;
 	}
 
+	private static function openWith(path:String, hardwareDecoding:Bool):VideoDecoder
+	{
+		if (!VideoDecoder.isSupported)
+		{
+			Assert.pass();
+			return null;
+		}
+
+		var decoder = new VideoDecoder();
+		decoder.hardwareDecoding = hardwareDecoding;
+
+		if (!decoder.open(path))
+		{
+			Assert.warn("Cannot decode " + path + " here, so it was not tested");
+			return null;
+		}
+
+		return decoder;
+	}
+
 	private static function readToTheEnd(decoder:VideoDecoder):{count:Int, ended:Bool}
 	{
 		// Reads every frame and all of the sound, until both finish or time runs out
@@ -430,8 +563,11 @@ class VideoInputTest extends Test
 
 	private static function readAsset(path:String):Bytes
 	{
-		// Where the decoder finds it, which tests can read before assets load
-		return File.getBytes(@:privateAccess VideoDecoder.__resolvePath(path));
+		// Where the decoder finds it, which tests can read before assets load,
+		// including from inside an Android package
+		var resolved = @:privateAccess VideoDecoder.__resolvePath(path);
+		var bytes:Bytes = lime.utils.Bytes.fromFile(resolved);
+		return bytes != null ? bytes : File.getBytes(resolved);
 	}
 
 	private static function scratchDirectory():String

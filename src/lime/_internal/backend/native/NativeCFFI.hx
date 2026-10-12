@@ -368,7 +368,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_video_decoder_read_frame(handle:Dynamic, buffer:Dynamic, position:Int, length:Int, time:Float):Int;
 
-	@:cffi private static function lime_video_decoder_seek(handle:Dynamic, time:Float, accurate:Bool):Void;
+	@:cffi private static function lime_video_decoder_seek(handle:Dynamic, time:Float, accurate:Bool):Bool;
 
 	@:cffi private static function lime_video_decoder_set_drop_late_frames(handle:Dynamic, value:Bool):Void;
 
@@ -1038,8 +1038,8 @@ class NativeCFFI
 		"lime_video_decoder_read_audio", "ooiii", false));
 	private static var lime_video_decoder_read_frame = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Float->Int>(cpp.Prime._loadPrime("lime",
 		"lime_video_decoder_read_frame", "ooiidi", false));
-	private static var lime_video_decoder_seek = new cpp.Callable<cpp.Object->Float->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_video_decoder_seek",
-		"odbv", false));
+	private static var lime_video_decoder_seek = new cpp.Callable<cpp.Object->Float->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_video_decoder_seek",
+		"odbb", false));
 	private static var lime_video_decoder_set_drop_late_frames = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_video_decoder_set_drop_late_frames", "obv", false));
 	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_alert", "ossv",
@@ -2306,7 +2306,10 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_video_decoder_seek") private static function lime_video_decoder_seek(handle:CFFIPointer, time:Float, accurate:Bool):Void {}
+	@:hlNative("lime", "hl_video_decoder_seek") private static function lime_video_decoder_seek(handle:CFFIPointer, time:Float, accurate:Bool):Bool
+	{
+		return false;
+	}
 
 	@:hlNative("lime", "hl_video_decoder_set_drop_late_frames") private static function lime_video_decoder_set_drop_late_frames(handle:CFFIPointer,
 		value:Bool):Void {}
