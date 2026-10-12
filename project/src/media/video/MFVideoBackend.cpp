@@ -56,7 +56,9 @@ namespace lime {
 	typedef HRESULT (WINAPI *MFCreateAttributesFunc) (IMFAttributes**, UINT32);
 	typedef HRESULT (WINAPI *MFCreateDXGIDeviceManagerFunc) (UINT*, IMFDXGIDeviceManager**);
 	typedef HRESULT (WINAPI *MFCreateMediaTypeFunc) (IMFMediaType**);
+	typedef HRESULT (WINAPI *MFCreateSourceReaderFromByteStreamFunc) (IMFByteStream*, IMFAttributes*, IMFSourceReader**);
 	typedef HRESULT (WINAPI *MFCreateSourceReaderFromURLFunc) (LPCWSTR, IMFAttributes*, IMFSourceReader**);
+	typedef HRESULT (WINAPI *MFCreateSourceResolverFunc) (IMFSourceResolver**);
 	typedef HRESULT (WINAPI *MFShutdownFunc) ();
 	typedef HRESULT (WINAPI *MFStartupFunc) (ULONG, DWORD);
 
@@ -114,7 +116,9 @@ namespace lime {
 	static MFCreateAttributesFunc _MFCreateAttributes = 0;
 	static MFCreateDXGIDeviceManagerFunc _MFCreateDXGIDeviceManager = 0;
 	static MFCreateMediaTypeFunc _MFCreateMediaType = 0;
+	static MFCreateSourceReaderFromByteStreamFunc _MFCreateSourceReaderFromByteStream = 0;
 	static MFCreateSourceReaderFromURLFunc _MFCreateSourceReaderFromURL = 0;
+	static MFCreateSourceResolverFunc _MFCreateSourceResolver = 0;
 	static MFShutdownFunc _MFShutdown = 0;
 	static MFStartupFunc _MFStartup = 0;
 
@@ -152,6 +156,8 @@ namespace lime {
 			_MFShutdown = (MFShutdownFunc)GetProcAddress (mfplat, "MFShutdown");
 			_MFStartup = (MFStartupFunc)GetProcAddress (mfplat, "MFStartup");
 			_MFCreateSourceReaderFromURL = (MFCreateSourceReaderFromURLFunc)GetProcAddress (mfreadwrite, "MFCreateSourceReaderFromURL");
+			_MFCreateSourceReaderFromByteStream = (MFCreateSourceReaderFromByteStreamFunc)GetProcAddress (mfreadwrite, "MFCreateSourceReaderFromByteStream");
+			_MFCreateSourceResolver = (MFCreateSourceResolverFunc)GetProcAddress (mfplat, "MFCreateSourceResolver");
 
 			HMODULE d3d11 = LoadSystemLibrary (L"d3d11.dll");
 			if (d3d11) _D3D11CreateDevice = (PFN_D3D11_CREATE_DEVICE)GetProcAddress (d3d11, "D3D11CreateDevice");
@@ -267,6 +273,7 @@ namespace lime {
 			virtual void Close ();
 			virtual VideoDecodeResult DecodeAudio (std::vector<unsigned char>* pcm, double* time);
 			virtual VideoDecodeResult DecodeVideo (VideoPlanes* planes, double* time, double* duration);
+			virtual void Interrupt ();
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
 			virtual bool Seek (double time);
 
@@ -276,6 +283,7 @@ namespace lime {
 			bool CopyToStaging (IMFSample* sample, LONGLONG timestamp, LONGLONG sampleDuration);
 			bool CreateDeviceManager ();
 			bool CreateProcessor (UINT inputWidth, UINT inputHeight);
+			IMFSourceReader* CreateReader (IMFAttributes* attributes, IMFByteStream** stream);
 			void GetPlanes (VideoPlanes* planes, BYTE* data, int pitch, int lumaRows);
 			VideoDecodeResult MapStaging (VideoPlanes* planes, double* time, double* duration);
 			bool OpenAudio ();
@@ -285,6 +293,7 @@ namespace lime {
 			void ReadVideoFormat ();
 			void ReleaseDeviceManager ();
 			void ReleaseProcessor ();
+			void SetStream (IMFByteStream** stream, IMFByteStream* value);
 			bool SwitchToSoftware ();
 			void UnlockVideo ();
 
@@ -300,11 +309,13 @@ namespace lime {
 			int audioPacketChannels;
 			int audioPacketRate;
 			IMFSourceReader* audioReader;
+			IMFByteStream* audioStream;
 			int audioSampleRate;
 			int audioSourceChannels;
 			bool audioStreamFound;
 			int bufferHeight;
 			int bufferWidth;
+			bool canSeek;
 			VideoColorMatrix colorMatrix;
 			int cropHeight;
 			int cropWidth;
@@ -328,7 +339,7 @@ namespace lime {
 			bool fullRange;
 			bool hardwareActive;
 			std::map<std::pair<ID3D11Texture2D*, UINT>, ID3D11VideoProcessorInputView*> inputViews;
-			bool canSeek;
+			std::atomic<bool> interrupted;
 			HANDLE interopDevice;
 			void* interopContext;
 			bool interopFailed;
@@ -349,12 +360,14 @@ namespace lime {
 			LONGLONG stagingTimes[STAGING_TEXTURES];
 			UINT stagingWidth;
 			bool started;
+			std::mutex streamMutex;
 			std::wstring url;
 			bool videoEnded;
 			ID3D11VideoContext* videoContext;
 			ID3D11VideoDevice* videoDevice;
 			LONGLONG videoPosition;
 			IMFSourceReader* videoReader;
+			IMFByteStream* videoStream;
 			bool videoStreamFound;
 
 
@@ -367,6 +380,7 @@ namespace lime {
 		audioPacketChannels = 0;
 		audioPacketRate = 0;
 		audioReader = NULL;
+		audioStream = NULL;
 		audioSampleRate = 0;
 		audioSourceChannels = 0;
 		audioStreamFound = false;
@@ -388,6 +402,7 @@ namespace lime {
 		interopContext = NULL;
 		interopDevice = NULL;
 		interopFailed = false;
+		interrupted = false;
 		lastFrameTime = -1;
 		locked2D = NULL;
 		lockedBuffer = NULL;
@@ -410,6 +425,7 @@ namespace lime {
 		videoEnded = false;
 		videoPosition = 0;
 		videoReader = NULL;
+		videoStream = NULL;
 		videoStreamFound = false;
 
 		for (int i = 0; i < STAGING_TEXTURES; i++) staging[i] = NULL;
@@ -474,6 +490,10 @@ namespace lime {
 			audioReader = NULL;
 
 		}
+
+		SetStream (&audioStream, NULL);
+		SetStream (&videoStream, NULL);
+		interrupted = false;
 
 		ReleaseDeviceManager ();
 
@@ -606,6 +626,51 @@ namespace lime {
 		}
 
 		return copied;
+
+	}
+
+
+	IMFSourceReader* MFVideoBackend::CreateReader (IMFAttributes* attributes, IMFByteStream** stream) {
+
+		// Each reader reads its own byte stream, which is kept so Interrupt can
+		// close it. The resolver opens files and URLs as Media Foundation does.
+		IMFByteStream* byteStream = NULL;
+		IMFSourceResolver* resolver = NULL;
+
+		if (_MFCreateSourceResolver && _MFCreateSourceReaderFromByteStream && SUCCEEDED (_MFCreateSourceResolver (&resolver))) {
+
+			MF_OBJECT_TYPE type = MF_OBJECT_INVALID;
+			IUnknown* object = NULL;
+
+			if (SUCCEEDED (resolver->CreateObjectFromURL (url.c_str (), MF_RESOLUTION_BYTESTREAM, NULL, &type, &object)) && object) {
+
+				object->QueryInterface (IID_PPV_ARGS (&byteStream));
+				object->Release ();
+
+			}
+
+			resolver->Release ();
+
+		}
+
+		IMFSourceReader* reader = NULL;
+
+		if (byteStream && FAILED (_MFCreateSourceReaderFromByteStream (byteStream, attributes, &reader))) {
+
+			reader = NULL;
+			byteStream->Release ();
+			byteStream = NULL;
+
+		}
+
+		if (!reader && FAILED (_MFCreateSourceReaderFromURL (url.c_str (), attributes, &reader))) {
+
+			return NULL;
+
+		}
+
+		SetStream (stream, byteStream);
+		return reader;
 
 	}
 
@@ -752,7 +817,7 @@ namespace lime {
 
 				// A GPU that is lost, as when its driver restarts, cannot give back
 				// the frames it decoded, so decoding carries on in software
-				if (result == VIDEO_DECODE_ERROR && hardwareActive && SwitchToSoftware ()) continue;
+				if (result == VIDEO_DECODE_ERROR && hardwareActive && !interrupted && SwitchToSoftware ()) continue;
 
 				return result;
 
@@ -770,7 +835,7 @@ namespace lime {
 
 				if (sample) sample->Release ();
 
-				if (hardwareActive && SwitchToSoftware ()) continue;
+				if (hardwareActive && !interrupted && SwitchToSoftware ()) continue;
 
 				return VIDEO_DECODE_ERROR;
 
@@ -920,6 +985,20 @@ namespace lime {
 	}
 
 
+	void MFVideoBackend::Interrupt () {
+
+		// A stream waiting on a stalled network source would wait until the
+		// connection times out, half a minute later. Closing the byte streams,
+		// which only closing the video does, makes the waiting reads fail.
+		interrupted = true;
+
+		std::lock_guard<std::mutex> lock (streamMutex);
+		if (audioStream) audioStream->Close ();
+		if (videoStream) videoStream->Close ();
+
+	}
+
+
 	void MFVideoBackend::GetPlanes (VideoPlanes* planes, BYTE* data, int pitch, int lumaRows) {
 
 		planes->colorMatrix = colorMatrix;
@@ -1020,7 +1099,8 @@ namespace lime {
 
 		IMFSourceReader* reader = NULL;
 
-		if (FAILED (_MFCreateSourceReaderFromURL (url.c_str (), NULL, &reader))) return false;
+		reader = CreateReader (NULL, &audioStream);
+		if (!reader) return false;
 
 		reader->SetStreamSelection (MF_SOURCE_READER_ALL_STREAMS, FALSE);
 
@@ -1140,11 +1220,10 @@ namespace lime {
 
 		}
 
-		IMFSourceReader* reader = NULL;
-		HRESULT hr = _MFCreateSourceReaderFromURL (url.c_str (), attributes, &reader);
+		IMFSourceReader* reader = CreateReader (attributes, &videoStream);
 		attributes->Release ();
 
-		if (FAILED (hr)) {
+		if (!reader) {
 
 			if (hardware) ReleaseDeviceManager ();
 			return false;
@@ -1564,7 +1643,7 @@ namespace lime {
 				if (sample) sample->Release ();
 
 				// Continuing in software means decoding into memory from here on
-				if (hardwareActive && SwitchToSoftware ()) return VIDEO_DECODE_OK;
+				if (hardwareActive && !interrupted && SwitchToSoftware ()) return VIDEO_DECODE_OK;
 
 				return VIDEO_DECODE_ERROR;
 
@@ -1888,6 +1967,16 @@ namespace lime {
 		#endif
 
 		interopFailed = false;
+
+	}
+
+
+	void MFVideoBackend::SetStream (IMFByteStream** stream, IMFByteStream* value) {
+
+		// Interrupt closes the streams from another thread
+		std::lock_guard<std::mutex> lock (streamMutex);
+		if (*stream) (*stream)->Release ();
+		*stream = value;
 
 	}
 
