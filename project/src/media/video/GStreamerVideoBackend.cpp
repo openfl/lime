@@ -1109,6 +1109,7 @@ namespace lime {
 			double frameRate;
 			bool fullRange;
 			int height;
+			std::atomic<bool> interrupted;
 			double lastFrameTime;
 			double pixelAspectRatio;
 			bool planar;
@@ -1134,6 +1135,7 @@ namespace lime {
 		frameRate = 0;
 		fullRange = false;
 		height = 0;
+		interrupted = false;
 		lastFrameTime = -1;
 		pixelAspectRatio = 0;
 		planar = false;
@@ -1347,6 +1349,9 @@ namespace lime {
 
 	void GStreamerVideoBackend::Interrupt () {
 
+		// Kept for the backend too, as reopening the video in software starts a
+		// new stream, which would not know it was interrupted
+		interrupted = true;
 		audio.Interrupt ();
 		video.Interrupt ();
 
@@ -1356,6 +1361,7 @@ namespace lime {
 	bool GStreamerVideoBackend::Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info) {
 
 		Close ();
+		interrupted = false;
 
 		if (!path || !path[0]) return false;
 
@@ -1496,7 +1502,15 @@ namespace lime {
 
 		UnmapVideo ();
 
-		if (!video.Open (uri.c_str (), true, false, deadline)) return false;
+		if (interrupted || !video.Open (uri.c_str (), true, false, deadline)) return false;
+
+		// Closing can have begun while the new stream opened
+		if (interrupted) {
+
+			video.Interrupt ();
+			return false;
+
+		}
 
 		// Decoding resumes from the keyframe before the last frame returned
 		if (lastFrameTime >= 0) {
