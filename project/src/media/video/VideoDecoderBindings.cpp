@@ -211,8 +211,10 @@ namespace lime {
 
 	value lime_video_decoder_open (value handle, HxString path, bool hardwareDecoding, int format) {
 
+		// hxcpp keeps strings with non-ASCII characters as UTF-16
 		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
-		std::string source = path.c_str () ? path.c_str () : "";
+		const char* utf8 = hxs_utf8 (path, nullptr);
+		std::string source = utf8 ? utf8 : "";
 
 		System::GCEnterBlocking ();
 		bool success = decoder->Open (source.c_str (), hardwareDecoding, (VideoFrameFormat)format);
