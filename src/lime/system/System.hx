@@ -392,13 +392,11 @@ class System
 	**/
 	public static function getTimer():Int
 	{
-		#if flash
-		return flash.Lib.getTimer();
-		#elseif ((js && !nodejs) || electron)
-		return Std.int(Browser.window.performance.now());
+		#if (flash || (js && !nodejs) || electron)
+		return Std.int(__getTimer());
 		#else
-		// Wrap like Std.int does on HTML5, so the difference between two readings
-		// stays right, where a plain cast would stop at the Int limit
+		// Wrap like Std.int does on Flash and HTML5, so the difference between two
+		// readings stays right, where a plain cast would stop at the Int limit
 		var time = __getTimer() % 4294967296.0;
 		return Std.int(time < 2147483648.0 ? time : time - 4294967296.0);
 		#end
@@ -551,18 +549,26 @@ class System
 	{
 		// The timer behind getTimer(), as a Float that keeps counting past 2^31 ms
 		#if flash
-		return flash.Lib.getTimer();
+		var time:Float = flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
-		return Browser.window.performance.now();
+		var time:Float = Browser.window.performance.now();
 		#elseif (lime_cffi && !macro)
-		return NativeCFFI.lime_system_get_timer();
+		var time:Float = NativeCFFI.lime_system_get_timer();
 		#elseif cpp
-		return untyped __global__.__time_stamp() * 1000;
+		var time:Float = untyped __global__.__time_stamp() * 1000;
 		#elseif sys
-		return Sys.time() * 1000;
+		var time:Float = Sys.time() * 1000;
 		#else
-		return 0;
+		var time:Float = 0;
 		#end
+
+		#if (simulate_uptime && !macro)
+		// -Dsimulate_uptime=<ms> starts the timer that far in, to test what
+		// happens to applications that keep running for days
+		time += Std.parseFloat(haxe.macro.Compiler.getDefine("simulate_uptime"));
+		#end
+
+		return time;
 	}
 
 	#if sys

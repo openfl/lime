@@ -84,6 +84,17 @@ jobs:
           lime test hl -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
 
+      - name: Run unit tests past 24.8 days
+        working-directory: tests/unit
+        # A timer stuck at the Int limit hangs the tests rather than failing them
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          # The timer starts 10 s short of 2^31 ms, where an Int millisecond count
+          # runs out, so the tests run on across it
+          lime test linux -release -verbose -nocolor -Dsimulate_uptime=2147473648
+
       - name: Run video smoke test
         working-directory: tests/video-smoke
         run: |
@@ -525,6 +536,17 @@ jobs:
           lime test hl -release -verbose -nocolor
           lime test air -release -verbose -nocolor
           lime test windows -release -verbose -nocolor
+
+      - name: Run unit tests past 24.8 days
+        working-directory: tests/unit
+        # A timer stuck at the Int limit hangs the tests rather than failing them
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          # The timer starts 10 s short of 2^31 ms, where an Int millisecond count
+          # runs out, so the tests run on across it
+          lime test windows -release -verbose -nocolor -Dsimulate_uptime=2147473648
 
       - name: Install samples
         run: |
