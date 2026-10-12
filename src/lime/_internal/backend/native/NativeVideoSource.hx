@@ -30,7 +30,9 @@ import lime.utils.UInt8Array;
 class NativeVideoSource
 {
 	private static inline var AUDIO_AHEAD_SECONDS:Float = 0.25;
-	private static inline var AUDIO_BUFFER_COUNT:Int = 6;
+	// Half a second of sound is queued, so it plays on through pauses in the
+	// application's updates, such as garbage collection or a blocking load
+	private static inline var AUDIO_BUFFER_COUNT:Int = 12;
 	private static inline var AUDIO_BUFFER_SECONDS:Float = 0.04;
 	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
 	private static inline var AUDIO_DRIFT_SECONDS:Float = 0.1;
@@ -480,9 +482,11 @@ class NativeVideoSource
 	{
 		var now = getStamp();
 
-		// Only an output that has audio to play is checked. Underruns, and Lime
-		// pausing the device while the window is hidden, are not stalls.
-		if (!playing || isWaitingForFrame() || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended)
+		// Only an output that has audio to play is checked. Underruns, sound that
+		// has not started yet, and Lime pausing the device while the window is
+		// hidden, are not stalls.
+		if (!playing || isWaitingForFrame() || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
+			|| AL.getSourcei(handle, AL.SOURCE_STATE) == AL.INITIAL)
 		{
 			audioCheckStamp = -1;
 			return;
@@ -1059,17 +1063,21 @@ class NativeVideoSource
 			if (playing && bufferTimes.length > 0 && !isWaitingForFrame())
 			{
 				var state = AL.getSourcei(handle, AL.SOURCE_STATE);
+				var start = true;
 
 				if (state == AL.INITIAL && clockMode == MONOTONIC)
 				{
 					// The clock does not wait for the sound, which would be late by the
-					// output's latency, so it starts that much further in
+					// output's latency, so it starts that much further in. Sound that
+					// starts ahead of the clock, as after moving the sound to the clock
+					// once more audio was read than was played, waits for the clock.
 					var offset = getTime() - bufferTimes[0] + getAudioLatency();
 					var queued = bufferTimes.length * AUDIO_BUFFER_SECONDS;
 					if (offset > 0) AL.sourcef(handle, AL.SEC_OFFSET, Math.min(offset, queued - AUDIO_BUFFER_SECONDS));
+					else start = offset > -AUDIO_MIX_SECONDS;
 				}
 
-				if (state != AL.PLAYING)
+				if (start && state != AL.PLAYING)
 				{
 					AL.sourcePlay(handle);
 				}

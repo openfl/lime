@@ -141,8 +141,8 @@ class VideoSource
 	/**
 		The balance of the video's sound, from -1 for the left speaker only to 1
 		for the right speaker only. A stereo video turns down the channel opposite
-		the pan, which applies to sound buffered from then on, within a quarter
-		of a second. It has no effect on HTML5.
+		the pan, which applies to sound buffered from then on, within half a
+		second. It has no effect on HTML5.
 	**/
 	public var pan(get, set):Float;
 

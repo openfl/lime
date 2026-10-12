@@ -454,6 +454,36 @@ class VideoSourceTest extends Test
 		}
 	}
 
+	public function testSoundPlaysOnThroughAPauseInUpdates():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (!hasAudioOutput())
+		{
+			video.dispose();
+			return;
+		}
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+		run(video, frame, 0.3);
+
+		// The application stops updating for a while, as for a garbage collection
+		// or a blocking load, and the sound already queued keeps playing
+		var backend = @:privateAccess video.__backend;
+		var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
+		var queued = bufferTimes.length > 0 ? bufferTimes[bufferTimes.length - 1] + 0.04 - @:privateAccess backend.getAudioPosition() : 0;
+		var stalled:Bool = @:privateAccess backend.audioStalled;
+		var count = bufferTimes.length;
+		Sys.sleep(0.35);
+		var state = AL.getSourcei(@:privateAccess backend.handle, AL.SOURCE_STATE);
+		video.dispose();
+
+		Assert.equals(AL.PLAYING, state, "the sound ran out during a pause of 0.35 s, with " + Math.round(queued * 1000) + " ms queued in "
+			+ count + " buffers" + (stalled ? " for an output taken as stalled" : ""));
+	}
+
 	public function testPanTurnsDownTheOppositeChannel():Void
 	{
 		for (pan in [-1.0, 1.0])
