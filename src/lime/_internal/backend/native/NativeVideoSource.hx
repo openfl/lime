@@ -322,7 +322,10 @@ class NativeVideoSource
 	{
 		if (playing || decoder == null) return;
 
-		if (completed)
+		// A video that has ended, or that was moved to its end, plays again from
+		// the start. The end is compared in the milliseconds of currentTime and
+		// length.
+		if (completed || (decoder.duration > 0 && Std.int(clockTime * 1000) >= Std.int(decoder.duration * 1000)))
 		{
 			seek(0);
 		}

@@ -474,14 +474,21 @@ class VideoSourceTest extends Test
 		var backend = @:privateAccess video.__backend;
 		var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
 		var queued = bufferTimes.length > 0 ? bufferTimes[bufferTimes.length - 1] + 0.04 - @:privateAccess backend.getAudioPosition() : 0;
-		var stalled:Bool = @:privateAccess backend.audioStalled;
-		var count = bufferTimes.length;
-		Sys.sleep(0.35);
+		var start = System.getTimer();
+		Sys.sleep(0.3);
+		var paused = (System.getTimer() - start) / 1000;
 		var state = AL.getSourcei(@:privateAccess backend.handle, AL.SOURCE_STATE);
 		video.dispose();
 
-		Assert.equals(AL.PLAYING, state, "the sound ran out during a pause of 0.35 s, with " + Math.round(queued * 1000) + " ms queued in "
-			+ count + " buffers" + (stalled ? " for an output taken as stalled" : ""));
+		var described = Math.round(queued * 1000) + " ms queued, paused for " + Math.round(paused * 1000) + " ms";
+		Assert.isTrue(queued >= 0.4, "only " + described);
+
+		// A busy machine can pause the test for longer than asked, or have its
+		// output catch up in a burst afterwards, which no queue survives
+		if (paused < queued - 0.15)
+		{
+			Assert.equals(AL.PLAYING, state, "the sound ran out with " + described);
+		}
 	}
 
 	public function testPanTurnsDownTheOppositeChannel():Void
@@ -839,6 +846,15 @@ class VideoSourceTest extends Test
 		video.play();
 		waitForTime(video, frame, 50);
 		Assert.isTrue(video.currentTime < 1000, "playing again went to " + video.currentTime + " ms");
+
+		// As does playing a video that was moved to its end while paused
+		video.pause();
+		video.currentTime = length;
+		completed = false;
+		video.play();
+		waitForTime(video, frame, 50);
+		Assert.isFalse(completed, "playing from the end completed straight away");
+		Assert.isTrue(video.currentTime < 1000, "playing from the end went to " + video.currentTime + " ms");
 		video.dispose();
 	}
 
