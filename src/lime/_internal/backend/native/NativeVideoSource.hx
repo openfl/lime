@@ -19,6 +19,18 @@ import lime.system.System;
 import lime.system.ThreadPool;
 import lime.system.WorkOutput;
 #end
+#if (lime_threads && (target.threaded || cpp || neko))
+#if target.threaded
+import sys.thread.Mutex;
+import sys.thread.Thread;
+#elseif cpp
+import cpp.vm.Mutex;
+import cpp.vm.Thread;
+#else
+import neko.vm.Mutex;
+import neko.vm.Thread;
+#end
+#end
 import lime.utils.Int16Array;
 import lime.utils.UInt8Array;
 
@@ -38,6 +50,7 @@ class NativeVideoSource
 	private static inline var AUDIO_CHECK_SECONDS:Float = 0.5;
 	private static inline var AUDIO_DRIFT_SECONDS:Float = 0.1;
 	private static inline var AUDIO_DRIFT_WAIT_SECONDS:Float = 0.25;
+	private static inline var AUDIO_FEED_SECONDS:Float = 0.02;
 	private static inline var AUDIO_JUMP_SECONDS:Float = 0.25;
 	private static inline var AUDIO_LEAD_SECONDS:Float = 0.2;
 	private static inline var AUDIO_LEARN_SECONDS:Float = 1.0;
@@ -51,6 +64,10 @@ class NativeVideoSource
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
 	private static var activeSources:Array<NativeVideoSource> = [];
+	#if (lime_threads && (target.threaded || cpp || neko))
+	private static var activeSourcesMutex:Mutex = new Mutex();
+	private static var feeding:Bool = false;
+	#end
 	private static var latencyExtension:Null<Bool>;
 	#if lime_threads
 	private static var loadJobs:Map<Int, {path:String, promise:Promise<VideoSource>}>;
@@ -71,6 +88,9 @@ class NativeVideoSource
 	private var audioLatencyMeasured:Bool;
 	private var audioLatencyMost:Float;
 	private var audioMixPosition:Float;
+	#if (lime_threads && (target.threaded || cpp || neko))
+	private var audioMutex:Mutex;
+	#end
 	private var audioPeriod:Float;
 	private var audioRateCount:Int;
 	private var audioRatePosition:Float;
@@ -109,6 +129,10 @@ class NativeVideoSource
 	public function new(parent:VideoSource)
 	{
 		this.parent = parent;
+
+		#if (lime_threads && (target.threaded || cpp || neko))
+		audioMutex = new Mutex();
+		#end
 
 		audioCheckStamp = -1;
 		audioClockStamp = -1;
@@ -243,7 +267,7 @@ class NativeVideoSource
 	{
 		// The OpenAL objects belong to the context being replaced, so they are
 		// deleted while it is still current
-		for (source in activeSources.copy())
+		for (source in getActiveSources())
 		{
 			source.deleteAudio();
 		}
@@ -255,10 +279,12 @@ class NativeVideoSource
 		// A new output runs at its own rate
 		timerDrift = 0;
 
-		for (source in activeSources.copy())
+		for (source in getActiveSources())
 		{
+			source.lockAudio();
 			source.createAudio();
 			if (source.handle != null) source.resyncAudio();
+			source.unlockAudio();
 		}
 	}
 
@@ -304,6 +330,13 @@ class NativeVideoSource
 	}
 
 	public function pause():Void
+	{
+		lockAudio();
+		pauseUnlocked();
+		unlockAudio();
+	}
+
+	@:noCompletion private function pauseUnlocked():Void
 	{
 		if (!playing) return;
 
@@ -411,12 +444,14 @@ class NativeVideoSource
 	public function setGain(value:Float):Float
 	{
 		gain = value;
+		lockAudio();
 
 		if (handle != null)
 		{
 			AL.sourcef(handle, AL.GAIN, value);
 		}
 
+		unlockAudio();
 		return value;
 	}
 
@@ -428,6 +463,7 @@ class NativeVideoSource
 	public function setPan(value:Float):Float
 	{
 		pan = Math.max(-1, Math.min(1, value));
+		lockAudio();
 
 		// Stereo is balanced as it is buffered, and OpenAL places mono
 		if (handle != null && decoder != null && decoder.audioChannels == 1)
@@ -435,6 +471,7 @@ class NativeVideoSource
 			AL.source3f(handle, AL.POSITION, pan, 0, -Math.sqrt(1 - pan * pan));
 		}
 
+		unlockAudio();
 		return pan;
 	}
 
@@ -449,6 +486,13 @@ class NativeVideoSource
 	}
 
 	@:noCompletion private function attach(decoder:VideoDecoder):Void
+	{
+		lockAudio();
+		attachUnlocked(decoder);
+		unlockAudio();
+	}
+
+	@:noCompletion private function attachUnlocked(decoder:VideoDecoder):Void
 	{
 		close();
 
@@ -477,8 +521,8 @@ class NativeVideoSource
 			audioSamples = Int16Array.fromBytes(audioBuffer);
 			bytesPerSecond = decoder.audioSampleRate * blockAlign;
 
-			activeSources.push(this);
 			createAudio();
+			addActiveSource(this);
 		}
 	}
 
@@ -577,10 +621,17 @@ class NativeVideoSource
 
 	@:noCompletion private function close():Void
 	{
+		lockAudio();
+		closeUnlocked();
+		unlockAudio();
+	}
+
+	@:noCompletion private function closeUnlocked():Void
+	{
 		stopTimer();
 		playing = false;
 
-		activeSources.remove(this);
+		removeActiveSource(this);
 		deleteAudio();
 
 		audioCheckStamp = -1;
@@ -630,6 +681,13 @@ class NativeVideoSource
 
 	@:noCompletion private function createAudio():Void
 	{
+		lockAudio();
+		createAudioUnlocked();
+		unlockAudio();
+	}
+
+	@:noCompletion private function createAudioUnlocked():Void
+	{
 		handle = AL.createSource();
 		if (handle == null) return;
 
@@ -658,6 +716,13 @@ class NativeVideoSource
 	}
 
 	@:noCompletion private function deleteAudio():Void
+	{
+		lockAudio();
+		deleteAudioUnlocked();
+		unlockAudio();
+	}
+
+	@:noCompletion private function deleteAudioUnlocked():Void
 	{
 		if (handle != null)
 		{
@@ -870,6 +935,14 @@ class NativeVideoSource
 
 	@:noCompletion private function getTime():Float
 	{
+		lockAudio();
+		var time = getTimeUnlocked();
+		unlockAudio();
+		return time;
+	}
+
+	@:noCompletion private function getTimeUnlocked():Float
+	{
 		if (decoder == null) return 0;
 
 		// The clock is carried on from the time and stamp it last had, both set
@@ -975,6 +1048,14 @@ class NativeVideoSource
 
 	@:noCompletion private function seek(time:Float):Bool
 	{
+		lockAudio();
+		var moved = seekUnlocked(time);
+		unlockAudio();
+		return moved;
+	}
+
+	@:noCompletion private function seekUnlocked(time:Float):Bool
+	{
 		time = Math.max(0, time);
 		if (decoder.duration > 0) time = Math.min(time, decoder.duration);
 
@@ -1041,6 +1122,13 @@ class NativeVideoSource
 	}
 
 	@:noCompletion private function update():Void
+	{
+		lockAudio();
+		updateUnlocked();
+		unlockAudio();
+	}
+
+	@:noCompletion private function updateUnlocked():Void
 	{
 		if (decoder == null) return;
 
@@ -1130,6 +1218,94 @@ class NativeVideoSource
 				complete();
 			}
 		}
+	}
+
+	@:noCompletion private static function addActiveSource(source:NativeVideoSource):Void
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		activeSourcesMutex.acquire();
+		activeSources.push(source);
+		activeSourcesMutex.release();
+
+		if (!feeding)
+		{
+			// One thread keeps the sound of every playing video queued, so it plays
+			// on while the application's updates pause, as for a garbage collection
+			// or a blocking load. Updates still run the clock and the playback.
+			feeding = true;
+			Thread.create(feedSources);
+		}
+		#else
+		activeSources.push(source);
+		#end
+	}
+
+	@:noCompletion private function feed():Void
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		// A source that is busy on another thread is fed next time
+		if (!audioMutex.tryAcquire()) return;
+
+		if (handle != null && decoder != null && !audioSkipping && !audioStalled)
+		{
+			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+			fillBuffers();
+		}
+
+		audioMutex.release();
+		#end
+	}
+
+	#if (lime_threads && (target.threaded || cpp || neko))
+	@:noCompletion private static function feedSources():Void
+	{
+		while (true)
+		{
+			for (source in getActiveSources())
+			{
+				source.feed();
+			}
+
+			Sys.sleep(AUDIO_FEED_SECONDS);
+		}
+	}
+	#end
+
+	@:noCompletion private static function getActiveSources():Array<NativeVideoSource>
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		activeSourcesMutex.acquire();
+		var sources = activeSources.copy();
+		activeSourcesMutex.release();
+		return sources;
+		#else
+		return activeSources.copy();
+		#end
+	}
+
+	@:noCompletion private inline function lockAudio():Void
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		audioMutex.acquire();
+		#end
+	}
+
+	@:noCompletion private static function removeActiveSource(source:NativeVideoSource):Void
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		activeSourcesMutex.acquire();
+		activeSources.remove(source);
+		activeSourcesMutex.release();
+		#else
+		activeSources.remove(source);
+		#end
+	}
+
+	@:noCompletion private inline function unlockAudio():Void
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		audioMutex.release();
+		#end
 	}
 
 	// Event Handlers

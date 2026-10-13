@@ -361,12 +361,15 @@ class VideoSourceTest extends Test
 		// A source whose device went away can report any position, here an hour
 		// past the audio that is queued
 		var before = video.currentTime;
+		@:privateAccess video.__backend.lockAudio();
 		var bufferTimes:Array<Float> = @:privateAccess video.__backend.bufferTimes;
 
 		for (i in 0...bufferTimes.length)
 		{
 			bufferTimes[i] += 3600;
 		}
+
+		@:privateAccess video.__backend.unlockAudio();
 
 		var latest = 0;
 		var end = Timer.stamp() + 0.4;
@@ -472,8 +475,10 @@ class VideoSourceTest extends Test
 		// The application stops updating for a while, as for a garbage collection
 		// or a blocking load, and the sound already queued keeps playing
 		var backend = @:privateAccess video.__backend;
+		@:privateAccess backend.lockAudio();
 		var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
 		var queued = bufferTimes.length > 0 ? bufferTimes[bufferTimes.length - 1] + 0.04 - @:privateAccess backend.getAudioPosition() : 0;
+		@:privateAccess backend.unlockAudio();
 		var start = System.getTimer();
 		Sys.sleep(0.3);
 		var paused = (System.getTimer() - start) / 1000;
@@ -490,6 +495,32 @@ class VideoSourceTest extends Test
 			Assert.equals(AL.PLAYING, state, "the sound ran out with " + described);
 		}
 	}
+
+	#if (lime_threads && (target.threaded || cpp || neko))
+	public function testSoundPlaysOnThroughALongPauseInUpdates():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (!hasAudioOutput())
+		{
+			video.dispose();
+			return;
+		}
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+
+		// Longer than the sound that is queued at once, which another thread tops up
+		var start = System.getTimer();
+		Sys.sleep(1);
+		var paused = System.getTimer() - start;
+		var state = AL.getSourcei(@:privateAccess video.__backend.handle, AL.SOURCE_STATE);
+		video.dispose();
+
+		Assert.equals(AL.PLAYING, state, "the sound ran out during a pause of " + paused + " ms");
+	}
+	#end
 
 	public function testPanTurnsDownTheOppositeChannel():Void
 	{
@@ -574,8 +605,10 @@ class VideoSourceTest extends Test
 		run(video, frame, 0.8);
 
 		var backend = @:privateAccess video.__backend;
+		@:privateAccess backend.lockAudio();
 		var queued = @:privateAccess backend.bufferTimes.length > 0;
 		var gap = queued ? Math.abs(@:privateAccess backend.getAudioPosition() * 1000 - video.currentTime) : Math.POSITIVE_INFINITY;
+		@:privateAccess backend.unlockAudio();
 		video.dispose();
 
 		Assert.floatEquals(1, clock.rate, 0.1, "while the output stalled, the clock ran at " + clock.rate + " times real time");
@@ -698,12 +731,18 @@ class VideoSourceTest extends Test
 			video.readFrame(frame);
 			var clock = video.currentTime;
 			var read = System.getTimer();
-			var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
 
-			if (bufferTimes.length > 0)
+			// The queue and the position are read together, as the sound is queued
+			// from another thread
+			@:privateAccess backend.lockAudio();
+			var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
+			var values = bufferTimes.length > 0 ? AL.getSourcedvSOFT(@:privateAccess backend.handle, AL.SEC_OFFSET_LATENCY_SOFT, 2) : null;
+			var queueStart = bufferTimes.length > 0 ? bufferTimes[0] : 0;
+			@:privateAccess backend.unlockAudio();
+
+			if (values != null)
 			{
-				var values = AL.getSourcedvSOFT(@:privateAccess backend.handle, AL.SEC_OFFSET_LATENCY_SOFT, 2);
-				var mixed = (bufferTimes[0] + values[0]) * 1000;
+				var mixed = (queueStart + values[0]) * 1000;
 				var latency = values[1] * 1000;
 
 				most = Math.max(most, latency);
