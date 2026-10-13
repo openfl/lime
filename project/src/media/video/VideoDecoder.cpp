@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+#include <map>
 
 #if defined (LIME_OPENGL) && !defined (LIME_VIDEO_STANDALONE)
 #define LIME_VIDEO_TEXTURES
@@ -34,6 +36,15 @@ namespace lime {
 	// Decoding stops once this many frames or seconds of audio are queued
 	static const size_t MAX_QUEUED_FRAMES = 4;
 	static const double MAX_QUEUED_AUDIO = 0.75;
+
+	// HDR is shown as ITU-R BT.2408 suggests, with its reference white, 203
+	// nits, as standard range white, and highlights up to 1000 nits rolled off
+	// into it by the curve of BT.2390. HLG is taken as shown on a 1000 nit
+	// display. The tone map table holds every luma for chroma in steps of 4.
+	static const double TONE_MAP_PEAK = 1000.0;
+	static const double TONE_MAP_WHITE = 203.0;
+	static const int TONE_MAP_CHROMA_STEP = 4;
+	static const int TONE_MAP_CHROMA_NODES = 256 / TONE_MAP_CHROMA_STEP + 1;
 
 
 	static inline unsigned char ClampByte (int value) {
@@ -848,6 +859,7 @@ namespace lime {
 			std::lock_guard<std::mutex> decodeLock (videoDecodeMutex);
 
 			VideoPlanes planes;
+			planes.transfer = VIDEO_COLOR_TRANSFER_SDR;
 			VideoTextureFrame* textureFrame = 0;
 			double time = 0;
 			double duration = 0;
@@ -931,6 +943,8 @@ namespace lime {
 				frame->width = textureFrame->width;
 
 			} else {
+
+				if (planes.transfer != VIDEO_COLOR_TRANSFER_SDR) toneMapper.Map (&planes);
 
 				// Texture output without GPU support converts to RGBA here and uploads
 				VideoFrameFormat outputFormat = format == VIDEO_FRAME_FORMAT_TEXTURE ? VIDEO_FRAME_FORMAT_RGBA : format;
@@ -1051,6 +1065,254 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	static double DecodeHLG (double value) {
+
+		// Scene light from 0 to 1
+		value = (std::max) (value, 0.0);
+		return value <= 0.5 ? value * value / 3.0 : (exp ((value - 0.55991073) / 0.17883277) + 0.28466892) / 12.0;
+
+	}
+
+
+	static double DecodePQ (double value) {
+
+		// Nits
+		double p = pow ((std::max) (value, 0.0), 1.0 / 78.84375);
+		return 10000.0 * pow ((std::max) (p - 0.8359375, 0.0) / (18.8515625 - 18.6875 * p), 1.0 / 0.1593017578125);
+
+	}
+
+
+	static double EncodePQ (double nits) {
+
+		double y = pow ((std::max) (nits, 0.0) / 10000.0, 0.1593017578125);
+		return pow ((0.8359375 + 18.8515625 * y) / (1.0 + 18.6875 * y), 78.84375);
+
+	}
+
+
+	// The transfer curves are sampled, and looked up between samples, as
+	// building a table calls them a million times
+	static const int TONE_MAP_CURVE_SAMPLES = 4096;
+
+	struct ToneMapCurves {
+
+		double gamma[TONE_MAP_CURVE_SAMPLES + 1];
+		double hlg[TONE_MAP_CURVE_SAMPLES + 1];
+		double peak;
+		double pq[TONE_MAP_CURVE_SAMPLES + 1];
+		double white;
+
+	};
+
+
+	static double LookUpCurve (const double* curve, double value) {
+
+		// Values from 0 to 1
+		double position = (std::min) ((std::max) (value, 0.0), 1.0) * TONE_MAP_CURVE_SAMPLES;
+		int index = (int)position;
+		if (index >= TONE_MAP_CURVE_SAMPLES) return curve[TONE_MAP_CURVE_SAMPLES];
+		return curve[index] + (curve[index + 1] - curve[index]) * (position - index);
+
+	}
+
+
+	static double ToneMapLuminance (const ToneMapCurves& curves, double nits) {
+
+		// BT.2390's curve, in PQ, from 0 to TONE_MAP_PEAK nits into 0 to
+		// TONE_MAP_WHITE, which passes darker light through as it is
+		double peak = curves.peak;
+		double value = (std::min) (EncodePQ (nits) / peak, 1.0);
+		double white = curves.white / peak;
+		double knee = 1.5 * white - 0.5;
+
+		if (value > knee) {
+
+			double t = (value - knee) / (1.0 - knee);
+			double t2 = t * t;
+			double t3 = t2 * t;
+			value = (2 * t3 - 3 * t2 + 1) * knee + (t3 - 2 * t2 + t) * (1 - knee) + (-2 * t3 + 3 * t2) * white;
+
+		}
+
+		return LookUpCurve (curves.pq, value * peak);
+
+	}
+
+
+	static const unsigned char* GetToneMapTable (VideoColorTransfer transfer, VideoColorMatrix matrix, bool fullRange) {
+
+		// Each kind of frame's table is built once, a few megabytes, and kept
+		static std::mutex mutex;
+		static std::map<int, std::vector<unsigned char> > tables;
+
+		std::lock_guard<std::mutex> lock (mutex);
+		std::vector<unsigned char>& table = tables[(int)transfer * 16 + (int)matrix * 2 + (fullRange ? 1 : 0)];
+		if (!table.empty ()) return table.data ();
+
+		double kr, kb;
+
+		switch (matrix) {
+
+			case VIDEO_COLOR_MATRIX_BT601: kr = 0.299; kb = 0.114; break;
+			case VIDEO_COLOR_MATRIX_BT709: kr = 0.2126; kb = 0.0722; break;
+			default: kr = 0.2627; kb = 0.0593; break;
+
+		}
+
+		static ToneMapCurves* curves = NULL;
+
+		if (!curves) {
+
+			curves = new ToneMapCurves ();
+			curves->peak = EncodePQ (TONE_MAP_PEAK);
+			curves->white = EncodePQ (TONE_MAP_WHITE);
+
+			for (int i = 0; i <= TONE_MAP_CURVE_SAMPLES; i++) {
+
+				double value = (double)i / TONE_MAP_CURVE_SAMPLES;
+				curves->gamma[i] = pow (value, 1.0 / 2.4);
+				curves->hlg[i] = DecodeHLG (value);
+				curves->pq[i] = DecodePQ (value);
+
+			}
+
+		}
+
+		double kg = 1.0 - kr - kb;
+		table.resize ((size_t)TONE_MAP_CHROMA_NODES * TONE_MAP_CHROMA_NODES * 256 * 3);
+		unsigned char* entry = table.data ();
+
+		for (int u = 0; u < TONE_MAP_CHROMA_NODES; u++) {
+
+			for (int v = 0; v < TONE_MAP_CHROMA_NODES; v++) {
+
+				double cb = ((std::min) (u * TONE_MAP_CHROMA_STEP, 255) - 128) / (fullRange ? 255.0 : 224.0);
+				double cr = ((std::min) (v * TONE_MAP_CHROMA_STEP, 255) - 128) / (fullRange ? 255.0 : 224.0);
+
+				for (int y = 0; y < 256; y++) {
+
+					double luma = fullRange ? y / 255.0 : (y - 16) / 219.0;
+					double rgb[3];
+					rgb[0] = luma + 2.0 * (1.0 - kr) * cr;
+					rgb[2] = luma + 2.0 * (1.0 - kb) * cb;
+					rgb[1] = (luma - kr * rgb[0] - kb * rgb[2]) / kg;
+
+					for (int i = 0; i < 3; i++) rgb[i] = (std::min) ((std::max) (rgb[i], 0.0), 1.0);
+
+					// Light in nits, as shown on an HDR display
+					if (transfer == VIDEO_COLOR_TRANSFER_HLG) {
+
+						for (int i = 0; i < 3; i++) rgb[i] = LookUpCurve (curves->hlg, rgb[i]);
+						double scene = 0.2627 * rgb[0] + 0.6780 * rgb[1] + 0.0593 * rgb[2];
+						double gain = scene > 0 ? TONE_MAP_PEAK * pow (scene, 0.2) : 0;
+						for (int i = 0; i < 3; i++) rgb[i] *= gain;
+
+					} else {
+
+						for (int i = 0; i < 3; i++) rgb[i] = LookUpCurve (curves->pq, rgb[i]);
+
+					}
+
+					// The brightness is tone mapped, keeping the color's hue, and white
+					// becomes 1
+					double luminance = 0.2627 * rgb[0] + 0.6780 * rgb[1] + 0.0593 * rgb[2];
+					double scale = luminance > 0 ? ToneMapLuminance (*curves, luminance) / luminance / TONE_MAP_WHITE : 0;
+
+					// BT.2020 primaries to BT.709, clipping colors outside it
+					double r = (1.6605 * rgb[0] - 0.5876 * rgb[1] - 0.0728 * rgb[2]) * scale;
+					double g = (-0.1246 * rgb[0] + 1.1329 * rgb[1] - 0.0083 * rgb[2]) * scale;
+					double b = (-0.0182 * rgb[0] - 0.1006 * rgb[1] + 1.1187 * rgb[2]) * scale;
+
+					// Standard range video is made for BT.1886's display gamma
+					r = LookUpCurve (curves->gamma, r);
+					g = LookUpCurve (curves->gamma, g);
+					b = LookUpCurve (curves->gamma, b);
+
+					double outLuma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+					entry[0] = ClampByte ((int)(16 + 219 * outLuma + 0.5));
+					entry[1] = ClampByte ((int)(128 + 224 * (b - outLuma) / 1.8556 + 0.5));
+					entry[2] = ClampByte ((int)(128 + 224 * (r - outLuma) / 1.5748 + 0.5));
+					entry += 3;
+
+				}
+
+			}
+
+		}
+
+		return table.data ();
+
+	}
+
+
+	void VideoToneMapper::Map (VideoPlanes* planes) {
+
+		const unsigned char* table = GetToneMapTable (planes->transfer, planes->colorMatrix, planes->fullRange);
+
+		int width = planes->width;
+		int height = planes->height;
+		int chromaWidth = (width + 1) / 2;
+		int chromaHeight = (height + 1) / 2;
+		int pixelStride = planes->uvPixelStride;
+
+		buffer.resize ((size_t)width * height + (size_t)chromaWidth * chromaHeight * 2);
+		unsigned char* yOut = buffer.data ();
+		unsigned char* uvOut = yOut + (size_t)width * height;
+
+		for (int row = 0; row < chromaHeight; row++) {
+
+			const unsigned char* u = planes->u + row * planes->uvStride;
+			const unsigned char* v = planes->v + row * planes->uvStride;
+			const unsigned char* top = planes->y + (row * 2) * planes->yStride;
+			const unsigned char* bottom = row * 2 + 1 < height ? top + planes->yStride : top;
+			unsigned char* topOut = yOut + (size_t)(row * 2) * width;
+			unsigned char* bottomOut = row * 2 + 1 < height ? topOut + width : NULL;
+			unsigned char* uv = uvOut + (size_t)row * chromaWidth * 2;
+
+			for (int x = 0; x < chromaWidth; x++) {
+
+				// The pixels sharing this chroma, each mapped with its own luma
+				int node = ((u[x * pixelStride] + TONE_MAP_CHROMA_STEP / 2) / TONE_MAP_CHROMA_STEP) * TONE_MAP_CHROMA_NODES + (v[x * pixelStride] + TONE_MAP_CHROMA_STEP / 2) / TONE_MAP_CHROMA_STEP;
+				const unsigned char* entries = table + (size_t)node * 256 * 3;
+				int left = x * 2;
+				int right = left + 1 < width ? left + 1 : left;
+
+				const unsigned char* a = entries + top[left] * 3;
+				const unsigned char* b = entries + top[right] * 3;
+				const unsigned char* c = entries + bottom[left] * 3;
+				const unsigned char* d = entries + bottom[right] * 3;
+
+				topOut[left] = a[0];
+				topOut[right] = b[0];
+
+				if (bottomOut) {
+
+					bottomOut[left] = c[0];
+					bottomOut[right] = d[0];
+
+				}
+
+				uv[x * 2] = (unsigned char)((a[1] + b[1] + c[1] + d[1] + 2) >> 2);
+				uv[x * 2 + 1] = (unsigned char)((a[2] + b[2] + c[2] + d[2] + 2) >> 2);
+
+			}
+
+		}
+
+		planes->colorMatrix = VIDEO_COLOR_MATRIX_BT709;
+		planes->fullRange = false;
+		planes->transfer = VIDEO_COLOR_TRANSFER_SDR;
+		planes->u = uvOut;
+		planes->uvPixelStride = 2;
+		planes->uvStride = chromaWidth * 2;
+		planes->v = uvOut + 1;
+		planes->y = yOut;
+		planes->yStride = width;
 
 	}
 

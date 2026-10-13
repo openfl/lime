@@ -33,6 +33,21 @@ namespace lime {
 	};
 
 
+	// How a frame's values are turned into light
+	enum VideoColorTransfer {
+
+		// Standard range, as BT.709 and BT.601 video are
+		VIDEO_COLOR_TRANSFER_SDR = 0,
+
+		// SMPTE ST 2084, which HDR10 video uses
+		VIDEO_COLOR_TRANSFER_PQ = 1,
+
+		// Hybrid log-gamma, ARIB STD-B67, which phones record HDR video in
+		VIDEO_COLOR_TRANSFER_HLG = 2
+
+	};
+
+
 	enum VideoDecodeResult {
 
 		// Nothing was decoded, as a seek is waiting, so the call is made again
@@ -73,6 +88,11 @@ namespace lime {
 		VideoColorMatrix colorMatrix;
 		bool fullRange;
 		int height;
+
+		// VideoDecoder tone maps frames with an HDR transfer, and BT.2020
+		// primaries, to standard range, unless the backend already has
+		VideoColorTransfer transfer;
+
 		const unsigned char* u;
 		int uvPixelStride;
 		int uvStride;
@@ -80,6 +100,27 @@ namespace lime {
 		int width;
 		const unsigned char* y;
 		int yStride;
+
+	};
+
+
+	// Shows HDR frames in standard range, writing them as BT.709 video range
+	// NV12 through a table of what each luma and chroma become, which is built
+	// once for each kind of frame and kept
+	class VideoToneMapper {
+
+
+		public:
+
+			// Points planes at a tone mapped copy, which stays valid until the next
+			// call
+			void Map (VideoPlanes* planes);
+
+
+		private:
+
+			std::vector<unsigned char> buffer;
+
 
 	};
 
@@ -345,6 +386,7 @@ namespace lime {
 			std::thread::id textureThread;
 			bool textureThreadKnown;
 			int textureWidth;
+			VideoToneMapper toneMapper;
 			std::condition_variable videoCondition;
 			std::mutex videoDecodeMutex;
 			bool videoEnded;

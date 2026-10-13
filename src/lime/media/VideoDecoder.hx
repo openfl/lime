@@ -57,9 +57,10 @@ import sys.FileSystem;
 	`audioUnsupported` tells when one was left out.
 
 	URLs are read over HTTP and HTTPS on Windows, Android and Linux. On macOS
-	and iOS, AVFoundation's reader only decodes local files. HDR video is
-	converted to standard range on macOS, iOS and Android 13 and later, and
-	shown as it is elsewhere.
+	and iOS, AVFoundation's reader only decodes local files. HDR video, in PQ
+	or HLG, is tone mapped to standard range BT.709, by the platform where it
+	can and otherwise by Lime, which shows HDR's reference white of 203 nits
+	as white.
 **/
 @:access(lime._internal.backend.native.NativeCFFI)
 #if (lime_opengl || lime_opengles)
