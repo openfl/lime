@@ -425,6 +425,59 @@ class VideoInputTest extends Test
 		Assert.isFalse(decoder.seek(1), "a closed decoder seeked");
 	}
 
+	public function testVideoWithoutSoundLoopsWithoutAPause():Void
+	{
+		if (!canDecode()) return;
+
+		var video = new VideoSource("assets/video-noaudio.mp4");
+		var completed = false;
+		video.onComplete.add(function() completed = true);
+		video.loops = 2;
+		video.play();
+
+		// Frames come at 15 per second through both loop points
+		var frame = new VideoFrame();
+		var frames = 0;
+		var lastFrame = -1.0;
+		var longestGap = 0.0;
+		var decoder = @:privateAccess video.__backend.decoder;
+		var handovers = 0;
+		var start = Timer.stamp();
+
+		while (!completed && Timer.stamp() - start < TIMEOUT)
+		{
+			// Lime delivers the next loop's decoder, opened on another thread, in
+			// the application's update, as each frame does
+			if (lime.app.Application.current != null) lime.app.Application.current.onUpdate.dispatch(16);
+
+			if (@:privateAccess video.__backend.decoder != decoder && @:privateAccess video.__backend.decoder != null)
+			{
+				decoder = @:privateAccess video.__backend.decoder;
+				handovers++;
+			}
+
+			if (video.readFrame(frame))
+			{
+				var now = Timer.stamp();
+				if (lastFrame >= 0 && now - lastFrame > longestGap) longestGap = now - lastFrame;
+				lastFrame = now;
+				frames++;
+			}
+
+			var end = Timer.stamp() + 0.005;
+			while (Timer.stamp() < end) {}
+		}
+
+		var elapsed = Timer.stamp() - start;
+		video.dispose();
+
+		Assert.isTrue(completed, "playback did not complete");
+		Assert.equals(2, handovers, "the next loops did not take over");
+		Assert.isTrue(Math.abs(frames - 45) <= 3, "showed " + frames + " frames of three loops of 15");
+		Assert.isTrue(elapsed > 2.7 && elapsed < 3.6, "three loops of a second played in " + elapsed + " s");
+		Assert.isTrue(longestGap < 0.2, "frames stopped for " + Math.round(longestGap * 1000) + " ms");
+	}
+
 	public function testVideoSourceWithoutSoundPlaysToTheEnd():Void
 	{
 		if (!canDecode()) return;

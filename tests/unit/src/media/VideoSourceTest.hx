@@ -522,6 +522,73 @@ class VideoSourceTest extends Test
 	}
 	#end
 
+	public function testLoopsFollowOnWithoutAPause():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (!hasAudioOutput())
+		{
+			video.dispose();
+			return;
+		}
+
+		var completed = false;
+		video.onComplete.add(function() completed = true);
+		video.loops = 1;
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+
+		// The sound plays straight on into the next loop, and the frames keep coming
+		var stopped = 0;
+		var wrapped = false;
+		var lastTime = video.currentTime;
+		var lastFrame = System.getTimer();
+		var longestGap = 0;
+		var decoder = @:privateAccess video.__backend.decoder;
+		var handovers = 0;
+		var end = Timer.stamp() + TIMEOUT;
+
+		while (!completed && Timer.stamp() < end)
+		{
+			// Lime delivers the next loop's decoder, opened on another thread, in
+			// the application's update, as each frame does
+			updateApplication();
+
+			if (@:privateAccess video.__backend.decoder != decoder && @:privateAccess video.__backend.decoder != null)
+			{
+				decoder = @:privateAccess video.__backend.decoder;
+				handovers++;
+			}
+
+			if (video.readFrame(frame))
+			{
+				var now = System.getTimer();
+				if (now - lastFrame > longestGap) longestGap = now - lastFrame;
+				lastFrame = now;
+			}
+
+			// The last loop's sound ends a little before its picture, as in the file,
+			// so the sound is checked until halfway through it
+			var crossing = handovers == 0 || video.currentTime < video.length / 2;
+			if (!completed && crossing && AL.getSourcei(@:privateAccess video.__backend.handle, AL.SOURCE_STATE) != AL.PLAYING) stopped++;
+
+			var time = video.currentTime;
+			if (time < lastTime - 500) wrapped = true;
+			lastTime = time;
+			pause(0.005);
+		}
+
+		video.dispose();
+
+		Assert.isTrue(completed, "playback did not complete");
+		Assert.isTrue(wrapped, "currentTime did not start again for the second loop");
+		Assert.equals(1, handovers, "the next loop did not take over from the first");
+		Assert.equals(0, stopped, "the sound stopped across the loop");
+		Assert.isTrue(longestGap < 250, "frames stopped for " + longestGap + " ms");
+	}
+
 	public function testPanTurnsDownTheOppositeChannel():Void
 	{
 		for (pan in [-1.0, 1.0])
@@ -1043,6 +1110,11 @@ class VideoSourceTest extends Test
 		}
 
 		return true;
+	}
+
+	private static function updateApplication():Void
+	{
+		if (lime.app.Application.current != null) lime.app.Application.current.onUpdate.dispatch(16);
 	}
 
 	private static function pause(seconds:Float):Void

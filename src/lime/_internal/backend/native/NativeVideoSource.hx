@@ -60,6 +60,8 @@ class NativeVideoSource
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
 	private static inline var LOAD_THREADS:Int = 4;
+	// A looping video opens its next loop this long before the end
+	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
@@ -70,7 +72,7 @@ class NativeVideoSource
 	#end
 	private static var latencyExtension:Null<Bool>;
 	#if lime_threads
-	private static var loadJobs:Map<Int, {path:String, promise:Promise<VideoSource>}>;
+	private static var loadJobs:Map<Int, VideoDecoder->Void>;
 	private static var loadThreads:ThreadPool;
 	#end
 	private static var timerDrift:Float = 0;
@@ -81,6 +83,7 @@ class NativeVideoSource
 	private var audioClockStamp:Float;
 	private var audioClockTime:Float;
 	private var audioData:UInt8Array;
+	private var audioDecoder:VideoDecoder;
 	private var audioDriftStamp:Float;
 	private var audioFormat:Int;
 	private var audioLastCheck:Float;
@@ -88,6 +91,7 @@ class NativeVideoSource
 	private var audioLatencyMeasured:Bool;
 	private var audioLatencyMost:Float;
 	private var audioMixPosition:Float;
+	private var audioOffset:Float;
 	#if (lime_threads && (target.threaded || cpp || neko))
 	private var audioMutex:Mutex;
 	#end
@@ -113,6 +117,7 @@ class NativeVideoSource
 	private var clockTime:Float;
 	private var completed:Bool;
 	private var decoder:VideoDecoder;
+	private var droppedBefore:Int;
 	private var dropLateFrames:Bool;
 	private var failed:Bool;
 	private var freeBuffers:Array<ALBuffer>;
@@ -120,10 +125,15 @@ class NativeVideoSource
 	private var gain:Float;
 	private var handle:ALSource;
 	private var hasFrame:Bool;
+	private var loopDecoder:VideoDecoder;
+	private var loopOffset:Float;
+	private var loopOpening:Bool;
+	private var loopToken:Int;
 	private var loops:Int;
 	private var pan:Float;
 	private var parent:VideoSource;
 	private var playing:Bool;
+	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
 
 	public function new(parent:VideoSource)
@@ -141,6 +151,7 @@ class NativeVideoSource
 		audioLatencyMeasured = false;
 		audioLatencyMost = 0;
 		audioMixPosition = 0;
+		audioOffset = 0;
 		audioPeriod = 0;
 		audioRateCount = 0;
 		audioRatePosition = 0;
@@ -157,11 +168,15 @@ class NativeVideoSource
 		clockStamp = 0;
 		clockTime = 0;
 		completed = false;
+		droppedBefore = 0;
 		dropLateFrames = true;
 		failed = false;
 		frameEndTime = 0;
 		gain = 1;
 		hasFrame = false;
+		loopOffset = 0;
+		loopOpening = false;
+		loopToken = 0;
 		loops = 0;
 		pan = 0;
 		playing = false;
@@ -179,7 +194,10 @@ class NativeVideoSource
 
 	public function getCurrentTime():Int
 	{
-		return Std.int(getTime() * 1000);
+		// The clock runs on across loops, and the time is within the loop playing
+		var time = getTime() - loopOffset;
+		if (decoder != null && decoder.duration > 0) time = Math.min(time, decoder.duration);
+		return Std.int(time * 1000);
 	}
 
 	public function getDisplayHeight():Int
@@ -194,7 +212,7 @@ class NativeVideoSource
 
 	public function getDroppedFrames():Int
 	{
-		return decoder != null ? decoder.droppedFrames : 0;
+		return decoder != null ? droppedBefore + decoder.droppedFrames : 0;
 	}
 
 	public function getDropLateFrames():Bool
@@ -292,10 +310,17 @@ class NativeVideoSource
 	{
 		var promise = new Promise<VideoSource>();
 
+		openDecoder(path, format, true, function(decoder) completeLoad(decoder, path, promise));
+		return promise.future;
+	}
+
+	@:noCompletion private static function openDecoder(path:String, format:VideoFrameFormat, hardwareDecoding:Bool, callback:VideoDecoder->Void):Void
+	{
 		#if lime_threads
 		// Opening reads the start of the file or waits for a server, so it runs
 		// on threads of its own, where a slow server does not hold up the
-		// futures that share a single thread
+		// futures that share a single thread. The callback runs on the main
+		// thread, with null when the video cannot be opened.
 		if (loadThreads == null)
 		{
 			loadJobs = new Map();
@@ -304,14 +329,13 @@ class NativeVideoSource
 			loadThreads.onError.add(loadThreads_onError);
 		}
 
-		var id = loadThreads.run(loadThreads_doWork, {format: format, path: path});
-		loadJobs.set(id, {path: path, promise: promise});
+		var id = loadThreads.run(loadThreads_doWork, {format: format, hardwareDecoding: hardwareDecoding, path: path});
+		loadJobs.set(id, callback);
 		#else
 		var decoder = new VideoDecoder();
-		completeLoad(decoder.open(path, format) ? decoder : null, path, promise);
+		decoder.hardwareDecoding = hardwareDecoding;
+		callback(decoder.open(path, format) ? decoder : null);
 		#end
-
-		return promise.future;
 	}
 
 	public function open(path:String, format:VideoFrameFormat):Bool
@@ -359,11 +383,11 @@ class NativeVideoSource
 		// A video that has ended, or that was moved to its end, plays again from
 		// the start. The end is compared in the milliseconds of currentTime and
 		// length.
-		if (completed || (decoder.duration > 0 && Std.int(clockTime * 1000) >= Std.int(decoder.duration * 1000)))
+		if (completed || (decoder.duration > 0 && Std.int((clockTime - loopOffset) * 1000) >= Std.int(decoder.duration * 1000)))
 		{
 			seek(0);
 		}
-		else if (failed && !seek(clockTime))
+		else if (failed && !seek(clockTime - loopOffset))
 		{
 			// Playing again after an error tries again from where it stopped
 			return;
@@ -397,10 +421,14 @@ class NativeVideoSource
 
 		// The first frame after opening or seeking is shown straight away, so a
 		// paused video still has a picture
-		if (decoder.readFrame(frame, hasFrame ? getTime() : -1))
+		if (decoder.readFrame(frame, hasFrame ? getTime() - loopOffset : -1))
 		{
 			hasFrame = true;
-			frameEndTime = frame.time + frame.duration;
+			frameEndTime = frame.time + frame.duration + loopOffset;
+
+			// The last loop's frames, and its textures, are kept until the next
+			// loop's first frame replaces them
+			closeRetiredDecoder();
 			return true;
 		}
 
@@ -438,6 +466,7 @@ class NativeVideoSource
 	public function setDropLateFrames(value:Bool):Bool
 	{
 		if (decoder != null) decoder.dropLateFrames = value;
+		if (loopDecoder != null) loopDecoder.dropLateFrames = value;
 		return dropLateFrames = value;
 	}
 
@@ -499,6 +528,12 @@ class NativeVideoSource
 		this.decoder = decoder;
 		decoder.dropLateFrames = dropLateFrames;
 
+		audioDecoder = decoder;
+		audioOffset = 0;
+		droppedBefore = 0;
+		loopOffset = 0;
+		loopOpening = false;
+		loopToken++;
 		failed = false;
 		audioDriftStamp = -1;
 		audioRateStamp = -1;
@@ -639,16 +674,45 @@ class NativeVideoSource
 		audioStalled = false;
 		audioStarting = false;
 
+		closeLoops();
+
 		if (decoder != null)
 		{
 			decoder.close();
 			decoder = null;
 		}
 
+		audioDecoder = null;
 		audioBuffer = null;
 		audioData = null;
 		audioSamples = null;
 		bufferTimes = [];
+	}
+
+	@:noCompletion private function closeLoops():Void
+	{
+		// Loops being opened are dropped when they arrive
+		loopToken++;
+		loopOpening = false;
+
+		if (loopDecoder != null)
+		{
+			loopDecoder.close();
+			loopDecoder = null;
+		}
+
+		closeRetiredDecoder();
+		audioDecoder = decoder;
+		audioOffset = loopOffset;
+	}
+
+	@:noCompletion private function closeRetiredDecoder():Void
+	{
+		if (retiredDecoder != null)
+		{
+			retiredDecoder.close();
+			retiredDecoder = null;
+		}
 	}
 
 	@:noCompletion private function complete():Void
@@ -747,20 +811,26 @@ class NativeVideoSource
 		// one that drops what it is given does not drain the decoder
 		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS : Math.POSITIVE_INFINITY;
 
-		while (freeBuffers.length > 0 && !decoder.audioComplete && decoder.audioTime < limit)
+		while (freeBuffers.length > 0 && audioDecoder.audioTime + audioOffset < limit)
 		{
-			var length = decoder.readAudio(audioBuffer, 0, audioBuffer.length);
-			if (length <= 0) break;
+			var length = audioDecoder.audioComplete ? 0 : audioDecoder.readAudio(audioBuffer, 0, audioBuffer.length);
 
-			if (pan != 0 && decoder.audioChannels == 2)
+			if (length <= 0)
+			{
+				// The next loop's sound follows straight on, once it is open
+				if (audioDecoder.audioComplete && startLoopAudio()) continue;
+				break;
+			}
+
+			if (pan != 0 && audioDecoder.audioChannels == 2)
 			{
 				panBuffer(length);
 			}
 
 			var buffer = freeBuffers.pop();
-			AL.bufferData(buffer, audioFormat, audioData, length, decoder.audioSampleRate);
+			AL.bufferData(buffer, audioFormat, audioData, length, audioDecoder.audioSampleRate);
 			AL.sourceQueueBuffer(handle, buffer);
-			bufferTimes.push(decoder.audioTime - length / bytesPerSecond);
+			bufferTimes.push(audioDecoder.audioTime + audioOffset - length / bytesPerSecond);
 		}
 	}
 
@@ -964,7 +1034,7 @@ class NativeVideoSource
 				var position = getAudioPosition();
 				if (isAudioPositionValid(position)) return followAudio(position);
 			}
-			else if (!decoder.audioComplete)
+			else if (!audioDecoder.audioComplete)
 			{
 				// Waiting for audio, so hold the picture too
 				clockStamp = now;
@@ -1020,6 +1090,32 @@ class NativeVideoSource
 		return !hasFrame && decoder.hasVideo && !decoder.videoComplete;
 	}
 
+	@:noCompletion private function openLoop():Void
+	{
+		// The next loop opens ahead of the end, so its sound and frames follow on
+		// without the pause of seeking back to the start
+		var token = ++loopToken;
+		loopOpening = true;
+
+		openDecoder(parent.source, decoder.format, decoder.hardwareDecoding, function(next:VideoDecoder)
+		{
+			lockAudio();
+
+			if (token == loopToken && decoder != null && next != null)
+			{
+				next.dropLateFrames = dropLateFrames;
+				loopDecoder = next;
+			}
+			else if (next != null)
+			{
+				next.close();
+			}
+
+			// A loop that cannot open is not tried again until the next seek
+			unlockAudio();
+		});
+	}
+
 	@:noCompletion private function panBuffer(length:Int):Void
 	{
 		// OpenAL only places mono sources, so stereo is balanced here by turning
@@ -1062,6 +1158,10 @@ class NativeVideoSource
 		// A video that cannot seek carries on as it was
 		if (!decoder.seek(time, true)) return false;
 
+		// Seeking starts the timeline again from the loop playing
+		loopOffset = 0;
+		closeLoops();
+
 		if (handle != null)
 		{
 			clearBuffers();
@@ -1087,18 +1187,57 @@ class NativeVideoSource
 
 	@:noCompletion private function skipAudio(time:Float):Void
 	{
-		while (!decoder.audioComplete)
+		while (!audioDecoder.audioComplete)
 		{
-			var length = Std.int((time - decoder.audioTime) * bytesPerSecond);
+			var length = Std.int((time - audioOffset - audioDecoder.audioTime) * bytesPerSecond);
 			length -= length % blockAlign;
 
 			if (length <= 0) break;
 
 			// Without more audio decoded yet, skipping carries on next update
-			if (decoder.readAudio(audioBuffer, 0, Std.int(Math.min(length, audioBuffer.length))) <= 0) return;
+			if (audioDecoder.readAudio(audioBuffer, 0, Std.int(Math.min(length, audioBuffer.length))) <= 0) return;
 		}
 
 		audioSkipping = false;
+	}
+
+	@:noCompletion private function startLoopAudio():Bool
+	{
+		if (loops <= 0 || loopDecoder == null || audioDecoder != decoder || audioDecoder.error || !loopDecoder.hasAudio) return false;
+
+		audioDecoder = loopDecoder;
+		audioOffset = loopOffset + decoder.duration;
+		return true;
+	}
+
+	@:noCompletion private function startLoop():Void
+	{
+		// The next loop takes over the picture once the last frame of this one has
+		// been shown, after its sound took over the queue. The clock runs on.
+		var previous = decoder;
+		droppedBefore += previous.droppedFrames;
+		loopOffset += previous.duration;
+		decoder = loopDecoder;
+		loopDecoder = null;
+		loopOpening = false;
+		loops--;
+
+		if (audioDecoder == previous)
+		{
+			audioDecoder = decoder;
+			audioOffset = loopOffset;
+		}
+
+		closeRetiredDecoder();
+
+		if (hasFrame && previous.hasVideo)
+		{
+			retiredDecoder = previous;
+		}
+		else
+		{
+			previous.close();
+		}
 	}
 
 	@:noCompletion private function stopTimer():Void
@@ -1193,11 +1332,11 @@ class NativeVideoSource
 		if (playing && !completed && hasFrame && decoder.hasVideo && !decoder.videoComplete && decoder.duration > 0
 			&& time - frameEndTime > VIDEO_BEHIND_SECONDS)
 		{
-			if (seek(time)) return;
+			if (seek(time - loopOffset)) return;
 			frameEndTime = time;
 		}
 
-		if (decoder.error && !failed)
+		if ((decoder.error || (audioDecoder != null && audioDecoder.error)) && !failed)
 		{
 			// A stream that cannot be decoded stops playback, rather than it
 			// carrying on without that stream or completing
@@ -1209,9 +1348,23 @@ class NativeVideoSource
 
 		if (playing && !completed && !failed)
 		{
-			var audioDone = handle == null || audioStalled || (decoder.audioComplete && bufferTimes.length == 0);
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
-				|| (decoder.duration > 0 && time >= decoder.duration);
+				|| (decoder.duration > 0 && time - loopOffset >= decoder.duration);
+
+			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && parent.source != null
+				&& time - loopOffset > decoder.duration - LOOP_OPEN_SECONDS)
+			{
+				openLoop();
+			}
+
+			if (loops > 0 && loopDecoder != null && videoDone
+				&& (handle == null || !decoder.hasAudio || audioDecoder == loopDecoder || !loopDecoder.hasAudio))
+			{
+				startLoop();
+				return;
+			}
+
+			var audioDone = handle == null || audioStalled || (audioDecoder.audioComplete && bufferTimes.length == 0);
 
 			if (audioDone && videoDone)
 			{
@@ -1313,21 +1466,22 @@ class NativeVideoSource
 	@:noCompletion private static function loadThreads_doWork(state:Dynamic, output:WorkOutput):Void
 	{
 		var decoder = new VideoDecoder();
+		decoder.hardwareDecoding = state.hardwareDecoding;
 		output.sendComplete(decoder.open(state.path, state.format) ? decoder : null);
 	}
 
 	@:noCompletion private static function loadThreads_onComplete(decoder:Dynamic):Void
 	{
-		var job = loadJobs.get(loadThreads.activeJob.id);
+		var callback = loadJobs.get(loadThreads.activeJob.id);
 		loadJobs.remove(loadThreads.activeJob.id);
-		completeLoad(decoder, job.path, job.promise);
+		callback(decoder);
 	}
 
 	@:noCompletion private static function loadThreads_onError(error:Dynamic):Void
 	{
-		var job = loadJobs.get(loadThreads.activeJob.id);
+		var callback = loadJobs.get(loadThreads.activeJob.id);
 		loadJobs.remove(loadThreads.activeJob.id);
-		job.promise.error(error);
+		callback(null);
 	}
 	#end
 }

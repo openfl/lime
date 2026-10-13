@@ -134,7 +134,10 @@ class VideoSource
 	public var length(get, never):Int;
 
 	/**
-		The number of times to play the video again after it ends.
+		The number of times to play the video again after it ends. On native
+		targets, each loop follows the last without a pause, and `currentTime`
+		starts again from 0. A video that cannot seek, such as a live stream,
+		does not loop.
 	**/
 	public var loops(get, set):Int;
 
