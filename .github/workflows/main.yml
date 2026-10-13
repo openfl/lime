@@ -365,6 +365,14 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install HashLink dependencies
+        env:
+          # Homebrew no longer builds bottles for Intel macOS, so updating it and
+          # upgrading what the runner already has rebuilds cmake, OpenSSL and
+          # Python from source, which takes an hour. Only what is missing is
+          # installed, from the formulae the runner image came with.
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_UPGRADE: 1
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
           set -euxo pipefail
 
@@ -375,7 +383,7 @@ jobs:
           rm -f /usr/local/bin/pip3*
 
           for attempt in 1 2 3; do
-            if /usr/local/bin/brew update && /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
+            if /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
               break
             fi
             if [ "$attempt" -eq 3 ]; then
