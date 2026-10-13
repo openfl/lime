@@ -167,6 +167,8 @@ namespace lime {
 	static const int GST_VIDEO_COLOR_RANGE_0_255 = 1;
 	static const int GST_VIDEO_COLOR_RANGE_16_235 = 2;
 	static const int GST_VIDEO_COLOR_RANGE_UNKNOWN = 0;
+	static const int GST_VIDEO_TRANSFER_ARIB_STD_B67 = 15;
+	static const int GST_VIDEO_TRANSFER_SMPTE2084 = 14;
 
 	// A stalled stream fails after longer than souphttpsrc waits before it
 	// reconnects, which is 15 seconds
@@ -375,23 +377,24 @@ namespace lime {
 
 	// GStreamer writes the predefined colorimetries by name, and the others as
 	// range:matrix:transfer:primaries
-	static void GetColorimetry (const char* colorimetry, int* range, int* matrix) {
+	static void GetColorimetry (const char* colorimetry, int* range, int* matrix, int* transfer) {
 
-		static const struct { const char* name; int range; int matrix; } names[] = {
+		static const struct { const char* name; int range; int matrix; int transfer; } names[] = {
 
-			{ "bt2020", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020 },
-			{ "bt2020-10", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020 },
-			{ "bt2100-hlg", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020 },
-			{ "bt2100-pq", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020 },
-			{ "bt601", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT601 },
-			{ "bt709", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT709 },
-			{ "smpte240m", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_SMPTE240M },
-			{ "sRGB", GST_VIDEO_COLOR_RANGE_0_255, GST_VIDEO_COLOR_MATRIX_RGB }
+			{ "bt2020", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020, 0 },
+			{ "bt2020-10", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020, 0 },
+			{ "bt2100-hlg", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020, GST_VIDEO_TRANSFER_ARIB_STD_B67 },
+			{ "bt2100-pq", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT2020, GST_VIDEO_TRANSFER_SMPTE2084 },
+			{ "bt601", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT601, 0 },
+			{ "bt709", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_BT709, 0 },
+			{ "smpte240m", GST_VIDEO_COLOR_RANGE_16_235, GST_VIDEO_COLOR_MATRIX_SMPTE240M, 0 },
+			{ "sRGB", GST_VIDEO_COLOR_RANGE_0_255, GST_VIDEO_COLOR_MATRIX_RGB, 0 }
 
 		};
 
 		*range = GST_VIDEO_COLOR_RANGE_UNKNOWN;
 		*matrix = GST_VIDEO_COLOR_MATRIX_UNKNOWN;
+		*transfer = 0;
 
 		if (!colorimetry) return;
 
@@ -401,6 +404,7 @@ namespace lime {
 
 				*range = names[i].range;
 				*matrix = names[i].matrix;
+				*transfer = names[i].transfer;
 				return;
 
 			}
@@ -414,6 +418,9 @@ namespace lime {
 
 		for (const char* c = colorimetry; *c >= '0' && *c <= '9'; c++) *range = *range * 10 + (*c - '0');
 		for (const char* c = matrixText + 1; *c >= '0' && *c <= '9'; c++) *matrix = *matrix * 10 + (*c - '0');
+
+		const char* transferText = strchr (matrixText + 1, ':');
+		if (transferText) for (const char* c = transferText + 1; *c >= '0' && *c <= '9'; c++) *transfer = *transfer * 10 + (*c - '0');
 
 	}
 
@@ -1106,6 +1113,7 @@ namespace lime {
 			double audioPosition;
 			int audioSampleRate;
 			VideoColorMatrix colorMatrix;
+			VideoColorTransfer colorTransfer;
 			double frameRate;
 			bool fullRange;
 			int height;
@@ -1132,6 +1140,7 @@ namespace lime {
 		audioPosition = 0;
 		audioSampleRate = 0;
 		colorMatrix = VIDEO_COLOR_MATRIX_BT709;
+		colorTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		frameRate = 0;
 		fullRange = false;
 		height = 0;
@@ -1325,6 +1334,7 @@ namespace lime {
 
 		planes->colorMatrix = colorMatrix;
 		planes->fullRange = fullRange;
+		planes->transfer = colorTransfer;
 		planes->width = width;
 		planes->height = height;
 		planes->y = videoMap.data + offsets[0];
@@ -1480,7 +1490,11 @@ namespace lime {
 
 		int range;
 		int matrix;
-		GetColorimetry (gst.gst_structure_get_string (structure, "colorimetry"), &range, &matrix);
+		int transfer;
+		GetColorimetry (gst.gst_structure_get_string (structure, "colorimetry"), &range, &matrix, &transfer);
+
+		// HDR is tone mapped by VideoDecoder, as no element here can
+		colorTransfer = transfer == GST_VIDEO_TRANSFER_SMPTE2084 ? VIDEO_COLOR_TRANSFER_PQ : (transfer == GST_VIDEO_TRANSFER_ARIB_STD_B67 ? VIDEO_COLOR_TRANSFER_HLG : VIDEO_COLOR_TRANSFER_SDR);
 
 		switch (matrix) {
 
