@@ -25,6 +25,11 @@ import sys.io.File;
 	- video-51.mp4: 320x180 with six channel AAC, which is mixed down to stereo
 	- video-anamorphic.mp4: 320x180 with pixels 4:3 as wide as tall, which the
 	  encoder wrote into the stream, given a matching pasp box by hand
+	- video-hdr-pq.mp4 and video-hdr-hlg.mp4: 320x180 BT.2020 patches on black,
+	  gray along the top and red and green below, given the PQ or HLG transfer
+	  in the stream and in a colr box by hand. The PQ grays are 10, 100, 203
+	  and 1000 nits and the colors 203, and the HLG grays a quarter, half,
+	  three quarters and all of the signal and the colors three quarters.
 
 	These were then edited box by box:
 
@@ -379,6 +384,51 @@ class VideoInputTest extends Test
 		decoder.close();
 	}
 
+	public function testHDRVideoIsShownInStandardRange():Void
+	{
+		// The reference white, 203 nits or three quarters of HLG, is shown near
+		// white, and brighter grays no darker, rather than the frames being
+		// shown as they are stored, which leaves them dim and gray
+		for (transfer in ["pq", "hlg"])
+		{
+			for (hardware in [true, false])
+			{
+				var decoder = openWith("assets/video-hdr-" + transfer + ".mp4", hardware);
+				if (decoder == null) return;
+
+				decoder.close();
+				Assert.isTrue(decoder.open("assets/video-hdr-" + transfer + ".mp4", RGBA));
+
+				var frame = new VideoFrame();
+				var described = transfer + " with " + (hardware ? "hardware" : "software") + " decoding";
+
+				if (!nextFrame(decoder, frame))
+				{
+					Assert.fail("no frame from " + described);
+					decoder.close();
+					continue;
+				}
+
+				var grays = [for (i in 0...4) patch(frame, 48 + i * 76, 48)];
+				var red = patch(frame, 48, 132);
+				var green = patch(frame, 124, 132);
+				var shown = described + " showed grays " + [for (gray in grays) gray[1]] + ", red " + red + " and green " + green;
+				decoder.close();
+
+				for (i in 1...4)
+				{
+					Assert.isTrue(grays[i][1] >= grays[i - 1][1], shown);
+				}
+
+				Assert.isTrue(grays[0][1] < 128, shown);
+				Assert.isTrue(grays[2][1] >= 200, shown);
+				Assert.isTrue(grays[3][1] >= 225, shown);
+				Assert.isTrue(red[0] >= 180 && red[1] < 90 && red[2] < 90, shown);
+				Assert.isTrue(green[1] >= 180 && green[0] < 90 && green[2] < 90, shown);
+			}
+		}
+	}
+
 	public function testVideoInAMissingCodecPlaysItsSound():Void
 	{
 		var decoder = open("assets/video-unsupported.mp4");
@@ -587,6 +637,26 @@ class VideoInputTest extends Test
 		}
 
 		return decoder;
+	}
+
+	private static function patch(frame:VideoFrame, centerX:Int, centerY:Int):Array<Int>
+	{
+		// The average color of an RGBA frame around a point, away from the
+		// blurring at the patch's edges
+		var sum = [0, 0, 0];
+		var count = 0;
+
+		for (y in centerY - 8...centerY + 8)
+		{
+			for (x in centerX - 8...centerX + 8)
+			{
+				var offset = (y * frame.width + x) * 4;
+				for (i in 0...3) sum[i] += frame.data[offset + i];
+				count++;
+			}
+		}
+
+		return [for (i in 0...3) Math.round(sum[i] / count)];
 	}
 
 	private static function readToTheEnd(decoder:VideoDecoder):{count:Int, ended:Bool}
