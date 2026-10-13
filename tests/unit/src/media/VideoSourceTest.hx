@@ -722,7 +722,7 @@ class VideoSourceTest extends Test
 			}
 
 			lastRead = read;
-			Sys.sleep(0.005);
+			pause(0.005);
 		}
 
 		var measured = samples > 0 && belowMost / samples > 0.3;
@@ -906,7 +906,7 @@ class VideoSourceTest extends Test
 		while (video.currentTime < time && Timer.stamp() < end)
 		{
 			video.readFrame(frame);
-			Sys.sleep(0.005);
+			pause(0.005);
 		}
 
 		Assert.isTrue(video.currentTime >= time, "the clock did not reach " + time + " ms" + describeStart(video));
@@ -969,7 +969,7 @@ class VideoSourceTest extends Test
 
 			clocks.push(clock);
 			times.push(now - start);
-			Sys.sleep(0.005);
+			pause(0.005);
 		}
 
 		var clockMean = 0.0;
@@ -1006,6 +1006,15 @@ class VideoSourceTest extends Test
 		return true;
 	}
 
+	private static function pause(seconds:Float):Void
+	{
+		// Short sleeps can last several times longer on a busy machine, as macOS
+		// coalesces them, which would read the clock far less often than a render
+		// loop does. The time is waited out instead.
+		var end = Timer.stamp() + seconds;
+		while (Timer.stamp() < end) {}
+	}
+
 	private static function run(video:VideoSource, frame:VideoFrame, seconds:Float):Void
 	{
 		// Keeps the video updating, as a render loop would
@@ -1014,7 +1023,7 @@ class VideoSourceTest extends Test
 		while (Timer.stamp() < end)
 		{
 			video.readFrame(frame);
-			Sys.sleep(0.005);
+			pause(0.005);
 		}
 	}
 
