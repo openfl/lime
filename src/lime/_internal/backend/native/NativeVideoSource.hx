@@ -72,7 +72,8 @@ class NativeVideoSource
 	private static var feeding:Bool = false;
 	private static var loopRequests:Array<LoopRequest> = [];
 	private static var loopRequestsMutex:Mutex = new Mutex();
-	private static var openingLoops:Bool = false;
+	private static var loopThreadStarted:Bool = false;
+	private static var retiredDecoders:Array<VideoDecoder> = [];
 	#end
 	private static var latencyExtension:Null<Bool>;
 	#if lime_threads
@@ -125,6 +126,7 @@ class NativeVideoSource
 	private var dropLateFrames:Bool;
 	private var failed:Bool;
 	private var freeBuffers:Array<ALBuffer>;
+	private var frameDuration:Float;
 	private var frameEndTime:Float;
 	private var gain:Float;
 	private var handle:ALSource;
@@ -175,6 +177,7 @@ class NativeVideoSource
 		droppedBefore = 0;
 		dropLateFrames = true;
 		failed = false;
+		frameDuration = 0;
 		frameEndTime = 0;
 		gain = 1;
 		hasFrame = false;
@@ -385,9 +388,10 @@ class NativeVideoSource
 		if (playing || decoder == null) return;
 
 		// A video that has ended, or that was moved to its end, plays again from
-		// the start. The end is compared in the milliseconds of currentTime and
-		// length.
-		if (completed || (decoder.duration > 0 && Std.int((clockTime - loopOffset) * 1000) >= Std.int(decoder.duration * 1000)))
+		// the start, unless its next loop is ready to follow on. The end is
+		// compared in the milliseconds of currentTime and length.
+		if (completed
+			|| (loopDecoder == null && decoder.duration > 0 && Std.int((clockTime - loopOffset) * 1000) >= Std.int(decoder.duration * 1000)))
 		{
 			seek(0);
 		}
@@ -428,6 +432,7 @@ class NativeVideoSource
 		if (decoder.readFrame(frame, hasFrame ? getTime() - loopOffset : -1))
 		{
 			hasFrame = true;
+			frameDuration = frame.duration;
 			frameEndTime = frame.time + frame.duration + loopOffset;
 
 			// The last loop's frames, and its textures, are kept until the next
@@ -548,6 +553,7 @@ class NativeVideoSource
 		clockStamp = getStamp();
 		clockTime = 0;
 		completed = false;
+		frameDuration = 0;
 		frameEndTime = 0;
 		hasFrame = false;
 
@@ -701,7 +707,7 @@ class NativeVideoSource
 
 		if (loopDecoder != null)
 		{
-			loopDecoder.close();
+			closeDecoderLater(loopDecoder);
 			loopDecoder = null;
 		}
 
@@ -710,11 +716,30 @@ class NativeVideoSource
 		audioOffset = loopOffset;
 	}
 
+	@:noCompletion private static function closeDecoderLater(decoder:VideoDecoder):Void
+	{
+		#if (lime_threads && (target.threaded || cpp || neko))
+		// Closing waits for the decoder's threads and releases its device, which
+		// would hold up the frames at each loop, so it happens on the loop thread.
+		// Texture output is closed where its textures were made.
+		if (decoder.format != TEXTURE)
+		{
+			loopRequestsMutex.acquire();
+			retiredDecoders.push(decoder);
+			startLoopThread();
+			loopRequestsMutex.release();
+			return;
+		}
+		#end
+
+		decoder.close();
+	}
+
 	@:noCompletion private function closeRetiredDecoder():Void
 	{
 		if (retiredDecoder != null)
 		{
-			retiredDecoder.close();
+			closeDecoderLater(retiredDecoder);
 			retiredDecoder = null;
 		}
 	}
@@ -1106,13 +1131,7 @@ class NativeVideoSource
 		// of its own, which hands the decoder over under the source's lock
 		loopRequestsMutex.acquire();
 		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: parent.source, source: this, token: token});
-
-		if (!openingLoops)
-		{
-			openingLoops = true;
-			Thread.create(openLoops);
-		}
-
+		startLoopThread();
 		loopRequestsMutex.release();
 		#else
 		var next = new VideoDecoder();
@@ -1201,6 +1220,7 @@ class NativeVideoSource
 		clockTime = time;
 		completed = false;
 		failed = false;
+		frameDuration = 0;
 		frameEndTime = 0;
 		hasFrame = false;
 
@@ -1259,7 +1279,7 @@ class NativeVideoSource
 		}
 		else
 		{
-			previous.close();
+			closeDecoderLater(previous);
 		}
 	}
 
@@ -1371,8 +1391,11 @@ class NativeVideoSource
 
 		if (playing && !completed && !failed)
 		{
+			// A video whose first frame comes after its start, as when it has no
+			// edit list, shows its last frame at its duration, so the video is done
+			// once its frames run out, or a frame after the end if none are read
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
-				|| (decoder.duration > 0 && time - loopOffset >= decoder.duration);
+				|| (decoder.duration > 0 && time - loopOffset >= decoder.duration + frameDuration);
 
 			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && parent.source != null
 				&& time - loopOffset > decoder.duration - LOOP_OPEN_SECONDS)
@@ -1448,26 +1471,40 @@ class NativeVideoSource
 	#end
 
 	#if (lime_threads && (target.threaded || cpp || neko))
-	@:noCompletion private static function openLoops():Void
+	@:noCompletion private static function runLoopThread():Void
 	{
-		// Requests are polled for, as the thread pool's waits on a message queue
-		// crash with hxcpp 4.3 on ARM64 Linux, whose condition variables in it are
-		// not aligned for ARM64's atomics
+		// One thread opens each next loop and closes the last. Requests are
+		// polled for, as the thread pool's waits on a message queue crash with
+		// hxcpp 4.3 on ARM64 Linux, whose condition variables in it are not
+		// aligned for ARM64's atomics.
 		while (true)
 		{
 			loopRequestsMutex.acquire();
 			var request = loopRequests.shift();
+			var retired = retiredDecoders.shift();
 			loopRequestsMutex.release();
+
+			if (retired != null) retired.close();
 
 			if (request == null)
 			{
-				Sys.sleep(LOOP_POLL_SECONDS);
+				if (retired == null) Sys.sleep(LOOP_POLL_SECONDS);
 				continue;
 			}
 
 			var next = new VideoDecoder();
 			next.hardwareDecoding = request.hardwareDecoding;
 			request.source.finishLoop(request.token, next.open(request.path, request.format) ? next : null);
+		}
+	}
+
+	@:noCompletion private static function startLoopThread():Void
+	{
+		// With the requests' mutex held
+		if (!loopThreadStarted)
+		{
+			loopThreadStarted = true;
+			Thread.create(runLoopThread);
 		}
 	}
 	#end
