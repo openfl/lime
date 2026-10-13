@@ -62,6 +62,7 @@ class NativeVideoSource
 	private static inline var LOAD_THREADS:Int = 4;
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
+	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
@@ -69,6 +70,9 @@ class NativeVideoSource
 	#if (lime_threads && (target.threaded || cpp || neko))
 	private static var activeSourcesMutex:Mutex = new Mutex();
 	private static var feeding:Bool = false;
+	private static var loopRequests:Array<LoopRequest> = [];
+	private static var loopRequestsMutex:Mutex = new Mutex();
+	private static var openingLoops:Bool = false;
 	#end
 	private static var latencyExtension:Null<Bool>;
 	#if lime_threads
@@ -1097,23 +1101,42 @@ class NativeVideoSource
 		var token = ++loopToken;
 		loopOpening = true;
 
-		openDecoder(parent.source, decoder.format, decoder.hardwareDecoding, function(next:VideoDecoder)
+		#if (lime_threads && (target.threaded || cpp || neko))
+		// Opening reads the file or waits for a server, so it happens on a thread
+		// of its own, which hands the decoder over under the source's lock
+		loopRequestsMutex.acquire();
+		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: parent.source, source: this, token: token});
+
+		if (!openingLoops)
 		{
-			lockAudio();
+			openingLoops = true;
+			Thread.create(openLoops);
+		}
 
-			if (token == loopToken && decoder != null && next != null)
-			{
-				next.dropLateFrames = dropLateFrames;
-				loopDecoder = next;
-			}
-			else if (next != null)
-			{
-				next.close();
-			}
+		loopRequestsMutex.release();
+		#else
+		var next = new VideoDecoder();
+		next.hardwareDecoding = decoder.hardwareDecoding;
+		finishLoop(token, next.open(parent.source, decoder.format) ? next : null);
+		#end
+	}
 
-			// A loop that cannot open is not tried again until the next seek
-			unlockAudio();
-		});
+	@:noCompletion private function finishLoop(token:Int, next:VideoDecoder):Void
+	{
+		lockAudio();
+
+		if (token == loopToken && decoder != null && next != null)
+		{
+			next.dropLateFrames = dropLateFrames;
+			loopDecoder = next;
+		}
+		else if (next != null)
+		{
+			next.close();
+		}
+
+		// A loop that cannot open is not tried again until the next seek
+		unlockAudio();
 	}
 
 	@:noCompletion private function panBuffer(length:Int):Void
@@ -1424,6 +1447,31 @@ class NativeVideoSource
 	}
 	#end
 
+	#if (lime_threads && (target.threaded || cpp || neko))
+	@:noCompletion private static function openLoops():Void
+	{
+		// Requests are polled for, as the thread pool's waits on a message queue
+		// crash with hxcpp 4.3 on ARM64 Linux, whose condition variables in it are
+		// not aligned for ARM64's atomics
+		while (true)
+		{
+			loopRequestsMutex.acquire();
+			var request = loopRequests.shift();
+			loopRequestsMutex.release();
+
+			if (request == null)
+			{
+				Sys.sleep(LOOP_POLL_SECONDS);
+				continue;
+			}
+
+			var next = new VideoDecoder();
+			next.hardwareDecoding = request.hardwareDecoding;
+			request.source.finishLoop(request.token, next.open(request.path, request.format) ? next : null);
+		}
+	}
+	#end
+
 	@:noCompletion private static function getActiveSources():Array<NativeVideoSource>
 	{
 		#if (lime_threads && (target.threaded || cpp || neko))
@@ -1484,4 +1532,13 @@ class NativeVideoSource
 		callback(null);
 	}
 	#end
+}
+
+private typedef LoopRequest =
+{
+	var format:VideoFrameFormat;
+	var hardwareDecoding:Bool;
+	var path:String;
+	var source:NativeVideoSource;
+	var token:Int;
 }

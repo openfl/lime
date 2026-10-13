@@ -552,10 +552,6 @@ class VideoSourceTest extends Test
 
 		while (!completed && Timer.stamp() < end)
 		{
-			// Lime delivers the next loop's decoder, opened on another thread, in
-			// the application's update, as each frame does
-			updateApplication();
-
 			if (@:privateAccess video.__backend.decoder != decoder && @:privateAccess video.__backend.decoder != null)
 			{
 				decoder = @:privateAccess video.__backend.decoder;
@@ -1110,11 +1106,6 @@ class VideoSourceTest extends Test
 		}
 
 		return true;
-	}
-
-	private static function updateApplication():Void
-	{
-		if (lime.app.Application.current != null) lime.app.Application.current.onUpdate.dispatch(16);
 	}
 
 	private static function pause(seconds:Float):Void

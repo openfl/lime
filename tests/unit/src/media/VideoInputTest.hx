@@ -496,10 +496,6 @@ class VideoInputTest extends Test
 
 		while (!completed && Timer.stamp() - start < TIMEOUT)
 		{
-			// Lime delivers the next loop's decoder, opened on another thread, in
-			// the application's update, as each frame does
-			if (lime.app.Application.current != null) lime.app.Application.current.onUpdate.dispatch(16);
-
 			if (@:privateAccess video.__backend.decoder != decoder && @:privateAccess video.__backend.decoder != null)
 			{
 				decoder = @:privateAccess video.__backend.decoder;
