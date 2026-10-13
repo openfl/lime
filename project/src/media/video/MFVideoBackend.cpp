@@ -249,6 +249,33 @@ namespace lime {
 	}
 
 
+	static void ReleaseReader (IMFSourceReader** reader, bool shutDown) {
+
+		// A reader of a network source that stalled takes seconds to release,
+		// as Media Foundation waits on it, unless its media source is shut down
+		// first, which is safe once no read is in progress
+		if (!*reader) return;
+
+		if (shutDown) {
+
+			IMFMediaSource* source = NULL;
+			GUID none = {};
+
+			if (SUCCEEDED ((*reader)->GetServiceForStream (MF_SOURCE_READER_MEDIASOURCE, none, IID_PPV_ARGS (&source))) && source) {
+
+				source->Shutdown ();
+				source->Release ();
+
+			}
+
+		}
+
+		(*reader)->Release ();
+		*reader = NULL;
+
+	}
+
+
 	static VideoColorTransfer ReadTransfer (IMFMediaType* type) {
 
 		UINT32 transfer = MFGetAttributeUINT32 (type, MF_MT_TRANSFER_FUNCTION, 0);
@@ -814,20 +841,8 @@ namespace lime {
 		interopFailed = false;
 
 		UnlockVideo ();
-
-		if (videoReader) {
-
-			videoReader->Release ();
-			videoReader = NULL;
-
-		}
-
-		if (audioReader) {
-
-			audioReader->Release ();
-			audioReader = NULL;
-
-		}
+		ReleaseReader (&videoReader, network);
+		ReleaseReader (&audioReader, network);
 
 		SetByteStream (&audioConnection, NULL);
 		SetByteStream (&videoConnection, NULL);
@@ -1760,13 +1775,7 @@ namespace lime {
 
 		}
 
-		if (audioReader) {
-
-			audioReader->Release ();
-			audioReader = NULL;
-
-		}
-
+		ReleaseReader (&audioReader, true);
 		SetByteStream (&audioConnection, NULL);
 
 		int channels = audioChannels;
@@ -1820,14 +1829,7 @@ namespace lime {
 		}
 
 		ReleaseProcessor ();
-
-		if (videoReader) {
-
-			videoReader->Release ();
-			videoReader = NULL;
-
-		}
-
+		ReleaseReader (&videoReader, true);
 		SetByteStream (&videoConnection, NULL);
 		bool opened = OpenVideoReader (hardwareActive, videoAdvanced, true);
 		SetBusy (&videoConnection, false);
@@ -2624,10 +2626,12 @@ namespace lime {
 
 	void MFVideoBackend::SetByteStream (MFConnection* connection, IMFByteStream* value) {
 
-		// Interrupt and PrepareSeek close the streams from another thread
+		// Interrupt and PrepareSeek close the streams from another thread, so a
+		// stream that opened after they gave up on its connection is closed now
 		std::lock_guard<std::mutex> lock (streamMutex);
 		if (connection->byteStream) connection->byteStream->Release ();
 		connection->byteStream = value;
+		if (value && connection->cancelled) value->Close ();
 
 	}
 
