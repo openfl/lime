@@ -24,6 +24,7 @@
 #include <string.h>
 #include <string>
 #include <sys/stat.h>
+#include <sys/system_properties.h>
 #include <unistd.h>
 
 #ifndef LIME_VIDEO_STANDALONE
@@ -804,6 +805,23 @@ namespace lime {
 	}
 
 
+	static int GetSystemVersion () {
+
+		// The API level, which the NDK only gives from Android 10
+		static int version = -1;
+
+		if (version < 0) {
+
+			char value[PROP_VALUE_MAX] = {};
+			version = __system_property_get ("ro.build.version.sdk", value) > 0 ? atoi (value) : 0;
+
+		}
+
+		return version;
+
+	}
+
+
 	static AMediaFormat* SelectTrack (AMediaExtractor* extractor, const char* type, size_t* track) {
 
 		size_t count = ndk.AMediaExtractor_getTrackCount (extractor);
@@ -1325,6 +1343,7 @@ namespace lime {
 			size_t audioTrack;
 			bool audioTrackFound;
 			VideoColorMatrix colorMatrix;
+			VideoColorTransfer colorTransfer;
 			GLuint copyBuffer;
 			GLuint copyFramebuffer;
 			GLuint copyProgram;
@@ -1394,6 +1413,7 @@ namespace lime {
 		audioTrack = 0;
 		audioTrackFound = false;
 		colorMatrix = VIDEO_COLOR_MATRIX_BT709;
+		colorTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		copyBuffer = 0;
 		copyFramebuffer = 0;
 		copyProgram = 0;
@@ -2079,6 +2099,7 @@ namespace lime {
 
 		planes->colorMatrix = colorMatrix;
 		planes->fullRange = fullRange;
+		planes->transfer = colorTransfer;
 		planes->width = cropWidth;
 		planes->height = cropHeight;
 		planes->y = data + yOffset + (size_t)cropY * yStride + cropX;
@@ -2609,6 +2630,13 @@ namespace lime {
 		if (!ndk.AMediaFormat_getInt32 (format, "color-range", &range) || range == 0) ndk.AMediaFormat_getInt32 (videoFormat, "color-range", &range);
 		if (!ndk.AMediaFormat_getInt32 (format, "color-standard", &standard) || standard == 0) ndk.AMediaFormat_getInt32 (videoFormat, "color-standard", &standard);
 
+		// Decoders that tone map HDR, which they can from Android 13, say their
+		// frames are standard range. HDR that is not is tone mapped by
+		// VideoDecoder.
+		int32_t transfer = 0;
+		if ((!ndk.AMediaFormat_getInt32 (format, "color-transfer", &transfer) || transfer == 0) && GetSystemVersion () < 33) ndk.AMediaFormat_getInt32 (videoFormat, "color-transfer", &transfer);
+		colorTransfer = transfer == COLOR_TRANSFER_ST2084 ? VIDEO_COLOR_TRANSFER_PQ : (transfer == COLOR_TRANSFER_HLG ? VIDEO_COLOR_TRANSFER_HLG : VIDEO_COLOR_TRANSFER_SDR);
+
 		ndk.AMediaFormat_delete (format);
 
 		switch (standard) {
@@ -2897,7 +2925,8 @@ namespace lime {
 
 	bool MediaCodecVideoBackend::SupportsTextures () {
 
-		return videoSurface && textureOutput && !texturesFailed;
+		// HDR frames that VideoDecoder tone maps are decoded into memory
+		return videoSurface && textureOutput && !texturesFailed && colorTransfer == VIDEO_COLOR_TRANSFER_SDR;
 
 	}
 
