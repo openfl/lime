@@ -78,6 +78,222 @@ namespace lime {
 	// reads from a source that is still sending finish well within it
 	static const int SEEK_WAIT_MS = 250;
 
+	// MFVideoTransFunc_2084 and _HLG, MFVideoPrimaries_BT2020 and
+	// MFVideoTransferMatrix_BT2020_10, which older SDKs lack
+	static const UINT32 TRANSFER_PQ = 15;
+	static const UINT32 TRANSFER_HLG = 16;
+	static const UINT32 PRIMARIES_BT2020 = 9;
+	static const UINT32 MATRIX_BT2020 = 4;
+
+
+	// Reads bits from an H.264 parameter set, skipping emulation prevention
+	class MFBitReader {
+
+
+		public:
+
+			MFBitReader (const UINT8* data, size_t size) : bit (0), data (data), size (size), zeros (0) {}
+
+			bool Bit () {
+
+				if (bit == 0) {
+
+					// A 3 after two zeros only keeps a start code from appearing
+					if (zeros >= 2 && size > 0 && *data == 3) {
+
+						data++;
+						size--;
+						zeros = 0;
+
+					}
+
+					if (size == 0) return false;
+
+				}
+
+				bool value = ((*data >> (7 - bit)) & 1) != 0;
+
+				if (++bit == 8) {
+
+					zeros = *data == 0 ? zeros + 1 : 0;
+					bit = 0;
+					data++;
+					size--;
+
+				}
+
+				return value;
+
+			}
+
+			UINT32 Bits (int count) {
+
+				UINT32 value = 0;
+				for (int i = 0; i < count; i++) value = (value << 1) | (Bit () ? 1 : 0);
+				return value;
+
+			}
+
+			UINT32 Exp () {
+
+				int count = 0;
+				while (!Bit () && count < 32) count++;
+				return (UINT32)((1ULL << count) - 1) + Bits (count);
+
+			}
+
+			int SignedExp () {
+
+				UINT32 value = Exp ();
+				return (value & 1) ? (int)((value + 1) / 2) : -(int)(value / 2);
+
+			}
+
+
+		private:
+
+			int bit;
+			const UINT8* data;
+			size_t size;
+			int zeros;
+
+
+	};
+
+
+	static VideoColorTransfer ReadH264Transfer (const UINT8* sps, size_t size) {
+
+		// The transfer characteristics in the SPS's video usability information
+		MFBitReader reader (sps, size);
+		reader.Bits (8);
+		UINT32 profile = reader.Bits (8);
+		reader.Bits (16);
+		reader.Exp ();
+
+		if (profile == 100 || profile == 110 || profile == 122 || profile == 244 || profile == 44 || profile == 83 || profile == 86 || profile == 118 || profile == 128 || profile == 138 || profile == 139 || profile == 134 || profile == 135) {
+
+			UINT32 chroma = reader.Exp ();
+			if (chroma == 3) reader.Bit ();
+			reader.Exp ();
+			reader.Exp ();
+			reader.Bit ();
+
+			if (reader.Bit ()) {
+
+				for (int i = 0; i < (chroma != 3 ? 8 : 12); i++) {
+
+					if (!reader.Bit ()) continue;
+
+					int last = 8;
+					int next = 8;
+
+					for (int j = 0; j < (i < 6 ? 16 : 64) && next != 0; j++) {
+
+						next = (last + reader.SignedExp () + 256) % 256;
+						if (next != 0) last = next;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		reader.Exp ();
+		UINT32 order = reader.Exp ();
+
+		if (order == 0) {
+
+			reader.Exp ();
+
+		} else if (order == 1) {
+
+			reader.Bit ();
+			reader.SignedExp ();
+			reader.SignedExp ();
+			UINT32 cycle = reader.Exp ();
+			for (UINT32 i = 0; i < cycle && i < 256; i++) reader.SignedExp ();
+
+		}
+
+		reader.Exp ();
+		reader.Bit ();
+		reader.Exp ();
+		reader.Exp ();
+		if (!reader.Bit ()) reader.Bit ();
+		reader.Bit ();
+
+		if (reader.Bit ()) {
+
+			reader.Exp ();
+			reader.Exp ();
+			reader.Exp ();
+			reader.Exp ();
+
+		}
+
+		if (!reader.Bit ()) return VIDEO_COLOR_TRANSFER_SDR;
+
+		if (reader.Bit () && reader.Bits (8) == 255) reader.Bits (32);
+		if (reader.Bit ()) reader.Bit ();
+		if (!reader.Bit ()) return VIDEO_COLOR_TRANSFER_SDR;
+
+		reader.Bits (4);
+		if (!reader.Bit ()) return VIDEO_COLOR_TRANSFER_SDR;
+
+		reader.Bits (8);
+		UINT32 transfer = reader.Bits (8);
+		return transfer == 16 ? VIDEO_COLOR_TRANSFER_PQ : (transfer == 18 ? VIDEO_COLOR_TRANSFER_HLG : VIDEO_COLOR_TRANSFER_SDR);
+
+	}
+
+
+	static VideoColorTransfer ReadTransfer (IMFMediaType* type) {
+
+		UINT32 transfer = MFGetAttributeUINT32 (type, MF_MT_TRANSFER_FUNCTION, 0);
+		if (transfer == TRANSFER_PQ) return VIDEO_COLOR_TRANSFER_PQ;
+		if (transfer == TRANSFER_HLG) return VIDEO_COLOR_TRANSFER_HLG;
+
+		// Media Foundation does not say for H.264, so its SPS is read, from the
+		// start codes before it or the avcC record it comes in
+		GUID subtype = {};
+		UINT8* header = NULL;
+		UINT32 size = 0;
+
+		if (FAILED (type->GetGUID (MF_MT_SUBTYPE, &subtype)) || subtype != MFVideoFormat_H264 || FAILED (type->GetAllocatedBlob (MF_MT_MPEG_SEQUENCE_HEADER, &header, &size))) {
+
+			return VIDEO_COLOR_TRANSFER_SDR;
+
+		}
+
+		VideoColorTransfer result = VIDEO_COLOR_TRANSFER_SDR;
+
+		if (size > 8 && header[0] == 1) {
+
+			UINT32 length = (header[6] << 8) | header[7];
+			if ((header[5] & 31) > 0 && 8 + length <= size && length > 0) result = ReadH264Transfer (header + 8, length);
+
+		} else {
+
+			for (UINT32 i = 0; i + 3 < size; i++) {
+
+				if (header[i] == 0 && header[i + 1] == 0 && header[i + 2] == 1 && (header[i + 3] & 31) == 7) {
+
+					result = ReadH264Transfer (header + i + 3, size - i - 3);
+					break;
+
+				}
+
+			}
+
+		}
+
+		CoTaskMemFree (header);
+		return result;
+
+	}
+
 	#ifdef LIME_VIDEO_WGL_INTEROP
 	// WGL_NV_DX_interop2, which shares Direct3D 11 textures with OpenGL
 	typedef BOOL (WINAPI *WGLDXCloseDeviceFunc) (HANDLE);
@@ -451,6 +667,7 @@ namespace lime {
 			UINT processorWidth;
 			IMFDXGIDeviceManager* deviceManager;
 			double frameRate;
+			VideoColorTransfer frameTransfer;
 			bool fullRange;
 			bool hardwareActive;
 			std::map<std::pair<ID3D11Texture2D*, UINT>, ID3D11VideoProcessorInputView*> inputViews;
@@ -542,6 +759,7 @@ namespace lime {
 		videoDevice = NULL;
 		videoEnded = false;
 		videoPosition = 0;
+		frameTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		network = false;
 		seeking = false;
 		videoAdvanced = false;
@@ -617,6 +835,7 @@ namespace lime {
 		audioConnection.reopen = false;
 		videoConnection.cancelled = false;
 		videoConnection.reopen = false;
+		frameTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		interrupted = false;
 		network = false;
 		seeking = false;
@@ -1165,6 +1384,7 @@ namespace lime {
 
 		planes->colorMatrix = colorMatrix;
 		planes->fullRange = fullRange;
+		planes->transfer = frameTransfer;
 		planes->width = cropWidth;
 		planes->height = cropHeight;
 		planes->y = data + cropY * pitch + cropX;
@@ -1408,30 +1628,53 @@ namespace lime {
 			// and pixel shape to keep them as they are stored
 			UINT32 streamRotation = 0;
 			UINT64 streamPixelShape = 0;
+			VideoColorTransfer streamTransfer = VIDEO_COLOR_TRANSFER_SDR;
 			IMFMediaType* nativeType = NULL;
 
 			if (SUCCEEDED (reader->GetNativeMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, &nativeType))) {
 
 				streamRotation = MFGetAttributeUINT32 (nativeType, MF_MT_VIDEO_ROTATION, 0);
 				nativeType->GetUINT64 (MF_MT_PIXEL_ASPECT_RATIO, &streamPixelShape);
+				streamTransfer = ReadTransfer (nativeType);
 				nativeType->Release ();
 
 			}
 
+			// HDR is shown in standard range. The hardware video processing tone
+			// maps PQ well, and is asked to. HLG, which it leaves far too bright,
+			// and HDR decoded in software, which is not tone mapped, are asked for
+			// as they are, and VideoDecoder tone maps them.
+			bool hdr = streamTransfer != VIDEO_COLOR_TRANSFER_SDR;
+			bool convertHDR = hardware && streamTransfer == VIDEO_COLOR_TRANSFER_PQ;
+
 			// Frames are asked for progressive, so the video processing
 			// deinterlaces interlaced video, unless it cannot
-			for (int attempt = 0; attempt < 2 && !configured; attempt++) {
+			for (int attempt = 0; attempt < (hdr ? 4 : 2) && !configured; attempt++) {
 
 				IMFMediaType* type = NULL;
 				if (FAILED (_MFCreateMediaType (&type))) break;
+
+				bool describeHDR = hdr && attempt < 2;
 
 				type->SetGUID (MF_MT_MAJOR_TYPE, MFMediaType_Video);
 				type->SetGUID (MF_MT_SUBTYPE, MFVideoFormat_NV12);
 				type->SetUINT32 (MF_MT_VIDEO_ROTATION, streamRotation);
 				if (streamPixelShape) type->SetUINT64 (MF_MT_PIXEL_ASPECT_RATIO, streamPixelShape);
-				if (attempt == 0) type->SetUINT32 (MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive);
+				if (attempt % 2 == 0) type->SetUINT32 (MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive);
+
+				if (describeHDR) {
+
+					type->SetUINT32 (MF_MT_TRANSFER_FUNCTION, convertHDR ? MFVideoTransFunc_709 : (streamTransfer == VIDEO_COLOR_TRANSFER_PQ ? TRANSFER_PQ : TRANSFER_HLG));
+					type->SetUINT32 (MF_MT_VIDEO_PRIMARIES, convertHDR ? MFVideoPrimaries_BT709 : PRIMARIES_BT2020);
+					type->SetUINT32 (MF_MT_YUV_MATRIX, convertHDR ? MFVideoTransferMatrix_BT709 : MATRIX_BT2020);
+
+				}
+
 				configured = SUCCEEDED (reader->SetCurrentMediaType (MF_SOURCE_READER_FIRST_VIDEO_STREAM, NULL, type));
 				type->Release ();
+
+				// Without asking, hardware video processing converts HDR itself
+				if (configured) frameTransfer = (describeHDR ? convertHDR : hardware) ? VIDEO_COLOR_TRANSFER_SDR : streamTransfer;
 
 			}
 
@@ -2391,7 +2634,8 @@ namespace lime {
 
 	bool MFVideoBackend::SupportsTextures () {
 
-		return hardwareActive && device && !texturesFailed;
+		// HDR frames that VideoDecoder tone maps are decoded into memory
+		return hardwareActive && device && !texturesFailed && frameTransfer == VIDEO_COLOR_TRANSFER_SDR;
 
 	}
 
