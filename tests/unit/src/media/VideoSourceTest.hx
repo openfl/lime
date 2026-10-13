@@ -725,8 +725,8 @@ class VideoSourceTest extends Test
 		// Playing the sound 5% fast stands in for an output whose clock runs fast
 		// against the timer, as in some virtual machines. Steering alone would
 		// leave the clock behind by however far it takes to run that much faster.
-		// The rate is learned during the first pass and kept from then on, so the
-		// second pass after looping keeps up from the start.
+		// The rate is learned during the first pass and kept from then on, through
+		// the loop.
 		var frame = new VideoFrame();
 		video.loops = 1;
 		AL.sourcef(@:privateAccess video.__backend.handle, AL.PITCH, 1.05);
@@ -792,7 +792,10 @@ class VideoSourceTest extends Test
 		for (i in 0...reads)
 		{
 			video.readFrame(frame);
-			var clock = video.currentTime;
+
+			// The clock on the timeline the sound is queued on, which runs on
+			// through each loop, where currentTime starts again
+			var clock = @:privateAccess backend.getTime() * 1000;
 			var read = System.getTimer();
 
 			// The queue and the position are read together, as the sound is queued
