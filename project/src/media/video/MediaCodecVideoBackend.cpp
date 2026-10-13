@@ -17,6 +17,7 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <math.h>
+#include <memory>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -287,6 +288,13 @@ namespace lime {
 	// A codec that fails is replaced this many times in a row, such as when
 	// the system reclaims it while the app is in the background
 	static const int MAX_CODEC_RESTARTS = 3;
+
+	// How long a seek waits for reads in progress before giving up on them, as
+	// reads from a source that is still sending finish well within it
+	static const int SEEK_WAIT_MS = 250;
+
+	// How long decoding waits at a time for a connection being made again
+	static const int CONNECT_WAIT_MS = 50;
 
 	static const char* COPY_FRAGMENT_SHADER =
 		"#extension GL_OES_EGL_image_external : require\n"
@@ -826,6 +834,67 @@ namespace lime {
 	}
 
 
+	// Whether a seek waits for the streams, and which of them are reading,
+	// under the mutex, so a read does not start while a seek waits
+	struct MediaCodecReads {
+
+		MediaCodecReads () : seeking (false) {}
+
+		std::condition_variable condition;
+		std::mutex mutex;
+		std::atomic<bool> seeking;
+
+	};
+
+
+	// Connecting to a server, which Android cannot cancel, so it happens on a
+	// thread of its own that seeking and closing can leave behind
+	struct MediaCodecConnection {
+
+		MediaCodecConnection () : abandoned (false), dataSource (NULL), done (false) {}
+
+		bool abandoned;
+		std::condition_variable condition;
+		AMediaDataSource* dataSource;
+		bool done;
+		std::mutex mutex;
+
+	};
+
+
+	static std::shared_ptr<MediaCodecConnection> Connect (const std::string& path) {
+
+		std::shared_ptr<MediaCodecConnection> connection = std::make_shared<MediaCodecConnection> ();
+
+		std::thread ([connection, path] {
+
+			#ifndef LIME_VIDEO_STANDALONE
+			// The data source reads through Java, so the thread joins the Java VM
+			SDL_AndroidGetJNIEnv ();
+			#endif
+
+			AMediaDataSource* dataSource = ndk.AMediaDataSource_newUri (path.c_str (), 0, NULL);
+
+			std::lock_guard<std::mutex> lock (connection->mutex);
+
+			if (connection->abandoned && dataSource) {
+
+				ndk.AMediaDataSource_delete (dataSource);
+				dataSource = NULL;
+
+			}
+
+			connection->dataSource = dataSource;
+			connection->done = true;
+			connection->condition.notify_all ();
+
+		}).detach ();
+
+		return connection;
+
+	}
+
+
 	// One stream's extractor and decoder, which no other thread touches while
 	// it decodes
 	class MediaCodecStream {
@@ -835,13 +904,22 @@ namespace lime {
 
 			MediaCodecStream ();
 
+			bool BeginRead ();
 			void Close ();
+			void EndRead ();
+			void GiveUp ();
 			bool Prime ();
 			VideoDecodeResult Read (bool* formatChanged);
 			void Release ();
-			bool Seek (int64_t position);
+			bool Seek (int64_t position, bool later);
+			void SetDataSource (AMediaDataSource* value);
 
+			// Reading, under the reads mutex
+			bool busy;
+
+			std::atomic<bool> cancelled;
 			AMediaCodec* codec;
+			std::shared_ptr<MediaCodecConnection> connection;
 			AMediaDataSource* dataSource;
 			bool ended;
 			AMediaExtractor* extractor;
@@ -851,6 +929,13 @@ namespace lime {
 			bool inputError;
 			std::atomic<bool> interrupted;
 			bool pending;
+			MediaCodecReads* reads;
+
+			// Given up by a seek, so the stream connects again
+			std::atomic<bool> reopen;
+
+			// Where the extractor seeks before reading next, or -1
+			int64_t seekPosition;
 
 		private:
 
@@ -862,6 +947,8 @@ namespace lime {
 
 	MediaCodecStream::MediaCodecStream () {
 
+		busy = false;
+		cancelled = false;
 		codec = NULL;
 		dataSource = NULL;
 		ended = false;
@@ -872,6 +959,23 @@ namespace lime {
 		interrupted = false;
 		memset (&info, 0, sizeof (info));
 		pending = false;
+		reads = NULL;
+		reopen = false;
+		seekPosition = -1;
+
+	}
+
+
+	bool MediaCodecStream::BeginRead () {
+
+		// Reading a URL can wait on a stalled network source, which a seek gives
+		// up, and reads do not start while a seek waits
+		std::lock_guard<std::mutex> lock (reads->mutex);
+		if (reads->seeking) return false;
+
+		busy = true;
+		cancelled = false;
+		return true;
 
 	}
 
@@ -879,6 +983,22 @@ namespace lime {
 	void MediaCodecStream::Close () {
 
 		Release ();
+
+		if (connection) {
+
+			std::lock_guard<std::mutex> lock (connection->mutex);
+			connection->abandoned = true;
+
+			if (connection->dataSource) {
+
+				ndk.AMediaDataSource_delete (connection->dataSource);
+				connection->dataSource = NULL;
+
+			}
+
+		}
+
+		connection.reset ();
 
 		if (codec) {
 
@@ -896,17 +1016,35 @@ namespace lime {
 		}
 
 		// The extractor reads from the data source until it is deleted
-		if (dataSource) {
+		SetDataSource (NULL);
 
-			ndk.AMediaDataSource_delete (dataSource);
-			dataSource = NULL;
-
-		}
-
+		cancelled = false;
 		ended = false;
 		inputEnded = false;
 		inputError = false;
 		interrupted = false;
+		reopen = false;
+		seekPosition = -1;
+
+	}
+
+
+	void MediaCodecStream::EndRead () {
+
+		std::lock_guard<std::mutex> lock (reads->mutex);
+		busy = false;
+		reads->condition.notify_all ();
+
+	}
+
+
+	void MediaCodecStream::GiveUp () {
+
+		// With the reads mutex held. Closing the data source makes a read waiting
+		// on a stalled network source fail, and the stream connects again.
+		cancelled = true;
+		reopen = true;
+		if (dataSource) ndk.AMediaDataSource_close (dataSource);
 
 	}
 
@@ -937,10 +1075,20 @@ namespace lime {
 
 		size_t capacity = 0;
 		uint8_t* buffer = ndk.AMediaCodec_getInputBuffer (codec, inputIndex, &capacity);
+
+		// The input buffer goes back to the codec when the seek flushes it
+		if (!BeginRead ()) {
+
+			inputError = true;
+			return false;
+
+		}
+
 		ssize_t size = buffer ? ndk.AMediaExtractor_readSampleData (extractor, buffer, capacity) : -1;
 		int64_t time = ndk.AMediaExtractor_getSampleTime (extractor);
+		EndRead ();
 
-		if (time >= 0 && size < 0) {
+		if (cancelled || (time >= 0 && size < 0)) {
 
 			// A sample that is there but cannot be read, such as one larger than
 			// the input buffer or one lost to a network error, is not the end
@@ -957,7 +1105,19 @@ namespace lime {
 		} else {
 
 			ndk.AMediaCodec_queueInputBuffer (codec, inputIndex, 0, size, time, 0);
-			ndk.AMediaExtractor_advance (extractor);
+
+			// Advancing reads the next sample
+			if (BeginRead ()) {
+
+				ndk.AMediaExtractor_advance (extractor);
+				EndRead ();
+				if (cancelled) inputError = true;
+
+			} else {
+
+				inputError = true;
+
+			}
 
 		}
 
@@ -978,13 +1138,30 @@ namespace lime {
 		Release ();
 
 		if (ended) return VIDEO_DECODE_END;
+		if (!extractor) return reopen ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
+
+		if (seekPosition >= 0) {
+
+			if (!BeginRead ()) return VIDEO_DECODE_AGAIN;
+			media_status_t status = ndk.AMediaExtractor_seekTo (extractor, seekPosition, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC);
+			EndRead ();
+
+			if (cancelled) return VIDEO_DECODE_AGAIN;
+
+			seekPosition = -1;
+			if (status != AMEDIA_OK) return VIDEO_DECODE_ERROR;
+
+		}
 
 		int idle = 0;
 
 		while (!interrupted) {
 
 			bool queued = QueueInput ();
-			if (inputError) return VIDEO_DECODE_ERROR;
+
+			// A seek gave up on this read, or it waits for one, and reading
+			// carries on after it
+			if (inputError) return cancelled || reads->seeking ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
 			if (queued) idle = 0;
 
 			ssize_t result = ndk.AMediaCodec_dequeueOutputBuffer (codec, &info, queued ? 0 : OUTPUT_TIMEOUT_US);
@@ -1043,11 +1220,25 @@ namespace lime {
 	}
 
 
-	bool MediaCodecStream::Seek (int64_t position) {
+	bool MediaCodecStream::Seek (int64_t position, bool later) {
 
 		Release ();
 
-		bool success = (ndk.AMediaExtractor_seekTo (extractor, position, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC) == AMEDIA_OK);
+		// Seeking a URL reads from the network, so the extractor seeks later,
+		// on the thread that decodes, where a seek can give up on it
+		bool success = true;
+
+		if (later || !extractor) {
+
+			seekPosition = position;
+
+		} else {
+
+			seekPosition = -1;
+			success = (ndk.AMediaExtractor_seekTo (extractor, position, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC) == AMEDIA_OK);
+
+		}
+
 		success = (ndk.AMediaCodec_flush (codec) == AMEDIA_OK) && success;
 
 		ended = false;
@@ -1055,6 +1246,22 @@ namespace lime {
 		inputError = false;
 
 		return success;
+
+	}
+
+
+	void MediaCodecStream::SetDataSource (AMediaDataSource* value) {
+
+		AMediaDataSource* previous = NULL;
+
+		{
+			// Interrupt and PrepareSeek close it from another thread
+			std::lock_guard<std::mutex> lock (reads->mutex);
+			previous = dataSource;
+			dataSource = value;
+		}
+
+		if (previous) ndk.AMediaDataSource_delete (previous);
 
 	}
 
@@ -1074,6 +1281,7 @@ namespace lime {
 			virtual void Interrupt ();
 			virtual unsigned int LockTexture (VideoTextureFrame* frame);
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
+			virtual void PrepareSeek ();
 			virtual void ReleaseTextureFrame (VideoTextureFrame* frame);
 			virtual void ReleaseTextures ();
 			virtual bool Seek (double time);
@@ -1095,6 +1303,7 @@ namespace lime {
 			bool ReadPlaneLayout (AMediaFormat* format, int width, int height);
 			bool ReadVideoFormat ();
 			void ReleaseImage (AImage* image, int fence);
+			VideoDecodeResult ReopenStream (MediaCodecStream* stream, size_t track);
 			bool ReplaceVideoCodec (bool hardware, bool surface, int64_t position);
 			bool RestartAudio ();
 			bool RestartVideo ();
@@ -1140,8 +1349,10 @@ namespace lime {
 			GLuint imageTexture;
 			ANativeWindow* imageWindow;
 			bool nativeFences;
+			bool network;
 			std::string path;
 			double pixelAspectRatio;
+			MediaCodecReads reads;
 			int rotation;
 			EGLContext textureContext;
 			bool textureGLES3;
@@ -1169,6 +1380,8 @@ namespace lime {
 
 	MediaCodecVideoBackend::MediaCodecVideoBackend () {
 
+		audio.reads = &reads;
+		video.reads = &reads;
 		audioChannels = 0;
 		audioEncoding = PCM_ENCODING_16BIT;
 		audioPosition = 0;
@@ -1203,6 +1416,7 @@ namespace lime {
 		imageTexture = 0;
 		imageWindow = NULL;
 		nativeFences = false;
+		network = false;
 		pixelAspectRatio = 0;
 		rotation = 0;
 		textureContext = EGL_NO_CONTEXT;
@@ -1330,7 +1544,9 @@ namespace lime {
 		frameRate = 0;
 		hardwareActive = false;
 		imagesHeld = 0;
+		network = false;
 		pixelAspectRatio = 0;
+		reads.seeking = false;
 		rotation = 0;
 		texturesFailed = false;
 		videoPosition = 0;
@@ -1632,6 +1848,13 @@ namespace lime {
 
 	VideoDecodeResult MediaCodecVideoBackend::DecodeAudio (std::vector<unsigned char>* pcm, double* time) {
 
+		if (audio.reopen && audio.codec) {
+
+			VideoDecodeResult result = ReopenStream (&audio, audioTrack);
+			if (result != VIDEO_DECODE_OK) return result;
+
+		}
+
 		while (audio.codec) {
 
 			bool formatChanged = false;
@@ -1710,6 +1933,13 @@ namespace lime {
 
 	VideoDecodeResult MediaCodecVideoBackend::DecodeVideo (VideoPlanes* planes, double* time, double* duration) {
 
+		if (video.reopen && video.codec) {
+
+			VideoDecodeResult result = ReopenStream (&video, videoTrack);
+			if (result != VIDEO_DECODE_OK) return result;
+
+		}
+
 		// Texture output stopped, and VideoDecoder reads in memory until the
 		// seek that follows, so continue after the last frame in memory
 		if (videoSurface && video.codec) {
@@ -1753,6 +1983,13 @@ namespace lime {
 	VideoDecodeResult MediaCodecVideoBackend::DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration) {
 
 		*frame = NULL;
+
+		if (video.reopen && video.codec) {
+
+			VideoDecodeResult result = ReopenStream (&video, videoTrack);
+			if (result != VIDEO_DECODE_OK) return result;
+
+		}
 
 		while (video.codec) {
 
@@ -1861,9 +2098,12 @@ namespace lime {
 		audio.interrupted = true;
 		video.interrupted = true;
 
-		// Reads waiting on a stalled network fail at once
-		if (audio.dataSource) ndk.AMediaDataSource_close (audio.dataSource);
-		if (video.dataSource) ndk.AMediaDataSource_close (video.dataSource);
+		{
+			// Reads waiting on a stalled network fail at once
+			std::lock_guard<std::mutex> lock (reads.mutex);
+			if (audio.dataSource) ndk.AMediaDataSource_close (audio.dataSource);
+			if (video.dataSource) ndk.AMediaDataSource_close (video.dataSource);
+		}
 
 		std::lock_guard<std::mutex> lock (imageMutex);
 		imageCondition.notify_all ();
@@ -2030,6 +2270,11 @@ namespace lime {
 		if (!path || !path[0]) return false;
 
 		this->path = path;
+
+		// A seek can give up on a URL read through a data source, from Android 10
+		std::string source = path;
+		network = source.find ("://") != std::string::npos && source.compare (0, 10, "content://") != 0 && source.compare (0, 7, "file://") != 0
+			&& ndk.AMediaDataSource_newUri && ndk.AMediaDataSource_close && ndk.AMediaDataSource_delete && ndk.AMediaExtractor_setDataSourceCustom;
 
 		info->hasVideo = OpenVideo (hardwareDecoding) || (hardwareDecoding && OpenVideo (false));
 		info->hasAudio = OpenAudio ();
@@ -2433,6 +2678,89 @@ namespace lime {
 	}
 
 
+	void MediaCodecVideoBackend::PrepareSeek () {
+
+		// A stream waiting on a stalled network source would hold up the seek
+		// until the connection gives up, which takes minutes. Reads from a
+		// source that is still sending finish soon, and those that have not by
+		// then are given up. Their streams connect again once the seek is done.
+		if (!network) return;
+
+		std::unique_lock<std::mutex> lock (reads.mutex);
+		reads.seeking = true;
+		reads.condition.wait_for (lock, std::chrono::milliseconds (SEEK_WAIT_MS), [this] { return !audio.busy && !video.busy; });
+
+		if (audio.busy) audio.GiveUp ();
+		if (video.busy) video.GiveUp ();
+
+	}
+
+
+	VideoDecodeResult MediaCodecVideoBackend::ReopenStream (MediaCodecStream* stream, size_t track) {
+
+		// A seek gave up on a read that waited on a stalled network source, so
+		// the stream reads through a new connection, from where the seek went.
+		// The codec carries on, as the seek flushed it. Connecting cannot be
+		// cancelled, so decoding waits for it a little at a time, and seeking
+		// and closing do not wait for it.
+		#ifndef LIME_VIDEO_STANDALONE
+		// A URL is read and closed through Java, so this thread joins the Java VM
+		SDL_AndroidGetJNIEnv ();
+		#endif
+
+		if (!stream->connection) {
+
+			if (stream->extractor) {
+
+				ndk.AMediaExtractor_delete (stream->extractor);
+				stream->extractor = NULL;
+
+			}
+
+			stream->SetDataSource (NULL);
+			stream->connection = Connect (path);
+
+		}
+
+		std::shared_ptr<MediaCodecConnection> connection = stream->connection;
+		AMediaDataSource* dataSource = NULL;
+
+		{
+			std::unique_lock<std::mutex> lock (connection->mutex);
+			if (!connection->condition.wait_for (lock, std::chrono::milliseconds (CONNECT_WAIT_MS), [&connection] { return connection->done; })) return VIDEO_DECODE_AGAIN;
+
+			dataSource = connection->dataSource;
+			connection->dataSource = NULL;
+		}
+
+		stream->connection.reset ();
+
+		// A server that cannot be reached is tried again at the next seek
+		if (!dataSource) return VIDEO_DECODE_ERROR;
+
+		// Opening reads from the source, which a seek or closing can give up
+		stream->SetDataSource (dataSource);
+		if (!stream->BeginRead ()) return VIDEO_DECODE_AGAIN;
+
+		AMediaExtractor* extractor = ndk.AMediaExtractor_new ();
+		bool opened = extractor && ndk.AMediaExtractor_setDataSourceCustom (extractor, dataSource) == AMEDIA_OK && ndk.AMediaExtractor_selectTrack (extractor, track) == AMEDIA_OK;
+		stream->EndRead ();
+
+		if (!opened) {
+
+			if (extractor) ndk.AMediaExtractor_delete (extractor);
+			return stream->cancelled ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
+
+		}
+
+		// The extractor seeks to where the seek went before reading next
+		stream->extractor = extractor;
+		stream->reopen = false;
+		return VIDEO_DECODE_OK;
+
+	}
+
+
 	bool MediaCodecVideoBackend::ReplaceVideoCodec (bool hardware, bool surface, int64_t position) {
 
 		video.Release ();
@@ -2451,7 +2779,7 @@ namespace lime {
 
 		if (!video.codec) return false;
 
-		ndk.AMediaExtractor_seekTo (video.extractor, position, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC);
+		video.seekPosition = position;
 
 		return video.Prime () && ReadVideoFormat ();
 
@@ -2488,7 +2816,7 @@ namespace lime {
 		audio.inputError = false;
 
 		// Resume from the packet before the last one returned, and skip to it
-		ndk.AMediaExtractor_seekTo (audio.extractor, audioTime != INT64_MIN ? audioTime : audioPosition, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC);
+		audio.seekPosition = audioTime != INT64_MIN ? audioTime : audioPosition;
 		audioSkipTime = audioTime;
 		return true;
 
@@ -2518,6 +2846,8 @@ namespace lime {
 
 	bool MediaCodecVideoBackend::Seek (double time) {
 
+		reads.seeking = false;
+
 		int64_t position = (int64_t)(time * 1000000.0);
 		bool success = true;
 
@@ -2527,14 +2857,15 @@ namespace lime {
 			videoSkipTime = INT64_MIN;
 			videoTime = INT64_MIN;
 
-			// Texture output stopped, so decode into memory from here on
-			if (videoSurface && !textureOutput) {
+			// Texture output stopped, so decode into memory from here on, which
+			// a stream that connects again does once it has
+			if (videoSurface && !textureOutput && !video.reopen) {
 
 				success = ReplaceVideoCodec (hardwareActive, false, position) && success;
 
 			} else {
 
-				success = video.Seek (position) && success;
+				success = video.Seek (position, network) && success;
 
 			}
 
@@ -2546,7 +2877,7 @@ namespace lime {
 			audioPosition = position;
 			audioSkipTime = INT64_MIN;
 			audioTime = INT64_MIN;
-			success = audio.Seek (position) && success;
+			success = audio.Seek (position, network) && success;
 
 		}
 
