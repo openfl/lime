@@ -355,6 +355,7 @@ namespace lime {
 			bool SeekStreams (double time, bool accurate, bool keepAudio);
 			void StartThreads ();
 			void StopThreads ();
+			void ThreadStopped ();
 			unsigned int UploadTexture (Frame* frame);
 			void VideoThread ();
 
@@ -377,8 +378,10 @@ namespace lime {
 			bool open;
 			double presentationTime;
 			bool quit;
+			int runningThreads;
 			bool seekAccurate;
 			bool seekPending;
+			std::condition_variable stoppedCondition;
 			unsigned int texture;
 			void* textureContext;
 			int textureHeight;

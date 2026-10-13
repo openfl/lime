@@ -222,6 +222,8 @@ namespace lime {
 
 	VideoDecoder::VideoDecoder (VideoBackend* backend) : backend (backend) {
 
+		runningThreads = 0;
+
 		audioEnded = true;
 		audioError = false;
 		audioQueued = 0;
@@ -820,9 +822,10 @@ namespace lime {
 	void VideoDecoder::StartThreads () {
 
 		quit = false;
+		runningThreads = (info.hasAudio ? 1 : 0) + (info.hasVideo ? 1 : 0);
 
-		if (info.hasAudio) audioThread = std::thread (&VideoDecoder::AudioThread, this);
-		if (info.hasVideo) videoThread = std::thread (&VideoDecoder::VideoThread, this);
+		if (info.hasAudio) audioThread = std::thread ([this] { AudioThread (); ThreadStopped (); });
+		if (info.hasVideo) videoThread = std::thread ([this] { VideoThread (); ThreadStopped (); });
 
 	}
 
@@ -840,8 +843,35 @@ namespace lime {
 
 		backend->Interrupt ();
 
+		{
+			// Media Foundation now and then leaves a read waiting on a stalled
+			// network source after its byte stream is closed, so the streams are
+			// interrupted again until they finish
+			std::unique_lock<std::mutex> lock (mutex);
+
+			while (!stoppedCondition.wait_for (lock, std::chrono::milliseconds (200), [this] { return runningThreads == 0; })) {
+
+				lock.unlock ();
+				backend->Interrupt ();
+				lock.lock ();
+
+			}
+		}
+
 		if (audioThread.joinable ()) audioThread.join ();
 		if (videoThread.joinable ()) videoThread.join ();
+
+	}
+
+
+	void VideoDecoder::ThreadStopped () {
+
+		{
+			std::lock_guard<std::mutex> lock (mutex);
+			runningThreads--;
+		}
+
+		stoppedCondition.notify_all ();
 
 	}
 
