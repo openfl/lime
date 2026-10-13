@@ -65,9 +65,34 @@ namespace lime {
 	static const int MAX_READER_RESTARTS = 3;
 
 
+	static VideoColorTransfer ToTransfer (CFTypeRef transfer) {
+
+		// The PQ and HLG constants need macOS 10.13 and iOS 11, so their values
+		// are compared
+		if (transfer && CFGetTypeID (transfer) == CFStringGetTypeID ()) {
+
+			if (CFEqual (transfer, CFSTR ("SMPTE_ST_2084_PQ"))) return VIDEO_COLOR_TRANSFER_PQ;
+			if (CFEqual (transfer, CFSTR ("ITU_R_2100_HLG"))) return VIDEO_COLOR_TRANSFER_HLG;
+
+		}
+
+		return VIDEO_COLOR_TRANSFER_SDR;
+
+	}
+
+
 	// CVBufferCopyAttachment, which replaces CVBufferGetAttachment, needs macOS 12 and iOS 15
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+	static VideoColorTransfer GetTransfer (CVBufferRef buffer, VideoColorTransfer source) {
+
+		// AVFoundation tone maps HDR to the standard range it is asked for, but
+		// not all of it, such as H.264, whose frames keep their transfer
+		CFTypeRef transfer = CVBufferGetAttachment (buffer, kCVImageBufferTransferFunctionKey, NULL);
+		return transfer ? ToTransfer (transfer) : source;
+
+	}
 
 	static VideoColorMatrix GetColorMatrix (CVBufferRef buffer, int width, int height) {
 
@@ -102,6 +127,17 @@ namespace lime {
 	// loading, but Open has to wait for them anyway
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+	static VideoColorTransfer GetSourceTransfer (AVAssetTrack* track) {
+
+		NSArray* formats = [track formatDescriptions];
+		if ([formats count] == 0) return VIDEO_COLOR_TRANSFER_SDR;
+
+		CMVideoFormatDescriptionRef format = LIME_BRIDGE (CMVideoFormatDescriptionRef, [formats objectAtIndex:0]);
+		return ToTransfer (CMFormatDescriptionGetExtension (format, kCMFormatDescriptionExtension_TransferFunction));
+
+	}
+
 
 	static double GetPixelAspectRatio (AVAssetTrack* track) {
 
@@ -424,10 +460,12 @@ namespace lime {
 			int copyTextureWidth;
 			bool framebufferEXT;
 			double frameRate;
+			VideoColorTransfer frameTransfer;
 			CMSampleBufferRef lockedSample;
 			CMSampleBufferRef pendingSample;
 			unsigned int sourceFramebuffer;
 			unsigned int sourceTexture;
+			VideoColorTransfer sourceTransfer;
 			AVFTextureCacheRef textureCache;
 			void* textureContext;
 			std::atomic<bool> textureOutput;
@@ -459,10 +497,12 @@ namespace lime {
 		copyTextureWidth = 0;
 		framebufferEXT = false;
 		frameRate = 0;
+		frameTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		lockedSample = NULL;
 		pendingSample = NULL;
 		sourceFramebuffer = 0;
 		sourceTexture = 0;
+		sourceTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		textureCache = NULL;
 		textureContext = NULL;
 		textureOutput = false;
@@ -508,6 +548,8 @@ namespace lime {
 		audioPosition = 0;
 		audioSampleRate = 0;
 		frameRate = 0;
+		frameTransfer = VIDEO_COLOR_TRANSFER_SDR;
+		sourceTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		videoPosition = 0;
 
 	}
@@ -641,6 +683,7 @@ namespace lime {
 			// The output format is video range, which full range sources are converted to
 			planes->colorMatrix = GetColorMatrix (image, width, height);
 			planes->fullRange = false;
+			planes->transfer = frameTransfer = GetTransfer (image, sourceTransfer);
 			planes->width = width;
 			planes->height = height;
 			planes->y = y;
@@ -679,6 +722,17 @@ namespace lime {
 
 				CFRelease (sample);
 				return VIDEO_DECODE_ERROR;
+
+			}
+
+			// HDR that was not tone mapped is decoded into memory from here on,
+			// where VideoDecoder tone maps it
+			frameTransfer = GetTransfer (image, sourceTransfer);
+
+			if (frameTransfer != VIDEO_COLOR_TRANSFER_SDR) {
+
+				CFRelease (sample);
+				return VIDEO_DECODE_OK;
 
 			}
 
@@ -956,6 +1010,7 @@ namespace lime {
 				CGAffineTransform transform = [videoTrack preferredTransform];
 				info->rotation = (int)lround (atan2 (transform.b, transform.a) * 180.0 / M_PI);
 				info->pixelAspectRatio = GetPixelAspectRatio (videoTrack);
+				sourceTransfer = GetSourceTransfer (videoTrack);
 
 			}
 
@@ -1285,7 +1340,7 @@ namespace lime {
 
 	bool AVFVideoBackend::SupportsTextures () {
 
-		return videoTextures && textureOutput;
+		return videoTextures && textureOutput && frameTransfer == VIDEO_COLOR_TRANSFER_SDR;
 
 	}
 
