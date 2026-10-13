@@ -74,6 +74,10 @@ namespace lime {
 	// enough for the decoder's queue, the frame on screen and one being written
 	static const int OUTPUT_TEXTURES = 8;
 
+	// How long a seek waits for reads in progress before giving up on them, as
+	// reads from a source that is still sending finish well within it
+	static const int SEEK_WAIT_MS = 250;
+
 	#ifdef LIME_VIDEO_WGL_INTEROP
 	// WGL_NV_DX_interop2, which shares Direct3D 11 textures with OpenGL
 	typedef BOOL (WINAPI *WGLDXCloseDeviceFunc) (HANDLE);
@@ -262,6 +266,110 @@ namespace lime {
 	}
 
 
+	// The connection a reader reads through, which closing and seeking give up
+	// when it waits on a stalled network source
+	struct MFConnection {
+
+		MFConnection () : busy (false), byteStream (NULL), cancelCookie (NULL), cancelled (false), reopen (false), reopenPosition (0), resolver (NULL) {}
+
+		// Reading or opening, under the stream mutex
+		bool busy;
+
+		IMFByteStream* byteStream;
+		IUnknown* cancelCookie;
+		std::atomic<bool> cancelled;
+
+		// Given up by a seek, so the reader opens again from reopenPosition
+		std::atomic<bool> reopen;
+		LONGLONG reopenPosition;
+
+		IMFSourceResolver* resolver;
+
+	};
+
+
+	// Receives the byte stream a source resolver opens, which a cancelled open
+	// may still deliver after the reader stopped waiting for it
+	class MFResolveCallback : public IMFAsyncCallback {
+
+
+		public:
+
+			MFResolveCallback (IMFSourceResolver* resolver) : object (NULL), references (1), resolver (resolver), result (E_PENDING) {
+
+				resolver->AddRef ();
+				done = CreateEventW (NULL, TRUE, FALSE, NULL);
+
+			}
+
+			~MFResolveCallback () {
+
+				if (object) object->Release ();
+				if (done) CloseHandle (done);
+				resolver->Release ();
+
+			}
+
+			STDMETHODIMP QueryInterface (REFIID riid, void** value) {
+
+				if (riid == __uuidof (IMFAsyncCallback) || riid == __uuidof (IUnknown)) {
+
+					*value = static_cast<IMFAsyncCallback*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				*value = NULL;
+				return E_NOINTERFACE;
+
+			}
+
+			STDMETHODIMP_(ULONG) AddRef () { return InterlockedIncrement (&references); }
+
+			STDMETHODIMP_(ULONG) Release () {
+
+				ULONG count = InterlockedDecrement (&references);
+				if (count == 0) delete this;
+				return count;
+
+			}
+
+			STDMETHODIMP GetParameters (DWORD* flags, DWORD* queue) { return E_NOTIMPL; }
+
+			STDMETHODIMP Invoke (IMFAsyncResult* asyncResult) {
+
+				MF_OBJECT_TYPE type = MF_OBJECT_INVALID;
+				result = resolver->EndCreateObjectFromURL (asyncResult, &type, &object);
+				SetEvent (done);
+				return S_OK;
+
+			}
+
+			// Once done is set
+			IUnknown* TakeObject () {
+
+				IUnknown* value = SUCCEEDED (result) ? object : NULL;
+				if (!value && object) object->Release ();
+				object = NULL;
+				return value;
+
+			}
+
+			HANDLE done;
+
+
+		private:
+
+			IUnknown* object;
+			LONG references;
+			IMFSourceResolver* resolver;
+			HRESULT result;
+
+
+	};
+
+
 	class MFVideoBackend : public VideoBackend {
 
 
@@ -275,6 +383,7 @@ namespace lime {
 			virtual VideoDecodeResult DecodeVideo (VideoPlanes* planes, double* time, double* duration);
 			virtual void Interrupt ();
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
+			virtual void PrepareSeek ();
 			virtual bool Seek (double time);
 
 		private:
@@ -283,17 +392,23 @@ namespace lime {
 			bool CopyToStaging (IMFSample* sample, LONGLONG timestamp, LONGLONG sampleDuration);
 			bool CreateDeviceManager ();
 			bool CreateProcessor (UINT inputWidth, UINT inputHeight);
-			IMFSourceReader* CreateReader (IMFAttributes* attributes, IMFByteStream** stream);
+			IMFSourceReader* CreateReader (IMFAttributes* attributes, MFConnection* connection);
 			void GetPlanes (VideoPlanes* planes, BYTE* data, int pitch, int lumaRows);
+			void GiveUp (MFConnection* connection);
 			VideoDecodeResult MapStaging (VideoPlanes* planes, double* time, double* duration);
 			bool OpenAudio ();
 			bool OpenVideo (bool hardware);
 			void ReadAudioFormat ();
-			bool OpenVideoReader (bool hardware, bool advanced);
+			bool OpenVideoReader (bool hardware, bool advanced, bool keepDevice = false);
+			HRESULT ReadSample (IMFSourceReader* reader, DWORD stream, MFConnection* connection, DWORD* flags, LONGLONG* timestamp, IMFSample** sample);
 			void ReadVideoFormat ();
 			void ReleaseDeviceManager ();
 			void ReleaseProcessor ();
-			void SetStream (IMFByteStream** stream, IMFByteStream* value);
+			VideoDecodeResult ReopenAudio ();
+			VideoDecodeResult ReopenVideo ();
+			IUnknown* ResolveURL (IMFSourceResolver* resolver, MFConnection* connection);
+			bool SetBusy (MFConnection* connection, bool busy);
+			void SetByteStream (MFConnection* connection, IMFByteStream* value);
 			bool SwitchToSoftware ();
 			void UnlockVideo ();
 
@@ -308,8 +423,8 @@ namespace lime {
 			VideoAudioConverter audioConverter;
 			int audioPacketChannels;
 			int audioPacketRate;
+			MFConnection audioConnection;
 			IMFSourceReader* audioReader;
-			IMFByteStream* audioStream;
 			int audioSampleRate;
 			int audioSourceChannels;
 			bool audioStreamFound;
@@ -359,15 +474,19 @@ namespace lime {
 			std::deque<int> stagingQueue;
 			LONGLONG stagingTimes[STAGING_TEXTURES];
 			UINT stagingWidth;
+			bool network;
+			std::condition_variable readCondition;
+			std::atomic<bool> seeking;
 			bool started;
 			std::mutex streamMutex;
 			std::wstring url;
+			bool videoAdvanced;
 			bool videoEnded;
 			ID3D11VideoContext* videoContext;
 			ID3D11VideoDevice* videoDevice;
 			LONGLONG videoPosition;
+			MFConnection videoConnection;
 			IMFSourceReader* videoReader;
-			IMFByteStream* videoStream;
 			bool videoStreamFound;
 
 
@@ -380,7 +499,6 @@ namespace lime {
 		audioPacketChannels = 0;
 		audioPacketRate = 0;
 		audioReader = NULL;
-		audioStream = NULL;
 		audioSampleRate = 0;
 		audioSourceChannels = 0;
 		audioStreamFound = false;
@@ -424,8 +542,10 @@ namespace lime {
 		videoDevice = NULL;
 		videoEnded = false;
 		videoPosition = 0;
+		network = false;
+		seeking = false;
+		videoAdvanced = false;
 		videoReader = NULL;
-		videoStream = NULL;
 		videoStreamFound = false;
 
 		for (int i = 0; i < STAGING_TEXTURES; i++) staging[i] = NULL;
@@ -491,9 +611,15 @@ namespace lime {
 
 		}
 
-		SetStream (&audioStream, NULL);
-		SetStream (&videoStream, NULL);
+		SetByteStream (&audioConnection, NULL);
+		SetByteStream (&videoConnection, NULL);
+		audioConnection.cancelled = false;
+		audioConnection.reopen = false;
+		videoConnection.cancelled = false;
+		videoConnection.reopen = false;
 		interrupted = false;
+		network = false;
+		seeking = false;
 
 		ReleaseDeviceManager ();
 
@@ -630,19 +756,19 @@ namespace lime {
 	}
 
 
-	IMFSourceReader* MFVideoBackend::CreateReader (IMFAttributes* attributes, IMFByteStream** stream) {
+	IMFSourceReader* MFVideoBackend::CreateReader (IMFAttributes* attributes, MFConnection* connection) {
 
-		// Each reader reads its own byte stream, which is kept so Interrupt can
-		// close it. The resolver opens files and URLs as Media Foundation does.
+		// Each reader reads its own byte stream, which is kept so Interrupt and
+		// PrepareSeek can close it. The resolver opens files and URLs as Media
+		// Foundation does.
 		IMFByteStream* byteStream = NULL;
 		IMFSourceResolver* resolver = NULL;
 
 		if (_MFCreateSourceResolver && _MFCreateSourceReaderFromByteStream && SUCCEEDED (_MFCreateSourceResolver (&resolver))) {
 
-			MF_OBJECT_TYPE type = MF_OBJECT_INVALID;
-			IUnknown* object = NULL;
+			IUnknown* object = ResolveURL (resolver, connection);
 
-			if (SUCCEEDED (resolver->CreateObjectFromURL (url.c_str (), MF_RESOLUTION_BYTESTREAM, NULL, &type, &object)) && object) {
+			if (object) {
 
 				object->QueryInterface (IID_PPV_ARGS (&byteStream));
 				object->Release ();
@@ -655,21 +781,27 @@ namespace lime {
 
 		IMFSourceReader* reader = NULL;
 
-		if (byteStream && FAILED (_MFCreateSourceReaderFromByteStream (byteStream, attributes, &reader))) {
+		if (byteStream) {
 
-			reader = NULL;
-			byteStream->Release ();
-			byteStream = NULL;
+			// The byte stream is kept first, so a source that stalls while the
+			// reader opens can be given up too
+			SetByteStream (connection, byteStream);
+
+			if (FAILED (_MFCreateSourceReaderFromByteStream (byteStream, attributes, &reader))) {
+
+				reader = NULL;
+				SetByteStream (connection, NULL);
+
+			}
 
 		}
 
-		if (!reader && FAILED (_MFCreateSourceReaderFromURL (url.c_str (), attributes, &reader))) {
+		if (!reader && (connection->cancelled || FAILED (_MFCreateSourceReaderFromURL (url.c_str (), attributes, &reader)))) {
 
 			return NULL;
 
 		}
 
-		SetStream (stream, byteStream);
 		return reader;
 
 	}
@@ -727,9 +859,16 @@ namespace lime {
 
 	VideoDecodeResult MFVideoBackend::DecodeAudio (std::vector<unsigned char>* pcm, double* time) {
 
-		if (!audioReader) return VIDEO_DECODE_END;
-
 		InitializeCOM ();
+
+		if (audioConnection.reopen) {
+
+			VideoDecodeResult result = ReopenAudio ();
+			if (result != VIDEO_DECODE_OK) return result;
+
+		}
+
+		if (!audioReader) return VIDEO_DECODE_END;
 
 		while (true) {
 
@@ -737,12 +876,15 @@ namespace lime {
 			LONGLONG timestamp = 0;
 			IMFSample* sample = NULL;
 
-			HRESULT hr = audioReader->ReadSample (MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, NULL, &flags, &timestamp, &sample);
+			HRESULT hr = ReadSample (audioReader, MF_SOURCE_READER_FIRST_AUDIO_STREAM, &audioConnection, &flags, &timestamp, &sample);
 
 			if (FAILED (hr) || (flags & MF_SOURCE_READERF_ERROR)) {
 
 				if (sample) sample->Release ();
-				return VIDEO_DECODE_ERROR;
+
+				// A seek gave up on this read, or it waits for one, and reading
+				// carries on after it
+				return audioConnection.reopen || seeking ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
 
 			}
 
@@ -801,10 +943,16 @@ namespace lime {
 	VideoDecodeResult MFVideoBackend::DecodeVideo (VideoPlanes* planes, double* time, double* duration) {
 
 		UnlockVideo ();
+		InitializeCOM ();
+
+		if (videoConnection.reopen) {
+
+			VideoDecodeResult result = ReopenVideo ();
+			if (result != VIDEO_DECODE_OK) return result;
+
+		}
 
 		if (!videoReader) return VIDEO_DECODE_END;
-
-		InitializeCOM ();
 
 		while (true) {
 
@@ -829,15 +977,19 @@ namespace lime {
 			LONGLONG timestamp = 0;
 			IMFSample* sample = NULL;
 
-			HRESULT hr = videoReader->ReadSample (MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, &flags, &timestamp, &sample);
+			HRESULT hr = ReadSample (videoReader, MF_SOURCE_READER_FIRST_VIDEO_STREAM, &videoConnection, &flags, &timestamp, &sample);
 
 			if (FAILED (hr) || (flags & MF_SOURCE_READERF_ERROR)) {
 
 				if (sample) sample->Release ();
 
+				// A seek gave up on this read, or it waits for one, and reading
+				// carries on after it
+				if (videoConnection.reopen || seeking) return VIDEO_DECODE_AGAIN;
+
 				if (hardwareActive && !interrupted && SwitchToSoftware ()) continue;
 
-				return VIDEO_DECODE_ERROR;
+				return videoConnection.reopen || seeking ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
 
 			}
 
@@ -985,16 +1137,26 @@ namespace lime {
 	}
 
 
+	void MFVideoBackend::GiveUp (MFConnection* connection) {
+
+		// Closing the byte stream makes a read waiting on a stalled network
+		// source fail, and connecting is cancelled
+		connection->cancelled = true;
+		if (connection->byteStream) connection->byteStream->Close ();
+		if (connection->resolver && connection->cancelCookie) connection->resolver->CancelObjectCreation (connection->cancelCookie);
+
+	}
+
+
 	void MFVideoBackend::Interrupt () {
 
 		// A stream waiting on a stalled network source would wait until the
-		// connection times out, half a minute later. Closing the byte streams,
-		// which only closing the video does, makes the waiting reads fail.
+		// connection times out, half a minute later
 		interrupted = true;
 
 		std::lock_guard<std::mutex> lock (streamMutex);
-		if (audioStream) audioStream->Close ();
-		if (videoStream) videoStream->Close ();
+		GiveUp (&audioConnection);
+		GiveUp (&videoConnection);
 
 	}
 
@@ -1049,6 +1211,8 @@ namespace lime {
 		url = GetURL (path);
 		if (url.empty ()) return false;
 
+		network = url.find (L"://") != std::wstring::npos && url.compare (0, 5, L"file:") != 0;
+
 		info->hasVideo = OpenVideo (hardwareDecoding) || (hardwareDecoding && OpenVideo (false));
 		info->hasAudio = OpenAudio ();
 
@@ -1099,7 +1263,7 @@ namespace lime {
 
 		IMFSourceReader* reader = NULL;
 
-		reader = CreateReader (NULL, &audioStream);
+		reader = CreateReader (NULL, &audioConnection);
 		if (!reader) return false;
 
 		reader->SetStreamSelection (MF_SOURCE_READER_ALL_STREAMS, FALSE);
@@ -1202,7 +1366,7 @@ namespace lime {
 	}
 
 
-	bool MFVideoBackend::OpenVideoReader (bool hardware, bool advanced) {
+	bool MFVideoBackend::OpenVideoReader (bool hardware, bool advanced, bool keepDevice) {
 
 		IMFAttributes* attributes = NULL;
 		if (FAILED (_MFCreateAttributes (&attributes, 4))) return false;
@@ -1220,12 +1384,12 @@ namespace lime {
 
 		}
 
-		IMFSourceReader* reader = CreateReader (attributes, &videoStream);
+		IMFSourceReader* reader = CreateReader (attributes, &videoConnection);
 		attributes->Release ();
 
 		if (!reader) {
 
-			if (hardware) ReleaseDeviceManager ();
+			if (hardware && !keepDevice) ReleaseDeviceManager ();
 			return false;
 
 		}
@@ -1276,12 +1440,13 @@ namespace lime {
 		if (!configured) {
 
 			reader->Release ();
-			if (hardware) ReleaseDeviceManager ();
+			if (hardware && !keepDevice) ReleaseDeviceManager ();
 			return false;
 
 		}
 
 		videoReader = reader;
+		videoAdvanced = advanced;
 		hardwareActive = hardware;
 		ReadVideoFormat ();
 
@@ -1289,12 +1454,204 @@ namespace lime {
 
 			videoReader->Release ();
 			videoReader = NULL;
-			if (hardware) ReleaseDeviceManager ();
+			if (hardware && !keepDevice) ReleaseDeviceManager ();
 			return false;
 
 		}
 
 		return true;
+
+	}
+
+
+	void MFVideoBackend::PrepareSeek () {
+
+		// A stream waiting on a stalled network source would hold up the seek
+		// until the connection times out, half a minute later. Reads from a
+		// source that is still sending finish soon, and those that have not by
+		// then are given up. Their readers open again once the seek is done.
+		if (!network || !canSeek) return;
+
+		std::unique_lock<std::mutex> lock (streamMutex);
+		seeking = true;
+		readCondition.wait_for (lock, std::chrono::milliseconds (SEEK_WAIT_MS), [this] { return !audioConnection.busy && !videoConnection.busy; });
+
+		if (audioConnection.busy) {
+
+			audioConnection.reopen = true;
+			GiveUp (&audioConnection);
+
+		}
+
+		if (videoConnection.busy) {
+
+			videoConnection.reopen = true;
+			GiveUp (&videoConnection);
+
+		}
+
+	}
+
+
+	HRESULT MFVideoBackend::ReadSample (IMFSourceReader* reader, DWORD stream, MFConnection* connection, DWORD* flags, LONGLONG* timestamp, IMFSample** sample) {
+
+		if (!SetBusy (connection, true)) return E_ABORT;
+		HRESULT hr = reader->ReadSample (stream, 0, NULL, flags, timestamp, sample);
+		SetBusy (connection, false);
+		return hr;
+
+	}
+
+
+	VideoDecodeResult MFVideoBackend::ReopenAudio () {
+
+		// A seek gave up on a read that waited on a stalled network source, so
+		// the reader opens again, at the time seeked to, and plays on in the
+		// format it opened with
+		audioConnection.reopen = false;
+
+		if (!SetBusy (&audioConnection, true)) {
+
+			audioConnection.reopen = true;
+			return VIDEO_DECODE_AGAIN;
+
+		}
+
+		if (audioReader) {
+
+			audioReader->Release ();
+			audioReader = NULL;
+
+		}
+
+		SetByteStream (&audioConnection, NULL);
+
+		int channels = audioChannels;
+		int sampleRate = audioSampleRate;
+		bool opened = OpenAudio ();
+		SetBusy (&audioConnection, false);
+
+		if (!opened || audioConnection.reopen) {
+
+			// One that cannot open is tried again at the next seek
+			bool again = audioConnection.reopen;
+			audioConnection.reopen = true;
+
+			if (audioReader) {
+
+				audioReader->Release ();
+				audioReader = NULL;
+
+			}
+
+			return again ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
+
+		}
+
+		audioChannels = channels;
+		audioSampleRate = sampleRate;
+
+		PROPVARIANT position;
+		PropVariantInit (&position);
+		position.vt = VT_I8;
+		position.hVal.QuadPart = audioConnection.reopenPosition;
+		audioReader->SetCurrentPosition (TIME_FORMAT_100NS, position);
+
+		return VIDEO_DECODE_OK;
+
+	}
+
+
+	VideoDecodeResult MFVideoBackend::ReopenVideo () {
+
+		// A seek gave up on a read that waited on a stalled network source, so
+		// the reader opens again as it was, at the time seeked to. The device
+		// stays, as OpenGL can still be showing frames from its textures.
+		videoConnection.reopen = false;
+
+		if (!SetBusy (&videoConnection, true)) {
+
+			videoConnection.reopen = true;
+			return VIDEO_DECODE_AGAIN;
+
+		}
+
+		ReleaseProcessor ();
+
+		if (videoReader) {
+
+			videoReader->Release ();
+			videoReader = NULL;
+
+		}
+
+		SetByteStream (&videoConnection, NULL);
+		bool opened = OpenVideoReader (hardwareActive, videoAdvanced, true);
+		SetBusy (&videoConnection, false);
+
+		if (!opened || videoConnection.reopen) {
+
+			// One that cannot open is tried again at the next seek
+			bool again = videoConnection.reopen;
+			videoConnection.reopen = true;
+
+			if (videoReader) {
+
+				videoReader->Release ();
+				videoReader = NULL;
+
+			}
+
+			return again ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
+
+		}
+
+		PROPVARIANT position;
+		PropVariantInit (&position);
+		position.vt = VT_I8;
+		position.hVal.QuadPart = videoConnection.reopenPosition;
+		videoReader->SetCurrentPosition (TIME_FORMAT_100NS, position);
+
+		return VIDEO_DECODE_OK;
+
+	}
+
+
+	IUnknown* MFVideoBackend::ResolveURL (IMFSourceResolver* resolver, MFConnection* connection) {
+
+		// Connecting waits for the server, which Interrupt and PrepareSeek can
+		// cancel, so it is made asynchronously. The wait ends when it is
+		// cancelled, whether or not Media Foundation calls back.
+		MFResolveCallback* callback = new MFResolveCallback (resolver);
+		IUnknown* cookie = NULL;
+		IUnknown* object = NULL;
+
+		if (callback->done && SUCCEEDED (resolver->BeginCreateObjectFromURL (url.c_str (), MF_RESOLUTION_BYTESTREAM, NULL, &cookie, callback, NULL))) {
+
+			{
+				std::lock_guard<std::mutex> lock (streamMutex);
+				connection->cancelCookie = cookie;
+				connection->resolver = resolver;
+				if (connection->cancelled && cookie) resolver->CancelObjectCreation (cookie);
+			}
+
+			DWORD wait = WAIT_TIMEOUT;
+
+			while (!connection->cancelled && (wait = WaitForSingleObject (callback->done, 50)) == WAIT_TIMEOUT) {}
+
+			{
+				std::lock_guard<std::mutex> lock (streamMutex);
+				connection->cancelCookie = NULL;
+				connection->resolver = NULL;
+			}
+
+			if (cookie) cookie->Release ();
+			if (wait == WAIT_OBJECT_0) object = callback->TakeObject ();
+
+		}
+
+		callback->Release ();
+		return object;
 
 	}
 
@@ -1481,6 +1838,8 @@ namespace lime {
 
 	bool MFVideoBackend::Seek (double time) {
 
+		seeking = false;
+
 		// A source that cannot seek, such as a live stream, is left playing
 		if (!canSeek) return false;
 
@@ -1498,14 +1857,28 @@ namespace lime {
 
 		bool success = true;
 
-		if (videoReader) {
+		// A reader that a seek gave up on opens again from the new position
+		if (videoConnection.reopen) {
+
+			videoConnection.reopenPosition = position.hVal.QuadPart;
+			videoPosition = position.hVal.QuadPart;
+
+		} else if (videoReader) {
 
 			success = SUCCEEDED (videoReader->SetCurrentPosition (TIME_FORMAT_100NS, position)) && success;
 			videoPosition = position.hVal.QuadPart;
 
 		}
 
-		if (audioReader) success = SUCCEEDED (audioReader->SetCurrentPosition (TIME_FORMAT_100NS, position)) && success;
+		if (audioConnection.reopen) {
+
+			audioConnection.reopenPosition = position.hVal.QuadPart;
+
+		} else if (audioReader) {
+
+			success = SUCCEEDED (audioReader->SetCurrentPosition (TIME_FORMAT_100NS, position)) && success;
+
+		}
 
 		audioConverter.Reset ();
 		return success;
@@ -1625,10 +1998,16 @@ namespace lime {
 
 		*frame = NULL;
 		UnlockVideo ();
+		InitializeCOM ();
+
+		if (videoConnection.reopen) {
+
+			VideoDecodeResult result = ReopenVideo ();
+			if (result != VIDEO_DECODE_OK) return result;
+
+		}
 
 		if (!videoReader) return VIDEO_DECODE_END;
-
-		InitializeCOM ();
 
 		while (true) {
 
@@ -1636,16 +2015,20 @@ namespace lime {
 			LONGLONG timestamp = 0;
 			IMFSample* sample = NULL;
 
-			HRESULT hr = videoReader->ReadSample (MF_SOURCE_READER_FIRST_VIDEO_STREAM, 0, NULL, &flags, &timestamp, &sample);
+			HRESULT hr = ReadSample (videoReader, MF_SOURCE_READER_FIRST_VIDEO_STREAM, &videoConnection, &flags, &timestamp, &sample);
 
 			if (FAILED (hr) || (flags & MF_SOURCE_READERF_ERROR)) {
 
 				if (sample) sample->Release ();
 
+				// A seek gave up on this read, or it waits for one, and reading
+				// carries on after it
+				if (videoConnection.reopen || seeking) return VIDEO_DECODE_AGAIN;
+
 				// Continuing in software means decoding into memory from here on
 				if (hardwareActive && !interrupted && SwitchToSoftware ()) return VIDEO_DECODE_OK;
 
-				return VIDEO_DECODE_ERROR;
+				return videoConnection.reopen || seeking ? VIDEO_DECODE_AGAIN : VIDEO_DECODE_ERROR;
 
 			}
 
@@ -1971,12 +2354,37 @@ namespace lime {
 	}
 
 
-	void MFVideoBackend::SetStream (IMFByteStream** stream, IMFByteStream* value) {
+	bool MFVideoBackend::SetBusy (MFConnection* connection, bool busy) {
 
-		// Interrupt closes the streams from another thread
+		// PrepareSeek waits for reads in progress, and gives up those that wait
+		// too long. Reads do not start while a seek waits, and a read that
+		// starts after closing has begun is given up.
 		std::lock_guard<std::mutex> lock (streamMutex);
-		if (*stream) (*stream)->Release ();
-		*stream = value;
+
+		if (busy) {
+
+			if (seeking) return false;
+			connection->busy = true;
+			connection->cancelled = interrupted.load ();
+
+		} else {
+
+			connection->busy = false;
+			readCondition.notify_all ();
+
+		}
+
+		return true;
+
+	}
+
+
+	void MFVideoBackend::SetByteStream (MFConnection* connection, IMFByteStream* value) {
+
+		// Interrupt and PrepareSeek close the streams from another thread
+		std::lock_guard<std::mutex> lock (streamMutex);
+		if (connection->byteStream) connection->byteStream->Release ();
+		connection->byteStream = value;
 
 	}
 
@@ -2000,8 +2408,13 @@ namespace lime {
 		videoReader = NULL;
 
 		// The advanced video processing turns and stretches frames as the
-		// hardware decoding did, so they keep the shape they opened with
-		if (!OpenVideoReader (false, true) && !OpenVideoReader (false, false)) return false;
+		// hardware decoding did, so they keep the shape they opened with. A
+		// network source is opened again, which a seek can give up.
+		if (!SetBusy (&videoConnection, true)) return false;
+		bool opened = OpenVideoReader (false, true) || OpenVideoReader (false, false);
+		SetBusy (&videoConnection, false);
+
+		if (!opened) return false;
 
 		PROPVARIANT position;
 		PropVariantInit (&position);
