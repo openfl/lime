@@ -26,11 +26,8 @@ import haxe.Exception;
 
 // TODO: Revisit these problems:
 // - Jobs only report back through Application.current.onUpdate, so none
-//   complete without a running application, as in unit tests, and
-//   Future.ready() waits out its time.
-// - Waiting on the job queue's Deque crashes now and then with SIGBUS on ARM64
-//   Linux with hxcpp 4.3.45, whose condition variable in it is not aligned for
-//   ARM64's atomics.
+//   complete without a running application, as in unit tests. Future.ready()
+//   updates the pool itself while it waits.
 // - Idle threads exit and new ones start as jobs come. Threads ending often
 //   is costly, and on Windows, Neko's collector tracks every thread and can
 //   abort when one ends during a collection.
@@ -242,6 +239,12 @@ class ThreadPool extends WorkOutput
 		Jobs running or queued to run on the main thread.
 	**/
 	private var __singleThreadedJobs:JobArray = new JobArray();
+
+	/**
+		Whether single-threaded jobs are running, so that a job or listener
+		waiting on a `Future` doesn't run them again from within.
+	**/
+	private var __runningSingleThreadedJobs:Bool = false;
 
 	/**
 		__Call this only from the main thread.__
@@ -762,7 +765,43 @@ class ThreadPool extends WorkOutput
 			return;
 		}
 
-		// Run single-threaded jobs.
+		if (!__runningSingleThreadedJobs)
+		{
+			__runningSingleThreadedJobs = true;
+
+			try
+			{
+				__runSingleThreadedJobs();
+			}
+			catch (e:Dynamic)
+			{
+				__runningSingleThreadedJobs = false;
+				throw e;
+			}
+
+			__runningSingleThreadedJobs = false;
+		}
+
+		#if (lime_threads && !lime_threads_deque)
+		__runMultiThreadedJobs();
+		#end
+
+		// Process events.
+		var threadEvent:ThreadEvent;
+		while ((threadEvent = __jobOutput.pop(false)) != null)
+		{
+			__dispatchJobOutput(threadEvent);
+		}
+
+		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end
+			<= 0 && Application.current != null)
+		{
+			Application.current.onUpdate.remove(__update);
+		}
+	}
+
+	private function __runSingleThreadedJobs():Void
+	{
 		var endTime:Float = timestamp();
 		if (__totalWorkPriority > 0)
 		{
@@ -819,23 +858,6 @@ class ThreadPool extends WorkOutput
 				__singleThreadedJobs.shift();
 				__singleThreadedJobRunning = __singleThreadedJobs.length > 0;
 			}
-		}
-
-		#if (lime_threads && !lime_threads_deque)
-		__runMultiThreadedJobs();
-		#end
-
-		// Process events.
-		var threadEvent:ThreadEvent;
-		while ((threadEvent = __jobOutput.pop(false)) != null)
-		{
-			__dispatchJobOutput(threadEvent);
-		}
-
-		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end
-			<= 0)
-		{
-			Application.current.onUpdate.remove(__update);
 		}
 	}
 

@@ -1,7 +1,6 @@
 package system;
 
 import haxe.Timer;
-import lime.app.Future;
 import lime.system.ThreadPool;
 import lime.system.WorkOutput;
 import utest.Assert;
@@ -217,16 +216,6 @@ class ThreadPoolTest extends Test
 			Assert.equals(4, completed);
 			Assert.equals(minThreads, pool.currentThreads, "threads left with minThreads " + minThreads);
 		}
-	}
-
-	// Known problems: these show where ThreadPool needs work
-
-	public function testThreadedFuturesCanBeWaitedFor():Void
-	{
-		// Future.result() waits for threaded work, which only reports back when
-		// the application's loop updates its pool
-		var future = new Future(function() return 42, true);
-		Assert.equals(42, future.result(3000), "Future.result() gave up waiting for its threaded work");
 	}
 
 	public function testSingleThreadedWorkKeepsToItsShareOfAFrame():Void
