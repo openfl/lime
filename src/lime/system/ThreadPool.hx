@@ -747,11 +747,9 @@ class ThreadPool extends WorkOutput
 
 	private static inline function timestamp():Float
 	{
-		#if sys
-		return Sys.cpuTime();
-		#else
+		// Time on the clock, not on the CPU, since work that waits, as on files
+		// or a server, still takes up the frame
 		return haxe.Timer.stamp();
-		#end
 	}
 
 	/**
@@ -770,7 +768,7 @@ class ThreadPool extends WorkOutput
 		{
 			// Lime may be run without a window.
 			var frameRate:Float = 60;
-			if (Application.current.window != null)
+			if (Application.current != null && Application.current.window != null && Application.current.window.frameRate > 0)
 			{
 				frameRate = Application.current.window.frameRate;
 			}

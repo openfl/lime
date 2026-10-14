@@ -231,8 +231,8 @@ class ThreadPoolTest extends Test
 
 	public function testSingleThreadedWorkKeepsToItsShareOfAFrame():Void
 	{
-		// The share of a frame is measured in CPU time, so work that waits, as
-		// on files or a server, can run far longer than a frame
+		// Work that waits, as on files or a server, uses up the share of a
+		// frame as much as work that computes
 		var pool = new ThreadPool(0, 1, SINGLE_THREADED);
 		pool.run(waitBriefly, {calls: 0});
 
