@@ -811,6 +811,59 @@ namespace lime {
 	}
 
 
+	#ifdef LIME_VIDEO_WGL_INTEROP
+	// Textures shared with OpenGL by a backend closed away from the GL thread.
+	// The device is kept so the interop objects can still be released.
+	struct MFOrphan {
+
+		void* context;
+		ID3D11Device* device;
+		HANDLE interopDevice;
+		std::vector<HANDLE> interops;
+		std::vector<unsigned int> glTextures;
+		std::vector<ID3D11Texture2D*> textures;
+
+	};
+
+	static std::mutex orphanMutex;
+	static std::vector<MFOrphan> orphans;
+
+
+	static void ReleaseOrphans () {
+
+		std::vector<MFOrphan> list;
+
+		{
+			std::lock_guard<std::mutex> lock (orphanMutex);
+			list.swap (orphans);
+		}
+
+		void* context = (void*)wglGetCurrentContext ();
+
+		for (size_t i = 0; i < list.size (); i++) {
+
+			MFOrphan& orphan = list[i];
+
+			// Objects from a context that is no longer current are left with it
+			bool current = orphan.interopDevice && orphan.context == context;
+
+			for (size_t j = 0; j < orphan.interops.size (); j++) {
+
+				if (current && orphan.interops[j]) _wglDXUnregisterObjectNV (orphan.interopDevice, orphan.interops[j]);
+				if (current && orphan.glTextures[j]) glDeleteTextures (1, &orphan.glTextures[j]);
+				if (orphan.textures[j]) orphan.textures[j]->Release ();
+
+			}
+
+			if (current) _wglDXCloseDeviceNV (orphan.interopDevice);
+			if (orphan.device) orphan.device->Release ();
+
+		}
+
+	}
+	#endif
+
+
 	MFVideoBackend::~MFVideoBackend () {
 
 		Close ();
@@ -822,11 +875,24 @@ namespace lime {
 
 	void MFVideoBackend::Close () {
 
-		// Closing away from the GL thread leaves the textures it shares with
-		// OpenGL behind, rather than using them with the next device
+		// Closing away from the GL thread queues the textures it shares with
+		// OpenGL, rather than using them with the next device
+		#ifdef LIME_VIDEO_WGL_INTEROP
+		MFOrphan orphan;
+		orphan.context = interopContext;
+		orphan.device = NULL;
+		orphan.interopDevice = interopDevice;
+		#endif
+
 		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
 			if (outputs[i].interop) {
+
+				#ifdef LIME_VIDEO_WGL_INTEROP
+				orphan.interops.push_back (outputs[i].interop);
+				orphan.glTextures.push_back (outputs[i].glTexture);
+				orphan.textures.push_back (outputs[i].texture);
+				#endif
 
 				outputs[i].glTexture = 0;
 				outputs[i].interop = NULL;
@@ -835,6 +901,23 @@ namespace lime {
 			}
 
 		}
+
+		#ifdef LIME_VIDEO_WGL_INTEROP
+		if (orphan.interopDevice || !orphan.interops.empty ()) {
+
+			if (device) {
+
+				device->AddRef ();
+				orphan.device = device;
+
+			}
+
+			std::lock_guard<std::mutex> lock (orphanMutex);
+			orphans.push_back (orphan);
+			VideoBackend::releaseOrphans = ReleaseOrphans;
+
+		}
+		#endif
 
 		interopContext = NULL;
 		interopDevice = NULL;

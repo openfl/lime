@@ -33,6 +33,47 @@
 namespace lime {
 
 
+	void (*VideoBackend::releaseOrphans) () = 0;
+
+
+	// Textures of decoders closed away from the GL thread, deleted the next
+	// time any decoder reads a texture frame where their context is current
+	struct OrphanTexture {
+
+		unsigned int name;
+		void* context;
+
+	};
+
+	static std::mutex orphanMutex;
+	static std::vector<OrphanTexture> orphanTextures;
+
+
+	static void ReleaseOrphans () {
+
+		#ifdef LIME_VIDEO_TEXTURES
+		std::vector<OrphanTexture> textures;
+
+		{
+			std::lock_guard<std::mutex> lock (orphanMutex);
+			textures.swap (orphanTextures);
+		}
+
+		void* context = VideoBackend::GetCurrentGLContext ();
+
+		for (size_t i = 0; i < textures.size (); i++) {
+
+			// A texture made in a context that has since been replaced went with it
+			if (textures[i].context == context) glDeleteTextures (1, &textures[i].name);
+
+		}
+		#endif
+
+		if (VideoBackend::releaseOrphans) VideoBackend::releaseOrphans ();
+
+	}
+
+
 	// Decoding stops once this many frames or seconds of audio are queued
 	static const size_t MAX_QUEUED_FRAMES = 4;
 	static const double MAX_QUEUED_AUDIO = 0.75;
@@ -366,8 +407,31 @@ namespace lime {
 		}
 
 		// GL objects can only be deleted where their context is current, so
-		// closing on another thread leaves them
-		if (IsTextureThread ()) ReleaseTextures ();
+		// closing on another thread queues them for the next texture read there
+		if (IsTextureThread ()) {
+
+			ReleaseTextures ();
+
+		} else {
+
+			#ifdef LIME_VIDEO_TEXTURES
+			if (texture) {
+
+				std::lock_guard<std::mutex> lock (orphanMutex);
+				OrphanTexture orphan = { texture, textureContext };
+				orphanTextures.push_back (orphan);
+
+			}
+			#endif
+
+			texture = 0;
+			textureContext = 0;
+			frameTexture = 0;
+			textureHeight = 0;
+			textureThreadKnown = false;
+			textureWidth = 0;
+
+		}
 
 		backend->Close ();
 
@@ -651,6 +715,7 @@ namespace lime {
 
 		textureThread = std::this_thread::get_id ();
 		textureThreadKnown = true;
+		ReleaseOrphans ();
 
 		unsigned int name = frame->texture ? backend->LockTexture (frame->texture) : UploadTexture (frame);
 
