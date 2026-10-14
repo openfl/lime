@@ -33,9 +33,6 @@
 namespace lime {
 
 
-	void (*VideoBackend::releaseOrphans) () = 0;
-
-
 	// Textures of decoders closed away from the GL thread, deleted the next
 	// time any decoder reads a texture frame where their context is current
 	struct OrphanTexture {
@@ -45,18 +42,20 @@ namespace lime {
 
 	};
 
-	static std::mutex orphanMutex;
-	static std::vector<OrphanTexture> orphanTextures;
+	// Never destroyed, as exiting on Android and Linux runs static destructors
+	// while threads can still be closing videos
+	static std::mutex* orphanMutex = new std::mutex ();
+	static std::vector<OrphanTexture>* orphanTextures = new std::vector<OrphanTexture> ();
 
 
-	static void ReleaseOrphans () {
+	static void ReleaseOrphans (VideoBackend* backend) {
 
 		#ifdef LIME_VIDEO_TEXTURES
 		std::vector<OrphanTexture> textures;
 
 		{
-			std::lock_guard<std::mutex> lock (orphanMutex);
-			textures.swap (orphanTextures);
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			textures.swap (*orphanTextures);
 		}
 
 		void* context = VideoBackend::GetCurrentGLContext ();
@@ -69,7 +68,7 @@ namespace lime {
 		}
 		#endif
 
-		if (VideoBackend::releaseOrphans) VideoBackend::releaseOrphans ();
+		backend->ReleaseOrphans ();
 
 	}
 
@@ -417,9 +416,9 @@ namespace lime {
 			#ifdef LIME_VIDEO_TEXTURES
 			if (texture) {
 
-				std::lock_guard<std::mutex> lock (orphanMutex);
+				std::lock_guard<std::mutex> lock (*orphanMutex);
 				OrphanTexture orphan = { texture, textureContext };
-				orphanTextures.push_back (orphan);
+				orphanTextures->push_back (orphan);
 
 			}
 			#endif
@@ -715,7 +714,7 @@ namespace lime {
 
 		textureThread = std::this_thread::get_id ();
 		textureThreadKnown = true;
-		ReleaseOrphans ();
+		ReleaseOrphans (backend);
 
 		unsigned int name = frame->texture ? backend->LockTexture (frame->texture) : UploadTexture (frame);
 

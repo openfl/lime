@@ -345,6 +345,8 @@ namespace lime {
 
 		unsigned int glTexture;
 		HANDLE interop;
+		// Locked for OpenGL, as the frame being shown is
+		bool locked;
 		ID3D11Texture2D* texture;
 		ID3D11VideoProcessorOutputView* view;
 
@@ -658,6 +660,7 @@ namespace lime {
 			virtual VideoDecodeResult DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration);
 			virtual unsigned int LockTexture (VideoTextureFrame* frame);
 			virtual void ReleaseTextureFrame (VideoTextureFrame* frame);
+			virtual void ReleaseOrphans ();
 			virtual void ReleaseTextures ();
 			virtual bool SupportsTextures ();
 			virtual void UnlockTexture (VideoTextureFrame* frame);
@@ -799,6 +802,7 @@ namespace lime {
 
 			outputs[i].glTexture = 0;
 			outputs[i].interop = NULL;
+			outputs[i].locked = false;
 			outputs[i].texture = NULL;
 			outputs[i].view = NULL;
 			outputFrames[i].index = i;
@@ -821,21 +825,27 @@ namespace lime {
 		HANDLE interopDevice;
 		std::vector<HANDLE> interops;
 		std::vector<unsigned int> glTextures;
+		std::vector<bool> locked;
 		std::vector<ID3D11Texture2D*> textures;
 
 	};
 
-	static std::mutex orphanMutex;
-	static std::vector<MFOrphan> orphans;
+	// Never destroyed, like the other video code's, as threads can still be
+	// closing videos while static destructors run
+	static std::mutex* orphanMutex = new std::mutex ();
+	static std::vector<MFOrphan>* orphans = new std::vector<MFOrphan> ();
+	#endif
 
 
-	static void ReleaseOrphans () {
+	void MFVideoBackend::ReleaseOrphans () {
 
+		#ifdef LIME_VIDEO_WGL_INTEROP
 		std::vector<MFOrphan> list;
 
 		{
-			std::lock_guard<std::mutex> lock (orphanMutex);
-			list.swap (orphans);
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			if (orphans->empty ()) return;
+			list.swap (*orphans);
 		}
 
 		void* context = (void*)wglGetCurrentContext ();
@@ -849,6 +859,9 @@ namespace lime {
 
 			for (size_t j = 0; j < orphan.interops.size (); j++) {
 
+				// The frame shown when the backend closed is still locked, and is
+				// unlocked first, as closing on the GL thread does
+				if (current && orphan.interops[j] && orphan.locked[j]) _wglDXUnlockObjectsNV (orphan.interopDevice, 1, &orphan.interops[j]);
 				if (current && orphan.interops[j]) _wglDXUnregisterObjectNV (orphan.interopDevice, orphan.interops[j]);
 				if (current && orphan.glTextures[j]) glDeleteTextures (1, &orphan.glTextures[j]);
 				if (orphan.textures[j]) orphan.textures[j]->Release ();
@@ -859,9 +872,9 @@ namespace lime {
 			if (orphan.device) orphan.device->Release ();
 
 		}
+		#endif
 
 	}
-	#endif
 
 
 	MFVideoBackend::~MFVideoBackend () {
@@ -891,11 +904,13 @@ namespace lime {
 				#ifdef LIME_VIDEO_WGL_INTEROP
 				orphan.interops.push_back (outputs[i].interop);
 				orphan.glTextures.push_back (outputs[i].glTexture);
+				orphan.locked.push_back (outputs[i].locked);
 				orphan.textures.push_back (outputs[i].texture);
 				#endif
 
 				outputs[i].glTexture = 0;
 				outputs[i].interop = NULL;
+				outputs[i].locked = false;
 				outputs[i].texture = NULL;
 
 			}
@@ -912,9 +927,8 @@ namespace lime {
 
 			}
 
-			std::lock_guard<std::mutex> lock (orphanMutex);
-			orphans.push_back (orphan);
-			VideoBackend::releaseOrphans = ReleaseOrphans;
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			orphans->push_back (orphan);
 
 		}
 		#endif
@@ -2558,6 +2572,7 @@ namespace lime {
 
 				outputs[i].glTexture = 0;
 				outputs[i].interop = NULL;
+				outputs[i].locked = false;
 
 			}
 
@@ -2608,6 +2623,7 @@ namespace lime {
 			}
 
 			if (!_wglDXLockObjectsNV (interopDevice, 1, &output.interop)) return 0;
+			output.locked = true;
 
 			// Without mipmaps, the default minification filter would leave the
 			// texture incomplete
@@ -2624,7 +2640,9 @@ namespace lime {
 
 		}
 
-		return _wglDXLockObjectsNV (interopDevice, 1, &output.interop) ? output.glTexture : 0;
+		if (!_wglDXLockObjectsNV (interopDevice, 1, &output.interop)) return 0;
+		output.locked = true;
+		return output.glTexture;
 		#else
 		return 0;
 		#endif
@@ -2690,8 +2708,10 @@ namespace lime {
 
 			if (outputs[i].interop) {
 
+				if (current && outputs[i].locked) _wglDXUnlockObjectsNV (interopDevice, 1, &outputs[i].interop);
 				if (current) _wglDXUnregisterObjectNV (interopDevice, outputs[i].interop);
 				outputs[i].interop = NULL;
+				outputs[i].locked = false;
 
 			}
 
@@ -2803,7 +2823,8 @@ namespace lime {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
-		if (interopDevice && output.interop) _wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
+		if (interopDevice && output.interop && output.locked) _wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
+		output.locked = false;
 		#endif
 
 	}
