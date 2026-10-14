@@ -244,13 +244,13 @@ namespace lime {
 			// Deletes the backend's GL objects, with the GL context current.
 			virtual void ReleaseTextures () {}
 
+			// Deletes the GL objects that backends of this kind left when they closed
+			// away from the GL thread, where their context is current. Called on the
+			// GL thread before each texture frame is read.
+			virtual void ReleaseOrphans () {}
+
 			static VideoBackend* Create ();
 			static bool IsSupported ();
-
-			// Set by a backend that had to leave GL objects behind when it closed
-			// away from the GL thread, and called the next time a decoder reads a
-			// texture frame there.
-			static void (*releaseOrphans) ();
 
 			// Appends interleaved signed 16-bit PCM with channels channels at rate to
 			// pcm, mixed to outChannels, 1 or 2, and resampled to outRate, for a
