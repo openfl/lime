@@ -23,6 +23,7 @@ class TestMain extends Application
 		runner.addCase(new utils.UInt16ArrayTest());
 		runner.addCase(new utils.UInt32ArrayTest());
 		runner.addCase(new utils.DataViewTest());
+		runner.addCase(new system.ThreadPoolTest());
 		Report.create(runner);
 		runner.run();
 	}
