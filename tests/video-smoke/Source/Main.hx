@@ -4,6 +4,7 @@ import haxe.Timer;
 import lime.app.Application;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
+import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLUniformLocation;
 import lime.graphics.RenderContext;
 import lime.graphics.WebGLRenderContext;
@@ -12,6 +13,9 @@ import lime.media.VideoFrame;
 import lime.system.System;
 import lime.utils.Float32Array;
 import lime.utils.UInt8Array;
+#if target.threaded
+import sys.thread.Thread;
+#end
 
 /**
 	Plays assets/video.mp4 as texture frames and checks every frame on the
@@ -26,13 +30,22 @@ import lime.utils.UInt8Array;
 	them show up too. After the last frame, the test seeks several times in a
 	row and checks the frames from the final position. Platforms without a
 	decoder for the clip skip the test.
+
+	Then it closes the video on another thread, while its last frame is still
+	shown, and checks that its GL objects are released the next time another
+	video reads a frame here. With hxcpp and HashLink, it also drops a video
+	without closing it and collects it on another thread, and checks the same.
 **/
 class Main extends Application
 {
 	private static inline var FRAME_RATE = 30;
 	private static inline var SEEK_TIME = 1.0;
-	private static inline var TIMEOUT = 20.0;
+	private static inline var TIMEOUT = 30.0;
 
+	private var abandoned:VideoDecoder;
+	private var abandonedFrames:Int;
+	private var abandonedTextures:Array<GLTexture>;
+	private var awayFrames:Int;
 	private var blackFrames:Array<String>;
 	private var decoder:VideoDecoder;
 	private var finished:Bool;
@@ -44,24 +57,37 @@ class Main extends Application
 	private var glProgram:GLProgram;
 	private var glRegionUniform:GLUniformLocation;
 	private var mismatches:Array<String>;
+	private var other:VideoDecoder;
+	private var otherFrames:Int;
+	private var otherTextures:Array<GLTexture>;
 	private var pixel:UInt8Array;
+	private var playbackSummary:String;
+	private var playedTextures:Array<GLTexture>;
 	private var redChecked:Bool;
+	private var releaseStep:Int;
 	private var seekFrames:Int;
 	private var seekStartTime:Float;
 	private var seeked:Bool;
 	private var start:Float;
 	private var values:Map<Int, Bool>;
+	private var waiting:Bool;
 
 	public function new()
 	{
 		super();
 
+		abandonedFrames = 0;
+		abandonedTextures = [];
 		blackFrames = [];
 		firstTime = -1;
 		frame = new VideoFrame();
 		frames = 0;
 		mismatches = [];
+		otherFrames = 0;
+		otherTextures = [];
 		pixel = new UInt8Array(4);
+		playedTextures = [];
+		releaseStep = 0;
 		seekFrames = 0;
 		seekStartTime = -1;
 		values = new Map();
@@ -90,7 +116,7 @@ class Main extends Application
 
 	override public function render(context:RenderContext):Void
 	{
-		if (finished || decoder == null) return;
+		if (finished || (decoder == null && releaseStep == 0)) return;
 
 		switch (context.type)
 		{
@@ -106,6 +132,12 @@ class Main extends Application
 		if (Timer.stamp() - start > TIMEOUT)
 		{
 			fail("timed out after " + frames + " frames");
+			return;
+		}
+
+		if (releaseStep > 0)
+		{
+			checkRelease(gl);
 			return;
 		}
 
@@ -152,6 +184,8 @@ class Main extends Application
 			fail("frame " + frames + " has no texture");
 			return;
 		}
+
+		addTexture(playedTextures, frame.texture);
 
 		if (frame.width != 640 || frame.height != 360)
 		{
@@ -229,10 +263,170 @@ class Main extends Application
 			return;
 		}
 
-		trace("Video smoke passed: " + frames + " frames, " + distinct + " distinct, " + seekFrames + " after seeking");
+		playbackSummary = frames + " frames, " + distinct + " distinct, " + seekFrames + " after seeking";
+		releaseStep = 1;
+	}
+
+	private function addTexture(textures:Array<GLTexture>, texture:GLTexture):Void
+	{
+		if (textures.indexOf(texture) < 0) textures.push(texture);
+	}
+
+	private function checkRelease(gl:WebGLRenderContext):Void
+	{
+		if (waiting) return;
+
+		switch (releaseStep)
+		{
+			case 1:
+				// A second video plays until it has made all its GL objects, so the
+				// names it is given are not those of the video being released
+				other = VideoDecoder.fromFile("assets/video.mp4", TEXTURE);
+
+				if (other == null)
+				{
+					fail("a second video did not open");
+					return;
+				}
+
+				releaseStep++;
+
+			case 2:
+				otherFrames += readFrames(other, otherTextures);
+				if (otherFrames >= 12) releaseStep++;
+
+			case 3:
+				// Closed on another thread, while its last frame is still shown
+				var played = decoder;
+				decoder = null;
+				runAway(function() played.close());
+				releaseStep++;
+
+			case 4:
+				if (readFrames(other, otherTextures) == 0) return;
+
+				var left = countAlive(gl, playedTextures);
+
+				if (left > 0)
+				{
+					fail(left + " of the " + playedTextures.length + " textures of a video closed on another thread were not released");
+					return;
+				}
+
+				#if (cpp || hl)
+				abandoned = VideoDecoder.fromFile("assets/video.mp4", TEXTURE);
+				releaseStep++;
+				#else
+				finishRelease();
+				#end
+
+			case 5:
+				abandonedFrames += readFrames(abandoned, abandonedTextures);
+				if (abandonedFrames < 12) return;
+
+				// Dropped without closing, and collected on another thread once
+				// nothing on the stack still refers to it
+				abandoned = null;
+				awayFrames = 0;
+				releaseStep++;
+
+			case 6:
+				if (++awayFrames < 10) return;
+				runAway(collectGarbageHere);
+				releaseStep++;
+
+			case 7:
+				if (readFrames(other, otherTextures) == 0) return;
+
+				var left = countAlive(gl, abandonedTextures);
+
+				if (left > 0)
+				{
+					fail(left + " of the " + abandonedTextures.length + " textures of a video collected on another thread were not released");
+					return;
+				}
+
+				finishRelease();
+
+			default:
+		}
+	}
+
+	private static function collectGarbageHere():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		cpp.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		hl.Gc.major();
+		#end
+	}
+
+	private function countAlive(gl:WebGLRenderContext, textures:Array<GLTexture>):Int
+	{
+		// Names the second video holds are its own, even where they were used before
+		var count = 0;
+
+		for (texture in textures)
+		{
+			if (!gl.isTexture(texture)) continue;
+
+			var reused = false;
+
+			for (otherTexture in otherTextures)
+			{
+				if (idOf(otherTexture) == idOf(texture)) reused = true;
+			}
+
+			if (!reused) count++;
+		}
+
+		return count;
+	}
+
+	private function finishRelease():Void
+	{
+		trace("Video smoke passed: " + playbackSummary + ", and textures were released after closing on another thread");
 		finished = true;
-		decoder.close();
+		other.close();
 		System.exit(0);
+	}
+
+	private static function idOf(texture:GLTexture):Int
+	{
+		var object:lime.graphics.opengl.GL.GLObject = texture;
+		return @:privateAccess object.id;
+	}
+
+	private function readFrames(video:VideoDecoder, textures:Array<GLTexture>):Int
+	{
+		var count = 0;
+
+		while (video.readFrame(frame))
+		{
+			if (frame.texture == null)
+			{
+				fail("a frame came without a texture");
+				return 0;
+			}
+
+			addTexture(textures, frame.texture);
+			count++;
+		}
+
+		return count;
+	}
+
+	private function runAway(work:Void->Void):Void
+	{
+		waiting = true;
+
+		Thread.create(function()
+		{
+			work();
+			waiting = false;
+		});
 	}
 
 	private function initGL(gl:WebGLRenderContext):Void
