@@ -19,7 +19,7 @@ import lime.system.System;
 import lime.system.ThreadPool;
 import lime.system.WorkOutput;
 #end
-#if (lime_threads && (target.threaded || cpp || neko))
+#if (lime_threads && !html5)
 #if target.threaded
 import sys.thread.Mutex;
 import sys.thread.Thread;
@@ -67,7 +67,7 @@ class NativeVideoSource
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
 	private static var activeSources:Array<NativeVideoSource> = [];
-	#if (lime_threads && (target.threaded || cpp || neko))
+	#if (lime_threads && !html5)
 	private static var activeSourcesMutex:Mutex = new Mutex();
 	private static var feeding:Bool = false;
 	private static var loopRequests:Array<LoopRequest> = [];
@@ -97,7 +97,7 @@ class NativeVideoSource
 	private var audioLatencyMost:Float;
 	private var audioMixPosition:Float;
 	private var audioOffset:Float;
-	#if (lime_threads && (target.threaded || cpp || neko))
+	#if (lime_threads && !html5)
 	private var audioMutex:Mutex;
 	#end
 	private var audioPeriod:Float;
@@ -146,7 +146,7 @@ class NativeVideoSource
 	{
 		this.parent = parent;
 
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		audioMutex = new Mutex();
 		#end
 
@@ -718,7 +718,7 @@ class NativeVideoSource
 
 	@:noCompletion private static function closeDecoderLater(decoder:VideoDecoder):Void
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		// Closing waits for the decoder's threads and releases its device, which
 		// would hold up the frames at each loop, so it happens on the loop thread.
 		// Texture output is closed where its textures were made.
@@ -1126,7 +1126,7 @@ class NativeVideoSource
 		var token = ++loopToken;
 		loopOpening = true;
 
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		// Opening reads the file or waits for a server, so it happens on a thread
 		// of its own, which hands the decoder over under the source's lock
 		loopRequestsMutex.acquire();
@@ -1421,7 +1421,7 @@ class NativeVideoSource
 
 	@:noCompletion private static function addActiveSource(source:NativeVideoSource):Void
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		activeSourcesMutex.acquire();
 		activeSources.push(source);
 		activeSourcesMutex.release();
@@ -1441,7 +1441,7 @@ class NativeVideoSource
 
 	@:noCompletion private function feed():Void
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		// A source that is busy on another thread is fed next time
 		if (!audioMutex.tryAcquire()) return;
 
@@ -1455,7 +1455,7 @@ class NativeVideoSource
 		#end
 	}
 
-	#if (lime_threads && (target.threaded || cpp || neko))
+	#if (lime_threads && !html5)
 	@:noCompletion private static function feedSources():Void
 	{
 		while (true)
@@ -1470,7 +1470,7 @@ class NativeVideoSource
 	}
 	#end
 
-	#if (lime_threads && (target.threaded || cpp || neko))
+	#if (lime_threads && !html5)
 	@:noCompletion private static function runLoopThread():Void
 	{
 		// One thread opens each next loop and closes the last. Requests are
@@ -1511,7 +1511,7 @@ class NativeVideoSource
 
 	@:noCompletion private static function getActiveSources():Array<NativeVideoSource>
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		activeSourcesMutex.acquire();
 		var sources = activeSources.copy();
 		activeSourcesMutex.release();
@@ -1523,14 +1523,14 @@ class NativeVideoSource
 
 	@:noCompletion private inline function lockAudio():Void
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		audioMutex.acquire();
 		#end
 	}
 
 	@:noCompletion private static function removeActiveSource(source:NativeVideoSource):Void
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		activeSourcesMutex.acquire();
 		activeSources.remove(source);
 		activeSourcesMutex.release();
@@ -1541,7 +1541,7 @@ class NativeVideoSource
 
 	@:noCompletion private inline function unlockAudio():Void
 	{
-		#if (lime_threads && (target.threaded || cpp || neko))
+		#if (lime_threads && !html5)
 		audioMutex.release();
 		#end
 	}
