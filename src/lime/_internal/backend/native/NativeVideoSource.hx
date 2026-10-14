@@ -15,10 +15,6 @@ import lime.media.VideoFrame;
 import lime.media.VideoFrameFormat;
 import lime.media.VideoSource;
 import lime.system.System;
-#if lime_threads
-import lime.system.ThreadPool;
-import lime.system.WorkOutput;
-#end
 #if (lime_threads && !html5)
 #if target.threaded
 import sys.thread.Mutex;
@@ -59,7 +55,6 @@ class NativeVideoSource
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
-	private static inline var LOAD_THREADS:Int = 4;
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
@@ -76,10 +71,6 @@ class NativeVideoSource
 	private static var retiredDecoders:Array<VideoDecoder> = [];
 	#end
 	private static var latencyExtension:Null<Bool>;
-	#if lime_threads
-	private static var loadJobs:Map<Int, VideoDecoder->Void>;
-	private static var loadThreads:ThreadPool;
-	#end
 	private static var timerDrift:Float = 0;
 
 	private var audioBuffer:Bytes;
@@ -323,21 +314,27 @@ class NativeVideoSource
 
 	@:noCompletion private static function openDecoder(path:String, format:VideoFrameFormat, hardwareDecoding:Bool, callback:VideoDecoder->Void):Void
 	{
-		#if lime_threads
-		// Opening reads the start of the file or waits for a server, so it runs
-		// on threads of its own, where a slow server does not hold up the
-		// futures that share a single thread. The callback runs on the main
-		// thread, with null when the video cannot be opened.
-		if (loadThreads == null)
+		#if (lime_threads && !html5)
+		// Opening reads the start of the file or waits for a server, so each
+		// video opens on a thread of its own, where a slow server holds up
+		// nothing else. The callback runs on the main thread, as promises do,
+		// with null when the video cannot be opened.
+		Thread.create(function()
 		{
-			loadJobs = new Map();
-			loadThreads = new ThreadPool(0, LOAD_THREADS, MULTI_THREADED);
-			loadThreads.onComplete.add(loadThreads_onComplete);
-			loadThreads.onError.add(loadThreads_onError);
-		}
+			var decoder = new VideoDecoder();
+			decoder.hardwareDecoding = hardwareDecoding;
+			var opened = false;
 
-		var id = loadThreads.run(loadThreads_doWork, {format: format, hardwareDecoding: hardwareDecoding, path: path});
-		loadJobs.set(id, callback);
+			// An error while opening is reported as a video that cannot be opened,
+			// rather than leaving the callback waiting
+			try
+			{
+				opened = decoder.open(path, format);
+			}
+			catch (e:Dynamic) {}
+
+			haxe.MainLoop.runInMainThread(callback.bind(opened ? decoder : null));
+		});
 		#else
 		var decoder = new VideoDecoder();
 		decoder.hardwareDecoding = hardwareDecoding;
@@ -1545,30 +1542,6 @@ class NativeVideoSource
 		audioMutex.release();
 		#end
 	}
-
-	// Event Handlers
-	#if lime_threads
-	@:noCompletion private static function loadThreads_doWork(state:Dynamic, output:WorkOutput):Void
-	{
-		var decoder = new VideoDecoder();
-		decoder.hardwareDecoding = state.hardwareDecoding;
-		output.sendComplete(decoder.open(state.path, state.format) ? decoder : null);
-	}
-
-	@:noCompletion private static function loadThreads_onComplete(decoder:Dynamic):Void
-	{
-		var callback = loadJobs.get(loadThreads.activeJob.id);
-		loadJobs.remove(loadThreads.activeJob.id);
-		callback(decoder);
-	}
-
-	@:noCompletion private static function loadThreads_onError(error:Dynamic):Void
-	{
-		var callback = loadJobs.get(loadThreads.activeJob.id);
-		loadJobs.remove(loadThreads.activeJob.id);
-		callback(null);
-	}
-	#end
 }
 
 private typedef LoopRequest =

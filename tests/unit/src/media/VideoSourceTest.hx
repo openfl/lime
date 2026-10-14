@@ -11,6 +11,7 @@ import lime.media.VideoDecoder;
 import lime.media.VideoFrame;
 import lime.media.VideoSource;
 import lime.system.System;
+import lime.system.ThreadPool;
 #if (lime_cffi && lime_openal)
 import lime.utils.Int16Array;
 #end
@@ -50,6 +51,56 @@ class VideoSourceTest extends Test
 		Assert.isFalse(video.playing);
 		Assert.equals(0, video.length);
 		Assert.isFalse(video.readFrame(new VideoFrame()));
+	}
+
+	public function testLoadingFromAFileFinishesOnTheMainThread():Void
+	{
+		if (!VideoSource.isSupported)
+		{
+			Assert.pass();
+			return;
+		}
+
+		// Each video opens on a thread of its own, and its future finishes on the
+		// main thread when the application's loop runs that thread's events
+		var loaded:VideoSource = null;
+		var failed = false;
+		var onMainThread = false;
+		var missingFailed = false;
+
+		var future = VideoSource.loadFromFile(PATH);
+		future.onComplete(function(video)
+		{
+			loaded = video;
+			onMainThread = ThreadPool.isMainThread();
+		});
+		future.onError(function(error) failed = true);
+		VideoSource.loadFromFile("assets/missing.mp4").onError(function(error) missingFailed = true);
+
+		var end = Timer.stamp() + TIMEOUT;
+
+		while (((loaded == null && !failed) || !missingFailed) && Timer.stamp() < end)
+		{
+			runMainThreadEvents();
+			Sys.sleep(0.01);
+		}
+
+		Assert.isTrue(missingFailed, "loading a missing file did not fail");
+
+		if (failed)
+		{
+			Assert.warn("Cannot decode H.264 and AAC here, so loading a video was not tested");
+			return;
+		}
+
+		Assert.notNull(loaded, "loading did not finish");
+		if (loaded == null) return;
+
+		Assert.isTrue(onMainThread, "loading finished on another thread");
+		Assert.equals(PATH, loaded.source);
+		Assert.isTrue(loaded.hasVideo);
+		Assert.isTrue(loaded.length > 0);
+		loaded.dispose();
 	}
 
 	public function testPlaybackState():Void
@@ -1130,6 +1181,20 @@ class VideoSourceTest extends Test
 			video.readFrame(frame);
 			pause(0.005);
 		}
+	}
+
+	private static function runMainThreadEvents():Void
+	{
+		// As the application's loop does between frames
+		#if (haxe_ver >= 4.2)
+		#if target.threaded
+		sys.thread.Thread.current().events.progress();
+		#else
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
+		#else
+		@:privateAccess haxe.EntryPoint.processEvents();
+		#end
 	}
 
 	private static function open():VideoSource
