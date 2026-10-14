@@ -19,7 +19,9 @@ import sys.io.File;
 	players meet in production. The clips in assets were written by Media
 	Foundation's sink writer:
 
-	- video-noaudio.mp4: 320x180 H.264 at 15 fps for a second, without sound
+	- video-noaudio.mp4: 320x180 H.264 at 15 fps for a second, without sound.
+	  Baseline profile, so with no B-frames its 15 frames fill exactly its
+	  length, which the loop tests count on every platform.
 	- audio-only.m4a: a second of AAC stereo, without video
 	- video-odd.mp4: 330x186, so its size is not a multiple of 16
 	- video-51.mp4: 320x180 with six channel AAC, which is mixed down to stereo
