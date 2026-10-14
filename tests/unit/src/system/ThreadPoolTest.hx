@@ -7,6 +7,7 @@ import utest.Assert;
 import utest.Test;
 #if target.threaded
 import sys.thread.Mutex;
+import sys.thread.Tls;
 #end
 
 /**
@@ -23,6 +24,7 @@ class ThreadPoolTest extends Test
 	private static var concurrencyMutex:Mutex = new Mutex();
 	private static var running:Int = 0;
 	private static var mostRunning:Int = 0;
+	private static var jobsOnThread:Tls<Null<Int>> = new Tls();
 	#end
 
 	public function new()
@@ -218,6 +220,42 @@ class ThreadPoolTest extends Test
 		}
 	}
 
+	public function testIdleThreadsWaitForMoreWork():Void
+	{
+		// A job that comes soon after another goes to the same thread
+		var pool = new ThreadPool(0, 1, MULTI_THREADED);
+		pool.idleTimeout = 5;
+		var results = [];
+		pool.onComplete.add(function(message) results.push(message));
+
+		pool.run(countJobsOnThread);
+		pumpUntil(pool, function() return results.length == 1);
+		pumpFor(pool, 0.1);
+		Assert.equals(1, pool.currentThreads, "the idle thread exited before its timeout");
+
+		pool.run(countJobsOnThread);
+		pumpUntil(pool, function() return results.length == 2);
+		Assert.equals(2, results[1], "the second job ran on a thread of its own");
+
+		pool.idleTimeout = 0;
+		pumpUntil(pool, function() return pool.currentThreads == 0);
+	}
+
+	public function testIdleThreadsExitAfterTheirTimeout():Void
+	{
+		var pool = new ThreadPool(0, 1, MULTI_THREADED);
+		pool.idleTimeout = 0.3;
+		var completedAt = -1.0;
+		pool.onComplete.add(function(message) completedAt = Timer.stamp());
+
+		pool.run(echoIndex, {index: 0});
+		pumpUntil(pool, function() return completedAt >= 0 && pool.currentThreads == 0);
+		var idle = Timer.stamp() - completedAt;
+
+		Assert.equals(0, pool.currentThreads, "the idle thread never exited");
+		Assert.isTrue(idle >= 0.25, "the idle thread exited after " + Math.round(idle * 1000) + " ms, with a timeout of 300 ms");
+	}
+
 	public function testSingleThreadedWorkKeepsToItsShareOfAFrame():Void
 	{
 		// Work that waits, as on files or a server, uses up the share of a
@@ -265,6 +303,13 @@ class ThreadPoolTest extends Test
 		{
 			output.sendComplete(ThreadPool.isMainThread() ? "main" : "worker");
 		}
+	}
+
+	private static function countJobsOnThread(state:Dynamic, output:WorkOutput):Void
+	{
+		var count:Null<Int> = jobsOnThread.value;
+		jobsOnThread.value = count = (count == null ? 0 : count) + 1;
+		output.sendComplete(count);
 	}
 
 	private static function echoIndex(state:Dynamic, output:WorkOutput):Void
