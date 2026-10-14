@@ -342,6 +342,29 @@ namespace lime {
 	#endif
 
 
+	#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+
+	// GL objects of a backend closed away from the GL thread, deleted the next
+	// time a decoder reads a texture frame where their context is current
+	struct AVFOrphan {
+
+		void* context;
+		GLuint copyFramebuffer;
+		GLuint copyTexture;
+		bool framebufferEXT;
+		GLuint sourceFramebuffer;
+		GLuint sourceTexture;
+
+	};
+
+	// Never destroyed, as exiting runs static destructors while threads can
+	// still be closing videos
+	static std::mutex* orphanMutex = new std::mutex ();
+	static std::vector<AVFOrphan>* orphans = new std::vector<AVFOrphan> ();
+
+	#endif
+
+
 	// Only iOS uses a CoreVideo texture cache
 	#if defined (LIME_VIDEO_AVF_TEXTURES) && !defined (HX_MACOS)
 	typedef CVOpenGLESTextureCacheRef AVFTextureCacheRef;
@@ -425,6 +448,7 @@ namespace lime {
 			virtual unsigned int LockTexture (VideoTextureFrame* frame);
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
 			virtual void ReleaseTextureFrame (VideoTextureFrame* frame);
+			virtual void ReleaseOrphans ();
 			virtual void ReleaseTextures ();
 			virtual bool Seek (double time);
 			virtual void SetTextureOutput (bool enabled);
@@ -528,6 +552,23 @@ namespace lime {
 
 
 	void AVFVideoBackend::Close () {
+
+		#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+		// GL objects still held were left by closing away from the GL thread, as
+		// closing there releases them first
+		if (copyTexture || sourceTexture || copyFramebuffer || sourceFramebuffer) {
+
+			AVFOrphan orphan = { textureContext, copyFramebuffer, copyTexture, framebufferEXT, sourceFramebuffer, sourceTexture };
+
+			{
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+			}
+
+			ForgetTextures ();
+
+		}
+		#endif
 
 		@autoreleasepool {
 
@@ -1115,6 +1156,36 @@ namespace lime {
 	void AVFVideoBackend::ReleaseTextureFrame (VideoTextureFrame* frame) {
 
 		delete frame;
+
+	}
+
+
+	void AVFVideoBackend::ReleaseOrphans () {
+
+		#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+		std::vector<AVFOrphan> list;
+
+		{
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			if (orphans->empty ()) return;
+			list.swap (*orphans);
+		}
+
+		void* context = (void*)CGLGetCurrentContext ();
+
+		for (size_t i = 0; i < list.size (); i++) {
+
+			// Objects from a context that is no longer current are left with it
+			AVFOrphan& orphan = list[i];
+			if (orphan.context != context) continue;
+
+			if (orphan.copyTexture) glDeleteTextures (1, &orphan.copyTexture);
+			if (orphan.sourceTexture) glDeleteTextures (1, &orphan.sourceTexture);
+			if (orphan.copyFramebuffer) DeleteFramebuffer (orphan.framebufferEXT, orphan.copyFramebuffer);
+			if (orphan.sourceFramebuffer) DeleteFramebuffer (orphan.framebufferEXT, orphan.sourceFramebuffer);
+
+		}
+		#endif
 
 	}
 
