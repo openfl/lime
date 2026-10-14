@@ -1041,51 +1041,89 @@ namespace lime {
 	}
 
 
+	static bool GetSharedDevice (ID3D11Device** device, IMFDXGIDeviceManager** deviceManager) {
+
+		// One device serves every video for the life of the process. Creating one
+		// for each video takes tens of milliseconds, and releasing one ends the
+		// driver's threads, which Neko's collector, as it tracks every thread in
+		// the process, can abort on when it happens during a collection.
+		static std::mutex mutex;
+		static ID3D11Device* sharedDevice = NULL;
+		static IMFDXGIDeviceManager* sharedManager = NULL;
+
+		std::lock_guard<std::mutex> lock (mutex);
+
+		if (sharedDevice && sharedDevice->GetDeviceRemovedReason () != S_OK) {
+
+			// A device lost to a driver reset or update is replaced. Videos using
+			// it keep their references until they close.
+			sharedManager->Release ();
+			sharedDevice->Release ();
+			sharedManager = NULL;
+			sharedDevice = NULL;
+
+		}
+
+		if (!sharedDevice) {
+
+			if (!_D3D11CreateDevice || !_MFCreateDXGIDeviceManager) return false;
+
+			static const D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3 };
+
+			UINT flags = D3D11_CREATE_DEVICE_VIDEO_SUPPORT | D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+			ID3D11Device* created = NULL;
+			HRESULT hr = _D3D11CreateDevice (NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, levels, ARRAYSIZE (levels), D3D11_SDK_VERSION, &created, NULL, NULL);
+
+			if (hr == E_INVALIDARG) {
+
+				// Windows 7 without the platform update does not know 11.1
+				hr = _D3D11CreateDevice (NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, levels + 1, ARRAYSIZE (levels) - 1, D3D11_SDK_VERSION, &created, NULL, NULL);
+
+			}
+
+			if (FAILED (hr) || !created) return false;
+
+			// Media Foundation and every video use the device from their own threads
+			ID3D10Multithread* multithread = NULL;
+
+			if (SUCCEEDED (created->QueryInterface (IID_PPV_ARGS (&multithread)))) {
+
+				multithread->SetMultithreadProtected (TRUE);
+				multithread->Release ();
+
+			}
+
+			UINT token = 0;
+			IMFDXGIDeviceManager* manager = NULL;
+
+			if (FAILED (_MFCreateDXGIDeviceManager (&token, &manager)) || FAILED (manager->ResetDevice (created, token))) {
+
+				if (manager) manager->Release ();
+				created->Release ();
+				return false;
+
+			}
+
+			sharedDevice = created;
+			sharedManager = manager;
+
+		}
+
+		sharedDevice->AddRef ();
+		sharedManager->AddRef ();
+		*device = sharedDevice;
+		*deviceManager = sharedManager;
+		return true;
+
+	}
+
+
 	bool MFVideoBackend::CreateDeviceManager () {
 
 		if (deviceManager) return true;
-		if (!_D3D11CreateDevice || !_MFCreateDXGIDeviceManager) return false;
-
-		static const D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0, D3D_FEATURE_LEVEL_9_3 };
-
-		UINT flags = D3D11_CREATE_DEVICE_VIDEO_SUPPORT | D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-		HRESULT hr = _D3D11CreateDevice (NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, levels, ARRAYSIZE (levels), D3D11_SDK_VERSION, &device, NULL, NULL);
-
-		if (hr == E_INVALIDARG) {
-
-			// Windows 7 without the platform update does not know 11.1
-			hr = _D3D11CreateDevice (NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, levels + 1, ARRAYSIZE (levels) - 1, D3D11_SDK_VERSION, &device, NULL, NULL);
-
-		}
-
-		if (FAILED (hr) || !device) {
-
-			device = NULL;
-			return false;
-
-		}
+		if (!GetSharedDevice (&device, &deviceManager)) return false;
 
 		device->GetImmediateContext (&context);
-
-		// Media Foundation uses the device from its own threads
-		ID3D10Multithread* multithread = NULL;
-
-		if (SUCCEEDED (device->QueryInterface (IID_PPV_ARGS (&multithread)))) {
-
-			multithread->SetMultithreadProtected (TRUE);
-			multithread->Release ();
-
-		}
-
-		UINT token = 0;
-
-		if (FAILED (_MFCreateDXGIDeviceManager (&token, &deviceManager)) || FAILED (deviceManager->ResetDevice (device, token))) {
-
-			ReleaseDeviceManager ();
-			return false;
-
-		}
-
 		return true;
 
 	}
