@@ -2238,7 +2238,7 @@ namespace lime {
 
 		uintptr_t result = 0;
 		#ifdef LIME_GLES3_API
-		glGetBufferPointerv (target, pname, (void**)result);
+		glGetBufferPointerv (target, pname, (void**)&result);
 		#endif
 		return (double)result;
 
@@ -2249,7 +2249,7 @@ namespace lime {
 
 		uintptr_t result = 0;
 		#ifdef LIME_GLES3_API
-		glGetBufferPointerv (target, pname, (void**)result);
+		glGetBufferPointerv (target, pname, (void**)&result);
 		#endif
 		return (double)result;
 
@@ -3645,7 +3645,7 @@ namespace lime {
 	double lime_gl_get_vertex_attrib_pointerv (int index, int pname) {
 
 		uintptr_t result = 0;
-		glGetVertexAttribPointerv (index, pname, (void**)result);
+		glGetVertexAttribPointerv (index, pname, (void**)&result);
 		return (double)result;
 
 	}
@@ -3654,7 +3654,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_gl_get_vertex_attrib_pointerv) (int index, int pname) {
 
 		uintptr_t result = 0;
-		glGetVertexAttribPointerv (index, pname, (void**)result);
+		glGetVertexAttribPointerv (index, pname, (void**)&result);
 		return (double)result;
 
 	}
