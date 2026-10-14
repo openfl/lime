@@ -2999,12 +2999,17 @@ namespace lime {
 
 	HL_PRIM Bytes* HL_NAME(hl_font_render_glyphs) (HL_CFFIPointer* fontHandle, hl_varray* indices, Bytes* data) {
 
-		// #ifdef LIME_FREETYPE
-		// Font *font = (Font*)fontHandle->ptr;
-		// return font->RenderGlyphs (indices, &bytes);
-		// #else
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+
+		if (font->RenderGlyphs (indices, data)) {
+
+			return data;
+
+		}
+		#endif
+
 		return NULL;
-		// #endif
 
 	}
 
