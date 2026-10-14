@@ -331,7 +331,7 @@ import lime.utils.Log;
 @:dox(hide) class FutureWork
 {
 	private static var threadPool:ThreadPool;
-	private static var promises:Map<Int, {complete:Dynamic->Dynamic, error:Dynamic->Dynamic, progress:Int->Int->Dynamic}>;
+	private static var promises:Map<Int, PromiseCallbacks>;
 
 	public static var minThreads(default, set):Int = 0;
 	public static var maxThreads(default, set):Int = 1;
@@ -359,7 +359,7 @@ import lime.utils.Log;
 	@:allow(lime.app.Future)
 	private static function runSimpleJob<T>(work:Void->T, promise:Promise<T>):Void
 	{
-		run(threadPool_doWork, promise, work, MULTI_THREADED);
+		run(threadPool_doWork, {complete: promise.complete, error: promise.error, progress: promise.progress}, work, MULTI_THREADED);
 	}
 	#end
 
@@ -376,7 +376,7 @@ import lime.utils.Log;
 	}
 
 	@:allow(lime.app.Promise)
-	private static function run<T>(work:WorkFunction<State->WorkOutput->Void>, promise:Promise<T>, state:State, mode:ThreadMode):Int
+	private static function run(work:WorkFunction<State->WorkOutput->Void>, promise:PromiseCallbacks, state:State, mode:ThreadMode):Int
 	{
 		if (threadPool == null)
 		{
@@ -389,7 +389,7 @@ import lime.utils.Log;
 		}
 
 		var jobID:Int = threadPool.run(work, state, mode);
-		promises[jobID] = {complete: promise.complete, error: promise.error, progress: promise.progress};
+		promises[jobID] = promise;
 		pendingJobs++;
 		return jobID;
 	}
@@ -455,4 +455,15 @@ import lime.utils.Log;
 	{
 		return threadPool != null ? threadPool.activeJobs : 0;
 	}
+}
+
+/**
+	The functions that resolve a `Promise`. `Promise` is `@:generic`, so it passes
+	these rather than itself, whose type outside it is a different class.
+**/
+private typedef PromiseCallbacks =
+{
+	var complete:Dynamic->Dynamic;
+	var error:Dynamic->Dynamic;
+	var progress:Int->Int->Dynamic;
 }

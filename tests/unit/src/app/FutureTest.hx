@@ -3,6 +3,7 @@ package app;
 import haxe.Timer;
 import lime.app.Future;
 import lime.app.Promise;
+import lime.system.WorkOutput;
 import utest.Assert;
 import utest.Test;
 
@@ -35,6 +36,24 @@ class FutureTest extends Test
 		future.ready(3000);
 		Assert.isTrue(future.isError, "Future.ready() gave up waiting for its threaded work to fail");
 		Assert.equals("failed", future.error);
+	}
+
+	public function testThreadedPromiseWorkReportsProgressAndCompletes():Void
+	{
+		var promise = new Promise<Int>();
+		var progress = [];
+		promise.future.onProgress(function(loaded, total) progress.push(loaded + "/" + total));
+		promise.completeAsync(countToThree, {count: 0}, MULTI_THREADED);
+
+		Assert.equals(3, promise.future.result(3000), "Future.result() gave up waiting for threaded work");
+		Assert.equals("1/3,2/3", progress.join(","));
+	}
+
+	public function testSingleThreadedPromiseWorkCanBeWaitedFor():Void
+	{
+		var promise = new Promise<Int>();
+		promise.completeAsync(countToThree, {count: 0}, SINGLE_THREADED);
+		Assert.equals(3, promise.future.result(3000), "Future.result() gave up waiting for single-threaded work");
 	}
 
 	public function testFuturesCanBeWaitedForWhileHandlingAnother():Void
@@ -71,6 +90,20 @@ class FutureTest extends Test
 		Assert.isTrue(Timer.stamp() - start < 0.25, "Future.result() waited without a wait time");
 
 		Assert.isTrue(future.result(3000));
+	}
+
+	private static function countToThree(state:Dynamic, output:WorkOutput):Void
+	{
+		state.count++;
+
+		if (state.count < 3)
+		{
+			output.sendProgress({progress: state.count, total: 3});
+		}
+		else
+		{
+			output.sendComplete(state.count);
+		}
 	}
 	#end
 }
