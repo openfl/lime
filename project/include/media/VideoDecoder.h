@@ -247,6 +247,11 @@ namespace lime {
 			static VideoBackend* Create ();
 			static bool IsSupported ();
 
+			// Set by a backend that had to leave GL objects behind when it closed
+			// away from the GL thread, and called the next time a decoder reads a
+			// texture frame there.
+			static void (*releaseOrphans) ();
+
 			// Appends interleaved signed 16-bit PCM with channels channels at rate to
 			// pcm, mixed to outChannels, 1 or 2, and resampled to outRate, for a
 			// stream whose format changes after opening
