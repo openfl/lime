@@ -34,6 +34,11 @@ import haxe.io.Path;
 @:access(lime.text.Glyph)
 class Font
 {
+	// GlyphImage in project/include/text/Font.h: five 32-bit fields then the
+	// pixels, padded to 4 bytes, with 4 bytes for each pixel
+	@:noCompletion private static inline var GLYPH_IMAGE_DATA = 20;
+	@:noCompletion private static inline var GLYPH_IMAGE_SIZE = 24;
+
 	/**
 	 * The ascender value of the font.
 	 */
@@ -539,13 +544,10 @@ class Font
 
 			while (i < count)
 			{
-				bytesPosition += 4;
-				width = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				height = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-
-				bytesPosition += (4 * 2) + width * height;
+				var recordPosition = bytesPosition;
+				width = bytes.getInt32(recordPosition + 4);
+				height = bytes.getInt32(recordPosition + 8);
+				bytesPosition = recordPosition + GLYPH_IMAGE_SIZE + width * height * 4;
 
 				if (offsetX + width > bufferWidth)
 				{
@@ -603,16 +605,13 @@ class Font
 
 			for (i in 0...count)
 			{
-				index = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				width = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				height = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				x = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				y = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
+				var recordPosition = bytesPosition;
+				index = bytes.getInt32(recordPosition);
+				width = bytes.getInt32(recordPosition + 4);
+				height = bytes.getInt32(recordPosition + 8);
+				x = bytes.getInt32(recordPosition + 12);
+				y = bytes.getInt32(recordPosition + 16);
+				var pixelPosition = recordPosition + GLYPH_IMAGE_DATA;
 
 				if (offsetX + width > bufferWidth)
 				{
@@ -621,12 +620,18 @@ class Font
 					maxRows = 0;
 				}
 
-				for (i in 0...height)
+				// Glyphs come as white with their coverage in alpha, which the atlas keeps
+				for (row in 0...height)
 				{
-					dataPosition = ((i + offsetY) * bufferWidth) + offsetX;
-					data.blit(dataPosition, bytes, bytesPosition, width);
-					bytesPosition += width;
+					dataPosition = ((row + offsetY) * bufferWidth) + offsetX;
+
+					for (column in 0...width)
+					{
+						data.set(dataPosition + column, bytes.get(pixelPosition + (row * width + column) * 4 + 3));
+					}
 				}
+
+				bytesPosition = recordPosition + GLYPH_IMAGE_SIZE + width * height * 4;
 
 				image = new Image(buffer, offsetX, offsetY, width, height);
 				image.x = x;
