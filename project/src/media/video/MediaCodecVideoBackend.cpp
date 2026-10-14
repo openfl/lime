@@ -718,6 +718,26 @@ namespace lime {
 	}
 
 
+	// GL objects of a backend closed away from the GL thread, deleted the next
+	// time a decoder reads a texture frame where their context is current
+	struct MediaCodecOrphan {
+
+		EGLContext context;
+		GLuint copyBuffer;
+		GLuint copyFramebuffer;
+		GLuint copyProgram;
+		GLuint copyTexture;
+		GLuint copyVertexArray;
+		GLuint imageTexture;
+
+	};
+
+	// Never destroyed, as exiting runs static destructors while threads can
+	// still be closing videos
+	static std::mutex* orphanMutex = new std::mutex ();
+	static std::vector<MediaCodecOrphan>* orphans = new std::vector<MediaCodecOrphan> ();
+
+
 	static void RestoreGLState (const SavedGLState* state, bool gles3) {
 
 		glBindFramebuffer (GL_FRAMEBUFFER, state->framebuffer);
@@ -1301,6 +1321,7 @@ namespace lime {
 			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info);
 			virtual void PrepareSeek ();
 			virtual void ReleaseTextureFrame (VideoTextureFrame* frame);
+			virtual void ReleaseOrphans ();
 			virtual void ReleaseTextures ();
 			virtual bool Seek (double time);
 			virtual void SetTextureOutput (bool enabled);
@@ -1529,6 +1550,21 @@ namespace lime {
 
 
 	void MediaCodecVideoBackend::Close () {
+
+		// GL objects still held were left by closing away from the GL thread, as
+		// closing there releases them first
+		if (textureContext != EGL_NO_CONTEXT && (copyBuffer || copyFramebuffer || copyProgram || copyTexture || copyVertexArray || imageTexture)) {
+
+			MediaCodecOrphan orphan = { textureContext, copyBuffer, copyFramebuffer, copyProgram, copyTexture, copyVertexArray, imageTexture };
+
+			{
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+			}
+
+			ForgetTextures ();
+
+		}
 
 		video.Close ();
 		audio.Close ();
@@ -2683,6 +2719,36 @@ namespace lime {
 		MediaCodecTextureFrame* textureFrame = (MediaCodecTextureFrame*)frame;
 		ReleaseImage (textureFrame->image, textureFrame->fence);
 		delete textureFrame;
+
+	}
+
+
+	void MediaCodecVideoBackend::ReleaseOrphans () {
+
+		std::vector<MediaCodecOrphan> list;
+
+		{
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			if (orphans->empty ()) return;
+			list.swap (*orphans);
+		}
+
+		EGLContext context = eglGetCurrentContext ();
+
+		for (size_t i = 0; i < list.size (); i++) {
+
+			// Objects from a context that is no longer current are left with it
+			MediaCodecOrphan& orphan = list[i];
+			if (orphan.context != context) continue;
+
+			if (orphan.copyBuffer) glDeleteBuffers (1, &orphan.copyBuffer);
+			if (orphan.copyFramebuffer) glDeleteFramebuffers (1, &orphan.copyFramebuffer);
+			if (orphan.copyProgram) glDeleteProgram (orphan.copyProgram);
+			if (orphan.copyTexture) glDeleteTextures (1, &orphan.copyTexture);
+			if (orphan.copyVertexArray && _glDeleteVertexArrays) _glDeleteVertexArrays (1, &orphan.copyVertexArray);
+			if (orphan.imageTexture) glDeleteTextures (1, &orphan.imageTexture);
+
+		}
 
 	}
 
