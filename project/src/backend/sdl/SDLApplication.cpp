@@ -146,6 +146,7 @@ namespace lime
 		requestedProfile = MAIN_LOOP_PROFILE_BALANCED;
 		requestedTimePrecisionMode = MAIN_LOOP_TIME_PRECISION_AUTO;
 		requestedUncapMode = MAIN_LOOP_UNCAP_OFF;
+		activeUncapMode = MAIN_LOOP_UNCAP_OFF;
 		requestedVSyncMode = MAIN_LOOP_VSYNC_OFF;
 		schedulerUnthrottled = false;
 		sleepGuardMs = 2.0;
@@ -237,7 +238,12 @@ namespace lime
 		bool hasExplicitFrameRate = (clampedFrameRate > 0.0);
 		double effectiveFrameRate = hasExplicitFrameRate ? clampedFrameRate : 1.0;
 
-		if (requestedUncapMode == MAIN_LOOP_UNCAP_SOFT || requestedUncapMode == MAIN_LOOP_UNCAP_HARD)
+		// The uncapped profile uncaps the loop unless the options ask for more
+		activeUncapMode = requestedUncapMode;
+		if (activeUncapMode == MAIN_LOOP_UNCAP_OFF && requestedProfile == MAIN_LOOP_PROFILE_UNCAPPED)
+			activeUncapMode = MAIN_LOOP_UNCAP_SOFT;
+
+		if (activeUncapMode == MAIN_LOOP_UNCAP_SOFT || activeUncapMode == MAIN_LOOP_UNCAP_HARD)
 		{
 			schedulerUnthrottled = true;
 		}
@@ -265,7 +271,7 @@ namespace lime
 
 			default:
 				useHighResolutionTimer = (requestedProfile == MAIN_LOOP_PROFILE_PRECISION || requestedProfile == MAIN_LOOP_PROFILE_UNCAPPED ||
-					requestedUncapMode != MAIN_LOOP_UNCAP_OFF || clampedFrameRate > 1000.0);
+					activeUncapMode != MAIN_LOOP_UNCAP_OFF || clampedFrameRate > 1000.0);
 				break;
 		}
 
@@ -284,7 +290,7 @@ namespace lime
 				break;
 		}
 
-		busyWaitOnly = allowBusyWait && (requestedUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
+		busyWaitOnly = allowBusyWait && (activeUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
 		currentUpdate = GetCurrentTimeMs();
 		nextUpdate = currentUpdate;
 	}
@@ -1541,7 +1547,7 @@ namespace lime
 
 #if (!defined(IPHONE) && !defined(EMSCRIPTEN))
 
-		if (active && (inBackground || (!firstTime && requestedUncapMode != MAIN_LOOP_UNCAP_HARD)))
+		if (active && (inBackground || (!firstTime && activeUncapMode != MAIN_LOOP_UNCAP_HARD)))
 		{
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			// Windows WaitEvent always pumps before returning. Do not pump the OS again

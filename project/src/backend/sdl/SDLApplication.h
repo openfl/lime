@@ -138,6 +138,7 @@ namespace lime {
 			};
 
 			bool active;
+			int activeUncapMode;
 			bool allowBusyWait;
 			ApplicationEvent applicationEvent;
 			bool busyWaitOnly;

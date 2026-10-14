@@ -51,10 +51,16 @@ class Window
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
 	 *
-	 * On native targets, this forwards to the shared application frame pacing
-	 * value for compatibility. On some platforms, a frame rate of 60 or greater
-	 * may imply vsync, which will perform more quickly on displays with a
-	 * higher refresh rate.
+	 * On native targets, this is the frame rate cap of the shared application
+	 * main loop, up to 10,000. A value of 0 or less runs one frame per second.
+	 * The cap is ignored when the loop is uncapped (see `UncapMode`). With
+	 * vertical sync on, a cap at or above the display refresh rate leaves the
+	 * pacing to the display, and with `VSyncMode.Auto` and no vertical sync, a
+	 * cap above the refresh rate is held to it.
+	 *
+	 * On HTML5, a frame rate of 0, or of 60 or greater, renders on each
+	 * animation frame of the browser, which will perform more quickly on
+	 * displays with a higher refresh rate.
 	**/
 	public var frameRate(get, set):Float;
 

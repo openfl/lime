@@ -82,7 +82,8 @@ class Application extends Module
 	/**
 		The current frame pacing profile for this application.
 		On native targets, this controls the shared application
-		main loop strategy.
+		main loop strategy. See `FrameProfile` for how it combines with
+		`frameOptions`, `vsyncMode` and `Window.frameRate`.
 	**/
 	public var frameProfile(get, set):FrameProfile;
 
