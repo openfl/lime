@@ -24,6 +24,16 @@ import lime._internal.backend.html5.HTML5Thread.Transferable;
 import haxe.Exception;
 #end
 
+// TODO: Revisit these problems:
+// - Jobs only report back through Application.current.onUpdate, so none
+//   complete without a running application, as in unit tests, and
+//   Future.ready() waits out its time.
+// - Waiting on the job queue's Deque crashes now and then with SIGBUS on ARM64
+//   Linux with hxcpp 4.3.45, whose condition variable in it is not aligned for
+//   ARM64's atomics.
+// - Idle threads exit and new ones start as jobs come. Threads ending often
+//   is costly, and on Windows, Neko's collector tracks every thread and can
+//   abort when one ends during a collection.
 /**
 	A thread pool executes one or more functions asynchronously.
 
