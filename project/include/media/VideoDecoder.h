@@ -313,7 +313,7 @@ namespace lime {
 			static int GetFrameLength (VideoFrameFormat format, int width, int height);
 			static int WriteFrame (const VideoPlanes* planes, VideoFrameFormat format, unsigned char* data, int length);
 
-			double audioTime;
+			std::atomic<double> audioTime;
 			std::atomic<bool> dropLateFrames;
 			std::atomic<int> droppedFrames;
 			VideoFrameFormat format;
