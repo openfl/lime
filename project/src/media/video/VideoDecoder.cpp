@@ -1176,12 +1176,14 @@ namespace lime {
 
 	static const unsigned char* GetToneMapTable (VideoColorTransfer transfer, VideoColorMatrix matrix, bool fullRange) {
 
-		// Each kind of frame's table is built once, a few megabytes, and kept
-		static std::mutex mutex;
-		static std::map<int, std::vector<unsigned char> > tables;
+		// Each kind of frame's table is built once, a few megabytes, and kept.
+		// They are never destroyed, as exiting on Android and Linux runs static
+		// destructors while decoding threads can still be using them.
+		static std::mutex* mutex = new std::mutex ();
+		static std::map<int, std::vector<unsigned char> >* tables = new std::map<int, std::vector<unsigned char> > ();
 
-		std::lock_guard<std::mutex> lock (mutex);
-		std::vector<unsigned char>& table = tables[(int)transfer * 16 + (int)matrix * 2 + (fullRange ? 1 : 0)];
+		std::lock_guard<std::mutex> lock (*mutex);
+		std::vector<unsigned char>& table = (*tables)[(int)transfer * 16 + (int)matrix * 2 + (fullRange ? 1 : 0)];
 		if (!table.empty ()) return table.data ();
 
 		double kr, kb;
