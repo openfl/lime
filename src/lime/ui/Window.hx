@@ -98,6 +98,17 @@ class Window
 	public var mouseLock(get, set):Bool;
 
 	/**
+		Whether `onMouseWheel` gives the fractions of a step that touchpads and
+		smooth wheels scroll by, for smooth scrolling. Otherwise, on native
+		targets, it gives whole steps, adding fractions up until they make one.
+
+		Off by default, as code that takes the steps as whole numbers would then
+		not scroll on touchpads. Has no effect on HTML5, where the browser gives
+		its own deltas.
+	**/
+	public var preciseMouseWheel:Bool = false;
+
+	/**
 		Keeps the mouse cursor within this area of the window, in window
 		coordinates, while the window has the focus. `null` lets it move freely.
 

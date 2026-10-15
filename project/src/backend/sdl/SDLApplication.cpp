@@ -1263,17 +1263,24 @@ namespace lime
 
 				mouseEvent.type = MOUSE_WHEEL;
 
+				// Whole steps, and, in movementX and movementY, the fractions of a
+				// step that touchpads and smooth wheels scroll by, for windows
+				// with preciseMouseWheel
 				if (event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
 				{
 
 					mouseEvent.x = -event->wheel.x;
 					mouseEvent.y = -event->wheel.y;
+					mouseEvent.movementX = -event->wheel.preciseX;
+					mouseEvent.movementY = -event->wheel.preciseY;
 				}
 				else
 				{
 
 					mouseEvent.x = event->wheel.x;
 					mouseEvent.y = event->wheel.y;
+					mouseEvent.movementX = event->wheel.preciseX;
+					mouseEvent.movementY = event->wheel.preciseY;
 				}
 				break;
 			}

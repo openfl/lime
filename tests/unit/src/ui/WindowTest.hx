@@ -108,6 +108,42 @@ class WindowTest extends Test
 		Assert.isFalse(window.keyboardGrab, "the keyboard grab was not released");
 	}
 
+	public function testPreciseMouseWheelGivesFractionsOfAStep():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		var deltas = [];
+		window.onMouseWheel.add(function(deltaX, deltaY, mode) deltas.push(deltaX + "," + deltaY));
+
+		// A touchpad scrolls a quarter of a step at a time, which SDL adds up into
+		// a whole one
+		wheel(window, 0, -1, 0, -0.25);
+		window.preciseMouseWheel = true;
+		wheel(window, 0, -1, 0, -0.25);
+
+		Assert.equals("0,-1|0,-0.25", deltas.join("|"));
+	}
+
+	private static function wheel(window:Window, x:Float, y:Float, preciseX:Float, preciseY:Float):Void
+	{
+		// The event as native code fills it in, then the handler it calls
+		var backend = @:privateAccess Application.current.__backend;
+		var info = @:privateAccess backend.mouseEventInfo;
+		info.type = cast 3;
+		info.windowID = window.id;
+		info.x = x;
+		info.y = y;
+		info.movementX = preciseX;
+		info.movementY = preciseY;
+		@:privateAccess backend.handleMouseEvent();
+	}
+
 	private static function create(transparent:Bool):Window
 	{
 		// The windows are left open, hidden, as closing the last window of the
