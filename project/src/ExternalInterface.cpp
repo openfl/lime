@@ -3981,6 +3981,28 @@ namespace lime {
 	}
 
 
+	value lime_locale_get_preferred_locales () {
+
+		std::string* locales = Locale::GetPreferredLocales ();
+		value result = alloc_string (locales->c_str ());
+		delete locales;
+		return result;
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_locale_get_preferred_locales) () {
+
+		std::string* locales = Locale::GetPreferredLocales ();
+		int size = locales->size ();
+		vbyte* result = hl_alloc_bytes (size + 1);
+		memcpy (result, locales->c_str (), size + 1);
+		delete locales;
+		return result;
+
+	}
+
+
 	HL_PRIM vbyte* HL_NAME(hl_locale_get_system_locale) () {
 
 		std::string* locale = Locale::GetSystemLocale ();
@@ -14013,6 +14035,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_key_code_from_scan_code);
 	DEFINE_PRIME1 (lime_key_code_to_scan_code);
 	DEFINE_PRIME2v (lime_key_event_manager_register);
+	DEFINE_PRIME0 (lime_locale_get_preferred_locales);
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
 	DEFINE_PRIME2 (lime_lzma_compress);
 	DEFINE_PRIME2 (lime_lzma_decompress);
@@ -14353,6 +14376,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_key_code_from_scan_code, _I32);
 	DEFINE_HL_PRIM (_I32, hl_key_code_to_scan_code, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_key_event_manager_register, _FUN (_VOID, _NO_ARG) _TKEY_EVENT);
+	DEFINE_HL_PRIM (_BYTES, hl_locale_get_preferred_locales, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_system_locale, _NO_ARG);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_decompress, _TBYTES _TBYTES);
