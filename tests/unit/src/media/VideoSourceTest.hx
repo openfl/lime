@@ -777,17 +777,36 @@ class VideoSourceTest extends Test
 		ALC.pauseDevice(device);
 		var clock = measureRate(video, frame, 0.6);
 		ALC.resumeDevice(device);
-		run(video, frame, 0.8);
+		run(video, frame, 0.5);
 
+		// The sound is moved back once it is more than AUDIO_DRIFT_SECONDS (0.1 s)
+		// from the clock, and its position moves a mix at a time, 56 to 84 ms on
+		// some outputs, so the gap is averaged over many readings. Left as it was,
+		// it would be the 0.6 s the output stalled for.
 		var backend = @:privateAccess video.__backend;
-		@:privateAccess backend.lockAudio();
-		var queued = @:privateAccess backend.bufferTimes.length > 0;
-		var gap = queued ? Math.abs(@:privateAccess backend.getAudioPosition() * 1000 - video.currentTime) : Math.POSITIVE_INFINITY;
-		@:privateAccess backend.unlockAudio();
+		var gaps = 0.0;
+		var readings = 0;
+		var end = Timer.stamp() + 0.3;
+
+		while (Timer.stamp() < end)
+		{
+			@:privateAccess backend.lockAudio();
+			if (@:privateAccess backend.bufferTimes.length > 0)
+			{
+				gaps += Math.abs(@:privateAccess backend.getAudioPosition() * 1000 - video.currentTime);
+				readings++;
+			}
+			@:privateAccess backend.unlockAudio();
+
+			video.readFrame(frame);
+			pause(0.005);
+		}
+
 		video.dispose();
 
+		var gap = readings > 0 ? gaps / readings : Math.POSITIVE_INFINITY;
 		Assert.floatEquals(1, clock.rate, 0.1, "while the output stalled, the clock ran at " + clock.rate + " times real time");
-		Assert.isTrue(gap < 100, "after the output came back, the sound was " + gap + " ms from the clock");
+		Assert.isTrue(gap < 150, "after the output came back, the sound was " + Math.round(gap) + " ms from the clock on average");
 	}
 
 	#if lime_openalsoft
