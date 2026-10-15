@@ -666,6 +666,10 @@ namespace lime
 		case SDL_CONTROLLERBUTTONUP:
 		case SDL_CONTROLLERDEVICEADDED:
 		case SDL_CONTROLLERDEVICEREMOVED:
+		case SDL_CONTROLLERSENSORUPDATE:
+		case SDL_CONTROLLERTOUCHPADDOWN:
+		case SDL_CONTROLLERTOUCHPADMOTION:
+		case SDL_CONTROLLERTOUCHPADUP:
 
 			ProcessGamepadEvent(event);
 			break;
@@ -978,6 +982,36 @@ namespace lime
 				SDLGamepad::Disconnect(event->cdevice.which);
 				break;
 			}
+
+			case SDL_CONTROLLERSENSORUPDATE:
+
+				// The sensor goes in axis, and its readings in x, y and z
+				gamepadEvent.type = GAMEPAD_SENSOR_UPDATE;
+				gamepadEvent.id = event->csensor.which;
+				gamepadEvent.axis = event->csensor.sensor;
+				gamepadEvent.x = event->csensor.data[0];
+				gamepadEvent.y = event->csensor.data[1];
+				gamepadEvent.z = event->csensor.data[2];
+				gamepadEvent.timestamp = event->common.timestamp;
+
+				GamepadEvent::Dispatch(&gamepadEvent);
+				break;
+
+			case SDL_CONTROLLERTOUCHPADDOWN:
+			case SDL_CONTROLLERTOUCHPADMOTION:
+			case SDL_CONTROLLERTOUCHPADUP:
+
+				// The finger goes in button, and where it is in x and y
+				gamepadEvent.type = event->type == SDL_CONTROLLERTOUCHPADDOWN ? GAMEPAD_TOUCHPAD_DOWN : (event->type == SDL_CONTROLLERTOUCHPADMOTION ? GAMEPAD_TOUCHPAD_MOVE : GAMEPAD_TOUCHPAD_UP);
+				gamepadEvent.id = event->ctouchpad.which;
+				gamepadEvent.button = event->ctouchpad.finger;
+				gamepadEvent.x = event->ctouchpad.x;
+				gamepadEvent.y = event->ctouchpad.y;
+				gamepadEvent.z = event->ctouchpad.pressure;
+				gamepadEvent.timestamp = event->common.timestamp;
+
+				GamepadEvent::Dispatch(&gamepadEvent);
+				break;
 			}
 		}
 	}

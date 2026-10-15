@@ -210,6 +210,26 @@ class NativeCFFI
 
 	@:cffi private static function lime_gamepad_rumble(id:Int, lowFrequencyRumble:Float, highFrequencyRumble:Float, duration:Int):Void;
 
+	@:cffi private static function lime_gamepad_get_type(id:Int):Int;
+
+	@:cffi private static function lime_gamepad_has_led(id:Int):Bool;
+
+	@:cffi private static function lime_gamepad_has_rumble_triggers(id:Int):Bool;
+
+	@:cffi private static function lime_gamepad_has_sensor(id:Int, sensor:Int):Bool;
+
+	@:cffi private static function lime_gamepad_rumble_triggers(id:Int, leftRumble:Float, rightRumble:Float, duration:Int):Bool;
+
+	@:cffi private static function lime_gamepad_set_led(id:Int, red:Int, green:Int, blue:Int):Bool;
+
+	@:cffi private static function lime_gamepad_set_sensor_enabled(id:Int, sensor:Int, enabled:Bool):Bool;
+
+	@:cffi private static function lime_gamepad_attach_virtual():Int;
+
+	@:cffi private static function lime_gamepad_detach_virtual(id:Int):Void;
+
+	@:cffi private static function lime_gamepad_get_virtual_output(id:Int):Dynamic;
+
 	@:cffi private static function lime_gamepad_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_gzip_compress(data:Dynamic, bytes:Dynamic):Dynamic;
@@ -917,6 +937,20 @@ class NativeCFFI
 		false));
 	private static var lime_gamepad_rumble = new cpp.Callable<Int->Float->Float->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_rumble", "iddiv",
 		false));
+	private static var lime_gamepad_get_type = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_type", "ii", false));
+	private static var lime_gamepad_has_led = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gamepad_has_led", "ib", false));
+	private static var lime_gamepad_has_rumble_triggers = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gamepad_has_rumble_triggers", "ib",
+		false));
+	private static var lime_gamepad_has_sensor = new cpp.Callable<Int->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gamepad_has_sensor", "iib", false));
+	private static var lime_gamepad_rumble_triggers = new cpp.Callable<Int->Float->Float->Int->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_gamepad_rumble_triggers", "iddib", false));
+	private static var lime_gamepad_set_led = new cpp.Callable<Int->Int->Int->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gamepad_set_led", "iiiib", false));
+	private static var lime_gamepad_set_sensor_enabled = new cpp.Callable<Int->Int->Bool->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_gamepad_set_sensor_enabled", "iibb", false));
+	private static var lime_gamepad_attach_virtual = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_gamepad_attach_virtual", "i", false));
+	private static var lime_gamepad_detach_virtual = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_detach_virtual", "iv", false));
+	private static var lime_gamepad_get_virtual_output = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gamepad_get_virtual_output",
+		"io", false));
 	private static var lime_gamepad_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_gamepad_event_manager_register", "oov", false));
 	private static var lime_gzip_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_compress", "ooo",
@@ -1443,6 +1477,16 @@ class NativeCFFI
 	private static var lime_gamepad_get_device_guid = CFFI.load("lime", "lime_gamepad_get_device_guid", 1);
 	private static var lime_gamepad_get_device_name = CFFI.load("lime", "lime_gamepad_get_device_name", 1);
 	private static var lime_gamepad_rumble = CFFI.load("lime", "lime_gamepad_rumble", 4);
+	private static var lime_gamepad_get_type = CFFI.load("lime", "lime_gamepad_get_type", 1);
+	private static var lime_gamepad_has_led = CFFI.load("lime", "lime_gamepad_has_led", 1);
+	private static var lime_gamepad_has_rumble_triggers = CFFI.load("lime", "lime_gamepad_has_rumble_triggers", 1);
+	private static var lime_gamepad_has_sensor = CFFI.load("lime", "lime_gamepad_has_sensor", 2);
+	private static var lime_gamepad_rumble_triggers = CFFI.load("lime", "lime_gamepad_rumble_triggers", 4);
+	private static var lime_gamepad_set_led = CFFI.load("lime", "lime_gamepad_set_led", 4);
+	private static var lime_gamepad_set_sensor_enabled = CFFI.load("lime", "lime_gamepad_set_sensor_enabled", 3);
+	private static var lime_gamepad_attach_virtual = CFFI.load("lime", "lime_gamepad_attach_virtual", 0);
+	private static var lime_gamepad_detach_virtual = CFFI.load("lime", "lime_gamepad_detach_virtual", 1);
+	private static var lime_gamepad_get_virtual_output = CFFI.load("lime", "lime_gamepad_get_virtual_output", 1);
 	private static var lime_gamepad_event_manager_register = CFFI.load("lime", "lime_gamepad_event_manager_register", 2);
 	private static var lime_gzip_compress = CFFI.load("lime", "lime_gzip_compress", 2);
 	private static var lime_gzip_decompress = CFFI.load("lime", "lime_gzip_decompress", 2);
@@ -2016,6 +2060,54 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_gamepad_rumble") private static function lime_gamepad_rumble(id:Int, lowFrequencyRumble:Float, highFrequencyRumble:Float,
 		duration:Int):Void {}
+
+	@:hlNative("lime", "hl_gamepad_get_type") private static function lime_gamepad_get_type(id:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_gamepad_has_led") private static function lime_gamepad_has_led(id:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_gamepad_has_rumble_triggers") private static function lime_gamepad_has_rumble_triggers(id:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_gamepad_has_sensor") private static function lime_gamepad_has_sensor(id:Int, sensor:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_gamepad_rumble_triggers") private static function lime_gamepad_rumble_triggers(id:Int, leftRumble:Float, rightRumble:Float,
+			duration:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_gamepad_set_led") private static function lime_gamepad_set_led(id:Int, red:Int, green:Int, blue:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_gamepad_set_sensor_enabled") private static function lime_gamepad_set_sensor_enabled(id:Int, sensor:Int, enabled:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_gamepad_attach_virtual") private static function lime_gamepad_attach_virtual():Int
+	{
+		return -1;
+	}
+
+	@:hlNative("lime", "hl_gamepad_detach_virtual") private static function lime_gamepad_detach_virtual(id:Int):Void {}
+
+	@:hlNative("lime", "hl_gamepad_get_virtual_output") private static function lime_gamepad_get_virtual_output(id:Int):Dynamic
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register(callback:Void->Void,
 		eventObject:GamepadEventInfo):Void {}

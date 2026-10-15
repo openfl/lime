@@ -3207,6 +3207,66 @@ namespace lime {
 	}
 
 
+	int lime_gamepad_get_type (int id) { return Gamepad::GetType (id); }
+	HL_PRIM int HL_NAME(hl_gamepad_get_type) (int id) { return Gamepad::GetType (id); }
+
+	bool lime_gamepad_has_led (int id) { return Gamepad::HasLED (id); }
+	HL_PRIM bool HL_NAME(hl_gamepad_has_led) (int id) { return Gamepad::HasLED (id); }
+
+	bool lime_gamepad_has_rumble_triggers (int id) { return Gamepad::HasRumbleTriggers (id); }
+	HL_PRIM bool HL_NAME(hl_gamepad_has_rumble_triggers) (int id) { return Gamepad::HasRumbleTriggers (id); }
+
+	bool lime_gamepad_has_sensor (int id, int sensor) { return Gamepad::HasSensor (id, sensor); }
+	HL_PRIM bool HL_NAME(hl_gamepad_has_sensor) (int id, int sensor) { return Gamepad::HasSensor (id, sensor); }
+
+	bool lime_gamepad_rumble_triggers (int id, double leftRumble, double rightRumble, int duration) { return Gamepad::RumbleTriggers (id, leftRumble, rightRumble, duration); }
+	HL_PRIM bool HL_NAME(hl_gamepad_rumble_triggers) (int id, double leftRumble, double rightRumble, int duration) { return Gamepad::RumbleTriggers (id, leftRumble, rightRumble, duration); }
+
+	bool lime_gamepad_set_led (int id, int red, int green, int blue) { return Gamepad::SetLED (id, red, green, blue); }
+	HL_PRIM bool HL_NAME(hl_gamepad_set_led) (int id, int red, int green, int blue) { return Gamepad::SetLED (id, red, green, blue); }
+
+	bool lime_gamepad_set_sensor_enabled (int id, int sensor, bool enabled) { return Gamepad::SetSensorEnabled (id, sensor, enabled); }
+	HL_PRIM bool HL_NAME(hl_gamepad_set_sensor_enabled) (int id, int sensor, bool enabled) { return Gamepad::SetSensorEnabled (id, sensor, enabled); }
+
+	int lime_gamepad_attach_virtual () { return Gamepad::AttachVirtual (); }
+	HL_PRIM int HL_NAME(hl_gamepad_attach_virtual) () { return Gamepad::AttachVirtual (); }
+
+	void lime_gamepad_detach_virtual (int id) { Gamepad::DetachVirtual (id); }
+	HL_PRIM void HL_NAME(hl_gamepad_detach_virtual) (int id) { Gamepad::DetachVirtual (id); }
+
+
+	value lime_gamepad_get_virtual_output (int id) {
+
+		int led, lowRumble, highRumble, leftRumble, rightRumble;
+		if (!Gamepad::GetVirtualOutput (id, &led, &lowRumble, &highRumble, &leftRumble, &rightRumble)) return alloc_null ();
+
+		value output = alloc_empty_object ();
+		alloc_field (output, val_id ("led"), alloc_int (led));
+		alloc_field (output, val_id ("lowRumble"), alloc_int (lowRumble));
+		alloc_field (output, val_id ("highRumble"), alloc_int (highRumble));
+		alloc_field (output, val_id ("leftRumble"), alloc_int (leftRumble));
+		alloc_field (output, val_id ("rightRumble"), alloc_int (rightRumble));
+		return output;
+
+	}
+
+
+	HL_PRIM vdynamic* HL_NAME(hl_gamepad_get_virtual_output) (int id) {
+
+		int led, lowRumble, highRumble, leftRumble, rightRumble;
+		if (!Gamepad::GetVirtualOutput (id, &led, &lowRumble, &highRumble, &leftRumble, &rightRumble)) return NULL;
+
+		vdynamic* output = (vdynamic*)hl_alloc_dynobj ();
+		hl_dyn_seti (output, hl_hash_utf8 ("led"), &hlt_i32, led);
+		hl_dyn_seti (output, hl_hash_utf8 ("lowRumble"), &hlt_i32, lowRumble);
+		hl_dyn_seti (output, hl_hash_utf8 ("highRumble"), &hlt_i32, highRumble);
+		hl_dyn_seti (output, hl_hash_utf8 ("leftRumble"), &hlt_i32, leftRumble);
+		hl_dyn_seti (output, hl_hash_utf8 ("rightRumble"), &hlt_i32, rightRumble);
+		return output;
+
+	}
+
+
 	value lime_gzip_compress (value buffer, value bytes) {
 
 		#ifdef LIME_ZLIB
@@ -14003,6 +14063,16 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gamepad_get_device_guid);
 	DEFINE_PRIME1 (lime_gamepad_get_device_name);
 	DEFINE_PRIME4v (lime_gamepad_rumble);
+	DEFINE_PRIME0 (lime_gamepad_attach_virtual);
+	DEFINE_PRIME1v (lime_gamepad_detach_virtual);
+	DEFINE_PRIME1 (lime_gamepad_get_type);
+	DEFINE_PRIME1 (lime_gamepad_get_virtual_output);
+	DEFINE_PRIME1 (lime_gamepad_has_led);
+	DEFINE_PRIME1 (lime_gamepad_has_rumble_triggers);
+	DEFINE_PRIME2 (lime_gamepad_has_sensor);
+	DEFINE_PRIME4 (lime_gamepad_rumble_triggers);
+	DEFINE_PRIME4 (lime_gamepad_set_led);
+	DEFINE_PRIME3 (lime_gamepad_set_sensor_enabled);
 	DEFINE_PRIME2 (lime_gzip_compress);
 	DEFINE_PRIME2 (lime_gzip_decompress);
 	DEFINE_PRIME2v (lime_haptic_vibrate);
@@ -14248,7 +14318,7 @@ namespace lime {
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
 	#define _TDISPLAYMODE _OBJ (_I32 _I32 _I32 _I32)
 	#define _TDROP_EVENT _OBJ (_BYTES _I32)
-	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _I32)
+	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _I32 _F64 _F64 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32 _I32)
 	#define _TMENU_EVENT _OBJ (_I32 _I32 _I32)
@@ -14344,6 +14414,16 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_guid, _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_gamepad_get_device_name, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_rumble, _I32 _F64 _F64 _I32);
+	DEFINE_HL_PRIM (_I32, hl_gamepad_attach_virtual, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_gamepad_detach_virtual, _I32);
+	DEFINE_HL_PRIM (_I32, hl_gamepad_get_type, _I32);
+	DEFINE_HL_PRIM (_DYN, hl_gamepad_get_virtual_output, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gamepad_has_led, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gamepad_has_rumble_triggers, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gamepad_has_sensor, _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gamepad_rumble_triggers, _I32 _F64 _F64 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gamepad_set_led, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_gamepad_set_sensor_enabled, _I32 _I32 _BOOL);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_haptic_vibrate, _I32 _I32);
