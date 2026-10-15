@@ -686,6 +686,19 @@ namespace lime
 				OrientationEvent::Dispatch(&orientationEvent);
 
 				break;
+
+			case SDL_DISPLAYEVENT_CONNECTED:
+			case SDL_DISPLAYEVENT_DISCONNECTED:
+			case SDL_DISPLAYEVENT_MOVED:
+
+				// Displays come and go, and move as they are arranged or the primary
+				// display changes
+				orientationEvent.type = event->display.event == SDL_DISPLAYEVENT_CONNECTED ? DISPLAY_CONNECT : (event->display.event == SDL_DISPLAYEVENT_DISCONNECTED ? DISPLAY_DISCONNECT : DISPLAY_MOVE);
+				orientationEvent.orientation = 0;
+				orientationEvent.display = event->display.display;
+				OrientationEvent::Dispatch(&orientationEvent);
+
+				break;
 			}
 			break;
 
