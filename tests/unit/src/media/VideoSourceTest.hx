@@ -664,6 +664,67 @@ class VideoSourceTest extends Test
 		}
 	}
 
+	public function testPanReachesTheSoundAlreadyQueued():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (!hasAudioOutput())
+		{
+			video.dispose();
+			return;
+		}
+
+		// Opening fills the queue with sound before anything plays, so none of it
+		// is played, and none is added, while the pan changes
+		var backend = @:privateAccess video.__backend;
+		var end = Timer.stamp() + TIMEOUT;
+		while (@:privateAccess backend.freeBuffers.length > 0 && Timer.stamp() < end) pause(0.01);
+		var queued = @:privateAccess backend.bufferTimes.length;
+
+		video.pan = 1;
+
+		var peaks = bufferedPeaks(video);
+		video.dispose();
+
+		Assert.isTrue(queued > 0, "no sound was queued on opening");
+		Assert.equals(0, peaks[0], "with pan 1, sound queued before it was set peaked at " + peaks[0] + " on the left");
+		Assert.isTrue(peaks[1] > 1000, "with pan 1, sound queued before it was set peaked at " + peaks[1] + " on the right");
+	}
+
+	public function testPanWhilePlayingCarriesOnFromTheSameSound():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (!hasAudioOutput())
+		{
+			video.dispose();
+			return;
+		}
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+		run(video, frame, 0.3);
+
+		// The sound is queued again from where the output is, so it neither
+		// repeats nor skips, and plays on
+		var backend = @:privateAccess video.__backend;
+		var before = @:privateAccess backend.getAudioPosition();
+		video.pan = -1;
+		var after = @:privateAccess backend.getAudioPosition();
+		var state = AL.getSourcei(@:privateAccess backend.handle, AL.SOURCE_STATE);
+
+		var clock = video.currentTime;
+		run(video, frame, 0.3);
+		var moved = video.currentTime - clock;
+		video.dispose();
+
+		Assert.isTrue(Math.abs(after - before) < 0.05, "the sound moved from " + before + " s to " + after + " s");
+		Assert.equals(AL.PLAYING, state, "the sound stopped");
+		Assert.isTrue(moved > 200, "the clock moved " + moved + " ms in 0.3 s");
+	}
+
 	public function testVideoPlaysOnWhenTheAudioDeviceIsReplaced():Void
 	{
 		var video = open();

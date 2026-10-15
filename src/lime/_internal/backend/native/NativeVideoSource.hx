@@ -105,6 +105,12 @@ class NativeVideoSource
 	private var audioStarting:Bool;
 	private var blockAlign:Int;
 	private var bufferTimes:Array<Float>;
+
+	/**
+		The stereo sound in each queued buffer as it was before it was panned, so
+		that what is left of the queue can be panned again. Null for mono.
+	**/
+	private var bufferSounds:Array<QueuedSound>;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
 	private var clockMode:VideoClockMode;
@@ -117,6 +123,7 @@ class NativeVideoSource
 	private var dropLateFrames:Bool;
 	private var failed:Bool;
 	private var freeBuffers:Array<ALBuffer>;
+	private var freeSounds:Array<Bytes>;
 	private var frameDuration:Float;
 	private var frameEndTime:Float;
 	private var gain:Float;
@@ -160,6 +167,7 @@ class NativeVideoSource
 		audioStalled = false;
 		audioStarting = false;
 		bufferTimes = [];
+		bufferSounds = [];
 		clockMode = SMOOTH;
 		clockRate = 1;
 		clockStamp = 0;
@@ -497,13 +505,23 @@ class NativeVideoSource
 
 	public function setPan(value:Float):Float
 	{
-		pan = Math.max(-1, Math.min(1, value));
+		value = Math.max(-1, Math.min(1, value));
 		lockAudio();
 
-		// Stereo is balanced as it is buffered, and OpenAL places mono
-		if (handle != null && decoder != null && decoder.audioChannels == 1)
+		var changed = value != pan;
+		pan = value;
+
+		// OpenAL places mono, and stereo is balanced as it is buffered
+		if (handle != null && decoder != null)
 		{
-			AL.source3f(handle, AL.POSITION, pan, 0, -Math.sqrt(1 - pan * pan));
+			if (decoder.audioChannels == 1)
+			{
+				AL.source3f(handle, AL.POSITION, pan, 0, -Math.sqrt(1 - pan * pan));
+			}
+			else if (changed && audioDecoder != null && audioDecoder.audioChannels == 2)
+			{
+				panQueue();
+			}
 		}
 
 		unlockAudio();
@@ -546,6 +564,7 @@ class NativeVideoSource
 		audioReadStamp = -1;
 		audioStarting = decoder.hasAudio;
 		bufferTimes = [];
+		bufferSounds = [];
 		clockRate = 1;
 		clockStamp = getStamp();
 		clockTime = 0;
@@ -657,7 +676,9 @@ class NativeVideoSource
 		AL.sourcei(handle, AL.BUFFER, null);
 
 		audioClockStamp = -1;
+		recycleSounds(bufferSounds);
 		bufferTimes = [];
+		bufferSounds = [];
 		freeBuffers = buffers != null ? buffers.copy() : [];
 	}
 
@@ -694,6 +715,7 @@ class NativeVideoSource
 		audioData = null;
 		audioSamples = null;
 		bufferTimes = [];
+		bufferSounds = [];
 	}
 
 	@:noCompletion private function closeLoops():Void
@@ -792,7 +814,9 @@ class NativeVideoSource
 
 		buffers = AL.genBuffers(AUDIO_BUFFER_COUNT);
 		freeBuffers = buffers.copy();
+		freeSounds = [];
 		bufferTimes = [];
+		bufferSounds = [];
 
 		// The output mixes once a period, and until its latency is seen changing,
 		// it is taken as a fixed estimate
@@ -829,6 +853,7 @@ class NativeVideoSource
 		}
 
 		bufferTimes = [];
+		bufferSounds = [];
 	}
 
 	@:noCompletion private function fillBuffers():Void
@@ -848,15 +873,80 @@ class NativeVideoSource
 				break;
 			}
 
-			if (pan != 0 && audioDecoder.audioChannels == 2)
+			queueSound(length, audioDecoder.audioTime + audioOffset - length / bytesPerSecond);
+		}
+	}
+
+	@:noCompletion private function queueSound(length:Int, time:Float):Void
+	{
+		// Queues the sound in audioBuffer, which starts at the given time, keeping
+		// stereo as it was so that it can be panned again
+		var sound:QueuedSound = null;
+
+		if (audioDecoder.audioChannels == 2)
+		{
+			var data = freeSounds.length > 0 ? freeSounds.pop() : Bytes.alloc(audioBuffer.length);
+			data.blit(0, audioBuffer, 0, length);
+			sound = {data: data, length: length};
+
+			if (pan != 0)
 			{
 				panBuffer(length);
 			}
+		}
 
-			var buffer = freeBuffers.pop();
-			AL.bufferData(buffer, audioFormat, audioData, length, audioDecoder.audioSampleRate);
-			AL.sourceQueueBuffer(handle, buffer);
-			bufferTimes.push(audioDecoder.audioTime + audioOffset - length / bytesPerSecond);
+		var buffer = freeBuffers.pop();
+		AL.bufferData(buffer, audioFormat, audioData, length, audioDecoder.audioSampleRate);
+		AL.sourceQueueBuffer(handle, buffer);
+		bufferTimes.push(time);
+		bufferSounds.push(sound);
+	}
+
+	@:noCompletion private function panQueue():Void
+	{
+		// Stereo is balanced as it is buffered, so what the output has yet to play
+		// is queued again with the new balance, from the sample it is at
+		unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+		if (bufferTimes.length == 0 || bufferSounds[0] == null) return;
+
+		var playing = AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
+		var skip = AL.getSourcei(handle, AL.SAMPLE_OFFSET) * blockAlign;
+		var times = bufferTimes;
+		var sounds = bufferSounds;
+
+		bufferSounds = [];
+		clearBuffers();
+
+		for (i in 0...sounds.length)
+		{
+			var sound = sounds[i];
+			var start = i == 0 ? Std.int(Math.min(skip, sound.length)) : 0;
+
+			if (start < sound.length)
+			{
+				audioBuffer.blit(0, sound.data, start, sound.length - start);
+				freeSounds.push(sound.data);
+				queueSound(sound.length - start, times[i] + start / bytesPerSecond);
+			}
+			else
+			{
+				freeSounds.push(sound.data);
+			}
+		}
+
+		if (playing && bufferTimes.length > 0)
+		{
+			AL.sourcePlay(handle);
+		}
+	}
+
+	@:noCompletion private function recycleSounds(sounds:Array<QueuedSound>):Void
+	{
+		if (sounds == null || freeSounds == null) return;
+
+		for (sound in sounds)
+		{
+			if (sound != null) freeSounds.push(sound.data);
 		}
 	}
 
@@ -1297,6 +1387,9 @@ class NativeVideoSource
 		{
 			freeBuffers.push(buffer);
 			bufferTimes.shift();
+
+			var sound = bufferSounds.shift();
+			if (sound != null && freeSounds != null) freeSounds.push(sound.data);
 		}
 	}
 
@@ -1551,4 +1644,10 @@ private typedef LoopRequest =
 	var path:String;
 	var source:NativeVideoSource;
 	var token:Int;
+}
+
+private typedef QueuedSound =
+{
+	var data:Bytes;
+	var length:Int;
 }
