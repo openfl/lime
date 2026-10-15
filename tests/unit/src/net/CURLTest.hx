@@ -166,11 +166,7 @@ private class TricklingServer
 		{
 			while (connection.input.readLine() != "") {}
 
-			connection.output.writeString("HTTP/1.1 200 OK
-Connection: close
-Content-Length: " + (@:privateAccess CURLTest.CHUNKS * @:privateAccess CURLTest.CHUNK_SIZE) + "
-
-");
+			connection.output.writeString("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + (@:privateAccess CURLTest.CHUNKS * @:privateAccess CURLTest.CHUNK_SIZE) + "\r\n\r\n");
 
 			var chunk = Bytes.alloc(@:privateAccess CURLTest.CHUNK_SIZE);
 			chunk.fill(0, chunk.length, 65);
