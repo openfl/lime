@@ -4,9 +4,6 @@
 
 #define HL_NAME(n) lime_##n
 #include <hl.h>
-
-// HashLink 1.16 names its GUID type _GUID, which Windows headers declare as a struct
-#undef _GUID
 #undef DEFINE_PRIM
 #define DEFINE_HL_PRIM(t, name, args) DEFINE_PRIM_WITH_NAME(t, name, args, name)
 
