@@ -21,6 +21,9 @@ import sys.thread.Thread;
 **/
 class CURLTest extends Test
 {
+	// CURL_VERSION_ASYNCHDNS
+	private static inline var ASYNCHDNS = 1 << 7;
+
 	private static inline var CHUNKS = 40;
 	private static inline var CHUNK_SIZE = 1024;
 
@@ -28,6 +31,19 @@ class CURLTest extends Test
 	{
 		super();
 	}
+
+	#if (lime_cffi && lime_curl)
+	public function testNamesAreLookedUpOnAThreadOfTheirOwn():Void
+	{
+		// Looked up as part of a transfer, a slow name held up
+		// curl_multi_perform, and the collector waited for it
+		var info:Dynamic = CURL.versionInfo(FOURTH);
+		Assert.notNull(info, "CURL.versionInfo() gave nothing");
+		if (info == null) return;
+
+		Assert.isTrue((info.features & ASYNCHDNS) != 0, "curl looks names up as part of transfers, with features " + info.features);
+	}
+	#end
 
 	#if (lime_cffi && lime_curl && sys && target.threaded)
 	public function testCollectingWhileATransferRunsOnAnotherThread():Void

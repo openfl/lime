@@ -2846,9 +2846,17 @@ namespace lime {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
-		// TODO
+		if (!data) {
 
-		return alloc_null ();
+			return alloc_null ();
+
+		}
+
+		value info = alloc_empty_object ();
+		alloc_field (info, val_id ("age"), alloc_int (data->age));
+		alloc_field (info, val_id ("features"), alloc_int (data->features));
+		alloc_field (info, val_id ("versionNum"), alloc_int (data->version_num));
+		return info;
 
 	}
 
@@ -2857,9 +2865,17 @@ namespace lime {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
-		// TODO
+		if (!data) {
 
-		return NULL;
+			return NULL;
+
+		}
+
+		vdynamic* info = (vdynamic*)hl_alloc_dynobj ();
+		hl_dyn_seti (info, hl_hash_utf8 ("age"), &hlt_i32, data->age);
+		hl_dyn_seti (info, hl_hash_utf8 ("features"), &hlt_i32, data->features);
+		hl_dyn_seti (info, hl_hash_utf8 ("versionNum"), &hlt_i32, data->version_num);
+		return info;
 
 	}
 
