@@ -2532,10 +2532,19 @@ namespace lime {
 
 	int lime_curl_multi_perform (value multi_handle) {
 
-		curl_gc_mutex.Lock ();
-
+		CURLM* multi = (CURLM*)val_data (multi_handle);
 		int runningHandles = 0;
-		CURLMcode result = curl_multi_perform ((CURLM*)val_data (multi_handle), &runningHandles);
+
+		// Transfers, and name lookups where they can't run on a thread of
+		// their own, may take a while, so the collector is let run meanwhile.
+		// The lock is let go before leaving, as finalizers take it too.
+		System::GCEnterBlocking ();
+		curl_gc_mutex.Lock ();
+		CURLMcode result = curl_multi_perform (multi, &runningHandles);
+		curl_gc_mutex.Unlock ();
+		System::GCExitBlocking ();
+
+		curl_gc_mutex.Lock ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2558,10 +2567,17 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_curl_multi_perform) (HL_CFFIPointer* multi_handle) {
 
-		curl_gc_mutex.Lock ();
-
+		CURLM* multi = (CURLM*)multi_handle->ptr;
 		int runningHandles = 0;
-		CURLMcode result = curl_multi_perform ((CURLM*)multi_handle->ptr, &runningHandles);
+
+		// See lime_curl_multi_perform
+		System::GCEnterBlocking ();
+		curl_gc_mutex.Lock ();
+		CURLMcode result = curl_multi_perform (multi, &runningHandles);
+		curl_gc_mutex.Unlock ();
+		System::GCExitBlocking ();
+
+		curl_gc_mutex.Lock ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 

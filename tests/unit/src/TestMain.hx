@@ -17,6 +17,7 @@ class TestMain extends Application
 		runner.addCase(new media.VideoNetworkTest());
 		runner.addCase(new media.VideoFrameTest());
 		runner.addCase(new media.VideoSourceTest());
+		runner.addCase(new net.CURLTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.MenuTest());
 		runner.addCase(new utils.ArrayBufferTest());
