@@ -654,7 +654,7 @@ class VideoSourceTest extends Test
 			video.pan = pan;
 			startPlaying(video, frame);
 
-			var peaks = bufferedPeaks(video);
+			var peaks = nextQueuedPeaks(video, frame);
 			video.dispose();
 
 			var opposite = pan < 0 ? peaks[1] : peaks[0];
@@ -861,6 +861,44 @@ class VideoSourceTest extends Test
 	#end
 
 	#if (lime_cffi && lime_openal)
+	private static function nextQueuedPeaks(video:VideoSource, frame:VideoFrame):Array<Int>
+	{
+		// Sound skipped to catch up with the clock is read into the same buffer
+		// and dropped, so the peaks are read once a buffer has been queued after it
+		var backend = @:privateAccess video.__backend;
+		var queued = -1.0;
+		var peaks:Array<Int> = null;
+		var end = Timer.stamp() + TIMEOUT;
+
+		while (peaks == null && Timer.stamp() < end)
+		{
+			@:privateAccess backend.lockAudio();
+			var times:Array<Float> = @:privateAccess backend.bufferTimes;
+			var last = times.length > 0 ? times[times.length - 1] : -1.0;
+
+			if (@:privateAccess backend.audioSkipping)
+			{
+				queued = -1;
+			}
+			else if (queued < 0)
+			{
+				queued = last;
+			}
+			else if (last != queued)
+			{
+				peaks = bufferedPeaks(video);
+			}
+
+			@:privateAccess backend.unlockAudio();
+
+			video.readFrame(frame);
+			pause(0.005);
+		}
+
+		Assert.notNull(peaks, "no sound was queued while playing");
+		return peaks != null ? peaks : [0, 0];
+	}
+
 	private static function bufferedPeaks(video:VideoSource):Array<Int>
 	{
 		// The left and right peaks of the audio last given to OpenAL
