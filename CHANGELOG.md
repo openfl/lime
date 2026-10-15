@@ -33,9 +33,11 @@ Changelog
 - Changed Windows to show input methods' own composition and candidate windows.
 - Changed `FrameProfile.Uncapped` to uncap the frame loop.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
+- Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
+- Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
 - Fixed an asset embedding regression.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.

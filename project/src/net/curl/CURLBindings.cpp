@@ -9,6 +9,10 @@
 #include <map>
 #include <vector>
 
+#if defined (LIME_MBEDTLS) && defined (_WIN32)
+extern "C" void lime_threading_init ();
+#endif
+
 
 namespace lime {
 
@@ -56,6 +60,18 @@ namespace lime {
 	std::map<void*, ValuePointer*> xferInfoCallbacks;
 	std::map<void*, CURL_XferInfo*> xferInfoValues;
 	Mutex curl_gc_mutex;
+
+	#if defined (LIME_MBEDTLS) && defined (_WIN32)
+	static struct CURL_ThreadingInit {
+
+		CURL_ThreadingInit () {
+
+			lime_threading_init ();
+
+		}
+
+	} curl_threading_init;
+	#endif
 
 	void free_header_values (const std::vector<char*>* values) {
 
