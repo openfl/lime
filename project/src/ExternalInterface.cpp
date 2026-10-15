@@ -13574,6 +13574,112 @@ namespace lime {
 	}
 
 
+	bool lime_window_flash (value window, int mode) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->Flash (mode);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_flash) (HL_CFFIPointer* window, int mode) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->Flash (mode);
+
+	}
+
+
+	bool lime_window_get_keyboard_grab (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetKeyboardGrab ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_get_keyboard_grab) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetKeyboardGrab ();
+
+	}
+
+
+	value lime_window_get_mouse_rect (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		int x, y, width, height;
+
+		if (!targetWindow->GetMouseRect (&x, &y, &width, &height)) {
+
+			return alloc_null ();
+
+		}
+
+		value rect = alloc_empty_object ();
+		alloc_field (rect, val_id ("x"), alloc_int (x));
+		alloc_field (rect, val_id ("y"), alloc_int (y));
+		alloc_field (rect, val_id ("width"), alloc_int (width));
+		alloc_field (rect, val_id ("height"), alloc_int (height));
+		return rect;
+
+	}
+
+
+	HL_PRIM vdynamic* HL_NAME(hl_window_get_mouse_rect) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		int x, y, width, height;
+
+		if (!targetWindow->GetMouseRect (&x, &y, &width, &height)) {
+
+			return NULL;
+
+		}
+
+		vdynamic* rect = (vdynamic*)hl_alloc_dynobj ();
+		hl_dyn_seti (rect, hl_hash_utf8 ("x"), &hlt_i32, x);
+		hl_dyn_seti (rect, hl_hash_utf8 ("y"), &hlt_i32, y);
+		hl_dyn_seti (rect, hl_hash_utf8 ("width"), &hlt_i32, width);
+		hl_dyn_seti (rect, hl_hash_utf8 ("height"), &hlt_i32, height);
+		return rect;
+
+	}
+
+
+	void lime_window_set_keyboard_grab (value window, bool keyboardGrab) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetKeyboardGrab (keyboardGrab);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_keyboard_grab) (HL_CFFIPointer* window, bool keyboardGrab) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetKeyboardGrab (keyboardGrab);
+
+	}
+
+
+	void lime_window_set_mouse_rect (value window, int x, int y, int width, int height) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMouseRect (x, y, width, height);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_mouse_rect) (HL_CFFIPointer* window, int x, int y, int width, int height) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMouseRect (x, y, width, height);
+
+	}
+
+
 	void lime_window_set_mouse_lock (value window, bool mouseLock) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14092,7 +14198,12 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_set_maximized);
 	DEFINE_PRIME2 (lime_window_set_menu);
 	DEFINE_PRIME2 (lime_window_set_minimized);
+	DEFINE_PRIME2 (lime_window_flash);
+	DEFINE_PRIME1 (lime_window_get_keyboard_grab);
+	DEFINE_PRIME1 (lime_window_get_mouse_rect);
+	DEFINE_PRIME2v (lime_window_set_keyboard_grab);
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
+	DEFINE_PRIME5v (lime_window_set_mouse_rect);
 	DEFINE_PRIME2 (lime_window_set_resizable);
 	DEFINE_PRIME2v (lime_window_set_text_input_enabled);
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
@@ -14427,7 +14538,12 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_maximized, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_menu, _TCFFIPOINTER _TBYTES);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_minimized, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_flash, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_window_get_keyboard_grab, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, hl_window_get_mouse_rect, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_keyboard_grab, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_rect, _TCFFIPOINTER _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_resizable, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_enabled, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);

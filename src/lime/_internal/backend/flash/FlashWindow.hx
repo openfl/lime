@@ -567,9 +567,24 @@ class FlashWindow
 		return frameRate;
 	}
 
+	public function flash(mode:Int):Bool
+	{
+		return false;
+	}
+
+	public function getKeyboardGrab():Bool
+	{
+		return false;
+	}
+
 	public function getMouseLock():Bool
 	{
 		return false;
+	}
+
+	public function getMouseRect():Rectangle
+	{
+		return null;
 	}
 
 	public function getOpacity():Float
@@ -624,7 +639,14 @@ class FlashWindow
 		return false;
 	}
 
+	public function setKeyboardGrab(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function setMouseLock(value:Bool):Void {}
+
+	public function setMouseRect(value:Rectangle):Void {}
 
 	public function setOpacity(value:Float):Void {}
 

@@ -316,6 +316,40 @@ class NativeWindow
 		return (parent.application != null) ? parent.application.__getFrameRate() : frameRate;
 	}
 
+	public function flash(mode:Int):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			return NativeCFFI.lime_window_flash(handle, mode);
+		}
+		#end
+		return false;
+	}
+
+	public function getKeyboardGrab():Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			return NativeCFFI.lime_window_get_keyboard_grab(handle);
+		}
+		#end
+		return false;
+	}
+
+	public function getMouseRect():Rectangle
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var rect:Dynamic = NativeCFFI.lime_window_get_mouse_rect(handle);
+			if (rect != null) return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		}
+		#end
+		return null;
+	}
+
 	public function getMouseLock():Bool
 	{
 		if (handle != null)
@@ -600,6 +634,35 @@ class NativeWindow
 			#end
 		}
 		return displayMode;
+	}
+
+	public function setKeyboardGrab(value:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			NativeCFFI.lime_window_set_keyboard_grab(handle, value);
+		}
+		#end
+		return getKeyboardGrab();
+	}
+
+	public function setMouseRect(value:Rectangle):Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			// A negative size lets the cursor move freely
+			if (value != null)
+			{
+				NativeCFFI.lime_window_set_mouse_rect(handle, Std.int(value.x), Std.int(value.y), Std.int(value.width), Std.int(value.height));
+			}
+			else
+			{
+				NativeCFFI.lime_window_set_mouse_rect(handle, 0, 0, -1, -1);
+			}
+		}
+		#end
 	}
 
 	public function setMouseLock(value:Bool):Bool

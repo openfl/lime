@@ -402,7 +402,13 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_get_id(handle:Dynamic):Int;
 
+	@:cffi private static function lime_window_flash(handle:Dynamic, mode:Int):Bool;
+
+	@:cffi private static function lime_window_get_keyboard_grab(handle:Dynamic):Bool;
+
 	@:cffi private static function lime_window_get_mouse_lock(handle:Dynamic):Bool;
+
+	@:cffi private static function lime_window_get_mouse_rect(handle:Dynamic):Dynamic;
 
 	@:cffi private static function lime_window_get_transparent(handle:Dynamic):Bool;
 
@@ -756,7 +762,11 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_minimized(handle:Dynamic, minimized:Bool):Bool;
 
+	@:cffi private static function lime_window_set_keyboard_grab(handle:Dynamic, keyboardGrab:Bool):Void;
+
 	@:cffi private static function lime_window_set_mouse_lock(handle:Dynamic, mouseLock:Bool):Void;
+
+	@:cffi private static function lime_window_set_mouse_rect(handle:Dynamic, x:Int, y:Int, width:Int, height:Int):Void;
 
 	@:cffi private static function lime_window_set_opacity(handle:Dynamic, value:Float):Void;
 
@@ -1067,7 +1077,12 @@ class NativeCFFI
 		"oo", false));
 	private static var lime_window_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_height", "oi", false));
 	private static var lime_window_get_id = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_id", "oi", false));
+	private static var lime_window_flash = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_window_flash", "oib", false));
+	private static var lime_window_get_keyboard_grab = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_keyboard_grab", "ob",
+		false));
 	private static var lime_window_get_mouse_lock = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_lock", "ob", false));
+	private static var lime_window_get_mouse_rect = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_rect", "oo",
+		false));
 	private static var lime_window_get_transparent = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_transparent", "ob",
 		false));
 	private static var lime_window_get_opacity = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_opacity", "od", false));
@@ -1320,8 +1335,12 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_minimized = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_minimized", "obb",
 		false));
+	private static var lime_window_set_keyboard_grab = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_keyboard_grab", "obv", false));
 	private static var lime_window_set_mouse_lock = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_mouse_lock",
 		"obv", false));
+	private static var lime_window_set_mouse_rect = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_mouse_rect", "oiiiiv", false));
 	private static var lime_window_set_opacity = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_opacity", "odv",
 		false));
 	private static var lime_window_set_resizable = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_resizable", "obb",
@@ -1518,7 +1537,10 @@ class NativeCFFI
 	private static var lime_window_get_display_mode = CFFI.load("lime", "lime_window_get_display_mode", 1);
 	private static var lime_window_get_height = CFFI.load("lime", "lime_window_get_height", 1);
 	private static var lime_window_get_id = CFFI.load("lime", "lime_window_get_id", 1);
+	private static var lime_window_flash = CFFI.load("lime", "lime_window_flash", 2);
+	private static var lime_window_get_keyboard_grab = CFFI.load("lime", "lime_window_get_keyboard_grab", 1);
 	private static var lime_window_get_mouse_lock = CFFI.load("lime", "lime_window_get_mouse_lock", 1);
+	private static var lime_window_get_mouse_rect = CFFI.load("lime", "lime_window_get_mouse_rect", 1);
 	private static var lime_window_get_transparent = CFFI.load("lime", "lime_window_get_transparent", 1);
 	private static var lime_window_get_opacity = CFFI.load("lime", "lime_window_get_opacity", 1);
 	private static var lime_window_get_scale = CFFI.load("lime", "lime_window_get_scale", 1);
@@ -1650,7 +1672,9 @@ class NativeCFFI
 	private static var lime_window_set_maximized = CFFI.load("lime", "lime_window_set_maximized", 2);
 	private static var lime_window_set_menu = CFFI.load("lime", "lime_window_set_menu", 2);
 	private static var lime_window_set_minimized = CFFI.load("lime", "lime_window_set_minimized", 2);
+	private static var lime_window_set_keyboard_grab = CFFI.load("lime", "lime_window_set_keyboard_grab", 2);
 	private static var lime_window_set_mouse_lock = CFFI.load("lime", "lime_window_set_mouse_lock", 2);
+	private static var lime_window_set_mouse_rect = CFFI.load("lime", "lime_window_set_mouse_rect", 5);
 	private static var lime_window_set_opacity = CFFI.load("lime", "lime_window_set_opacity", 2);
 	private static var lime_window_set_resizable = CFFI.load("lime", "lime_window_set_resizable", 2);
 	private static var lime_window_set_text_input_enabled = CFFI.load("lime", "lime_window_set_text_input_enabled", 2);
@@ -2375,9 +2399,24 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_window_flash") private static function lime_window_flash(handle:CFFIPointer, mode:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_get_keyboard_grab") private static function lime_window_get_keyboard_grab(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
 	@:hlNative("lime", "hl_window_get_mouse_lock") private static function lime_window_get_mouse_lock(handle:CFFIPointer):Bool
 	{
 		return false;
+	}
+
+	@:hlNative("lime", "hl_window_get_mouse_rect") private static function lime_window_get_mouse_rect(handle:CFFIPointer):Dynamic
+	{
+		return null;
 	}
 
 	@:hlNative("lime", "hl_window_get_transparent") private static function lime_window_get_transparent(handle:CFFIPointer):Bool
@@ -3060,7 +3099,12 @@ class NativeCFFI
 		return false;
 	}
 
+	@:hlNative("lime", "hl_window_set_keyboard_grab") private static function lime_window_set_keyboard_grab(handle:CFFIPointer, keyboardGrab:Bool):Void {}
+
 	@:hlNative("lime", "hl_window_set_mouse_lock") private static function lime_window_set_mouse_lock(handle:CFFIPointer, mouseLock:Bool):Void {}
+
+	@:hlNative("lime", "hl_window_set_mouse_rect") private static function lime_window_set_mouse_rect(handle:CFFIPointer, x:Int, y:Int, width:Int,
+		height:Int):Void {}
 
 	@:hlNative("lime", "hl_window_set_resizable") private static function lime_window_set_resizable(handle:CFFIPointer, resizable:Bool):Bool
 	{

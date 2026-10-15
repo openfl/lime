@@ -1,6 +1,7 @@
 package ui;
 
 import lime.app.Application;
+import lime.math.Rectangle;
 import lime.ui.Window;
 import utest.Assert;
 import utest.Test;
@@ -44,6 +45,67 @@ class WindowTest extends Test
 		}
 
 		Assert.isFalse(isTransparent(second), "a window created after a transparent one was made transparent too");
+	}
+
+	public function testFlashing():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isTrue(window.flash(BRIEFLY), "the window could not be flashed");
+		Assert.isTrue(window.flash(UNTIL_FOCUSED), "the window could not be flashed until focused");
+		Assert.isTrue(window.flash(CANCEL), "the window's flashing could not be cancelled");
+	}
+
+	public function testMouseRectKeepsTheCursorWhereItIsSet():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isNull(window.mouseRect, "a new window kept the cursor to an area");
+
+		window.mouseRect = new Rectangle(4, 8, 20, 24);
+		var rect = window.mouseRect;
+		Assert.notNull(rect, "the cursor was not kept to the area set");
+
+		if (rect != null)
+		{
+			Assert.equals("4,8,20,24", [rect.x, rect.y, rect.width, rect.height].join(","));
+		}
+
+		window.mouseRect = null;
+		Assert.isNull(window.mouseRect, "the cursor was still kept to an area after it was freed");
+	}
+
+	public function testKeyboardGrabIsKeptUntilReleased():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isFalse(window.keyboardGrab, "a new window grabbed the keyboard");
+
+		// The keys are only taken while the window has the focus, but the grab
+		// is kept for when it does
+		window.keyboardGrab = true;
+		Assert.isTrue(window.keyboardGrab, "the keyboard grab was not kept");
+
+		window.keyboardGrab = false;
+		Assert.isFalse(window.keyboardGrab, "the keyboard grab was not released");
 	}
 
 	private static function create(transparent:Bool):Window

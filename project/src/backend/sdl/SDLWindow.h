@@ -33,7 +33,10 @@ namespace lime {
 			virtual void GetDisplayMode (DisplayMode* displayMode);
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
+			virtual bool Flash (int mode);
+			virtual bool GetKeyboardGrab ();
 			virtual bool GetMouseLock ();
+			virtual bool GetMouseRect (int* x, int* y, int* width, int* height);
 			virtual float GetOpacity ();
 			virtual double GetScale ();
 			virtual bool GetTextInputEnabled ();
@@ -55,7 +58,9 @@ namespace lime {
 			virtual bool SetMaximized (bool maximized);
 			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual bool SetMinimized (bool minimized);
+			virtual void SetKeyboardGrab (bool keyboardGrab);
 			virtual void SetMouseLock (bool mouseLock);
+			virtual void SetMouseRect (int x, int y, int width, int height);
 			virtual void SetOpacity (float opacity);
 			virtual bool SetResizable (bool resizable);
 			virtual void SetTextInputEnabled (bool enabled);

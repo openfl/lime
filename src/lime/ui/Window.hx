@@ -96,6 +96,22 @@ class Window
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
 	public var mouseLock(get, set):Bool;
+
+	/**
+		Keeps the mouse cursor within this area of the window, in window
+		coordinates, while the window has the focus. `null` lets it move freely.
+
+		Supported on native desktop targets.
+	**/
+	public var mouseRect(get, set):Rectangle;
+
+	/**
+		Whether keys the system would otherwise take, such as Alt+Tab or the
+		Windows key, go to this window while it has the focus.
+
+		Supported on native desktop targets.
+	**/
+	public var keyboardGrab(get, set):Bool;
 	public var onActivate(default, null) = new Event<Void->Void>();
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
@@ -233,6 +249,8 @@ class Window
 				"minimized": {get: p.get_minimized, set: p.set_minimized},
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
+				"mouseRect": {get: p.get_mouseRect, set: p.set_mouseRect},
+				"keyboardGrab": {get: p.get_keyboardGrab, set: p.set_keyboardGrab},
 
 				"resizable": {get: p.get_resizable, set: p.set_resizable},
 				"scale": {get: p.get_scale},
@@ -2537,6 +2555,20 @@ class Window
 		__backend.close();
 	}
 
+	/**
+		Asks for the user's attention, by flashing the window's taskbar button or
+		bouncing its Dock icon. Where the window is already in front, this does
+		nothing.
+
+		Supported on native desktop targets and AIR.
+		@param mode How long to flash, or `CANCEL` to stop.
+		@return Whether the window could be flashed.
+	**/
+	public function flash(mode:WindowFlashMode = BRIEFLY):Bool
+	{
+		return __backend.flash(mode);
+	}
+
 	public function focus():Void
 	{
 		__backend.focus();
@@ -2812,6 +2844,27 @@ class Window
 	{
 		__backend.setMouseLock(value);
 		return value;
+	}
+
+	@:noCompletion private function get_mouseRect():Rectangle
+	{
+		return __backend.getMouseRect();
+	}
+
+	@:noCompletion private function set_mouseRect(value:Rectangle):Rectangle
+	{
+		__backend.setMouseRect(value);
+		return value;
+	}
+
+	@:noCompletion private function get_keyboardGrab():Bool
+	{
+		return __backend.getKeyboardGrab();
+	}
+
+	@:noCompletion private function set_keyboardGrab(value:Bool):Bool
+	{
+		return __backend.setKeyboardGrab(value);
 	}
 
 	@:noCompletion private function get_opacity():Float

@@ -816,25 +816,8 @@ namespace lime {
 
 	void SDLWindow::Alert (const char* message, const char* title) {
 
-		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-
-		int count = 0;
-		int speed = 0;
-		bool stopOnForeground = true;
-
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
-
-		FLASHWINFO fi;
-		fi.cbSize = sizeof (FLASHWINFO);
-		fi.hwnd = info.info.win.window;
-		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
-		fi.uCount = count;
-		fi.dwTimeout = speed;
-		FlashWindowEx (&fi);
-
-		#endif
+		// As Windows always did, until the window comes to the front
+		Flash (SDL_FLASH_UNTIL_FOCUSED);
 
 		if (message) {
 
@@ -1715,6 +1698,65 @@ namespace lime {
 		}
 
 		return minimized;
+
+	}
+
+
+	bool SDLWindow::Flash (int mode) {
+
+		return sdlWindow && SDL_FlashWindow (sdlWindow, (SDL_FlashOperation)mode) == 0;
+
+	}
+
+
+	bool SDLWindow::GetKeyboardGrab () {
+
+		// Asked for, rather than SDL_GetWindowKeyboardGrab, which is true only
+		// while the window has the focus and the keys are taken
+		return sdlWindow && (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_KEYBOARD_GRABBED) != 0;
+
+	}
+
+
+	bool SDLWindow::GetMouseRect (int* x, int* y, int* width, int* height) {
+
+		const SDL_Rect* rect = sdlWindow ? SDL_GetWindowMouseRect (sdlWindow) : NULL;
+		if (!rect) return false;
+
+		*x = rect->x;
+		*y = rect->y;
+		*width = rect->w;
+		*height = rect->h;
+		return true;
+
+	}
+
+
+	void SDLWindow::SetKeyboardGrab (bool keyboardGrab) {
+
+		if (sdlWindow) {
+
+			SDL_SetWindowKeyboardGrab (sdlWindow, keyboardGrab ? SDL_TRUE : SDL_FALSE);
+
+		}
+
+	}
+
+
+	void SDLWindow::SetMouseRect (int x, int y, int width, int height) {
+
+		if (!sdlWindow) return;
+
+		if (width < 0 || height < 0) {
+
+			SDL_SetWindowMouseRect (sdlWindow, NULL);
+
+		} else {
+
+			SDL_Rect rect = { x, y, width, height };
+			SDL_SetWindowMouseRect (sdlWindow, &rect);
+
+		}
 
 	}
 
