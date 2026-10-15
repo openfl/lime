@@ -864,6 +864,9 @@ jobs:
           cp project/lib/hashlink/src/hlc.h templates/bin/hl/include/hlc.h
           cp project/lib/hashlink/src/hl.h templates/bin/hl/include/hl.h
           cp project/lib/hashlink/src/hlc_main.c templates/bin/hl/include/hlc_main.c
+          mkdir -p templates/mbedtls/include templates/mbedtls/config
+          cp -R project/lib/mbedtls/include/. templates/mbedtls/include/
+          cp project/lib/custom/mbedtls/*.h templates/mbedtls/config/
 
       - uses: actions/download-artifact@v8
         with:
