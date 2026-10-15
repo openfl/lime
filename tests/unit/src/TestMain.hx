@@ -28,6 +28,15 @@ class TestMain extends Application
 		runner.addCase(new utils.DataViewTest());
 		runner.addCase(new system.ThreadPoolTest());
 		runner.addCase(new text.FontTest());
+		#if sys
+		// Each test is named as it starts, so a run that hangs shows where
+		runner.onTestStart.add(function(handler)
+		{
+			Sys.println("Running " + Type.getClassName(Type.getClass(handler.fixture.target)) + "." + handler.fixture.method);
+			Sys.stdout().flush();
+		});
+		#end
+
 		Report.create(runner);
 		runner.run();
 	}
