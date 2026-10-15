@@ -22,6 +22,10 @@ import ::APP_MAIN::;
 		ManifestResources.init(config);
 		#end
 
+		#if (lime_cffi && !macro && !flash && !html5)
+		::foreach windows::::if allowHighDPI::@:privateAccess lime._internal.backend.native.NativeApplication.__allowHighDPI = true;
+		::end::::end::#end
+
 		#if !munit
 		var app = new ::APP_MAIN::();
 		app.meta.set("build", "::meta.buildNumber::");

@@ -1448,6 +1448,20 @@ namespace lime {
 	}
 	#endif
 
+	void lime_application_allow_high_dpi () {
+
+		AllowHighDPI ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_allow_high_dpi) () {
+
+		AllowHighDPI ();
+
+	}
+
+
 	value lime_application_create () {
 
 		Application* application = CreateApplication ();
@@ -13992,6 +14006,7 @@ namespace lime {
 	}
 
 
+	DEFINE_PRIME0v (lime_application_allow_high_dpi);
 	DEFINE_PRIME0 (lime_application_create);
 	DEFINE_PRIME2v (lime_application_event_manager_register);
 	DEFINE_PRIME1 (lime_application_exec);
@@ -14344,6 +14359,7 @@ namespace lime {
 	#define _TARRAY2 _OBJ (_ARR)
 
 
+	DEFINE_HL_PRIM (_VOID, hl_application_allow_high_dpi, _NO_ARG);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_application_create, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_application_event_manager_register, _FUN(_VOID, _NO_ARG) _TAPPLICATION_EVENT);
 	DEFINE_HL_PRIM (_I32, hl_application_exec, _TCFFIPOINTER);

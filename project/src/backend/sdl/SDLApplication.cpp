@@ -82,6 +82,18 @@ namespace lime
 	};
 #endif
 
+	void AllowHighDPI()
+	{
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		// Windows otherwise draws the application at 96 DPI and stretches it to
+		// each display's scale. Window sizes stay in points, as on macOS, with
+		// the drawable in pixels. Both are read as SDL starts.
+		SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+		SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
+#endif
+	}
+
 	SDLApplication::SDLApplication()
 	{
 

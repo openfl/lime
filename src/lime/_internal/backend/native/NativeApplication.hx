@@ -63,6 +63,12 @@ class NativeApplication
 	private var keyEventInfo = new KeyEventInfo();
 	private var menuEventInfo = new MenuEventInfo();
 	private var orientationEventInfo = new OrientationEventInfo();
+
+	/**
+		Whether a window allows high DPI, which Windows is told as the application
+		is created, before any window is. Set by ApplicationMain.
+	**/
+	@:noCompletion private static var __allowHighDPI:Bool = false;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -110,6 +116,7 @@ class NativeApplication
 		setDeviceOrientationListener(deviceOrientationListener);
 		#end
 		#if (!macro && lime_cffi)
+		if (__allowHighDPI) NativeCFFI.lime_application_allow_high_dpi();
 		handle = NativeCFFI.lime_application_create();
 		#end
 	}

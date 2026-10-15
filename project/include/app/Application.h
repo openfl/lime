@@ -32,6 +32,9 @@ namespace lime {
 
 	Application* CreateApplication ();
 
+	// Called before CreateApplication where the windows allow high DPI
+	void AllowHighDPI ();
+
 
 }
 

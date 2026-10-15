@@ -5,6 +5,9 @@
 	<app file="TestMain" main="TestMain" />
 
 	<source path="src" />
+
+	<!-- HighDPITest checks that Windows is told the application draws at each display's own resolution -->
+	<window allowHighDPI="true" />
 	<assets path="assets" rename="assets" />
 
 	<haxelib name="lime" />

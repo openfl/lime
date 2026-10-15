@@ -55,6 +55,8 @@ class NativeCFFI
 	#if (lime_cffi && !macro)
 	#if (cpp && !cppia)
 	#if (disable_cffi || haxe_ver < "3.4.0")
+	@:cffi private static function lime_application_allow_high_dpi():Void;
+
 	@:cffi private static function lime_application_create():Dynamic;
 
 	@:cffi private static function lime_application_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
@@ -810,6 +812,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_zlib_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 	#else
+	private static var lime_application_allow_high_dpi = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_application_allow_high_dpi",
+		"v", false));
 	private static var lime_application_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_application_create", "o", false));
 	private static var lime_application_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_event_manager_register", "oov", false));
@@ -1400,6 +1404,7 @@ class NativeCFFI
 	#end
 	#end
 	#if (neko || cppia)
+	private static var lime_application_allow_high_dpi = CFFI.load("lime", "lime_application_allow_high_dpi", 0);
 	private static var lime_application_create = CFFI.load("lime", "lime_application_create", 0);
 	private static var lime_application_event_manager_register = CFFI.load("lime", "lime_application_event_manager_register", 2);
 	private static var lime_application_exec = CFFI.load("lime", "lime_application_exec", 1);
@@ -1733,6 +1738,8 @@ class NativeCFFI
 	#end
 
 	#if hl
+	@:hlNative("lime", "hl_application_allow_high_dpi") private static function lime_application_allow_high_dpi():Void {}
+
 	@:hlNative("lime", "hl_application_create") private static function lime_application_create():CFFIPointer
 	{
 		return null;
