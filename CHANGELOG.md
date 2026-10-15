@@ -36,6 +36,7 @@ Changelog
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
+- Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
