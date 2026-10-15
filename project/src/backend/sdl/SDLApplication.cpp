@@ -99,6 +99,12 @@ namespace lime
 		initFlags |= SDL_INIT_AUDIO;
 #endif
 
+		// Input methods show their own composition and candidate windows, which
+		// Lime apps don't draw, and compositions longer than an SDL text event
+		// holds arrive whole. Both are read as the video subsystem starts.
+		SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+		SDL_SetHint(SDL_HINT_IME_SUPPORT_EXTENDED_TEXT, "1");
+
 		if (SDL_Init(initFlags) != 0)
 		{
 
@@ -754,6 +760,7 @@ namespace lime
 
 		case SDL_TEXTINPUT:
 		case SDL_TEXTEDITING:
+		case SDL_TEXTEDITING_EXT:
 
 			ProcessTextEvent(event);
 			break;
@@ -1251,6 +1258,8 @@ namespace lime
 		if (TextEvent::callback)
 		{
 
+			const char *text = event->text.text;
+
 			switch (event->type)
 			{
 
@@ -1265,6 +1274,15 @@ namespace lime
 				textEvent.start = event->edit.start;
 				textEvent.length = event->edit.length;
 				break;
+
+			case SDL_TEXTEDITING_EXT:
+
+				// A composition too long for SDL_TEXTEDITING
+				textEvent.type = TEXT_EDIT;
+				textEvent.start = event->editExt.start;
+				textEvent.length = event->editExt.length;
+				text = event->editExt.text ? event->editExt.text : "";
+				break;
 			}
 
 			if (textEvent.text)
@@ -1273,11 +1291,18 @@ namespace lime
 				free(textEvent.text);
 			}
 
-			textEvent.text = (vbyte *)malloc(strlen(event->text.text) + 1);
-			strcpy((char *)textEvent.text, event->text.text);
+			textEvent.text = (vbyte *)malloc(strlen(text) + 1);
+			strcpy((char *)textEvent.text, text);
 
 			textEvent.windowID = event->text.windowID;
 			TextEvent::Dispatch(&textEvent);
+		}
+
+		// SDL leaves the long composition's text to the application to free
+		if (event->type == SDL_TEXTEDITING_EXT)
+		{
+
+			SDL_free(event->editExt.text);
 		}
 	}
 
