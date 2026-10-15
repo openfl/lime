@@ -20,6 +20,7 @@ class TestMain extends Application
 		runner.addCase(new net.CURLTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.MenuTest());
+		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
 		runner.addCase(new utils.UInt8ArrayTest());
 		runner.addCase(new utils.UInt16ArrayTest());

@@ -37,6 +37,7 @@ namespace lime {
 			virtual float GetOpacity ();
 			virtual double GetScale ();
 			virtual bool GetTextInputEnabled ();
+			virtual bool GetTransparent ();
 			virtual int GetWidth ();
 			virtual int GetX ();
 			virtual int GetY ();
@@ -82,6 +83,7 @@ namespace lime {
 			int contextHeight;
 			int contextWidth;
 			int requestedVSyncMode;
+			bool transparent;
 			bool useVulkan;
 
 	};

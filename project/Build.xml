@@ -282,6 +282,7 @@
 			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
+			<file name="src/backend/sdl/SDLWindowMac.mm" if="mac" />
 			<file name="src/graphics/vulkan/VKRenderer.cpp" if="LIME_VULKAN" />
 
 		</section>
