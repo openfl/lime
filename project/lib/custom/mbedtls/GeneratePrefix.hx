@@ -35,6 +35,11 @@ class GeneratePrefix
 
 		var files = [];
 		for (arg in args) collect(arg, files);
+		if (files.length == 0)
+		{
+			Sys.println("No objects or libraries found in " + args.join(", "));
+			Sys.exit(1);
+		}
 
 		var names = new Map<String, Bool>();
 		var unprefixed = new Map<String, Bool>();
@@ -79,6 +84,7 @@ class GeneratePrefix
 
 	static function collect(path:String, files:Array<String>):Void
 	{
+		if (!FileSystem.exists(path)) return;
 		if (FileSystem.isDirectory(path))
 		{
 			for (entry in FileSystem.readDirectory(path))
