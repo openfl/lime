@@ -72,6 +72,7 @@ class HTML5Window
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
+	private var highDPI:Bool;
 	#if !lime_disable_window_scale_change
 	private var devicePixelRatioMediaQuery:js.html.MediaQueryList;
 	#end
@@ -110,16 +111,14 @@ class HTML5Window
 
 		var element = parent.element;
 
-		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
+		highDPI = Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM;
+
+		if (highDPI)
 		{
 			scale = Browser.window.devicePixelRatio;
 		}
 
 		parent.__scale = scale;
-
-		#if !lime_disable_window_scale_change
-		watchDevicePixelRatio();
-		#end
 
 		setWidth = Reflect.hasField(attributes, "width") ? attributes.width : 0;
 		setHeight = Reflect.hasField(attributes, "height") ? attributes.height : 0;
@@ -206,6 +205,15 @@ class HTML5Window
 		}
 
 		updateSize();
+
+		#if !lime_disable_window_scale_change
+		// Only after the canvas or div exists, since a scale change calls updateSize().
+		// Without high DPI the scale stays 1, so there is nothing to watch.
+		if (highDPI)
+		{
+			watchDevicePixelRatio();
+		}
+		#end
 
 		if (element != null)
 		{
