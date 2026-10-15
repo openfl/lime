@@ -57,8 +57,10 @@ class GeneratePrefix
 		{
 			var leaks = sorted(unprefixed);
 			for (name in leaks) Sys.println(name);
-			Sys.println(leaks.length + " unprefixed in " + files.length + " files");
-			Sys.exit(leaks.length > 0 ? 1 : 0);
+			var total = sorted(names).length;
+			Sys.println(leaks.length + " of " + total + " mbedTLS symbols unprefixed in " + files.length + " files");
+			// None at all means nm's output wasn't understood, or there was no mbedTLS to check
+			Sys.exit(leaks.length > 0 || total == 0 ? 1 : 0);
 		}
 
 		if (!fresh && FileSystem.exists(header))
