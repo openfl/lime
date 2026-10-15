@@ -454,6 +454,14 @@ namespace lime {
 		currentApplication = application;
 		this->flags = flags;
 
+		// The first window is titled for the application, which Linux names it by
+		// as it keeps the screen awake, unless SDL_APP_NAME says otherwise
+		if (title && title[0] != '\0' && !SDL_GetHint (SDL_HINT_APP_NAME)) {
+
+			SDL_SetHint (SDL_HINT_APP_NAME, title);
+
+		}
+
 		int sdlWindowFlags = 0;
 
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
