@@ -50,6 +50,7 @@ class HXProject extends Script
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array<CLICommand>;
 	public var preBuildCallbacks:Array<CLICommand>;
+	@:noCompletion public var processedHaxelibIncludes:Array<String>;
 	public var samplePaths:Array<String>;
 	public var sources:Array<String>;
 	public var splashScreens:Array<SplashScreen>;
@@ -107,7 +108,7 @@ class HXProject extends Script
 		var classRef = Type.resolveClass(inputData.name);
 		if (classRef == null)
 		{
-			Log.error('Unable to find class ${ inputData.name } in ${ inputData.projectFile }');
+			Log.error('Unable to find class ${inputData.name} in ${inputData.projectFile}');
 			return;
 		}
 		var instance = Type.createInstance(classRef, []);
@@ -189,7 +190,20 @@ class HXProject extends Script
 		else
 		{
 			environment = Sys.environment();
-			for (conflict in ["air", "android", "cpp", "flash", "hl", "html5", "ios", "linux", "mac", "neko", "webassembly", "windows"])
+			for (conflict in [
+				"air",
+				"android",
+				"cpp",
+				"flash",
+				"hl",
+				"html5",
+				"ios",
+				"linux",
+				"mac",
+				"neko",
+				"webassembly",
+				"windows"
+			])
 			{
 				environment.remove(conflict);
 			}
@@ -207,12 +221,13 @@ class HXProject extends Script
 		ndlls = new Array<NDLL>();
 		postBuildCallbacks = new Array<CLICommand>();
 		preBuildCallbacks = new Array<CLICommand>();
+		processedHaxelibIncludes = new Array<String>();
 		sources = new Array<String>();
 		samplePaths = new Array<String>();
 		splashScreens = new Array<SplashScreen>();
 		targetHandlers = new Map<String, String>();
 
-		config.set("android", { manifest:{}, application:{}, activity:{} });
+		config.set("android", {manifest: {}, application: {}, activity: {}});
 		config.get("android.manifest").xmlChildren = [];
 		config.get("android.application").xmlChildren = [];
 		config.get("android.activity").xmlChildren = [];
@@ -310,6 +325,7 @@ class HXProject extends Script
 		project.platformType = platformType;
 		project.postBuildCallbacks = postBuildCallbacks.copy();
 		project.preBuildCallbacks = preBuildCallbacks.copy();
+		project.processedHaxelibIncludes = processedHaxelibIncludes.copy();
 		project.samplePaths = samplePaths.copy();
 		project.sources = sources.copy();
 
@@ -403,11 +419,12 @@ class HXProject extends Script
 		var args = [
 			name,
 			#if lime
-			"-lib", "lime",
-			"-lib", "hxp",
+			"-lib", "lime", "-lib", "hxp",
 			#end
-			"-cp", tempDirectory,
-			"-cp", Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
+			"-cp",
+			tempDirectory,
+			"-cp",
+			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
 		];
 		var input = File.read(classFile, false);
 		var tag = "@:compiler(";
@@ -682,6 +699,7 @@ class HXProject extends Script
 		@:privateAccess projectXML.parseXML(new Access(Xml.parse(xml).firstElement()), "");
 		merge(projectXML);
 	}
+
 	// #end
 
 	private function initializeDefines():Void
@@ -793,8 +811,7 @@ class HXProject extends Script
 			defines.set("native", "1");
 			defines.set("cpp", "1");
 		}
-		else if (targetFlags.exists("cpp")
-			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
+		else if (targetFlags.exists("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
 		{
 			defines.set("targetType", "cpp");
 			defines.set("native", "1");
@@ -911,6 +928,15 @@ class HXProject extends Script
 			excludeArchitectures = ArrayTools.concatUnique(excludeArchitectures, project.excludeArchitectures);
 			haxeflags = ArrayTools.concatUnique(haxeflags, project.haxeflags);
 			haxelibs = ArrayTools.concatUnique(haxelibs, project.haxelibs, true, "name");
+			if (processedHaxelibIncludes == null)
+			{
+				processedHaxelibIncludes = new Array<String>();
+			}
+
+			if (project.processedHaxelibIncludes != null)
+			{
+				processedHaxelibIncludes = ArrayTools.concatUnique(processedHaxelibIncludes, project.processedHaxelibIncludes);
+			}
 			icons = ArrayTools.concatUnique(icons, project.icons);
 			javaPaths = ArrayTools.concatUnique(javaPaths, project.javaPaths, true);
 
@@ -977,6 +1003,11 @@ class HXProject extends Script
 	// #if lime
 	@:noCompletion private static function processHaxelibs(project:HXProject, userDefines:Map<String, Dynamic>):Void
 	{
+		if (project.processedHaxelibIncludes == null)
+		{
+			project.processedHaxelibIncludes = new Array<String>();
+		}
+
 		var haxelibs = project.haxelibs.copy();
 		project.haxelibs = [];
 
@@ -984,6 +1015,11 @@ class HXProject extends Script
 		{
 			var validatePath = Haxelib.getPath(haxelib, true);
 			project.haxelibs.push(haxelib);
+
+			if (ArrayTools.containsValue(project.processedHaxelibIncludes, getHaxelibIncludeKey(haxelib)))
+			{
+				continue;
+			}
 
 			var includeProject = HXProject.fromHaxelib(haxelib, userDefines);
 
@@ -1000,6 +1036,16 @@ class HXProject extends Script
 				project.merge(includeProject);
 			}
 		}
+	}
+
+	@:noCompletion public static function getHaxelibIncludeKey(haxelib:Haxelib):String
+	{
+		if (haxelib.version != null && haxelib.version != "")
+		{
+			return haxelib.name + ":" + haxelib.version;
+		}
+
+		return haxelib.name;
 	}
 
 	@:noCompletion private static function resolveClass(name:String):Class<Dynamic>

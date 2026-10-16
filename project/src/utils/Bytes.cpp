@@ -40,7 +40,9 @@ namespace lime {
 
 	Bytes::Bytes () {
 
+		#ifndef LIME_HASHLINK
 		_initializeBytes ();
+		#endif
 
 		b = 0;
 		length = 0;
@@ -122,72 +124,50 @@ namespace lime {
 
 		if (size != length || (length > 0 && !b)) {
 
-			mutex.Lock ();
+			unsigned char* data = 0;
+			unsigned char* oldB = b;
+			bool freeOldB = false;
 
-			if (size <= 0) {
+			if (size > 0) {
 
-				if (b) {
-
-					if (usingValue.find (this) != usingValue.end ()) {
-
-						usingValue.erase (this);
-
-					} else {
-
-						free (b);
-
-					}
-
-				} else if (usingValue.find (this) != usingValue.end ()) {
-
-					usingValue.erase (this);
-
-				}
-
-				b = 0;
-				length = 0;
-
-			} else {
-
-				unsigned char* data = (unsigned char*)malloc (sizeof (char) * size);
+				data = (unsigned char*)malloc (sizeof (char) * size);
 
 				if (!data) {
 
-					mutex.Unlock ();
 					return false;
 
 				}
 
-				if (b) {
+				if (b && length) {
 
-					if (length) {
-
-						memcpy (data, b, length < size ? length : size);
-
-					}
-
-					if (usingValue.find (this) != usingValue.end ()) {
-
-						usingValue.erase (this);
-
-					} else {
-
-						free (b);
-
-					}
-
-				} else if (usingValue.find (this) != usingValue.end ()) {
-
-					usingValue.erase (this);
+					memcpy (data, b, length < size ? length : size);
 
 				}
 
-				b = data;
-				length = size;
+			}
+
+			mutex.Lock ();
+
+			if (usingValue.find (this) != usingValue.end ()) {
+
+				usingValue.erase (this);
+
+			} else if (oldB) {
+
+				freeOldB = true;
 
 			}
 
+			b = data;
+			length = size > 0 ? size : 0;
+
 			mutex.Unlock ();
+
+			if (freeOldB) {
+
+				free (oldB);
+
+			}
 
 		}
 
@@ -203,22 +183,22 @@ namespace lime {
 	}
 
 
-	void Bytes::Set(value bytes) {	
-		
+	void Bytes::Set(value bytes) {
+
 	    int newLength = 0;
 	    unsigned char* newB = 0;
 	    bool isNull = val_is_null(bytes);
-	
+
 	    if (!isNull) {
-	
+
 	        //here we can extract the values before calling our mutex to avoid potential deadlock or contention
 	        value lengthVal = val_field(bytes, id_length);
 	        value bVal = val_field(bytes, id_b);
-	
+
 	        newLength = val_int(lengthVal);
-	
+
 	        if (newLength > 0) {
-	
+
 	            if (val_is_string(bVal)) {
 	                newB = (unsigned char*)val_string(bVal);
 	            } else {
@@ -226,7 +206,7 @@ namespace lime {
 	            }
 	        }
 	    }
-	
+
 	    //and now it should be save to lock
 	    mutex.Lock();
 
@@ -251,7 +231,7 @@ namespace lime {
 	        usingHaxeValue = false;
 
 	    }
-	
+
 	    if (isNull) {
 	        length = 0;
 	        b = 0;
@@ -261,7 +241,7 @@ namespace lime {
 	        length = newLength;
 	        b = newB;
 	    }
-	
+
 	    mutex.Unlock();
 	}
 

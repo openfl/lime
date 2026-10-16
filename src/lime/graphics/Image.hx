@@ -59,7 +59,6 @@ import format.tools.Deflate;
 import sys.io.File;
 #end
 #end
-
 /**
 	`Image` is a convenience class for working with bitmap images in Lime.
 
@@ -395,8 +394,7 @@ class Image
 				sourceRect.offset(sourceImage.offsetX, sourceImage.offsetY);
 				destPoint.offset(offsetX, offsetY);
 
-				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel,
-					dstChannel);
+				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel, dstChannel);
 
 			default:
 		}

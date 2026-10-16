@@ -15,8 +15,8 @@ import lime.utils.Log;
 #if !macro
 import haxe.Json;
 #end
-@:access(lime.media.AudioBuffer)
 
+@:access(lime.media.AudioBuffer)
 /**
  * <p>The Assets class provides a cross-platform interface to access
  * embedded images, fonts, sounds and other resource files.</p>

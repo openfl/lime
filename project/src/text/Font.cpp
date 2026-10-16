@@ -15,6 +15,7 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
+#include FT_MODULE_H
 #endif
 
 #ifdef GetGlyphIndices
@@ -1313,6 +1314,20 @@ namespace lime {
 	}
 
 
+	bool Font::IsBold () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD;
+
+	}
+
+
+	bool Font::IsItalic () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC;
+
+	}
+
+
 	int Font::RenderGlyph(int index, Bytes *bytes, int offset)
 	{
 		if (FT_Load_Glyph((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0)
@@ -1443,15 +1458,36 @@ namespace lime {
 
 	int Font::RenderGlyphs (value indices, Bytes *bytes) {
 
+		int numIndices = val_array_size (indices);
+		std::vector<int> indexList (numIndices);
+
+		for (int i = 0; i < numIndices; i++) {
+
+			indexList[i] = val_int (val_array_i (indices, i));
+
+		}
+
+		return RenderGlyphs (indexList.data (), numIndices, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (hl_varray* indices, Bytes *bytes) {
+
+		return RenderGlyphs (hl_aptr (indices, int), indices->size, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (const int* indices, int numIndices, Bytes *bytes) {
+
 		int offset = 0;
 		int totalOffset = 4;
 		uint32_t count = 0;
 
-		int numIndices = val_array_size (indices);
-
 		for (int i = 0; i < numIndices; i++) {
 
-			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
+			offset = RenderGlyph (indices[i], bytes, totalOffset);
 
 			if (offset > 0) {
 
@@ -1488,6 +1524,30 @@ namespace lime {
 			vdpi								//Vertical DPI
 		);
 		mSize = size;
+
+	}
+
+
+	void Font::SetStemDarkening (bool enable)
+	{
+
+		FT_Bool no_darkening = enable ? 0 : 1;
+
+		FT_Property_Set((FT_Library)library, "cff", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "autofitter", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "t1cid", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "type1", "no-stem-darkening", &no_darkening);
+
+	}
+
+
+	void Font::SetStemDarkeningParameters (int params[])
+	{
+
+		FT_Property_Set((FT_Library)library, "cff", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "autofitter", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "t1cid", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "type1", "darkening-parameters", params);
 
 	}
 

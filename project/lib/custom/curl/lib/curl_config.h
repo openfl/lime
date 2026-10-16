@@ -987,7 +987,11 @@
 /* #undef USE_SCHANNEL */
 
 /* if you want POSIX threaded DNS lookup */
-/* #define USE_THREADS_POSIX 1 */
+/* Lime looks names up on a thread, so a slow lookup doesn't hold up
+   curl_multi_perform, and with it the application's collector */
+#ifndef EMSCRIPTEN
+#define USE_THREADS_POSIX 1
+#endif
 
 /* if you want Win32 threaded DNS lookup */
 /* #undef USE_THREADS_WIN32 */

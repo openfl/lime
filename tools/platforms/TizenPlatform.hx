@@ -203,6 +203,8 @@ class TizenPlatform extends PlatformTarget
 			asset.resourceName = "../res/" + asset.resourceName;
 		}
 
+		prepareEmbeddedAssets();
+
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
