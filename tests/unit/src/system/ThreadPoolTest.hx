@@ -261,15 +261,18 @@ class ThreadPoolTest extends Test
 		// Work that waits, as on files or a server, uses up the share of a
 		// frame as much as work that computes
 		var pool = new ThreadPool(0, 1, SINGLE_THREADED);
-		pool.run(waitBriefly, {calls: 0});
+		var state = {calls: 0};
+		pool.run(waitBriefly, state);
 
-		var start = Timer.stamp();
 		@:privateAccess pool.__update(16);
-		var elapsed = Timer.stamp() - start;
 		pool.cancel();
 
+		// Counts calls rather than time: a stalled runner makes a call last
+		// longer but never adds calls, while work with no limit makes all
+		// 1000 of them in one update
 		var share = ThreadPool.workLoad / 60;
-		Assert.isTrue(elapsed < share + 0.04, "one update ran for " + Math.round(elapsed * 1000) + " ms, with a share of "
+		var room = Math.ceil(share * 1000);
+		Assert.isTrue(state.calls <= room * 2, "one update made " + state.calls + " calls of at least 1 ms, with a share of "
 			+ Math.round(share * 1000) + " ms");
 	}
 
