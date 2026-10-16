@@ -217,6 +217,9 @@ PPnvNTXCeHD8QlJQRVNGCX/HJfwNItkkveY54/M8pOreIDAxcydX7TC3
 	Answers HTTPS requests on a local port with a fixed body, presenting the
 	given certificate.
 **/
+#if (cpp && !windows)
+@:cppFileCode("#include <signal.h>")
+#end
 private class TLSServer
 {
 	public var url(default, null):String;
@@ -226,6 +229,13 @@ private class TLSServer
 
 	public function new(certificate:String, key:String)
 	{
+		#if (cpp && !windows)
+		// curl hangs up on a certificate it rejects, and released hxcpp sends
+		// TLS without MSG_NOSIGNAL, so the server's next write would end the
+		// tests with SIGPIPE
+		untyped __cpp__("signal(SIGPIPE, SIG_IGN)");
+		#end
+
 		listener = new sys.ssl.Socket();
 		listener.verifyCert = false;
 		listener.setCertificate(Certificate.fromString(certificate), Key.readPEM(key, false));
