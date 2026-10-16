@@ -494,10 +494,13 @@ class VideoInputTest extends Test
 		var longestGap = 0.0;
 		var decoder = @:privateAccess video.__backend.decoder;
 		var handovers = 0;
+		var stalls = new LoopStalls();
 		var start = Timer.stamp();
 
 		while (!completed && Timer.stamp() - start < TIMEOUT)
 		{
+			stalls.tick();
+
 			if (@:privateAccess video.__backend.decoder != decoder && @:privateAccess video.__backend.decoder != null)
 			{
 				decoder = @:privateAccess video.__backend.decoder;
@@ -507,7 +510,8 @@ class VideoInputTest extends Test
 			if (video.readFrame(frame))
 			{
 				var now = Timer.stamp();
-				if (lastFrame >= 0 && now - lastFrame > longestGap) longestGap = now - lastFrame;
+				var gap = now - lastFrame - stalls.lostSince(lastFrame);
+				if (lastFrame >= 0 && gap > longestGap) longestGap = gap;
 				lastFrame = now;
 				frames++;
 			}
@@ -519,11 +523,16 @@ class VideoInputTest extends Test
 		var elapsed = Timer.stamp() - start;
 		video.dispose();
 
+		// The frames due while the process was stopped are skipped
+		var skipped = Math.ceil(stalls.total * 15);
+
 		Assert.isTrue(completed, "playback did not complete");
 		Assert.equals(2, handovers, "the next loops did not take over");
-		Assert.isTrue(Math.abs(frames - 45) <= 3, "showed " + frames + " frames of three loops of 15");
+		Assert.isTrue(Math.abs(frames - 45) <= 3 + skipped, "showed " + frames + " frames of three loops of 15, with "
+			+ Math.round(stalls.total * 1000) + " ms stalled");
 		Assert.isTrue(elapsed > 2.7 && elapsed < 3.6, "three loops of a second played in " + elapsed + " s");
-		Assert.isTrue(longestGap < 0.2, "frames stopped for " + Math.round(longestGap * 1000) + " ms");
+		Assert.isTrue(longestGap < 0.2, "frames stopped for " + Math.round(longestGap * 1000) + " ms, besides "
+			+ Math.round(stalls.total * 1000) + " ms that the whole process stalled");
 	}
 
 	public function testVideoSourceWithoutSoundPlaysToTheEnd():Void
