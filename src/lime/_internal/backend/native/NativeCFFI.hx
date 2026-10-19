@@ -201,6 +201,7 @@ class NativeCFFI
 	@:cffi private static function lime_font_render_glyphs(handle:Dynamic, indices:Dynamic, data:Dynamic):Dynamic;
 
 	@:cffi private static function lime_font_set_size(handle:Dynamic, size:Int, dpi:Int):Void;
+	@:cffi private static function lime_font_set_variation(handle:Dynamic, tag:Dynamic, coordinate:Float):Bool;
 
 	@:cffi private static function lime_font_set_stem_darkening(handle:Dynamic, enable:Bool):Void;
 
@@ -935,6 +936,7 @@ class NativeCFFI
 	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyphs", "oooo", false));
 	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiiv", false));
+	private static var lime_font_set_variation = new cpp.Callable<cpp.Object->cpp.Object->Float->Bool>(cpp.Prime._loadPrime("lime", "lime_font_set_variation", "oodb", false));
 	private static var lime_font_set_stem_darkening = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_stem_darkening", "obv", false));
 	private static var lime_font_set_stem_darkening_parameters = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_stem_darkening_parameters", "oov", false));
 	private static var lime_gamepad_add_mappings = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gamepad_add_mappings", "ov",
@@ -1481,6 +1483,7 @@ class NativeCFFI
 	private static var lime_font_render_glyph_with_offset = CFFI.load("lime", "lime_font_render_glyph_with_offset", 5);
 	private static var lime_font_render_glyphs = CFFI.load("lime", "lime_font_render_glyphs", 3);
 	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 3);
+	private static var lime_font_set_variation = CFFI.load("lime", "lime_font_set_variation", 3);
 	private static var lime_font_set_stem_darkening = CFFI.load("lime", "lime_font_set_stem_darkening", 2);
 	private static var lime_font_set_stem_darkening_parameters = CFFI.load("lime", "lime_font_set_stem_darkening_parameters", 2);
 	private static var lime_gamepad_add_mappings = CFFI.load("lime", "lime_gamepad_add_mappings", 1);
@@ -2059,6 +2062,7 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_font_set_size") private static function lime_font_set_size(handle:CFFIPointer, size:Int, dpi:Int):Void {}
+	@:hlNative("lime", "hl_font_set_variation") private static function lime_font_set_variation(handle:CFFIPointer, tag:String, coordinate:Float):Bool { return false; }
 
 	@:hlNative("lime", "hl_font_set_stem_darkening") private static function lime_font_set_stem_darkening(handle:CFFIPointer, enable:Bool):Void {}
 
