@@ -66,6 +66,25 @@ class Font
 
 	public var src:Dynamic;
 
+	/** Sets an OpenType variable-font axis. Unsupported axes/fonts return false.
+	 * Clone/reload a font before changing an axis when other renderers share its source.
+	 */
+	public function setVariation(tag:String, coordinate:Float):Bool {
+		if (tag == null || tag.length != 4 || !Math.isFinite(coordinate)) return false;
+		for (i in 0...4) if (tag.charCodeAt(i) < 32 || tag.charCodeAt(i) > 126) return false;
+		#if (lime_cffi && !macro)
+		if (src == null) return false;
+		var changed = NativeCFFI.lime_font_set_variation(src, tag, coordinate);
+		if (changed) {
+			isBold = NativeCFFI.lime_font_is_bold(src);
+			isItalic = NativeCFFI.lime_font_is_italic(src);
+		}
+		return changed;
+		#else
+		return false;
+		#end
+	}
+
 	/**
 	 * The underline position of the font.
 	 */

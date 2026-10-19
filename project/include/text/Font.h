@@ -67,6 +67,7 @@ namespace lime {
 			int RenderGlyphs (hl_varray* indices, Bytes *bytes);
 			int RenderGlyphs (const int* indices, int count, Bytes *bytes);
 			void SetSize (size_t size, size_t dpi);
+			bool SetVariation (int tag, double coordinate);
 			void SetStemDarkening (bool enable);
 			void SetStemDarkeningParameters (int params[]);
 

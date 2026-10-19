@@ -16,6 +16,7 @@
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #include FT_MODULE_H
+#include FT_MULTIPLE_MASTERS_H
 #endif
 
 #ifdef GetGlyphIndices
@@ -1545,6 +1546,39 @@ namespace lime {
 
 	}
 
+
+	bool Font::SetVariation (int tag, double coordinate)
+	{
+		FT_MM_Var* axes = 0;
+		if (!face || FT_Get_MM_Var((FT_Face)face, &axes) != 0 || !axes) return false;
+		std::vector<FT_Fixed> coordinates(axes->num_axis);
+		if (FT_Get_Var_Design_Coordinates((FT_Face)face, axes->num_axis, coordinates.data()) != 0) {
+			for (FT_UInt i = 0; i < axes->num_axis; ++i) coordinates[i] = axes->axis[i].def;
+		}
+		bool found = false;
+		for (FT_UInt i = 0; i < axes->num_axis; ++i) {
+			if (axes->axis[i].tag != (FT_ULong)(unsigned int)tag) continue;
+			double fixed = coordinate * 65536.0;
+			fixed = std::max((double)axes->axis[i].minimum, std::min((double)axes->axis[i].maximum, fixed));
+			coordinates[i] = (FT_Fixed)fixed;
+			found = true;
+			break;
+		}
+		bool applied = found && FT_Set_Var_Design_Coordinates((FT_Face)face, axes->num_axis, coordinates.data()) == 0;
+		if (applied) {
+			FT_Face nativeFace = (FT_Face)face;
+			bool hasWeight = false, hasItalic = false, bold = false, italic = false;
+			for (FT_UInt i = 0; i < axes->num_axis; ++i) {
+				if (axes->axis[i].tag == FT_MAKE_TAG('w','g','h','t')) { hasWeight = true; bold = coordinates[i] >= 600 * 65536; }
+				if (axes->axis[i].tag == FT_MAKE_TAG('i','t','a','l')) { hasItalic = true; italic = italic || coordinates[i] >= 32768; }
+				if (axes->axis[i].tag == FT_MAKE_TAG('s','l','n','t')) { hasItalic = true; italic = italic || coordinates[i] != 0; }
+			}
+			if (hasWeight) nativeFace->style_flags = bold ? nativeFace->style_flags | FT_STYLE_FLAG_BOLD : nativeFace->style_flags & ~FT_STYLE_FLAG_BOLD;
+			if (hasItalic) nativeFace->style_flags = italic ? nativeFace->style_flags | FT_STYLE_FLAG_ITALIC : nativeFace->style_flags & ~FT_STYLE_FLAG_ITALIC;
+		}
+		FT_Done_MM_Var((FT_Library)library, axes);
+		return applied;
+	}
 
 	void Font::SetStemDarkening (bool enable)
 	{
