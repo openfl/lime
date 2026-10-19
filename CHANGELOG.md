@@ -40,6 +40,7 @@ Changelog
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
 - Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
+- Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
 - Fixed SDL_sound in static builds, which couldn't find its native functions.
 - Fixed Windows cpp icon resource handling when no icon is generated.

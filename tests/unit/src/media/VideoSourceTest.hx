@@ -311,17 +311,22 @@ class VideoSourceTest extends Test
 
 		var frames = 0;
 		var worstLag = 0.0;
+		var stalls = new LoopStalls();
 		var end = Timer.stamp() + 1;
 
 		while (Timer.stamp() < end)
 		{
+			stalls.tick();
+
 			if (video.readFrame(frame))
 			{
 				frames++;
 
 				// A frame is shown while the clock is within it. One that arrives
-				// later shows the decoder falling behind.
+				// later shows the decoder falling behind, unless the whole process
+				// stalled while it was due.
 				var lag = video.currentTime / 1000 - (frame.time + frame.duration);
+				lag -= stalls.lostSince(Timer.stamp() - lag);
 				if (lag > worstLag) worstLag = lag;
 			}
 
@@ -333,7 +338,8 @@ class VideoSourceTest extends Test
 		// A slow loop skips the frames it missed, so fewer than 30 a second is
 		// fine as long as each one is current
 		Assert.isTrue(frames >= 10, frames + " frames in a second");
-		Assert.isTrue(worstLag < 0.1, "a frame was shown " + Math.round(worstLag * 1000) + " ms after it ended");
+		Assert.isTrue(worstLag < 0.1, "a frame was shown " + Math.round(worstLag * 1000) + " ms after it ended, besides "
+			+ Math.round(stalls.total * 1000) + " ms that the whole process stalled");
 	}
 
 	public function testGainAndLoops():Void
@@ -595,14 +601,17 @@ class VideoSourceTest extends Test
 		var stopped = 0;
 		var wrapped = false;
 		var lastTime = video.currentTime;
-		var lastFrame = System.getTimer();
-		var longestGap = 0;
+		var lastFrame = Timer.stamp();
+		var longestGap = 0.0;
 		var decoder = @:privateAccess video.__backend.decoder;
 		var handovers = 0;
+		var stalls = new LoopStalls();
 		var end = Timer.stamp() + TIMEOUT;
 
 		while (!completed && Timer.stamp() < end)
 		{
+			stalls.tick();
+
 			if (@:privateAccess video.__backend.decoder != decoder && @:privateAccess video.__backend.decoder != null)
 			{
 				decoder = @:privateAccess video.__backend.decoder;
@@ -611,8 +620,9 @@ class VideoSourceTest extends Test
 
 			if (video.readFrame(frame))
 			{
-				var now = System.getTimer();
-				if (now - lastFrame > longestGap) longestGap = now - lastFrame;
+				var now = Timer.stamp();
+				var gap = now - lastFrame - stalls.lostSince(lastFrame);
+				if (gap > longestGap) longestGap = gap;
 				lastFrame = now;
 			}
 
@@ -633,7 +643,8 @@ class VideoSourceTest extends Test
 		Assert.isTrue(wrapped, "currentTime did not start again for the second loop");
 		Assert.equals(1, handovers, "the next loop did not take over from the first");
 		Assert.equals(0, stopped, "the sound stopped across the loop");
-		Assert.isTrue(longestGap < 250, "frames stopped for " + longestGap + " ms");
+		Assert.isTrue(longestGap < 0.25, "frames stopped for " + Math.round(longestGap * 1000) + " ms, besides "
+			+ Math.round(stalls.total * 1000) + " ms that the whole process stalled");
 	}
 
 	public function testPanTurnsDownTheOppositeChannel():Void

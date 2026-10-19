@@ -2959,6 +2959,24 @@ namespace lime {
 	}
 
 
+	value lime_font_render_glyph_with_offset (value fontHandle, int index, int loadFlags, int subpixelX, value data) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)val_data (fontHandle);
+		Bytes bytes (data);
+
+		if (font->RenderGlyphWithFlags (index, loadFlags, &bytes, 0, subpixelX)) {
+
+			return bytes.Value (data);
+
+		}
+		#endif
+
+		return alloc_null ();
+
+	}
+
+
 	HL_PRIM Bytes* HL_NAME(hl_font_render_glyph) (HL_CFFIPointer* fontHandle, int index, Bytes* data) {
 
 		#ifdef LIME_FREETYPE
@@ -2982,6 +3000,23 @@ namespace lime {
 		Font *font = (Font*)fontHandle->ptr;
 
 		if (font->RenderGlyphWithFlags (index, loadFlags, data)) {
+
+			return data;
+
+		}
+		#endif
+
+		return NULL;
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_font_render_glyph_with_offset) (HL_CFFIPointer* fontHandle, int index, int loadFlags, int subpixelX, Bytes* data) {
+
+		#ifdef LIME_FREETYPE
+		Font *font = (Font*)fontHandle->ptr;
+
+		if (font->RenderGlyphWithFlags (index, loadFlags, data, 0, subpixelX)) {
 
 			return data;
 
@@ -14069,6 +14104,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_font_outline_decompose_no_hint);
 	DEFINE_PRIME3 (lime_font_render_glyph);
 	DEFINE_PRIME4 (lime_font_render_glyph_with_flags);
+	DEFINE_PRIME5 (lime_font_render_glyph_with_offset);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
 	DEFINE_PRIME3v (lime_font_set_size);
 	DEFINE_PRIME2v (lime_font_set_stem_darkening);
@@ -14421,6 +14457,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_font_outline_decompose_no_hint, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph, _TCFFIPOINTER _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph_with_flags, _TCFFIPOINTER _I32 _I32 _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph_with_offset, _TCFFIPOINTER _I32 _I32 _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_stem_darkening, _TCFFIPOINTER _BOOL);

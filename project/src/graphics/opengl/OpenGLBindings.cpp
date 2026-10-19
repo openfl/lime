@@ -931,8 +931,10 @@ namespace lime {
 
 	void lime_gl_compressed_tex_image_3d (int target, int level, int internalformat, int width, int height, int depth, int border, int imageSize, double data) {
 
-		#ifdef LIME_GLES3_API
-		glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glCompressedTexImage3D) {
+			glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
@@ -940,8 +942,10 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_compressed_tex_image_3d) (int target, int level, int internalformat, int width, int height, int depth, int border, int imageSize, double data) {
 
-		#ifdef LIME_GLES3_API
-		glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glCompressedTexImage3D) {
+			glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
@@ -963,8 +967,10 @@ namespace lime {
 
 	void lime_gl_compressed_tex_sub_image_3d (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, double data) {
 
-		#ifdef LIME_GLES3_API
-		glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glCompressedTexSubImage3D) {
+			glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}
@@ -972,8 +978,10 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_compressed_tex_sub_image_3d) (int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int imageSize, double data) {
 
-		#ifdef LIME_GLES3_API
-		glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glCompressedTexSubImage3D) {
+			glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+		}
 		#endif
 
 	}

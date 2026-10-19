@@ -421,9 +421,12 @@ class Font
 	 * @param fontSize The size to render the glyph at.
 	 * @param dpi The DPI used to size the glyph before rasterization.
 	 * @param loadFlags Additional FreeType load flags to apply when rasterizing.
+	 * @param subpixelX A horizontal shift of the outline before rasterizing, in pixels (0 to 1): for
+	 *   drawing a glyph at a whole pixel while showing where it falls between pixels. The image's
+	 *   origin stays at the whole pixel.
 	 * @return An `Image` instance representing the rendered glyph.
 	 */
-	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int):Image
+	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int, subpixelX:Float = 0.0):Image
 	{
 		#if (lime_cffi && !macro)
 		__setSize(fontSize, dpi);
@@ -432,8 +435,10 @@ class Font
 		var bytes:Bytes = Bytes.alloc(0); // Allocate some reasonable initial size
 
 		// Call native function to render glyph and get byte data
-		bytes = loadFlags == null ? NativeCFFI.lime_font_render_glyph(src, glyph,
-			bytes) : NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
+		var subpixelX64:Int = Math.round(subpixelX * 64);
+		bytes = subpixelX64 != 0 ? NativeCFFI.lime_font_render_glyph_with_offset(src, glyph, loadFlags == null ? 0 : loadFlags, subpixelX64, bytes)
+			: loadFlags == null ? NativeCFFI.lime_font_render_glyph(src, glyph, bytes)
+			: NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
 
 		if (bytes != null && bytes.length > 0)
 		{

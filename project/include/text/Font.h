@@ -62,7 +62,7 @@ namespace lime {
 			bool IsBold ();
 			bool IsItalic ();
 			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
-			int RenderGlyphWithFlags (int index, int loadFlags, Bytes *bytes, int offset = 0);
+			int RenderGlyphWithFlags (int index, int loadFlags, Bytes *bytes, int offset = 0, int subpixelX = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
 			int RenderGlyphs (hl_varray* indices, Bytes *bytes);
 			int RenderGlyphs (const int* indices, int count, Bytes *bytes);

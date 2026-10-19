@@ -196,6 +196,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_font_render_glyph_with_flags(handle:Dynamic, index:Int, loadFlags:Int, data:Dynamic):Dynamic;
 
+	@:cffi private static function lime_font_render_glyph_with_offset(handle:Dynamic, index:Int, loadFlags:Int, subpixelX:Int, data:Dynamic):Dynamic;
+
 	@:cffi private static function lime_font_render_glyphs(handle:Dynamic, indices:Dynamic, data:Dynamic):Dynamic;
 
 	@:cffi private static function lime_font_set_size(handle:Dynamic, size:Int, dpi:Int):Void;
@@ -928,6 +930,8 @@ class NativeCFFI
 		"lime_font_render_glyph", "oioo", false));
 	private static var lime_font_render_glyph_with_flags = new cpp.Callable<cpp.Object->Int->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyph_with_flags", "oiioo", false));
+	private static var lime_font_render_glyph_with_offset = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_font_render_glyph_with_offset", "oiiioo", false));
 	private static var lime_font_render_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_font_render_glyphs", "oooo", false));
 	private static var lime_font_set_size = new cpp.Callable<cpp.Object->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_font_set_size", "oiiv", false));
@@ -1474,6 +1478,7 @@ class NativeCFFI
 	private static var lime_font_outline_decompose_no_hint = CFFI.load("lime", "lime_font_outline_decompose_no_hint", 2);
 	private static var lime_font_render_glyph = CFFI.load("lime", "lime_font_render_glyph", 3);
 	private static var lime_font_render_glyph_with_flags = CFFI.load("lime", "lime_font_render_glyph_with_flags", 4);
+	private static var lime_font_render_glyph_with_offset = CFFI.load("lime", "lime_font_render_glyph_with_offset", 5);
 	private static var lime_font_render_glyphs = CFFI.load("lime", "lime_font_render_glyphs", 3);
 	private static var lime_font_set_size = CFFI.load("lime", "lime_font_set_size", 3);
 	private static var lime_font_set_stem_darkening = CFFI.load("lime", "lime_font_set_stem_darkening", 2);
@@ -2037,6 +2042,12 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_font_render_glyph_with_flags") private static function lime_font_render_glyph_with_flags(handle:CFFIPointer, index:Int,
 			loadFlags:Int, data:Bytes):Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_font_render_glyph_with_offset") private static function lime_font_render_glyph_with_offset(handle:CFFIPointer, index:Int,
+			loadFlags:Int, subpixelX:Int, data:Bytes):Bytes
 	{
 		return null;
 	}
