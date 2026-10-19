@@ -6,8 +6,17 @@
 
 	<source path="src" />
 
+	<!-- HighDPITest checks that Windows is told the application draws at each display's own resolution -->
+	<window allowHighDPI="true" />
+	<assets path="assets" rename="assets" />
+
 	<haxelib name="lime" />
 	<haxelib name="utest" />
+
+	<!-- VideoNetworkTest reads video from a server in the test over plain HTTP -->
+	<config:android>
+		<application android:usesCleartextTraffic="true" />
+	</config:android>
 
 	<template path="templates" if="html5"/>
 </project>

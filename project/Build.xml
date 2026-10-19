@@ -275,9 +275,14 @@
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLKeyCode.cpp" />
+			<file name="src/backend/sdl/SDLMenu.cpp" />
+			<file name="src/backend/sdl/SDLMenuLinux.cpp" />
+			<file name="src/backend/sdl/SDLMenuMac.mm" if="mac" />
+			<file name="src/backend/sdl/SDLMenuWindows.cpp" />
 			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
+			<file name="src/backend/sdl/SDLWindowMac.mm" if="mac" />
 			<file name="src/graphics/vulkan/VKRenderer.cpp" if="LIME_VULKAN" />
 
 		</section>
@@ -337,6 +342,12 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
 		<file name="src/media/containers/WAV.cpp" />
+		<file name="src/media/video/AVFVideoBackend.mm" if="mac || ios" />
+		<file name="src/media/video/GStreamerVideoBackend.cpp" if="linux" />
+		<file name="src/media/video/MediaCodecVideoBackend.cpp" if="android" />
+		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
+		<file name="src/media/video/VideoDecoder.cpp" />
+		<file name="src/media/video/VideoDecoderBindings.cpp" />
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
@@ -356,9 +367,11 @@
 		<file name="src/ui/Haptic.mm" if="ios" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
+		<file name="src/ui/MenuEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />
+		<file name="src/ui/TrayIconEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
@@ -457,6 +470,7 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
+				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="setupapi.lib" />
 
 				<lib name="bcrypt.lib" if="LIME_CURL" />
@@ -481,6 +495,7 @@
 
 			<section if="linux">
 
+				<lib name="-ldl" />
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
 
@@ -507,9 +522,11 @@
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
+				<vflag name="-framework" value="AVFoundation" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="Cocoa" />
 				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreMedia" />
 				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />

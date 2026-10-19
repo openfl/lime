@@ -22,6 +22,10 @@ import ::APP_MAIN::;
 		ManifestResources.init(config);
 		#end
 
+		#if (lime_cffi && !macro && !flash && !html5)
+		::foreach windows::::if allowHighDPI::@:privateAccess lime._internal.backend.native.NativeApplication.__allowHighDPI = true;
+		::end::::end::#end
+
 		#if !munit
 		var app = new ::APP_MAIN::();
 		app.meta.set("build", "::meta.buildNumber::");
@@ -90,6 +94,17 @@ import ::APP_MAIN::;
 		}
 
 		app.createWindow(attributes);
+		#if (linux && sys)
+		var iconPath = lime.system.System.applicationDirectory + "/icon.png";
+		if (sys.FileSystem.exists(iconPath))
+		{
+			var icon = lime.graphics.Image.fromFile(iconPath);
+			if (icon != null && app.window != null)
+			{
+				app.window.setIcon(icon);
+			}
+		}
+		#end
 		::end::
 		#elseif air
 		app.window.title = "::meta.title::";

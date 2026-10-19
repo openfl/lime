@@ -15,6 +15,7 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
+#include FT_MODULE_H
 #endif
 
 #ifdef GetGlyphIndices
@@ -1392,10 +1393,28 @@ namespace lime {
 	}
 
 
-	int Font::RenderGlyphWithFlags(int index, int loadFlags, Bytes *bytes, int offset)
+	int Font::RenderGlyphWithFlags(int index, int loadFlags, Bytes *bytes, int offset, int subpixelX)
 	{
 		int resolvedLoadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT | loadFlags;
-		if (FT_Load_Glyph((FT_Face)face, index, resolvedLoadFlags) == 0)
+
+		// subpixelX (1/64 pixel) shifts the outline before rasterizing, so a glyph drawn at a whole
+		// pixel shows where it falls between pixels; bitmap_left stays the whole-pixel origin
+		if (subpixelX != 0)
+		{
+			FT_Vector delta;
+			delta.x = subpixelX;
+			delta.y = 0;
+			FT_Set_Transform((FT_Face)face, NULL, &delta);
+		}
+
+		int loaded = FT_Load_Glyph((FT_Face)face, index, resolvedLoadFlags);
+
+		if (subpixelX != 0)
+		{
+			FT_Set_Transform((FT_Face)face, NULL, NULL);
+		}
+
+		if (loaded == 0)
 		{
 			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0)
 			{
@@ -1457,15 +1476,36 @@ namespace lime {
 
 	int Font::RenderGlyphs (value indices, Bytes *bytes) {
 
+		int numIndices = val_array_size (indices);
+		std::vector<int> indexList (numIndices);
+
+		for (int i = 0; i < numIndices; i++) {
+
+			indexList[i] = val_int (val_array_i (indices, i));
+
+		}
+
+		return RenderGlyphs (indexList.data (), numIndices, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (hl_varray* indices, Bytes *bytes) {
+
+		return RenderGlyphs (hl_aptr (indices, int), indices->size, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (const int* indices, int numIndices, Bytes *bytes) {
+
 		int offset = 0;
 		int totalOffset = 4;
 		uint32_t count = 0;
 
-		int numIndices = val_array_size (indices);
-
 		for (int i = 0; i < numIndices; i++) {
 
-			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
+			offset = RenderGlyph (indices[i], bytes, totalOffset);
 
 			if (offset > 0) {
 
@@ -1502,6 +1542,30 @@ namespace lime {
 			vdpi								//Vertical DPI
 		);
 		mSize = size;
+
+	}
+
+
+	void Font::SetStemDarkening (bool enable)
+	{
+
+		FT_Bool no_darkening = enable ? 0 : 1;
+
+		FT_Property_Set((FT_Library)library, "cff", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "autofitter", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "t1cid", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "type1", "no-stem-darkening", &no_darkening);
+
+	}
+
+
+	void Font::SetStemDarkeningParameters (int params[])
+	{
+
+		FT_Property_Set((FT_Library)library, "cff", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "autofitter", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "t1cid", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "type1", "darkening-parameters", params);
 
 	}
 

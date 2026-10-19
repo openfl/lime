@@ -1,6 +1,6 @@
 #include "winres.h"
 
-::if (HAS_ICON)::IDI_ICON1 ICON "ApplicationMain.ico"::end::
+::if (HAS_ICON)::IDI_ICON1 ICON "ApplicationMain.ico" /* ::ICON_HASH:: */::end::
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 

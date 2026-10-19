@@ -30,6 +30,7 @@ import lime.system.System;
 import lime.system.Clipboard;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
@@ -71,6 +72,7 @@ class HTML5Window
 	private var requestedFullscreen:Bool;
 	private var resizeElement:Bool;
 	private var scale = 1.0;
+	private var highDPI:Bool;
 	#if !lime_disable_window_scale_change
 	private var devicePixelRatioMediaQuery:js.html.MediaQueryList;
 	#end
@@ -109,16 +111,14 @@ class HTML5Window
 
 		var element = parent.element;
 
-		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM)
+		highDPI = Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI && renderType != DOM;
+
+		if (highDPI)
 		{
 			scale = Browser.window.devicePixelRatio;
 		}
 
 		parent.__scale = scale;
-
-		#if !lime_disable_window_scale_change
-		watchDevicePixelRatio();
-		#end
 
 		setWidth = Reflect.hasField(attributes, "width") ? attributes.width : 0;
 		setHeight = Reflect.hasField(attributes, "height") ? attributes.height : 0;
@@ -205,6 +205,15 @@ class HTML5Window
 		}
 
 		updateSize();
+
+		#if !lime_disable_window_scale_change
+		// Only after the canvas or div exists, since a scale change calls updateSize().
+		// Without high DPI the scale stays 1, so there is nothing to watch.
+		if (highDPI)
+		{
+			watchDevicePixelRatio();
+		}
+		#end
 
 		if (element != null)
 		{
@@ -441,9 +450,24 @@ class HTML5Window
 		}
 	}
 
+	public function flash(mode:Int):Bool
+	{
+		return false;
+	}
+
+	public function getKeyboardGrab():Bool
+	{
+		return false;
+	}
+
 	public function getMouseLock():Bool
 	{
 		return false;
+	}
+
+	public function getMouseRect():Rectangle
+	{
+		return null;
 	}
 
 	public function getOpacity():Float
@@ -1007,6 +1031,8 @@ class HTML5Window
 
 	public function move(x:Int, y:Int):Void {}
 
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void {}
+
 	public function readPixels(rect:Rectangle):Image
 	{
 		// TODO: Handle DIV, improve 3D canvas support
@@ -1224,12 +1250,21 @@ class HTML5Window
 		return false;
 	}
 
+	public function setMenu(menu:Menu):Void {}
+
 	public function setMinimized(value:Bool):Bool
 	{
 		return false;
 	}
 
+	public function setKeyboardGrab(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function setMouseLock(value:Bool):Void {}
+
+	public function setMouseRect(value:Rectangle):Void {}
 
 	public function setOpacity(value:Float):Void {}
 

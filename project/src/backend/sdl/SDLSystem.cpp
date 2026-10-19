@@ -4,6 +4,7 @@
 #include <system/Display.h>
 #include <system/DisplayMode.h>
 #include <system/JNI.h>
+#include <system/Locale.h>
 #include <system/System.h>
 
 #ifdef HX_MACOS
@@ -90,6 +91,37 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	std::string* Locale::GetPreferredLocales () {
+
+		// The languages the user prefers, most preferred first, as "en-US,fr,ja"
+		SDL_Locale* locales = SDL_GetPreferredLocales ();
+		std::string* result = new std::string ();
+
+		if (locales) {
+
+			for (SDL_Locale* locale = locales; locale->language; locale++) {
+
+				if (!result->empty ()) result->append (",");
+				result->append (locale->language);
+
+				if (locale->country) {
+
+					result->append ("-");
+					result->append (locale->country);
+
+				}
+
+			}
+
+			SDL_free (locales);
+
+		}
+
+		return result;
 
 	}
 
@@ -574,7 +606,12 @@ namespace lime {
 
 	double System::GetTimer () {
 
+		// SDL_GetTicks is 32-bit and wraps after 49.7 days
+		#if SDL_VERSION_ATLEAST(2, 0, 18)
+		return SDL_GetTicks64 ();
+		#else
 		return SDL_GetTicks ();
+		#endif
 
 	}
 
@@ -618,8 +655,10 @@ namespace lime {
 				off_t outStart;
 				off_t outLength;
 				fd = AAsset_openFileDescriptor ((AAsset*)(((SDL_RWops*)handle)->hidden.androidio.asset), &outStart, &outLength);
-				FILE* file = ::fdopen (fd, "rb");
-				::fseek (file, outStart, 0);
+
+				// Compressed assets have no file descriptor
+				FILE* file = fd >= 0 ? ::fdopen (fd, "rb") : NULL;
+				if (file) ::fseek (file, outStart, 0);
 				System::GCExitBlocking ();
 				return file;
 				#endif

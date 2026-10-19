@@ -27,8 +27,17 @@ typedef Stage = Dynamic;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.Menu)
 class Window
 {
+	/**
+	 * Whether windows have their own menu bar, set using `menu`.
+	 *
+	 * This is `true` on Windows. On macOS, the menu bar belongs to the
+	 * application instead (see `Application.supportsMenu`).
+	**/
+	public static var supportsMenu(get, never):Bool;
+
 	public var application(default, null):Application;
 	public var borderless(get, set):Bool;
 	public var context(default, null):RenderContext;
@@ -42,10 +51,16 @@ class Window
 	/**
 	 * The current frame rate (measured in frames-per-second) of the window.
 	 *
-	 * On native targets, this forwards to the shared application frame pacing
-	 * value for compatibility. On some platforms, a frame rate of 60 or greater
-	 * may imply vsync, which will perform more quickly on displays with a
-	 * higher refresh rate.
+	 * On native targets, this is the frame rate cap of the shared application
+	 * main loop, up to 10,000. A value of 0 or less runs one frame per second.
+	 * The cap is ignored when the loop is uncapped (see `UncapMode`). With
+	 * vertical sync on, a cap at or above the display refresh rate leaves the
+	 * pacing to the display, and with `VSyncMode.Auto` and no vertical sync, a
+	 * cap above the refresh rate is held to it.
+	 *
+	 * On HTML5, a frame rate of 0, or of 60 or greater, renders on each
+	 * animation frame of the browser, which will perform more quickly on
+	 * displays with a higher refresh rate.
 	**/
 	public var frameRate(get, set):Float;
 
@@ -64,10 +79,50 @@ class Window
 	public var maxHeight(get, set):Int;
 	public var maximized(get, set):Bool;
 	public var maxWidth(get, set):Int;
+
+	/**
+	 * The menu displayed as this window's menu bar, or `null` for none.
+	 *
+	 * Changes to the menu are applied to the menu bar immediately. Adding or
+	 * removing the menu bar keeps the size of the window content the same.
+	 * Menu bar key equivalents are handled before `onKeyDown`, which is not
+	 * dispatched for them.
+	 *
+	 * Has no visible effect where `Window.supportsMenu` is `false`.
+	**/
+	public var menu(get, set):Menu;
+
 	public var minHeight(get, set):Int;
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
 	public var mouseLock(get, set):Bool;
+
+	/**
+		Whether `onMouseWheel` gives the fractions of a step that touchpads and
+		smooth wheels scroll by, for smooth scrolling. Otherwise, on native
+		targets, it gives whole steps, adding fractions up until they make one.
+
+		Off by default, as code that takes the steps as whole numbers would then
+		not scroll on touchpads. Has no effect on HTML5, where the browser gives
+		its own deltas.
+	**/
+	public var preciseMouseWheel:Bool = false;
+
+	/**
+		Keeps the mouse cursor within this area of the window, in window
+		coordinates, while the window has the focus. `null` lets it move freely.
+
+		Supported on native desktop targets.
+	**/
+	public var mouseRect(get, set):Rectangle;
+
+	/**
+		Whether keys the system would otherwise take, such as Alt+Tab or the
+		Windows key, go to this window while it has the focus.
+
+		Supported on native desktop targets.
+	**/
+	public var keyboardGrab(get, set):Bool;
 	public var onActivate(default, null) = new Event<Void->Void>();
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
@@ -169,6 +224,7 @@ class Window
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __hidden:Bool;
 	@:noCompletion private var __maximized:Bool;
+	@:noCompletion private var __menu:Menu;
 	@:noCompletion private var __minimized:Bool;
 	@:noCompletion private var __resizable:Bool;
 	@:noCompletion private var __scale:Float;
@@ -199,10 +255,13 @@ class Window
 				"maximized": {get: p.get_maximized, set: p.set_maximized},
 
 				"maxWidth": {get: p.get_maxWidth, set: p.set_maxWidth},
+				"menu": {get: p.get_menu, set: p.set_menu},
 				"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
 				"minimized": {get: p.get_minimized, set: p.set_minimized},
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
+				"mouseRect": {get: p.get_mouseRect, set: p.set_mouseRect},
+				"keyboardGrab": {get: p.get_keyboardGrab, set: p.set_keyboardGrab},
 
 				"resizable": {get: p.get_resizable, set: p.set_resizable},
 				"scale": {get: p.get_scale},
@@ -2507,6 +2566,20 @@ class Window
 		__backend.close();
 	}
 
+	/**
+		Asks for the user's attention, by flashing the window's taskbar button or
+		bouncing its Dock icon. Where the window is already in front, this does
+		nothing.
+
+		Supported on native desktop targets and AIR.
+		@param mode How long to flash, or `CANCEL` to stop.
+		@return Whether the window could be flashed.
+	**/
+	public function flash(mode:WindowFlashMode = BRIEFLY):Bool
+	{
+		return __backend.flash(mode);
+	}
+
 	public function focus():Void
 	{
 		__backend.focus();
@@ -2712,6 +2785,34 @@ class Window
 		return __maxWidth;
 	}
 
+	@:noCompletion private inline function get_menu():Menu
+	{
+		return __menu;
+	}
+
+	@:noCompletion private static function get_supportsMenu():Bool
+	{
+		#if (lime_cffi && !macro)
+		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_WINDOW) != 0;
+		#else
+		return false;
+		#end
+	}
+
+	@:noCompletion private function set_menu(value:Menu):Menu
+	{
+		if (value != __menu)
+		{
+			if (__menu != null) __menu.__windows.remove(this);
+			__menu = value;
+			if (value != null) value.__windows.push(this);
+
+			__backend.setMenu(value);
+		}
+
+		return value;
+	}
+
 	@:noCompletion private inline function get_minHeight():Int
 	{
 		return __minHeight;
@@ -2754,6 +2855,27 @@ class Window
 	{
 		__backend.setMouseLock(value);
 		return value;
+	}
+
+	@:noCompletion private function get_mouseRect():Rectangle
+	{
+		return __backend.getMouseRect();
+	}
+
+	@:noCompletion private function set_mouseRect(value:Rectangle):Rectangle
+	{
+		__backend.setMouseRect(value);
+		return value;
+	}
+
+	@:noCompletion private function get_keyboardGrab():Bool
+	{
+		return __backend.getKeyboardGrab();
+	}
+
+	@:noCompletion private function set_keyboardGrab(value:Bool):Bool
+	{
+		return __backend.setKeyboardGrab(value);
 	}
 
 	@:noCompletion private function get_opacity():Float

@@ -43,14 +43,19 @@ namespace lime {
 			virtual void GetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
+			virtual bool Flash (int mode) { return false; }
+			virtual bool GetKeyboardGrab () { return false; }
 			virtual bool GetMouseLock () = 0;
+			virtual bool GetMouseRect (int* x, int* y, int* width, int* height) { return false; }
 			virtual float GetOpacity () = 0;
 			virtual double GetScale () = 0;
 			virtual bool GetTextInputEnabled () = 0;
+			virtual bool GetTransparent () { return false; }
 			virtual int GetWidth () = 0;
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
+			virtual int PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor) { return 0; }
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect) = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual void SetMinimumSize (int width, int height) = 0;
@@ -61,8 +66,11 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMaximized (bool minimized) = 0;
+			virtual bool SetMenu (const unsigned char* data, int length) { return false; }
 			virtual bool SetMinimized (bool minimized) = 0;
+			virtual void SetKeyboardGrab (bool keyboardGrab) {}
 			virtual void SetMouseLock (bool mouseLock) = 0;
+			virtual void SetMouseRect (int x, int y, int width, int height) {}
 			virtual void SetOpacity (float opacity) = 0;
 			virtual bool SetResizable (bool resizable) = 0;
 			virtual void SetTextInputEnabled (bool enable) = 0;

@@ -24,6 +24,35 @@ class Gamepad
 	public var onButtonUp = new Event<GamepadButton->Void>();
 	public var onDisconnect = new Event<Void->Void>();
 
+	/**
+		Dispatched with a motion sensor's readings along the x, y and z axes, while
+		it is enabled with `setSensorEnabled()`.
+	**/
+	public var onSensorUpdate = new Event<GamepadSensorType->Float->Float->Float->Void>();
+
+	/**
+		Dispatched when a finger touches the touchpad, as on PlayStation
+		controllers, with the finger and where it is, from 0 to 1 across and down.
+	**/
+	public var onTouchpadDown = new Event<Int->Float->Float->Void>();
+
+	/**
+		Dispatched when a finger moves on the touchpad, with the finger and where it
+		is, from 0 to 1 across and down.
+	**/
+	public var onTouchpadMove = new Event<Int->Float->Float->Void>();
+
+	/**
+		Dispatched when a finger leaves the touchpad, with the finger and where it
+		was, from 0 to 1 across and down.
+	**/
+	public var onTouchpadUp = new Event<Int->Float->Float->Void>();
+
+	/**
+		The kind of controller this is, as for showing the right button prompts.
+	**/
+	public var type(get, never):GamepadType;
+
 	#if (js && html5)
 	private var __jsGamepad:js.html.Gamepad;
 	#end
@@ -86,6 +115,99 @@ class Gamepad
 		#end
 	}
 
+	/**
+		Whether the gamepad has a light whose color can be set with `setLED()`.
+	**/
+	public function hasLED():Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_has_led(this.id);
+		#else
+		return false;
+		#end
+	}
+
+	/**
+		Whether the gamepad has the motion sensor given.
+	**/
+	public function hasSensor(sensor:GamepadSensorType):Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_has_sensor(this.id, sensor);
+		#else
+		return false;
+		#end
+	}
+
+	/**
+		Whether the gamepad has rumble motors in its triggers, for
+		`rumbleTriggers()`, as Xbox One controllers do.
+	**/
+	public function hasTriggerRumble():Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_has_rumble_triggers(this.id);
+		#else
+		return false;
+		#end
+	}
+
+	/**
+		Rumbles the motors in the gamepad's triggers.
+		@param	leftRumble	The intensity of the left trigger's motor, from 0 to 1.
+		@param	rightRumble	The intensity of the right trigger's motor, from 0 to 1.
+		@param	duration	How long to rumble, in milliseconds.
+		@return	Whether the triggers could rumble.
+	**/
+	public function rumbleTriggers(leftRumble:Float, rightRumble:Float, duration:Int):Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_rumble_triggers(this.id, leftRumble, rightRumble, duration);
+		#elseif (js && html5)
+		var actuator:Dynamic = untyped __jsGamepad.vibrationActuator;
+		if (actuator == null || untyped !actuator.playEffect) return false;
+		if (untyped actuator.effects != null && actuator.effects.indexOf("trigger-rumble") == -1) return false;
+
+		untyped actuator.playEffect("trigger-rumble",
+			{
+				duration: duration,
+				leftTrigger: leftRumble,
+				rightTrigger: rightRumble
+			});
+		return true;
+		#else
+		return false;
+		#end
+	}
+
+	/**
+		Sets the color of the gamepad's light, as on PlayStation controllers.
+		@param	color	The color, as `0xRRGGBB`.
+		@return	Whether the light could be set.
+	**/
+	public function setLED(color:Int):Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_set_led(this.id, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+		#else
+		return false;
+		#end
+	}
+
+	/**
+		Turns a motion sensor on or off. While it is on, its readings are
+		dispatched with `onSensorUpdate`.
+		@return	Whether the sensor could be turned on or off.
+	**/
+	public function setSensorEnabled(sensor:GamepadSensorType, enabled:Bool):Bool
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_set_sensor_enabled(this.id, sensor, enabled);
+		#else
+		return false;
+		#end
+	}
+
 	@:noCompletion private static function __connect(id:Int):Void
 	{
 		if (!devices.exists(id))
@@ -113,6 +235,15 @@ class Gamepad
 		return __jsGamepad.id;
 		#else
 		return null;
+		#end
+	}
+
+	@:noCompletion private function get_type():GamepadType
+	{
+		#if (lime_cffi && !macro)
+		return NativeCFFI.lime_gamepad_get_type(this.id);
+		#else
+		return UNKNOWN;
 		#end
 	}
 

@@ -18,10 +18,25 @@ Changelog
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
+- Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
+- Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
+- Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.
+- Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
+- Added `Gamepad.type`, motion sensors, touchpad events, trigger rumble, and light color.
+- Added `Locale.preferredLocales`.
+- Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
+- Added `CURL.versionInfo()` values for the library's age, version number, and features.
 - Changed asset copying and embedding to behave consistently across targets.
 - Changed OpenAL Soft HRTF to be disabled by default.
+- Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
+- Changed `Window.alert()` to also request attention on macOS and Linux.
+- Changed Windows to show input methods' own composition and candidate windows.
+- Changed `FrameProfile.Uncapped` to uncap the frame loop.
+- Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
+- Updated SDL submodule to version 2.32.10.
+- Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
@@ -33,6 +48,15 @@ Changelog
 - Fixed Android architecture parsing for `x86_64` and `x86_32`.
 - Fixed SDL_sound ARM64 Linux detection outside Raspberry Pi OS.
 - Fixed HTML5 transparent docs generation.
+- Fixed native HTTP requests freezing the application during slow name lookups (#1769).
+- Fixed HashLink collections waiting on threads blocked in native calls.
+- Fixed `Future.ready()` and `Future.result()` never seeing threaded work complete.
+- Fixed `Promise.completeAsync()` on C++.
+- Fixed single-threaded `ThreadPool` work running past its share of a frame while waiting.
+- Fixed `Font.renderGlyphs()` reading glyphs in an outdated layout, and on HashLink.
+- Fixed `getVertexAttribOffset()` and `getBufferPointerv()` writing through a null pointer.
+- Fixed video pan reaching sound that was already queued.
+- Fixed compositions longer than 31 bytes being cut short in input methods.
 
 8.3.2 (05/13/2026)
 ------------------

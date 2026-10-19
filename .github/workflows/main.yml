@@ -19,6 +19,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
+          # GStreamer decodes video in the unit tests
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav xvfb
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -30,9 +32,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -74,10 +76,30 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
+
+      - name: Run unit tests past 24.8 days
+        working-directory: tests/unit
+        # A timer stuck at the Int limit hangs the tests rather than failing them
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          # The timer starts 10 s short of 2^31 ms, where an Int millisecond count
+          # runs out, so the tests run on across it
+          lime test linux -release -verbose -nocolor -Dsimulate_uptime=2147473648
+
+      - name: Run video smoke test
+        working-directory: tests/video-smoke
+        run: |
+          lime build linux -release -verbose -nocolor
+          SDL_AUDIODRIVER=dummy xvfb-run -a Export/linux/bin/LimeVideoSmoke
 
       - name: Install samples
         run: |
@@ -98,6 +120,11 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo linux -release -verbose -nocolor
+
   linux-arm64:
     runs-on: ubuntu-22.04-arm
     steps:
@@ -111,6 +138,8 @@ jobs:
           sudo add-apt-repository ppa:haxe/releases -y
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
+          # GStreamer decodes video in the unit tests
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav
 
       # krdlab/setup-haxe doesn't support arm64 linux
       # so this is our workaround for now
@@ -128,9 +157,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -155,6 +184,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
@@ -177,6 +209,11 @@ jobs:
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
+
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo linux -release -verbose -nocolor
 
   vulkan-smoke:
     runs-on: ubuntu-22.04
@@ -201,9 +238,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -249,8 +286,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -275,8 +312,16 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
+          lime test mac -arm64 -release -verbose -nocolor
+
+      - name: Run video smoke test
+        working-directory: tests/video-smoke
+        run: |
           lime test mac -arm64 -release -verbose -nocolor
 
       - name: Install samples
@@ -298,6 +343,11 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -arm64 -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo macos -arm64 -release -verbose -nocolor
+
   macos-intel:
     runs-on: macos-15-intel
     steps:
@@ -315,6 +365,14 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install HashLink dependencies
+        env:
+          # Homebrew no longer builds bottles for Intel macOS, so updating it and
+          # upgrading what the runner already has rebuilds cmake, OpenSSL and
+          # Python from source, which takes an hour. Only what is missing is
+          # installed, from the formulae the runner image came with.
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_UPGRADE: 1
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
           set -euxo pipefail
 
@@ -325,7 +383,7 @@ jobs:
           rm -f /usr/local/bin/pip3*
 
           for attempt in 1 2 3; do
-            if /usr/local/bin/brew update && /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
+            if /usr/local/bin/brew install jpeg-turbo libpng libuv libvorbis; then
               break
             fi
             if [ "$attempt" -eq 3 ]; then
@@ -336,8 +394,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -373,6 +431,9 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
@@ -397,6 +458,11 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -x86_64 -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo macos -x86_64 -release -verbose -nocolor
+
   windows:
     runs-on: windows-latest
     steps:
@@ -420,8 +486,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -470,11 +536,25 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        env:
+          # OpenAL's null output stands in for the sound card runners lack
+          ALSOFT_DRIVERS: "null"
         run: |
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test air -release -verbose -nocolor
           lime test windows -release -verbose -nocolor
+
+      - name: Run unit tests past 24.8 days
+        working-directory: tests/unit
+        # A timer stuck at the Int limit hangs the tests rather than failing them
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          # The timer starts 10 s short of 2^31 ms, where an Int millisecond count
+          # runs out, so the tests run on across it
+          lime test windows -release -verbose -nocolor -Dsimulate_uptime=2147473648
 
       - name: Install samples
         run: |
@@ -495,6 +575,11 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio windows -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo windows -release -verbose -nocolor
+
       - name: Rebuild Lime (Windows, Mingw)
         run: |
           rm ndll/Windows64/*
@@ -507,6 +592,73 @@ jobs:
             ndll/Windows64/
             !**/.gitignore
           if-no-files-found: error
+
+  webassembly:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install Emscripten NDK
+        uses: emscripten-core/setup-emsdk@v16
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
+          haxelib install ../hxcpp-4.3.168.zip --quiet
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+
+      - name: Prepare Lime
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime setup -alias -y -nocffi -eval
+
+      - name: Configure Emscripten support
+        run: |
+          lime config EMSCRIPTEN_SDK $EMSDK/upstream/emscripten -eval
+          lime config -eval
+
+      - name: Rebuild Lime (WebAssembly)
+        run: |
+          lime rebuild webassembly -release -nocolor -verbose -nocffi -eval
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Emscripten-NDLL
+          path: |
+            ndll/Emscripten/
+            !**/.gitignore
+          if-no-files-found: error
+
+      - name: Install samples
+        run: |
+          haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
+
+      - name: Build SimpleImage sample
+        run: |
+          lime create SimpleImage -verbose -nocolor -eval
+          lime build SimpleImage webassembly -release -verbose -nocolor -eval
+
+      - name: Build SimpleAudio sample
+        run: |
+          lime create SimpleAudio -verbose -nocolor -eval
+          lime build SimpleAudio webassembly -release -verbose -nocolor -eval
+
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor -eval
+          lime build SimpleVideo webassembly -release -verbose -nocolor -eval
 
   android:
     runs-on: ubuntu-22.04
@@ -542,8 +694,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -594,10 +746,16 @@ jobs:
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio android -release -verbose -nocolor -eval
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor -eval
+          lime build SimpleVideo android -release -verbose -nocolor -eval
+
       - name: Build Vulkan smoke test app
         working-directory: tests/vulkan-smoke
         run: |
           lime build android -release -verbose -nocolor -eval
+
   ios:
     runs-on: macos-14
     steps:
@@ -616,8 +774,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -657,8 +815,13 @@ jobs:
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio ios -release -nosign -verbose -nocolor -eval
 
+      - name: Build SimpleVideo sample (Device)
+        run: |
+          lime create SimpleVideo -verbose -nocolor -eval
+          lime build SimpleVideo ios -release -nosign -verbose -nocolor -eval
+
   package-haxelib:
-    needs: [linux, vulkan-smoke, macos, macos-intel, windows, android, ios]
+    needs: [linux, macos, macos-intel, windows, android, ios]
     runs-on: ubuntu-22.04
     steps:
 
@@ -676,8 +839,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install svg --quiet
@@ -846,6 +1009,11 @@ jobs:
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio flash -release -verbose -nocolor -eval
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor -eval
+          lime build SimpleVideo flash -release -verbose -nocolor -eval
+
   air-samples:
     runs-on: windows-latest
     strategy:
@@ -872,8 +1040,8 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          curl --output ../hxcpp-4.3.45.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.45/hxcpp-4.3.45.zip
-          haxelib install ../hxcpp-4.3.45.zip --quiet
+          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
+          haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -898,6 +1066,11 @@ jobs:
         run: |
           lime create SimpleAudio -verbose -nocolor -eval
           lime build SimpleAudio air -release -verbose -nocolor -eval
+
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor -eval
+          lime build SimpleVideo air -release -verbose -nocolor -eval
 
   hashlink-samples:
     needs: package-haxelib
@@ -949,6 +1122,11 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio hl -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo hl -release -verbose -nocolor
+
   hashlinkc-samples:
     needs: package-haxelib
     strategy:
@@ -998,6 +1176,11 @@ jobs:
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio hlc -release -verbose -nocolor
+
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo hlc -release -verbose -nocolor
 
   html5-samples:
     needs: package-haxelib
@@ -1059,11 +1242,22 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio html5 -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo html5 -release -verbose -nocolor
+
       - name: Build SimpleAudio variants
         if: ${{ matrix.haxe-version != '3.4.7' }}
         run: |
           lime build SimpleAudio html5 -clean -release -verbose -nocolor --haxelib=genes
           lime build SimpleAudio html5 -clean -release -verbose -nocolor -minify -terser
+
+      - name: Build SimpleVideo variants
+        if: ${{ matrix.haxe-version != '3.4.7' }}
+        run: |
+          lime build SimpleVideo html5 -clean -release -verbose -nocolor --haxelib=genes
+          lime build SimpleVideo html5 -clean -release -verbose -nocolor -minify -terser
 
   neko-samples:
     needs: package-haxelib
@@ -1116,13 +1310,45 @@ jobs:
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio neko -release -verbose -nocolor
 
+      - name: Build SimpleVideo sample
+        run: |
+          lime create SimpleVideo -verbose -nocolor
+          lime build SimpleVideo neko -release -verbose -nocolor
+
   notify:
     runs-on: ubuntu-22.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, vulkan-smoke, macos, macos-intel, neko-samples, windows]
-    if: ${{ github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
+    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, linux-arm64, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
+    # Reports failures too, which is when it matters most
+    if: ${{ always() && github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
-        uses: nobrayner/discord-webhook@v1
-        with:
-          github-token: ${{ secrets.github_token }}
-          discord-webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TITLE: "[${{ github.repository }}] ${{ github.workflow }}"
+        run: |
+          # One message for the run, naming the jobs that did not pass. Discord
+          # takes at most 25 fields in a message, fewer than the jobs here, so
+          # they go in its description, and a message it turns down fails this.
+          jobs=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs?per_page=100" --jq '[.jobs[] | select(.name != "notify")]')
+          failed=$(echo "$jobs" | jq -r '[.[] | select(.conclusion == "failure" or .conclusion == "cancelled" or .conclusion == "timed_out")] | map("[\(.name)](\(.html_url)): \(.conclusion)") | join("\n")')
+
+          if [ -z "$failed" ]; then status=Success; color=1560392; else status=Failure; color=15148839; fi
+
+          commit="${{ github.sha }}"
+          description="\`${commit:0:8}\` $(printf '%s' "$COMMIT_MESSAGE" | head -n 1)"
+          [ -n "$failed" ] && description="$description"$'\n\n'"$failed"
+
+          payload=$(jq -n --arg title "$TITLE: $status" --arg url "$RUN_URL" --arg actor "$ACTOR" --arg description "$description" --argjson color "$color" '{
+            username: "GitHub Actions",
+            avatar_url: "https://avatars0.githubusercontent.com/u/44036562?s=200&v=4",
+            embeds: [{
+              author: {name: $actor, url: ("https://github.com/" + $actor), icon_url: ("https://github.com/" + $actor + ".png")},
+              title: $title, url: $url, description: $description, color: $color
+            }]
+          }')
+
+          curl --fail-with-body --silent --show-error -H "Content-Type: application/json" -d "$payload" "$DISCORD_WEBHOOK"

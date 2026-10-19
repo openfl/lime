@@ -18,6 +18,7 @@ import lime.ui.KeyModifier;
 import lime.ui.Gamepad;
 import lime.ui.GamepadButton;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 @:access(lime._internal.backend.html5.HTML5Window)
@@ -37,6 +38,7 @@ class HTML5Application
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
 	private var parent:Application;
+	private var preferVisibilityChange:Bool;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -49,6 +51,36 @@ class HTML5Application
 		lastUpdate = 0;
 		nextUpdate = 0;
 		framePeriod = -1;
+
+		// mobile Safari sometimes dispatches the blur event, but completely
+		// skips the matching focus event. for instance, when opening the tab
+		// switcher and returning to the exact same tab. it may depend on which
+		// type of HTML element has focus, though.
+		//
+		// sometimes, mobile Safari doesn't dispatch the blur and focus events
+		// at all! however, it always dispatches the visibilitychange event when
+		// switching to a different tab, or to a different app, so we prefer to
+		// use visibilitychange instead, but only on iOS.
+		//
+		// on desktop, we should continue to use the blur and focus events
+		// because the page will be considered to remain visible when losing
+		// focus to another app. the visibilitychange event seems to be
+		// dispatched on desktop when changing tabs only. desktop Safari behaves
+		// like other desktop browsers.
+		//
+		// Note: Android behaves more similarly to desktop than to iOS.
+
+		#if haxe4
+		preferVisibilityChange = js.Lib.typeof(Browser.document.visibilityState) == "string"
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#else
+		preferVisibilityChange = untyped __js__ ('typeof document.visibilityState === "string"')
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#end
+		if (preferVisibilityChange)
+		{
+			hidden = Browser.document.hidden;
+		}
 
 		AudioManager.init();
 		accelerometer = Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
@@ -298,6 +330,7 @@ class HTML5Application
 		Browser.window.addEventListener("blur", handleWindowEvent, false);
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
+		Browser.document.addEventListener("visibilitychange", handleWindowEvent, false);
 
 		if (Reflect.hasField(Browser.window, "Accelerometer"))
 		{
@@ -438,6 +471,8 @@ class HTML5Application
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
+	public function setMenu(menu:Menu):Void {}
+
 	public function setVSyncMode(mode:VSyncMode):Void {}
 
 	private function handleKeyEvent(event:KeyboardEvent):Void
@@ -491,7 +526,7 @@ class HTML5Application
 			switch (event.type)
 			{
 				case "focus":
-					if (hidden)
+					if (!preferVisibilityChange && hidden)
 					{
 						parent.window.onFocusIn.dispatch();
 						parent.window.onActivate.dispatch();
@@ -499,7 +534,7 @@ class HTML5Application
 					}
 
 				case "blur":
-					if (!hidden)
+					if (!preferVisibilityChange && !hidden)
 					{
 						parent.window.onFocusOut.dispatch();
 						parent.window.onDeactivate.dispatch();
@@ -507,23 +542,17 @@ class HTML5Application
 					}
 
 				case "visibilitychange":
-					if (Browser.document.hidden)
+					if (Browser.document.hidden && !hidden)
 					{
-						if (!hidden)
-						{
-							parent.window.onFocusOut.dispatch();
-							parent.window.onDeactivate.dispatch();
-							hidden = true;
-						}
+						parent.window.onFocusOut.dispatch();
+						parent.window.onDeactivate.dispatch();
+						hidden = true;
 					}
-					else
+					else if (!Browser.document.hidden && hidden)
 					{
-						if (hidden)
-						{
-							parent.window.onFocusIn.dispatch();
-							parent.window.onActivate.dispatch();
-							hidden = false;
-						}
+						parent.window.onFocusIn.dispatch();
+						parent.window.onActivate.dispatch();
+						hidden = false;
 					}
 
 				case "resize":

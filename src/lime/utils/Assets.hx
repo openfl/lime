@@ -539,9 +539,9 @@ class Assets
 					library.onChange.add(onChange.dispatch);
 					promise.completeWith(library.load());
 				}
-			}).onError(function(_)
+			}).onError(function(error)
 			{
-					promise.error("There is no asset library with an ID of \"" + id + "\"");
+					promise.error("Unable to load asset library \"" + id + "\" from bundle \"" + bundlePaths.get(id) + "\": " + Std.string(error) + ". Verify that the bundle exists and is readable.");
 			});
 		}
 		else
@@ -585,9 +585,9 @@ class Assets
 					library.onChange.add(onChange.dispatch);
 					promise.completeWith(library.load());
 				}
-			}).onError(function(_)
+			}).onError(function(error)
 			{
-					promise.error("There is no asset library with an ID of \"" + id + "\"");
+					promise.error("Unable to load asset library \"" + id + "\" from manifest \"" + path + "\" (root \"" + rootPath + "\"): " + Std.string(error) + ". Verify that the manifest and its packaged assets exist relative to this path.");
 			});
 		}
 		#end
