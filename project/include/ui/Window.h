@@ -101,6 +101,8 @@ namespace lime {
 
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title);
+	void SetWindowAppearance (Window* window, int appearance);
+	int GetWindowAppearance (Window* window);
 
 
 	enum WindowFlags {

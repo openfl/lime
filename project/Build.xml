@@ -373,6 +373,7 @@
 		<file name="src/ui/TouchEvent.cpp" />
 		<file name="src/ui/TrayIconEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
+		<file name="src/ui/WindowAppearance.cpp" />
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
 
@@ -461,6 +462,7 @@
 				<lib name="user32.lib" />
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
+				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="winmm.lib" />
 				<lib name="imm32.lib" />
 				<lib name="ole32.lib" />
