@@ -5,6 +5,7 @@
 // Native menus and tray icons for Windows
 
 #include "SDLTrayIcon.h"
+#include "SDLMenuWindowsAppearance.h"
 #include <ui/TrayIconEvent.h>
 #include <SDL_syswm.h>
 #include <windows.h>
@@ -205,6 +206,7 @@ namespace lime {
 		HMENU menu = CreateMenuFromData (data, length, true);
 
 		if (!menu) return 0;
+		PrepareWindowsPopupAppearance (hwnd, menu, WindowsMenuDark (hwnd));
 
 		POINT point;
 
@@ -225,6 +227,7 @@ namespace lime {
 
 		int command = (int)TrackPopupMenuEx (menu, flags, point.x, point.y, hwnd, NULL);
 
+		ReleaseWindowsMenuAppearance (menu);
 		DestroyMenu (menu);
 		return command > MENU_COMMAND_BASE ? command - MENU_COMMAND_BASE : 0;
 
@@ -235,7 +238,10 @@ namespace lime {
 
 		// The attached menu is destroyed along with the window
 		HWND hwnd = GetWindowHandle (window);
-		if (hwnd) menuBars.erase (hwnd);
+		if (hwnd) {
+			ReleaseWindowsMenuAppearance (GetMenu (hwnd));
+			menuBars.erase (hwnd);
+		}
 
 	}
 
@@ -279,7 +285,10 @@ namespace lime {
 
 		}
 
-		if (previous) DestroyMenu (previous);
+		if (previous) {
+			ReleaseWindowsMenuAppearance (previous);
+			DestroyMenu (previous);
+		}
 
 		if (menu) {
 
@@ -297,7 +306,7 @@ namespace lime {
 
 		}
 
-		DrawMenuBar (hwnd);
+		RefreshWindowsMenuAppearance (hwnd, WindowsMenuDark (hwnd));
 
 		// Adding or removing the menu bar changes the client area, so restore the previous content size
 		if (preserveSize && width > 0 && height > 0) {
@@ -593,6 +602,7 @@ namespace lime {
 		if (!menu) return 0;
 
 		HWND hwnd = GetTrayIconWindow ();
+		PrepareWindowsPopupAppearance (hwnd, menu, WindowsMenuDark (NULL));
 		POINT point = trayData->anchor;
 
 		if (!trayData->hasAnchor) GetCursorPos (&point);
@@ -609,6 +619,7 @@ namespace lime {
 		// Lets the menu close properly after it is dismissed (see TrackPopupMenu)
 		PostMessageW (hwnd, WM_NULL, 0, 0);
 
+		ReleaseWindowsMenuAppearance (menu);
 		DestroyMenu (menu);
 		return command > MENU_COMMAND_BASE ? command - MENU_COMMAND_BASE : 0;
 

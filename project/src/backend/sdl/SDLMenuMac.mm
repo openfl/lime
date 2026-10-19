@@ -320,9 +320,9 @@ namespace lime {
 
 			if (atCursor || !view) {
 
-				// Screen coordinates, used when no view is given
+				// Keep the owning view so cursor-positioned menus inherit its appearance.
 				location = [NSEvent mouseLocation];
-				view = nil;
+				if (view) location = [view convertPoint:[nsWindow convertPointFromScreen:location] fromView:nil];
 
 			} else {
 

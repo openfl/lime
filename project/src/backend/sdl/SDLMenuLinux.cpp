@@ -44,6 +44,12 @@ namespace lime {
 		int (*g_main_context_iteration) (void*, int);
 		void* (*g_object_ref_sink) (void*);
 		void (*g_object_unref) (void*);
+		void (*g_object_get) (void*, const char*, ...);
+		void (*g_free) (void*);
+		void* (*gtk_settings_get_default) ();
+		void* (*gtk_css_provider_get_named) (const char*, const char*);
+		void* (*gtk_widget_get_style_context) (void*);
+		void (*gtk_style_context_add_provider) (void*, void*, unsigned int);
 		unsigned long (*g_signal_connect_data) (void*, const char*, GCallbackFunc, void*, void*, int);
 		void (*gtk_accel_label_set_accel) (void*, unsigned int, int);
 		void* (*gtk_bin_get_child) (void*);
@@ -124,6 +130,12 @@ namespace lime {
 		LIME_GTK_OPTIONAL (gdk_set_allowed_backends);
 		LIME_GTK_OPTIONAL (gtk_accel_label_set_accel);
 		LIME_GTK_OPTIONAL (gtk_disable_setlocale);
+		LIME_GTK_OPTIONAL (g_object_get);
+		LIME_GTK_OPTIONAL (g_free);
+		LIME_GTK_OPTIONAL (gtk_settings_get_default);
+		LIME_GTK_OPTIONAL (gtk_css_provider_get_named);
+		LIME_GTK_OPTIONAL (gtk_widget_get_style_context);
+		LIME_GTK_OPTIONAL (gtk_style_context_add_provider);
 		LIME_GTK_OPTIONAL (XFlush);
 		LIME_GTK_OPTIONAL (XUngrabPointer);
 
@@ -220,7 +232,28 @@ namespace lime {
 	}
 
 
-	static void AppendMenuItems (void* menu, const std::vector<SDLMenuItem>& items, GCallbackFunc onActivate, int tag) {
+	static void ApplyMenuTheme (void* widget, void* provider) {
+		if (widget && provider) gtk.gtk_style_context_add_provider (gtk.gtk_widget_get_style_context (widget), provider, 200);
+	}
+
+	static void* GetMenuTheme (SDL_Window* window) {
+		int appearance = (int)(intptr_t)SDL_GetWindowData (window, "Lime.WindowAppearance") - 1;
+		if (appearance != 1 && appearance != 2) return NULL;
+		if (!gtk.g_object_get || !gtk.g_free || !gtk.gtk_settings_get_default || !gtk.gtk_css_provider_get_named
+			|| !gtk.gtk_widget_get_style_context || !gtk.gtk_style_context_add_provider) return NULL;
+		void* settings = gtk.gtk_settings_get_default ();
+		if (!settings) return NULL;
+		char* theme = NULL;
+		gtk.g_object_get (settings, "gtk-theme-name", &theme, NULL);
+		if (!theme) return NULL;
+		// Preserve accessibility themes and user CSS; never change global GtkSettings.
+		void* provider = strstr (theme, "HighContrast") ? NULL : gtk.gtk_css_provider_get_named (theme, appearance == 2 ? "dark" : NULL);
+		gtk.g_free (theme);
+		return provider; // Borrowed from GTK's theme cache.
+	}
+
+	static void AppendMenuItems (void* menu, const std::vector<SDLMenuItem>& items, GCallbackFunc onActivate, int tag, void* provider = NULL) {
+		ApplyMenuTheme (menu, provider);
 
 		for (size_t i = 0; i < items.size (); i++) {
 
@@ -253,7 +286,7 @@ namespace lime {
 				if (hasSubmenu) {
 
 					void* submenu = gtk.gtk_menu_new ();
-					AppendMenuItems (submenu, item.submenu, onActivate, tag);
+					AppendMenuItems (submenu, item.submenu, onActivate, tag, provider);
 					gtk.gtk_menu_item_set_submenu (widget, submenu);
 
 				} else {
@@ -274,6 +307,8 @@ namespace lime {
 
 			}
 
+			ApplyMenuTheme (widget, provider);
+			ApplyMenuTheme (gtk.gtk_bin_get_child (widget), provider);
 			gtk.gtk_menu_shell_append (menu, widget);
 
 		}
@@ -321,7 +356,7 @@ namespace lime {
 		void* menu = gtk.gtk_menu_new ();
 		gtk.g_object_ref_sink (menu);
 
-		AppendMenuItems (menu, items, (GCallbackFunc)OnItemActivate, 0);
+		AppendMenuItems (menu, items, (GCallbackFunc)OnItemActivate, 0, GetMenuTheme (window));
 		gtk.gtk_widget_show_all (menu);
 		gtk.g_signal_connect_data (menu, "deactivate", (GCallbackFunc)OnMenuDeactivate, NULL, NULL, 0);
 
