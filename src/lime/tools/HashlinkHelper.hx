@@ -12,7 +12,7 @@ import sys.io.File;
 
 class HashlinkHelper
 {
-	public static inline var BUNDLED_HL_VER = "1.14.0";
+	public static inline var BUNDLED_HL_VER = "1.16.0";
 	private static inline var IMAGE_SUBSYSTEM_WINDOWS_GUI = 2;
 
 	private static function readUInt32LE(bytes:haxe.io.Bytes, offset:Int):Int
@@ -52,7 +52,7 @@ class HashlinkHelper
 		}
 	}
 
-	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true)
+	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true, ?isArm = false)
 	{
 		var platform = project.target;
 		var bindir = switch project.target
@@ -65,6 +65,10 @@ class HashlinkHelper
 				Sys.exit(1);
 				"";
 		};
+		if (isArm)
+		{
+			bindir += "Arm";
+		}
 		if (is64)
 		{
 			bindir += "64";

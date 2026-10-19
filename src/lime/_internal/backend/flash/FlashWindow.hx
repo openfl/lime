@@ -21,6 +21,7 @@ import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
@@ -566,9 +567,24 @@ class FlashWindow
 		return frameRate;
 	}
 
+	public function flash(mode:Int):Bool
+	{
+		return false;
+	}
+
+	public function getKeyboardGrab():Bool
+	{
+		return false;
+	}
+
 	public function getMouseLock():Bool
 	{
 		return false;
+	}
+
+	public function getMouseRect():Rectangle
+	{
+		return null;
 	}
 
 	public function getOpacity():Float
@@ -582,6 +598,8 @@ class FlashWindow
 	}
 
 	public function move(x:Int, y:Int):Void {}
+
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void {}
 
 	public function resize(width:Int, height:Int):Void {}
 
@@ -614,12 +632,21 @@ class FlashWindow
 		return false;
 	}
 
+	public function setMenu(menu:Menu):Void {}
+
 	public function setMinimized(value:Bool):Bool
 	{
 		return false;
 	}
 
+	public function setKeyboardGrab(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function setMouseLock(value:Bool):Void {}
+
+	public function setMouseRect(value:Rectangle):Void {}
 
 	public function setOpacity(value:Float):Void {}
 
@@ -636,6 +663,13 @@ class FlashWindow
 	public function setTextInputRect(value:Rectangle):Rectangle
 	{
 		return textInputRect = value;
+	}
+
+	public function setAppearance(value:lime.ui.WindowAppearance):Void {}
+
+	public function getAppearance():lime.ui.WindowAppearance
+	{
+		return lime.ui.WindowAppearance.System;
 	}
 
 	public function setTitle(value:String):String

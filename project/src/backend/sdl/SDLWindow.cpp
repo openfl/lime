@@ -1,13 +1,28 @@
 #include "SDLWindow.h"
 #include "SDLCursor.h"
 #include "SDLApplication.h"
+#include "SDLMenu.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
 #include <windows.h>
+#ifndef HX_WINRT
+#include <commctrl.h>
+#endif
 #undef CreateWindow
+#endif
+
+#if defined (HX_LINUX) && !defined (RASPBERRYPI)
+// As in SDLMenuLinux.cpp, for SDL_SysWMinfo's X11 members
+#ifndef SDL_VIDEO_DRIVER_X11
+#define SDL_VIDEO_DRIVER_X11 1
+#endif
+#include <SDL_syswm.h>
+#include <GL/glx.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #endif
 
 
@@ -30,8 +45,151 @@ namespace lime {
 
 	static bool displayModeSet = false;
 
+#if defined (HX_LINUX) && !defined (RASPBERRYPI)
+	// Asks SDL for a 32-bit visual, which a compositor blends by its alpha, for
+	// the next window. Returns whether it set the hint, which is then reset, so
+	// that later windows are not made transparent too.
+	static bool SetTransparentX11VisualHint (int flags) {
+
+		bool set = false;
+
+		#ifdef SDL_HINT_VIDEO_X11_WINDOW_VISUALID
+		const char* existingVisualID = SDL_GetHint (SDL_HINT_VIDEO_X11_WINDOW_VISUALID);
+		if (existingVisualID && existingVisualID[0] != '\0') return false;
+
+		const char* videoDriver = SDL_GetHint (SDL_HINT_VIDEODRIVER);
+		if (videoDriver && videoDriver[0] != '\0' && SDL_strcmp (videoDriver, "x11") != 0) return false;
+
+		void* x11 = SDL_LoadObject ("libX11.so.6");
+		if (!x11) return false;
+
+		void* gl = SDL_LoadObject ("libGL.so.1");
+		if (!gl) {
+
+			SDL_UnloadObject (x11);
+			return false;
+
+		}
+
+		typedef Display* (*XOpenDisplayFunction) (const char*);
+		typedef int (*XCloseDisplayFunction) (Display*);
+		typedef int (*XDefaultScreenFunction) (Display*);
+		typedef int (*XFreeFunction) (void*);
+		typedef GLXFBConfig* (*glXChooseFBConfigFunction) (Display*, int, const int*, int*);
+		typedef XVisualInfo* (*glXGetVisualFromFBConfigFunction) (Display*, GLXFBConfig);
+
+		XOpenDisplayFunction limeXOpenDisplay = (XOpenDisplayFunction)SDL_LoadFunction (x11, "XOpenDisplay");
+		XCloseDisplayFunction limeXCloseDisplay = (XCloseDisplayFunction)SDL_LoadFunction (x11, "XCloseDisplay");
+		XDefaultScreenFunction limeXDefaultScreen = (XDefaultScreenFunction)SDL_LoadFunction (x11, "XDefaultScreen");
+		XFreeFunction limeXFree = (XFreeFunction)SDL_LoadFunction (x11, "XFree");
+		glXChooseFBConfigFunction limeGlXChooseFBConfig = (glXChooseFBConfigFunction)SDL_LoadFunction (gl, "glXChooseFBConfig");
+		glXGetVisualFromFBConfigFunction limeGlXGetVisualFromFBConfig = (glXGetVisualFromFBConfigFunction)SDL_LoadFunction (gl, "glXGetVisualFromFBConfig");
+
+		if (limeXOpenDisplay && limeXCloseDisplay && limeXDefaultScreen && limeXFree && limeGlXChooseFBConfig && limeGlXGetVisualFromFBConfig) {
+
+			Display* display = limeXOpenDisplay (NULL);
+			if (display) {
+
+				int attribs[64];
+				int i = 0;
+				attribs[i++] = GLX_X_RENDERABLE;
+				attribs[i++] = True;
+				attribs[i++] = GLX_DRAWABLE_TYPE;
+				attribs[i++] = GLX_WINDOW_BIT;
+				attribs[i++] = GLX_RENDER_TYPE;
+				attribs[i++] = GLX_RGBA_BIT;
+				attribs[i++] = GLX_X_VISUAL_TYPE;
+				attribs[i++] = GLX_TRUE_COLOR;
+				attribs[i++] = GLX_RED_SIZE;
+				attribs[i++] = 8;
+				attribs[i++] = GLX_GREEN_SIZE;
+				attribs[i++] = 8;
+				attribs[i++] = GLX_BLUE_SIZE;
+				attribs[i++] = 8;
+				attribs[i++] = GLX_ALPHA_SIZE;
+				attribs[i++] = 8;
+
+				if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
+
+					attribs[i++] = GLX_DEPTH_SIZE;
+					attribs[i++] = 24;
+
+				}
+
+				if (flags & WINDOW_FLAG_STENCIL_BUFFER) {
+
+					attribs[i++] = GLX_STENCIL_SIZE;
+					attribs[i++] = 8;
+
+				}
+
+				if (flags & WINDOW_FLAG_HW_AA_HIRES) {
+
+					attribs[i++] = GLX_SAMPLE_BUFFERS;
+					attribs[i++] = 1;
+					attribs[i++] = GLX_SAMPLES;
+					attribs[i++] = 4;
+
+				} else if (flags & WINDOW_FLAG_HW_AA) {
+
+					attribs[i++] = GLX_SAMPLE_BUFFERS;
+					attribs[i++] = 1;
+					attribs[i++] = GLX_SAMPLES;
+					attribs[i++] = 2;
+
+				}
+
+				attribs[i++] = None;
+
+				int fbcount = 0;
+				GLXFBConfig* configs = limeGlXChooseFBConfig (display, limeXDefaultScreen (display), attribs, &fbcount);
+				if (configs) {
+
+					for (int config = 0; config < fbcount; config++) {
+
+						XVisualInfo* visualInfo = limeGlXGetVisualFromFBConfig (display, configs[config]);
+						if (visualInfo) {
+
+							if (visualInfo->depth == 32) {
+
+								char visualID[32];
+								SDL_snprintf (visualID, sizeof (visualID), "0x%lx", (unsigned long)visualInfo->visualid);
+								set = SDL_SetHint (SDL_HINT_VIDEO_X11_WINDOW_VISUALID, visualID) == SDL_TRUE;
+								limeXFree (visualInfo);
+								break;
+
+							}
+
+							limeXFree (visualInfo);
+
+						}
+
+					}
+
+					limeXFree (configs);
+
+				}
+
+				limeXCloseDisplay (display);
+
+			}
+
+		}
+
+		SDL_UnloadObject (gl);
+		SDL_UnloadObject (x11);
+		#endif
+
+		return set;
+
+	}
+#endif
+
 #if defined (HX_WINDOWS) && !defined (HX_WINRT)
-	static const wchar_t* LIME_SDL_OLD_RESIZE_WNDPROC_PROP = L"LimeSDL.OldResizeWndProc";
+	static const UINT_PTR LIME_SDL_RESIZE_SUBCLASS_ID = 1;
+	// Outside the documented WM_MOUSEMOVE key/button bits. Never reaches SDL.
+	static const WPARAM LIME_SDL_CAPTION_WAKE_TAG = (WPARAM)0x4C490000;
+	static const wchar_t* LIME_SDL_IN_SIZE_MOVE_PROP = L"LimeSDL.InSizeMove";
 	static const wchar_t* LIME_SDL_WINDOW_ID_PROP = L"LimeSDL.WindowID";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_WIDTH_PROP = L"LimeSDL.LastResizeWidth";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_HEIGHT_PROP = L"LimeSDL.LastResizeHeight";
@@ -107,15 +265,39 @@ namespace lime {
 
 	}
 
-	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	static void ClearResizeEventProperties (HWND hwnd) {
 
-		if (message == WM_ENTERSIZEMOVE) {
+		if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
+		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
+		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+	}
 
-			SDLApplication::EnterNativeModalLoop ();
+	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR subclassID, DWORD_PTR referenceData) {
+
+		if (message == WM_MOUSEMOVE && wParam == LIME_SDL_CAPTION_WAKE_TAG && lParam == 0) {
+
+			// This message only wakes Windows' pre-drag mouse wait. Do not turn
+			// it into game input or move the application's remembered pointer.
+			return 0;
+
+		} else if (message == WM_NCLBUTTONDOWN && wParam == HTCAPTION) {
+
+			// DefWindowProc otherwise waits about 500 ms for caption drag intent
+			// before WM_ENTERSIZEMOVE, where SDL's modal timer finally starts.
+			// A posted zero-position move wakes that wait. Tag our message so
+			// the existing window chain never interprets it as physical input.
+			PostMessageW (hwnd, WM_MOUSEMOVE, LIME_SDL_CAPTION_WAKE_TAG, 0);
+
+		} else if (message == WM_ENTERSIZEMOVE) {
+
+			if (!GetPropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP) && SetPropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP, (HANDLE)1))
+				SDLApplication::EnterNativeModalLoop ();
 
 		} else if (message == WM_EXITSIZEMOVE) {
 
-			SDLApplication::ExitNativeModalLoop ();
+			if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
 
 		} else if (message == WM_SIZING) {
 
@@ -132,14 +314,12 @@ namespace lime {
 
 		}
 
-		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		if (oldWndProc) {
-
-			return CallWindowProc (oldWndProc, hwnd, message, wParam, lParam);
-
+		if (message == WM_NCDESTROY) {
+			RemoveWindowSubclass (hwnd, LimeResizeWndProc, subclassID);
+			ClearResizeEventProperties (hwnd);
 		}
 
-		return DefWindowProc (hwnd, message, wParam, lParam);
+		return DefSubclassProc (hwnd, message, wParam, lParam);
 
 	}
 
@@ -153,14 +333,11 @@ namespace lime {
 
 		HWND hwnd = wminfo.info.win.window;
 		if (!hwnd) return;
-		if (GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP)) return;
-
-		SetLastError (0);
-		LONG_PTR previous = SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)LimeResizeWndProc);
-		if (previous == 0 && GetLastError () != 0) return;
-
-		SetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP, (HANDLE)previous);
-		SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow));
+		DWORD_PTR data;
+		if (GetWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID, &data)) return;
+		if (!SetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP, (HANDLE)(UINT_PTR)SDL_GetWindowID (sdlWindow))) return;
+		if (!SetWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID, 0))
+			ClearResizeEventProperties (hwnd);
 
 	}
 
@@ -175,18 +352,8 @@ namespace lime {
 		HWND hwnd = wminfo.info.win.window;
 		if (!hwnd) return;
 
-		WNDPROC oldWndProc = (WNDPROC)GetPropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		if (oldWndProc) {
-
-			SetWindowLongPtr (hwnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
-
-		}
-
-		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
-		RemovePropW (hwnd, LIME_SDL_OLD_RESIZE_WNDPROC_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
+		if (RemoveWindowSubclass (hwnd, LimeResizeWndProc, LIME_SDL_RESIZE_SUBCLASS_ID))
+			ClearResizeEventProperties (hwnd);
 
 	}
 
@@ -228,6 +395,48 @@ namespace lime {
 	}
 #endif
 
+#ifdef HX_MACOS
+	bool EnableTransparentWindow (SDL_Window* sdlWindow);
+	void EnableTransparentOpenGLSurface ();
+#else
+	static void EnableTransparentOpenGLSurface () {}
+#endif
+
+#if defined (HX_LINUX) && !defined (RASPBERRYPI)
+	// Whether the window has a 32-bit visual, which a compositor blends by its
+	// alpha. Its visual is chosen when it is created, see SetTransparentX11VisualHint.
+	static bool HasTransparentX11Visual (SDL_Window* sdlWindow) {
+
+		if (!sdlWindow) return false;
+
+		SDL_SysWMinfo wminfo;
+		SDL_VERSION (&wminfo.version);
+		if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) != SDL_TRUE || wminfo.subsystem != SDL_SYSWM_X11) return false;
+
+		void* x11 = SDL_LoadObject ("libX11.so.6");
+		if (!x11) return false;
+
+		typedef Status (*XGetWindowAttributesFunction) (Display*, ::Window, XWindowAttributes*);
+		XGetWindowAttributesFunction limeXGetWindowAttributes = (XGetWindowAttributesFunction)SDL_LoadFunction (x11, "XGetWindowAttributes");
+
+		XWindowAttributes attributes;
+		bool transparent = limeXGetWindowAttributes && limeXGetWindowAttributes (wminfo.info.x11.display, wminfo.info.x11.window, &attributes) && attributes.depth == 32;
+
+		SDL_UnloadObject (x11);
+		return transparent;
+
+	}
+
+	static bool EnableTransparentWindow (SDL_Window* sdlWindow) {
+
+		return HasTransparentX11Visual (sdlWindow);
+
+	}
+#elif !defined (HX_WINDOWS) || defined (HX_WINRT)
+	#ifndef HX_MACOS
+	static bool EnableTransparentWindow (SDL_Window* sdlWindow) { return false; }
+	#endif
+#endif
 
 	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
 
@@ -236,6 +445,7 @@ namespace lime {
 		sdlTexture = 0;
 		sdlRenderer = 0;
 		context = 0;
+		transparent = false;
 		useVulkan = (flags & WINDOW_FLAG_VULKAN) != 0;
 
 		contextWidth = 0;
@@ -243,6 +453,14 @@ namespace lime {
 
 		currentApplication = application;
 		this->flags = flags;
+
+		// The first window is titled for the application, which Linux names it by
+		// as it keeps the screen awake, unless SDL_APP_NAME says otherwise
+		if (title && title[0] != '\0' && !SDL_GetHint (SDL_HINT_APP_NAME)) {
+
+			SDL_SetHint (SDL_HINT_APP_NAME, title);
+
+		}
 
 		int sdlWindowFlags = 0;
 
@@ -282,6 +500,10 @@ namespace lime {
 
 			#ifdef SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY
 			SDL_SetHint (SDL_HINT_VIDEO_EGL_ALLOW_TRANSPARENCY, "1");
+			#endif
+
+			#ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
+			SDL_SetHint (SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 			#endif
 
 		}
@@ -368,7 +590,34 @@ namespace lime {
 
 		}
 
+		#if defined (HX_LINUX) && !defined (RASPBERRYPI)
+		bool transparentVisual = false;
+
+		if ((flags & WINDOW_FLAG_TRANSPARENT) && (flags & WINDOW_FLAG_HARDWARE) && !useVulkan) {
+
+			transparentVisual = SetTransparentX11VisualHint (flags);
+
+		}
+		#endif
+
 		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+
+		// The window has its visual now, and later windows choose their own
+		#if defined (HX_LINUX) && !defined (RASPBERRYPI)
+		if (transparentVisual) {
+
+			SDL_ResetHint (SDL_HINT_VIDEO_X11_WINDOW_VISUALID);
+
+		}
+		#endif
+
+		#ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
+		if (flags & WINDOW_FLAG_TRANSPARENT) {
+
+			SDL_ResetHint (SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR);
+
+		}
+		#endif
 
 		#if defined (IPHONE) || defined (APPLETV)
 		if (!useVulkan && sdlWindow && !SDL_GL_CreateContext (sdlWindow)) {
@@ -390,13 +639,13 @@ namespace lime {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		InstallResizeEventHook (sdlWindow);
+		#endif
 
 		if ((flags & WINDOW_FLAG_TRANSPARENT) && !useVulkan) {
 
-			EnableTransparentWindow (sdlWindow);
+			transparent = EnableTransparentWindow (sdlWindow);
 
 		}
-		#endif
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 
@@ -449,6 +698,12 @@ namespace lime {
 			context = SDL_GL_CreateContext (sdlWindow);
 
 			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
+
+				if (flags & WINDOW_FLAG_TRANSPARENT) {
+
+					EnableTransparentOpenGLSurface ();
+
+				}
 
 				SetVSyncMode (requestedVSyncMode);
 
@@ -550,6 +805,7 @@ namespace lime {
 			RestoreResizeEventHook (sdlWindow);
 			#endif
 
+			SDLMenu::Remove (sdlWindow);
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -560,25 +816,8 @@ namespace lime {
 
 	void SDLWindow::Alert (const char* message, const char* title) {
 
-		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-
-		int count = 0;
-		int speed = 0;
-		bool stopOnForeground = true;
-
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		SDL_GetWindowWMInfo (sdlWindow, &info);
-
-		FLASHWINFO fi;
-		fi.cbSize = sizeof (FLASHWINFO);
-		fi.hwnd = info.info.win.window;
-		fi.dwFlags = stopOnForeground ? FLASHW_ALL | FLASHW_TIMERNOFG : FLASHW_ALL | FLASHW_TIMER;
-		fi.uCount = count;
-		fi.dwTimeout = speed;
-		FlashWindowEx (&fi);
-
-		#endif
+		// As Windows always did, until the window comes to the front
+		Flash (SDL_FLASH_UNTIL_FOCUSED);
 
 		if (message) {
 
@@ -621,6 +860,7 @@ namespace lime {
 
 			}
 
+			SDLMenu::Remove (sdlWindow);
 			SDL_DestroyWindow (sdlWindow);
 			sdlWindow = 0;
 
@@ -1008,6 +1248,18 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::GetTransparent () {
+
+		// Linux checks the window's visual, which a window can have without asking
+		#if defined (HX_LINUX) && !defined (RASPBERRYPI)
+		return HasTransparentX11Visual (sdlWindow);
+		#else
+		return transparent;
+		#endif
+
+	}
+
+
 	float SDLWindow::GetOpacity () {
 
 		float opacity = 1.0f;
@@ -1104,6 +1356,13 @@ namespace lime {
 	void SDLWindow::Move (int x, int y) {
 
 		SDL_SetWindowPosition (sdlWindow, x, y);
+
+	}
+
+
+	int SDLWindow::PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor) {
+
+		return SDLMenu::Popup (sdlWindow, data, length, x, y, atCursor);
 
 	}
 
@@ -1419,6 +1678,13 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::SetMenu (const unsigned char* data, int length) {
+
+		return SDLMenu::SetWindowMenu (sdlWindow, data, length);
+
+	}
+
+
 	bool SDLWindow::SetMinimized (bool minimized) {
 
 		if (minimized) {
@@ -1432,6 +1698,65 @@ namespace lime {
 		}
 
 		return minimized;
+
+	}
+
+
+	bool SDLWindow::Flash (int mode) {
+
+		return sdlWindow && SDL_FlashWindow (sdlWindow, (SDL_FlashOperation)mode) == 0;
+
+	}
+
+
+	bool SDLWindow::GetKeyboardGrab () {
+
+		// Asked for, rather than SDL_GetWindowKeyboardGrab, which is true only
+		// while the window has the focus and the keys are taken
+		return sdlWindow && (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_KEYBOARD_GRABBED) != 0;
+
+	}
+
+
+	bool SDLWindow::GetMouseRect (int* x, int* y, int* width, int* height) {
+
+		const SDL_Rect* rect = sdlWindow ? SDL_GetWindowMouseRect (sdlWindow) : NULL;
+		if (!rect) return false;
+
+		*x = rect->x;
+		*y = rect->y;
+		*width = rect->w;
+		*height = rect->h;
+		return true;
+
+	}
+
+
+	void SDLWindow::SetKeyboardGrab (bool keyboardGrab) {
+
+		if (sdlWindow) {
+
+			SDL_SetWindowKeyboardGrab (sdlWindow, keyboardGrab ? SDL_TRUE : SDL_FALSE);
+
+		}
+
+	}
+
+
+	void SDLWindow::SetMouseRect (int x, int y, int width, int height) {
+
+		if (!sdlWindow) return;
+
+		if (width < 0 || height < 0) {
+
+			SDL_SetWindowMouseRect (sdlWindow, NULL);
+
+		} else {
+
+			SDL_Rect rect = { x, y, width, height };
+			SDL_SetWindowMouseRect (sdlWindow, &rect);
+
+		}
 
 	}
 

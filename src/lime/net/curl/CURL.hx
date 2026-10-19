@@ -238,6 +238,11 @@ class CURL
 		#end
 	}
 
+	/**
+		Returns facts about the curl library Lime was built with, as in
+		`curl_version_info`: its `age`, its `versionNum`, and its `features`, a
+		mask of `CURL_VERSION_*` bits. Returns `null` where curl isn't available.
+	**/
 	public static function versionInfo(type:CURLVersion):Dynamic
 	{
 		#if (lime_cffi && lime_curl && !macro)

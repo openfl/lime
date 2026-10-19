@@ -153,6 +153,7 @@
 #define HAVE_SIGACTION  1
 #define HAVE_SETJMP 1
 #define HAVE_NANOSLEEP  1
+#define HAVE_CLOCK_GETTIME  1
 #define HAVE_SYSCONF    1
 /* #undef HAVE_SYSCTLBYNAME */
 
@@ -219,6 +220,7 @@
 /* #undef SDL_JOYSTICK_DUMMY */
 /* #undef SDL_JOYSTICK_IOKIT */
 #define SDL_JOYSTICK_LINUX 1
+#define SDL_JOYSTICK_VIRTUAL 1
 /* #undef SDL_JOYSTICK_HIDAPI */
 /* #undef SDL_JOYSTICK_WINMM */
 /* #undef SDL_JOYSTICK_USBHID */

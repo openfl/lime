@@ -333,6 +333,15 @@ class AIRWindow extends FlashWindow
 		return value;
 	}
 
+	public override function flash(mode:Int):Bool
+	{
+		// AIR's attention requests end on their own once the window is focused
+		if (nativeWindow == null || !NativeWindow.supportsNotification || mode == 0) return false;
+
+		nativeWindow.notifyUser(mode == 2 ? NotificationType.CRITICAL : NotificationType.INFORMATIONAL);
+		return true;
+	}
+
 	public override function setAlwaysOnTop(value:Bool):Bool
 	{
 		if (nativeWindow != null)

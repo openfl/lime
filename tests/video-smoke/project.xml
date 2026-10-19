@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<meta title="Lime Video Smoke" package="org.openfl.lime.videosmoke" version="1.0.0" company="OpenFL" />
+	<app main="Main" path="Export" file="LimeVideoSmoke" />
+
+	<source path="Source" />
+	<assets path="../unit/assets" rename="assets" />
+
+	<haxelib name="lime" />
+
+	<window width="64" height="64" fps="60" background="#000000" resizable="false" />
+
+</project>

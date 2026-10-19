@@ -4,6 +4,7 @@ import haxe.Timer;
 #if (lime_cffi && !macro && lime_openal)
 import lime._internal.backend.native.NativeCFFI;
 import lime._internal.backend.native.NativeAudioSource;
+import lime._internal.backend.native.NativeVideoSource;
 #end
 #if (!lime_doc_gen || lime_openal)
 import lime.media.openal.AL;
@@ -24,6 +25,7 @@ class AudioManager
 {
 	public static var context:AudioContext;
 	@:noCompletion public static var __contextGeneration(default, null):Int = 0;
+	@:noCompletion public static var __suspended(default, null):Bool = false;
 	private static inline var OUTPUT_DEVICE_POLL_TIME:Int = 1000;
 	#if (!lime_doc_gen || lime_openal)
 	private static var outputDevice:ALDevice;
@@ -77,6 +79,8 @@ class AudioManager
 
 	public static function resume():Void
 	{
+		__suspended = false;
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL)
 		{
@@ -122,6 +126,9 @@ class AudioManager
 
 	public static function suspend():Void
 	{
+		// Paused output is not a stall, so videos wait for it instead of playing on
+		__suspended = true;
+
 		#if !lime_doc_gen
 		if (context != null && context.type == OPENAL)
 		{
@@ -246,12 +253,14 @@ class AudioManager
 
 		outputDeviceRecovering = true;
 		NativeAudioSource.prepareAudioContextRecovery();
+		NativeVideoSource.prepareAudioContextRecovery();
 		closeOpenALContext();
 
 		if (openOpenALContext(deviceName))
 		{
 			refreshOutputDeviceRecovery();
 			NativeAudioSource.restoreAudioContextRecovery();
+			NativeVideoSource.restoreAudioContextRecovery();
 		}
 
 		outputDeviceRecovering = false;
