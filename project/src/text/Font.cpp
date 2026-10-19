@@ -1393,10 +1393,28 @@ namespace lime {
 	}
 
 
-	int Font::RenderGlyphWithFlags(int index, int loadFlags, Bytes *bytes, int offset)
+	int Font::RenderGlyphWithFlags(int index, int loadFlags, Bytes *bytes, int offset, int subpixelX)
 	{
 		int resolvedLoadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT | loadFlags;
-		if (FT_Load_Glyph((FT_Face)face, index, resolvedLoadFlags) == 0)
+
+		// subpixelX (1/64 pixel) shifts the outline before rasterizing, so a glyph drawn at a whole
+		// pixel shows where it falls between pixels; bitmap_left stays the whole-pixel origin
+		if (subpixelX != 0)
+		{
+			FT_Vector delta;
+			delta.x = subpixelX;
+			delta.y = 0;
+			FT_Set_Transform((FT_Face)face, NULL, &delta);
+		}
+
+		int loaded = FT_Load_Glyph((FT_Face)face, index, resolvedLoadFlags);
+
+		if (subpixelX != 0)
+		{
+			FT_Set_Transform((FT_Face)face, NULL, NULL);
+		}
+
+		if (loaded == 0)
 		{
 			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0)
 			{
