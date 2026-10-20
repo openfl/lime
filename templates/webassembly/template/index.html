@@ -55,11 +55,15 @@
 		Module.setStatus = function (msg) { console.log (msg); };
 		::if (WIN_WIDTH == 0)::::if (WIN_HEIGHT == 0)::
 		var container = document.getElementById ("content");
+        Module.canvas.style.width  = container.clientWidth  + "px";
+        Module.canvas.style.height = container.clientHeight + "px";
 		Module.canvas.width = container.clientWidth;
 		Module.canvas.height = container.clientHeight;
 
 		window.addEventListener ("resize", function (e)
 		{
+            Module.canvas.style.width  = container.clientWidth  + "px";
+            Module.canvas.style.height = container.clientHeight + "px";
 			Module.canvas.width = container.clientWidth;
 			Module.canvas.height = container.clientHeight;
 		}, true);::end::::end::

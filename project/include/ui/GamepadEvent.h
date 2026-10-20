@@ -15,7 +15,11 @@ namespace lime {
 		GAMEPAD_BUTTON_DOWN,
 		GAMEPAD_BUTTON_UP,
 		GAMEPAD_CONNECT,
-		GAMEPAD_DISCONNECT
+		GAMEPAD_DISCONNECT,
+		GAMEPAD_SENSOR_UPDATE,
+		GAMEPAD_TOUCHPAD_DOWN,
+		GAMEPAD_TOUCHPAD_MOVE,
+		GAMEPAD_TOUCHPAD_UP
 
 	};
 
@@ -28,6 +32,10 @@ namespace lime {
 		int id;
 		GamepadEventType type;
 		double axisValue;
+		int timestamp;
+		double x;
+		double y;
+		double z;
 
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;

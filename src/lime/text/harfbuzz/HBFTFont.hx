@@ -28,6 +28,13 @@ abstract HBFTFont(HBFont) to HBFont from CFFIPointer to CFFIPointer
 		}
 	}
 
+	public function changed():Void
+	{
+		#if (lime_cffi && lime_harfbuzz && !macro)
+		NativeCFFI.lime_hb_ft_font_changed(this);
+		#end
+	}
+
 	// Get & Set Methods
 	@:noCompletion private inline function get_loadFlags():Int
 	{

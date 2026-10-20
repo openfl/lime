@@ -2109,6 +2109,13 @@ class NativeOpenGLRenderContext
 					}
 				}
 			}
+
+			#if emscripten
+			if (__supportedExtensions.indexOf("EXT_texture_format_BGRA8888") < 0)
+			{
+				__supportedExtensions.push("EXT_texture_format_BGRA8888");
+			}
+			#end
 		}
 
 		return __supportedExtensions;

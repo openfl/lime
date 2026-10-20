@@ -187,7 +187,8 @@ class AIRWindow extends FlashWindow
 		if (parent.application.window == parent)
 		{
 			var newDeviceOrientation:Orientation = UNKNOWN;
-			switch (parent.stage.deviceOrientation) {
+			switch (parent.stage.deviceOrientation)
+			{
 				case DEFAULT:
 					newDeviceOrientation = PORTRAIT;
 				case UPSIDE_DOWN:
@@ -202,7 +203,8 @@ class AIRWindow extends FlashWindow
 			parent.application.onDeviceOrientationChange.dispatch(newDeviceOrientation);
 		}
 		var newDisplayOrientation:Orientation = UNKNOWN;
-		switch (event.afterOrientation) {
+		switch (event.afterOrientation)
+		{
 			case DEFAULT:
 				newDisplayOrientation = PORTRAIT;
 			case UPSIDE_DOWN:
@@ -326,6 +328,25 @@ class AIRWindow extends FlashWindow
 		if (nativeWindow != null)
 		{
 			nativeWindow.title = value;
+		}
+
+		return value;
+	}
+
+	public override function flash(mode:Int):Bool
+	{
+		// AIR's attention requests end on their own once the window is focused
+		if (nativeWindow == null || !NativeWindow.supportsNotification || mode == 0) return false;
+
+		nativeWindow.notifyUser(mode == 2 ? NotificationType.CRITICAL : NotificationType.INFORMATIONAL);
+		return true;
+	}
+
+	public override function setAlwaysOnTop(value:Bool):Bool
+	{
+		if (nativeWindow != null)
+		{
+			nativeWindow.alwaysInFront = value;
 		}
 
 		return value;

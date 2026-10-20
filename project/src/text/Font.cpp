@@ -15,6 +15,8 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
+#include FT_MODULE_H
+#include FT_MULTIPLE_MASTERS_H
 #endif
 
 #ifdef GetGlyphIndices
@@ -451,7 +453,7 @@ namespace lime {
 	}
 
 
-	void* Font::Decompose (bool useCFFIValue, int em) {
+	void* Font::Decompose (bool useCFFIValue, int em, bool forceAutoHint) {
 
 		int result, i, j;
 
@@ -476,9 +478,16 @@ namespace lime {
 
 		char_code = FT_Get_First_Char ((FT_Face)face, &glyph_index);
 
+		int loadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT;
+		if (forceAutoHint) {
+			loadFlags |= FT_LOAD_FORCE_AUTOHINT;
+		} else {
+			loadFlags |= FT_LOAD_NO_HINTING;
+		}
+
 		while (glyph_index != 0) {
 
-			if (FT_Load_Glyph ((FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+			if (FT_Load_Glyph ((FT_Face)face, glyph_index, loadFlags) == 0) {
 
 				glyph *g = new glyph;
 				result = FT_Outline_Decompose (&((FT_Face)face)->glyph->outline, &ofn, g);
@@ -1306,6 +1315,20 @@ namespace lime {
 	}
 
 
+	bool Font::IsBold () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD;
+
+	}
+
+
+	bool Font::IsItalic () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC;
+
+	}
+
+
 	int Font::RenderGlyph(int index, Bytes *bytes, int offset)
 	{
 		if (FT_Load_Glyph((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0)
@@ -1371,17 +1394,119 @@ namespace lime {
 	}
 
 
+	int Font::RenderGlyphWithFlags(int index, int loadFlags, Bytes *bytes, int offset, int subpixelX)
+	{
+		int resolvedLoadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT | loadFlags;
+
+		// subpixelX (1/64 pixel) shifts the outline before rasterizing, so a glyph drawn at a whole
+		// pixel shows where it falls between pixels; bitmap_left stays the whole-pixel origin
+		if (subpixelX != 0)
+		{
+			FT_Vector delta;
+			delta.x = subpixelX;
+			delta.y = 0;
+			FT_Set_Transform((FT_Face)face, NULL, &delta);
+		}
+
+		int loaded = FT_Load_Glyph((FT_Face)face, index, resolvedLoadFlags);
+
+		if (subpixelX != 0)
+		{
+			FT_Set_Transform((FT_Face)face, NULL, NULL);
+		}
+
+		if (loaded == 0)
+		{
+			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0)
+			{
+				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
+
+				int height = bitmap.rows;
+				int width = bitmap.width;
+				int pitch = bitmap.pitch;
+
+				if (width == 0 || height == 0)
+					return 0;
+
+				//We calculate the size needed for the glyph image, including metadata and 24-bit RGB color data
+				uint32_t size = sizeof(GlyphImage) + (width * height * 4);
+
+				if (bytes->length < size + offset)
+				{
+					bytes->Resize(size + offset);
+				}
+
+				GlyphImage *data = (GlyphImage *)(bytes->b + offset);
+
+				//We should initialize the GlyphImage struct here with zero to avoid uninitialized values
+				memset(data, 0, sizeof(GlyphImage));
+
+				data->index = index;
+				data->width = width;
+				data->height = height;
+				data->x = ((FT_Face)face)->glyph->bitmap_left;
+				data->y = ((FT_Face)face)->glyph->bitmap_top;
+
+				unsigned char *position = &data->data;
+
+				//Copy the bitmap data row by row, copying each RGB triplet and adding padding for 32-bit alignment
+				for (int i = 0; i < height; i++)
+				{
+					for (int j = 0; j < width; j++)
+					{
+						unsigned char a = bitmap.buffer[i * pitch + j];
+
+						//Red
+						position[(i * width + j) * 4 + 0] = 255;
+						//Green
+						position[(i * width + j) * 4 + 1] = 255;
+						//Blue
+						position[(i * width + j) * 4 + 2] = 255;
+						//Alpha
+						position[(i * width + j) * 4 + 3] = a;
+					}
+				}
+
+				return size;
+			}
+		}
+
+		return 0;
+	}
+
+
 	int Font::RenderGlyphs (value indices, Bytes *bytes) {
+
+		int numIndices = val_array_size (indices);
+		std::vector<int> indexList (numIndices);
+
+		for (int i = 0; i < numIndices; i++) {
+
+			indexList[i] = val_int (val_array_i (indices, i));
+
+		}
+
+		return RenderGlyphs (indexList.data (), numIndices, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (hl_varray* indices, Bytes *bytes) {
+
+		return RenderGlyphs (hl_aptr (indices, int), indices->size, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (const int* indices, int numIndices, Bytes *bytes) {
 
 		int offset = 0;
 		int totalOffset = 4;
 		uint32_t count = 0;
 
-		int numIndices = val_array_size (indices);
-
 		for (int i = 0; i < numIndices; i++) {
 
-			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
+			offset = RenderGlyph (indices[i], bytes, totalOffset);
 
 			if (offset > 0) {
 
@@ -1418,6 +1543,63 @@ namespace lime {
 			vdpi								//Vertical DPI
 		);
 		mSize = size;
+
+	}
+
+
+	bool Font::SetVariation (int tag, double coordinate)
+	{
+		FT_MM_Var* axes = 0;
+		if (!face || FT_Get_MM_Var((FT_Face)face, &axes) != 0 || !axes) return false;
+		std::vector<FT_Fixed> coordinates(axes->num_axis);
+		if (FT_Get_Var_Design_Coordinates((FT_Face)face, axes->num_axis, coordinates.data()) != 0) {
+			for (FT_UInt i = 0; i < axes->num_axis; ++i) coordinates[i] = axes->axis[i].def;
+		}
+		bool found = false;
+		for (FT_UInt i = 0; i < axes->num_axis; ++i) {
+			if (axes->axis[i].tag != (FT_ULong)(unsigned int)tag) continue;
+			double fixed = coordinate * 65536.0;
+			fixed = std::max((double)axes->axis[i].minimum, std::min((double)axes->axis[i].maximum, fixed));
+			coordinates[i] = (FT_Fixed)fixed;
+			found = true;
+			break;
+		}
+		bool applied = found && FT_Set_Var_Design_Coordinates((FT_Face)face, axes->num_axis, coordinates.data()) == 0;
+		if (applied) {
+			FT_Face nativeFace = (FT_Face)face;
+			bool hasWeight = false, hasItalic = false, bold = false, italic = false;
+			for (FT_UInt i = 0; i < axes->num_axis; ++i) {
+				if (axes->axis[i].tag == FT_MAKE_TAG('w','g','h','t')) { hasWeight = true; bold = coordinates[i] >= 600 * 65536; }
+				if (axes->axis[i].tag == FT_MAKE_TAG('i','t','a','l')) { hasItalic = true; italic = italic || coordinates[i] >= 32768; }
+				if (axes->axis[i].tag == FT_MAKE_TAG('s','l','n','t')) { hasItalic = true; italic = italic || coordinates[i] != 0; }
+			}
+			if (hasWeight) nativeFace->style_flags = bold ? nativeFace->style_flags | FT_STYLE_FLAG_BOLD : nativeFace->style_flags & ~FT_STYLE_FLAG_BOLD;
+			if (hasItalic) nativeFace->style_flags = italic ? nativeFace->style_flags | FT_STYLE_FLAG_ITALIC : nativeFace->style_flags & ~FT_STYLE_FLAG_ITALIC;
+		}
+		FT_Done_MM_Var((FT_Library)library, axes);
+		return applied;
+	}
+
+	void Font::SetStemDarkening (bool enable)
+	{
+
+		FT_Bool no_darkening = enable ? 0 : 1;
+
+		FT_Property_Set((FT_Library)library, "cff", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "autofitter", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "t1cid", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "type1", "no-stem-darkening", &no_darkening);
+
+	}
+
+
+	void Font::SetStemDarkeningParameters (int params[])
+	{
+
+		FT_Property_Set((FT_Library)library, "cff", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "autofitter", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "t1cid", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "type1", "darkening-parameters", params);
 
 	}
 

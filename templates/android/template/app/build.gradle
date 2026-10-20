@@ -4,7 +4,8 @@ import java.awt.GridBagConstraints
 import javax.swing.border.EmptyBorder
 
 apply plugin: 'com.android.application'
-
+::foreach ANDROID_GRADLE_APPLY_PLUGIN::apply plugin: '::__current__::'
+::end::
 System.setProperty('java.awt.headless','false')
 
 //Uncomment to debug deprecation warnings.
@@ -73,6 +74,12 @@ android {
 			minifyEnabled false
 			signingConfig signingConfigs.release
 		}
+	}
+
+	// Video is read from the APK in place, which compressed files cannot be, and
+	// these containers are not in the default list of files left uncompressed
+	::if (ANDROID_GRADLE_PLUGIN>="7.1")::androidResources::else::aaptOptions::end:: {
+		noCompress 'avi', 'f4v', 'flv', 'm2ts', 'mov', 'mts', 'mxf', 'ogv', 'qt', 'ts'
 	}
 
 	android.applicationVariants.all { variant ->

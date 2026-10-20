@@ -90,7 +90,7 @@ namespace lime {
 }
 
 
-#ifndef HX_WINDOWS
+#if !defined(HX_WINDOWS) || defined(__MINGW32__)
 #include <stdint.h>
 #else
 

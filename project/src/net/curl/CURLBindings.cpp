@@ -2532,10 +2532,19 @@ namespace lime {
 
 	int lime_curl_multi_perform (value multi_handle) {
 
-		curl_gc_mutex.Lock ();
-
+		CURLM* multi = (CURLM*)val_data (multi_handle);
 		int runningHandles = 0;
-		CURLMcode result = curl_multi_perform ((CURLM*)val_data (multi_handle), &runningHandles);
+
+		// Transfers, and name lookups where they can't run on a thread of
+		// their own, may take a while, so the collector is let run meanwhile.
+		// The lock is let go before leaving, as finalizers take it too.
+		System::GCEnterBlocking ();
+		curl_gc_mutex.Lock ();
+		CURLMcode result = curl_multi_perform (multi, &runningHandles);
+		curl_gc_mutex.Unlock ();
+		System::GCExitBlocking ();
+
+		curl_gc_mutex.Lock ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2558,10 +2567,17 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_curl_multi_perform) (HL_CFFIPointer* multi_handle) {
 
-		curl_gc_mutex.Lock ();
-
+		CURLM* multi = (CURLM*)multi_handle->ptr;
 		int runningHandles = 0;
-		CURLMcode result = curl_multi_perform ((CURLM*)multi_handle->ptr, &runningHandles);
+
+		// See lime_curl_multi_perform
+		System::GCEnterBlocking ();
+		curl_gc_mutex.Lock ();
+		CURLMcode result = curl_multi_perform (multi, &runningHandles);
+		curl_gc_mutex.Unlock ();
+		System::GCExitBlocking ();
+
+		curl_gc_mutex.Lock ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2830,9 +2846,17 @@ namespace lime {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
-		// TODO
+		if (!data) {
 
-		return alloc_null ();
+			return alloc_null ();
+
+		}
+
+		value info = alloc_empty_object ();
+		alloc_field (info, val_id ("age"), alloc_int (data->age));
+		alloc_field (info, val_id ("features"), alloc_int (data->features));
+		alloc_field (info, val_id ("versionNum"), alloc_int (data->version_num));
+		return info;
 
 	}
 
@@ -2841,9 +2865,17 @@ namespace lime {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
-		// TODO
+		if (!data) {
 
-		return NULL;
+			return NULL;
+
+		}
+
+		vdynamic* info = (vdynamic*)hl_alloc_dynobj ();
+		hl_dyn_seti (info, hl_hash_utf8 ("age"), &hlt_i32, data->age);
+		hl_dyn_seti (info, hl_hash_utf8 ("features"), &hlt_i32, data->features);
+		hl_dyn_seti (info, hl_hash_utf8 ("versionNum"), &hlt_i32, data->version_num);
+		return info;
 
 	}
 

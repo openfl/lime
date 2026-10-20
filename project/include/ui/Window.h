@@ -11,7 +11,12 @@
 #include <math/Rectangle.h>
 #include <system/CFFI.h>
 #include <system/DisplayMode.h>
+#include <ui/Cursor.h>
 #include <stdint.h>
+
+#ifdef CreateWindow
+#undef CreateWindow
+#endif
 
 
 namespace lime {
@@ -38,14 +43,19 @@ namespace lime {
 			virtual void GetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
+			virtual bool Flash (int mode) { return false; }
+			virtual bool GetKeyboardGrab () { return false; }
 			virtual bool GetMouseLock () = 0;
+			virtual bool GetMouseRect (int* x, int* y, int* width, int* height) { return false; }
 			virtual float GetOpacity () = 0;
 			virtual double GetScale () = 0;
 			virtual bool GetTextInputEnabled () = 0;
+			virtual bool GetTransparent () { return false; }
 			virtual int GetWidth () = 0;
 			virtual int GetX () = 0;
 			virtual int GetY () = 0;
 			virtual void Move (int x, int y) = 0;
+			virtual int PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor) { return 0; }
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect) = 0;
 			virtual void Resize (int width, int height) = 0;
 			virtual void SetMinimumSize (int width, int height) = 0;
@@ -56,15 +66,32 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
 			virtual bool SetMaximized (bool minimized) = 0;
+			virtual bool SetMenu (const unsigned char* data, int length) { return false; }
 			virtual bool SetMinimized (bool minimized) = 0;
+			virtual void SetKeyboardGrab (bool keyboardGrab) {}
 			virtual void SetMouseLock (bool mouseLock) = 0;
+			virtual void SetMouseRect (int x, int y, int width, int height) {}
 			virtual void SetOpacity (float opacity) = 0;
 			virtual bool SetResizable (bool resizable) = 0;
 			virtual void SetTextInputEnabled (bool enable) = 0;
 			virtual void SetTextInputRect (Rectangle *rect) = 0;
 			virtual const char* SetTitle (const char* title) = 0;
+			virtual void SetVSyncMode (int vsyncMode) {}
 			virtual bool SetVisible (bool visible) = 0;
+			virtual bool SetAlwaysOnTop (bool alwaysOnTop) = 0;
 			virtual void WarpMouse (int x, int y) = 0;
+			virtual int GetVSyncInterval () const { return 0; }
+			virtual int GetRequestedVSyncMode () const { return 0; }
+			virtual double GetRefreshRate () const { return 60.0; }
+			virtual uint64_t CreateVulkanSurface (uintptr_t instance) { return 0; }
+			virtual void GetVulkanDrawableSize (int* width, int* height) {
+
+				if (width) *width = 0;
+				if (height) *height = 0;
+
+			}
+			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names) { return false; }
+			virtual void* GetVulkanInstanceProcAddr () { return 0; }
 
 			Application* currentApplication;
 			int flags;
@@ -74,6 +101,8 @@ namespace lime {
 
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title);
+	void SetWindowAppearance (Window* window, int appearance);
+	int GetWindowAppearance (Window* window);
 
 
 	enum WindowFlags {
@@ -94,7 +123,9 @@ namespace lime {
 		WINDOW_FLAG_MINIMIZED = 0x00002000,
 		WINDOW_FLAG_MAXIMIZED = 0x00004000,
 		WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000,
-		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000
+		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000,
+		WINDOW_FLAG_VULKAN = 0x00020000,
+		WINDOW_FLAG_TRANSPARENT = 0x00040000
 
 	};
 

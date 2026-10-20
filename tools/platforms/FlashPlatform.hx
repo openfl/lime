@@ -103,16 +103,6 @@ class FlashPlatform extends PlatformTarget
 		System.runCommand("", "haxe", [targetDirectory + "/haxe/" + buildType + ".hxml"]);
 	}
 
-	public override function clean():Void
-	{
-		var targetPath = targetDirectory + "";
-
-		if (FileSystem.exists(targetPath))
-		{
-			System.removeDirectory(targetPath);
-		}
-	}
-
 	public override function deploy():Void
 	{
 		DeploymentHelper.deploy(project, targetFlags, targetDirectory, "Flash");
@@ -175,7 +165,7 @@ class FlashPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -183,7 +173,8 @@ class FlashPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -322,35 +313,20 @@ class FlashPlatform extends PlatformTarget
 	}
 
 	/*private function getIcon (size:Int, targetPath:String):Void {
-
-		var icon = icons.findIcon (size, size);
-
-		if (icon != "") {
-
-			System.copyIfNewer (icon, targetPath);
-
-		} else {
-
-			icons.updateIcon (size, size, targetPath);
-
-		}
-
-	}*/
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
-	}
-
+	
+			var icon = icons.findIcon (size, size);
+	
+			if (icon != "") {
+	
+				System.copyIfNewer (icon, targetPath);
+	
+			} else {
+	
+				icons.updateIcon (size, size, targetPath);
+	
+			}
+	
+		}*/
 	@ignore public override function install():Void {}
 
 	@ignore public override function rebuild():Void {}

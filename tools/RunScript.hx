@@ -27,7 +27,16 @@ class RunScript
 
 		if (!rebuildBinaries) return;
 
-		var platforms = ["Windows", "Mac", "Mac64", "MacArm64", "Linux", "Linux64", "LinuxArm", "LinuxArm64"];
+		var platforms = [
+			"Windows",
+			"Mac",
+			"Mac64",
+			"MacArm64",
+			"Linux",
+			"Linux64",
+			"LinuxArm",
+			"LinuxArm64"
+		];
 
 		for (platform in platforms)
 		{
@@ -127,6 +136,22 @@ class RunScript
 	{
 		var args = Sys.args();
 
+		if (args.length > 0)
+		{
+			var lastArgument = new Path(args[args.length - 1]).toString();
+
+			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\"))
+				&& !StringTools.endsWith(lastArgument, ":\\"))
+			{
+				lastArgument = lastArgument.substr(0, lastArgument.length - 1);
+			}
+
+			if (FileSystem.exists(lastArgument) && FileSystem.isDirectory(lastArgument))
+			{
+				Haxelib.workingDirectory = lastArgument;
+			}
+		}
+
 		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
 		var toolsDirectory = Path.combine(limeDirectory, "tools");
 
@@ -138,21 +163,10 @@ class RunScript
 
 		if (args.length > 2 && args[0] == "rebuild" && args[1] == "tools")
 		{
-			var lastArgument = new Path(args[args.length - 1]).toString();
 			var cacheDirectory = Sys.getCwd();
+			// used for Path.tryFullPath when setting overrides
+			Sys.setCwd(Haxelib.workingDirectory);
 
-			if (((StringTools.endsWith(lastArgument, "/") && lastArgument != "/") || StringTools.endsWith(lastArgument, "\\"))
-				&& !StringTools.endsWith(lastArgument, ":\\"))
-			{
-				lastArgument = lastArgument.substr(0, lastArgument.length - 1);
-			}
-
-			if (FileSystem.exists(lastArgument) && FileSystem.isDirectory(lastArgument))
-			{
-				Sys.setCwd(lastArgument);
-			}
-
-			Haxelib.workingDirectory = Sys.getCwd();
 			var rebuildBinaries = true;
 
 			for (arg in args)
@@ -203,17 +217,17 @@ class RunScript
 		if (args.indexOf("-eval") >= 0)
 		{
 			args.remove("-eval");
-			Log.info("Experimental: executing `lime " + args.slice(0, args.length - 1).join(" ")
-				+ "` using Eval (https://haxe.org/blog/eval/)");
+			Log.info("Experimental: executing `lime " + args.slice(0, args.length - 1).join(" ") + "` using Eval (https://haxe.org/blog/eval/)");
 
 			var args = [
-				"-D", "lime",
-				"-cp", toolsDirectory,
-				"-cp", Path.combine(toolsDirectory, "platforms"),
-				"-cp", "src",
-				"-lib", "format",
-				"-lib", "hxp",
-				"--run", "CommandLineTools"].concat(args);
+				   "-D",                                    "lime",
+				  "-cp",                            toolsDirectory,
+				  "-cp", Path.combine(toolsDirectory, "platforms"),
+				  "-cp",        Path.combine(limeDirectory, "src"),
+				 "-lib",                                  "format",
+				 "-lib",                                     "hxp",
+				"--run",                        "CommandLineTools"
+			].concat(args);
 			Sys.exit(runCommand("", "haxe", args));
 		}
 

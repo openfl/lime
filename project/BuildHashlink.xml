@@ -1,4 +1,8 @@
 <xml>
+	<section unless="mac">
+		<error value="HashLink not supported on ARM" if="rpi || HXCPP_ARM64"/>
+	</section>
+
 	<set name="PLATFORM" value="android-21" if="android" />
 	<set name="HXCPP_CPP11" value="1" />
 
@@ -110,8 +114,16 @@
 	</files>
 
 	<files id="mysql">
+		<compilerflag value="-std=gnu17" unless="windows" />
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<compilerflag value="-I/usr/local/include" if="mac"/>
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<compilerflag value="-I/usr/local/include"/>
+			</section>
+			<section if="HXCPP_ARM64">
+				<compilerflag value="-I/opt/homebrew/include"/>
+			</section>
+		</section>
 
 		<file name="${HASHLINK_PATH}/libs/mysql/socket.c" />
 		<file name="${HASHLINK_PATH}/libs/mysql/sha1.c" />
@@ -124,10 +136,21 @@
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${HASHLINK_PATH}/include/mikktspace" />
 		<compilerflag value="-I${HASHLINK_PATH}/include/minimp3" />
-		<compilerflag value="-I/usr/local/include" if="mac"/>
-		<compilerflag value="-I/usr/local/opt/libjpeg-turbo/include" if="mac"/>
-		<compilerflag value="-I/usr/local/opt/jpeg-turbo/include" if="mac"/>
-		<compilerflag value="-I/usr/local/opt/libvorbis/include" if="mac"/>
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<compilerflag value="-I/usr/local/include"/>
+				<compilerflag value="-I/usr/local/opt/libjpeg-turbo/include"/>
+				<compilerflag value="-I/usr/local/opt/jpeg-turbo/include"/>
+				<compilerflag value="-I/usr/local/opt/libvorbis/include"/>
+			</section>
+			<section if="HXCPP_ARM64">
+				<compilerflag value="-I/opt/homebrew/include"/>
+				<compilerflag value="-I/opt/homebrew/opt/libjpeg-turbo/include"/>
+				<compilerflag value="-I/opt/homebrew/opt/jpeg-turbo/include"/>
+				<compilerflag value="-I/opt/homebrew/opt/libvorbis/include"/>
+			</section>
+		</section>
+
 
 
 		<file name="${HASHLINK_PATH}/libs/fmt/fmt.c" />
@@ -254,21 +277,37 @@
 	</files>
 	<files id="uv">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<compilerflag value="-I/usr/local/include" if="mac"/>
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<compilerflag value="-I/usr/local/include" />
+			</section>
+			<section if="HXCPP_ARM64">
+				<compilerflag value="-I/opt/homebrew/include" />
+			</section>
+		</section>
 
 		<file name="${HASHLINK_PATH}/libs/uv/uv.c"/>
 
 		<section if="windows">
 			<compilerflag value="-I${HASHLINK_PATH}/include/libuv/include"/>
+			<compilerflag value="-I${HASHLINK_PATH}/include/libuv/src"/>
 			<compilerflag value="-DUV_EXPORTS"/>
 			<compilerflag value="-DBUILDING_UV_SHARED"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/fs-poll.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/idna.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/inet.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/random.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/strscpy.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/strtok.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/thread-common.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/threadpool.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/timer.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/uv-common.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/uv-data-getter-setters.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/version.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/async.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/core.c"/>
+			<file name="${HASHLINK_PATH}/include/libuv/src/win/detect-wakeup.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/dl.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/error.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/fs-event.c"/>
@@ -281,13 +320,10 @@
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/poll.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/process-stdio.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/process.c"/>
-			<file name="${HASHLINK_PATH}/include/libuv/src/win/req.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/signal.c"/>
-			<file name="${HASHLINK_PATH}/include/libuv/src/win/snprintf.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/stream.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/tcp.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/thread.c"/>
-			<file name="${HASHLINK_PATH}/include/libuv/src/win/timer.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/tty.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/udp.c"/>
 			<file name="${HASHLINK_PATH}/include/libuv/src/win/util.c"/>
@@ -315,6 +351,7 @@
 		<section if="windows">
 			<lib name="user32.lib" />
 			<lib name="ws2_32.lib" />
+			<lib name="winmm.lib" />
 		</section>
 	</target>
 
@@ -329,11 +366,13 @@
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
-		<lib name="libhl.lib" if="windows" />
 
-		<lib name="Advapi32.lib" if="windows" />
-		<lib name="Crypt32.lib" if="windows" />
-		<lib name="ws2_32.lib" if="windows" />
+		<section if="windows">
+			<lib name="libhl.lib" />
+			<lib name="Advapi32.lib" />
+			<lib name="Crypt32.lib" />
+			<lib name="ws2_32.lib" />
+		</section>
 
 		<vflag name="-framework" value="Security" if="mac || ios || tvos" />
 		<vflag name="-framework" value="CoreFoundation" if="mac || ios || tvos" />
@@ -349,8 +388,11 @@
 		<lib name="-lhl" unless="windows" />
 		<lib name="-L${OUTPUT_DIR}/${BINDIR}" unless="windows" />
 		<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" if="windows" />
-		<lib name="libhl.lib" if="windows" />
-		<lib name="ws2_32.lib" if="windows" />
+
+		<section if="windows">
+			<lib name="libhl.lib" />
+			<lib name="ws2_32.lib" />
+		</section>
 	</target>
 
 	<target id="fmt" output="fmt" tool="linker" toolid="dll">
@@ -360,10 +402,20 @@
 
 		<vflag name="-install_name" value="@executable_path/fmt.hdll" if="mac"/>
 
-		<lib name="-L/usr/local/lib" if="mac" />
-		<lib name="-L/usr/local/opt/libjpeg-turbo/lib" if="mac" />
-		<lib name="-L/usr/local/opt/jpeg-turbo/lib" if="mac" />
-		<lib name="-L/usr/local/opt/libvorbis/lib" if="mac" />
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<lib name="-L/usr/local/lib" />
+				<lib name="-L/usr/local/opt/libjpeg-turbo/lib" />
+				<lib name="-L/usr/local/opt/jpeg-turbo/lib" />
+				<lib name="-L/usr/local/opt/libvorbis/lib" />
+			</section>
+			<section if="HXCPP_ARM64">
+				<lib name="-L/opt/homebrew/lib" />
+				<lib name="-L/opt/homebrew/opt/libjpeg-turbo/lib" />
+				<lib name="-L/opt/homebrew/opt/jpeg-turbo/lib" />
+				<lib name="-L/opt/homebrew/opt/libvorbis/lib" />
+			</section>
+		</section>
 
 		<lib name="-lz" unless="windows" />
 		<lib name="-lvorbis" unless="windows" />
@@ -405,7 +457,14 @@
 
 		<vflag name="-install_name" value="@executable_path/uv.hdll" if="mac"/>
 
-		<lib name="-L/usr/local/lib" if="mac" />
+		<section if="mac">
+			<section unless="HXCPP_ARM64">
+				<lib name="-L/usr/local/lib" />
+			</section>
+			<section if="HXCPP_ARM64">
+				<lib name="-L/opt/homebrew/lib" />
+			</section>
+		</section>
 
 		<lib name="-luv" unless="windows" />
 		<lib name="-lhl" unless="windows" />
@@ -413,11 +472,15 @@
 		<section if="windows">
 			<lib name="-libpath:${OUTPUT_DIR}/${BINDIR}" />
 			<lib name="libhl.lib" />
+			<lib name="ws2_32.lib" />
+			<lib name="advapi32.lib" />
 			<lib name="psapi.lib"/>
+			<lib name="user32.lib"/>
 			<lib name="iphlpapi.lib" />
 			<lib name="userenv.lib" />
-			<lib name="advapi32.lib" if="windows" />
-			<lib name="ws2_32.lib" if="windows" />
+			<lib name="dbghelp.lib" />
+			<lib name="ole32.lib" />
+			<lib name="shell32.lib" />
 		</section>
 	</target>
 

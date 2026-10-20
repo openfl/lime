@@ -57,8 +57,7 @@ class PlatformTarget
 		// known issue: this may not log in `-eval` mode on Linux
 		inline function logCommand(command:String):Void
 		{
-			if (!Reflect.hasField(metaFields, command)
-				|| !Reflect.hasField(Reflect.field(metaFields, command), "ignore"))
+			if (!Reflect.hasField(metaFields, command) || !Reflect.hasField(Reflect.field(metaFields, command), "ignore"))
 			{
 				Log.info("", "\n" + Log.accentColor + "Running command: " + command.toUpperCase() + Log.resetColor);
 			}
@@ -98,7 +97,8 @@ class PlatformTarget
 			rebuild();
 		}
 
-		if (command == "update" || command == "build" || command == "test")
+		if (command == "update"
+				|| ((command == "build" || command == "test") && !targetFlags.exists("noupdate")))
 		{
 			logCommand("update");
 
@@ -137,8 +137,7 @@ class PlatformTarget
 			run();
 		}
 
-		if ((command == "test" || command == "trace" || command == "run" || command == "rerun")
-			&& (traceEnabled || command == "trace"))
+		if ((command == "test" || command == "trace" || command == "run" || command == "rerun") && (traceEnabled || command == "trace"))
 		{
 			logCommand("trace");
 			this.trace();
@@ -151,9 +150,17 @@ class PlatformTarget
 		}
 	}
 
+	// Command implementations
+
 	@ignore public function build():Void {}
 
-	@ignore public function clean():Void {}
+	public function clean():Void
+	{
+		if (FileSystem.exists(targetDirectory))
+		{
+			System.removeDirectory(targetDirectory);
+		}
+	}
 
 	@ignore public function deploy():Void {}
 
@@ -171,7 +178,95 @@ class PlatformTarget
 
 	@ignore public function update():Void {}
 
-	@ignore public function watch():Void {}
+	public function watch():Void
+	{
+		var hxml = getDisplayHXML();
+		if (hxml == null)
+		{
+			return;
+		}
+
+		var dirs = hxml.getClassPaths(true);
+
+		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
+		dirs = dirs.filter(function(dir)
+		{
+			return (!Path.startsWith(dir, outputPath));
+		});
+
+		var command = ProjectHelper.getCurrentCommand();
+		System.watch(command, dirs);
+	}
+
+	// Common functionality used by subclasses
+
+	/**
+		Copies all embedded assets into a temporary directory and sets their
+		`sourcePath`. This must happen before generating template contexts.
+	**/
+	private function prepareEmbeddedAssets():Void
+	{
+		var embedDirectory = Path.combine(targetDirectory, "obj/tmp");
+
+		for (asset in project.assets)
+		{
+			if (asset.type != AssetType.TEMPLATE && asset.embed == true && asset.sourcePath == "")
+			{
+				var path = Path.combine(embedDirectory, asset.targetPath);
+				System.mkdir(Path.directory(path));
+				AssetHelper.copyAsset(asset, path);
+				asset.sourcePath = path;
+			}
+		}
+	}
+
+	/**
+		Copies all non-embedded assets into the given directories.
+		@param outputDirectory The root directory for template assets.
+		@param assetDirectory The root directory for non-template assets. If not
+		an absolute path, interpreted relative to `outputDirectory`. If null,
+		defaults to `outputDirectory`.
+	**/
+	private function copyProjectAssets(outputDirectory:String, assetDirectory:String = null)
+	{
+		if (assetDirectory == null)
+		{
+			assetDirectory = outputDirectory;
+		}
+		else if (!StringTools.startsWith(assetDirectory, targetDirectory))
+		{
+			assetDirectory = Path.combine(outputDirectory, assetDirectory);
+		}
+
+		for (asset in project.assets)
+		{
+			var path = Path.combine(assetDirectory, asset.targetPath);
+
+			if (asset.type == AssetType.TEMPLATE)
+			{
+				path = Path.combine(outputDirectory, asset.targetPath);
+				System.mkdir(Path.directory(path));
+				AssetHelper.copyAsset(asset, path, project.templateContext);
+			}
+			else if (asset.embed == true)
+			{
+				if (FileSystem.exists(path) && !FileSystem.isDirectory(path))
+				{
+					System.deleteFile(path);
+				}
+			}
+			else
+			{
+				System.mkdir(Path.directory(path));
+				AssetHelper.copyAssetIfNewer(asset, path);
+			}
+		}
+	}
+
+	private function getDisplayHXML():HXML
+	{
+		return null;
+	}
 
 	// Functions to track and delete stale files
 

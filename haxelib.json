@@ -4,12 +4,15 @@
 	"license": "MIT",
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
-	"version": "8.3.0",
+	"version": "8.4.0",
 	"releasenote": "Orientation events, gamepad rumble, display safe area, HashLink update",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",
 		"Dimensionscape"
 	],
-	"classPath": "src"
+	"classPath": "src",
+	"dependencies": {
+		"native-desktop": "1.0.0"
+	}
 }
