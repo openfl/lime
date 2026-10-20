@@ -581,10 +581,15 @@ jobs:
           ALSOFT_DRIVERS: "null"
         run: |
           python -m unittest discover -s fixtures
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test neko -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test hl -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test air -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test windows -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check native desktop integration through SDL
         working-directory: tests/native-desktop
