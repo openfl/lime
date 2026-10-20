@@ -75,15 +75,18 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/setup-python@v6
+        id: tls-python
         with:
           python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
@@ -187,15 +190,18 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/setup-python@v6
+        id: tls-python
         with:
           python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
 
@@ -319,15 +325,18 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/setup-python@v6
+        id: tls-python
         with:
           python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test mac -arm64 -release -verbose -nocolor
 
@@ -442,15 +451,18 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/setup-python@v6
+        id: tls-python
         with:
           python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test mac -x86_64 -release -verbose -nocolor
@@ -551,15 +563,18 @@ jobs:
           if-no-files-found: error
 
       - uses: actions/setup-python@v6
+        id: tls-python
         with:
           python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test air -release -verbose -nocolor

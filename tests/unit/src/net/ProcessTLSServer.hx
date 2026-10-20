@@ -18,6 +18,8 @@ class ProcessTLSServer
 	private var errors:String = "";
 	private var port:Int;
 	private var outputRead:Bool = false;
+	private var outputError:String = "";
+	private var firstLine:String = "";
 
 	public function new(certificate:String, key:String)
 	{
@@ -39,13 +41,26 @@ class ProcessTLSServer
 			process = new sys.io.Process(python, ["-u", script, certificatePath, keyPath]);
 			Thread.create(function()
 			{
-				try port = Std.parseInt(process.stdout.readLine()) catch (_:Dynamic) {}
+				try
+				{
+					firstLine = process.stdout.readLine();
+					port = Std.parseInt(firstLine);
+				}
+				catch (error:Dynamic) outputError = Std.string(error);
 				outputRead = true;
 				outputDone.release();
 			});
 			Thread.create(function()
 			{
-				try errors = process.stderr.readAll().toString() catch (_:Dynamic) {}
+				try
+				{
+					while (true)
+					{
+						var line = process.stderr.readLine();
+						if (errors.length < 8192) errors += line + "\n";
+					}
+				}
+				catch (_:Dynamic) {}
 				errorDone.release();
 			});
 			Thread.create(function()
@@ -54,7 +69,7 @@ class ProcessTLSServer
 				exit.release();
 			});
 			if (!outputDone.wait(10) || port == null || port < 1 || port > 65535)
-				throw "Loopback TLS fixture did not start. Install Python 3 or set LIME_TEST_PYTHON.";
+				throw "Loopback TLS fixture did not start using " + python + ". Output: " + firstLine + "; read error: " + outputError;
 			url = "https://127.0.0.1:" + port + "/";
 			active.push(this);
 		}
@@ -94,4 +109,3 @@ class ProcessTLSServer
 		if (failure != null) throw failure;
 	}
 }
-

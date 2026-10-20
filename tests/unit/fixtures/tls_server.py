@@ -2,6 +2,7 @@
 
 import http.server
 import socket
+import socketserver
 import ssl
 import sys
 import threading
@@ -24,6 +25,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 class Server(http.server.ThreadingHTTPServer):
     daemon_threads = True
+
+    def server_bind(self):
+        # HTTPServer resolves a hostname here; this loopback fixture needs no DNS.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name, self.server_port = self.server_address
 
     def get_request(self):
         connection, address = super().get_request()
