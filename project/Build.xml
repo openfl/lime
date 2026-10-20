@@ -46,7 +46,7 @@
 
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
-	<set name="NATIVE_DESKTOP_PATH" value="${haxelib:native-desktop:1.0.0}" if="LIME_NATIVE_DESKTOP" unless="NATIVE_DESKTOP_PATH" />
+	<set name="NATIVE_DESKTOP_PATH" value="${haxelib:native-desktop}" if="LIME_NATIVE_DESKTOP" unless="NATIVE_DESKTOP_PATH" />
 
 	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
 	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
