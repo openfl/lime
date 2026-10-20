@@ -15,7 +15,7 @@
 #endif
 
 #if defined (HX_LINUX) && !defined (RASPBERRYPI)
-// As in SDLMenuLinux.cpp, for SDL_SysWMinfo's X11 members
+// Enable SDL_SysWMinfo's X11 members with SDL's minimal configuration.
 #ifndef SDL_VIDEO_DRIVER_X11
 #define SDL_VIDEO_DRIVER_X11 1
 #endif

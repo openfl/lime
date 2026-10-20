@@ -12,6 +12,9 @@
 #if defined(LIME_SDL) && defined(HX_WINDOWS) && !defined(HX_WINRT)
 #include <commctrl.h>
 #include <dwmapi.h>
+#ifdef LIME_NATIVE_DESKTOP
+#include <native_desktop/WindowsAppearance.h>
+#endif
 #endif
 
 namespace lime {
@@ -24,7 +27,6 @@ namespace lime {
 #if defined(LIME_SDL) && defined(HX_WINDOWS) && !defined(HX_WINRT)
 	static const wchar_t* APPEARANCE_PROPERTY = L"Lime.WindowAppearance";
 	static const UINT_PTR APPEARANCE_SUBCLASS = 0x4C494D45;
-	void RefreshWindowsMenuAppearance (HWND window, bool dark);
 
 	static bool HighContrast () {
 		HIGHCONTRASTW contrast = {};
@@ -48,18 +50,13 @@ namespace lime {
 		return library;
 	}
 
-	bool WindowsMenuDark (HWND window) {
-		HANDLE preference = window ? GetPropW (window, APPEARANCE_PROPERTY) : (HANDLE)1;
-		if (!preference || HighContrast ()) return false;
-		int mode = (int)(INT_PTR)preference - 1;
-		return mode == 2 || (mode == 0 && SystemDark ());
-	}
-
 	static void ApplyWindowsAppearance (HWND window, int appearance) {
 		typedef HRESULT (WINAPI *SetAttribute) (HWND, DWORD, LPCVOID, DWORD);
 		static SetAttribute set = DwmLibrary () ? (SetAttribute)GetProcAddress (DwmLibrary (), "DwmSetWindowAttribute") : NULL;
 		BOOL dark = !HighContrast () && (appearance == 2 || (appearance == 0 && SystemDark ()));
-		RefreshWindowsMenuAppearance (window, dark != FALSE);
+		#ifdef LIME_NATIVE_DESKTOP
+		native_desktop::SetWindowsMenuAppearance (window, appearance);
+		#endif
 		// DWMWA_USE_IMMERSIVE_DARK_MODE; older systems reject it without changing the window.
 		if (set && SUCCEEDED (set (window, 20, &dark, sizeof (dark))))
 			RedrawWindow (window, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);

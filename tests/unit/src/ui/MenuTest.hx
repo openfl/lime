@@ -11,61 +11,6 @@ import haxe.io.BytesInput;
 import lime._internal.backend.native.NativeMenu;
 #end
 
-#if (cpp && windows)
-@:buildXml('<target id="haxe"><lib name="gdi32.lib" if="windows" unless="mingw"/><lib name="-lgdi32" if="mingw"/></target>')
-@:cppFileCode('
-#include <windows.h>
-#include <oleacc.h>
-static HWND AppearanceTestWindow () {
- HWND result = NULL;
- EnumThreadWindows (GetCurrentThreadId (), [](HWND window, LPARAM data) -> BOOL {
-  wchar_t title[80]; GetWindowTextW (window, title, 80);
-  if (wcscmp (title, L"LimeMenuAppearanceTest") == 0) { *(HWND*)data = window; return FALSE; }
-  return TRUE;
- }, (LPARAM)&result);
- return result;
-}
-static int InspectMenuAppearance (int operation) {
- HWND window = AppearanceTestWindow ();
- HMENU bar = window ? GetMenu (window) : NULL;
- HMENU menu = bar ? GetSubMenu (bar, 0) : NULL;
- if (!menu) return -1;
- MENUITEMINFOW info = {}; info.cbSize = sizeof (info);
- info.fMask = MIIM_FTYPE | MIIM_DATA | MIIM_STATE;
- if (!GetMenuItemInfoW (menu, 0, TRUE, &info)) return -2;
- if (operation == 0) return (info.fType & MFT_OWNERDRAW) != 0;
- if (operation == 1) {
-  MSAAMENUINFO* accessible = (MSAAMENUINFO*)info.dwItemData;
-  return accessible && accessible->dwMSAASignature == MSAA_MENU_SIG && accessible->cchWText == 4 && wcscmp (accessible->pszWText, L"Open") == 0;
- }
- if (operation == 2) {
-  LRESULT result = SendMessageW (window, WM_MENUCHAR, MAKEWPARAM (L\'o\', MF_POPUP), (LPARAM)menu);
-  return HIWORD (result) == MNC_EXECUTE && LOWORD (result) == 0;
- }
- if (operation == 3) {
-  MEASUREITEMSTRUCT measure = {}; measure.CtlType = ODT_MENU; measure.itemData = info.dwItemData;
-  return SendMessageW (window, WM_MEASUREITEM, 0, (LPARAM)&measure) && measure.itemWidth > 0 && measure.itemHeight > 0;
- }
- if (operation == 4) {
-  HDC dc = CreateCompatibleDC (NULL); HBITMAP bitmap = CreateBitmap (200, 40, 1, 32, NULL);
-  HGDIOBJ old = SelectObject (dc, bitmap);
-  DRAWITEMSTRUCT draw = {}; draw.CtlType = ODT_MENU; draw.itemData = info.dwItemData;
-  draw.hDC = dc; draw.hwndItem = (HWND)menu; SetRect (&draw.rcItem, 0, 0, 200, 40);
-  LRESULT handled = SendMessageW (window, WM_DRAWITEM, 0, (LPARAM)&draw);
-  COLORREF pixel = GetPixel (dc, 1, 1);
-  SelectObject (dc, old); DeleteObject (bitmap); DeleteDC (dc);
-  return handled && pixel == RGB (32, 32, 32);
- }
- if (operation == 5) return (info.fState & MFS_CHECKED) != 0;
- if (operation == 6) {
-  SendMessageW (window, WM_THEMECHANGED, 0, 0);
-  MENUITEMINFOW after = {}; after.cbSize = sizeof (after); after.fMask = MIIM_FTYPE;
-  return GetMenuItemInfoW (menu, 0, TRUE, &after) && (after.fType & MFT_OWNERDRAW) != 0;
- }
- return -3;
-}
-')
-#end
 class MenuTest extends Test
 {
 	public function new()
@@ -91,64 +36,6 @@ class MenuTest extends Test
 		Assert.isNull(menu.getItemAt(-1));
 	}
 
-	#if (cpp && windows)
-	public function testWindowMenuAppearanceAndNativeInteraction():Void
-	{
-		// Tests run before the application's own window opens; keep one hidden window
-		// alive so closing the window under test does not terminate the runner.
-		var other = lime.app.Application.current.createWindow({width:64, height:64, hidden:true});
-		var window = lime.app.Application.current.createWindow({width:320, height:160, hidden:true, title:"LimeMenuAppearanceTest"});
-		Assert.notNull(window);
-		if (window == null) return;
-		var bar = new Menu();
-		var items = new Menu();
-		var open = items.addItem(new MenuItem("Open"));
-		open.mnemonicIndex = 0;
-		open.checked = true;
-		items.addSeparator();
-		var disabled = items.addItem(new MenuItem("Disabled"));
-		disabled.enabled = false;
-		bar.addSubmenu(items, "File").mnemonicIndex = 0;
-		window.menu = bar;
-		window.appearance = lime.ui.WindowAppearance.Light;
-		Assert.equals(0, inspectAppearance(0));
-		window.appearance = lime.ui.WindowAppearance.Dark;
-		// High contrast must keep system rendering, without changing the user's settings.
-		var contrast:Bool = untyped __cpp__('([]() { HIGHCONTRASTW value = {}; value.cbSize = sizeof(value); return SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(value), &value, 0) && (value.dwFlags & HCF_HIGHCONTRASTON); })()');
-		Assert.equals(contrast ? 0 : 1, inspectAppearance(0));
-		if (!contrast)
-		{
-			Assert.equals(1, inspectAppearance(1), "accessible name is exposed through MSAAMENUINFO");
-			Assert.equals(1, inspectAppearance(2), "native mnemonic executes its item");
-			Assert.equals(1, inspectAppearance(3), "native item measurement returns usable dimensions");
-			Assert.equals(1, inspectAppearance(4), "native drawing fills the menu background");
-			Assert.equals(1, inspectAppearance(6), "theme notifications retain an explicit dark preference");
-		}
-		Assert.equals(1, inspectAppearance(5), "checked state survives appearance changes");
-		window.appearance = lime.ui.WindowAppearance.Light;
-		Assert.equals(0, inspectAppearance(0), "light restores system drawing");
-		window.appearance = lime.ui.WindowAppearance.Dark;
-		items.addItem(new MenuItem("Another"));
-		Assert.equals(contrast ? 0 : 1, inspectAppearance(0), "replaced native menus retain the preference");
-		window.menu = null;
-		var objectsBefore:Int = untyped __cpp__("GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS)");
-		for (_ in 0...20)
-		{
-			window.menu = bar;
-			window.appearance = lime.ui.WindowAppearance.Light;
-			window.appearance = lime.ui.WindowAppearance.Dark;
-			window.menu = null;
-		}
-		var objectsAfter:Int = untyped __cpp__("GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS)");
-		Assert.isTrue(objectsAfter <= objectsBefore + 2, "menu replacement and appearance changes do not accumulate GDI resources");
-		window.close();
-	}
-
-	private static function inspectAppearance(operation:Int):Int
-	{
-		return untyped __cpp__("InspectMenuAppearance({0})", operation);
-	}
-	#end
 
 	public function testAddItemAtClampsTheIndex():Void
 	{
