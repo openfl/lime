@@ -69,3 +69,7 @@ For example, if the current version is 8.2.2, features targeting 8.3.0 should go
 Any breaking changes or major version updates must be submitted to the next major development branch, named x.0.0-dev.
 
 For example, breaking changes intended for 9.0.0 go into 9.0.0-dev.
+
+## AI Contribution
+
+AI Contributions are welcome. Contributors are responsible for all code regardless of how it is produced. The actual engineering questions are whether the implementation is correct, maintainable, adequately tested, and compatible with the project's requirements.
