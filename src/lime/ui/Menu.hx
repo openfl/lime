@@ -10,6 +10,11 @@ import lime.app.Event;
 	Menus contain `MenuItem` objects, which may in turn hold submenus. Changes
 	to a menu that is currently displayed are applied to the native menu
 	immediately.
+	Windows menus follow the owning window's explicit `appearance` preference,
+	with system rendering in high contrast mode. Tray menus follow the system.
+	macOS context menus inherit their owning view's appearance; the application
+	menu bar and tray retain system styling. GTK context menus request the current
+	theme's variant without changing global settings. Themes may lack a dark variant.
 
 	Where the menu bar is shown depends on the platform: on Windows each window
 	has its own menu bar (`Window.menu`), while on macOS the menu bar belongs to

@@ -3,6 +3,7 @@ package ui;
 import lime.app.Application;
 import lime.math.Rectangle;
 import lime.ui.Window;
+import lime.ui.WindowAppearance;
 import utest.Assert;
 import utest.Test;
 
@@ -18,6 +19,54 @@ class WindowTest extends Test
 	}
 
 	#if (lime_cffi && !macro && (windows || mac || linux) && !rpi)
+	public function testAppearancePreferenceAndInvalidValues():Void
+	{
+		var window = create(false);
+		if (window == null) { canCreateWindows(); return; }
+		Assert.equals(WindowAppearance.System, window.appearance);
+		window.appearance = WindowAppearance.Dark;
+		Assert.equals(WindowAppearance.Dark, window.appearance);
+		var applied = window.effectiveAppearance;
+		window.appearance = cast "invalid";
+		Assert.equals(WindowAppearance.Dark, window.appearance);
+		Assert.equals(applied, window.effectiveAppearance);
+		window.appearance = null;
+		Assert.equals(WindowAppearance.Dark, window.appearance);
+		window.appearance = WindowAppearance.System;
+		Assert.equals(WindowAppearance.System, window.appearance);
+	}
+
+	public function testAppearanceChangesArePerWindow():Void
+	{
+		var dark = create(false), light = create(false);
+		if (dark == null || light == null) { canCreateWindows(); return; }
+		dark.appearance = WindowAppearance.Dark;
+		light.appearance = WindowAppearance.Light;
+		Assert.equals(WindowAppearance.Dark, dark.appearance);
+		Assert.equals(WindowAppearance.Light, light.appearance);
+		// Unsupported decorations retain the preference and report System.
+		if (dark.effectiveAppearance == WindowAppearance.System || light.effectiveAppearance == WindowAppearance.System) {
+			Assert.pass();
+			return;
+		}
+		Assert.equals(WindowAppearance.Dark, dark.effectiveAppearance);
+		Assert.equals(WindowAppearance.Light, light.effectiveAppearance);
+		dark.appearance = WindowAppearance.Light;
+		Assert.equals(WindowAppearance.Light, dark.effectiveAppearance);
+		Assert.equals(WindowAppearance.Light, light.effectiveAppearance);
+		dark.appearance = WindowAppearance.System;
+		Assert.equals(WindowAppearance.Light, light.effectiveAppearance);
+	}
+
+	public function testAppearanceCreationAttribute():Void
+	{
+		var window = Application.current.createWindow({width:64, height:64, hidden:true, appearance:WindowAppearance.Dark});
+		if (window == null) { canCreateWindows(); return; }
+		Assert.equals(WindowAppearance.Dark, window.appearance);
+		if (window.effectiveAppearance != WindowAppearance.System)
+			Assert.equals(WindowAppearance.Dark, window.effectiveAppearance);
+	}
+
 	public function testTransparentWindowsAreTransparent():Void
 	{
 		var window = create(true);

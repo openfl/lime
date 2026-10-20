@@ -802,6 +802,8 @@ class NativeCFFI
 	@:cffi private static function lime_window_set_text_input_rect(handle:Dynamic, rect:Dynamic):Void;
 
 	@:cffi private static function lime_window_set_title(handle:Dynamic, title:String):Dynamic;
+	@:cffi private static function lime_window_set_appearance(handle:Dynamic, appearance:Int):Void;
+	@:cffi private static function lime_window_get_appearance(handle:Dynamic):Int;
 
 	@:cffi private static function lime_window_set_visible(handle:Dynamic, visible:Bool):Bool;
 
@@ -1393,6 +1395,8 @@ class NativeCFFI
 		"lime_window_set_text_input_enabled", "obv", false));
 	private static var lime_window_set_text_input_rect = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_window_set_text_input_rect", "oov", false));
+	private static var lime_window_set_appearance = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_appearance", "oiv", false));
+	private static var lime_window_get_appearance = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_appearance", "oi", false));
 	private static var lime_window_set_title = new cpp.Callable<cpp.Object->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_set_title", "oso",
 		false));
 	private static var lime_window_set_visible = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_visible", "obb",
@@ -1737,6 +1741,8 @@ class NativeCFFI
 	private static var lime_window_set_text_input_enabled = CFFI.load("lime", "lime_window_set_text_input_enabled", 2);
 	private static var lime_window_set_text_input_rect = CFFI.load("lime", "lime_window_set_text_input_rect", 2);
 	private static var lime_window_set_title = CFFI.load("lime", "lime_window_set_title", 2);
+	private static var lime_window_set_appearance = CFFI.load("lime", "lime_window_set_appearance", 2);
+	private static var lime_window_get_appearance = CFFI.load("lime", "lime_window_get_appearance", 1);
 	private static var lime_window_set_visible = CFFI.load("lime", "lime_window_set_visible", 2);
 	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
@@ -3228,6 +3234,9 @@ class NativeCFFI
 	@:hlNative("lime", "hl_window_set_text_input_enabled") private static function lime_window_set_text_input_enabled(handle:CFFIPointer, enabled:Bool):Void {}
 
 	@:hlNative("lime", "hl_window_set_text_input_rect") private static function lime_window_set_text_input_rect(handle:CFFIPointer, rect:Rectangle):Void {}
+
+	@:hlNative("lime", "hl_window_set_appearance") private static function lime_window_set_appearance(handle:CFFIPointer, appearance:Int):Void {}
+	@:hlNative("lime", "hl_window_get_appearance") private static function lime_window_get_appearance(handle:CFFIPointer):Int { return 0; }
 
 	@:hlNative("lime", "hl_window_set_title") private static function lime_window_set_title(handle:CFFIPointer, title:String):String
 	{

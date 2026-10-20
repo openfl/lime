@@ -36,6 +36,7 @@ class MenuTest extends Test
 		Assert.isNull(menu.getItemAt(-1));
 	}
 
+
 	public function testAddItemAtClampsTheIndex():Void
 	{
 		var menu = new Menu();

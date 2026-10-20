@@ -11,5 +11,8 @@
 		"bowlerhat",
 		"Dimensionscape"
 	],
-	"classPath": "src"
+	"classPath": "src",
+	"dependencies": {
+		"native-desktop": "1.0.0"
+	}
 }

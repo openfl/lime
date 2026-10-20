@@ -39,6 +39,24 @@ class Window
 	public static var supportsMenu(get, never):Bool;
 
 	public var application(default, null):Application;
+	/**
+		Preferred appearance of the window decorations. Defaults to `System`.
+		An omitted creation attribute preserves the platform's existing default behavior.
+		Assigning `System` explicitly follows system appearance where supported.
+		Windows desktop applies the preference to the frame and Lime menus; high contrast
+		takes precedence. macOS 10.14+ applies a per-window Aqua or Dark Aqua appearance.
+		X11 sets a decoration hint that window managers may ignore; GTK context menus request
+		the current theme's light or dark variant when available. HTML5 sets `color-scheme`.
+		This does not recolor application content or change global toolkit settings.
+		Unsupported platforms retain the requested preference without changing their UI.
+	**/
+	public var appearance(get, set):WindowAppearance;
+
+	/**
+		The applied window appearance, or `System` when the backend cannot determine it.
+		On X11 this reports the decoration hint, which the window manager may ignore.
+	**/
+	public var effectiveAppearance(get, never):WindowAppearance;
 	public var borderless(get, set):Bool;
 	public var context(default, null):RenderContext;
 	public var cursor(get, set):MouseCursor;
@@ -219,6 +237,7 @@ class Window
 	private var clickCount:Int = 0;
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
+	@:noCompletion private var __appearance:WindowAppearance = System;
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
@@ -244,6 +263,8 @@ class Window
 		var p = untyped Window.prototype;
 		untyped Object.defineProperties(p,
 			{
+				"appearance": {get: p.get_appearance, set: p.set_appearance},
+				"effectiveAppearance": {get: p.get_effectiveAppearance},
 				"borderless": {get: p.get_borderless, set: p.set_borderless},
 				"cursor": {get: p.get_cursor, set: p.set_cursor},
 				"display": {get: p.get_display},
@@ -301,6 +322,7 @@ class Window
 		transparent = Reflect.hasField(__attributes, "transparent") ? __attributes.transparent : false;
 		id = -1;
 		__backend = new WindowBackend(this);
+		if (__attributes.appearance != null) appearance = __attributes.appearance;
 		if (id != -1 && application != null) application.__seedFrameConfiguration(__attributes);
 		#if windows
 		var mappings = [
@@ -2919,6 +2941,24 @@ class Window
 	public function setTextInputRect(value:Rectangle):Rectangle
 	{
 		return __backend.setTextInputRect(value);
+	}
+
+	@:noCompletion private inline function get_appearance():WindowAppearance
+	{
+		return __appearance;
+	}
+
+	@:noCompletion private function set_appearance(value:WindowAppearance):WindowAppearance
+	{
+		if (value != System && value != Light && value != Dark) return __appearance;
+		__appearance = value;
+		__backend.setAppearance(value);
+		return value;
+	}
+
+	@:noCompletion private function get_effectiveAppearance():WindowAppearance
+	{
+		return __backend.getAppearance();
 	}
 
 	@:noCompletion private inline function get_title():String

@@ -4,8 +4,6 @@
 
 #include <SDL.h>
 #include <ui/Menu.h>
-#include <string>
-#include <vector>
 
 #if defined (HX_WINDOWS) && !defined (HX_WINRT)
 #define LIME_SDL_MENU_WIN32
@@ -17,28 +15,6 @@
 
 
 namespace lime {
-
-
-	enum SDLMenuItemFlags {
-
-		MENU_ITEM_ENABLED = 0x01,
-		MENU_ITEM_CHECKED = 0x02,
-		MENU_ITEM_SEPARATOR = 0x04,
-		MENU_ITEM_SUBMENU = 0x08
-
-	};
-
-
-	struct SDLMenuItem {
-
-		int flags;
-		int id;
-		int keyCode;
-		int keyModifiers;
-		std::string label;
-		std::vector<SDLMenuItem> submenu;
-
-	};
 
 
 	class SDLMenu {
@@ -53,16 +29,11 @@ namespace lime {
 			static void Remove (SDL_Window* window);
 			static bool SetApplicationMenu (const unsigned char* data, int length);
 			static bool SetWindowMenu (SDL_Window* window, const unsigned char* data, int length);
-
-			static std::string GetLabel (const std::string& label, char mnemonicPrefix);
-			static bool Parse (const unsigned char* data, int length, std::vector<SDLMenuItem>* items);
 			static void PushDockMenuSelection (int id);
 			static void PushSelection (Uint32 windowID, int id);
 			static void PushTrayIconEvent (int trayIconID, int type, int itemID);
 
 		private:
-
-			static bool GetPlatformSelection (SDL_Event* event, Uint32* windowID, int* id);
 			static void PushEvent (int kind, Uint32 target, int code, int value);
 
 	};

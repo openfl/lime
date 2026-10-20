@@ -665,6 +665,13 @@ class FlashWindow
 		return textInputRect = value;
 	}
 
+	public function setAppearance(value:lime.ui.WindowAppearance):Void {}
+
+	public function getAppearance():lime.ui.WindowAppearance
+	{
+		return lime.ui.WindowAppearance.System;
+	}
+
 	public function setTitle(value:String):String
 	{
 		return value;
