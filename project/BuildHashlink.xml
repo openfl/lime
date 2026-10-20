@@ -102,13 +102,9 @@
 
 	<files id="ssl">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/hl-ssl" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include" />
+		<include name="${NATIVE_TOOLKIT_PATH}/mbedtls-flags.xml" />
 		<compilerflag value="-D_UNICODE" if="windows"/>
 		<compilerflag value="-DUNICODE" if="windows"/>
-		<compilerflag value="-DMBEDTLS_THREADING_C"/>
-		<compilerflag value="-DMBEDTLS_THREADING_PTHREAD" unless="windows"/>
-		<compilerflag value="-DMBEDTLS_THREADING_ALT" if="windows"/>
 		<compilerflag value="/std:c11" if="windows"/>
 		<file name="${HASHLINK_PATH}/libs/ssl/ssl.c" />
 	</files>
@@ -370,6 +366,7 @@
 		<section if="windows">
 			<lib name="libhl.lib" />
 			<lib name="Advapi32.lib" />
+			<lib name="bcrypt.lib" />
 			<lib name="Crypt32.lib" />
 			<lib name="ws2_32.lib" />
 		</section>

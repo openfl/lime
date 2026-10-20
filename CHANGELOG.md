@@ -26,6 +26,7 @@ Changelog
 - Added `Locale.preferredLocales`.
 - Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
 - Added `CURL.versionInfo()` values for the library's age, version number, and features.
+- Added `HTTPRequest.verifyCertificates`.
 - Changed asset copying and embedding to behave consistently across targets.
 - Changed OpenAL Soft HRTF to be disabled by default.
 - Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
@@ -33,11 +34,15 @@ Changelog
 - Changed Windows to show input methods' own composition and candidate windows.
 - Changed `FrameProfile.Uncapped` to uncap the frame loop.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
+- Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
+- Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
+- Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
 - Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
+- Fixed SDL_sound in static builds, which couldn't find its native functions.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
 - Fixed native and HashLink `AudioBuffer` layout mismatches.

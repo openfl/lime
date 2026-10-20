@@ -79,6 +79,16 @@ class DefineMacro
 				}
 			}
 		}
+
+		var staticBuild = Context.defined("static_link") || Context.defined("ios") || Context.defined("tvos");
+		if (Context.defined("cpp") && Context.defined("lime-curl") && staticBuild && !Context.defined("emscripten") && !Context.defined("winrt")
+			&& !Context.defined("hxcpp_mbedtls_provider"))
+		{
+			// hxcpp can build sys.ssl on Lime's mbedTLS, so a static app links one copy
+			var parts = StringTools.replace(sys.FileSystem.fullPath(Context.resolvePath("lime/_internal")), "\\", "/").split("/");
+			parts.splice(-3, 3);
+			Compiler.define("hxcpp_mbedtls_provider", parts.join("/") + "/templates/mbedtls/provider.xml");
+		}
 	}
 }
 #end

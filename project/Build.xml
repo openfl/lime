@@ -91,10 +91,15 @@
 		<section if="LIME_CURL">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/curl/" />
 			<compilerflag value="-DLIME_CURL" />
+			<compilerflag value="-DLIME_MBEDTLS" if="LIME_MBEDTLS" />
 			<compilerflag value="-DCURL_STATICLIB" />
 
 			<file name="src/net/curl/CURLBindings.cpp" />
+			<file name="src/net/curl/CURLCertificates.cpp">
+				<depend name="${NATIVE_TOOLKIT_PATH}/custom/curl/ca_certificates.h" />
+			</file>
 
 		</section>
 
@@ -435,7 +440,7 @@
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
-		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" unless="static_link" />
+		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" />
 		<files id="native-toolkit-mojoal" if="LIME_MOJOAL" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
@@ -480,6 +485,8 @@
 				<lib name="setupapi.lib" />
 
 				<lib name="bcrypt.lib" if="LIME_CURL" />
+				<lib name="crypt32.lib" if="LIME_CURL" />
+				<lib name="iphlpapi.lib" if="LIME_CURL" />
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
@@ -537,6 +544,7 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="Security" />
 				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />

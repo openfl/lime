@@ -75,12 +75,19 @@ jobs:
             templates/bin/hl/Linux64
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
@@ -184,12 +191,19 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
 
@@ -314,12 +328,19 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test mac -arm64 -release -verbose -nocolor
 
@@ -434,12 +455,19 @@ jobs:
             templates/bin/hl/Mac64
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test hl -release -verbose -nocolor
           lime test mac -x86_64 -release -verbose -nocolor
@@ -540,16 +568,28 @@ jobs:
             templates/bin/hl/Windows64
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
           ALSOFT_DRIVERS: "null"
         run: |
+          python -m unittest discover -s fixtures
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test neko -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test hl -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test air -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test windows -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check native desktop integration through SDL
         working-directory: tests/native-desktop
@@ -731,6 +771,10 @@ jobs:
         run: |
           lime rebuild android -release -nocolor -verbose -nocffi -eval
 
+      - name: Check Lime's mbedTLS names (Android)
+        run: |
+          haxe --cwd project/lib/custom/mbedtls --run GeneratePrefix -check ../../../obj
+
       - uses: actions/upload-artifact@v7
         with:
           name: Android-NDLL
@@ -802,6 +846,10 @@ jobs:
         run: |
           lime rebuild ios -clean -release -verbose -nocolor -eval
 
+      - name: Check Lime's mbedTLS names (iOS)
+        run: |
+          haxe --cwd project/lib/custom/mbedtls --run GeneratePrefix -check ../../../../ndll/iPhone
+
       - uses: actions/upload-artifact@v7
         with:
           name: iPhone-NDLL
@@ -871,6 +919,9 @@ jobs:
           cp project/lib/hashlink/src/hlc.h templates/bin/hl/include/hlc.h
           cp project/lib/hashlink/src/hl.h templates/bin/hl/include/hl.h
           cp project/lib/hashlink/src/hlc_main.c templates/bin/hl/include/hlc_main.c
+          mkdir -p templates/mbedtls/include templates/mbedtls/config
+          cp -R project/lib/mbedtls/include/. templates/mbedtls/include/
+          cp project/lib/custom/mbedtls/*.h templates/mbedtls/config/
 
       - uses: actions/download-artifact@v8
         with:
