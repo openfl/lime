@@ -5720,6 +5720,9 @@ class NativeCFFI
 	@:cffi private static function lime_gl_copy_buffer_sub_data(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer,
 		size:Int):Void;
 
+	@:cffi private static function lime_gl_copy_image_sub_data(srcName:Int, srcTarget:Int, srcLevel:Int, srcX:Int, srcY:Int, srcZ:Int, dstName:Int,
+		dstTarget:Int, dstLevel:Int, dstX:Int, dstY:Int, dstZ:Int, srcWidth:Int, srcHeight:Int, srcDepth:Int):Void;
+
 	@:cffi private static function lime_gl_copy_tex_image_2d(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
 
 	@:cffi private static function lime_gl_copy_tex_sub_image_2d(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
@@ -6249,6 +6252,8 @@ class NativeCFFI
 		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_compressed_tex_sub_image_3d", "iiiiiiiiiidv", false));
 	private static var lime_gl_copy_buffer_sub_data = new cpp.Callable<Int->Int->lime.utils.DataPointer->lime.utils.DataPointer->Int->
 		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_copy_buffer_sub_data", "iiddiv", false));
+	private static var lime_gl_copy_image_sub_data = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->Int->
+		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_copy_image_sub_data", "iiiiiiiiiiiiiiiv", false));
 	private static var lime_gl_copy_tex_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_gl_copy_tex_image_2d", "iiiiiiiiv", false));
 	private static var lime_gl_copy_tex_sub_image_2d = new cpp.Callable<Int->Int->Int->Int->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -6666,6 +6671,7 @@ class NativeCFFI
 	private static var lime_gl_compressed_tex_sub_image_2d = CFFI.load("lime", "lime_gl_compressed_tex_sub_image_2d", -1);
 	private static var lime_gl_compressed_tex_sub_image_3d = CFFI.load("lime", "lime_gl_compressed_tex_sub_image_3d", -1);
 	private static var lime_gl_copy_buffer_sub_data = CFFI.load("lime", "lime_gl_copy_buffer_sub_data", 5);
+	private static var lime_gl_copy_image_sub_data = CFFI.load("lime", "lime_gl_copy_image_sub_data", -1);
 	private static var lime_gl_copy_tex_image_2d = CFFI.load("lime", "lime_gl_copy_tex_image_2d", -1);
 	private static var lime_gl_copy_tex_sub_image_2d = CFFI.load("lime", "lime_gl_copy_tex_sub_image_2d", -1);
 	private static var lime_gl_copy_tex_sub_image_3d = CFFI.load("lime", "lime_gl_copy_tex_sub_image_3d", -1);
@@ -6990,6 +6996,9 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_gl_copy_buffer_sub_data") private static function lime_gl_copy_buffer_sub_data(readTarget:Int, writeTarget:Int,
 		readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void {}
+
+	@:hlNative("lime", "hl_gl_copy_image_sub_data") private static function lime_gl_copy_image_sub_data(srcName:Int, srcTarget:Int, srcLevel:Int,
+		srcX:Int, srcY:Int, srcZ:Int, dstName:Int, dstTarget:Int, dstLevel:Int, dstX:Int, dstY:Int, dstZ:Int, srcWidth:Int, srcHeight:Int, srcDepth:Int):Void {}
 
 	@:hlNative("lime", "hl_gl_copy_tex_image_2d") private static function lime_gl_copy_tex_image_2d(target:Int, level:Int, internalformat:Int, x:Int, y:Int,
 		width:Int, height:Int, border:Int):Void {}

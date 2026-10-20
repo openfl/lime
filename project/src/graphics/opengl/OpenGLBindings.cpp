@@ -1009,6 +1009,28 @@ namespace lime {
 	}
 
 
+	void lime_gl_copy_image_sub_data (int srcName, int srcTarget, int srcLevel, int srcX, int srcY, int srcZ, int dstName, int dstTarget, int dstLevel, int dstX, int dstY, int dstZ, int srcWidth, int srcHeight, int srcDepth) {
+
+		#ifndef LIME_GLES
+		if (glCopyImageSubData) {
+			glCopyImageSubData (srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
+		}
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_copy_image_sub_data) (int srcName, int srcTarget, int srcLevel, int srcX, int srcY, int srcZ, int dstName, int dstTarget, int dstLevel, int dstX, int dstY, int dstZ, int srcWidth, int srcHeight, int srcDepth) {
+
+		#ifndef LIME_GLES
+		if (glCopyImageSubData) {
+			glCopyImageSubData (srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
+		}
+		#endif
+
+	}
+
+
 	void lime_gl_copy_tex_image_2d (int target, int level, int internalformat, int x, int y, int width, int height, int border) {
 
 		glCopyTexImage2D (target, level, internalformat, x, y, width, height, border);
@@ -5715,6 +5737,7 @@ namespace lime {
 	DEFINE_PRIME9v (lime_gl_compressed_tex_sub_image_2d);
 	DEFINE_PRIME11v (lime_gl_compressed_tex_sub_image_3d);
 	DEFINE_PRIME5v (lime_gl_copy_buffer_sub_data);
+	DEFINE_PRIME15v (lime_gl_copy_image_sub_data);
 	DEFINE_PRIME8v (lime_gl_copy_tex_image_2d);
 	DEFINE_PRIME8v (lime_gl_copy_tex_sub_image_2d);
 	DEFINE_PRIME9v (lime_gl_copy_tex_sub_image_3d);
@@ -5992,6 +6015,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_gl_compressed_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_gl_compressed_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_gl_copy_buffer_sub_data, _I32 _I32 _F64 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_copy_image_sub_data, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_copy_tex_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_copy_tex_sub_image_2d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_copy_tex_sub_image_3d, _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32 _I32);

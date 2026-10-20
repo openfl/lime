@@ -1,7 +1,11 @@
 package graphics;
 
 import lime.app.Application;
+import lime.graphics.OpenGLRenderContext;
+import lime.graphics.opengl.GLTexture;
 import lime.ui.Window;
+import lime.utils.DataPointer;
+import lime.utils.UInt8Array;
 import utest.Assert;
 import utest.Test;
 
@@ -46,6 +50,48 @@ class OpenGLTest extends Test
 		}
 
 		gl.deleteBuffer(buffer);
+	}
+
+	public function testImageDataIsCopiedBetweenTextures():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		if (gl.version < 4.3 && gl.getSupportedExtensions().indexOf("ARB_copy_image") == -1)
+		{
+			trace("This OpenGL has neither OpenGL 4.3 nor ARB_copy_image, so copying images was not tested");
+			Assert.pass();
+			return;
+		}
+
+		var texels = new UInt8Array(16);
+		for (i in 0...16)
+			texels[i] = i * 16 + 8;
+
+		var source = createTexture(gl, texels);
+		var destination = createTexture(gl, 0);
+
+		// Clears an error left by an earlier test
+		gl.getError();
+		gl.copyImageSubData(source, gl.TEXTURE_2D, 0, 0, 0, 0, destination, gl.TEXTURE_2D, 0, 0, 0, 0, 2, 2, 1);
+		Assert.equals(gl.NO_ERROR, gl.getError());
+
+		var framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, destination, 0);
+
+		var copied = new UInt8Array(16);
+		gl.readPixels(0, 0, 2, 2, gl.RGBA, gl.UNSIGNED_BYTE, copied);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.deleteFramebuffer(framebuffer);
+
+		Assert.same([for (i in 0...16) texels[i]], [for (i in 0...16) copied[i]]);
+
+		gl.deleteTexture(source);
+		gl.deleteTexture(destination);
 	}
 
 	public function testWindowsShareTextures():Void
@@ -110,6 +156,17 @@ class OpenGLTest extends Test
 		}
 
 		return window;
+	}
+
+	private static function createTexture(gl:OpenGLRenderContext, data:DataPointer):GLTexture
+	{
+		var texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		// A texture without mipmaps is complete, as copying needs, only with a filter that doesn't use them
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		return texture;
 	}
 
 	private static function createWindow():Window

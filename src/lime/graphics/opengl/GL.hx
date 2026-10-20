@@ -889,6 +889,14 @@ class GL
 	}
 	#end
 
+	#if (lime_opengl || lime_opengles)
+	public static inline function copyImageSubData(srcName:GLTexture, srcTarget:Int, srcLevel:Int, srcX:Int, srcY:Int, srcZ:Int, dstName:GLTexture,
+			dstTarget:Int, dstLevel:Int, dstX:Int, dstY:Int, dstZ:Int, srcWidth:Int, srcHeight:Int, srcDepth:Int):Void
+	{
+		context.copyImageSubData(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
+	}
+	#end
+
 	public static inline function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
 	{
 		context.copyTexImage2D(target, level, internalformat, x, y, width, height, border);

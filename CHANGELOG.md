@@ -28,6 +28,7 @@ Changelog
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
+- Added `GL.copyImageSubData()` for desktop OpenGL 4.3 and `ARB_copy_image`.
 - Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
 - Added texture output, HDR tone mapping, rotation and pixel aspect ratio, clock modes, gapless loops, stereo pan, skipping of late frames, and network streams to video playback, with NV12, RGBA, BGRA, and ARGB frames.
 - Added `VideoSource` playback on HTML5 through the browser's `<video>` element.
