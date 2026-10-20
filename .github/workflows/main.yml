@@ -74,6 +74,10 @@ jobs:
             templates/bin/hl/Linux64
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
@@ -181,6 +185,10 @@ jobs:
             ndll/LinuxArm64/
             !**/.gitignore
           if-no-files-found: error
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit
@@ -310,6 +318,10 @@ jobs:
             !**/.gitignore
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
@@ -429,6 +441,10 @@ jobs:
             templates/bin/hl/Mac64
           if-no-files-found: error
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
       - name: Run unit tests
         working-directory: tests/unit
         env:
@@ -533,6 +549,10 @@ jobs:
           path: |
             templates/bin/hl/Windows64
           if-no-files-found: error
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
 
       - name: Run unit tests
         working-directory: tests/unit

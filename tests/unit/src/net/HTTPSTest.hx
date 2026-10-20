@@ -89,6 +89,44 @@ PPnvNTXCeHD8QlJQRVNGCX/HJfwNItkkveY54/M8pOreIDAxcydX7TC3
 	}
 
 	#if (lime_cffi && lime_curl && sys && target.threaded)
+	#if neko
+	public function teardown():Void
+	{
+		ProcessTLSServer.closeAll();
+	}
+
+	public function testTLSFixtureStartupFailureCleansUp():Void
+	{
+		function temporaryDirectories():Array<String>
+		{
+			var directories = sys.FileSystem.readDirectory(Sys.getCwd()).filter(function(name) return StringTools.startsWith(name, "lime-test-tls-"));
+			directories.sort(Reflect.compare);
+			return directories;
+		}
+		var before = temporaryDirectories();
+		Assert.raises(function() new TLSServer("invalid certificate", "invalid key"));
+		Assert.same(before, temporaryDirectories(), "failed startup must remove its temporary files");
+	}
+	#end
+
+	public function testRejectedConnectionsDoNotStopTheServer():Void
+	{
+		var server = new TLSServer(SELF_SIGNED_CERTIFICATE, SELF_SIGNED_KEY);
+		for (_ in 0...8)
+		{
+			var rejected = fetch(server.url);
+			Assert.equals(SSL_CACERT, rejected.code, CURL.strerror(rejected.code));
+		}
+		var accepted = fetch(server.url, function(curl)
+		{
+			curl.setOption(SSL_VERIFYPEER, false);
+			curl.setOption(SSL_VERIFYHOST, 0);
+		});
+		server.stop();
+		Assert.equals(OK, accepted.code, CURL.strerror(accepted.code));
+		Assert.equals(BODY, accepted.body);
+	}
+
 	public function testASelfSignedCertificateIsRejected():Void
 	{
 		var server = new TLSServer(SELF_SIGNED_CERTIFICATE, SELF_SIGNED_KEY);
@@ -213,6 +251,9 @@ PPnvNTXCeHD8QlJQRVNGCX/HJfwNItkkveY54/M8pOreIDAxcydX7TC3
 }
 
 #if (lime_cffi && lime_curl && sys && target.threaded)
+#if neko
+private typedef TLSServer = ProcessTLSServer;
+#else
 /**
 	Answers HTTPS requests on a local port with a fixed body, presenting the
 	given certificate.
@@ -282,4 +323,5 @@ private class TLSServer
 		try connection.close() catch (e:Dynamic) {}
 	}
 }
+#end
 #end
