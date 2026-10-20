@@ -21,7 +21,7 @@ class NativeMenu
 	public static inline var SUPPORT_APPLICATION:Int = 0x04;
 
 	/**
-		Writes the menu as little-endian Int32 values, read by SDLMenu.cpp:
+		Writes the menu as little-endian Int32 values for the native menu backend:
 
 		```
 		menu := itemCount, item[itemCount]

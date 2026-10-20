@@ -1374,6 +1374,17 @@ class HTML5Window
 		handleInputEvent(e);
 	}
 
+	public function setAppearance(value:lime.ui.WindowAppearance):Void
+	{
+		if (parent.element != null) parent.element.style.setProperty("color-scheme", value == lime.ui.WindowAppearance.System ? "light dark" : value);
+	}
+
+	public function getAppearance():lime.ui.WindowAppearance
+	{
+		if (parent.appearance != lime.ui.WindowAppearance.System) return parent.appearance;
+		return Browser.window.matchMedia("(prefers-color-scheme: dark)").matches ? lime.ui.WindowAppearance.Dark : lime.ui.WindowAppearance.Light;
+	}
+
 	public function setTitle(value:String):String
 	{
 		if (value != null)

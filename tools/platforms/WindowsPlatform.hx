@@ -1062,7 +1062,11 @@ class WindowsPlatform extends PlatformTarget
 			{
 				windowsIcons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 			}
-			context.HAS_ICON = IconHelper.createWindowsIcon(windowsIcons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
+			var iconPath = Path.combine(targetDirectory + "/obj", "ApplicationMain.ico");
+			context.HAS_ICON = IconHelper.createWindowsIcon(windowsIcons, iconPath);
+			// hxcpp only recompiles ApplicationMain.rc when its text changes, so the
+			// icon's hash goes into it; otherwise a new icon keeps the old resource.
+			context.ICON_HASH = context.HAS_ICON ? haxe.crypto.Md5.make(File.getBytes(iconPath)).toHex() : "";
 			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
 
 			if (project.targetFlags.exists("static"))

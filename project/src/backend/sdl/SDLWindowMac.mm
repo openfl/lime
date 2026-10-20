@@ -7,6 +7,30 @@
 
 namespace lime {
 
+	void SetCocoaWindowAppearance (SDL_Window* native, int appearance) {
+		@autoreleasepool {
+			SDL_SysWMinfo info; SDL_VERSION (&info.version);
+			if (!native || !SDL_GetWindowWMInfo (native, &info) || info.subsystem != SDL_SYSWM_COCOA) return;
+			if (@available(macOS 10.14, *)) {
+				NSWindow* window = info.info.cocoa.window;
+				window.appearance = appearance == 0 ? nil : [NSAppearance appearanceNamed:appearance == 2 ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua];
+			}
+		}
+	}
+
+	int GetCocoaWindowAppearance (SDL_Window* native) {
+		@autoreleasepool {
+			SDL_SysWMinfo info; SDL_VERSION (&info.version);
+			if (!native || !SDL_GetWindowWMInfo (native, &info) || info.subsystem != SDL_SYSWM_COCOA) return 0;
+			if (@available(macOS 10.14, *)) {
+				NSAppearance* appearance = [info.info.cocoa.window effectiveAppearance];
+				NSString* match = [appearance bestMatchFromAppearancesWithNames:@[NSAppearanceNameAqua, NSAppearanceNameDarkAqua]];
+				return [match isEqualToString:NSAppearanceNameDarkAqua] ? 2 : 1;
+			}
+			return 0;
+		}
+	}
+
 
 	bool EnableTransparentWindow (SDL_Window* sdlWindow) {
 

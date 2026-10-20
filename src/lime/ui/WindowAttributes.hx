@@ -8,6 +8,8 @@ typedef WindowAttributes =
 {
 	@:optional public var allowHighDPI:Bool;
 	@:optional public var alwaysOnTop:Bool;
+	/** Preferred native window appearance; omitted attributes retain platform defaults. **/
+	@:optional public var appearance:WindowAppearance;
 	@:optional public var borderless:Bool;
 	@:optional public var context:RenderContextAttributes;
 	// @:optional public var display:Int;

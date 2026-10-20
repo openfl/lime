@@ -804,6 +804,23 @@ class NativeWindow
 		return value;
 	}
 
+	public function setAppearance(value:lime.ui.WindowAppearance):Void
+	{
+		#if (lime_cffi && !macro)
+		if (handle != null) NativeCFFI.lime_window_set_appearance(handle, switch value { case Light: 1; case Dark: 2; default: 0; });
+		#end
+	}
+
+	public function getAppearance():lime.ui.WindowAppearance
+	{
+		#if (lime_cffi && !macro)
+		if (handle != null) return switch NativeCFFI.lime_window_get_appearance(handle) {
+			case 1: Light; case 2: Dark; default: System;
+		};
+		#end
+		return System;
+	}
+
 	public function setTitle(value:String):String
 	{
 		if (handle != null)

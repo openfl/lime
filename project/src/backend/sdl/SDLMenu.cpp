@@ -1,18 +1,23 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
 #include <ui/DockIcon.h>
+#include <native_desktop/Desktop.h>
 #include <stdint.h>
+#include <cstring>
+
+#if defined(HX_LINUX) && !defined(HX_ANDROID) && !defined(SDL_VIDEO_DRIVER_X11)
+#define SDL_VIDEO_DRIVER_X11 1
+#endif
+#include <SDL_syswm.h>
+
+#if defined(HX_LINUX) && defined(LIME_PNG)
+#include <graphics/format/PNG.h>
+#include <utils/Bytes.h>
+#endif
 
 
 namespace lime {
 
-
-	// Menu data is written by NativeMenu.hx as little-endian Int32 values:
-	//
-	//   menu := itemCount, item[itemCount]
-	//   item := id, flags, keyCode, keyModifiers, labelLength, label, [menu if flags & MENU_ITEM_SUBMENU]
-	//
-	// Labels are UTF-8, with "&" marking the mnemonic and "&&" for a literal ampersand.
 
 	enum MenuEventKind {
 
@@ -22,56 +27,90 @@ namespace lime {
 
 	};
 
-
-	static const int MAX_MENU_DEPTH = 32;
 	static Uint32 menuEventType = 0;
 
 
-	static bool ReadInt (const unsigned char* data, int length, int* position, int* result) {
+	static void ForwardDesktopEvent (const native_desktop::Event& event, void*) {
 
-		if (length - *position < 4) return false;
+		switch (event.kind) {
 
-		const unsigned char* bytes = data + *position;
-		*result = (int)((Uint32)bytes[0] | ((Uint32)bytes[1] << 8) | ((Uint32)bytes[2] << 16) | ((Uint32)bytes[3] << 24));
-		*position += 4;
+			case native_desktop::MENU_EVENT_SELECTION:
+				SDLMenu::PushSelection (event.target, event.code);
+				break;
+
+			case native_desktop::MENU_EVENT_TRAY_ICON:
+				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value);
+				break;
+
+			case native_desktop::MENU_EVENT_DOCK_SELECTION:
+				SDLMenu::PushDockMenuSelection (event.code);
+				break;
+
+		}
+
+	}
+
+
+	static void ConfigureDesktop () {
+
+		native_desktop::Menu::SetEventSink (ForwardDesktopEvent, NULL);
+		native_desktop::Menu::SetKeyNameProvider (SDL_GetKeyName);
+
+		#ifdef LIME_SDL_MENU_GTK
+		const char* driver = SDL_GetCurrentVideoDriver ();
+		if (driver && strcmp (driver, "x11") == 0) native_desktop::Menu::SetDisplayBackend ("x11");
+		#endif
+
+	}
+
+
+	static bool GetDesktopWindow (SDL_Window* window, native_desktop::Window* result) {
+
+		if (!window) return false;
+
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		if (!SDL_GetWindowWMInfo (window, &info)) return false;
+
+		result->id = SDL_GetWindowID (window);
+		SDL_GetWindowPosition (window, &result->x, &result->y);
+
+		#if defined(LIME_SDL_MENU_WIN32)
+		if (info.subsystem != SDL_SYSWM_WINDOWS) return false;
+		result->handle = info.info.win.window;
+		#elif defined(LIME_SDL_MENU_COCOA)
+		if (info.subsystem != SDL_SYSWM_COCOA) return false;
+		result->handle = info.info.cocoa.window;
+		#elif defined(LIME_SDL_MENU_GTK) && defined(SDL_VIDEO_DRIVER_X11)
+		if (info.subsystem != SDL_SYSWM_X11) return false;
+		result->display = info.info.x11.display;
+		result->handle = (void*)(uintptr_t)info.info.x11.window;
+		result->appearance = (int)(intptr_t)SDL_GetWindowData (window, "Lime.WindowAppearance") - 1;
+		#else
+		return false;
+		#endif
+
 		return true;
 
 	}
 
 
-	static bool ParseItems (const unsigned char* data, int length, int* position, std::vector<SDLMenuItem>* items, int depth) {
+	static native_desktop::Image GetDesktopImage (ImageBuffer* image) {
 
-		int count;
+		native_desktop::Image result;
 
-		if (depth > MAX_MENU_DEPTH || !ReadInt (data, length, position, &count) || count < 0) return false;
+		if (image && image->data && image->data->buffer) {
 
-		items->resize (count);
-
-		for (int i = 0; i < count; i++) {
-
-			SDLMenuItem* item = &(*items)[i];
-			int labelLength;
-
-			if (!ReadInt (data, length, position, &item->id) || !ReadInt (data, length, position, &item->flags)
-				|| !ReadInt (data, length, position, &item->keyCode) || !ReadInt (data, length, position, &item->keyModifiers)
-				|| !ReadInt (data, length, position, &labelLength) || labelLength < 0 || length - *position < labelLength) {
-
-				return false;
-
-			}
-
-			item->label.assign ((const char*)(data + *position), labelLength);
-			*position += labelLength;
-
-			if ((item->flags & MENU_ITEM_SUBMENU) && !ParseItems (data, length, position, &item->submenu, depth + 1)) {
-
-				return false;
-
-			}
+			result.data = image->data->buffer->b;
+			result.length = image->data->buffer->length;
+			result.width = image->width;
+			result.height = image->height;
+			result.stride = image->Stride ();
+			result.bitsPerPixel = image->bitsPerPixel;
 
 		}
 
-		return true;
+		return result;
 
 	}
 
@@ -90,89 +129,222 @@ namespace lime {
 	}
 
 
-	std::string SDLMenu::GetLabel (const std::string& label, char mnemonicPrefix) {
+	int SDLMenu::GetSupport () {
 
-		if (mnemonicPrefix == '&') return label;
+		ConfigureDesktop ();
 
-		std::string result;
-		result.reserve (label.size ());
+		#ifdef LIME_SDL_MENU_GTK
+		const char* driver = SDL_GetCurrentVideoDriver ();
+		if (driver && strcmp (driver, "x11") != 0) return 0;
+		#endif
 
-		for (size_t i = 0; i < label.size (); i++) {
+		int support = native_desktop::Menu::GetSupport ();
+		return ((support & native_desktop::MENU_SUPPORT_POPUP) ? MENU_SUPPORT_POPUP : 0)
+			| ((support & native_desktop::MENU_SUPPORT_WINDOW) ? MENU_SUPPORT_WINDOW : 0)
+			| ((support & native_desktop::MENU_SUPPORT_APPLICATION) ? MENU_SUPPORT_APPLICATION : 0);
 
-			char c = label[i];
+	}
 
-			if (c == '&') {
 
-				if (i + 1 < label.size () && label[i + 1] == '&') {
+	int SDLMenu::Popup (SDL_Window* window, const unsigned char* data, int length, int x, int y, bool atCursor) {
 
-					result += '&';
-					i++;
+		ConfigureDesktop ();
+		native_desktop::Window native;
+		return GetDesktopWindow (window, &native) ? native_desktop::Menu::Popup (&native, data, length, x, y, atCursor) : 0;
 
-				} else if (mnemonicPrefix) {
+	}
 
-					result += mnemonicPrefix;
 
-				}
+	void SDLMenu::Remove (SDL_Window* window) {
 
-			} else if (mnemonicPrefix && c == mnemonicPrefix) {
+		native_desktop::Window native;
+		if (GetDesktopWindow (window, &native)) native_desktop::Menu::Remove (&native);
 
-				result += mnemonicPrefix;
-				result += mnemonicPrefix;
+	}
 
-			} else {
 
-				result += c;
+	bool SDLMenu::SetApplicationMenu (const unsigned char* data, int length) {
 
-			}
+		ConfigureDesktop ();
+		return native_desktop::Menu::SetApplicationMenu (data, length);
 
-		}
+	}
+
+
+	bool SDLMenu::SetWindowMenu (SDL_Window* window, const unsigned char* data, int length) {
+
+		ConfigureDesktop ();
+		native_desktop::Window native;
+		if (!GetDesktopWindow (window, &native)) return false;
+
+		#ifdef LIME_SDL_MENU_WIN32
+		bool previous = GetMenu ((HWND)native.handle) != NULL;
+		bool preserve = (previous != (data && length > 0))
+			&& !(SDL_GetWindowFlags (window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_MINIMIZED));
+		int width, height;
+		SDL_GetWindowSize (window, &width, &height);
+		#endif
+
+		bool result = native_desktop::Menu::SetWindowMenu (&native, data, length);
+
+		#ifdef LIME_SDL_MENU_WIN32
+		if (result && preserve && width > 0 && height > 0) SDL_SetWindowSize (window, width, height);
+		#endif
 
 		return result;
 
 	}
 
 
-	bool SDLMenu::GetDockMenuSelection (SDL_Event* event, int* id) {
+	bool SDLMenu::GetSelection (SDL_Event* event, Uint32* windowID, int* id) {
 
-		if (menuEventType == 0 || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_DOCK_SELECTION) return false;
-
+		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_SELECTION) return false;
+		*windowID = event->user.windowID;
 		*id = event->user.code;
 		return true;
 
 	}
 
 
-	bool SDLMenu::GetSelection (SDL_Event* event, Uint32* windowID, int* id) {
+	bool SDLMenu::GetDockMenuSelection (SDL_Event* event, int* id) {
 
-		if (menuEventType != 0 && event->type == menuEventType && (intptr_t)event->user.data1 == MENU_EVENT_SELECTION) {
-
-			*windowID = event->user.windowID;
-			*id = event->user.code;
-			return true;
-
-		}
-
-		return GetPlatformSelection (event, windowID, id);
-
-	}
-
-
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* trayIconID, int* type, int* itemID) {
-
-		if (menuEventType == 0 || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_TRAY_ICON) return false;
-
-		*trayIconID = (int)event->user.windowID;
-		*type = event->user.code;
-		*itemID = (int)(intptr_t)event->user.data2;
+		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_DOCK_SELECTION) return false;
+		*id = event->user.code;
 		return true;
 
 	}
 
 
-	bool SDLMenu::Parse (const unsigned char* data, int length, std::vector<SDLMenuItem>* items) {
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
 
-		int position = 0;
-		return data && length > 0 && ParseItems (data, length, &position, items, 0);
+		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_TRAY_ICON) return false;
+		*id = event->user.windowID;
+		*type = event->user.code;
+		*item = (int)(intptr_t)event->user.data2;
+		return true;
+
+	}
+
+
+	bool TrayIcon::IsSupported () {
+
+		ConfigureDesktop ();
+		return native_desktop::TrayIcon::IsSupported ();
+
+	}
+
+
+	SDLTrayIcon::SDLTrayIcon () {
+
+		ConfigureDesktop ();
+		native_desktop::TrayIcon* icon = new native_desktop::TrayIcon ();
+		platform = icon;
+		id = icon->GetID ();
+
+	}
+
+
+	SDLTrayIcon::~SDLTrayIcon () {
+
+		Close ();
+
+	}
+
+
+	int SDLTrayIcon::GetID () {
+
+		return id;
+
+	}
+
+
+	void SDLTrayIcon::Close () {
+
+		delete (native_desktop::TrayIcon*)platform;
+		platform = NULL;
+
+	}
+
+
+	int SDLTrayIcon::PopupMenu (const unsigned char* data, int length) {
+
+		return platform ? ((native_desktop::TrayIcon*)platform)->PopupMenu (data, length) : 0;
+
+	}
+
+
+	bool SDLTrayIcon::SetMenu (const unsigned char* data, int length) {
+
+		return platform && ((native_desktop::TrayIcon*)platform)->SetMenu (data, length);
+
+	}
+
+
+	void SDLTrayIcon::SetTooltip (const char* text) {
+
+		if (platform) ((native_desktop::TrayIcon*)platform)->SetTooltip (text);
+
+	}
+
+
+	void SDLTrayIcon::SetIcon (ImageBuffer* image) {
+
+		if (!platform) return;
+
+		native_desktop::Image native = GetDesktopImage (image);
+
+		#if defined(HX_LINUX) && defined(LIME_PNG)
+		Bytes png;
+
+		if (image && PNG::Encode (image, &png)) {
+
+			native.png = png.b;
+			native.pngLength = png.length;
+
+		}
+		#endif
+
+		((native_desktop::TrayIcon*)platform)->SetIcon (image ? &native : NULL);
+
+	}
+
+
+	void SDLTrayIcon::Update () {
+
+		// SDL already dispatches Win32 and Cocoa events. GTK's context is separate.
+		#ifdef LIME_SDL_MENU_GTK
+		native_desktop::TrayIcon::Update ();
+		#endif
+
+	}
+
+
+	void DockIcon::Bounce (bool critical) {
+
+		native_desktop::DockIcon::Bounce (critical);
+
+	}
+
+
+	bool DockIcon::IsSupported () {
+
+		return native_desktop::DockIcon::IsSupported ();
+
+	}
+
+
+	bool DockIcon::SetMenu (const unsigned char* data, int length) {
+
+		ConfigureDesktop ();
+		return native_desktop::DockIcon::SetMenu (data, length);
+
+	}
+
+
+	void DockIcon::SetIcon (ImageBuffer* image) {
+
+		native_desktop::Image native = GetDesktopImage (image);
+		native_desktop::DockIcon::SetIcon (image ? &native : NULL);
 
 	}
 
@@ -183,7 +355,7 @@ namespace lime {
 
 			menuEventType = SDL_RegisterEvents (1);
 
-			// SDLApplication treats SDL_USEREVENT as a frame request, so never share it
+			// SDLApplication treats SDL_USEREVENT as a frame request, so never share it.
 			if (menuEventType == SDL_USEREVENT) menuEventType = SDL_RegisterEvents (1);
 
 			if (menuEventType == (Uint32)-1) {
@@ -226,125 +398,6 @@ namespace lime {
 		PushEvent (MENU_EVENT_TRAY_ICON, (Uint32)trayIconID, type, itemID);
 
 	}
-
-
-	int SDLTrayIcon::GetID () {
-
-		return id;
-
-	}
-
-
-#ifndef LIME_SDL_MENU_COCOA
-
-	// The Dock only exists on macOS
-
-	void DockIcon::Bounce (bool critical) {}
-
-
-	bool DockIcon::IsSupported () {
-
-		return false;
-
-	}
-
-
-	void DockIcon::SetIcon (ImageBuffer* imageBuffer) {}
-
-
-	bool DockIcon::SetMenu (const unsigned char* data, int length) {
-
-		return false;
-
-	}
-
-#endif
-
-
-#if !defined (LIME_SDL_MENU_WIN32) && !defined (LIME_SDL_MENU_COCOA) && !defined (LIME_SDL_MENU_GTK)
-
-	bool SDLMenu::GetPlatformSelection (SDL_Event* event, Uint32* windowID, int* id) {
-
-		return false;
-
-	}
-
-
-	int SDLMenu::GetSupport () {
-
-		return 0;
-
-	}
-
-
-	int SDLMenu::Popup (SDL_Window* window, const unsigned char* data, int length, int x, int y, bool atCursor) {
-
-		return 0;
-
-	}
-
-
-	void SDLMenu::Remove (SDL_Window* window) {}
-
-
-	bool SDLMenu::SetApplicationMenu (const unsigned char* data, int length) {
-
-		return false;
-
-	}
-
-
-	bool SDLMenu::SetWindowMenu (SDL_Window* window, const unsigned char* data, int length) {
-
-		return false;
-
-	}
-
-
-	bool TrayIcon::IsSupported () {
-
-		return false;
-
-	}
-
-
-	SDLTrayIcon::SDLTrayIcon () {
-
-		id = 0;
-		platform = 0;
-
-	}
-
-
-	SDLTrayIcon::~SDLTrayIcon () {}
-
-
-	void SDLTrayIcon::Close () {}
-
-
-	int SDLTrayIcon::PopupMenu (const unsigned char* data, int length) {
-
-		return 0;
-
-	}
-
-
-	void SDLTrayIcon::SetIcon (ImageBuffer* imageBuffer) {}
-
-
-	bool SDLTrayIcon::SetMenu (const unsigned char* data, int length) {
-
-		return false;
-
-	}
-
-
-	void SDLTrayIcon::SetTooltip (const char* tooltip) {}
-
-
-	void SDLTrayIcon::Update () {}
-
-#endif
 
 
 }

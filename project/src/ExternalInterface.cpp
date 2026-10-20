@@ -3083,6 +3083,28 @@ namespace lime {
 	}
 
 
+	bool lime_font_set_variation (value fontHandle, value tag, double coordinate) {
+		#ifdef LIME_FREETYPE
+		Font* font = (Font*)val_data(fontHandle);
+		if (!font || val_is_null(tag) || val_strlen(tag) != 4) return false;
+		const unsigned char* axis = (const unsigned char*)val_string(tag);
+		return font->SetVariation((axis[0] << 24) | (axis[1] << 16) | (axis[2] << 8) | axis[3], coordinate);
+		#else
+		return false;
+		#endif
+	}
+
+	HL_PRIM bool HL_NAME(hl_font_set_variation) (HL_CFFIPointer* fontHandle, hl_vstring* tag, double coordinate) {
+		#ifdef LIME_FREETYPE
+		Font* font = fontHandle ? (Font*)fontHandle->ptr : 0;
+		if (!font || !tag || tag->length != 4) return false;
+		const uchar* axis = (const uchar*)tag->bytes;
+		return font->SetVariation((axis[0] << 24) | (axis[1] << 16) | (axis[2] << 8) | axis[3], coordinate);
+		#else
+		return false;
+		#endif
+	}
+
 	void lime_font_set_stem_darkening (value fontHandle, bool enable) {
 
 		#ifdef LIME_FREETYPE
@@ -13892,6 +13914,22 @@ namespace lime {
 	}
 
 
+	void lime_window_set_appearance (value window, int appearance) {
+		SetWindowAppearance (val_is_null (window) ? NULL : (Window*)val_data (window), appearance);
+	}
+
+	HL_PRIM void HL_NAME(hl_window_set_appearance) (HL_CFFIPointer* window, int appearance) {
+		SetWindowAppearance (window ? (Window*)window->ptr : NULL, appearance);
+	}
+
+	int lime_window_get_appearance (value window) {
+		return GetWindowAppearance (val_is_null (window) ? NULL : (Window*)val_data (window));
+	}
+
+	HL_PRIM int HL_NAME(hl_window_get_appearance) (HL_CFFIPointer* window) {
+		return GetWindowAppearance (window ? (Window*)window->ptr : NULL);
+	}
+
 	value lime_window_set_title (value window, HxString title) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14107,6 +14145,7 @@ namespace lime {
 	DEFINE_PRIME5 (lime_font_render_glyph_with_offset);
 	DEFINE_PRIME3 (lime_font_render_glyphs);
 	DEFINE_PRIME3v (lime_font_set_size);
+	DEFINE_PRIME3 (lime_font_set_variation);
 	DEFINE_PRIME2v (lime_font_set_stem_darkening);
 	DEFINE_PRIME2v (lime_font_set_stem_darkening_parameters);
 	DEFINE_PRIME1v (lime_gamepad_add_mappings);
@@ -14352,6 +14391,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_window_set_text_input_enabled);
 	DEFINE_PRIME2v (lime_window_set_text_input_rect);
 	DEFINE_PRIME2 (lime_window_set_title);
+	DEFINE_PRIME2v (lime_window_set_appearance);
+	DEFINE_PRIME1 (lime_window_get_appearance);
 	DEFINE_PRIME2 (lime_window_set_visible);
 	DEFINE_PRIME2 (lime_window_set_always_on_top);
 	DEFINE_PRIME3v (lime_window_warp_mouse);
@@ -14460,6 +14501,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyph_with_offset, _TCFFIPOINTER _I32 _I32 _I32 _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_font_render_glyphs, _TCFFIPOINTER _ARR _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_size, _TCFFIPOINTER _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_font_set_variation, _TCFFIPOINTER _STRING _F64);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_stem_darkening, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_font_set_stem_darkening_parameters, _TCFFIPOINTER _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_gamepad_add_mappings, _ARR);
@@ -14705,6 +14747,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_enabled, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_text_input_rect, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_STRING, hl_window_set_title, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_appearance, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_window_get_appearance, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_visible, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_always_on_top, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
