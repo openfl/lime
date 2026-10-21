@@ -163,6 +163,13 @@ class VideoSource
 	public var playing(get, never):Bool;
 
 	/**
+		How fast the video plays, where 1 is normal speed, from 0.25 to 4.
+		Native targets play the sound faster too, at a higher pitch, while
+		browsers usually keep its pitch. It is always 1 on Flash.
+	**/
+	public var rate(get, set):Float;
+
+	/**
 		How far to turn frames clockwise to show them upright, in degrees: 0,
 		90, 180 or 270. Phones store video recorded upright as sideways frames
 		with a rotation of 90. It is always 0 on HTML5, where the browser turns
@@ -337,6 +344,16 @@ class VideoSource
 	@:noCompletion private function set_gain(value:Float):Float
 	{
 		return __backend.setGain(value);
+	}
+
+	@:noCompletion private function get_rate():Float
+	{
+		return __backend.getRate();
+	}
+
+	@:noCompletion private function set_rate(value:Float):Float
+	{
+		return __backend.setRate(value);
 	}
 
 	@:noCompletion private function get_hasAudio():Bool
