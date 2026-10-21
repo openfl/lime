@@ -139,6 +139,7 @@ class NativeVideoSource
 	private var loops:Int;
 	private var pan:Float;
 	private var parent:VideoSource;
+	private var playbackRate:Float;
 	private var playing:Bool;
 	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
@@ -188,6 +189,7 @@ class NativeVideoSource
 		loopToken = 0;
 		loops = 0;
 		pan = 0;
+		playbackRate = 1;
 		playing = false;
 	}
 
@@ -267,6 +269,11 @@ class NativeVideoSource
 	public function getPixelAspectRatio():Float
 	{
 		return decoder != null ? decoder.pixelAspectRatio : 1;
+	}
+
+	public function getRate():Float
+	{
+		return playbackRate;
 	}
 
 	public function getPlaying():Bool
@@ -499,6 +506,25 @@ class NativeVideoSource
 
 		unlockAudio();
 		return value;
+	}
+
+	public function setRate(value:Float):Float
+	{
+		if (Math.isNaN(value)) return playbackRate;
+		value = Math.max(0.25, Math.min(4, value));
+		if (value == playbackRate) return playbackRate;
+
+		lockAudio();
+		if (decoder != null) getTimeUnlocked();
+		playbackRate = value;
+		audioClockStamp = -1;
+		audioCheckStamp = -1;
+		audioRateStamp = -1;
+		clockRate = 1 + timerDrift;
+		if (handle != null) AL.sourcef(handle, AL.PITCH, playbackRate);
+		unlockAudio();
+
+		return playbackRate;
 	}
 
 	public function setLoops(value:Int):Int
@@ -807,6 +833,7 @@ class NativeVideoSource
 		if (handle == null) return;
 
 		AL.sourcef(handle, AL.GAIN, gain);
+		AL.sourcef(handle, AL.PITCH, playbackRate);
 
 		if (decoder.audioChannels == 1)
 		{
@@ -863,7 +890,7 @@ class NativeVideoSource
 	{
 		// A stalled output is only given audio up to a little past the clock, so
 		// one that drops what it is given does not drain the decoder
-		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS : Math.POSITIVE_INFINITY;
+		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS * Math.max(1, playbackRate) : Math.POSITIVE_INFINITY;
 
 		while (freeBuffers.length > 0 && audioDecoder.audioTime + audioOffset < limit)
 		{
@@ -964,11 +991,11 @@ class NativeVideoSource
 		// buffer can move it by a rounding error, which is not a mix.
 		var moved = Math.abs(audioMixPosition - audioReadPosition) > AUDIO_MIX_SECONDS;
 		var timed = moved && audioReadStamp >= 0 && now - audioReadStamp <= AUDIO_READ_SECONDS;
-		var heard = position + (timed ? (now - audioReadStamp) / 2 : 0);
+		var heard = position + (timed ? (now - audioReadStamp) / 2 * playbackRate : 0);
 		audioReadPosition = audioMixPosition;
 		audioReadStamp = now;
 
-		var time = running ? clockTime + (now - clockStamp) * clockRate : clockTime;
+		var time = running ? clockTime + (now - clockStamp) * clockRate * playbackRate : clockTime;
 
 		if (audioStarting)
 		{
@@ -1039,7 +1066,7 @@ class NativeVideoSource
 
 							if (t >= AUDIO_LEARN_SECONDS && spread > 0)
 							{
-								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread;
+								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread / playbackRate;
 								timerDrift = Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, rate - 1));
 							}
 
@@ -1165,7 +1192,7 @@ class NativeVideoSource
 		// window is inactive, so a clock on the timer alone holds then too
 		if (playing && !AudioManager.__suspended)
 		{
-			clockTime += now - clockStamp;
+			clockTime += (now - clockStamp) * playbackRate;
 		}
 
 		clockStamp = now;
@@ -1189,7 +1216,7 @@ class NativeVideoSource
 		{
 			var change = position - audioClockTime;
 
-			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 + AUDIO_JUMP_SECONDS)
+			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 * Math.max(1, playbackRate) + AUDIO_JUMP_SECONDS)
 			{
 				audioStalled = true;
 				audioRetryStamp = now + AUDIO_RETRY_SECONDS;

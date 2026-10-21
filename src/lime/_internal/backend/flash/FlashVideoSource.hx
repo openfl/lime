@@ -47,6 +47,16 @@ class FlashVideoSource
 		return 1;
 	}
 
+	public function getRate():Float
+	{
+		return 1;
+	}
+
+	public function setRate(value:Float):Float
+	{
+		return 1;
+	}
+
 	public function getHasAudio():Bool
 	{
 		return false;
