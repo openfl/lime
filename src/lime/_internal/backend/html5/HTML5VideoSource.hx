@@ -19,6 +19,7 @@ class HTML5VideoSource
 	private var element:VideoElement;
 	private var frameTime:Float;
 	private var gain:Float;
+	private var rate:Float;
 	private var loops:Int;
 	private var pan:Float;
 	private var parent:VideoSource;
@@ -34,6 +35,7 @@ class HTML5VideoSource
 		dropLateFrames = true;
 		frameTime = -1;
 		gain = 1;
+		rate = 1;
 		loops = 0;
 		pan = 0;
 		playing = false;
@@ -81,6 +83,19 @@ class HTML5VideoSource
 	public function getGain():Float
 	{
 		return gain;
+	}
+
+	public function getRate():Float
+	{
+		return rate;
+	}
+
+	public function setRate(value:Float):Float
+	{
+		if (Math.isNaN(value)) return rate;
+		rate = Math.max(0.25, Math.min(4, value));
+		if (element != null) element.playbackRate = rate;
+		return rate;
 	}
 
 	public function getHasAudio():Bool
@@ -201,6 +216,7 @@ class HTML5VideoSource
 		element = cast Browser.document.createElement("video");
 		element.crossOrigin = "anonymous";
 		element.preload = "auto";
+		element.playbackRate = rate;
 		element.volume = Math.max(0, Math.min(1, gain));
 		// Play inline on iOS rather than in the full screen player
 		element.setAttribute("playsinline", "");
