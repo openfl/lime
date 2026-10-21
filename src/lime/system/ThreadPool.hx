@@ -16,7 +16,6 @@ import neko.vm.Thread;
 #elseif html5
 import lime._internal.backend.html5.HTML5Thread as Thread;
 import lime._internal.backend.html5.HTML5Thread.Transferable;
-
 #if lime_threads_deque
 #error "lime_threads_deque is not yet supported in HTML5"
 #end
@@ -25,6 +24,12 @@ import lime._internal.backend.html5.HTML5Thread.Transferable;
 import haxe.Exception;
 #end
 
+// TODO: Revisit these problems:
+// - Jobs only report back through Application.current.onUpdate, so none
+//   complete without a running application, as in unit tests. Future.ready()
+//   updates the pool itself while it waits.
+// - On Windows, Neko's collector tracks every thread and can abort when one
+//   ends during a collection. `idleTimeout` makes threads end less often.
 /**
 	A thread pool executes one or more functions asynchronously.
 
@@ -35,9 +40,10 @@ import haxe.Exception;
 
 	In multi-threaded mode, the pool spins up new threads as jobs arrive (up to
 	`maxThreads`). If too many jobs arrive at once, it places them in a queue to
-	run when threads open up. If you run jobs frequently but not constantly, you
-	can also set `minThreads` to keep a certain number of threads alive,
-	avoiding the overhead of repeatedly spinning them up.
+	run when threads open up. Threads that go idle wait `idleTimeout` for more
+	work before they exit, and you can also set `minThreads` to keep a certain
+	number of threads alive, avoiding the overhead of repeatedly spinning them
+	up.
 
 	Sample usage:
 
@@ -157,6 +163,14 @@ class ThreadPool extends WorkOutput
 	public var minThreads:Int;
 
 	/**
+		How long, in seconds, a background thread beyond `minThreads` waits for
+		another job once it goes idle, before it exits. Jobs that come one after
+		another then reuse a thread instead of starting a new one each time.
+		Set this to 0 for threads to exit as soon as they go idle.
+	**/
+	public var idleTimeout:Float = 1;
+
+	/**
 		Dispatched on the main thread when `doWork` calls `sendComplete()`.
 		Dispatched at most once per job.
 	**/
@@ -233,6 +247,12 @@ class ThreadPool extends WorkOutput
 		Jobs running or queued to run on the main thread.
 	**/
 	private var __singleThreadedJobs:JobArray = new JobArray();
+
+	/**
+		Whether single-threaded jobs are running, so that a job or listener
+		waiting on a `Future` doesn't run them again from within.
+	**/
+	private var __runningSingleThreadedJobs:Bool = false;
 
 	/**
 		__Call this only from the main thread.__
@@ -474,21 +494,21 @@ class ThreadPool extends WorkOutput
 			}
 		}
 		#end
-		else if (event.jobID != null)
+	else if (event.jobID != null)
+	{
+		#if (lime_threads && lime_threads_deque)
+		// `cancelJob()` can't remove the job from the queue, so instead it
+		// marks it to be canceled later. (And "later" is now.)
+		if (event.event == WORK && event.threadID != null)
 		{
-			#if (lime_threads && lime_threads_deque)
-			// `cancelJob()` can't remove the job from the queue, so instead it
-			// marks it to be canceled later. (And "later" is now.)
-			if (event.event == WORK && event.threadID != null)
-			{
-				__threads[event.threadID].thread.sendMessage({event: IDLE});
-				__queuedWorkEvents--;
-			}
-			#end
-
-			activeJob = oldActiveJob;
-			return;
+			__threads[event.threadID].thread.sendMessage({event: IDLE});
+			__queuedWorkEvents--;
 		}
+		#end
+
+		activeJob = oldActiveJob;
+		return;
+	}
 
 		switch (event.event)
 		{
@@ -514,7 +534,7 @@ class ThreadPool extends WorkOutput
 					}
 					else
 					{
-						message = (event.message:Exception).details();
+						message = (event.message : Exception).details();
 					}
 				}
 				else
@@ -553,8 +573,7 @@ class ThreadPool extends WorkOutput
 
 			case EXIT:
 				var threadData:ThreadData = __threads[event.threadID];
-				if (threadData.jobID != null)
-					activeThreads--;
+				if (threadData.jobID != null) activeThreads--;
 				else
 					__idleThreads--;
 
@@ -739,11 +758,9 @@ class ThreadPool extends WorkOutput
 
 	private static inline function timestamp():Float
 	{
-		#if sys
-		return Sys.cpuTime();
-		#else
+		// Time on the clock, not on the CPU, since work that waits, as on files
+		// or a server, still takes up the frame
 		return haxe.Timer.stamp();
-		#end
 	}
 
 	/**
@@ -756,13 +773,54 @@ class ThreadPool extends WorkOutput
 			return;
 		}
 
-		// Run single-threaded jobs.
+		if (!__runningSingleThreadedJobs)
+		{
+			__runningSingleThreadedJobs = true;
+
+			try
+			{
+				__runSingleThreadedJobs();
+			}
+			catch (e:Dynamic)
+			{
+				__runningSingleThreadedJobs = false;
+				throw e;
+			}
+
+			__runningSingleThreadedJobs = false;
+		}
+
+		#if (lime_threads && !lime_threads_deque)
+		__runMultiThreadedJobs();
+		#end
+
+		// Process events.
+		var threadEvent:ThreadEvent;
+		while ((threadEvent = __jobOutput.pop(false)) != null)
+		{
+			__dispatchJobOutput(threadEvent);
+		}
+
+		#if (lime_threads && (lime_threads_deque || html5))
+		__exitIdleThreads();
+		#end
+
+		// Keep updating while idle threads wait out `idleTimeout`
+		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end
+			<= 0 #if lime_threads && idleThreads <= minThreads #end && Application.current != null)
+		{
+			Application.current.onUpdate.remove(__update);
+		}
+	}
+
+	private function __runSingleThreadedJobs():Void
+	{
 		var endTime:Float = timestamp();
 		if (__totalWorkPriority > 0)
 		{
 			// Lime may be run without a window.
 			var frameRate:Float = 60;
-			if (Application.current.window != null)
+			if (Application.current != null && Application.current.window != null && Application.current.window.frameRate > 0)
 			{
 				frameRate = Application.current.window.frameRate;
 			}
@@ -814,27 +872,9 @@ class ThreadPool extends WorkOutput
 				__singleThreadedJobRunning = __singleThreadedJobs.length > 0;
 			}
 		}
-
-		#if (lime_threads && !lime_threads_deque)
-		__runMultiThreadedJobs();
-		#end
-
-		// Process events.
-		var threadEvent:ThreadEvent;
-		while ((threadEvent = __jobOutput.pop(false)) != null)
-		{
-			__dispatchJobOutput(threadEvent);
-		}
-
-		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end
-			<= 0)
-		{
-			Application.current.onUpdate.remove(__update);
-		}
 	}
 
 	#if lime_threads
-
 	/**
 		Handles a thread that just became idle. Depending on the circumstances,
 		this may do one of three things:
@@ -863,28 +903,74 @@ class ThreadPool extends WorkOutput
 			__idleThreads++;
 		}
 
+		threadData.idleSince = timestamp();
+
 		#if lime_threads_deque
-		if (idleThreads - __queuedWorkEvents > minThreads)
-		{
-			__multiThreadedQueue.add({event: EXIT});
-			__queuedExitEvents++;
-		}
+		__exitIdleThreads();
 		#else
 		__runMultiThreadedJobs();
 
+		#if html5
+		__exitIdleThreads();
+		#else
 		if (idleThreads > minThreads)
 		{
-			#if html5
-			threadData.thread.destroy();
-			__threads[threadID] = null;
-			__idleThreads--;
-			#else
 			threadData.thread.sendMessage({event: EXIT});
 			__queuedExitEvents++;
-			#end
+		}
+		#end
+		#end
+	}
+
+	#if (lime_threads_deque || html5)
+	/**
+		Exits the threads beyond `minThreads` that have been idle for
+		`idleTimeout`.
+	**/
+	private function __exitIdleThreads():Void
+	{
+		var surplus:Int = idleThreads #if lime_threads_deque - __queuedWorkEvents #end - minThreads;
+		if (surplus <= 0)
+		{
+			return;
+		}
+
+		var cutoff:Float = timestamp() - idleTimeout;
+
+		#if lime_threads_deque
+		// Any idle thread may take an `EXIT` from the queue, so what matters is
+		// how many have been idle long enough, less those already exiting.
+		var expired:Int = -__queuedExitEvents;
+		for (threadData in __threads)
+		{
+			if (threadData != null && threadData.jobID == null && threadData.idleSince <= cutoff)
+			{
+				expired++;
+			}
+		}
+
+		while (surplus > 0 && expired > 0)
+		{
+			__multiThreadedQueue.add({event: EXIT});
+			__queuedExitEvents++;
+			surplus--;
+			expired--;
+		}
+		#else
+		for (threadID in 0...__threads.length)
+		{
+			var threadData:ThreadData = __threads[threadID];
+			if (surplus > 0 && threadData != null && threadData.jobID == null && threadData.idleSince <= cutoff)
+			{
+				threadData.thread.destroy();
+				__threads[threadID] = null;
+				__idleThreads--;
+				surplus--;
+			}
 		}
 		#end
 	}
+	#end
 
 	private function __runMultiThreadedJob(job:JobData):Void
 	{
@@ -897,12 +983,13 @@ class ThreadPool extends WorkOutput
 		job.doWork.makePortable();
 		#end
 
-		var threadEvent:ThreadEvent = {
-			event: WORK,
-			jobID: job.id,
-			doWork: job.doWork,
-			state: job.state
-		};
+		var threadEvent:ThreadEvent =
+			{
+				event: WORK,
+				jobID: job.id,
+				doWork: job.doWork,
+				state: job.state
+			};
 
 		#if lime_threads_deque
 		__multiThreadedQueue.add(threadEvent);
@@ -988,22 +1075,22 @@ class ThreadPool extends WorkOutput
 		{
 			index = __threads.length;
 		}
-		__threads[index] = {thread: thread, jobID: null};
+		__threads[index] = {thread: thread, jobID: null, idleSince: timestamp()};
 		__idleThreads++;
 
-		thread.sendMessage({
-			#if !html5
-			output: this,
-			#end
-			#if lime_threads_deque
-			queue: __multiThreadedQueue,
-			#end
-			threadID: index
-		});
+		thread.sendMessage(
+			{
+				#if !html5
+				output: this,
+				#end
+				#if lime_threads_deque
+				queue: __multiThreadedQueue,
+				#end
+				threadID: index
+			});
 
 		return thread;
 	}
-
 	#end
 
 	// Getters & Setters
@@ -1026,7 +1113,7 @@ class ThreadPool extends WorkOutput
 	private inline function get_idleThreads():Int
 	{
 		return __idleThreads
-			#if lime_threads - __queuedExitEvents #end;
+		#if lime_threads - __queuedExitEvents #end;
 	}
 
 	private inline function set___singleThreadedJobRunning(value:Bool):Bool
@@ -1255,7 +1342,8 @@ private abstract JobQueue(Deque<ThreadEvent>) from Deque<ThreadEvent>
 }
 #end
 
-private typedef ThreadArguments = {
+private typedef ThreadArguments =
+{
 	#if !html5
 	var output:WorkOutput;
 	#end
@@ -1268,8 +1356,14 @@ private typedef ThreadArguments = {
 };
 
 #if lime_threads
-private typedef ThreadData = {
+private typedef ThreadData =
+{
 	var thread:Thread;
 	@:optional var jobID:Int;
+
+	/**
+		When the thread last went idle, for `idleTimeout`.
+	**/
+	var idleSince:Float;
 };
 #end

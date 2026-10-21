@@ -7,7 +7,7 @@ Copyright (c) 2013-2025 Joshua Granick and other Lime contributors
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
 
-This product bundles libcurl 7.56.1, which is available under an
+This product bundles libcurl 8.23.0, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
 This product bundles efsw, which is available under an
@@ -31,8 +31,12 @@ This product bundles libogg 1.3.0, which is available under a
 This product bundles LZMA SDK 4.65, which is available under
 public domain. For details, see [project/lib/lzma/](project/lzma).
 
-This product bundles mbedTLS 2.6.0, which is available under an
+This product bundles mbedTLS 3.6.7, which is available under an
 "Apache 2.0" license. For details, see [project/lib/mbedtls/](project/lib).
+
+This product bundles Mozilla's CA certificate list, as published by curl,
+which is available under an "MPL 2.0" license. For details, see
+[project/lib/custom/curl/ca_certificates.h](project/lib/custom/curl/ca_certificates.h).
 
 This product bundles OpenAL-Soft 1.19.0, which is available under an
 "LGPLv2" license. For details, see [project/lib/openal/](project/lib).

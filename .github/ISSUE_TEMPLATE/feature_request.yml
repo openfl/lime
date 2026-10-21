@@ -1,0 +1,87 @@
+name: Feature request
+description: Propose a focused Lime feature or behavior change
+title: "[Feature]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use this form for focused feature proposals. If you are reporting broken behavior, use the bug report form instead.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Preflight Checklist
+      options:
+        - label: I searched existing open and closed issues for similar proposals.
+          required: true
+        - label: This request describes one focused feature or behavior change.
+          required: true
+        - label: This is not a bug report or a request for help debugging project-specific code.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What problem would this feature solve? Who needs it, and when?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Behavior
+      description: Describe the exact behavior, API, project setting or workflow change you are proposing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: targets
+    attributes:
+      label: Affected Targets or Backends
+      description: List the targets, runtimes or backends this proposal affects.
+      placeholder: |
+        Native SDL:
+        HTML5:
+        HashLink:
+        HXCPP:
+        Other:
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and Defaults
+      description: Explain whether this should be default behavior, opt-in behavior or a breaking change. Include any compatibility concerns.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What existing options, workarounds or alternative designs have you considered?
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example Usage
+      description: Show how a project would use this feature, if applicable.
+      placeholder: |
+        project.xml / project.hxp:
+
+        Haxe code:
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any focused context, links or prior discussion that may help evaluate the proposal.
+    validations:
+      required: false

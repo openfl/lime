@@ -29,8 +29,8 @@ class EventMacro
 				return null;
 
 			case TInst(_, paramTypes):
-				Context.fatalError("Expected only one type parameter. Did you mean Event<"
-					+ paramTypes.map(haxe.macro.TypeTools.toString).join(" -> ") + ">?", Context.currentPos());
+				Context.fatalError("Expected only one type parameter. Did you mean Event<" + paramTypes.map(haxe.macro.TypeTools.toString).join(" -> ") + ">?",
+					Context.currentPos());
 				return null;
 
 			default:
@@ -87,10 +87,8 @@ class EventMacro
 				args.push({name: argName, type: typeArgs[i].t.toComplexType()});
 			}
 
-			var dispatch = macro
+			var dispatchListeners = macro
 				{
-					canceled = false;
-
 					var listeners = __listeners;
 					var repeat = __repeat;
 					var i = 0;
@@ -113,7 +111,22 @@ class EventMacro
 							break;
 						}
 					}
-				}
+				};
+
+			// Keep listener exceptions on the original dispatch path without a cleanup wrapper.
+			var dispatch = macro
+				{
+					__timestamp = lime.system.System.getTimer();
+					canceled = false;
+					$dispatchListeners;
+				};
+
+			var timestampDispatch = macro
+				{
+					__timestamp = timestamp;
+					canceled = false;
+					$dispatchListeners;
+				};
 
 			var i = 0;
 			var field;
@@ -122,7 +135,7 @@ class EventMacro
 			{
 				field = fields[i];
 
-				if (field.name == "__listeners" || field.name == "dispatch")
+				if (field.name == "__listeners" || field.name == "dispatch" || field.name == "__dispatchWithTimestamp")
 				{
 					fields.remove(field);
 				}
@@ -148,8 +161,26 @@ class EventMacro
 							args: args,
 							expr: dispatch,
 							params: [],
-							ret: macro:Void
+							ret: macro :Void
 						}),
+					pos: pos
+				});
+			fields.push(
+				{
+					name: "__dispatchWithTimestamp",
+					access: [APublic],
+					kind: FFun(
+						{
+							args: [
+								{name: "timestamp", type: macro :Int}].concat(args),
+							expr: timestampDispatch,
+							params: [],
+							ret: macro :Void
+						}),
+					meta: [
+						{name: ":dox", params: [macro hide], pos: pos},
+						{name: ":noCompletion", pos: pos}
+					],
 					pos: pos
 				});
 

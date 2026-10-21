@@ -252,8 +252,8 @@ class NativeHTTPRequest
 			}
 		}
 
-		curl.setOption(SSL_VERIFYPEER, false);
-		curl.setOption(SSL_VERIFYHOST, 0);
+		curl.setOption(SSL_VERIFYPEER, parent.verifyCertificates);
+		curl.setOption(SSL_VERIFYHOST, parent.verifyCertificates ? 2 : 0);
 		curl.setOption(USERAGENT, parent.userAgent == null ? "libcurl-agent/1.0" : parent.userAgent);
 
 		// curl.setOption (CONNECTTIMEOUT, 30);
@@ -361,7 +361,8 @@ class NativeHTTPRequest
 		return promise.future;
 	}
 
-	private function buildBuffer()	{
+	private function buildBuffer()
+	{
 		bytes = buffer.getBytes();
 		return bytes;
 	}

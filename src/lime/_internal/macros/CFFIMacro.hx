@@ -183,7 +183,7 @@ class CFFIMacro
 				case "cpp.Float32":
 					if (useCPPTypes)
 					{
-						typeArgs.push({name: arg.name, opt: false, t: (macro:cpp.Float32).toType()});
+						typeArgs.push({name: arg.name, opt: false, t: (macro :cpp.Float32).toType()});
 					}
 					else
 					{
@@ -207,7 +207,7 @@ class CFFIMacro
 				case "Void", "cpp.Void":
 					if (useCPPTypes)
 					{
-						typeArgs.push({name: arg.name, opt: false, t: (macro:cpp.Void).toType()});
+						typeArgs.push({name: arg.name, opt: false, t: (macro :cpp.Void).toType()});
 					}
 					else
 					{
@@ -219,11 +219,11 @@ class CFFIMacro
 				default:
 					if (useCPPTypes)
 					{
-						typeArgs.push({name: arg.name, opt: false, t: (macro:cpp.Object).toType()});
+						typeArgs.push({name: arg.name, opt: false, t: (macro :cpp.Object).toType()});
 					}
 					else
 					{
-						typeArgs.push({name: arg.name, opt: false, t: (macro:Dynamic).toType()});
+						typeArgs.push({name: arg.name, opt: false, t: (macro :Dynamic).toType()});
 					}
 
 					typeSignature += "o";
@@ -243,7 +243,7 @@ class CFFIMacro
 			case "cpp.Float32":
 				if (useCPPTypes)
 				{
-					typeResult = (macro:cpp.Float32).toType();
+					typeResult = (macro :cpp.Float32).toType();
 				}
 				else
 				{
@@ -267,7 +267,7 @@ class CFFIMacro
 			case "Void", "cpp.Void":
 				if (useCPPTypes)
 				{
-					typeResult = (macro:cpp.Void).toType();
+					typeResult = (macro :cpp.Void).toType();
 				}
 				else
 				{
@@ -279,11 +279,11 @@ class CFFIMacro
 			default:
 				if (useCPPTypes)
 				{
-					typeResult = (macro:cpp.Object).toType();
+					typeResult = (macro :cpp.Object).toType();
 				}
 				else
 				{
-					typeResult = (macro:Dynamic).toType();
+					typeResult = (macro :Dynamic).toType();
 				}
 
 				typeSignature += "o";
