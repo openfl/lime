@@ -32,7 +32,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -165,7 +165,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -254,7 +254,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -303,7 +303,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -419,7 +419,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -519,7 +519,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -665,7 +665,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
           haxelib install ../hxcpp-4.3.168.zip --quiet
           haxelib install format --quiet
@@ -746,7 +746,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -831,7 +831,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -901,7 +901,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -1021,7 +1021,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           haxelib install dox --quiet
           haxelib dev lime ${{ github.workspace }}
 
@@ -1052,7 +1052,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -1108,7 +1108,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -1164,7 +1164,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1220,7 +1220,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1273,7 +1273,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1355,7 +1355,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.0.0 --quiet
+          haxelib install native-desktop 1.0.1 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8

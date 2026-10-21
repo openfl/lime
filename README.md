@@ -71,7 +71,7 @@ Building from Source
 
         haxelib install format
         haxelib install hxp
-        haxelib install native-desktop 1.0.0
+        haxelib install native-desktop 1.0.1
 
 3. Copy the ndll directory from the latest [Haxelib release](https://lib.haxe.org/p/lime/), or see [project/README.md](project/README.md) for details about building native binaries.
 
