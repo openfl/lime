@@ -99,9 +99,9 @@ unsigned long readNextChar (const char*& p)
 				c1 = ptr[0];
 				c2 = ptr[1];
 
+				// E0 needs A0-BF (no overlong forms), ED needs 80-9F (no surrogates)
 				if (((c1 == 0xE0) && !IS_IN_RANGE(c2, 0xA0, 0xBF)) ||
-					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F)) ||
-					 (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF))) {
+					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F))) {
 
 					 // malformed data, do something !!!
 					 return (unsigned long) -1;
@@ -113,9 +113,10 @@ unsigned long readNextChar (const char*& p)
 				c1 = ptr[0];
 				c2 = ptr[1];
 
+				// F0 needs 90-BF (no overlong forms), F4 needs 80-8F (nothing past U+10FFFF)
 				if (((c1 == 0xF0) && !IS_IN_RANGE(c2, 0x90, 0xBF)) ||
 					 ((c1 == 0xF4) && !IS_IN_RANGE(c2, 0x80, 0x8F)) ||
-					 !IS_IN_RANGE(c1, 0xF1, 0xF3)) {
+					 (c1 > 0xF4)) {
 
 					 // malformed data, do something !!!
 					 return (unsigned long) -1;
@@ -403,25 +404,11 @@ namespace lime {
 
 					/* Set charmap
 					 *
-					 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
-					 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
-					 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
-					 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
-					 * select on face load (it promises most wide unicode, and if that will be
-					 * slower that UCS-2 - left as an excercise to check.
+					 * FT_Select_Charmap prefers a full Unicode map (UCS-4: 3-10, 0-4, 0-6) over a
+					 * BMP-only one (UCS-2: 3-1, 0-3), so characters beyond U+FFFF such as emoji
+					 * resolve. Fonts without a Unicode map keep the charmap FreeType chose on load.
 					 */
-					for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
-
-						FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
-						FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
-
-						if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
-
-							FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
-
-						}
-
-					}
+					FT_Select_Charmap ((FT_Face)face, FT_ENCODING_UNICODE);
 
 				} else {
 
