@@ -162,6 +162,10 @@ class LinuxPlatform extends PlatformTarget
 		{
 			targetType = "nodejs";
 		}
+		else if (project.targetFlags.exists("cppia"))
+		{
+			targetType = "cppia";
+		}
 		else if (project.targetFlags.exists("java"))
 		{
 			targetType = "java";
@@ -272,6 +276,12 @@ class LinuxPlatform extends PlatformTarget
 			System.runCommand("", "haxe", [hxml]);
 			// NekoHelper.createExecutable (project.templatePaths, "linux" + (is64 ? "64" : ""), targetDirectory + "/obj/ApplicationMain.n", executablePath);
 			// NekoHelper.copyLibraries (project.templatePaths, "linux" + (is64 ? "64" : ""), applicationDirectory);
+		}
+		else if (targetType == "cppia")
+		{
+			System.runCommand("", "haxe", [hxml]);
+
+			if (noOutput) return;
 		}
 		else if (targetType == "java")
 		{
@@ -618,6 +628,12 @@ class LinuxPlatform extends PlatformTarget
 		if (targetType == "cpp" && project.targetFlags.exists("static"))
 		{
 			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
+		}
+		
+		if (targetType == "cppia")
+		{
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/host-linux" + (is64 ? "64" : ""), executablePath);
+			System.copyFileTemplate(project.templatePaths, "cppia/bin/export_classes.info", targetDirectory + "/haxe/export_classes.info");
 		}
 
 		var icons = project.icons;
