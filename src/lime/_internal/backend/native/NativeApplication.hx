@@ -61,6 +61,7 @@ class NativeApplication
 	private var gamepadEventInfo = new GamepadEventInfo();
 	private var joystickEventInfo = new JoystickEventInfo();
 	private var keyEventInfo = new KeyEventInfo();
+	private var localSocketEventInfo = new LocalSocketEventInfo();
 	private var menuEventInfo = new MenuEventInfo();
 	private var orientationEventInfo = new OrientationEventInfo();
 
@@ -146,6 +147,7 @@ class NativeApplication
 		NativeCFFI.lime_gamepad_event_manager_register(handleGamepadEvent, gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(handleJoystickEvent, joystickEventInfo);
 		NativeCFFI.lime_key_event_manager_register(handleKeyEvent, keyEventInfo);
+		NativeCFFI.lime_local_socket_event_manager_register(handleLocalSocketEvent, localSocketEventInfo);
 		NativeCFFI.lime_menu_event_manager_register(handleMenuEvent, menuEventInfo);
 		NativeCFFI.lime_mouse_event_manager_register(handleMouseEvent, mouseEventInfo);
 		NativeCFFI.lime_render_event_manager_register(handleRenderEvent, renderEventInfo);
@@ -494,6 +496,32 @@ class NativeApplication
 				moveTaskToBack(mainActivity.get(), true);
 			}
 			#end
+		}
+	}
+
+	private function handleLocalSocketEvent():Void
+	{
+		switch (localSocketEventInfo.type)
+		{
+			case LOCAL_SOCKET_ACCEPT:
+				var server = NativeLocalServer.getServer(localSocketEventInfo.id);
+				if (server != null) server.handleAccept();
+
+			case LOCAL_SOCKET_CLOSE:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleClose();
+
+			case LOCAL_SOCKET_CONNECT:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleConnect();
+
+			case LOCAL_SOCKET_DATA:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleData(localSocketEventInfo.length);
+
+			case LOCAL_SOCKET_ERROR:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleError(localSocketEventInfo.error);
 		}
 	}
 
@@ -1032,6 +1060,36 @@ class NativeApplication
 {
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
+}
+
+@:keep /*private*/ class LocalSocketEventInfo
+{
+	public var error:Int;
+	public var id:Int;
+	public var length:Int;
+	public var type:LocalSocketEventType;
+
+	public function new(type:LocalSocketEventType = null, id:Int = 0, length:Int = 0, error:Int = 0)
+	{
+		this.type = type;
+		this.id = id;
+		this.length = length;
+		this.error = error;
+	}
+
+	public function clone():LocalSocketEventInfo
+	{
+		return new LocalSocketEventInfo(type, id, length, error);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract LocalSocketEventType(Int)
+{
+	var LOCAL_SOCKET_ACCEPT = 0;
+	var LOCAL_SOCKET_CLOSE = 1;
+	var LOCAL_SOCKET_CONNECT = 2;
+	var LOCAL_SOCKET_DATA = 3;
+	var LOCAL_SOCKET_ERROR = 4;
 }
 
 @:keep /*private*/ class MenuEventInfo

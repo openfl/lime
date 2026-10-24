@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <net/LocalSocket.h>
 #include <system/System.h>
 
 #ifdef HX_MACOS
@@ -32,6 +33,18 @@ namespace lime
 	bool inBackground = false;
 
 	static SDL_atomic_t s_waitEventBlocking;
+
+	// Pushed from native-ipc's threads when local socket events wait, so a loop
+	// waiting for events wakes and dispatches them.
+	static Uint32 localSocketEventType = 0;
+
+	static void WakeLocalSockets()
+	{
+		SDL_Event event;
+		SDL_zero(event);
+		event.type = localSocketEventType;
+		SDL_PushEvent(&event);
+	}
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 	static SDL_atomic_t s_nativeModalLoopDepth;
 	static SDL_atomic_t s_inModalEventWatch;
@@ -135,6 +148,21 @@ namespace lime
 #endif
 
 		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
+
+		if (localSocketEventType == 0)
+		{
+			localSocketEventType = SDL_RegisterEvents(1);
+
+			// SDL_USEREVENT is a frame request here, so never share it.
+			if (localSocketEventType == SDL_USEREVENT)
+				localSocketEventType = SDL_RegisterEvents(1);
+
+			if (localSocketEventType == (Uint32)-1)
+				localSocketEventType = 0;
+		}
+
+		if (localSocketEventType != 0)
+			LocalSocket::SetWakeHandler(WakeLocalSockets);
 
 		currentApplication = this;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
@@ -853,6 +881,12 @@ namespace lime
 			break;
 
 		default:
+
+			if (localSocketEventType != 0 && event->type == localSocketEventType)
+			{
+				LocalSocket::Update();
+				break;
+			}
 
 			// Menu and tray icon events queued by SDLMenu use a registered event type
 			ProcessMenuEvent(event);
@@ -1623,6 +1657,7 @@ namespace lime
 	{
 
 		SDLTrayIcon::Update();
+		LocalSocket::Update();
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		CheckModalException();

@@ -33,6 +33,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -166,6 +167,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -255,6 +257,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -304,6 +307,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -420,6 +424,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -520,6 +525,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -596,6 +602,11 @@ jobs:
         timeout-minutes: 5
         run: lime test windows -release -verbose -nocolor
 
+      - name: Check local sockets between processes
+        working-directory: tests/local-socket
+        timeout-minutes: 5
+        run: lime test windows -release -verbose -nocolor
+
       - name: Run unit tests past 24.8 days
         working-directory: tests/unit
         # A timer stuck at the Int limit hangs the tests rather than failing them
@@ -666,6 +677,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
           haxelib install ../hxcpp-4.3.168.zip --quiet
           haxelib install format --quiet
@@ -747,6 +759,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -832,6 +845,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -902,6 +916,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -1022,6 +1037,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           haxelib install dox --quiet
           haxelib dev lime ${{ github.workspace }}
 
@@ -1053,6 +1069,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -1109,6 +1126,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
@@ -1165,6 +1183,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1221,6 +1240,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1274,6 +1294,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1356,6 +1377,7 @@ jobs:
       - name: Install Haxe dependencies
         run: |
           haxelib install native-desktop 1.0.1 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8

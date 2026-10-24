@@ -13,6 +13,7 @@
 	],
 	"classPath": "src",
 	"dependencies": {
-		"native-desktop": "1.0.1"
+		"native-desktop": "1.0.1",
+		"native-ipc": "1.0.0"
 	}
 }
