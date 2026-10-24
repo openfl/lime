@@ -40,15 +40,49 @@ class XCodeHelper
 
 	private static function extractSimulatorID(line:String):String
 	{
-		var id = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
-
-		if (id.indexOf("inch") > -1 || id.indexOf("generation") > -1)
+		// Simulator ID's are always:
+		// XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+		var searchPos = 0;
+	
+		while (true)
 		{
-			var startIndex = line.indexOf(")") + 2;
-			id = line.substring(line.indexOf("(", startIndex) + 1, line.indexOf(")", startIndex));
+			var openParen = line.indexOf("(", searchPos);
+			var closeParen = line.indexOf(")", openParen);
+			
+			if (openParen == -1 || closeParen == -1)
+			{
+				// Couldn't find a valid ID
+				break;
+			}
+	
+			var potentialID = line.substring(openParen + 1, closeParen);
+	
+			// Simulator IDs are always UUID strings exactly 36 chars long
+			if (potentialID.length == 36 && potentialID.indexOf("-") > -1)
+			{
+				return potentialID;
+			}
+			
+			// Skip past the current set of parentheses and keep looking
+			searchPos = closeParen + 1;
 		}
+	
+		// No valid ID found
+		return "";
+	}
 
-		return id;
+	private static function getBootedSimulator():SimulatorInfo
+	{
+		var result = System.runProcess("", "xcrun", ["simctl", "list", "devices", "booted"]);
+		var lines = result.split("\n");
+		for (line in lines)
+		{
+			if (line.indexOf("(Booted)") > -1)
+			{
+				return { id: extractSimulatorID(StringTools.trim(line)), name: extractSimulatorFullName(StringTools.trim(line)) };
+			}
+		}
+		return null;
 	}
 
 	public static function getSelectedSimulator(project:HXProject):SimulatorInfo
@@ -170,22 +204,32 @@ class XCodeHelper
 
 	public static function getSimulatorID(project:HXProject):String
 	{
-		var simulator = getSelectedSimulator(project);
-		if (simulator == null)
-		{
-			return null;
-		}
-		return simulator.id;
+		var simulator = getPreferredSimulator(project);
+		return (simulator != null) ? simulator.id : null;
 	}
 
 	public static function getSimulatorName(project:HXProject):String
 	{
-		var simulator = getSelectedSimulator(project);
-		if (simulator == null)
+		var simulator = getPreferredSimulator(project);
+		return (simulator != null) ? simulator.name : null;
+	}
+
+	private static function getPreferredSimulator(project:HXProject):SimulatorInfo
+	{
+		// try and get the simulator which is currently open and running
+		// if there are none running then fall back to getting the selected simulator
+		var simulator = getBootedSimulator();
+		if (simulator != null) 
 		{
-			return null;
+			return simulator;
 		}
-		return simulator.name;
+
+		simulator = getSelectedSimulator(project);
+		if (simulator != null)
+		{
+			return simulator;
+		}
+		return null;
 	}
 
 	private static function getSimulators():String
