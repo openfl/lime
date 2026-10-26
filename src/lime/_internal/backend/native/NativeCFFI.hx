@@ -303,6 +303,32 @@ class NativeCFFI
 
 	@:cffi private static function lime_key_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
+	@:cffi private static function lime_local_socket_close(handle:Dynamic):Void;
+
+	@:cffi private static function lime_local_socket_connect(name:String, timeoutMs:Int):Dynamic;
+
+	@:cffi private static function lime_local_socket_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
+
+	@:cffi private static function lime_local_socket_get_accepted():Dynamic;
+
+	@:cffi private static function lime_local_socket_get_bytes_pending(handle:Dynamic):Int;
+
+	@:cffi private static function lime_local_socket_get_id(handle:Dynamic):Int;
+
+	@:cffi private static function lime_local_socket_get_last_error():Int;
+
+	@:cffi private static function lime_local_socket_is_supported():Bool;
+
+	@:cffi private static function lime_local_socket_listen(name:String):Dynamic;
+
+	@:cffi private static function lime_local_socket_read(buffer:Dynamic):Void;
+
+	@:cffi private static function lime_local_socket_send(handle:Dynamic, buffer:Dynamic, offset:Int, length:Int):Bool;
+
+	@:cffi private static function lime_local_socket_set_max_queued(handle:Dynamic, bytes:Int):Void;
+
+	@:cffi private static function lime_local_socket_update():Void;
+
 	@:cffi private static function lime_lzma_compress(data:Dynamic, bytes:Dynamic):Dynamic;
 
 	@:cffi private static function lime_lzma_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
@@ -1020,6 +1046,27 @@ class NativeCFFI
 	private static var lime_key_code_to_scan_code = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_key_code_to_scan_code", "ii", false));
 	private static var lime_key_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_key_event_manager_register", "oov", false));
+	private static var lime_local_socket_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_local_socket_close", "ov", false));
+	private static var lime_local_socket_connect = new cpp.Callable<String->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_local_socket_connect", "sio",
+		false));
+	private static var lime_local_socket_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_local_socket_event_manager_register", "oov", false));
+	private static var lime_local_socket_get_accepted = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_local_socket_get_accepted", "o",
+		false));
+	private static var lime_local_socket_get_bytes_pending = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_local_socket_get_bytes_pending", "oi", false));
+	private static var lime_local_socket_get_id = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_local_socket_get_id", "oi", false));
+	private static var lime_local_socket_get_last_error = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_local_socket_get_last_error", "i",
+		false));
+	private static var lime_local_socket_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_local_socket_is_supported", "b",
+		false));
+	private static var lime_local_socket_listen = new cpp.Callable<String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_local_socket_listen", "so", false));
+	private static var lime_local_socket_read = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_local_socket_read", "ov", false));
+	private static var lime_local_socket_send = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_local_socket_send", "ooiib", false));
+	private static var lime_local_socket_set_max_queued = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_local_socket_set_max_queued", "oiv", false));
+	private static var lime_local_socket_update = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_local_socket_update", "v", false));
 	private static var lime_lzma_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_compress", "ooo",
 		false));
 	private static var lime_lzma_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_decompress", "ooo",
@@ -1536,6 +1583,19 @@ class NativeCFFI
 	private static var lime_key_code_from_scan_code = CFFI.load("lime", "lime_key_code_from_scan_code", 1);
 	private static var lime_key_code_to_scan_code = CFFI.load("lime", "lime_key_code_to_scan_code", 1);
 	private static var lime_key_event_manager_register = CFFI.load("lime", "lime_key_event_manager_register", 2);
+	private static var lime_local_socket_close = CFFI.load("lime", "lime_local_socket_close", 1);
+	private static var lime_local_socket_connect = CFFI.load("lime", "lime_local_socket_connect", 2);
+	private static var lime_local_socket_event_manager_register = CFFI.load("lime", "lime_local_socket_event_manager_register", 2);
+	private static var lime_local_socket_get_accepted = CFFI.load("lime", "lime_local_socket_get_accepted", 0);
+	private static var lime_local_socket_get_bytes_pending = CFFI.load("lime", "lime_local_socket_get_bytes_pending", 1);
+	private static var lime_local_socket_get_id = CFFI.load("lime", "lime_local_socket_get_id", 1);
+	private static var lime_local_socket_get_last_error = CFFI.load("lime", "lime_local_socket_get_last_error", 0);
+	private static var lime_local_socket_is_supported = CFFI.load("lime", "lime_local_socket_is_supported", 0);
+	private static var lime_local_socket_listen = CFFI.load("lime", "lime_local_socket_listen", 1);
+	private static var lime_local_socket_read = CFFI.load("lime", "lime_local_socket_read", 1);
+	private static var lime_local_socket_send = CFFI.load("lime", "lime_local_socket_send", 4);
+	private static var lime_local_socket_set_max_queued = CFFI.load("lime", "lime_local_socket_set_max_queued", 2);
+	private static var lime_local_socket_update = CFFI.load("lime", "lime_local_socket_update", 0);
 	private static var lime_lzma_compress = CFFI.load("lime", "lime_lzma_compress", 2);
 	private static var lime_lzma_decompress = CFFI.load("lime", "lime_lzma_decompress", 2);
 	private static var lime_menu_event_manager_register = CFFI.load("lime", "lime_menu_event_manager_register", 2);
@@ -2263,6 +2323,57 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_key_event_manager_register") private static function lime_key_event_manager_register(callback:Void->Void,
 		eventObject:KeyEventInfo):Void {}
+
+	@:hlNative("lime", "hl_local_socket_close") private static function lime_local_socket_close(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_local_socket_connect") private static function lime_local_socket_connect(name:String, timeoutMs:Int):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_local_socket_event_manager_register") private static function lime_local_socket_event_manager_register(callback:Void->Void,
+		eventObject:LocalSocketEventInfo):Void {}
+
+	@:hlNative("lime", "hl_local_socket_get_accepted") private static function lime_local_socket_get_accepted():CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_local_socket_get_bytes_pending") private static function lime_local_socket_get_bytes_pending(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_local_socket_get_id") private static function lime_local_socket_get_id(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_local_socket_get_last_error") private static function lime_local_socket_get_last_error():Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_local_socket_is_supported") private static function lime_local_socket_is_supported():Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_local_socket_listen") private static function lime_local_socket_listen(name:String):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_local_socket_read") private static function lime_local_socket_read(buffer:Bytes):Void {}
+
+	@:hlNative("lime", "hl_local_socket_send") private static function lime_local_socket_send(handle:CFFIPointer, buffer:Bytes, offset:Int, length:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_local_socket_set_max_queued") private static function lime_local_socket_set_max_queued(handle:CFFIPointer, bytes:Int):Void {}
+
+	@:hlNative("lime", "hl_local_socket_update") private static function lime_local_socket_update():Void {}
 
 	@:hlNative("lime", "hl_lzma_compress") private static function lime_lzma_compress(data:Bytes, bytes:Bytes):Bytes
 	{
