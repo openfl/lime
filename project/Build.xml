@@ -19,6 +19,7 @@
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<set name="LIME_NATIVE_DESKTOP" value="1" if="windows || mac || linux" unless="emscripten || webassembly || winrt || android || ios || tvos" />
+	<set name="LIME_NATIVE_IPC" value="1" if="windows || mac || linux" unless="emscripten || webassembly || winrt || android || ios || tvos" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
@@ -47,6 +48,7 @@
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
 	<set name="NATIVE_DESKTOP_PATH" value="${haxelib:native-desktop}" if="LIME_NATIVE_DESKTOP" unless="NATIVE_DESKTOP_PATH" />
+	<set name="NATIVE_IPC_PATH" value="${haxelib:native-ipc}" if="LIME_NATIVE_IPC" unless="NATIVE_IPC_PATH" />
 
 	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
 	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
@@ -91,10 +93,15 @@
 		<section if="LIME_CURL">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/curl/" />
 			<compilerflag value="-DLIME_CURL" />
+			<compilerflag value="-DLIME_MBEDTLS" if="LIME_MBEDTLS" />
 			<compilerflag value="-DCURL_STATICLIB" />
 
 			<file name="src/net/curl/CURLBindings.cpp" />
+			<file name="src/net/curl/CURLCertificates.cpp">
+				<depend name="${NATIVE_TOOLKIT_PATH}/custom/curl/ca_certificates.h" />
+			</file>
 
 		</section>
 
@@ -323,6 +330,13 @@
 
 		</section>
 
+		<section if="LIME_NATIVE_IPC">
+
+			<compilerflag value="-DLIME_NATIVE_IPC" />
+			<compilerflag value="-I${NATIVE_IPC_PATH}/project/include" />
+
+		</section>
+
 		<section if="LIME_ZLIB">
 
 			<compilerflag value="-DSTATIC_LINK" if="emscripten || ios || tvos" />
@@ -350,6 +364,9 @@
 		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
 		<file name="src/media/video/VideoDecoder.cpp" />
 		<file name="src/media/video/VideoDecoderBindings.cpp" />
+		<file name="src/net/LocalSocket.cpp" />
+		<file name="src/net/LocalSocketBindings.cpp" />
+		<file name="src/net/LocalSocketEvent.cpp" />
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
@@ -403,6 +420,7 @@
 	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal-files.xml" />
 	<include name="${NATIVE_DESKTOP_PATH}/project/Files.xml" if="LIME_NATIVE_DESKTOP" />
+	<include name="${NATIVE_IPC_PATH}/project/Files.xml" if="LIME_NATIVE_IPC" />
 	<include name="lib/neko-files.xml" />
 	<include name="lib/ogg-files.xml" />
 	<include name="lib/openal-files.xml" />
@@ -435,7 +453,7 @@
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
-		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" unless="static_link" />
+		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" />
 		<files id="native-toolkit-mojoal" if="LIME_MOJOAL" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
@@ -444,6 +462,8 @@
 		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
 		<files id="native-desktop" if="LIME_SDL LIME_NATIVE_DESKTOP" />
+		<files id="native-ipc" if="LIME_NATIVE_IPC" />
+		<files id="native-ipc-channel" if="LIME_NATIVE_IPC" />
 		<files id="native-toolkit-sdl_sound" if="LIME_SDL_SOUND" />
 		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
@@ -480,6 +500,8 @@
 				<lib name="setupapi.lib" />
 
 				<lib name="bcrypt.lib" if="LIME_CURL" />
+				<lib name="crypt32.lib" if="LIME_CURL" />
+				<lib name="iphlpapi.lib" if="LIME_CURL" />
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
@@ -537,6 +559,7 @@
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="Security" />
 				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />

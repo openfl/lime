@@ -46,8 +46,39 @@ class VideoNetworkTest extends Test
 	}
 
 	#if (sys && target.threaded)
+	private var deadline:sys.thread.Lock;
+	private var phase:String;
+
+	public function setup():Void
+	{
+		phase = "opening the stream";
+		deadline = new sys.thread.Lock();
+		var finished = deadline;
+		Thread.create(function()
+		{
+			// Polling deadlines cannot interrupt a blocked native open, seek or close.
+			if (finished.wait(TIMEOUT * 4)) return;
+			Sys.stderr().writeString("VideoNetworkTest timed out while " + phase + "\n");
+			Sys.stderr().flush();
+			Sys.exit(1);
+		});
+	}
+
+	public function teardown():Void
+	{
+		deadline.release();
+	}
+
+	private function entering(phase:String):Void
+	{
+		this.phase = phase;
+		Sys.println("VideoNetworkTest: " + phase);
+		Sys.stdout().flush();
+	}
+
 	public function testSeekingAStalledStreamDoesNotWait():Void
 	{
+		entering("opening the stream");
 		var server = new StallingServer(streamable(readAsset(PATH)));
 		var decoder = open(server);
 
@@ -58,6 +89,7 @@ class VideoNetworkTest extends Test
 		}
 
 		var frame = new VideoFrame();
+		entering("waiting for the stream to stall");
 		var stalledAt = readUntilStalled(decoder, frame);
 		Assert.isTrue(stalledAt >= 0 && stalledAt < decoder.duration - 0.2, "the stream did not stall partway, but at " + stalledAt);
 
@@ -65,6 +97,7 @@ class VideoNetworkTest extends Test
 		// as when a player seeks to get going again
 		server.stalls = false;
 
+		entering("seeking the stalled stream");
 		var start = Timer.stamp();
 		var moved = decoder.seek(0);
 		var took = Timer.stamp() - start;
@@ -72,10 +105,12 @@ class VideoNetworkTest extends Test
 		Assert.isTrue(moved, "the stalled stream did not seek");
 		Assert.isTrue(took < 1, "seeking the stalled stream took " + took + " s");
 
+		entering("reading after seeking");
 		var resumed = nextFrame(decoder, frame);
 		Assert.isTrue(resumed, "no frame came after seeking");
 		if (resumed) Assert.isTrue(frame.time < 0.5, "the first frame after seeking to the start was at " + frame.time);
 
+		entering("closing after seeking");
 		start = Timer.stamp();
 		decoder.close();
 		took = Timer.stamp() - start;
@@ -86,6 +121,7 @@ class VideoNetworkTest extends Test
 
 	public function testSeekingWhileTheServerIsDownDoesNotWait():Void
 	{
+		entering("opening the stream");
 		var server = new StallingServer(streamable(readAsset(PATH)));
 		var decoder = open(server);
 
@@ -96,6 +132,7 @@ class VideoNetworkTest extends Test
 		}
 
 		var frame = new VideoFrame();
+		entering("waiting for the stream to stall");
 		var stalledAt = readUntilStalled(decoder, frame);
 		Assert.isTrue(stalledAt >= 0 && stalledAt < decoder.duration - 0.2, "the stream did not stall partway, but at " + stalledAt);
 
@@ -105,6 +142,7 @@ class VideoNetworkTest extends Test
 
 		for (time in [0.0, 0.5, 1.0])
 		{
+			entering("seeking while the server is down to " + time);
 			var start = Timer.stamp();
 			decoder.seek(time);
 			var took = Timer.stamp() - start;
@@ -114,8 +152,10 @@ class VideoNetworkTest extends Test
 			pause(0.3);
 		}
 
+		entering("reading while the server is down");
 		Assert.isFalse(decoder.readFrame(frame), "a frame came from a server that is down");
 
+		entering("closing while the server is down");
 		var start = Timer.stamp();
 		decoder.close();
 		var took = Timer.stamp() - start;
@@ -126,6 +166,7 @@ class VideoNetworkTest extends Test
 
 	public function testClosingAStalledStreamDoesNotWait():Void
 	{
+		entering("opening the stream");
 		var server = new StallingServer(streamable(readAsset(PATH)));
 		var decoder = open(server);
 
@@ -135,9 +176,11 @@ class VideoNetworkTest extends Test
 			return;
 		}
 
+		entering("waiting for the stream to stall");
 		var stalledAt = readUntilStalled(decoder, new VideoFrame());
 		Assert.isTrue(stalledAt >= 0 && stalledAt < decoder.duration - 0.2, "the stream did not stall partway, but at " + stalledAt);
 
+		entering("closing the stalled stream");
 		var start = Timer.stamp();
 		decoder.close();
 		var took = Timer.stamp() - start;

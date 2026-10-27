@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "8.4.0",
-	"releasenote": "Orientation events, gamepad rumble, display safe area, HashLink update",
+	"releasenote": "Video playback, native menus, audio input, SDL_sound, frame pacing, experimental Vulkan",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",
@@ -13,6 +13,7 @@
 	],
 	"classPath": "src",
 	"dependencies": {
-		"native-desktop": "1.0.0"
+		"native-desktop": "1.0.1",
+		"native-ipc": "1.0.0"
 	}
 }

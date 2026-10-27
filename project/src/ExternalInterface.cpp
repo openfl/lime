@@ -14791,6 +14791,13 @@ extern "C" int lime_opengl_register_prims ();
 extern "C" int lime_opengl_register_prims () { return 0; }
 #endif
 
+#ifdef LIME_SDL_SOUND
+extern "C" int lime_sdl_sound_register_prims ();
+#else
+extern "C" int lime_sdl_sound_register_prims () { return 0; }
+#endif
+
+extern "C" int lime_local_socket_register_prims ();
 extern "C" int lime_video_register_prims ();
 
 #ifdef LIME_VORBIS
@@ -14805,8 +14812,10 @@ extern "C" int lime_register_prims () {
 	lime_cairo_register_prims ();
 	lime_curl_register_prims ();
 	lime_harfbuzz_register_prims ();
+	lime_local_socket_register_prims ();
 	lime_openal_register_prims ();
 	lime_opengl_register_prims ();
+	lime_sdl_sound_register_prims ();
 	lime_video_register_prims ();
 	lime_vorbis_register_prims ();
 
