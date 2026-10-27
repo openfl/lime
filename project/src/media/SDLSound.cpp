@@ -77,6 +77,23 @@ namespace lime {
 	}
 
 
+	static bool DecoderHandles (const Sound_DecoderInfo* decoder, const char* ext) {
+
+		for (const char** decoderExt = decoder->extensions; *decoderExt; decoderExt++) {
+
+			if (SDL_strcasecmp (*decoderExt, ext) == 0) {
+
+				return true;
+
+			}
+
+		}
+
+		return false;
+
+	}
+
+
 	static Sound_Sample* CreateSample (Resource* resource) {
 
 		Sound_AudioInfo want = {};
@@ -126,6 +143,16 @@ namespace lime {
 		if (!sample) {
 
 			printf ("SDL_sound: %s\n", Sound_GetError ());
+			return NULL;
+
+		}
+
+		if (format && !DecoderHandles (sample->decoder, format)) {
+
+			// The decoder for this format gave up and SDL_sound fell back to the others, so the MP3
+			// decoder could take a WAV with a chunk the WAV decoder can't skip. Lime's own decoders
+			// get it instead.
+			Sound_FreeSample (sample);
 			return NULL;
 
 		}

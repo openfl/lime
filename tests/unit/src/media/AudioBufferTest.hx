@@ -41,7 +41,24 @@ class AudioBufferTest extends Test
 		assertDecodedAs(AudioBuffer.fromBytes(createWAV(samples)), samples);
 	}
 
+	public function testWAVBytesWithAPaddedChunkDecodeAsWAV():Void
+	{
+		var samples = tone(2205).concat(quietTail());
+
+		assertDecodedAs(AudioBuffer.fromBytes(createWAV(samples, true)), samples);
+	}
+
 	#if sys
+	public function testWAVFileWithAPaddedChunkDecodesAsWAV():Void
+	{
+		var samples = tone(2205).concat(quietTail());
+		var path = scratchDirectory() + "/padded.wav";
+		File.saveBytes(path, createWAV(samples, true));
+
+		assertDecodedAs(AudioBuffer.fromFile(path), samples);
+		FileSystem.deleteFile(path);
+	}
+
 	public function testWAVFileWithoutAnExtensionDecodesAsWAV():Void
 	{
 		// With no extension to go by, the file's signature names its format
@@ -104,20 +121,32 @@ class AudioBufferTest extends Test
 	}
 	#end
 
-	private static function createWAV(samples:Array<Int>):Bytes
+	// When padded, the format chunk has an empty extension, making it 18 bytes long, and an odd-sized
+	// LIST chunk before the data is padded to an even length, as RIFF requires
+	private static function createWAV(samples:Array<Int>, padded:Bool = false):Bytes
 	{
 		var output = new BytesOutput();
 		output.writeString("RIFF");
-		output.writeInt32(36 + samples.length * 2);
+		output.writeInt32((padded ? 52 : 36) + samples.length * 2);
 		output.writeString("WAVE");
 		output.writeString("fmt ");
-		output.writeInt32(16);
+		output.writeInt32(padded ? 18 : 16);
 		output.writeUInt16(1);
 		output.writeUInt16(1);
 		output.writeInt32(SAMPLE_RATE);
 		output.writeInt32(SAMPLE_RATE * 2);
 		output.writeUInt16(2);
 		output.writeUInt16(16);
+
+		if (padded)
+		{
+			output.writeUInt16(0);
+			output.writeString("LIST");
+			output.writeInt32(5);
+			output.writeString("INFOx");
+			output.writeByte(0);
+		}
+
 		output.writeString("data");
 		output.writeInt32(samples.length * 2);
 
