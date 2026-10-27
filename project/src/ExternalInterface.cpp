@@ -21,6 +21,7 @@
 #include <graphics/RenderEvent.h>
 #ifdef LIME_VULKAN
 #include <graphics/vulkan/VKRenderer.h>
+#include <SDL_log.h>
 #endif
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
@@ -89,13 +90,8 @@ namespace lime {
 	static void LogVulkanNativeBootstrap (const char* message) {
 
 #ifdef LIME_VULKAN
-		::FILE* file = ::fopen ("lime-vulkan-native.log", "a");
-		if (file) {
-
-			::fprintf (file, "%s\n", message ? message : "<null>");
-			::fclose (file);
-
-		}
+		// Shown with SDL_LOGGING=render=debug
+		SDL_LogDebug (SDL_LOG_CATEGORY_RENDER, "%s", message ? message : "<null>");
 #endif
 
 	}
