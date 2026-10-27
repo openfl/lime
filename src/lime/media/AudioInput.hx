@@ -16,6 +16,14 @@ import lime.app.Event;
 	`samplesAvailable` to determine how many sample frames can be read without
 	blocking, then call `read`.
 
+	iOS and macOS end an application that opens the microphone without saying
+	why. Give the reason in project.xml with
+	`<config:ios microphone-usage-description="..." />` or
+	`<config:mac microphone-usage-description="..." />`. Android needs
+	`<android permission="android.permission.RECORD_AUDIO" />`, granted at
+	runtime too. Listing any permission replaces Lime's default ones, so list
+	`android.permission.INTERNET` and the others the application still needs.
+
 	@see lime.media.AudioInputDevice
 	@see lime.media.AudioBuffer
 **/

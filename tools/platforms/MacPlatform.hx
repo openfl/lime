@@ -410,6 +410,11 @@ class MacPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
+		if (project.config.exists("mac.microphone-usage-description"))
+		{
+			context.MAC_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("mac.microphone-usage-description");
+		}
+
 		return context;
 	}
 
