@@ -76,7 +76,7 @@ class FlashAudioInput
 	public function dispose():Void
 	{
 		stop();
-		buffers.resize(0);
+		buffers = [];
 		queuedBytes = 0;
 	}
 
