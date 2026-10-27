@@ -426,6 +426,16 @@ class OpenALAudioContext
 		return AL.getString(param);
 	}
 
+	/**
+		Returns the strings OpenAL gives for `param`, one for each device when `device`
+		is `null` and `param` is `DEVICE_SPECIFIER`, `CAPTURE_DEVICE_SPECIFIER` or
+		`ALL_DEVICES_SPECIFIER`. `getString()` returns only the first of those.
+	**/
+	public function getStringList(param:Int, device:ALDevice = null):Array<String>
+	{
+		return ALC.getStringList(device, param);
+	}
+
 	public function isBuffer(buffer:ALBuffer):Bool
 	{
 		return AL.isBuffer(buffer);

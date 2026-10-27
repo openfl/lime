@@ -12,6 +12,10 @@
 #endif
 #endif
 
+#ifndef ALC_ALL_DEVICES_SPECIFIER
+#define ALC_ALL_DEVICES_SPECIFIER 0x1013
+#endif
+
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
@@ -3482,6 +3486,68 @@ namespace lime {
 	}
 
 
+	// Without a device, the device specifiers name every device, each ending in
+	// a null character, and an empty name ends the list
+	static int CountALCStrings (ALCdevice* device, int param, const char* result) {
+
+		if (!result) return 0;
+		if (device || (param != ALC_DEVICE_SPECIFIER && param != ALC_CAPTURE_DEVICE_SPECIFIER && param != ALC_ALL_DEVICES_SPECIFIER)) return 1;
+
+		int count = 0;
+
+		for (const char* name = result; *name; name += strlen (name) + 1) {
+
+			count++;
+
+		}
+
+		return count;
+
+	}
+
+
+	value lime_alc_get_string_list (value device, int param) {
+
+		ALCdevice* alcDevice = val_is_null (device) ? NULL : (ALCdevice*)val_data (device);
+		const char* name = alcGetString (alcDevice, param);
+		int count = CountALCStrings (alcDevice, param, name);
+
+		value result = alloc_array (count);
+
+		for (int i = 0; i < count; i++) {
+
+			val_array_set_i (result, i, alloc_string (name));
+			name += strlen (name) + 1;
+
+		}
+
+		return result;
+
+	}
+
+
+	HL_PRIM varray* HL_NAME(hl_alc_get_string_list) (HL_CFFIPointer* device, int param) {
+
+		ALCdevice* alcDevice = device ? (ALCdevice*)device->ptr : NULL;
+		const char* name = alcGetString (alcDevice, param);
+		int count = CountALCStrings (alcDevice, param, name);
+
+		varray* result = hl_alloc_array (&hlt_bytes, count);
+		vbyte** resultData = hl_aptr (result, vbyte*);
+
+		for (int i = 0; i < count; i++) {
+
+			int length = strlen (name);
+			*resultData++ = hl_copy_bytes ((const vbyte*)name, length + 1);
+			name += length + 1;
+
+		}
+
+		return result;
+
+	}
+
+
 	bool lime_alc_make_context_current (value context) {
 
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
@@ -3803,6 +3869,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_alc_get_error);
 	DEFINE_PRIME3 (lime_alc_get_integerv);
 	DEFINE_PRIME2 (lime_alc_get_string);
+	DEFINE_PRIME2 (lime_alc_get_string_list);
 	DEFINE_PRIME1 (lime_alc_make_context_current);
 	DEFINE_PRIME1 (lime_alc_open_device);
 	DEFINE_PRIME1v (lime_alc_pause_device);
@@ -3934,6 +4001,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_alc_get_error, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_ARR, hl_alc_get_integerv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_alc_get_string, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_ARR, hl_alc_get_string_list, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_alc_make_context_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_open_device, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_alc_pause_device, _TCFFIPOINTER);
