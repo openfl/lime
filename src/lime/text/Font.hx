@@ -140,7 +140,8 @@ class Font
 		}
 		stemDarkening = enable;
 		#if (lime_cffi && !macro)
-		NativeCFFI.lime_font_set_stem_darkening(src, enable);
+		// A font with no data yet takes the setting when it loads
+		if (src != null) NativeCFFI.lime_font_set_stem_darkening(src, enable);
 		#end
 		return stemDarkening;
 	}
@@ -167,23 +168,30 @@ class Font
 	{
 		if (params == null || params.length != 8)
 		{
-			throw "Darking parameters length must be exactly 8";
+			throw "Darkening parameters length must be exactly 8";
 		}
 		if (stemDarkeningParameters == params)
 		{
 			return stemDarkeningParameters;
 		}
 		stemDarkeningParameters = params;
+		__setStemDarkeningParameters();
+		return stemDarkeningParameters;
+	}
+
+	@:noCompletion private function __setStemDarkeningParameters():Void
+	{
 		#if (lime_cffi && !macro)
+		if (src == null || stemDarkeningParameters == null) return;
 		#if hl
-		var _params = new hl.NativeArray<Int>(params.length);
-		for (i in 0...params.length)
-			_params[i] = params[i];
-		var params = _params;
+		var params = new hl.NativeArray<Int>(stemDarkeningParameters.length);
+		for (i in 0...stemDarkeningParameters.length)
+			params[i] = stemDarkeningParameters[i];
+		#else
+		var params = stemDarkeningParameters;
 		#end
 		NativeCFFI.lime_font_set_stem_darkening_parameters(src, params);
 		#end
-		return stemDarkeningParameters;
 	}
 
 	@:noCompletion private var __fontID:String;
@@ -758,6 +766,9 @@ class Font
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
 			isBold = NativeCFFI.lime_font_is_bold(src);
 			isItalic = NativeCFFI.lime_font_is_italic(src);
+
+			if (stemDarkening) NativeCFFI.lime_font_set_stem_darkening(src, true);
+			__setStemDarkeningParameters();
 		}
 		#end
 
