@@ -64,8 +64,7 @@ This product bundles SDL 2.32.10, which is available under a
 This product bundles SDL_sound 2.0.5, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl_sound/](project/lib).
 SDL_sound includes libmodplug, dr_flac, dr_mp3 and stb_vorbis, which are in the
-public domain, and TiMidity, which is available under an "LGPLv2.1" or
-"Perl Artistic" license.
+public domain.
 
 This product bundles tinyfiledialogs 2.9.3, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/tinyfiledialogs/](project/lib).
