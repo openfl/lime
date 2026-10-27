@@ -5,6 +5,11 @@ import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 import lime.media.AudioBuffer;
 #end
+#if (lime_cffi && !macro && sys)
+import lime.system.System;
+import sys.FileSystem;
+import sys.io.File;
+#end
 import utest.Assert;
 import utest.Test;
 
@@ -35,6 +40,19 @@ class AudioBufferTest extends Test
 
 		assertDecodedAs(AudioBuffer.fromBytes(createWAV(samples)), samples);
 	}
+
+	#if sys
+	public function testWAVFileWithoutAnExtensionDecodesAsWAV():Void
+	{
+		// With no extension to go by, the file's signature names its format
+		var samples = tone(2205).concat(quietTail());
+		var path = scratchDirectory() + "/quiet";
+		File.saveBytes(path, createWAV(samples));
+
+		assertDecodedAs(AudioBuffer.fromFile(path), samples);
+		FileSystem.deleteFile(path);
+	}
+	#end
 
 	#if lime_sdl_sound
 	public function testWAVBytesThatEndQuietlyStreamAsWAV():Void
@@ -76,6 +94,15 @@ class AudioBufferTest extends Test
 
 		Assert.equals(-1, firstDifference);
 	}
+
+	#if sys
+	private static function scratchDirectory():String
+	{
+		var directory = System.applicationStorageDirectory + "audio-test";
+		if (!FileSystem.exists(directory)) FileSystem.createDirectory(directory);
+		return directory;
+	}
+	#end
 
 	private static function createWAV(samples:Array<Int>):Bytes
 	{
