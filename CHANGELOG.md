@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.4.0 (06/18/2026)
+8.4.0 (??/??/2026)
 ------------------
 
 - Added an experimental Vulkan renderer for native Windows, Linux, and Android targets.
@@ -15,18 +15,32 @@ Changelog
 - Added `Promise.completeAsync()`.
 - Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
+- Added `Font.setVariation()` to set the axes of variable fonts.
+- Added `Font.stemDarkening` and `Font.stemDarkeningParameters` to make text more readable.
+- Added a subpixel offset to `Font.renderGlyphWithLoadFlags()`.
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
 - Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
+- Added texture output, HDR tone mapping, rotation and pixel aspect ratio, clock modes, gapless loops, and network streams to video playback.
 - Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
 - Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.
+- Added `Window.appearance` and `Window.effectiveAppearance` to prefer light or dark window decorations.
+- Added `Window.onDisplayScaleChange`.
 - Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
 - Added `Gamepad.type`, motion sensors, touchpad events, trigger rumble, and light color.
 - Added `Locale.preferredLocales`.
 - Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
 - Added `CURL.versionInfo()` values for the library's age, version number, and features.
 - Added `HTTPRequest.verifyCertificates`.
+- Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
+- Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
+- Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
+- Added window icons on Linux.
+- Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
+- Added the `-arm64` flag to build HashLink and HashLink/C applications for Apple Silicon on macOS.
+- Added running Windows builds through Wine with `lime test` on other platforms.
+- Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
 - Changed OpenAL Soft HRTF to be disabled by default.
 - Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
@@ -36,6 +50,11 @@ Changelog
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
+- Changed asset library load errors to say which bundle or manifest failed to load, and why.
+- Changed Windows HashLink builds to hide the console window.
+- Changed HTML5 on iOS Safari to pause and resume with the page's visibility, rather than window focus.
+- Changed HTML5 applications with a frame rate of 0 to update on every animation frame.
+- Changed the error when the main class isn't found to also mention a missing `<source />` path.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
@@ -62,6 +81,25 @@ Changelog
 - Fixed `getVertexAttribOffset()` and `getBufferPointerv()` writing through a null pointer.
 - Fixed video pan reaching sound that was already queued.
 - Fixed compositions longer than 31 bytes being cut short in input methods.
+- Fixed `AudioBuffer.fromBytes()` and `AudioBuffer.fromBytesStream()` decoding some WAV files as MP3, such as sounds that fade out to near silence.
+- Fixed `System.getTimer()`, `Timer`, and `Timer.stamp()` stopping after 24.8 days of uptime.
+- Fixed the main loop freezing on Linux when the system clock changes.
+- Fixed SDL frame timing and event handling, and input and window pacing on Windows.
+- Fixed HTML5 frame pacing at 60 fps.
+- Fixed a crash in `HTML5Window` when the display scale differs at startup.
+- Fixed compressed 3D textures staying empty on desktop OpenGL.
+- Fixed PNG decoding from bytes using its reader after it went out of scope.
+- Fixed a crash opening compressed assets as files on Android.
+- Fixed OpenAL bindings returning uninitialized values, and `AL.sourceUnqueueBuffers()` returning buffers it didn't unqueue.
+- Fixed exceptions thrown in event listeners losing their original call site.
+- Fixed constructing `Bytes` with no arguments on HashLink.
+- Fixed `FileDialog` wildcard filters.
+- Fixed the Windows icon resource not being rebuilt when the icon changes.
+- Fixed template assets failing to copy when their destination directory doesn't exist.
+- Fixed the XRandR library name on Linux.
+- Fixed HXP projects processing Haxelib include files twice.
+- Fixed HashLink/C builds on macOS with newer Xcode versions.
+- Fixed WebAssembly builds with newer Emscripten versions.
 
 8.3.2 (05/13/2026)
 ------------------
