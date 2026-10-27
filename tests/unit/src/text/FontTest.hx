@@ -35,6 +35,22 @@ class FontTest extends Test
 		return image.width + "x" + image.height + ":" + haxe.crypto.Md5.make(image.buffer.data.toBytes()).toHex();
 	}
 
+	public function testStemDarkeningSetBeforeLoadingIsKept():Void
+	{
+		// A font with no data used to pass a null handle to the native font
+		var early = new Font();
+		early.stemDarkening = true;
+		early.stemDarkeningParameters = [500, 400, 1000, 275, 1667, 275, 2333, 0];
+		@:privateAccess early.__fromFile(PATH);
+
+		var late = Font.fromFile(PATH);
+		late.stemDarkening = true;
+		late.stemDarkeningParameters = [500, 400, 1000, 275, 1667, 275, 2333, 0];
+
+		Assert.isTrue(early.stemDarkening);
+		Assert.equals(coverage(late), coverage(early));
+	}
+
 	public function testVariableWeightChangesOutlinesAndCanBeReset():Void
 	{
 		var font = variableFont();

@@ -19,8 +19,8 @@ This product bundles freetype 2.9.1, which is available under an
 This product bundles harfbuzz 1.8.8, which is available under an
 "MIT" license. For details, see [project/lib/harfbuzz/](project/lib).
 
-This product bundles HashLink 1.9, which is available under an
-"MIT" license. For details, see [HaxeFoundation/hashlink/](https://github.com/HaxeFoundation/hashlink/blob/1.9/LICENSE).
+This product bundles HashLink 1.16, which is available under an
+"MIT" license. For details, see [HaxeFoundation/hashlink/](https://github.com/HaxeFoundation/hashlink/blob/1.16/LICENSE).
 
 This product bundles libjpeg 6b, which is available under a
 "libjpeg" (BSD-style) license. For details, see [project/lib/jpeg/](project/lib).
@@ -38,6 +38,14 @@ This product bundles Mozilla's CA certificate list, as published by curl,
 which is available under an "MPL 2.0" license. For details, see
 [project/lib/custom/curl/ca_certificates.h](project/lib/custom/curl/ca_certificates.h).
 
+This product bundles native-desktop 1.0.1, which is available under an
+"MIT" license. For details, see [DimensionscapeOrg/native-desktop](https://github.com/DimensionscapeOrg/native-desktop).
+
+This product bundles native-ipc 1.0.0, which is available under an
+"Apache 2.0" license. For details, see [DimensionscapeOrg/native-ipc](https://github.com/DimensionscapeOrg/native-ipc).
+
+_native-desktop and native-ipc are only included in Windows, macOS and Linux builds._
+
 This product bundles OpenAL-Soft 1.19.0, which is available under an
 "LGPLv2" license. For details, see [project/lib/openal/](project/lib).
 
@@ -50,8 +58,13 @@ This product bundles pixman 0.32.8, which is available under an
 This product bundles libpng 1.6.12, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/png/](project/lib).
 
-This product bundles SDL 2.0.12, which is available under a
+This product bundles SDL 2.32.10, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/sdl/](project/lib).
+
+This product bundles SDL_sound 2.0.5, which is available under a
+"zlib" (BSD-style) license. For details, see [project/lib/sdl_sound/](project/lib).
+SDL_sound includes libmodplug, dr_flac, dr_mp3 and stb_vorbis, which are in the
+public domain.
 
 This product bundles tinyfiledialogs 2.9.3, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/tinyfiledialogs/](project/lib).

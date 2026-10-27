@@ -67,6 +67,13 @@ class WindowTest extends Test
 			Assert.equals(WindowAppearance.Dark, window.effectiveAppearance);
 	}
 
+	public function testAlwaysOnTopCreationAttribute():Void
+	{
+		var window = Application.current.createWindow({width:64, height:64, hidden:true, alwaysOnTop:true});
+		if (window == null) { canCreateWindows(); return; }
+		Assert.isTrue(window.alwaysOnTop);
+	}
+
 	public function testTransparentWindowsAreTransparent():Void
 	{
 		var window = create(true);

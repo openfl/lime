@@ -1,15 +1,19 @@
 Changelog
 =========
 
-8.4.0 (??/??/2026)
+8.4.0 (10/27/2026)
 ------------------
 
 - Added an experimental Vulkan renderer for native Windows, Linux, and Android targets.
 - Added `VulkanRenderContext` and Haxe Vulkan bindings for instance, device, swapchain, command, descriptor, memory, and pipeline helpers.
 - Added Vulkan bootstrap logging, error details, MSAA resolve support, mapped memory helpers, and descriptor helpers.
+- Added `<window renderer="vulkan" />`, and the `no-vulkan` define to build without Vulkan.
 - Added configurable application frame timing with `FrameProfile`, `FrameOptions`, `VSyncMode`, busy-wait, time precision, and uncap controls.
 - Added `AudioInput` and audio input device APIs with native OpenAL, HTML5, and Flash backends.
+- Added `<config:ios microphone-usage-description="..." />` and `<config:mac microphone-usage-description="..." />` for applications that use the microphone.
 - Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
+- Added `AudioBuffer.fromFileStream()` and `AudioBuffer.fromBytesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
+- Added recovery of OpenAL Soft audio after its output device changes or is disconnected.
 - Added `Window.alwaysOnTop` and transparent window support.
 - Added input event timestamps without changing listener signatures.
 - Added `Promise.completeAsync()`.
@@ -36,10 +40,13 @@ Changelog
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
+- Added `ALC.getStringList()` to list every audio output and input device.
+- Added `ALC.isExtensionPresent()`.
 - Added window icons on Linux.
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink and HashLink/C applications for Apple Silicon on macOS.
 - Added running Windows builds through Wine with `lime test` on other platforms.
+- Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
 - Changed OpenAL Soft HRTF to be disabled by default.
@@ -55,6 +62,11 @@ Changelog
 - Changed HTML5 on iOS Safari to pause and resume with the page's visibility, rather than window focus.
 - Changed HTML5 applications with a frame rate of 0 to update on every animation frame.
 - Changed the error when the main class isn't found to also mention a missing `<source />` path.
+- Changed `Window.scale` to follow changes to the display scale, which `Window.onDisplayScaleChange` reports. Define `lime_disable_window_scale_change` to keep the scale a window was created with.
+- Changed SDL to name the application after its first window, as Linux shows it while it plays sound or keeps the screen awake.
+- Changed embedded assets to no longer be copied to the output folder.
+- Changed asset libraries to drop disposed `AudioBuffer` objects from their caches.
+- Changed the iOS Xcode project to Xcode's recommended settings, with identity settings.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
@@ -66,7 +78,6 @@ Changelog
 - Fixed GL cleanup and desktop GL object collection.
 - Fixed native and HashLink `AudioBuffer` layout mismatches.
 - Fixed `AudioBuffer.fromBytes()` and `AudioBuffer.fromBase64()` on HTML5 to avoid forcing HTML5 audio buffers.
-- Fixed OpenAL output device recovery.
 - Fixed perspective camera matrix calculation.
 - Fixed Tizen `appinfo.json` templating.
 - Fixed Android architecture parsing for `x86_64` and `x86_32`.
@@ -81,7 +92,8 @@ Changelog
 - Fixed `getVertexAttribOffset()` and `getBufferPointerv()` writing through a null pointer.
 - Fixed video pan reaching sound that was already queued.
 - Fixed compositions longer than 31 bytes being cut short in input methods.
-- Fixed `AudioBuffer.fromBytes()` and `AudioBuffer.fromBytesStream()` decoding some WAV files as MP3, such as sounds that fade out to near silence.
+- Fixed `AudioBuffer.fromBytes()`, `AudioBuffer.fromBytesStream()`, and WAV files without a `.wav` extension decoding as MP3, such as sounds that fade out to near silence.
+- Fixed WAV files with an odd-sized chunk before their samples, or a format chunk longer than 16 bytes, failing to decode.
 - Fixed `System.getTimer()`, `Timer`, and `Timer.stamp()` stopping after 24.8 days of uptime.
 - Fixed the main loop freezing on Linux when the system clock changes.
 - Fixed SDL frame timing and event handling, and input and window pacing on Windows.

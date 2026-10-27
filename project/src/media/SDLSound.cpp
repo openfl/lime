@@ -77,6 +77,23 @@ namespace lime {
 	}
 
 
+	static bool DecoderHandles (const Sound_DecoderInfo* decoder, const char* ext) {
+
+		for (const char** decoderExt = decoder->extensions; *decoderExt; decoderExt++) {
+
+			if (SDL_strcasecmp (*decoderExt, ext) == 0) {
+
+				return true;
+
+			}
+
+		}
+
+		return false;
+
+	}
+
+
 	static Sound_Sample* CreateSample (Resource* resource) {
 
 		Sound_AudioInfo want = {};
@@ -84,23 +101,58 @@ namespace lime {
 		want.channels = 0;
 		want.rate = 0;
 
-		Sound_Sample* sample = NULL;
+		SDL_RWops* rw = NULL;
+		const char* format = NULL;
+		const char* ext = NULL;
 
 		if (resource->path) {
 
-			sample = Sound_NewSampleFromFile (resource->path, &want, SDL_SOUND_BUFFER_SIZE);
+			rw = SDL_RWFromFile (resource->path, "rb");
+
+			if (rw) {
+
+				// A file can be named without its extension, or with another format's
+				Uint8 header[20];
+				Uint32 length = (Uint32)SDL_RWread (rw, header, 1, sizeof (header));
+				SDL_RWseek (rw, 0, RW_SEEK_SET);
+				format = GuessExtension (header, length);
+
+			}
+
+			ext = SDL_strrchr (resource->path, '.');
+			if (ext) ext++;
 
 		} else {
 
 			const Uint8* bytes = reinterpret_cast<const Uint8*> (resource->data->b);
 			const Uint32 length = static_cast<Uint32> (resource->data->length);
-			sample = Sound_NewSampleFromMem (bytes, length, GuessExtension (bytes, length), &want, SDL_SOUND_BUFFER_SIZE);
+			rw = SDL_RWFromConstMem (bytes, length);
+			format = GuessExtension (bytes, length);
 
 		}
+
+		if (!rw) {
+
+			printf ("SDL_sound: %s\n", SDL_GetError ());
+			return NULL;
+
+		}
+
+		Sound_Sample* sample = Sound_NewSample (rw, format ? format : ext, &want, SDL_SOUND_BUFFER_SIZE);
 
 		if (!sample) {
 
 			printf ("SDL_sound: %s\n", Sound_GetError ());
+			return NULL;
+
+		}
+
+		if (format && !DecoderHandles (sample->decoder, format)) {
+
+			// The decoder for this format gave up and SDL_sound fell back to the others, so the MP3
+			// decoder could take a WAV with a chunk the WAV decoder can't skip. Lime's own decoders
+			// get it instead.
+			Sound_FreeSample (sample);
 			return NULL;
 
 		}

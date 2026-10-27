@@ -51,6 +51,49 @@ class OpenALTest extends Test
 		deleteSource(source);
 	}
 
+	public function testDeviceListsNameEachDevice():Void
+	{
+		// Each name ends in a null character, so getString() sees only the first
+		for (param in [ALC.DEVICE_SPECIFIER, ALC.ALL_DEVICES_SPECIFIER])
+		{
+			var names = ALC.getStringList(null, param);
+			var first = ALC.getString(null, param);
+
+			if (first == null)
+			{
+				Assert.same([], names);
+				continue;
+			}
+
+			Assert.isTrue(names.length > 0);
+			Assert.equals(first, names[0]);
+
+			for (name in names)
+			{
+				Assert.isTrue(name.length > 0);
+			}
+		}
+	}
+
+	public function testDeviceListOfAnOpenDeviceIsItsName():Void
+	{
+		var context = ALC.getCurrentContext();
+
+		if (context == null)
+		{
+			Assert.pass("There is no audio output here, so no device was open");
+			return;
+		}
+
+		var device = ALC.getContextsDevice(context);
+		Assert.same([ALC.getString(device, ALC.DEVICE_SPECIFIER)], ALC.getStringList(device, ALC.DEVICE_SPECIFIER));
+	}
+
+	public function testOtherStringsComeBackAlone():Void
+	{
+		Assert.same([ALC.getString(null, ALC.EXTENSIONS)], ALC.getStringList(null, ALC.EXTENSIONS));
+	}
+
 	private function createQueuedSource():ALSource
 	{
 		if (ALC.getCurrentContext() == null)

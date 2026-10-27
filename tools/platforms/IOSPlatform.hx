@@ -333,6 +333,11 @@ class IOSPlatform extends PlatformTarget
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("ios.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("ios.non-exempt-encryption", false);
 
+		if (project.config.exists("ios.microphone-usage-description"))
+		{
+			context.IOS_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("ios.microphone-usage-description");
+		}
+
 		switch (project.window.orientation)
 		{
 			case PORTRAIT:

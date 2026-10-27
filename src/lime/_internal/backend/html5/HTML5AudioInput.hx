@@ -72,7 +72,7 @@ class HTML5AudioInput
 	{
 		disposed = true;
 		stop();
-		buffers.resize(0);
+		buffers = [];
 		queuedBytes = 0;
 	}
 

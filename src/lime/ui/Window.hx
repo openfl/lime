@@ -319,6 +319,7 @@ class Window
 		__resizable = Reflect.hasField(__attributes, "resizable") ? __attributes.resizable : false;
 		__maximized = Reflect.hasField(__attributes, "maximized") ? __attributes.maximized : false;
 		__minimized = Reflect.hasField(__attributes, "minimized") ? __attributes.minimized : false;
+		__alwaysOnTop = Reflect.hasField(__attributes, "alwaysOnTop") ? __attributes.alwaysOnTop : false;
 		transparent = Reflect.hasField(__attributes, "transparent") ? __attributes.transparent : false;
 		id = -1;
 		__backend = new WindowBackend(this);
