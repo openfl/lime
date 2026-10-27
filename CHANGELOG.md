@@ -36,6 +36,7 @@ Changelog
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
+- Added `ALC.getStringList()` to list every audio output and input device.
 - Added window icons on Linux.
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink and HashLink/C applications for Apple Silicon on macOS.
@@ -81,7 +82,8 @@ Changelog
 - Fixed `getVertexAttribOffset()` and `getBufferPointerv()` writing through a null pointer.
 - Fixed video pan reaching sound that was already queued.
 - Fixed compositions longer than 31 bytes being cut short in input methods.
-- Fixed `AudioBuffer.fromBytes()` and `AudioBuffer.fromBytesStream()` decoding some WAV files as MP3, such as sounds that fade out to near silence.
+- Fixed `AudioBuffer.fromBytes()`, `AudioBuffer.fromBytesStream()`, and WAV files without a `.wav` extension decoding as MP3, such as sounds that fade out to near silence.
+- Fixed WAV files with an odd-sized chunk before their samples, or a format chunk longer than 16 bytes, failing to decode.
 - Fixed `System.getTimer()`, `Timer`, and `Timer.stamp()` stopping after 24.8 days of uptime.
 - Fixed the main loop freezing on Linux when the system clock changes.
 - Fixed SDL frame timing and event handling, and input and window pacing on Windows.
