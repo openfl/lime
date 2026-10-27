@@ -163,9 +163,8 @@ class NativeApplication
 			function() runModalCallback(handleWindowEvent), rethrowModalException);
 		#end
 
-		#if (ios || android)
+		// Also carries the display connect, disconnect and move events of desktop targets
 		NativeCFFI.lime_orientation_event_manager_register(handleOrientationEvent, orientationEventInfo);
-		#end
 		#if (ios || android || tvos)
 		NativeCFFI.lime_sensor_event_manager_register(handleSensorEvent, sensorEventInfo);
 		#end
