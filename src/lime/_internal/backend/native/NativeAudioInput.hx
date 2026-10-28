@@ -42,14 +42,9 @@ class NativeAudioInput
 		#if (!lime_doc_gen || lime_openal)
 		var defaultDevice = getDefaultDevice();
 		var defaultName = defaultDevice != null ? defaultDevice.name : null;
-		var devices = parseDeviceList(ALC.getString(null, ALC.CAPTURE_DEVICE_SPECIFIER), defaultName);
 
-		if (devices.length == 0 && defaultDevice != null)
-		{
-			devices.push(defaultDevice);
-		}
-
-		return devices;
+		// The names come in one string, each ending in a null character, which getString() stops at
+		return createDevices(ALC.getStringList(null, ALC.CAPTURE_DEVICE_SPECIFIER), defaultName);
 		#else
 		return [];
 		#end
@@ -241,17 +236,10 @@ class NativeAudioInput
 		#end
 	}
 
-	private static function parseDeviceList(value:String, defaultName:String):Array<AudioInputDevice>
+	private static function createDevices(names:Array<String>, defaultName:String):Array<AudioInputDevice>
 	{
 		var devices = [];
-
-		if (value == null || value == "")
-		{
-			return devices;
-		}
-
 		var hasDefault = false;
-		var names = value.split(String.fromCharCode(0));
 
 		for (name in names)
 		{
