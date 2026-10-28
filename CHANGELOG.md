@@ -1,7 +1,7 @@
 Changelog
 =========
 
-8.4.0 (10/27/2026)
+8.4.0 (??/??/2026)
 ------------------
 
 - Added an experimental Vulkan renderer for native Windows, Linux, and Android targets.
