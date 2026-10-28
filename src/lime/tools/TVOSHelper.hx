@@ -21,10 +21,8 @@ class TVOSHelper
 			var platformName = project.environment.get("PLATFORM_NAME");
 
 			commands.push("archive");
-			commands.push("-scheme");
-			commands.push(project.app.file);
 			commands.push("-archivePath");
-			commands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
+			commands.push(Path.combine("DerivedData/Build/Products", Path.combine(configuration + "-" + platformName, project.app.file)));
 		}
 
 		if (additionalArguments != null)
@@ -47,10 +45,8 @@ class TVOSHelper
 		var platformName = project.environment.get("PLATFORM_NAME");
 
 		archiveCommands.push("archive");
-		archiveCommands.push("-scheme");
-		archiveCommands.push(project.app.file);
 		archiveCommands.push("-archivePath");
-		archiveCommands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file)));
+		archiveCommands.push(Path.combine("DerivedData/Build/Products", Path.combine(configuration + "-" + platformName, project.app.file)));
 
 		System.runCommand(workingDirectory, "xcodebuild", archiveCommands);
 
@@ -61,7 +57,7 @@ class TVOSHelper
 
 		exportCommands.push("-exportArchive");
 		exportCommands.push("-archivePath");
-		exportCommands.push(Path.combine("build", Path.combine(configuration + "-" + platformName, project.app.file + ".xcarchive")));
+		exportCommands.push(Path.combine("DerivedData/Build/Products", Path.combine(configuration + "-" + platformName, project.app.file + ".xcarchive")));
 		exportCommands.push("-exportOptionsPlist");
 		exportCommands.push(Path.combine(project.app.file, "exportOptions-" + exportMethod + ".plist"));
 		exportCommands.push("-exportPath");
@@ -87,19 +83,6 @@ class TVOSHelper
 		}
 
 		var iphoneVersion = project.environment.get("TVOS_VER");
-		var commands = [
-			"-configuration",
-			configuration,
-			"PLATFORM_NAME=" + platformName,
-			"SDKROOT=" + platformName + iphoneVersion
-		];
-
-		if (project.targetFlags.exists("simulator"))
-		{
-			commands.push("-arch");
-			commands.push("x86_64");
-		}
-
 		project.setenv("PLATFORM_NAME", platformName);
 		project.setenv("CONFIGURATION", configuration);
 
@@ -108,7 +91,9 @@ class TVOSHelper
 			"-configuration",
 			configuration,
 			"PLATFORM_NAME=" + platformName,
-			"SDKROOT=" + platformName + iphoneVersion
+			"SDKROOT=" + platformName + iphoneVersion,
+			"-derivedDataPath",
+			"DerivedData"
 		];
 
 		if (project.targetFlags.exists("simulator"))
@@ -119,6 +104,8 @@ class TVOSHelper
 
 		commands.push("-project");
 		commands.push(project.app.file + ".xcodeproj");
+		commands.push("-scheme");
+		commands.push(project.app.file);
 
 		var xcodeVersions = getXcodeVersion().split(".").map(function(i:String)
 		{
@@ -268,7 +255,7 @@ class TVOSHelper
 			}
 			else
 			{
-				applicationPath = workingDirectory + "/build/" + configuration + "-appletvsimulator/" + project.app.file + ".app";
+				applicationPath = workingDirectory + "/DerivedData/Build/Products/" + configuration + "-appletvsimulator/" + project.app.file + ".app";
 			}
 
 			var templatePaths = [
@@ -373,7 +360,7 @@ class TVOSHelper
 			}
 			else
 			{
-				applicationPath = workingDirectory + "/build/" + configuration + "-appletvos/" + project.app.file + ".app";
+				applicationPath = workingDirectory + "/DerivedData/Build/Products/" + configuration + "-appletvos/" + project.app.file + ".app";
 			}
 
 			var templatePaths = [
