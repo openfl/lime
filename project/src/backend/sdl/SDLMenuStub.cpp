@@ -13,6 +13,13 @@ namespace lime {
 	}
 
 
+	bool Menu::GetApplicationMenu (std::vector<unsigned char>* data) {
+
+		return false;
+
+	}
+
+
 	int Menu::GetSupport () {
 
 		return 0;

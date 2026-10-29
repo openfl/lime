@@ -38,7 +38,7 @@ This product bundles Mozilla's CA certificate list, as published by curl,
 which is available under an "MPL 2.0" license. For details, see
 [project/lib/custom/curl/ca_certificates.h](project/lib/custom/curl/ca_certificates.h).
 
-This product bundles native-desktop 1.0.1, which is available under an
+This product bundles native-desktop 1.1.0, which is available under an
 "MIT" license. For details, see [DimensionscapeOrg/native-desktop](https://github.com/DimensionscapeOrg/native-desktop).
 
 This product bundles native-ipc 1.0.0, which is available under an

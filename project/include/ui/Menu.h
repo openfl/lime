@@ -2,6 +2,9 @@
 #define LIME_UI_MENU_H
 
 
+#include <vector>
+
+
 namespace lime {
 
 
@@ -18,6 +21,7 @@ namespace lime {
 
 		public:
 
+			static bool GetApplicationMenu (std::vector<unsigned char>* data);
 			static int GetSupport ();
 
 	};

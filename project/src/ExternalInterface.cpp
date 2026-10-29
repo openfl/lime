@@ -4210,6 +4210,31 @@ namespace lime {
 	}
 
 
+	value lime_menu_get_application_menu (value data) {
+
+		std::vector<unsigned char> menu;
+		if (!Menu::GetApplicationMenu (&menu)) return alloc_null ();
+
+		Bytes bytes (data);
+		bytes.Resize ((int)menu.size ());
+		if (!menu.empty ()) memcpy (bytes.b, &menu[0], menu.size ());
+		return bytes.Value (data);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_menu_get_application_menu) (Bytes* data) {
+
+		std::vector<unsigned char> menu;
+		if (!data || !Menu::GetApplicationMenu (&menu)) return NULL;
+
+		data->Resize ((int)menu.size ());
+		if (!menu.empty ()) memcpy (data->b, &menu[0], menu.size ());
+		return data;
+
+	}
+
+
 	int lime_menu_get_support () {
 
 		return Menu::GetSupport ();
@@ -14261,6 +14286,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_lzma_compress);
 	DEFINE_PRIME2 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_menu_event_manager_register);
+	DEFINE_PRIME1 (lime_menu_get_application_menu);
 	DEFINE_PRIME0 (lime_menu_get_support);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
@@ -14619,6 +14645,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
+	DEFINE_HL_PRIM (_TBYTES, hl_menu_get_application_menu, _TBYTES);
 	DEFINE_HL_PRIM (_I32, hl_menu_get_support, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);

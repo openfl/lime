@@ -63,6 +63,12 @@ class Application extends Module
 		which is titled with the application name. Other top-level items should
 		have submenus. Changes to the menu are applied immediately.
 
+		On macOS, the menu starts as a copy of the default menu bar, with its
+		About, Hide, Services, Quit and Window items, so that items can be added
+		to it. Those items still do what they do on the default menu bar, and are
+		selected as other items are, although canceling `onSelect` does not stop
+		them. Setting `null` restores the default.
+
 		Has no visible effect where `Application.supportsMenu` is `false`.
 	**/
 	public var menu(get, set):Menu;
@@ -733,8 +739,17 @@ class Application extends Module
 		return __frameProfile;
 	}
 
-	@:noCompletion private inline function get_menu():Menu
+	@:noCompletion private function get_menu():Menu
 	{
+		#if (lime_cffi && !macro && mac)
+		// macOS has a menu bar of its own from the start, which the menu copies
+		if (__menu == null)
+		{
+			var defaultMenu = lime._internal.backend.native.NativeMenu.getApplicationMenu();
+			if (defaultMenu != null) set_menu(defaultMenu);
+		}
+		#end
+
 		return __menu;
 	}
 

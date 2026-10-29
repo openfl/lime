@@ -335,6 +335,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_menu_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
+	@:cffi private static function lime_menu_get_application_menu(data:Dynamic):Dynamic;
+
 	@:cffi private static function lime_menu_get_support():Int;
 
 	@:cffi private static function lime_mouse_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
@@ -1077,6 +1079,8 @@ class NativeCFFI
 		false));
 	private static var lime_menu_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_menu_event_manager_register", "oov", false));
+	private static var lime_menu_get_application_menu = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_menu_get_application_menu", "oo", false));
 	private static var lime_menu_get_support = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_menu_get_support", "i", false));
 	private static var lime_mouse_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_mouse_event_manager_register", "oov", false));
@@ -1607,6 +1611,7 @@ class NativeCFFI
 	private static var lime_lzma_compress = CFFI.load("lime", "lime_lzma_compress", 2);
 	private static var lime_lzma_decompress = CFFI.load("lime", "lime_lzma_decompress", 2);
 	private static var lime_menu_event_manager_register = CFFI.load("lime", "lime_menu_event_manager_register", 2);
+	private static var lime_menu_get_application_menu = CFFI.load("lime", "lime_menu_get_application_menu", 1);
 	private static var lime_menu_get_support = CFFI.load("lime", "lime_menu_get_support", 0);
 	private static var lime_mouse_event_manager_register = CFFI.load("lime", "lime_mouse_event_manager_register", 2);
 	private static var lime_neko_execute = CFFI.load("lime", "lime_neko_execute", 1);
@@ -2397,6 +2402,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_menu_event_manager_register") private static function lime_menu_event_manager_register(callback:Void->Void,
 		eventObject:MenuEventInfo):Void {}
+
+	@:hlNative("lime", "hl_menu_get_application_menu") private static function lime_menu_get_application_menu(data:Bytes):Bytes
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_menu_get_support") private static function lime_menu_get_support():Int
 	{
