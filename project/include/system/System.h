@@ -41,6 +41,7 @@ namespace lime {
 			#endif
 			static int GetNumDisplays ();
 			static int GetDeviceOrientation ();
+			static bool GetSecureRandomBytes (unsigned char* data, int length);
 			static std::wstring* GetPlatformLabel ();
 			static std::wstring* GetPlatformName ();
 			static std::wstring* GetPlatformVersion ();

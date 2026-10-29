@@ -377,6 +377,7 @@
 		<file name="src/system/Locale.cpp" unless="mac || ios" />
 		<file name="src/system/Locale.mm" if="mac || ios" />
 		<file name="src/system/OrientationEvent.cpp" />
+		<file name="src/system/SecureRandom.cpp" />
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/system/System.cpp" unless="ios" />
 		<file name="src/system/System.mm" if="ios" />
@@ -499,7 +500,7 @@
 				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="setupapi.lib" />
 
-				<lib name="bcrypt.lib" if="LIME_CURL" />
+				<lib name="bcrypt.lib" />
 				<lib name="crypt32.lib" if="LIME_CURL" />
 				<lib name="iphlpapi.lib" if="LIME_CURL" />
 
