@@ -4701,6 +4701,26 @@ namespace lime {
 	}
 
 
+	bool lime_system_get_secure_random_bytes (value buffer, int offset, int length) {
+
+		Bytes bytes (buffer);
+
+		if (offset < 0 || length < 0 || (length > 0 && (!bytes.b || offset > bytes.length || length > bytes.length - offset))) return false;
+
+		return System::GetSecureRandomBytes (length > 0 ? bytes.b + offset : NULL, length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_get_secure_random_bytes) (Bytes* buffer, int offset, int length) {
+
+		if (offset < 0 || length < 0 || (length > 0 && (!buffer || !buffer->b || offset > buffer->length || length > buffer->length - offset))) return false;
+
+		return System::GetSecureRandomBytes (length > 0 ? buffer->b + offset : NULL, length);
+
+	}
+
+
 	double lime_system_get_timer () {
 
 		return System::GetTimer ();
@@ -14215,6 +14235,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_platform_label);
 	DEFINE_PRIME0 (lime_system_get_platform_name);
 	DEFINE_PRIME0 (lime_system_get_platform_version);
+	DEFINE_PRIME3 (lime_system_get_secure_random_bytes);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1v (lime_system_open_file);
@@ -14571,6 +14592,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_label, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_name, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_version, _NO_ARG);
+	DEFINE_HL_PRIM (_BOOL, hl_system_get_secure_random_bytes, _TBYTES _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);

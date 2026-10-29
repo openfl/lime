@@ -286,6 +286,9 @@ class NativeApplication
 			case UPDATE:
 				updateTimer();
 
+				// WebSockets are read and written once a frame
+				NativeWebSocket.__update();
+
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 			default:
 		}

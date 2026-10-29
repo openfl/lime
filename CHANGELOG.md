@@ -39,6 +39,7 @@ Changelog
 - Added `HTTPRequest.verifyCertificates`.
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
+- Added `WebSocket` and `WebSocketServer` for `ws://` and `wss://` clients and servers, through the new wsproto dependency, which CrossByte's WebSocket also runs on.
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
 - Added `ALC.getStringList()` to list every audio output and input device.
 - Added `ALC.isExtensionPresent()`.
