@@ -11,8 +11,10 @@ import utest.Test;
 /**
 	WebSockets between a server and its clients in this process, over
 	loopback TCP. Their events are dispatched as the application's loop
-	runs, and these tests run that part of it themselves while they wait.
+	runs, and these tests run that part of it themselves while they wait,
+	through the hook the loop calls once there is a WebSocket.
 **/
+@:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime._internal.backend.native.NativeWebSocket)
 @:access(lime.net.WebSocket)
@@ -444,7 +446,10 @@ class WebSocketTest extends Test
 		while (!done())
 		{
 			if (Timer.stamp() >= deadline) return false;
-			lime._internal.backend.native.NativeWebSocket.__update();
+			// What the application's loop calls once a frame, set once there
+			// is a WebSocket or a server
+			var update = lime._internal.backend.native.NativeApplication.__updateWebSockets;
+			if (update != null) update();
 			Sys.sleep(0.001);
 		}
 		return true;

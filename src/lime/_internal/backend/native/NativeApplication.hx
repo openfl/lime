@@ -70,6 +70,12 @@ class NativeApplication
 		is created, before any window is. Set by ApplicationMain.
 	**/
 	@:noCompletion private static var __allowHighDPI:Bool = false;
+
+	/**
+		Reads and writes every WebSocket, once a frame. Set by NativeWebSocket
+		once there is one, so an application without any compiles none of it.
+	**/
+	@:noCompletion private static var __updateWebSockets:Void->Void = null;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -286,8 +292,8 @@ class NativeApplication
 			case UPDATE:
 				updateTimer();
 
-				// WebSockets are read and written once a frame
-				NativeWebSocket.__update();
+				// WebSockets are read and written once a frame, once there are any
+				if (__updateWebSockets != null) __updateWebSockets();
 
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 			default:

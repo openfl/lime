@@ -3,7 +3,7 @@ package lime._internal.backend.native;
 import lime.net.WebSocket;
 import lime.net.WebSocketError;
 import lime.net.WebSocketServer;
-#if (cpp || hl || neko)
+#if (haxe4 && (cpp || hl || neko))
 import wsproto.socket.Server;
 #end
 
@@ -24,7 +24,7 @@ class NativeWebSocketServer
 
 	private var parent:WebSocketServer;
 	private var protocols:Array<String> = null;
-	#if (cpp || hl || neko)
+	#if (haxe4 && (cpp || hl || neko))
 	private var server:Server;
 	#end
 
@@ -36,7 +36,7 @@ class NativeWebSocketServer
 	#if sys
 	public function addSNICertificate(match:String->Bool, certificate:sys.ssl.Certificate, key:sys.ssl.Key):Void
 	{
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		getServer().addSNICertificate(match, certificate, key);
 		#end
 	}
@@ -44,14 +44,14 @@ class NativeWebSocketServer
 
 	public function close():Void
 	{
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		if (server != null) server.close();
 		#end
 	}
 
 	public function getLocalPort():Int
 	{
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		if (server != null) return server.localPort;
 		#end
 
@@ -70,7 +70,7 @@ class NativeWebSocketServer
 
 	public function listen(port:Int, host:String, backlog:Int):WebSocketError
 	{
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		return getServer().listen(port, host, backlog) ? WebSocketError.NONE : WebSocketError.LISTEN_FAILED;
 		#else
 		return WebSocketError.LISTEN_FAILED;
@@ -80,7 +80,7 @@ class NativeWebSocketServer
 	#if sys
 	public function setCertificate(certificate:sys.ssl.Certificate, key:sys.ssl.Key):Void
 	{
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		getServer().setCertificate(certificate, key);
 		#end
 	}
@@ -89,12 +89,12 @@ class NativeWebSocketServer
 	public function setProtocols(value:Array<String>):Void
 	{
 		protocols = value;
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		if (server != null) server.protocols = value;
 		#end
 	}
 
-	#if (cpp || hl || neko)
+	#if (haxe4 && (cpp || hl || neko))
 	private function getServer():Server
 	{
 		if (server == null)
@@ -117,7 +117,7 @@ class NativeWebSocketServer
 	// Get & Set Methods
 	private function get_listening():Bool
 	{
-		#if (cpp || hl || neko)
+		#if (haxe4 && (cpp || hl || neko))
 		return server != null && server.listening;
 		#else
 		return false;

@@ -27,7 +27,7 @@ import lime.app.Event;
 	```
 
 	Events are dispatched on the main thread. `isSupported` is true on
-	native targets; a browser cannot listen.
+	native targets built with Haxe 4; a browser cannot listen.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')

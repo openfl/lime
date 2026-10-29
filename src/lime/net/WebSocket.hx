@@ -25,8 +25,8 @@ import lime.utils.Bytes;
 	socket.connect("wss://example.com/chat", ["chat.v1"]);
 	```
 
-	Events are dispatched on the main thread. `isSupported` is true on
-	native targets and in browsers.
+	Events are dispatched on the main thread. `isSupported` is true in
+	browsers, and on native targets built with Haxe 4.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
