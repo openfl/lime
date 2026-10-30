@@ -1288,40 +1288,65 @@ class HXProject extends Script
 
 			// #if lime
 
-			if (Haxelib.pathOverrides.exists(name))
+			var haxelibCwd = "";
+
+			function runHaxelibPath():String
 			{
-				var path = Haxelib.pathOverrides.get(name);
-				var jsonPath = Path.combine(path, "haxelib.json");
-				var added = false;
-
-				try
-				{
-					if (FileSystem.exists(jsonPath))
-					{
-						var json = Json.parse(File.getContent(jsonPath));
-						if (Reflect.hasField(json, "classPath"))
-						{
-							path = Path.combine(path, json.classPath);
-						}
-
-						var haxelibName = json.name;
-						compilerFlags = ArrayTools.concatUnique(compilerFlags, ["-D " + haxelibName + "=" + json.version], true);
-					}
-				}
-				catch (e:Dynamic) {}
-
-				var param = "-cp " + path;
-				compilerFlags.remove(param);
-				compilerFlags.push(param);
-			}
-			else
-			{
+				var cacheCwd = Sys.getCwd();
 				var cache = Log.verbose;
 				Log.verbose = Haxelib.debug;
-				var output = Haxelib.runProcess("", ["path", name], true, true, true);
+				var output = Haxelib.runProcess(haxelibCwd, ["path", name], true, true, true, false, true);
 				Log.verbose = cache;
+				// hxp 1.3.1 and earlier isn't guaranteed to restore cwd
+				if (haxelibCwd != "")
+				{
+					Sys.setCwd(cacheCwd);
+				}
 
-				var split = output != null ? output.split("\n") : [];
+				return output;
+			}
+
+			var haxelibOutput = null;
+
+			if (Haxelib.pathOverrides.exists(name))
+			{
+				haxelibCwd = app.path != null ? app.path : "bin";
+				if (!FileSystem.exists(haxelibCwd))
+				{
+					FileSystem.createDirectory(haxelibCwd);
+				}
+				if (!FileSystem.exists(Path.combine(haxelibCwd, ".haxelib")))
+				{
+					Haxelib.runCommand(haxelibCwd, ["newrepo"], true, true, false);
+				}
+				Haxelib.runProcess(haxelibCwd, ["dev", name, Haxelib.pathOverrides.get(name)], true, true, false);
+
+				var notInstalled = ~/Error: Library (\S+?) (?:version (\d+) )?is not installed/;
+				var notInstalledName:String = null;
+				for (_ in 0...100)
+				{
+					haxelibOutput = runHaxelibPath();
+					if (haxelibOutput == null || !notInstalled.match(haxelibOutput)
+						|| notInstalledName == notInstalled.matched(1))
+					{
+						break;
+					}
+					notInstalledName = notInstalled.matched(1);
+					var notInstalledVersion = notInstalled.matched(2); // null if not matched, which is fine
+					var path = Haxelib.pathOverrides.exists(notInstalledName)
+						? Haxelib.pathOverrides.get(notInstalledName)
+						: Haxelib.getPath(new Haxelib(notInstalledName, notInstalledVersion));
+					Haxelib.runCommand(haxelibCwd, ["dev", notInstalledName, path], true, true, false);
+				}
+			}
+
+			{
+				if (haxelibOutput == null)
+				{
+					haxelibOutput = runHaxelibPath();
+				}
+
+				var split = haxelibOutput != null ? haxelibOutput.split("\n") : [];
 				var haxelibName:String = null;
 
 				for (arg in split)
