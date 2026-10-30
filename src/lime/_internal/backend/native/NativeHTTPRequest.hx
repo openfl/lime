@@ -88,7 +88,7 @@ class NativeHTTPRequest
 		this.parent = parent;
 	}
 
-	private function initRequest(uri:String, binary:Bool):Void
+	private function initRequest(uri:String):Void
 	{
 		bytes = Bytes.alloc(0);
 		buffer = new BytesBuffer();
@@ -255,8 +255,6 @@ class NativeHTTPRequest
 		// curl.setOption (CONNECTTIMEOUT, 30);
 		curl.setOption(NOSIGNAL, true);
 
-		curl.setOption(TRANSFERTEXT, !binary);
-
 		#if curl_verbose
 		curl.setOption(VERBOSE, true);
 		#end
@@ -297,7 +295,7 @@ class NativeHTTPRequest
 				multiInstances = new Map();
 			}
 
-			initRequest(uri, binary);
+			initRequest(uri);
 
 			if (curl != null)
 			{

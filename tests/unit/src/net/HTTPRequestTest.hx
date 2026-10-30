@@ -42,6 +42,43 @@ class HTTPRequestTest extends Test
 	#end
 
 	@:timeout(10000)
+	public function testTextRequestsSendTheirBodyAsIs(async:Async):Void
+	{
+		// Text requests asked curl for ASCII transfers, and curl 8 converts
+		// their uploads to CRLF line endings outside Windows, as a body of
+		// unknown length, so they went out chunked
+		var server = new ReceivingServer(false);
+		var text = "one\ntwo\r\nthree\n";
+		var methods:Array<lime.net.HTTPRequestMethod> = [POST, PUT];
+
+		function next():Void
+		{
+			if (methods.length == 0)
+			{
+				server.stop();
+				async.done();
+				return;
+			}
+
+			var method = methods.shift();
+			var request = new HTTPRequest<String>();
+			request.method = method;
+			request.data = Bytes.ofString(text);
+			request.load(server.url).onComplete(function(answer)
+			{
+				Assert.equals(ReceivingServer.describe(Bytes.ofString(text)), answer, method + " changed the body");
+				next();
+			}).onError(function(error)
+			{
+				Assert.fail(method + " failed with status " + request.responseStatus + ": " + error);
+				next();
+			});
+		}
+
+		next();
+	}
+
+	@:timeout(10000)
 	public function testLoadingAgainSendsTheNewBody(async:Async):Void
 	{
 		// The handle of the first load was cleaned up when it finished, and the
@@ -287,7 +324,8 @@ class HTTPRequestTest extends Test
 /**
 	Answers each request on a local port with the length and CRC-32 of the
 	body it was sent and its path in `PATH_HEADER`, a while later for requests
-	to `SLOW`, and with a 404 for requests to `MISSING`.
+	to `SLOW`, with a 404 for requests to `MISSING`, and with a 411 for
+	chunked request bodies.
 
 	The answers stay small, as HashLink's TLS sockets send without letting the
 	garbage collector go on, so a server waiting to send would stop every
@@ -370,22 +408,29 @@ private class ReceivingServer
 
 			var path = connection.input.readLine().split(" ")[1];
 			var length = 0;
+			var chunked = false;
 
 			while (true)
 			{
 				var line = connection.input.readLine();
 				if (line == "") break;
 
-				if (StringTools.startsWith(line.toLowerCase(), "content-length:"))
+				var header = line.toLowerCase();
+				if (StringTools.startsWith(header, "content-length:"))
 				{
 					length = Std.parseInt(StringTools.trim(line.substr(15)));
 				}
+				else if (StringTools.startsWith(header, "transfer-encoding:") && header.indexOf("chunked") > -1)
+				{
+					chunked = true;
+				}
 			}
 
-			var body = connection.input.read(length);
+			// Like many servers, it takes no request body of unknown length
+			var body = chunked ? Bytes.alloc(0) : connection.input.read(length);
 			if (path == "/" + SLOW) Sys.sleep(SLOW_DELAY);
 
-			var status = path == "/" + MISSING ? "404 Not Found" : "200 OK";
+			var status = chunked ? "411 Length Required" : path == "/" + MISSING ? "404 Not Found" : "200 OK";
 			var answer = Bytes.ofString(describe(body));
 			connection.output.writeString("HTTP/1.1 " + status + "\r\nConnection: close\r\n" + PATH_HEADER + ": " + path + "\r\nContent-Length: "
 				+ answer.length + "\r\n\r\n");
