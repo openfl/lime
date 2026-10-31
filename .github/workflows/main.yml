@@ -344,8 +344,10 @@ jobs:
       - name: Set trust settings for the HTTPS tests
         working-directory: tests/unit
         run: |
-          # Lets the runner change the administrator's trust settings without a password prompt
-          sudo security authorizationdb write com.apple.trust-settings.admin allow
+          # Lets the runner change the administrator's trust settings without a password prompt.
+          # macOS 15 refuses this change through security authorizationdb, so it is made in the
+          # authorization database itself, where class 4 is allow
+          sudo sqlite3 /var/db/auth.db "UPDATE rules SET class = 4 WHERE name = 'com.apple.trust-settings.admin'"
           sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain fixtures/trusted-ca.pem
           sudo security add-trusted-cert -d -r deny -k /Library/Keychains/System.keychain fixtures/test-ca.pem
           echo "LIME_TEST_TRUST_SETTINGS=1" >> $GITHUB_ENV
