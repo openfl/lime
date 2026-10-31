@@ -8,6 +8,8 @@ typedef WindowAttributes =
 {
 	@:optional public var allowHighDPI:Bool;
 	@:optional public var alwaysOnTop:Bool;
+	/** Preferred native window appearance; omitted attributes retain platform defaults. **/
+	@:optional public var appearance:WindowAppearance;
 	@:optional public var borderless:Bool;
 	@:optional public var context:RenderContextAttributes;
 	// @:optional public var display:Int;
@@ -32,6 +34,7 @@ typedef WindowAttributes =
 		shared application frame profile.
 	**/
 	@:optional public var frameProfile:FrameProfile;
+
 	@:optional public var fullscreen:Bool;
 	@:optional public var height:Int;
 	@:optional public var hidden:Bool;
@@ -39,10 +42,7 @@ typedef WindowAttributes =
 	@:optional public var minimized:Bool;
 	@:optional public var parameters:Dynamic;
 	@:optional public var resizable:Bool;
-	@:optional public var skipTaskbar:Bool;
-	@:optional public var utility:Bool;
-	@:optional public var popupMenu:Bool;
-	@:optional public var tooltip:Bool;
+	@:optional public var transparent:Bool;
 	@:optional public var title:String;
 	@:optional public var width:Int;
 	@:optional public var x:Int;

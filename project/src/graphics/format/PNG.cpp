@@ -21,21 +21,13 @@ namespace lime {
 
 		ReadBuffer (const unsigned char* data, int length) : data (data), length (length), position (0) {}
 
-		bool Read (unsigned char* out, int count) {
+		bool Read (unsigned char* out, png_size_t count) {
 
-			if (position >= length) return false;
+			if (position > length || count > (png_size_t)(length - position)) return false;
+			if (count == 0) return true;
 
-			if (count > length - position) {
-
-				memcpy (out, data + position, length - position);
-				position = length;
-
-			} else {
-
-				memcpy (out, data + position, count);
-				position += count;
-
-			}
+			memcpy (out, data + position, count);
+			position += (int)count;
 
 			return true;
 
@@ -88,6 +80,7 @@ namespace lime {
 
 		FILE_HANDLE* file = NULL;
 		Bytes* data = NULL;
+		ReadBuffer buffer (NULL, 0);
 
 		if (resource->path) {
 
@@ -148,14 +141,14 @@ namespace lime {
 
 				data = new Bytes ();
 				data->ReadFile (resource->path);
-				ReadBuffer buffer (data->b, data->length);
+				buffer = ReadBuffer (data->b, data->length);
 				png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 
 			}
 
 		} else {
 
-			ReadBuffer buffer (resource->data->b, resource->data->length);
+			buffer = ReadBuffer (resource->data->b, resource->data->length);
 			png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 
 		}

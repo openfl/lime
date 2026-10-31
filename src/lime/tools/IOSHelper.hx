@@ -364,7 +364,8 @@ class IOSHelper
 			var requireIPhone = project.config.getString("ios.device", "universal") == "iphone";
 
 			var xcodeVersion = Std.parseFloat(getXcodeVersion());
-			if (!Math.isNaN(xcodeVersion) && xcodeVersion >= 16) {
+			if (!Math.isNaN(xcodeVersion) && xcodeVersion >= 16)
+			{
 				// ios-deploy doesn't work with newer iOS SDKs where it can't
 				// find DeveloperDiskImage.dmg. however, Xcode 16 adds new
 				// commands for installing and launching apps on connected
@@ -389,10 +390,7 @@ class IOSHelper
 				// 1. the platform must always be iOS (which includes iPadOS).
 				// 2. the device must be in developer mode.
 				// 3. if required by the project config, limit to iPhone or iPad only
-				var baseFilters = [
-					filterPlatformIOS,
-					filterDeveloperModeEnabled,
-				];
+				var baseFilters = [filterPlatformIOS, filterDeveloperModeEnabled,];
 				if (requireIPad)
 				{
 					baseFilters.push(filterDeviceTypeIPad);
@@ -411,10 +409,7 @@ class IOSHelper
 				{
 					for (transportTypeFilter in transportTypeFilters)
 					{
-						deviceUUID = findDeviceUUIDWithFilters(baseFilters.concat([
-							stateFilter,
-							transportTypeFilter
-						]));
+						deviceUUID = findDeviceUUIDWithFilters(baseFilters.concat([stateFilter, transportTypeFilter]));
 						if (deviceUUID != null && deviceUUID.length > 0)
 						{
 							break;
@@ -426,7 +421,8 @@ class IOSHelper
 					}
 				}
 
-				if (deviceUUID == null || deviceUUID.length == 0) {
+				if (deviceUUID == null || deviceUUID.length == 0)
+				{
 					// devices running iOS 16 and older don't support
 					// xcrun devicectl, so if no device was found, try falling
 					// back to ios-deploy
@@ -440,9 +436,28 @@ class IOSHelper
 					Log.info("Detected iOS device UUID: " + deviceUUID);
 				}
 
-				System.runCommand("", "xcrun", ["devicectl", "device", "install", "app", "--device", deviceUUID, FileSystem.fullPath(applicationPath)]);
-				System.runCommand("", "xcrun", ["devicectl", "device", "process", "launch", "--console", "--device", deviceUUID, project.meta.packageName]);
-			} else {
+				System.runCommand("", "xcrun", [
+					"devicectl",
+					"device",
+					"install",
+					"app",
+					"--device",
+					deviceUUID,
+					FileSystem.fullPath(applicationPath)
+				]);
+				System.runCommand("", "xcrun", [
+					"devicectl",
+					"device",
+					"process",
+					"launch",
+					"--console",
+					"--device",
+					deviceUUID,
+					project.meta.packageName
+				]);
+			}
+			else
+			{
 				// continue using ios-deploy if Xcode version is 15 or older
 				fallbackLaunch(project, applicationPath);
 			}
@@ -451,12 +466,16 @@ class IOSHelper
 
 	private static function findDeviceUUIDWithFilters(filters:Array<String>):String
 	{
-		var listDevicesOutput = System.runProcess("", "xcrun",
-			[
-				"devicectl", "list", "devices",
-				"--hide-default-columns", "--columns", "Identifier",
-				"--filter", filters.join(" AND ")
-			]);
+		var listDevicesOutput = System.runProcess("", "xcrun", [
+			"devicectl",
+			"list",
+			"devices",
+			"--hide-default-columns",
+			"--columns",
+			"Identifier",
+			"--filter",
+			filters.join(" AND ")
+		]);
 		var ready = false;
 		for (line in listDevicesOutput.split("\n"))
 		{

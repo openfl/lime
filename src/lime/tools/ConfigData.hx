@@ -175,7 +175,7 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 		return defaultValue;
 	}
 
-	public function getKeyValueArray(id:String, defaultValues:Dynamic = null):Array<{ key:String, value:Dynamic }>
+	public function getKeyValueArray(id:String, defaultValues:Dynamic = null):Array<{key:String, value:Dynamic}>
 	{
 		var values = {};
 		if (defaultValues != null)
@@ -192,10 +192,10 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			}
 		}
 
-		var pairs:Array<{ key:String, value:Dynamic }> = [];
+		var pairs:Array<{key:String, value:Dynamic}> = [];
 		for (key in Reflect.fields(values))
 		{
-			pairs.push({ key: key, value: Reflect.field(values, key) });
+			pairs.push({key: key, value: Reflect.field(values, key)});
 		}
 
 		return pairs;
@@ -237,7 +237,10 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				continue;
 			}
 
-			if (valueSource != valueDest && valueDest != null && typeSource != "TObject" && !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(valueSource, Array))
+			if (valueSource != valueDest
+				&& valueDest != null
+				&& typeSource != "TObject"
+				&& !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (valueSource, Array))
 			{
 				if (!Reflect.hasField(destination, ARRAY + field))
 				{
@@ -264,11 +267,13 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 			{
 				mergeValues(valueSource, valueDest);
 			}
-			else if (typeDest == "TClass" && #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (valueSource, Array) && #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end(valueDest, Array))
+			else if (typeDest == "TClass"
+				&& #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (valueSource, Array)
+				&& #if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (valueDest, Array))
 			{
-				for (item in (cast valueSource:Array<Dynamic>))
+				for (item in (cast valueSource : Array<Dynamic>))
 				{
-					(cast valueDest:Array<Dynamic>).push(item);
+					(cast valueDest : Array<Dynamic>).push(item);
 				}
 			}
 			else
@@ -529,11 +534,13 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 
 	// Getters & Setters
 
-	private inline function get_xmlChildren():Array<String> {
+	private inline function get_xmlChildren():Array<String>
+	{
 		return Reflect.field(this, "config:xml_children");
 	}
 
-	private inline function set_xmlChildren(value:Array<String>):Array<String> {
+	private inline function set_xmlChildren(value:Array<String>):Array<String>
+	{
 		Reflect.setField(this, "config:xml_children", value);
 		return value;
 	}

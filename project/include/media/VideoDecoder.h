@@ -1,0 +1,412 @@
+#ifndef LIME_MEDIA_VIDEO_DECODER_H
+#define LIME_MEDIA_VIDEO_DECODER_H
+
+
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <thread>
+#include <vector>
+
+#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+#define LIME_VIDEO_MEDIA_FOUNDATION
+#elif defined (HX_MACOS) || (defined (IPHONE) && !defined (APPLETV))
+#define LIME_VIDEO_AVFOUNDATION
+#elif defined (HX_ANDROID)
+#define LIME_VIDEO_MEDIACODEC
+#elif defined (HX_LINUX) && !defined (EMSCRIPTEN)
+#define LIME_VIDEO_GSTREAMER
+#endif
+
+
+namespace lime {
+
+
+	enum VideoColorMatrix {
+
+		VIDEO_COLOR_MATRIX_BT601 = 0,
+		VIDEO_COLOR_MATRIX_BT709 = 1,
+		VIDEO_COLOR_MATRIX_BT2020 = 2
+
+	};
+
+
+	// How a frame's values are turned into light
+	enum VideoColorTransfer {
+
+		// Standard range, as BT.709 and BT.601 video are
+		VIDEO_COLOR_TRANSFER_SDR = 0,
+
+		// SMPTE ST 2084, which HDR10 video uses
+		VIDEO_COLOR_TRANSFER_PQ = 1,
+
+		// Hybrid log-gamma, ARIB STD-B67, which phones record HDR video in
+		VIDEO_COLOR_TRANSFER_HLG = 2
+
+	};
+
+
+	enum VideoDecodeResult {
+
+		// Nothing was decoded, as a seek is waiting, so the call is made again
+		VIDEO_DECODE_AGAIN = 2,
+		VIDEO_DECODE_OK = 1,
+		VIDEO_DECODE_END = 0,
+		VIDEO_DECODE_ERROR = -1
+
+	};
+
+
+	enum VideoFrameFormat {
+
+		VIDEO_FRAME_FORMAT_NV12 = 0,
+		VIDEO_FRAME_FORMAT_RGBA = 1,
+		VIDEO_FRAME_FORMAT_TEXTURE = 2,
+		VIDEO_FRAME_FORMAT_BGRA = 3,
+		VIDEO_FRAME_FORMAT_ARGB = 4
+
+	};
+
+
+	enum VideoReadResult {
+
+		VIDEO_READ_NOT_READY = 0,
+		VIDEO_READ_END = -1,
+		VIDEO_READ_ERROR = -2,
+		VIDEO_READ_BUFFER_TOO_SMALL = -3
+
+	};
+
+
+	// A decoded picture in system memory. NV12 sets u to the interleaved UV
+	// plane, v to u + 1 and uvPixelStride to 2. I420 uses separate U and V
+	// planes with a uvPixelStride of 1.
+	struct VideoPlanes {
+
+		VideoColorMatrix colorMatrix;
+		bool fullRange;
+		int height;
+
+		// VideoDecoder tone maps frames with an HDR transfer, and BT.2020
+		// primaries, to standard range, unless the backend already has
+		VideoColorTransfer transfer;
+
+		const unsigned char* u;
+		int uvPixelStride;
+		int uvStride;
+		const unsigned char* v;
+		int width;
+		const unsigned char* y;
+		int yStride;
+
+	};
+
+
+	// Shows HDR frames in standard range, writing them as BT.709 video range
+	// NV12 through a table of what each luma and chroma become, which is built
+	// once for each kind of frame and kept
+	class VideoToneMapper {
+
+
+		public:
+
+			// Points planes at a tone mapped copy, which stays valid until the next
+			// call
+			void Map (VideoPlanes* planes);
+
+
+		private:
+
+			std::vector<unsigned char> buffer;
+
+
+	};
+
+
+	// A decoded frame kept on the GPU by a backend that supports texture output
+	class VideoTextureFrame {
+
+
+		public:
+
+			virtual ~VideoTextureFrame () {};
+
+			int height;
+			int width;
+
+
+	};
+
+
+	// Where resampling has reached, carried from one packet of audio to the next
+	struct VideoAudioConverter {
+
+		VideoAudioConverter () : position (0), previousChannels (0) { previous[0] = previous[1] = 0; }
+
+		void Reset () { position = 0; previousChannels = 0; }
+
+		double position;
+		short previous[2];
+		int previousChannels;
+
+	};
+
+
+	struct VideoStreamInfo {
+
+		int audioChannels;
+		int audioSampleRate;
+
+		// Set when the file has a stream of that kind that cannot be decoded, such
+		// as one in a codec the platform lacks, so the video plays without it
+		bool audioUnsupported;
+
+		double duration;
+		double frameRate;
+		bool hasAudio;
+		bool hasVideo;
+		int height;
+
+		// The width of a pixel relative to its height, or 0 when unknown
+		double pixelAspectRatio;
+
+		// The clockwise rotation in degrees that shows frames upright, as phones
+		// record portrait video sideways with a rotation to apply
+		int rotation;
+
+		bool videoUnsupported;
+		int width;
+
+	};
+
+
+	// Platform decoding. VideoDecoder calls DecodeAudio and DecodeVideo from
+	// two threads at once, so the streams must not share decoder state. Open,
+	// Close and Seek are only called while neither stream is decoding.
+	class VideoBackend {
+
+
+		public:
+
+			virtual ~VideoBackend () {};
+
+			virtual void Close () = 0;
+
+			// Appends the next packet of interleaved signed 16-bit PCM with
+			// info->audioChannels channels to pcm, and sets time to the time of
+			// its first sample in seconds.
+			virtual VideoDecodeResult DecodeAudio (std::vector<unsigned char>* pcm, double* time) = 0;
+
+			// Decodes the next frame. The planes stay valid until the next call to
+			// DecodeVideo, Seek or Close.
+			virtual VideoDecodeResult DecodeVideo (VideoPlanes* planes, double* time, double* duration) = 0;
+
+			// Called from another thread before Close, so a stream waiting on a
+			// stalled network source returns from DecodeAudio or DecodeVideo soon.
+			virtual void Interrupt () {}
+
+			virtual bool Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info) = 0;
+
+			// Called from another thread when a seek is waiting for the streams, so
+			// a stream waiting on a stalled network source returns
+			// VIDEO_DECODE_AGAIN from DecodeAudio or DecodeVideo soon, rather than
+			// holding up the seek. Seek ends it, whether it succeeds or not.
+			virtual void PrepareSeek () {}
+
+			// Seeks both streams to the keyframe at or before time.
+			virtual bool Seek (double time) = 0;
+
+			// Texture output keeps frames on the GPU, which backends support by
+			// returning true from SupportsTextures once open. DecodeVideoTexture
+			// decodes the next frame like DecodeVideo, on the video thread. It
+			// returns VIDEO_DECODE_OK without a frame when it stops supporting
+			// textures, and the next frame is read with DecodeVideo.
+			virtual VideoDecodeResult DecodeVideoTexture (VideoTextureFrame** frame, double* time, double* duration) { return VIDEO_DECODE_ERROR; }
+			virtual bool SupportsTextures () { return false; }
+
+			// With the application's GL context current, makes a frame available
+			// as an RGBA GL_TEXTURE_2D until UnlockTexture, and returns its name,
+			// or 0 when this context cannot share the backend's textures.
+			virtual unsigned int LockTexture (VideoTextureFrame* frame) { return 0; }
+			virtual void UnlockTexture (VideoTextureFrame* frame) {}
+
+			// Gives a frame back to the backend, from any thread.
+			virtual void ReleaseTextureFrame (VideoTextureFrame* frame) {}
+
+			// Called before Open with whether frames will be read as textures, for
+			// backends that decode differently for texture output. When the
+			// application's context cannot use the backend's textures, it is
+			// called with false, followed by a Seek to where reading continues.
+			virtual void SetTextureOutput (bool enabled) {}
+
+			// Deletes the backend's GL objects, with the GL context current.
+			virtual void ReleaseTextures () {}
+
+			// Deletes the GL objects that backends of this kind left when they closed
+			// away from the GL thread, where their context is current. Called on the
+			// GL thread before each texture frame is read.
+			virtual void ReleaseOrphans () {}
+
+			static VideoBackend* Create ();
+			static bool IsSupported ();
+
+			// Appends interleaved signed 16-bit PCM with channels channels at rate to
+			// pcm, mixed to outChannels, 1 or 2, and resampled to outRate, for a
+			// stream whose format changes after opening
+			static void ConvertAudio (const short* in, int frames, int channels, int rate, int outChannels, int outRate, VideoAudioConverter* converter, std::vector<unsigned char>* pcm);
+
+			static void DownmixToStereo (const short* in, int frames, int channels, std::vector<unsigned char>* pcm);
+
+			// The GL context current on this thread, so backends can tell when the
+			// application's context is replaced, as Android does after losing it,
+			// or 0 when it is not known
+			static void* GetCurrentGLContext ();
+
+			static VideoColorMatrix GetDefaultColorMatrix (int width, int height);
+
+			// Turns a rotation in degrees into 0, 90, 180 or 270
+			static int NormalizeRotation (int degrees);
+
+
+	};
+
+
+	// Decodes a video on two background threads, one per stream, and queues
+	// a few frames and a fraction of a second of audio ahead of the reader.
+	class VideoDecoder {
+
+
+		public:
+
+			VideoDecoder (VideoBackend* backend);
+			~VideoDecoder ();
+
+			void Close ();
+			bool Open (const char* path, bool hardwareDecoding, VideoFrameFormat format);
+
+			// Returns the number of bytes written, VIDEO_READ_NOT_READY when no
+			// audio is buffered yet, VIDEO_READ_END or VIDEO_READ_ERROR. Audio is
+			// interleaved signed 16-bit PCM.
+			int ReadAudio (unsigned char* data, int length);
+
+			// Copies the next frame in the open format and returns the number of
+			// bytes written. When time is not negative, frames that ended by time
+			// are dropped and a frame is only returned once it starts by time.
+			// Returns VIDEO_READ_NOT_READY when no frame is due, VIDEO_READ_END,
+			// VIDEO_READ_ERROR, or VIDEO_READ_BUFFER_TOO_SMALL when the frame needs
+			// frameLength bytes. The frame then stays queued.
+			//
+			// With VIDEO_FRAME_FORMAT_TEXTURE, call it with the GL context current.
+			// It returns 1 for a new frame, which frameTexture shows until the next
+			// call. Close the decoder on that thread too, so it can delete textures.
+			int ReadFrame (unsigned char* data, int length, double time);
+
+			// Seeks both streams. An accurate seek drops the frames and audio
+			// before time, otherwise reading resumes from the preceding keyframe.
+			// Seeking to the end or past it ends both streams. Returns false when
+			// the backend cannot seek, such as on a live stream, and decoding then
+			// carries on from where it was.
+			bool Seek (double time, bool accurate);
+
+			static int GetFrameLength (VideoFrameFormat format, int width, int height);
+			static int WriteFrame (const VideoPlanes* planes, VideoFrameFormat format, unsigned char* data, int length);
+
+			std::atomic<double> audioTime;
+			std::atomic<bool> dropLateFrames;
+			std::atomic<int> droppedFrames;
+			VideoFrameFormat format;
+			VideoColorMatrix frameColorMatrix;
+			double frameDuration;
+			bool frameFullRange;
+			int frameHeight;
+			int frameLength;
+			unsigned int frameTexture;
+			double frameTime;
+			int frameWidth;
+			VideoStreamInfo info;
+
+		private:
+
+			struct AudioChunk {
+
+				std::vector<unsigned char> data;
+				size_t offset;
+				double time;
+
+			};
+
+			struct Frame {
+
+				VideoColorMatrix colorMatrix;
+				std::vector<unsigned char> data;
+				double duration;
+				bool fullRange;
+				int height;
+				int length;
+				VideoTextureFrame* texture;
+				double time;
+				int width;
+
+			};
+
+			void AudioThread ();
+			void Flush ();
+			bool IsTextureThread ();
+			int ReadTexture (double time);
+			void ReleaseFrame (Frame* frame);
+			void ReleaseTextures ();
+			bool SeekStreams (double time, bool accurate, bool keepAudio);
+			void StartThreads ();
+			void StopThreads ();
+			void ThreadStopped ();
+			unsigned int UploadTexture (Frame* frame);
+			void VideoThread ();
+
+			std::deque<AudioChunk*> audioChunks;
+			std::condition_variable audioCondition;
+			std::mutex audioDecodeMutex;
+			bool audioEnded;
+			bool audioError;
+			size_t audioQueued;
+			double audioQueueEnd;
+			double audioSeekTime;
+			std::thread audioThread;
+			VideoBackend* backend;
+			Frame* currentFrame;
+			std::vector<AudioChunk*> freeChunks;
+			std::vector<Frame*> freeFrames;
+			std::deque<Frame*> frames;
+			std::chrono::steady_clock::time_point lastQueued;
+			std::mutex mutex;
+			bool open;
+			double presentationTime;
+			bool quit;
+			int runningThreads;
+			bool seekAccurate;
+			bool seekPending;
+			std::condition_variable stoppedCondition;
+			unsigned int texture;
+			void* textureContext;
+			int textureHeight;
+			std::atomic<bool> texturesFailed;
+			std::thread::id textureThread;
+			bool textureThreadKnown;
+			int textureWidth;
+			VideoToneMapper toneMapper;
+			std::condition_variable videoCondition;
+			std::mutex videoDecodeMutex;
+			bool videoEnded;
+			bool videoError;
+			double videoSeekTime;
+			std::thread videoThread;
+
+
+	};
+
+
+}
+
+
+#endif

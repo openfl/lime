@@ -18,6 +18,8 @@
 	<set name="LIME_HASHLINK" value="1" if="hashlink" />
 	<set name="LIME_LZMA" value="1" />
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
+	<set name="LIME_NATIVE_DESKTOP" value="1" if="windows || mac || linux" unless="emscripten || webassembly || winrt || android || ios || tvos" />
+	<set name="LIME_NATIVE_IPC" value="1" if="windows || mac || linux" unless="emscripten || webassembly || winrt || android || ios || tvos" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />
@@ -35,13 +37,18 @@
 	<set name="LIME_SDL_ANGLE" value="1" if="winrt" />
 	<set name="LIME_SDL_SOUND" value="1" />
 	<set name="LIME_TINYFILEDIALOGS" value="1" if="windows || mac || linux" unless="winrt || emscripten" />
+	<set name="LIME_VULKAN" value="1" if="lime-vulkan" unless="no-vulkan || lime-no-vulkan" />
+	<set name="LIME_VULKAN" value="1" if="windows || linux || android" unless="no-vulkan || lime-no-vulkan || winrt || emscripten" />
 	<set name="LIME_VORBIS" value="1" />
 	<!-- <set name="LIME_VPX" value="1" />
 	<set name="LIME_WEBM" value="1" /> -->
 	<set name="LIME_ZLIB" value="1" />
+	<set name="OBJEXT" value="${OBJEXT}-vk" if="LIME_VULKAN" />
 
 	<set name="OUTPUT_DIR" value="../ndll" unless="OUTPUT_DIR" />
 	<set name="NATIVE_TOOLKIT_PATH" value="lib" unless="NATIVE_TOOLKIT_PATH" />
+	<set name="NATIVE_DESKTOP_PATH" value="${haxelib:native-desktop}" if="LIME_NATIVE_DESKTOP" unless="NATIVE_DESKTOP_PATH" />
+	<set name="NATIVE_IPC_PATH" value="${haxelib:native-ipc}" if="LIME_NATIVE_IPC" unless="NATIVE_IPC_PATH" />
 
 	<set name="NATIVE_TOOLKIT_HAVE_CAIRO" value="1" if="LIME_CAIRO" />
 	<set name="NATIVE_TOOLKIT_HAVE_FREETYPE" value="1" if="LIME_FREETYPE" />
@@ -59,6 +66,10 @@
 		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
         <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
+		<compilerflag value="-DLIME_VULKAN" if="LIME_VULKAN" />
+		<compilerflag value="-I${VULKAN_SDK}/Include" if="windows VULKAN_SDK LIME_VULKAN" />
+		<compilerflag value="-I${VULKAN_SDK}/include" if="mac VULKAN_SDK LIME_VULKAN" />
+		<compilerflag value="-I${VULKAN_SDK}/include" if="linux VULKAN_SDK LIME_VULKAN" />
 
 		<file name="src/ExternalInterface.cpp" />
 
@@ -82,10 +93,15 @@
 		<section if="LIME_CURL">
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/curl/" />
 			<compilerflag value="-DLIME_CURL" />
+			<compilerflag value="-DLIME_MBEDTLS" if="LIME_MBEDTLS" />
 			<compilerflag value="-DCURL_STATICLIB" />
 
 			<file name="src/net/curl/CURLBindings.cpp" />
+			<file name="src/net/curl/CURLCertificates.cpp">
+				<depend name="${NATIVE_TOOLKIT_PATH}/custom/curl/ca_certificates.h" />
+			</file>
 
 		</section>
 
@@ -236,6 +252,7 @@
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/" if="mac" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/rpi/" if="rpi" />
 				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/winrt/" if="winrt" />
+				<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/video/khronos/" />
 
 				<compilerflag value="-DHAVE_LIBC" />
 
@@ -267,9 +284,15 @@
 			<file name="src/backend/sdl/SDLGamepad.cpp" />
 			<file name="src/backend/sdl/SDLJoystick.cpp" />
 			<file name="src/backend/sdl/SDLKeyCode.cpp" />
+			<compilerflag value="-DLIME_NATIVE_DESKTOP" if="LIME_NATIVE_DESKTOP" />
+			<compilerflag value="-I${NATIVE_DESKTOP_PATH}/project/include" if="LIME_NATIVE_DESKTOP" />
+			<file name="src/backend/sdl/SDLMenu.cpp" if="LIME_NATIVE_DESKTOP" />
+			<file name="src/backend/sdl/SDLMenuStub.cpp" unless="LIME_NATIVE_DESKTOP" />
 			<file name="src/backend/sdl/SDLMutex.cpp" />
 			<file name="src/backend/sdl/SDLSystem.cpp" />
 			<file name="src/backend/sdl/SDLWindow.cpp" />
+			<file name="src/backend/sdl/SDLWindowMac.mm" if="mac" />
+			<file name="src/graphics/vulkan/VKRenderer.cpp" if="LIME_VULKAN" />
 
 		</section>
 
@@ -307,6 +330,13 @@
 
 		</section>
 
+		<section if="LIME_NATIVE_IPC">
+
+			<compilerflag value="-DLIME_NATIVE_IPC" />
+			<compilerflag value="-I${NATIVE_IPC_PATH}/project/include" />
+
+		</section>
+
 		<section if="LIME_ZLIB">
 
 			<compilerflag value="-DSTATIC_LINK" if="emscripten || ios || tvos" />
@@ -328,6 +358,15 @@
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
 		<file name="src/media/containers/WAV.cpp" />
+		<file name="src/media/video/AVFVideoBackend.mm" if="mac || ios" />
+		<file name="src/media/video/GStreamerVideoBackend.cpp" if="linux" />
+		<file name="src/media/video/MediaCodecVideoBackend.cpp" if="android" />
+		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
+		<file name="src/media/video/VideoDecoder.cpp" />
+		<file name="src/media/video/VideoDecoderBindings.cpp" />
+		<file name="src/net/LocalSocket.cpp" />
+		<file name="src/net/LocalSocketBindings.cpp" />
+		<file name="src/net/LocalSocketEvent.cpp" />
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
@@ -338,6 +377,7 @@
 		<file name="src/system/Locale.cpp" unless="mac || ios" />
 		<file name="src/system/Locale.mm" if="mac || ios" />
 		<file name="src/system/OrientationEvent.cpp" />
+		<file name="src/system/SecureRandom.cpp" />
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/system/System.cpp" unless="ios" />
 		<file name="src/system/System.mm" if="ios" />
@@ -347,10 +387,13 @@
 		<file name="src/ui/Haptic.mm" if="ios" />
 		<file name="src/ui/JoystickEvent.cpp" />
 		<file name="src/ui/KeyEvent.cpp" />
+		<file name="src/ui/MenuEvent.cpp" />
 		<file name="src/ui/MouseEvent.cpp" />
 		<file name="src/ui/TextEvent.cpp" />
 		<file name="src/ui/TouchEvent.cpp" />
+		<file name="src/ui/TrayIconEvent.cpp" />
 		<file name="src/ui/WindowEvent.cpp" />
+		<file name="src/ui/WindowAppearance.cpp" />
 		<file name="src/utils/ArrayBufferView.cpp" />
 		<file name="src/utils/Bytes.cpp" />
 
@@ -377,6 +420,8 @@
 	<include name="lib/lzma-files.xml" />
 	<include name="lib/mbedtls-files.xml" />
 	<include name="lib/mojoal-files.xml" />
+	<include name="${NATIVE_DESKTOP_PATH}/project/Files.xml" if="LIME_NATIVE_DESKTOP" />
+	<include name="${NATIVE_IPC_PATH}/project/Files.xml" if="LIME_NATIVE_IPC" />
 	<include name="lib/neko-files.xml" />
 	<include name="lib/ogg-files.xml" />
 	<include name="lib/openal-files.xml" />
@@ -409,7 +454,7 @@
 		<files id="native-toolkit-harfbuzz" if="LIME_HARFBUZZ" />
 		<files id="native-toolkit-jpeg" if="LIME_JPEG" />
 		<files id="native-toolkit-lzma" if="LIME_LZMA" />
-		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" unless="static_link" />
+		<files id="native-toolkit-mbedtls" if="LIME_MBEDTLS" />
 		<files id="native-toolkit-mojoal" if="LIME_MOJOAL" />
 		<files id="native-toolkit-neko" if="LIME_NEKO" />
 		<files id="native-toolkit-ogg" if="LIME_OGG" />
@@ -417,6 +462,9 @@
 		<files id="native-toolkit-pixman" if="LIME_PIXMAN" />
 		<files id="native-toolkit-png" if="LIME_PNG" />
 		<files id="native-toolkit-sdl" if="LIME_SDL" unless="emscripten" />
+		<files id="native-desktop" if="LIME_SDL LIME_NATIVE_DESKTOP" />
+		<files id="native-ipc" if="LIME_NATIVE_IPC" />
+		<files id="native-ipc-channel" if="LIME_NATIVE_IPC" />
 		<files id="native-toolkit-sdl_sound" if="LIME_SDL_SOUND" />
 		<files id="native-toolkit-tinyfiledialogs" if="LIME_TINYFILEDIALOGS" />
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
@@ -439,6 +487,7 @@
 				<lib name="user32.lib" />
 				<lib name="kernel32.lib" />
 				<lib name="advapi32.lib" />
+				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="winmm.lib" />
 				<lib name="imm32.lib" />
 				<lib name="ole32.lib" />
@@ -448,9 +497,12 @@
 				<lib name="wldap32.lib" />
 				<lib name="shell32.lib" />
 				<lib name="comdlg32.lib" />
+				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="setupapi.lib" />
 
-				<lib name="bcrypt.lib" if="LIME_CURL" />
+				<lib name="bcrypt.lib" />
+				<lib name="crypt32.lib" if="LIME_CURL" />
+				<lib name="iphlpapi.lib" if="LIME_CURL" />
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
@@ -472,6 +524,7 @@
 
 			<section if="linux">
 
+				<lib name="-ldl" />
 				<lib name="-lpthread" />
 				<lib name="-lrt" />
 
@@ -498,13 +551,16 @@
 				<vflag name="-framework" value="AppKit" />
 				<vflag name="-framework" value="AudioToolbox" />
 				<vflag name="-framework" value="AudioUnit" />
+				<vflag name="-framework" value="AVFoundation" />
 				<vflag name="-framework" value="Carbon" />
 				<vflag name="-framework" value="Cocoa" />
 				<vflag name="-framework" value="CoreAudio" />
+				<vflag name="-framework" value="CoreMedia" />
 				<vflag name="-framework" value="CoreVideo" />
 				<vflag name="-framework" value="ForceFeedback" />
 				<vflag name="-framework" value="OpenAL" />
 				<vflag name="-framework" value="OpenGL" />
+				<vflag name="-framework" value="Security" />
 				<vflag name="-framework" value="SystemConfiguration" />
 
 				<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />

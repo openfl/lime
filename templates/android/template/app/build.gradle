@@ -76,6 +76,12 @@ android {
 		}
 	}
 
+	// Video is read from the APK in place, which compressed files cannot be, and
+	// these containers are not in the default list of files left uncompressed
+	::if (ANDROID_GRADLE_PLUGIN>="7.1")::androidResources::else::aaptOptions::end:: {
+		noCompress 'avi', 'f4v', 'flv', 'm2ts', 'mov', 'mts', 'mxf', 'ogv', 'qt', 'ts'
+	}
+
 	android.applicationVariants.all { variant ->
 		variant.outputs.all { output ->
 			if (outputFileName != null && outputFileName.endsWith('.apk')) {

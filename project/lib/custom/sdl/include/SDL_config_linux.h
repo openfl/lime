@@ -153,6 +153,7 @@
 #define HAVE_SIGACTION  1
 #define HAVE_SETJMP 1
 #define HAVE_NANOSLEEP  1
+#define HAVE_CLOCK_GETTIME  1
 #define HAVE_SYSCONF    1
 /* #undef HAVE_SYSCTLBYNAME */
 
@@ -219,6 +220,7 @@
 /* #undef SDL_JOYSTICK_DUMMY */
 /* #undef SDL_JOYSTICK_IOKIT */
 #define SDL_JOYSTICK_LINUX 1
+#define SDL_JOYSTICK_VIRTUAL 1
 /* #undef SDL_JOYSTICK_HIDAPI */
 /* #undef SDL_JOYSTICK_WINMM */
 /* #undef SDL_JOYSTICK_USBHID */
@@ -273,7 +275,7 @@
 /* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XCURSOR */
 #define SDL_VIDEO_DRIVER_X11_DYNAMIC_XINERAMA "libXinerama.so.1"
 #define SDL_VIDEO_DRIVER_X11_DYNAMIC_XINPUT2 "libXi.so.6"
-#define SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR "libxrandr.so.2"
+#define SDL_VIDEO_DRIVER_X11_DYNAMIC_XRANDR "libXrandr.so.2"
 /* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XSS */
 /* #undef SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE */
 /* #undef SDL_VIDEO_DRIVER_X11_XCURSOR */
@@ -307,6 +309,9 @@
 /* #undef SDL_VIDEO_OPENGL_WGL */
 /* #undef SDL_VIDEO_OPENGL_OSMESA */
 /* #undef SDL_VIDEO_OPENGL_OSMESA_DYNAMIC */
+
+/* Enable Vulkan support */
+#define SDL_VIDEO_VULKAN 1
 
 /* Enable system power support */
 #define SDL_POWER_LINUX 1

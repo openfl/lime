@@ -9,14 +9,36 @@
 namespace lime {
 
 
+	// Functions in this class return pointers to externally owned memory, which will be reused automatically
+	// for future dialogs and should not be freed.
 	class FileDialog {
 
 		public:
 
-			static std::wstring* OpenDirectory (std::wstring* title = 0, std::wstring* filter = 0, std::wstring* defaultPath = 0);
-			static std::wstring* OpenFile (std::wstring* title = 0, std::wstring* filter = 0, std::wstring* defaultPath = 0);
-			static void OpenFiles (std::vector<std::wstring*>* files, std::wstring* title = 0, std::wstring* filter = 0, std::wstring* defaultPath = 0);
-			static std::wstring* SaveFile (std::wstring* title = 0, std::wstring* filter = 0, std::wstring* defaultPath = 0);
+#ifdef HX_WINDOWS
+			using char_t = wchar_t;
+#else
+			using char_t = char;
+#endif
+
+			static const char_t* OpenDirectory(const char_t* title = nullptr, const char_t* filter = nullptr, const char_t* defaultPath = nullptr);
+			static const char_t* OpenFile(const char_t* title = nullptr, const char_t* filter = nullptr, const char_t* defaultPath = nullptr);
+
+			// Use actual string view once we can use c++17
+			class string_view {
+			public:
+				string_view(const char_t* c_str, size_t length) : c_str(c_str), length(length) {}
+
+				const char_t* data() const { return c_str; }
+				size_t size() const { return length; }
+
+			private:
+				const char_t* c_str;
+				size_t length;
+			};
+
+			static std::vector<string_view> OpenFiles(const char_t* title = nullptr, const char_t* filter = nullptr, const char_t* defaultPath = nullptr);
+			static const char_t* SaveFile(const char_t* title = nullptr, const char_t* filter = nullptr, const char_t* defaultPath = nullptr);
 
 	};
 

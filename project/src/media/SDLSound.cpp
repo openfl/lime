@@ -31,6 +31,69 @@ namespace lime {
 	}
 
 
+	// SDL_sound first tries the decoder for a file's extension. Bytes have no extension, so it would try
+	// MIDI, ModPlug and MP3 first, and the MP3 decoder can find frame headers in PCM data, such as the -1
+	// and 0 samples a fade out ends with. Formats that start with a signature are named from it instead.
+	static const char* GuessExtension (const Uint8* bytes, Uint32 length) {
+
+		if (length >= 12 && SDL_memcmp (bytes, "RIFF", 4) == 0 && SDL_memcmp (bytes + 8, "WAVE", 4) == 0) {
+
+			return "WAV";
+
+		}
+
+		if (length >= 12 && SDL_memcmp (bytes, "FORM", 4) == 0 && (SDL_memcmp (bytes + 8, "AIFF", 4) == 0 || SDL_memcmp (bytes + 8, "AIFC", 4) == 0)) {
+
+			return "AIFF";
+
+		}
+
+		if (length >= 4 && SDL_memcmp (bytes, ".snd", 4) == 0) {
+
+			return "AU";
+
+		}
+
+		if (length >= 4 && SDL_memcmp (bytes, "OggS", 4) == 0) {
+
+			return "OGG";
+
+		}
+
+		if (length >= 20 && SDL_memcmp (bytes, "Creative Voice File\032", 20) == 0) {
+
+			return "VOC";
+
+		}
+
+		if (length >= 4 && SDL_memcmp (bytes, "fLaC", 4) == 0) {
+
+			return "FLAC";
+
+		}
+
+		return NULL;
+
+	}
+
+
+	static bool DecoderHandles (const Sound_DecoderInfo* decoder, const char* ext) {
+
+		for (const char** decoderExt = decoder->extensions; *decoderExt; decoderExt++) {
+
+			if (SDL_strcasecmp (*decoderExt, ext) == 0) {
+
+				return true;
+
+			}
+
+		}
+
+		return false;
+
+	}
+
+
 	static Sound_Sample* CreateSample (Resource* resource) {
 
 		Sound_AudioInfo want = {};
@@ -38,23 +101,58 @@ namespace lime {
 		want.channels = 0;
 		want.rate = 0;
 
-		Sound_Sample* sample = NULL;
+		SDL_RWops* rw = NULL;
+		const char* format = NULL;
+		const char* ext = NULL;
 
 		if (resource->path) {
 
-			sample = Sound_NewSampleFromFile (resource->path, &want, SDL_SOUND_BUFFER_SIZE);
+			rw = SDL_RWFromFile (resource->path, "rb");
+
+			if (rw) {
+
+				// A file can be named without its extension, or with another format's
+				Uint8 header[20];
+				Uint32 length = (Uint32)SDL_RWread (rw, header, 1, sizeof (header));
+				SDL_RWseek (rw, 0, RW_SEEK_SET);
+				format = GuessExtension (header, length);
+
+			}
+
+			ext = SDL_strrchr (resource->path, '.');
+			if (ext) ext++;
 
 		} else {
 
 			const Uint8* bytes = reinterpret_cast<const Uint8*> (resource->data->b);
 			const Uint32 length = static_cast<Uint32> (resource->data->length);
-			sample = Sound_NewSampleFromMem (bytes, length, NULL, &want, SDL_SOUND_BUFFER_SIZE);
+			rw = SDL_RWFromConstMem (bytes, length);
+			format = GuessExtension (bytes, length);
 
 		}
+
+		if (!rw) {
+
+			printf ("SDL_sound: %s\n", SDL_GetError ());
+			return NULL;
+
+		}
+
+		Sound_Sample* sample = Sound_NewSample (rw, format ? format : ext, &want, SDL_SOUND_BUFFER_SIZE);
 
 		if (!sample) {
 
 			printf ("SDL_sound: %s\n", Sound_GetError ());
+			return NULL;
+
+		}
+
+		if (format && !DecoderHandles (sample->decoder, format)) {
+
+			// The decoder for this format gave up and SDL_sound fell back to the others, so the MP3
+			// decoder could take a WAV with a chunk the WAV decoder can't skip. Lime's own decoders
+			// get it instead.
+			Sound_FreeSample (sample);
 			return NULL;
 
 		}

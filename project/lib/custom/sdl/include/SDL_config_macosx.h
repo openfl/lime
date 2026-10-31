@@ -141,6 +141,7 @@
 /* Enable various input drivers */
 #define SDL_JOYSTICK_IOKIT  1
 #define SDL_JOYSTICK_HIDAPI  1
+#define SDL_JOYSTICK_VIRTUAL 1
 #define SDL_HAPTIC_IOKIT    1
 
 /* Enable the dummy sensor driver */

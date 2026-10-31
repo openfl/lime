@@ -9,6 +9,10 @@
 #include <map>
 #include <vector>
 
+#if defined (LIME_MBEDTLS) && defined (_WIN32)
+extern "C" void lime_threading_init ();
+#endif
+
 
 namespace lime {
 
@@ -56,6 +60,21 @@ namespace lime {
 	std::map<void*, ValuePointer*> xferInfoCallbacks;
 	std::map<void*, CURL_XferInfo*> xferInfoValues;
 	Mutex curl_gc_mutex;
+
+	void CURL_SetCertificates (CURL* curl);
+	void CURL_UseOwnCertificates (CURL* curl, int option);
+
+	#if defined (LIME_MBEDTLS) && defined (_WIN32)
+	static struct CURL_ThreadingInit {
+
+		CURL_ThreadingInit () {
+
+			lime_threading_init ();
+
+		}
+
+	} curl_threading_init;
+	#endif
 
 	void free_header_values (const std::vector<char*>* values) {
 
@@ -1052,6 +1071,7 @@ namespace lime {
 		curl_gc_mutex.Lock ();
 
 		CURL* curl = curl_easy_init ();
+		CURL_SetCertificates (curl);
 		value handle = CFFIPointer (curl, gc_curl);
 
 		if (curlValid.find (handle) != curlValid.end ()) {
@@ -1108,6 +1128,7 @@ namespace lime {
 		curl_gc_mutex.Lock ();
 
 		CURL* curl = curl_easy_init ();
+		CURL_SetCertificates (curl);
 		HL_CFFIPointer* handle = HLCFFIPointer (curl, (hl_finalizer)hl_gc_curl);
 
 		if (curlValid.find (handle) != curlValid.end ()) {
@@ -1226,6 +1247,7 @@ namespace lime {
 	void lime_curl_easy_reset (value curl) {
 
 		curl_easy_reset ((CURL*)val_data(curl));
+		CURL_SetCertificates ((CURL*)val_data(curl));
 
 	}
 
@@ -1233,6 +1255,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_curl_easy_reset) (HL_CFFIPointer* curl) {
 
 		curl_easy_reset ((CURL*)curl->ptr);
+		CURL_SetCertificates ((CURL*)curl->ptr);
 
 	}
 
@@ -1591,6 +1614,7 @@ namespace lime {
 			case CURLOPT_ABSTRACT_UNIX_SOCKET:
 			case CURLOPT_REQUEST_TARGET:
 
+				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
 				code = curl_easy_setopt (easy_handle, type, val_string (parameter));
 				break;
 
@@ -2023,6 +2047,7 @@ namespace lime {
 			case CURLOPT_REQUEST_TARGET:
 			{
 				hl_vstring* str = (hl_vstring*)parameter;
+				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
 				code = curl_easy_setopt (easy_handle, type, str ? hl_to_utf8 (str->bytes) : NULL);
 				break;
 			}
@@ -2532,10 +2557,19 @@ namespace lime {
 
 	int lime_curl_multi_perform (value multi_handle) {
 
-		curl_gc_mutex.Lock ();
-
+		CURLM* multi = (CURLM*)val_data (multi_handle);
 		int runningHandles = 0;
-		CURLMcode result = curl_multi_perform ((CURLM*)val_data (multi_handle), &runningHandles);
+
+		// Transfers, and name lookups where they can't run on a thread of
+		// their own, may take a while, so the collector is let run meanwhile.
+		// The lock is let go before leaving, as finalizers take it too.
+		System::GCEnterBlocking ();
+		curl_gc_mutex.Lock ();
+		CURLMcode result = curl_multi_perform (multi, &runningHandles);
+		curl_gc_mutex.Unlock ();
+		System::GCExitBlocking ();
+
+		curl_gc_mutex.Lock ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2558,10 +2592,17 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_curl_multi_perform) (HL_CFFIPointer* multi_handle) {
 
-		curl_gc_mutex.Lock ();
-
+		CURLM* multi = (CURLM*)multi_handle->ptr;
 		int runningHandles = 0;
-		CURLMcode result = curl_multi_perform ((CURLM*)multi_handle->ptr, &runningHandles);
+
+		// See lime_curl_multi_perform
+		System::GCEnterBlocking ();
+		curl_gc_mutex.Lock ();
+		CURLMcode result = curl_multi_perform (multi, &runningHandles);
+		curl_gc_mutex.Unlock ();
+		System::GCExitBlocking ();
+
+		curl_gc_mutex.Lock ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2830,9 +2871,17 @@ namespace lime {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
-		// TODO
+		if (!data) {
 
-		return alloc_null ();
+			return alloc_null ();
+
+		}
+
+		value info = alloc_empty_object ();
+		alloc_field (info, val_id ("age"), alloc_int (data->age));
+		alloc_field (info, val_id ("features"), alloc_int (data->features));
+		alloc_field (info, val_id ("versionNum"), alloc_int (data->version_num));
+		return info;
 
 	}
 
@@ -2841,9 +2890,17 @@ namespace lime {
 
 		curl_version_info_data* data = curl_version_info ((CURLversion)type);
 
-		// TODO
+		if (!data) {
 
-		return NULL;
+			return NULL;
+
+		}
+
+		vdynamic* info = (vdynamic*)hl_alloc_dynobj ();
+		hl_dyn_seti (info, hl_hash_utf8 ("age"), &hlt_i32, data->age);
+		hl_dyn_seti (info, hl_hash_utf8 ("features"), &hlt_i32, data->features);
+		hl_dyn_seti (info, hl_hash_utf8 ("versionNum"), &hlt_i32, data->version_num);
+		return info;
 
 	}
 

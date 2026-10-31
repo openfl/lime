@@ -4,10 +4,6 @@
 
 	<set name="no_shared_libs" value="1" if="mingw" />
 
-	<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" noerror="true" />
-	<set name="HAS_HXCPP_MBEDTLS_FILES" value="1" if="MBEDTLS_DIR" />
-	<include name="${HXCPP}/src/hx/libs/ssl/Build.xml" unless="HAS_HXCPP_MBEDTLS_FILES" />
-
 	<files id="main">
 
 		<file name="Main.cpp" />
@@ -17,8 +13,8 @@
 	<target id="main" output="Main${DBG}" tool="linker" toolid="exe">
 
 		<files id="main" />
-		<files id="mbedtls" if="HAS_HXCPP_MBEDTLS_FILES" />
-		<files id="hxcpp_ssl" unless="HAS_HXCPP_MBEDTLS_FILES" />
+		<files id="rc" if="windows" />
+		<lib name="-Wl,--start-group" if="linux" />
 		::foreach ndlls::
 		<lib name="::path::" />::end::
 
@@ -29,6 +25,7 @@
 			<lib name="user32.lib" />
 			<lib name="kernel32.lib" />
 			<lib name="advapi32.lib" />
+			<lib name="comctl32.lib" />
 			<lib name="winmm.lib" />
 			<lib name="imm32.lib"  />
 			<lib name="ole32.lib" />
@@ -45,6 +42,8 @@
 			<lib name="dwrite.lib" />
 			<lib name="setupapi.lib" />
 			<lib name="crypt32.lib" />
+			<lib name="bcrypt.lib" />
+			<lib name="iphlpapi.lib" />
 
 		</section>
 
@@ -64,6 +63,8 @@
 			<vflag name="-framework" value="IOKit" />
 			<vflag name="-framework" value="Foundation" />
 			<vflag name="-framework" value="CoreAudio" />
+			<vflag name="-framework" value="AVFoundation" />
+			<vflag name="-framework" value="CoreMedia" />
 			<vflag name="-framework" value="CoreVideo" />
 			<vflag name="-framework" value="Cocoa" />
 			<vflag name="-framework" value="OpenGL" />
@@ -73,6 +74,7 @@
 			<vflag name="-framework" value="Carbon" />
 			<vflag name="-framework" value="AppKit" />
 			<vflag name="-framework" value="OpenAL"/>
+			<vflag name="-framework" value="Security"/>
 			<vflag name="-framework" value="SystemConfiguration"/>
 
 			<lib name="/opt/local/lib/libgc.a" if="LIME_NEKO" />
@@ -94,6 +96,7 @@
 		</section>
 
 		<lib name="libApplicationMain${DBG}${LIBEXT}" />
+		<lib name="-Wl,--end-group" if="linux" />
 
 	</target>
 
