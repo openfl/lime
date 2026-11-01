@@ -214,17 +214,41 @@ class Window
 	public var onShow(default, null) = new Event<Void->Void>();
 	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
 	public var onTextInput(default, null) = new Event<String->Void>();
+
+	/**
+		Fired when `scale` changes, as when the window moves to a display with
+		another scale, or the display's scale is changed. On native targets it can
+		be left out with `lime_disable_window_scale_change`.
+	**/
 	public var onDisplayScaleChange(default, null) = new Event<Void->Void>();
+
 	public var opacity(get, set):Float;
 	public var parameters:Dynamic;
 	public var resizable(get, set):Bool;
+
+	/**
+		The ratio of the window's pixels to its size in points, from the
+		display it is on.
+	**/
 	public var scale(get, null):Float;
 	#if (!lime_doc_gen || flash || openfl)
 	public var stage(default, null):Stage;
 	#end
 	public var textInputEnabled(get, set):Bool;
 	public var title(get, set):String;
+	/**
+		Whether the window was made transparent, where pixels drawn with alpha
+		below 1 show what is behind it. It is asked for with the `transparent`
+		window attribute, and the window is made opaque where that cannot be
+		done: with Vulkan, without a compositing window manager on Linux, and
+		on AIR. In a browser, the canvas is transparent.
+	**/
 	public var transparent(default, null):Bool;
+
+	/**
+		Whether the window stays above other windows. It is kept on desktop
+		native targets and AIR; elsewhere it stays `false`.
+	**/
 	public var alwaysOnTop(get, set):Bool;
 	public var visible(get, set):Bool;
 	public var width(get, set):Int;

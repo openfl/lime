@@ -199,6 +199,10 @@ class FlashWindow
 
 	private function create():Void
 	{
+		#if !air
+		parent.__alwaysOnTop = false;
+		#end
+
 		if (#if air true #else FlashApplication.createFirstWindow #end)
 		{
 			var attributes = parent.__attributes;
@@ -684,7 +688,8 @@ class FlashWindow
 
 	public function setAlwaysOnTop(value:Bool):Bool
 	{
-		return value;
+		// The window stays where the browser or player puts it
+		return false;
 	}
 
 	public function warpMouse(x:Int, y:Int):Void {}

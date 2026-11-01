@@ -89,6 +89,7 @@ class HTML5Window
 	public function new(parent:Window)
 	{
 		this.parent = parent;
+		parent.__alwaysOnTop = false;
 
 		cursor = DEFAULT;
 		cacheMouseX = 0;
@@ -1402,7 +1403,8 @@ class HTML5Window
 
 	public function setAlwaysOnTop(value:Bool):Bool
 	{
-		return value;
+		// The page stays where the browser puts it
+		return false;
 	}
 
 	#if !lime_disable_window_scale_change

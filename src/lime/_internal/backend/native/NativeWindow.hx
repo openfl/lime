@@ -145,6 +145,8 @@ class NativeWindow
 
 		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
+		// Transparency can be refused, as with Vulkan or without a compositor
+		parent.transparent = NativeCFFI.lime_window_get_transparent(handle);
 
 		var context = new RenderContext();
 		context.window = parent;

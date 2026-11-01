@@ -85,6 +85,7 @@ class WindowTest extends Test
 		}
 
 		Assert.isTrue(isTransparent(window), "a window created transparent was made opaque");
+		Assert.equals(isTransparent(window), window.transparent);
 	}
 
 	public function testWindowsAfterATransparentOneAreOpaque():Void
