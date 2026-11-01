@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <string>
 #include <utility>
+#include <vector>
 
 #ifndef NATIVE_TOOLKIT_SDL_ANGLE
 #include <GL/gl.h>
@@ -53,12 +54,14 @@ namespace lime {
 
 	// Media Foundation is missing from Windows N editions, so it is loaded at
 	// runtime instead of linked
+	typedef HRESULT (WINAPI *MFCreateAsyncResultFunc) (IUnknown*, IMFAsyncCallback*, IUnknown*, IMFAsyncResult**);
 	typedef HRESULT (WINAPI *MFCreateAttributesFunc) (IMFAttributes**, UINT32);
 	typedef HRESULT (WINAPI *MFCreateDXGIDeviceManagerFunc) (UINT*, IMFDXGIDeviceManager**);
 	typedef HRESULT (WINAPI *MFCreateMediaTypeFunc) (IMFMediaType**);
 	typedef HRESULT (WINAPI *MFCreateSourceReaderFromByteStreamFunc) (IMFByteStream*, IMFAttributes*, IMFSourceReader**);
 	typedef HRESULT (WINAPI *MFCreateSourceReaderFromURLFunc) (LPCWSTR, IMFAttributes*, IMFSourceReader**);
 	typedef HRESULT (WINAPI *MFCreateSourceResolverFunc) (IMFSourceResolver**);
+	typedef HRESULT (WINAPI *MFInvokeCallbackFunc) (IMFAsyncResult*);
 	typedef HRESULT (WINAPI *MFShutdownFunc) ();
 	typedef HRESULT (WINAPI *MFStartupFunc) (ULONG, DWORD);
 
@@ -362,12 +365,14 @@ namespace lime {
 	};
 
 	static PFN_D3D11_CREATE_DEVICE _D3D11CreateDevice = 0;
+	static MFCreateAsyncResultFunc _MFCreateAsyncResult = 0;
 	static MFCreateAttributesFunc _MFCreateAttributes = 0;
 	static MFCreateDXGIDeviceManagerFunc _MFCreateDXGIDeviceManager = 0;
 	static MFCreateMediaTypeFunc _MFCreateMediaType = 0;
 	static MFCreateSourceReaderFromByteStreamFunc _MFCreateSourceReaderFromByteStream = 0;
 	static MFCreateSourceReaderFromURLFunc _MFCreateSourceReaderFromURL = 0;
 	static MFCreateSourceResolverFunc _MFCreateSourceResolver = 0;
+	static MFInvokeCallbackFunc _MFInvokeCallback = 0;
 	static MFShutdownFunc _MFShutdown = 0;
 	static MFStartupFunc _MFStartup = 0;
 
@@ -399,6 +404,7 @@ namespace lime {
 
 			if (!mfplat || !mfreadwrite) return;
 
+			_MFCreateAsyncResult = (MFCreateAsyncResultFunc)GetProcAddress (mfplat, "MFCreateAsyncResult");
 			_MFCreateAttributes = (MFCreateAttributesFunc)GetProcAddress (mfplat, "MFCreateAttributes");
 			_MFCreateDXGIDeviceManager = (MFCreateDXGIDeviceManagerFunc)GetProcAddress (mfplat, "MFCreateDXGIDeviceManager");
 			_MFCreateMediaType = (MFCreateMediaTypeFunc)GetProcAddress (mfplat, "MFCreateMediaType");
@@ -407,6 +413,7 @@ namespace lime {
 			_MFCreateSourceReaderFromURL = (MFCreateSourceReaderFromURLFunc)GetProcAddress (mfreadwrite, "MFCreateSourceReaderFromURL");
 			_MFCreateSourceReaderFromByteStream = (MFCreateSourceReaderFromByteStreamFunc)GetProcAddress (mfreadwrite, "MFCreateSourceReaderFromByteStream");
 			_MFCreateSourceResolver = (MFCreateSourceResolverFunc)GetProcAddress (mfplat, "MFCreateSourceResolver");
+			_MFInvokeCallback = (MFInvokeCallbackFunc)GetProcAddress (mfplat, "MFInvokeCallback");
 
 			HMODULE d3d11 = LoadSystemLibrary (L"d3d11.dll");
 			if (d3d11) _D3D11CreateDevice = (PFN_D3D11_CREATE_DEVICE)GetProcAddress (d3d11, "D3D11CreateDevice");
@@ -610,6 +617,299 @@ namespace lime {
 			LONG references;
 			IMFSourceResolver* resolver;
 			HRESULT result;
+
+
+	};
+
+
+	// A read of a closable byte stream, into a buffer of its own
+	class MFStreamRead : public IUnknown {
+
+
+		public:
+
+			MFStreamRead (BYTE* destination, ULONG length) : buffer (length), bytesRead (0), destination (destination), done (false), result (NULL), references (1) {}
+
+			~MFStreamRead () {
+
+				if (result) result->Release ();
+
+			}
+
+			STDMETHODIMP QueryInterface (REFIID riid, void** value) {
+
+				if (riid == __uuidof (IUnknown)) {
+
+					*value = static_cast<IUnknown*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				*value = NULL;
+				return E_NOINTERFACE;
+
+			}
+
+			STDMETHODIMP_(ULONG) AddRef () { return InterlockedIncrement (&references); }
+
+			STDMETHODIMP_(ULONG) Release () {
+
+				ULONG count = InterlockedDecrement (&references);
+				if (count == 0) delete this;
+				return count;
+
+			}
+
+			std::vector<BYTE> buffer;
+			ULONG bytesRead;
+			BYTE* destination;
+
+			// Finished, or ended by closing, under the stream's mutex
+			bool done;
+
+			// The result its caller is called back with
+			IMFAsyncResult* result;
+
+
+		private:
+
+			LONG references;
+
+
+	};
+
+
+	// Wraps a network byte stream, whose reads closing does not always end.
+	// Media Foundation now and then leaves one waiting on a stalled connection
+	// after the stream is closed, with the reader waiting on it, so closing
+	// would wait for the connection. Each read goes through a buffer of its
+	// own, so closing ends it at once, and the read it waits on cannot write
+	// into memory its caller has given back.
+	class MFClosableByteStream : public IMFByteStream, public IMFAsyncCallback {
+
+
+		public:
+
+			MFClosableByteStream (IMFByteStream* stream) : closed (false), references (1), stream (stream) {
+
+				stream->AddRef ();
+
+			}
+
+			~MFClosableByteStream () {
+
+				stream->Release ();
+
+			}
+
+			STDMETHODIMP QueryInterface (REFIID riid, void** value) {
+
+				if (riid == __uuidof (IMFByteStream) || riid == __uuidof (IUnknown)) {
+
+					*value = static_cast<IMFByteStream*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				if (riid == __uuidof (IMFAsyncCallback)) {
+
+					*value = static_cast<IMFAsyncCallback*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				// The wrapped stream answers for its other interfaces, such as the
+				// attributes that give its content type
+				return stream->QueryInterface (riid, value);
+
+			}
+
+			STDMETHODIMP_(ULONG) AddRef () { return InterlockedIncrement (&references); }
+
+			STDMETHODIMP_(ULONG) Release () {
+
+				ULONG count = InterlockedDecrement (&references);
+				if (count == 0) delete this;
+				return count;
+
+			}
+
+			STDMETHODIMP BeginRead (BYTE* buffer, ULONG length, IMFAsyncCallback* callback, IUnknown* state) {
+
+				MFStreamRead* read = new MFStreamRead (buffer, length);
+				HRESULT hr = _MFCreateAsyncResult (read, callback, state, &read->result);
+
+				if (SUCCEEDED (hr)) {
+
+					std::lock_guard<std::mutex> lock (mutex);
+
+					if (closed) {
+
+						hr = E_ABORT;
+
+					} else {
+
+						read->AddRef ();
+						reads.push_back (read);
+
+					}
+
+				}
+
+				if (SUCCEEDED (hr)) {
+
+					hr = stream->BeginRead (read->buffer.data (), length, this, read);
+
+					if (FAILED (hr)) {
+
+						// Closing can have ended the read already, and called back
+						std::lock_guard<std::mutex> lock (mutex);
+
+						if (read->done) {
+
+							hr = S_OK;
+
+						} else {
+
+							read->done = true;
+							Remove (read);
+
+						}
+
+					}
+
+				}
+
+				read->Release ();
+				return hr;
+
+			}
+
+			STDMETHODIMP EndRead (IMFAsyncResult* result, ULONG* bytesRead) {
+
+				IUnknown* object = NULL;
+				if (!result || FAILED (result->GetObject (&object)) || !object) return E_INVALIDARG;
+
+				if (bytesRead) *bytesRead = static_cast<MFStreamRead*> (object)->bytesRead;
+				object->Release ();
+				return result->GetStatus ();
+
+			}
+
+			STDMETHODIMP Close () {
+
+				// Reads in progress end now, whether or not the stream ends them.
+				// They end aborted, as the stream ends them, since a media source
+				// takes a read that ends shut down for its own shutdown, and stops
+				// without telling the reader
+				std::vector<MFStreamRead*> ended;
+
+				{
+					std::lock_guard<std::mutex> lock (mutex);
+					closed = true;
+					ended.swap (reads);
+
+					for (MFStreamRead* read : ended) {
+
+						read->done = true;
+						read->result->SetStatus (E_ABORT);
+
+					}
+				}
+
+				for (MFStreamRead* read : ended) {
+
+					_MFInvokeCallback (read->result);
+					read->Release ();
+
+				}
+
+				return stream->Close ();
+
+			}
+
+			STDMETHODIMP GetParameters (DWORD* flags, DWORD* queue) { return E_NOTIMPL; }
+
+			STDMETHODIMP Invoke (IMFAsyncResult* asyncResult) {
+
+				// A read of the wrapped stream finished, which its caller hears of
+				// unless closing ended it first
+				IUnknown* state = NULL;
+				if (FAILED (asyncResult->GetState (&state)) || !state) return S_OK;
+
+				MFStreamRead* read = static_cast<MFStreamRead*> (state);
+				ULONG bytesRead = 0;
+				HRESULT hr = stream->EndRead (asyncResult, &bytesRead);
+				bool finished = false;
+
+				{
+					std::lock_guard<std::mutex> lock (mutex);
+
+					if (!read->done) {
+
+						if (SUCCEEDED (hr)) {
+
+							if (bytesRead > read->buffer.size ()) bytesRead = (ULONG)read->buffer.size ();
+							if (bytesRead > 0) memcpy (read->destination, read->buffer.data (), bytesRead);
+							read->bytesRead = bytesRead;
+
+						}
+
+						read->done = true;
+						read->result->SetStatus (hr);
+						Remove (read);
+						finished = true;
+
+					}
+				}
+
+				if (finished) _MFInvokeCallback (read->result);
+				state->Release ();
+				return S_OK;
+
+			}
+
+			STDMETHODIMP BeginWrite (const BYTE* buffer, ULONG length, IMFAsyncCallback* callback, IUnknown* state) { return stream->BeginWrite (buffer, length, callback, state); }
+			STDMETHODIMP EndWrite (IMFAsyncResult* result, ULONG* written) { return stream->EndWrite (result, written); }
+			STDMETHODIMP Flush () { return stream->Flush (); }
+			STDMETHODIMP GetCapabilities (DWORD* capabilities) { return stream->GetCapabilities (capabilities); }
+			STDMETHODIMP GetCurrentPosition (QWORD* position) { return stream->GetCurrentPosition (position); }
+			STDMETHODIMP GetLength (QWORD* length) { return stream->GetLength (length); }
+			STDMETHODIMP IsEndOfStream (BOOL* ended) { return stream->IsEndOfStream (ended); }
+			STDMETHODIMP Read (BYTE* buffer, ULONG length, ULONG* bytesRead) { return closed ? E_ABORT : stream->Read (buffer, length, bytesRead); }
+			STDMETHODIMP Seek (MFBYTESTREAM_SEEK_ORIGIN origin, LONGLONG offset, DWORD flags, QWORD* position) { return stream->Seek (origin, offset, flags, position); }
+			STDMETHODIMP SetCurrentPosition (QWORD position) { return stream->SetCurrentPosition (position); }
+			STDMETHODIMP SetLength (QWORD length) { return stream->SetLength (length); }
+			STDMETHODIMP Write (const BYTE* buffer, ULONG length, ULONG* written) { return stream->Write (buffer, length, written); }
+
+
+		private:
+
+			// Under the mutex
+			void Remove (MFStreamRead* read) {
+
+				for (size_t i = 0; i < reads.size (); i++) {
+
+					if (reads[i] == read) {
+
+						reads.erase (reads.begin () + i);
+						read->Release ();
+						return;
+
+					}
+
+				}
+
+			}
+
+			std::atomic<bool> closed;
+			std::mutex mutex;
+			std::vector<MFStreamRead*> reads;
+			LONG references;
+			IMFByteStream* stream;
 
 
 	};
@@ -1107,6 +1407,15 @@ namespace lime {
 			}
 
 			resolver->Release ();
+
+		}
+
+		// Reads of a network stream that stalls are ended by closing it
+		if (byteStream && network && _MFCreateAsyncResult && _MFInvokeCallback) {
+
+			IMFByteStream* closable = new MFClosableByteStream (byteStream);
+			byteStream->Release ();
+			byteStream = closable;
 
 		}
 
