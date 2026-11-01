@@ -448,6 +448,27 @@ namespace lime {
 		transparent = false;
 		useVulkan = (flags & WINDOW_FLAG_VULKAN) != 0;
 
+		if (useVulkan) {
+
+			// Without Vulkan in this build, or a Vulkan loader on this system, the window is made for
+			// OpenGL instead, as no window could be made for Vulkan
+			#ifdef LIME_VULKAN
+			bool available = SDL_Vulkan_LoadLibrary (NULL) == 0;
+			if (available) SDL_Vulkan_UnloadLibrary ();
+			#else
+			bool available = false;
+			#endif
+
+			if (!available) {
+
+				SDL_LogWarn (SDL_LOG_CATEGORY_RENDER, "Vulkan is not available, so the window uses OpenGL");
+				useVulkan = false;
+				flags &= ~WINDOW_FLAG_VULKAN;
+
+			}
+
+		}
+
 		contextWidth = 0;
 		contextHeight = 0;
 
