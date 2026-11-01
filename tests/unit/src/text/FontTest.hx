@@ -146,6 +146,44 @@ class FontTest extends Test
 		Assert.notEquals(original, coverage(font));
 	}
 
+	public function testAShiftedGlyphIsRenderedAsAnUnshiftedOne():Void
+	{
+		var font = Font.fromFile(PATH);
+		if (font == null)
+		{
+			Assert.fail("cannot open " + PATH);
+			return;
+		}
+
+		var glyph = font.getGlyphs("H")[0];
+		var whole = font.renderGlyphWithLoadFlags(glyph, 32);
+		var shifted = font.renderGlyphWithLoadFlags(glyph, 32, 96, null, 1 / 64);
+		Assert.notNull(whole);
+		Assert.notNull(shifted);
+		if (whole == null || shifted == null) return;
+
+		// A 1/64 pixel shift moves the edges a little, but keeps the hinting and the
+		// colored subpixel coverage that renderGlyph() gives
+		Assert.equals(whole.height, shifted.height);
+		Assert.isTrue(Math.abs(whole.width - shifted.width) <= 1);
+		Assert.isTrue(hasColoredCoverage(whole));
+		Assert.isTrue(hasColoredCoverage(shifted));
+	}
+
+	private static function hasColoredCoverage(image:lime.graphics.Image):Bool
+	{
+		var data = image.buffer.data;
+		var i = 0;
+
+		while (i < data.length)
+		{
+			if (data[i + 3] > 0 && (data[i] != data[i + 1] || data[i + 1] != data[i + 2])) return true;
+			i += 4;
+		}
+
+		return false;
+	}
+
 	public function testRenderGlyphsGivesEachGlyphItsCoverage():Void
 	{
 		var font = Font.fromFile(PATH);

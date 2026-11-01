@@ -1329,9 +1329,32 @@ namespace lime {
 	}
 
 
-	int Font::RenderGlyph(int index, Bytes *bytes, int offset)
+	// subpixelX (1/64 pixel) shifts the outline before rasterizing, so a glyph drawn at a whole
+	// pixel shows where it falls between pixels; bitmap_left stays the whole-pixel origin
+	static int LoadGlyphShifted(void* face, int index, int loadFlags, int subpixelX)
 	{
-		if (FT_Load_Glyph((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0)
+		if (subpixelX != 0)
+		{
+			FT_Vector delta;
+			delta.x = subpixelX;
+			delta.y = 0;
+			FT_Set_Transform((FT_Face)face, NULL, &delta);
+		}
+
+		int loaded = FT_Load_Glyph((FT_Face)face, index, loadFlags);
+
+		if (subpixelX != 0)
+		{
+			FT_Set_Transform((FT_Face)face, NULL, NULL);
+		}
+
+		return loaded;
+	}
+
+
+	int Font::RenderGlyph(int index, Bytes *bytes, int offset, int subpixelX)
+	{
+		if (LoadGlyphShifted(face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT, subpixelX) == 0)
 		{
 			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_LCD) == 0)
 			{
@@ -1398,24 +1421,7 @@ namespace lime {
 	{
 		int resolvedLoadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT | loadFlags;
 
-		// subpixelX (1/64 pixel) shifts the outline before rasterizing, so a glyph drawn at a whole
-		// pixel shows where it falls between pixels; bitmap_left stays the whole-pixel origin
-		if (subpixelX != 0)
-		{
-			FT_Vector delta;
-			delta.x = subpixelX;
-			delta.y = 0;
-			FT_Set_Transform((FT_Face)face, NULL, &delta);
-		}
-
-		int loaded = FT_Load_Glyph((FT_Face)face, index, resolvedLoadFlags);
-
-		if (subpixelX != 0)
-		{
-			FT_Set_Transform((FT_Face)face, NULL, NULL);
-		}
-
-		if (loaded == 0)
+		if (LoadGlyphShifted(face, index, resolvedLoadFlags, subpixelX) == 0)
 		{
 			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0)
 			{
