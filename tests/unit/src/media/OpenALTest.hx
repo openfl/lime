@@ -89,6 +89,22 @@ class OpenALTest extends Test
 		Assert.same([ALC.getString(device, ALC.DEVICE_SPECIFIER)], ALC.getStringList(device, ALC.DEVICE_SPECIFIER));
 	}
 
+	public function testSourceLatencyGivesTheOffsetAndTheLatency():Void
+	{
+		var source = createQueuedSource();
+		if (source == null) return;
+
+		// OpenAL Soft writes both values, however many are asked for
+		Assert.equals(2, AL.getSourcedvSOFT(source, AL.SEC_OFFSET_LATENCY_SOFT).length);
+		Assert.equals(1, AL.getSourcedvSOFT(source, AL.SEC_OFFSET_LATENCY_SOFT, 1).length);
+
+		var values = AL.getSourcedvSOFT(source, AL.SEC_OFFSET_LATENCY_SOFT, 4);
+		Assert.equals(4, values.length);
+		Assert.equals(0.0, values[3]);
+
+		deleteSource(source);
+	}
+
 	public function testOtherStringsComeBackAlone():Void
 	{
 		Assert.same([ALC.getString(null, ALC.EXTENSIONS)], ALC.getStringList(null, ALC.EXTENSIONS));

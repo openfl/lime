@@ -2059,10 +2059,14 @@ namespace lime {
 	}
 
 
+	// The source latency parameters write two values, whatever count asks for
+	#define LIME_AL_SOURCEDV_MAX 2
+
+
 	value lime_al_get_sourcedv_soft (value source, int param, int count) {
 
-		ALdouble* values = new ALdouble[count];
-		for (int i = 0; i < count; i++) values[i] = 0;
+		ALdouble values[LIME_AL_SOURCEDV_MAX] = { 0, 0 };
+		if (count < 0) count = 0;
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
@@ -2073,11 +2077,10 @@ namespace lime {
 
 		for (int i = 0; i < count; i++) {
 
-			val_array_set_i (result, i, alloc_float (values[i]));
+			val_array_set_i (result, i, alloc_float (i < LIME_AL_SOURCEDV_MAX ? values[i] : 0));
 
 		}
 
-		delete[] values;
 		return result;
 
 	}
@@ -2085,14 +2088,22 @@ namespace lime {
 
 	HL_PRIM varray* HL_NAME(hl_al_get_sourcedv_soft) (HL_CFFIPointer* source, int param, int count) {
 
-		varray* result = hl_alloc_array (&hlt_f64, count);
-		double* values = hl_aptr (result, double);
-		for (int i = 0; i < count; i++) values[i] = 0;
+		ALdouble values[LIME_AL_SOURCEDV_MAX] = { 0, 0 };
+		if (count < 0) count = 0;
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		alGetSourcedvSOFT (id, param, values);
 		#endif
+
+		varray* result = hl_alloc_array (&hlt_f64, count);
+		double* data = hl_aptr (result, double);
+
+		for (int i = 0; i < count; i++) {
+
+			data[i] = i < LIME_AL_SOURCEDV_MAX ? values[i] : 0;
+
+		}
 
 		return result;
 
