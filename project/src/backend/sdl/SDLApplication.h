@@ -47,6 +47,7 @@ namespace lime {
 
 			void RegisterWindow (SDLWindow *window);
 			void UnregisterWindow (SDLWindow *window);
+			static void NoteContextFlip ();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
@@ -66,6 +67,7 @@ namespace lime {
 			void HandleEvent (SDL_Event* event);
 			bool IsFrameDue (double now) const;
 			bool IsSchedulerUnthrottled () const;
+			void PaceFrameAfterRender (bool swapped);
 			void RefreshVSyncState ();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
@@ -177,6 +179,8 @@ namespace lime {
 			SensorEvent sensorEvent;
 			bool schedulerUnthrottled;
 			double sleepGuardMs;
+			// Unthrottled because each swap waits for the display
+			bool swapPaced;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			TrayIconEvent trayIconEvent;

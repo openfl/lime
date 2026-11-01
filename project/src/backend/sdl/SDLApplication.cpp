@@ -34,6 +34,9 @@ namespace lime
 
 	static SDL_atomic_t s_waitEventBlocking;
 
+	// Swaps made by every window, counted on the main thread
+	static unsigned int s_contextFlips = 0;
+
 	// Pushed from native-ipc's threads when local socket events wait, so a loop
 	// waiting for events wakes and dispatches them.
 	static Uint32 localSocketEventType = 0;
@@ -196,6 +199,7 @@ namespace lime
 		requestedVSyncMode = MAIN_LOOP_VSYNC_OFF;
 		schedulerUnthrottled = false;
 		sleepGuardMs = 2.0;
+		swapPaced = false;
 		useDisplayDrivenFallback = false;
 		useHighResolutionTimer = false;
 
@@ -280,6 +284,7 @@ namespace lime
 
 		useDisplayDrivenFallback = false;
 		schedulerUnthrottled = false;
+		swapPaced = false;
 
 		bool hasExplicitFrameRate = (clampedFrameRate > 0.0);
 		double effectiveFrameRate = hasExplicitFrameRate ? clampedFrameRate : 1.0;
@@ -296,6 +301,7 @@ namespace lime
 		else if (realVSyncActive && hasExplicitFrameRate && clampedFrameRate >= displayRefreshRate)
 		{
 			schedulerUnthrottled = true;
+			swapPaced = true;
 		}
 		else if (requestedVSyncMode == MAIN_LOOP_VSYNC_AUTO && !realVSyncActive && hasExplicitFrameRate && clampedFrameRate >= displayRefreshRate)
 		{
@@ -457,7 +463,29 @@ namespace lime
 
 		if (renderFrame)
 		{
+			unsigned int flips = s_contextFlips;
 			RenderEvent::Dispatch(&renderEvent);
+			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips);
+		}
+	}
+
+	void SDLApplication::NoteContextFlip()
+	{
+
+		s_contextFlips++;
+	}
+
+	void SDLApplication::PaceFrameAfterRender(bool swapped)
+	{
+
+		// The loop runs unthrottled while each swap waits for the display. A frame that
+		// swaps nothing, as when an application skips drawing an unchanged scene, waits
+		// for nothing, so until a frame swaps again, frames come once per refresh.
+		schedulerUnthrottled = swapped;
+
+		if (!swapped)
+		{
+			nextUpdate = currentUpdate + 1000.0 / displayRefreshRate;
 		}
 	}
 

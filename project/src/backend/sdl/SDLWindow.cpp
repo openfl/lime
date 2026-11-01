@@ -897,10 +897,12 @@ namespace lime {
 		if (context && !sdlRenderer) {
 
 			SDL_GL_SwapWindow (sdlWindow);
+			SDLApplication::NoteContextFlip ();
 
 		} else if (sdlRenderer) {
 
 			SDL_RenderPresent (sdlRenderer);
+			SDLApplication::NoteContextFlip ();
 
 		}
 
