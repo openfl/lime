@@ -1232,21 +1232,30 @@ class NativeAudioSource
 	{
 		if (playing && length != value)
 		{
-			if (timer != null)
-			{
-				timer.stop();
-			}
-
-			var timeRemaining = Std.int((value - getCurrentTime()) / getPitch());
-
-			if (timeRemaining > 0)
-			{
-				timer = new Timer(timeRemaining);
-				timer.run = timer_onRun;
-			}
+			length = value;
+			startCompletionTimer(Std.int((value - getCurrentTime()) / getPitch()));
 		}
 
 		return length = value;
+	}
+
+	private function startCompletionTimer(timeRemaining:Int):Void
+	{
+		if (timer != null)
+		{
+			timer.stop();
+		}
+
+		// A stream that loops inline counts its loops as it queues them, and completes when it runs out
+		if (timeRemaining > 0 && !shouldLoopStreamInline())
+		{
+			timer = new Timer(timeRemaining);
+			timer.run = timer_onRun;
+		}
+		else
+		{
+			timer = null;
+		}
 	}
 
 	public function getLoops():Int
@@ -1256,7 +1265,15 @@ class NativeAudioSource
 
 	public function setLoops(value:Int):Int
 	{
-		return loops = value;
+		loops = value;
+
+		if (playing && timer != null && shouldLoopStreamInline())
+		{
+			timer.stop();
+			timer = null;
+		}
+
+		return loops;
 	}
 
 	public function getPitch():Float
@@ -1275,23 +1292,7 @@ class NativeAudioSource
 	{
 		if (playing && value != getPitch())
 		{
-			if (timer != null)
-			{
-				timer.stop();
-			}
-
-			var totalLength = getLength();
-			var timeRemaining = Std.int((totalLength - getCurrentTime()) / value);
-
-			if (timeRemaining > 0)
-			{
-				timer = new Timer(timeRemaining);
-				timer.run = timer_onRun;
-			}
-			else
-			{
-				timer = null;
-			}
+			startCompletionTimer(Std.int((getLength() - getCurrentTime()) / value));
 		}
 
 		if (handle != null)

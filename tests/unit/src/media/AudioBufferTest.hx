@@ -184,7 +184,7 @@ class AudioBufferTest extends Test
 
 	// When padded, the format chunk has an empty extension, making it 18 bytes long, and an odd-sized
 	// LIST chunk before the data is padded to an even length, as RIFF requires
-	private static function createWAV(samples:Array<Int>, padded:Bool = false):Bytes
+	public static function createWAV(samples:Array<Int>, padded:Bool = false):Bytes
 	{
 		var output = new BytesOutput();
 		output.writeString("RIFF");
@@ -226,7 +226,7 @@ class AudioBufferTest extends Test
 		return [for (i in 0...4660) i % 233 == 0 ? -1 : 0];
 	}
 
-	private static function tone(length:Int):Array<Int>
+	public static function tone(length:Int):Array<Int>
 	{
 		return [for (i in 0...length) Std.int(Math.sin(i * 2 * Math.PI * 440 / SAMPLE_RATE) * 16384)];
 	}

@@ -13,6 +13,7 @@ class TestMain extends Application
 		runner.addCase(new app.FutureTest());
 		runner.addCase(new media.AudioBufferTest());
 		runner.addCase(new media.AudioInputTest());
+		runner.addCase(new media.AudioSourceTest());
 		runner.addCase(new media.OpenALTest());
 		runner.addCase(new media.VideoDecoderTest());
 		runner.addCase(new media.VideoInputTest());
