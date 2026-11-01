@@ -6,6 +6,8 @@ package lime.app;
 	An uncapped loop ignores the frame rate cap. With vertical sync on,
 	frames still wait for the display, so turn `Application.vsyncMode` off as
 	well to render as fast as possible.
+
+	Native targets only; see `FrameProfile`.
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract UncapMode(String) to String
 {

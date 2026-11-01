@@ -2,6 +2,8 @@ package lime.app;
 
 /**
 	Selects the requested vertical-sync behavior for rendering.
+
+	Native targets only; see `FrameProfile`.
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract VSyncMode(String) from String to String
 {

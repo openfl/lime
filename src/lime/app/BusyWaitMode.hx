@@ -2,6 +2,8 @@ package lime.app;
 
 /**
 	Controls whether Lime may busy-wait near frame deadlines.
+
+	Native targets only; see `FrameProfile`.
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract BusyWaitMode(String) to String
 {

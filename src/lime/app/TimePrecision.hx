@@ -2,6 +2,8 @@ package lime.app;
 
 /**
 	Selects the timer precision used for frame pacing.
+
+	Native targets only; see `FrameProfile`.
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract TimePrecision(String) to String
 {
