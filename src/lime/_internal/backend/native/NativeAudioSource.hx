@@ -61,6 +61,8 @@ class NativeAudioSource
 	private var recoveryPosition:Vector4;
 	private var recoveryTime:Int;
 	private var sdlSoundStream:CFFIPointer;
+	// The native stream reads from these bytes, which the buffer drops when disposed
+	private var sdlSoundStreamBytes:Bytes;
 	private var samples:Int;
 	private var stream:Bool;
 	private var streamByteRate:Float;
@@ -354,6 +356,8 @@ class NativeAudioSource
 			NativeCFFI.lime_sdl_sound_stream_clear(sdlSoundStream);
 			sdlSoundStream = null;
 		}
+
+		sdlSoundStreamBytes = null;
 		#end
 	}
 
@@ -388,7 +392,8 @@ class NativeAudioSource
 
 		if (parent.buffer.__srcSDLSoundBytes != null)
 		{
-			sdlSoundStream = NativeCFFI.lime_sdl_sound_stream_from_bytes(parent.buffer.__srcSDLSoundBytes);
+			sdlSoundStreamBytes = parent.buffer.__srcSDLSoundBytes;
+			sdlSoundStream = NativeCFFI.lime_sdl_sound_stream_from_bytes(sdlSoundStreamBytes);
 		}
 		else if (parent.buffer.__srcSDLSoundPath != null)
 		{

@@ -4,6 +4,7 @@ package media;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 import lime.media.AudioBuffer;
+import lime.media.AudioSource;
 #end
 #if (lime_cffi && !macro && sys)
 import lime.system.System;
@@ -82,6 +83,66 @@ class AudioBufferTest extends Test
 		Assert.equals(1, buffer.channels);
 		Assert.equals(SAMPLE_RATE, buffer.sampleRate);
 		Assert.equals(16, buffer.bitsPerSample);
+	}
+
+	public function testAStreamReadsOnAfterItsBufferIsDisposed():Void
+	{
+		var samples = tone(SAMPLE_RATE);
+		var buffer = AudioBuffer.fromBytesStream(createWAV(samples));
+		var source = new AudioSource(buffer);
+		buffer.dispose();
+		buffer = null;
+
+		// The stream reads the file's bytes where they are, so once the buffer lets go of them they are
+		// collected, and the memory goes to new bytes, unless the source keeps them
+		collectAndReuse(samples.length * 2 + 44);
+
+		var backend = @:privateAccess source.__backend;
+		var read = @:privateAccess backend.readSDLSoundBuffer(samples.length * 2);
+		var data = @:privateAccess backend.readBuffer;
+
+		Assert.equals(samples.length * 2, read);
+		var firstDifference = -1;
+
+		for (i in 0...Std.int(Math.min(read, samples.length * 2) / 2))
+		{
+			if (((data.getUInt16(i * 2) << 16) >> 16) != samples[i])
+			{
+				firstDifference = i;
+				break;
+			}
+		}
+
+		Assert.equals(-1, firstDifference);
+		source.dispose();
+	}
+
+	private static function collectAndReuse(length:Int):Void
+	{
+		var garbage = [];
+
+		for (i in 0...4)
+		{
+			collect();
+
+			for (j in 0...16)
+			{
+				var bytes = Bytes.alloc(length);
+				bytes.fill(0, length, 0x55);
+				garbage.push(bytes);
+			}
+		}
+	}
+
+	private static function collect():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
 	}
 	#end
 
