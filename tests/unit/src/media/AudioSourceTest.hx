@@ -2,6 +2,7 @@ package media;
 
 #if (lime_cffi && !macro && lime_sdl_sound)
 import lime.media.AudioBuffer;
+import lime.media.AudioManager;
 import lime.media.AudioSource;
 import lime.media.openal.ALC;
 import lime.utils.AssetLibrary;
@@ -65,6 +66,30 @@ class AudioSourceTest extends Test
 
 		// The decoded sound is cached, and plays as well streamed
 		Assert.equals(decoded, Assets.getAudioBufferStream("audiotest:assets/tone.wav"));
+	}
+
+	public function testSoundRecoveredWhileSuspendedStaysPaused():Void
+	{
+		if (ALC.getCurrentContext() == null)
+		{
+			trace("There is no audio output here, so recovery was not tested");
+			Assert.pass();
+			return;
+		}
+
+		var source = new AudioSource(AudioBuffer.fromBytes(AudioBufferTest.createWAV(AudioBufferTest.tone(22050 * 2))), 0, null, 10);
+		source.play();
+		AudioManager.suspend();
+
+		// As when the output device is lost while the window is in the background
+		@:privateAccess AudioManager.recoverOutputDevice();
+
+		var before = source.currentTime;
+		Sys.sleep(0.3);
+		Assert.equals(before, source.currentTime, "the sound played on while the application was suspended");
+
+		AudioManager.resume();
+		source.dispose();
 	}
 
 	private static function playStream(loops:Int):AudioSource

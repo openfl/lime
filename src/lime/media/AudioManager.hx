@@ -261,6 +261,12 @@ class AudioManager
 			refreshOutputDeviceRecovery();
 			NativeAudioSource.restoreAudioContextRecovery();
 			NativeVideoSource.restoreAudioContextRecovery();
+
+			// The new device starts playing, so it is paused until resume() as the old one was
+			if (__suspended)
+			{
+				suspend();
+			}
 		}
 
 		outputDeviceRecovering = false;
