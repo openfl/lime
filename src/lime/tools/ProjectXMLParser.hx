@@ -2014,8 +2014,9 @@ class ProjectXMLParser extends HXProject
 					}
 					else
 					{
+						// On and off travel as vsync alone, so the embed config and --window-vsync can change them
 						Reflect.setField(windows[id], "vsync", parsedVSync != "off");
-						Reflect.setField(windows[id], "vsyncMode", parsedVSync);
+						Reflect.setField(windows[id], "vsyncMode", (parsedVSync == "on" || parsedVSync == "off") ? null : parsedVSync);
 					}
 
 				default:
