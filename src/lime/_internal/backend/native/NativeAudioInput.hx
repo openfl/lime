@@ -16,6 +16,8 @@ import lime.media.openal.ALDevice;
 @:access(lime.media.AudioInput)
 class NativeAudioInput
 {
+	private var canReportDisconnect:Bool;
+	private var disconnected:Bool;
 	private var disposed:Bool;
 	private var handle:#if (!lime_doc_gen || lime_openal) ALDevice #else Dynamic #end;
 	private var parent:AudioInput;
@@ -85,7 +87,7 @@ class NativeAudioInput
 	public function getSamplesAvailable():Int
 	{
 		#if (!lime_doc_gen || lime_openal)
-		if (handle == null)
+		if (handle == null || !isConnected())
 		{
 			return 0;
 		}
@@ -233,13 +235,49 @@ class NativeAudioInput
 
 		var deviceName = parent.device != null && !parent.device.isDefault ? parent.device.id : null;
 		handle = ALC.captureOpenDevice(deviceName, parent.sampleRate, format, parent.bufferSize);
+		canReportDisconnect = handle != null && ALC.isExtensionPresent(handle, "ALC_EXT_disconnect");
 		#end
+	}
+
+	// Polled with the samples, as the application polls for them, so onDisconnect is dispatched once
+	// from samplesAvailable or read
+	private function isConnected():Bool
+	{
+		#if (!lime_doc_gen || lime_openal)
+		if (disconnected)
+		{
+			return false;
+		}
+
+		if (!canReportDisconnect)
+		{
+			return true;
+		}
+
+		var values = ALC.getIntegerv(handle, ALC.CONNECTED, 1);
+
+		if (values != null && values.length > 0 && values[0] == ALC.FALSE)
+		{
+			disconnected = true;
+			stop();
+			parent.running = false;
+			parent.onDisconnect.dispatch();
+			return false;
+		}
+		#end
+
+		return true;
 	}
 
 	private static function createDevices(names:Array<String>, defaultName:String):Array<AudioInputDevice>
 	{
 		var devices = [];
 		var hasDefault = false;
+
+		if (names == null)
+		{
+			names = [];
+		}
 
 		for (name in names)
 		{
