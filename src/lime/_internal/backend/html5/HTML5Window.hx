@@ -435,20 +435,7 @@ class HTML5Window
 
 	public function getFrameRate():Float
 	{
-		if (parent.application == null) return 0;
-
-		if (parent.application.__backend.framePeriod < 0)
-		{
-			return 60;
-		}
-		else if (parent.application.__backend.framePeriod == 1000)
-		{
-			return 0;
-		}
-		else
-		{
-			return 1000 / parent.application.__backend.framePeriod;
-		}
+		return (parent.application != null) ? parent.application.__getFrameRate() : 0;
 	}
 
 	public function flash(mode:Int):Bool
@@ -1145,20 +1132,10 @@ class HTML5Window
 
 	public function setFrameRate(value:Float):Float
 	{
-		if (parent.application != null)
+		// The application keeps the rate, so frame settings changed later start from it
+		if (parent.application != null && parent == parent.application.window)
 		{
-			if (value >= 60)
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = -1;
-			}
-			else if (value > 0)
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000 / value;
-			}
-			else
-			{
-				if (parent == parent.application.window) parent.application.__backend.framePeriod = 1000;
-			}
+			return parent.application.__setFrameRateFromWindow(value);
 		}
 
 		return value;
