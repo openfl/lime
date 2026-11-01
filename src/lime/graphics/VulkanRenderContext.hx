@@ -30,6 +30,11 @@ import lime._internal.backend.native.NativeCFFI;
 
 	Use `lime.graphics.vulkan.VK` and related classes for the broader Vulkan API
 	surface as it grows.
+
+	Vulkan support is experimental: this API can change in a minor release.
+	It is available on native Windows, Linux and Android targets for windows
+	created with `<window renderer="vulkan" />`, which use OpenGL instead where
+	Vulkan is not available.
 **/
 @:access(lime._internal.backend.native.NativeCFFI)
 class VulkanRenderContext
