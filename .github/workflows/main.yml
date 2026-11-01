@@ -210,6 +210,8 @@ jobs:
           python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
+        # The package waits for this job, so a hang must not hold it for hours
+        timeout-minutes: 60
 
       - name: Install samples
         run: |
@@ -285,6 +287,7 @@ jobs:
 
       - name: Run Vulkan smoke test app
         working-directory: tests/vulkan-smoke
+        timeout-minutes: 5
         run: |
           if [ -f /usr/share/vulkan/icd.d/lvp_icd.x86_64.json ]; then
             export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json
@@ -917,7 +920,7 @@ jobs:
           lime build SimpleVideo ios -release -nosign -verbose -nocolor -eval
 
   package-haxelib:
-    needs: [linux, macos, macos-intel, windows, android, ios]
+    needs: [linux, linux-arm64, macos, macos-intel, windows, android, ios]
     runs-on: ubuntu-22.04
     steps:
 
@@ -978,6 +981,11 @@ jobs:
         with:
           name: Linux64-NDLL
           path: ndll/Linux64/
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: LinuxArm64-NDLL
+          path: ndll/LinuxArm64/
 
       - uses: actions/download-artifact@v8
         with:
