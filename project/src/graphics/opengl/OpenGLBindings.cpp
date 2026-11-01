@@ -2245,8 +2245,8 @@ namespace lime {
 	double lime_gl_get_buffer_pointerv (int target, int pname) {
 
 		uintptr_t result = 0;
-		#ifdef LIME_GLES3_API
-		glGetBufferPointerv (target, pname, (void**)&result);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glGetBufferPointerv) glGetBufferPointerv (target, pname, (void**)&result);
 		#endif
 		return (double)result;
 
@@ -2256,8 +2256,8 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_gl_get_buffer_pointerv) (int target, int pname) {
 
 		uintptr_t result = 0;
-		#ifdef LIME_GLES3_API
-		glGetBufferPointerv (target, pname, (void**)&result);
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glGetBufferPointerv) glGetBufferPointerv (target, pname, (void**)&result);
 		#endif
 		return (double)result;
 
@@ -4006,24 +4006,20 @@ namespace lime {
 
 	double lime_gl_map_buffer_range (int target, double offset, int length, int access) {
 
-		#ifdef LIME_GLES3_API
-		uintptr_t result = (uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
-		return (double)result;
-		#else
-		return 0;
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glMapBufferRange) return (double)(uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
 		#endif
+		return 0;
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_gl_map_buffer_range) (int target, double offset, int length, int access) {
 
-		#ifdef LIME_GLES3_API
-		uintptr_t result = (uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
-		return (double)result;
-		#else
-		return 0;
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glMapBufferRange) return (double)(uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
 		#endif
+		return 0;
 
 	}
 
@@ -5305,22 +5301,20 @@ namespace lime {
 
 	bool lime_gl_unmap_buffer (int target) {
 
-		#ifdef LIME_GLES3_API
-		return glUnmapBuffer (target);
-		#else
-		return false;
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glUnmapBuffer) return glUnmapBuffer (target);
 		#endif
+		return false;
 
 	}
 
 
 	HL_PRIM bool HL_NAME(hl_gl_unmap_buffer) (int target) {
 
-		#ifdef LIME_GLES3_API
-		return glUnmapBuffer (target);
-		#else
-		return false;
+		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		if (glUnmapBuffer) return glUnmapBuffer (target);
 		#endif
+		return false;
 
 	}
 

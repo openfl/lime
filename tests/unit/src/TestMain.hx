@@ -11,6 +11,7 @@ class TestMain extends Application
 		var runner = new Runner();
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
+		runner.addCase(new graphics.OpenGLTest());
 		runner.addCase(new media.AudioBufferTest());
 		runner.addCase(new media.AudioInputTest());
 		runner.addCase(new media.AudioSourceTest());
