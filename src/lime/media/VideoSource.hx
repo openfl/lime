@@ -45,6 +45,12 @@ import lime.app.Promise;
 	Availability: native targets where `VideoDecoder.isSupported` is `true`,
 	and HTML5. On macOS and iOS, only local files play, not URLs.
 
+	On HTML5, a video from another origin needs the server to allow it with
+	CORS headers, or it fails to load, as its frames are read by WebGL.
+	Browsers refuse to start a video with sound before the user has
+	interacted with the page; `play()` then leaves `playing` `false`, with no
+	event, and can be called again from an input event.
+
 	@see lime.media.VideoDecoder
 **/
 class VideoSource
@@ -112,7 +118,9 @@ class VideoSource
 
 	/**
 		Whether the video has sound that can be played. A video whose sound
-		uses a codec the platform lacks plays without it.
+		uses a codec the platform lacks plays without it. Browsers do not say
+		whether a video has sound, so on HTML5 it is `true` for any video that
+		is open.
 	**/
 	public var hasAudio(get, never):Bool;
 

@@ -54,10 +54,18 @@ import sys.FileSystem;
 	but H.264 video with AAC audio in an MP4 file works everywhere. A video
 	whose picture or sound uses a codec the platform lacks still opens with
 	the stream that can be decoded, and `videoUnsupported` or
-	`audioUnsupported` tells when one was left out.
+	`audioUnsupported` tells when one was left out. Android does not report a
+	codec it does not recognise at all.
+
+	On Linux, MP4 files need GStreamer's good plugins and its libav plugin,
+	which distributions package separately, as `gstreamer1.0-plugins-good`
+	and `gstreamer1.0-libav` on Debian and Ubuntu. `isSupported` only checks
+	for GStreamer itself.
 
 	URLs are read over HTTP and HTTPS on Windows, Android and Linux. On macOS
-	and iOS, AVFoundation's reader only decodes local files. HDR video, in PQ
+	and iOS, AVFoundation's reader only decodes local files. Before Android 10,
+	closing or seeking a URL whose connection stalls waits until the connection
+	gives up. HDR video, in PQ
 	or HLG, is tone mapped to standard range BT.709, by the platform where it
 	can and otherwise by Lime, which shows HDR's reference white of 203 nits
 	as white.
@@ -161,7 +169,8 @@ class VideoDecoder
 	/**
 		Whether to decode on the GPU when the platform supports it, which
 		greatly reduces CPU use. Set it before calling `open`. Decoding falls
-		back to the CPU when the GPU cannot decode the video.
+		back to the CPU when the GPU cannot decode the video. On macOS and iOS,
+		AVFoundation chooses for itself, so it is only a hint there.
 	**/
 	public var hardwareDecoding:Bool = true;
 
@@ -231,8 +240,9 @@ class VideoDecoder
 		Stops decoding and releases the video. The decoder can be opened again.
 
 		With `TEXTURE` frames, close it on the thread that reads them, with the
-		same GL context current, so it can delete its textures. A decoder that is
-		garbage collected instead leaves them behind.
+		same GL context current, so it can delete its textures at once. A decoder
+		closed elsewhere, or garbage collected, leaves them to the next `TEXTURE`
+		frame read with that context current, which deletes them.
 	**/
 	public function close():Void
 	{
