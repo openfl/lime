@@ -4,6 +4,8 @@ package media;
 import lime.media.AudioBuffer;
 import lime.media.AudioSource;
 import lime.media.openal.ALC;
+import lime.utils.AssetLibrary;
+import lime.utils.Assets;
 #end
 import utest.Assert;
 import utest.Test;
@@ -41,6 +43,28 @@ class AudioSourceTest extends Test
 		Assert.isNull(timerOf(source), "the completion timer was kept for a stream that loops");
 
 		source.dispose();
+	}
+
+	public function testAStreamedAssetLeavesTheDecodedOneToGetAudioBuffer():Void
+	{
+		// The tests run before the application loads its own library
+		if (Assets.getLibrary("audiotest") == null)
+		{
+			Assets.registerLibrary("audiotest", AssetLibrary.fromFile("manifest/default.json"));
+		}
+
+		var stream = Assets.getAudioBufferStream("audiotest:assets/tone.wav");
+		Assert.notNull(stream);
+
+		// A streamed sound has no data of its own to play from
+		var decoded = Assets.getAudioBuffer("audiotest:assets/tone.wav");
+		Assert.notNull(decoded);
+		if (decoded == null) return;
+		Assert.notNull(decoded.data, "getAudioBuffer gave the streamed sound");
+		Assert.equals(2205 * 2, decoded.data.length);
+
+		// The decoded sound is cached, and plays as well streamed
+		Assert.equals(decoded, Assets.getAudioBufferStream("audiotest:assets/tone.wav"));
 	}
 
 	private static function playStream(loops:Int):AudioSource
