@@ -58,6 +58,9 @@ class NativeVideoSource
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
+	// The sound and loop threads end after this long with nothing to do, rather than at once, as
+	// Neko on Windows can abort when a thread ends during a collection
+	private static inline var THREAD_IDLE_SECONDS:Float = 5.0;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
@@ -1514,14 +1517,15 @@ class NativeVideoSource
 		#if (lime_threads && !html5)
 		activeSourcesMutex.acquire();
 		activeSources.push(source);
+		var start = !feeding;
+		feeding = true;
 		activeSourcesMutex.release();
 
-		if (!feeding)
+		if (start)
 		{
 			// One thread keeps the sound of every playing video queued, so it plays
 			// on while the application's updates pause, as for a garbage collection
 			// or a blocking load. Updates still run the clock and the playback.
-			feeding = true;
 			Thread.create(feedSources);
 		}
 		#else
@@ -1548,9 +1552,32 @@ class NativeVideoSource
 	#if (lime_threads && !html5)
 	@:noCompletion private static function feedSources():Void
 	{
+		var idleSince = -1.0;
+
 		while (true)
 		{
-			for (source in getActiveSources())
+			activeSourcesMutex.acquire();
+			var sources = activeSources.copy();
+
+			if (sources.length == 0)
+			{
+				if (idleSince < 0) idleSince = Sys.time();
+
+				if (Sys.time() - idleSince >= THREAD_IDLE_SECONDS)
+				{
+					feeding = false;
+					activeSourcesMutex.release();
+					return;
+				}
+			}
+			else
+			{
+				idleSince = -1;
+			}
+
+			activeSourcesMutex.release();
+
+			for (source in sources)
 			{
 				source.feed();
 			}
@@ -1567,11 +1594,30 @@ class NativeVideoSource
 		// polled for, as the thread pool's waits on a message queue crash with
 		// hxcpp 4.3 on ARM64 Linux, whose condition variables in it are not
 		// aligned for ARM64's atomics.
+		var idleSince = -1.0;
+
 		while (true)
 		{
 			loopRequestsMutex.acquire();
 			var request = loopRequests.shift();
 			var retired = retiredDecoders.shift();
+
+			if (request == null && retired == null)
+			{
+				if (idleSince < 0) idleSince = Sys.time();
+
+				if (Sys.time() - idleSince >= THREAD_IDLE_SECONDS)
+				{
+					loopThreadStarted = false;
+					loopRequestsMutex.release();
+					return;
+				}
+			}
+			else
+			{
+				idleSince = -1;
+			}
+
 			loopRequestsMutex.release();
 
 			if (retired != null) retired.close();

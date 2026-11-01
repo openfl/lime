@@ -370,6 +370,42 @@ class VideoSourceTest extends Test
 		video.dispose();
 	}
 
+	#if (lime_cffi && lime_openal && lime_threads && !html5)
+	public function testTheSoundThreadEndsWithoutVideos():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		if (ALC.getCurrentContext() == null)
+		{
+			trace("There is no audio output here, so the sound thread was not tested");
+			Assert.pass();
+			video.dispose();
+			return;
+		}
+
+		var frame = new VideoFrame();
+		startPlaying(video, frame);
+		Assert.isTrue(isFeeding(), "no thread queued the sound");
+		video.dispose();
+
+		// The thread waits a while before it ends, in case another video starts
+		var end = Timer.stamp() + 8;
+		while (isFeeding() && Timer.stamp() < end) Sys.sleep(0.1);
+		Assert.isFalse(isFeeding(), "the sound thread kept running without videos");
+
+		var next = open();
+		startPlaying(next, frame);
+		Assert.isTrue(isFeeding(), "no thread queued the next video's sound");
+		next.dispose();
+	}
+
+	private static function isFeeding():Bool
+	{
+		return @:privateAccess lime._internal.backend.native.NativeVideoSource.feeding;
+	}
+	#end
+
 	#if (lime_cffi && lime_openal)
 	public function testClockCarriesOnWhenTheAudioOutputStalls():Void
 	{
