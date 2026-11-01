@@ -643,7 +643,8 @@ class HTML5Application
 				for (i in 0...data.buttons.length)
 				{
 					value = data.buttons[i].value;
-					var timestamp = System.getTimer();
+					// When the browser last read the gamepad, on the clock key events use
+					var timestamp = data.timestamp != null ? Std.int(data.timestamp) : System.getTimer();
 
 					if (value != cache.buttons[i])
 					{

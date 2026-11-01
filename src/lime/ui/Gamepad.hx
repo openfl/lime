@@ -147,6 +147,10 @@ class Gamepad
 	{
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_gamepad_has_rumble_triggers(this.id);
+		#elseif (js && html5)
+		// Browsers that list their effects say whether trigger rumble is one
+		var actuator:Dynamic = untyped __jsGamepad.vibrationActuator;
+		return actuator != null && actuator.effects != null && actuator.effects.indexOf("trigger-rumble") != -1;
 		#else
 		return false;
 		#end
