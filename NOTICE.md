@@ -2,7 +2,7 @@ Notices
 =======
 
 ### Lime
-Copyright (c) 2013-2025 Joshua Granick and other Lime contributors
+Copyright (c) 2013-2026 Joshua Granick and other Lime contributors
 
 This product bundles cairo 1.15.2, which is available under an
 "MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
@@ -46,13 +46,23 @@ This product bundles native-ipc 1.0.0, which is available under an
 
 _native-desktop and native-ipc are only included in Windows, macOS and Linux builds._
 
-This product bundles OpenAL-Soft 1.19.0, which is available under an
+This product bundles wsproto 1.0.0, which is available under an
+"Apache 2.0" license. For details, see [DimensionscapeOrg/wsproto](https://github.com/DimensionscapeOrg/wsproto).
+
+_wsproto is only included in native applications that use `WebSocket` or `WebSocketServer`._
+
+This product bundles OpenAL-Soft 1.20.1, which is available under an
 "LGPLv2" license. For details, see [project/lib/openal/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
 
-This product bundles pixman 0.32.8, which is available under an
+This product bundles MojoAL, which is available under a
+"zlib" (BSD-style) license. For details, see [project/lib/mojoal/](project/lib).
+
+_MojoAL takes OpenAL-Soft's place in static builds._
+
+This product bundles pixman 0.44.2, which is available under an
 "MIT" license. For details, see [project/lib/pixman/](project/lib).
 
 This product bundles libpng 1.6.12, which is available under a
