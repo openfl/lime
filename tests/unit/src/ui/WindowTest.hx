@@ -103,6 +103,24 @@ class WindowTest extends Test
 		Assert.isFalse(isTransparent(second), "a window created after a transparent one was made transparent too");
 	}
 
+	public function testEachSizeLimitSetsOnlyItself():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		window.minWidth = 40;
+		window.minHeight = 30;
+		window.maxWidth = 800;
+		window.maxHeight = 600;
+
+		Assert.equals("40,30,800,600", [window.minWidth, window.minHeight, window.maxWidth, window.maxHeight].join(","));
+	}
+
 	public function testFlashing():Void
 	{
 		var window = create(false);

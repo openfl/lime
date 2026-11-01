@@ -2804,7 +2804,7 @@ class Window
 
 	@:noCompletion private function set_maxWidth(value:Int):Int
 	{
-		setMinSize(value, __maxHeight);
+		setMaxSize(value, __maxHeight);
 		return __maxWidth;
 	}
 
