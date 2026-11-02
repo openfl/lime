@@ -667,6 +667,14 @@ class NativeApplication
 					}
 			}
 		}
+
+		if (renderEventInfo.type == RENDER)
+		{
+			// Each window made its own context current, so the main one is made current again
+			// for what the application does with OpenGL until the next render
+			var mainWindow = NativeWindow.getMainOpenGLWindow(parent);
+			if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+		}
 	}
 
 	private function handleSensorEvent():Void

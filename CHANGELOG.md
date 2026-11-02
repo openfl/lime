@@ -69,6 +69,7 @@ Changelog
 - Changed the error when the main class isn't found to also mention a missing `<source />` path.
 - Changed `Window.scale` to follow changes to the display scale, which `Window.onDisplayScaleChange` reports. Define `lime_disable_window_scale_change` to keep the scale a window was created with.
 - Changed SDL to name the application after its first window, as Linux shows it while it plays sound or keeps the screen awake.
+- Changed native windows to share OpenGL textures, buffers, and shaders with the main window, and to keep the main window's context current outside of rendering, rather than the last window created or rendered.
 - Changed desktop builds to include SDL's virtual joystick driver, as SDL does by default.
 - Changed embedded assets to no longer be copied to the output folder.
 - Changed asset libraries to drop disposed `AudioBuffer` objects from their caches.

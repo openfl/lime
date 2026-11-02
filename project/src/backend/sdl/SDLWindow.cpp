@@ -716,7 +716,21 @@ namespace lime {
 
 			// }
 
+			// Windows share textures, buffers and shaders through the context current as
+			// one is made, which Lime keeps to the main window's
+			bool shareContext = SDL_GL_GetCurrentContext () != NULL;
+			SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, shareContext ? 1 : 0);
 			context = SDL_GL_CreateContext (sdlWindow);
+
+			if (!context && shareContext) {
+
+				SDL_LogWarn (SDL_LOG_CATEGORY_VIDEO, "The window's OpenGL context could not share with the other windows: %s", SDL_GetError ());
+				SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+				context = SDL_GL_CreateContext (sdlWindow);
+
+			}
+
+			SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
 
 			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
 

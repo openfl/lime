@@ -129,6 +129,11 @@ class NativeWindow
 
 		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
 		#if (!macro && lime_cffi)
+		// A new context shares textures, buffers and shaders with the one current as it is
+		// made, so that is the main window's
+		var mainWindow = getMainOpenGLWindow(parent.application, parent);
+		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
 		if (handle == null)
@@ -200,6 +205,9 @@ class NativeWindow
 		contextAttributes.type = context.type;
 		context.attributes = contextAttributes;
 		parent.context = context;
+
+		// Outside of rendering, the main window's context stays current
+		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
 
 		frameRate = resolvedFrameRate;
 		#end
@@ -506,10 +514,39 @@ class NativeWindow
 		return null;
 	}
 
-	public function render():Void
+	public function contextMakeCurrent():Void
 	{
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_window_context_make_current(handle);
+		#end
+	}
+
+	/**
+		The window whose OpenGL context is current outside of rendering: the main
+		window, or the first other window open with one.
+	**/
+	public static function getMainOpenGLWindow(application:Application, except:Window = null):Window
+	{
+		if (hasOpenGLContext(application.window, except)) return application.window;
+
+		for (window in application.__windows)
+		{
+			if (hasOpenGLContext(window, except)) return window;
+		}
+
+		return null;
+	}
+
+	private static function hasOpenGLContext(window:Window, except:Window):Bool
+	{
+		return window != null && window != except && window.__backend.handle != null && window.context != null
+			&& (window.context.type == OPENGL || window.context.type == OPENGLES);
+	}
+
+	public function render():Void
+	{
+		#if (!macro && lime_cffi)
+		contextMakeCurrent();
 		if (!useHardware)
 		{
 			#if lime_cairo
