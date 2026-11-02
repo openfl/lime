@@ -104,6 +104,7 @@ Changelog
 - Fixed SDL frame timing and event handling, and input and window pacing on Windows.
 - Fixed HTML5 frame pacing at 60 fps.
 - Fixed a crash in `HTML5Window` when the display scale differs at startup.
+- Fixed a crash when a native window is closed while it renders, and leaving no OpenGL context current when the window whose context was current is closed.
 - Fixed compressed 3D textures staying empty on desktop OpenGL.
 - Fixed PNG decoding from bytes using its reader after it went out of scope.
 - Fixed a crash opening compressed assets as files on Android.

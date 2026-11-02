@@ -145,6 +145,25 @@ class WindowTest extends Test
 		window.frameRate = rate;
 	}
 
+	public function testAWindowCanBeClosedWhileItRenders():Void
+	{
+		// Closing the last window of the application ends it, so another stays open
+		if (create(false) == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		var window = create(false);
+		window.onRender.add(function(_) window.close());
+
+		var backend = @:privateAccess Application.current.__backend;
+		@:privateAccess backend.renderEventInfo.type = RENDER;
+		@:privateAccess backend.handleRenderEvent();
+
+		Assert.isNull(@:privateAccess window.__backend.handle, "the window was not closed");
+	}
+
 	public function testFlashing():Void
 	{
 		var window = create(false);

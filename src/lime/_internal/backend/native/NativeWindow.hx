@@ -247,6 +247,10 @@ class NativeWindow
 					#end
 
 					handle = null;
+
+					// Closing the window whose context was current leaves none current
+					var mainWindow = getMainOpenGLWindow(parent.application, parent);
+					if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
 				}
 			}
 			else
@@ -259,6 +263,9 @@ class NativeWindow
 	public function contextFlip():Void
 	{
 		#if (!macro && lime_cffi)
+		// The window may have been closed while it rendered
+		if (handle == null) return;
+
 		if (!useHardware)
 		{
 			#if lime_cairo
@@ -535,7 +542,7 @@ class NativeWindow
 	public function contextMakeCurrent():Void
 	{
 		#if (!macro && lime_cffi)
-		NativeCFFI.lime_window_context_make_current(handle);
+		if (handle != null) NativeCFFI.lime_window_context_make_current(handle);
 		#end
 	}
 
@@ -564,6 +571,8 @@ class NativeWindow
 	public function render():Void
 	{
 		#if (!macro && lime_cffi)
+		if (handle == null) return;
+
 		contextMakeCurrent();
 		if (!useHardware)
 		{

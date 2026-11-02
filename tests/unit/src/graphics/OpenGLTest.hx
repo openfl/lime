@@ -136,6 +136,10 @@ class OpenGLTest extends Test
 		@:privateAccess backend.handleRenderEvent();
 		Assert.equals(gl.TEXTURE5, gl.getParameter(gl.ACTIVE_TEXTURE), "rendering left the last window's context current");
 
+		makeCurrent(other);
+		other.close();
+		Assert.equals(gl.TEXTURE5, gl.getParameter(gl.ACTIVE_TEXTURE), "closing the window whose context was current left none current");
+
 		makeCurrent(main);
 		gl.activeTexture(gl.TEXTURE0);
 	}
