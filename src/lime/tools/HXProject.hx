@@ -1272,8 +1272,16 @@ class HXProject extends Script
 		context.sslCaCert = "";
 
 		var compilerFlags:Array<String> = [];
+		var libraries = haxelibs;
 
-		for (haxelib in haxelibs)
+		// Haxe adds hxcpp to C++ builds for its classes alone, and only a library
+		// the build names gets the parameters that libhxcpp sets this collector up with
+		if (defines.exists("cpp") && haxedefs.exists("HXCPP_GC_INCREMENTAL"))
+		{
+			libraries = haxelibs.concat([new Haxelib("hxcpp")]);
+		}
+
+		for (haxelib in libraries)
 		{
 			var name = haxelib.name;
 
