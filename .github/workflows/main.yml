@@ -4,6 +4,7 @@ on: [push, pull_request]
 env:
   HAXE_VERSION: 4.2.5
   HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
+  HXCPP_NONINTERACTIVE: 1
 
 jobs:
 
@@ -35,10 +36,11 @@ jobs:
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install StageWebView 1.0.1 --quiet
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -185,10 +187,11 @@ jobs:
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install StageWebView 1.0.1 --quiet
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -290,10 +293,11 @@ jobs:
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
           haxelib install StageWebView 1.0.1 --quiet
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -344,8 +348,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -476,8 +481,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -581,8 +587,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install utest --quiet
@@ -737,8 +744,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
-          haxelib install ../hxcpp-4.3.168.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -821,8 +829,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -909,8 +918,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
 
@@ -982,8 +992,9 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib install svg --quiet
@@ -1203,8 +1214,8 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
-          curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
-          haxelib install ../hxcpp-4.3.53.zip --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
           haxelib install format --quiet
           haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
