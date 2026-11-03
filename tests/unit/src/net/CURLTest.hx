@@ -179,8 +179,9 @@ private class TricklingServer
 			// Waits briefly, so stopping is seen
 			if (Socket.select([listener], [], [], 0.05).read.length == 0) continue;
 
-			var connection = listener.accept();
-			Thread.create(function() serve(connection));
+			// Served here, as starting a thread while the test collected
+			// crashed the collector on hxcpp 4.3.53
+			serve(listener.accept());
 		}
 
 		listener.close();
