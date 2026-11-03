@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
@@ -28,6 +29,7 @@ import lime.ui.Menu;
 import lime.ui.MenuItem;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
+import lime.ui.WindowHandle;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -35,6 +37,7 @@ import lime.utils.UInt8Array;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(lime.ui.WindowHandle)
 @:access(lime._internal.backend.native.NativeOpenGLRenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.cairo.Cairo)
@@ -355,6 +358,21 @@ class NativeWindow
 		{
 			var rect:Dynamic = NativeCFFI.lime_window_get_mouse_rect(handle);
 			if (rect != null) return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		}
+		#end
+		return null;
+	}
+
+	public function getNativeHandle():WindowHandle
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var info:Dynamic = NativeCFFI.lime_window_get_native_handle(handle);
+			if (info != null)
+			{
+				return new WindowHandle(info.type, Int64.make(info.window.high, info.window.low), Int64.make(info.display.high, info.display.low));
+			}
 		}
 		#end
 		return null;

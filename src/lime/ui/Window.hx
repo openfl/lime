@@ -135,6 +135,16 @@ class Window
 	public var mouseRect(get, set):Rectangle;
 
 	/**
+		The system's own window behind this one, for native code that works with
+		it directly, or `null` where there is none: on web targets, and once the
+		window has closed.
+
+		Read it on the main thread when it is needed, and do not keep it. On
+		Android the window changes whenever the surface is recreated.
+	**/
+	public var nativeHandle(get, never):WindowHandle;
+
+	/**
 		Whether keys the system would otherwise take, such as Alt+Tab or the
 		Windows key, go to this window while it has the focus.
 
@@ -306,6 +316,7 @@ class Window
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
 				"mouseRect": {get: p.get_mouseRect, set: p.set_mouseRect},
+				"nativeHandle": {get: p.get_nativeHandle},
 				"keyboardGrab": {get: p.get_keyboardGrab, set: p.set_keyboardGrab},
 
 				"resizable": {get: p.get_resizable, set: p.set_resizable},
@@ -2907,6 +2918,11 @@ class Window
 	@:noCompletion private function get_mouseRect():Rectangle
 	{
 		return __backend.getMouseRect();
+	}
+
+	@:noCompletion private function get_nativeHandle():WindowHandle
+	{
+		return __backend.getNativeHandle();
 	}
 
 	@:noCompletion private function set_mouseRect(value:Rectangle):Rectangle

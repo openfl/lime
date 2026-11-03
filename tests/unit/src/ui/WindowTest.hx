@@ -4,6 +4,7 @@ import lime.app.Application;
 import lime.math.Rectangle;
 import lime.ui.Window;
 import lime.ui.WindowAppearance;
+import lime.ui.WindowHandleType;
 import utest.Assert;
 import utest.Test;
 
@@ -203,6 +204,25 @@ class WindowTest extends Test
 
 		window.keyboardGrab = false;
 		Assert.isFalse(window.keyboardGrab, "the keyboard grab was not released");
+	}
+
+	public function testNativeHandleIsTheSystemsOwnWindow():Void
+	{
+		var first = create(false), second = create(false);
+		if (first == null || second == null) { canCreateWindows(); return; }
+
+		var handle = first.nativeHandle;
+		Assert.notNull(handle);
+		Assert.equals(#if windows WindowHandleType.WINDOWS #elseif mac WindowHandleType.COCOA #else WindowHandleType.X11 #end, handle.type);
+		Assert.isTrue(handle.window != 0);
+		Assert.equals(#if linux true #else false #end, handle.display != 0);
+
+		// The same window each time, and each window its own
+		Assert.isTrue(handle.window == first.nativeHandle.window);
+		Assert.isTrue(handle.window != second.nativeHandle.window);
+
+		first.close();
+		Assert.isNull(first.nativeHandle);
 	}
 
 	public function testPreciseMouseWheelGivesFractionsOfAStep():Void

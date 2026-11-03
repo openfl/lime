@@ -25,6 +25,8 @@
 #include <X11/Xutil.h>
 #endif
 
+#include <SDL_syswm.h>
+
 
 namespace lime {
 
@@ -1765,6 +1767,70 @@ namespace lime {
 		*width = rect->w;
 		*height = rect->h;
 		return true;
+
+	}
+
+
+	int SDLWindow::GetNativeHandle (void** handle, void** display) {
+
+		return GetNativeHandle (sdlWindow, handle, display);
+
+	}
+
+
+	int SDLWindow::GetNativeHandle (SDL_Window* window, void** handle, void** display) {
+
+		*handle = NULL;
+		*display = NULL;
+
+		SDL_SysWMinfo info;
+		SDL_VERSION (&info.version);
+		if (!window || SDL_GetWindowWMInfo (window, &info) != SDL_TRUE) return WINDOW_HANDLE_NONE;
+
+		switch (info.subsystem) {
+
+			#ifdef SDL_VIDEO_DRIVER_WINDOWS
+			case SDL_SYSWM_WINDOWS:
+				*handle = info.info.win.window;
+				return WINDOW_HANDLE_WINDOWS;
+			#endif
+
+			#ifdef SDL_VIDEO_DRIVER_COCOA
+			case SDL_SYSWM_COCOA:
+				*handle = info.info.cocoa.window;
+				return WINDOW_HANDLE_COCOA;
+			#endif
+
+			#ifdef SDL_VIDEO_DRIVER_X11
+			case SDL_SYSWM_X11:
+				*handle = (void*)(uintptr_t)info.info.x11.window;
+				*display = info.info.x11.display;
+				return WINDOW_HANDLE_X11;
+			#endif
+
+			#ifdef SDL_VIDEO_DRIVER_WAYLAND
+			case SDL_SYSWM_WAYLAND:
+				*handle = info.info.wl.surface;
+				*display = info.info.wl.display;
+				return WINDOW_HANDLE_WAYLAND;
+			#endif
+
+			#ifdef SDL_VIDEO_DRIVER_UIKIT
+			case SDL_SYSWM_UIKIT:
+				*handle = info.info.uikit.window;
+				return WINDOW_HANDLE_UIKIT;
+			#endif
+
+			#ifdef SDL_VIDEO_DRIVER_ANDROID
+			case SDL_SYSWM_ANDROID:
+				*handle = info.info.android.window;
+				return WINDOW_HANDLE_ANDROID;
+			#endif
+
+			default:
+				return WINDOW_HANDLE_NONE;
+
+		}
 
 	}
 

@@ -35,6 +35,7 @@ import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
 import lime.ui.Window;
+import lime.ui.WindowHandle;
 
 @:access(lime._internal.backend.html5.HTML5Application)
 @:access(lime._internal.backend.html5.HTML5WebGL2RenderContext)
@@ -454,6 +455,11 @@ class HTML5Window
 	}
 
 	public function getMouseRect():Rectangle
+	{
+		return null;
+	}
+
+	public function getNativeHandle():WindowHandle
 	{
 		return null;
 	}

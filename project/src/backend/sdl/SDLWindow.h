@@ -37,6 +37,8 @@ namespace lime {
 			virtual bool GetKeyboardGrab ();
 			virtual bool GetMouseLock ();
 			virtual bool GetMouseRect (int* x, int* y, int* width, int* height);
+			virtual int GetNativeHandle (void** handle, void** display);
+			static int GetNativeHandle (SDL_Window* window, void** handle, void** display);
 			virtual float GetOpacity ();
 			virtual double GetScale ();
 			virtual bool GetTextInputEnabled ();

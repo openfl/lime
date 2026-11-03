@@ -463,6 +463,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_get_mouse_rect(handle:Dynamic):Dynamic;
 
+	@:cffi private static function lime_window_get_native_handle(handle:Dynamic):Dynamic;
+
 	@:cffi private static function lime_window_get_transparent(handle:Dynamic):Bool;
 
 	@:cffi private static function lime_window_get_opacity(handle:Dynamic):Float;
@@ -1180,6 +1182,8 @@ class NativeCFFI
 	private static var lime_window_get_mouse_lock = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_lock", "ob", false));
 	private static var lime_window_get_mouse_rect = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_rect", "oo",
 		false));
+	private static var lime_window_get_native_handle = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_native_handle",
+		"oo", false));
 	private static var lime_window_get_transparent = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_transparent", "ob",
 		false));
 	private static var lime_window_get_opacity = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_opacity", "od", false));
@@ -1667,6 +1671,7 @@ class NativeCFFI
 	private static var lime_window_get_keyboard_grab = CFFI.load("lime", "lime_window_get_keyboard_grab", 1);
 	private static var lime_window_get_mouse_lock = CFFI.load("lime", "lime_window_get_mouse_lock", 1);
 	private static var lime_window_get_mouse_rect = CFFI.load("lime", "lime_window_get_mouse_rect", 1);
+	private static var lime_window_get_native_handle = CFFI.load("lime", "lime_window_get_native_handle", 1);
 	private static var lime_window_get_transparent = CFFI.load("lime", "lime_window_get_transparent", 1);
 	private static var lime_window_get_opacity = CFFI.load("lime", "lime_window_get_opacity", 1);
 	private static var lime_window_get_scale = CFFI.load("lime", "lime_window_get_scale", 1);
@@ -2657,6 +2662,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_get_mouse_rect") private static function lime_window_get_mouse_rect(handle:CFFIPointer):Dynamic
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_window_get_native_handle") private static function lime_window_get_native_handle(handle:CFFIPointer):Dynamic
 	{
 		return null;
 	}

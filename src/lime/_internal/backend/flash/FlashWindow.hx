@@ -30,6 +30,7 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Window;
+import lime.ui.WindowHandle;
 
 @:access(lime._internal.backend.flash.FlashApplication)
 @:access(lime.app.Application)
@@ -587,6 +588,11 @@ class FlashWindow
 	}
 
 	public function getMouseRect():Rectangle
+	{
+		return null;
+	}
+
+	public function getNativeHandle():WindowHandle
 	{
 		return null;
 	}

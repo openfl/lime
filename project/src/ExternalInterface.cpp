@@ -13818,6 +13818,50 @@ namespace lime {
 	}
 
 
+	value lime_window_get_native_handle (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		void* handle;
+		void* display;
+		int type = targetWindow->GetNativeHandle (&handle, &display);
+
+		if (type == WINDOW_HANDLE_NONE) {
+
+			return alloc_null ();
+
+		}
+
+		value result = alloc_empty_object ();
+		alloc_field (result, val_id ("type"), alloc_int (type));
+		alloc_field (result, val_id ("window"), CreateVulkanHandleValue ((uint64_t)(uintptr_t)handle));
+		alloc_field (result, val_id ("display"), CreateVulkanHandleValue ((uint64_t)(uintptr_t)display));
+		return result;
+
+	}
+
+
+	HL_PRIM vdynamic* HL_NAME(hl_window_get_native_handle) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		void* handle;
+		void* display;
+		int type = targetWindow->GetNativeHandle (&handle, &display);
+
+		if (type == WINDOW_HANDLE_NONE) {
+
+			return NULL;
+
+		}
+
+		vdynamic* result = (vdynamic*)hl_alloc_dynobj ();
+		hl_dyn_seti (result, hl_hash_utf8 ("type"), &hlt_i32, type);
+		hl_dyn_setp (result, hl_hash_utf8 ("window"), &hlt_dynobj, HLCreateVulkanHandleValue ((uint64_t)(uintptr_t)handle));
+		hl_dyn_setp (result, hl_hash_utf8 ("display"), &hlt_dynobj, HLCreateVulkanHandleValue ((uint64_t)(uintptr_t)display));
+		return result;
+
+	}
+
+
 	void lime_window_set_keyboard_grab (value window, bool keyboardGrab) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14402,6 +14446,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_window_flash);
 	DEFINE_PRIME1 (lime_window_get_keyboard_grab);
 	DEFINE_PRIME1 (lime_window_get_mouse_rect);
+	DEFINE_PRIME1 (lime_window_get_native_handle);
 	DEFINE_PRIME2v (lime_window_set_keyboard_grab);
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
 	DEFINE_PRIME5v (lime_window_set_mouse_rect);
@@ -14759,6 +14804,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_window_flash, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_keyboard_grab, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, hl_window_get_mouse_rect, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_DYN, hl_window_get_native_handle, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_keyboard_grab, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_rect, _TCFFIPOINTER _I32 _I32 _I32 _I32);
