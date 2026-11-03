@@ -79,6 +79,32 @@ class CURLTest extends Test
 		Assert.isTrue(longest < 0.25, "a collection took " + Math.round(longest * 1000) + " ms while the transfer ran");
 	}
 
+	public function testCollectingWhileHandlesAreMadeOnAnotherThread():Void
+	{
+		// Handles are made under the lock that the finalizers of dropped handles
+		// waited for, while the collector held up the thread that had it
+		var made = new Deque<Bool>();
+		Thread.create(function()
+		{
+			for (i in 0...1000) new CURL().cleanup();
+			made.add(true);
+		});
+
+		var finished = false;
+		var end = Timer.stamp() + 10;
+
+		while (!finished && Timer.stamp() < end)
+		{
+			// Handles for the collector to finalize
+			for (i in 0...8) new CURL();
+			collect();
+
+			finished = made.pop(false) != null;
+		}
+
+		Assert.isTrue(finished, "the other thread did not finish making handles");
+	}
+
 	private static function collect():Void
 	{
 		#if cpp

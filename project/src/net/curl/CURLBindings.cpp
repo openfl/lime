@@ -60,6 +60,9 @@ namespace lime {
 	std::map<void*, ValuePointer*> xferInfoCallbacks;
 	std::map<void*, CURL_XferInfo*> xferInfoValues;
 	Mutex curl_gc_mutex;
+	std::vector<std::pair<void*, CURL*> > curlFinalized;
+	std::vector<std::pair<void*, CURLM*> > curlMultiFinalized;
+	Mutex curl_finalized_mutex;
 
 	void CURL_SetCertificates (CURL* curl);
 	void CURL_UseOwnCertificates (CURL* curl, int option);
@@ -90,32 +93,43 @@ namespace lime {
 
 	}
 
-	void gc_curl (value handle) {
+	void lock_curl_gc () {
 
-		if (!val_is_null (handle)) {
+		// The thread that holds the lock may allocate, and so wait for a
+		// collection, which can't start until the threads waiting here are
+		// known to be blocked
 
+		if (!curl_gc_mutex.TryLock ()) {
+
+			System::GCEnterBlocking ();
 			curl_gc_mutex.Lock ();
+			System::GCExitBlocking ();
 
-			if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
+		}
 
-				value multi_handle = (value)curlMultiReferences[handle];
-				curl_multi_remove_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (handle));
-				curlMultiReferences.erase (handle);
+	}
 
-				std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
-				if (handles->size () > 0) {
+	void release_curl (value handle, CURL* curl) {
 
-					for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+		if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
 
-						if (*it == handle) {
+			value multi_handle = (value)curlMultiReferences[handle];
+			curl_multi_remove_handle ((CURLM*)val_data (multi_handle), curl);
+			curlMultiReferences.erase (handle);
 
-							handles->erase (it);
-							delete curlMultiObjects[handle];
-							curlMultiObjects.erase (handle);
-							break;
+			std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
-						}
+			if (handles->size () > 0) {
+
+				for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+
+					if (*it == handle) {
+
+						handles->erase (it);
+						delete curlMultiObjects[handle];
+						curlMultiObjects.erase (handle);
+						break;
 
 					}
 
@@ -123,101 +137,356 @@ namespace lime {
 
 			}
 
-			if (curlValid.find (handle) != curlValid.end ()) {
+		}
 
-				CURL* curl = (CURL*)val_data (handle);
+		if (curlValid.find (handle) != curlValid.end ()) {
 
-				curlValid.erase (handle);
-				curlObjects.erase (curl);
-				curl_easy_cleanup (curl);
+			curlValid.erase (handle);
+			curlObjects.erase (curl);
+			curl_easy_cleanup (curl);
 
-				if (writeBuffers[handle]) {
+			if (writeBuffers[handle]) {
 
-					free (writeBuffers[handle]);
+				free (writeBuffers[handle]);
+
+			}
+
+			writeBuffers.erase (handle);
+			writeBufferPosition.erase (handle);
+			writeBufferSize.erase (handle);
+
+		}
+
+		ValuePointer* callback;
+		Bytes* bytes;
+		ValuePointer* bytesRoot;
+
+		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+
+			callback = headerCallbacks[handle];
+			std::vector<char*>* values = headerValues[handle];
+			headerCallbacks.erase (handle);
+			headerValues.erase (handle);
+			free_header_values (values);
+			delete callback;
+			delete values;
+
+		}
+
+		if (headerSLists.find (handle) != headerSLists.end ()) {
+
+			curl_slist* chunk = headerSLists[handle];
+			headerSLists.erase (handle);
+			curl_slist_free_all (chunk);
+
+		}
+
+		if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
+
+			callback = progressCallbacks[handle];
+			CURL_Progress* progress = progressValues[handle];
+			progressCallbacks.erase (handle);
+			progressValues.erase (handle);
+			delete callback;
+			delete progress;
+
+		}
+
+		if (readBytes.find (handle) != readBytes.end ()) {
+
+			bytes = readBytes[handle];
+			bytesRoot = readBytesRoot[handle];
+			readBytes.erase (handle);
+			readBytesPosition.erase (handle);
+			readBytesRoot.erase (handle);
+			delete bytes;
+			delete bytesRoot;
+
+		}
+
+		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+
+			callback = writeCallbacks[handle];
+			bytes = writeBytes[handle];
+			bytesRoot = writeBytesRoot[handle];
+			writeCallbacks.erase (handle);
+			writeBytes.erase (handle);
+			writeBytesRoot.erase (handle);
+			delete callback;
+			delete bytes;
+			delete bytesRoot;
+
+		}
+
+		if (xferInfoCallbacks.find (handle) != xferInfoCallbacks.end ()) {
+
+			callback = xferInfoCallbacks[handle];
+			CURL_XferInfo* info = xferInfoValues[handle];
+			xferInfoCallbacks.erase (handle);
+			xferInfoValues.erase (handle);
+			delete callback;
+			delete info;
+
+		}
+
+	}
+
+
+	void hl_release_curl (HL_CFFIPointer* handle, CURL* curl) {
+
+		if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
+
+			HL_CFFIPointer* multi_handle = (HL_CFFIPointer*)curlMultiReferences[handle];
+			curl_multi_remove_handle ((CURLM*)multi_handle->ptr, curl);
+			curlMultiReferences.erase (handle);
+
+			std::vector<void*>* handles = curlMultiHandles[multi_handle];
+
+			if (handles->size () > 0) {
+
+				for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+
+					if (*it == handle) {
+
+						handles->erase (it);
+						delete curlMultiObjects[handle];
+						curlMultiObjects.erase (handle);
+						break;
+
+					}
 
 				}
 
-				writeBuffers.erase (handle);
-				writeBufferPosition.erase (handle);
-				writeBufferSize.erase (handle);
+			}
+
+		}
+
+		if (curlValid.find (handle) != curlValid.end ()) {
+
+			curlValid.erase (handle);
+			curlObjects.erase (curl);
+			curl_easy_cleanup (curl);
+
+			if (writeBuffers[handle]) {
+
+				free (writeBuffers[handle]);
 
 			}
 
-			ValuePointer* callback;
-			Bytes* bytes;
-			ValuePointer* bytesRoot;
+			writeBuffers.erase (handle);
+			writeBufferPosition.erase (handle);
+			writeBufferSize.erase (handle);
 
-			if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+		}
 
-				callback = headerCallbacks[handle];
-				std::vector<char*>* values = headerValues[handle];
-				headerCallbacks.erase (handle);
-				headerValues.erase (handle);
-				free_header_values (values);
-				delete callback;
-				delete values;
+		ValuePointer* callback;
+		Bytes* bytes;
+		ValuePointer* bytesRoot;
+
+		if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
+
+			callback = headerCallbacks[handle];
+			std::vector<char*>* values = headerValues[handle];
+			headerCallbacks.erase (handle);
+			headerValues.erase (handle);
+			free_header_values (values);
+			delete callback;
+			delete values;
+
+		}
+
+		if (headerSLists.find (handle) != headerSLists.end ()) {
+
+			curl_slist* chunk = headerSLists[handle];
+			headerSLists.erase (handle);
+			curl_slist_free_all (chunk);
+
+		}
+
+		if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
+
+			callback = progressCallbacks[handle];
+			CURL_Progress* progress = progressValues[handle];
+			progressCallbacks.erase (handle);
+			progressValues.erase (handle);
+			delete callback;
+			delete progress;
+
+		}
+
+		if (readBytes.find (handle) != readBytes.end ()) {
+
+			bytes = readBytes[handle];
+			bytesRoot = readBytesRoot[handle];
+			readBytes.erase (handle);
+			readBytesPosition.erase (handle);
+			readBytesRoot.erase (handle);
+			delete bytesRoot;
+
+		}
+
+		if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+
+			callback = writeCallbacks[handle];
+			bytes = writeBytes[handle];
+			bytesRoot = writeBytesRoot[handle];
+			writeCallbacks.erase (handle);
+			writeBytes.erase (handle);
+			writeBytesRoot.erase (handle);
+			delete callback;
+			delete bytesRoot;
+
+		}
+
+		if (xferInfoCallbacks.find (handle) != xferInfoCallbacks.end ()) {
+
+			callback = xferInfoCallbacks[handle];
+			CURL_XferInfo* info = xferInfoValues[handle];
+			xferInfoCallbacks.erase (handle);
+			xferInfoValues.erase (handle);
+			delete callback;
+			delete info;
+
+		}
+
+	}
+
+
+	void release_curl_multi (value handle, CURLM* multi) {
+
+		if (curlMultiHandles.find (handle) != curlMultiHandles.end ()) {
+
+			std::vector<void*>* handles = curlMultiHandles[handle];
+
+			for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+
+				value curl_handle = (value)*it;
+				CURL* curl = (CURL*)val_data (curl_handle);
+
+				curlMultiReferences.erase (curl_handle);
+				curl_multi_remove_handle (multi, curl);
+				release_curl (curl_handle, curl);
+				val_gc (curl_handle, 0);
+
+				delete curlMultiObjects[curl_handle];
+				curlMultiObjects.erase (curl_handle);
 
 			}
 
-			if (headerSLists.find (handle) != headerSLists.end ()) {
+			delete handles;
+			curlMultiHandles.erase (handle);
 
-				curl_slist* chunk = headerSLists[handle];
-				headerSLists.erase (handle);
-				curl_slist_free_all (chunk);
+		}
 
-			}
+		if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
 
-			if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
+			curlMultiValid.erase (handle);
+			curlMultiRunningHandles.erase (handle);
+			curl_multi_cleanup (multi);
 
-				callback = progressCallbacks[handle];
-				CURL_Progress* progress = progressValues[handle];
-				progressCallbacks.erase (handle);
-				progressValues.erase (progress);
-				delete callback;
-				delete progress;
+		}
 
-			}
+	}
 
-			if (readBytes.find (handle) != readBytes.end ()) {
 
-				bytes = readBytes[handle];
-				bytesRoot = readBytesRoot[handle];
-				readBytes.erase (handle);
-				readBytesPosition.erase (handle);
-				readBytesRoot.erase (handle);
-				delete bytes;
-				delete bytesRoot;
+	void hl_release_curl_multi (HL_CFFIPointer* handle, CURLM* multi) {
 
-			}
+		if (curlMultiHandles.find (handle) != curlMultiHandles.end ()) {
 
-			if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
+			std::vector<void*>* handles = curlMultiHandles[handle];
 
-				callback = writeCallbacks[handle];
-				bytes = writeBytes[handle];
-				bytesRoot = writeBytesRoot[handle];
-				writeCallbacks.erase (handle);
-				writeBytes.erase (handle);
-				writeBytesRoot.erase (handle);
-				delete callback;
-				delete bytes;
-				delete bytesRoot;
+			for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+
+				HL_CFFIPointer* curl_handle = (HL_CFFIPointer*)*it;
+				CURL* curl = (CURL*)curl_handle->ptr;
+
+				curlMultiReferences.erase (curl_handle);
+				curl_multi_remove_handle (multi, curl);
+				hl_release_curl (curl_handle, curl);
+				curl_handle->finalizer = NULL;
+
+				delete curlMultiObjects[curl_handle];
+				curlMultiObjects.erase (curl_handle);
 
 			}
 
-			if (xferInfoCallbacks.find (handle) != xferInfoCallbacks.end ()) {
+			delete handles;
+			curlMultiHandles.erase (handle);
 
-				callback = xferInfoCallbacks[handle];
-				CURL_XferInfo* info = xferInfoValues[handle];
-				xferInfoCallbacks.erase (handle);
-				xferInfoValues.erase (handle);
-				delete callback;
-				delete info;
+		}
 
-			}
+		if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
 
-			val_gc (handle, 0);
+			curlMultiValid.erase (handle);
+			curlMultiRunningHandles.erase (handle);
+			curl_multi_cleanup (multi);
 
-			curl_gc_mutex.Unlock ();
+		}
+
+	}
+
+
+	void release_finalized_curl () {
+
+		std::vector<std::pair<void*, CURL*> > finalized;
+		std::vector<std::pair<void*, CURLM*> > finalizedMulti;
+
+		curl_finalized_mutex.Lock ();
+		finalized.swap (curlFinalized);
+		finalizedMulti.swap (curlMultiFinalized);
+		curl_finalized_mutex.Unlock ();
+
+		for (auto it = finalizedMulti.begin (); it != finalizedMulti.end (); ++it) {
+
+			release_curl_multi ((value)it->first, it->second);
+
+		}
+
+		for (auto it = finalized.begin (); it != finalized.end (); ++it) {
+
+			release_curl ((value)it->first, it->second);
+
+		}
+
+	}
+
+
+	void hl_release_finalized_curl () {
+
+		std::vector<std::pair<void*, CURL*> > finalized;
+		std::vector<std::pair<void*, CURLM*> > finalizedMulti;
+
+		curl_finalized_mutex.Lock ();
+		finalized.swap (curlFinalized);
+		finalizedMulti.swap (curlMultiFinalized);
+		curl_finalized_mutex.Unlock ();
+
+		for (auto it = finalizedMulti.begin (); it != finalizedMulti.end (); ++it) {
+
+			hl_release_curl_multi ((HL_CFFIPointer*)it->first, it->second);
+
+		}
+
+		for (auto it = finalized.begin (); it != finalized.end (); ++it) {
+
+			hl_release_curl ((HL_CFFIPointer*)it->first, it->second);
+
+		}
+
+	}
+
+
+	// Finalizers run while the collector has the other threads stopped, and
+	// one of them may hold curl_gc_mutex, so they only queue the handle for
+	// the next thread that takes the lock to release
+
+	void gc_curl (value handle) {
+
+		if (!val_is_null (handle)) {
+
+			curl_finalized_mutex.Lock ();
+			curlFinalized.push_back (std::make_pair ((void*)handle, (CURL*)val_data (handle)));
+			curl_finalized_mutex.Unlock ();
 
 		}
 
@@ -228,128 +497,9 @@ namespace lime {
 
 		if (handle) {
 
-			curl_gc_mutex.Lock ();
-
-			if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
-
-				HL_CFFIPointer* multi_handle = (HL_CFFIPointer*)curlMultiReferences[handle];
-				curl_multi_remove_handle ((CURLM*)multi_handle->ptr, (CURL*)handle->ptr);
-				curlMultiReferences.erase (handle);
-
-				std::vector<void*>* handles = curlMultiHandles[multi_handle];
-
-				if (handles->size () > 0) {
-
-					for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
-
-						if (*it == handle) {
-
-							handles->erase (it);
-							delete curlMultiObjects[handle];
-							curlMultiObjects.erase (handle);
-							break;
-
-						}
-
-					}
-
-				}
-
-			}
-
-			if (curlValid.find (handle) != curlValid.end ()) {
-
-				CURL* curl = (CURL*)handle->ptr;
-
-				curlValid.erase (handle);
-				curlObjects.erase (curl);
-				curl_easy_cleanup (curl);
-
-				if (writeBuffers[handle]) {
-
-					free (writeBuffers[handle]);
-
-				}
-
-				writeBuffers.erase (handle);
-				writeBufferPosition.erase (handle);
-				writeBufferSize.erase (handle);
-
-			}
-
-			ValuePointer* callback;
-			Bytes* bytes;
-			ValuePointer* bytesRoot;
-
-			if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
-
-				callback = headerCallbacks[handle];
-				std::vector<char*>* values = headerValues[handle];
-				headerCallbacks.erase (handle);
-				headerValues.erase (handle);
-				free_header_values (values);
-				delete callback;
-				delete values;
-
-			}
-
-			if (headerSLists.find (handle) != headerSLists.end ()) {
-
-				curl_slist* chunk = headerSLists[handle];
-				headerSLists.erase (handle);
-				curl_slist_free_all (chunk);
-
-			}
-
-			if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
-
-				callback = progressCallbacks[handle];
-				CURL_Progress* progress = progressValues[handle];
-				progressCallbacks.erase (handle);
-				progressValues.erase (progress);
-				delete callback;
-				delete progress;
-
-			}
-
-			if (readBytes.find (handle) != readBytes.end ()) {
-
-				bytes = readBytes[handle];
-				bytesRoot = readBytesRoot[handle];
-				readBytes.erase (handle);
-				readBytesPosition.erase (handle);
-				readBytesRoot.erase (handle);
-				delete bytesRoot;
-
-			}
-
-			if (writeCallbacks.find (handle) != writeCallbacks.end ()) {
-
-				callback = writeCallbacks[handle];
-				bytes = writeBytes[handle];
-				bytesRoot = writeBytesRoot[handle];
-				writeCallbacks.erase (handle);
-				writeBytes.erase (handle);
-				writeBytesRoot.erase (handle);
-				delete callback;
-				delete bytesRoot;
-
-			}
-
-			if (xferInfoCallbacks.find (handle) != xferInfoCallbacks.end ()) {
-
-				callback = xferInfoCallbacks[handle];
-				CURL_XferInfo* info = xferInfoValues[handle];
-				xferInfoCallbacks.erase (handle);
-				xferInfoValues.erase (handle);
-				delete callback;
-				delete info;
-
-			}
-
-			handle->finalizer = NULL;
-
-			curl_gc_mutex.Unlock ();
+			curl_finalized_mutex.Lock ();
+			curlFinalized.push_back (std::make_pair ((void*)handle, (CURL*)handle->ptr));
+			curl_finalized_mutex.Unlock ();
 
 		}
 
@@ -360,35 +510,9 @@ namespace lime {
 
 		if (!val_is_null (handle)) {
 
-			curl_gc_mutex.Lock ();
-
-			if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
-
-				curlMultiValid.erase (handle);
-				curl_multi_cleanup ((CURLM*)val_data(handle));
-
-			}
-
-			std::vector<void*>* handles = curlMultiHandles[handle];
-
-			for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
-
-				delete curlMultiObjects[*it];
-				curlMultiObjects.erase (*it);
-
-				curl_gc_mutex.Unlock ();
-				gc_curl ((value)*it);
-				curl_gc_mutex.Lock ();
-
-			}
-
-			delete curlMultiHandles[handle];
-			curlMultiHandles.erase (handle);
-
-			val_gc (handle, 0);
-			//handle = alloc_null ();
-
-			curl_gc_mutex.Unlock ();
+			curl_finalized_mutex.Lock ();
+			curlMultiFinalized.push_back (std::make_pair ((void*)handle, (CURLM*)val_data (handle)));
+			curl_finalized_mutex.Unlock ();
 
 		}
 
@@ -399,35 +523,9 @@ namespace lime {
 
 		if (handle) {
 
-			curl_gc_mutex.Lock ();
-
-			if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
-
-				curlMultiValid.erase (handle);
-				curl_multi_cleanup ((CURLM*)handle->ptr);
-
-			}
-
-			std::vector<void*>* handles = curlMultiHandles[handle];
-
-			for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
-
-				delete curlMultiObjects[*it];
-				curlMultiObjects.erase (*it);
-
-				curl_gc_mutex.Unlock ();
-				hl_gc_curl ((HL_CFFIPointer*)*it);
-				curl_gc_mutex.Lock ();
-
-			}
-
-			delete curlMultiHandles[handle];
-			curlMultiHandles.erase (handle);
-
-			handle->finalizer = NULL;
-			//handle = alloc_null ();
-
-			curl_gc_mutex.Unlock ();
+			curl_finalized_mutex.Lock ();
+			curlMultiFinalized.push_back (std::make_pair ((void*)handle, (CURLM*)handle->ptr));
+			curl_finalized_mutex.Unlock ();
 
 		}
 
@@ -436,24 +534,44 @@ namespace lime {
 
 	void lime_curl_easy_cleanup (value handle) {
 
-		gc_curl (handle);
+		if (!val_is_null (handle)) {
+
+			lock_curl_gc ();
+			release_finalized_curl ();
+			release_curl (handle, (CURL*)val_data (handle));
+			val_gc (handle, 0);
+			curl_gc_mutex.Unlock ();
+
+		}
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_curl_easy_cleanup) (HL_CFFIPointer* handle) {
 
-		hl_gc_curl (handle);
+		if (handle) {
+
+			lock_curl_gc ();
+			hl_release_finalized_curl ();
+			hl_release_curl (handle, (CURL*)handle->ptr);
+			handle->finalizer = NULL;
+			curl_gc_mutex.Unlock ();
+
+		}
 
 	}
 
 
 	value lime_curl_easy_duphandle (value handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURL* dup = curl_easy_duphandle ((CURL*)val_data(handle));
 		value duphandle = CFFIPointer (dup, gc_curl);
+
+		// The new handle may have the address of one that was collected
+		release_finalized_curl ();
+
 		curlValid[duphandle] = true;
 		curlObjects[dup] = duphandle;
 
@@ -518,10 +636,14 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_curl_easy_duphandle) (HL_CFFIPointer* handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURL* dup = curl_easy_duphandle ((CURL*)handle->ptr);
 		HL_CFFIPointer* duphandle = HLCFFIPointer (dup, (hl_finalizer)hl_gc_curl);
+
+		// The new handle may have the address of one that was collected
+		hl_release_finalized_curl ();
+
 		curlValid[duphandle] = true;
 		curlObjects[dup] = duphandle;
 
@@ -597,7 +719,7 @@ namespace lime {
 
 	void lime_curl_easy_flush (value easy_handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 		int code;
 
 		if (headerCallbacks.find (easy_handle) != headerCallbacks.end ()) {
@@ -611,7 +733,7 @@ namespace lime {
 
 					curl_gc_mutex.Unlock ();
 					headerCallback->Call (alloc_string (*it));
-					curl_gc_mutex.Lock ();
+					lock_curl_gc ();
 
 				}
 
@@ -647,7 +769,7 @@ namespace lime {
 
 					curl_gc_mutex.Unlock ();
 					length = val_int ((value)writeCallback->Call (_bytes, alloc_int (position)));
-					curl_gc_mutex.Lock ();
+					lock_curl_gc ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
 
@@ -668,7 +790,7 @@ namespace lime {
 
 			curl_gc_mutex.Unlock ();
 			code = val_int ((value)progressCallback->Call (alloc_float (progress->dltotal), alloc_float (progress->dlnow), alloc_float (progress->ultotal), alloc_float (progress->ulnow)));
-			curl_gc_mutex.Lock ();
+			lock_curl_gc ();
 
 			if (code != 0) { // CURLE_OK
 
@@ -685,7 +807,7 @@ namespace lime {
 
 			curl_gc_mutex.Unlock ();
 			code = val_int ((value)xferInfoCallback->Call (alloc_int (xferInfo->dltotal), alloc_int (xferInfo->dlnow), alloc_int (xferInfo->ultotal), alloc_int (xferInfo->ulnow)));
-			curl_gc_mutex.Lock ();
+			lock_curl_gc ();
 
 			if (code != 0) {
 
@@ -702,7 +824,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_curl_easy_flush) (HL_CFFIPointer* easy_handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 		int code;
 
 		if (headerCallbacks.find (easy_handle) != headerCallbacks.end ()) {
@@ -719,7 +841,7 @@ namespace lime {
 
 					curl_gc_mutex.Unlock ();
 					headerCallback->Call (bytes);
-					curl_gc_mutex.Lock ();
+					lock_curl_gc ();
 
 				}
 
@@ -756,7 +878,7 @@ namespace lime {
 					curl_gc_mutex.Unlock ();
 					vdynamic* _length = (vdynamic*)writeCallback->Call (bytes, pos);
 					length = (_length != NULL ? _length->v.i : 0);
-					curl_gc_mutex.Lock ();
+					lock_curl_gc ();
 
 					if (length == CURL_WRITEFUNC_PAUSE) {
 
@@ -788,7 +910,7 @@ namespace lime {
 			curl_gc_mutex.Unlock ();
 			vdynamic* _code = (vdynamic*)progressCallback->Call (dltotal, dlnow, ultotal, ulnow);
 			code = (_code != NULL ? _code->v.i : 0);
-			curl_gc_mutex.Lock ();
+			lock_curl_gc ();
 
 			if (code != 0) { // CURLE_OK
 
@@ -816,7 +938,7 @@ namespace lime {
 			curl_gc_mutex.Unlock ();
 			vdynamic* _code = (vdynamic*)xferInfoCallback->Call (dltotal, dlnow, ultotal, ulnow);
 			code = (_code != NULL ? _code->v.i : 0);
-			curl_gc_mutex.Lock ();
+			lock_curl_gc ();
 
 			if (code != 0) {
 
@@ -1068,11 +1190,14 @@ namespace lime {
 
 	value lime_curl_easy_init () {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURL* curl = curl_easy_init ();
 		CURL_SetCertificates (curl);
 		value handle = CFFIPointer (curl, gc_curl);
+
+		// The new handle may have the address of one that was collected
+		release_finalized_curl ();
 
 		if (curlValid.find (handle) != curlValid.end ()) {
 
@@ -1125,11 +1250,14 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_curl_easy_init) () {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURL* curl = curl_easy_init ();
 		CURL_SetCertificates (curl);
 		HL_CFFIPointer* handle = HLCFFIPointer (curl, (hl_finalizer)hl_gc_curl);
+
+		// The new handle may have the address of one that was collected
+		hl_release_finalized_curl ();
 
 		if (curlValid.find (handle) != curlValid.end ()) {
 
@@ -1681,7 +1809,7 @@ namespace lime {
 			}
 			case CURLOPT_READDATA:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (readBytes.find (handle) == readBytes.end ()) {
 
@@ -1706,7 +1834,7 @@ namespace lime {
 			}
 			case CURLOPT_WRITEFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (writeCallbacks.find (handle) == writeCallbacks.end ()) {
 
@@ -1730,7 +1858,7 @@ namespace lime {
 			}
 			case CURLOPT_HEADERFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
@@ -1752,7 +1880,7 @@ namespace lime {
 			}
 			case CURLOPT_PROGRESSFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
 
@@ -1773,7 +1901,7 @@ namespace lime {
 			}
 			case CURLOPT_XFERINFOFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (xferInfoCallbacks.find (handle) != xferInfoCallbacks.end ()) {
 
@@ -1795,7 +1923,7 @@ namespace lime {
 
 			case CURLOPT_HTTPHEADER:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (headerSLists.find (handle) != headerSLists.end ()) {
 
@@ -2115,7 +2243,7 @@ namespace lime {
 			}
 			case CURLOPT_READDATA:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (readBytes.find (handle) == readBytes.end ()) {
 
@@ -2137,7 +2265,7 @@ namespace lime {
 			}
 			case CURLOPT_WRITEFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (writeCallbacks.find (handle) == writeCallbacks.end ()) {
 
@@ -2159,7 +2287,7 @@ namespace lime {
 			}
 			case CURLOPT_HEADERFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (headerCallbacks.find (handle) != headerCallbacks.end ()) {
 
@@ -2181,7 +2309,7 @@ namespace lime {
 			}
 			case CURLOPT_PROGRESSFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (progressCallbacks.find (handle) != progressCallbacks.end ()) {
 
@@ -2202,7 +2330,7 @@ namespace lime {
 			}
 			case CURLOPT_XFERINFOFUNCTION:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (xferInfoCallbacks.find (handle) != xferInfoCallbacks.end ()) {
 
@@ -2224,7 +2352,7 @@ namespace lime {
 
 			case CURLOPT_HTTPHEADER:
 			{
-				curl_gc_mutex.Lock ();
+				lock_curl_gc ();
 
 				if (headerSLists.find (handle) != headerSLists.end ()) {
 
@@ -2352,12 +2480,15 @@ namespace lime {
 
 	int lime_curl_multi_cleanup (value multi_handle) {
 
-		// curl_gc_mutex.Lock ();
+		if (!val_is_null (multi_handle)) {
 
-		// CURLMcode result = curl_multi_cleanup ((CURLM*)val_data (multi_handle));
-		gc_curl_multi (multi_handle);
+			lock_curl_gc ();
+			release_finalized_curl ();
+			release_curl_multi (multi_handle, (CURLM*)val_data (multi_handle));
+			val_gc (multi_handle, 0);
+			curl_gc_mutex.Unlock ();
 
-		// curl_gc_mutex.Unlock ();
+		}
 
 		return CURLM_OK;
 
@@ -2366,12 +2497,15 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_curl_multi_cleanup) (HL_CFFIPointer* multi_handle) {
 
-		// curl_gc_mutex.Lock ();
+		if (multi_handle) {
 
-		// CURLMcode result = curl_multi_cleanup ((CURLM*)val_data (multi_handle));
-		hl_gc_curl_multi (multi_handle);
+			lock_curl_gc ();
+			hl_release_finalized_curl ();
+			hl_release_curl_multi (multi_handle, (CURLM*)multi_handle->ptr);
+			multi_handle->finalizer = NULL;
+			curl_gc_mutex.Unlock ();
 
-		// curl_gc_mutex.Unlock ();
+		}
 
 		return CURLM_OK;
 
@@ -2380,9 +2514,12 @@ namespace lime {
 
 	value lime_curl_multi_init () {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		value handle = CFFIPointer (curl_multi_init (), gc_curl_multi);
+
+		// The new handle may have the address of one that was collected
+		release_finalized_curl ();
 
 		if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
 
@@ -2403,9 +2540,12 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_curl_multi_init) () {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		HL_CFFIPointer* handle = HLCFFIPointer (curl_multi_init (), (hl_finalizer)hl_gc_curl_multi);
+
+		// The new handle may have the address of one that was collected
+		hl_release_finalized_curl ();
 
 		if (curlMultiValid.find (handle) != curlMultiValid.end ()) {
 
@@ -2426,7 +2566,7 @@ namespace lime {
 
 	int lime_curl_multi_add_handle (value multi_handle, value curl_object, value curl_handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURLMcode result = curl_multi_add_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (curl_handle));
 
@@ -2447,7 +2587,7 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_curl_multi_add_handle) (HL_CFFIPointer* multi_handle, vdynamic* curl_object, HL_CFFIPointer* curl_handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURLMcode result = curl_multi_add_handle ((CURLM*)multi_handle->ptr, (CURL*)curl_handle->ptr);
 
@@ -2569,7 +2709,7 @@ namespace lime {
 		curl_gc_mutex.Unlock ();
 		System::GCExitBlocking ();
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2577,7 +2717,7 @@ namespace lime {
 
 			curl_gc_mutex.Unlock ();
 			lime_curl_easy_flush ((value)*it);
-			curl_gc_mutex.Lock ();
+			lock_curl_gc ();
 
 		}
 
@@ -2602,7 +2742,7 @@ namespace lime {
 		curl_gc_mutex.Unlock ();
 		System::GCExitBlocking ();
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		std::vector<void*>* handles = curlMultiHandles[multi_handle];
 
@@ -2610,7 +2750,7 @@ namespace lime {
 
 			curl_gc_mutex.Unlock ();
 			lime_hl_curl_easy_flush ((HL_CFFIPointer*)*it);
-			curl_gc_mutex.Lock ();
+			lock_curl_gc ();
 
 		}
 
@@ -2625,7 +2765,7 @@ namespace lime {
 
 	int lime_curl_multi_remove_handle (value multi_handle, value curl_handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURLMcode result = curl_multi_remove_handle ((CURLM*)val_data (multi_handle), (CURL*)val_data (curl_handle));
 
@@ -2663,7 +2803,7 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_curl_multi_remove_handle) (HL_CFFIPointer* multi_handle, HL_CFFIPointer* curl_handle) {
 
-		curl_gc_mutex.Lock ();
+		lock_curl_gc ();
 
 		CURLMcode result = curl_multi_remove_handle ((CURLM*)multi_handle->ptr, (CURL*)curl_handle->ptr);
 
