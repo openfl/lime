@@ -726,8 +726,20 @@ class VideoSourceTest extends Test
 		// is played, and none is added, while the pan changes
 		var backend = @:privateAccess video.__backend;
 		var end = Timer.stamp() + TIMEOUT;
-		while (@:privateAccess backend.freeBuffers.length > 0 && Timer.stamp() < end) pause(0.01);
-		var queued = @:privateAccess backend.bufferTimes.length;
+		var queued = 0;
+
+		while (Timer.stamp() < end)
+		{
+			// The sound thread changes both lists under this lock, so they are
+			// read together
+			@:privateAccess backend.lockAudio();
+			var full = @:privateAccess backend.freeBuffers.length == 0;
+			queued = @:privateAccess backend.bufferTimes.length;
+			@:privateAccess backend.unlockAudio();
+
+			if (full) break;
+			pause(0.01);
+		}
 
 		video.pan = 1;
 
