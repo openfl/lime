@@ -82,6 +82,8 @@ class NativeApplication
 		once there is one, so an application without any compiles none of it.
 	**/
 	@:noCompletion private static var __updateWebViews:Void->Void = null;
+	// Called in the time left before a frame is due
+	@:noCompletion private var __idleCallback:Void->Void;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -131,6 +133,9 @@ class NativeApplication
 		#if (!macro && lime_cffi)
 		if (__allowHighDPI) NativeCFFI.lime_application_allow_high_dpi();
 		handle = NativeCFFI.lime_application_create();
+		#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
+		__setIdleCallback(__stepCollector);
+		#end
 		#end
 	}
 
@@ -303,9 +308,28 @@ class NativeApplication
 				if (__updateWebViews != null) __updateWebViews();
 
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+			case IDLE:
+				if (__idleCallback != null) __idleCallback();
 			default:
 		}
 	}
+
+	private function __setIdleCallback(callback:Void->Void):Void
+	{
+		__idleCallback = callback;
+
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_application_set_idle_events(handle, callback != null);
+		#end
+	}
+
+	#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
+	private function __stepCollector():Void
+	{
+		// With no cycle to advance, a step would start one
+		if (hxcpp.gc.Incremental.isActive()) hxcpp.gc.Incremental.step();
+	}
+	#end
 
 	private function handleClipboardEvent():Void
 	{
@@ -931,6 +955,7 @@ class NativeApplication
 {
 	var UPDATE = 0;
 	var EXIT = 1;
+	var IDLE = 2;
 }
 
 @:keep /*private*/ class ClipboardEventInfo

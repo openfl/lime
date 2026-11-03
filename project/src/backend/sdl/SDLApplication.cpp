@@ -119,6 +119,10 @@ namespace lime
 #endif
 	}
 
+	// Idle events leave this many milliseconds before a frame, and come this often
+	static const double IDLE_MIN_REMAINING = 2.0;
+	static const double IDLE_INTERVAL = 1.0;
+
 	SDLApplication::SDLApplication()
 	{
 
@@ -186,8 +190,10 @@ namespace lime
 #endif
 
 		framePeriod = 1000.0 / 60.0;
+		idleEvents = false;
 		lastUpdate = 0.0;
 		lastSleepCalibration = 0;
+		nextIdle = 0.0;
 		nextUpdate = 0.0;
 		performanceFrequency = SDL_GetPerformanceFrequency();
 		clockStartCounter = SDL_GetPerformanceCounter();
@@ -505,6 +511,23 @@ namespace lime
 			return true;
 
 		return (now >= nextUpdate);
+	}
+
+	bool SDLApplication::IsIdleDue(double now) const
+	{
+
+		return idleEvents && !schedulerUnthrottled && now >= nextIdle && nextUpdate - now >= IDLE_MIN_REMAINING;
+	}
+
+	void SDLApplication::DispatchIdle(double remaining)
+	{
+
+		ApplicationEvent idleEvent;
+		idleEvent.type = IDLE;
+		idleEvent.deltaTime = (int)remaining;
+		ApplicationEvent::Dispatch(&idleEvent);
+
+		nextIdle = GetCurrentTimeMs() + IDLE_INTERVAL;
 	}
 
 	bool SDLApplication::IsSchedulerUnthrottled() const
@@ -1650,6 +1673,12 @@ namespace lime
 		RefreshVSyncState ();
 	}
 
+	void SDLApplication::SetIdleEvents(bool enabled)
+	{
+
+		idleEvents = enabled;
+	}
+
 	void SDLApplication::SetMainLoop(int profile, double frameRate, int timePrecision, int busyWait, int uncapMode)
 	{
 
@@ -1826,6 +1855,13 @@ namespace lime
 				return 0;
 			}
 
+			if (IsIdleDue(now))
+			{
+
+				DispatchIdle(remaining);
+				continue;
+			}
+
 			if (allowBusyWait && busyWaitOnly)
 			{
 				System::GCEnterBlocking();
@@ -1921,6 +1957,21 @@ namespace lime
 				return 1;
 
 			default:
+
+				if (IsIdleDue(GetCurrentTimeMs()))
+				{
+
+					// Haxe code runs on an idle event, which it can't do in a blocking section
+					if (isBlocking)
+					{
+						SDL_AtomicSet(&s_waitEventBlocking, 0);
+						System::GCExitBlocking();
+						isBlocking = false;
+					}
+
+					DispatchIdle(nextUpdate - GetCurrentTimeMs());
+					break;
+				}
 
 				if (!isBlocking)
 				{

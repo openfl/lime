@@ -9,6 +9,7 @@ class TestMain extends Application
 		super();
 
 		var runner = new Runner();
+		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
 		runner.addCase(new graphics.OpenGLTest());

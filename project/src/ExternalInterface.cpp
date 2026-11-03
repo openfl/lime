@@ -1595,6 +1595,22 @@ namespace lime {
 	}
 
 
+	void lime_application_set_idle_events (value application, bool enabled) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetIdleEvents (enabled);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_idle_events) (HL_CFFIPointer* application, bool enabled) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetIdleEvents (enabled);
+
+	}
+
+
 	void lime_application_set_main_loop (value application, int profile, double frameRate, int timePrecision, int busyWait, int uncapMode) {
 
 		Application* app = (Application*)val_data (application);
@@ -14171,6 +14187,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_exec);
 	DEFINE_PRIME1v (lime_application_init);
 	DEFINE_PRIME1 (lime_application_quit);
+	DEFINE_PRIME2v (lime_application_set_idle_events);
 	DEFINE_PRIME6v (lime_application_set_main_loop);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME5v (lime_application_set_modal_callbacks);
@@ -14531,6 +14548,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_application_exec, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_init, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_idle_events, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_modal_callbacks, _TCFFIPOINTER _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG));
