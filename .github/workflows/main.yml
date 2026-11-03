@@ -84,6 +84,8 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        # A deadlock hangs the tests rather than failing them
+        timeout-minutes: 30
         env:
           LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
@@ -357,6 +359,8 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        # A deadlock hangs the tests rather than failing them
+        timeout-minutes: 30
         env:
           LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
@@ -486,6 +490,8 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        # A deadlock hangs the tests rather than failing them
+        timeout-minutes: 30
         env:
           LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
@@ -601,6 +607,8 @@ jobs:
 
       - name: Run unit tests
         working-directory: tests/unit
+        # A deadlock hangs the tests rather than failing them
+        timeout-minutes: 30
         env:
           LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           # OpenAL's null output stands in for the sound card runners lack
