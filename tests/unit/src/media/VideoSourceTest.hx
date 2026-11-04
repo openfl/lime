@@ -795,6 +795,11 @@ class VideoSourceTest extends Test
 			return;
 		}
 
+		// The AL objects earlier tests dropped are deleted as they are collected, which
+		// can raise an error, so that happens before this test reads its own
+		collect();
+		AL.getError();
+
 		var frame = new VideoFrame();
 		startPlaying(video, frame);
 
@@ -1337,6 +1342,17 @@ class VideoSourceTest extends Test
 		}
 
 		return true;
+	}
+
+	private static function collect():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
 	}
 
 	private static function pause(seconds:Float):Void
