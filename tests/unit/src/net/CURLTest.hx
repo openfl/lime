@@ -12,6 +12,7 @@ import lime.net.curl.CURLMulti;
 import sys.net.Host;
 import sys.net.Socket;
 import sys.thread.Deque;
+import sys.thread.Lock;
 import sys.thread.Thread;
 #end
 
@@ -84,10 +85,14 @@ class CURLTest extends Test
 		// Handles are made under the lock that the finalizers of dropped handles
 		// waited for, while the collector held up the thread that had it
 		var made = new Deque<Bool>();
+		var collected = new Lock();
 		Thread.create(function()
 		{
 			for (i in 0...1000) new CURL().cleanup();
 			made.add(true);
+
+			// Neko's collector can abort if a thread ends while it collects
+			collected.wait();
 		});
 
 		var finished = false;
@@ -101,6 +106,9 @@ class CURLTest extends Test
 
 			finished = made.pop(false) != null;
 		}
+
+		collected.release();
+		Sys.sleep(0.1);
 
 		Assert.isTrue(finished, "the other thread did not finish making handles");
 	}
