@@ -121,19 +121,15 @@ namespace lime {
 	}
 
 
-	void lime_vorbis_file_clear (value vorbisFile);
-	HL_PRIM void HL_NAME(hl_vorbis_file_clear) (HL_CFFIPointer* vorbisFile);
-
-
 	void gc_vorbis_file (value vorbisFile) {
 
-		lime_vorbis_file_clear (vorbisFile);
+		ov_clear ((OggVorbis_File*)(uintptr_t)val_data (vorbisFile));
 
 	}
 
 	void hl_gc_vorbis_file (HL_CFFIPointer* vorbisFile) {
 
-		lime_hl_vorbis_file_clear (vorbisFile);
+		ov_clear ((OggVorbis_File*)(uintptr_t)vorbisFile->ptr);
 
 	}
 
