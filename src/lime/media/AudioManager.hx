@@ -67,7 +67,8 @@ class AudioManager
 			AudioManager.context = context;
 			setupOutputDeviceRecovery();
 
-			#if (lime_cffi && !macro && lime_openal && (ios || tvos || mac))
+			#if (lime_cffi && !macro && lime_openal)
+			// Releases the objects that were collected if nothing else gets to them
 			var timer = new Timer(100);
 			timer.run = function()
 			{

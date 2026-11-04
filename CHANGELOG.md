@@ -110,6 +110,7 @@ Changelog
 - Fixed PNG decoding from bytes using its reader after it went out of scope.
 - Fixed a crash opening compressed assets as files on Android.
 - Fixed OpenAL bindings returning uninitialized values, and `AL.sourceUnqueueBuffers()` returning buffers it didn't unqueue.
+- Fixed OpenAL objects deadlocking the collector when finalized, leaking buffers collected before their sources, and deleting the objects of a replacement device.
 - Fixed exceptions thrown in event listeners losing their original call site.
 - Fixed constructing `Bytes` with no arguments on HashLink.
 - Fixed `FileDialog` wildcard filters.

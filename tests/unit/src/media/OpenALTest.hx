@@ -1,15 +1,25 @@
 package media;
 
 #if (lime_cffi && lime_openal)
+import lime._internal.backend.native.NativeCFFI;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALC;
 import lime.media.openal.ALSource;
 import lime.utils.UInt8Array;
 #end
+#if (lime_cffi && lime_openal && sys && target.threaded)
+import haxe.Timer;
+import sys.thread.Deque;
+import sys.thread.Lock;
+import sys.thread.Thread;
+#end
 import utest.Assert;
 import utest.Test;
 
+#if (lime_cffi && lime_openal)
+@:access(lime._internal.backend.native.NativeCFFI)
+#end
 class OpenALTest extends Test
 {
 	#if (lime_cffi && lime_openal)
@@ -110,13 +120,247 @@ class OpenALTest extends Test
 		Assert.same([ALC.getString(null, ALC.EXTENSIONS)], ALC.getStringList(null, ALC.EXTENSIONS));
 	}
 
-	private function createQueuedSource():ALSource
+	public function testDroppingASourceAndItsBuffersLeavesNoError():Void
+	{
+		if (!hasContext()) return;
+
+		release();
+		AL.getError();
+
+		// The collector can finalize a buffer before the source that holds it
+		var highest = dropSources(64);
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		// OpenAL Soft gives out the lowest free ID, so leaked buffers push these up
+		var next = dropSources(64);
+		release();
+		Assert.isTrue(next <= highest + 16, 'buffers reached $next after $highest');
+	}
+
+	public function testABufferDroppedWhileInUseWaitsForItsSource():Void
+	{
+		if (!hasContext()) return;
+
+		release();
+		AL.getError();
+
+		var sources = [for (i in 0...8) AL.createSource()];
+		var highest = 0;
+
+		for (source in sources)
+		{
+			highest = Std.int(Math.max(highest, attachDroppedBuffer(source)));
+		}
+
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		for (source in sources)
+		{
+			Assert.equals(1, AL.getSourcei(source, AL.BUFFERS_QUEUED));
+		}
+
+		// Trying the release again doesn't lose the application's own error
+		AL.getSourcei(sources[0], 0);
+		NativeCFFI.lime_al_cleanup();
+		Assert.equals(AL.INVALID_ENUM, AL.getError());
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		// A buffer can still be found through its source, which gives it a handle again
+		var buffer:ALBuffer = AL.getSourcei(sources[0], AL.BUFFER);
+		Assert.isTrue(AL.isBuffer(buffer));
+
+		for (source in sources)
+		{
+			AL.sourcei(source, AL.BUFFER, null);
+		}
+
+		AL.deleteBuffer(buffer);
+		AL.deleteSources(sources);
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		// They are all gone, so their IDs come back
+		var next = dropSources(sources.length);
+		release();
+		Assert.isTrue(next <= highest + 2, 'buffers reached $next after $highest');
+	}
+
+	public function testDroppedEffectsLeaveNoError():Void
+	{
+		if (!hasContext()) return;
+
+		if (AL.createAux() == null)
+		{
+			Assert.pass("This OpenAL has no effects");
+			return;
+		}
+
+		release();
+		AL.getError();
+
+		dropEffects(32);
+		release();
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
+	public function testDroppedObjectsOfAClosedDeviceLeaveItsReplacementAlone():Void
+	{
+		if (!hasContext()) return;
+
+		var context = ALC.getCurrentContext();
+		var device = ALC.openDevice();
+		var replaced = ALC.createContext(device);
+		ALC.makeContextCurrent(replaced);
+
+		dropSources(32);
+
+		ALC.makeContextCurrent(null);
+		ALC.destroyContext(replaced);
+		ALC.closeDevice(device);
+
+		// A new device numbers its objects from the start, as the old one did
+		device = ALC.openDevice();
+		var replacement = ALC.createContext(device);
+		ALC.makeContextCurrent(replacement);
+
+		var sources = [for (i in 0...32) AL.createSource()];
+		var buffers = AL.genBuffers(32);
+
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		for (source in sources)
+		{
+			Assert.isTrue(AL.isSource(source));
+		}
+
+		for (buffer in buffers)
+		{
+			Assert.isTrue(AL.isBuffer(buffer));
+		}
+
+		AL.deleteSources(sources);
+		AL.deleteBuffers(buffers);
+
+		ALC.makeContextCurrent(context);
+		ALC.destroyContext(replacement);
+		ALC.closeDevice(device);
+	}
+
+	#if (sys && target.threaded)
+	public function testCollectingWhileObjectsAreMadeOnAnotherThread():Void
+	{
+		if (!hasContext()) return;
+
+		// Objects are made under the lock that the finalizers of dropped objects
+		// waited for, while the collector held up the thread that had it
+		var made = new Deque<Bool>();
+		var collected = new Lock();
+
+		Thread.create(function()
+		{
+			for (i in 0...1000)
+			{
+				AL.deleteBuffer(AL.createBuffer());
+			}
+
+			made.add(true);
+
+			// Neko's collector can abort if a thread ends while it collects
+			collected.wait();
+		});
+
+		var finished = false;
+		var end = Timer.stamp() + 10;
+
+		while (!finished && Timer.stamp() < end)
+		{
+			// Objects for the collector to finalize
+			for (i in 0...8)
+			{
+				AL.createBuffer();
+			}
+
+			collect();
+
+			finished = made.pop(false) != null;
+		}
+
+		collected.release();
+		Sys.sleep(0.1);
+
+		Assert.isTrue(finished, "the other thread did not finish making objects");
+	}
+	#end
+
+	private function attachDroppedBuffer(source:ALSource):Int
+	{
+		var buffer = AL.createBuffer();
+		var data = new UInt8Array(64);
+
+		AL.bufferData(buffer, AL.FORMAT_MONO16, data, data.length, 44100);
+		AL.sourcei(source, AL.BUFFER, buffer);
+
+		return AL.getSourceiv(source, AL.BUFFER)[0];
+	}
+
+	private function dropEffects(count:Int):Void
+	{
+		for (i in 0...count)
+		{
+			AL.createAux();
+			AL.createEffect();
+			AL.createFilter();
+		}
+	}
+
+	private function dropSources(count:Int):Int
+	{
+		var highest = 0;
+
+		for (i in 0...count)
+		{
+			highest = Std.int(Math.max(highest, attachDroppedBuffer(AL.createSource())));
+		}
+
+		return highest;
+	}
+
+	private function hasContext():Bool
 	{
 		if (ALC.getCurrentContext() == null)
 		{
 			Assert.warn("There is no audio output here, so OpenAL was not tested");
-			return null;
+			return false;
 		}
+
+		return true;
+	}
+
+	private static function collect():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
+	}
+
+	private static function release():Void
+	{
+		collect();
+		collect();
+		NativeCFFI.lime_al_cleanup();
+	}
+
+	private function createQueuedSource():ALSource
+	{
+		if (!hasContext()) return null;
 
 		var source = AL.createSource();
 		buffers = AL.genBuffers(2);
