@@ -6,7 +6,6 @@ import js.html.IFrameElement;
 import js.html.MessageEvent;
 import js.Browser;
 import lime.app.Future;
-import lime.app.Promise;
 import lime.graphics.Image;
 import lime.ui.WebView;
 import lime.ui.WebViewAttributes;
@@ -46,6 +45,9 @@ class HTML5WebView
 	window.chrome.webview = bridge;
 })();</script>";
 
+	// After what might cancel the close, and just before the application lets the window go
+	private static inline var WINDOW_CLOSE_PRIORITY:Int = -9999;
+
 	private static var listening:Bool = false;
 	private static var views:Array<HTML5WebView> = [];
 
@@ -65,11 +67,12 @@ class HTML5WebView
 		this.parent = parent;
 
 		if (attributes == null) attributes = {};
+		var window = parent.window;
 		x = attributes.x != null ? attributes.x : 0;
 		y = attributes.y != null ? attributes.y : 0;
-		width = attributes.width != null ? attributes.width : 0;
-		height = attributes.height != null ? attributes.height : 0;
-		visible = true;
+		width = attributes.width != null ? attributes.width : (window != null ? window.width : 0);
+		height = attributes.height != null ? attributes.height : (window != null ? window.height : 0);
+		visible = attributes.hidden != true;
 		initScripts = [];
 
 		frame = cast Browser.document.createElement("iframe");
@@ -79,12 +82,14 @@ class HTML5WebView
 		frame.addEventListener("focus", function(_) parent.onFocusIn.dispatch());
 		frame.addEventListener("blur", function(_) parent.onFocusOut.dispatch());
 
-		var container:Element = parent.window != null ? parent.window.element : Browser.document.body;
+		var container:Element = window != null ? window.element : Browser.document.body;
 		if (container == null) container = Browser.document.body;
 		container.appendChild(frame);
 
 		updateFrame();
 		views.push(this);
+
+		if (window != null) window.onClose.add(close, false, WINDOW_CLOSE_PRIORITY);
 
 		if (!listening)
 		{
@@ -98,32 +103,37 @@ class HTML5WebView
 		initScripts.push(script);
 	}
 
-	public function capture():Image
+	public function capture():Future<Image>
 	{
-		return null;
+		return cast Future.withError("A browser cannot capture a page");
 	}
 
 	public function close():Void
 	{
 		if (frame != null)
 		{
+			if (parent.window != null) parent.window.onClose.remove(close);
+
 			if (frame.parentNode != null) frame.parentNode.removeChild(frame);
 			frame = null;
 			views.remove(this);
+
+			parent.onClose.dispatch();
 		}
 	}
 
-	public function evaluateJavaScript(script:String):Void
+	public function evaluateJavaScript(script:String):Future<String>
 	{
-		if (frame == null) return;
+		if (frame == null) return cast Future.withError("The view is not available");
 
 		try
 		{
-			(cast frame.contentWindow).eval(script);
+			var json:String = (cast Browser.window).JSON.stringify((cast frame.contentWindow).eval(script));
+			return Future.withValue(json != null ? json : "null");
 		}
 		catch (error:Dynamic)
 		{
-			parent.onError.dispatch(Std.string(error));
+			return cast Future.withError(Std.string(error));
 		}
 	}
 
@@ -162,7 +172,8 @@ class HTML5WebView
 
 		try
 		{
-			return frame.contentWindow.location.href;
+			var url = frame.contentWindow.location.href;
+			return url == "about:srcdoc" ? "about:blank" : url;
 		}
 		catch (error:Dynamic)
 		{
@@ -238,9 +249,7 @@ class HTML5WebView
 
 	public function printToPDF(path:String, options:WebViewPDFOptions):Future<String>
 	{
-		var promise = new Promise<String>();
-		promise.error("A browser cannot save a page as a PDF");
-		return promise.future;
+		return cast Future.withError("A browser cannot save a page as a PDF");
 	}
 
 	public function reload():Void

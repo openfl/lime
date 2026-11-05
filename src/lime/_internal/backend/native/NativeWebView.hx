@@ -26,10 +26,13 @@ class NativeWebView
 	private static inline var FLAG_STATUS_BAR:Int = 0x08;
 	private static inline var FLAG_ZOOM:Int = 0x10;
 	private static inline var FLAG_MEDIA_NEEDS_USER_ACTION:Int = 0x20;
+	private static inline var FLAG_HIDDEN:Int = 0x40;
 
-	private static inline var RECORD_SEPARATOR:String = "\x1E";
 	private static inline var FIELD_SEPARATOR:String = "\x1F";
 	private static inline var PART_SEPARATOR:String = "\x1D";
+
+	// After what might cancel the close, and just before the application lets the window go
+	private static inline var WINDOW_CLOSE_PRIORITY:Int = -9999;
 
 	private static var views = new Map<Int, NativeWebView>();
 
@@ -43,23 +46,24 @@ class NativeWebView
 	private var id:Int;
 	private var nextToken:Int;
 	private var parent:WebView;
-	private var printing:Map<Int, Promise<String>>;
 	private var printPaths:Map<Int, String>;
+	private var requests:Map<Int, Promise<String>>;
 
 	public function new(parent:WebView, attributes:WebViewAttributes)
 	{
 		this.parent = parent;
 
 		if (attributes == null) attributes = {};
+		var window = parent.window;
 		x = attributes.x != null ? attributes.x : 0;
 		y = attributes.y != null ? attributes.y : 0;
-		width = attributes.width != null ? attributes.width : 0;
-		height = attributes.height != null ? attributes.height : 0;
-		visible = true;
+		width = attributes.width != null ? attributes.width : (window != null ? window.width : 0);
+		height = attributes.height != null ? attributes.height : (window != null ? window.height : 0);
+		visible = attributes.hidden != true;
 		id = -1;
 		nextToken = 1;
-		printing = new Map();
 		printPaths = new Map();
+		requests = new Map();
 
 		#if (!macro && lime_cffi)
 		var flags = 0;
@@ -68,13 +72,13 @@ class NativeWebView
 		if (attributes.devTools == true #if debug || attributes.devTools == null #end) flags |= FLAG_DEV_TOOLS;
 		if (attributes.statusBar != false) flags |= FLAG_STATUS_BAR;
 		if (attributes.zoom != false) flags |= FLAG_ZOOM;
-		if (attributes.mediaNeedsUserAction != false) flags |= FLAG_MEDIA_NEEDS_USER_ACTION;
+		if (attributes.autoplay != true) flags |= FLAG_MEDIA_NEEDS_USER_ACTION;
+		if (!visible) flags |= FLAG_HIDDEN;
 
 		if (isSupported())
 		{
 			if (Lambda.count(views) == 0) register();
 
-			var window = parent.window;
 			var windowHandle:Dynamic = window != null ? window.__backend.handle : null;
 			var scale = hostScale();
 
@@ -88,10 +92,19 @@ class NativeWebView
 
 				if (window != null)
 				{
-					window.onClose.add(close);
+					window.onClose.add(close, false, WINDOW_CLOSE_PRIORITY);
 					window.onMouseDown.add(onWindowMouseDown);
+					#if windows
+					window.onDisplayScaleChange.add(onWindowScaleChange);
+					#end
 				}
 			}
+		}
+
+		if (handle == null)
+		{
+			// Listeners have no chance to be there yet
+			haxe.Timer.delay(function() parent.onError.dispatch("The view could not be created"), 0);
 		}
 		#end
 	}
@@ -103,17 +116,17 @@ class NativeWebView
 		#end
 	}
 
-	public function capture():Image
+	public function capture():Future<Image>
 	{
 		#if (!macro && lime_cffi)
 		if (handle != null)
 		{
 			var base64:String = CFFI.stringValue(NativeCFFI.lime_web_view_capture(handle));
-			if (base64 != null) return Image.fromBytes(Base64.decode(base64));
+			if (base64 != null) return Future.withValue(Image.fromBytes(Base64.decode(base64)));
 		}
 		#end
 
-		return null;
+		return cast Future.withError("The view could not be captured");
 	}
 
 	public function close():Void
@@ -126,6 +139,9 @@ class NativeWebView
 			{
 				window.onClose.remove(close);
 				window.onMouseDown.remove(onWindowMouseDown);
+				#if windows
+				window.onDisplayScaleChange.remove(onWindowScaleChange);
+				#end
 			}
 
 			#if (!macro && lime_cffi)
@@ -135,20 +151,32 @@ class NativeWebView
 			views.remove(id);
 			handle = null;
 
-			for (token in printing.keys())
+			for (token in requests.keys())
 			{
-				printing.get(token).error("The view has closed");
+				requests.get(token).error("The view has closed");
 			}
 
-			printing = new Map();
+			requests = new Map();
+
+			parent.onClose.dispatch();
 		}
 	}
 
-	public function evaluateJavaScript(script:String):Void
+	public function evaluateJavaScript(script:String):Future<String>
 	{
 		#if (!macro && lime_cffi)
-		if (handle != null) NativeCFFI.lime_web_view_evaluate_java_script(handle, script);
+		if (handle != null)
+		{
+			var promise = new Promise<String>();
+			var token = nextToken++;
+			requests.set(token, promise);
+
+			NativeCFFI.lime_web_view_evaluate_java_script(handle, script, token);
+			return promise.future;
+		}
 		#end
+
+		return cast Future.withError("The view is not available");
 	}
 
 	public function focus():Void
@@ -258,7 +286,7 @@ class NativeWebView
 			if (options == null) options = {};
 
 			var token = nextToken++;
-			printing.set(token, promise);
+			requests.set(token, promise);
 			printPaths.set(token, path);
 
 			NativeCFFI.lime_web_view_print_to_pdf(handle, target, {
@@ -343,23 +371,24 @@ class NativeWebView
 			case "message":
 				parent.onMessage.dispatch(payload);
 
-			case "pdf":
+			case "pdf", "script":
 				var parts = payload.split(PART_SEPARATOR);
 				var token = Std.parseInt(parts[0]);
-				var promise = printing.get(token);
+				var promise = requests.get(token);
 				var path = printPaths.get(token);
-				printing.remove(token);
+				var message = parts.slice(2).join(PART_SEPARATOR);
+				requests.remove(token);
 				printPaths.remove(token);
 
 				if (promise != null)
 				{
 					if (parts[1] == "1")
 					{
-						promise.complete(path);
+						promise.complete(type == "pdf" ? path : message);
 					}
 					else
 					{
-						promise.error(parts.slice(2).join(PART_SEPARATOR));
+						promise.error(message);
 					}
 				}
 
@@ -385,6 +414,13 @@ class NativeWebView
 		if (handle != null) NativeCFFI.lime_web_view_release_focus(handle);
 		#end
 	}
+
+	#if windows
+	private function onWindowScaleChange():Void
+	{
+		setBounds(x, y, width, height);
+	}
+	#end
 
 	private static function register():Void
 	{
@@ -414,10 +450,9 @@ class NativeWebView
 	private static function update():Void
 	{
 		#if (!macro && lime_cffi)
-		var events:String = CFFI.stringValue(NativeCFFI.lime_web_view_poll_events());
-		if (events == null) return;
+		var record:String;
 
-		for (record in events.split(RECORD_SEPARATOR))
+		while ((record = CFFI.stringValue(NativeCFFI.lime_web_view_poll_event())) != null)
 		{
 			var first = record.indexOf(FIELD_SEPARATOR);
 			var second = first >= 0 ? record.indexOf(FIELD_SEPARATOR, first + 1) : -1;

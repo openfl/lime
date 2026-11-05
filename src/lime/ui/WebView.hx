@@ -25,7 +25,8 @@ import lime.graphics.Image;
 
 	Example usage:
 	```haxe
-	var view = new WebView(window, {width: window.width, height: window.height});
+	var view = new WebView(window);
+	window.onResize.add(view.resize);
 	view.onLoad.add(function() view.postMessage("hello"));
 	view.onMessage.add(function(message) trace(message));
 	view.onNavigate.add(function(url) if (url.indexOf("https:") != 0) view.onNavigate.cancel());
@@ -35,7 +36,9 @@ import lime.graphics.Image;
 	Events are dispatched on the main thread. `isSupported` is true on Windows
 	with the WebView2 Runtime installed, on macOS, iOS and Android, and in
 	browsers, which keep other sites' pages to themselves: there, `title` and
-	the bridge only reach pages from `loadHTML` or the application's own site.
+	the bridge only reach pages from `loadHTML` or the application's own site, and
+	`onNavigate` only sees `load`. On AIR, where it is `StageWebView.isSupported`,
+	there is no bridge, and `evaluateJavaScript` cannot read what a script gives.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -69,7 +72,7 @@ class WebView
 	public var title(get, never):String;
 
 	/**
-		The URL of the current page.
+		The URL of the current page, which is `about:blank` for a page from `loadHTML`.
 	**/
 	public var url(get, never):String;
 
@@ -99,7 +102,13 @@ class WebView
 	public var y(get, set):Int;
 
 	/**
-		Dispatched when a page could not be loaded, or the engine reports an error.
+		Dispatched when the view has closed, by `close` or with its window.
+	**/
+	public var onClose(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched when a page could not be loaded, the view could not be created, or
+		the engine reports an error.
 	**/
 	public var onError(default, null) = new Event<String->Void>();
 
@@ -124,8 +133,10 @@ class WebView
 	public var onMessage(default, null) = new Event<String->Void>();
 
 	/**
-		Dispatched before the view goes to a URL, while the engine waits. Calling
-		`cancel()` on the event stops it from going there.
+		Dispatched before the view goes to a URL, while the engine waits, for `load`
+		and for the page's own navigations. Calling `cancel()` on the event stops it
+		from going there. A page from `loadHTML` goes nowhere, so it does not dispatch
+		this.
 	**/
 	public var onNavigate(default, null) = new Event<String->Void>();
 
@@ -138,8 +149,8 @@ class WebView
 
 	/**
 		Creates a view in `window`, or with `null`, one that is never shown. Where
-		it cannot be created, as `isSupported` says, what is asked of it does
-		nothing.
+		it cannot be created, as `isSupported` says, `onError` is dispatched, and what
+		is asked of it does nothing.
 	**/
 	public function new(window:Window = null, attributes:WebViewAttributes = null)
 	{
@@ -156,15 +167,17 @@ class WebView
 	}
 
 	/**
-		Returns what the view shows, or `null` if the engine cannot say.
+		Takes a picture of what the view shows. The future fails if the engine cannot
+		say.
 	**/
-	public function capture():Image
+	public function capture():Future<Image>
 	{
 		return __backend.capture();
 	}
 
 	/**
-		Closes the view. It closes with its window, too.
+		Closes the view. It closes with its window, too, unless that close is
+		cancelled.
 	**/
 	public function close():Void
 	{
@@ -172,11 +185,15 @@ class WebView
 	}
 
 	/**
-		Runs `script` in the page.
+		Runs `script` in the page. The future completes with the value of its last
+		statement, as JSON for `haxe.Json.parse`, or fails if the script threw. Where
+		an engine does not say that it threw, on Android and older WebView2 Runtimes,
+		that is `null`. `undefined` is `null` as well, a promise is not waited for,
+		and what a value JSON has no form for gives depends on the engine.
 	**/
-	public function evaluateJavaScript(script:String):Void
+	public function evaluateJavaScript(script:String):Future<String>
 	{
-		__backend.evaluateJavaScript(script);
+		return __backend.evaluateJavaScript(script);
 	}
 
 	/**
@@ -220,6 +237,14 @@ class WebView
 	}
 
 	/**
+		Moves the view in its window.
+	**/
+	public function move(x:Int, y:Int):Void
+	{
+		__backend.setBounds(x, y, __backend.width, __backend.height);
+	}
+
+	/**
 		Sends `message` to the page, as a `message` event on
 		`window.chrome.webview`.
 	**/
@@ -244,6 +269,15 @@ class WebView
 	public function reload():Void
 	{
 		__backend.reload();
+	}
+
+	/**
+		Resizes the view. It does not follow its window by itself, but
+		`window.onResize.add(view.resize)` makes it.
+	**/
+	public function resize(width:Int, height:Int):Void
+	{
+		__backend.setBounds(__backend.x, __backend.y, width, height);
 	}
 
 	/**
@@ -336,7 +370,9 @@ class WebView
 	}
 }
 
-#if flash
+#if air
+@:noCompletion private typedef WebViewBackend = lime._internal.backend.air.AIRWebView;
+#elseif flash
 @:noCompletion private typedef WebViewBackend = lime._internal.backend.flash.FlashWebView;
 #elseif (js && html5)
 @:noCompletion private typedef WebViewBackend = lime._internal.backend.html5.HTML5WebView;

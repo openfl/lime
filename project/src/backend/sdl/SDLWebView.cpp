@@ -2,6 +2,7 @@
 #include <ui/WebView.h>
 #include <stagewebview/WebViewBackend.h>
 #include <stagewebview/WindowBackend.h>
+#include <deque>
 #include <vector>
 
 
@@ -11,24 +12,23 @@ namespace lime {
 	// Records of id, type and payload, which NativeWebView reads
 	static const char WEB_VIEW_FIELD = '\x1F';
 	static const char WEB_VIEW_PART = '\x1D';
-	static const char WEB_VIEW_RECORD = '\x1E';
 
 	static void (*navigationHandler) () = 0;
 	static bool navigationCanceled = false;
 	static int navigationID = 0;
 	static std::string navigationURL;
 	static int nextID = 0;
-	static std::string pendingEvents;
+	static std::deque<std::string> pendingEvents;
 
 
 	static void PushEvent (int id, const char* type, const std::string& payload) {
 
-		pendingEvents += std::to_string (id);
-		pendingEvents += WEB_VIEW_FIELD;
-		pendingEvents += type;
-		pendingEvents += WEB_VIEW_FIELD;
-		pendingEvents += payload;
-		pendingEvents += WEB_VIEW_RECORD;
+		std::string record = std::to_string (id);
+		record += WEB_VIEW_FIELD;
+		record += type;
+		record += WEB_VIEW_FIELD;
+		record += payload;
+		pendingEvents.push_back (record);
 
 	}
 
@@ -40,10 +40,12 @@ namespace lime {
 	}
 
 
-	struct PrintRequest {
+	// What is asked of an engine that answers later, when the view may be gone
+	struct ResultRequest {
 
 		int id;
 		int token;
+		const char* type;
 
 	};
 
@@ -52,8 +54,8 @@ namespace lime {
 
 		public:
 
-			SDLWebView (stagewebview::WebViewBackend* backend, void* host, void* parent):
-				backend (backend), closing (false), dispatching (false), height (0), host (host), id (++nextID), parent (parent), visible (true), width (0), x (0), y (0) {
+			SDLWebView (stagewebview::WebViewBackend* backend, void* host, void* parent, bool visible):
+				backend (backend), closing (false), dispatching (false), height (0), host (host), id (++nextID), parent (parent), visible (visible), width (0), x (0), y (0) {
 
 				stagewebview::WebViewCallbackSet callbacks;
 				callbacks.userData = this;
@@ -107,9 +109,18 @@ namespace lime {
 			}
 
 
-			virtual void EvaluateJavaScript (const char* script) {
+			virtual void EvaluateJavaScript (const char* script, int token) {
 
-				if (backend) backend->evaluateJavaScript (script);
+				ResultRequest* request = new ResultRequest ();
+				request->id = id;
+				request->token = token;
+				request->type = "script";
+
+				if (!backend || backend->evaluateJavaScript (script, OnResult, request) != 0) {
+
+					OnResult (request, false, "The webview could not run the script");
+
+				}
 
 			}
 
@@ -193,9 +204,10 @@ namespace lime {
 
 			virtual void PrintToPDF (const char* path, const WebViewPDFOptions* options, int token) {
 
-				PrintRequest* request = new PrintRequest ();
+				ResultRequest* request = new ResultRequest ();
 				request->id = id;
 				request->token = token;
+				request->type = "pdf";
 
 				stagewebview::WebViewPdfOptions pdf;
 				pdf.pageWidth = options->pageWidth;
@@ -209,9 +221,9 @@ namespace lime {
 				pdf.printBackground = options->printBackground ? 1 : 0;
 				pdf.repeatTableHeaders = options->repeatTableHeaders ? 1 : 0;
 
-				if (!backend || backend->printToPdf (path, pdf, OnPrinted, request) != 0) {
+				if (!backend || backend->printToPdf (path, pdf, OnResult, request) != 0) {
 
-					OnPrinted (request, false, "The webview could not print");
+					OnResult (request, false, "The webview could not print");
 
 				}
 
@@ -380,16 +392,16 @@ namespace lime {
 			}
 
 
-			static void OnPrinted (void* userData, bool success, const std::string& message) {
+			static void OnResult (void* userData, bool success, const std::string& message) {
 
-				PrintRequest* request = (PrintRequest*)userData;
+				ResultRequest* request = (ResultRequest*)userData;
 
 				std::string payload = std::to_string (request->token);
 				payload += WEB_VIEW_PART;
 				payload += success ? "1" : "0";
 				payload += WEB_VIEW_PART;
 				payload += message;
-				PushEvent (request->id, "pdf", payload);
+				PushEvent (request->id, request->type, payload);
 
 				delete request;
 
@@ -453,7 +465,7 @@ namespace lime {
 
 		}
 
-		SDLWebView* view = new SDLWebView (backend, host, parent);
+		SDLWebView* view = new SDLWebView (backend, host, parent, !(flags & WEB_VIEW_FLAG_HIDDEN));
 		view->SetBounds (x, y, width, height);
 		return view;
 
@@ -467,13 +479,15 @@ namespace lime {
 	}
 
 
-	std::string WebView::PollEvents () {
+	std::string WebView::PollEvent () {
 
 		SDLWebView::CloseWaiting ();
 
-		std::string events;
-		events.swap (pendingEvents);
-		return events;
+		if (pendingEvents.empty ()) return std::string ();
+
+		std::string record = pendingEvents.front ();
+		pendingEvents.pop_front ();
+		return record;
 
 	}
 

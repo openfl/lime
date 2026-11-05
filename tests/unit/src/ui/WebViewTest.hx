@@ -87,6 +87,94 @@ class WebViewTest extends Test
 		Assert.equals("init:ran", messages[0]);
 	}
 
+	public function testAScriptGivesItsValue():Void
+	{
+		if (!canRun()) return;
+
+		loadAndWait("<!doctype html><html><head><title>Value</title></head><body></body></html>");
+
+		var value:String = null;
+		view.evaluateJavaScript("document.title + ' ' + (6 * 7)").onComplete(function(result) value = result);
+
+		Assert.isTrue(pumpUntil(function() return value != null), "the script did not report back");
+		Assert.equals('"Value 42"', value);
+	}
+
+	public function testAClosedViewFailsAScript():Void
+	{
+		if (!canRun()) return;
+
+		view.close();
+
+		var failed = false;
+		view.evaluateJavaScript("1").onError(function(_) failed = true);
+		Assert.isTrue(failed);
+	}
+
+	public function testAScriptInFlightFailsWhenTheViewCloses():Void
+	{
+		if (!canRun()) return;
+
+		loadAndWait("<!doctype html><html><body></body></html>");
+
+		var failed = false;
+		view.evaluateJavaScript("1").onError(function(_) failed = true);
+		view.close();
+
+		Assert.isTrue(failed);
+		pumpFor(0.2);
+	}
+
+	public function testAPageFromHTMLIsNotAskedAbout():Void
+	{
+		if (!canRun()) return;
+
+		var asked:Array<String> = [];
+		view.onNavigate.add(asked.push);
+		loadAndWait("<!doctype html><html><body></body></html>");
+
+		Assert.equals(0, asked.length, Std.string(asked));
+		Assert.equals("about:blank", view.url);
+	}
+
+	public function testAPageCannotForgeAnEvent():Void
+	{
+		if (!canRun()) return;
+
+		var messages:Array<String> = [];
+		view.onMessage.add(messages.push);
+		view.loadHTML("<!doctype html><html><body><script>
+			window.chrome.webview.postMessage('a\u001E1\u001Fmessage\u001Fb');
+		</script></body></html>");
+
+		Assert.isTrue(pumpUntil(function() return messages.length > 0), "the message did not arrive");
+		Assert.equals(1, messages.length);
+		Assert.equals("a\x1E1\x1Fmessage\x1Fb", messages[0]);
+	}
+
+	public function testCaptureReportsBack():Void
+	{
+		if (!canRun()) return;
+
+		loadAndWait("<!doctype html><html><body></body></html>");
+
+		var reported = false;
+		view.capture().onComplete(function(_) reported = true).onError(function(_) reported = true);
+		Assert.isTrue(pumpUntil(function() return reported), "capture did not report back");
+	}
+
+	public function testClosingDispatchesOnCloseOnce():Void
+	{
+		if (!canRun()) return;
+
+		var closed = 0;
+		view.onClose.add(function() closed++);
+		view.close();
+		view.close();
+
+		Assert.equals(1, closed);
+	}
+
 	public function testCancelingANavigationStopsIt():Void
 	{
 		if (!canRun()) return;
@@ -129,7 +217,7 @@ class WebViewTest extends Test
 			closing.close();
 		});
 
-		closing.loadHTML("<!doctype html><html><body></body></html>");
+		closing.load("about:blank");
 		Assert.isTrue(pumpUntil(function() return asked > 0), "onNavigate was not dispatched");
 		pumpFor(0.2);
 
@@ -218,6 +306,75 @@ class WebViewTest extends Test
 		window.close();
 		pumpFor(0.1);
 		Assert.equals(null, inWindow.title);
+	}
+
+	public function testAViewFillsItsWindowByDefault():Void
+	{
+		if (!canRun()) return;
+
+		var window = create();
+		var other = create();
+		if (window == null || other == null)
+		{
+			Assert.pass();
+			return;
+		}
+
+		var filling = new WebView(window);
+		Assert.equals(0, filling.x);
+		Assert.equals(window.width, filling.width);
+		Assert.equals(window.height, filling.height);
+		Assert.isTrue(filling.visible);
+
+		filling.move(4, 6);
+		filling.resize(20, 10);
+		Assert.equals(4, filling.x);
+		Assert.equals(6, filling.y);
+		Assert.equals(20, filling.width);
+		Assert.equals(10, filling.height);
+
+		var hidden = new WebView(window, {hidden: true});
+		Assert.isFalse(hidden.visible);
+
+		window.close();
+		pumpFor(0.1);
+	}
+
+	public function testAViewStaysWhileItsWindowStaysOpen():Void
+	{
+		if (!canRun()) return;
+
+		var window = create();
+		var other = create();
+		if (window == null || other == null)
+		{
+			Assert.pass();
+			return;
+		}
+
+		var inWindow = new WebView(window);
+		var closed = 0;
+		inWindow.onClose.add(function() closed++);
+
+		var keepOpen = function() window.onClose.cancel();
+		window.onClose.add(keepOpen);
+		window.close();
+		Assert.equals(0, closed);
+
+		window.onClose.remove(keepOpen);
+		window.close();
+		pumpFor(0.1);
+		Assert.equals(1, closed);
+	}
+
+	private function loadAndWait(html:String):Void
+	{
+		var loaded = false;
+		var listener = function() loaded = true;
+		view.onLoad.add(listener);
+		view.loadHTML(html);
+		Assert.isTrue(pumpUntil(function() return loaded), "onLoad was not dispatched");
+		view.onLoad.remove(listener);
 	}
 
 	private static function canRun():Bool

@@ -18,7 +18,7 @@ namespace lime {
 	}
 
 
-	std::string WebView::PollEvents () {
+	std::string WebView::PollEvent () {
 
 		return std::string ();
 

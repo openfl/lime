@@ -18,23 +18,29 @@ class FlashWebView
 	public function new(parent:WebView, attributes:WebViewAttributes)
 	{
 		if (attributes == null) attributes = {};
+		var window = parent.window;
 		x = attributes.x != null ? attributes.x : 0;
 		y = attributes.y != null ? attributes.y : 0;
-		width = attributes.width != null ? attributes.width : 0;
-		height = attributes.height != null ? attributes.height : 0;
-		visible = true;
+		width = attributes.width != null ? attributes.width : (window != null ? window.width : 0);
+		height = attributes.height != null ? attributes.height : (window != null ? window.height : 0);
+		visible = attributes.hidden != true;
+
+		haxe.Timer.delay(function() parent.onError.dispatch("The view could not be created"), 0);
 	}
 
 	public function addInitScript(script:String):Void {}
 
-	public function capture():Image
+	public function capture():Future<Image>
 	{
-		return null;
+		return cast Future.withError("The view is not available");
 	}
 
 	public function close():Void {}
 
-	public function evaluateJavaScript(script:String):Void {}
+	public function evaluateJavaScript(script:String):Future<String>
+	{
+		return cast Future.withError("The view is not available");
+	}
 
 	public function focus():Void {}
 

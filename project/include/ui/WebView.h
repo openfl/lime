@@ -16,7 +16,8 @@ namespace lime {
 		WEB_VIEW_FLAG_DEV_TOOLS = 0x04,
 		WEB_VIEW_FLAG_STATUS_BAR = 0x08,
 		WEB_VIEW_FLAG_ZOOM = 0x10,
-		WEB_VIEW_FLAG_MEDIA_NEEDS_USER_ACTION = 0x20
+		WEB_VIEW_FLAG_MEDIA_NEEDS_USER_ACTION = 0x20,
+		WEB_VIEW_FLAG_HIDDEN = 0x40
 
 	};
 
@@ -45,8 +46,9 @@ namespace lime {
 			static WebView* Create (Window* window, int x, int y, int width, int height, int flags, const char* userAgent);
 			static bool IsSupported ();
 
-			// What happened since the last call, as records for NativeWebView to read
-			static std::string PollEvents ();
+			// The next thing that happened, as a record for NativeWebView to read, or nothing.
+			// A record ends with what a page sent, so records cannot be joined by any separator.
+			static std::string PollEvent ();
 
 			// Runs the engines' own work, for hosts whose event loop does not
 			static void ProcessEvents ();
@@ -62,7 +64,7 @@ namespace lime {
 			virtual void AddInitScript (const char* script) = 0;
 			virtual std::string Capture () = 0;
 			virtual void Close () = 0;
-			virtual void EvaluateJavaScript (const char* script) = 0;
+			virtual void EvaluateJavaScript (const char* script, int token) = 0;
 			virtual void Focus () = 0;
 			virtual bool GetCanGoBack () = 0;
 			virtual bool GetCanGoForward () = 0;

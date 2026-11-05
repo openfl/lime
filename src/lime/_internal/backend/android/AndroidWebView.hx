@@ -26,9 +26,11 @@ class AndroidWebView
 {
 	private static inline var HOST:String = "org/dimensionscape/stagewebview/StageWebViewHost";
 
-	private static inline var RECORD_SEPARATOR:String = "\x1E";
 	private static inline var FIELD_SEPARATOR:String = "\x1F";
 	private static inline var PART_SEPARATOR:String = "\x1D";
+
+	// After what might cancel the close, and just before the application lets the window go
+	private static inline var WINDOW_CLOSE_PRIORITY:Int = -9999;
 
 	private static var methods = new Map<String, Dynamic>();
 	private static var views = new Map<Int, AndroidWebView>();
@@ -43,33 +45,33 @@ class AndroidWebView
 	private var id:Int;
 	private var nextToken:Int;
 	private var parent:WebView;
-	private var printing:Map<Int, Promise<String>>;
 	private var printPaths:Map<Int, String>;
+	private var requests:Map<Int, Promise<String>>;
 
 	public function new(parent:WebView, attributes:WebViewAttributes)
 	{
 		this.parent = parent;
 
 		if (attributes == null) attributes = {};
+		var window = parent.window;
 		x = attributes.x != null ? attributes.x : 0;
 		y = attributes.y != null ? attributes.y : 0;
-		width = attributes.width != null ? attributes.width : 0;
-		height = attributes.height != null ? attributes.height : 0;
-		visible = true;
+		width = attributes.width != null ? attributes.width : (window != null ? window.width : 0);
+		height = attributes.height != null ? attributes.height : (window != null ? window.height : 0);
+		visible = attributes.hidden != true;
 		container = -1;
 		nextToken = 1;
-		printing = new Map();
 		printPaths = new Map();
+		requests = new Map();
 
-		if (parent.window != null)
+		if (window != null)
 		{
 			container = method("createContainer", "(IIII)I")(x, y, width, height);
-			method("setContainerVisible", "(IZ)V")(container, true);
-			parent.window.onClose.add(close);
+			method("setContainerVisible", "(IZ)V")(container, visible);
 		}
 
 		var devTools = attributes.devTools == true #if debug || attributes.devTools == null #end;
-		var mediaNeedsUserAction = attributes.mediaNeedsUserAction != false ? 1 : 0;
+		var mediaNeedsUserAction = attributes.autoplay != true ? 1 : 0;
 
 		// The host keeps its own bridge script when it is not given one
 		id = method("create", "(IZLjava/lang/String;ILjava/lang/String;)I")(container, devTools, attributes.userAgent, mediaNeedsUserAction, null);
@@ -79,6 +81,19 @@ class AndroidWebView
 			views.set(id, this);
 			NativeApplication.__updateWebViews = update;
 			method("setInterceptNavigation", "(IZ)V")(id, true);
+
+			if (window != null) window.onClose.add(close, false, WINDOW_CLOSE_PRIORITY);
+		}
+		else
+		{
+			if (container > 0)
+			{
+				method("destroyContainer", "(I)V")(container);
+				container = -1;
+			}
+
+			// Listeners have no chance to be there yet
+			haxe.Timer.delay(function() parent.onError.dispatch("The view could not be created"), 0);
 		}
 	}
 
@@ -87,15 +102,15 @@ class AndroidWebView
 		if (id > 0) method("addInitScript", "(ILjava/lang/String;)V")(id, script);
 	}
 
-	public function capture():Image
+	public function capture():Future<Image>
 	{
 		if (id > 0)
 		{
 			var base64:String = method("capture", "(II)Ljava/lang/String;")(id, 0);
-			if (base64 != null && base64 != "") return Image.fromBytes(Base64.decode(base64));
+			if (base64 != null && base64 != "") return Future.withValue(Image.fromBytes(Base64.decode(base64)));
 		}
 
-		return null;
+		return cast Future.withError("The view could not be captured");
 	}
 
 	public function close():Void
@@ -114,18 +129,27 @@ class AndroidWebView
 				container = -1;
 			}
 
-			for (token in printing.keys())
+			for (token in requests.keys())
 			{
-				printing.get(token).error("The view has closed");
+				requests.get(token).error("The view has closed");
 			}
 
-			printing = new Map();
+			requests = new Map();
+
+			parent.onClose.dispatch();
 		}
 	}
 
-	public function evaluateJavaScript(script:String):Void
+	public function evaluateJavaScript(script:String):Future<String>
 	{
-		if (id > 0) method("evaluate", "(ILjava/lang/String;)V")(id, script);
+		if (id <= 0) return cast Future.withError("The view is not available");
+
+		var promise = new Promise<String>();
+		var token = nextToken++;
+		requests.set(token, promise);
+
+		method("evaluateWithResult", "(IILjava/lang/String;)V")(id, token, script);
+		return promise.future;
 	}
 
 	public function focus():Void
@@ -170,7 +194,13 @@ class AndroidWebView
 
 	public function load(url:String):Void
 	{
-		if (id > 0) method("loadUrl", "(ILjava/lang/String;)V")(id, url);
+		if (id <= 0) return;
+
+		// The engine only asks about the navigations a page starts
+		var event = parent.onNavigate;
+		event.dispatch(url);
+
+		if (!event.canceled && id > 0) method("loadUrl", "(ILjava/lang/String;)V")(id, url);
 	}
 
 	public function loadHTML(html:String):Void
@@ -180,7 +210,7 @@ class AndroidWebView
 
 	public function postMessage(message:String):Void
 	{
-		evaluateJavaScript("window.chrome && window.chrome.webview && window.chrome.webview.__stagewebviewDispatch(" + Json.stringify(message) + ");");
+		if (id > 0) method("evaluate", "(ILjava/lang/String;)V")(id, "window.chrome && window.chrome.webview && window.chrome.webview.__stagewebviewDispatch(" + Json.stringify(message) + ");");
 	}
 
 	public function printToPDF(path:String, options:WebViewPDFOptions):Future<String>
@@ -202,7 +232,7 @@ class AndroidWebView
 			if (options == null) options = {};
 
 			var token = nextToken++;
-			printing.set(token, promise);
+			requests.set(token, promise);
 			printPaths.set(token, path);
 
 			// Chromium repeats a table's header by itself, and Android's print attributes have no scale or background option
@@ -284,23 +314,24 @@ class AndroidWebView
 			case "message":
 				parent.onMessage.dispatch(payload);
 
-			case "pdf":
+			case "pdf", "script":
 				var parts = payload.split(PART_SEPARATOR);
 				var token = Std.parseInt(parts[0]);
-				var promise = printing.get(token);
+				var promise = requests.get(token);
 				var path = printPaths.get(token);
-				printing.remove(token);
+				var message = parts.slice(2).join(PART_SEPARATOR);
+				requests.remove(token);
 				printPaths.remove(token);
 
 				if (promise != null)
 				{
 					if (parts[1] == "1")
 					{
-						promise.complete(path);
+						promise.complete(type == "pdf" ? path : message);
 					}
 					else
 					{
-						promise.error(parts.slice(2).join(PART_SEPARATOR));
+						promise.error(message);
 					}
 				}
 
@@ -323,10 +354,9 @@ class AndroidWebView
 
 	private static function update():Void
 	{
-		var events:String = method("pollEvents", "()Ljava/lang/String;")();
-		if (events == null || events == "") return;
+		var record:String;
 
-		for (record in events.split(RECORD_SEPARATOR))
+		while ((record = method("pollEvent", "()Ljava/lang/String;")()) != null)
 		{
 			var first = record.indexOf(FIELD_SEPARATOR);
 			var second = first >= 0 ? record.indexOf(FIELD_SEPARATOR, first + 1) : -1;

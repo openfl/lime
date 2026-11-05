@@ -122,16 +122,16 @@ namespace lime {
 	}
 
 
-	void lime_web_view_evaluate_java_script (value handle, HxString script) {
+	void lime_web_view_evaluate_java_script (value handle, HxString script, int token) {
 
-		((WebView*)val_data (handle))->EvaluateJavaScript (hxs_utf8 (script, nullptr));
+		((WebView*)val_data (handle))->EvaluateJavaScript (hxs_utf8 (script, nullptr), token);
 
 	}
 
 
-	HL_PRIM void HL_NAME(hl_web_view_evaluate_java_script) (HL_CFFIPointer* handle, hl_vstring* script) {
+	HL_PRIM void HL_NAME(hl_web_view_evaluate_java_script) (HL_CFFIPointer* handle, hl_vstring* script, int token) {
 
-		((WebView*)handle->ptr)->EvaluateJavaScript (hl_to_utf8 (script->bytes));
+		((WebView*)handle->ptr)->EvaluateJavaScript (hl_to_utf8 (script->bytes), token);
 
 	}
 
@@ -304,16 +304,16 @@ namespace lime {
 	}
 
 
-	value lime_web_view_poll_events () {
+	value lime_web_view_poll_event () {
 
-		return alloc_web_view_string (WebView::PollEvents ());
+		return alloc_web_view_string (WebView::PollEvent ());
 
 	}
 
 
-	HL_PRIM vbyte* HL_NAME(hl_web_view_poll_events) () {
+	HL_PRIM vbyte* HL_NAME(hl_web_view_poll_event) () {
 
-		return hl_web_view_string (WebView::PollEvents ());
+		return hl_web_view_string (WebView::PollEvent ());
 
 	}
 
@@ -475,7 +475,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_web_view_capture);
 	DEFINE_PRIME1v (lime_web_view_close);
 	DEFINE_PRIME7 (lime_web_view_create);
-	DEFINE_PRIME2v (lime_web_view_evaluate_java_script);
+	DEFINE_PRIME3v (lime_web_view_evaluate_java_script);
 	DEFINE_PRIME1v (lime_web_view_focus);
 	DEFINE_PRIME1 (lime_web_view_get_can_go_back);
 	DEFINE_PRIME1 (lime_web_view_get_can_go_forward);
@@ -488,7 +488,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_web_view_is_supported);
 	DEFINE_PRIME2v (lime_web_view_load);
 	DEFINE_PRIME2v (lime_web_view_load_html);
-	DEFINE_PRIME0 (lime_web_view_poll_events);
+	DEFINE_PRIME0 (lime_web_view_poll_event);
 	DEFINE_PRIME2v (lime_web_view_post_message);
 	DEFINE_PRIME4v (lime_web_view_print_to_pdf);
 	DEFINE_PRIME0v (lime_web_view_process_events);
@@ -507,7 +507,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_web_view_capture, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_web_view_create, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _STRING);
-	DEFINE_HL_PRIM (_VOID, hl_web_view_evaluate_java_script, _TCFFIPOINTER _STRING);
+	DEFINE_HL_PRIM (_VOID, hl_web_view_evaluate_java_script, _TCFFIPOINTER _STRING _I32);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_focus, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_web_view_get_can_go_back, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_web_view_get_can_go_forward, _TCFFIPOINTER);
@@ -520,7 +520,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_web_view_is_supported, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_load, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_load_html, _TCFFIPOINTER _STRING);
-	DEFINE_HL_PRIM (_BYTES, hl_web_view_poll_events, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_web_view_poll_event, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_post_message, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_print_to_pdf, _TCFFIPOINTER _STRING _DYN _I32);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_process_events, _NO_ARG);

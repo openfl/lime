@@ -473,7 +473,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_web_view_create(window:Dynamic, x:Int, y:Int, width:Int, height:Int, flags:Int, userAgent:String):Dynamic;
 
-	@:cffi private static function lime_web_view_evaluate_java_script(handle:Dynamic, script:String):Void;
+	@:cffi private static function lime_web_view_evaluate_java_script(handle:Dynamic, script:String, token:Int):Void;
 
 	@:cffi private static function lime_web_view_focus(handle:Dynamic):Void;
 
@@ -499,7 +499,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_web_view_load_html(handle:Dynamic, html:String):Void;
 
-	@:cffi private static function lime_web_view_poll_events():Dynamic;
+	@:cffi private static function lime_web_view_poll_event():Dynamic;
 
 	@:cffi private static function lime_web_view_post_message(handle:Dynamic, message:String):Void;
 
@@ -1245,7 +1245,7 @@ class NativeCFFI
 	private static var lime_web_view_capture = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_web_view_capture", "oo", false));
 	private static var lime_web_view_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_close", "ov", false));
 	private static var lime_web_view_create = new cpp.Callable<cpp.Object->Int->Int->Int->Int->Int->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_web_view_create", "oiiiiiso", false));
-	private static var lime_web_view_evaluate_java_script = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_evaluate_java_script", "osv", false));
+	private static var lime_web_view_evaluate_java_script = new cpp.Callable<cpp.Object->String->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_evaluate_java_script", "osiv", false));
 	private static var lime_web_view_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_focus", "ov", false));
 	private static var lime_web_view_get_can_go_back = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_web_view_get_can_go_back", "ob", false));
 	private static var lime_web_view_get_can_go_forward = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_web_view_get_can_go_forward", "ob", false));
@@ -1258,7 +1258,7 @@ class NativeCFFI
 	private static var lime_web_view_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_web_view_is_supported", "b", false));
 	private static var lime_web_view_load = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_load", "osv", false));
 	private static var lime_web_view_load_html = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_load_html", "osv", false));
-	private static var lime_web_view_poll_events = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_web_view_poll_events", "o", false));
+	private static var lime_web_view_poll_event = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_web_view_poll_event", "o", false));
 	private static var lime_web_view_post_message = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_post_message", "osv", false));
 	private static var lime_web_view_print_to_pdf = new cpp.Callable<cpp.Object->String->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_print_to_pdf", "osoiv", false));
 	private static var lime_web_view_process_events = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_process_events", "v", false));
@@ -1764,7 +1764,7 @@ class NativeCFFI
 	private static var lime_web_view_capture = CFFI.load("lime", "lime_web_view_capture", 1);
 	private static var lime_web_view_close = CFFI.load("lime", "lime_web_view_close", 1);
 	private static var lime_web_view_create = CFFI.load("lime", "lime_web_view_create", -1);
-	private static var lime_web_view_evaluate_java_script = CFFI.load("lime", "lime_web_view_evaluate_java_script", 2);
+	private static var lime_web_view_evaluate_java_script = CFFI.load("lime", "lime_web_view_evaluate_java_script", 3);
 	private static var lime_web_view_focus = CFFI.load("lime", "lime_web_view_focus", 1);
 	private static var lime_web_view_get_can_go_back = CFFI.load("lime", "lime_web_view_get_can_go_back", 1);
 	private static var lime_web_view_get_can_go_forward = CFFI.load("lime", "lime_web_view_get_can_go_forward", 1);
@@ -1777,7 +1777,7 @@ class NativeCFFI
 	private static var lime_web_view_is_supported = CFFI.load("lime", "lime_web_view_is_supported", 0);
 	private static var lime_web_view_load = CFFI.load("lime", "lime_web_view_load", 2);
 	private static var lime_web_view_load_html = CFFI.load("lime", "lime_web_view_load_html", 2);
-	private static var lime_web_view_poll_events = CFFI.load("lime", "lime_web_view_poll_events", 0);
+	private static var lime_web_view_poll_event = CFFI.load("lime", "lime_web_view_poll_event", 0);
 	private static var lime_web_view_post_message = CFFI.load("lime", "lime_web_view_post_message", 2);
 	private static var lime_web_view_print_to_pdf = CFFI.load("lime", "lime_web_view_print_to_pdf", 4);
 	private static var lime_web_view_process_events = CFFI.load("lime", "lime_web_view_process_events", 0);
@@ -2799,7 +2799,7 @@ class NativeCFFI
 		return null;
 	}
 
-	@:hlNative("lime", "hl_web_view_evaluate_java_script") private static function lime_web_view_evaluate_java_script(handle:CFFIPointer, script:String):Void {}
+	@:hlNative("lime", "hl_web_view_evaluate_java_script") private static function lime_web_view_evaluate_java_script(handle:CFFIPointer, script:String, token:Int):Void {}
 
 	@:hlNative("lime", "hl_web_view_focus") private static function lime_web_view_focus(handle:CFFIPointer):Void {}
 
@@ -2846,7 +2846,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_web_view_load_html") private static function lime_web_view_load_html(handle:CFFIPointer, html:String):Void {}
 
-	@:hlNative("lime", "hl_web_view_poll_events") private static function lime_web_view_poll_events():hl.Bytes
+	@:hlNative("lime", "hl_web_view_poll_event") private static function lime_web_view_poll_event():hl.Bytes
 	{
 		return null;
 	}
