@@ -71,6 +71,7 @@ class NativeApplication
 	**/
 	@:noCompletion private static var __allowHighDPI:Bool = false;
 
+	// TODO: Fold these update hooks into one list when a third subsystem needs one
 	/**
 		Reads and writes every WebSocket, once a frame. Set by NativeWebSocket
 		once there is one, so an application without any compiles none of it.
