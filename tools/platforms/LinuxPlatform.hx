@@ -211,6 +211,16 @@ class LinuxPlatform extends PlatformTarget
 			}
 		}
 
+		// Libraries that the application opens by itself, when it needs them
+		for (dependency in project.dependencies)
+		{
+			if (StringTools.endsWith(dependency.path, ".so") && FileSystem.exists(dependency.path))
+			{
+				System.mkdir(applicationDirectory);
+				copyIfNewer(dependency.path, applicationDirectory + "/" + Path.withoutDirectory(dependency.path));
+			}
+		}
+
 		if (targetType == "neko")
 		{
 			System.runCommand("", "haxe", [hxml]);

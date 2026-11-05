@@ -450,6 +450,11 @@ class NativeWebView
 	private static function update():Void
 	{
 		#if (!macro && lime_cffi)
+		#if linux
+		// GTK's work has no part in the application's own event loop
+		NativeCFFI.lime_web_view_process_events();
+		#end
+
 		var record:String;
 
 		while ((record = CFFI.stringValue(NativeCFFI.lime_web_view_poll_event())) != null)

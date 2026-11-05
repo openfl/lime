@@ -50,7 +50,7 @@ This product bundles StageWebView 1.0.0, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/stagewebview](https://github.com/DimensionscapeOrg/stagewebview).
 It includes webview, under an "MIT" license, and headers from the WebView2 SDK, under a "BSD" license.
 
-_StageWebView is only included in Windows, macOS and iOS builds, and in Android applications as Java._
+_StageWebView is only included in Windows, macOS and iOS builds, in Android applications as Java, and beside Linux applications as a library that they open when a `WebView` is created._
 
 This product bundles wsproto 1.0.0, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/wsproto](https://github.com/DimensionscapeOrg/wsproto).

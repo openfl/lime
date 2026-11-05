@@ -6,10 +6,11 @@ import lime.graphics.Image;
 
 /**
 	A web page in a `Window`, drawn by the system's own engine: WebView2 on
-	Windows, WKWebView on macOS and iOS, `android.webkit.WebView` on Android, and
-	an `<iframe>` in a browser. It is a native view above the window's content,
-	so it moves and resizes, but it does not take part in rendering. Without a
-	window it is never shown, which suits work like `printToPDF`.
+	Windows, WebKitGTK on Linux, WKWebView on macOS and iOS,
+	`android.webkit.WebView` on Android, and an `<iframe>` in a browser. It is a
+	native view above the window's content, so it moves and resizes, but it does
+	not take part in rendering. Without a window it is never shown, which suits
+	work like `printToPDF`.
 
 	The engines are StageWebView's, a library other frameworks share.
 
@@ -34,8 +35,9 @@ import lime.graphics.Image;
 	```
 
 	Events are dispatched on the main thread. `isSupported` is true on Windows
-	with the WebView2 Runtime installed, on macOS, iOS and Android, and in
-	browsers, which keep other sites' pages to themselves: there, `title` and
+	with the WebView2 Runtime installed, on x86-64 Linux with WebKitGTK 4.1
+	installed and a display, on macOS, iOS and Android, and in browsers, which
+	keep other sites' pages to themselves: there, `title` and
 	the bridge only reach pages from `loadHTML` or the application's own site, and
 	`onNavigate` only sees `load`. On AIR, where it is `StageWebView.isSupported`,
 	there is no bridge, and `evaluateJavaScript` cannot read what a script gives.
