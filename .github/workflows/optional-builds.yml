@@ -1,0 +1,96 @@
+name: Optional builds
+
+# Lime's unit tests with build options that are off by default. This workflow lives on the
+# optional-builds branch, without main.yml, so it does not add to develop's CI.
+#
+# To try an option, rebase this branch on develop and add a step like the ones at the end.
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  # The incremental collector needs Haxe 4.3
+  HAXE_VERSION: 4.3.7
+  HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
+  HXCPP_NONINTERACTIVE: 1
+
+jobs:
+
+  unit-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: linux
+          - os: windows-latest
+            target: windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
+          # GStreamer decodes video in the unit tests
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        shell: bash
+        run: echo "HAXEPATH=$HAXE_STD_PATH/.." >> "$GITHUB_ENV"
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
+          haxelib install wsproto 1.0.0 --quiet
+          haxelib --global update haxelib --quiet
+          haxelib install StageWebView 1.0.1 --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install utest --quiet
+
+      - name: Rebuild Lime tools
+        run: |
+          haxelib dev lime ${{ github.workspace }}
+          haxelib run lime rebuild tools -nocolor -verbose -nocffi
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime
+        run: lime rebuild ${{ matrix.target }} -64 -release -nocolor -verbose -nocffi
+
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
+      - name: Incremental collector, with its verifier
+        working-directory: tests/unit
+        timeout-minutes: 30
+        env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
+          ALSOFT_DRIVERS: "null"
+        run: lime test ${{ matrix.target }} -release -verbose -nocolor -DHXCPP_GC_INCREMENTAL -DHXCPP_GC_INCREMENTAL_VERIFY
+
+      - name: Incremental collector
+        if: always()
+        working-directory: tests/unit
+        timeout-minutes: 30
+        env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
+          ALSOFT_DRIVERS: "null"
+        run: lime test ${{ matrix.target }} -clean -release -verbose -nocolor -DHXCPP_GC_INCREMENTAL
