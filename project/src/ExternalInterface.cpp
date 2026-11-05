@@ -14891,6 +14891,7 @@ extern "C" int lime_sdl_sound_register_prims () { return 0; }
 
 extern "C" int lime_local_socket_register_prims ();
 extern "C" int lime_video_register_prims ();
+extern "C" int lime_web_view_register_prims ();
 
 #ifdef LIME_VORBIS
 extern "C" int lime_vorbis_register_prims ();
@@ -14910,6 +14911,7 @@ extern "C" int lime_register_prims () {
 	lime_sdl_sound_register_prims ();
 	lime_video_register_prims ();
 	lime_vorbis_register_prims ();
+	lime_web_view_register_prims ();
 
 	return 0;
 

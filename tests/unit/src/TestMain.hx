@@ -33,6 +33,7 @@ class TestMain extends Application
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
 		runner.addCase(new ui.MenuTest());
+		runner.addCase(new ui.WebViewTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
 		runner.addCase(new utils.UInt8ArrayTest());

@@ -76,6 +76,12 @@ class NativeApplication
 		once there is one, so an application without any compiles none of it.
 	**/
 	@:noCompletion private static var __updateWebSockets:Void->Void = null;
+
+	/**
+		Delivers what every WebView reported, once a frame. Set by NativeWebView
+		once there is one, so an application without any compiles none of it.
+	**/
+	@:noCompletion private static var __updateWebViews:Void->Void = null;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -294,6 +300,7 @@ class NativeApplication
 
 				// WebSockets are read and written once a frame, once there are any
 				if (__updateWebSockets != null) __updateWebSockets();
+				if (__updateWebViews != null) __updateWebViews();
 
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 			default:

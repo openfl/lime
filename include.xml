@@ -97,6 +97,7 @@
 		<ndll name="lime" if="native" unless="lime-console static_link || lime-switch static_link" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		<java path="${haxelib:StageWebView}/android/src" if="android" />
 
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
 		<dependency path="dependencies/pako.min.js" if="html5" embed="true" allow-web-workers="true" />
@@ -112,6 +113,7 @@
 		<!-- TODO: Move to template or move all template dependencies to XML? -->
 		<dependency name="CoreMedia.framework" if="ios" />
 		<dependency name="CoreVideo.framework" if="ios" />
+		<dependency name="WebKit.framework" if="ios" />
 		<!-- <dependency name="CoreBluetooth.framework" if="ios" /> -->
 
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />

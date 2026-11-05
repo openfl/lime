@@ -48,18 +48,6 @@ namespace lime
 		event.type = localSocketEventType;
 		SDL_PushEvent(&event);
 	}
-#if defined(HX_WINDOWS) && !defined(HX_WINRT)
-	static SDL_atomic_t s_nativeModalLoopDepth;
-	static SDL_atomic_t s_inModalEventWatch;
-
-	// Restore native callback state even if a dispatched callback throws.
-	class ScopedModalWatch {
-		bool entered;
-	public:
-		ScopedModalWatch():entered(SDL_AtomicCAS(&s_inModalEventWatch, 0, 1) != 0) {}
-		~ScopedModalWatch() { if (entered) SDL_AtomicSet(&s_inModalEventWatch, 0); }
-		bool Entered() const { return entered; }
-	};
 
 	class ScopedModalGC {
 		bool wasBlocking;
@@ -76,6 +64,19 @@ namespace lime
 				SDL_AtomicSet(&s_waitEventBlocking, 1);
 			}
 		}
+	};
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	static SDL_atomic_t s_nativeModalLoopDepth;
+	static SDL_atomic_t s_inModalEventWatch;
+
+	// Restore native callback state even if a dispatched callback throws.
+	class ScopedModalWatch {
+		bool entered;
+	public:
+		ScopedModalWatch():entered(SDL_AtomicCAS(&s_inModalEventWatch, 0, 1) != 0) {}
+		~ScopedModalWatch() { if (entered) SDL_AtomicSet(&s_inModalEventWatch, 0); }
+		bool Entered() const { return entered; }
 	};
 
 	class ScopedModalCallbacks {
@@ -97,6 +98,14 @@ namespace lime
 		}
 	};
 #endif
+
+	// For native code that the system calls back while it waits for events, and
+	// which needs an answer from Haxe before it returns
+	void SDLApplication::CallFromEventPump(void (*callback)(void*), void* data)
+	{
+		ScopedModalGC gc;
+		callback(data);
+	}
 
 	void AllowHighDPI()
 	{
@@ -1820,16 +1829,19 @@ namespace lime
 			if (allowBusyWait && busyWaitOnly)
 			{
 				System::GCEnterBlocking();
+				SDL_AtomicSet(&s_waitEventBlocking, 1);
 				while ((nextUpdate - GetCurrentTimeMs()) > 0.0)
 				{
 					SDL_PumpEvents();
 					int result = SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
 					if (result != 0)
 					{
+						SDL_AtomicSet(&s_waitEventBlocking, 0);
 						System::GCExitBlocking();
 						return result == 1 ? 1 : 0;
 					}
 				}
+				SDL_AtomicSet(&s_waitEventBlocking, 0);
 				System::GCExitBlocking();
 				return 0;
 			}
@@ -1859,7 +1871,9 @@ namespace lime
 
 			Uint32 waitStart = SDL_GetTicks();
 			System::GCEnterBlocking();
+			SDL_AtomicSet(&s_waitEventBlocking, 1);
 			int result = SDL_WaitEventTimeout(event, waitMs);
+			SDL_AtomicSet(&s_waitEventBlocking, 0);
 			System::GCExitBlocking();
 			Uint32 waitElapsed = SDL_GetTicks() - waitStart;
 

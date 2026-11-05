@@ -48,6 +48,7 @@ namespace lime {
 			void RegisterWindow (SDLWindow *window);
 			void UnregisterWindow (SDLWindow *window);
 			static void NoteContextFlip ();
+			static void CallFromEventPump (void (*callback) (void*), void* data);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
