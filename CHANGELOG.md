@@ -62,7 +62,7 @@ Changelog
 - Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
 - Changed `Window.alert()` to also request attention on macOS and Linux.
 - Changed Windows to show input methods' own composition and candidate windows.
-- Changed `FrameProfile.Uncapped` to uncap the frame loop.
+- Changed `FrameProfile.UNCAPPED` to uncap the frame loop.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.

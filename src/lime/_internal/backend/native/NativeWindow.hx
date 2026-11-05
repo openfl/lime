@@ -89,7 +89,7 @@ class NativeWindow
 		if (!Reflect.hasField(contextAttributes, "vsync")) contextAttributes.vsync = false;
 		if (!Reflect.hasField(contextAttributes, "vsyncMode")
 			|| contextAttributes.vsyncMode == null) contextAttributes.vsyncMode = resolvedVSyncMode;
-		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.Off);
+		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.OFF);
 
 		#if (cairo || (!lime_opengl && !lime_opengles))
 		if (!Reflect.hasField(contextAttributes, "type") || contextAttributes.type != VULKAN)
@@ -873,7 +873,7 @@ class NativeWindow
 	public function setAppearance(value:lime.ui.WindowAppearance):Void
 	{
 		#if (lime_cffi && !macro)
-		if (handle != null) NativeCFFI.lime_window_set_appearance(handle, switch value { case Light: 1; case Dark: 2; default: 0; });
+		if (handle != null) NativeCFFI.lime_window_set_appearance(handle, switch value { case LIGHT: 1; case DARK: 2; default: 0; });
 		#end
 	}
 
@@ -881,10 +881,10 @@ class NativeWindow
 	{
 		#if (lime_cffi && !macro)
 		if (handle != null) return switch NativeCFFI.lime_window_get_appearance(handle) {
-			case 1: Light; case 2: Dark; default: System;
+			case 1: LIGHT; case 2: DARK; default: SYSTEM;
 		};
 		#end
-		return System;
+		return SYSTEM;
 	}
 
 	public function setTitle(value:String):String

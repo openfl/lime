@@ -679,7 +679,7 @@ class FlashWindow
 
 	public function getAppearance():lime.ui.WindowAppearance
 	{
-		return lime.ui.WindowAppearance.System;
+		return lime.ui.WindowAppearance.SYSTEM;
 	}
 
 	public function setTitle(value:String):String

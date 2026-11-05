@@ -62,74 +62,67 @@ class MenuTest extends Test
 	public function testAddItemsInOrder():Void
 	{
 		var menu = new Menu();
-		var first = menu.addItem(new MenuItem("First"));
-		var third = menu.addItem(new MenuItem("Third"));
-		var second = menu.addItemAt(new MenuItem("Second"), 1);
+		var first = menu.add(new MenuItem("First"));
+		var third = menu.add(new MenuItem("Third"));
+		var second = menu.insert(1, new MenuItem("Second"));
 
-		Assert.equals(3, menu.numItems);
-		Assert.equals(first, menu.getItemAt(0));
-		Assert.equals(second, menu.getItemAt(1));
-		Assert.equals(third, menu.getItemAt(2));
-		Assert.equals(1, menu.getItemIndex(second));
+		Assert.equals(3, menu.items.length);
+		Assert.equals(first, menu.items[0]);
+		Assert.equals(second, menu.items[1]);
+		Assert.equals(third, menu.items[2]);
 		Assert.equals(menu, second.menu);
-		Assert.isTrue(menu.containsItem(second));
-		Assert.isNull(menu.getItemAt(3));
-		Assert.isNull(menu.getItemAt(-1));
 	}
 
 
-	public function testAddItemAtClampsTheIndex():Void
+	public function testInsertClampsTheIndex():Void
 	{
 		var menu = new Menu();
-		var last = menu.addItemAt(new MenuItem("Last"), 10);
-		var first = menu.addItemAt(new MenuItem("First"), -5);
+		var last = menu.insert(10, new MenuItem("Last"));
+		var first = menu.insert(-5, new MenuItem("First"));
 
-		Assert.equals(first, menu.getItemAt(0));
-		Assert.equals(last, menu.getItemAt(1));
+		Assert.equals(first, menu.items[0]);
+		Assert.equals(last, menu.items[1]);
 	}
 
 	public function testAddingAnItemMovesIt():Void
 	{
 		var source = new Menu();
 		var target = new Menu();
-		var item = source.addItem(new MenuItem("Item"));
+		var item = source.add(new MenuItem("Item"));
 
-		target.addItem(item);
+		target.add(item);
 
-		Assert.equals(0, source.numItems);
-		Assert.isFalse(source.containsItem(item));
+		Assert.equals(0, source.items.length);
 		Assert.equals(target, item.menu);
 	}
 
 	public function testRemoveItems():Void
 	{
 		var menu = new Menu();
-		var first = menu.addItem(new MenuItem("First"));
-		var second = menu.addItem(new MenuItem("Second"));
-		var third = menu.addItem(new MenuItem("Third"));
+		var first = menu.add(new MenuItem("First"));
+		var second = menu.add(new MenuItem("Second"));
 
-		Assert.equals(second, menu.removeItem(second));
+		Assert.isTrue(menu.remove(second));
 		Assert.isNull(second.menu);
-		Assert.isNull(menu.removeItem(second));
-		Assert.equals(third, menu.removeItemAt(1));
-		Assert.isNull(menu.removeItemAt(5));
+		Assert.isFalse(menu.remove(second));
+		Assert.isFalse(menu.remove(null));
 
-		menu.removeAllItems();
-		Assert.equals(0, menu.numItems);
+		menu.clear();
+		Assert.equals(0, menu.items.length);
 		Assert.isNull(first.menu);
 	}
 
-	public function testSetItemIndexReorders():Void
+	public function testInsertMovesAnItemInItsMenu():Void
 	{
 		var menu = new Menu();
-		var first = menu.addItem(new MenuItem("First"));
-		var second = menu.addItem(new MenuItem("Second"));
+		var first = menu.add(new MenuItem("First"));
+		var second = menu.add(new MenuItem("Second"));
 
-		menu.setItemIndex(second, 0);
+		menu.insert(0, second);
 
-		Assert.equals(second, menu.getItemAt(0));
-		Assert.equals(first, menu.getItemAt(1));
-		Assert.equals(2, menu.numItems);
+		Assert.equals(2, menu.items.length);
+		Assert.equals(second, menu.items[0]);
+		Assert.equals(first, menu.items[1]);
 	}
 
 	public function testSeparatorsAndSubmenus():Void
@@ -137,7 +130,7 @@ class MenuTest extends Test
 		var menu = new Menu();
 		var separator = menu.addSeparator();
 		var submenu = new Menu();
-		var item = menu.addSubmenu(submenu, "More");
+		var item = menu.addSubmenu("More", submenu);
 
 		Assert.isTrue(separator.isSeparator);
 		Assert.equals(submenu, item.submenu);
@@ -149,12 +142,12 @@ class MenuTest extends Test
 	{
 		var menu = new Menu();
 		var submenu = new Menu();
-		menu.addSubmenu(submenu, "Child");
+		menu.addSubmenu("Child", submenu);
 
 		var item = new MenuItem("Loop");
 		item.submenu = menu;
 
-		Assert.raises(function() { submenu.addItem(item); });
+		Assert.raises(function() { submenu.add(item); });
 		Assert.isNull(item.menu);
 	}
 
@@ -166,10 +159,10 @@ class MenuTest extends Test
 		Assert.isTrue(item.enabled);
 		Assert.isFalse(item.checked);
 		Assert.isFalse(item.isSeparator);
-		Assert.equals(KeyCode.UNKNOWN, item.keyEquivalent);
+		Assert.equals(KeyCode.UNKNOWN, item.keyCode);
 		Assert.equals(-1, item.mnemonicIndex);
 		Assert.isNull(item.submenu);
-		Assert.equals(#if mac KeyModifier.META #else KeyModifier.CTRL #end, item.keyEquivalentModifiers);
+		Assert.equals(#if mac KeyModifier.META #else KeyModifier.CTRL #end, item.keyModifier);
 
 		item.label = null;
 		Assert.equals("", item.label);
@@ -179,8 +172,8 @@ class MenuTest extends Test
 	{
 		var root = new Menu();
 		var submenu = new Menu();
-		root.addSubmenu(submenu, "Child");
-		var item = submenu.addItem(new MenuItem("Item"));
+		root.addSubmenu("Child", submenu);
+		var item = submenu.add(new MenuItem("Item"));
 		var calls:Array<String> = [];
 
 		item.onSelect.add(function() calls.push("item"));
@@ -196,8 +189,8 @@ class MenuTest extends Test
 	{
 		var root = new Menu();
 		var submenu = new Menu();
-		root.addSubmenu(submenu, "Child");
-		var item = submenu.addItem(new MenuItem("Item"));
+		root.addSubmenu("Child", submenu);
+		var item = submenu.add(new MenuItem("Item"));
 		var rootCalls = 0;
 
 		submenu.onSelect.add(function(_) submenu.onSelect.cancel());
@@ -207,7 +200,7 @@ class MenuTest extends Test
 		Assert.equals(0, rootCalls);
 
 		var itemCanceled = new Menu();
-		var other = itemCanceled.addItem(new MenuItem("Other"));
+		var other = itemCanceled.add(new MenuItem("Other"));
 		var menuCalls = 0;
 		other.onSelect.add(function() other.onSelect.cancel());
 		itemCanceled.onSelect.add(function(_) menuCalls++);
@@ -219,7 +212,7 @@ class MenuTest extends Test
 	public function testPopupWithoutAWindowDoesNothing():Void
 	{
 		var menu = new Menu();
-		menu.addItem(new MenuItem("Item"));
+		menu.add(new MenuItem("Item"));
 		menu.popup(null);
 		Assert.pass();
 	}
@@ -228,14 +221,14 @@ class MenuTest extends Test
 	public function testNativeEncoding():Void
 	{
 		var menu = new Menu();
-		var open = menu.addItem(new MenuItem("Open"));
-		open.keyEquivalent = KeyCode.O;
-		open.keyEquivalentModifiers = KeyModifier.CTRL;
+		var open = menu.add(new MenuItem("Open"));
+		open.keyCode = KeyCode.O;
+		open.keyModifier = KeyModifier.CTRL;
 		menu.addSeparator();
 
 		var recent = new Menu();
-		menu.addSubmenu(recent, "Recent");
-		var child = recent.addItem(new MenuItem("x&y"));
+		menu.addSubmenu("Recent", recent);
+		var child = recent.add(new MenuItem("x&y"));
 		child.mnemonicIndex = 0;
 		child.checked = true;
 		child.enabled = false;
@@ -245,10 +238,10 @@ class MenuTest extends Test
 
 		Assert.equals(3, input.readInt32());
 		assertItem(input, 1, 0x01, KeyCode.O, KeyModifier.CTRL, "Open");
-		assertItem(input, 2, 0x01 | 0x04, KeyCode.UNKNOWN, menu.getItemAt(1).keyEquivalentModifiers, "");
-		assertItem(input, 3, 0x01 | 0x08, KeyCode.UNKNOWN, menu.getItemAt(2).keyEquivalentModifiers, "Recent");
+		assertItem(input, 2, 0x01 | 0x04, KeyCode.UNKNOWN, menu.items[1].keyModifier, "");
+		assertItem(input, 3, 0x01 | 0x08, KeyCode.UNKNOWN, menu.items[2].keyModifier, "Recent");
 		Assert.equals(1, input.readInt32());
-		assertItem(input, 4, 0x02, KeyCode.UNKNOWN, child.keyEquivalentModifiers, "&x&&y");
+		assertItem(input, 4, 0x02, KeyCode.UNKNOWN, child.keyModifier, "&x&&y");
 		Assert.equals(input.length, input.position);
 
 		Assert.equals(4, items.length);
@@ -260,15 +253,15 @@ class MenuTest extends Test
 	public function testNativeKeyEquivalentLookup():Void
 	{
 		var menu = new Menu();
-		var save = menu.addItem(new MenuItem("Save"));
-		save.keyEquivalent = KeyCode.S;
-		save.keyEquivalentModifiers = KeyModifier.CTRL;
+		var save = menu.add(new MenuItem("Save"));
+		save.keyCode = KeyCode.S;
+		save.keyModifier = KeyModifier.CTRL;
 
 		var submenu = new Menu();
-		var parent = menu.addSubmenu(submenu, "More");
-		var nested = submenu.addItem(new MenuItem("Nested"));
-		nested.keyEquivalent = KeyCode.N;
-		nested.keyEquivalentModifiers = KeyModifier.CTRL;
+		var parent = menu.addSubmenu("More", submenu);
+		var nested = submenu.add(new MenuItem("Nested"));
+		nested.keyCode = KeyCode.N;
+		nested.keyModifier = KeyModifier.CTRL;
 
 		var items:Array<MenuItem> = [];
 		NativeMenu.encode(menu, items);
@@ -288,33 +281,33 @@ class MenuTest extends Test
 	{
 		var bar = new Menu();
 		var app = new Menu();
-		var quit = app.addItem(new MenuItem("Quit Tests"));
-		quit.keyEquivalent = KeyCode.Q;
-		quit.keyEquivalentModifiers = KeyModifier.META;
+		var quit = app.add(new MenuItem("Quit Tests"));
+		quit.keyCode = KeyCode.Q;
+		quit.keyModifier = KeyModifier.META;
 		@:privateAccess quit.__systemAction = "terminate:";
-		var services = app.addSubmenu(new Menu(), "Services");
+		var services = app.addSubmenu("Services", new Menu());
 		@:privateAccess services.__systemAction = "services";
 		app.addSeparator();
-		var own = app.addItem(new MenuItem("Q&A"));
+		var own = app.add(new MenuItem("Q&A"));
 		own.mnemonicIndex = 0;
-		bar.addSubmenu(app, "Tests");
+		bar.addSubmenu("Tests", app);
 
 		var copy = NativeMenu.decode(NativeMenu.encode(bar, []));
-		var copyApp = copy.getItemAt(0).submenu;
+		var copyApp = copy.items[0].submenu;
 
-		Assert.equals(1, copy.numItems);
-		Assert.equals("Tests", copy.getItemAt(0).label);
-		Assert.equals(4, copyApp.numItems);
-		Assert.equals("Quit Tests", copyApp.getItemAt(0).label);
-		Assert.equals("terminate:", @:privateAccess copyApp.getItemAt(0).__systemAction);
-		Assert.equals(KeyCode.Q, copyApp.getItemAt(0).keyEquivalent);
-		Assert.equals(KeyModifier.META, copyApp.getItemAt(0).keyEquivalentModifiers);
-		Assert.equals("services", @:privateAccess copyApp.getItemAt(1).__systemAction);
-		Assert.notNull(copyApp.getItemAt(1).submenu);
-		Assert.isTrue(copyApp.getItemAt(2).isSeparator);
-		Assert.isNull(@:privateAccess copyApp.getItemAt(3).__systemAction);
-		Assert.equals("Q&A", copyApp.getItemAt(3).label);
-		Assert.equals(0, copyApp.getItemAt(3).mnemonicIndex);
+		Assert.equals(1, copy.items.length);
+		Assert.equals("Tests", copy.items[0].label);
+		Assert.equals(4, copyApp.items.length);
+		Assert.equals("Quit Tests", copyApp.items[0].label);
+		Assert.equals("terminate:", @:privateAccess copyApp.items[0].__systemAction);
+		Assert.equals(KeyCode.Q, copyApp.items[0].keyCode);
+		Assert.equals(KeyModifier.META, copyApp.items[0].keyModifier);
+		Assert.equals("services", @:privateAccess copyApp.items[1].__systemAction);
+		Assert.notNull(copyApp.items[1].submenu);
+		Assert.isTrue(copyApp.items[2].isSeparator);
+		Assert.isNull(@:privateAccess copyApp.items[3].__systemAction);
+		Assert.equals("Q&A", copyApp.items[3].label);
+		Assert.equals(0, copyApp.items[3].mnemonicIndex);
 	}
 
 	#if (mac && lime_cffi && !macro)
@@ -324,7 +317,7 @@ class MenuTest extends Test
 		Assert.notNull(menu, "the menu starts as the default menu bar");
 		if (menu == null) return;
 
-		var appMenu = menu.getItemAt(0).submenu;
+		var appMenu = menu.items[0].submenu;
 		Assert.notNull(appMenu, "the first item has the application menu");
 		if (appMenu == null) return;
 
@@ -332,8 +325,8 @@ class MenuTest extends Test
 		Assert.notNull(quit, "the application menu has Quit");
 		if (quit != null)
 		{
-			Assert.equals(KeyCode.Q, quit.keyEquivalent);
-			Assert.isTrue(quit.keyEquivalentModifiers.metaKey);
+			Assert.equals(KeyCode.Q, quit.keyCode);
+			Assert.isTrue(quit.keyModifier.metaKey);
 		}
 
 		Assert.notNull(findAction(appMenu, "hide:"), "the application menu has Hide");
@@ -348,8 +341,8 @@ class MenuTest extends Test
 		if (menu == null) return;
 
 		var file = new Menu();
-		file.addItem(new MenuItem("Open"));
-		menu.addSubmenu(file, "File");
+		file.add(new MenuItem("Open"));
+		menu.addSubmenu("File", file);
 
 		// The menu bar is rebuilt from the Lime menu, and read back from macOS
 		var native = NativeMenu.getApplicationMenu();
@@ -359,7 +352,7 @@ class MenuTest extends Test
 		Assert.notNull(native);
 		if (native == null) return;
 
-		Assert.equals("File", native.getItemAt(native.numItems - 1).label);
+		Assert.equals("File", native.items[native.items.length - 1].label);
 		Assert.notNull(findAction(native, "terminate:"), "Quit still quits");
 		Assert.notNull(findAction(native, "hide:"), "Hide still hides");
 		Assert.notNull(findAction(native, "services"), "Services is still the Services menu");
@@ -367,7 +360,7 @@ class MenuTest extends Test
 
 		var restored = application.menu;
 		Assert.notNull(restored, "setting null restores the default");
-		if (restored != null) Assert.notEquals("File", restored.getItemAt(restored.numItems - 1).label);
+		if (restored != null) Assert.notEquals("File", restored.items[restored.items.length - 1].label);
 	}
 
 	#if cpp
@@ -380,11 +373,11 @@ class MenuTest extends Test
 
 		// With a menu of the application's own, the menu bar is Lime's
 		var file = new Menu();
-		file.addItem(new MenuItem("Open"));
-		menu.addSubmenu(file, "File");
+		file.add(new MenuItem("Open"));
+		menu.addSubmenu("File", file);
 
 		var selected = 0;
-		var showAll = findAction(menu.getItemAt(0).submenu, "unhideAllApplications:");
+		var showAll = findAction(menu.items[0].submenu, "unhideAllApplications:");
 		if (showAll != null) showAll.onSelect.add(function() selected++);
 
 		// Show All is chosen in the menu bar that macOS shows. It shows any hidden

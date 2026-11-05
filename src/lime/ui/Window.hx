@@ -40,9 +40,9 @@ class Window
 
 	public var application(default, null):Application;
 	/**
-		Preferred appearance of the window decorations. Defaults to `System`.
+		Preferred appearance of the window decorations. Defaults to `SYSTEM`.
 		An omitted creation attribute preserves the platform's existing default behavior.
-		Assigning `System` explicitly follows system appearance where supported.
+		Assigning `SYSTEM` explicitly follows system appearance where supported.
 		Windows desktop applies the preference to the frame and Lime menus; high contrast
 		takes precedence. macOS 10.14+ applies a per-window Aqua or Dark Aqua appearance.
 		X11 sets a decoration hint that window managers may ignore; GTK context menus request
@@ -53,7 +53,7 @@ class Window
 	public var appearance(get, set):WindowAppearance;
 
 	/**
-		The applied window appearance, or `System` when the backend cannot determine it.
+		The applied window appearance, or `SYSTEM` when the backend cannot determine it.
 		On X11 this reports the decoration hint, which the window manager may ignore.
 	**/
 	public var effectiveAppearance(get, never):WindowAppearance;
@@ -73,7 +73,7 @@ class Window
 	 * main loop, up to 10,000. A value of 0 or less runs one frame per second.
 	 * The cap is ignored when the loop is uncapped (see `UncapMode`). With
 	 * vertical sync on, a cap at or above the display refresh rate leaves the
-	 * pacing to the display, and with `VSyncMode.Auto` and no vertical sync, a
+	 * pacing to the display, and with `VSyncMode.AUTO` and no vertical sync, a
 	 * cap above the refresh rate is held to it.
 	 *
 	 * On HTML5, a frame rate of 0, or of 60 or greater, renders on each
@@ -271,7 +271,7 @@ class Window
 	private var clickCount:Int = 0;
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
-	@:noCompletion private var __appearance:WindowAppearance = System;
+	@:noCompletion private var __appearance:WindowAppearance = SYSTEM;
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
@@ -2771,7 +2771,7 @@ class Window
 
 	@:noCompletion private function get_vsyncMode():VSyncMode
 	{
-		return (application != null) ? application.vsyncMode : VSyncMode.Off;
+		return (application != null) ? application.vsyncMode : VSyncMode.OFF;
 	}
 
 	@:noCompletion private function set_vsyncMode(value:VSyncMode):VSyncMode
@@ -2991,7 +2991,7 @@ class Window
 
 	@:noCompletion private function set_appearance(value:WindowAppearance):WindowAppearance
 	{
-		if (value != System && value != Light && value != Dark) return __appearance;
+		if (value != SYSTEM && value != LIGHT && value != DARK) return __appearance;
 		__appearance = value;
 		__backend.setAppearance(value);
 		return value;

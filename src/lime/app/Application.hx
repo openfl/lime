@@ -187,14 +187,14 @@ class Application extends Module
 		__frameConfigured = false;
 		__frameOptions =
 			{
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF
 			};
-		__frameProfile = FrameProfile.Balanced;
+		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
 		__windows = new Array();
-		__vsyncMode = VSyncMode.Off;
+		__vsyncMode = VSyncMode.OFF;
 
 		__backend = new ApplicationBackend(this);
 		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
@@ -837,9 +837,9 @@ class Application extends Module
 		if (value == null)
 		{
 			return {
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF
 			};
 		}
 
@@ -934,7 +934,7 @@ class Application extends Module
 
 			if (Reflect.hasField(context, "vsync") && context.vsync)
 			{
-				return VSyncMode.On;
+				return VSyncMode.ON;
 			}
 		}
 

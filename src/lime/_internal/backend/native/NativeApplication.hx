@@ -316,8 +316,8 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Off: 1;
-			case On: 2;
+			case OFF: 1;
+			case ON: 2;
 
 			default: 0;
 		};
@@ -327,9 +327,9 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Precision: 1;
-			case LowEnergy: 2;
-			case Uncapped: 3;
+			case PRECISION: 1;
+			case LOW_ENERGY: 2;
+			case UNCAPPED: 3;
 
 			default: 0;
 		};
@@ -339,9 +339,9 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Millisecond: 1;
+			case MILLISECOND: 1;
 
-			case HighResolution: 2;
+			case HIGH_RESOLUTION: 2;
 			default: 0;
 		};
 	}
@@ -350,8 +350,8 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Soft: 1;
-			case Hard: 2;
+			case SOFT: 1;
+			case HARD: 2;
 			default: 0;
 		};
 	}
@@ -360,9 +360,9 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case On: 1;
-			case Adaptive: 2;
-			case Auto: 3;
+			case ON: 1;
+			case ADAPTIVE: 2;
+			case AUTO: 3;
 			default: 0;
 		};
 	}

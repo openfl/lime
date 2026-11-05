@@ -1360,13 +1360,13 @@ class HTML5Window
 
 	public function setAppearance(value:lime.ui.WindowAppearance):Void
 	{
-		if (parent.element != null) parent.element.style.setProperty("color-scheme", value == lime.ui.WindowAppearance.System ? "light dark" : value);
+		if (parent.element != null) parent.element.style.setProperty("color-scheme", value == lime.ui.WindowAppearance.SYSTEM ? "light dark" : value);
 	}
 
 	public function getAppearance():lime.ui.WindowAppearance
 	{
-		if (parent.appearance != lime.ui.WindowAppearance.System) return parent.appearance;
-		return Browser.window.matchMedia("(prefers-color-scheme: dark)").matches ? lime.ui.WindowAppearance.Dark : lime.ui.WindowAppearance.Light;
+		if (parent.appearance != lime.ui.WindowAppearance.SYSTEM) return parent.appearance;
+		return Browser.window.matchMedia("(prefers-color-scheme: dark)").matches ? lime.ui.WindowAppearance.DARK : lime.ui.WindowAppearance.LIGHT;
 	}
 
 	public function setTitle(value:String):String

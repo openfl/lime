@@ -2,7 +2,7 @@ package lime.app;
 
 /**
 	Advanced frame pacing overrides that can be combined with a
-	frame profile. Leaving a field out, or setting it to `Auto` or `Off`,
+	frame profile. Leaving a field out, or setting it to `AUTO` or `OFF`,
 	keeps what the profile chooses.
 **/
 typedef FrameOptions =

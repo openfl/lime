@@ -78,10 +78,10 @@ class NativeMenu
 
 		for (item in items)
 		{
-			if (item.keyEquivalent == keyCode
+			if (item.keyCode == keyCode
 				&& item.submenu == null
 				&& !item.isSeparator
-				&& getModifierMask(item.keyEquivalentModifiers) == modifiers
+				&& getModifierMask(item.keyModifier) == modifiers
 				&& isEnabled(item))
 			{
 				return item;
@@ -164,8 +164,8 @@ class NativeMenu
 
 			if (keyCode != 0)
 			{
-				item.__keyEquivalent = cast keyCode;
-				item.__keyEquivalentModifiers = cast keyModifiers;
+				item.__keyCode = cast keyCode;
+				item.__keyModifier = cast keyModifiers;
 			}
 
 			if (flags & MENU_ITEM_ACTION != 0)
@@ -178,7 +178,7 @@ class NativeMenu
 				item.submenu = readMenu(input);
 			}
 
-			menu.addItem(item);
+			menu.add(item);
 		}
 
 		return menu;
@@ -235,8 +235,8 @@ class NativeMenu
 
 			output.writeInt32(items.length);
 			output.writeInt32(flags);
-			output.writeInt32(item.keyEquivalent);
-			output.writeInt32(item.keyEquivalentModifiers);
+			output.writeInt32(item.keyCode);
+			output.writeInt32(item.keyModifier);
 			output.writeInt32(label.length);
 			output.write(label);
 

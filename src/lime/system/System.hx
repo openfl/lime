@@ -658,7 +658,7 @@ class System
 							if (vsyncMode != null)
 							{
 								attributes.context.vsyncMode = vsyncMode;
-								attributes.context.vsync = (vsyncMode != VSyncMode.Off);
+								attributes.context.vsync = (vsyncMode != VSyncMode.OFF);
 							}
 						case "width":
 							attributes.width = Std.parseInt(argValue);
@@ -688,13 +688,13 @@ class System
 		switch (value.toLowerCase())
 		{
 			case "true", "on":
-				return VSyncMode.On;
+				return VSyncMode.ON;
 			case "false", "off":
-				return VSyncMode.Off;
+				return VSyncMode.OFF;
 			case "adaptive":
-				return VSyncMode.Adaptive;
+				return VSyncMode.ADAPTIVE;
 			case "auto":
-				return VSyncMode.Auto;
+				return VSyncMode.AUTO;
 			default:
 				return null;
 		}
