@@ -160,6 +160,24 @@ class FinalizerTest extends Test
 		assertAVorbisFileOpens();
 	}
 
+	public function testAClearedVorbisFileStaysSafeToCall():Void
+	{
+		var file = fromFile();
+		Assert.notNull(file);
+		if (file == null) return;
+
+		file.clear();
+		file.clear();
+
+		Assert.isNull(file.info());
+		Assert.isFalse(file.seekable());
+		Assert.equals(0, file.streams());
+		Assert.isTrue(file.timeSeek(0) < 0);
+
+		file = null;
+		collect();
+	}
+
 	private static function fromFile():VorbisFile
 	{
 		return VorbisFile.fromFile(VORBIS_PATH);

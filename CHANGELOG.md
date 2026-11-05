@@ -122,6 +122,7 @@ Changelog
 - Fixed WebAssembly builds with newer Emscripten versions.
 - Fixed loading an `HTTPRequest` again using a curl handle that had been freed, so the load never reached the server, or changed another request.
 - Fixed a `VorbisFile` opened from bytes reading them after they were collected.
+- Fixed a small memory leak for each `VorbisFile`.
 - Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
 - Fixed `Window.maxWidth` setting the minimum size.
 - Fixed the AIR `DNSResolverEvent` extern giving `bubbles` a String default, which failed builds that use it.
