@@ -37,6 +37,7 @@ jobs:
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -174,6 +175,7 @@ jobs:
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -267,6 +269,7 @@ jobs:
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib --global update haxelib --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install ../hxcpp-4.3.53.zip --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -316,6 +319,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -447,6 +451,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -551,6 +556,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -706,6 +712,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.168.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.168/hxcpp-4.3.168.zip
           haxelib install ../hxcpp-4.3.168.zip --quiet
@@ -789,6 +796,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -876,6 +884,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -948,6 +957,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -1075,6 +1085,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install dox --quiet
           haxelib dev lime ${{ github.workspace }}
@@ -1108,6 +1119,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -1166,6 +1178,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           curl --output ../hxcpp-4.3.53.zip --location https://github.com/HaxeFoundation/hxcpp/releases/download/v4.3.53/hxcpp-4.3.53.zip
           haxelib install ../hxcpp-4.3.53.zip --quiet
@@ -1224,6 +1237,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1282,6 +1296,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1337,6 +1352,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -1421,6 +1437,7 @@ jobs:
         run: |
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
+          haxelib install StageWebView 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 

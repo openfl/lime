@@ -15,6 +15,7 @@
 	"dependencies": {
 		"native-desktop": "1.1.0",
 		"native-ipc": "1.0.0",
+		"StageWebView": "1.0.0",
 		"wsproto": "1.0.0"
 	}
 }
