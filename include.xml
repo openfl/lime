@@ -99,6 +99,7 @@
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
 		<java path="${haxelib:StageWebView}/android/src" if="android" />
 		<dependency path="${haxelib:StageWebView}/ndll/Linux64/stagewebview-gtk.so" if="linux" />
+		<dependency path="${haxelib:StageWebView}/ndll/LinuxArm64/stagewebview-gtk.so" if="linux" />
 
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
 		<dependency path="dependencies/pako.min.js" if="html5" embed="true" allow-web-workers="true" />

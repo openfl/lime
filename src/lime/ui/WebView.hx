@@ -35,8 +35,8 @@ import lime.graphics.Image;
 	```
 
 	Events are dispatched on the main thread. `isSupported` is true on Windows
-	with the WebView2 Runtime installed, on x86-64 Linux with WebKitGTK 4.1
-	installed and a display, on macOS, iOS and Android, and in browsers, which
+	with the WebView2 Runtime installed, on x86-64 and ARM64 Linux with WebKitGTK
+	4.1 installed and a display, on macOS, iOS and Android, and in browsers, which
 	keep other sites' pages to themselves: there, `title` and
 	the bridge only reach pages from `loadHTML` or the application's own site, and
 	`onNavigate` only sees `load`. On AIR, where it is `StageWebView.isSupported`,
