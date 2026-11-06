@@ -224,7 +224,8 @@ namespace lime {
 	}
 
 
-	void release_finalized_al () {
+	// Forgets the collected handles, leaving their objects to delete_unreleased_al
+	void collect_finalized_al () {
 
 		std::vector<void*> finalized;
 		std::vector<std::pair<void*, void*> > finalizedALC;
@@ -258,6 +259,11 @@ namespace lime {
 			}
 
 		}
+
+	}
+
+
+	void delete_unreleased_al () {
 
 		if (alUnreleased.empty () || !alcGetCurrentContext ()) {
 
@@ -294,10 +300,51 @@ namespace lime {
 	}
 
 
+	// Takes back the buffers waiting to be deleted that the application is given again
+	void claim_unreleased_al_buffers (const ALuint* ids, int count) {
+
+		ALCdevice* device = current_al_device ();
+		std::vector<ALObject> unreleased;
+
+		for (size_t i = 0; i < alUnreleased.size (); i++) {
+
+			bool claimed = false;
+
+			if (alUnreleased[i].type == AL_OBJECT_BUFFER && alUnreleased[i].device == device) {
+
+				for (int j = 0; j < count && !claimed; j++) {
+
+					claimed = alUnreleased[i].id == ids[j];
+
+				}
+
+			}
+
+			if (!claimed) {
+
+				unreleased.push_back (alUnreleased[i]);
+
+			}
+
+		}
+
+		alUnreleased.swap (unreleased);
+
+	}
+
+
+	void release_finalized_al () {
+
+		collect_finalized_al ();
+		delete_unreleased_al ();
+
+	}
+
+
 	void track_al_object (void* handle, ALObjectType type, ALuint id) {
 
 		// The new handle may have the address of one that was collected
-		release_finalized_al ();
+		collect_finalized_al ();
 
 		ALCcontext* context = alcGetCurrentContext ();
 		ALCdevice* device = current_al_device ();
@@ -311,18 +358,11 @@ namespace lime {
 			alBuffers[std::make_pair (device, id)] = handle;
 
 			// It may have been waiting for a source to let go of it
-			for (size_t i = 0; i < alUnreleased.size (); i++) {
-
-				if (alUnreleased[i].type == type && alUnreleased[i].id == id && alUnreleased[i].device == device) {
-
-					alUnreleased.erase (alUnreleased.begin () + i);
-					break;
-
-				}
-
-			}
+			claim_unreleased_al_buffers (&id, 1);
 
 		}
+
+		delete_unreleased_al ();
 
 	}
 
@@ -3066,6 +3106,8 @@ namespace lime {
 
 		// OpenAL unqueues nothing when it refuses, such as for buffers that have
 		// not played, and leaves the array as it was
+		lock_al_gc ();
+
 		ALint queued = 0;
 		alGetSourcei (source, AL_BUFFERS_QUEUED, &queued);
 
@@ -3075,7 +3117,15 @@ namespace lime {
 		alGetSourcei (source, AL_BUFFERS_QUEUED, &remaining);
 
 		int count = queued - remaining;
-		return count < 0 ? 0 : (count > nb ? nb : count);
+		count = count < 0 ? 0 : (count > nb ? nb : count);
+
+		// A buffer whose handle was collected while it was queued waits to be
+		// deleted, and is taken back before anything can delete it
+		collect_finalized_al ();
+		claim_unreleased_al_buffers (buffers, count);
+
+		al_gc_mutex.Unlock ();
+		return count;
 
 	}
 

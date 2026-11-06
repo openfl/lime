@@ -187,6 +187,65 @@ class OpenALTest extends Test
 		Assert.isTrue(next <= highest + 2, 'buffers reached $next after $highest');
 	}
 
+	public function testBuffersDroppedWhileQueuedComeBackWhenUnqueued():Void
+	{
+		if (!hasContext()) return;
+
+		release();
+		AL.getError();
+
+		var sources = [for (i in 0...8) AL.createSource()];
+
+		for (source in sources)
+		{
+			queueDroppedBuffers(source, 2);
+		}
+
+		// Their handles go while the sources still hold them
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		for (source in sources)
+		{
+			Assert.equals(2, AL.getSourcei(source, AL.BUFFERS_QUEUED));
+		}
+
+		AL.sourcePlayv(sources);
+		var end = haxe.Timer.stamp() + 5;
+
+		for (source in sources)
+		{
+			while (AL.getSourcei(source, AL.BUFFERS_PROCESSED) < 2 && haxe.Timer.stamp() < end)
+			{
+				Sys.sleep(0.01);
+			}
+		}
+
+		// Each is the application's again, not deleted as the one before it was taken back
+		var buffers:Array<ALBuffer> = [];
+		var data = new UInt8Array(64);
+
+		for (source in sources)
+		{
+			var unqueued = AL.sourceUnqueueBuffers(source, 2);
+			Assert.equals(2, unqueued.length);
+
+			for (buffer in unqueued)
+			{
+				Assert.isTrue(AL.isBuffer(buffer));
+				AL.bufferData(buffer, AL.FORMAT_MONO16, data, data.length, 44100);
+				buffers.push(buffer);
+			}
+		}
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		AL.deleteSources(sources);
+		AL.deleteBuffers(buffers);
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
 	public function testDroppedEffectsLeaveNoError():Void
 	{
 		if (!hasContext()) return;
@@ -315,6 +374,19 @@ class OpenALTest extends Test
 			AL.createEffect();
 			AL.createFilter();
 		}
+	}
+
+	private function queueDroppedBuffers(source:ALSource, count:Int):Void
+	{
+		var buffers = AL.genBuffers(count);
+		var data = new UInt8Array(64);
+
+		for (buffer in buffers)
+		{
+			AL.bufferData(buffer, AL.FORMAT_MONO16, data, data.length, 44100);
+		}
+
+		AL.sourceQueueBuffers(source, buffers.length, buffers);
 	}
 
 	private function dropSources(count:Int):Int
