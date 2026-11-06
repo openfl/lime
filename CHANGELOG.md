@@ -114,6 +114,7 @@ Changelog
 - Fixed OpenAL bindings returning uninitialized values, and `AL.sourceUnqueueBuffers()` returning buffers it didn't unqueue.
 - Fixed OpenAL objects deadlocking the collector when finalized, leaking buffers collected before their sources, and deleting the objects of a replacement device.
 - Fixed exceptions thrown in event listeners losing their original call site.
+- Fixed `Event` skipping a listener, or calling one again, when a listener adds or removes listeners while it runs.
 - Fixed constructing `Bytes` with no arguments on HashLink.
 - Fixed `FileDialog` wildcard filters.
 - Fixed the Windows icon resource not being rebuilt when the icon changes.
