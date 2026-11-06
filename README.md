@@ -26,8 +26,8 @@ Lime does not include a renderer, but exposes the current context:
 
 The GL context is based upon the WebGL standard, implemented for both OpenGL and OpenGL ES as needed.
 Native Vulkan support exposes an explicit Vulkan API layer for renderer backends, including native window/swapchain integration and resource/command primitives.
-Native Vulkan support is included in standard Windows, Linux and Android Lime builds. Windows and Linux C++ builds also define the matching Haxe API, and on Android `<window renderer="vulkan" />` turns it on. Apple targets still require an explicit Vulkan-enabled build and MoltenVK packaging.
-To request a Vulkan window, use the standard `RenderContextType.VULKAN` context selection or set `<window renderer="vulkan" />` in project XML.
+Native Vulkan support is included in standard Windows, Linux and Android Lime builds. Windows and Linux C++ builds also define the matching Haxe API, and on Android the `vulkan` define turns it on. Apple targets still require an explicit Vulkan-enabled build and MoltenVK packaging.
+To request a Vulkan window, use the standard `RenderContextType.VULKAN` context selection, or build with `-Dvulkan` (or `<define name="vulkan" />` before `<haxelib name="lime" />` in project XML) to make Vulkan the default for windows that name no type.
 The in-repo `tests/vulkan-smoke` project is used as the current Vulkan CI smoke app.
 
 Lime provides a unified audio API, but also provides access to OpenAL for advanced audio on native targets.

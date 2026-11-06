@@ -96,6 +96,14 @@ class NativeWindow
 			|| contextAttributes.vsyncMode == null) contextAttributes.vsyncMode = resolvedVSyncMode;
 		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.OFF);
 
+		#if vulkan
+		// Windows that name no type use Vulkan, unless they ask for software rendering
+		if ((!Reflect.hasField(contextAttributes, "type") || contextAttributes.type == null) && contextAttributes.hardware)
+		{
+			contextAttributes.type = VULKAN;
+		}
+		#end
+
 		#if (cairo || (!lime_opengl && !lime_opengles))
 		if (!Reflect.hasField(contextAttributes, "type") || contextAttributes.type != VULKAN)
 		{
