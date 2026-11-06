@@ -76,12 +76,15 @@ Building from Source
         haxelib install native-ipc 1.0.0
         haxelib install StageWebView 1.0.1
         haxelib install wsproto 1.0.0
+        haxelib install crossbyte 1.0.1
 
 3. Copy the ndll directory from the latest [Haxelib release](https://lib.haxe.org/p/lime/), or see [project/README.md](project/README.md) for details about building native binaries.
 
 4. After any changes to the [tools](tools) or [lime/tools](src/lime/tools) directories, rebuild from source:
 
         lime rebuild tools
+
+    This needs Haxe 4.3 or later, for CrossByte, which serves `lime test html5`. Applications still build with older Haxe versions.
 
 5. To switch away from a source build:
 

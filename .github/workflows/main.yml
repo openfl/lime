@@ -36,6 +36,7 @@ jobs:
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -45,10 +46,13 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
-      - name: Rebuild Lime tools
+      # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
+      - uses: ./.github/actions/rebuild-lime-tools
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set up Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (Linux)
@@ -197,6 +201,7 @@ jobs:
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -303,6 +308,7 @@ jobs:
           haxelib install native-desktop 1.1.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -312,10 +318,13 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
-      - name: Rebuild Lime tools
+      # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
+      - uses: ./.github/actions/rebuild-lime-tools
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set up Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (Linux default Vulkan)
@@ -358,6 +367,7 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -501,6 +511,7 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -508,10 +519,13 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
-      - name: Rebuild Lime tools
+      # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
+      - uses: ./.github/actions/rebuild-lime-tools
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set up Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (macOS)
@@ -607,6 +621,7 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib install lime-mesa 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -615,10 +630,13 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
-      - name: Rebuild Lime tools
+      # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
+      - uses: ./.github/actions/rebuild-lime-tools
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set up Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           haxelib run lime config AIR_SDK ${{ env.AIR_HOME }} -eval
 
@@ -1023,6 +1041,7 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -1031,10 +1050,13 @@ jobs:
           haxelib install svg --quiet
           haxelib install openfl --quiet
 
-      - name: Rebuild Lime tools
+      # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
+      - uses: ./.github/actions/rebuild-lime-tools
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set up Lime
         run: |
-          haxelib dev lime ${{ github.workspace }}
-          haxelib run lime rebuild tools -nocolor -verbose -nocffi
           haxelib run lime setup -alias -y -nocffi
           cp project/lib/hashlink/other/osx/entitlements.xml templates/bin/hl/entitlements.xml
           mkdir templates/bin/hl/include

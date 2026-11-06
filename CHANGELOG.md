@@ -81,6 +81,8 @@ Changelog
 - Changed embedded assets to no longer be copied to the output folder.
 - Changed asset libraries to drop disposed `AudioBuffer` objects from their caches.
 - Changed the iOS Xcode project to Xcode's recommended settings, with identity settings.
+- Changed the HTML5, Flash and WebAssembly test server to CrossByte's `HTTPServer`, run by the command-line tools, rather than http-server on a bundled Node.js, which made the haxelib too large to publish. CrossByte was chosen over snake-server because it answers range requests, which audio and video need to seek. The server listens on `127.0.0.1` unless `--host=0.0.0.0` lets other devices reach it. Building the tools now needs Haxe 4.3 or later, as does serving with `-eval`.
+- Changed `-terser` to run terser through the system's `npx`, as `-npx` did, since Lime no longer bundles Node.js. It needs Node.js installed, and says so when it is not.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
