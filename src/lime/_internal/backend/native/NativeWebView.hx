@@ -238,7 +238,7 @@ class NativeWebView
 
 	public static function isSupported():Bool
 	{
-		#if (!macro && lime_cffi)
+		#if (!macro && lime_cffi && lime_webview)
 		return NativeCFFI.lime_web_view_is_supported();
 		#else
 		return false;

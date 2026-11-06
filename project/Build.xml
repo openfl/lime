@@ -20,7 +20,7 @@
 	<set name="LIME_MBEDTLS" value="1" unless="emscripten || winrt" />
 	<set name="LIME_NATIVE_DESKTOP" value="1" if="windows || mac || linux" unless="emscripten || webassembly || winrt || android || ios || tvos" />
 	<set name="LIME_NATIVE_IPC" value="1" if="windows || mac || linux" unless="emscripten || webassembly || winrt || android || ios || tvos" />
-	<set name="LIME_WEBVIEW" value="1" if="windows || mac || ios || linux" unless="emscripten || webassembly || winrt || android || tvos || mingw" />
+	<set name="LIME_WEBVIEW" value="1" if="windows || mac || ios || linux" unless="no-webview || lime-no-webview || emscripten || webassembly || winrt || android || tvos || mingw" />
 	<!-- <set name="LIME_NEKO" value="1" if="linux" /> -->
 	<set name="LIME_OGG" value="1" />
 	<set name="LIME_OPENALSOFT" value="1" if="windows || linux || mac || android" unless="static_link" />

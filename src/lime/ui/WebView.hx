@@ -49,7 +49,8 @@ import lime.graphics.Image;
 class WebView
 {
 	/**
-		Whether a webview can be created here.
+		Whether a webview can be created here. Applications built with the `no-webview`
+		define leave out the engine, so it is false on native targets and Android.
 	**/
 	public static var isSupported(get, never):Bool;
 

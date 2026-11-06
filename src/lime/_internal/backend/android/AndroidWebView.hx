@@ -60,21 +60,25 @@ class AndroidWebView
 		height = attributes.height != null ? attributes.height : (window != null ? window.height : 0);
 		visible = attributes.hidden != true;
 		container = -1;
+		id = -1;
 		nextToken = 1;
 		printPaths = new Map();
 		requests = new Map();
 
-		if (window != null)
+		if (isSupported())
 		{
-			container = method("createContainer", "(IIII)I")(x, y, width, height);
-			method("setContainerVisible", "(IZ)V")(container, visible);
+			if (window != null)
+			{
+				container = method("createContainer", "(IIII)I")(x, y, width, height);
+				method("setContainerVisible", "(IZ)V")(container, visible);
+			}
+
+			var devTools = attributes.devTools == true #if debug || attributes.devTools == null #end;
+			var mediaNeedsUserAction = attributes.autoplay != true ? 1 : 0;
+
+			// The host keeps its own bridge script when it is not given one
+			id = method("create", "(IZLjava/lang/String;ILjava/lang/String;)I")(container, devTools, attributes.userAgent, mediaNeedsUserAction, null);
 		}
-
-		var devTools = attributes.devTools == true #if debug || attributes.devTools == null #end;
-		var mediaNeedsUserAction = attributes.autoplay != true ? 1 : 0;
-
-		// The host keeps its own bridge script when it is not given one
-		id = method("create", "(IZLjava/lang/String;ILjava/lang/String;)I")(container, devTools, attributes.userAgent, mediaNeedsUserAction, null);
 
 		if (id > 0)
 		{
@@ -189,7 +193,12 @@ class AndroidWebView
 
 	public static function isSupported():Bool
 	{
+		// Without it, the host's Java is left out of the application
+		#if lime_webview
 		return true;
+		#else
+		return false;
+		#end
 	}
 
 	public function load(url:String):Void
