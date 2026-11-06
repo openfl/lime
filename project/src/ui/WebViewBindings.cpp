@@ -35,7 +35,7 @@ namespace lime {
 	void gc_web_view (value handle) {
 
 		WebView* view = (WebView*)val_data (handle);
-		delete view;
+		view->Release ();
 
 	}
 
@@ -43,7 +43,7 @@ namespace lime {
 	void hl_gc_web_view (HL_CFFIPointer* handle) {
 
 		WebView* view = (WebView*)handle->ptr;
-		delete view;
+		view->Release ();
 
 	}
 

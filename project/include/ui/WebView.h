@@ -79,6 +79,10 @@ namespace lime {
 			virtual void PrintToPDF (const char* path, const WebViewPDFOptions* options, int token) = 0;
 			virtual void Reload () = 0;
 			virtual void ReleaseFocus () = 0;
+
+			// The handle was collected
+			virtual void Release () { delete this; }
+
 			virtual void SetBounds (int x, int y, int width, int height) = 0;
 			virtual void SetVisible (bool visible) = 0;
 			virtual void Stop () = 0;

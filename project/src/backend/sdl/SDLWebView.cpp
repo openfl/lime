@@ -55,7 +55,7 @@ namespace lime {
 		public:
 
 			SDLWebView (stagewebview::WebViewBackend* backend, void* host, void* parent, bool visible):
-				backend (backend), closing (false), dispatching (false), height (0), host (host), id (++nextID), parent (parent), visible (visible), width (0), x (0), y (0) {
+				backend (backend), closing (false), dispatching (false), height (0), host (host), id (++nextID), parent (parent), released (false), visible (visible), width (0), x (0), y (0) {
 
 				stagewebview::WebViewCallbackSet callbacks;
 				callbacks.userData = this;
@@ -97,8 +97,8 @@ namespace lime {
 				// An engine cannot be taken down from inside its own handler
 				if (dispatching) {
 
+					if (!closing) closed.push_back (this);
 					closing = true;
-					closed.push_back (this);
 
 				} else {
 
@@ -237,6 +237,22 @@ namespace lime {
 			}
 
 
+			virtual void Release () {
+
+				// A view closed from inside its own handler waits in closed, and goes with it
+				if (closing) {
+
+					released = true;
+
+				} else {
+
+					delete this;
+
+				}
+
+			}
+
+
 			virtual void ReleaseFocus () {
 
 				if (parent) stagewebview::windowSetFocus (parent);
@@ -274,7 +290,11 @@ namespace lime {
 
 				for (size_t i = 0; i < closed.size (); i++) {
 
-					closed[i]->Destroy ();
+					SDLWebView* view = closed[i];
+					view->Destroy ();
+					view->closing = false;
+
+					if (view->released) delete view;
 
 				}
 
@@ -415,6 +435,7 @@ namespace lime {
 			void* host;
 			int id;
 			void* parent;
+			bool released;
 			bool visible;
 			int width;
 			int x;

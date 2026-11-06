@@ -226,6 +226,43 @@ class WebViewTest extends Test
 		Assert.equals(null, closing.url);
 	}
 
+	public function testAViewClosedFromItsOwnListenerCanBeCollected():Void
+	{
+		if (!canRun()) return;
+
+		var asked = [0];
+		closeFromListener(asked);
+
+		// Collect after the listener, while the closed view still waits for the next update
+		var end = Sys.time() + 20;
+
+		while (asked[0] == 0 && Sys.time() < end)
+		{
+			@:privateAccess lime._internal.backend.native.NativeCFFI.lime_web_view_process_events();
+			Sys.sleep(0.005);
+		}
+
+		Assert.equals(1, asked[0], "onNavigate was not dispatched");
+		collect();
+
+		// New views can be given the memory of the collected one
+		var others = [for (i in 0...8) new WebView()];
+		var loaded = 0;
+
+		for (other in others)
+		{
+			other.onLoad.add(function() loaded++);
+			other.loadHTML("<!doctype html><html><body></body></html>");
+		}
+
+		Assert.isTrue(pumpUntil(function() return loaded == others.length), loaded + " of " + others.length + " views loaded");
+
+		for (other in others)
+		{
+			other.close();
+		}
+	}
+
 	public function testAPageCanBeSavedAsAPDF():Void
 	{
 		if (!canRun()) return;
@@ -385,6 +422,31 @@ class WebViewTest extends Test
 		trace("No web engine here, so views were not tested");
 		Assert.pass();
 		return false;
+	}
+
+	private static function closeFromListener(asked:Array<Int>):Void
+	{
+		// Made here, so that nothing on the test's stack keeps the view
+		var closing = new WebView();
+
+		closing.onNavigate.add(function(_)
+		{
+			asked[0]++;
+			closing.close();
+		});
+
+		closing.load("about:blank");
+	}
+
+	private static function collect():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
 	}
 
 	private static function create():Window
