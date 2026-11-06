@@ -111,6 +111,16 @@ jobs:
           xvfb-run -a lime test hl -release -verbose -nocolor -DUTEST_PATTERN=WebViewTest
           xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=WebViewTest
 
+      - name: Run software OpenGL tests
+        working-directory: tests/unit
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+          # Skips the GPU, as on a machine without one
+          LIME_SOFTWARE_GL: "1"
+        run: |
+          xvfb-run -a lime test linux -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
+
       - name: Run unit tests past 24.8 days
         working-directory: tests/unit
         # A timer stuck at the Int limit hangs the tests rather than failing them
@@ -402,6 +412,16 @@ jobs:
           lime test neko -release -verbose -nocolor
           lime test mac -arm64 -release -verbose -nocolor
 
+      - name: Run software OpenGL tests
+        working-directory: tests/unit
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+          # Skips the GPU, as on a machine without one
+          LIME_SOFTWARE_GL: "1"
+        run: |
+          lime test mac -arm64 -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
+
       - name: Run video smoke test
         working-directory: tests/video-smoke
         run: |
@@ -587,6 +607,7 @@ jobs:
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.0.1 --quiet
           haxelib install wsproto 1.0.0 --quiet
+          haxelib install lime-mesa 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -660,6 +681,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test windows -release -verbose -nocolor
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run software OpenGL tests
+        working-directory: tests/unit
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+          # Skips the GPU, as on a machine without one
+          LIME_SOFTWARE_GL: "1"
+        run: |
+          lime test windows -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
 
       - name: Check native desktop integration through SDL
         working-directory: tests/native-desktop
