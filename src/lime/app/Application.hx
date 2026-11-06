@@ -41,7 +41,8 @@ class Application extends Module
 		Whether the application has its own menu bar, set using `menu`.
 
 		This is `true` on macOS, where the menu bar belongs to the application
-		rather than to its windows. Elsewhere, use `Window.menu` when
+		rather than to its windows, and on HTML5, where windows without a menu
+		of their own show it. Elsewhere, use `Window.menu` when
 		`Window.supportsMenu` is `true`.
 	**/
 	public static var supportsMenu(get, never):Bool;
@@ -757,6 +758,8 @@ class Application extends Module
 	{
 		#if (lime_cffi && !macro)
 		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_APPLICATION) != 0;
+		#elseif (js && html5)
+		return true;
 		#else
 		return false;
 		#end

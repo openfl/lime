@@ -46,6 +46,8 @@ import lime.app.Event;
 
 	Availability note: native menus are implemented on Windows and macOS. On
 	Linux, context menus are available when GTK 3 is installed and SDL uses X11.
+	On HTML5, menu bars and context menus are drawn in the page, following the
+	window's `appearance`, and can be restyled with the `lime-menu` CSS classes.
 	Elsewhere, menus can be created and assigned, but are not displayed.
 **/
 #if !lime_debug
@@ -174,7 +176,9 @@ class Menu
 
 		This call blocks until the menu is dismissed, and the `onSelect` events
 		of the chosen item are dispatched before it returns. To avoid the mouse
-		button staying pressed, open context menus on mouse up.
+		button staying pressed, open context menus on mouse up. On HTML5, the
+		call returns at once, and the events are dispatched when an item is
+		chosen.
 	**/
 	public function popup(window:Window, ?x:Float, ?y:Float):Void
 	{
@@ -243,6 +247,8 @@ class Menu
 	{
 		#if (lime_cffi && !macro)
 		return lime._internal.backend.native.NativeMenu.getSupport() != 0;
+		#elseif (js && html5)
+		return true;
 		#else
 		return false;
 		#end

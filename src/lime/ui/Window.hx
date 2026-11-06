@@ -33,8 +33,9 @@ class Window
 	/**
 	 * Whether windows have their own menu bar, set using `menu`.
 	 *
-	 * This is `true` on Windows. On macOS, the menu bar belongs to the
-	 * application instead (see `Application.supportsMenu`).
+	 * This is `true` on Windows, and on HTML5, where the menu bar is drawn
+	 * across the top of the window's element. On macOS, the menu bar belongs
+	 * to the application instead (see `Application.supportsMenu`).
 	**/
 	public static var supportsMenu(get, never):Bool;
 
@@ -102,7 +103,9 @@ class Window
 	 * The menu displayed as this window's menu bar, or `null` for none.
 	 *
 	 * Changes to the menu are applied to the menu bar immediately. Adding or
-	 * removing the menu bar keeps the size of the window content the same.
+	 * removing the menu bar keeps the size of the window content the same,
+	 * except on HTML5, where the content of a window that fills its element
+	 * makes room for the menu bar.
 	 * Menu bar key equivalents are handled before `onKeyDown`, which is not
 	 * dispatched for them.
 	 *
@@ -2852,6 +2855,8 @@ class Window
 	{
 		#if (lime_cffi && !macro)
 		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_WINDOW) != 0;
+		#elseif (js && html5)
+		return true;
 		#else
 		return false;
 		#end

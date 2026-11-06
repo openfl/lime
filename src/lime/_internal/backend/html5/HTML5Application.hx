@@ -471,7 +471,14 @@ class HTML5Application
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
-	public function setMenu(menu:Menu):Void {}
+	public function setMenu(menu:Menu):Void
+	{
+		// Shown by the windows without a menu of their own
+		for (window in parent.__windows)
+		{
+			if (window.__menu == null) window.__backend.setMenu(null);
+		}
+	}
 
 	public function setVSyncMode(mode:VSyncMode):Void {}
 
@@ -495,6 +502,13 @@ class HTML5Application
 
 			if (event.type == "keydown")
 			{
+				// Key equivalents of the menu bar take priority, like native accelerators
+				if (parent.window.__backend.handleMenuKeyEquivalent(keyCode, modifier))
+				{
+					if (event.cancelable) event.preventDefault();
+					return;
+				}
+
 				@:privateAccess parent.window.onKeyDown.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyDown.canceled && event.cancelable)

@@ -42,7 +42,8 @@ class MenuItem
 	/**
 		The modifier keys that must be held with `keyCode`. Defaults to
 		`KeyModifier.CTRL` (`KeyModifier.META` on macOS). Left and right
-		modifier keys are treated the same.
+		modifier keys are treated the same. On HTML5 in macOS browsers, `CTRL`
+		without `META` stands for the Command key.
 	**/
 	public var keyModifier(get, set):KeyModifier;
 
