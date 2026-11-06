@@ -8,6 +8,7 @@ Changelog
 - Added `VulkanRenderContext` and Haxe Vulkan bindings for instance, device, swapchain, command, descriptor, memory, and pipeline helpers.
 - Added Vulkan bootstrap logging, error details, MSAA resolve support, mapped memory helpers, and descriptor helpers.
 - Added the `vulkan` define, which makes Vulkan the default for windows that name no context type, and the `no-vulkan` define to build without Vulkan. Where Vulkan is not available, the window uses OpenGL.
+- Added the `software-gl` define, which falls back to OpenGL drawn in software, before Cairo, on Windows, macOS and Linux. Set `LIME_SOFTWARE_GL=1` to test it. OpenGL contexts drawn in software report `attributes.hardware` as `false`.
 - Added `<config:android vulkan-required="false" />` to let Vulkan applications install on devices without Vulkan, and `<config:android vulkan-version="..." />`.
 - Added configurable application frame timing with `FrameProfile`, `FrameOptions`, `VSyncMode`, busy-wait, time precision, and uncap controls.
 - Added `AudioInput` and audio input device APIs with native OpenAL, HTML5, and Flash backends.

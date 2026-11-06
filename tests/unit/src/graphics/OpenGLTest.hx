@@ -5,6 +5,7 @@ import lime.graphics.OpenGLRenderContext;
 import lime.graphics.opengl.GLTexture;
 import lime.ui.Window;
 import lime.utils.DataPointer;
+import lime.utils.Float32Array;
 import lime.utils.UInt8Array;
 import utest.Assert;
 import utest.Test;
@@ -184,6 +185,95 @@ class OpenGLTest extends Test
 		makeCurrent(main);
 		gl.activeTexture(gl.TEXTURE0);
 	}
+
+	#if software_gl
+	public function testAForcedSoftwareContextDraws():Void
+	{
+		var forced = Sys.getEnv("LIME_SOFTWARE_GL");
+
+		if (forced == null || forced == "" || forced == "0")
+		{
+			trace("LIME_SOFTWARE_GL is not set, so software OpenGL was not tested");
+			Assert.pass();
+			return;
+		}
+
+		if (Application.current.window == null) createWindow();
+		var main = Application.current.window;
+
+		if (main == null || main.context == null)
+		{
+			trace("There is no window here, so software OpenGL was not tested");
+			Assert.pass();
+			return;
+		}
+
+		var gl = main.context.gl;
+
+		if (gl == null)
+		{
+			Assert.fail("The window fell back to " + main.context.type + " instead of software OpenGL");
+			return;
+		}
+
+		makeCurrent(main);
+		var renderer = gl.getString(gl.RENDERER);
+		Assert.isFalse(main.context.attributes.hardware, renderer + " was reported as hardware");
+
+		// A quad drawn over a red clear, so the pixels come from a shader, not only the clear
+		var program = createProgram(gl, "attribute vec2 position; void main () { gl_Position = vec4 (position, 0.0, 1.0); }",
+			"void main () { gl_FragColor = vec4 (0.0, 1.0, 0.0, 1.0); }");
+		var texture = createTexture(gl, 0);
+		var framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+		gl.viewport(0, 0, 2, 2);
+		gl.clearColor(1, 0, 0, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		var buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, 32, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+		var position = gl.getAttribLocation(program, "position");
+		gl.useProgram(program);
+		gl.enableVertexAttribArray(position);
+		gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+		var pixels = new UInt8Array(16);
+		gl.readPixels(0, 0, 2, 2, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+		gl.disableVertexAttribArray(position);
+		gl.useProgram(null);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.deleteBuffer(buffer);
+		gl.deleteFramebuffer(framebuffer);
+		gl.deleteTexture(texture);
+		gl.deleteProgram(program);
+
+		Assert.same([for (i in 0...16) i % 2 == 1 ? 255 : 0], [for (i in 0...16) pixels[i]], renderer + " did not draw the quad");
+	}
+
+	private static function createProgram(gl:OpenGLRenderContext, vertexSource:String, fragmentSource:String):lime.graphics.opengl.GLProgram
+	{
+		var program = gl.createProgram();
+
+		for (source in [{type: gl.VERTEX_SHADER, text: vertexSource}, {type: gl.FRAGMENT_SHADER, text: fragmentSource}])
+		{
+			var shader = gl.createShader(source.type);
+			gl.shaderSource(shader, source.text);
+			gl.compileShader(shader);
+			Assert.isTrue(gl.getShaderParameter(shader, gl.COMPILE_STATUS) != 0, gl.getShaderInfoLog(shader));
+			gl.attachShader(program, shader);
+			gl.deleteShader(shader);
+		}
+
+		gl.linkProgram(program);
+		Assert.isTrue(gl.getProgramParameter(program, gl.LINK_STATUS) != 0, gl.getProgramInfoLog(program));
+		return program;
+	}
+	#end
 
 	private static function getMainWindow():Window
 	{

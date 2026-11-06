@@ -140,6 +140,9 @@ class NativeWindow
 		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) flags |= cast WindowFlags.WINDOW_FLAG_VULKAN;
 		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		#if software_gl
+		flags |= cast WindowFlags.WINDOW_FLAG_SOFTWARE_OPENGL;
+		#end
 
 		var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
 
@@ -181,7 +184,9 @@ class NativeWindow
 				var gl = new NativeOpenGLRenderContext();
 				useHardware = true;
 
-				contextAttributes.hardware = true;
+				// The new context is current. It may draw in software, as software-gl falls back
+				// to, or as a machine without a GPU does
+				contextAttributes.hardware = !isSoftwareRenderer(gl.getString(gl.RENDERER));
 				#if lime_opengl
 				context.gl = gl;
 				#end
@@ -583,6 +588,20 @@ class NativeWindow
 	{
 		var window = hasOpenGLContext(rendering, except) ? rendering : getMainOpenGLWindow(application, except);
 		if (window != null) window.__backend.contextMakeCurrent();
+	}
+
+	private static function isSoftwareRenderer(renderer:String):Bool
+	{
+		if (renderer == null) return false;
+
+		renderer = renderer.toLowerCase();
+
+		for (name in ["llvmpipe", "softpipe", "swiftshader", "apple software renderer", "gdi generic", "microsoft basic render driver"])
+		{
+			if (renderer.indexOf(name) > -1) return true;
+		}
+
+		return false;
 	}
 
 	private static function hasOpenGLContext(window:Window, except:Window):Bool
@@ -989,4 +1008,5 @@ class NativeWindow
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
 	var WINDOW_FLAG_VULKAN = 0x00020000;
 	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
+	var WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000;
 }

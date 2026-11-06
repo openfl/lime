@@ -114,6 +114,14 @@
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 
+		<!-- Mesa sits in a folder of its own, as beside the executable Windows would use it even with a GPU -->
+		<section if="windows software-gl" unless="angle || winrt">
+			<haxelib name="lime-mesa" />
+			<template path="${haxelib:lime-mesa}/ndll/Windows64/opengl32.dll" rename="mesa/opengl32.dll" />
+			<template path="${haxelib:lime-mesa}/ndll/Windows64/libgallium_wgl.dll" rename="mesa/libgallium_wgl.dll" />
+			<template path="${haxelib:lime-mesa}/LICENSE.md" rename="mesa/LICENSE.md" />
+		</section>
+
 		<!-- TODO: Move to template or move all template dependencies to XML? -->
 		<dependency name="CoreMedia.framework" if="ios" />
 		<dependency name="CoreVideo.framework" if="ios" />

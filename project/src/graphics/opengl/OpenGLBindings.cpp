@@ -5648,6 +5648,7 @@ namespace lime {
 		if (!initialized) {
 
 			initialized = true;
+			result = true;
 
 			#ifdef HX_LINUX
 
@@ -5694,6 +5695,14 @@ namespace lime {
 		}
 
 		return result;
+
+	}
+
+
+	// The next Init looks the functions up again, as after SDL loads another OpenGL library
+	void OpenGLBindings::Reload () {
+
+		initialized = false;
 
 	}
 

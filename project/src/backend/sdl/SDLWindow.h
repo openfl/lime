@@ -85,6 +85,8 @@ namespace lime {
 
 		private:
 
+			void CreateOpenGLContext ();
+
 			int activeSwapInterval;
 			SDL_GLContext context;
 			int contextHeight;

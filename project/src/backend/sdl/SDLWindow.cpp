@@ -27,6 +27,11 @@
 
 #include <SDL_syswm.h>
 
+// Desktop OpenGL can fall back to a software renderer, see LoadSoftwareOpenGL
+#if (defined (HX_WINDOWS) && !defined (HX_WINRT) && !defined (NATIVE_TOOLKIT_SDL_ANGLE)) || defined (HX_MACOS) || (defined (HX_LINUX) && !defined (RASPBERRYPI))
+#define SOFTWARE_OPENGL
+#endif
+
 
 namespace lime {
 
@@ -395,6 +400,32 @@ namespace lime {
 		return enabled;
 
 	}
+
+	static void SetExecutableIcon (SDL_Window* sdlWindow) {
+
+		HINSTANCE handle = ::GetModuleHandle (nullptr);
+		HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
+
+		if (icon != nullptr) {
+
+			SDL_SysWMinfo wminfo;
+			SDL_VERSION (&wminfo.version);
+
+			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
+
+				HWND hwnd = wminfo.info.win.window;
+
+				#ifdef _WIN64
+				::SetClassLongPtr (hwnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(icon));
+				#else
+				::SetClassLong (hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
+				#endif
+
+			}
+
+		}
+
+	}
 #endif
 
 #ifdef HX_MACOS
@@ -437,6 +468,178 @@ namespace lime {
 #elif !defined (HX_WINDOWS) || defined (HX_WINRT)
 	#ifndef HX_MACOS
 	static bool EnableTransparentWindow (SDL_Window* sdlWindow) { return false; }
+	#endif
+#endif
+
+#ifdef SOFTWARE_OPENGL
+	// The first OpenGL window settles whether OpenGL is drawn in software, and later
+	// windows share its library
+	static bool softwareOpenGLChecked = false;
+	static bool softwareOpenGLLoaded = false;
+
+	// LIME_SOFTWARE_GL=1 skips the GPU, to test as a machine without one would run
+	static bool IsSoftwareOpenGLForced () {
+
+		const char* value = SDL_getenv ("LIME_SOFTWARE_GL");
+		return value && value[0] != '\0' && SDL_strcmp (value, "0") != 0;
+
+	}
+
+	// Readies the next OpenGL context for a software renderer: Mesa's llvmpipe on
+	// Windows and Linux, and Apple's software renderer on macOS
+	static bool LoadSoftwareOpenGL () {
+
+		if (softwareOpenGLLoaded) return true;
+
+		#if defined (HX_WINDOWS)
+		// Mesa is kept in a folder of its own, as beside the executable Windows would
+		// load its opengl32.dll in place of the system's, even with a GPU
+		char* basePath = SDL_GetBasePath ();
+		if (!basePath) return false;
+
+		char* galliumPath = NULL;
+		char* openGLPath = NULL;
+		SDL_asprintf (&galliumPath, "%smesa\\libgallium_wgl.dll", basePath);
+		SDL_asprintf (&openGLPath, "%smesa\\opengl32.dll", basePath);
+		SDL_free (basePath);
+
+		// Mesa would choose its D3D12 driver, which draws on the GPU, where it can
+		if (!SDL_getenv ("GALLIUM_DRIVER")) {
+
+			SDL_setenv ("GALLIUM_DRIVER", "llvmpipe", 1);
+
+		}
+
+		// Mesa's opengl32.dll finds its driver from another folder only once it is loaded
+		void* gallium = galliumPath ? SDL_LoadObject (galliumPath) : NULL;
+		bool loaded = gallium && openGLPath && SDL_GL_LoadLibrary (openGLPath) == 0;
+
+		if (!loaded) {
+
+			SDL_LogWarn (SDL_LOG_CATEGORY_VIDEO, "Mesa could not be loaded for software OpenGL: %s", SDL_GetError ());
+			if (gallium) SDL_UnloadObject (gallium);
+
+		}
+
+		SDL_free (galliumPath);
+		SDL_free (openGLPath);
+		if (!loaded) return false;
+
+		OpenGLBindings::Reload ();
+		#elif defined (HX_MACOS)
+		SDL_GL_SetAttribute (SDL_GL_ACCELERATED_VISUAL, 0);
+		#else
+		// Mesa and GLVND read these as SDL's display first uses GLX, see HasX11HardwareOpenGL
+		SDL_setenv ("LIBGL_ALWAYS_SOFTWARE", "1", 1);
+		SDL_setenv ("__GLX_VENDOR_LIBRARY_NAME", "mesa", 1);
+		#endif
+
+		softwareOpenGLLoaded = true;
+		return true;
+
+	}
+
+	#if defined (HX_LINUX)
+	static int IgnoreX11Error (Display* display, XErrorEvent* event) { return 0; }
+
+	// Mesa and GLVND choose a display's renderer once, as it first uses GLX, so SDL's
+	// display could not be asked for software after it failed on the GPU. A display of
+	// its own tries the GPU first instead
+	static bool HasX11HardwareOpenGL () {
+
+		bool hardware = false;
+
+		void* x11 = SDL_LoadObject ("libX11.so.6");
+		if (!x11) return false;
+
+		void* gl = SDL_LoadObject ("libGL.so.1");
+		if (!gl) {
+
+			SDL_UnloadObject (x11);
+			return false;
+
+		}
+
+		typedef Display* (*XOpenDisplayFunction) (const char*);
+		typedef int (*XCloseDisplayFunction) (Display*);
+		typedef int (*XDefaultScreenFunction) (Display*);
+		typedef int (*XFreeFunction) (void*);
+		typedef int (*XSyncFunction) (Display*, Bool);
+		typedef XErrorHandler (*XSetErrorHandlerFunction) (XErrorHandler);
+		typedef GLXFBConfig* (*glXChooseFBConfigFunction) (Display*, int, const int*, int*);
+		typedef GLXPbuffer (*glXCreatePbufferFunction) (Display*, GLXFBConfig, const int*);
+		typedef void (*glXDestroyPbufferFunction) (Display*, GLXPbuffer);
+		typedef GLXContext (*glXCreateNewContextFunction) (Display*, GLXFBConfig, int, GLXContext, Bool);
+		typedef void (*glXDestroyContextFunction) (Display*, GLXContext);
+		typedef Bool (*glXMakeContextCurrentFunction) (Display*, GLXDrawable, GLXDrawable, GLXContext);
+		typedef const GLubyte* (*glGetStringFunction) (GLenum);
+
+		XOpenDisplayFunction limeXOpenDisplay = (XOpenDisplayFunction)SDL_LoadFunction (x11, "XOpenDisplay");
+		XCloseDisplayFunction limeXCloseDisplay = (XCloseDisplayFunction)SDL_LoadFunction (x11, "XCloseDisplay");
+		XDefaultScreenFunction limeXDefaultScreen = (XDefaultScreenFunction)SDL_LoadFunction (x11, "XDefaultScreen");
+		XFreeFunction limeXFree = (XFreeFunction)SDL_LoadFunction (x11, "XFree");
+		XSyncFunction limeXSync = (XSyncFunction)SDL_LoadFunction (x11, "XSync");
+		XSetErrorHandlerFunction limeXSetErrorHandler = (XSetErrorHandlerFunction)SDL_LoadFunction (x11, "XSetErrorHandler");
+		glXChooseFBConfigFunction limeGlXChooseFBConfig = (glXChooseFBConfigFunction)SDL_LoadFunction (gl, "glXChooseFBConfig");
+		glXCreatePbufferFunction limeGlXCreatePbuffer = (glXCreatePbufferFunction)SDL_LoadFunction (gl, "glXCreatePbuffer");
+		glXDestroyPbufferFunction limeGlXDestroyPbuffer = (glXDestroyPbufferFunction)SDL_LoadFunction (gl, "glXDestroyPbuffer");
+		glXCreateNewContextFunction limeGlXCreateNewContext = (glXCreateNewContextFunction)SDL_LoadFunction (gl, "glXCreateNewContext");
+		glXDestroyContextFunction limeGlXDestroyContext = (glXDestroyContextFunction)SDL_LoadFunction (gl, "glXDestroyContext");
+		glXMakeContextCurrentFunction limeGlXMakeContextCurrent = (glXMakeContextCurrentFunction)SDL_LoadFunction (gl, "glXMakeContextCurrent");
+		glGetStringFunction limeGlGetString = (glGetStringFunction)SDL_LoadFunction (gl, "glGetString");
+
+		Display* display = NULL;
+
+		if (limeXOpenDisplay && limeXCloseDisplay && limeXDefaultScreen && limeXFree && limeXSync && limeXSetErrorHandler && limeGlXChooseFBConfig && limeGlXCreatePbuffer && limeGlXDestroyPbuffer && limeGlXCreateNewContext && limeGlXDestroyContext && limeGlXMakeContextCurrent && limeGlGetString) {
+
+			display = limeXOpenDisplay (NULL);
+
+		}
+
+		if (display) {
+
+			// A failed request would otherwise end the process
+			XErrorHandler previousHandler = limeXSetErrorHandler (IgnoreX11Error);
+
+			int attribs[] = { GLX_DRAWABLE_TYPE, GLX_PBUFFER_BIT, GLX_RENDER_TYPE, GLX_RGBA_BIT, None };
+			int fbcount = 0;
+			GLXFBConfig* configs = limeGlXChooseFBConfig (display, limeXDefaultScreen (display), attribs, &fbcount);
+
+			if (configs && fbcount > 0) {
+
+				int pbufferAttribs[] = { GLX_PBUFFER_WIDTH, 1, GLX_PBUFFER_HEIGHT, 1, None };
+				GLXPbuffer pbuffer = limeGlXCreatePbuffer (display, configs[0], pbufferAttribs);
+				GLXContext context = limeGlXCreateNewContext (display, configs[0], GLX_RGBA_TYPE, NULL, True);
+
+				if (pbuffer && context && limeGlXMakeContextCurrent (display, pbuffer, pbuffer, context)) {
+
+					const char* version = (const char*)limeGlGetString (GL_VERSION);
+					float versionScan = 0;
+					hardware = version && sscanf (version, "%f", &versionScan) == 1 && versionScan >= 2;
+
+					limeGlXMakeContextCurrent (display, None, None, NULL);
+
+				}
+
+				if (context) limeGlXDestroyContext (display, context);
+				if (pbuffer) limeGlXDestroyPbuffer (display, pbuffer);
+
+			}
+
+			if (configs) limeXFree (configs);
+
+			limeXSync (display, False);
+			limeXSetErrorHandler (previousHandler);
+			limeXCloseDisplay (display);
+
+		}
+
+		SDL_UnloadObject (gl);
+		SDL_UnloadObject (x11);
+
+		return hardware;
+
+	}
 	#endif
 #endif
 
@@ -486,6 +689,10 @@ namespace lime {
 		}
 
 		int sdlWindowFlags = 0;
+
+		#ifdef SOFTWARE_OPENGL
+		bool retrySoftwareOpenGL = false;
+		#endif
 
 		if (flags & WINDOW_FLAG_FULLSCREEN) sdlWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		if (flags & WINDOW_FLAG_RESIZABLE) sdlWindowFlags |= SDL_WINDOW_RESIZABLE;
@@ -609,6 +816,32 @@ namespace lime {
 
 				}
 
+				#ifdef SOFTWARE_OPENGL
+				if ((flags & WINDOW_FLAG_SOFTWARE_OPENGL) && !softwareOpenGLChecked) {
+
+					softwareOpenGLChecked = true;
+
+					#if defined (HX_LINUX)
+					if (IsSoftwareOpenGLForced () || !HasX11HardwareOpenGL ()) {
+
+						LoadSoftwareOpenGL ();
+
+					}
+					#else
+					if (IsSoftwareOpenGLForced ()) {
+
+						LoadSoftwareOpenGL ();
+
+					} else {
+
+						retrySoftwareOpenGL = true;
+
+					}
+					#endif
+
+				}
+				#endif
+
 			}
 
 		}
@@ -671,29 +904,7 @@ namespace lime {
 		}
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-
-		HINSTANCE handle = ::GetModuleHandle (nullptr);
-		HICON icon = ::LoadIcon (handle, MAKEINTRESOURCE (1));
-
-		if (icon != nullptr) {
-
-			SDL_SysWMinfo wminfo;
-			SDL_VERSION (&wminfo.version);
-
-			if (SDL_GetWindowWMInfo (sdlWindow, &wminfo) == 1) {
-
-				HWND hwnd = wminfo.info.win.window;
-
-				#ifdef _WIN64
-				::SetClassLongPtr (hwnd, GCLP_HICON, reinterpret_cast<LONG_PTR>(icon));
-				#else
-				::SetClassLong (hwnd, GCL_HICON, reinterpret_cast<LONG>(icon));
-				#endif
-
-			}
-
-		}
-
+		SetExecutableIcon (sdlWindow);
 		#endif
 
 		int sdlRendererFlags = 0;
@@ -718,71 +929,51 @@ namespace lime {
 
 			// }
 
-			// Windows share textures, buffers and shaders through the context current as
-			// one is made, which Lime keeps to the main window's
-			bool shareContext = SDL_GL_GetCurrentContext () != NULL;
-			SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, shareContext ? 1 : 0);
-			context = SDL_GL_CreateContext (sdlWindow);
+			CreateOpenGLContext ();
 
-			if (!context && shareContext) {
+			#ifdef SOFTWARE_OPENGL
+			// Without a hardware context, the first window tries again in software
+			if (!context && retrySoftwareOpenGL) {
 
-				SDL_LogWarn (SDL_LOG_CATEGORY_VIDEO, "The window's OpenGL context could not share with the other windows: %s", SDL_GetError ());
-				SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
-				context = SDL_GL_CreateContext (sdlWindow);
+				#if defined (HX_WINDOWS)
+				// A window keeps the pixel format of the OpenGL library it was made with,
+				// and SDL unloads the system's with its only window
+				SDL_DestroyWindow (sdlWindow);
+				bool loaded = LoadSoftwareOpenGL ();
+				sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
 
-			}
+				if (!sdlWindow) {
 
-			SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+					printf ("Could not create SDL window: %s.\n", SDL_GetError ());
+					return;
 
-			if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
+				}
+
+				InstallResizeEventHook (sdlWindow);
 
 				if (flags & WINDOW_FLAG_TRANSPARENT) {
 
-					EnableTransparentOpenGLSurface ();
+					transparent = EnableTransparentWindow (sdlWindow);
 
 				}
 
-				SetVSyncMode (requestedVSyncMode);
+				SetExecutableIcon (sdlWindow);
 
-				OpenGLBindings::Init ();
+				if (loaded) {
 
-				#ifndef LIME_GLES
-
-				int version = 0;
-				glGetIntegerv (GL_MAJOR_VERSION, &version);
-
-				if (version == 0) {
-
-					float versionScan = 0;
-					sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
-					version = versionScan;
+					CreateOpenGLContext ();
 
 				}
+				#else
+				if (LoadSoftwareOpenGL ()) {
 
-				if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
-
-					SDL_GL_DeleteContext (context);
-					context = 0;
+					CreateOpenGLContext ();
 
 				}
-
-				#elif defined(IPHONE) || defined(APPLETV)
-
-				// SDL_SysWMinfo windowInfo;
-				// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
-				// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
-				// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
-				glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
-				glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
-
 				#endif
 
-			} else {
-
-				SDL_GL_DeleteContext (context);
-				context = NULL;
-
 			}
+			#endif
 
 		}
 
@@ -804,6 +995,77 @@ namespace lime {
 		} else {
 
 			printf ("Could not create SDL renderer: %s.\n", SDL_GetError ());
+
+		}
+
+	}
+
+
+	void SDLWindow::CreateOpenGLContext () {
+
+		// Windows share textures, buffers and shaders through the context current as
+		// one is made, which Lime keeps to the main window's
+		bool shareContext = SDL_GL_GetCurrentContext () != NULL;
+		SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, shareContext ? 1 : 0);
+		context = SDL_GL_CreateContext (sdlWindow);
+
+		if (!context && shareContext) {
+
+			SDL_LogWarn (SDL_LOG_CATEGORY_VIDEO, "The window's OpenGL context could not share with the other windows: %s", SDL_GetError ());
+			SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+			context = SDL_GL_CreateContext (sdlWindow);
+
+		}
+
+		SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+
+		if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
+
+			if (flags & WINDOW_FLAG_TRANSPARENT) {
+
+				EnableTransparentOpenGLSurface ();
+
+			}
+
+			SetVSyncMode (requestedVSyncMode);
+
+			OpenGLBindings::Init ();
+
+			#ifndef LIME_GLES
+
+			int version = 0;
+			glGetIntegerv (GL_MAJOR_VERSION, &version);
+
+			if (version == 0) {
+
+				float versionScan = 0;
+				sscanf ((const char*)glGetString (GL_VERSION), "%f", &versionScan);
+				version = versionScan;
+
+			}
+
+			if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
+
+				SDL_GL_DeleteContext (context);
+				context = 0;
+
+			}
+
+			#elif defined(IPHONE) || defined(APPLETV)
+
+			// SDL_SysWMinfo windowInfo;
+			// SDL_GetWindowWMInfo (sdlWindow, &windowInfo);
+			// OpenGLBindings::defaultFramebuffer = windowInfo.info.uikit.framebuffer;
+			// OpenGLBindings::defaultRenderbuffer = windowInfo.info.uikit.colorbuffer;
+			glGetIntegerv (GL_FRAMEBUFFER_BINDING, &OpenGLBindings::defaultFramebuffer);
+			glGetIntegerv (GL_RENDERBUFFER_BINDING, &OpenGLBindings::defaultRenderbuffer);
+
+			#endif
+
+		} else {
+
+			SDL_GL_DeleteContext (context);
+			context = NULL;
 
 		}
 
