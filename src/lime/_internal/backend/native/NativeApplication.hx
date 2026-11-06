@@ -662,6 +662,7 @@ class NativeApplication
 					#end
 					if (window.context != null)
 					{
+						NativeWindow.rendering = window;
 						window.__backend.render();
 						window.onRender.dispatch(window.context);
 
@@ -669,6 +670,8 @@ class NativeApplication
 						{
 							window.__backend.contextFlip();
 						}
+
+						NativeWindow.rendering = null;
 					}
 
 				case RENDER_CONTEXT_LOST:

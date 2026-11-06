@@ -49,6 +49,11 @@ import lime.utils.UInt8Array;
 @:access(lime.ui.Window)
 class NativeWindow
 {
+	/**
+		The window that renders now, whose context stays current while other windows are made or closed.
+	**/
+	public static var rendering:Window;
+
 	public var handle:Dynamic;
 
 	private var closing:Bool;
@@ -141,6 +146,8 @@ class NativeWindow
 
 		if (handle == null)
 		{
+			// A context made and deleted on the way leaves none current
+			restoreCurrentContext(parent.application, parent);
 			return;
 		}
 
@@ -209,8 +216,7 @@ class NativeWindow
 		context.attributes = contextAttributes;
 		parent.context = context;
 
-		// Outside of rendering, the main window's context stays current
-		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+		restoreCurrentContext(parent.application, parent);
 
 		frameRate = resolvedFrameRate;
 		#end
@@ -249,8 +255,7 @@ class NativeWindow
 					handle = null;
 
 					// Closing the window whose context was current leaves none current
-					var mainWindow = getMainOpenGLWindow(parent.application, parent);
-					if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+					restoreCurrentContext(parent.application, parent);
 				}
 			}
 			else
@@ -560,6 +565,16 @@ class NativeWindow
 		}
 
 		return null;
+	}
+
+	/**
+		Makes current the context of the window that renders now, or outside of rendering, the
+		main window's.
+	**/
+	private static function restoreCurrentContext(application:Application, except:Window):Void
+	{
+		var window = hasOpenGLContext(rendering, except) ? rendering : getMainOpenGLWindow(application, except);
+		if (window != null) window.__backend.contextMakeCurrent();
 	}
 
 	private static function hasOpenGLContext(window:Window, except:Window):Bool

@@ -144,6 +144,47 @@ class OpenGLTest extends Test
 		gl.activeTexture(gl.TEXTURE0);
 	}
 
+	public function testARenderKeepsItsContextWhenAnotherWindowOpensAndCloses():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+		gl.activeTexture(gl.TEXTURE5);
+
+		var other = createWindow();
+		makeCurrent(other);
+		gl.activeTexture(gl.TEXTURE3);
+		makeCurrent(main);
+
+		var units:Array<Int> = [];
+		var listener = function(_)
+		{
+			var popup = createWindow();
+			units.push(gl.getParameter(gl.ACTIVE_TEXTURE));
+			popup.close();
+			units.push(gl.getParameter(gl.ACTIVE_TEXTURE));
+		};
+
+		other.onRender.add(listener);
+		var backend = @:privateAccess Application.current.__backend;
+		@:privateAccess backend.renderEventInfo.type = RENDER;
+		@:privateAccess backend.handleRenderEvent();
+		other.onRender.remove(listener);
+
+		Assert.equals(2, units.length);
+		Assert.equals(gl.TEXTURE3, units[0], "making a window moved the rest of the render to another context");
+		Assert.equals(gl.TEXTURE3, units[1], "closing a window moved the rest of the render to another context");
+		Assert.equals(gl.TEXTURE5, gl.getParameter(gl.ACTIVE_TEXTURE), "rendering left the last window's context current");
+
+		makeCurrent(other);
+		gl.activeTexture(gl.TEXTURE0);
+		other.close();
+		makeCurrent(main);
+		gl.activeTexture(gl.TEXTURE0);
+	}
+
 	private static function getMainWindow():Window
 	{
 		// The first window created becomes the application's own
