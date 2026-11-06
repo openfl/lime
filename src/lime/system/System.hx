@@ -552,7 +552,8 @@ class System
 		var time:Float = flash.Lib.getTimer();
 		#elseif ((js && !nodejs) || electron)
 		var time:Float = Browser.window.performance.now();
-		#elseif (lime_cffi && !macro)
+		#elseif (lime_cffi && !macro && !optional_cffi)
+		// The command-line tools run before lime.ndll is built, so they keep to Sys.time()
 		var time:Float = NativeCFFI.lime_system_get_timer();
 		#elseif cpp
 		var time:Float = untyped __global__.__time_stamp() * 1000;
