@@ -316,6 +316,7 @@
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/webm/" if="windows" unless="winrt" />
 			<compilerflag value="-DLIME_VORBIS" />
 
 			<file name="src/media/codecs/vorbis/VorbisBindings.cpp" />
@@ -483,6 +484,7 @@
 		<files id="native-toolkit-vorbis" if="LIME_VORBIS" />
 		<files id="native-toolkit-vpx" if="LIME_VPX" />
 		<files id="native-toolkit-webm" if="LIME_WEBM" />
+		<files id="native-toolkit-webm-parser" if="LIME_VORBIS windows" unless="winrt" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
 
 		<section unless="static_link">

@@ -88,6 +88,9 @@ This product bundles tinyfiledialogs 2.9.3, which is available under a
 This product bundles libvorbis 1.3.3, which is available under a
 "BSD" license. For details, see [project/lib/vorbis/](project/lib).
 
+This product bundles libwebm 1.0.0.28, which is available under a
+"BSD" license. For details, see [project/lib/webm/](project/lib).
+
 This product bundles zlib 1.2.8, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
 
