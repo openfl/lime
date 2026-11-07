@@ -430,6 +430,19 @@ class NativeHTTPRequest
 			path = path.substring(0, index);
 		}
 
+		if (StringTools.startsWith(path, "file://"))
+		{
+			// a file URL, as AIR's File.url gives: file:///home/user/a%20b.txt, file:///C:/dir/file.txt
+			path = StringTools.urlDecode(path.substr("file://".length));
+
+			#if windows
+			if (~/^\/[A-Za-z]:/.match(path))
+			{
+				path = path.substr(1);
+			}
+			#end
+		}
+
 		#if (sys && !windows)
 		if (StringTools.startsWith(path, "~/"))
 		{
