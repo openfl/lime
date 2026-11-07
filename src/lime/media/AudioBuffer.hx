@@ -116,6 +116,24 @@ class AudioBuffer
 		__srcSDLSoundPath = null;
 		__srcVorbisBytes = null;
 		__srcVorbisPath = null;
+
+		#if (lime_cffi && !macro)
+		// Free the samples: the decoded data, and the OpenAL buffer made from it on the first play (OpenAL keeps its own
+		// copy). Otherwise anything still holding the buffer keeps the whole sound in memory. OpenAL refuses to delete a
+		// buffer a source still plays, which leaves it to that source.
+		#if lime_openal
+		if (__srcBuffer != null)
+		{
+			if (__srcBufferContext == AudioManager.__contextGeneration)
+			{
+				AL.deleteBuffer(__srcBuffer);
+				AL.getError();
+			}
+			__srcBuffer = null;
+		}
+		#end
+		data = null;
+		#end
 	}
 
 	/**
