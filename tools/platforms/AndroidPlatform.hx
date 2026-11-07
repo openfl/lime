@@ -462,6 +462,17 @@ class AndroidPlatform extends PlatformTarget
 				"android:installLocation": project.config.getString("android.install-location", "auto")
 			});
 		context.ANDROID_MANIFEST_CHILDREN = project.config.get("android.manifest").xmlChildren;
+
+		// Manifests copied from Lime 8.3 and earlier still name this
+		context.ANDROID_INSTALL_LOCATION = "auto";
+		for (attribute in (context.ANDROID_MANIFEST : Array<Dynamic>))
+		{
+			if (attribute.key == "android:installLocation" && attribute.value != null && attribute.value != "")
+			{
+				context.ANDROID_INSTALL_LOCATION = attribute.value;
+			}
+		}
+
 		context.ANDROID_APPLICATION = project.config.getKeyValueArray("android.application",
 			{
 				"android:label": project.meta.title,
