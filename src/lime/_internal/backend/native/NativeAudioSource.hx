@@ -761,7 +761,7 @@ class NativeAudioSource
 		}
 
 		var read = 0, total = 0, readMax;
-		shiftBufferTimeBlocks(vorbisFile.timeTell());
+		var startTime = vorbisFile.timeTell();
 
 		while (total < length)
 		{
@@ -784,6 +784,8 @@ class NativeAudioSource
 			}
 		}
 
+		// Record the buffer's start time only for a buffer that will be queued, as the SDL_sound reader does
+		if (total > 0) shiftBufferTimeBlocks(startTime);
 		return total;
 		#else
 		return 0;
@@ -1071,7 +1073,12 @@ class NativeAudioSource
 		{
 			if (stream)
 			{
-				var time = (Std.int(bufferTimeBlocks[0] * 1000) + Std.int(AL.getSourcef(handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
+				// The blocks hold the start times of the last buffers read, the newest last; the source plays the oldest
+				// one still queued, which is no longer the first block once the stream has run out and the queue shrinks
+				var head = STREAM_NUM_BUFFERS - queuedBufferCount;
+				if (head < 0) head = 0;
+				if (head >= STREAM_NUM_BUFFERS) head = STREAM_NUM_BUFFERS - 1;
+				var time = (Std.int(bufferTimeBlocks[head] * 1000) + Std.int(AL.getSourcef(handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
 				if (time < 0) return 0;
 				return time;
 			}
