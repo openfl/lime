@@ -778,6 +778,9 @@ jobs:
 
       - name: Install Emscripten NDK
         uses: emscripten-core/setup-emsdk@v16
+        with:
+          # Emscripten 7.0.0 hangs compiling Lime
+          version: 6.0.13
 
       - uses: krdlab/setup-haxe@v2
         with:
