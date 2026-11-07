@@ -1416,6 +1416,26 @@ namespace lime {
 
 	}
 
+	#ifdef LIME_CONTEXT_RECOVERY_TESTS
+	bool SDLWindow::TestContextReplacement (bool create) {
+
+		if (!sdlWindow || sdlRenderer || useVulkan) return false;
+		if (create) {
+
+			if (context) return false;
+			CreateOpenGLContext ();
+			return context != NULL;
+
+		}
+		if (!context) return false;
+		if (SDL_GL_GetCurrentContext () == context && SDL_GL_MakeCurrent (sdlWindow, NULL) != 0) return false;
+		SDL_GL_DeleteContext (context);
+		context = NULL;
+		return true;
+
+	}
+	#endif
+
 
 	void SDLWindow::ContextUnlock () {
 

@@ -25,6 +25,9 @@ namespace lime {
 			virtual void* ContextLock (bool useCFFIValue);
 			virtual void ContextMakeCurrent ();
 			virtual void ContextUnlock ();
+			#ifdef LIME_CONTEXT_RECOVERY_TESTS
+			bool TestContextReplacement (bool create);
+			#endif
 			virtual void Focus ();
 			virtual void* GetContext ();
 			virtual const char* GetContextType ();

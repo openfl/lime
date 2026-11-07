@@ -11,6 +11,9 @@
 #include <app/Application.h>
 #ifdef LIME_SDL
 #include "backend/sdl/SDLApplication.h"
+#ifdef LIME_CONTEXT_RECOVERY_TESTS
+#include "backend/sdl/SDLWindow.h"
+#endif
 #endif
 #include <app/ApplicationEvent.h>
 #include <graphics/format/JPEG.h>
@@ -5123,6 +5126,16 @@ namespace lime {
 		((Window*)val_data (window))->ContextMakeCurrent ();
 
 	}
+
+	#if defined(LIME_SDL) && defined(LIME_CONTEXT_RECOVERY_TESTS)
+	value lime_window_test_context_replacement (value window, value create) {
+
+		if (val_is_null (window)) return alloc_bool (false);
+		return alloc_bool (((SDLWindow*)val_data (window))->TestContextReplacement (val_bool (create)));
+
+	}
+	DEFINE_PRIM (lime_window_test_context_replacement, 2);
+	#endif
 
 
 	HL_PRIM void HL_NAME(hl_window_context_make_current) (HL_CFFIPointer* window) {

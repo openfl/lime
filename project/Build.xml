@@ -68,6 +68,7 @@
 		<!-- setting HXCPP_CPP11 doesn't seem to apply to .mm files -->
         <compilerflag value="-std=c++11" unless="isMsvc" />
 		<compilerflag value="-Iinclude" />
+		<compilerflag value="-DLIME_CONTEXT_RECOVERY_TESTS" if="LIME_CONTEXT_RECOVERY_TESTS" />
 		<compilerflag value="-DLIME_VULKAN" if="LIME_VULKAN" />
 		<compilerflag value="-I${VULKAN_SDK}/Include" if="windows VULKAN_SDK LIME_VULKAN" />
 		<compilerflag value="-I${VULKAN_SDK}/include" if="mac VULKAN_SDK LIME_VULKAN" />
