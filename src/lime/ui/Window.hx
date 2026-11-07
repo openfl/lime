@@ -62,6 +62,12 @@ class Window
 	public var context(default, null):RenderContext;
 	public var cursor(get, set):MouseCursor;
 	public var display(get, null):Display;
+
+	/**
+		The display mode the window uses in fullscreen. Setting a mode makes fullscreen
+		exclusive at that mode, and setting `null` returns it to desktop (borderless)
+		fullscreen, which is not minimized when another window takes focus.
+	**/
 	public var displayMode(get, set):DisplayMode;
 	#if (!lime_doc_gen || (js && html5))
 	public var element(default, null):#if (js && html5) Element #else Dynamic #end;

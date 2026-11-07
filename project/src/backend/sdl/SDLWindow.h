@@ -94,6 +94,7 @@ namespace lime {
 			SDL_GLContext context;
 			int contextHeight;
 			int contextWidth;
+			bool displayModeSet;
 			int requestedVSyncMode;
 			bool transparent;
 			bool useVulkan;

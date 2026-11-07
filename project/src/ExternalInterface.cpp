@@ -13698,6 +13698,16 @@ namespace lime {
 	value lime_window_set_display_mode (value window, value displayMode) {
 
 		Window* targetWindow = (Window*)val_data (window);
+
+		if (val_is_null (displayMode)) {
+
+			targetWindow->SetDisplayMode (0);
+			DisplayMode _displayMode;
+			targetWindow->GetDisplayMode (&_displayMode);
+			return (value)_displayMode.Value ();
+
+		}
+
 		DisplayMode _displayMode (displayMode);
 		targetWindow->SetDisplayMode (&_displayMode);
 		targetWindow->GetDisplayMode (&_displayMode);
@@ -13710,8 +13720,7 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->SetDisplayMode (displayMode);
-		targetWindow->GetDisplayMode (displayMode);
-		result->CopyFrom(displayMode);
+		targetWindow->GetDisplayMode (result);
 
 	}
 

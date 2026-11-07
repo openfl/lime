@@ -50,8 +50,6 @@ namespace lime {
 	SDL_Cursor* SDLCursor::waitCursor = 0;
 	SDL_Cursor* SDLCursor::waitArrowCursor = 0;
 
-	static bool displayModeSet = false;
-
 #if defined (HX_LINUX) && !defined (RASPBERRYPI)
 	// Asks SDL for a 32-bit visual, which a compositor blends by its alpha, for
 	// the next window. Returns whether it set the hint, which is then reset, so
@@ -652,6 +650,7 @@ namespace lime {
 		sdlTexture = 0;
 		sdlRenderer = 0;
 		context = 0;
+		displayModeSet = false;
 		transparent = false;
 		useVulkan = (flags & WINDOW_FLAG_VULKAN) != 0;
 
@@ -1958,6 +1957,22 @@ namespace lime {
 
 
 	void SDLWindow::SetDisplayMode (DisplayMode* displayMode) {
+
+		// No display mode returns the window to desktop (borderless) fullscreen, which,
+		// unlike an exclusive mode, is not minimized when another window takes focus
+		if (!displayMode) {
+
+			displayModeSet = false;
+
+			if ((SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN) {
+
+				SDL_SetWindowFullscreen (sdlWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+			}
+
+			return;
+
+		}
 
 		Uint32 pixelFormat = 0;
 
