@@ -45,6 +45,9 @@ class NativeAudioSource
 	private var parent:AudioSource;
 	private var ownsVorbisStream:Bool;
 	private var playing:Bool;
+	// A time set while the source isn't playing: OpenAL reports a rewound source's offset as 0 until it plays,
+	// so play() would otherwise start from the beginning
+	private var pendingTime:Int = -1;
 	private var position:Vector4;
 	private var queuedBufferCount:Int;
 	private var queuedBufferLoopCounts:Array<Int>;
@@ -322,7 +325,7 @@ class NativeAudioSource
 		}
 		else
 		{
-			var time = completed ? 0 : getCurrentTime();
+			var time = completed ? 0 : (pendingTime >= 0 ? pendingTime : getCurrentTime());
 
 			setCurrentTime(time);
 		}
@@ -1069,6 +1072,10 @@ class NativeAudioSource
 		{
 			return getLength();
 		}
+		else if (!playing && pendingTime >= 0)
+		{
+			return pendingTime;
+		}
 		else if (handle != null)
 		{
 			if (stream)
@@ -1163,6 +1170,7 @@ class NativeAudioSource
 				var totalOffset = Std.int(dataLength * ratio);
 
 				AL.sourcei(handle, AL.BYTE_OFFSET, totalOffset);
+				pendingTime = playing ? -1 : Std.int(secondOffset * 1000) - parent.offset;
 				if (playing) AL.sourcePlay(handle);
 			}
 		}
