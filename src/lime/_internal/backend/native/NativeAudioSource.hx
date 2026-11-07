@@ -48,6 +48,10 @@ class NativeAudioSource
 	// A time set while the source isn't playing: OpenAL reports a rewound source's offset as 0 until it plays,
 	// so play() would otherwise start from the beginning
 	private var pendingTime:Int = -1;
+
+	// Sources started while a batch is open (`AudioSource.playTogether`) begin together in one alSourcePlayv
+	@:noCompletion private static var batchDepth:Int = 0;
+	@:noCompletion private static var batchHandles:Array<ALSource> = [];
 	private var position:Vector4;
 	private var queuedBufferCount:Int;
 	private var queuedBufferLoopCounts:Array<Int>;
@@ -328,6 +332,32 @@ class NativeAudioSource
 			var time = completed ? 0 : (pendingTime >= 0 ? pendingTime : getCurrentTime());
 
 			setCurrentTime(time);
+		}
+	}
+
+	@:noCompletion public static function beginBatch():Void
+	{
+		batchDepth++;
+	}
+
+	@:noCompletion public static function endBatch():Void
+	{
+		if (batchDepth == 0 || --batchDepth > 0) return;
+		var handles = batchHandles;
+		batchHandles = [];
+		if (handles.length > 0) AL.sourcePlayv(handles);
+	}
+
+	/** Starts the source now, or with the rest of an open batch so they all begin in the same mixer update. **/
+	private function startSource():Void
+	{
+		if (batchDepth > 0)
+		{
+			if (batchHandles.indexOf(handle) < 0) batchHandles.push(handle);
+		}
+		else
+		{
+			AL.sourcePlay(handle);
 		}
 	}
 
@@ -1155,7 +1185,7 @@ class NativeAudioSource
 
 				if (playing)
 				{
-					AL.sourcePlay(handle);
+					startSource();
 				}
 			}
 			else if (parent.buffer != null)
@@ -1175,7 +1205,7 @@ class NativeAudioSource
 
 				AL.sourcei(handle, AL.BYTE_OFFSET, totalOffset);
 				pendingTime = playing ? -1 : Std.int(secondOffset * 1000) - parent.offset;
-				if (playing) AL.sourcePlay(handle);
+				if (playing) startSource();
 			}
 		}
 
