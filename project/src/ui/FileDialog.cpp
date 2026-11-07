@@ -1,3 +1,4 @@
+#include <system/System.h>
 #include <ui/FileDialog.h>
 #include <stdio.h>
 #include <cstdlib>
@@ -43,6 +44,24 @@ namespace lime {
 
 	}
 
+	// A copy of a string a dialog reads, which can be in the garbage collector's
+	// memory: the dialog runs while the collector is told this thread is blocked
+	class DialogString {
+
+		public:
+
+			DialogString (const char_t* str) : value (str ? str : FD_STR("")), null (!str) {}
+
+			const char_t* c_str () const { return null ? nullptr : value.c_str (); }
+
+		private:
+
+			string_t value;
+			bool null;
+
+	};
+
+
 	static std::vector<string_t> normalize_filters (const char_t* filter) {
 
 		std::vector<string_t> filters;
@@ -68,7 +87,13 @@ namespace lime {
 
 		// TODO: Filter?
 
-		const char_t* path = tinyfd_selectFolderDialog(title, defaultPath);
+		DialogString _title (title), _defaultPath (defaultPath);
+
+		// The dialog stays open as long as the user keeps it open, so a collection
+		// another thread starts meanwhile must not wait for this one
+		System::GCEnterBlocking ();
+		const char_t* path = tinyfd_selectFolderDialog(_title.c_str (), _defaultPath.c_str ());
+		System::GCExitBlocking ();
 
 		if (!is_null_or_empty(path)) {
 
@@ -93,7 +118,11 @@ namespace lime {
 			}
 		}
 
-		const char_t* path = tinyfd_openFileDialog (title, defaultPath, numFilters, filters, NULL, 0);
+		DialogString _title (title), _defaultPath (defaultPath);
+
+		System::GCEnterBlocking ();
+		const char_t* path = tinyfd_openFileDialog (_title.c_str (), _defaultPath.c_str (), numFilters, filters, NULL, 0);
+		System::GCExitBlocking ();
 
 		delete[] filters;
 
@@ -121,7 +150,11 @@ namespace lime {
 			}
 		}
 
-		const char_t* paths = tinyfd_openFileDialog (title, defaultPath, numFilters, filters, NULL, 1);
+		DialogString _title (title), _defaultPath (defaultPath);
+
+		System::GCEnterBlocking ();
+		const char_t* paths = tinyfd_openFileDialog (_title.c_str (), _defaultPath.c_str (), numFilters, filters, NULL, 1);
+		System::GCExitBlocking ();
 
 		delete[] filters;
 
@@ -156,7 +189,11 @@ namespace lime {
 		const int numFilters = filters_vec.size () > 0 ? 1 : 0;
 		const char_t* filters[] = { numFilters > 0 ? filters_vec[0].c_str () : NULL };
 
-		const char_t* path = tinyfd_saveFileDialog (title, defaultPath, numFilters, numFilters > 0 ? filters : NULL, NULL);
+		DialogString _title (title), _defaultPath (defaultPath);
+
+		System::GCEnterBlocking ();
+		const char_t* path = tinyfd_saveFileDialog (_title.c_str (), _defaultPath.c_str (), numFilters, numFilters > 0 ? filters : NULL, NULL);
+		System::GCExitBlocking ();
 
 		if (!is_null_or_empty(path)) {
 
