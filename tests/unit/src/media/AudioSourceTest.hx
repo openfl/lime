@@ -4,7 +4,9 @@ package media;
 import lime.media.AudioBuffer;
 import lime.media.AudioManager;
 import lime.media.AudioSource;
+import lime.media.openal.AL;
 import lime.media.openal.ALC;
+import lime.media.openal.ALSource;
 import lime.utils.AssetLibrary;
 import lime.utils.Assets;
 #end
@@ -90,6 +92,53 @@ class AudioSourceTest extends Test
 
 		AudioManager.resume();
 		source.dispose();
+	}
+
+	public function testPlayTogetherStartsTheSourcesInTheSameMixerUpdate():Void
+	{
+		if (ALC.getCurrentContext() == null)
+		{
+			trace("There is no audio output here, so playTogether was not tested");
+			Assert.pass();
+			return;
+		}
+
+		var bytes = AudioBufferTest.createWAV(AudioBufferTest.tone(22050 * 2));
+		var instrumental = new AudioSource(AudioBuffer.fromBytes(bytes));
+		var vocals = new AudioSource(AudioBuffer.fromBytes(bytes));
+		var other = new AudioSource(AudioBuffer.fromBytes(bytes));
+
+		// Missing and repeated sources are passed over
+		AudioSource.playTogether([instrumental, null, vocals, instrumental]);
+
+		Assert.equals(AL.PLAYING, stateOf(instrumental));
+		Assert.equals(AL.PLAYING, stateOf(vocals));
+		Assert.equals(AL.INITIAL, stateOf(other), "a source that was not listed was started");
+
+		// Started in the same mixer update, the two have mixed the same number of samples
+		Sys.sleep(0.2);
+		var instrumentalOffset = AL.getSourcei(handleOf(instrumental), AL.SAMPLE_OFFSET);
+		var vocalsOffset = AL.getSourcei(handleOf(vocals), AL.SAMPLE_OFFSET);
+		Assert.isTrue(instrumentalOffset > 0, "the sound did not play");
+		Assert.equals(instrumentalOffset, vocalsOffset);
+
+		// A source played on its own afterwards starts at once
+		other.play();
+		Assert.equals(AL.PLAYING, stateOf(other));
+
+		instrumental.dispose();
+		vocals.dispose();
+		other.dispose();
+	}
+
+	private static function handleOf(source:AudioSource):ALSource
+	{
+		return @:privateAccess source.__backend.handle;
+	}
+
+	private static function stateOf(source:AudioSource):Int
+	{
+		return AL.getSourcei(handleOf(source), AL.SOURCE_STATE);
 	}
 
 	private static function playStream(loops:Int):AudioSource

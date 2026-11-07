@@ -49,9 +49,8 @@ class NativeAudioSource
 	// so play() would otherwise start from the beginning
 	private var pendingTime:Int = -1;
 
-	// Sources started while a batch is open (`AudioSource.playTogether`) begin together in one alSourcePlayv
-	@:noCompletion private static var batchDepth:Int = 0;
-	@:noCompletion private static var batchHandles:Array<ALSource> = [];
+	// Set while AudioSource.playTogether plays this source, which then starts with the rest in one alSourcePlayv
+	private var playTogetherHandles:Array<ALSource>;
 	private var position:Vector4;
 	private var queuedBufferCount:Int;
 	private var queuedBufferLoopCounts:Array<Int>;
@@ -335,25 +334,52 @@ class NativeAudioSource
 		}
 	}
 
-	@:noCompletion public static function beginBatch():Void
+	public static function playTogether(sources:Array<AudioSource>):Void
 	{
-		batchDepth++;
-	}
+		var handles:Array<ALSource> = [];
+		var started:Array<NativeAudioSource> = [];
 
-	@:noCompletion public static function endBatch():Void
-	{
-		if (batchDepth == 0 || --batchDepth > 0) return;
-		var handles = batchHandles;
-		batchHandles = [];
+		for (source in sources)
+		{
+			if (source == null) continue;
+			var backend = @:privateAccess source.__backend;
+			if (backend.playTogetherHandles != null) continue;
+			backend.playTogetherHandles = handles;
+			started.push(backend);
+		}
+
+		var error:Dynamic = null;
+		var failed = false;
+
+		try
+		{
+			for (backend in started)
+			{
+				backend.play();
+			}
+		}
+		catch (e:Dynamic)
+		{
+			error = e;
+			failed = true;
+		}
+
+		for (backend in started)
+		{
+			backend.playTogetherHandles = null;
+		}
+
+		// Sources already played are started even when a later one fails, so none is left waiting
 		if (handles.length > 0) AL.sourcePlayv(handles);
+		if (failed) throw error;
 	}
 
-	/** Starts the source now, or with the rest of an open batch so they all begin in the same mixer update. **/
+	/** Starts the source now, or with the rest of AudioSource.playTogether so they all begin in the same mixer update. **/
 	private function startSource():Void
 	{
-		if (batchDepth > 0)
+		if (playTogetherHandles != null)
 		{
-			if (batchHandles.indexOf(handle) < 0) batchHandles.push(handle);
+			if (playTogetherHandles.indexOf(handle) < 0) playTogetherHandles.push(handle);
 		}
 		else
 		{
