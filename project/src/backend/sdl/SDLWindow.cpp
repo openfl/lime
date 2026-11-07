@@ -1986,6 +1986,25 @@ namespace lime {
 
 		}
 
+		// X11 takes the pixels of a cursor with premultiplied alpha, which SDL does not convert to
+		const char *driver = SDL_GetCurrentVideoDriver ();
+
+		if (driver && SDL_strcmp (driver, "x11") == 0) {
+
+			SDL_Surface *premultiplied = SDL_ConvertSurfaceFormat (surface, SDL_PIXELFORMAT_ARGB8888, 0);
+			SDL_FreeSurface (surface);
+
+			if (!premultiplied) {
+
+				return false;
+
+			}
+
+			SDL_PremultiplyAlpha (premultiplied->w, premultiplied->h, SDL_PIXELFORMAT_ARGB8888, premultiplied->pixels, premultiplied->pitch, SDL_PIXELFORMAT_ARGB8888, premultiplied->pixels, premultiplied->pitch);
+			surface = premultiplied;
+
+		}
+
 		SDL_Cursor *cursor = SDL_CreateColorCursor (surface, hotSpotX, hotSpotY);
 		SDL_FreeSurface (surface);
 
