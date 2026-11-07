@@ -886,6 +886,42 @@ namespace lime {
 		}
 		#endif
 
+		// A driver can refuse the pixel format asked for, as over Remote Desktop on
+		// Windows Server, so OpenGL tries again with the most common one
+		if (!sdlWindow && (sdlWindowFlags & SDL_WINDOW_OPENGL)) {
+
+			SDL_LogWarn (SDL_LOG_CATEGORY_VIDEO, "Could not create an OpenGL window with the pixel format asked for, trying a basic one: %s", SDL_GetError ());
+
+			SDL_GL_SetAttribute (SDL_GL_RED_SIZE, 8);
+			SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 8);
+			SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE, 8);
+			SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, 8);
+			SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
+			SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 8);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 0);
+			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 0);
+
+			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+
+		}
+
+		#ifdef SOFTWARE_OPENGL
+		// Where the system's OpenGL cannot make a window at all, the first window
+		// tries again in software
+		if (!sdlWindow && retrySoftwareOpenGL) {
+
+			SDL_LogWarn (SDL_LOG_CATEGORY_VIDEO, "Could not create an OpenGL window, trying software OpenGL: %s", SDL_GetError ());
+			retrySoftwareOpenGL = false;
+
+			if (LoadSoftwareOpenGL ()) {
+
+				sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+
+			}
+
+		}
+		#endif
+
 		if (!sdlWindow) {
 
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
