@@ -3132,7 +3132,8 @@ namespace lime {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
-		if (interopDevice && output.interop && output.locked) _wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
+		if (interopDevice && output.interop && output.locked && wglGetCurrentContext () == interopContext)
+			_wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
 		output.locked = false;
 		#endif
 
