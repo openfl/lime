@@ -31,7 +31,7 @@ Changelog
 - Added VAO support on macOS.
 - Added `GL.copyImageSubData()` for desktop OpenGL 4.3 and `ARB_copy_image`.
 - Added support for libhxcpp's incremental collector. With `HXCPP_GC_INCREMENTAL`, native C++ builds use it and advance a collection in the time left before a frame, unless `no-idle-gc` is defined.
-- Added support for libhxcpp's profile-guided optimisation (`HXCPP_PGO`) in Windows builds: an instrumented build puts MSVC's profiling runtime beside the application, and the optimised build gathers the counts its training runs wrote there.
+- Windows builds tell hxcpp where the application runs (`HXCPP_PGO_RUN_DIR`), so libhxcpp's profile-guided optimisation (`HXCPP_PGO`) works on the application in its own folder.
 - Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
 - Added texture output, HDR tone mapping, rotation and pixel aspect ratio, clock modes, gapless loops, stereo pan, skipping of late frames, and network streams to video playback, with NV12, RGBA, BGRA, and ARGB frames.
 - Added `VideoSource` playback on HTML5 through the browser's `<video>` element.
