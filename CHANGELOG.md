@@ -36,12 +36,14 @@ Changelog
 - Added texture output, HDR tone mapping, rotation and pixel aspect ratio, clock modes, gapless loops, stereo pan, skipping of late frames, and network streams to video playback, with NV12, RGBA, BGRA, and ARGB frames.
 - Added `VideoSource` playback on HTML5 through the browser's `<video>` element.
 - Added `VideoSource.loadFromFile()`, and `VideoDecoder.videoUnsupported` and `VideoDecoder.audioUnsupported` for streams of codecs that cannot be decoded.
+- Added `VideoSource.rate`, to play videos at 0.25 to 4 times normal speed.
 - Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
 - Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.
 - Added `Window.appearance` and `Window.effectiveAppearance` to prefer light or dark window decorations.
 - Added `Window.onDisplayScaleChange`.
 - Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
 - Added `Gamepad.type`, motion sensors, touchpad events, trigger rumble, and light color.
+- Added AIR externs for `air.net.WebSocket` and `flash.events.WebSocketEvent`.
 - Added `Locale.preferredLocales`.
 - Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
 - Added `CURL.versionInfo()` values for the library's age, version number, and features.
@@ -83,11 +85,13 @@ Changelog
 - Changed asset libraries to drop disposed `AudioBuffer` objects from their caches.
 - Changed the iOS Xcode project to Xcode's recommended settings, with identity settings.
 - Changed the HTML5, Flash and WebAssembly test server to CrossByte's `HTTPServer`, run by the command-line tools, rather than http-server on a bundled Node.js, which made the haxelib too large to publish. CrossByte was chosen over snake-server because it answers range requests, which audio and video need to seek. The server listens on `127.0.0.1` unless `--host=0.0.0.0` lets other devices reach it. Building the tools now needs Haxe 4.3 or later, as does serving with `-eval`.
+- Changed desktop applications to take a quit request, such as Ctrl+C, SIGTERM or Cmd+Q, as a close request on every window, so `Window.onClose` runs and can cancel it, and `Application.onExit` follows.
 - Changed `-terser` to run terser through the system's `npx`, as `-npx` did, since Lime no longer bundles Node.js. It needs Node.js installed, and says so when it is not.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
 - Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
+- Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
 - Fixed Windows cpp icon resource handling when no icon is generated.
@@ -97,6 +101,9 @@ Changelog
 - Fixed perspective camera matrix calculation.
 - Fixed Tizen `appinfo.json` templating.
 - Fixed Android architecture parsing for `x86_64` and `x86_32`.
+- Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
+- Fixed HTML5 gamepad connect and disconnect events.
+- Fixed `projectFilePath` for HXP projects.
 - Fixed HTML5 transparent docs generation.
 - Fixed native HTTP requests freezing the application during slow name lookups (#1769).
 - Fixed HashLink collections waiting on threads blocked in native calls.
