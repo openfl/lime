@@ -1,7 +1,9 @@
 package ui;
 
 import lime.app.Application;
+import lime.graphics.Image;
 import lime.math.Rectangle;
+import lime.ui.MouseCursor;
 import lime.ui.Window;
 import lime.ui.WindowAppearance;
 import lime.ui.WindowHandleType;
@@ -223,6 +225,34 @@ class WindowTest extends Test
 
 		window.keyboardGrab = false;
 		Assert.isFalse(window.keyboardGrab, "the keyboard grab was not released");
+	}
+
+	public function testCustomCursorIsMadeFromAnImage():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		// premultiplied, as the pixels of an OpenFL BitmapData are
+		var image = new Image(null, 0, 0, 16, 16, 0x80FF0000);
+		image.premultiplied = true;
+
+		Assert.isTrue(window.setCustomCursor(image, 3, 5), "the cursor could not be made");
+		Assert.equals(MouseCursor.CUSTOM, window.cursor);
+		Assert.isTrue(image.premultiplied, "the image given was changed");
+
+		Assert.isFalse(window.setCustomCursor(image, 16, 0), "a hot spot outside the image was taken");
+		Assert.equals(MouseCursor.CUSTOM, window.cursor, "a cursor that could not be made replaced the last one");
+
+		window.cursor = ARROW;
+		Assert.equals(MouseCursor.ARROW, window.cursor);
+		window.cursor = CUSTOM;
+		Assert.equals(MouseCursor.CUSTOM, window.cursor, "the custom cursor could not be shown again");
+		window.cursor = DEFAULT;
 	}
 
 	public function testNativeHandleIsTheSystemsOwnWindow():Void

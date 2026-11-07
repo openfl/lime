@@ -2716,6 +2716,29 @@ class Window
 		__backend.setIcon(image);
 	}
 
+	/**
+		Shows an image as the mouse cursor over this window. `cursor` is then
+		`CUSTOM`, until it is set to another cursor; setting it back to `CUSTOM`
+		shows the last image set here again.
+
+		Supported on native desktop targets and HTML5. Most platforms show a
+		cursor up to 32×32 pixels as it is, and may scale a larger one.
+		@param image The cursor's pixels.
+		@param hotSpotX The horizontal position, in the image, of the point that
+		clicks.
+		@param hotSpotY The vertical position, in the image, of the point that
+		clicks.
+		@return Whether the cursor could be made.
+	**/
+	public function setCustomCursor(image:Image, hotSpotX:Int = 0, hotSpotY:Int = 0):Bool
+	{
+		if (image == null || hotSpotX < 0 || hotSpotY < 0 || hotSpotX >= image.width || hotSpotY >= image.height)
+		{
+			return false;
+		}
+		return __backend.setCustomCursor(image, hotSpotX, hotSpotY);
+	}
+
 	public function toString():String
 	{
 		return "[object Window]";

@@ -14,6 +14,7 @@ import lime.graphics.CairoRenderContext;
 import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.OpenGLRenderContext;
+import lime.graphics.PixelFormat;
 import lime.graphics.RenderContext;
 import lime.graphics.VulkanRenderContext;
 import lime.math.Rectangle;
@@ -711,6 +712,7 @@ class NativeWindow
 					case TEXT: TEXT;
 					case WAIT: WAIT;
 					case WAIT_ARROW: WAIT_ARROW;
+					case CUSTOM: CUSTOM;
 					default: DEFAULT;
 				}
 				#if (!macro && lime_cffi)
@@ -722,6 +724,30 @@ class NativeWindow
 		}
 
 		return cursor;
+	}
+
+	public function setCustomCursor(image:Image, hotSpotX:Int, hotSpotY:Int):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			// the cursor is made from straight RGBA pixels
+			if (image.format != PixelFormat.RGBA32 || image.premultiplied)
+			{
+				image = image.clone();
+				image.format = RGBA32;
+				image.premultiplied = false;
+			}
+
+			if (NativeCFFI.lime_window_set_custom_cursor(handle, image.buffer, hotSpotX, hotSpotY))
+			{
+				cursor = MouseCursor.CUSTOM;
+				return true;
+			}
+			#end
+		}
+
+		return false;
 	}
 
 	public function setDisplayMode(value:DisplayMode):DisplayMode
@@ -985,6 +1011,7 @@ class NativeWindow
 	var TEXT = 10;
 	var WAIT = 11;
 	var WAIT_ARROW = 12;
+	var CUSTOM = 13;
 }
 
 #if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract WindowFlags(Int)

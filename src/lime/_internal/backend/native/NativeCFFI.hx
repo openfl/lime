@@ -865,6 +865,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_set_cursor(handle:Dynamic, cursor:Int):Void;
 
+	@:cffi private static function lime_window_set_custom_cursor(handle:Dynamic, buffer:Dynamic, hotSpotX:Int, hotSpotY:Int):Bool;
+
 	@:cffi private static function lime_window_set_display_mode(handle:Dynamic, displayMode:Dynamic):Dynamic;
 
 	@:cffi private static function lime_window_set_fullscreen(handle:Dynamic, fullscreen:Bool):Bool;
@@ -1516,6 +1518,8 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_cursor = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_cursor", "oiv",
 		false));
+	private static var lime_window_set_custom_cursor = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_custom_cursor", "ooiib", false));
 	private static var lime_window_set_display_mode = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_window_set_display_mode", "ooo", false));
 	private static var lime_window_set_fullscreen = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_fullscreen", "obb",
@@ -1919,6 +1923,7 @@ class NativeCFFI
 	private static var lime_window_set_maximum_size = CFFI.load("lime", "lime_window_set_maximum_size", 3);
 	private static var lime_window_set_borderless = CFFI.load("lime", "lime_window_set_borderless", 2);
 	private static var lime_window_set_cursor = CFFI.load("lime", "lime_window_set_cursor", 2);
+	private static var lime_window_set_custom_cursor = CFFI.load("lime", "lime_window_set_custom_cursor", 4);
 	private static var lime_window_set_display_mode = CFFI.load("lime", "lime_window_set_display_mode", 2);
 	private static var lime_window_set_fullscreen = CFFI.load("lime", "lime_window_set_fullscreen", 2);
 	private static var lime_window_set_icon = CFFI.load("lime", "lime_window_set_icon", 2);
@@ -3541,6 +3546,12 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_cursor") private static function lime_window_set_cursor(handle:CFFIPointer, cursor:Int):Void {}
+
+	@:hlNative("lime", "hl_window_set_custom_cursor") private static function lime_window_set_custom_cursor(handle:CFFIPointer, buffer:ImageBuffer, hotSpotX:Int,
+			hotSpotY:Int):Bool
+	{
+		return false;
+	}
 
 	@:hlNative("lime", "hl_window_set_display_mode") private static function lime_window_set_display_mode(handle:CFFIPointer, displayMode:DisplayMode,
 		result:DisplayMode):Void {}

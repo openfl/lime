@@ -40,6 +40,7 @@ namespace lime {
 
 	SDL_Cursor* SDLCursor::arrowCursor = 0;
 	SDL_Cursor* SDLCursor::crosshairCursor = 0;
+	SDL_Cursor* SDLCursor::customCursor = 0;
 	SDL_Cursor* SDLCursor::moveCursor = 0;
 	SDL_Cursor* SDLCursor::pointerCursor = 0;
 	SDL_Cursor* SDLCursor::resizeNESWCursor = 0;
@@ -1838,6 +1839,24 @@ namespace lime {
 					SDL_SetCursor (SDLCursor::crosshairCursor);
 					break;
 
+				case CUSTOM:
+
+					if (!SDLCursor::customCursor) {
+
+						if (!SDLCursor::arrowCursor) {
+
+							SDLCursor::arrowCursor = SDL_CreateSystemCursor (SDL_SYSTEM_CURSOR_ARROW);
+
+						}
+
+						SDL_SetCursor (SDLCursor::arrowCursor);
+						break;
+
+					}
+
+					SDL_SetCursor (SDLCursor::customCursor);
+					break;
+
 				case MOVE:
 
 					if (!SDLCursor::moveCursor) {
@@ -1953,6 +1972,47 @@ namespace lime {
 			currentCursor = cursor;
 
 		}
+
+	}
+
+
+	bool SDLWindow::SetCustomCursor (ImageBuffer *imageBuffer, int hotSpotX, int hotSpotY) {
+
+		SDL_Surface *surface = SDL_CreateRGBSurfaceFrom (imageBuffer->data->buffer->b, imageBuffer->width, imageBuffer->height, imageBuffer->bitsPerPixel, imageBuffer->Stride (), 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+
+		if (!surface) {
+
+			return false;
+
+		}
+
+		SDL_Cursor *cursor = SDL_CreateColorCursor (surface, hotSpotX, hotSpotY);
+		SDL_FreeSurface (surface);
+
+		if (!cursor) {
+
+			return false;
+
+		}
+
+		if (currentCursor == HIDDEN) {
+
+			SDL_ShowCursor (SDL_ENABLE);
+
+		}
+
+		// the new cursor is shown before the previous one is freed, which SDL would otherwise replace with its default
+		SDL_SetCursor (cursor);
+
+		if (SDLCursor::customCursor) {
+
+			SDL_FreeCursor (SDLCursor::customCursor);
+
+		}
+
+		SDLCursor::customCursor = cursor;
+		currentCursor = CUSTOM;
+		return true;
 
 	}
 

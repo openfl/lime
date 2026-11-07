@@ -67,6 +67,7 @@ class HTML5Window
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
+	private var customCursor:String;
 	private var currentTouches = new Map<Int, Touch>();
 	private var isFullscreen:Bool;
 	private var menus:HTML5Menu;
@@ -1188,6 +1189,7 @@ class HTML5Window
 					case TEXT: "text";
 					case WAIT: "wait";
 					case WAIT_ARROW: "wait";
+					case CUSTOM: customCursor != null ? customCursor : "auto";
 					default: "auto";
 				}
 			}
@@ -1196,6 +1198,25 @@ class HTML5Window
 		}
 
 		return cursor;
+	}
+
+	public function setCustomCursor(image:Image, hotSpotX:Int, hotSpotY:Int):Bool
+	{
+		// a copy, as the image is converted to a canvas to be encoded
+		var copy = image.clone();
+		copy.premultiplied = false;
+		ImageCanvasUtil.convertToCanvas(copy);
+		var canvas:CanvasElement = @:privateAccess copy.buffer.__srcCanvas;
+
+		if (canvas == null)
+		{
+			return false;
+		}
+
+		customCursor = "url(" + canvas.toDataURL("image/png") + ") " + hotSpotX + " " + hotSpotY + ", auto";
+		parent.element.style.cursor = customCursor;
+		cursor = CUSTOM;
+		return true;
 	}
 
 	public function setDisplayMode(value:DisplayMode):DisplayMode
