@@ -646,7 +646,8 @@ class NativeVideoSource
 		var elapsed = now - audioCheckStamp;
 		if (elapsed < AUDIO_CHECK_SECONDS) return;
 
-		var rate = (position - audioCheckPosition) / elapsed;
+		// Measured against the playback rate, as the sound plays faster or slower with it
+		var rate = (position - audioCheckPosition) / elapsed / playbackRate;
 
 		if (!audioStalled)
 		{

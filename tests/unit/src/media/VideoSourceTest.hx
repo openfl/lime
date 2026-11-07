@@ -205,6 +205,60 @@ class VideoSourceTest extends Test
 		video.dispose();
 	}
 
+	public function testRateKeepsTheSoundPlaying():Void
+	{
+		// Not 4, as the two second clip would then loop every half second, which
+		// leaves too little time to open the next loop on a busy machine
+		for (rate in [0.25, 0.5, 2.0])
+		{
+			var video = open();
+			if (video == null) return;
+
+			// The clip is two seconds long, so a faster rate loops to keep playing
+			video.rate = rate;
+			if (rate > 1) video.loops = 20;
+			Assert.equals(rate, video.rate);
+
+			var frame = new VideoFrame();
+			startPlaying(video, frame);
+
+			if (rate < 1)
+			{
+				var clock = measureRate(video, frame, 1.2);
+				Assert.floatEquals(rate, clock.rate, rate * 0.15, "at rate " + rate + ", the clock ran at " + clock.rate + " times real time");
+			}
+			else
+			{
+				var end = Timer.stamp() + 1.5;
+
+				while (Timer.stamp() < end)
+				{
+					video.readFrame(frame);
+					pause(0.005);
+				}
+			}
+
+			#if (lime_cffi && lime_openal && !macro)
+			// The sound plays faster or slower with the rate, which is not a stall
+			Assert.isFalse(@:privateAccess video.__backend.audioStalled, "at rate " + rate + ", the sound was taken to have stalled");
+			#end
+
+			video.dispose();
+		}
+	}
+
+	public function testRateStaysInRange():Void
+	{
+		var video = open();
+		if (video == null) return;
+
+		video.rate = 10;
+		Assert.equals(4.0, video.rate);
+		video.rate = 0;
+		Assert.equals(0.25, video.rate);
+		video.dispose();
+	}
+
 	public function testClockRunsInRealTimeAfterSeekingWhilePlaying():Void
 	{
 		var video = open();
