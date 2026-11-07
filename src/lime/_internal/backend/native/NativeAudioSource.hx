@@ -1091,6 +1091,10 @@ class NativeAudioSource
 			}
 			else
 			{
+				// A source OpenAL has stopped by reaching its end rewinds its offset to 0, a moment before the timer
+				// marks it completed; it has played to the end
+				if (playing && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
+
 				var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
 				var ratio = (offset / dataLength);
 				var totalSeconds = samples / parent.buffer.sampleRate;
