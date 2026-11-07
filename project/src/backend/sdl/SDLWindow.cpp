@@ -779,7 +779,7 @@ namespace lime {
 
 				if (flags & WINDOW_FLAG_DEPTH_BUFFER) {
 
-					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 32 - (flags & WINDOW_FLAG_STENCIL_BUFFER) ? 8 : 0);
+					SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
 
 				}
 
