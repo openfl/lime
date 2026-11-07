@@ -634,9 +634,13 @@ class WindowsPlatform extends PlatformTarget
 
 					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
 
+					prepareProfileGuidedBuild("ApplicationMain");
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
 					System.copyFile(targetDirectory + "/obj/ApplicationMain" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+
+					finishProfileGuidedBuild("ApplicationMain");
 
 					if (project.defines.exists("mingw"))
 					{
@@ -664,14 +668,89 @@ class WindowsPlatform extends PlatformTarget
 
 					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
 
+					prepareProfileGuidedBuild("Main");
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags.concat(["-Dstatic_link"]));
 
 					CPPHelper.compile(project, targetDirectory + "/obj", flags, "BuildMain.xml");
 
 					System.copyFile(targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
+
+					finishProfileGuidedBuild("Main");
 				}
 			}
 		}
+	}
+
+	/**
+		hxcpp's `HXCPP_PGO` mode for this build ("generate" or "use"), or null. hxcpp ignores it in a debug build.
+	**/
+	private function profileGuidedMode():String
+	{
+		if (project.debug) return null;
+		var mode:Dynamic = project.haxedefs.exists("HXCPP_PGO") ? project.haxedefs.get("HXCPP_PGO") : null;
+		if (mode == null && project.defines.exists("HXCPP_PGO")) mode = project.defines.get("HXCPP_PGO");
+		return mode == null ? null : Std.string(mode);
+	}
+
+	/**
+		An `HXCPP_PGO=generate` program writes its counts beside itself, as `<name>!1.pgc` and so on, and here it runs
+		from the application directory, not the build folder where hxcpp looks for them. Before a `use` build they are
+		moved there, under numbers of their own, so hxcpp gathers them.
+	**/
+	private function prepareProfileGuidedBuild(name:String):Void
+	{
+		if (profileGuidedMode() != "use" || !FileSystem.exists(applicationDirectory)) return;
+		var obj = Path.combine(targetDirectory, "obj");
+		System.mkdir(obj);
+		var next = 1;
+		for (file in FileSystem.readDirectory(obj))
+		{
+			var number = profileCountNumber(name, file);
+			if (number >= next) next = number + 1;
+		}
+		for (file in FileSystem.readDirectory(applicationDirectory))
+		{
+			if (profileCountNumber(name, file) < 0) continue;
+			var source = Path.combine(applicationDirectory, file);
+			System.copyFile(source, Path.combine(obj, name + "!" + next + ".pgc"));
+			FileSystem.deleteFile(source);
+			next++;
+		}
+	}
+
+	/**
+		An instrumented program needs MSVC's profiling runtime beside it; hxcpp copies it beside the program it links,
+		in the build folder, so it is copied beside the application too. Counts left from an earlier instrumented
+		program no longer fit a new one and are removed. A `use` build needs the runtime no more.
+	**/
+	private function finishProfileGuidedBuild(name:String):Void
+	{
+		var mode = profileGuidedMode();
+		if (mode == null) return;
+		var runtime = Path.combine(applicationDirectory, "pgort140.dll");
+		if (mode == "generate")
+		{
+			var built = Path.combine(targetDirectory, "obj/pgort140.dll");
+			if (FileSystem.exists(built)) System.copyFile(built, runtime);
+			for (file in FileSystem.readDirectory(applicationDirectory))
+			{
+				if (profileCountNumber(name, file) >= 0) FileSystem.deleteFile(Path.combine(applicationDirectory, file));
+			}
+		}
+		else if (mode == "use" && FileSystem.exists(runtime))
+		{
+			FileSystem.deleteFile(runtime);
+		}
+	}
+
+	/** The run number of `file` when it is one of `name`'s count files (`name!3.pgc`), else -1. **/
+	private static function profileCountNumber(name:String, file:String):Int
+	{
+		var prefix = name + "!";
+		if (!StringTools.startsWith(file, prefix) || !StringTools.endsWith(file, ".pgc")) return -1;
+		var number = Std.parseInt(file.substring(prefix.length, file.length - 4));
+		return number == null ? -1 : number;
 	}
 
 	public override function deploy():Void
