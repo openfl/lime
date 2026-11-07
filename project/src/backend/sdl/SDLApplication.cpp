@@ -203,7 +203,6 @@ namespace lime
 		clockStartTicks = 0;
 #endif
 		clockLastTicks = SDL_GetTicks();
-		eventTimeOrigin = clockLastTicks;
 		clockElapsedTicks = 0;
 		realVSyncActive = false;
 		requestedBusyWaitMode = MAIN_LOOP_BUSY_WAIT_AUTO;
@@ -1022,7 +1021,7 @@ namespace lime
 				gamepadEvent.type = GAMEPAD_AXIS_MOVE;
 				gamepadEvent.axis = event->caxis.axis;
 				gamepadEvent.id = event->caxis.which;
-				gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				if (event->caxis.value > -analogAxisDeadZone && event->caxis.value < analogAxisDeadZone)
 				{
@@ -1049,7 +1048,7 @@ namespace lime
 				gamepadEvent.type = GAMEPAD_BUTTON_DOWN;
 				gamepadEvent.button = event->cbutton.button;
 				gamepadEvent.id = event->cbutton.which;
-				gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				break;
@@ -1059,7 +1058,7 @@ namespace lime
 				gamepadEvent.type = GAMEPAD_BUTTON_UP;
 				gamepadEvent.button = event->cbutton.button;
 				gamepadEvent.id = event->cbutton.which;
-				gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				break;
@@ -1071,7 +1070,7 @@ namespace lime
 
 					gamepadEvent.type = GAMEPAD_CONNECT;
 					gamepadEvent.id = SDLGamepad::GetInstanceID(event->cdevice.which);
-					gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+					gamepadEvent.timestamp = event->common.timestamp;
 
 					GamepadEvent::Dispatch(&gamepadEvent);
 				}
@@ -1083,7 +1082,7 @@ namespace lime
 
 				gamepadEvent.type = GAMEPAD_DISCONNECT;
 				gamepadEvent.id = event->cdevice.which;
-				gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				SDLGamepad::Disconnect(event->cdevice.which);
@@ -1099,7 +1098,7 @@ namespace lime
 				gamepadEvent.x = event->csensor.data[0];
 				gamepadEvent.y = event->csensor.data[1];
 				gamepadEvent.z = event->csensor.data[2];
-				gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				break;
@@ -1115,7 +1114,7 @@ namespace lime
 				gamepadEvent.x = event->ctouchpad.x;
 				gamepadEvent.y = event->ctouchpad.y;
 				gamepadEvent.z = event->ctouchpad.pressure;
-				gamepadEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+				gamepadEvent.timestamp = event->common.timestamp;
 
 				GamepadEvent::Dispatch(&gamepadEvent);
 				break;
@@ -1233,7 +1232,7 @@ namespace lime
 
 			keyEvent.keyCode = event->key.keysym.sym;
 			keyEvent.modifier = event->key.keysym.mod;
-			keyEvent.timestamp = (Uint32)(event->common.timestamp - eventTimeOrigin);
+			keyEvent.timestamp = event->common.timestamp;
 			keyEvent.windowID = event->key.windowID;
 
 			if (keyEvent.type == KEY_DOWN)

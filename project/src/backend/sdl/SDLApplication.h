@@ -172,9 +172,6 @@ namespace lime {
 			Uint64 performanceFrequency;
 			Uint64 clockStartCounter;
 			Uint64 clockStartTicks;
-			// SDL's tick count when the timer above started: SDL event timestamps count from SDL_Init, so this
-			// moves them onto System.getTimer()'s clock
-			Uint32 eventTimeOrigin;
 			mutable Uint32 clockLastTicks;
 			mutable Uint64 clockElapsedTicks;
 			bool realVSyncActive;
