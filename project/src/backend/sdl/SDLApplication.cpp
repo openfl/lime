@@ -946,6 +946,11 @@ namespace lime
 			// open window instead, so the same cancelable chain runs as for a click on
 			// the close button. Only stop the loop outright when nothing is open; SDL
 			// also raises SDL_QUIT when the last window goes away.
+#if defined(ANDROID) || defined(IPHONE) || defined(EMSCRIPTEN)
+			// On mobile and the web, SDL_QUIT means the system is ending the
+			// application, which a close handler cannot refuse
+			active = false;
+#else
 			if (windows.empty () || !WindowEvent::callback)
 			{
 				active = false;
@@ -965,6 +970,7 @@ namespace lime
 					WindowEvent::Dispatch (&windowEvent);
 				}
 			}
+#endif
 
 			break;
 
