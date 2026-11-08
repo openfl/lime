@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<meta title="Window Creation Test" package="org.openfl.lime.windowcreation" version="1.0.0" company="OpenFL" />
+	<app main="Main" path="bin" file="WindowCreationTest" />
+	<source path="src" />
+	<haxelib name="lime" />
+	<window width="64" height="64" hidden="true" />
+
+</project>

@@ -5061,18 +5061,34 @@ namespace lime {
 
 	void lime_window_alert (value window, HxString message, HxString title) {
 
-		Window* targetWindow = (Window*)val_data (window);
-		targetWindow->Alert (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
+		Window* targetWindow = val_is_null (window) ? NULL : (Window*)val_data (window);
+		if (targetWindow) {
+
+			targetWindow->Alert (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
+
+		} else {
+
+			AlertWindow (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
+
+		}
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_window_alert) (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 
-		Window* targetWindow = (Window*)window->ptr;
+		Window* targetWindow = window ? (Window*)window->ptr : NULL;
 		const char *cmessage = message ? hl_to_utf8(message->bytes) : nullptr;
 		const char *ctitle = title ? hl_to_utf8(title->bytes) : nullptr;
-		targetWindow->Alert (cmessage, ctitle);
+		if (targetWindow) {
+
+			targetWindow->Alert (cmessage, ctitle);
+
+		} else {
+
+			AlertWindow (cmessage, ctitle);
+
+		}
 
 	}
 
@@ -5163,6 +5179,21 @@ namespace lime {
 
 		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr));
 		return CFFIPointer (window, gc_window);
+
+	}
+
+
+	value lime_window_get_creation_error () {
+
+		return alloc_string (GetWindowCreationError ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_window_get_creation_error) () {
+
+		const char* error = GetWindowCreationError ();
+		return hl_copy_bytes ((const vbyte*)error, (int)std::strlen (error) + 1);
 
 	}
 
@@ -14370,6 +14401,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_window_context_make_current);
 	DEFINE_PRIME1v (lime_window_context_unlock);
 	DEFINE_PRIME5 (lime_window_create);
+	DEFINE_PRIME0 (lime_window_get_creation_error);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
 	DEFINE_PRIME1 (lime_window_get_context);
@@ -14734,6 +14766,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, hl_window_get_creation_error, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, hl_window_create_vulkan_surface, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_I32, hl_window_get_display, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_get_display_mode, _TCFFIPOINTER _TDISPLAYMODE);

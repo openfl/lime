@@ -94,7 +94,28 @@ import ::APP_MAIN::;
 			#end
 		}
 
-		app.createWindow(attributes);
+		var window = app.createWindow(attributes);
+		#if (lime_cffi && sys)
+		if (window == null && app.window == null)
+		{
+			var message = "Could not create a window";
+			if (app.__windowCreationError != null && app.__windowCreationError != "") message += ": " + app.__windowCreationError;
+			#if software_gl
+			message += "\n\nSetting the environment variable LIME_SOFTWARE_GL=1 draws without the GPU.";
+			#end
+			try
+			{
+				Sys.stderr().writeString(message + "\n");
+			}
+			catch (e:Dynamic)
+			{
+				// A desktop application may have no stderr.
+			}
+			@:privateAccess lime._internal.backend.native.NativeCFFI.lime_window_alert(null, message, attributes.title);
+			lime.system.System.exit(1);
+			return;
+		}
+		#end
 		#if (linux && sys)
 		var iconPath = lime.system.System.applicationDirectory + "/icon.png";
 		if (sys.FileSystem.exists(iconPath))

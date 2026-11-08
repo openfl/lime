@@ -21,7 +21,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
           # GStreamer decodes video in the unit tests
-          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav xvfb
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav xvfb libgl1-mesa-dri
 
       - uses: krdlab/setup-haxe@v2
         with:
@@ -103,6 +103,30 @@ jobs:
           lime test hl -release -verbose -nocolor
           lime test linux -release -verbose -nocolor
 
+      - name: Run OpenGL tests
+        working-directory: tests/unit
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          SDL_VIDEODRIVER: "x11"
+        run: |
+          xvfb-run -a lime test neko -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
+          xvfb-run -a lime test hl -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
+          xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
+
+      - name: Check window creation failure and recovery
+        working-directory: tests/window-creation
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          xvfb-run -a lime test neko -release -verbose -nocolor
+          xvfb-run -a lime test hl -release -verbose -nocolor
+          xvfb-run -a lime test linux -release -verbose -nocolor
+          lime build neko -release -verbose -nocolor -Dwindow_creation_startup_failure
+          python check_startup.py bin/neko/bin/WindowCreationTest
+
       - name: Run WebView tests
         working-directory: tests/unit
         # WebKitGTK needs a display, so the tests above do not reach it
@@ -123,7 +147,7 @@ jobs:
           # Skips the GPU, as on a machine without one
           LIME_SOFTWARE_GL: "1"
         run: |
-          xvfb-run -a lime test linux -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
+          xvfb-run -a lime test linux -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
 
       - name: Run unit tests past 24.8 days
         working-directory: tests/unit
@@ -180,7 +204,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev
           # GStreamer decodes video in the unit tests
-          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav xvfb libgl1-mesa-dri
 
       # krdlab/setup-haxe doesn't support arm64 linux
       # so this is our workaround for now
@@ -246,6 +270,28 @@ jobs:
           lime test linux -release -verbose -nocolor
         # The package waits for this job, so a hang must not hold it for hours
         timeout-minutes: 60
+
+      - name: Run OpenGL tests
+        working-directory: tests/unit
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          SDL_VIDEODRIVER: "x11"
+        run: |
+          xvfb-run -a lime test neko -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
+          xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
+
+      - name: Check window creation failure and recovery
+        working-directory: tests/window-creation
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          xvfb-run -a lime test neko -release -verbose -nocolor
+          xvfb-run -a lime test linux -release -verbose -nocolor
+          lime build neko -release -verbose -nocolor -Dwindow_creation_startup_failure
+          python check_startup.py bin/neko/bin/WindowCreationTest
 
       - name: Run WebView tests
         working-directory: tests/unit
@@ -709,6 +755,19 @@ jobs:
           LIME_SOFTWARE_GL: "1"
         run: |
           lime test windows -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
+
+      - name: Check window creation failure and recovery
+        working-directory: tests/window-creation
+        timeout-minutes: 10
+        env:
+          ALSOFT_DRIVERS: "null"
+        run: |
+          lime test neko -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          lime test hl -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          lime test windows -release -verbose -nocolor
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check native desktop integration through SDL
         working-directory: tests/native-desktop

@@ -102,6 +102,8 @@ namespace lime {
 
 
 	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title);
+	const char* GetWindowCreationError ();
+	void AlertWindow (const char* message, const char* title);
 	void SetWindowAppearance (Window* window, int appearance);
 	int GetWindowAppearance (Window* window);
 

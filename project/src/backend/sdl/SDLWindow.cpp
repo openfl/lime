@@ -469,8 +469,6 @@ namespace lime {
 	#endif
 #endif
 
-	static bool windowCreated = false;
-
 #ifdef SOFTWARE_OPENGL
 	// The first OpenGL window settles whether OpenGL is drawn in software, and later
 	// windows share its library
@@ -927,23 +925,9 @@ namespace lime {
 
 			printf ("Could not create SDL window: %s.\n", SDL_GetError ());
 
-			// An application whose first window cannot be made has nothing to show,
-			// and would otherwise run on unseen
-			if (!windowCreated) {
-
-				char* message = NULL;
-				SDL_asprintf (&message, "Could not create a window: %s.%s", SDL_GetError (), (flags & WINDOW_FLAG_SOFTWARE_OPENGL) ? "\n\nSetting the environment variable LIME_SOFTWARE_GL=1 draws without the GPU." : "");
-				SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_ERROR, title ? title : "Lime", message ? message : SDL_GetError (), NULL);
-				SDL_free (message);
-				exit (1);
-
-			}
-
 			return;
 
 		}
-
-		windowCreated = true;
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 		InstallResizeEventHook (sdlWindow);
@@ -2437,12 +2421,34 @@ namespace lime {
 
 		if (!window->sdlWindow) {
 
+			// Cleanup can replace SDL's error before Haxe reads it.
+			char* error = SDL_strdup (SDL_GetError ());
 			delete window;
+			if (error) {
+
+				SDL_SetError ("%s", error);
+				SDL_free (error);
+
+			}
 			return 0;
 
 		}
 
 		return window;
+
+	}
+
+
+	const char* GetWindowCreationError () {
+
+		return SDL_GetError ();
+
+	}
+
+
+	void AlertWindow (const char* message, const char* title) {
+
+		SDL_ShowSimpleMessageBox (SDL_MESSAGEBOX_ERROR, title ? title : "Lime", message, NULL);
 
 	}
 

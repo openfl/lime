@@ -157,6 +157,7 @@ class NativeWindow
 
 		if (handle == null)
 		{
+			parent.application.__windowCreationError = CFFI.stringValue(NativeCFFI.lime_window_get_creation_error());
 			// A context made and deleted on the way leaves none current
 			restoreCurrentContext(parent.application, parent);
 			return;

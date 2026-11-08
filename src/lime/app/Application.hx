@@ -149,6 +149,7 @@ class Application extends Module
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
+	@:noCompletion private var __windowCreationError:String;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
 
@@ -221,6 +222,7 @@ class Application extends Module
 	/**
 		Creates a new Window and adds it to the Application
 		@param	attributes	A set of parameters to initialize the window
+		@return	The new Window, or null if it could not be created
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{
@@ -597,6 +599,7 @@ class Application extends Module
 
 	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window
 	{
+		__windowCreationError = null;
 		var window = new Window(this, attributes);
 		if (window.id == -1) return null;
 		__seedFrameConfiguration(attributes);

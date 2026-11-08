@@ -117,7 +117,13 @@ class AudioSourceTest extends Test
 
 		// Started in the same mixer update, the two have mixed the same number of samples
 		Sys.sleep(0.2);
+		// Pause both in one call so the mixer cannot advance between the reads.
+		AL.sourcePausev([handleOf(instrumental), handleOf(vocals)]);
+		Assert.equals(AL.PAUSED, stateOf(instrumental));
+		Assert.equals(AL.PAUSED, stateOf(vocals));
 		var instrumentalOffset = AL.getSourcei(handleOf(instrumental), AL.SAMPLE_OFFSET);
+		// Keep the comparison valid when the test thread is delayed.
+		Sys.sleep(0.05);
 		var vocalsOffset = AL.getSourcei(handleOf(vocals), AL.SAMPLE_OFFSET);
 		Assert.isTrue(instrumentalOffset > 0, "the sound did not play");
 		Assert.equals(instrumentalOffset, vocalsOffset);

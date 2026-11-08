@@ -307,7 +307,11 @@ class OpenGLTest extends Test
 	private static function createWindow():Window
 	{
 		// The window is left open, hidden, as closing the last window of the application ends it
-		return Application.current.createWindow({width: 64, height: 64, hidden: true, title: "OpenGLTest"});
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, title: "OpenGLTest", context: {type: OPENGL}});
+		#if lime_test_require_opengl
+		Assert.isTrue(window != null && window.context != null && window.context.gl != null, "The OpenGL tests require an OpenGL context");
+		#end
+		return window;
 	}
 
 	private static function makeCurrent(window:Window):Void
