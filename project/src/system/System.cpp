@@ -256,6 +256,16 @@ namespace lime {
 
 
 	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+	int System::GetWindowsFileAttributes (const wchar_t* path) {
+
+		// INVALID_FILE_ATTRIBUTES, if there is no such file, is -1 as an int
+		return path ? (int)GetFileAttributesW (path) : -1;
+
+	}
+	#endif
+
+
+	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
 	bool System::SetWindowsConsoleMode (int handleType, int mode) {
 
 		HANDLE handle = GetStdHandle ((DWORD)handleType);

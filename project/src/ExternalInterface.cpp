@@ -4802,6 +4802,29 @@ namespace lime {
 	}
 
 
+	int lime_system_get_windows_file_attributes (HxString path) {
+
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		return System::GetWindowsFileAttributes (hxs_wchar (path, nullptr));
+		#else
+		return -1;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_system_get_windows_file_attributes) (hl_vstring* path) {
+
+		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+		// HashLink strings are UTF-16, as wchar_t is on Windows
+		return System::GetWindowsFileAttributes (path ? (const wchar_t*)path->bytes : NULL);
+		#else
+		return -1;
+		#endif
+
+	}
+
+
 	void lime_system_open_file (HxString path) {
 
 		#ifdef IPHONE
@@ -14379,6 +14402,7 @@ namespace lime {
 	DEFINE_PRIME3 (lime_system_get_secure_random_bytes);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
+	DEFINE_PRIME1 (lime_system_get_windows_file_attributes);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
@@ -14740,6 +14764,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_secure_random_bytes, _TBYTES _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
+	DEFINE_HL_PRIM (_I32, hl_system_get_windows_file_attributes, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_url, _STRING _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_allow_screen_timeout, _BOOL);
