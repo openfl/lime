@@ -71,6 +71,19 @@ class NativeAudioSource
 	private var sdlSoundStreamBytes:Bytes;
 	private var samples:Int;
 	private var stream:Bool;
+
+	#if lime_audio_test_hooks
+	/**
+		Tests only: each stream buffer queued, with its bytes, the stream time (seconds) of its first frame, and whether it
+		is the first since the queue was emptied (a seek, a stop or a new source).
+	**/
+	public static var onTestQueue:AudioSource->Bytes->Float->Bool->Void;
+
+	private var testQueueEmptied = true;
+
+	/** Tests only: each time a source is started, and how ("play", "together" or "starved"). **/
+	public static var onTestStart:AudioSource->String->Void;
+	#end
 	private var streamByteRate:Float;
 	private var streamCanSeek:Bool;
 	private var streamExhausted:Bool;
@@ -380,10 +393,12 @@ class NativeAudioSource
 		if (playTogetherHandles != null)
 		{
 			if (playTogetherHandles.indexOf(handle) < 0) playTogetherHandles.push(handle);
+			#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "together"); #end
 		}
 		else
 		{
 			AL.sourcePlay(handle);
+			#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "play"); #end
 		}
 	}
 
@@ -685,6 +700,7 @@ class NativeAudioSource
 		queuedBufferCount = 0;
 		queuedBufferLoopCounts = [];
 		queuedStreamLoopCount = 0;
+		#if lime_audio_test_hooks testQueueEmptied = true; #end
 	}
 
 	private function prepareAudioContextRecoverySource():Void
@@ -851,7 +867,12 @@ class NativeAudioSource
 		#end
 	}
 
-	private function refillBuffers(buffers:Array<ALBuffer> = null):Void
+	/**
+		Refills the stream's processed buffers (or `buffers`) and queues them. With `restartStarved`, a source OpenAL stopped
+		for want of data while playing is started again; a seek passes false, as it starts the source itself (or with the
+		rest of `AudioSource.playTogether`), and a source started here would play before them and restart when they start.
+	**/
+	private function refillBuffers(buffers:Array<ALBuffer> = null, restartStarved:Bool = true):Void
 	{
 		if (!stream || handle == null)
 		{
@@ -990,6 +1011,11 @@ class NativeAudioSource
 				}
 
 				AL.bufferData(buffer, format, readArray, bytesRead, parent.buffer.sampleRate);
+				#if lime_audio_test_hooks
+				if (onTestQueue != null) onTestQueue(parent, readArray.buffer.sub(readArray.byteOffset, bytesRead), bufferTimeBlocks[STREAM_NUM_BUFFERS - 1],
+					testQueueEmptied);
+				testQueueEmptied = false;
+				#end
 				position += bytesRead;
 				numBuffers++;
 
@@ -1041,9 +1067,10 @@ class NativeAudioSource
 			// of data, which typically happens if an operation (such as
 			// resizing a window) freezes the main thread.
 			// If AL is supposed to be playing but isn't, restart it here.
-			if (playing && handle != null && queuedBufferCount > 0 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED)
+			if (restartStarved && playing && handle != null && queuedBufferCount > 0 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED)
 			{
 				AL.sourcePlay(handle);
+				#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "starved"); #end
 			}
 		}
 	}
@@ -1136,6 +1163,10 @@ class NativeAudioSource
 		{
 			if (stream)
 			{
+				// A stream whose last buffer OpenAL has played stops with its offset back at 0, a moment before the refill
+				// timer marks it completed; it has played to the end
+				if (playing && streamExhausted && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
+
 				// The blocks hold the start times of the last buffers read, the newest last; the source plays the oldest
 				// one still queued, which is no longer the first block once the stream has run out and the queue shrinks
 				var head = STREAM_NUM_BUFFERS - queuedBufferCount;
@@ -1207,7 +1238,7 @@ class NativeAudioSource
 					bufferTimeBlocks[i] = 0;
 				}
 
-				refillBuffers(buffers);
+				refillBuffers(buffers, false);
 
 				if (playing)
 				{
