@@ -13,6 +13,8 @@ class ImageDataUtilTest extends Test
 		super();
 	}
 
+	// on Flash, the pixels of an Image are in a flash.display.BitmapData, not in the data this blur reads
+	#if !flash
 	public function testGaussianBlurMultipliesTheBlurredAlphaByTheStrength()
 	{
 		var plain = blurredDot(1);
@@ -37,4 +39,5 @@ class ImageDataUtilTest extends Test
 		ImageDataUtil.gaussianBlur(image, source, source.rect, new Vector2(), 4, 4, 1, strength);
 		return image;
 	}
+	#end
 }
