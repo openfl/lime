@@ -690,12 +690,10 @@ class NativeAudioSource
 			return;
 		}
 
-		var queued = AL.getSourcei(handle, AL.BUFFERS_QUEUED);
-
-		if (queued > 0)
-		{
-			AL.sourceUnqueueBuffers(handle, queued);
-		}
+		// Detached rather than unqueued: a source that hasn't started yet (a seek before play()) has no processed buffers,
+		// so unqueuing them fails, the refill queues the same buffers again, and as they're still queued OpenAL keeps their
+		// old audio and replays it. Detaching works on any source that isn't playing, as the seek has stopped it.
+		AL.sourcei(handle, AL.BUFFER, null);
 
 		queuedBufferCount = 0;
 		queuedBufferLoopCounts = [];
