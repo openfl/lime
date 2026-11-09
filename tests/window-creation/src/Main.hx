@@ -20,7 +20,8 @@ class Main extends Application
 		require(created == 0, "Failed creation dispatched onCreateWindow");
 		require(__windowCreationError != null && __windowCreationError.indexOf("lime-test-invalid") >= 0, "The SDL error was lost");
 
-		Sys.putEnv("SDL_VIDEODRIVER", driver);
+		// Neko throws on a null value; SDL takes an empty driver name as its default
+		Sys.putEnv("SDL_VIDEODRIVER", driver != null ? driver : "");
 		var recovered = createWindow({width: 64, height: 64, hidden: true, context: {hardware: false}});
 		require(recovered != null, "A window could not be created after a failure");
 		require(window == recovered && windows.length == 1, "The recovered window was not registered");
