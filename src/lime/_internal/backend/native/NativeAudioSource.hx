@@ -53,6 +53,7 @@ class NativeAudioSource
 
 	#if lime_openalsoft
 	private static var hasDirectChannelsExt:Null<Bool>;
+	private static var hasSourceSpatializeExt:Null<Bool>;
 	#end
 	private static var activeSources:Array<NativeAudioSource> = [];
 
@@ -457,6 +458,16 @@ class NativeAudioSource
 		if (hasDirectChannelsExt)
 		{
 			AL.sourcei(handle, AL.DIRECT_CHANNELS_SOFT, AL.REMIX_UNMATCHED_SOFT);
+		}
+		
+		if (hasSourceSpatializeExt == null)
+		{
+			hasSourceSpatializeExt = AL.isExtensionPresent("AL_SOFT_source_spatialize");
+		}
+
+		if (hasSourceSpatializeExt)
+		{
+			AL.sourcei(handle, AL.SOURCE_SPATIALIZE_SOFT, AL.TRUE);
 		}
 		#end
 
