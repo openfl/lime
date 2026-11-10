@@ -95,6 +95,9 @@ class AIRWindow extends FlashWindow
 		if (Reflect.hasField(attributes, "width")) width = attributes.width;
 		if (Reflect.hasField(attributes, "height")) height = attributes.height;
 
+		// AIR windows are made opaque, as is the first, by the application descriptor
+		parent.transparent = false;
+
 		if (FlashApplication.createFirstWindow)
 		{
 			nativeWindow = Lib.current.stage.nativeWindow;

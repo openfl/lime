@@ -34,7 +34,6 @@ namespace lime {
 	void gc_hb_blob (value handle) {
 
 		hb_blob_destroy ((hb_blob_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -49,7 +48,6 @@ namespace lime {
 	void gc_hb_buffer (value handle) {
 
 		hb_buffer_destroy ((hb_buffer_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -64,7 +62,6 @@ namespace lime {
 	void gc_hb_face (value handle) {
 
 		hb_face_destroy ((hb_face_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -79,7 +76,6 @@ namespace lime {
 	void gc_hb_font (value handle) {
 
 		hb_font_destroy ((hb_font_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -94,7 +90,6 @@ namespace lime {
 	void gc_hb_set (value handle) {
 
 		hb_set_destroy ((hb_set_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 

@@ -88,23 +88,19 @@ class NativeHTTPRequest
 		this.parent = parent;
 	}
 
-	private function initRequest(uri:String, binary:Bool):Void
+	private function initRequest(uri:String):Void
 	{
 		bytes = Bytes.alloc(0);
+		buffer = new BytesBuffer();
 
 		bytesLoaded = 0;
 		bytesTotal = 0;
 		writeBytesLoaded = 0;
 		writeBytesTotal = 0;
 
-		if (curl == null)
-		{
-			curl = new CURL();
-		}
-		else
-		{
-			curl.reset();
-		}
+		// The multi thread cleans up a handle when its transfer ends, and a
+		// transfer may still be running, so every load has a handle of its own
+		curl = new CURL();
 
 		var data = parent.data;
 		var query = "";
@@ -259,8 +255,6 @@ class NativeHTTPRequest
 		// curl.setOption (CONNECTTIMEOUT, 30);
 		curl.setOption(NOSIGNAL, true);
 
-		curl.setOption(TRANSFERTEXT, !binary);
-
 		#if curl_verbose
 		curl.setOption(VERBOSE, true);
 		#end
@@ -301,11 +295,11 @@ class NativeHTTPRequest
 				multiInstances = new Map();
 			}
 
-			initRequest(uri, binary);
+			initRequest(uri);
 
 			if (curl != null)
 			{
-				activeInstances.push(this);
+				if (activeInstances.indexOf(this) == -1) activeInstances.push(this);
 				multiInstances.set(curl, this);
 
 				#if (cpp || neko || hl)
@@ -367,9 +361,27 @@ class NativeHTTPRequest
 		return bytes;
 	}
 
+	// Called before the load's promise is completed, which may load the
+	// request again
+	private function finishLoad(promise:Promise<Bytes>):Void
+	{
+		if (this.promise != promise) return;
+
+		if (timeout != null)
+		{
+			timeout.stop();
+			timeout = null;
+		}
+
+		bytes = null;
+		this.promise = null;
+	}
+
 	// Event Handlers
 	private function curl_onHeader(curl:CURL, header:String):Void
 	{
+		if (curl != this.curl) return;
+
 		var parts = header.split(': ');
 
 		if (parts.length == 2)
@@ -380,6 +392,8 @@ class NativeHTTPRequest
 
 	private function curl_onProgress(curl:CURL, dltotal:Float, dlnow:Float, uptotal:Float, upnow:Float):Int
 	{
+		if (curl != this.curl) return 0;
+
 		if (upnow > writeBytesLoaded || dlnow > writeBytesLoaded || uptotal > writeBytesTotal || dltotal > writeBytesTotal)
 		{
 			if (upnow > writeBytesLoaded) writeBytesLoaded = Std.int(upnow);
@@ -396,6 +410,9 @@ class NativeHTTPRequest
 
 	private function curl_onWrite(curl:CURL, output:Bytes):Int
 	{
+		// The request was loaded again, so this transfer is stopped
+		if (curl != this.curl) return 0;
+
 		buffer.addBytes(output, 0, output.length);
 
 		return output.length;
@@ -450,35 +467,15 @@ class NativeHTTPRequest
 	{
 		var promise:Promise<Bytes> = state.promise;
 		if (promise.isError) return;
+		state.instance.finishLoad(promise);
 		promise.complete(state.result);
-
-		var instance = state.instance;
-
-		if (instance.timeout != null)
-		{
-			instance.timeout.stop();
-			instance.timeout = null;
-		}
-
-		instance.bytes = null;
-		instance.promise = null;
 	}
 
 	private static function localThreadPool_onError(state:{instance:NativeHTTPRequest, promise:Promise<Bytes>, error:String}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
+		state.instance.finishLoad(promise);
 		promise.error(new _HTTPRequestErrorResponse(state.error, null));
-
-		var instance = state.instance;
-
-		if (instance.timeout != null)
-		{
-			instance.timeout.stop();
-			instance.timeout = null;
-		}
-
-		instance.bytes = null;
-		instance.promise = null;
 	}
 
 	private static function localThreadPool_onProgress(state:
@@ -562,47 +559,57 @@ class NativeHTTPRequest
 		if (multiInstances.exists(state.curl))
 		{
 			var instance = multiInstances.get(state.curl);
-			activeInstances.remove(instance);
 			multiInstances.remove(state.curl);
 
+			// The request was loaded again before this transfer ended
+			if (state.curl != instance.curl)
+			{
+				state.curl = null;
+				return;
+			}
+
+			activeInstances.remove(instance);
+
+			// Cleaned up on the multi thread
+			instance.curl = null;
+
 			instance.parent.responseStatus = state.status;
+
+			var promise = instance.promise;
 
 			if (state.result == CURLCode.OK)
 			{
 				if ((state.status >= 200 && state.status < 400) || state.status == 0)
 				{
-					if (!instance.promise.isError)
+					var data = instance.buildBuffer();
+					instance.finishLoad(promise);
+
+					if (!promise.isError)
 					{
-						instance.promise.complete(instance.buildBuffer());
+						promise.complete(data);
 					}
 				}
 				else if (instance.bytes != null)
 				{
 					var error = instance.bytes.getString(0, instance.bytes.length);
 					var responseData = instance.buildBuffer();
-					instance.promise.error(new _HTTPRequestErrorResponse(error, responseData));
+					instance.finishLoad(promise);
+					promise.error(new _HTTPRequestErrorResponse(error, responseData));
 				}
 				else
 				{
 					var error = 'Status ${state.status}';
 					var responseData = instance.buildBuffer();
-					instance.promise.error(new _HTTPRequestErrorResponse(error, responseData));
+					instance.finishLoad(promise);
+					promise.error(new _HTTPRequestErrorResponse(error, responseData));
 				}
 			}
 			else
 			{
 				var error = CURL.strerror(state.result);
-				instance.promise.error(new _HTTPRequestErrorResponse(error, null));
+				instance.finishLoad(promise);
+				promise.error(new _HTTPRequestErrorResponse(error, null));
 			}
-
-			if (instance.timeout != null)
-			{
-				instance.timeout.stop();
-				instance.timeout = null;
-			}
-
-			instance.bytes = null;
-			instance.promise = null;
 		}
 
 		state.curl = null;

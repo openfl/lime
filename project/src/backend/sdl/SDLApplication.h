@@ -41,12 +41,15 @@ namespace lime {
 			virtual int Quit ();
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode);
 			virtual void SetFrameRate (double frameRate);
+			virtual void SetIdleEvents (bool enabled);
 			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual void SetVSyncMode (int vsyncMode);
 			virtual bool Update ();
 
 			void RegisterWindow (SDLWindow *window);
 			void UnregisterWindow (SDLWindow *window);
+			static void NoteContextFlip ();
+			static void CallFromEventPump (void (*callback) (void*), void* data);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
@@ -60,12 +63,15 @@ namespace lime {
 			void ApplyMainLoopSettings ();
 			void CalibrateSleepGuard (bool force = false);
 			void DispatchFrame (double now, bool renderFrame = true);
+			void DispatchIdle (double remaining);
 			double GetCurrentTimeMs () const;
 			double GetDisplayRefreshRate () const;
 			Uint32 GetSleepGuardMs () const;
 			void HandleEvent (SDL_Event* event);
 			bool IsFrameDue (double now) const;
+			bool IsIdleDue (double now) const;
 			bool IsSchedulerUnthrottled () const;
+			void PaceFrameAfterRender (bool swapped);
 			void RefreshVSyncState ();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
@@ -152,6 +158,7 @@ namespace lime {
 			DropEvent dropEvent;
 			bool firstTime;
 			GamepadEvent gamepadEvent;
+			bool idleEvents;
 			JoystickEvent joystickEvent;
 			KeyEvent keyEvent;
 			double lastUpdate;
@@ -159,6 +166,7 @@ namespace lime {
 			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
 			bool mouseCaptureRequested;
+			double nextIdle;
 			double nextUpdate;
 			OrientationEvent orientationEvent;
 			Uint64 performanceFrequency;
@@ -177,6 +185,8 @@ namespace lime {
 			SensorEvent sensorEvent;
 			bool schedulerUnthrottled;
 			double sleepGuardMs;
+			// Unthrottled because each swap waits for the display
+			bool swapPaced;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			TrayIconEvent trayIconEvent;

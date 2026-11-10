@@ -54,6 +54,13 @@ class NativeLocalSocket
 		#if (!macro && lime_cffi)
 		setHandle(NativeCFFI.lime_local_socket_connect(name, timeout > 0 ? timeout : 0));
 		#end
+
+		// Where local sockets are not built in, as on mobile, or the connection cannot even be started
+		if (handle == null)
+		{
+			parent.onError.dispatch(LocalSocketError.FAILED);
+			parent.onClose.dispatch();
+		}
 	}
 
 	public function getBytesPending():Int

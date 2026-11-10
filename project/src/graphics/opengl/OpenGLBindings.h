@@ -10,6 +10,7 @@ namespace lime {
 		public:
 
 			static bool Init ();
+			static void Reload ();
 
 			static int defaultFramebuffer;
 			static int defaultRenderbuffer;

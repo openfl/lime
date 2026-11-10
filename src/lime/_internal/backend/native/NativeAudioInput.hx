@@ -16,6 +16,8 @@ import lime.media.openal.ALDevice;
 @:access(lime.media.AudioInput)
 class NativeAudioInput
 {
+	private var canReportDisconnect:Bool;
+	private var disconnected:Bool;
 	private var disposed:Bool;
 	private var handle:#if (!lime_doc_gen || lime_openal) ALDevice #else Dynamic #end;
 	private var parent:AudioInput;
@@ -42,14 +44,9 @@ class NativeAudioInput
 		#if (!lime_doc_gen || lime_openal)
 		var defaultDevice = getDefaultDevice();
 		var defaultName = defaultDevice != null ? defaultDevice.name : null;
-		var devices = parseDeviceList(ALC.getString(null, ALC.CAPTURE_DEVICE_SPECIFIER), defaultName);
 
-		if (devices.length == 0 && defaultDevice != null)
-		{
-			devices.push(defaultDevice);
-		}
-
-		return devices;
+		// The names come in one string, each ending in a null character, which getString() stops at
+		return createDevices(ALC.getStringList(null, ALC.CAPTURE_DEVICE_SPECIFIER), defaultName);
 		#else
 		return [];
 		#end
@@ -90,7 +87,7 @@ class NativeAudioInput
 	public function getSamplesAvailable():Int
 	{
 		#if (!lime_doc_gen || lime_openal)
-		if (handle == null)
+		if (handle == null || !isConnected())
 		{
 			return 0;
 		}
@@ -238,20 +235,49 @@ class NativeAudioInput
 
 		var deviceName = parent.device != null && !parent.device.isDefault ? parent.device.id : null;
 		handle = ALC.captureOpenDevice(deviceName, parent.sampleRate, format, parent.bufferSize);
+		canReportDisconnect = handle != null && ALC.isExtensionPresent(handle, "ALC_EXT_disconnect");
 		#end
 	}
 
-	private static function parseDeviceList(value:String, defaultName:String):Array<AudioInputDevice>
+	// Polled with the samples, as the application polls for them, so onDisconnect is dispatched once
+	// from samplesAvailable or read
+	private function isConnected():Bool
 	{
-		var devices = [];
-
-		if (value == null || value == "")
+		#if (!lime_doc_gen || lime_openal)
+		if (disconnected)
 		{
-			return devices;
+			return false;
 		}
 
+		if (!canReportDisconnect)
+		{
+			return true;
+		}
+
+		var values = ALC.getIntegerv(handle, ALC.CONNECTED, 1);
+
+		if (values != null && values.length > 0 && values[0] == ALC.FALSE)
+		{
+			disconnected = true;
+			stop();
+			parent.running = false;
+			parent.onDisconnect.dispatch();
+			return false;
+		}
+		#end
+
+		return true;
+	}
+
+	private static function createDevices(names:Array<String>, defaultName:String):Array<AudioInputDevice>
+	{
+		var devices = [];
 		var hasDefault = false;
-		var names = value.split(String.fromCharCode(0));
+
+		if (names == null)
+		{
+			names = [];
+		}
 
 		for (name in names)
 		{

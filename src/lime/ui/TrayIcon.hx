@@ -16,9 +16,9 @@ import lime.graphics.Image;
 		trayIcon.onClick.add(() -> window.focus());
 
 		var menu = new Menu();
-		menu.addItem(new MenuItem("Show")).onSelect.add(() -> window.focus());
+		menu.add(new MenuItem("Show")).onSelect.add(() -> window.focus());
 		menu.addSeparator();
-		menu.addItem(new MenuItem("Quit")).onSelect.add(() -> System.exit(0));
+		menu.add(new MenuItem("Quit")).onSelect.add(() -> System.exit(0));
 		trayIcon.menu = menu;
 	}
 	```

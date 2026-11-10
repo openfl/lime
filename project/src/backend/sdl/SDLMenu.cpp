@@ -1,5 +1,6 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
+#include "SDLWindow.h"
 #include <ui/DockIcon.h>
 #include <native_desktop/Desktop.h>
 #include <stdint.h>
@@ -66,25 +67,18 @@ namespace lime {
 
 	static bool GetDesktopWindow (SDL_Window* window, native_desktop::Window* result) {
 
-		if (!window) return false;
-
-		SDL_SysWMinfo info;
-		SDL_VERSION (&info.version);
-		if (!SDL_GetWindowWMInfo (window, &info)) return false;
+		int type = SDLWindow::GetNativeHandle (window, &result->handle, &result->display);
+		if (type == WINDOW_HANDLE_NONE) return false;
 
 		result->id = SDL_GetWindowID (window);
 		SDL_GetWindowPosition (window, &result->x, &result->y);
 
 		#if defined(LIME_SDL_MENU_WIN32)
-		if (info.subsystem != SDL_SYSWM_WINDOWS) return false;
-		result->handle = info.info.win.window;
+		if (type != WINDOW_HANDLE_WINDOWS) return false;
 		#elif defined(LIME_SDL_MENU_COCOA)
-		if (info.subsystem != SDL_SYSWM_COCOA) return false;
-		result->handle = info.info.cocoa.window;
+		if (type != WINDOW_HANDLE_COCOA) return false;
 		#elif defined(LIME_SDL_MENU_GTK) && defined(SDL_VIDEO_DRIVER_X11)
-		if (info.subsystem != SDL_SYSWM_X11) return false;
-		result->display = info.info.x11.display;
-		result->handle = (void*)(uintptr_t)info.info.x11.window;
+		if (type != WINDOW_HANDLE_X11) return false;
 		result->appearance = (int)(intptr_t)SDL_GetWindowData (window, "Lime.WindowAppearance") - 1;
 		#else
 		return false;
@@ -118,6 +112,14 @@ namespace lime {
 	TrayIcon* CreateTrayIcon () {
 
 		return new SDLTrayIcon ();
+
+	}
+
+
+	bool Menu::GetApplicationMenu (std::vector<unsigned char>* data) {
+
+		ConfigureDesktop ();
+		return native_desktop::Menu::GetApplicationMenu (data);
 
 	}
 

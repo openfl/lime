@@ -81,6 +81,29 @@ PPnvNTXCeHD8QlJQRVNGCX/HJfwNItkkveY54/M8pOreIDAxcydX7TC3
 -----END PRIVATE KEY-----
 ";
 
+	// Issued by fixtures/trusted-ca.pem. The macOS CI job sets that CA to Always Trust
+	// in the system's trust settings, and the test CA (fixtures/test-ca.pem) to Never Trust
+	private static inline var TRUSTED_SERVER_CERTIFICATE = "-----BEGIN CERTIFICATE-----
+MIIByTCCAXCgAwIBAgIUT3GT3LuIU4idJwbkySMkgrRkcT0wCgYIKoZIzj0EAwIw
+HzEdMBsGA1UEAwwUTGltZSBUZXN0IFRydXN0ZWQgQ0EwIBcNMjYxMDE1MTkzNzA4
+WhgPMjA3NjEwMDIxOTM3MDhaMBQxEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqG
+SM49AgEGCCqGSM49AwEHA0IABABi7NX1oyQEoxetW02UGfS0YqtupTpZA5Ac5MWX
+ZjPH3wHaHyKGgVyp2i2rEa6PO7IcthTsEcS+lX8VNjLsVvCjgZIwgY8wGgYDVR0R
+BBMwEYcEfwAAAYIJbG9jYWxob3N0MAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQD
+AgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMBMB0GA1UdDgQWBBQrs+VFB28WPymPbKEE
+SJ9/uW0BIzAfBgNVHSMEGDAWgBQC4JFYIStRjzEFbKy70BRrnZHo8zAKBggqhkjO
+PQQDAgNHADBEAiBENOI9FHJoGSlXkfV+OIWhC37b65uRXeRgMDhwcQ/4dQIgWWVB
+WeyJB6n4sfkXXw6YU1xEeaX6h6HgAFNegAyQvpQ=
+-----END CERTIFICATE-----
+";
+
+	private static inline var TRUSTED_SERVER_KEY = "-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgb3/16FQIPv/tcckj
+fWQ+nyl8a2bubojf/6PWYWa/8jqhRANCAAQAYuzV9aMkBKMXrVtNlBn0tGKrbqU6
+WQOQHOTFl2Yzx98B2h8ihoFcqdotqxGujzuyHLYU7BHEvpV/FTYy7Fbw
+-----END PRIVATE KEY-----
+";
+
 	private static inline var BODY = "ok";
 
 	public function new()
@@ -180,6 +203,30 @@ PPnvNTXCeHD8QlJQRVNGCX/HJfwNItkkveY54/M8pOreIDAxcydX7TC3
 
 		Assert.equals(SSL_CACERT, result.code, "a reset handle accepted a self-signed certificate: " + CURL.strerror(result.code));
 	}
+
+	#if mac
+	public function testTheSystemsTrustSettingsAreFollowed():Void
+	{
+		if (Sys.getEnv("LIME_TEST_TRUST_SETTINGS") == null)
+		{
+			// utest takes a warning as a failure, so the test passes, saying why
+			trace("No trust settings were made for this test, so they were not checked");
+			Assert.pass();
+			return;
+		}
+
+		var denied = new TLSServer(SERVER_CERTIFICATE, SERVER_KEY);
+		var result = fetch(denied.url);
+		denied.stop();
+		Assert.equals(SSL_CACERT, result.code, "a certificate from a CA set to Never Trust was accepted: " + CURL.strerror(result.code));
+
+		var trusted = new TLSServer(TRUSTED_SERVER_CERTIFICATE, TRUSTED_SERVER_KEY);
+		result = fetch(trusted.url);
+		trusted.stop();
+		Assert.equals(OK, result.code, "a certificate from a CA set to Always Trust was rejected: " + CURL.strerror(result.code));
+		Assert.equals(BODY, result.body);
+	}
+	#end
 
 	public function testThePublicInternetIsTrusted():Void
 	{

@@ -114,6 +114,24 @@ class AudioSource
 	}
 
 	/**
+		Plays or resumes each of `sources`, so they begin at the same moment. On native targets they start in one
+		`alSourcePlayv`, in the same mixer update, rather than in whichever one each `play()` happened to reach (a
+		period, often 10-20 ms, apart). Use it to start tracks that must stay aligned, such as a song's instrumental
+		and vocals. On HTML5 and Flash, each source is played in turn.
+	**/
+	public static function playTogether(sources:Array<AudioSource>):Void
+	{
+		#if (!flash && !(js && html5))
+		AudioSourceBackend.playTogether(sources);
+		#else
+		for (source in sources)
+		{
+			if (source != null) source.play();
+		}
+		#end
+	}
+
+	/**
 		Pauses audio playback.
 	**/
 	public function pause():Void

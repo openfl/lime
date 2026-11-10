@@ -9,9 +9,13 @@ class TestMain extends Application
 		super();
 
 		var runner = new Runner();
+		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
+		runner.addCase(new graphics.OpenGLTest());
 		runner.addCase(new media.AudioBufferTest());
+		runner.addCase(new media.AudioInputTest());
+		runner.addCase(new media.AudioSourceTest());
 		runner.addCase(new media.OpenALTest());
 		runner.addCase(new media.VideoDecoderTest());
 		runner.addCase(new media.VideoInputTest());
@@ -19,14 +23,18 @@ class TestMain extends Application
 		runner.addCase(new media.VideoFrameTest());
 		runner.addCase(new media.VideoSourceTest());
 		runner.addCase(new net.CURLTest());
+		runner.addCase(new net.HTTPRequestTest());
 		runner.addCase(new net.HTTPSTest());
 		runner.addCase(new net.LocalSocketTest());
+		runner.addCase(new net.WebSocketTest());
 		runner.addCase(new system.DisplayTest());
+		runner.addCase(new system.FinalizerTest());
 		runner.addCase(new system.LocaleTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
 		runner.addCase(new ui.MenuTest());
+		runner.addCase(new ui.WebViewTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
 		runner.addCase(new utils.UInt8ArrayTest());

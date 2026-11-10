@@ -8,6 +8,20 @@ class DefineMacro
 {
 	public static function run():Void
 	{
+		if (Context.defined("cpp") && Context.defined("HXCPP_GC_INCREMENTAL"))
+		{
+			// libhxcpp's macros can run after this one
+			var pos = Context.currentPos();
+
+			Context.onAfterTyping(function(_)
+			{
+				if (!Context.defined("libhxcpp"))
+				{
+					Context.warning("HXCPP_GC_INCREMENTAL needs libhxcpp. This hxcpp ignores it and uses its usual collector.", pos);
+				}
+			});
+		}
+
 		if (!Context.defined("tools"))
 		{
 			if (Context.defined("flash"))

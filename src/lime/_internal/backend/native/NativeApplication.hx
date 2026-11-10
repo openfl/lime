@@ -70,6 +70,21 @@ class NativeApplication
 		is created, before any window is. Set by ApplicationMain.
 	**/
 	@:noCompletion private static var __allowHighDPI:Bool = false;
+
+	// TODO: Fold these update hooks into one list when a third subsystem needs one
+	/**
+		Reads and writes every WebSocket, once a frame. Set by NativeWebSocket
+		once there is one, so an application without any compiles none of it.
+	**/
+	@:noCompletion private static var __updateWebSockets:Void->Void = null;
+
+	/**
+		Delivers what every WebView reported, once a frame. Set by NativeWebView
+		once there is one, so an application without any compiles none of it.
+	**/
+	@:noCompletion private static var __updateWebViews:Void->Void = null;
+	// Called in the time left before a frame is due
+	@:noCompletion private var __idleCallback:Void->Void;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -119,6 +134,9 @@ class NativeApplication
 		#if (!macro && lime_cffi)
 		if (__allowHighDPI) NativeCFFI.lime_application_allow_high_dpi();
 		handle = NativeCFFI.lime_application_create();
+		#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
+		__setIdleCallback(__stepCollector);
+		#end
 		#end
 	}
 
@@ -163,9 +181,8 @@ class NativeApplication
 			function() runModalCallback(handleWindowEvent), rethrowModalException);
 		#end
 
-		#if (ios || android)
+		// Also carries the display connect, disconnect and move events of desktop targets
 		NativeCFFI.lime_orientation_event_manager_register(handleOrientationEvent, orientationEventInfo);
-		#end
 		#if (ios || android || tvos)
 		NativeCFFI.lime_sensor_event_manager_register(handleSensorEvent, sensorEventInfo);
 		#end
@@ -287,10 +304,33 @@ class NativeApplication
 			case UPDATE:
 				updateTimer();
 
+				// WebSockets are read and written once a frame, once there are any
+				if (__updateWebSockets != null) __updateWebSockets();
+				if (__updateWebViews != null) __updateWebViews();
+
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+			case IDLE:
+				if (__idleCallback != null) __idleCallback();
 			default:
 		}
 	}
+
+	private function __setIdleCallback(callback:Void->Void):Void
+	{
+		__idleCallback = callback;
+
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_application_set_idle_events(handle, callback != null);
+		#end
+	}
+
+	#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
+	private function __stepCollector():Void
+	{
+		// With no cycle to advance, a step would start one
+		if (hxcpp.gc.Incremental.isActive()) hxcpp.gc.Incremental.step();
+	}
+	#end
 
 	private function handleClipboardEvent():Void
 	{
@@ -301,8 +341,8 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Off: 1;
-			case On: 2;
+			case OFF: 1;
+			case ON: 2;
 
 			default: 0;
 		};
@@ -312,9 +352,9 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Precision: 1;
-			case LowEnergy: 2;
-			case Uncapped: 3;
+			case PRECISION: 1;
+			case LOW_ENERGY: 2;
+			case UNCAPPED: 3;
 
 			default: 0;
 		};
@@ -324,9 +364,9 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Millisecond: 1;
+			case MILLISECOND: 1;
 
-			case HighResolution: 2;
+			case HIGH_RESOLUTION: 2;
 			default: 0;
 		};
 	}
@@ -335,8 +375,8 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case Soft: 1;
-			case Hard: 2;
+			case SOFT: 1;
+			case HARD: 2;
 			default: 0;
 		};
 	}
@@ -345,9 +385,9 @@ class NativeApplication
 	{
 		return switch (value)
 		{
-			case On: 1;
-			case Adaptive: 2;
-			case Auto: 3;
+			case ON: 1;
+			case ADAPTIVE: 2;
+			case AUTO: 3;
 			default: 0;
 		};
 	}
@@ -622,6 +662,7 @@ class NativeApplication
 					#end
 					if (window.context != null)
 					{
+						NativeWindow.rendering = window;
 						window.__backend.render();
 						window.onRender.dispatch(window.context);
 
@@ -629,6 +670,8 @@ class NativeApplication
 						{
 							window.__backend.contextFlip();
 						}
+
+						NativeWindow.rendering = null;
 					}
 
 				case RENDER_CONTEXT_LOST:
@@ -658,6 +701,14 @@ class NativeApplication
 						window.onRenderContextRestored.dispatch(window.context);
 					}
 			}
+		}
+
+		if (renderEventInfo.type == RENDER)
+		{
+			// Each window made its own context current, so the main one is made current again
+			// for what the application does with OpenGL until the next render
+			var mainWindow = NativeWindow.getMainOpenGLWindow(parent);
+			if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
 		}
 	}
 
@@ -908,6 +959,7 @@ class NativeApplication
 {
 	var UPDATE = 0;
 	var EXIT = 1;
+	var IDLE = 2;
 }
 
 @:keep /*private*/ class ClipboardEventInfo

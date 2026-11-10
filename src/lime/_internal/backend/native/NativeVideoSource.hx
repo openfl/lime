@@ -58,6 +58,9 @@ class NativeVideoSource
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
+	// The sound and loop threads end after this long with nothing to do, rather than at once, as
+	// Neko on Windows can abort when a thread ends during a collection
+	private static inline var THREAD_IDLE_SECONDS:Float = 5.0;
 	private static inline var UPDATE_INTERVAL:Int = 10;
 	private static inline var VIDEO_BEHIND_SECONDS:Float = 1.0;
 
@@ -136,6 +139,7 @@ class NativeVideoSource
 	private var loops:Int;
 	private var pan:Float;
 	private var parent:VideoSource;
+	private var playbackRate:Float;
 	private var playing:Bool;
 	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
@@ -185,6 +189,7 @@ class NativeVideoSource
 		loopToken = 0;
 		loops = 0;
 		pan = 0;
+		playbackRate = 1;
 		playing = false;
 	}
 
@@ -264,6 +269,11 @@ class NativeVideoSource
 	public function getPixelAspectRatio():Float
 	{
 		return decoder != null ? decoder.pixelAspectRatio : 1;
+	}
+
+	public function getRate():Float
+	{
+		return playbackRate;
 	}
 
 	public function getPlaying():Bool
@@ -498,6 +508,25 @@ class NativeVideoSource
 		return value;
 	}
 
+	public function setRate(value:Float):Float
+	{
+		if (Math.isNaN(value)) return playbackRate;
+		value = Math.max(0.25, Math.min(4, value));
+		if (value == playbackRate) return playbackRate;
+
+		lockAudio();
+		if (decoder != null) getTimeUnlocked();
+		playbackRate = value;
+		audioClockStamp = -1;
+		audioCheckStamp = -1;
+		audioRateStamp = -1;
+		clockRate = 1 + timerDrift;
+		if (handle != null) AL.sourcef(handle, AL.PITCH, playbackRate);
+		unlockAudio();
+
+		return playbackRate;
+	}
+
 	public function setLoops(value:Int):Int
 	{
 		return loops = value;
@@ -617,7 +646,8 @@ class NativeVideoSource
 		var elapsed = now - audioCheckStamp;
 		if (elapsed < AUDIO_CHECK_SECONDS) return;
 
-		var rate = (position - audioCheckPosition) / elapsed;
+		// Measured against the playback rate, as the sound plays faster or slower with it
+		var rate = (position - audioCheckPosition) / elapsed / playbackRate;
 
 		if (!audioStalled)
 		{
@@ -804,6 +834,7 @@ class NativeVideoSource
 		if (handle == null) return;
 
 		AL.sourcef(handle, AL.GAIN, gain);
+		AL.sourcef(handle, AL.PITCH, playbackRate);
 
 		if (decoder.audioChannels == 1)
 		{
@@ -860,7 +891,7 @@ class NativeVideoSource
 	{
 		// A stalled output is only given audio up to a little past the clock, so
 		// one that drops what it is given does not drain the decoder
-		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS : Math.POSITIVE_INFINITY;
+		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS * Math.max(1, playbackRate) : Math.POSITIVE_INFINITY;
 
 		while (freeBuffers.length > 0 && audioDecoder.audioTime + audioOffset < limit)
 		{
@@ -961,11 +992,11 @@ class NativeVideoSource
 		// buffer can move it by a rounding error, which is not a mix.
 		var moved = Math.abs(audioMixPosition - audioReadPosition) > AUDIO_MIX_SECONDS;
 		var timed = moved && audioReadStamp >= 0 && now - audioReadStamp <= AUDIO_READ_SECONDS;
-		var heard = position + (timed ? (now - audioReadStamp) / 2 : 0);
+		var heard = position + (timed ? (now - audioReadStamp) / 2 * playbackRate : 0);
 		audioReadPosition = audioMixPosition;
 		audioReadStamp = now;
 
-		var time = running ? clockTime + (now - clockStamp) * clockRate : clockTime;
+		var time = running ? clockTime + (now - clockStamp) * clockRate * playbackRate : clockTime;
 
 		if (audioStarting)
 		{
@@ -1036,7 +1067,7 @@ class NativeVideoSource
 
 							if (t >= AUDIO_LEARN_SECONDS && spread > 0)
 							{
-								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread;
+								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread / playbackRate;
 								timerDrift = Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, rate - 1));
 							}
 
@@ -1162,7 +1193,7 @@ class NativeVideoSource
 		// window is inactive, so a clock on the timer alone holds then too
 		if (playing && !AudioManager.__suspended)
 		{
-			clockTime += now - clockStamp;
+			clockTime += (now - clockStamp) * playbackRate;
 		}
 
 		clockStamp = now;
@@ -1186,7 +1217,7 @@ class NativeVideoSource
 		{
 			var change = position - audioClockTime;
 
-			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 + AUDIO_JUMP_SECONDS)
+			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 * Math.max(1, playbackRate) + AUDIO_JUMP_SECONDS)
 			{
 				audioStalled = true;
 				audioRetryStamp = now + AUDIO_RETRY_SECONDS;
@@ -1514,14 +1545,15 @@ class NativeVideoSource
 		#if (lime_threads && !html5)
 		activeSourcesMutex.acquire();
 		activeSources.push(source);
+		var start = !feeding;
+		feeding = true;
 		activeSourcesMutex.release();
 
-		if (!feeding)
+		if (start)
 		{
 			// One thread keeps the sound of every playing video queued, so it plays
 			// on while the application's updates pause, as for a garbage collection
 			// or a blocking load. Updates still run the clock and the playback.
-			feeding = true;
 			Thread.create(feedSources);
 		}
 		#else
@@ -1548,9 +1580,32 @@ class NativeVideoSource
 	#if (lime_threads && !html5)
 	@:noCompletion private static function feedSources():Void
 	{
+		var idleSince = -1.0;
+
 		while (true)
 		{
-			for (source in getActiveSources())
+			activeSourcesMutex.acquire();
+			var sources = activeSources.copy();
+
+			if (sources.length == 0)
+			{
+				if (idleSince < 0) idleSince = Sys.time();
+
+				if (Sys.time() - idleSince >= THREAD_IDLE_SECONDS)
+				{
+					feeding = false;
+					activeSourcesMutex.release();
+					return;
+				}
+			}
+			else
+			{
+				idleSince = -1;
+			}
+
+			activeSourcesMutex.release();
+
+			for (source in sources)
 			{
 				source.feed();
 			}
@@ -1567,11 +1622,30 @@ class NativeVideoSource
 		// polled for, as the thread pool's waits on a message queue crash with
 		// hxcpp 4.3 on ARM64 Linux, whose condition variables in it are not
 		// aligned for ARM64's atomics.
+		var idleSince = -1.0;
+
 		while (true)
 		{
 			loopRequestsMutex.acquire();
 			var request = loopRequests.shift();
 			var retired = retiredDecoders.shift();
+
+			if (request == null && retired == null)
+			{
+				if (idleSince < 0) idleSince = Sys.time();
+
+				if (Sys.time() - idleSince >= THREAD_IDLE_SECONDS)
+				{
+					loopThreadStarted = false;
+					loopRequestsMutex.release();
+					return;
+				}
+			}
+			else
+			{
+				idleSince = -1;
+			}
+
 			loopRequestsMutex.release();
 
 			if (retired != null) retired.close();

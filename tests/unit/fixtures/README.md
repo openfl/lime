@@ -23,3 +23,10 @@ Keeping the server outside the test process isolates its TLS implementation and
 signal handling. In particular, rejecting a certificate must not send `SIGPIPE`
 through Neko's SSL server and interrupt the Lime client under test. The repeated
 rejection test also verifies that a subsequent accepted request still succeeds.
+
+# Trust settings
+
+`test-ca.pem` and `trusted-ca.pem` are the CAs of the HTTPS test certificates. The
+macOS CI job sets the first to Never Trust and the second to Always Trust in the
+system's trust settings, then sets `LIME_TEST_TRUST_SETTINGS`, so the tests can
+check that Lime follows them. Without that variable, the check is skipped.

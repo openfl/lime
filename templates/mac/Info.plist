@@ -28,5 +28,7 @@
 	<string>public.app-category.games</string>
 	<key>NSHighResolutionCapable</key>
 	<string>True</string>
+	::if (MAC_MICROPHONE_USAGE_DESCRIPTION != null)::<key>NSMicrophoneUsageDescription</key>
+	<string>::MAC_MICROPHONE_USAGE_DESCRIPTION::</string>::end::
 </dict>
 </plist>

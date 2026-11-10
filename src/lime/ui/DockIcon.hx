@@ -13,7 +13,7 @@ import lime.graphics.Image;
 	if (DockIcon.isSupported)
 	{
 		var menu = new Menu();
-		menu.addItem(new MenuItem("New Window")).onSelect.add(() -> createWindow());
+		menu.add(new MenuItem("New Window")).onSelect.add(() -> createWindow());
 		DockIcon.menu = menu;
 
 		DockIcon.bounce();

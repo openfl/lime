@@ -115,7 +115,9 @@ class LocalSocket
 		`onClose` if nothing did within `timeout` milliseconds. A `timeout` of
 		`0` waits for as long as it takes.
 
-		What is sent before the connection is made is sent once it is.
+		A connection this `LocalSocket` already has is closed first, as
+		`close()` closes it. What is sent before the new connection is made is
+		sent once it is.
 	**/
 	public function connect(name:String, timeout:Int = 5000):Void
 	{

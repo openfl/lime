@@ -67,7 +67,8 @@ class AudioManager
 			AudioManager.context = context;
 			setupOutputDeviceRecovery();
 
-			#if (lime_cffi && !macro && lime_openal && (ios || tvos || mac))
+			#if (lime_cffi && !macro && lime_openal)
+			// Releases the objects that were collected if nothing else gets to them
 			var timer = new Timer(100);
 			timer.run = function()
 			{
@@ -261,6 +262,12 @@ class AudioManager
 			refreshOutputDeviceRecovery();
 			NativeAudioSource.restoreAudioContextRecovery();
 			NativeVideoSource.restoreAudioContextRecovery();
+
+			// The new device starts playing, so it is paused until resume() as the old one was
+			if (__suspended)
+			{
+				suspend();
+			}
 		}
 
 		outputDeviceRecovering = false;
@@ -269,7 +276,7 @@ class AudioManager
 
 	private static function refreshOutputDeviceRecovery():Void
 	{
-		#if (lime_cffi && !macro && lime_openal)
+		#if (lime_cffi && !macro && lime_openalsoft)
 		if (context == null || context.type != OPENAL)
 		{
 			outputDevice = null;
@@ -288,7 +295,9 @@ class AudioManager
 
 	private static function setupOutputDeviceRecovery():Void
 	{
-		#if (lime_cffi && !macro && lime_openal)
+		// Only OpenAL Soft reports ALC_EXT_disconnect to Lime, so the system OpenAL on iOS and tvOS,
+		// MojoAL and Emscripten have no way to notice a lost device
+		#if (lime_cffi && !macro && lime_openalsoft)
 		stopOutputDeviceRecovery();
 
 		if (context == null || context.type != OPENAL)

@@ -94,21 +94,109 @@ namespace lime {
 	}
 
 
-	static void AppendCertificates (std::string& pem, CFArrayRef certificates) {
+	static void AppendCertificate (std::string& pem, SecCertificateRef certificate) {
 
-		for (CFIndex i = 0; i < CFArrayGetCount (certificates); i++) {
+		CFDataRef data = SecCertificateCopyData (certificate);
 
-			SecCertificateRef certificate = (SecCertificateRef)CFArrayGetValueAtIndex (certificates, i);
-			CFDataRef data = SecCertificateCopyData (certificate);
+		if (data) {
 
-			if (data) {
+			AppendDER (pem, CFDataGetBytePtr (data), CFDataGetLength (data));
+			CFRelease (data);
 
-				AppendDER (pem, CFDataGetBytePtr (data), CFDataGetLength (data));
-				CFRelease (data);
+		}
+
+	}
+
+
+	enum CertificateTrust {
+
+		TRUST_UNSPECIFIED,
+		TRUST_ROOT,
+		TRUST_DENIED
+
+	};
+
+
+	// What one domain's trust settings say about a certificate as a root for TLS servers
+	static CertificateTrust GetCertificateTrust (SecCertificateRef certificate, SecTrustSettingsDomain domain) {
+
+		CFArrayRef settings = NULL;
+
+		if (SecTrustSettingsCopyTrustSettings (certificate, domain, &settings) != errSecSuccess || !settings) {
+
+			return TRUST_UNSPECIFIED;
+
+		}
+
+		// Settings with no entries trust the certificate as a root for everything
+		CertificateTrust trust = (CFArrayGetCount (settings) == 0) ? TRUST_ROOT : TRUST_UNSPECIFIED;
+
+		for (CFIndex i = 0; i < CFArrayGetCount (settings); i++) {
+
+			CFDictionaryRef entry = (CFDictionaryRef)CFArrayGetValueAtIndex (settings, i);
+
+			// Entries for one application or one host name don't apply to every connection
+			if (CFDictionaryContainsKey (entry, kSecTrustSettingsApplication) || CFDictionaryContainsKey (entry, kSecTrustSettingsPolicyString)) continue;
+
+			SecPolicyRef policy = (SecPolicyRef)CFDictionaryGetValue (entry, kSecTrustSettingsPolicy);
+
+			if (policy) {
+
+				// Entries for code signing, mail and the other policies don't apply to TLS
+				CFDictionaryRef properties = SecPolicyCopyProperties (policy);
+				bool ssl = false;
+
+				if (properties) {
+
+					CFTypeRef oid = CFDictionaryGetValue (properties, kSecPolicyOid);
+					ssl = (oid && CFEqual (oid, kSecPolicyAppleSSL));
+					CFRelease (properties);
+
+				}
+
+				if (!ssl) continue;
+
+			}
+
+			SInt32 result = kSecTrustSettingsResultTrustRoot;
+			CFNumberRef number = (CFNumberRef)CFDictionaryGetValue (entry, kSecTrustSettingsResult);
+			if (number) CFNumberGetValue (number, kCFNumberSInt32Type, &result);
+
+			if (result == kSecTrustSettingsResultDeny) {
+
+				trust = TRUST_DENIED;
+				break;
+
+			}
+
+			if (result == kSecTrustSettingsResultTrustRoot || result == kSecTrustSettingsResultTrustAsRoot) {
+
+				trust = TRUST_ROOT;
 
 			}
 
 		}
+
+		CFRelease (settings);
+		return trust;
+
+	}
+
+
+	// As when macOS checks a certificate itself, the user's trust settings come
+	// before the administrator's, and both come before the system's own roots
+	static bool IsTrustedRoot (SecCertificateRef certificate, bool systemRoot) {
+
+		SecTrustSettingsDomain domains[] = { kSecTrustSettingsDomainUser, kSecTrustSettingsDomainAdmin };
+
+		for (size_t i = 0; i < 2; i++) {
+
+			CertificateTrust trust = GetCertificateTrust (certificate, domains[i]);
+			if (trust != TRUST_UNSPECIFIED) return (trust == TRUST_ROOT);
+
+		}
+
+		return systemRoot;
 
 	}
 	#endif
@@ -154,14 +242,22 @@ namespace lime {
 		#elif defined (__APPLE__) && TARGET_OS_OSX
 
 		CFArrayRef anchors = NULL;
+		if (SecTrustCopyAnchorCertificates (&anchors) != errSecSuccess) anchors = NULL;
 
-		if (SecTrustCopyAnchorCertificates (&anchors) == errSecSuccess && anchors) {
+		// A system root that the user or the administrator set to Never Trust is left out
+		if (anchors) {
 
-			AppendCertificates (pem, anchors);
-			CFRelease (anchors);
+			for (CFIndex i = 0; i < CFArrayGetCount (anchors); i++) {
+
+				SecCertificateRef certificate = (SecCertificateRef)CFArrayGetValueAtIndex (anchors, i);
+				if (IsTrustedRoot (certificate, true)) AppendCertificate (pem, certificate);
+
+			}
 
 		}
 
+		// Every certificate with trust settings is listed here, those set to Never Trust included
+		CFMutableArrayRef checked = CFArrayCreateMutable (NULL, 0, &kCFTypeArrayCallBacks);
 		SecTrustSettingsDomain domains[] = { kSecTrustSettingsDomainAdmin, kSecTrustSettingsDomainUser };
 
 		for (size_t i = 0; i < 2; i++) {
@@ -170,12 +266,27 @@ namespace lime {
 
 			if (SecTrustSettingsCopyCertificates (domains[i], &certificates) == errSecSuccess && certificates) {
 
-				AppendCertificates (pem, certificates);
+				for (CFIndex j = 0; j < CFArrayGetCount (certificates); j++) {
+
+					SecCertificateRef certificate = (SecCertificateRef)CFArrayGetValueAtIndex (certificates, j);
+					CFRange range = CFRangeMake (0, CFArrayGetCount (checked));
+
+					if (CFArrayContainsValue (checked, range, certificate)) continue;
+					if (anchors && CFArrayContainsValue (anchors, CFRangeMake (0, CFArrayGetCount (anchors)), certificate)) continue;
+
+					CFArrayAppendValue (checked, certificate);
+					if (IsTrustedRoot (certificate, false)) AppendCertificate (pem, certificate);
+
+				}
+
 				CFRelease (certificates);
 
 			}
 
 		}
+
+		CFRelease (checked);
+		if (anchors) CFRelease (anchors);
 
 		if (pem.empty ()) AppendBundled (pem);
 

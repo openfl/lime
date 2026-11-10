@@ -25,9 +25,10 @@ Lime does not include a renderer, but exposes the current context:
  * Vulkan
 
 The GL context is based upon the WebGL standard, implemented for both OpenGL and OpenGL ES as needed.
+Where a desktop has no usable GPU OpenGL, native windows fall back to Cairo. With the `software-gl` define, Windows, macOS and Linux try OpenGL drawn in software first: Mesa's llvmpipe on Windows and Linux, and Apple's software renderer on macOS. Windows builds copy Mesa from the `lime-mesa` haxelib into a `mesa` folder beside the executable, for 64-bit builds without `angle`. Linux needs Mesa installed. On Apple silicon, Apple's software renderer draws some lines and textures wrongly ([actions/runner-images#9712](https://github.com/actions/runner-images/issues/9712)). A context drawn in software reports `window.context.attributes.hardware` as `false`. To test a `software-gl` build as a machine without a GPU would run it, set the `LIME_SOFTWARE_GL=1` environment variable.
 Native Vulkan support exposes an explicit Vulkan API layer for renderer backends, including native window/swapchain integration and resource/command primitives.
-Native Vulkan support is included in standard Windows and Linux C++ Lime builds, including the matching Haxe API define. Apple targets still require an explicit Vulkan-enabled build and MoltenVK packaging.
-To request a Vulkan window, use the standard `RenderContextType.VULKAN` context selection or set `<window renderer="vulkan" />` in project XML.
+Native Vulkan support is included in standard Windows, Linux and Android Lime builds. Windows and Linux C++ builds also define the matching Haxe API, and on Android the `vulkan` define turns it on. Apple targets still require an explicit Vulkan-enabled build and MoltenVK packaging.
+To request a Vulkan window, use the standard `RenderContextType.VULKAN` context selection, or build with `-Dvulkan` (or `<define name="vulkan" />` before `<haxelib name="lime" />` in project XML) to make Vulkan the default for windows that name no type.
 The in-repo `tests/vulkan-smoke` project is used as the current Vulkan CI smoke app.
 
 Lime provides a unified audio API, but also provides access to OpenAL for advanced audio on native targets.
@@ -71,14 +72,19 @@ Building from Source
 
         haxelib install format
         haxelib install hxp
-        haxelib install native-desktop 1.0.1
+        haxelib install native-desktop 1.1.0
         haxelib install native-ipc 1.0.0
+        haxelib install StageWebView 1.0.1
+        haxelib install wsproto 1.0.0
+        haxelib install crossbyte 1.0.1
 
 3. Copy the ndll directory from the latest [Haxelib release](https://lib.haxe.org/p/lime/), or see [project/README.md](project/README.md) for details about building native binaries.
 
 4. After any changes to the [tools](tools) or [lime/tools](src/lime/tools) directories, rebuild from source:
 
         lime rebuild tools
+
+    This needs Haxe 4.3 or later, for CrossByte, which serves `lime test html5`. Applications still build with older Haxe versions.
 
 5. To switch away from a source build:
 

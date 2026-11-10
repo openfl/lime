@@ -451,7 +451,7 @@ class AndroidPlatform extends PlatformTarget
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
 		context.ANDROID_GRADLE_PROPERTIES = project.config.getKeyValueArray("android.gradle-properties");
 		context.ANDROID_DISPLAY_CUTOUT = project.config.getString("android.layoutInDisplayCutoutMode", "default");
-		context.ANDROID_VULKAN = project.window.renderType != null && project.window.renderType.toLowerCase() == "vulkan";
+		context.ANDROID_VULKAN = project.defines.exists("vulkan") && project.defines.exists("lime-vulkan");
 		context.ANDROID_VULKAN_REQUIRED = project.config.getBool("android.vulkan-required", true);
 		context.ANDROID_VULKAN_VERSION = project.config.getString("android.vulkan-version", "0x400003");
 
@@ -462,6 +462,17 @@ class AndroidPlatform extends PlatformTarget
 				"android:installLocation": project.config.getString("android.install-location", "auto")
 			});
 		context.ANDROID_MANIFEST_CHILDREN = project.config.get("android.manifest").xmlChildren;
+
+		// Manifests copied from Lime 8.3 and earlier still name this
+		context.ANDROID_INSTALL_LOCATION = "auto";
+		for (attribute in (context.ANDROID_MANIFEST : Array<Dynamic>))
+		{
+			if (attribute.key == "android:installLocation" && attribute.value != null && attribute.value != "")
+			{
+				context.ANDROID_INSTALL_LOCATION = attribute.value;
+			}
+		}
+
 		context.ANDROID_APPLICATION = project.config.getKeyValueArray("android.application",
 			{
 				"android:label": project.meta.title,

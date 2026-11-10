@@ -493,6 +493,9 @@
 
             <section unless="winrt">
 
+                <!-- Finds the SDL headers the patched SDL_windowsopengl.c includes by relative path -->
+                <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/" />
+
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/wasapi/SDL_wasapi_win32.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/windows/SDL_sysfilesystem.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/windows/SDL_syslocale.c" />
@@ -506,7 +509,8 @@
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmessagebox.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmodes.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmouse.c" />
-                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsopengl.c" />
+                <!-- Patched to use the pixel formats of an OpenGL library loaded from a path, such as Mesa -->
+                <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/src/video/windows/SDL_windowsopengl.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsopengles.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsshape.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsvideo.c" />

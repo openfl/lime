@@ -159,6 +159,15 @@ class Assets
 		return cast getAsset(id, SOUND, useCache);
 	}
 
+	/**
+	 * Gets a sound that is decoded as it plays, rather than all at once
+	 * @usage		var music = Assets.getAudioBufferStream ("music.ogg");
+	 * @param	id		The ID or asset path for the sound
+	 * @param	useCache	Whether a sound already in the cache can be given instead. A sound
+	 * 	given decoded plays as it would streamed. Streamed sounds are not cached themselves,
+	 * 	as getAudioBuffer would then give one with no data.
+	 * @return		An AudioBuffer for an AudioSource to stream
+	 */
 	public static function getAudioBufferStream(id:String, useCache:Bool = true):AudioBuffer
 	{
 		#if (tools && !display && !macro)
@@ -182,14 +191,7 @@ class Assets
 			{
 				if (symbol.isLocal(type))
 				{
-					var asset = symbol.library.getAudioBufferStream(symbol.symbolName);
-
-					if (useCache && cache.enabled)
-					{
-						cache.set(id, type, asset);
-					}
-
-					return asset;
+					return symbol.library.getAudioBufferStream(symbol.symbolName);
 				}
 				else
 				{
@@ -443,6 +445,13 @@ class Assets
 		return cast loadAsset(id, SOUND, useCache);
 	}
 
+	/**
+	 * Loads a sound that is decoded as it plays, rather than all at once
+	 * @param	id		The ID or asset path for the sound
+	 * @param	useCache	Whether a sound already in the cache can be given instead. Streamed
+	 * 	sounds are not cached themselves.
+	 * @return		A Future for an AudioBuffer for an AudioSource to stream
+	 */
 	public static function loadAudioBufferStream(id:String, useCache:Bool = true):Future<AudioBuffer>
 	{
 		#if (tools && !display && !macro)
@@ -464,14 +473,7 @@ class Assets
 		{
 			if (symbol.exists(type))
 			{
-				var future = symbol.library.loadAudioBufferStream(symbol.symbolName);
-
-				if (useCache && cache.enabled)
-				{
-					future.onComplete(function(asset) cache.set(id, type, asset));
-				}
-
-				return future;
+				return symbol.library.loadAudioBufferStream(symbol.symbolName);
 			}
 			else
 			{

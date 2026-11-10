@@ -80,20 +80,16 @@ namespace lime {
 	}
 
 
-	void lime_sdl_sound_stream_clear (value stream);
-	HL_PRIM void HL_NAME(hl_sdl_sound_stream_clear) (HL_CFFIPointer* stream);
-
-
 	void gc_sdl_sound_stream (value stream) {
 
-		lime_sdl_sound_stream_clear (stream);
+		SDLSound::CloseStream ((SDLSoundStream*)(uintptr_t)val_data (stream));
 
 	}
 
 
 	void hl_gc_sdl_sound_stream (HL_CFFIPointer* stream) {
 
-		lime_hl_sdl_sound_stream_clear (stream);
+		SDLSound::CloseStream ((SDLSoundStream*)(uintptr_t)stream->ptr);
 
 	}
 

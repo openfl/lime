@@ -16,6 +16,18 @@ import lime.app.Event;
 	`samplesAvailable` to determine how many sample frames can be read without
 	blocking, then call `read`.
 
+	Samples are 8 or 16 bits, in 1 or 2 channels; with another format, `start`
+	returns `false`. On native targets the device is opened when the input is
+	created, so the system's permission prompt can come before `start`.
+
+	iOS and macOS end an application that opens the microphone without saying
+	why. Give the reason in project.xml with
+	`<config:ios microphone-usage-description="..." />` or
+	`<config:mac microphone-usage-description="..." />`. Android needs
+	`<android permission="android.permission.RECORD_AUDIO" />`, granted at
+	runtime too. Listing any permission replaces Lime's default ones, so list
+	`android.permission.INTERNET` and the others the application still needs.
+
 	@see lime.media.AudioInputDevice
 	@see lime.media.AudioBuffer
 **/
@@ -58,8 +70,11 @@ class AudioInput
 	public var device(default, null):AudioInputDevice;
 
 	/**
-		An event that is dispatched if the backend reports that the input device
-		has disconnected.
+		Dispatched once when the input device is found disconnected, after which
+		the input stops. Native targets find it while `samplesAvailable` or
+		`read` is polled, where OpenAL Soft reports it; browsers when the
+		device's track ends, as when it is unplugged or the permission is taken
+		back. Flash does not report it.
 	**/
 	public var onDisconnect = new Event<Void->Void>();
 

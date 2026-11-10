@@ -31,9 +31,17 @@
 #include <deque>
 #include <map>
 #include <mutex>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <string>
 #include <utility>
+#include <vector>
+
+#ifdef LIME_VORBIS
+#include <mkvparser/mkvparser.h>
+#include <vorbis/codec.h>
+#endif
 
 #ifndef NATIVE_TOOLKIT_SDL_ANGLE
 #include <GL/gl.h>
@@ -53,12 +61,14 @@ namespace lime {
 
 	// Media Foundation is missing from Windows N editions, so it is loaded at
 	// runtime instead of linked
+	typedef HRESULT (WINAPI *MFCreateAsyncResultFunc) (IUnknown*, IMFAsyncCallback*, IUnknown*, IMFAsyncResult**);
 	typedef HRESULT (WINAPI *MFCreateAttributesFunc) (IMFAttributes**, UINT32);
 	typedef HRESULT (WINAPI *MFCreateDXGIDeviceManagerFunc) (UINT*, IMFDXGIDeviceManager**);
 	typedef HRESULT (WINAPI *MFCreateMediaTypeFunc) (IMFMediaType**);
 	typedef HRESULT (WINAPI *MFCreateSourceReaderFromByteStreamFunc) (IMFByteStream*, IMFAttributes*, IMFSourceReader**);
 	typedef HRESULT (WINAPI *MFCreateSourceReaderFromURLFunc) (LPCWSTR, IMFAttributes*, IMFSourceReader**);
 	typedef HRESULT (WINAPI *MFCreateSourceResolverFunc) (IMFSourceResolver**);
+	typedef HRESULT (WINAPI *MFInvokeCallbackFunc) (IMFAsyncResult*);
 	typedef HRESULT (WINAPI *MFShutdownFunc) ();
 	typedef HRESULT (WINAPI *MFStartupFunc) (ULONG, DWORD);
 
@@ -362,12 +372,14 @@ namespace lime {
 	};
 
 	static PFN_D3D11_CREATE_DEVICE _D3D11CreateDevice = 0;
+	static MFCreateAsyncResultFunc _MFCreateAsyncResult = 0;
 	static MFCreateAttributesFunc _MFCreateAttributes = 0;
 	static MFCreateDXGIDeviceManagerFunc _MFCreateDXGIDeviceManager = 0;
 	static MFCreateMediaTypeFunc _MFCreateMediaType = 0;
 	static MFCreateSourceReaderFromByteStreamFunc _MFCreateSourceReaderFromByteStream = 0;
 	static MFCreateSourceReaderFromURLFunc _MFCreateSourceReaderFromURL = 0;
 	static MFCreateSourceResolverFunc _MFCreateSourceResolver = 0;
+	static MFInvokeCallbackFunc _MFInvokeCallback = 0;
 	static MFShutdownFunc _MFShutdown = 0;
 	static MFStartupFunc _MFStartup = 0;
 
@@ -399,6 +411,7 @@ namespace lime {
 
 			if (!mfplat || !mfreadwrite) return;
 
+			_MFCreateAsyncResult = (MFCreateAsyncResultFunc)GetProcAddress (mfplat, "MFCreateAsyncResult");
 			_MFCreateAttributes = (MFCreateAttributesFunc)GetProcAddress (mfplat, "MFCreateAttributes");
 			_MFCreateDXGIDeviceManager = (MFCreateDXGIDeviceManagerFunc)GetProcAddress (mfplat, "MFCreateDXGIDeviceManager");
 			_MFCreateMediaType = (MFCreateMediaTypeFunc)GetProcAddress (mfplat, "MFCreateMediaType");
@@ -407,6 +420,7 @@ namespace lime {
 			_MFCreateSourceReaderFromURL = (MFCreateSourceReaderFromURLFunc)GetProcAddress (mfreadwrite, "MFCreateSourceReaderFromURL");
 			_MFCreateSourceReaderFromByteStream = (MFCreateSourceReaderFromByteStreamFunc)GetProcAddress (mfreadwrite, "MFCreateSourceReaderFromByteStream");
 			_MFCreateSourceResolver = (MFCreateSourceResolverFunc)GetProcAddress (mfplat, "MFCreateSourceResolver");
+			_MFInvokeCallback = (MFInvokeCallbackFunc)GetProcAddress (mfplat, "MFInvokeCallback");
 
 			HMODULE d3d11 = LoadSystemLibrary (L"d3d11.dll");
 			if (d3d11) _D3D11CreateDevice = (PFN_D3D11_CREATE_DEVICE)GetProcAddress (d3d11, "D3D11CreateDevice");
@@ -615,6 +629,666 @@ namespace lime {
 	};
 
 
+	// A read of a closable byte stream, into a buffer of its own
+	class MFStreamRead : public IUnknown {
+
+
+		public:
+
+			MFStreamRead (BYTE* destination, ULONG length) : buffer (length), bytesRead (0), destination (destination), done (false), result (NULL), references (1) {}
+
+			~MFStreamRead () {
+
+				if (result) result->Release ();
+
+			}
+
+			STDMETHODIMP QueryInterface (REFIID riid, void** value) {
+
+				if (riid == __uuidof (IUnknown)) {
+
+					*value = static_cast<IUnknown*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				*value = NULL;
+				return E_NOINTERFACE;
+
+			}
+
+			STDMETHODIMP_(ULONG) AddRef () { return InterlockedIncrement (&references); }
+
+			STDMETHODIMP_(ULONG) Release () {
+
+				ULONG count = InterlockedDecrement (&references);
+				if (count == 0) delete this;
+				return count;
+
+			}
+
+			std::vector<BYTE> buffer;
+			ULONG bytesRead;
+			BYTE* destination;
+
+			// Finished, or ended by closing, under the stream's mutex
+			bool done;
+
+			// The result its caller is called back with
+			IMFAsyncResult* result;
+
+
+		private:
+
+			LONG references;
+
+
+	};
+
+
+	// Wraps a network byte stream, whose reads closing does not always end.
+	// Media Foundation now and then leaves one waiting on a stalled connection
+	// after the stream is closed, with the reader waiting on it, so closing
+	// would wait for the connection. Each read goes through a buffer of its
+	// own, so closing ends it at once, and the read it waits on cannot write
+	// into memory its caller has given back.
+	class MFClosableByteStream : public IMFByteStream, public IMFAsyncCallback {
+
+
+		public:
+
+			MFClosableByteStream (IMFByteStream* stream) : closed (false), references (1), stream (stream) {
+
+				stream->AddRef ();
+
+			}
+
+			~MFClosableByteStream () {
+
+				stream->Release ();
+
+			}
+
+			STDMETHODIMP QueryInterface (REFIID riid, void** value) {
+
+				if (riid == __uuidof (IMFByteStream) || riid == __uuidof (IUnknown)) {
+
+					*value = static_cast<IMFByteStream*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				if (riid == __uuidof (IMFAsyncCallback)) {
+
+					*value = static_cast<IMFAsyncCallback*> (this);
+					AddRef ();
+					return S_OK;
+
+				}
+
+				// The wrapped stream answers for its other interfaces, such as the
+				// attributes that give its content type
+				return stream->QueryInterface (riid, value);
+
+			}
+
+			STDMETHODIMP_(ULONG) AddRef () { return InterlockedIncrement (&references); }
+
+			STDMETHODIMP_(ULONG) Release () {
+
+				ULONG count = InterlockedDecrement (&references);
+				if (count == 0) delete this;
+				return count;
+
+			}
+
+			STDMETHODIMP BeginRead (BYTE* buffer, ULONG length, IMFAsyncCallback* callback, IUnknown* state) {
+
+				MFStreamRead* read = new MFStreamRead (buffer, length);
+				HRESULT hr = _MFCreateAsyncResult (read, callback, state, &read->result);
+
+				if (SUCCEEDED (hr)) {
+
+					std::lock_guard<std::mutex> lock (mutex);
+
+					if (closed) {
+
+						hr = E_ABORT;
+
+					} else {
+
+						read->AddRef ();
+						reads.push_back (read);
+
+					}
+
+				}
+
+				if (SUCCEEDED (hr)) {
+
+					hr = stream->BeginRead (read->buffer.data (), length, this, read);
+
+					if (FAILED (hr)) {
+
+						// Closing can have ended the read already, and called back
+						std::lock_guard<std::mutex> lock (mutex);
+
+						if (read->done) {
+
+							hr = S_OK;
+
+						} else {
+
+							read->done = true;
+							Remove (read);
+
+						}
+
+					}
+
+				}
+
+				read->Release ();
+				return hr;
+
+			}
+
+			STDMETHODIMP EndRead (IMFAsyncResult* result, ULONG* bytesRead) {
+
+				IUnknown* object = NULL;
+				if (!result || FAILED (result->GetObject (&object)) || !object) return E_INVALIDARG;
+
+				if (bytesRead) *bytesRead = static_cast<MFStreamRead*> (object)->bytesRead;
+				object->Release ();
+				return result->GetStatus ();
+
+			}
+
+			STDMETHODIMP Close () {
+
+				// Reads in progress end now, whether or not the stream ends them.
+				// They end aborted, as the stream ends them, since a media source
+				// takes a read that ends shut down for its own shutdown, and stops
+				// without telling the reader
+				std::vector<MFStreamRead*> ended;
+
+				{
+					std::lock_guard<std::mutex> lock (mutex);
+					closed = true;
+					ended.swap (reads);
+
+					for (MFStreamRead* read : ended) {
+
+						read->done = true;
+						read->result->SetStatus (E_ABORT);
+
+					}
+				}
+
+				for (MFStreamRead* read : ended) {
+
+					_MFInvokeCallback (read->result);
+					read->Release ();
+
+				}
+
+				return stream->Close ();
+
+			}
+
+			STDMETHODIMP GetParameters (DWORD* flags, DWORD* queue) { return E_NOTIMPL; }
+
+			STDMETHODIMP Invoke (IMFAsyncResult* asyncResult) {
+
+				// A read of the wrapped stream finished, which its caller hears of
+				// unless closing ended it first
+				IUnknown* state = NULL;
+				if (FAILED (asyncResult->GetState (&state)) || !state) return S_OK;
+
+				MFStreamRead* read = static_cast<MFStreamRead*> (state);
+				ULONG bytesRead = 0;
+				HRESULT hr = stream->EndRead (asyncResult, &bytesRead);
+				bool finished = false;
+
+				{
+					std::lock_guard<std::mutex> lock (mutex);
+
+					if (!read->done) {
+
+						if (SUCCEEDED (hr)) {
+
+							if (bytesRead > read->buffer.size ()) bytesRead = (ULONG)read->buffer.size ();
+							if (bytesRead > 0) memcpy (read->destination, read->buffer.data (), bytesRead);
+							read->bytesRead = bytesRead;
+
+						}
+
+						read->done = true;
+						read->result->SetStatus (hr);
+						Remove (read);
+						finished = true;
+
+					}
+				}
+
+				if (finished) _MFInvokeCallback (read->result);
+				state->Release ();
+				return S_OK;
+
+			}
+
+			STDMETHODIMP BeginWrite (const BYTE* buffer, ULONG length, IMFAsyncCallback* callback, IUnknown* state) { return stream->BeginWrite (buffer, length, callback, state); }
+			STDMETHODIMP EndWrite (IMFAsyncResult* result, ULONG* written) { return stream->EndWrite (result, written); }
+			STDMETHODIMP Flush () { return stream->Flush (); }
+			STDMETHODIMP GetCapabilities (DWORD* capabilities) { return stream->GetCapabilities (capabilities); }
+			STDMETHODIMP GetCurrentPosition (QWORD* position) { return stream->GetCurrentPosition (position); }
+			STDMETHODIMP GetLength (QWORD* length) { return stream->GetLength (length); }
+			STDMETHODIMP IsEndOfStream (BOOL* ended) { return stream->IsEndOfStream (ended); }
+			STDMETHODIMP Read (BYTE* buffer, ULONG length, ULONG* bytesRead) { return closed ? E_ABORT : stream->Read (buffer, length, bytesRead); }
+			STDMETHODIMP Seek (MFBYTESTREAM_SEEK_ORIGIN origin, LONGLONG offset, DWORD flags, QWORD* position) { return stream->Seek (origin, offset, flags, position); }
+			STDMETHODIMP SetCurrentPosition (QWORD position) { return stream->SetCurrentPosition (position); }
+			STDMETHODIMP SetLength (QWORD length) { return stream->SetLength (length); }
+			STDMETHODIMP Write (const BYTE* buffer, ULONG length, ULONG* written) { return stream->Write (buffer, length, written); }
+
+
+		private:
+
+			// Under the mutex
+			void Remove (MFStreamRead* read) {
+
+				for (size_t i = 0; i < reads.size (); i++) {
+
+					if (reads[i] == read) {
+
+						reads.erase (reads.begin () + i);
+						read->Release ();
+						return;
+
+					}
+
+				}
+
+			}
+
+			std::atomic<bool> closed;
+			std::mutex mutex;
+			std::vector<MFStreamRead*> reads;
+			LONG references;
+			IMFByteStream* stream;
+
+
+	};
+
+
+	#ifdef LIME_VORBIS
+	// Reads a local file for mkvparser
+	class MFMatroskaFile : public mkvparser::IMkvReader {
+
+
+		public:
+
+			MFMatroskaFile () : file (NULL), length (0) {}
+			~MFMatroskaFile () { Close (); }
+
+			void Close () {
+
+				if (file) fclose (file);
+				file = NULL;
+				length = 0;
+
+			}
+
+			bool Open (const std::wstring& path) {
+
+				Close ();
+
+				if (_wfopen_s (&file, path.c_str (), L"rb") != 0) {
+
+					file = NULL;
+					return false;
+
+				}
+
+				if (_fseeki64 (file, 0, SEEK_END) == 0) length = _ftelli64 (file);
+				return length > 0;
+
+			}
+
+			int Length (long long* total, long long* available) {
+
+				if (!file) return -1;
+				if (total) *total = length;
+				if (available) *available = length;
+				return 0;
+
+			}
+
+			int Read (long long position, long size, unsigned char* buffer) {
+
+				if (!file || position < 0 || size < 0 || position + size > length) return -1;
+				if (size == 0) return 0;
+				if (_fseeki64 (file, position, SEEK_SET) != 0) return -1;
+				return fread (buffer, 1, size, file) == (size_t)size ? 0 : -1;
+
+			}
+
+
+		private:
+
+			FILE* file;
+			long long length;
+
+
+	};
+
+
+	// Media Foundation has no Vorbis decoder, so the Vorbis track of a Matroska
+	// or WebM file is read with mkvparser and decoded with libvorbis
+	class MFVorbisTrack {
+
+
+		public:
+
+			MFVorbisTrack () : channels (0), sampleRate (0), blockSamples (0), blockTime (0), cluster (NULL), decoding (false), entry (NULL), frameIndex (0), headers (false), segment (NULL), skipUntil (-1), trackNumber (0) {}
+			~MFVorbisTrack () { Close (); }
+
+			void Close () {
+
+				if (decoding) {
+
+					vorbis_block_clear (&block);
+					vorbis_dsp_clear (&dsp);
+
+				}
+
+				if (headers) {
+
+					vorbis_comment_clear (&comment);
+					vorbis_info_clear (&info);
+
+				}
+
+				delete segment;
+				file.Close ();
+
+				blockSamples = 0;
+				blockTime = 0;
+				channels = 0;
+				cluster = NULL;
+				decoding = false;
+				entry = NULL;
+				frameIndex = 0;
+				headers = false;
+				packet.clear ();
+				samples.clear ();
+				samples.shrink_to_fit ();
+				sampleRate = 0;
+				segment = NULL;
+				skipUntil = -1;
+				trackNumber = 0;
+
+			}
+
+			// Sets samples to the next packet's audio, as interleaved signed 16-bit
+			// PCM in the WAVE channel order
+			VideoDecodeResult Decode (double* time) {
+
+				samples.clear ();
+
+				while (true) {
+
+					float** output = NULL;
+					int frames = vorbis_synthesis_pcmout (&dsp, &output);
+
+					if (frames > 0) {
+
+						// A block's time is that of the audio its first packet
+						// gives, and laced packets follow on from it
+						double start = blockTime + (double)blockSamples / sampleRate;
+						blockSamples += frames;
+						vorbis_synthesis_read (&dsp, frames);
+
+						// Audio that ends before a seek target is dropped, so the
+						// stream starts at or just before it
+						if (skipUntil >= 0 && blockTime + (double)blockSamples / sampleRate <= skipUntil) continue;
+						skipUntil = -1;
+
+						static const int order[8][8] = { { 0 }, { 0, 1 }, { 0, 2, 1 }, { 0, 1, 2, 3 }, { 0, 2, 1, 3, 4 }, { 0, 2, 1, 5, 3, 4 }, { 0, 2, 1, 6, 3, 4, 5 }, { 0, 2, 1, 7, 5, 6, 3, 4 } };
+						const int* map = order[channels - 1];
+
+						samples.resize ((size_t)frames * channels);
+
+						for (int channel = 0; channel < channels; channel++) {
+
+							const float* in = output[map[channel]];
+							short* out = samples.data () + channel;
+
+							for (int i = 0; i < frames; i++) {
+
+								float value = in[i] * 32767.0f;
+								out[i * channels] = (short)(value > 32767.0f ? 32767.0f : (value < -32768.0f ? -32768.0f : value));
+
+							}
+
+						}
+
+						*time = start;
+						return VIDEO_DECODE_OK;
+
+					}
+
+					double packetTime = -1;
+					int read = ReadPacket (&packetTime);
+					if (read <= 0) return read < 0 ? VIDEO_DECODE_ERROR : VIDEO_DECODE_END;
+
+					if (packetTime >= 0) {
+
+						blockTime = packetTime;
+						blockSamples = 0;
+
+					}
+
+					ogg_packet op = {};
+					op.packet = packet.data ();
+					op.bytes = (long)packet.size ();
+					op.granulepos = -1;
+
+					// A damaged packet is skipped
+					if (vorbis_synthesis (&block, &op) == 0) vorbis_synthesis_blockin (&dsp, &block);
+
+				}
+
+			}
+
+			double GetDuration () {
+
+				return segment && segment->GetDuration () > 0 ? segment->GetDuration () / 1000000000.0 : 0;
+
+			}
+
+			bool Open (const std::wstring& path) {
+
+				Close ();
+
+				long long position = 0;
+				mkvparser::EBMLHeader header;
+
+				if (!file.Open (path) || header.Parse (&file, position) != 0 || mkvparser::Segment::CreateInstance (&file, position, segment) != 0 || !segment || segment->Load () < 0) {
+
+					Close ();
+					return false;
+
+				}
+
+				// The first audio track, which is the one Media Foundation found
+				const mkvparser::Tracks* tracks = segment->GetTracks ();
+				const mkvparser::Track* track = NULL;
+
+				for (unsigned long i = 0; tracks && i < tracks->GetTracksCount (); i++) {
+
+					const mkvparser::Track* candidate = tracks->GetTrackByIndex (i);
+
+					if (candidate && candidate->GetType () == mkvparser::Track::kAudio) {
+
+						track = candidate;
+						break;
+
+					}
+
+				}
+
+				if (!track || !track->GetCodecId () || strcmp (track->GetCodecId (), "A_VORBIS") != 0 || !OpenHeaders (track)) {
+
+					Close ();
+					return false;
+
+				}
+
+				trackNumber = track->GetNumber ();
+				cluster = segment->GetFirst ();
+				return true;
+
+			}
+
+			void Seek (double time) {
+
+				// Decoding starts a little early, as the first packet after a seek
+				// only primes the decoder
+				double start = time - 0.5;
+				cluster = segment->FindCluster (start > 0 ? (long long)(start * 1000000000.0) : 0);
+				entry = NULL;
+				frameIndex = 0;
+				skipUntil = time;
+
+				vorbis_synthesis_restart (&dsp);
+
+			}
+
+			int channels;
+			std::vector<short> samples;
+			int sampleRate;
+
+
+		private:
+
+			// The three Xiph-laced headers in the track's CodecPrivate
+			bool OpenHeaders (const mkvparser::Track* track) {
+
+				size_t size = 0;
+				const unsigned char* data = track->GetCodecPrivate (size);
+				if (!data || size < 3 || data[0] != 2) return false;
+
+				size_t offset = 1;
+				size_t lengths[3] = { 0, 0, 0 };
+
+				for (int i = 0; i < 2; i++) {
+
+					unsigned char value = 255;
+
+					while (value == 255) {
+
+						if (offset >= size) return false;
+						value = data[offset++];
+						lengths[i] += value;
+
+					}
+
+				}
+
+				if (lengths[0] + lengths[1] >= size - offset) return false;
+				lengths[2] = size - offset - lengths[0] - lengths[1];
+
+				vorbis_info_init (&info);
+				vorbis_comment_init (&comment);
+				headers = true;
+
+				for (int i = 0; i < 3; i++) {
+
+					ogg_packet op = {};
+					op.packet = (unsigned char*)data + offset;
+					op.bytes = (long)lengths[i];
+					op.b_o_s = (i == 0);
+					op.granulepos = -1;
+					op.packetno = i;
+
+					if (vorbis_synthesis_headerin (&info, &comment, &op) != 0) return false;
+					offset += lengths[i];
+
+				}
+
+				if (info.channels < 1 || info.channels > 8 || info.rate <= 0 || vorbis_synthesis_init (&dsp, &info) != 0) return false;
+
+				vorbis_block_init (&dsp, &block);
+				decoding = true;
+				channels = info.channels;
+				sampleRate = (int)info.rate;
+				return true;
+
+			}
+
+			// Reads the track's next packet, and the time of its block when it is
+			// the block's first, returning 0 at the end and -1 on an error
+			int ReadPacket (double* time) {
+
+				while (cluster && !cluster->EOS ()) {
+
+					if (!entry && cluster->GetFirst (entry) < 0) return -1;
+
+					while (entry && !entry->EOS ()) {
+
+						const mkvparser::Block* data = entry->GetBlock ();
+
+						if (data->GetTrackNumber () == trackNumber && frameIndex < data->GetFrameCount ()) {
+
+							const mkvparser::Block::Frame& frame = data->GetFrame (frameIndex);
+							if (frameIndex == 0) *time = data->GetTime (cluster) / 1000000000.0;
+							frameIndex++;
+
+							if (frame.len <= 0) continue;
+							packet.resize (frame.len);
+							return frame.Read (&file, packet.data ()) < 0 ? -1 : 1;
+
+						}
+
+						frameIndex = 0;
+						if (cluster->GetNext (entry, entry) < 0) return -1;
+
+					}
+
+					cluster = segment->GetNext (cluster);
+					entry = NULL;
+					frameIndex = 0;
+
+				}
+
+				return 0;
+
+			}
+
+			vorbis_block block;
+			long long blockSamples;
+			double blockTime;
+			const mkvparser::Cluster* cluster;
+			vorbis_comment comment;
+			bool decoding;
+			vorbis_dsp_state dsp;
+			const mkvparser::BlockEntry* entry;
+			MFMatroskaFile file;
+			int frameIndex;
+			bool headers;
+			vorbis_info info;
+			std::vector<unsigned char> packet;
+			mkvparser::Segment* segment;
+			double skipUntil;
+			long long trackNumber;
+
+
+	};
+	#endif
+
+
 	class MFVideoBackend : public VideoBackend {
 
 
@@ -643,6 +1317,9 @@ namespace lime {
 			VideoDecodeResult MapStaging (VideoPlanes* planes, double* time, double* duration);
 			bool OpenAudio ();
 			bool OpenVideo (bool hardware);
+			#ifdef LIME_VORBIS
+			bool OpenVorbisAudio ();
+			#endif
 			void ReadAudioFormat ();
 			bool OpenVideoReader (bool hardware, bool advanced, bool keepDevice = false);
 			HRESULT ReadSample (IMFSourceReader* reader, DWORD stream, MFConnection* connection, DWORD* flags, LONGLONG* timestamp, IMFSample** sample);
@@ -735,6 +1412,9 @@ namespace lime {
 			MFConnection videoConnection;
 			IMFSourceReader* videoReader;
 			bool videoStreamFound;
+			#ifdef LIME_VORBIS
+			MFVorbisTrack vorbisTrack;
+			#endif
 
 
 	};
@@ -940,6 +1620,9 @@ namespace lime {
 		UnlockVideo ();
 		ReleaseReader (&videoReader, network);
 		ReleaseReader (&audioReader, network);
+		#ifdef LIME_VORBIS
+		vorbisTrack.Close ();
+		#endif
 
 		SetByteStream (&audioConnection, NULL);
 		SetByteStream (&videoConnection, NULL);
@@ -1110,6 +1793,15 @@ namespace lime {
 
 		}
 
+		// Reads of a network stream that stalls are ended by closing it
+		if (byteStream && network && _MFCreateAsyncResult && _MFInvokeCallback) {
+
+			IMFByteStream* closable = new MFClosableByteStream (byteStream);
+			byteStream->Release ();
+			byteStream = closable;
+
+		}
+
 		IMFSourceReader* reader = NULL;
 
 		if (byteStream) {
@@ -1236,6 +1928,30 @@ namespace lime {
 			if (result != VIDEO_DECODE_OK) return result;
 
 		}
+
+		#ifdef LIME_VORBIS
+		if (vorbisTrack.channels > 0) {
+
+			VideoDecodeResult result = vorbisTrack.Decode (time);
+			if (result != VIDEO_DECODE_OK) return result;
+
+			const short* data = vorbisTrack.samples.data ();
+			int frames = (int)(vorbisTrack.samples.size () / audioSourceChannels);
+
+			if (audioSourceChannels == audioChannels) {
+
+				pcm->insert (pcm->end (), (const unsigned char*)data, (const unsigned char*)(data + vorbisTrack.samples.size ()));
+
+			} else {
+
+				ConvertAudio (data, frames, audioSourceChannels, audioSampleRate, audioChannels, audioSampleRate, &audioConverter, pcm);
+
+			}
+
+			return VIDEO_DECODE_OK;
+
+		}
+		#endif
 
 		if (!audioReader) return VIDEO_DECODE_END;
 
@@ -1586,6 +2302,10 @@ namespace lime {
 		info->hasVideo = OpenVideo (hardwareDecoding) || (hardwareDecoding && OpenVideo (false));
 		info->hasAudio = OpenAudio ();
 
+		#ifdef LIME_VORBIS
+		if (!info->hasAudio && audioStreamFound && !network) info->hasAudio = OpenVorbisAudio ();
+		#endif
+
 		// A stream that was found but cannot be decoded, such as one in a codec
 		// that is not installed
 		info->videoUnsupported = !info->hasVideo && videoStreamFound;
@@ -1597,7 +2317,11 @@ namespace lime {
 		PROPVARIANT duration;
 		PropVariantInit (&duration);
 
-		if (SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &duration)) && duration.vt == VT_UI8) {
+		#ifdef LIME_VORBIS
+		if (!reader) info->duration = vorbisTrack.GetDuration ();
+		#endif
+
+		if (reader && SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &duration)) && duration.vt == VT_UI8) {
 
 			info->duration = duration.uhVal.QuadPart / 10000000.0;
 
@@ -1608,7 +2332,7 @@ namespace lime {
 		PROPVARIANT characteristics;
 		PropVariantInit (&characteristics);
 
-		if (SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_SOURCE_READER_MEDIASOURCE_CHARACTERISTICS, &characteristics)) && characteristics.vt == VT_UI4) {
+		if (reader && SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_SOURCE_READER_MEDIASOURCE_CHARACTERISTICS, &characteristics)) && characteristics.vt == VT_UI4) {
 
 			canSeek = (characteristics.ulVal & MFMEDIASOURCE_CAN_SEEK) != 0;
 
@@ -1704,6 +2428,26 @@ namespace lime {
 		return true;
 
 	}
+
+
+	#ifdef LIME_VORBIS
+	bool MFVideoBackend::OpenVorbisAudio () {
+
+		// Media Foundation finds the Vorbis track of a Matroska or WebM file, but
+		// has no decoder for it
+		if (!vorbisTrack.Open (url)) return false;
+
+		audioSampleRate = vorbisTrack.sampleRate;
+		audioSourceChannels = vorbisTrack.channels;
+		audioChannels = audioSourceChannels > 2 ? 2 : audioSourceChannels;
+		audioConverter.Reset ();
+		audioPacketChannels = audioSourceChannels;
+		audioPacketRate = audioSampleRate;
+
+		return true;
+
+	}
+	#endif
 
 
 	void MFVideoBackend::ReadAudioFormat () {
@@ -2259,6 +3003,10 @@ namespace lime {
 			success = SUCCEEDED (audioReader->SetCurrentPosition (TIME_FORMAT_100NS, position)) && success;
 
 		}
+
+		#ifdef LIME_VORBIS
+		if (vorbisTrack.channels > 0) vorbisTrack.Seek (time);
+		#endif
 
 		audioConverter.Reset ();
 		return success;
@@ -2823,7 +3571,8 @@ namespace lime {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
-		if (interopDevice && output.interop && output.locked) _wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
+		if (interopDevice && output.interop && output.locked && wglGetCurrentContext () == interopContext)
+			_wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
 		output.locked = false;
 		#endif
 

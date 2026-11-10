@@ -35,6 +35,22 @@ class FontTest extends Test
 		return image.width + "x" + image.height + ":" + haxe.crypto.Md5.make(image.buffer.data.toBytes()).toHex();
 	}
 
+	public function testStemDarkeningSetBeforeLoadingIsKept():Void
+	{
+		// A font with no data used to pass a null handle to the native font
+		var early = new Font();
+		early.stemDarkening = true;
+		early.stemDarkeningParameters = [500, 400, 1000, 275, 1667, 275, 2333, 0];
+		@:privateAccess early.__fromFile(PATH);
+
+		var late = Font.fromFile(PATH);
+		late.stemDarkening = true;
+		late.stemDarkeningParameters = [500, 400, 1000, 275, 1667, 275, 2333, 0];
+
+		Assert.isTrue(early.stemDarkening);
+		Assert.equals(coverage(late), coverage(early));
+	}
+
 	public function testVariableWeightChangesOutlinesAndCanBeReset():Void
 	{
 		var font = variableFont();
@@ -128,6 +144,44 @@ class FontTest extends Test
 		var original = coverage(font);
 		Assert.isTrue(font.setVariation("wght", 700));
 		Assert.notEquals(original, coverage(font));
+	}
+
+	public function testAShiftedGlyphIsRenderedAsAnUnshiftedOne():Void
+	{
+		var font = Font.fromFile(PATH);
+		if (font == null)
+		{
+			Assert.fail("cannot open " + PATH);
+			return;
+		}
+
+		var glyph = font.getGlyphs("H")[0];
+		var whole = font.renderGlyphWithLoadFlags(glyph, 32);
+		var shifted = font.renderGlyphWithLoadFlags(glyph, 32, 96, null, 1 / 64);
+		Assert.notNull(whole);
+		Assert.notNull(shifted);
+		if (whole == null || shifted == null) return;
+
+		// A 1/64 pixel shift moves the edges a little, but keeps the hinting and the
+		// colored subpixel coverage that renderGlyph() gives
+		Assert.equals(whole.height, shifted.height);
+		Assert.isTrue(Math.abs(whole.width - shifted.width) <= 1);
+		Assert.isTrue(hasColoredCoverage(whole));
+		Assert.isTrue(hasColoredCoverage(shifted));
+	}
+
+	private static function hasColoredCoverage(image:lime.graphics.Image):Bool
+	{
+		var data = image.buffer.data;
+		var i = 0;
+
+		while (i < data.length)
+		{
+			if (data[i + 3] > 0 && (data[i] != data[i + 1] || data[i + 1] != data[i + 2])) return true;
+			i += 4;
+		}
+
+		return false;
 	}
 
 	public function testRenderGlyphsGivesEachGlyphItsCoverage():Void

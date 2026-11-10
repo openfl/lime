@@ -5,7 +5,7 @@
 	"tags": [],
 	"description": "A foundational Haxe framework for cross-platform development",
 	"version": "8.4.0",
-	"releasenote": "Video playback, native menus, audio input, SDL_sound, frame pacing, experimental Vulkan",
+	"releasenote": "Video playback, native menus, WebSockets, local sockets, audio input, SDL_sound, frame pacing, TLS 1.3, experimental Vulkan",
 	"contributors": [
 		"singmajesty",
 		"bowlerhat",
@@ -13,7 +13,9 @@
 	],
 	"classPath": "src",
 	"dependencies": {
-		"native-desktop": "1.0.1",
-		"native-ipc": "1.0.0"
+		"native-desktop": "1.1.0",
+		"native-ipc": "1.0.0",
+		"StageWebView": "1.0.1",
+		"wsproto": "1.0.0"
 	}
 }

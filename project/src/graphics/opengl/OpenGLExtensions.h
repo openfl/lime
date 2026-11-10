@@ -188,6 +188,7 @@ OGL_EXT(glClientWaitSync, GLenum, (GLsync sync, GLbitfield flags, GLuint64 timeo
 OGL_EXT(glCompressedTexImage3D, void, (GLenum target,	GLint level, GLenum internalformat,	GLsizei width, GLsizei height, GLsizei depth, GLint border,	GLsizei imageSize, const GLvoid * data));
 OGL_EXT(glCompressedTexSubImage3D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid * data));
 OGL_EXT(glCopyTexSubImage3D, void, (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height));
+OGL_EXT(glCopyImageSubData, void, (GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth));
 OGL_EXT(glGenQueries, void, (GLsizei n, GLuint * ids));
 OGL_EXT(glGenSamplers, void, (GLsizei n, GLuint *samplers));
 OGL_EXT(glGenTransformFeedbacks, void, (GLsizei n, GLuint *ids));
