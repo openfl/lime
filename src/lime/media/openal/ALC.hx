@@ -157,6 +157,29 @@ class ALC
 		#end
 	}
 
+	/**
+		Returns the strings OpenAL gives for `param`, one for each device when `device`
+		is `null` and `param` is `DEVICE_SPECIFIER`, `CAPTURE_DEVICE_SPECIFIER` or
+		`ALL_DEVICES_SPECIFIER`. `getString()` returns only the first of those.
+	**/
+	public static function getStringList(device:ALDevice, param:Int):Array<String>
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		var result = NativeCFFI.lime_alc_get_string_list(device, param);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length)
+			_result[i] = CFFI.stringValue(result[i]);
+		return _result;
+		#else
+		return result;
+		#end
+		#else
+		return null;
+		#end
+	}
+
 	public static function makeContextCurrent(context:ALContext):Bool
 	{
 		#if (lime_cffi && lime_openal && !macro)

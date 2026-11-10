@@ -29,6 +29,28 @@ class NativeAudioSource
 	#end
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
+	#if (target.threaded && !lime_audio_no_stream_thread)
+	/**
+		Streams are fed from a thread of their own, so a stall on the main thread (a load, a window drag, a long frame)
+		doesn't drain their few buffers and drop the sound. The main thread's stream timer still completes them.
+
+		Each source has two locks, always taken in this order. `decodeMutex` covers the decoder and everything a seek
+		resets; `stateMutex` covers the queue and the stream times `getCurrentTime` reads, and is only held for a few
+		OpenAL calls, so the main thread never waits for a buffer to decode to read a source's time.
+	**/
+	private static inline var STREAM_FEED_INTERVAL = 0.02;
+
+	private static var feedMutex:sys.thread.Mutex;
+	private static var feedSources:Array<NativeAudioSource> = [];
+	private static var feedWake:sys.thread.Lock;
+	private static var feedThread:sys.thread.Thread;
+
+	private var decodeMutex = new sys.thread.Mutex();
+	private var stateMutex = new sys.thread.Mutex();
+	// Set if feeding this source threw: the main thread's timer then refills it, where the error shows
+	private var feedFailed:Bool;
+	#end
+
 	#if lime_openalsoft
 	private static var hasDirectChannelsExt:Null<Bool>;
 	#end
@@ -45,6 +67,12 @@ class NativeAudioSource
 	private var parent:AudioSource;
 	private var ownsVorbisStream:Bool;
 	private var playing:Bool;
+	// A time set while the source isn't playing: OpenAL reports a rewound source's offset as 0 until it plays,
+	// so play() would otherwise start from the beginning
+	private var pendingTime:Int = -1;
+
+	// Set while AudioSource.playTogether plays this source, which then starts with the rest in one alSourcePlayv
+	private var playTogetherHandles:Array<ALSource>;
 	private var position:Vector4;
 	private var queuedBufferCount:Int;
 	private var queuedBufferLoopCounts:Array<Int>;
@@ -61,8 +89,23 @@ class NativeAudioSource
 	private var recoveryPosition:Vector4;
 	private var recoveryTime:Int;
 	private var sdlSoundStream:CFFIPointer;
+	// The native stream reads from these bytes, which the buffer drops when disposed
+	private var sdlSoundStreamBytes:Bytes;
 	private var samples:Int;
 	private var stream:Bool;
+
+	#if lime_audio_test_hooks
+	/**
+		Tests only: each stream buffer queued, with its bytes, the stream time (seconds) of its first frame, and whether it
+		is the first since the queue was emptied (a seek, a stop or a new source).
+	**/
+	public static var onTestQueue:AudioSource->Bytes->Float->Bool->Void;
+
+	private var testQueueEmptied = true;
+
+	/** Tests only: each time a source is started, and how ("play", "together" or "starved"). **/
+	public static var onTestStart:AudioSource->String->Void;
+	#end
 	private var streamByteRate:Float;
 	private var streamCanSeek:Bool;
 	private var streamExhausted:Bool;
@@ -70,6 +113,11 @@ class NativeAudioSource
 	private var streamTimer:Timer;
 	private var timer:Timer;
 	private var vorbisStream:VorbisFile;
+	// The stream time of the first frame of the last buffer read
+	private var lastReadStartTime:Float;
+	// Per refill, kept to spare the feeding thread allocations (and so collections)
+	private var refillStartTimes:Array<Float> = [];
+	private var refillLoopCounts:Array<Int> = [];
 
 	public function new(parent:AudioSource)
 	{
@@ -78,6 +126,120 @@ class NativeAudioSource
 		position = new Vector4();
 		activeSources.push(this);
 	}
+
+	private inline function lockDecode():Void
+	{
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		decodeMutex.acquire();
+		#end
+	}
+
+	private inline function unlockDecode():Void
+	{
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		decodeMutex.release();
+		#end
+	}
+
+	private inline function lockState():Void
+	{
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		stateMutex.acquire();
+		#end
+	}
+
+	private inline function unlockState():Void
+	{
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		stateMutex.release();
+		#end
+	}
+
+	private inline function lockAll():Void
+	{
+		lockDecode();
+		lockState();
+	}
+
+	private inline function unlockAll():Void
+	{
+		unlockState();
+		unlockDecode();
+	}
+
+	private function startFeeding():Void
+	{
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		if (feedMutex == null)
+		{
+			feedMutex = new sys.thread.Mutex();
+			feedWake = new sys.thread.Lock();
+		}
+
+		feedFailed = false;
+		feedMutex.acquire();
+		if (feedSources.indexOf(this) < 0) feedSources.push(this);
+		if (feedThread == null) feedThread = sys.thread.Thread.create(feedLoop);
+		feedMutex.release();
+		feedWake.release();
+		#end
+	}
+
+	private function stopFeeding():Void
+	{
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		if (feedMutex == null) return;
+		feedMutex.acquire();
+		feedSources.remove(this);
+		feedMutex.release();
+		#end
+	}
+
+	#if (target.threaded && !lime_audio_no_stream_thread)
+	private static function feedLoop():Void
+	{
+		var batch:Array<NativeAudioSource> = [];
+
+		while (true)
+		{
+			// Copied, so the list's lock is never held with a source's
+			feedMutex.acquire();
+			while (batch.length > 0) batch.pop();
+			for (source in feedSources) batch.push(source);
+			feedMutex.release();
+
+			if (batch.length == 0)
+			{
+				feedWake.wait();
+				continue;
+			}
+
+			for (source in batch)
+			{
+				source.feed();
+			}
+
+			while (batch.length > 0) batch.pop();
+			Sys.sleep(STREAM_FEED_INTERVAL);
+		}
+	}
+
+	private function feed():Void
+	{
+		decodeMutex.acquire();
+
+		try
+		{
+			if (playing && stream && handle != null && !feedFailed) refillBuffersLocked(null, true);
+		}
+		catch (e:Dynamic)
+		{
+			feedFailed = true;
+		}
+
+		decodeMutex.release();
+	}
+	#end
 
 	@:allow(lime.media.AudioManager)
 	private static function prepareAudioContextRecovery():Void
@@ -99,6 +261,24 @@ class NativeAudioSource
 
 	public function dispose():Void
 	{
+		lockAll();
+
+		try
+		{
+			__dispose();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+	}
+
+	private function __dispose():Void
+	{
+		stopFeeding();
 		activeSources.remove(this);
 
 		if (handle != null)
@@ -124,6 +304,23 @@ class NativeAudioSource
 	}
 
 	public function init():Void
+	{
+		lockAll();
+
+		try
+		{
+			__init();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+	}
+
+	private function __init():Void
 	{
 		dataLength = 0;
 		format = 0;
@@ -236,7 +433,7 @@ class NativeAudioSource
 			else if (parent.buffer.__srcBufferContext != AudioManager.__contextGeneration)
 			{
 				parent.buffer.__srcBuffer = null;
-				init();
+				__init();
 				return;
 			}
 
@@ -274,6 +471,23 @@ class NativeAudioSource
 	}
 
 	public function play():Void
+	{
+		lockAll();
+
+		try
+		{
+			__play();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+	}
+
+	private function __play():Void
 	{
 		/*var pitch:Float = AL.getSourcef (handle, AL.PITCH);
 			trace(pitch);
@@ -317,43 +531,115 @@ class NativeAudioSource
 
 			streamTimer = new Timer(STREAM_TIMER_FREQUENCY);
 			streamTimer.run = streamTimer_onRun;
+			// A source waiting for AudioSource.playTogether is stopped, and OpenAL counts a stopped source's buffers as
+			// played: it's fed once playTogether has started it
+			if (playTogetherHandles == null) startFeeding();
 		}
 		else
 		{
-			var time = completed ? 0 : getCurrentTime();
+			var time = completed ? 0 : (pendingTime >= 0 ? pendingTime : getCurrentTime());
 
 			setCurrentTime(time);
 		}
 	}
 
+	public static function playTogether(sources:Array<AudioSource>):Void
+	{
+		var handles:Array<ALSource> = [];
+		var started:Array<NativeAudioSource> = [];
+
+		for (source in sources)
+		{
+			if (source == null) continue;
+			var backend = @:privateAccess source.__backend;
+			if (backend.playTogetherHandles != null) continue;
+			backend.playTogetherHandles = handles;
+			started.push(backend);
+		}
+
+		var error:Dynamic = null;
+		var failed = false;
+
+		try
+		{
+			for (backend in started)
+			{
+				backend.play();
+			}
+		}
+		catch (e:Dynamic)
+		{
+			error = e;
+			failed = true;
+		}
+
+		for (backend in started)
+		{
+			backend.playTogetherHandles = null;
+		}
+
+		// Sources already played are started even when a later one fails, so none is left waiting
+		if (handles.length > 0) AL.sourcePlayv(handles);
+
+		for (backend in started)
+		{
+			if (backend.playing && backend.stream && backend.handle != null) backend.startFeeding();
+		}
+
+		if (failed) throw error;
+	}
+
+	/** Starts the source now, or with the rest of AudioSource.playTogether so they all begin in the same mixer update. **/
+	private function startSource():Void
+	{
+		if (playTogetherHandles != null)
+		{
+			if (playTogetherHandles.indexOf(handle) < 0) playTogetherHandles.push(handle);
+			#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "together"); #end
+		}
+		else
+		{
+			AL.sourcePlay(handle);
+			#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "play"); #end
+		}
+	}
+
 	public function pause():Void
 	{
+		lockState();
 		playing = false;
+		stopFeeding();
 
-		if (handle == null) return;
-		AL.sourcePause(handle);
-
-		if (streamTimer != null)
+		if (handle != null)
 		{
-			streamTimer.stop();
-			streamTimer = null;
+			AL.sourcePause(handle);
+
+			if (streamTimer != null)
+			{
+				streamTimer.stop();
+				streamTimer = null;
+			}
+
+			if (timer != null)
+			{
+				timer.stop();
+				timer = null;
+			}
 		}
 
-		if (timer != null)
-		{
-			timer.stop();
-			timer = null;
-		}
+		unlockState();
 	}
 
 	private function clearSDLSoundStream():Void
 	{
-		#if (lime_sdl_sound && !macro)
+		#if (!macro && lime_cffi && lime_sdl_sound)
 		if (sdlSoundStream != null)
 		{
 			NativeCFFI.lime_sdl_sound_stream_clear(sdlSoundStream);
 			sdlSoundStream = null;
 		}
+
+		sdlSoundStreamBytes = null;
 		#end
 	}
 
@@ -383,12 +669,13 @@ class NativeAudioSource
 
 	private function openSDLSoundStream():Bool
 	{
-		#if (lime_sdl_sound && !macro)
+		#if (!macro && lime_cffi && lime_sdl_sound)
 		clearSDLSoundStream();
 
 		if (parent.buffer.__srcSDLSoundBytes != null)
 		{
-			sdlSoundStream = NativeCFFI.lime_sdl_sound_stream_from_bytes(parent.buffer.__srcSDLSoundBytes);
+			sdlSoundStreamBytes = parent.buffer.__srcSDLSoundBytes;
+			sdlSoundStream = NativeCFFI.lime_sdl_sound_stream_from_bytes(sdlSoundStreamBytes);
 		}
 		else if (parent.buffer.__srcSDLSoundPath != null)
 		{
@@ -441,7 +728,7 @@ class NativeAudioSource
 
 	private function resetSDLSoundStream(time:Int):Bool
 	{
-		#if (lime_sdl_sound && !macro)
+		#if (!macro && lime_cffi && lime_sdl_sound)
 		if (time < 0)
 		{
 			time = 0;
@@ -611,20 +898,38 @@ class NativeAudioSource
 			return;
 		}
 
-		var queued = AL.getSourcei(handle, AL.BUFFERS_QUEUED);
-
-		if (queued > 0)
-		{
-			AL.sourceUnqueueBuffers(handle, queued);
-		}
+		// Detached rather than unqueued: a source that hasn't started yet (a seek before play()) has no processed buffers,
+		// so unqueuing them fails, the refill queues the same buffers again, and as they're still queued OpenAL keeps their
+		// old audio and replays it. Detaching works on any source that isn't playing, as the seek has stopped it.
+		AL.sourcei(handle, AL.BUFFER, null);
 
 		queuedBufferCount = 0;
 		queuedBufferLoopCounts = [];
 		queuedStreamLoopCount = 0;
+		#if lime_audio_test_hooks testQueueEmptied = true; #end
 	}
 
 	private function prepareAudioContextRecoverySource():Void
 	{
+		lockAll();
+
+		try
+		{
+			__prepareAudioContextRecoverySource();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+	}
+
+	private function __prepareAudioContextRecoverySource():Void
+	{
+		stopFeeding();
+
 		if (parent.buffer == null)
 		{
 			recoveryPending = false;
@@ -672,6 +977,23 @@ class NativeAudioSource
 	}
 
 	private function restoreAudioContextRecoverySource():Void
+	{
+		lockAll();
+
+		try
+		{
+			__restoreAudioContextRecoverySource();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+	}
+
+	private function __restoreAudioContextRecoverySource():Void
 	{
 		if (!recoveryPending || parent.buffer == null)
 		{
@@ -721,7 +1043,7 @@ class NativeAudioSource
 
 	private function readSDLSoundBuffer(length:Int):Int
 	{
-		#if (lime_sdl_sound && !macro)
+		#if (!macro && lime_cffi && lime_sdl_sound)
 		if (sdlSoundStream == null || length <= 0 || streamByteRate <= 0)
 		{
 			return 0;
@@ -739,7 +1061,7 @@ class NativeAudioSource
 			return read;
 		}
 
-		shiftBufferTimeBlocks(streamPosition);
+		lastReadStartTime = streamPosition;
 		streamPosition += read / streamByteRate;
 		return read;
 		#else
@@ -756,7 +1078,7 @@ class NativeAudioSource
 		}
 
 		var read = 0, total = 0, readMax;
-		shiftBufferTimeBlocks(vorbisFile.timeTell());
+		var startTime = vorbisFile.timeTell();
 
 		while (total < length)
 		{
@@ -779,15 +1101,53 @@ class NativeAudioSource
 			}
 		}
 
+		// Record the buffer's start time only for a buffer that will be queued, as the SDL_sound reader does
+		if (total > 0) lastReadStartTime = startTime;
 		return total;
 		#else
 		return 0;
 		#end
 	}
 
-	private function refillBuffers(buffers:Array<ALBuffer> = null):Void
+	/**
+		Refills the stream's processed buffers (or `buffers`) and queues them, with the decoder held. With `restartStarved`, a
+		source OpenAL stopped for want of data while playing is started again; a seek passes false, as it starts the source
+		itself (or with the rest of `AudioSource.playTogether`), and a source started here would play before them and restart
+		when they start.
+
+		The queue changes in two short steps under `stateMutex`, with the decoding between them outside it: processed buffers
+		are taken off the queue first (the oldest stream time still queued moves up with them), and the refilled ones go back
+		on with their start times at the end. A source's time reads the same before, between and after.
+	**/
+	private function refillBuffersLocked(buffers:Array<ALBuffer>, restartStarved:Bool):Void
 	{
 		if (!stream || handle == null)
+		{
+			return;
+		}
+
+		if (buffers == null)
+		{
+			lockState();
+			var buffersProcessed:Int = AL.getSourcei(handle, AL.BUFFERS_PROCESSED);
+
+			if (buffersProcessed > 0)
+			{
+				buffers = AL.sourceUnqueueBuffers(handle, buffersProcessed);
+				var unqueued = (buffers != null) ? buffers.length : buffersProcessed;
+				queuedBufferCount -= unqueued;
+				consumeProcessedStreamLoopCounts(unqueued);
+
+				if (queuedBufferCount < 0)
+				{
+					queuedBufferCount = 0;
+				}
+			}
+
+			unlockState();
+		}
+
+		if (buffers == null)
 		{
 			return;
 		}
@@ -797,193 +1157,185 @@ class NativeAudioSource
 		var vorbisFile = null;
 		var position = 0;
 
-		if (buffers == null)
+		if (!useSDLSound)
 		{
-			var buffersProcessed:Int = AL.getSourcei(handle, AL.BUFFERS_PROCESSED);
-
-			if (buffersProcessed > 0)
-			{
-				if (useSDLSound)
-				{
-					position = Std.int(streamPosition * streamByteRate);
-				}
-				else
-				{
-					#if lime_vorbis
-					vorbisFile = vorbisStream;
-					position = (vorbisFile != null) ? Int64.toInt(vorbisFile.pcmTell()) : 0;
-					#end
-				}
-
-				buffers = AL.sourceUnqueueBuffers(handle, buffersProcessed);
-
-				if (buffers != null)
-				{
-					queuedBufferCount -= buffers.length;
-					consumeProcessedStreamLoopCounts(buffers.length);
-				}
-				else
-				{
-					queuedBufferCount -= buffersProcessed;
-					consumeProcessedStreamLoopCounts(buffersProcessed);
-				}
-
-				if (queuedBufferCount < 0)
-				{
-					queuedBufferCount = 0;
-				}
-			}
+			#if lime_vorbis
+			vorbisFile = vorbisStream;
+			position = (vorbisFile != null) ? Int64.toInt(vorbisFile.pcmTell()) : 0;
+			#end
+		}
+		else
+		{
+			position = Std.int(streamPosition * streamByteRate);
 		}
 
-		if (buffers != null)
+		var numBuffers = 0;
+		var bytesRead = 0;
+		var exhausted = false;
+
+		for (buffer in buffers)
 		{
-			if (!useSDLSound)
+			var bufferLoopCount = 0;
+
+			if (hasKnownStreamLength && position >= dataLength)
 			{
-				#if lime_vorbis
-				if (vorbisFile == null)
+				if (resetStreamForLoop(useSDLSound))
 				{
-					vorbisFile = vorbisStream;
-					position = (vorbisFile != null) ? Int64.toInt(vorbisFile.pcmTell()) : 0;
-				}
-				#end
-			}
-			else
-			{
-				position = Std.int(streamPosition * streamByteRate);
-			}
-
-			var numBuffers = 0;
-			var bytesRead = 0;
-			var newBufferLoopCounts = [];
-
-			for (buffer in buffers)
-			{
-				var bufferLoopCount = 0;
-
-				if (hasKnownStreamLength && position >= dataLength)
-				{
-					if (resetStreamForLoop(useSDLSound))
+					if (!useSDLSound)
 					{
-						if (!useSDLSound)
-						{
-							#if lime_vorbis
-							vorbisFile = vorbisStream;
-							#end
-						}
-
-						position = getStreamBytePosition(useSDLSound, vorbisFile);
+						#if lime_vorbis
+						vorbisFile = vorbisStream;
+						#end
 					}
-					else
-					{
-						streamExhausted = true;
-						break;
-					}
-				}
 
-				var requestLength = hasKnownStreamLength ? (dataLength - position) : STREAM_BUFFER_SIZE;
-
-				if (requestLength > STREAM_BUFFER_SIZE)
-				{
-					requestLength = STREAM_BUFFER_SIZE;
-				}
-
-				requestLength = alignStreamRequestLength(requestLength);
-
-				if (useSDLSound)
-				{
-					bytesRead = readSDLSoundBuffer(requestLength);
+					position = getStreamBytePosition(useSDLSound, vorbisFile);
 				}
 				else
 				{
-					#if lime_vorbis
-					bytesRead = readVorbisFileBuffer(vorbisFile, requestLength);
-					#else
-					bytesRead = 0;
-					#end
-				}
-
-				if (bytesRead <= 0 || readArray == null)
-				{
-					if (resetStreamForLoop(useSDLSound))
-					{
-						if (!useSDLSound)
-						{
-							#if lime_vorbis
-							vorbisFile = vorbisStream;
-							#end
-						}
-
-						position = getStreamBytePosition(useSDLSound, vorbisFile);
-						continue;
-					}
-					else
-					{
-						streamExhausted = true;
-						break;
-					}
-				}
-
-				AL.bufferData(buffer, format, readArray, bytesRead, parent.buffer.sampleRate);
-				position += bytesRead;
-				numBuffers++;
-
-				var stopAfterBuffer = false;
-
-				if (bytesRead < requestLength || (hasKnownStreamLength && position >= dataLength))
-				{
-					if (resetStreamForLoop(useSDLSound))
-					{
-						bufferLoopCount++;
-
-						if (!useSDLSound)
-						{
-							#if lime_vorbis
-							vorbisFile = vorbisStream;
-							#end
-						}
-
-						position = getStreamBytePosition(useSDLSound, vorbisFile);
-					}
-					else
-					{
-						streamExhausted = true;
-						stopAfterBuffer = true;
-					}
-				}
-
-				newBufferLoopCounts.push(bufferLoopCount);
-
-				if (stopAfterBuffer)
-				{
+					exhausted = true;
 					break;
 				}
 			}
 
-			if (numBuffers > 0)
-			{
-				var buffersToQueue = (numBuffers == buffers.length) ? buffers : buffers.slice(0, numBuffers);
-				AL.sourceQueueBuffers(handle, numBuffers, buffersToQueue);
-				queuedBufferCount += numBuffers;
+			var requestLength = hasKnownStreamLength ? (dataLength - position) : STREAM_BUFFER_SIZE;
 
-				for (i in 0...numBuffers)
+			if (requestLength > STREAM_BUFFER_SIZE)
+			{
+				requestLength = STREAM_BUFFER_SIZE;
+			}
+
+			requestLength = alignStreamRequestLength(requestLength);
+
+			if (useSDLSound)
+			{
+				bytesRead = readSDLSoundBuffer(requestLength);
+			}
+			else
+			{
+				#if lime_vorbis
+				bytesRead = readVorbisFileBuffer(vorbisFile, requestLength);
+				#else
+				bytesRead = 0;
+				#end
+			}
+
+			if (bytesRead <= 0 || readArray == null)
+			{
+				if (resetStreamForLoop(useSDLSound))
 				{
-					queuedBufferLoopCounts.push(newBufferLoopCounts[i]);
+					if (!useSDLSound)
+					{
+						#if lime_vorbis
+						vorbisFile = vorbisStream;
+						#end
+					}
+
+					position = getStreamBytePosition(useSDLSound, vorbisFile);
+					continue;
+				}
+				else
+				{
+					exhausted = true;
+					break;
 				}
 			}
 
-			// OpenAL can unexpectedly stop playback if the buffers run out
-			// of data, which typically happens if an operation (such as
-			// resizing a window) freezes the main thread.
-			// If AL is supposed to be playing but isn't, restart it here.
-			if (playing && handle != null && queuedBufferCount > 0 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED)
+			// Not queued yet, so OpenAL takes new data for it on any thread
+			AL.bufferData(buffer, format, readArray, bytesRead, parent.buffer.sampleRate);
+			#if lime_audio_test_hooks
+			if (onTestQueue != null) onTestQueue(parent, readArray.buffer.sub(readArray.byteOffset, bytesRead), lastReadStartTime, testQueueEmptied);
+			testQueueEmptied = false;
+			#end
+			position += bytesRead;
+			refillStartTimes[numBuffers] = lastReadStartTime;
+			numBuffers++;
+
+			var stopAfterBuffer = false;
+
+			if (bytesRead < requestLength || (hasKnownStreamLength && position >= dataLength))
 			{
-				AL.sourcePlay(handle);
+				if (resetStreamForLoop(useSDLSound))
+				{
+					bufferLoopCount++;
+
+					if (!useSDLSound)
+					{
+						#if lime_vorbis
+						vorbisFile = vorbisStream;
+						#end
+					}
+
+					position = getStreamBytePosition(useSDLSound, vorbisFile);
+				}
+				else
+				{
+					exhausted = true;
+					stopAfterBuffer = true;
+				}
+			}
+
+			refillLoopCounts[numBuffers - 1] = bufferLoopCount;
+
+			if (stopAfterBuffer)
+			{
+				break;
 			}
 		}
+
+		lockState();
+
+		if (numBuffers > 0)
+		{
+			var buffersToQueue = (numBuffers == buffers.length) ? buffers : buffers.slice(0, numBuffers);
+			AL.sourceQueueBuffers(handle, numBuffers, buffersToQueue);
+			queuedBufferCount += numBuffers;
+
+			for (i in 0...numBuffers)
+			{
+				queuedBufferLoopCounts.push(refillLoopCounts[i]);
+				shiftBufferTimeBlocks(refillStartTimes[i]);
+			}
+		}
+
+		if (exhausted)
+		{
+			streamExhausted = true;
+		}
+
+		// OpenAL can unexpectedly stop playback if the buffers run out
+		// of data, which happens if the feeding falls behind (or, without
+		// a feeding thread, the main thread freezes).
+		// If AL is supposed to be playing but isn't, restart it here.
+		if (restartStarved && playing && handle != null && queuedBufferCount > 0 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED)
+		{
+			AL.sourcePlay(handle);
+			#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "starved"); #end
+		}
+
+		unlockState();
 	}
 
 	public function stop():Void
 	{
+		lockAll();
+
+		try
+		{
+			__stop();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+	}
+
+	private function __stop():Void
+	{
+		stopFeeding();
+
 		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
 		{
 			AL.sourceStop(handle);
@@ -1009,12 +1361,38 @@ class NativeAudioSource
 	// Event Handlers
 	private function streamTimer_onRun():Void
 	{
-		if (!playing || handle == null)
+		lockAll();
+		var finished = false;
+
+		try
 		{
-			return;
+			finished = streamTimer_check();
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
 		}
 
-		refillBuffers();
+		unlockAll();
+
+		// Outside the locks, as completing runs the application's handlers
+		if (finished) timer_onRun();
+	}
+
+	private function streamTimer_check():Bool
+	{
+		if (!playing || handle == null)
+		{
+			return false;
+		}
+
+		// The feeding thread refills the stream; this timer only completes it, unless feeding it failed
+		#if (target.threaded && !lime_audio_no_stream_thread)
+		if (feedFailed) refillBuffersLocked(null, true);
+		#else
+		refillBuffersLocked(null, true);
+		#end
 
 		if (playing
 			&& timer == null
@@ -1032,8 +1410,10 @@ class NativeAudioSource
 				}
 			}
 
-			timer_onRun();
+			return true;
 		}
+
+		return false;
 	}
 
 	private function timer_onRun():Void
@@ -1058,20 +1438,45 @@ class NativeAudioSource
 	// Get & Set Methods
 	public function getCurrentTime():Int
 	{
+		lockState();
+		var time = __getCurrentTime();
+		unlockState();
+		return time;
+	}
+
+	private function __getCurrentTime():Int
+	{
 		if (completed)
 		{
 			return getLength();
+		}
+		else if (!playing && pendingTime >= 0)
+		{
+			return pendingTime;
 		}
 		else if (handle != null)
 		{
 			if (stream)
 			{
-				var time = (Std.int(bufferTimeBlocks[0] * 1000) + Std.int(AL.getSourcef(handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
+				// A stream whose last buffer OpenAL has played stops with its offset back at 0, a moment before the refill
+				// timer marks it completed; it has played to the end
+				if (playing && streamExhausted && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
+
+				// The blocks hold the start times of the last buffers read, the newest last; the source plays the oldest
+				// one still queued, which is no longer the first block once the stream has run out and the queue shrinks
+				var head = STREAM_NUM_BUFFERS - queuedBufferCount;
+				if (head < 0) head = 0;
+				if (head >= STREAM_NUM_BUFFERS) head = STREAM_NUM_BUFFERS - 1;
+				var time = (Std.int(bufferTimeBlocks[head] * 1000) + Std.int(AL.getSourcef(handle, AL.SEC_OFFSET) * 1000)) - parent.offset;
 				if (time < 0) return 0;
 				return time;
 			}
 			else
 			{
+				// A source OpenAL has stopped by reaching its end rewinds its offset to 0, a moment before the timer
+				// marks it completed; it has played to the end
+				if (playing && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
+
 				var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
 				var ratio = (offset / dataLength);
 				var totalSeconds = samples / parent.buffer.sampleRate;
@@ -1088,6 +1493,24 @@ class NativeAudioSource
 	}
 
 	public function setCurrentTime(value:Int):Int
+	{
+		lockAll();
+
+		try
+		{
+			value = __setCurrentTime(value);
+		}
+		catch (e:Dynamic)
+		{
+			unlockAll();
+			throw e;
+		}
+
+		unlockAll();
+		return value;
+	}
+
+	private function __setCurrentTime(value:Int):Int
 	{
 		// `setCurrentTime()` has side effects and is never safe to skip.
 		/* if (value == getCurrentTime())
@@ -1128,11 +1551,11 @@ class NativeAudioSource
 					bufferTimeBlocks[i] = 0;
 				}
 
-				refillBuffers(buffers);
+				refillBuffersLocked(buffers, false);
 
 				if (playing)
 				{
-					AL.sourcePlay(handle);
+					startSource();
 				}
 			}
 			else if (parent.buffer != null)
@@ -1151,7 +1574,8 @@ class NativeAudioSource
 				var totalOffset = Std.int(dataLength * ratio);
 
 				AL.sourcei(handle, AL.BYTE_OFFSET, totalOffset);
-				if (playing) AL.sourcePlay(handle);
+				pendingTime = playing ? -1 : Std.int(secondOffset * 1000) - parent.offset;
+				if (playing) startSource();
 			}
 		}
 
@@ -1225,23 +1649,36 @@ class NativeAudioSource
 
 	public function setLength(value:Int):Int
 	{
+		lockAll();
+
 		if (playing && length != value)
 		{
-			if (timer != null)
-			{
-				timer.stop();
-			}
-
-			var timeRemaining = Std.int((value - getCurrentTime()) / getPitch());
-
-			if (timeRemaining > 0)
-			{
-				timer = new Timer(timeRemaining);
-				timer.run = timer_onRun;
-			}
+			length = value;
+			startCompletionTimer(Std.int((value - __getCurrentTime()) / getPitch()));
 		}
 
-		return length = value;
+		length = value;
+		unlockAll();
+		return value;
+	}
+
+	private function startCompletionTimer(timeRemaining:Int):Void
+	{
+		if (timer != null)
+		{
+			timer.stop();
+		}
+
+		// A stream that loops inline counts its loops as it queues them, and completes when it runs out
+		if (timeRemaining > 0 && !shouldLoopStreamInline())
+		{
+			timer = new Timer(timeRemaining);
+			timer.run = timer_onRun;
+		}
+		else
+		{
+			timer = null;
+		}
 	}
 
 	public function getLoops():Int
@@ -1251,7 +1688,17 @@ class NativeAudioSource
 
 	public function setLoops(value:Int):Int
 	{
-		return loops = value;
+		lockAll();
+		loops = value;
+
+		if (playing && timer != null && shouldLoopStreamInline())
+		{
+			timer.stop();
+			timer = null;
+		}
+
+		unlockAll();
+		return value;
 	}
 
 	public function getPitch():Float
@@ -1268,25 +1715,11 @@ class NativeAudioSource
 
 	public function setPitch(value:Float):Float
 	{
+		lockAll();
+
 		if (playing && value != getPitch())
 		{
-			if (timer != null)
-			{
-				timer.stop();
-			}
-
-			var totalLength = getLength();
-			var timeRemaining = Std.int((totalLength - getCurrentTime()) / value);
-
-			if (timeRemaining > 0)
-			{
-				timer = new Timer(timeRemaining);
-				timer.run = timer_onRun;
-			}
-			else
-			{
-				timer = null;
-			}
+			startCompletionTimer(Std.int((getLength() - __getCurrentTime()) / value));
 		}
 
 		if (handle != null)
@@ -1294,6 +1727,7 @@ class NativeAudioSource
 			AL.sourcef(handle, AL.PITCH, value);
 		}
 
+		unlockAll();
 		return value;
 	}
 

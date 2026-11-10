@@ -95,15 +95,26 @@ class EventMacro
 
 					while (i < listeners.length)
 					{
-						listeners[i]($a{argNames});
+						var listener = listeners[i];
+						var edits = __edits;
 
-						if (!repeat[i])
+						listener($a{argNames});
+
+						// The listener may have added or removed listeners, which moves it
+						var index = (__edits == edits) ? i : __indexOf(cast listener, i);
+
+						// When it was removed, the listener after it has already moved into its place
+						if (index >= 0)
 						{
-							this.remove(cast listeners[i]);
-						}
-						else
-						{
-							i++;
+							if (!repeat[index])
+							{
+								this.remove(cast listener);
+								i = index;
+							}
+							else
+							{
+								i = index + 1;
+							}
 						}
 
 						if (canceled)

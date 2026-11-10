@@ -26,7 +26,9 @@
 	<define name="lime-opengles" if="emscripten || mobile" />
 	<define name="lime-vulkan" if="cpp windows" unless="no-vulkan || lime-no-vulkan || winrt" />
 	<define name="lime-vulkan" if="cpp linux" unless="no-vulkan || lime-no-vulkan" />
+	<define name="lime-vulkan" if="vulkan native" unless="no-vulkan || lime-no-vulkan || winrt" />
 	<define name="lime-vorbis" if="native" />
+	<define name="lime-webview" if="native" unless="no-webview || lime-no-webview" />
 	<define name="lime-webgl" if="html5" />
 	<haxedef name="lime_sdl_sound" if="native" />
 
@@ -97,6 +99,9 @@
 		<ndll name="lime" if="native" unless="lime-console static_link || lime-switch static_link" />
 
 		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		<java path="${haxelib:StageWebView}/android/src" if="android lime-webview" />
+		<dependency path="${haxelib:StageWebView}/ndll/Linux64/stagewebview-gtk.so" if="linux lime-webview" />
+		<dependency path="${haxelib:StageWebView}/ndll/LinuxArm64/stagewebview-gtk.so" if="linux lime-webview" />
 
 		<dependency path="dependencies/howler.min.js" if="html5 howlerjs" embed="true" />
 		<dependency path="dependencies/pako.min.js" if="html5" embed="true" allow-web-workers="true" />
@@ -109,9 +114,19 @@
 		<dependency path="dependencies/angle/libegl.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 
+		<!-- Mesa sits in a folder of its own, as beside the executable Windows would use it even with a GPU -->
+		<section if="windows software-gl" unless="angle || winrt">
+			<haxelib name="lime-mesa" />
+			<template path="${haxelib:lime-mesa}/ndll/Windows64/opengl32.dll" rename="mesa/opengl32.dll" />
+			<template path="${haxelib:lime-mesa}/ndll/Windows64/libgallium_wgl.dll" rename="mesa/libgallium_wgl.dll" />
+			<template path="${haxelib:lime-mesa}/LICENSE.md" rename="mesa/LICENSE.md" />
+		</section>
+
 		<!-- TODO: Move to template or move all template dependencies to XML? -->
 		<dependency name="CoreMedia.framework" if="ios" />
 		<dependency name="CoreVideo.framework" if="ios" />
+		<!-- Lime's iOS libraries use WebKit unless they are rebuilt with no-webview -->
+		<dependency name="WebKit.framework" if="ios" />
 		<!-- <dependency name="CoreBluetooth.framework" if="ios" /> -->
 
 		<define name="native-trace" if="flash" unless="haxe-trace || haxetrace" />

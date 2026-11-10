@@ -1,0 +1,16 @@
+<xml>
+
+	<!-- Offers Lime's mbedTLS to hxcpp for static builds, through the define
+	     hxcpp_mbedtls_provider (see lime._internal.macros.DefineMacro). A
+	     release ships the headers next to this file; a checkout has them in
+	     project/. -->
+
+	<set name="HXCPP_MBEDTLS_PROVIDER_3" value="1" />
+	<set name="HXCPP_MBEDTLS_PROVIDER_FLAGS" value="${this_dir}/flags.xml" />
+
+	<set name="LIME_MBEDTLS_INCLUDE" value="${this_dir}/../../project/lib/mbedtls/include" />
+	<set name="LIME_MBEDTLS_CONFIG" value="${this_dir}/../../project/lib/custom/mbedtls" />
+	<set name="LIME_MBEDTLS_INCLUDE" value="${this_dir}/include" ifExists="${this_dir}/include" />
+	<set name="LIME_MBEDTLS_CONFIG" value="${this_dir}/config" ifExists="${this_dir}/config" />
+
+</xml>

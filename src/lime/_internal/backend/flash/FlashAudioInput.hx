@@ -76,7 +76,7 @@ class FlashAudioInput
 	public function dispose():Void
 	{
 		stop();
-		buffers.resize(0);
+		buffers = [];
 		queuedBytes = 0;
 	}
 
@@ -169,7 +169,7 @@ class FlashAudioInput
 		}
 
 		microphone.rate = getMicrophoneRate(parent.sampleRate);
-		parent.sampleRate = microphone.rate * 1000;
+		parent.sampleRate = getSampleRate(microphone.rate);
 
 		microphone.setLoopBack(false);
 		microphone.setSilenceLevel(0, -1);
@@ -240,6 +240,19 @@ class FlashAudioInput
 		}
 
 		return 5;
+	}
+
+	// Flash names its rates in rounded kHz
+	private static function getSampleRate(rate:Int):Int
+	{
+		return switch (rate)
+		{
+			case 44: 44100;
+			case 22: 22050;
+			case 11: 11025;
+			case 8: 8000;
+			default: 5512;
+		}
 	}
 
 	private function isFormatSupported():Bool

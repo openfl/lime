@@ -46,15 +46,15 @@ class Main extends Application
 		onCreateWindow.add(window -> {
 			captureContentSize();
 			var menu = new Menu();
-			var item = menu.addItem(new MenuItem("Select"));
+			var item = menu.add(new MenuItem("Select"));
 			item.onSelect.add(() -> ++selected);
 			window.menu = menu;
 			checkContentSize();
 			#if (cpp && windows)
 			// Native rendering is tested by native-desktop. Check Lime's forwarding here.
-			window.appearance = WindowAppearance.Dark;
+			window.appearance = WindowAppearance.DARK;
 			if (!untyped __cpp__('IntegrationMenuAppearance(true)')) fail("Lime did not forward the dark menu preference");
-			window.appearance = WindowAppearance.Light;
+			window.appearance = WindowAppearance.LIGHT;
 			if (!untyped __cpp__('IntegrationMenuAppearance(false)')) fail("Lime did not forward the light menu preference");
 			#end
 		});

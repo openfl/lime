@@ -12,6 +12,7 @@ import lime.net.curl.CURLMulti;
 import sys.net.Host;
 import sys.net.Socket;
 import sys.thread.Deque;
+import sys.thread.Lock;
 import sys.thread.Thread;
 #end
 
@@ -77,6 +78,39 @@ class CURLTest extends Test
 
 		Assert.equals(CHUNKS * CHUNK_SIZE, received, "the transfer did not finish");
 		Assert.isTrue(longest < 0.25, "a collection took " + Math.round(longest * 1000) + " ms while the transfer ran");
+	}
+
+	public function testCollectingWhileHandlesAreMadeOnAnotherThread():Void
+	{
+		// Handles are made under the lock that the finalizers of dropped handles
+		// waited for, while the collector held up the thread that had it
+		var made = new Deque<Bool>();
+		var collected = new Lock();
+		Thread.create(function()
+		{
+			for (i in 0...1000) new CURL().cleanup();
+			made.add(true);
+
+			// Neko's collector can abort if a thread ends while it collects
+			collected.wait();
+		});
+
+		var finished = false;
+		var end = Timer.stamp() + 10;
+
+		while (!finished && Timer.stamp() < end)
+		{
+			// Handles for the collector to finalize
+			for (i in 0...8) new CURL();
+			collect();
+
+			finished = made.pop(false) != null;
+		}
+
+		collected.release();
+		Sys.sleep(0.1);
+
+		Assert.isTrue(finished, "the other thread did not finish making handles");
 	}
 
 	private static function collect():Void
@@ -153,8 +187,9 @@ private class TricklingServer
 			// Waits briefly, so stopping is seen
 			if (Socket.select([listener], [], [], 0.05).read.length == 0) continue;
 
-			var connection = listener.accept();
-			Thread.create(function() serve(connection));
+			// Served here, as starting a thread while the test collected
+			// crashed the collector on hxcpp 4.3.53
+			serve(listener.accept());
 		}
 
 		listener.close();
@@ -166,11 +201,7 @@ private class TricklingServer
 		{
 			while (connection.input.readLine() != "") {}
 
-			connection.output.writeString("HTTP/1.1 200 OK
-Connection: close
-Content-Length: " + (@:privateAccess CURLTest.CHUNKS * @:privateAccess CURLTest.CHUNK_SIZE) + "
-
-");
+			connection.output.writeString("HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: " + (@:privateAccess CURLTest.CHUNKS * @:privateAccess CURLTest.CHUNK_SIZE) + "\r\n\r\n");
 
 			var chunk = Bytes.alloc(@:privateAccess CURLTest.CHUNK_SIZE);
 			chunk.fill(0, chunk.length, 65);

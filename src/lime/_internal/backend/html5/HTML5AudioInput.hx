@@ -72,7 +72,7 @@ class HTML5AudioInput
 	{
 		disposed = true;
 		stop();
-		buffers.resize(0);
+		buffers = [];
 		queuedBytes = 0;
 	}
 
@@ -358,6 +358,7 @@ class HTML5AudioInput
 		}
 
 		mediaStream = stream;
+		watchTracks(stream);
 		sourceNode = audioContext.createMediaStreamSource(stream);
 		processorNode = audioContext.createScriptProcessor(getProcessorBufferSize(), parent.channels, parent.channels);
 
@@ -413,6 +414,24 @@ class HTML5AudioInput
 		{
 			enumeratingDevices = false;
 		});
+	}
+
+	private function watchTracks(stream:Dynamic):Void
+	{
+		// A track ends when its device is unplugged or the permission is taken back, not when it is stopped
+		var tracks:Dynamic = stream.getTracks();
+		var length:Int = tracks.length;
+
+		for (i in 0...length)
+		{
+			tracks[i].onended = function(event)
+			{
+				if (disposed || mediaStream != stream) return;
+				stop();
+				parent.running = false;
+				parent.onDisconnect.dispatch();
+			};
+		}
 	}
 
 	private function stopMediaStream(stream:Dynamic):Void

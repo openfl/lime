@@ -68,6 +68,7 @@ class HXProject extends Script
 	public static var _command:String;
 	public static var _debug:Bool;
 	public static var _environment:Map<String, String>;
+	public static var _projectFilePath:String;
 	public static var _target:Platform;
 	public static var _targetFlags:Map<String, String>;
 	public static var _templatePaths:Array<String>;
@@ -94,6 +95,7 @@ class HXProject extends Script
 		HXProject._templatePaths = inputData.templatePaths;
 		HXProject._userDefines = inputData.userDefines;
 		HXProject._environment = inputData.environment;
+		HXProject._projectFilePath = inputData.projectFile;
 		Log.verbose = inputData.logVerbose;
 		Log.enableColor = inputData.logEnableColor;
 
@@ -207,6 +209,11 @@ class HXProject extends Script
 			{
 				environment.remove(conflict);
 			}
+		}
+
+		if (_projectFilePath != null)
+		{
+			projectFilePath = _projectFilePath;
 		}
 
 		haxedefs = new Map<String, Dynamic>();
@@ -1272,8 +1279,16 @@ class HXProject extends Script
 		context.sslCaCert = "";
 
 		var compilerFlags:Array<String> = [];
+		var libraries = haxelibs;
 
-		for (haxelib in haxelibs)
+		// Haxe adds hxcpp to C++ builds for its classes alone, and only a library
+		// the build names gets the parameters that libhxcpp sets this collector up with
+		if (defines.exists("cpp") && haxedefs.exists("HXCPP_GC_INCREMENTAL"))
+		{
+			libraries = haxelibs.concat([new Haxelib("hxcpp")]);
+		}
+
+		for (haxelib in libraries)
 		{
 			var name = haxelib.name;
 

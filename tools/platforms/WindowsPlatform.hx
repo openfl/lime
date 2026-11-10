@@ -626,6 +626,9 @@ class WindowsPlatform extends PlatformTarget
 					flags.push("-Dno_console");
 				}
 
+				// The program runs from the application directory, not where hxcpp links it (for libhxcpp's HXCPP_PGO)
+				flags.push("-DHXCPP_PGO_RUN_DIR=" + Path.tryFullPath(applicationDirectory));
+
 				if (!project.targetFlags.exists("static"))
 				{
 					System.runCommand("", "haxe", haxeArgs);

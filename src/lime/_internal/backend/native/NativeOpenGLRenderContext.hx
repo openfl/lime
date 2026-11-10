@@ -960,6 +960,15 @@ class NativeOpenGLRenderContext
 		#end
 	}
 
+	public function copyImageSubData(srcName:GLTexture, srcTarget:Int, srcLevel:Int, srcX:Int, srcY:Int, srcZ:Int, dstName:GLTexture, dstTarget:Int,
+			dstLevel:Int, dstX:Int, dstY:Int, dstZ:Int, srcWidth:Int, srcHeight:Int, srcDepth:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_copy_image_sub_data(__getObjectID(srcName), srcTarget, srcLevel, srcX, srcY, srcZ, __getObjectID(dstName), dstTarget, dstLevel,
+			dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
+		#end
+	}
+
 	public function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)

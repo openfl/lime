@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="Local socket integration" package="org.openfl.lime.tests.localsocket" version="1.0.0" company="OpenFL" />
+	<app file="LocalSocketIntegration" main="Main" />
+	<source path="src" />
+	<window width="160" height="80" title="LimeLocalSocketIntegration" />
+	<haxelib name="lime" />
+</project>

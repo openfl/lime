@@ -41,7 +41,8 @@ class Application extends Module
 		Whether the application has its own menu bar, set using `menu`.
 
 		This is `true` on macOS, where the menu bar belongs to the application
-		rather than to its windows. Elsewhere, use `Window.menu` when
+		rather than to its windows, and on HTML5, where windows without a menu
+		of their own show it. Elsewhere, use `Window.menu` when
 		`Window.supportsMenu` is `true`.
 	**/
 	public static var supportsMenu(get, never):Bool;
@@ -62,6 +63,12 @@ class Application extends Module
 		On macOS, the submenu of the first item becomes the application menu,
 		which is titled with the application name. Other top-level items should
 		have submenus. Changes to the menu are applied immediately.
+
+		On macOS, the menu starts as a copy of the default menu bar, with its
+		About, Hide, Services, Quit and Window items, so that items can be added
+		to it. Those items still do what they do on the default menu bar, and are
+		selected as other items are, although canceling `onSelect` does not stop
+		them. Setting `null` restores the default.
 
 		Has no visible effect where `Application.supportsMenu` is `false`.
 	**/
@@ -142,6 +149,7 @@ class Application extends Module
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
+	@:noCompletion private var __windowCreationError:String;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
 
@@ -181,14 +189,14 @@ class Application extends Module
 		__frameConfigured = false;
 		__frameOptions =
 			{
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF
 			};
-		__frameProfile = FrameProfile.Balanced;
+		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
 		__windows = new Array();
-		__vsyncMode = VSyncMode.Off;
+		__vsyncMode = VSyncMode.OFF;
 
 		__backend = new ApplicationBackend(this);
 		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
@@ -214,6 +222,7 @@ class Application extends Module
 	/**
 		Creates a new Window and adds it to the Application
 		@param	attributes	A set of parameters to initialize the window
+		@return	The new Window, or null if it could not be created
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{
@@ -590,6 +599,7 @@ class Application extends Module
 
 	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window
 	{
+		__windowCreationError = null;
 		var window = new Window(this, attributes);
 		if (window.id == -1) return null;
 		__seedFrameConfiguration(attributes);
@@ -733,8 +743,17 @@ class Application extends Module
 		return __frameProfile;
 	}
 
-	@:noCompletion private inline function get_menu():Menu
+	@:noCompletion private function get_menu():Menu
 	{
+		#if (lime_cffi && !macro && mac)
+		// macOS has a menu bar of its own from the start, which the menu copies
+		if (__menu == null)
+		{
+			var defaultMenu = lime._internal.backend.native.NativeMenu.getApplicationMenu();
+			if (defaultMenu != null) set_menu(defaultMenu);
+		}
+		#end
+
 		return __menu;
 	}
 
@@ -742,6 +761,8 @@ class Application extends Module
 	{
 		#if (lime_cffi && !macro)
 		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_APPLICATION) != 0;
+		#elseif (js && html5)
+		return true;
 		#else
 		return false;
 		#end
@@ -822,9 +843,9 @@ class Application extends Module
 		if (value == null)
 		{
 			return {
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF
 			};
 		}
 
@@ -919,7 +940,7 @@ class Application extends Module
 
 			if (Reflect.hasField(context, "vsync") && context.vsync)
 			{
-				return VSyncMode.On;
+				return VSyncMode.ON;
 			}
 		}
 

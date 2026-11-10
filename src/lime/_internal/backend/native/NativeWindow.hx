@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
@@ -28,6 +29,7 @@ import lime.ui.Menu;
 import lime.ui.MenuItem;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
+import lime.ui.WindowHandle;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -35,6 +37,7 @@ import lime.utils.UInt8Array;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(lime.ui.WindowHandle)
 @:access(lime._internal.backend.native.NativeOpenGLRenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.cairo.Cairo)
@@ -46,6 +49,11 @@ import lime.utils.UInt8Array;
 @:access(lime.ui.Window)
 class NativeWindow
 {
+	/**
+		The window that renders now, whose context stays current while other windows are made or closed.
+	**/
+	public static var rendering:Window;
+
 	public var handle:Dynamic;
 
 	private var closing:Bool;
@@ -86,7 +94,15 @@ class NativeWindow
 		if (!Reflect.hasField(contextAttributes, "vsync")) contextAttributes.vsync = false;
 		if (!Reflect.hasField(contextAttributes, "vsyncMode")
 			|| contextAttributes.vsyncMode == null) contextAttributes.vsyncMode = resolvedVSyncMode;
-		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.Off);
+		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.OFF);
+
+		#if vulkan
+		// Windows that name no type use Vulkan, unless they ask for software rendering
+		if ((!Reflect.hasField(contextAttributes, "type") || contextAttributes.type == null) && contextAttributes.hardware)
+		{
+			contextAttributes.type = VULKAN;
+		}
+		#end
 
 		#if (cairo || (!lime_opengl && !lime_opengles))
 		if (!Reflect.hasField(contextAttributes, "type") || contextAttributes.type != VULKAN)
@@ -124,15 +140,26 @@ class NativeWindow
 		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) flags |= cast WindowFlags.WINDOW_FLAG_VULKAN;
 		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		#if software_gl
+		flags |= cast WindowFlags.WINDOW_FLAG_SOFTWARE_OPENGL;
+		#end
 
 		var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
 
 		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
 		#if (!macro && lime_cffi)
+		// A new context shares textures, buffers and shaders with the one current as it is
+		// made, so that is the main window's
+		var mainWindow = getMainOpenGLWindow(parent.application, parent);
+		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
 		if (handle == null)
 		{
+			parent.application.__windowCreationError = CFFI.stringValue(NativeCFFI.lime_window_get_creation_error());
+			// A context made and deleted on the way leaves none current
+			restoreCurrentContext(parent.application, parent);
 			return;
 		}
 
@@ -145,6 +172,8 @@ class NativeWindow
 
 		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
+		// Transparency can be refused, as with Vulkan or without a compositor
+		parent.transparent = NativeCFFI.lime_window_get_transparent(handle);
 
 		var context = new RenderContext();
 		context.window = parent;
@@ -156,7 +185,9 @@ class NativeWindow
 				var gl = new NativeOpenGLRenderContext();
 				useHardware = true;
 
-				contextAttributes.hardware = true;
+				// The new context is current. It may draw in software, as software-gl falls back
+				// to, or as a machine without a GPU does
+				contextAttributes.hardware = !isSoftwareRenderer(gl.getString(gl.RENDERER));
 				#if lime_opengl
 				context.gl = gl;
 				#end
@@ -199,6 +230,8 @@ class NativeWindow
 		context.attributes = contextAttributes;
 		parent.context = context;
 
+		restoreCurrentContext(parent.application, parent);
+
 		frameRate = resolvedFrameRate;
 		#end
 		// SDL 2 enables text input events by default, but we want them only
@@ -234,6 +267,9 @@ class NativeWindow
 					#end
 
 					handle = null;
+
+					// Closing the window whose context was current leaves none current
+					restoreCurrentContext(parent.application, parent);
 				}
 			}
 			else
@@ -246,6 +282,9 @@ class NativeWindow
 	public function contextFlip():Void
 	{
 		#if (!macro && lime_cffi)
+		// The window may have been closed while it rendered
+		if (handle == null) return;
+
 		if (!useHardware)
 		{
 			#if lime_cairo
@@ -345,6 +384,21 @@ class NativeWindow
 		{
 			var rect:Dynamic = NativeCFFI.lime_window_get_mouse_rect(handle);
 			if (rect != null) return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		}
+		#end
+		return null;
+	}
+
+	public function getNativeHandle():WindowHandle
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var info:Dynamic = NativeCFFI.lime_window_get_native_handle(handle);
+			if (info != null)
+			{
+				return new WindowHandle(info.type, Int64.make(info.window.high, info.window.low), Int64.make(info.display.high, info.display.low));
+			}
 		}
 		#end
 		return null;
@@ -504,10 +558,65 @@ class NativeWindow
 		return null;
 	}
 
+	public function contextMakeCurrent():Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) NativeCFFI.lime_window_context_make_current(handle);
+		#end
+	}
+
+	/**
+		The window whose OpenGL context is current outside of rendering: the main
+		window, or the first other window open with one.
+	**/
+	public static function getMainOpenGLWindow(application:Application, except:Window = null):Window
+	{
+		if (hasOpenGLContext(application.window, except)) return application.window;
+
+		for (window in application.__windows)
+		{
+			if (hasOpenGLContext(window, except)) return window;
+		}
+
+		return null;
+	}
+
+	/**
+		Makes current the context of the window that renders now, or outside of rendering, the
+		main window's.
+	**/
+	private static function restoreCurrentContext(application:Application, except:Window):Void
+	{
+		var window = hasOpenGLContext(rendering, except) ? rendering : getMainOpenGLWindow(application, except);
+		if (window != null) window.__backend.contextMakeCurrent();
+	}
+
+	private static function isSoftwareRenderer(renderer:String):Bool
+	{
+		if (renderer == null) return false;
+
+		renderer = renderer.toLowerCase();
+
+		for (name in ["llvmpipe", "softpipe", "swiftshader", "apple software renderer", "gdi generic", "microsoft basic render driver"])
+		{
+			if (renderer.indexOf(name) > -1) return true;
+		}
+
+		return false;
+	}
+
+	private static function hasOpenGLContext(window:Window, except:Window):Bool
+	{
+		return window != null && window != except && window.__backend.handle != null && window.context != null
+			&& (window.context.type == OPENGL || window.context.type == OPENGLES);
+	}
+
 	public function render():Void
 	{
 		#if (!macro && lime_cffi)
-		NativeCFFI.lime_window_context_make_current(handle);
+		if (handle == null) return;
+
+		contextMakeCurrent();
 		if (!useHardware)
 		{
 			#if lime_cairo
@@ -807,7 +916,7 @@ class NativeWindow
 	public function setAppearance(value:lime.ui.WindowAppearance):Void
 	{
 		#if (lime_cffi && !macro)
-		if (handle != null) NativeCFFI.lime_window_set_appearance(handle, switch value { case Light: 1; case Dark: 2; default: 0; });
+		if (handle != null) NativeCFFI.lime_window_set_appearance(handle, switch value { case LIGHT: 1; case DARK: 2; default: 0; });
 		#end
 	}
 
@@ -815,10 +924,10 @@ class NativeWindow
 	{
 		#if (lime_cffi && !macro)
 		if (handle != null) return switch NativeCFFI.lime_window_get_appearance(handle) {
-			case 1: Light; case 2: Dark; default: System;
+			case 1: LIGHT; case 2: DARK; default: SYSTEM;
 		};
 		#end
-		return System;
+		return SYSTEM;
 	}
 
 	public function setTitle(value:String):String
@@ -900,4 +1009,5 @@ class NativeWindow
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
 	var WINDOW_FLAG_VULKAN = 0x00020000;
 	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
+	var WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000;
 }

@@ -37,14 +37,15 @@ class MenuItem
 		a menu bar, or `KeyCode.UNKNOWN` for none. The shortcut is also shown
 		next to the label, including in context menus.
 	**/
-	public var keyEquivalent(get, set):KeyCode;
+	public var keyCode(get, set):KeyCode;
 
 	/**
-		The modifier keys that must be held with `keyEquivalent`. Defaults to
+		The modifier keys that must be held with `keyCode`. Defaults to
 		`KeyModifier.CTRL` (`KeyModifier.META` on macOS). Left and right
-		modifier keys are treated the same.
+		modifier keys are treated the same. On HTML5 in macOS browsers, `CTRL`
+		without `META` stands for the Command key.
 	**/
-	public var keyEquivalentModifiers(get, set):KeyModifier;
+	public var keyModifier(get, set):KeyModifier;
 
 	/**
 		The text displayed for the item.
@@ -79,11 +80,15 @@ class MenuItem
 
 	@:noCompletion private var __checked:Bool;
 	@:noCompletion private var __enabled:Bool;
-	@:noCompletion private var __keyEquivalent:KeyCode;
-	@:noCompletion private var __keyEquivalentModifiers:KeyModifier;
+	@:noCompletion private var __keyCode:KeyCode;
+	@:noCompletion private var __keyModifier:KeyModifier;
 	@:noCompletion private var __label:String;
 	@:noCompletion private var __mnemonicIndex:Int;
 	@:noCompletion private var __submenu:Menu;
+
+	// What a standard item of the default menu bar does, as "terminate:" for Quit
+	// on macOS, which it keeps doing when the menu is installed
+	@:noCompletion private var __systemAction:String;
 
 	public function new(label:String = "", isSeparator:Bool = false)
 	{
@@ -92,8 +97,8 @@ class MenuItem
 
 		__checked = false;
 		__enabled = true;
-		__keyEquivalent = UNKNOWN;
-		__keyEquivalentModifiers = #if mac KeyModifier.META #else KeyModifier.CTRL #end;
+		__keyCode = UNKNOWN;
+		__keyModifier = #if mac KeyModifier.META #else KeyModifier.CTRL #end;
 		__mnemonicIndex = -1;
 	}
 
@@ -151,32 +156,32 @@ class MenuItem
 		return value;
 	}
 
-	@:noCompletion private function get_keyEquivalent():KeyCode
+	@:noCompletion private function get_keyCode():KeyCode
 	{
-		return __keyEquivalent;
+		return __keyCode;
 	}
 
-	@:noCompletion private function set_keyEquivalent(value:KeyCode):KeyCode
+	@:noCompletion private function set_keyCode(value:KeyCode):KeyCode
 	{
-		if (value != __keyEquivalent)
+		if (value != __keyCode)
 		{
-			__keyEquivalent = value;
+			__keyCode = value;
 			__update();
 		}
 
 		return value;
 	}
 
-	@:noCompletion private function get_keyEquivalentModifiers():KeyModifier
+	@:noCompletion private function get_keyModifier():KeyModifier
 	{
-		return __keyEquivalentModifiers;
+		return __keyModifier;
 	}
 
-	@:noCompletion private function set_keyEquivalentModifiers(value:KeyModifier):KeyModifier
+	@:noCompletion private function set_keyModifier(value:KeyModifier):KeyModifier
 	{
-		if (value != __keyEquivalentModifiers)
+		if (value != __keyModifier)
 		{
-			__keyEquivalentModifiers = value;
+			__keyModifier = value;
 			__update();
 		}
 
