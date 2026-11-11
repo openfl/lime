@@ -880,6 +880,7 @@ class NativeApplication
 
 				case WINDOW_RESTORE:
 					window.__fullscreen = false;
+					window.__maximized = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();
 
