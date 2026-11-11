@@ -435,8 +435,13 @@ namespace lime {
 
 		jpeg_create_compress (&cinfo);
 
+		// Until jpeg_finish_compress, libjpeg only reads the image's pixels and
+		// writes its own memory, so the collector needn't wait for this thread
+		System::GCEnterBlocking ();
+
 		if (setjmp (jpegError.on_error)) {
 
+			System::GCExitBlocking ();
 			jpeg_destroy_compress (&cinfo);
 			return false;
 
@@ -477,6 +482,8 @@ namespace lime {
 		}
 
 		jpeg_finish_compress (&cinfo);
+
+		System::GCExitBlocking ();
 
 		int size = dest.mOutput.size ();
 
