@@ -824,11 +824,13 @@ class NativeAudioSource
 	{
 		var frameSize = Std.int(parent.buffer.channels * (parent.buffer.bitsPerSample / 8));
 
-		if (frameSize <= 0 || length <= frameSize)
+		if (frameSize <= 0)
 		{
 			return length;
 		}
 
+		// Whole sample frames only: a stream's position comes from its time, so near the end what's left can be less
+		// than a frame, and asking for that part of one made SDL_sound end the sample with an error
 		return length - (length % frameSize);
 	}
 
