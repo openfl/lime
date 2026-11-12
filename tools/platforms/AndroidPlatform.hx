@@ -432,7 +432,7 @@ class AndroidPlatform extends PlatformTarget
 		}
 
 		var context = project.templateContext;
-
+		context.WIN_FLASHBACKGROUND = (project.window.background != null ? "#" + StringTools.hex(project.window.background, 6) : "#FFFFFF");
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
@@ -477,7 +477,7 @@ class AndroidPlatform extends PlatformTarget
 			{
 				"android:label": project.meta.title,
 				"android:allowBackup": "true",
-				"android:theme": "@android:style/Theme.NoTitleBar" + (project.window.fullscreen ? ".Fullscreen" : ""),
+				"android:theme": "@style/Theme.LimeApp" + (project.window.fullscreen ? ".Fullscreen" : ""),
 				"android:hardwareAccelerated": "true",
 				"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
 			});
