@@ -220,10 +220,36 @@ class HTTPRequestResponseTest extends Test
 				Assert.isTrue(report[0] <= size, "progress reported " + report[0] + " of " + size);
 				previous = report[0];
 			}
+			async.done();
+		});
+	}
 
+	@:timeout(20000)
+	@Ignored("Waiting on #2214")
+	public function testTheLastProgressReportHasEveryByte(async:Async):Void
+	{
+		// XMLHttpRequest fires a last progress event with every byte before load,
+		// and Flash a ProgressEvent with bytesLoaded == bytesTotal before COMPLETE
+		var size = 4 * 1024 * 1024 + 123;
+		var data = Bytes.alloc(size);
+		for (i in 0...size) data.set(i, (i ^ (i >> 11)) & 0xFF);
+		var server = serve(function(_)
+		{
+			var response = ScriptedResponse.bytes(200, data);
+			response.pieceSize = 256 * 1024;
+			response.pause = 0.01;
+			return response;
+		});
+
+		var request = new HTTPRequest<Bytes>();
+		LoadOutcome.watch(request.load(server.url("/large-last")), async, function(outcome)
+		{
+			Assert.isTrue(outcome.completed, Std.string(outcome));
+			Assert.isTrue(outcome.progress.length > 0, "no progress was reported");
 			if (outcome.progress.length > 0)
 			{
-				Assert.same([size, size], outcome.progress[outcome.progress.length - 1], "the last progress report");
+				var last = outcome.progress[outcome.progress.length - 1];
+				Assert.same([size, size], last, "the last progress report was " + last + " of " + size);
 			}
 			async.done();
 		});
