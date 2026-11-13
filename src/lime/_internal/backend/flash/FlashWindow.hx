@@ -562,6 +562,11 @@ class FlashWindow
 		return cursor;
 	}
 
+	public function setCustomCursor(image:Image, hotSpotX:Int, hotSpotY:Int):Bool
+	{
+		return false;
+	}
+
 	public function setDisplayMode(value:DisplayMode):DisplayMode
 	{
 		return value;

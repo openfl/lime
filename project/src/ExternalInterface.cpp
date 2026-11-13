@@ -13726,6 +13726,23 @@ namespace lime {
 	}
 
 
+	bool lime_window_set_custom_cursor (value window, value buffer, int hotSpotX, int hotSpotY) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		ImageBuffer imageBuffer = ImageBuffer (buffer);
+		return targetWindow->SetCustomCursor (&imageBuffer, hotSpotX, hotSpotY);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_custom_cursor) (HL_CFFIPointer* window, ImageBuffer* buffer, int hotSpotX, int hotSpotY) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->SetCustomCursor (buffer, hotSpotX, hotSpotY);
+
+	}
+
+
 	value lime_window_set_display_mode (value window, value displayMode) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14534,6 +14551,7 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_set_maximum_size);
 	DEFINE_PRIME2 (lime_window_set_borderless);
 	DEFINE_PRIME2v (lime_window_set_cursor);
+	DEFINE_PRIME4 (lime_window_set_custom_cursor);
 	DEFINE_PRIME2 (lime_window_set_display_mode);
 	DEFINE_PRIME2 (lime_window_set_fullscreen);
 	DEFINE_PRIME2v (lime_window_set_icon);
@@ -14895,6 +14913,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_set_maximum_size, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_borderless, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_cursor, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_custom_cursor, _TCFFIPOINTER _TIMAGEBUFFER _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_display_mode, _TCFFIPOINTER _TDISPLAYMODE _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_fullscreen, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_icon, _TCFFIPOINTER _TIMAGEBUFFER);
