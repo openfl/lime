@@ -82,6 +82,7 @@ class TestMain extends Application
 		runner.addCase(new system.ThreadPoolTest());
 		runner.addCase(new text.FontTest());
 		runner.addCase(new text.UTF8StringTest());
+		runner.addCase(new tools.ImageHelperTest());
 		#if sys
 		// Each test is named as it starts, so a run that hangs shows where
 		runner.onTestStart.add(function(handler)

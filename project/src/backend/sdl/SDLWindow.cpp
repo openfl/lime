@@ -198,10 +198,8 @@ namespace lime {
 	static const wchar_t* LIME_SDL_WINDOW_ID_PROP = L"LimeSDL.WindowID";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_WIDTH_PROP = L"LimeSDL.LastResizeWidth";
 	static const wchar_t* LIME_SDL_LAST_RESIZE_HEIGHT_PROP = L"LimeSDL.LastResizeHeight";
-	static const wchar_t* LIME_SDL_LAST_RESIZE_TICK_PROP = L"LimeSDL.LastResizeTick";
-	static const Uint32 LIME_SDL_MIN_RESIZE_PUSH_INTERVAL_MS = 8;
 
-	static bool ShouldQueueLiveResizeEvent (HWND hwnd, int width, int height, bool throttled) {
+	static bool ShouldQueueLiveResizeEvent (HWND hwnd, int width, int height) {
 
 		if (width < 1 || height < 1) return false;
 
@@ -209,28 +207,15 @@ namespace lime {
 		int lastHeight = (int)(INT_PTR)GetPropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
 		if (width == lastWidth && height == lastHeight) return false;
 
-		Uint32 now = SDL_GetTicks ();
-		if (throttled) {
-
-			Uint32 lastTick = (Uint32)(UINT_PTR)GetPropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
-			if (lastTick != 0 && (Uint32)(now - lastTick) < LIME_SDL_MIN_RESIZE_PUSH_INTERVAL_MS) {
-
-				return false;
-
-			}
-
-		}
-
 		SetPropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP, (HANDLE)(INT_PTR)width);
 		SetPropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP, (HANDLE)(INT_PTR)height);
-		SetPropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP, (HANDLE)(UINT_PTR)now);
 		return true;
 
 	}
 
-	static void PushLiveResizeEvent (HWND hwnd, int width, int height, bool throttled) {
+	static void PushLiveResizeEvent (HWND hwnd, int width, int height) {
 
-		if (!ShouldQueueLiveResizeEvent (hwnd, width, height, throttled)) return;
+		if (!ShouldQueueLiveResizeEvent (hwnd, width, height)) return;
 
 		Uint32 windowID = (Uint32)(UINT_PTR)GetPropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
 		if (!windowID) return;
@@ -246,37 +231,12 @@ namespace lime {
 
 	}
 
-	static void PushLiveResizeEventFromRect (HWND hwnd, const RECT* windowRect) {
-
-		if (!windowRect) return;
-
-		RECT currentWindowRect;
-		RECT currentClientRect;
-		if (!GetWindowRect (hwnd, &currentWindowRect)) return;
-		if (!GetClientRect (hwnd, &currentClientRect)) return;
-
-		POINT currentClientTopLeft = { currentClientRect.left, currentClientRect.top };
-		POINT currentClientBottomRight = { currentClientRect.right, currentClientRect.bottom };
-		if (!ClientToScreen (hwnd, &currentClientTopLeft) || !ClientToScreen (hwnd, &currentClientBottomRight)) return;
-
-		int nonClientWidth = (currentWindowRect.right - currentWindowRect.left) - (currentClientBottomRight.x - currentClientTopLeft.x);
-		int nonClientHeight = (currentWindowRect.bottom - currentWindowRect.top) - (currentClientBottomRight.y - currentClientTopLeft.y);
-		if (nonClientWidth < 0) nonClientWidth = 0;
-		if (nonClientHeight < 0) nonClientHeight = 0;
-
-		int width = (windowRect->right - windowRect->left) - nonClientWidth;
-		int height = (windowRect->bottom - windowRect->top) - nonClientHeight;
-		PushLiveResizeEvent (hwnd, width, height, true);
-
-	}
-
 	static void ClearResizeEventProperties (HWND hwnd) {
 
 		if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
 		RemovePropW (hwnd, LIME_SDL_WINDOW_ID_PROP);
 		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_WIDTH_PROP);
 		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_HEIGHT_PROP);
-		RemovePropW (hwnd, LIME_SDL_LAST_RESIZE_TICK_PROP);
 	}
 
 	static LRESULT CALLBACK LimeResizeWndProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR subclassID, DWORD_PTR referenceData) {
@@ -304,16 +264,13 @@ namespace lime {
 
 			if (RemovePropW (hwnd, LIME_SDL_IN_SIZE_MOVE_PROP)) SDLApplication::ExitNativeModalLoop ();
 
-		} else if (message == WM_SIZING) {
-
-			PushLiveResizeEventFromRect (hwnd, (const RECT*)lParam);
-
 		} else if (message == WM_SIZE) {
 
 			if (wParam != SIZE_MINIMIZED) {
 
-				// Always send WM_SIZE updates (especially final size) without throttling.
-				PushLiveResizeEvent (hwnd, LOWORD (lParam), HIWORD (lParam), false);
+				// Every size the window really takes, unthrottled. Not WM_SIZING's: that is a size Windows only proposes,
+				// and laying out and drawing at it, before the window has it, draws a frame the window then stretches.
+				PushLiveResizeEvent (hwnd, LOWORD (lParam), HIWORD (lParam));
 
 			}
 
