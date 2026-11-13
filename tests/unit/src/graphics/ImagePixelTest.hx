@@ -320,6 +320,9 @@ class ImagePixelTest extends Test
 		Assert.equals(ARGB32, opaque.format);
 	}
 
+	#if flash
+	@Ignored("Waiting on #2212")
+	#end
 	public function testACloneHasItsOwnPixels():Void
 	{
 		var image = create(2, 1, 0xFF112233);

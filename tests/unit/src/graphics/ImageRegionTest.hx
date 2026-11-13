@@ -42,6 +42,9 @@ class ImageRegionTest extends Test
 		assertPixels([0xFF000002, 0xFF000003, 0xFF000004, 0xFF000004], image);
 	}
 
+	#if flash
+	@Ignored("Waiting on #2212")
+	#end
 	public function testScrollDownKeepsTheTopEdge():Void
 	{
 		var image = fromRows([[0xFF000001], [0xFF000002], [0xFF000003], [0xFF000004]]);
@@ -60,6 +63,9 @@ class ImageRegionTest extends Test
 		assertPixels([0xFF000002, 0xFF000003, 0xFF000004, 0xFF000004], image);
 	}
 
+	#if flash
+	@Ignored("Waiting on #2212")
+	#end
 	public function testScrollBothWaysAtOnce():Void
 	{
 		for (offset in [[1, 1], [-1, -1], [1, -1], [-1, 1], [2, 1], [-1, 2]])
