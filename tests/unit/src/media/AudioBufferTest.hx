@@ -27,7 +27,9 @@ class AudioBufferTest extends Test
 	// decodes, so a change that is meant to change the output updates them in the same commit.
 	private static var DECODED:Array<{path:String, samples:String}> = [
 		{path: "assets/tone.wav", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes, crc 26551E63"},
-		{path: "assets/tone.ogg", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes, crc 18ABB541"}
+		// Vorbis decodes in floating point, so its samples can differ in the last bit between CPU architectures:
+		// only its format and length are pinned, and each way of decoding it must agree on this machine
+		{path: "assets/tone.ogg", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes"}
 	];
 	#end
 
@@ -104,7 +106,8 @@ class AudioBufferTest extends Test
 			for (sound in DECODED)
 			{
 				futures.push(AudioBuffer.loadFromFiles([sound.path]));
-				expected.push(sound);
+				// The same file decoded on this thread, so the comparison is exact even where the pin isn't
+				expected.push({path: sound.path, samples: describeSamples(AudioBuffer.fromFile(sound.path))});
 			}
 		}
 
@@ -134,13 +137,16 @@ class AudioBufferTest extends Test
 		Assert.notNull(bytes, sound.path + " is missing", pos);
 		if (bytes == null) return;
 
-		assertSamples(sound.samples, describeSamples(AudioBuffer.fromFile(sound.path)), sound.path + " through AudioBuffer.fromFile", pos);
-		assertSamples(sound.samples, describeSamples(AudioBuffer.fromBytes(bytes)), sound.path + " through AudioBuffer.fromBytes", pos);
+		var fromFile = describeSamples(AudioBuffer.fromFile(sound.path));
+		assertSamples(sound.samples, fromFile, sound.path + " through AudioBuffer.fromFile", pos);
+		assertSamples(fromFile, describeSamples(AudioBuffer.fromBytes(bytes)), sound.path + " through AudioBuffer.fromBytes", pos);
 	}
 
 	private static function assertSamples(expected:String, actual:String, name:String, ?pos:haxe.PosInfos):Void
 	{
-		Assert.equals(expected, actual, name + " gave " + actual + ", pinned " + expected, pos);
+		// A pin without a CRC is compared on its format and length alone
+		var compared = (expected.indexOf(", crc ") == -1 && actual.indexOf(", crc ") > -1) ? actual.substr(0, actual.indexOf(", crc ")) : actual;
+		Assert.equals(expected, compared, name + " gave " + actual + ", pinned " + expected, pos);
 	}
 
 	/** The buffer's format, and a CRC-32 of its samples **/
