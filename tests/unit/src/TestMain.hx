@@ -18,6 +18,15 @@ class TestMain extends Application
 		runner.addCase(new graphics.ImagePixelTest());
 		runner.addCase(new graphics.ImageRegionTest());
 		runner.addCase(new graphics.OpenGLTest());
+		runner.addCase(new math.ARGBTest());
+		runner.addCase(new math.BGRATest());
+		runner.addCase(new math.ColorMatrixTest());
+		runner.addCase(new math.Matrix3Test());
+		runner.addCase(new math.Matrix4Test());
+		runner.addCase(new math.RectangleTest());
+		runner.addCase(new math.RGBATest());
+		runner.addCase(new math.Vector2Test());
+		runner.addCase(new math.Vector4Test());
 		runner.addCase(new media.AudioBufferTest());
 		runner.addCase(new media.AudioInputTest());
 		runner.addCase(new media.AudioSourceTest());
