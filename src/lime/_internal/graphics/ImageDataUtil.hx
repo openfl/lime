@@ -651,6 +651,23 @@ class ImageDataUtil
 
 		StackBlur.blur(image, sourceImage, sourceRect, destPoint, blurX, blurY, quality);
 
+		if (strength != 1)
+		{
+			// as in Flash, the blurred alpha is multiplied by the strength, over the pixels StackBlur wrote
+			var data = image.data;
+			var alphaOffset = image.buffer.format == ARGB32 ? 0 : 3;
+			var end = Std.int(Math.min(Std.int(sourceRect.width) * Std.int(sourceRect.height) * 4, data.length));
+			var i = alphaOffset;
+			var alpha:Float;
+
+			while (i < end)
+			{
+				alpha = data[i] * strength;
+				data[i] = alpha >= 0xFF ? 0xFF : (alpha <= 0 ? 0 : Std.int(alpha));
+				i += 4;
+			}
+		}
+
 		image.dirty = true;
 		image.version++;
 
