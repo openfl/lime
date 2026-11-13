@@ -46,6 +46,11 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
+      - name: Run tools tests
+        working-directory: tests/tools
+        # Parses project files from Lime's own source, so needs no native library
+        run: haxe test.hxml
+
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
         with:

@@ -1,0 +1,11 @@
+# Tests for the project file parsing in src/lime/tools, built like tools/tools.hxml
+# and run as a plain Neko program. Run from tests/tools: haxe test.hxml
+-main ToolsTestMain
+-neko bin/tools-tests.n
+-D lime
+-cp src
+-cp ../../src
+-lib format
+-lib hxp
+-lib utest
+-cmd neko bin/tools-tests.n
