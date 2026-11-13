@@ -249,6 +249,12 @@ OGL_EXT(glVertexAttribIPointer, void, (GLuint index, GLint size, GLenum type, GL
 OGL_EXT(glVertexAttribI4i, void, (GLuint index, GLint v0, GLint v1, GLint v2, GLint v3));
 OGL_EXT(glVertexAttribI4iv, void, (GLuint index, const GLint *v));
 OGL_EXT(glVertexAttribI4uiv, void, (GLuint index, const GLuint *v));
+OGL_EXT(glBindVertexBuffer, void, (GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride));
+OGL_EXT(glVertexAttribFormat, void, (GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset));
+OGL_EXT(glVertexAttribIFormat, void, (GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset));
+OGL_EXT(glVertexAttribLFormat, void, (GLuint attribindex, GLint size, GLenum type, GLuint relativeoffset));
+OGL_EXT(glVertexAttribBinding, void, (GLuint attribindex, GLuint bindingindex));
+OGL_EXT(glVertexBindingDivisor, void, (GLuint bindingindex, GLuint divisor));
 OGL_EXT(glWaitSync, void, (GLsync sync, GLbitfield flags, GLuint64 timeout));
 OGL_EXT(glDeleteSync, void, (GLsync sync));
 OGL_EXT(glDeleteQueries, void, (GLsizei n, const GLuint* ids));
