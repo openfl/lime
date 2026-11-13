@@ -54,7 +54,14 @@ public static function fromSource(gl:WebGLRenderContext, source:String, type:Int
 #else
 @:forward abstract GLShader(Dynamic) from Dynamic to Dynamic
 {
-	public static function fromSources(gl:Dynamic, source:String, type:Int):GLShader
+	#if !lime_webgl
+	@:noDoc @:from private static function fromInt(id:Int):GLShader
+	{
+		return 0;
+	}
+	#end
+	
+	public static function fromSource(gl:Dynamic, source:String, type:Int):GLShader
 	{
 		return null;
 	}
