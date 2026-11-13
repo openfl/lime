@@ -161,6 +161,10 @@
 
         <section if="mac">
 
+            <!-- Before macOS 10.13 the system has no aligned operator new, so
+                 common/almalloc.cpp supplies one, and Clang only uses it with this -->
+            <compilerflag value="-faligned-allocation" />
+
             <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/backends/coreaudio.cpp" />
 
         </section>
