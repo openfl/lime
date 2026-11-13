@@ -94,6 +94,13 @@ class OpenALAudioContext
 	public var CAPTURE_DEVICE_SPECIFIER:Int = 0x310;
 	public var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
 	public var CAPTURE_SAMPLES:Int = 0x312;
+	public var PLAYBACK_DEVICE_SOFT:Int = 0x19D4;
+	public var CAPTURE_DEVICE_SOFT:Int = 0x19D5;
+	public var EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT:Int = 0x19D6;
+	public var EVENT_TYPE_DEVICE_ADDED_SOFT:Int = 0x19D7;
+	public var EVENT_TYPE_DEVICE_REMOVED_SOFT:Int = 0x19D8;
+	public var EVENT_SUPPORTED_SOFT:Int = 0x19D9;
+	public var EVENT_NOT_SUPPORTED_SOFT:Int = 0x19DA;
 
 	@:noCompletion private function new() {}
 
@@ -201,6 +208,17 @@ class OpenALAudioContext
 	public function enable(capability:Int):Void
 	{
 		AL.enable(capability);
+	}
+
+	/**
+		Returns `EVENT_SUPPORTED_SOFT` if OpenAL can report `eventType`, one of the
+		`EVENT_TYPE_*_SOFT` values, for `deviceType`, which is `PLAYBACK_DEVICE_SOFT`
+		or `CAPTURE_DEVICE_SOFT`, on this system. Returns `EVENT_NOT_SUPPORTED_SOFT`
+		otherwise, and without the `ALC_SOFT_system_events` extension of OpenAL Soft.
+	**/
+	public function eventIsSupported(eventType:Int, deviceType:Int):Int
+	{
+		return ALC.eventIsSupported(eventType, deviceType);
 	}
 
 	@:deprecated public function genSource():ALSource
@@ -509,6 +527,18 @@ class OpenALAudioContext
 	public function processContext(context:ALContext):Void
 	{
 		ALC.processContext(context);
+	}
+
+	/**
+		Moves the playback `device` to the output named `deviceName`, or to the
+		default output when `deviceName` is `null`, keeping its contexts, sources and
+		buffers. Needs the `ALC_SOFT_reopen_device` extension of OpenAL Soft. Returns
+		`false` if the output could not be opened, and the device then keeps the
+		output it had.
+	**/
+	public function reopenDevice(device:ALDevice, deviceName:String = null, attributes:Array<Int> = null):Bool
+	{
+		return ALC.reopenDevice(device, deviceName, attributes);
 	}
 
 	public function resumeDevice(device:ALDevice):Void

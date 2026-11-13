@@ -2,6 +2,7 @@ package media;
 
 #if (lime_cffi && lime_openal)
 import lime._internal.backend.native.NativeCFFI;
+import lime.media.AudioManager;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALC;
@@ -399,6 +400,83 @@ class OpenALTest extends Test
 		}
 
 		return highest;
+	}
+
+	public function testReopeningTheDeviceKeepsItsSourcesPlaying():Void
+	{
+		var source = createQueuedSource();
+		if (source == null) return;
+
+		var context = ALC.getCurrentContext();
+		var device = ALC.getContextsDevice(context);
+
+		if (!ALC.isExtensionPresent(device, "ALC_SOFT_reopen_device"))
+		{
+			Assert.warn("This OpenAL can't reopen a device");
+			deleteSource(source);
+			return;
+		}
+
+		AL.sourcePlay(source);
+		Assert.isTrue(ALC.reopenDevice(device));
+
+		// The same context, source and buffers carry on, on the new output
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isTrue(AL.isSource(source));
+		Assert.equals(AL.PLAYING, AL.getSourcei(source, AL.SOURCE_STATE));
+		Assert.equals(2, AL.getSourcei(source, AL.BUFFERS_QUEUED));
+		Assert.equals(ALC.TRUE, ALC.getIntegerv(device, ALC.CONNECTED, 1)[0]);
+
+		deleteSource(source);
+	}
+
+	public function testReopeningNoDeviceFails():Void
+	{
+		Assert.isFalse(ALC.reopenDevice(null));
+	}
+
+	public function testEachDeviceEventIsSupportedOrNot():Void
+	{
+		for (deviceType in [ALC.PLAYBACK_DEVICE_SOFT, ALC.CAPTURE_DEVICE_SOFT])
+		{
+			for (eventType in [
+				ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+				ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
+				ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
+			])
+			{
+				var support = ALC.eventIsSupported(eventType, deviceType);
+				Assert.isTrue(support == ALC.EVENT_SUPPORTED_SOFT || support == ALC.EVENT_NOT_SUPPORTED_SOFT);
+			}
+		}
+	}
+
+	public function testRecoveringTheOutputKeepsTheOpenALObjects():Void
+	{
+		var source = createQueuedSource();
+		if (source == null) return;
+
+		var device = ALC.getContextsDevice(ALC.getCurrentContext());
+
+		if (!ALC.isExtensionPresent(device, "ALC_SOFT_reopen_device"))
+		{
+			Assert.warn("This OpenAL can't reopen a device, so Lime makes a new context instead");
+			deleteSource(source);
+			return;
+		}
+
+		// With OpenAL Soft the device is reopened in place, so nothing Lime made
+		// for the old output has to be made again
+		var generation = AudioManager.__contextGeneration;
+		AL.sourcePlay(source);
+		@:privateAccess AudioManager.recoverOutputDevice();
+
+		Assert.equals(generation, AudioManager.__contextGeneration);
+		Assert.isTrue(AL.isSource(source));
+		Assert.equals(AL.PLAYING, AL.getSourcei(source, AL.SOURCE_STATE));
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		deleteSource(source);
 	}
 
 	private function hasContext():Bool

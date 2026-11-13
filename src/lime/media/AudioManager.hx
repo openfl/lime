@@ -27,21 +27,31 @@ class AudioManager
 	@:noCompletion public static var __contextGeneration(default, null):Int = 0;
 	@:noCompletion public static var __suspended(default, null):Bool = false;
 	private static inline var OUTPUT_DEVICE_POLL_TIME:Int = 1000;
+	private static inline var OUTPUT_DEVICE_EVENT_POLL_TIME:Int = 250;
+	// A little under the poll time, so polling without events still retries on every tick
+	private static inline var OUTPUT_DEVICE_RETRY_TIME:Float = 0.9;
 	#if (!lime_doc_gen || lime_openal)
 	private static var outputDevice:ALDevice;
 	#else
 	private static var outputDevice:Dynamic;
 	#end
+	private static var outputDeviceCanReopen:Bool;
+	private static var outputDeviceEvents:Array<Int>;
+	private static var outputDeviceFollowsDefault:Bool;
 	private static var outputDeviceHasDisconnectExt:Bool;
 	private static var outputDeviceName:String;
 	private static var outputDevicePreferredName:String;
 	private static var outputDeviceRecovering:Bool;
+	private static var outputDeviceRetryStamp:Float = 0;
 	private static var outputDeviceTimer:Timer;
 
 	public static function init(context:AudioContext = null)
 	{
 		if (AudioManager.context == null)
 		{
+			// Only the output Lime opens itself is the default one, which it can follow
+			outputDeviceFollowsDefault = (context == null);
+
 			if (context == null)
 			{
 				AudioManager.context = new AudioContext();
@@ -123,6 +133,7 @@ class AudioManager
 		#end
 
 		context = null;
+		outputDeviceFollowsDefault = false;
 	}
 
 	public static function suspend():Void
@@ -253,6 +264,23 @@ class AudioManager
 		}
 
 		outputDeviceRecovering = true;
+
+		#if lime_openalsoft
+		if (outputDeviceCanReopen && outputDevice != null)
+		{
+			// The device moves to the new output with its contexts, sources and
+			// buffers, so nothing has to be made again
+			if (ALC.reopenDevice(outputDevice, deviceName) || (deviceName != null && ALC.reopenDevice(outputDevice)))
+			{
+				refreshOutputDeviceRecovery();
+				NativeVideoSource.audioOutputReopened();
+			}
+
+			outputDeviceRecovering = false;
+			return;
+		}
+		#end
+
 		NativeAudioSource.prepareAudioContextRecovery();
 		NativeVideoSource.prepareAudioContextRecovery();
 		closeOpenALContext();
@@ -280,6 +308,7 @@ class AudioManager
 		if (context == null || context.type != OPENAL)
 		{
 			outputDevice = null;
+			outputDeviceCanReopen = false;
 			outputDeviceHasDisconnectExt = false;
 			outputDeviceName = null;
 			return;
@@ -288,8 +317,52 @@ class AudioManager
 		var alc = context.openal;
 		var currentContext = alc.getCurrentContext();
 		outputDevice = currentContext != null ? alc.getContextsDevice(currentContext) : null;
+		outputDeviceCanReopen = outputDevice != null && ALC.isExtensionPresent(outputDevice, "ALC_SOFT_reopen_device");
 		outputDeviceHasDisconnectExt = outputDevice != null && ALC.isExtensionPresent(outputDevice, "ALC_EXT_disconnect");
 		outputDeviceName = getCurrentOutputDeviceName();
+		#end
+	}
+
+	// Asks OpenAL Soft to report output devices that are added, removed or made the
+	// default, and returns the events it will report
+	private static function startOutputDeviceEvents():Array<Int>
+	{
+		#if (lime_cffi && !macro && lime_openalsoft)
+		// Following a new default output needs the device to be reopened in place
+		if (!outputDeviceCanReopen || !ALC.isExtensionPresent(outputDevice, "ALC_SOFT_system_events"))
+		{
+			return null;
+		}
+
+		if (ALC.eventIsSupported(ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT, ALC.PLAYBACK_DEVICE_SOFT) != ALC.EVENT_SUPPORTED_SOFT)
+		{
+			return null;
+		}
+
+		var events = [];
+
+		for (event in [
+			ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+			ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
+			ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
+		])
+		{
+			if (ALC.eventIsSupported(event, ALC.PLAYBACK_DEVICE_SOFT) == ALC.EVENT_SUPPORTED_SOFT)
+			{
+				events.push(event);
+			}
+		}
+
+		if (!ALC.__eventControl(events, true))
+		{
+			return null;
+		}
+
+		// Anything already queued is older than the device that was just opened
+		ALC.__pollEvents();
+		return events;
+		#else
+		return null;
 		#end
 	}
 
@@ -313,9 +386,12 @@ class AudioManager
 		}
 
 		outputDevicePreferredName = outputDeviceName;
-		// ALC_EXT_disconnect exposes disconnect state, but not device-change events.
-		// Polling is kept as the compatibility fallback for that older API.
-		outputDeviceTimer = new Timer(OUTPUT_DEVICE_POLL_TIME);
+		outputDeviceEvents = startOutputDeviceEvents();
+		// With device events the timer only reads the queued events and the
+		// connection state, so it runs often enough to follow a new default output
+		// quickly. ALC_EXT_disconnect alone reports a lost device but not a change of
+		// the default output, so without events the default is polled as before.
+		outputDeviceTimer = new Timer(outputDeviceEvents != null ? OUTPUT_DEVICE_EVENT_POLL_TIME : OUTPUT_DEVICE_POLL_TIME);
 		outputDeviceTimer.run = updateOutputDeviceRecovery;
 		#end
 	}
@@ -328,11 +404,21 @@ class AudioManager
 			outputDeviceTimer = null;
 		}
 
+		#if (lime_cffi && !macro && lime_openalsoft)
+		if (outputDeviceEvents != null)
+		{
+			ALC.__eventControl(outputDeviceEvents, false);
+		}
+		#end
+
 		outputDevice = null;
+		outputDeviceCanReopen = false;
+		outputDeviceEvents = null;
 		outputDeviceHasDisconnectExt = false;
 		outputDeviceName = null;
 		outputDevicePreferredName = null;
 		outputDeviceRecovering = false;
+		outputDeviceRetryStamp = 0;
 	}
 
 	private static function updateOutputDeviceRecovery():Void
@@ -343,10 +429,67 @@ class AudioManager
 			return;
 		}
 
+		var defaultChanged = false;
+		var devicesChanged = false;
+
+		#if lime_openalsoft
+		if (outputDeviceEvents != null)
+		{
+			var events = ALC.__pollEvents();
+			var i = 0;
+
+			while (i + 1 < events.length)
+			{
+				if (events[i + 1] == ALC.PLAYBACK_DEVICE_SOFT)
+				{
+					if (events[i] == ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT)
+					{
+						defaultChanged = true;
+					}
+					else
+					{
+						devicesChanged = true;
+					}
+				}
+
+				i += 2;
+			}
+		}
+		#end
+
 		if (!isOutputDeviceConnected())
 		{
-			recoverOutputDevice();
+			// Opening an output can be slow, so a lost device is tried again about
+			// once a second, or as soon as the outputs change
+			var now = Timer.stamp();
+
+			if (defaultChanged || devicesChanged || now >= outputDeviceRetryStamp)
+			{
+				outputDeviceRetryStamp = now + OUTPUT_DEVICE_RETRY_TIME;
+				recoverOutputDevice();
+			}
+
 			return;
+		}
+
+		if (outputDeviceEvents != null)
+		{
+			if (outputDeviceFollowsDefault)
+			{
+				// Lime opened the default output, so it moves with the default
+				if (defaultChanged)
+				{
+					recoverOutputDevice();
+				}
+
+				return;
+			}
+
+			// Listing the outputs is slow, so with events it waits for them to change
+			if (!defaultChanged && !devicesChanged)
+			{
+				return;
+			}
 		}
 
 		if (outputDevicePreferredName != null && outputDeviceName != outputDevicePreferredName)
