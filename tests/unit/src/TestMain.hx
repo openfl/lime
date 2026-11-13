@@ -12,6 +12,7 @@ class TestMain extends Application
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
+		runner.addCase(new app.PromiseTest());
 		runner.addCase(new graphics.ImageCodecTest());
 		runner.addCase(new graphics.ImageCopyTest());
 		runner.addCase(new graphics.ImageFillTest());
@@ -40,6 +41,7 @@ class TestMain extends Application
 		runner.addCase(new net.HTTPRequestTest());
 		runner.addCase(new net.HTTPSTest());
 		runner.addCase(new net.LocalSocketTest());
+		runner.addCase(new net.URIParserTest());
 		runner.addCase(new net.WebSocketTest());
 		runner.addCase(new system.DisplayTest());
 		runner.addCase(new system.FinalizerTest());
@@ -57,6 +59,7 @@ class TestMain extends Application
 		runner.addCase(new utils.AssetsTest());
 		runner.addCase(new utils.Base64Test());
 		runner.addCase(new utils.CompressionTest());
+		runner.addCase(new utils.ObjectPoolTest());
 		runner.addCase(new utils.PackedAssetLibraryTest());
 		runner.addCase(new utils.UInt8ArrayTest());
 		runner.addCase(new utils.UInt16ArrayTest());
