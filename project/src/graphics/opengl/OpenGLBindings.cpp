@@ -250,7 +250,7 @@ namespace lime {
 
 					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_VERTEX_ARRAY_OBJECT:
-					
+
 						#if defined(HX_MACOS)
 						if (glIsVertexArrayAPPLE && glIsVertexArrayAPPLE (id)) {
 							if (glDeleteVertexArraysAPPLE)
@@ -5607,6 +5607,126 @@ namespace lime {
 	}
 
 
+	void lime_gl_bind_vertex_buffer (int bindingindex, int buffer, double offset, int stride)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glBindVertexBuffer) {
+			glBindVertexBuffer (bindingindex, buffer, (GLintptr)(uintptr_t)offset, stride);
+		}
+		#endif
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_bind_vertex_buffer) (int bindingindex, int buffer, double offset, int stride)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glBindVertexBuffer) {
+			glBindVertexBuffer (bindingindex, buffer, (GLintptr)(uintptr_t)offset, stride);
+		}
+		#endif
+	}
+
+
+	void lime_gl_vertex_attrib_format (int attribindex, int size, int type, bool normalized, int offset)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribFormat) {
+			glVertexAttribFormat (attribindex, size, type, normalized, offset);
+		}
+		#endif
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_format) (int attribindex, int size, int type, bool normalized, int offset)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribFormat) {
+			glVertexAttribFormat (attribindex, size, type, normalized, offset);
+		}
+		#endif
+	}
+
+
+	void lime_gl_vertex_attrib_iformat (int attribindex, int size, int type, int relativeoffset)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribIFormat) {
+			glVertexAttribIFormat (attribindex, size, type, relativeoffset);
+		}
+		#endif
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_iformat) (int attribindex, int size, int type, int relativeoffset)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribIFormat) {
+			glVertexAttribIFormat (attribindex, size, type, relativeoffset);
+		}
+		#endif
+	}
+
+
+	void lime_gl_vertex_attrib_lformat (int attribindex, int size, int type, int relativeoffset)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribLFormat) {
+			glVertexAttribLFormat (attribindex, size, type, relativeoffset);
+		}
+		#endif
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_lformat) (int attribindex, int size, int type, int relativeoffset)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribLFormat) {
+			glVertexAttribLFormat (attribindex, size, type, relativeoffset);
+		}
+		#endif
+	}
+
+
+	void lime_gl_vertex_attrib_binding (int attribindex, int bindingindex)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribBinding) {
+			glVertexAttribBinding (attribindex, bindingindex);
+		}
+		#endif
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_binding) (int attribindex, int bindingindex)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribBinding) {
+			glVertexAttribBinding (attribindex, bindingindex);
+		}
+		#endif
+	}
+
+
+	void lime_gl_vertex_binding_divisor (int bindingindex, int divisor)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexAttribDivisor) {
+			glVertexBindingDivisor (bindingindex, divisor);
+		}
+		#endif
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_vertex_binding_divisor) (int bindingindex, int divisor)
+	{
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
+		if (glVertexBindingDivisor) {
+			glVertexBindingDivisor (bindingindex, divisor);
+		}
+		#endif
+	}
+
+
 	void lime_gl_viewport (int x, int y, int width, int height) {
 
 		glViewport (x, y, width, height);
@@ -5975,6 +6095,12 @@ namespace lime {
 	DEFINE_PRIME2v (lime_gl_vertex_attrib3fv);
 	DEFINE_PRIME5v (lime_gl_vertex_attrib4f);
 	DEFINE_PRIME2v (lime_gl_vertex_attrib4fv);
+	DEFINE_PRIME4v (lime_gl_bind_vertex_buffer);
+	DEFINE_PRIME5v (lime_gl_vertex_attrib_format);
+	DEFINE_PRIME4v (lime_gl_vertex_attrib_iformat);
+	DEFINE_PRIME4v (lime_gl_vertex_attrib_lformat);
+	DEFINE_PRIME2v (lime_gl_vertex_attrib_binding);
+	DEFINE_PRIME2v (lime_gl_vertex_binding_divisor);
 	DEFINE_PRIME4v (lime_gl_viewport);
 	DEFINE_PRIME4v (lime_gl_wait_sync);
 
@@ -6253,6 +6379,12 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib3fv, _I32 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib4f, _I32 _F32 _F32 _F32 _F32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib4fv, _I32 _F64);
+	DEFINE_HL_PRIM (_VOID, hl_gl_bind_vertex_buffer, _I32 _I32 _F64 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_format, _I32 _I32 _I32 _BOOL _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_iformat, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_lformat, _I32 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_attrib_binding, _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_vertex_binding_divisor, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_viewport, _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_wait_sync, _TCFFIPOINTER _I32 _I32 _I32);
 

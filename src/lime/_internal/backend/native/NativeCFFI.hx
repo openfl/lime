@@ -6408,6 +6408,18 @@ class NativeCFFI
 
 	@:cffi private static function lime_gl_vertex_attrib_pointer(indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:DataPointer):Void;
 
+	@:cffi private static function lime_gl_bind_vertex_buffer(bindingindex:Int, buffer:Int, offset:DataPointerm, stride:Int):Void;
+
+	@:cffi private static function lime_gl_vertex_attrib_format(attribindex:Int, size:Int, type:Int, normalized:Bool, relativeoffset:Int):Void;
+
+	@:cffi private static function lime_gl_vertex_attrib_iformat(attribindex:Int, size:Int, type:Int, relativeoffset:Int):Void;
+
+	@:cffi private static function lime_gl_vertex_attrib_lformat(attribindex:Int, size:Int, type:Int, relativeoffset:Int):Void;
+
+	@:cffi private static function lime_gl_vertex_attrib_binding(attribindex:Int, bindingindex:Int):Void;
+
+	@:cffi private static function lime_gl_vertex_binding_divisor(bindingindex:Int, divisor:Int):Void;
+
 	@:cffi private static function lime_gl_viewport(x:Int, y:Int, width:Int, height:Int):Void;
 
 	@:cffi private static function lime_gl_wait_sync(sync:CFFIPointer, flags:Int, timeoutA:Int, timeoutB:Int):Void;
@@ -6850,6 +6862,16 @@ class NativeCFFI
 		"lime_gl_vertex_attrib_ipointer", "iiiidv", false));
 	private static var lime_gl_vertex_attrib_pointer = new cpp.Callable<Int->Int->Int->Bool->Int->lime.utils.DataPointer->
 		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attrib_pointer", "iiibidv", false));
+	private static var lime_gl_bind_vertex_buffer = new cpp.Callable<Int->Int->lime.utils.DataPointer->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_bind_vertex_buffer", "iidiv", false));
+	private static var lime_gl_vertex_attrib_format = new cpp.Callable<Int->Int->Int->Bool->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib_format", "iiibiv", false));
+	private static var lime_gl_vertex_attrib_iformat = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib_iformat", "iiiiv", false));
+	private static var lime_gl_vertex_attrib_lformat = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_gl_vertex_attrib_lformat", "iiiiv", false));
+	private static var lime_gl_vertex_attrib_binding = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_attrib_binding", "iiv", false));
+	private static var lime_gl_vertex_binding_divisor = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_vertex_binding_divisor", "iiv", false));
 	private static var lime_gl_viewport = new cpp.Callable<Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_viewport", "iiiiv", false));
 	private static var lime_gl_wait_sync = new cpp.Callable<cpp.Object->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_wait_sync", "oiiiv",
 		false));
@@ -7124,6 +7146,12 @@ class NativeCFFI
 	private static var lime_gl_vertex_attrib_divisor = CFFI.load("lime", "lime_gl_vertex_attrib_divisor", 2);
 	private static var lime_gl_vertex_attrib_ipointer = CFFI.load("lime", "lime_gl_vertex_attrib_ipointer", 5);
 	private static var lime_gl_vertex_attrib_pointer = CFFI.load("lime", "lime_gl_vertex_attrib_pointer", -1);
+	private static var lime_gl_bind_vertex_buffer = CFFI.load("lime", "lime_gl_bind_vertex_buffer", 4);
+	private static var lime_gl_vertex_attrib_format = CFFI.load("lime", "lime_gl_vertex_attrib_format", 5);
+	private static var lime_gl_vertex_attrib_iformat = CFFI.load("lime", "lime_gl_vertex_attrib_iformat", 4);
+	private static var lime_gl_vertex_attrib_lformat = CFFI.load("lime", "lime_gl_vertex_attrib_lformat", 4);
+	private static var lime_gl_vertex_attrib_binding = CFFI.load("lime", "lime_gl_vertex_attrib_binding", 2);
+	private static var lime_gl_vertex_binding_divisor = CFFI.load("lime", "lime_gl_vertex_binding_divisor", 2);
 	private static var lime_gl_viewport = CFFI.load("lime", "lime_gl_viewport", 4);
 	private static var lime_gl_wait_sync = CFFI.load("lime", "lime_gl_wait_sync", 4);
 	#end
@@ -7939,6 +7967,20 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_gl_vertex_attrib_pointer") private static function lime_gl_vertex_attrib_pointer(indx:Int, size:Int, type:Int, normalized:Bool,
 		stride:Int, offset:DataPointer):Void {}
+
+	@:hlNative("lime", "hl_gl_bind_vertex_buffer") private static function lime_gl_bind_vertex_buffer(bindingindex:Int, buffer:Int, offset:DataPointer,
+		stride:Int):Void {}
+
+	@:hlNative("lime", "hl_gl_vertex_attrib_format") private static function lime_gl_vertex_attrib_format(attribindex:Int, size:Int, type:Int, normalized:Bool,
+		relativeoffset:Int):Void {}
+
+	@:hlNative("lime", "hl_gl_vertex_attrib_iformat") private static function lime_gl_vertex_attrib_iformat(attribindex:Int, size:Int, type:Int, relativeoffset:Int):Void {}
+
+	@:hlNative("lime", "hl_gl_vertex_attrib_lformat") private static function lime_gl_vertex_attrib_lformat(attribindex:Int, size:Int, type:Int, relativeoffset:Int):Void {}
+
+	@:hlNative("lime", "hl_gl_vertex_attrib_binding") private static function lime_gl_vertex_attrib_binding(attribindex:Int, bindingindex:Int):Void {}
+
+	@:hlNative("lime", "hl_gl_vertex_binding_divisor") private static function lime_gl_vertex_binding_divisor(bindingindex:Int, divisor:Int):Void {}
 
 	@:hlNative("lime", "hl_gl_viewport") private static function lime_gl_viewport(x:Int, y:Int, width:Int, height:Int):Void {}
 

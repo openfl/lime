@@ -3259,6 +3259,48 @@ class NativeOpenGLRenderContext
 		#end
 	}
 
+	public function bindVertexBuffer(bindingindex:Int, buffer:GLBuffer, offset:DataPointer, stride:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_bind_vertex_buffer(bindingindex, __getObjectID(buffer), offset, stride);
+		#end
+	}
+
+	public function vertexAttribFormat(attribindex:Int, size:Int, type:Int, normalized:Bool, relativeoffset:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_vertex_attrib_format(attribindex, size, type, normalized, relativeoffset);
+		#end
+	}
+
+	public function vertexAttribIFormat(attribindex:Int, size:Int, type:Int, relativeoffset:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_vertex_attrib_iformat(attribindex, size, type, relativeoffset);
+		#end
+	}
+
+	public function vertexAttribLFormat(attribindex:Int, size:Int, type:Int, relativeoffset:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_vertex_attrib_lformat(attribindex, size, type, relativeoffset);
+		#end
+	}
+
+	public function vertexAttribBinding(attribindex:Int, bindingindex:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_vertex_attrib_binding(attribindex, bindingindex);
+		#end
+	}
+
+	public function vertexBindingDivisor(bindingindex:Int, divisor:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_vertex_binding_divisor(bindingindex, divisor);
+		#end
+	}
+
 	public function viewport(x:Int, y:Int, width:Int, height:Int):Void
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
