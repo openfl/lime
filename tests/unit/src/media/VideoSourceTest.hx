@@ -857,8 +857,8 @@ class VideoSourceTest extends Test
 		var frame = new VideoFrame();
 		startPlaying(video, frame);
 
-		// Lime replaces the OpenAL context when the output device is unplugged or
-		// changes, and the sources move to the new one
+		// Lime moves the OpenAL device to another output when it is unplugged or
+		// the default changes, and the sound starts again in step with the picture
 		var before = video.currentTime;
 		@:privateAccess AudioManager.recoverOutputDevice();
 		run(video, frame, 0.8);

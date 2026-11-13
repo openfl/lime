@@ -16,6 +16,10 @@
 #define ALC_ALL_DEVICES_SPECIFIER 0x1013
 #endif
 
+#ifndef ALC_EVENT_NOT_SUPPORTED_SOFT
+#define ALC_EVENT_NOT_SUPPORTED_SOFT 0x19DA
+#endif
+
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
@@ -3741,6 +3745,198 @@ namespace lime {
 	}
 
 
+	// ALC_SOFT_reopen_device moves an open playback device to another output,
+	// keeping its contexts, sources and buffers
+	bool lime_alc_reopen_device (value device, HxString devicename, value attrlist) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		std::vector<ALCint> list;
+
+		if (!val_is_null (attrlist)) {
+
+			int size = val_array_size (attrlist);
+			list.resize (size);
+
+			for (int i = 0; i < size; ++i) {
+
+				list[i] = (ALCint)val_int (val_array_i (attrlist, i));
+
+			}
+
+		}
+
+		return alcReopenDeviceSOFT (alcDevice, devicename.__s, list.empty () ? NULL : &list[0]);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_alc_reopen_device) (HL_CFFIPointer* device, hl_vstring* devicename, varray* attrlist) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		return alcReopenDeviceSOFT (alcDevice, devicename ? (char*)hl_to_utf8 ((const uchar*)devicename->bytes) : NULL, attrlist ? hl_aptr (attrlist, int) : NULL);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	int lime_alc_event_is_supported (int eventType, int deviceType) {
+
+		#ifdef LIME_OPENALSOFT
+		return alcEventIsSupportedSOFT (eventType, deviceType);
+		#else
+		return ALC_EVENT_NOT_SUPPORTED_SOFT;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_alc_event_is_supported) (int eventType, int deviceType) {
+
+		return lime_alc_event_is_supported (eventType, deviceType);
+
+	}
+
+
+	#ifdef LIME_OPENALSOFT
+	// ALC_SOFT_system_events calls back from OpenAL Soft's own threads, so the
+	// events wait here, as event type and device type pairs, until Lime reads
+	// them on the main thread. They are allocated once and never freed, so an
+	// event that arrives while the process exits finds them still there.
+	static Mutex* alcEventMutex = new Mutex ();
+	static std::vector<int>* alcEventQueue = new std::vector<int> ();
+	static bool alcEventCallbackSet = false;
+	static const size_t ALC_EVENT_QUEUE_LIMIT = 256;
+
+
+	static void ALC_APIENTRY lime_alc_event_callback (ALCenum eventType, ALCenum deviceType, ALCdevice* device, ALCsizei length, const ALCchar* message, void* userParam) noexcept {
+
+		alcEventMutex->Lock ();
+
+		// Nothing reads the events while the application is stalled, so the
+		// oldest are dropped first; the newest are the ones that matter
+		if (alcEventQueue->size () >= ALC_EVENT_QUEUE_LIMIT * 2) {
+
+			alcEventQueue->erase (alcEventQueue->begin (), alcEventQueue->begin () + 2);
+
+		}
+
+		alcEventQueue->push_back (eventType);
+		alcEventQueue->push_back (deviceType);
+
+		alcEventMutex->Unlock ();
+
+	}
+
+
+	static bool EnableALCEvents (const ALCenum* events, int count, bool enable) {
+
+		if (!alcEventCallbackSet) {
+
+			alcEventCallbackSOFT (lime_alc_event_callback, NULL);
+			alcEventCallbackSet = true;
+
+		}
+
+		return alcEventControlSOFT (count, events, enable ? ALC_TRUE : ALC_FALSE);
+
+	}
+
+
+	static void TakeALCEvents (std::vector<int>& events) {
+
+		alcEventMutex->Lock ();
+		events.swap (*alcEventQueue);
+		alcEventMutex->Unlock ();
+
+	}
+	#endif
+
+
+	bool lime_alc_event_control (value events, bool enable) {
+
+		#ifdef LIME_OPENALSOFT
+		int count = val_is_null (events) ? 0 : val_array_size (events);
+		std::vector<ALCenum> list (count);
+
+		for (int i = 0; i < count; ++i) {
+
+			list[i] = (ALCenum)val_int (val_array_i (events, i));
+
+		}
+
+		return EnableALCEvents (count > 0 ? &list[0] : NULL, count, enable);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_alc_event_control) (varray* events, bool enable) {
+
+		#ifdef LIME_OPENALSOFT
+		int count = events ? events->size : 0;
+		return EnableALCEvents (count > 0 ? hl_aptr (events, ALCenum) : NULL, count, enable);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	value lime_alc_poll_events () {
+
+		std::vector<int> events;
+
+		#ifdef LIME_OPENALSOFT
+		TakeALCEvents (events);
+		#endif
+
+		// The array is allocated after the lock is released, since a collection
+		// may run while it is allocated
+		int count = events.size ();
+		value result = alloc_array (count);
+
+		for (int i = 0; i < count; i++) {
+
+			val_array_set_i (result, i, alloc_int (events[i]));
+
+		}
+
+		return result;
+
+	}
+
+
+	HL_PRIM varray* HL_NAME(hl_alc_poll_events) () {
+
+		std::vector<int> events;
+
+		#ifdef LIME_OPENALSOFT
+		TakeALCEvents (events);
+		#endif
+
+		int count = events.size ();
+		varray* result = hl_alloc_array (&hlt_i32, count);
+
+		if (count > 0) {
+
+			memcpy (hl_aptr (result, int), &events[0], count * sizeof (int));
+
+		}
+
+		return result;
+
+	}
+
+
 	void lime_alc_suspend_context (value context) {
 
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
@@ -3962,6 +4158,10 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_pause_device);
 	DEFINE_PRIME1v (lime_alc_process_context);
 	DEFINE_PRIME1v (lime_alc_resume_device);
+	DEFINE_PRIME3 (lime_alc_reopen_device);
+	DEFINE_PRIME2 (lime_alc_event_is_supported);
+	DEFINE_PRIME2 (lime_alc_event_control);
+	DEFINE_PRIME0 (lime_alc_poll_events);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
 	DEFINE_PRIME4 (lime_alc_capture_open_device);
 	DEFINE_PRIME1 (lime_alc_capture_close_device);
@@ -4094,6 +4294,10 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_alc_pause_device, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_alc_process_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_alc_resume_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_reopen_device, _TCFFIPOINTER _STRING _ARR);
+	DEFINE_HL_PRIM (_I32, hl_alc_event_is_supported, _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_event_control, _ARR _BOOL);
+	DEFINE_HL_PRIM (_ARR, hl_alc_poll_events, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_alc_suspend_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_capture_open_device, _STRING _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_alc_capture_close_device, _TCFFIPOINTER);

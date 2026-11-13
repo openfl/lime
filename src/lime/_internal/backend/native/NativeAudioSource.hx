@@ -274,6 +274,15 @@ class NativeAudioSource
 		}
 	}
 
+	@:allow(lime.media.AudioManager)
+	private static function audioOutputReopened():Void
+	{
+		for (source in activeSources.copy())
+		{
+			source.resyncCompletionTimer();
+		}
+	}
+
 	public function dispose():Void
 	{
 		lockAll();
@@ -991,6 +1000,22 @@ class NativeAudioSource
 
 		clearSDLSoundStream();
 		clearVorbisStream();
+	}
+
+	// The completion timer runs on the clock, but a source held through a lost
+	// output stood still until the device was reopened, so the timer is set again
+	// from where the sound really is
+	private function resyncCompletionTimer():Void
+	{
+		if (!playing || handle == null || timer == null)
+		{
+			return;
+		}
+
+		timer.stop();
+		var timeRemaining = Std.int((getLength() - getCurrentTime()) / getPitch());
+		timer = new Timer(timeRemaining > 0 ? timeRemaining : 1);
+		timer.run = timer_onRun;
 	}
 
 	private function restoreAudioContextRecoverySource():Void

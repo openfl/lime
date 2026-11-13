@@ -57,11 +57,19 @@ This product bundles wsproto 1.0.0, which is available under an
 
 _wsproto is only included in native applications that use `WebSocket` or `WebSocketServer`._
 
-This product bundles OpenAL-Soft 1.20.1, which is available under an
+This product bundles OpenAL-Soft 1.25.2, which is available under an
 "LGPLv2" license. For details, see [project/lib/openal/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
+
+This product bundles {fmt} 11.2.0, as included with OpenAL-Soft, which is
+available under an "MIT" license. For details, see
+[project/lib/openal/fmt-11.2.0/](project/lib).
+
+This product bundles the Guidelines Support Library, as included with
+OpenAL-Soft, which is available under an "MIT" license. For details, see
+[project/lib/openal/gsl/](project/lib).
 
 This product bundles MojoAL, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/mojoal/](project/lib).

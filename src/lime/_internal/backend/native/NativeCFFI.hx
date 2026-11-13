@@ -3888,6 +3888,14 @@ class NativeCFFI
 
 	@:cffi private static function lime_alc_resume_device(device:CFFIPointer):Void;
 
+	@:cffi private static function lime_alc_reopen_device(device:CFFIPointer, devicename:String, attrlist:Dynamic):Bool;
+
+	@:cffi private static function lime_alc_event_is_supported(eventType:Int, deviceType:Int):Int;
+
+	@:cffi private static function lime_alc_event_control(events:Dynamic, enable:Bool):Bool;
+
+	@:cffi private static function lime_alc_poll_events():Dynamic;
+
 	@:cffi private static function lime_alc_suspend_context(context:CFFIPointer):Void;
 
 	@:cffi private static function lime_alc_capture_open_device(devicename:String, frequency:Int, format:Int, buffersize:Int):CFFIPointer;
@@ -4063,6 +4071,13 @@ class NativeCFFI
 	private static var lime_alc_pause_device = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_pause_device", "ov", false));
 	private static var lime_alc_process_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_process_context", "ov", false));
 	private static var lime_alc_resume_device = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_resume_device", "ov", false));
+	private static var lime_alc_reopen_device = new cpp.Callable<cpp.Object->String->cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_alc_reopen_device", "osob", false));
+	private static var lime_alc_event_is_supported = new cpp.Callable<Int->Int->Int>(cpp.Prime._loadPrime("lime", "lime_alc_event_is_supported", "iii",
+		false));
+	private static var lime_alc_event_control = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_alc_event_control", "obb",
+		false));
+	private static var lime_alc_poll_events = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_alc_poll_events", "o", false));
 	private static var lime_alc_suspend_context = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_alc_suspend_context", "ov", false));
 	private static var lime_alc_capture_open_device = new cpp.Callable<String->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_alc_capture_open_device", "siiio", false));
@@ -4194,6 +4209,10 @@ class NativeCFFI
 	private static var lime_alc_pause_device = CFFI.load("lime", "lime_alc_pause_device", 1);
 	private static var lime_alc_process_context = CFFI.load("lime", "lime_alc_process_context", 1);
 	private static var lime_alc_resume_device = CFFI.load("lime", "lime_alc_resume_device", 1);
+	private static var lime_alc_reopen_device = CFFI.load("lime", "lime_alc_reopen_device", 3);
+	private static var lime_alc_event_is_supported = CFFI.load("lime", "lime_alc_event_is_supported", 2);
+	private static var lime_alc_event_control = CFFI.load("lime", "lime_alc_event_control", 2);
+	private static var lime_alc_poll_events = CFFI.load("lime", "lime_alc_poll_events", 0);
 	private static var lime_alc_suspend_context = CFFI.load("lime", "lime_alc_suspend_context", 1);
 	private static var lime_alc_capture_open_device = CFFI.load("lime", "lime_alc_capture_open_device", 4);
 	private static var lime_alc_capture_close_device = CFFI.load("lime", "lime_alc_capture_close_device", 1);
@@ -4568,6 +4587,27 @@ class NativeCFFI
 	@:hlNative("lime", "hl_alc_process_context") private static function lime_alc_process_context(context:ALContext):Void {}
 
 	@:hlNative("lime", "hl_alc_resume_device") private static function lime_alc_resume_device(device:ALDevice):Void {}
+
+	@:hlNative("lime", "hl_alc_reopen_device") private static function lime_alc_reopen_device(device:CFFIPointer, devicename:String,
+			attrlist:hl.NativeArray<Int>):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_alc_event_is_supported") private static function lime_alc_event_is_supported(eventType:Int, deviceType:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_alc_event_control") private static function lime_alc_event_control(events:hl.NativeArray<Int>, enable:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_alc_poll_events") private static function lime_alc_poll_events():hl.NativeArray<Int>
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_alc_suspend_context") private static function lime_alc_suspend_context(context:ALContext):Void {}
 

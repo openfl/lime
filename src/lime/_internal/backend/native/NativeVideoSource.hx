@@ -322,6 +322,21 @@ class NativeVideoSource
 		}
 	}
 
+	@:allow(lime.media.AudioManager)
+	private static function audioOutputReopened():Void
+	{
+		// The OpenAL objects moved to the new output with the device, but it runs at
+		// its own rate and latency, so the sound starts again in step with the picture
+		timerDrift = 0;
+
+		for (source in getActiveSources())
+		{
+			source.lockAudio();
+			if (source.handle != null) source.resyncAudio();
+			source.unlockAudio();
+		}
+	}
+
 	public static function loadFromFile(path:String, format:VideoFrameFormat):Future<VideoSource>
 	{
 		var promise = new Promise<VideoSource>();
