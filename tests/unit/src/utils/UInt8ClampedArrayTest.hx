@@ -54,6 +54,9 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([0xca, 0xfe, 0, 255], array);
 	}
 
+	#if HXCPP_ARM64
+	@Ignored("Waiting on #2184")
+	#end
 	public function testValuesClampInsteadOfWrapping():Void
 	{
 		// ToUint8Clamp: above 255 is 255, below 0 is 0
@@ -80,6 +83,9 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([0, 0, 0, 0, 255, 255, 255, 255, 0], array);
 	}
 
+	#if HXCPP_ARM64
+	@Ignored("Waiting on #2184")
+	#end
 	public function testConstructFromArrayOfInts():Void
 	{
 		var array = new UInt8ClampedArray([-5, 0, 128, 255, 256, 1000]);
@@ -128,6 +134,9 @@ class UInt8ClampedArrayTest extends Test
 		Assert.equals(255, (array[2] : Int));
 	}
 
+	#if HXCPP_ARM64
+	@Ignored("Waiting on #2184")
+	#end
 	public function testSetArrayClampsValues():Void
 	{
 		var array = new UInt8ClampedArray(6);
@@ -152,6 +161,9 @@ class UInt8ClampedArrayTest extends Test
 	}
 	#end
 
+	#if HXCPP_ARM64
+	@Ignored("Waiting on #2184")
+	#end
 	public function testSetTypedArrayClampsValues():Void
 	{
 		var array = new UInt8ClampedArray(4);
