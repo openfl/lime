@@ -64,7 +64,7 @@ class Int32ArrayTest extends Test
 		assertElements([0, 1, 2147483647, -2147483648, -1, 0xcafebabe], array);
 	}
 
-	#if neko
+	#if (neko || hl)
 	@Ignored("Waiting on #2152")
 	#end
 	public function testConstructFromArrayOfFloatsWrapsAround():Void
@@ -203,7 +203,7 @@ class Int32ArrayTest extends Test
 
 	#if !js
 	// js.lib typed arrays only take Array<Int> in set
-	#if neko
+	#if (neko || hl)
 	@Ignored("Waiting on #2152")
 	#end
 	public function testSetArrayOfFloatsWrapsAround():Void

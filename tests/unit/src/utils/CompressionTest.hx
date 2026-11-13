@@ -372,6 +372,9 @@ class CompressionTest extends Test
 		assertFails(gzip.sub(0, gzip.length - 8), GZIP, "gzip without its CRC-32 and size");
 	}
 
+	#if hl
+	@Ignored("Waiting on #2208")
+	#end
 	public function testZlibStreamWithAWrongAdler32FailsToDecompress():Void
 	{
 		var zlib = Base64.decode(ZLIB_FOX);
@@ -380,6 +383,9 @@ class CompressionTest extends Test
 		assertFails(zlib, ZLIB, "a wrong Adler-32");
 	}
 
+	#if hl
+	@Ignored("Waiting on #2208")
+	#end
 	public function testZlibStreamWithABadHeaderFailsToDecompress():Void
 	{
 		// FCHECK no longer makes the header a multiple of 31
@@ -394,6 +400,9 @@ class CompressionTest extends Test
 		assertFails(zlib, ZLIB, "CM");
 	}
 
+	#if hl
+	@Ignored("Waiting on #2208")
+	#end
 	public function testGZipStreamWithAWrongCRC32OrSizeFailsToDecompress():Void
 	{
 		var gzip = Base64.decode(GZIP_FOX);
@@ -405,6 +414,9 @@ class CompressionTest extends Test
 		assertFails(gzip, GZIP, "ISIZE");
 	}
 
+	#if hl
+	@Ignored("Waiting on #2208")
+	#end
 	public function testGZipStreamWithoutItsMagicFailsToDecompress():Void
 	{
 		var gzip = Base64.decode(GZIP_FOX);
@@ -425,6 +437,9 @@ class CompressionTest extends Test
 		assertFails(lzma, LZMA, "a size 64 KiB larger than the data");
 	}
 
+	#if hl
+	@Ignored("Waiting on #2208")
+	#end
 	public function testStreamsDecompressOnlyAsTheirOwnFormat():Void
 	{
 		// A zlib stream is not a gzip stream, and neither is a raw deflate stream

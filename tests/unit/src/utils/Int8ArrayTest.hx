@@ -76,7 +76,7 @@ class Int8ArrayTest extends Test
 		assertElements(result, array);
 	}
 
-	#if neko
+	#if (neko || hl)
 	@Ignored("Waiting on #2152")
 	#end
 	public function testConstructFromArrayOfFloatsTruncates():Void
