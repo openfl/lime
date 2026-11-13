@@ -248,14 +248,16 @@ class ImageFixture
 	/**
 		Compares two 32-bit colors channel by channel, each within `tolerance`.
 	**/
-	public static function assertColor(expected:Int, actual:Int, tolerance:Int = 0, ?label:String, ?pos:PosInfos):Void
+	// tolerance is nullable so callers can skip it on Flash, where an Int can't be null
+	public static function assertColor(expected:Int, actual:Int, ?tolerance:Int, ?label:String, ?pos:PosInfos):Void
 	{
+		if (tolerance == null) tolerance = 0;
 		Assert.isTrue(sameColor(expected, actual, tolerance),
 			(label != null ? label + ": " : "") + "expected " + hex(expected) + " but was " + hex(actual) + (tolerance > 0 ? " (within " + tolerance + ")" : ""),
 			pos);
 	}
 
-	public static function assertPixel(expected:Int, image:Image, x:Int, y:Int, tolerance:Int = 0, ?label:String, ?pos:PosInfos):Void
+	public static function assertPixel(expected:Int, image:Image, x:Int, y:Int, ?tolerance:Int, ?label:String, ?pos:PosInfos):Void
 	{
 		assertColor(expected, read(image, x, y), tolerance, (label != null ? label + ", " : "") + "pixel " + x + "," + y, pos);
 	}
@@ -264,8 +266,9 @@ class ImageFixture
 		Compares every pixel of an image, row by row, and reports all those that
 		differ in one assertion.
 	**/
-	public static function assertPixels(expected:Array<Int>, image:Image, tolerance:Int = 0, ?label:String, ?pos:PosInfos):Void
+	public static function assertPixels(expected:Array<Int>, image:Image, ?tolerance:Int, ?label:String, ?pos:PosInfos):Void
 	{
+		if (tolerance == null) tolerance = 0;
 		var actual = pixels(image);
 		var differences = [];
 
