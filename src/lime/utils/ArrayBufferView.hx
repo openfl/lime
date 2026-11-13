@@ -536,10 +536,15 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint8(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	public static function getUint8(buffer:ArrayBuffer, byteOffset:Int):UInt
 	{
 		#if cpp
 		return untyped __global__.__hxcpp_memory_get_byte(buffer.getData(), byteOffset) & 0xFF;
+		#elseif neko
+		//  Neko can return null value when access is outside the buffer.
+		//  We do not want to have to Null<> wrap these APIs, so we perform a null check and just return 0 instead of null.
+		var value:Null<Int> = buffer.get(byteOffset);
+		return value == null ? 0 : value;
 		#else
 		return buffer.get(byteOffset);
 		#end
@@ -637,7 +642,7 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint16(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	public static function getUint16(buffer:ArrayBuffer, byteOffset:Int):UInt
 	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui16(buffer.getData(), byteOffset) & 0xFFFF;
@@ -653,7 +658,7 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint16_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	public static function getUint16_BE(buffer:ArrayBuffer, byteOffset:Int):UInt
 	{
 		#if cpp
 		var bufferData = buffer.getData();
@@ -785,7 +790,7 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint32(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	public static function getUint32(buffer:ArrayBuffer, byteOffset:Int):UInt
 	{
 		#if cpp
 		untyped return __global__.__hxcpp_memory_get_ui32(buffer.getData(), byteOffset);
@@ -802,7 +807,7 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function getUint32_BE(buffer:ArrayBuffer, byteOffset:Int):Null<UInt>
+	public static function getUint32_BE(buffer:ArrayBuffer, byteOffset:Int):UInt
 	{
 		#if cpp
 		var bufferData = buffer.getData();
