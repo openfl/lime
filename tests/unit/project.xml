@@ -12,6 +12,8 @@
 
 	<haxelib name="lime" />
 	<haxelib name="utest" />
+	<!-- ImageHelperTest runs the command-line tools' image code, which uses hxp -->
+	<haxelib name="hxp" />
 	<!-- Available before Lime's asset library has been initialized. -->
 	<haxeflag name="-resource" value="fixtures/tls_server.py@lime-test-tls-server" if="neko" />
 
