@@ -514,6 +514,7 @@
 				<lib name="comdlg32.lib" />
 				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="setupapi.lib" />
+				<lib name="avrt.lib" if="LIME_OPENALSOFT" />
 
 				<lib name="bcrypt.lib" />
 				<lib name="crypt32.lib" if="LIME_CURL" />

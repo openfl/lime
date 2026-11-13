@@ -93,6 +93,7 @@ Changelog
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
+- Updated OpenAL Soft submodule to version 1.25.2. Building Lime's native libraries from source now needs a C++20 compiler (GCC 12 or later on Linux), Android NDK r26 or later, and an hxcpp with the `cxx_standard` attribute, such as libhxcpp or hxcpp 4.3.135 and later.
 - Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated HashLink to 1.16.
