@@ -5609,7 +5609,7 @@ namespace lime {
 
 	void lime_gl_bind_vertex_buffer (int bindingindex, int buffer, double offset, int stride)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glBindVertexBuffer) {
 			glBindVertexBuffer (bindingindex, buffer, (GLintptr)(uintptr_t)offset, stride);
 		}
@@ -5619,7 +5619,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_bind_vertex_buffer) (int bindingindex, int buffer, double offset, int stride)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glBindVertexBuffer) {
 			glBindVertexBuffer (bindingindex, buffer, (GLintptr)(uintptr_t)offset, stride);
 		}
@@ -5629,7 +5629,7 @@ namespace lime {
 
 	void lime_gl_vertex_attrib_format (int attribindex, int size, int type, bool normalized, int offset)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribFormat) {
 			glVertexAttribFormat (attribindex, size, type, normalized, offset);
 		}
@@ -5639,7 +5639,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_format) (int attribindex, int size, int type, bool normalized, int offset)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribFormat) {
 			glVertexAttribFormat (attribindex, size, type, normalized, offset);
 		}
@@ -5649,7 +5649,7 @@ namespace lime {
 
 	void lime_gl_vertex_attrib_iformat (int attribindex, int size, int type, int relativeoffset)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribIFormat) {
 			glVertexAttribIFormat (attribindex, size, type, relativeoffset);
 		}
@@ -5659,7 +5659,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_iformat) (int attribindex, int size, int type, int relativeoffset)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribIFormat) {
 			glVertexAttribIFormat (attribindex, size, type, relativeoffset);
 		}
@@ -5669,7 +5669,7 @@ namespace lime {
 
 	void lime_gl_vertex_attrib_lformat (int attribindex, int size, int type, int relativeoffset)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribLFormat) {
 			glVertexAttribLFormat (attribindex, size, type, relativeoffset);
 		}
@@ -5679,7 +5679,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_lformat) (int attribindex, int size, int type, int relativeoffset)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribLFormat) {
 			glVertexAttribLFormat (attribindex, size, type, relativeoffset);
 		}
@@ -5689,7 +5689,7 @@ namespace lime {
 
 	void lime_gl_vertex_attrib_binding (int attribindex, int bindingindex)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribBinding) {
 			glVertexAttribBinding (attribindex, bindingindex);
 		}
@@ -5699,7 +5699,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_binding) (int attribindex, int bindingindex)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribBinding) {
 			glVertexAttribBinding (attribindex, bindingindex);
 		}
@@ -5709,7 +5709,7 @@ namespace lime {
 
 	void lime_gl_vertex_binding_divisor (int bindingindex, int divisor)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexAttribDivisor) {
 			glVertexBindingDivisor (bindingindex, divisor);
 		}
@@ -5719,7 +5719,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_binding_divisor) (int bindingindex, int divisor)
 	{
-		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
+		#if (defined (LIME_GLES3_API) || !defined (LIME_GLES)) && !defined (HX_MACOS) && !defined (IPHONE) && !defined (APPLETV)
 		if (glVertexBindingDivisor) {
 			glVertexBindingDivisor (bindingindex, divisor);
 		}
