@@ -105,7 +105,11 @@ class Promise<T>
 	{
 		if (!ThreadPool.isMainThread())
 		{
+			#if haxe5
+			haxe.EventLoop.main.run(complete.bind(data));
+			#else
 			haxe.MainLoop.runInMainThread(complete.bind(data));
+			#end
 			return this;
 		}
 
@@ -197,7 +201,11 @@ class Promise<T>
 	{
 		if (!ThreadPool.isMainThread())
 		{
+			#if haxe5
+			haxe.EventLoop.main.run(error.bind(msg));
+			#else
 			haxe.MainLoop.runInMainThread(error.bind(msg));
+			#end
 			return this;
 		}
 
@@ -236,7 +244,11 @@ class Promise<T>
 	{
 		if (!ThreadPool.isMainThread())
 		{
+			#if haxe5
+			haxe.EventLoop.main.run(this.progress.bind(progress, total));
+			#else
 			haxe.MainLoop.runInMainThread(this.progress.bind(progress, total));
+			#end
 			return this;
 		}
 
