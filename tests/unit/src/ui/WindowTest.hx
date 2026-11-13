@@ -1,13 +1,18 @@
 package ui;
 
+import haxe.Timer;
 import lime.app.Application;
 import lime.math.Rectangle;
 import lime.ui.Window;
 import lime.ui.WindowAppearance;
 import lime.ui.WindowHandleType;
 import utest.Assert;
+import utest.Async;
 import utest.Test;
 
+#if (cpp && windows)
+@:cppFileCode("#include <windows.h>")
+#end
 /**
 	Windows are checked for what the platform made of them, as the attributes
 	only say what was asked for.
@@ -265,6 +270,84 @@ class WindowTest extends Test
 
 		Assert.equals("0,-1|0,-0.25", deltas.join("|"));
 	}
+
+	#if (cpp && windows)
+	@:timeout(5000)
+	public function testEachSizeTheWindowTakesWhileResizedIsDrawn(async:Async):Void
+	{
+		// Only a window that can be resized has a sizing loop
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null) { canCreateWindows(); async.done(); return; }
+
+		// The sizing loop only draws once the application's own loop runs
+		Timer.delay(function()
+		{
+			var application = Application.current;
+			var backend = @:privateAccess application.__backend;
+			// Frames a second apart: none is due while the window is resized, so only resizing draws one
+			backend.configureFrameTiming(application.frameProfile, 1, application.frameOptions);
+
+			var reported = [], expected = [], drawn = [], renders = 0;
+			window.onResize.add(function(width, height) reported.push(width + "x" + height));
+			window.onRender.add(function(_) renders++);
+
+			var hwnd = window.nativeHandle.window;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			for (step in 1...4)
+			{
+				var before = renders;
+				resizeWindow(hwnd, 320 + step * 40, 240 + step * 20);
+				expected.push(window.width + "x" + window.height);
+				drawn.push(renders > before);
+			}
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+
+			Assert.equals(expected.join(","), reported.join(","), "the window took " + expected.join(",") + " but reported " + reported.join(","));
+			Assert.equals("true,true,true", drawn.join(","), "sizes drawn before the next: " + drawn.join(","));
+			async.done();
+		}, 1);
+	}
+
+	@:timeout(5000)
+	public function testASizeOnlyProposedWhileResizedIsNotLaidOut(async:Async):Void
+	{
+		// Only a window that can be resized has a sizing loop
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null) { canCreateWindows(); async.done(); return; }
+
+		Timer.delay(function()
+		{
+			var reported = [];
+			window.onResize.add(function(width, height) reported.push(width + "x" + height));
+
+			// Windows proposes a size with WM_SIZING before the window has it, and may change it before it does
+			var hwnd = window.nativeHandle.window;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			proposeWindowSize(hwnd, 300, 200);
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+
+			Assert.equals("", reported.join(","), "a size Windows only proposed was reported: " + reported.join(","));
+			async.done();
+		}, 1);
+	}
+
+	private static function sendWindowMessage(hwnd:haxe.Int64, message:Int):Void
+	{
+		untyped __cpp__("SendMessageW ((HWND)(intptr_t){0}, (UINT){1}, 0, 0)", hwnd, message);
+	}
+
+	private static function resizeWindow(hwnd:haxe.Int64, width:Int, height:Int):Void
+	{
+		// As Windows does at each step of a resize: the window takes the size, and is sent WM_SIZE
+		untyped __cpp__("SetWindowPos ((HWND)(intptr_t){0}, NULL, 0, 0, {1}, {2}, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE)", hwnd, width, height);
+	}
+
+	private static function proposeWindowSize(hwnd:haxe.Int64, width:Int, height:Int):Void
+	{
+		untyped __cpp__("{ RECT proposed; GetWindowRect ((HWND)(intptr_t){0}, &proposed); proposed.right = proposed.left + {1}; proposed.bottom = proposed.top + {2}; SendMessageW ((HWND)(intptr_t){0}, WM_SIZING, WMSZ_BOTTOMRIGHT, (LPARAM)&proposed); }", hwnd, width, height);
+	}
+	#end
 
 	private static function wheel(window:Window, x:Float, y:Float, preciseX:Float, preciseY:Float):Void
 	{
