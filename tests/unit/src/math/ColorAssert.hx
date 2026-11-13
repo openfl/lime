@@ -60,7 +60,8 @@ class ColorAssert
 
 	public static function bytes(expected:Array<Int>, actual:UInt8Array, ?message:String, ?pos:PosInfos):Void
 	{
-		var values = [for (i in 0...actual.length) actual[i]];
+		// Typed, since HashLink reads typed array elements as Null<UInt> (#2129)
+		var values:Array<Int> = [for (i in 0...actual.length) (actual[i] : Int)];
 		var matches = values.length == expected.length;
 		for (i in 0...expected.length)
 		{

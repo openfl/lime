@@ -113,12 +113,13 @@ class PromiseTest extends Test
 
 	public function testCompletionAfterAnErrorIsIgnored():Void
 	{
-		var promise = new Promise<Int>();
-		var received:Array<Int> = [];
+		// A String, since an unset Int value reads as 0 rather than null on static targets
+		var promise = new Promise<String>();
+		var received:Array<String> = [];
 
 		promise.future.onComplete(function(value) received.push(value));
 		promise.error("failed");
-		promise.complete(1);
+		promise.complete("done");
 
 		Assert.isTrue(promise.isError);
 		assertUnset(promise.isComplete);
