@@ -306,6 +306,9 @@ class HTTPRequestRedirectTest extends Test
 	}
 
 	@:timeout(10000)
+	#if hl
+	@Ignored("Waiting on #2207")
+	#end
 	public function testCookiesAreRememberedForLaterRequests(async:Async):Void
 	{
 		var server = cookieServer("remembered", "/cookies-remembered");

@@ -96,7 +96,7 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	#if neko
+	#if (neko || hl)
 	@Ignored("Waiting on #2195")
 	#end
 	public function testAnErrorResponseKeepsItsBody(async:Async):Void
@@ -346,7 +346,7 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	#if neko
+	#if (neko || hl)
 	@Ignored("Waiting on #2198")
 	#end
 	public function testInvalidUTF8BecomesReplacementCharacters(async:Async):Void
