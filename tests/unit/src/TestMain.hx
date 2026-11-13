@@ -59,14 +59,21 @@ class TestMain extends Application
 		runner.addCase(new utils.AssetsTest());
 		runner.addCase(new utils.Base64Test());
 		runner.addCase(new utils.CompressionTest());
+		runner.addCase(new utils.Float32ArrayTest());
+		runner.addCase(new utils.Float64ArrayTest());
+		runner.addCase(new utils.Int8ArrayTest());
+		runner.addCase(new utils.Int16ArrayTest());
+		runner.addCase(new utils.Int32ArrayTest());
 		runner.addCase(new utils.ObjectPoolTest());
 		runner.addCase(new utils.PackedAssetLibraryTest());
 		runner.addCase(new utils.UInt8ArrayTest());
+		runner.addCase(new utils.UInt8ClampedArrayTest());
 		runner.addCase(new utils.UInt16ArrayTest());
 		runner.addCase(new utils.UInt32ArrayTest());
 		runner.addCase(new utils.DataViewTest());
 		runner.addCase(new system.ThreadPoolTest());
 		runner.addCase(new text.FontTest());
+		runner.addCase(new text.UTF8StringTest());
 		#if sys
 		// Each test is named as it starts, so a run that hangs shows where
 		runner.onTestStart.add(function(handler)
