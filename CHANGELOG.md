@@ -69,7 +69,7 @@ Changelog
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
 - Changed OpenAL Soft HRTF to be disabled by default.
-- Changed OpenAL output device recovery with OpenAL Soft to move the device to the new output in place, keeping every sound playing, and to follow the system's default output as it changes where OpenAL Soft reports that.
+- Changed OpenAL output device recovery with OpenAL Soft to move the device to the new output in place, holding every sound through the loss and carrying on from where it was, and to follow the system's default output as it changes where OpenAL Soft reports that.
 - Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
 - Changed `Window.alert()` to also request attention on macOS and Linux.
 - Changed Windows to show input methods' own composition and candidate windows.

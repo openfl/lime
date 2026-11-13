@@ -451,6 +451,23 @@ class OpenALTest extends Test
 		}
 	}
 
+	public function testSourcesAreHeldWhenTheOutputIsLost():Void
+	{
+		var context = ALC.getCurrentContext();
+
+		if (context == null || !AL.isExtensionPresent("AL_SOFTX_hold_on_disconnect")
+			|| !ALC.isExtensionPresent(ALC.getContextsDevice(context), "ALC_SOFT_reopen_device"))
+		{
+			Assert.pass("This OpenAL stops its sources when the output is lost");
+			return;
+		}
+
+		// Held sources carry on from where they were once the device is reopened,
+		// rather than stopping with the output (AL_STOP_SOURCES_ON_DISCONNECT_SOFT)
+		Assert.isFalse(AL.isEnabled(0x19AB));
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
 	public function testRecoveringTheOutputKeepsTheOpenALObjects():Void
 	{
 		var source = createQueuedSource();

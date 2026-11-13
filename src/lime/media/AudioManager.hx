@@ -26,6 +26,7 @@ class AudioManager
 	public static var context:AudioContext;
 	@:noCompletion public static var __contextGeneration(default, null):Int = 0;
 	@:noCompletion public static var __suspended(default, null):Bool = false;
+	private static inline var AL_STOP_SOURCES_ON_DISCONNECT_SOFT:Int = 0x19AB;
 	private static inline var OUTPUT_DEVICE_POLL_TIME:Int = 1000;
 	private static inline var OUTPUT_DEVICE_EVENT_POLL_TIME:Int = 250;
 	// A little under the poll time, so polling without events still retries on every tick
@@ -273,6 +274,7 @@ class AudioManager
 			if (ALC.reopenDevice(outputDevice, deviceName) || (deviceName != null && ALC.reopenDevice(outputDevice)))
 			{
 				refreshOutputDeviceRecovery();
+				NativeAudioSource.audioOutputReopened();
 				NativeVideoSource.audioOutputReopened();
 			}
 
@@ -386,6 +388,15 @@ class AudioManager
 		}
 
 		outputDevicePreferredName = outputDeviceName;
+
+		// OpenAL Soft stops every source when its output is lost. Held instead, they
+		// carry on from where they were once the device is reopened. The extension
+		// is still in progress, so its name is checked exactly.
+		if (outputDeviceCanReopen && AL.isExtensionPresent("AL_SOFTX_hold_on_disconnect"))
+		{
+			AL.disable(AL_STOP_SOURCES_ON_DISCONNECT_SOFT);
+		}
+
 		outputDeviceEvents = startOutputDeviceEvents();
 		// With device events the timer only reads the queued events and the
 		// connection state, so it runs often enough to follow a new default output
