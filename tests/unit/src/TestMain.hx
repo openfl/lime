@@ -12,6 +12,7 @@ class TestMain extends Application
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
+		runner.addCase(new graphics.ImageCodecTest());
 		runner.addCase(new graphics.ImageCopyTest());
 		runner.addCase(new graphics.ImageFillTest());
 		runner.addCase(new graphics.ImagePixelTest());
@@ -41,6 +42,8 @@ class TestMain extends Application
 		runner.addCase(new ui.WebViewTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
+		runner.addCase(new utils.Base64Test());
+		runner.addCase(new utils.CompressionTest());
 		runner.addCase(new utils.UInt8ArrayTest());
 		runner.addCase(new utils.UInt16ArrayTest());
 		runner.addCase(new utils.UInt32ArrayTest());
