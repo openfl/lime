@@ -15,7 +15,9 @@ class TestMain extends Application
 		runner.addCase(new app.PromiseTest());
 		runner.addCase(new graphics.ImageCodecTest());
 		runner.addCase(new graphics.ImageCopyTest());
+		runner.addCase(new graphics.ImageDecodeOutputTest());
 		runner.addCase(new graphics.ImageFillTest());
+		runner.addCase(new graphics.ImageOperationOutputTest());
 		runner.addCase(new graphics.ImagePixelTest());
 		runner.addCase(new graphics.ImageRegionTest());
 		runner.addCase(new graphics.OpenGLTest());

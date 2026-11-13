@@ -1,10 +1,13 @@
 package media;
 
 #if (lime_cffi && !macro)
+import haxe.crypto.Crc32;
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
+import lime.app.Future;
 import lime.media.AudioBuffer;
 import lime.media.AudioSource;
+import lime.utils.Bytes as LimeBytes;
 #end
 #if (lime_cffi && !macro && sys)
 import lime.system.System;
@@ -18,6 +21,14 @@ class AudioBufferTest extends Test
 {
 	#if (lime_cffi && !macro)
 	private static inline var SAMPLE_RATE = 22050;
+
+	// What today's native decoders give for the sound files in assets/: the format, and a CRC-32 of the
+	// samples. These pin current native output for the work on releasing the collector while sound
+	// decodes, so a change that is meant to change the output updates them in the same commit.
+	private static var DECODED:Array<{path:String, samples:String}> = [
+		{path: "assets/tone.wav", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes, crc 26551E63"},
+		{path: "assets/tone.ogg", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes, crc 18ABB541"}
+	];
 	#end
 
 	public function new()
@@ -71,6 +82,98 @@ class AudioBufferTest extends Test
 		FileSystem.deleteFile(path);
 	}
 	#end
+
+	public function testWAVFileKeepsItsDecodedSamples():Void
+	{
+		assertKeepsItsSamples(DECODED[0]);
+	}
+
+	public function testVorbisFileKeepsItsDecodedSamples():Void
+	{
+		assertKeepsItsSamples(DECODED[1]);
+	}
+
+	public function testLoadFromFilesGivesTheSameSamplesWhileTheMainThreadCollects():Void
+	{
+		// AudioBuffer.loadFromFiles decodes on a worker thread, so collections here run alongside the decodes
+		var futures:Array<Future<AudioBuffer>> = [];
+		var expected = [];
+
+		for (round in 0...4)
+		{
+			for (sound in DECODED)
+			{
+				futures.push(AudioBuffer.loadFromFiles([sound.path]));
+				expected.push(sound);
+			}
+		}
+
+		var deadline = haxe.Timer.stamp() + 10;
+		var waiting = firstUnfinished(futures);
+
+		while (waiting != null && haxe.Timer.stamp() < deadline)
+		{
+			var garbage = [for (i in 0...32) Bytes.alloc(4096)];
+			forceCollection();
+			// Takes in what the worker has finished, as the application's loop would
+			waiting.ready(0);
+			waiting = firstUnfinished(futures);
+		}
+
+		for (i in 0...futures.length)
+		{
+			var future = futures[i];
+			Assert.isTrue(future.isComplete, expected[i].path + " did not finish decoding");
+			if (future.isComplete) assertSamples(expected[i].samples, describeSamples(future.value), expected[i].path + ", load " + i);
+		}
+	}
+
+	private static function assertKeepsItsSamples(sound:{path:String, samples:String}, ?pos:haxe.PosInfos):Void
+	{
+		var bytes = LimeBytes.fromFile(sound.path);
+		Assert.notNull(bytes, sound.path + " is missing", pos);
+		if (bytes == null) return;
+
+		assertSamples(sound.samples, describeSamples(AudioBuffer.fromFile(sound.path)), sound.path + " through AudioBuffer.fromFile", pos);
+		assertSamples(sound.samples, describeSamples(AudioBuffer.fromBytes(bytes)), sound.path + " through AudioBuffer.fromBytes", pos);
+	}
+
+	private static function assertSamples(expected:String, actual:String, name:String, ?pos:haxe.PosInfos):Void
+	{
+		Assert.equals(expected, actual, name + " gave " + actual + ", pinned " + expected, pos);
+	}
+
+	/** The buffer's format, and a CRC-32 of its samples **/
+	private static function describeSamples(buffer:AudioBuffer):String
+	{
+		if (buffer == null || buffer.data == null) return "null";
+
+		var data = buffer.data;
+		var samples = data.toBytes().sub(data.byteOffset, data.byteLength);
+		return buffer.channels + " channels, " + buffer.sampleRate + " Hz, " + buffer.bitsPerSample + "-bit, " + samples.length + " bytes, crc "
+			+ StringTools.hex(Crc32.make(samples), 8);
+	}
+
+	private static function firstUnfinished(futures:Array<Future<AudioBuffer>>):Future<AudioBuffer>
+	{
+		for (future in futures)
+		{
+			if (!future.isComplete && !future.isError) return future;
+		}
+
+		return null;
+	}
+
+	private static function forceCollection():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
+	}
 
 	#if lime_sdl_sound
 	public function testWAVBytesThatEndQuietlyStreamAsWAV():Void
