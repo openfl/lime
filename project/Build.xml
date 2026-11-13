@@ -515,6 +515,8 @@
 				<lib name="comctl32.lib" unless="winrt" />
 				<lib name="setupapi.lib" />
 				<lib name="avrt.lib" if="LIME_OPENALSOFT" />
+				<!-- OpenAL Soft's known folder IDs, which MSVC finds on its own -->
+				<lib name="uuid.lib" if="LIME_OPENALSOFT" />
 
 				<lib name="bcrypt.lib" />
 				<lib name="crypt32.lib" if="LIME_CURL" />
