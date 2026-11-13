@@ -77,6 +77,41 @@ class IncludeTest extends Test
 		Assert.equals("lib/data/readme.txt", project.assets[0].sourcePath);
 	}
 
+	@Ignored("Waiting on #2192")
+	public function testAFileIncludedTwiceAddsItsAssetsOnce():Void
+	{
+		writeSharedFile();
+
+		var project = fixture.parse('<project>
+			<include path="shared/shared.xml" />
+			<include path="shared/shared.xml" />
+		</project>');
+
+		// Its sources and flags are already kept once, as they compare by value
+		Assert.equals(1, project.sources.filter(function(source) return source == "shared/src").length, "sources: " + project.sources.join(", "));
+		Assert.equals(1, project.haxeflags.filter(function(flag) return flag == "--no-traces").length, "flags: " + project.haxeflags.join(", "));
+		Fixture.assertSame(["data/notes.txt", "data/readme.txt"], Fixture.targetPaths(project));
+	}
+
+	@Ignored("Waiting on #2192")
+	public function testAFileIncludedFromTwoIncludedFilesAddsItsAssetsOnce():Void
+	{
+		writeSharedFile();
+		fixture.write("first.xml", '<project>
+			<include path="shared/shared.xml" />
+		</project>');
+		fixture.write("second.xml", '<project>
+			<include path="shared/shared.xml" />
+		</project>');
+
+		var project = fixture.parse('<project>
+			<include path="first.xml" />
+			<include path="second.xml" />
+		</project>');
+
+		Fixture.assertSame(["data/notes.txt", "data/readme.txt"], Fixture.targetPaths(project));
+	}
+
 	public function testIncludeIsSkippedWhenItsConditionFails():Void
 	{
 		fixture.write("extra.xml", '<project>
@@ -231,5 +266,18 @@ class IncludeTest extends Test
 
 		Assert.equals("blue", project.haxedefs.get("color"));
 		Assert.equals("Mine", project.meta.title);
+	}
+
+	/** A project file with two assets, a source path and a flag, as a library might share them **/
+	private function writeSharedFile():Void
+	{
+		fixture.write("shared/data/readme.txt", "readme");
+		fixture.write("shared/data/notes.txt", "notes");
+		fixture.write("shared/shared.xml", '<project>
+			<source path="src" />
+			<haxeflag name="--no-traces" />
+			<assets path="data/readme.txt" />
+			<assets path="data/notes.txt" />
+		</project>');
 	}
 }

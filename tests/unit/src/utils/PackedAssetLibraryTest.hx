@@ -233,6 +233,64 @@ class PackedAssetLibraryTest extends Test
 		});
 	}
 
+	@:timeout(5000)
+	@Ignored("Waiting on #2191")
+	public function testUnloadReleasesTheCachedAssetsAndThePack(async:Async):Void
+	{
+		var manifest = pack("unload.pak", "pak");
+		var packPath:String = manifest.libraryArgs[0];
+
+		// Preloaded assets are cached as the library loads
+		for (asset in manifest.assets)
+		{
+			Reflect.setField(asset, "preload", true);
+		}
+
+		var library = AssetLibrary.fromManifest(manifest);
+
+		library.load().onComplete(function(_)
+		{
+			// Until it's unloaded, a getter gives what the library cached, and the pack is kept under its own path
+			var bytes = library.getBytes("binary");
+			var packed = library.getBytes(packPath);
+			Assert.isTrue(bytes != null && bytes == library.getBytes("binary"), "the bytes were not cached as the library loaded");
+			Assert.isTrue(packed != null && packed == library.getBytes(packPath), "the pack was not kept as the library loaded");
+			#if lime_cffi
+			var image = library.getImage("image");
+			Assert.isTrue(image != null && image == library.getImage("image"), "the image was not cached as the library loaded");
+			#end
+
+			library.unload();
+
+			// AssetLibrary.unload() clears its caches, so a getter may read an asset again, but not give what was cached
+			var kept = [];
+			if (getQuietly(function() return library.getBytes("binary")) == bytes) kept.push("the bytes");
+			if (getQuietly(function() return library.getBytes(packPath)) == packed) kept.push("the pack");
+			#if lime_cffi
+			if (getQuietly(function() return library.getImage("image")) == image) kept.push("the image");
+			#end
+
+			Assert.equals("", kept.join(", "), "unload() kept " + kept.join(", "));
+			async.done();
+		}).onError(function(error)
+		{
+			Assert.fail("load() failed: " + error);
+			async.done();
+		});
+	}
+
+	private static function getQuietly(get:Void->Dynamic):Dynamic
+	{
+		try
+		{
+			return get();
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
 	private function assertReads(manifest:AssetManifest, async:Async, ?pos:haxe.PosInfos):Void
 	{
 		var library = AssetLibrary.fromManifest(manifest);

@@ -288,6 +288,28 @@ class ImageCodecTest extends Test
 		if (header != null) Assert.equals("5x3", header.width + "x" + header.height);
 	}
 
+	@Ignored("Waiting on #2190")
+	public function testPNGsWithoutAlphaOrATransparencyChunkDecodeAsNotTransparent():Void
+	{
+		// Greyscale and truecolour have no alpha channel, so only tRNS can make a pixel transparent (PNG §6.1, §11.3.2.1)
+		var truecolour = PNGFile.create(2, 1, PNGFile.TRUECOLOUR, 8, [[255, 0, 0, 0, 0, 255]]);
+		var greyscale = PNGFile.create(2, 1, PNGFile.GREYSCALE, 8, [[0, 255]]);
+
+		assertTransparent(false, Image.fromBytes(truecolour), "truecolour");
+		assertTransparent(false, PNGFormat.decodeBytes(truecolour), "truecolour through PNG.decodeBytes()");
+		assertTransparent(false, Image.fromBytes(greyscale), "greyscale");
+	}
+
+	public function testPNGsWithAlphaOrATransparencyChunkDecodeAsTransparent():Void
+	{
+		assertTransparent(true, Image.fromBytes(PNGFile.create(2, 1, PNGFile.TRUECOLOUR_ALPHA, 8, [[255, 0, 0, 128, 0, 0, 255, 255]])),
+			"truecolour with alpha");
+		assertTransparent(true, Image.fromBytes(PNGFile.create(2, 1, PNGFile.INDEXED_COLOUR, 8, [[0, 1]],
+			[PNGFile.palette([0xFF0000, 0x0000FF]), PNGFile.transparency([0x00], false)])), "indexed with tRNS");
+		assertTransparent(true, Image.fromBytes(PNGFile.create(2, 1, PNGFile.TRUECOLOUR, 8, [[0x10, 0x20, 0x30, 0x10, 0x20, 0x31]],
+			[PNGFile.transparency([0x10, 0x20, 0x30], true)])), "truecolour with tRNS");
+	}
+
 	// PNG encoding
 
 	public function testPNGEncodingIsAValidPNG():Void
@@ -504,6 +526,16 @@ class ImageCodecTest extends Test
 		if (image == null) return;
 		var alphas = [for (y in 0...8) for (x in 0...8) image.getPixel32(x, y, RGBA32) & 0xFF];
 		Assert.equals(-1, firstNot(255, alphas), "alpha " + alphas[Std.int(Math.max(0, firstNot(255, alphas)))]);
+	}
+
+	@Ignored("Waiting on #2190")
+	public function testDecodedJPEGsAreNotTransparent():Void
+	{
+		// JPEG has no alpha, and in Flash the BitmapData of a loaded JPEG isn't transparent
+		var jpeg = imageOf(8, opaque(pattern(8, 8))).encode(ImageFileFormat.JPEG, 90);
+
+		assertTransparent(false, Image.fromBytes(jpeg), "Image.fromBytes()");
+		assertTransparent(false, JPEGFormat.decodeBytes(jpeg), "JPEG.decodeBytes()");
 	}
 
 	public function testJPEGDecodeBytesGivesTheSamePixels():Void
@@ -995,6 +1027,14 @@ class ImageCodecTest extends Test
 
 		Assert.equals(expected[0].split(" ").length + "x" + expected.length, image.width + "x" + image.height, name, pos);
 		Assert.equals(expected.join("\n"), describe(image), name, pos);
+	}
+
+	private static function assertTransparent(expected:Bool, image:Image, name:String, ?pos:haxe.PosInfos):Void
+	{
+		Assert.notNull(image, name + ": the image did not decode", pos);
+		if (image == null) return;
+
+		Assert.equals(expected, image.transparent, name + " decoded as " + (image.transparent ? "transparent" : "not transparent"), pos);
 	}
 
 	/** Where `actual` first differs from `expected`, or "" when it doesn't **/

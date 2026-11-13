@@ -9,6 +9,7 @@ import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLTexture;
 import lime.ui.Window;
 import lime.utils.ArrayBuffer;
+import lime.utils.ArrayBufferView;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.UInt8Array;
@@ -193,6 +194,40 @@ class OpenGLTest extends Test
 		other.close();
 		makeCurrent(main);
 		gl.activeTexture(gl.TEXTURE0);
+	}
+
+	@Ignored("Waiting on #2188")
+	public function testGetUniformReturnsTheUniformAtALocationWithItsOwnType():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		// An array takes a location for each element, so the uniform after it has a location past its index
+		var program = createProgram(gl,
+			"uniform vec4 colors[3]; uniform float scale; attribute vec4 position; void main () { gl_Position = position * scale + colors[0] + colors[1] + colors[2]; }",
+			"void main () { gl_FragColor = vec4 (1.0); }");
+		gl.useProgram(program);
+
+		var colors = gl.getUniformLocation(program, "colors");
+		var second = gl.getUniformLocation(program, "colors[1]");
+		var scale = gl.getUniformLocation(program, "scale");
+		gl.uniform4fv(colors, 3, new Float32Array([for (i in 1...13) i]));
+		gl.uniform1f(scale, 2.5);
+
+		var count:Int = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+		var layout = "colors at " + colors + ", scale at " + scale + ", active uniforms "
+			+ [for (i in 0...count) gl.getActiveUniform(program, i).name].join(", ");
+
+		// As WebGL's getUniform(): a number for a float, and a Float32Array for a vec4 or an element of a vec4 array
+		var scaleValue = describeUniform(gl.getUniform(program, scale));
+		var secondValue = describeUniform(gl.getUniform(program, second));
+		Assert.equals("2.5", scaleValue, "scale gave " + scaleValue + ", with " + layout);
+		Assert.equals("Float32Array [5, 6, 7, 8]", secondValue, "colors[1] gave " + secondValue + ", with " + layout);
+
+		finishProgramTest(gl, program);
 	}
 
 	// WebGL2RenderContext's srcOffset, srcLength and length count elements of the view, as in WebGL 2.
@@ -718,6 +753,22 @@ class OpenGLTest extends Test
 		var matrix = new Float32Array(16);
 		gl.getUniformfv(program, gl.getUniformLocation(program, "transform"), matrix);
 		return [for (i in 0...16) matrix[i]];
+	}
+
+	private static function describeUniform(value:Dynamic):String
+	{
+		if (value == null) return "null";
+
+		if (Std.isOfType(value, ArrayBufferView))
+		{
+			var view:ArrayBufferView = value;
+			if (view.type != lime.utils.ArrayBufferView.TypedArrayType.Float32) return "a typed array of type " + view.type;
+
+			var floats:Float32Array = view;
+			return "Float32Array [" + [for (i in 0...floats.length) floats[i]].join(", ") + "]";
+		}
+
+		return Std.string(value);
 	}
 
 	private static function finishProgramTest(gl:OpenGLRenderContext, program:GLProgram):Void
