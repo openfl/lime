@@ -685,7 +685,9 @@ namespace lime
 			ProcessWindowEvent(watchEvent);
 		}
 
-		if (frameDue)
+		// A new size is drawn at once, while Windows is still handling it: until a frame is drawn at that size the
+		// window shows the last one stretched to it, so content laid out between due frames jumps as it's resized.
+		if (frameDue || isResizeEvent)
 		{
 			DispatchFrame(now);
 		}
