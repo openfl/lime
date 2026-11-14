@@ -12,6 +12,21 @@ import lime.media.AudioManager;
 import lime.media.AudioSource;
 import lime.system.CFFIPointer;
 import lime.utils.UInt8Array;
+#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
+#if target.threaded
+import sys.thread.Lock;
+import sys.thread.Mutex;
+import sys.thread.Thread;
+#elseif cpp
+import cpp.vm.Lock;
+import cpp.vm.Mutex;
+import cpp.vm.Thread;
+#else
+import neko.vm.Lock;
+import neko.vm.Mutex;
+import neko.vm.Thread;
+#end
+#end
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -29,7 +44,7 @@ class NativeAudioSource
 	#end
 	private static var STREAM_TIMER_FREQUENCY = 100;
 
-	#if (target.threaded && !lime_audio_no_stream_thread)
+	#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 	/**
 		Streams are fed from a thread of their own, so a stall on the main thread (a load, a window drag, a long frame)
 		doesn't drain their few buffers and drop the sound. The main thread's stream timer still completes them.
@@ -40,13 +55,13 @@ class NativeAudioSource
 	**/
 	private static inline var STREAM_FEED_INTERVAL = 0.02;
 
-	private static var feedMutex:sys.thread.Mutex;
+	private static var feedMutex:Mutex;
 	private static var feedSources:Array<NativeAudioSource> = [];
-	private static var feedWake:sys.thread.Lock;
-	private static var feedThread:sys.thread.Thread;
+	private static var feedWake:Lock;
+	private static var feedThread:Thread;
 
-	private var decodeMutex = new sys.thread.Mutex();
-	private var stateMutex = new sys.thread.Mutex();
+	private var decodeMutex = new Mutex();
+	private var stateMutex = new Mutex();
 	// Set if feeding this source threw: the main thread's timer then refills it, where the error shows
 	private var feedFailed:Bool;
 	#end
@@ -129,28 +144,28 @@ class NativeAudioSource
 
 	private inline function lockDecode():Void
 	{
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		decodeMutex.acquire();
 		#end
 	}
 
 	private inline function unlockDecode():Void
 	{
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		decodeMutex.release();
 		#end
 	}
 
 	private inline function lockState():Void
 	{
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		stateMutex.acquire();
 		#end
 	}
 
 	private inline function unlockState():Void
 	{
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		stateMutex.release();
 		#end
 	}
@@ -169,17 +184,17 @@ class NativeAudioSource
 
 	private function startFeeding():Void
 	{
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		if (feedMutex == null)
 		{
-			feedMutex = new sys.thread.Mutex();
-			feedWake = new sys.thread.Lock();
+			feedMutex = new Mutex();
+			feedWake = new Lock();
 		}
 
 		feedFailed = false;
 		feedMutex.acquire();
 		if (feedSources.indexOf(this) < 0) feedSources.push(this);
-		if (feedThread == null) feedThread = sys.thread.Thread.create(feedLoop);
+		if (feedThread == null) feedThread = Thread.create(feedLoop);
 		feedMutex.release();
 		feedWake.release();
 		#end
@@ -187,7 +202,7 @@ class NativeAudioSource
 
 	private function stopFeeding():Void
 	{
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		if (feedMutex == null) return;
 		feedMutex.acquire();
 		feedSources.remove(this);
@@ -195,7 +210,7 @@ class NativeAudioSource
 		#end
 	}
 
-	#if (target.threaded && !lime_audio_no_stream_thread)
+	#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 	private static function feedLoop():Void
 	{
 		var batch:Array<NativeAudioSource> = [];
@@ -809,11 +824,13 @@ class NativeAudioSource
 	{
 		var frameSize = Std.int(parent.buffer.channels * (parent.buffer.bitsPerSample / 8));
 
-		if (frameSize <= 0 || length <= frameSize)
+		if (frameSize <= 0)
 		{
 			return length;
 		}
 
+		// Whole sample frames only: a stream's position comes from its time, so near the end what's left can be less
+		// than a frame, and asking for that part of one made SDL_sound end the sample with an error
 		return length - (length % frameSize);
 	}
 
@@ -1388,7 +1405,7 @@ class NativeAudioSource
 		}
 
 		// The feeding thread refills the stream; this timer only completes it, unless feeding it failed
-		#if (target.threaded && !lime_audio_no_stream_thread)
+		#if (lime_threads && !html5 && !lime_audio_no_stream_thread)
 		if (feedFailed) refillBuffersLocked(null, true);
 		#else
 		refillBuffersLocked(null, true);

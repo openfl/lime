@@ -117,6 +117,30 @@ class AudioBufferTest extends Test
 		source.dispose();
 	}
 
+	#if sys
+	public function testAStreamNeverAsksForPartOfASampleFrame():Void
+	{
+		// Vorbis decodes to float and the stream is read as 16-bit, so SDL_sound converts it; a request for part of a
+		// frame made the conversion fail, which ended the stream with an error. tone.ogg is mono, 2 bytes a frame.
+		var buffer = AudioBuffer.fromBytesStream(File.getBytes("assets/tone.ogg"));
+		Assert.notNull(buffer);
+		if (buffer == null) return;
+
+		var source = new AudioSource(buffer);
+		var backend = @:privateAccess source.__backend;
+
+		// The stream's own requests are whole frames: what's left near its end can be less than one
+		Assert.equals(0, @:privateAccess backend.alignStreamRequestLength(1));
+		Assert.equals(2, @:privateAccess backend.alignStreamRequestLength(3));
+
+		// Less than a frame reads nothing, and the stream reads on afterwards
+		Assert.equals(0, @:privateAccess backend.readSDLSoundBuffer(1));
+		Assert.isTrue(@:privateAccess backend.readSDLSoundBuffer(4096) > 0, "the stream stopped after a request for part of a frame");
+
+		source.dispose();
+	}
+	#end
+
 	private static function collectAndReuse(length:Int):Void
 	{
 		var garbage = [];

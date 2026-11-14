@@ -143,6 +143,7 @@ Changelog
 - Fixed a small memory leak for each `VorbisFile`.
 - Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
 - Fixed `Window.maxWidth` setting the minimum size.
+- Fixed `Window.maximized` staying `true` after the system restores a maximized window, from its title bar or a keyboard shortcut.
 - Fixed the AIR `DNSResolverEvent` extern giving `bubbles` a String default, which failed builds that use it.
 
 8.3.2 (05/13/2026)

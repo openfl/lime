@@ -236,8 +236,14 @@ namespace lime {
 
 		}
 
+		// Until png_write_end, libpng only reads the image's pixels and writes
+		// its own memory, so the collector needn't wait for this thread: an
+		// encode on a worker thread otherwise holds up every collection
+		System::GCEnterBlocking ();
+
 		if (setjmp (png_jmpbuf (png_ptr))) {
 
+			System::GCExitBlocking ();
 			png_destroy_write_struct (&png_ptr, &info_ptr);
 			return false;
 
@@ -295,6 +301,8 @@ namespace lime {
 		}
 
 		png_write_end (png_ptr, NULL);
+
+		System::GCExitBlocking ();
 
 		int size = out_buffer.size ();
 

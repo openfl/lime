@@ -443,13 +443,17 @@ namespace lime {
 
 		}
 
-		Uint32 decodeBufferSize = AlignBufferSize ((Uint32)length, output.channels * (bitsPerSample / 8));
+		int frameSize = output.channels * (bitsPerSample / 8);
 
-		if (decodeBufferSize > (Uint32)length) {
+		// SDL_sound decodes whole sample frames only (a converting stream refuses a partial one, and that error
+		// ends the sample), so a request too short for one frame reads nothing rather than asking for a partial one
+		if (frameSize > 0 && length < frameSize) {
 
-			decodeBufferSize = (Uint32)length;
+			return 0;
 
 		}
+
+		Uint32 decodeBufferSize = AlignBufferSize ((Uint32)length, frameSize);
 
 		if (decodeBufferSize != sample->buffer_size && !Sound_SetBufferSize (sample, decodeBufferSize)) {
 
