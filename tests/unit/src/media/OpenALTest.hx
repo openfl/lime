@@ -5,7 +5,6 @@ import lime._internal.backend.native.NativeCFFI;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALC;
-import lime.media.openal.ALFilter;
 import lime.media.openal.ALSource;
 import lime.utils.UInt8Array;
 #end
@@ -279,7 +278,6 @@ class OpenALTest extends Test
 		Assert.equals(AL.NO_ERROR, AL.getError());
 	}
 
-	@Ignored("Waiting on #2273")
 	public function testDeletedFilterIsNoLongerAFilter():Void
 	{
 		if (!hasEffects()) return;
@@ -385,7 +383,7 @@ class OpenALTest extends Test
 
 		Assert.equals(AL.NO_ERROR, AL.getError());
 		Assert.isFalse(AL.isEffect(effect));
-		Assert.isFalse(isFilter(filter));
+		Assert.isFalse(AL.isFilter(filter));
 		Assert.isTrue(AL.isAux(aux));
 		Assert.isTrue(AL.isSource(source));
 
@@ -416,7 +414,7 @@ class OpenALTest extends Test
 		AL.deleteAux(aux);
 		AL.getError();
 
-		Assert.isTrue(isFilter(nextFilter));
+		Assert.isTrue(AL.isFilter(nextFilter));
 		Assert.isTrue(AL.isEffect(nextEffect));
 		Assert.isTrue(AL.isAux(nextAux));
 
@@ -442,7 +440,7 @@ class OpenALTest extends Test
 
 		for (i in 0...32)
 		{
-			Assert.isTrue(isFilter(filters[i]));
+			Assert.isTrue(AL.isFilter(filters[i]));
 			Assert.isTrue(AL.isEffect(effects[i]));
 			Assert.isTrue(AL.isAux(slots[i]));
 
@@ -593,15 +591,6 @@ class OpenALTest extends Test
 		release();
 		AL.getError();
 		return true;
-	}
-
-	// AL.isFilter asks whether the name is a source's (#2273), so this reads
-	// the filter's type instead, which fails for a name that isn't a filter's
-	private function isFilter(filter:ALFilter):Bool
-	{
-		AL.getError();
-		AL.getFilteri(filter, AL.FILTER_TYPE);
-		return AL.getError() == AL.NO_ERROR;
 	}
 
 	private function queueDroppedBuffers(source:ALSource, count:Int):Void
