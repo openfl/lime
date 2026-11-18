@@ -22,12 +22,25 @@ class ProjectXMLParser extends HXProject
 {
 	public var includePaths:Array<String>;
 
+	/**
+		What this file, and the files it included, changed with `<define>`, `<set>`, `<setenv>`,
+		`<haxedef>`, `<undefine>` and `<unset>`. A null value was removed. The file that included
+		this one applies the same changes, as if the tags had been written in its place.
+	**/
+	private var changedDefines:Map<String, Null<String>>;
+	private var changedEnvironment:Map<String, Null<String>>;
+	private var changedHaxedefs:Map<String, Null<String>>;
+
 	private static var doubleVarMatch = new EReg("\\$\\${(.*?)}", "");
 	private static var varMatch = new EReg("\\${(.*?)}", "");
 
 	public function new(path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false)
 	{
 		super(defines);
+
+		changedDefines = new Map();
+		changedEnvironment = new Map();
+		changedHaxedefs = new Map();
 
 		if (includePaths != null)
 		{
@@ -43,6 +56,48 @@ class ProjectXMLParser extends HXProject
 			projectFilePath = path;
 			process(path, useExtensionPath);
 		}
+	}
+
+	/**
+		Merges a project read from an included file, then applies the values it defined, set or
+		removed, so they replace earlier ones as they would have in this file.
+	**/
+	private function mergeIncluded(project:HXProject):Void
+	{
+		merge(project);
+
+		var parser = Std.downcast(project, ProjectXMLParser);
+
+		if (parser == null) return;
+
+		for (name in parser.changedDefines.keys())
+		{
+			changeValue(defines, changedDefines, name, parser.changedDefines.get(name));
+		}
+
+		for (name in parser.changedEnvironment.keys())
+		{
+			changeValue(environment, changedEnvironment, name, parser.changedEnvironment.get(name));
+		}
+
+		for (name in parser.changedHaxedefs.keys())
+		{
+			changeValue(haxedefs, changedHaxedefs, name, parser.changedHaxedefs.get(name));
+		}
+	}
+
+	private static function changeValue(values:Map<String, Dynamic>, changes:Map<String, Null<String>>, name:String, value:Null<String>):Void
+	{
+		if (value == null)
+		{
+			values.remove(name);
+		}
+		else
+		{
+			values.set(name, value);
+		}
+
+		changes.set(name, value);
 	}
 
 	private function isValidElement(element:Access, section:String):Bool
@@ -586,7 +641,7 @@ class ProjectXMLParser extends HXProject
 		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath))
 		{
 			var includeProject = new ProjectXMLParser(includePath, defines);
-			merge(includeProject);
+			mergeIncluded(includeProject);
 		}
 
 		var processedLibrary = false;
@@ -846,12 +901,12 @@ class ProjectXMLParser extends HXProject
 						case "ANDROID_INSTALL_LOCATION": config.set("android.install-location", value);
 					}
 
-					defines.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 
 				case "unset":
-					defines.remove(element.att.name);
-					environment.remove(element.att.name);
+					changeValue(defines, changedDefines, element.att.name, null);
+					changeValue(environment, changedEnvironment, element.att.name, null);
 
 				case "define":
 					var name = element.att.name;
@@ -862,14 +917,14 @@ class ProjectXMLParser extends HXProject
 						value = substitute(element.att.value);
 					}
 
-					defines.set(name, value);
-					haxedefs.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(haxedefs, changedHaxedefs, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 
 				case "undefine":
-					defines.remove(element.att.name);
-					haxedefs.remove(element.att.name);
-					environment.remove(element.att.name);
+					changeValue(defines, changedDefines, element.att.name, null);
+					changeValue(haxedefs, changedHaxedefs, element.att.name, null);
+					changeValue(environment, changedEnvironment, element.att.name, null);
 
 				case "setenv":
 					var value = "";
@@ -885,8 +940,8 @@ class ProjectXMLParser extends HXProject
 
 					var name = substitute(element.att.name);
 
-					defines.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 					setenv(name, value);
 
 					if (needRerun) return;
@@ -994,7 +1049,7 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
-						merge(includeProject);
+						mergeIncluded(includeProject);
 					}
 					else if (!element.has.noerror)
 					{
@@ -1122,7 +1177,7 @@ class ProjectXMLParser extends HXProject
 						}
 
 						ArrayTools.addUnique(processedHaxelibIncludes, HXProject.getHaxelibIncludeKey(haxelib));
-						merge(includeProject);
+						mergeIncluded(includeProject);
 					}
 
 				case "ndll":
@@ -1441,7 +1496,7 @@ class ProjectXMLParser extends HXProject
 				case "haxedef":
 					if (element.has.remove)
 					{
-						haxedefs.remove(substitute(element.att.remove));
+						changeValue(haxedefs, changedHaxedefs, substitute(element.att.remove), null);
 					}
 					else
 					{
@@ -1453,7 +1508,7 @@ class ProjectXMLParser extends HXProject
 							value = substitute(element.att.value);
 						}
 
-						haxedefs.set(name, value);
+						changeValue(haxedefs, changedHaxedefs, name, value);
 					}
 
 				case "haxeflag", "compilerflag":
