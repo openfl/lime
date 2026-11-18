@@ -333,6 +333,7 @@ class HXProject extends Script
 		project.postBuildCallbacks = postBuildCallbacks.copy();
 		project.preBuildCallbacks = preBuildCallbacks.copy();
 		project.processedHaxelibIncludes = processedHaxelibIncludes.copy();
+		project.projectFilePath = projectFilePath;
 		project.samplePaths = samplePaths.copy();
 		project.sources = sources.copy();
 
@@ -827,6 +828,11 @@ class HXProject extends Script
 		else if (target == Platform.FLASH)
 		{
 			defines.set("targetType", "swf");
+		}
+		else if (target == Platform.HTML5)
+		{
+			defines.set("targetType", "js");
+			defines.set("js", "1");
 		}
 
 		if (debug)
