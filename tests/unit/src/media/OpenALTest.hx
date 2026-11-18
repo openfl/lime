@@ -279,6 +279,20 @@ class OpenALTest extends Test
 		Assert.equals(AL.NO_ERROR, AL.getError());
 	}
 
+	@Ignored("Waiting on #2273")
+	public function testDeletedFilterIsNoLongerAFilter():Void
+	{
+		if (!hasEffects()) return;
+
+		var filter = AL.createFilter();
+		Assert.isTrue(AL.isFilter(filter));
+
+		AL.deleteFilter(filter);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isFalse(AL.isFilter(filter));
+	}
+
 	public function testDeletedFilterNoLongerHasAType():Void
 	{
 		if (!hasEffects()) return;
@@ -581,7 +595,7 @@ class OpenALTest extends Test
 		return true;
 	}
 
-	// AL.isFilter asks whether the name is a source's, so this reads
+	// AL.isFilter asks whether the name is a source's (#2273), so this reads
 	// the filter's type instead, which fails for a name that isn't a filter's
 	private function isFilter(filter:ALFilter):Bool
 	{
