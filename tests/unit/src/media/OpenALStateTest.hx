@@ -146,6 +146,7 @@ class OpenALStateTest extends Test
 		Assert.equals(AL.LINEAR_DISTANCE, AL.getInteger(AL.DISTANCE_MODEL));
 	}
 
+	@Ignored("Waiting on #2124, since OpenAL Soft 1.20.1 reports an unknown name as INVALID_VALUE")
 	public function testQueriesOfAnUnknownNameSetInvalidEnum():Void
 	{
 		if (!hasContext()) return;
@@ -256,6 +257,7 @@ class OpenALStateTest extends Test
 	}
 	#end
 
+	@Ignored("Waiting on #2124, since OpenAL Soft 1.20.1 reports an unknown name as INVALID_VALUE")
 	public function testAnErrorIsReportedOnceThenCleared():Void
 	{
 		if (!hasContext()) return;
@@ -267,6 +269,7 @@ class OpenALStateTest extends Test
 		Assert.equals(AL.NO_ERROR, AL.getError());
 	}
 
+	@Ignored("Waiting on #2124, since OpenAL Soft 1.20.1 reports an unknown name as INVALID_VALUE")
 	public function testTheFirstErrorIsKeptUntilItIsRead():Void
 	{
 		if (!hasContext()) return;
@@ -280,6 +283,7 @@ class OpenALStateTest extends Test
 		Assert.equals(AL.NO_ERROR, AL.getError());
 	}
 
+	@Ignored("Waiting on #2124, since OpenAL Soft 1.20.1 reports an unknown name as INVALID_VALUE")
 	public function testEachErrorHasItsOwnMessage():Void
 	{
 		if (!hasContext()) return;

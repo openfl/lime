@@ -150,6 +150,9 @@ class KeyCodeTest extends Test
 	}
 
 	#if (lime_cffi && !macro)
+	#if linux
+	@Ignored("On X11, SDL takes these keys from the X server's keymap, which may lack F19 and F20 and gives the keypad parentheses and plus-minus their characters")
+	#end
 	public function testKeysWithoutACharacterConvertToTheirScanCodeAndBack():Void
 	{
 		var keyCodes = keysWithoutACharacter();
