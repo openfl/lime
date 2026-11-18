@@ -214,7 +214,8 @@ namespace lime {
 			int alphaPosition;
 			RGBA alphaPixel;
 
-			Rectangle alphaRect = Rectangle (sourceView.x + alphaPoint->x, sourceView.y + alphaPoint->y, sourceView.width, sourceView.height);
+			// alphaPoint is the point in the alpha image at the corner of sourceRect
+			Rectangle alphaRect = alphaPoint ? Rectangle (alphaPoint->x, alphaPoint->y, sourceView.width, sourceView.height) : Rectangle (0, 0, sourceView.width, sourceView.height);
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 
 			destView.Clip (destPoint->x, destPoint->y, alphaView.width, alphaView.height);
