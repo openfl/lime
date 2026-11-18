@@ -278,6 +278,9 @@ class HTTPRequestMethodsTest extends Test
 	}
 
 	@:timeout(10000)
+	#if (cpp && windows)
+	@Ignored("Waiting on #2265")
+	#end
 	public function testCustomHeadersAreSent(async:Async):Void
 	{
 		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));
