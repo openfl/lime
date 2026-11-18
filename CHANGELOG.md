@@ -59,6 +59,7 @@ Changelog
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
 - Added `ALC.getStringList()` to list every audio output and input device.
 - Added `ALC.isExtensionPresent()`.
+- Added `AL.deleteAux()`, `AL.deleteEffect()` and `AL.deleteFilter()` to free the effect slots, effects and filters that `AL.createAux()`, `AL.createEffect()` and `AL.createFilter()` make.
 - Added window icons on Linux.
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
