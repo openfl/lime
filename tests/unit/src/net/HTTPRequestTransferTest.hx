@@ -274,6 +274,9 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(15000)
+	#if hl
+	@Ignored("Waiting on #2194")
+	#end
 	public function testARequestLoadsAgainAfterCancelling(async:Async):Void
 	{
 		var server = serve(function(request)
