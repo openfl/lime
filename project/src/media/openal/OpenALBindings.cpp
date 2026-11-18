@@ -2484,11 +2484,12 @@ namespace lime {
 
 	HL_PRIM vbyte* HL_NAME(hl_al_get_string) (int param) {
 
+		// Null for a name OpenAL doesn't know, which leaves the error set
 		const char* result = alGetString (param);
-		int length = strlen (result);
-		char* _result = (char*)malloc (length + 1);
-		strcpy (_result, result);
-		return (vbyte*)_result;
+		if (!result) return NULL;
+
+		// The collector frees the copy, where a malloc'd one was never freed
+		return hl_copy_bytes ((const vbyte*)result, (int)strlen (result) + 1);
 
 	}
 
