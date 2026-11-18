@@ -380,8 +380,8 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	}
 
 	/**
-		Initializes this matrix with values for a perspective projection 
-		@param	fov	The field of view
+		Initializes this matrix with values for a perspective projection, as `gluPerspective` does
+		@param	fov	The vertical field of view, in degrees
 		@param	aspect	The aspect ratio
 		@param	zNear	The near depth-clipping plane position
 		@param	zFar	The far depth-clipping plane position
@@ -393,7 +393,8 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 			throw "Aspect ratio may not be 0";
 		}
 
-		var top = fov * zNear;
+		// The half-height of the view at zNear
+		var top = Math.tan(fov * Math.PI / 360) * zNear;
 		var bottom = -top;
 		var right = top * aspect;
 		var left = -right;
