@@ -129,6 +129,7 @@ namespace lime
 		active = false;
 		allowBusyWait = true;
 		busyWaitOnly = false;
+		mainLoopApplied = false;
 		currentUpdate = 0.0;
 		deltaRemainder = 0.0;
 		dispatchedFrames = 0;
@@ -279,6 +280,11 @@ namespace lime
 	void SDLApplication::ApplyMainLoopSettings()
 	{
 
+		bool wasUnthrottled = schedulerUnthrottled;
+		bool wasSwapPaced = swapPaced;
+		bool wasDisplayDriven = useDisplayDrivenFallback;
+		bool wasBusyWaitOnly = busyWaitOnly;
+
 		double clampedFrameRate = requestedFrameRate;
 		if (clampedFrameRate > 0.0 && clampedFrameRate > 10000.0)
 			clampedFrameRate = 10000.0;
@@ -358,8 +364,24 @@ namespace lime
 		}
 
 		busyWaitOnly = allowBusyWait && (activeUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
-		currentUpdate = GetCurrentTimeMs();
-		nextUpdate = currentUpdate;
+
+		bool samePacing = mainLoopApplied && wasUnthrottled == schedulerUnthrottled && wasSwapPaced == swapPaced &&
+			wasDisplayDriven == useDisplayDrivenFallback && wasBusyWaitOnly == busyWaitOnly;
+		mainLoopApplied = true;
+
+		if (samePacing && !schedulerUnthrottled && framePeriod > 0.0)
+		{
+			// Keep the next frame where it was, but no later than a new period after the last one,
+			// so setting the frame rate often doesn't make a frame due each time
+			double latest = currentUpdate + framePeriod;
+			if (nextUpdate > latest)
+				nextUpdate = latest;
+		}
+		else
+		{
+			currentUpdate = GetCurrentTimeMs();
+			nextUpdate = currentUpdate;
+		}
 	}
 
 	void SDLApplication::CalibrateSleepGuard(bool force)
@@ -1742,17 +1764,21 @@ namespace lime
 	void SDLApplication::SetVSyncMode(int vsyncMode)
 	{
 
+		bool changed = (vsyncMode != requestedVSyncMode);
 		requestedVSyncMode = vsyncMode;
 
 		for (std::vector<SDLWindow*>::iterator iter = windows.begin (); iter != windows.end (); ++iter)
 		{
-			if (*iter)
+			// A window applies its mode when it is made, so one already in this mode is left alone
+			if (*iter && (*iter)->GetRequestedVSyncMode () != requestedVSyncMode)
 			{
 				(*iter)->SetVSyncMode (requestedVSyncMode);
+				changed = true;
 			}
 		}
 
-		RefreshVSyncState();
+		if (changed)
+			RefreshVSyncState();
 	}
 
 	bool SDLApplication::Update()

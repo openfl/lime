@@ -163,6 +163,8 @@ namespace lime {
 			KeyEvent keyEvent;
 			double lastUpdate;
 			Uint32 lastSleepCalibration;
+			// Whether the loop settings have been applied, so a later change can keep the schedule
+			bool mainLoopApplied;
 			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
 			bool mouseCaptureRequested;
