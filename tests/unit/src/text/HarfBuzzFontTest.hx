@@ -256,9 +256,6 @@ class HarfBuzzFontTest extends Test
 		}
 	}
 
-	#if (hl || cpp)
-	@Ignored("Crashes HashLink and C++ on Linux, possibly the freed faces in #2255")
-	#end
 	public function testVerticalAdvancesRunDownThePage():Void
 	{
 		// The y axis points up, so an advance down the page is negative
