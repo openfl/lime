@@ -94,6 +94,10 @@ namespace lime {
 			bool PrepareResizeEvent (SDL_Event* event, bool currentSize);
 #endif
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
+			bool SleepsOutTheRemainder () const;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			bool WaitOnFrameTimer (double ms);
+#endif
 			int WaitEvent (SDL_Event* event);
 
 			static void UpdateFrame ();
@@ -165,6 +169,10 @@ namespace lime {
 			Uint32 lastSleepCalibration;
 			// Whether the loop settings have been applied, so a later change can keep the schedule
 			bool mainLoopApplied;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			// A high-resolution waitable timer, when Windows can make one
+			void* frameTimer;
+#endif
 			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
 			bool mouseCaptureRequested;

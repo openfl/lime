@@ -13,6 +13,21 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+#elif !defined(HX_WINDOWS)
+#include <time.h>
+#endif
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -130,6 +145,10 @@ namespace lime
 		allowBusyWait = true;
 		busyWaitOnly = false;
 		mainLoopApplied = false;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		// Windows 10 1803 and later; without it the remainder of a frame is spun as before
+		frameTimer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+#endif
 		swapPaced = false;
 		swapFallback = false;
 		shortSwaps = 0;
@@ -611,6 +630,40 @@ namespace lime
 		ApplyMainLoopSettings();
 	}
 
+	bool SDLApplication::SleepsOutTheRemainder() const
+	{
+
+		// The precision profile, or busy waiting asked for by name, keeps the spin
+		return requestedProfile != MAIN_LOOP_PROFILE_PRECISION && requestedBusyWaitMode != MAIN_LOOP_BUSY_WAIT_ON;
+	}
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	bool SDLApplication::WaitOnFrameTimer(double ms)
+	{
+
+		if (!frameTimer || !SleepsOutTheRemainder())
+			return false;
+
+		if (ms > 8.0)
+			ms = 8.0;
+
+		// Relative, in 100 ns units
+		LARGE_INTEGER due;
+		due.QuadPart = -(LONGLONG)(ms * 10000.0);
+
+		if (due.QuadPart >= 0)
+			return true;
+
+		if (!SetWaitableTimer((HANDLE)frameTimer, &due, 0, NULL, NULL, FALSE))
+			return false;
+
+		// Any message wakes it, and SDL posts one for events pushed from other threads
+		HANDLE timer = (HANDLE)frameTimer;
+		MsgWaitForMultipleObjectsEx(1, &timer, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		return true;
+	}
+#endif
+
 	void SDLApplication::UpdateSleepGuard(Uint32 requestedMs, Uint32 elapsedMs)
 	{
 
@@ -631,6 +684,11 @@ namespace lime
 	SDLApplication::~SDLApplication()
 	{
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (frameTimer)
+		{
+			CloseHandle((HANDLE)frameTimer);
+			frameTimer = NULL;
+		}
 		if (modalWatchInstalled && SDL_WasInit(0))
 		{
 			SDL_DelEventWatch(ModalEventWatch, this);
@@ -2191,6 +2249,13 @@ namespace lime
 					}
 				}
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+				// Wait out the remainder on the high-resolution timer rather than spinning, then
+				// go round again to take what woke it
+				if (!busyWaitOnly && WaitOnFrameTimer(remaining))
+					break;
+#endif
+
 				// Busy-wait the final remainder for tighter frame pacing.
 				for (;;)
 				{
@@ -2247,6 +2312,17 @@ namespace lime
 							}
 							return 0;
 						}
+
+#if !defined(HX_WINDOWS)
+						// Sleep a fifth of a millisecond between pumps rather than spinning
+						if (!busyWaitOnly && SleepsOutTheRemainder())
+						{
+							struct timespec slice;
+							slice.tv_sec = 0;
+							slice.tv_nsec = 200000;
+							nanosleep(&slice, NULL);
+						}
+#endif
 
 						break;
 					}
