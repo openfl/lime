@@ -108,7 +108,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 
 		if (pivotPoint != null)
 		{
+			// About the pivot: move it to the origin, rotate, and move it back
 			var p = pivotPoint;
+			m.prependTranslation(-p.x, -p.y, -p.z);
 			m.appendTranslation(p.x, p.y, p.z);
 		}
 
@@ -788,7 +790,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 
 		if (pivotPoint != null)
 		{
+			// About the pivot: move it to the origin, rotate, and move it back
 			var p = pivotPoint;
+			m.prependTranslation(-p.x, -p.y, -p.z);
 			m.appendTranslation(p.x, p.y, p.z);
 		}
 
