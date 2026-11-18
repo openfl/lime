@@ -45,6 +45,7 @@ namespace lime {
 	std::map<void*, ValuePointer*> headerCallbacks;
 	std::map<void*, curl_slist*> headerSLists;
 	std::map<void*, std::vector<char*>* > headerValues;
+	std::map<void*, char*> postFields;
 	std::map<void*, ValuePointer*> progressCallbacks;
 	std::map<void*, CURL_Progress*> progressValues;
 	std::map<void*, Bytes*> readBytes;
@@ -110,6 +111,53 @@ namespace lime {
 	}
 
 
+	// libcurl only points at POSTFIELDS, which have to last until the
+	// transfer, so the handle keeps a copy. COPYPOSTFIELDS would be dropped
+	// by a POSTFIELDSIZE set afterwards.
+	CURLcode set_post_fields (void* handle, CURL* curl, const char* fields) {
+
+		char* copy = NULL;
+
+		if (fields) {
+
+			size_t size = strlen (fields) + 1;
+			copy = (char*)malloc (size);
+			memcpy (copy, fields, size);
+
+		}
+
+		lock_curl_gc ();
+
+		CURLcode code = curl_easy_setopt (curl, CURLOPT_POSTFIELDS, copy);
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			free (postFields[handle]);
+			postFields.erase (handle);
+
+		}
+
+		if (copy) postFields[handle] = copy;
+
+		curl_gc_mutex.Unlock ();
+
+		return code;
+
+	}
+
+
+	void release_post_fields (void* handle) {
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			free (postFields[handle]);
+			postFields.erase (handle);
+
+		}
+
+	}
+
+
 	void release_curl (value handle, CURL* curl) {
 
 		if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
@@ -156,6 +204,9 @@ namespace lime {
 			writeBufferSize.erase (handle);
 
 		}
+
+		// After curl_easy_cleanup, which is the last that may read them
+		release_post_fields (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -278,6 +329,9 @@ namespace lime {
 			writeBufferSize.erase (handle);
 
 		}
+
+		// After curl_easy_cleanup, which is the last that may read them
+		release_post_fields (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -1769,6 +1823,14 @@ namespace lime {
 			case CURLOPT_REQUEST_TARGET:
 
 				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
+				if (type == CURLOPT_POSTFIELDS) {
+
+					// The string can be collected before the transfer
+					code = set_post_fields (handle, easy_handle, val_string (parameter));
+					break;
+
+				}
+
 				code = curl_easy_setopt (easy_handle, type, val_string (parameter));
 				break;
 
@@ -2202,6 +2264,14 @@ namespace lime {
 			{
 				hl_vstring* str = (hl_vstring*)parameter;
 				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
+				if (type == CURLOPT_POSTFIELDS) {
+
+					// hl_to_utf8's buffer can be collected before the transfer
+					code = set_post_fields (handle, easy_handle, str ? hl_to_utf8 (str->bytes) : NULL);
+					break;
+
+				}
+
 				code = curl_easy_setopt (easy_handle, type, str ? hl_to_utf8 (str->bytes) : NULL);
 				break;
 			}
