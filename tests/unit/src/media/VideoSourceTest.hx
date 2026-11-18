@@ -818,12 +818,14 @@ class VideoSourceTest extends Test
 			pause(0.01);
 		}
 
+		// When nothing was queued, whether the sound thread or the decoding stopped
+		var feeding = queued > 0 ? "" : describeFeeding(video);
 		video.pan = 1;
 
 		var peaks = bufferedPeaks(video);
 		video.dispose();
 
-		Assert.isTrue(queued > 0, "no sound was queued on opening");
+		Assert.isTrue(queued > 0, "no sound was queued on opening" + feeding);
 		Assert.equals(0, peaks[0], "with pan 1, sound queued before it was set peaked at " + peaks[0] + " on the left");
 		Assert.isTrue(peaks[1] > 1000, "with pan 1, sound queued before it was set peaked at " + peaks[1] + " on the right");
 	}
@@ -1072,6 +1074,22 @@ class VideoSourceTest extends Test
 
 		Assert.notNull(peaks, "no sound was queued while playing");
 		return peaks != null ? peaks : [0, 0];
+	}
+
+	private static function describeFeeding(video:VideoSource):String
+	{
+		var backend = @:privateAccess video.__backend;
+		var decoder = @:privateAccess backend.audioDecoder;
+		var sources = @:privateAccess lime._internal.backend.native.NativeVideoSource.getActiveSources();
+		@:privateAccess backend.lockAudio();
+		var free = @:privateAccess backend.freeBuffers;
+		var thread:Dynamic = #if (lime_threads && !html5) @:privateAccess lime._internal.backend.native.NativeVideoSource.feeding #else "none" #end;
+		var described = " (sound thread running " + thread + " for "
+			+ sources.length + " videos, " + (free != null ? free.length : -1) + " buffers free, skipping " + @:privateAccess backend.audioSkipping
+			+ ", stalled " + @:privateAccess backend.audioStalled + ", decoder "
+			+ (decoder != null ? "at " + decoder.audioTime + " s, ended " + decoder.audioComplete + ", error " + decoder.error : "none") + ")";
+		@:privateAccess backend.unlockAudio();
+		return described;
 	}
 
 	private static function bufferedPeaks(video:VideoSource):Array<Int>
