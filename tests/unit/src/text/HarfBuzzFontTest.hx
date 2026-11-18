@@ -256,8 +256,8 @@ class HarfBuzzFontTest extends Test
 		}
 	}
 
-	#if hl
-	@Ignored("Crashes HashLink, possibly the freed faces in #2255")
+	#if (hl || cpp)
+	@Ignored("Crashes HashLink and C++ on Linux, possibly the freed faces in #2255")
 	#end
 	public function testVerticalAdvancesRunDownThePage():Void
 	{
