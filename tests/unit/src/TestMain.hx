@@ -89,6 +89,9 @@ class TestMain extends Application
 		runner.addCase(new utils.DataViewTest());
 		runner.addCase(new system.ThreadPoolTest());
 		runner.addCase(new text.FontTest());
+		runner.addCase(new text.HarfBuzzBufferTest());
+		runner.addCase(new text.HarfBuzzFontTest());
+		runner.addCase(new text.HarfBuzzSetTest());
 		runner.addCase(new text.UTF8StringTest());
 		runner.addCase(new tools.ImageHelperTest());
 		#if sys
