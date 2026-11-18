@@ -4207,9 +4207,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		LZMA::Decompress (&data, &result);
+		if (!LZMA::Decompress (&data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -4220,8 +4221,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_lzma_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_LZMA
-		LZMA::Decompress (buffer, bytes);
-		return bytes;
+		return LZMA::Decompress (buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
