@@ -261,7 +261,6 @@ class ConditionalsTest extends Test
 		Fixture.assertSame(["mobile", "ios", "cpp"], defaultValuesFor(IOS));
 	}
 
-	@Ignored("Waiting on #2169")
 	public function testDefaultValuesForHtml5():Void
 	{
 		Fixture.assertSame(["web", "html5", "js"], defaultValuesFor(HTML5));

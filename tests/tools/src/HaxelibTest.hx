@@ -175,7 +175,6 @@ class HaxelibTest extends Test
 	}
 
 	// The include.xml of a haxelib that another haxelib also asks for is added once, as an HXP project's is
-	@Ignored("Waiting on #2164")
 	public function testHaxelibIncludeAskedForTwiceIsAddedOnce():Void
 	{
 		fixture.addHaxelib("toolstest-base", '<project>
