@@ -23,6 +23,12 @@ class ProjectXMLParser extends HXProject
 	public var includePaths:Array<String>;
 
 	/**
+		The files and haxelibs read so far for the project being parsed, shared by the parser of
+		the project file and those of the files it includes, so each is read once.
+	**/
+	private static var readOnce:{files:Array<String>, haxelibs:Array<String>} = null;
+
+	/**
 		What this file, and the files it included, changed with `<define>`, `<set>`, `<setenv>`,
 		`<haxedef>`, `<undefine>` and `<unset>`. A null value was removed. The file that included
 		this one applies the same changes, as if the tags had been written in its place.
@@ -54,8 +60,51 @@ class ProjectXMLParser extends HXProject
 		if (path != "")
 		{
 			projectFilePath = path;
-			process(path, useExtensionPath);
+
+			var outermost = (readOnce == null);
+
+			if (outermost)
+			{
+				readOnce = {files: [], haxelibs: []};
+			}
+
+			firstRead(path);
+
+			try
+			{
+				process(path, useExtensionPath);
+			}
+			catch (e:Dynamic)
+			{
+				if (outermost) readOnce = null;
+				throw e;
+			}
+
+			if (outermost)
+			{
+				readOnce = null;
+			}
 		}
+	}
+
+	/**
+		Records that the file at `path` is being read, and returns false if it already was.
+	**/
+	private static function firstRead(path:String):Bool
+	{
+		if (readOnce == null) return true;
+
+		var key = FileSystem.fullPath(path);
+
+		if (System.hostPlatform == WINDOWS)
+		{
+			key = key.toLowerCase();
+		}
+
+		if (readOnce.files.indexOf(key) > -1) return false;
+
+		readOnce.files.push(key);
+		return true;
 	}
 
 	/**
@@ -638,7 +687,8 @@ class ProjectXMLParser extends HXProject
 	{
 		var includePath = findIncludeFile(path);
 
-		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath))
+		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath)
+			&& firstRead(includePath))
 		{
 			var includeProject = new ProjectXMLParser(includePath, defines);
 			mergeIncluded(includeProject);
@@ -1026,6 +1076,8 @@ class ProjectXMLParser extends HXProject
 
 					if (path != null && path != "" && FileSystem.exists(path) && !FileSystem.isDirectory(path))
 					{
+						if (!firstRead(path)) continue;
+
 						var includeProject = new ProjectXMLParser(path, defines);
 
 						if (includeProject != null && haxelib != null)
@@ -1164,6 +1216,14 @@ class ProjectXMLParser extends HXProject
 
 					haxelibs.push(haxelib);
 
+					var includeKey = HXProject.getHaxelibIncludeKey(haxelib);
+
+					if (readOnce != null)
+					{
+						if (readOnce.haxelibs.indexOf(includeKey) > -1) continue;
+						readOnce.haxelibs.push(includeKey);
+					}
+
 					var includeProject = HXProject.fromHaxelib(haxelib, defines);
 
 					if (includeProject != null)
@@ -1176,7 +1236,7 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
-						ArrayTools.addUnique(processedHaxelibIncludes, HXProject.getHaxelibIncludeKey(haxelib));
+						ArrayTools.addUnique(processedHaxelibIncludes, includeKey);
 						mergeIncluded(includeProject);
 					}
 
