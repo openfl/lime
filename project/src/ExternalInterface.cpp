@@ -2041,9 +2041,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (DEFLATE, &data, &result);
+		if (!Zlib::Decompress (DEFLATE, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -2054,8 +2055,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_deflate_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (DEFLATE, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (DEFLATE, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -3388,9 +3388,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (GZIP, &data, &result);
+		if (!Zlib::Decompress (GZIP, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -3401,8 +3402,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_gzip_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (GZIP, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (GZIP, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -14212,9 +14212,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (ZLIB, &data, &result);
+		if (!Zlib::Decompress (ZLIB, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -14225,8 +14226,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_zlib_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (ZLIB, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (ZLIB, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
