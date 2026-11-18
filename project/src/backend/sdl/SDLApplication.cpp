@@ -1030,6 +1030,7 @@ namespace lime
 
 			dropEvent.type = DROP_FILE;
 			dropEvent.file = (vbyte *)event->drop.file;
+			dropEvent.windowID = event->drop.windowID;
 
 			DropEvent::Dispatch(&dropEvent);
 			SDL_free(dropEvent.file);
