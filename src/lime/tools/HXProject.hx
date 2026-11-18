@@ -378,37 +378,37 @@ class HXProject extends Script
 
 		for (filter in exclude)
 		{
-			if (filter != "")
+			if (filter != "" && matchesPattern(text, filter))
 			{
-				filter = StringTools.replace(filter, ".", "\\.");
-				filter = StringTools.replace(filter, "*", ".*");
-
-				var regexp = new EReg("^" + filter + "$", "i");
-
-				if (regexp.match(text))
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 
 		for (filter in include)
 		{
-			if (filter != "")
+			if (filter != "" && matchesPattern(text, filter))
 			{
-				filter = StringTools.replace(filter, ".", "\\.");
-				filter = StringTools.replace(filter, "*", ".*");
-
-				var regexp = new EReg("^" + filter, "i");
-
-				if (regexp.match(text))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+		Whether `text` is matched in full by `pattern`, a file name in which `*` stands for any
+		run of characters. Every other character is taken literally, and case is ignored.
+	**/
+	private static function matchesPattern(text:String, pattern:String):Bool
+	{
+		var parts = pattern.split("*");
+
+		for (i in 0...parts.length)
+		{
+			parts[i] = EReg.escape(parts[i]);
+		}
+
+		return new EReg("^" + parts.join(".*") + "$", "i").match(text);
 	}
 
 	public static function fromFile(projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject
