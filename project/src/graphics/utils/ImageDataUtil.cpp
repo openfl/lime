@@ -669,6 +669,13 @@ namespace lime {
 	}
 
 
+	inline int32_t __argbOrder (int32_t rgba) {
+
+		return ((rgba & 0xFF) << 24) | ((rgba >> 8) & 0xFFFFFF);
+
+	}
+
+
 	int __pixelCompare (int32_t n1, int32_t n2) {
 
 		int tmp1;
@@ -745,6 +752,10 @@ namespace lime {
 		int srcPosition, destPosition, value;
 		RGBA srcPixel, destPixel;
 		int32_t pixelMask;
+
+		// As in Flash: (pixel & mask) compared with (threshold & mask), both as
+		// ARGB numbers, in which alpha is the highest byte
+		int32_t thresholdMask = __argbOrder (threshold & mask);
 		bool test;
 
 		for (int y = 0; y < destView.height; y++) {
@@ -756,9 +767,9 @@ namespace lime {
 
 				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied, LIME_BIG_ENDIAN);
 
-				pixelMask = srcPixel.Get () & mask;
+				pixelMask = __argbOrder (srcPixel.Get () & mask);
 
-				value = __pixelCompare (pixelMask, threshold);
+				value = __pixelCompare (pixelMask, thresholdMask);
 
 				switch (operation) {
 

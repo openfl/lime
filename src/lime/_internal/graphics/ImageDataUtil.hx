@@ -1346,6 +1346,10 @@ class ImageDataUtil
 
 			var srcPosition, destPosition, srcPixel:RGBA = 0, destPixel:RGBA = 0, pixelMask:UInt, test:Bool, value:Int;
 
+			// As in Flash: (pixel & mask) compared with (threshold & mask), both as
+			// ARGB numbers, in which alpha is the highest byte
+			var thresholdMask:UInt = __argbOrder(_threshold & _mask);
+
 			for (y in 0...destView.height)
 			{
 				srcPosition = srcView.row(y);
@@ -1355,9 +1359,9 @@ class ImageDataUtil
 				{
 					srcPixel.readUInt8(srcData, srcPosition, srcFormat, srcPremultiplied);
 
-					pixelMask = srcPixel & _mask;
+					pixelMask = __argbOrder(srcPixel & _mask);
 
-					value = __pixelCompare(pixelMask, _threshold);
+					value = __pixelCompare(pixelMask, thresholdMask);
 
 					test = switch (_operation)
 					{
@@ -1586,6 +1590,11 @@ class ImageDataUtil
 		}
 
 		return sizes;
+	}
+
+	private static inline function __argbOrder(rgba:Int):Int
+	{
+		return ((rgba & 0xFF) << 24) | ((rgba >> 8) & 0xFFFFFF);
 	}
 
 	private static inline function __pixelCompare(n1:UInt, n2:UInt):Int
