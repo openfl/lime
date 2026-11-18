@@ -1293,15 +1293,19 @@ class VideoSourceTest extends Test
 
 	private static function waitForTime(video:VideoSource, frame:VideoFrame, time:Int):Void
 	{
+		// The clock is read once each time round, as the interpolated clock can be
+		// set back to the sound right after reaching the time
 		var end = Timer.stamp() + TIMEOUT;
+		var reached = video.currentTime;
 
-		while (video.currentTime < time && Timer.stamp() < end)
+		while (reached < time && Timer.stamp() < end)
 		{
 			video.readFrame(frame);
 			pause(0.005);
+			reached = video.currentTime;
 		}
 
-		Assert.isTrue(video.currentTime >= time, "the clock did not reach " + time + " ms" + describeStart(video));
+		Assert.isTrue(reached >= time, "the clock did not reach " + time + " ms" + describeStart(video));
 	}
 
 	private static function describeStart(video:VideoSource):String
