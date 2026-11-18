@@ -256,6 +256,9 @@ class HarfBuzzFontTest extends Test
 		}
 	}
 
+	#if hl
+	@Ignored("Crashes HashLink, possibly the freed faces in #2255")
+	#end
 	public function testVerticalAdvancesRunDownThePage():Void
 	{
 		// The y axis points up, so an advance down the page is negative

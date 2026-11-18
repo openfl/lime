@@ -496,6 +496,9 @@ class OpenALStateTest extends Test
 	#if !hl
 	@Ignored("Waiting on #2247")
 	#end
+	#if hl
+	@Ignored("Waiting on #2124, since OpenAL Soft 1.20.1 reports an unknown name as INVALID_VALUE")
+	#end
 	public function testAnArrayQueryOpenALRefusesGivesZeros():Void
 	{
 		if (!hasContext()) return;

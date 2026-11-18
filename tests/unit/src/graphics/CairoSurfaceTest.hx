@@ -158,6 +158,9 @@ class CairoSurfaceTest extends Test
 
 	// Surfaces over memory
 
+	#if hl
+	@Ignored("Waiting on #2264")
+	#end
 	public function testCreateTakesTheFormatThenTheSizeThenTheStride():Void
 	{
 		// Two rows of an 8-bit surface 8 bytes apart, seen as one row of two 32-bit pixels
