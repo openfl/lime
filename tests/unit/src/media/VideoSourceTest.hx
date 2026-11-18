@@ -965,9 +965,16 @@ class VideoSourceTest extends Test
 
 			// The clock is held to the sound over a second of playback, which a
 			// mixer that falls behind on a busy machine would throw off, so each
-			// attempt plays the video afresh
+			// attempt plays the video afresh. The rate the smooth clock learns for
+			// the output is kept for every video, so a retry would start from the
+			// rate learned in the attempt that was disturbed. Started from 10% fast,
+			// the most it learns, the smooth clock was 33 ms ahead of the sound
+			// here, as in a failure seen at idle. So each attempt starts from no
+			// rate, as the test that teaches it one does.
 			var heard = Undisturbed.measure("the " + name + " clock against the sound heard", 3, function(attempt:Undisturbed):HeardOffset
 			{
+				@:privateAccess lime._internal.backend.native.NativeVideoSource.timerDrift = 0;
+
 				var video = open();
 				if (video == null) return null;
 
@@ -982,6 +989,7 @@ class VideoSourceTest extends Test
 				return heard;
 			});
 
+			@:privateAccess lime._internal.backend.native.NativeVideoSource.timerDrift = 0;
 			if (heard == null) continue;
 
 			if (heard.moved < 5)
