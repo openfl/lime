@@ -606,41 +606,64 @@ class VideoSourceTest extends Test
 
 	public function testSoundPlaysOnThroughAPauseInUpdates():Void
 	{
-		var video = open();
-		if (video == null) return;
-
-		if (!hasAudioOutput())
-		{
-			video.dispose();
-			return;
-		}
-
-		var frame = new VideoFrame();
-		startPlaying(video, frame);
-		run(video, frame, 0.3);
+		if (!hasAudioOutput()) return;
 
 		// The application stops updating for a while, as for a garbage collection
-		// or a blocking load, and the sound already queued keeps playing
+		// or a blocking load, and the sound already queued keeps playing. Sound is
+		// queued as it is decoded, which can fall behind for a moment, so the
+		// pause starts once the updates have queued 0.4 s, as they should.
+		var result = Undisturbed.measure("the sound through a pause in updates", 3, function(attempt:Undisturbed):PausedSound
+		{
+			var video = open();
+			if (video == null) return null;
+
+			var frame = new VideoFrame();
+			startPlaying(video, frame);
+			run(video, frame, 0.3);
+
+			var queued = 0.0;
+			var end = Timer.stamp() + TIMEOUT;
+
+			while (Timer.stamp() < end)
+			{
+				video.readFrame(frame);
+				queued = queuedAhead(video);
+				if (queued >= 0.4) break;
+				pause(0.005);
+			}
+
+			var start = Timer.stamp();
+			Sys.sleep(0.3);
+			var paused = Timer.stamp() - start;
+			var state = AL.getSourcei(@:privateAccess video.__backend.handle, AL.SOURCE_STATE);
+			video.dispose();
+
+			// A busy machine can pause the test for longer than asked, or have its
+			// output catch up in a burst afterwards, which no queue survives
+			if (queued >= 0.4 && paused >= queued - 0.15)
+			{
+				attempt.disturbed("the test slept for " + Math.round(paused * 1000) + " ms of 300 ms");
+			}
+
+			return {queued: queued, paused: paused, state: state};
+		});
+
+		if (result == null) return;
+
+		var described = Math.round(result.queued * 1000) + " ms queued, paused for " + Math.round(result.paused * 1000) + " ms";
+		Assert.isTrue(result.queued >= 0.4, "after up to " + TIMEOUT + " s of updates, only " + Math.round(result.queued * 1000) + " ms was queued");
+		Assert.equals(AL.PLAYING, result.state, "the sound ran out with " + described);
+	}
+
+	private static function queuedAhead(video:VideoSource):Float
+	{
+		// The sound queued beyond what is heard, each buffer holding up to 0.04 s
 		var backend = @:privateAccess video.__backend;
 		@:privateAccess backend.lockAudio();
 		var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
 		var queued = bufferTimes.length > 0 ? bufferTimes[bufferTimes.length - 1] + 0.04 - @:privateAccess backend.getAudioPosition() : 0;
 		@:privateAccess backend.unlockAudio();
-		var start = System.getTimer();
-		Sys.sleep(0.3);
-		var paused = (System.getTimer() - start) / 1000;
-		var state = AL.getSourcei(@:privateAccess backend.handle, AL.SOURCE_STATE);
-		video.dispose();
-
-		var described = Math.round(queued * 1000) + " ms queued, paused for " + Math.round(paused * 1000) + " ms";
-		Assert.isTrue(queued >= 0.4, "only " + described);
-
-		// A busy machine can pause the test for longer than asked, or have its
-		// output catch up in a burst afterwards, which no queue survives
-		if (paused < queued - 0.15)
-		{
-			Assert.equals(AL.PLAYING, state, "the sound ran out with " + described);
-		}
+		return queued;
 	}
 
 	#if (lime_threads && (target.threaded || cpp || neko))
@@ -1551,6 +1574,13 @@ private typedef HeardOffset =
 	offset:Float,
 	period:Float,
 	readGap:Int
+}
+
+private typedef PausedSound =
+{
+	paused:Float,
+	queued:Float,
+	state:Int
 }
 
 private typedef ClockRate =
