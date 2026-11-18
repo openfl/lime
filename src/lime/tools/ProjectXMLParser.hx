@@ -2002,7 +2002,7 @@ class ProjectXMLParser extends HXProject
 					}
 
 				case "config":
-					config.parse(element, substitute);
+					config.parse(filterConfigElement(element, section), substitute);
 
 				case "prebuild":
 					parseCommandElement(element, preBuildCallbacks);
@@ -2013,10 +2013,57 @@ class ProjectXMLParser extends HXProject
 				default:
 					if (StringTools.startsWith(element.name, "config:"))
 					{
-						config.parse(element, substitute);
+						config.parse(filterConfigElement(element, section), substitute);
 					}
 			}
 		}
+	}
+
+	/**
+		A copy of a `<config>` element without the tags inside it whose `if` or `unless` fails,
+		and without `if` and `unless` themselves, so they are never read as config values.
+	**/
+	private function filterConfigElement(element:Access, section:String):Access
+	{
+		return new Access(copyValidXml(element.x, section));
+	}
+
+	private function copyValidXml(xml:Xml, section:String):Xml
+	{
+		var copy = Xml.createElement(xml.nodeName);
+
+		for (attribute in xml.attributes())
+		{
+			if (attribute != "if" && attribute != "unless")
+			{
+				copy.set(attribute, xml.get(attribute));
+			}
+		}
+
+		for (child in xml)
+		{
+			switch (child.nodeType)
+			{
+				case Element:
+					if (isValidElement(new Access(child), section))
+					{
+						copy.addChild(copyValidXml(child, section));
+					}
+
+				case PCData:
+					copy.addChild(Xml.createPCData(child.nodeValue));
+
+				case CData:
+					copy.addChild(Xml.createCData(child.nodeValue));
+
+				case Comment:
+					copy.addChild(Xml.createComment(child.nodeValue));
+
+				default:
+			}
+		}
+
+		return copy;
 	}
 
 	private function parseWindowElement(element:Access):Void
