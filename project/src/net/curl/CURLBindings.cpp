@@ -616,6 +616,51 @@ namespace lime {
 	}
 
 
+	// curl_easy_duphandle copies the options, so the clone's still point at
+	// the original's header list and callback data. Give it its own.
+	void curl_own_duplicated_state (void* handle, void* duphandle, CURL* dup) {
+
+		if (headerSLists.find (handle) != headerSLists.end ()) {
+
+			struct curl_slist* chunk = NULL;
+
+			for (struct curl_slist* item = headerSLists[handle]; item; item = item->next) {
+
+				chunk = curl_slist_append (chunk, item->data);
+
+			}
+
+			headerSLists[duphandle] = chunk;
+			curl_easy_setopt (dup, CURLOPT_HTTPHEADER, chunk);
+
+		}
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			// curl_easy_duphandle copies the pointer, not the data
+			size_t size = strlen (postFields[handle]) + 1;
+			char* copy = (char*)malloc (size);
+			memcpy (copy, postFields[handle], size);
+			postFields[duphandle] = copy;
+			curl_easy_setopt (dup, CURLOPT_POSTFIELDS, copy);
+
+		}
+
+		if (headerCallbacks.find (duphandle) != headerCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_HEADERDATA, duphandle);
+		if (progressCallbacks.find (duphandle) != progressCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_PROGRESSDATA, duphandle);
+		if (writeCallbacks.find (duphandle) != writeCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_WRITEDATA, duphandle);
+		if (xferInfoCallbacks.find (duphandle) != xferInfoCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_XFERINFODATA, duphandle);
+
+		if (readBytes.find (duphandle) != readBytes.end ()) {
+
+			curl_easy_setopt (dup, CURLOPT_READDATA, duphandle);
+			curl_easy_setopt (dup, CURLOPT_SEEKDATA, duphandle);
+
+		}
+
+	}
+
+
 	value lime_curl_easy_duphandle (value handle) {
 
 		lock_curl_gc ();
@@ -680,6 +725,8 @@ namespace lime {
 			xferInfoValues[duphandle] = new CURL_XferInfo ();
 
 		}
+
+		curl_own_duplicated_state (handle, duphandle, dup);
 
 		curl_gc_mutex.Unlock ();
 
@@ -747,6 +794,8 @@ namespace lime {
 			xferInfoValues[duphandle] = new CURL_XferInfo ();
 
 		}
+
+		curl_own_duplicated_state (handle, duphandle, dup);
 
 		curl_gc_mutex.Unlock ();
 
