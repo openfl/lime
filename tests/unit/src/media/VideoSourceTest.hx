@@ -936,22 +936,32 @@ class VideoSourceTest extends Test
 
 		for (mode in modes)
 		{
-			var video = open();
-			if (video == null) return;
-
-			video.clockMode = mode;
-			var frame = new VideoFrame();
-			startPlaying(video, frame);
-			run(video, frame, 0.3);
-
-			var heard = measureHeard(video, frame, 300);
-			video.dispose();
-
 			var name = clockModeName(mode);
 
-			if (heard.mixes < 5)
+			// The clock is held to the sound over a second of playback, which a
+			// mixer that falls behind on a busy machine would throw off, so each
+			// attempt plays the video afresh
+			var heard = Undisturbed.measure("the " + name + " clock against the sound heard", 3, function(attempt:Undisturbed):HeardOffset
 			{
-				Assert.fail("the position of the " + name + " clock's sound only moved " + heard.mixes + " times");
+				var video = open();
+				if (video == null) return null;
+
+				video.clockMode = mode;
+				var frame = new VideoFrame();
+				startPlaying(video, frame);
+				run(video, frame, 0.3);
+
+				// The test video lasts 2 s
+				var heard = measureHeard(video, frame, 1.2, attempt);
+				video.dispose();
+				return heard;
+			});
+
+			if (heard == null) continue;
+
+			if (heard.moved < 5)
+			{
+				Assert.fail("the position of the " + name + " clock's sound only moved " + heard.moved + " times");
 				continue;
 			}
 
@@ -962,35 +972,40 @@ class VideoSourceTest extends Test
 
 	public function testSmoothClockLearnsAnOutputThatRunsFast():Void
 	{
-		var video = open();
-		if (video == null) return;
-
-		if (!hasAudioOutput())
-		{
-			video.dispose();
-			return;
-		}
+		if (!hasAudioOutput()) return;
 
 		// Playing the sound 5% fast stands in for an output whose clock runs fast
 		// against the timer, as in some virtual machines. Steering alone would
 		// leave the clock behind by however far it takes to run that much faster.
 		// The rate is learned during the first pass and kept from then on, through
-		// the loop.
-		var frame = new VideoFrame();
-		video.loops = 1;
-		AL.sourcef(@:privateAccess video.__backend.handle, AL.PITCH, 1.05);
-		startPlaying(video, frame);
-		run(video, frame, 2.2);
+		// the loop. A mixer that falls behind while it is learned or measured
+		// throws it off, so each attempt plays the video afresh.
+		var heard = Undisturbed.measure("the smooth clock against sound played 5% fast", 3, function(attempt:Undisturbed):HeardOffset
+		{
+			// What was learned would carry on to the next video
+			@:privateAccess lime._internal.backend.native.NativeVideoSource.timerDrift = 0;
 
-		var heard = measureHeard(video, frame, 200);
-		video.dispose();
+			var video = open();
+			if (video == null) return null;
 
-		// What was learned would carry on to the next video
+			var frame = new VideoFrame();
+			video.loops = 1;
+			AL.sourcef(@:privateAccess video.__backend.handle, AL.PITCH, 1.05);
+			startPlaying(video, frame);
+			run(video, frame, 2.2, attempt);
+
+			// Two loops of the 2 s test video
+			var heard = measureHeard(video, frame, 1.0, attempt);
+			video.dispose();
+			return heard;
+		});
+
 		@:privateAccess lime._internal.backend.native.NativeVideoSource.timerDrift = 0;
+		if (heard == null) return;
 
 		// Outputs that mix further apart give fewer, rougher readings
 		var tolerance = Math.max(10, heard.period / 5);
-		Assert.isTrue(heard.mixes >= 5, "the position of the sound only moved " + heard.mixes + " times");
+		Assert.isTrue(heard.moved >= 5, "the position of the sound only moved " + heard.moved + " times");
 		Assert.isTrue(Math.abs(heard.offset) < tolerance, "with the sound 5% fast, the clock was " + heard.offset + " ms from what was heard ("
 			+ heard.latency + ", reads " + heard.readGap + " ms apart)");
 	}
@@ -1052,7 +1067,7 @@ class VideoSourceTest extends Test
 	}
 
 	#if lime_openalsoft
-	private static function measureHeard(video:VideoSource, frame:VideoFrame, reads:Int):HeardOffset
+	private static function measureHeard(video:VideoSource, frame:VideoFrame, seconds:Float, attempt:Undisturbed):HeardOffset
 	{
 		// Each time the position moves, the output has just mixed. Outputs that
 		// measure their latency report what is heard then, and most readings fall
@@ -1062,59 +1077,92 @@ class VideoSourceTest extends Test
 		// while it reads, so the most seen is the estimate. The audio clock should
 		// match what is heard at the mix. The others run on to the present,
 		// placing the mix halfway since they last read it.
+		//
+		// That places a mix only when it is the only one since the last read, so
+		// mixes are only measured where the reads around them are less than a
+		// period apart. Reads further apart, as when a frame is slow to decode,
+		// see the last of several mixes, half a period before the read on
+		// average, not halfway. The same leaves out each mix that a stall of the
+		// test's loop came between, so a stalled loop disturbs only those, while
+		// a mixer that fell behind or sound that stopped disturbs the attempt.
 		var device = ALC.getContextsDevice(ALC.getCurrentContext());
 		var refresh = ALC.getIntegerv(device, ALC.REFRESH, 1)[0];
 		var period = refresh > 0 ? 1000 / refresh : 0;
 		var backend = @:privateAccess video.__backend;
+		var handle = @:privateAccess backend.handle;
 		var runsOn = video.clockMode != VideoClockMode.AUDIO;
+		var rate = AL.getSourcef(handle, AL.PITCH) * video.rate;
 		var lastMixed = Math.NaN;
-		var lastRead = -1;
+		var lastRead = -1.0;
 		var most = 0.0;
 		var belowMost = 0;
 		var samples = 0;
 		var gaps = 0.0;
+		var moved = 0;
 		var latencies:Array<Float> = [];
 		var offsets:Array<Float> = [];
+		var end = Timer.stamp() + seconds;
 
-		for (i in 0...reads)
+		while (Timer.stamp() < end)
 		{
 			video.readFrame(frame);
 
-			// The clock on the timeline the sound is queued on, which runs on
-			// through each loop, where currentTime starts again
-			var clock = @:privateAccess backend.getTime() * 1000;
-			var read = System.getTimer();
-
-			// The queue and the position are read together, as the sound is queued
-			// from another thread
+			// The clock, on the timeline the sound is queued on, which runs on
+			// through each loop where currentTime starts again, is read with the
+			// position it follows, under the lock the sound is queued with from
+			// another thread
 			@:privateAccess backend.lockAudio();
 			var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
-			var values = bufferTimes.length > 0 ? AL.getSourcedvSOFT(@:privateAccess backend.handle, AL.SEC_OFFSET_LATENCY_SOFT, 2) : null;
-			var queueStart = bufferTimes.length > 0 ? bufferTimes[0] : 0;
+			var playing = bufferTimes.length > 0 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING
+				&& !@:privateAccess backend.audioStalled && !@:privateAccess backend.audioSkipping;
+			var clock = @:privateAccess backend.getTimeUnlocked() * 1000;
+			var followed = @:privateAccess backend.audioMixPosition * 1000;
+			var values = playing ? AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2) : null;
+			var read = Timer.stamp() * 1000;
+			var queueStart = playing ? bufferTimes[0] : 0;
 			@:privateAccess backend.unlockAudio();
 
-			if (values != null)
+			if (values == null)
 			{
-				var mixed = (queueStart + values[0]) * 1000;
-				var latency = values[1] * 1000;
+				// The sound ran out, or Lime found the output had stopped taking it
+				attempt.disturbed("the sound stopped playing");
+				lastMixed = Math.NaN;
+				lastRead = read;
+				pause(0.005);
+				continue;
+			}
 
-				most = Math.max(most, latency);
-				if (latency < most - 0.1) belowMost++;
-				samples++;
+			var mixed = (queueStart + values[0]) * 1000;
+			var latency = values[1] * 1000;
+			attempt.mixed(mixed, read, period, rate);
 
-				if (!Math.isNaN(lastMixed) && Math.abs(mixed - lastMixed) > 0.1)
+			most = Math.max(most, latency);
+			if (latency < most - 0.1) belowMost++;
+			samples++;
+
+			if (!Math.isNaN(lastMixed) && Math.abs(mixed - lastMixed) > 0.1)
+			{
+				var gap = read - lastRead;
+				moved++;
+
+				// A mix that lands between the clock's reading and this one is not in
+				// the clock yet
+				if (Math.abs(mixed - followed) <= 0.1 && (period <= 0 || gap < period))
 				{
-					var gap = lastRead >= 0 ? read - lastRead : 0;
-					offsets.push(clock - mixed - (runsOn ? gap / 2 : 0));
+					offsets.push(clock - mixed - (runsOn ? gap / 2 * rate : 0));
 					latencies.push(latency);
 					gaps += gap;
 				}
-
-				lastMixed = mixed;
 			}
 
+			lastMixed = mixed;
 			lastRead = read;
 			pause(0.005);
+		}
+
+		if (moved >= 5 && (offsets.length < 5 || offsets.length < moved / 2))
+		{
+			attempt.disturbed("the test read the sound a period or more apart at " + (moved - offsets.length) + " of " + moved + " mixes");
 		}
 
 		var measured = samples > 0 && belowMost / samples > 0.3;
@@ -1127,7 +1175,7 @@ class VideoSourceTest extends Test
 
 		return {
 			offset: offset,
-			mixes: offsets.length,
+			moved: moved,
 			period: period,
 			latency: measured ? "measured latency" : "estimated latency, " + period + " ms periods",
 			readGap: offsets.length > 0 ? Math.round(gaps / offsets.length) : 0
@@ -1422,14 +1470,41 @@ class VideoSourceTest extends Test
 		while (Timer.stamp() < end) {}
 	}
 
-	private static function run(video:VideoSource, frame:VideoFrame, seconds:Float):Void
+	private static function run(video:VideoSource, frame:VideoFrame, seconds:Float, ?attempt:Undisturbed):Void
 	{
-		// Keeps the video updating, as a render loop would
+		// Keeps the video updating, as a render loop would, watching the audio
+		// output's mixer during an attempt at a measurement that depends on it
 		var end = Timer.stamp() + seconds;
+		#if (lime_cffi && lime_openalsoft)
+		var period = 0.0;
+
+		if (attempt != null && ALC.getCurrentContext() != null)
+		{
+			var refresh = ALC.getIntegerv(ALC.getContextsDevice(ALC.getCurrentContext()), ALC.REFRESH, 1)[0];
+			period = refresh > 0 ? 1000 / refresh : 0;
+		}
+		#end
 
 		while (Timer.stamp() < end)
 		{
 			video.readFrame(frame);
+
+			#if (lime_cffi && lime_openalsoft)
+			if (attempt != null)
+			{
+				var backend = @:privateAccess video.__backend;
+				var handle = @:privateAccess backend.handle;
+				@:privateAccess backend.lockAudio();
+				var bufferTimes:Array<Float> = @:privateAccess backend.bufferTimes;
+				if (handle != null && bufferTimes.length > 0)
+				{
+					var position = (bufferTimes[0] + AL.getSourcedvSOFT(handle, AL.SEC_OFFSET_LATENCY_SOFT, 2)[0]) * 1000;
+					attempt.mixed(position, Timer.stamp() * 1000, period, AL.getSourcef(handle, AL.PITCH) * video.rate);
+				}
+				@:privateAccess backend.unlockAudio();
+			}
+			#end
+
 			pause(0.005);
 		}
 	}
@@ -1472,7 +1547,7 @@ class VideoSourceTest extends Test
 private typedef HeardOffset =
 {
 	latency:String,
-	mixes:Int,
+	moved:Int,
 	offset:Float,
 	period:Float,
 	readGap:Int
