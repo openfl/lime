@@ -252,7 +252,12 @@ class NativeHTTPRequest
 		curl.setOption(SSL_VERIFYHOST, parent.verifyCertificates ? 2 : 0);
 		curl.setOption(USERAGENT, parent.userAgent == null ? "libcurl-agent/1.0" : parent.userAgent);
 
-		// curl.setOption (CONNECTTIMEOUT, 30);
+		// The whole request, as XMLHttpRequest.timeout is on HTML5
+		if (parent.timeout > 0)
+		{
+			curl.setOption(TIMEOUT_MS, parent.timeout);
+		}
+
 		curl.setOption(NOSIGNAL, true);
 
 		#if curl_verbose
