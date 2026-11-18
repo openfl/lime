@@ -1224,7 +1224,7 @@ class HXProject extends Script
 
 				if (asset.embed == null)
 				{
-					embeddedAsset.embed = (platformType == PlatformType.WEB || target == AIR);
+					embeddedAsset.embed = ((platformType == PlatformType.WEB && target != WEB_ASSEMBLY) || target == AIR);
 				}
 
 				embeddedAsset.type = Std.string(asset.type).toLowerCase();
