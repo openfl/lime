@@ -559,39 +559,48 @@ class ImageDataUtil
 		var data = image.buffer.data;
 		if (data == null) return;
 
-		if (format == ARGB32) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
+		// A start point outside the image changes nothing, as with setPixel32
+		if (x < 0 || y < 0 || x >= image.width || y >= image.height) return;
+
+		var fillColor:RGBA = switch (format)
+		{
+			case ARGB32: (color : ARGB);
+			case BGRA32: (color : BGRA);
+			default: color;
+		}
 
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_flood_fill(image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF);
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_flood_fill(image, x, y, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF);
 		else
 			// TODO: Better Int32 solution
 		#end
 		{
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
+			var transparent = image.transparent;
 
-			var fillColor:RGBA = color;
+			// Within the image's own part of the buffer, whose rows are stride long
+			var stride = image.buffer.stride;
+			var originX = image.offsetX;
+			var originY = image.offsetY;
 
+			if (!transparent) fillColor.a = 0xFF;
+			if (premultiplied) fillColor.multiplyAlpha();
+
+			// Pixels are compared as they are stored, so that a fill colour
+			// premultiplied to the same bytes as the start isn't taken for it
+			var position = (y + originY) * stride + (x + originX) * 4;
 			var hitColor:RGBA = 0;
-			hitColor.readUInt8(data, ((y + image.offsetY) * (image.buffer.width * 4)) + ((x + image.offsetX) * 4), format, premultiplied);
-
-			if (!image.transparent)
-			{
-				fillColor.a = 0xFF;
-				hitColor.a = 0xFF;
-			}
+			hitColor.readUInt8(data, position, format, false);
+			if (!transparent) hitColor.a = 0xFF;
 
 			if (fillColor == hitColor) return;
 
-			if (premultiplied) fillColor.multiplyAlpha();
+			// The start pixel, then each pixel joined to a filled one by an edge
+			fillColor.writeUInt8(data, position, format, false);
 
 			var dx = [0, -1, 1, 0];
 			var dy = [-1, 0, 0, 1];
-
-			var minX = -image.offsetX;
-			var minY = -image.offsetY;
-			var maxX = minX + image.width;
-			var maxY = minY + image.height;
 
 			var queue = new Array<Int>();
 			queue.push(x);
@@ -609,13 +618,14 @@ class ImageDataUtil
 					nextPointX = curPointX + dx[i];
 					nextPointY = curPointY + dy[i];
 
-					if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY)
+					if (nextPointX < 0 || nextPointY < 0 || nextPointX >= image.width || nextPointY >= image.height)
 					{
 						continue;
 					}
 
-					nextPointOffset = (nextPointY * image.width + nextPointX) * 4;
-					readColor.readUInt8(data, nextPointOffset, format, premultiplied);
+					nextPointOffset = (nextPointY + originY) * stride + (nextPointX + originX) * 4;
+					readColor.readUInt8(data, nextPointOffset, format, false);
+					if (!transparent) readColor.a = 0xFF;
 
 					if (readColor == hitColor)
 					{

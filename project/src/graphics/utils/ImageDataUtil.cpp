@@ -330,33 +330,38 @@ namespace lime {
 
 	void ImageDataUtil::FloodFill (Image* image, int x, int y, int32_t color) {
 
+		// A start point outside the image changes nothing, as with setPixel32
+		if (x < 0 || y < 0 || x >= image->width || y >= image->height) return;
+
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		PixelFormat format = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
+		bool transparent = image->buffer->transparent;
+
+		// Within the image's own part of the buffer, whose rows are stride long
+		int stride = image->buffer->Stride ();
+		int originX = image->offsetX;
+		int originY = image->offsetY;
 
 		RGBA fillColor (color);
 
+		if (!transparent) fillColor.a = 0xFF;
 		if (premultiplied) fillColor.MultiplyAlpha ();
 
+		// Pixels are compared as they are stored, so that a fill colour
+		// premultiplied to the same bytes as the start isn't taken for it
+		int position = (y + originY) * stride + (x + originX) * 4;
 		RGBA hitColor;
-		hitColor.ReadUInt8 (data, ((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4), format, premultiplied, LIME_BIG_ENDIAN);
-
-		if (!image->buffer->transparent) {
-
-			fillColor.a = 0xFF;
-			hitColor.a = 0xFF;
-
-		}
+		hitColor.ReadUInt8 (data, position, format, false, LIME_BIG_ENDIAN);
+		if (!transparent) hitColor.a = 0xFF;
 
 		if (fillColor == hitColor) return;
 
+		// The start pixel, then each pixel joined to a filled one by an edge
+		fillColor.WriteUInt8 (data, position, format, false);
+
 		int dx[4] = { 0, -1, 1, 0 };
 		int dy[4] = { -1, 0, 0, 1 };
-
-		int minX = -image->offsetX;
-		int minY = -image->offsetY;
-		int maxX = minX + image->width;
-		int maxY = minY + image->height;
 
 		QuickVec<int> queue = QuickVec<int> ();
 		queue.push_back (x);
@@ -375,14 +380,15 @@ namespace lime {
 				nextPointX = curPointX + dx[i];
 				nextPointY = curPointY + dy[i];
 
-				if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY) {
+				if (nextPointX < 0 || nextPointY < 0 || nextPointX >= image->width || nextPointY >= image->height) {
 
 					continue;
 
 				}
 
-				nextPointOffset = (nextPointY * image->width + nextPointX) * 4;
-				readColor.ReadUInt8 (data, nextPointOffset, format, premultiplied, LIME_BIG_ENDIAN);
+				nextPointOffset = (nextPointY + originY) * stride + (nextPointX + originX) * 4;
+				readColor.ReadUInt8 (data, nextPointOffset, format, false, LIME_BIG_ENDIAN);
+				if (!transparent) readColor.a = 0xFF;
 
 				if (readColor == hitColor) {
 
