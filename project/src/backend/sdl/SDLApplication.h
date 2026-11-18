@@ -71,7 +71,7 @@ namespace lime {
 			bool IsFrameDue (double now) const;
 			bool IsIdleDue (double now) const;
 			bool IsSchedulerUnthrottled () const;
-			void PaceFrameAfterRender (bool swapped);
+			void PaceFrameAfterRender (bool swapped, double renderMs);
 			void RefreshVSyncState ();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
@@ -189,6 +189,11 @@ namespace lime {
 			double sleepGuardMs;
 			// Unthrottled because each swap waits for the display
 			bool swapPaced;
+			// Swap paced, but the swaps were seen not to wait, so frames are timed until one does
+			bool swapFallback;
+			// Swapped frames in a row that came well under a refresh period apart
+			int shortSwaps;
+			double lastSwapFrame;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			TrayIconEvent trayIconEvent;

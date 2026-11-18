@@ -130,6 +130,10 @@ namespace lime
 		allowBusyWait = true;
 		busyWaitOnly = false;
 		mainLoopApplied = false;
+		swapPaced = false;
+		swapFallback = false;
+		shortSwaps = 0;
+		lastSwapFrame = 0.0;
 		currentUpdate = 0.0;
 		deltaRemainder = 0.0;
 		dispatchedFrames = 0;
@@ -306,6 +310,8 @@ namespace lime
 		useDisplayDrivenFallback = false;
 		schedulerUnthrottled = false;
 		swapPaced = false;
+		swapFallback = false;
+		shortSwaps = 0;
 
 		bool hasExplicitFrameRate = (clampedFrameRate > 0.0);
 		double effectiveFrameRate = hasExplicitFrameRate ? clampedFrameRate : 1.0;
@@ -501,8 +507,9 @@ namespace lime
 		if (renderFrame)
 		{
 			unsigned int flips = s_contextFlips;
+			double renderStart = swapPaced ? GetCurrentTimeMs() : 0.0;
 			RenderEvent::Dispatch(&renderEvent);
-			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips);
+			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips, GetCurrentTimeMs() - renderStart);
 		}
 	}
 
@@ -512,18 +519,58 @@ namespace lime
 		s_contextFlips++;
 	}
 
-	void SDLApplication::PaceFrameAfterRender(bool swapped)
+	void SDLApplication::PaceFrameAfterRender(bool swapped, double renderMs)
 	{
+
+		double refreshPeriod = 1000.0 / displayRefreshRate;
 
 		// The loop runs unthrottled while each swap waits for the display. A frame that
 		// swaps nothing, as when an application skips drawing an unchanged scene, waits
 		// for nothing, so until a frame swaps again, frames come once per refresh.
-		schedulerUnthrottled = swapped;
-
 		if (!swapped)
 		{
-			nextUpdate = currentUpdate + 1000.0 / displayRefreshRate;
+			schedulerUnthrottled = false;
+			nextUpdate = currentUpdate + refreshPeriod;
+			return;
 		}
+
+		if (swapFallback)
+		{
+			// Frames are timed while the swaps don't wait. One that blocks for a good part of a
+			// refresh shows the display pacing them again.
+			if (renderMs >= refreshPeriod * 0.25)
+			{
+				swapFallback = false;
+				shortSwaps = 0;
+				lastSwapFrame = currentUpdate;
+				schedulerUnthrottled = true;
+			}
+
+			return;
+		}
+
+		// A swap can return at once, as when a driver forces vsync off, in a remote session or
+		// a virtual machine, which would leave update and render running back to back. Frames
+		// that swapped coming well under a refresh apart several times running show that.
+		double interval = currentUpdate - lastSwapFrame;
+		lastSwapFrame = currentUpdate;
+
+		if (interval < refreshPeriod * 0.5)
+		{
+			if (++shortSwaps >= 3)
+			{
+				swapFallback = true;
+				schedulerUnthrottled = false;
+				nextUpdate = currentUpdate + framePeriod;
+				return;
+			}
+		}
+		else
+		{
+			shortSwaps = 0;
+		}
+
+		schedulerUnthrottled = true;
 	}
 
 	bool SDLApplication::IsFrameDue(double now) const
@@ -923,6 +970,12 @@ namespace lime
 			case SDL_WINDOWEVENT_RESTORED:
 
 				ProcessWindowEvent(event);
+				break;
+
+			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+
+				// The display's refresh rate decides whether frames are swap paced
+				ApplyMainLoopSettings();
 				break;
 
 			case SDL_WINDOWEVENT_EXPOSED:
