@@ -13,6 +13,14 @@ class TestMain extends Application
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
 		runner.addCase(new app.PromiseTest());
+		runner.addCase(new graphics.CairoCompositeTest());
+		runner.addCase(new graphics.CairoDrawTest());
+		runner.addCase(new graphics.CairoPathTest());
+		runner.addCase(new graphics.CairoPatternTest());
+		runner.addCase(new graphics.CairoSurfaceTest());
+		runner.addCase(new graphics.CairoTest());
+		runner.addCase(new graphics.CairoTextTest());
+		runner.addCase(new graphics.CairoTransformTest());
 		runner.addCase(new graphics.ImageCodecTest());
 		runner.addCase(new graphics.ImageCopyTest());
 		runner.addCase(new graphics.ImageDecodeOutputTest());
