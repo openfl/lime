@@ -214,6 +214,24 @@ def parse(output, finished):
     return failed
 
 
+def timing(output):
+    """Per test, how many of its timing attempts were disturbed, and whether it measured nothing."""
+    disturbed = collections.Counter()
+    unmeasured = set()
+    test = None
+
+    for line in output.splitlines():
+        match = re.match(r"^Running (\S+)", line)
+        if match:
+            test = match.group(1)
+        elif line.startswith("Timing attempt "):
+            disturbed[test] += 1
+        elif "Timing not measured" in line:
+            unmeasured.add(test)
+
+    return disturbed, unmeasured
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--target", default="neko", help="the Lime target to build and run (default neko)")
@@ -250,6 +268,8 @@ def main():
 
     failures = collections.Counter()
     messages = collections.defaultdict(list)
+    disturbances = collections.Counter()
+    unmeasured = collections.Counter()
     clean = 0
 
     try:
@@ -257,6 +277,9 @@ def main():
             began = time.time()
             output, finished = run_once(executable, args.timeout, args.stall_process, args.stall_thread)
             failed = parse(output, finished)
+            disturbed, missed = timing(output)
+            disturbances.update(disturbed)
+            unmeasured.update(missed)
             if not failed:
                 clean += 1
             for test, message in failed.items():
@@ -275,6 +298,14 @@ def main():
         print("%3d  %s" % (count, test))
         for message in messages[test]:
             print("       " + message)
+
+    if disturbances:
+        # Undisturbed.hx repeats a timing measurement that a stall disturbed, and
+        # reports one it could never take undisturbed as not measured
+        print()
+        print("Timing attempts disturbed, and runs where a test measured nothing:")
+        for test, count in disturbances.most_common():
+            print("%3d  %3d  %s" % (count, unmeasured[test], test))
 
 
 if __name__ == "__main__":
