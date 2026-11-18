@@ -129,7 +129,12 @@ class Undisturbed
 			var result = attempt(run);
 			var reason = run.describe();
 
-			if (reason == null) return result;
+			if (reason == null)
+			{
+				// Said so that a result the test fails on can be traced to the attempt
+				if (i > 0) print("Timing attempt " + (i + 1) + " of " + attempts + " for " + what + " was undisturbed");
+				return result;
+			}
 
 			disturbances.push(reason);
 			print("Timing attempt " + (i + 1) + " of " + attempts + " for " + what + " was disturbed: " + reason);

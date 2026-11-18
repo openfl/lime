@@ -52,8 +52,14 @@ def find_executable(target):
 def build(target, pattern, extra):
     command = ["lime", "build", target, "-release", "-nocolor", "-DUTEST_PATTERN=" + pattern] + extra
     print("Building: " + " ".join(command), flush=True)
-    shell = sys.platform == "win32"
-    subprocess.run(command, cwd=HERE, check=True, shell=shell)
+
+    if sys.platform == "win32":
+        # lime is a batch file, run by cmd, which would take the | in a pattern
+        # as a pipe unless it is quoted
+        line = " ".join('"%s"' % part if re.search(r'[|&<>^()\s]', part) else part for part in command)
+        subprocess.run(line, cwd=HERE, check=True, shell=True)
+    else:
+        subprocess.run(command, cwd=HERE, check=True)
 
 
 def busy_loop():
@@ -224,7 +230,7 @@ def timing(output):
         match = re.match(r"^Running (\S+)", line)
         if match:
             test = match.group(1)
-        elif line.startswith("Timing attempt "):
+        elif line.startswith("Timing attempt ") and " was disturbed" in line:
             disturbed[test] += 1
         elif "Timing not measured" in line:
             unmeasured.add(test)
@@ -244,6 +250,7 @@ def main():
     parser.add_argument("--no-build", action="store_true", help="run what was built last")
     parser.add_argument("--exe", help="run this TestMain instead of building one")
     parser.add_argument("--define", action="append", default=[], help="another -D define for the build")
+    parser.add_argument("--logs", metavar="DIR", help="keep the whole output of each failing run here")
     args = parser.parse_args()
 
     if args.stall_thread and sys.platform != "win32":
@@ -282,6 +289,10 @@ def main():
             unmeasured.update(missed)
             if not failed:
                 clean += 1
+            elif args.logs:
+                os.makedirs(args.logs, exist_ok=True)
+                with open(os.path.join(args.logs, "run-%d.txt" % (run + 1)), "w", encoding="utf-8") as log:
+                    log.write(output)
             for test, message in failed.items():
                 failures[test] += 1
                 if len(messages[test]) < 3:

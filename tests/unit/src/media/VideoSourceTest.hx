@@ -991,7 +991,7 @@ class VideoSourceTest extends Test
 			}
 
 			Assert.isTrue(Math.abs(heard.offset) < 10, "when the " + name + " clock's sound was mixed, the clock was " + heard.offset + " ms from what was heard ("
-				+ heard.latency + ", reads " + heard.readGap + " ms apart)");
+				+ heard.latency + ", reads " + heard.readGap + " ms apart, " + heard.detail + ")");
 		}
 	}
 
@@ -1032,7 +1032,7 @@ class VideoSourceTest extends Test
 		var tolerance = Math.max(10, heard.period / 5);
 		Assert.isTrue(heard.moved >= 5, "the position of the sound only moved " + heard.moved + " times");
 		Assert.isTrue(Math.abs(heard.offset) < tolerance, "with the sound 5% fast, the clock was " + heard.offset + " ms from what was heard ("
-			+ heard.latency + ", reads " + heard.readGap + " ms apart)");
+			+ heard.latency + ", reads " + heard.readGap + " ms apart, " + heard.detail + ")");
 	}
 	#end
 	#end
@@ -1108,6 +1108,13 @@ class VideoSourceTest extends Test
 	}
 
 	#if lime_openalsoft
+	private static function mean(values:Array<Float>):Float
+	{
+		var sum = 0.0;
+		for (value in values) sum += value;
+		return values.length > 0 ? sum / values.length : Math.NaN;
+	}
+
 	private static function measureHeard(video:VideoSource, frame:VideoFrame, seconds:Float, attempt:Undisturbed):HeardOffset
 	{
 		// Each time the position moves, the output has just mixed. Outputs that
@@ -1142,6 +1149,11 @@ class VideoSourceTest extends Test
 		var moved = 0;
 		var latencies:Array<Float> = [];
 		var offsets:Array<Float> = [];
+		var firstMixed = Math.NaN;
+		var firstRead = 0.0;
+		var endMixed = 0.0;
+		var endRead = 0.0;
+		var drift = @:privateAccess lime._internal.backend.native.NativeVideoSource.timerDrift;
 		var end = Timer.stamp() + seconds;
 
 		while (Timer.stamp() < end)
@@ -1177,6 +1189,15 @@ class VideoSourceTest extends Test
 			var latency = values[1] * 1000;
 			attempt.mixed(mixed, read, period, rate);
 
+			if (Math.isNaN(firstMixed))
+			{
+				firstMixed = mixed;
+				firstRead = read;
+			}
+
+			endMixed = mixed;
+			endRead = read;
+
 			most = Math.max(most, latency);
 			if (latency < most - 0.1) belowMost++;
 			samples++;
@@ -1207,19 +1228,26 @@ class VideoSourceTest extends Test
 		}
 
 		var measured = samples > 0 && belowMost / samples > 0.3;
-		var offset = 0.0;
+		var heard = [for (i in 0...offsets.length) offsets[i] + (measured ? latencies[i] : most + period)];
+		var half = heard.length >> 1;
 
-		for (i in 0...offsets.length)
-		{
-			offset += (offsets[i] + (measured ? latencies[i] : most + period)) / offsets.length;
-		}
+		// Said when the clock is too far out: whether it was out from the start
+		// and closing, as after something that happened before the measurement,
+		// whether the sound kept time with the timer while it was measured, and
+		// the rate the smooth clock had learned for the output
+		var learned = @:privateAccess lime._internal.backend.native.NativeVideoSource.timerDrift;
+		var detail = "first half " + Math.round(mean(heard.slice(0, half))) + " ms, second half " + Math.round(mean(heard.slice(half)))
+			+ " ms, the sound fell " + Math.round((endRead - firstRead) - (endMixed - firstMixed) / rate) + " ms behind the timer in "
+			+ Math.round(endRead - firstRead) + " ms, output rate learned " + Math.round(drift * 1000) / 10 + "% then "
+			+ Math.round(learned * 1000) / 10 + "% against the timer";
 
 		return {
-			offset: offset,
+			offset: heard.length > 0 ? mean(heard) : 0,
 			moved: moved,
 			period: period,
 			latency: measured ? "measured latency" : "estimated latency, " + period + " ms periods",
-			readGap: offsets.length > 0 ? Math.round(gaps / offsets.length) : 0
+			readGap: offsets.length > 0 ? Math.round(gaps / offsets.length) : 0,
+			detail: detail
 		};
 	}
 	#end
@@ -1591,7 +1619,8 @@ private typedef HeardOffset =
 	moved:Int,
 	offset:Float,
 	period:Float,
-	readGap:Int
+	readGap:Int,
+	detail:String
 }
 
 private typedef PausedSound =
