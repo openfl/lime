@@ -218,7 +218,8 @@ jobs:
         run: |
           sudo add-apt-repository ppa:haxe/releases -y
           sudo apt-get update
-          sudo apt-get install -y haxe
+          # Launchpad sometimes answers 503 for a while; retry rather than fail the job
+          sudo apt-get install -y -o Acquire::Retries=5 haxe
           mkdir $HOME/haxelib
           haxelib setup $HOME/haxelib
 
