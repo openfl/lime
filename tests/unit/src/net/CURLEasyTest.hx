@@ -104,7 +104,13 @@ class CURLEasyTest extends Test
 
 	public function testPerformReportsATimeout():Void
 	{
-		var server = serve(function(_) return ScriptedResponse.unanswered());
+		// The server answers long after the timeout, without reading from the connection meanwhile
+		var server = serve(function(_)
+		{
+			var response = ScriptedResponse.text(200, "late");
+			response.delay = 3;
+			return response;
+		});
 		var curl = handle();
 		curl.setOption(TIMEOUT_MS, 300);
 
