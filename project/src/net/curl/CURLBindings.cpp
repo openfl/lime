@@ -1207,7 +1207,7 @@ namespace lime {
 
 				// CURL.getInfo makes the bytes a String
 				result = hl_alloc_dynamic (&hlt_bytes);
-				result->v.b = hl_copy_bytes ((const vbyte*)stringValue, (int)strlen (stringValue) + 1);
+				result->v.bytes = hl_copy_bytes ((const vbyte*)stringValue, (int)strlen (stringValue) + 1);
 				return result;
 			}
 
