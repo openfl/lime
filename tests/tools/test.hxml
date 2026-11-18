@@ -5,6 +5,9 @@
 -D lime
 -cp src
 -cp ../../src
+# The platform tests drive the update step of the command-line tools
+-cp ../../tools
+-cp ../../tools/platforms
 -lib format
 -lib hxp
 -lib utest

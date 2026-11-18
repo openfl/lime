@@ -16,6 +16,10 @@ class ToolsTestMain
 		runner.addCase(new AssetEmbeddingTest());
 		runner.addCase(new ConfigTest());
 		runner.addCase(new ProjectElementsTest());
+		runner.addCase(new ConfigDataTest());
+		runner.addCase(new TemplateContextTest());
+		runner.addCase(new HTML5OutputTest());
+		runner.addCase(new AndroidOutputTest());
 
 		// Each test is named as it starts, so a run that stops (the tools exit on errors) shows where
 		runner.onTestStart.add(function(handler)
