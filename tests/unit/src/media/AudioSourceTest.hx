@@ -1,6 +1,7 @@
 package media;
 
 #if (lime_cffi && !macro && lime_sdl_sound)
+import haxe.Timer;
 import lime.media.AudioBuffer;
 import lime.media.AudioManager;
 import lime.media.AudioSource;
@@ -115,15 +116,23 @@ class AudioSourceTest extends Test
 		Assert.equals(AL.PLAYING, stateOf(vocals));
 		Assert.equals(AL.INITIAL, stateOf(other), "a source that was not listed was started");
 
-		// Started in the same mixer update, the two have mixed the same number of samples
-		Sys.sleep(0.2);
-		// Pause both in one call so the mixer cannot advance between the reads.
+		// Started in the same mixer update, the two have mixed the same number of
+		// samples. They play until the output has mixed some of them, however long
+		// a busy machine takes to get to that.
+		var end = Timer.stamp() + 5;
+		while (AL.getSourcei(handleOf(instrumental), AL.SAMPLE_OFFSET) == 0 && Timer.stamp() < end)
+		{
+			Sys.sleep(0.005);
+		}
+
+		// Read while playing, a mix could land between the two reads. Paused in one
+		// call, the two stop in the same mixer update, and OpenAL Soft no longer
+		// moves a voice it is pausing, so both offsets are final once
+		// alSourcePausev returns.
 		AL.sourcePausev([handleOf(instrumental), handleOf(vocals)]);
 		Assert.equals(AL.PAUSED, stateOf(instrumental));
 		Assert.equals(AL.PAUSED, stateOf(vocals));
 		var instrumentalOffset = AL.getSourcei(handleOf(instrumental), AL.SAMPLE_OFFSET);
-		// Keep the comparison valid when the test thread is delayed.
-		Sys.sleep(0.05);
 		var vocalsOffset = AL.getSourcei(handleOf(vocals), AL.SAMPLE_OFFSET);
 		Assert.isTrue(instrumentalOffset > 0, "the sound did not play");
 		Assert.equals(instrumentalOffset, vocalsOffset);
