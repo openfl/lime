@@ -1736,7 +1736,7 @@ namespace lime {
 
 	value lime_al_get_booleanv (int param, int count) {
 
-		ALboolean* values = new ALboolean[count];
+		ALboolean* values = new ALboolean[count] ();
 		alGetBooleanv (param, values);
 
 		value result = alloc_array (count);
@@ -1838,7 +1838,7 @@ namespace lime {
 	value lime_al_get_bufferfv (value buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetBufferfv (id, param, values);
 
 		value result = alloc_array (count);
@@ -1888,7 +1888,7 @@ namespace lime {
 	value lime_al_get_bufferiv (value buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetBufferiv (id, param, values);
 
 		value result = alloc_array (count);
@@ -1931,7 +1931,7 @@ namespace lime {
 
 	value lime_al_get_doublev (int param, int count) {
 
-		ALdouble* values = new ALdouble[count];
+		ALdouble* values = new ALdouble[count] ();
 		alGetDoublev (param, values);
 
 		value result = alloc_array (count);
@@ -2029,7 +2029,7 @@ namespace lime {
 
 	value lime_al_get_floatv (int param, int count) {
 
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetFloatv (param, values);
 
 		value result = alloc_array (count);
@@ -2071,7 +2071,7 @@ namespace lime {
 
 	value lime_al_get_integerv (int param, int count) {
 
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetIntegerv (param, values);
 
 		value result = alloc_array (count);
@@ -2165,7 +2165,7 @@ namespace lime {
 
 	value lime_al_get_listenerfv (int param, int count) {
 
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetListenerfv (param, values);
 
 		value result = alloc_array (count);
@@ -2211,7 +2211,7 @@ namespace lime {
 
 	value lime_al_get_listeneriv (int param, int count) {
 
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetListeneriv (param, values);
 
 		value result = alloc_array (count);
@@ -2377,7 +2377,7 @@ namespace lime {
 	value lime_al_get_sourcefv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetSourcefv (id, param, values);
 
 		value result = alloc_array (count);
@@ -2447,7 +2447,7 @@ namespace lime {
 	value lime_al_get_sourceiv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetSourceiv (id, param, values);
 
 		value result = alloc_array (count);
