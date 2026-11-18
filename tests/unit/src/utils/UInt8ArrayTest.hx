@@ -313,4 +313,49 @@ class UInt8ArrayTest extends Test
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 	}
+
+	public function testElementsReadBackAsUnsignedAcrossTheirRange():Void
+	{
+		var array = new UInt8Array(4);
+		array[0] = 0xFF;
+		array[1] = 0x80;
+		array[2] = 0x7F;
+		array[3] = 0x01;
+
+		assertUnsigned([255, 128, 127, 1], array);
+
+		// Read into a local whose type is inferred, as user code does
+		var inferred = array[0];
+		Assert.equals(256, inferred + 1);
+	}
+
+	public function testElementsReadBackAsUnsignedThroughAViewWithAByteOffset():Void
+	{
+		var buffer = new ArrayBuffer(6);
+		var whole = new UInt8Array(buffer);
+		whole[0] = 0x01;
+		whole[1] = 0xFF;
+		whole[2] = 0x80;
+		whole[3] = 0xFE;
+		whole[4] = 0x7F;
+
+		var view = new UInt8Array(buffer, 1, 4);
+		Assert.equals(1, view.byteOffset);
+		assertUnsigned([255, 128, 254, 127], view);
+
+		var subarray = whole.subarray(1, 5);
+		Assert.equals(1, subarray.byteOffset);
+		assertUnsigned([255, 128, 254, 127], subarray);
+	}
+
+	private static function assertUnsigned(expected:Array<Float>, array:UInt8Array, ?pos:haxe.PosInfos):Void
+	{
+		Assert.equals(expected.length, array.length, pos);
+
+		for (i in 0...expected.length)
+		{
+			var value:UInt = array[i];
+			Assert.equals(expected[i], (value : Float), "element " + i + " read back as " + (value : Float), pos);
+		}
+	}
 }
