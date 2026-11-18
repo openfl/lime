@@ -971,10 +971,25 @@ namespace lime {
 			case CURLINFO_RTSP_SESSION_ID:
 			case CURLINFO_SCHEME:
 
-				char stringValue;
+			{
+				char* stringValue = NULL;
 				code = curl_easy_getinfo (handle, type, &stringValue);
-				return alloc_string (&stringValue);
-				break;
+				return (code == CURLE_OK && stringValue) ? alloc_string (stringValue) : alloc_null ();
+			}
+
+			case CURLINFO_SIZE_UPLOAD_T:
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+			{
+				// 64 bits, where a long is 32 on Windows
+				curl_off_t offValue = 0;
+				code = curl_easy_getinfo (handle, type, &offValue);
+				if (offValue >= INT_MIN && offValue <= INT_MAX) return alloc_int ((int)offValue);
+				return alloc_float ((double)offValue);
+			}
 
 			case CURLINFO_RESPONSE_CODE:
 			case CURLINFO_HTTP_CONNECTCODE:
@@ -997,17 +1012,11 @@ namespace lime {
 			case CURLINFO_HTTP_VERSION:
 			case CURLINFO_PROXY_SSL_VERIFYRESULT:
 			case CURLINFO_PROTOCOL:
-			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
-			case CURLINFO_SIZE_DOWNLOAD_T:
-			case CURLINFO_SPEED_DOWNLOAD_T:
-			case CURLINFO_SPEED_UPLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
-
-				long intValue;
+			{
+				long intValue = 0;
 				code = curl_easy_getinfo (handle, type, &intValue);
 				return alloc_int (intValue);
-				break;
+			}
 
 			case CURLINFO_TOTAL_TIME:
 			case CURLINFO_NAMELOOKUP_TIME:
@@ -1089,17 +1098,40 @@ namespace lime {
 			case CURLINFO_RTSP_SESSION_ID:
 			case CURLINFO_SCHEME:
 			{
-				char stringValue;
+				char* stringValue = NULL;
 				code = curl_easy_getinfo (handle, type, &stringValue);
+				if (code != CURLE_OK || !stringValue) return NULL;
 
-				int size = strlen (&stringValue) + 1;
-				char* val = (char*)malloc (size);
-				memcpy (val, &stringValue, size);
-
+				// CURL.getInfo makes the bytes a String
 				result = hl_alloc_dynamic (&hlt_bytes);
-				result->v.b = val;
+				result->v.b = hl_copy_bytes ((const vbyte*)stringValue, (int)strlen (stringValue) + 1);
 				return result;
-				break;
+			}
+
+			case CURLINFO_SIZE_UPLOAD_T:
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+			{
+				// 64 bits, where a long is 32 on Windows
+				curl_off_t offValue = 0;
+				code = curl_easy_getinfo (handle, type, &offValue);
+
+				if (offValue >= INT_MIN && offValue <= INT_MAX) {
+
+					result = hl_alloc_dynamic (&hlt_i32);
+					result->v.i = (int)offValue;
+
+				} else {
+
+					result = hl_alloc_dynamic (&hlt_f64);
+					result->v.d = (double)offValue;
+
+				}
+
+				return result;
 			}
 
 			case CURLINFO_RESPONSE_CODE:
@@ -1123,14 +1155,8 @@ namespace lime {
 			case CURLINFO_HTTP_VERSION:
 			case CURLINFO_PROXY_SSL_VERIFYRESULT:
 			case CURLINFO_PROTOCOL:
-			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
-			case CURLINFO_SIZE_DOWNLOAD_T:
-			case CURLINFO_SPEED_DOWNLOAD_T:
-			case CURLINFO_SPEED_UPLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
 			{
-				long intValue;
+				long intValue = 0;
 				code = curl_easy_getinfo (handle, type, &intValue);
 
 				result = hl_alloc_dynamic (&hlt_i32);
