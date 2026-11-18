@@ -1809,7 +1809,7 @@ namespace lime {
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
 
-		alGetBuffer3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetBuffer3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -2115,7 +2115,7 @@ namespace lime {
 	HL_PRIM varray* HL_NAME(hl_al_get_listener3f) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_f32, 3);
-		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
+		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[1], &hl_aptr (result, float)[2]);
 		return result;
 
 	}
@@ -2139,7 +2139,7 @@ namespace lime {
 	HL_PRIM varray* HL_NAME(hl_al_get_listener3i) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_i32, 3);
-		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -2271,7 +2271,7 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, 3);
-		alGetSource3f (id, param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
+		alGetSource3f (id, param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[1], &hl_aptr (result, float)[2]);
 		return result;
 
 	}
@@ -2285,9 +2285,9 @@ namespace lime {
 		alGetSource3i (id, param, &val1, &val2, &val3);
 
 		value result = alloc_array (3);
-		val_array_set_i (result, 1, alloc_int (val1));
-		val_array_set_i (result, 2, alloc_int (val2));
-		val_array_set_i (result, 3, alloc_int (val3));
+		val_array_set_i (result, 0, alloc_int (val1));
+		val_array_set_i (result, 1, alloc_int (val2));
+		val_array_set_i (result, 2, alloc_int (val3));
 		return result;
 
 	}
@@ -2297,7 +2297,7 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
-		alGetSource3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetSource3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
