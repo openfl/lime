@@ -1285,7 +1285,8 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (handle);
-		delete font;
+		// A HarfBuzz face made from it may still be reading its face
+		if (font) font->Release ();
 		#endif
 
 	}
@@ -1295,7 +1296,8 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font* font = (Font*)handle->ptr;
-		delete font;
+		// A HarfBuzz face made from it may still be reading its face
+		if (font) font->Release ();
 		#endif
 
 	}

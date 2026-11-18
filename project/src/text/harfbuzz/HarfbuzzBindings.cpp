@@ -13,6 +13,37 @@
 namespace lime {
 
 
+	static hb_user_data_key_t font_key;
+
+
+	static void release_font (void* data) {
+
+		((Font*)data)->Release ();
+
+	}
+
+
+	// A HarfBuzz face made from a Font reads its FreeType face, which the Font
+	// frees with its library and memory, so the face keeps the Font until
+	// HarfBuzz destroys it. That is after the font made with it, and after any
+	// handle to the face, and the FreeType face isn't referenced: its release
+	// would come after the Font's.
+	hb_font_t* create_ft_font (Font* font) {
+
+		hb_font_t* hbFont = hb_ft_font_create ((FT_Face)font->face, NULL);
+		font->Retain ();
+
+		if (!hb_face_set_user_data (hb_font_get_face (hbFont), &font_key, font, release_font, true)) {
+
+			font->Release ();
+
+		}
+
+		return hbFont;
+
+	}
+
+
 	struct HBGlyphInfo {
 
 		int codepoint;
@@ -1240,7 +1271,8 @@ namespace lime {
 
 	value lime_hb_font_get_face (value font) {
 
-		hb_face_t* face = hb_font_get_face ((hb_font_t*)val_data (font));
+		// The handle's finalizer destroys a reference of its own
+		hb_face_t* face = hb_face_reference (hb_font_get_face ((hb_font_t*)val_data (font)));
 		return CFFIPointer (face, gc_hb_face);
 
 	}
@@ -1248,9 +1280,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_font_get_face) (HL_CFFIPointer* font) {
 
-		// TODO: Manage memory differently here?
-
-		hb_face_t* face = hb_font_get_face ((hb_font_t*)font->ptr);
+		hb_face_t* face = hb_face_reference (hb_font_get_face ((hb_font_t*)font->ptr));
 		return HLCFFIPointer (face, (hl_finalizer)hl_gc_hb_face);
 
 	}
@@ -1327,7 +1357,8 @@ namespace lime {
 
 	value lime_hb_font_get_parent (value font) {
 
-		hb_font_t* parent = hb_font_get_parent ((hb_font_t*)val_data (font));
+		// The handle's finalizer destroys a reference of its own
+		hb_font_t* parent = hb_font_reference (hb_font_get_parent ((hb_font_t*)val_data (font)));
 		return CFFIPointer (parent, gc_hb_font);
 
 	}
@@ -1335,9 +1366,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_font_get_parent) (HL_CFFIPointer* font) {
 
-		// Manage memory differently here?
-
-		hb_font_t* parent = hb_font_get_parent ((hb_font_t*)font->ptr);
+		hb_font_t* parent = hb_font_reference (hb_font_get_parent ((hb_font_t*)font->ptr));
 		return HLCFFIPointer (parent, (hl_finalizer)hl_gc_hb_font);
 
 	}
@@ -1518,7 +1547,7 @@ namespace lime {
 	value lime_hb_ft_font_create (value font) {
 
 		Font* _font = (Font*)val_data (font);
-		hb_font_t* __font = hb_ft_font_create ((FT_Face)_font->face, NULL);
+		hb_font_t* __font = create_ft_font (_font);
 		return CFFIPointer (__font, gc_hb_font);
 
 	}
@@ -1527,16 +1556,18 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_ft_font_create) (HL_CFFIPointer* font) {
 
 		Font* _font = (Font*)font->ptr;
-		hb_font_t* __font = hb_ft_font_create ((FT_Face)_font->face, NULL);
+		hb_font_t* __font = create_ft_font (_font);
 		return HLCFFIPointer (__font, (hl_finalizer)hl_gc_hb_font);
 
 	}
 
 
+	// A reference to the FreeType face wouldn't outlive the Font's
+	// FT_Done_FreeType, so this keeps the Font as lime_hb_ft_font_create does
 	value lime_hb_ft_font_create_referenced (value font) {
 
 		Font* _font = (Font*)val_data (font);
-		hb_font_t* __font = hb_ft_font_create_referenced ((FT_Face)_font->face);
+		hb_font_t* __font = create_ft_font (_font);
 		return CFFIPointer (__font, gc_hb_font);
 
 	}
@@ -1545,7 +1576,7 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_ft_font_create_referenced) (HL_CFFIPointer* font) {
 
 		Font* _font = (Font*)font->ptr;
-		hb_font_t* __font = hb_ft_font_create_referenced ((FT_Face)_font->face);
+		hb_font_t* __font = create_ft_font (_font);
 		return HLCFFIPointer (__font, (hl_finalizer)hl_gc_hb_font);
 
 	}
