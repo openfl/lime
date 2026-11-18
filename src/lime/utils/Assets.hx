@@ -571,7 +571,7 @@ class Assets
 			{
 				if (manifest == null)
 				{
-					promise.error("Cannot parse asset manifest for library \"" + id + "\"");
+					promise.error("Cannot parse asset manifest \"" + path + "\" for library \"" + id + "\": it is empty or isn't a manifest");
 					return;
 				}
 
