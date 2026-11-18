@@ -258,7 +258,7 @@ class HarfBuzzSetTest extends Test
 		Assert.equals(0, of([0]).next());
 	}
 
-	#if (cpp && linux)
+	#if cpp
 	@Ignored("Waiting on #2254")
 	#end
 	public function testNextRangeStartsWithTheFirstRunOfValues():Void
