@@ -1,0 +1,69 @@
+name: Install haxelib libraries
+description: Installs pinned libraries from lib.haxe.org and keeps them in the Actions cache, so a run that finds them there downloads none of them
+
+inputs:
+  libraries:
+    description: One library a line, as its name and an exact version
+    required: true
+
+runs:
+  using: composite
+  steps:
+
+    - name: Find the haxelib repository
+      id: repository
+      shell: bash
+      env:
+        LIBRARIES: ${{ inputs.libraries }}
+      run: |
+        set -eo pipefail
+        # haxelib can print a notice of a newer haxelib before the path
+        path="$(haxelib config | tail -n 1)"
+        echo "path=${path%[\\/]}" >> "$GITHUB_OUTPUT"
+        haxe="$(haxe -version 2>&1 | tail -n 1)"
+        list="$(printf '%s' "$LIBRARIES" | cksum | cut -d ' ' -f 1)"
+        echo "key=haxelib-${RUNNER_OS}-${RUNNER_ARCH}-haxe-${haxe}-${list}" >> "$GITHUB_OUTPUT"
+
+    - name: Restore the libraries
+      id: restore
+      uses: actions/cache/restore@v6
+      with:
+        path: ${{ steps.repository.outputs.path }}
+        key: ${{ steps.repository.outputs.key }}
+
+    - name: Install the libraries the cache didn't have
+      shell: bash
+      env:
+        LIBRARIES: ${{ inputs.libraries }}
+      run: |
+        set -eo pipefail
+
+        # haxelib install asks lib.haxe.org first even for a version already
+        # installed, so the list is read here, which needs no server
+        installed() {
+          haxelib list "$1" < /dev/null | awk -v name="$1" -v version="$2" '
+            tolower($1) == tolower(name) ":" {
+              for (i = 2; i <= NF; i++) {
+                v = $i
+                if (substr(v, 1, 1) == "[") v = substr(v, 2, length(v) - 2)
+                if (v == version) found = 1
+              }
+            }
+            END { exit !found }'
+        }
+
+        while read -r name version; do
+          [ -n "$name" ] || continue
+          if installed "$name" "$version"; then
+            echo "$name $version is installed"
+          else
+            haxelib install "$name" "$version" --quiet < /dev/null
+          fi
+        done <<< "$LIBRARIES"
+
+    - name: Save the libraries
+      if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v6
+      with:
+        path: ${{ steps.repository.outputs.path }}
+        key: ${{ steps.repository.outputs.key }}
