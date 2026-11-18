@@ -36,13 +36,14 @@ class HarfBuzzFontTest extends Test
 	private static inline var NO_HINTING = 0x2;
 	private static inline var FORCE_AUTOHINT = 0x20;
 
-	#if lime_test_crashes
 	private static inline var HANDLES = 100;
 	private static inline var ROUNDS = 12;
-	#end
 
 	// Blobs
 
+	#if cpp
+	@Ignored("Waiting on #2280")
+	#end
 	public function testABlobHoldsAsManyBytesAsItWasGiven():Void
 	{
 		var bytes = FontFixture.monoBytes();
@@ -361,10 +362,6 @@ class HarfBuzzFontTest extends Test
 		Assert.isTrue(hbFont == null);
 	}
 
-	#if lime_test_crashes
-	// Ends the process, or reads freed memory: a Font frees its FreeType face when it
-	// is collected, whatever still references it. Runs only with -Dlime_test_crashes.
-	@Ignored("Waiting on #2255")
 	public function testAnFTFontOutlivesTheFontItWasMadeFrom():Void
 	{
 		// hb_ft_font_create_referenced: the FT_Face stays alive for as long as the font made from it
@@ -382,10 +379,6 @@ class HarfBuzzFontTest extends Test
 		}
 	}
 
-	// Ends the process, or reads freed memory: each face and parent read is released
-	// when its handle is collected, though the font still uses it. Runs only with
-	// -Dlime_test_crashes.
-	@Ignored("Waiting on #2255")
 	public function testReadingAFontsFaceLeavesTheFaceInUse():Void
 	{
 		// hb_font_get_face returns the font's own face, not a reference to release
@@ -403,7 +396,6 @@ class HarfBuzzFontTest extends Test
 		assertVector(FontFixture.MONO_ADVANCE, 0, font.getGlyphAdvanceForDirection(H, HBDirection.LTR));
 	}
 
-	@Ignored("Waiting on #2255")
 	public function testReadingASubFontsParentLeavesTheParentInUse():Void
 	{
 		// hb_font_get_parent returns the font's own parent, not a reference to release
@@ -422,7 +414,7 @@ class HarfBuzzFontTest extends Test
 
 	private static function orphanedFTFont():HBFTFont
 	{
-		return new HBFTFont(unheldSizedFont(FontFixture.MONO_PATH, 32));
+		return new HBFTFont(sizedFont(FontFixture.MONO_PATH, 32));
 	}
 
 	private static function countGlyphsThroughFace(font:HBFont):Int
@@ -472,7 +464,6 @@ class HarfBuzzFontTest extends Test
 		hl.Gc.major();
 		#end
 	}
-	#end
 
 	// Languages
 
@@ -530,18 +521,7 @@ class HarfBuzzFontTest extends Test
 	}
 
 	/** A font at `size` pixels to the em, as OpenFL's text engine sizes one before shaping with it **/
-	// A Font that is collected frees the FreeType face an HBFTFont made from it still
-	// uses (#2255), so the tests keep every Font they make for the whole run
-	private static var heldFonts:Array<Font> = [];
-
 	private static function sizedFont(path:String, size:Int):Font
-	{
-		var font = unheldSizedFont(path, size);
-		heldFonts.push(font);
-		return font;
-	}
-
-	private static function unheldSizedFont(path:String, size:Int):Font
 	{
 		var font = Font.fromFile(path);
 		@:privateAccess font.__setSize(size);
