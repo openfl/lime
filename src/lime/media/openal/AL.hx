@@ -585,7 +585,7 @@ class AL
 	public static function getBooleanv(param:Int, count:Int = 1):Array<Bool>
 	{
 		#if (lime_cffi && lime_openal && !macro)
-		var result = NativeCFFI.lime_al_get_booleanv(param, 1);
+		var result = NativeCFFI.lime_al_get_booleanv(param, count);
 		#if hl
 		if (result == null) return [];
 		var _result = [];

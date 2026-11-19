@@ -678,7 +678,8 @@ namespace lime {
 
 	value lime_cairo_get_font_options (value handle) {
 
-		cairo_font_options_t* options = 0;
+		// cairo_get_font_options copies into options the caller has made
+		cairo_font_options_t* options = cairo_font_options_create ();
 		cairo_get_font_options ((cairo_t*)val_data (handle), options);
 		return CFFIPointer (options, gc_cairo_font_options);
 
@@ -687,7 +688,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_font_options) (HL_CFFIPointer* handle) {
 
-		cairo_font_options_t* options = 0;
+		cairo_font_options_t* options = cairo_font_options_create ();
 		cairo_get_font_options ((cairo_t*)handle->ptr, options);
 		return HLCFFIPointer (options, (hl_finalizer)hl_gc_cairo_font_options);
 
@@ -1392,7 +1393,8 @@ namespace lime {
 
 	int lime_cairo_pattern_get_color_stop_count (value handle) {
 
-		int count;
+		// Left as it is for a pattern that isn't a gradient
+		int count = 0;
 		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)val_data (handle), &count);
 		return count;
 
@@ -1401,7 +1403,7 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_cairo_pattern_get_color_stop_count) (HL_CFFIPointer* handle) {
 
-		int count;
+		int count = 0;
 		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)handle->ptr, &count);
 		return count;
 
@@ -2117,6 +2119,8 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_cairo_show_text) (HL_CFFIPointer* handle, hl_vstring* text) {
 
+		// A null String draws nothing, as on the other native targets
+		if (!text) return;
 		cairo_show_text ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 
 	}

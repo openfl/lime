@@ -98,7 +98,6 @@ class Float32ArrayTest extends Test
 		Assert.equals(Math.NEGATIVE_INFINITY, 1 / array[3]);
 	}
 
-	@Ignored("Waiting on #2154")
 	public function testSetIntoASubarrayWritesAtItsOffset():Void
 	{
 		// Uploading part of a vertex buffer through a subarray, as GL code often does
@@ -110,7 +109,6 @@ class Float32ArrayTest extends Test
 		assertElements([0, 0, 1.5, 2.5, 3.5, 4.5], vertices);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromTypedArrayConvertsValues():Void
 	{
 		assertElements([0.10000000149011612, 16777216, Math.POSITIVE_INFINITY], new Float32Array(new Float64Array([0.1, 16777217.0, 1e40])));
@@ -200,7 +198,6 @@ class Float32ArrayTest extends Test
 		assertElements([0, 0, 0.10000000149011612, Math.POSITIVE_INFINITY], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetTypedArrayConvertsValues():Void
 	{
 		var array = new Float32Array(3);
@@ -218,7 +215,8 @@ class Float32ArrayTest extends Test
 		assertElements([1, 2, 1, 2, 3, 4], forward);
 	}
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsWriteIsIgnored():Void
 	{
 		var buffer = new ArrayBuffer(16);
@@ -227,4 +225,5 @@ class Float32ArrayTest extends Test
 		array[-1] = 9;
 		Assert.same([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], bytesOf(buffer));
 	}
+	#end
 }

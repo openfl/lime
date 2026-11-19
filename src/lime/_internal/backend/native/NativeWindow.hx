@@ -169,6 +169,7 @@ class NativeWindow
 		parent.__x = NativeCFFI.lime_window_get_x(handle);
 		parent.__y = NativeCFFI.lime_window_get_y(handle);
 		parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
+		parent.__fullscreen = (flags & cast WindowFlags.WINDOW_FLAG_FULLSCREEN) != 0;
 
 		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
@@ -819,6 +820,8 @@ class NativeWindow
 	{
 		if (handle != null)
 		{
+			var wasFullscreen = parent.__fullscreen;
+
 			#if (!macro && lime_cffi)
 			value = NativeCFFI.lime_window_set_fullscreen(handle, value);
 			parent.__width = NativeCFFI.lime_window_get_width(handle);
@@ -826,9 +829,17 @@ class NativeWindow
 			parent.__x = NativeCFFI.lime_window_get_x(handle);
 			parent.__y = NativeCFFI.lime_window_get_y(handle);
 			#end
-			if (value)
+
+			// Set before the events, so their listeners read the new state
+			parent.__fullscreen = value;
+
+			if (value && !wasFullscreen)
 			{
 				parent.onFullscreen.dispatch();
+			}
+			else if (!value && wasFullscreen)
+			{
+				parent.onRestore.dispatch();
 			}
 		}
 		return value;
