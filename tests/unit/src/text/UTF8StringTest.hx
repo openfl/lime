@@ -32,9 +32,6 @@ class UTF8StringTest extends Test
 		}
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testLengthCountsCodePoints():Void
 	{
 		Assert.equals(0, (("" : UTF8String)).length);
@@ -47,9 +44,6 @@ class UTF8StringTest extends Test
 		Assert.equals(8, ((MIXED : UTF8String)).length);
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testLengthOfCharactersLedByE0EDF0():Void
 	{
 		// Devanagari, Thai, Hangul and emoji start with the lead bytes 0xE0, 0xED and 0xF0
@@ -59,9 +53,6 @@ class UTF8StringTest extends Test
 		Assert.equals(4, (("अก한\u{1F600}" : UTF8String)).length);
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testCharAt():Void
 	{
 		var s:UTF8String = MIXED;
@@ -75,9 +66,6 @@ class UTF8StringTest extends Test
 		Assert.equals("€", s.charAt(7));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testCharAtOutOfRangeIsEmpty():Void
 	{
 		var s:UTF8String = MIXED;
@@ -86,17 +74,11 @@ class UTF8StringTest extends Test
 		Assert.equals("", s.charAt(100));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testCharCodeAt():Void
 	{
 		assertCodes(MIXED_CODES, MIXED);
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testCharCodeAtOutOfRangeIsNull():Void
 	{
 		var s:UTF8String = MIXED;
@@ -105,9 +87,6 @@ class UTF8StringTest extends Test
 		Assert.isNull(s.charCodeAt(100));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testCharCodeAtEncodingBoundaries():Void
 	{
 		// The first and last code point of each UTF-8 sequence length
@@ -116,9 +95,6 @@ class UTF8StringTest extends Test
 		assertCodes([0x905, 0xE01, 0xD55C, 0xD7FF, 0xE000, 0x1F600], "अก한퟿\u{1F600}");
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testIndexOf():Void
 	{
 		var s:UTF8String = MIXED;
@@ -133,9 +109,6 @@ class UTF8StringTest extends Test
 		Assert.equals(-1, s.indexOf("É"));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testIndexOfWithStartIndex():Void
 	{
 		var s:UTF8String = MIXED;
@@ -149,9 +122,6 @@ class UTF8StringTest extends Test
 		Assert.equals(-1, s.indexOf("a", 9));
 	}
 
-	#if !neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testIndexOfEmptyString():Void
 	{
 		var s:UTF8String = MIXED;
@@ -160,9 +130,6 @@ class UTF8StringTest extends Test
 		Assert.equals(8, s.indexOf("", 8));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testLastIndexOf():Void
 	{
 		var s:UTF8String = MIXED;
@@ -173,9 +140,6 @@ class UTF8StringTest extends Test
 		Assert.equals(-1, s.lastIndexOf("x"));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testLastIndexOfWithStartIndex():Void
 	{
 		var s:UTF8String = MIXED;
@@ -214,7 +178,6 @@ class UTF8StringTest extends Test
 		Assert.same(["", ""], only.split("\u{1F600}"));
 	}
 
-	@Ignored("Waiting on #2153")
 	public function testSplitEmptyDelimiterGivesCodePoints():Void
 	{
 		// String: an Array of this.length elements, one for each character
@@ -222,9 +185,6 @@ class UTF8StringTest extends Test
 		Assert.same(["a", "é", "€", "\u{1F600}", "e", "́", "z", "€"], s.split(""));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testSubstr():Void
 	{
 		var s:UTF8String = MIXED;
@@ -238,9 +198,6 @@ class UTF8StringTest extends Test
 		Assert.equals(MIXED, s.substr(0));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testSubstrNegativePosition():Void
 	{
 		var s:UTF8String = MIXED;
@@ -252,9 +209,6 @@ class UTF8StringTest extends Test
 		Assert.equals("aé", s.substr(-100, 2));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testSubstring():Void
 	{
 		var s:UTF8String = MIXED;
@@ -266,9 +220,6 @@ class UTF8StringTest extends Test
 		Assert.equals("", s.substring(100));
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testSubstringSwapsAndClampsArguments():Void
 	{
 		var s:UTF8String = MIXED;
@@ -297,9 +248,6 @@ class UTF8StringTest extends Test
 		Assert.equals(s.length, lower.length);
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testCaseConversionOfNonAsciiLetters():Void
 	{
 		// String: "all characters of this String are upper case"
@@ -323,9 +271,6 @@ class UTF8StringTest extends Test
 		Assert.isTrue(precomposed != decomposed);
 	}
 
-	#if !neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testComparisonOrdersByCodePoint():Void
 	{
 		var a:UTF8String = "a";
@@ -349,9 +294,6 @@ class UTF8StringTest extends Test
 		Assert.isTrue(e < eAcute);
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testConcatenationCountsCodePoints():Void
 	{
 		var a:UTF8String = "é€";
@@ -369,9 +311,6 @@ class UTF8StringTest extends Test
 		Assert.equals("61c3a9e282acf09f988065cc817ae282ac", bytes.toHex());
 	}
 
-	#if neko
-	@Ignored("Waiting on #2153")
-	#end
 	public function testFromBytesRoundTrip():Void
 	{
 		var s:UTF8String = Bytes.ofHex("61c3a9e282acf09f988065cc817ae282ac").getString(0, 17, Encoding.UTF8);

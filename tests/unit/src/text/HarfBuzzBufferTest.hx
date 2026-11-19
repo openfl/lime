@@ -516,9 +516,6 @@ class HarfBuzzBufferTest extends Test
 		}
 	}
 
-	#if neko
-	@Ignored("Waiting on #2254")
-	#end
 	public function testScriptIsKept():Void
 	{
 		var buffer = new HBBuffer();
@@ -582,7 +579,6 @@ class HarfBuzzBufferTest extends Test
 		Assert.equals((HBBufferContentType.GLYPHS : Int), (buffer.contentType : Int));
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testSegmentPropertiesAreThoseOfTheBuffer():Void
 	{
 		// hb_buffer_get_segment_properties: the direction, script and language together
@@ -593,10 +589,6 @@ class HarfBuzzBufferTest extends Test
 		Assert.notNull(buffer.segmentProperties);
 	}
 
-	#if lime_test_crashes
-	// Ends the process: the properties read are null, which the native side takes as
-	// a pointer to them. Runs only with -Dlime_test_crashes.
-	@Ignored("Waiting on #2254")
 	public function testSegmentPropertiesCopyFromOneBufferToAnother():Void
 	{
 		// hb_buffer_set_segment_properties: as setting the direction, script and language one by one
@@ -610,7 +602,6 @@ class HarfBuzzBufferTest extends Test
 		Assert.equals((HBDirection.RTL : Int), (target.direction : Int));
 		Assert.equals("he", languageOf(target));
 	}
-	#end
 
 	// Guessing the properties
 

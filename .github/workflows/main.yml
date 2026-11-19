@@ -109,6 +109,11 @@ jobs:
           xvfb-run -a lime test hl -release -verbose -nocolor
           xvfb-run -a lime test linux -release -verbose -nocolor
 
+      - name: Check a plain hxml HashLink build
+        working-directory: tests/plain-hxml
+        timeout-minutes: 10
+        run: haxe --run Run
+
       - name: Run OpenGL tests
         working-directory: tests/unit
         timeout-minutes: 10
@@ -624,6 +629,11 @@ jobs:
           lime test hl -release -verbose -nocolor
           lime test mac -x86_64 -release -verbose -nocolor
 
+      - name: Check a plain hxml HashLink build
+        working-directory: tests/plain-hxml
+        timeout-minutes: 10
+        run: haxe --run Run
+
       - name: Install samples
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -753,6 +763,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           lime test windows -release -verbose -nocolor
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Check a plain hxml HashLink build
+        working-directory: tests/plain-hxml
+        timeout-minutes: 10
+        run: haxe --run Run
 
       - name: Run software OpenGL tests
         working-directory: tests/unit

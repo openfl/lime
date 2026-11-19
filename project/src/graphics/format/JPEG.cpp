@@ -299,6 +299,9 @@ namespace lime {
 				int components = cinfo.output_components;
 				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 
+				// JPEG has no alpha
+				imageBuffer->transparent = false;
+
 				unsigned char *bytes = imageBuffer->data->buffer->b;
 				unsigned char *scanline = new unsigned char [imageBuffer->width * components];
 
