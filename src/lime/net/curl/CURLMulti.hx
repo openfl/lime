@@ -88,6 +88,32 @@ class CURLMulti
 		#end
 	}
 
+	/**
+		Waits for activity on the transfers' sockets, as `wait()` does, until `timeoutMS` passes or
+		`wakeup()` is called from another thread. Unlike `wait()`, it waits the whole time even
+		when there are no transfers.
+	**/
+	public function poll(timeoutMS:Int):CURLMultiCode
+	{
+		#if (lime_cffi && lime_curl && !macro)
+		return cast NativeCFFI.lime_curl_multi_poll(handle, timeoutMS);
+		#else
+		return cast 0;
+		#end
+	}
+
+	/**
+		Ends a `poll()` in progress at once, or the next one if none is. Safe to call from any thread.
+	**/
+	public function wakeup():CURLMultiCode
+	{
+		#if (lime_cffi && lime_curl && !macro)
+		return cast NativeCFFI.lime_curl_multi_wakeup(handle);
+		#else
+		return cast 0;
+		#end
+	}
+
 	public function wait(timeoutMS:Int):CURLMultiCode
 	{
 		#if (lime_cffi && lime_curl && !macro)
