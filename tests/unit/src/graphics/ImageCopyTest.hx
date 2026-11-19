@@ -119,7 +119,6 @@ class ImageCopyTest extends Test
 	}
 
 	#if flash
-	@Ignored("Waiting on #2212")
 	#end
 	public function testCopyPixelsWithinOneImageCopiesThePixelsAsTheyWere():Void
 	{
@@ -145,7 +144,6 @@ class ImageCopyTest extends Test
 		assertPixels(expected, square, 0, "down and right");
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testCopyPixelsIntoAnImageWithAnOffsetWritesOnlyItsOwnPart():Void
 	{
 		var whole = create(4, 4);
@@ -156,7 +154,6 @@ class ImageCopyTest extends Test
 		assertPixels([0, 0, 0, 0, 0, RED, RED, 0, 0, RED, RED, 0, 0, 0, 0, 0], whole);
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testCopyPixelsIntoAnOpaqueImageKeepsItOpaque():Void
 	{
 		// An opaque image has no alpha to hold, as in Flash
@@ -185,7 +182,6 @@ class ImageCopyTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testCopyPixelsBetweenPremultipliedAndPlainImages():Void
 	{
 		var premultiplied = fromRows([[0x80FF8040, 0xFF112233]], null, true);

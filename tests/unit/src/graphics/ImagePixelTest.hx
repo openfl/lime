@@ -321,7 +321,6 @@ class ImagePixelTest extends Test
 	}
 
 	#if flash
-	@Ignored("Waiting on #2212")
 	#end
 	public function testACloneHasItsOwnPixels():Void
 	{
@@ -336,7 +335,6 @@ class ImagePixelTest extends Test
 	}
 
 	#if neko
-	@Ignored("Waiting on #2176")
 	#end
 	public function testGetPixelsWritesEachFormatInItsByteOrder():Void
 	{
@@ -400,7 +398,6 @@ class ImagePixelTest extends Test
 	}
 
 	#if neko
-	@Ignored("Waiting on #2176")
 	#end
 	public function testSetPixelsTakesRGBAByDefault():Void
 	{

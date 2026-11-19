@@ -852,6 +852,8 @@ class Image
 		rect = __clipRect(rect);
 		if (rect == null) return Bytes.alloc(0);
 
+		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
+		if (format == null) format = RGBA32;
 		switch (type)
 		{
 			case CANVAS:
@@ -1237,13 +1239,15 @@ class Image
 		@param	rect	The region of pixels in this `Image` to replace with the incoming bytes
 		@param	bytePointer	A `BytePointer` object referencing the `Bytes` and position to read from
 		@param	format	(Optional) The `PixelFormat` that the pixels are encoded in (default is `RGBA`)
-		@param	endian (Optional) The endianness of the incoming bytes (default is the system endianness)
+		@param	endian (Optional) The endianness of the incoming bytes (default is `BIG_ENDIAN`)
 	**/
 	public function setPixels(rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null, endian:Endian = null):Void
 	{
 		rect = __clipRect(rect);
 		if (buffer == null || rect == null) return;
 		if (endian == null) endian = BIG_ENDIAN;
+		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
+		if (format == null) format = RGBA32;
 
 		switch (type)
 		{
