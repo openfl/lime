@@ -398,7 +398,9 @@ class ProjectXMLParser extends HXProject
 		}
 	}
 
-	private function parseAssetsElement(element:Access, basePath:String = "", isTemplate:Bool = false):Void
+	// parent is what a nested node takes from the node around it: its rename
+	// as the base of this one's, and its embed, library, type and glyphs
+	private function parseAssetsElement(element:Access, basePath:String = "", isTemplate:Bool = false, parent:AssetsParent = null):Void
 	{
 		var path = "";
 		var embed:Null<Bool> = null;
@@ -410,6 +412,11 @@ class ProjectXMLParser extends HXProject
 		if (element.has.path)
 		{
 			path = Path.combine(basePath, substitute(element.att.path));
+		}
+		else if (parent != null)
+		{
+			// A nested node that only groups others starts where its parent is
+			path = basePath;
 		}
 
 		if (element.has.embed)
@@ -434,6 +441,15 @@ class ProjectXMLParser extends HXProject
 		if (element.has.glyphs)
 		{
 			glyphs = substitute(element.att.glyphs);
+		}
+
+		if (parent != null)
+		{
+			if (parent.targetPath != "") targetPath = (targetPath == "") ? parent.targetPath : parent.targetPath + "/" + targetPath;
+			if (embed == null) embed = parent.embed;
+			if (library == null) library = parent.library;
+			if (glyphs == null) glyphs = parent.glyphs;
+			type = parent.type;
 		}
 
 		if (isTemplate)
@@ -557,6 +573,9 @@ class ProjectXMLParser extends HXProject
 		}
 		else
 		{
+			var parentPath = path;
+			var parentTargetPath = targetPath;
+
 			if (path != "")
 			{
 				path += "/";
@@ -571,7 +590,28 @@ class ProjectXMLParser extends HXProject
 			{
 				var isValid = isValidElement(childElement, "");
 
-				if (isValid)
+				if (isValid && __isAssetsGroup(childElement, path))
+				{
+					// Read as an <assets> node is at the top level, under this one
+					var childType = switch (childElement.name)
+					{
+						case "image", "sound", "music", "font", "template", "binary", "text":
+							Reflect.field(AssetType, childElement.name.toUpperCase());
+						case "library", "manifest":
+							AssetType.MANIFEST;
+						default:
+							type;
+					}
+
+					parseAssetsElement(childElement, parentPath, childType == AssetType.TEMPLATE, {
+						targetPath: parentTargetPath,
+						embed: embed,
+						library: library,
+						glyphs: glyphs,
+						type: childType
+					});
+				}
+				else if (isValid)
 				{
 					var childPath = substitute(childElement.has.name ? childElement.att.name : childElement.att.path);
 					var childTargetPath = childPath;
@@ -602,7 +642,7 @@ class ProjectXMLParser extends HXProject
 
 					switch (childElement.name)
 					{
-						case "image", "sound", "music", "font", "template":
+						case "image", "sound", "music", "font", "template", "binary", "text":
 							childType = Reflect.field(AssetType, childElement.name.toUpperCase());
 
 						case "library", "manifest":
@@ -636,6 +676,18 @@ class ProjectXMLParser extends HXProject
 				}
 			}
 		}
+	}
+
+	// A nested node that is more than one file: an <assets> node, or one that
+	// names a directory, picks files with include or exclude, or has children
+	private function __isAssetsGroup(element:Access, parentPath:String):Bool
+	{
+		if (element.has.name) return false;
+		if (element.name == "assets" || element.has.include || element.has.exclude || element.elements.hasNext()) return true;
+		if (!element.has.path) return false;
+
+		var path = parentPath + substitute(element.att.path);
+		return FileSystem.exists(path) && FileSystem.isDirectory(path) && Path.extension(path) != "bundle";
 	}
 
 	private function parseAssetsElementDirectory(path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>,
@@ -1197,7 +1249,8 @@ class ProjectXMLParser extends HXProject
 					}
 					else
 					{
-						path = Path.tryFullPath(Path.combine(extensionPath, path));
+						// Already combined with this file's folder above
+						path = Path.tryFullPath(path);
 
 						if (version != "")
 						{
@@ -2132,7 +2185,8 @@ class ProjectXMLParser extends HXProject
 						windows[id].orientation = orientation;
 					}
 
-				case "height", "width", "fps", "antialiasing":
+				// x and y are whole numbers, as WindowAttributes takes them
+				case "height", "width", "fps", "antialiasing", "x", "y", "display":
 					var parsedValue = Std.parseInt(value);
 					if (parsedValue == null)
 					{
@@ -2241,4 +2295,13 @@ class ProjectXMLParser extends HXProject
 				return null;
 		}
 	}
+}
+
+private typedef AssetsParent =
+{
+	var targetPath:String;
+	var embed:Null<Bool>;
+	var library:String;
+	var glyphs:String;
+	var type:AssetType;
 }
