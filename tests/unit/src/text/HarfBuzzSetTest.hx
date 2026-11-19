@@ -251,16 +251,12 @@ class HarfBuzzSetTest extends Test
 		Assert.equals(0x10FFFF, of([0x10FFFF]).next());
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testNextStartsWithZeroWhenZeroIsAMember():Void
 	{
 		Assert.equals(0, of([0, 7]).next());
 		Assert.equals(0, of([0]).next());
 	}
 
-	#if cpp
-	@Ignored("Waiting on #2254")
-	#end
 	public function testNextRangeStartsWithTheFirstRunOfValues():Void
 	{
 		// hb_set_next_range: starting from HB_SET_VALUE_INVALID gives the first run of consecutive values
@@ -276,7 +272,6 @@ class HarfBuzzSetTest extends Test
 		Assert.equals(8, Std.int(range.y));
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testNextRangeStartsAtZeroWhenZeroIsAMember():Void
 	{
 		var set = new HBSet();

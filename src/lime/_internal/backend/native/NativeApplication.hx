@@ -394,9 +394,20 @@ class NativeApplication
 
 	private function handleDropEvent():Void
 	{
-		for (window in parent.windows)
+		var file = CFFI.stringValue(dropEventInfo.file);
+		var window = parent.__windowByID.get(dropEventInfo.windowID);
+
+		if (window != null)
 		{
-			window.onDropFile.dispatch(CFFI.stringValue(dropEventInfo.file));
+			window.onDropFile.dispatch(file);
+		}
+		else
+		{
+			// SDL doesn't always know the window, as for a file dropped on the application's icon
+			for (window in parent.windows)
+			{
+				window.onDropFile.dispatch(file);
+			}
 		}
 	}
 
@@ -987,16 +998,18 @@ class NativeApplication
 {
 	public var file:#if hl hl.Bytes #else String #end;
 	public var type:DropEventType;
+	public var windowID:Int;
 
-	public function new(type:DropEventType = null, file = null)
+	public function new(type:DropEventType = null, file = null, windowID:Int = 0)
 	{
 		this.type = type;
 		this.file = file;
+		this.windowID = windowID;
 	}
 
 	public function clone():DropEventInfo
 	{
-		return new DropEventInfo(type, file);
+		return new DropEventInfo(type, file, windowID);
 	}
 }
 
@@ -1185,7 +1198,7 @@ class NativeApplication
 			clickCount:Int = 0)
 	{
 		this.type = type;
-		this.windowID = 0;
+		this.windowID = windowID;
 
 		this.x = x;
 		this.y = y;

@@ -162,7 +162,6 @@ class CairoPatternTest extends Test
 		Assert.equals(2, radial.colorStopCount);
 	}
 
-	@Ignored("Waiting on #2256")
 	public function testAPatternThatIsNotAGradientHasNoColorStops():Void
 	{
 		Assert.equals(0, CairoPattern.createRGB(1, 0, 0).colorStopCount);

@@ -97,7 +97,6 @@ class ConfigDataTest extends Test
 	}
 
 	// ...and a Bool is a Bool: project.config.set("ios.enable-bitcode", true)
-	@Ignored("Waiting on #2261")
 	public function testGetBoolReadsABoolValue():Void
 	{
 		var config = new ConfigData();
@@ -286,7 +285,6 @@ class ConfigDataTest extends Test
 	}
 
 	// Two lists that happen to end with the same value are still two lists
-	@Ignored("Waiting on #2261")
 	public function testMergeKeepsEarlierValuesWhenBothListsEndAlike():Void
 	{
 		var config = new ConfigData();

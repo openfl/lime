@@ -52,7 +52,6 @@ class URIParserTest extends Test
 		Assert.equals("/index.php", uri.path);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testFragmentMayHoldAQuestionMark():Void
 	{
 		// RFC 3986 3.5: a fragment runs to the end and may contain "?"
@@ -73,7 +72,6 @@ class URIParserTest extends Test
 		Assert.equals("top", uri.anchor);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testMissingPartsAreNull():Void
 	{
 		var uri = new URIParser("https://example.com/index.html");
@@ -125,7 +123,6 @@ class URIParserTest extends Test
 		Assert.equals("file.txt", uri.file);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testPasswordMayHoldAColon():Void
 	{
 		// RFC 3986 3.2.1: userinfo may contain ":"; the user name ends at the first
@@ -137,7 +134,6 @@ class URIParserTest extends Test
 		Assert.equals("pass:word", uri.password);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testAtSignInTheQueryIsNotUserInfo():Void
 	{
 		// RFC 3986 3.2: the authority ends at the first "/", "?" or "#"
@@ -150,7 +146,6 @@ class URIParserTest extends Test
 		Assert.equals("email=john@example.org", uri.query);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testAtSignInThePathIsNotUserInfo():Void
 	{
 		var uri = new URIParser("https://example.com/users/@john/profile");
@@ -160,7 +155,6 @@ class URIParserTest extends Test
 		Assert.equals("/users/@john/profile", uri.path);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testAtSignInTheFragmentIsNotUserInfo():Void
 	{
 		var uri = new URIParser("https://example.com#john@example.org");
@@ -179,7 +173,6 @@ class URIParserTest extends Test
 		Assert.equals("/status", uri.path);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testIPv6LiteralHost():Void
 	{
 		// RFC 3986 3.2.2: an IPv6 address is written in brackets, which are part
@@ -192,7 +185,6 @@ class URIParserTest extends Test
 		Assert.equals("/index.html", uri.path);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testIPv6LiteralHostWithoutAPort():Void
 	{
 		// From RFC 3986 1.1.2
@@ -312,7 +304,6 @@ class URIParserTest extends Test
 		Assert.equals("section-2", uri.anchor);
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testEmptyQueryAndFragmentAreNotMissing():Void
 	{
 		// RFC 3986 6.2.3: "?" and "#" with nothing after them are empty parts,
@@ -345,7 +336,6 @@ class URIParserTest extends Test
 		Assert.same([{k: "expr", v: "x=1"}], URIParser.parseQuery("expr=x=1"));
 	}
 
-	@Ignored("Waiting on #2144")
 	public function testParseQueryOfAnEmptyQueryIsEmpty():Void
 	{
 		Assert.same([], URIParser.parseQuery(""));

@@ -298,13 +298,24 @@ import lime.utils.Log;
 
 	/**
 		Chains two `Future` instances together, passing the result from the first
-		as input for creating/returning a new `Future` instance of a new or the same type
+		as input for creating/returning a new `Future` instance of a new or the same type.
+		If `next` throws, the returned `Future` fails with what it threw.
 	**/
 	public function then<U>(next:T->Future<U>):Future<U>
 	{
 		if (isComplete)
 		{
-			return next(value);
+			try
+			{
+				return next(value);
+			}
+			catch (e:Dynamic)
+			{
+				var future = new Future<U>();
+				future.isError = true;
+				future.error = e;
+				return future;
+			}
 		}
 		else if (isError)
 		{
@@ -322,7 +333,18 @@ import lime.utils.Log;
 
 			onComplete(function(val)
 			{
-				var future = next(val);
+				var future:Future<U>;
+
+				try
+				{
+					future = next(val);
+				}
+				catch (e:Dynamic)
+				{
+					promise.error(e);
+					return;
+				}
+
 				future.onError(promise.error);
 				future.onComplete(promise.complete);
 			});
