@@ -57,9 +57,6 @@ class CompressionTest extends Test
 		assertRoundTrips(Bytes.alloc(0));
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testOneByteRoundTrips():Void
 	{
 		assertRoundTrips(Bytes.ofString("a"));
@@ -68,17 +65,11 @@ class CompressionTest extends Test
 		assertRoundTrips(zero);
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testEveryByteValueRoundTrips():Void
 	{
 		assertRoundTrips(everyByte());
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testHighlyCompressibleDataRoundTripsSmaller():Void
 	{
 		var data = repeated("abc", 1024 * 1024);
@@ -93,17 +84,11 @@ class CompressionTest extends Test
 		assertRoundTrips(data);
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testRandomDataRoundTrips():Void
 	{
 		assertRoundTrips(random(65536, 1));
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testLargeDataRoundTrips():Void
 	{
 		// Over a megabyte each of random bytes, zeros and text
@@ -134,12 +119,6 @@ class CompressionTest extends Test
 		}
 	}
 
-	#if neko
-	@Ignored("Waiting on #2179")
-	#end
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testCompressedBytesCompareEqualToACopy():Void
 	{
 		// Bytes.compare() gives 0 when the bytes are identical, and getData() holds the bytes
@@ -236,9 +215,6 @@ class CompressionTest extends Test
 		}
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testGZipStreamsHaveTheirMagicHeader():Void
 	{
 		// ID1 0x1f, ID2 0x8b, CM 8, and FLG's reserved bits clear (RFC 1952 §2.3.1)
@@ -253,9 +229,6 @@ class CompressionTest extends Test
 		}
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testGZipStreamsEndWithTheirCRC32AndSize():Void
 	{
 		// The member ends with the CRC-32 and the size of the uncompressed data, least significant byte first (RFC 1952 §2.3.1)
@@ -318,9 +291,6 @@ class CompressionTest extends Test
 		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX, GZIP, "the fox");
 	}
 
-	#if flash
-	@Ignored("Waiting on #2213")
-	#end
 	public function testGZipOptionalHeaderFieldsAreSkipped():Void
 	{
 		// A decompressor must skip FEXTRA, FNAME, FCOMMENT and FHCRC when they're there (RFC 1952 §2.3.1.2)
