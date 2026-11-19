@@ -87,6 +87,14 @@ class JPEG
 			image.format = RGBA32;
 		}
 
+		if (image.offsetX != 0 || image.offsetY != 0 || image.width != image.buffer.width || image.height != image.buffer.height)
+		{
+			// The encoders write the whole buffer, so give them one holding only this image
+			var buffer = new ImageBuffer(UInt8Array.fromBytes(image.getPixels(image.rect, RGBA32)), image.width, image.height);
+			buffer.transparent = image.transparent;
+			image = new Image(buffer);
+		}
+
 		#if java
 		#elseif (sys && lime_cffi && (!disable_cffi || !format) && !macro)
 		if (CFFI.enabled)
