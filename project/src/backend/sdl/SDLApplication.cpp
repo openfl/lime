@@ -1704,13 +1704,17 @@ namespace lime
 		int id;
 		int type;
 		int itemID;
+		int x;
+		int y;
 
-		if (TrayIconEvent::callback && SDLMenu::GetTrayIconEvent(event, &id, &type, &itemID))
+		if (TrayIconEvent::callback && SDLMenu::GetTrayIconEvent(event, &id, &type, &itemID, &x, &y))
 		{
 
 			trayIconEvent.type = (TrayIconEventType)type;
 			trayIconEvent.id = id;
 			trayIconEvent.itemID = itemID;
+			trayIconEvent.x = x;
+			trayIconEvent.y = y;
 
 			TrayIconEvent::Dispatch(&trayIconEvent);
 		}
