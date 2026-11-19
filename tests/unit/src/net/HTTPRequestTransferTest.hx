@@ -210,7 +210,6 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(15000)
-	@Ignored("Waiting on #2194")
 	public function testCancellingStopsTheTransfer(async:Async):Void
 	{
 		// URLLoader.close(): a load in progress is terminated at once, and
@@ -240,7 +239,6 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2194")
 	public function testACancelledLoadDoesNotComplete(async:Async):Void
 	{
 		// URLLoader.close() and XMLHttpRequest.abort(): an answer that comes
@@ -272,9 +270,6 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(15000)
-	#if hl
-	@Ignored("Waiting on #2194")
-	#end
 	public function testARequestLoadsAgainAfterCancelling(async:Async):Void
 	{
 		var server = serve(function(request)

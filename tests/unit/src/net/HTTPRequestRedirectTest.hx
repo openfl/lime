@@ -71,7 +71,6 @@ class HTTPRequestRedirectTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2197")
 	public function testA303TurnsAPostIntoAGet(async:Async):Void
 	{
 		// RFC 9110 section 15.4.4: the user agent retrieves the other URI with
@@ -97,7 +96,6 @@ class HTTPRequestRedirectTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2197")
 	public function testA303TurnsAPutIntoAGet(async:Async):Void
 	{
 		// RFC 9110 section 15.4.4 applies to any method
@@ -157,7 +155,6 @@ class HTTPRequestRedirectTest extends Test
 	}
 
 	@:timeout(15000)
-	@Ignored("Waiting on #2197")
 	public function testA301Or302RepeatsAPostOrTurnsItIntoAGet(async:Async):Void
 	{
 		// RFC 9110 sections 15.4.2 and 15.4.3: a user agent MAY change POST to
@@ -268,7 +265,6 @@ class HTTPRequestRedirectTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2196")
 	public function testResponseHeadersAfterARedirectAreTheFinalResponses(async:Async):Void
 	{
 		var server = serve(function(request)
@@ -306,9 +302,6 @@ class HTTPRequestRedirectTest extends Test
 	}
 
 	@:timeout(10000)
-	#if hl
-	@Ignored("Waiting on #2207")
-	#end
 	public function testCookiesAreRememberedForLaterRequests(async:Async):Void
 	{
 		var server = cookieServer("remembered", "/cookies-remembered");
