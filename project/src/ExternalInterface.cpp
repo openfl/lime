@@ -1881,8 +1881,10 @@ namespace lime {
 	value lime_bytes_read_file (HxString path, value bytes) {
 
 		Bytes data (bytes);
-		data.ReadFile (hxs_utf8 (path, nullptr));
-		return data.Value (bytes);
+		if (!path.__s || !data.ReadFile (hxs_utf8 (path, nullptr))) return alloc_null ();
+
+		// Value () gives null without data, so an empty file is the empty Bytes given
+		return data.length > 0 ? data.Value (bytes) : bytes;
 
 	}
 
@@ -1890,8 +1892,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_bytes_read_file) (hl_vstring* path, Bytes* bytes) {
 
 		if (!path) return 0;
-		bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes));
-		return bytes;
+		return bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes)) ? bytes : 0;
 
 	}
 
