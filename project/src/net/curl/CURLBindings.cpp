@@ -2086,6 +2086,8 @@ namespace lime {
 
 			default:
 
+				// As libcurl answers for an option it doesn't know
+				code = CURLE_UNKNOWN_OPTION;
 				break;
 
 		}
@@ -2527,6 +2529,8 @@ namespace lime {
 
 			default:
 
+				// As libcurl answers for an option it doesn't know
+				code = CURLE_UNKNOWN_OPTION;
 				break;
 
 		}
