@@ -65,11 +65,8 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return AudioBuffer.fromBytes(bytes);
+			var bytes = __unpack(id);
+			return bytes == null ? null : AudioBuffer.fromBytes(bytes);
 		}
 		#end
 	}
@@ -88,11 +85,7 @@ import flash.media.Sound;
 		}
 		else
 		{
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return bytes;
+			return __unpack(id);
 		}
 	}
 
@@ -108,11 +101,8 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Font.fromBytes(bytes);
+			var bytes = __unpack(id);
+			return bytes == null ? null : Font.fromBytes(bytes);
 		}
 		#end
 	}
@@ -126,11 +116,8 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Image.fromBytes(bytes);
+			var bytes = __unpack(id);
+			return bytes == null ? null : Image.fromBytes(bytes);
 		}
 	}
 
@@ -140,17 +127,10 @@ import flash.media.Sound;
 		{
 			return cachedText.get(id);
 		}
-		else if (type == "gzip" || type == "zip" || type == "deflate")
-		{
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return bytes.getString(0, bytes.length);
-		}
 		else
 		{
-			return packedData.getString(positions[id], lengths[id]);
+			var bytes = __unpack(id);
+			return bytes == null ? null : bytes.getString(0, bytes.length);
 		}
 	}
 
@@ -392,7 +372,16 @@ import flash.media.Sound;
 		}
 	}
 
-	public override function unload():Void {}
+	public override function unload():Void
+	{
+		super.unload();
+
+		// The pack is released too, and read again by the next load()
+		__packLoaded("The library was unloaded");
+		packedData = null;
+		loaded = false;
+		promise = null;
+	}
 
 	// Tells what waits on the pack that it has loaded, or why it failed to
 	@:noCompletion private function __packLoaded(error:Dynamic):Void
@@ -409,9 +398,12 @@ import flash.media.Sound;
 		}
 	}
 
-	// The asset's bytes from the pack, decompressed
+	// The asset's bytes from the pack, decompressed, or null while there is no
+	// pack, before load() has read it or after unload()
 	@:noCompletion private function __unpack(id:String):Bytes
 	{
+		if (packedData == null) return null;
+
 		var bytes = Bytes.alloc(lengths[id]);
 		bytes.blit(0, packedData, positions[id], lengths[id]);
 		if (type == "gzip") bytes = bytes.decompress(GZIP);

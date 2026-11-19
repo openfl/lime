@@ -715,6 +715,7 @@ class AssetLibrary
 		cachedBytes = new Map<String, Bytes>();
 		cachedFonts = new Map<String, Font>();
 		cachedImages = new Map<String, Image>();
+		cachedAudioBuffers = new Map<String, AudioBuffer>();
 		cachedText = new Map<String, String>();
 		classTypes = new Map<String, Class<Dynamic>>();
 		#end
