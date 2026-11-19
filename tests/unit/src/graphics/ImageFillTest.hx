@@ -124,7 +124,6 @@ class ImageFillTest extends Test
 		assertPixels([0x80FF8040, 0x80FF8040], image, 1);
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testFillRectOfAWholePremultipliedImageWithAGrey():Void
 	{
 		// Every channel the same, so the bytes to store could be mistaken for the color itself
@@ -136,7 +135,6 @@ class ImageFillTest extends Test
 		assertPixels([for (i in 0...4) 0x80808080], image, 1);
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testFillRectOfAWholeImageWithAnOffsetFillsOnlyItsOwnPart():Void
 	{
 		var whole = create(4, 4);
