@@ -2590,6 +2590,48 @@ class GL
 		context.vertexAttribPointer(index, size, type, normalized, stride, offset);
 	}
 
+	#if (lime_opengl || lime_opengles)
+	public static inline function bindVertexBuffer(bindingIndex:Int, buffer:GLBuffer, offset:DataPointer, stride:Int):Void
+	{
+		context.bindVertexBuffer(bindingIndex, buffer, offset, stride);
+	}
+	#end
+
+	#if (lime_opengl || lime_opengles)
+	public static inline function vertexAttribFormat(attribIndex:Int, size:Int, type:Int, normalized:Bool, relativeOffset:Int):Void
+	{
+		context.vertexAttribFormat(attribIndex, size, type, normalized, relativeOffset);
+	}
+	#end
+
+	#if (lime_opengl || lime_opengles)
+	public static inline function vertexAttribIFormat(attribIndex:Int, size:Int, type:Int, relativeOffset:Int):Void
+	{
+		context.vertexAttribIFormat(attribIndex, size, type, relativeOffset);
+	}
+	#end
+
+	#if (lime_opengl || lime_opengles)
+	public static inline function vertexAttribLFormat(attribIndex:Int, size:Int, type:Int, relativeOffset:Int):Void
+	{
+		context.vertexAttribLFormat(attribIndex, size, type, relativeOffset);
+	}
+	#end
+
+	#if (lime_opengl || lime_opengles)
+	public static inline function vertexAttribBinding(attribIndex:Int, bindingIndex:Int):Void
+	{
+		context.vertexAttribBinding(attribIndex, bindingIndex);
+	}
+	#end
+
+	#if (lime_opengl || lime_opengles)
+	public static inline function vertexBindingDivisor(bindingindex:Int, divisor:Int):Void
+	{
+		context.vertexBindingDivisor(bindingindex, divisor);
+	}
+	#end
+
 	public static inline function viewport(x:Int, y:Int, width:Int, height:Int):Void
 	{
 		context.viewport(x, y, width, height);
