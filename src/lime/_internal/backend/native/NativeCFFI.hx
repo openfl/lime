@@ -5655,7 +5655,11 @@ class NativeCFFI
 
 	@:cffi private static function lime_curl_multi_setopt(multi_handle:CFFIPointer, option:Int, parameter:Dynamic):Int;
 
+	@:cffi private static function lime_curl_multi_poll(multi_handle:CFFIPointer, timeout_ms:Int):Int;
+
 	@:cffi private static function lime_curl_multi_wait(multi_handle:CFFIPointer, timeout_ms:Int):Int;
+
+	@:cffi private static function lime_curl_multi_wakeup(multi_handle:CFFIPointer):Int;
 	#else
 	private static var lime_curl_getdate = new cpp.Callable<String->Float->Float>(cpp.Prime._loadPrime("lime", "lime_curl_getdate", "sdd", false));
 	private static var lime_curl_global_cleanup = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_curl_global_cleanup", "v", false));
@@ -5695,7 +5699,9 @@ class NativeCFFI
 		"lime_curl_multi_remove_handle", "ooi", false));
 	private static var lime_curl_multi_setopt = new cpp.Callable<cpp.Object->Int->cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_setopt",
 		"oioi", false));
+	private static var lime_curl_multi_poll = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_poll", "oii", false));
 	private static var lime_curl_multi_wait = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_wait", "oii", false));
+	private static var lime_curl_multi_wakeup = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_curl_multi_wakeup", "oi", false));
 	#end
 	#end
 	#if (neko || cppia)
@@ -5725,7 +5731,9 @@ class NativeCFFI
 	private static var lime_curl_multi_perform = CFFI.load("lime", "lime_curl_multi_perform", 1);
 	private static var lime_curl_multi_remove_handle = CFFI.load("lime", "lime_curl_multi_remove_handle", 2);
 	private static var lime_curl_multi_setopt = CFFI.load("lime", "lime_curl_multi_setopt", 3);
+	private static var lime_curl_multi_poll = CFFI.load("lime", "lime_curl_multi_poll", 2);
 	private static var lime_curl_multi_wait = CFFI.load("lime", "lime_curl_multi_wait", 2);
+	private static var lime_curl_multi_wakeup = CFFI.load("lime", "lime_curl_multi_wakeup", 1);
 	#end
 
 	#if hl
@@ -5851,7 +5859,17 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_curl_multi_poll") private static function lime_curl_multi_poll(multi_handle:CFFIPointer, timeout_ms:Int):Int
+	{
+		return 0;
+	}
+
 	@:hlNative("lime", "hl_curl_multi_wait") private static function lime_curl_multi_wait(multi_handle:CFFIPointer, timeout_ms:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_curl_multi_wakeup") private static function lime_curl_multi_wakeup(multi_handle:CFFIPointer):Int
 	{
 		return 0;
 	}
