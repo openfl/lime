@@ -261,7 +261,6 @@ class RectangleTest extends Test
 		rectangle(1, 2, 3, 4, r);
 	}
 
-	@Ignored("Waiting on #2137")
 	public function testTransformByAMatrixGivesTheBounds():Void
 	{
 		// A quarter turn and a move: (x, y) becomes (10 - y, 20 + x). The
@@ -270,14 +269,12 @@ class RectangleTest extends Test
 		rectangle(4, 21, 4, 3, m.transformRect(new Rectangle(1, 2, 3, 4)));
 	}
 
-	@Ignored("Waiting on #2137")
 	public function testTransformByAMirrorGivesPositiveSize():Void
 	{
 		var m = new Matrix3(-2, 0, 0, 1, 0, 0);
 		rectangle(-8, 2, 6, 4, m.transformRect(new Rectangle(1, 2, 3, 4)));
 	}
 
-	@Ignored("Waiting on #2137")
 	public function testTransformBySkewGivesTheBounds():Void
 	{
 		// (x, y) becomes (x + y, y): the corners of (0, 0, 10, 10) land on
@@ -286,7 +283,6 @@ class RectangleTest extends Test
 		rectangle(0, 0, 20, 10, m.transformRect(new Rectangle(0, 0, 10, 10)));
 	}
 
-	@Ignored("Waiting on #2137")
 	public function testTransformFillsTheResultGiven():Void
 	{
 		var m = new Matrix3(2, 0, 0, 2, 1, 1);

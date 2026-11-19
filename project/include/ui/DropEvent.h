@@ -21,6 +21,7 @@ namespace lime {
 		hl_type* t;
 		vbyte* file;
 		DropEventType type;
+		int windowID;
 
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;

@@ -145,7 +145,6 @@ class AssetBundleTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2155")
 	public function testBytesThatAreNotAZipGiveNoBundle():Void
 	{
 		var bundle:AssetBundle = null;
@@ -222,7 +221,6 @@ class AssetBundleTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testLoadingBytesThatAreNotAZipFails(async:Async):Void
 	{
 		var future:Future<AssetBundle> = null;
@@ -250,7 +248,6 @@ class AssetBundleTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testABrokenBundleIsNamedWhenItsLibraryFails(async:Async):Void
 	{
 		// loadFromFile() reads the bundle with loadFromBytes(), from the application's event loop,

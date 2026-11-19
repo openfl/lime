@@ -74,7 +74,20 @@ class AssetManifest
 		if (data == null || data == "") return null;
 
 		#if !macro
-		var manifestData = Json.parse(data);
+		var manifestData:Dynamic;
+
+		try
+		{
+			manifestData = Json.parse(data);
+		}
+		catch (e:Dynamic)
+		{
+			// Not a manifest, as for empty data
+			return null;
+		}
+
+		if (manifestData == null) return null;
+
 		var manifest = new AssetManifest();
 
 		if (Reflect.hasField(manifestData, "name"))

@@ -99,10 +99,7 @@ class TestMain extends Application
 		runner.addCase(new system.ThreadPoolTest());
 		runner.addCase(new text.FontTest());
 		runner.addCase(new text.HarfBuzzBufferTest());
-		// Until #2255 is fixed, its glyph advance tests crash C++ and HashLink depending on when the collector runs
-		#if !(cpp || hl)
 		runner.addCase(new text.HarfBuzzFontTest());
-		#end
 		runner.addCase(new text.HarfBuzzSetTest());
 		runner.addCase(new text.UTF8StringTest());
 		runner.addCase(new tools.ImageHelperTest());

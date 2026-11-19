@@ -174,7 +174,6 @@ class AssetManifestTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2155")
 	public function testDataThatIsNotAManifestGivesNull():Void
 	{
 		// As for empty data, and as Assets.loadLibrary() expects of a manifest that can't be parsed
@@ -197,7 +196,6 @@ class AssetManifestTest extends Test
 
 	// Failing, or completing with no manifest, as Assets.loadLibrary() handles either
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testLoadingBytesThatAreNotAManifestGivesNone(async:Async):Void
 	{
 		var future:Future<AssetManifest> = null;

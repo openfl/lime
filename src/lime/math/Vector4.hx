@@ -98,7 +98,11 @@ class Vector4
 		var b0 = b.clone();
 		b0.normalize();
 
-		return Math.acos(a0.dotProduct(b0));
+		// Rounding can leave parallel or opposite unit vectors a hair past 1 or -1
+		var dot = a0.dotProduct(b0);
+		if (dot > 1) dot = 1;
+		else if (dot < -1) dot = -1;
+		return Math.acos(dot);
 	}
 
 	/**

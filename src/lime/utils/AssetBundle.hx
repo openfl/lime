@@ -26,10 +26,19 @@ class AssetBundle
 		paths = new Array();
 	}
 
+	/**
+		The bundle in the zip `bytes` hold, or `null` when they aren't a zip.
+	**/
 	public static function fromBytes(bytes:Bytes):AssetBundle
 	{
-		var input = new BytesInput(bytes);
-		return __extractBundle(input);
+		try
+		{
+			return __extractBundle(new BytesInput(bytes));
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
 	}
 
 	/**
@@ -57,9 +66,19 @@ class AssetBundle
 		#end
 	}
 
+	/**
+		Reads the bundle in the zip `bytes` hold. The future fails, saying why, when they aren't a zip.
+	**/
 	public static function loadFromBytes(bytes:Bytes):Future<AssetBundle>
 	{
-		return Future.withValue(fromBytes(bytes));
+		try
+		{
+			return Future.withValue(__extractBundle(new BytesInput(bytes)));
+		}
+		catch (e:Dynamic)
+		{
+			return cast Future.withError("Not a zip file: " + Std.string(e));
+		}
 	}
 
 	public static function loadFromFile(path:String):Future<AssetBundle>

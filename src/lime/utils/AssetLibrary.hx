@@ -371,7 +371,8 @@ class AssetLibrary
 	public function isLocal(id:String, type:String):Bool
 	{
 		#if sys
-		return true;
+		// Everything the library has is in the application or on disk
+		return classTypes.exists(id) || exists(id, type);
 		#else
 		if (classTypes.exists(id))
 		{
@@ -705,6 +706,10 @@ class AssetLibrary
 
 	public function unload():Void
 	{
+		// So the next load() reads what is preloaded again
+		loaded = false;
+		promise = null;
+
 		#if haxe4
 		cachedBytes.clear();
 		cachedFonts.clear();
