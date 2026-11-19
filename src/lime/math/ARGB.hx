@@ -96,13 +96,13 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		switch (format)
 		{
 			case BGRA32:
-				set(data[offset + 1], data[offset], data[offset + 3], data[offset + 2]);
+				set(data[offset + 3], data[offset + 2], data[offset + 1], data[offset]);
 
 			case RGBA32:
-				set(data[offset + 1], data[offset + 2], data[offset + 3], data[offset]);
+				set(data[offset + 3], data[offset], data[offset + 1], data[offset + 2]);
 
 			case ARGB32:
-				set(data[offset + 2], data[offset + 3], data[offset], data[offset + 1]);
+				set(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
 		}
 
 		if (premultiplied)
