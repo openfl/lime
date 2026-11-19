@@ -21,6 +21,7 @@ class Icon
 		icon.size = size;
 		icon.width = width;
 		icon.height = height;
+		icon.priority = priority;
 
 		return icon;
 	}

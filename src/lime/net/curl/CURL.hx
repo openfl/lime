@@ -76,7 +76,17 @@ class CURL
 	public function getInfo(info:CURLInfo):Dynamic
 	{
 		#if (lime_cffi && lime_curl && !macro)
+		#if hl
+		var result:Dynamic = NativeCFFI.lime_curl_easy_getinfo(handle, cast(info, Int));
+		// String infos come back as their UTF-8 bytes
+		if (result != null && hl.Type.getDynamic(result).kind == HBytes)
+		{
+			return @:privateAccess String.fromUTF8((result : hl.Bytes));
+		}
+		return result;
+		#else
 		return NativeCFFI.lime_curl_easy_getinfo(handle, cast(info, Int));
+		#end
 		#else
 		return null;
 		#end

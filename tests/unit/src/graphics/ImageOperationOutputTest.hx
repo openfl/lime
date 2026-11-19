@@ -84,7 +84,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testCopyPixelsFromAnotherFormatKeepsItsOutput():Void
 	{
-		assertPins(["89AC17FD", "CBC7A27B", "E8D2800C", "4F24F691", "FEBFB3B3", "2792599A"], function(format, premultiplied)
+		assertPins(["89AC17FD", "A2152FC5", "E8D2800C", "75BE82E4", "FEBFB3B3", "F3DD1909"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 			var source = sourceImage(nextFormat(format), premultiplied);
@@ -96,7 +96,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testCopyPixelsWithMergeAlphaKeepsItsOutput():Void
 	{
-		assertPins(["23DA9497", "531AF663", "85000672", "40E8DD09", "0DC8C63A", "A75EBD3F"], function(format, premultiplied)
+		assertPins(["23DA9497", "001B2E0C", "85000672", "554447F9", "0DC8C63A", "1515E2CD"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 			var source = sourceImage(format, premultiplied);
@@ -110,7 +110,7 @@ class ImageOperationOutputTest extends Test
 	public function testCopyPixelsThroughAnAlphaImageKeepsItsOutput():Void
 	{
 		// The source rect starts at 0, 0, where the alpha point means the same whichever way it is read
-		assertPins(["97127D99", "708C71AF", "611B5D25", "35FE7754", "023E91D4", "241FA0DA"], function(format, premultiplied)
+		assertPins(["97127D99", "7D760413", "611B5D25", "9EE461E2", "023E91D4", "B3002250"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 
@@ -122,7 +122,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testCopyPixelsMergingThroughAnAlphaImageKeepsItsOutput():Void
 	{
-		assertPins(["7237A527", "89416C18", "B3AF00B5", "799D47AC", "99C5BC60", "3B40E63F"], function(format, premultiplied)
+		assertPins(["7237A527", "C2DB7250", "B3AF00B5", "CC7DEA5D", "99C5BC60", "A58AE91A"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 
@@ -183,7 +183,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testFillRectKeepsItsOutput():Void
 	{
-		assertPins(["57E21118", "CD1CD1C5", "C98ED565", "07A0F33F", "DA09C8CD", "9B7AA34C"], function(format, premultiplied)
+		assertPins(["57E21118", "45220F55", "C98ED565", "809CDD95", "DA09C8CD", "ADFED594"], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
 
@@ -201,7 +201,7 @@ class ImageOperationOutputTest extends Test
 		// Multipliers that a Float32Array holds exactly, and offsets that come back from it as the same whole
 		// numbers. Alpha is left alone in premultiplied images, where changing it loses color to rounding
 		// that other tests show.
-		assertPins(["53066D77", "250AC7B1", "72AFBA69", "4C2CBB5A", "F2FBF6BD", "87063606"], function(format, premultiplied)
+		assertPins(["53066D77", "80309A3F", "72AFBA69", "4E49AC85", "F2FBF6BD", "B7EED321"], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
 			var matrix = new ColorMatrix();
@@ -224,7 +224,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testCopyChannelKeepsItsOutput():Void
 	{
-		assertPins(["9B7EBFC3", "87710C75", "F62109AE", "7DE2B01F", "CA92C4D9", "39B92792"], function(format, premultiplied)
+		assertPins(["9B7EBFC3", "F8A86016", "F62109AE", "54B64620", "CA92C4D9", "0457B131"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 			var source = sourceImage(format, premultiplied);
@@ -239,7 +239,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testMergeKeepsItsOutput():Void
 	{
-		assertPins(["BFE3C16D", "E76B5FEA", "D9F735D4", "DD271858", "EA479809", "0A950E34"], function(format, premultiplied)
+		assertPins(["BFE3C16D", "EF0283DF", "D9F735D4", "B2F19F61", "EA479809", "0E741679"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 			var source = sourceImage(format, premultiplied);
@@ -255,11 +255,11 @@ class ImageOperationOutputTest extends Test
 		// Each mask covers green alone, and each threshold has no bits outside its mask
 		assertPins([
 			"38C64C1A 49,39,72,0",
-			"D8021B62 54,36,72,11",
+			"79267036 54,36,72,11",
 			"96D8168C 49,39,72,0",
-			"AF73E254 54,36,72,11",
+			"96AF64B7 54,36,72,11",
 			"A22D7AE7 49,39,72,0",
-			"0DAD0ED7 54,36,72,11"
+			"F8552476 54,36,72,11"
 		], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
@@ -276,7 +276,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testSetPixelKeepsItsOutput():Void
 	{
-		assertPins(["5C6A25F4", "E516D4C5", "9344FC09", "AE97B76A", "3B5CD70F", "2179EF79"], function(format, premultiplied)
+		assertPins(["5C6A25F4", "064ACA8C", "9344FC09", "E5A2F323", "3B5CD70F", "1E6CB4F1"], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
 			var state = 0x51ED270B;
@@ -296,7 +296,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testSetPixel32KeepsItsOutput():Void
 	{
-		assertPins(["91430E6E", "CF097BA9", "DDEA54CE", "D8EE6490", "35C81434", "A144DD4C"], function(format, premultiplied)
+		assertPins(["91430E6E", "C3B6B017", "DDEA54CE", "BBD03DFD", "35C81434", "A8945B87"], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
 			var state = 0x1B873593;
@@ -316,7 +316,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testGetPixelAndGetPixel32KeepTheirValues():Void
 	{
-		assertPins(["65AC53AD", "5E2DF114", "65AC53AD", "5E2DF114", "65AC53AD", "5E2DF114"], function(format, premultiplied)
+		assertPins(["65AC53AD", "A386B46A", "65AC53AD", "A386B46A", "65AC53AD", "A386B46A"], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
 			var values = Bytes.alloc(WIDTH * HEIGHT * 8 * FORMATS.length);
@@ -343,11 +343,11 @@ class ImageOperationOutputTest extends Test
 	{
 		assertPins([
 			"3CBBF522 BAA566F1 37B2F70B 513848F6 ABA9CB2C 50E52EEC",
-			"98B275C5 11002894 4DEC2CB7 20B8A940 73ED414A 249612C3",
+			"F70FF5C6 97D62EA7 DDAD09B2 3356FF03 7E1AA39C 2142F513",
 			"3CBBF522 BAA566F1 37B2F70B 513848F6 ABA9CB2C 50E52EEC",
-			"98B275C5 11002894 4DEC2CB7 20B8A940 73ED414A 249612C3",
+			"F70FF5C6 97D62EA7 DDAD09B2 3356FF03 7E1AA39C 2142F513",
 			"3CBBF522 BAA566F1 37B2F70B 513848F6 ABA9CB2C 50E52EEC",
-			"98B275C5 11002894 4DEC2CB7 20B8A940 73ED414A 249612C3"
+			"F70FF5C6 97D62EA7 DDAD09B2 3356FF03 7E1AA39C 2142F513"
 		], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
@@ -365,7 +365,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testSetPixelsKeepsItsOutput():Void
 	{
-		assertPins(["2A8F8B09", "E5FB439A", "1D7DFD6D", "749FF510", "79C8539F", "B79559A9"], function(format, premultiplied)
+		assertPins(["2A8F8B09", "CBE87CC0", "1D7DFD6D", "3D3EB89C", "79C8539F", "10A782D4"], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
 			var bytes = Bytes.alloc(1024);
@@ -439,12 +439,12 @@ class ImageOperationOutputTest extends Test
 	public function testTurningPremultipliedOnAndOffKeepsItsOutput():Void
 	{
 		assertPins([
-			"FEAF4E13 B90AA519",
-			"9178850D E42CD5AB",
-			"3D9A22D7 E11C3362",
-			"62AAE205 C131CDD5",
-			"9946422C 8E6237C2",
-			"FEFABDFA C0098738"
+			"C03D8750 FB868291",
+			"FB868291 C03D8750",
+			"4419C9E6 4A27EA4F",
+			"4A27EA4F 4419C9E6",
+			"65F8DACB B0DDD3EB",
+			"B0DDD3EB 65F8DACB"
 		], function(format, premultiplied)
 		{
 			var image = destImage(format, premultiplied);
@@ -463,11 +463,11 @@ class ImageOperationOutputTest extends Test
 		// Each image here is part of a larger buffer, so the native prims get offsets to add
 		assertPins([
 			"DF000235 B723A8FF",
-			"443C4C9B 8122CB36",
+			"FAC80438 DB583775",
 			"2B4FE98B B723A8FF",
-			"984ED3C8 8122CB36",
+			"23FFC24B DB583775",
 			"CA7A56B4 B723A8FF",
-			"EC0270F6 8122CB36"
+			"F43BF602 DB583775"
 		], function(format, premultiplied)
 		{
 			var whole = randomImage(31, 25, DEST, format, premultiplied);

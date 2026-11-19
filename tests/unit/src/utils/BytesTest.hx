@@ -149,7 +149,6 @@ class BytesTest extends Test
 		assertSameBytes(written, LimeBytes.fromFile(path));
 	}
 
-	@Ignored("Waiting on #2253")
 	public function testFromFileOfAnEmptyFileGivesEmptyBytes():Void
 	{
 		var path = files.write("empty.bin", Bytes.alloc(0));
@@ -174,14 +173,11 @@ class BytesTest extends Test
 		Assert.isNull(directory);
 	}
 
-	#if lime_test_crashes
-	@Ignored("Waiting on #2253")
 	public function testFromFileOfNoPathGivesNull():Void
 	{
 		var none:Bytes = LimeBytes.fromFile(null);
 		Assert.isNull(none);
 	}
-	#end
 
 	public function testFromFileClosesTheFile():Void
 	{
@@ -262,7 +258,6 @@ class BytesTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2253")
 	@:timeout(5000)
 	public function testLoadFromFileOfAnEmptyFileCompletesWithEmptyBytes(async:Async):Void
 	{

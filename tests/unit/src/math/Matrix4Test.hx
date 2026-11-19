@@ -101,7 +101,6 @@ class Matrix4Test extends Test
 		vector3(2, 6, 4, m.deltaTransformVector(new Vector4(1, 2, 1)));
 	}
 
-	@Ignored("Waiting on #2140")
 	public function testDeltaTransformVectorUsesOnlyTheUpperLeft3x3():Void
 	{
 		// Rows of DENSE without the translation column, dotted with (1, 2, 3).
@@ -251,7 +250,6 @@ class Matrix4Test extends Test
 		vector3(10, 0, 0, m.position, "the translation is unchanged");
 	}
 
-	@Ignored("Waiting on #2139")
 	public function testAppendRotationTurnsAboutThePivotPoint():Void
 	{
 		var m = new Matrix4();
@@ -261,7 +259,6 @@ class Matrix4Test extends Test
 		vector3(2, 0, 0, m.transformVector(new Vector4(0, 0, 0)), "the origin");
 	}
 
-	@Ignored("Waiting on #2139")
 	public function testAppendRotationAboutAPivotAppliesAfterTheExistingTransform():Void
 	{
 		var m = translation(1, 0, 0);
@@ -270,7 +267,6 @@ class Matrix4Test extends Test
 		vector3(2, 2, 0, m.transformVector(new Vector4(1, 0, 0)));
 	}
 
-	@Ignored("Waiting on #2139")
 	public function testPrependRotationTurnsAboutThePivotPointFirst():Void
 	{
 		var m = translation(10, 0, 0);
@@ -397,7 +393,6 @@ class Matrix4Test extends Test
 		matrix4([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2.5, 5, 7.5, 1], m);
 	}
 
-	@Ignored("Waiting on #2140")
 	public function testInterpolateTurnsTheRotation():Void
 	{
 		// Flash interpolates the rotation as a quaternion, so halfway to a
@@ -429,7 +424,6 @@ class Matrix4Test extends Test
 		matrix4([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 20, 30, 1], m);
 	}
 
-	@Ignored("Waiting on #2140")
 	public function testPointAtTurnsTheForwardVectorToTheTarget():Void
 	{
 		var m = new Matrix4();
@@ -442,7 +436,6 @@ class Matrix4Test extends Test
 		near(1, m.determinant, "a rotation, not a mirror or a scale");
 	}
 
-	@Ignored("Waiting on #2140")
 	public function testPointAtAimsFromThePosition():Void
 	{
 		// The target is in absolute coordinates, so the direction is from the
@@ -456,7 +449,6 @@ class Matrix4Test extends Test
 		vector3(5, 0, 0, m.position, "the position is kept");
 	}
 
-	@Ignored("Waiting on #2140")
 	public function testPointAtWithAnotherForwardVector():Void
 	{
 		var m = new Matrix4();
@@ -489,7 +481,6 @@ class Matrix4Test extends Test
 		vector4(1, 1, 1, 1, clip(m, 6, 3, -10), "right, top, far");
 	}
 
-	@Ignored("Waiting on #2138")
 	public function testCreatePerspectiveMatchesGluPerspective():Void
 	{
 		// gluPerspective(fovy, aspect, n, f), with f' = cot(fovy / 2):
@@ -533,7 +524,6 @@ class Matrix4Test extends Test
 		near(1.5, m[5] / m[0]);
 	}
 
-	@Ignored("Waiting on #2138")
 	public function testCreatePerspectiveFieldOfViewIsVerticalInDegrees():Void
 	{
 		// As in gluPerspective, the top and right edges of a 60 degree view
