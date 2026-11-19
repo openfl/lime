@@ -383,6 +383,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_system_get_timer():Float;
 
+	@:cffi private static function lime_system_get_windows_file_attributes(path:String):Int;
+
 	@:cffi private static function lime_system_open_file(path:String):Void;
 
 	@:cffi private static function lime_system_open_url(url:String, target:String):Void;
@@ -1180,6 +1182,8 @@ class NativeCFFI
 	private static var lime_system_get_secure_random_bytes = new cpp.Callable<cpp.Object->Int->Int->Bool>(cpp.Prime._loadPrime("lime",
 		"lime_system_get_secure_random_bytes", "oiib", false));
 	private static var lime_system_get_timer = new cpp.Callable<Void->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_timer", "d", false));
+	private static var lime_system_get_windows_file_attributes = new cpp.Callable<String->Int>(cpp.Prime._loadPrime("lime",
+		"lime_system_get_windows_file_attributes", "si", false));
 	private static var lime_system_open_file = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_file", "sv", false));
 	private static var lime_system_open_url = new cpp.Callable<String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_url", "ssv", false));
 	private static var lime_text_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -1725,6 +1729,7 @@ class NativeCFFI
 	private static var lime_system_get_platform_version = CFFI.load("lime", "lime_system_get_platform_version", 0);
 	private static var lime_system_get_secure_random_bytes = CFFI.load("lime", "lime_system_get_secure_random_bytes", 3);
 	private static var lime_system_get_timer = CFFI.load("lime", "lime_system_get_timer", 0);
+	private static var lime_system_get_windows_file_attributes = CFFI.load("lime", "lime_system_get_windows_file_attributes", 1);
 	private static var lime_system_open_file = CFFI.load("lime", "lime_system_open_file", 1);
 	private static var lime_system_open_url = CFFI.load("lime", "lime_system_open_url", 2);
 	private static var lime_text_event_manager_register = CFFI.load("lime", "lime_text_event_manager_register", 2);
@@ -2629,6 +2634,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_system_get_timer") private static function lime_system_get_timer():Float
 	{
 		return 0;
+	}
+
+	@:hlNative("lime", "hl_system_get_windows_file_attributes") private static function lime_system_get_windows_file_attributes(path:String):Int
+	{
+		return -1;
 	}
 
 	@:hlNative("lime", "hl_system_open_file") private static function lime_system_open_file(path:String):Void {}

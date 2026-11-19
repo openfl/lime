@@ -476,6 +476,20 @@ class System
 		}
 	}
 
+	/**
+		The attributes Windows keeps for the file or directory at `path`, its
+		`FILE_ATTRIBUTE_*` flags (`0x2` is hidden), or -1 if there is none or
+		this is not native Windows.
+	**/
+	@:noCompletion private static function __getWindowsFileAttributes(path:String):Int
+	{
+		#if (lime_cffi && !macro && windows)
+		return NativeCFFI.lime_system_get_windows_file_attributes(path);
+		#else
+		return -1;
+		#end
+	}
+
 	@:noCompletion private static function __getDirectory(type:SystemDirectory):String
 	{
 		#if (lime_cffi && !macro)

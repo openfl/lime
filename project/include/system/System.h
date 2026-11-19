@@ -48,6 +48,7 @@ namespace lime {
 			static double GetTimer ();
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static int GetWindowsConsoleMode (int handleType);
+			static int GetWindowsFileAttributes (const wchar_t* path);
 			#endif
 			static void OpenFile (const char* path);
 			static void OpenURL (const char* url, const char* target);
