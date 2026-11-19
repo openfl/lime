@@ -25,6 +25,7 @@ import flash.media.Sound;
 	@:noCompletion private var id:String;
 	@:noCompletion private var lengths = new Map<String, Int>();
 	@:noCompletion private var packedData:Bytes;
+	@:noCompletion private var packWaiters:Array<Dynamic->Void>;
 	@:noCompletion private var positions = new Map<String, Int>();
 	@:noCompletion private var type:String;
 	@:noCompletion private var rootPath:String;
@@ -202,6 +203,7 @@ import flash.media.Sound;
 			{
 				cachedBytes.set(id, data);
 				packedData = data;
+				__packLoaded(null);
 
 				__assetLoaded(this.id);
 
@@ -263,7 +265,11 @@ import flash.media.Sound;
 
 				Bytes.loadFromFile(path)
 					.onProgress(packedData_onProgress)
-					.onError(promise.error)
+					.onError(function(error)
+					{
+						__packLoaded(error);
+						promise.error(error);
+					})
 					.onComplete(packedData_onComplete);
 			}
 		}
@@ -283,11 +289,7 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method, use `loadFromBytes` method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Future.withValue(AudioBuffer.fromBytes(bytes));
+			return __whenPacked(id, function(bytes) return Future.withValue(AudioBuffer.fromBytes(bytes)));
 		}
 		#end
 	}
@@ -301,11 +303,7 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Future.withValue(bytes);
+			return __whenPacked(id, function(bytes) return Future.withValue(bytes));
 		}
 	}
 
@@ -321,11 +319,7 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Font.loadFromBytes(bytes);
+			return __whenPacked(id, Font.loadFromBytes);
 		}
 		#end
 	}
@@ -366,11 +360,7 @@ import flash.media.Sound;
 		else
 		{
 			// TODO: More efficient method
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Image.loadFromBytes(bytes);
+			return __whenPacked(id, Image.loadFromBytes);
 		}
 	}
 
@@ -395,21 +385,71 @@ import flash.media.Sound;
 				return Future.withValue(text);
 			}
 		}
-		else if (type == "gzip" || type == "deflate")
-		{
-			var bytes = Bytes.alloc(lengths[id]);
-			bytes.blit(0, packedData, positions[id], lengths[id]);
-			if (type == "gzip") bytes = bytes.decompress(GZIP);
-			else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
-			return Future.withValue(bytes.getString(0, bytes.length));
-		}
 		else
 		{
-			return Future.withValue(packedData.getString(positions[id], lengths[id]));
+			// Decompressed for every compressed type, "zip" included, as getText() does
+			return __whenPacked(id, function(bytes) return Future.withValue(bytes.getString(0, bytes.length)));
 		}
 	}
 
 	public override function unload():Void {}
+
+	// Tells what waits on the pack that it has loaded, or why it failed to
+	@:noCompletion private function __packLoaded(error:Dynamic):Void
+	{
+		var waiters = packWaiters;
+		packWaiters = null;
+
+		if (waiters != null)
+		{
+			for (waiter in waiters)
+			{
+				waiter(error);
+			}
+		}
+	}
+
+	// The asset's bytes from the pack, decompressed
+	@:noCompletion private function __unpack(id:String):Bytes
+	{
+		var bytes = Bytes.alloc(lengths[id]);
+		bytes.blit(0, packedData, positions[id], lengths[id]);
+		if (type == "gzip") bytes = bytes.decompress(GZIP);
+		else if (type == "zip" || type == "deflate") bytes = bytes.decompress(DEFLATE);
+		return bytes;
+	}
+
+	// Reads the asset once the pack has loaded. While load() is reading the pack
+	// it waits for it, and before load() is called it fails rather than throwing.
+	@:noCompletion private function __whenPacked<T>(id:String, read:Bytes->Future<T>):Future<T>
+	{
+		if (packedData != null)
+		{
+			return read(__unpack(id));
+		}
+
+		if (promise == null)
+		{
+			return cast Future.withError("Cannot load asset \"" + id + "\" before its library is loaded");
+		}
+
+		var result = new Promise<T>();
+		if (packWaiters == null) packWaiters = [];
+
+		packWaiters.push(function(error:Dynamic)
+		{
+			if (error != null)
+			{
+				result.error(error);
+			}
+			else
+			{
+				result.completeWith(read(__unpack(id)));
+			}
+		});
+
+		return result.future;
+	}
 
 	@:noCompletion private override function __fromManifest(manifest:AssetManifest):Void
 	{
