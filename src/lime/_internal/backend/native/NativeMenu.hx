@@ -160,9 +160,9 @@ class NativeMenu
 	private static function handleOpen():Void
 	{
 		#if (!macro && lime_cffi)
-		var target = NativeCFFI.lime_menu_get_open_event(0);
-		var menuID = NativeCFFI.lime_menu_get_open_event(1);
-		var source = NativeCFFI.lime_menu_get_open_event(2);
+		var target:Int = NativeCFFI.lime_menu_get_open_event(0);
+		var menuID:Int = NativeCFFI.lime_menu_get_open_event(1);
+		var source:Int = NativeCFFI.lime_menu_get_open_event(2);
 		var key = source + ":" + target;
 		var context = popups.exists(key) ? popups.get(key) : installed.get(key);
 		var menu = findMenu(key, menuID);
