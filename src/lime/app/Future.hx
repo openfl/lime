@@ -102,15 +102,53 @@ import lime.utils.Log;
 	}
 
 	/**
-		Create a new `Future` instance based on complete and (optionally) error and/or progress `Event` instances
+		Create a new `Future` instance based on complete and (optionally) error and/or progress `Event` instances.
+		Every progress update is forwarded until the `Future` completes or fails, and its listeners are
+		then removed from all three events.
 	**/
-	public static function ofEvents<T>(onComplete:Event<T->Void>, onError:Event<Dynamic->Void> = null, onProgress:Event<Int->Int->Void> = null):Future<T>
+	public static function ofEvents<T>(onComplete:{function add(listener:T->Void, ?once:Bool, ?priority:Int):Void; function remove(listener:T->Void):Void;},
+			onError:Event<Dynamic->Void> = null, onProgress:Event<Int->Int->Void> = null):Future<T>
 	{
 		var promise = new Promise<T>();
 
-		onComplete.add(promise.complete, true);
-		if (onError != null) onError.add(promise.error, true);
-		if (onProgress != null) onProgress.add(promise.progress, true);
+		// Cleared once settled, so a listener that can't be removed doesn't keep the
+		// promise alive. On HashLink, a function passed through onComplete's structure
+		// type is wrapped anew on each call, so remove() can't find the one add() got.
+		var pending = promise;
+		var completeListener:T->Void = null;
+		var errorListener:Dynamic->Void = null;
+		var progressListener:Int->Int->Void = null;
+
+		function removeListeners():Void
+		{
+			pending = null;
+			onComplete.remove(completeListener);
+			if (onError != null) onError.remove(errorListener);
+			if (onProgress != null) onProgress.remove(progressListener);
+		}
+
+		completeListener = function(value:T):Void
+		{
+			if (pending == null) return;
+			var promise = pending;
+			removeListeners();
+			promise.complete(value);
+		};
+		errorListener = function(error:Dynamic):Void
+		{
+			if (pending == null) return;
+			var promise = pending;
+			removeListeners();
+			promise.error(error);
+		};
+		progressListener = function(progress:Int, total:Int):Void
+		{
+			if (pending != null) pending.progress(progress, total);
+		};
+
+		onComplete.add(completeListener, true);
+		if (onError != null) onError.add(errorListener, true);
+		if (onProgress != null) onProgress.add(progressListener);
 
 		return promise.future;
 	}
