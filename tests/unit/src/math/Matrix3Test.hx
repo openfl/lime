@@ -176,13 +176,12 @@ class Matrix3Test extends Test
 		matrix3(2, 0, 0, 3, 10, 20, m);
 	}
 
-	@Ignored("Waiting on #2137")
-	public function testRotateTakesDegreesAsDocumented():Void
+	public function testRotateTakesRadians():Void
 	{
-		// The doc comment for rotate() gives theta in degrees. A quarter turn
-		// takes (1, 0) to (0, 1), as Flash's rotate(Math.PI / 2) does.
+		// As in Flash's Matrix.rotate(), a quarter turn of Math.PI / 2 takes
+		// (1, 0) to (0, 1)
 		var m = new Matrix3();
-		m.rotate(90);
+		m.rotate(Math.PI / 2);
 		matrix3(0, 1, -1, 0, 0, 0, m);
 	}
 

@@ -157,7 +157,6 @@ class ARGBTest extends Test
 		Assert.equals(0, failures.length, failures.slice(0, 5).join("; "));
 	}
 
-	@Ignored("Waiting on #2142")
 	public function testReadUInt8InEachFormat():Void
 	{
 		var data = new UInt8Array([0xEE, 0x11, 0x22, 0x33, 0x44, 0xEE]);
@@ -174,7 +173,6 @@ class ARGBTest extends Test
 		ColorAssert.color(make(0x11, 0x22, 0x33, 0x44), color, "RGBA32 by default");
 	}
 
-	@Ignored("Waiting on #2142")
 	public function testReadUInt8UnmultipliesPremultipliedData():Void
 	{
 		var formats:Array<PixelFormat> = [RGBA32, ARGB32, BGRA32];
