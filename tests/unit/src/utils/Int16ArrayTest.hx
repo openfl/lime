@@ -76,9 +76,6 @@ class Int16ArrayTest extends Test
 		assertElements(result, array);
 	}
 
-	#if (neko || hl)
-	@Ignored("Waiting on #2152")
-	#end
 	public function testConstructFromArrayOfFloatsTruncates():Void
 	{
 		// ToInt16: NaN and infinities are 0, other values are truncated toward zero, then wrapped
@@ -86,7 +83,6 @@ class Int16ArrayTest extends Test
 		assertElements([1, -1, -32768, 1, 32767, 0, 0, 1], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromTypedArrayConvertsValues():Void
 	{
 		assertElements([4464, -4464, -32768], new Int16Array(new Int32Array([70000, -70000, 32768])));
@@ -258,7 +254,6 @@ class Int16ArrayTest extends Test
 		assertElements([3, 4, 5, 6, 5, 6], backward);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetOverlappingViewOfAnotherType():Void
 	{
 		// Int8 [1, 2, 3, 4] spread into Int16 elements 0 to 3 overwrite the bytes still to be read
@@ -273,7 +268,8 @@ class Int16ArrayTest extends Test
 		assertElements([1, 2, 3, 4], wide);
 	}
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsWriteIsIgnored():Void
 	{
 		var buffer = new ArrayBuffer(8);
@@ -282,4 +278,5 @@ class Int16ArrayTest extends Test
 		array[-1] = 9;
 		Assert.same([0, 0, 0, 0, 0, 0, 0, 0], bytesOf(buffer));
 	}
+	#end
 }

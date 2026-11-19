@@ -39,12 +39,12 @@ class ImageDecodeOutputTest extends Test
 {
 	#if (lime_cffi && !macro)
 	private static var FIXTURES:Array<{path:String, pixels:String}> = [
-		{path: "assets/image-420.jpg", pixels: "45x37 32bpp RGBA32 transparent 6660 bytes, crc 03F2157D"},
-		{path: "assets/image-444.jpg", pixels: "45x37 32bpp RGBA32 transparent 6660 bytes, crc 48CDF84D"},
-		{path: "assets/image-422.jpg", pixels: "45x37 32bpp RGBA32 transparent 6660 bytes, crc 6D375F3C"},
-		{path: "assets/image-progressive.jpg", pixels: "45x37 32bpp RGBA32 transparent 6660 bytes, crc 03F2157D"},
-		{path: "assets/image-grey.jpg", pixels: "45x37 32bpp RGBA32 transparent 6660 bytes, crc 4F5859F0"},
-		{path: "assets/image-cmyk.jpg", pixels: "45x37 32bpp RGBA32 transparent 6660 bytes, crc FF1EBB1B"},
+		{path: "assets/image-420.jpg", pixels: "45x37 32bpp RGBA32 opaque 6660 bytes, crc 03F2157D"},
+		{path: "assets/image-444.jpg", pixels: "45x37 32bpp RGBA32 opaque 6660 bytes, crc 48CDF84D"},
+		{path: "assets/image-422.jpg", pixels: "45x37 32bpp RGBA32 opaque 6660 bytes, crc 6D375F3C"},
+		{path: "assets/image-progressive.jpg", pixels: "45x37 32bpp RGBA32 opaque 6660 bytes, crc 03F2157D"},
+		{path: "assets/image-grey.jpg", pixels: "45x37 32bpp RGBA32 opaque 6660 bytes, crc 4F5859F0"},
+		{path: "assets/image-cmyk.jpg", pixels: "45x37 32bpp RGBA32 opaque 6660 bytes, crc FF1EBB1B"},
 		{path: "assets/image-rgba.png", pixels: "40x30 32bpp RGBA32 transparent 4800 bytes, crc 47550931"},
 		{path: "assets/image-palette.png", pixels: "40x30 32bpp RGBA32 transparent 4800 bytes, crc 87065BC5"}
 	];

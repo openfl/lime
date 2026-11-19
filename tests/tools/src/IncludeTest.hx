@@ -77,7 +77,6 @@ class IncludeTest extends Test
 		Assert.equals("lib/data/readme.txt", project.assets[0].sourcePath);
 	}
 
-	@Ignored("Waiting on #2192")
 	public function testAFileIncludedTwiceAddsItsAssetsOnce():Void
 	{
 		writeSharedFile();
@@ -93,7 +92,6 @@ class IncludeTest extends Test
 		Fixture.assertSame(["data/notes.txt", "data/readme.txt"], Fixture.targetPaths(project));
 	}
 
-	@Ignored("Waiting on #2192")
 	public function testAFileIncludedFromTwoIncludedFilesAddsItsAssetsOnce():Void
 	{
 		writeSharedFile();
@@ -173,7 +171,6 @@ class IncludeTest extends Test
 	}
 
 	// "If you define the same value more than once, the last definition will be used."
-	@Ignored("Waiting on #2163")
 	public function testAnIncludedDefineReplacesAnEarlierOne():Void
 	{
 		fixture.write("blue.xml", '<project>
@@ -190,7 +187,6 @@ class IncludeTest extends Test
 		Assert.equals("blue", project.haxedefs.get("color"));
 	}
 
-	@Ignored("Waiting on #2163")
 	public function testAnIncludedSetReplacesAnEarlierOne():Void
 	{
 		fixture.write("dark.xml", '<project>
@@ -207,7 +203,6 @@ class IncludeTest extends Test
 	}
 
 	// "Unsets a previously defined flag." / a removed value "is treated as false"
-	@Ignored("Waiting on #2163")
 	public function testAnIncludedUndefineRemovesAnEarlierDefine():Void
 	{
 		fixture.write("off.xml", '<project>

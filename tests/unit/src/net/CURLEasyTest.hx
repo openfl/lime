@@ -222,9 +222,6 @@ class CURLEasyTest extends Test
 		Assert.equals("original/1", last(server).header("User-Agent"));
 	}
 
-	#if lime_test_crashes
-	// Ends the process: the clone sends the header list that setting the
-	// original's HTTPHEADER again frees (#2200). Runs only with -Dlime_test_crashes.
 	public function testACloneKeepsItsHeadersWhenTheOriginalsChange():Void
 	{
 		// curl_easy_duphandle: after duplicating, the two handles are independent
@@ -240,9 +237,7 @@ class CURLEasyTest extends Test
 		Assert.equals("yes", received.header("X-Cloned"));
 		Assert.isNull(received.header("X-Original"));
 	}
-	#end
 
-	@Ignored("Waiting on #2200")
 	public function testACloneWritesToTheSameFunction():Void
 	{
 		// curl_easy_duphandle copies CURLOPT_WRITEFUNCTION with the rest
@@ -291,10 +286,6 @@ class CURLEasyTest extends Test
 		Assert.equals("abc", received.body.toString());
 	}
 
-	#if (neko || lime_test_crashes)
-	// Ends the C++ process: the fields reach curl as a pointer into a string
-	// the collector frees, as they do on HashLink (#2201). Runs there only with
-	// -Dlime_test_crashes.
 	public function testPostFieldsLastUntilTheTransfer():Void
 	{
 		// libcurl does not copy CURLOPT_POSTFIELDS, which must stay as they are
@@ -313,7 +304,6 @@ class CURLEasyTest extends Test
 		assertCode(OK, run(curl, server.url("/form")).code);
 		Assert.equals(expected, describe(last(server).body));
 	}
-	#end
 
 	public function testHTTPHeaderSendsEachLine():Void
 	{
@@ -342,7 +332,6 @@ class CURLEasyTest extends Test
 		Assert.equals("first=1; second=2", last(server).header("Cookie"));
 	}
 
-	@Ignored("Waiting on #2199")
 	public function testFollowLocationFollowsRedirects():Void
 	{
 		var server = redirecting();
@@ -357,7 +346,6 @@ class CURLEasyTest extends Test
 		Assert.equals(1, curl.getInfo(REDIRECT_COUNT));
 	}
 
-	@Ignored("Waiting on #2199")
 	public function testRedirectsAreNotFollowedByDefault():Void
 	{
 		// CURLOPT_FOLLOWLOCATION defaults to 0, and CURLINFO_REDIRECT_URL is
@@ -558,7 +546,6 @@ class CURLEasyTest extends Test
 		assertCode(ABORTED_BY_CALLBACK, run(curl, server.url("/abort")).code);
 	}
 
-	@Ignored("Waiting on #2199")
 	public function testInfoHasTheTypesLibcurlGives():Void
 	{
 		var body = StringTools.lpad("", "i", 12345);
@@ -595,7 +582,6 @@ class CURLEasyTest extends Test
 		Assert.isTrue(time >= 0.15 && time < 5, "TOTAL_TIME is " + time);
 	}
 
-	@Ignored("Waiting on #2199")
 	public function testTheContentTypeIsNullWithoutOne():Void
 	{
 		// CURLINFO_CONTENT_TYPE: NULL if the server sent no valid Content-Type
