@@ -1142,7 +1142,8 @@ class ProjectXMLParser extends HXProject
 					}
 					else
 					{
-						path = Path.tryFullPath(Path.combine(extensionPath, path));
+						// Already combined with this file's folder above
+						path = Path.tryFullPath(path);
 
 						if (version != "")
 						{
