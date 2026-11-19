@@ -104,7 +104,11 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer
 	public function nextRange():Vector2
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_set_next_range(this #if hl, new Vector2() #end);
+		#if hl
+		return NativeCFFI.lime_hb_set_next_range(this, new Vector2());
+		#else
+		return __toVector2(NativeCFFI.lime_hb_set_next_range(this));
+		#end
 		#else
 		return null;
 		#end
@@ -191,6 +195,12 @@ abstract HBSet(CFFIPointer) from CFFIPointer to CFFIPointer
 		#else
 		return 0;
 		#end
+	}
+
+	// C++ and Neko give an anonymous object with x and y, which isn't a Vector2
+	@:noCompletion private static function __toVector2(value:Dynamic):Vector2
+	{
+		return value == null ? null : new Vector2(value.x, value.y);
 	}
 }
 #end

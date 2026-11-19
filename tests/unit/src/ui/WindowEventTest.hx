@@ -287,7 +287,6 @@ class WindowEventTest extends Test
 		Assert.equals(0, entered, "the shortcut entered fullscreen in a window that was fullscreen");
 	}
 
-	@Ignored("Waiting on #2252")
 	public function testAWindowCreatedFullscreenSaysItIs():Void
 	{
 		if (open() == null) return;
@@ -309,7 +308,6 @@ class WindowEventTest extends Test
 		Assert.isTrue(said, "a window created fullscreen says it is not");
 	}
 
-	@Ignored("Waiting on #2252")
 	public function testEnteringFullscreenIsDispatchedOnce():Void
 	{
 		var window = open();
@@ -326,7 +324,6 @@ class WindowEventTest extends Test
 		Assert.equals("fullscreen true", heard.join(","), "leaving fullscreen was dispatched as entering it");
 	}
 
-	@Ignored("Waiting on #2252")
 	public function testAWindowThatIsFullscreenDoesNotEnterItAgain():Void
 	{
 		var window = open();
@@ -340,7 +337,6 @@ class WindowEventTest extends Test
 		Assert.equals(0, entered, "a window that was fullscreen entered fullscreen");
 	}
 
-	@Ignored("Waiting on #2252")
 	public function testLeavingFullscreenRestoresTheWindow():Void
 	{
 		var window = open();

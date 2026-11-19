@@ -316,7 +316,6 @@ class AssetLibraryTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2158")
 	public function testLibrariesLoadAgainAfterUnloading(async:Async):Void
 	{
 		files.writeText("again/a.txt", "alpha");

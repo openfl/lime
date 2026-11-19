@@ -44,7 +44,9 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function get_data():DataPointer
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_blob_get_data(this);
+		// A cast, as on C++ a Float would become a DataPointer through fromCFFIPointer, which reads it as 0
+		var data:Float = NativeCFFI.lime_hb_blob_get_data(this);
+		return cast data;
 		#else
 		return cast 0;
 		#end
@@ -53,7 +55,9 @@ abstract HBBlob(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function get_dataWritable():DataPointer
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_blob_get_data_writable(this);
+		// A cast, as on C++ a Float would become a DataPointer through fromCFFIPointer, which reads it as 0
+		var data:Float = NativeCFFI.lime_hb_blob_get_data_writable(this);
+		return cast data;
 		#else
 		return cast 0;
 		#end

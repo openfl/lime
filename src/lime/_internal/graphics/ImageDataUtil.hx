@@ -427,7 +427,7 @@ class ImageDataUtil
 					var alphaPosition, alphaPixel:RGBA = 0;
 
 					var alphaView = new ImageDataView(alphaImage,
-						new Rectangle(sourceView.x + (alphaPoint == null ? 0 : alphaPoint.x), sourceView.y + (alphaPoint == null ? 0 : alphaPoint.y),
+						new Rectangle(alphaPoint == null ? 0 : alphaPoint.x, alphaPoint == null ? 0 : alphaPoint.y,
 							sourceView.width, sourceView.height));
 
 					destView.clip(Std.int(destPoint.x), Std.int(destPoint.y), alphaView.width, alphaView.height);
@@ -559,39 +559,48 @@ class ImageDataUtil
 		var data = image.buffer.data;
 		if (data == null) return;
 
-		if (format == ARGB32) color = ((color & 0xFFFFFF) << 8) | ((color >> 24) & 0xFF);
+		// A start point outside the image changes nothing, as with setPixel32
+		if (x < 0 || y < 0 || x >= image.width || y >= image.height) return;
+
+		var fillColor:RGBA = switch (format)
+		{
+			case ARGB32: (color : ARGB);
+			case BGRA32: (color : BGRA);
+			default: color;
+		}
 
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_flood_fill(image, x, y, (color >> 16) & 0xFFFF, (color) & 0xFFFF);
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_flood_fill(image, x, y, (fillColor >> 16) & 0xFFFF, (fillColor) & 0xFFFF);
 		else
 			// TODO: Better Int32 solution
 		#end
 		{
 			var format = image.buffer.format;
 			var premultiplied = image.buffer.premultiplied;
+			var transparent = image.transparent;
 
-			var fillColor:RGBA = color;
+			// Within the image's own part of the buffer, whose rows are stride long
+			var stride = image.buffer.stride;
+			var originX = image.offsetX;
+			var originY = image.offsetY;
 
+			if (!transparent) fillColor.a = 0xFF;
+			if (premultiplied) fillColor.multiplyAlpha();
+
+			// Pixels are compared as they are stored, so that a fill colour
+			// premultiplied to the same bytes as the start isn't taken for it
+			var position = (y + originY) * stride + (x + originX) * 4;
 			var hitColor:RGBA = 0;
-			hitColor.readUInt8(data, ((y + image.offsetY) * (image.buffer.width * 4)) + ((x + image.offsetX) * 4), format, premultiplied);
-
-			if (!image.transparent)
-			{
-				fillColor.a = 0xFF;
-				hitColor.a = 0xFF;
-			}
+			hitColor.readUInt8(data, position, format, false);
+			if (!transparent) hitColor.a = 0xFF;
 
 			if (fillColor == hitColor) return;
 
-			if (premultiplied) fillColor.multiplyAlpha();
+			// The start pixel, then each pixel joined to a filled one by an edge
+			fillColor.writeUInt8(data, position, format, false);
 
 			var dx = [0, -1, 1, 0];
 			var dy = [-1, 0, 0, 1];
-
-			var minX = -image.offsetX;
-			var minY = -image.offsetY;
-			var maxX = minX + image.width;
-			var maxY = minY + image.height;
 
 			var queue = new Array<Int>();
 			queue.push(x);
@@ -609,13 +618,14 @@ class ImageDataUtil
 					nextPointX = curPointX + dx[i];
 					nextPointY = curPointY + dy[i];
 
-					if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY)
+					if (nextPointX < 0 || nextPointY < 0 || nextPointX >= image.width || nextPointY >= image.height)
 					{
 						continue;
 					}
 
-					nextPointOffset = (nextPointY * image.width + nextPointX) * 4;
-					readColor.readUInt8(data, nextPointOffset, format, premultiplied);
+					nextPointOffset = (nextPointY + originY) * stride + (nextPointX + originX) * 4;
+					readColor.readUInt8(data, nextPointOffset, format, false);
+					if (!transparent) readColor.a = 0xFF;
 
 					if (readColor == hitColor)
 					{
@@ -1019,11 +1029,12 @@ class ImageDataUtil
 					uOpposite = 1 - uRatio;
 					vOpposite = 1 - vRatio;
 
-					newData[index] = Std.int((data[sourceIndex] * uOpposite + data[sourceIndexX] * uRatio) * vOpposite
+					// Rounded, as interpolating between equal pixels can come out a hair under their value
+					newData[index] = Std.int(0.5 + (data[sourceIndex] * uOpposite + data[sourceIndexX] * uRatio) * vOpposite
 						+ (data[sourceIndexY] * uOpposite + data[sourceIndexXY] * uRatio) * vRatio);
-					newData[index + 1] = Std.int((data[sourceIndex + 1] * uOpposite + data[sourceIndexX + 1] * uRatio) * vOpposite
+					newData[index + 1] = Std.int(0.5 + (data[sourceIndex + 1] * uOpposite + data[sourceIndexX + 1] * uRatio) * vOpposite
 						+ (data[sourceIndexY + 1] * uOpposite + data[sourceIndexXY + 1] * uRatio) * vRatio);
-					newData[index + 2] = Std.int((data[sourceIndex + 2] * uOpposite + data[sourceIndexX + 2] * uRatio) * vOpposite
+					newData[index + 2] = Std.int(0.5 + (data[sourceIndex + 2] * uOpposite + data[sourceIndexX + 2] * uRatio) * vOpposite
 						+ (data[sourceIndexY + 2] * uOpposite + data[sourceIndexXY + 2] * uRatio) * vRatio);
 
 					// Maybe it would be better to not weigh colors with an alpha of zero, but the below should help prevent black fringes caused by transparent pixels made visible
@@ -1345,6 +1356,10 @@ class ImageDataUtil
 
 			var srcPosition, destPosition, srcPixel:RGBA = 0, destPixel:RGBA = 0, pixelMask:UInt, test:Bool, value:Int;
 
+			// As in Flash: (pixel & mask) compared with (threshold & mask), both as
+			// ARGB numbers, in which alpha is the highest byte
+			var thresholdMask:UInt = __argbOrder(_threshold & _mask);
+
 			for (y in 0...destView.height)
 			{
 				srcPosition = srcView.row(y);
@@ -1354,9 +1369,9 @@ class ImageDataUtil
 				{
 					srcPixel.readUInt8(srcData, srcPosition, srcFormat, srcPremultiplied);
 
-					pixelMask = srcPixel & _mask;
+					pixelMask = __argbOrder(srcPixel & _mask);
 
-					value = __pixelCompare(pixelMask, _threshold);
+					value = __pixelCompare(pixelMask, thresholdMask);
 
 					test = switch (_operation)
 					{
@@ -1585,6 +1600,11 @@ class ImageDataUtil
 		}
 
 		return sizes;
+	}
+
+	private static inline function __argbOrder(rgba:Int):Int
+	{
+		return ((rgba & 0xFF) << 24) | ((rgba >> 8) & 0xFFFFFF);
 	}
 
 	private static inline function __pixelCompare(n1:UInt, n2:UInt):Int
