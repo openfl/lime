@@ -25,7 +25,10 @@ namespace lime {
 
 			buffer _buffer = alloc_buffer_len (1);
 
-			if (buffer_data (_buffer)) {
+			// Neko's buffers are strings one byte longer than asked for, ending in
+			// a zero that Haxe's Bytes would then compare and copy, so Value () only
+			// uses buffers that are the length given, and strings otherwise
+			if (buffer_data (_buffer) && buffer_size (_buffer) == 1) {
 
 				useBuffer = true;
 
