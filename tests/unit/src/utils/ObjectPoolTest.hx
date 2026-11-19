@@ -169,7 +169,6 @@ class ObjectPoolTest extends Test
 		Assert.equals(2, created);
 	}
 
-	@Ignored("Waiting on #2149")
 	public function testRemovedActiveObjectsAreNoLongerCounted():Void
 	{
 		var pool = newPool();
@@ -211,7 +210,6 @@ class ObjectPoolTest extends Test
 		Assert.equals(3, created);
 	}
 
-	@Ignored("Waiting on #2149")
 	public function testReleasingTwiceCountsTheObjectOnce():Void
 	{
 		var pool = newPool();
@@ -227,7 +225,6 @@ class ObjectPoolTest extends Test
 		Assert.notEquals(first, second, "an object released twice was handed out twice");
 	}
 
-	@Ignored("Waiting on #2149")
 	public function testReleasingTwiceCleansOnce():Void
 	{
 		var cleaned = 0;
@@ -239,7 +236,6 @@ class ObjectPoolTest extends Test
 		Assert.equals(1, cleaned);
 	}
 
-	@Ignored("Waiting on #2149")
 	public function testReleasingAnObjectFromElsewhereIsIgnored():Void
 	{
 		var pool = newPool();

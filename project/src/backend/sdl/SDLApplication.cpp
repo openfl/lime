@@ -13,6 +13,21 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+#elif !defined(HX_WINDOWS)
+#include <time.h>
+#endif
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -129,6 +144,15 @@ namespace lime
 		active = false;
 		allowBusyWait = true;
 		busyWaitOnly = false;
+		mainLoopApplied = false;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		// Windows 10 1803 and later; without it the remainder of a frame is spun as before
+		frameTimer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+#endif
+		swapPaced = false;
+		swapFallback = false;
+		shortSwaps = 0;
+		lastSwapFrame = 0.0;
 		currentUpdate = 0.0;
 		deltaRemainder = 0.0;
 		dispatchedFrames = 0;
@@ -279,6 +303,11 @@ namespace lime
 	void SDLApplication::ApplyMainLoopSettings()
 	{
 
+		bool wasUnthrottled = schedulerUnthrottled;
+		bool wasSwapPaced = swapPaced;
+		bool wasDisplayDriven = useDisplayDrivenFallback;
+		bool wasBusyWaitOnly = busyWaitOnly;
+
 		double clampedFrameRate = requestedFrameRate;
 		if (clampedFrameRate > 0.0 && clampedFrameRate > 10000.0)
 			clampedFrameRate = 10000.0;
@@ -300,6 +329,8 @@ namespace lime
 		useDisplayDrivenFallback = false;
 		schedulerUnthrottled = false;
 		swapPaced = false;
+		swapFallback = false;
+		shortSwaps = 0;
 
 		bool hasExplicitFrameRate = (clampedFrameRate > 0.0);
 		double effectiveFrameRate = hasExplicitFrameRate ? clampedFrameRate : 1.0;
@@ -358,8 +389,24 @@ namespace lime
 		}
 
 		busyWaitOnly = allowBusyWait && (activeUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
-		currentUpdate = GetCurrentTimeMs();
-		nextUpdate = currentUpdate;
+
+		bool samePacing = mainLoopApplied && wasUnthrottled == schedulerUnthrottled && wasSwapPaced == swapPaced &&
+			wasDisplayDriven == useDisplayDrivenFallback && wasBusyWaitOnly == busyWaitOnly;
+		mainLoopApplied = true;
+
+		if (samePacing && !schedulerUnthrottled && framePeriod > 0.0)
+		{
+			// Keep the next frame where it was, but no later than a new period after the last one,
+			// so setting the frame rate often doesn't make a frame due each time
+			double latest = currentUpdate + framePeriod;
+			if (nextUpdate > latest)
+				nextUpdate = latest;
+		}
+		else
+		{
+			currentUpdate = GetCurrentTimeMs();
+			nextUpdate = currentUpdate;
+		}
 	}
 
 	void SDLApplication::CalibrateSleepGuard(bool force)
@@ -479,8 +526,9 @@ namespace lime
 		if (renderFrame)
 		{
 			unsigned int flips = s_contextFlips;
+			double renderStart = swapPaced ? GetCurrentTimeMs() : 0.0;
 			RenderEvent::Dispatch(&renderEvent);
-			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips);
+			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips, GetCurrentTimeMs() - renderStart);
 		}
 	}
 
@@ -490,18 +538,58 @@ namespace lime
 		s_contextFlips++;
 	}
 
-	void SDLApplication::PaceFrameAfterRender(bool swapped)
+	void SDLApplication::PaceFrameAfterRender(bool swapped, double renderMs)
 	{
+
+		double refreshPeriod = 1000.0 / displayRefreshRate;
 
 		// The loop runs unthrottled while each swap waits for the display. A frame that
 		// swaps nothing, as when an application skips drawing an unchanged scene, waits
 		// for nothing, so until a frame swaps again, frames come once per refresh.
-		schedulerUnthrottled = swapped;
-
 		if (!swapped)
 		{
-			nextUpdate = currentUpdate + 1000.0 / displayRefreshRate;
+			schedulerUnthrottled = false;
+			nextUpdate = currentUpdate + refreshPeriod;
+			return;
 		}
+
+		if (swapFallback)
+		{
+			// Frames are timed while the swaps don't wait. One that blocks for a good part of a
+			// refresh shows the display pacing them again.
+			if (renderMs >= refreshPeriod * 0.25)
+			{
+				swapFallback = false;
+				shortSwaps = 0;
+				lastSwapFrame = currentUpdate;
+				schedulerUnthrottled = true;
+			}
+
+			return;
+		}
+
+		// A swap can return at once, as when a driver forces vsync off, in a remote session or
+		// a virtual machine, which would leave update and render running back to back. Frames
+		// that swapped coming well under a refresh apart several times running show that.
+		double interval = currentUpdate - lastSwapFrame;
+		lastSwapFrame = currentUpdate;
+
+		if (interval < refreshPeriod * 0.5)
+		{
+			if (++shortSwaps >= 3)
+			{
+				swapFallback = true;
+				schedulerUnthrottled = false;
+				nextUpdate = currentUpdate + framePeriod;
+				return;
+			}
+		}
+		else
+		{
+			shortSwaps = 0;
+		}
+
+		schedulerUnthrottled = true;
 	}
 
 	bool SDLApplication::IsFrameDue(double now) const
@@ -542,6 +630,40 @@ namespace lime
 		ApplyMainLoopSettings();
 	}
 
+	bool SDLApplication::SleepsOutTheRemainder() const
+	{
+
+		// The precision profile, or busy waiting asked for by name, keeps the spin
+		return requestedProfile != MAIN_LOOP_PROFILE_PRECISION && requestedBusyWaitMode != MAIN_LOOP_BUSY_WAIT_ON;
+	}
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	bool SDLApplication::WaitOnFrameTimer(double ms)
+	{
+
+		if (!frameTimer || !SleepsOutTheRemainder())
+			return false;
+
+		if (ms > 8.0)
+			ms = 8.0;
+
+		// Relative, in 100 ns units
+		LARGE_INTEGER due;
+		due.QuadPart = -(LONGLONG)(ms * 10000.0);
+
+		if (due.QuadPart >= 0)
+			return true;
+
+		if (!SetWaitableTimer((HANDLE)frameTimer, &due, 0, NULL, NULL, FALSE))
+			return false;
+
+		// Any message wakes it, and SDL posts one for events pushed from other threads
+		HANDLE timer = (HANDLE)frameTimer;
+		MsgWaitForMultipleObjectsEx(1, &timer, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		return true;
+	}
+#endif
+
 	void SDLApplication::UpdateSleepGuard(Uint32 requestedMs, Uint32 elapsedMs)
 	{
 
@@ -562,6 +684,11 @@ namespace lime
 	SDLApplication::~SDLApplication()
 	{
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (frameTimer)
+		{
+			CloseHandle((HANDLE)frameTimer);
+			frameTimer = NULL;
+		}
 		if (modalWatchInstalled && SDL_WasInit(0))
 		{
 			SDL_DelEventWatch(ModalEventWatch, this);
@@ -903,6 +1030,12 @@ namespace lime
 				ProcessWindowEvent(event);
 				break;
 
+			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+
+				// The display's refresh rate decides whether frames are swap paced
+				ApplyMainLoopSettings();
+				break;
+
 			case SDL_WINDOWEVENT_EXPOSED:
 
 				ProcessWindowEvent(event);
@@ -921,6 +1054,10 @@ namespace lime
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 				ProcessWindowEvent(event, true);
 #else
+				// SDL posts SIZE_CHANGED for every change of size, and RESIZED after it with the
+				// same size when the user or the system resized the window, so one is enough
+				if (event->window.event == SDL_WINDOWEVENT_RESIZED) break;
+
 				ProcessWindowEvent(event);
 				{
 					double now = GetCurrentTimeMs();
@@ -1026,6 +1163,7 @@ namespace lime
 
 			dropEvent.type = DROP_FILE;
 			dropEvent.file = (vbyte *)event->drop.file;
+			dropEvent.windowID = event->drop.windowID;
 
 			DropEvent::Dispatch(&dropEvent);
 			SDL_free(dropEvent.file);
@@ -1742,17 +1880,21 @@ namespace lime
 	void SDLApplication::SetVSyncMode(int vsyncMode)
 	{
 
+		bool changed = (vsyncMode != requestedVSyncMode);
 		requestedVSyncMode = vsyncMode;
 
 		for (std::vector<SDLWindow*>::iterator iter = windows.begin (); iter != windows.end (); ++iter)
 		{
-			if (*iter)
+			// A window applies its mode when it is made, so one already in this mode is left alone
+			if (*iter && (*iter)->GetRequestedVSyncMode () != requestedVSyncMode)
 			{
 				(*iter)->SetVSyncMode (requestedVSyncMode);
+				changed = true;
 			}
 		}
 
-		RefreshVSyncState();
+		if (changed)
+			RefreshVSyncState();
 	}
 
 	bool SDLApplication::Update()
@@ -2112,6 +2254,13 @@ namespace lime
 					}
 				}
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+				// Wait out the remainder on the high-resolution timer rather than spinning, then
+				// go round again to take what woke it
+				if (!busyWaitOnly && WaitOnFrameTimer(remaining))
+					break;
+#endif
+
 				// Busy-wait the final remainder for tighter frame pacing.
 				for (;;)
 				{
@@ -2168,6 +2317,17 @@ namespace lime
 							}
 							return 0;
 						}
+
+#if !defined(HX_WINDOWS)
+						// Sleep a fifth of a millisecond between pumps rather than spinning
+						if (!busyWaitOnly && SleepsOutTheRemainder())
+						{
+							struct timespec slice;
+							slice.tv_sec = 0;
+							slice.tv_nsec = 200000;
+							nanosleep(&slice, NULL);
+						}
+#endif
 
 						break;
 					}

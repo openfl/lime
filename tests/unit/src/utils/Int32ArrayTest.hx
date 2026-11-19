@@ -64,9 +64,6 @@ class Int32ArrayTest extends Test
 		assertElements([0, 1, 2147483647, -2147483648, -1, 0xcafebabe], array);
 	}
 
-	#if (neko || hl || cpp)
-	@Ignored("Waiting on #2152")
-	#end
 	public function testConstructFromArrayOfFloatsWrapsAround():Void
 	{
 		// ToInt32: NaN and infinities are 0, other values are truncated toward zero, then taken modulo 2^32
@@ -77,7 +74,6 @@ class Int32ArrayTest extends Test
 		assertElements([1, -1, -2147483648, -1, 0, 1, 2147483647, -1294967296, 0, 0, 0], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromTypedArrayConvertsValues():Void
 	{
 		assertElements([-2147483648, -1, -1294967296], new Int32Array(new Float64Array([2147483648.0, -1.5, 3e9])));
@@ -201,9 +197,6 @@ class Int32ArrayTest extends Test
 
 	#if !js
 	// js.lib typed arrays only take Array<Int> in set
-	#if (neko || hl || cpp)
-	@Ignored("Waiting on #2152")
-	#end
 	public function testSetArrayOfFloatsWrapsAround():Void
 	{
 		var array = new Int32Array(3);
@@ -222,7 +215,6 @@ class Int32ArrayTest extends Test
 		assertElements([0, -1, 0x7fff, -2], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetFloat32ArrayConvertsValues():Void
 	{
 		// Float32 and Int32 elements are both 4 bytes, but set copies values, not bytes
@@ -238,7 +230,6 @@ class Int32ArrayTest extends Test
 		assertElements([1, 2, 1, 2, 3, 4], forward);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetOverlappingViewOfAnotherType():Void
 	{
 		var buffer = new ArrayBuffer(16);
@@ -252,7 +243,8 @@ class Int32ArrayTest extends Test
 		assertElements([1, 2, 3, 4], wide);
 	}
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsWriteIsIgnored():Void
 	{
 		var buffer = new ArrayBuffer(16);
@@ -261,4 +253,5 @@ class Int32ArrayTest extends Test
 		array[-1] = 9;
 		Assert.same([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], bytesOf(buffer));
 	}
+	#end
 }

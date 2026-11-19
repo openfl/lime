@@ -268,7 +268,6 @@ class ConfigTest extends Test
 	}
 
 	// "every node in the project file format supports if and unless attributes"
-	@Ignored("Waiting on #2160")
 	public function testApplicationAttributesHonourIf():Void
 	{
 		var project = fixture.parse('<project>
@@ -286,7 +285,6 @@ class ConfigTest extends Test
 		Assert.isFalse(Fixture.hasKey(application, "unless"));
 	}
 
-	@Ignored("Waiting on #2160")
 	public function testGradlePropertiesHonourIf():Void
 	{
 		var project = fixture.parse('<project>
@@ -301,7 +299,6 @@ class ConfigTest extends Test
 		Assert.isFalse(Fixture.hasKey(properties, "if"));
 	}
 
-	@Ignored("Waiting on #2160")
 	public function testManifestTagsHonourIf():Void
 	{
 		var project = fixture.parse('<project>

@@ -75,12 +75,11 @@ class Float64ArrayTest extends Test
 		Assert.equals(Math.NEGATIVE_INFINITY, 1 / array[3]);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromTypedArrayConvertsValues():Void
 	{
 		assertElements([0.10000000149011612, -2.5], new Float64Array(new Float32Array([0.1, -2.5])));
 		assertElements([-1, 127], new Float64Array(new Int8Array([-1, 127])));
-		assertElements([-2147483648, 2147483647], new Float64Array(new Int32Array([0x80000000, 0x7fffffff])));
+		assertElements([-2147483648.0, 2147483647], new Float64Array(new Int32Array([0x80000000, 0x7fffffff])));
 		// Unsigned elements keep their unsigned value
 		var unsigned = new Float64Array(new UInt32Array([0xffffffff, 0x80000000]));
 		assertElements([4294967295.0, 2147483648.0], unsigned);
@@ -176,7 +175,6 @@ class Float64ArrayTest extends Test
 		assertElements([0, 0, 0.1, 1e300], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetTypedArrayConvertsValues():Void
 	{
 		var array = new Float64Array(3);
@@ -194,7 +192,6 @@ class Float64ArrayTest extends Test
 		assertElements([1, 2, 1, 2, 3, 4], forward);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetOverlappingViewOfAnotherType():Void
 	{
 		// Float32 elements spread into Float64 elements overwrite the bytes still to be read
@@ -209,7 +206,8 @@ class Float64ArrayTest extends Test
 		assertElements([1.5, 2.5, 3.5, 4.5], wide);
 	}
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsWriteIsIgnored():Void
 	{
 		var buffer = new ArrayBuffer(32);
@@ -218,4 +216,5 @@ class Float64ArrayTest extends Test
 		array[-1] = 9;
 		Assert.same([for (i in 0...32) 0], bytesOf(buffer));
 	}
+	#end
 }

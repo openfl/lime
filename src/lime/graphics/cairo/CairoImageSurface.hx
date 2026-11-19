@@ -35,7 +35,14 @@ import lime.utils.DataPointer;
 	public static function fromImage(image:Image):CairoSurface
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		return create(#if nodejs image.data #else image.data.buffer #end, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#if nodejs
+		return create(image.data, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#else
+		// From the image's first pixel, which for part of a larger buffer isn't the buffer's first
+		var data:DataPointer = DataPointer.fromArrayBufferView(image.data);
+		data = data + (image.offsetY * image.buffer.stride + image.offsetX * 4);
+		return create(data, CairoFormat.ARGB32, image.width, image.height, image.buffer.stride);
+		#end
 		#else
 		return null;
 		#end
@@ -45,7 +52,10 @@ import lime.utils.DataPointer;
 	@:noCompletion private function get_data():DataPointer
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		return NativeCFFI.lime_cairo_image_surface_get_data(this);
+		// A cast, as on HashLink the binding gives a Float, which would become a DataPointer
+		// through fromCFFIPointer and be read as a handle
+		var data:Float = NativeCFFI.lime_cairo_image_surface_get_data(this);
+		return cast data;
 		#else
 		return 0;
 		#end

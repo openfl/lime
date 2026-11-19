@@ -76,9 +76,6 @@ class Int8ArrayTest extends Test
 		assertElements(result, array);
 	}
 
-	#if (neko || hl)
-	@Ignored("Waiting on #2152")
-	#end
 	public function testConstructFromArrayOfFloatsTruncates():Void
 	{
 		// ToInt8: NaN and infinities are 0, other values are truncated toward zero, then wrapped
@@ -96,7 +93,6 @@ class Int8ArrayTest extends Test
 		Assert.equals(0, array.byteOffset);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromTypedArrayConvertsValues():Void
 	{
 		var source = new Int16Array([300, -200, 127, -32768]);
@@ -121,7 +117,6 @@ class Int8ArrayTest extends Test
 		Assert.equals(0, copy.byteOffset);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromSubarrayStartsAtItsOffset():Void
 	{
 		var source = new Int8Array([1, 2, 3, 4, 5]);
@@ -234,7 +229,6 @@ class Int8ArrayTest extends Test
 		Assert.equals(3, inner.byteOffset);
 	}
 
-	@Ignored("Waiting on #2152")
 	public function testSetArrayOfIntsWithOffset():Void
 	{
 		var array = new Int8Array(6);
@@ -254,7 +248,6 @@ class Int8ArrayTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2154")
 	public function testSetWritesAtTheViewsOwnOffset():Void
 	{
 		// A view's indices start at its byteOffset, for set() as for []
@@ -268,7 +261,6 @@ class Int8ArrayTest extends Test
 		Assert.same([0, 0, 0, 0, 1, 2, 0, 3], bytesOf(buffer));
 	}
 
-	@Ignored("Waiting on #2154")
 	public function testSetTypedArrayWritesAtTheViewsOwnOffset():Void
 	{
 		var buffer = new ArrayBuffer(8);
@@ -291,9 +283,6 @@ class Int8ArrayTest extends Test
 	}
 	#end
 
-	#if neko
-	@Ignored("Waiting on #2150")
-	#end
 	public function testSetTypedArrayConvertsValues():Void
 	{
 		var array = new Int8Array(4);
@@ -316,7 +305,6 @@ class Int8ArrayTest extends Test
 		assertElements([3, 4, 5, 6, 5, 6], backward);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetOverlappingViewOfAnotherType():Void
 	{
 		var buffer = new ArrayBuffer(8);
@@ -329,7 +317,8 @@ class Int8ArrayTest extends Test
 		Assert.same([0x02, 0x01, 0x02, 0x04, 0, 0, 0, 0], bytesOf(buffer));
 	}
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsWriteIsIgnored():Void
 	{
 		var buffer = new ArrayBuffer(6);
@@ -340,8 +329,10 @@ class Int8ArrayTest extends Test
 		Assert.same([0, 0, 0, 0, 0, 0], bytesOf(buffer));
 		Assert.equals(2, array.length);
 	}
+	#end
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsReadDoesNotSeeNeighbouringBytes():Void
 	{
 		var buffer = new ArrayBuffer(6);
@@ -353,4 +344,5 @@ class Int8ArrayTest extends Test
 		Assert.notEquals(0x55, array[2]);
 		Assert.notEquals(0x55, array[-1]);
 	}
+	#end
 }

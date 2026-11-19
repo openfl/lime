@@ -961,7 +961,15 @@ class Application extends Module
 
 	@:noCompletion private function __setFrameRateFromWindow(value:Float):Float
 	{
-		__frameRate = __normalizeFrameRate(value);
+		var frameRate = __normalizeFrameRate(value);
+
+		// Setting the frame rate it has, as applications that set it often do, changes nothing
+		if (frameRate == __frameRate && __frameConfigured)
+		{
+			return __frameRate;
+		}
+
+		__frameRate = frameRate;
 		__applyFrameConfiguration(__frameProfile, __frameOptions, __vsyncMode, true);
 		return __frameRate;
 	}

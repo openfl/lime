@@ -209,7 +209,6 @@ class ImageFillTest extends Test
 		assertPixels([for (i in 0...9) WHITE], image);
 	}
 
-	@Ignored("Waiting on #2171")
 	public function testFloodFillOutsideTheImageChangesNothing():Void
 	{
 		for (point in [[-1, 0], [0, -1], [3, 0], [0, 2], [3, 2]])
@@ -222,7 +221,6 @@ class ImageFillTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2171")
 	public function testFloodFillTakesTheColorInTheFormatGiven():Void
 	{
 		for (format in FORMATS)
@@ -235,7 +233,6 @@ class ImageFillTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2171")
 	public function testFloodFillFillsALonePixel():Void
 	{
 		var single = create(1, 1, WHITE);
@@ -247,7 +244,6 @@ class ImageFillTest extends Test
 		assertPixels([RED, BLACK, WHITE], walled, 0, "pixel by a wall");
 	}
 
-	@Ignored("Waiting on #2171")
 	public function testFloodFillInAnImageWithAnOffsetFillsOnlyItsOwnPart():Void
 	{
 		var whole = create(4, 4, WHITE);
@@ -356,7 +352,6 @@ class ImageFillTest extends Test
 		assertPixels([0x80FF4000], image, 1);
 	}
 
-	@Ignored("Waiting on #2175")
 	public function testColorTransformOfAlphaKeepsThePremultipliedColor():Void
 	{
 		var image = create(1, 1, 0xFF804020, null, true);

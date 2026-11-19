@@ -1,6 +1,8 @@
 package lime.text;
 
-#if !haxe4
+// Haxe 4's UnicodeString counts code points only where target.unicode is
+// defined, which Neko doesn't, so Neko keeps this abstract
+#if !(haxe4 && target.unicode)
 import haxe.Utf8;
 import lime._internal.unifill.Unifill;
 import lime._internal.unifill.CodePoint;
@@ -34,6 +36,8 @@ abstract UTF8String(String) from String to String
 	**/
 	public function charAt(index:Int):String
 	{
+		// haxe.Utf8 throws on Neko for an index out of range
+		if (index < 0 || index >= (this : UTF8String).length) return "";
 		return Unifill.uCharAt(this, index);
 	}
 
@@ -69,6 +73,13 @@ abstract UTF8String(String) from String to String
 		If #unifill is defined, these codes will be treated as UTF-8 code points,
 		otherwise it will default to using String.fromCharCode() for each character
 	**/
+	#if haxe4
+	public static inline function validate(b:haxe.io.Bytes, encoding:haxe.io.Encoding):Bool
+	{
+		return UnicodeString.validate(b, encoding);
+	}
+	#end
+
 	public static function fromCharCodes(codes:Array<Int>):String
 	{
 		var s = "";
@@ -155,10 +166,19 @@ abstract UTF8String(String) from String to String
 	**/
 	public function substr(pos:Int, ?len:Int):String
 	{
-		if (len == null)
+		// As String: a negative pos counts from the end, and the part is kept
+		// within the string, where haxe.Utf8 throws on Neko
+		var length = (this : UTF8String).length;
+
+		if (pos < 0)
 		{
-			len = (this : UTF8String).length - pos;
+			pos += length;
+			if (pos < 0) pos = 0;
 		}
+
+		if (pos >= length) return "";
+		if (len == null || pos + len > length) len = length - pos;
+		if (len <= 0) return "";
 
 		return Utf8.sub(this, pos, len);
 	}
@@ -226,7 +246,8 @@ abstract UTF8String(String) from String to String
 			case "tr":
 				switch (v)
 				{
-					case 0xC4B0: 0x69; // İ-->i (large dotted İ to small i) //probably redundant and can be removed, presented here for logical symmtery for when genuine cases are needed
+					case 0x130: 0x69; // İ-->i (large dotted İ to small i)
+					case 0x49: 0x131; // I-->ı (large I to small dotless ı)
 					default: v;
 				}
 			default: v;
@@ -286,7 +307,7 @@ abstract UTF8String(String) from String to String
 			case "tr":
 				switch (v)
 				{
-					case 0x69: 0xC4B0; // i-->İ (small i to large dotted İ)
+					case 0x69: 0x130; // i-->İ (small i to large dotted İ)
 					default: v;
 				}
 			default: v;
@@ -1153,5 +1174,195 @@ private class Utf8Ext
 	}
 }
 #else
-typedef UTF8String = UnicodeString;
+import haxe.io.Bytes;
+import haxe.io.Encoding;
+import lime.system.Locale;
+
+/**
+	A String indexed by code point, as `UnicodeString` is, with the API Lime's
+	UTF8String has had: `fromCharCode()`, `fromCharCodes()` and the `locale`
+	parameter of `toLowerCase()` and `toUpperCase()`.
+
+	Where `String` holds UTF-16, `indexOf("")` and `lastIndexOf("")` find the
+	empty string, `split("")` gives code points, and comparison follows code
+	points rather than UTF-16 code units.
+**/
+@:forward
+abstract UTF8String(UnicodeString) from UnicodeString to UnicodeString from String to String
+{
+	public inline function new(string:String)
+	{
+		this = new UnicodeString(string);
+	}
+
+	public static function fromCharCode(code:Int):String
+	{
+		return String.fromCharCode(code);
+	}
+
+	public static function fromCharCodes(codes:Array<Int>):String
+	{
+		var buffer = new StringBuf();
+
+		for (code in codes)
+		{
+			buffer.addChar(code);
+		}
+
+		return buffer.toString();
+	}
+
+	public static inline function validate(b:Bytes, encoding:Encoding):Bool
+	{
+		return UnicodeString.validate(b, encoding);
+	}
+
+	#if target.utf16
+	public function indexOf(str:String, ?startIndex:Int):Int
+	{
+		if (str == "")
+		{
+			// As String, the start, kept within the string
+			var length = this.length;
+			var start = (startIndex == null || startIndex < 0) ? 0 : startIndex;
+			return start > length ? length : start;
+		}
+
+		return this.indexOf(str, startIndex);
+	}
+
+	public function lastIndexOf(str:String, ?startIndex:Int):Int
+	{
+		if (str == "")
+		{
+			var length = this.length;
+			if (startIndex == null || startIndex > length) return length;
+			return startIndex < 0 ? 0 : startIndex;
+		}
+
+		return this.lastIndexOf(str, startIndex);
+	}
+	#end
+
+	public function split(delimiter:String):Array<String>
+	{
+		if (delimiter != "") return (this : String).split(delimiter);
+
+		// One element for each code point, where String splits UTF-16 code units
+		return [for (code in this) String.fromCharCode(code)];
+	}
+
+	public function toLowerCase(?locale:Locale):String
+	{
+		if (locale == null || locale.language != "tr") return (this : String).toLowerCase();
+
+		var buffer = new StringBuf();
+
+		for (code in this)
+		{
+			switch (code)
+			{
+				case 0x130: buffer.addChar(0x69); // İ-->i (large dotted İ to small i)
+				case 0x49: buffer.addChar(0x131); // I-->ı (large I to small dotless ı)
+				default: buffer.add(String.fromCharCode(code).toLowerCase());
+			}
+		}
+
+		return buffer.toString();
+	}
+
+	public function toUpperCase(?locale:Locale):String
+	{
+		if (locale == null || locale.language != "tr") return (this : String).toUpperCase();
+
+		var buffer = new StringBuf();
+
+		for (code in this)
+		{
+			switch (code)
+			{
+				case 0x69: buffer.addChar(0x130); // i-->İ (small i to large dotted İ)
+				default: buffer.add(String.fromCharCode(code).toUpperCase());
+			}
+		}
+
+		return buffer.toString();
+	}
+
+	public inline function toString():String
+	{
+		return this;
+	}
+
+	// Code point order. UTF-16 code units only differ from it when one of them
+	// is a surrogate and the other is from U+E000 to U+FFFF, so those are moved
+	// past each other.
+	@:noCompletion private static function compare(a:String, b:String):Int
+	{
+		#if target.utf16
+		var length = a.length < b.length ? a.length : b.length;
+
+		for (i in 0...length)
+		{
+			var unitA = StringTools.fastCodeAt(a, i);
+			var unitB = StringTools.fastCodeAt(b, i);
+
+			if (unitA != unitB)
+			{
+				if (unitA >= 0xD800 && unitB >= 0xD800)
+				{
+					unitA = unitA >= 0xE000 ? unitA - 0x800 : unitA + 0x2000;
+					unitB = unitB >= 0xE000 ? unitB - 0x800 : unitB + 0x2000;
+				}
+
+				return unitA < unitB ? -1 : 1;
+			}
+		}
+
+		return a.length == b.length ? 0 : (a.length < b.length ? -1 : 1);
+		#else
+		return a < b ? -1 : (a > b ? 1 : 0);
+		#end
+	}
+
+	@:op(A < B) private static inline function lt(a:UTF8String, b:UTF8String):Bool
+	{
+		return compare(a, b) < 0;
+	}
+
+	@:op(A <= B) private static inline function lte(a:UTF8String, b:UTF8String):Bool
+	{
+		return compare(a, b) <= 0;
+	}
+
+	@:op(A > B) private static inline function gt(a:UTF8String, b:UTF8String):Bool
+	{
+		return compare(a, b) > 0;
+	}
+
+	@:op(A >= B) private static inline function gte(a:UTF8String, b:UTF8String):Bool
+	{
+		return compare(a, b) >= 0;
+	}
+
+	@:op(A == B) private static inline function eq(a:UTF8String, b:UTF8String):Bool
+	{
+		return (a : String) == (b : String);
+	}
+
+	@:op(A != B) private static inline function neq(a:UTF8String, b:UTF8String):Bool
+	{
+		return (a : String) != (b : String);
+	}
+
+	@:op(A + B) private static inline function add(a:UTF8String, b:UTF8String):UTF8String
+	{
+		return (a : String) + (b : String);
+	}
+
+	@:op(A + B) @:commutative private static inline function addString(a:UTF8String, b:String):UTF8String
+	{
+		return (a : String) + b;
+	}
+}
 #end

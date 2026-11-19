@@ -7,6 +7,7 @@ import lime.utils.Bytes;
 import lime.utils.DataPointer;
 
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(lime.text.harfbuzz.HBSegmentProperties)
 abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 {
 	public var allocationSuccessful(get, never):Bool;
@@ -337,7 +338,8 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function get_script():HBScript
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_buffer_get_script(this);
+		// A Float except on HashLink, as Neko's integers can't carry tags past 2^30, such as Latn
+		return Std.int(NativeCFFI.lime_hb_buffer_get_script(this));
 		#else
 		return cast 0;
 		#end
@@ -346,10 +348,14 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function set_script(value:HBScript):HBScript
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		#if neko
-		value = -1;
-		#end
+		#if hl
 		NativeCFFI.lime_hb_buffer_set_script(this, value);
+		#else
+		// A Float made at run time, as Neko holds an Int past 2^30, such as Latn, in a form
+		// its native calls read neither as an integer nor as a number
+		var script:Float = (value : Int) * 1.0;
+		NativeCFFI.lime_hb_buffer_set_script(this, script);
+		#end
 		#end
 		return value;
 	}
@@ -357,8 +363,9 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function get_segmentProperties():HBSegmentProperties
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return null;
-		// return NativeCFFI.lime_hb_buffer_get_segment_properties (this);
+		var props = new HBSegmentProperties();
+		NativeCFFI.lime_hb_buffer_get_segment_properties(this, props.__handle);
+		return props;
 		#else
 		return null;
 		#end
@@ -367,7 +374,8 @@ abstract HBBuffer(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function set_segmentProperties(value:HBSegmentProperties):HBSegmentProperties
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		NativeCFFI.lime_hb_buffer_set_segment_properties(this, value);
+		// null sets the defaults, as HarfBuzz would read null as properties
+		NativeCFFI.lime_hb_buffer_set_segment_properties(this, (value != null ? value : new HBSegmentProperties()).__handle);
 		#end
 		return value;
 	}
