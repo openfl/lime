@@ -296,7 +296,11 @@ namespace lime {
 		bool premultiplied = image->buffer->premultiplied;
 		RGBA fillColor (color);
 
-		if (rect->x == 0 && rect->y == 0 && rect->width == image->width && rect->height == image->height) {
+		// Only when the image is its whole buffer, and premultiplying would leave
+		// the colour as it is, is the result the same as the loop below
+		bool wholeBuffer = image->offsetX == 0 && image->offsetY == 0 && image->width == image->buffer->width && image->height == image->buffer->height;
+
+		if (wholeBuffer && rect->x == 0 && rect->y == 0 && rect->width == image->width && rect->height == image->height && (!premultiplied || fillColor.a == 0xFF || fillColor.a == 0)) {
 
 			if (fillColor.a == fillColor.r && fillColor.r == fillColor.g && fillColor.g == fillColor.b) {
 

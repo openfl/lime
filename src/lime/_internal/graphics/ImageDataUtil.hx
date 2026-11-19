@@ -286,6 +286,11 @@ class ImageDataUtil
 		image.version++;
 	}
 
+	@:noCompletion private static inline function __isWholeBuffer(image:Image):Bool
+	{
+		return image.offsetX == 0 && image.offsetY == 0 && image.width == image.buffer.width && image.height == image.buffer.height;
+	}
+
 	public static function copyPixels(image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null,
 			alphaPoint:Vector2 = null, mergeAlpha:Bool = false):Void
 	{
@@ -300,7 +305,13 @@ class ImageDataUtil
 			&& alphaImage == null
 			&& alphaPoint == null
 			&& mergeAlpha == false
-			&& image.format == sourceImage.format)
+			&& image.format == sourceImage.format
+			// Copying the bytes gives what the code below does only when they're stored
+			// the same way, cover the whole of both buffers, and keep an opaque image opaque
+			&& image.premultiplied == sourceImage.premultiplied
+			&& (image.transparent || !sourceImage.transparent)
+			&& __isWholeBuffer(image)
+			&& __isWholeBuffer(sourceImage))
 		{
 			image.buffer.data.set(sourceImage.buffer.data);
 		}
