@@ -1185,7 +1185,7 @@ class NativeApplication
 			clickCount:Int = 0)
 	{
 		this.type = type;
-		this.windowID = 0;
+		this.windowID = windowID;
 
 		this.x = x;
 		this.y = y;
