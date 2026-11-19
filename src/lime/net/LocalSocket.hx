@@ -25,7 +25,13 @@ import lime.utils.Bytes;
 	```
 
 	Events are dispatched on the main thread. `isSupported` is true on
-	Windows, macOS and Linux.
+	Windows, macOS and Linux, and on HTML5 where the browser has
+	`BroadcastChannel`.
+
+	On HTML5, a connection is made between pages of the same origin in the
+	same browser, such as two tabs, or a page and itself, rather than with
+	native-ipc. Messages go out at once, so `bytesPending` only counts what is
+	waiting for the connection to be made.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
