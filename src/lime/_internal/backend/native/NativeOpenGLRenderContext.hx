@@ -98,6 +98,10 @@ class NativeOpenGLRenderContext
 	public var DEPTH_TEST = 0x0B71;
 	public var SCISSOR_TEST = 0x0C11;
 	public var POLYGON_OFFSET_FILL = 0x8037;
+	public var POINT = 0x1B00;
+	public var LINE = 0x1B01;
+	public var FILL = 0x1B02;
+	public var POLYGON_MODE = 0x0B40;
 	public var SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
 	public var SAMPLE_COVERAGE = 0x80A0;
 	public var NO_ERROR = 0;
@@ -2657,6 +2661,13 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		NativeCFFI.lime_gl_line_width(width);
+		#end
+	}
+
+	public function polygonMode(face:Int, mode:Int):Void
+	{
+		#if (lime_cffi && lime_opengl && !macro)
+		if (type == OPENGL) NativeCFFI.lime_gl_polygon_mode(face, mode);
 		#end
 	}
 
