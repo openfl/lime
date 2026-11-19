@@ -28,6 +28,7 @@ class NativeAudioInput
 	private static var lime_get_permission_status:String->Int;
 	private static var lime_request_permission:String->Void;
 	#end
+	private static var permissionRequests:Int = 0;
 	private static var permissionTimer:Timer;
 
 	private var canReportDisconnect:Bool;
@@ -105,7 +106,10 @@ class NativeAudioInput
 		}
 
 		// The answer comes on another thread or activity, so it is polled here
-		// and dispatched on the main thread, never before this call returns
+		// and dispatched on the main thread, never before this call returns,
+		// once for each request
+		permissionRequests++;
+
 		if (permissionTimer == null)
 		{
 			permissionTimer = new Timer(PERMISSION_POLL_MS);
@@ -336,7 +340,14 @@ class NativeAudioInput
 
 		permissionTimer.stop();
 		permissionTimer = null;
-		AudioInput.onPermission.dispatch(status == GRANTED);
+
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(status == GRANTED);
+		}
 	}
 
 	// 0 is undetermined, 1 granted and 2 denied, from both the JNI and the CFFI calls

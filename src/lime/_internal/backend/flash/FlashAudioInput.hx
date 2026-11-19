@@ -23,6 +23,7 @@ class FlashAudioInput
 
 	private static var permissionDenied:Bool;
 	private static var permissionMicrophone:Microphone;
+	private static var permissionRequests:Int = 0;
 
 	private var buffers:Array<AudioInputData>;
 	private var frameSize:Int;
@@ -108,7 +109,9 @@ class FlashAudioInput
 
 		if (getAIRPermissionStatus() != null)
 		{
-			// AIR 24 and later ask with requestPermission() and answer with a PermissionEvent
+			// AIR 24 and later ask with requestPermission() and answer with a PermissionEvent,
+			// which answers every request made meanwhile
+			if (permissionRequests++ > 0) return;
 			microphone.addEventListener("permissionStatus", microphone_onPermissionStatus);
 			untyped microphone.requestPermission();
 			return;
@@ -119,6 +122,9 @@ class FlashAudioInput
 			Timer.delay(AudioInput.onPermission.dispatch.bind(true), 0);
 			return;
 		}
+
+		// One dialog answers every request made while it is shown
+		permissionRequests++;
 
 		if (permissionMicrophone != null)
 		{
@@ -374,7 +380,15 @@ class FlashAudioInput
 	private static function microphone_onPermissionStatus(event:Event):Void
 	{
 		event.target.removeEventListener("permissionStatus", microphone_onPermissionStatus);
-		AudioInput.onPermission.dispatch((untyped event.status) == "granted");
+
+		var granted = (untyped event.status) == "granted";
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(granted);
+		}
 	}
 
 	private static function microphone_onStatus(event:StatusEvent):Void
@@ -389,7 +403,14 @@ class FlashAudioInput
 		permissionMicrophone = null;
 
 		permissionDenied = event.code == "Microphone.Muted";
-		AudioInput.onPermission.dispatch(!permissionDenied);
+
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(!permissionDenied);
+		}
 	}
 
 	private function trimQueue():Void
