@@ -225,7 +225,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(20000)
-	@Ignored("Waiting on #2214")
 	public function testTheLastProgressReportHasEveryByte(async:Async):Void
 	{
 		// XMLHttpRequest fires a last progress event with every byte before load,

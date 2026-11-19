@@ -306,6 +306,36 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(10000)
+	public function testARequestMadeWhileAnotherWaitsIsSentAtOnce(async:Async):Void
+	{
+		// The transfer thread waits on the sockets of the transfers it has. A new request wakes
+		// it, rather than waiting for one of those to have activity or for the wait to run out.
+		var quiet = serve(function(_) return ScriptedResponse.unanswered());
+		var quick = serve(function(_) return ScriptedResponse.text(200, "ok"));
+
+		var waiting = new HTTPRequest<String>();
+		waiting.timeout = 4000;
+		waiting.load(quiet.url("/quiet"));
+
+		ScriptedServer.poll(function() return quiet.requests().length > 0, 5, function(arrived)
+		{
+			Assert.isTrue(arrived, "the first request never reached its server");
+
+			// Long enough for the transfer thread to be waiting on the quiet connection
+			haxe.Timer.delay(function()
+			{
+				var request = new HTTPRequest<String>();
+				LoadOutcome.watch(request.load(quick.url("/quick")), async, function(outcome)
+				{
+					Assert.isTrue(outcome.completed, Std.string(outcome));
+					Assert.isTrue(outcome.seconds < 0.5, "the second request took " + outcome.seconds + " s");
+					async.done();
+				});
+			}, 150);
+		});
+	}
+
+	@:timeout(10000)
 	public function testTwoRequestsLoadAtOnce(async:Async):Void
 	{
 		var server = serve(function(request)
