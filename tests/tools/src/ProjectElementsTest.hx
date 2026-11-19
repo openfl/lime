@@ -268,7 +268,6 @@ class ProjectElementsTest extends Test
 		Assert.equals("index.php", project.assets[0].targetPath);
 	}
 
-	@Ignored("Waiting on #2169")
 	public function testCloneKeepsIconPriority():Void
 	{
 		var project = fixture.parse('<project>
@@ -279,7 +278,6 @@ class ProjectElementsTest extends Test
 		Assert.equals(2, project.clone().icons[0].priority);
 	}
 
-	@Ignored("Waiting on #2169")
 	public function testCloneKeepsDependencyOptions():Void
 	{
 		fixture.target = HTML5;
@@ -294,7 +292,6 @@ class ProjectElementsTest extends Test
 		Assert.equals(true, clone.allowWebWorkers);
 	}
 
-	@Ignored("Waiting on #2169")
 	public function testCloneKeepsTheProjectFile():Void
 	{
 		var project = fixture.parse('<project />');

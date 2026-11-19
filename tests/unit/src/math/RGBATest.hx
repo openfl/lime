@@ -120,7 +120,6 @@ class RGBATest extends Test
 		Assert.equals(100, color.a, "a");
 	}
 
-	@Ignored("Waiting on #2141")
 	public function testUnmultiplyAlphaClampsChannelsFarAboveAlpha():Void
 	{
 		// 255 / 1 * 255 is far past a byte; it clamps like any other channel
@@ -232,7 +231,6 @@ class RGBATest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2141")
 	public function testWriteUInt8PremultipliedLeavesTheColorUnchanged():Void
 	{
 		// Writing a color out must not change it: writing the same color

@@ -1054,6 +1054,10 @@ namespace lime
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 				ProcessWindowEvent(event, true);
 #else
+				// SDL posts SIZE_CHANGED for every change of size, and RESIZED after it with the
+				// same size when the user or the system resized the window, so one is enough
+				if (event->window.event == SDL_WINDOWEVENT_RESIZED) break;
+
 				ProcessWindowEvent(event);
 				{
 					double now = GetCurrentTimeMs();
@@ -1159,6 +1163,7 @@ namespace lime
 
 			dropEvent.type = DROP_FILE;
 			dropEvent.file = (vbyte *)event->drop.file;
+			dropEvent.windowID = event->drop.windowID;
 
 			DropEvent::Dispatch(&dropEvent);
 			SDL_free(dropEvent.file);

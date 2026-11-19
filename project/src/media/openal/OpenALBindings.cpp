@@ -1736,7 +1736,7 @@ namespace lime {
 
 	value lime_al_get_booleanv (int param, int count) {
 
-		ALboolean* values = new ALboolean[count];
+		ALboolean* values = new ALboolean[count] ();
 		alGetBooleanv (param, values);
 
 		value result = alloc_array (count);
@@ -1809,7 +1809,7 @@ namespace lime {
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
 
-		alGetBuffer3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetBuffer3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -1838,7 +1838,7 @@ namespace lime {
 	value lime_al_get_bufferfv (value buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetBufferfv (id, param, values);
 
 		value result = alloc_array (count);
@@ -1888,7 +1888,7 @@ namespace lime {
 	value lime_al_get_bufferiv (value buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetBufferiv (id, param, values);
 
 		value result = alloc_array (count);
@@ -1931,7 +1931,7 @@ namespace lime {
 
 	value lime_al_get_doublev (int param, int count) {
 
-		ALdouble* values = new ALdouble[count];
+		ALdouble* values = new ALdouble[count] ();
 		alGetDoublev (param, values);
 
 		value result = alloc_array (count);
@@ -2029,7 +2029,7 @@ namespace lime {
 
 	value lime_al_get_floatv (int param, int count) {
 
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetFloatv (param, values);
 
 		value result = alloc_array (count);
@@ -2071,7 +2071,7 @@ namespace lime {
 
 	value lime_al_get_integerv (int param, int count) {
 
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetIntegerv (param, values);
 
 		value result = alloc_array (count);
@@ -2115,7 +2115,7 @@ namespace lime {
 	HL_PRIM varray* HL_NAME(hl_al_get_listener3f) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_f32, 3);
-		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
+		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[1], &hl_aptr (result, float)[2]);
 		return result;
 
 	}
@@ -2139,7 +2139,7 @@ namespace lime {
 	HL_PRIM varray* HL_NAME(hl_al_get_listener3i) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_i32, 3);
-		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -2165,7 +2165,7 @@ namespace lime {
 
 	value lime_al_get_listenerfv (int param, int count) {
 
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetListenerfv (param, values);
 
 		value result = alloc_array (count);
@@ -2211,7 +2211,7 @@ namespace lime {
 
 	value lime_al_get_listeneriv (int param, int count) {
 
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetListeneriv (param, values);
 
 		value result = alloc_array (count);
@@ -2271,7 +2271,7 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, 3);
-		alGetSource3f (id, param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
+		alGetSource3f (id, param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[1], &hl_aptr (result, float)[2]);
 		return result;
 
 	}
@@ -2285,9 +2285,9 @@ namespace lime {
 		alGetSource3i (id, param, &val1, &val2, &val3);
 
 		value result = alloc_array (3);
-		val_array_set_i (result, 1, alloc_int (val1));
-		val_array_set_i (result, 2, alloc_int (val2));
-		val_array_set_i (result, 3, alloc_int (val3));
+		val_array_set_i (result, 0, alloc_int (val1));
+		val_array_set_i (result, 1, alloc_int (val2));
+		val_array_set_i (result, 2, alloc_int (val3));
 		return result;
 
 	}
@@ -2297,7 +2297,7 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
-		alGetSource3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetSource3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -2377,7 +2377,7 @@ namespace lime {
 	value lime_al_get_sourcefv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetSourcefv (id, param, values);
 
 		value result = alloc_array (count);
@@ -2447,7 +2447,7 @@ namespace lime {
 	value lime_al_get_sourceiv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetSourceiv (id, param, values);
 
 		value result = alloc_array (count);
@@ -2484,11 +2484,12 @@ namespace lime {
 
 	HL_PRIM vbyte* HL_NAME(hl_al_get_string) (int param) {
 
+		// Null for a name OpenAL doesn't know, which leaves the error set
 		const char* result = alGetString (param);
-		int length = strlen (result);
-		char* _result = (char*)malloc (length + 1);
-		strcpy (_result, result);
-		return (vbyte*)_result;
+		if (!result) return NULL;
+
+		// The collector frees the copy, where a malloc'd one was never freed
+		return hl_copy_bytes ((const vbyte*)result, (int)strlen (result) + 1);
 
 	}
 

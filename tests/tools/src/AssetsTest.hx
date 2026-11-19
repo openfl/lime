@@ -112,7 +112,6 @@ class AssetsTest extends Test
 	}
 
 	// "Wildcards are supported." A pattern describes the whole file name, as it does for exclude
-	@Ignored("Waiting on #2167")
 	public function testIncludePatternMatchesTheWholeName():Void
 	{
 		fixture.write("assets/globs/x.png", "x");
@@ -127,7 +126,6 @@ class AssetsTest extends Test
 	}
 
 	// Outside of wildcards and "|", a pattern is a file name, so it matches that file
-	@Ignored("Waiting on #2167")
 	public function testPatternsMatchFileNamesLiterally():Void
 	{
 		fixture.write("assets/names/keep.png", "x");
