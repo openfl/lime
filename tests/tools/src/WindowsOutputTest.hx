@@ -19,6 +19,9 @@ class WindowsOutputTest extends Test
 	{
 		fixture = new Fixture();
 		fixture.target = WINDOWS;
+		// C++ on every host, as on any other host than Windows the tools make the
+		// Windows target Neko unless -cpp is given, and Neko has no resource file
+		fixture.targetFlags.set("cpp", "");
 		fixture.write("Main.hx", "class Main {}");
 
 		output = new PlatformFixture(fixture);
