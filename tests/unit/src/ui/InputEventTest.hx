@@ -647,10 +647,18 @@ class InputEventTest extends Test
 			utf16.setUInt16(i * 2, StringTools.fastCodeAt(script, i));
 		}
 
-		var process = new sys.io.Process("powershell", ["-NoProfile", "-NonInteractive", "-EncodedCommand", Base64.encode(utf16)]);
+		var process = new sys.io.Process(powerShell(), ["-NoProfile", "-NonInteractive", "-EncodedCommand", Base64.encode(utf16)]);
 		var exitCode = process.exitCode();
 		process.close();
 		return exitCode == 0;
+	}
+
+	private static function powerShell():String
+	{
+		// HashLink starts a process by its path, without looking through PATH
+		var root = Sys.getEnv("SystemRoot");
+		var path = root != null ? root + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" : null;
+		return path != null && sys.FileSystem.exists(path) ? path : "powershell";
 	}
 	#end
 
