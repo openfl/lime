@@ -68,28 +68,100 @@ namespace lime {
 	}
 
 
-	void LZMA::Decompress (Bytes* data, Bytes* result) {
+	bool LZMA::Decompress (Bytes* data, Bytes* result) {
 
-		SizeT inputBufferSize = data->length;
-		Byte* inputBufferData = data->b;
-		Int64 uncompressedLength = -1;
+		// The .lzma header: the properties, then the uncompressed size, all
+		// ones when it isn't known and the data ends with an end marker
+		const SizeT headerSize = LZMA_PROPS_SIZE + 8;
 
-		ELzmaStatus status = LZMA_STATUS_NOT_SPECIFIED;
+		if (!data->b || data->length < 0 || (SizeT)data->length < headerSize) return false;
+
+		Byte* input = data->b + headerSize;
+		SizeT inputLeft = (SizeT)data->length - headerSize;
+
+		UInt64 size = READ_LE64 (data->b + LZMA_PROPS_SIZE);
+		bool sizeKnown = (size != (UInt64)(Int64)-1);
+
+		if (sizeKnown && size > 0x7FFFFFFF) return false;
+
 		ISzAlloc alloc = { LZMA_alloc, LZMA_free };
-		CLzmaProps props = { 0 };
+		CLzmaDec state;
+		LzmaDec_Construct (&state);
 
-		LzmaProps_Decode (&props, inputBufferData, LZMA_PROPS_SIZE);
-		uncompressedLength = READ_LE64 (inputBufferData + LZMA_PROPS_SIZE);
+		if (LzmaDec_Allocate (&state, data->b, LZMA_PROPS_SIZE, &alloc) != SZ_OK) return false;
 
-		result->Resize ((int)uncompressedLength);
+		LzmaDec_Init (&state);
 
-		SizeT outputBufferSize = result->length;
-		Byte* outputBufferData = result->b;
+		// The output grows as it is decoded, so a size field that claims more
+		// than the data holds can't make it allocate that much
+		const SizeT chunkSize = 1 << 16;
+		Byte* chunk = (Byte*)malloc (chunkSize);
+		int written = 0;
+		bool succeeded = false;
 
-		Byte* _inputBufferData = inputBufferData + LZMA_PROPS_SIZE + sizeof (uncompressedLength);
-		SizeT _inputBufferSize = inputBufferSize - LZMA_PROPS_SIZE - sizeof (uncompressedLength);
+		if (chunk) {
 
-		LzmaDecode (outputBufferData, &outputBufferSize, _inputBufferData, &_inputBufferSize, inputBufferData, LZMA_PROPS_SIZE, LZMA_FINISH_ANY, &status, &alloc);
+			while (true) {
+
+				if (sizeKnown && (UInt64)written == size) {
+
+					succeeded = true;
+					break;
+
+				}
+
+				SizeT outputSize = chunkSize;
+
+				if (sizeKnown && size - written < outputSize) {
+
+					outputSize = (SizeT)(size - written);
+
+				}
+
+				SizeT inputSize = inputLeft;
+				ELzmaFinishMode finishMode = (sizeKnown && (UInt64)written + outputSize == size) ? LZMA_FINISH_END : LZMA_FINISH_ANY;
+				ELzmaStatus status = LZMA_STATUS_NOT_SPECIFIED;
+
+				SRes res = LzmaDec_DecodeToBuf (&state, chunk, &outputSize, input, &inputSize, finishMode, &status);
+
+				input += inputSize;
+				inputLeft -= inputSize;
+
+				if (outputSize > 0) {
+
+					if (!result->TryResize (written + (int)outputSize)) break;
+					memcpy (result->b + written, chunk, outputSize);
+					written += (int)outputSize;
+
+				}
+
+				if (res != SZ_OK) break;
+
+				if (status == LZMA_STATUS_FINISHED_WITH_MARK) {
+
+					// A marker before the stated size is a stream that ends early
+					succeeded = !sizeKnown || (UInt64)written == size;
+					break;
+
+				}
+
+				if (inputSize == 0 && outputSize == 0) {
+
+					// The input ended before the stream did
+					if (sizeKnown && (UInt64)written == size) succeeded = true;
+					break;
+
+				}
+
+			}
+
+			free (chunk);
+
+		}
+
+		LzmaDec_Free (&state, &alloc);
+
+		return succeeded;
 
 	}
 
