@@ -395,11 +395,20 @@ class NativeHTTPRequest
 	{
 		if (curl != this.curl) return;
 
-		var parts = header.split(': ');
-
-		if (parts.length == 2)
+		// A status line starts each response, and only the last one's headers are kept,
+		// not those of the redirects and interim 1xx responses before it
+		if (StringTools.startsWith(header, "HTTP/"))
 		{
-			parent.responseHeaders.push(new HTTPRequestHeader(StringTools.trim(parts[0]), StringTools.trim(parts[1])));
+			parent.responseHeaders = [];
+			return;
+		}
+
+		// RFC 9112 section 5.1: the name, a colon, and the value with optional whitespace around it
+		var colon = header.indexOf(":");
+
+		if (colon > 0)
+		{
+			parent.responseHeaders.push(new HTTPRequestHeader(StringTools.trim(header.substr(0, colon)), StringTools.trim(header.substr(colon + 1))));
 		}
 	}
 
