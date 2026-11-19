@@ -592,6 +592,20 @@ class NativeHTTPRequest
 				if ((state.status >= 200 && state.status < 400) || state.status == 0)
 				{
 					var data = instance.buildBuffer();
+
+					// The last report has every byte, as the transfer can end between two ticks
+					// of the progress timer. A total that is unknown, or counts the body before
+					// it was decoded, is the body's length by now.
+					var loaded = data != null ? data.length : 0;
+					var total = instance.writeBytesTotal > loaded ? instance.writeBytesTotal : loaded;
+
+					if (instance.bytesLoaded != loaded || instance.bytesTotal != total)
+					{
+						instance.bytesLoaded = loaded;
+						instance.bytesTotal = total;
+						promise.progress(loaded, total);
+					}
+
 					instance.finishLoad(promise);
 
 					if (!promise.isError)
