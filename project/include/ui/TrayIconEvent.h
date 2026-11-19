@@ -13,7 +13,10 @@ namespace lime {
 
 		TRAY_ICON_CLICK,
 		TRAY_ICON_MENU_SELECT,
-		TRAY_ICON_RIGHT_CLICK
+		TRAY_ICON_RIGHT_CLICK,
+		TRAY_ICON_MOUSE_DOWN,
+		TRAY_ICON_MOUSE_UP,
+		TRAY_ICON_DOUBLE_CLICK
 
 	};
 
@@ -24,6 +27,8 @@ namespace lime {
 		int id;
 		int itemID;
 		TrayIconEventType type;
+		int x;
+		int y;
 
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;

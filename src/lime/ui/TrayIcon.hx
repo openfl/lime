@@ -13,7 +13,7 @@ import lime.graphics.Image;
 	if (TrayIcon.isSupported)
 	{
 		var trayIcon = new TrayIcon(Assets.getImage("icon.png"), "My App");
-		trayIcon.onClick.add(() -> window.focus());
+		trayIcon.onClick.add((x, y) -> window.focus());
 
 		var menu = new Menu();
 		menu.add(new MenuItem("Show")).onSelect.add(() -> window.focus());
@@ -27,12 +27,19 @@ import lime.graphics.Image;
 
 	- Windows: `onClick` is dispatched when the icon is clicked. When it is
 	  right-clicked, `onRightClick` is dispatched, and then the menu is shown
-	  unless the event was canceled.
+	  unless the event was canceled. `onMouseDown`, `onMouseUp` and
+	  `onDoubleClick` are dispatched for each button.
 	- macOS: when the icon has a menu, clicking it shows the menu. Otherwise,
-	  `onClick` and `onRightClick` are dispatched.
+	  `onClick`, `onRightClick`, `onMouseDown`, `onMouseUp` and
+	  `onDoubleClick` are dispatched.
 	- Linux: requires AppIndicator (libayatana-appindicator3) and a desktop that
-	  shows status notifier items. Clicking the icon shows its menu, and
-	  `onClick` and `onRightClick` are not dispatched.
+	  shows status notifier items. Clicking the icon shows its menu, and none of
+	  the click or mouse events are dispatched.
+
+	The events carry the pointer's position in screen coordinates, from the
+	top left of the primary display: in pixels on Windows and in points on
+	macOS. A click made with the keyboard on Windows carries the icon's
+	position.
 
 	A tray icon stays visible until `close()` is called or the application
 	exits.
@@ -60,15 +67,36 @@ class TrayIcon
 	public var menu(get, set):Menu;
 
 	/**
-		Dispatched when the icon is clicked. See the platform notes above.
+		Dispatched with the position when the icon is clicked. See the platform
+		notes above.
 	**/
-	public var onClick(default, null) = new Event<Void->Void>();
+	public var onClick(default, null) = new Event<Int->Int->Void>();
 
 	/**
-		Dispatched when the icon is right-clicked. On Windows, canceling this
-		event prevents the menu from being shown.
+		Dispatched with the position and the button when the icon is
+		double-clicked, after the events of the second click. See the platform
+		notes above.
 	**/
-	public var onRightClick(default, null) = new Event<Void->Void>();
+	public var onDoubleClick(default, null) = new Event<Int->Int->MouseButton->Void>();
+
+	/**
+		Dispatched with the position and the button when a mouse button is
+		pressed on the icon. See the platform notes above.
+	**/
+	public var onMouseDown(default, null) = new Event<Int->Int->MouseButton->Void>();
+
+	/**
+		Dispatched with the position and the button when a mouse button is
+		released on the icon, before `onClick` or `onRightClick`. See the
+		platform notes above.
+	**/
+	public var onMouseUp(default, null) = new Event<Int->Int->MouseButton->Void>();
+
+	/**
+		Dispatched with the position when the icon is right-clicked. On
+		Windows, canceling this event prevents the menu from being shown.
+	**/
+	public var onRightClick(default, null) = new Event<Int->Int->Void>();
 
 	/**
 		The text shown when hovering over the icon (or its title on Linux).

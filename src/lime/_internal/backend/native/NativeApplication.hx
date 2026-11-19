@@ -817,11 +817,17 @@ class NativeApplication
 			switch (trayIconEventInfo.type)
 			{
 				case TRAY_ICON_CLICK:
-					trayIcon.handleClick();
+					trayIcon.handleClick(trayIconEventInfo.x, trayIconEventInfo.y);
 				case TRAY_ICON_MENU_SELECT:
 					trayIcon.handleMenuSelect(trayIconEventInfo.itemID);
 				case TRAY_ICON_RIGHT_CLICK:
-					trayIcon.handleRightClick();
+					trayIcon.handleRightClick(trayIconEventInfo.x, trayIconEventInfo.y);
+				case TRAY_ICON_MOUSE_DOWN:
+					trayIcon.handleMouseDown(trayIconEventInfo.x, trayIconEventInfo.y, trayIconEventInfo.itemID);
+				case TRAY_ICON_MOUSE_UP:
+					trayIcon.handleMouseUp(trayIconEventInfo.x, trayIconEventInfo.y, trayIconEventInfo.itemID);
+				case TRAY_ICON_DOUBLE_CLICK:
+					trayIcon.handleDoubleClick(trayIconEventInfo.x, trayIconEventInfo.y, trayIconEventInfo.itemID);
 			}
 		}
 	}
@@ -1345,17 +1351,21 @@ class NativeApplication
 	public var id:Int;
 	public var itemID:Int;
 	public var type:TrayIconEventType;
+	public var x:Int;
+	public var y:Int;
 
-	public function new(type:TrayIconEventType = null, id:Int = 0, itemID:Int = 0)
+	public function new(type:TrayIconEventType = null, id:Int = 0, itemID:Int = 0, x:Int = 0, y:Int = 0)
 	{
 		this.type = type;
 		this.id = id;
 		this.itemID = itemID;
+		this.x = x;
+		this.y = y;
 	}
 
 	public function clone():TrayIconEventInfo
 	{
-		return new TrayIconEventInfo(type, id, itemID);
+		return new TrayIconEventInfo(type, id, itemID, x, y);
 	}
 }
 
@@ -1364,6 +1374,9 @@ class NativeApplication
 	var TRAY_ICON_CLICK = 0;
 	var TRAY_ICON_MENU_SELECT = 1;
 	var TRAY_ICON_RIGHT_CLICK = 2;
+	var TRAY_ICON_MOUSE_DOWN = 3;
+	var TRAY_ICON_MOUSE_UP = 4;
+	var TRAY_ICON_DOUBLE_CLICK = 5;
 }
 
 @:keep /*private*/ class WindowEventInfo
