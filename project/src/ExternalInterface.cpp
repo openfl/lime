@@ -1881,8 +1881,10 @@ namespace lime {
 	value lime_bytes_read_file (HxString path, value bytes) {
 
 		Bytes data (bytes);
-		data.ReadFile (hxs_utf8 (path, nullptr));
-		return data.Value (bytes);
+		if (!path.__s || !data.ReadFile (hxs_utf8 (path, nullptr))) return alloc_null ();
+
+		// Value () gives null without data, so an empty file is the empty Bytes given
+		return data.length > 0 ? data.Value (bytes) : bytes;
 
 	}
 
@@ -1890,8 +1892,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_bytes_read_file) (hl_vstring* path, Bytes* bytes) {
 
 		if (!path) return 0;
-		bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes));
-		return bytes;
+		return bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes)) ? bytes : 0;
 
 	}
 
@@ -2041,9 +2042,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (DEFLATE, &data, &result);
+		if (!Zlib::Decompress (DEFLATE, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -2054,8 +2056,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_deflate_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (DEFLATE, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (DEFLATE, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -3388,9 +3389,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (GZIP, &data, &result);
+		if (!Zlib::Decompress (GZIP, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -3401,8 +3403,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_gzip_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (GZIP, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (GZIP, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -4207,9 +4208,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		LZMA::Decompress (&data, &result);
+		if (!LZMA::Decompress (&data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -4220,8 +4222,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_lzma_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_LZMA
-		LZMA::Decompress (buffer, bytes);
-		return bytes;
+		return LZMA::Decompress (buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -14212,9 +14213,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (ZLIB, &data, &result);
+		if (!Zlib::Decompress (ZLIB, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -14225,8 +14227,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_zlib_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (ZLIB, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (ZLIB, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
