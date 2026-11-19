@@ -48,7 +48,7 @@ class NativeDockIcon
 		#if (!macro && lime_cffi)
 		if (menu != null)
 		{
-			var items = [];
+			var items = NativeMenu.newItems(NativeMenu.SOURCE_DOCK, 0, menu);
 			var data = NativeMenu.encode(menu, items);
 			menuItems = NativeCFFI.lime_dock_icon_set_menu(data) ? items : null;
 		}
@@ -57,6 +57,8 @@ class NativeDockIcon
 			NativeCFFI.lime_dock_icon_set_menu(null);
 			menuItems = null;
 		}
+
+		NativeMenu.setInstalled(NativeMenu.SOURCE_DOCK, 0, menuItems != null ? menu : null, menuItems);
 		#end
 	}
 }

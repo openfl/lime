@@ -4264,6 +4264,66 @@ namespace lime {
 	}
 
 
+	static ValuePointer* menuOpenCallback = 0;
+
+
+	static void CallMenuOpenCallback () {
+
+		menuOpenCallback->Call ();
+
+	}
+
+
+	// 0 is the window or tray icon ID, 1 the ID of the item whose submenu opens, or 0, and 2 where the menu belongs
+	int lime_menu_get_open_event (int index) {
+
+		int values[3];
+		Menu::GetOpenEvent (&values[0], &values[1], &values[2]);
+		return (index >= 0 && index < 3) ? values[index] : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_menu_get_open_event) (int index) {
+
+		return lime_menu_get_open_event (index);
+
+	}
+
+
+	void lime_menu_set_open_callback (value callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_callback) (vclosure* callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	void lime_menu_set_open_items (value data) {
+
+		Bytes bytes (data);
+		Menu::SetOpenItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_items) (Bytes* data) {
+
+		if (data) Menu::SetOpenItems (data->b, data->length);
+
+	}
+
+
 	HL_PRIM int HL_NAME(hl_menu_get_support) () {
 
 		return Menu::GetSupport ();
@@ -14361,6 +14421,9 @@ namespace lime {
 	DEFINE_PRIME2v (lime_menu_event_manager_register);
 	DEFINE_PRIME1 (lime_menu_get_application_menu);
 	DEFINE_PRIME0 (lime_menu_get_support);
+	DEFINE_PRIME1 (lime_menu_get_open_event);
+	DEFINE_PRIME1v (lime_menu_set_open_callback);
+	DEFINE_PRIME1v (lime_menu_set_open_items);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME2v (lime_orientation_event_manager_register);
@@ -14722,6 +14785,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
 	DEFINE_HL_PRIM (_TBYTES, hl_menu_get_application_menu, _TBYTES);
 	DEFINE_HL_PRIM (_I32, hl_menu_get_support, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_menu_get_open_event, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_callback, _FUN (_VOID, _NO_ARG));
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_items, _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_VOID, hl_orientation_event_manager_register, _FUN (_VOID, _NO_ARG) _TORIENTATION_EVENT);
