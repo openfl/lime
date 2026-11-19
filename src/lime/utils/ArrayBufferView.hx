@@ -185,10 +185,15 @@ class ArrayBufferView
 	#end
 	function subarray<T_subarray>(begin:Int, end:Null<Int> = null):T_subarray
 	{
+		// As in ECMAScript, negative indices count back from the end, and both
+		// are clamped to this view so the subarray never reaches outside it
 		if (end == null) end = length;
+		if (begin < 0) begin = (begin + length < 0) ? 0 : begin + length;
+		else if (begin > length) begin = length;
+		if (end < 0) end = (end + length < 0) ? 0 : end + length;
+		else if (end > length) end = length;
 		var len = end - begin;
 		if (len < 0) len = 0;
-		if (len > this.length) len = this.length;
 		var byte_offset = toByteLength(begin) + byteOffset;
 
 		var view:ArrayBufferView = switch (type)
