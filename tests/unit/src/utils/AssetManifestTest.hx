@@ -59,7 +59,6 @@ class AssetManifestTest extends Test
 		Assert.same(fullManifest().assets, parsed.assets, true);
 	}
 
-	@Ignored("Waiting on #2157")
 	public function testTheVersionSurvivesSerialization():Void
 	{
 		// Other than the version new manifests have
@@ -175,7 +174,6 @@ class AssetManifestTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2155")
 	public function testDataThatIsNotAManifestGivesNull():Void
 	{
 		// As for empty data, and as Assets.loadLibrary() expects of a manifest that can't be parsed
@@ -198,7 +196,6 @@ class AssetManifestTest extends Test
 
 	// Failing, or completing with no manifest, as Assets.loadLibrary() handles either
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testLoadingBytesThatAreNotAManifestGivesNone(async:Async):Void
 	{
 		var future:Future<AssetManifest> = null;
@@ -266,7 +263,6 @@ class AssetManifestTest extends Test
 		assertFinds(AssetTestFiles.manifest(null, [{id: "a", path: files.path("root/a.txt"), size: 5, type: "TEXT"}]), "alpha");
 	}
 
-	@Ignored("Waiting on #2157")
 	public function testAbsoluteAssetPathsAreNotUnderTheRootPath():Void
 	{
 		var manifest = AssetTestFiles.manifest(files.path("elsewhere"), [{id: "a", path: files.path("root/a.txt"), size: 5, type: "TEXT"}]);
@@ -288,7 +284,6 @@ class AssetManifestTest extends Test
 		assertFinds(parsed, "alpha", "beta");
 	}
 
-	@Ignored("Waiting on #2157")
 	public function testRelativeRootPathsCanClimbAboveWhereTheyStart():Void
 	{
 		// manifest/../../<this directory> is this directory, where the application's own assets are
@@ -297,7 +292,6 @@ class AssetManifestTest extends Test
 		assertFinds(AssetManifest.parse(manifest.serialize(), "manifest"), File.getContent("assets/mono-OFL.txt"));
 	}
 
-	@Ignored("Waiting on #2157")
 	public function testParseKeepsAnAbsoluteRootPath():Void
 	{
 		var parsed = AssetManifest.parse(manifest(files.path("root")).serialize(), files.path("elsewhere"));

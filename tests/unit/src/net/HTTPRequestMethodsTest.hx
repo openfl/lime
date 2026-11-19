@@ -146,7 +146,6 @@ class HTTPRequestMethodsTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2265")
 	public function testAPutWithoutContentSaysItsLengthIsZero(async:Async):Void
 	{
 		// A request's content is its data, so a PUT without data sends none, as

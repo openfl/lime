@@ -321,7 +321,6 @@ class ImagePixelTest extends Test
 	}
 
 	#if flash
-	@Ignored("Waiting on #2212")
 	#end
 	public function testACloneHasItsOwnPixels():Void
 	{
@@ -336,7 +335,6 @@ class ImagePixelTest extends Test
 	}
 
 	#if neko
-	@Ignored("Waiting on #2176")
 	#end
 	public function testGetPixelsWritesEachFormatInItsByteOrder():Void
 	{
@@ -375,7 +373,6 @@ class ImagePixelTest extends Test
 		assertBytes(argbBytes([number(1, 0), number(2, 0), number(1, 1), number(2, 1), number(1, 2), number(2, 2)]), bytes);
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testGetPixelsReadsOnlyThePartOfTheRectInsideTheImage():Void
 	{
 		// Flash returns the pixels of the rect's intersection with the bitmap
@@ -401,7 +398,6 @@ class ImagePixelTest extends Test
 	}
 
 	#if neko
-	@Ignored("Waiting on #2176")
 	#end
 	public function testSetPixelsTakesRGBAByDefault():Void
 	{
@@ -581,7 +577,6 @@ class ImagePixelTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testOperationsLeaveTheRectAndPointTheyAreGivenAlone():Void
 	{
 		// As in Flash, a caller may use one rectangle or point for many calls

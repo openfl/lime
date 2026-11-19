@@ -214,7 +214,8 @@ namespace lime {
 			int alphaPosition;
 			RGBA alphaPixel;
 
-			Rectangle alphaRect = Rectangle (sourceView.x + alphaPoint->x, sourceView.y + alphaPoint->y, sourceView.width, sourceView.height);
+			// alphaPoint is the point in the alpha image at the corner of sourceRect
+			Rectangle alphaRect = alphaPoint ? Rectangle (alphaPoint->x, alphaPoint->y, sourceView.width, sourceView.height) : Rectangle (0, 0, sourceView.width, sourceView.height);
 			ImageDataView alphaView = ImageDataView (alphaImage, &alphaRect);
 
 			destView.Clip (destPoint->x, destPoint->y, alphaView.width, alphaView.height);
@@ -296,7 +297,11 @@ namespace lime {
 		bool premultiplied = image->buffer->premultiplied;
 		RGBA fillColor (color);
 
-		if (rect->x == 0 && rect->y == 0 && rect->width == image->width && rect->height == image->height) {
+		// Only when the image is its whole buffer, and premultiplying would leave
+		// the colour as it is, is the result the same as the loop below
+		bool wholeBuffer = image->offsetX == 0 && image->offsetY == 0 && image->width == image->buffer->width && image->height == image->buffer->height;
+
+		if (wholeBuffer && rect->x == 0 && rect->y == 0 && rect->width == image->width && rect->height == image->height && (!premultiplied || fillColor.a == 0xFF || fillColor.a == 0)) {
 
 			if (fillColor.a == fillColor.r && fillColor.r == fillColor.g && fillColor.g == fillColor.b) {
 
@@ -329,33 +334,38 @@ namespace lime {
 
 	void ImageDataUtil::FloodFill (Image* image, int x, int y, int32_t color) {
 
+		// A start point outside the image changes nothing, as with setPixel32
+		if (x < 0 || y < 0 || x >= image->width || y >= image->height) return;
+
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		PixelFormat format = image->buffer->format;
 		bool premultiplied = image->buffer->premultiplied;
+		bool transparent = image->buffer->transparent;
+
+		// Within the image's own part of the buffer, whose rows are stride long
+		int stride = image->buffer->Stride ();
+		int originX = image->offsetX;
+		int originY = image->offsetY;
 
 		RGBA fillColor (color);
 
+		if (!transparent) fillColor.a = 0xFF;
 		if (premultiplied) fillColor.MultiplyAlpha ();
 
+		// Pixels are compared as they are stored, so that a fill colour
+		// premultiplied to the same bytes as the start isn't taken for it
+		int position = (y + originY) * stride + (x + originX) * 4;
 		RGBA hitColor;
-		hitColor.ReadUInt8 (data, ((y + image->offsetY) * (image->buffer->width * 4)) + ((x + image->offsetX) * 4), format, premultiplied, LIME_BIG_ENDIAN);
-
-		if (!image->buffer->transparent) {
-
-			fillColor.a = 0xFF;
-			hitColor.a = 0xFF;
-
-		}
+		hitColor.ReadUInt8 (data, position, format, false, LIME_BIG_ENDIAN);
+		if (!transparent) hitColor.a = 0xFF;
 
 		if (fillColor == hitColor) return;
 
+		// The start pixel, then each pixel joined to a filled one by an edge
+		fillColor.WriteUInt8 (data, position, format, false);
+
 		int dx[4] = { 0, -1, 1, 0 };
 		int dy[4] = { -1, 0, 0, 1 };
-
-		int minX = -image->offsetX;
-		int minY = -image->offsetY;
-		int maxX = minX + image->width;
-		int maxY = minY + image->height;
 
 		QuickVec<int> queue = QuickVec<int> ();
 		queue.push_back (x);
@@ -374,14 +384,15 @@ namespace lime {
 				nextPointX = curPointX + dx[i];
 				nextPointY = curPointY + dy[i];
 
-				if (nextPointX < minX || nextPointY < minY || nextPointX >= maxX || nextPointY >= maxY) {
+				if (nextPointX < 0 || nextPointY < 0 || nextPointX >= image->width || nextPointY >= image->height) {
 
 					continue;
 
 				}
 
-				nextPointOffset = (nextPointY * image->width + nextPointX) * 4;
-				readColor.ReadUInt8 (data, nextPointOffset, format, premultiplied, LIME_BIG_ENDIAN);
+				nextPointOffset = (nextPointY + originY) * stride + (nextPointX + originX) * 4;
+				readColor.ReadUInt8 (data, nextPointOffset, format, false, LIME_BIG_ENDIAN);
+				if (!transparent) readColor.a = 0xFF;
 
 				if (readColor == hitColor) {
 
@@ -512,6 +523,11 @@ namespace lime {
 				u = ((x + 0.5) / newWidth) * imageWidth - 0.5;
 				v = ((y + 0.5) / newHeight) * imageHeight - 0.5;
 
+				// Samples before the first pixel are held at the edge, as at the right and
+				// bottom, rather than extrapolated past it
+				if (u < 0) u = 0;
+				if (v < 0) v = 0;
+
 				sourceX = int (u);
 				sourceY = int (v);
 
@@ -527,9 +543,10 @@ namespace lime {
 				uOpposite = 1 - uRatio;
 				vOpposite = 1 - vRatio;
 
-				newData[index] = int ((data[sourceIndex] * uOpposite + data[sourceIndexX] * uRatio) * vOpposite + (data[sourceIndexY] * uOpposite + data[sourceIndexXY] * uRatio) * vRatio);
-				newData[index + 1] = int ((data[sourceIndex + 1] * uOpposite + data[sourceIndexX + 1] * uRatio) * vOpposite + (data[sourceIndexY + 1] * uOpposite + data[sourceIndexXY + 1] * uRatio) * vRatio);
-				newData[index + 2] = int ((data[sourceIndex + 2] * uOpposite + data[sourceIndexX + 2] * uRatio) * vOpposite + (data[sourceIndexY + 2] * uOpposite + data[sourceIndexXY + 2] * uRatio) * vRatio);
+				// Rounded, as interpolating between equal pixels can come out a hair under their value
+				newData[index] = int (0.5 + (data[sourceIndex] * uOpposite + data[sourceIndexX] * uRatio) * vOpposite + (data[sourceIndexY] * uOpposite + data[sourceIndexXY] * uRatio) * vRatio);
+				newData[index + 1] = int (0.5 + (data[sourceIndex + 1] * uOpposite + data[sourceIndexX + 1] * uRatio) * vOpposite + (data[sourceIndexY + 1] * uOpposite + data[sourceIndexXY + 1] * uRatio) * vRatio);
+				newData[index + 2] = int (0.5 + (data[sourceIndex + 2] * uOpposite + data[sourceIndexX + 2] * uRatio) * vOpposite + (data[sourceIndexY + 2] * uOpposite + data[sourceIndexXY + 2] * uRatio) * vRatio);
 
 				// Maybe it would be better to not weigh colors with an alpha of zero, but the below should help prevent black fringes caused by transparent pixels made visible
 
@@ -667,6 +684,13 @@ namespace lime {
 	}
 
 
+	inline int32_t __argbOrder (int32_t rgba) {
+
+		return ((rgba & 0xFF) << 24) | ((rgba >> 8) & 0xFFFFFF);
+
+	}
+
+
 	int __pixelCompare (int32_t n1, int32_t n2) {
 
 		int tmp1;
@@ -743,6 +767,10 @@ namespace lime {
 		int srcPosition, destPosition, value;
 		RGBA srcPixel, destPixel;
 		int32_t pixelMask;
+
+		// As in Flash: (pixel & mask) compared with (threshold & mask), both as
+		// ARGB numbers, in which alpha is the highest byte
+		int32_t thresholdMask = __argbOrder (threshold & mask);
 		bool test;
 
 		for (int y = 0; y < destView.height; y++) {
@@ -754,9 +782,9 @@ namespace lime {
 
 				srcPixel.ReadUInt8 (srcData, srcPosition, srcFormat, srcPremultiplied, LIME_BIG_ENDIAN);
 
-				pixelMask = srcPixel.Get () & mask;
+				pixelMask = __argbOrder (srcPixel.Get () & mask);
 
-				value = __pixelCompare (pixelMask, threshold);
+				value = __pixelCompare (pixelMask, thresholdMask);
 
 				switch (operation) {
 

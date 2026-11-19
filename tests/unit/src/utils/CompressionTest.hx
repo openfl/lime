@@ -51,7 +51,6 @@ class CompressionTest extends Test
 
 	// Round trips
 
-	@Ignored("Waiting on #2178")
 	public function testEmptyBytesRoundTrip():Void
 	{
 		assertRoundTrips(Bytes.alloc(0));
@@ -268,7 +267,6 @@ class CompressionTest extends Test
 
 	// Streams written by other tools
 
-	@Ignored("Waiting on #2178")
 	public function testZlibStreamsFromOtherToolsDecompress():Void
 	{
 		assertDecompresses(Bytes.alloc(0), ZLIB_EMPTY, ZLIB, "empty");
@@ -277,14 +275,12 @@ class CompressionTest extends Test
 		assertDecompresses(Bytes.ofString(FOX), ZLIB_FOX_STORED, ZLIB, "the fox, stored");
 	}
 
-	@Ignored("Waiting on #2178")
 	public function testRawDeflateStreamsFromOtherToolsDecompress():Void
 	{
 		assertDecompresses(Bytes.alloc(0), DEFLATE_EMPTY, DEFLATE, "empty");
 		assertDecompresses(Bytes.ofString(FOX), DEFLATE_FOX, DEFLATE, "the fox");
 	}
 
-	@Ignored("Waiting on #2178")
 	public function testGZipStreamsFromOtherToolsDecompress():Void
 	{
 		assertDecompresses(Bytes.alloc(0), GZIP_EMPTY, GZIP, "empty");
@@ -297,21 +293,18 @@ class CompressionTest extends Test
 		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX_ALL_FIELDS, GZIP);
 	}
 
-	@Ignored("Waiting on #2178")
 	public function testConcatenatedGZipMembersDecompressToTheirConcatenation():Void
 	{
 		// A gzip file is a series of members (RFC 1952 §2.2)
 		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX_TWO_MEMBERS, GZIP);
 	}
 
-	@Ignored("Waiting on #2177")
 	public function testLZMAStreamsFromOtherToolsDecompress():Void
 	{
 		assertDecompresses(Bytes.alloc(0), LZMA_EMPTY, LZMA, "empty");
 		assertDecompresses(Bytes.ofString(FOX), LZMA_FOX, LZMA, "the fox");
 	}
 
-	@Ignored("Waiting on #2177")
 	public function testStreamsThatExpandPastAMegabyteDecompress():Void
 	{
 		var zeros = Bytes.alloc(ZEROS_LENGTH);
@@ -326,9 +319,6 @@ class CompressionTest extends Test
 
 	// Input that isn't a stream
 
-	#if !neko
-	@Ignored("Waiting on #2177")
-	#end
 	public function testGarbageFailsToDecompress():Void
 	{
 		var garbage = random(1024, 10);
@@ -342,7 +332,6 @@ class CompressionTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2177")
 	public function testEmptyInputFailsToDecompress():Void
 	{
 		// Every format has at least a header or a final block, so no bytes at all is not a stream
@@ -352,7 +341,6 @@ class CompressionTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2177, #2178")
 	public function testTruncatedStreamsFailToDecompress():Void
 	{
 		var data = random(20000, 11);
@@ -370,7 +358,6 @@ class CompressionTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2178")
 	public function testStreamsMissingTheirTrailerFailToDecompress():Void
 	{
 		// Without the Adler-32 (RFC 1950) or the CRC-32 and size (RFC 1952), the data can't be checked
@@ -381,9 +368,6 @@ class CompressionTest extends Test
 		assertFails(gzip.sub(0, gzip.length - 8), GZIP, "gzip without its CRC-32 and size");
 	}
 
-	#if hl
-	@Ignored("Waiting on #2208")
-	#end
 	public function testZlibStreamWithAWrongAdler32FailsToDecompress():Void
 	{
 		var zlib = Base64.decode(ZLIB_FOX);
@@ -392,9 +376,6 @@ class CompressionTest extends Test
 		assertFails(zlib, ZLIB, "a wrong Adler-32");
 	}
 
-	#if hl
-	@Ignored("Waiting on #2208")
-	#end
 	public function testZlibStreamWithABadHeaderFailsToDecompress():Void
 	{
 		// FCHECK no longer makes the header a multiple of 31
@@ -409,9 +390,6 @@ class CompressionTest extends Test
 		assertFails(zlib, ZLIB, "CM");
 	}
 
-	#if hl
-	@Ignored("Waiting on #2208")
-	#end
 	public function testGZipStreamWithAWrongCRC32OrSizeFailsToDecompress():Void
 	{
 		var gzip = Base64.decode(GZIP_FOX);
@@ -423,9 +401,6 @@ class CompressionTest extends Test
 		assertFails(gzip, GZIP, "ISIZE");
 	}
 
-	#if hl
-	@Ignored("Waiting on #2208")
-	#end
 	public function testGZipStreamWithoutItsMagicFailsToDecompress():Void
 	{
 		var gzip = Base64.decode(GZIP_FOX);
@@ -434,7 +409,6 @@ class CompressionTest extends Test
 		assertFails(gzip, GZIP, "ID2 0x8c");
 	}
 
-	@Ignored("Waiting on #2177")
 	public function testLZMAStreamClaimingMoreThanItHoldsFailsToDecompress():Void
 	{
 		// The size field says how much the stream decodes to, so a stream that ends sooner is corrupt
@@ -446,9 +420,6 @@ class CompressionTest extends Test
 		assertFails(lzma, LZMA, "a size 64 KiB larger than the data");
 	}
 
-	#if hl
-	@Ignored("Waiting on #2208")
-	#end
 	public function testStreamsDecompressOnlyAsTheirOwnFormat():Void
 	{
 		// A zlib stream is not a gzip stream, and neither is a raw deflate stream

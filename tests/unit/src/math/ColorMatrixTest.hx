@@ -59,7 +59,6 @@ class ColorMatrixTest extends Test
 		near(0, cm.alphaOffset, "alphaOffset");
 	}
 
-	@Ignored("Waiting on #2143")
 	public function testTablesFollowTheDocumentedExamples():Void
 	{
 		var cm = new ColorMatrix();
@@ -78,7 +77,8 @@ class ColorMatrixTest extends Test
 		Assert.equals(16, blue[0], "blue 0, was " + blue[0]);
 		Assert.equals(17, blue[1], "blue 1, was " + blue[1]);
 		var alpha = cm.getAlphaTable();
-		Assert.equals(12, alpha[0], "alpha 0, was " + alpha[0]);
+		// "An alpha of 0 always stays 0, so a fully transparent pixel stays transparent"
+		Assert.equals(0, alpha[0], "alpha 0, was " + alpha[0]);
 		Assert.equals(13, alpha[1], "alpha 1, was " + alpha[1]);
 		Assert.equals(256, alpha.length, "256 values, was " + alpha.length);
 	}
@@ -97,7 +97,6 @@ class ColorMatrixTest extends Test
 		Assert.equals(200, red[100], "red 100 after changing the multiplier, was " + red[100]);
 	}
 
-	@Ignored("Waiting on #2143")
 	public function testTablesAreClampedToAByte():Void
 	{
 		var cm = new ColorMatrix();
@@ -116,10 +115,10 @@ class ColorMatrixTest extends Test
 		Assert.equals(1, blue[17], "blue 17, was " + blue[17]);
 
 		var alpha = cm.getAlphaTable();
-		Assert.equals(255, alpha[0], "alpha 0, was " + alpha[0]);
+		Assert.equals(0, alpha[0], "alpha 0 stays 0, was " + alpha[0]);
+		Assert.equals(255, alpha[1], "alpha 1, was " + alpha[1]);
 	}
 
-	@Ignored("Waiting on #2143")
 	public function testTablesAddWholeOffsetsExactly():Void
 	{
 		// With a multiplier of 1, a whole offset moves every value by exactly
@@ -190,7 +189,6 @@ class ColorMatrixTest extends Test
 		Assert.equals(0x00, cm.getBlueTable()[255], "blue, was " + cm.getBlueTable()[255]);
 	}
 
-	@Ignored("Waiting on #2143")
 	public function testConcatMultipliesTheMultipliers():Void
 	{
 		// Both orders of applying two multipliers give their product
@@ -214,7 +212,6 @@ class ColorMatrixTest extends Test
 		near(3, second.redMultiplier, "the second matrix is not modified");
 	}
 
-	@Ignored("Waiting on #2143")
 	public function testConcatAddsTheOffsetsOfUnscaledMatrices():Void
 	{
 		// With multipliers of 1, both orders add the offsets

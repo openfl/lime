@@ -112,7 +112,6 @@ class AssetsTest extends Test
 	}
 
 	// "Wildcards are supported." A pattern describes the whole file name, as it does for exclude
-	@Ignored("Waiting on #2167")
 	public function testIncludePatternMatchesTheWholeName():Void
 	{
 		fixture.write("assets/globs/x.png", "x");
@@ -127,7 +126,6 @@ class AssetsTest extends Test
 	}
 
 	// Outside of wildcards and "|", a pattern is a file name, so it matches that file
-	@Ignored("Waiting on #2167")
 	public function testPatternsMatchFileNamesLiterally():Void
 	{
 		fixture.write("assets/names/keep.png", "x");
@@ -230,7 +228,6 @@ class AssetsTest extends Test
 	}
 
 	// The documented types include "binary" and "text", so they name nodes too
-	@Ignored("Waiting on #2162")
 	public function testNestedNodesCanBeNamedBinaryOrText():Void
 	{
 		var project = fixture.parse('<project>
@@ -259,7 +256,6 @@ class AssetsTest extends Test
 	// "You can nest assets nodes inside of each other. If you specify a directory in the top assets node,
 	// its path will be appended to the paths you specify in subsequent nodes."
 	// <assets path="assets"> <assets path="images" include="*" type="image" />
-	@Ignored("Waiting on #2162")
 	public function testNestedAssetsNodeCanNameADirectory():Void
 	{
 		var project = fixture.parse('<project>
@@ -274,6 +270,44 @@ class AssetsTest extends Test
 		{
 			Assert.equals(AssetType.IMAGE, asset.type);
 		}
+	}
+
+	// A node named after a type is read the same way, with that type
+	public function testNestedTypeNodeCanNameADirectory():Void
+	{
+		var project = fixture.parse('<project>
+			<assets path="assets">
+				<image path="images" include="*.png" />
+			</assets>
+		</project>');
+
+		Fixture.assertSame(["assets/images/a.png", "assets/images/sub/c.png"], Fixture.targetPaths(project));
+
+		for (asset in project.assets)
+		{
+			Assert.equals(AssetType.IMAGE, asset.type);
+		}
+	}
+
+	// A nested <assets> node without a path only groups others, under its parent's path and rename
+	public function testNestedAssetsNodeCanGroupWithoutAPath():Void
+	{
+		var project = fixture.parse('<project>
+			<assets path="assets" rename="out">
+				<assets library="lib">
+					<image path="images/a.png" />
+				</assets>
+			</assets>
+		</project>');
+
+		Assert.equals(1, project.assets.length);
+		if (project.assets.length != 1) return;
+
+		var asset = project.assets[0];
+		Assert.equals("assets/images/a.png", asset.sourcePath);
+		Assert.equals("out/images/a.png", asset.targetPath);
+		Assert.equals("lib", asset.library);
+		Assert.equals(AssetType.IMAGE, asset.type);
 	}
 
 	// "every node in the project file format supports if and unless attributes"

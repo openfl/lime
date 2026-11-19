@@ -98,7 +98,8 @@ class AndroidPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -446,6 +447,9 @@ class AndroidPlatform extends PlatformTarget
 		]);
 		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.9");
 		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.3");
+		// The templates' < and >= compare text, where "10.0.0" comes before "4.0"
+		context.ANDROID_GRADLE_PLUGIN_4_0 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "4.0") >= 0;
+		context.ANDROID_GRADLE_PLUGIN_7_1 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "7.1") >= 0;
 		context.ANDROID_GRADLE_APPLY_PLUGIN = project.config.getArrayString("android.gradle-apply-plugin");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");
@@ -610,6 +614,15 @@ class AndroidPlatform extends PlatformTarget
 			}
 		}
 
+		// Written into the manifest's attributes, inside double quotes
+		for (attributes in [context.ANDROID_APPLICATION, context.ANDROID_ACTIVITY])
+		{
+			for (attribute in (attributes : Array<Dynamic>))
+			{
+				if (attribute.value != null) attribute.value = StringTools.htmlEscape(Std.string(attribute.value), true);
+			}
+		}
+
 		for (attribute in context.ANDROID_APPLICATION)
 		{
 			if (attribute.key == "android:icon")
@@ -693,5 +706,23 @@ class AndroidPlatform extends PlatformTarget
 		}
 
 		copyProjectAssets(destination, sourceSet + "/assets/");
+	}
+
+	// Compares dotted version numbers part by part, as numbers, a missing part counting as 0
+	private static function compareVersions(a:String, b:String):Int
+	{
+		var partsA = a.split(".");
+		var partsB = b.split(".");
+
+		for (i in 0...Std.int(Math.max(partsA.length, partsB.length)))
+		{
+			var x = i < partsA.length ? Std.parseInt(partsA[i]) : 0;
+			var y = i < partsB.length ? Std.parseInt(partsB[i]) : 0;
+			if (x == null) x = 0;
+			if (y == null) y = 0;
+			if (x != y) return x < y ? -1 : 1;
+		}
+
+		return 0;
 	}
 }
