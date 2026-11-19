@@ -169,6 +169,12 @@ class NativeHTTPRequest
 					curl.setOption(INFILE, data);
 					curl.setOption(INFILESIZE, data.length);
 				}
+				else
+				{
+					// Without a size, libcurl sends the upload chunked and reads it from the
+					// application's standard input, which may never end
+					curl.setOption(INFILESIZE, 0);
+				}
 
 			case _:
 				curl.setOption(CUSTOMREQUEST, Std.string(parent.method));
